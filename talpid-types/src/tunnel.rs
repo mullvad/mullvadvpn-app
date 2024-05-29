@@ -110,6 +110,9 @@ pub enum ErrorStateCause {
     /// Error reported by split tunnel module.
     #[cfg(any(target_os = "windows", target_os = "macos"))]
     SplitTunnelError,
+    /// Missing permissions required by macOS split tunneling.
+    #[cfg(target_os = "macos")]
+    NeedFullDiskPermissions,
 }
 
 impl ErrorStateCause {
@@ -217,6 +220,8 @@ impl fmt::Display for ErrorStateCause {
             VpnPermissionDenied => "The Android VPN permission was denied when creating the tunnel",
             #[cfg(any(target_os = "windows", target_os = "macos"))]
             SplitTunnelError => "The split tunneling module reported an error",
+            #[cfg(target_os = "macos")]
+            NeedFullDiskPermissions => "Need full disk access to enable split tunneling",
         };
 
         write!(f, "{description}")

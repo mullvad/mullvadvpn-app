@@ -540,13 +540,7 @@ impl SharedTunnelStateValues {
                     error.display_chain_with_msg("Failed to set VPN interface for split tunnel")
                 )
             })
-            .map_err(|error| {
-                if error.is_offline() {
-                    ErrorStateCause::IsOffline
-                } else {
-                    ErrorStateCause::SplitTunnelError
-                }
-            })
+            .map_err(|error| ErrorStateCause::from(&error))
     }
 
     pub fn set_allow_lan(&mut self, allow_lan: bool) -> Result<(), ErrorStateCause> {

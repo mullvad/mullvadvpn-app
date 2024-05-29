@@ -1,6 +1,7 @@
+use core::fmt;
 use std::collections::HashSet;
 use std::path::PathBuf;
-use std::sync::Weak;
+use std::sync::{Arc, Weak};
 use talpid_routing::RouteManagerHandle;
 use talpid_types::tunnel::ErrorStateCause;
 use talpid_types::ErrorExt;
@@ -19,8 +20,52 @@ use crate::tunnel_state_machine::TunnelCommand;
 pub use tun::VpnInterface;
 
 /// Errors caused by split tunneling
+#[derive(Debug, Clone)]
+pub struct Error {
+    inner: Arc<InnerError>,
+}
+
+impl Error {
+    fn unavailable() -> Self {
+        Self {
+            inner: Arc::new(InnerError::Unavailable),
+        }
+    }
+}
+
+impl From<&Error> for ErrorStateCause {
+    fn from(value: &Error) -> Self {
+        match &*value.inner {
+            InnerError::Process(error) => ErrorStateCause::from(error),
+            _v if _v.is_offline() => ErrorStateCause::IsOffline,
+            _ => ErrorStateCause::SplitTunnelError,
+        }
+    }
+}
+
+impl fmt::Display for Error {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        fmt::Display::fmt(&*self.inner, f)
+    }
+}
+
+impl std::error::Error for Error {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        self.inner.source()
+    }
+}
+
+impl<T: Into<InnerError>> From<T> for Error {
+    fn from(inner: T) -> Self {
+        Self {
+            inner: Arc::new(inner.into()),
+        }
+    }
+}
+
+/// Errors caused by split tunneling
 #[derive(thiserror::Error, Debug)]
-pub enum Error {
+enum InnerError {
     /// Process monitor error
     #[error("Process monitor error")]
     Process(#[from] process::Error),
@@ -35,10 +80,10 @@ pub enum Error {
     Unavailable,
 }
 
-impl Error {
+impl InnerError {
     /// Return whether the error is due to a missing default route
-    pub fn is_offline(&self) -> bool {
-        matches!(self, Error::Default(_))
+    fn is_offline(&self) -> bool {
+        matches!(self, InnerError::Default(_))
     }
 }
 
@@ -99,7 +144,7 @@ impl Handle {
     pub async fn set_exclude_paths(&self, paths: HashSet<PathBuf>) -> Result<(), Error> {
         let (result_tx, result_rx) = oneshot::channel();
         let _ = self.tx.send(Message::SetExcludePaths { result_tx, paths });
-        result_rx.await.map_err(|_| Error::Unavailable)?
+        result_rx.await.map_err(|_| Error::unavailable())?
     }
 
     /// Set VPN tunnel interface
@@ -109,7 +154,7 @@ impl Handle {
             result_tx,
             new_vpn_interface,
         });
-        result_rx.await.map_err(|_| Error::Unavailable)?
+        result_rx.await.map_err(|_| Error::unavailable())?
     }
 }
 
@@ -171,9 +216,13 @@ impl SplitTunnel {
 
     /// Handle process monitor unexpectedly stopping
     fn handle_process_monitor_shutdown(&mut self, result: Result<(), process::Error>) {
+        let cause = match result {
+            Ok(_) => ErrorStateCause::SplitTunnelError,
+            Err(ref error) => ErrorStateCause::from(error),
+        };
         match result {
             Ok(()) => log::error!("Process monitor stopped unexpectedly with no error"),
-            Err(error) => {
+            Err(ref error) => {
                 log::error!(
                     "{}",
                     error.display_chain_with_msg("Process monitor stopped unexpectedly")
@@ -185,12 +234,11 @@ impl SplitTunnel {
         // decisions for new processes
         if self.state.active() {
             if let Some(tunnel_tx) = self.tunnel_tx.upgrade() {
-                let _ = tunnel_tx
-                    .unbounded_send(TunnelCommand::Block(ErrorStateCause::SplitTunnelError));
+                let _ = tunnel_tx.unbounded_send(TunnelCommand::Block(cause));
             }
         }
 
-        self.state.fail();
+        self.state.fail(result.err().map(Error::from));
     }
 
     /// Handle an incoming message
@@ -219,7 +267,7 @@ impl SplitTunnel {
 
     /// Shut down split tunnel
     async fn shutdown(&mut self) {
-        match self.state.fail() {
+        match self.state.fail(None) {
             State::ProcessMonitorOnly { mut process, .. } => {
                 process.shutdown().await;
             }
@@ -269,6 +317,7 @@ enum State {
     Failed {
         route_manager: RouteManagerHandle,
         vpn_interface: Option<VpnInterface>,
+        cause: Option<Error>,
     },
 }
 
@@ -300,13 +349,23 @@ impl State {
         }
     }
 
+    fn fail_cause(&self) -> Option<&Error> {
+        match self {
+            State::Failed { cause, .. } => cause.as_ref(),
+            _ => None,
+        }
+    }
+
     /// Take `self`, leaving a failed state in its place. The original value is returned
-    fn fail(&mut self) -> Self {
+    /// `cause` optionally specifies a failure cause. Unless specified, the last known error will be
+    /// used instead.
+    fn fail(&mut self, cause: Option<Error>) -> Self {
         std::mem::replace(
             self,
             State::Failed {
                 route_manager: self.route_manager().clone(),
                 vpn_interface: self.vpn_interface().cloned(),
+                cause: cause.or_else(|| self.fail_cause().cloned()),
             },
         )
     }
@@ -320,12 +379,14 @@ impl State {
     /// Set paths to exclude. For a non-empty path, this will initialize split tunneling if a tunnel
     /// device is also set.
     async fn set_exclude_paths(&mut self, paths: HashSet<PathBuf>) -> Result<(), Error> {
-        let state = self.fail();
-        *self = state.set_exclude_paths_inner(paths).await?;
-        Ok(())
+        self.transition(move |self_| self_.set_exclude_paths_inner(paths))
+            .await
     }
 
-    async fn set_exclude_paths_inner(mut self, paths: HashSet<PathBuf>) -> Result<Self, Error> {
+    async fn set_exclude_paths_inner(
+        mut self,
+        paths: HashSet<PathBuf>,
+    ) -> Result<Self, ErrorWithTransition> {
         match self {
             // If there are currently no paths and no process monitor, initialize it
             State::NoExclusions {
@@ -360,6 +421,7 @@ impl State {
             State::Failed {
                 route_manager,
                 vpn_interface,
+                cause: _,
             } if paths.is_empty() => {
                 log::debug!("Transitioning out of split tunnel error state");
 
@@ -369,32 +431,44 @@ impl State {
                 })
             }
             // Otherwise, remain in the failed state
-            State::Failed { .. } => Err(Error::Unavailable),
+            State::Failed { cause, .. } => Err(cause.unwrap_or(Error::unavailable()).into()),
         }
     }
 
     /// Update VPN tunnel interface that non-excluded packets are sent on
     async fn set_tunnel(&mut self, new_vpn_interface: Option<VpnInterface>) -> Result<(), Error> {
-        let state = self.fail();
-        *self = state.set_tunnel_inner(new_vpn_interface).await?;
-        Ok(())
+        self.transition(move |self_| self_.set_tunnel_inner(new_vpn_interface))
+            .await
     }
 
     async fn set_tunnel_inner(
         mut self,
         new_vpn_interface: Option<VpnInterface>,
-    ) -> Result<Self, Error> {
+    ) -> Result<Self, ErrorWithTransition> {
         match self {
             // If split tunneling is already initialized, just update the interfaces
             State::Initialized {
                 route_manager,
                 mut process,
                 tun_handle,
-                vpn_interface: _,
+                vpn_interface,
             } => {
                 // Try to update the default interface first
                 // If this fails, remain in the current state and just fail
-                let default_interface = default::get_default_interface(&route_manager).await?;
+                let default_interface = match default::get_default_interface(&route_manager).await {
+                    Ok(default_interface) => default_interface,
+                    Err(error) => {
+                        return Err(ErrorWithTransition {
+                            error: error.into(),
+                            next_state: Some(State::Initialized {
+                                route_manager,
+                                process,
+                                tun_handle,
+                                vpn_interface,
+                            }),
+                        });
+                    }
+                };
 
                 log::debug!("Updating split tunnel device");
 
@@ -421,7 +495,18 @@ impl State {
             } if new_vpn_interface.is_some() => {
                 // Try to update the default interface first
                 // If this fails, remain in the current state and just fail
-                let default_interface = default::get_default_interface(&route_manager).await?;
+                let default_interface = match default::get_default_interface(&route_manager).await {
+                    Ok(default_interface) => default_interface,
+                    Err(error) => {
+                        return Err(ErrorWithTransition {
+                            error: error.into(),
+                            next_state: Some(State::ProcessMonitorOnly {
+                                route_manager,
+                                process,
+                            }),
+                        });
+                    }
+                };
 
                 log::debug!("Initializing split tunnel device");
 
@@ -468,15 +553,64 @@ impl State {
             // Remain in the failed state and return error if VPN is up
             State::Failed {
                 ref mut vpn_interface,
+                cause,
+                ..
+            } if new_vpn_interface.is_some() => {
+                *vpn_interface = new_vpn_interface;
+                Err(cause.unwrap_or(Error::unavailable()).into())
+            }
+            // Remain in the failed state without failing otherwise
+            State::Failed {
+                ref mut vpn_interface,
                 ..
             } => {
-                *vpn_interface = new_vpn_interface;
-                if vpn_interface.is_some() {
-                    Err(Error::Unavailable)
-                } else {
-                    Ok(self)
-                }
+                *vpn_interface = None;
+                Ok(self)
             }
+        }
+    }
+
+    /// Helper function that tries to perform a state transition using `transition`.
+    /// On error, transition to `next_state` specified alongside the error. If not specified,
+    /// transition to or remain in `State::Failed`.
+    async fn transition<F: std::future::Future<Output = Result<Self, ErrorWithTransition>>>(
+        &mut self,
+        transition: impl FnOnce(Self) -> F,
+    ) -> Result<(), Error> {
+        let state = self.fail(None);
+        match (transition)(state).await {
+            Ok(new_state) => {
+                *self = new_state;
+                Ok(())
+            }
+            Err(ErrorWithTransition {
+                error,
+                next_state: Some(next_state),
+            }) => {
+                *self = next_state;
+                Err(error)
+            }
+            Err(ErrorWithTransition {
+                error,
+                next_state: None,
+            }) => {
+                self.fail(Some(error.clone()));
+                Err(error)
+            }
+        }
+    }
+}
+
+struct ErrorWithTransition {
+    error: Error,
+    next_state: Option<State>,
+}
+
+impl<T: Into<Error>> From<T> for ErrorWithTransition {
+    fn from(error: T) -> Self {
+        Self {
+            error: error.into(),
+            next_state: None,
         }
     }
 }
