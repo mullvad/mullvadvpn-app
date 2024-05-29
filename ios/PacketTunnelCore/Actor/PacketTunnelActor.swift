@@ -16,13 +16,13 @@ import WireGuardKitTypes
 /**
  Packet tunnel state machine implemented as an actor.
 
- - Actor receives commands for execution over the `CommandChannel`.
+ - Actor receives events for execution over the `EventChannel`.
 
- - Commands are consumed in a detached task via for-await loop over the channel. Each command, once received, is executed in its entirety before the next
-   command is processed. See the implementation of `consumeCommands()` which is the central task dispatcher inside of actor.
+ - Events are consumed in a detached task via for-await loop over the channel. Each event, once received, is executed in its entirety before the next
+   event is processed. See the implementation of `consumeEvents()` which is the central task dispatcher inside of actor.
 
- - Most of calls that actor performs suspend for a very short amount of time. `CommandChannel` proactively discards unwanted tasks as they arrive to prevent
-   future execution, such as repeating commands to reconnect are coalesced and all commands prior to stop are discarded entirely as the outcome would be the
+ - Most of calls that actor performs suspend for a very short amount of time. `EventChannel` proactively discards unwanted tasks as they arrive to prevent
+   future execution, such as repeating commands to reconnect are coalesced and all events prior to stop are discarded entirely as the outcome would be the
    same anyway.
  */
 public actor PacketTunnelActor {
@@ -47,7 +47,7 @@ public actor PacketTunnelActor {
     let settingsReader: SettingsReaderProtocol
     let protocolObfuscator: ProtocolObfuscation
 
-    nonisolated let commandChannel = CommandChannel()
+    nonisolated let eventChannel = EventChannel()
 
     public init(
         timings: PacketTunnelActorTimings,
@@ -68,55 +68,79 @@ public actor PacketTunnelActor {
         self.settingsReader = settingsReader
         self.protocolObfuscator = protocolObfuscator
 
-        consumeCommands(channel: commandChannel)
+        consumeEvents(channel: eventChannel)
     }
 
     deinit {
-        commandChannel.finish()
+        eventChannel.finish()
     }
 
     /**
-     Spawn a detached task that consumes commands from the channel indefinitely until the channel is closed.
-     Commands are processed one at a time, so no suspensions should affect the order of execution and thus guarantee transactional execution.
+     Spawn a detached task that consumes events from the channel indefinitely until the channel is closed.
+     Events are processed one at a time, so no suspensions should affect the order of execution and thus guarantee transactional execution.
 
-     - Parameter channel: command channel.
+     - Parameter channel: event channel.
      */
-    private nonisolated func consumeCommands(channel: CommandChannel) {
+    private nonisolated func consumeEvents(channel: EventChannel) {
         Task.detached { [weak self] in
-            for await command in channel {
+            for await event in channel {
                 guard let self else { return }
 
-                self.logger.debug("Received command: \(command.logFormat())")
+                self.logger.debug("Received event: \(event.logFormat())")
 
-                switch command {
-                case let .start(options):
-                    await start(options: options)
+                let effects = await self.runReducer(event)
 
-                case .stop:
-                    await stop()
-
-                case let .reconnect(nextRelay, reason):
-                    await reconnect(to: nextRelay, reason: reason)
-
-                case let .error(reason):
-                    await setErrorStateInternal(with: reason)
-
-                case let .notifyKeyRotated(date):
-                    await cacheActiveKey(lastKeyRotation: date)
-
-                case .switchKey:
-                    await switchToCurrentKey()
-
-                case let .monitorEvent(event):
-                    await handleMonitorEvent(event)
-
-                case let .networkReachability(defaultPath):
-                    await handleDefaultPathChange(defaultPath)
-
-                case let .replaceDevicePrivateKey(preSharedKey, ephemeralKey):
-                    await postQuantumConnect(with: preSharedKey, privateKey: ephemeralKey)
+                for effect in effects {
+                    await executeEffect(effect)
                 }
             }
+        }
+    }
+
+    func executeEffect(_ effect: Effect) async {
+        switch effect {
+        case .startDefaultPathObserver:
+            startDefaultPathObserver()
+        case .stopDefaultPathObserver:
+            stopDefaultPathObserver()
+        case .startTunnelMonitor:
+            setTunnelMonitorEventHandler()
+        case .stopTunnelMonitor:
+            tunnelMonitor.stop()
+        case let .updateTunnelMonitorPath(networkPath):
+            handleDefaultPathChange(networkPath)
+        case let .startConnection(nextRelay):
+            do {
+                try await tryStart(nextRelay: nextRelay)
+            } catch {
+                logger.error(error: error, message: "Failed to start the tunnel.")
+                await setErrorStateInternal(with: error)
+            }
+        case let .restartConnection(nextRelay, reason):
+            do {
+                try await tryStart(nextRelay: nextRelay, reason: reason)
+            } catch {
+                logger.error(error: error, message: "Failed to reconnect the tunnel.")
+                await setErrorStateInternal(with: error)
+            }
+        case let .reconnect(nextRelay):
+            eventChannel.send(.reconnect(nextRelay))
+        case .stopTunnelAdapter:
+            do {
+                try await tunnelAdapter.stop()
+            } catch {
+                logger.error(error: error, message: "Failed to stop adapter.")
+            }
+            state = .disconnected
+        case let .configureForErrorState(reason):
+            await setErrorStateInternal(with: reason)
+
+        case let .cacheActiveKey(lastKeyRotation):
+            cacheActiveKey(lastKeyRotation: lastKeyRotation)
+        case let .postQuantumConnect(key, privateKey: privateKey):
+            await postQuantumConnect(with: key, privateKey: privateKey)
+        case .setDisconnectedState:
+            self.state = .disconnected
         }
     }
 }
@@ -125,7 +149,7 @@ public actor PacketTunnelActor {
 
 extension PacketTunnelActor {
     /// Describes the reason for reconnection request.
-    enum ReconnectReason {
+    enum ReconnectReason: Equatable {
         /// Initiated by user.
         case userInitiated
 

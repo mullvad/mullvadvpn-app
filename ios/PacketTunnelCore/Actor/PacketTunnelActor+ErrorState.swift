@@ -151,7 +151,7 @@ extension PacketTunnelActor {
                 try await Task.sleepUsingContinuousClock(for: timings.bootRecoveryPeriodicity)
 
                 // Schedule task to reconnect.
-                commandChannel.send(.reconnect(.random))
+                eventChannel.send(.reconnect(.random))
             }
         }
 

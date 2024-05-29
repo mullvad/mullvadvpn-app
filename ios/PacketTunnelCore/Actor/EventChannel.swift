@@ -1,9 +1,10 @@
 //
-//  CommandChannel.swift
+//  EventChannel.swift
 //  PacketTunnelCore
 //
 //  Created by pronebird on 27/09/2023.
 //  Copyright © 2023 Mullvad VPN AB. All rights reserved.
+//  Formerly known as CommandChannel
 //
 
 import Foundation
@@ -11,8 +12,8 @@ import Foundation
 /**
  Sync-to-async ordered coalescing channel with unbound buffering.
 
- Publishers send commands over the channel to pass work to consumer. Received commands are buffered, until requested by consumer and coalesced just
- before consumption.
+ Publishers send events over the channel to pass work to consumer. Received events
+ are buffered, until requested by consumer and coalesced just before consumption.
 
  - Multiple consumers are possible but the actor is really expected to be the only consumer.
  - Internally, the channel acquires a lock, so you can assume FIFO ordering unless you publish values simultaneously from multiple concurrent queues.
@@ -20,17 +21,17 @@ import Foundation
  ### Example
 
  ```
- let channel = CommandChannel()
+ let channel = EventChannel()
  channel.send(.stop)
  ```
 
- Consuming commands can be implemented using a for-await loop. Note that using a loop should also serialize the command handling as the next command will not
+ Consuming events can be implemented using a for-await loop. Note that using a loop should also serialize the event handling as the next event will not
  be consumed until the body of the loop completes the iteration.
 
  ```
  Task.detached {
-     for await command in channel {
-        await handleMyCommand(command)
+     for await event in channel {
+        await handleMyEvent(event)
      }
  }
  ```
@@ -42,14 +43,14 @@ import Foundation
  channel.send(.stop)
  channel.sendEnd()
 
- let allReceivedCommands = channel
+ let allReceivedEvents = channel
      .map { "\($0)" }
      .reduce(into: [String]()) { $0.append($1) }
  ```
  */
 extension PacketTunnelActor {
-    final class CommandChannel: @unchecked Sendable {
-        typealias Command = PacketTunnelActor.Command
+    final class EventChannel: @unchecked Sendable {
+        typealias Event = PacketTunnelActor.Event
         private enum State {
             /// Channel is active and running.
             case active
@@ -64,12 +65,12 @@ extension PacketTunnelActor {
             case finished
         }
 
-        /// A buffer of commands received but not consumed yet.
-        private var buffer: [Command] = []
+        /// A buffer of events received but not consumed yet.
+        private var buffer: [Event] = []
 
         /// Async continuations awaiting to receive the new value.
         /// Continuations are stored here when there is no new value available for immediate delivery.
-        private var pendingContinuations: [CheckedContinuation<Command?, Never>] = []
+        private var pendingContinuations: [CheckedContinuation<Event?, Never>] = []
 
         private var state: State = .active
         private var stateLock = NSLock()
@@ -81,10 +82,10 @@ extension PacketTunnelActor {
             finish()
         }
 
-        /// Send command to consumer.
+        /// Send event to consumer.
         ///
-        /// - Parameter value: a new command.
-        func send(_ value: Command) {
+        /// - Parameter value: a new event.
+        func send(_ value: Event) {
             stateLock.withLock {
                 guard case .active = state else { return }
 
@@ -112,7 +113,7 @@ extension PacketTunnelActor {
             }
         }
 
-        /// Flush buffered commands and resume all pending continuations sending them `nil` to mark the end of iteration.
+        /// Flush buffered events and resume all pending continuations sending them `nil` to mark the end of iteration.
         func finish() {
             stateLock.withLock {
                 switch state {
@@ -137,15 +138,15 @@ extension PacketTunnelActor {
         }
 
         /// Consume first message in the buffer.
-        /// Returns `nil` if the buffer is empty, otherwise if attempts to coalesce buffered commands before consuming the first comand in the list.
-        private func consumeFirst() -> Command? {
+        /// Returns `nil` if the buffer is empty, otherwise if attempts to coalesce buffered events before consuming the first comand in the list.
+        private func consumeFirst() -> Event? {
             guard !buffer.isEmpty else { return nil }
 
             coalesce()
             return buffer.removeFirst()
         }
 
-        /// Coalesce buffered commands to prevent future execution when the outcome is considered to be similar.
+        /// Coalesce buffered events to prevent future execution when the outcome is considered to be similar.
         /// Mutates internal `buffer`.
         private func coalesce() {
             var i = buffer.count - 1
@@ -155,14 +156,14 @@ extension PacketTunnelActor {
                 assert(i < buffer.count)
                 let current = buffer[i]
 
-                // Remove all preceding commands when encountered "stop".
+                // Remove all preceding events when encountered "stop".
                 if case .stop = current {
                     buffer.removeFirst(i)
                     return
                 }
 
                 // Coalesce earlier reconnection attempts into the most recent.
-                // This will rearrange the command buffer but hopefully should have no side effects.
+                // This will rearrange the event buffer but hopefully should have no side effects.
                 if case .reconnect = current {
                     // Walk backwards starting with the preceding element.
                     for j in (0 ..< i).reversed() {
@@ -177,7 +178,7 @@ extension PacketTunnelActor {
             }
         }
 
-        private func next() async -> Command? {
+        private func next() async -> Event? {
             return await withCheckedContinuation { continuation in
                 stateLock.withLock {
                     switch state {
@@ -206,12 +207,12 @@ extension PacketTunnelActor {
     }
 }
 
-extension PacketTunnelActor.CommandChannel: AsyncSequence {
-    typealias Element = Command
+extension PacketTunnelActor.EventChannel: AsyncSequence {
+    typealias Element = Event
 
     struct AsyncIterator: AsyncIteratorProtocol {
-        let channel: PacketTunnelActor.CommandChannel
-        func next() async -> Command? {
+        let channel: PacketTunnelActor.EventChannel
+        func next() async -> Event? {
             return await channel.next()
         }
     }
