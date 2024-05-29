@@ -11,12 +11,11 @@ import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListResult
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
-import net.mullvad.mullvadvpn.lib.model.CreateCustomListError
 import net.mullvad.mullvadvpn.lib.model.CustomListAlreadyExists
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
-import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionError
+import net.mullvad.mullvadvpn.usecase.customlists.CreateWithLocationsError
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
@@ -80,8 +79,7 @@ class CreateCustomListDialogViewModelTest {
     @Test
     fun `when failing to creating a list should update ui state with error`() = runTest {
         // Arrange
-        val expectedError =
-            CustomListActionError.CreateWithLocations.Create(CustomListAlreadyExists)
+        val expectedError = CreateWithLocationsError.CreateActionError(CustomListAlreadyExists)
         val customListName = "list"
         val viewModel = createViewModelWithLocationCode(GeoLocationId.Country("AB"))
         coEvery {
@@ -100,10 +98,7 @@ class CreateCustomListDialogViewModelTest {
     fun `given error state when calling clear error then should update to state without error`() =
         runTest {
             // Arrange
-            val expectedError =
-                CustomListActionError.CreateWithLocations.Create(
-                    CustomListAlreadyExists
-                )
+            val expectedError = CreateWithLocationsError.CreateActionError(CustomListAlreadyExists)
             val customListName = "list"
             val viewModel = createViewModelWithLocationCode(GeoLocationId.Country("AB"))
             coEvery {

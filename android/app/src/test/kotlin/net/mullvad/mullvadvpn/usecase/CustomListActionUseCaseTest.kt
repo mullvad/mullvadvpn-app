@@ -19,8 +19,9 @@ import net.mullvad.mullvadvpn.lib.model.NameAlreadyExists
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.RelayListRepository
-import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionError
+import net.mullvad.mullvadvpn.usecase.customlists.CreateWithLocationsError
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
+import net.mullvad.mullvadvpn.usecase.customlists.RenameError
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -86,7 +87,7 @@ class CustomListActionUseCaseTest {
         val locationId = GeoLocationId.Country("AB")
         val action = CustomListAction.Create(name = name, locations = listOf(locationId))
         val expectedError =
-            CustomListActionError.CreateWithLocations.Create(CustomListAlreadyExists).left()
+            CreateWithLocationsError.CreateActionError(CustomListAlreadyExists).left()
         coEvery { mockCustomListsRepository.createCustomList(name) } returns
             CustomListAlreadyExists.left()
 
@@ -127,7 +128,7 @@ class CustomListActionUseCaseTest {
             mockCustomListsRepository.updateCustomListName(id = customListId, name = newName)
         } returns NameAlreadyExists(newName.value).left()
 
-        val expectedError = CustomListActionError.Rename(NameAlreadyExists(newName.value)).left()
+        val expectedError = RenameError(NameAlreadyExists(newName.value)).left()
 
         // Act
         val result = customListActionUseCase.performAction(action)

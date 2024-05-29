@@ -29,7 +29,7 @@ import net.mullvad.mullvadvpn.lib.model.GetCustomListError
 import net.mullvad.mullvadvpn.lib.model.NameAlreadyExists
 import net.mullvad.mullvadvpn.lib.model.UnknownCustomListError
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
-import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionError
+import net.mullvad.mullvadvpn.usecase.customlists.RenameError
 import net.mullvad.mullvadvpn.viewmodel.EditCustomListNameDialogSideEffect
 import net.mullvad.mullvadvpn.viewmodel.EditCustomListNameDialogViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -113,7 +113,7 @@ fun EditCustomListNameDialog(
 }
 
 @Composable
-private fun CustomListActionError.Rename.errorString() =
+private fun RenameError.errorString() =
     stringResource(
         when (error) {
             is NameAlreadyExists -> R.string.custom_list_error_list_exists

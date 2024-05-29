@@ -14,7 +14,7 @@ import net.mullvad.mullvadvpn.compose.state.EditCustomListNameUiState
 import net.mullvad.mullvadvpn.compose.test.EDIT_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG
 import net.mullvad.mullvadvpn.lib.model.NameAlreadyExists
 import net.mullvad.mullvadvpn.lib.model.UnknownCustomListError
-import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionError.Rename
+import net.mullvad.mullvadvpn.usecase.customlists.RenameError
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
@@ -46,10 +46,7 @@ class EditCustomListNameDialogTest {
     fun givenCustomListExistsShouldShowCustomListExitsErrorText() =
         composeExtension.use {
             // Arrange
-            val state =
-                EditCustomListNameUiState(
-                    error = Rename(NameAlreadyExists("name"))
-                )
+            val state = EditCustomListNameUiState(error = RenameError(NameAlreadyExists("name")))
             setContentWithTheme { EditCustomListNameDialog(state = state) }
 
             // Assert
@@ -63,8 +60,7 @@ class EditCustomListNameDialogTest {
             // Arrange
             val state =
                 EditCustomListNameUiState(
-                    error =
-                        Rename(UnknownCustomListError(RuntimeException("")))
+                    error = RenameError(UnknownCustomListError(RuntimeException("")))
                 )
             setContentWithTheme { EditCustomListNameDialog(state = state) }
 

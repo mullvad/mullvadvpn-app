@@ -16,7 +16,7 @@ import net.mullvad.mullvadvpn.compose.state.CreateCustomListUiState
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
-import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionError.CreateWithLocations
+import net.mullvad.mullvadvpn.usecase.customlists.CreateWithLocationsError
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 
 class CreateCustomListDialogViewModel(
@@ -28,7 +28,7 @@ class CreateCustomListDialogViewModel(
         Channel<CreateCustomListDialogSideEffect>(1, BufferOverflow.DROP_OLDEST)
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
-    private val _error = MutableStateFlow<CreateWithLocations?>(null)
+    private val _error = MutableStateFlow<CreateWithLocationsError?>(null)
 
     val uiState =
         _error

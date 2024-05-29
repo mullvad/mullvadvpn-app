@@ -14,7 +14,7 @@ import net.mullvad.mullvadvpn.compose.communication.CustomListResult
 import net.mullvad.mullvadvpn.compose.state.DeleteCustomListUiState
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
-import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionError.DeleteWithUndo
+import net.mullvad.mullvadvpn.usecase.customlists.DeleteWithUndoError
 
 class DeleteCustomListConfirmationViewModel(
     private val customListId: CustomListId,
@@ -23,7 +23,7 @@ class DeleteCustomListConfirmationViewModel(
     private val _uiSideEffect = Channel<DeleteCustomListConfirmationSideEffect>(Channel.BUFFERED)
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
-    private val _error = MutableStateFlow<DeleteWithUndo?>(null)
+    private val _error = MutableStateFlow<DeleteWithUndoError?>(null)
 
     val uiState =
         _error
