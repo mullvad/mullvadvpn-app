@@ -158,6 +158,7 @@ class ListAccessMethodViewController: UIViewController, UITableViewDelegate {
     }
 
     private func updateDataSource(animated: Bool = true) {
+        guard let dataSource else { return }
         fetchedItems = interactor.fetch()
 
         var snapshot = NSDiffableDataSourceSnapshot<ListAccessMethodSectionIdentifier, ListAccessMethodItemIdentifier>()
@@ -168,11 +169,13 @@ class ListAccessMethodViewController: UIViewController, UITableViewDelegate {
         }
         snapshot.appendItems(itemIdentifiers, toSection: .primary)
 
-        for item in fetchedItems {
-            snapshot.reloadItems([ListAccessMethodItemIdentifier(id: item.id)])
+        if dataSource.snapshot().numberOfItems == fetchedItems.count {
+            for item in fetchedItems {
+                snapshot.reloadItems([ListAccessMethodItemIdentifier(id: item.id)])
+            }
         }
 
-        dataSource?.apply(snapshot, animatingDifferences: animated)
+        dataSource.apply(snapshot, animatingDifferences: animated)
     }
 
     private func dequeueCell(
