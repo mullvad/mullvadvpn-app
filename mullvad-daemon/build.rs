@@ -41,10 +41,9 @@ fn main() {
     if matches!(target_os.as_str(), "linux" | "macos" | "android") && cfg!(debug_assertions) {
         let target = std::env::var("TARGET").expect("TARGET not set");
         let relative = std::path::Path::new("../build/lib/").join(target.clone());
-        let absolute = std::fs::canonicalize(relative).expect(&format!(
-            "Could not resolve canonical path for relative path `build/lib/{}`",
-            target,
-        ));
+        let absolute = std::fs::canonicalize(relative).unwrap_or_else(|_| {
+            panic!("Could not resolve canonical path for relative path `build/lib/{target}`")
+        });
         println!("cargo::rustc-link-arg=-Wl,-rpath,{}", absolute.display());
     }
 }
