@@ -16,6 +16,10 @@ class TunnelControlPage: Page {
         let protocolName: String
     }
 
+    var connectionIsSecured: Bool {
+        app.staticTexts[AccessibilityIdentifier.connectionStatusConnectedLabel].exists
+    }
+
     /// Poll the "in address row" label for its updated values and output an array of ConnectionAttempt objects representing the connection attempts that have been communicated through the UI.
     /// - Parameters:
     ///   - attemptsCount: number of connection attempts to look for
