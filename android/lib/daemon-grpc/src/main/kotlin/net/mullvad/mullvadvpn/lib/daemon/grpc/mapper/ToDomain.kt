@@ -496,13 +496,11 @@ internal fun ManagementInterface.Relay.toDomain(
     RelayItem.Location.Relay(
         id = GeoLocationId.Hostname(cityCode, hostname),
         active = active,
-        provider = toProvider()
-    )
-
-internal fun ManagementInterface.Relay.toProvider(): Provider =
-    Provider(
-        ProviderId(provider),
-        ownership = if (owned) Ownership.MullvadOwned else Ownership.Rented
+        provider =
+            Provider(
+                ProviderId(provider),
+                ownership = if (owned) Ownership.MullvadOwned else Ownership.Rented
+            )
     )
 
 internal fun ManagementInterface.Device.toDomain(): Device =
