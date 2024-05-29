@@ -14,10 +14,6 @@ ANDROID="false"
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 BUILD_DIR="$SCRIPT_DIR/../build"
 
-# TODO: Any bad consequences by blindly overriding this ??
-CARGO_TARGET_DIR="$BUILD_DIR/tmp/"
-export CARGO_TARGET_DIR
-
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         --android) ANDROID="true";;
@@ -91,13 +87,15 @@ function build_unix {
     pushd libwg
     if [[ "$DAITA" == "true" ]]; then
         pushd wireguard-go
-        make libmaybenot.a LIBDEST="$BUILD_DIR/lib/$TARGET"
+        CARGO_TARGET_DIR="$BUILD_DIR/tmp/" make libmaybenot.a LIBDEST="$BUILD_DIR/lib/$TARGET"
         popd
         # TODO: This artifact needs to be available in target/<release | debug>
         CGO_LDFLAGS="-L$BUILD_DIR/lib/$TARGET" go build -v --tags daita -o "$BUILD_DIR/lib/$TARGET/libwg.so" -buildmode c-shared
     else
         go build -v -o "$BUILD_DIR/lib/$TARGET/libwg.so" -buildmode c-shared
     fi
+    # Copy libwg to `OUT_DIR` so that we may refer to it via `OUT_DIR` in `build.rs`, which might be handy.
+    cp "$BUILD_DIR/lib/$TARGET/libwg.so" "$OUT_DIR/libwg.so"
     popd
 }
 

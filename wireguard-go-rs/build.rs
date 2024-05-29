@@ -47,6 +47,12 @@ fn main() {
     declare_libs_dir("../build/lib");
 
     println!("cargo::rerun-if-changed=libwg");
+
+    // Add `OUT_DIR` to the library search path to facilitate linking of libwg for debug artifacts,
+    // such as test binaries.
+    if cfg!(debug_assertions) {
+        println!("cargo::rustc-link-search={out_dir}");
+    }
 }
 
 /// Tell linker to check `base`/$TARGET for shared libraries.
