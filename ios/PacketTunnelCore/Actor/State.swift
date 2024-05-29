@@ -238,3 +238,13 @@ public enum NextRelay: Equatable, Codable {
     /// Use pre-selected relay.
     case preSelected(SelectedRelay)
 }
+
+/// Describes the reason for reconnection request.
+public enum ActorReconnectReason: Equatable {
+    /// Initiated by user.
+    case userInitiated
+
+    /// Initiated by tunnel monitor due to loss of connectivity, or if post quantum key negotiation times out.
+    /// Actor will increment the connection attempt counter before picking next relay.
+    case connectionLoss
+}
