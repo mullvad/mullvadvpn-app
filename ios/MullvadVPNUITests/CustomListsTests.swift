@@ -62,7 +62,7 @@ class CustomListsTests: LoggedInWithTimeUITestCase {
         EditCustomListLocationsPage(app)
             .scrollToLocationWith(identifier: "se")
             .toggleLocationCheckmarkWith(identifier: "se")
-            .pressBackButton()
+            .tapBackButton()
 
         CustomListPage(app)
             .tapSaveListButton()
@@ -91,7 +91,7 @@ class CustomListsTests: LoggedInWithTimeUITestCase {
             .unfoldLocationwith(identifier: "se")
             .unfoldLocationwith(identifier: "se-got")
             .toggleLocationCheckmarkWith(identifier: "se-got-wg-001")
-            .pressBackButton()
+            .tapBackButton()
 
         CustomListPage(app)
             .tapSaveListButton()

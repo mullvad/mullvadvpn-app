@@ -14,7 +14,7 @@ class VPNSettingsPage: Page {
         super.init(app)
     }
 
-    private func cellExpandCollapseButton(_ cellAccessiblityIdentifier: AccessibilityIdentifier) -> XCUIElement {
+    private func cellExpandButton(_ cellAccessiblityIdentifier: AccessibilityIdentifier) -> XCUIElement {
         let table = app.tables[AccessibilityIdentifier.vpnSettingsTableView]
         let matchingCells = table.otherElements.containing(.any, identifier: cellAccessiblityIdentifier.rawValue)
         let expandButton = matchingCells.buttons[AccessibilityIdentifier.expandButton]
@@ -37,18 +37,18 @@ class VPNSettingsPage: Page {
     }
 
     @discardableResult func tapWireGuardPortsExpandButton() -> Self {
-        cellExpandCollapseButton(AccessibilityIdentifier.wireGuardPortsCell).tap()
+        cellExpandButton(AccessibilityIdentifier.wireGuardPortsCell).tap()
         return self
     }
 
     @discardableResult func tapWireGuardObfuscationExpandButton() -> Self {
-        cellExpandCollapseButton(AccessibilityIdentifier.wireGuardObfuscationCell).tap()
+        cellExpandButton(AccessibilityIdentifier.wireGuardObfuscationCell).tap()
 
         return self
     }
 
     @discardableResult func tapUDPOverTCPPortExpandButton() -> Self {
-        cellExpandCollapseButton(AccessibilityIdentifier.udpOverTCPPortCell).tap()
+        cellExpandButton(AccessibilityIdentifier.udpOverTCPPortCell).tap()
 
         return self
     }
@@ -72,7 +72,7 @@ class VPNSettingsPage: Page {
     }
 
     @discardableResult func tapQuantumResistantTunnelExpandButton() -> Self {
-        cellExpandCollapseButton(AccessibilityIdentifier.quantumResistantTunnelCell).tap()
+        cellExpandButton(AccessibilityIdentifier.quantumResistantTunnelCell).tap()
 
         return self
     }
