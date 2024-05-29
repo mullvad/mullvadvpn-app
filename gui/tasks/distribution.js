@@ -103,7 +103,7 @@ const config = {
       },
       { from: distAssets(path.join('binaries', '${env.TARGET_TRIPLE}', 'openvpn')), to: '.' },
       { from: distAssets('uninstall_macos.sh'), to: './uninstall.sh' },
-      { from: buildAssets(path.join('lib', `${hostTargetTriple}`, 'libwg.so')), to: '.' },
+      { from: buildAssets(path.join('lib', '${env.TARGET_TRIPLE}', 'libwg.so')), to: '.' },
       { from: buildAssets('shell-completions/_mullvad'), to: '.' },
       { from: buildAssets('shell-completions/mullvad.fish'), to: '.' },
     ],
