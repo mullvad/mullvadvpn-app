@@ -5,7 +5,7 @@ import arrow.core.raise.either
 import kotlinx.coroutines.flow.firstOrNull
 import net.mullvad.mullvadvpn.compose.communication.Created
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
-import net.mullvad.mullvadvpn.compose.communication.CustomListResult
+import net.mullvad.mullvadvpn.compose.communication.CustomListSuccess
 import net.mullvad.mullvadvpn.compose.communication.Deleted
 import net.mullvad.mullvadvpn.compose.communication.LocationsChanged
 import net.mullvad.mullvadvpn.compose.communication.Renamed
@@ -24,7 +24,7 @@ class CustomListActionUseCase(
 ) {
     suspend fun performAction(
         action: CustomListAction
-    ): Either<CustomListActionError, CustomListResult> {
+    ): Either<CustomListActionError, CustomListSuccess> {
         return when (action) {
             is CustomListAction.Create -> {
                 performAction(action)

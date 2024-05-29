@@ -62,7 +62,7 @@ import net.mullvad.mullvadvpn.compose.cell.SwitchComposeSubtitleCell
 import net.mullvad.mullvadvpn.compose.cell.ThreeDotCell
 import net.mullvad.mullvadvpn.compose.communication.Created
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
-import net.mullvad.mullvadvpn.compose.communication.CustomListResult
+import net.mullvad.mullvadvpn.compose.communication.CustomListSuccess
 import net.mullvad.mullvadvpn.compose.communication.Deleted
 import net.mullvad.mullvadvpn.compose.communication.LocationsChanged
 import net.mullvad.mullvadvpn.compose.communication.Renamed
@@ -817,7 +817,7 @@ private suspend fun LazyListState.animateScrollAndCentralizeItem(index: Int) {
 
 private suspend fun SnackbarHostState.showResultSnackbar(
     context: Context,
-    result: CustomListResult,
+    result: CustomListSuccess,
     onUndo: (CustomListAction) -> Unit
 ) {
     showSnackbarImmediately(
@@ -828,7 +828,7 @@ private suspend fun SnackbarHostState.showResultSnackbar(
     )
 }
 
-private fun CustomListResult.message(context: Context): String =
+private fun CustomListSuccess.message(context: Context): String =
     when (this) {
         is Created ->
             locationNames.firstOrNull()?.let { locationName ->
@@ -840,7 +840,7 @@ private fun CustomListResult.message(context: Context): String =
     }
 
 @Composable
-private fun <D : DestinationSpec<*>, R : CustomListResult> ResultRecipient<D, R>
+private fun <D : DestinationSpec<*>, R : CustomListSuccess> ResultRecipient<D, R>
     .OnCustomListNavResult(
     snackbarHostState: SnackbarHostState,
     performAction: (action: CustomListAction) -> Unit

@@ -5,7 +5,7 @@ import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
 
-sealed interface CustomListResult : Parcelable {
+sealed interface CustomListSuccess : Parcelable {
     val undo: CustomListAction
 }
 
@@ -15,16 +15,16 @@ data class Created(
     val name: CustomListName,
     val locationNames: List<String>,
     override val undo: CustomListAction.Delete
-) : CustomListResult
+) : CustomListSuccess
 
 @Parcelize
-data class Deleted(override val undo: CustomListAction.Create) : CustomListResult {
+data class Deleted(override val undo: CustomListAction.Create) : CustomListSuccess {
     val name: CustomListName
         get() = undo.name
 }
 
 @Parcelize
-data class Renamed(override val undo: CustomListAction.Rename) : CustomListResult {
+data class Renamed(override val undo: CustomListAction.Rename) : CustomListSuccess {
     val name: CustomListName
         get() = undo.name
 }
@@ -33,4 +33,4 @@ data class Renamed(override val undo: CustomListAction.Rename) : CustomListResul
 data class LocationsChanged(
     val name: CustomListName,
     override val undo: CustomListAction.UpdateLocations
-) : CustomListResult
+) : CustomListSuccess
