@@ -7,12 +7,13 @@
 package logging
 
 // #include <stdlib.h>
+// #include <stdint.h>
 // #include <sys/types.h>
 // #ifndef WIN32
 // #define __stdcall
 // #endif
-// typedef void (__stdcall *LogSink)(unsigned int, const char *, void *);
-// static void callLogSink(void *logSink, int level, const char *message, void *context)
+// typedef void (__stdcall *LogSink)(unsigned int, const char *, uint64_t);
+// static void callLogSink(void *logSink, int level, const char *message, uint64_t context)
 // {
 //   ((LogSink)logSink)((unsigned int)level, message, context);
 // }
@@ -27,7 +28,7 @@ import (
 
 // Define type aliases.
 type LogSink = unsafe.Pointer
-type LogContext = unsafe.Pointer
+type LogContext = C.uint64_t
 
 type Logger struct {
 	sink    LogSink
