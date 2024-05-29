@@ -25,8 +25,10 @@ class ForegroundNotificationManager(
         scope.launch {
             foregroundProvider.shouldBeOnForeground.collect {
                 if (it) {
+                    Log.d(TAG, "Starting foreground")
                     notifyForeground(getTunnelStateNotificationOrDefault())
                 } else {
+                    Log.d(TAG, "Stopping foreground")
                     vpnService.stopForeground(Service.STOP_FOREGROUND_DETACH)
                 }
             }
@@ -46,19 +48,20 @@ class ForegroundNotificationManager(
     private fun notifyForeground(tunnelStateNotification: Notification.Tunnel) {
 
         val androidNotification = tunnelStateNotification.toNotification(vpnService)
+        if (VpnService.prepare(vpnService) != null) {
+            // Got connect/disconnect intent, but we  don't have permission to go in foreground.
+            // tunnel state will return permission and we will eventually get stopped by system.
+            Log.d(TAG, "Did not start foreground: VPN permission not granted")
+            return
+        }
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            if (VpnService.prepare(vpnService) == null) {
-                vpnService.startForeground(
-                    tunnelStateNotificationProvider.notificationId.value,
-                    androidNotification,
-                    ServiceInfo.FOREGROUND_SERVICE_TYPE_SYSTEM_EXEMPTED
-                )
-            } else {
-                // Got connect/disconnect intent, but we  don't have permission to go in foreground.
-                // tunnel state will return permission and we will eventually get stopped by system.
-                Log.d(TAG, "ForegroundNotification: VPN permission not granted")
-                return
-            }
+            Log.d(TAG, "Starting foreground UPSIDE_DOWN_CAKE")
+            vpnService.startForeground(
+                tunnelStateNotificationProvider.notificationId.value,
+                androidNotification,
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_SYSTEM_EXEMPTED
+            )
         } else {
             vpnService.startForeground(
                 tunnelStateNotificationProvider.notificationId.value,

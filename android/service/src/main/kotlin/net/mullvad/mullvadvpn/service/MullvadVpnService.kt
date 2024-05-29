@@ -58,6 +58,7 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
 
     override fun onCreate() {
         super.onCreate()
+        Log.d(TAG, "MullvadVpnService: onCreate")
 
         loadKoinModules(listOf(vpnServiceModule, apiEndpointModule))
         with(getKoin()) {
@@ -96,20 +97,24 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.d(TAG, "onStartCommand (intent=$intent, flags=$flags, startId=$startId)")
-        Log.d(TAG, "intent action=${intent?.action}")
+        Log.d(
+            TAG,
+            "onStartCommand (intent=$intent, action=${intent?.action}, flags=$flags, startId=$startId)"
+        )
 
         val startResult = super.onStartCommand(intent, flags, startId)
 
         // Always promote to foreground if connect/disconnect actions are provided to mitigate cases
         // where the service would potentially otherwise be too slow running `startForeground`.
-        Log.d(TAG, "Intent Action: ${intent?.action}")
         when {
             keyguardManager.isKeyguardLocked -> {
                 Log.d(TAG, "Keyguard is locked, ignoring command")
             }
             intent.isFromSystem() || intent?.action == KEY_CONNECT_ACTION -> {
-                _shouldBeOnForeground.update { true }
+                // Only show on foreground if we have permission
+                if (prepare(this) == null) {
+                    _shouldBeOnForeground.update { true }
+                }
                 lifecycleScope.launch { connectionProxy.connectWithoutPermissionCheck() }
             }
             intent?.action == KEY_DISCONNECT_ACTION -> {
@@ -177,6 +182,7 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
     }
 
     override fun onDestroy() {
+        Log.d(TAG, "MullvadVpnService: onDestroy")
         managementService.stop()
 
         // Shutting down the daemon gracefully
