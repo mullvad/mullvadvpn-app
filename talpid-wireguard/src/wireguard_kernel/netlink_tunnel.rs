@@ -93,7 +93,7 @@ impl Tunnel for NetlinkTunnel {
         tokio_handle.block_on(async move {
             if let Err(err) = netlink_connections.delete_device(interface_index).await {
                 log::error!("Failed to remove WireGuard device: {}", err);
-                Err(TunnelError::FatalStartWireguardError)
+                Err(TunnelError::FatalStartWireguardError(Box::new(err)))
             } else {
                 Ok(())
             }
@@ -113,7 +113,7 @@ impl Tunnel for NetlinkTunnel {
     }
 
     fn set_config(
-        &self,
+        &mut self,
         config: Config,
     ) -> Pin<Box<dyn Future<Output = std::result::Result<(), TunnelError>> + Send + 'static>> {
         let mut wg = self.netlink_connections.wg_handle.clone();

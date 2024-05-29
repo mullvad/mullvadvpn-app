@@ -2,9 +2,13 @@ use once_cell::sync::Lazy;
 use parking_lot::Mutex;
 use std::{collections::HashMap, fmt, fs, io::Write, path::Path};
 
-static LOG_MUTEX: Lazy<Mutex<HashMap<u32, fs::File>>> = Lazy::new(|| Mutex::new(HashMap::new()));
+static LOG_MUTEX: Lazy<Mutex<LogState>> = Lazy::new(|| Mutex::new(LogState::default()));
 
-static mut LOG_CONTEXT_NEXT_ORDINAL: u32 = 0;
+#[derive(Default)]
+struct LogState {
+    map: HashMap<u64, fs::File>,
+    next_ordinal: u64,
+}
 
 /// Errors encountered when initializing logging
 #[derive(thiserror::Error, Debug)]
@@ -14,18 +18,15 @@ pub enum Error {
     PrepareLogFileError(#[from] std::io::Error),
 }
 
-pub fn initialize_logging(log_path: Option<&Path>) -> Result<u32, Error> {
+pub fn initialize_logging(log_path: Option<&Path>) -> Result<u64, Error> {
     let log_file = create_log_file(log_path)?;
 
-    let log_context_ordinal = unsafe {
-        let mut map = LOG_MUTEX.lock();
-        let ordinal = LOG_CONTEXT_NEXT_ORDINAL;
-        LOG_CONTEXT_NEXT_ORDINAL += 1;
-        map.insert(ordinal, log_file);
-        ordinal
-    };
+    let mut state = LOG_MUTEX.lock();
+    let ordinal = state.next_ordinal;
+    state.next_ordinal += 1;
+    state.map.insert(ordinal, log_file);
 
-    Ok(log_context_ordinal)
+    Ok(ordinal)
 }
 
 #[cfg(target_os = "windows")]
@@ -39,9 +40,9 @@ fn create_log_file(log_path: Option<&Path>) -> Result<fs::File, Error> {
         .map_err(Error::PrepareLogFileError)
 }
 
-pub fn clean_up_logging(ordinal: u32) {
-    let mut map = LOG_MUTEX.lock();
-    map.remove(&ordinal);
+pub fn clean_up_logging(ordinal: u64) {
+    let mut state = LOG_MUTEX.lock();
+    state.map.remove(&ordinal);
 }
 
 pub enum LogLevel {
@@ -71,9 +72,9 @@ impl AsRef<str> for LogLevel {
     }
 }
 
-pub fn log(context: u32, level: LogLevel, tag: &str, msg: &str) {
-    let mut map = LOG_MUTEX.lock();
-    if let Some(logfile) = map.get_mut(&{ context }) {
+pub fn log(context: u64, level: LogLevel, tag: &str, msg: &str) {
+    let mut state = LOG_MUTEX.lock();
+    if let Some(logfile) = state.map.get_mut(&context) {
         log_inner(logfile, level, tag, msg);
     }
 }
