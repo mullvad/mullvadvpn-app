@@ -346,4 +346,12 @@
     <string name="settings_patch_success">Import successful, overrides active</string>
     <string name="overrides_cleared">Overrides cleared</string>
     <string name="unsecured_vpn_permission_error">Unsecured (No VPN permission)</string>
+    <string name="settings_api_access">API access</string>
+    <string name="add">Add</string>
+    <string name="api_access_description">Manage and add custom methods to access the Mullvad API.</string>
+    <string name="current_x">Current: %s</string>
+    <string name="api_access_method_info_first_line">The app needs to communicate with a Mullvad API server to log you in, fetch server lists, and other critical operations.</string>
+    <string name="api_access_method_info_second_line">On some networks, where various types of censorship are being used, the API servers might not be directly reachable.</string>
+    <string name="api_access_method_info_third_line">This feature allows you to circumvent that censorship by adding custom ways to access the API via proxies and similar methods.</string>
+    <string name="api_access_method_info_fourth_line">The \"Current\" method represent which method the app is currently trying to reach the API with.</string>
 </resources>
