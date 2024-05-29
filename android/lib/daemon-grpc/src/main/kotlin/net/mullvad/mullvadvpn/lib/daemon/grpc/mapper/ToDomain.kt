@@ -455,77 +455,55 @@ internal fun ManagementInterface.PortRange.toDomain(): PortRange = PortRange(fir
  * relays are filtered out. So are also cities that only contains non-wireguard relays and countries
  * that does not have any cities. Countries, cities and relays are ordered by name.
  */
-@Suppress("LongMethod")
 internal fun List<ManagementInterface.RelayListCountry>.toDomain():
-    List<RelayItem.Location.Country> {
-    val relayCountries =
-        this.map { country ->
-                val cities = mutableListOf<RelayItem.Location.City>()
-                val relayCountry =
-                    RelayItem.Location.Country(
-                        GeoLocationId.Country(country.code),
-                        country.name,
-                        false,
-                        cities
-                    )
+    List<RelayItem.Location.Country> =
+    map(ManagementInterface.RelayListCountry::toDomain)
+        .filter { it.cities.isNotEmpty() }
+        .sortedBy { it.name }
 
-                for (city in country.citiesList) {
-                    val relays = mutableListOf<RelayItem.Location.Relay>()
-                    val relayCity =
-                        RelayItem.Location.City(
-                            name = city.name,
-                            id = GeoLocationId.City(GeoLocationId.Country(country.code), city.code),
-                            expanded = false,
-                            relays = relays
-                        )
-
-                    val validCityRelays =
-                        city.relaysList.filter {
-                            it.endpointType == ManagementInterface.Relay.RelayType.WIREGUARD
-                        }
-
-                    for (relay in validCityRelays) {
-                        relays.add(
-                            RelayItem.Location.Relay(
-                                id =
-                                    GeoLocationId.Hostname(
-                                        GeoLocationId.City(
-                                            GeoLocationId.Country(country.code),
-                                            city.code
-                                        ),
-                                        relay.hostname
-                                    ),
-                                active = relay.active,
-                                provider =
-                                    Provider(
-                                        ProviderId(relay.provider),
-                                        ownership =
-                                            if (relay.owned) {
-                                                Ownership.MullvadOwned
-                                            } else {
-                                                Ownership.Rented
-                                            }
-                                    )
-                            )
-                        )
-                    }
-                    relays.sortWith(RelayNameComparator)
-
-                    if (relays.isNotEmpty()) {
-                        cities.add(relayCity)
-                    }
-                }
-
-                cities.sortBy { it.name }
-                relayCountry
-            }
-            .filter { country -> country.cities.isNotEmpty() }
-            .toMutableList()
-
-    relayCountries.sortBy { it.name }
-
-    return relayCountries.toList()
+internal fun ManagementInterface.RelayListCountry.toDomain(): RelayItem.Location.Country {
+    val countryCode = GeoLocationId.Country(code)
+    return RelayItem.Location.Country(
+        countryCode,
+        name,
+        false,
+        citiesList
+            .map { city -> city.toDomain(countryCode) }
+            .filter { it.relays.isNotEmpty() }
+            .sortedBy { it.name }
+    )
 }
+
+internal fun ManagementInterface.RelayListCity.toDomain(
+    countryCode: GeoLocationId.Country
+): RelayItem.Location.City {
+    val cityCode = GeoLocationId.City(countryCode, code)
+    return RelayItem.Location.City(
+        name = name,
+        id = cityCode,
+        expanded = false,
+        relays =
+            relaysList
+                .filter { it.endpointType == ManagementInterface.Relay.RelayType.WIREGUARD }
+                .map { it.toDomain(cityCode) }
+                .sortedWith(RelayNameComparator)
+    )
+}
+
+internal fun ManagementInterface.Relay.toDomain(
+    cityCode: GeoLocationId.City
+): RelayItem.Location.Relay =
+    RelayItem.Location.Relay(
+        id = GeoLocationId.Hostname(cityCode, hostname),
+        active = active,
+        provider = toProvider()
+    )
+
+internal fun ManagementInterface.Relay.toProvider(): Provider =
+    Provider(
+        ProviderId(provider),
+        ownership = if (owned) Ownership.MullvadOwned else Ownership.Rented
+    )
 
 internal fun ManagementInterface.Device.toDomain(): Device =
     Device(DeviceId.fromString(id), name, Instant.ofEpochSecond(created.seconds).toDateTime())
