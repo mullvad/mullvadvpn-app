@@ -54,7 +54,7 @@ public struct AppMessageHandler {
             return nil
 
         case let .reconnectTunnel(nextRelay):
-            packetTunnelActor.reconnect(to: nextRelay)
+            packetTunnelActor.reconnect(to: nextRelay, reconnectReason: ActorReconnectReason.userInitiated)
             return nil
         }
     }

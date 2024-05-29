@@ -18,7 +18,7 @@ extension PacketTunnelActor {
         case stopTunnelMonitor
         case updateTunnelMonitorPath(NetworkPath)
         case startConnection(NextRelay)
-        case restartConnection(NextRelay, ReconnectReason)
+        case restartConnection(NextRelay, ActorReconnectReason)
         // trigger a reconnect, which becomes several effects depending on the state
         case reconnect(NextRelay)
         case stopTunnelAdapter
@@ -123,7 +123,7 @@ extension PacketTunnelActor {
 
         fileprivate static func subreducerForReconnect(
             _ state: State,
-            _ reason: PacketTunnelActor.ReconnectReason,
+            _ reason: ActorReconnectReason,
             _ nextRelay: NextRelay
         ) -> [PacketTunnelActor.Effect] {
             switch state {

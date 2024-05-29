@@ -17,10 +17,10 @@ extension PacketTunnelActor {
     internal func tryStartPostQuantumNegotiation(
         withSettings settings: Settings,
         nextRelay: NextRelay,
-        reason: ReconnectReason
+        reason: ActorReconnectReason
     ) async throws {
-        if let connectionState = try makeConnectionState(nextRelay: nextRelay, settings: settings, reason: reason) {
-            let selectedEndpoint = connectionState.selectedRelay.endpoint
+        if let connectionState = try obfuscateConnection(nextRelay: nextRelay, settings: settings, reason: reason) {
+            let selectedEndpoint = connectionState.connectedEndpoint
             let activeKey = activeKey(from: connectionState, in: settings)
 
             let configurationBuilder = ConfigurationBuilder(
