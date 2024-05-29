@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.compose.screen
 
+import android.net.Uri
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -16,6 +17,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -31,8 +33,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.UrlAnnotation
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.constraintlayout.compose.ConstrainedLayoutReference
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -46,6 +54,7 @@ import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithLargeTopBarAndButton
 import net.mullvad.mullvadvpn.compose.extensions.toAnnotatedString
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.lib.common.util.openLink
 import net.mullvad.mullvadvpn.lib.common.util.openVpnSettings
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -87,7 +96,8 @@ fun AutoConnectAndLockdownModeScreen(onBackClick: () -> Unit = {}) {
                         pagerState = pagerState,
                         backButtonRef = backButtonRef,
                         nextButtonRef = nextButtonRef,
-                        pager = pager
+                        pager = pager,
+                        onOpenUrl = { url -> context.openLink(Uri.parse(url)) }
                     )
 
                     // Go to previous page
@@ -131,17 +141,18 @@ fun AutoConnectAndLockdownModeScreen(onBackClick: () -> Unit = {}) {
                     )
                 }
             }
-        }
+        },
     )
 }
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalTextApi::class)
 @Composable
 private fun ConstraintLayoutScope.AutoConnectCarousel(
     pagerState: PagerState,
     backButtonRef: ConstrainedLayoutReference,
     nextButtonRef: ConstrainedLayoutReference,
-    pager: ConstrainedLayoutReference
+    pager: ConstrainedLayoutReference,
+    onOpenUrl: (String) -> Unit
 ) {
     HorizontalPager(
         state = pagerState,
@@ -152,32 +163,27 @@ private fun ConstraintLayoutScope.AutoConnectCarousel(
                 start.linkTo(backButtonRef.end)
                 end.linkTo(nextButtonRef.start)
                 bottom.linkTo(parent.bottom)
-            }
-    ) { page ->
+            },
+    ) { pageIndex ->
+        val page = PAGES.entries[pageIndex]
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(
+            val annotatedTopText = page.annotatedTopText()
+            ClickableText(
                 modifier = Modifier.padding(horizontal = Dimens.largePadding),
                 style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSecondary,
-                text =
-                    HtmlCompat.fromHtml(
-                            stringResource(id = PAGES.entries[page].topText),
-                            HtmlCompat.FROM_HTML_MODE_COMPACT
-                        )
-                        .toAnnotatedString(
-                            boldSpanStyle =
-                                SpanStyle(
-                                    fontWeight = FontWeight.ExtraBold,
-                                    color = MaterialTheme.colorScheme.onPrimary
-                                )
-                        )
+                text = annotatedTopText,
+                onClick = {
+                    annotatedTopText.getUrlAnnotations(it, it).let { annotation ->
+                        annotation.firstOrNull()?.item?.url?.let { onOpenUrl(it) }
+                    }
+                },
             )
             Image(
                 modifier = Modifier.padding(top = Dimens.topPadding, bottom = Dimens.bottomPadding),
-                painter = painterResource(id = PAGES.entries[page].image),
+                painter = painterResource(id = page.image),
                 contentDescription = null,
             )
             Text(
@@ -186,7 +192,7 @@ private fun ConstraintLayoutScope.AutoConnectCarousel(
                 color = MaterialTheme.colorScheme.onSecondary,
                 text =
                     HtmlCompat.fromHtml(
-                            stringResource(id = PAGES.entries[page].bottomText),
+                            stringResource(id = page.bottomText),
                             HtmlCompat.FROM_HTML_MODE_COMPACT
                         )
                         .toAnnotatedString(
@@ -255,19 +261,89 @@ private fun ConstraintLayoutScope.PageIndicator(
     }
 }
 
-private enum class PAGES(val topText: Int, val image: Int, val bottomText: Int) {
+private enum class PAGES(
+    val annotatedTopText: @Composable () -> AnnotatedString,
+    val image: Int,
+    val bottomText: Int
+) {
     FIRST(
-        R.string.auto_connect_carousel_first_slide_top_text,
+        annotatedTopText =
+            @Composable {
+                buildAnnotatedString {
+                    withStyle(
+                        style = SpanStyle(color = MaterialTheme.colorScheme.onSecondary),
+                    ) {
+                        append(
+                            stringResource(id = R.string.auto_connect_carousel_first_slide_top_text)
+                        )
+                    }
+                }
+            },
         R.drawable.carousel_slide_1_cogwheel,
         R.string.auto_connect_carousel_first_slide_bottom_text
     ),
     SECOND(
-        R.string.auto_connect_carousel_second_slide_top_text,
+        annotatedTopText =
+            @Composable {
+                buildAnnotatedString {
+                    withStyle(
+                        style = SpanStyle(color = MaterialTheme.colorScheme.onSecondary),
+                    ) {
+                        append(
+                            stringResource(
+                                id = R.string.auto_connect_carousel_second_slide_top_text
+                            )
+                        )
+                    }
+                }
+            },
         R.drawable.carousel_slide_2_always_on,
         R.string.auto_connect_carousel_second_slide_bottom_text
     ),
+    @OptIn(ExperimentalTextApi::class)
     THIRD(
-        R.string.auto_connect_carousel_third_slide_top_text,
+        annotatedTopText =
+            @Composable {
+                buildAnnotatedString {
+                    withStyle(
+                        style = SpanStyle(color = MaterialTheme.colorScheme.onSecondary),
+                    ) {
+                        append(
+                            HtmlCompat.fromHtml(
+                                    stringResource(
+                                        id = R.string.auto_connect_carousel_third_slide_top_text
+                                    ),
+                                    HtmlCompat.FROM_HTML_MODE_COMPACT
+                                )
+                                .toAnnotatedString(
+                                    boldSpanStyle =
+                                        SpanStyle(
+                                            fontWeight = FontWeight.ExtraBold,
+                                            color = MaterialTheme.colorScheme.onPrimary
+                                        )
+                                )
+                        )
+                    }
+                    append(" ")
+                    pushUrlAnnotation(UrlAnnotation(stringResource(id = R.string.lockdown_url)))
+                    withStyle(
+                        style =
+                            SpanStyle(
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                textDecoration = TextDecoration.Underline
+                            ),
+                    ) {
+                        append(
+                            stringResource(
+                                id =
+                                    R.string.auto_connect_carousel_third_slide_top_text_website_link
+                            )
+                        )
+                        append(".")
+                    }
+                    pop()
+                }
+            },
         R.drawable.carousel_slide_3_block_connections,
         R.string.auto_connect_carousel_third_slide_bottom_text
     )
