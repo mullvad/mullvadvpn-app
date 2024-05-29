@@ -50,6 +50,7 @@ import net.mullvad.mullvadvpn.lib.model.ConnectError
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.CreateAccountError
 import net.mullvad.mullvadvpn.lib.model.CreateCustomListError
+import net.mullvad.mullvadvpn.lib.model.CustomListAlreadyExists
 import net.mullvad.mullvadvpn.lib.model.CustomList as ModelCustomList
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
@@ -93,6 +94,7 @@ import net.mullvad.mullvadvpn.lib.model.SetWireguardMtuError
 import net.mullvad.mullvadvpn.lib.model.SetWireguardQuantumResistantError
 import net.mullvad.mullvadvpn.lib.model.Settings as ModelSettings
 import net.mullvad.mullvadvpn.lib.model.SettingsPatchError
+import net.mullvad.mullvadvpn.lib.model.UnknownCustomListError
 import net.mullvad.mullvadvpn.lib.model.TunnelState as ModelTunnelState
 import net.mullvad.mullvadvpn.lib.model.UpdateCustomListError
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
@@ -410,19 +412,19 @@ class ManagementService(
             .map { CustomListId(it.value) }
             .mapLeftStatus {
                 when (it.status.code) {
-                    Status.Code.ALREADY_EXISTS -> CreateCustomListError.CustomListAlreadyExists
-                    else -> CreateCustomListError.Unknown(it)
+                    Status.Code.ALREADY_EXISTS -> CustomListAlreadyExists
+                    else -> UnknownCustomListError(it)
                 }
             }
 
     suspend fun updateCustomList(customList: ModelCustomList): Either<UpdateCustomListError, Unit> =
         Either.catch { grpc.updateCustomList(customList.fromDomain()) }
-            .mapLeft(UpdateCustomListError::Unknown)
+            .mapLeft(::UnknownCustomListError)
             .mapEmpty()
 
     suspend fun deleteCustomList(id: CustomListId): Either<DeleteCustomListError, Unit> =
         Either.catch { grpc.deleteCustomList(StringValue.of(id.value)) }
-            .mapLeft(DeleteCustomListError::Unknown)
+            .mapLeft(::UnknownCustomListError)
             .mapEmpty()
 
     suspend fun clearAllRelayOverrides(): Either<ClearAllOverridesError, Unit> =

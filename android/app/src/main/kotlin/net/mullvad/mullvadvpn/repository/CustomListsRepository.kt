@@ -16,7 +16,8 @@ import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.GetCustomListError
-import net.mullvad.mullvadvpn.lib.model.PartialUpdateCustomListError
+import net.mullvad.mullvadvpn.lib.model.UpdateCustomListLocationsError
+import net.mullvad.mullvadvpn.lib.model.UpdateCustomListNameError
 
 class CustomListsRepository(
     private val managementService: ManagementService,
@@ -37,17 +38,21 @@ class CustomListsRepository(
     suspend fun updateCustomListName(
         id: CustomListId,
         name: CustomListName
-    ): Either<PartialUpdateCustomListError, Unit> = either {
+    ): Either<UpdateCustomListNameError, Unit> = either {
         val customList = getCustomListById(id).bind()
-        updateCustomList(customList.copy(name = name)).bind()
+        updateCustomList(customList.copy(name = name))
+            .mapLeft(UpdateCustomListNameError::from)
+            .bind()
     }
 
     suspend fun updateCustomListLocations(
         id: CustomListId,
         locations: List<GeoLocationId>
-    ): Either<PartialUpdateCustomListError, Unit> = either {
+    ): Either<UpdateCustomListLocationsError, Unit> = either {
         val customList = getCustomListById(id).bind()
-        updateCustomList(customList.copy(locations = locations)).bind()
+        updateCustomList(customList.copy(locations = locations))
+            .mapLeft(UpdateCustomListLocationsError::from)
+            .bind()
     }
 
     suspend fun getCustomListById(id: CustomListId): Either<GetCustomListError, CustomList> =

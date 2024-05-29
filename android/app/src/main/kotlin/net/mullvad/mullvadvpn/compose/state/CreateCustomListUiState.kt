@@ -1,5 +1,5 @@
 package net.mullvad.mullvadvpn.compose.state
 
-import net.mullvad.mullvadvpn.usecase.customlists.CreateCustomListWithLocationsError
+import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionError
 
-data class CreateCustomListUiState(val error: CreateCustomListWithLocationsError? = null)
+data class CreateCustomListUiState(val error: CustomListActionError.CreateWithLocations? = null)

@@ -12,7 +12,9 @@ import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.EditCustomListNameUiState
 import net.mullvad.mullvadvpn.compose.test.EDIT_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG
-import net.mullvad.mullvadvpn.usecase.customlists.RenameCustomListError
+import net.mullvad.mullvadvpn.lib.model.NameAlreadyExists
+import net.mullvad.mullvadvpn.lib.model.UnknownCustomListError
+import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionError.Rename
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
@@ -45,7 +47,9 @@ class EditCustomListNameDialogTest {
         composeExtension.use {
             // Arrange
             val state =
-                EditCustomListNameUiState(error = RenameCustomListError.NameAlreadyExists("name"))
+                EditCustomListNameUiState(
+                    error = Rename(NameAlreadyExists("name"))
+                )
             setContentWithTheme { EditCustomListNameDialog(state = state) }
 
             // Assert
@@ -57,7 +61,11 @@ class EditCustomListNameDialogTest {
     fun givenOtherCustomListErrorShouldShowAnErrorOccurredErrorText() =
         composeExtension.use {
             // Arrange
-            val state = EditCustomListNameUiState(error = RenameCustomListError.Unknown(""))
+            val state =
+                EditCustomListNameUiState(
+                    error =
+                        Rename(UnknownCustomListError(RuntimeException("")))
+                )
             setContentWithTheme { EditCustomListNameDialog(state = state) }
 
             // Assert

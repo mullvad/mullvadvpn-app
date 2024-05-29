@@ -16,7 +16,7 @@ import net.mullvad.mullvadvpn.compose.state.EditCustomListNameUiState
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
-import net.mullvad.mullvadvpn.usecase.customlists.RenameCustomListError
+import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionError.Rename
 
 class EditCustomListNameDialogViewModel(
     private val customListId: CustomListId,
@@ -28,7 +28,7 @@ class EditCustomListNameDialogViewModel(
         Channel<EditCustomListNameDialogSideEffect>(1, BufferOverflow.DROP_OLDEST)
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
-    private val _error = MutableStateFlow<RenameCustomListError?>(null)
+    private val _error = MutableStateFlow<Rename?>(null)
 
     val uiState =
         _error

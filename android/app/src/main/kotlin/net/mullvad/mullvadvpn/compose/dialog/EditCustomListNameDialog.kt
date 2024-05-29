@@ -25,8 +25,11 @@ import net.mullvad.mullvadvpn.compose.test.EDIT_CUSTOM_LIST_DIALOG_INPUT_TEST_TA
 import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
+import net.mullvad.mullvadvpn.lib.model.GetCustomListError
+import net.mullvad.mullvadvpn.lib.model.NameAlreadyExists
+import net.mullvad.mullvadvpn.lib.model.UnknownCustomListError
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
-import net.mullvad.mullvadvpn.usecase.customlists.RenameCustomListError
+import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionError
 import net.mullvad.mullvadvpn.viewmodel.EditCustomListNameDialogSideEffect
 import net.mullvad.mullvadvpn.viewmodel.EditCustomListNameDialogViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -110,11 +113,11 @@ fun EditCustomListNameDialog(
 }
 
 @Composable
-private fun RenameCustomListError.errorString() =
+private fun CustomListActionError.Rename.errorString() =
     stringResource(
-        when (this) {
-            is RenameCustomListError.NameAlreadyExists -> R.string.custom_list_error_list_exists
-            is RenameCustomListError.NotFound,
-            is RenameCustomListError.Unknown -> R.string.error_occurred
+        when (error) {
+            is NameAlreadyExists -> R.string.custom_list_error_list_exists
+            is GetCustomListError,
+            is UnknownCustomListError -> R.string.error_occurred
         }
     )

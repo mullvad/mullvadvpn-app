@@ -11,14 +11,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
-import net.mullvad.mullvadvpn.lib.model.CreateCustomListError
 import net.mullvad.mullvadvpn.lib.model.CustomList
+import net.mullvad.mullvadvpn.lib.model.CustomListAlreadyExists
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.GetCustomListError
+import net.mullvad.mullvadvpn.lib.model.NameAlreadyExists
 import net.mullvad.mullvadvpn.lib.model.Settings
-import net.mullvad.mullvadvpn.lib.model.UpdateCustomListError
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -104,7 +104,7 @@ class CustomListsRepositoryTest {
     fun `create custom list should return lists exists when lists exists error event is received`() =
         runTest {
             // Arrange
-            val expectedResult = CreateCustomListError.CustomListAlreadyExists.left()
+            val expectedResult = CustomListAlreadyExists.left()
             val customListName = CustomListName.fromString("CUSTOM")
             coEvery { mockManagementService.createCustomList(customListName) } returns
                 expectedResult
@@ -148,8 +148,7 @@ class CustomListsRepositoryTest {
             // Arrange
             val customListId = CustomListId("1")
             val customListName = CustomListName.fromString("CUSTOM")
-            val expectedResult =
-                UpdateCustomListError.NameAlreadyExists(customListName.value).left()
+            val expectedResult = NameAlreadyExists(customListName.value).left()
             val mockSettings: Settings = mockk()
             val mockCustomList =
                 CustomList(

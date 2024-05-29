@@ -10,18 +10,17 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListResult
-import net.mullvad.mullvadvpn.lib.model.CreateCustomListError
 import net.mullvad.mullvadvpn.lib.model.CustomList
+import net.mullvad.mullvadvpn.lib.model.CustomListAlreadyExists
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
+import net.mullvad.mullvadvpn.lib.model.NameAlreadyExists
 import net.mullvad.mullvadvpn.lib.model.RelayItem
-import net.mullvad.mullvadvpn.lib.model.UpdateCustomListError
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.RelayListRepository
-import net.mullvad.mullvadvpn.usecase.customlists.CreateCustomListWithLocationsError
+import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionError
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
-import net.mullvad.mullvadvpn.usecase.customlists.RenameCustomListError
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -87,10 +86,9 @@ class CustomListActionUseCaseTest {
         val locationId = GeoLocationId.Country("AB")
         val action = CustomListAction.Create(name = name, locations = listOf(locationId))
         val expectedError =
-            CreateCustomListWithLocationsError.Create(CreateCustomListError.CustomListAlreadyExists)
-                .left()
+            CustomListActionError.CreateWithLocations.Create(CustomListAlreadyExists).left()
         coEvery { mockCustomListsRepository.createCustomList(name) } returns
-            CreateCustomListError.CustomListAlreadyExists.left()
+            CustomListAlreadyExists.left()
 
         // Act
         val result = customListActionUseCase.performAction(action)
@@ -127,9 +125,9 @@ class CustomListActionUseCaseTest {
         val action = CustomListAction.Rename(id = customListId, name = name, newName = newName)
         coEvery {
             mockCustomListsRepository.updateCustomListName(id = customListId, name = newName)
-        } returns UpdateCustomListError.NameAlreadyExists(newName.value).left()
+        } returns NameAlreadyExists(newName.value).left()
 
-        val expectedError = RenameCustomListError.NameAlreadyExists(newName.value).left()
+        val expectedError = CustomListActionError.Rename(NameAlreadyExists(newName.value)).left()
 
         // Act
         val result = customListActionUseCase.performAction(action)

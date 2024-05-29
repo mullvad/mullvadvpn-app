@@ -25,10 +25,10 @@ import net.mullvad.mullvadvpn.compose.component.CustomListNameTextField
 import net.mullvad.mullvadvpn.compose.destinations.CustomListLocationsDestination
 import net.mullvad.mullvadvpn.compose.state.CreateCustomListUiState
 import net.mullvad.mullvadvpn.compose.test.CREATE_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG
-import net.mullvad.mullvadvpn.lib.model.CreateCustomListError
+import net.mullvad.mullvadvpn.lib.model.CustomListAlreadyExists
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
-import net.mullvad.mullvadvpn.usecase.customlists.CreateCustomListWithLocationsError
+import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionError
 import net.mullvad.mullvadvpn.viewmodel.CreateCustomListDialogSideEffect
 import net.mullvad.mullvadvpn.viewmodel.CreateCustomListDialogViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -48,8 +48,8 @@ private fun PreviewCreateCustomListDialogError() {
             state =
                 CreateCustomListUiState(
                     error =
-                        CreateCustomListWithLocationsError.Create(
-                            CreateCustomListError.CustomListAlreadyExists
+                    CustomListActionError.CreateWithLocations.Create(
+                            CustomListAlreadyExists
                         )
                 )
         )
@@ -140,11 +140,11 @@ fun CreateCustomListDialog(
 }
 
 @Composable
-private fun CreateCustomListWithLocationsError.errorString() =
+private fun CustomListActionError.CreateWithLocations.errorString() =
     stringResource(
         if (
-            this is CreateCustomListWithLocationsError.Create &&
-                this.error is CreateCustomListError.CustomListAlreadyExists
+            this is CustomListActionError.CreateWithLocations.Create &&
+                this.error is CustomListAlreadyExists
         ) {
             R.string.custom_list_error_list_exists
         } else {

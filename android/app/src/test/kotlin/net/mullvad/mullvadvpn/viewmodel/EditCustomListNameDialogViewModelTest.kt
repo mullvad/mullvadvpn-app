@@ -12,8 +12,9 @@ import net.mullvad.mullvadvpn.compose.communication.CustomListResult
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
+import net.mullvad.mullvadvpn.lib.model.NameAlreadyExists
+import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionError
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
-import net.mullvad.mullvadvpn.usecase.customlists.RenameCustomListError
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
@@ -48,7 +49,7 @@ class EditCustomListNameDialogViewModelTest {
         // Arrange
         val customListId = CustomListId("id2")
         val customListName = "list2"
-        val expectedError = RenameCustomListError.NameAlreadyExists(customListName)
+        val expectedError = CustomListActionError.Rename(NameAlreadyExists(customListName))
         val viewModel = createViewModel(customListId, customListName)
         coEvery {
             mockCustomListActionUseCase.performAction(any<CustomListAction.Rename>())
@@ -68,7 +69,7 @@ class EditCustomListNameDialogViewModelTest {
             // Arrange
             val customListId = CustomListId("id")
             val customListName = "list"
-            val expectedError = RenameCustomListError.NameAlreadyExists(customListName)
+            val expectedError = CustomListActionError.Rename(NameAlreadyExists(customListName))
             val viewModel = createViewModel(customListId, customListName)
             coEvery {
                 mockCustomListActionUseCase.performAction(any<CustomListAction.Rename>())

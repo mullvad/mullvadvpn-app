@@ -6,11 +6,10 @@ import kotlinx.coroutines.flow.firstOrNull
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListResult
 import net.mullvad.mullvadvpn.lib.model.CreateCustomListError
-import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.DeleteCustomListError
 import net.mullvad.mullvadvpn.lib.model.GetCustomListError
-import net.mullvad.mullvadvpn.lib.model.PartialUpdateCustomListError
-import net.mullvad.mullvadvpn.lib.model.UpdateCustomListError
+import net.mullvad.mullvadvpn.lib.model.UpdateCustomListLocationsError
+import net.mullvad.mullvadvpn.lib.model.UpdateCustomListNameError
 import net.mullvad.mullvadvpn.relaylist.getRelayItemsByCodes
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.RelayListRepository
@@ -40,41 +39,33 @@ class CustomListActionUseCase(
 
     suspend fun performAction(
         action: CustomListAction.Rename
-    ): Either<RenameCustomListError, CustomListResult.Renamed> =
+    ): Either<CustomListActionError.Rename, CustomListResult.Renamed> =
         customListsRepository
             .updateCustomListName(action.id, action.newName)
             .map { CustomListResult.Renamed(undo = action.not()) }
-            .mapLeft {
-                when (it) {
-                    is GetCustomListError -> RenameCustomListError.NotFound(action.id)
-                    is UpdateCustomListError.NameAlreadyExists ->
-                        RenameCustomListError.NameAlreadyExists(action.newName.value)
-                    is UpdateCustomListError.Unknown ->
-                        RenameCustomListError.Unknown(it.throwable.message ?: "", it.throwable)
-                }
-            }
+            .mapLeft(CustomListActionError::Rename)
 
     suspend fun performAction(
         action: CustomListAction.Create
-    ): Either<CreateCustomListWithLocationsError, CustomListResult.Created> = either {
+    ): Either<CustomListActionError.CreateWithLocations, CustomListResult.Created> = either {
         val customListId =
             customListsRepository
                 .createCustomList(action.name)
-                .mapLeft(CreateCustomListWithLocationsError::Create)
+                .mapLeft(CustomListActionError.CreateWithLocations::Create)
                 .bind()
 
         val locationNames =
             if (action.locations.isNotEmpty()) {
                 customListsRepository
                     .updateCustomListLocations(customListId, action.locations)
-                    .mapLeft(CreateCustomListWithLocationsError::PartialUpdate)
+                    .mapLeft(CustomListActionError.CreateWithLocations::UpdateLocations)
                     .bind()
 
                 relayListRepository.relayList
                     .firstOrNull()
                     ?.getRelayItemsByCodes(action.locations)
                     ?.map { it.name }
-                    ?: raise(CreateCustomListWithLocationsError.UnableToFetchRelayList)
+                    ?: raise(CustomListActionError.CreateWithLocations.UnableToFetchRelayList)
             } else {
                 emptyList()
             }
@@ -89,15 +80,15 @@ class CustomListActionUseCase(
 
     suspend fun performAction(
         action: CustomListAction.Delete
-    ): Either<DeleteCustomListWithUndoError, CustomListResult.Deleted> = either {
+    ): Either<CustomListActionError.DeleteWithUndo, CustomListResult.Deleted> = either {
         val customList =
             customListsRepository
                 .getCustomListById(action.id)
-                .mapLeft(DeleteCustomListWithUndoError::Get)
+                .mapLeft(CustomListActionError.DeleteWithUndo::Fetch)
                 .bind()
         customListsRepository
             .deleteCustomList(action.id)
-            .mapLeft(DeleteCustomListWithUndoError::Delete)
+            .mapLeft(CustomListActionError.DeleteWithUndo::Delete)
             .bind()
         CustomListResult.Deleted(
             undo = action.not(locations = customList.locations, name = customList.name)
@@ -106,15 +97,15 @@ class CustomListActionUseCase(
 
     suspend fun performAction(
         action: CustomListAction.UpdateLocations
-    ): Either<UpdateLocationsCustomListError, CustomListResult.LocationsChanged> = either {
+    ): Either<CustomListActionError.UpdateLocations, CustomListResult.LocationsChanged> = either {
         val customList =
             customListsRepository
                 .getCustomListById(action.id)
-                .mapLeft(UpdateLocationsCustomListError::PartialUpdate)
+                .mapLeft(CustomListActionError.UpdateLocations::Fetch)
                 .bind()
         customListsRepository
             .updateCustomListLocations(action.id, action.locations)
-            .mapLeft(UpdateLocationsCustomListError::PartialUpdate)
+            .mapLeft(CustomListActionError.UpdateLocations::Update)
             .bind()
         CustomListResult.LocationsChanged(
             name = customList.name,
@@ -123,33 +114,36 @@ class CustomListActionUseCase(
     }
 }
 
-sealed interface CustomListActionError
+sealed interface CustomListActionError {
 
-sealed interface CreateCustomListWithLocationsError : CustomListActionError {
-    data class Create(val error: CreateCustomListError) : CreateCustomListWithLocationsError
+    sealed interface CreateWithLocations : CustomListActionError {
 
-    data class PartialUpdate(val error: PartialUpdateCustomListError) :
-        CreateCustomListWithLocationsError
+        data class Create(val error: CreateCustomListError) :
+            CreateWithLocations
 
-    data object UnableToFetchRelayList : CreateCustomListWithLocationsError
-}
+        data class UpdateLocations(val error: UpdateCustomListLocationsError) :
+            CreateWithLocations
 
-sealed interface DeleteCustomListWithUndoError : CustomListActionError {
-    data class Delete(val error: DeleteCustomListError) : DeleteCustomListWithUndoError
+        data object UnableToFetchRelayList : CreateWithLocations
+    }
 
-    data class Get(val error: GetCustomListError) : DeleteCustomListWithUndoError
-}
+    sealed interface DeleteWithUndo : CustomListActionError {
+        data class Fetch(val getCustomListError: GetCustomListError) :
+            DeleteWithUndo
 
-sealed interface RenameCustomListError : CustomListActionError {
-    data class NotFound(val id: CustomListId) : RenameCustomListError
+        data class Delete(val deleteCustomListError: DeleteCustomListError) :
+            DeleteWithUndo
+    }
 
-    data class NameAlreadyExists(val name: String) : RenameCustomListError
+    data class Rename(val error: UpdateCustomListNameError) :
+        CustomListActionError
 
-    data class Unknown(val message: String, val throwable: Throwable? = null) :
-        RenameCustomListError
-}
+    sealed interface UpdateLocations : CustomListActionError {
 
-sealed interface UpdateLocationsCustomListError : CustomListActionError {
-    data class PartialUpdate(val error: PartialUpdateCustomListError) :
-        UpdateLocationsCustomListError
+        data class Fetch(val getCustomListError: GetCustomListError) :
+            UpdateLocations
+
+        data class Update(val updateCustomListLocationsError: UpdateCustomListLocationsError) :
+            UpdateLocations
+    }
 }
