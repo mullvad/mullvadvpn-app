@@ -1,7 +1,9 @@
 package net.mullvad.mullvadvpn.compose.screen
 
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -19,6 +21,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -35,6 +38,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -43,6 +47,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.popUpTo
+import com.ramcosta.composedestinations.result.ResultRecipient
+import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.NavGraphs
 import net.mullvad.mullvadvpn.compose.button.ConnectionButton
@@ -58,6 +64,7 @@ import net.mullvad.mullvadvpn.compose.destinations.DeviceRevokedDestination
 import net.mullvad.mullvadvpn.compose.destinations.OutOfTimeDestination
 import net.mullvad.mullvadvpn.compose.destinations.SelectLocationDestination
 import net.mullvad.mullvadvpn.compose.destinations.SettingsDestination
+import net.mullvad.mullvadvpn.compose.extensions.createOpenAccountPageHook
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.test.CONNECT_BUTTON_TEST_TAG
@@ -67,27 +74,30 @@ import net.mullvad.mullvadvpn.compose.test.SCROLLABLE_COLUMN_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.HomeTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
+import net.mullvad.mullvadvpn.compose.util.RequestVpnPermission
+import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.constant.SECURE_ZOOM
 import net.mullvad.mullvadvpn.constant.SECURE_ZOOM_ANIMATION_MILLIS
 import net.mullvad.mullvadvpn.constant.UNSECURE_ZOOM
 import net.mullvad.mullvadvpn.constant.fallbackLatLong
-import net.mullvad.mullvadvpn.lib.common.util.openAccountPageInBrowser
 import net.mullvad.mullvadvpn.lib.map.AnimatedMap
 import net.mullvad.mullvadvpn.lib.map.data.GlobeColors
 import net.mullvad.mullvadvpn.lib.map.data.LocationMarkerColors
 import net.mullvad.mullvadvpn.lib.map.data.Marker
+import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
+import net.mullvad.mullvadvpn.lib.model.LatLong
+import net.mullvad.mullvadvpn.lib.model.Latitude
+import net.mullvad.mullvadvpn.lib.model.Longitude
+import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInvisible
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaTopBar
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
-import net.mullvad.mullvadvpn.model.GeoIpLocation
-import net.mullvad.mullvadvpn.model.LatLong
-import net.mullvad.mullvadvpn.model.Latitude
-import net.mullvad.mullvadvpn.model.Longitude
-import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.util.appendHideNavOnPlayBuild
+import net.mullvad.mullvadvpn.util.removeHtmlTags
 import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -106,20 +116,31 @@ private fun PreviewConnectScreen() {
 
 @Destination(style = HomeTransition::class)
 @Composable
-fun Connect(navigator: DestinationsNavigator) {
+fun Connect(
+    navigator: DestinationsNavigator,
+    selectLocationResultRecipient: ResultRecipient<SelectLocationDestination, Boolean>
+) {
     val connectViewModel: ConnectViewModel = koinViewModel()
 
     val state by connectViewModel.uiState.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
 
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    val launchVpnPermission =
+        rememberLauncherForActivityResult(RequestVpnPermission()) {
+            connectViewModel.requestVpnPermissionResult(it)
+        }
+
+    val openAccountPage = LocalUriHandler.current.createOpenAccountPageHook()
     CollectSideEffectWithLifecycle(
         connectViewModel.uiSideEffect,
         minActiveState = Lifecycle.State.RESUMED
     ) { sideEffect ->
         when (sideEffect) {
             is ConnectViewModel.UiSideEffect.OpenAccountManagementPageInBrowser -> {
-                context.openAccountPageInBrowser(sideEffect.token)
+                openAccountPage(sideEffect.token)
             }
             is ConnectViewModel.UiSideEffect.OutOfTime ->
                 navigator.navigate(OutOfTimeDestination, true) {
@@ -131,11 +152,25 @@ fun Connect(navigator: DestinationsNavigator) {
                     launchSingleTop = true
                     popUpTo(NavGraphs.root) { inclusive = true }
                 }
+            is ConnectViewModel.UiSideEffect.NoVpnPermission -> launchVpnPermission.launch(Unit)
+            is ConnectViewModel.UiSideEffect.ConnectError ->
+                launch {
+                    snackbarHostState.showSnackbarImmediately(
+                        message = sideEffect.toMessage(context),
+                    )
+                }
+        }
+    }
+
+    selectLocationResultRecipient.OnNavResultValue { result ->
+        if (result) {
+            connectViewModel.onConnectClick()
         }
     }
 
     ConnectScreen(
         state = state,
+        snackbarHostState = snackbarHostState,
         onDisconnectClick = connectViewModel::onDisconnectClick,
         onReconnectClick = connectViewModel::onReconnectClick,
         onConnectClick = connectViewModel::onConnectClick,
@@ -170,6 +205,7 @@ fun Connect(navigator: DestinationsNavigator) {
 @Composable
 fun ConnectScreen(
     state: ConnectUiState,
+    snackbarHostState: SnackbarHostState = SnackbarHostState(),
     onDisconnectClick: () -> Unit = {},
     onReconnectClick: () -> Unit = {},
     onConnectClick: () -> Unit = {},
@@ -185,12 +221,13 @@ fun ConnectScreen(
     val scrollState = rememberScrollState()
 
     ScaffoldWithTopBarAndDeviceName(
-        topBarColor = state.tunnelUiState.topBarColor(),
-        iconTintColor = state.tunnelUiState.iconTintColor(),
+        topBarColor = state.tunnelState.topBarColor(),
+        iconTintColor = state.tunnelState.iconTintColor(),
         onSettingsClicked = onSettingsClick,
         onAccountClicked = onAccountClick,
         deviceName = state.deviceName,
-        timeLeft = state.daysLeftUntilExpiry
+        timeLeft = state.daysLeftUntilExpiry,
+        snackbarHostState = snackbarHostState
     ) {
         var progressIndicatorBias by remember { mutableFloatStateOf(0f) }
 
@@ -264,12 +301,12 @@ private fun MapColumn(
     val baseZoom =
         animateFloatAsState(
             targetValue =
-                if (state.tunnelRealState is TunnelState.Connected) SECURE_ZOOM else UNSECURE_ZOOM,
+                if (state.tunnelState is TunnelState.Connected) SECURE_ZOOM else UNSECURE_ZOOM,
             animationSpec = tween(SECURE_ZOOM_ANIMATION_MILLIS),
             label = "baseZoom"
         )
 
-    val markers = state.tunnelRealState.toMarker(state.location)?.let { listOf(it) } ?: emptyList()
+    val markers = state.tunnelState.toMarker(state.location)?.let { listOf(it) } ?: emptyList()
 
     AnimatedMap(
         modifier = Modifier.padding(top = it.calculateTopPadding()),
@@ -308,7 +345,7 @@ private fun MapColumn(
 @Composable
 private fun ConnectionInfo(state: ConnectUiState) {
     ConnectionStatusText(
-        state = state.tunnelRealState,
+        state = state.tunnelState,
         modifier = Modifier.padding(horizontal = Dimens.sideMargin)
     )
     Text(
@@ -365,15 +402,15 @@ private fun ButtonPanel(
         onClick = onSwitchLocationClick,
         showChevron = state.showLocation,
         text =
-            if (state.showLocation && state.selectedRelayItem != null) {
-                state.selectedRelayItem.locationName
+            if (state.showLocation && state.selectedRelayItemTitle != null) {
+                state.selectedRelayItemTitle
             } else {
                 stringResource(id = R.string.switch_location)
             }
     )
     Spacer(modifier = Modifier.height(Dimens.buttonSpacing))
     ConnectionButton(
-        state = state.tunnelUiState,
+        state = state.tunnelState,
         modifier =
             Modifier.padding(horizontal = Dimens.sideMargin)
                 .padding(bottom = Dimens.screenVerticalMargin)
@@ -422,3 +459,16 @@ fun TunnelState.iconTintColor(): Color =
 
 fun GeoIpLocation.toLatLong() =
     LatLong(Latitude(latitude.toFloat()), Longitude(longitude.toFloat()))
+
+private fun ConnectViewModel.UiSideEffect.ConnectError.toMessage(context: Context): String =
+    when (this) {
+        ConnectViewModel.UiSideEffect.ConnectError.NoVpnPermission ->
+            context.getString(R.string.vpn_permission_denied_error)
+        is ConnectViewModel.UiSideEffect.ConnectError.AlwaysOnVpn ->
+            // Snackbar currently do not support annotated string
+            context
+                .getString(R.string.always_on_vpn_error_notification_content, appName)
+                .removeHtmlTags()
+        ConnectViewModel.UiSideEffect.ConnectError.Generic ->
+            context.getString(R.string.error_occurred)
+    }

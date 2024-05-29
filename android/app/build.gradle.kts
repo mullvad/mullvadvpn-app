@@ -174,22 +174,23 @@ android {
                     "META-INF/LGPL2.1",
                     // Fixes packaging error caused by: jetified-junit-*
                     "META-INF/LICENSE.md",
-                    "META-INF/LICENSE-notice.md"
+                    "META-INF/LICENSE-notice.md",
+                    "META-INF/io.netty.versions.properties",
+                    "META-INF/INDEX.LIST"
                 )
         }
     }
 
     applicationVariants.configureEach {
         val alwaysShowChangelog =
-            gradleLocalProperties(rootProject.projectDir, providers).getProperty("ALWAYS_SHOW_CHANGELOG")
-                ?: "false"
+            gradleLocalProperties(rootProject.projectDir, providers)
+                .getProperty("ALWAYS_SHOW_CHANGELOG") ?: "false"
 
         buildConfigField("boolean", "ALWAYS_SHOW_CHANGELOG", alwaysShowChangelog)
 
         val enableInAppVersionNotifications =
             gradleLocalProperties(rootProject.projectDir, providers)
-                .getProperty("ENABLE_IN_APP_VERSION_NOTIFICATIONS")
-                ?: "true"
+                .getProperty("ENABLE_IN_APP_VERSION_NOTIFICATIONS") ?: "true"
 
         buildConfigField(
             "boolean",
@@ -305,18 +306,19 @@ afterEvaluate {
 play { serviceAccountCredentials.set(file("play-api-key.json")) }
 
 dependencies {
-    implementation(project(Dependencies.Mullvad.vpnService))
-    implementation(project(Dependencies.Mullvad.tileService))
-
     implementation(project(Dependencies.Mullvad.commonLib))
+    implementation(project(Dependencies.Mullvad.daemonGrpc))
     implementation(project(Dependencies.Mullvad.endpointLib))
-    implementation(project(Dependencies.Mullvad.ipcLib))
-    implementation(project(Dependencies.Mullvad.modelLib))
-    implementation(project(Dependencies.Mullvad.resourceLib))
-    implementation(project(Dependencies.Mullvad.talpidLib))
-    implementation(project(Dependencies.Mullvad.themeLib))
-    implementation(project(Dependencies.Mullvad.paymentLib))
+    implementation(project(Dependencies.Mullvad.intentLib))
     implementation(project(Dependencies.Mullvad.mapLib))
+    implementation(project(Dependencies.Mullvad.modelLib))
+    implementation(project(Dependencies.Mullvad.paymentLib))
+    implementation(project(Dependencies.Mullvad.resourceLib))
+    implementation(project(Dependencies.Mullvad.sharedLib))
+    implementation(project(Dependencies.Mullvad.talpidLib))
+    implementation(project(Dependencies.Mullvad.tileService))
+    implementation(project(Dependencies.Mullvad.themeLib))
+    implementation(project(Dependencies.Mullvad.vpnService))
 
     // Play implementation
     playImplementation(project(Dependencies.Mullvad.billingLib))
@@ -326,6 +328,7 @@ dependencies {
     implementation(Dependencies.AndroidX.lifecycleRuntimeKtx)
     implementation(Dependencies.AndroidX.lifecycleViewmodelKtx)
     implementation(Dependencies.AndroidX.lifecycleRuntimeCompose)
+    implementation(Dependencies.Arrow.core)
     implementation(Dependencies.Compose.constrainLayout)
     implementation(Dependencies.Compose.foundation)
     implementation(Dependencies.Compose.material3)

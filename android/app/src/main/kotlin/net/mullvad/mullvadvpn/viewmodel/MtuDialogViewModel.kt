@@ -5,34 +5,77 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.lib.model.Mtu
 import net.mullvad.mullvadvpn.repository.SettingsRepository
-import net.mullvad.mullvadvpn.util.isValidMtu
 
 class MtuDialogViewModel(
     private val repository: SettingsRepository,
+    private val initialMtu: Mtu?,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
+
+    private val _mtuInput = MutableStateFlow(initialMtu?.value?.toString() ?: "")
+    private val _isValidMtu = MutableStateFlow(true)
+    val uiState: StateFlow<MtuDialogUiState> =
+        combine(_mtuInput, _isValidMtu, ::createState)
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(),
+                createState(_mtuInput.value, _isValidMtu.value)
+            )
 
     private val _uiSideEffect = Channel<MtuDialogSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
-    fun onSaveClick(mtuValue: Int) =
+    private fun createState(mtuInput: String, isValidMtuInput: Boolean) =
+        MtuDialogUiState(
+            mtuInput = mtuInput,
+            isValidInput = isValidMtuInput,
+            showResetToDefault = initialMtu != null
+        )
+
+    fun onInputChanged(value: String) {
+        _mtuInput.value = value
+        _isValidMtu.value = Mtu.fromString(value).isRight()
+    }
+
+    fun onSaveClick(mtuValue: String) =
         viewModelScope.launch(dispatcher) {
-            if (mtuValue.isValidMtu()) {
-                repository.setWireguardMtu(mtuValue)
-            }
-            _uiSideEffect.send(MtuDialogSideEffect.Complete)
+            val mtu = Mtu.fromString(mtuValue).getOrNull() ?: return@launch
+            repository
+                .setWireguardMtu(mtu)
+                .fold(
+                    { _uiSideEffect.send(MtuDialogSideEffect.Error) },
+                    { _uiSideEffect.send(MtuDialogSideEffect.Complete) }
+                )
         }
 
     fun onRestoreClick() =
         viewModelScope.launch(dispatcher) {
-            repository.setWireguardMtu(null)
-            _uiSideEffect.send(MtuDialogSideEffect.Complete)
+            repository
+                .resetWireguardMtu()
+                .fold(
+                    { _uiSideEffect.send(MtuDialogSideEffect.Error) },
+                    { _uiSideEffect.send(MtuDialogSideEffect.Complete) }
+                )
         }
 }
 
 sealed interface MtuDialogSideEffect {
     data object Complete : MtuDialogSideEffect
+
+    data object Error : MtuDialogSideEffect
 }
+
+data class MtuDialogUiState(
+    val mtuInput: String,
+    val isValidInput: Boolean,
+    val showResetToDefault: Boolean
+)

@@ -3,10 +3,11 @@ plugins {
     id(Dependencies.Plugin.junit5) version Versions.Plugin.junit5
     id(Dependencies.Plugin.kotlinAndroidId)
     id(Dependencies.Plugin.kotlinParcelizeId)
+    id(Dependencies.Plugin.ksp) version Versions.Plugin.ksp
 }
 
 android {
-    namespace = "net.mullvad.mullvadvpn.model"
+    namespace = "net.mullvad.mullvadvpn.lib.model"
     compileSdk = Versions.Android.compileSdkVersion
 
     defaultConfig {
@@ -29,11 +30,12 @@ android {
 }
 
 dependencies {
-    implementation(project(Dependencies.Mullvad.talpidLib))
-
     implementation(Dependencies.jodaTime)
     implementation(Dependencies.Kotlin.stdlib)
     implementation(Dependencies.KotlinX.coroutinesAndroid)
+    implementation(Dependencies.Arrow.core)
+    implementation(Dependencies.Arrow.optics)
+    ksp(Dependencies.Arrow.opticsKsp)
 
     // Test dependencies
     testRuntimeOnly(Dependencies.junitEngine)

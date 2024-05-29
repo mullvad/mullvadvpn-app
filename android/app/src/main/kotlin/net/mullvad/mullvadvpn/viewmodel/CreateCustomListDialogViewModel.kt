@@ -10,16 +10,17 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.compose.communication.Created
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
-import net.mullvad.mullvadvpn.compose.communication.CustomListResult
 import net.mullvad.mullvadvpn.compose.state.CreateCustomListUiState
-import net.mullvad.mullvadvpn.model.CustomListName
-import net.mullvad.mullvadvpn.model.CustomListsError
+import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.CustomListName
+import net.mullvad.mullvadvpn.lib.model.GeoLocationId
+import net.mullvad.mullvadvpn.usecase.customlists.CreateWithLocationsError
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
-import net.mullvad.mullvadvpn.usecase.customlists.CustomListsException
 
 class CreateCustomListDialogViewModel(
-    private val locationCode: String,
+    private val locationCode: GeoLocationId?,
     private val customListActionUseCase: CustomListActionUseCase,
 ) : ViewModel() {
 
@@ -27,7 +28,7 @@ class CreateCustomListDialogViewModel(
         Channel<CreateCustomListDialogSideEffect>(1, BufferOverflow.DROP_OLDEST)
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
-    private val _error = MutableStateFlow<CustomListsError?>(null)
+    private val _error = MutableStateFlow<CreateWithLocationsError?>(null)
 
     val uiState =
         _error
@@ -40,31 +41,21 @@ class CreateCustomListDialogViewModel(
                 .performAction(
                     CustomListAction.Create(
                         CustomListName.fromString(name),
-                        if (locationCode.isNotEmpty()) {
-                            listOf(locationCode)
-                        } else {
-                            emptyList()
-                        }
+                        listOfNotNull(locationCode)
                     )
                 )
                 .fold(
-                    onSuccess = { result ->
-                        if (result.locationName != null) {
-                            _uiSideEffect.send(
-                                CreateCustomListDialogSideEffect.ReturnWithResult(result)
-                            )
-                        } else {
+                    { _error.emit(it) },
+                    {
+                        if (it.locationNames.isEmpty()) {
                             _uiSideEffect.send(
                                 CreateCustomListDialogSideEffect
-                                    .NavigateToCustomListLocationsScreen(result.id)
+                                    .NavigateToCustomListLocationsScreen(it.id)
                             )
-                        }
-                    },
-                    onFailure = { error ->
-                        if (error is CustomListsException) {
-                            _error.emit(error.error)
                         } else {
-                            _error.emit(CustomListsError.OtherError)
+                            _uiSideEffect.send(
+                                CreateCustomListDialogSideEffect.ReturnWithResult(it)
+                            )
                         }
                     }
                 )
@@ -78,9 +69,8 @@ class CreateCustomListDialogViewModel(
 
 sealed interface CreateCustomListDialogSideEffect {
 
-    data class NavigateToCustomListLocationsScreen(val customListId: String) :
+    data class NavigateToCustomListLocationsScreen(val customListId: CustomListId) :
         CreateCustomListDialogSideEffect
 
-    data class ReturnWithResult(val result: CustomListResult.Created) :
-        CreateCustomListDialogSideEffect
+    data class ReturnWithResult(val result: Created) : CreateCustomListDialogSideEffect
 }

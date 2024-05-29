@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.compose.screen
 
+import android.content.Context
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -19,6 +20,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -31,7 +33,6 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
@@ -49,6 +50,7 @@ import net.mullvad.mullvadvpn.compose.cell.NavigationComposeCell
 import net.mullvad.mullvadvpn.compose.cell.NormalSwitchComposeCell
 import net.mullvad.mullvadvpn.compose.cell.SelectableCell
 import net.mullvad.mullvadvpn.compose.cell.SwitchComposeSubtitleCell
+import net.mullvad.mullvadvpn.compose.communication.DnsDialogResult
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.component.textResource
@@ -81,17 +83,19 @@ import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
 import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
+import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.constant.WIREGUARD_PRESET_PORTS
+import net.mullvad.mullvadvpn.lib.model.Constraint
+import net.mullvad.mullvadvpn.lib.model.Mtu
+import net.mullvad.mullvadvpn.lib.model.Port
+import net.mullvad.mullvadvpn.lib.model.PortRange
+import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
+import net.mullvad.mullvadvpn.lib.model.SelectedObfuscation
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
-import net.mullvad.mullvadvpn.model.Constraint
-import net.mullvad.mullvadvpn.model.Port
-import net.mullvad.mullvadvpn.model.PortRange
-import net.mullvad.mullvadvpn.model.QuantumResistantState
-import net.mullvad.mullvadvpn.model.SelectedObfuscation
 import net.mullvad.mullvadvpn.util.hasValue
 import net.mullvad.mullvadvpn.util.isCustom
-import net.mullvad.mullvadvpn.util.toValueOrNull
+import net.mullvad.mullvadvpn.util.toPortOrNull
 import net.mullvad.mullvadvpn.viewmodel.CustomDnsItem
 import net.mullvad.mullvadvpn.viewmodel.VpnSettingsSideEffect
 import net.mullvad.mullvadvpn.viewmodel.VpnSettingsViewModel
@@ -105,7 +109,7 @@ private fun PreviewVpnSettings() {
             state =
                 VpnSettingsUiState.createDefault(
                     isAutoConnectEnabled = true,
-                    mtu = "1337",
+                    mtu = Mtu(1337),
                     isCustomDnsEnabled = true,
                     customDnsItems = listOf(CustomDnsItem("0.0.0.0", false)),
                 ),
@@ -131,45 +135,47 @@ private fun PreviewVpnSettings() {
 
 @Destination(style = SlideInFromRightTransition::class)
 @Composable
+@Suppress("LongMethod")
 fun VpnSettings(
     navigator: DestinationsNavigator,
-    dnsDialogResult: ResultRecipient<DnsDialogDestination, Boolean>,
-    customWgPortResult: ResultRecipient<WireguardCustomPortDialogDestination, Int?>
+    dnsDialogResult: ResultRecipient<DnsDialogDestination, DnsDialogResult>,
+    customWgPortResult: ResultRecipient<WireguardCustomPortDialogDestination, Port?>,
+    mtuDialogResult: ResultRecipient<MtuDialogDestination, Boolean>,
 ) {
     val vm = koinViewModel<VpnSettingsViewModel>()
     val state by vm.uiState.collectAsStateWithLifecycle()
 
     dnsDialogResult.OnNavResultValue { result ->
-        if (result) {
-            vm.showApplySettingChangesWarningToast()
-        } else {
-            vm.onDnsDialogDismissed()
-        }
-    }
-
-    customWgPortResult.onNavResult {
-        when (it) {
-            NavResult.Canceled -> {}
-            is NavResult.Value -> {
-                val port = it.value
-
-                if (port != null) {
-                    vm.onWireguardPortSelected(Constraint.Only(Port(port)))
-                } else {
-                    vm.resetCustomPort()
-                }
+        when (result) {
+            DnsDialogResult.Success -> vm.showApplySettingChangesWarningToast()
+            DnsDialogResult.Cancel -> vm.onDnsDialogDismissed()
+            DnsDialogResult.Error -> {
+                vm.showGenericErrorToast()
+                vm.onDnsDialogDismissed()
             }
         }
     }
 
+    customWgPortResult.OnNavResultValue { port ->
+        if (port != null) {
+            vm.onWireguardPortSelected(Constraint.Only(port))
+        } else {
+            vm.resetCustomPort()
+        }
+    }
+
+    mtuDialogResult.OnNavResultValue { result ->
+        if (!result) {
+            vm.showGenericErrorToast()
+        }
+    }
+
     val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
     LaunchedEffectCollect(vm.uiSideEffect) {
         when (it) {
             is VpnSettingsSideEffect.ShowToast ->
-                launch {
-                    snackbarHostState.currentSnackbarData?.dismiss()
-                    snackbarHostState.showSnackbar(message = it.message)
-                }
+                launch { snackbarHostState.showSnackbarImmediately(message = it.message(context)) }
             VpnSettingsSideEffect.NavigateToDnsDialog ->
                 navigator.navigate(DnsDialogDestination(null, null)) { launchSingleTop = true }
         }
@@ -240,7 +246,7 @@ fun VpnSettings(
         navigateToWireguardPortDialog = {
             val args =
                 WireguardCustomPortNavArgs(
-                    state.customWireguardPort?.toValueOrNull(),
+                    state.customWireguardPort?.toPortOrNull(),
                     state.availablePortRanges
                 )
             navigator.navigate(WireguardCustomPortDialogDestination(args)) {
@@ -280,7 +286,7 @@ fun VpnSettingsScreen(
     onToggleBlockAdultContent: (Boolean) -> Unit = {},
     onToggleBlockGambling: (Boolean) -> Unit = {},
     onToggleBlockSocialMedia: (Boolean) -> Unit = {},
-    navigateToMtuDialog: (mtu: Int?) -> Unit = {},
+    navigateToMtuDialog: (mtu: Mtu?) -> Unit = {},
     navigateToDns: (index: Int?, address: String?) -> Unit = { _, _ -> },
     onToggleDnsClick: (Boolean) -> Unit = {},
     onBackClick: () -> Unit = {},
@@ -512,8 +518,8 @@ fun VpnSettingsScreen(
             itemWithDivider {
                 SelectableCell(
                     title = stringResource(id = R.string.automatic),
-                    isSelected = state.selectedWireguardPort is Constraint.Any,
-                    onCellClicked = { onWireguardPortSelected(Constraint.Any()) }
+                    isSelected = state.selectedWireguardPort == Constraint.Any,
+                    onCellClicked = { onWireguardPortSelected(Constraint.Any) }
                 )
             }
 
@@ -532,7 +538,7 @@ fun VpnSettingsScreen(
                 CustomPortCell(
                     title = stringResource(id = R.string.wireguard_custon_port_title),
                     isSelected = state.selectedWireguardPort.isCustom(),
-                    port = state.customWireguardPort?.toValueOrNull(),
+                    port = state.customWireguardPort?.toPortOrNull(),
                     onMainCellClicked = {
                         if (state.customWireguardPort != null) {
                             onWireguardPortSelected(state.customWireguardPort)
@@ -610,10 +616,7 @@ fun VpnSettingsScreen(
             }
 
             item {
-                MtuComposeCell(
-                    mtuValue = state.mtu,
-                    onEditMtu = { navigateToMtuDialog(state.mtu.toIntOrNull()) }
-                )
+                MtuComposeCell(mtuValue = state.mtu, onEditMtu = { navigateToMtuDialog(state.mtu) })
             }
             item {
                 MtuSubtitle(modifier = Modifier.testTag(LAZY_LIST_LAST_ITEM_TEST_TAG))
@@ -632,3 +635,10 @@ private fun ServerIpOverrides(onServerIpOverridesClick: () -> Unit) {
         onClick = onServerIpOverridesClick
     )
 }
+
+private fun VpnSettingsSideEffect.ShowToast.message(context: Context) =
+    when (this) {
+        VpnSettingsSideEffect.ShowToast.ApplySettingsWarning ->
+            context.getString(R.string.settings_changes_effect_warning_short)
+        VpnSettingsSideEffect.ShowToast.GenericError -> context.getString(R.string.error_occurred)
+    }

@@ -13,7 +13,7 @@ import net.mullvad.mullvadvpn.lib.map.data.GlobeColors
 import net.mullvad.mullvadvpn.lib.map.data.MapViewState
 import net.mullvad.mullvadvpn.lib.map.data.Marker
 import net.mullvad.mullvadvpn.lib.map.internal.MapGLSurfaceView
-import net.mullvad.mullvadvpn.model.LatLong
+import net.mullvad.mullvadvpn.lib.model.LatLong
 
 @Composable
 fun Map(

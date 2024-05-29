@@ -13,18 +13,15 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
-import net.mullvad.mullvadvpn.lib.ipc.Event
-import net.mullvad.mullvadvpn.lib.ipc.MessageHandler
-import net.mullvad.mullvadvpn.lib.ipc.events
-import net.mullvad.mullvadvpn.model.AccountExpiry
-import net.mullvad.mullvadvpn.model.TunnelState
-import net.mullvad.mullvadvpn.repository.AccountRepository
-import net.mullvad.talpid.tunnel.ErrorStateCause
+import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
+import net.mullvad.mullvadvpn.lib.model.TunnelState
+import net.mullvad.mullvadvpn.lib.shared.AccountRepository
+import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
 import org.joda.time.DateTime
 
 class OutOfTimeUseCase(
+    private val connectionProxy: ConnectionProxy,
     private val repository: AccountRepository,
-    private val messageHandler: MessageHandler,
     scope: CoroutineScope
 ) {
 
@@ -47,9 +44,8 @@ class OutOfTimeUseCase(
         }
 
     private fun isTunnelBlockedBecauseOutOfTime(): Flow<Boolean> =
-        messageHandler
-            .events<Event.TunnelStateChange>()
-            .map { it.tunnelState.isTunnelErrorStateDueToExpiredAccount() }
+        connectionProxy.tunnelState
+            .map { it.isTunnelErrorStateDueToExpiredAccount() }
             .onStart { emit(false) }
 
     private fun TunnelState.isTunnelErrorStateDueToExpiredAccount(): Boolean {
@@ -58,11 +54,11 @@ class OutOfTimeUseCase(
     }
 
     private fun pastAccountExpiry(): Flow<Boolean?> =
-        repository.accountExpiryState
+        repository.accountData
             .flatMapLatest {
-                if (it is AccountExpiry.Available) {
+                if (it != null) {
                     flow {
-                        val millisUntilExpiry = it.expiryDateTime.millis - DateTime.now().millis
+                        val millisUntilExpiry = it.expiryDate.millis - DateTime.now().millis
                         if (millisUntilExpiry > 0) {
                             emit(false)
                             delay(millisUntilExpiry)

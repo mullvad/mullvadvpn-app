@@ -22,9 +22,7 @@ fun createCopyToClipboardHandle(
     return { textToCopy: String, toastMessage: String? ->
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU && toastMessage != null) {
             scope.launch {
-                // Dismiss to prevent queueing up of snackbar data.
-                snackbarHostState.currentSnackbarData?.dismiss()
-                snackbarHostState.showSnackbar(
+                snackbarHostState.showSnackbarImmediately(
                     message = toastMessage,
                     duration = SnackbarDuration.Short
                 )

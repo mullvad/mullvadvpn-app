@@ -1,24 +1,18 @@
 package net.mullvad.mullvadvpn.relaylist
 
-import net.mullvad.mullvadvpn.model.CustomList
-import net.mullvad.mullvadvpn.model.CustomListName
+import net.mullvad.mullvadvpn.lib.model.CustomList
+import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.RelayItem
 
-private fun CustomList.toRelayItemCustomList(
-    relayCountries: List<RelayItem.Country>
+fun CustomList.toRelayItemCustomList(
+    relayCountries: List<RelayItem.Location.Country>
 ): RelayItem.CustomList =
     RelayItem.CustomList(
-        id = this.id,
-        customListName = CustomListName.fromString(name),
+        id = id,
+        customListName = name,
         expanded = false,
-        locations =
-            this.locations.mapNotNull {
-                relayCountries.findItemForGeographicLocationConstraint(it)
-            },
+        locations = locations.mapNotNull { relayCountries.findByGeoLocationId(it) },
     )
-
-fun List<CustomList>.toRelayItemLists(
-    relayCountries: List<RelayItem.Country>
-): List<RelayItem.CustomList> = this.map { it.toRelayItemCustomList(relayCountries) }
 
 fun List<RelayItem.CustomList>.filterOnSearchTerm(searchTerm: String) =
     if (searchTerm.length >= MIN_SEARCH_LENGTH) {
@@ -28,7 +22,9 @@ fun List<RelayItem.CustomList>.filterOnSearchTerm(searchTerm: String) =
     }
 
 fun RelayItem.CustomList.canAddLocation(location: RelayItem) =
-    this.locations.none { it.code == location.code } &&
-        this.locations.flatMap { it.descendants() }.none { it.code == location.code }
+    this.locations.none { it.id == location.id } &&
+        this.locations.flatMap { it.descendants() }.none { it.id == location.id }
 
-fun List<RelayItem.CustomList>.getById(id: String) = this.find { it.id == id }
+fun List<RelayItem.CustomList>.getById(id: CustomListId) = this.find { it.id == id }
+
+fun List<CustomList>.getById(id: CustomListId) = this.find { it.id == id }

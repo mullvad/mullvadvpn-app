@@ -4,21 +4,16 @@ import androidx.lifecycle.viewModelScope
 import app.cash.turbine.test
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import kotlin.test.assertEquals
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
-import net.mullvad.mullvadvpn.model.DeviceState
-import net.mullvad.mullvadvpn.repository.DeviceRepository
+import net.mullvad.mullvadvpn.lib.model.DeviceState
+import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
 import net.mullvad.mullvadvpn.ui.VersionInfo
-import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoCache
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionContainer
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
-import net.mullvad.mullvadvpn.util.appVersionCallbackFlow
+import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoRepository
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -28,42 +23,26 @@ import org.junit.jupiter.api.extension.ExtendWith
 class SettingsViewModelTest {
 
     private val mockDeviceRepository: DeviceRepository = mockk()
-    private val mockServiceConnectionManager: ServiceConnectionManager = mockk()
-    private lateinit var mockAppVersionInfoCache: AppVersionInfoCache
-    private val mockServiceConnectionContainer: ServiceConnectionContainer = mockk()
+    private val mockAppVersionInfoRepository: AppVersionInfoRepository = mockk()
 
-    private val serviceConnectionState =
-        MutableStateFlow<ServiceConnectionState>(ServiceConnectionState.Disconnected)
     private val versionInfo =
         MutableStateFlow(
-            VersionInfo(
-                currentVersion = null,
-                upgradeVersion = null,
-                isOutdated = false,
-                isSupported = false
-            )
+            VersionInfo(currentVersion = "", isSupported = false, suggestedUpgradeVersion = null)
         )
 
     private lateinit var viewModel: SettingsViewModel
 
     @BeforeEach
     fun setup() {
-        mockkStatic(CACHE_EXTENSION_CLASS)
         val deviceState = MutableStateFlow<DeviceState>(DeviceState.LoggedOut)
-        mockAppVersionInfoCache =
-            mockk<AppVersionInfoCache>().apply {
-                every { appVersionCallbackFlow() } returns versionInfo
-            }
 
-        every { mockServiceConnectionManager.connectionState } returns serviceConnectionState
-        every { mockServiceConnectionContainer.appVersionInfoCache } returns mockAppVersionInfoCache
         every { mockDeviceRepository.deviceState } returns deviceState
-        every { mockAppVersionInfoCache.onUpdate = any() } answers {}
+        every { mockAppVersionInfoRepository.versionInfo() } returns versionInfo
 
         viewModel =
             SettingsViewModel(
                 deviceRepository = mockDeviceRepository,
-                serviceConnectionManager = mockServiceConnectionManager,
+                appVersionInfoRepository = mockAppVersionInfoRepository,
                 isPlayBuild = false
             )
     }
@@ -87,20 +66,14 @@ class SettingsViewModelTest {
             val versionInfoTestItem =
                 VersionInfo(
                     currentVersion = "1.0",
-                    upgradeVersion = "1.0",
-                    isOutdated = false,
-                    isSupported = true
+                    isSupported = true,
+                    suggestedUpgradeVersion = null
                 )
-            every { mockAppVersionInfoCache.version } returns "1.0"
-            every { mockAppVersionInfoCache.isSupported } returns true
-            every { mockAppVersionInfoCache.isOutdated } returns false
 
             // Act, Assert
             viewModel.uiState.test {
                 awaitItem() // Wait for initial value
 
-                serviceConnectionState.value =
-                    ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
                 versionInfo.value = versionInfoTestItem
                 val result = awaitItem()
                 assertEquals(false, result.isUpdateAvailable)
@@ -111,16 +84,12 @@ class SettingsViewModelTest {
     fun `when AppVersionInfoCache returns isSupported false uiState should return isUpdateAvailable true`() =
         runTest {
             // Arrange
-            every { mockAppVersionInfoCache.isSupported } returns false
-            every { mockAppVersionInfoCache.isOutdated } returns false
-            every { mockAppVersionInfoCache.version } returns ""
+            val versionInfoTestItem =
+                VersionInfo(currentVersion = "", isSupported = false, suggestedUpgradeVersion = "")
+            versionInfo.value = versionInfoTestItem
 
             // Act, Assert
             viewModel.uiState.test {
-                awaitItem()
-
-                serviceConnectionState.value =
-                    ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
                 val result = awaitItem()
                 assertEquals(true, result.isUpdateAvailable)
             }
@@ -130,22 +99,14 @@ class SettingsViewModelTest {
     fun `when AppVersionInfoCache returns isOutdated true uiState should return isUpdateAvailable true`() =
         runTest {
             // Arrange
-            every { mockAppVersionInfoCache.isSupported } returns true
-            every { mockAppVersionInfoCache.isOutdated } returns true
-            every { mockAppVersionInfoCache.version } returns ""
+            val versionInfoTestItem =
+                VersionInfo(currentVersion = "", isSupported = true, suggestedUpgradeVersion = "")
+            versionInfo.value = versionInfoTestItem
 
             // Act, Assert
             viewModel.uiState.test {
-                awaitItem()
-
-                serviceConnectionState.value =
-                    ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
                 val result = awaitItem()
                 assertEquals(true, result.isUpdateAvailable)
             }
         }
-
-    companion object {
-        private const val CACHE_EXTENSION_CLASS = "net.mullvad.mullvadvpn.util.CacheExtensionsKt"
-    }
 }

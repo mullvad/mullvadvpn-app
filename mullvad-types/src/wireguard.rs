@@ -1,7 +1,5 @@
 #![allow(clippy::identity_op)]
 use chrono::{offset::Utc, DateTime};
-#[cfg(target_os = "android")]
-use jnix::{FromJava, IntoJava};
 use serde::{Deserialize, Deserializer, Serialize};
 use std::{fmt, str::FromStr, time::Duration};
 use talpid_types::net::wireguard;
@@ -16,8 +14,6 @@ pub const DEFAULT_ROTATION_INTERVAL: Duration = MAX_ROTATION_INTERVAL;
 const QUANTUM_RESISTANT_AUTO_STATE: bool = cfg!(target_os = "linux");
 
 #[derive(Serialize, Deserialize, Copy, Clone, Debug, PartialEq, Eq)]
-#[cfg_attr(target_os = "android", derive(IntoJava, FromJava))]
-#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 #[serde(rename_all = "lowercase")]
 #[cfg_attr(feature = "clap", derive(clap::ValueEnum))]
 pub enum QuantumResistantState {
@@ -193,17 +189,8 @@ impl Default for RotationInterval {
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
-#[cfg_attr(target_os = "android", derive(IntoJava))]
-#[cfg_attr(
-    target_os = "android",
-    jnix(class_name = "net.mullvad.mullvadvpn.model.WireguardTunnelOptions")
-)]
 pub struct TunnelOptions {
     /// MTU for the wireguard tunnel
-    #[cfg_attr(
-        target_os = "android",
-        jnix(map = "|maybe_mtu| maybe_mtu.map(|mtu| mtu as i32)")
-    )]
     pub mtu: Option<u16>,
     /// Obtain a PSK using the relay config client.
     pub quantum_resistant: QuantumResistantState,
@@ -211,7 +198,6 @@ pub struct TunnelOptions {
     #[cfg(target_os = "windows")]
     pub daita: DaitaSettings,
     /// Interval used for automatic key rotation
-    #[cfg_attr(target_os = "android", jnix(skip))]
     pub rotation_interval: Option<RotationInterval>,
 }
 
@@ -245,12 +231,8 @@ impl TunnelOptions {
 
 /// Represents a published public key
 #[derive(Serialize, Deserialize, Clone, Debug)]
-#[cfg_attr(target_os = "android", derive(IntoJava))]
-#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct PublicKey {
-    #[cfg_attr(target_os = "android", jnix(map = "|key| *key.as_bytes()"))]
     pub key: wireguard::PublicKey,
-    #[cfg_attr(target_os = "android", jnix(map = "|date_time| date_time.to_string()"))]
     pub created: DateTime<Utc>,
 }
 

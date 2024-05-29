@@ -22,6 +22,10 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Changed
+- Migrate underlaying communication wtih daemon to gRPC. This also implies major changes and
+  improvements throughout the app.
+
 ### Security
 - Fix DNS leaks in blocking states or when no valid DNS has been configured due to an underlying OS
   issue. In these cases a dummy DNS will be set to prevent leaks.

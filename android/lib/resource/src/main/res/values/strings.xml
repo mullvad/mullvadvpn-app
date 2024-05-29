@@ -80,19 +80,18 @@
     <string name="vpn_settings_not_found">There is no VPN settings on your device</string>
     <string name="auto_connect_carousel_first_slide_top_text">The Auto-connect and Lockdown mode settings can be found in the Android system settings, follow this guide to enable one or both.</string>
     <string name="auto_connect_carousel_first_slide_bottom_text">
-       <![CDATA[1. After clicking on the <b>Go to VPN settings</b> button below, click on the cogwheel next to the <b>Mullvad VPN</b> name.]]>
+        <![CDATA[1. After clicking on the <b>Go to VPN settings</b> button below, click on the cogwheel next to the <b>Mullvad VPN</b> name.]]>
     </string>
     <string name="auto_connect_carousel_second_slide_top_text">Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart.</string>
     <string name="auto_connect_carousel_second_slide_bottom_text">
-    <![CDATA[2. To enable Auto-connect, click on the toggle next to <b>Always-on VPN</b>.]]>
-     </string>
+        <![CDATA[2. To enable Auto-connect, click on the toggle next to <b>Always-on VPN</b>.]]>
+    </string>
     <string name="auto_connect_carousel_third_slide_top_text">
         <![CDATA[The Lockdown mode blocks all internet access if the VPN tunnel is manually disconnected. <br/><b>Warning: This setting blocks split apps and the Local Network Sharing feature</b>.]]>
     </string>
     <string name="auto_connect_carousel_third_slide_bottom_text">
         <![CDATA[3. To enable Lockdown mode, click on the toggle next to <b>Block connections without VPN</b>.]]>
     </string>
-
     <string name="auto_connect_footer">Automatically connect to a server when the app launches.</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
     <string name="wireguard_mtu_footer">Set WireGuard MTU value. Valid range: %1$d - %2$d.</string>
@@ -281,7 +280,9 @@
     <string name="loading_verifying">Verifying purchase...</string>
     <string name="copied_logs_to_clipboard">Copied logs to clipboard</string>
     <string name="auto_connect_legacy">Auto-connect (legacy)</string>
-    <string name="auto_connect_footer_legacy"><![CDATA[Please use the <b>Always-on</b> system setting instead by following the guide in <b>%s</b> above.]]></string>
+    <string name="auto_connect_footer_legacy">
+        <![CDATA[Please use the <b>Always-on</b> system setting instead by following the guide in <b>%s</b> above.]]>
+    </string>
     <string name="custom_lists">Custom lists</string>
     <string name="all_locations">All locations</string>
     <string name="edit_lists">Edit lists</string>
@@ -295,9 +296,7 @@
     <string name="list_name">List name</string>
     <string name="locations">Locations</string>
     <string name="edit_locations">Edit locations</string>
-    <string name="delete_custom_list_confirmation_description">
-        Delete \"%s\"?
-    </string>
+    <string name="delete_custom_list_confirmation_description">Delete \"%s\"?</string>
     <string name="custom_list_error_list_exists">Name is already taken.</string>
     <string name="update_list_name">Update list name</string>
     <string name="no_custom_lists_available">No custom lists available</string>
@@ -344,4 +343,5 @@
     <string name="settings_patch_error_recursion_limit">Recursion limit</string>
     <string name="settings_patch_success">Import successful, overrides active</string>
     <string name="overrides_cleared">Overrides cleared</string>
+    <string name="unsecured_vpn_permission_error">Unsecured (No VPN permission)</string>
 </resources>
