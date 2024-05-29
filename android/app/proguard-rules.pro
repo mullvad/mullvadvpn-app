@@ -23,6 +23,7 @@
 -keep class io.grpc.okhttp.OkHttpChannelBuilder { *; }
 -keep class mullvad_daemon.management_interface.** { *; }
 -keep class com.google.protobuf.Timestamp { *; }
+-keepnames class com.google.protobuf.** { *; }
 -dontwarn com.google.j2objc.annotations.ReflectionSupport
 -dontwarn com.google.j2objc.annotations.RetainedWith
 -dontwarn com.squareup.okhttp.CipherSuite
