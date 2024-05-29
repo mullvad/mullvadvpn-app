@@ -155,11 +155,11 @@ class ConnectViewModelTest {
     }
 
     @Test
-    fun `given change in tunnelUiState uiState should emit new tunnelUiState`() = runTest {
+    fun `given change in tunnelState uiState should emit new tunnelState`() = runTest {
         // Arrange
         val tunnelEndpoint: TunnelEndpoint = mockk()
         val location: GeoIpLocation = mockk()
-        val tunnelUiStateTestItem = TunnelState.Connected(tunnelEndpoint, location)
+        val tunnelStateTestItem = TunnelState.Connected(tunnelEndpoint, location)
         every { tunnelEndpoint.toInAddress() } returns mockk(relaxed = true)
         every { location.toOutAddress() } returns "1.1.1.1"
         every { location.hostname } returns "hostname"
@@ -167,9 +167,9 @@ class ConnectViewModelTest {
         // Act, Assert
         viewModel.uiState.test {
             assertEquals(ConnectUiState.INITIAL, awaitItem())
-            tunnelState.emit(tunnelUiStateTestItem)
+            tunnelState.emit(tunnelStateTestItem)
             val result = awaitItem()
-            assertEquals(tunnelUiStateTestItem, result.tunnelState)
+            assertEquals(tunnelStateTestItem, result.tunnelState)
         }
     }
 
@@ -283,13 +283,13 @@ class ConnectViewModelTest {
             val mockErrorState: ErrorState = mockk()
             val expectedConnectNotificationState =
                 InAppNotification.TunnelStateError(mockErrorState)
-            val tunnelUiState = TunnelState.Error(mockErrorState)
+            val tunnelStateError = TunnelState.Error(mockErrorState)
             notifications.value = listOf(expectedConnectNotificationState)
 
             // Act, Assert
             viewModel.uiState.test {
                 assertEquals(ConnectUiState.INITIAL, awaitItem())
-                tunnelState.emit(tunnelUiState)
+                tunnelState.emit(tunnelStateError)
                 val result = awaitItem()
                 assertEquals(expectedConnectNotificationState, result.inAppNotification)
             }
