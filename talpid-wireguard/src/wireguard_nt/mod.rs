@@ -428,7 +428,7 @@ impl WgNtTunnel {
 
             match error {
                 Error::CreateTunnelDevice(error) => super::TunnelError::SetupTunnelDevice(error),
-                _ => super::TunnelError::FatalStartWireguardError,
+                _ => super::TunnelError::FatalStartWireguardError(Box::new(error)),
             }
         })
     }
@@ -540,11 +540,11 @@ impl Drop for WgNtTunnel {
     }
 }
 
-static LOG_CONTEXT: Lazy<Mutex<Option<u32>>> = Lazy::new(|| Mutex::new(None));
+static LOG_CONTEXT: Lazy<Mutex<Option<u64>>> = Lazy::new(|| Mutex::new(None));
 
 struct LoggerHandle {
     dll: &'static WgNtDll,
-    context: u32,
+    context: u64,
 }
 
 impl LoggerHandle {
@@ -1078,7 +1078,7 @@ impl Tunnel for WgNtTunnel {
     }
 
     fn set_config(
-        &self,
+        &mut self,
         config: Config,
     ) -> Pin<Box<dyn Future<Output = std::result::Result<(), super::TunnelError>> + Send>> {
         let device = self.device.clone();
