@@ -208,7 +208,6 @@ internal fun ManagementInterface.ErrorState.toDomain(): ErrorState =
                 ManagementInterface.ErrorState.Cause.NEED_FULL_DISK_PERMISSIONS,
                 ManagementInterface.ErrorState.Cause.CREATE_TUNNEL_DEVICE ->
                     throw IllegalArgumentException("Unrecognized error state cause")
-
             },
         isBlocking = !hasBlockingError()
     )
