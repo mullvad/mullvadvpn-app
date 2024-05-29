@@ -23,12 +23,26 @@ import (
 )
 
 // FFI integer result codes
+// NOTE: Must be kept in sync with the Error enum in wireguard-go-rs
 const (
 	OK = C.int32_t(-iota)
+
+	// Something went wrong.
 	ERROR_GENERAL_FAILURE
+
+	// Something went wrong, but trying again might help.
 	ERROR_INTERMITTENT_FAILURE
+
+	// A bad argument was provided to libwg.
+	ERROR_INVALID_ARGUMENT
+
+	// The provided tunnel handle did not refer to an existing tunnel.
 	ERROR_UNKNOWN_TUNNEL
+
+	// The provided public key did not refer to an existing peer.
 	ERROR_UNKNOWN_PEER
+
+	// Something went wrong when enabling DAITA.
 	ERROR_ENABLE_DAITA
 )
 
@@ -81,7 +95,7 @@ func wgSetConfig(tunnelHandle int32, cSettings *C.char) C.int32_t {
 	}
 	if cSettings == nil {
 		tunnel.Logger.Errorf("cSettings is null\n")
-		return ERROR_GENERAL_FAILURE
+		return ERROR_INVALID_ARGUMENT
 	}
 	settings := C.GoString(cSettings)
 
