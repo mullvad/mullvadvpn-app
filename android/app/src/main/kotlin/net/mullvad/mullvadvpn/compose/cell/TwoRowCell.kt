@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.compose.cell
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -22,6 +23,7 @@ private fun PreviewTwoRowCell() {
 fun TwoRowCell(
     titleText: String,
     subtitleText: String,
+    bodyView: @Composable ColumnScope.() -> Unit = {},
     onCellClicked: () -> Unit = {},
     titleColor: Color = MaterialTheme.colorScheme.onPrimary,
     subtitleColor: Color = MaterialTheme.colorScheme.onPrimary,
@@ -48,6 +50,7 @@ fun TwoRowCell(
                 )
             }
         },
+        bodyView = bodyView,
         onCellClicked = onCellClicked,
         background = background,
         minHeight = Dimens.cellHeightTwoRows
