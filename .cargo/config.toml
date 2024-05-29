@@ -3,3 +3,8 @@ rustflags = ["-Ctarget-feature=+crt-static"]
 
 [target.i686-pc-windows-msvc]
 rustflags = ["-Ctarget-feature=+crt-static"]
+
+[target.x86_64-unknown-linux-gnu]
+# Using rust-lld results in errors when linking against libnftnl.
+# Since it is enabled by default on nightly Rust, use the default linker until that has been fixed.
+rustflags = ["-Zlinker-features=-lld"]
