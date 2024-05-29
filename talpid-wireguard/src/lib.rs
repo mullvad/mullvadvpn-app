@@ -115,7 +115,7 @@ impl Error {
             Error::CreateObfuscatorError(_) => true,
             Error::ObfuscatorError(_) => true,
             Error::PskNegotiationError(_) => true,
-            Error::TunnelError(TunnelError::RecoverableStartWireguardError) => true,
+            Error::TunnelError(TunnelError::RecoverableStartWireguardError(..)) => true,
 
             Error::SetupRoutingError(error) => error.is_recoverable(),
 
@@ -144,7 +144,7 @@ impl Error {
 pub struct WireguardMonitor {
     runtime: tokio::runtime::Handle,
     /// Tunnel implementation
-    tunnel: Arc<Mutex<Option<Box<dyn Tunnel>>>>,
+    tunnel: Arc<AsyncMutex<Option<Box<dyn Tunnel>>>>,
     /// Callback to signal tunnel events
     event_callback: EventCallback,
     close_msg_receiver: sync_mpsc::Receiver<CloseMsg>,
@@ -306,7 +306,7 @@ impl WireguardMonitor {
         let (pinger_tx, pinger_rx) = sync_mpsc::channel();
         let monitor = WireguardMonitor {
             runtime: args.runtime.clone(),
-            tunnel: Arc::new(Mutex::new(Some(tunnel))),
+            tunnel: Arc::new(AsyncMutex::new(Some(tunnel))),
             event_callback,
             close_msg_receiver: close_obfs_listener,
             pinger_stop_sender: pinger_tx,
@@ -473,7 +473,7 @@ impl WireguardMonitor {
 
     #[allow(clippy::too_many_arguments)]
     async fn config_ephemeral_peers<F>(
-        tunnel: &Arc<Mutex<Option<Box<dyn Tunnel>>>>,
+        tunnel: &Arc<AsyncMutex<Option<Box<dyn Tunnel>>>>,
         config: &mut Config,
         retry_attempt: u32,
         on_event: F,
@@ -579,7 +579,7 @@ impl WireguardMonitor {
         #[cfg(daita)]
         if config.daita {
             // Start local DAITA machines
-            let mut tunnel = tunnel.lock().unwrap();
+            let mut tunnel = tunnel.lock().await;
             if let Some(tunnel) = tunnel.as_mut() {
                 tunnel
                     .start_daita()
@@ -601,7 +601,7 @@ impl WireguardMonitor {
     /// Reconfigures the tunnel to use the provided config while potentially modifying the config
     /// and restarting the obfuscation provider. Returns the new config used by the new tunnel.
     async fn reconfigure_tunnel(
-        tunnel: &Arc<Mutex<Option<Box<dyn Tunnel>>>>,
+        tunnel: &Arc<AsyncMutex<Option<Box<dyn Tunnel>>>>,
         mut config: Config,
         obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
         close_obfs_sender: sync_mpsc::Sender<CloseMsg>,
@@ -625,11 +625,12 @@ impl WireguardMonitor {
             }
         }
 
+        let mut tunnel = tunnel.lock().await;
+
         let set_config_future = tunnel
-            .lock()
-            .unwrap()
-            .as_ref()
+            .as_mut()
             .map(|tunnel| tunnel.set_config(config.clone()));
+
         if let Some(f) = set_config_future {
             f.await
                 .map_err(Error::TunnelError)
@@ -846,8 +847,11 @@ impl WireguardMonitor {
         wait_result
     }
 
+    /// Tear down the tunnel.
+    ///
+    /// NOTE: will panic if called from within a tokio runtime.
     fn stop_tunnel(&mut self) {
-        match self.tunnel.lock().expect("Tunnel lock poisoned").take() {
+        match self.tunnel.blocking_lock().take() {
             Some(tunnel) => {
                 if let Err(e) = tunnel.stop() {
                     log::error!("{}", e.display_chain_with_msg("Failed to stop tunnel"));
@@ -1028,10 +1032,10 @@ pub(crate) trait Tunnel: Send {
     fn get_interface_name(&self) -> String;
     fn stop(self: Box<Self>) -> std::result::Result<(), TunnelError>;
     fn get_tunnel_stats(&self) -> std::result::Result<stats::StatsMap, TunnelError>;
-    fn set_config(
-        &self,
+    fn set_config<'a>(
+        &'a mut self,
         _config: Config,
-    ) -> Pin<Box<dyn Future<Output = std::result::Result<(), TunnelError>> + Send>>;
+    ) -> Pin<Box<dyn Future<Output = std::result::Result<(), TunnelError>> + Send + 'a>>;
     #[cfg(daita)]
     /// A [`Tunnel`] capable of using DAITA.
     fn start_daita(&mut self) -> std::result::Result<(), TunnelError>;
@@ -1045,7 +1049,7 @@ pub enum TunnelError {
     /// This is an error returned by the implementation that indicates that trying to establish the
     /// tunnel again should work normally. The error encountered is known to be sporadic.
     #[error("Recoverable error while starting wireguard tunnel")]
-    RecoverableStartWireguardError,
+    RecoverableStartWireguardError(#[source] Box<dyn std::error::Error + Send>),
 
     /// An unrecoverable error occurred while starting the wireguard tunnel
     ///
@@ -1053,14 +1057,11 @@ pub enum TunnelError {
     /// tunnel again will likely fail with the same error. An error was encountered during tunnel
     /// configuration which can't be dealt with gracefully.
     #[error("Failed to start wireguard tunnel")]
-    FatalStartWireguardError,
+    FatalStartWireguardError(#[source] Box<dyn std::error::Error + Send>),
 
     /// Failed to tear down wireguard tunnel.
-    #[error("Failed to stop wireguard tunnel. Status: {status}")]
-    StopWireguardError {
-        /// Returned error code
-        status: i32,
-    },
+    #[error("Failed to tear down wireguard tunnel")]
+    StopWireguardError(#[source] Box<dyn std::error::Error + Send>),
 
     /// Error whilst trying to parse the WireGuard config to read the stats
     #[error("Reading tunnel stats failed")]
@@ -1114,8 +1115,8 @@ pub enum TunnelError {
 
     /// Failed to receive DAITA event
     #[cfg(daita)]
-    #[error("Failed to receive DAITA event")]
-    DaitaReceiveEvent(i32),
+    #[error("Failed to start DAITA")]
+    StartDaita(#[source] Box<dyn std::error::Error + Send>),
 
     /// This tunnel does not support DAITA.
     #[cfg(daita)]
