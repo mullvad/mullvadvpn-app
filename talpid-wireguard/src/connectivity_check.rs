@@ -5,9 +5,10 @@ use crate::{
 use std::{
     cmp,
     net::Ipv4Addr,
-    sync::{mpsc, Mutex, Weak},
+    sync::{mpsc, Weak},
     time::{Duration, Instant},
 };
+use tokio::sync::Mutex;
 
 use super::{Tunnel, TunnelError};
 
@@ -211,11 +212,12 @@ impl ConnectivityMonitor {
 
     /// If None is returned, then the underlying tunnel has already been closed and all subsequent
     /// calls will also return None.
+    ///
+    /// NOTE: will panic if called from within a tokio runtime.
     fn get_stats(&self) -> Option<Result<StatsMap, Error>> {
         self.tunnel_handle
             .upgrade()?
-            .lock()
-            .ok()?
+            .blocking_lock()
             .as_ref()
             .and_then(|tunnel| match tunnel.get_tunnel_stats() {
                 Ok(stats) if stats.is_empty() => {
@@ -551,7 +553,7 @@ mod test {
                     rx_bytes: 0,
                 },
             );
-            let peers = Mutex::new(map);
+            let peers = std::sync::Mutex::new(map);
             Self {
                 on_get_stats: Box::new(move || {
                     let mut peers = peers.lock().unwrap();
@@ -608,7 +610,7 @@ mod test {
         }
 
         fn set_config(
-            &self,
+            &mut self,
             _config: Config,
         ) -> Pin<Box<dyn Future<Output = std::result::Result<(), TunnelError>> + Send>> {
             Box::pin(async { Ok(()) })
@@ -746,7 +748,7 @@ mod test {
                 rx_bytes: 0,
             },
         );
-        let tunnel_stats = Mutex::new(map);
+        let tunnel_stats = std::sync::Mutex::new(map);
 
         let pinger = MockPinger::default();
         let (_tunnel_anchor, tunnel) = MockTunnel::new(move || {
