@@ -139,10 +139,7 @@ fun CreateCustomListDialog(
 @Composable
 private fun CreateWithLocationsError.errorString() =
     stringResource(
-        if (
-            this is CreateWithLocationsError.Create &&
-                this.error is CustomListAlreadyExists
-        ) {
+        if (this is CreateWithLocationsError.Create && this.error is CustomListAlreadyExists) {
             R.string.custom_list_error_list_exists
         } else {
             R.string.error_occurred
