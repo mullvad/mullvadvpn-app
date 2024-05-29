@@ -38,7 +38,7 @@ func wgTurnOn(mtu int, cSettings *C.char, fd int, logSink LogSink, logContext Lo
 
 	if cSettings == nil {
 		logger.Errorf("cSettings is null\n")
-		return ERROR_GENERAL_FAILURE
+		return ERROR_INVALID_ARGUMENT
 	}
 	settings := C.GoString(cSettings)
 
