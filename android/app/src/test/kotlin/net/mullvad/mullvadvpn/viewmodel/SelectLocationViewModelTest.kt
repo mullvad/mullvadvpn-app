@@ -15,7 +15,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
-import net.mullvad.mullvadvpn.compose.communication.CustomListResult
+import net.mullvad.mullvadvpn.compose.communication.LocationsChanged
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.common.test.assertLists
@@ -253,7 +253,7 @@ class SelectLocationViewModelTest {
     @Test
     fun `after adding a location to a list should emit location added side effect`() = runTest {
         // Arrange
-        val expectedResult: CustomListResult.LocationsChanged = mockk()
+        val expectedResult: LocationsChanged = mockk()
         val location: RelayItem.Location.Country = mockk {
             every { id } returns GeoLocationId.Country("se")
             every { descendants() } returns emptyList()

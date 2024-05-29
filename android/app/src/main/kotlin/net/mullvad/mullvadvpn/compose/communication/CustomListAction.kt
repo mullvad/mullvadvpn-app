@@ -7,7 +7,6 @@ import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 
 sealed interface CustomListAction : Parcelable {
-
     @Parcelize
     data class Rename(val id: CustomListId, val name: CustomListName, val newName: CustomListName) :
         CustomListAction {

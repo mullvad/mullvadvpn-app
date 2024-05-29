@@ -8,8 +8,8 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlin.test.assertIs
 import kotlinx.coroutines.test.runTest
+import net.mullvad.mullvadvpn.compose.communication.Created
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
-import net.mullvad.mullvadvpn.compose.communication.CustomListResult
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.CustomListAlreadyExists
 import net.mullvad.mullvadvpn.lib.model.CustomListId
@@ -30,7 +30,7 @@ class CreateCustomListDialogViewModelTest {
     fun `when successfully creating a list with locations should emit return with result side effect`() =
         runTest {
             // Arrange
-            val expectedResult: CustomListResult.Created = mockk()
+            val expectedResult: Created = mockk()
             val customListName = "list"
             val viewModel = createViewModelWithLocationCode(GeoLocationId.Country("AB"))
             coEvery {
@@ -54,7 +54,7 @@ class CreateCustomListDialogViewModelTest {
             val customListName = CustomListName.fromString("list")
             val createdId = CustomListId("1")
             val expectedResult =
-                CustomListResult.Created(
+                Created(
                     id = createdId,
                     name = customListName,
                     locationNames = emptyList(),

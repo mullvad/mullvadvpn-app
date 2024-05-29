@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
-import net.mullvad.mullvadvpn.compose.communication.CustomListResult
+import net.mullvad.mullvadvpn.compose.communication.LocationsChanged
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsUiState
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
@@ -209,8 +209,7 @@ class CustomListLocationsViewModel(
 sealed interface CustomListLocationsSideEffect {
     data object CloseScreen : CustomListLocationsSideEffect
 
-    data class ReturnWithResult(val result: CustomListResult.LocationsChanged) :
-        CustomListLocationsSideEffect
+    data class ReturnWithResult(val result: LocationsChanged) : CustomListLocationsSideEffect
 
     data object Error : CustomListLocationsSideEffect
 }

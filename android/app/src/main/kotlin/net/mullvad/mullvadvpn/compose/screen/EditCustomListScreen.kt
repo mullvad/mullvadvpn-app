@@ -29,7 +29,7 @@ import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.TwoRowCell
-import net.mullvad.mullvadvpn.compose.communication.CustomListResult
+import net.mullvad.mullvadvpn.compose.communication.Deleted
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
@@ -79,10 +79,9 @@ private fun PreviewEditCustomListScreen() {
 @Destination(style = SlideInFromRightTransition::class)
 fun EditCustomList(
     navigator: DestinationsNavigator,
-    backNavigator: ResultBackNavigator<CustomListResult.Deleted>,
+    backNavigator: ResultBackNavigator<Deleted>,
     customListId: CustomListId,
-    confirmDeleteListResultRecipient:
-        ResultRecipient<DeleteCustomListDestination, CustomListResult.Deleted>
+    confirmDeleteListResultRecipient: ResultRecipient<DeleteCustomListDestination, Deleted>
 ) {
     val viewModel =
         koinViewModel<EditCustomListViewModel>(parameters = { parametersOf(customListId) })

@@ -7,7 +7,7 @@ import io.mockk.mockk
 import kotlin.test.assertIs
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
-import net.mullvad.mullvadvpn.compose.communication.CustomListResult
+import net.mullvad.mullvadvpn.compose.communication.Deleted
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
@@ -22,7 +22,7 @@ class DeleteCustomListConfirmationViewModelTest {
     @Test
     fun `when successfully deleting a list should emit return with result side effect`() = runTest {
         // Arrange
-        val expectedResult: CustomListResult.Deleted = mockk()
+        val expectedResult: Deleted = mockk()
         val viewModel = createViewModel()
         coEvery {
             mockCustomListActionUseCase.performAction(any<CustomListAction.Delete>())

@@ -20,7 +20,7 @@ import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
-import net.mullvad.mullvadvpn.compose.communication.CustomListResult
+import net.mullvad.mullvadvpn.compose.communication.Created
 import net.mullvad.mullvadvpn.compose.component.CustomListNameTextField
 import net.mullvad.mullvadvpn.compose.destinations.CustomListLocationsDestination
 import net.mullvad.mullvadvpn.compose.state.CreateCustomListUiState
@@ -57,7 +57,7 @@ private fun PreviewCreateCustomListDialogError() {
 @Destination(style = DestinationStyle.Dialog::class)
 fun CreateCustomList(
     navigator: DestinationsNavigator,
-    backNavigator: ResultBackNavigator<CustomListResult.Created>,
+    backNavigator: ResultBackNavigator<Created>,
     locationCode: GeoLocationId? = null
 ) {
     val vm: CreateCustomListDialogViewModel =

@@ -30,7 +30,7 @@ import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.NavigationComposeCell
-import net.mullvad.mullvadvpn.compose.communication.CustomListResult
+import net.mullvad.mullvadvpn.compose.communication.Deleted
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
@@ -60,8 +60,7 @@ private fun PreviewCustomListsScreen() {
 @Destination(style = SlideInFromRightTransition::class)
 fun CustomLists(
     navigator: DestinationsNavigator,
-    editCustomListResultRecipient:
-        ResultRecipient<EditCustomListDestination, CustomListResult.Deleted>
+    editCustomListResultRecipient: ResultRecipient<EditCustomListDestination, Deleted>
 ) {
     val viewModel = koinViewModel<CustomListsViewModel>()
     val state by viewModel.uiState.collectAsStateWithLifecycle()

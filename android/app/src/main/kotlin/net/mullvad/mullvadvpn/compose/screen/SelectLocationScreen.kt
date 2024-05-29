@@ -60,8 +60,12 @@ import net.mullvad.mullvadvpn.compose.cell.IconCell
 import net.mullvad.mullvadvpn.compose.cell.StatusRelayLocationCell
 import net.mullvad.mullvadvpn.compose.cell.SwitchComposeSubtitleCell
 import net.mullvad.mullvadvpn.compose.cell.ThreeDotCell
+import net.mullvad.mullvadvpn.compose.communication.Created
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListResult
+import net.mullvad.mullvadvpn.compose.communication.Deleted
+import net.mullvad.mullvadvpn.compose.communication.LocationsChanged
+import net.mullvad.mullvadvpn.compose.communication.Renamed
 import net.mullvad.mullvadvpn.compose.component.LocationsEmptyText
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.MullvadModalBottomSheet
@@ -132,14 +136,12 @@ private fun PreviewSelectLocationScreen() {
 fun SelectLocation(
     navigator: DestinationsNavigator,
     backNavigator: ResultBackNavigator<Boolean>,
-    createCustomListDialogResultRecipient:
-        ResultRecipient<CreateCustomListDestination, CustomListResult.Created>,
+    createCustomListDialogResultRecipient: ResultRecipient<CreateCustomListDestination, Created>,
     editCustomListNameDialogResultRecipient:
-        ResultRecipient<EditCustomListNameDestination, CustomListResult.Renamed>,
-    deleteCustomListDialogResultRecipient:
-        ResultRecipient<DeleteCustomListDestination, CustomListResult.Deleted>,
+        ResultRecipient<EditCustomListNameDestination, Renamed>,
+    deleteCustomListDialogResultRecipient: ResultRecipient<DeleteCustomListDestination, Deleted>,
     updateCustomListResultRecipient:
-        ResultRecipient<CustomListLocationsDestination, CustomListResult.LocationsChanged>
+        ResultRecipient<CustomListLocationsDestination, LocationsChanged>
 ) {
     val vm = koinViewModel<SelectLocationViewModel>()
     val state = vm.uiState.collectAsStateWithLifecycle().value
@@ -828,14 +830,13 @@ private suspend fun SnackbarHostState.showResultSnackbar(
 
 private fun CustomListResult.message(context: Context): String =
     when (this) {
-        is CustomListResult.Created ->
+        is Created ->
             locationNames.firstOrNull()?.let { locationName ->
                 context.getString(R.string.location_was_added_to_list, locationName, name)
             } ?: context.getString(R.string.locations_were_changed_for, name)
-        is CustomListResult.Deleted -> context.getString(R.string.delete_custom_list_message, name)
-        is CustomListResult.Renamed -> context.getString(R.string.name_was_changed_to, name)
-        is CustomListResult.LocationsChanged ->
-            context.getString(R.string.locations_were_changed_for, name)
+        is Deleted -> context.getString(R.string.delete_custom_list_message, name)
+        is Renamed -> context.getString(R.string.name_was_changed_to, name)
+        is LocationsChanged -> context.getString(R.string.locations_were_changed_for, name)
     }
 
 @Composable

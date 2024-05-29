@@ -9,7 +9,7 @@ import kotlin.test.assertIs
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
-import net.mullvad.mullvadvpn.compose.communication.CustomListResult
+import net.mullvad.mullvadvpn.compose.communication.LocationsChanged
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsUiState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.CustomList
@@ -184,7 +184,7 @@ class CustomListLocationsViewModelTest {
             // Arrange
             val customListId = CustomListId("1")
             val newList = true
-            val expectedResult: CustomListResult.LocationsChanged = mockk()
+            val expectedResult: LocationsChanged = mockk()
             coEvery {
                 mockCustomListUseCase.performAction(any<CustomListAction.UpdateLocations>())
             } returns expectedResult.right()
@@ -204,7 +204,7 @@ class CustomListLocationsViewModelTest {
             // Arrange
             val customListId = CustomListId("1")
             val newList = false
-            val expectedResult: CustomListResult.LocationsChanged = mockk()
+            val expectedResult: LocationsChanged = mockk()
             coEvery {
                 mockCustomListUseCase.performAction(any<CustomListAction.UpdateLocations>())
             } returns expectedResult.right()

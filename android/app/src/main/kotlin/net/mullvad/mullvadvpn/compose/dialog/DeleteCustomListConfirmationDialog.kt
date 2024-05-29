@@ -24,7 +24,7 @@ import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.NegativeButton
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
-import net.mullvad.mullvadvpn.compose.communication.CustomListResult
+import net.mullvad.mullvadvpn.compose.communication.Deleted
 import net.mullvad.mullvadvpn.compose.state.DeleteCustomListUiState
 import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
 import net.mullvad.mullvadvpn.lib.model.CustomListId
@@ -50,7 +50,7 @@ private fun PreviewRemoveDeviceConfirmationDialog() {
 @Composable
 @Destination(style = DestinationStyle.Dialog::class)
 fun DeleteCustomList(
-    navigator: ResultBackNavigator<CustomListResult.Deleted>,
+    navigator: ResultBackNavigator<Deleted>,
     customListId: CustomListId,
     name: CustomListName
 ) {

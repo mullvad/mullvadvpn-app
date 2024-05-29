@@ -8,8 +8,11 @@ import io.mockk.mockk
 import io.mockk.mockkStatic
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
+import net.mullvad.mullvadvpn.compose.communication.Created
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
-import net.mullvad.mullvadvpn.compose.communication.CustomListResult
+import net.mullvad.mullvadvpn.compose.communication.Deleted
+import net.mullvad.mullvadvpn.compose.communication.LocationsChanged
+import net.mullvad.mullvadvpn.compose.communication.Renamed
 import net.mullvad.mullvadvpn.lib.model.CustomList
 import net.mullvad.mullvadvpn.lib.model.CustomListAlreadyExists
 import net.mullvad.mullvadvpn.lib.model.CustomListId
@@ -52,7 +55,7 @@ class CustomListActionUseCaseTest {
         val createdId = CustomListId("1")
         val action = CustomListAction.Create(name = name, locations = listOf(locationId))
         val expectedResult =
-            CustomListResult.Created(
+            Created(
                     id = createdId,
                     name = name,
                     locationNames = listOf(locationName),
@@ -105,7 +108,7 @@ class CustomListActionUseCaseTest {
         val newName = CustomListName.fromString("test2")
         val customListId = CustomListId("1")
         val action = CustomListAction.Rename(id = customListId, name = name, newName = newName)
-        val expectedResult = CustomListResult.Renamed(undo = action.not()).right()
+        val expectedResult = Renamed(undo = action.not()).right()
         coEvery {
             mockCustomListsRepository.updateCustomListName(id = customListId, name = newName)
         } returns Unit.right()
@@ -148,8 +151,7 @@ class CustomListActionUseCaseTest {
         val location = GeoLocationId.Country("AB")
         val action = CustomListAction.Delete(id = customListId)
         val expectedResult =
-            CustomListResult.Deleted(undo = action.not(name = name, locations = listOf(location)))
-                .right()
+            Deleted(undo = action.not(name = name, locations = listOf(location))).right()
         every { mockLocation.countryCode } returns location.countryCode
         coEvery { mockCustomListsRepository.deleteCustomList(id = customListId) } returns
             Unit.right()
@@ -174,11 +176,7 @@ class CustomListActionUseCaseTest {
         val customList = CustomList(id = customListId, name = name, locations = oldLocations)
         val action = CustomListAction.UpdateLocations(id = customListId, locations = newLocations)
         val expectedResult =
-            CustomListResult.LocationsChanged(
-                    name = name,
-                    undo = action.not(locations = oldLocations)
-                )
-                .right()
+            LocationsChanged(name = name, undo = action.not(locations = oldLocations)).right()
         coEvery { mockCustomListsRepository.getCustomListById(customListId) } returns
             customList.right()
 

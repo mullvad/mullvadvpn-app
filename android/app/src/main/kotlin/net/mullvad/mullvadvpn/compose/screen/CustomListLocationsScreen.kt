@@ -34,7 +34,7 @@ import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.CheckableRelayLocationCell
-import net.mullvad.mullvadvpn.compose.communication.CustomListResult
+import net.mullvad.mullvadvpn.compose.communication.LocationsChanged
 import net.mullvad.mullvadvpn.compose.component.LocationsEmptyText
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
@@ -70,7 +70,7 @@ private fun PreviewCustomListLocationScreen() {
 @Destination(style = SlideInFromRightTransition::class)
 fun CustomListLocations(
     navigator: DestinationsNavigator,
-    backNavigator: ResultBackNavigator<CustomListResult.LocationsChanged>,
+    backNavigator: ResultBackNavigator<LocationsChanged>,
     discardChangesResultRecipient: ResultRecipient<DiscardChangesDialogDestination, Boolean>,
     customListId: CustomListId,
     newList: Boolean,

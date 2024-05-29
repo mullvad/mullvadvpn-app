@@ -18,7 +18,7 @@ import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
-import net.mullvad.mullvadvpn.compose.communication.CustomListResult
+import net.mullvad.mullvadvpn.compose.communication.Renamed
 import net.mullvad.mullvadvpn.compose.component.CustomListNameTextField
 import net.mullvad.mullvadvpn.compose.state.EditCustomListNameUiState
 import net.mullvad.mullvadvpn.compose.test.EDIT_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG
@@ -44,7 +44,7 @@ private fun PreviewEditCustomListNameDialog() {
 @Composable
 @Destination(style = DestinationStyle.Dialog::class)
 fun EditCustomListName(
-    backNavigator: ResultBackNavigator<CustomListResult.Renamed>,
+    backNavigator: ResultBackNavigator<Renamed>,
     customListId: CustomListId,
     initialName: CustomListName
 ) {

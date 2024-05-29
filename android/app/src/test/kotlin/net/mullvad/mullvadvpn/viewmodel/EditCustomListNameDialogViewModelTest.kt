@@ -8,7 +8,7 @@ import io.mockk.mockk
 import kotlin.test.assertIs
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
-import net.mullvad.mullvadvpn.compose.communication.CustomListResult
+import net.mullvad.mullvadvpn.compose.communication.Renamed
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
@@ -27,7 +27,7 @@ class EditCustomListNameDialogViewModelTest {
     @Test
     fun `when successfully renamed list should emit return with result side effect`() = runTest {
         // Arrange
-        val expectedResult: CustomListResult.Renamed = mockk()
+        val expectedResult: Renamed = mockk()
         val customListId = CustomListId("id")
         val customListName = "list"
         val viewModel = createViewModel(customListId, customListName)

@@ -3,8 +3,12 @@ package net.mullvad.mullvadvpn.usecase.customlists
 import arrow.core.Either
 import arrow.core.raise.either
 import kotlinx.coroutines.flow.firstOrNull
+import net.mullvad.mullvadvpn.compose.communication.Created
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListResult
+import net.mullvad.mullvadvpn.compose.communication.Deleted
+import net.mullvad.mullvadvpn.compose.communication.LocationsChanged
+import net.mullvad.mullvadvpn.compose.communication.Renamed
 import net.mullvad.mullvadvpn.lib.model.CreateCustomListError
 import net.mullvad.mullvadvpn.lib.model.DeleteCustomListError
 import net.mullvad.mullvadvpn.lib.model.GetCustomListError
@@ -37,17 +41,15 @@ class CustomListActionUseCase(
         }
     }
 
-    suspend fun performAction(
-        action: CustomListAction.Rename
-    ): Either<RenameError, CustomListResult.Renamed> =
+    suspend fun performAction(action: CustomListAction.Rename): Either<RenameError, Renamed> =
         customListsRepository
             .updateCustomListName(action.id, action.newName)
-            .map { CustomListResult.Renamed(undo = action.not()) }
+            .map { Renamed(undo = action.not()) }
             .mapLeft(::RenameError)
 
     suspend fun performAction(
         action: CustomListAction.Create
-    ): Either<CreateWithLocationsError, CustomListResult.Created> = either {
+    ): Either<CreateWithLocationsError, Created> = either {
         val customListId =
             customListsRepository
                 .createCustomList(action.name)
@@ -69,7 +71,7 @@ class CustomListActionUseCase(
                 emptyList()
             }
 
-        CustomListResult.Created(
+        Created(
             id = customListId,
             name = action.name,
             locationNames = locationNames,
@@ -79,7 +81,7 @@ class CustomListActionUseCase(
 
     suspend fun performAction(
         action: CustomListAction.Delete
-    ): Either<DeleteWithUndoError, CustomListResult.Deleted> = either {
+    ): Either<DeleteWithUndoError, Deleted> = either {
         val customList =
             customListsRepository
                 .getCustomListById(action.id)
@@ -89,14 +91,12 @@ class CustomListActionUseCase(
             .deleteCustomList(action.id)
             .mapLeft(DeleteWithUndoError::Delete)
             .bind()
-        CustomListResult.Deleted(
-            undo = action.not(locations = customList.locations, name = customList.name)
-        )
+        Deleted(undo = action.not(locations = customList.locations, name = customList.name))
     }
 
     suspend fun performAction(
         action: CustomListAction.UpdateLocations
-    ): Either<UpdateLocationsError, CustomListResult.LocationsChanged> = either {
+    ): Either<UpdateLocationsError, LocationsChanged> = either {
         val customList =
             customListsRepository
                 .getCustomListById(action.id)
@@ -106,7 +106,7 @@ class CustomListActionUseCase(
             .updateCustomListLocations(action.id, action.locations)
             .mapLeft(UpdateLocationsError::UpdateError)
             .bind()
-        CustomListResult.LocationsChanged(
+        LocationsChanged(
             name = customList.name,
             undo = action.not(locations = customList.locations)
         )

@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
-import net.mullvad.mullvadvpn.compose.communication.CustomListResult
+import net.mullvad.mullvadvpn.compose.communication.LocationsChanged
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.compose.state.toNullableOwnership
 import net.mullvad.mullvadvpn.compose.state.toSelectedProviders
@@ -179,11 +179,9 @@ class SelectLocationViewModel(
 sealed interface SelectLocationSideEffect {
     data object CloseScreen : SelectLocationSideEffect
 
-    data class LocationAddedToCustomList(val result: CustomListResult.LocationsChanged) :
-        SelectLocationSideEffect
+    data class LocationAddedToCustomList(val result: LocationsChanged) : SelectLocationSideEffect
 
-    class LocationRemovedFromCustomList(val result: CustomListResult.LocationsChanged) :
-        SelectLocationSideEffect
+    class LocationRemovedFromCustomList(val result: LocationsChanged) : SelectLocationSideEffect
 
     data object GenericError : SelectLocationSideEffect
 }
