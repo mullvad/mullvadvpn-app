@@ -40,11 +40,12 @@ fn main() {
     // when development, configure rpath to facilitate linking with libwg.so
     if matches!(target_os.as_str(), "linux" | "macos" | "android") && cfg!(debug_assertions) {
         let target = std::env::var("TARGET").expect("TARGET not set");
-        let relative = std::path::Path::new("../build/lib/").join(target.clone());
+        let relative = std::path::Path::new("../build/lib/");
         let absolute = std::fs::canonicalize(relative).unwrap_or_else(|_| {
             panic!("Could not resolve canonical path for relative path `build/lib/{target}`")
         });
-        println!("cargo::rustc-link-arg=-Wl,-rpath,{}", absolute.display());
+        let x = absolute.join(target.clone());
+        println!("cargo::rustc-link-arg=-Wl,-rpath,{}", x.display());
     }
 }
 
