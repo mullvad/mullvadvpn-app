@@ -144,7 +144,7 @@ impl Error {
 pub struct WireguardMonitor {
     runtime: tokio::runtime::Handle,
     /// Tunnel implementation
-    tunnel: Arc<Mutex<Option<Box<dyn Tunnel>>>>,
+    tunnel: Arc<AsyncMutex<Option<Box<dyn Tunnel>>>>,
     /// Callback to signal tunnel events
     event_callback: EventCallback,
     close_msg_receiver: sync_mpsc::Receiver<CloseMsg>,
@@ -306,7 +306,7 @@ impl WireguardMonitor {
         let (pinger_tx, pinger_rx) = sync_mpsc::channel();
         let monitor = WireguardMonitor {
             runtime: args.runtime.clone(),
-            tunnel: Arc::new(Mutex::new(Some(tunnel))),
+            tunnel: Arc::new(AsyncMutex::new(Some(tunnel))),
             event_callback,
             close_msg_receiver: close_obfs_listener,
             pinger_stop_sender: pinger_tx,
@@ -473,7 +473,7 @@ impl WireguardMonitor {
 
     #[allow(clippy::too_many_arguments)]
     async fn config_ephemeral_peers<F>(
-        tunnel: &Arc<Mutex<Option<Box<dyn Tunnel>>>>,
+        tunnel: &Arc<AsyncMutex<Option<Box<dyn Tunnel>>>>,
         config: &mut Config,
         retry_attempt: u32,
         on_event: F,
@@ -579,7 +579,7 @@ impl WireguardMonitor {
         #[cfg(daita)]
         if config.daita {
             // Start local DAITA machines
-            let mut tunnel = tunnel.lock().unwrap();
+            let mut tunnel = tunnel.lock().await;
             if let Some(tunnel) = tunnel.as_mut() {
                 tunnel
                     .start_daita()
@@ -601,7 +601,7 @@ impl WireguardMonitor {
     /// Reconfigures the tunnel to use the provided config while potentially modifying the config
     /// and restarting the obfuscation provider. Returns the new config used by the new tunnel.
     async fn reconfigure_tunnel(
-        tunnel: &Arc<Mutex<Option<Box<dyn Tunnel>>>>,
+        tunnel: &Arc<AsyncMutex<Option<Box<dyn Tunnel>>>>,
         mut config: Config,
         obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
         close_obfs_sender: sync_mpsc::Sender<CloseMsg>,
@@ -625,11 +625,12 @@ impl WireguardMonitor {
             }
         }
 
+        let tunnel = tunnel.lock().await;
+
         let set_config_future = tunnel
-            .lock()
-            .unwrap()
             .as_ref()
             .map(|tunnel| tunnel.set_config(config.clone()));
+
         if let Some(f) = set_config_future {
             f.await
                 .map_err(Error::TunnelError)
@@ -847,7 +848,7 @@ impl WireguardMonitor {
     }
 
     fn stop_tunnel(&mut self) {
-        match self.tunnel.lock().expect("Tunnel lock poisoned").take() {
+        match self.tunnel.blocking_lock().take() {
             Some(tunnel) => {
                 if let Err(e) = tunnel.stop() {
                     log::error!("{}", e.display_chain_with_msg("Failed to stop tunnel"));
@@ -1028,10 +1029,10 @@ pub(crate) trait Tunnel: Send {
     fn get_interface_name(&self) -> String;
     fn stop(self: Box<Self>) -> std::result::Result<(), TunnelError>;
     fn get_tunnel_stats(&self) -> std::result::Result<stats::StatsMap, TunnelError>;
-    fn set_config(
-        &self,
+    fn set_config<'a>(
+        &'a self, // TODO: should be &mut ??
         _config: Config,
-    ) -> Pin<Box<dyn Future<Output = std::result::Result<(), TunnelError>> + Send>>;
+    ) -> Pin<Box<dyn Future<Output = std::result::Result<(), TunnelError>> + Send + 'a>>;
     #[cfg(daita)]
     /// A [`Tunnel`] capable of using DAITA.
     fn start_daita(&mut self) -> std::result::Result<(), TunnelError>;
@@ -1055,10 +1056,19 @@ pub enum TunnelError {
     #[error("Failed to start wireguard tunnel")]
     FatalStartWireguardError,
 
+    /// Failed to start the wireguard tunnel.
+    #[error("Failed to start wireguard-go tunnel: {status}")]
+    StartWireguardError {
+        // TODO: consider doing a Box<dyn Error> intead
+        /// Implementation-specific error code.
+        status: i32,
+    },
+
     /// Failed to tear down wireguard tunnel.
-    #[error("Failed to stop wireguard tunnel. Status: {status}")]
+    #[error("Failed to stop wireguard tunnel: {status}")]
     StopWireguardError {
-        /// Returned error code
+        // TODO: consider doing a Box<dyn Error> intead
+        /// Implementation-specific error code.
         status: i32,
     },
 
@@ -1114,8 +1124,8 @@ pub enum TunnelError {
 
     /// Failed to receive DAITA event
     #[cfg(daita)]
-    #[error("Failed to receive DAITA event")]
-    DaitaReceiveEvent(i32),
+    #[error("Failed to start DAITA")]
+    StartDaita(#[source] Box<dyn std::error::Error + Send>),
 
     /// This tunnel does not support DAITA.
     #[cfg(daita)]
