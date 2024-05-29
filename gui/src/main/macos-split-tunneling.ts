@@ -127,8 +127,16 @@ export class MacOsSplitTunnelingAppListRetriever implements ISplitTunnelingAppLi
    * Returns contents of directory with results as absolute paths.
    */
   private async readDirectory(applicationDir: string) {
-    const basenames = await fs.readdir(applicationDir);
-    return basenames.map((basename) => path.join(applicationDir, basename));
+    try {
+      const basenames = await fs.readdir(applicationDir);
+      return basenames.map((basename) => path.join(applicationDir, basename));
+    } catch (err) {
+      const e = err as NodeJS.ErrnoException;
+      if (e.code !== 'ENOENT' && e.code !== 'ENOTDIR') {
+        log.error(`Failed to read directory contents: ${applicationDir}`, err);
+      }
+      return [];
+    }
   }
 
   private async readApplicationBundlePlist(applicationBundlePath: string): Promise<Plist> {
