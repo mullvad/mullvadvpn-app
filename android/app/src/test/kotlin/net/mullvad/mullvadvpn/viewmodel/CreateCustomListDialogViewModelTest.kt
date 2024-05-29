@@ -79,7 +79,7 @@ class CreateCustomListDialogViewModelTest {
     @Test
     fun `when failing to creating a list should update ui state with error`() = runTest {
         // Arrange
-        val expectedError = CreateWithLocationsError.CreateActionError(CustomListAlreadyExists)
+        val expectedError = CreateWithLocationsError.Create(CustomListAlreadyExists)
         val customListName = "list"
         val viewModel = createViewModelWithLocationCode(GeoLocationId.Country("AB"))
         coEvery {
@@ -98,7 +98,7 @@ class CreateCustomListDialogViewModelTest {
     fun `given error state when calling clear error then should update to state without error`() =
         runTest {
             // Arrange
-            val expectedError = CreateWithLocationsError.CreateActionError(CustomListAlreadyExists)
+            val expectedError = CreateWithLocationsError.Create(CustomListAlreadyExists)
             val customListName = "list"
             val viewModel = createViewModelWithLocationCode(GeoLocationId.Country("AB"))
             coEvery {

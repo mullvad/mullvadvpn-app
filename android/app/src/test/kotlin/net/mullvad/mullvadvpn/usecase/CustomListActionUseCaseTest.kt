@@ -90,7 +90,7 @@ class CustomListActionUseCaseTest {
         val locationId = GeoLocationId.Country("AB")
         val action = CustomListAction.Create(name = name, locations = listOf(locationId))
         val expectedError =
-            CreateWithLocationsError.CreateActionError(CustomListAlreadyExists).left()
+            CreateWithLocationsError.Create(CustomListAlreadyExists).left()
         coEvery { mockCustomListsRepository.createCustomList(name) } returns
             CustomListAlreadyExists.left()
 

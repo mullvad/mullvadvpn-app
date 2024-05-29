@@ -53,14 +53,14 @@ class CustomListActionUseCase(
         val customListId =
             customListsRepository
                 .createCustomList(action.name)
-                .mapLeft(CreateWithLocationsError::CreateActionError)
+                .mapLeft(CreateWithLocationsError::Create)
                 .bind()
 
         val locationNames =
             if (action.locations.isNotEmpty()) {
                 customListsRepository
                     .updateCustomListLocations(customListId, action.locations)
-                    .mapLeft(CreateWithLocationsError::UpdateLocationsActionError)
+                    .mapLeft(CreateWithLocationsError::UpdateLocations)
                     .bind()
 
                 relayListRepository.relayList
@@ -104,7 +104,7 @@ class CustomListActionUseCase(
                 .bind()
         customListsRepository
             .updateCustomListLocations(action.id, action.locations)
-            .mapLeft(UpdateLocationsError::UpdateError)
+            .mapLeft(UpdateLocationsError::UpdateLocations)
             .bind()
         LocationsChanged(
             name = customList.name,
@@ -117,26 +117,25 @@ sealed interface CustomListActionError
 
 sealed interface CreateWithLocationsError : CustomListActionError {
 
-    data class CreateActionError(val error: CreateCustomListError) : CreateWithLocationsError
+    data class Create(val error: CreateCustomListError) : CreateWithLocationsError
 
-    data class UpdateLocationsActionError(val error: UpdateCustomListLocationsError) :
+    data class UpdateLocations(val error: UpdateCustomListLocationsError) :
         CreateWithLocationsError
 
     data object UnableToFetchRelayList : CreateWithLocationsError
 }
 
 sealed interface DeleteWithUndoError : CustomListActionError {
-    data class Fetch(val getCustomListError: GetCustomListError) : DeleteWithUndoError
+    data class Fetch(val error: GetCustomListError) : DeleteWithUndoError
 
-    data class Delete(val deleteCustomListError: DeleteCustomListError) : DeleteWithUndoError
+    data class Delete(val error: DeleteCustomListError) : DeleteWithUndoError
 }
 
 data class RenameError(val error: UpdateCustomListNameError) : CustomListActionError
 
 sealed interface UpdateLocationsError : CustomListActionError {
 
-    data class Fetch(val getCustomListError: GetCustomListError) : UpdateLocationsError
+    data class Fetch(val error: GetCustomListError) : UpdateLocationsError
 
-    data class UpdateError(val updateCustomListLocationsError: UpdateCustomListLocationsError) :
-        UpdateLocationsError
+    data class UpdateLocations(val error: UpdateCustomListLocationsError) : UpdateLocationsError
 }

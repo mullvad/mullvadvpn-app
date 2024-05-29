@@ -47,7 +47,7 @@ private fun PreviewCreateCustomListDialogError() {
         CreateCustomListDialog(
             state =
                 CreateCustomListUiState(
-                    error = CreateWithLocationsError.CreateActionError(CustomListAlreadyExists)
+                    error = CreateWithLocationsError.Create(CustomListAlreadyExists)
                 )
         )
     }
@@ -140,7 +140,7 @@ fun CreateCustomListDialog(
 private fun CreateWithLocationsError.errorString() =
     stringResource(
         if (
-            this is CreateWithLocationsError.CreateActionError &&
+            this is CreateWithLocationsError.Create &&
                 this.error is CustomListAlreadyExists
         ) {
             R.string.custom_list_error_list_exists
