@@ -758,7 +758,7 @@ impl WireguardMonitor {
     ) -> Result<Box<dyn Tunnel>> {
         log::debug!("Tunnel MTU: {}", config.mtu);
 
-        let daita = true;
+        let daita = true; // TODO: Remove before merging into `daita-wireguard-go`
         #[cfg(target_os = "linux")]
         if !daita && !*FORCE_USERSPACE_WIREGUARD {
             if will_nm_manage_dns() {
