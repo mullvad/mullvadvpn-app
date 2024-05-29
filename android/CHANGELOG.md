@@ -27,6 +27,11 @@ Line wrap the file at 100 chars.                                              Th
   improvements throughout the app.
 
 
+## [android/2024.2] - 2024-05-29
+### Fixed
+- Remove potentially sensitive tunnel state information from lifecycle log.
+
+
 ## [android/2024.2-beta2] - 2024-05-08
 ### Security
 - Fix DNS leaks in blocking states or when no valid DNS has been configured due to an underlying OS
