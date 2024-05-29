@@ -50,7 +50,7 @@ final class PacketTunnelActorReducerTests: XCTestCase {
         // Given
         var state = State.initial
         // When
-        let effects = PacketTunnelActor.reducer(&state, .start(StartOptions(launchSource: .app)))
+        let effects = PacketTunnelActor.Reducer.reduce(&state, .start(StartOptions(launchSource: .app)))
         // Then
         XCTAssertEqual(effects, [
             .startDefaultPathObserver,
@@ -63,7 +63,7 @@ final class PacketTunnelActorReducerTests: XCTestCase {
         // Given
         var state = State.initial
         // When
-        let effects = PacketTunnelActor.reducer(
+        let effects = PacketTunnelActor.Reducer.reduce(
             &state,
             .start(StartOptions(launchSource: .app, selectedRelay: selectedRelay))
         )
@@ -82,7 +82,7 @@ final class PacketTunnelActorReducerTests: XCTestCase {
         let connectionData = makeConnectionData()
         var state = State.connected(connectionData)
         // When
-        let effects = PacketTunnelActor.reducer(&state, .stop)
+        let effects = PacketTunnelActor.Reducer.reduce(&state, .stop)
         // Then
         XCTAssertEqual(state, .disconnecting(connectionData))
         XCTAssertEqual(effects, [
@@ -98,7 +98,7 @@ final class PacketTunnelActorReducerTests: XCTestCase {
         let connectionData = makeConnectionData()
         var state = State.connecting(connectionData)
         // When
-        let effects = PacketTunnelActor.reducer(&state, .stop)
+        let effects = PacketTunnelActor.Reducer.reduce(&state, .stop)
         // Then
         XCTAssertEqual(state, .disconnecting(connectionData))
         XCTAssertEqual(effects, [
@@ -114,7 +114,7 @@ final class PacketTunnelActorReducerTests: XCTestCase {
         let connectionData = makeConnectionData()
         var state = State.reconnecting(connectionData)
         // When
-        let effects = PacketTunnelActor.reducer(&state, .stop)
+        let effects = PacketTunnelActor.Reducer.reduce(&state, .stop)
         // Then
         XCTAssertEqual(state, .disconnecting(connectionData))
         XCTAssertEqual(effects, [
@@ -136,7 +136,7 @@ final class PacketTunnelActorReducerTests: XCTestCase {
         var state = State.error(blockingData)
 
         // When
-        let effects = PacketTunnelActor.reducer(&state, .stop)
+        let effects = PacketTunnelActor.Reducer.reduce(&state, .stop)
 
         // Then
         XCTAssertEqual(effects, [
@@ -152,7 +152,7 @@ final class PacketTunnelActorReducerTests: XCTestCase {
 
         for var state in states {
             // When
-            let effects = PacketTunnelActor.reducer(&state, .stop)
+            let effects = PacketTunnelActor.Reducer.reduce(&state, .stop)
 
             // Then
             XCTAssertEqual(effects, [])
@@ -166,7 +166,7 @@ final class PacketTunnelActorReducerTests: XCTestCase {
         var state = State.connected(makeConnectionData())
 
         // When
-        let effects = PacketTunnelActor.reducer(&state, .reconnect(.current, reason: .userInitiated))
+        let effects = PacketTunnelActor.Reducer.reduce(&state, .reconnect(.current, reason: .userInitiated))
 
         // Then
         XCTAssertEqual(effects, [
@@ -180,7 +180,7 @@ final class PacketTunnelActorReducerTests: XCTestCase {
         var state = State.connected(makeConnectionData())
 
         // When
-        let effects = PacketTunnelActor.reducer(&state, .reconnect(.random, reason: .connectionLoss))
+        let effects = PacketTunnelActor.Reducer.reduce(&state, .reconnect(.random, reason: .connectionLoss))
 
         // Then
         XCTAssertEqual(effects, [
@@ -193,7 +193,7 @@ final class PacketTunnelActorReducerTests: XCTestCase {
         var state = State.disconnected
 
         // When
-        let effects = PacketTunnelActor.reducer(&state, .reconnect(.random, reason: .connectionLoss))
+        let effects = PacketTunnelActor.Reducer.reduce(&state, .reconnect(.random, reason: .connectionLoss))
 
         // Then
         XCTAssertEqual(effects, [])
@@ -204,7 +204,7 @@ final class PacketTunnelActorReducerTests: XCTestCase {
         var state = State.negotiatingPostQuantumKey(makeConnectionData(), PrivateKey())
 
         // When
-        let effects = PacketTunnelActor.reducer(&state, .reconnect(.random, reason: .connectionLoss))
+        let effects = PacketTunnelActor.Reducer.reduce(&state, .reconnect(.random, reason: .connectionLoss))
 
         // Then
         XCTAssertEqual(effects, [.restartConnection(.random, .connectionLoss)])
@@ -215,7 +215,7 @@ final class PacketTunnelActorReducerTests: XCTestCase {
         var state = State.negotiatingPostQuantumKey(makeConnectionData(), PrivateKey())
 
         // When
-        let effects = PacketTunnelActor.reducer(&state, .reconnect(.random, reason: .userInitiated))
+        let effects = PacketTunnelActor.Reducer.reduce(&state, .reconnect(.random, reason: .userInitiated))
 
         // Then
         XCTAssertEqual(effects, [
@@ -231,7 +231,7 @@ final class PacketTunnelActorReducerTests: XCTestCase {
         var state = State.connected(makeConnectionData())
 
         // When
-        let effects = PacketTunnelActor.reducer(&state, .error(.deviceRevoked))
+        let effects = PacketTunnelActor.Reducer.reduce(&state, .error(.deviceRevoked))
 
         // then
         XCTAssertEqual(effects, [
@@ -247,7 +247,7 @@ final class PacketTunnelActorReducerTests: XCTestCase {
         let date = Date()
 
         // When
-        let effects = PacketTunnelActor.reducer(&state, .notifyKeyRotated(date))
+        let effects = PacketTunnelActor.Reducer.reduce(&state, .notifyKeyRotated(date))
 
         // then
         XCTAssertEqual(effects, [
@@ -262,7 +262,7 @@ final class PacketTunnelActorReducerTests: XCTestCase {
         let date = Date()
 
         // When
-        let effects = PacketTunnelActor.reducer(&state, .notifyKeyRotated(date))
+        let effects = PacketTunnelActor.Reducer.reduce(&state, .notifyKeyRotated(date))
 
         // then
         XCTAssertEqual(effects, [])
@@ -275,7 +275,7 @@ final class PacketTunnelActorReducerTests: XCTestCase {
         var state = State.connected(makeConnectionData(keyPolicy: .useCurrent))
 
         // When
-        let effects = PacketTunnelActor.reducer(&state, .switchKey)
+        let effects = PacketTunnelActor.Reducer.reduce(&state, .switchKey)
 
         // then
         XCTAssertEqual(effects, [])
@@ -287,7 +287,7 @@ final class PacketTunnelActorReducerTests: XCTestCase {
         var state = State.connected(makeConnectionData(keyPolicy: keyPolicy))
 
         // When
-        let effects = PacketTunnelActor.reducer(&state, .switchKey)
+        let effects = PacketTunnelActor.Reducer.reduce(&state, .switchKey)
 
         // then
         XCTAssertEqual(state.keyPolicy, State.KeyPolicy.useCurrent)
@@ -305,7 +305,7 @@ final class PacketTunnelActorReducerTests: XCTestCase {
         var state = State.connecting(connectionData)
 
         // When
-        let effects = PacketTunnelActor.reducer(&state, .monitorEvent(.connectionEstablished))
+        let effects = PacketTunnelActor.Reducer.reduce(&state, .monitorEvent(.connectionEstablished))
 
         // Then
         var expectedConnectionData = connectionData
@@ -320,7 +320,7 @@ final class PacketTunnelActorReducerTests: XCTestCase {
         var state = State.connected(connectionData)
 
         // When
-        let effects = PacketTunnelActor.reducer(&state, .monitorEvent(.connectionLost))
+        let effects = PacketTunnelActor.Reducer.reduce(&state, .monitorEvent(.connectionLost))
 
         // Then
         XCTAssertEqual(effects, [
