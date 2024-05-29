@@ -52,6 +52,8 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
 
     private lateinit var foregroundNotificationHandler: ForegroundNotificationManager
 
+    // Count number of binds to know if the service is needed. If user actively using the VPN, a
+    // bind from the system, should always be present.
     private val bindCount = AtomicInt()
 
     override fun onCreate() {
@@ -126,13 +128,19 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
             Log.d(TAG, "onBind from VPN_SERVICE_CLASS")
             _shouldBeOnForeground.update { true }
         }
-        return super.onBind(intent)
-            ?: if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                Binder(this.toString())
-            } else {
-                Binder()
-            }
+
+        // We always need to return a binder, if system binds to our VPN service, VpnService will
+        // return a binder that shall be user, otherwise we return a dummy binder to keep connection
+        // and service alive, but communication goes over gRPC
+        return super.onBind(intent) ?: emptyBinder()
     }
+
+    private fun emptyBinder() =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            Binder(this.toString())
+        } else {
+            Binder()
+        }
 
     override fun onRevoke() {
         runBlocking { connectionProxy.disconnect() }
@@ -176,12 +184,12 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
         super.onDestroy()
     }
 
+    // If an intent is from the system it is because of the OS starting/stopping the VPN.
     private fun Intent?.isFromSystem(): Boolean {
         return this?.action == SERVICE_INTERFACE
     }
 
     companion object {
-
         init {
             System.loadLibrary("mullvad_jni")
         }

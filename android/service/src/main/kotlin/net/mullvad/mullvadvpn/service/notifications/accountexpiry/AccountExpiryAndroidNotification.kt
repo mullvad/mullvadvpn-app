@@ -24,7 +24,7 @@ internal fun Notification.AccountExpiry.toNotification(context: Context) =
 private fun Notification.AccountExpiry.contentIntent(context: Context): PendingIntent {
 
     val intent =
-        if (isPlayBuild) {
+        if (websiteAuthToken == null) {
             Intent().apply {
                 setClassName(context.packageName, MAIN_ACTIVITY_CLASS)
                 flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP

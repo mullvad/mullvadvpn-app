@@ -41,7 +41,6 @@ class AccountExpiryNotificationProvider(
                         websiteAuthToken =
                             if (!IS_PLAY_BUILD) accountRepository.getWebsiteAuthToken() else null,
                         durationUntilExpiry = durationUntilExpiry,
-                        isPlayBuild = false
                     )
                 if (!isNewAccount && durationUntilExpiry.isCloseToExpiry()) {
                     NotificationUpdate.Notify(notificationId, notification)

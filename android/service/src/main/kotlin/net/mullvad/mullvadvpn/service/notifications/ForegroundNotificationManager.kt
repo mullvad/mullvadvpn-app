@@ -22,10 +22,6 @@ class ForegroundNotificationManager(
     private val scope: CoroutineScope,
 ) {
     suspend fun start(foregroundProvider: ShouldBeOnForegroundProvider) {
-
-        //                channel.apply{ lockscreenVisibility =
-        // AndroidNotification.VISIBILITY_SECRET }
-
         scope.launch {
             foregroundProvider.shouldBeOnForeground.collect {
                 if (it) {
