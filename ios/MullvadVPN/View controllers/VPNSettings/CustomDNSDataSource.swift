@@ -61,7 +61,7 @@ final class CustomDNSDataSource: UITableViewDiffableDataSource<
         case dnsServerInfo
 
         static var contentBlockers: [Item] {
-            [.blockAdvertising, .blockTracking, .blockMalware, .blockAdultContent, .blockGambling, .blockSocialMedia]
+            [.blockAdvertising, .blockTracking, .blockMalware, .blockGambling, .blockAdultContent, .blockSocialMedia]
         }
 
         var accessibilityIdentifier: AccessibilityIdentifier {
