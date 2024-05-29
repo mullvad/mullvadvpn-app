@@ -39,8 +39,12 @@ class CustomListPage: Page {
         editCustomListNameCell.tap()
         // Select the entire text with a triple tap
         editCustomListNameCell.tap(withNumberOfTaps: 3, numberOfTouches: 1)
-        // Tap the "delete" key on the on-screen keyboard, the case is sensitive
-        app.keys["delete"].tap()
+        // Tap the "delete" key on the on-screen keyboard, the case is sensitive.
+        // However, on a simulator the keyboard isn't visible by default, so we
+        // need to take that into consideration.
+        if app.keys["delete"].isHittable {
+            app.keys["delete"].tap()
+        }
         editCustomListNameCell.typeText(name)
         return self
     }

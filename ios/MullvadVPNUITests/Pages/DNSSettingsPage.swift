@@ -38,7 +38,7 @@ class DNSSettingsPage: Page {
 
     @discardableResult func tapDNSContentBlockersHeaderExpandButton() -> Self {
         let headerView = app.otherElements[AccessibilityIdentifier.dnsContentBlockersHeaderView]
-        let expandButton = headerView.buttons[AccessibilityIdentifier.collapseButton]
+        let expandButton = headerView.buttons[AccessibilityIdentifier.expandButton]
         expandButton.tap()
 
         return self
