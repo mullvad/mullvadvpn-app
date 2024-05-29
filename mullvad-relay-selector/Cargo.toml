@@ -13,7 +13,7 @@ workspace = true
 [dependencies]
 chrono = { workspace = true }
 thiserror = { workspace = true }
-ipnetwork = "0.16"
+ipnetwork = { workspace = true }
 itertools = "0.12"
 log = { workspace = true }
 once_cell = { workspace = true }
