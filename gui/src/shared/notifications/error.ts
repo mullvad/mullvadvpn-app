@@ -184,15 +184,15 @@ function getMessage(errorState: ErrorState): string {
         );
       case ErrorStateCause.splitTunnelError:
         switch (process.platform ?? window.env.platform) {
-          case 'win32':
-            return messages.pgettext(
-              'notifications',
-              'Unable to communicate with Mullvad kernel driver. Try reconnecting or send a problem report.',
-            );
           case 'darwin':
             return messages.pgettext(
               'notifications',
               'Failed to enable split tunneling. Please try again or disable it.',
+            );
+          default:
+            return messages.pgettext(
+              'notifications',
+              'Unable to communicate with Mullvad kernel driver. Try reconnecting or send a problem report.',
             );
         }
     }
