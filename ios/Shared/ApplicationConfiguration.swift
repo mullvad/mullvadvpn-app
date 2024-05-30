@@ -9,14 +9,15 @@
 import Foundation
 import Network
 
-// swiftlint:disable force_cast
 enum ApplicationConfiguration {
     static var hostName: String {
+        // swiftlint:disable:next force_cast
         Bundle.main.object(forInfoDictionaryKey: "HostName") as! String
     }
 
     /// Shared container security group identifier.
     static var securityGroupIdentifier: String {
+        // swiftlint:disable:next force_cast
         Bundle.main.object(forInfoDictionaryKey: "ApplicationSecurityGroupIdentifier") as! String
     }
 
@@ -74,5 +75,3 @@ enum ApplicationConfiguration {
     /// Maximum number of devices per account.
     static let maxAllowedDevices = 5
 }
-
-// swiftlint:enable force_cast

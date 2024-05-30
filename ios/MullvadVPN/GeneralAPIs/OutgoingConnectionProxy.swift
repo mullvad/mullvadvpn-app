@@ -20,15 +20,17 @@ final class OutgoingConnectionProxy: OutgoingConnectionHandling {
     enum ExitIPVersion: String {
         case v4 = "ipv4", v6 = "ipv6"
 
-        var host: String {
-            "\(rawValue).am.i.\(ApplicationConfiguration.hostName)"
+        func host(hostname: String) -> String {
+            "\(rawValue).am.i.\(hostname)"
         }
     }
 
     let urlSession: URLSessionProtocol
+    let hostname: String
 
-    init(urlSession: URLSessionProtocol) {
+    init(urlSession: URLSessionProtocol, hostname: String) {
         self.urlSession = urlSession
+        self.hostname = hostname
     }
 
     func getIPV6(retryStrategy: REST.RetryStrategy) async throws -> IPV6ConnectionData {
@@ -43,7 +45,7 @@ final class OutgoingConnectionProxy: OutgoingConnectionHandling {
         let delayIterator = retryStrategy.makeDelayIterator()
         for _ in 0 ..< retryStrategy.maxRetryCount {
             do {
-                return try await perform(host: version.host)
+                return try await perform(host: version.host(hostname: hostname))
             } catch {
                 // ignore if request is cancelled
                 if case URLError.cancelled = error {
@@ -57,7 +59,7 @@ final class OutgoingConnectionProxy: OutgoingConnectionHandling {
                 }
             }
         }
-        return try await perform(host: version.host)
+        return try await perform(host: version.host(hostname: hostname))
     }
 
     private func perform<T: Decodable>(host: String) async throws -> T {
