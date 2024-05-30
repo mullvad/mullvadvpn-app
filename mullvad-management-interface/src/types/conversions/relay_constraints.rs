@@ -152,10 +152,14 @@ impl From<&mullvad_types::relay_constraints::ObfuscationSettings> for proto::Obf
             SelectedObfuscation::Udp2Tcp => {
                 proto::obfuscation_settings::SelectedObfuscation::Udp2tcp
             }
+            SelectedObfuscation::Shadowsocks => {
+                proto::obfuscation_settings::SelectedObfuscation::Shadowsocks
+            }
         });
         Self {
             selected_obfuscation,
             udp2tcp: Some(proto::Udp2TcpObfuscationSettings::from(&settings.udp2tcp)),
+            shadowsocks: Some(proto::ShadowsocksSettings::from(&settings.shadowsocks)),
         }
     }
 }
@@ -170,6 +174,14 @@ impl From<&mullvad_types::relay_constraints::Udp2TcpObfuscationSettings>
     for proto::Udp2TcpObfuscationSettings
 {
     fn from(settings: &mullvad_types::relay_constraints::Udp2TcpObfuscationSettings) -> Self {
+        Self {
+            port: settings.port.map(u32::from).option(),
+        }
+    }
+}
+
+impl From<&mullvad_types::relay_constraints::ShadowsocksSettings> for proto::ShadowsocksSettings {
+    fn from(settings: &mullvad_types::relay_constraints::ShadowsocksSettings) -> Self {
         Self {
             port: settings.port.map(u32::from).option(),
         }
@@ -438,9 +450,10 @@ impl TryFrom<proto::ObfuscationSettings> for mullvad_types::relay_constraints::O
                 Ok(IpcSelectedObfuscation::Auto) => SelectedObfuscation::Auto,
                 Ok(IpcSelectedObfuscation::Off) => SelectedObfuscation::Off,
                 Ok(IpcSelectedObfuscation::Udp2tcp) => SelectedObfuscation::Udp2Tcp,
+                Ok(IpcSelectedObfuscation::Shadowsocks) => SelectedObfuscation::Shadowsocks,
                 Err(_) => {
                     return Err(FromProtobufTypeError::InvalidArgument(
-                        "invalid selected obfuscator",
+                        "invalid obfuscation settings",
                     ));
                 }
             };
@@ -451,7 +464,17 @@ impl TryFrom<proto::ObfuscationSettings> for mullvad_types::relay_constraints::O
             }
             None => {
                 return Err(FromProtobufTypeError::InvalidArgument(
-                    "invalid selected obfuscator",
+                    "invalid udp2tcp settings",
+                ));
+            }
+        };
+        let shadowsocks = match settings.shadowsocks {
+            Some(settings) => {
+                mullvad_types::relay_constraints::ShadowsocksSettings::try_from(&settings)?
+            }
+            None => {
+                return Err(FromProtobufTypeError::InvalidArgument(
+                    "invalid shadowsocks settings",
                 ));
             }
         };
@@ -459,6 +482,7 @@ impl TryFrom<proto::ObfuscationSettings> for mullvad_types::relay_constraints::O
         Ok(Self {
             selected_obfuscation,
             udp2tcp,
+            shadowsocks,
         })
     }
 }
@@ -469,6 +493,18 @@ impl TryFrom<&proto::Udp2TcpObfuscationSettings>
     type Error = FromProtobufTypeError;
 
     fn try_from(settings: &proto::Udp2TcpObfuscationSettings) -> Result<Self, Self::Error> {
+        Ok(Self {
+            port: Constraint::from(settings.port.map(|port| port as u16)),
+        })
+    }
+}
+
+impl TryFrom<&proto::ShadowsocksSettings>
+    for mullvad_types::relay_constraints::ShadowsocksSettings
+{
+    type Error = FromProtobufTypeError;
+
+    fn try_from(settings: &proto::ShadowsocksSettings) -> Result<Self, Self::Error> {
         Ok(Self {
             port: Constraint::from(settings.port.map(|port| port as u16)),
         })
