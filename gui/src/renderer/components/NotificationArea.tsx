@@ -43,6 +43,8 @@ interface IProps {
 }
 
 export default function NotificationArea(props: IProps) {
+  const { showFullDiskAccessSettings } = useAppContext();
+
   const account = useSelector((state: IReduxState) => state.account);
   const locale = useSelector((state: IReduxState) => state.userInterface.locale);
   const tunnelState = useSelector((state: IReduxState) => state.connection.status);
@@ -65,7 +67,7 @@ export default function NotificationArea(props: IProps) {
       blockWhenDisconnected,
       hasExcludedApps,
     }),
-    new ErrorNotificationProvider({ tunnelState, hasExcludedApps }),
+    new ErrorNotificationProvider({ tunnelState, hasExcludedApps, showFullDiskAccessSettings }),
     new InconsistentVersionNotificationProvider({ consistent: version.consistent }),
     new UnsupportedVersionNotificationProvider(version),
   ];
@@ -168,20 +170,40 @@ function NotificationActionWrapper(props: INotificationActionWrapperProps) {
     }
   }
 
+  const problemReportButton = troubleshootInfo?.buttons ? (
+    <AppButton.BlueButton key="problem-report" onClick={goToProblemReport}>
+      {messages.pgettext('in-app-notifications', 'Send problem report')}
+    </AppButton.BlueButton>
+  ) : (
+    <AppButton.GreenButton key="problem-report" onClick={goToProblemReport}>
+      {messages.pgettext('in-app-notifications', 'Send problem report')}
+    </AppButton.GreenButton>
+  );
+
+  let buttons = [
+    problemReportButton,
+    <AppButton.BlueButton key="back" onClick={closeTroubleshootInfo}>
+      {messages.gettext('Back')}
+    </AppButton.BlueButton>,
+  ];
+
+  if (troubleshootInfo?.buttons) {
+    const actionButtons = troubleshootInfo.buttons.map((button) => (
+      <AppButton.GreenButton key={button.label} onClick={button.action}>
+        {button.label}
+      </AppButton.GreenButton>
+    ));
+
+    buttons = actionButtons.concat(buttons);
+  }
+
   return (
     <>
       <NotificationActions>{actionComponent}</NotificationActions>
       <ModalAlert
         isOpen={troubleshootInfo !== undefined}
         type={ModalAlertType.info}
-        buttons={[
-          <AppButton.GreenButton key="problem-report" onClick={goToProblemReport}>
-            {messages.pgettext('in-app-notifications', 'Send problem report')}
-          </AppButton.GreenButton>,
-          <AppButton.BlueButton key="back" onClick={closeTroubleshootInfo}>
-            {messages.gettext('Back')}
-          </AppButton.BlueButton>,
-        ]}
+        buttons={buttons}
         close={closeTroubleshootInfo}>
         <ModalMessage>{troubleshootInfo?.details}</ModalMessage>
         <ModalMessage>
