@@ -529,6 +529,10 @@ export default class AppRenderer {
     await IpcRendererEventChannel.app.showLaunchDaemonSettings();
   }
 
+  public showFullDiskAccessSettings = async () => {
+    await IpcRendererEventChannel.app.showFullDiskAccessSettings();
+  };
+
   public async sendProblemReport(
     email: string,
     message: string,

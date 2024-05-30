@@ -8,6 +8,12 @@ export type NotificationAction = {
 export interface InAppNotificationTroubleshootInfo {
   details: string;
   steps: string[];
+  buttons?: Array<InAppNotificationTroubleshootButton>;
+}
+
+export interface InAppNotificationTroubleshootButton {
+  label: string;
+  action: () => void;
 }
 
 export type InAppNotificationAction =

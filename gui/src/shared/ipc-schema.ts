@@ -162,6 +162,7 @@ export const ipcSchema = {
     openUrl: invoke<string, void>(),
     showOpenDialog: invoke<Electron.OpenDialogOptions, Electron.OpenDialogReturnValue>(),
     showLaunchDaemonSettings: invoke<void, void>(),
+    showFullDiskAccessSettings: invoke<void, void>(),
     getPathBaseName: invoke<string, string>(),
   },
   tunnel: {
