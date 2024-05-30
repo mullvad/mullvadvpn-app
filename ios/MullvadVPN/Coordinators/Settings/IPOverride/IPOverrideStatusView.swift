@@ -24,6 +24,7 @@ class IPOverrideStatusView: UIView {
         let label = UILabel()
         label.font = .systemFont(ofSize: 12, weight: .semibold)
         label.textColor = .white.withAlphaComponent(0.6)
+        label.numberOfLines = 0
         return label
     }()
 
