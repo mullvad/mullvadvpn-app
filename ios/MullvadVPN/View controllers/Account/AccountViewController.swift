@@ -197,6 +197,7 @@ class AccountViewController: UIViewController {
         contentView.logoutButton.isEnabled = isInteractionEnabled
         contentView.redeemVoucherButton.isEnabled = isInteractionEnabled
         contentView.deleteButton.isEnabled = isInteractionEnabled
+        navigationItem.rightBarButtonItem?.isEnabled = isInteractionEnabled
 
         view.isUserInteractionEnabled = isInteractionEnabled
         isModalInPresentation = !isInteractionEnabled
