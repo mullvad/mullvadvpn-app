@@ -790,18 +790,33 @@ impl RelaySelector {
         endpoint: &MullvadWireguardEndpoint,
         parsed_relays: &ParsedRelays,
     ) -> Result<Option<SelectedObfuscator>, Error> {
+        let obfuscator_relay = match relay {
+            WireguardConfig::Singlehop { exit } => exit,
+            WireguardConfig::Multihop { entry, .. } => entry,
+        };
         match &query.wireguard_constraints.obfuscation {
             ObfuscationQuery::Off | ObfuscationQuery::Auto => Ok(None),
-            ObfuscationQuery::Udp2tcp { port } => {
-                let obfuscator_relay = match relay {
-                    WireguardConfig::Singlehop { exit } => exit,
-                    WireguardConfig::Multihop { entry, .. } => entry,
-                };
+            ObfuscationQuery::Udp2tcp(settings) => {
                 let udp2tcp_ports = &parsed_relays.parsed_list().wireguard.udp2tcp_ports;
 
-                helpers::get_udp2tcp_obfuscator(port, udp2tcp_ports, obfuscator_relay, endpoint)
+                helpers::get_udp2tcp_obfuscator(settings, udp2tcp_ports, obfuscator_relay, endpoint)
                     .map(Some)
                     .ok_or(Error::NoObfuscator)
+            }
+            ObfuscationQuery::Shadowsocks(settings) => {
+                let port_ranges = &parsed_relays
+                    .parsed_list()
+                    .wireguard
+                    .shadowsocks_port_ranges;
+                let obfuscation = helpers::get_shadowsocks_obfuscator(
+                    &settings,
+                    port_ranges,
+                    obfuscator_relay,
+                    endpoint,
+                )
+                .ok_or(Error::NoObfuscator)?;
+
+                Ok(Some(obfuscation))
             }
         }
     }
