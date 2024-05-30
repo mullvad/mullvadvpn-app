@@ -151,6 +151,7 @@ pub async fn test_udp2tcp_tunnel(
             udp2tcp: Udp2TcpObfuscationSettings {
                 port: Constraint::Any,
             },
+            ..Default::default()
         })
         .await
         .expect("failed to enable udp2tcp");
@@ -546,6 +547,7 @@ pub async fn test_quantum_resistant_multihop_udp2tcp_tunnel(
             udp2tcp: Udp2TcpObfuscationSettings {
                 port: Constraint::Any,
             },
+            ..Default::default()
         })
         .await
         .expect("Failed to enable obfuscation");

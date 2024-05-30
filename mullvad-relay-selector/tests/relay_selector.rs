@@ -780,10 +780,10 @@ fn test_selected_wireguard_endpoints_use_correct_port_ranges() {
                 let Some(obfuscator) = obfuscator else {
                     panic!("Relay selector should have picked an obfuscator")
                 };
-                assert!(match obfuscator.config {
-                    ObfuscatorConfig::Udp2Tcp { endpoint } =>
+                assert!(matches!(obfuscator.config,
+                    ObfuscatorConfig::Udp2Tcp { endpoint } if
                         TCP2UDP_PORTS.contains(&endpoint.port()),
-                })
+                ))
             }
             wrong_relay => panic!(
             "Relay selector should have picked a Wireguard relay, instead chose {wrong_relay:?}"
