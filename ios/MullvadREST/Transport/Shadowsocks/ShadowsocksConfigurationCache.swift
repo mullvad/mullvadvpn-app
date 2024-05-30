@@ -9,8 +9,14 @@
 import Foundation
 import MullvadTypes
 
+public protocol ShadowsocksConfigurationCacheProtocol {
+    func read() throws -> ShadowsocksConfiguration
+    func write(_ configuration: ShadowsocksConfiguration) throws
+    func clear() throws
+}
+
 /// Holds a shadowsocks configuration object backed by a caching mechanism shared across processes
-public final class ShadowsocksConfigurationCache {
+public final class ShadowsocksConfigurationCache: ShadowsocksConfigurationCacheProtocol {
     private let configurationLock = NSLock()
     private var cachedConfiguration: ShadowsocksConfiguration?
     private let fileCache: FileCache<ShadowsocksConfiguration>
@@ -43,5 +49,13 @@ public final class ShadowsocksConfigurationCache {
 
         cachedConfiguration = configuration
         try fileCache.write(configuration)
+    }
+
+    /// Clear memory cache.
+    public func clear() throws {
+        configurationLock.lock()
+        defer { configurationLock.unlock() }
+        cachedConfiguration = nil
+        try fileCache.clear()
     }
 }
