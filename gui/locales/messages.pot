@@ -1087,6 +1087,10 @@ msgid "Disconnected and unsecure"
 msgstr ""
 
 msgctxt "notifications"
+msgid "Failed to enable split tunneling."
+msgstr ""
+
+msgctxt "notifications"
 msgid "Failed to enable split tunneling. Please try again or disable it."
 msgstr ""
 
@@ -1683,11 +1687,23 @@ msgid "Connecting. %(location)s"
 msgstr ""
 
 msgctxt "troubleshoot"
+msgid "Enable “Full Disk Access” for “Mullvad VPN” in the macOS system settings."
+msgstr ""
+
+msgctxt "troubleshoot"
+msgid "Failed to enable split tunneling. This is because the app is missing system permissions. What you can do:"
+msgstr ""
+
+msgctxt "troubleshoot"
 msgid "If these steps do not work please send a problem report."
 msgstr ""
 
 msgctxt "troubleshoot"
 msgid "Make sure you have NF tables support."
+msgstr ""
+
+msgctxt "troubleshoot"
+msgid "Open system settings"
 msgstr ""
 
 msgctxt "troubleshoot"

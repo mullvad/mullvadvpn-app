@@ -48,6 +48,7 @@ export enum ErrorStateCause {
   tunnelParameterError,
   isOffline,
   splitTunnelError,
+  needFullDiskPermissions,
 }
 
 export enum AuthFailedError {
@@ -71,7 +72,8 @@ export type ErrorState =
         | ErrorStateCause.setDnsError
         | ErrorStateCause.startTunnelError
         | ErrorStateCause.isOffline
-        | ErrorStateCause.splitTunnelError;
+        | ErrorStateCause.splitTunnelError
+        | ErrorStateCause.needFullDiskPermissions;
       blockingError?: FirewallPolicyError;
     }
   | {
