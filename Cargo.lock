@@ -4504,6 +4504,8 @@ name = "tunnel-obfuscation"
 version = "0.0.0"
 dependencies = [
  "async-trait",
+ "log",
+ "shadowsocks",
  "thiserror",
  "tokio",
  "udp-over-tcp",

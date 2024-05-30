@@ -6,13 +6,14 @@ use udp_over_tcp::{
     TcpOptions,
 };
 
-pub struct Udp2TcpSettings {
+#[derive(Debug)]
+pub struct Settings {
     pub peer: SocketAddr,
     #[cfg(target_os = "linux")]
     pub fwmark: Option<u32>,
 }
 
-pub type Result<T> = std::result::Result<T, Error>;
+type Result<T> = std::result::Result<T, Error>;
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -29,13 +30,13 @@ pub enum Error {
     RunObfuscator(#[source] udp2tcp::Error),
 }
 
-struct Udp2Tcp {
+pub struct Udp2Tcp {
     local_addr: SocketAddr,
     instance: Udp2TcpImpl,
 }
 
 impl Udp2Tcp {
-    pub async fn new(settings: &Udp2TcpSettings) -> Result<Self> {
+    pub(crate) async fn new(settings: &Settings) -> Result<Self> {
         let listen_addr = if settings.peer.is_ipv4() {
             SocketAddr::new("127.0.0.1".parse().unwrap(), 0)
         } else {
@@ -84,8 +85,4 @@ impl Obfuscator for Udp2Tcp {
     fn remote_socket_fd(&self) -> std::os::unix::io::RawFd {
         self.instance.remote_tcp_fd()
     }
-}
-
-pub async fn create_obfuscator(settings: &Udp2TcpSettings) -> Result<Box<dyn Obfuscator>> {
-    Ok(Box::new(Udp2Tcp::new(settings).await?))
 }

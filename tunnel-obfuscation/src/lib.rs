@@ -1,8 +1,8 @@
 use async_trait::async_trait;
 use std::net::SocketAddr;
 
-mod udp2tcp;
-pub use udp2tcp::Udp2TcpSettings;
+pub mod shadowsocks;
+pub mod udp2tcp;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -13,6 +13,12 @@ pub enum Error {
 
     #[error("Failed to run Udp2Tcp obfuscator")]
     RunUdp2TcpObfuscator(#[source] udp2tcp::Error),
+
+    #[error("Failed to initialize Shadowsocks")]
+    CreateShadowsocksObfuscator(#[source] shadowsocks::Error),
+
+    #[error("Failed to run Shadowsocks")]
+    RunShadowsocksObfuscator(#[source] shadowsocks::Error),
 }
 
 #[async_trait]
@@ -27,14 +33,25 @@ pub trait Obfuscator: Send {
     fn remote_socket_fd(&self) -> std::os::unix::io::RawFd;
 }
 
+#[derive(Debug)]
 pub enum Settings {
-    Udp2Tcp(Udp2TcpSettings),
+    Udp2Tcp(udp2tcp::Settings),
+    Shadowsocks(shadowsocks::Settings),
 }
 
 pub async fn create_obfuscator(settings: &Settings) -> Result<Box<dyn Obfuscator>> {
     match settings {
-        Settings::Udp2Tcp(s) => udp2tcp::create_obfuscator(s)
+        Settings::Udp2Tcp(s) => udp2tcp::Udp2Tcp::new(s)
             .await
+            .map(box_obfuscator)
             .map_err(Error::CreateUdp2TcpObfuscator),
+        Settings::Shadowsocks(s) => shadowsocks::Shadowsocks::new(s)
+            .await
+            .map(box_obfuscator)
+            .map_err(Error::CreateShadowsocksObfuscator),
     }
+}
+
+fn box_obfuscator(obfs: impl Obfuscator + 'static) -> Box<dyn Obfuscator> {
+    Box::new(obfs) as Box<dyn Obfuscator>
 }
