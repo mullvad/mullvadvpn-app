@@ -152,6 +152,7 @@ pub struct WireguardRelayQuery {
     pub entry_location: Constraint<LocationConstraint>,
     pub obfuscation: SelectedObfuscation,
     pub udp2tcp_port: Constraint<Udp2TcpObfuscationSettings>,
+    pub shadowsocks_port: Constraint<ShadowsocksSettings>,
     pub daita: Constraint<bool>,
 }
 
@@ -170,6 +171,7 @@ impl WireguardRelayQuery {
             entry_location: Constraint::Any,
             obfuscation: SelectedObfuscation::Auto,
             udp2tcp_port: Constraint::Any,
+            shadowsocks_port: Constraint::Any,
             daita: Constraint::Any,
         }
     }
@@ -305,7 +307,7 @@ pub mod builder {
         constraints::Constraint,
         relay_constraints::{
             BridgeConstraints, LocationConstraint, RelayConstraints, SelectedObfuscation,
-            TransportPort, Udp2TcpObfuscationSettings,
+            ShadowsocksSettings, TransportPort, Udp2TcpObfuscationSettings,
         },
     };
     use talpid_types::net::TunnelType;
@@ -507,6 +509,27 @@ pub mod builder {
             };
             self.query.wireguard_constraints.udp2tcp_port = Constraint::Only(obfuscation);
             self.query.wireguard_constraints.obfuscation = SelectedObfuscation::Udp2Tcp;
+            RelayQueryBuilder {
+                query: self.query,
+                protocol,
+            }
+        }
+
+        /// Enable Shadowsocks obufscation. This will in turn enable the option to configure the
+        /// port.
+        pub fn shadowsocks(
+            mut self,
+        ) -> RelayQueryBuilder<Wireguard<Multihop, ShadowsocksSettings, Daita>> {
+            let obfuscation = ShadowsocksSettings {
+                port: Constraint::Any,
+            };
+            let protocol = Wireguard {
+                multihop: self.protocol.multihop,
+                obfuscation: obfuscation.clone(),
+                daita: self.protocol.daita,
+            };
+            self.query.wireguard_constraints.shadowsocks_port = Constraint::Only(obfuscation);
+            self.query.wireguard_constraints.obfuscation = SelectedObfuscation::Shadowsocks;
             RelayQueryBuilder {
                 query: self.query,
                 protocol,
