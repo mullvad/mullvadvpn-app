@@ -840,7 +840,7 @@ impl ManagementService for ManagementServiceImpl {
         Ok(Response::new(()))
     }
 
-    #[cfg(any(windows, target_os = "android", target_os="macos"))]
+    #[cfg(any(windows, target_os = "android", target_os = "macos"))]
     async fn remove_split_tunnel_app(&self, request: Request<String>) -> ServiceResult<()> {
         use mullvad_types::settings::SplitApp;
         log::debug!("remove_split_tunnel_app");
