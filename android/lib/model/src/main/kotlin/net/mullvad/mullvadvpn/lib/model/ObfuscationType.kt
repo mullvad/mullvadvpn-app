@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.lib.model
 
 enum class ObfuscationType {
-    Udp2Tcp
+    Udp2Tcp,
+    Shadowsocks
 }

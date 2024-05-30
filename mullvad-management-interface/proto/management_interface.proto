@@ -263,11 +263,12 @@ enum FeatureIndicator {
   DAITA = 12;
 }
 
-enum ObfuscationType {
-  UDP2TCP = 0;
-}
-
 message ObfuscationEndpoint {
+  enum ObfuscationType {
+    UDP2TCP = 0;
+    SHADOWSOCKS = 1;
+  }
+
   string address = 1;
   uint32 port = 2;
   TransportProtocol protocol = 3;
@@ -352,14 +353,18 @@ message BridgeState {
 
 message Udp2TcpObfuscationSettings { optional uint32 port = 1; }
 
+message ShadowsocksSettings { optional uint32 port = 1; }
+
 message ObfuscationSettings {
   enum SelectedObfuscation {
     AUTO = 0;
     OFF = 1;
     UDP2TCP = 2;
+    SHADOWSOCKS = 3;
   }
   SelectedObfuscation selected_obfuscation = 1;
   Udp2TcpObfuscationSettings udp2tcp = 2;
+  ShadowsocksSettings shadowsocks = 3;
 }
 
 message CustomList {

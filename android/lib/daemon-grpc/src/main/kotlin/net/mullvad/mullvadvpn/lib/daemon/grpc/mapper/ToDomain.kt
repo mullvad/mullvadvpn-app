@@ -166,11 +166,13 @@ internal fun ManagementInterface.ObfuscationEndpoint.toDomain(): ObfuscationEndp
         obfuscationType = obfuscationType.toDomain()
     )
 
-internal fun ManagementInterface.ObfuscationType.toDomain(): ObfuscationType =
+internal fun ManagementInterface.ObfuscationEndpoint.ObfuscationType.toDomain(): ObfuscationType =
     when (this) {
-        ManagementInterface.ObfuscationType.UDP2TCP -> ObfuscationType.Udp2Tcp
-        ManagementInterface.ObfuscationType.UNRECOGNIZED ->
+        ManagementInterface.ObfuscationEndpoint.ObfuscationType.UDP2TCP -> ObfuscationType.Udp2Tcp
+        ManagementInterface.ObfuscationEndpoint.ObfuscationType.UNRECOGNIZED ->
             throw IllegalArgumentException("Unrecognized obfuscation type")
+        ManagementInterface.ObfuscationEndpoint.ObfuscationType.SHADOWSOCKS ->
+            throw IllegalArgumentException("Shadowsocks is unsupported")
     }
 
 internal fun ManagementInterface.TransportProtocol.toDomain(): TransportProtocol =
@@ -340,6 +342,8 @@ internal fun ManagementInterface.ObfuscationSettings.SelectedObfuscation.toDomai
         ManagementInterface.ObfuscationSettings.SelectedObfuscation.OFF -> SelectedObfuscation.Off
         ManagementInterface.ObfuscationSettings.SelectedObfuscation.UDP2TCP ->
             SelectedObfuscation.Udp2Tcp
+        ManagementInterface.ObfuscationSettings.SelectedObfuscation.SHADOWSOCKS ->
+            throw IllegalArgumentException("Shadowsocks is unsupported")
         ManagementInterface.ObfuscationSettings.SelectedObfuscation.UNRECOGNIZED ->
             throw IllegalArgumentException("Unrecognized selected obfuscation")
     }
