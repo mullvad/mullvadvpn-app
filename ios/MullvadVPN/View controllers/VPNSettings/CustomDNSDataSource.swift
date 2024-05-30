@@ -357,9 +357,8 @@ final class CustomDNSDataSource: UITableViewDiffableDataSource<
         var newSnapshot = NSDiffableDataSourceSnapshot<Section, Item>()
         let oldSnapshot = snapshot()
 
-        newSnapshot.appendSections(Section.allCases)
-
         // Append sections
+        newSnapshot.appendSections(Section.allCases)
 
         if oldSnapshot.sectionIdentifiers.contains(.contentBlockers) {
             newSnapshot.appendItems(
@@ -369,7 +368,6 @@ final class CustomDNSDataSource: UITableViewDiffableDataSource<
         }
 
         // Append DNS settings
-
         newSnapshot.appendItems([.useCustomDNS], toSection: .customDNS)
 
         let dnsServerItems = viewModel.customDNSDomains.map { entry in
@@ -382,17 +380,9 @@ final class CustomDNSDataSource: UITableViewDiffableDataSource<
         }
 
         // Append/update DNS server info.
+        newSnapshot = updateDNSInfoItems(in: newSnapshot)
 
-        if viewModel.customDNSPrecondition == .satisfied {
-            newSnapshot.deleteItems([.dnsServerInfo])
-        } else {
-            if newSnapshot.itemIdentifiers(inSection: .customDNS).contains(.dnsServerInfo) {
-                newSnapshot.reloadItems([.dnsServerInfo])
-            } else {
-                newSnapshot.appendItems([.dnsServerInfo], toSection: .customDNS)
-            }
-        }
-
+        // Apply snapshot.
         applySnapshot(newSnapshot, animated: animated, completion: completion)
     }
 
@@ -562,21 +552,32 @@ final class CustomDNSDataSource: UITableViewDiffableDataSource<
     }
 
     private func reloadDnsServerInfo() {
-        var snapshot = snapshot()
-
         reload(item: .useCustomDNS)
 
-        if viewModel.customDNSPrecondition == .satisfied {
+        let snapshot = updateDNSInfoItems(in: snapshot())
+        apply(snapshot, animatingDifferences: true)
+    }
+
+    private func updateDNSInfoItems(
+        in snapshot: NSDiffableDataSourceSnapshot<Section, Item>
+    ) -> NSDiffableDataSourceSnapshot<Section, Item> {
+        var snapshot = snapshot
+
+        if snapshot.itemIdentifiers(inSection: .contentBlockers).isEmpty {
             snapshot.deleteItems([.dnsServerInfo])
         } else {
-            if snapshot.itemIdentifiers(inSection: .customDNS).contains(.dnsServerInfo) {
-                snapshot.reloadItems([.dnsServerInfo])
+            if viewModel.customDNSPrecondition == .satisfied {
+                snapshot.deleteItems([.dnsServerInfo])
             } else {
-                snapshot.appendItems([.dnsServerInfo], toSection: .customDNS)
+                if snapshot.itemIdentifiers(inSection: .customDNS).contains(.dnsServerInfo) {
+                    snapshot.reloadItems([.dnsServerInfo])
+                } else {
+                    snapshot.appendItems([.dnsServerInfo], toSection: .customDNS)
+                }
             }
         }
 
-        apply(snapshot, animatingDifferences: true)
+        return snapshot
     }
 
     private func configureContentBlockersHeader(_ header: SettingsHeaderView) {
@@ -602,8 +603,10 @@ final class CustomDNSDataSource: UITableViewDiffableDataSource<
 
             if headerView.isExpanded {
                 snapshot.deleteItems(Item.contentBlockers)
+                snapshot.deleteItems([.dnsServerInfo])
             } else {
                 snapshot.appendItems(Item.contentBlockers, toSection: .contentBlockers)
+                snapshot.appendItems([.dnsServerInfo])
             }
 
             headerView.isExpanded.toggle()
