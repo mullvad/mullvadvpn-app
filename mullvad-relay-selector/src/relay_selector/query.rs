@@ -33,7 +33,7 @@ use mullvad_types::{
     constraints::Constraint,
     relay_constraints::{
         BridgeConstraints, LocationConstraint, OpenVpnConstraints, Ownership, Providers,
-        RelayConstraints, RelaySettings, SelectedObfuscation, TransportPort,
+        RelayConstraints, RelaySettings, SelectedObfuscation, ShadowsocksSettings, TransportPort,
         Udp2TcpObfuscationSettings, WireguardConstraints,
     },
     Intersection,
