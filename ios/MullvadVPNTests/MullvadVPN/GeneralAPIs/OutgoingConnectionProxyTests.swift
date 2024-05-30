@@ -11,6 +11,7 @@ import XCTest
 final class OutgoingConnectionProxyTests: XCTestCase {
     private var mockIPV6ConnectionData: Data!
     private var mockIPV4ConnectionData: Data!
+    private let hostname = "mullvad.net"
 
     private let encoder = JSONEncoder()
 
@@ -29,7 +30,7 @@ final class OutgoingConnectionProxyTests: XCTestCase {
 
         let outgoingConnectionProxy = OutgoingConnectionProxy(urlSession: URLSessionStub(
             response: (mockIPV4ConnectionData, createHTTPURLResponse(ip: .v4, statusCode: 200))
-        ))
+        ), hostname: hostname)
 
         let result = try await outgoingConnectionProxy.getIPV4(retryStrategy: .noRetry)
 
@@ -44,7 +45,7 @@ final class OutgoingConnectionProxyTests: XCTestCase {
 
         let outgoingConnectionProxy = OutgoingConnectionProxy(urlSession: URLSessionStub(
             response: (Data(), createHTTPURLResponse(ip: .v4, statusCode: 503))
-        ))
+        ), hostname: hostname)
 
         await XCTAssertThrowsErrorAsync(try await outgoingConnectionProxy.getIPV4(retryStrategy: .noRetry)) { _ in
             noIPv4Expectation.fulfill()
@@ -57,7 +58,7 @@ final class OutgoingConnectionProxyTests: XCTestCase {
 
         let outgoingConnectionProxy = OutgoingConnectionProxy(urlSession: URLSessionStub(
             response: (mockIPV6ConnectionData, createHTTPURLResponse(ip: .v6, statusCode: 200))
-        ))
+        ), hostname: hostname)
 
         let result = try await outgoingConnectionProxy.getIPV6(retryStrategy: .noRetry)
 
@@ -72,7 +73,7 @@ final class OutgoingConnectionProxyTests: XCTestCase {
 
         let outgoingConnectionProxy = OutgoingConnectionProxy(urlSession: URLSessionStub(
             response: (mockIPV6ConnectionData, createHTTPURLResponse(ip: .v6, statusCode: 404))
-        ))
+        ), hostname: hostname)
 
         await XCTAssertThrowsErrorAsync(try await outgoingConnectionProxy.getIPV6(retryStrategy: .noRetry)) { _ in
             noIPv6Expectation.fulfill()
@@ -84,7 +85,7 @@ final class OutgoingConnectionProxyTests: XCTestCase {
 extension OutgoingConnectionProxyTests {
     private func createHTTPURLResponse(ip: OutgoingConnectionProxy.ExitIPVersion, statusCode: Int) -> HTTPURLResponse {
         return HTTPURLResponse(
-            url: URL(string: "https://\(ip.host)/json")!,
+            url: URL(string: "https://\(ip.host(hostname: hostname))/json")!,
             statusCode: statusCode,
             httpVersion: nil,
             headerFields: ["Content-Type": "application/json"]

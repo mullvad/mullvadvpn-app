@@ -73,7 +73,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, SettingsMigrationUIHand
             devicesProxy: appDelegate.devicesProxy,
             accountsProxy: appDelegate.accountsProxy,
             outgoingConnectionService: OutgoingConnectionService(
-                outgoingConnectionProxy: OutgoingConnectionProxy(urlSession: URLSession(configuration: .ephemeral))
+                outgoingConnectionProxy: OutgoingConnectionProxy(
+                    urlSession: URLSession(configuration: .ephemeral),
+                    hostname: ApplicationConfiguration.hostName
+                )
             ),
             appPreferences: AppPreferences(),
             accessMethodRepository: accessMethodRepository,
