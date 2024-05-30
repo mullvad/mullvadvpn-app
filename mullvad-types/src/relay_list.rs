@@ -110,6 +110,7 @@ impl PartialEq for Relay {
     ///     #   )
     ///     #   .unwrap(),
     ///     #   daita: false,
+    ///     #   shadowsocks_extra_addr_in: vec![],
     ///     # }),
     ///     # location: None,
     /// };

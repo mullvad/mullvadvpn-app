@@ -5,7 +5,7 @@
 use self::config::Config;
 #[cfg(windows)]
 use futures::channel::mpsc;
-use futures::future::{abortable, AbortHandle as FutureAbortHandle, BoxFuture, Future};
+use futures::future::{BoxFuture, Future};
 #[cfg(target_os = "linux")]
 use once_cell::sync::Lazy;
 #[cfg(target_os = "android")]
@@ -16,7 +16,7 @@ use std::env;
 use std::io;
 use std::{
     convert::Infallible,
-    net::IpAddr,
+    net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
     path::Path,
     pin::Pin,
     sync::{mpsc as sync_mpsc, Arc, Mutex},
@@ -39,7 +39,8 @@ use talpid_types::{
 };
 use tokio::sync::Mutex as AsyncMutex;
 use tunnel_obfuscation::{
-    create_obfuscator, Error as ObfuscationError, Settings as ObfuscationSettings, Udp2TcpSettings,
+    create_obfuscator, shadowsocks, udp2tcp, Error as ObfuscationError,
+    Settings as ObfuscationSettings,
 };
 
 /// WireGuard config data-types
@@ -158,18 +159,18 @@ const PSK_EXCHANGE_TIMEOUT_MULTIPLIER: u32 = 2;
 
 /// Simple wrapper that automatically cancels the future which runs an obfuscator.
 struct ObfuscatorHandle {
-    abort_handle: FutureAbortHandle,
+    obfuscation_task: tokio::task::JoinHandle<()>,
     #[cfg(target_os = "android")]
     remote_socket_fd: std::os::unix::io::RawFd,
 }
 
 impl ObfuscatorHandle {
     pub fn new(
-        abort_handle: FutureAbortHandle,
+        obfuscation_task: tokio::task::JoinHandle<()>,
         #[cfg(target_os = "android")] remote_socket_fd: std::os::unix::io::RawFd,
     ) -> Self {
         Self {
-            abort_handle,
+            obfuscation_task,
             #[cfg(target_os = "android")]
             remote_socket_fd,
         }
@@ -181,13 +182,13 @@ impl ObfuscatorHandle {
     }
 
     pub fn abort(&self) {
-        self.abort_handle.abort();
+        self.obfuscation_task.abort();
     }
 }
 
 impl Drop for ObfuscatorHandle {
     fn drop(&mut self) {
-        self.abort_handle.abort();
+        self.obfuscation_task.abort();
     }
 }
 
@@ -204,48 +205,63 @@ async fn maybe_create_obfuscator(
     close_msg_sender: sync_mpsc::Sender<CloseMsg>,
 ) -> Result<Option<ObfuscatorHandle>> {
     if let Some(ref obfuscator_config) = config.obfuscator_config {
-        match obfuscator_config {
+        let settings = match obfuscator_config {
             ObfuscatorConfig::Udp2Tcp { endpoint } => {
-                log::trace!("Connecting to Udp2Tcp endpoint {:?}", *endpoint);
-                let settings = Udp2TcpSettings {
+                ObfuscationSettings::Udp2Tcp(udp2tcp::Settings {
                     peer: *endpoint,
                     #[cfg(target_os = "linux")]
                     fwmark: config.fwmark,
-                };
-                let obfuscator = create_obfuscator(&ObfuscationSettings::Udp2Tcp(settings))
-                    .await
-                    .map_err(Error::CreateObfuscatorError)?;
-                let endpoint = obfuscator.endpoint();
-
-                log::trace!("Patching first WireGuard peer to become {:?}", endpoint);
-                config.entry_peer.endpoint = endpoint;
-
-                #[cfg(target_os = "android")]
-                let remote_socket_fd = obfuscator.remote_socket_fd();
-
-                let (runner, abort_handle) = abortable(async move {
-                    match obfuscator.run().await {
-                        Ok(_) => {
-                            let _ = close_msg_sender.send(CloseMsg::ObfuscatorExpired);
-                        }
-                        Err(error) => {
-                            log::error!(
-                                "{}",
-                                error.display_chain_with_msg("Obfuscation controller failed")
-                            );
-                            let _ = close_msg_sender
-                                .send(CloseMsg::ObfuscatorFailed(Error::ObfuscatorError(error)));
-                        }
-                    }
-                });
-                tokio::spawn(runner);
-                return Ok(Some(ObfuscatorHandle::new(
-                    abort_handle,
-                    #[cfg(target_os = "android")]
-                    remote_socket_fd,
-                )));
+                })
             }
-        }
+            ObfuscatorConfig::Shadowsocks { endpoint } => {
+                ObfuscationSettings::Shadowsocks(shadowsocks::Settings {
+                    shadowsocks_endpoint: *endpoint,
+                    // TODO: Temporary since we may different entry IPs later?
+                    wireguard_endpoint: if config.entry_peer.endpoint.is_ipv4() {
+                        SocketAddr::from((Ipv4Addr::LOCALHOST, 51820))
+                    } else {
+                        SocketAddr::from((Ipv6Addr::LOCALHOST, 51820))
+                    },
+                    //wireguard_endpoint: config.entry_peer.endpoint,
+                    #[cfg(target_os = "linux")]
+                    fwmark: config.fwmark,
+                })
+            }
+        };
+
+        log::trace!("Obfuscation settings: {settings:?}");
+
+        let obfuscator = create_obfuscator(&settings)
+            .await
+            .map_err(Error::CreateObfuscatorError)?;
+        let endpoint = obfuscator.endpoint();
+
+        log::trace!("Patching first WireGuard peer to become {endpoint}");
+        config.entry_peer.endpoint = endpoint;
+
+        #[cfg(target_os = "android")]
+        let remote_socket_fd = obfuscator.remote_socket_fd();
+
+        let obfuscation_task = tokio::spawn(async move {
+            match obfuscator.run().await {
+                Ok(_) => {
+                    let _ = close_msg_sender.send(CloseMsg::ObfuscatorExpired);
+                }
+                Err(error) => {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg("Obfuscation controller failed")
+                    );
+                    let _ = close_msg_sender
+                        .send(CloseMsg::ObfuscatorFailed(Error::ObfuscatorError(error)));
+                }
+            }
+        });
+        return Ok(Some(ObfuscatorHandle::new(
+            obfuscation_task,
+            #[cfg(target_os = "android")]
+            remote_socket_fd,
+        )));
     }
     Ok(None)
 }

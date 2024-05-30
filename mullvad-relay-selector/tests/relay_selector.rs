@@ -55,6 +55,7 @@ static RELAYS: Lazy<RelayList> = Lazy::new(|| RelayList {
                         )
                         .unwrap(),
                         daita: false,
+                        shadowsocks_extra_addr_in: vec![],
                     }),
                     location: None,
                 },
@@ -73,6 +74,7 @@ static RELAYS: Lazy<RelayList> = Lazy::new(|| RelayList {
                         )
                         .unwrap(),
                         daita: false,
+                        shadowsocks_extra_addr_in: vec![],
                     }),
                     location: None,
                 },
@@ -164,6 +166,7 @@ static RELAYS: Lazy<RelayList> = Lazy::new(|| RelayList {
         ipv4_gateway: "10.64.0.1".parse().unwrap(),
         ipv6_gateway: "fc00:bbbb:bbbb:bb01::1".parse().unwrap(),
         udp2tcp_ports: vec![],
+        shadowsocks_port_ranges: vec![(100, 200), (1000, 2000)],
     },
 });
 
@@ -314,7 +317,8 @@ fn test_retry_order() {
                 assert!(match query.wireguard_constraints.obfuscation {
                     SelectedObfuscation::Auto => true,
                     SelectedObfuscation::Off => obfuscator.is_none(),
-                    SelectedObfuscation::Udp2Tcp => obfuscator.is_some(),
+                    SelectedObfuscation::Udp2Tcp | SelectedObfuscation::Shadowsocks =>
+                        obfuscator.is_some(),
                 });
             }
             GetRelay::OpenVpn {
@@ -437,6 +441,7 @@ fn test_wireguard_entry() {
                             )
                             .unwrap(),
                             daita: false,
+                            shadowsocks_extra_addr_in: vec![],
                         }),
                         location: None,
                     },
@@ -455,6 +460,7 @@ fn test_wireguard_entry() {
                             )
                             .unwrap(),
                             daita: false,
+                            shadowsocks_extra_addr_in: vec![],
                         }),
                         location: None,
                     },
@@ -476,6 +482,7 @@ fn test_wireguard_entry() {
             ipv4_gateway: "10.64.0.1".parse().unwrap(),
             ipv6_gateway: "fc00:bbbb:bbbb:bb01::1".parse().unwrap(),
             udp2tcp_ports: vec![],
+            shadowsocks_port_ranges: vec![(100, 200), (1000, 2000)],
         },
     };
 
@@ -780,10 +787,10 @@ fn test_selected_wireguard_endpoints_use_correct_port_ranges() {
                 let Some(obfuscator) = obfuscator else {
                     panic!("Relay selector should have picked an obfuscator")
                 };
-                assert!(match obfuscator.config {
-                    ObfuscatorConfig::Udp2Tcp { endpoint } =>
+                assert!(matches!(obfuscator.config,
+                    ObfuscatorConfig::Udp2Tcp { endpoint } if
                         TCP2UDP_PORTS.contains(&endpoint.port()),
-                })
+                ))
             }
             wrong_relay => panic!(
             "Relay selector should have picked a Wireguard relay, instead chose {wrong_relay:?}"

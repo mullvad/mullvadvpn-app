@@ -41,10 +41,8 @@ pub enum Error {
     MissingPublicKey,
     #[error("The selected relay does not support IPv6")]
     NoIPv6(Box<Relay>),
-    #[error("Invalid port argument: port {0} is not in any valid Wireguard port range")]
-    PortNotInRange(u16),
-    #[error("Port selection algorithm is broken")]
-    PortSelectionAlgorithm,
+    #[error("Failed to select port")]
+    PortSelectionError(#[source] super::helpers::Error),
 }
 
 /// Constructs a [`MullvadWireguardEndpoint`] with details for how to connect to a Wireguard relay.
@@ -175,20 +173,8 @@ fn get_port_for_wireguard_relay(
     query: &WireguardRelayQuery,
     data: &WireguardEndpointData,
 ) -> Result<u16, Error> {
-    match query.port {
-        Constraint::Any => select_random_port(&data.port_ranges),
-        Constraint::Only(port) => {
-            if data
-                .port_ranges
-                .iter()
-                .any(|range| (range.0 <= port && port <= range.1))
-            {
-                Ok(port)
-            } else {
-                Err(Error::PortNotInRange(port))
-            }
-        }
-    }
+    super::helpers::select_random_port(query.port, &data.port_ranges)
+        .map_err(Error::PortSelectionError)
 }
 
 /// Read the [`PublicKey`] of a relay. This will only succeed if [relay][`Relay`] is a
@@ -198,39 +184,6 @@ const fn get_public_key(relay: &Relay) -> Result<&PublicKey, Error> {
         RelayEndpointData::Wireguard(endpoint) => Ok(&endpoint.public_key),
         RelayEndpointData::Openvpn | RelayEndpointData::Bridge => Err(Error::MissingPublicKey),
     }
-}
-
-/// Selects a random port number from a list of provided port ranges.
-///
-/// This function iterates over a list of port ranges, each represented as a tuple (u16, u16)
-/// where the first element is the start of the range and the second is the end (inclusive),
-/// and selects a random port from the set of all ranges.
-///
-/// # Parameters
-/// - `port_ranges`: A slice of tuples, each representing a range of valid port numbers.
-///
-/// # Returns
-/// - `Option<u16>`: A randomly selected port number within the given ranges, or `None` if the input
-///   is empty or the total number of available ports is zero.
-fn select_random_port(port_ranges: &[(u16, u16)]) -> Result<u16, Error> {
-    use rand::Rng;
-    let get_port_amount = |range: &(u16, u16)| -> u64 { (1 + range.1 - range.0) as u64 };
-    let port_amount: u64 = port_ranges.iter().map(get_port_amount).sum();
-
-    if port_amount < 1 {
-        return Err(Error::PortSelectionAlgorithm);
-    }
-
-    let mut port_index = rand::thread_rng().gen_range(0..port_amount);
-
-    for range in port_ranges.iter() {
-        let ports_in_range = get_port_amount(range);
-        if port_index < ports_in_range {
-            return Ok(port_index as u16 + range.0);
-        }
-        port_index -= ports_in_range;
-    }
-    Err(Error::PortSelectionAlgorithm)
 }
 
 /// Constructs an [`Endpoint`] with details for how to connect to an OpenVPN relay.
