@@ -392,11 +392,11 @@ pub(crate) enum InternalDaemonEvent {
     /// A geographical location has has been received from am.i.mullvad.net
     LocationEvent(LocationEventData),
     /// The split tunnel paths or state were updated.
-    #[cfg(any(windows, target_os = "android", target_os="macos"))]
+    #[cfg(any(windows, target_os = "android", target_os = "macos"))]
     ExcludedPathsEvent(ExcludedPathsUpdate, oneshot::Sender<Result<(), Error>>),
 }
 
-#[cfg(any(windows, target_os = "android", target_os="macos"))]
+#[cfg(any(windows, target_os = "android", target_os = "macos"))]
 pub(crate) enum ExcludedPathsUpdate {
     SetState(bool),
     SetPaths(HashSet<SplitApp>),
@@ -767,7 +767,7 @@ where
             PersistentTargetState::new(&cache_dir).await
         };
 
-        #[cfg(any(windows, target_os = "android", target_os="macos"))]
+        #[cfg(any(windows, target_os = "android", target_os = "macos"))]
         let exclude_paths = if settings.split_tunnel.enable_exclusions {
             settings
                 .split_tunnel
@@ -811,7 +811,7 @@ where
                     .map_err(Error::ApiConnectionModeError)?
                     .endpoint,
                 reset_firewall: *target_state != TargetState::Secured,
-                #[cfg(any(windows, target_os = "android", target_os="macos"))]
+                #[cfg(any(windows, target_os = "android", target_os = "macos"))]
                 exclude_paths,
             },
             parameters_generator.clone(),
@@ -995,7 +995,7 @@ where
             } => self.handle_access_method_event(event, endpoint_active_tx),
             DeviceMigrationEvent(event) => self.handle_device_migration_event(event),
             LocationEvent(location_data) => self.handle_location_event(location_data),
-            #[cfg(any(windows, target_os = "android", target_os="macos"))]
+            #[cfg(any(windows, target_os = "android", target_os = "macos"))]
             ExcludedPathsEvent(update, tx) => self.handle_new_excluded_paths(update, tx).await,
         }
     }
@@ -1274,13 +1274,13 @@ where
             RemoveSplitTunnelProcess(tx, pid) => self.on_remove_split_tunnel_process(tx, pid),
             #[cfg(target_os = "linux")]
             ClearSplitTunnelProcesses(tx) => self.on_clear_split_tunnel_processes(tx),
-            #[cfg(any(windows, target_os = "android", target_os="macos"))]
+            #[cfg(any(windows, target_os = "android", target_os = "macos"))]
             AddSplitTunnelApp(tx, app) => self.on_add_split_tunnel_app(tx, app),
-            #[cfg(any(windows, target_os = "android", target_os="macos"))]
+            #[cfg(any(windows, target_os = "android", target_os = "macos"))]
             RemoveSplitTunnelApp(tx, path) => self.on_remove_split_tunnel_app(tx, path),
-            #[cfg(any(windows, target_os = "android", target_os="macos"))]
+            #[cfg(any(windows, target_os = "android", target_os = "macos"))]
             ClearSplitTunnelApps(tx) => self.on_clear_split_tunnel_apps(tx),
-            #[cfg(any(windows, target_os = "android", target_os="macos"))]
+            #[cfg(any(windows, target_os = "android", target_os = "macos"))]
             SetSplitTunnelState(tx, enabled) => self.on_set_split_tunnel_state(tx, enabled),
             #[cfg(windows)]
             GetSplitTunnelProcesses(tx) => self.on_get_split_tunnel_processes(tx),
@@ -1436,7 +1436,7 @@ where
         });
     }
 
-    #[cfg(any(windows, target_os = "android", target_os="macos"))]
+    #[cfg(any(windows, target_os = "android", target_os = "macos"))]
     async fn handle_new_excluded_paths(
         &mut self,
         update: ExcludedPathsUpdate,
@@ -1890,7 +1890,11 @@ where
     ) {
         let tunnel_list = match update {
             ExcludedPathsUpdate::SetPaths(ref paths) if settings.split_tunnel.enable_exclusions => {
-                paths.iter().cloned().map(SplitApp::to_tunnel_command_repr).collect()
+                paths
+                    .iter()
+                    .cloned()
+                    .map(SplitApp::to_tunnel_command_repr)
+                    .collect()
             }
             ExcludedPathsUpdate::SetState(true) => settings
                 .split_tunnel
@@ -1973,7 +1977,7 @@ where
         );
     }
 
-    #[cfg(any(windows, target_os = "android", target_os="macos"))]
+    #[cfg(any(windows, target_os = "android", target_os = "macos"))]
     fn on_set_split_tunnel_state(&mut self, tx: ResponseTx<(), Error>, state: bool) {
         let settings = self.settings.to_settings();
         self.set_split_tunnel_paths(
