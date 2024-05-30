@@ -15,7 +15,7 @@ struct ShadowsocksLoaderStub: ShadowsocksLoaderProtocol {
     var configuration: ShadowsocksConfiguration
     var error: Error?
 
-    func reloadConfiguration() throws {
+    func clear() throws {
         try load()
     }
 

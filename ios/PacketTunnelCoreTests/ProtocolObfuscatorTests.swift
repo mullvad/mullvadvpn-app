@@ -111,7 +111,9 @@ final class ProtocolObfuscatorTests: XCTestCase {
             obfuscation: WireGuardObfuscationSettings(
                 state: obfuscationState,
                 port: obfuscationPort
-            ), quantumResistance: quantumResistance
+            ),
+            quantumResistance: quantumResistance,
+            multihopState: .off
         )
     }
 }

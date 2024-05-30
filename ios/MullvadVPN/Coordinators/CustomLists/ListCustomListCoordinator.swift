@@ -78,29 +78,30 @@ class ListCustomListCoordinator: Coordinator, Presentable, Presenting {
     private func updateRelayConstraints(for action: EditCustomListCoordinator.FinishAction, in list: CustomList) {
         var relayConstraints = tunnelManager.settings.relayConstraints
 
-        guard let customListSelection = relayConstraints.locations.value?.customListSelection,
+        guard let customListSelection = relayConstraints.exitLocations.value?.customListSelection,
               customListSelection.listId == list.id
         else { return }
 
         switch action {
         case .save:
+            // TODO: - Add entry locations
             if customListSelection.isList {
                 let selectedRelays = UserSelectedRelays(
                     locations: list.locations,
                     customListSelection: UserSelectedRelays.CustomListSelection(listId: list.id, isList: true)
                 )
-                relayConstraints.locations = .only(selectedRelays)
+                relayConstraints.exitLocations = .only(selectedRelays)
             } else {
                 let selectedConstraintIsRemovedFromList = list.locations.filter {
-                    relayConstraints.locations.value?.locations.contains($0) ?? false
+                    relayConstraints.exitLocations.value?.locations.contains($0) ?? false
                 }.isEmpty
 
                 if selectedConstraintIsRemovedFromList {
-                    relayConstraints.locations = .only(UserSelectedRelays(locations: []))
+                    relayConstraints.exitLocations = .only(UserSelectedRelays(locations: []))
                 }
             }
         case .delete:
-            relayConstraints.locations = .only(UserSelectedRelays(locations: []))
+            relayConstraints.exitLocations = .only(UserSelectedRelays(locations: []))
         }
 
         tunnelManager.updateSettings([.relayConstraints(relayConstraints)]) { [weak self] in
