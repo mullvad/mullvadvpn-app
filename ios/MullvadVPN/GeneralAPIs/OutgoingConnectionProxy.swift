@@ -21,7 +21,7 @@ final class OutgoingConnectionProxy: OutgoingConnectionHandling {
         case v4 = "ipv4", v6 = "ipv6"
 
         var host: String {
-            "\(rawValue).am.i.mullvad.net"
+            "\(rawValue).am.i.\(ApplicationConfiguration.hostName)"
         }
     }
 

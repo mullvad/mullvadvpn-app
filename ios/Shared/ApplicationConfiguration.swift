@@ -9,10 +9,14 @@
 import Foundation
 import Network
 
+// swiftlint:disable force_cast
 enum ApplicationConfiguration {
+    static var hostName: String {
+        Bundle.main.object(forInfoDictionaryKey: "HostName") as! String
+    }
+
     /// Shared container security group identifier.
     static var securityGroupIdentifier: String {
-        // swiftlint:disable:next force_cast
         Bundle.main.object(forInfoDictionaryKey: "ApplicationSecurityGroupIdentifier") as! String
     }
 
@@ -59,14 +63,16 @@ enum ApplicationConfiguration {
     static let logMaximumFileSize: UInt64 = 131_072 // 128 kB.
 
     /// Privacy policy URL.
-    static let privacyPolicyURL = URL(string: "https://mullvad.net/help/privacy-policy/")!
+    static let privacyPolicyURL = URL(string: "https://\(Self.hostName)/help/privacy-policy/")!
 
     /// Make a start regarding  policy URL.
-    static let privacyGuidesURL = URL(string: "https://mullvad.net/help/first-steps-towards-online-privacy/")!
+    static let privacyGuidesURL = URL(string: "https://\(Self.hostName)/help/first-steps-towards-online-privacy/")!
 
     /// FAQ & Guides URL.
-    static let faqAndGuidesURL = URL(string: "https://mullvad.net/help/tag/mullvad-app/")!
+    static let faqAndGuidesURL = URL(string: "https://\(Self.hostName)/help/tag/mullvad-app/")!
 
     /// Maximum number of devices per account.
     static let maxAllowedDevices = 5
 }
+
+// swiftlint:enable force_cast
