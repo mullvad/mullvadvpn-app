@@ -39,6 +39,7 @@ const MIN_WIREGUARD_MTU_VALUE = 1280;
 const MAX_WIREGUARD_MTU_VALUE = 1420;
 const WIREUGARD_UDP_PORTS = [51820, 53];
 const UDP2TCP_PORTS = [80, 5001];
+const SHADOWSOCKS_PORTS = [1024];
 
 function mapPortToSelectorItem(value: number): SelectorItem<number> {
   return { label: value.toString(), value };
@@ -97,6 +98,7 @@ export default function WireguardSettings() {
                 <Cell.Group>
                   <ObfuscationSettings />
                   <Udp2tcpPortSetting />
+                  <ShadowsocksPortSetting />
                 </Cell.Group>
 
                 <Cell.Group>
@@ -216,8 +218,12 @@ function ObfuscationSettings() {
   const obfuscationTypeItems: SelectorItem<ObfuscationType>[] = useMemo(
     () => [
       {
-        label: messages.pgettext('wireguard-settings-view', 'On (UDP-over-TCP)'),
+        label: messages.pgettext('wireguard-settings-view', 'UDP-over-TCP'),
         value: ObfuscationType.udp2tcp,
+      },
+      {
+        label: messages.pgettext('wireguard-settings-view', 'Shadowsocks'),
+        value: ObfuscationType.shadowsocks,
       },
       {
         label: messages.gettext('Off'),
@@ -303,7 +309,56 @@ function Udp2tcpPortSetting() {
           items={portItems}
           value={port}
           onSelect={selectPort}
-          disabled={obfuscationSettings.selectedObfuscation === ObfuscationType.off}
+          expandable={expandableProps}
+          thinTitle
+          automaticValue={'any' as const}
+        />
+      </StyledSelectorContainer>
+    </AriaInputGroup>
+  );
+}
+
+function ShadowsocksPortSetting() {
+  const { setObfuscationSettings } = useAppContext();
+  const obfuscationSettings = useSelector((state) => state.settings.obfuscationSettings);
+
+  const port = liftConstraint(obfuscationSettings.shadowsocksSettings.port);
+  const portItems: SelectorItem<number>[] = useMemo(
+    () => SHADOWSOCKS_PORTS.map(mapPortToSelectorItem),
+    [],
+  );
+
+  const expandableProps = useMemo(() => ({ expandable: true, id: 'shadowsocks-port' }), []);
+
+  const selectPort = useCallback(
+    async (port: LiftedConstraint<number>) => {
+      await setObfuscationSettings({
+        ...obfuscationSettings,
+        shadowsocksSettings: {
+          ...obfuscationSettings.shadowsocksSettings,
+          port: wrapConstraint(port),
+        },
+      });
+    },
+    [setObfuscationSettings, obfuscationSettings],
+  );
+
+  return (
+    <AriaInputGroup>
+      <StyledSelectorContainer>
+        <Selector
+          title={messages.pgettext('wireguard-settings-view', 'Shadowsocks port')}
+          details={
+            <ModalMessage>
+              {messages.pgettext(
+                'wireguard-settings-view',
+                'Which UDP port to use for Shadowsocks obfuscation',
+              )}
+            </ModalMessage>
+          }
+          items={portItems}
+          value={port}
+          onSelect={selectPort}
           expandable={expandableProps}
           thinTitle
           automaticValue={'any' as const}
