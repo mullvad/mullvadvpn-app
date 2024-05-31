@@ -1047,10 +1047,9 @@ function convertFromTunnelStateError(state: grpcTypes.ErrorState.AsObject): Erro
         cause: ErrorStateCause.splitTunnelError,
       };
     case grpcTypes.ErrorState.Cause.NEED_FULL_DISK_PERMISSIONS:
-      // TODO: handle correctly
       return {
         ...baseError,
-        cause: ErrorStateCause.splitTunnelError,
+        cause: ErrorStateCause.needFullDiskPermissions,
       };
     case grpcTypes.ErrorState.Cause.VPN_PERMISSION_DENIED:
       // VPN_PERMISSION_DENIED is only ever created on Android

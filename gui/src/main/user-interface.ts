@@ -75,11 +75,19 @@ export default class UserInterface implements WindowControllerDelegate {
 
     IpcMainEventChannel.app.handleShowLaunchDaemonSettings(async () => {
       try {
-        await execAsync(
-          'open -W x-apple.systempreferences:com.apple.LoginItems-Settings.extension',
-        );
+        await execAsync('open x-apple.systempreferences:com.apple.LoginItems-Settings.extension');
       } catch (error) {
         log.error(`Failed to open launch daemon settings: ${error}`);
+      }
+    });
+
+    IpcMainEventChannel.app.handleShowFullDiskAccessSettings(async () => {
+      try {
+        await execAsync(
+          'open "x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles"',
+        );
+      } catch (error) {
+        log.error(`Failed to open Full Disk Access settings: ${error}`);
       }
     });
   }
