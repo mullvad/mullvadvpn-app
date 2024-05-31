@@ -70,6 +70,13 @@ impl<T> Constraint<T> {
         }
     }
 
+    pub fn and_then<U, F: FnOnce(T) -> Constraint<U>>(self, f: F) -> Constraint<U> {
+        match self {
+            Constraint::Any => Constraint::Any,
+            Constraint::Only(value) => f(value),
+        }
+    }
+
     pub const fn is_any(&self) -> bool {
         match self {
             Constraint::Any => true,
