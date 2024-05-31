@@ -24,8 +24,8 @@ echo "Running postinstall at $(date)"
 # This is a temporary workaround. After 2023.3, we switched from signing with Amagicom AB to
 # Mullvad VPN AB certificates. This could potentially be removed when older versions are no longer
 # supported.
-"$INSTALL_DIR/Mullvad VPN.app/Contents/Resources/mullvad" || true
-"$TMPDIR/mullvad-setup" prepare-restart || \
+"$INSTALL_DIR/Mullvad VPN.app/Contents/Resources/mullvad" &>/dev/null || true
+"$TMPDIR/mullvad-setup" prepare-restart &>/dev/null || \
     echo "Failed to send 'prepare-restart' command to old mullvad-daemon"
 
 # NOTE: This path must be kept in sync with the path defined
