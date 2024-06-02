@@ -39,7 +39,7 @@ fun SwitchLocationButton(
             ),
         modifier = modifier,
         text = text,
-        icon =
+        trailingIcon =
             if (showChevron) {
                 {
                     Icon(

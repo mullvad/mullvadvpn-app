@@ -214,7 +214,7 @@ internal fun ApiAccessMethodType.CustomProxy.Socks5Remote.fromDomain():
     ManagementInterface.Socks5Remote =
     ManagementInterface.Socks5Remote.newBuilder()
         .setIp(ip)
-        .setAuth(auth.fromDomain())
+        .setAuth(auth?.fromDomain())
         .setPort(port.value)
         .build()
 
@@ -225,10 +225,14 @@ internal fun ApiAccessMethodType.CustomProxy.Shadowsocks.fromDomain():
     ManagementInterface.Shadowsocks =
     ManagementInterface.Shadowsocks.newBuilder()
         .setIp(ip)
-        .setCipher(cipher)
+        .setCipher(cipher.value)
         .setPort(port.value)
-        .setPassword(password)
-        .build()
+        .let {
+            if (password != null) {
+                it.setPassword(password)
+            }
+            it.build()
+        }
 
 internal fun TransportProtocol.fromDomain(): ManagementInterface.TransportProtocol =
     when (this) {

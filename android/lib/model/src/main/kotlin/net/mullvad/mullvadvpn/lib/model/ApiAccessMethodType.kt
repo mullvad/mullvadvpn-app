@@ -1,11 +1,15 @@
 package net.mullvad.mullvadvpn.lib.model
 
-sealed interface ApiAccessMethodType {
-    data object Direct : ApiAccessMethodType
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 
-    data object Bridges : ApiAccessMethodType
+sealed interface ApiAccessMethodType : Parcelable {
+    @Parcelize data object Direct : ApiAccessMethodType
+
+    @Parcelize data object Bridges : ApiAccessMethodType
 
     sealed interface CustomProxy : ApiAccessMethodType {
+        @Parcelize
         data class Socks5Local(
             val remoteIp: String,
             val remotePort: Port,
@@ -13,13 +17,15 @@ sealed interface ApiAccessMethodType {
             val localPort: Port
         ) : CustomProxy
 
-        data class Socks5Remote(val ip: String, val port: Port, val auth: SocksAuth) : CustomProxy
+        @Parcelize
+        data class Socks5Remote(val ip: String, val port: Port, val auth: SocksAuth?) : CustomProxy
 
+        @Parcelize
         data class Shadowsocks(
             val ip: String,
             val port: Port,
-            val password: String,
-            val cipher: String
+            val password: String?,
+            val cipher: Cipher
         ) : CustomProxy
     }
 }

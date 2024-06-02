@@ -245,7 +245,7 @@ fun ScaffoldWithLargeTopBarAndButton(
                         horizontal = Dimens.sideMargin,
                         vertical = Dimens.screenVerticalMargin
                     ),
-                icon = {
+                trailingIcon = {
                     Icon(
                         painter = painterResource(id = R.drawable.icon_extlink),
                         contentDescription = null

@@ -7,7 +7,6 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -47,6 +46,7 @@ import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.theme.color.menuItemColors
 import net.mullvad.mullvadvpn.viewmodel.EditCustomListViewModel
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -201,12 +201,7 @@ private fun Actions(enabled: Boolean, onDeleteList: () -> Unit) {
                             contentDescription = null,
                         )
                     },
-                    colors =
-                        MenuDefaults.itemColors()
-                            .copy(
-                                leadingIconColor = MaterialTheme.colorScheme.onSurface,
-                                textColor = MaterialTheme.colorScheme.onSurface,
-                            ),
+                    colors = menuItemColors,
                     onClick = {
                         onDeleteList()
                         showMenu = false
