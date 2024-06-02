@@ -19,6 +19,7 @@ import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodName
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodType
 import net.mullvad.mullvadvpn.lib.model.AppId
 import net.mullvad.mullvadvpn.lib.model.AppVersionInfo
+import net.mullvad.mullvadvpn.lib.model.Cipher
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.CustomDnsOptions
 import net.mullvad.mullvadvpn.lib.model.CustomList
@@ -532,7 +533,7 @@ internal fun ManagementInterface.ApiAccessMethodSettings.toDomain(): List<ApiAcc
 internal fun ManagementInterface.AccessMethodSetting.toDomain(): ApiAccessMethod =
     ApiAccessMethod(
         id = ApiAccessMethodId.fromString(id.value),
-        name = ApiAccessMethodName(name),
+        name = ApiAccessMethodName.fromString(name),
         enabled = enabled,
         apiAccessMethodType = accessMethod.toDomain()
     )
@@ -559,7 +560,7 @@ internal fun ManagementInterface.Shadowsocks.toDomain():
         ip = ip,
         port = Port(port),
         password = password,
-        cipher = cipher
+        cipher = Cipher.fromString(cipher)
     )
 
 internal fun ManagementInterface.Socks5Local.toDomain():
@@ -571,15 +572,18 @@ internal fun ManagementInterface.Socks5Local.toDomain():
         localPort = Port(localPort)
     )
 
-internal fun ManagementInterface.Socks5Remote.toDomain(): ApiAccessMethodType.CustomProxy.Socks5Remote =
+internal fun ManagementInterface.Socks5Remote.toDomain():
+    ApiAccessMethodType.CustomProxy.Socks5Remote =
     ApiAccessMethodType.CustomProxy.Socks5Remote(
         ip = ip,
         port = Port(port),
-        auth = auth.toDomain()
+        auth =
+            if (hasAuth()) {
+                auth.toDomain()
+            } else {
+                null
+            }
     )
 
 internal fun ManagementInterface.SocksAuth.toDomain(): SocksAuth =
-    SocksAuth(
-        username = username,
-        password = password
-    )
+    SocksAuth(username = username, password = password)
