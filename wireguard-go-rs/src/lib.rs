@@ -2,17 +2,21 @@
 
 use core::slice;
 use std::{
-    ffi::{c_char, c_void, CStr},
+    ffi::{c_char, CStr},
     mem::ManuallyDrop,
 };
+use util::OnDrop;
 use zeroize::Zeroize;
+
+mod util;
 
 pub type Fd = std::os::unix::io::RawFd;
 
 pub type WgLogLevel = u32;
 
+pub type LoggingContext = u64;
 pub type LoggingCallback =
-    unsafe extern "system" fn(level: WgLogLevel, msg: *const c_char, context: *mut c_void);
+    unsafe extern "system" fn(level: WgLogLevel, msg: *const c_char, context: LoggingContext);
 
 /// A wireguard-go tunnel
 pub struct Tunnel {
@@ -50,15 +54,12 @@ pub enum Error {
 }
 
 impl Tunnel {
-    // TODO: this function is supposed to be a safe wrapper, but as clippy points out,
-    // the logging_context is a *mut, which may unsafely be dereferenced by the callback.
-    // I'd prefer NOT to mark this functon as unsafe though...
     pub fn turn_on(
         #[cfg(not(target_os = "android"))] mtu: isize,
         settings: &CStr,
         device: Fd,
         logging_callback: Option<LoggingCallback>,
-        logging_context: *mut c_void,
+        logging_context: LoggingContext,
     ) -> Result<Self, Error> {
         // SAFETY: pointer is valid for the the lifetime of this function
         let code = unsafe {
@@ -193,7 +194,7 @@ impl Error {
 }
 
 mod ffi {
-    use super::{Fd, LoggingCallback};
+    use super::{Fd, LoggingCallback, LoggingContext};
     use core::ffi::{c_char, c_void};
 
     extern "C" {
@@ -207,7 +208,7 @@ mod ffi {
             settings: *const i8,
             fd: Fd,
             logging_callback: Option<LoggingCallback>,
-            logging_context: *mut c_void,
+            logging_context: LoggingContext,
         ) -> i32;
 
         /// Pass a handle that was created by wgTurnOn to stop a wireguard tunnel.
