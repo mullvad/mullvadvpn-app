@@ -67,6 +67,19 @@ class VpnSettingsViewModelTest {
     }
 
     @Test
+    fun `onSelectCustomTcpOverUdpPort should invoke setCustomObfuscationPort on SettingsRepository`() =
+        runTest {
+            val customPort = Port(5001)
+            coEvery {
+                mockSettingsRepository.setCustomObfuscationPort(Constraint.Only(customPort))
+            } returns Unit.right()
+            viewModel.onObfuscationPortSelected(Constraint.Only(customPort))
+            coVerify(exactly = 1) {
+                mockSettingsRepository.setCustomObfuscationPort(Constraint.Only(customPort))
+            }
+        }
+
+    @Test
     fun `onSelectQuantumResistanceSetting should invoke setWireguardQuantumResistant on SettingsRepository`() =
         runTest {
             val quantumResistantState = QuantumResistantState.On

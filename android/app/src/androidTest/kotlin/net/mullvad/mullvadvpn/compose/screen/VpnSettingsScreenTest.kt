@@ -17,6 +17,8 @@ import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_LAST_ITEM_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_QUANTUM_ITEM_OFF_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_QUANTUM_ITEM_ON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_TEST_TAG
+import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_UDP_OVER_TCP_PORT_ITEM_X_TEST_TAG
+import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_UDP_OVER_TCP_PORT_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_CUSTOM_PORT_NUMBER_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG
@@ -204,6 +206,36 @@ class VpnSettingsScreenTest {
 
             // Assert
             onNodeWithContentDescription(LOCAL_DNS_SERVER_WARNING).assertExists()
+        }
+
+    @Test
+    fun testShowTcpOverUdpPortOptions() =
+        composeExtension.use {
+            // Arrange
+            setContentWithTheme {
+                VpnSettingsScreen(
+                    state =
+                        VpnSettingsUiState.createDefault(
+                            selectedObfuscationPort = Constraint.Only(Port(5001))
+                        ),
+                )
+            }
+
+            // Act
+            onNodeWithTag(LAZY_LIST_TEST_TAG)
+                .performScrollToNode(hasTestTag(LAZY_LIST_UDP_OVER_TCP_PORT_TEST_TAG))
+            onNodeWithText("UDP-over-TCP port").performClick()
+            onNodeWithTag(LAZY_LIST_TEST_TAG)
+                .performScrollToNode(
+                    hasTestTag(String.format(LAZY_LIST_UDP_OVER_TCP_PORT_ITEM_X_TEST_TAG, 5001))
+                )
+
+            // Assert
+            onNodeWithTagAndText(
+                    testTag = String.format(LAZY_LIST_UDP_OVER_TCP_PORT_ITEM_X_TEST_TAG, 5001),
+                    text = "5001"
+                )
+                .assertExists()
         }
 
     @Test
@@ -399,6 +431,29 @@ class VpnSettingsScreenTest {
 
             // Assert
             verify { mockedClickHandler.invoke(null, null) }
+        }
+
+    @Test
+    fun testShowObfuscationInfo() =
+        composeExtension.use {
+            val mockedNavigateToObfuscationInfo: () -> Unit = mockk(relaxed = true)
+
+            // Arrange
+            setContentWithTheme {
+                VpnSettingsScreen(
+                    state = VpnSettingsUiState.createDefault(),
+                    navigateToObfuscationInfo = mockedNavigateToObfuscationInfo
+                )
+            }
+
+            // Act
+
+            onNodeWithTag(LAZY_LIST_TEST_TAG)
+                .performScrollToNode(hasTestTag(LAZY_LIST_UDP_OVER_TCP_PORT_TEST_TAG))
+            onNodeWithText("WireGuard obfuscation").performClick()
+
+            // Assert
+            verify(exactly = 1) { mockedNavigateToObfuscationInfo() }
         }
 
     @Test

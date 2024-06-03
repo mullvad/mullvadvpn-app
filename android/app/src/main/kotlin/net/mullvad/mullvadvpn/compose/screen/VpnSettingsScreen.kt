@@ -77,6 +77,9 @@ import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_LAST_ITEM_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_QUANTUM_ITEM_OFF_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_QUANTUM_ITEM_ON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_TEST_TAG
+import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_UDP_OVER_TCP_PORT_ITEM_AUTOMATIC_TEST_TAG
+import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_UDP_OVER_TCP_PORT_ITEM_X_TEST_TAG
+import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_UDP_OVER_TCP_PORT_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_CUSTOM_PORT_NUMBER_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG
@@ -531,7 +534,8 @@ fun VpnSettingsScreen(
                 itemWithDivider {
                     SelectableCell(
                         title = port.toString(),
-                        testTag = String.format(LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG, port),
+                        testTag =
+                            String.format(null, LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG, port),
                         isSelected = state.selectedWireguardPort.hasValue(port),
                         onCellClicked = { onWireguardPortSelected(Constraint.Only(Port(port))) }
                     )
@@ -591,7 +595,8 @@ fun VpnSettingsScreen(
                     title = stringResource(R.string.udp_over_tcp_port_title),
                     isExpanded = expandUdp2TcpPortSettings,
                     onInfoClicked = navigateUdp2TcpInfo,
-                    onCellClicked = { expandUdp2TcpPortSettings = !expandUdp2TcpPortSettings }
+                    onCellClicked = { expandUdp2TcpPortSettings = !expandUdp2TcpPortSettings },
+                    testTag = LAZY_LIST_UDP_OVER_TCP_PORT_TEST_TAG
                 )
             }
 
@@ -600,7 +605,8 @@ fun VpnSettingsScreen(
                     SelectableCell(
                         title = stringResource(id = R.string.automatic),
                         isSelected = state.selectedObfuscationPort is Constraint.Any,
-                        onCellClicked = { onObfuscationPortSelected(Constraint.Any) }
+                        onCellClicked = { onObfuscationPortSelected(Constraint.Any) },
+                        testTag = LAZY_LIST_UDP_OVER_TCP_PORT_ITEM_AUTOMATIC_TEST_TAG,
                     )
                 }
 
@@ -611,7 +617,13 @@ fun VpnSettingsScreen(
                             isSelected = state.selectedObfuscationPort.hasValue(port),
                             onCellClicked = {
                                 onObfuscationPortSelected(Constraint.Only(Port(port)))
-                            }
+                            },
+                            testTag =
+                                String.format(
+                                    null,
+                                    LAZY_LIST_UDP_OVER_TCP_PORT_ITEM_X_TEST_TAG,
+                                    port
+                                )
                         )
                     }
                 }
