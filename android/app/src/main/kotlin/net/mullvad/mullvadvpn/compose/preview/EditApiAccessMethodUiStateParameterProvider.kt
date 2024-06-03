@@ -3,11 +3,11 @@ package net.mullvad.mullvadvpn.compose.preview
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.EditApiAccessFormData
 import net.mullvad.mullvadvpn.compose.state.EditApiAccessMethodUiState
-import net.mullvad.mullvadvpn.compose.state.TestMethodState
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodInvalidDataErrors
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodType
 import net.mullvad.mullvadvpn.lib.model.InvalidDataError
 import net.mullvad.mullvadvpn.lib.model.TransportProtocol
+import net.mullvad.mullvadvpn.usecase.TestApiAccessMethodState
 
 class EditApiAccessMethodUiStateParameterProvider :
     PreviewParameterProvider<EditApiAccessMethodUiState> {
@@ -56,7 +56,7 @@ class EditApiAccessMethodUiStateParameterProvider :
                         )
                     },
                 formErrors = null,
-                testMethodState = TestMethodState.Testing
+                testMethodState = TestApiAccessMethodState.Testing
             ),
             // Socks5 Local, input required errors
             EditApiAccessMethodUiState.Content(

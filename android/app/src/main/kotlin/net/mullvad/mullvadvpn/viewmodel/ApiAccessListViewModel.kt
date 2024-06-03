@@ -3,7 +3,7 @@ package net.mullvad.mullvadvpn.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.compose.state.ApiAccessListUiState
 import net.mullvad.mullvadvpn.repository.ApiAccessRepository
@@ -11,10 +11,11 @@ import net.mullvad.mullvadvpn.repository.ApiAccessRepository
 class ApiAccessListViewModel(apiAccessRepository: ApiAccessRepository) : ViewModel() {
 
     val uiState =
-        apiAccessRepository.accessMethods
-            .map { apiAccessMethods ->
+        combine(apiAccessRepository.accessMethods, apiAccessRepository.currentAccessMethod) {
+                apiAccessMethods,
+                currentAccessMethod ->
                 ApiAccessListUiState(
-                    apiAccessMethods?.firstOrNull(),
+                    currentApiAccessMethod = currentAccessMethod,
                     apiAccessMethods = apiAccessMethods ?: emptyList()
                 )
             }
