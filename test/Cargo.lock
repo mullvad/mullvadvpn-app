@@ -1934,7 +1934,6 @@ dependencies = [
  "chrono",
  "intersection-derive",
  "ipnetwork 0.16.0",
- "jnix",
  "log",
  "once_cell",
  "regex",
