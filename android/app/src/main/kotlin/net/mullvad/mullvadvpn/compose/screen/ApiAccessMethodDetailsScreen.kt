@@ -1,0 +1,220 @@
+package net.mullvad.mullvadvpn.compose.screen
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.compose.button.PrimaryButton
+import net.mullvad.mullvadvpn.compose.button.TestMethodButton
+import net.mullvad.mullvadvpn.compose.cell.BaseSubtitleCell
+import net.mullvad.mullvadvpn.compose.cell.HeaderSwitchComposeCell
+import net.mullvad.mullvadvpn.compose.cell.NavigationComposeCell
+import net.mullvad.mullvadvpn.compose.cell.SwitchComposeSubtitleCell
+import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
+import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
+import net.mullvad.mullvadvpn.compose.destinations.EditApiAccessMethodDestination
+import net.mullvad.mullvadvpn.compose.preview.ApiAccessMethodDetailsUiStatePreviewParameterProvider
+import net.mullvad.mullvadvpn.compose.state.ApiAccessMethodDetailsUiState
+import net.mullvad.mullvadvpn.compose.test.DELETE_DROPDOWN_MENU_ITEM_TEST_TAG
+import net.mullvad.mullvadvpn.compose.test.TOP_BAR_DROPDOWN_BUTTON_TEST_TAG
+import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
+import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
+import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
+import net.mullvad.mullvadvpn.lib.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.theme.color.menuItemColors
+import net.mullvad.mullvadvpn.viewmodel.ApiAccessMethodDetailsSideEffect
+import net.mullvad.mullvadvpn.viewmodel.ApiAccessMethodDetailsViewModel
+import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
+
+@Preview
+@Composable
+fun PreviewApiAccessMethodDetailsScreen(
+    @PreviewParameter(ApiAccessMethodDetailsUiStatePreviewParameterProvider::class)
+    state: ApiAccessMethodDetailsUiState
+) {
+    AppTheme { ApiAccessMethodDetailsScreen(state = state) }
+}
+
+@Destination(style = SlideInFromRightTransition::class)
+@Composable
+fun ApiAccessMethodDetails(navigator: DestinationsNavigator, accessMethodId: ApiAccessMethodId) {
+    val viewModel =
+        koinViewModel<ApiAccessMethodDetailsViewModel>(
+            parameters = { parametersOf(accessMethodId) }
+        )
+
+    val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
+
+    LaunchedEffectCollect(sideEffect = viewModel.uiSideEffect) {
+        when (it) {
+            ApiAccessMethodDetailsSideEffect.CloseScreen -> navigator.navigateUp()
+            ApiAccessMethodDetailsSideEffect.GenericError ->
+                launch {
+                    snackbarHostState.showSnackbarImmediately(
+                        context.getString(R.string.error_occurred)
+                    )
+                }
+            is ApiAccessMethodDetailsSideEffect.OpenEditPage ->
+                navigator.navigate(EditApiAccessMethodDestination(it.apiAccessMethodId))
+        }
+    }
+
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
+    ApiAccessMethodDetailsScreen(
+        state = state,
+        snackbarHostState = snackbarHostState,
+        onEditMethodClicked = viewModel::openEditPage,
+        onEnableClicked = viewModel::setEnableMethod,
+        onTestMethodClicked = viewModel::testMethod,
+        onUseMethodClicked = viewModel::setCurrentMethod,
+        onDeleteListClicked = viewModel::delete,
+        onBackClicked = navigator::navigateUp
+    )
+}
+
+@Composable
+fun ApiAccessMethodDetailsScreen(
+    state: ApiAccessMethodDetailsUiState,
+    snackbarHostState: SnackbarHostState = SnackbarHostState(),
+    onEditMethodClicked: () -> Unit = {},
+    onEnableClicked: (Boolean) -> Unit = {},
+    onTestMethodClicked: () -> Unit = {},
+    onUseMethodClicked: () -> Unit = {},
+    onDeleteListClicked: () -> Unit = {},
+    onBackClicked: () -> Unit = {}
+) {
+    ScaffoldWithMediumTopBar(
+        appBarTitle = state.name(),
+        navigationIcon = { NavigateBackIconButton(onBackClicked) },
+        snackbarHostState = snackbarHostState,
+        actions = {
+            if (state.canBeEdited()) {
+                Actions(onDeleteList = onDeleteListClicked)
+            }
+        }
+    ) { modifier: Modifier ->
+        Column(modifier = modifier) {
+            when (state) {
+                ApiAccessMethodDetailsUiState.Loading -> Loading()
+                is ApiAccessMethodDetailsUiState.Content ->
+                    Content(
+                        state = state,
+                        onEditMethodClicked = onEditMethodClicked,
+                        onEnableClicked = onEnableClicked,
+                        onTestMethodClicked = onTestMethodClicked,
+                        onUseMethodClicked = onUseMethodClicked
+                    )
+            }
+        }
+    }
+}
+
+@Composable private fun Loading() {}
+
+@Composable
+private fun Content(
+    state: ApiAccessMethodDetailsUiState.Content,
+    onEditMethodClicked: () -> Unit,
+    onEnableClicked: (Boolean) -> Unit,
+    onTestMethodClicked: () -> Unit,
+    onUseMethodClicked: () -> Unit
+) {
+    if (state.canBeEdited) {
+        NavigationComposeCell(
+            title = stringResource(id = R.string.edit_method),
+            onClick = onEditMethodClicked
+        )
+        HorizontalDivider()
+    }
+    HeaderSwitchComposeCell(
+        isEnabled = state.canBeDisabled,
+        title = stringResource(id = R.string.enable_method),
+        isToggled = state.enabled,
+        onCellClicked = onEnableClicked
+    )
+    if (!state.canBeDisabled) {
+        SwitchComposeSubtitleCell(
+            text = stringResource(id = R.string.at_least_on_method_needs_to_enabled),
+        )
+    }
+    Spacer(modifier = Modifier.height(Dimens.verticalSpace))
+    TestMethodButton(
+        modifier = Modifier.padding(horizontal = Dimens.sideMargin),
+        testMethodState = state.testApiAccessMethodState,
+        onTestMethod = onTestMethodClicked
+    )
+    Spacer(modifier = Modifier.height(Dimens.verticalSpace))
+    PrimaryButton(
+        isEnabled = !state.currentMethod,
+        modifier = Modifier.padding(horizontal = Dimens.sideMargin),
+        onClick = onUseMethodClicked,
+        text = stringResource(id = R.string.use_method)
+    )
+    if (state.currentMethod) {
+        BaseSubtitleCell(text = stringResource(id = R.string.this_is_already_set_as_current))
+    }
+}
+
+@Composable
+private fun Actions(onDeleteList: () -> Unit) {
+    var showMenu by remember { mutableStateOf(false) }
+    IconButton(
+        onClick = { showMenu = true },
+        modifier = Modifier.testTag(TOP_BAR_DROPDOWN_BUTTON_TEST_TAG)
+    ) {
+        Icon(painter = painterResource(id = R.drawable.icon_more_vert), contentDescription = null)
+        if (showMenu) {
+            DropdownMenu(
+                expanded = true,
+                onDismissRequest = { showMenu = false },
+                modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainer)
+            ) {
+                DropdownMenuItem(
+                    text = { Text(text = stringResource(id = R.string.delete_method)) },
+                    leadingIcon = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.icon_delete),
+                            contentDescription = null,
+                        )
+                    },
+                    colors = menuItemColors,
+                    onClick = {
+                        onDeleteList()
+                        showMenu = false
+                    },
+                    modifier = Modifier.testTag(DELETE_DROPDOWN_MENU_ITEM_TEST_TAG)
+                )
+            }
+        }
+    }
+}
