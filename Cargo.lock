@@ -3988,6 +3988,7 @@ dependencies = [
  "tonic",
  "tonic-build",
  "tower",
+ "winapi",
  "windows-sys 0.52.0",
  "winres",
 ]

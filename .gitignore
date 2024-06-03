@@ -21,6 +21,7 @@
 /dist-assets/openvpn.exe
 /dist-assets/aarch64-apple-darwin/
 /dist-assets/x86_64-apple-darwin/
+/dist-assets/aarch64-pc-windows-msvc/
 /windows/version.h
 /windows/**/bin/
 /windows/**/*.user

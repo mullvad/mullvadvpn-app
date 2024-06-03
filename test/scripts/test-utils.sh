@@ -110,7 +110,7 @@ function get_app_filename {
             echo "MullvadVPN-${version}_x86_64.rpm"
             ;;
         windows*)
-            echo "MullvadVPN-${version}.exe"
+            echo "MullvadVPN-${version}_x64.exe"
             ;;
         macos*)
             echo "MullvadVPN-${version}.pkg"

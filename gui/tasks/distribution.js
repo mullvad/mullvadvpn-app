@@ -132,26 +132,30 @@ const config = {
     target: [
       {
         target: 'nsis',
-        arch: ['x64'],
+        arch: getWindowsTargetArch(),
       },
     ],
-    artifactName: 'MullvadVPN-${version}.${ext}',
+    artifactName: 'MullvadVPN-${version}_${arch}.${ext}',
     publisherName: 'Mullvad VPN AB',
     extraResources: [
-      { from: distAssets('mullvad.exe'), to: '.' },
-      { from: distAssets('mullvad-problem-report.exe'), to: '.' },
-      { from: distAssets('mullvad-daemon.exe'), to: '.' },
-      { from: distAssets('talpid_openvpn_plugin.dll'), to: '.' },
+      { from: distAssets(path.join(getWindowsDistSubdir(), 'mullvad.exe')), to: '.' },
+      { from: distAssets(path.join(getWindowsDistSubdir(), 'mullvad-problem-report.exe')), to: '.' },
+      { from: distAssets(path.join(getWindowsDistSubdir(), 'mullvad-daemon.exe')), to: '.' },
+      { from: distAssets(path.join(getWindowsDistSubdir(), 'talpid_openvpn_plugin.dll')), to: '.' },
       {
-        from: root(path.join('windows', 'winfw', 'bin', 'x64-${env.CPP_BUILD_MODE}', 'winfw.dll')),
+        from: root(path.join('windows', 'winfw', 'bin', getWindowsTargetArch() + '-${env.CPP_BUILD_MODE}', 'winfw.dll')),
         to: '.',
       },
+      // TODO: OpenVPN does not have an ARM64 build yet.
       { from: distAssets('binaries/x86_64-pc-windows-msvc/openvpn.exe'), to: '.' },
-      { from: distAssets('binaries/x86_64-pc-windows-msvc/apisocks5.exe'), to: '.' },
-      { from: distAssets('binaries/x86_64-pc-windows-msvc/wintun/wintun.dll'), to: '.' },
-      { from: distAssets('binaries/x86_64-pc-windows-msvc/split-tunnel/mullvad-split-tunnel.sys'), to: '.' },
+      { from: distAssets(path.join('binaries', getWindowsTargetSubdir(), 'apisocks5.exe')), to: '.' },
+      { from: distAssets(path.join('binaries', getWindowsTargetSubdir(), 'wintun/wintun.dll')), to: '.' },
       {
-        from: distAssets('binaries/x86_64-pc-windows-msvc/wireguard-nt/mullvad-wireguard.dll'),
+        from: distAssets(path.join('binaries', getWindowsTargetSubdir(), 'split-tunnel/mullvad-split-tunnel.sys')),
+        to: '.'
+      },
+      {
+        from: distAssets(path.join('binaries', getWindowsTargetSubdir(), 'wireguard-nt/mullvad-wireguard.dll')),
         to: '.',
       },
       { from: distAssets('maybenot_machines'), to: '.' },
@@ -250,6 +254,19 @@ function packWin() {
       asarUnpack: ['build/assets/images/menubar-icons/win32/lock-*.ico'],
       beforeBuild: (options) => {
         process.env.CPP_BUILD_MODE = release ? 'Release' : 'Debug';
+        process.env.CPP_BUILD_TARGET = options.arch;
+        switch (options.arch) {
+          case 'x64':
+            process.env.TARGET_TRIPLE = 'x86_64-pc-windows-msvc';
+            process.env.SETUP_SUBDIR = '.';
+            break;
+          case 'arm64':
+            process.env.TARGET_TRIPLE = 'aarch64-pc-windows-msvc';
+            process.env.SETUP_SUBDIR = 'aarch64-pc-windows-msvc';
+            break;
+          default:
+            throw new Error(`Invalid or unknown target (only one may be specified)`);
+        }
         return true;
       },
       afterAllArtifactBuild: (buildResult) => {
@@ -392,8 +409,38 @@ function root(relativePath) {
   return path.join(path.resolve(__dirname, '../../'), relativePath);
 }
 
+function getWindowsDistSubdir() {
+  if (targets === 'aarch64-pc-windows-msvc') {
+    return targets;
+  } else {
+    return '';
+  }
+}
+
+function getWindowsTargetArch() {
+  if (targets && process.platform === 'win32') {
+    if (targets === 'aarch64-pc-windows-msvc') {
+      return 'arm64';
+    }
+    throw new Error(`Invalid or unknown target (only one may be specified)`);
+  }
+  // Use host architecture (we assume this is x64 since building on Arm64 isn't supported).
+  return 'x64';
+}
+
+function getWindowsTargetSubdir() {
+  if (targets && process.platform === 'win32') {
+    if (targets === 'aarch64-pc-windows-msvc') {
+      return targets;
+    }
+    throw new Error(`Invalid or unknown target (only one may be specified)`);
+  }
+  // Use host architecture (we assume this is x64 since building on Arm64 isn't supported).
+  return 'x86_64-pc-windows-msvc';
+}
+
 function getLinuxTargetArch() {
-  if (targets) {
+  if (targets && process.platform === 'linux') {
     if (targets === 'aarch64-unknown-linux-gnu') {
       return 'arm64';
     }
@@ -404,7 +451,7 @@ function getLinuxTargetArch() {
 }
 
 function getLinuxTargetSubdir() {
-  if (targets) {
+  if (targets && process.platform === 'linux') {
     if (targets === 'aarch64-unknown-linux-gnu') {
       return targets;
     }
