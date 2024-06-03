@@ -3,7 +3,6 @@ package net.mullvad.mullvadvpn.lib.daemon.grpc
 import android.net.LocalSocketAddress
 import android.util.Log
 import arrow.core.Either
-import arrow.core.raise.either
 import arrow.optics.copy
 import arrow.optics.dsl.index
 import arrow.optics.typeclasses.Index
@@ -68,7 +67,6 @@ import net.mullvad.mullvadvpn.lib.model.GetAccountHistoryError
 import net.mullvad.mullvadvpn.lib.model.GetDeviceListError
 import net.mullvad.mullvadvpn.lib.model.GetDeviceStateError
 import net.mullvad.mullvadvpn.lib.model.LoginAccountError
-import net.mullvad.mullvadvpn.lib.model.ObfuscationSettings as ModelObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.ObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.Ownership as ModelOwnership
 import net.mullvad.mullvadvpn.lib.model.PlayPurchase
@@ -381,13 +379,6 @@ class ManagementService(
         grpc.setRelaySettings(value.fromDomain())
     }
 
-    suspend fun setObfuscationOptions(
-        value: ModelObfuscationSettings
-    ): Either<SetObfuscationOptionsError, Unit> =
-        Either.catch { grpc.setObfuscationSettings(value.fromDomain()) }
-            .mapLeft(SetObfuscationOptionsError::Unknown)
-            .mapEmpty()
-
     suspend fun setObfuscation(
         value: SelectedObfuscation
     ): Either<SetObfuscationOptionsError, Unit> =
@@ -405,18 +396,16 @@ class ManagementService(
 
     suspend fun setObfuscationPort(
         portConstraint: Constraint<Port>
-    ): Either<SetObfuscationOptionsError, Unit> = either {
-        val updatedObfuscationSettings =
-            Either.catch {
-                    val obfuscationSettings = getSettings().obfuscationSettings
-                    ObfuscationSettings.udp2tcp.modify(obfuscationSettings) {
+    ): Either<SetObfuscationOptionsError, Unit> =
+        Either.catch {
+                val updatedSettings =
+                    ObfuscationSettings.udp2tcp.modify(getSettings().obfuscationSettings) {
                         it.copy(port = portConstraint)
                     }
-                }
-                .mapLeft(SetObfuscationOptionsError::Unknown)
-                .bind()
-        setObfuscationOptions(updatedObfuscationSettings).bind()
-    }
+                grpc.setObfuscationSettings(updatedSettings.fromDomain())
+            }
+            .mapLeft(SetObfuscationOptionsError::Unknown)
+            .mapEmpty()
 
     suspend fun setAutoConnect(isEnabled: Boolean): Either<SetAutoConnectError, Unit> =
         Either.catch { grpc.setAutoConnect(BoolValue.of(isEnabled)) }
