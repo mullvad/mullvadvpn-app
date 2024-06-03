@@ -8,13 +8,17 @@ mod win {
         manifest_dir().join(build_dir).join(target_platform_dir())
     }
 
-    fn target_platform_dir() -> PathBuf {
-        let target = env::var("TARGET").expect("TARGET env var not set");
+    pub fn target() -> String {
+        env::var("TARGET").expect("TARGET env var not set")
+    }
 
+    fn target_platform_dir() -> PathBuf {
+        let target = target();
         let target_dir = match target.as_str() {
             "i686-pc-windows-msvc" => format!("Win32-{}", get_build_mode()),
             "x86_64-pc-windows-msvc" => format!("x64-{}", get_build_mode()),
-            _ => panic!("uncrecognized target: {}", target),
+            "aarch64-pc-windows-msvc" => format!("ARM64-{}", get_build_mode()),
+            _ => panic!("unrecognized target: {}", target),
         };
         target_dir.into()
     }
@@ -52,7 +56,7 @@ fn main() {
 
     const WINFW_DIR_VAR: &str = "WINFW_LIB_DIR";
     declare_library(WINFW_DIR_VAR, WINFW_BUILD_DIR, "winfw");
-    let lib_dir = manifest_dir().join("../build/lib/x86_64-pc-windows-msvc");
+    let lib_dir = manifest_dir().join("../build/lib").join(target());
     println!("cargo::rustc-link-search={}", &lib_dir.display());
 }
 
