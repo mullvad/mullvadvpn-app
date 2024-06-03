@@ -14,9 +14,9 @@ import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.lib.model.DnsOptions
 import net.mullvad.mullvadvpn.lib.model.DnsState
 import net.mullvad.mullvadvpn.lib.model.Mtu
-import net.mullvad.mullvadvpn.lib.model.ObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
+import net.mullvad.mullvadvpn.lib.model.SelectedObfuscation
 import net.mullvad.mullvadvpn.lib.model.Settings
 
 class SettingsRepository(
@@ -64,8 +64,7 @@ class SettingsRepository(
     suspend fun setWireguardQuantumResistant(value: QuantumResistantState) =
         managementService.setWireguardQuantumResistant(value)
 
-    suspend fun setObfuscationOptions(value: ObfuscationSettings) =
-        managementService.setObfuscationOptions(value)
+    suspend fun setObfuscation(value: SelectedObfuscation) = managementService.setObfuscation(value)
 
     suspend fun setAutoConnect(isEnabled: Boolean) = managementService.setAutoConnect(isEnabled)
 

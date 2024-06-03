@@ -17,6 +17,7 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.SpacedColumn
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.theme.color.AlphaDisabled
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInvisible
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
 import net.mullvad.mullvadvpn.lib.theme.color.selected
@@ -36,6 +37,7 @@ private fun PreviewSelectableCell() {
 fun SelectableCell(
     title: String,
     isSelected: Boolean,
+    isEnabled: Boolean = true,
     iconContentDescription: String? = null,
     selectedIcon: @Composable RowScope.() -> Unit = {
         Icon(
@@ -44,7 +46,10 @@ fun SelectableCell(
             tint = MaterialTheme.colorScheme.onPrimary,
             modifier =
                 Modifier.padding(end = Dimens.selectableCellTextMargin)
-                    .alpha(if (isSelected) AlphaVisible else AlphaInvisible)
+                    .alpha(
+                        if (isSelected && !isEnabled) AlphaDisabled
+                        else if (isSelected) AlphaVisible else AlphaInvisible
+                    )
         )
     },
     titleStyle: TextStyle = MaterialTheme.typography.labelLarge,
@@ -56,7 +61,16 @@ fun SelectableCell(
 ) {
     BaseCell(
         onCellClicked = onCellClicked,
-        headlineContent = { BaseCellTitle(title = title, style = titleStyle) },
+        isRowEnabled = isEnabled,
+        headlineContent = {
+            BaseCellTitle(
+                title = title,
+                style = titleStyle,
+                color =
+                    if (isEnabled) MaterialTheme.colorScheme.onPrimary
+                    else MaterialTheme.colorScheme.onPrimary.copy(AlphaDisabled)
+            )
+        },
         background =
             if (isSelected) {
                 selectedColor
