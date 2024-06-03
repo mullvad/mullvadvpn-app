@@ -11,7 +11,6 @@ import net.mullvad.mullvadvpn.constant.IS_PLAY_BUILD
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.payment.PaymentProvider
-import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
 import net.mullvad.mullvadvpn.lib.shared.VoucherRepository
 import net.mullvad.mullvadvpn.repository.ChangelogRepository
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
@@ -100,7 +99,6 @@ val uiModule = module {
     single { androidContext().contentResolver }
 
     single { ChangelogRepository(get(named(APP_PREFERENCES_NAME)), get()) }
-    single { DeviceRepository(get()) }
     single {
         PrivacyDisclaimerRepository(
             androidContext().getSharedPreferences(APP_PREFERENCES_NAME, Context.MODE_PRIVATE),
