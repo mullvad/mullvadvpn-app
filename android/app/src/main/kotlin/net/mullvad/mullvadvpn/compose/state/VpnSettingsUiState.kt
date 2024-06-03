@@ -24,6 +24,7 @@ data class VpnSettingsUiState(
     val availablePortRanges: List<PortRange>,
     val systemVpnSettingsAvailable: Boolean,
 ) {
+    val selectObfuscationPortEnabled = selectedObfuscation != SelectedObfuscation.Off
 
     companion object {
         fun createDefault(

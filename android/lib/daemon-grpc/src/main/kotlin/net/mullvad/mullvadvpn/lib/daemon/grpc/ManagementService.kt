@@ -87,6 +87,7 @@ import net.mullvad.mullvadvpn.lib.model.RelayList as ModelRelayList
 import net.mullvad.mullvadvpn.lib.model.RelayList
 import net.mullvad.mullvadvpn.lib.model.RelaySettings
 import net.mullvad.mullvadvpn.lib.model.RemoveSplitTunnelingAppError
+import net.mullvad.mullvadvpn.lib.model.SelectedObfuscation
 import net.mullvad.mullvadvpn.lib.model.SetAllowLanError
 import net.mullvad.mullvadvpn.lib.model.SetAutoConnectError
 import net.mullvad.mullvadvpn.lib.model.SetDnsOptionsError
@@ -109,6 +110,7 @@ import net.mullvad.mullvadvpn.lib.model.location
 import net.mullvad.mullvadvpn.lib.model.ownership
 import net.mullvad.mullvadvpn.lib.model.providers
 import net.mullvad.mullvadvpn.lib.model.relayConstraints
+import net.mullvad.mullvadvpn.lib.model.selectedObfuscation
 import net.mullvad.mullvadvpn.lib.model.state
 import net.mullvad.mullvadvpn.lib.model.udp2tcp
 import net.mullvad.mullvadvpn.lib.model.wireguardConstraints
@@ -387,6 +389,21 @@ class ManagementService(
         value: ModelObfuscationSettings
     ): Either<SetObfuscationOptionsError, Unit> =
         Either.catch { grpc.setObfuscationSettings(value.fromDomain()) }
+            .mapLeft(SetObfuscationOptionsError::Unknown)
+            .mapEmpty()
+
+    suspend fun setObfuscation(
+        value: SelectedObfuscation
+    ): Either<SetObfuscationOptionsError, Unit> =
+        Either.catch {
+                val updatedObfuscationSettings =
+                    ObfuscationSettings.selectedObfuscation.modify(
+                        getSettings().obfuscationSettings
+                    ) {
+                        value
+                    }
+                grpc.setObfuscationSettings(updatedObfuscationSettings.fromDomain())
+            }
             .mapLeft(SetObfuscationOptionsError::Unknown)
             .mapEmpty()
 

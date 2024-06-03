@@ -594,6 +594,7 @@ fun VpnSettingsScreen(
                 ExpandableComposeCell(
                     title = stringResource(R.string.udp_over_tcp_port_title),
                     isExpanded = expandUdp2TcpPortSettings,
+                    isEnabled = state.selectedObfuscation != SelectedObfuscation.Off,
                     onInfoClicked = navigateUdp2TcpInfo,
                     onCellClicked = { expandUdp2TcpPortSettings = !expandUdp2TcpPortSettings },
                     testTag = LAZY_LIST_UDP_OVER_TCP_PORT_TEST_TAG
@@ -605,6 +606,7 @@ fun VpnSettingsScreen(
                     SelectableCell(
                         title = stringResource(id = R.string.automatic),
                         isSelected = state.selectedObfuscationPort is Constraint.Any,
+                        isEnabled = state.selectObfuscationPortEnabled,
                         onCellClicked = { onObfuscationPortSelected(Constraint.Any) },
                         testTag = LAZY_LIST_UDP_OVER_TCP_PORT_ITEM_AUTOMATIC_TEST_TAG,
                     )
@@ -615,6 +617,7 @@ fun VpnSettingsScreen(
                         SelectableCell(
                             title = port.toString(),
                             isSelected = state.selectedObfuscationPort.hasValue(port),
+                            isEnabled = state.selectObfuscationPortEnabled,
                             onCellClicked = {
                                 onObfuscationPortSelected(Constraint.Only(Port(port)))
                             },
