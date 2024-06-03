@@ -100,26 +100,27 @@ impl Tunnel {
             return None;
         }
 
-        // contain any cast of ptr->ref within dedicated blocks to prevent accidents
-        let config_len: usize;
-        let t: T;
-        {
-            // SAFETY: we checked for null, and wgGetConfig promises that this is a valid cstr
-            let config = unsafe { CStr::from_ptr(ptr) };
-            config_len = config.to_bytes().len();
-            t = f(config);
-        }
+        // SAFETY: we checked for null, and wgGetConfig promises that this is a valid cstr
+        let config = unsafe { CStr::from_ptr(ptr) };
+        let config_len = config.to_bytes().len();
 
-        {
-            // SAFETY:
-            // we checked for null, and wgGetConfig promises that this is a valid cstr.
-            // config_len comes from the CStr above, so it should be good.
-            let config_bytes = unsafe { slice::from_raw_parts_mut(ptr, config_len) };
-            config_bytes.zeroize();
-        }
+        // execute cleanup code on Drop to make sure that it happens even if `f` panics
+        let on_drop = OnDrop::new(|| {
+            {
+                // SAFETY:
+                // we checked for null, and wgGetConfig promises that this is a valid cstr.
+                // config_len comes from the CStr above, so it should be good.
+                let config_bytes = unsafe { slice::from_raw_parts_mut(ptr, config_len) };
+                config_bytes.zeroize();
+            }
 
-        // SAFETY: the pointer was created by wgGetConfig, and we are no longer using it.
-        unsafe { ffi::wgFreePtr(ptr.cast()) };
+            // SAFETY: the pointer was created by wgGetConfig, and we are no longer using it.
+            unsafe { ffi::wgFreePtr(ptr.cast()) };
+        });
+
+        let t = f(config);
+        let _ = config;
+        drop(on_drop);
 
         Some(t)
     }
