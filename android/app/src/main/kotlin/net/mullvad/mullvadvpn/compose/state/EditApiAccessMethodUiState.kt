@@ -5,6 +5,7 @@ import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodName
 import net.mullvad.mullvadvpn.lib.model.Cipher
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.TransportProtocol
+import net.mullvad.mullvadvpn.usecase.TestApiAccessMethodState
 
 sealed interface EditApiAccessMethodUiState {
     val editMode: Boolean
@@ -15,7 +16,7 @@ sealed interface EditApiAccessMethodUiState {
         override val editMode: Boolean,
         val formData: EditApiAccessFormData,
         val formErrors: ApiAccessMethodInvalidDataErrors?,
-        val testMethodState: TestMethodState?
+        val testMethodState: TestApiAccessMethodState?
     ) : EditApiAccessMethodUiState
 }
 
@@ -130,11 +131,4 @@ enum class ApiAccessMethodTypes {
     SOCKS5_LOCAL,
     SOCKS5_REMOTE,
     SHADOWSOCKS
-}
-
-sealed interface TestMethodState {
-    data object Testing : TestMethodState
-    data object Successful : TestMethodState
-
-    data object Failed : TestMethodState
 }

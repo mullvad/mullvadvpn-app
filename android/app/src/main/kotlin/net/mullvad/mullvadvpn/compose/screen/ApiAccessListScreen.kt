@@ -29,6 +29,7 @@ import net.mullvad.mullvadvpn.compose.cell.DefaultNavigationView
 import net.mullvad.mullvadvpn.compose.cell.TwoRowCell
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
+import net.mullvad.mullvadvpn.compose.destinations.ApiAccessMethodDetailsDestination
 import net.mullvad.mullvadvpn.compose.destinations.ApiAccessMethodInfoDialogDestination
 import net.mullvad.mullvadvpn.compose.destinations.EditApiAccessMethodDestination
 import net.mullvad.mullvadvpn.compose.preview.ApiAccessListUiStateParameterProvider
@@ -60,7 +61,9 @@ fun ApiAccessList(navigator: DestinationsNavigator) {
         onAddMethodClick = {
             navigator.navigate(EditApiAccessMethodDestination(null)) { launchSingleTop = true }
         },
-        onApiAccessMethodClick = {},
+        onApiAccessMethodClick = {
+            navigator.navigate(ApiAccessMethodDetailsDestination(it.id)) { launchSingleTop = true }
+        },
         onApiAccessInfoClick = {
             navigator.navigate(ApiAccessMethodInfoDialogDestination) { launchSingleTop = true }
         },

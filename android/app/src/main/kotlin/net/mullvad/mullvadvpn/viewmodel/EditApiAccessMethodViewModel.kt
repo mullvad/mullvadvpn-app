@@ -3,9 +3,7 @@ package net.mullvad.mullvadvpn.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import arrow.core.raise.either
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
@@ -16,7 +14,6 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.ApiAccessMethodTypes
 import net.mullvad.mullvadvpn.compose.state.EditApiAccessFormData
 import net.mullvad.mullvadvpn.compose.state.EditApiAccessMethodUiState
-import net.mullvad.mullvadvpn.compose.state.TestMethodState
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodInvalidDataErrors
@@ -31,17 +28,21 @@ import net.mullvad.mullvadvpn.lib.model.PortRange
 import net.mullvad.mullvadvpn.lib.model.SocksAuth
 import net.mullvad.mullvadvpn.lib.model.TransportProtocol
 import net.mullvad.mullvadvpn.repository.ApiAccessRepository
+import net.mullvad.mullvadvpn.usecase.TestApiAccessMethodInput
+import net.mullvad.mullvadvpn.usecase.TestApiAccessMethodState
+import net.mullvad.mullvadvpn.usecase.TestApiAccessMethodUseCase
 import net.mullvad.mullvadvpn.util.inAnyOf
 import org.apache.commons.validator.routines.InetAddressValidator
 
 class EditApiAccessMethodViewModel(
     private val apiAccessMethodId: ApiAccessMethodId?,
     private val apiAccessRepository: ApiAccessRepository,
+    private val apiAccessMethodUseCase: TestApiAccessMethodUseCase,
     private val inetAddressValidator: InetAddressValidator
 ) : ViewModel() {
     private val _sideEffects = Channel<EditApiAccessSideEffect>()
     val sideEffect = _sideEffects.receiveAsFlow()
-    private val testMethodState = MutableStateFlow<TestMethodState?>(null)
+    private val testMethodState = MutableStateFlow<TestApiAccessMethodState?>(null)
     private val formatErrors = MutableStateFlow<ApiAccessMethodInvalidDataErrors?>(null)
     private val formData = MutableStateFlow<EditApiAccessFormData?>(null)
     val uiState =
@@ -61,8 +62,6 @@ class EditApiAccessMethodViewModel(
                 SharingStarted.WhileSubscribed(),
                 EditApiAccessMethodUiState.Loading(editMode = apiAccessMethodId != null)
             )
-
-    private var testAndSaveJob: Job? = null
 
     init {
         // If we are editing the api access method, fetch initial data
@@ -134,15 +133,11 @@ class EditApiAccessMethodViewModel(
                 ?.fold(
                     { formatErrors.value = it },
                     { formData ->
-                        testMethodState.emit(TestMethodState.Testing)
-                        apiAccessRepository
-                            .testCustomApiAccessMethod(formData.toCustomProxy())
-                            .fold(
-                                { testMethodState.emit(TestMethodState.Failed) },
-                                { testMethodState.emit(TestMethodState.Successful) }
+                        apiAccessMethodUseCase
+                            .testApiAccessMethod(
+                                TestApiAccessMethodInput.TestNewMethod(formData.toCustomProxy())
                             )
-                        delay(TEST_METHOD_RESULT_TIME_MS)
-                        testMethodState.emit(null)
+                            .collect(testMethodState)
                     }
                 )
         }
@@ -323,7 +318,6 @@ class EditApiAccessMethodViewModel(
 
     companion object {
         private val allValidPorts = listOf(PortRange(IntRange(0, 65535)))
-        private const val TEST_METHOD_RESULT_TIME_MS = 1000L * 5
     }
 }
 
