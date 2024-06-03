@@ -41,7 +41,7 @@ private fun PreviewDnsDialogNew() {
                 DnsDialogViewState.ValidationResult.Success,
                 false,
                 false,
-                true
+                null
             ),
             {},
             {},
@@ -61,7 +61,7 @@ private fun PreviewDnsDialogEdit() {
                 DnsDialogViewState.ValidationResult.Success,
                 false,
                 false,
-                false
+                0
             ),
             {},
             {},
@@ -81,7 +81,7 @@ private fun PreviewDnsDialogEditAllowLanDisabled() {
                 DnsDialogViewState.ValidationResult.Success,
                 true,
                 false,
-                true
+                0
             ),
             {},
             {},
@@ -125,7 +125,7 @@ fun DnsDialog(
     state: DnsDialogViewState,
     onDnsInputChange: (String) -> Unit,
     onSaveDnsClick: () -> Unit,
-    onRemoveDnsClick: () -> Unit,
+    onRemoveDnsClick: (Int) -> Unit,
     onDismiss: () -> Unit
 ) {
     AlertDialog(
@@ -185,10 +185,10 @@ fun DnsDialog(
                     text = stringResource(id = R.string.submit_button),
                 )
 
-                if (!state.isNewEntry) {
+                if (state.index != null) {
                     NegativeButton(
                         modifier = Modifier.fillMaxWidth(),
-                        onClick = onRemoveDnsClick,
+                        onClick = { onRemoveDnsClick(state.index) },
                         text = stringResource(id = R.string.remove_button)
                     )
                 }

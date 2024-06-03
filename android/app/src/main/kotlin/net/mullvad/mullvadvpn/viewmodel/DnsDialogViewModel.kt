@@ -39,8 +39,9 @@ data class DnsDialogViewState(
     val validationResult: ValidationResult = ValidationResult.Success,
     val isLocal: Boolean,
     val isAllowLanEnabled: Boolean,
-    val isNewEntry: Boolean
+    val index: Int?,
 ) {
+    val isNewEntry = index == null
 
     fun isValid() = (validationResult is ValidationResult.Success)
 
@@ -90,7 +91,7 @@ class DnsDialogViewModel(
             ipAddress.validateDnsEntry(index, vmState.customDnsList),
             ipAddress.isLocalAddress(),
             isAllowLanEnabled = vmState.isAllowLanEnabled,
-            index == null
+            index
         )
 
     private fun String.validateDnsEntry(
@@ -128,10 +129,10 @@ class DnsDialogViewModel(
                 )
         }
 
-    fun onRemoveDnsClick() =
+    fun onRemoveDnsClick(index: Int) =
         viewModelScope.launch(dispatcher) {
             repository
-                .deleteCustomDns(InetAddress.getByName(uiState.value.ipAddress))
+                .deleteCustomDns(index)
                 .fold(
                     { _uiSideEffect.send(DnsDialogSideEffect.Error) },
                     { _uiSideEffect.send(DnsDialogSideEffect.Complete) }
