@@ -23,7 +23,7 @@ class DnsDialogTest {
             validationResult = DnsDialogViewState.ValidationResult.Success,
             isLocal = false,
             isAllowLanEnabled = false,
-            isNewEntry = true
+            index = null
         )
 
     @SuppressLint("ComposableNaming")
@@ -32,7 +32,7 @@ class DnsDialogTest {
         state: DnsDialogViewState = defaultState,
         onDnsInputChange: (String) -> Unit = { _ -> },
         onSaveDnsClick: () -> Unit = {},
-        onRemoveDnsClick: () -> Unit = {},
+        onRemoveDnsClick: (Int) -> Unit = {},
         onDismiss: () -> Unit = {}
     ) {
         DnsDialog(state, onDnsInputChange, onSaveDnsClick, onRemoveDnsClick, onDismiss)

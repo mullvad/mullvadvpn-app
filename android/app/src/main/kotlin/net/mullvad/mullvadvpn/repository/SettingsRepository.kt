@@ -45,7 +45,7 @@ class SettingsRepository(
         state: DnsState,
     ) = managementService.setDnsState(state)
 
-    suspend fun deleteCustomDns(address: InetAddress) = managementService.deleteCustomDns(address)
+    suspend fun deleteCustomDns(index: Int) = managementService.deleteCustomDns(index)
 
     suspend fun setCustomDns(index: Int, address: InetAddress) =
         managementService.setCustomDns(index, address)
