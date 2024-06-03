@@ -8,14 +8,14 @@
 
 import Foundation
 
-struct WeakBox<T> {
-    var value: T? {
+public struct WeakBox<T> {
+    public var value: T? {
         valueProvider()
     }
 
     private let valueProvider: () -> T?
 
-    init(_ value: T) {
+    public init(_ value: T) {
         let reference = value as AnyObject
 
         valueProvider = { [weak reference] in
@@ -28,11 +28,13 @@ struct WeakBox<T> {
     }
 }
 
-final class ObserverList<T> {
+final public class ObserverList<T> {
     private let lock = NSLock()
     private var observers = [WeakBox<T>]()
 
-    func append(_ observer: T) {
+    public init() {}
+
+    public func append(_ observer: T) {
         lock.lock()
 
         let hasObserver = observers.contains { box in
@@ -46,7 +48,7 @@ final class ObserverList<T> {
         lock.unlock()
     }
 
-    func remove(_ observer: T) {
+    public func remove(_ observer: T) {
         lock.lock()
 
         let index = observers.firstIndex { box in
@@ -60,7 +62,7 @@ final class ObserverList<T> {
         lock.unlock()
     }
 
-    func forEach(_ body: (T) -> Void) {
+    public func notify(_ body: (T) -> Void) {
         lock.lock()
 
         var indicesToRemove = [Int]()

@@ -31,6 +31,13 @@ public struct FileCache<Content: Codable>: FileCacheProtocol {
             try JSONEncoder().encode(content).write(to: fileURL)
         }
     }
+
+    public func clear() throws {
+        let fileCoordinator = NSFileCoordinator(filePresenter: nil)
+        try fileCoordinator.coordinate(writingItemAt: fileURL, options: [.forDeleting]) { fileURL in
+            try FileManager.default.removeItem(at: fileURL)
+        }
+    }
 }
 
 /// Protocol describing file cache that's able to read and write serializable content.
@@ -39,4 +46,5 @@ public protocol FileCacheProtocol<Content> {
 
     func read() throws -> Content
     func write(_ content: Content) throws
+    func clear() throws
 }

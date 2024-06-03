@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadTypes
 import NetworkExtension
 
 // Switch to stabs on simulator
@@ -187,7 +188,7 @@ final class Tunnel: TunnelProtocol, Equatable {
 
         handleVPNStatus(newStatus)
 
-        observerList.forEach { observer in
+        observerList.notify { observer in
             observer.tunnel(self, didReceiveStatus: newStatus)
         }
     }
