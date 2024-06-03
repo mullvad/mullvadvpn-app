@@ -18,4 +18,6 @@ struct MemoryCache: FileCacheProtocol {
     }
 
     func write(_ content: REST.StoredAddressCache) throws {}
+
+    func clear() throws {}
 }

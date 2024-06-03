@@ -152,7 +152,7 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver {
                     )
                 )
 
-                self.observerList.forEach { observer in
+                self.observerList.notify { observer in
                     observer.storePaymentManager(self, didReceiveEvent: event)
                 }
             } else {
@@ -341,7 +341,7 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver {
             )
         }
 
-        observerList.forEach { observer in
+        observerList.notify { observer in
             observer.storePaymentManager(self, didReceiveEvent: .failure(paymentFailure))
         }
     }
@@ -381,7 +381,7 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver {
                 )
             )
 
-            observerList.forEach { observer in
+            observerList.notify { observer in
                 observer.storePaymentManager(self, didReceiveEvent: event)
             }
             return
@@ -453,7 +453,7 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver {
         }
 
         if let event {
-            observerList.forEach { observer in
+            observerList.notify { observer in
                 observer.storePaymentManager(self, didReceiveEvent: event)
             }
         }
