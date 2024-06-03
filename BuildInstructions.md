@@ -110,6 +110,21 @@ The host has to have the following installed:
 
 [Git for Windows]: https://git-scm.com/download/win
 
+### Experimental: Cross-compiling for ARM64
+
+By default, the app will build for the host platform. It is also possible to cross-compile the app
+for ARM64 on x64. This requires:
+
+- The ARM64 MSVC tools added to Visual Studio.
+
+- `clang` (either directly from llvm.org or as part of Visual Studio) on the `PATH`.
+
+- The `AArch64` target added to Rust:
+
+```bash
+rustup target add aarch64-pc-windows-msvc
+```
+
 ## macOS
 
 The host has to have the following installed:
@@ -144,6 +159,17 @@ variable to `aarch64-unknown-linux-gnu`:
 
 ```bash
 TARGETS="aarch64-unknown-linux-gnu" ./build.sh
+```
+
+### Experimental: Windows
+
+ARM64 Windows is not yet fully working or supported.
+
+To cross-compile for ARM64 rather than the current architecture, set the `TARGETS` environment
+variable to `aarch64-pc-windows-msvc`:
+
+```bash
+TARGETS="aarch64-pc-windows-msvc" ./build.sh
 ```
 
 ## Notes on building on ARM64 Linux hosts
