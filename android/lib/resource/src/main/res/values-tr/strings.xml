@@ -288,6 +288,7 @@
     <string name="try_again">Tekrar dene</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">TCP üzerinden UDP gizleme protokolünün VPN sunucusunda hangi TCP portuna bağlanması gerekiyor.</string>
+    <string name="udp_over_tcp_port_title">TCP üzerinden UDP portu</string>
     <string name="undo">Geri al</string>
     <string name="unsecured">Güvenli değil</string>
     <string name="unsecured_connection">GÜVENLİ OLMAYAN BAĞLANTI</string>

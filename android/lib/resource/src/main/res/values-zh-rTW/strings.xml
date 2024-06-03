@@ -288,6 +288,7 @@
     <string name="try_again">再試一次</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">UDP-over-TCP 混淆通訊協定應連線到 VPN 伺服器上的哪個 TCP 連接埠。</string>
+    <string name="udp_over_tcp_port_title">UDP-over-TCP 連接埠</string>
     <string name="undo">復原</string>
     <string name="unsecured">不安全</string>
     <string name="unsecured_connection">不安全的連線</string>

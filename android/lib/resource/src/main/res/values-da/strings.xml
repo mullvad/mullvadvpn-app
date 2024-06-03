@@ -288,6 +288,7 @@
     <string name="try_again">Prøv igen</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">Hvilken TCP-port UDP-over-TCP tilsløringsprotokollen skal forbinde til på VPN-serveren.</string>
+    <string name="udp_over_tcp_port_title">UDP-over-TCP-port</string>
     <string name="undo">Fortryd</string>
     <string name="unsecured">Ikke sikret</string>
     <string name="unsecured_connection">IKKE-SIKRET FORBINDELSE</string>

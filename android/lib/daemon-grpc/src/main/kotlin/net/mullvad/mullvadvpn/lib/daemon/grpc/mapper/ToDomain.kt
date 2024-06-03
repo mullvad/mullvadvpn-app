@@ -409,25 +409,6 @@ internal fun QuantumResistantState.toDomain(): ManagementInterface.QuantumResist
         )
         .build()
 
-internal fun SelectedObfuscation.toDomain():
-    ManagementInterface.ObfuscationSettings.SelectedObfuscation =
-    when (this) {
-        SelectedObfuscation.Udp2Tcp ->
-            ManagementInterface.ObfuscationSettings.SelectedObfuscation.UDP2TCP
-        SelectedObfuscation.Auto -> ManagementInterface.ObfuscationSettings.SelectedObfuscation.AUTO
-        SelectedObfuscation.Off -> ManagementInterface.ObfuscationSettings.SelectedObfuscation.OFF
-    }
-
-internal fun Udp2TcpObfuscationSettings.toDomain(): ManagementInterface.Udp2TcpObfuscationSettings =
-    when (val port = port) {
-        is Constraint.Any ->
-            ManagementInterface.Udp2TcpObfuscationSettings.newBuilder().clearPort().build()
-        is Constraint.Only ->
-            ManagementInterface.Udp2TcpObfuscationSettings.newBuilder()
-                .setPort(port.value.value)
-                .build()
-    }
-
 internal fun ManagementInterface.AppVersionInfo.toDomain(): AppVersionInfo =
     AppVersionInfo(
         supported = supported,

@@ -288,6 +288,7 @@
     <string name="try_again">Réessayer</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">Le port TCP auquel le protocole de dissimulation UDP sur TCP doit se connecter sur le serveur VPN.</string>
+    <string name="udp_over_tcp_port_title">Port UDP sur TCP</string>
     <string name="undo">Annuler</string>
     <string name="unsecured">Non sécurisé</string>
     <string name="unsecured_connection">CONNEXION NON SÉCURISÉE</string>

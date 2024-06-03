@@ -288,6 +288,7 @@
     <string name="try_again">Yritä uudelleen</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">Määrittää, mihin VPN-palvelimen TCP-porttiin \"UDP TCP:n kautta\" -hämäysteknologia-protokollan tulee muodostaa yhteys.</string>
+    <string name="udp_over_tcp_port_title">Portti: UDP TPC:n kautta</string>
     <string name="undo">Kumoa</string>
     <string name="unsecured">Suojaamaton</string>
     <string name="unsecured_connection">SUOJAAMATON YHTEYS</string>
