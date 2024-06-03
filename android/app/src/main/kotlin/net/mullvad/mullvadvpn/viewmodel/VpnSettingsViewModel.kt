@@ -57,10 +57,11 @@ class VpnSettingsViewModel(
     private val customPort = MutableStateFlow<Constraint<Port>?>(null)
 
     private val vmState =
-        combine(repository.settingsUpdates, relayListRepository.portRanges, customPort) {
-                settings,
-                portRanges,
-                customWgPort ->
+        combine(
+                repository.settingsUpdates,
+                relayListRepository.portRanges,
+                customPort,
+            ) { settings, portRanges, customWgPort ->
                 VpnSettingsViewModelState(
                     mtuValue = settings?.tunnelOptions?.wireguard?.mtu,
                     isAutoConnectEnabled = settings?.autoConnect ?: false,
@@ -71,6 +72,8 @@ class VpnSettingsViewModel(
                         settings?.contentBlockersSettings() ?: DefaultDnsOptions(),
                     selectedObfuscation =
                         settings?.selectedObfuscationSettings() ?: SelectedObfuscation.Off,
+                    selectedObfuscationPort =
+                        settings?.obfuscationSettings?.udp2tcp?.port ?: Constraint.Any,
                     quantumResistant = settings?.quantumResistant() ?: QuantumResistantState.Off,
                     selectedWireguardPort = settings?.getWireguardPort() ?: Constraint.Any,
                     customWireguardPort = customWgPort,
@@ -212,6 +215,10 @@ class VpnSettingsViewModel(
                 )
                 .onLeft { _uiSideEffect.send(VpnSettingsSideEffect.ShowToast.GenericError) }
         }
+    }
+
+    fun onObfuscationPortSelected(port: Constraint<Port>) {
+        viewModelScope.launch { repository.setCustomObfuscationPort(port) }
     }
 
     fun onSelectQuantumResistanceSetting(quantumResistant: QuantumResistantState) {

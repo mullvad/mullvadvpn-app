@@ -288,6 +288,7 @@
     <string name="try_again">ลองอีกครั้ง</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">พอร์ต TCP ใดที่โพรโทคอลการทำให้ข้อมูลยุ่งเหยิง UDP-ผ่าน-TCP ควรเชื่อมต่อบนเซิร์ฟเวอร์ VPN</string>
+    <string name="udp_over_tcp_port_title">พอร์ต UDP-ผ่าน-TCP</string>
     <string name="undo">เลิกทำ</string>
     <string name="unsecured">ไม่ปลอดภัย</string>
     <string name="unsecured_connection">การเชื่อมต่อที่ไม่ปลอดภัย</string>

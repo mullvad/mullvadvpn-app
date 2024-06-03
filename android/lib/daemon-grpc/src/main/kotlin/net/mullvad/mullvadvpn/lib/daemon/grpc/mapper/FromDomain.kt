@@ -17,6 +17,8 @@ import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelaySettings
+import net.mullvad.mullvadvpn.lib.model.SelectedObfuscation
+import net.mullvad.mullvadvpn.lib.model.Udp2TcpObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 
 internal fun Constraint<RelayItemId>.fromDomain(): ManagementInterface.LocationConstraint =
@@ -70,9 +72,29 @@ internal fun DefaultDnsOptions.fromDomain(): ManagementInterface.DefaultDnsOptio
 
 internal fun ObfuscationSettings.fromDomain(): ManagementInterface.ObfuscationSettings =
     ManagementInterface.ObfuscationSettings.newBuilder()
-        .setSelectedObfuscation(selectedObfuscation.toDomain())
-        .setUdp2Tcp(udp2tcp.toDomain())
+        .setSelectedObfuscation(selectedObfuscation.fromDomain())
+        .setUdp2Tcp(udp2tcp.fromDomain())
         .build()
+
+internal fun SelectedObfuscation.fromDomain():
+    ManagementInterface.ObfuscationSettings.SelectedObfuscation =
+    when (this) {
+        SelectedObfuscation.Udp2Tcp ->
+            ManagementInterface.ObfuscationSettings.SelectedObfuscation.UDP2TCP
+        SelectedObfuscation.Auto -> ManagementInterface.ObfuscationSettings.SelectedObfuscation.AUTO
+        SelectedObfuscation.Off -> ManagementInterface.ObfuscationSettings.SelectedObfuscation.OFF
+    }
+
+internal fun Udp2TcpObfuscationSettings.fromDomain():
+    ManagementInterface.Udp2TcpObfuscationSettings =
+    when (val port = port) {
+        is Constraint.Any ->
+            ManagementInterface.Udp2TcpObfuscationSettings.newBuilder().clearPort().build()
+        is Constraint.Only ->
+            ManagementInterface.Udp2TcpObfuscationSettings.newBuilder()
+                .setPort(port.value.value)
+                .build()
+    }
 
 internal fun GeoLocationId.fromDomain(): ManagementInterface.GeographicLocationConstraint =
     ManagementInterface.GeographicLocationConstraint.newBuilder()

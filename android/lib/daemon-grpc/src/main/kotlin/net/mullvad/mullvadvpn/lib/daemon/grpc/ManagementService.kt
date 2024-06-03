@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.lib.daemon.grpc
 import android.net.LocalSocketAddress
 import android.util.Log
 import arrow.core.Either
+import arrow.core.raise.either
 import arrow.optics.copy
 import arrow.optics.dsl.index
 import arrow.optics.typeclasses.Index
@@ -68,11 +69,13 @@ import net.mullvad.mullvadvpn.lib.model.GetDeviceListError
 import net.mullvad.mullvadvpn.lib.model.GetDeviceStateError
 import net.mullvad.mullvadvpn.lib.model.LoginAccountError
 import net.mullvad.mullvadvpn.lib.model.ObfuscationSettings as ModelObfuscationSettings
+import net.mullvad.mullvadvpn.lib.model.ObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.Ownership as ModelOwnership
 import net.mullvad.mullvadvpn.lib.model.PlayPurchase
 import net.mullvad.mullvadvpn.lib.model.PlayPurchaseInitError
 import net.mullvad.mullvadvpn.lib.model.PlayPurchasePaymentToken
 import net.mullvad.mullvadvpn.lib.model.PlayPurchaseVerifyError
+import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.QuantumResistantState as ModelQuantumResistantState
 import net.mullvad.mullvadvpn.lib.model.RedeemVoucherError
@@ -107,6 +110,7 @@ import net.mullvad.mullvadvpn.lib.model.ownership
 import net.mullvad.mullvadvpn.lib.model.providers
 import net.mullvad.mullvadvpn.lib.model.relayConstraints
 import net.mullvad.mullvadvpn.lib.model.state
+import net.mullvad.mullvadvpn.lib.model.udp2tcp
 import net.mullvad.mullvadvpn.lib.model.wireguardConstraints
 
 @Suppress("TooManyFunctions")
@@ -381,6 +385,21 @@ class ManagementService(
         Either.catch { grpc.setObfuscationSettings(value.fromDomain()) }
             .mapLeft(SetObfuscationOptionsError::Unknown)
             .mapEmpty()
+
+    suspend fun setObfuscationPort(
+        portConstraint: Constraint<Port>
+    ): Either<SetObfuscationOptionsError, Unit> = either {
+        val updatedObfuscationSettings =
+            Either.catch {
+                    val obfuscationSettings = getSettings().obfuscationSettings
+                    ObfuscationSettings.udp2tcp.modify(obfuscationSettings) {
+                        it.copy(port = portConstraint)
+                    }
+                }
+                .mapLeft(SetObfuscationOptionsError::Unknown)
+                .bind()
+        setObfuscationOptions(updatedObfuscationSettings).bind()
+    }
 
     suspend fun setAutoConnect(isEnabled: Boolean): Either<SetAutoConnectError, Unit> =
         Either.catch { grpc.setAutoConnect(BoolValue.of(isEnabled)) }

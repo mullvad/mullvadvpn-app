@@ -84,6 +84,7 @@ import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
 import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
+import net.mullvad.mullvadvpn.constant.UDP2TCP_PRESET_PORTS
 import net.mullvad.mullvadvpn.constant.WIREGUARD_PRESET_PORTS
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Mtu
@@ -258,6 +259,7 @@ fun VpnSettings(
         onSelectObfuscationSetting = vm::onSelectObfuscationSetting,
         onSelectQuantumResistanceSetting = vm::onSelectQuantumResistanceSetting,
         onWireguardPortSelected = vm::onWireguardPortSelected,
+        onObfuscationPortSelected = vm::onObfuscationPortSelected,
     )
 }
 
@@ -293,8 +295,10 @@ fun VpnSettingsScreen(
     onSelectObfuscationSetting: (selectedObfuscation: SelectedObfuscation) -> Unit = {},
     onSelectQuantumResistanceSetting: (quantumResistant: QuantumResistantState) -> Unit = {},
     onWireguardPortSelected: (port: Constraint<Port>) -> Unit = {},
+    onObfuscationPortSelected: (port: Constraint<Port>) -> Unit = {},
 ) {
     var expandContentBlockersState by rememberSaveable { mutableStateOf(false) }
+    var expandUdp2TcpPortSettings by rememberSaveable { mutableStateOf(false) }
     val biggerPadding = 54.dp
     val topPadding = 6.dp
 
@@ -580,6 +584,37 @@ fun VpnSettingsScreen(
                     isSelected = state.selectedObfuscation == SelectedObfuscation.Off,
                     onCellClicked = { onSelectObfuscationSetting(SelectedObfuscation.Off) }
                 )
+            }
+
+            itemWithDivider {
+                ExpandableComposeCell(
+                    title = stringResource(R.string.udp_over_tcp_port_title),
+                    isExpanded = expandUdp2TcpPortSettings,
+                    onInfoClicked = navigateUdp2TcpInfo,
+                    onCellClicked = { expandUdp2TcpPortSettings = !expandUdp2TcpPortSettings }
+                )
+            }
+
+            if (expandUdp2TcpPortSettings) {
+                itemWithDivider {
+                    SelectableCell(
+                        title = stringResource(id = R.string.automatic),
+                        isSelected = state.selectedObfuscationPort is Constraint.Any,
+                        onCellClicked = { onObfuscationPortSelected(Constraint.Any) }
+                    )
+                }
+
+                UDP2TCP_PRESET_PORTS.forEach { port ->
+                    itemWithDivider {
+                        SelectableCell(
+                            title = port.toString(),
+                            isSelected = state.selectedObfuscationPort.hasValue(port),
+                            onCellClicked = {
+                                onObfuscationPortSelected(Constraint.Only(Port(port)))
+                            }
+                        )
+                    }
+                }
             }
 
             itemWithDivider {
