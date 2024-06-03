@@ -38,6 +38,7 @@ import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
+import net.mullvad.mullvadvpn.compose.button.TestMethodButton
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorSmall
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
@@ -47,7 +48,6 @@ import net.mullvad.mullvadvpn.compose.preview.EditApiAccessMethodUiStateParamete
 import net.mullvad.mullvadvpn.compose.state.ApiAccessMethodTypes
 import net.mullvad.mullvadvpn.compose.state.EditApiAccessFormData
 import net.mullvad.mullvadvpn.compose.state.EditApiAccessMethodUiState
-import net.mullvad.mullvadvpn.compose.state.TestMethodState
 import net.mullvad.mullvadvpn.compose.textfield.CustomTextField
 import net.mullvad.mullvadvpn.compose.textfield.mullvadDarkTextFieldColors
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
@@ -65,6 +65,7 @@ import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.menuItemColors
 import net.mullvad.mullvadvpn.lib.theme.color.selected
+import net.mullvad.mullvadvpn.usecase.TestApiAccessMethodState
 import net.mullvad.mullvadvpn.viewmodel.EditApiAccessMethodViewModel
 import net.mullvad.mullvadvpn.viewmodel.EditApiAccessSideEffect
 import org.koin.androidx.compose.koinViewModel
@@ -670,52 +671,6 @@ private fun TransportProtocolSelect(
             }
         }
     }
-}
-
-@Composable
-private fun TestMethodButton(testMethodState: TestMethodState?, onTestMethod: () -> Unit) {
-    PrimaryButton(
-        leadingIcon =
-            testMethodState?.let {
-                {
-                    when (testMethodState) {
-                        TestMethodState.Failed ->
-                            Box(
-                                modifier =
-                                    Modifier.size(Dimens.relayCircleSize)
-                                        .background(
-                                            color = MaterialTheme.colorScheme.error,
-                                            shape = CircleShape
-                                        )
-                            )
-                        TestMethodState.Successful -> {
-                            Box(
-                                modifier =
-                                    Modifier.size(Dimens.relayCircleSize)
-                                        .background(
-                                            color = MaterialTheme.colorScheme.selected,
-                                            shape = CircleShape
-                                        )
-                            )
-                        }
-                        TestMethodState.Testing -> {
-                            MullvadCircularProgressIndicatorSmall()
-                        }
-                    }
-                }
-            },
-        onClick = onTestMethod,
-        text =
-            stringResource(
-                id =
-                    when (testMethodState) {
-                        TestMethodState.Successful -> R.string.api_reachable
-                        TestMethodState.Failed -> R.string.api_unreachable
-                        TestMethodState.Testing -> R.string.testing
-                        null -> R.string.test_method
-                    }
-            )
-    )
 }
 
 @Composable

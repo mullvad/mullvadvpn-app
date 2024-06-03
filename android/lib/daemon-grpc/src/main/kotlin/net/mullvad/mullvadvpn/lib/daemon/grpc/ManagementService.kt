@@ -70,7 +70,6 @@ import net.mullvad.mullvadvpn.lib.model.DnsOptions
 import net.mullvad.mullvadvpn.lib.model.DnsState as ModelDnsState
 import net.mullvad.mullvadvpn.lib.model.GetAccountDataError
 import net.mullvad.mullvadvpn.lib.model.GetAccountHistoryError
-import net.mullvad.mullvadvpn.lib.model.GetCurrentApiAccessMethodError
 import net.mullvad.mullvadvpn.lib.model.GetDeviceListError
 import net.mullvad.mullvadvpn.lib.model.GetDeviceStateError
 import net.mullvad.mullvadvpn.lib.model.LoginAccountError
@@ -173,6 +172,9 @@ class ManagementService(
     val wireguardEndpointData: Flow<ModelWireguardEndpointData> =
         relayList.mapNotNull { it.wireguardEndpointData }
 
+    private val _mutableCurrentAccessMethod = MutableStateFlow<ApiAccessMethod?>(null)
+    val currentAccessMethod: Flow<ApiAccessMethod> = _mutableCurrentAccessMethod.filterNotNull()
+
     fun start() {
         // Just to ensure that connection is set up since the connection won't be setup without a
         // call to the daemon
@@ -208,9 +210,11 @@ class ManagementService(
                             _mutableVersionInfo.update { event.versionInfo.toDomain() }
                         ManagementInterface.DaemonEvent.EventCase.DEVICE ->
                             _mutableDeviceState.update { event.device.newState.toDomain() }
+                        ManagementInterface.DaemonEvent.EventCase.NEW_ACCESS_METHOD -> {
+                            _mutableCurrentAccessMethod.update { event.newAccessMethod.toDomain() }
+                        }
                         ManagementInterface.DaemonEvent.EventCase.REMOVE_DEVICE -> {}
                         ManagementInterface.DaemonEvent.EventCase.EVENT_NOT_SET -> {}
-                        ManagementInterface.DaemonEvent.EventCase.NEW_ACCESS_METHOD -> {}
                     }
                 }
             }
@@ -305,6 +309,7 @@ class ManagementService(
                 async { _mutableSettings.update { getSettings() } },
                 async { _mutableVersionInfo.update { getVersionInfo() } },
                 async { _mutableRelayList.update { getRelayList() } },
+                async { _mutableCurrentAccessMethod.update { getCurrentApiAccessMethod() } }
             )
         }
     }
@@ -608,11 +613,8 @@ class ManagementService(
             .mapLeft(UpdateApiAccessMethodError::Unknown)
             .mapEmpty()
 
-    suspend fun getCurrentApiAccessMethod():
-        Either<GetCurrentApiAccessMethodError, ApiAccessMethod> =
-        Either.catch { grpc.getCurrentApiAccessMethod(Empty.getDefaultInstance()) }
-            .mapLeft(GetCurrentApiAccessMethodError::Unknown)
-            .map { it.toDomain() }
+    suspend fun getCurrentApiAccessMethod(): ApiAccessMethod =
+        grpc.getCurrentApiAccessMethod(Empty.getDefaultInstance()).toDomain()
 
     suspend fun testCustomApiAccessMethod(
         customProxy: ApiAccessMethodType.CustomProxy

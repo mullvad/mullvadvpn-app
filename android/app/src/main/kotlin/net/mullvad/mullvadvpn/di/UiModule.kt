@@ -39,6 +39,7 @@ import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.usecase.PlayPaymentUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationTitleUseCase
 import net.mullvad.mullvadvpn.usecase.SystemVpnSettingsUseCase
+import net.mullvad.mullvadvpn.usecase.TestApiAccessMethodUseCase
 import net.mullvad.mullvadvpn.usecase.TunnelStateNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.VersionNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
@@ -48,6 +49,7 @@ import net.mullvad.mullvadvpn.util.ChangelogDataProvider
 import net.mullvad.mullvadvpn.util.IChangelogDataProvider
 import net.mullvad.mullvadvpn.viewmodel.AccountViewModel
 import net.mullvad.mullvadvpn.viewmodel.ApiAccessListViewModel
+import net.mullvad.mullvadvpn.viewmodel.ApiAccessMethodDetailsViewModel
 import net.mullvad.mullvadvpn.viewmodel.ChangelogViewModel
 import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
 import net.mullvad.mullvadvpn.viewmodel.CreateCustomListDialogViewModel
@@ -134,6 +136,7 @@ val uiModule = module {
     single { CustomListRelayItemsUseCase(get(), get()) }
     single { FilteredRelayListUseCase(get(), get()) }
     single { LastKnownLocationUseCase(get()) }
+    single { TestApiAccessMethodUseCase(get()) }
 
     single { InAppNotificationController(get(), get(), get(), get(), MainScope()) }
 
@@ -207,10 +210,13 @@ val uiModule = module {
     viewModel { VpnPermissionViewModel(get(), get()) }
     viewModel { ApiAccessListViewModel(get()) }
     viewModel { (accessMethodId: ApiAccessMethodId?) ->
-        EditApiAccessMethodViewModel(accessMethodId, get(), get())
+        EditApiAccessMethodViewModel(accessMethodId, get(), get(), get())
     }
-    viewModel { (newAccessMethod : NewAccessMethod) ->
+    viewModel { (newAccessMethod: NewAccessMethod) ->
         SaveApiAccessMethodViewModel(newAccessMethod, get())
+    }
+    viewModel { (accessMethodId: ApiAccessMethodId) ->
+        ApiAccessMethodDetailsViewModel(accessMethodId, get(), get())
     }
 
     // This view model must be single so we correctly attach lifecycle and share it with activity
