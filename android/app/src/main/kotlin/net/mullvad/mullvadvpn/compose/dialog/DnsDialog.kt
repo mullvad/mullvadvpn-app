@@ -38,7 +38,7 @@ private fun PreviewDnsDialogNew() {
         DnsDialog(
             DnsDialogViewState(
                 "1.1.1.1",
-                DnsDialogViewState.ValidationResult.Success,
+                DnsDialogViewState.ValidationError.Success,
                 false,
                 false,
                 true
@@ -58,7 +58,7 @@ private fun PreviewDnsDialogEdit() {
         DnsDialog(
             DnsDialogViewState(
                 "1.1.1.1",
-                DnsDialogViewState.ValidationResult.Success,
+                DnsDialogViewState.ValidationError.Success,
                 false,
                 false,
                 false
@@ -78,7 +78,7 @@ private fun PreviewDnsDialogEditAllowLanDisabled() {
         DnsDialog(
             DnsDialogViewState(
                 "192.168.1.1",
-                DnsDialogViewState.ValidationResult.Success,
+                DnsDialogViewState.ValidationError.Success,
                 true,
                 false,
                 true
@@ -155,7 +155,7 @@ fun DnsDialog(
                 val errorMessage =
                     when {
                         state.validationResult is
-                            DnsDialogViewState.ValidationResult.DuplicateAddress -> {
+                            DnsDialogViewState.ValidationError.DuplicateAddress -> {
                             stringResource(R.string.duplicate_address_warning)
                         }
                         state.isLocal && !state.isAllowLanEnabled -> {

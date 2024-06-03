@@ -20,7 +20,7 @@ class DnsDialogTest {
     private val defaultState =
         DnsDialogViewState(
             ipAddress = "",
-            validationResult = DnsDialogViewState.ValidationResult.Success,
+            validationResult = DnsDialogViewState.ValidationError.Success,
             isLocal = false,
             isAllowLanEnabled = false,
             isNewEntry = true
@@ -94,7 +94,7 @@ class DnsDialogTest {
                 testDnsDialog(
                     defaultState.copy(
                         ipAddress = invalidIpAddress,
-                        validationResult = DnsDialogViewState.ValidationResult.InvalidAddress,
+                        validationResult = DnsDialogViewState.ValidationError.InvalidAddress,
                     )
                 )
             }
@@ -111,7 +111,7 @@ class DnsDialogTest {
                 testDnsDialog(
                     defaultState.copy(
                         ipAddress = "192.168.0.1",
-                        validationResult = DnsDialogViewState.ValidationResult.DuplicateAddress,
+                        validationResult = DnsDialogViewState.ValidationError.DuplicateAddress,
                     )
                 )
             }
