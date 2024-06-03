@@ -22,7 +22,7 @@ pub struct Tunnel {
 
 // NOTE: Must be kept in sync with libwg.go
 // NOTE: must be kept in sync with `result_from_code`
-// INVARIANT: Will aways be represented as a negative i32
+// INVARIANT: Will always be represented as a negative i32
 #[repr(i32)]
 #[non_exhaustive]
 #[derive(Clone, Copy, Debug, thiserror::Error)]
@@ -50,12 +50,11 @@ pub enum Error {
 }
 
 impl Tunnel {
-    // TODO: this function is supposed to be a safe wrapper, but as clippy points out, 
+    // TODO: this function is supposed to be a safe wrapper, but as clippy points out,
     // the logging_context is a *mut, which may unsafely be dereferenced by the callback.
     // I'd prefer NOT to mark this functon as unsafe though...
     pub fn turn_on(
-        #[cfg(not(target_os = "android"))]
-        mtu: isize,
+        #[cfg(not(target_os = "android"))] mtu: isize,
         settings: &CStr,
         device: Fd,
         logging_callback: Option<LoggingCallback>,
@@ -66,7 +65,6 @@ impl Tunnel {
             ffi::wgTurnOn(
                 #[cfg(not(target_os = "android"))]
                 mtu,
-
                 settings.as_ptr(),
                 device,
                 logging_callback,
@@ -101,7 +99,6 @@ impl Tunnel {
             return None;
         }
 
-        
         // contain any cast of ptr->ref within dedicated blocks to prevent accidents
         let config_len: usize;
         let t: T;
@@ -116,9 +113,7 @@ impl Tunnel {
             // SAFETY:
             // we checked for null, and wgGetConfig promises that this is a valid cstr.
             // config_len comes from the CStr above, so it should be good.
-            let config_bytes = unsafe {
-                slice::from_raw_parts_mut(ptr, config_len)
-            };
+            let config_bytes = unsafe { slice::from_raw_parts_mut(ptr, config_len) };
             config_bytes.zeroize();
         }
 
@@ -208,8 +203,7 @@ mod ffi {
         /// Positive return values are tunnel handles for this specific wireguard tunnel instance.
         /// Negative return values signify errors. All error codes are opaque.
         pub fn wgTurnOn(
-            #[cfg(not(target_os = "android"))]
-            mtu: isize,
+            #[cfg(not(target_os = "android"))] mtu: isize,
             settings: *const i8,
             fd: Fd,
             logging_callback: Option<LoggingCallback>,
@@ -220,7 +214,7 @@ mod ffi {
         pub fn wgTurnOff(handle: i32) -> i32;
 
         /// Get the config of the WireGuard interface.
-        /// 
+        ///
         /// # Safety:
         /// - The function returns an owned pointer to a null-terminated UTF-8 string.
         /// - The pointer may only be freed using [wgFreePtr].
