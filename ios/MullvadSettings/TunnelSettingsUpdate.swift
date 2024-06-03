@@ -14,6 +14,7 @@ public enum TunnelSettingsUpdate {
     case obfuscation(WireGuardObfuscationSettings)
     case relayConstraints(RelayConstraints)
     case quantumResistance(TunnelQuantumResistance)
+    case multihop(MultihopState)
 }
 
 extension TunnelSettingsUpdate {
@@ -27,6 +28,8 @@ extension TunnelSettingsUpdate {
             settings.relayConstraints = newRelayConstraints
         case let .quantumResistance(newQuantumResistance):
             settings.tunnelQuantumResistance = newQuantumResistance
+        case let .multihop(newState):
+            settings.tunnelMultihopState = newState
         }
     }
 
@@ -36,6 +39,7 @@ extension TunnelSettingsUpdate {
         case .obfuscation: "obfuscation settings"
         case .relayConstraints: "relay constraints"
         case .quantumResistance: "quantum resistance"
+        case .multihop: "Multihop"
         }
     }
 }

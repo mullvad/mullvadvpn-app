@@ -24,24 +24,31 @@ public struct RelayConstraints: Codable, Equatable, CustomDebugStringConvertible
     @available(*, deprecated, renamed: "locations")
     private var location: RelayConstraint<RelayLocation> = .only(.country("se"))
 
+    // Added in 2024.1
+    // Changed from RelayLocations to UserSelectedRelays in 2024.3
+    @available(*, deprecated, renamed: "exitLocations")
+    private var locations: RelayConstraint<UserSelectedRelays> = .only(UserSelectedRelays(locations: [.country("se")]))
+
+    // Added in 2024.5 to support multi-hop
+    public var entryLocations: RelayConstraint<UserSelectedRelays>
+    public var exitLocations: RelayConstraint<UserSelectedRelays>
+
     // Added in 2023.3
     public var port: RelayConstraint<UInt16>
     public var filter: RelayConstraint<RelayFilter>
 
-    // Added in 2024.1
-    // Changed from RelayLocations to UserSelectedRelays in 2024.3
-    public var locations: RelayConstraint<UserSelectedRelays>
-
     public var debugDescription: String {
-        "RelayConstraints { locations: \(locations), port: \(port), filter: \(filter) }"
+        "RelayConstraints { entry locations: \(entryLocations), exit locations: \(exitLocations) , port: \(port), filter: \(filter) }"
     }
 
     public init(
-        locations: RelayConstraint<UserSelectedRelays> = .only(UserSelectedRelays(locations: [.country("se")])),
+        entryLocations: RelayConstraint<UserSelectedRelays> = .only(UserSelectedRelays(locations: [.country("se")])),
+        exitLocations: RelayConstraint<UserSelectedRelays> = .only(UserSelectedRelays(locations: [.country("se")])),
         port: RelayConstraint<UInt16> = .any,
         filter: RelayConstraint<RelayFilter> = .any
     ) {
-        self.locations = locations
+        self.entryLocations = entryLocations
+        self.exitLocations = exitLocations
         self.port = port
         self.filter = filter
     }
@@ -53,9 +60,19 @@ public struct RelayConstraints: Codable, Equatable, CustomDebugStringConvertible
         port = try container.decodeIfPresent(RelayConstraint<UInt16>.self, forKey: .port) ?? .any
         filter = try container.decodeIfPresent(RelayConstraint<RelayFilter>.self, forKey: .filter) ?? .any
 
-        // Added in 2024.1
-        locations = try container.decodeIfPresent(RelayConstraint<UserSelectedRelays>.self, forKey: .locations)
-            ?? Self.migrateRelayLocation(decoder: decoder)
+        // Added in 2024.5
+        entryLocations = try container.decodeIfPresent(
+            RelayConstraint<UserSelectedRelays>.self,
+            forKey: .entryLocations
+        ) ?? .only(UserSelectedRelays(locations: [.country("se")]))
+
+        exitLocations = try container
+            .decodeIfPresent(RelayConstraint<UserSelectedRelays>.self, forKey: .exitLocations) ??
+            container.decodeIfPresent(
+                RelayConstraint<UserSelectedRelays>.self,
+                forKey: .locations
+            ) ??
+            Self.migrateRelayLocation(decoder: decoder)
             ?? .only(UserSelectedRelays(locations: [.country("se")]))
     }
 }
