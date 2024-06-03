@@ -14,7 +14,8 @@ mod win {
         let target_dir = match target.as_str() {
             "i686-pc-windows-msvc" => format!("Win32-{}", get_build_mode()),
             "x86_64-pc-windows-msvc" => format!("x64-{}", get_build_mode()),
-            _ => panic!("uncrecognized target: {}", target),
+            "aarch64-pc-windows-msvc" => format!("ARM64-{}", get_build_mode()),
+            _ => panic!("unrecognized target: {}", target),
         };
         target_dir.into()
     }

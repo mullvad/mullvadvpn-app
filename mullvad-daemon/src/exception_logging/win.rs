@@ -10,10 +10,7 @@ use std::{
 };
 use talpid_types::ErrorExt;
 use talpid_windows::process::{ModuleEntry, ProcessSnapshot};
-use winapi::{
-    um::winnt::{CONTEXT_CONTROL, CONTEXT_INTEGER, CONTEXT_SEGMENTS},
-    vc::excpt::EXCEPTION_EXECUTE_HANDLER,
-};
+use winapi::vc::excpt::EXCEPTION_EXECUTE_HANDLER;
 use windows_sys::Win32::{
     Foundation::{BOOL, HANDLE},
     System::{
@@ -219,7 +216,51 @@ unsafe extern "system" fn logging_exception_filter(info: *const EXCEPTION_POINTE
     EXCEPTION_EXECUTE_HANDLER
 }
 
+#[cfg(target_arch = "aarch64")]
 fn get_context_info(context: &CONTEXT) -> String {
+    use winapi::um::winnt::{CONTEXT_CONTROL, CONTEXT_INTEGER, CONTEXT_FLOATING_POINT };
+
+    let mut context_str = "Context:\n".to_string();
+
+    if context.ContextFlags & CONTEXT_CONTROL != 0 {
+        writeln!(
+            &mut context_str,
+            "\n\tFp: {:#x?}\n \
+             \tLr: {:#x?}\n \
+             \tSp: {:#x?}\n \
+             \tPc: {:#x?}\n \
+             \tCpsr: {:#x?}",
+            unsafe { context.Anonymous.Anonymous.Fp }, unsafe { context.Anonymous.Anonymous.Lr }, context.Sp, context.Pc, context.Cpsr
+        )
+        .unwrap();
+    }
+
+    if context.ContextFlags & CONTEXT_INTEGER != 0 {
+        context_str.push('\n');
+        for x in 0..=28 {
+            writeln!(&mut context_str, "\tX{}: {:#x?}", x, unsafe { context.Anonymous.X[x] }).unwrap();
+        }
+    }
+    if context.ContextFlags & CONTEXT_FLOATING_POINT != 0 {
+        writeln!(
+            &mut context_str,
+            "\n\tFpcr: {:#x?}\n \
+             \tFpsr: {:#x?}",
+            context.Fpcr, context.Fpsr
+        )
+        .unwrap();
+        for q in 0..=31 {
+            writeln!(&mut context_str, "\tQ{}: {:#x?}", q, unsafe { context.V[q].B }).unwrap();
+        }
+    }
+
+    context_str
+}
+
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+fn get_context_info(context: &CONTEXT) -> String {
+    use winapi::um::winnt::{CONTEXT_CONTROL, CONTEXT_INTEGER, CONTEXT_SEGMENTS};
+
     let mut context_str = "Context:\n".to_string();
 
     if context.ContextFlags & CONTEXT_CONTROL != 0 {
