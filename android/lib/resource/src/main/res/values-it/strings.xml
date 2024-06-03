@@ -288,6 +288,7 @@
     <string name="try_again">Riprova</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">A quale porta TCP deve connettersi il protocollo di offuscamento UDP-over-TCP sul server VPN.</string>
+    <string name="udp_over_tcp_port_title">Porta UDP-over-TCP</string>
     <string name="undo">Annulla</string>
     <string name="unsecured">Non protetto</string>
     <string name="unsecured_connection">CONNESSIONE NON PROTETTA</string>

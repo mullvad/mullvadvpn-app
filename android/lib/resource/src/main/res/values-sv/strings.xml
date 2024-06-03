@@ -288,6 +288,7 @@
     <string name="try_again">Försök igen</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">Vilken TCP-port som UDP-över-TCP-obfuskeringsprotokoll bör ansluta till på VPN-servern.</string>
+    <string name="udp_over_tcp_port_title">UDP-över-TCP-port</string>
     <string name="undo">Ångra</string>
     <string name="unsecured">Oskyddad</string>
     <string name="unsecured_connection">OSÄKER ANSLUTNING</string>

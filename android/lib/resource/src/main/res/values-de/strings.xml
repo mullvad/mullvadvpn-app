@@ -288,6 +288,7 @@
     <string name="try_again">Erneut versuchen</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">Mit welchem TCP-Port sich das UDP-über-TCP-Verschleierungsprotokoll auf dem VPN-Server verbinden soll.</string>
+    <string name="udp_over_tcp_port_title">Port für UDP über TCP</string>
     <string name="undo">Rückgängig</string>
     <string name="unsecured">Ungesichert</string>
     <string name="unsecured_connection">UNGESICHERTE VERBINDUNG</string>

@@ -288,6 +288,7 @@
     <string name="try_again">再試行</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">UDP-over-TCP難読化プロトコルで接続する必要のあるVPNサーバーのTCPポートです。</string>
+    <string name="udp_over_tcp_port_title">UDP-over-TCPポート</string>
     <string name="undo">元に戻す</string>
     <string name="unsecured">セキュリティ保護されていません</string>
     <string name="unsecured_connection">セキュリティ保護されていない接続</string>
