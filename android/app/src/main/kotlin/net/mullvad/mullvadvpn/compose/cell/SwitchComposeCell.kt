@@ -28,6 +28,7 @@ import net.mullvad.mullvadvpn.compose.component.textResource
 import net.mullvad.mullvadvpn.compose.extensions.toAnnotatedString
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.theme.color.AlphaDisabled
 
 @Preview
 @Composable
@@ -67,7 +68,10 @@ fun NormalSwitchComposeCell(
             BaseCellTitle(
                 title = title,
                 style = MaterialTheme.typography.labelLarge,
-                modifier = Modifier.weight(1f, true)
+                modifier = Modifier.weight(1f, true),
+                color =
+                    if (isEnabled) MaterialTheme.colorScheme.onPrimary
+                    else MaterialTheme.colorScheme.onPrimary.copy(AlphaDisabled)
             )
         },
         isToggled = isToggled,
