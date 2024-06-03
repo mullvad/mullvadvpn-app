@@ -12,6 +12,12 @@ case "$ENV_TARGET" in
   *linux*)
     export LIBMNL_LIB_DIR="$SCRIPT_DIR/dist-assets/binaries/$ENV_TARGET"
     export LIBNFTNL_LIB_DIR="$SCRIPT_DIR/dist-assets/binaries/$ENV_TARGET"
+
+    # Using rust-lld results in errors when linking against libnftnl.
+    # Since it is enabled by default on nightly Rust, use the default linker until that has been fixed.
+    if [[ $(rustup default) =~ "nightly" ]]; then
+        export RUSTFLAGS="${RUSTFLAGS:-} -Zlinker-features=-lld"
+    fi
     ;;
   x86_64-*-darwin*)
     export MACOSX_DEPLOYMENT_TARGET="10.7"
