@@ -53,6 +53,9 @@ This release is identical to 2024.4-beta1.
 #### macOS
 - Add support for split tunneling (beta).
 
+#### Windows
+- Add experimental support for Windows ARM64.
+
 ### Changed
 - Update Electron from 28.1.3 to 30.0.4.
 

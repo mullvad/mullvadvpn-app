@@ -204,6 +204,9 @@ function build_ref {
 
     case "$(uname -s)" in
         MINGW*|MSYS_NT*)
+            echo "Building ARM64 installers"
+            target=aarch64-pc-windows-msvc artifact_dir=$artifact_dir build "${build_args[@]}" || return 1
+
             echo "Packaging all PDB files..."
             find ./windows/ \
                 ./target/release/mullvad-daemon.pdb \

@@ -287,21 +287,6 @@ function build {
     done
 }
 
-if [[ "$(uname -s)" == "MINGW"* ]]; then
-    log_header "Building C++ code in $CPP_BUILD_MODE mode"
-    CPP_BUILD_MODES=$CPP_BUILD_MODE IS_RELEASE=$IS_RELEASE ./build-windows-modules.sh
-
-    if [[ "$SIGN" == "true" ]]; then
-        CPP_BINARIES=(
-            "windows/winfw/bin/x64-$CPP_BUILD_MODE/winfw.dll"
-            "windows/driverlogic/bin/x64-$CPP_BUILD_MODE/driverlogic.exe"
-            # The nsis plugin is always built in 32 bit release mode
-            windows/nsis-plugins/bin/Win32-Release/*.dll
-        )
-        sign_win "${CPP_BINARIES[@]}"
-    fi
-fi
-
 for t in "${TARGETS[@]:-""}"; do
     source env.sh "$t"
     build "$t"
