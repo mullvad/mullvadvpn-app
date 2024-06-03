@@ -1,8 +1,9 @@
 use ipnetwork::IpNetwork;
 #[cfg(daita)]
 use once_cell::sync::OnceCell;
+#[cfg(daita)]
+use std::{ffi::CString, fs, path::PathBuf};
 use std::{
-    ffi::c_void,
     future::Future,
     net::IpAddr,
     os::unix::io::{AsRawFd, RawFd},
@@ -10,8 +11,6 @@ use std::{
     pin::Pin,
     sync::{Arc, Mutex},
 };
-#[cfg(daita)]
-use std::{ffi::CString, fs, path::PathBuf};
 #[cfg(target_os = "android")]
 use talpid_tunnel::tun_provider::Error as TunProviderError;
 use talpid_tunnel::tun_provider::{Tun, TunConfig, TunProvider};
@@ -35,7 +34,7 @@ const DAITA_ACTIONS_CAPACITY: u32 = 1000;
 
 type Result<T> = std::result::Result<T, TunnelError>;
 
-struct LoggingContext(u32);
+struct LoggingContext(u64);
 
 impl Drop for LoggingContext {
     fn drop(&mut self) {
@@ -86,7 +85,7 @@ impl WgGoTunnel {
             &wg_config_str,
             tunnel_fd,
             Some(logging::wg_go_logging_callback),
-            logging_context.0 as *mut c_void,
+            logging_context.0,
         )
         .map_err(|e| TunnelError::StartWireguardError { status: e.as_raw() })?;
 
@@ -378,13 +377,13 @@ mod stats {
 
 mod logging {
     use super::super::logging::{log, LogLevel};
-    use std::ffi::{c_char, c_void};
+    use std::ffi::c_char;
 
     // Callback that receives messages from WireGuard
     pub unsafe extern "system" fn wg_go_logging_callback(
         level: WgLogLevel,
         msg: *const c_char,
-        context: *mut c_void,
+        context: u64,
     ) {
         let managed_msg = if !msg.is_null() {
             std::ffi::CStr::from_ptr(msg).to_string_lossy().to_string()
@@ -397,7 +396,7 @@ mod logging {
             _ => LogLevel::Error,
         };
 
-        log(context as u32, level, "wireguard-go", &managed_msg);
+        log(context, level, "wireguard-go", &managed_msg);
     }
 
     // wireguard-go supports log levels 0 through 3 with 3 being the most verbose
