@@ -333,15 +333,15 @@ class ManagementService(
             .mapLeft(SetDnsOptionsError::Unknown)
             .mapEmpty()
 
-    suspend fun addCustomDns(address: InetAddress): Either<SetDnsOptionsError, Unit> =
+    suspend fun addCustomDns(address: InetAddress): Either<SetDnsOptionsError, Int> =
         Either.catch {
                 val currentDnsOptions = getSettings().tunnelOptions.dnsOptions
                 val updatedDnsOptions =
                     DnsOptions.customOptions.addresses.modify(currentDnsOptions) { it + address }
                 grpc.setDnsOptions(updatedDnsOptions.fromDomain())
+                updatedDnsOptions.customOptions.addresses.lastIndex
             }
             .mapLeft(SetDnsOptionsError::Unknown)
-            .mapEmpty()
 
     suspend fun deleteCustomDns(index: Int): Either<SetDnsOptionsError, Unit> =
         Either.catch {

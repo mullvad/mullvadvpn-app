@@ -2,6 +2,9 @@ package net.mullvad.mullvadvpn.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import arrow.core.Either
+import arrow.core.raise.either
+import arrow.core.raise.ensure
 import java.net.InetAddress
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -11,7 +14,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -25,88 +27,77 @@ sealed interface DnsDialogSideEffect {
     data object Error : DnsDialogSideEffect
 }
 
-data class DnsDialogViewModelState(
-    val customDnsList: List<InetAddress>,
-    val isAllowLanEnabled: Boolean
-) {
-    companion object {
-        fun default() = DnsDialogViewModelState(emptyList(), false)
-    }
-}
-
 data class DnsDialogViewState(
-    val ipAddress: String,
-    val validationResult: ValidationResult = ValidationResult.Success,
+    val input: String,
+    val validationError: ValidationError?,
     val isLocal: Boolean,
     val isAllowLanEnabled: Boolean,
     val index: Int?,
 ) {
     val isNewEntry = index == null
 
-    fun isValid() = (validationResult is ValidationResult.Success)
+    fun isValid() = validationError == null
+}
 
-    sealed class ValidationResult {
-        data object Success : ValidationResult()
+sealed class ValidationError {
+    data object InvalidAddress : ValidationError()
 
-        data object InvalidAddress : ValidationResult()
-
-        data object DuplicateAddress : ValidationResult()
-    }
+    data object DuplicateAddress : ValidationError()
 }
 
 class DnsDialogViewModel(
     private val repository: SettingsRepository,
     private val inetAddressValidator: InetAddressValidator,
-    private val index: Int? = null,
+    index: Int? = null,
     initialValue: String?,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : ViewModel() {
 
+    private val currentIndex = MutableStateFlow(index)
     private val _ipAddressInput = MutableStateFlow(initialValue ?: EMPTY_STRING)
 
-    private val vmState =
-        repository.settingsUpdates
-            .filterNotNull()
-            .map {
-                val customDnsList = it.addresses()
-                val isAllowLanEnabled = it.allowLan
-                DnsDialogViewModelState(customDnsList, isAllowLanEnabled = isAllowLanEnabled)
-            }
-            .stateIn(viewModelScope, SharingStarted.Lazily, DnsDialogViewModelState.default())
-
     val uiState: StateFlow<DnsDialogViewState> =
-        combine(_ipAddressInput, vmState, ::createViewState)
+        combine(_ipAddressInput, currentIndex, repository.settingsUpdates.filterNotNull()) {
+                input,
+                currentIndex,
+                settings ->
+                createViewState(settings.addresses(), currentIndex, settings.allowLan, input)
+            }
             .stateIn(
                 viewModelScope,
                 SharingStarted.Lazily,
-                createViewState(_ipAddressInput.value, vmState.value)
+                createViewState(emptyList(), null, false, _ipAddressInput.value)
             )
 
     private val _uiSideEffect = Channel<DnsDialogSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
-    private fun createViewState(ipAddress: String, vmState: DnsDialogViewModelState) =
+    private fun createViewState(
+        customDnsList: List<InetAddress>,
+        currentIndex: Int?,
+        isAllowLanEnabled: Boolean,
+        input: String
+    ): DnsDialogViewState =
         DnsDialogViewState(
-            ipAddress,
-            ipAddress.validateDnsEntry(index, vmState.customDnsList),
-            ipAddress.isLocalAddress(),
-            isAllowLanEnabled = vmState.isAllowLanEnabled,
-            index
+            input,
+            input.validateDnsEntry(currentIndex, customDnsList).leftOrNull(),
+            input.isLocalAddress(),
+            isAllowLanEnabled = isAllowLanEnabled,
+            currentIndex
         )
 
     private fun String.validateDnsEntry(
         index: Int?,
         dnsList: List<InetAddress>
-    ): DnsDialogViewState.ValidationResult =
-        when {
-            this.isBlank() || !this.isValidIp() -> {
-                DnsDialogViewState.ValidationResult.InvalidAddress
-            }
-            InetAddress.getByName(this).isDuplicateDnsEntry(index, dnsList) -> {
-                DnsDialogViewState.ValidationResult.DuplicateAddress
-            }
-            else -> DnsDialogViewState.ValidationResult.Success
+    ): Either<ValidationError, InetAddress> = either {
+        ensure(isNotBlank()) { ValidationError.InvalidAddress }
+        ensure(isValidIp()) { ValidationError.InvalidAddress }
+        val inetAddress = InetAddress.getByName(this@validateDnsEntry)
+        ensure(!inetAddress.isDuplicateDnsEntry(index, dnsList)) {
+            ValidationError.DuplicateAddress
         }
+        inetAddress
+    }
 
     fun onDnsInputChange(ipAddress: String) {
         _ipAddressInput.value = ipAddress
@@ -116,17 +107,20 @@ class DnsDialogViewModel(
         viewModelScope.launch(dispatcher) {
             if (!uiState.value.isValid()) return@launch
 
-            val address = InetAddress.getByName(uiState.value.ipAddress)
+            val address = InetAddress.getByName(uiState.value.input)
 
-            if (index != null) {
+            val index = uiState.value.index
+            val result =
+                if (index != null) {
                     repository.setCustomDns(index = index, address = address)
                 } else {
-                    repository.addCustomDns(address = address)
+                    repository.addCustomDns(address = address).onRight { currentIndex.value = it }
                 }
-                .fold(
-                    { _uiSideEffect.send(DnsDialogSideEffect.Error) },
-                    { _uiSideEffect.send(DnsDialogSideEffect.Complete) }
-                )
+
+            result.fold(
+                { _uiSideEffect.send(DnsDialogSideEffect.Error) },
+                { _uiSideEffect.send(DnsDialogSideEffect.Complete) }
+            )
         }
 
     fun onRemoveDnsClick(index: Int) =
