@@ -28,67 +28,26 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.viewmodel.DnsDialogSideEffect
 import net.mullvad.mullvadvpn.viewmodel.DnsDialogViewModel
 import net.mullvad.mullvadvpn.viewmodel.DnsDialogViewState
+import net.mullvad.mullvadvpn.viewmodel.ValidationError
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
 @Preview
 @Composable
 private fun PreviewDnsDialogNew() {
-    AppTheme {
-        DnsDialog(
-            DnsDialogViewState(
-                "1.1.1.1",
-                DnsDialogViewState.ValidationResult.Success,
-                false,
-                false,
-                null
-            ),
-            {},
-            {},
-            {},
-            {}
-        )
-    }
+    AppTheme { DnsDialog(DnsDialogViewState("1.1.1.1", null, false, false, null), {}, {}, {}, {}) }
 }
 
 @Preview
 @Composable
 private fun PreviewDnsDialogEdit() {
-    AppTheme {
-        DnsDialog(
-            DnsDialogViewState(
-                "1.1.1.1",
-                DnsDialogViewState.ValidationResult.Success,
-                false,
-                false,
-                0
-            ),
-            {},
-            {},
-            {},
-            {}
-        )
-    }
+    AppTheme { DnsDialog(DnsDialogViewState("1.1.1.1", null, false, false, 0), {}, {}, {}, {}) }
 }
 
 @Preview
 @Composable
 private fun PreviewDnsDialogEditAllowLanDisabled() {
-    AppTheme {
-        DnsDialog(
-            DnsDialogViewState(
-                "192.168.1.1",
-                DnsDialogViewState.ValidationResult.Success,
-                true,
-                false,
-                0
-            ),
-            {},
-            {},
-            {},
-            {}
-        )
-    }
+    AppTheme { DnsDialog(DnsDialogViewState("192.168.1.1", null, true, false, 0), {}, {}, {}, {}) }
 }
 
 @Destination(style = DestinationStyle.Dialog::class)
@@ -143,7 +102,7 @@ fun DnsDialog(
         text = {
             Column {
                 DnsTextField(
-                    value = state.ipAddress,
+                    value = state.input,
                     isValidValue = state.isValid(),
                     onValueChanged = { newDnsValue -> onDnsInputChange(newDnsValue) },
                     onSubmit = onSaveDnsClick,
@@ -154,8 +113,7 @@ fun DnsDialog(
 
                 val errorMessage =
                     when {
-                        state.validationResult is
-                            DnsDialogViewState.ValidationResult.DuplicateAddress -> {
+                        state.validationError is ValidationError.DuplicateAddress -> {
                             stringResource(R.string.duplicate_address_warning)
                         }
                         state.isLocal && !state.isAllowLanEnabled -> {
