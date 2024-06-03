@@ -343,11 +343,15 @@ class ManagementService(
             .mapLeft(SetDnsOptionsError::Unknown)
             .mapEmpty()
 
-    suspend fun deleteCustomDns(address: InetAddress): Either<SetDnsOptionsError, Unit> =
+    suspend fun deleteCustomDns(index: Int): Either<SetDnsOptionsError, Unit> =
         Either.catch {
                 val currentDnsOptions = getSettings().tunnelOptions.dnsOptions
                 val updatedDnsOptions =
-                    DnsOptions.customOptions.addresses.modify(currentDnsOptions) { it - address }
+                    DnsOptions.customOptions.addresses.modify(currentDnsOptions) {
+                        val mutableAddresses = it.toMutableList()
+                        mutableAddresses.removeAt(index)
+                        mutableAddresses.toList()
+                    }
                 grpc.setDnsOptions(updatedDnsOptions.fromDomain())
             }
             .mapLeft(SetDnsOptionsError::Unknown)
