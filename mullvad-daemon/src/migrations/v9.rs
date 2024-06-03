@@ -93,7 +93,6 @@ fn to_settings_object(settings: &mut serde_json::Value) -> Result<&mut JsonSetti
         .ok_or(Error::InvalidSettingsContent)
 }
 
-// TODO: Document
 #[cfg(target_os = "android")]
 mod android {
     use super::*;
@@ -194,35 +193,13 @@ mod android {
     }
 }
 
+#[cfg(target_os = "android")]
 #[cfg(test)]
-#[cfg(allow_unused)]
 mod test {
-    use mullvad_types::settings::SettingsVersion;
-
-    use super::{migrate, version_matches};
     use crate::migrations::v9::test::constants::V9_SETTINGS;
-
-    /// The most basic assertion: Make sure that the settings version was bumped post-migration.
-    #[test]
-    fn test_v9_to_v10_migration_version_number() {
-        let mut settings = serde_json::from_str(V9_SETTINGS).unwrap();
-        assert!(version_matches(&settings));
-        migrate(
-            &mut settings,
-            #[cfg(target_os = "android")]
-            None,
-        )
-        .unwrap();
-        assert_eq!(
-            serde_json::from_value::<SettingsVersion>(settings["settings_version"].clone())
-                .unwrap(),
-            SettingsVersion::V10
-        );
-    }
 
     /// Assert that split-tunneling settings has been added to the android settings post-migration.
     #[test]
-    #[cfg(target_os = "android")]
     fn test_v9_to_v10_migration() {
         use crate::migrations::v9::{
             add_split_tunneling_settings,
@@ -241,218 +218,7 @@ mod test {
     }
 
     mod constants {
-        pub const V9_SETTINGS: &str = r#"
-{
-  "relay_settings": {
-    "normal": {
-      "location": {
-        "only": {
-          "location": {
-            "country": "se"
-          }
-        }
-      },
-      "providers": "any",
-      "ownership": "any",
-      "tunnel_protocol": "any",
-      "wireguard_constraints": {
-        "port": "any",
-        "ip_version": "any",
-        "use_multihop": false,
-        "entry_location": {
-          "only": {
-            "location": {
-              "country": "se"
-            }
-          }
-        }
-      },
-      "openvpn_constraints": {
-        "port": "any"
-      }
-    }
-  },
-  "bridge_settings": {
-    "bridge_type": "normal",
-    "normal": {
-      "location": "any",
-      "providers": "any",
-      "ownership": "any"
-    },
-    "custom": null
-  },
-  "obfuscation_settings": {
-    "selected_obfuscation": "auto",
-    "udp2tcp": {
-      "port": "any"
-    }
-  },
-  "bridge_state": "auto",
-  "custom_lists": {
-    "custom_lists": []
-  },
-  "api_access_methods": {
-    "direct": {
-      "id": "d81121bf-c942-4ca4-971f-8ea6581bc915",
-      "name": "Direct",
-      "enabled": true,
-      "access_method": {
-        "built_in": "direct"
-      }
-    },
-    "mullvad_bridges": {
-      "id": "92135711-534d-4950-963d-93e446a792e4",
-      "name": "Mullvad Bridges",
-      "enabled": true,
-      "access_method": {
-        "built_in": "bridge"
-      }
-    },
-    "custom": []
-  },
-  "allow_lan": false,
-  "block_when_disconnected": false,
-  "auto_connect": false,
-  "tunnel_options": {
-    "openvpn": {
-      "mssfix": null
-    },
-    "wireguard": {
-      "mtu": null,
-      "quantum_resistant": "auto",
-      "rotation_interval": null
-    },
-    "generic": {
-      "enable_ipv6": false
-    },
-    "dns_options": {
-      "state": "default",
-      "default_options": {
-        "block_ads": false,
-        "block_trackers": false,
-        "block_malware": false,
-        "block_adult_content": false,
-        "block_gambling": false,
-        "block_social_media": false
-      },
-      "custom_options": {
-        "addresses": []
-      }
-    }
-  },
-  "relay_overrides": [],
-  "show_beta_releases": true,
-  "settings_version": 9
-}
-"#;
-
-        pub const V10_SETTINGS: &str = r#"
-{
-  "relay_settings": {
-    "normal": {
-      "location": {
-        "only": {
-          "location": {
-            "country": "se"
-          }
-        }
-      },
-      "providers": "any",
-      "ownership": "any",
-      "tunnel_protocol": "any",
-      "wireguard_constraints": {
-        "port": "any",
-        "ip_version": "any",
-        "use_multihop": false,
-        "entry_location": {
-          "only": {
-            "location": {
-              "country": "se"
-            }
-          }
-        }
-      },
-      "openvpn_constraints": {
-        "port": "any"
-      }
-    }
-  },
-  "bridge_settings": {
-    "bridge_type": "normal",
-    "normal": {
-      "location": "any",
-      "providers": "any",
-      "ownership": "any"
-    },
-    "custom": null
-  },
-  "obfuscation_settings": {
-    "selected_obfuscation": "auto",
-    "udp2tcp": {
-      "port": "any"
-    }
-  },
-  "bridge_state": "auto",
-  "custom_lists": {
-    "custom_lists": []
-  },
-  "api_access_methods": {
-    "direct": {
-      "id": "d81121bf-c942-4ca4-971f-8ea6581bc915",
-      "name": "Direct",
-      "enabled": true,
-      "access_method": {
-        "built_in": "direct"
-      }
-    },
-    "mullvad_bridges": {
-      "id": "92135711-534d-4950-963d-93e446a792e4",
-      "name": "Mullvad Bridges",
-      "enabled": true,
-      "access_method": {
-        "built_in": "bridge"
-      }
-    },
-    "custom": []
-  },
-  "allow_lan": false,
-  "block_when_disconnected": false,
-  "auto_connect": false,
-  "tunnel_options": {
-    "openvpn": {
-      "mssfix": null
-    },
-    "wireguard": {
-      "mtu": null,
-      "quantum_resistant": "auto",
-      "rotation_interval": null
-    },
-    "generic": {
-      "enable_ipv6": false
-    },
-    "dns_options": {
-      "state": "default",
-      "default_options": {
-        "block_ads": false,
-        "block_trackers": false,
-        "block_malware": false,
-        "block_adult_content": false,
-        "block_gambling": false,
-        "block_social_media": false
-      },
-      "custom_options": {
-        "addresses": []
-      }
-    }
-  },
-  "relay_overrides": [],
-  "show_beta_releases": true,
-  "settings_version": 10
-}
-"#;
-
         /// This settings blob does not contain the "split_tunnel" option.
-        #[cfg(target_os = "android")]
         pub const V9_ANDROID_SETTINGS: &str = r#"
 {
   "relay_settings": {
@@ -559,7 +325,6 @@ mod test {
 "#;
 
         /// This settings blob *should* contain the "split_tunnel" option.
-        #[cfg(target_os = "android")]
         pub const V10_ANDROID_SETTINGS: &str = r#"
 {
   "relay_settings": {
