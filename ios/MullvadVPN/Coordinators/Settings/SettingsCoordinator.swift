@@ -11,6 +11,7 @@ import MullvadSettings
 import Operations
 import Routing
 import UIKit
+import SwiftUI
 
 /// Settings navigation route.
 enum SettingsNavigationRoute: Equatable {
@@ -82,10 +83,21 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
         navigationController.navigationBar.prefersLargeTitles = true
         navigationController.delegate = self
 
-        push(from: makeChild(for: .root), animated: false)
-        if let initialRoute, initialRoute != .root {
-            push(from: makeChild(for: initialRoute), animated: false)
-        }
+        let hostingViewController = UIHostingController(rootView: SettingsView(
+            viewModel: SettingsViewModel(sections: [
+                SettingsSection(items: [.vpnSettings, .apiAccess]),
+                SettingsSection(items: [.version])
+            ])
+        ))
+//        hostingViewController.view.backgroundColor = .secondaryColor
+//        hostingViewController.modalPresentationStyle = .overFullScreen
+//        hostingViewController.modalTransitionStyle = .crossDissolve
+        navigationController.pushViewController(hostingViewController, animated: true)
+
+//        push(from: makeChild(for: .root), animated: false)
+//        if let initialRoute, initialRoute != .root {
+//            push(from: makeChild(for: initialRoute), animated: false)
+//        }
     }
 
     // MARK: - Navigation
