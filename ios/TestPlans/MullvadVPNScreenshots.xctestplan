@@ -18,10 +18,18 @@
   },
   "testTargets" : [
     {
+      "selectedTests" : [
+        "ScreenshotTests\/testTakeScreenshotOfAccount()",
+        "ScreenshotTests\/testTakeScreenshotOfCustomListSelected()",
+        "ScreenshotTests\/testTakeScreenshotOfDNSSettings()",
+        "ScreenshotTests\/testTakeScreenshotOfQuantumSecuredConnection()",
+        "ScreenshotTests\/testTakeScreenshotOfRelayFilter()",
+        "ScreenshotTests\/testTakeScreenshotOfVPNSettings()"
+      ],
       "target" : {
         "containerPath" : "container:MullvadVPN.xcodeproj",
-        "identifier" : "58D0C79223F1CE7000FE9BA7",
-        "name" : "MullvadVPNScreenshots"
+        "identifier" : "852969242B4D9C1F007EAD4C",
+        "name" : "MullvadVPNUITests"
       }
     }
   ],

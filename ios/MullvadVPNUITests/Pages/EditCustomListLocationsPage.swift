@@ -9,6 +9,10 @@
 import XCTest
 
 class EditCustomListLocationsPage: Page {
+    enum Action {
+        case add, edit
+    }
+
     @discardableResult override init(_ app: XCUIApplication) {
         super.init(app)
 
@@ -46,7 +50,7 @@ class EditCustomListLocationsPage: Page {
         return self
     }
 
-    @discardableResult func pressBackButton() -> Self {
+    @discardableResult func tapBackButton() -> Self {
         app.navigationBars["Edit locations"].buttons.firstMatch.tap()
         return self
     }
