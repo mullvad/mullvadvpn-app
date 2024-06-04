@@ -148,16 +148,6 @@ public actor PacketTunnelActor {
 // MARK: -
 
 extension PacketTunnelActor {
-    /// Describes the reason for reconnection request.
-    enum ReconnectReason: Equatable {
-        /// Initiated by user.
-        case userInitiated
-
-        /// Initiated by tunnel monitor due to loss of connectivity.
-        /// Actor will increment the connection attempt counter before picking next relay.
-        case connectionLoss
-    }
-
     /**
      Start the tunnel.
 
@@ -221,7 +211,7 @@ extension PacketTunnelActor {
          - nextRelay: next relay to connect to
          - reason: reason for reconnect
      */
-    private func reconnect(to nextRelay: NextRelay, reason: ReconnectReason) async {
+    private func reconnect(to nextRelay: NextRelay, reason: ActorReconnectReason) async {
         do {
             switch state {
             // There is no connection monitoring going on when exchanging keys.
@@ -256,7 +246,7 @@ extension PacketTunnelActor {
      */
     private func tryStart(
         nextRelay: NextRelay,
-        reason: ReconnectReason = .userInitiated
+        reason: ActorReconnectReason = .userInitiated
     ) async throws {
         let settings: Settings = try settingsReader.read()
 
@@ -284,7 +274,7 @@ extension PacketTunnelActor {
     private func tryStartConnection(
         withSettings settings: Settings,
         nextRelay: NextRelay,
-        reason: ReconnectReason
+        reason: ActorReconnectReason
     ) async throws {
         guard let connectionState = try obfuscateConnection(nextRelay: nextRelay, settings: settings, reason: reason),
               let targetState = state.targetStateForReconnect else { return }
@@ -341,7 +331,7 @@ extension PacketTunnelActor {
     internal func makeConnectionState(
         nextRelay: NextRelay,
         settings: Settings,
-        reason: ReconnectReason
+        reason: ActorReconnectReason
     ) throws -> State.ConnectionData? {
         var keyPolicy: State.KeyPolicy = .useCurrent
         var networkReachability = defaultPathObserver.defaultPath?.networkReachability ?? .undetermined
@@ -359,12 +349,11 @@ extension PacketTunnelActor {
         switch state {
         case .initial:
             break
-        case var .connecting(connectionState), var .reconnecting(connectionState):
+        // Handle PQ PSK separately as it doesn't interfere with either the `.connecting` or `.reconnecting` states.
+        case var .negotiatingPostQuantumKey(connectionState, _):
             if reason == .connectionLoss {
                 connectionState.incrementAttemptCount()
             }
-            fallthrough
-        case var .negotiatingPostQuantumKey(connectionState, _):
             let selectedRelay = try callRelaySelector(
                 connectionState.selectedRelay,
                 connectionState.connectionAttemptCount
@@ -372,6 +361,11 @@ extension PacketTunnelActor {
             connectionState.selectedRelay = selectedRelay
             connectionState.relayConstraints = settings.relayConstraints
             return connectionState
+        case var .connecting(connectionState), var .reconnecting(connectionState):
+            if reason == .connectionLoss {
+                connectionState.incrementAttemptCount()
+            }
+            fallthrough
         case var .connected(connectionState):
             let selectedRelay = try callRelaySelector(
                 connectionState.selectedRelay,
@@ -416,7 +410,7 @@ extension PacketTunnelActor {
     internal func obfuscateConnection(
         nextRelay: NextRelay,
         settings: Settings,
-        reason: ReconnectReason
+        reason: ActorReconnectReason
     ) throws -> State.ConnectionData? {
         guard let connectionState = try makeConnectionState(nextRelay: nextRelay, settings: settings, reason: reason)
         else { return nil }

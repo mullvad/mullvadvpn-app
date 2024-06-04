@@ -123,6 +123,37 @@ final class PacketTunnelActorTests: XCTestCase {
         await fulfillment(of: [connectingStateExpectation], timeout: 1)
     }
 
+    func testPostQuantumReconnectionTransition() async throws {
+        let tunnelMonitor = TunnelMonitorStub { _, _ in }
+        let actor = PacketTunnelActor.mock(
+            tunnelMonitor: tunnelMonitor,
+            settingsReader: SettingsReaderStub.postQuantumConfiguration()
+        )
+        let negotiatingPostQuantumKeyStateExpectation = expectation(description: "Expect post quantum state")
+        negotiatingPostQuantumKeyStateExpectation.expectedFulfillmentCount = 5
+        var nextAttemptCount: UInt = 0
+        stateSink = await actor.$observedState
+            .receive(on: DispatchQueue.main)
+            .sink { newState in
+                switch newState {
+                case .initial:
+                    break
+                case let .negotiatingPostQuantumKey(connState, _):
+                    XCTAssertEqual(connState.connectionAttemptCount, nextAttemptCount)
+                    nextAttemptCount += 1
+                    negotiatingPostQuantumKeyStateExpectation.fulfill()
+                    if nextAttemptCount < negotiatingPostQuantumKeyStateExpectation.expectedFulfillmentCount {
+                        actor.reconnect(to: .random, reconnectReason: .connectionLoss)
+                    }
+                default:
+                    XCTFail("Received invalid state: \(newState.name).")
+                }
+            }
+
+        actor.start(options: StartOptions(launchSource: .app))
+        await fulfillment(of: [negotiatingPostQuantumKeyStateExpectation], timeout: 1)
+    }
+
     /**
      Each subsequent re-connection attempt should produce a single change to `state` containing the incremented attempt counter and new relay.
      .reconnecting (attempt: 0) → .reconnecting (attempt: 1) → .reconnecting (attempt: 2) → ...
@@ -352,7 +383,7 @@ final class PacketTunnelActorTests: XCTestCase {
             reconnectingStateExpectation.fulfill()
         }
 
-        actor.reconnect(to: .random)
+        actor.reconnect(to: .random, reconnectReason: .userInitiated)
 
         await fulfillment(
             of: [reconnectingStateExpectation],
@@ -383,7 +414,7 @@ final class PacketTunnelActorTests: XCTestCase {
         let reconnectingState: (ObservedState) -> Bool = { if case .reconnecting = $0 { true } else { false } }
         await expect(reconnectingState, on: actor) { reconnectingStateExpectation.fulfill() }
 
-        actor.reconnect(to: .random)
+        actor.reconnect(to: .random, reconnectReason: .userInitiated)
         await fulfillment(
             of: [reconnectingStateExpectation],
             timeout: Duration.milliseconds(100).timeInterval
@@ -414,7 +445,7 @@ final class PacketTunnelActorTests: XCTestCase {
         // Cancel the state sink to avoid overfulfilling the connected expectation
         stateSink?.cancel()
 
-        actor.reconnect(to: .random)
+        actor.reconnect(to: .random, reconnectReason: .userInitiated)
         await fulfillment(of: [stopMonitorExpectation], timeout: 1)
     }
 }

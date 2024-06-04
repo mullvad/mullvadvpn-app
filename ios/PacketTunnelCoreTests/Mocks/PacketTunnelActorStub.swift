@@ -23,7 +23,7 @@ struct PacketTunnelActorStub: PacketTunnelActorProtocol {
         }
     }
 
-    func reconnect(to nextRelay: NextRelay) {
+    func reconnect(to nextRelay: PacketTunnelCore.NextRelay, reconnectReason: ActorReconnectReason) {
         reconnectExpectation?.fulfill()
     }
 

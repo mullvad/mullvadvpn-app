@@ -38,4 +38,19 @@ extension SettingsReaderStub {
             return staticSettings
         }
     }
+
+    static func postQuantumConfiguration() -> SettingsReaderStub {
+        let staticSettings = Settings(
+            privateKey: PrivateKey(),
+            interfaceAddresses: [IPAddressRange(from: "127.0.0.1/32")!],
+            relayConstraints: RelayConstraints(),
+            dnsServers: .gateway,
+            obfuscation: WireGuardObfuscationSettings(state: .off, port: .automatic),
+            quantumResistance: .on,
+            multihopState: .off
+        )
+        return SettingsReaderStub {
+            return staticSettings
+        }
+    }
 }

@@ -19,7 +19,7 @@ extension PacketTunnelActor {
         case stop
 
         /// Reconnect tunnel.
-        case reconnect(NextRelay, reason: ReconnectReason = .userInitiated)
+        case reconnect(NextRelay, reason: ActorReconnectReason = .userInitiated)
 
         /// Enter blocked state.
         case error(BlockedStateReason)
