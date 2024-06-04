@@ -91,7 +91,7 @@ impl WgGoTunnel {
         .map_err(|e| TunnelError::FatalStartWireguardError(Box::new(e)))?;
 
         #[cfg(target_os = "android")]
-        Self::bypass_tunnel_sockets(&mut tunnel_device, handle)
+        Self::bypass_tunnel_sockets(&handle, &mut tunnel_device)
             .map_err(TunnelError::BypassError)?;
 
         Ok(WgGoTunnel {
