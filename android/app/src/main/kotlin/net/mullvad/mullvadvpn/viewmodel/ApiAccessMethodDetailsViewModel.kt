@@ -37,6 +37,7 @@ class ApiAccessMethodDetailsViewModel(
                 currentAccessMethod,
                 testApiAccessMethodState ->
                 ApiAccessMethodDetailsUiState.Content(
+                    apiAccessMethodId = apiAccessMethodId,
                     name = apiAccessMethod.name,
                     enabled = apiAccessMethod.enabled,
                     canBeEdited =
@@ -49,19 +50,8 @@ class ApiAccessMethodDetailsViewModel(
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(),
-                ApiAccessMethodDetailsUiState.Loading
+                ApiAccessMethodDetailsUiState.Loading(apiAccessMethodId = apiAccessMethodId)
             )
-
-    fun delete() {
-        viewModelScope.launch {
-            apiAccessRepository
-                .removeApiAccessMethod(apiAccessMethodId = apiAccessMethodId)
-                .fold(
-                    { _uiSideEffect.send(ApiAccessMethodDetailsSideEffect.GenericError) },
-                    { _uiSideEffect.send(ApiAccessMethodDetailsSideEffect.CloseScreen) }
-                )
-        }
-    }
 
     fun setCurrentMethod() {
         viewModelScope.launch {
@@ -99,6 +89,4 @@ sealed interface ApiAccessMethodDetailsSideEffect {
         ApiAccessMethodDetailsSideEffect
 
     data object GenericError : ApiAccessMethodDetailsSideEffect
-
-    data object CloseScreen : ApiAccessMethodDetailsSideEffect
 }

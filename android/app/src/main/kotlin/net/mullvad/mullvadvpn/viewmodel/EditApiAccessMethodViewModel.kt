@@ -40,7 +40,7 @@ class EditApiAccessMethodViewModel(
     private val apiAccessMethodUseCase: TestApiAccessMethodUseCase,
     private val inetAddressValidator: InetAddressValidator
 ) : ViewModel() {
-    private val _sideEffects = Channel<EditApiAccessSideEffect>()
+    private val _sideEffects = Channel<EditApiAccessSideEffect>(Channel.BUFFERED)
     val sideEffect = _sideEffects.receiveAsFlow()
     private val testMethodState = MutableStateFlow<TestApiAccessMethodState?>(null)
     private val formatErrors = MutableStateFlow<ApiAccessMethodInvalidDataErrors?>(null)

@@ -385,4 +385,5 @@
     <string name="delete_method">Delete method</string>
     <string name="at_least_on_method_needs_to_enabled">At least one method needs to be enabled</string>
     <string name="this_is_already_set_as_current">This is already set as current</string>
+    <string name="delete_method_question">Delete method?</string>
 </resources>
