@@ -358,7 +358,6 @@
     <string name="name">Name</string>
     <string name="this_field_is_required">This field is required</string>
     <string name="socks5_remote">SOCKS5 remote</string>
-    <string name="socks5_local">SOCKS5 local</string>
     <string name="shadowsocks">Shadowsocks</string>
     <string name="type">Type</string>
     <string name="server">Server</string>

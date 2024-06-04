@@ -42,20 +42,6 @@ internal val socks5Remote =
             )
     )
 
-internal val socks5Local =
-    ApiAccessMethod(
-        id = ApiAccessMethodId.fromString(UUID3),
-        name = ApiAccessMethodName.fromString("Socks5 Local"),
-        enabled = true,
-        apiAccessMethodType =
-            ApiAccessMethodType.CustomProxy.Socks5Local(
-                remoteIp = "192.167.1.1",
-                localPort = Port(22),
-                remotePort = Port(80),
-                remoteTransportProtocol = TransportProtocol.Tcp
-            )
-    )
-
 internal val shadowsocks =
     ApiAccessMethod(
         ApiAccessMethodId.fromString(UUID3),

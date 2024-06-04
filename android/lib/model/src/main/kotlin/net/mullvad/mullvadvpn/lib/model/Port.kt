@@ -9,6 +9,9 @@ import kotlinx.parcelize.Parcelize
 @JvmInline
 @Parcelize
 value class Port(val value: Int) : Parcelable {
+
+    override fun toString(): String = value.toString()
+
     companion object {
         fun fromString(value: String): Either<ParsePortError, Port> = either {
             val number = value.toIntOrNull() ?: raise(ParsePortError.NotANumber(value))

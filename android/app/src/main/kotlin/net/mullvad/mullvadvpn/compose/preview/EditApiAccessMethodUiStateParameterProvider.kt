@@ -3,10 +3,8 @@ package net.mullvad.mullvadvpn.compose.preview
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.EditApiAccessFormData
 import net.mullvad.mullvadvpn.compose.state.EditApiAccessMethodUiState
-import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodInvalidDataErrors
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodType
 import net.mullvad.mullvadvpn.lib.model.InvalidDataError
-import net.mullvad.mullvadvpn.lib.model.TransportProtocol
 import net.mullvad.mullvadvpn.usecase.TestApiAccessMethodState
 
 class EditApiAccessMethodUiStateParameterProvider :
@@ -17,8 +15,7 @@ class EditApiAccessMethodUiStateParameterProvider :
             // Empty default state
             EditApiAccessMethodUiState.Content(
                 editMode = false,
-                formData = EditApiAccessFormData.empty(),
-                formErrors = null,
+                formData = EditApiAccessFormData.default(),
                 testMethodState = null
             ),
             // Shadowsocks, no errors
@@ -28,15 +25,14 @@ class EditApiAccessMethodUiStateParameterProvider :
                     shadowsocks.let {
                         val data =
                             (it.apiAccessMethodType as ApiAccessMethodType.CustomProxy.Shadowsocks)
-                        EditApiAccessFormData.Shadowsocks(
-                            name = it.name,
+                        EditApiAccessFormData.default(
+                            name = it.name.value,
                             ip = data.ip,
-                            port = data.port,
-                            password = data.password,
+                            remotePort = data.port.toString(),
+                            password = data.password ?: "",
                             cipher = data.cipher
                         )
                     },
-                formErrors = null,
                 testMethodState = null
             ),
             // Socks5 Remote, no errors, testing method
@@ -46,35 +42,31 @@ class EditApiAccessMethodUiStateParameterProvider :
                     socks5Remote.let {
                         val data =
                             (it.apiAccessMethodType as ApiAccessMethodType.CustomProxy.Socks5Remote)
-                        EditApiAccessFormData.Socks5Remote(
-                            name = it.name,
+                        EditApiAccessFormData.default(
+                            name = it.name.value,
                             ip = data.ip,
-                            port = data.port,
+                            remotePort = data.port.toString(),
                             enableAuthentication = data.auth != null,
-                            username = data.auth?.username,
-                            password = data.auth?.password
+                            username = data.auth?.username ?: "",
+                            password = data.auth?.password ?: ""
                         )
                     },
-                formErrors = null,
                 testMethodState = TestApiAccessMethodState.Testing
             ),
-            // Socks5 Local, input required errors
+            // Socks 5 remote, required errors
             EditApiAccessMethodUiState.Content(
                 editMode = true,
                 formData =
-                    EditApiAccessFormData.Socks5Local(
-                        remoteTransportProtocol = TransportProtocol.Tcp
-                    ),
-                formErrors =
-                    ApiAccessMethodInvalidDataErrors(
-                        errors =
+                    EditApiAccessFormData.default(enableAuthentication = true)
+                        .updateWithErrors(
                             listOf(
                                 InvalidDataError.NameError.Required,
-                                InvalidDataError.LocalPortError.Required,
                                 InvalidDataError.RemotePortError.Required,
-                                InvalidDataError.ServerIpError.Required
+                                InvalidDataError.ServerIpError.Required,
+                                InvalidDataError.UserNameError.Required,
+                                InvalidDataError.PasswordError.Required
                             )
-                    ),
+                        ),
                 testMethodState = null
             )
         )
