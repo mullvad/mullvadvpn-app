@@ -383,7 +383,7 @@ final class PacketTunnelActorTests: XCTestCase {
             reconnectingStateExpectation.fulfill()
         }
 
-        actor.reconnect(to: .random)
+        actor.reconnect(to: .random, reconnectReason: .userInitiated)
 
         await fulfillment(
             of: [reconnectingStateExpectation],
@@ -414,7 +414,7 @@ final class PacketTunnelActorTests: XCTestCase {
         let reconnectingState: (ObservedState) -> Bool = { if case .reconnecting = $0 { true } else { false } }
         await expect(reconnectingState, on: actor) { reconnectingStateExpectation.fulfill() }
 
-        actor.reconnect(to: .random)
+        actor.reconnect(to: .random, reconnectReason: .userInitiated)
         await fulfillment(
             of: [reconnectingStateExpectation],
             timeout: Duration.milliseconds(100).timeInterval
@@ -445,7 +445,7 @@ final class PacketTunnelActorTests: XCTestCase {
         // Cancel the state sink to avoid overfulfilling the connected expectation
         stateSink?.cancel()
 
-        actor.reconnect(to: .random)
+        actor.reconnect(to: .random, reconnectReason: .userInitiated)
         await fulfillment(of: [stopMonitorExpectation], timeout: 1)
     }
 }

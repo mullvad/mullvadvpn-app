@@ -46,7 +46,8 @@ extension SettingsReaderStub {
             relayConstraints: RelayConstraints(),
             dnsServers: .gateway,
             obfuscation: WireGuardObfuscationSettings(state: .off, port: .automatic),
-            quantumResistance: .on
+            quantumResistance: .on,
+            multihopState: .off
         )
         return SettingsReaderStub {
             return staticSettings
