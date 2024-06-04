@@ -224,7 +224,7 @@ mod ffi {
         /// Negative return values signify errors.
         pub fn wgTurnOn(
             #[cfg(not(target_os = "android"))] mtu: isize,
-            settings: *const i8,
+            settings: *const c_char,
             fd: Fd,
             logging_callback: Option<LoggingCallback>,
             logging_context: LoggingContext,
@@ -245,7 +245,7 @@ mod ffi {
         /// # Safety:
         /// - `settings` must point to a null-terminated UTF-8 string.
         /// - The pointer will not be read from after `wgActivateDaita` has returned.
-        pub fn wgSetConfig(handle: i32, settings: *const i8) -> i32;
+        pub fn wgSetConfig(handle: i32, settings: *const c_char) -> i32;
 
         /// Activate DAITA for the specified peer.
         ///
