@@ -27,7 +27,7 @@ import (
 // Redefined here because otherwise the compiler doesn't realize it's a type alias for a type that's safe to export.
 // Taken from the contained logging package.
 type LogSink = unsafe.Pointer
-type LogContext = unsafe.Pointer
+type LogContext = C.uint64_t
 
 //export wgTurnOn
 func wgTurnOn(cSettings *C.char, fd int, logSink LogSink, logContext LogContext) C.int32_t {
