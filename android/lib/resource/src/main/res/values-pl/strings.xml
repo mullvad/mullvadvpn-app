@@ -288,6 +288,7 @@
     <string name="try_again">Spróbuj ponownie</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">Port TCP, z którym powinien łączyć się protokół zaciemniania UDP-przez-TCP na serwerze VPN.</string>
+    <string name="udp_over_tcp_port_title">Port UDP-przez-TCP</string>
     <string name="undo">Cofnij</string>
     <string name="unsecured">Niezabezpieczone</string>
     <string name="unsecured_connection">NIEZABEZPIECZONE POŁĄCZENIE</string>

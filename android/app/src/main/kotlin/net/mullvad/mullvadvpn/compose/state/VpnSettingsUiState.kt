@@ -17,12 +17,14 @@ data class VpnSettingsUiState(
     val customDnsItems: List<CustomDnsItem>,
     val contentBlockersOptions: DefaultDnsOptions,
     val selectedObfuscation: SelectedObfuscation,
+    val selectedObfuscationPort: Constraint<Port>,
     val quantumResistant: QuantumResistantState,
     val selectedWireguardPort: Constraint<Port>,
     val customWireguardPort: Constraint<Port>?,
     val availablePortRanges: List<PortRange>,
     val systemVpnSettingsAvailable: Boolean,
 ) {
+    val selectObfuscationPortEnabled = selectedObfuscation != SelectedObfuscation.Off
 
     companion object {
         fun createDefault(
@@ -33,6 +35,7 @@ data class VpnSettingsUiState(
             customDnsItems: List<CustomDnsItem> = emptyList(),
             contentBlockersOptions: DefaultDnsOptions = DefaultDnsOptions(),
             selectedObfuscation: SelectedObfuscation = SelectedObfuscation.Off,
+            selectedObfuscationPort: Constraint<Port> = Constraint.Any,
             quantumResistant: QuantumResistantState = QuantumResistantState.Off,
             selectedWireguardPort: Constraint<Port> = Constraint.Any,
             customWireguardPort: Constraint.Only<Port>? = null,
@@ -47,6 +50,7 @@ data class VpnSettingsUiState(
                 customDnsItems,
                 contentBlockersOptions,
                 selectedObfuscation,
+                selectedObfuscationPort,
                 quantumResistant,
                 selectedWireguardPort,
                 customWireguardPort,

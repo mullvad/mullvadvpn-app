@@ -288,6 +288,7 @@
     <string name="try_again">重试</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">UDP-over-TCP 混淆协议应连接到 VPN 服务器上的哪个 TCP 端口。</string>
+    <string name="udp_over_tcp_port_title">UDP-over-TCP 端口</string>
     <string name="undo">撤消</string>
     <string name="unsecured">未受保护</string>
     <string name="unsecured_connection">未受保护的连接</string>

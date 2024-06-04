@@ -288,6 +288,7 @@
     <string name="try_again">Probeer het opnieuw</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">Met welke TCP-poort moet het UDP-over-TCP-obfuscatieprotocol verbinding maken op de VPN-server.</string>
+    <string name="udp_over_tcp_port_title">UDP-over-TCP-poort</string>
     <string name="undo">Ongedaan maken</string>
     <string name="unsecured">Niet beveiligd</string>
     <string name="unsecured_connection">NIET-BEVEILIGDE VERBINDING</string>

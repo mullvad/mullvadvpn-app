@@ -77,6 +77,9 @@ import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_LAST_ITEM_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_QUANTUM_ITEM_OFF_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_QUANTUM_ITEM_ON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_TEST_TAG
+import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_UDP_OVER_TCP_PORT_ITEM_AUTOMATIC_TEST_TAG
+import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_UDP_OVER_TCP_PORT_ITEM_X_TEST_TAG
+import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_UDP_OVER_TCP_PORT_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_CUSTOM_PORT_NUMBER_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG
@@ -84,6 +87,7 @@ import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
 import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
+import net.mullvad.mullvadvpn.constant.UDP2TCP_PRESET_PORTS
 import net.mullvad.mullvadvpn.constant.WIREGUARD_PRESET_PORTS
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Mtu
@@ -258,6 +262,7 @@ fun VpnSettings(
         onSelectObfuscationSetting = vm::onSelectObfuscationSetting,
         onSelectQuantumResistanceSetting = vm::onSelectQuantumResistanceSetting,
         onWireguardPortSelected = vm::onWireguardPortSelected,
+        onObfuscationPortSelected = vm::onObfuscationPortSelected,
     )
 }
 
@@ -293,8 +298,10 @@ fun VpnSettingsScreen(
     onSelectObfuscationSetting: (selectedObfuscation: SelectedObfuscation) -> Unit = {},
     onSelectQuantumResistanceSetting: (quantumResistant: QuantumResistantState) -> Unit = {},
     onWireguardPortSelected: (port: Constraint<Port>) -> Unit = {},
+    onObfuscationPortSelected: (port: Constraint<Port>) -> Unit = {},
 ) {
     var expandContentBlockersState by rememberSaveable { mutableStateOf(false) }
+    var expandUdp2TcpPortSettings by rememberSaveable { mutableStateOf(false) }
     val biggerPadding = 54.dp
     val topPadding = 6.dp
 
@@ -527,7 +534,8 @@ fun VpnSettingsScreen(
                 itemWithDivider {
                     SelectableCell(
                         title = port.toString(),
-                        testTag = String.format(LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG, port),
+                        testTag =
+                            String.format(null, LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG, port),
                         isSelected = state.selectedWireguardPort.hasValue(port),
                         onCellClicked = { onWireguardPortSelected(Constraint.Only(Port(port))) }
                     )
@@ -580,6 +588,48 @@ fun VpnSettingsScreen(
                     isSelected = state.selectedObfuscation == SelectedObfuscation.Off,
                     onCellClicked = { onSelectObfuscationSetting(SelectedObfuscation.Off) }
                 )
+            }
+
+            itemWithDivider {
+                ExpandableComposeCell(
+                    title = stringResource(R.string.udp_over_tcp_port_title),
+                    isExpanded = expandUdp2TcpPortSettings,
+                    isEnabled = state.selectedObfuscation != SelectedObfuscation.Off,
+                    onInfoClicked = navigateUdp2TcpInfo,
+                    onCellClicked = { expandUdp2TcpPortSettings = !expandUdp2TcpPortSettings },
+                    testTag = LAZY_LIST_UDP_OVER_TCP_PORT_TEST_TAG
+                )
+            }
+
+            if (expandUdp2TcpPortSettings) {
+                itemWithDivider {
+                    SelectableCell(
+                        title = stringResource(id = R.string.automatic),
+                        isSelected = state.selectedObfuscationPort is Constraint.Any,
+                        isEnabled = state.selectObfuscationPortEnabled,
+                        onCellClicked = { onObfuscationPortSelected(Constraint.Any) },
+                        testTag = LAZY_LIST_UDP_OVER_TCP_PORT_ITEM_AUTOMATIC_TEST_TAG,
+                    )
+                }
+
+                UDP2TCP_PRESET_PORTS.forEach { port ->
+                    itemWithDivider {
+                        SelectableCell(
+                            title = port.toString(),
+                            isSelected = state.selectedObfuscationPort.hasValue(port),
+                            isEnabled = state.selectObfuscationPortEnabled,
+                            onCellClicked = {
+                                onObfuscationPortSelected(Constraint.Only(Port(port)))
+                            },
+                            testTag =
+                                String.format(
+                                    null,
+                                    LAZY_LIST_UDP_OVER_TCP_PORT_ITEM_X_TEST_TAG,
+                                    port
+                                )
+                        )
+                    }
+                }
             }
 
             itemWithDivider {

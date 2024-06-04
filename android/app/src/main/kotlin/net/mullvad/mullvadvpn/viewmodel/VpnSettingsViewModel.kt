@@ -22,12 +22,10 @@ import net.mullvad.mullvadvpn.compose.state.VpnSettingsUiState
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.lib.model.DnsState
-import net.mullvad.mullvadvpn.lib.model.ObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
 import net.mullvad.mullvadvpn.lib.model.SelectedObfuscation
 import net.mullvad.mullvadvpn.lib.model.Settings
-import net.mullvad.mullvadvpn.lib.model.Udp2TcpObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
@@ -57,10 +55,11 @@ class VpnSettingsViewModel(
     private val customPort = MutableStateFlow<Constraint<Port>?>(null)
 
     private val vmState =
-        combine(repository.settingsUpdates, relayListRepository.portRanges, customPort) {
-                settings,
-                portRanges,
-                customWgPort ->
+        combine(
+                repository.settingsUpdates,
+                relayListRepository.portRanges,
+                customPort,
+            ) { settings, portRanges, customWgPort ->
                 VpnSettingsViewModelState(
                     mtuValue = settings?.tunnelOptions?.wireguard?.mtu,
                     isAutoConnectEnabled = settings?.autoConnect ?: false,
@@ -71,6 +70,8 @@ class VpnSettingsViewModel(
                         settings?.contentBlockersSettings() ?: DefaultDnsOptions(),
                     selectedObfuscation =
                         settings?.selectedObfuscationSettings() ?: SelectedObfuscation.Off,
+                    selectedObfuscationPort =
+                        settings?.obfuscationSettings?.udp2tcp?.port ?: Constraint.Any,
                     quantumResistant = settings?.quantumResistant() ?: QuantumResistantState.Off,
                     selectedWireguardPort = settings?.getWireguardPort() ?: Constraint.Any,
                     customWireguardPort = customWgPort,
@@ -203,15 +204,14 @@ class VpnSettingsViewModel(
 
     fun onSelectObfuscationSetting(selectedObfuscation: SelectedObfuscation) {
         viewModelScope.launch(dispatcher) {
-            repository
-                .setObfuscationOptions(
-                    ObfuscationSettings(
-                        selectedObfuscation = selectedObfuscation,
-                        udp2tcp = Udp2TcpObfuscationSettings(Constraint.Any)
-                    )
-                )
-                .onLeft { _uiSideEffect.send(VpnSettingsSideEffect.ShowToast.GenericError) }
+            repository.setObfuscation(selectedObfuscation).onLeft {
+                _uiSideEffect.send(VpnSettingsSideEffect.ShowToast.GenericError)
+            }
         }
+    }
+
+    fun onObfuscationPortSelected(port: Constraint<Port>) {
+        viewModelScope.launch { repository.setCustomObfuscationPort(port) }
     }
 
     fun onSelectQuantumResistanceSetting(quantumResistant: QuantumResistantState) {

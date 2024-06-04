@@ -288,6 +288,7 @@
     <string name="try_again">Tentar novamente</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">A que porta TCP o protocolo de ofuscação UDP sobre TCP deve ligar-se no servidor VPN.</string>
+    <string name="udp_over_tcp_port_title">Porta UDP sobre TCP</string>
     <string name="undo">Anular</string>
     <string name="unsecured">Inseguro</string>
     <string name="unsecured_connection">LIGAÇÃO INSEGURA</string>

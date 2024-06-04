@@ -67,12 +67,13 @@ import net.mullvad.mullvadvpn.lib.model.GetAccountHistoryError
 import net.mullvad.mullvadvpn.lib.model.GetDeviceListError
 import net.mullvad.mullvadvpn.lib.model.GetDeviceStateError
 import net.mullvad.mullvadvpn.lib.model.LoginAccountError
-import net.mullvad.mullvadvpn.lib.model.ObfuscationSettings as ModelObfuscationSettings
+import net.mullvad.mullvadvpn.lib.model.ObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.Ownership as ModelOwnership
 import net.mullvad.mullvadvpn.lib.model.PlayPurchase
 import net.mullvad.mullvadvpn.lib.model.PlayPurchaseInitError
 import net.mullvad.mullvadvpn.lib.model.PlayPurchasePaymentToken
 import net.mullvad.mullvadvpn.lib.model.PlayPurchaseVerifyError
+import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.QuantumResistantState as ModelQuantumResistantState
 import net.mullvad.mullvadvpn.lib.model.RedeemVoucherError
@@ -84,6 +85,7 @@ import net.mullvad.mullvadvpn.lib.model.RelayList as ModelRelayList
 import net.mullvad.mullvadvpn.lib.model.RelayList
 import net.mullvad.mullvadvpn.lib.model.RelaySettings
 import net.mullvad.mullvadvpn.lib.model.RemoveSplitTunnelingAppError
+import net.mullvad.mullvadvpn.lib.model.SelectedObfuscation
 import net.mullvad.mullvadvpn.lib.model.SetAllowLanError
 import net.mullvad.mullvadvpn.lib.model.SetAutoConnectError
 import net.mullvad.mullvadvpn.lib.model.SetDnsOptionsError
@@ -106,7 +108,9 @@ import net.mullvad.mullvadvpn.lib.model.location
 import net.mullvad.mullvadvpn.lib.model.ownership
 import net.mullvad.mullvadvpn.lib.model.providers
 import net.mullvad.mullvadvpn.lib.model.relayConstraints
+import net.mullvad.mullvadvpn.lib.model.selectedObfuscation
 import net.mullvad.mullvadvpn.lib.model.state
+import net.mullvad.mullvadvpn.lib.model.udp2tcp
 import net.mullvad.mullvadvpn.lib.model.wireguardConstraints
 
 @Suppress("TooManyFunctions")
@@ -379,10 +383,31 @@ class ManagementService(
         grpc.setRelaySettings(value.fromDomain())
     }
 
-    suspend fun setObfuscationOptions(
-        value: ModelObfuscationSettings
+    suspend fun setObfuscation(
+        value: SelectedObfuscation
     ): Either<SetObfuscationOptionsError, Unit> =
-        Either.catch { grpc.setObfuscationSettings(value.fromDomain()) }
+        Either.catch {
+                val updatedObfuscationSettings =
+                    ObfuscationSettings.selectedObfuscation.modify(
+                        getSettings().obfuscationSettings
+                    ) {
+                        value
+                    }
+                grpc.setObfuscationSettings(updatedObfuscationSettings.fromDomain())
+            }
+            .mapLeft(SetObfuscationOptionsError::Unknown)
+            .mapEmpty()
+
+    suspend fun setObfuscationPort(
+        portConstraint: Constraint<Port>
+    ): Either<SetObfuscationOptionsError, Unit> =
+        Either.catch {
+                val updatedSettings =
+                    ObfuscationSettings.udp2tcp.modify(getSettings().obfuscationSettings) {
+                        it.copy(port = portConstraint)
+                    }
+                grpc.setObfuscationSettings(updatedSettings.fromDomain())
+            }
             .mapLeft(SetObfuscationOptionsError::Unknown)
             .mapEmpty()
 

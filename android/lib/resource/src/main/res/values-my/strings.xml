@@ -288,6 +288,7 @@
     <string name="try_again">ထပ်ကြိုးစားရန်</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">VPN ဆာဗာကို ဖွင့်ရန် ၎င်း TCP ပေါ့တ် UDP-over-TCP Obfuscation ပရိုတိုကောလ်နှင့် ချိတ်ဆက်ထားသင့်ပါသည်။</string>
+    <string name="udp_over_tcp_port_title">UDP-over-TCP ပေါ့တ်</string>
     <string name="undo">မလုပ်တော့ပါ</string>
     <string name="unsecured">မလုံခြုံပါ</string>
     <string name="unsecured_connection">မလုံခြုံသည့် ချိတ်ဆက်မှု</string>
