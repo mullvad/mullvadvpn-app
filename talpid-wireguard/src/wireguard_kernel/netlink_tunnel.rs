@@ -113,7 +113,7 @@ impl Tunnel for NetlinkTunnel {
     }
 
     fn set_config(
-        &self,
+        &mut self,
         config: Config,
     ) -> Pin<Box<dyn Future<Output = std::result::Result<(), TunnelError>> + Send + 'static>> {
         let mut wg = self.netlink_connections.wg_handle.clone();

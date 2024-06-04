@@ -94,7 +94,7 @@ impl Tunnel for NetworkManagerTunnel {
     }
 
     fn set_config(
-        &self,
+        &mut self,
         config: Config,
     ) -> Pin<Box<dyn Future<Output = std::result::Result<(), TunnelError>> + Send>> {
         let interface_name = self.interface_name.clone();

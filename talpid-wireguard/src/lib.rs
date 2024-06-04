@@ -625,10 +625,10 @@ impl WireguardMonitor {
             }
         }
 
-        let tunnel = tunnel.lock().await;
+        let mut tunnel = tunnel.lock().await;
 
         let set_config_future = tunnel
-            .as_ref()
+            .as_mut()
             .map(|tunnel| tunnel.set_config(config.clone()));
 
         if let Some(f) = set_config_future {
@@ -1030,7 +1030,7 @@ pub(crate) trait Tunnel: Send {
     fn stop(self: Box<Self>) -> std::result::Result<(), TunnelError>;
     fn get_tunnel_stats(&self) -> std::result::Result<stats::StatsMap, TunnelError>;
     fn set_config<'a>(
-        &'a self, // TODO: should be &mut ??
+        &'a mut self,
         _config: Config,
     ) -> Pin<Box<dyn Future<Output = std::result::Result<(), TunnelError>> + Send + 'a>>;
     #[cfg(daita)]

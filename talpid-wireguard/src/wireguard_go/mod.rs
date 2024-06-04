@@ -208,8 +208,10 @@ impl Tunnel for WgGoTunnel {
             .map_err(|e| TunnelError::StopWireguardError { status: e.as_raw() })
     }
 
-    // TODO: should probably be &mut to guard against concurrency issues?
-    fn set_config(&self, config: Config) -> Pin<Box<dyn Future<Output = Result<()>> + Send + '_>> {
+    fn set_config(
+        &mut self,
+        config: Config,
+    ) -> Pin<Box<dyn Future<Output = Result<()>> + Send + '_>> {
         Box::pin(async move {
             let wg_config_str = config.to_userspace_format();
 
