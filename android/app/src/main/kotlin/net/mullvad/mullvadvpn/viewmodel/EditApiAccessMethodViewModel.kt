@@ -26,7 +26,6 @@ import net.mullvad.mullvadvpn.lib.model.NewAccessMethod
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.PortRange
 import net.mullvad.mullvadvpn.lib.model.SocksAuth
-import net.mullvad.mullvadvpn.lib.model.TransportProtocol
 import net.mullvad.mullvadvpn.repository.ApiAccessRepository
 import net.mullvad.mullvadvpn.usecase.TestApiAccessMethodInput
 import net.mullvad.mullvadvpn.usecase.TestApiAccessMethodState
@@ -250,14 +249,14 @@ class EditApiAccessMethodViewModel(
             ApiAccessMethodTypes.SHADOWSOCKS ->
                 ApiAccessMethodType.CustomProxy.Shadowsocks(
                     ip = ip.input,
-                    port = remotePort.input.toPort()!!,
+                    port = Port.fromString(remotePort.input).getOrNull()!!,
                     password = password.input,
                     cipher = cipher
                 )
             ApiAccessMethodTypes.SOCKS5_REMOTE ->
                 ApiAccessMethodType.CustomProxy.Socks5Remote(
                     ip = ip.input,
-                    port = remotePort.input.toPort()!!,
+                    port = Port.fromString(remotePort.input).getOrNull()!!,
                     auth =
                         if (enableAuthentication) {
                             SocksAuth(username.input, password.input)
@@ -274,9 +273,9 @@ class EditApiAccessMethodViewModel(
             apiAccessMethodType = this.toCustomProxy()
         )
 
-    private fun String.toPort(): Port? = toIntOrNull()?.let { Port(it) }
-
-    private fun String.validatePort(): Boolean = this.toPort()?.inAnyOf(allValidPorts) ?: false
+    private fun String.validatePort(): Boolean {
+        return Port.fromString(this@validatePort).fold({ false }, { it.inAnyOf(allValidPorts) })
+    }
 
     companion object {
         private val allValidPorts = listOf(PortRange(IntRange(0, 65535)))
