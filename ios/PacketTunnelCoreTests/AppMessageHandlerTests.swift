@@ -81,16 +81,24 @@ final class AppMessageHandlerTests: XCTestCase {
         let relayConstraints = RelayConstraints(
             exitLocations: .only(UserSelectedRelays(locations: [.hostname("se", "sto", "se6-wireguard")]))
         )
-        let selectorResult = try XCTUnwrap(try? RelaySelector.WireGuard.evaluate(
-            by: relayConstraints,
+
+        let candidates = try RelaySelector.WireGuard.findCandidates(
+            by: relayConstraints.exitLocations,
             in: ServerRelaysResponseStubs.sampleRelays,
+            filterConstraint: relayConstraints.filter
+        )
+
+        let match = try RelaySelector.WireGuard.pickCandidate(
+            from: candidates,
+            relays: ServerRelaysResponseStubs.sampleRelays,
+            portConstraint: relayConstraints.port,
             numberOfFailedAttempts: 0
-        ))
+        )
 
         let selectedRelay = SelectedRelay(
-            endpoint: selectorResult.endpoint,
-            hostname: selectorResult.relay.hostname,
-            location: selectorResult.location,
+            endpoint: match.endpoint,
+            hostname: match.relay.hostname,
+            location: match.location,
             retryAttempts: 0
         )
 
