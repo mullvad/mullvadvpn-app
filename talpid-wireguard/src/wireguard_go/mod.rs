@@ -87,7 +87,7 @@ impl WgGoTunnel {
             Some(logging::wg_go_logging_callback),
             logging_context.0,
         )
-        .map_err(|e| TunnelError::StartWireguardError { status: e.as_raw() })?;
+        .map_err(|e| TunnelError::FatalStartWireguardError(Box::new(e)))?;
 
         #[cfg(target_os = "android")]
         Self::bypass_tunnel_sockets(&mut tunnel_device, handle)
@@ -205,7 +205,7 @@ impl Tunnel for WgGoTunnel {
     fn stop(self: Box<Self>) -> Result<()> {
         self.tunnel_handle
             .turn_off()
-            .map_err(|e| TunnelError::StopWireguardError { status: e.as_raw() })
+            .map_err(|e| TunnelError::StopWireguardError(Box::new(e)))
     }
 
     fn set_config(

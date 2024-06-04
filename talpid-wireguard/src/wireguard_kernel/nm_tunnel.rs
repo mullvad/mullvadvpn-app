@@ -70,7 +70,7 @@ impl Tunnel for NetworkManagerTunnel {
         if let Some(tunnel) = self.tunnel.take() {
             if let Err(err) = self.network_manager.remove_tunnel(tunnel) {
                 log::error!("Failed to remove WireGuard tunnel via NM: {}", err);
-                Err(TunnelError::StopWireguardError { status: 0 })
+                Err(TunnelError::StopWireguardError(Box::new(err)))
             } else {
                 Ok(())
             }

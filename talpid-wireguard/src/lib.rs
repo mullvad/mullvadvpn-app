@@ -115,7 +115,7 @@ impl Error {
             Error::CreateObfuscatorError(_) => true,
             Error::ObfuscatorError(_) => true,
             Error::PskNegotiationError(_) => true,
-            Error::TunnelError(TunnelError::RecoverableStartWireguardError) => true,
+            Error::TunnelError(TunnelError::RecoverableStartWireguardError(..)) => true,
 
             Error::SetupRoutingError(error) => error.is_recoverable(),
 
@@ -1046,7 +1046,7 @@ pub enum TunnelError {
     /// This is an error returned by the implementation that indicates that trying to establish the
     /// tunnel again should work normally. The error encountered is known to be sporadic.
     #[error("Recoverable error while starting wireguard tunnel")]
-    RecoverableStartWireguardError,
+    RecoverableStartWireguardError(#[source] Box<dyn std::error::Error + Send>),
 
     /// An unrecoverable error occurred while starting the wireguard tunnel
     ///
@@ -1054,23 +1054,11 @@ pub enum TunnelError {
     /// tunnel again will likely fail with the same error. An error was encountered during tunnel
     /// configuration which can't be dealt with gracefully.
     #[error("Failed to start wireguard tunnel")]
-    FatalStartWireguardError,
-
-    /// Failed to start the wireguard tunnel.
-    #[error("Failed to start wireguard-go tunnel: {status}")]
-    StartWireguardError {
-        // TODO: consider doing a Box<dyn Error> intead
-        /// Implementation-specific error code.
-        status: i32,
-    },
+    FatalStartWireguardError(#[source] Box<dyn std::error::Error + Send>),
 
     /// Failed to tear down wireguard tunnel.
-    #[error("Failed to stop wireguard tunnel: {status}")]
-    StopWireguardError {
-        // TODO: consider doing a Box<dyn Error> intead
-        /// Implementation-specific error code.
-        status: i32,
-    },
+    #[error("Failed to tear down wireguard tunnel")]
+    StopWireguardError(#[source] Box<dyn std::error::Error + Send>),
 
     /// Error whilst trying to parse the WireGuard config to read the stats
     #[error("Reading tunnel stats failed")]

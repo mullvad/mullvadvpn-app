@@ -437,7 +437,7 @@ impl WgNtTunnel {
 
             match error {
                 Error::CreateTunnelDevice(error) => super::TunnelError::SetupTunnelDevice(error),
-                _ => super::TunnelError::FatalStartWireguardError,
+                _ => super::TunnelError::FatalStartWireguardError(Box::new(error)),
             }
         })
     }

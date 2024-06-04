@@ -93,7 +93,7 @@ impl Tunnel for NetlinkTunnel {
         tokio_handle.block_on(async move {
             if let Err(err) = netlink_connections.delete_device(interface_index).await {
                 log::error!("Failed to remove WireGuard device: {}", err);
-                Err(TunnelError::FatalStartWireguardError)
+                Err(TunnelError::FatalStartWireguardError(Box::new(err)))
             } else {
                 Ok(())
             }
