@@ -158,6 +158,7 @@ function checkout_ref {
     git reset --hard
     git checkout "$ref"
     git submodule update
+    git submodule update --init --recursive --depth=1 wireguard-go-rs || true
     git clean -df
 }
 
