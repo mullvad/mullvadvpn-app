@@ -65,8 +65,8 @@ impl Tunnel {
     /// Creates a new wireguard tunnel, uses the specific interface name, and file descriptors
     /// for the tunnel device and logging. For targets other than android, this also takes an MTU value.
     ///
-    /// The `logging_callback` let's you provide a Rust function that receivec any logging output
-    /// from wireguard-go. `logging_context` is an value that will be passed to each invocation of
+    /// The `logging_callback` let's you provide a Rust function that receives any logging output
+    /// from wireguard-go. `logging_context` is a value that will be passed to each invocation of
     /// `logging_callback`.
     pub fn turn_on(
         #[cfg(not(target_os = "android"))] mtu: isize,
