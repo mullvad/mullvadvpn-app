@@ -24,12 +24,7 @@ class RelaySelectorTests: XCTestCase {
             exitLocations: .only(UserSelectedRelays(locations: [.country("es")]))
         )
 
-        let result = try RelaySelector.WireGuard.evaluate(
-            by: constraints,
-            in: sampleRelays,
-            numberOfFailedAttempts: 0
-        )
-
+        let result = try pickRelay(by: constraints, in: sampleRelays, failedAttemptCount: 0)
         XCTAssertEqual(result.relay.hostname, "es1-wireguard")
     }
 
@@ -38,11 +33,7 @@ class RelaySelectorTests: XCTestCase {
             exitLocations: .only(UserSelectedRelays(locations: [.city("se", "got")]))
         )
 
-        let result = try RelaySelector.WireGuard.evaluate(
-            by: constraints,
-            in: sampleRelays,
-            numberOfFailedAttempts: 0
-        )
+        let result = try pickRelay(by: constraints, in: sampleRelays, failedAttemptCount: 0)
         XCTAssertEqual(result.relay.hostname, "se10-wireguard")
     }
 
@@ -51,12 +42,7 @@ class RelaySelectorTests: XCTestCase {
             exitLocations: .only(UserSelectedRelays(locations: [.hostname("se", "sto", "se6-wireguard")]))
         )
 
-        let result = try RelaySelector.WireGuard.evaluate(
-            by: constraints,
-            in: sampleRelays,
-            numberOfFailedAttempts: 0
-        )
-
+        let result = try pickRelay(by: constraints, in: sampleRelays, failedAttemptCount: 0)
         XCTAssertEqual(result.relay.hostname, "se6-wireguard")
     }
 
@@ -87,7 +73,6 @@ class RelaySelectorTests: XCTestCase {
 
         let constrainedLocations = RelaySelector.applyConstraints(
             constraints.exitLocations,
-            portConstraint: constraints.port,
             filterConstraint: constraints.filter,
             relays: relayWithLocations
         )
@@ -111,12 +96,7 @@ class RelaySelectorTests: XCTestCase {
             port: .only(1)
         )
 
-        let result = try RelaySelector.WireGuard.evaluate(
-            by: constraints,
-            in: sampleRelays,
-            numberOfFailedAttempts: 0
-        )
-
+        let result = try pickRelay(by: constraints, in: sampleRelays, failedAttemptCount: 0)
         XCTAssertEqual(result.endpoint.ipv4Relay.port, 1)
     }
 
@@ -126,39 +106,19 @@ class RelaySelectorTests: XCTestCase {
         )
         let allPorts = portRanges.flatMap { $0 }
 
-        var result = try RelaySelector.WireGuard.evaluate(
-            by: constraints,
-            in: sampleRelays,
-            numberOfFailedAttempts: 0
-        )
+        var result = try pickRelay(by: constraints, in: sampleRelays, failedAttemptCount: 0)
         XCTAssertTrue(allPorts.contains(result.endpoint.ipv4Relay.port))
 
-        result = try RelaySelector.WireGuard.evaluate(
-            by: constraints,
-            in: sampleRelays,
-            numberOfFailedAttempts: 1
-        )
+        result = try pickRelay(by: constraints, in: sampleRelays, failedAttemptCount: 1)
         XCTAssertTrue(allPorts.contains(result.endpoint.ipv4Relay.port))
 
-        result = try RelaySelector.WireGuard.evaluate(
-            by: constraints,
-            in: sampleRelays,
-            numberOfFailedAttempts: 2
-        )
+        result = try pickRelay(by: constraints, in: sampleRelays, failedAttemptCount: 2)
         XCTAssertEqual(result.endpoint.ipv4Relay.port, defaultPort)
 
-        result = try RelaySelector.WireGuard.evaluate(
-            by: constraints,
-            in: sampleRelays,
-            numberOfFailedAttempts: 3
-        )
+        result = try pickRelay(by: constraints, in: sampleRelays, failedAttemptCount: 3)
         XCTAssertEqual(result.endpoint.ipv4Relay.port, defaultPort)
 
-        result = try RelaySelector.WireGuard.evaluate(
-            by: constraints,
-            in: sampleRelays,
-            numberOfFailedAttempts: 4
-        )
+        result = try pickRelay(by: constraints, in: sampleRelays, failedAttemptCount: 4)
         XCTAssertTrue(allPorts.contains(result.endpoint.ipv4Relay.port))
     }
 
@@ -200,12 +160,7 @@ class RelaySelectorTests: XCTestCase {
             filter: .only(filter)
         )
 
-        let result = try RelaySelector.WireGuard.evaluate(
-            by: constraints,
-            in: sampleRelays,
-            numberOfFailedAttempts: 0
-        )
-
+        let result = try pickRelay(by: constraints, in: sampleRelays, failedAttemptCount: 0)
         XCTAssertTrue(result.relay.owned)
     }
 
@@ -217,13 +172,7 @@ class RelaySelectorTests: XCTestCase {
             filter: .only(filter)
         )
 
-        let result = try? RelaySelector.WireGuard.evaluate(
-            by: constraints,
-            in: sampleRelays,
-            numberOfFailedAttempts: 0
-        )
-
-        XCTAssertNil(result)
+        XCTAssertThrowsError(try pickRelay(by: constraints, in: sampleRelays, failedAttemptCount: 0))
     }
 
     func testRelayFilterConstraintWithCorrectProvider() throws {
@@ -235,12 +184,7 @@ class RelaySelectorTests: XCTestCase {
             filter: .only(filter)
         )
 
-        let result = try RelaySelector.WireGuard.evaluate(
-            by: constraints,
-            in: sampleRelays,
-            numberOfFailedAttempts: 0
-        )
-
+        let result = try pickRelay(by: constraints, in: sampleRelays, failedAttemptCount: 0)
         XCTAssertEqual(result.relay.provider, provider)
     }
 
@@ -253,14 +197,27 @@ class RelaySelectorTests: XCTestCase {
             filter: .only(filter)
         )
 
-        let result = try? RelaySelector.WireGuard.evaluate(
-            by: constraints,
-            in: sampleRelays,
-            numberOfFailedAttempts: 0
+        XCTAssertThrowsError(try pickRelay(by: constraints, in: sampleRelays, failedAttemptCount: 0))
+    }
+}
+
+extension RelaySelectorTests {
+    private func pickRelay(
+        by constraints: RelayConstraints,
+        in relays: REST.ServerRelaysResponse,
+        failedAttemptCount: UInt
+    ) throws -> RelaySelectorMatch {
+        let candidates = try RelaySelector.WireGuard.findCandidates(
+            by: constraints.exitLocations,
+            in: relays,
+            filterConstraint: constraints.filter
         )
 
-        XCTAssertNil(result)
+        return try RelaySelector.WireGuard.pickCandidate(
+            from: candidates,
+            relays: relays,
+            portConstraint: constraints.port,
+            numberOfFailedAttempts: failedAttemptCount
+        )
     }
-
-    // MARK: - Multi-Hop tests
 }

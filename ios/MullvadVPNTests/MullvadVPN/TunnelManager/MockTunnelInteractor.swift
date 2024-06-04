@@ -7,8 +7,8 @@
 //
 
 import Foundation
+import MullvadREST
 import MullvadSettings
-import PacketTunnelCore
 
 // this is still very minimal, and will be fleshed out as needed.
 class MockTunnelInteractor: TunnelInteractor {
@@ -73,7 +73,7 @@ class MockTunnelInteractor: TunnelInteractor {
 
     struct NotImplementedError: Error {}
 
-    func selectRelay() throws -> PacketTunnelCore.SelectedRelay {
+    func selectRelay() throws -> SelectedRelay {
         throw NotImplementedError()
     }
 }

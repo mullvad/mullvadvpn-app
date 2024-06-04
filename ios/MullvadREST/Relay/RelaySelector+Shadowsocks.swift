@@ -45,7 +45,6 @@ extension RelaySelector {
             let mappedBridges = mapRelays(relays: relaysResponse.bridge.relays, locations: relaysResponse.locations)
             let filteredRelays = applyConstraints(
                 location,
-                portConstraint: port,
                 filterConstraint: filter,
                 relays: mappedBridges
             )

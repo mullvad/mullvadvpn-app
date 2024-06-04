@@ -7,6 +7,8 @@
 //
 
 import Foundation
+import MullvadMockData
+import MullvadREST
 import PacketTunnelCore
 
 extension PacketTunnelActorTimings {

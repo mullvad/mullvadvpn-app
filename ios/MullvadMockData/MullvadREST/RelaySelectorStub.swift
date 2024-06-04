@@ -6,30 +6,29 @@
 //  Copyright © 2023 Mullvad VPN AB. All rights reserved.
 //
 
-import Foundation
 import MullvadTypes
-import PacketTunnelCore
+import MullvadREST
 import WireGuardKitTypes
 
 /// Relay selector stub that accepts a block that can be used to provide custom implementation.
-struct RelaySelectorStub: RelaySelectorProtocol {
-    let block: (RelayConstraints, UInt) throws -> SelectedRelay
+public struct RelaySelectorStub: RelaySelectorProtocol {
+    let block: (RelayConstraints, UInt) throws -> SelectedRelays
 
-    func selectRelay(
+    public func selectRelays(
         with constraints: RelayConstraints,
-        connectionAttemptFailureCount: UInt
-    ) throws -> SelectedRelay {
-        return try block(constraints, connectionAttemptFailureCount)
+        connectionAttemptCount: UInt
+    ) throws -> SelectedRelays {
+        return try block(constraints, connectionAttemptCount)
     }
 }
 
 extension RelaySelectorStub {
     /// Returns a relay selector that never fails.
-    static func nonFallible() -> RelaySelectorStub {
+    public static func nonFallible() -> RelaySelectorStub {
         let publicKey = PrivateKey().publicKey.rawValue
 
         return RelaySelectorStub { _, _ in
-            return SelectedRelay(
+            let cityRelay = SelectedRelay(
                 endpoint: MullvadEndpoint(
                     ipv4Relay: IPv4Endpoint(ip: .loopback, port: 1300),
                     ipv4Gateway: .loopback,
@@ -45,6 +44,11 @@ extension RelaySelectorStub {
                     latitude: 0,
                     longitude: 0
                 ), retryAttempts: 0
+            )
+
+            return SelectedRelays(
+                entry: cityRelay,
+                exit: cityRelay
             )
         }
     }

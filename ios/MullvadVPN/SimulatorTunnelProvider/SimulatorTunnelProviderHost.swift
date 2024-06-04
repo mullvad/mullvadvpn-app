@@ -20,13 +20,13 @@ final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
     private var observedState: ObservedState = .disconnected
     private var selectedRelay: SelectedRelay?
     private let urlRequestProxy: URLRequestProxy
-    private let relayCacheTracker: RelayCacheTracker
+    private let relaySelector: RelaySelectorProtocol
 
     private let providerLogger = Logger(label: "SimulatorTunnelProviderHost")
     private let dispatchQueue = DispatchQueue(label: "SimulatorTunnelProviderHostQueue")
 
-    init(relayCacheTracker: RelayCacheTracker, transportProvider: TransportProvider) {
-        self.relayCacheTracker = relayCacheTracker
+    init(relaySelector: RelaySelectorProtocol, transportProvider: TransportProvider) {
+        self.relaySelector = relaySelector
         self.urlRequestProxy = URLRequestProxy(
             dispatchQueue: dispatchQueue,
             transportProvider: transportProvider
@@ -157,19 +157,12 @@ final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
     }
 
     private func pickRelay() throws -> SelectedRelay {
-        let cachedRelays = try relayCacheTracker.getCachedRelays()
         let tunnelSettings = try SettingsManager.readSettings()
-        let selectorResult = try RelaySelector.WireGuard.evaluate(
-            by: tunnelSettings.relayConstraints,
-            in: cachedRelays.relays,
-            numberOfFailedAttempts: 0
-        )
-        return SelectedRelay(
-            endpoint: selectorResult.endpoint,
-            hostname: selectorResult.relay.hostname,
-            location: selectorResult.location,
-            retryAttempts: 0
-        )
+
+        return try relaySelector.selectRelays(
+            with: tunnelSettings.relayConstraints,
+            connectionAttemptCount: 0
+        ).exit // TODO: Multihop
     }
 
     private func setInternalStateConnected(with selectedRelay: SelectedRelay?) {

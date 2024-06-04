@@ -11,7 +11,7 @@ import MullvadTypes
 
 /// Protocol describing a type that can select a relay.
 public protocol RelaySelectorProtocol {
-    func selectRelay(with constraints: RelayConstraints, connectionAttemptFailureCount: UInt) throws -> SelectedRelay
+    func selectRelays(with constraints: RelayConstraints, connectionAttemptCount: UInt) throws -> SelectedRelays
 }
 
 /// Struct describing the selected relay.
@@ -40,5 +40,22 @@ public struct SelectedRelay: Equatable, Codable {
 extension SelectedRelay: CustomDebugStringConvertible {
     public var debugDescription: String {
         "\(hostname) -> \(endpoint.ipv4Relay.description)"
+    }
+}
+
+public struct SelectedRelays: Equatable, Codable {
+    public let entry: SelectedRelay?
+    public let exit: SelectedRelay
+
+    public init(entry: SelectedRelay?, exit: SelectedRelay) {
+        self.entry = entry
+        self.exit = exit
+    }
+}
+
+extension SelectedRelays: CustomDebugStringConvertible {
+    public var debugDescription: String {
+        "Entry: \(entry?.hostname ?? "-") -> \(entry?.endpoint.ipv4Relay.description ?? "-"), " +
+            "Exit: \(exit.hostname) -> \(exit.endpoint.ipv4Relay.description)"
     }
 }

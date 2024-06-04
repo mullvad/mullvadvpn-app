@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadREST
 
 public struct PacketTunnelOptions {
     /// Keys for options dictionary

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadREST
 import MullvadSettings
 import PacketTunnelCore
 

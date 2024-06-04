@@ -85,13 +85,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         )
 
         addressCacheTracker = AddressCacheTracker(application: application, apiProxy: apiProxy, store: addressCache)
-
         tunnelStore = TunnelStore(application: application)
-        tunnelManager = createTunnelManager(application: application)
 
         let constraintsUpdater = RelayConstraintsUpdater()
         let multihopListener = MultihopStateListener()
         let multihopUpdater = MultihopUpdater(listener: multihopListener)
+
+        let relaySelector = RelaySelectorWrapper(
+            relayCache: ipOverrideWrapper,
+            multihopUpdater: multihopUpdater,
+            multihopState: multihopState
+        )
+        tunnelManager = createTunnelManager(application: application, relaySelector: relaySelector)
 
         settingsObserver = TunnelBlockObserver(didLoadConfiguration: { tunnelManager in
             multihopListener.onNewMultihop?(tunnelManager.settings.tunnelMultihopState)
@@ -139,7 +144,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             transportStrategy: transportStrategy
         )
         setUpTransportMonitor(transportProvider: transportProvider)
-        setUpSimulatorHost(transportProvider: transportProvider)
+        setUpSimulatorHost(transportProvider: transportProvider, relaySelector: relaySelector)
 
         registerBackgroundTasks()
         setupPaymentHandler()
@@ -151,7 +156,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         return true
     }
 
-    private func createTunnelManager(application: UIApplication) -> TunnelManager {
+    private func createTunnelManager(
+        application: UIApplication,
+        relaySelector: RelaySelectorProtocol
+    ) -> TunnelManager {
         return TunnelManager(
             application: application,
             tunnelStore: tunnelStore,
@@ -159,7 +167,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             accountsProxy: accountsProxy,
             devicesProxy: devicesProxy,
             apiProxy: apiProxy,
-            accessTokenManager: proxyFactory.configuration.accessTokenManager
+            accessTokenManager: proxyFactory.configuration.accessTokenManager,
+            relaySelector: relaySelector
         )
     }
 
@@ -192,11 +201,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         )
     }
 
-    private func setUpSimulatorHost(transportProvider: TransportProvider) {
+    private func setUpSimulatorHost(
+        transportProvider: TransportProvider,
+        relaySelector: RelaySelectorWrapper
+    ) {
         #if targetEnvironment(simulator)
         // Configure mock tunnel provider on simulator
         simulatorTunnelProviderHost = SimulatorTunnelProviderHost(
-            relayCacheTracker: relayCacheTracker,
+            relaySelector: relaySelector,
             transportProvider: transportProvider
         )
         SimulatorTunnelProvider.shared.delegate = simulatorTunnelProviderHost

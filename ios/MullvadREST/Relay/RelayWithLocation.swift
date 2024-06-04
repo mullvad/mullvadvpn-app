@@ -9,9 +9,9 @@
 import Foundation
 import MullvadTypes
 
-struct RelayWithLocation<T: AnyRelay> {
+public struct RelayWithLocation<T: AnyRelay> {
     let relay: T
-    let serverLocation: Location
+    public let serverLocation: Location
 
     func matches(location: RelayLocation) -> Bool {
         return switch location {
@@ -27,5 +27,11 @@ struct RelayWithLocation<T: AnyRelay> {
                 serverLocation.cityCode == cityCode &&
                 relay.hostname == hostname
         }
+    }
+}
+
+extension RelayWithLocation: Equatable {
+    public static func == (lhs: RelayWithLocation<T>, rhs: RelayWithLocation<T>) -> Bool {
+        lhs.serverLocation == rhs.serverLocation
     }
 }
