@@ -31,7 +31,7 @@ type LogContext = C.uint64_t
 
 //export wgTurnOn
 func wgTurnOn(cSettings *C.char, fd int, logSink LogSink, logContext LogContext) C.int32_t {
-	logger := logging.NewLogger(logSink, logContext)
+	logger := logging.NewLogger(logSink, logging.LogContext(logContext))
 
 	if cSettings == nil {
 		logger.Errorf("cSettings is null\n")
