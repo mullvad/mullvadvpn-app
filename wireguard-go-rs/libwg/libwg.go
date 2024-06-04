@@ -43,7 +43,6 @@ const (
 	ERROR_UNKNOWN_PEER
 
 	// Something went wrong when enabling DAITA.
-	// TODO: consider removing this? should probably be replaced by more specific errors
 	ERROR_ENABLE_DAITA
 )
 
