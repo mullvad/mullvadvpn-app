@@ -4,13 +4,21 @@ import android.app.Activity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.PaymentState
+import net.mullvad.mullvadvpn.lib.model.AccountData
+import net.mullvad.mullvadvpn.lib.model.AccountNumber
+import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
@@ -30,14 +38,14 @@ class AccountViewModel(
 
     val uiState: StateFlow<AccountUiState> =
         combine(
-                deviceRepository.deviceState,
-                accountRepository.accountData,
+                deviceRepository.deviceState.filterIsInstance<DeviceState.LoggedIn>(),
+                accountData(),
                 paymentUseCase.paymentAvailability
             ) { deviceState, accountData, paymentAvailability ->
                 AccountUiState(
-                    deviceName = deviceState?.displayName() ?: "",
-                    accountNumber = deviceState?.token()?.value ?: "",
-                    accountExpiry = accountData?.expiryDate,
+                    deviceName = deviceState.device.displayName(),
+                    accountNumber = deviceState.accountNumber,
+                    accountExpiry = accountData.expiryDate,
                     showSitePayment = !isPlayBuild,
                     billingPaymentState = paymentAvailability?.toPaymentState()
                 )
@@ -49,6 +57,13 @@ class AccountViewModel(
         verifyPurchases()
         fetchPaymentAvailability()
     }
+
+    fun accountData(): Flow<AccountData?> =
+        // Ignore nulls expect first, to avoid loading when logging out.
+        accountRepository.accountData
+            .filterNotNull()
+            .onStart<AccountData?> { emit(accountRepository.accountData.value) }
+            .distinctUntilChanged()
 
     fun onManageAccountClick() {
         viewModelScope.launch {
@@ -115,7 +130,7 @@ class AccountViewModel(
 
 data class AccountUiState(
     val deviceName: String?,
-    val accountNumber: String?,
+    val accountNumber: AccountNumber?,
     val accountExpiry: DateTime?,
     val showSitePayment: Boolean,
     val billingPaymentState: PaymentState? = null,

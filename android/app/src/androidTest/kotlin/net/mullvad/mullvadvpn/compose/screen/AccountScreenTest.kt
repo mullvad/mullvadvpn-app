@@ -15,6 +15,7 @@ import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.compose.test.PLAY_PAYMENT_INFO_ICON_TEST_TAG
+import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
@@ -290,6 +291,6 @@ class AccountScreenTest {
 
     companion object {
         private const val DUMMY_DEVICE_NAME = "fake_name"
-        private const val DUMMY_ACCOUNT_NUMBER = "fake_number"
+        private val DUMMY_ACCOUNT_NUMBER = AccountNumber("1234123412341234")
     }
 }
