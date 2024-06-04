@@ -81,6 +81,7 @@ impl WgGoTunnel {
         #[cfg(not(target_os = "android"))]
         let mtu = config.mtu as isize;
         let handle = wireguard_go_rs::Tunnel::turn_on(
+            #[cfg(not(target_os = "android"))]
             mtu,
             &wg_config_str,
             tunnel_fd,
@@ -141,11 +142,11 @@ impl WgGoTunnel {
 
     #[cfg(target_os = "android")]
     fn bypass_tunnel_sockets(
+        handle: &wireguard_go_rs::Tunnel,
         tunnel_device: &mut Tun,
-        handle: i32,
     ) -> std::result::Result<(), TunProviderError> {
-        let socket_v4 = self.tunnel_handle.get_socket_v4();
-        let socket_v6 = self.tunnel_handle.get_socket_v6();
+        let socket_v4 = handle.get_socket_v4();
+        let socket_v6 = handle.get_socket_v6();
 
         tunnel_device.bypass(socket_v4)?;
         tunnel_device.bypass(socket_v6)?;
