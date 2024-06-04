@@ -608,7 +608,7 @@ mod test {
         }
 
         fn set_config(
-            &self,
+            &mut self,
             _config: Config,
         ) -> Pin<Box<dyn Future<Output = std::result::Result<(), TunnelError>> + Send>> {
             Box::pin(async { Ok(()) })
