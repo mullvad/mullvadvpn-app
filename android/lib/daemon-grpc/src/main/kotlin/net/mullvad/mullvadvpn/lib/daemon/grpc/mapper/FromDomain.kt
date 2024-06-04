@@ -193,30 +193,18 @@ internal fun ApiAccessMethodType.CustomProxy.fromDomain(): ManagementInterface.C
             when (this) {
                 is ApiAccessMethodType.CustomProxy.Shadowsocks ->
                     it.setShadowsocks(this.fromDomain())
-                is ApiAccessMethodType.CustomProxy.Socks5Local ->
-                    it.setSocks5Local(this.fromDomain())
                 is ApiAccessMethodType.CustomProxy.Socks5Remote ->
                     it.setSocks5Remote(this.fromDomain())
             }
         }
         .build()
 
-internal fun ApiAccessMethodType.CustomProxy.Socks5Local.fromDomain():
-    ManagementInterface.Socks5Local =
-    ManagementInterface.Socks5Local.newBuilder()
-        .setRemoteIp(remoteIp)
-        .setLocalPort(localPort.value)
-        .setRemotePort(remotePort.value)
-        .setRemoteTransportProtocol(remoteTransportProtocol.fromDomain())
-        .build()
-
 internal fun ApiAccessMethodType.CustomProxy.Socks5Remote.fromDomain():
     ManagementInterface.Socks5Remote =
-    ManagementInterface.Socks5Remote.newBuilder()
-        .setIp(ip)
-        .setAuth(auth?.fromDomain())
-        .setPort(port.value)
-        .build()
+    ManagementInterface.Socks5Remote.newBuilder().setIp(ip).setPort(port.value).let {
+        auth?.let { auth -> it.setAuth(auth.fromDomain()) }
+        it.build()
+    }
 
 internal fun SocksAuth.fromDomain(): ManagementInterface.SocksAuth =
     ManagementInterface.SocksAuth.newBuilder().setUsername(username).setPassword(password).build()
