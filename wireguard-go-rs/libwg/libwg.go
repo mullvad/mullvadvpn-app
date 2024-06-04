@@ -23,6 +23,7 @@ import (
 )
 
 // FFI integer result codes
+// NOTE: Must be kept in sync with the Error enum in wireguard-go-rs
 const (
 	OK = C.int32_t(-iota)
 

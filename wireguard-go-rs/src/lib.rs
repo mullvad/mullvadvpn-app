@@ -1,3 +1,11 @@
+//! This crate provides Rust bindings to wireguard-go with DAITA support.
+//!
+//! The bindings on the Go side are provided by `libwg`, which is a Go package that wraps
+//! `wireguard-go` and provides a C FFI that we can use from Rust. On the Rust side, the FFI is
+//! in the private `ffi` module below. It needs to be kept in sync with any changes to libwg.
+//!
+//! The [`Tunnel`] type provides a safe Rust wrapper around the C FFI.
+
 #![cfg(unix)]
 
 use core::slice;
@@ -54,6 +62,12 @@ pub enum Error {
 }
 
 impl Tunnel {
+    /// Creates a new wireguard tunnel, uses the specific interface name, and file descriptors
+    /// for the tunnel device and logging. For targets other than android, this also takes an MTU value.
+    ///
+    /// The `logging_callback` let's you provide a Rust function that receivec any logging output
+    /// from wireguard-go. `logging_context` is an value that will be passed to each invocation of
+    /// `logging_callback`.
     pub fn turn_on(
         #[cfg(not(target_os = "android"))] mtu: isize,
         settings: &CStr,
@@ -77,6 +91,7 @@ impl Tunnel {
         Ok(Tunnel { handle: code })
     }
 
+    /// Stop the wireguard tunnel. This also happens automatically if the [`Tunnel`] is dropped.
     pub fn turn_off(self) -> Result<(), Error> {
         // we manually turn off the tunnel here, so wrap it in ManuallyDrop to prevent the Drop
         // impl from doing the same.
@@ -93,7 +108,6 @@ impl Tunnel {
     /// **NOTE:** You should take extra care to avoid copying any secrets from the config without zeroizing them afterwards.
     // NOTE: this could return a guard type with a custom Drop impl instead, but me lazy.
     pub fn get_config<T>(&self, f: impl FnOnce(&CStr) -> T) -> Option<T> {
-        // SAFETY: TODO: what to write here?
         let ptr = unsafe { ffi::wgGetConfig(self.handle) };
 
         if ptr.is_null() {
@@ -125,12 +139,16 @@ impl Tunnel {
         Some(t)
     }
 
+    /// Set the config of the WireGuard interface.
     pub fn set_config(&self, config: &CStr) -> Result<(), Error> {
         // SAFETY: pointer is valid for the lifetime of this function.
         let code = unsafe { ffi::wgSetConfig(self.handle, config.as_ptr()) };
         result_from_code(code)
     }
 
+    /// Activate DAITA for the specified peer.
+    ///
+    /// `machines` is a string containing LF-separated maybenot machines.
     #[cfg(daita)]
     pub fn activate_daita(
         &self,
@@ -203,7 +221,7 @@ mod ffi {
         /// for the tunnel device and logging. For targets other than android, this also takes an MTU value.
         ///
         /// Positive return values are tunnel handles for this specific wireguard tunnel instance.
-        /// Negative return values signify errors. All error codes are opaque.
+        /// Negative return values signify errors.
         pub fn wgTurnOn(
             #[cfg(not(target_os = "android"))] mtu: isize,
             settings: *const i8,
