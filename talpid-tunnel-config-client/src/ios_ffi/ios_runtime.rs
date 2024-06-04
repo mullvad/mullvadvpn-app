@@ -158,6 +158,11 @@ impl IOSRuntime {
                     }
                 }
 
+                _ = tokio::time::sleep(std::time::Duration::from_secs(5)) => {
+                            unsafe { swift_post_quantum_key_ready(packet_tunnel_ptr, ptr::null(), ptr::null()); }
+                            shutdown_handle.shutdown()
+                }
+
                 _ = cancel_token_rx.recv() => {
                     shutdown_handle.shutdown()
                     // The swift runtime pre emptively cancelled the key exchange, nothing to do here.
