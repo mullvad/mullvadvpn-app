@@ -7,6 +7,7 @@
 //
 
 import MapKit
+import MullvadREST
 import MullvadTypes
 import PacketTunnelCore
 import UIKit
