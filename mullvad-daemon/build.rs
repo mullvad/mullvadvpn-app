@@ -37,7 +37,7 @@ fn main() {
         println!(r#"cargo::rustc-cfg=daita"#);
     }
 
-    // when development, configure rpath to facilitate linking with libwg.so
+    // For debug builds, configure rpath to facilitate linking with libwg.so
     if matches!(target_os.as_str(), "linux" | "macos" | "android") && cfg!(debug_assertions) {
         let target = std::env::var("TARGET").expect("TARGET not set");
         let relative = std::path::Path::new("../build/lib/");

@@ -48,7 +48,6 @@ function unix_target_triple {
 
 
 function build_unix {
-    # TODO: consider using `log_header` here
     echo "Building wireguard-go for $1"
 
     # Flags for cross compiling
