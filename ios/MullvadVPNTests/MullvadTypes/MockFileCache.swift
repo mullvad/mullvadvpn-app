@@ -45,6 +45,13 @@ final class MockFileCache<Content: Codable & Equatable>: FileCacheProtocol {
         state = .exists(content)
     }
 
+    func clear() throws {
+        stateLock.lock()
+        defer { stateLock.unlock() }
+
+        state = .fileNotFound
+    }
+
     enum State: Equatable {
         /// File does not exist yet.
         case fileNotFound

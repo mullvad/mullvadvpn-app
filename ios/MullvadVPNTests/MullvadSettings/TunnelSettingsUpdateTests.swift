@@ -48,7 +48,7 @@ final class TunnelSettingsUpdateTests: XCTestCase {
 
         // When:
         let relayConstraints = RelayConstraints(
-            locations: .only(UserSelectedRelays(locations: [.country("zz")])),
+            exitLocations: .only(UserSelectedRelays(locations: [.country("zz")])),
             port: .only(9999),
             filter: .only(.init(ownership: .rented, providers: .only(["foo", "bar"])))
         )
@@ -69,5 +69,17 @@ final class TunnelSettingsUpdateTests: XCTestCase {
 
         // Then:
         XCTAssertEqual(settings.tunnelQuantumResistance, .on)
+    }
+
+    func testApplyMultihop() {
+        // Given:
+        var settings = LatestTunnelSettings()
+
+        // When:
+        let update = TunnelSettingsUpdate.multihop(.on)
+        update.apply(to: &settings)
+
+        // Then:
+        XCTAssertEqual(settings.tunnelMultihopState, .on)
     }
 }

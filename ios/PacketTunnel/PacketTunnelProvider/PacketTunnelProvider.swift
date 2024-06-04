@@ -21,6 +21,10 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     private let internalQueue = DispatchQueue(label: "PacketTunnel-internalQueue")
     private let providerLogger: Logger
     private let constraintsUpdater = RelayConstraintsUpdater()
+    private let multihopStateListener = MultihopStateListener()
+
+    private var multihopUpdater: MultihopUpdater
+    private let settingsReader = SettingsReader()
 
     private var actor: PacketTunnelActor!
     private var postQuantumActor: PostQuantumKeyExchangeActor!
@@ -43,6 +47,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             relayCache: RelayCache(cacheDirectory: containerURL),
             ipOverrideRepository: IPOverrideRepository()
         )
+
+        multihopUpdater = MultihopUpdater(listener: multihopStateListener)
 
         super.init()
 
@@ -67,9 +73,16 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         )
         let accountsProxy = proxyFactory.createAccountsProxy()
         let devicesProxy = proxyFactory.createDevicesProxy()
+        let multihopState = (try? settingsReader.read().multihopState) ?? .off
 
         deviceChecker = DeviceChecker(accountsProxy: accountsProxy, devicesProxy: devicesProxy)
-        relaySelector = RelaySelectorWrapper(relayCache: ipOverrideWrapper)
+        relaySelector = RelaySelectorWrapper(
+            relayCache: ipOverrideWrapper,
+            multihopUpdater: multihopUpdater,
+            multihopState: multihopState
+        )
+
+        multihopStateListener.onNewMultihop?(multihopState)
 
         actor = PacketTunnelActor(
             timings: PacketTunnelActorTimings(),
@@ -78,7 +91,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             defaultPathObserver: PacketTunnelPathObserver(packetTunnelProvider: self, eventQueue: internalQueue),
             blockedStateErrorMapper: BlockedStateErrorMapper(),
             relaySelector: relaySelector,
-            settingsReader: SettingsReader(),
+            settingsReader: settingsReader,
             protocolObfuscator: ProtocolObfuscator<UDPOverTCPObfuscator>()
         )
 
@@ -156,12 +169,19 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         let urlSession = REST.makeURLSession()
         let urlSessionTransport = URLSessionTransport(urlSession: urlSession)
         let shadowsocksCache = ShadowsocksConfigurationCache(cacheDirectory: appContainerURL)
+        let multihopState = (try? settingsReader.read().multihopState) ?? .off
+
+        let shadowsocksRelaySelector = ShadowsocksRelaySelector(
+            relayCache: ipOverrideWrapper,
+            multihopUpdater: multihopUpdater,
+            multihopState: multihopState
+        )
 
         let transportStrategy = TransportStrategy(
             datasource: AccessMethodRepository(),
             shadowsocksLoader: ShadowsocksLoader(
-                shadowsocksCache: shadowsocksCache,
-                relayCache: ipOverrideWrapper,
+                cache: shadowsocksCache,
+                relaySelector: shadowsocksRelaySelector,
                 constraintsUpdater: constraintsUpdater
             )
         )
