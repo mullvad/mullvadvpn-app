@@ -46,6 +46,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.NavResult
@@ -149,9 +150,10 @@ fun SelectLocation(
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
 
+    val navigateBack = dropUnlessResumed { backNavigator.navigateBack(result = true)}
     LaunchedEffectCollect(vm.uiSideEffect) {
         when (it) {
-            SelectLocationSideEffect.CloseScreen -> backNavigator.navigateBack(result = true, true)
+            SelectLocationSideEffect.CloseScreen -> navigateBack()
             is SelectLocationSideEffect.LocationAddedToCustomList ->
                 launch {
                     snackbarHostState.showResultSnackbar(
@@ -200,8 +202,8 @@ fun SelectLocation(
         snackbarHostState = snackbarHostState,
         onSelectRelay = vm::selectRelay,
         onSearchTermInput = vm::onSearchTermInput,
-        onBackClick = { backNavigator.navigateBack(true) },
-        onFilterClick = { navigator.navigate(FilterScreenDestination, true) },
+        onBackClick = dropUnlessResumed { backNavigator.navigateBack() },
+        onFilterClick = dropUnlessResumed { navigator.navigate(FilterScreenDestination) },
         onCreateCustomList = { relayItem ->
             navigator.navigate(CreateCustomListDestination(locationCode = relayItem?.id)) {
                 launchSingleTop = true
