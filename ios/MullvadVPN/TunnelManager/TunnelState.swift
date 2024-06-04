@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadREST
 import MullvadTypes
 import PacketTunnelCore
 import WireGuardKitTypes

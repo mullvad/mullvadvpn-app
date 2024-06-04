@@ -80,7 +80,6 @@
 		5820EDAB288FF0D2006BF4E4 /* DeviceRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5820EDAA288FF0D2006BF4E4 /* DeviceRowView.swift */; };
 		58238CB92AD57EC700768310 /* MullvadREST.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 06799ABC28F98E1D00ACD94E /* MullvadREST.framework */; };
 		5823FA5426CE49F700283BF8 /* TunnelObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5823FA5326CE49F600283BF8 /* TunnelObserver.swift */; };
-		582403822A827E1500163DE8 /* RelaySelectorWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 582403812A827E1500163DE8 /* RelaySelectorWrapper.swift */; };
 		5826B6CB2ABD83E200B1CA13 /* PacketTunnelOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587C575226D2615F005EF767 /* PacketTunnelOptions.swift */; };
 		5827B0902B0CAA0500CCBBA1 /* EditAccessMethodCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5827B08F2B0CAA0500CCBBA1 /* EditAccessMethodCoordinator.swift */; };
 		5827B0922B0CAB2800CCBBA1 /* MethodSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5827B0912B0CAB2800CCBBA1 /* MethodSettingsViewController.swift */; };
@@ -447,12 +446,10 @@
 		58FE25DA2AA72A8F003D1918 /* PacketTunnelActor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E9C3852A4EF1CB00CFDEAC /* PacketTunnelActor.swift */; };
 		58FE25DB2AA72A8F003D1918 /* StartOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58ED3A132A7C199C0085CE65 /* StartOptions.swift */; };
 		58FE25DC2AA72A8F003D1918 /* AnyTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BDEBA02A9CA14B00F578F2 /* AnyTask.swift */; };
-		58FE25DF2AA72A9B003D1918 /* RelaySelectorProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5824037F2A827DF300163DE8 /* RelaySelectorProtocol.swift */; };
 		58FE25E12AA72A9B003D1918 /* SettingsReaderProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586E7A2C2A987689006DAB1B /* SettingsReaderProtocol.swift */; };
 		58FE25E62AA738E8003D1918 /* TunnelAdapterProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5819ABC22A8CF02C007B59A6 /* TunnelAdapterProtocol.swift */; };
 		58FE25EC2AA77639003D1918 /* TunnelMonitorStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FE25EB2AA77638003D1918 /* TunnelMonitorStub.swift */; };
 		58FE25EE2AA7764E003D1918 /* TunnelAdapterDummy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FE25ED2AA7764E003D1918 /* TunnelAdapterDummy.swift */; };
-		58FE25F02AA77664003D1918 /* RelaySelectorStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FE25EF2AA77664003D1918 /* RelaySelectorStub.swift */; };
 		58FE25F22AA77674003D1918 /* SettingsReaderStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FE25F12AA77674003D1918 /* SettingsReaderStub.swift */; };
 		58FE25F42AA9D730003D1918 /* PacketTunnelActor+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FE25F32AA9D730003D1918 /* PacketTunnelActor+Extensions.swift */; };
 		58FE65952AB1D90600E53CB5 /* MullvadTypes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58D223D5294C8E5E0029F5F8 /* MullvadTypes.framework */; };
@@ -489,15 +486,19 @@
 		7A3353932AAA089000F0A71C /* SimulatorTunnelInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A3353922AAA089000F0A71C /* SimulatorTunnelInfo.swift */; };
 		7A3353972AAA0F8600F0A71C /* OperationBlockObserverSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A3353962AAA0F8600F0A71C /* OperationBlockObserverSupport.swift */; };
 		7A3EFAAB2BDFDAE800318736 /* RelaySelection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A3EFAAA2BDFDAE800318736 /* RelaySelection.swift */; };
+		7A3AD5012C1068A800E9AD90 /* RelaySelectorPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A3AD5002C1068A800E9AD90 /* RelaySelectorPicker.swift */; };
 		7A3FD1B52AD4465A0042BEA6 /* AppMessageHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A3FD1B42AD4465A0042BEA6 /* AppMessageHandlerTests.swift */; };
 		7A3FD1B72AD54ABD0042BEA6 /* AnyTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BDEB982A98F4ED00F578F2 /* AnyTransport.swift */; };
 		7A3FD1B82AD54AE60042BEA6 /* TimeServerProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BDEB9A2A98F58600F578F2 /* TimeServerProxy.swift */; };
 		7A42DEC92A05164100B209BE /* SettingsInputCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A42DEC82A05164100B209BE /* SettingsInputCell.swift */; };
 		7A45CFC62C05FF6A00D80B21 /* ScreenshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A45CFC22C05FF2F00D80B21 /* ScreenshotTests.swift */; };
 		7A45CFC72C071DD400D80B21 /* SnapshotHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D0C79D23F1CEBA00FE9BA7 /* SnapshotHelper.swift */; };
+		7A4D849D2C0F289400687980 /* RelaySelectorWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 582403812A827E1500163DE8 /* RelaySelectorWrapper.swift */; };
+		7A4D849E2C0F289800687980 /* RelaySelectorProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5824037F2A827DF300163DE8 /* RelaySelectorProtocol.swift */; };
 		7A516C2E2B6D357500BBD33D /* URL+Scoping.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A516C2D2B6D357500BBD33D /* URL+Scoping.swift */; };
 		7A516C3A2B7111A700BBD33D /* IPOverrideWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A516C392B7111A700BBD33D /* IPOverrideWrapper.swift */; };
 		7A516C3C2B712F0B00BBD33D /* IPOverrideWrapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A516C3B2B712F0B00BBD33D /* IPOverrideWrapperTests.swift */; };
+		7A52F96A2C1735AE00B133B9 /* RelaySelectorStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FE25EF2AA77664003D1918 /* RelaySelectorStub.swift */; };
 		7A5869952B32E9C700640D27 /* LinkButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5869942B32E9C700640D27 /* LinkButton.swift */; };
 		7A5869972B32EA4500640D27 /* AppButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5869962B32EA4500640D27 /* AppButton.swift */; };
 		7A58699B2B482FE200640D27 /* UITableViewCell+Disable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A58699A2B482FE200640D27 /* UITableViewCell+Disable.swift */; };
@@ -1890,6 +1891,7 @@
 		7A3353922AAA089000F0A71C /* SimulatorTunnelInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimulatorTunnelInfo.swift; sourceTree = "<group>"; };
 		7A3353962AAA0F8600F0A71C /* OperationBlockObserverSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationBlockObserverSupport.swift; sourceTree = "<group>"; };
 		7A3EFAAA2BDFDAE800318736 /* RelaySelection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelaySelection.swift; sourceTree = "<group>"; };
+		7A3AD5002C1068A800E9AD90 /* RelaySelectorPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelaySelectorPicker.swift; sourceTree = "<group>"; };
 		7A3FD1B42AD4465A0042BEA6 /* AppMessageHandlerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppMessageHandlerTests.swift; sourceTree = "<group>"; };
 		7A42DEC82A05164100B209BE /* SettingsInputCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsInputCell.swift; sourceTree = "<group>"; };
 		7A45CFC22C05FF2F00D80B21 /* ScreenshotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotTests.swift; sourceTree = "<group>"; };
@@ -2498,8 +2500,8 @@
 		440E9EF42BDA943B00B1FD11 /* ApiHandlers */ = {
 			isa = PBXGroup;
 			children = (
-				F0ACE3342BE51745006D5333 /* ServerRelaysResponse+Stubs.swift */,
 				A9CF11FC2A0518E7001D9565 /* AddressCacheTests.swift */,
+				F0ACE3342BE51745006D5333 /* ServerRelaysResponse+Stubs.swift */,
 			);
 			path = ApiHandlers;
 			sourceTree = "<group>";
@@ -3724,7 +3726,6 @@
 			isa = PBXGroup;
 			children = (
 				580D6B8B2AB3369300B2D6E0 /* BlockedStateErrorMapperProtocol.swift */,
-				5824037F2A827DF300163DE8 /* RelaySelectorProtocol.swift */,
 				586E7A2C2A987689006DAB1B /* SettingsReaderProtocol.swift */,
 				5819ABC22A8CF02C007B59A6 /* TunnelAdapterProtocol.swift */,
 			);
@@ -3740,7 +3741,6 @@
 				58EC067B2A8D2A0B00BEB973 /* NetworkCounters.swift */,
 				58FE25EB2AA77638003D1918 /* TunnelMonitorStub.swift */,
 				58FE25ED2AA7764E003D1918 /* TunnelAdapterDummy.swift */,
-				58FE25EF2AA77664003D1918 /* RelaySelectorStub.swift */,
 				58FE25F12AA77674003D1918 /* SettingsReaderStub.swift */,
 				58F7753C2AB8473200425B47 /* BlockedStateErrorMapperStub.swift */,
 				5838321A2AC1B18400EA2071 /* PacketTunnelActor+Mocks.swift */,
@@ -4176,6 +4176,7 @@
 				A900E9BD2ACC654100C95F67 /* APIProxy+Stubs.swift */,
 				A900E9BB2ACC609200C95F67 /* DevicesProxy+Stubs.swift */,
 				F0ACE32E2BE4EA8B006D5333 /* MockProxyFactory.swift */,
+				58FE25EF2AA77664003D1918 /* RelaySelectorStub.swift */,
 				A900E9B92ACC5D0600C95F67 /* RESTRequestExecutor+Stubs.swift */,
 			);
 			path = MullvadREST;
@@ -4203,9 +4204,12 @@
 				F0DDE4282B220A15006B57A7 /* RelaySelector.swift */,
 				F0B894F42BF7528700817A42 /* RelaySelector+Shadowsocks.swift */,
 				F0B894F22BF7526700817A42 /* RelaySelector+Wireguard.swift */,
+				5824037F2A827DF300163DE8 /* RelaySelectorProtocol.swift */,
 				F0F316182BF3572B0078DBCF /* RelaySelectorResult.swift */,
+				582403812A827E1500163DE8 /* RelaySelectorWrapper.swift */,
 				F0B894F02BF751E300817A42 /* RelayWithDistance.swift */,
 				F0B894EE2BF751C500817A42 /* RelayWithLocation.swift */,
+				7A3AD5002C1068A800E9AD90 /* RelaySelectorPicker.swift */,
 			);
 			path = Relay;
 			sourceTree = "<group>";
@@ -5311,9 +5315,12 @@
 				F0DDE4162B220458006B57A7 /* TransportProvider.swift in Sources */,
 				06799AEF28F98E4800ACD94E /* RetryStrategy.swift in Sources */,
 				06799AE128F98E4800ACD94E /* SSLPinningURLSessionDelegate.swift in Sources */,
+				7A4D849E2C0F289800687980 /* RelaySelectorProtocol.swift in Sources */,
 				F0164EBE2B4BFF940020268D /* ShadowsocksLoader.swift in Sources */,
 				A9A1DE792AD5708E0073F689 /* TransportStrategy.swift in Sources */,
 				A90763BF2B2857D50045ADF0 /* Socks5Handshake.swift in Sources */,
+				7A3AD5012C1068A800E9AD90 /* RelaySelectorPicker.swift in Sources */,
+				7A4D849D2C0F289400687980 /* RelaySelectorWrapper.swift in Sources */,
 				A90763C52B2858B40045ADF0 /* AnyIPEndpoint+Socks5.swift in Sources */,
 				F06045EC2B2322A500B2D37A /* Jittered.swift in Sources */,
 				F0DDE4152B220458006B57A7 /* ShadowsocksConfigurationCache.swift in Sources */,
@@ -5597,7 +5604,6 @@
 			files = (
 				58FE25F42AA9D730003D1918 /* PacketTunnelActor+Extensions.swift in Sources */,
 				58DDA18F2ABC32380039C360 /* Timings.swift in Sources */,
-				58FE25DF2AA72A9B003D1918 /* RelaySelectorProtocol.swift in Sources */,
 				58C7A4522A863FB50060C66F /* Pinger.swift in Sources */,
 				580D6B8C2AB3369300B2D6E0 /* BlockedStateErrorMapperProtocol.swift in Sources */,
 				58C7AF172ABD84AA007EDD7A /* ProxyURLRequest.swift in Sources */,
@@ -5663,7 +5669,6 @@
 				5838321D2AC1C54600EA2071 /* TaskSleepTests.swift in Sources */,
 				58092E542A8B832E00C3CC72 /* TunnelMonitorTests.swift in Sources */,
 				7AD0AA212AD6CB0000119E10 /* URLRequestProxyStub.swift in Sources */,
-				58FE25F02AA77664003D1918 /* RelaySelectorStub.swift in Sources */,
 				581F23AF2A8CF94D00788AB6 /* PingerMock.swift in Sources */,
 				A97D25B42B0CB59300946B2D /* TunnelObfuscationStub.swift in Sources */,
 				A97D25B02B0BB5C400946B2D /* ProtocolObfuscationStub.swift in Sources */,
@@ -6067,7 +6072,6 @@
 				583FE02429C1ACB3006E85F9 /* RESTCreateApplePaymentResponse+Localization.swift in Sources */,
 				58CE38C728992C8700A6D6E5 /* WireGuardAdapterError+Localization.swift in Sources */,
 				58E511E828DDDF2400B0BCDE /* CodingErrors+CustomErrorDescription.swift in Sources */,
-				582403822A827E1500163DE8 /* RelaySelectorWrapper.swift in Sources */,
 				58FDF2D92A0BA11A00C2B061 /* DeviceCheckOperation.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -6278,6 +6282,7 @@
 				F0ACE3222BE4E4F2006D5333 /* APIProxy+Stubs.swift in Sources */,
 				F0ACE3332BE516F1006D5333 /* RESTRequestExecutor+Stubs.swift in Sources */,
 				F0ACE32D2BE4E784006D5333 /* AccountMock.swift in Sources */,
+				7A52F96A2C1735AE00B133B9 /* RelaySelectorStub.swift in Sources */,
 				F0ACE32F2BE4EA8B006D5333 /* MockProxyFactory.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

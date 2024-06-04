@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadREST
 
 /// Packet tunnel start options parsed from dictionary passed to packet tunnel with a call to `startTunnel()`.
 public struct StartOptions {

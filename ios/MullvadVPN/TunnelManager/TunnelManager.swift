@@ -59,6 +59,7 @@ final class TunnelManager: StorePaymentObserver {
     private var lastMapConnectionStatusOperation: Operation?
     private let observerList = ObserverList<TunnelObserver>()
     private var networkMonitor: NWPathMonitor?
+    private let relaySelector: RelaySelectorProtocol
 
     private var privateKeyRotationTimer: DispatchSourceTimer?
     public private(set) var isRunningPeriodicPrivateKeyRotation = false
@@ -86,7 +87,8 @@ final class TunnelManager: StorePaymentObserver {
         accountsProxy: RESTAccountHandling,
         devicesProxy: DeviceHandling,
         apiProxy: APIQuerying,
-        accessTokenManager: RESTAccessTokenManagement
+        accessTokenManager: RESTAccessTokenManagement,
+        relaySelector: RelaySelectorProtocol
     ) {
         self.application = application
         self.tunnelStore = tunnelStore
@@ -97,6 +99,7 @@ final class TunnelManager: StorePaymentObserver {
         self.operationQueue.name = "TunnelManager.operationQueue"
         self.operationQueue.underlyingQueue = internalQueue
         self.accessTokenManager = accessTokenManager
+        self.relaySelector = relaySelector
 
         NotificationCenter.default.addObserver(
             self,
@@ -780,20 +783,12 @@ final class TunnelManager: StorePaymentObserver {
     }
 
     fileprivate func selectRelay() throws -> SelectedRelay {
-        let cachedRelays = try relayCacheTracker.getCachedRelays()
         let retryAttempts = tunnelStatus.observedState.connectionState?.connectionAttemptCount ?? 0
-        let selectorResult = try RelaySelector.WireGuard.evaluate(
-            by: settings.relayConstraints,
-            in: cachedRelays.relays,
-            numberOfFailedAttempts: retryAttempts
-        )
 
-        return SelectedRelay(
-            endpoint: selectorResult.endpoint,
-            hostname: selectorResult.relay.hostname,
-            location: selectorResult.location,
-            retryAttempts: retryAttempts
-        )
+        return try relaySelector.selectRelays(
+            with: settings.relayConstraints,
+            connectionAttemptCount: retryAttempts
+        ).exit // TODO: Multihop
     }
 
     fileprivate func prepareForVPNConfigurationDeletion() {

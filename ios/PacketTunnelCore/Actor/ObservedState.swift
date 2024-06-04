@@ -8,6 +8,7 @@
 
 import Combine
 import Foundation
+import MullvadREST
 import MullvadTypes
 import Network
 import WireGuardKitTypes

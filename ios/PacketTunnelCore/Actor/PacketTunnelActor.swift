@@ -8,6 +8,7 @@
 
 import Foundation
 import MullvadLogging
+import MullvadREST
 import MullvadTypes
 import NetworkExtension
 import TunnelObfuscation
@@ -464,10 +465,10 @@ extension PacketTunnelActor {
             }
 
         case .random:
-            return try relaySelector.selectRelay(
+            return try relaySelector.selectRelays(
                 with: relayConstraints,
-                connectionAttemptFailureCount: connectionAttemptCount
-            )
+                connectionAttemptCount: connectionAttemptCount
+            ).exit // TODO: Multihop
 
         case let .preSelected(selectedRelay):
             return selectedRelay

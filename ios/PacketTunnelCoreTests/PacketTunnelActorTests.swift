@@ -208,7 +208,8 @@ final class PacketTunnelActorTests: XCTestCase {
      3. The issue goes away on the second attempt to read settings.
      4. An actor should transition through `.connecting` towards`.connected` state.
      */
-    func testLockedDeviceErrorOnBoot() async throws { // swiftlint:disable:this function_body_length
+    // swiftlint:disable:next function_body_length
+    func testLockedDeviceErrorOnBoot() async throws {
         let initialStateExpectation = expectation(description: "Expect initial state")
         let errorStateExpectation = expectation(description: "Expect error state")
         let connectingStateExpectation = expectation(description: "Expect connecting state")
