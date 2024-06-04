@@ -38,11 +38,16 @@ fn main() {
         panic!();
     }
 
-    // NOTE: Link to libwg dynamically on all platforms.
+    // NOTE: Link dynamically to libwg on all platforms.
     //
-    // LTO breaks when statically linking to libwg & Go programs does not
-    // support being statically linked on android so we need to dynamically link
-    // to libwg.
+    // LTO breaks when statically linking to libwg due to its dependency
+    // libmaybenot already statically links against the Rust standard library,
+    // which will cause the linker to see duplicate symbols once we try to
+    // statically link any other Rust program (e.g. mullvad-daemon) against
+    // libwg. This is not an issue if we stick to dynamic linking.
+    //
+    // Also, Go programs does not support being statically linked on android so
+    // we need to dynamically link to libwg.
     println!("cargo::rustc-link-lib=wg");
     declare_libs_dir("../build/lib");
 
