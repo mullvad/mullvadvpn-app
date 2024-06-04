@@ -13,6 +13,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
@@ -63,7 +64,7 @@ fun EditCustomListName(
         state = state,
         updateName = vm::updateCustomListName,
         onInputChanged = vm::clearError,
-        onDismiss = backNavigator::navigateBack
+        onDismiss = dropUnlessResumed { backNavigator.navigateBack() }
     )
 }
 

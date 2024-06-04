@@ -22,6 +22,7 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.NavResult
@@ -117,7 +118,7 @@ fun EditCustomList(
                 launchSingleTop = true
             }
         },
-        onBackClick = backNavigator::navigateBack
+        onBackClick = dropUnlessResumed { backNavigator.navigateBack()}
     )
 }
 
