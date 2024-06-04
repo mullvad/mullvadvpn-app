@@ -847,6 +847,9 @@ impl WireguardMonitor {
         wait_result
     }
 
+    /// Tear down the tunnel.
+    ///
+    /// NOTE: will panic if called from within a tokio runtime.
     fn stop_tunnel(&mut self) {
         match self.tunnel.blocking_lock().take() {
             Some(tunnel) => {

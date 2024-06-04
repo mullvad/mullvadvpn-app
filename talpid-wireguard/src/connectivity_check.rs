@@ -212,6 +212,8 @@ impl ConnectivityMonitor {
 
     /// If None is returned, then the underlying tunnel has already been closed and all subsequent
     /// calls will also return None.
+    ///
+    /// NOTE: will panic if called from within a tokio runtime.
     fn get_stats(&self) -> Option<Result<StatsMap, Error>> {
         self.tunnel_handle
             .upgrade()?
