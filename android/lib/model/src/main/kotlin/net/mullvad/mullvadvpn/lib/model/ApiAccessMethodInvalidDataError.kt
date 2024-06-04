@@ -22,12 +22,6 @@ sealed interface InvalidDataError {
         data object Invalid : RemotePortError
     }
 
-    sealed interface LocalPortError : InvalidDataError {
-        data object Required : LocalPortError
-
-        data object Invalid : LocalPortError
-    }
-
     sealed interface UserNameError : InvalidDataError {
         data object Required : UserNameError
     }

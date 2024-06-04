@@ -1,15 +1,11 @@
 package net.mullvad.mullvadvpn.compose.screen
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -39,15 +35,16 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.button.TestMethodButton
-import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorSmall
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.component.textResource
+import net.mullvad.mullvadvpn.compose.destinations.DiscardChangesDialogDestination
 import net.mullvad.mullvadvpn.compose.destinations.SaveApiAccessMethodDestination
 import net.mullvad.mullvadvpn.compose.preview.EditApiAccessMethodUiStateParameterProvider
 import net.mullvad.mullvadvpn.compose.state.ApiAccessMethodTypes
 import net.mullvad.mullvadvpn.compose.state.EditApiAccessFormData
 import net.mullvad.mullvadvpn.compose.state.EditApiAccessMethodUiState
+import net.mullvad.mullvadvpn.compose.state.FormInputField
 import net.mullvad.mullvadvpn.compose.textfield.CustomTextField
 import net.mullvad.mullvadvpn.compose.textfield.mullvadDarkTextFieldColors
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
@@ -55,17 +52,12 @@ import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
 import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
-import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodInvalidDataErrors
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodName
 import net.mullvad.mullvadvpn.lib.model.Cipher
 import net.mullvad.mullvadvpn.lib.model.InvalidDataError
-import net.mullvad.mullvadvpn.lib.model.Port
-import net.mullvad.mullvadvpn.lib.model.TransportProtocol
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.menuItemColors
-import net.mullvad.mullvadvpn.lib.theme.color.selected
-import net.mullvad.mullvadvpn.usecase.TestApiAccessMethodState
 import net.mullvad.mullvadvpn.viewmodel.EditApiAccessMethodViewModel
 import net.mullvad.mullvadvpn.viewmodel.EditApiAccessSideEffect
 import org.koin.androidx.compose.koinViewModel
@@ -86,6 +78,7 @@ fun EditApiAccessMethod(
     navigator: DestinationsNavigator,
     backNavigator: ResultBackNavigator<Boolean>,
     saveApiAccessMethodResultRecipient: ResultRecipient<SaveApiAccessMethodDestination, Boolean>,
+    discardCangesResultRecipient: ResultRecipient<DiscardChangesDialogDestination, Boolean>,
     accessMethodId: ApiAccessMethodId?
 ) {
     val viewModel =
@@ -98,9 +91,14 @@ fun EditApiAccessMethod(
     LaunchedEffectCollect(sideEffect = viewModel.sideEffect) {
         when (it) {
             is EditApiAccessSideEffect.OpenSaveDialog ->
-                navigator.navigate(SaveApiAccessMethodDestination(it.newAccessMethod))
-            EditApiAccessSideEffect.UnableToGetApiAccessMethod ->
+                navigator.navigate(SaveApiAccessMethodDestination(it.newAccessMethod)) {
+                    launchSingleTop = true
+                }
+            is EditApiAccessSideEffect.UnableToGetApiAccessMethod ->
                 backNavigator.navigateBack(result = false)
+            EditApiAccessSideEffect.CLoseScreen -> navigator.navigateUp()
+            EditApiAccessSideEffect.ShowDiscardChangesDialog ->
+                navigator.navigate(DiscardChangesDialogDestination) { launchSingleTop = true }
         }
     }
 
@@ -117,6 +115,12 @@ fun EditApiAccessMethod(
         }
     }
 
+    discardCangesResultRecipient.OnNavResultValue { discardChanges ->
+        if (discardChanges) {
+            navigator.navigateUp()
+        }
+    }
+
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     EditApiAccessMethodScreen(
         state = state,
@@ -124,15 +128,13 @@ fun EditApiAccessMethod(
         onTypeSelected = viewModel::setAccessMethodType,
         onIpChanged = viewModel::updateServerIp,
         onRemotePortChanged = viewModel::updateRemotePort,
-        onLocalPortChanged = viewModel::updateLocalPort,
         onPasswordChanged = viewModel::updatePassword,
         onCipherChange = viewModel::updateCipher,
         onToggleAuthenticationEnabled = viewModel::updateAuthenticationEnabled,
         onUsernameChanged = viewModel::updateUsername,
-        onTransportProtocolChanged = viewModel::updateTransportProtocol,
         onTestMethod = viewModel::testMethod,
         onAddMethod = viewModel::trySave,
-        onNavigateBack = { navigator.navigateUp() }
+        onNavigateBack = viewModel::onNavigateBack
     )
 }
 
@@ -140,16 +142,14 @@ fun EditApiAccessMethod(
 fun EditApiAccessMethodScreen(
     state: EditApiAccessMethodUiState,
     snackbarHostState: SnackbarHostState = SnackbarHostState(),
-    onNameChanged: (ApiAccessMethodName) -> Unit = {},
+    onNameChanged: (String) -> Unit = {},
     onTypeSelected: (ApiAccessMethodTypes) -> Unit = {},
     onIpChanged: (String) -> Unit = {},
-    onRemotePortChanged: (Port?) -> Unit = {},
-    onLocalPortChanged: (Port?) -> Unit = {},
+    onRemotePortChanged: (String) -> Unit = {},
     onPasswordChanged: (String) -> Unit = {},
     onCipherChange: (Cipher) -> Unit = {},
     onToggleAuthenticationEnabled: (Boolean) -> Unit = {},
     onUsernameChanged: (String) -> Unit = {},
-    onTransportProtocolChanged: (TransportProtocol) -> Unit = {},
     onTestMethod: () -> Unit = {},
     onAddMethod: () -> Unit = {},
     onNavigateBack: () -> Unit = {}
@@ -171,36 +171,24 @@ fun EditApiAccessMethodScreen(
                 is EditApiAccessMethodUiState.Loading -> Loading()
                 is EditApiAccessMethodUiState.Content -> {
                     NameInputField(
-                        name = state.formData.name,
-                        error = state.formErrors?.getErrorOrNull<InvalidDataError.NameError>(),
+                        nameFormData = state.formData.name,
                         onNameChanged = onNameChanged
                     )
                     Spacer(modifier = Modifier.height(Dimens.verticalSpace))
                     ApiAccessMethodTypeSelection(state.formData, onTypeSelected)
                     Spacer(modifier = Modifier.height(Dimens.verticalSpace))
-                    when (val formData = state.formData) {
-                        is EditApiAccessFormData.Shadowsocks ->
+                    when (state.formData.apiAccessMethodTypes) {
+                        ApiAccessMethodTypes.SHADOWSOCKS ->
                             ShadowsocksForm(
-                                formData = formData,
-                                errors = state.formErrors,
+                                formData = state.formData,
                                 onIpChanged = onIpChanged,
                                 onPortChanged = onRemotePortChanged,
                                 onPasswordChanged = onPasswordChanged,
                                 onCipherChange = onCipherChange
                             )
-                        is EditApiAccessFormData.Socks5Local ->
-                            Socks5LocalForm(
-                                formData = formData,
-                                errors = state.formErrors,
-                                onLocalPortChanged = onLocalPortChanged,
-                                onRemoteIpChanged = onIpChanged,
-                                onRemotePortChanged = onRemotePortChanged,
-                                onTransportProtocolChanged = onTransportProtocolChanged
-                            )
-                        is EditApiAccessFormData.Socks5Remote ->
+                        ApiAccessMethodTypes.SOCKS5_REMOTE ->
                             Socks5RemoteForm(
-                                formData = formData,
-                                errors = state.formErrors,
+                                formData = state.formData,
                                 onIpChanged = onIpChanged,
                                 onPortChanged = onRemotePortChanged,
                                 onToggleAuthenticationEnabled = onToggleAuthenticationEnabled,
@@ -214,7 +202,7 @@ fun EditApiAccessMethodScreen(
                         onTestMethod = onTestMethod
                     )
                     Spacer(modifier = Modifier.height(Dimens.verticalSpace))
-                    AddMethodButton(onAddMethod = onAddMethod)
+                    AddMethodButton(isNew = !state.editMode, onAddMethod = onAddMethod)
                 }
             }
         }
@@ -225,21 +213,20 @@ fun EditApiAccessMethodScreen(
 
 @Composable
 private fun NameInputField(
-    name: ApiAccessMethodName?,
-    error: InvalidDataError.NameError?,
-    onNameChanged: (ApiAccessMethodName) -> Unit,
+    nameFormData: FormInputField<InvalidDataError.NameError>,
+    onNameChanged: (String) -> Unit,
 ) {
     InputField(
-        value = name?.value ?: "",
+        value = nameFormData.input,
         keyboardType = KeyboardType.Text,
-        onValueChanged = { onNameChanged(ApiAccessMethodName.fromString(it)) },
+        onValueChanged = onNameChanged,
         onSubmit = {},
         placeholderText = stringResource(id = R.string.name),
-        isValidValue = error == null,
+        isValidValue = nameFormData.error == null,
         isDigitsOnlyAllowed = false,
         maxCharLength = ApiAccessMethodName.MAX_LENGTH,
         supportingText =
-            error?.let {
+            nameFormData.error?.let {
                 {
                     Text(
                         text = textResource(id = R.string.this_field_is_required),
@@ -262,7 +249,7 @@ private fun ApiAccessMethodTypeSelection(
         TextField(
             modifier = Modifier.fillMaxWidth().menuAnchor(),
             readOnly = true,
-            value = formData.text(),
+            value = formData.apiAccessMethodTypes.text(),
             onValueChange = {},
             label = { Text(stringResource(id = R.string.type)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
@@ -288,24 +275,19 @@ private fun ApiAccessMethodTypeSelection(
 }
 
 @Composable
-private fun ColumnScope.ShadowsocksForm(
-    formData: EditApiAccessFormData.Shadowsocks,
-    errors: ApiAccessMethodInvalidDataErrors?,
+private fun ShadowsocksForm(
+    formData: EditApiAccessFormData,
     onIpChanged: (String) -> Unit,
-    onPortChanged: (Port?) -> Unit,
+    onPortChanged: (String) -> Unit,
     onPasswordChanged: (String) -> Unit,
     onCipherChange: (Cipher) -> Unit
 ) {
-    ServerIpInput(ip = formData.ip, error = errors?.getErrorOrNull(), onIpChanged = onIpChanged)
+    ServerIpInput(ipFormData = formData.ip, onIpChanged = onIpChanged)
     Spacer(modifier = Modifier.height(Dimens.verticalSpacer))
-    RemotePortInput(
-        port = formData.port,
-        error = errors?.getErrorOrNull(),
-        onPortChanged = onPortChanged
-    )
+    RemotePortInput(portFormData = formData.remotePort, onPortChanged = onPortChanged)
     Spacer(modifier = Modifier.height(Dimens.verticalSpacer))
     PasswordInput(
-        password = formData.password,
+        passwordFormData = formData.password,
         optional = true,
         onPasswordChanged = onPasswordChanged
     )
@@ -314,68 +296,25 @@ private fun ColumnScope.ShadowsocksForm(
 }
 
 @Composable
-private fun ColumnScope.Socks5LocalForm(
-    formData: EditApiAccessFormData.Socks5Local,
-    errors: ApiAccessMethodInvalidDataErrors?,
-    onLocalPortChanged: (Port?) -> Unit,
-    onRemoteIpChanged: (String) -> Unit,
-    onRemotePortChanged: (Port?) -> Unit,
-    onTransportProtocolChanged: (TransportProtocol) -> Unit
-) {
-    LocalPortInput(
-        port = formData.localPort,
-        error = errors?.getErrorOrNull(),
-        onPortChanged = onLocalPortChanged
-    )
-    Spacer(modifier = Modifier.height(Dimens.verticalSpace))
-    ServerIpInput(
-        ip = formData.remoteIp,
-        error = errors?.getErrorOrNull(),
-        onIpChanged = onRemoteIpChanged
-    )
-    Spacer(modifier = Modifier.height(Dimens.verticalSpacer))
-    RemotePortInput(
-        port = formData.remotePort,
-        error = errors?.getErrorOrNull(),
-        onPortChanged = onRemotePortChanged
-    )
-    Spacer(modifier = Modifier.height(Dimens.verticalSpacer))
-    TransportProtocolSelect(
-        transportProtocol = formData.remoteTransportProtocol,
-        onTransportProtocolChanged = onTransportProtocolChanged
-    )
-}
-
-@Composable
-private fun ColumnScope.Socks5RemoteForm(
-    formData: EditApiAccessFormData.Socks5Remote,
-    errors: ApiAccessMethodInvalidDataErrors?,
+private fun Socks5RemoteForm(
+    formData: EditApiAccessFormData,
     onIpChanged: (String) -> Unit,
-    onPortChanged: (Port?) -> Unit,
+    onPortChanged: (String) -> Unit,
     onToggleAuthenticationEnabled: (Boolean) -> Unit,
     onUsernameChanged: (String) -> Unit,
     onPasswordChanged: (String) -> Unit
 ) {
-    ServerIpInput(ip = formData.ip, error = errors?.getErrorOrNull(), onIpChanged = onIpChanged)
+    ServerIpInput(ipFormData = formData.ip, onIpChanged = onIpChanged)
     Spacer(modifier = Modifier.height(Dimens.verticalSpacer))
-    RemotePortInput(
-        port = formData.port,
-        error = errors?.getErrorOrNull(),
-        onPortChanged = onPortChanged
-    )
+    RemotePortInput(portFormData = formData.remotePort, onPortChanged = onPortChanged)
     Spacer(modifier = Modifier.height(Dimens.verticalSpacer))
     EnableAuthentication(formData.enableAuthentication, onToggleAuthenticationEnabled)
     if (formData.enableAuthentication) {
         Spacer(modifier = Modifier.height(Dimens.verticalSpacer))
-        UsernameInput(
-            username = formData.username,
-            error = errors?.getErrorOrNull(),
-            onUsernameChanged = onUsernameChanged
-        )
+        UsernameInput(usernameFormData = formData.username, onUsernameChanged = onUsernameChanged)
         Spacer(modifier = Modifier.height(Dimens.verticalSpacer))
         PasswordInput(
-            password = formData.password,
-            error = errors?.getErrorOrNull(),
+            passwordFormData = formData.password,
             optional = false,
             onPasswordChanged = onPasswordChanged
         )
@@ -384,20 +323,19 @@ private fun ColumnScope.Socks5RemoteForm(
 
 @Composable
 private fun ServerIpInput(
-    ip: String?,
-    error: InvalidDataError.ServerIpError?,
+    ipFormData: FormInputField<InvalidDataError.ServerIpError>,
     onIpChanged: (String) -> Unit
 ) {
     InputField(
-        value = ip ?: "",
+        value = ipFormData.input,
         keyboardType = KeyboardType.Text,
         onValueChanged = onIpChanged,
         onSubmit = {},
         placeholderText = stringResource(id = R.string.server),
-        isValidValue = error == null,
+        isValidValue = ipFormData.error == null,
         isDigitsOnlyAllowed = false,
         supportingText =
-            error?.let {
+            ipFormData.error?.let {
                 {
                     Text(
                         text =
@@ -420,20 +358,19 @@ private fun ServerIpInput(
 
 @Composable
 private fun RemotePortInput(
-    port: Port?,
-    error: InvalidDataError.RemotePortError?,
-    onPortChanged: (Port?) -> Unit
+    portFormData: FormInputField<InvalidDataError.RemotePortError>,
+    onPortChanged: (String) -> Unit
 ) {
     InputField(
-        value = port?.value?.toString() ?: "",
+        value = portFormData.input,
         keyboardType = KeyboardType.Number,
-        onValueChanged = { onPortChanged(it.toPortOrNull()) },
+        onValueChanged = onPortChanged,
         onSubmit = {},
         placeholderText = stringResource(id = R.string.port),
-        isValidValue = error == null,
+        isValidValue = portFormData.error == null,
         isDigitsOnlyAllowed = false,
         supportingText =
-            error?.let {
+            portFormData.error?.let {
                 {
                     Text(
                         text =
@@ -455,50 +392,13 @@ private fun RemotePortInput(
 }
 
 @Composable
-private fun LocalPortInput(
-    port: Port?,
-    error: InvalidDataError.RemotePortError?,
-    onPortChanged: (Port?) -> Unit
-) {
-    InputField(
-        value = port?.value?.toString() ?: "",
-        keyboardType = KeyboardType.Number,
-        onValueChanged = { onPortChanged(it.toPortOrNull()) },
-        onSubmit = {},
-        placeholderText = stringResource(id = R.string.port),
-        isValidValue = error == null,
-        isDigitsOnlyAllowed = false,
-        supportingText =
-            error?.let {
-                {
-                    Text(
-                        text =
-                            textResource(
-                                id =
-                                    when (it) {
-                                        InvalidDataError.RemotePortError.Invalid ->
-                                            R.string.please_enter_a_valid_localhost_port
-                                        InvalidDataError.RemotePortError.Required ->
-                                            R.string.this_field_is_required
-                                    }
-                            ),
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                }
-            },
-    )
-}
-
-@Composable
 private fun PasswordInput(
-    password: String?,
+    passwordFormData: FormInputField<InvalidDataError.PasswordError>,
     optional: Boolean,
-    error: InvalidDataError.PasswordError? = null,
     onPasswordChanged: (String) -> Unit
 ) {
     InputField(
-        value = password ?: "",
+        value = passwordFormData.input,
         keyboardType = KeyboardType.Password,
         onValueChanged = onPasswordChanged,
         onSubmit = {},
@@ -514,7 +414,7 @@ private fun PasswordInput(
         isValidValue = true,
         isDigitsOnlyAllowed = false,
         supportingText =
-            error?.let {
+            passwordFormData.error?.let {
                 {
                     Text(
                         text = textResource(id = R.string.this_field_is_required),
@@ -612,20 +512,19 @@ private fun EnableAuthentication(
 
 @Composable
 private fun UsernameInput(
-    username: String?,
-    error: InvalidDataError.UserNameError?,
+    usernameFormData: FormInputField<InvalidDataError.UserNameError>,
     onUsernameChanged: (String) -> Unit,
 ) {
     InputField(
-        value = username ?: "",
+        value = usernameFormData.input,
         keyboardType = KeyboardType.Text,
         onValueChanged = onUsernameChanged,
         onSubmit = {},
         placeholderText = stringResource(id = R.string.username),
-        isValidValue = error == null,
+        isValidValue = usernameFormData.error == null,
         isDigitsOnlyAllowed = false,
         supportingText =
-            error?.let {
+            usernameFormData.error?.let {
                 {
                     Text(
                         text = textResource(id = R.string.this_field_is_required),
@@ -637,45 +536,20 @@ private fun UsernameInput(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun TransportProtocolSelect(
-    transportProtocol: TransportProtocol,
-    onTransportProtocolChanged: (TransportProtocol) -> Unit
-) {
-    var expanded by remember { mutableStateOf(false) }
-    ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
-        TextField(
-            modifier = Modifier.fillMaxWidth().menuAnchor(),
-            readOnly = true,
-            value = transportProtocol.text(),
-            onValueChange = {},
-            label = { Text(stringResource(id = R.string.transport_protocol)) },
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-            colors = mullvadDarkTextFieldColors()
-        )
-        ExposedDropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-            modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainer)
-        ) {
-            TransportProtocol.entries.forEach {
-                DropdownMenuItem(
-                    colors = menuItemColors,
-                    text = { Text(text = it.text()) },
-                    onClick = {
-                        onTransportProtocolChanged(it)
-                        expanded = false
-                    },
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun AddMethodButton(onAddMethod: () -> Unit) {
-    PrimaryButton(onClick = onAddMethod, text = stringResource(id = R.string.add))
+private fun AddMethodButton(isNew: Boolean, onAddMethod: () -> Unit) {
+    PrimaryButton(
+        onClick = onAddMethod,
+        text =
+            stringResource(
+                id =
+                    if (isNew) {
+                        R.string.add
+                    } else {
+                        R.string.save
+                    }
+            )
+    )
 }
 
 @Composable
@@ -705,32 +579,11 @@ private fun InputField(
 }
 
 @Composable
-private fun EditApiAccessFormData.text(): String =
-    stringResource(
-        id =
-            when (this) {
-                is EditApiAccessFormData.Socks5Local -> R.string.socks5_local
-                is EditApiAccessFormData.Socks5Remote -> R.string.socks5_remote
-                is EditApiAccessFormData.Shadowsocks -> R.string.shadowsocks
-            }
-    )
-
-@Composable
 private fun ApiAccessMethodTypes.text(): String =
     stringResource(
         id =
             when (this) {
                 ApiAccessMethodTypes.SHADOWSOCKS -> R.string.shadowsocks
-                ApiAccessMethodTypes.SOCKS5_LOCAL -> R.string.socks5_local
                 ApiAccessMethodTypes.SOCKS5_REMOTE -> R.string.socks5_remote
             },
     )
-
-@Composable
-private fun TransportProtocol.text(): String =
-    when (this) {
-        TransportProtocol.Tcp -> stringResource(id = R.string.tcp)
-        TransportProtocol.Udp -> stringResource(id = R.string.udp)
-    }
-
-fun String.toPortOrNull() = toIntOrNull()?.let { Port(it) }

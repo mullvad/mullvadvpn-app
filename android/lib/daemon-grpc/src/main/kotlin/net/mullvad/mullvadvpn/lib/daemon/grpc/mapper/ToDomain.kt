@@ -549,8 +549,8 @@ internal fun ManagementInterface.AccessMethod.toDomain(): ApiAccessMethodType =
 internal fun ManagementInterface.CustomProxy.toDomain(): ApiAccessMethodType.CustomProxy =
     when {
         hasShadowsocks() -> shadowsocks.toDomain()
-        hasSocks5Local() -> socks5Local.toDomain()
         hasSocks5Remote() -> socks5Remote.toDomain()
+        hasSocks5Local() -> error("Socks5 local not supported")
         else -> error("Custom proxy not found")
     }
 
@@ -561,15 +561,6 @@ internal fun ManagementInterface.Shadowsocks.toDomain():
         port = Port(port),
         password = password,
         cipher = Cipher.fromString(cipher)
-    )
-
-internal fun ManagementInterface.Socks5Local.toDomain():
-    ApiAccessMethodType.CustomProxy.Socks5Local =
-    ApiAccessMethodType.CustomProxy.Socks5Local(
-        remoteIp = remoteIp,
-        remotePort = Port(remotePort),
-        remoteTransportProtocol = remoteTransportProtocol.toDomain(),
-        localPort = Port(localPort)
     )
 
 internal fun ManagementInterface.Socks5Remote.toDomain():
