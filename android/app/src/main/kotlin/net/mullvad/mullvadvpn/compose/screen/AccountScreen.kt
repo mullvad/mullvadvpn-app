@@ -55,6 +55,7 @@ import net.mullvad.mullvadvpn.compose.transitions.SlideInFromBottomTransition
 import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
 import net.mullvad.mullvadvpn.compose.util.SecureScreenWhileInView
 import net.mullvad.mullvadvpn.compose.util.createCopyToClipboardHandle
+import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
@@ -76,7 +77,7 @@ private fun PreviewAccountScreen() {
             state =
                 AccountUiState(
                     deviceName = "Test Name",
-                    accountNumber = "1234123412341234",
+                    accountNumber = AccountNumber("1234123412341234"),
                     accountExpiry = null,
                     showSitePayment = true,
                     billingPaymentState =
@@ -201,7 +202,10 @@ fun AccountScreen(
                     onInfoClick = navigateToDeviceInfo
                 )
 
-                AccountNumberRow(accountNumber = state.accountNumber ?: "", onCopyAccountNumber)
+                AccountNumberRow(
+                    accountNumber = state.accountNumber?.value ?: "",
+                    onCopyAccountNumber
+                )
 
                 PaidUntilRow(accountExpiry = state.accountExpiry)
             }
