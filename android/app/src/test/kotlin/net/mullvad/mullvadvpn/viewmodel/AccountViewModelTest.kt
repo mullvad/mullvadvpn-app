@@ -39,17 +39,20 @@ class AccountViewModelTest {
     private val mockDeviceRepository: DeviceRepository = mockk(relaxUnitFun = true)
     private val mockPaymentUseCase: PaymentUseCase = mockk(relaxed = true)
 
-    private val deviceState: MutableStateFlow<DeviceState?> = MutableStateFlow(null)
-    private val paymentAvailability = MutableStateFlow<PaymentAvailability?>(null)
-    private val purchaseResult = MutableStateFlow<PurchaseResult?>(null)
-    private val accountExpiryState = MutableStateFlow(null)
-
     private val dummyDevice =
         Device(id = DeviceId.fromString(UUID), name = "fake_name", creationDate = DateTime.now())
     private val dummyAccountToken: AccountToken =
         AccountToken(
             DUMMY_DEVICE_NAME,
         )
+
+    private val deviceState: MutableStateFlow<DeviceState?> =
+        MutableStateFlow(
+            DeviceState.LoggedIn(accountToken = dummyAccountToken, device = dummyDevice)
+        )
+    private val paymentAvailability = MutableStateFlow<PaymentAvailability?>(null)
+    private val purchaseResult = MutableStateFlow<PurchaseResult?>(null)
+    private val accountExpiryState = MutableStateFlow(null)
 
     private lateinit var viewModel: AccountViewModel
 
@@ -80,11 +83,10 @@ class AccountViewModelTest {
     fun `given device state LoggedIn uiState should contain accountNumber`() = runTest {
         // Act, Assert
         viewModel.uiState.test {
-            awaitItem() // Default state
             deviceState.value =
                 DeviceState.LoggedIn(accountToken = dummyAccountToken, device = dummyDevice)
             val result = awaitItem()
-            assertEquals(DUMMY_DEVICE_NAME, result.accountNumber)
+            assertEquals(dummyAccountToken, result.accountToken)
         }
     }
 
@@ -100,8 +102,6 @@ class AccountViewModelTest {
     @Test
     fun `when paymentAvailability emits ProductsUnavailable uiState should be NoPayment`() =
         runTest {
-            // Arrange in setup
-
             // Act, Assert
             viewModel.uiState.test {
                 awaitItem() // Default state

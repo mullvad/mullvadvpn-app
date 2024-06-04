@@ -7,10 +7,16 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.PaymentState
+import net.mullvad.mullvadvpn.lib.model.AccountData
+import net.mullvad.mullvadvpn.lib.model.AccountToken
+import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
@@ -30,13 +36,19 @@ class AccountViewModel(
 
     val uiState: StateFlow<AccountUiState> =
         combine(
-                deviceRepository.deviceState,
-                accountRepository.accountData,
+                deviceRepository.deviceState.filterIsInstance<DeviceState.LoggedIn>(),
+                accountRepository.accountData
+                    .scan(accountRepository.accountData.value) {
+                        acc: AccountData?,
+                        newEvent: AccountData? ->
+                        newEvent ?: acc
+                    }
+                    .distinctUntilChanged(),
                 paymentUseCase.paymentAvailability
             ) { deviceState, accountData, paymentAvailability ->
                 AccountUiState(
-                    deviceName = deviceState?.displayName() ?: "",
-                    accountNumber = deviceState?.token()?.value ?: "",
+                    deviceName = deviceState.device.displayName(),
+                    accountToken = deviceState.accountToken,
                     accountExpiry = accountData?.expiryDate,
                     showSitePayment = !isPlayBuild,
                     billingPaymentState = paymentAvailability?.toPaymentState()
@@ -115,7 +127,7 @@ class AccountViewModel(
 
 data class AccountUiState(
     val deviceName: String?,
-    val accountNumber: String?,
+    val accountToken: AccountToken?,
     val accountExpiry: DateTime?,
     val showSitePayment: Boolean,
     val billingPaymentState: PaymentState? = null,
@@ -124,7 +136,7 @@ data class AccountUiState(
         fun default() =
             AccountUiState(
                 deviceName = null,
-                accountNumber = null,
+                accountToken = null,
                 accountExpiry = null,
                 showSitePayment = false,
                 billingPaymentState = PaymentState.Loading,

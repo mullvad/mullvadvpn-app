@@ -23,6 +23,7 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -55,6 +56,7 @@ import net.mullvad.mullvadvpn.compose.transitions.SlideInFromBottomTransition
 import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
 import net.mullvad.mullvadvpn.compose.util.SecureScreenWhileInView
 import net.mullvad.mullvadvpn.compose.util.createCopyToClipboardHandle
+import net.mullvad.mullvadvpn.lib.model.AccountToken
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
@@ -76,7 +78,7 @@ private fun PreviewAccountScreen() {
             state =
                 AccountUiState(
                     deviceName = "Test Name",
-                    accountNumber = "1234123412341234",
+                    accountToken = AccountToken("1234123412341234"),
                     accountExpiry = null,
                     showSitePayment = true,
                     billingPaymentState =
@@ -201,7 +203,10 @@ fun AccountScreen(
                     onInfoClick = navigateToDeviceInfo
                 )
 
-                AccountNumberRow(accountNumber = state.accountNumber ?: "", onCopyAccountNumber)
+                AccountNumberRow(
+                    accountNumber = state.accountToken?.value ?: "",
+                    onCopyAccountNumber
+                )
 
                 PaidUntilRow(accountExpiry = state.accountExpiry)
             }
