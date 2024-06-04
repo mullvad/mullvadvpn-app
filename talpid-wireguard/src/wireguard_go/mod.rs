@@ -144,8 +144,8 @@ impl WgGoTunnel {
         tunnel_device: &mut Tun,
         handle: i32,
     ) -> std::result::Result<(), TunProviderError> {
-        let socket_v4 = unsafe { wgGetSocketV4(handle) };
-        let socket_v6 = unsafe { wgGetSocketV6(handle) };
+        let socket_v4 = self.tunnel_handle.get_socket_v4();
+        let socket_v6 = self.tunnel_handle.get_socket_v6();
 
         tunnel_device.bypass(socket_v4)?;
         tunnel_device.bypass(socket_v6)?;
@@ -226,8 +226,8 @@ impl Tunnel for WgGoTunnel {
             // and needs to be excluded again
             #[cfg(target_os = "android")]
             {
-                let socket_v4 = unsafe { wgGetSocketV4(handle) };
-                let socket_v6 = unsafe { wgGetSocketV6(handle) };
+                let socket_v4 = self.tunnel_handle.get_socket_v4();
+                let socket_v6 = self.tunnel_handle.get_socket_v6();
                 let mut provider = tun_provider.lock().unwrap();
                 provider
                     .bypass(socket_v4)
