@@ -8,6 +8,7 @@ import androidx.compose.ui.test.onNodeWithText
 import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.viewmodel.DnsDialogViewState
+import net.mullvad.mullvadvpn.viewmodel.ValidationError
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 
@@ -19,8 +20,8 @@ class DnsDialogTest {
 
     private val defaultState =
         DnsDialogViewState(
-            ipAddress = "",
-            validationResult = DnsDialogViewState.ValidationResult.Success,
+            input = "",
+            validationError = null,
             isLocal = false,
             isAllowLanEnabled = false,
             index = null
@@ -93,8 +94,8 @@ class DnsDialogTest {
             setContentWithTheme {
                 testDnsDialog(
                     defaultState.copy(
-                        ipAddress = invalidIpAddress,
-                        validationResult = DnsDialogViewState.ValidationResult.InvalidAddress,
+                        input = invalidIpAddress,
+                        validationError = ValidationError.InvalidAddress,
                     )
                 )
             }
@@ -110,8 +111,8 @@ class DnsDialogTest {
             setContentWithTheme {
                 testDnsDialog(
                     defaultState.copy(
-                        ipAddress = "192.168.0.1",
-                        validationResult = DnsDialogViewState.ValidationResult.DuplicateAddress,
+                        input = "192.168.0.1",
+                        validationError = ValidationError.DuplicateAddress,
                     )
                 )
             }
