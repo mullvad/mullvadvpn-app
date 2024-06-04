@@ -28,6 +28,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
@@ -38,6 +39,7 @@ import net.mullvad.mullvadvpn.compose.cell.NavigationComposeCell
 import net.mullvad.mullvadvpn.compose.cell.SwitchComposeSubtitleCell
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
+import net.mullvad.mullvadvpn.compose.destinations.DeleteApiAccessMethodConfirmationDestination
 import net.mullvad.mullvadvpn.compose.destinations.EditApiAccessMethodDestination
 import net.mullvad.mullvadvpn.compose.preview.ApiAccessMethodDetailsUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.ApiAccessMethodDetailsUiState
@@ -45,6 +47,7 @@ import net.mullvad.mullvadvpn.compose.test.DELETE_DROPDOWN_MENU_ITEM_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.TOP_BAR_DROPDOWN_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
+import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -66,7 +69,12 @@ fun PreviewApiAccessMethodDetailsScreen(
 
 @Destination(style = SlideInFromRightTransition::class)
 @Composable
-fun ApiAccessMethodDetails(navigator: DestinationsNavigator, accessMethodId: ApiAccessMethodId) {
+fun ApiAccessMethodDetails(
+    navigator: DestinationsNavigator,
+    accessMethodId: ApiAccessMethodId,
+    confirmDeleteListResultRecipient:
+        ResultRecipient<DeleteApiAccessMethodConfirmationDestination, Boolean>
+) {
     val viewModel =
         koinViewModel<ApiAccessMethodDetailsViewModel>(
             parameters = { parametersOf(accessMethodId) }
@@ -77,7 +85,6 @@ fun ApiAccessMethodDetails(navigator: DestinationsNavigator, accessMethodId: Api
 
     LaunchedEffectCollect(sideEffect = viewModel.uiSideEffect) {
         when (it) {
-            ApiAccessMethodDetailsSideEffect.CloseScreen -> navigator.navigateUp()
             ApiAccessMethodDetailsSideEffect.GenericError ->
                 launch {
                     snackbarHostState.showSnackbarImmediately(
@@ -85,8 +92,14 @@ fun ApiAccessMethodDetails(navigator: DestinationsNavigator, accessMethodId: Api
                     )
                 }
             is ApiAccessMethodDetailsSideEffect.OpenEditPage ->
-                navigator.navigate(EditApiAccessMethodDestination(it.apiAccessMethodId))
+                navigator.navigate(EditApiAccessMethodDestination(it.apiAccessMethodId)) {
+                    launchSingleTop = true
+                }
         }
+    }
+
+    confirmDeleteListResultRecipient.OnNavResultValue {
+        navigator.navigateUp()
     }
 
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -97,7 +110,11 @@ fun ApiAccessMethodDetails(navigator: DestinationsNavigator, accessMethodId: Api
         onEnableClicked = viewModel::setEnableMethod,
         onTestMethodClicked = viewModel::testMethod,
         onUseMethodClicked = viewModel::setCurrentMethod,
-        onDeleteListClicked = viewModel::delete,
+        onDeleteApiAccessMethodClicked = {
+            navigator.navigate(DeleteApiAccessMethodConfirmationDestination(it)) {
+                launchSingleTop = true
+            }
+        },
         onBackClicked = navigator::navigateUp
     )
 }
@@ -110,7 +127,7 @@ fun ApiAccessMethodDetailsScreen(
     onEnableClicked: (Boolean) -> Unit = {},
     onTestMethodClicked: () -> Unit = {},
     onUseMethodClicked: () -> Unit = {},
-    onDeleteListClicked: () -> Unit = {},
+    onDeleteApiAccessMethodClicked: (ApiAccessMethodId) -> Unit = {},
     onBackClicked: () -> Unit = {}
 ) {
     ScaffoldWithMediumTopBar(
@@ -119,13 +136,17 @@ fun ApiAccessMethodDetailsScreen(
         snackbarHostState = snackbarHostState,
         actions = {
             if (state.canBeEdited()) {
-                Actions(onDeleteList = onDeleteListClicked)
+                Actions(
+                    onDeleteAccessMethod = {
+                        onDeleteApiAccessMethodClicked(state.apiAccessMethodId)
+                    }
+                )
             }
         }
     ) { modifier: Modifier ->
         Column(modifier = modifier) {
             when (state) {
-                ApiAccessMethodDetailsUiState.Loading -> Loading()
+                is ApiAccessMethodDetailsUiState.Loading -> Loading()
                 is ApiAccessMethodDetailsUiState.Content ->
                     Content(
                         state = state,
@@ -186,7 +207,7 @@ private fun Content(
 }
 
 @Composable
-private fun Actions(onDeleteList: () -> Unit) {
+private fun Actions(onDeleteAccessMethod: () -> Unit) {
     var showMenu by remember { mutableStateOf(false) }
     IconButton(
         onClick = { showMenu = true },
@@ -209,7 +230,7 @@ private fun Actions(onDeleteList: () -> Unit) {
                     },
                     colors = menuItemColors,
                     onClick = {
-                        onDeleteList()
+                        onDeleteAccessMethod()
                         showMenu = false
                     },
                     modifier = Modifier.testTag(DELETE_DROPDOWN_MENU_ITEM_TEST_TAG)

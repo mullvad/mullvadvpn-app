@@ -55,6 +55,7 @@ import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
 import net.mullvad.mullvadvpn.viewmodel.CreateCustomListDialogViewModel
 import net.mullvad.mullvadvpn.viewmodel.CustomListLocationsViewModel
 import net.mullvad.mullvadvpn.viewmodel.CustomListsViewModel
+import net.mullvad.mullvadvpn.viewmodel.DeleteApiAccessMethodConfirmationViewModel
 import net.mullvad.mullvadvpn.viewmodel.DeleteCustomListConfirmationViewModel
 import net.mullvad.mullvadvpn.viewmodel.DeviceListViewModel
 import net.mullvad.mullvadvpn.viewmodel.DeviceRevokedViewModel
@@ -217,6 +218,9 @@ val uiModule = module {
     }
     viewModel { (accessMethodId: ApiAccessMethodId) ->
         ApiAccessMethodDetailsViewModel(accessMethodId, get(), get())
+    }
+    viewModel { (accessMethodId: ApiAccessMethodId) ->
+        DeleteApiAccessMethodConfirmationViewModel(accessMethodId, get())
     }
 
     // This view model must be single so we correctly attach lifecycle and share it with activity
