@@ -153,7 +153,7 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol {
         nslock.unlock()
 
         DispatchQueue.main.async {
-            self.observerList.forEach { observer in
+            self.observerList.notify { observer in
                 observer.relayCacheTracker(self, didUpdateCachedRelays: newCachedRelays)
             }
         }

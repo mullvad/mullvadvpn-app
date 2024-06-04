@@ -57,7 +57,7 @@ public struct TransportStrategy: Equatable {
         let configuration = accessMethodIterator.pick()
         switch configuration.kind {
         case .bridges:
-            try? shadowsocksLoader.reloadConfiguration()
+            try? shadowsocksLoader.clear()
             fallthrough
         default:
             self.accessMethodIterator.rotate()

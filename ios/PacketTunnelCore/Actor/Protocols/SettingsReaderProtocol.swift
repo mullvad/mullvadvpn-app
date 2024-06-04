@@ -42,13 +42,17 @@ public struct Settings {
 
     public var quantumResistance: TunnelQuantumResistance
 
+    /// Whether multi-hop is enabled.
+    public var multihopState: MultihopState
+
     public init(
         privateKey: PrivateKey,
         interfaceAddresses: [IPAddressRange],
         relayConstraints: RelayConstraints,
         dnsServers: SelectedDNSServers,
         obfuscation: WireGuardObfuscationSettings,
-        quantumResistance: TunnelQuantumResistance
+        quantumResistance: TunnelQuantumResistance,
+        multihopState: MultihopState
     ) {
         self.privateKey = privateKey
         self.interfaceAddresses = interfaceAddresses
@@ -56,6 +60,7 @@ public struct Settings {
         self.dnsServers = dnsServers
         self.obfuscation = obfuscation
         self.quantumResistance = quantumResistance
+        self.multihopState = multihopState
     }
 }
 

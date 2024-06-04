@@ -1,15 +1,15 @@
 //
-//  TunnelSettingsV4.swift
+//  TunnelSettingsV5.swift
 //  MullvadSettings
 //
-//  Created by Marco Nikic on 2024-02-06.
+//  Created by Mojgan on 2024-05-13.
 //  Copyright © 2024 Mullvad VPN AB. All rights reserved.
 //
 
 import Foundation
 import MullvadTypes
 
-public struct TunnelSettingsV4: Codable, Equatable, TunnelSettings {
+public struct TunnelSettingsV5: Codable, Equatable, TunnelSettings {
     /// Relay constraints.
     public var relayConstraints: RelayConstraints
 
@@ -22,25 +22,25 @@ public struct TunnelSettingsV4: Codable, Equatable, TunnelSettings {
     /// Whether Post Quantum exchanges are enabled.
     public var tunnelQuantumResistance: TunnelQuantumResistance
 
+    /// Whether Multi-hop is enabled.
+    public var tunnelMultihopState: MultihopState
+
     public init(
         relayConstraints: RelayConstraints = RelayConstraints(),
         dnsSettings: DNSSettings = DNSSettings(),
         wireGuardObfuscation: WireGuardObfuscationSettings = WireGuardObfuscationSettings(),
-        tunnelQuantumResistance: TunnelQuantumResistance = .automatic
+        tunnelQuantumResistance: TunnelQuantumResistance = .automatic,
+        tunnelMultihopState: MultihopState = .off
+
     ) {
         self.relayConstraints = relayConstraints
         self.dnsSettings = dnsSettings
         self.wireGuardObfuscation = wireGuardObfuscation
         self.tunnelQuantumResistance = tunnelQuantumResistance
+        self.tunnelMultihopState = tunnelMultihopState
     }
 
     public func upgradeToNextVersion() -> any TunnelSettings {
-        TunnelSettingsV5(
-            relayConstraints: relayConstraints,
-            dnsSettings: dnsSettings,
-            wireGuardObfuscation: wireGuardObfuscation,
-            tunnelQuantumResistance: tunnelQuantumResistance,
-            tunnelMultihopState: .off
-        )
+        self
     }
 }

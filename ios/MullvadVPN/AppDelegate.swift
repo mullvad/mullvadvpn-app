@@ -40,7 +40,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     private(set) var relayCacheTracker: RelayCacheTracker!
     private(set) var storePaymentManager: StorePaymentManager!
     private var transportMonitor: TransportMonitor!
-    private var relayConstraintsObserver: TunnelBlockObserver!
+    private var settingsObserver: TunnelBlockObserver!
     private let migrationManager = MigrationManager()
 
     private(set) var accessMethodRepository = AccessMethodRepository()
@@ -90,10 +90,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         tunnelManager = createTunnelManager(application: application)
 
         let constraintsUpdater = RelayConstraintsUpdater()
-        relayConstraintsObserver = TunnelBlockObserver(didUpdateTunnelSettings: { _, settings in
+        let multihopListener = MultihopStateListener()
+        let multihopUpdater = MultihopUpdater(listener: multihopListener)
+        let multihopState = (try? SettingsManager.readSettings().tunnelMultihopState) ?? .off
+
+        settingsObserver = TunnelBlockObserver(didUpdateTunnelSettings: { _, settings in
+            multihopListener.onNewMultihop?(settings.tunnelMultihopState)
             constraintsUpdater.onNewConstraints?(settings.relayConstraints)
         })
-        tunnelManager.addObserver(relayConstraintsObserver)
+        tunnelManager.addObserver(settingsObserver)
 
         storePaymentManager = StorePaymentManager(
             backgroundTaskProvider: application,
@@ -102,13 +107,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             accountsProxy: accountsProxy,
             transactionLog: .default
         )
-
         let urlSessionTransport = URLSessionTransport(urlSession: REST.makeURLSession())
         let shadowsocksCache = ShadowsocksConfigurationCache(cacheDirectory: containerURL)
+        let shadowsocksRelaySelector = ShadowsocksRelaySelector(
+            relayCache: ipOverrideWrapper,
+            multihopUpdater: multihopUpdater,
+            multihopState: multihopState
+        )
 
         shadowsocksLoader = ShadowsocksLoader(
-            shadowsocksCache: shadowsocksCache,
-            relayCache: ipOverrideWrapper,
+            cache: shadowsocksCache,
+            relaySelector: shadowsocksRelaySelector,
             constraintsUpdater: constraintsUpdater
         )
 
