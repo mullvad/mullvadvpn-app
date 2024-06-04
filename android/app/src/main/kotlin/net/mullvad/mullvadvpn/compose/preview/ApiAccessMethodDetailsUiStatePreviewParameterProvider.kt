@@ -7,11 +7,12 @@ class ApiAccessMethodDetailsUiStatePreviewParameterProvider :
     PreviewParameterProvider<ApiAccessMethodDetailsUiState> {
     override val values: Sequence<ApiAccessMethodDetailsUiState> =
         sequenceOf(
-            ApiAccessMethodDetailsUiState.Loading,
+            ApiAccessMethodDetailsUiState.Loading(shadowsocks.id),
             // Non-editable api access type
             defaultAccessMethods[0].let {
                 ApiAccessMethodDetailsUiState.Content(
-                    it.name,
+                    apiAccessMethodId = it.id,
+                    name = it.name,
                     enabled = it.enabled,
                     canBeEdited = false,
                     currentMethod = false,
@@ -22,7 +23,8 @@ class ApiAccessMethodDetailsUiStatePreviewParameterProvider :
             // Editable api access type, current method, can not be disabled
             shadowsocks.let {
                 ApiAccessMethodDetailsUiState.Content(
-                    it.name,
+                    apiAccessMethodId = it.id,
+                    name = it.name,
                     enabled = it.enabled,
                     canBeEdited = true,
                     currentMethod = true,
