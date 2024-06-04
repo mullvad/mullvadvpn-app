@@ -92,10 +92,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             protocolObfuscator: ProtocolObfuscator<UDPOverTCPObfuscator>()
         )
 
-        postQuantumActor = PostQuantumKeyExchangeActor(
-            packetTunnel: self,
-            onFailure: self.keyExchangeFailed
-        )
+        postQuantumActor = PostQuantumKeyExchangeActor(packetTunnel: self, onFailure: self.keyExchangeFailed)
 
         let urlRequestProxy = URLRequestProxy(dispatchQueue: internalQueue, transportProvider: transportProvider)
         appMessageHandler = AppMessageHandler(packetTunnelActor: actor, urlRequestProxy: urlRequestProxy)
