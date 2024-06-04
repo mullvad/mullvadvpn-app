@@ -1,10 +1,7 @@
 package net.mullvad.mullvadvpn.compose.state
 
-import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodInvalidDataErrors
-import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodName
 import net.mullvad.mullvadvpn.lib.model.Cipher
-import net.mullvad.mullvadvpn.lib.model.Port
-import net.mullvad.mullvadvpn.lib.model.TransportProtocol
+import net.mullvad.mullvadvpn.lib.model.InvalidDataError
 import net.mullvad.mullvadvpn.usecase.TestApiAccessMethodState
 
 sealed interface EditApiAccessMethodUiState {
@@ -15,120 +12,82 @@ sealed interface EditApiAccessMethodUiState {
     data class Content(
         override val editMode: Boolean,
         val formData: EditApiAccessFormData,
-        val formErrors: ApiAccessMethodInvalidDataErrors?,
         val testMethodState: TestApiAccessMethodState?
     ) : EditApiAccessMethodUiState
 }
 
-sealed interface EditApiAccessFormData {
-    val name: ApiAccessMethodName?
+data class EditApiAccessFormData(
+    val name: FormInputField<InvalidDataError.NameError>,
+    val apiAccessMethodTypes: ApiAccessMethodTypes,
+    val ip: FormInputField<InvalidDataError.ServerIpError>,
+    val remotePort: FormInputField<InvalidDataError.RemotePortError>,
+    val enableAuthentication: Boolean,
+    val username: FormInputField<InvalidDataError.UserNameError>,
+    val password: FormInputField<InvalidDataError.PasswordError>,
+    val cipher: Cipher
+) {
 
-    data class Socks5Local(
-        override val name: ApiAccessMethodName? = null,
-        val remoteIp: String? = null,
-        val remotePort: Port? = null,
-        val remoteTransportProtocol: TransportProtocol,
-        val localPort: Port? = null
-    ) : EditApiAccessFormData
+    fun updateName(name: String) = copy(name = FormInputField(name))
 
-    data class Socks5Remote(
-        override val name: ApiAccessMethodName? = null,
-        val ip: String? = null,
-        val port: Port? = null,
-        val enableAuthentication: Boolean,
-        val username: String? = null,
-        val password: String? = null
-    ) : EditApiAccessFormData
+    fun updateServerIp(ip: String) = copy(ip = FormInputField(ip))
 
-    data class Shadowsocks(
-        override val name: ApiAccessMethodName? = null,
-        val ip: String? = null,
-        val port: Port? = null,
-        val password: String? = null,
-        val cipher: Cipher
-    ) : EditApiAccessFormData
+    fun updateRemotePort(port: String) = copy(remotePort = FormInputField(port))
 
-    fun updateName(name: ApiAccessMethodName) =
-        when (this) {
-            is Shadowsocks -> copy(name = name)
-            is Socks5Local -> copy(name = name)
-            is Socks5Remote -> copy(name = name)
-        }
+    fun updatePassword(password: String) = copy(password = FormInputField(password))
 
-    fun updateServerIp(ip: String) =
-        when (this) {
-            is Shadowsocks -> copy(ip = ip)
-            is Socks5Local -> copy(remoteIp = ip)
-            is Socks5Remote -> copy(ip = ip)
-        }
-
-    fun updateRemotePort(port: Port?) =
-        when (this) {
-            is Shadowsocks -> copy(port = port)
-            is Socks5Local -> copy(remotePort = port)
-            is Socks5Remote -> copy(port = port)
-        }
-
-    fun updateLocalPort(port: Port?) =
-        when (this) {
-            is Socks5Local -> copy(localPort = port)
-            is Shadowsocks,
-            is Socks5Remote -> error("$this does not have local port")
-        }
-
-    fun updatePassword(password: String) =
-        when (this) {
-            is Socks5Local -> error("$this does not have password")
-            is Shadowsocks -> copy(password = password)
-            is Socks5Remote -> copy(password = password)
-        }
-
-    fun updateCipher(cipher: Cipher) =
-        when (this) {
-            is Socks5Local,
-            is Socks5Remote -> error("$this does not have cipher")
-            is Shadowsocks -> copy(cipher = cipher)
-        }
+    fun updateCipher(cipher: Cipher) = copy(cipher = cipher)
 
     fun updateAuthenticationEnabled(enableAuthentication: Boolean) =
-        when (this) {
-            is Socks5Local,
-            is Shadowsocks -> error("$this does not have enable authentication")
-            is Socks5Remote -> copy(enableAuthentication = enableAuthentication)
-        }
+        copy(enableAuthentication = enableAuthentication)
 
-    fun updateUsername(username: String) =
-        when (this) {
-            is Socks5Local,
-            is Shadowsocks -> error("$this does not have username")
-            is Socks5Remote -> copy(username = username)
-        }
+    fun updateUsername(username: String) = copy(username = FormInputField(username))
 
-    fun updateTransportProtocol(transportProtocol: TransportProtocol) =
-        when (this) {
-            is Socks5Local -> copy(remoteTransportProtocol = transportProtocol)
-            is Shadowsocks,
-            is Socks5Remote -> error("$this does not have transport protocol")
+    fun updateWithErrors(errors: List<InvalidDataError>): EditApiAccessFormData {
+        var ret = this
+        errors.forEach { ret = ret.setError(it) }
+        return ret
+    }
+
+    private fun setError(error: InvalidDataError) =
+        when (error) {
+            is InvalidDataError.NameError -> copy(name = name.copy(error = error))
+            is InvalidDataError.PasswordError -> copy(password = password.copy(error = error))
+            is InvalidDataError.RemotePortError -> copy(remotePort = remotePort.copy(error = error))
+            is InvalidDataError.ServerIpError -> copy(ip = ip.copy(error = error))
+            is InvalidDataError.UserNameError -> copy(username = username.copy(error = error))
         }
 
     companion object {
-        // Default values
-        fun empty() = Shadowsocks(cipher = Cipher.first())
-
-        fun emptyFromTypeAndName(type: ApiAccessMethodTypes, name: ApiAccessMethodName?) =
-            when (type) {
-                ApiAccessMethodTypes.SHADOWSOCKS ->
-                    Shadowsocks(name = name, cipher = Cipher.first())
-                ApiAccessMethodTypes.SOCKS5_LOCAL ->
-                    Socks5Local(name = name, remoteTransportProtocol = TransportProtocol.Tcp)
-                ApiAccessMethodTypes.SOCKS5_REMOTE ->
-                    Socks5Remote(name = name, enableAuthentication = false)
-            }
+        fun default(
+            name: String = "",
+            apiAccessMethodTypes: ApiAccessMethodTypes = ApiAccessMethodTypes.default(),
+            ip: String = "",
+            remotePort: String = "",
+            enableAuthentication: Boolean = false,
+            username: String = "",
+            password: String = "",
+            cipher: Cipher = Cipher.first()
+        ) =
+            EditApiAccessFormData(
+                name = FormInputField(name),
+                apiAccessMethodTypes = apiAccessMethodTypes,
+                ip = FormInputField(ip),
+                remotePort = FormInputField(remotePort),
+                enableAuthentication = enableAuthentication,
+                username = FormInputField(username),
+                password = FormInputField(password),
+                cipher = cipher
+            )
     }
 }
 
+data class FormInputField<T>(val input: String, val error: T? = null)
+
 enum class ApiAccessMethodTypes {
-    SOCKS5_LOCAL,
     SOCKS5_REMOTE,
-    SHADOWSOCKS
+    SHADOWSOCKS;
+
+    companion object {
+        fun default(): ApiAccessMethodTypes = SHADOWSOCKS
+    }
 }

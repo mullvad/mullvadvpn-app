@@ -10,14 +10,6 @@ sealed interface ApiAccessMethodType : Parcelable {
 
     sealed interface CustomProxy : ApiAccessMethodType {
         @Parcelize
-        data class Socks5Local(
-            val remoteIp: String,
-            val remotePort: Port,
-            val remoteTransportProtocol: TransportProtocol,
-            val localPort: Port
-        ) : CustomProxy
-
-        @Parcelize
         data class Socks5Remote(val ip: String, val port: Port, val auth: SocksAuth?) : CustomProxy
 
         @Parcelize
