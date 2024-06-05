@@ -1,5 +1,7 @@
 package net.mullvad.mullvadvpn.compose.state
 
+import arrow.core.NonEmptyList
+import net.mullvad.mullvadvpn.lib.common.util.getFirstInstanceOrNull
 import net.mullvad.mullvadvpn.lib.model.Cipher
 import net.mullvad.mullvadvpn.lib.model.InvalidDataError
 import net.mullvad.mullvadvpn.lib.model.TestApiAccessMethodState
@@ -17,71 +19,40 @@ sealed interface EditApiAccessMethodUiState {
 }
 
 data class EditApiAccessFormData(
-    val name: FormInputField<InvalidDataError.NameError>,
-    val apiAccessMethodTypes: ApiAccessMethodTypes,
-    val ip: FormInputField<InvalidDataError.ServerIpError>,
-    val remotePort: FormInputField<InvalidDataError.RemotePortError>,
-    val enableAuthentication: Boolean,
-    val username: FormInputField<InvalidDataError.UserNameError>,
-    val password: FormInputField<InvalidDataError.PasswordError>,
-    val cipher: Cipher
+    val name: String,
+    val nameError: InvalidDataError.NameError? = null,
+    val apiAccessMethodTypes: ApiAccessMethodTypes = ApiAccessMethodTypes.default(),
+    val serverIp: String,
+    val serverIpError: InvalidDataError.ServerIpError? = null,
+    val remotePort: String,
+    val remotePortError: InvalidDataError.RemotePortError? = null,
+    val enableAuthentication: Boolean = false,
+    val username: String,
+    val usernameError: InvalidDataError.UserNameError? = null,
+    val password: String,
+    val passwordError: InvalidDataError.PasswordError? = null,
+    val cipher: Cipher = Cipher.first()
 ) {
-
-    fun updateName(name: String) = copy(name = FormInputField(name))
-
-    fun updateServerIp(ip: String) = copy(ip = FormInputField(ip))
-
-    fun updateRemotePort(port: String) = copy(remotePort = FormInputField(port))
-
-    fun updatePassword(password: String) = copy(password = FormInputField(password))
-
-    fun updateCipher(cipher: Cipher) = copy(cipher = cipher)
-
-    fun updateAuthenticationEnabled(enableAuthentication: Boolean) =
-        copy(enableAuthentication = enableAuthentication)
-
-    fun updateUsername(username: String) = copy(username = FormInputField(username))
-
-    fun updateWithErrors(errors: List<InvalidDataError>): EditApiAccessFormData {
-        var ret = this
-        errors.forEach { ret = ret.setError(it) }
-        return ret
-    }
-
-    private fun setError(error: InvalidDataError) =
-        when (error) {
-            is InvalidDataError.NameError -> copy(name = name.copy(error = error))
-            is InvalidDataError.PasswordError -> copy(password = password.copy(error = error))
-            is InvalidDataError.RemotePortError -> copy(remotePort = remotePort.copy(error = error))
-            is InvalidDataError.ServerIpError -> copy(ip = ip.copy(error = error))
-            is InvalidDataError.UserNameError -> copy(username = username.copy(error = error))
-        }
+    fun updateWithErrors(errors: NonEmptyList<InvalidDataError>): EditApiAccessFormData =
+        copy(
+            nameError = errors.getFirstInstanceOrNull(),
+            serverIpError = errors.getFirstInstanceOrNull(),
+            remotePortError = errors.getFirstInstanceOrNull(),
+            usernameError = errors.getFirstInstanceOrNull(),
+            passwordError = errors.getFirstInstanceOrNull()
+        )
 
     companion object {
-        fun default(
-            name: String = "",
-            apiAccessMethodTypes: ApiAccessMethodTypes = ApiAccessMethodTypes.default(),
-            ip: String = "",
-            remotePort: String = "",
-            enableAuthentication: Boolean = false,
-            username: String = "",
-            password: String = "",
-            cipher: Cipher = Cipher.first()
-        ) =
+        fun empty() =
             EditApiAccessFormData(
-                name = FormInputField(name),
-                apiAccessMethodTypes = apiAccessMethodTypes,
-                ip = FormInputField(ip),
-                remotePort = FormInputField(remotePort),
-                enableAuthentication = enableAuthentication,
-                username = FormInputField(username),
-                password = FormInputField(password),
-                cipher = cipher
+                name = "",
+                password = "",
+                remotePort = "",
+                serverIp = "",
+                username = ""
             )
     }
 }
-
-data class FormInputField<T>(val input: String, val error: T? = null)
 
 enum class ApiAccessMethodTypes {
     SOCKS5_REMOTE,

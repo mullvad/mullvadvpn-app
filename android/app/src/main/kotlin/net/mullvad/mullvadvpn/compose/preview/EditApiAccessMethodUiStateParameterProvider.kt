@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.compose.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import arrow.core.nonEmptyListOf
 import net.mullvad.mullvadvpn.compose.state.EditApiAccessFormData
 import net.mullvad.mullvadvpn.compose.state.EditApiAccessMethodUiState
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodType
@@ -15,7 +16,7 @@ class EditApiAccessMethodUiStateParameterProvider :
             // Empty default state
             EditApiAccessMethodUiState.Content(
                 editMode = false,
-                formData = EditApiAccessFormData.default(),
+                formData = EditApiAccessFormData.empty(),
                 testMethodState = null
             ),
             // Shadowsocks, no errors
@@ -25,12 +26,13 @@ class EditApiAccessMethodUiStateParameterProvider :
                     shadowsocks.let {
                         val data =
                             (it.apiAccessMethodType as ApiAccessMethodType.CustomProxy.Shadowsocks)
-                        EditApiAccessFormData.default(
+                        EditApiAccessFormData(
                             name = it.name.value,
-                            ip = data.ip,
+                            serverIp = data.ip,
                             remotePort = data.port.toString(),
                             password = data.password ?: "",
-                            cipher = data.cipher
+                            cipher = data.cipher,
+                            username = ""
                         )
                     },
                 testMethodState = null
@@ -42,9 +44,9 @@ class EditApiAccessMethodUiStateParameterProvider :
                     socks5Remote.let {
                         val data =
                             (it.apiAccessMethodType as ApiAccessMethodType.CustomProxy.Socks5Remote)
-                        EditApiAccessFormData.default(
+                        EditApiAccessFormData(
                             name = it.name.value,
-                            ip = data.ip,
+                            serverIp = data.ip,
                             remotePort = data.port.toString(),
                             enableAuthentication = data.auth != null,
                             username = data.auth?.username ?: "",
@@ -57,9 +59,10 @@ class EditApiAccessMethodUiStateParameterProvider :
             EditApiAccessMethodUiState.Content(
                 editMode = true,
                 formData =
-                    EditApiAccessFormData.default(enableAuthentication = true)
+                    EditApiAccessFormData.empty()
+                        .copy(enableAuthentication = true)
                         .updateWithErrors(
-                            listOf(
+                            nonEmptyListOf(
                                 InvalidDataError.NameError.Required,
                                 InvalidDataError.RemotePortError.Required,
                                 InvalidDataError.ServerIpError.Required,
