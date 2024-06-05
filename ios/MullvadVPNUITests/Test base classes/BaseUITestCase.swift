@@ -21,10 +21,10 @@ class BaseUITestCase: XCTestCase {
     static let appDefaultCountry = "Sweden"
 
     /// Default country to use in tests.
-    static let testsDefaultCountry = "Sweden"
+    static let testsDefaultCountry = "Norway"
 
     /// Default city to use in tests
-    static let testsDefaultCity = "Gothenburg"
+    static let testsDefaultCity = "Oslo"
 
     /// Default relay to use in tests
     static let testsDefaultRelay = "se-got-wg-001"
