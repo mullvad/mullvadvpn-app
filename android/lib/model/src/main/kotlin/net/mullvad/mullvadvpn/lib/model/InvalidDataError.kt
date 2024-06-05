@@ -1,9 +1,5 @@
 package net.mullvad.mullvadvpn.lib.model
 
-data class ApiAccessMethodInvalidDataErrors(val errors: List<InvalidDataError>) {
-
-}
-
 sealed interface InvalidDataError {
     sealed interface NameError : InvalidDataError {
         data object Required : NameError
