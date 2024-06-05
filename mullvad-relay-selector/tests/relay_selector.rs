@@ -954,6 +954,7 @@ fn test_include_in_country() {
                                 "BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=",
                             )
                             .unwrap(),
+                            shadowsocks_extra_addr_in: vec![],
                             daita: false,
                         }),
                         location: None,
@@ -972,6 +973,7 @@ fn test_include_in_country() {
                                 "BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=",
                             )
                             .unwrap(),
+                            shadowsocks_extra_addr_in: vec![],
                             daita: false,
                         }),
                         location: None,
@@ -1003,6 +1005,7 @@ fn test_include_in_country() {
             ipv4_gateway: "10.64.0.1".parse().unwrap(),
             ipv6_gateway: "fc00:bbbb:bbbb:bb01::1".parse().unwrap(),
             udp2tcp_ports: vec![],
+            shadowsocks_port_ranges: vec![],
         },
     };
 
@@ -1172,6 +1175,7 @@ fn test_daita() {
                                 "BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=",
                             )
                             .unwrap(),
+                            shadowsocks_extra_addr_in: vec![],
                             daita: false,
                         }),
                         location: None,
@@ -1190,6 +1194,7 @@ fn test_daita() {
                                 "BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=",
                             )
                             .unwrap(),
+                            shadowsocks_extra_addr_in: vec![],
                             daita: true,
                         }),
                         location: None,
@@ -1205,6 +1210,7 @@ fn test_daita() {
             port_ranges: vec![(53, 53), (4000, 33433), (33565, 51820), (52000, 60000)],
             ipv4_gateway: "10.64.0.1".parse().unwrap(),
             ipv6_gateway: "fc00:bbbb:bbbb:bb01::1".parse().unwrap(),
+            shadowsocks_port_ranges: vec![],
             udp2tcp_ports: vec![],
         },
     };

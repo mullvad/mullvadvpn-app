@@ -631,6 +631,7 @@ message Relay {
 message WireguardRelayEndpointData {
   bytes public_key = 1;
   bool daita = 2;
+  repeated string shadowsocks_extra_addr_in = 3;
 }
 
 message Location {
@@ -686,7 +687,8 @@ message WireguardEndpointData {
   repeated PortRange port_ranges = 1;
   string ipv4_gateway = 2;
   string ipv6_gateway = 3;
-  repeated uint32 udp2tcp_ports = 4;
+  repeated PortRange shadowsocks_port_ranges = 4;
+  repeated uint32 udp2tcp_ports = 5;
 }
 
 message PortRange {
