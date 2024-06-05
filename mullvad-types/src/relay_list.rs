@@ -172,6 +172,8 @@ pub struct WireguardEndpointData {
     /// Gateways to be used with the tunnel
     pub ipv4_gateway: Ipv4Addr,
     pub ipv6_gateway: Ipv6Addr,
+    /// Shadowsocks port ranges available on all WireGuard relays
+    pub shadowsocks_port_ranges: Vec<(u16, u16)>,
     pub udp2tcp_ports: Vec<u16>,
 }
 
@@ -181,6 +183,7 @@ impl Default for WireguardEndpointData {
             port_ranges: vec![],
             ipv4_gateway: "0.0.0.0".parse().unwrap(),
             ipv6_gateway: "::".parse().unwrap(),
+            shadowsocks_port_ranges: vec![],
             udp2tcp_ports: vec![],
         }
     }
@@ -194,6 +197,9 @@ pub struct WireguardRelayEndpointData {
     /// Whether the server supports DAITA
     #[serde(default)]
     pub daita: bool,
+    /// Optional IP addresses used by Shadowsocks
+    #[serde(default)]
+    pub shadowsocks_extra_addr_in: Vec<IpAddr>,
 }
 
 #[derive(Debug, Default, Clone, Deserialize, Serialize)]
