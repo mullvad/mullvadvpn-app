@@ -60,8 +60,8 @@ class CustomListsTests: LoggedInWithTimeUITestCase {
         startEditingCustomList(named: customListName)
 
         EditCustomListLocationsPage(app)
-            .scrollToLocationWith(identifier: "se")
-            .toggleLocationCheckmarkWith(identifier: "se")
+            .scrollToLocationWith(identifier: BaseUITestCase.testsDefaultCountryIdentifier)
+            .toggleLocationCheckmarkWith(identifier: BaseUITestCase.testsDefaultCountryIdentifier)
             .pressBackButton()
 
         CustomListPage(app)
@@ -87,10 +87,10 @@ class CustomListsTests: LoggedInWithTimeUITestCase {
         startEditingCustomList(named: customListName)
 
         EditCustomListLocationsPage(app)
-            .scrollToLocationWith(identifier: "se")
-            .unfoldLocationwith(identifier: "se")
-            .unfoldLocationwith(identifier: "se-got")
-            .toggleLocationCheckmarkWith(identifier: "se-got-wg-001")
+            .scrollToLocationWith(identifier: BaseUITestCase.testsDefaultCountryIdentifier)
+            .unfoldLocationwith(identifier: BaseUITestCase.testsDefaultCountryIdentifier)
+            .unfoldLocationwith(identifier: BaseUITestCase.testsDefaultCityIdentifier)
+            .toggleLocationCheckmarkWith(identifier: BaseUITestCase.testsDefaultRelayName)
             .pressBackButton()
 
         CustomListPage(app)
@@ -101,7 +101,7 @@ class CustomListsTests: LoggedInWithTimeUITestCase {
 
         SelectLocationPage(app)
             .tapLocationCellExpandButton(withName: customListName)
-        let customListLocationName = "\(customListName)-se-got-wg-001"
+        let customListLocationName = "\(customListName)-\(BaseUITestCase.testsDefaultRelayName)"
         let customListLocationCell = SelectLocationPage(app).cellWithIdentifier(identifier: customListLocationName)
         XCTAssertTrue(customListLocationCell.exists)
     }

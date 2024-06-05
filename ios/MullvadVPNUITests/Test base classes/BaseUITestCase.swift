@@ -21,13 +21,15 @@ class BaseUITestCase: XCTestCase {
     static let appDefaultCountry = "Sweden"
 
     /// Default country to use in tests.
-    static let testsDefaultCountry = "Norway"
+    static let testsDefaultCountryName = "Norway"
+    static let testsDefaultCountryIdentifier = "no"
 
     /// Default city to use in tests
-    static let testsDefaultCity = "Oslo"
+    static let testsDefaultCityName = "Oslo"
+    static let testsDefaultCityIdentifier = "no-osl"
 
     /// Default relay to use in tests
-    static let testsDefaultRelay = "se-got-wg-001"
+    static let testsDefaultRelayName = "se-got-wg-001"
 
     // swiftlint:disable force_cast
     let displayName = Bundle(for: BaseUITestCase.self)

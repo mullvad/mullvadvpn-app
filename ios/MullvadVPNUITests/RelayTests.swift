@@ -121,7 +121,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .tapSelectLocationButton()
 
         SelectLocationPage(app)
-            .tapLocationCellExpandButton(withName: BaseUITestCase.testsDefaultCity)
+            .tapLocationCellExpandButton(withName: BaseUITestCase.testsDefaultCityName)
             .tapLocationCell(withName: relayInfo.name)
 
         // Should be two UDP connection attempts but sometimes only one is shown in the UI
@@ -206,7 +206,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .tapSelectLocationButton()
 
         SelectLocationPage(app)
-            .tapLocationCellExpandButton(withName: BaseUITestCase.testsDefaultCity)
+            .tapLocationCellExpandButton(withName: BaseUITestCase.testsDefaultCityName)
             .tapLocationCell(withName: relayInfo.name)
 
         // Should be two UDP connection attempts but sometimes only one is shown in the UI
@@ -250,14 +250,14 @@ class RelayTests: LoggedInWithTimeUITestCase {
         TunnelControlPage(app)
             .tapSelectLocationButton()
 
-        if SelectLocationPage(app).locationCellIsExpanded(BaseUITestCase.testsDefaultCountry) {
+        if SelectLocationPage(app).locationCellIsExpanded(BaseUITestCase.testsDefaultCountryName) {
             // Already expanded - just make sure the correct city cell is selected
             SelectLocationPage(app)
-                .tapLocationCell(withName: BaseUITestCase.testsDefaultCity)
+                .tapLocationCell(withName: BaseUITestCase.testsDefaultCityName)
         } else {
             SelectLocationPage(app)
-                .tapLocationCellExpandButton(withName: BaseUITestCase.testsDefaultCountry)
-                .tapLocationCell(withName: BaseUITestCase.testsDefaultCity)
+                .tapLocationCellExpandButton(withName: BaseUITestCase.testsDefaultCountryName)
+                .tapLocationCell(withName: BaseUITestCase.testsDefaultCityName)
         }
 
         allowAddVPNConfigurationsIfAsked()
