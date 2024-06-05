@@ -1,8 +1,7 @@
 package net.mullvad.mullvadvpn.lib.model
 
 data class ApiAccessMethodInvalidDataErrors(val errors: List<InvalidDataError>) {
-    inline fun <reified T : InvalidDataError> getErrorOrNull(): T? =
-        errors.filterIsInstance<T>().firstOrNull()
+
 }
 
 sealed interface InvalidDataError {
@@ -19,7 +18,7 @@ sealed interface InvalidDataError {
     sealed interface RemotePortError : InvalidDataError {
         data object Required : RemotePortError
 
-        data object Invalid : RemotePortError
+        data class Invalid(val portError: ParsePortError) : RemotePortError
     }
 
     sealed interface UserNameError : InvalidDataError {
