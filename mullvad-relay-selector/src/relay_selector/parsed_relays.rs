@@ -162,6 +162,14 @@ impl ParsedRelays {
             parsed_list.wireguard.udp2tcp_ports.extend(UDP2TCP_PORTS);
         }
 
+        // FIXME: remove this
+        if parsed_list.wireguard.shadowsocks_port_ranges.is_empty() {
+            parsed_list
+                .wireguard
+                .shadowsocks_port_ranges
+                .extend(&[(1024, 1024)]);
+        }
+
         // Add location and override relay data
         for country in &mut parsed_list.countries {
             for city in &mut country.cities {
