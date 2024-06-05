@@ -1,13 +1,14 @@
 use crate::tests::helpers::{login_with_retries, THROTTLE_RETRY_DELAY};
 
 use super::{config::TEST_CONFIG, helpers, ui, Error, TestContext};
+use anyhow::Context;
 use mullvad_api::DevicesProxy;
 use mullvad_management_interface::{client::DaemonEvent, MullvadProxyClient};
 use mullvad_types::{
     device::{Device, DeviceState},
     states::TunnelState,
 };
-use std::{net::ToSocketAddrs, time::Duration};
+use std::time::Duration;
 use talpid_types::net::wireguard;
 use test_macro::test_function;
 use test_rpc::ServiceClient;
@@ -18,18 +19,18 @@ pub async fn test_login(
     _: TestContext,
     _rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
-) -> Result<(), Error> {
+) -> anyhow::Result<()> {
     // Instruct daemon to log in
     //
 
-    clear_devices(&new_device_client())
+    clear_devices(&new_device_client().await?)
         .await
-        .expect("failed to clear devices");
+        .context("failed to clear devices")?;
 
     log::info!("Logging in/generating device");
     login_with_retries(&mut mullvad_client)
         .await
-        .expect("login failed");
+        .context("login failed")?;
 
     // Wait for the relay list to be updated
     helpers::ensure_updated_relay_list(&mut mullvad_client).await?;
@@ -61,10 +62,10 @@ pub async fn test_too_many_devices(
     _: TestContext,
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
-) -> Result<(), Error> {
+) -> anyhow::Result<()> {
     log::info!("Using up all devices");
 
-    let device_client = new_device_client();
+    let device_client = new_device_client().await.context("Create device client")?;
 
     const MAX_ATTEMPTS: usize = 15;
 
@@ -131,16 +132,16 @@ pub async fn test_revoked_device(
     _: TestContext,
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
-) -> Result<(), Error> {
+) -> anyhow::Result<()> {
     log::info!("Logging in/generating device");
     login_with_retries(&mut mullvad_client)
         .await
-        .expect("login failed");
+        .context("login failed")?;
 
     let device_id = mullvad_client
         .get_device()
         .await
-        .expect("failed to get device data")
+        .context("failed to get device data")?
         .into_device()
         .unwrap()
         .device
@@ -150,7 +151,9 @@ pub async fn test_revoked_device(
 
     log::debug!("Removing current device");
 
-    let device_client = new_device_client();
+    let device_client = new_device_client()
+        .await
+        .context("Failed to create device client")?;
     retry_if_throttled(|| {
         device_client.remove(TEST_CONFIG.account_number.clone(), device_id.clone())
     })
@@ -167,7 +170,7 @@ pub async fn test_revoked_device(
     let events = mullvad_client
         .events_listen()
         .await
-        .expect("failed to begin listening for state changes");
+        .context("Failed to begin listening for state changes")?;
     let next_state =
         helpers::find_next_tunnel_state(events, |state| matches!(state, TunnelState::Error(..),));
 
@@ -188,7 +191,7 @@ pub async fn test_revoked_device(
     let device_state = mullvad_client
         .get_device()
         .await
-        .expect("failed to get device data");
+        .context("Failed to get device data")?;
     assert!(
         matches!(device_state, DeviceState::Revoked),
         "expected device to be revoked"
@@ -202,7 +205,7 @@ pub async fn test_revoked_device(
 }
 
 /// Remove all devices on the current account
-pub async fn clear_devices(device_client: &DevicesProxy) -> Result<(), mullvad_api::rest::Error> {
+pub async fn clear_devices(device_client: &DevicesProxy) -> anyhow::Result<()> {
     log::info!("Removing all devices for account");
 
     for dev in list_devices_with_retries(device_client).await?.into_iter() {
@@ -216,16 +219,16 @@ pub async fn clear_devices(device_client: &DevicesProxy) -> Result<(), mullvad_a
     Ok(())
 }
 
-pub fn new_device_client() -> DevicesProxy {
+pub async fn new_device_client() -> anyhow::Result<DevicesProxy> {
     use mullvad_api::{proxy::ApiConnectionMode, ApiEndpoint, API};
 
     let api_endpoint = ApiEndpoint::from_env_vars();
     let api_host = format!("api.{}", TEST_CONFIG.mullvad_host);
-    let api_address = format!("{api_host}:443")
-        .to_socket_addrs()
-        .expect("failed to resolve API host")
-        .next()
-        .unwrap();
+
+    let api_host_with_port = format!("{api_host}:443");
+    let api_address = helpers::resolve_hostname_with_retries(api_host_with_port)
+        .await
+        .context("failed to resolve API host")?;
 
     // Override the API endpoint to use the one specified in the test config
     let _ = API.override_init(ApiEndpoint {
@@ -237,7 +240,7 @@ pub fn new_device_client() -> DevicesProxy {
     let api = mullvad_api::Runtime::new(tokio::runtime::Handle::current())
         .expect("failed to create api runtime");
     let rest_handle = api.mullvad_rest_handle(ApiConnectionMode::Direct.into_provider());
-    DevicesProxy::new(rest_handle)
+    Ok(DevicesProxy::new(rest_handle))
 }
 
 pub async fn list_devices_with_retries(
