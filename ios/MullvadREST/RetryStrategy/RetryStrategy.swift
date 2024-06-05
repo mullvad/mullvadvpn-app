@@ -68,6 +68,16 @@ extension REST {
             multiplier: 2,
             maxDelay: .seconds(8)
         )
+
+        public static var postQuantumKeyExchange = RetryStrategy(
+            maxRetryCount: 10,
+            delay: .exponentialBackoff(
+                initial: .seconds(10),
+                multiplier: UInt64(2),
+                maxDelay: .seconds(30)
+            ),
+            applyJitter: true
+        )
     }
 
     public enum RetryDelay: Equatable {

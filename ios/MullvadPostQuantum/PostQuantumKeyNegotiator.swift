@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadTypes
 import NetworkExtension
 import TalpidTunnelConfigClientProxy
 import WireGuardKitTypes
@@ -24,7 +25,8 @@ public class PostQuantumKeyNegotiator {
         devicePublicKey: PublicKey,
         presharedKey: PrivateKey,
         packetTunnel: NEPacketTunnelProvider,
-        tcpConnection: NWTCPConnection
+        tcpConnection: NWTCPConnection,
+        postQuantumKeyExchangeTimeout: Duration
     ) -> Bool {
         let packetTunnelPointer = Unmanaged.passUnretained(packetTunnel).toOpaque()
         let opaqueConnection = Unmanaged.passUnretained(tcpConnection).toOpaque()
@@ -35,7 +37,8 @@ public class PostQuantumKeyNegotiator {
             presharedKey.rawValue.map { $0 },
             packetTunnelPointer,
             opaqueConnection,
-            &cancelToken
+            &cancelToken,
+            UInt64(postQuantumKeyExchangeTimeout.timeInterval)
         )
         guard result == 0 else {
             return false

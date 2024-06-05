@@ -1,9 +1,17 @@
 use super::{ios_tcp_connection::*, PostQuantumCancelToken};
 use crate::{request_ephemeral_peer_with, Error, RelayConfigService};
 use libc::c_void;
-use std::{future::Future, io, pin::Pin, ptr, sync::Arc};
+use std::{
+    future::Future,
+    io,
+    pin::Pin,
+    ptr,
+    sync::{Arc, Mutex},
+};
 use talpid_types::net::wireguard::{PrivateKey, PublicKey};
-use tokio::{runtime::Builder, sync::mpsc};
+use tokio::{
+    runtime::Builder,
+};
 use tonic::transport::channel::Endpoint;
 use tower::util::service_fn;
 
@@ -15,10 +23,19 @@ pub unsafe fn run_post_quantum_psk_exchange(
     ephemeral_key: [u8; 32],
     packet_tunnel: *const c_void,
     tcp_connection: *const c_void,
+    post_quantum_key_exchange_timeout: u64,
 ) -> Result<PostQuantumCancelToken, Error> {
-    match unsafe { IOSRuntime::new(pub_key, ephemeral_key, packet_tunnel, tcp_connection) } {
+    match unsafe {
+        IOSRuntime::new(
+            pub_key,
+            ephemeral_key,
+            packet_tunnel,
+            tcp_connection,
+            post_quantum_key_exchange_timeout,
+        )
+    } {
         Ok(runtime) => {
-            let token = runtime.cancel_token_tx.clone();
+            let token = runtime.packet_tunnel.tcp_connection.clone();
 
             runtime.run();
             Ok(PostQuantumCancelToken {
@@ -35,7 +52,7 @@ pub unsafe fn run_post_quantum_psk_exchange(
 #[derive(Clone)]
 pub struct SwiftContext {
     pub packet_tunnel: *const c_void,
-    pub tcp_connection: *const c_void,
+    pub tcp_connection: Arc<Mutex<ConnectionContext>>,
 }
 
 unsafe impl Send for SwiftContext {}
@@ -46,8 +63,7 @@ struct IOSRuntime {
     pub_key: [u8; 32],
     ephemeral_key: [u8; 32],
     packet_tunnel: SwiftContext,
-    cancel_token_tx: Arc<mpsc::UnboundedSender<()>>,
-    cancel_token_rx: mpsc::UnboundedReceiver<()>,
+    post_quantum_key_exchange_timeout: u64,
 }
 
 impl IOSRuntime {
@@ -56,6 +72,7 @@ impl IOSRuntime {
         ephemeral_key: [u8; 32],
         packet_tunnel: *const libc::c_void,
         tcp_connection: *const c_void,
+        post_quantum_key_exchange_timeout: u64,
     ) -> io::Result<Self> {
         let runtime = Builder::new_multi_thread()
             .enable_all()
@@ -64,18 +81,15 @@ impl IOSRuntime {
 
         let context = SwiftContext {
             packet_tunnel,
-            tcp_connection,
+            tcp_connection: Arc::new(Mutex::new(ConnectionContext::new(tcp_connection))),
         };
-
-        let (tx, rx) = mpsc::unbounded_channel();
 
         Ok(Self {
             runtime,
             pub_key,
             ephemeral_key,
             packet_tunnel: context,
-            cancel_token_tx: Arc::new(tx),
-            cancel_token_rx: rx,
+            post_quantum_key_exchange_timeout,
         })
     }
 
@@ -84,9 +98,8 @@ impl IOSRuntime {
             self.run_service_inner();
         });
     }
-
-    /// Creates a `RelayConfigService` using the in-tunnel TCP Connection provided by the Packet Tunnel Provider
-    /// # Safety
+    /// Creates a `RelayConfigService` using the in-tunnel TCP Connection provided by the Packet
+    /// Tunnel Provider # Safety
     /// It is unsafe to call this with an already used `SwiftContext`
     async unsafe fn ios_tcp_client(
         ctx: SwiftContext,
@@ -112,11 +125,7 @@ impl IOSRuntime {
     }
 
     fn run_service_inner(self) {
-        let Self {
-            runtime,
-            mut cancel_token_rx,
-            ..
-        } = self;
+        let Self { runtime, .. } = self;
 
         let packet_tunnel_ptr = self.packet_tunnel.packet_tunnel;
         runtime.block_on(async move {
@@ -158,14 +167,9 @@ impl IOSRuntime {
                     }
                 }
 
-                _ = tokio::time::sleep(std::time::Duration::from_secs(5)) => {
+                _ = tokio::time::sleep(std::time::Duration::from_secs(self.post_quantum_key_exchange_timeout)) => {
+                            shutdown_handle.shutdown();
                             unsafe { swift_post_quantum_key_ready(packet_tunnel_ptr, ptr::null(), ptr::null()); }
-                            shutdown_handle.shutdown()
-                }
-
-                _ = cancel_token_rx.recv() => {
-                    shutdown_handle.shutdown()
-                    // The swift runtime pre emptively cancelled the key exchange, nothing to do here.
                 }
             }
         });

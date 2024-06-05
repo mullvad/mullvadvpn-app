@@ -2,8 +2,9 @@ pub mod ios_runtime;
 pub mod ios_tcp_connection;
 
 use crate::ios_ffi::ios_runtime::run_post_quantum_psk_exchange;
+use ios_tcp_connection::ConnectionContext;
 use libc::c_void;
-use std::sync::{Arc, Weak};
+use std::sync::{Arc, Mutex, Weak};
 use tokio::sync::mpsc;
 
 use std::sync::Once;
@@ -20,34 +21,43 @@ impl PostQuantumCancelToken {
     /// This function can only be called when the context pointer is valid.
     unsafe fn cancel(&self) {
         // # Safety
-        // Try to take the value, if there is a value, we can safely send the message, otherwise, assume it has been dropped and nothing happens
-        let send_tx: Arc<mpsc::UnboundedSender<()>> = unsafe { Arc::from_raw(self.context as _) };
-        let _ = send_tx.send(());
+        // Try to take the value, if there is a value, we can safely send the message, otherwise,
+        // assume it has been dropped and nothing happens
+        let connection_context: Arc<Mutex<ConnectionContext>> =
+            unsafe { Arc::from_raw(self.context as _) };
+        if let Ok(mut connection) = connection_context.lock() {
+            connection.shutdown();
+        }
+
         // Call std::mem::forget here to avoid dropping the channel.
-        std::mem::forget(send_tx);
+        std::mem::forget(connection_context);
     }
 }
 
 impl Drop for PostQuantumCancelToken {
     fn drop(&mut self) {
-        let _: Arc<mpsc::UnboundedSender<()>> = unsafe { Arc::from_raw(self.context as _) };
+        let _: Arc<Mutex<ConnectionContext>> = unsafe { Arc::from_raw(self.context as _) };
     }
 }
+
 unsafe impl Send for PostQuantumCancelToken {}
 
 /// Called by the Swift side to signal that the quantum-secure key exchange should be cancelled.
 ///
 /// # Safety
-/// `sender` must be pointing to a valid instance of a `PostQuantumCancelToken` created by the `PacketTunnelProvider`.
+/// `sender` must be pointing to a valid instance of a `PostQuantumCancelToken` created by the
+/// `PacketTunnelProvider`.
 #[no_mangle]
 pub unsafe extern "C" fn cancel_post_quantum_key_exchange(sender: *const PostQuantumCancelToken) {
     let sender = unsafe { &*sender };
     sender.cancel();
 }
-/// Called by the Swift side to signal that the Rust `PostQuantumCancelToken` can be safely dropped from memory.
+/// Called by the Swift side to signal that the Rust `PostQuantumCancelToken` can be safely dropped
+/// from memory.
 ///
 /// # Safety
-/// `sender` must be pointing to a valid instance of a `PostQuantumCancelToken` created by the `PacketTunnelProvider`.
+/// `sender` must be pointing to a valid instance of a `PostQuantumCancelToken` created by the
+/// `PacketTunnelProvider`.
 #[no_mangle]
 pub unsafe extern "C" fn drop_post_quantum_key_exchange_token(
     sender: *const PostQuantumCancelToken,
@@ -74,8 +84,8 @@ pub unsafe extern "C" fn handle_sent(bytes_sent: usize, sender: *const c_void) {
 /// Called by Swift whenever data has been read from the in-tunnel TCP connection when exchanging
 /// quantum-resistant pre shared keys.
 ///
-/// If `data` is null or empty, this indicates that the connection was closed or that an error occurred.
-/// An empty buffer is sent to the underlying reader to signal EOF.
+/// If `data` is null or empty, this indicates that the connection was closed or that an error
+/// occurred. An empty buffer is sent to the underlying reader to signal EOF.
 ///
 /// # Safety
 /// `sender` must be pointing to a valid instance of a `read_tx` created by the `IosTcpProvider`
@@ -102,8 +112,8 @@ pub unsafe extern "C" fn handle_recv(data: *const u8, mut data_len: usize, sende
 /// # Safety
 /// `public_key` and `ephemeral_key` must be valid respective `PublicKey` and `PrivateKey` types.
 /// They will not be valid after this function is called, and thus must be copied here.
-/// `packet_tunnel` and `tcp_connection` must be valid pointers to a packet tunnel and a TCP connection
-/// instances.
+/// `packet_tunnel` and `tcp_connection` must be valid pointers to a packet tunnel and a TCP
+/// connection instances.
 /// `cancel_token` should be owned by the caller of this function.
 #[no_mangle]
 pub unsafe extern "C" fn negotiate_post_quantum_key(
@@ -112,10 +122,11 @@ pub unsafe extern "C" fn negotiate_post_quantum_key(
     packet_tunnel: *const c_void,
     tcp_connection: *const c_void,
     cancel_token: *mut PostQuantumCancelToken,
+    post_quantum_key_exchange_timeout: u64,
 ) -> i32 {
     INIT_LOGGING.call_once(|| {
         let _ = oslog::OsLogger::new("net.mullvad.MullvadVPN.TTCC")
-            .level_filter(log::LevelFilter::Trace)
+            .level_filter(log::LevelFilter::Debug)
             .init();
     });
 
@@ -123,7 +134,13 @@ pub unsafe extern "C" fn negotiate_post_quantum_key(
     let eph_key_copy: [u8; 32] = unsafe { std::ptr::read(ephemeral_key as *const [u8; 32]) };
 
     match unsafe {
-        run_post_quantum_psk_exchange(pub_key_copy, eph_key_copy, packet_tunnel, tcp_connection)
+        run_post_quantum_psk_exchange(
+            pub_key_copy,
+            eph_key_copy,
+            packet_tunnel,
+            tcp_connection,
+            post_quantum_key_exchange_timeout,
+        )
     } {
         Ok(token) => {
             unsafe { std::ptr::write(cancel_token, token) };
