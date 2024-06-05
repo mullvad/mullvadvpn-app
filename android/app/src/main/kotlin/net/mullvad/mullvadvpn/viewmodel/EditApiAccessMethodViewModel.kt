@@ -155,7 +155,7 @@ class EditApiAccessMethodViewModel(
     }
 
     private fun setUpInitialData(accessMethod: ApiAccessMethod) {
-        with(
+        val initialFormData =
             when (val customProxy = accessMethod.apiAccessMethodType) {
                 ApiAccessMethodType.Bridges,
                 ApiAccessMethodType.Direct ->
@@ -179,7 +179,7 @@ class EditApiAccessMethodViewModel(
                         password = customProxy.auth?.password ?: ""
                     )
             }
-        ) {
+        with(initialFormData) {
             formData.value = this
             initialData = this
         }
