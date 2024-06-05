@@ -6,21 +6,26 @@ use mullvad_types::{
     custom_list::CustomListsSettings,
     relay_constraints::{
         GeographicLocationConstraint, InternalBridgeConstraints, LocationConstraint, Ownership,
-        Providers,
+        Providers, SelectedObfuscation, ShadowsocksSettings,
     },
     relay_list::{Relay, RelayEndpointData, WireguardRelayEndpointData},
 };
 use talpid_types::net::TunnelType;
 
-use super::query::RelayQuery;
+use super::{
+    parsed_relays::ParsedRelays,
+    query::{RelayQuery, WireguardRelayQuery},
+};
 
 /// Filter a list of relays and their endpoints based on constraints.
 /// Only relays with (and including) matching endpoints are returned.
-pub fn filter_matching_relay_list<'a, R: Iterator<Item = &'a Relay> + Clone>(
+pub fn filter_matching_relay_list(
     query: &RelayQuery,
-    relays: R,
+    relay_list: &ParsedRelays,
     custom_lists: &CustomListsSettings,
 ) -> Vec<Relay> {
+    let relays = relay_list.relays();
+
     let locations = ResolvedLocationConstraint::from_constraint(&query.location, custom_lists);
     let shortlist = relays
             // Filter on tunnel type
@@ -34,7 +39,9 @@ pub fn filter_matching_relay_list<'a, R: Iterator<Item = &'a Relay> + Clone>(
             // Filter by providers
             .filter(|relay| filter_on_providers(&query.providers, relay))
             // Filter by DAITA support
-            .filter(|relay| filter_on_daita(&query.wireguard_constraints.daita, relay));
+            .filter(|relay| filter_on_daita(&query.wireguard_constraints.daita, relay))
+            // Filter by obfuscation support
+            .filter(|relay| filter_on_obfuscation(&query.wireguard_constraints, relay_list, relay));
 
     // The last filtering to be done is on the `include_in_country` attribute found on each
     // relay. When the location constraint is based on country, a relay which has
@@ -119,6 +126,51 @@ pub fn filter_on_daita(filter: &Constraint<bool>, relay: &Relay) -> bool {
             RelayEndpointData::Wireguard(WireguardRelayEndpointData { daita, .. }),
         ) => *daita,
         // If we don't require DAITA, any relay works.
+        _ => true,
+    }
+}
+
+/// Returns whether `relay` satisfies the obfuscation settings.
+fn filter_on_obfuscation(
+    query: &WireguardRelayQuery,
+    relay_list: &ParsedRelays,
+    relay: &Relay,
+) -> bool {
+    match query.obfuscation {
+        // Shadowsocks has relay-specific constraints
+        SelectedObfuscation::Shadowsocks => {
+            let wg_data = &relay_list.parsed_list().wireguard;
+            filter_on_shadowsocks(
+                &wg_data.shadowsocks_port_ranges,
+                &query.shadowsocks_port,
+                relay,
+            )
+        }
+
+        // If Shadowsocks is not a requirement, then there are no relay-specific constraints
+        _ => true,
+    }
+}
+
+/// Returns whether `relay` satisfies the Shadowsocks filter posed by `port`.
+fn filter_on_shadowsocks(
+    port_ranges: &[(u16, u16)],
+    settings: &Constraint<ShadowsocksSettings>,
+    relay: &Relay,
+) -> bool {
+    match (&settings, &relay.endpoint_data) {
+        // If Shadowsocks is specifically asked for, we must check if the specific relay supports our port.
+        // If there are extra addresses, then all ports are available, so we do not need to do this.
+        (
+            Constraint::Only(ShadowsocksSettings {
+                port: Constraint::Only(desired_port),
+            }),
+            RelayEndpointData::Wireguard(wg_data),
+        ) if wg_data.shadowsocks_extra_addr_in.is_empty() => port_ranges
+            .iter()
+            .any(|(begin, end)| (*begin..=*end).contains(&desired_port)),
+
+        // Otherwise, any relay works.
         _ => true,
     }
 }
