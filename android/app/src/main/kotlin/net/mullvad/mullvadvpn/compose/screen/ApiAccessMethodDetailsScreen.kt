@@ -98,9 +98,7 @@ fun ApiAccessMethodDetails(
         }
     }
 
-    confirmDeleteListResultRecipient.OnNavResultValue {
-        navigator.navigateUp()
-    }
+    confirmDeleteListResultRecipient.OnNavResultValue { navigator.navigateUp() }
 
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     ApiAccessMethodDetailsScreen(
