@@ -104,7 +104,7 @@ fun SaveApiAccessMethodDialog(
                 modifier = Modifier.padding(top = Dimens.smallPadding),
             )
         },
-        onDismissRequest = { /*Should not be able to dismiss*/ },
+        onDismissRequest = { /*Should not be able to dismiss*/},
         confirmButton = {
             PrimaryButton(
                 onClick = onCancel,
