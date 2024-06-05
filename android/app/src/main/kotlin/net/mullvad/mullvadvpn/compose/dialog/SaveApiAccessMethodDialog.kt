@@ -15,7 +15,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
@@ -25,6 +24,7 @@ import net.mullvad.mullvadvpn.compose.preview.SaveApiAccessMethodUiStatePreviewP
 import net.mullvad.mullvadvpn.compose.state.SaveApiAccessMethodUiState
 import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
 import net.mullvad.mullvadvpn.lib.model.NewAccessMethod
+import net.mullvad.mullvadvpn.lib.model.TestApiAccessMethodState
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDescription
@@ -54,8 +54,10 @@ fun SaveApiAccessMethod(
     LaunchedEffectCollect(sideEffect = viewModel.sideEffect) {
         when (it) {
             SaveApiAccessMethodSideEffect.Cancel -> backNavigator.navigateBack()
-            SaveApiAccessMethodSideEffect.CouldNotSaveApiAccessMethod -> backNavigator.navigateBack(result = false)
-            SaveApiAccessMethodSideEffect.SuccessfullyCreatedApiMethod -> backNavigator.navigateBack(result = true)
+            SaveApiAccessMethodSideEffect.CouldNotSaveApiAccessMethod ->
+                backNavigator.navigateBack(result = false)
+            SaveApiAccessMethodSideEffect.SuccessfullyCreatedApiMethod ->
+                backNavigator.navigateBack(result = true)
         }
     }
 
@@ -71,39 +73,29 @@ fun SaveApiAccessMethodDialog(
 ) {
     AlertDialog(
         icon = {
-            when (state) {
-                SaveApiAccessMethodUiState.SavingAfterSuccessful ->
+            when (val testingState = state.testingState) {
+                is TestApiAccessMethodState.Result ->
                     Icon(
-                        painter = painterResource(id = R.drawable.icon_success),
+                        painter =
+                            painterResource(
+                                id =
+                                    if (testingState.isSuccessful()) {
+                                        R.drawable.icon_success
+                                    } else {
+                                        R.drawable.icon_fail
+                                    }
+                            ),
                         contentDescription = null
                     )
-                SaveApiAccessMethodUiState.SavingAfterFailure,
-                SaveApiAccessMethodUiState.TestingFailed ->
-                    Icon(
-                        painter = painterResource(id = R.drawable.icon_fail),
-                        contentDescription = null
-                    )
-                SaveApiAccessMethodUiState.Testing -> MullvadCircularProgressIndicatorMedium()
+                TestApiAccessMethodState.Testing -> MullvadCircularProgressIndicatorMedium()
             }
         },
         text = {
             Text(
-                text =
-                    stringResource(
-                        id =
-                            when (state) {
-                                SaveApiAccessMethodUiState.Testing -> R.string.verifying_api_method
-                                SaveApiAccessMethodUiState.SavingAfterFailure ->
-                                    R.string.adding_method
-                                SaveApiAccessMethodUiState.SavingAfterSuccessful ->
-                                    R.string.api_reachable_adding_method
-                                SaveApiAccessMethodUiState.TestingFailed ->
-                                    R.string.api_unreachable_save_anyway
-                            }
-                    ),
+                text = state.text(),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaDescription),
-                modifier = Modifier.padding(top = Dimens.smallPadding)
+                modifier = Modifier.padding(top = Dimens.smallPadding),
             )
         },
         onDismissRequest = { /*Should not be able to dismiss*/ },
@@ -112,12 +104,12 @@ fun SaveApiAccessMethodDialog(
                 onClick = onCancel,
                 text = stringResource(id = R.string.cancel),
                 isEnabled =
-                    state is SaveApiAccessMethodUiState.Testing ||
-                        state is SaveApiAccessMethodUiState.TestingFailed
+                    state.testingState is TestApiAccessMethodState.Testing ||
+                        state.testingState is TestApiAccessMethodState.Result.Failure
             )
         },
         dismissButton = {
-            if (state is SaveApiAccessMethodUiState.TestingFailed) {
+            if (state.testingState is TestApiAccessMethodState.Result.Failure) {
                 PrimaryButton(onClick = onSave, text = stringResource(id = R.string.save))
             }
         },
@@ -126,3 +118,20 @@ fun SaveApiAccessMethodDialog(
         iconContentColor = Color.Unspecified,
     )
 }
+
+@Composable
+private fun SaveApiAccessMethodUiState.text() =
+    stringResource(
+        id =
+            when (testingState) {
+                TestApiAccessMethodState.Testing -> R.string.verifying_api_method
+                TestApiAccessMethodState.Result.Successful -> R.string.api_reachable_adding_method
+                TestApiAccessMethodState.Result.Failure -> {
+                    if (isSaving) {
+                        R.string.adding_method
+                    } else {
+                        R.string.api_unreachable_save_anyway
+                    }
+                }
+            }
+    )
