@@ -434,7 +434,7 @@ private fun CipherSelection(cipher: Cipher, onCipherChange: (Cipher) -> Unit) {
         TextField(
             modifier = Modifier.fillMaxWidth().menuAnchor(),
             readOnly = true,
-            value = cipher.value,
+            value = cipher.label,
             onValueChange = {},
             label = { Text(stringResource(id = R.string.cipher)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
@@ -448,7 +448,7 @@ private fun CipherSelection(cipher: Cipher, onCipherChange: (Cipher) -> Unit) {
             Cipher.listAll().forEach {
                 DropdownMenuItem(
                     colors = menuItemColors,
-                    text = { Text(text = it.value) },
+                    text = { Text(text = it.label) },
                     onClick = {
                         onCipherChange(it)
                         expanded = false

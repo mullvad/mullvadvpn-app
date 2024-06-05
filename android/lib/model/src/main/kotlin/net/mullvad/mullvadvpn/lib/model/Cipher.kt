@@ -1,25 +1,7 @@
 package net.mullvad.mullvadvpn.lib.model
 
-import android.os.Parcelable
-import kotlinx.parcelize.Parcelize
-
-@Parcelize
-@JvmInline
-value class Cipher private constructor(val value: String) : Parcelable {
-
-    override fun toString(): String = value
-
-    companion object {
-        fun fromString(cipher: String) = Cipher(Ciphers.fromString(cipher).label)
-
-        fun listAll() = Ciphers.entries.map { Cipher(it.label) }.sortedBy { it.value }
-
-        fun first() = listAll().first()
-    }
-}
-
 // All suppported shadowsocks ciphers
-private enum class Ciphers(val label: String) {
+enum class Cipher(val label: String) {
     AES_128_CFB("aes-128-cfb"),
     AES_128_CFB1("aes-128-cfb1"),
     AES_128_CFB8("aes-128-cfb8"),
@@ -40,7 +22,13 @@ private enum class Ciphers(val label: String) {
     AES_128_PMAC_SIV("aes-128-pmac-siv"),
     AES_256_PMAC_SIV("aes-256-pmac-siv");
 
+    override fun toString(): String = label
+
     companion object {
-        fun fromString(input: String) = Ciphers.entries.first { it.label == input }
+        fun fromString(input: String) = Cipher.entries.first { it.label == input }
+
+        fun listAll() = Cipher.entries.sortedBy { it.label }
+
+        fun first() = listAll().first()
     }
 }
