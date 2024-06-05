@@ -30,15 +30,20 @@ permissions:
   security-events: write
   # Only need to read contents
   contents: read
+  # Needed to read the workflow from another repository(???)
+  actions: read
 
 jobs:
   scan-scheduled:
+    # yamllint disable rule:line-length
     if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || github.event_name == 'pull_request' }}
-    uses: "google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v1.7.1"
+    # yamllint disable rule:line-length
+    uses: "google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@f0e45d2960258cf40285d596a10f817af70af1f7"  # v1.7.4
     with:
       scan-args: -r --skip-git ./
   scan-pr:
     if: ${{ github.event_name == 'pull_request' || github.event_name == 'merge_group' }}
-    uses: "google/osv-scanner-action/.github/workflows/osv-scanner-reusable-pr.yml@v1.7.1"
+    # yamllint disable rule:line-length
+    uses: "google/osv-scanner-action/.github/workflows/osv-scanner-reusable-pr.yml@f0e45d2960258cf40285d596a10f817af70af1f7"  # v1.7.4
     with:
       scan-args: -r --skip-git ./
