@@ -7,7 +7,6 @@ import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodType
 import net.mullvad.mullvadvpn.lib.model.Cipher
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.SocksAuth
-import net.mullvad.mullvadvpn.lib.model.TransportProtocol
 
 private const val UUID1 = "12345678-1234-5678-1234-567812345678"
 private const val UUID2 = "12345678-1234-5678-1234-567812345679"
