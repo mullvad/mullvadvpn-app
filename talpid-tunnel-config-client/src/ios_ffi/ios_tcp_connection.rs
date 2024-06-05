@@ -1,10 +1,7 @@
 use libc::c_void;
 use std::{
     io::{self, Result},
-    sync::{
-        atomic::{self, AtomicBool},
-        Arc, Mutex, Weak,
-    },
+    sync::{Arc, Mutex, MutexGuard, Weak},
     task::{Poll, Waker},
 };
 use tokio::{
@@ -49,28 +46,29 @@ pub struct IosTcpProvider {
     write_rx: mpsc::UnboundedReceiver<usize>,
     read_tx: Arc<mpsc::UnboundedSender<Box<[u8]>>>,
     read_rx: mpsc::UnboundedReceiver<Box<[u8]>>,
-    tcp_connection: *const c_void,
+    tcp_connection: Arc<Mutex<ConnectionContext>>,
     read_in_progress: bool,
     write_in_progress: bool,
-    shutdown: Arc<AtomicBool>,
-    waker: Arc<Mutex<Option<Waker>>>,
 }
 
 pub struct IosTcpShutdownHandle {
-    shutdown: Arc<AtomicBool>,
-    waker: Arc<Mutex<Option<Waker>>>,
+    context: Arc<Mutex<ConnectionContext>>,
 }
 
+pub struct ConnectionContext {
+    waker: Option<Waker>,
+    tcp_connection: Option<*const c_void>,
+}
+
+unsafe impl Send for ConnectionContext {}
+
 impl IosTcpProvider {
-    /**
-     * # Safety
-     * `tcp_connection` must be pointing to a valid instance of a `NWTCPConnection`, created by the `PacketTunnelProvider`
-     */
-    pub unsafe fn new(tcp_connection: *const c_void) -> (Self, IosTcpShutdownHandle) {
+    /// # Safety
+    /// `tcp_connection` must be pointing to a valid instance of a `NWTCPConnection`, created by the
+    /// `PacketTunnelProvider`
+    pub unsafe fn new(connection: Arc<Mutex<ConnectionContext>>) -> (Self, IosTcpShutdownHandle) {
         let (tx, rx) = mpsc::unbounded_channel();
         let (recv_tx, recv_rx) = mpsc::unbounded_channel();
-        let shutdown = Arc::new(AtomicBool::new(false));
-        let waker = Arc::new(Mutex::new(None));
 
         (
             Self {
@@ -78,32 +76,33 @@ impl IosTcpProvider {
                 write_rx: rx,
                 read_tx: Arc::new(recv_tx),
                 read_rx: recv_rx,
-                tcp_connection,
+                tcp_connection: connection.clone(),
                 read_in_progress: false,
                 write_in_progress: false,
-                shutdown: shutdown.clone(),
-                waker: waker.clone(),
             },
-            IosTcpShutdownHandle { shutdown, waker },
+            IosTcpShutdownHandle {
+                context: connection,
+            },
         )
     }
 
-    fn is_shutdown(&self) -> bool {
-        self.shutdown.load(atomic::Ordering::SeqCst)
-    }
-
-    fn maybe_set_waker(&self, new_waker: Waker) {
-        if let Ok(mut waker) = self.waker.lock() {
-            *waker = Some(new_waker);
-        }
+    fn maybe_set_waker(new_waker: Waker, connection: &mut MutexGuard<'_, ConnectionContext>) {
+        connection.waker = Some(new_waker);
     }
 }
 
 impl IosTcpShutdownHandle {
-    pub fn shutdown(&self) {
-        self.shutdown.store(true, atomic::Ordering::SeqCst);
-        if let Some(waker) = self.waker.lock().ok().and_then(|mut waker| waker.take()) {
-            waker.wake();
+    pub fn shutdown(self) {
+        {
+            let Ok(mut context) = self.context.lock() else {
+                return;
+            };
+
+            context.tcp_connection = None;
+            if let Some(waker) = context.waker.take() {
+                waker.wake();
+            }
+            std::mem::drop(context);
         }
     }
 }
@@ -114,7 +113,15 @@ impl AsyncWrite for IosTcpProvider {
         cx: &mut std::task::Context<'_>,
         buf: &[u8],
     ) -> std::task::Poll<Result<usize>> {
-        self.maybe_set_waker(cx.waker().clone());
+        let connection_lock = self.tcp_connection.clone();
+        let Ok(mut connection) = connection_lock.lock() else {
+            return Poll::Ready(Err(connection_closed_err()));
+        };
+        let Some(tcp_ptr) = connection.tcp_connection else {
+            return Poll::Ready(Err(connection_closed_err()));
+        };
+        Self::maybe_set_waker(cx.waker().clone(), &mut connection);
+
         match self.write_rx.poll_recv(cx) {
             std::task::Poll::Ready(Some(bytes_sent)) => {
                 self.write_in_progress = false;
@@ -125,14 +132,12 @@ impl AsyncWrite for IosTcpProvider {
                 Poll::Ready(Err(connection_closed_err()))
             }
             std::task::Poll::Pending => {
-                if self.is_shutdown() {
-                    return Poll::Ready(Err(connection_closed_err()));
-                }
                 if !self.write_in_progress {
                     let raw_sender = Weak::into_raw(Arc::downgrade(&self.write_tx));
                     unsafe {
                         swift_nw_tcp_connection_send(
-                            self.tcp_connection,
+                            // self.tcp_connection,
+                            tcp_ptr,
                             buf.as_ptr() as _,
                             buf.len(),
                             raw_sender as _,
@@ -165,9 +170,14 @@ impl AsyncRead for IosTcpProvider {
         cx: &mut std::task::Context<'_>,
         buf: &mut tokio::io::ReadBuf<'_>,
     ) -> std::task::Poll<std::io::Result<()>> {
-        if self.is_shutdown() {
+        let connection_lock = self.tcp_connection.clone();
+        let Ok(mut connection) = connection_lock.lock() else {
             return Poll::Ready(Err(connection_closed_err()));
-        }
+        };
+        let Some(tcp_ptr) = connection.tcp_connection else {
+            return Poll::Ready(Err(connection_closed_err()));
+        };
+        Self::maybe_set_waker(cx.waker().clone(), &mut connection);
 
         match self.read_rx.poll_recv(cx) {
             std::task::Poll::Ready(Some(data)) => {
@@ -183,12 +193,29 @@ impl AsyncRead for IosTcpProvider {
                 if !self.read_in_progress {
                     let raw_sender = Weak::into_raw(Arc::downgrade(&self.read_tx));
                     unsafe {
-                        swift_nw_tcp_connection_read(self.tcp_connection, raw_sender as _);
+                        // TODO
+                        swift_nw_tcp_connection_read(tcp_ptr, raw_sender as _);
                     }
                     self.read_in_progress = true;
                 }
                 Poll::Pending
             }
+        }
+    }
+}
+
+impl ConnectionContext {
+    pub fn new(tcp_connection: *const c_void) -> Self {
+        Self {
+            tcp_connection: Some(tcp_connection),
+            waker: None,
+        }
+    }
+
+    pub fn shutdown(&mut self) {
+        self.tcp_connection = None;
+        if let Some(waker) = self.waker.take() {
+            waker.wake();
         }
     }
 }

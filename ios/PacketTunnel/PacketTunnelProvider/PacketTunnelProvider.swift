@@ -36,7 +36,6 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
 
     override init() {
         Self.configureLogging()
-
         providerLogger = Logger(label: "PacketTunnelProvider")
 
         let containerURL = ApplicationConfiguration.containerURL
@@ -47,7 +46,6 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             relayCache: RelayCache(cacheDirectory: containerURL),
             ipOverrideRepository: IPOverrideRepository()
         )
-
         multihopUpdater = MultihopUpdater(listener: multihopStateListener)
 
         super.init()
@@ -101,7 +99,6 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         )
 
         let urlRequestProxy = URLRequestProxy(dispatchQueue: internalQueue, transportProvider: transportProvider)
-
         appMessageHandler = AppMessageHandler(packetTunnelActor: actor, urlRequestProxy: urlRequestProxy)
     }
 
@@ -272,7 +269,6 @@ extension PacketTunnelProvider {
                     lastConnectionAttempt = connectionAttempt
 
                 case let .negotiatingPostQuantumKey(_, privateKey):
-                    postQuantumActor.endCurrentNegotiation()
                     postQuantumActor.startNegotiation(with: privateKey)
 
                 case .initial, .connected, .disconnecting, .disconnected, .error:
@@ -319,12 +315,11 @@ extension PacketTunnelProvider {
 
 extension PacketTunnelProvider: PostQuantumKeyReceiving {
     func receivePostQuantumKey(_ key: PreSharedKey, ephemeralKey: PrivateKey) {
+        postQuantumActor.reset()
         actor.replacePreSharedKey(key, ephemeralKey: ephemeralKey)
-        postQuantumActor.endCurrentNegotiation()
     }
 
     func keyExchangeFailed() {
-        postQuantumActor.endCurrentNegotiation()
         // Do not try reconnecting to the `.current` relay, else the actor's `State` equality check will fail
         // and it will not try to reconnect
         actor.reconnect(to: .random, reconnectReason: .connectionLoss)

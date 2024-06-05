@@ -16,15 +16,18 @@ typedef struct PostQuantumCancelToken {
  * Called by the Swift side to signal that the quantum-secure key exchange should be cancelled.
  *
  * # Safety
- * `sender` must be pointing to a valid instance of a `PostQuantumCancelToken` created by the `PacketTunnelProvider`.
+ * `sender` must be pointing to a valid instance of a `PostQuantumCancelToken` created by the
+ * `PacketTunnelProvider`.
  */
 void cancel_post_quantum_key_exchange(const struct PostQuantumCancelToken *sender);
 
 /**
- * Called by the Swift side to signal that the Rust `PostQuantumCancelToken` can be safely dropped from memory.
+ * Called by the Swift side to signal that the Rust `PostQuantumCancelToken` can be safely dropped
+ * from memory.
  *
  * # Safety
- * `sender` must be pointing to a valid instance of a `PostQuantumCancelToken` created by the `PacketTunnelProvider`.
+ * `sender` must be pointing to a valid instance of a `PostQuantumCancelToken` created by the
+ * `PacketTunnelProvider`.
  */
 void drop_post_quantum_key_exchange_token(const struct PostQuantumCancelToken *sender);
 
@@ -44,17 +47,15 @@ void handle_sent(uintptr_t bytes_sent, const void *sender);
  * Called by Swift whenever data has been read from the in-tunnel TCP connection when exchanging
  * quantum-resistant pre shared keys.
  *
- * If `data` is null or empty, this indicates that the connection was closed or that an error occurred.
- * An empty buffer is sent to the underlying reader to signal EOF.
+ * If `data` is null or empty, this indicates that the connection was closed or that an error
+ * occurred. An empty buffer is sent to the underlying reader to signal EOF.
  *
  * # Safety
  * `sender` must be pointing to a valid instance of a `read_tx` created by the `IosTcpProvider`
  *
  * Callback to call when the TCP connection has received data.
  */
-void handle_recv(const uint8_t *data,
-                 uintptr_t data_len,
-                 const void *sender);
+void handle_recv(const uint8_t *data, uintptr_t data_len, const void *sender);
 
 /**
  * Entry point for exchanging post quantum keys on iOS.
@@ -62,15 +63,16 @@ void handle_recv(const uint8_t *data,
  * # Safety
  * `public_key` and `ephemeral_key` must be valid respective `PublicKey` and `PrivateKey` types.
  * They will not be valid after this function is called, and thus must be copied here.
- * `packet_tunnel` and `tcp_connection` must be valid pointers to a packet tunnel and a TCP connection
- * instances.
+ * `packet_tunnel` and `tcp_connection` must be valid pointers to a packet tunnel and a TCP
+ * connection instances.
  * `cancel_token` should be owned by the caller of this function.
  */
 int32_t negotiate_post_quantum_key(const uint8_t *public_key,
                                    const uint8_t *ephemeral_key,
                                    const void *packet_tunnel,
                                    const void *tcp_connection,
-                                   struct PostQuantumCancelToken *cancel_token);
+                                   struct PostQuantumCancelToken *cancel_token,
+                                   uint64_t post_quantum_key_exchange_timeout);
 
 /**
  * Called when there is data to send on the TCP connection.
