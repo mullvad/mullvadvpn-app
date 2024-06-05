@@ -2,7 +2,13 @@ package net.mullvad.mullvadvpn.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import arrow.core.raise.either
+import arrow.core.Either
+import arrow.core.Either.Companion.zipOrAccumulate
+import arrow.core.EitherNel
+import arrow.core.NonEmptyList
+import arrow.core.left
+import arrow.core.nonEmptyListOf
+import arrow.core.right
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -16,13 +22,12 @@ import net.mullvad.mullvadvpn.compose.state.EditApiAccessFormData
 import net.mullvad.mullvadvpn.compose.state.EditApiAccessMethodUiState
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
-import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodInvalidDataErrors
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodName
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodType
 import net.mullvad.mullvadvpn.lib.model.Cipher
 import net.mullvad.mullvadvpn.lib.model.GetApiAccessMethodError
 import net.mullvad.mullvadvpn.lib.model.InvalidDataError
-import net.mullvad.mullvadvpn.lib.model.NewAccessMethod
+import net.mullvad.mullvadvpn.lib.model.ParsePortError
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.SocksAuth
 import net.mullvad.mullvadvpn.lib.model.TestApiAccessMethodState
@@ -67,8 +72,8 @@ class EditApiAccessMethodViewModel(
                     .fold(::handleInitialDataError, ::setUpInitialData)
             }
                 ?: run {
-                    formData.value = EditApiAccessFormData.default()
-                    initialData = EditApiAccessFormData.default()
+                    formData.value = EditApiAccessFormData.empty()
+                    initialData = EditApiAccessFormData.empty()
                 }
         }
     }
@@ -78,43 +83,43 @@ class EditApiAccessMethodViewModel(
     }
 
     fun updateName(name: String) {
-        formData.update { it?.updateName(name) }
+        formData.update { it?.copy(name = name) }
     }
 
     fun updateServerIp(serverIp: String) {
-        formData.update { it?.updateServerIp(serverIp) }
+        formData.update { it?.copy(serverIp = serverIp) }
     }
 
     fun updateRemotePort(port: String) {
-        formData.update { it?.updateRemotePort(port) }
+        formData.update { it?.copy(remotePort = port) }
     }
 
     fun updatePassword(password: String) {
-        formData.update { it?.updatePassword(password) }
+        formData.update { it?.copy(password = password) }
     }
 
     fun updateCipher(cipher: Cipher) {
-        formData.update { it?.updateCipher(cipher) }
+        formData.update { it?.copy(cipher = cipher) }
     }
 
     fun updateAuthenticationEnabled(enabled: Boolean) {
-        formData.update { it?.updateAuthenticationEnabled(enabled) }
+        formData.update { it?.copy(enableAuthentication = enabled) }
     }
 
     fun updateUsername(username: String) {
-        formData.update { it?.updateUsername(username) }
+        formData.update { it?.copy(username = username) }
     }
 
     fun testMethod() {
         viewModelScope.launch {
             formData.value
-                ?.validate()
+                ?.parseFormData()
                 ?.fold(
-                    { errors -> formData.update { it?.updateWithErrors(errors.errors) } },
-                    { formData ->
+                    { errors -> formData.update { it?.updateWithErrors(errors) } },
+                    { (_, customProxy) ->
                         apiAccessMethodUseCase
                             .testApiAccessMethod(
-                                TestApiAccessMethodInput.TestNewMethod(formData.toCustomProxy())
+                                TestApiAccessMethodInput.TestNewMethod(customProxy)
                             )
                             .collect(testMethodState)
                     }
@@ -125,12 +130,16 @@ class EditApiAccessMethodViewModel(
     fun trySave() {
         viewModelScope.launch {
             formData.value
-                ?.validate()
+                ?.parseFormData()
                 ?.fold(
-                    { errors -> formData.update { it?.updateWithErrors(errors.errors) } },
-                    { formData ->
+                    { errors -> formData.update { it?.updateWithErrors(errors) } },
+                    { (name, customProxy) ->
                         _sideEffects.send(
-                            EditApiAccessSideEffect.OpenSaveDialog(formData.toNewAccessMethod())
+                            EditApiAccessSideEffect.OpenSaveDialog(
+                                id = apiAccessMethodId,
+                                name = name,
+                                customProxy = customProxy
+                            )
                         )
                     }
                 )
@@ -141,7 +150,7 @@ class EditApiAccessMethodViewModel(
         // Check if we have any unsaved changes
         viewModelScope.launch {
             if (initialData?.equals(formData.value) == true) {
-                _sideEffects.send(EditApiAccessSideEffect.CLoseScreen)
+                _sideEffects.send(EditApiAccessSideEffect.CloseScreen)
             } else {
                 _sideEffects.send(EditApiAccessSideEffect.ShowDiscardChangesDialog)
             }
@@ -161,18 +170,19 @@ class EditApiAccessMethodViewModel(
                 ApiAccessMethodType.Direct ->
                     error("$customProxy api access type can not be edited")
                 is ApiAccessMethodType.CustomProxy.Shadowsocks -> {
-                    EditApiAccessFormData.default(
+                    EditApiAccessFormData(
                         name = accessMethod.name.value,
-                        ip = customProxy.ip,
+                        serverIp = customProxy.ip,
                         remotePort = customProxy.port.toString(),
                         password = customProxy.password ?: "",
-                        cipher = customProxy.cipher
+                        cipher = customProxy.cipher,
+                        username = "",
                     )
                 }
                 is ApiAccessMethodType.CustomProxy.Socks5Remote ->
-                    EditApiAccessFormData.default(
+                    EditApiAccessFormData(
                         name = accessMethod.name.value,
-                        ip = customProxy.ip,
+                        serverIp = customProxy.ip,
                         remotePort = customProxy.port.toString(),
                         enableAuthentication = customProxy.auth != null,
                         username = customProxy.auth?.username ?: "",
@@ -185,104 +195,129 @@ class EditApiAccessMethodViewModel(
         }
     }
 
-    private fun EditApiAccessFormData.validate() = either {
-        val errors = mutableListOf<InvalidDataError>()
-        if (name.input.isBlank()) {
-            errors.add(InvalidDataError.NameError.Required)
-        }
-        when (this@validate.apiAccessMethodTypes) {
-            ApiAccessMethodTypes.SHADOWSOCKS -> {
-                errors.addAll(this@validate.validateShadowSocks())
+    private fun EditApiAccessFormData.parseFormData():
+        Either<
+            NonEmptyList<InvalidDataError>,
+            Pair<ApiAccessMethodName, ApiAccessMethodType.CustomProxy>
+        > =
+        zipOrAccumulate(
+            parseName(name),
+            when (apiAccessMethodTypes) {
+                ApiAccessMethodTypes.SHADOWSOCKS -> {
+                    parseShadowSocksFormData(this)
+                }
+                ApiAccessMethodTypes.SOCKS5_REMOTE -> {
+                    parseSocks5RemoteFormData(this)
+                }
             }
-            ApiAccessMethodTypes.SOCKS5_REMOTE -> {
-                errors.addAll(this@validate.validateSocks5Remote())
-            }
+        ) { name, customProxy ->
+            name to customProxy
         }
-        if (errors.isNotEmpty()) {
-            raise(ApiAccessMethodInvalidDataErrors(errors))
-        }
-        this@validate
-    }
 
-    private fun EditApiAccessFormData.validateShadowSocks(): List<InvalidDataError> {
-        val errors = mutableListOf<InvalidDataError>()
-        if (ip.input.isBlank()) {
-            errors.add(InvalidDataError.ServerIpError.Required)
-        } else if (!inetAddressValidator.isValid(ip.input)) {
-            errors.add(InvalidDataError.ServerIpError.Invalid)
+    private fun parseShadowSocksFormData(
+        formData: EditApiAccessFormData
+    ): EitherNel<InvalidDataError, ApiAccessMethodType.CustomProxy.Shadowsocks> =
+        parseIpAndPort(formData.serverIp, formData.remotePort).map { (ip, port) ->
+            ApiAccessMethodType.CustomProxy.Shadowsocks(
+                ip = ip,
+                port = port,
+                password = formData.password.ifBlank { null },
+                cipher = formData.cipher
+            )
         }
-        if (remotePort.input.isBlank()) {
-            errors.add(InvalidDataError.RemotePortError.Required)
-        } else if (!remotePort.input.validatePort()) {
-            errors.add(InvalidDataError.RemotePortError.Invalid)
-        }
-        return errors
-    }
 
-    private fun EditApiAccessFormData.validateSocks5Remote(): List<InvalidDataError> {
-        val errors = mutableListOf<InvalidDataError>()
-        if (ip.input.isBlank()) {
-            errors.add(InvalidDataError.ServerIpError.Required)
-        } else if (!inetAddressValidator.isValid(ip.input)) {
-            errors.add(InvalidDataError.ServerIpError.Invalid)
+    private fun parseIpAddress(input: String): Either<InvalidDataError.ServerIpError, String> =
+        when {
+            input.isBlank() -> InvalidDataError.ServerIpError.Required.left()
+            !inetAddressValidator.isValid(input) -> InvalidDataError.ServerIpError.Invalid.left()
+            else -> input.right()
         }
-        if (remotePort.input.isBlank()) {
-            errors.add(InvalidDataError.RemotePortError.Required)
-        } else if (!remotePort.input.validatePort()) {
-            errors.add(InvalidDataError.RemotePortError.Invalid)
-        }
-        if (enableAuthentication) {
-            if (username.input.isBlank()) {
-                errors.add(InvalidDataError.UserNameError.Required)
-            }
-            if (password.input.isBlank()) {
-                errors.add(InvalidDataError.PasswordError.Required)
+
+    private fun parsePort(input: String): Either<InvalidDataError.RemotePortError, Port> =
+        Port.fromString(input).mapLeft {
+            when (it) {
+                is ParsePortError.NotANumber ->
+                    if (it.input.isBlank()) {
+                        InvalidDataError.RemotePortError.Required
+                    } else {
+                        InvalidDataError.RemotePortError.Invalid(it)
+                    }
+                is ParsePortError.OutOfRange -> InvalidDataError.RemotePortError.Invalid(it)
             }
         }
-        return errors
-    }
 
-    private fun EditApiAccessFormData.toCustomProxy(): ApiAccessMethodType.CustomProxy =
-        when (this.apiAccessMethodTypes) {
-            ApiAccessMethodTypes.SHADOWSOCKS ->
-                ApiAccessMethodType.CustomProxy.Shadowsocks(
-                    ip = ip.input,
-                    port = Port.fromString(remotePort.input).getOrNull()!!,
-                    password = password.input,
-                    cipher = cipher
-                )
-            ApiAccessMethodTypes.SOCKS5_REMOTE ->
-                ApiAccessMethodType.CustomProxy.Socks5Remote(
-                    ip = ip.input,
-                    port = Port.fromString(remotePort.input).getOrNull()!!,
-                    auth =
-                        if (enableAuthentication) {
-                            SocksAuth(username.input, password.input)
-                        } else {
-                            null
-                        },
-                )
+    private fun parseSocks5RemoteFormData(
+        formData: EditApiAccessFormData
+    ): Either<NonEmptyList<InvalidDataError>, ApiAccessMethodType.CustomProxy.Socks5Remote> =
+        zipOrAccumulate(
+            parseIpAndPort(formData.serverIp, formData.remotePort),
+            parseAuth(
+                authEnabled = formData.enableAuthentication,
+                inputUsername = formData.username,
+                inputPassword = formData.password
+            )
+        ) { (ip, port), auth ->
+            ApiAccessMethodType.CustomProxy.Socks5Remote(ip = ip, port = port, auth = auth)
         }
 
-    private fun EditApiAccessFormData.toNewAccessMethod(): NewAccessMethod =
-        NewAccessMethod(
-            name = ApiAccessMethodName.fromString(this.name.input),
-            enabled = true,
-            apiAccessMethodType = this.toCustomProxy()
-        )
+    private fun parseIpAndPort(ipInput: String, portInput: String) =
+        zipOrAccumulate(
+            parseIpAddress(ipInput),
+            parsePort(portInput),
+        ) { ip, port ->
+            ip to port
+        }
 
-    private fun String.validatePort(): Boolean {
-        return Port.fromString(this@validatePort).fold({ false }, { true })
-    }
+    private fun parseAuth(
+        authEnabled: Boolean,
+        inputUsername: String,
+        inputPassword: String
+    ): Either<NonEmptyList<InvalidDataError>, SocksAuth?> =
+        if (!authEnabled) {
+            Either.Right(null)
+        } else {
+            zipOrAccumulate(parseUsername(inputUsername), parsePassword(inputPassword)) {
+                userName,
+                password ->
+                SocksAuth(userName, password)
+            }
+        }
+
+    private fun parseUsername(input: String): Either<InvalidDataError.UserNameError, String> =
+        if (input.isBlank()) {
+            InvalidDataError.UserNameError.Required.left()
+        } else {
+            input.right()
+        }
+
+    private fun parsePassword(input: String): Either<InvalidDataError.PasswordError, String> =
+        if (input.isBlank()) {
+            InvalidDataError.PasswordError.Required.left()
+        } else {
+            input.right()
+        }
+
+    private fun parseName(
+        input: String
+    ): EitherNel<InvalidDataError.NameError, ApiAccessMethodName> =
+        if (input.isBlank()) {
+            nonEmptyListOf(InvalidDataError.NameError.Required).left()
+        } else {
+            ApiAccessMethodName.fromString(input).right()
+        }
 }
 
 sealed interface EditApiAccessSideEffect {
     data class UnableToGetApiAccessMethod(val error: GetApiAccessMethodError) :
         EditApiAccessSideEffect
 
-    data class OpenSaveDialog(val newAccessMethod: NewAccessMethod) : EditApiAccessSideEffect
+    data class OpenSaveDialog(
+        val id: ApiAccessMethodId?,
+        val name: ApiAccessMethodName,
+        val customProxy: ApiAccessMethodType.CustomProxy
+    ) : EditApiAccessSideEffect
 
-    data object CLoseScreen : EditApiAccessSideEffect
+    data object CloseScreen : EditApiAccessSideEffect
 
     data object ShowDiscardChangesDialog : EditApiAccessSideEffect
 }

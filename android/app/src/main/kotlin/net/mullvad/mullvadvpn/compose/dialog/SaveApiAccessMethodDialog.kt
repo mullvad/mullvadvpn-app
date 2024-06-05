@@ -23,7 +23,9 @@ import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicator
 import net.mullvad.mullvadvpn.compose.preview.SaveApiAccessMethodUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.SaveApiAccessMethodUiState
 import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
-import net.mullvad.mullvadvpn.lib.model.NewAccessMethod
+import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
+import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodName
+import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodType
 import net.mullvad.mullvadvpn.lib.model.TestApiAccessMethodState
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -46,10 +48,14 @@ fun PreviewSaveApiAccessMethodDialog(
 @Composable
 fun SaveApiAccessMethod(
     backNavigator: ResultBackNavigator<Boolean>,
-    newAccessMethod: NewAccessMethod
+    id: ApiAccessMethodId?,
+    name: ApiAccessMethodName,
+    customProxy: ApiAccessMethodType.CustomProxy
 ) {
     val viewModel =
-        koinViewModel<SaveApiAccessMethodViewModel>(parameters = { parametersOf(newAccessMethod) })
+        koinViewModel<SaveApiAccessMethodViewModel>(
+            parameters = { parametersOf(id, name, customProxy) }
+        )
 
     LaunchedEffectCollect(sideEffect = viewModel.sideEffect) {
         when (it) {

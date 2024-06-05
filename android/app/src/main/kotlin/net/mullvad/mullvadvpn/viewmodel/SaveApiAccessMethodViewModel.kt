@@ -11,12 +11,18 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.SaveApiAccessMethodUiState
+import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod
+import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
+import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodName
+import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodType
 import net.mullvad.mullvadvpn.lib.model.NewAccessMethod
 import net.mullvad.mullvadvpn.lib.model.TestApiAccessMethodState
 import net.mullvad.mullvadvpn.repository.ApiAccessRepository
 
 class SaveApiAccessMethodViewModel(
-    private val newAccessMethod: NewAccessMethod,
+    private val apiAccessMethodId: ApiAccessMethodId?,
+    private val apiAccessMethodName: ApiAccessMethodName,
+    private val customProxy: ApiAccessMethodType.CustomProxy,
     private val apiAccessRepository: ApiAccessRepository
 ) : ViewModel() {
     private val _sideEffects = Channel<SaveApiAccessMethodSideEffect>()
@@ -30,7 +36,7 @@ class SaveApiAccessMethodViewModel(
         testingJob =
             viewModelScope.launch {
                 apiAccessRepository
-                    .testCustomApiAccessMethod(newAccessMethod.customProxy())
+                    .testCustomApiAccessMethod(customProxy)
                     .fold(
                         {
                             _uiState.update {
@@ -50,18 +56,24 @@ class SaveApiAccessMethodViewModel(
     fun save() {
         viewModelScope.launch {
             _uiState.update { it.copy(isSaving = true) }
-            apiAccessRepository
-                .addApiAccessMethod(newAccessMethod)
-                .fold(
-                    {
-                        _sideEffects.send(SaveApiAccessMethodSideEffect.CouldNotSaveApiAccessMethod)
-                    },
-                    {
-                        _sideEffects.send(
-                            SaveApiAccessMethodSideEffect.SuccessfullyCreatedApiMethod
-                        )
-                    }
+            if (apiAccessMethodId != null) {
+                updateAccessMethod(
+                    ApiAccessMethod(
+                        id = apiAccessMethodId,
+                        name = apiAccessMethodName,
+                        enabled = true,
+                        apiAccessMethodType = customProxy
+                    )
                 )
+            } else {
+                addNewAccessMethod(
+                    NewAccessMethod(
+                        name = apiAccessMethodName,
+                        enabled = true,
+                        apiAccessMethodType = customProxy
+                    )
+                )
+            }
         }
     }
 
@@ -70,6 +82,24 @@ class SaveApiAccessMethodViewModel(
             testingJob?.cancel(message = "Cancelled by user")
             _sideEffects.send(SaveApiAccessMethodSideEffect.Cancel)
         }
+    }
+
+    private suspend fun addNewAccessMethod(newAccessMethod: NewAccessMethod) {
+        apiAccessRepository
+            .addApiAccessMethod(newAccessMethod)
+            .fold(
+                { _sideEffects.send(SaveApiAccessMethodSideEffect.CouldNotSaveApiAccessMethod) },
+                { _sideEffects.send(SaveApiAccessMethodSideEffect.SuccessfullyCreatedApiMethod) }
+            )
+    }
+
+    private suspend fun updateAccessMethod(apiAccessMethod: ApiAccessMethod) {
+        apiAccessRepository
+            .updateApiAccessMethod(apiAccessMethod)
+            .fold(
+                { _sideEffects.send(SaveApiAccessMethodSideEffect.CouldNotSaveApiAccessMethod) },
+                { _sideEffects.send(SaveApiAccessMethodSideEffect.SuccessfullyCreatedApiMethod) }
+            )
     }
 }
 

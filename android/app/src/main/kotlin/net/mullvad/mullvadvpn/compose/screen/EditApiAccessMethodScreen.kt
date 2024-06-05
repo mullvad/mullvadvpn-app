@@ -44,7 +44,6 @@ import net.mullvad.mullvadvpn.compose.preview.EditApiAccessMethodUiStateParamete
 import net.mullvad.mullvadvpn.compose.state.ApiAccessMethodTypes
 import net.mullvad.mullvadvpn.compose.state.EditApiAccessFormData
 import net.mullvad.mullvadvpn.compose.state.EditApiAccessMethodUiState
-import net.mullvad.mullvadvpn.compose.state.FormInputField
 import net.mullvad.mullvadvpn.compose.textfield.CustomTextField
 import net.mullvad.mullvadvpn.compose.textfield.mullvadDarkTextFieldColors
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
@@ -91,12 +90,18 @@ fun EditApiAccessMethod(
     LaunchedEffectCollect(sideEffect = viewModel.sideEffect) {
         when (it) {
             is EditApiAccessSideEffect.OpenSaveDialog ->
-                navigator.navigate(SaveApiAccessMethodDestination(it.newAccessMethod)) {
+                navigator.navigate(
+                    SaveApiAccessMethodDestination(
+                        id = it.id,
+                        name = it.name,
+                        customProxy = it.customProxy
+                    )
+                ) {
                     launchSingleTop = true
                 }
             is EditApiAccessSideEffect.UnableToGetApiAccessMethod ->
                 backNavigator.navigateBack(result = false)
-            EditApiAccessSideEffect.CLoseScreen -> navigator.navigateUp()
+            EditApiAccessSideEffect.CloseScreen -> navigator.navigateUp()
             EditApiAccessSideEffect.ShowDiscardChangesDialog ->
                 navigator.navigate(DiscardChangesDialogDestination) { launchSingleTop = true }
         }
@@ -171,7 +176,8 @@ fun EditApiAccessMethodScreen(
                 is EditApiAccessMethodUiState.Loading -> Loading()
                 is EditApiAccessMethodUiState.Content -> {
                     NameInputField(
-                        nameFormData = state.formData.name,
+                        name = state.formData.name,
+                        nameError = state.formData.nameError,
                         onNameChanged = onNameChanged
                     )
                     Spacer(modifier = Modifier.height(Dimens.verticalSpace))
@@ -213,20 +219,21 @@ fun EditApiAccessMethodScreen(
 
 @Composable
 private fun NameInputField(
-    nameFormData: FormInputField<InvalidDataError.NameError>,
+    name: String,
+    nameError: InvalidDataError.NameError?,
     onNameChanged: (String) -> Unit,
 ) {
     InputField(
-        value = nameFormData.input,
+        value = name,
         keyboardType = KeyboardType.Text,
         onValueChanged = onNameChanged,
         onSubmit = {},
         placeholderText = stringResource(id = R.string.name),
-        isValidValue = nameFormData.error == null,
+        isValidValue = nameError == null,
         isDigitsOnlyAllowed = false,
         maxCharLength = ApiAccessMethodName.MAX_LENGTH,
         supportingText =
-            nameFormData.error?.let {
+            nameError?.let {
                 {
                     Text(
                         text = textResource(id = R.string.this_field_is_required),
@@ -282,12 +289,21 @@ private fun ShadowsocksForm(
     onPasswordChanged: (String) -> Unit,
     onCipherChange: (Cipher) -> Unit
 ) {
-    ServerIpInput(ipFormData = formData.ip, onIpChanged = onIpChanged)
+    ServerIpInput(
+        serverIp = formData.serverIp,
+        serverIpError = formData.serverIpError,
+        onIpChanged = onIpChanged
+    )
     Spacer(modifier = Modifier.height(Dimens.verticalSpacer))
-    RemotePortInput(portFormData = formData.remotePort, onPortChanged = onPortChanged)
+    RemotePortInput(
+        remotePort = formData.remotePort,
+        formData.remotePortError,
+        onPortChanged = onPortChanged
+    )
     Spacer(modifier = Modifier.height(Dimens.verticalSpacer))
     PasswordInput(
-        passwordFormData = formData.password,
+        password = formData.password,
+        passwordError = formData.passwordError,
         optional = true,
         onPasswordChanged = onPasswordChanged
     )
@@ -304,17 +320,30 @@ private fun Socks5RemoteForm(
     onUsernameChanged: (String) -> Unit,
     onPasswordChanged: (String) -> Unit
 ) {
-    ServerIpInput(ipFormData = formData.ip, onIpChanged = onIpChanged)
+    ServerIpInput(
+        serverIp = formData.serverIp,
+        serverIpError = formData.serverIpError,
+        onIpChanged = onIpChanged
+    )
     Spacer(modifier = Modifier.height(Dimens.verticalSpacer))
-    RemotePortInput(portFormData = formData.remotePort, onPortChanged = onPortChanged)
+    RemotePortInput(
+        remotePort = formData.remotePort,
+        portError = formData.remotePortError,
+        onPortChanged = onPortChanged
+    )
     Spacer(modifier = Modifier.height(Dimens.verticalSpacer))
     EnableAuthentication(formData.enableAuthentication, onToggleAuthenticationEnabled)
     if (formData.enableAuthentication) {
         Spacer(modifier = Modifier.height(Dimens.verticalSpacer))
-        UsernameInput(usernameFormData = formData.username, onUsernameChanged = onUsernameChanged)
+        UsernameInput(
+            username = formData.username,
+            usernameError = formData.usernameError,
+            onUsernameChanged = onUsernameChanged
+        )
         Spacer(modifier = Modifier.height(Dimens.verticalSpacer))
         PasswordInput(
-            passwordFormData = formData.password,
+            password = formData.password,
+            passwordError = formData.passwordError,
             optional = false,
             onPasswordChanged = onPasswordChanged
         )
@@ -323,19 +352,20 @@ private fun Socks5RemoteForm(
 
 @Composable
 private fun ServerIpInput(
-    ipFormData: FormInputField<InvalidDataError.ServerIpError>,
+    serverIp: String,
+    serverIpError: InvalidDataError.ServerIpError?,
     onIpChanged: (String) -> Unit
 ) {
     InputField(
-        value = ipFormData.input,
+        value = serverIp,
         keyboardType = KeyboardType.Text,
         onValueChanged = onIpChanged,
         onSubmit = {},
         placeholderText = stringResource(id = R.string.server),
-        isValidValue = ipFormData.error == null,
+        isValidValue = serverIpError == null,
         isDigitsOnlyAllowed = false,
         supportingText =
-            ipFormData.error?.let {
+            serverIpError?.let {
                 {
                     Text(
                         text =
@@ -358,26 +388,27 @@ private fun ServerIpInput(
 
 @Composable
 private fun RemotePortInput(
-    portFormData: FormInputField<InvalidDataError.RemotePortError>,
+    remotePort: String,
+    portError: InvalidDataError.RemotePortError?,
     onPortChanged: (String) -> Unit
 ) {
     InputField(
-        value = portFormData.input,
+        value = remotePort,
         keyboardType = KeyboardType.Number,
         onValueChanged = onPortChanged,
         onSubmit = {},
         placeholderText = stringResource(id = R.string.port),
-        isValidValue = portFormData.error == null,
+        isValidValue = portError == null,
         isDigitsOnlyAllowed = false,
         supportingText =
-            portFormData.error?.let {
+            portError?.let {
                 {
                     Text(
                         text =
                             textResource(
                                 id =
                                     when (it) {
-                                        InvalidDataError.RemotePortError.Invalid ->
+                                        is InvalidDataError.RemotePortError.Invalid ->
                                             R.string.please_enter_a_valid_remote_server_port
                                         InvalidDataError.RemotePortError.Required ->
                                             R.string.this_field_is_required
@@ -393,12 +424,13 @@ private fun RemotePortInput(
 
 @Composable
 private fun PasswordInput(
-    passwordFormData: FormInputField<InvalidDataError.PasswordError>,
+    password: String,
+    passwordError: InvalidDataError.PasswordError?,
     optional: Boolean,
     onPasswordChanged: (String) -> Unit
 ) {
     InputField(
-        value = passwordFormData.input,
+        value = password,
         keyboardType = KeyboardType.Password,
         onValueChanged = onPasswordChanged,
         onSubmit = {},
@@ -414,7 +446,7 @@ private fun PasswordInput(
         isValidValue = true,
         isDigitsOnlyAllowed = false,
         supportingText =
-            passwordFormData.error?.let {
+            passwordError?.let {
                 {
                     Text(
                         text = textResource(id = R.string.this_field_is_required),
@@ -512,19 +544,20 @@ private fun EnableAuthentication(
 
 @Composable
 private fun UsernameInput(
-    usernameFormData: FormInputField<InvalidDataError.UserNameError>,
+    username: String,
+    usernameError: InvalidDataError.UserNameError?,
     onUsernameChanged: (String) -> Unit,
 ) {
     InputField(
-        value = usernameFormData.input,
+        value = username,
         keyboardType = KeyboardType.Text,
         onValueChanged = onUsernameChanged,
         onSubmit = {},
         placeholderText = stringResource(id = R.string.username),
-        isValidValue = usernameFormData.error == null,
+        isValidValue = usernameError == null,
         isDigitsOnlyAllowed = false,
         supportingText =
-            usernameFormData.error?.let {
+            usernameError?.let {
                 {
                     Text(
                         text = textResource(id = R.string.this_field_is_required),

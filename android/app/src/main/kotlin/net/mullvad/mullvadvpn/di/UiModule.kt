@@ -10,8 +10,9 @@ import net.mullvad.mullvadvpn.applist.ApplicationsProvider
 import net.mullvad.mullvadvpn.constant.IS_PLAY_BUILD
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
+import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodName
+import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodType
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
-import net.mullvad.mullvadvpn.lib.model.NewAccessMethod
 import net.mullvad.mullvadvpn.lib.payment.PaymentProvider
 import net.mullvad.mullvadvpn.lib.shared.VoucherRepository
 import net.mullvad.mullvadvpn.repository.ApiAccessRepository
@@ -213,8 +214,12 @@ val uiModule = module {
     viewModel { (accessMethodId: ApiAccessMethodId?) ->
         EditApiAccessMethodViewModel(accessMethodId, get(), get(), get())
     }
-    viewModel { (newAccessMethod: NewAccessMethod) ->
-        SaveApiAccessMethodViewModel(newAccessMethod, get())
+    viewModel {
+        (
+            id: ApiAccessMethodId?,
+            name: ApiAccessMethodName,
+            customProxy: ApiAccessMethodType.CustomProxy) ->
+        SaveApiAccessMethodViewModel(id, name, customProxy, get())
     }
     viewModel { (accessMethodId: ApiAccessMethodId) ->
         ApiAccessMethodDetailsViewModel(accessMethodId, get(), get())
