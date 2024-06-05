@@ -8,4 +8,6 @@ data class NewAccessMethod(
     val name: ApiAccessMethodName,
     val enabled: Boolean,
     val apiAccessMethodType: ApiAccessMethodType
-) : Parcelable
+) : Parcelable {
+    fun customProxy() = apiAccessMethodType as ApiAccessMethodType.CustomProxy
+}

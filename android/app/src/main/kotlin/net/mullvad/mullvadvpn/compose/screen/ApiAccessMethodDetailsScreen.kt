@@ -170,7 +170,7 @@ private fun Content(
     onTestMethodClicked: () -> Unit,
     onUseMethodClicked: () -> Unit
 ) {
-    if (state.canBeEdited) {
+    if (state.isEditable) {
         NavigationComposeCell(
             title = stringResource(id = R.string.edit_method),
             onClick = onEditMethodClicked
@@ -178,12 +178,12 @@ private fun Content(
         HorizontalDivider()
     }
     HeaderSwitchComposeCell(
-        isEnabled = state.canBeDisabled,
+        isEnabled = state.isDisableable,
         title = stringResource(id = R.string.enable_method),
         isToggled = state.enabled,
         onCellClicked = onEnableClicked
     )
-    if (!state.canBeDisabled) {
+    if (!state.isDisableable) {
         SwitchComposeSubtitleCell(
             text = stringResource(id = R.string.at_least_on_method_needs_to_enabled),
         )
@@ -196,12 +196,12 @@ private fun Content(
     )
     Spacer(modifier = Modifier.height(Dimens.verticalSpace))
     PrimaryButton(
-        isEnabled = !state.currentMethod,
+        isEnabled = !state.isCurrentMethod,
         modifier = Modifier.padding(horizontal = Dimens.sideMargin),
         onClick = onUseMethodClicked,
         text = stringResource(id = R.string.use_method)
     )
-    if (state.currentMethod) {
+    if (state.isCurrentMethod) {
         BaseSubtitleCell(text = stringResource(id = R.string.this_is_already_set_as_current))
     }
 }

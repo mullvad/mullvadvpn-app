@@ -14,9 +14,9 @@ class ApiAccessMethodDetailsUiStatePreviewParameterProvider :
                     apiAccessMethodId = it.id,
                     name = it.name,
                     enabled = it.enabled,
-                    canBeEdited = false,
-                    currentMethod = false,
-                    canBeDisabled = true,
+                    isEditable = false,
+                    isCurrentMethod = false,
+                    isDisableable = true,
                     testApiAccessMethodState = null
                 )
             },
@@ -26,9 +26,9 @@ class ApiAccessMethodDetailsUiStatePreviewParameterProvider :
                     apiAccessMethodId = it.id,
                     name = it.name,
                     enabled = it.enabled,
-                    canBeEdited = true,
-                    currentMethod = true,
-                    canBeDisabled = false,
+                    isEditable = true,
+                    isCurrentMethod = true,
+                    isDisableable = false,
                     testApiAccessMethodState = null
                 )
             }

@@ -13,10 +13,10 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorSmall
 import net.mullvad.mullvadvpn.compose.preview.TestMethodButtonPreviewParameterProvider
+import net.mullvad.mullvadvpn.lib.model.TestApiAccessMethodState
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.selected
-import net.mullvad.mullvadvpn.usecase.TestApiAccessMethodState
 
 @Preview
 @Composable
@@ -35,45 +35,42 @@ fun TestMethodButton(
 ) {
     PrimaryButton(
         modifier = modifier,
-        leadingIcon =
-            testMethodState?.let {
-                {
-                    when (testMethodState) {
-                        TestApiAccessMethodState.Failure ->
-                            Box(
-                                modifier =
-                                    Modifier.size(Dimens.relayCircleSize)
-                                        .background(
-                                            color = MaterialTheme.colorScheme.error,
-                                            shape = CircleShape
-                                        )
-                            )
-                        TestApiAccessMethodState.Successful -> {
-                            Box(
-                                modifier =
-                                    Modifier.size(Dimens.relayCircleSize)
-                                        .background(
-                                            color = MaterialTheme.colorScheme.selected,
-                                            shape = CircleShape
-                                        )
-                            )
-                        }
-                        TestApiAccessMethodState.Testing -> {
-                            MullvadCircularProgressIndicatorSmall()
-                        }
-                    }
-                }
-            },
+        leadingIcon = { Icon(testMethodState = testMethodState) },
         onClick = onTestMethod,
         text =
             stringResource(
                 id =
                     when (testMethodState) {
-                        TestApiAccessMethodState.Successful -> R.string.api_reachable
-                        TestApiAccessMethodState.Failure -> R.string.api_unreachable
+                        TestApiAccessMethodState.Result.Successful -> R.string.api_reachable
+                        TestApiAccessMethodState.Result.Failure -> R.string.api_unreachable
                         TestApiAccessMethodState.Testing -> R.string.testing
                         null -> R.string.test_method
                     }
-            )
+            ),
     )
+}
+
+@Composable
+private fun Icon(testMethodState: TestApiAccessMethodState?) {
+    when (testMethodState) {
+        TestApiAccessMethodState.Result.Failure ->
+            Box(
+                modifier =
+                    Modifier.size(Dimens.relayCircleSize)
+                        .background(color = MaterialTheme.colorScheme.error, shape = CircleShape)
+            )
+        TestApiAccessMethodState.Result.Successful -> {
+            Box(
+                modifier =
+                    Modifier.size(Dimens.relayCircleSize)
+                        .background(color = MaterialTheme.colorScheme.selected, shape = CircleShape)
+            )
+        }
+        TestApiAccessMethodState.Testing -> {
+            MullvadCircularProgressIndicatorSmall()
+        }
+        null -> {
+            /*Show nothing*/
+        }
+    }
 }

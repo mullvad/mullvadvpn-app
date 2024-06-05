@@ -5,7 +5,7 @@ import net.mullvad.mullvadvpn.compose.state.EditApiAccessFormData
 import net.mullvad.mullvadvpn.compose.state.EditApiAccessMethodUiState
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodType
 import net.mullvad.mullvadvpn.lib.model.InvalidDataError
-import net.mullvad.mullvadvpn.usecase.TestApiAccessMethodState
+import net.mullvad.mullvadvpn.lib.model.TestApiAccessMethodState
 
 class EditApiAccessMethodUiStateParameterProvider :
     PreviewParameterProvider<EditApiAccessMethodUiState> {

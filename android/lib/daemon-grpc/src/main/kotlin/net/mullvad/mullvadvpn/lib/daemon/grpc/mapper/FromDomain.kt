@@ -22,9 +22,9 @@ import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelaySettings
 import net.mullvad.mullvadvpn.lib.model.SelectedObfuscation
-import net.mullvad.mullvadvpn.lib.model.Udp2TcpObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.SocksAuth
 import net.mullvad.mullvadvpn.lib.model.TransportProtocol
+import net.mullvad.mullvadvpn.lib.model.Udp2TcpObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 
 internal fun Constraint<RelayItemId>.fromDomain(): ManagementInterface.LocationConstraint =
@@ -213,7 +213,7 @@ internal fun ApiAccessMethodType.CustomProxy.Shadowsocks.fromDomain():
     ManagementInterface.Shadowsocks =
     ManagementInterface.Shadowsocks.newBuilder()
         .setIp(ip)
-        .setCipher(cipher.value)
+        .setCipher(cipher.label)
         .setPort(port.value)
         .let {
             if (password != null) {

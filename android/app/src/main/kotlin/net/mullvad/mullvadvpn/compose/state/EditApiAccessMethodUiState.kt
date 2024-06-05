@@ -2,7 +2,7 @@ package net.mullvad.mullvadvpn.compose.state
 
 import net.mullvad.mullvadvpn.lib.model.Cipher
 import net.mullvad.mullvadvpn.lib.model.InvalidDataError
-import net.mullvad.mullvadvpn.usecase.TestApiAccessMethodState
+import net.mullvad.mullvadvpn.lib.model.TestApiAccessMethodState
 
 sealed interface EditApiAccessMethodUiState {
     val editMode: Boolean
