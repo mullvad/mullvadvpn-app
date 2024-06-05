@@ -67,7 +67,7 @@ fun ApiAccessList(navigator: DestinationsNavigator) {
         onApiAccessInfoClick = {
             navigator.navigate(ApiAccessMethodInfoDialogDestination) { launchSingleTop = true }
         },
-        onBackClick = { navigator.navigateUp() }
+        onBackClick = navigator::navigateUp
     )
 }
 
@@ -91,13 +91,13 @@ fun ApiAccessListScreen(
             )
             Spacer(modifier = Modifier.height(Dimens.verticalSpace))
             state.apiAccessMethods.forEachIndexed { index, apiAccessMethod ->
-                if (index != 0) {
-                    HorizontalDivider()
-                }
                 ApiAccessMethodItem(
                     apiAccessMethod = apiAccessMethod,
                     onApiAccessMethodClick = onApiAccessMethodClick
                 )
+                if (index == state.apiAccessMethods.lastIndex) {
+                    HorizontalDivider()
+                }
             }
             Spacer(modifier = Modifier.height(Dimens.verticalSpace))
             ButtonPanel(onAddMethodClick = onAddMethodClick)
@@ -129,11 +129,7 @@ fun CurrentAccessMethod(
     onInfoClicked: () -> Unit
 ) {
     Row(
-        modifier =
-            Modifier.padding(
-                start = Dimens.sideMargin,
-                end = Dimens.sideMargin,
-            ),
+        modifier = Modifier.padding(horizontal = Dimens.sideMargin),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(

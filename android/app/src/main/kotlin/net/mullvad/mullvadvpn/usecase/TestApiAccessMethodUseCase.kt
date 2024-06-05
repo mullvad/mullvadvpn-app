@@ -1,9 +1,11 @@
 package net.mullvad.mullvadvpn.usecase
 
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodType
+import net.mullvad.mullvadvpn.lib.model.TestApiAccessMethodState
 import net.mullvad.mullvadvpn.repository.ApiAccessRepository
 
 class TestApiAccessMethodUseCase(private val apiAccessRepository: ApiAccessRepository) {
@@ -14,23 +16,23 @@ class TestApiAccessMethodUseCase(private val apiAccessRepository: ApiAccessRepos
                 apiAccessRepository
                     .testApiAccessMethodById(input.apiAccessMethodId)
                     .fold(
-                        { emit(TestApiAccessMethodState.Failure) },
-                        { emit(TestApiAccessMethodState.Successful) }
+                        { emit(TestApiAccessMethodState.Result.Failure) },
+                        { emit(TestApiAccessMethodState.Result.Successful) }
                     )
             is TestApiAccessMethodInput.TestNewMethod ->
                 apiAccessRepository
                     .testCustomApiAccessMethod(input.customProxy)
                     .fold(
-                        { emit(TestApiAccessMethodState.Failure) },
-                        { emit(TestApiAccessMethodState.Successful) }
+                        { emit(TestApiAccessMethodState.Result.Failure) },
+                        { emit(TestApiAccessMethodState.Result.Successful) }
                     )
         }
-        delay(TEST_METHOD_RESULT_TIME_MS)
+        delay(TEST_METHOD_RESULT_TIME_DURATION)
         emit(null)
     }
 
     companion object {
-        private const val TEST_METHOD_RESULT_TIME_MS = 1000L * 5
+        private val TEST_METHOD_RESULT_TIME_DURATION = 5.seconds
     }
 }
 
@@ -40,12 +42,4 @@ sealed interface TestApiAccessMethodInput {
 
     data class TestExistingMethod(val apiAccessMethodId: ApiAccessMethodId) :
         TestApiAccessMethodInput
-}
-
-sealed interface TestApiAccessMethodState {
-    data object Testing : TestApiAccessMethodState
-
-    data object Successful : TestApiAccessMethodState
-
-    data object Failure : TestApiAccessMethodState
 }

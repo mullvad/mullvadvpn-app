@@ -24,13 +24,11 @@ import net.mullvad.mullvadvpn.lib.model.GetApiAccessMethodError
 import net.mullvad.mullvadvpn.lib.model.InvalidDataError
 import net.mullvad.mullvadvpn.lib.model.NewAccessMethod
 import net.mullvad.mullvadvpn.lib.model.Port
-import net.mullvad.mullvadvpn.lib.model.PortRange
 import net.mullvad.mullvadvpn.lib.model.SocksAuth
+import net.mullvad.mullvadvpn.lib.model.TestApiAccessMethodState
 import net.mullvad.mullvadvpn.repository.ApiAccessRepository
 import net.mullvad.mullvadvpn.usecase.TestApiAccessMethodInput
-import net.mullvad.mullvadvpn.usecase.TestApiAccessMethodState
 import net.mullvad.mullvadvpn.usecase.TestApiAccessMethodUseCase
-import net.mullvad.mullvadvpn.util.inAnyOf
 import org.apache.commons.validator.routines.InetAddressValidator
 
 class EditApiAccessMethodViewModel(
@@ -274,11 +272,7 @@ class EditApiAccessMethodViewModel(
         )
 
     private fun String.validatePort(): Boolean {
-        return Port.fromString(this@validatePort).fold({ false }, { it.inAnyOf(allValidPorts) })
-    }
-
-    companion object {
-        private val allValidPorts = listOf(PortRange(IntRange(0, 65535)))
+        return Port.fromString(this@validatePort).fold({ false }, { true })
     }
 }
 

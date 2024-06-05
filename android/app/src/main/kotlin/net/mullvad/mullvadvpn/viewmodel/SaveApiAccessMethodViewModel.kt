@@ -8,10 +8,11 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.SaveApiAccessMethodUiState
-import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodType
 import net.mullvad.mullvadvpn.lib.model.NewAccessMethod
+import net.mullvad.mullvadvpn.lib.model.TestApiAccessMethodState
 import net.mullvad.mullvadvpn.repository.ApiAccessRepository
 
 class SaveApiAccessMethodViewModel(
@@ -20,8 +21,7 @@ class SaveApiAccessMethodViewModel(
 ) : ViewModel() {
     private val _sideEffects = Channel<SaveApiAccessMethodSideEffect>()
     val sideEffect = _sideEffects.receiveAsFlow()
-    private val _uiState =
-        MutableStateFlow<SaveApiAccessMethodUiState>(SaveApiAccessMethodUiState.Testing)
+    private val _uiState = MutableStateFlow(SaveApiAccessMethodUiState())
     val uiState: StateFlow<SaveApiAccessMethodUiState> = _uiState
 
     private var testingJob: Job? = null
@@ -29,27 +29,27 @@ class SaveApiAccessMethodViewModel(
     init {
         testingJob =
             viewModelScope.launch {
-                val customProxy =
-                    newAccessMethod.apiAccessMethodType as? ApiAccessMethodType.CustomProxy
-                        ?: error("Access method needs to be custom")
                 apiAccessRepository
-                    .testCustomApiAccessMethod(customProxy)
+                    .testCustomApiAccessMethod(newAccessMethod.customProxy())
                     .fold(
-                        { _uiState.emit(SaveApiAccessMethodUiState.TestingFailed) },
-                        { save(afterSuccessful = true) }
+                        {
+                            _uiState.update {
+                                it.copy(testingState = TestApiAccessMethodState.Result.Failure)
+                            }
+                        },
+                        {
+                            _uiState.update {
+                                it.copy(testingState = TestApiAccessMethodState.Result.Successful)
+                            }
+                            save()
+                        }
                     )
             }
     }
 
-    fun save(afterSuccessful: Boolean = false) {
+    fun save() {
         viewModelScope.launch {
-            _uiState.emit(
-                if (afterSuccessful) {
-                    SaveApiAccessMethodUiState.SavingAfterSuccessful
-                } else {
-                    SaveApiAccessMethodUiState.SavingAfterFailure
-                }
-            )
+            _uiState.update { it.copy(isSaving = true) }
             apiAccessRepository
                 .addApiAccessMethod(newAccessMethod)
                 .fold(

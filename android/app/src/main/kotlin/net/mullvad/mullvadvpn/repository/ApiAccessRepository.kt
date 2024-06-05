@@ -4,6 +4,7 @@ import arrow.core.raise.either
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.firstOrNull
@@ -26,8 +27,11 @@ class ApiAccessRepository(
             .stateIn(CoroutineScope(dispatcher), SharingStarted.Eagerly, null)
 
     val currentAccessMethod =
-        managementService.currentAccessMethod
-            .stateIn(CoroutineScope(dispatcher), SharingStarted.Eagerly, null)
+        managementService.currentAccessMethod.stateIn(
+            CoroutineScope(dispatcher),
+            SharingStarted.Eagerly,
+            null
+        )
 
     suspend fun addApiAccessMethod(newAccessMethod: NewAccessMethod) =
         managementService.addApiAccessMethod(newAccessMethod)
@@ -53,10 +57,10 @@ class ApiAccessRepository(
                 ?: raise(GetApiAccessMethodError.NotFound)
         }
 
-    fun flowApiAccessMethodById(id: ApiAccessMethodId) =
+    fun apiAccessMethodById(id: ApiAccessMethodId): Flow<ApiAccessMethod> =
         accessMethods.mapNotNull { it?.firstOrNull { accessMethod -> accessMethod.id == id } }
 
-    fun flowEnabledApiAccessMethods() =
+    fun enabledApiAccessMethods(): Flow<List<ApiAccessMethod>> =
         accessMethods.mapNotNull { it?.filter { accessMethod -> accessMethod.enabled } }
 
     suspend fun setEnabledApiAccessMethod(id: ApiAccessMethodId, enabled: Boolean) = either {

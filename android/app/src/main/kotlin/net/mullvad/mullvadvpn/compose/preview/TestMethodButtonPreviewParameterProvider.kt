@@ -1,7 +1,7 @@
 package net.mullvad.mullvadvpn.compose.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import net.mullvad.mullvadvpn.usecase.TestApiAccessMethodState
+import net.mullvad.mullvadvpn.lib.model.TestApiAccessMethodState
 
 class TestMethodButtonPreviewParameterProvider :
     PreviewParameterProvider<TestApiAccessMethodState?> {
@@ -9,7 +9,7 @@ class TestMethodButtonPreviewParameterProvider :
         sequenceOf(
             null,
             TestApiAccessMethodState.Testing,
-            TestApiAccessMethodState.Successful,
-            TestApiAccessMethodState.Failure
+            TestApiAccessMethodState.Result.Successful,
+            TestApiAccessMethodState.Result.Failure
         )
 }

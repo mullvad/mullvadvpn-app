@@ -12,9 +12,9 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.ApiAccessMethodDetailsUiState
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodType
+import net.mullvad.mullvadvpn.lib.model.TestApiAccessMethodState
 import net.mullvad.mullvadvpn.repository.ApiAccessRepository
 import net.mullvad.mullvadvpn.usecase.TestApiAccessMethodInput
-import net.mullvad.mullvadvpn.usecase.TestApiAccessMethodState
 import net.mullvad.mullvadvpn.usecase.TestApiAccessMethodUseCase
 
 class ApiAccessMethodDetailsViewModel(
@@ -27,8 +27,8 @@ class ApiAccessMethodDetailsViewModel(
     private val testApiAccessMethodState = MutableStateFlow<TestApiAccessMethodState?>(null)
     val uiState =
         combine(
-                apiAccessRepository.flowApiAccessMethodById(apiAccessMethodId),
-                apiAccessRepository.flowEnabledApiAccessMethods(),
+                apiAccessRepository.apiAccessMethodById(apiAccessMethodId),
+                apiAccessRepository.enabledApiAccessMethods(),
                 apiAccessRepository.currentAccessMethod,
                 testApiAccessMethodState
             ) {
@@ -40,10 +40,10 @@ class ApiAccessMethodDetailsViewModel(
                     apiAccessMethodId = apiAccessMethodId,
                     name = apiAccessMethod.name,
                     enabled = apiAccessMethod.enabled,
-                    canBeEdited =
+                    isEditable =
                         apiAccessMethod.apiAccessMethodType is ApiAccessMethodType.CustomProxy,
-                    canBeDisabled = enabledApiAccessMethods.any { it.id != apiAccessMethodId },
-                    currentMethod = currentAccessMethod?.id == apiAccessMethodId,
+                    isDisableable = enabledApiAccessMethods.any { it.id != apiAccessMethodId },
+                    isCurrentMethod = currentAccessMethod?.id == apiAccessMethodId,
                     testApiAccessMethodState = testApiAccessMethodState
                 )
             }
