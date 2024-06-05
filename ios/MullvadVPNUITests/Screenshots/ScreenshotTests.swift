@@ -8,8 +8,9 @@
 
 import XCTest
 
+@MainActor
 class ScreenshotTests: LoggedInWithTimeUITestCase {
-    override func setUp() {
+    override func setUp() async throws {
         setupSnapshot(app, waitForAnimations: false)
 
         let argumentsJsonString = try? LaunchArguments(
@@ -18,10 +19,10 @@ class ScreenshotTests: LoggedInWithTimeUITestCase {
         ).toJSON()
         app.launchEnvironment[LaunchArguments.tag] = argumentsJsonString
 
-        super.setUp()
+        try await super.setUp()
     }
 
-    func testTakeScreenshotOfQuantumSecuredConnection() throws {
+    func testTakeScreenshotOfQuantumSecuredConnection() async throws {
         // We can't close banners in the screenshot tests due to how the NotificationController view
         // is overridden, so we need to restart the app once to make sure the "new device" notification
         // isn't visible.
@@ -54,7 +55,7 @@ class ScreenshotTests: LoggedInWithTimeUITestCase {
         snapshot("QuantumConnectionSecured")
     }
 
-    func testTakeScreenshotOfCustomListSelected() throws {
+    func testTakeScreenshotOfCustomListSelected() async throws {
         let customListName = "Low latency locations"
 
         TunnelControlPage(app)
@@ -96,7 +97,7 @@ class ScreenshotTests: LoggedInWithTimeUITestCase {
         snapshot("CustomListSelected")
     }
 
-    func testTakeScreenshotOfRelayFilter() throws {
+    func testTakeScreenshotOfRelayFilter() async throws {
         TunnelControlPage(app)
             .tapSelectLocationButton()
 
@@ -110,7 +111,7 @@ class ScreenshotTests: LoggedInWithTimeUITestCase {
         snapshot("RelayFilter")
     }
 
-    func testTakeScreenshotOfVPNSettings() throws {
+    func testTakeScreenshotOfVPNSettings() async throws {
         HeaderBar(app)
             .tapSettingsButton()
 
@@ -120,7 +121,7 @@ class ScreenshotTests: LoggedInWithTimeUITestCase {
         snapshot("VPNSettings")
     }
 
-    func testTakeScreenshotOfDNSSettings() throws {
+    func testTakeScreenshotOfDNSSettings() async throws {
         HeaderBar(app)
             .tapSettingsButton()
 
@@ -142,7 +143,7 @@ class ScreenshotTests: LoggedInWithTimeUITestCase {
         snapshot("DNSSettings")
     }
 
-    func testTakeScreenshotOfAccount() throws {
+    func testTakeScreenshotOfAccount() async throws {
         HeaderBar(app)
             .tapAccountButton()
 
