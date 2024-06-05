@@ -134,7 +134,7 @@ async fn test_custom_access_methods_gui(
     _: TestContext,
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
-) -> Result<(), Error> {
+) -> anyhow::Result<()> {
     use mullvad_api::env;
     use mullvad_relay_selector::{RelaySelector, SelectorConfig};
     use talpid_types::net::proxy::CustomProxy;
@@ -155,7 +155,7 @@ async fn test_custom_access_methods_gui(
     // is accomplished by setting the env variable
     // `MULLVAD_API_FORCE_DIRECT=false` and restarting the daemon.
 
-    let mut env = helpers::get_app_env();
+    let mut env = helpers::get_app_env().await?;
     env.insert(env::API_FORCE_DIRECT_VAR.to_string(), "0".to_string());
 
     tokio::time::timeout(

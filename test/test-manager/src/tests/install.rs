@@ -1,4 +1,4 @@
-use anyhow::Context;
+use anyhow::{bail, Context};
 use std::time::Duration;
 
 use mullvad_management_interface::MullvadProxyClient;
@@ -14,10 +14,10 @@ use super::{
 
 /// Install the last stable version of the app and verify that it is running.
 #[test_function(priority = -200)]
-pub async fn test_install_previous_app(_: TestContext, rpc: ServiceClient) -> Result<(), Error> {
+pub async fn test_install_previous_app(_: TestContext, rpc: ServiceClient) -> anyhow::Result<()> {
     // verify that daemon is not already running
     if rpc.mullvad_daemon_get_status().await? != ServiceStatus::NotRunning {
-        return Err(Error::DaemonRunning);
+        bail!(Error::DaemonRunning);
     }
 
     // install package
@@ -27,13 +27,13 @@ pub async fn test_install_previous_app(_: TestContext, rpc: ServiceClient) -> Re
 
     // verify that daemon is running
     if rpc.mullvad_daemon_get_status().await? != ServiceStatus::Running {
-        return Err(Error::DaemonNotRunning);
+        bail!(Error::DaemonNotRunning);
     }
 
     replace_openvpn_cert(&rpc).await?;
 
     // Override env vars
-    rpc.set_daemon_environment(get_app_env()).await?;
+    rpc.set_daemon_environment(get_app_env().await?).await?;
 
     Ok(())
 }
@@ -45,15 +45,18 @@ pub async fn test_install_previous_app(_: TestContext, rpc: ServiceClient) -> Re
 /// * The installer does not successfully complete.
 /// * The VPN service is not running after the upgrade.
 #[test_function(priority = -190)]
-pub async fn test_upgrade_app(ctx: TestContext, rpc: ServiceClient) -> Result<(), Error> {
+pub async fn test_upgrade_app(ctx: TestContext, rpc: ServiceClient) -> anyhow::Result<()> {
     // Verify that daemon is running
     if rpc.mullvad_daemon_get_status().await? != ServiceStatus::Running {
-        return Err(Error::DaemonNotRunning);
+        bail!(Error::DaemonNotRunning);
     }
 
-    super::account::clear_devices(&super::account::new_device_client())
+    let device_client = super::account::new_device_client()
         .await
-        .expect("failed to clear devices");
+        .context("Failed to create device client")?;
+    super::account::clear_devices(&device_client)
+        .await
+        .context("failed to clear devices")?;
 
     // Login to test preservation of device/account
     // TODO: Cannot do this now because overriding the API is impossible for releases
@@ -68,10 +71,10 @@ pub async fn test_upgrade_app(ctx: TestContext, rpc: ServiceClient) -> Result<()
 
     rpc.exec("mullvad", ["debug", "block-connection"])
         .await
-        .expect("Failed to set relay location");
+        .context("Failed to set relay location")?;
     rpc.exec("mullvad", ["connect"])
         .await
-        .expect("Failed to begin connecting");
+        .context("Failed to begin connecting")?;
 
     tokio::time::timeout(super::WAIT_FOR_TUNNEL_STATE_TIMEOUT, async {
         // use polling for sake of simplicity
@@ -108,7 +111,7 @@ pub async fn test_upgrade_app(ctx: TestContext, rpc: ServiceClient) -> Result<()
 
     // verify that daemon is running
     if rpc.mullvad_daemon_get_status().await? != ServiceStatus::Running {
-        return Err(Error::DaemonNotRunning);
+        bail!(Error::DaemonNotRunning);
     }
 
     // Check if any traffic was observed
@@ -131,7 +134,7 @@ pub async fn test_upgrade_app(ctx: TestContext, rpc: ServiceClient) -> Result<()
     let settings = mullvad_client
         .get_settings()
         .await
-        .expect("failed to obtain settings");
+        .context("failed to obtain settings")?;
 
     const EXPECTED_COUNTRY: &str = "xx";
 
@@ -183,9 +186,9 @@ pub async fn test_uninstall_app(
     _: TestContext,
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
-) -> Result<(), Error> {
+) -> anyhow::Result<()> {
     if rpc.mullvad_daemon_get_status().await? != ServiceStatus::Running {
-        return Err(Error::DaemonNotRunning);
+        bail!(Error::DaemonNotRunning);
     }
 
     // Login to test preservation of device/account
@@ -193,21 +196,21 @@ pub async fn test_uninstall_app(
     mullvad_client
         .login_account(TEST_CONFIG.account_number.clone())
         .await
-        .expect("login failed");
+        .context("login failed")?;
 
     // save device to verify that uninstalling removes the device
     // we should still be logged in after upgrading
     let uninstalled_device = mullvad_client
         .get_device()
         .await
-        .expect("failed to get device data")
+        .context("failed to get device data")?
         .into_device()
-        .expect("failed to get device")
+        .context("failed to get device")?
         .device
         .id;
 
     log::debug!("Uninstalling app");
-    rpc.uninstall_app(get_app_env()).await?;
+    rpc.uninstall_app(get_app_env().await?).await?;
 
     let app_traces = rpc
         .find_mullvad_app_traces()
@@ -219,11 +222,14 @@ pub async fn test_uninstall_app(
     );
 
     if rpc.mullvad_daemon_get_status().await? != ServiceStatus::NotRunning {
-        return Err(Error::DaemonRunning);
+        bail!(Error::DaemonRunning);
     }
 
     // verify that device was removed
-    let devices = super::account::list_devices_with_retries(&super::account::new_device_client())
+    let device_client = super::account::new_device_client()
+        .await
+        .context("Failed to create device client")?;
+    let devices = super::account::list_devices_with_retries(&device_client)
         .await
         .expect("failed to list devices");
 
@@ -239,10 +245,10 @@ pub async fn test_uninstall_app(
 /// Install the app cleanly, failing if the installer doesn't succeed
 /// or if the VPN service is not running afterwards.
 #[test_function(always_run = true, must_succeed = true, priority = -160)]
-pub async fn test_install_new_app(_: TestContext, rpc: ServiceClient) -> Result<(), Error> {
+pub async fn test_install_new_app(_: TestContext, rpc: ServiceClient) -> anyhow::Result<()> {
     // verify that daemon is not already running
     if rpc.mullvad_daemon_get_status().await? != ServiceStatus::NotRunning {
-        return Err(Error::DaemonRunning);
+        bail!(Error::DaemonRunning);
     }
 
     // install package
@@ -252,7 +258,7 @@ pub async fn test_install_new_app(_: TestContext, rpc: ServiceClient) -> Result<
 
     // verify that daemon is running
     if rpc.mullvad_daemon_get_status().await? != ServiceStatus::Running {
-        return Err(Error::DaemonNotRunning);
+        bail!(Error::DaemonNotRunning);
     }
 
     // Set the log level to trace
@@ -262,7 +268,7 @@ pub async fn test_install_new_app(_: TestContext, rpc: ServiceClient) -> Result<
     replace_openvpn_cert(&rpc).await?;
 
     // Override env vars
-    rpc.set_daemon_environment(get_app_env()).await?;
+    rpc.set_daemon_environment(get_app_env().await?).await?;
 
     Ok(())
 }
