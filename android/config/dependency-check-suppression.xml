@@ -25,4 +25,20 @@
         <packageUrl regex="true">^pkg:maven/androidx\.test\.services/storage@.*$</packageUrl>
         <cve>CVE-2014-9152</cve>
     </suppress>
+    <suppress until="2024-12-01Z">
+        <notes><![CDATA[
+            False-positive only affecting javascript gRPC packages.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/io\.grpc/protoc\-gen\-grpc\-kotlin@.*$</packageUrl>
+        <cve>CVE-2020-7768</cve>
+    </suppress>
+    <suppress until="2024-12-01Z">
+        <notes><![CDATA[
+            No impact on this app since it uses UDS rather than HTTP2.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/io\.grpc/.*@.*$</packageUrl>
+        <cve>CVE-2023-32732</cve>
+        <cve>CVE-2023-33953</cve>
+        <cve>CVE-2023-44487</cve>
+    </suppress>
 </suppressions>
