@@ -1,15 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
-    <suppress until="2024-06-01Z">
-        <notes><![CDATA[
-        This CVE only affect the leakCanary build type which is limited to memory leak testing etc.
-        This will most likely be solved by bumping to a future version of the leakcanary dependency
-        where a fixed version of okio is used.
-        https://nvd.nist.gov/vuln/detail/CVE-2023-3635
-        ]]></notes>
-        <packageUrl regex="true">^pkg:maven/com\.squareup\.okio/okio.*@.*$</packageUrl>
-        <cve>CVE-2023-3635</cve>
-    </suppress>
     <suppress until="2024-09-01Z">
         <notes><![CDATA[
             False-positive related to Drupal rather than Android development.
@@ -17,5 +7,14 @@
         ]]></notes>
         <packageUrl regex="true">^pkg:maven/androidx\.test\.services/storage@.*$</packageUrl>
         <cve>CVE-2014-9152</cve>
+    </suppress>
+    <suppress until="2024-12-01Z">
+        <notes><![CDATA[
+            No impact on this app since it uses UDS rather than HTTP2.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/io\.grpc/grpc.*-stub@.*$</packageUrl>
+        <cve>CVE-2023-32732</cve>
+        <cve>CVE-2023-33953</cve>
+        <cve>CVE-2023-44487</cve>
     </suppress>
 </suppressions>

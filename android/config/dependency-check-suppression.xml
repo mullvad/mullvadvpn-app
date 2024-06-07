@@ -8,17 +8,7 @@
         <packageUrl regex="true">^pkg:maven/org\.jetbrains\.kotlin/kotlin\-stdlib.*@.*$</packageUrl>
         <cve>CVE-2022-24329</cve>
     </suppress>
-    <suppress until="2024-06-01Z">
-        <notes><![CDATA[
-        This CVE only affect the leakCanary build type which is limited to memory leak testing etc.
-        This will most likely be solved by bumping to a future version of the leakcanary dependency
-        where a fixed version of okio is used.
-        https://nvd.nist.gov/vuln/detail/CVE-2023-3635
-        ]]></notes>
-        <packageUrl regex="true">^pkg:maven/com\.squareup\.okio/okio@.*$</packageUrl>
-        <cve>CVE-2023-3635</cve>
-    </suppress>
-    <suppress until="2024-06-01Z">
+    <suppress until="2024-09-01Z">
         <notes><![CDATA[
           This CVE only affect programs using loadXML and is derived from using ksp.
           We do not use the loadXML, ksp is used to generate navigation paths in our code
@@ -34,5 +24,21 @@
         ]]></notes>
         <packageUrl regex="true">^pkg:maven/androidx\.test\.services/storage@.*$</packageUrl>
         <cve>CVE-2014-9152</cve>
+    </suppress>
+    <suppress until="2024-12-01Z">
+        <notes><![CDATA[
+            False-positive only affecting javascript gRPC packages.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/io\.grpc/protoc\-gen\-grpc\-kotlin@.*$</packageUrl>
+        <cve>CVE-2020-7768</cve>
+    </suppress>
+    <suppress until="2024-12-01Z">
+        <notes><![CDATA[
+            No impact on this app since it uses UDS rather than HTTP2.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/io\.grpc/.*@.*$</packageUrl>
+        <cve>CVE-2023-32732</cve>
+        <cve>CVE-2023-33953</cve>
+        <cve>CVE-2023-44487</cve>
     </suppress>
 </suppressions>
