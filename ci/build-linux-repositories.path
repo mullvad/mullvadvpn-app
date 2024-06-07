@@ -1,0 +1,7 @@
+# Trigger the build-linux-repositories when src file paths change
+
+[Path]
+PathChanged=TODO
+
+[Install]
+WantedBy=multi-user.target

@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
 #
-# Usage: ./publish-linux-repositories.sh [--production/--staging/--dev] <app version> [--deb <deb repository dir>] [--rpm <rpm repository dir>]
+# Usage: ./publish-linux-repositories.sh [--production/--staging/--dev] <artifact dir> <app version>
 #
-# Rsyncs a locally prepared and stored apt and/or rpm repository to the dev/staging/production
-# repository servers.
+# Copies app deb and rpm artifacts over to the repository building service inbox directory.
+# Makes that service publish the new artifacts to the corresponding repository server.
 
 set -eu
+# nullglob is needed to produce expected results when globing an empty directory
+shopt -s nullglob
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
@@ -15,31 +17,22 @@ source "$SCRIPT_DIR/buildserver-config.sh"
 while [ "$#" -gt 0 ]; do
     case "$1" in
         "--production")
-            repository_servers=("${PRODUCTION_UPLOAD_SERVERS[@]}")
-            repository_server_url="$PRODUCTION_LINUX_REPOSITORY_PUBLIC_URL"
+            environment="production"
             ;;
         "--staging")
-            repository_servers=("${STAGING_UPLOAD_SERVERS[@]}")
-            repository_server_url="$STAGING_LINUX_REPOSITORY_PUBLIC_URL"
+            environment="staging"
             ;;
         "--dev")
-            repository_servers=("${DEV_UPLOAD_SERVERS[@]}")
-            repository_server_url="$DEV_LINUX_REPOSITORY_PUBLIC_URL"
-            ;;
-        "--deb")
-            deb_repo_dir=$2
-            shift
-            ;;
-        "--rpm")
-            rpm_repo_dir=$2
-            shift
+            environment="dev"
             ;;
         -*)
             echo "Unknown option \"$1\"" >&2
             exit 1
             ;;
         *)
-            if [[ -z ${version+x} ]]; then
+            if [[ -z ${artifact_dir+x} ]]; then
+                artifact_dir=$1
+            elif [[ -z ${version+x} ]]; then
                 version=$1
             else
                 echo "Too many arguments" >&2
@@ -50,79 +43,60 @@ while [ "$#" -gt 0 ]; do
     shift
 done
 
+if [[ -z ${environment+x} ]]; then
+    echo "Pass either --dev, --staging or --production to select target servers" >&2
+    exit 1
+fi
+if [[ -z ${artifact_dir+x} ]]; then
+    echo "Please give the artifact directory as an argument to this script" >&2
+    exit 1
+fi
 if [[ -z ${version+x} ]]; then
     echo "Please give the release version as an argument to this script" >&2
     exit 1
 fi
-if [[ -z ${deb_repo_dir+x} && -z ${rpm_repo_dir+x} ]]; then
-    echo "Please specify at least one of --deb or --rpm" >&2
-    exit 1
-fi
-if [[ -z ${repository_servers+x} ]]; then
-    echo "Pass either --dev, --staging or --production to select target servers" >&2
-    exit 1
-fi
 
-function rsync_repo {
-    local local_repo_dir=$1
-    local remote_repo_dir=$2
+function copy_linux_artifacts_to_dir {
+    local src_dir=$1
+    local version=$2
+    local dst_dir=$3
 
-    for server in "${repository_servers[@]}"; do
-        echo "Syncing to $server:$remote_repo_dir"
-        rsync -av --delete --mkpath --rsh='ssh -p 1122' \
-            "$local_repo_dir"/ \
-            build@"$server":"$remote_repo_dir"
+    for deb_path in "$src_dir"/MullvadVPN-"$version"*.deb; do
+        cp "$deb_path" "$dst_dir/"
+    done
+    for rpm_path in "$src_dir"/MullvadVPN-"$version"*.rpm; do
+        cp "$rpm_path" "$dst_dir/"
     done
 }
 
-# Writes the mullvad.repo config file to the repository
-# root. This needs to contain the absolute url and path
-# to the repository. As such, it depends on what server
-# we upload to as well as if it's stable or beta. That's
-# why we need to do it just before upload.
-function generate_rpm_repository_configuration {
-    local repository_dir=$1
-    local stable_or_beta=$2
+function notify_repository_service {
+    local artifact_dir=$1
+    local version=$2
+    local repository_inbox_dir=$3
 
-    local repository_name="Mullvad VPN"
-    if [[ "$stable_or_beta" == "beta" ]]; then
-        repository_name+=" (beta)"
-    fi
+    local tmp_notify_file
+    tmp_notify_file=$(mktemp -p "$LINUX_REPOSITORY_NOTIFY_FILE_TMP_DIR")
+    local notify_file="$repository_inbox_dir/app.src"
 
-    echo -e "[mullvad-$stable_or_beta]
-name=$repository_name
-baseurl=$repository_server_url/rpm/$stable_or_beta/\$basearch
-type=rpm
-enabled=1
-gpgcheck=1
-gpgkey=$repository_server_url/rpm/mullvad-keyring.asc" > "$repository_dir/mullvad.repo"
+    # Temporarily write the file to a different path and then move it.
+    # As long as the tmp dir and destination dir is on the same filesystem,
+    # this is guaranteed to be atomic, preventing partial reads by the consuming
+    # repository building service.
+    echo "$artifact_dir" > "$tmp_notify_file"
+    echo "DEBUG: Moving notify file $tmp_notify_file -> $notify_file"
+    mv "$tmp_notify_file" "$notify_file"
 }
 
-if [[ -n ${deb_repo_dir+x} ]]; then
-    echo "Publishing deb repository from $deb_repo_dir"
-    if [[ ! -d "$deb_repo_dir" ]]; then
-        echo "$deb_repo_dir does not exist" >&2
-        exit 1
-    fi
-
-    rsync_repo "$deb_repo_dir" "deb/beta"
-    if [[ $version != *"-beta"* ]]; then
-        rsync_repo "$deb_repo_dir" "deb/stable"
-    fi
+stable_or_beta="stable"
+if [[ $version == *"-beta-"* ]]; then
+    stable_or_beta="beta"
 fi
+repository_inbox_dir="$LINUX_REPOSITORY_INBOX_DIR_BASE/$environment/$stable_or_beta"
+repository_tmp_store_dir="$LINUX_REPOSITORY_TMP_STORE_DIR_BASE/$environment/$stable_or_beta/$version"
 
-if [[ -n ${rpm_repo_dir+x} ]]; then
-    echo "Publishing rpm repository from $rpm_repo_dir"
-    if [[ ! -d "$rpm_repo_dir" ]]; then
-        echo "$rpm_repo_dir does not exist" >&2
-        exit 1
-    fi
+echo "Copying app artifacts for $version from $artifact_dir to $repository_tmp_store_dir"
+rm -rf "$repository_tmp_store_dir" && mkdir -p "$repository_tmp_store_dir" || exit 1
+copy_linux_artifacts_to_dir "$artifact_dir" "$version" "$repository_tmp_store_dir"
 
-    generate_rpm_repository_configuration "$rpm_repo_dir" "beta"
-    rsync_repo "$rpm_repo_dir" "rpm/beta"
-    if [[ $version != *"-beta"* ]]; then
-        generate_rpm_repository_configuration "$rpm_repo_dir" "stable"
-        rsync_repo "$rpm_repo_dir" "rpm/stable"
-    fi
-fi
-
+echo "Notifying repository building service in $repository_inbox_dir"
+notify_repository_service "$repository_tmp_store_dir" "$version" "$repository_inbox_dir"

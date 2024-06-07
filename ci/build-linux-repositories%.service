@@ -1,0 +1,17 @@
+# Create separate services with instance names being set to "$server_environment-$repository".
+# See the build-linux-repositories.sh script for details.
+#
+# For example:
+# * build-linux-repositories@production-stable.service
+# * build-linux-repositories@staging-beta.service
+# * build-linux-repositories@dev-beta.service
+
+[Unit]
+Description=Mullvad Linux repository generation and upload service
+
+[Service]
+Type=oneshot
+ExecStart=./build-linux-repositories.sh %i
+
+[Install]
+WantedBy=multi-user.target
