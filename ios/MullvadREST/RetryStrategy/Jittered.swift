@@ -27,3 +27,19 @@ struct Jittered<InnerIterator: IteratorProtocol>: IteratorProtocol
         return .milliseconds(millisWithJitter)
     }
 }
+
+/// Iterator that applies a transform function to the result of another iterator.
+struct Transformer<Inner: IteratorProtocol>: IteratorProtocol {
+    typealias Element = Inner.Element
+    private var inner: Inner
+    private let transformer: (Inner.Element?) -> Inner.Element?
+
+    init(inner: Inner, transform: @escaping (Inner.Element?) -> Inner.Element?) {
+        self.inner = inner
+        self.transformer = transform
+    }
+
+    mutating func next() -> Inner.Element? {
+        transformer(inner.next())
+    }
+}
