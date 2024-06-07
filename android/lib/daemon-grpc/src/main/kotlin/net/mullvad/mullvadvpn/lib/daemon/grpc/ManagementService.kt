@@ -41,7 +41,7 @@ import net.mullvad.mullvadvpn.lib.daemon.grpc.mapper.toDomain
 import net.mullvad.mullvadvpn.lib.daemon.grpc.util.LogInterceptor
 import net.mullvad.mullvadvpn.lib.daemon.grpc.util.connectivityFlow
 import net.mullvad.mullvadvpn.lib.model.AccountData
-import net.mullvad.mullvadvpn.lib.model.AccountToken
+import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.AddSplitTunnelingAppError
 import net.mullvad.mullvadvpn.lib.model.AppId
 import net.mullvad.mullvadvpn.lib.model.AppVersionInfo as ModelAppVersionInfo
@@ -210,13 +210,13 @@ class ManagementService(
             .map { it.toDomain() }
             .mapLeft { GetDeviceStateError.Unknown(it) }
 
-    suspend fun getDeviceList(token: AccountToken): Either<GetDeviceListError, List<Device>> =
+    suspend fun getDeviceList(token: AccountNumber): Either<GetDeviceListError, List<Device>> =
         Either.catch { grpc.listDevices(StringValue.of(token.value)) }
             .map { it.devicesList.map(ManagementInterface.Device::toDomain) }
             .mapLeft { GetDeviceListError.Unknown(it) }
 
     suspend fun removeDevice(
-        token: AccountToken,
+        token: AccountNumber,
         deviceId: DeviceId
     ): Either<DeleteDeviceError, Unit> =
         Either.catch {
@@ -257,13 +257,13 @@ class ManagementService(
         grpc.logoutAccount(Empty.getDefaultInstance())
     }
 
-    suspend fun loginAccount(accountToken: AccountToken): Either<LoginAccountError, Unit> =
-        Either.catch { grpc.loginAccount(StringValue.of(accountToken.value)) }
+    suspend fun loginAccount(accountNumber: AccountNumber): Either<LoginAccountError, Unit> =
+        Either.catch { grpc.loginAccount(StringValue.of(accountNumber.value)) }
             .mapLeftStatus {
                 when (it.status.code) {
                     Status.Code.UNAUTHENTICATED -> LoginAccountError.InvalidAccount
                     Status.Code.RESOURCE_EXHAUSTED ->
-                        LoginAccountError.MaxDevicesReached(accountToken)
+                        LoginAccountError.MaxDevicesReached(accountNumber)
                     Status.Code.UNAVAILABLE -> LoginAccountError.RpcError
                     else -> LoginAccountError.Unknown(it)
                 }
@@ -274,11 +274,11 @@ class ManagementService(
         grpc.clearAccountHistory(Empty.getDefaultInstance())
     }
 
-    suspend fun getAccountHistory(): Either<GetAccountHistoryError, AccountToken?> =
+    suspend fun getAccountHistory(): Either<GetAccountHistoryError, AccountNumber?> =
         Either.catch {
                 val history = grpc.getAccountHistory(Empty.getDefaultInstance())
                 if (history.hasToken()) {
-                    AccountToken(history.token.value)
+                    AccountNumber(history.token.value)
                 } else {
                     null
                 }
@@ -298,15 +298,15 @@ class ManagementService(
     }
 
     suspend fun getAccountData(
-        accountToken: AccountToken
+        accountNumber: AccountNumber
     ): Either<GetAccountDataError, AccountData> =
-        Either.catch { grpc.getAccountData(StringValue.of(accountToken.value)).toDomain() }
+        Either.catch { grpc.getAccountData(StringValue.of(accountNumber.value)).toDomain() }
             .mapLeft(GetAccountDataError::Unknown)
 
-    suspend fun createAccount(): Either<CreateAccountError, AccountToken> =
+    suspend fun createAccount(): Either<CreateAccountError, AccountNumber> =
         Either.catch {
-                val accountTokenStringValue = grpc.createNewAccount(Empty.getDefaultInstance())
-                AccountToken(accountTokenStringValue.value)
+                val accountNumberStringValue = grpc.createNewAccount(Empty.getDefaultInstance())
+                AccountNumber(accountNumberStringValue.value)
             }
             .mapLeft(CreateAccountError::Unknown)
 

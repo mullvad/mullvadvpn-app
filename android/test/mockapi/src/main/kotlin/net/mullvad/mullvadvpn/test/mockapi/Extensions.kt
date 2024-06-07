@@ -11,7 +11,7 @@ fun MockResponse.addJsonHeader(): MockResponse {
     return addHeader("Content-Type", "application/json")
 }
 
-fun Buffer.getAccountToken(): String? {
+fun Buffer.getAccountNumber(): String? {
     return try {
         JSONObject(readUtf8()).getString("account_number")
     } catch (ex: JSONException) {

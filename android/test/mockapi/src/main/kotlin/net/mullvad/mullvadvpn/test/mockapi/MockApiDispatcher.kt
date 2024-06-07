@@ -23,7 +23,7 @@ import org.json.JSONArray
 
 class MockApiDispatcher : Dispatcher() {
 
-    var expectedAccountToken: String? = null
+    var expectedAccountNumber: String? = null
     var accountExpiry: DateTime? = null
     var devices: MutableMap<String, String>? = null
     private val canAddDevices: Boolean
@@ -75,9 +75,9 @@ class MockApiDispatcher : Dispatcher() {
     }
 
     private fun handleLoginRequest(requestBody: Buffer): MockResponse {
-        val accountToken = requestBody.getAccountToken()
+        val accountNumber = requestBody.getAccountNumber()
 
-        return if (accountToken != null && accountToken == expectedAccountToken) {
+        return if (accountNumber != null && accountNumber == expectedAccountNumber) {
             MockResponse()
                 .setResponseCode(200)
                 .addJsonHeader()
@@ -91,7 +91,7 @@ class MockApiDispatcher : Dispatcher() {
         } else {
             Log.e(
                 LOG_TAG,
-                "Unexpected account token (expected=$expectedAccountToken was=$accountToken)"
+                "Unexpected account number (expected=$expectedAccountNumber was=$accountNumber)"
             )
             MockResponse().setResponseCode(400)
         }
@@ -168,7 +168,7 @@ class MockApiDispatcher : Dispatcher() {
     }
 
     private fun handleAccountCreationRequest(): MockResponse {
-        return expectedAccountToken?.let { expectedAccountToken ->
+        return expectedAccountNumber?.let { expectedAccountNumber ->
             MockResponse()
                 .setResponseCode(201)
                 .addJsonHeader()
@@ -176,7 +176,7 @@ class MockApiDispatcher : Dispatcher() {
                     accountCreationJson(
                             id = DUMMY_ID_1,
                             expiry = DateTime(),
-                            accountToken = expectedAccountToken
+                            accountNumber = expectedAccountNumber
                         )
                         .toString()
                 )

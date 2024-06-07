@@ -18,9 +18,9 @@ class LoginMockApiTest : MockApiTest() {
     @Test
     fun testLoginWithInvalidCredentials() {
         // Arrange
-        val validAccountToken = "1234123412341234"
+        val validAccountNumber = "1234123412341234"
         apiDispatcher.apply {
-            expectedAccountToken = null
+            expectedAccountNumber = null
             accountExpiry = currentUtcTimeWithOffsetZero().plusDays(1)
         }
         app.launch(endpoint)
@@ -30,7 +30,7 @@ class LoginMockApiTest : MockApiTest() {
         device.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
         device.dismissChangelogDialogIfShown()
         app.waitForLoginPrompt()
-        app.attemptLogin(validAccountToken)
+        app.attemptLogin(validAccountNumber)
 
         // Assert
         val result =
@@ -44,9 +44,9 @@ class LoginMockApiTest : MockApiTest() {
     @Test
     fun testLoginWithValidCredentialsToUnexpiredAccount() {
         // Arrange
-        val validAccountToken = "1234123412341234"
+        val validAccountNumber = "1234123412341234"
         apiDispatcher.apply {
-            expectedAccountToken = validAccountToken
+            expectedAccountNumber = validAccountNumber
             accountExpiry = currentUtcTimeWithOffsetZero().plusDays(1)
             devices = DEFAULT_DEVICE_LIST.toMutableMap()
             devicePendingToGetCreated = DUMMY_ID_2 to DUMMY_DEVICE_NAME_2
@@ -58,7 +58,7 @@ class LoginMockApiTest : MockApiTest() {
         device.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
         device.dismissChangelogDialogIfShown()
         app.waitForLoginPrompt()
-        app.attemptLogin(validAccountToken)
+        app.attemptLogin(validAccountNumber)
 
         // Assert
         app.ensureLoggedIn()
@@ -67,9 +67,9 @@ class LoginMockApiTest : MockApiTest() {
     @Test
     fun testLoginWithValidCredentialsToExpiredAccount() {
         // Arrange
-        val validAccountToken = "1234123412341234"
+        val validAccountNumber = "1234123412341234"
         apiDispatcher.apply {
-            expectedAccountToken = validAccountToken
+            expectedAccountNumber = validAccountNumber
             accountExpiry = currentUtcTimeWithOffsetZero().minusDays(1)
             devices = DEFAULT_DEVICE_LIST.toMutableMap()
             devicePendingToGetCreated = DUMMY_ID_2 to DUMMY_DEVICE_NAME_2
@@ -81,7 +81,7 @@ class LoginMockApiTest : MockApiTest() {
         device.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
         device.dismissChangelogDialogIfShown()
         app.waitForLoginPrompt()
-        app.attemptLogin(validAccountToken)
+        app.attemptLogin(validAccountNumber)
 
         // Assert
         app.ensureOutOfTime()

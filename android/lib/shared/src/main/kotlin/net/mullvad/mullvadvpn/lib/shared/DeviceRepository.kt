@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
-import net.mullvad.mullvadvpn.lib.model.AccountToken
+import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.DeleteDeviceError
 import net.mullvad.mullvadvpn.lib.model.Device
 import net.mullvad.mullvadvpn.lib.model.DeviceId
@@ -27,10 +27,10 @@ class DeviceRepository(
         )
 
     suspend fun removeDevice(
-        accountToken: AccountToken,
+        accountNumber: AccountNumber,
         deviceId: DeviceId
-    ): Either<DeleteDeviceError, Unit> = managementService.removeDevice(accountToken, deviceId)
+    ): Either<DeleteDeviceError, Unit> = managementService.removeDevice(accountNumber, deviceId)
 
-    suspend fun deviceList(accountToken: AccountToken): Either<GetDeviceListError, List<Device>> =
-        managementService.getDeviceList(accountToken)
+    suspend fun deviceList(accountNumber: AccountNumber): Either<GetDeviceListError, List<Device>> =
+        managementService.getDeviceList(accountNumber)
 }

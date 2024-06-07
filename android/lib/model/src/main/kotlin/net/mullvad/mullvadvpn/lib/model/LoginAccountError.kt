@@ -7,7 +7,7 @@ import kotlinx.parcelize.Parcelize
 sealed class LoginAccountError : Parcelable {
     data object InvalidAccount : LoginAccountError()
 
-    data class MaxDevicesReached(val accountToken: AccountToken) : LoginAccountError()
+    data class MaxDevicesReached(val accountNumber: AccountNumber) : LoginAccountError()
 
     data object RpcError : LoginAccountError()
 

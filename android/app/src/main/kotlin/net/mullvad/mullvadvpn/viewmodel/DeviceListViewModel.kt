@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.DeviceItemUiState
 import net.mullvad.mullvadvpn.compose.state.DeviceListUiState
-import net.mullvad.mullvadvpn.lib.model.AccountToken
+import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.Device
 import net.mullvad.mullvadvpn.lib.model.DeviceId
 import net.mullvad.mullvadvpn.lib.model.GetDeviceListError
@@ -25,7 +25,7 @@ import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
 
 class DeviceListViewModel(
     private val deviceRepository: DeviceRepository,
-    private val token: AccountToken,
+    private val token: AccountNumber,
     private val dispatcher: CoroutineDispatcher = Dispatchers.Default,
 ) : ViewModel() {
     private val loadingDevices = MutableStateFlow<Set<DeviceId>>(emptySet())

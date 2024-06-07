@@ -14,8 +14,8 @@ ORCHESTRATOR_URL=https://dl.google.com/android/maven2/androidx/test/orchestrator
 TEST_SERVICES_URL=https://dl.google.com/android/maven2/androidx/test/services/test-services/1.4.2/test-services-1.4.2.apk
 
 PARTNER_AUTH="${PARTNER_AUTH:-}"
-VALID_TEST_ACCOUNT_TOKEN="${VALID_TEST_ACCOUNT_TOKEN:-}"
-INVALID_TEST_ACCOUNT_TOKEN="${INVALID_TEST_ACCOUNT_TOKEN:-}"
+VALID_TEST_ACCOUNT_NUMBER="${VALID_TEST_ACCOUNT_NUMBER:-}"
+INVALID_TEST_ACCOUNT_NUMBER="${INVALID_TEST_ACCOUNT_NUMBER:-}"
 REPORT_DIR="${REPORT_DIR:-}"
 
 while [[ "$#" -gt 0 ]]; do
@@ -113,21 +113,21 @@ case "$TEST_TYPE" in
         exit 1
     fi
     OPTIONAL_TEST_ARGUMENTS=""
-    if [[ -n ${INVALID_TEST_ACCOUNT_TOKEN-} ]]; then
-        OPTIONAL_TEST_ARGUMENTS+=" -e invalid_test_account_token $INVALID_TEST_ACCOUNT_TOKEN"
+    if [[ -n ${INVALID_TEST_ACCOUNT_NUMBER-} ]]; then
+        OPTIONAL_TEST_ARGUMENTS+=" -e invalid_test_account_number $INVALID_TEST_ACCOUNT_NUMBER"
     else
-        echo "Error: The variable INVALID_TEST_ACCOUNT_TOKEN must be set."
+        echo "Error: The variable INVALID_TEST_ACCOUNT_NUMBER must be set."
         exit 1
     fi
     if [[ -n ${PARTNER_AUTH} ]]; then
         echo "Test account used for e2e test (provided/partner): partner"
         OPTIONAL_TEST_ARGUMENTS+=" -e partner_auth $PARTNER_AUTH"
-    elif [[ -n ${VALID_TEST_ACCOUNT_TOKEN} ]]; then
+    elif [[ -n ${VALID_TEST_ACCOUNT_NUMBER} ]]; then
         echo "Test account used for e2e test (provided/partner): provided"
-        OPTIONAL_TEST_ARGUMENTS+=" -e valid_test_account_token $VALID_TEST_ACCOUNT_TOKEN"
+        OPTIONAL_TEST_ARGUMENTS+=" -e valid_test_account_number $VALID_TEST_ACCOUNT_NUMBER"
     else
         echo ""
-        echo "Error: The variable PARTNER_AUTH or VALID_TEST_ACCOUNT_TOKEN must be set."
+        echo "Error: The variable PARTNER_AUTH or VALID_TEST_ACCOUNT_NUMBER must be set."
         exit 1
     fi
     USE_ORCHESTRATOR="true"

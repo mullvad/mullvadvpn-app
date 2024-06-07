@@ -54,7 +54,7 @@ import net.mullvad.mullvadvpn.compose.state.DeviceListUiState
 import net.mullvad.mullvadvpn.compose.transitions.DefaultTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
-import net.mullvad.mullvadvpn.lib.model.AccountToken
+import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.Device
 import net.mullvad.mullvadvpn.lib.model.DeviceId
 import net.mullvad.mullvadvpn.lib.model.GetDeviceListError
@@ -105,13 +105,13 @@ private fun PreviewDeviceListError() {
 @Composable
 fun DeviceList(
     navigator: DestinationsNavigator,
-    accountToken: String,
+    accountNumber: String,
     confirmRemoveResultRecipient:
         ResultRecipient<RemoveDeviceConfirmationDialogDestination, DeviceId>
 ) {
     val viewModel =
         koinViewModel<DeviceListViewModel>(
-            parameters = { parametersOf(AccountToken(accountToken)) }
+            parameters = { parametersOf(AccountNumber(accountNumber)) }
         )
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -148,7 +148,7 @@ fun DeviceList(
         snackbarHostState = snackbarHostState,
         onBackClick = navigator::navigateUp,
         onContinueWithLogin = {
-            navigator.navigate(LoginDestination(accountToken)) {
+            navigator.navigate(LoginDestination(accountNumber)) {
                 launchSingleTop = true
                 popUpTo(LoginDestination) { inclusive = true }
             }

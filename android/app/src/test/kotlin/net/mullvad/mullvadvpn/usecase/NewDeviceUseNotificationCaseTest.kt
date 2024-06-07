@@ -10,7 +10,7 @@ import kotlin.test.assertTrue
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
-import net.mullvad.mullvadvpn.lib.model.AccountToken
+import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.Device
 import net.mullvad.mullvadvpn.lib.model.DeviceId
 import net.mullvad.mullvadvpn.lib.model.DeviceState
@@ -29,7 +29,7 @@ class NewDeviceUseNotificationCaseTest {
     private val deviceState =
         MutableStateFlow<DeviceState?>(
             DeviceState.LoggedIn(
-                AccountToken("1234123412341234"),
+                AccountNumber("1234123412341234"),
                 Device(
                     id = DeviceId.fromString(UUID),
                     name = deviceName,

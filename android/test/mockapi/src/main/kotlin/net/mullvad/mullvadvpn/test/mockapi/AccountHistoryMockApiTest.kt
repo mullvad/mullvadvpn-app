@@ -18,9 +18,9 @@ class AccountHistoryMockApiTest : MockApiTest() {
     @Test
     fun testShowAccountHistory() {
         // Arrange
-        val validAccountToken = "1234123412341234"
+        val validAccountNumber = "1234123412341234"
         apiDispatcher.apply {
-            expectedAccountToken = validAccountToken
+            expectedAccountNumber = validAccountNumber
             accountExpiry = currentUtcTimeWithOffsetZero().plusMonths(1)
             devices = DEFAULT_DEVICE_LIST.toMutableMap()
             devicePendingToGetCreated = DUMMY_ID_2 to DUMMY_DEVICE_NAME_2
@@ -32,7 +32,7 @@ class AccountHistoryMockApiTest : MockApiTest() {
         device.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
         device.dismissChangelogDialogIfShown()
         app.waitForLoginPrompt()
-        app.attemptLogin(validAccountToken)
+        app.attemptLogin(validAccountNumber)
         app.ensureLoggedIn()
         app.clickAccountCog()
         app.clickActionButtonByText("Log out")
