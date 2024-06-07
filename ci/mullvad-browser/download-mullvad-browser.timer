@@ -1,0 +1,10 @@
+[Unit]
+Description=Run Mullvad Browser download service periodically
+
+[Timer]
+# Run every fifteen minutes
+OnCalendar=*:0,15,30,45
+Persistent=true
+
+[Install]
+WantedBy=timers.target

@@ -16,6 +16,9 @@ shopt -s nullglob
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 BUILD_DIR="$SCRIPT_DIR/mullvadvpn-app"
+# All non-dev builds have their artifacts placed under this directory
+ARTIFACT_DIR="$SCRIPT_DIR/artifacts"
+# Keeps track of which git commit hashes has been built, to not build them again
 LAST_BUILT_DIR="$SCRIPT_DIR/last-built"
 
 BRANCHES_TO_BUILD=("origin/main")
@@ -44,27 +47,19 @@ case "$(uname -s)" in
         ;;
 esac
 
+
+# Automatically copy artifacts to the inbox of the repository builder service
+# for dev and staging (production is pushed manually)
 function publish_linux_repositories {
     local artifact_dir=$1
     local version=$2
 
-    local deb_repo_dir="$SCRIPT_DIR/deb/$version"
-    echo "Preparing Apt repository in $deb_repo_dir"
-    "$SCRIPT_DIR/prepare-apt-repository.sh" "$artifact_dir" "$version" "$deb_repo_dir"
+    "$SCRIPT_DIR/publish-app-to-repositories.sh" --dev "$artifact_dir" "$version"
 
-    local rpm_repo_dir="$SCRIPT_DIR/rpm/$version"
-    echo "Preparing RPM repository in $rpm_repo_dir"
-    "$SCRIPT_DIR/prepare-rpm-repository.sh" "$artifact_dir" "$version" "$rpm_repo_dir"
-
-    "$SCRIPT_DIR/publish-linux-repositories.sh" --dev "$version" \
-        --deb "$deb_repo_dir" \
-        --rpm "$rpm_repo_dir"
     # If this is a release build, also push to staging.
     # Publishing to production is done manually.
     if [[ $version != *"-dev-"* ]]; then
-        "$SCRIPT_DIR/publish-linux-repositories.sh" --staging "$version" \
-            --deb "$deb_repo_dir" \
-            --rpm "$rpm_repo_dir"
+        "$SCRIPT_DIR/publish-app-to-repositories.sh" --staging "$artifact_dir" "$version"
     fi
 }
 
@@ -86,9 +81,9 @@ function upload {
     sha256sum "${files[@]}" > "$checksums_path"
 
     case "$(uname -s)" in
-        # Linux is both the build and upload server. Just move directly to target dir
+        # Linux is both the build and upload server. Just copy directly to target dir
         Linux*)
-            mv "${files[@]}" "$checksums_path" "$UPLOAD_DIR/"
+            cp "${files[@]}" "$checksums_path" "$UPLOAD_DIR/"
             ;;
         # Other platforms need to transfer their artifacts to the Linux build machine.
         Darwin*|MINGW*|MSYS_NT*)
@@ -192,7 +187,7 @@ function build_ref {
     local version=""
     version="$(run_in_build_env cargo run -q --bin mullvad-version | tr -d "\r" || return 1)"
 
-    local artifact_dir="dist/$version"
+    local artifact_dir="$ARTIFACT_DIR/$version"
     mkdir -p "$artifact_dir"
 
     local build_args=(--optimize --sign)
@@ -240,8 +235,11 @@ function build_ref {
         publish_linux_repositories "$artifact_dir" "$version"
     fi
     (cd "$artifact_dir" && upload "$version") || return 1
-    # shellcheck disable=SC2216
-    yes | rm -r "$artifact_dir"
+    # Remove artifacts from dev builds. They are not really needed and take up lots of space.
+    if [[ $version == *"-dev-"* ]]; then
+        # shellcheck disable=SC2216
+        yes | rm -r "$artifact_dir"
+    fi
 
     touch "$LAST_BUILT_DIR/$current_hash"
 
