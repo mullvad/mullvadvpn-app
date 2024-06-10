@@ -2,8 +2,6 @@ package net.mullvad.mullvadvpn.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -29,27 +27,24 @@ class SaveApiAccessMethodViewModel(
     private val _uiState = MutableStateFlow(SaveApiAccessMethodUiState())
     val uiState: StateFlow<SaveApiAccessMethodUiState> = _uiState
 
-    private var testingJob: Job? = null
-
     init {
-        testingJob =
-            viewModelScope.launch {
-                apiAccessRepository
-                    .testCustomApiAccessMethod(customProxy)
-                    .fold(
-                        {
-                            _uiState.update {
-                                it.copy(testingState = TestApiAccessMethodState.Result.Failure)
-                            }
-                        },
-                        {
-                            _uiState.update {
-                                it.copy(testingState = TestApiAccessMethodState.Result.Successful)
-                            }
-                            save()
+        viewModelScope.launch {
+            apiAccessRepository
+                .testCustomApiAccessMethod(customProxy)
+                .fold(
+                    {
+                        _uiState.update {
+                            it.copy(testingState = TestApiAccessMethodState.Result.Failure)
                         }
-                    )
-            }
+                    },
+                    {
+                        _uiState.update {
+                            it.copy(testingState = TestApiAccessMethodState.Result.Successful)
+                        }
+                        save()
+                    }
+                )
+        }
     }
 
     fun save() {
@@ -70,13 +65,6 @@ class SaveApiAccessMethodViewModel(
                     )
                 )
             }
-        }
-    }
-
-    fun cancel() {
-        viewModelScope.launch {
-            testingJob?.cancel(message = "Cancelled by user")
-            _uiSideEffect.send(SaveApiAccessMethodSideEffect.Cancel)
         }
     }
 
@@ -111,6 +99,4 @@ sealed interface SaveApiAccessMethodSideEffect {
     data object SuccessfullyCreatedApiMethod : SaveApiAccessMethodSideEffect
 
     data object CouldNotSaveApiAccessMethod : SaveApiAccessMethodSideEffect
-
-    data object Cancel : SaveApiAccessMethodSideEffect
 }
