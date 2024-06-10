@@ -4,12 +4,15 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -25,13 +28,13 @@ fun ApiAccessMethodTextField(
     isValidValue: Boolean,
     isDigitsOnlyAllowed: Boolean,
     errorText: String?,
-    onSubmit: (String) -> Unit,
+    capitalization: KeyboardCapitalization = KeyboardCapitalization.None
 ) {
     CustomTextField(
         value = value,
         keyboardType = keyboardType,
         onValueChanged = onValueChanged,
-        onSubmit = onSubmit,
+        onSubmit = { /* Not being used */},
         labelText = labelText,
         placeholderText = null,
         isValidValue = isValidValue,
@@ -40,6 +43,13 @@ fun ApiAccessMethodTextField(
         supportingText = errorText?.let { { ErrorSupportingText(errorText) } },
         colors = apiAccessTextFieldColors(),
         modifier = modifier.padding(vertical = Dimens.miniPadding),
+        keyboardOptions =
+            KeyboardOptions(
+                capitalization = capitalization,
+                autoCorrect = false,
+                keyboardType = keyboardType,
+                ImeAction.Next
+            )
     )
 }
 
