@@ -1,5 +1,6 @@
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import io.gitlab.arturbosch.detekt.Detekt
+import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
 
 plugins {
     id(Dependencies.Plugin.dependencyCheckId) version Versions.Plugin.dependencyCheck apply false
@@ -34,7 +35,10 @@ val baselineFile = file("$rootDir/config/baseline.xml")
 val configFile = files("$rootDir/config/detekt.yml")
 
 val projectSource = file(projectDir)
-val buildFiles = "**/build/**"
+val detektExcludedPaths = listOf(
+        "**/build/**",
+        "**/mullvad_daemon/management_interface/**",
+)
 
 detekt {
     buildUponDefaultConfig = true
@@ -49,7 +53,12 @@ detekt {
 
 tasks.withType<Detekt>().configureEach {
     // Ignore generated files from the build directory, e.g files created by ksp.
-    exclude(buildFiles)
+    exclude(detektExcludedPaths)
+}
+
+tasks.withType<DetektCreateBaselineTask>().configureEach {
+    // Ignore generated files from the build directory, e.g files created by ksp.
+    exclude(detektExcludedPaths)
 }
 
 allprojects {
