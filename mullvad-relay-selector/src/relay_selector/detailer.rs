@@ -42,7 +42,7 @@ pub enum Error {
     #[error("The selected relay does not support IPv6")]
     NoIPv6(Box<Relay>),
     #[error("Failed to select port")]
-    PortSelectionError(#[source] super::helpers::Error),
+    PortSelectionError,
 }
 
 /// Constructs a [`MullvadWireguardEndpoint`] with details for how to connect to a Wireguard relay.
@@ -173,8 +173,15 @@ fn get_port_for_wireguard_relay(
     query: &WireguardRelayQuery,
     data: &WireguardEndpointData,
 ) -> Result<u16, Error> {
-    super::helpers::select_random_port(query.port, &data.port_ranges)
-        .map_err(Error::PortSelectionError)
+    if let Constraint::Only(port) = query.port {
+        if super::helpers::port_in_range(port, &data.port_ranges) {
+            Ok(port)
+        } else {
+            Err(Error::PortSelectionError)
+        }
+    } else {
+        super::helpers::select_random_port(&data.port_ranges).map_err(|_| Error::PortSelectionError)
+    }
 }
 
 /// Read the [`PublicKey`] of a relay. This will only succeed if [relay][`Relay`] is a
