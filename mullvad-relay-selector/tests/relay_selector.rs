@@ -290,11 +290,7 @@ fn assert_retry_order() {
             .ip_version(IpVersion::V6)
             .build(),
         // 4
-        RelayQueryBuilder::new()
-            .openvpn()
-            .transport_protocol(TransportProtocol::Tcp)
-            .port(443)
-            .build(),
+        RelayQueryBuilder::new().wireguard().shadowsocks().build(),
         // 5
         RelayQueryBuilder::new().wireguard().udp2tcp().build(),
         // 6
@@ -304,6 +300,12 @@ fn assert_retry_order() {
             .ip_version(IpVersion::V6)
             .build(),
         // 7
+        RelayQueryBuilder::new()
+            .openvpn()
+            .transport_protocol(TransportProtocol::Tcp)
+            .port(443)
+            .build(),
+        // 8
         RelayQueryBuilder::new()
             .openvpn()
             .transport_protocol(TransportProtocol::Tcp)
