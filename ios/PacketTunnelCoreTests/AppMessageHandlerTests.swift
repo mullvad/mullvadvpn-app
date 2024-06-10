@@ -95,15 +95,18 @@ final class AppMessageHandlerTests: XCTestCase {
             numberOfFailedAttempts: 0
         )
 
-        let selectedRelay = SelectedRelay(
-            endpoint: match.endpoint,
-            hostname: match.relay.hostname,
-            location: match.location,
-            retryAttempts: 0
+        let selectedRelays = SelectedRelays(
+            entry: nil,
+            exit: SelectedRelay(
+                endpoint: match.endpoint,
+                hostname: match.relay.hostname,
+                location: match.location,
+                retryAttempts: 0
+            )
         )
 
         _ = try? await appMessageHandler.handleAppMessage(
-            TunnelProviderMessage.reconnectTunnel(.preSelected(selectedRelay)).encode()
+            TunnelProviderMessage.reconnectTunnel(.preSelected(selectedRelays)).encode()
         )
 
         await fulfillment(of: [reconnectExpectation], timeout: .UnitTest.timeout)

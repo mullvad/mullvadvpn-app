@@ -10,7 +10,7 @@ import MullvadTypes
 
 extension RelaySelector {
     public enum WireGuard {
-        /// Filters relay list using given constraints and selects random relay for exit relay.
+        /// Filters relay list using given constraints.
         public static func findCandidates(
             by relayConstraint: RelayConstraint<UserSelectedRelays>,
             in relays: REST.ServerRelaysResponse,
@@ -25,7 +25,7 @@ extension RelaySelector {
             )
         }
 
-        // TODO: Add comment.
+        /// Picks a random relay from a list.
         public static func pickCandidate(
             from relayWithLocations: [RelayWithLocation<REST.ServerRelay>],
             relays: REST.ServerRelaysResponse,

@@ -50,13 +50,13 @@ enum TunnelState: Equatable, CustomStringConvertible {
     case pendingReconnect
 
     /// Connecting the tunnel.
-    case connecting(SelectedRelay?, isPostQuantum: Bool)
+    case connecting(SelectedRelays?, isPostQuantum: Bool)
 
     /// Negotiating a key for post-quantum resistance
-    case negotiatingPostQuantumKey(SelectedRelay, PrivateKey)
+    case negotiatingPostQuantumKey(SelectedRelays, PrivateKey)
 
     /// Connected the tunnel
-    case connected(SelectedRelay, isPostQuantum: Bool)
+    case connected(SelectedRelays, isPostQuantum: Bool)
 
     /// Disconnecting the tunnel
     case disconnecting(ActionAfterDisconnect)
@@ -66,10 +66,10 @@ enum TunnelState: Equatable, CustomStringConvertible {
 
     /// Reconnecting the tunnel.
     /// Transition to this state happens when:
-    /// 1. Asking the running tunnel to reconnect to new relay via IPC.
-    /// 2. Tunnel attempts to reconnect to new relay as the current relay appears to be
+    /// 1. Asking the running tunnel to reconnect to new relays via IPC.
+    /// 2. Tunnel attempts to reconnect to new relays as the current relays appear to be
     ///    dysfunctional.
-    case reconnecting(SelectedRelay, isPostQuantum: Bool)
+    case reconnecting(SelectedRelays, isPostQuantum: Bool)
 
     /// Waiting for connectivity to come back up.
     case waitingForConnectivity(WaitingForConnectionReason)
@@ -81,26 +81,26 @@ enum TunnelState: Equatable, CustomStringConvertible {
         switch self {
         case .pendingReconnect:
             "pending reconnect after disconnect"
-        case let .connecting(tunnelRelay, isPostQuantum):
-            if let tunnelRelay {
-                "connecting \(isPostQuantum ? "(PQ) " : "")to \(tunnelRelay.hostname)"
+        case let .connecting(tunnelRelays, isPostQuantum):
+            if let tunnelRelays {
+                "connecting \(isPostQuantum ? "(PQ) " : "")to \(tunnelRelays.exit.hostname)" // TODO: Multihop
             } else {
                 "connecting\(isPostQuantum ? " (PQ)" : ""), fetching relay"
             }
-        case let .connected(tunnelRelay, isPostQuantum):
-            "connected \(isPostQuantum ? "(PQ) " : "")to \(tunnelRelay.hostname)"
+        case let .connected(tunnelRelays, isPostQuantum):
+            "connected \(isPostQuantum ? "(PQ) " : "")to \(tunnelRelays.exit.hostname)" // TODO: Multihop
         case let .disconnecting(actionAfterDisconnect):
             "disconnecting and then \(actionAfterDisconnect)"
         case .disconnected:
             "disconnected"
-        case let .reconnecting(tunnelRelay, isPostQuantum):
-            "reconnecting \(isPostQuantum ? "(PQ) " : "")to \(tunnelRelay.hostname)"
+        case let .reconnecting(tunnelRelays, isPostQuantum):
+            "reconnecting \(isPostQuantum ? "(PQ) " : "")to \(tunnelRelays.exit.hostname)" // TODO: Multihop
         case .waitingForConnectivity:
             "waiting for connectivity"
         case let .error(blockedStateReason):
             "error state: \(blockedStateReason)"
-        case let .negotiatingPostQuantumKey(tunnelRelay, _):
-            "negotiating key with \(tunnelRelay.hostname)"
+        case let .negotiatingPostQuantumKey(tunnelRelays, _):
+            "negotiating key with \(tunnelRelays.exit.hostname)" // TODO: Multihop
         }
     }
 
@@ -114,12 +114,12 @@ enum TunnelState: Equatable, CustomStringConvertible {
         }
     }
 
-    var relay: SelectedRelay? {
+    var relays: SelectedRelays? {
         switch self {
-        case let .connected(relay, _), let .reconnecting(relay, _), let .negotiatingPostQuantumKey(relay, _):
-            relay
-        case let .connecting(relay, _):
-            relay
+        case let .connected(relays, _), let .reconnecting(relays, _), let .negotiatingPostQuantumKey(relays, _):
+            relays
+        case let .connecting(relays, _):
+            relays
         case .disconnecting, .disconnected, .waitingForConnectivity, .pendingReconnect, .error:
             nil
         }

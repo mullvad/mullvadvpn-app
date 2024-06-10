@@ -145,9 +145,9 @@ final class TunnelControlView: UIView {
         updateSecureLabel(tunnelState: tunnelState)
         updateActionButtons(tunnelState: tunnelState)
         if tunnelState.isSecured {
-            updateTunnelRelay(tunnelRelay: tunnelState.relay)
+            updateTunnelRelays(tunnelRelays: tunnelState.relays)
         } else {
-            updateTunnelRelay(tunnelRelay: nil)
+            updateTunnelRelays(tunnelRelays: nil)
         }
     }
 
@@ -224,17 +224,17 @@ final class TunnelControlView: UIView {
         connectButtonBlurView.isEnabled = shouldEnableButtons
     }
 
-    private func updateTunnelRelay(tunnelRelay: SelectedRelay?) {
-        if let tunnelRelay {
+    private func updateTunnelRelays(tunnelRelays: SelectedRelays?) {
+        if let tunnelRelays {
             cityLabel.attributedText = attributedStringForLocation(
-                string: tunnelRelay.location.city
+                string: tunnelRelays.exit.location.city // TODO: Multihop
             )
             countryLabel.attributedText = attributedStringForLocation(
-                string: tunnelRelay.location.country
+                string: tunnelRelays.exit.location.country // TODO: Multihop
             )
 
             connectionPanel.isHidden = false
-            connectionPanel.connectedRelayName = tunnelRelay.hostname
+            connectionPanel.connectedRelayName = tunnelRelays.exit.hostname // TODO: Multihop
         } else {
             countryLabel.attributedText = attributedStringForLocation(string: " ")
             cityLabel.attributedText = attributedStringForLocation(string: " ")

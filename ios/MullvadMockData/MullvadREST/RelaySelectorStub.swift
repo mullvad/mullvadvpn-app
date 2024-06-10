@@ -6,8 +6,8 @@
 //  Copyright © 2023 Mullvad VPN AB. All rights reserved.
 //
 
-import MullvadTypes
 import MullvadREST
+import MullvadTypes
 import WireGuardKitTypes
 
 /// Relay selector stub that accepts a block that can be used to provide custom implementation.

@@ -27,7 +27,7 @@ public enum ObservedState: Equatable, Codable {
 
 /// A serializable representation of internal connection state.
 public struct ObservedConnectionState: Equatable, Codable {
-    public var selectedRelay: SelectedRelay
+    public var selectedRelays: SelectedRelays
     public var relayConstraints: RelayConstraints
     public var networkReachability: NetworkReachability
     public var connectionAttemptCount: UInt
@@ -41,7 +41,7 @@ public struct ObservedConnectionState: Equatable, Codable {
     }
 
     public init(
-        selectedRelay: SelectedRelay,
+        selectedRelays: SelectedRelays,
         relayConstraints: RelayConstraints,
         networkReachability: NetworkReachability,
         connectionAttemptCount: UInt,
@@ -50,7 +50,7 @@ public struct ObservedConnectionState: Equatable, Codable {
         lastKeyRotation: Date? = nil,
         isPostQuantum: Bool
     ) {
-        self.selectedRelay = selectedRelay
+        self.selectedRelays = selectedRelays
         self.relayConstraints = relayConstraints
         self.networkReachability = networkReachability
         self.connectionAttemptCount = connectionAttemptCount
@@ -95,7 +95,7 @@ extension State.ConnectionData {
     /// Map `State.ConnectionData` to `ObservedConnectionState`.
     var observedConnectionState: ObservedConnectionState {
         ObservedConnectionState(
-            selectedRelay: selectedRelay,
+            selectedRelays: selectedRelays,
             relayConstraints: relayConstraints,
             networkReachability: networkReachability,
             connectionAttemptCount: connectionAttemptCount,
