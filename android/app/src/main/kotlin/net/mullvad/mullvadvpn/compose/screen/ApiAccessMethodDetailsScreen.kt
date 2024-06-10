@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.compose.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -18,6 +19,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -33,10 +35,10 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.button.TestMethodButton
-import net.mullvad.mullvadvpn.compose.cell.BaseSubtitleCell
 import net.mullvad.mullvadvpn.compose.cell.HeaderSwitchComposeCell
 import net.mullvad.mullvadvpn.compose.cell.NavigationComposeCell
 import net.mullvad.mullvadvpn.compose.cell.SwitchComposeSubtitleCell
+import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.destinations.DeleteApiAccessMethodConfirmationDestination
@@ -158,7 +160,10 @@ fun ApiAccessMethodDetailsScreen(
     }
 }
 
-@Composable private fun Loading() {}
+@Composable
+private fun ColumnScope.Loading() {
+    MullvadCircularProgressIndicatorLarge(modifier = Modifier.align(Alignment.CenterHorizontally))
+}
 
 @Composable
 private fun Content(
@@ -200,7 +205,7 @@ private fun Content(
         text = stringResource(id = R.string.use_method)
     )
     if (state.isCurrentMethod) {
-        BaseSubtitleCell(text = stringResource(id = R.string.this_is_already_set_as_current))
+        AlreadyCurrentText()
     }
 }
 
@@ -236,4 +241,14 @@ private fun Actions(onDeleteAccessMethod: () -> Unit) {
             }
         }
     }
+}
+
+@Composable
+private fun AlreadyCurrentText() {
+    Text(
+        modifier = Modifier.padding(horizontal = Dimens.largePadding),
+        style = MaterialTheme.typography.labelMedium,
+        color = MaterialTheme.colorScheme.onSecondary,
+        text = stringResource(id = R.string.this_is_already_set_as_current),
+    )
 }
