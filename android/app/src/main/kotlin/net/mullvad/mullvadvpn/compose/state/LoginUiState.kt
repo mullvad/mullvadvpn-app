@@ -1,12 +1,12 @@
 package net.mullvad.mullvadvpn.compose.state
 
-import net.mullvad.mullvadvpn.lib.model.AccountToken
+import net.mullvad.mullvadvpn.lib.model.AccountNumber
 
 const val MIN_ACCOUNT_LOGIN_LENGTH = 8
 
 data class LoginUiState(
     val accountNumberInput: String = "",
-    val lastUsedAccount: AccountToken? = null,
+    val lastUsedAccount: AccountNumber? = null,
     val loginState: LoginState = LoginState.Idle(null)
 ) {
     val loginButtonEnabled =

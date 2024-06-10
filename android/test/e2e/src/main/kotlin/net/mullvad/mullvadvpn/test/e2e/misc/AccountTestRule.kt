@@ -1,9 +1,9 @@
 package net.mullvad.mullvadvpn.test.e2e.misc
 
 import androidx.test.platform.app.InstrumentationRegistry
-import net.mullvad.mullvadvpn.test.e2e.constant.INVALID_TEST_ACCOUNT_TOKEN_ARGUMENT_KEY
+import net.mullvad.mullvadvpn.test.e2e.constant.INVALID_TEST_ACCOUNT_NUMBER_ARGUMENT_KEY
 import net.mullvad.mullvadvpn.test.e2e.constant.PARTNER_AUTH
-import net.mullvad.mullvadvpn.test.e2e.constant.VALID_TEST_ACCOUNT_TOKEN_ARGUMENT_KEY
+import net.mullvad.mullvadvpn.test.e2e.constant.VALID_TEST_ACCOUNT_NUMBER_ARGUMENT_KEY
 import net.mullvad.mullvadvpn.test.e2e.extension.getRequiredArgument
 import org.junit.jupiter.api.extension.BeforeEachCallback
 import org.junit.jupiter.api.extension.ExtensionContext
@@ -30,12 +30,12 @@ class AccountTestRule : BeforeEachCallback {
                 )
             } else {
                 validAccountNumber =
-                    bundle.getRequiredArgument(VALID_TEST_ACCOUNT_TOKEN_ARGUMENT_KEY)
+                    bundle.getRequiredArgument(VALID_TEST_ACCOUNT_NUMBER_ARGUMENT_KEY)
                 client.removeAllDevices(validAccountNumber)
             }
 
             invalidAccountNumber =
-                bundle.getRequiredArgument(INVALID_TEST_ACCOUNT_TOKEN_ARGUMENT_KEY)
+                bundle.getRequiredArgument(INVALID_TEST_ACCOUNT_NUMBER_ARGUMENT_KEY)
         }
     }
 

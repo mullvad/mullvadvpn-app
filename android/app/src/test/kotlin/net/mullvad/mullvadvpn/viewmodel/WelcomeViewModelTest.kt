@@ -16,7 +16,7 @@ import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.common.test.assertLists
 import net.mullvad.mullvadvpn.lib.model.AccountData
-import net.mullvad.mullvadvpn.lib.model.AccountToken
+import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.Device
 import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.model.TunnelState
@@ -126,7 +126,7 @@ class WelcomeViewModelTest {
     fun `when DeviceRepository returns LoggedIn uiState should include new accountNumber`() =
         runTest {
             // Arrange
-            val expectedAccountNumber = AccountToken("4444555566667777")
+            val expectedAccountNumber = AccountNumber("4444555566667777")
             val device: Device = mockk()
             every { device.displayName() } returns ""
 
@@ -136,7 +136,7 @@ class WelcomeViewModelTest {
                 awaitItem()
                 paymentAvailabilityFlow.value = null
                 deviceStateFlow.value =
-                    DeviceState.LoggedIn(accountToken = expectedAccountNumber, device = device)
+                    DeviceState.LoggedIn(accountNumber = expectedAccountNumber, device = device)
                 assertEquals(expectedAccountNumber, awaitItem().accountNumber)
             }
         }

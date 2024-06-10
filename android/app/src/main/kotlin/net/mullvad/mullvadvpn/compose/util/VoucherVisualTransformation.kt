@@ -23,16 +23,16 @@ fun vouchersVisualTransformation() = VisualTransformation { text ->
         AnnotatedString(out),
         object : OffsetMapping {
             override fun originalToTransformed(offset: Int): Int {
-                val res = offset + offset / ACCOUNT_TOKEN_CHUNK_SIZE
+                val res = offset + offset / ACCOUNT_NUMBER_CHUNK_SIZE
                 // Limit max input to 19 characters (16 voucher - 3 dividers)
                 return min(
                     res,
-                    MAX_VOUCHER_LENGTH + MAX_VOUCHER_LENGTH / ACCOUNT_TOKEN_CHUNK_SIZE - 1
+                    MAX_VOUCHER_LENGTH + MAX_VOUCHER_LENGTH / ACCOUNT_NUMBER_CHUNK_SIZE - 1
                 )
             }
 
             override fun transformedToOriginal(offset: Int): Int =
-                offset - offset / (ACCOUNT_TOKEN_CHUNK_SIZE + 1)
+                offset - offset / (ACCOUNT_NUMBER_CHUNK_SIZE + 1)
         }
     )
 }

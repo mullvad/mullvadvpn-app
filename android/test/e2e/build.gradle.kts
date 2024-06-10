@@ -43,8 +43,8 @@ android {
         testInstrumentationRunnerArguments +=
             mutableMapOf<String, String>().apply {
                 put("clearPackageData", "true")
-                addOptionalPropertyAsArgument("valid_test_account_token")
-                addOptionalPropertyAsArgument("invalid_test_account_token")
+                addOptionalPropertyAsArgument("valid_test_account_number")
+                addOptionalPropertyAsArgument("invalid_test_account_number")
             }
     }
 

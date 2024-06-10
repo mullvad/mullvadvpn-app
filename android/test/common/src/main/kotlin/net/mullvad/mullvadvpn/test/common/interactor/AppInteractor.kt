@@ -43,12 +43,12 @@ class AppInteractor(
         device.wait(Until.hasObject(By.pkg(targetPackageName).depth(0)), APP_LAUNCH_TIMEOUT)
     }
 
-    fun launchAndEnsureLoggedIn(accountToken: String) {
+    fun launchAndEnsureLoggedIn(accountNumber: String) {
         launch()
         device.clickAgreeOnPrivacyDisclaimer()
         device.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
         waitForLoginPrompt()
-        attemptLogin(accountToken)
+        attemptLogin(accountNumber)
         ensureLoggedIn()
     }
 
@@ -61,10 +61,10 @@ class AppInteractor(
         ensureAccountCreated()
     }
 
-    fun attemptLogin(accountToken: String) {
+    fun attemptLogin(accountNumber: String) {
         val loginObject =
             device.findObjectWithTimeout(By.clazz("android.widget.EditText")).apply {
-                text = accountToken
+                text = accountNumber
             }
         loginObject.parent.findObject(By.clazz(Button::class.java)).click()
     }
@@ -73,10 +73,10 @@ class AppInteractor(
         device.findObjectWithTimeout(By.text("Create account")).click()
     }
 
-    fun ensureAccountCreated(accountToken: String? = null) {
+    fun ensureAccountCreated(accountNumber: String? = null) {
         device.findObjectWithTimeout(By.text("Congrats!"), LOGIN_TIMEOUT)
-        accountToken?.let {
-            device.findObjectWithTimeout(By.text(accountToken), DEFAULT_INTERACTION_TIMEOUT)
+        accountNumber?.let {
+            device.findObjectWithTimeout(By.text(accountNumber), DEFAULT_INTERACTION_TIMEOUT)
         }
     }
 

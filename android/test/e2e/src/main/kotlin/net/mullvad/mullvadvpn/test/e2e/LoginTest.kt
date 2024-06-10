@@ -17,10 +17,10 @@ class LoginTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
     @Test
     fun testLoginWithValidCredentials() {
         // Given
-        val validTestAccountToken = accountTestRule.validAccountNumber
+        val validTestAccountNumber = accountTestRule.validAccountNumber
 
         // When
-        app.launchAndEnsureLoggedIn(validTestAccountToken)
+        app.launchAndEnsureLoggedIn(validTestAccountNumber)
 
         // Then
         app.ensureLoggedIn()
@@ -30,14 +30,14 @@ class LoginTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
     @Disabled("Disabled to avoid getting rate-limited.")
     fun testLoginWithInvalidCredentials() {
         // Given
-        val invalidDummyAccountToken = accountTestRule.invalidAccountNumber
+        val invalidDummyAccountNumber = accountTestRule.invalidAccountNumber
 
         // When
         app.launch()
         device.clickAgreeOnPrivacyDisclaimer()
         device.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
         app.waitForLoginPrompt()
-        app.attemptLogin(invalidDummyAccountToken)
+        app.attemptLogin(invalidDummyAccountNumber)
 
         // Then
         device.findObjectWithTimeout(By.text("Invalid account number"), LOGIN_FAILURE_TIMEOUT)

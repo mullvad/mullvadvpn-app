@@ -24,7 +24,7 @@ import net.mullvad.mullvadvpn.compose.state.LoginState.Success
 import net.mullvad.mullvadvpn.compose.state.LoginUiState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.AccountData
-import net.mullvad.mullvadvpn.lib.model.AccountToken
+import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.LoginAccountError
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.usecase.ConnectivityUseCase
@@ -93,7 +93,7 @@ class LoginViewModelTest {
             // Arrange
             val uiStates = loginViewModel.uiState.testIn(backgroundScope)
             val sideEffects = loginViewModel.uiSideEffect.testIn(backgroundScope)
-            coEvery { mockedAccountRepository.createAccount() } returns DUMMY_ACCOUNT_TOKEN.right()
+            coEvery { mockedAccountRepository.createAccount() } returns DUMMY_ACCOUNT_NUMBER.right()
 
             // Act, Assert
             uiStates.skipDefaultItem()
@@ -115,7 +115,7 @@ class LoginViewModelTest {
 
             // Act, Assert
             uiStates.skipDefaultItem()
-            loginViewModel.login(DUMMY_ACCOUNT_TOKEN.value)
+            loginViewModel.login(DUMMY_ACCOUNT_NUMBER.value)
             assertEquals(Loading.LoggingIn, uiStates.awaitItem().loginState)
             assertEquals(Success, uiStates.awaitItem().loginState)
             assertEquals(LoginUiSideEffect.NavigateToConnect, sideEffects.awaitItem())
@@ -131,7 +131,7 @@ class LoginViewModelTest {
 
             // Act, Assert
             skipDefaultItem()
-            loginViewModel.login(DUMMY_ACCOUNT_TOKEN.value)
+            loginViewModel.login(DUMMY_ACCOUNT_NUMBER.value)
             assertEquals(Loading.LoggingIn, awaitItem().loginState)
             assertEquals(Idle(loginError = LoginError.InvalidCredentials), awaitItem().loginState)
         }
@@ -145,14 +145,14 @@ class LoginViewModelTest {
                 val uiStates = loginViewModel.uiState.testIn(backgroundScope)
                 val sideEffects = loginViewModel.uiSideEffect.testIn(backgroundScope)
                 coEvery { mockedAccountRepository.login(any()) } returns
-                    LoginAccountError.MaxDevicesReached(DUMMY_ACCOUNT_TOKEN).left()
+                    LoginAccountError.MaxDevicesReached(DUMMY_ACCOUNT_NUMBER).left()
 
                 // Act, Assert
                 uiStates.skipDefaultItem()
-                loginViewModel.login(DUMMY_ACCOUNT_TOKEN.value)
+                loginViewModel.login(DUMMY_ACCOUNT_NUMBER.value)
                 assertEquals(Loading.LoggingIn, uiStates.awaitItem().loginState)
                 assertEquals(
-                    LoginUiSideEffect.TooManyDevices(DUMMY_ACCOUNT_TOKEN),
+                    LoginUiSideEffect.TooManyDevices(DUMMY_ACCOUNT_NUMBER),
                     sideEffects.awaitItem()
                 )
             }
@@ -167,7 +167,7 @@ class LoginViewModelTest {
 
             // Act, Assert
             skipDefaultItem()
-            loginViewModel.login(DUMMY_ACCOUNT_TOKEN.value)
+            loginViewModel.login(DUMMY_ACCOUNT_NUMBER.value)
             assertEquals(Loading.LoggingIn, awaitItem().loginState)
             assertEquals(
                 Idle(LoginError.Unknown(EXPECTED_RPC_ERROR_MESSAGE)),
@@ -185,7 +185,7 @@ class LoginViewModelTest {
 
             // Act, Assert
             skipDefaultItem()
-            loginViewModel.login(DUMMY_ACCOUNT_TOKEN.value)
+            loginViewModel.login(DUMMY_ACCOUNT_NUMBER.value)
             assertEquals(Loading.LoggingIn, awaitItem().loginState)
             val loginState = awaitItem().loginState
             assertIs<Idle>(loginState)
@@ -197,12 +197,12 @@ class LoginViewModelTest {
     fun `on new accountHistory emission uiState should include lastUsedAccount matching accountHistory`() =
         runTest {
             // Arrange
-            coEvery { mockedAccountRepository.fetchAccountHistory() } returns DUMMY_ACCOUNT_TOKEN
+            coEvery { mockedAccountRepository.fetchAccountHistory() } returns DUMMY_ACCOUNT_NUMBER
 
             // Act, Assert
             loginViewModel.uiState.test {
                 assertEquals(
-                    LoginUiState.INITIAL.copy(lastUsedAccount = DUMMY_ACCOUNT_TOKEN),
+                    LoginUiState.INITIAL.copy(lastUsedAccount = DUMMY_ACCOUNT_NUMBER),
                     awaitItem()
                 )
             }
@@ -220,7 +220,7 @@ class LoginViewModelTest {
     }
 
     companion object {
-        private val DUMMY_ACCOUNT_TOKEN = AccountToken("DUMMY")
+        private val DUMMY_ACCOUNT_NUMBER = AccountNumber("DUMMY")
         private const val EXPECTED_RPC_ERROR_MESSAGE = "RpcError"
     }
 }

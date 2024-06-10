@@ -24,9 +24,9 @@ class TooManyDevicesMockApiTest : MockApiTest() {
     @Test
     fun testRemoveDeviceSuccessfulAndLogin() {
         // Arrange
-        val validAccountToken = "1234123412341234"
+        val validAccountNumber = "1234123412341234"
         apiDispatcher.apply {
-            expectedAccountToken = validAccountToken
+            expectedAccountNumber = validAccountNumber
             accountExpiry = currentUtcTimeWithOffsetZero().plusMonths(1)
             devices =
                 mutableMapOf(
@@ -45,7 +45,7 @@ class TooManyDevicesMockApiTest : MockApiTest() {
         device.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
         device.dismissChangelogDialogIfShown()
         app.waitForLoginPrompt()
-        app.attemptLogin(validAccountToken)
+        app.attemptLogin(validAccountNumber)
 
         // Assert that we have too many devices
         device.findObjectWithTimeout(By.text("Too many devices"))

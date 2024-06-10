@@ -15,7 +15,7 @@ import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.common.test.assertLists
-import net.mullvad.mullvadvpn.lib.model.AccountToken
+import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.Device
 import net.mullvad.mullvadvpn.lib.model.DeviceId
 import net.mullvad.mullvadvpn.lib.model.DeviceState
@@ -46,8 +46,8 @@ class AccountViewModelTest {
 
     private val dummyDevice =
         Device(id = DeviceId.fromString(UUID), name = "fake_name", creationDate = DateTime.now())
-    private val dummyAccountToken: AccountToken =
-        AccountToken(
+    private val dummyAccountNumber: AccountNumber =
+        AccountNumber(
             DUMMY_DEVICE_NAME,
         )
 
@@ -82,7 +82,7 @@ class AccountViewModelTest {
         viewModel.uiState.test {
             awaitItem() // Default state
             deviceState.value =
-                DeviceState.LoggedIn(accountToken = dummyAccountToken, device = dummyDevice)
+                DeviceState.LoggedIn(accountNumber = dummyAccountNumber, device = dummyDevice)
             val result = awaitItem()
             assertEquals(DUMMY_DEVICE_NAME, result.accountNumber)
         }

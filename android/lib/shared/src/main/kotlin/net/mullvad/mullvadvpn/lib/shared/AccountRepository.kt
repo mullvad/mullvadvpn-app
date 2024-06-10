@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.AccountData
-import net.mullvad.mullvadvpn.lib.model.AccountToken
+import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.CreateAccountError
 import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.model.LoginAccountError
@@ -37,7 +37,7 @@ class AccountRepository(
                 managementService.deviceState.filterNotNull().map { deviceState ->
                     when (deviceState) {
                         is DeviceState.LoggedIn -> {
-                            managementService.getAccountData(deviceState.accountToken).getOrNull()
+                            managementService.getAccountData(deviceState.accountNumber).getOrNull()
                         }
                         DeviceState.LoggedOut,
                         DeviceState.Revoked -> null
@@ -48,18 +48,18 @@ class AccountRepository(
             .distinctUntilChanged()
             .stateIn(scope = scope, SharingStarted.Eagerly, null)
 
-    suspend fun createAccount(): Either<CreateAccountError, AccountToken> =
+    suspend fun createAccount(): Either<CreateAccountError, AccountNumber> =
         managementService.createAccount().onRight { _isNewAccount.update { true } }
 
-    suspend fun login(accountToken: AccountToken): Either<LoginAccountError, Unit> =
-        managementService.loginAccount(accountToken)
+    suspend fun login(accountNumber: AccountNumber): Either<LoginAccountError, Unit> =
+        managementService.loginAccount(accountNumber)
 
     suspend fun logout() {
         managementService.logoutAccount()
         _isNewAccount.update { false }
     }
 
-    suspend fun fetchAccountHistory(): AccountToken? =
+    suspend fun fetchAccountHistory(): AccountNumber? =
         managementService.getAccountHistory().getOrNull()
 
     suspend fun clearAccountHistory() = managementService.clearAccountHistory()
@@ -68,7 +68,7 @@ class AccountRepository(
         val deviceState = ensureNotNull(deviceRepository.deviceState.value as? DeviceState.LoggedIn)
 
         val accountData =
-            managementService.getAccountData(deviceState.accountToken).getOrNull().bind()
+            managementService.getAccountData(deviceState.accountNumber).getOrNull().bind()
 
         // Update stateflow cache
         _mutableAccountDataCache.emit(accountData)

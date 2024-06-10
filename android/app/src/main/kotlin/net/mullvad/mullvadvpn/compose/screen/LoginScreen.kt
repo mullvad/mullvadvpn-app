@@ -76,7 +76,7 @@ import net.mullvad.mullvadvpn.compose.test.LOGIN_TITLE_TEST_TAG
 import net.mullvad.mullvadvpn.compose.textfield.mullvadWhiteTextFieldColors
 import net.mullvad.mullvadvpn.compose.transitions.LoginTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
-import net.mullvad.mullvadvpn.compose.util.accountTokenVisualTransformation
+import net.mullvad.mullvadvpn.compose.util.accountNumberVisualTransformation
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaTopBar
@@ -118,16 +118,16 @@ private fun PreviewLoginSuccess() {
 @Composable
 fun Login(
     navigator: DestinationsNavigator,
-    accountToken: String? = null,
+    accountNumber: String? = null,
     vm: LoginViewModel = koinViewModel()
 ) {
     val state by vm.uiState.collectAsStateWithLifecycle()
 
     // Login with argument, e.g when user comes from Too Many Devices screen
-    LaunchedEffect(accountToken) {
-        if (accountToken != null) {
-            vm.onAccountNumberChange(accountToken)
-            vm.login(accountToken)
+    LaunchedEffect(accountNumber) {
+        if (accountNumber != null) {
+            vm.onAccountNumberChange(accountNumber)
+            vm.login(accountNumber)
         }
     }
 
@@ -144,7 +144,7 @@ fun Login(
                     popUpTo(NavGraphs.root) { inclusive = true }
                 }
             is LoginUiSideEffect.TooManyDevices ->
-                navigator.navigate(DeviceListDestination(it.accountToken.value)) {
+                navigator.navigate(DeviceListDestination(it.accountNumber.value)) {
                     launchSingleTop = true
                 }
             LoginUiSideEffect.NavigateToOutOfTime ->
@@ -291,7 +291,7 @@ private fun ColumnScope.LoginInput(
         onValueChange = onAccountNumberChange,
         singleLine = true,
         maxLines = 1,
-        visualTransformation = accountTokenVisualTransformation(),
+        visualTransformation = accountNumberVisualTransformation(),
         enabled = state.loginState is Idle,
         colors = mullvadWhiteTextFieldColors(),
         isError = state.loginState.isError(),
@@ -299,13 +299,13 @@ private fun ColumnScope.LoginInput(
 
     AnimatedVisibility(visible = state.lastUsedAccount != null && expandedDropdown) {
         val token = state.lastUsedAccount?.value.orEmpty()
-        val accountTransformation = remember { accountTokenVisualTransformation() }
+        val accountTransformation = remember { accountNumberVisualTransformation() }
         val transformedText =
             remember(token) { accountTransformation.filter(AnnotatedString(token)).text }
 
         AccountDropDownItem(
             modifier = Modifier.onFocusChanged { ddFocusState = it },
-            accountToken = transformedText.toString(),
+            accountNumber = transformedText.toString(),
             onClick = {
                 state.lastUsedAccount?.let {
                     onAccountNumberChange(it.value)
@@ -379,7 +379,7 @@ private fun LoginState.supportingText(): String? {
 @Composable
 private fun AccountDropDownItem(
     modifier: Modifier = Modifier,
-    accountToken: String,
+    accountNumber: String,
     onClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
@@ -404,7 +404,7 @@ private fun AccountDropDownItem(
                     .padding(horizontal = Dimens.mediumPadding, vertical = Dimens.smallPadding),
             contentAlignment = Alignment.CenterStart
         ) {
-            Text(text = accountToken, overflow = TextOverflow.Clip)
+            Text(text = accountNumber, overflow = TextOverflow.Clip)
         }
         IconButton(onClick = onDeleteClick) {
             Icon(

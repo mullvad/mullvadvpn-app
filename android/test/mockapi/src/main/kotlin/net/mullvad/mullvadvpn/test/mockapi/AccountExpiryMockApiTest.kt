@@ -17,10 +17,10 @@ class AccountExpiryMockApiTest : MockApiTest() {
     @Test
     fun testAccountExpiryDateUpdated() {
         // Arrange
-        val validAccountToken = "1234123412341234"
+        val validAccountNumber = "1234123412341234"
         val oldAccountExpiry = currentUtcTimeWithOffsetZero().plusMonths(1)
         apiDispatcher.apply {
-            expectedAccountToken = validAccountToken
+            expectedAccountNumber = validAccountNumber
             accountExpiry = oldAccountExpiry
             devices = DEFAULT_DEVICE_LIST.toMutableMap()
             devicePendingToGetCreated = DUMMY_ID_2 to DUMMY_DEVICE_NAME_2
@@ -32,7 +32,7 @@ class AccountExpiryMockApiTest : MockApiTest() {
         device.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
         device.dismissChangelogDialogIfShown()
         app.waitForLoginPrompt()
-        app.attemptLogin(validAccountToken)
+        app.attemptLogin(validAccountNumber)
 
         // Assert logged in
         app.ensureLoggedIn()
@@ -51,10 +51,10 @@ class AccountExpiryMockApiTest : MockApiTest() {
     @Test
     fun testAccountTimeExpiredWhileUsingTheAppShouldShowOutOfTimeScreen() {
         // Arrange
-        val validAccountToken = "1234123412341234"
+        val validAccountNumber = "1234123412341234"
         val oldAccountExpiry = currentUtcTimeWithOffsetZero().plusMonths(1)
         apiDispatcher.apply {
-            expectedAccountToken = validAccountToken
+            expectedAccountNumber = validAccountNumber
             accountExpiry = oldAccountExpiry
             devices = DEFAULT_DEVICE_LIST.toMutableMap()
             devicePendingToGetCreated = DUMMY_ID_2 to DUMMY_DEVICE_NAME_2
@@ -66,7 +66,7 @@ class AccountExpiryMockApiTest : MockApiTest() {
         device.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
         device.dismissChangelogDialogIfShown()
         app.waitForLoginPrompt()
-        app.attemptLogin(validAccountToken)
+        app.attemptLogin(validAccountNumber)
 
         // Assert logged in
         app.ensureLoggedIn()

@@ -22,17 +22,17 @@ class SimpleMullvadHttpClient(context: Context) {
 
     private val queue = Volley.newRequestQueue(context)
 
-    fun removeAllDevices(accountToken: String) {
+    fun removeAllDevices(accountNumber: String) {
         Log.v(LOG_TAG, "Remove all devices")
-        val token = login(accountToken)
+        val token = login(accountNumber)
         val devices = getDeviceList(token)
         devices.forEach { removeDevice(token, it) }
         Log.v(LOG_TAG, "All devices removed")
     }
 
-    fun login(accountToken: String): String {
-        Log.v(LOG_TAG, "Attempt login with account token: $accountToken")
-        val json = JSONObject().apply { put("account_number", accountToken) }
+    fun login(accountNumber: String): String {
+        Log.v(LOG_TAG, "Attempt login with account token: $accountNumber")
+        val json = JSONObject().apply { put("account_number", accountNumber) }
         return sendSimpleSynchronousRequest(Request.Method.POST, AUTH_URL, json)!!.let { response ->
             response.getString("access_token").also { accessToken ->
                 Log.v(LOG_TAG, "Successfully logged in and received access token: $accessToken")

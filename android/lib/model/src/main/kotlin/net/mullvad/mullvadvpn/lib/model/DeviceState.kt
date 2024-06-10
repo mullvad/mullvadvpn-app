@@ -5,7 +5,7 @@ import kotlinx.parcelize.Parcelize
 
 sealed class DeviceState : Parcelable {
     @Parcelize
-    data class LoggedIn(val accountToken: AccountToken, val device: Device) : DeviceState()
+    data class LoggedIn(val accountNumber: AccountNumber, val device: Device) : DeviceState()
 
     @Parcelize data object LoggedOut : DeviceState()
 
@@ -15,7 +15,7 @@ sealed class DeviceState : Parcelable {
         return (this as? LoggedIn)?.device?.displayName()
     }
 
-    fun token(): AccountToken? {
-        return (this as? LoggedIn)?.accountToken
+    fun token(): AccountNumber? {
+        return (this as? LoggedIn)?.accountNumber
     }
 }

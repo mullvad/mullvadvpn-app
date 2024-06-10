@@ -24,7 +24,7 @@ import net.mullvad.mullvadvpn.compose.state.LoginState.Idle
 import net.mullvad.mullvadvpn.compose.state.LoginState.Loading
 import net.mullvad.mullvadvpn.compose.state.LoginState.Success
 import net.mullvad.mullvadvpn.compose.state.LoginUiState
-import net.mullvad.mullvadvpn.lib.model.AccountToken
+import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.LoginAccountError
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.usecase.ConnectivityUseCase
@@ -40,7 +40,7 @@ sealed interface LoginUiSideEffect {
 
     data object NavigateToOutOfTime : LoginUiSideEffect
 
-    data class TooManyDevices(val accountToken: AccountToken) : LoginUiSideEffect
+    data class TooManyDevices(val accountNumber: AccountNumber) : LoginUiSideEffect
 }
 
 class LoginViewModel(
@@ -55,15 +55,15 @@ class LoginViewModel(
     private val _uiSideEffect = Channel<LoginUiSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
-    private val _mutableAccountHistory: MutableStateFlow<AccountToken?> = MutableStateFlow(null)
+    private val _mutableAccountHistory: MutableStateFlow<AccountNumber?> = MutableStateFlow(null)
 
     private val _uiState =
         combine(
             _loginInput,
             _mutableAccountHistory,
             _loginState,
-        ) { loginInput, historyAccountToken, loginState ->
-            LoginUiState(loginInput, historyAccountToken, loginState)
+        ) { loginInput, historyAccountNumber, loginState ->
+            LoginUiState(loginInput, historyAccountNumber, loginState)
         }
 
     val uiState: StateFlow<LoginUiState> =
@@ -94,7 +94,7 @@ class LoginViewModel(
         }
     }
 
-    fun login(accountToken: String) {
+    fun login(accountNumber: String) {
         if (!isInternetAvailable()) {
             _loginState.value = Idle(LoginError.NoInternetConnection)
             return
@@ -103,7 +103,7 @@ class LoginViewModel(
         viewModelScope.launch(dispatcher) {
             // Ensure we always take at least MINIMUM_LOADING_SPINNER_TIME_MILLIS to show the
             // loading indicator
-            val result = async { accountRepository.login(AccountToken(accountToken)) }
+            val result = async { accountRepository.login(AccountNumber(accountNumber)) }
 
             delay(MINIMUM_LOADING_SPINNER_TIME_MILLIS)
 
@@ -155,7 +155,7 @@ class LoginViewModel(
         when (this) {
             LoginAccountError.InvalidAccount -> Idle(LoginError.InvalidCredentials)
             is LoginAccountError.MaxDevicesReached ->
-                Idle().also { _uiSideEffect.send(LoginUiSideEffect.TooManyDevices(accountToken)) }
+                Idle().also { _uiSideEffect.send(LoginUiSideEffect.TooManyDevices(accountNumber)) }
             LoginAccountError.RpcError,
             is LoginAccountError.Unknown -> Idle(LoginError.Unknown(this.toString()))
         }

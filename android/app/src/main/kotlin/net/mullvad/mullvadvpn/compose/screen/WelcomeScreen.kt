@@ -54,7 +54,7 @@ import net.mullvad.mullvadvpn.compose.transitions.HomeTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.createCopyToClipboardHandle
 import net.mullvad.mullvadvpn.lib.common.util.groupWithSpaces
-import net.mullvad.mullvadvpn.lib.model.AccountToken
+import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.payment.model.ProductPrice
@@ -72,7 +72,7 @@ private fun PreviewWelcomeScreen() {
         WelcomeScreen(
             state =
                 WelcomeUiState(
-                    accountNumber = AccountToken("4444555566667777"),
+                    accountNumber = AccountNumber("4444555566667777"),
                     deviceName = "Happy Mole",
                     billingPaymentState =
                         PaymentState.PaymentAvailable(
