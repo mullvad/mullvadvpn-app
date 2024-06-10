@@ -81,3 +81,14 @@ const val SERVER_IP_OVERRIDES_IMPORT_BY_TEXT_TEST_TAG = "server_ip_override_impo
 const val RESET_SERVER_IP_OVERRIDE_RESET_TEST_TAG = "reset_server_ip_override_reset_button_test_tag"
 const val RESET_SERVER_IP_OVERRIDE_CANCEL_TEST_TAG =
     "reset_server_ip_override_cancel_button_test_tag"
+
+// SaveApiAccessMethodDialog
+const val SAVE_API_ACCESS_METHOD_LOADING_SPINNER_TEST_TAG =
+    "save_api_access_method_loading_spinner_test_tag"
+const val SAVE_API_ACCESS_METHOD_CANCEL_BUTTON_TEST_TAG =
+    "save_api_access_method_cancel_button_test_tag"
+const val SAVE_API_ACCESS_METHOD_SAVE_BUTTON_TEST_TAG =
+    "save_api_access_method_save_button_test_tag"
+
+// ApiAccessList
+const val API_ACCESS_LIST_INFO_TEST_TAG = "api_access_list_info_test_tag"
