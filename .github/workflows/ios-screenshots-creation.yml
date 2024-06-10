@@ -39,11 +39,7 @@ jobs:
 
       - name: Configure Xcode project
         run: |
-          cp Base.xcconfig.template Base.xcconfig
-          cp App.xcconfig.template App.xcconfig
-          cp PacketTunnel.xcconfig.template PacketTunnel.xcconfig
-          cp Screenshots.xcconfig.template Screenshots.xcconfig
-          cp Api.xcconfig.template Api.xcconfig
+          for file in *.xcconfig.template ; do cp $file ${file//.template/} ; done
           sed -i "" \
             "/PARTNER_API_TOKEN =/ s#= .*#= $PARTNER_API_TOKEN#" \
             UITests.xcconfig
