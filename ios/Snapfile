@@ -14,8 +14,8 @@ languages([
   # ["pt", "pt_BR"] # Portuguese with Brazilian locale
 ])
 
-# The name of the scheme which contains the UI Tests
-scheme("MullvadVPNUITests")
+# The name of the scheme which contains the screenshot UI Tests
+scheme("MullvadVPN")
 
 # The name of the test plan which contains the UI Tests
 testplan("MullvadVPNScreenshots")
