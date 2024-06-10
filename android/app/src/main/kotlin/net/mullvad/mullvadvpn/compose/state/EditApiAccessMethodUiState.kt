@@ -44,13 +44,7 @@ data class EditApiAccessFormData(
 
     companion object {
         fun empty() =
-            EditApiAccessFormData(
-                name = "",
-                password = "",
-                port = "",
-                serverIp = "",
-                username = ""
-            )
+            EditApiAccessFormData(name = "", password = "", port = "", serverIp = "", username = "")
     }
 }
 
