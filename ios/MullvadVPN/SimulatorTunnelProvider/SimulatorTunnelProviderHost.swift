@@ -18,7 +18,7 @@ import PacketTunnelCore
 
 final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
     private var observedState: ObservedState = .disconnected
-    private var selectedRelay: SelectedRelay?
+    private var selectedRelays: SelectedRelays?
     private let urlRequestProxy: URLRequestProxy
     private let relaySelector: RelaySelectorProtocol
 
@@ -43,12 +43,12 @@ final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
                 return
             }
 
-            var selectedRelay: SelectedRelay?
+            var selectedRelays: SelectedRelays?
 
             do {
                 let tunnelOptions = PacketTunnelOptions(rawOptions: options ?? [:])
 
-                selectedRelay = try tunnelOptions.getSelectedRelay()
+                selectedRelays = try tunnelOptions.getSelectedRelays()
             } catch {
                 providerLogger.error(
                     error: error,
@@ -60,7 +60,7 @@ final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
             }
 
             do {
-                setInternalStateConnected(with: try selectedRelay ?? pickRelay())
+                setInternalStateConnected(with: try selectedRelays ?? pickRelays())
                 completionHandler(nil)
             } catch {
                 providerLogger.error(
@@ -74,7 +74,7 @@ final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
 
     override func stopTunnel(with reason: NEProviderStopReason, completionHandler: @escaping () -> Void) {
         dispatchQueue.async { [weak self] in
-            self?.selectedRelay = nil
+            self?.selectedRelays = nil
             self?.observedState = .disconnected
 
             completionHandler()
@@ -117,17 +117,17 @@ final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
             reasserting = true
 
             switch nextRelay {
-            case let .preSelected(selectedRelay):
-                self.selectedRelay = selectedRelay
+            case let .preSelected(selectedRelays):
+                self.selectedRelays = selectedRelays
             case .random:
-                if let nextRelay = try? pickRelay() {
-                    self.selectedRelay = nextRelay
+                if let nextRelays = try? pickRelays() {
+                    self.selectedRelays = nextRelays
                 }
             case .current:
                 break
             }
 
-            setInternalStateConnected(with: selectedRelay)
+            setInternalStateConnected(with: selectedRelays)
             reasserting = false
 
             completionHandler?(nil)
@@ -156,28 +156,28 @@ final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
         }
     }
 
-    private func pickRelay() throws -> SelectedRelay {
+    private func pickRelays() throws -> SelectedRelays {
         let tunnelSettings = try SettingsManager.readSettings()
 
         return try relaySelector.selectRelays(
             with: tunnelSettings.relayConstraints,
             connectionAttemptCount: 0
-        ).exit // TODO: Multihop
+        )
     }
 
-    private func setInternalStateConnected(with selectedRelay: SelectedRelay?) {
-        guard let selectedRelay = selectedRelay else { return }
+    private func setInternalStateConnected(with selectedRelays: SelectedRelays?) {
+        guard let selectedRelays = selectedRelays else { return }
 
         do {
             let settings = try SettingsManager.readSettings()
             observedState = .connected(
                 ObservedConnectionState(
-                    selectedRelay: selectedRelay,
+                    selectedRelays: selectedRelays,
                     relayConstraints: settings.relayConstraints,
                     networkReachability: .reachable,
                     connectionAttemptCount: 0,
                     transportLayer: .udp,
-                    remotePort: selectedRelay.endpoint.ipv4Relay.port,
+                    remotePort: selectedRelays.exit.endpoint.ipv4Relay.port, // TODO: Multihop
                     isPostQuantum: settings.tunnelQuantumResistance.isEnabled
                 )
             )

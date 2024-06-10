@@ -14,20 +14,20 @@ public struct StartOptions {
     /// The system that triggered the launch of packet tunnel.
     public var launchSource: LaunchSource
 
-    /// Pre-selected relay received from UI when available.
-    public var selectedRelay: SelectedRelay?
+    /// Pre-selected relays received from UI when available.
+    public var selectedRelays: SelectedRelays?
 
     /// Designated initializer.
-    public init(launchSource: LaunchSource, selectedRelay: SelectedRelay? = nil) {
+    public init(launchSource: LaunchSource, selectedRelays: SelectedRelays? = nil) {
         self.launchSource = launchSource
-        self.selectedRelay = selectedRelay
+        self.selectedRelays = selectedRelays
     }
 
     /// Returns a brief description suitable for output to tunnel provider log.
     public func logFormat() -> String {
         var s = "Start the tunnel via \(launchSource)"
-        if let selectedRelay {
-            s += ", connect to \(selectedRelay.hostname)"
+        if let selectedRelays {
+            s += ", connect to \(selectedRelays.exit.hostname)" // TODO: Multihop
         }
         s += "."
         return s
