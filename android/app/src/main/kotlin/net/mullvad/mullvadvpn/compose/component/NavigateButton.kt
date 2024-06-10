@@ -29,9 +29,6 @@ fun NavigateBackDownIconButton(onNavigateBack: () -> Unit) {
 @Composable
 fun NavigateCloseIconButton(onNavigateClose: () -> Unit) {
     IconButton(onClick = onNavigateClose) {
-        Icon(
-            painter = painterResource(id = R.drawable.icon_close),
-            contentDescription = null
-        )
+        Icon(painter = painterResource(id = R.drawable.icon_close), contentDescription = null)
     }
 }
