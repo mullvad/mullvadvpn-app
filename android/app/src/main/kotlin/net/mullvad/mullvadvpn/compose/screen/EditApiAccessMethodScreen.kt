@@ -17,11 +17,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -82,7 +81,7 @@ fun EditApiAccessMethod(
     navigator: DestinationsNavigator,
     backNavigator: ResultBackNavigator<Boolean>,
     saveApiAccessMethodResultRecipient: ResultRecipient<SaveApiAccessMethodDestination, Boolean>,
-    discardCangesResultRecipient: ResultRecipient<DiscardChangesDialogDestination, Boolean>,
+    discardChangesResultRecipient: ResultRecipient<DiscardChangesDialogDestination, Boolean>,
     accessMethodId: ApiAccessMethodId?
 ) {
     val viewModel =
@@ -120,7 +119,7 @@ fun EditApiAccessMethod(
         }
     }
 
-    discardCangesResultRecipient.OnNavResultValue { discardChanges ->
+    discardChangesResultRecipient.OnNavResultValue { discardChanges ->
         if (discardChanges) {
             navigator.navigateUp()
         }
@@ -242,7 +241,6 @@ private fun NameInputField(
     nameError: InvalidDataError.NameError?,
     onNameChanged: (String) -> Unit
 ) {
-    val focusManager = LocalFocusManager.current
     ApiAccessMethodTextField(
         value = name,
         keyboardType = KeyboardType.Text,
@@ -252,7 +250,7 @@ private fun NameInputField(
         isDigitsOnlyAllowed = false,
         maxCharLength = ApiAccessMethodName.MAX_LENGTH,
         errorText = nameError?.let { textResource(id = R.string.this_field_is_required) },
-        onSubmit = { focusManager.moveFocus(FocusDirection.Down) }
+        capitalization = KeyboardCapitalization.Words
     )
 }
 
@@ -299,25 +297,17 @@ private fun ShadowsocksForm(
     onPasswordChanged: (String) -> Unit,
     onCipherChange: (Cipher) -> Unit
 ) {
-    val focusManager = LocalFocusManager.current
     ServerIpInput(
         serverIp = formData.serverIp,
         serverIpError = formData.serverIpError,
-        onIpChanged = onIpChanged,
-        onSubmit = { focusManager.moveFocus(FocusDirection.Down) }
+        onIpChanged = onIpChanged
     )
-    PortInput(
-        port = formData.port,
-        formData.portError,
-        onPortChanged = onPortChanged,
-        onSubmit = { focusManager.moveFocus(FocusDirection.Down) }
-    )
+    PortInput(port = formData.port, formData.portError, onPortChanged = onPortChanged)
     PasswordInput(
         password = formData.password,
         passwordError = formData.passwordError,
         optional = true,
-        onPasswordChanged = onPasswordChanged,
-        onSubmit = { focusManager.clearFocus() }
+        onPasswordChanged = onPasswordChanged
     )
     CipherSelection(cipher = formData.cipher, onCipherChange = onCipherChange)
 }
@@ -331,39 +321,24 @@ private fun Socks5RemoteForm(
     onUsernameChanged: (String) -> Unit,
     onPasswordChanged: (String) -> Unit
 ) {
-    val focusManager = LocalFocusManager.current
     ServerIpInput(
         serverIp = formData.serverIp,
         serverIpError = formData.serverIpError,
-        onIpChanged = onIpChanged,
-        onSubmit = { focusManager.moveFocus(FocusDirection.Down) }
+        onIpChanged = onIpChanged
     )
-    PortInput(
-        port = formData.port,
-        portError = formData.portError,
-        onPortChanged = onPortChanged,
-        onSubmit = {
-            if (formData.enableAuthentication) {
-                focusManager.moveFocus(FocusDirection.Down)
-            } else {
-                focusManager.clearFocus()
-            }
-        }
-    )
+    PortInput(port = formData.port, portError = formData.portError, onPortChanged = onPortChanged)
     EnableAuthentication(formData.enableAuthentication, onToggleAuthenticationEnabled)
     if (formData.enableAuthentication) {
         UsernameInput(
             username = formData.username,
             usernameError = formData.usernameError,
             onUsernameChanged = onUsernameChanged,
-            onSubmit = { focusManager.moveFocus(FocusDirection.Down) }
         )
         PasswordInput(
             password = formData.password,
             passwordError = formData.passwordError,
             optional = false,
-            onPasswordChanged = onPasswordChanged,
-            onSubmit = { focusManager.moveFocus(FocusDirection.Down) }
+            onPasswordChanged = onPasswordChanged
         )
     }
 }
@@ -372,8 +347,7 @@ private fun Socks5RemoteForm(
 private fun ServerIpInput(
     serverIp: String,
     serverIpError: InvalidDataError.ServerIpError?,
-    onIpChanged: (String) -> Unit,
-    onSubmit: (String) -> Unit
+    onIpChanged: (String) -> Unit
 ) {
     ApiAccessMethodTextField(
         value = serverIp,
@@ -382,7 +356,6 @@ private fun ServerIpInput(
         labelText = stringResource(id = R.string.server),
         isValidValue = serverIpError == null,
         isDigitsOnlyAllowed = false,
-        onSubmit = onSubmit,
         errorText =
             serverIpError?.let {
                 textResource(
@@ -402,8 +375,7 @@ private fun ServerIpInput(
 private fun PortInput(
     port: String,
     portError: InvalidDataError.PortError?,
-    onPortChanged: (String) -> Unit,
-    onSubmit: (String) -> Unit
+    onPortChanged: (String) -> Unit
 ) {
     ApiAccessMethodTextField(
         value = port,
@@ -412,7 +384,6 @@ private fun PortInput(
         labelText = stringResource(id = R.string.port),
         isValidValue = portError == null,
         isDigitsOnlyAllowed = false,
-        onSubmit = onSubmit,
         errorText =
             portError?.let {
                 textResource(
@@ -432,8 +403,7 @@ private fun PasswordInput(
     password: String,
     passwordError: InvalidDataError.PasswordError?,
     optional: Boolean,
-    onPasswordChanged: (String) -> Unit,
-    onSubmit: (String) -> Unit
+    onPasswordChanged: (String) -> Unit
 ) {
     ApiAccessMethodTextField(
         value = password,
@@ -450,7 +420,6 @@ private fun PasswordInput(
             ),
         isValidValue = passwordError == null,
         isDigitsOnlyAllowed = false,
-        onSubmit = onSubmit,
         errorText = passwordError?.let { textResource(id = R.string.this_field_is_required) },
     )
 }
@@ -544,8 +513,7 @@ private fun EnableAuthentication(
 private fun UsernameInput(
     username: String,
     usernameError: InvalidDataError.UserNameError?,
-    onUsernameChanged: (String) -> Unit,
-    onSubmit: (String) -> Unit
+    onUsernameChanged: (String) -> Unit
 ) {
     ApiAccessMethodTextField(
         value = username,
@@ -554,7 +522,6 @@ private fun UsernameInput(
         labelText = stringResource(id = R.string.username),
         isValidValue = usernameError == null,
         isDigitsOnlyAllowed = false,
-        onSubmit = onSubmit,
         errorText = usernameError?.let { textResource(id = R.string.this_field_is_required) },
     )
 }

@@ -43,6 +43,12 @@ fun CustomTextField(
     visualTransformation: VisualTransformation = VisualTransformation.None,
     supportingText: @Composable (() -> Unit)? = null,
     colors: TextFieldColors = mullvadDarkTextFieldColors(),
+    keyboardOptions: KeyboardOptions =
+        KeyboardOptions(
+            keyboardType = keyboardType,
+            imeAction = ImeAction.Done,
+            autoCorrect = false,
+        )
 ) {
 
     val scope = rememberCoroutineScope()
@@ -87,12 +93,7 @@ fun CustomTextField(
         enabled = isEnabled,
         singleLine = true,
         placeholder = placeholderText?.let { { Text(text = it) } },
-        keyboardOptions =
-            KeyboardOptions(
-                keyboardType = keyboardType,
-                imeAction = ImeAction.Done,
-                autoCorrect = false,
-            ),
+        keyboardOptions = keyboardOptions,
         keyboardActions =
             KeyboardActions(
                 onDone = {
