@@ -178,7 +178,7 @@ fn get_shadowsocks_obfuscator_inner(
 /// # Panic
 /// - If port ranges contains no ports, this function panics.
 pub fn select_random_port(port_ranges: &[(u16, u16)]) -> Result<u16, Error> {
-    let get_port_amount = |range: &(u16, u16)| -> u64 { (1 + range.1 - range.0) as u64 };
+    let get_port_amount = |range: &(u16, u16)| -> u64 { 1 + range.1 as u64 - range.0 as u64 };
     let port_amount: u64 = port_ranges.iter().map(get_port_amount).sum();
 
     if port_amount < 1 {
