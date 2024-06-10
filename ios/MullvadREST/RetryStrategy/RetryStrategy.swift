@@ -25,7 +25,17 @@ extension REST {
             let inner = delay.makeIterator()
 
             if applyJitter {
-                return AnyIterator(Jittered(inner))
+                return switch delay {
+                case .never:
+                    AnyIterator(inner)
+                case .constant:
+                    AnyIterator(Jittered(inner))
+                case let .exponentialBackoff(_, _, maxDelay):
+                    AnyIterator(Transformer(inner: Jittered(inner)) { nextValue in
+                        guard let nextValue else { return maxDelay }
+                        return nextValue >= maxDelay ? maxDelay : nextValue
+                    })
+                }
             } else {
                 return AnyIterator(inner)
             }
@@ -68,7 +78,7 @@ extension REST {
         case constant(Duration)
 
         /// Exponential backoff.
-        case exponentialBackoff(initial: Duration, multiplier: UInt64, maxDelay: Duration?)
+        case exponentialBackoff(initial: Duration, multiplier: UInt64, maxDelay: Duration)
 
         func makeIterator() -> AnyIterator<Duration> {
             switch self {

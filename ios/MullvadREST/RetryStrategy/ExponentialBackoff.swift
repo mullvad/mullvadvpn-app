@@ -12,9 +12,9 @@ import MullvadTypes
 struct ExponentialBackoff: IteratorProtocol {
     private var _next: Duration
     private let multiplier: UInt64
-    private let maxDelay: Duration?
+    private let maxDelay: Duration
 
-    init(initial: Duration, multiplier: UInt64, maxDelay: Duration? = nil) {
+    init(initial: Duration, multiplier: UInt64, maxDelay: Duration) {
         _next = initial
         self.multiplier = multiplier
         self.maxDelay = maxDelay
@@ -23,7 +23,7 @@ struct ExponentialBackoff: IteratorProtocol {
     mutating func next() -> Duration? {
         let next = _next
 
-        if let maxDelay, next > maxDelay {
+        if next > maxDelay {
             return maxDelay
         }
 
