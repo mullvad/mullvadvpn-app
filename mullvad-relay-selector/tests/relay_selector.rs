@@ -715,6 +715,31 @@ fn test_selecting_any_relay_will_consider_multihop() {
     }
 }
 
+/// Test whether Shadowsocks is always selected as the obfuscation protocol when Shadowsocks is selected.
+#[test]
+fn test_selecting_wireguard_over_shadowsocks() {
+    let relay_selector = default_relay_selector();
+    let mut query = RelayQueryBuilder::new().wireguard().shadowsocks().build();
+    query.wireguard_constraints.use_multihop = Constraint::Only(false);
+
+    let relay = relay_selector.get_relay_by_query(query).unwrap();
+    match relay {
+        GetRelay::Wireguard {
+            obfuscator,
+            inner: WireguardConfig::Singlehop { .. },
+            ..
+        } => {
+            assert!(obfuscator.is_some_and(|obfuscator| matches!(
+                obfuscator.config,
+                ObfuscatorConfig::Shadowsocks { .. }
+            )))
+        }
+        wrong_relay => panic!(
+            "Relay selector should have picked a Wireguard relay with Shadowsocks, instead chose {wrong_relay:?}"
+        ),
+    }
+}
+
 /// Construct a query for a Wireguard configuration where UDP2TCP obfuscation is selected and
 /// multihop is explicitly turned off. Assert that the relay selector always return an obfuscator
 /// configuration.
@@ -742,7 +767,7 @@ fn test_selecting_wireguard_endpoint_with_udp2tcp_obfuscation() {
     }
 }
 
-/// Construct a query for a Wireguard configuration where UDP2TCP obfuscation is set to "Auto" and
+/// Construct a query for a Wireguard configuration where obfuscation is set to "Auto" and
 /// multihop is explicitly turned off. Assert that the relay selector does *not* return an
 /// obfuscator config.
 ///
