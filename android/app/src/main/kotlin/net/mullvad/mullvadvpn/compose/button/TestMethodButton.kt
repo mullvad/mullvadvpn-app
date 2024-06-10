@@ -38,6 +38,7 @@ fun TestMethodButton(
         modifier = modifier,
         leadingIcon = { Icon(testMethodState = testMethodState) },
         onClick = onTestMethod,
+        isEnabled = testMethodState !is TestApiAccessMethodState.Testing,
         text =
             stringResource(
                 id =

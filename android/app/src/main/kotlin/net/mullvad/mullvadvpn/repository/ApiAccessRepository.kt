@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
+import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodName
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodType
 import net.mullvad.mullvadvpn.lib.model.GetApiAccessMethodError
 import net.mullvad.mullvadvpn.lib.model.NewAccessMethod
@@ -42,8 +43,24 @@ class ApiAccessRepository(
     suspend fun setApiAccessMethod(apiAccessMethodId: ApiAccessMethodId) =
         managementService.setApiAccessMethod(apiAccessMethodId)
 
-    suspend fun updateApiAccessMethod(apiAccessMethod: ApiAccessMethod) =
+    private suspend fun updateApiAccessMethod(apiAccessMethod: ApiAccessMethod) =
         managementService.updateApiAccessMethod(apiAccessMethod)
+
+    suspend fun updateApiAccessMethod(
+        apiAccessMethodId: ApiAccessMethodId,
+        apiAccessMethodName: ApiAccessMethodName,
+        apiAccessMethodType: ApiAccessMethodType
+    ) = either {
+        val apiAccessMethod = getApiAccessMethodById(apiAccessMethodId).bind()
+        updateApiAccessMethod(
+                apiAccessMethod.copy(
+                    id = apiAccessMethodId,
+                    name = apiAccessMethodName,
+                    apiAccessMethodType = apiAccessMethodType
+                )
+            )
+            .bind()
+    }
 
     suspend fun testCustomApiAccessMethod(customProxy: ApiAccessMethodType.CustomProxy) =
         managementService.testCustomApiAccessMethod(customProxy)

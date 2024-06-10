@@ -5,7 +5,10 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -36,6 +39,7 @@ import net.mullvad.mullvadvpn.compose.component.MullvadDropdownMenuItem
 import net.mullvad.mullvadvpn.compose.component.MullvadExposedDropdownMenuBox
 import net.mullvad.mullvadvpn.compose.component.NavigateCloseIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithSmallTopBar
+import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.component.textResource
 import net.mullvad.mullvadvpn.compose.destinations.DiscardChangesDialogDestination
 import net.mullvad.mullvadvpn.compose.destinations.SaveApiAccessMethodDestination
@@ -56,6 +60,7 @@ import net.mullvad.mullvadvpn.lib.model.InvalidDataError
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInvisible
+import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
 import net.mullvad.mullvadvpn.viewmodel.EditApiAccessMethodViewModel
 import net.mullvad.mullvadvpn.viewmodel.EditApiAccessSideEffect
@@ -94,17 +99,11 @@ fun EditApiAccessMethod(
                     SaveApiAccessMethodDestination(
                         id = it.id,
                         name = it.name,
-                        enabled = it.enabled,
                         customProxy = it.customProxy
                     )
                 ) {
                     launchSingleTop = true
                 }
-            is EditApiAccessSideEffect.UnableToGetApiAccessMethod ->
-                backNavigator.navigateBack(result = false)
-            EditApiAccessSideEffect.CloseScreen -> navigator.navigateUp()
-            EditApiAccessSideEffect.ShowDiscardChangesDialog ->
-                navigator.navigate(DiscardChangesDialogDestination) { launchSingleTop = true }
         }
     }
 
@@ -140,7 +139,13 @@ fun EditApiAccessMethod(
         onUsernameChanged = viewModel::onUsernameChanged,
         onTestMethod = viewModel::testMethod,
         onAddMethod = viewModel::trySave,
-        onNavigateBack = viewModel::onNavigateBack
+        onNavigateBack = {
+            if (state.hasChanges()) {
+                navigator.navigate(DiscardChangesDialogDestination) { launchSingleTop = true }
+            } else {
+                navigator.navigateUp()
+            }
+        }
     )
 }
 
@@ -172,7 +177,17 @@ fun EditApiAccessMethodScreen(
                 }
             ),
     ) { modifier ->
-        Column(modifier = modifier.padding(horizontal = Dimens.screenVerticalMargin)) {
+        val scrollState = rememberScrollState()
+        Column(
+            modifier =
+                modifier
+                    .drawVerticalScrollbar(
+                        state = scrollState,
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaScrollbar)
+                    )
+                    .verticalScroll(scrollState)
+                    .padding(horizontal = Dimens.sideMargin, vertical = Dimens.screenVerticalMargin)
+        ) {
             when (state) {
                 is EditApiAccessMethodUiState.Loading -> Loading()
                 is EditApiAccessMethodUiState.Content -> {
