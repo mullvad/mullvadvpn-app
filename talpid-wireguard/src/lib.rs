@@ -814,9 +814,16 @@ impl WireguardMonitor {
             #[cfg(target_os = "linux")]
             log::debug!("Using userspace WireGuard implementation");
 
-            let tunnel =
-                Self::open_wireguard_go_tunnel(config, log_path, resource_dir, tun_provider)
-                    .map(Box::new)?;
+            let tunnel = Self::open_wireguard_go_tunnel(
+                config,
+                log_path,
+                #[cfg(any(target_os = "windows", target_os = "linux"))]
+                resource_dir,
+                tun_provider,
+                #[cfg(target_os = "android")]
+                gateway_only,
+            )
+            .map(Box::new)?;
             Ok(tunnel)
         }
     }
@@ -828,6 +835,7 @@ impl WireguardMonitor {
         log_path: Option<&Path>,
         #[cfg(any(target_os = "windows", target_os = "linux"))] resource_dir: &Path,
         tun_provider: Arc<Mutex<TunProvider>>,
+        #[cfg(target_os = "android")] gateway_only: bool,
     ) -> Result<WgGoTunnel> {
         let routes = Self::get_tunnel_destinations(config).flat_map(Self::replace_default_prefixes);
 
@@ -835,7 +843,8 @@ impl WireguardMonitor {
         let config = Self::patch_allowed_ips(config, gateway_only);
 
         let tunnel = WgGoTunnel::start_tunnel(
-            config,
+            #[allow(clippy::needless_borrow)]
+            &config,
             log_path,
             tun_provider,
             routes,
