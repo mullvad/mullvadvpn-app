@@ -44,8 +44,8 @@ class EditApiAccessMethodViewModel(
 ) : ViewModel() {
     private var enabled: Boolean = true
     private var initialData: EditApiAccessFormData? = null
-    private val _sideEffects = Channel<EditApiAccessSideEffect>(Channel.BUFFERED)
-    val sideEffect = _sideEffects.receiveAsFlow()
+    private val _uiSideEffect = Channel<EditApiAccessSideEffect>(Channel.BUFFERED)
+    val uiSideEffect = _uiSideEffect.receiveAsFlow()
     private val testMethodState = MutableStateFlow<TestApiAccessMethodState?>(null)
     private val formData = MutableStateFlow<EditApiAccessFormData?>(null)
     val uiState =
@@ -137,7 +137,7 @@ class EditApiAccessMethodViewModel(
                 ?.fold(
                     { errors -> formData.update { it?.updateWithErrors(errors) } },
                     { (name, customProxy) ->
-                        _sideEffects.send(
+                        _uiSideEffect.send(
                             EditApiAccessSideEffect.OpenSaveDialog(
                                 id = apiAccessMethodId,
                                 name = name,
@@ -154,16 +154,16 @@ class EditApiAccessMethodViewModel(
         // Check if we have any unsaved changes
         viewModelScope.launch {
             if (initialData?.equals(formData.value) == true) {
-                _sideEffects.send(EditApiAccessSideEffect.CloseScreen)
+                _uiSideEffect.send(EditApiAccessSideEffect.CloseScreen)
             } else {
-                _sideEffects.send(EditApiAccessSideEffect.ShowDiscardChangesDialog)
+                _uiSideEffect.send(EditApiAccessSideEffect.ShowDiscardChangesDialog)
             }
         }
     }
 
     private fun handleInitialDataError(error: GetApiAccessMethodError) {
         viewModelScope.launch {
-            _sideEffects.send(EditApiAccessSideEffect.UnableToGetApiAccessMethod(error))
+            _uiSideEffect.send(EditApiAccessSideEffect.UnableToGetApiAccessMethod(error))
         }
     }
 

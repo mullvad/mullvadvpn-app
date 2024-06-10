@@ -26,8 +26,8 @@ class SaveApiAccessMethodViewModel(
     private val customProxy: ApiAccessMethodType.CustomProxy,
     private val apiAccessRepository: ApiAccessRepository
 ) : ViewModel() {
-    private val _sideEffects = Channel<SaveApiAccessMethodSideEffect>()
-    val sideEffect = _sideEffects.receiveAsFlow()
+    private val _uiSideEffect = Channel<SaveApiAccessMethodSideEffect>()
+    val uiSideEffect = _uiSideEffect.receiveAsFlow()
     private val _uiState = MutableStateFlow(SaveApiAccessMethodUiState())
     val uiState: StateFlow<SaveApiAccessMethodUiState> = _uiState
 
@@ -81,7 +81,7 @@ class SaveApiAccessMethodViewModel(
     fun cancel() {
         viewModelScope.launch {
             testingJob?.cancel(message = "Cancelled by user")
-            _sideEffects.send(SaveApiAccessMethodSideEffect.Cancel)
+            _uiSideEffect.send(SaveApiAccessMethodSideEffect.Cancel)
         }
     }
 
@@ -89,8 +89,8 @@ class SaveApiAccessMethodViewModel(
         apiAccessRepository
             .addApiAccessMethod(newAccessMethod)
             .fold(
-                { _sideEffects.send(SaveApiAccessMethodSideEffect.CouldNotSaveApiAccessMethod) },
-                { _sideEffects.send(SaveApiAccessMethodSideEffect.SuccessfullyCreatedApiMethod) }
+                { _uiSideEffect.send(SaveApiAccessMethodSideEffect.CouldNotSaveApiAccessMethod) },
+                { _uiSideEffect.send(SaveApiAccessMethodSideEffect.SuccessfullyCreatedApiMethod) }
             )
     }
 
@@ -98,8 +98,8 @@ class SaveApiAccessMethodViewModel(
         apiAccessRepository
             .updateApiAccessMethod(apiAccessMethod)
             .fold(
-                { _sideEffects.send(SaveApiAccessMethodSideEffect.CouldNotSaveApiAccessMethod) },
-                { _sideEffects.send(SaveApiAccessMethodSideEffect.SuccessfullyCreatedApiMethod) }
+                { _uiSideEffect.send(SaveApiAccessMethodSideEffect.CouldNotSaveApiAccessMethod) },
+                { _uiSideEffect.send(SaveApiAccessMethodSideEffect.SuccessfullyCreatedApiMethod) }
             )
     }
 }

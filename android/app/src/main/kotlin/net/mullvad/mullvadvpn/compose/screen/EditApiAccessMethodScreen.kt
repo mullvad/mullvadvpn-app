@@ -59,7 +59,7 @@ import org.koin.core.parameter.parametersOf
 
 @Preview
 @Composable
-fun PreviewEditApiAccessMethodScreen(
+private fun PreviewEditApiAccessMethodScreen(
     @PreviewParameter(EditApiAccessMethodUiStateParameterProvider::class)
     state: EditApiAccessMethodUiState
 ) {
@@ -82,7 +82,7 @@ fun EditApiAccessMethod(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    LaunchedEffectCollect(sideEffect = viewModel.sideEffect) {
+    LaunchedEffectCollect(sideEffect = viewModel.uiSideEffect) {
         when (it) {
             is EditApiAccessSideEffect.OpenSaveDialog ->
                 navigator.navigate(
