@@ -24,6 +24,8 @@ class ProblemReportReviewViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        view.accessibilityIdentifier = .appLogsView
+
         navigationItem.title = NSLocalizedString(
             "NAVIGATION_TITLE",
             tableName: "ProblemReportReview",
@@ -37,6 +39,7 @@ class ProblemReportReviewViewController: UIViewController {
                 self?.dismiss(animated: true)
             })
         )
+        navigationItem.rightBarButtonItem?.accessibilityIdentifier = .appLogsDoneButton
 
         #if DEBUG
         navigationItem.leftBarButtonItem = UIBarButtonItem(
@@ -45,8 +48,10 @@ class ProblemReportReviewViewController: UIViewController {
                 self?.share()
             })
         )
+        navigationItem.leftBarButtonItem?.accessibilityIdentifier = .appLogsShareButton
         #endif
 
+        textView.accessibilityIdentifier = .problemReportAppLogsTextView
         textView.translatesAutoresizingMaskIntoConstraints = false
         textView.isEditable = false
         textView.font = UIFont.monospacedSystemFont(

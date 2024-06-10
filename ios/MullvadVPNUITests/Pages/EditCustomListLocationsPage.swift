@@ -16,7 +16,7 @@ class EditCustomListLocationsPage: Page {
     @discardableResult override init(_ app: XCUIApplication) {
         super.init(app)
 
-        self.pageAccessibilityIdentifier = .editCustomListEditLocationsView
+        self.pageElement = app.otherElements[.editCustomListEditLocationsView]
         waitForPageToBeShown()
     }
 

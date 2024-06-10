@@ -21,7 +21,7 @@ pub struct MullvadApiError {
 
 impl MullvadApiError {
     pub fn new(kind: MullvadApiErrorKind, error: &dyn std::error::Error) -> Self {
-        let description = CString::new(format!("{error:?}")).unwrap_or_default();
+        let description = CString::new(format!("{error:?}: {error}")).unwrap_or_default();
         Self {
             description: description.into_raw(),
             kind,

@@ -32,6 +32,7 @@ class CustomDNSViewController: UITableViewController, VPNSettingsDataSourceDeleg
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        tableView.accessibilityIdentifier = .dnsSettingsTableView
         tableView.backgroundColor = .secondaryColor
         tableView.separatorColor = .secondaryColor
         tableView.rowHeight = UITableView.automaticDimension

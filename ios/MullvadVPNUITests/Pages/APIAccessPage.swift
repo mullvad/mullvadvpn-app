@@ -12,7 +12,7 @@ import XCTest
 class APIAccessPage: Page {
     override init(_ app: XCUIApplication) {
         super.init(app)
-        self.pageAccessibilityIdentifier = .apiAccessView
+        self.pageElement = app.otherElements[.apiAccessView]
         waitForPageToBeShown()
     }
 

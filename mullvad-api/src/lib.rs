@@ -434,8 +434,8 @@ impl Runtime {
             #[cfg(target_os = "android")]
             self.socket_bypass_tx.clone(),
         );
-        let token_store = access::AccessTokenStore::new(service.clone());
-        let factory = rest::RequestFactory::new(API.host(), Some(token_store));
+        let token_store = access::AccessTokenStore::new(service.clone(), API.host());
+        let factory = rest::RequestFactory::new(API.host().to_owned(), Some(token_store));
 
         rest::MullvadRestHandle::new(service, factory, self.availability_handle())
     }
@@ -448,7 +448,7 @@ impl Runtime {
             #[cfg(target_os = "android")]
             self.socket_bypass_tx.clone(),
         );
-        let token_store = access::AccessTokenStore::new(service.clone());
+        let token_store = access::AccessTokenStore::new(service.clone(), hostname.clone());
         let factory = rest::RequestFactory::new(hostname, Some(token_store));
 
         rest::MullvadRestHandle::new(service, factory, self.availability_handle())

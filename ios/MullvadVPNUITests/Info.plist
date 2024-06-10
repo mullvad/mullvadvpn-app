@@ -4,22 +4,26 @@
 <dict>
 	<key>AdServingDomain</key>
 	<string>$(AD_SERVING_DOMAIN)</string>
+	<key>AmIJSONUrl</key>
+	<string>$(AM_I_JSON_URL)</string>
 	<key>ApiEndpoint</key>
 	<string>$(API_ENDPOINT)</string>
 	<key>ApiHostName</key>
 	<string>$(API_HOST_NAME)</string>
+	<key>AttachAppLogsOnFailure</key>
+	<string>${ATTACH_APP_LOGS_ON_FAILURE}</string>
 	<key>DisplayName</key>
 	<string>$(DISPLAY_NAME)</string>
 	<key>FirewallApiBaseURL</key>
 	<string>$(FIREWALL_API_BASE_URL)</string>
-	<key>FiveWireGuardKeysAccountNumber</key>
-	<string>$(FIVE_WIREGUARD_KEYS_ACCOUNT_NUMBER)</string>
 	<key>HasTimeAccountNumber</key>
 	<string>$(HAS_TIME_ACCOUNT_NUMBER)</string>
 	<key>IOSDevicePinCode</key>
 	<string>$(IOS_DEVICE_PIN_CODE)</string>
 	<key>NoTimeAccountNumber</key>
 	<string>$(NO_TIME_ACCOUNT_NUMBER)</string>
+	<key>PartnerApiToken</key>
+	<string>$(PARTNER_API_TOKEN)</string>
 	<key>ShouldBeReachableDomain</key>
 	<string>$(SHOULD_BE_REACHABLE_DOMAIN)</string>
 	<key>TestDeviceIdentifier</key>
