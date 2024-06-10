@@ -29,7 +29,7 @@ class EditApiAccessMethodUiStateParameterProvider :
                         EditApiAccessFormData(
                             name = it.name.value,
                             serverIp = data.ip,
-                            remotePort = data.port.toString(),
+                            port = data.port.toString(),
                             password = data.password ?: "",
                             cipher = data.cipher,
                             username = ""
@@ -47,7 +47,7 @@ class EditApiAccessMethodUiStateParameterProvider :
                         EditApiAccessFormData(
                             name = it.name.value,
                             serverIp = data.ip,
-                            remotePort = data.port.toString(),
+                            port = data.port.toString(),
                             enableAuthentication = data.auth != null,
                             username = data.auth?.username ?: "",
                             password = data.auth?.password ?: ""
@@ -64,7 +64,7 @@ class EditApiAccessMethodUiStateParameterProvider :
                         .updateWithErrors(
                             nonEmptyListOf(
                                 InvalidDataError.NameError.Required,
-                                InvalidDataError.RemotePortError.Required,
+                                InvalidDataError.PortError.Required,
                                 InvalidDataError.ServerIpError.Required,
                                 InvalidDataError.UserNameError.Required,
                                 InvalidDataError.PasswordError.Required

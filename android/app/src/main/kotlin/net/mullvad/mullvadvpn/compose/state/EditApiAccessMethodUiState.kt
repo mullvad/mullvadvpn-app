@@ -24,8 +24,8 @@ data class EditApiAccessFormData(
     val apiAccessMethodTypes: ApiAccessMethodTypes = ApiAccessMethodTypes.default(),
     val serverIp: String,
     val serverIpError: InvalidDataError.ServerIpError? = null,
-    val remotePort: String,
-    val remotePortError: InvalidDataError.RemotePortError? = null,
+    val port: String,
+    val portError: InvalidDataError.PortError? = null,
     val enableAuthentication: Boolean = false,
     val username: String,
     val usernameError: InvalidDataError.UserNameError? = null,
@@ -37,7 +37,7 @@ data class EditApiAccessFormData(
         copy(
             nameError = errors.getFirstInstanceOrNull(),
             serverIpError = errors.getFirstInstanceOrNull(),
-            remotePortError = errors.getFirstInstanceOrNull(),
+            portError = errors.getFirstInstanceOrNull(),
             usernameError = errors.getFirstInstanceOrNull(),
             passwordError = errors.getFirstInstanceOrNull()
         )
@@ -47,7 +47,7 @@ data class EditApiAccessFormData(
             EditApiAccessFormData(
                 name = "",
                 password = "",
-                remotePort = "",
+                port = "",
                 serverIp = "",
                 username = ""
             )
