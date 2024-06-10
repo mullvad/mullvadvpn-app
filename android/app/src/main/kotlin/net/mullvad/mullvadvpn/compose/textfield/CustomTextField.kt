@@ -7,6 +7,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
@@ -35,11 +36,13 @@ fun CustomTextField(
     onSubmit: (String) -> Unit,
     isEnabled: Boolean = true,
     placeholderText: String?,
+    labelText: String? = null,
     maxCharLength: Int = Int.MAX_VALUE,
     isValidValue: Boolean,
     isDigitsOnlyAllowed: Boolean,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     supportingText: @Composable (() -> Unit)? = null,
+    colors: TextFieldColors = mullvadDarkTextFieldColors(),
 ) {
 
     val scope = rememberCoroutineScope()
@@ -101,9 +104,10 @@ fun CustomTextField(
                 }
             ),
         visualTransformation = visualTransformation,
-        colors = mullvadDarkTextFieldColors(),
+        colors = colors,
         isError = !isValidValue,
         modifier = modifier.clip(MaterialTheme.shapes.small).fillMaxWidth(),
-        supportingText = supportingText
+        supportingText = supportingText,
+        label = labelText?.let { { Text(text = labelText) } },
     )
 }

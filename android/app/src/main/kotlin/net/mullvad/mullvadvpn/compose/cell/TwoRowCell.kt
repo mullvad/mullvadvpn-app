@@ -8,6 +8,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -27,6 +28,8 @@ fun TwoRowCell(
     onCellClicked: () -> Unit = {},
     titleColor: Color = MaterialTheme.colorScheme.onPrimary,
     subtitleColor: Color = MaterialTheme.colorScheme.onPrimary,
+    titleStyle: TextStyle = MaterialTheme.typography.labelLarge,
+    subtitleStyle: TextStyle = MaterialTheme.typography.labelLarge,
     background: Color = MaterialTheme.colorScheme.primary
 ) {
     BaseCell(
@@ -35,7 +38,7 @@ fun TwoRowCell(
                 Text(
                     modifier = Modifier.fillMaxWidth(),
                     text = titleText,
-                    style = MaterialTheme.typography.labelLarge,
+                    style = titleStyle,
                     color = titleColor,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -43,7 +46,7 @@ fun TwoRowCell(
                 Text(
                     modifier = Modifier.fillMaxWidth(),
                     text = subtitleText,
-                    style = MaterialTheme.typography.labelLarge,
+                    style = subtitleStyle,
                     color = subtitleColor,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis

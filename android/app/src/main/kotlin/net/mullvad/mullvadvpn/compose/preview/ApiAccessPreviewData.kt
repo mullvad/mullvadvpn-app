@@ -11,6 +11,7 @@ import net.mullvad.mullvadvpn.lib.model.SocksAuth
 private const val UUID1 = "12345678-1234-5678-1234-567812345678"
 private const val UUID2 = "12345678-1234-5678-1234-567812345679"
 private const val UUID3 = "12345678-1234-5678-1234-567812345671"
+private const val UUID4 = "12345678-1234-5678-1234-567812345672"
 
 internal val defaultAccessMethods =
     listOf(
@@ -43,7 +44,7 @@ internal val socks5Remote =
 
 internal val shadowsocks =
     ApiAccessMethod(
-        ApiAccessMethodId.fromString(UUID3),
+        ApiAccessMethodId.fromString(UUID4),
         ApiAccessMethodName.fromString("ShadowSocks"),
         enabled = true,
         ApiAccessMethodType.CustomProxy.Shadowsocks(

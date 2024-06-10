@@ -109,3 +109,30 @@ fun mullvadDarkTextFieldColors(): TextFieldColors =
         errorIndicatorColor = Color.Transparent,
         unfocusedIndicatorColor = Color.Transparent,
     )
+
+@Composable
+fun apiAccessTextFieldColors(): TextFieldColors =
+    TextFieldDefaults.colors(
+        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+        disabledTextColor = MaterialTheme.colorScheme.onSurface,
+        disabledContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+        errorContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+        focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+        errorTextColor = MaterialTheme.colorScheme.onSurface,
+        cursorColor = MaterialTheme.colorScheme.onSurface,
+        focusedPlaceholderColor = MaterialTheme.colorScheme.onSecondary,
+        unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSecondary,
+        focusedLabelColor = MaterialTheme.colorScheme.onSecondary,
+        disabledLabelColor = MaterialTheme.colorScheme.onSecondary,
+        unfocusedLabelColor = MaterialTheme.colorScheme.onSecondary,
+        errorLabelColor = MaterialTheme.colorScheme.onSecondary,
+        focusedIndicatorColor = MaterialTheme.colorScheme.onSurface,
+        disabledIndicatorColor = Color.Transparent,
+        errorIndicatorColor = MaterialTheme.colorScheme.error,
+        unfocusedIndicatorColor = Color.Transparent,
+        focusedTrailingIconColor = MaterialTheme.colorScheme.onSurface,
+        disabledTrailingIconColor = MaterialTheme.colorScheme.onSurface,
+        unfocusedTrailingIconColor = MaterialTheme.colorScheme.onSurface
+    )

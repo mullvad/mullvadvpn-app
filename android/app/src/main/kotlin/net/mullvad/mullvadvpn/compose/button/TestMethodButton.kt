@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.compose.button
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
@@ -56,18 +57,22 @@ private fun Icon(testMethodState: TestApiAccessMethodState?) {
         TestApiAccessMethodState.Result.Failure ->
             Box(
                 modifier =
-                    Modifier.size(Dimens.relayCircleSize)
+                    Modifier.padding(start = Dimens.mediumPadding)
+                        .size(Dimens.relayCircleSize)
                         .background(color = MaterialTheme.colorScheme.error, shape = CircleShape)
             )
         TestApiAccessMethodState.Result.Successful -> {
             Box(
                 modifier =
-                    Modifier.size(Dimens.relayCircleSize)
+                    Modifier.padding(start = Dimens.mediumPadding)
+                        .size(Dimens.relayCircleSize)
                         .background(color = MaterialTheme.colorScheme.selected, shape = CircleShape)
             )
         }
         TestApiAccessMethodState.Testing -> {
-            MullvadCircularProgressIndicatorSmall()
+            MullvadCircularProgressIndicatorSmall(
+                modifier = Modifier.padding(start = Dimens.mediumPadding)
+            )
         }
         null -> {
             /*Show nothing*/
