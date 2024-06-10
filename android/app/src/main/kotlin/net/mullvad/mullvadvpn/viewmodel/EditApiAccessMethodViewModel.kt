@@ -7,8 +7,9 @@ import arrow.core.Either.Companion.zipOrAccumulate
 import arrow.core.EitherNel
 import arrow.core.NonEmptyList
 import arrow.core.getOrElse
-import arrow.core.left
-import arrow.core.leftNel
+import arrow.core.nel
+import arrow.core.raise.either
+import arrow.core.raise.ensure
 import arrow.core.right
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -187,10 +188,10 @@ class EditApiAccessMethodViewModel(
         }
 
     private fun parseIpAddress(input: String): Either<InvalidDataError.ServerIpError, String> =
-        when {
-            input.isBlank() -> InvalidDataError.ServerIpError.Required.left()
-            !inetAddressValidator.isValid(input) -> InvalidDataError.ServerIpError.Invalid.left()
-            else -> input.right()
+        either {
+            ensure(input.isNotBlank()) { InvalidDataError.ServerIpError.Required }
+            ensure(inetAddressValidator.isValid(input)) { InvalidDataError.ServerIpError.Invalid }
+            input
         }
 
     private fun parsePort(input: String): Either<InvalidDataError.PortError, Port> =
@@ -244,27 +245,23 @@ class EditApiAccessMethodViewModel(
         }
 
     private fun parseUsername(input: String): Either<InvalidDataError.UserNameError, String> =
-        if (input.isBlank()) {
-            InvalidDataError.UserNameError.Required.left()
-        } else {
-            input.right()
+        either {
+            ensure(input.isNotBlank()) { InvalidDataError.UserNameError.Required }
+            input
         }
 
     private fun parsePassword(input: String): Either<InvalidDataError.PasswordError, String> =
-        if (input.isBlank()) {
-            InvalidDataError.PasswordError.Required.left()
-        } else {
-            input.right()
+        either {
+            ensure(input.isNotBlank()) { InvalidDataError.PasswordError.Required }
+            input
         }
 
     private fun parseName(
         input: String
-    ): EitherNel<InvalidDataError.NameError, ApiAccessMethodName> =
-        if (input.isBlank()) {
-            InvalidDataError.NameError.Required.leftNel()
-        } else {
-            ApiAccessMethodName.fromString(input).right()
-        }
+    ): EitherNel<InvalidDataError.NameError, ApiAccessMethodName> = either {
+        ensure(input.isNotBlank()) { InvalidDataError.NameError.Required.nel() }
+        ApiAccessMethodName.fromString(input)
+    }
 }
 
 sealed interface EditApiAccessSideEffect {
