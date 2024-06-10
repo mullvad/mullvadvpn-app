@@ -54,6 +54,7 @@ pub struct WgGoTunnel {
     tun_provider: Arc<Mutex<TunProvider>>,
     #[cfg(any(target_os = "windows", target_os = "linux"))]
     resource_dir: PathBuf,
+    #[cfg(any(target_os = "windows", target_os = "linux"))]
     config: Config,
 }
 
@@ -63,7 +64,7 @@ impl WgGoTunnel {
         log_path: Option<&Path>,
         tun_provider: Arc<Mutex<TunProvider>>,
         routes: impl Iterator<Item = IpNetwork>,
-        resource_dir: &Path,
+        #[cfg(any(target_os = "windows", target_os = "linux"))] resource_dir: &Path,
     ) -> Result<Self> {
         #[cfg(target_os = "android")]
         let tun_provider_clone = tun_provider.clone();
@@ -100,6 +101,7 @@ impl WgGoTunnel {
             _logging_context: logging_context,
             #[cfg(target_os = "android")]
             tun_provider: tun_provider_clone,
+            #[cfg(any(target_os = "windows", target_os = "linux"))]
             resource_dir: resource_dir.to_owned(),
             #[cfg(any(target_os = "windows", target_os = "linux"))]
             config: config.clone(),
@@ -240,6 +242,7 @@ impl Tunnel for WgGoTunnel {
         })
     }
 
+    #[cfg(any(target_os = "windows", target_os = "linux"))]
     fn start_daita(&mut self) -> Result<()> {
         static MAYBENOT_MACHINES: OnceCell<CString> = OnceCell::new();
         let machines = MAYBENOT_MACHINES.get_or_try_init(|| {
