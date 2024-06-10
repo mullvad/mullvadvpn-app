@@ -60,7 +60,6 @@ fun SaveApiAccessMethod(
 
     LaunchedEffectCollect(sideEffect = viewModel.uiSideEffect) {
         when (it) {
-            SaveApiAccessMethodSideEffect.Cancel -> backNavigator.navigateBack()
             SaveApiAccessMethodSideEffect.CouldNotSaveApiAccessMethod ->
                 backNavigator.navigateBack(result = false)
             SaveApiAccessMethodSideEffect.SuccessfullyCreatedApiMethod ->
@@ -69,7 +68,11 @@ fun SaveApiAccessMethod(
     }
 
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    SaveApiAccessMethodDialog(state = state, onCancel = viewModel::cancel, onSave = viewModel::save)
+    SaveApiAccessMethodDialog(
+        state = state,
+        onCancel = { backNavigator.navigateBack() },
+        onSave = viewModel::save
+    )
 }
 
 @Composable
@@ -101,7 +104,7 @@ fun SaveApiAccessMethodDialog(
             }
         },
         title = { Text(text = state.text(), style = MaterialTheme.typography.headlineSmall) },
-        onDismissRequest = { /*Should not be able to dismiss*/},
+        onDismissRequest = { /*Should not be able to dismiss*/ },
         confirmButton = {
             PrimaryButton(
                 onClick = onCancel,
