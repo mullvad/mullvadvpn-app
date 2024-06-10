@@ -42,7 +42,7 @@ pub enum Error {
     #[error("The selected relay does not support IPv6")]
     NoIPv6(Box<Relay>),
     #[error("Failed to select port")]
-    PortSelectionError(#[source] super::helpers::Error),
+    PortSelectionError,
 }
 
 /// Constructs a [`MullvadWireguardEndpoint`] with details for how to connect to a Wireguard relay.
@@ -159,12 +159,19 @@ fn get_address_for_wireguard_relay(
     query: &WireguardRelayQuery,
     relay: &Relay,
 ) -> Result<IpAddr, Error> {
-    match query.ip_version {
-        Constraint::Any | Constraint::Only(IpVersion::V4) => Ok(relay.ipv4_addr_in.into()),
-        Constraint::Only(IpVersion::V6) => relay
+    match resolve_ip_version(query.ip_version) {
+        IpVersion::V4 => Ok(relay.ipv4_addr_in.into()),
+        IpVersion::V6 => relay
             .ipv6_addr_in
             .map(|addr| addr.into())
             .ok_or(Error::NoIPv6(Box::new(relay.clone()))),
+    }
+}
+
+pub fn resolve_ip_version(ip_version: Constraint<IpVersion>) -> IpVersion {
+    match ip_version {
+        Constraint::Any | Constraint::Only(IpVersion::V4) => IpVersion::V4,
+        Constraint::Only(IpVersion::V6) => IpVersion::V6,
     }
 }
 
@@ -173,8 +180,15 @@ fn get_port_for_wireguard_relay(
     query: &WireguardRelayQuery,
     data: &WireguardEndpointData,
 ) -> Result<u16, Error> {
-    super::helpers::select_random_port(query.port, &data.port_ranges)
-        .map_err(Error::PortSelectionError)
+    if let Constraint::Only(port) = query.port {
+        if super::helpers::port_in_range(port, &data.port_ranges) {
+            Ok(port)
+        } else {
+            Err(Error::PortSelectionError)
+        }
+    } else {
+        super::helpers::select_random_port(&data.port_ranges).map_err(|_| Error::PortSelectionError)
+    }
 }
 
 /// Read the [`PublicKey`] of a relay. This will only succeed if [relay][`Relay`] is a
