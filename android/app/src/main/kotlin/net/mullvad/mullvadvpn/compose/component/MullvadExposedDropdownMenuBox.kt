@@ -58,8 +58,13 @@ fun MullvadExposedDropdownMenuBox(
 }
 
 @Composable
-fun MullvadDropdownMenuItem(text: String, onClick: () -> Unit) {
+fun MullvadDropdownMenuItem(
+    leadingIcon: @Composable (() -> Unit)? = null,
+    text: String,
+    onClick: () -> Unit
+) {
     DropdownMenuItem(
+        leadingIcon = leadingIcon,
         colors = menuItemColors,
         text = { Text(text = text) },
         onClick = onClick,
