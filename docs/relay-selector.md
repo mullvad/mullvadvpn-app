@@ -54,10 +54,11 @@ constraints the following default ones will take effect:
   - The second attempt will connect to a Wireguard relay on port 443
   - The third attempt will connect to a Wireguard relay over IPv6 (if IPv6 is configured on the host) on a random port
 - The fourth-to-seventh attempt will alternate between Wireguard and OpenVPN
-  - The fourth attempt will connect to an OpenVPN relay over TCP on port 443
+  - The fourth attempt will connect to a Wireguard relay on a random port using Shadowsocks for obfuscation
   - The fifth attempt will connect to a Wireguard relay on a random port using [UDP2TCP obfuscation](https://github.com/mullvad/udp-over-tcp)
   - The sixth attempt will connect to a Wireguard relay over IPv6 on a random port using UDP2TCP obfuscation (if IPv6 is configured on the host)
-  - The seventh attempt will connect to an OpenVPN relay over a bridge on a random port
+  - The seventh attempt will connect to an OpenVPN relay over TCP on port 443
+  - The eighth attempt will connect to an OpenVPN relay over a bridge on a random port
 
 If no tunnel has been established after exhausting this list of attempts, the relay selector will
 loop back to the first default constraint and continue its search from there.
