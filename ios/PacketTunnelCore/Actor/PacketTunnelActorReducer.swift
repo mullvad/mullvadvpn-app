@@ -17,10 +17,10 @@ extension PacketTunnelActor {
         case startTunnelMonitor
         case stopTunnelMonitor
         case updateTunnelMonitorPath(NetworkPath)
-        case startConnection(NextRelay)
-        case restartConnection(NextRelay, ActorReconnectReason)
+        case startConnection(NextRelays)
+        case restartConnection(NextRelays, ActorReconnectReason)
         // trigger a reconnect, which becomes several effects depending on the state
-        case reconnect(NextRelay)
+        case reconnect(NextRelays)
         case stopTunnelAdapter
         case configureForErrorState(BlockedStateReason)
         case cacheActiveKey(Date?)
@@ -58,7 +58,7 @@ extension PacketTunnelActor {
                 return [
                     .startDefaultPathObserver,
                     .startTunnelMonitor,
-                    .startConnection(options.selectedRelay.map { .preSelected($0) } ?? .random),
+                    .startConnection(options.selectedRelays.map { .preSelected($0) } ?? .random),
                 ]
             case .stop:
                 return subreducerForStop(&state)
@@ -124,7 +124,7 @@ extension PacketTunnelActor {
         fileprivate static func subreducerForReconnect(
             _ state: State,
             _ reason: ActorReconnectReason,
-            _ nextRelay: NextRelay
+            _ nextRelays: NextRelays
         ) -> [PacketTunnelActor.Effect] {
             switch state {
             case .disconnected, .disconnecting, .initial:
@@ -133,9 +133,9 @@ extension PacketTunnelActor {
                 return []
             case .connecting, .connected, .reconnecting, .error, .negotiatingPostQuantumKey:
                 if reason == .userInitiated {
-                    return [.stopTunnelMonitor, .restartConnection(nextRelay, reason)]
+                    return [.stopTunnelMonitor, .restartConnection(nextRelays, reason)]
                 } else {
-                    return [.restartConnection(nextRelay, reason)]
+                    return [.restartConnection(nextRelays, reason)]
                 }
             }
         }

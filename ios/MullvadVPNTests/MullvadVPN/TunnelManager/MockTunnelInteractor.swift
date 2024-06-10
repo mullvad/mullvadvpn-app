@@ -14,9 +14,9 @@ import MullvadSettings
 class MockTunnelInteractor: TunnelInteractor {
     var isConfigurationLoaded: Bool
 
-    var settings: MullvadSettings.LatestTunnelSettings
+    var settings: LatestTunnelSettings
 
-    var deviceState: MullvadSettings.DeviceState
+    var deviceState: DeviceState
 
     var onUpdateTunnelStatus: ((TunnelStatus) -> Void)?
 
@@ -24,8 +24,8 @@ class MockTunnelInteractor: TunnelInteractor {
 
     init(
         isConfigurationLoaded: Bool,
-        settings: MullvadSettings.LatestTunnelSettings,
-        deviceState: MullvadSettings.DeviceState,
+        settings: LatestTunnelSettings,
+        deviceState: DeviceState,
         onUpdateTunnelStatus: ((TunnelStatus) -> Void)? = nil
     ) {
         self.isConfigurationLoaded = isConfigurationLoaded
@@ -59,9 +59,9 @@ class MockTunnelInteractor: TunnelInteractor {
 
     func setConfigurationLoaded() {}
 
-    func setSettings(_ settings: MullvadSettings.LatestTunnelSettings, persist: Bool) {}
+    func setSettings(_ settings: LatestTunnelSettings, persist: Bool) {}
 
-    func setDeviceState(_ deviceState: MullvadSettings.DeviceState, persist: Bool) {}
+    func setDeviceState(_ deviceState: DeviceState, persist: Bool) {}
 
     func removeLastUsedAccount() {}
 
@@ -73,7 +73,7 @@ class MockTunnelInteractor: TunnelInteractor {
 
     struct NotImplementedError: Error {}
 
-    func selectRelay() throws -> SelectedRelay {
+    func selectRelays() throws -> SelectedRelays {
         throw NotImplementedError()
     }
 }
