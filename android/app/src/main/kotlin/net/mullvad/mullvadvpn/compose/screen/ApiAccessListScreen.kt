@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -34,6 +35,7 @@ import net.mullvad.mullvadvpn.compose.destinations.EditApiAccessMethodDestinatio
 import net.mullvad.mullvadvpn.compose.extensions.itemsWithDivider
 import net.mullvad.mullvadvpn.compose.preview.ApiAccessListUiStateParameterProvider
 import net.mullvad.mullvadvpn.compose.state.ApiAccessListUiState
+import net.mullvad.mullvadvpn.compose.test.API_ACCESS_LIST_INFO_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodName
@@ -142,7 +144,9 @@ private fun LazyListScope.currentAccessMethod(
             )
             IconButton(
                 onClick = onInfoClicked,
-                modifier = Modifier.align(Alignment.CenterVertically),
+                modifier =
+                    Modifier.align(Alignment.CenterVertically)
+                        .testTag(API_ACCESS_LIST_INFO_TEST_TAG),
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.icon_info),
