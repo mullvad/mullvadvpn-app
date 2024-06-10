@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Icon
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -12,9 +13,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
@@ -52,6 +55,8 @@ import net.mullvad.mullvadvpn.lib.model.Cipher
 import net.mullvad.mullvadvpn.lib.model.InvalidDataError
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.theme.color.AlphaInvisible
+import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
 import net.mullvad.mullvadvpn.viewmodel.EditApiAccessMethodViewModel
 import net.mullvad.mullvadvpn.viewmodel.EditApiAccessSideEffect
 import org.koin.androidx.compose.koinViewModel
@@ -253,6 +258,18 @@ private fun ApiAccessMethodTypeSelection(
                 onClick = {
                     close()
                     onTypeSelected(it)
+                },
+                leadingIcon = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.icon_tick),
+                        contentDescription = null,
+                        modifier =
+                            Modifier.padding(end = Dimens.selectableCellTextMargin)
+                                .alpha(
+                                    if (it == formData.apiAccessMethodTypes) AlphaVisible
+                                    else AlphaInvisible
+                                )
+                    )
                 }
             )
         }
@@ -437,6 +454,15 @@ private fun CipherSelection(cipher: Cipher, onCipherChange: (Cipher) -> Unit) {
                 onClick = {
                     close()
                     onCipherChange(it)
+                },
+                leadingIcon = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.icon_tick),
+                        contentDescription = null,
+                        modifier =
+                            Modifier.padding(end = Dimens.selectableCellTextMargin)
+                                .alpha(if (it == cipher) AlphaVisible else AlphaInvisible)
+                    )
                 }
             )
         }
@@ -468,6 +494,15 @@ private fun EnableAuthentication(
                 close()
                 onToggleAuthenticationEnabled(true)
             },
+            leadingIcon = {
+                Icon(
+                    painter = painterResource(id = R.drawable.icon_tick),
+                    contentDescription = null,
+                    modifier =
+                        Modifier.padding(end = Dimens.selectableCellTextMargin)
+                            .alpha(if (authenticationEnabled) AlphaVisible else AlphaInvisible)
+                )
+            }
         )
         MullvadDropdownMenuItem(
             text = stringResource(id = R.string.off),
@@ -475,6 +510,17 @@ private fun EnableAuthentication(
                 close()
                 onToggleAuthenticationEnabled(false)
             },
+            leadingIcon = {
+                Icon(
+                    painter = painterResource(id = R.drawable.icon_tick),
+                    contentDescription = null,
+                    modifier =
+                        Modifier.padding(end = Dimens.selectableCellTextMargin)
+                            .alpha(
+                                if (authenticationEnabled.not()) AlphaVisible else AlphaInvisible
+                            )
+                )
+            }
         )
     }
 }
