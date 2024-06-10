@@ -128,7 +128,7 @@ fun EditApiAccessMethod(
         onNameChanged = viewModel::updateName,
         onTypeSelected = viewModel::setAccessMethodType,
         onIpChanged = viewModel::updateServerIp,
-        onRemotePortChanged = viewModel::updateRemotePort,
+        onPortChanged = viewModel::updatePort,
         onPasswordChanged = viewModel::updatePassword,
         onCipherChange = viewModel::updateCipher,
         onToggleAuthenticationEnabled = viewModel::updateAuthenticationEnabled,
@@ -146,7 +146,7 @@ fun EditApiAccessMethodScreen(
     onNameChanged: (String) -> Unit = {},
     onTypeSelected: (ApiAccessMethodTypes) -> Unit = {},
     onIpChanged: (String) -> Unit = {},
-    onRemotePortChanged: (String) -> Unit = {},
+    onPortChanged: (String) -> Unit = {},
     onPasswordChanged: (String) -> Unit = {},
     onCipherChange: (Cipher) -> Unit = {},
     onToggleAuthenticationEnabled: (Boolean) -> Unit = {},
@@ -184,7 +184,7 @@ fun EditApiAccessMethodScreen(
                             ShadowsocksForm(
                                 formData = state.formData,
                                 onIpChanged = onIpChanged,
-                                onPortChanged = onRemotePortChanged,
+                                onPortChanged = onPortChanged,
                                 onPasswordChanged = onPasswordChanged,
                                 onCipherChange = onCipherChange
                             )
@@ -192,7 +192,7 @@ fun EditApiAccessMethodScreen(
                             Socks5RemoteForm(
                                 formData = state.formData,
                                 onIpChanged = onIpChanged,
-                                onPortChanged = onRemotePortChanged,
+                                onPortChanged = onPortChanged,
                                 onToggleAuthenticationEnabled = onToggleAuthenticationEnabled,
                                 onUsernameChanged = onUsernameChanged,
                                 onPasswordChanged = onPasswordChanged
@@ -274,9 +274,9 @@ private fun ShadowsocksForm(
         onIpChanged = onIpChanged,
         onSubmit = { focusManager.moveFocus(FocusDirection.Down) }
     )
-    RemotePortInput(
-        remotePort = formData.remotePort,
-        formData.remotePortError,
+    PortInput(
+        port = formData.port,
+        formData.portError,
         onPortChanged = onPortChanged,
         onSubmit = { focusManager.moveFocus(FocusDirection.Down) }
     )
@@ -306,9 +306,9 @@ private fun Socks5RemoteForm(
         onIpChanged = onIpChanged,
         onSubmit = { focusManager.moveFocus(FocusDirection.Down) }
     )
-    RemotePortInput(
-        remotePort = formData.remotePort,
-        portError = formData.remotePortError,
+    PortInput(
+        port = formData.port,
+        portError = formData.portError,
         onPortChanged = onPortChanged,
         onSubmit = {
             if (formData.enableAuthentication) {
@@ -367,14 +367,14 @@ private fun ServerIpInput(
 }
 
 @Composable
-private fun RemotePortInput(
-    remotePort: String,
-    portError: InvalidDataError.RemotePortError?,
+private fun PortInput(
+    port: String,
+    portError: InvalidDataError.PortError?,
     onPortChanged: (String) -> Unit,
     onSubmit: (String) -> Unit
 ) {
     ApiAccessMethodTextField(
-        value = remotePort,
+        value = port,
         keyboardType = KeyboardType.Number,
         onValueChanged = onPortChanged,
         labelText = stringResource(id = R.string.port),
@@ -386,10 +386,9 @@ private fun RemotePortInput(
                 textResource(
                     id =
                         when (it) {
-                            is InvalidDataError.RemotePortError.Invalid ->
+                            is InvalidDataError.PortError.Invalid ->
                                 R.string.please_enter_a_valid_remote_server_port
-                            InvalidDataError.RemotePortError.Required ->
-                                R.string.this_field_is_required
+                            InvalidDataError.PortError.Required -> R.string.this_field_is_required
                         }
                 )
             },

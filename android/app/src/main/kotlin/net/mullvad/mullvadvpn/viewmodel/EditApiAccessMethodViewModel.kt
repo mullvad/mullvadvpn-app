@@ -93,8 +93,8 @@ class EditApiAccessMethodViewModel(
         formData.update { it?.copy(serverIp = serverIp, serverIpError = null) }
     }
 
-    fun updateRemotePort(port: String) {
-        formData.update { it?.copy(remotePort = port, remotePortError = null) }
+    fun updatePort(port: String) {
+        formData.update { it?.copy(port = port, portError = null) }
     }
 
     fun updatePassword(password: String) {
@@ -177,7 +177,7 @@ class EditApiAccessMethodViewModel(
                     EditApiAccessFormData(
                         name = accessMethod.name.value,
                         serverIp = customProxy.ip,
-                        remotePort = customProxy.port.toString(),
+                        port = customProxy.port.toString(),
                         password = customProxy.password ?: "",
                         cipher = customProxy.cipher,
                         username = "",
@@ -187,7 +187,7 @@ class EditApiAccessMethodViewModel(
                     EditApiAccessFormData(
                         name = accessMethod.name.value,
                         serverIp = customProxy.ip,
-                        remotePort = customProxy.port.toString(),
+                        port = customProxy.port.toString(),
                         enableAuthentication = customProxy.auth != null,
                         username = customProxy.auth?.username ?: "",
                         password = customProxy.auth?.password ?: ""
@@ -222,7 +222,7 @@ class EditApiAccessMethodViewModel(
     private fun parseShadowSocksFormData(
         formData: EditApiAccessFormData
     ): EitherNel<InvalidDataError, ApiAccessMethodType.CustomProxy.Shadowsocks> =
-        parseIpAndPort(formData.serverIp, formData.remotePort).map { (ip, port) ->
+        parseIpAndPort(formData.serverIp, formData.port).map { (ip, port) ->
             ApiAccessMethodType.CustomProxy.Shadowsocks(
                 ip = ip,
                 port = port,
@@ -238,16 +238,16 @@ class EditApiAccessMethodViewModel(
             else -> input.right()
         }
 
-    private fun parsePort(input: String): Either<InvalidDataError.RemotePortError, Port> =
+    private fun parsePort(input: String): Either<InvalidDataError.PortError, Port> =
         Port.fromString(input).mapLeft {
             when (it) {
                 is ParsePortError.NotANumber ->
                     if (it.input.isBlank()) {
-                        InvalidDataError.RemotePortError.Required
+                        InvalidDataError.PortError.Required
                     } else {
-                        InvalidDataError.RemotePortError.Invalid(it)
+                        InvalidDataError.PortError.Invalid(it)
                     }
-                is ParsePortError.OutOfRange -> InvalidDataError.RemotePortError.Invalid(it)
+                is ParsePortError.OutOfRange -> InvalidDataError.PortError.Invalid(it)
             }
         }
 
@@ -255,7 +255,7 @@ class EditApiAccessMethodViewModel(
         formData: EditApiAccessFormData
     ): Either<NonEmptyList<InvalidDataError>, ApiAccessMethodType.CustomProxy.Socks5Remote> =
         zipOrAccumulate(
-            parseIpAndPort(formData.serverIp, formData.remotePort),
+            parseIpAndPort(formData.serverIp, formData.port),
             parseAuth(
                 authEnabled = formData.enableAuthentication,
                 inputUsername = formData.username,
