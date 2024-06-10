@@ -782,13 +782,13 @@ final class TunnelManager: StorePaymentObserver {
         updateTunnelStatus(tunnel?.status ?? .disconnected)
     }
 
-    fileprivate func selectRelay() throws -> SelectedRelay {
+    fileprivate func selectRelays() throws -> SelectedRelays {
         let retryAttempts = tunnelStatus.observedState.connectionState?.connectionAttemptCount ?? 0
 
         return try relaySelector.selectRelays(
             with: settings.relayConstraints,
             connectionAttemptCount: retryAttempts
-        ).exit // TODO: Multihop
+        )
     }
 
     fileprivate func prepareForVPNConfigurationDeletion() {
@@ -1260,8 +1260,8 @@ private struct TunnelInteractorProxy: TunnelInteractor {
         tunnelManager.prepareForVPNConfigurationDeletion()
     }
 
-    func selectRelay() throws -> SelectedRelay {
-        try tunnelManager.selectRelay()
+    func selectRelays() throws -> SelectedRelays {
+        try tunnelManager.selectRelays()
     }
 
     func handleRestError(_ error: Error) {

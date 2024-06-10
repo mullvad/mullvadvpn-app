@@ -16,10 +16,10 @@ extension PacketTunnelActor {
      */
     internal func tryStartPostQuantumNegotiation(
         withSettings settings: Settings,
-        nextRelay: NextRelay,
+        nextRelays: NextRelays,
         reason: ActorReconnectReason
     ) async throws {
-        if let connectionState = try obfuscateConnection(nextRelay: nextRelay, settings: settings, reason: reason) {
+        if let connectionState = try obfuscateConnection(nextRelays: nextRelays, settings: settings, reason: reason) {
             let selectedEndpoint = connectionState.connectedEndpoint
             let activeKey = activeKey(from: connectionState, in: settings)
 
@@ -44,18 +44,18 @@ extension PacketTunnelActor {
     internal func postQuantumConnect(with key: PreSharedKey, privateKey: PrivateKey) async {
         guard
             // It is important to select the same relay that was saved in the connection state as the key negotiation happened with this specific relay.
-            let selectedRelay = state.connectionData?.selectedRelay,
+            let selectedRelays = state.connectionData?.selectedRelays,
             let settings: Settings = try? settingsReader.read(),
             let connectionState = try? obfuscateConnection(
-                nextRelay: .preSelected(selectedRelay),
+                nextRelays: .preSelected(selectedRelays),
                 settings: settings,
                 reason: .userInitiated
             )
         else {
             logger.error("Could not create connection state in PostQuantumConnect")
 
-            let nextRelay: NextRelay = (state.connectionData?.selectedRelay).map { .preSelected($0) } ?? .current
-            eventChannel.send(.reconnect(nextRelay))
+            let nextRelays: NextRelays = (state.connectionData?.selectedRelays).map { .preSelected($0) } ?? .current
+            eventChannel.send(.reconnect(nextRelays))
             return
         }
 
@@ -76,7 +76,7 @@ extension PacketTunnelActor {
 
         try? await tunnelAdapter.start(configuration: configurationBuilder.makeConfiguration())
         // Resume tunnel monitoring and use IPv4 gateway as a probe address.
-        tunnelMonitor.start(probeAddress: connectionState.selectedRelay.endpoint.ipv4Gateway)
+        tunnelMonitor.start(probeAddress: connectionState.selectedRelays.exit.endpoint.ipv4Gateway) // TODO: Multihop
         // Restart default path observer and notify the observer with the current path that might have changed while
         // path observer was paused.
         startDefaultPathObserver(notifyObserverWithCurrentPath: false)

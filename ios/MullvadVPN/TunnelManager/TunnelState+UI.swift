@@ -187,8 +187,8 @@ extension TunnelState {
                         value: "Quantum secure connection. Connected to %@, %@",
                         comment: ""
                     ),
-                    tunnelInfo.location.city,
-                    tunnelInfo.location.country
+                    tunnelInfo.exit.location.city, // TODO: Multihop
+                    tunnelInfo.exit.location.country // TODO: Multihop
                 )
             } else {
                 String(
@@ -198,8 +198,8 @@ extension TunnelState {
                         value: "Secure connection. Connected to %@, %@",
                         comment: ""
                     ),
-                    tunnelInfo.location.city,
-                    tunnelInfo.location.country
+                    tunnelInfo.exit.location.city, // TODO: Multihop
+                    tunnelInfo.exit.location.country // TODO: Multihop
                 )
             }
 
@@ -219,8 +219,8 @@ extension TunnelState {
                     value: "Reconnecting to %@, %@",
                     comment: ""
                 ),
-                tunnelInfo.location.city,
-                tunnelInfo.location.country
+                tunnelInfo.exit.location.city, // TODO: Multihop
+                tunnelInfo.exit.location.country // TODO: Multihop
             )
 
         case .waitingForConnectivity(.noConnection), .error:

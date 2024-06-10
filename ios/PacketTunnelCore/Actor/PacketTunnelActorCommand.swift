@@ -19,7 +19,7 @@ extension PacketTunnelActor {
         case stop
 
         /// Reconnect tunnel.
-        case reconnect(NextRelay, reason: ActorReconnectReason = .userInitiated)
+        case reconnect(NextRelays, reason: ActorReconnectReason = .userInitiated)
 
         /// Enter blocked state.
         case error(BlockedStateReason)
@@ -46,14 +46,14 @@ extension PacketTunnelActor {
                 return "start"
             case .stop:
                 return "stop"
-            case let .reconnect(nextRelay, stopTunnelMonitor):
-                switch nextRelay {
+            case let .reconnect(nextRelays, stopTunnelMonitor):
+                switch nextRelays {
                 case .current:
                     return "reconnect(current, \(stopTunnelMonitor))"
                 case .random:
                     return "reconnect(random, \(stopTunnelMonitor))"
-                case let .preSelected(selectedRelay):
-                    return "reconnect(\(selectedRelay.hostname), \(stopTunnelMonitor))"
+                case let .preSelected(selectedRelays):
+                    return "reconnect(\(selectedRelays.exit.hostname), \(stopTunnelMonitor))" // TODO: Multihop
                 }
             case let .error(reason):
                 return "error(\(reason))"

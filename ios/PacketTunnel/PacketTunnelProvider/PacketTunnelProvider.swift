@@ -207,9 +207,9 @@ extension PacketTunnelProvider {
         var parsedOptions = StartOptions(launchSource: tunnelOptions.isOnDemand() ? .onDemand : .app)
 
         do {
-            if let selectedRelay = try tunnelOptions.getSelectedRelay() {
+            if let selectedRelays = try tunnelOptions.getSelectedRelays() {
                 parsedOptions.launchSource = .app
-                parsedOptions.selectedRelay = selectedRelay
+                parsedOptions.selectedRelays = selectedRelays
             } else if !tunnelOptions.isOnDemand() {
                 parsedOptions.launchSource = .system
             }
