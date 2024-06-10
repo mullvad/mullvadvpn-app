@@ -203,3 +203,84 @@ pub fn port_in_range(port: u16, port_ranges: &[(u16, u16)]) -> bool {
         .iter()
         .any(|range| (range.0 <= port && port <= range.1))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::{get_shadowsocks_obfuscator_inner, port_in_range, SHADOWSOCKS_EXTRA_PORT_RANGES};
+    use mullvad_types::constraints::Constraint;
+    use std::net::IpAddr;
+
+    /// Test whether select ports are available when relay has no extra IPs
+    #[test]
+    fn test_shadowsocks_no_extra_addrs() {
+        const PORT_RANGES: &[(u16, u16)] = &[(100, 200), (1000, 2000)];
+        const OUT_OF_RANGE_PORT: u16 = 1;
+        let wg_in_ip: IpAddr = "1.2.3.4".parse().unwrap();
+
+        let selected_addr =
+            get_shadowsocks_obfuscator_inner(wg_in_ip, PORT_RANGES, &[], Constraint::Any)
+                .expect("should find valid port without constraint");
+
+        assert_eq!(selected_addr.ip(), wg_in_ip);
+        assert!(
+            port_in_range(selected_addr.port(), PORT_RANGES),
+            "expected port in port range"
+        );
+
+        let selected_addr = get_shadowsocks_obfuscator_inner(
+            wg_in_ip,
+            PORT_RANGES,
+            &[],
+            Constraint::Only(OUT_OF_RANGE_PORT),
+        );
+        assert!(
+            selected_addr.is_none(),
+            "expected no relay for port outside range, found {selected_addr:?}"
+        );
+    }
+
+    /// All ports should be available when relay has extra IPs, and only extra IPs should be used
+    #[test]
+    fn test_shadowsocks_extra_addrs() {
+        const PORT_RANGES: &[(u16, u16)] = &[(100, 200), (1000, 2000)];
+        const OUT_OF_RANGE_PORT: u16 = 1;
+        let wg_in_ip: IpAddr = "1.2.3.4".parse().unwrap();
+
+        let extra_in_addrs: &[IpAddr] =
+            &["1.3.3.7".parse().unwrap(), "192.0.2.123".parse().unwrap()];
+
+        let selected_addr = get_shadowsocks_obfuscator_inner(
+            wg_in_ip,
+            PORT_RANGES,
+            extra_in_addrs,
+            Constraint::Any,
+        )
+        .expect("should find valid port without constraint");
+
+        assert!(
+            extra_in_addrs.contains(&selected_addr.ip()),
+            "expected extra IP to be selected"
+        );
+        assert!(port_in_range(
+            selected_addr.port(),
+            SHADOWSOCKS_EXTRA_PORT_RANGES
+        ));
+
+        let selected_addr = get_shadowsocks_obfuscator_inner(
+            wg_in_ip,
+            PORT_RANGES,
+            extra_in_addrs,
+            Constraint::Only(OUT_OF_RANGE_PORT),
+        )
+        .expect("expected selected address to be returned");
+        assert!(
+            extra_in_addrs.contains(&selected_addr.ip()),
+            "expected extra IP to be selected, got {selected_addr:?}"
+        );
+        assert_eq!(
+            selected_addr.port(),
+            OUT_OF_RANGE_PORT,
+            "expected selected port, got {selected_addr:?}"
+        );
+    }
+}
