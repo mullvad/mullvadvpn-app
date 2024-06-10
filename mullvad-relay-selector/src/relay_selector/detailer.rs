@@ -159,12 +159,19 @@ fn get_address_for_wireguard_relay(
     query: &WireguardRelayQuery,
     relay: &Relay,
 ) -> Result<IpAddr, Error> {
-    match query.ip_version {
-        Constraint::Any | Constraint::Only(IpVersion::V4) => Ok(relay.ipv4_addr_in.into()),
-        Constraint::Only(IpVersion::V6) => relay
+    match resolve_ip_version(query.ip_version) {
+        IpVersion::V4 => Ok(relay.ipv4_addr_in.into()),
+        IpVersion::V6 => relay
             .ipv6_addr_in
             .map(|addr| addr.into())
             .ok_or(Error::NoIPv6(Box::new(relay.clone()))),
+    }
+}
+
+pub fn resolve_ip_version(ip_version: Constraint<IpVersion>) -> IpVersion {
+    match ip_version {
+        Constraint::Any | Constraint::Only(IpVersion::V4) => IpVersion::V4,
+        Constraint::Only(IpVersion::V6) => IpVersion::V6,
     }
 }
 
