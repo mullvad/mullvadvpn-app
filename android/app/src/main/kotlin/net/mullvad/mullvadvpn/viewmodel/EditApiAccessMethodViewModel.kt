@@ -85,31 +85,31 @@ class EditApiAccessMethodViewModel(
         formData.update { it?.copy(apiAccessMethodTypes = accessMethodType) }
     }
 
-    fun updateName(name: String) {
+    fun onNameChanged(name: String) {
         formData.update { it?.copy(name = name, nameError = null) }
     }
 
-    fun updateServerIp(serverIp: String) {
+    fun onServerIpChanged(serverIp: String) {
         formData.update { it?.copy(serverIp = serverIp, serverIpError = null) }
     }
 
-    fun updatePort(port: String) {
+    fun onPortChanged(port: String) {
         formData.update { it?.copy(port = port, portError = null) }
     }
 
-    fun updatePassword(password: String) {
+    fun onPasswordChanged(password: String) {
         formData.update { it?.copy(password = password, passwordError = null) }
     }
 
-    fun updateCipher(cipher: Cipher) {
+    fun onCipherChanged(cipher: Cipher) {
         formData.update { it?.copy(cipher = cipher) }
     }
 
-    fun updateAuthenticationEnabled(enabled: Boolean) {
+    fun onAuthenticationEnabledChanged(enabled: Boolean) {
         formData.update { it?.copy(enableAuthentication = enabled) }
     }
 
-    fun updateUsername(username: String) {
+    fun onUsernameChanged(username: String) {
         formData.update { it?.copy(username = username, usernameError = null) }
     }
 
