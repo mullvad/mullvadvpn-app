@@ -10,7 +10,7 @@ use mullvad_types::{
     },
     relay_list::{Relay, RelayEndpointData, WireguardRelayEndpointData},
 };
-use talpid_types::net::TunnelType;
+use talpid_types::net::{IpVersion, TunnelType};
 
 use super::{
     parsed_relays::ParsedRelays,
@@ -142,6 +142,7 @@ fn filter_on_obfuscation(
             let wg_data = &relay_list.parsed_list().wireguard;
             filter_on_shadowsocks(
                 &wg_data.shadowsocks_port_ranges,
+                &query.ip_version,
                 &query.shadowsocks_port,
                 relay,
             )
@@ -155,10 +156,13 @@ fn filter_on_obfuscation(
 /// Returns whether `relay` satisfies the Shadowsocks filter posed by `port`.
 fn filter_on_shadowsocks(
     port_ranges: &[(u16, u16)],
-    settings: &Constraint<ShadowsocksSettings>,
+    ip_version: &Constraint<IpVersion>,
+    shadowsocks: &Constraint<ShadowsocksSettings>,
     relay: &Relay,
 ) -> bool {
-    match (&settings, &relay.endpoint_data) {
+    let ip_version = super::detailer::resolve_ip_version(*ip_version);
+
+    match (&shadowsocks, &relay.endpoint_data) {
         // If Shadowsocks is specifically asked for, we must check if the specific relay supports our port.
         // If there are extra addresses, then all ports are available, so we do not need to do this.
         (
@@ -166,9 +170,17 @@ fn filter_on_shadowsocks(
                 port: Constraint::Only(desired_port),
             }),
             RelayEndpointData::Wireguard(wg_data),
-        ) if wg_data.shadowsocks_extra_addr_in.is_empty() => port_ranges
-            .iter()
-            .any(|(begin, end)| (*begin..=*end).contains(&desired_port)),
+        ) => {
+            let filtered_extra_addrs = wg_data
+                .shadowsocks_extra_addr_in
+                .iter()
+                .find(|&&addr| IpVersion::from(addr) == ip_version);
+
+            filtered_extra_addrs.is_some()
+                || port_ranges
+                    .iter()
+                    .any(|(begin, end)| (*begin..=*end).contains(desired_port))
+        }
 
         // Otherwise, any relay works.
         _ => true,

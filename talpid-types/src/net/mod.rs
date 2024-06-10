@@ -438,6 +438,15 @@ pub enum IpVersion {
     V6,
 }
 
+impl From<IpAddr> for IpVersion {
+    fn from(value: IpAddr) -> Self {
+        match value {
+            IpAddr::V4(_) => IpVersion::V4,
+            IpAddr::V6(_) => IpVersion::V6,
+        }
+    }
+}
+
 impl fmt::Display for IpVersion {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         match *self {
