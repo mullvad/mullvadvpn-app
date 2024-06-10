@@ -59,7 +59,7 @@ the current state of the latest code in git, not necessarily any existing releas
 | WireGuard multihop            |    ✓    |   ✓   |   ✓   |         |     |
 | WireGuard over TCP            |    ✓    |   ✓   |   ✓   |    ✓    |     |
 | OpenVPN over Shadowsocks      |    ✓    |   ✓   |   ✓   |         |     |
-| Split tunneling               |    ✓    |   ✓   |       |    ✓    |     |
+| Split tunneling               |    ✓    |   ✓   |   ✓   |    ✓    |     |
 | Custom DNS server             |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
 | Content blockers (Ads etc)    |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
 | Optional local network access |    ✓    |   ✓   |   ✓   |    ✓    |  ✓\* |
