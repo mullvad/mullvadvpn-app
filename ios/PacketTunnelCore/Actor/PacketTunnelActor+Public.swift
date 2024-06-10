@@ -36,10 +36,10 @@ extension PacketTunnelActor {
     /**
      Tell actor to reconnect the tunnel.
 
-     - Parameter nextRelay: next relay to connect to.
+     - Parameter nextRelays: next relays to connect to.
      */
-    public nonisolated func reconnect(to nextRelay: NextRelay, reconnectReason: ActorReconnectReason) {
-        eventChannel.send(.reconnect(nextRelay, reason: reconnectReason))
+    public nonisolated func reconnect(to nextRelays: NextRelays, reconnectReason: ActorReconnectReason) {
+        eventChannel.send(.reconnect(nextRelays, reason: reconnectReason))
     }
 
     /**
