@@ -223,6 +223,36 @@ pub async fn ping_sized_with_timeout(
         .map_err(Error::Rpc)
 }
 
+/// Return the first address that `host` resolves to
+pub async fn resolve_hostname_with_retries(
+    host: impl tokio::net::ToSocketAddrs,
+) -> std::io::Result<SocketAddr> {
+    const MAX_ATTEMPTS: usize = 10;
+    const RETRY_DELAY: Duration = Duration::from_secs(5);
+
+    let mut last_error = None;
+    let mut attempt = 0;
+
+    loop {
+        if attempt >= MAX_ATTEMPTS {
+            break Err(last_error.unwrap_or(std::io::Error::other("lookup timed out")));
+        }
+        attempt += 1;
+
+        match tokio::net::lookup_host(&host).await {
+            Ok(mut addrs) => {
+                if let Some(addr) = addrs.next() {
+                    // done
+                    break Ok(addr);
+                }
+            }
+            Err(err) => last_error = Some(err),
+        }
+
+        tokio::time::sleep(RETRY_DELAY).await;
+    }
+}
+
 /// Log in and retry if it fails due to throttling
 pub async fn login_with_retries(
     mullvad_client: &mut MullvadProxyClient,
@@ -501,21 +531,19 @@ pub fn unreachable_wireguard_tunnel() -> talpid_types::net::wireguard::Connectio
 /// # Note
 /// This is independent of the running daemon's environment.
 /// It is solely dependant on the current value of [`TEST_CONFIG`].
-pub fn get_app_env() -> HashMap<String, String> {
+pub async fn get_app_env() -> anyhow::Result<HashMap<String, String>> {
     use mullvad_api::env;
-    use std::net::ToSocketAddrs;
 
     let api_host = format!("api.{}", TEST_CONFIG.mullvad_host);
-    let api_addr = format!("{api_host}:443")
-        .to_socket_addrs()
-        .expect("failed to resolve API host")
-        .next()
-        .unwrap();
+    let api_host_with_port = format!("{api_host}:443");
+    let api_addr = resolve_hostname_with_retries(api_host_with_port)
+        .await
+        .context("failed to resolve API host")?;
 
-    HashMap::from_iter(vec![
+    Ok(HashMap::from_iter(vec![
         (env::API_HOST_VAR.to_string(), api_host),
         (env::API_ADDR_VAR.to_string(), api_addr.to_string()),
-    ])
+    ]))
 }
 
 /// Constrain the daemon to only select the relay selected with `query` when establishing all

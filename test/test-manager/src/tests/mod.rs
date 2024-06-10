@@ -194,7 +194,7 @@ pub async fn cleanup_after_test(
 /// restart.
 async fn restart_daemon(rpc: ServiceClient) -> anyhow::Result<()> {
     let current_env = rpc.get_daemon_environment().await?;
-    let default_env = get_app_env();
+    let default_env = get_app_env().await?;
     if current_env != default_env {
         log::debug!("Restarting daemon due changed environment variables. Values since last test {current_env:?}");
         rpc.set_daemon_environment(default_env).await?;
