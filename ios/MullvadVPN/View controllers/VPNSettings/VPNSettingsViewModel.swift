@@ -99,6 +99,7 @@ struct VPNSettingsViewModel: Equatable {
     private(set) var obfuscationPort: WireGuardObfuscationPort
 
     private(set) var quantumResistance: TunnelQuantumResistance
+    private(set) var multihopState: MultihopState
 
     static let defaultWireGuardPorts: [UInt16] = [51820, 53]
 
@@ -154,6 +155,10 @@ struct VPNSettingsViewModel: Equatable {
         quantumResistance = newState
     }
 
+    mutating func setMultihop(_ newState: MultihopState) {
+        multihopState = newState
+    }
+
     /// Precondition for enabling Custom DNS.
     var customDNSPrecondition: CustomDNSPrecondition {
         if blockAdvertising || blockTracking || blockMalware ||
@@ -201,6 +206,7 @@ struct VPNSettingsViewModel: Equatable {
         obfuscationPort = tunnelSettings.wireGuardObfuscation.port
 
         quantumResistance = tunnelSettings.tunnelQuantumResistance
+        multihopState = tunnelSettings.tunnelMultihopState
     }
 
     /// Produce merged view model keeping entry `identifier` for matching DNS entries.

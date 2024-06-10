@@ -7,6 +7,12 @@
 //
 
 import Foundation
+import MullvadSettings
+
+protocol DnsSettingsDataSourceDelegate: AnyObject {
+    func didChangeViewModel(_ viewModel: VPNSettingsViewModel)
+    func showInfo(for: VPNSettingsInfoButtonItem)
+}
 
 protocol VPNSettingsDataSourceDelegate: AnyObject {
     func didChangeViewModel(_ viewModel: VPNSettingsViewModel)
@@ -14,4 +20,5 @@ protocol VPNSettingsDataSourceDelegate: AnyObject {
     func showDNSSettings()
     func showIPOverrides()
     func didSelectWireGuardPort(_ port: UInt16?)
+    func showMultihopConfirmation(_ onSave: @escaping () -> Void, _ onDiscard: @escaping () -> Void)
 }

@@ -69,4 +69,8 @@ public class MultihopUpdater {
 public enum MultihopState: Codable {
     case on
     case off
+
+    public var isEnabled: Bool {
+        self == .on
+    }
 }

@@ -12,7 +12,8 @@ import MullvadTypes
 
 public protocol ShadowsocksRelaySelectorProtocol {
     func selectRelay(
-        with constraints: RelayConstraints
+        with constraints: RelayConstraints,
+        multihopState: MultihopState
     ) throws -> REST.BridgeRelay?
 
     func getBridges() throws -> REST.ServerShadowsocks?
@@ -20,34 +21,16 @@ public protocol ShadowsocksRelaySelectorProtocol {
 
 final public class ShadowsocksRelaySelector: ShadowsocksRelaySelectorProtocol {
     let relayCache: RelayCacheProtocol
-    let multihopUpdater: MultihopUpdater
-    private var multihopState: MultihopState
-    private var observer: MultihopObserverBlock!
-
-    deinit {
-        self.multihopUpdater.removeObserver(observer)
-    }
 
     public init(
-        relayCache: RelayCacheProtocol,
-        multihopUpdater: MultihopUpdater,
-        multihopState: MultihopState
+        relayCache: RelayCacheProtocol
     ) {
         self.relayCache = relayCache
-        self.multihopUpdater = multihopUpdater
-        self.multihopState = multihopState
-        self.addObserver()
-    }
-
-    private func addObserver() {
-        self.observer = MultihopObserverBlock(didUpdateMultihop: { [weak self] _, multihopState in
-            self?.multihopState = multihopState
-        })
-        multihopUpdater.addObserver(observer)
     }
 
     public func selectRelay(
-        with constraints: RelayConstraints
+        with constraints: RelayConstraints,
+        multihopState: MultihopState
     ) throws -> REST.BridgeRelay? {
         let cachedRelays = try relayCache.read().relays
 

@@ -10,20 +10,6 @@ import Foundation
 import MullvadTypes
 
 extension ObservedState {
-    public var relayConstraints: RelayConstraints? {
-        switch self {
-        case let .connecting(connState), let .connected(connState), let .reconnecting(connState),
-             let .negotiatingPostQuantumKey(connState, _):
-            connState.relayConstraints
-
-        case let .error(blockedState):
-            blockedState.relayConstraints
-
-        case .initial, .disconnecting, .disconnected:
-            nil
-        }
-    }
-
     public var name: String {
         switch self {
         case .connected:

@@ -92,9 +92,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         let constraintsUpdater = RelayConstraintsUpdater()
         let multihopListener = MultihopStateListener()
         let multihopUpdater = MultihopUpdater(listener: multihopListener)
-        let multihopState = (try? SettingsManager.readSettings().tunnelMultihopState) ?? .off
 
-        settingsObserver = TunnelBlockObserver(didUpdateTunnelSettings: { _, settings in
+        settingsObserver = TunnelBlockObserver(didLoadConfiguration: { tunnelManager in
+            multihopListener.onNewMultihop?(tunnelManager.settings.tunnelMultihopState)
+            constraintsUpdater.onNewConstraints?(tunnelManager.settings.relayConstraints)
+        }, didUpdateTunnelSettings: { _, settings in
             multihopListener.onNewMultihop?(settings.tunnelMultihopState)
             constraintsUpdater.onNewConstraints?(settings.relayConstraints)
         })
@@ -110,15 +112,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         let urlSessionTransport = URLSessionTransport(urlSession: REST.makeURLSession())
         let shadowsocksCache = ShadowsocksConfigurationCache(cacheDirectory: containerURL)
         let shadowsocksRelaySelector = ShadowsocksRelaySelector(
-            relayCache: ipOverrideWrapper,
-            multihopUpdater: multihopUpdater,
-            multihopState: multihopState
+            relayCache: ipOverrideWrapper
         )
 
         shadowsocksLoader = ShadowsocksLoader(
             cache: shadowsocksCache,
             relaySelector: shadowsocksRelaySelector,
-            constraintsUpdater: constraintsUpdater
+            constraintsUpdater: constraintsUpdater,
+            multihopUpdater: multihopUpdater,
+            multihopState: tunnelManager.settings.tunnelMultihopState
         )
 
         configuredTransportProvider = ProxyConfigurationTransportProvider(

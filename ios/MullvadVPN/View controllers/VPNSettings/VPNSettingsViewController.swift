@@ -13,7 +13,7 @@ protocol VPNSettingsViewControllerDelegate: AnyObject {
     func showIPOverrides()
 }
 
-class VPNSettingsViewController: UITableViewController, VPNSettingsDataSourceDelegate {
+class VPNSettingsViewController: UITableViewController {
     private let interactor: VPNSettingsInteractor
     private var dataSource: VPNSettingsDataSource?
     private let alertPresenter: AlertPresenter
@@ -103,9 +103,9 @@ class VPNSettingsViewController: UITableViewController, VPNSettingsDataSourceDel
             }
             .joined(separator: ", ")
     }
+}
 
-    // MARK: - VPNSettingsDataSourceDelegate
-
+extension VPNSettingsViewController: VPNSettingsDataSourceDelegate {
     func didChangeViewModel(_ viewModel: VPNSettingsViewModel) {
         interactor.updateSettings(
             [
@@ -114,6 +114,7 @@ class VPNSettingsViewController: UITableViewController, VPNSettingsDataSourceDel
                     port: viewModel.obfuscationPort
                 )),
                 .quantumResistance(viewModel.quantumResistance),
+                .multihop(viewModel.multihopState),
             ]
         )
     }
@@ -174,7 +175,6 @@ class VPNSettingsViewController: UITableViewController, VPNSettingsDataSourceDel
                 """,
                 comment: ""
             )
-
         default:
             assertionFailure("No matching InfoButtonItem")
         }
@@ -193,5 +193,49 @@ class VPNSettingsViewController: UITableViewController, VPNSettingsDataSourceDel
 
     func didSelectWireGuardPort(_ port: UInt16?) {
         interactor.setPort(port)
+    }
+
+    func showMultihopConfirmation(_ onSave: @escaping () -> Void, _ onDiscard: @escaping () -> Void) {
+        let presentation = AlertPresentation(
+            id: "multihop-confirm-alert",
+            accessibilityIdentifier: .multihopPromptAlert,
+            icon: .info,
+            message: NSLocalizedString(
+                "MULTIHOP_CONFIRM_ALERT_TEXT",
+                tableName: "Multihop",
+                value: "This setting increases latency. Use only if needed.",
+                comment: ""
+            ),
+            buttons: [
+                AlertAction(
+                    title: NSLocalizedString(
+                        "MULTIHOP_CONFIRM_ALERT_ENABLE_BUTTON",
+                        tableName: "Multihop",
+                        value: "Enable anyway",
+                        comment: ""
+                    ),
+                    style: .destructive,
+                    accessibilityId: .multihopConfirmAlertEnableButton,
+                    handler: {
+                        onSave()
+                    }
+                ),
+                AlertAction(
+                    title: NSLocalizedString(
+                        "MULTIHOP_CONFIRM_ALERT_BACK_BUTTON",
+                        tableName: "Multihop",
+                        value: "Back",
+                        comment: ""
+                    ),
+                    style: .default,
+                    accessibilityId: .multihopConfirmAlertBackButton,
+                    handler: {
+                        onDiscard()
+                    }
+                ),
+            ]
+        )
+
+        alertPresenter.showAlert(presentation: presentation, animated: true)
     }
 }
