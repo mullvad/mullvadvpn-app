@@ -33,7 +33,7 @@ import org.koin.core.parameter.parametersOf
 
 @Preview
 @Composable
-fun PreviewSaveApiAccessMethodDialog(
+private fun PreviewSaveApiAccessMethodDialog(
     @PreviewParameter(SaveApiAccessMethodUiStatePreviewParameterProvider::class)
     state: SaveApiAccessMethodUiState
 ) {
@@ -54,7 +54,7 @@ fun SaveApiAccessMethod(
             parameters = { parametersOf(id, name, enabled, customProxy) }
         )
 
-    LaunchedEffectCollect(sideEffect = viewModel.sideEffect) {
+    LaunchedEffectCollect(sideEffect = viewModel.uiSideEffect) {
         when (it) {
             SaveApiAccessMethodSideEffect.Cancel -> backNavigator.navigateBack()
             SaveApiAccessMethodSideEffect.CouldNotSaveApiAccessMethod ->

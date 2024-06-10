@@ -21,7 +21,7 @@ import net.mullvad.mullvadvpn.lib.theme.color.selected
 
 @Preview
 @Composable
-fun PreviewTestMethodButton(
+private fun PreviewTestMethodButton(
     @PreviewParameter(provider = TestMethodButtonPreviewParameterProvider::class)
     state: TestApiAccessMethodState?
 ) {

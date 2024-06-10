@@ -62,7 +62,7 @@ import org.koin.core.parameter.parametersOf
 
 @Preview
 @Composable
-fun PreviewApiAccessMethodDetailsScreen(
+private fun PreviewApiAccessMethodDetailsScreen(
     @PreviewParameter(ApiAccessMethodDetailsUiStatePreviewParameterProvider::class)
     state: ApiAccessMethodDetailsUiState
 ) {
