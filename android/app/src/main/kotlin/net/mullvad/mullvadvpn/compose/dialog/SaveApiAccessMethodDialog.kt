@@ -1,13 +1,11 @@
 package net.mullvad.mullvadvpn.compose.dialog
 
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -28,8 +26,6 @@ import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodName
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodType
 import net.mullvad.mullvadvpn.lib.model.TestApiAccessMethodState
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
-import net.mullvad.mullvadvpn.lib.theme.Dimens
-import net.mullvad.mullvadvpn.lib.theme.color.AlphaDescription
 import net.mullvad.mullvadvpn.viewmodel.SaveApiAccessMethodSideEffect
 import net.mullvad.mullvadvpn.viewmodel.SaveApiAccessMethodViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -50,11 +46,12 @@ fun SaveApiAccessMethod(
     backNavigator: ResultBackNavigator<Boolean>,
     id: ApiAccessMethodId?,
     name: ApiAccessMethodName,
+    enabled: Boolean,
     customProxy: ApiAccessMethodType.CustomProxy
 ) {
     val viewModel =
         koinViewModel<SaveApiAccessMethodViewModel>(
-            parameters = { parametersOf(id, name, customProxy) }
+            parameters = { parametersOf(id, name, enabled, customProxy) }
         )
 
     LaunchedEffectCollect(sideEffect = viewModel.sideEffect) {
@@ -96,14 +93,7 @@ fun SaveApiAccessMethodDialog(
                 TestApiAccessMethodState.Testing -> MullvadCircularProgressIndicatorMedium()
             }
         },
-        text = {
-            Text(
-                text = state.text(),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaDescription),
-                modifier = Modifier.padding(top = Dimens.smallPadding),
-            )
-        },
+        title = { Text(text = state.text(), style = MaterialTheme.typography.headlineSmall) },
         onDismissRequest = { /*Should not be able to dismiss*/},
         confirmButton = {
             PrimaryButton(

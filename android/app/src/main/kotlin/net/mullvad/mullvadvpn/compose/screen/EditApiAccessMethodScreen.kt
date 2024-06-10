@@ -1,25 +1,19 @@
 package net.mullvad.mullvadvpn.compose.screen
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -35,8 +29,11 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.button.TestMethodButton
-import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
-import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
+import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
+import net.mullvad.mullvadvpn.compose.component.MullvadDropdownMenuItem
+import net.mullvad.mullvadvpn.compose.component.MullvadExposedDropdownMenuBox
+import net.mullvad.mullvadvpn.compose.component.NavigateCloseIconButton
+import net.mullvad.mullvadvpn.compose.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.compose.component.textResource
 import net.mullvad.mullvadvpn.compose.destinations.DiscardChangesDialogDestination
 import net.mullvad.mullvadvpn.compose.destinations.SaveApiAccessMethodDestination
@@ -44,8 +41,8 @@ import net.mullvad.mullvadvpn.compose.preview.EditApiAccessMethodUiStateParamete
 import net.mullvad.mullvadvpn.compose.state.ApiAccessMethodTypes
 import net.mullvad.mullvadvpn.compose.state.EditApiAccessFormData
 import net.mullvad.mullvadvpn.compose.state.EditApiAccessMethodUiState
-import net.mullvad.mullvadvpn.compose.textfield.CustomTextField
-import net.mullvad.mullvadvpn.compose.textfield.mullvadDarkTextFieldColors
+import net.mullvad.mullvadvpn.compose.textfield.ApiAccessMethodTextField
+import net.mullvad.mullvadvpn.compose.textfield.apiAccessTextFieldColors
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
 import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
@@ -56,7 +53,6 @@ import net.mullvad.mullvadvpn.lib.model.Cipher
 import net.mullvad.mullvadvpn.lib.model.InvalidDataError
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
-import net.mullvad.mullvadvpn.lib.theme.color.menuItemColors
 import net.mullvad.mullvadvpn.viewmodel.EditApiAccessMethodViewModel
 import net.mullvad.mullvadvpn.viewmodel.EditApiAccessSideEffect
 import org.koin.androidx.compose.koinViewModel
@@ -94,6 +90,7 @@ fun EditApiAccessMethod(
                     SaveApiAccessMethodDestination(
                         id = it.id,
                         name = it.name,
+                        enabled = it.enabled,
                         customProxy = it.customProxy
                     )
                 ) {
@@ -159,9 +156,9 @@ fun EditApiAccessMethodScreen(
     onAddMethod: () -> Unit = {},
     onNavigateBack: () -> Unit = {}
 ) {
-    ScaffoldWithMediumTopBar(
+    ScaffoldWithSmallTopBar(
         snackbarHostState = snackbarHostState,
-        navigationIcon = { NavigateBackIconButton(onNavigateBack = onNavigateBack) },
+        navigationIcon = { NavigateCloseIconButton(onNavigateClose = onNavigateBack) },
         appBarTitle =
             stringResource(
                 if (state.editMode) {
@@ -202,12 +199,12 @@ fun EditApiAccessMethodScreen(
                                 onPasswordChanged = onPasswordChanged
                             )
                     }
-                    Spacer(modifier = Modifier.height(Dimens.verticalSpace))
+                    Spacer(modifier = Modifier.height(Dimens.largePadding))
                     TestMethodButton(
+                        modifier = Modifier.padding(bottom = Dimens.verticalSpace),
                         testMethodState = state.testMethodState,
                         onTestMethod = onTestMethod
                     )
-                    Spacer(modifier = Modifier.height(Dimens.verticalSpace))
                     AddMethodButton(isNew = !state.editMode, onAddMethod = onAddMethod)
                 }
             }
@@ -215,7 +212,10 @@ fun EditApiAccessMethodScreen(
     }
 }
 
-@Composable private fun Loading() {}
+@Composable
+private fun ColumnScope.Loading() {
+    MullvadCircularProgressIndicatorLarge(modifier = Modifier.align(Alignment.CenterHorizontally))
+}
 
 @Composable
 private fun NameInputField(
@@ -223,25 +223,15 @@ private fun NameInputField(
     nameError: InvalidDataError.NameError?,
     onNameChanged: (String) -> Unit,
 ) {
-    InputField(
+    ApiAccessMethodTextField(
         value = name,
         keyboardType = KeyboardType.Text,
         onValueChanged = onNameChanged,
-        onSubmit = {},
-        placeholderText = stringResource(id = R.string.name),
+        labelText = stringResource(id = R.string.name),
         isValidValue = nameError == null,
         isDigitsOnlyAllowed = false,
         maxCharLength = ApiAccessMethodName.MAX_LENGTH,
-        supportingText =
-            nameError?.let {
-                {
-                    Text(
-                        text = textResource(id = R.string.this_field_is_required),
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                }
-            },
+        errorText = nameError?.let { textResource(id = R.string.this_field_is_required) },
     )
 }
 
@@ -251,32 +241,20 @@ private fun ApiAccessMethodTypeSelection(
     formData: EditApiAccessFormData,
     onTypeSelected: (ApiAccessMethodTypes) -> Unit
 ) {
-    var expanded by remember { mutableStateOf(false) }
-    ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
-        TextField(
-            modifier = Modifier.fillMaxWidth().menuAnchor(),
-            readOnly = true,
-            value = formData.apiAccessMethodTypes.text(),
-            onValueChange = {},
-            label = { Text(stringResource(id = R.string.type)) },
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-            colors = mullvadDarkTextFieldColors()
-        )
-        ExposedDropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-            modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainer)
-        ) {
-            ApiAccessMethodTypes.entries.forEach {
-                DropdownMenuItem(
-                    colors = menuItemColors,
-                    text = { Text(text = it.text()) },
-                    onClick = {
-                        onTypeSelected(it)
-                        expanded = false
-                    }
-                )
-            }
+    MullvadExposedDropdownMenuBox(
+        modifier = Modifier.padding(vertical = Dimens.miniPadding),
+        label = stringResource(id = R.string.type),
+        title = formData.apiAccessMethodTypes.text(),
+        colors = apiAccessTextFieldColors()
+    ) { close ->
+        ApiAccessMethodTypes.entries.forEach {
+            MullvadDropdownMenuItem(
+                text = it.text(),
+                onClick = {
+                    close()
+                    onTypeSelected(it)
+                }
+            )
         }
     }
 }
@@ -294,20 +272,17 @@ private fun ShadowsocksForm(
         serverIpError = formData.serverIpError,
         onIpChanged = onIpChanged
     )
-    Spacer(modifier = Modifier.height(Dimens.verticalSpacer))
     RemotePortInput(
         remotePort = formData.remotePort,
         formData.remotePortError,
         onPortChanged = onPortChanged
     )
-    Spacer(modifier = Modifier.height(Dimens.verticalSpacer))
     PasswordInput(
         password = formData.password,
         passwordError = formData.passwordError,
         optional = true,
         onPasswordChanged = onPasswordChanged
     )
-    Spacer(modifier = Modifier.height(Dimens.verticalSpacer))
     CipherSelection(cipher = formData.cipher, onCipherChange = onCipherChange)
 }
 
@@ -325,22 +300,18 @@ private fun Socks5RemoteForm(
         serverIpError = formData.serverIpError,
         onIpChanged = onIpChanged
     )
-    Spacer(modifier = Modifier.height(Dimens.verticalSpacer))
     RemotePortInput(
         remotePort = formData.remotePort,
         portError = formData.remotePortError,
         onPortChanged = onPortChanged
     )
-    Spacer(modifier = Modifier.height(Dimens.verticalSpacer))
     EnableAuthentication(formData.enableAuthentication, onToggleAuthenticationEnabled)
     if (formData.enableAuthentication) {
-        Spacer(modifier = Modifier.height(Dimens.verticalSpacer))
         UsernameInput(
             username = formData.username,
             usernameError = formData.usernameError,
             onUsernameChanged = onUsernameChanged
         )
-        Spacer(modifier = Modifier.height(Dimens.verticalSpacer))
         PasswordInput(
             password = formData.password,
             passwordError = formData.passwordError,
@@ -356,32 +327,24 @@ private fun ServerIpInput(
     serverIpError: InvalidDataError.ServerIpError?,
     onIpChanged: (String) -> Unit
 ) {
-    InputField(
+    ApiAccessMethodTextField(
         value = serverIp,
         keyboardType = KeyboardType.Text,
         onValueChanged = onIpChanged,
-        onSubmit = {},
-        placeholderText = stringResource(id = R.string.server),
+        labelText = stringResource(id = R.string.server),
         isValidValue = serverIpError == null,
         isDigitsOnlyAllowed = false,
-        supportingText =
+        errorText =
             serverIpError?.let {
-                {
-                    Text(
-                        text =
-                            textResource(
-                                id =
-                                    when (it) {
-                                        InvalidDataError.ServerIpError.Invalid ->
-                                            R.string.please_enter_a_valid_ip_address
-                                        InvalidDataError.ServerIpError.Required ->
-                                            R.string.this_field_is_required
-                                    }
-                            ),
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                }
+                textResource(
+                    id =
+                        when (it) {
+                            InvalidDataError.ServerIpError.Invalid ->
+                                R.string.please_enter_a_valid_ip_address
+                            InvalidDataError.ServerIpError.Required ->
+                                R.string.this_field_is_required
+                        }
+                )
             },
     )
 }
@@ -392,32 +355,24 @@ private fun RemotePortInput(
     portError: InvalidDataError.RemotePortError?,
     onPortChanged: (String) -> Unit
 ) {
-    InputField(
+    ApiAccessMethodTextField(
         value = remotePort,
         keyboardType = KeyboardType.Number,
         onValueChanged = onPortChanged,
-        onSubmit = {},
-        placeholderText = stringResource(id = R.string.port),
+        labelText = stringResource(id = R.string.port),
         isValidValue = portError == null,
         isDigitsOnlyAllowed = false,
-        supportingText =
+        errorText =
             portError?.let {
-                {
-                    Text(
-                        text =
-                            textResource(
-                                id =
-                                    when (it) {
-                                        is InvalidDataError.RemotePortError.Invalid ->
-                                            R.string.please_enter_a_valid_remote_server_port
-                                        InvalidDataError.RemotePortError.Required ->
-                                            R.string.this_field_is_required
-                                    }
-                            ),
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                }
+                textResource(
+                    id =
+                        when (it) {
+                            is InvalidDataError.RemotePortError.Invalid ->
+                                R.string.please_enter_a_valid_remote_server_port
+                            InvalidDataError.RemotePortError.Required ->
+                                R.string.this_field_is_required
+                        }
+                )
             },
     )
 }
@@ -429,12 +384,11 @@ private fun PasswordInput(
     optional: Boolean,
     onPasswordChanged: (String) -> Unit
 ) {
-    InputField(
+    ApiAccessMethodTextField(
         value = password,
         keyboardType = KeyboardType.Password,
         onValueChanged = onPasswordChanged,
-        onSubmit = {},
-        placeholderText =
+        labelText =
             stringResource(
                 id =
                     if (optional) {
@@ -443,102 +397,66 @@ private fun PasswordInput(
                         R.string.password
                     }
             ),
-        isValidValue = true,
+        isValidValue = passwordError == null,
         isDigitsOnlyAllowed = false,
-        supportingText =
-            passwordError?.let {
-                {
-                    Text(
-                        text = textResource(id = R.string.this_field_is_required),
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                }
-            },
+        errorText = passwordError?.let { textResource(id = R.string.this_field_is_required) },
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CipherSelection(cipher: Cipher, onCipherChange: (Cipher) -> Unit) {
-    var expanded by remember { mutableStateOf(false) }
-    ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
-        TextField(
-            modifier = Modifier.fillMaxWidth().menuAnchor(),
-            readOnly = true,
-            value = cipher.label,
-            onValueChange = {},
-            label = { Text(stringResource(id = R.string.cipher)) },
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-            colors = mullvadDarkTextFieldColors(),
-        )
-        ExposedDropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-            modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainer)
-        ) {
-            Cipher.listAll().forEach {
-                DropdownMenuItem(
-                    colors = menuItemColors,
-                    text = { Text(text = it.label) },
-                    onClick = {
-                        onCipherChange(it)
-                        expanded = false
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
+    MullvadExposedDropdownMenuBox(
+        modifier = Modifier.padding(vertical = Dimens.miniPadding),
+        label = stringResource(id = R.string.cipher),
+        title = cipher.label,
+        colors = apiAccessTextFieldColors()
+    ) { close ->
+        Cipher.listAll().forEach {
+            MullvadDropdownMenuItem(
+                text = it.label,
+                onClick = {
+                    close()
+                    onCipherChange(it)
+                }
+            )
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun EnableAuthentication(
     authenticationEnabled: Boolean,
     onToggleAuthenticationEnabled: (Boolean) -> Unit
 ) {
-    var expanded by remember { mutableStateOf(false) }
-    ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
-        TextField(
-            modifier = Modifier.fillMaxWidth().menuAnchor(),
-            readOnly = true,
-            value =
-                stringResource(
-                    id =
-                        if (authenticationEnabled) {
-                            R.string.on
-                        } else {
-                            R.string.off
-                        }
-                ),
-            onValueChange = {},
-            label = { Text(stringResource(id = R.string.authentication)) },
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-            colors = mullvadDarkTextFieldColors(),
+    MullvadExposedDropdownMenuBox(
+        modifier = Modifier.padding(vertical = Dimens.miniPadding),
+        label = stringResource(id = R.string.authentication),
+        title =
+            stringResource(
+                id =
+                    if (authenticationEnabled) {
+                        R.string.on
+                    } else {
+                        R.string.off
+                    }
+            ),
+        colors = apiAccessTextFieldColors()
+    ) { close ->
+        MullvadDropdownMenuItem(
+            text = stringResource(id = R.string.on),
+            onClick = {
+                close()
+                onToggleAuthenticationEnabled(true)
+            },
         )
-        ExposedDropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-            modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainer)
-        ) {
-            DropdownMenuItem(
-                colors = menuItemColors,
-                text = { Text(text = stringResource(id = R.string.on)) },
-                onClick = {
-                    onToggleAuthenticationEnabled(true)
-                    expanded = false
-                },
-            )
-            DropdownMenuItem(
-                colors = menuItemColors,
-                text = { Text(text = stringResource(id = R.string.off)) },
-                onClick = {
-                    onToggleAuthenticationEnabled(false)
-                    expanded = false
-                },
-            )
-        }
+        MullvadDropdownMenuItem(
+            text = stringResource(id = R.string.off),
+            onClick = {
+                close()
+                onToggleAuthenticationEnabled(false)
+            },
+        )
     }
 }
 
@@ -548,24 +466,14 @@ private fun UsernameInput(
     usernameError: InvalidDataError.UserNameError?,
     onUsernameChanged: (String) -> Unit,
 ) {
-    InputField(
+    ApiAccessMethodTextField(
         value = username,
         keyboardType = KeyboardType.Text,
         onValueChanged = onUsernameChanged,
-        onSubmit = {},
-        placeholderText = stringResource(id = R.string.username),
+        labelText = stringResource(id = R.string.username),
         isValidValue = usernameError == null,
         isDigitsOnlyAllowed = false,
-        supportingText =
-            usernameError?.let {
-                {
-                    Text(
-                        text = textResource(id = R.string.this_field_is_required),
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                }
-            },
+        errorText = usernameError?.let { textResource(id = R.string.this_field_is_required) },
     )
 }
 
@@ -582,32 +490,6 @@ private fun AddMethodButton(isNew: Boolean, onAddMethod: () -> Unit) {
                         R.string.save
                     }
             )
-    )
-}
-
-@Composable
-private fun InputField(
-    value: String,
-    keyboardType: KeyboardType,
-    modifier: Modifier = Modifier,
-    onValueChanged: (String) -> Unit,
-    onSubmit: (String) -> Unit,
-    placeholderText: String?,
-    maxCharLength: Int = Int.MAX_VALUE,
-    isValidValue: Boolean,
-    isDigitsOnlyAllowed: Boolean,
-    supportingText: @Composable (() -> Unit)? = null,
-) {
-    CustomTextField(
-        value = value,
-        keyboardType = keyboardType,
-        onValueChanged = onValueChanged,
-        onSubmit = onSubmit,
-        placeholderText = placeholderText,
-        isValidValue = isValidValue,
-        isDigitsOnlyAllowed = isDigitsOnlyAllowed,
-        maxCharLength = maxCharLength,
-        supportingText = supportingText
     )
 }
 

@@ -1,13 +1,11 @@
 package net.mullvad.mullvadvpn.compose.screen
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -29,9 +27,11 @@ import net.mullvad.mullvadvpn.compose.cell.DefaultNavigationView
 import net.mullvad.mullvadvpn.compose.cell.TwoRowCell
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
+import net.mullvad.mullvadvpn.compose.constant.ContentType
 import net.mullvad.mullvadvpn.compose.destinations.ApiAccessMethodDetailsDestination
 import net.mullvad.mullvadvpn.compose.destinations.ApiAccessMethodInfoDialogDestination
 import net.mullvad.mullvadvpn.compose.destinations.EditApiAccessMethodDestination
+import net.mullvad.mullvadvpn.compose.extensions.itemsWithDivider
 import net.mullvad.mullvadvpn.compose.preview.ApiAccessListUiStateParameterProvider
 import net.mullvad.mullvadvpn.compose.state.ApiAccessListUiState
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
@@ -82,80 +82,93 @@ fun ApiAccessListScreen(
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.settings_api_access),
         navigationIcon = { NavigateBackIconButton(onBackClick) },
-    ) { modifier ->
-        Column(modifier = modifier) {
-            Description()
-            CurrentAccessMethod(
+    ) { modifier, lazyListState ->
+        LazyColumn(modifier = modifier, state = lazyListState) {
+            description()
+            currentAccessMethod(
                 currentApiAccessMethodName = state.currentApiAccessMethod?.name,
                 onInfoClicked = onApiAccessInfoClick
             )
-            Spacer(modifier = Modifier.height(Dimens.verticalSpace))
-            state.apiAccessMethods.forEachIndexed { index, apiAccessMethod ->
-                ApiAccessMethodItem(
-                    apiAccessMethod = apiAccessMethod,
-                    onApiAccessMethodClick = onApiAccessMethodClick
-                )
-                if (index == state.apiAccessMethods.lastIndex) {
-                    HorizontalDivider()
-                }
-            }
-            Spacer(modifier = Modifier.height(Dimens.verticalSpace))
-            ButtonPanel(onAddMethodClick = onAddMethodClick)
+            // Spacer(modifier = Modifier.height(Dimens.verticalSpace))
+            apiAccessMethodItems(
+                state.apiAccessMethods,
+                onApiAccessMethodClick = onApiAccessMethodClick
+            )
+            buttonPanel(onAddMethodClick = onAddMethodClick)
         }
     }
 }
 
-@Composable
-fun Description() {
-    Text(
-        text = stringResource(id = R.string.api_access_description),
-        style = MaterialTheme.typography.labelMedium,
-        color = MaterialTheme.colorScheme.onSecondary,
-        modifier =
-            Modifier.padding(
-                    start = Dimens.cellStartPadding,
-                    top = Dimens.cellFooterTopPadding,
-                    end = Dimens.cellEndPadding,
-                    bottom = Dimens.cellLabelVerticalPadding
-                )
-                .fillMaxWidth()
-                .wrapContentHeight()
-    )
+private fun LazyListScope.description() {
+    item {
+        Text(
+            text = stringResource(id = R.string.api_access_description),
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSecondary,
+            modifier =
+                Modifier.padding(
+                        start = Dimens.cellStartPadding,
+                        top = Dimens.cellFooterTopPadding,
+                        end = Dimens.cellEndPadding
+                    )
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+        )
+    }
 }
 
-@Composable
-fun CurrentAccessMethod(
+private fun LazyListScope.currentAccessMethod(
     currentApiAccessMethodName: ApiAccessMethodName?,
     onInfoClicked: () -> Unit
 ) {
-    Row(
-        modifier = Modifier.padding(horizontal = Dimens.sideMargin),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.onBackground,
-            text =
-                stringResource(
-                    id = R.string.current_x,
-                    currentApiAccessMethodName?.value ?: "-",
+    item {
+        Row(
+            modifier =
+                Modifier.padding(
+                    start = Dimens.sideMargin,
+                    end = Dimens.sideMargin,
+                    bottom = Dimens.mediumPadding
                 ),
-        )
-        IconButton(
-            onClick = onInfoClicked,
-            modifier = Modifier.align(Alignment.CenterVertically),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                painter = painterResource(id = R.drawable.icon_info),
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onBackground
+            Text(
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onBackground,
+                text =
+                    stringResource(
+                        id = R.string.current_x,
+                        currentApiAccessMethodName?.value ?: "-",
+                    ),
             )
+            IconButton(
+                onClick = onInfoClicked,
+                modifier = Modifier.align(Alignment.CenterVertically),
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.icon_info),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onBackground
+                )
+            }
         }
     }
 }
 
+private fun LazyListScope.apiAccessMethodItems(
+    apiAccessMethods: List<ApiAccessMethod>,
+    onApiAccessMethodClick: (apiAccessMethod: ApiAccessMethod) -> Unit
+) {
+    itemsWithDivider(
+        items = apiAccessMethods,
+        key = { item -> item.id },
+        contentType = { ContentType.ITEM },
+    ) {
+        ApiAccessMethodItem(apiAccessMethod = it, onApiAccessMethodClick = onApiAccessMethodClick)
+    }
+}
+
 @Composable
-fun ApiAccessMethodItem(
+private fun ApiAccessMethodItem(
     apiAccessMethod: ApiAccessMethod,
     onApiAccessMethodClick: (apiAccessMethod: ApiAccessMethod) -> Unit
 ) {
@@ -170,16 +183,20 @@ fun ApiAccessMethodItem(
                         R.string.off
                     }
             ),
+        titleStyle = MaterialTheme.typography.titleMedium,
+        subtitleColor = MaterialTheme.colorScheme.onSecondary,
         bodyView = { DefaultNavigationView(apiAccessMethod.name.value) },
         onCellClicked = { onApiAccessMethodClick(apiAccessMethod) }
     )
 }
 
-@Composable
-fun ButtonPanel(onAddMethodClick: () -> Unit) {
-    PrimaryButton(
-        modifier = Modifier.padding(horizontal = Dimens.sideMargin),
-        onClick = onAddMethodClick,
-        text = stringResource(id = R.string.add)
-    )
+private fun LazyListScope.buttonPanel(onAddMethodClick: () -> Unit) {
+    item {
+        PrimaryButton(
+            modifier =
+                Modifier.padding(horizontal = Dimens.sideMargin, vertical = Dimens.largePadding),
+            onClick = onAddMethodClick,
+            text = stringResource(id = R.string.add)
+        )
+    }
 }

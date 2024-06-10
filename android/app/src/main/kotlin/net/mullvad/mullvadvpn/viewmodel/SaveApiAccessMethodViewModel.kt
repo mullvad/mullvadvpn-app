@@ -22,6 +22,7 @@ import net.mullvad.mullvadvpn.repository.ApiAccessRepository
 class SaveApiAccessMethodViewModel(
     private val apiAccessMethodId: ApiAccessMethodId?,
     private val apiAccessMethodName: ApiAccessMethodName,
+    private val enabled: Boolean,
     private val customProxy: ApiAccessMethodType.CustomProxy,
     private val apiAccessRepository: ApiAccessRepository
 ) : ViewModel() {
@@ -61,7 +62,7 @@ class SaveApiAccessMethodViewModel(
                     ApiAccessMethod(
                         id = apiAccessMethodId,
                         name = apiAccessMethodName,
-                        enabled = true,
+                        enabled = enabled,
                         apiAccessMethodType = customProxy
                     )
                 )
@@ -69,7 +70,7 @@ class SaveApiAccessMethodViewModel(
                 addNewAccessMethod(
                     NewAccessMethod(
                         name = apiAccessMethodName,
-                        enabled = true,
+                        enabled = enabled,
                         apiAccessMethodType = customProxy
                     )
                 )

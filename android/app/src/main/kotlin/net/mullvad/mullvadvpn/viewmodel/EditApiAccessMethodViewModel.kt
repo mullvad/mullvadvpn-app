@@ -42,6 +42,7 @@ class EditApiAccessMethodViewModel(
     private val apiAccessMethodUseCase: TestApiAccessMethodUseCase,
     private val inetAddressValidator: InetAddressValidator
 ) : ViewModel() {
+    private var enabled: Boolean = true
     private var initialData: EditApiAccessFormData? = null
     private val _sideEffects = Channel<EditApiAccessSideEffect>(Channel.BUFFERED)
     val sideEffect = _sideEffects.receiveAsFlow()
@@ -66,14 +67,16 @@ class EditApiAccessMethodViewModel(
     init {
         // If we are editing the api access method, fetch initial data
         viewModelScope.launch {
-            apiAccessMethodId?.let {
+            apiAccessMethodId?.let { apiAccessMethodId ->
                 apiAccessRepository
-                    .getApiAccessMethodById(it)
+                    .getApiAccessMethodById(apiAccessMethodId)
+                    .onRight { enabled = it.enabled }
                     .fold(::handleInitialDataError, ::setUpInitialData)
             }
                 ?: run {
                     formData.value = EditApiAccessFormData.empty()
                     initialData = EditApiAccessFormData.empty()
+                    enabled = true
                 }
         }
     }
@@ -83,19 +86,19 @@ class EditApiAccessMethodViewModel(
     }
 
     fun updateName(name: String) {
-        formData.update { it?.copy(name = name) }
+        formData.update { it?.copy(name = name, nameError = null) }
     }
 
     fun updateServerIp(serverIp: String) {
-        formData.update { it?.copy(serverIp = serverIp) }
+        formData.update { it?.copy(serverIp = serverIp, serverIpError = null) }
     }
 
     fun updateRemotePort(port: String) {
-        formData.update { it?.copy(remotePort = port) }
+        formData.update { it?.copy(remotePort = port, remotePortError = null) }
     }
 
     fun updatePassword(password: String) {
-        formData.update { it?.copy(password = password) }
+        formData.update { it?.copy(password = password, passwordError = null) }
     }
 
     fun updateCipher(cipher: Cipher) {
@@ -107,13 +110,13 @@ class EditApiAccessMethodViewModel(
     }
 
     fun updateUsername(username: String) {
-        formData.update { it?.copy(username = username) }
+        formData.update { it?.copy(username = username, usernameError = null) }
     }
 
     fun testMethod() {
         viewModelScope.launch {
             formData.value
-                ?.parseFormData()
+                ?.parseFormData(skipNameValidation = true)
                 ?.fold(
                     { errors -> formData.update { it?.updateWithErrors(errors) } },
                     { (_, customProxy) ->
@@ -130,7 +133,7 @@ class EditApiAccessMethodViewModel(
     fun trySave() {
         viewModelScope.launch {
             formData.value
-                ?.parseFormData()
+                ?.parseFormData(skipNameValidation = false)
                 ?.fold(
                     { errors -> formData.update { it?.updateWithErrors(errors) } },
                     { (name, customProxy) ->
@@ -138,6 +141,7 @@ class EditApiAccessMethodViewModel(
                             EditApiAccessSideEffect.OpenSaveDialog(
                                 id = apiAccessMethodId,
                                 name = name,
+                                enabled = enabled,
                                 customProxy = customProxy
                             )
                         )
@@ -195,13 +199,14 @@ class EditApiAccessMethodViewModel(
         }
     }
 
-    private fun EditApiAccessFormData.parseFormData():
-        Either<
-            NonEmptyList<InvalidDataError>,
-            Pair<ApiAccessMethodName, ApiAccessMethodType.CustomProxy>
-        > =
+    private fun EditApiAccessFormData.parseFormData(
+        skipNameValidation: Boolean
+    ): Either<
+        NonEmptyList<InvalidDataError>,
+        Pair<ApiAccessMethodName, ApiAccessMethodType.CustomProxy>
+    > =
         zipOrAccumulate(
-            parseName(name),
+            parseName(name, skipNameValidation),
             when (apiAccessMethodTypes) {
                 ApiAccessMethodTypes.SHADOWSOCKS -> {
                     parseShadowSocksFormData(this)
@@ -298,9 +303,10 @@ class EditApiAccessMethodViewModel(
         }
 
     private fun parseName(
-        input: String
+        input: String,
+        noError: Boolean
     ): EitherNel<InvalidDataError.NameError, ApiAccessMethodName> =
-        if (input.isBlank()) {
+        if (input.isBlank() && !noError) {
             nonEmptyListOf(InvalidDataError.NameError.Required).left()
         } else {
             ApiAccessMethodName.fromString(input).right()
@@ -314,6 +320,7 @@ sealed interface EditApiAccessSideEffect {
     data class OpenSaveDialog(
         val id: ApiAccessMethodId?,
         val name: ApiAccessMethodName,
+        val enabled: Boolean,
         val customProxy: ApiAccessMethodType.CustomProxy
     ) : EditApiAccessSideEffect
 

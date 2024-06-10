@@ -25,3 +25,14 @@ fun NavigateBackDownIconButton(onNavigateBack: () -> Unit) {
         )
     }
 }
+
+@Composable
+fun NavigateCloseIconButton(onNavigateClose: () -> Unit) {
+    IconButton(onClick = onNavigateClose) {
+        Icon(
+            modifier = Modifier.rotate(-90f),
+            painter = painterResource(id = R.drawable.icon_close),
+            contentDescription = null
+        )
+    }
+}

@@ -218,8 +218,9 @@ val uiModule = module {
         (
             id: ApiAccessMethodId?,
             name: ApiAccessMethodName,
+            enabled: Boolean,
             customProxy: ApiAccessMethodType.CustomProxy) ->
-        SaveApiAccessMethodViewModel(id, name, customProxy, get())
+        SaveApiAccessMethodViewModel(id, name, enabled, customProxy, get())
     }
     viewModel { (accessMethodId: ApiAccessMethodId) ->
         ApiAccessMethodDetailsViewModel(accessMethodId, get(), get())
