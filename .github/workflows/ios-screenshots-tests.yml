@@ -14,12 +14,13 @@ on:
   workflow_dispatch:
 jobs:
   test:
-    if: github.event.pull_request.merged
+    if: github.event.pull_request.merged || github.event_name == 'workflow_dispatch'
     name: Screenshot tests
     runs-on: macos-13-xlarge
     env:
       SOURCE_PACKAGES_PATH: .spm
       TEST_ACCOUNT: ${{ secrets.IOS_TEST_ACCOUNT_NUMBER }}
+      PARTNER_API_TOKEN: ${{ secrets.STAGEMOLE_PARTNER_AUTH }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -60,7 +61,9 @@ jobs:
           cp Screenshots.xcconfig.template Screenshots.xcconfig
           cp Api.xcconfig.template Api.xcconfig
           cp UITests.xcconfig.template UITests.xcconfig
-          sed -i "" "s/MULLVAD_ACCOUNT_TOKEN = /MULLVAD_ACCOUNT_TOKEN = $TEST_ACCOUNT/g" Screenshots.xcconfig
+          sed -i "" \
+            "/PARTNER_API_TOKEN =/ s#= .*#= $PARTNER_API_TOKEN#" \
+            UITests.xcconfig
         working-directory: ios/Configurations
 
       - name: Install xcbeautify
