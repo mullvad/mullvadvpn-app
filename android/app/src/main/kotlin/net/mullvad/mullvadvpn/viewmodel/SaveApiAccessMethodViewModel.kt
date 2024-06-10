@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.SaveApiAccessMethodUiState
-import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodName
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodType
@@ -22,7 +21,6 @@ import net.mullvad.mullvadvpn.repository.ApiAccessRepository
 class SaveApiAccessMethodViewModel(
     private val apiAccessMethodId: ApiAccessMethodId?,
     private val apiAccessMethodName: ApiAccessMethodName,
-    private val enabled: Boolean,
     private val customProxy: ApiAccessMethodType.CustomProxy,
     private val apiAccessRepository: ApiAccessRepository
 ) : ViewModel() {
@@ -59,18 +57,15 @@ class SaveApiAccessMethodViewModel(
             _uiState.update { it.copy(isSaving = true) }
             if (apiAccessMethodId != null) {
                 updateAccessMethod(
-                    ApiAccessMethod(
-                        id = apiAccessMethodId,
-                        name = apiAccessMethodName,
-                        enabled = enabled,
-                        apiAccessMethodType = customProxy
-                    )
+                    id = apiAccessMethodId,
+                    name = apiAccessMethodName,
+                    apiAccessMethodType = customProxy
                 )
             } else {
                 addNewAccessMethod(
                     NewAccessMethod(
                         name = apiAccessMethodName,
-                        enabled = enabled,
+                        enabled = true,
                         apiAccessMethodType = customProxy
                     )
                 )
@@ -94,9 +89,17 @@ class SaveApiAccessMethodViewModel(
             )
     }
 
-    private suspend fun updateAccessMethod(apiAccessMethod: ApiAccessMethod) {
+    private suspend fun updateAccessMethod(
+        id: ApiAccessMethodId,
+        name: ApiAccessMethodName,
+        apiAccessMethodType: ApiAccessMethodType.CustomProxy
+    ) {
         apiAccessRepository
-            .updateApiAccessMethod(apiAccessMethod)
+            .updateApiAccessMethod(
+                apiAccessMethodId = id,
+                apiAccessMethodName = name,
+                apiAccessMethodType = apiAccessMethodType
+            )
             .fold(
                 { _uiSideEffect.send(SaveApiAccessMethodSideEffect.CouldNotSaveApiAccessMethod) },
                 { _uiSideEffect.send(SaveApiAccessMethodSideEffect.SuccessfullyCreatedApiMethod) }

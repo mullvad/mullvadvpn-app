@@ -51,12 +51,11 @@ fun SaveApiAccessMethod(
     backNavigator: ResultBackNavigator<Boolean>,
     id: ApiAccessMethodId?,
     name: ApiAccessMethodName,
-    enabled: Boolean,
     customProxy: ApiAccessMethodType.CustomProxy
 ) {
     val viewModel =
         koinViewModel<SaveApiAccessMethodViewModel>(
-            parameters = { parametersOf(id, name, enabled, customProxy) }
+            parameters = { parametersOf(id, name, customProxy) }
         )
 
     LaunchedEffectCollect(sideEffect = viewModel.uiSideEffect) {

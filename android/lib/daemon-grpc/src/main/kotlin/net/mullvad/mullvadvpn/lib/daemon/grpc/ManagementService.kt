@@ -107,6 +107,7 @@ import net.mullvad.mullvadvpn.lib.model.Settings as ModelSettings
 import net.mullvad.mullvadvpn.lib.model.SettingsPatchError
 import net.mullvad.mullvadvpn.lib.model.TestApiAccessMethodError
 import net.mullvad.mullvadvpn.lib.model.TunnelState as ModelTunnelState
+import net.mullvad.mullvadvpn.lib.model.UnknownApiAccessMethodError
 import net.mullvad.mullvadvpn.lib.model.UnknownCustomListError
 import net.mullvad.mullvadvpn.lib.model.UpdateApiAccessMethodError
 import net.mullvad.mullvadvpn.lib.model.UpdateCustomListError
@@ -610,10 +611,10 @@ class ManagementService(
         apiAccessMethod: ApiAccessMethod
     ): Either<UpdateApiAccessMethodError, Unit> =
         Either.catch { grpc.updateApiAccessMethod(apiAccessMethod.fromDomain()) }
-            .mapLeft(UpdateApiAccessMethodError::Unknown)
+            .mapLeft(::UnknownApiAccessMethodError)
             .mapEmpty()
 
-    suspend fun getCurrentApiAccessMethod(): ApiAccessMethod =
+    private suspend fun getCurrentApiAccessMethod(): ApiAccessMethod =
         grpc.getCurrentApiAccessMethod(Empty.getDefaultInstance()).toDomain()
 
     suspend fun testCustomApiAccessMethod(

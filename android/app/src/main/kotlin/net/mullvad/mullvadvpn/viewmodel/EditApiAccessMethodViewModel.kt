@@ -6,6 +6,7 @@ import arrow.core.Either
 import arrow.core.Either.Companion.zipOrAccumulate
 import arrow.core.EitherNel
 import arrow.core.NonEmptyList
+import arrow.core.getOrElse
 import arrow.core.left
 import arrow.core.leftNel
 import arrow.core.right
@@ -13,6 +14,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -20,12 +22,10 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.ApiAccessMethodTypes
 import net.mullvad.mullvadvpn.compose.state.EditApiAccessFormData
 import net.mullvad.mullvadvpn.compose.state.EditApiAccessMethodUiState
-import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodName
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodType
 import net.mullvad.mullvadvpn.lib.model.Cipher
-import net.mullvad.mullvadvpn.lib.model.GetApiAccessMethodError
 import net.mullvad.mullvadvpn.lib.model.InvalidDataError
 import net.mullvad.mullvadvpn.lib.model.ParsePortError
 import net.mullvad.mullvadvpn.lib.model.Port
@@ -42,21 +42,21 @@ class EditApiAccessMethodViewModel(
     private val apiAccessMethodUseCase: TestApiAccessMethodUseCase,
     private val inetAddressValidator: InetAddressValidator
 ) : ViewModel() {
-    private var enabled: Boolean = true
-    private var initialData: EditApiAccessFormData? = null
     private val _uiSideEffect = Channel<EditApiAccessSideEffect>(Channel.BUFFERED)
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
     private val testMethodState = MutableStateFlow<TestApiAccessMethodState?>(null)
-    private val formData = MutableStateFlow<EditApiAccessFormData?>(null)
+    private val formData = MutableStateFlow(initialData())
     val uiState =
-        combine(formData, testMethodState) { formData, testMethodState ->
-                formData?.let {
-                    EditApiAccessMethodUiState.Content(
-                        editMode = apiAccessMethodId != null,
-                        formData = formData,
-                        testMethodState = testMethodState
-                    )
-                } ?: EditApiAccessMethodUiState.Loading(editMode = apiAccessMethodId != null)
+        combine(flowOf(initialData()), formData, testMethodState) {
+                initialData,
+                formData,
+                testMethodState ->
+                EditApiAccessMethodUiState.Content(
+                    editMode = apiAccessMethodId != null,
+                    formData = formData,
+                    hasChanges = initialData != formData,
+                    testMethodState = testMethodState
+                )
             }
             .stateIn(
                 viewModelScope,
@@ -64,61 +64,44 @@ class EditApiAccessMethodViewModel(
                 EditApiAccessMethodUiState.Loading(editMode = apiAccessMethodId != null)
             )
 
-    init {
-        // If we are editing the api access method, fetch initial data
-        viewModelScope.launch {
-            apiAccessMethodId?.let { apiAccessMethodId ->
-                apiAccessRepository
-                    .getApiAccessMethodById(apiAccessMethodId)
-                    .onRight { enabled = it.enabled }
-                    .fold(::handleInitialDataError, ::setUpInitialData)
-            }
-                ?: run {
-                    formData.value = EditApiAccessFormData.empty()
-                    initialData = EditApiAccessFormData.empty()
-                    enabled = true
-                }
-        }
-    }
-
     fun setAccessMethodType(accessMethodType: ApiAccessMethodTypes) {
-        formData.update { it?.copy(apiAccessMethodTypes = accessMethodType) }
+        formData.update { it.copy(apiAccessMethodTypes = accessMethodType) }
     }
 
     fun onNameChanged(name: String) {
-        formData.update { it?.copy(name = name, nameError = null) }
+        formData.update { it.copy(name = name, nameError = null) }
     }
 
     fun onServerIpChanged(serverIp: String) {
-        formData.update { it?.copy(serverIp = serverIp, serverIpError = null) }
+        formData.update { it.copy(serverIp = serverIp, serverIpError = null) }
     }
 
     fun onPortChanged(port: String) {
-        formData.update { it?.copy(port = port, portError = null) }
+        formData.update { it.copy(port = port, portError = null) }
     }
 
     fun onPasswordChanged(password: String) {
-        formData.update { it?.copy(password = password, passwordError = null) }
+        formData.update { it.copy(password = password, passwordError = null) }
     }
 
     fun onCipherChanged(cipher: Cipher) {
-        formData.update { it?.copy(cipher = cipher) }
+        formData.update { it.copy(cipher = cipher) }
     }
 
     fun onAuthenticationEnabledChanged(enabled: Boolean) {
-        formData.update { it?.copy(enableAuthentication = enabled) }
+        formData.update { it.copy(enableAuthentication = enabled) }
     }
 
     fun onUsernameChanged(username: String) {
-        formData.update { it?.copy(username = username, usernameError = null) }
+        formData.update { it.copy(username = username, usernameError = null) }
     }
 
     fun testMethod() {
         viewModelScope.launch {
             formData.value
-                ?.parseFormData(skipNameValidation = true)
-                ?.fold(
-                    { errors -> formData.update { it?.updateWithErrors(errors) } },
+                .parseFormData(skipNameValidation = true)
+                .fold(
+                    { errors -> formData.update { it.updateWithErrors(errors) } },
                     { (_, customProxy) ->
                         apiAccessMethodUseCase
                             .testApiAccessMethod(
@@ -133,15 +116,14 @@ class EditApiAccessMethodViewModel(
     fun trySave() {
         viewModelScope.launch {
             formData.value
-                ?.parseFormData(skipNameValidation = false)
-                ?.fold(
-                    { errors -> formData.update { it?.updateWithErrors(errors) } },
+                .parseFormData(skipNameValidation = false)
+                .fold(
+                    { errors -> formData.update { it.updateWithErrors(errors) } },
                     { (name, customProxy) ->
                         _uiSideEffect.send(
                             EditApiAccessSideEffect.OpenSaveDialog(
                                 id = apiAccessMethodId,
                                 name = name,
-                                enabled = enabled,
                                 customProxy = customProxy
                             )
                         )
@@ -150,37 +132,23 @@ class EditApiAccessMethodViewModel(
         }
     }
 
-    fun onNavigateBack() {
-        // Check if we have any unsaved changes
-        viewModelScope.launch {
-            if (initialData == formData.value) {
-                _uiSideEffect.send(EditApiAccessSideEffect.CloseScreen)
-            } else {
-                _uiSideEffect.send(EditApiAccessSideEffect.ShowDiscardChangesDialog)
-            }
-        }
-    }
-
-    private fun handleInitialDataError(error: GetApiAccessMethodError) {
-        viewModelScope.launch {
-            _uiSideEffect.send(EditApiAccessSideEffect.UnableToGetApiAccessMethod(error))
-        }
-    }
-
-    private fun setUpInitialData(accessMethod: ApiAccessMethod) {
-        val initialFormData =
-            EditApiAccessFormData.fromCustomProxy(
-                accessMethod.name,
-                accessMethod.apiAccessMethodType as? ApiAccessMethodType.CustomProxy
-                    ?: error(
-                        "${accessMethod.apiAccessMethodType} api access type can not be edited"
+    private fun initialData(): EditApiAccessFormData =
+        if (apiAccessMethodId == null) {
+            EditApiAccessFormData.empty()
+        } else {
+            apiAccessRepository
+                .getApiAccessMethodById(apiAccessMethodId)
+                .map { accessMethod ->
+                    EditApiAccessFormData.fromCustomProxy(
+                        accessMethod.name,
+                        accessMethod.apiAccessMethodType as? ApiAccessMethodType.CustomProxy
+                            ?: error(
+                                "${accessMethod.apiAccessMethodType} api access type can not be edited"
+                            )
                     )
-            )
-        with(initialFormData) {
-            formData.value = this
-            initialData = this
+                }
+                .getOrElse { error("Access method with id $apiAccessMethodId not found") }
         }
-    }
 
     private fun EditApiAccessFormData.parseFormData(
         skipNameValidation: Boolean
@@ -189,7 +157,11 @@ class EditApiAccessMethodViewModel(
         Pair<ApiAccessMethodName, ApiAccessMethodType.CustomProxy>
     > =
         zipOrAccumulate(
-            parseName(name, skipNameValidation),
+            if (skipNameValidation) {
+                parseName(name)
+            } else {
+                ApiAccessMethodName.fromString(name).right()
+            },
             when (apiAccessMethodTypes) {
                 ApiAccessMethodTypes.SHADOWSOCKS -> {
                     parseShadowSocksFormData(this)
@@ -286,10 +258,9 @@ class EditApiAccessMethodViewModel(
         }
 
     private fun parseName(
-        input: String,
-        noError: Boolean
+        input: String
     ): EitherNel<InvalidDataError.NameError, ApiAccessMethodName> =
-        if (input.isBlank() && !noError) {
+        if (input.isBlank()) {
             InvalidDataError.NameError.Required.leftNel()
         } else {
             ApiAccessMethodName.fromString(input).right()
@@ -297,17 +268,9 @@ class EditApiAccessMethodViewModel(
 }
 
 sealed interface EditApiAccessSideEffect {
-    data class UnableToGetApiAccessMethod(val error: GetApiAccessMethodError) :
-        EditApiAccessSideEffect
-
     data class OpenSaveDialog(
         val id: ApiAccessMethodId?,
         val name: ApiAccessMethodName,
-        val enabled: Boolean,
         val customProxy: ApiAccessMethodType.CustomProxy
     ) : EditApiAccessSideEffect
-
-    data object CloseScreen : EditApiAccessSideEffect
-
-    data object ShowDiscardChangesDialog : EditApiAccessSideEffect
 }
