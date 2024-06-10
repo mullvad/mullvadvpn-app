@@ -7,7 +7,7 @@ import arrow.core.Either.Companion.zipOrAccumulate
 import arrow.core.EitherNel
 import arrow.core.NonEmptyList
 import arrow.core.left
-import arrow.core.nonEmptyListOf
+import arrow.core.leftNel
 import arrow.core.right
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -153,7 +153,7 @@ class EditApiAccessMethodViewModel(
     fun onNavigateBack() {
         // Check if we have any unsaved changes
         viewModelScope.launch {
-            if (initialData?.equals(formData.value) == true) {
+            if (initialData == formData.value) {
                 _uiSideEffect.send(EditApiAccessSideEffect.CloseScreen)
             } else {
                 _uiSideEffect.send(EditApiAccessSideEffect.ShowDiscardChangesDialog)
@@ -169,30 +169,13 @@ class EditApiAccessMethodViewModel(
 
     private fun setUpInitialData(accessMethod: ApiAccessMethod) {
         val initialFormData =
-            when (val customProxy = accessMethod.apiAccessMethodType) {
-                ApiAccessMethodType.Bridges,
-                ApiAccessMethodType.Direct ->
-                    error("$customProxy api access type can not be edited")
-                is ApiAccessMethodType.CustomProxy.Shadowsocks -> {
-                    EditApiAccessFormData(
-                        name = accessMethod.name.value,
-                        serverIp = customProxy.ip,
-                        port = customProxy.port.toString(),
-                        password = customProxy.password ?: "",
-                        cipher = customProxy.cipher,
-                        username = "",
+            EditApiAccessFormData.fromCustomProxy(
+                accessMethod.name,
+                accessMethod.apiAccessMethodType as? ApiAccessMethodType.CustomProxy
+                    ?: error(
+                        "${accessMethod.apiAccessMethodType} api access type can not be edited"
                     )
-                }
-                is ApiAccessMethodType.CustomProxy.Socks5Remote ->
-                    EditApiAccessFormData(
-                        name = accessMethod.name.value,
-                        serverIp = customProxy.ip,
-                        port = customProxy.port.toString(),
-                        enableAuthentication = customProxy.auth != null,
-                        username = customProxy.auth?.username ?: "",
-                        password = customProxy.auth?.password ?: ""
-                    )
-            }
+            )
         with(initialFormData) {
             formData.value = this
             initialData = this
@@ -307,7 +290,7 @@ class EditApiAccessMethodViewModel(
         noError: Boolean
     ): EitherNel<InvalidDataError.NameError, ApiAccessMethodName> =
         if (input.isBlank() && !noError) {
-            nonEmptyListOf(InvalidDataError.NameError.Required).left()
+            InvalidDataError.NameError.Required.leftNel()
         } else {
             ApiAccessMethodName.fromString(input).right()
         }
