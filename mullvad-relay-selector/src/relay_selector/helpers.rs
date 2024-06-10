@@ -138,6 +138,13 @@ fn get_shadowsocks_obfuscator_inner(
     extra_in_addrs: &[IpAddr],
     desired_port: Constraint<u16>,
 ) -> Option<SocketAddr> {
+    // Filter out addresses for the wrong address family
+    let extra_in_addrs: Vec<_> = extra_in_addrs
+        .iter()
+        .filter(|addr| addr.is_ipv4() == wg_in_addr.is_ipv4())
+        .copied()
+        .collect();
+
     let in_ip = extra_in_addrs
         .iter()
         .choose(&mut rand::thread_rng())
@@ -280,6 +287,53 @@ mod tests {
             selected_addr.port(),
             OUT_OF_RANGE_PORT,
             "expected selected port, got {selected_addr:?}"
+        );
+    }
+
+    /// Extra addresses that belong to the wrong IP family should be ignored
+    #[test]
+    fn test_shadowsocks_irrelevant_extra_addrs() {
+        const PORT_RANGES: &[(u16, u16)] = &[(100, 200), (1000, 2000)];
+        const IN_RANGE_PORT: u16 = 100;
+        const OUT_OF_RANGE_PORT: u16 = 1;
+        let wg_in_ip: IpAddr = "1.2.3.4".parse().unwrap();
+
+        let extra_in_addrs: &[IpAddr] = &["::2".parse().unwrap()];
+
+        let selected_addr = get_shadowsocks_obfuscator_inner(
+            wg_in_ip,
+            PORT_RANGES,
+            extra_in_addrs,
+            Constraint::Any,
+        )
+        .expect("should find valid port without constraint");
+
+        assert_eq!(
+            selected_addr.ip(),
+            wg_in_ip,
+            "expected extra IP to be ignored"
+        );
+
+        let selected_addr = get_shadowsocks_obfuscator_inner(
+            wg_in_ip,
+            PORT_RANGES,
+            extra_in_addrs,
+            Constraint::Only(OUT_OF_RANGE_PORT),
+        );
+        assert!(
+            selected_addr.is_none(),
+            "expected no match for out-of-range port"
+        );
+
+        let selected_addr = get_shadowsocks_obfuscator_inner(
+            wg_in_ip,
+            PORT_RANGES,
+            extra_in_addrs,
+            Constraint::Only(IN_RANGE_PORT),
+        );
+        assert!(
+            selected_addr.is_some(),
+            "expected match for within-range port"
         );
     }
 }
