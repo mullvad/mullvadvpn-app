@@ -110,8 +110,8 @@ extension State {
 
     /// Data associated with states that hold connection data.
     struct ConnectionData: Equatable, StateAssociatedData {
-        /// Current selected relay.
-        public var selectedRelay: SelectedRelay
+        /// Current selected relays.
+        public var selectedRelays: SelectedRelays
 
         /// Last relay constraints read from settings.
         /// This is primarily used by packet tunnel for updating constraints in tunnel provider.
@@ -229,15 +229,15 @@ extension State.BlockingData {
 }
 
 /// Describes which relay the tunnel should connect to next.
-public enum NextRelay: Equatable, Codable {
-    /// Select next relay randomly.
+public enum NextRelays: Equatable, Codable {
+    /// Select next relays randomly.
     case random
 
-    /// Use currently selected relay, fallback to random if not set.
+    /// Use currently selected relays, fallback to random if not set.
     case current
 
-    /// Use pre-selected relay.
-    case preSelected(SelectedRelay)
+    /// Use pre-selected relays.
+    case preSelected(SelectedRelays)
 }
 
 /// Describes the reason for reconnection request.
