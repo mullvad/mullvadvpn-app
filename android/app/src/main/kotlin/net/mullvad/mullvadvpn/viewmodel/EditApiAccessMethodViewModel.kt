@@ -12,6 +12,7 @@ import arrow.core.raise.either
 import arrow.core.raise.ensure
 import arrow.core.right
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
@@ -23,6 +24,7 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.ApiAccessMethodTypes
 import net.mullvad.mullvadvpn.compose.state.EditApiAccessFormData
 import net.mullvad.mullvadvpn.compose.state.EditApiAccessMethodUiState
+import net.mullvad.mullvadvpn.constant.TEST_METHOD_RESULT_TIME_DURATION
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodName
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodType
@@ -33,14 +35,11 @@ import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.SocksAuth
 import net.mullvad.mullvadvpn.lib.model.TestApiAccessMethodState
 import net.mullvad.mullvadvpn.repository.ApiAccessRepository
-import net.mullvad.mullvadvpn.usecase.TestApiAccessMethodInput
-import net.mullvad.mullvadvpn.usecase.TestApiAccessMethodUseCase
 import org.apache.commons.validator.routines.InetAddressValidator
 
 class EditApiAccessMethodViewModel(
     private val apiAccessMethodId: ApiAccessMethodId?,
     private val apiAccessRepository: ApiAccessRepository,
-    private val apiAccessMethodUseCase: TestApiAccessMethodUseCase,
     private val inetAddressValidator: InetAddressValidator
 ) : ViewModel() {
     private val _uiSideEffect = Channel<EditApiAccessSideEffect>(Channel.BUFFERED)
@@ -104,11 +103,18 @@ class EditApiAccessMethodViewModel(
                 .fold(
                     { errors -> formData.update { it.updateWithErrors(errors) } },
                     { (_, customProxy) ->
-                        apiAccessMethodUseCase
-                            .testApiAccessMethod(
-                                TestApiAccessMethodInput.TestNewMethod(customProxy)
+                        testMethodState.value = TestApiAccessMethodState.Testing
+                        apiAccessRepository
+                            .testCustomApiAccessMethod(customProxy)
+                            .fold(
+                                { testMethodState.value = TestApiAccessMethodState.Result.Failure },
+                                {
+                                    testMethodState.value =
+                                        TestApiAccessMethodState.Result.Successful
+                                }
                             )
-                            .collect(testMethodState)
+                        delay(TEST_METHOD_RESULT_TIME_DURATION)
+                        testMethodState.value = null
                     }
                 )
         }
