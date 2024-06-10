@@ -11,10 +11,10 @@ sealed interface InvalidDataError {
         data object Invalid : ServerIpError
     }
 
-    sealed interface RemotePortError : InvalidDataError {
-        data object Required : RemotePortError
+    sealed interface PortError : InvalidDataError {
+        data object Required : PortError
 
-        data class Invalid(val portError: ParsePortError) : RemotePortError
+        data class Invalid(val portError: ParsePortError) : PortError
     }
 
     sealed interface UserNameError : InvalidDataError {
