@@ -38,17 +38,20 @@ jobs:
 
       - name: Configure Xcode project
         run: |
-          cp Base.xcconfig.template Base.xcconfig
-          cp App.xcconfig.template App.xcconfig
-          cp PacketTunnel.xcconfig.template PacketTunnel.xcconfig
-          cp Screenshots.xcconfig.template Screenshots.xcconfig
-          cp Api.xcconfig.template Api.xcconfig
-          sed -i "" "s/MULLVAD_ACCOUNT_TOKEN = /MULLVAD_ACCOUNT_TOKEN = $TEST_ACCOUNT/g" Screenshots.xcconfig
+          for file in *.xcconfig.template ; do cp $file ${file//.template/} ; done
+          sed -i "" \
+            "/HAS_TIME_ACCOUNT_NUMBER =/ s#= .*#= 1234123412341234#" \
+            UITests.xcconfig
         working-directory: ios/Configurations
 
       - name: Bundle
         run: bundle install
         working-directory: ios
+
+      - name: Install protobuf
+        run: |
+          brew update
+          brew install protobuf
 
       - name: Create screenshots
         run: bundle exec fastlane snapshot --cloned_source_packages_path "$SOURCE_PACKAGES_PATH"
