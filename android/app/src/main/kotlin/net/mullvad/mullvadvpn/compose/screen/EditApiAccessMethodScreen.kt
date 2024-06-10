@@ -130,14 +130,14 @@ fun EditApiAccessMethod(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     EditApiAccessMethodScreen(
         state = state,
-        onNameChanged = viewModel::updateName,
+        onNameChanged = viewModel::onNameChanged,
         onTypeSelected = viewModel::setAccessMethodType,
-        onIpChanged = viewModel::updateServerIp,
-        onPortChanged = viewModel::updatePort,
-        onPasswordChanged = viewModel::updatePassword,
-        onCipherChange = viewModel::updateCipher,
-        onToggleAuthenticationEnabled = viewModel::updateAuthenticationEnabled,
-        onUsernameChanged = viewModel::updateUsername,
+        onIpChanged = viewModel::onServerIpChanged,
+        onPortChanged = viewModel::onPortChanged,
+        onPasswordChanged = viewModel::onPasswordChanged,
+        onCipherChange = viewModel::onCipherChanged,
+        onToggleAuthenticationEnabled = viewModel::onAuthenticationEnabledChanged,
+        onUsernameChanged = viewModel::onUsernameChanged,
         onTestMethod = viewModel::testMethod,
         onAddMethod = viewModel::trySave,
         onNavigateBack = viewModel::onNavigateBack
