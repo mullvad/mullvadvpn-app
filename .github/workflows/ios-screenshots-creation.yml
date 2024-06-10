@@ -8,7 +8,7 @@ on:
 jobs:
   test:
     name: Take screenshots
-    runs-on: macos-13-xlarge
+    runs-on: [self-hosted, macOS, ios-test]
     env:
       SOURCE_PACKAGES_PATH: .spm
       TEST_ACCOUNT: ${{ secrets.IOS_TEST_ACCOUNT_NUMBER }}
