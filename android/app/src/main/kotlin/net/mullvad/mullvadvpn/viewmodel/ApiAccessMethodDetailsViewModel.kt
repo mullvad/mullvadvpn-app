@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
@@ -10,17 +11,15 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.ApiAccessMethodDetailsUiState
+import net.mullvad.mullvadvpn.constant.TEST_METHOD_RESULT_TIME_DURATION
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodType
 import net.mullvad.mullvadvpn.lib.model.TestApiAccessMethodState
 import net.mullvad.mullvadvpn.repository.ApiAccessRepository
-import net.mullvad.mullvadvpn.usecase.TestApiAccessMethodInput
-import net.mullvad.mullvadvpn.usecase.TestApiAccessMethodUseCase
 
 class ApiAccessMethodDetailsViewModel(
     private val apiAccessMethodId: ApiAccessMethodId,
-    private val apiAccessRepository: ApiAccessRepository,
-    private val testApiAccessMethodUseCase: TestApiAccessMethodUseCase
+    private val apiAccessRepository: ApiAccessRepository
 ) : ViewModel() {
     private val _uiSideEffect = Channel<ApiAccessMethodDetailsSideEffect>(Channel.BUFFERED)
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
@@ -63,9 +62,15 @@ class ApiAccessMethodDetailsViewModel(
 
     fun testMethod() {
         viewModelScope.launch {
-            testApiAccessMethodUseCase
-                .testApiAccessMethod(TestApiAccessMethodInput.TestExistingMethod(apiAccessMethodId))
-                .collect(testApiAccessMethodState)
+            testApiAccessMethodState.value = TestApiAccessMethodState.Testing
+            apiAccessRepository
+                .testApiAccessMethodById(apiAccessMethodId)
+                .fold(
+                    { testApiAccessMethodState.value = TestApiAccessMethodState.Result.Failure },
+                    { testApiAccessMethodState.value = TestApiAccessMethodState.Result.Successful }
+                )
+            delay(TEST_METHOD_RESULT_TIME_DURATION)
+            testApiAccessMethodState.value = null
         }
     }
 

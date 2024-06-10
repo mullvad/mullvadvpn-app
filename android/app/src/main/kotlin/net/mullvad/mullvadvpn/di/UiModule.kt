@@ -40,7 +40,6 @@ import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.usecase.PlayPaymentUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationTitleUseCase
 import net.mullvad.mullvadvpn.usecase.SystemVpnSettingsUseCase
-import net.mullvad.mullvadvpn.usecase.TestApiAccessMethodUseCase
 import net.mullvad.mullvadvpn.usecase.TunnelStateNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.VersionNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
@@ -138,7 +137,6 @@ val uiModule = module {
     single { CustomListRelayItemsUseCase(get(), get()) }
     single { FilteredRelayListUseCase(get(), get()) }
     single { LastKnownLocationUseCase(get()) }
-    single { TestApiAccessMethodUseCase(get()) }
 
     single { InAppNotificationController(get(), get(), get(), get(), MainScope()) }
 
@@ -212,7 +210,7 @@ val uiModule = module {
     viewModel { VpnPermissionViewModel(get(), get()) }
     viewModel { ApiAccessListViewModel(get()) }
     viewModel { (accessMethodId: ApiAccessMethodId?) ->
-        EditApiAccessMethodViewModel(accessMethodId, get(), get(), get())
+        EditApiAccessMethodViewModel(accessMethodId, get(), get())
     }
     viewModel {
         (
@@ -222,7 +220,7 @@ val uiModule = module {
         SaveApiAccessMethodViewModel(id, name, customProxy, get())
     }
     viewModel { (accessMethodId: ApiAccessMethodId) ->
-        ApiAccessMethodDetailsViewModel(accessMethodId, get(), get())
+        ApiAccessMethodDetailsViewModel(accessMethodId, get())
     }
     viewModel { (accessMethodId: ApiAccessMethodId) ->
         DeleteApiAccessMethodConfirmationViewModel(accessMethodId, get())

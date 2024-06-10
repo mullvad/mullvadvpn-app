@@ -104,7 +104,7 @@ fun SaveApiAccessMethodDialog(
             }
         },
         title = { Text(text = state.text(), style = MaterialTheme.typography.headlineSmall) },
-        onDismissRequest = { /*Should not be able to dismiss*/ },
+        onDismissRequest = { /*Should not be able to dismiss*/},
         confirmButton = {
             PrimaryButton(
                 onClick = onCancel,
