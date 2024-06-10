@@ -16,8 +16,11 @@ sealed interface EditApiAccessMethodUiState {
     data class Content(
         override val editMode: Boolean,
         val formData: EditApiAccessFormData,
+        val hasChanges: Boolean,
         val testMethodState: TestApiAccessMethodState?
     ) : EditApiAccessMethodUiState
+
+    fun hasChanges() = this is Content && hasChanges
 }
 
 data class EditApiAccessFormData(

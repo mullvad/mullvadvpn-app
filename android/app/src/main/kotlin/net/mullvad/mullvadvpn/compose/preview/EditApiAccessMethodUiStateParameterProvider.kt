@@ -17,11 +17,13 @@ class EditApiAccessMethodUiStateParameterProvider :
             EditApiAccessMethodUiState.Content(
                 editMode = false,
                 formData = EditApiAccessFormData.empty(),
+                hasChanges = false,
                 testMethodState = null
             ),
             // Shadowsocks, no errors
             EditApiAccessMethodUiState.Content(
                 editMode = true,
+                hasChanges = false,
                 formData =
                     shadowsocks.let {
                         val data =
@@ -40,6 +42,7 @@ class EditApiAccessMethodUiStateParameterProvider :
             // Socks5 Remote, no errors, testing method
             EditApiAccessMethodUiState.Content(
                 editMode = true,
+                hasChanges = false,
                 formData =
                     socks5Remote.let {
                         val data =
@@ -58,6 +61,7 @@ class EditApiAccessMethodUiStateParameterProvider :
             // Socks 5 remote, required errors
             EditApiAccessMethodUiState.Content(
                 editMode = true,
+                hasChanges = false,
                 formData =
                     EditApiAccessFormData.empty()
                         .copy(enableAuthentication = true)
