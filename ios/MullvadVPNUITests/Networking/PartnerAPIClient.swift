@@ -107,7 +107,7 @@ class PartnerAPIClient {
                     XCTFail("Failed to deserialize JSON response")
                 }
             } else {
-                XCTFail("Request failed")
+                XCTFail("Request failed with status code \(response.statusCode)")
             }
 
             completionHandlerInvokedExpectation.fulfill()
