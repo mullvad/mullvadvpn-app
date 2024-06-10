@@ -74,11 +74,11 @@ class CustomDNSViewController: UITableViewController, VPNSettingsDataSourceDeleg
         isModalInPresentation = editing
     }
 
-    private func showInfo(with message: String) {
+    private func showInfo(with message: NSAttributedString) {
         let presentation = AlertPresentation(
             id: "vpn-settings-content-blockers-alert",
             icon: .info,
-            message: message,
+            attributedMessage: message,
             buttons: [
                 AlertAction(
                     title: NSLocalizedString(
@@ -102,23 +102,25 @@ class CustomDNSViewController: UITableViewController, VPNSettingsDataSourceDeleg
     }
 
     func showInfo(for item: VPNSettingsInfoButtonItem) {
-        var message = ""
+        var message = NSAttributedString()
 
         switch item {
         case .contentBlockers:
-            message = NSLocalizedString(
+            message = NSAttributedString(markdownString: NSLocalizedString(
                 "VPN_SETTINGS_CONTENT_BLOCKERS_GENERAL",
                 tableName: "ContentBlockers",
                 value: """
                 When this feature is enabled it stops the device from contacting certain \
                 domains or websites known for distributing ads, malware, trackers and more. \
-                This might cause issues on certain websites, services, and programs.
+                This might cause issues on certain websites, services, and apps.
+
+                Attention: this setting cannot be used in combination with **Use custom DNS**.
                 """,
                 comment: ""
-            )
+            ), options: MarkdownStylingOptions(font: .preferredFont(forTextStyle: .body)))
 
         case .blockMalware:
-            message = NSLocalizedString(
+            message = NSAttributedString(string: NSLocalizedString(
                 "VPN_SETTINGS_CONTENT_BLOCKERS_MALWARE",
                 tableName: "ContentBlockers",
                 value: """
@@ -126,7 +128,7 @@ class CustomDNSViewController: UITableViewController, VPNSettingsDataSourceDeleg
                 be treated as such, this is just an extra layer of protection.
                 """,
                 comment: ""
-            )
+            ))
 
         default:
             assertionFailure("No matching InfoButtonItem")

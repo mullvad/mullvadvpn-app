@@ -245,6 +245,15 @@ class AlertViewController: UIViewController {
     private func addMessage(_ message: NSAttributedString) {
         let label = UILabel()
 
+        let style = NSMutableParagraphStyle()
+        style.paragraphSpacing = 16
+        style.lineBreakMode = .byWordWrapping
+
+        let message = NSMutableAttributedString(attributedString: message)
+        let attributeRange = NSRange(location: 0, length: message.length)
+        message.removeAttribute(.paragraphStyle, range: attributeRange)
+        message.addAttribute(.paragraphStyle, value: style, range: attributeRange)
+
         label.attributedText = message
         label.textColor = .white.withAlphaComponent(0.8)
         label.adjustsFontForContentSizeCategory = true
