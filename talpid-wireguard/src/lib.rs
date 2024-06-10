@@ -761,6 +761,14 @@ impl WireguardMonitor {
 
         #[cfg(target_os = "linux")]
         if !*FORCE_USERSPACE_WIREGUARD {
+            // If DAITA is enabled, wireguard-go has to be used.
+            if config.daita {
+                let tunnel =
+                    Self::open_wireguard_go_tunnel(config, log_path, resource_dir, tun_provider)
+                        .map(Box::new)?;
+                return Ok(tunnel);
+            }
+
             if will_nm_manage_dns() {
                 match wireguard_kernel::NetworkManagerTunnel::new(runtime, config) {
                     Ok(tunnel) => {
@@ -803,26 +811,49 @@ impl WireguardMonitor {
 
         #[cfg(wireguard_go)]
         {
-            let routes =
-                Self::get_tunnel_destinations(config).flat_map(Self::replace_default_prefixes);
-
-            #[cfg(target_os = "android")]
-            let config = Self::patch_allowed_ips(config, gateway_only);
-
             #[cfg(target_os = "linux")]
             log::debug!("Using userspace WireGuard implementation");
-            Ok(Box::new(
-                WgGoTunnel::start_tunnel(
-                    #[allow(clippy::needless_borrow)]
-                    &config,
-                    log_path,
-                    tun_provider,
-                    routes,
-                    resource_dir,
-                )
-                .map_err(Error::TunnelError)?,
-            ))
+
+            let tunnel = Self::open_wireguard_go_tunnel(
+                config,
+                log_path,
+                #[cfg(any(target_os = "windows", target_os = "linux"))]
+                resource_dir,
+                tun_provider,
+                #[cfg(target_os = "android")]
+                gateway_only,
+            )
+            .map(Box::new)?;
+            Ok(tunnel)
         }
+    }
+
+    /// Configure and start a Wireguard-go tunnel.
+    #[cfg(wireguard_go)]
+    fn open_wireguard_go_tunnel(
+        config: &Config,
+        log_path: Option<&Path>,
+        #[cfg(any(target_os = "windows", target_os = "linux"))] resource_dir: &Path,
+        tun_provider: Arc<Mutex<TunProvider>>,
+        #[cfg(target_os = "android")] gateway_only: bool,
+    ) -> Result<WgGoTunnel> {
+        let routes = Self::get_tunnel_destinations(config).flat_map(Self::replace_default_prefixes);
+
+        #[cfg(target_os = "android")]
+        let config = Self::patch_allowed_ips(config, gateway_only);
+
+        let tunnel = WgGoTunnel::start_tunnel(
+            #[allow(clippy::needless_borrow)]
+            &config,
+            log_path,
+            tun_provider,
+            routes,
+            #[cfg(any(target_os = "windows", target_os = "linux"))]
+            resource_dir,
+        )
+        .map_err(Error::TunnelError)?;
+
+        Ok(tunnel)
     }
 
     /// Blocks the current thread until tunnel disconnects
