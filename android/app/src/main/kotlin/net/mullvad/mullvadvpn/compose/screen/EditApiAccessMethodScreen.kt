@@ -5,17 +5,16 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
@@ -221,8 +220,9 @@ private fun ColumnScope.Loading() {
 private fun NameInputField(
     name: String,
     nameError: InvalidDataError.NameError?,
-    onNameChanged: (String) -> Unit,
+    onNameChanged: (String) -> Unit
 ) {
+    val focusManager = LocalFocusManager.current
     ApiAccessMethodTextField(
         value = name,
         keyboardType = KeyboardType.Text,
@@ -232,10 +232,10 @@ private fun NameInputField(
         isDigitsOnlyAllowed = false,
         maxCharLength = ApiAccessMethodName.MAX_LENGTH,
         errorText = nameError?.let { textResource(id = R.string.this_field_is_required) },
+        onSubmit = { focusManager.moveFocus(FocusDirection.Down) }
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ApiAccessMethodTypeSelection(
     formData: EditApiAccessFormData,
@@ -267,21 +267,25 @@ private fun ShadowsocksForm(
     onPasswordChanged: (String) -> Unit,
     onCipherChange: (Cipher) -> Unit
 ) {
+    val focusManager = LocalFocusManager.current
     ServerIpInput(
         serverIp = formData.serverIp,
         serverIpError = formData.serverIpError,
-        onIpChanged = onIpChanged
+        onIpChanged = onIpChanged,
+        onSubmit = { focusManager.moveFocus(FocusDirection.Down) }
     )
     RemotePortInput(
         remotePort = formData.remotePort,
         formData.remotePortError,
-        onPortChanged = onPortChanged
+        onPortChanged = onPortChanged,
+        onSubmit = { focusManager.moveFocus(FocusDirection.Down) }
     )
     PasswordInput(
         password = formData.password,
         passwordError = formData.passwordError,
         optional = true,
-        onPasswordChanged = onPasswordChanged
+        onPasswordChanged = onPasswordChanged,
+        onSubmit = { focusManager.clearFocus() }
     )
     CipherSelection(cipher = formData.cipher, onCipherChange = onCipherChange)
 }
@@ -295,28 +299,39 @@ private fun Socks5RemoteForm(
     onUsernameChanged: (String) -> Unit,
     onPasswordChanged: (String) -> Unit
 ) {
+    val focusManager = LocalFocusManager.current
     ServerIpInput(
         serverIp = formData.serverIp,
         serverIpError = formData.serverIpError,
-        onIpChanged = onIpChanged
+        onIpChanged = onIpChanged,
+        onSubmit = { focusManager.moveFocus(FocusDirection.Down) }
     )
     RemotePortInput(
         remotePort = formData.remotePort,
         portError = formData.remotePortError,
-        onPortChanged = onPortChanged
+        onPortChanged = onPortChanged,
+        onSubmit = {
+            if (formData.enableAuthentication) {
+                focusManager.moveFocus(FocusDirection.Down)
+            } else {
+                focusManager.clearFocus()
+            }
+        }
     )
     EnableAuthentication(formData.enableAuthentication, onToggleAuthenticationEnabled)
     if (formData.enableAuthentication) {
         UsernameInput(
             username = formData.username,
             usernameError = formData.usernameError,
-            onUsernameChanged = onUsernameChanged
+            onUsernameChanged = onUsernameChanged,
+            onSubmit = { focusManager.moveFocus(FocusDirection.Down) }
         )
         PasswordInput(
             password = formData.password,
             passwordError = formData.passwordError,
             optional = false,
-            onPasswordChanged = onPasswordChanged
+            onPasswordChanged = onPasswordChanged,
+            onSubmit = { focusManager.moveFocus(FocusDirection.Down) }
         )
     }
 }
@@ -325,7 +340,8 @@ private fun Socks5RemoteForm(
 private fun ServerIpInput(
     serverIp: String,
     serverIpError: InvalidDataError.ServerIpError?,
-    onIpChanged: (String) -> Unit
+    onIpChanged: (String) -> Unit,
+    onSubmit: (String) -> Unit
 ) {
     ApiAccessMethodTextField(
         value = serverIp,
@@ -334,6 +350,7 @@ private fun ServerIpInput(
         labelText = stringResource(id = R.string.server),
         isValidValue = serverIpError == null,
         isDigitsOnlyAllowed = false,
+        onSubmit = onSubmit,
         errorText =
             serverIpError?.let {
                 textResource(
@@ -345,7 +362,7 @@ private fun ServerIpInput(
                                 R.string.this_field_is_required
                         }
                 )
-            },
+            }
     )
 }
 
@@ -353,7 +370,8 @@ private fun ServerIpInput(
 private fun RemotePortInput(
     remotePort: String,
     portError: InvalidDataError.RemotePortError?,
-    onPortChanged: (String) -> Unit
+    onPortChanged: (String) -> Unit,
+    onSubmit: (String) -> Unit
 ) {
     ApiAccessMethodTextField(
         value = remotePort,
@@ -362,6 +380,7 @@ private fun RemotePortInput(
         labelText = stringResource(id = R.string.port),
         isValidValue = portError == null,
         isDigitsOnlyAllowed = false,
+        onSubmit = onSubmit,
         errorText =
             portError?.let {
                 textResource(
@@ -382,7 +401,8 @@ private fun PasswordInput(
     password: String,
     passwordError: InvalidDataError.PasswordError?,
     optional: Boolean,
-    onPasswordChanged: (String) -> Unit
+    onPasswordChanged: (String) -> Unit,
+    onSubmit: (String) -> Unit
 ) {
     ApiAccessMethodTextField(
         value = password,
@@ -399,11 +419,11 @@ private fun PasswordInput(
             ),
         isValidValue = passwordError == null,
         isDigitsOnlyAllowed = false,
+        onSubmit = onSubmit,
         errorText = passwordError?.let { textResource(id = R.string.this_field_is_required) },
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CipherSelection(cipher: Cipher, onCipherChange: (Cipher) -> Unit) {
     MullvadExposedDropdownMenuBox(
@@ -465,6 +485,7 @@ private fun UsernameInput(
     username: String,
     usernameError: InvalidDataError.UserNameError?,
     onUsernameChanged: (String) -> Unit,
+    onSubmit: (String) -> Unit
 ) {
     ApiAccessMethodTextField(
         value = username,
@@ -473,6 +494,7 @@ private fun UsernameInput(
         labelText = stringResource(id = R.string.username),
         isValidValue = usernameError == null,
         isDigitsOnlyAllowed = false,
+        onSubmit = onSubmit,
         errorText = usernameError?.let { textResource(id = R.string.this_field_is_required) },
     )
 }

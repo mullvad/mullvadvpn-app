@@ -25,14 +25,13 @@ fun ApiAccessMethodTextField(
     isValidValue: Boolean,
     isDigitsOnlyAllowed: Boolean,
     errorText: String?,
+    onSubmit: (String) -> Unit,
 ) {
     CustomTextField(
         value = value,
         keyboardType = keyboardType,
         onValueChanged = onValueChanged,
-        onSubmit = {
-            // Close keyboard
-        },
+        onSubmit = onSubmit,
         labelText = labelText,
         placeholderText = null,
         isValidValue = isValidValue,
