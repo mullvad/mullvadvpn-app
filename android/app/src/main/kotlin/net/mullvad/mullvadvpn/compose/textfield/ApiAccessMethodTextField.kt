@@ -10,6 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -28,13 +29,19 @@ fun ApiAccessMethodTextField(
     isValidValue: Boolean,
     isDigitsOnlyAllowed: Boolean,
     errorText: String?,
-    capitalization: KeyboardCapitalization = KeyboardCapitalization.None
+    capitalization: KeyboardCapitalization = KeyboardCapitalization.None,
+    imeAction: ImeAction = ImeAction.Next,
 ) {
+    val focusManager = LocalFocusManager.current
     CustomTextField(
         value = value,
         keyboardType = keyboardType,
         onValueChanged = onValueChanged,
-        onSubmit = { /* Not being used */},
+        onSubmit = {
+            if (imeAction == ImeAction.Done) {
+                focusManager.clearFocus()
+            }
+        },
         labelText = labelText,
         placeholderText = null,
         isValidValue = isValidValue,
@@ -48,7 +55,7 @@ fun ApiAccessMethodTextField(
                 capitalization = capitalization,
                 autoCorrect = false,
                 keyboardType = keyboardType,
-                ImeAction.Next
+                imeAction = imeAction
             )
     )
 }

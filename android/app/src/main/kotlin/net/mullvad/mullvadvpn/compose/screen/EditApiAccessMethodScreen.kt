@@ -20,6 +20,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
@@ -420,6 +421,12 @@ private fun PasswordInput(
             ),
         isValidValue = passwordError == null,
         isDigitsOnlyAllowed = false,
+        imeAction =
+            if (optional) {
+                ImeAction.Next
+            } else {
+                ImeAction.Done
+            },
         errorText = passwordError?.let { textResource(id = R.string.this_field_is_required) },
     )
 }
