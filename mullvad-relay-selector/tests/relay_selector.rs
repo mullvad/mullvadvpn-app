@@ -251,14 +251,16 @@ fn assert_retry_order() {
             .port(443)
             .build(),
         // 5
-        RelayQueryBuilder::new().wireguard().udp2tcp().build(),
+        RelayQueryBuilder::new().wireguard().shadowsocks().build(),
         // 6
+        RelayQueryBuilder::new().wireguard().udp2tcp().build(),
+        // 7
         RelayQueryBuilder::new()
             .wireguard()
             .udp2tcp()
             .ip_version(IpVersion::V6)
             .build(),
-        // 7
+        // 8
         RelayQueryBuilder::new()
             .openvpn()
             .transport_protocol(TransportProtocol::Tcp)
