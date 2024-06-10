@@ -171,7 +171,10 @@ internal fun NewAccessMethod.fromDomain(): ManagementInterface.NewAccessMethodSe
     ManagementInterface.NewAccessMethodSetting.newBuilder()
         .setName(name.value)
         .setEnabled(enabled)
-        .setAccessMethod(apiAccessMethodType.fromDomain())
+        .setAccessMethod(
+            ManagementInterface.AccessMethod.newBuilder()
+                .setCustom(apiAccessMethodType.fromDomain())
+        )
         .build()
 
 internal fun ApiAccessMethodType.fromDomain(): ManagementInterface.AccessMethod =
