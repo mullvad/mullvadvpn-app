@@ -90,7 +90,7 @@ extension AsyncSequence {
 
 /// Simplified version of `Event` that can be used in tests and easily compared against.
 enum SimplifiedEvent: Equatable {
-    case start, stop, reconnect(NextRelay), switchKey, other
+    case start, stop, reconnect(NextRelays), switchKey, other
 }
 
 extension PacketTunnelActor.Event {
