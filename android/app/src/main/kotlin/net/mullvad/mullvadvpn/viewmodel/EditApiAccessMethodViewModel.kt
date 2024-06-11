@@ -5,12 +5,10 @@ import androidx.lifecycle.viewModelScope
 import arrow.core.Either
 import arrow.core.Either.Companion.zipOrAccumulate
 import arrow.core.EitherNel
-import arrow.core.NonEmptyList
 import arrow.core.getOrElse
 import arrow.core.nel
 import arrow.core.raise.either
 import arrow.core.raise.ensure
-import arrow.core.right
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -96,10 +94,10 @@ class EditApiAccessMethodViewModel(
     fun testMethod() {
         viewModelScope.launch {
             formData.value
-                .parseFormData(skipNameValidation = true)
+                .parseConnectionFormData()
                 .fold(
                     { errors -> formData.update { it.updateWithErrors(errors) } },
-                    { (_, customProxy) ->
+                    { customProxy ->
                         isTestingApiAccessMethod.value = true
                         apiAccessRepository
                             .testCustomApiAccessMethod(customProxy)
@@ -124,7 +122,7 @@ class EditApiAccessMethodViewModel(
     fun trySave() {
         viewModelScope.launch {
             formData.value
-                .parseFormData(skipNameValidation = false)
+                .parseFormData()
                 .fold(
                     { errors -> formData.update { it.updateWithErrors(errors) } },
                     { (name, customProxy) ->
@@ -158,28 +156,20 @@ class EditApiAccessMethodViewModel(
                 .getOrElse { error("Access method with id $apiAccessMethodId not found") }
         }
 
-    private fun EditApiAccessFormData.parseFormData(
-        skipNameValidation: Boolean
-    ): Either<
-        NonEmptyList<InvalidDataError>,
-        Pair<ApiAccessMethodName, ApiAccessMethodType.CustomProxy>
-    > =
-        zipOrAccumulate(
-            if (skipNameValidation) {
-                ApiAccessMethodName.fromString(name).right()
-            } else {
-                parseName(name)
-            },
-            when (apiAccessMethodTypes) {
-                ApiAccessMethodTypes.SHADOWSOCKS -> {
-                    parseShadowSocksFormData(this)
-                }
-                ApiAccessMethodTypes.SOCKS5_REMOTE -> {
-                    parseSocks5RemoteFormData(this)
-                }
-            }
-        ) { name, customProxy ->
+    private fun EditApiAccessFormData.parseFormData():
+        EitherNel<InvalidDataError, Pair<ApiAccessMethodName, ApiAccessMethodType.CustomProxy>> =
+        zipOrAccumulate(parseName(name), parseConnectionFormData()) { name, customProxy ->
             name to customProxy
+        }
+
+    private fun EditApiAccessFormData.parseConnectionFormData() =
+        when (apiAccessMethodTypes) {
+            ApiAccessMethodTypes.SHADOWSOCKS -> {
+                parseShadowSocksFormData(this)
+            }
+            ApiAccessMethodTypes.SOCKS5_REMOTE -> {
+                parseSocks5RemoteFormData(this)
+            }
         }
 
     private fun parseShadowSocksFormData(
@@ -216,7 +206,7 @@ class EditApiAccessMethodViewModel(
 
     private fun parseSocks5RemoteFormData(
         formData: EditApiAccessFormData
-    ): Either<NonEmptyList<InvalidDataError>, ApiAccessMethodType.CustomProxy.Socks5Remote> =
+    ): EitherNel<InvalidDataError, ApiAccessMethodType.CustomProxy.Socks5Remote> =
         zipOrAccumulate(
             parseIpAndPort(formData.serverIp, formData.port),
             parseAuth(
@@ -240,7 +230,7 @@ class EditApiAccessMethodViewModel(
         authEnabled: Boolean,
         inputUsername: String,
         inputPassword: String
-    ): Either<NonEmptyList<InvalidDataError>, SocksAuth?> =
+    ): EitherNel<InvalidDataError, SocksAuth?> =
         if (!authEnabled) {
             Either.Right(null)
         } else {
