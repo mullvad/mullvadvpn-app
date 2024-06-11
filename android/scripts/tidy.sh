@@ -24,8 +24,8 @@ function main {
 
 # Autoformats Android XML files
 function format {
-    non_text_xml_paths=($(find .. -wholename */src/*.xml ! -name strings*.xml ! -name plurals.xml))
-    for xml_path in ${non_text_xml_paths[*]}; do
+    non_text_xml_paths=("$(find .. -wholename "*/src/*.xml" ! -name "strings*.xml" ! -name plurals.xml)")
+    for xml_path in "${non_text_xml_paths[@]}"; do
         tidy -xml \
             -m  \
             -i  \
@@ -35,14 +35,14 @@ function format {
             --indent-attributes yes \
             --indent-spaces 4 \
             --literal-attributes yes \
-            $xml_path
+            "$xml_path"
     done
 
     # We only format non-translated files since we don't want
     # to introduce a mismatch between the xml files and source
     # (.po) files.
-    non_translated_text_xml_paths=($(find .. -wholename */values/strings*.xml -o -wholename */values/plurals.xml))
-    for xml_path in ${non_translated_text_xml_paths[*]}; do
+    non_translated_text_xml_paths=("$(find .. -wholename "*/values/strings*.xml" -o -wholename "*/values/plurals.xml")")
+    for xml_path in "${non_translated_text_xml_paths[@]}"; do
         tidy -xml \
             -m  \
             -i  \
@@ -52,7 +52,7 @@ function format {
             --indent-spaces 4 \
             --literal-attributes yes \
             --indent-cdata yes \
-            $xml_path
+            "$xml_path"
     done
 
     # FIXME - when tidy learns to not leave whitespace around, remove the line below - https://github.com/htacg/tidy-html5/issues/864
