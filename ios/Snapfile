@@ -1,3 +1,5 @@
+ios_version '17.0.1'
+
 # A list of devices you want to take the screenshots from
 devices([
   "iPhone SE (3rd generation)",
