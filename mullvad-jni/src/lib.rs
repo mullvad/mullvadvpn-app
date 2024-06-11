@@ -65,13 +65,15 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_initial
     env: JNIEnv<'_>,
     this: JObject<'_>,
     vpnService: JObject<'_>,
+    rpcSocketPath: JObject<'_>,
+    filesDirectory: JObject<'_>,
     cacheDirectory: JObject<'_>,
-    resourceDirectory: JObject<'_>,
     apiEndpoint: JObject<'_>,
 ) {
     let env = JnixEnv::from(env);
+    let rpc_socket = PathBuf::from(String::from_java(&env, rpcSocketPath));
+    let files_dir = PathBuf::from(String::from_java(&env, filesDirectory));
     let cache_dir = PathBuf::from(String::from_java(&env, cacheDirectory));
-    let resource_dir = PathBuf::from(String::from_java(&env, resourceDirectory));
 
     let api_endpoint = if !apiEndpoint.is_null() {
         #[cfg(feature = "api-override")]
@@ -87,7 +89,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_initial
         None
     };
 
-    match start_logging(&resource_dir) {
+    match start_logging(&files_dir) {
         Ok(()) => {
             version::log_version();
 
@@ -97,8 +99,9 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_initial
                 &env,
                 &this,
                 &vpnService,
+                rpc_socket,
+                files_dir,
                 cache_dir,
-                resource_dir,
                 api_endpoint,
             ) {
                 log::error!("{}", error.display_chain());
@@ -224,8 +227,9 @@ fn initialize(
     env: &JnixEnv<'_>,
     this: &JObject<'_>,
     vpn_service: &JObject<'_>,
+    rpc_socket: PathBuf,
+    files_dir: PathBuf,
     cache_dir: PathBuf,
-    resource_dir: PathBuf,
     api_endpoint: Option<mullvad_api::ApiEndpoint>,
 ) -> Result<(), Error> {
     let android_context = create_android_context(env, *vpn_service)?;
@@ -235,8 +239,9 @@ fn initialize(
     spawn_daemon(
         env,
         this,
+        rpc_socket,
+        files_dir,
         cache_dir,
-        resource_dir,
         api_endpoint,
         daemon_command_channel,
         android_context,
@@ -259,11 +264,13 @@ fn create_android_context(
     })
 }
 
+#[allow(clippy::too_many_arguments)]
 fn spawn_daemon(
     env: &JnixEnv<'_>,
     this: &JObject<'_>,
+    rpc_socket: PathBuf,
+    files_dir: PathBuf,
     cache_dir: PathBuf,
-    resource_dir: PathBuf,
     #[cfg_attr(not(feature = "api-override"), allow(unused_variables))] api_endpoint: Option<
         mullvad_api::ApiEndpoint,
     >,
@@ -298,10 +305,10 @@ fn spawn_daemon(
             }
         }
 
-        runtime.block_on(cleanup_old_rpc_socket());
+        runtime.block_on(cleanup_old_rpc_socket(&rpc_socket));
 
         let event_listener = match runtime
-            .block_on(async { spawn_management_interface(command_channel.sender()) })
+            .block_on(async { spawn_management_interface(command_channel.sender(), &rpc_socket) })
         {
             Ok(event_listener) => event_listener,
             Err(error) => {
@@ -311,9 +318,9 @@ fn spawn_daemon(
         };
 
         let daemon = runtime.block_on(Daemon::start(
-            Some(resource_dir.clone()),
-            resource_dir.clone(),
-            resource_dir,
+            Some(files_dir.clone()),
+            files_dir.clone(),
+            files_dir,
             cache_dir,
             event_listener,
             command_channel,
@@ -348,8 +355,9 @@ use mullvad_daemon::{
 
 fn spawn_management_interface(
     command_sender: DaemonCommandSender,
+    rpc_socket_path: impl AsRef<Path>,
 ) -> Result<ManagementInterfaceEventBroadcaster, Error> {
-    let (socket_path, event_broadcaster) = ManagementInterfaceServer::start(command_sender)
+    let event_broadcaster = ManagementInterfaceServer::start(command_sender, &rpc_socket_path)
         .map_err(|error| {
             log::error!(
                 "{}",
@@ -358,7 +366,10 @@ fn spawn_management_interface(
             Error::SpawnManagementInterface(error)
         })?;
 
-    log::info!("Management interface listening on {}", socket_path);
+    log::info!(
+        "Management interface listening on {}",
+        rpc_socket_path.as_ref().display()
+    );
 
     Ok(event_broadcaster)
 }

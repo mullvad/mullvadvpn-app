@@ -1,4 +1,6 @@
-#[cfg(not(target_os = "windows"))]
+#![cfg(not(target_os = "android"))]
+
+#[cfg(any(target_os = "linux", target_os = "macos"))]
 use std::fs;
 use std::{io, path::PathBuf};
 
@@ -26,6 +28,9 @@ pub enum Error {
     #[cfg(windows)]
     #[error("Failed to create security attributes")]
     GetSecurityAttributes(#[source] io::Error),
+
+    #[error("Device data directory has not been set")]
+    NoDataDir,
 }
 
 #[cfg(any(target_os = "linux", target_os = "macos"))]
@@ -33,9 +38,6 @@ const PRODUCT_NAME: &str = "mullvad-vpn";
 
 #[cfg(windows)]
 pub const PRODUCT_NAME: &str = "Mullvad VPN";
-
-#[cfg(target_os = "android")]
-const APP_PATH: &str = "/data/data/net.mullvad.mullvadvpn";
 
 #[cfg(windows)]
 fn get_allusersprofile_dir() -> Result<PathBuf> {
@@ -45,7 +47,7 @@ fn get_allusersprofile_dir() -> Result<PathBuf> {
     }
 }
 
-#[cfg(not(target_os = "windows"))]
+#[cfg(any(target_os = "linux", target_os = "macos"))]
 fn create_and_return(
     dir_fn: fn() -> Result<PathBuf>,
     permissions: Option<fs::Permissions>,

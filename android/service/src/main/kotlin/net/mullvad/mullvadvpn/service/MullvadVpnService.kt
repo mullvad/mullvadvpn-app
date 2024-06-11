@@ -9,6 +9,7 @@ import android.util.Log
 import androidx.core.content.getSystemService
 import androidx.lifecycle.lifecycleScope
 import arrow.atomic.AtomicInt
+import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,6 +18,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import net.mullvad.mullvadvpn.lib.common.constant.GRPC_SOCKET_FILE_NAMED_ARGUMENT
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_CONNECT_ACTION
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_DISCONNECT_ACTION
 import net.mullvad.mullvadvpn.lib.common.constant.TAG
@@ -36,6 +38,7 @@ import net.mullvad.mullvadvpn.service.notifications.ShouldBeOnForegroundProvider
 import net.mullvad.talpid.TalpidVpnService
 import org.koin.android.ext.android.getKoin
 import org.koin.core.context.loadKoinModules
+import org.koin.core.qualifier.named
 
 class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
     private val _shouldBeOnForeground = MutableStateFlow(false)
@@ -49,6 +52,7 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
     private lateinit var migrateSplitTunneling: MigrateSplitTunneling
     private lateinit var intentProvider: IntentProvider
     private lateinit var connectionProxy: ConnectionProxy
+    private lateinit var rpcSocketFile: File
 
     private lateinit var foregroundNotificationHandler: ForegroundNotificationManager
 
@@ -75,6 +79,7 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
             migrateSplitTunneling = get()
             intentProvider = get()
             connectionProxy = get()
+            rpcSocketFile = get(named(GRPC_SOCKET_FILE_NAMED_ARGUMENT))
         }
 
         keyguardManager = getSystemService<KeyguardManager>()!!
@@ -88,6 +93,7 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
             daemonInstance =
                 MullvadDaemon(
                     vpnService = this@MullvadVpnService,
+                    rpcSocketFile = rpcSocketFile,
                     apiEndpointConfiguration =
                         intentProvider.getLatestIntent()?.getApiEndpointConfigurationExtras()
                             ?: apiEndpointConfiguration,

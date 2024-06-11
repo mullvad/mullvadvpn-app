@@ -22,24 +22,19 @@ fn get_settings_dir() -> Result<PathBuf> {
     }
 }
 
-#[cfg(not(target_os = "android"))]
+#[cfg(windows)]
 pub fn get_default_settings_dir() -> Result<PathBuf> {
-    let dir;
-    #[cfg(unix)]
-    {
-        dir = Ok(PathBuf::from("/etc"));
-    }
-    #[cfg(windows)]
-    {
-        dir = crate::windows::get_system_service_appdata().map_err(|error| {
+    let dir = crate::windows::get_system_service_appdata()
+        .map_err(|error| {
             log::error!("Failed to obtain system app data path: {error}");
             crate::Error::FindDirError
-        })
-    }
-    dir.map(|dir| dir.join(crate::PRODUCT_NAME))
+        })?
+        .join(crate::PRODUCT_NAME);
+    Ok(dir)
 }
 
-#[cfg(target_os = "android")]
+#[cfg(unix)]
 pub fn get_default_settings_dir() -> Result<PathBuf> {
-    Ok(PathBuf::from(crate::APP_PATH))
+    let dir = PathBuf::from("/etc").join(crate::PRODUCT_NAME);
+    Ok(dir)
 }
