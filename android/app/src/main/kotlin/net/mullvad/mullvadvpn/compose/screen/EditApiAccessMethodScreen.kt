@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.compose.screen
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
@@ -10,6 +11,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -218,9 +220,13 @@ fun EditApiAccessMethodScreen(
                                 onPasswordChanged = onPasswordChanged
                             )
                     }
-                    Spacer(modifier = Modifier.height(Dimens.largePadding))
+                    Spacer(modifier = Modifier.weight(1f))
                     TestMethodButton(
-                        modifier = Modifier.padding(bottom = Dimens.verticalSpace),
+                        modifier =
+                            Modifier.padding(
+                                bottom = Dimens.verticalSpace,
+                                top = Dimens.largePadding
+                            ),
                         testMethodState = state.testMethodState,
                         onTestMethod = onTestMethod
                     )
@@ -251,7 +257,8 @@ private fun NameInputField(
         isDigitsOnlyAllowed = false,
         maxCharLength = ApiAccessMethodName.MAX_LENGTH,
         errorText = nameError?.let { textResource(id = R.string.this_field_is_required) },
-        capitalization = KeyboardCapitalization.Words
+        capitalization = KeyboardCapitalization.Words,
+        modifier = Modifier.animateContentSize()
     )
 }
 
@@ -368,7 +375,8 @@ private fun ServerIpInput(
                                 R.string.this_field_is_required
                         }
                 )
-            }
+            },
+        modifier = Modifier.animateContentSize()
     )
 }
 
@@ -396,6 +404,7 @@ private fun PortInput(
                         }
                 )
             },
+        modifier = Modifier.animateContentSize()
     )
 }
 
@@ -428,6 +437,7 @@ private fun PasswordInput(
                 ImeAction.Done
             },
         errorText = passwordError?.let { textResource(id = R.string.this_field_is_required) },
+        modifier = Modifier.animateContentSize()
     )
 }
 
@@ -529,6 +539,7 @@ private fun UsernameInput(
         isValidValue = usernameError == null,
         isDigitsOnlyAllowed = false,
         errorText = usernameError?.let { textResource(id = R.string.this_field_is_required) },
+        modifier = Modifier.animateContentSize()
     )
 }
 

@@ -165,9 +165,9 @@ class EditApiAccessMethodViewModel(
     > =
         zipOrAccumulate(
             if (skipNameValidation) {
-                parseName(name)
-            } else {
                 ApiAccessMethodName.fromString(name).right()
+            } else {
+                parseName(name)
             },
             when (apiAccessMethodTypes) {
                 ApiAccessMethodTypes.SHADOWSOCKS -> {
