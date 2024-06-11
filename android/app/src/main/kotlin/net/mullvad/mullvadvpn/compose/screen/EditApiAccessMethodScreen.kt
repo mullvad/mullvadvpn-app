@@ -22,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -51,6 +52,7 @@ import net.mullvad.mullvadvpn.compose.preview.EditApiAccessMethodUiStateParamete
 import net.mullvad.mullvadvpn.compose.state.ApiAccessMethodTypes
 import net.mullvad.mullvadvpn.compose.state.EditApiAccessFormData
 import net.mullvad.mullvadvpn.compose.state.EditApiAccessMethodUiState
+import net.mullvad.mullvadvpn.compose.test.EDIT_API_ACCESS_NAME_INPUT
 import net.mullvad.mullvadvpn.compose.textfield.ApiAccessMethodTextField
 import net.mullvad.mullvadvpn.compose.textfield.apiAccessTextFieldColors
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
@@ -287,7 +289,7 @@ private fun NameInputField(
         maxCharLength = ApiAccessMethodName.MAX_LENGTH,
         errorText = nameError?.let { textResource(id = R.string.this_field_is_required) },
         capitalization = KeyboardCapitalization.Words,
-        modifier = Modifier.animateContentSize()
+        modifier = Modifier.animateContentSize().testTag(EDIT_API_ACCESS_NAME_INPUT)
     )
 }
 
