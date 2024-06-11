@@ -34,8 +34,9 @@ class MullvadDaemon(
 
         initialize(
             vpnService = vpnService,
+            dataDirectory = vpnService.dataDir.absolutePath,
+            filesDirectory = vpnService.filesDir.absolutePath,
             cacheDirectory = vpnService.cacheDir.absolutePath,
-            resourceDirectory = vpnService.filesDir.absolutePath,
             apiEndpoint = apiEndpointConfiguration.apiEndpoint()
         )
     }
@@ -69,8 +70,9 @@ class MullvadDaemon(
 
     private external fun initialize(
         vpnService: MullvadVpnService,
+        dataDirectory: String,
+        filesDirectory: String,
         cacheDirectory: String,
-        resourceDirectory: String,
         apiEndpoint: ApiEndpoint?
     )
 

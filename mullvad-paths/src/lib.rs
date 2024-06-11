@@ -1,6 +1,8 @@
-#[cfg(not(target_os = "windows"))]
+#[cfg(any(target_os = "linux", target_os = "macos"))]
 use std::fs;
-use std::{io, path::PathBuf};
+use std::io;
+#[cfg(not(target_os = "android"))]
+use std::path::PathBuf;
 
 #[cfg(windows)]
 use crate::windows::create_dir_recursive;
@@ -26,6 +28,10 @@ pub enum Error {
     #[cfg(windows)]
     #[error("Failed to create security attributes")]
     GetSecurityAttributes(#[source] io::Error),
+
+    #[cfg(target_os = "android")]
+    #[error("Device data directory has not been set")]
+    NoDataDir,
 }
 
 #[cfg(any(target_os = "linux", target_os = "macos"))]
@@ -33,9 +39,6 @@ const PRODUCT_NAME: &str = "mullvad-vpn";
 
 #[cfg(windows)]
 pub const PRODUCT_NAME: &str = "Mullvad VPN";
-
-#[cfg(target_os = "android")]
-const APP_PATH: &str = "/data/data/net.mullvad.mullvadvpn";
 
 #[cfg(windows)]
 fn get_allusersprofile_dir() -> Result<PathBuf> {
@@ -45,7 +48,7 @@ fn get_allusersprofile_dir() -> Result<PathBuf> {
     }
 }
 
-#[cfg(not(target_os = "windows"))]
+#[cfg(any(target_os = "linux", target_os = "macos"))]
 fn create_and_return(
     dir_fn: fn() -> Result<PathBuf>,
     permissions: Option<fs::Permissions>,
@@ -69,19 +72,30 @@ fn create_and_return(
     Ok(dir)
 }
 
+#[cfg(not(target_os = "android"))]
 mod cache;
+#[cfg(not(target_os = "android"))]
 pub use crate::cache::{cache_dir, get_cache_dir, get_default_cache_dir};
 
+#[cfg(not(target_os = "android"))]
 mod logs;
+#[cfg(not(target_os = "android"))]
 pub use crate::logs::{get_default_log_dir, get_log_dir, log_dir};
 
+#[cfg(not(target_os = "android"))]
 pub mod resources;
+#[cfg(not(target_os = "android"))]
 pub use crate::resources::{get_default_resource_dir, get_resource_dir};
 
 mod rpc_socket;
+#[cfg(target_os = "android")]
+pub use crate::rpc_socket::get_rpc_socket_path;
+#[cfg(not(target_os = "android"))]
 pub use crate::rpc_socket::{get_default_rpc_socket_path, get_rpc_socket_path};
 
+#[cfg(not(target_os = "android"))]
 mod settings;
+#[cfg(not(target_os = "android"))]
 pub use crate::settings::{get_default_settings_dir, settings_dir};
 
 #[cfg(windows)]

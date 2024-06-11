@@ -20,28 +20,22 @@ pub fn get_cache_dir() -> Result<PathBuf> {
     }
 }
 
+#[cfg(target_os = "linux")]
 pub fn get_default_cache_dir() -> Result<PathBuf> {
-    #[cfg(not(target_os = "android"))]
-    {
-        let dir;
-        #[cfg(target_os = "linux")]
-        {
-            dir = PathBuf::from("/var/cache").join(crate::PRODUCT_NAME);
-        }
-        #[cfg(windows)]
-        {
-            dir = crate::get_allusersprofile_dir()?
-                .join(crate::PRODUCT_NAME)
-                .join("cache");
-        }
-        #[cfg(target_os = "macos")]
-        {
-            dir = std::path::Path::new("/Library/Caches").join(crate::PRODUCT_NAME);
-        }
-        Ok(dir)
-    }
-    #[cfg(target_os = "android")]
-    {
-        Ok(std::path::Path::new(crate::APP_PATH).join("cache"))
-    }
+    let dir = PathBuf::from("/var/cache").join(crate::PRODUCT_NAME);
+    Ok(dir)
+}
+
+#[cfg(windows)]
+pub fn get_default_cache_dir() -> Result<PathBuf> {
+    let dir = crate::get_allusersprofile_dir()?
+        .join(crate::PRODUCT_NAME)
+        .join("cache");
+    Ok(dir)
+}
+
+#[cfg(target_os = "macos")]
+pub fn get_default_cache_dir() -> Result<PathBuf> {
+    let dir = std::path::Path::new("/Library/Caches").join(crate::PRODUCT_NAME);
+    Ok(dir)
 }

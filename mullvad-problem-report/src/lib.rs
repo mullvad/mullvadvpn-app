@@ -72,6 +72,7 @@ pub enum Error {
     #[error("Unable to spawn Tokio runtime")]
     CreateRuntime(#[source] io::Error),
 
+    #[cfg(not(target_os = "android"))]
     #[error("Unable to find cache directory")]
     ObtainCacheDirectory(#[source] mullvad_paths::Error),
 }
@@ -81,6 +82,7 @@ pub enum Error {
 /// instead of whatever content was supposed to be there.
 #[derive(thiserror::Error, Debug)]
 pub enum LogError {
+    #[cfg(not(target_os = "android"))]
     #[error("Unable to get log directory")]
     GetLogDir(#[source] mullvad_paths::Error),
 
