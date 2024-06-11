@@ -45,8 +45,11 @@ import net.mullvad.mullvadvpn.compose.destinations.DeleteApiAccessMethodConfirma
 import net.mullvad.mullvadvpn.compose.destinations.EditApiAccessMethodDestination
 import net.mullvad.mullvadvpn.compose.preview.ApiAccessMethodDetailsUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.ApiAccessMethodDetailsUiState
+import net.mullvad.mullvadvpn.compose.test.API_ACCESS_DETAILS_EDIT_BUTTON
+import net.mullvad.mullvadvpn.compose.test.API_ACCESS_DETAILS_TOP_BAR_DROPDOWN_BUTTON_TEST_TAG
+import net.mullvad.mullvadvpn.compose.test.API_ACCESS_TEST_METHOD_BUTTON
+import net.mullvad.mullvadvpn.compose.test.API_ACCESS_USE_METHOD_BUTTON
 import net.mullvad.mullvadvpn.compose.test.DELETE_DROPDOWN_MENU_ITEM_TEST_TAG
-import net.mullvad.mullvadvpn.compose.test.TOP_BAR_DROPDOWN_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
 import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
@@ -176,7 +179,8 @@ private fun Content(
     if (state.isEditable) {
         NavigationComposeCell(
             title = stringResource(id = R.string.edit_method),
-            onClick = onEditMethodClicked
+            onClick = onEditMethodClicked,
+            testTag = API_ACCESS_DETAILS_EDIT_BUTTON
         )
         HorizontalDivider()
     }
@@ -193,14 +197,16 @@ private fun Content(
     }
     Spacer(modifier = Modifier.height(Dimens.verticalSpace))
     TestMethodButton(
-        modifier = Modifier.padding(horizontal = Dimens.sideMargin),
+        modifier =
+            Modifier.padding(horizontal = Dimens.sideMargin).testTag(API_ACCESS_TEST_METHOD_BUTTON),
         testMethodState = state.testApiAccessMethodState,
         onTestMethod = onTestMethodClicked
     )
     Spacer(modifier = Modifier.height(Dimens.verticalSpace))
     PrimaryButton(
         isEnabled = !state.isCurrentMethod,
-        modifier = Modifier.padding(horizontal = Dimens.sideMargin),
+        modifier =
+            Modifier.padding(horizontal = Dimens.sideMargin).testTag(API_ACCESS_USE_METHOD_BUTTON),
         onClick = onUseMethodClicked,
         text = stringResource(id = R.string.use_method)
     )
@@ -214,7 +220,7 @@ private fun Actions(onDeleteAccessMethod: () -> Unit) {
     var showMenu by remember { mutableStateOf(false) }
     IconButton(
         onClick = { showMenu = true },
-        modifier = Modifier.testTag(TOP_BAR_DROPDOWN_BUTTON_TEST_TAG)
+        modifier = Modifier.testTag(API_ACCESS_DETAILS_TOP_BAR_DROPDOWN_BUTTON_TEST_TAG)
     ) {
         Icon(painter = painterResource(id = R.drawable.icon_more_vert), contentDescription = null)
         if (showMenu) {

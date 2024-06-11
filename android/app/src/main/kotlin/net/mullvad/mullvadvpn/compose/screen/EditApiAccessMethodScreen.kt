@@ -506,10 +506,9 @@ private fun EnableAuthentication(
                     painter = painterResource(id = R.drawable.icon_tick),
                     contentDescription = null,
                     modifier =
-                        Modifier.padding(end = Dimens.selectableCellTextMargin)
-                            .alpha(
-                                if (authenticationEnabled.not()) AlphaVisible else AlphaInvisible
-                            )
+                        Modifier.alpha(
+                            if (authenticationEnabled.not()) AlphaVisible else AlphaInvisible
+                        )
                 )
             }
         )
