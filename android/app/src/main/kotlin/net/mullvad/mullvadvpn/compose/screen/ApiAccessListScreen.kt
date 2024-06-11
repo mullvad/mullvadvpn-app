@@ -90,7 +90,6 @@ fun ApiAccessListScreen(
                 currentApiAccessMethodName = state.currentApiAccessMethod?.name,
                 onInfoClicked = onApiAccessInfoClick
             )
-            // Spacer(modifier = Modifier.height(Dimens.verticalSpace))
             apiAccessMethodItems(
                 state.apiAccessMethods,
                 onApiAccessMethodClick = onApiAccessMethodClick
@@ -132,7 +131,7 @@ private fun LazyListScope.currentAccessMethod(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                style = MaterialTheme.typography.titleLarge,
+                style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onBackground,
                 text =
                     stringResource(

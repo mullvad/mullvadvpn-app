@@ -42,7 +42,7 @@ fun MullvadExposedDropdownMenuBox(
             modifier = Modifier.fillMaxWidth().menuAnchor(),
             readOnly = true,
             value = title,
-            onValueChange = { /* Do nothing */},
+            onValueChange = { /* Do nothing */ },
             label = { Text(text = label) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             colors = colors,
@@ -50,7 +50,7 @@ fun MullvadExposedDropdownMenuBox(
         ExposedDropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
-            modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainer)
+            modifier = Modifier.background(MaterialTheme.colorScheme.primary)
         ) {
             content { expanded = false }
         }
