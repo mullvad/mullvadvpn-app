@@ -432,8 +432,8 @@ impl ConnectingState {
             }
             Some(TunnelCommand::Dns(servers, complete_tx)) => {
                 let consequence = match shared_values.set_dns_servers(servers) {
-                    #[cfg(target_os = "android")]
-                    Ok(true) => self.disconnect(shared_values, AfterDisconnect::Reconnect(0)),
+                    // #[cfg(target_os = "android")]
+                    // Ok(true) => self.disconnect(shared_values, AfterDisconnect::Reconnect(0)),
                     Ok(_) => SameState(self),
                     Err(cause) => self.disconnect(shared_values, AfterDisconnect::Block(cause)),
                 };

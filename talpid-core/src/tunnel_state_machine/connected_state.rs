@@ -276,9 +276,6 @@ impl ConnectedState {
                         }
 
                         match self.set_dns(shared_values) {
-                            #[cfg(target_os = "android")]
-                            Ok(()) => self.disconnect(shared_values, AfterDisconnect::Reconnect(0)),
-                            #[cfg(not(target_os = "android"))]
                             Ok(()) => SameState(self),
                             Err(error) => {
                                 log::error!(
