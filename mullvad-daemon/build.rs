@@ -33,7 +33,7 @@ fn main() {
 
     // Enable Daita by default on Linux and Windows.
     println!("cargo::rustc-check-cfg=cfg(daita)");
-    if let "linux" | "windows" = target_os.as_str() {
+    if let "linux" | "windows" | "macos" = target_os.as_str() {
         println!(r#"cargo::rustc-cfg=daita"#);
     }
 }
