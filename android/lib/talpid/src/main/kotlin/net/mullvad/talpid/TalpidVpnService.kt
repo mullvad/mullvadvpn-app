@@ -81,6 +81,7 @@ open class TalpidVpnService : LifecycleVpnService() {
     }
 
     private fun createTun(config: TunConfig): CreateTunResult {
+        Log.d("mullvad", "createTun: $config")
         if (prepare(this) != null) {
             // VPN permission wasn't granted
             return CreateTunResult.PermissionDenied
