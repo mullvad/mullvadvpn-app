@@ -107,6 +107,7 @@ const config = {
       { from: distAssets('uninstall_macos.sh'), to: './uninstall.sh' },
       { from: buildAssets('shell-completions/_mullvad'), to: '.' },
       { from: buildAssets('shell-completions/mullvad.fish'), to: '.' },
+      { from: distAssets('maybenot_machines'), to: '.' },
     ],
   },
 
