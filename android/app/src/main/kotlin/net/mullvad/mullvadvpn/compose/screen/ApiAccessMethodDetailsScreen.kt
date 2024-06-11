@@ -12,9 +12,11 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -100,12 +102,37 @@ fun ApiAccessMethodDetails(
                 navigator.navigate(EditApiAccessMethodDestination(it.apiAccessMethodId)) {
                     launchSingleTop = true
                 }
+            is ApiAccessMethodDetailsSideEffect.TestApiAccessMethodResult -> {
+                launch {
+                    snackbarHostState.showSnackbarImmediately(
+                        context.getString(
+                            if (it.successful) {
+                                R.string.api_reachable
+                            } else {
+                                R.string.api_unreachable
+                            }
+                        )
+                    )
+                }
+            }
         }
     }
 
     confirmDeleteListResultRecipient.OnNavResultValue { navigator.navigateUp() }
 
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(state.testingAccessMethod()) {
+        if (state.testingAccessMethod()) {
+            launch {
+                snackbarHostState.showSnackbarImmediately(
+                    message = context.getString(R.string.testing),
+                    duration = SnackbarDuration.Indefinite
+                )
+            }
+        }
+    }
+
     ApiAccessMethodDetailsScreen(
         state = state,
         snackbarHostState = snackbarHostState,
@@ -199,12 +226,12 @@ private fun Content(
     TestMethodButton(
         modifier =
             Modifier.padding(horizontal = Dimens.sideMargin).testTag(API_ACCESS_TEST_METHOD_BUTTON),
-        testMethodState = state.testApiAccessMethodState,
+        isTesting = state.isTestingAccessMethod,
         onTestMethod = onTestMethodClicked
     )
     Spacer(modifier = Modifier.height(Dimens.verticalSpace))
     PrimaryButton(
-        isEnabled = !state.isCurrentMethod,
+        isEnabled = !state.isCurrentMethod && !state.isTestingAccessMethod,
         modifier =
             Modifier.padding(horizontal = Dimens.sideMargin).testTag(API_ACCESS_USE_METHOD_BUTTON),
         onClick = onUseMethodClicked,

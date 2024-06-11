@@ -12,7 +12,6 @@ import arrow.core.raise.either
 import arrow.core.raise.ensure
 import arrow.core.right
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
@@ -24,7 +23,6 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.ApiAccessMethodTypes
 import net.mullvad.mullvadvpn.compose.state.EditApiAccessFormData
 import net.mullvad.mullvadvpn.compose.state.EditApiAccessMethodUiState
-import net.mullvad.mullvadvpn.constant.TEST_METHOD_RESULT_TIME_DURATION
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodName
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodType
@@ -33,7 +31,6 @@ import net.mullvad.mullvadvpn.lib.model.InvalidDataError
 import net.mullvad.mullvadvpn.lib.model.ParsePortError
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.SocksAuth
-import net.mullvad.mullvadvpn.lib.model.TestApiAccessMethodState
 import net.mullvad.mullvadvpn.repository.ApiAccessRepository
 import org.apache.commons.validator.routines.InetAddressValidator
 
@@ -44,18 +41,18 @@ class EditApiAccessMethodViewModel(
 ) : ViewModel() {
     private val _uiSideEffect = Channel<EditApiAccessSideEffect>(Channel.BUFFERED)
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
-    private val testMethodState = MutableStateFlow<TestApiAccessMethodState?>(null)
+    private val isTestingApiAccessMethod = MutableStateFlow(false)
     private val formData = MutableStateFlow(initialData())
     val uiState =
-        combine(flowOf(initialData()), formData, testMethodState) {
+        combine(flowOf(initialData()), formData, isTestingApiAccessMethod) {
                 initialData,
                 formData,
-                testMethodState ->
+                isTestingApiAccessMethod ->
                 EditApiAccessMethodUiState.Content(
                     editMode = apiAccessMethodId != null,
                     formData = formData,
                     hasChanges = initialData != formData,
-                    testMethodState = testMethodState
+                    isTestingApiAccessMethod = isTestingApiAccessMethod
                 )
             }
             .stateIn(
@@ -103,18 +100,22 @@ class EditApiAccessMethodViewModel(
                 .fold(
                     { errors -> formData.update { it.updateWithErrors(errors) } },
                     { (_, customProxy) ->
-                        testMethodState.value = TestApiAccessMethodState.Testing
+                        isTestingApiAccessMethod.value = true
                         apiAccessRepository
                             .testCustomApiAccessMethod(customProxy)
                             .fold(
-                                { testMethodState.value = TestApiAccessMethodState.Result.Failure },
                                 {
-                                    testMethodState.value =
-                                        TestApiAccessMethodState.Result.Successful
-                                }
+                                    _uiSideEffect.send(
+                                        EditApiAccessSideEffect.TestApiAccessMethodResult(false)
+                                    )
+                                },
+                                {
+                                    _uiSideEffect.send(
+                                        EditApiAccessSideEffect.TestApiAccessMethodResult(true)
+                                    )
+                                },
                             )
-                        delay(TEST_METHOD_RESULT_TIME_DURATION)
-                        testMethodState.value = null
+                        isTestingApiAccessMethod.value = false
                     }
                 )
         }
@@ -276,4 +277,6 @@ sealed interface EditApiAccessSideEffect {
         val name: ApiAccessMethodName,
         val customProxy: ApiAccessMethodType.CustomProxy
     ) : EditApiAccessSideEffect
+
+    data class TestApiAccessMethodResult(val successful: Boolean) : EditApiAccessSideEffect
 }

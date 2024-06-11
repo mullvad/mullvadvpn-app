@@ -2,7 +2,6 @@ package net.mullvad.mullvadvpn.compose.state
 
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodName
-import net.mullvad.mullvadvpn.lib.model.TestApiAccessMethodState
 
 sealed interface ApiAccessMethodDetailsUiState {
     val apiAccessMethodId: ApiAccessMethodId
@@ -17,10 +16,12 @@ sealed interface ApiAccessMethodDetailsUiState {
         val isEditable: Boolean,
         val isDisableable: Boolean,
         val isCurrentMethod: Boolean,
-        val testApiAccessMethodState: TestApiAccessMethodState?
+        val isTestingAccessMethod: Boolean,
     ) : ApiAccessMethodDetailsUiState
 
     fun name() = (this as? Content)?.name?.value ?: ""
 
-    fun canBeEdited() = (this as? Content)?.isEditable ?: false
+    fun canBeEdited() = this is Content && isEditable
+
+    fun testingAccessMethod() = this is Content && isTestingAccessMethod
 }

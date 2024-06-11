@@ -96,9 +96,6 @@ const val API_ACCESS_LIST_INFO_TEST_TAG = "api_access_list_info_test_tag"
 // ApiAccessMethodDetailsScreen
 const val API_ACCESS_DETAILS_TOP_BAR_DROPDOWN_BUTTON_TEST_TAG =
     "api_access_details_top_bar_dropdown_button_test_tag"
-const val API_ACCESS_DETAILS_EDIT_BUTTON =
-    "api_access_details_edit_button_test_tag"
-const val API_ACCESS_USE_METHOD_BUTTON =
-    "api_access_details_use_method_test_tag"
-const val API_ACCESS_TEST_METHOD_BUTTON =
-    "api_access_details_test_method_test_tag"
+const val API_ACCESS_DETAILS_EDIT_BUTTON = "api_access_details_edit_button_test_tag"
+const val API_ACCESS_USE_METHOD_BUTTON = "api_access_details_use_method_test_tag"
+const val API_ACCESS_TEST_METHOD_BUTTON = "api_access_details_test_method_test_tag"

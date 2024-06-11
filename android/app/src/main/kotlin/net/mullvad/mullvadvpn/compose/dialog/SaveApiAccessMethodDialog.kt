@@ -22,6 +22,7 @@ import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorMedium
 import net.mullvad.mullvadvpn.compose.preview.SaveApiAccessMethodUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.SaveApiAccessMethodUiState
+import net.mullvad.mullvadvpn.compose.state.TestApiAccessMethodState
 import net.mullvad.mullvadvpn.compose.test.SAVE_API_ACCESS_METHOD_CANCEL_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.SAVE_API_ACCESS_METHOD_LOADING_SPINNER_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.SAVE_API_ACCESS_METHOD_SAVE_BUTTON_TEST_TAG
@@ -29,7 +30,6 @@ import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodName
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodType
-import net.mullvad.mullvadvpn.lib.model.TestApiAccessMethodState
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.viewmodel.SaveApiAccessMethodSideEffect
 import net.mullvad.mullvadvpn.viewmodel.SaveApiAccessMethodViewModel

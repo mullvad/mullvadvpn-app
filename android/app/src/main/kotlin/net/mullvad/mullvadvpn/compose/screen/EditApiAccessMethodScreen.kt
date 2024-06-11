@@ -10,9 +10,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -106,6 +108,20 @@ fun EditApiAccessMethod(
                 ) {
                     launchSingleTop = true
                 }
+            is EditApiAccessSideEffect.TestApiAccessMethodResult -> {
+                launch {
+                    snackbarHostState.showSnackbarImmediately(
+                        message =
+                            context.getString(
+                                if (it.successful) {
+                                    R.string.api_reachable
+                                } else {
+                                    R.string.api_unreachable
+                                }
+                            )
+                    )
+                }
+            }
         }
     }
 
@@ -129,8 +145,21 @@ fun EditApiAccessMethod(
     }
 
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(state.testingApiAccessMethod()) {
+        if (state.testingApiAccessMethod()) {
+            launch {
+                snackbarHostState.showSnackbarImmediately(
+                    message = context.getString(R.string.testing),
+                    duration = SnackbarDuration.Indefinite
+                )
+            }
+        }
+    }
+
     EditApiAccessMethodScreen(
         state = state,
+        snackbarHostState = snackbarHostState,
         onNameChanged = viewModel::onNameChanged,
         onTypeSelected = viewModel::setAccessMethodType,
         onIpChanged = viewModel::onServerIpChanged,
@@ -227,7 +256,7 @@ fun EditApiAccessMethodScreen(
                                 bottom = Dimens.verticalSpace,
                                 top = Dimens.largePadding
                             ),
-                        testMethodState = state.testMethodState,
+                        isTesting = state.isTestingApiAccessMethod,
                         onTestMethod = onTestMethod
                     )
                     AddMethodButton(isNew = !state.editMode, onAddMethod = onAddMethod)
@@ -431,6 +460,7 @@ private fun PasswordInput(
         isValidValue = passwordError == null,
         isDigitsOnlyAllowed = false,
         imeAction =
+            // So that we avoid going back to the name input when pressing done/next
             if (optional) {
                 ImeAction.Next
             } else {
