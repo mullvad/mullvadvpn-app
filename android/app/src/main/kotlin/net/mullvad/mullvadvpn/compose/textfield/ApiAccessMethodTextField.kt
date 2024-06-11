@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.compose.textfield
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
@@ -49,7 +50,10 @@ fun ApiAccessMethodTextField(
         maxCharLength = maxCharLength,
         supportingText = errorText?.let { { ErrorSupportingText(errorText) } },
         colors = apiAccessTextFieldColors(),
-        modifier = modifier.padding(vertical = Dimens.miniPadding),
+        modifier =
+            modifier
+                .defaultMinSize(minHeight = Dimens.formTextFieldMinHeight)
+                .padding(vertical = Dimens.miniPadding),
         keyboardOptions =
             KeyboardOptions(
                 capitalization = capitalization,

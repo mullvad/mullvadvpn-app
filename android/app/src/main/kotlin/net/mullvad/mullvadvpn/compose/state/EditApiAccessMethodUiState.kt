@@ -6,7 +6,6 @@ import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodName
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodType
 import net.mullvad.mullvadvpn.lib.model.Cipher
 import net.mullvad.mullvadvpn.lib.model.InvalidDataError
-import net.mullvad.mullvadvpn.lib.model.TestApiAccessMethodState
 
 sealed interface EditApiAccessMethodUiState {
     val editMode: Boolean
@@ -17,10 +16,12 @@ sealed interface EditApiAccessMethodUiState {
         override val editMode: Boolean,
         val formData: EditApiAccessFormData,
         val hasChanges: Boolean,
-        val testMethodState: TestApiAccessMethodState?
+        val isTestingApiAccessMethod: Boolean,
     ) : EditApiAccessMethodUiState
 
     fun hasChanges() = this is Content && hasChanges
+
+    fun testingApiAccessMethod(): Boolean = this is Content && isTestingApiAccessMethod
 }
 
 data class EditApiAccessFormData(

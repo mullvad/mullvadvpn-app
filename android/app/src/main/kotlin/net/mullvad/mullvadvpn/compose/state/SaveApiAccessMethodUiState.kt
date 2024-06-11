@@ -1,8 +1,18 @@
 package net.mullvad.mullvadvpn.compose.state
 
-import net.mullvad.mullvadvpn.lib.model.TestApiAccessMethodState
-
 data class SaveApiAccessMethodUiState(
     val testingState: TestApiAccessMethodState = TestApiAccessMethodState.Testing,
     val isSaving: Boolean = false
 )
+
+sealed interface TestApiAccessMethodState {
+    data object Testing : TestApiAccessMethodState
+
+    sealed interface Result : TestApiAccessMethodState {
+        data object Successful : Result
+
+        data object Failure : Result
+
+        fun isSuccessful() = this is Successful
+    }
+}

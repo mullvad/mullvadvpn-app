@@ -2,8 +2,8 @@ package net.mullvad.mullvadvpn.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import arrow.core.Either
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
@@ -11,10 +11,9 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.ApiAccessMethodDetailsUiState
-import net.mullvad.mullvadvpn.constant.TEST_METHOD_RESULT_TIME_DURATION
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodType
-import net.mullvad.mullvadvpn.lib.model.TestApiAccessMethodState
+import net.mullvad.mullvadvpn.lib.model.TestApiAccessMethodError
 import net.mullvad.mullvadvpn.repository.ApiAccessRepository
 
 class ApiAccessMethodDetailsViewModel(
@@ -23,18 +22,18 @@ class ApiAccessMethodDetailsViewModel(
 ) : ViewModel() {
     private val _uiSideEffect = Channel<ApiAccessMethodDetailsSideEffect>(Channel.BUFFERED)
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
-    private val testApiAccessMethodState = MutableStateFlow<TestApiAccessMethodState?>(null)
+    private val isTestingApiAccessMethodState = MutableStateFlow(false)
     val uiState =
         combine(
                 apiAccessRepository.apiAccessMethodById(apiAccessMethodId),
                 apiAccessRepository.enabledApiAccessMethods(),
                 apiAccessRepository.currentAccessMethod,
-                testApiAccessMethodState
+                isTestingApiAccessMethodState
             ) {
                 apiAccessMethod,
                 enabledApiAccessMethods,
                 currentAccessMethod,
-                testApiAccessMethodState ->
+                isTestingApiAccessMethod ->
                 ApiAccessMethodDetailsUiState.Content(
                     apiAccessMethodId = apiAccessMethodId,
                     name = apiAccessMethod.name,
@@ -43,7 +42,7 @@ class ApiAccessMethodDetailsViewModel(
                         apiAccessMethod.apiAccessMethodType is ApiAccessMethodType.CustomProxy,
                     isDisableable = enabledApiAccessMethods.any { it.id != apiAccessMethodId },
                     isCurrentMethod = currentAccessMethod?.id == apiAccessMethodId,
-                    testApiAccessMethodState = testApiAccessMethodState
+                    isTestingAccessMethod = isTestingApiAccessMethod
                 )
             }
             .stateIn(
@@ -54,24 +53,16 @@ class ApiAccessMethodDetailsViewModel(
 
     fun setCurrentMethod() {
         viewModelScope.launch {
-            apiAccessRepository.setApiAccessMethod(apiAccessMethodId = apiAccessMethodId).onLeft {
-                _uiSideEffect.send(ApiAccessMethodDetailsSideEffect.GenericError)
+            testMethodWithStatus().onRight {
+                apiAccessRepository
+                    .setApiAccessMethod(apiAccessMethodId = apiAccessMethodId)
+                    .onLeft { _uiSideEffect.send(ApiAccessMethodDetailsSideEffect.GenericError) }
             }
         }
     }
 
     fun testMethod() {
-        viewModelScope.launch {
-            testApiAccessMethodState.value = TestApiAccessMethodState.Testing
-            apiAccessRepository
-                .testApiAccessMethodById(apiAccessMethodId)
-                .fold(
-                    { testApiAccessMethodState.value = TestApiAccessMethodState.Result.Failure },
-                    { testApiAccessMethodState.value = TestApiAccessMethodState.Result.Successful }
-                )
-            delay(TEST_METHOD_RESULT_TIME_DURATION)
-            testApiAccessMethodState.value = null
-        }
+        viewModelScope.launch { testMethodWithStatus() }
     }
 
     fun setEnableMethod(enable: Boolean) {
@@ -87,6 +78,22 @@ class ApiAccessMethodDetailsViewModel(
             _uiSideEffect.send(ApiAccessMethodDetailsSideEffect.OpenEditPage(apiAccessMethodId))
         }
     }
+
+    private suspend fun testMethodWithStatus(): Either<TestApiAccessMethodError, Unit> {
+        isTestingApiAccessMethodState.value = true
+        return apiAccessRepository
+            .testApiAccessMethodById(apiAccessMethodId)
+            .onLeft {
+                isTestingApiAccessMethodState.value = false
+                _uiSideEffect.send(
+                    ApiAccessMethodDetailsSideEffect.TestApiAccessMethodResult(false)
+                )
+            }
+            .onRight {
+                isTestingApiAccessMethodState.value = false
+                ApiAccessMethodDetailsSideEffect.TestApiAccessMethodResult(true)
+            }
+    }
 }
 
 sealed interface ApiAccessMethodDetailsSideEffect {
@@ -94,4 +101,7 @@ sealed interface ApiAccessMethodDetailsSideEffect {
         ApiAccessMethodDetailsSideEffect
 
     data object GenericError : ApiAccessMethodDetailsSideEffect
+
+    data class TestApiAccessMethodResult(val successful: Boolean) :
+        ApiAccessMethodDetailsSideEffect
 }

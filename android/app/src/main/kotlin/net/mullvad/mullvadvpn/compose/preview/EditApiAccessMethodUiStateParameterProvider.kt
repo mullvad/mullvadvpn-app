@@ -6,7 +6,6 @@ import net.mullvad.mullvadvpn.compose.state.EditApiAccessFormData
 import net.mullvad.mullvadvpn.compose.state.EditApiAccessMethodUiState
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodType
 import net.mullvad.mullvadvpn.lib.model.InvalidDataError
-import net.mullvad.mullvadvpn.lib.model.TestApiAccessMethodState
 
 class EditApiAccessMethodUiStateParameterProvider :
     PreviewParameterProvider<EditApiAccessMethodUiState> {
@@ -18,7 +17,7 @@ class EditApiAccessMethodUiStateParameterProvider :
                 editMode = false,
                 formData = EditApiAccessFormData.empty(),
                 hasChanges = false,
-                testMethodState = null
+                isTestingApiAccessMethod = false
             ),
             // Shadowsocks, no errors
             EditApiAccessMethodUiState.Content(
@@ -37,7 +36,7 @@ class EditApiAccessMethodUiStateParameterProvider :
                             username = ""
                         )
                     },
-                testMethodState = null
+                isTestingApiAccessMethod = false
             ),
             // Socks5 Remote, no errors, testing method
             EditApiAccessMethodUiState.Content(
@@ -56,7 +55,7 @@ class EditApiAccessMethodUiStateParameterProvider :
                             password = data.auth?.password ?: ""
                         )
                     },
-                testMethodState = TestApiAccessMethodState.Testing
+                isTestingApiAccessMethod = true
             ),
             // Socks 5 remote, required errors
             EditApiAccessMethodUiState.Content(
@@ -74,7 +73,7 @@ class EditApiAccessMethodUiStateParameterProvider :
                                 InvalidDataError.PasswordError.Required
                             )
                         ),
-                testMethodState = null
+                isTestingApiAccessMethod = false
             )
         )
 }

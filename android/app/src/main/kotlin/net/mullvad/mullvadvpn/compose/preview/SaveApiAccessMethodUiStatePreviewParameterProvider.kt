@@ -2,7 +2,7 @@ package net.mullvad.mullvadvpn.compose.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.SaveApiAccessMethodUiState
-import net.mullvad.mullvadvpn.lib.model.TestApiAccessMethodState
+import net.mullvad.mullvadvpn.compose.state.TestApiAccessMethodState
 
 class SaveApiAccessMethodUiStatePreviewParameterProvider :
     PreviewParameterProvider<SaveApiAccessMethodUiState> {
