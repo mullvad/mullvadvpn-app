@@ -33,14 +33,12 @@ public class ShadowsocksLoader: ShadowsocksLoaderProtocol {
         cache: ShadowsocksConfigurationCacheProtocol,
         relaySelector: ShadowsocksRelaySelectorProtocol,
         constraintsUpdater: RelayConstraintsUpdater,
-        multihopUpdater: MultihopUpdater,
-        multihopState: MultihopState = .off
+        multihopUpdater: MultihopUpdater
     ) {
         self.cache = cache
         self.relaySelector = relaySelector
         self.constraintsUpdater = constraintsUpdater
         self.multihopUpdater = multihopUpdater
-        self.multihopState = multihopState
         self.addObservers()
     }
 
