@@ -9,9 +9,7 @@ use std::{
     sync::{Arc, Mutex},
 };
 use talpid_types::net::wireguard::{PrivateKey, PublicKey};
-use tokio::{
-    runtime::Builder,
-};
+use tokio::runtime::Builder;
 use tonic::transport::channel::Endpoint;
 use tower::util::service_fn;
 
@@ -156,12 +154,14 @@ impl IOSRuntime {
                                     swift_post_quantum_key_ready(packet_tunnel_ptr, preshared_key_bytes.as_ptr(), self.ephemeral_key.as_ptr());
                                 },
                                 None => unsafe {
+                                    log::error!("No suitable peer was found");
                                     swift_post_quantum_key_ready(packet_tunnel_ptr, ptr::null(), ptr::null());
                                 }
 
                             }
                         },
-                        Err(_) => unsafe {
+                        Err(error) => unsafe {
+                            log::error!("Key exchange failed {}", error);
                             swift_post_quantum_key_ready(packet_tunnel_ptr, ptr::null(), ptr::null());
                         }
                     }

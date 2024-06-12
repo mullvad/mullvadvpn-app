@@ -9,14 +9,31 @@
 import Foundation
 import MullvadTypes
 import NetworkExtension
+import PacketTunnelCore
 import TalpidTunnelConfigClientProxy
 import WireGuardKitTypes
+
+// swiftlint:disable function_parameter_count
+public protocol PostQuantumKeyNegotiation {
+    func startNegotiation(
+        gatewayIP: IPv4Address,
+        devicePublicKey: PublicKey,
+        presharedKey: PrivateKey,
+        packetTunnel: any TunnelProvider,
+        tcpConnection: NWTCPConnection,
+        postQuantumKeyExchangeTimeout: Duration
+    ) -> Bool
+
+    func cancelKeyNegotiation()
+
+    init()
+}
 
 /**
  Attempt to start the asynchronous process of key negotiation. Returns true if successfully started, false if failed.
  */
-public class PostQuantumKeyNegotiator {
-    public init() {}
+public class PostQuantumKeyNegotiator: PostQuantumKeyNegotiation {
+    required public init() {}
 
     var cancelToken: PostQuantumCancelToken?
 
@@ -24,11 +41,12 @@ public class PostQuantumKeyNegotiator {
         gatewayIP: IPv4Address,
         devicePublicKey: PublicKey,
         presharedKey: PrivateKey,
-        packetTunnel: NEPacketTunnelProvider,
+        packetTunnel: any TunnelProvider,
         tcpConnection: NWTCPConnection,
         postQuantumKeyExchangeTimeout: Duration
     ) -> Bool {
-        let packetTunnelPointer = Unmanaged.passUnretained(packetTunnel).toOpaque()
+        // swiftlint:disable:next force_cast
+        let packetTunnelPointer = Unmanaged.passUnretained(packetTunnel as! NEPacketTunnelProvider).toOpaque()
         let opaqueConnection = Unmanaged.passUnretained(tcpConnection).toOpaque()
         var cancelToken = PostQuantumCancelToken()
 
@@ -57,3 +75,5 @@ public class PostQuantumKeyNegotiator {
         drop_post_quantum_key_exchange_token(&cancelToken)
     }
 }
+
+// swiftlint:enable function_parameter_count
