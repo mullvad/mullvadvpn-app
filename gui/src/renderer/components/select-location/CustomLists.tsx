@@ -137,7 +137,7 @@ function AddListForm(props: AddListFormProps) {
   const createList = useCallback(async () => {
     if (nameValid) {
       try {
-        const result = await props.onCreateList(name);
+        const result = await props.onCreateList(name.trim());
         if (result) {
           setError();
         }

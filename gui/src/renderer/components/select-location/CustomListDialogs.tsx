@@ -147,21 +147,24 @@ export function EditListDialog(props: EditListProps) {
   const { updateCustomList } = useAppContext();
 
   const [newName, setNewName] = useState(props.list.name);
+  const newNameValid = newName.trim() !== '';
   const [error, setError, unsetError] = useBoolean();
 
   // Update name in list and save it.
   const save = useCallback(async () => {
-    try {
-      const updatedList = { ...props.list, name: newName };
-      const result = await updateCustomList(updatedList);
-      if (result && result.type === 'name already exists') {
-        setError();
-      } else {
-        props.hide();
+    if (newNameValid) {
+      try {
+        const updatedList = { ...props.list, name: newName.trim() };
+        const result = await updateCustomList(updatedList);
+        if (result && result.type === 'name already exists') {
+          setError();
+        } else {
+          props.hide();
+        }
+      } catch (e) {
+        const error = e as Error;
+        log.error(`Failed to edit custom list ${props.list.id}: ${error.message}`);
       }
-    } catch (e) {
-      const error = e as Error;
-      log.error(`Failed to edit custom list ${props.list.id}: ${error.message}`);
     }
   }, [props.list, newName, props.hide]);
 
@@ -175,7 +178,7 @@ export function EditListDialog(props: EditListProps) {
     <ModalAlert
       isOpen={props.isOpen}
       buttons={[
-        <AppButton.BlueButton key="save" onClick={save}>
+        <AppButton.BlueButton key="save" disabled={!newNameValid} onClick={save}>
           {messages.gettext('Save')}
         </AppButton.BlueButton>,
         <AppButton.BlueButton key="cancel" onClick={props.hide}>
