@@ -21,11 +21,9 @@ public final class RelaySelectorWrapper: RelaySelectorProtocol {
 
     public init(
         relayCache: RelayCacheProtocol,
-        multihopUpdater: MultihopUpdater,
-        multihopState: MultihopState
+        multihopUpdater: MultihopUpdater
     ) {
         self.relayCache = relayCache
-        self.multihopState = multihopState
         self.multihopUpdater = multihopUpdater
 
         self.addObserver()
