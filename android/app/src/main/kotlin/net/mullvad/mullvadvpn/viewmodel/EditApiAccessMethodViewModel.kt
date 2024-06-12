@@ -9,6 +9,8 @@ import arrow.core.getOrElse
 import arrow.core.nel
 import arrow.core.raise.either
 import arrow.core.raise.ensure
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -37,6 +39,8 @@ class EditApiAccessMethodViewModel(
     private val apiAccessRepository: ApiAccessRepository,
     private val inetAddressValidator: InetAddressValidator
 ) : ViewModel() {
+    private var testingJob: Job? = null
+
     private val _uiSideEffect = Channel<EditApiAccessSideEffect>(Channel.BUFFERED)
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
     private val isTestingApiAccessMethod = MutableStateFlow(false)
@@ -92,31 +96,32 @@ class EditApiAccessMethodViewModel(
     }
 
     fun testMethod() {
-        viewModelScope.launch {
-            formData.value
-                .parseConnectionFormData()
-                .fold(
-                    { errors -> formData.update { it.updateWithErrors(errors) } },
-                    { customProxy ->
-                        isTestingApiAccessMethod.value = true
-                        apiAccessRepository
-                            .testCustomApiAccessMethod(customProxy)
-                            .fold(
-                                {
-                                    _uiSideEffect.send(
-                                        EditApiAccessSideEffect.TestApiAccessMethodResult(false)
-                                    )
-                                },
-                                {
-                                    _uiSideEffect.send(
-                                        EditApiAccessSideEffect.TestApiAccessMethodResult(true)
-                                    )
-                                },
-                            )
-                        isTestingApiAccessMethod.value = false
-                    }
-                )
-        }
+        testingJob =
+            viewModelScope.launch {
+                formData.value
+                    .parseConnectionFormData()
+                    .fold(
+                        { errors -> formData.update { it.updateWithErrors(errors) } },
+                        { customProxy ->
+                            isTestingApiAccessMethod.value = true
+                            apiAccessRepository
+                                .testCustomApiAccessMethod(customProxy)
+                                .fold(
+                                    {
+                                        _uiSideEffect.send(
+                                            EditApiAccessSideEffect.TestApiAccessMethodResult(false)
+                                        )
+                                    },
+                                    {
+                                        _uiSideEffect.send(
+                                            EditApiAccessSideEffect.TestApiAccessMethodResult(true)
+                                        )
+                                    },
+                                )
+                            isTestingApiAccessMethod.value = false
+                        }
+                    )
+            }
     }
 
     fun trySave() {
@@ -135,6 +140,13 @@ class EditApiAccessMethodViewModel(
                         )
                     }
                 )
+        }
+    }
+
+    fun cancelTestMethod() {
+        if (testingJob?.isActive == true) {
+            testingJob?.cancel("User cancelled test")
+            isTestingApiAccessMethod.value = false
         }
     }
 

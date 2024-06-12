@@ -126,8 +126,10 @@ fun ApiAccessMethodDetails(
         if (state.testingAccessMethod()) {
             launch {
                 snackbarHostState.showSnackbarImmediately(
-                    message = context.getString(R.string.testing),
-                    duration = SnackbarDuration.Indefinite
+                    message = context.getString(R.string.testing_name, state.name()),
+                    duration = SnackbarDuration.Indefinite,
+                    actionLabel = context.getString(R.string.cancel),
+                    onAction = viewModel::cancelTestMethod
                 )
             }
         }

@@ -135,7 +135,7 @@ private fun LazyListScope.currentAccessMethod(
                 color = MaterialTheme.colorScheme.onBackground,
                 text =
                     stringResource(
-                        id = R.string.current_x,
+                        id = R.string.current_method,
                         currentApiAccessMethodName?.value ?: "-",
                     ),
             )
