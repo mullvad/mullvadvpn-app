@@ -57,7 +57,10 @@ jobs:
         run: |
           for file in *.xcconfig.template ; do cp $file ${file//.template/} ; done
           sed -i "" \
-            "/PARTNER_API_TOKEN =/ s#= .*#= $PARTNER_API_TOKEN#" \
+            "/HAS_TIME_ACCOUNT_NUMBER =/ s#= .*#= 1234123412341234#" \
+            UITests.xcconfig
+          sed -i "" \
+            "/NO_TIME_ACCOUNT_NUMBER =/ s#= .*#= 1234123412341234#" \
             UITests.xcconfig
         working-directory: ios/Configurations
 
