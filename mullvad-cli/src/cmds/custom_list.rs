@@ -6,11 +6,15 @@ use mullvad_types::{
     constraints::Constraint, relay_constraints::GeographicLocationConstraint, relay_list::RelayList,
 };
 
+/// Custom list length, expressed as a number of UTF8 codepoints (i.e. chars).
+pub const CUSTOM_LIST_MAX_LEN: usize = 30;
+
 #[derive(Subcommand, Debug)]
 pub enum CustomList {
     /// Create a new custom list
     New {
         /// A name for the new custom list
+        #[clap(value_parser = parse_custom_list_name)]
         name: String,
     },
 
@@ -55,7 +59,9 @@ pub enum EditCommand {
     Rename {
         /// Current name of the custom list
         name: String,
+
         /// A new name for the custom list
+        #[clap(value_parser = parse_custom_list_name)]
         new_name: String,
     },
 }
@@ -258,4 +264,17 @@ pub async fn find_list_by_name(
         .into_iter()
         .find(|list| list.name == name)
         .ok_or(anyhow!("List not found"))
+}
+
+/// Trim the string and validate the length against [CUSTOM_LIST_MAX_LEN].
+// NOTE: should only be used when *creating* custom lists, as we don't want to make it impossible
+// to reference any custom lists created before the max length and whitespace restrictions were put
+// in place.
+fn parse_custom_list_name(s: &str) -> Result<String> {
+    let s = s.trim();
+    let length = s.chars().count();
+    if length > CUSTOM_LIST_MAX_LEN {
+        bail!("Provided name is too long, {length}/{CUSTOM_LIST_MAX_LEN} characters.");
+    }
+    Ok(s.to_string())
 }
