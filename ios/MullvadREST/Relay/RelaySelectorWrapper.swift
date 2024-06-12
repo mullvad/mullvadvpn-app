@@ -21,11 +21,9 @@ public final class RelaySelectorWrapper: RelaySelectorProtocol {
 
     public init(
         relayCache: RelayCacheProtocol,
-        multihopUpdater: MultihopUpdater,
-        multihopState: MultihopState
+        multihopUpdater: MultihopUpdater
     ) {
         self.relayCache = relayCache
-        self.multihopState = multihopState
         self.multihopUpdater = multihopUpdater
 
         self.addObserver()
@@ -36,6 +34,11 @@ public final class RelaySelectorWrapper: RelaySelectorProtocol {
         connectionAttemptCount: UInt
     ) throws -> SelectedRelays {
         let relays = try relayCache.read().relays
+
+        // TODO: Will be removed in an upcoming PR when the feature is more complete.
+        #if DEBUG
+        multihopState = .off
+        #endif
 
         switch multihopState {
         case .off:

@@ -34,6 +34,12 @@ final public class ShadowsocksRelaySelector: ShadowsocksRelaySelectorProtocol {
     ) throws -> REST.BridgeRelay? {
         let cachedRelays = try relayCache.read().relays
 
+        // TODO: Will be removed in an upcoming PR when the feature is more complete.
+        #if DEBUG
+        var multihopState = multihopState
+        multihopState = .off
+        #endif
+
         let locationConstraint = switch multihopState {
         case .on: constraints.entryLocations
         case .off: constraints.exitLocations
