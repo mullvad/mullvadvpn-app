@@ -93,8 +93,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         let relaySelector = RelaySelectorWrapper(
             relayCache: ipOverrideWrapper,
-            multihopUpdater: multihopUpdater,
-            multihopState: multihopState
+            multihopUpdater: multihopUpdater
         )
         tunnelManager = createTunnelManager(application: application, relaySelector: relaySelector)
 
@@ -124,8 +123,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             cache: shadowsocksCache,
             relaySelector: shadowsocksRelaySelector,
             constraintsUpdater: constraintsUpdater,
-            multihopUpdater: multihopUpdater,
-            multihopState: tunnelManager.settings.tunnelMultihopState
+            multihopUpdater: multihopUpdater
         )
 
         configuredTransportProvider = ProxyConfigurationTransportProvider(

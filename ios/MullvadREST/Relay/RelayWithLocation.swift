@@ -32,6 +32,6 @@ public struct RelayWithLocation<T: AnyRelay> {
 
 extension RelayWithLocation: Equatable {
     public static func == (lhs: RelayWithLocation<T>, rhs: RelayWithLocation<T>) -> Bool {
-        lhs.serverLocation == rhs.serverLocation
+        lhs.relay.hostname == rhs.relay.hostname
     }
 }
