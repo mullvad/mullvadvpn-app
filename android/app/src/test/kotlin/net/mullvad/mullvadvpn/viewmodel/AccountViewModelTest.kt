@@ -13,6 +13,7 @@ import kotlin.test.assertIs
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.state.PaymentState
+import net.mullvad.mullvadvpn.data.UUID
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.common.test.assertLists
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
@@ -214,6 +215,5 @@ class AccountViewModelTest {
         private const val PURCHASE_RESULT_EXTENSIONS_CLASS =
             "net.mullvad.mullvadvpn.util.PurchaseResultExtensionsKt"
         private const val DUMMY_DEVICE_NAME = "fake_name"
-        private const val UUID = "12345678-1234-5678-1234-567812345678"
     }
 }
