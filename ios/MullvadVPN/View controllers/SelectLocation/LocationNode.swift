@@ -14,6 +14,7 @@ class LocationNode {
     var code: String
     var locations: [RelayLocation]
     var isActive: Bool
+    var isExcluded: Bool
     weak var parent: LocationNode?
     var children: [LocationNode]
     var showsChildren: Bool
@@ -24,6 +25,7 @@ class LocationNode {
         code: String,
         locations: [RelayLocation] = [],
         isActive: Bool = true,
+        isExcluded: Bool = false,
         parent: LocationNode? = nil,
         children: [LocationNode] = [],
         showsChildren: Bool = false,
@@ -33,6 +35,7 @@ class LocationNode {
         self.code = code
         self.locations = locations
         self.isActive = isActive
+        self.isExcluded = isExcluded
         self.parent = parent
         self.children = children
         self.showsChildren = showsChildren
@@ -101,6 +104,7 @@ extension LocationNode {
             code: code,
             locations: locations,
             isActive: isActive,
+            isExcluded: isExcluded,
             parent: parent,
             children: [],
             showsChildren: showsChildren,
@@ -148,6 +152,7 @@ class CustomListLocationNode: LocationNode {
         code: String,
         locations: [RelayLocation] = [],
         isActive: Bool = true,
+        isExcluded: Bool = false,
         parent: LocationNode? = nil,
         children: [LocationNode] = [],
         showsChildren: Bool = false,
@@ -161,6 +166,7 @@ class CustomListLocationNode: LocationNode {
             code: code,
             locations: locations,
             isActive: isActive,
+            isExcluded: isExcluded,
             parent: parent,
             children: children,
             showsChildren: showsChildren,

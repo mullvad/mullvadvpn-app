@@ -14,6 +14,10 @@ protocol LocationCellDelegate: AnyObject {
 }
 
 class LocationCell: UITableViewCell {
+    enum DisabledReason {
+        case disabled, excluded
+    }
+
     weak var delegate: LocationCellDelegate?
 
     private let locationLabel: UILabel = {
@@ -339,13 +343,13 @@ extension LocationCell {
             }
         }
 
-        setExcludedRelayTitle(item.excludedRelayTitle)
+        setExcluded(relayTitle: item.excludedRelayTitle)
         setBehavior(behavior)
     }
 
-    private func setExcludedRelayTitle(_ title: String?) {
-        if let title {
-            locationLabel.text! += " (\(title))"
+    func setExcluded(relayTitle: String?) {
+        if let relayTitle {
+            locationLabel.text! += " (\(relayTitle))"
             updateDisabled(true)
         }
     }

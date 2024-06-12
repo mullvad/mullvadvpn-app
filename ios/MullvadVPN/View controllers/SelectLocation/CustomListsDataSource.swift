@@ -25,9 +25,13 @@ class CustomListsDataSource: LocationDataSourceProtocol {
 
     /// Constructs a collection of node trees by copying each matching counterpart
     /// from the complete list of nodes created in ``AllLocationDataSource``.
-    func reload(allLocationNodes: [LocationNode]) {
+    func reload(allLocationNodes: [LocationNode], selectedRelays: RelaySelection) {
         nodes = repository.fetchAll().map { list in
-            let customListWrapper = CustomListLocationNodeBuilder(customList: list, allLocations: allLocationNodes)
+            let customListWrapper = CustomListLocationNodeBuilder(
+                customList: list,
+                allLocations: allLocationNodes,
+                selectedRelays: selectedRelays
+            )
             let listNode = customListWrapper.customListLocationNode
 
             listNode.forEachDescendant { node in

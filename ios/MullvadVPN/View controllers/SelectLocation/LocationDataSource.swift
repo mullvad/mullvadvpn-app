@@ -65,8 +65,11 @@ final class LocationDataSource:
             RelaySelector.relayMatchesFilter(relay, filter: filter)
         }
 
-        allLocationsDataSource?.reload(response, relays: relays)
-        customListsDataSource?.reload(allLocationNodes: allLocationsDataSource?.nodes ?? [])
+        allLocationsDataSource?.reload(response, relays: relays, selectedRelays: selectedRelays)
+        customListsDataSource?.reload(
+            allLocationNodes: allLocationsDataSource?.nodes ?? [],
+            selectedRelays: selectedRelays
+        )
 
         setSelectedRelays(selectedRelays)
         filterRelays(by: currentSearchString)
@@ -113,7 +116,7 @@ final class LocationDataSource:
             .filter { $0.showsChildren }
 
         // Reload data source with (possibly) updated custom lists.
-        customListsDataSource.reload(allLocationNodes: allLocationsDataSource.nodes)
+        customListsDataSource.reload(allLocationNodes: allLocationsDataSource.nodes, selectedRelays: selectedRelays)
 
         // Reapply current selection.
         setSelectedRelays(selectedRelays)
@@ -145,6 +148,8 @@ final class LocationDataSource:
         if selectedRelays.hasExcludedRelay {
             excludedLocation = mapSelection(from: selectedRelays.excluded)
             excludedLocation?.excludedRelayTitle = selectedRelays.excludedTitle
+        } else {
+            excludedLocation = nil
         }
 
         tableView.reloadData()
@@ -246,10 +251,49 @@ final class LocationDataSource:
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        // swiftlint:disable:next force_cast
-        let cell = super.tableView(tableView, cellForRowAt: indexPath) as! LocationCell
+        let cell = super.tableView(tableView, cellForRowAt: indexPath)
+        guard var cell = cell as? LocationCell, let item = itemIdentifier(for: indexPath) else {
+            return cell
+        }
+
         cell.delegate = self
+
+        if nodeMatchesExcludedLocation(item.node) {
+            cell.setExcluded(relayTitle: excludedLocation?.excludedRelayTitle)
+        } else {
+            excludeParentCell(&cell, item: item)
+        }
+
         return cell
+    }
+
+    private func excludeParentCell(_ cell: inout LocationCell, item: LocationCellViewModel) {
+        // No children means that the node is either a host (and as such not a parent node)
+        // or that it's a parent node with no children, which means it'll be marked as
+        // inactive rather than excluded in CustomListLocationNodeBuilder.
+        guard !item.node.children.isEmpty else {
+            return
+        }
+
+        // Filter out all child nodes with a single location that is a host and not excluded.
+        let nonExcludedHostNodes = item.node.flattened.filter { node in
+            if node.locations.count == 1 {
+                switch node.locations.first! {
+                case .hostname:
+                    return !nodeMatchesExcludedLocation(node)
+                default:
+                    return false
+                }
+            }
+
+            return false
+        }
+
+        // If there are no child nodes that are not excluded, then this parent node should
+        // be excluded as well.
+        if nonExcludedHostNodes.isEmpty {
+            cell.setExcluded(relayTitle: excludedLocation?.excludedRelayTitle)
+        }
     }
 }
 
@@ -266,12 +310,15 @@ extension LocationDataSource {
 
     func excludedRelayTitle(_ node: LocationNode) -> String? {
         if nodeMatchesExcludedLocation(node) {
-            excludedLocation?.excludedRelayTitle
+//            excludedLocation?.excludedRelayTitle
+            nil
         } else {
             nil
         }
     }
 }
+
+// MARK: - UITableViewDelegate
 
 extension LocationDataSource: UITableViewDelegate {
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
@@ -315,9 +362,18 @@ extension LocationDataSource: UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        if let item = itemIdentifier(for: indexPath), item == selectedLocation {
+        guard let cell = cell as? LocationCell, let item = itemIdentifier(for: indexPath) else {
+            return
+        }
+
+        print(item)
+
+        if item == selectedLocation {
             cell.setSelected(true, animated: false)
         }
+//        } else if nodeMatchesExcludedLocation(item.node) {
+//            cell.setExcluded(relayTitle: excludedLocation?.excludedRelayTitle)
+//        }
     }
 
     func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
@@ -354,6 +410,8 @@ extension LocationDataSource: UITableViewDelegate {
         tableView.setContentOffset(.zero, animated: animated)
     }
 }
+
+// MARK: - LocationCellDelegate
 
 extension LocationDataSource: LocationCellDelegate {
     func toggleExpanding(cell: LocationCell) {

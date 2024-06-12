@@ -31,7 +31,8 @@ class AddLocationsDataSource:
 
         self.customListLocationNode = CustomListLocationNodeBuilder(
             customList: subject.value.customList,
-            allLocations: self.nodes
+            allLocations: self.nodes,
+            selectedRelays: nil
         ).customListLocationNode
 
         let sections: [LocationSection] = [.customLists]
@@ -102,11 +103,15 @@ class AddLocationsDataSource:
     }
 }
 
+// MARK: - UITableViewDelegate
+
 extension AddLocationsDataSource: UITableViewDelegate {
     func tableView(_ tableView: UITableView, indentationLevelForRowAt indexPath: IndexPath) -> Int {
         itemIdentifier(for: indexPath)?.indentationLevel ?? 0
     }
 }
+
+// MARK: - LocationCellDelegate
 
 extension AddLocationsDataSource: LocationCellDelegate {
     func toggleExpanding(cell: LocationCell) {

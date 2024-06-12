@@ -9,7 +9,6 @@
 import MullvadMockData
 import MullvadTypes
 @testable import PacketTunnelCore
-@testable import PacketTunnelCoreTests
 import WireGuardKitTypes
 import XCTest
 

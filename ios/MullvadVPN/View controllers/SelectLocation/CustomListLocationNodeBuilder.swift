@@ -13,6 +13,7 @@ import MullvadTypes
 struct CustomListLocationNodeBuilder {
     let customList: CustomList
     let allLocations: [LocationNode]
+    let selectedRelays: RelaySelection?
 
     var customListLocationNode: CustomListLocationNode {
         let listNode = CustomListLocationNode(
@@ -48,6 +49,7 @@ struct CustomListLocationNodeBuilder {
         }
 
         listNode.isActive = !listNode.children.isEmpty
+//        listNode.isExcluded = listNode.children.filter { !$0.isExcluded }.isEmpty
         listNode.sort()
 
         return listNode

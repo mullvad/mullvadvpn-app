@@ -101,6 +101,9 @@ final class LocationViewController: UIViewController {
     func setSelectedRelays(_ selectedRelays: RelaySelection) {
         self.selectedRelays = selectedRelays
         dataSource?.setSelectedRelays(selectedRelays)
+//        if let relays = cachedRelays?.relays {
+//            dataSource?.setRelays(relays, selectedRelays: selectedRelays, filter: filter)
+//        }
     }
 
     // MARK: - Private
@@ -121,7 +124,11 @@ final class LocationViewController: UIViewController {
 
             if let cachedRelays {
                 let allLocationDataSource = AllLocationDataSource()
-                allLocationDataSource.reload(cachedRelays.relays, relays: cachedRelays.relays.wireguard.relays)
+                allLocationDataSource.reload(
+                    cachedRelays.relays,
+                    relays: cachedRelays.relays.wireguard.relays,
+                    selectedRelays: selectedRelays
+                )
                 delegate?.navigateToCustomLists(nodes: allLocationDataSource.nodes)
             }
         }

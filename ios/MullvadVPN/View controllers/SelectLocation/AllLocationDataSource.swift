@@ -20,7 +20,7 @@ class AllLocationDataSource: LocationDataSourceProtocol {
     /// Constructs a collection of node trees from relays fetched from the API.
     /// ``RelayLocation.city`` is of special import since we use it to get country
     /// and city names.
-    func reload(_ response: REST.ServerRelaysResponse, relays: [REST.ServerRelay]) {
+    func reload(_ response: REST.ServerRelaysResponse, relays: [REST.ServerRelay], selectedRelays: RelaySelection) {
         let rootNode = RootLocationNode()
 
         for relay in relays {
@@ -32,7 +32,13 @@ class AllLocationDataSource: LocationDataSourceProtocol {
             let relayLocation = RelayLocation.hostname(countryCode, cityCode, relay.hostname)
 
             for ancestorOrSelf in relayLocation.ancestors + [relayLocation] {
-                addLocation(ancestorOrSelf, rootNode: rootNode, serverLocation: serverLocation, relay: relay)
+                addLocation(
+                    ancestorOrSelf,
+                    rootNode: rootNode,
+                    serverLocation: serverLocation,
+                    relay: relay,
+                    selectedRelays: selectedRelays
+                )
             }
         }
 
@@ -56,7 +62,8 @@ class AllLocationDataSource: LocationDataSourceProtocol {
         _ location: RelayLocation,
         rootNode: LocationNode,
         serverLocation: REST.ServerLocation,
-        relay: REST.ServerRelay
+        relay: REST.ServerRelay,
+        selectedRelays: RelaySelection
     ) {
         switch location {
         case let .country(countryCode):
@@ -95,6 +102,10 @@ class AllLocationDataSource: LocationDataSourceProtocol {
                 isActive: relay.active
             )
 
+            if hostCode == "al-tia-wg-001" {
+                return
+            }
+
             if let countryNode = rootNode.countryFor(code: countryCode),
                let cityNode = countryNode.cityFor(codes: [countryCode, cityCode]),
                !cityNode.children.contains(hostNode) {
@@ -102,13 +113,15 @@ class AllLocationDataSource: LocationDataSourceProtocol {
                 cityNode.children.append(hostNode)
                 cityNode.children.sort()
 
-                cityNode.isActive = cityNode.children.contains(where: { hostNode in
-                    hostNode.isActive
-                })
+//                hostNode.isExcluded = selectedRelays.excluded?.locations.contains { excludedLocation in
+//                    hostNode.locations.contains(excludedLocation)
+//                } ?? false
 
-                countryNode.isActive = countryNode.children.contains(where: { cityNode in
-                    cityNode.isActive
-                })
+                cityNode.isActive = cityNode.children.contains { $0.isActive }
+//                cityNode.isExcluded = cityNode.children.filter { !$0.isExcluded }.isEmpty
+
+                countryNode.isActive = countryNode.children.contains { $0.isActive }
+//                countryNode.isExcluded = countryNode.children.filter { !$0.isExcluded }.isEmpty
             }
         }
     }
