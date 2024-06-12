@@ -43,9 +43,6 @@ jobs:
           sed -i "" \
             "/HAS_TIME_ACCOUNT_NUMBER =/ s#= .*#= 1234123412341234#" \
             UITests.xcconfig
-          sed -i "" \
-            "/NO_TIME_ACCOUNT_NUMBER =/ s#= .*#= 1234123412341234#" \
-            UITests.xcconfig
         working-directory: ios/Configurations
 
       - name: Bundle
