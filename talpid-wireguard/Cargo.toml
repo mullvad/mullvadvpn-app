@@ -57,7 +57,7 @@ talpid-dbus = { path = "../talpid-dbus" }
 bitflags = "1.2"
 talpid-windows = { path = "../talpid-windows" }
 widestring = "1.0"
-maybenot = "1.0"
+maybenot = "1.1.2"
 
 # TODO: Figure out which features are needed and which are not
 [target.'cfg(windows)'.dependencies.windows-sys]
