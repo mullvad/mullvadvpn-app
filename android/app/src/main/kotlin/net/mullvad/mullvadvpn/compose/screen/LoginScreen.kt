@@ -29,17 +29,13 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.focusProperties
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
@@ -240,10 +236,6 @@ private fun ColumnScope.LoginInput(
     onAccountNumberChange: (String) -> Unit,
     onDeleteHistoryClick: () -> Unit
 ) {
-    var tfFocusState: FocusState? by remember { mutableStateOf(null) }
-    var ddFocusState: FocusState? by remember { mutableStateOf(null) }
-    val expandedDropdown = tfFocusState?.hasFocus ?: false || ddFocusState?.hasFocus ?: false
-
     Text(
         modifier = Modifier.padding(bottom = Dimens.smallPadding),
         text = state.loginState.supportingText() ?: "",
@@ -259,15 +251,14 @@ private fun ColumnScope.LoginInput(
     TextField(
         modifier =
             // Fix for DPad navigation
-            Modifier.onFocusChanged { tfFocusState = it }
-                .focusProperties {
+            Modifier.focusProperties {
                     left = FocusRequester.Cancel
                     right = FocusRequester.Cancel
                 }
                 .fillMaxWidth()
                 .testTag(LOGIN_INPUT_TEST_TAG)
                 .let {
-                    if (!expandedDropdown || state.lastUsedAccount == null) {
+                    if (state.lastUsedAccount == null) {
                         it.clip(MaterialTheme.shapes.small)
                     } else {
                         it
@@ -297,14 +288,13 @@ private fun ColumnScope.LoginInput(
         isError = state.loginState.isError(),
     )
 
-    AnimatedVisibility(visible = state.lastUsedAccount != null && expandedDropdown) {
+    AnimatedVisibility(visible = state.lastUsedAccount != null) {
         val token = state.lastUsedAccount?.value.orEmpty()
         val accountTransformation = remember { accountTokenVisualTransformation() }
         val transformedText =
             remember(token) { accountTransformation.filter(AnnotatedString(token)).text }
 
         AccountDropDownItem(
-            modifier = Modifier.onFocusChanged { ddFocusState = it },
             accountToken = transformedText.toString(),
             onClick = {
                 state.lastUsedAccount?.let {
@@ -312,6 +302,7 @@ private fun ColumnScope.LoginInput(
                     onLoginClick(it.value)
                 }
             },
+            enabled = state.loginState is Idle,
             onDeleteClick = onDeleteHistoryClick
         )
     }
@@ -380,6 +371,7 @@ private fun LoginState.supportingText(): String? {
 private fun AccountDropDownItem(
     modifier: Modifier = Modifier,
     accountToken: String,
+    enabled: Boolean,
     onClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
@@ -398,7 +390,7 @@ private fun AccountDropDownItem(
     ) {
         Box(
             modifier =
-                Modifier.clickable(onClick = onClick)
+                Modifier.clickable(enabled = enabled, onClick = onClick)
                     .fillMaxHeight()
                     .weight(1f)
                     .padding(horizontal = Dimens.mediumPadding, vertical = Dimens.smallPadding),
@@ -406,7 +398,7 @@ private fun AccountDropDownItem(
         ) {
             Text(text = accountToken, overflow = TextOverflow.Clip)
         }
-        IconButton(onClick = onDeleteClick) {
+        IconButton(enabled = enabled, onClick = onDeleteClick) {
             Icon(
                 painter = painterResource(id = R.drawable.account_history_remove_pressed),
                 contentDescription = null,
