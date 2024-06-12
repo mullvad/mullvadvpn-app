@@ -153,7 +153,9 @@ fun EditApiAccessMethod(
             launch {
                 snackbarHostState.showSnackbarImmediately(
                     message = context.getString(R.string.testing),
-                    duration = SnackbarDuration.Indefinite
+                    duration = SnackbarDuration.Indefinite,
+                    actionLabel = context.getString(R.string.cancel),
+                    onAction = viewModel::cancelTestMethod
                 )
             }
         }

@@ -348,7 +348,7 @@
     <string name="settings_api_access">API access</string>
     <string name="add">Add</string>
     <string name="api_access_description">Manage and add custom methods to access the Mullvad API.</string>
-    <string name="current_x">Current: %s</string>
+    <string name="current_method">Current: %s</string>
     <string name="api_access_method_info_first_line">The app needs to communicate with a Mullvad API server to log you in, fetch server lists, and other critical operations.</string>
     <string name="api_access_method_info_second_line">On some networks, where various types of censorship are being used, the API servers might not be directly reachable.</string>
     <string name="api_access_method_info_third_line">This feature allows you to circumvent that censorship by adding custom ways to access the API via proxies and similar methods.</string>
@@ -363,7 +363,6 @@
     <string name="server">Server</string>
     <string name="please_enter_a_valid_ip_address">Please enter a valid IPv4 or IPv6 address</string>
     <string name="please_enter_a_valid_remote_server_port">Please enter a valid remote server port</string>
-    <string name="please_enter_a_valid_localhost_port">Please enter a valid localhost port</string>
     <string name="password_optional">Password (optional)</string>
     <string name="cipher">Cipher</string>
     <string name="authentication">Authentication</string>
@@ -373,6 +372,7 @@
     <string name="test_method">Test method</string>
     <string name="api_reachable">API reachable</string>
     <string name="api_unreachable">API unreachable</string>
+    <string name="testing_name">Testing %s...</string>
     <string name="testing">Testing...</string>
     <string name="verifying_api_method">Verifying API method...</string>
     <string name="api_reachable_adding_method">API reachable, adding method...</string>

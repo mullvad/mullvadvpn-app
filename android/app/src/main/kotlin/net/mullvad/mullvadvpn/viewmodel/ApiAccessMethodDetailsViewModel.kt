@@ -3,6 +3,8 @@ package net.mullvad.mullvadvpn.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import arrow.core.Either
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -20,6 +22,8 @@ class ApiAccessMethodDetailsViewModel(
     private val apiAccessMethodId: ApiAccessMethodId,
     private val apiAccessRepository: ApiAccessRepository
 ) : ViewModel() {
+    private var testingJob: Job? = null
+
     private val _uiSideEffect = Channel<ApiAccessMethodDetailsSideEffect>(Channel.BUFFERED)
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
     private val isTestingApiAccessMethodState = MutableStateFlow(false)
@@ -52,17 +56,20 @@ class ApiAccessMethodDetailsViewModel(
             )
 
     fun setCurrentMethod() {
-        viewModelScope.launch {
-            testMethodWithStatus().onRight {
-                apiAccessRepository
-                    .setApiAccessMethod(apiAccessMethodId = apiAccessMethodId)
-                    .onLeft { _uiSideEffect.send(ApiAccessMethodDetailsSideEffect.GenericError) }
+        testingJob =
+            viewModelScope.launch {
+                testMethodWithStatus().onRight {
+                    apiAccessRepository
+                        .setApiAccessMethod(apiAccessMethodId = apiAccessMethodId)
+                        .onLeft {
+                            _uiSideEffect.send(ApiAccessMethodDetailsSideEffect.GenericError)
+                        }
+                }
             }
-        }
     }
 
     fun testMethod() {
-        viewModelScope.launch { testMethodWithStatus() }
+        testingJob = viewModelScope.launch { testMethodWithStatus() }
     }
 
     fun setEnableMethod(enable: Boolean) {
@@ -76,6 +83,13 @@ class ApiAccessMethodDetailsViewModel(
     fun openEditPage() {
         viewModelScope.launch {
             _uiSideEffect.send(ApiAccessMethodDetailsSideEffect.OpenEditPage(apiAccessMethodId))
+        }
+    }
+
+    fun cancelTestMethod() {
+        if (testingJob?.isActive == true) {
+            testingJob?.cancel("User cancelled job")
+            isTestingApiAccessMethodState.value = false
         }
     }
 
