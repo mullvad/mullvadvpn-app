@@ -105,7 +105,6 @@ const config = {
       { from: distAssets(path.join('binaries', '${env.TARGET_TRIPLE}', 'openvpn')), to: '.' },
       { from: distAssets(path.join('binaries', '${env.TARGET_TRIPLE}', 'apisocks5')), to: '.' },
       { from: distAssets('uninstall_macos.sh'), to: './uninstall.sh' },
-      { from: buildAssets(path.join('lib', '${env.TARGET_TRIPLE}', 'libwg.so')), to: '.' },
       { from: buildAssets('shell-completions/_mullvad'), to: '.' },
       { from: buildAssets('shell-completions/mullvad.fish'), to: '.' },
     ],
@@ -207,7 +206,6 @@ const config = {
       distAssets(path.join(getLinuxTargetSubdir(), 'mullvad-daemon')) + '=/usr/bin/',
       distAssets(path.join(getLinuxTargetSubdir(), 'mullvad-exclude')) + '=/usr/bin/',
       distAssets('linux/problem-report-link') + '=/usr/bin/mullvad-problem-report',
-      buildAssets(path.join('lib', `${hostTargetTriple}`, 'libwg.so')) + '=/lib/',
       buildAssets('shell-completions/mullvad.bash') +
         '=/usr/share/bash-completion/completions/mullvad',
       buildAssets('shell-completions/_mullvad') + '=/usr/local/share/zsh/site-functions/_mullvad',
@@ -241,7 +239,6 @@ const config = {
       distAssets(path.join(getLinuxTargetSubdir(), 'mullvad-daemon')) + '=/usr/bin/',
       distAssets(path.join(getLinuxTargetSubdir(), 'mullvad-exclude')) + '=/usr/bin/',
       distAssets('linux/problem-report-link') + '=/usr/bin/mullvad-problem-report',
-      buildAssets(path.join('lib', `${hostTargetTriple}`, 'libwg.so')) + '=/lib/',
       buildAssets('shell-completions/mullvad.bash') +
         '=/usr/share/bash-completion/completions/mullvad',
       buildAssets('shell-completions/_mullvad') + '=/usr/share/zsh/site-functions/_mullvad',
