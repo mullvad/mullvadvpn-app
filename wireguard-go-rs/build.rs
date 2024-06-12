@@ -4,7 +4,6 @@ use std::{env, path::PathBuf};
 fn main() {
     let out_dir = env::var("OUT_DIR").expect("Missing OUT_DIR");
 
-    eprintln!("OUT_DIR: {out_dir}");
     // Add DAITA as a conditional configuration
     println!("cargo::rustc-check-cfg=cfg(daita)");
 
@@ -14,7 +13,7 @@ fn main() {
 
     match target_os.as_str() {
         "linux" => {
-            // Enable DAITA & Tell rustc to link libmaybenot
+            // Enable DAITA
             println!(r#"cargo::rustc-cfg=daita"#);
             // Tell the build script to build wireguard-go with DAITA support
             cmd.arg("--daita");
@@ -37,17 +36,12 @@ fn main() {
         panic!();
     }
 
-    // NOTE: Link dynamically to libwg on all platforms.
-    //
-    // LTO breaks when statically linking to libwg due to its dependency
-    // libmaybenot already statically links against the Rust standard library,
-    // which will cause the linker to see duplicate symbols once we try to
-    // statically link any other Rust program (e.g. mullvad-daemon) against
-    // libwg. This is not an issue if we stick to dynamic linking.
-    //
-    // Also, Go programs does not support being statically linked on android so
-    // we need to dynamically link to libwg.
-    println!("cargo::rustc-link-lib=wg");
+    if target_os.as_str() != "android" {
+        println!("cargo::rustc-link-lib=static=wg");
+    } else {
+        // NOTE: Link dynamically to libwg on Android, as go cannot produce archives
+        println!("cargo::rustc-link-lib=dylib=wg");
+    }
     declare_libs_dir("../build/lib");
 
     println!("cargo::rerun-if-changed=libwg");

@@ -89,16 +89,14 @@ function build_unix {
     # Build wireguard-go as a library
     mkdir -p "$BUILD_DIR/lib/$TARGET"
     pushd libwg
+
+    local tags=()
     if [[ "$DAITA" == "true" ]]; then
-        pushd wireguard-go
-        CARGO_TARGET_DIR="$BUILD_DIR/tmp/" make libmaybenot.a LIBDEST="$BUILD_DIR/lib/$TARGET"
-        popd
-        CGO_LDFLAGS="-L$BUILD_DIR/lib/$TARGET" go build -v --tags daita -o "$BUILD_DIR/lib/$TARGET/libwg.so" -buildmode c-shared
-    else
-        go build -v -o "$BUILD_DIR/lib/$TARGET/libwg.so" -buildmode c-shared
+        tags+=(--tags daita)
     fi
-    # Copy libwg to `OUT_DIR` so that we may refer to it via `OUT_DIR` in `build.rs`, which might be handy.
-    cp "$BUILD_DIR/lib/$TARGET/libwg.so" "$OUT_DIR/libwg.so"
+
+    go build -v "${tags[@]}" -o "$BUILD_DIR/lib/$TARGET"/libwg.a -buildmode c-archive
+
     popd
 }
 

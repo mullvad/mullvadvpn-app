@@ -283,3 +283,7 @@ mod ffi {
         pub fn wgGetSocketV6(handle: i32) -> Fd;
     }
 }
+
+// Make symbols from maybenot-ffi visible
+#[cfg(daita)]
+use maybenot_ffi as _;

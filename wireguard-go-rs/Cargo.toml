@@ -8,3 +8,6 @@ license.workspace = true
 thiserror.workspace = true
 log.workspace = true
 zeroize = "1.8.1"
+
+[target.'cfg(target_os = "linux")'.dependencies]
+maybenot-ffi = "1.0.0"

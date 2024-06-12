@@ -1,6 +1,6 @@
 use std::{
     env, fs,
-    path::{Path, PathBuf},
+    path::PathBuf,
     process::Command,
 };
 
@@ -39,19 +39,6 @@ fn main() {
     println!("cargo::rustc-check-cfg=cfg(daita)");
     if let "linux" | "windows" = target_os.as_str() {
         println!(r#"cargo::rustc-cfg=daita"#);
-    }
-
-    // For debug builds, configure rpath to facilitate linking with libwg.so
-    if matches!(target_os.as_str(), "linux" | "macos" | "android") && cfg!(debug_assertions) {
-        let target = env::var("TARGET").expect("TARGET not set");
-        let libwg_path = Path::new("../build/lib/")
-            .canonicalize()
-            .unwrap_or_else(|_| {
-                panic!("Could not resolve canonical path for relative path `build/lib/{target}`")
-            })
-            .join(target.clone());
-
-        println!("cargo::rustc-link-arg=-Wl,-rpath,{}", libwg_path.display());
     }
 }
 
