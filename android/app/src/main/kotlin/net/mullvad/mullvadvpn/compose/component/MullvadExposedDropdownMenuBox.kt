@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.compose.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.DropdownMenuItem
@@ -36,7 +37,7 @@ fun MullvadExposedDropdownMenuBox(
     ExposedDropdownMenuBox(
         expanded = expanded,
         onExpandedChange = { expanded = it },
-        modifier = modifier
+        modifier = modifier.clickable { expanded = !expanded }
     ) {
         TextField(
             modifier = Modifier.fillMaxWidth().menuAnchor(),
