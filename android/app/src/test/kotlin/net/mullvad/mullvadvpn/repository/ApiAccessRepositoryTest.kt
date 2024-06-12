@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
+import net.mullvad.mullvadvpn.data.UUID
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.AddApiAccessMethodError
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod
@@ -276,8 +277,4 @@ class ApiAccessRepositoryTest {
             // Assert
             assertEquals(expectedError.left(), result)
         }
-
-    companion object {
-        private const val UUID = "12345678-1234-5678-1234-567812345678"
-    }
 }
