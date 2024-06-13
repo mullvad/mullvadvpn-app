@@ -14,7 +14,7 @@ import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodName
-import net.mullvad.mullvadvpn.lib.model.NewAccessMethod
+import net.mullvad.mullvadvpn.lib.model.NewAccessMethodSetting
 import net.mullvad.mullvadvpn.lib.model.TestApiAccessMethodError
 import net.mullvad.mullvadvpn.lib.model.UnknownApiAccessMethodError
 import net.mullvad.mullvadvpn.repository.ApiAccessRepository
@@ -166,7 +166,6 @@ class SaveApiAccessMethodViewModelTest {
 
         // Act, Assert
         saveApiAccessMethodViewModel.uiSideEffect.test {
-            // Check for successful creation
             assertEquals(SaveApiAccessMethodSideEffect.CouldNotSaveApiAccessMethod, awaitItem())
         }
     }
@@ -181,7 +180,7 @@ class SaveApiAccessMethodViewModelTest {
             Unit.right()
         coEvery {
             mockApiAccessRepository.addApiAccessMethod(
-                NewAccessMethod(
+                NewAccessMethodSetting(
                     name = apiAccessMethodName,
                     enabled = true,
                     apiAccessMethod = customProxy
@@ -197,7 +196,7 @@ class SaveApiAccessMethodViewModelTest {
         // Assert
         coVerify(exactly = 1) {
             mockApiAccessRepository.addApiAccessMethod(
-                NewAccessMethod(
+                NewAccessMethodSetting(
                     name = apiAccessMethodName,
                     enabled = true,
                     apiAccessMethod = customProxy

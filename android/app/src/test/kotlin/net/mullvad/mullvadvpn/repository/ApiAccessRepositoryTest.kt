@@ -18,7 +18,7 @@ import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodName
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodSetting
 import net.mullvad.mullvadvpn.lib.model.GetApiAccessMethodError
-import net.mullvad.mullvadvpn.lib.model.NewAccessMethod
+import net.mullvad.mullvadvpn.lib.model.NewAccessMethodSetting
 import net.mullvad.mullvadvpn.lib.model.SetApiAccessMethodError
 import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.lib.model.TestApiAccessMethodError
@@ -49,32 +49,32 @@ class ApiAccessRepositoryTest {
     @Test
     fun `adding api access method should return id when successful`() = runTest {
         // Arrange
-        val newAccessMethod: NewAccessMethod = mockk()
+        val newAccessMethodSetting: NewAccessMethodSetting = mockk()
         val accessMethodId: ApiAccessMethodId = ApiAccessMethodId.fromString(UUID)
-        coEvery { mockManagementService.addApiAccessMethod(newAccessMethod) } returns
+        coEvery { mockManagementService.addApiAccessMethod(newAccessMethodSetting) } returns
             accessMethodId.right()
 
         // Act
-        val result = apiAccessRepository.addApiAccessMethod(newAccessMethod)
+        val result = apiAccessRepository.addApiAccessMethod(newAccessMethodSetting)
 
         // Assert
-        coVerify { mockManagementService.addApiAccessMethod(newAccessMethod) }
+        coVerify { mockManagementService.addApiAccessMethod(newAccessMethodSetting) }
         assertEquals(accessMethodId.right(), result)
     }
 
     @Test
     fun `adding api access method should return error when not successful`() = runTest {
         // Arrange
-        val newAccessMethod: NewAccessMethod = mockk()
+        val newAccessMethodSetting: NewAccessMethodSetting = mockk()
         val addApiAccessMethodError: AddApiAccessMethodError.Unknown = mockk()
-        coEvery { mockManagementService.addApiAccessMethod(newAccessMethod) } returns
+        coEvery { mockManagementService.addApiAccessMethod(newAccessMethodSetting) } returns
             addApiAccessMethodError.left()
 
         // Act
-        val result = apiAccessRepository.addApiAccessMethod(newAccessMethod)
+        val result = apiAccessRepository.addApiAccessMethod(newAccessMethodSetting)
 
         // Assert
-        coVerify { mockManagementService.addApiAccessMethod(newAccessMethod) }
+        coVerify { mockManagementService.addApiAccessMethod(newAccessMethodSetting) }
         assertEquals(addApiAccessMethodError.left(), result)
     }
 

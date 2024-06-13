@@ -4,7 +4,7 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class NewAccessMethod(
+data class NewAccessMethodSetting(
     val name: ApiAccessMethodName,
     val enabled: Boolean,
     val apiAccessMethod: ApiAccessMethod.CustomProxy

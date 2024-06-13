@@ -14,7 +14,7 @@ import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodName
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodSetting
 import net.mullvad.mullvadvpn.lib.model.GetApiAccessMethodError
-import net.mullvad.mullvadvpn.lib.model.NewAccessMethod
+import net.mullvad.mullvadvpn.lib.model.NewAccessMethodSetting
 
 class ApiAccessRepository(
     private val managementService: ManagementService,
@@ -32,8 +32,8 @@ class ApiAccessRepository(
             null
         )
 
-    suspend fun addApiAccessMethod(newAccessMethod: NewAccessMethod) =
-        managementService.addApiAccessMethod(newAccessMethod)
+    suspend fun addApiAccessMethod(newAccessMethodSetting: NewAccessMethodSetting) =
+        managementService.addApiAccessMethod(newAccessMethodSetting)
 
     suspend fun removeApiAccessMethod(apiAccessMethodId: ApiAccessMethodId) =
         managementService.removeApiAccessMethod(apiAccessMethodId)

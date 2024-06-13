@@ -73,7 +73,7 @@ import net.mullvad.mullvadvpn.lib.model.GetAccountHistoryError
 import net.mullvad.mullvadvpn.lib.model.GetDeviceListError
 import net.mullvad.mullvadvpn.lib.model.GetDeviceStateError
 import net.mullvad.mullvadvpn.lib.model.LoginAccountError
-import net.mullvad.mullvadvpn.lib.model.NewAccessMethod
+import net.mullvad.mullvadvpn.lib.model.NewAccessMethodSetting
 import net.mullvad.mullvadvpn.lib.model.ObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.Ownership as ModelOwnership
 import net.mullvad.mullvadvpn.lib.model.PlayPurchase
@@ -588,9 +588,9 @@ class ManagementService(
             .map { WebsiteAuthToken.fromString(it.value) }
 
     suspend fun addApiAccessMethod(
-        newAccessMethod: NewAccessMethod
+        newAccessMethodSetting: NewAccessMethodSetting
     ): Either<AddApiAccessMethodError, ApiAccessMethodId> =
-        Either.catch { grpc.addApiAccessMethod(newAccessMethod.fromDomain()) }
+        Either.catch { grpc.addApiAccessMethod(newAccessMethodSetting.fromDomain()) }
             .mapLeft(AddApiAccessMethodError::Unknown)
             .map { ApiAccessMethodId.fromString(it.value) }
 

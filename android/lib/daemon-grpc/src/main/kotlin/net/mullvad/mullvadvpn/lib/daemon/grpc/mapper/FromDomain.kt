@@ -12,7 +12,7 @@ import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.lib.model.DnsOptions
 import net.mullvad.mullvadvpn.lib.model.DnsState
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
-import net.mullvad.mullvadvpn.lib.model.NewAccessMethod
+import net.mullvad.mullvadvpn.lib.model.NewAccessMethodSetting
 import net.mullvad.mullvadvpn.lib.model.ObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.PlayPurchase
@@ -167,7 +167,7 @@ internal fun PlayPurchase.fromDomain(): ManagementInterface.PlayPurchase =
         .setProductId(productId)
         .build()
 
-internal fun NewAccessMethod.fromDomain(): ManagementInterface.NewAccessMethodSetting =
+internal fun NewAccessMethodSetting.fromDomain(): ManagementInterface.NewAccessMethodSetting =
     ManagementInterface.NewAccessMethodSetting.newBuilder()
         .setName(name.value)
         .setEnabled(enabled)

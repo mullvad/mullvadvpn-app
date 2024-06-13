@@ -13,7 +13,7 @@ import net.mullvad.mullvadvpn.compose.state.TestApiAccessMethodState
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodName
-import net.mullvad.mullvadvpn.lib.model.NewAccessMethod
+import net.mullvad.mullvadvpn.lib.model.NewAccessMethodSetting
 import net.mullvad.mullvadvpn.repository.ApiAccessRepository
 
 class SaveApiAccessMethodViewModel(
@@ -58,7 +58,7 @@ class SaveApiAccessMethodViewModel(
                 )
             } else {
                 addNewAccessMethod(
-                    NewAccessMethod(
+                    NewAccessMethodSetting(
                         name = apiAccessMethodName,
                         enabled = true,
                         apiAccessMethod = customProxy
@@ -68,9 +68,9 @@ class SaveApiAccessMethodViewModel(
         }
     }
 
-    private suspend fun addNewAccessMethod(newAccessMethod: NewAccessMethod) {
+    private suspend fun addNewAccessMethod(newAccessMethodSetting: NewAccessMethodSetting) {
         apiAccessRepository
-            .addApiAccessMethod(newAccessMethod)
+            .addApiAccessMethod(newAccessMethodSetting)
             .fold(
                 { _uiSideEffect.send(SaveApiAccessMethodSideEffect.CouldNotSaveApiAccessMethod) },
                 { _uiSideEffect.send(SaveApiAccessMethodSideEffect.SuccessfullyCreatedApiMethod) }
