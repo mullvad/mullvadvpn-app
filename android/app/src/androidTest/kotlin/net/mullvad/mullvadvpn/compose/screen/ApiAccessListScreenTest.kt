@@ -12,7 +12,6 @@ import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.ApiAccessListUiState
 import net.mullvad.mullvadvpn.compose.test.API_ACCESS_LIST_INFO_TEST_TAG
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 

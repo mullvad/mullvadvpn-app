@@ -104,20 +104,10 @@ class EditApiAccessMethodViewModel(
                         { errors -> formData.update { it.updateWithErrors(errors) } },
                         { customProxy ->
                             isTestingApiAccessMethod.value = true
-                            apiAccessRepository
-                                .testCustomApiAccessMethod(customProxy)
-                                .fold(
-                                    {
-                                        _uiSideEffect.send(
-                                            EditApiAccessSideEffect.TestApiAccessMethodResult(false)
-                                        )
-                                    },
-                                    {
-                                        _uiSideEffect.send(
-                                            EditApiAccessSideEffect.TestApiAccessMethodResult(true)
-                                        )
-                                    },
-                                )
+                            val result = apiAccessRepository.testCustomApiAccessMethod(customProxy)
+                            _uiSideEffect.send(
+                                EditApiAccessSideEffect.TestApiAccessMethodResult(result.isRight())
+                            )
                             isTestingApiAccessMethod.value = false
                         }
                     )

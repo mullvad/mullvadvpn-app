@@ -18,7 +18,7 @@ import net.mullvad.mullvadvpn.lib.model.NewAccessMethod
 import net.mullvad.mullvadvpn.lib.model.TestApiAccessMethodError
 import net.mullvad.mullvadvpn.lib.model.UnknownApiAccessMethodError
 import net.mullvad.mullvadvpn.repository.ApiAccessRepository
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -28,8 +28,6 @@ class SaveApiAccessMethodViewModelTest {
     private val mockApiAccessRepository: ApiAccessRepository = mockk()
 
     private lateinit var saveApiAccessMethodViewModel: SaveApiAccessMethodViewModel
-
-    @BeforeEach fun setUp() {}
 
     @Test
     fun `when testing and updating an existing method successfully should do the correct steps`() =
@@ -89,7 +87,6 @@ class SaveApiAccessMethodViewModelTest {
 
         // Act, Assert
         saveApiAccessMethodViewModel.uiState.test {
-            // After successful test
             assertEquals(
                 SaveApiAccessMethodUiState(
                     testingState = TestApiAccessMethodState.Result.Failure,

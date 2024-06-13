@@ -89,7 +89,9 @@ fun SaveApiAccessMethodDialog(
                         painter =
                             painterResource(
                                 id =
-                                    if (testingState.isSuccessful()) {
+                                    if (
+                                        testingState is TestApiAccessMethodState.Result.Successful
+                                    ) {
                                         R.drawable.icon_success
                                     } else {
                                         R.drawable.icon_fail
@@ -104,7 +106,7 @@ fun SaveApiAccessMethodDialog(
             }
         },
         title = { Text(text = state.text(), style = MaterialTheme.typography.headlineSmall) },
-        onDismissRequest = { /*Should not be able to dismiss*/},
+        onDismissRequest = { /*Should not be able to dismiss*/ },
         confirmButton = {
             PrimaryButton(
                 onClick = onCancel,

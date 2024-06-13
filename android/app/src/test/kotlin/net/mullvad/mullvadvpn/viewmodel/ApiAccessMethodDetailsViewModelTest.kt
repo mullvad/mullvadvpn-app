@@ -147,7 +147,7 @@ class ApiAccessMethodDetailsViewModelTest {
     }
 
     @Test
-    fun `when enable access method is not successful show error`() = runTest {
+    fun `when enable access method is not successful should show error`() = runTest {
         // Arrange
         coEvery {
             mockApiAccessRepository.setEnabledApiAccessMethod(apiAccessMethodId, true)

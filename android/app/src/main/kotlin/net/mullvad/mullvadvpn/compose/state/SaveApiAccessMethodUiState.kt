@@ -12,7 +12,5 @@ sealed interface TestApiAccessMethodState {
         data object Successful : Result
 
         data object Failure : Result
-
-        fun isSuccessful() = this is Successful
     }
 }
