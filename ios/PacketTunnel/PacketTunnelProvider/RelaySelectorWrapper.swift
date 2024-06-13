@@ -12,12 +12,6 @@ import MullvadSettings
 import MullvadTypes
 import PacketTunnelCore
 
-struct MultihopNotImplementedError: LocalizedError {
-    public var errorDescription: String? {
-        "Picking relays for Multihop is not implemented yet."
-    }
-}
-
 final class RelaySelectorWrapper: RelaySelectorProtocol {
     let relayCache: RelayCacheProtocol
     let multihopUpdater: MultihopUpdater
@@ -30,11 +24,9 @@ final class RelaySelectorWrapper: RelaySelectorProtocol {
 
     public init(
         relayCache: RelayCacheProtocol,
-        multihopUpdater: MultihopUpdater,
-        multihopState: MultihopState
+        multihopUpdater: MultihopUpdater
     ) {
         self.relayCache = relayCache
-        self.multihopState = multihopState
         self.multihopUpdater = multihopUpdater
         self.addObserver()
     }
@@ -52,7 +44,7 @@ final class RelaySelectorWrapper: RelaySelectorProtocol {
         connectionAttemptFailureCount: UInt
     ) throws -> SelectedRelay {
         switch multihopState {
-        case .off:
+        case .off, .on:
             let selectorResult = try RelaySelector.WireGuard.evaluate(
                 by: constraints,
                 in: relayCache.read().relays,
@@ -65,9 +57,6 @@ final class RelaySelectorWrapper: RelaySelectorProtocol {
                 location: selectorResult.location,
                 retryAttempts: connectionAttemptFailureCount
             )
-
-        case .on:
-            throw MultihopNotImplementedError()
         }
     }
 }

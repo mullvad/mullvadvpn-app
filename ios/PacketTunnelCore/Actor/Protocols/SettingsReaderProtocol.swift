@@ -24,7 +24,7 @@ public protocol SettingsReaderProtocol {
 }
 
 /// Struct holding settings necessary to configure packet tunnel adapter.
-public struct Settings {
+public struct Settings: Equatable {
     /// Private key used by device.
     public var privateKey: PrivateKey
 
@@ -65,11 +65,23 @@ public struct Settings {
 }
 
 /// Enum describing selected DNS servers option.
-public enum SelectedDNSServers {
+public enum SelectedDNSServers: Equatable {
     /// Custom DNS servers.
     case custom([IPAddress])
     /// Mullvad server acting as a blocking DNS proxy.
     case blocking(IPAddress)
     /// Gateway IP will be used as DNS automatically.
     case gateway
+
+    public static func == (lhs: SelectedDNSServers, rhs: SelectedDNSServers) -> Bool {
+        return switch (lhs, rhs) {
+        case let (.custom(lhsAddresss), .custom(rhsAddresses)):
+            lhsAddresss.map { $0.rawValue } == rhsAddresses.map { $0.rawValue }
+        case let (.blocking(lhsAddress), .blocking(rhsAddress)):
+            lhsAddress.rawValue == rhsAddress.rawValue
+        case (.gateway, .gateway):
+            true
+        default: false
+        }
+    }
 }

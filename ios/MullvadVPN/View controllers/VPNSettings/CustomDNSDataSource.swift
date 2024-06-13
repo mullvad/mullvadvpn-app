@@ -120,7 +120,7 @@ final class CustomDNSDataSource: UITableViewDiffableDataSource<
     private let cellFactory: CustomDNSCellFactory
     private weak var tableView: UITableView?
 
-    weak var delegate: VPNSettingsDataSourceDelegate?
+    weak var delegate: DNSSettingsDataSourceDelegate?
 
     init(tableView: UITableView) {
         self.tableView = tableView

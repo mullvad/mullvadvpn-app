@@ -89,6 +89,8 @@ public enum AccessibilityIdentifier: String {
     case cityLocationCell
     case relayLocationCell
     case customListLocationCell
+    case multihopConfirmAlertBackButton
+    case multihopConfirmAlertEnableButton
 
     // Labels
     case accountPageDeviceNameLabel
@@ -192,6 +194,10 @@ public enum AccessibilityIdentifier: String {
     case quantumResistanceAutomatic
     case quantumResistanceOff
     case quantumResistanceOn
+
+    // Multihop
+    case multihopSwitch
+    case multihopPromptAlert
 
     // Error
     case unknown
