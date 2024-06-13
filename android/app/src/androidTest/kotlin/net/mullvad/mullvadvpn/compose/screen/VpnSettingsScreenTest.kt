@@ -54,7 +54,7 @@ class VpnSettingsScreenTest {
                 )
             }
 
-            onNodeWithText("Auto-connect").assertExists()
+            onNodeWithText("Auto-connect (legacy)").assertExists()
 
             onNodeWithTag(LAZY_LIST_TEST_TAG)
                 .performScrollToNode(hasTestTag(LAZY_LIST_LAST_ITEM_TEST_TAG))
