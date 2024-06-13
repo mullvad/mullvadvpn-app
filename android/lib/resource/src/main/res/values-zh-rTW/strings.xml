@@ -35,7 +35,6 @@
     <string name="auto_connect_carousel_second_slide_top_text">自動連線在 Android 系統設定中稱為「始終啟用 VPN」，此功能可確保您始終與 VPN 通道連線，並且會在重新啟動後自動連線。</string>
     <string name="auto_connect_carousel_third_slide_bottom_text">3. 若要啟用鎖定模式，請按一下&lt;b&gt;在沒有 VPN 的情況下封鎖連線&lt;/b&gt;旁邊的開關。</string>
     <string name="auto_connect_carousel_third_slide_top_text">如果手動中斷與 VPN 通道的連線，鎖定模式便會封鎖所有的網際網路存取。&lt;br/&gt;&lt;b&gt;警告：此設定會封鎖分割應用程式和「本機網路共享」功能&lt;/b&gt;。</string>
-    <string name="auto_connect_footer">啟動應用程式時，自動連線伺服器。</string>
     <string name="auto_connect_footer_legacy">請依照前述 &lt;b&gt;%1$s&lt;/b&gt; 中的指南，改用&lt;b&gt;一律啟用&lt;/b&gt;系統設定。</string>
     <string name="auto_connect_legacy">自動連線 (舊)</string>
     <string name="automatic">自動</string>
