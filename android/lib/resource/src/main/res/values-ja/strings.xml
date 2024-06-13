@@ -33,7 +33,6 @@
     <string name="auto_connect_carousel_first_slide_top_text">自動接続とロックダウンモードの設定はAndroidシステム設定にあります。どちらか、または両方をこのガイドに従って有効にしてください。</string>
     <string name="auto_connect_carousel_second_slide_bottom_text">2. 自動接続を有効にするには、[&lt;b&gt;Always-on VPN&lt;/b&gt;] の横のトグルボタンをクリックします。</string>
     <string name="auto_connect_carousel_second_slide_top_text">自動接続はAndroidシステム設定で「Always-on VPN」と呼ばれており、確実に一貫してVPNトンネルに接続し、再起動の後に自動接続を行う機能です。</string>
-    <string name="auto_connect_footer">アプリ起動時に自動的にサーバーに接続します。</string>
     <string name="auto_connect_footer_legacy">上の &lt;b&gt;%1$s&lt;/b&gt; のガイドに従い、&lt;b&gt;Always-on&lt;/b&gt; のシステム設定を代わりに使用してください。</string>
     <string name="auto_connect_legacy">自動接続 (レガシー)</string>
     <string name="automatic">自動</string>

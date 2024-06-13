@@ -33,7 +33,6 @@
     <string name="auto_connect_carousel_first_slide_top_text">การตั้งค่าการเชื่อมต่ออัตโนมัติและโหมดล็อกดาวน์ อยู่ในการตั้งค่าระบบ Android โปรดทำตามคำแนะนำนี้ เพื่อเปิดใช้งานโหมดใดโหมดหนึ่ง หรือทั้งสองโหมด</string>
     <string name="auto_connect_carousel_second_slide_bottom_text">2. ในการเปิดใช้การเชื่อมต่ออัตโนมัติ ให้คลิกปุ่มเปิด/ปิดที่อยู่ถัดจาก &lt;b&gt;Always-on VPN&lt;/b&gt;</string>
     <string name="auto_connect_carousel_second_slide_top_text">การเชื่อมต่ออัตโนมัติเรียกว่า Always-on VPN ในการตั้งค่าระบบ Android ซึ่งจะช่วยให้คุณมั่นใจได้ว่า คุณเชื่อมต่อกับช่องทาง VPN อย่างต่อเนื่อง และมีการเชื่อมต่ออัตโนมัติหลังจากรีสตาร์ต</string>
-    <string name="auto_connect_footer">เชื่อมต่อเซิร์ฟเวอร์โดยอัตโนมัติทันทีที่เปิดแอป</string>
     <string name="auto_connect_footer_legacy">โปรดใช้การตั้งค่าระบบ&lt;b&gt;เปิดใช้งานเสมอ&lt;/b&gt;แทน โดยทำตามคำแนะนำใน &lt;b&gt;%1$s&lt;/b&gt; ที่อยู่ด้านบน</string>
     <string name="auto_connect_legacy">เชื่อมต่ออัตโนมัติ (เดิม)</string>
     <string name="automatic">อัตโนมัติ</string>

@@ -33,7 +33,6 @@
     <string name="auto_connect_carousel_first_slide_top_text">Les paramètres de la connexion automatique et du mode Verrouillage se trouvent dans les paramètres du système Android, suivez ce guide pour activer l\'un, l\'autre ou les deux.</string>
     <string name="auto_connect_carousel_second_slide_bottom_text">2. Pour activer la connexion automatique, cliquez sur l\'interrupteur situé à côté de &lt;b&gt;VPN toujours actif&lt;/b&gt;.</string>
     <string name="auto_connect_carousel_second_slide_top_text">La connexion automatique est appelée VPN toujours actif dans les paramètres du système Android et elle s\'assure que vous êtes constamment connecté au tunnel VPN et se connecte automatiquement après le redémarrage.</string>
-    <string name="auto_connect_footer">Connexion automatique à un serveur dès le démarrage de l\'application.</string>
     <string name="auto_connect_footer_legacy">Veuillez utiliser le paramètre système &lt;b&gt;Toujours activé&lt;/b&gt; en suivant le guide dans &lt;b&gt;%1$s&lt;/b&gt; ci-dessus.</string>
     <string name="auto_connect_legacy">Connexion automatique (obsolète)</string>
     <string name="automatic">Automatique</string>

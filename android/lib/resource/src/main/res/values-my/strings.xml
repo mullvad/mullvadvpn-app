@@ -33,7 +33,6 @@
     <string name="auto_connect_carousel_first_slide_top_text">အော်တို ချိတ်ဆက်မှုနှင့် လော့ခ်ဒေါင်းစနစ် ဆက်တင်များကို Android စနစ် ဆက်တင်များတွင် ရှာတွေ့နိုင်ပြီး တစ်ခု သို့မဟုတ် နှစ်ခုလုံးကို ဖွင့်ရန် ဤလမ်းညွှန်ချက်ကို လိုက်နာပါ။</string>
     <string name="auto_connect_carousel_second_slide_bottom_text">2. အော်တို ချိတ်ဆက်မှု ဖွင့်ရန် &lt;b&gt;အမြဲဖွင့် VPN&lt;/b&gt; ဘေးရှိ ဖွင့်/ပိတ် ခလုတ်ကို နှိပ်ပါ။</string>
     <string name="auto_connect_carousel_second_slide_top_text">Android စနစ် ဆက်တင်တွင် အော်တိုချိတ်ဆက်မှုကို အမြဲဖွင့် VPN ဟုခေါ်ပြီး VPN Tunnel ကို အမြဲချိတ်ဆက်ထားကြောင်း သေချာစေပြီး အစမှ ပြန်ဖွင့်ပြီးနောက် အော်တို ချိတ်ဆက်ပါသည်။</string>
-    <string name="auto_connect_footer">အက်ပ် စတင်ဆောင်ရွက်ချိန်တွင် ဆာဗာနှင့် အော်တို ချိတ်ဆက်သွားပါမည်။</string>
     <string name="auto_connect_footer_legacy">အထက်ပါ &lt;b&gt;%1$s&lt;/b&gt; တွင် အောက်ပါ လမ်းညွှန်အတိုင်း လိုက်နာခြင်းဖြင့် &lt;b&gt;အမြဲဖွင့်&lt;/b&gt; စနစ်ဆက်တင်ကို ‌အစားထိုး သုံးပါ။</string>
     <string name="auto_connect_legacy">အော်တို ချိတ်ဆက်ရန် (ပင်မ)</string>
     <string name="automatic">အလိုအလျောက်</string>

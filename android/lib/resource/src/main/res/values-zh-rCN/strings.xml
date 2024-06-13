@@ -33,7 +33,6 @@
     <string name="auto_connect_carousel_first_slide_top_text">自动连接和锁定模式设置可以在 Android 系统设置中找到，请按照本指南启用其中一项或两项。</string>
     <string name="auto_connect_carousel_second_slide_bottom_text">2. 要启用自动连接，请点击&lt;b&gt;始终开启的 VPN&lt;/b&gt; 旁边的开关。</string>
     <string name="auto_connect_carousel_second_slide_top_text">自动连接在 Android 系统设置中称为“始终开启的 VPN”，此功能可确保您始终连接到 VPN 隧道并在重新启动后自动连接。</string>
-    <string name="auto_connect_footer">在应用启动时自动连接到服务器。</string>
     <string name="auto_connect_footer_legacy">请按照上述&lt;b&gt;%1$s&lt;/b&gt;中的指南操作，改用&lt;b&gt;始终开启&lt;/b&gt;系统设置。</string>
     <string name="auto_connect_legacy">自动连接（旧）</string>
     <string name="automatic">自动</string>
