@@ -2092,7 +2092,7 @@ msgstr ""
 msgid "2. To enable Auto-connect, click on the toggle next to <b>Always-on VPN</b>."
 msgstr ""
 
-msgid "3. To enable Lockdown mode, click on the toggle next to <b>Block connections without VPN</b>."
+msgid "3. To enable Lockdown mode, click on the toggle next to <b>Block connections without VPN</b>.<br /><br /><b>Warning: This setting blocks split apps and the Local Network Sharing feature.</b>"
 msgstr ""
 
 msgid "30 days was added to your account."
@@ -2380,7 +2380,7 @@ msgstr ""
 msgid "The Auto-connect and Lockdown mode settings can be found in the Android system settings, follow this guide to enable one or both."
 msgstr ""
 
-msgid "The Lockdown mode blocks all internet access if the VPN tunnel is manually disconnected. <br/><b>Warning: This setting blocks split apps and the Local Network Sharing feature</b>."
+msgid "The Lockdown mode is called <b>Block connections without VPN</b> in the Android system settings. It helps minimize leaks, however it has some known limitations which you can read more about it"
 msgstr ""
 
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under Preferences."
@@ -2489,6 +2489,9 @@ msgid "You are running an unsupported app version."
 msgstr ""
 
 msgid "\"%s\" was deleted"
+msgstr ""
+
+msgid "here"
 msgstr ""
 
 msgid "less than a minute ago"

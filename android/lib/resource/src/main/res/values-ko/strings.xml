@@ -31,8 +31,6 @@
     <string name="auto_connect_carousel_first_slide_top_text">자동 연결 및 잠금 모드 설정은 Android 시스템 설정에서 찾을 수 있습니다. 이 가이드에 따라 하나 또는 둘 다를 활성화하세요.</string>
     <string name="auto_connect_carousel_second_slide_bottom_text">2. 자동 연결을 활성화하려면 &lt;b&gt;상시 접속 VPN&lt;/b&gt; 옆에 있는 토글을 클릭합니다.</string>
     <string name="auto_connect_carousel_second_slide_top_text">자동 연결은 Android 시스템 설정에서 상시 접속 VPN이라고 하며 VPN 터널에 지속적으로 연결되고 다시 시작한 후 자동 연결되게 해줍니다.</string>
-    <string name="auto_connect_carousel_third_slide_bottom_text">3. 잠금 모드를 활성화하려면 &lt;b&gt;VPN 없이 연결 차단&lt;/b&gt; 옆에 있는 토글을 클릭합니다.</string>
-    <string name="auto_connect_carousel_third_slide_top_text">VPN 터널이 수동으로 연결 해제되면 잠금 모드는 모든 인터넷 액세스를 차단합니다. &lt;br/&gt;&lt;b&gt;경고: 이 설정은 분할 앱과 로컬 네트워크 공유 기능을 차단합니다&lt;/b&gt;.</string>
     <string name="auto_connect_footer">앱이 시작되면 자동으로 서버에 연결합니다.</string>
     <string name="automatic">자동</string>
     <string name="back">뒤로</string>
