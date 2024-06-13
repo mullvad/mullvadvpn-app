@@ -1,6 +1,9 @@
 package net.mullvad.mullvadvpn.lib.daemon.grpc.mapper
 
 import mullvad_daemon.management_interface.ManagementInterface
+import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod
+import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
+import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodSetting
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.CustomDnsOptions
 import net.mullvad.mullvadvpn.lib.model.CustomList
@@ -9,6 +12,7 @@ import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.lib.model.DnsOptions
 import net.mullvad.mullvadvpn.lib.model.DnsState
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
+import net.mullvad.mullvadvpn.lib.model.NewAccessMethodSetting
 import net.mullvad.mullvadvpn.lib.model.ObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.PlayPurchase
@@ -18,6 +22,8 @@ import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelaySettings
 import net.mullvad.mullvadvpn.lib.model.SelectedObfuscation
+import net.mullvad.mullvadvpn.lib.model.SocksAuth
+import net.mullvad.mullvadvpn.lib.model.TransportProtocol
 import net.mullvad.mullvadvpn.lib.model.Udp2TcpObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 
@@ -159,4 +165,75 @@ internal fun PlayPurchase.fromDomain(): ManagementInterface.PlayPurchase =
     ManagementInterface.PlayPurchase.newBuilder()
         .setPurchaseToken(purchaseToken.fromDomain())
         .setProductId(productId)
+        .build()
+
+internal fun NewAccessMethodSetting.fromDomain(): ManagementInterface.NewAccessMethodSetting =
+    ManagementInterface.NewAccessMethodSetting.newBuilder()
+        .setName(name.value)
+        .setEnabled(enabled)
+        .setAccessMethod(
+            ManagementInterface.AccessMethod.newBuilder().setCustom(apiAccessMethod.fromDomain())
+        )
+        .build()
+
+internal fun ApiAccessMethod.fromDomain(): ManagementInterface.AccessMethod =
+    ManagementInterface.AccessMethod.newBuilder()
+        .let {
+            when (this) {
+                ApiAccessMethod.Direct ->
+                    it.setDirect(ManagementInterface.AccessMethod.Direct.getDefaultInstance())
+                ApiAccessMethod.Bridges ->
+                    it.setBridges(ManagementInterface.AccessMethod.Bridges.getDefaultInstance())
+                is ApiAccessMethod.CustomProxy -> it.setCustom(this.fromDomain())
+            }
+        }
+        .build()
+
+internal fun ApiAccessMethod.CustomProxy.fromDomain(): ManagementInterface.CustomProxy =
+    ManagementInterface.CustomProxy.newBuilder()
+        .let {
+            when (this) {
+                is ApiAccessMethod.CustomProxy.Shadowsocks -> it.setShadowsocks(this.fromDomain())
+                is ApiAccessMethod.CustomProxy.Socks5Remote -> it.setSocks5Remote(this.fromDomain())
+            }
+        }
+        .build()
+
+internal fun ApiAccessMethod.CustomProxy.Socks5Remote.fromDomain():
+    ManagementInterface.Socks5Remote =
+    ManagementInterface.Socks5Remote.newBuilder().setIp(ip).setPort(port.value).let {
+        auth?.let { auth -> it.setAuth(auth.fromDomain()) }
+        it.build()
+    }
+
+internal fun SocksAuth.fromDomain(): ManagementInterface.SocksAuth =
+    ManagementInterface.SocksAuth.newBuilder().setUsername(username).setPassword(password).build()
+
+internal fun ApiAccessMethod.CustomProxy.Shadowsocks.fromDomain(): ManagementInterface.Shadowsocks =
+    ManagementInterface.Shadowsocks.newBuilder()
+        .setIp(ip)
+        .setCipher(cipher.label)
+        .setPort(port.value)
+        .let {
+            if (password != null) {
+                it.setPassword(password)
+            }
+            it.build()
+        }
+
+internal fun TransportProtocol.fromDomain(): ManagementInterface.TransportProtocol =
+    when (this) {
+        TransportProtocol.Tcp -> ManagementInterface.TransportProtocol.TCP
+        TransportProtocol.Udp -> ManagementInterface.TransportProtocol.UDP
+    }
+
+internal fun ApiAccessMethodId.fromDomain(): ManagementInterface.UUID =
+    ManagementInterface.UUID.newBuilder().setValue(value.toString()).build()
+
+internal fun ApiAccessMethodSetting.fromDomain(): ManagementInterface.AccessMethodSetting =
+    ManagementInterface.AccessMethodSetting.newBuilder()
+        .setName(name.value)
+        .setId(id.fromDomain())
+        .setEnabled(enabled)
+        .setAccessMethod(apiAccessMethod.fromDomain())
         .build()
