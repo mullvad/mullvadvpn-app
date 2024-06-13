@@ -13,7 +13,7 @@ class MultihopPromptAlert: Page {
     @discardableResult override init(_ app: XCUIApplication) {
         super.init(app)
 
-        self.pageAccessibilityIdentifier = .multihopPromptAlert
+        self.pageElement = app.otherElements[.multihopPromptAlert]
         waitForPageToBeShown()
     }
 
