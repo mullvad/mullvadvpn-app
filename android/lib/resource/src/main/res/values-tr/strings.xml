@@ -33,8 +33,6 @@
     <string name="auto_connect_carousel_first_slide_top_text">Otomatik Bağlantı ve Kilitleme modu ayarları Android sistem ayarlarında yer alır. Bu ayarlardan birini veya her ikisini de etkinleştirmek için bu kılavuza göz atın.</string>
     <string name="auto_connect_carousel_second_slide_bottom_text">2. Otomatik bağlantıyı etkinleştirmek için &lt;b&gt;VPN her zaman açık&lt;/b&gt; seçeneğinin yanındaki düğmeye tıklayın.</string>
     <string name="auto_connect_carousel_second_slide_top_text">Otomatik bağlantı, Android sistem ayarlarında VPN her zaman açık olarak gösterilir ve VPN tüneline sürekli bağlı olmanızı ve yeniden başlatma sonrası otomatik olarak bağlanmanızı sağlar.</string>
-    <string name="auto_connect_carousel_third_slide_bottom_text">3. Kilitleme modunu etkinleştirmek için &lt;b&gt;VPN olmadığında bağlantıları engelle&lt;/b&gt; seçeneğinin yanındaki düğmeye tıklayın.</string>
-    <string name="auto_connect_carousel_third_slide_top_text">Kilitleme modu, VPN tünelinin bağlantısı manuel olarak kesilirse tüm internet erişimini engeller. &lt;br/&gt;&lt;b&gt;Uyarı: Bu ayar, bölünmüş uygulamaları ve Yerel Ağ Paylaşımı özelliğini engeller&lt;/b&gt;.</string>
     <string name="auto_connect_footer">Uygulama başladığında bir sunucuya otomatik olarak bağlan.</string>
     <string name="auto_connect_footer_legacy">Lütfen yukarıdaki &lt;b&gt;%1$s&lt;/b&gt; bölümündeki kılavuzu izleyerek &lt;b&gt;Her zaman açık&lt;/b&gt; sistem ayarını kullanın.</string>
     <string name="auto_connect_legacy">Otomatik bağlan (eski)</string>
