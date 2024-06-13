@@ -1039,7 +1039,7 @@ impl ManagementInterfaceServer {
             async move {
                 server_abort_rx.into_future().await;
             },
-            &rpc_socket_path,
+            rpc_socket_path,
         )
         .map_err(Error::SetupError)?;
 
