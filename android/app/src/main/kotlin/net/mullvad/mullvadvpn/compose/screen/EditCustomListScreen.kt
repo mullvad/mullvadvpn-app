@@ -101,24 +101,23 @@ fun EditCustomList(
         state = state,
         onDeleteList = { name ->
             navigator.navigate(
-                DeleteCustomListDestination(customListId = customListId, name = name)
-            ) {
-                launchSingleTop = true
-            }
+                DeleteCustomListDestination(customListId = customListId, name = name),
+                onlyIfResumed = true
+            )
         },
         onNameClicked = { id, name ->
             navigator.navigate(
-                EditCustomListNameDestination(customListId = id, initialName = name)
-            ) {
-                launchSingleTop = true
-            }
+                EditCustomListNameDestination(customListId = id, initialName = name),
+                onlyIfResumed = true
+            )
         },
         onLocationsClicked = {
-            navigator.navigate(CustomListLocationsDestination(customListId = it, newList = false)) {
-                launchSingleTop = true
-            }
+            navigator.navigate(
+                CustomListLocationsDestination(customListId = it, newList = false),
+                onlyIfResumed = true
+            )
         },
-        onBackClick = dropUnlessResumed { backNavigator.navigateBack()}
+        onBackClick = dropUnlessResumed { backNavigator.navigateBack() }
     )
 }
 
