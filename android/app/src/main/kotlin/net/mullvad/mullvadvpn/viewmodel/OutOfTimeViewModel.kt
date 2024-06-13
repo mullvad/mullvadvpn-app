@@ -59,6 +59,9 @@ class OutOfTimeViewModel(
         }
         verifyPurchases()
         fetchPaymentAvailability()
+        viewModelScope.launch {
+            deviceRepository.updateDevice()
+        }
     }
 
     fun onSitePaymentClick() {

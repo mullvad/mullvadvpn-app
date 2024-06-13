@@ -118,6 +118,9 @@ class ConnectViewModel(
                 viewModelScope.launch { accountRepository.getAccountData() }
             }
         }
+        viewModelScope.launch {
+            deviceRepository.updateDevice()
+        }
     }
 
     fun onDisconnectClick() {
