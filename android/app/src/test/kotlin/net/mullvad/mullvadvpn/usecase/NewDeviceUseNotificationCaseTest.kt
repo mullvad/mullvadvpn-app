@@ -9,6 +9,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
+import net.mullvad.mullvadvpn.data.UUID
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.Device
@@ -85,9 +86,5 @@ class NewDeviceUseNotificationCaseTest {
             // Assert
             assertEquals(awaitItem(), emptyList())
         }
-    }
-
-    companion object {
-        private const val UUID = "12345678-1234-5678-1234-567812345678"
     }
 }
