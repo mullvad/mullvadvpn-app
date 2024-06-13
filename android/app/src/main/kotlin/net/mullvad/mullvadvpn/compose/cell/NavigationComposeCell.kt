@@ -67,7 +67,8 @@ fun NavigationComposeCell(
     showWarning: Boolean = false,
     bodyView: @Composable () -> Unit = { DefaultNavigationView(chevronContentDescription = title) },
     isRowEnabled: Boolean = true,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    testTag: String = ""
 ) {
     BaseCell(
         onCellClicked = onClick,
@@ -79,7 +80,8 @@ fun NavigationComposeCell(
             )
         },
         bodyView = { bodyView() },
-        isRowEnabled = isRowEnabled
+        isRowEnabled = isRowEnabled,
+        testTag = testTag
     )
 }
 

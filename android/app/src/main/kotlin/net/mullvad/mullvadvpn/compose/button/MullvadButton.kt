@@ -22,10 +22,8 @@ import androidx.compose.ui.unit.dp
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.Alpha20
-import net.mullvad.mullvadvpn.lib.theme.color.AlphaDisabled
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInactive
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInvisible
-import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
 import net.mullvad.mullvadvpn.lib.theme.color.onVariant
 import net.mullvad.mullvadvpn.lib.theme.color.variant
 
@@ -92,7 +90,7 @@ fun NegativeButton(
         text = text,
         modifier = modifier,
         isEnabled = isEnabled,
-        icon = icon
+        trailingIcon = icon
     )
 }
 
@@ -124,7 +122,7 @@ fun VariantButton(
         text = text,
         modifier = modifier,
         isEnabled = isEnabled,
-        icon = icon
+        trailingIcon = icon
     )
 }
 
@@ -147,7 +145,8 @@ fun PrimaryButton(
                     .compositeOver(MaterialTheme.colorScheme.background),
         ),
     isEnabled: Boolean = true,
-    icon: @Composable (() -> Unit)? = null
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null
 ) {
     BaseButton(
         onClick = onClick,
@@ -155,7 +154,8 @@ fun PrimaryButton(
         text = text,
         modifier = modifier,
         isEnabled = isEnabled,
-        icon = icon,
+        leadingIcon = leadingIcon,
+        trailingIcon = trailingIcon
     )
 }
 
@@ -166,25 +166,35 @@ private fun BaseButton(
     text: String,
     modifier: Modifier = Modifier,
     isEnabled: Boolean = true,
-    icon: @Composable (() -> Unit)? = null
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null
 ) {
+    val hasIcon = leadingIcon != null || trailingIcon != null
     Button(
         onClick = onClick,
         colors = colors,
         enabled = isEnabled,
         contentPadding =
-            icon?.let { PaddingValues(horizontal = 0.dp, vertical = Dimens.buttonVerticalPadding) }
-                ?: ButtonDefaults.ContentPadding,
+            if (hasIcon) {
+                PaddingValues(horizontal = 0.dp, vertical = Dimens.buttonVerticalPadding)
+            } else {
+                ButtonDefaults.ContentPadding
+            },
         modifier = modifier.wrapContentHeight().fillMaxWidth(),
         shape = MaterialTheme.shapes.small
     ) {
         // Used to center the text
-        icon?.let {
-            Box(
-                modifier = Modifier.padding(horizontal = Dimens.smallPadding).alpha(AlphaInvisible)
-            ) {
-                icon()
-            }
+        when {
+            leadingIcon != null ->
+                Box(modifier = Modifier.padding(horizontal = Dimens.smallPadding)) { leadingIcon() }
+            trailingIcon != null ->
+                // Used to center the text
+                Box(
+                    modifier =
+                        Modifier.padding(horizontal = Dimens.smallPadding).alpha(AlphaInvisible)
+                ) {
+                    trailingIcon()
+                }
         }
         Text(
             text = text,
@@ -194,14 +204,19 @@ private fun BaseButton(
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.weight(1f)
         )
-        icon?.let {
-            Box(
-                modifier =
-                    Modifier.padding(horizontal = Dimens.smallPadding)
-                        .alpha(if (isEnabled) AlphaVisible else AlphaDisabled)
-            ) {
-                icon()
-            }
+        when {
+            trailingIcon != null ->
+                Box(modifier = Modifier.padding(horizontal = Dimens.smallPadding)) {
+                    trailingIcon()
+                }
+            leadingIcon != null ->
+                // Used to center the text
+                Box(
+                    modifier =
+                        Modifier.padding(horizontal = Dimens.smallPadding).alpha(AlphaInvisible)
+                ) {
+                    leadingIcon()
+                }
         }
     }
 }
