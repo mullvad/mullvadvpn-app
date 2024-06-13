@@ -7,12 +7,14 @@
     <string name="account_number">アカウント番号</string>
     <string name="account_time_notification_channel_description">アカウントの期限切れが迫っているときにリマインダーを表示します</string>
     <string name="account_time_notification_channel_name">アカウント時間のリマインダー</string>
+    <string name="add">追加</string>
     <string name="add_30_days_time">30日分を追加する</string>
     <string name="add_30_days_time_x">30日分を追加する (%1$s)</string>
     <string name="add_a_server">サーバーを追加</string>
     <string name="add_dns_server_dialog_title">DNS サーバーを追加</string>
     <string name="add_location_to_list">%1$s をリストに追加する</string>
     <string name="add_locations">場所の追加</string>
+    <string name="add_method">方法の追加</string>
     <string name="add_time_to_account">当社ウェブサイトでクレジットを購入するか、バウチャーを使用してください。</string>
     <string name="added_to_your_account">%1$s がご利用のアカウントに追加されました。</string>
     <string name="agree_and_continue">同意して続行</string>
@@ -23,9 +25,16 @@
     <string name="always_on_vpn_error_notification_content">トンネル接続を開始できません。Mullvad VPNを使用する前に&lt;b&gt;%1$s&lt;/b&gt;のAlways-on VPNを無効にしてください。</string>
     <string name="always_on_vpn_error_notification_title">Always-on VPNは他のアプリに割り当てられています</string>
     <string name="any">すべて</string>
+    <string name="api_access_description">Mullvad APIへのカスタムのアクセス方法を管理・追加します。</string>
+    <string name="api_access_method_info_first_line">アプリはユーザーのログイン、サーバーリストの取得、およびその他の重要な操作を行うためにMullvad APIサーバーと通信する必要があります。</string>
+    <string name="api_access_method_info_second_line">各種の検閲が使用されている一部のネットワークでは、APIサーバーに直接アクセスできない場合があります。</string>
+    <string name="api_access_method_info_third_line">この機能では、プロキシなどの方法を経由してAPIにアクセスするためのカスタムの方法を追加することで検閲を回避できます。</string>
+    <string name="api_reachable">API到達可能</string>
+    <string name="api_unreachable">API到達不能</string>
     <string name="app_version">アプリのバージョン</string>
     <string name="apply">適用</string>
     <string name="auth_failed">アカウントを認証できません。問題の報告を送信してください。</string>
+    <string name="authentication">認証</string>
     <string name="auto_connect">自動接続</string>
     <string name="auto_connect_and_lockdown_mode">自動接続とロックダウンモード</string>
     <string name="auto_connect_and_lockdown_mode_footer">デバイスが必ずVPNトンネルを使用するようにします。</string>
@@ -50,6 +59,7 @@
     <string name="buy_more_credit">追加クレジットを購入</string>
     <string name="cancel">キャンセル</string>
     <string name="changes_dialog_subtitle">このバージョンでの変更内容:</string>
+    <string name="cipher">暗号化</string>
     <string name="confirm_local_dns">環境設定で \"ローカルネットワーク共有\" を有効にしない限り、ローカルDNSサーバーは機能しません。</string>
     <string name="confirm_no_email">お客様への返信先を入力せずに問題の報告を送信しようとしています。ご報告に対する返信が必要な場合は、返信先のメールアドレスを入力する必要があります。</string>
     <string name="confirm_removal">はい。デバイスをログアウトさせます</string>
@@ -108,6 +118,7 @@
     <string name="edit_lists">リストを編集</string>
     <string name="edit_locations">場所の編集</string>
     <string name="edit_message">メッセージを編集する</string>
+    <string name="edit_method">方法の編集</string>
     <string name="edit_name">名前を編集</string>
     <string name="enable">有効にする</string>
     <string name="enable_custom_dns">カスタムDNSサーバーを使う</string>
@@ -173,6 +184,7 @@
     <string name="max_devices_warning_title">デバイスが多すぎます</string>
     <string name="mullvad_account_number">Mullvadアカウント番号</string>
     <string name="mullvad_owned_only">Mullvad 所有サーバーのみ</string>
+    <string name="name">名前</string>
     <string name="name_was_changed_to">名前が %1$s に変更されました</string>
     <string name="new_device_notification_message">ようこそ。このデバイスの名前は&lt;b&gt;%1$s&lt;/b&gt;です。詳細はアカウントの情報ボタンで確認してください。</string>
     <string name="new_device_notification_title">新しいデバイスが作成されました</string>
@@ -196,6 +208,7 @@
     <string name="owned">自社サーバー</string>
     <string name="ownership">所有権</string>
     <string name="paid_until">次の日時まで支払い済み</string>
+    <string name="password">パスワード</string>
     <string name="patch_not_matching_specification">パッチが仕様に一致していません</string>
     <string name="pay_to_start_using">アプリを使い始めるには、まずはアカウントに時間を追加する必要があります。</string>
     <string name="payment_billing_error_dialog_message">決済処理を開始できませんでした。最新バージョンのGoogle Playを使用していることを確認してください。</string>
@@ -242,6 +255,7 @@
     <string name="sent">送信済み</string>
     <string name="sent_contact">必要に応じて %1$s 宛にご連絡します　</string>
     <string name="sent_thanks">ありがとうございます！</string>
+    <string name="server">サーバー</string>
     <string name="server_ip_overrides">サーバーIPのオーバーライド</string>
     <string name="server_ip_overrides_active">オーバーライドは有効です</string>
     <string name="server_ip_overrides_import_by">新しいオーバーライドのインポート</string>
@@ -259,6 +273,7 @@
     <string name="set_firewall_policy_error">ファイアウォールのルールを適用できません。問題に対処するか、問題の報告を送信してください。</string>
     <string name="settings">設定</string>
     <string name="settings_account">アカウント</string>
+    <string name="settings_api_access">APIアクセス</string>
     <string name="settings_changes_effect_warning_content_blocker">結果がキャッシュされているため、DNS関連の設定の変更はすぐには適用されない可能性があります。</string>
     <string name="settings_changes_effect_warning_short">DNS設定はすぐに適用されない可能性があります</string>
     <string name="settings_patch_error_failed_to_apply_patch">パッチを適用できませんでした</string>
@@ -277,12 +292,15 @@
     <string name="submit_button">送信</string>
     <string name="switch_location">場所を切り替える</string>
     <string name="tcp">TCP</string>
+    <string name="testing">テスト中...</string>
     <string name="to_add_locations_to_a_list">リストに場所を追加するには、\"︙\" を押すか、または、国、都市、サーバーを長押ししてください。</string>
     <string name="to_create_a_custom_list">カスタムリストを作成するには、\"︙\" を押してください</string>
     <string name="toggle_vpn">VPNの切り替え</string>
     <string name="top_bar_device_name">デバイス名: %1$s</string>
     <string name="top_bar_time_left">残り時間: %1$s</string>
+    <string name="transport_protocol">転送プロトコル</string>
     <string name="try_again">再試行</string>
+    <string name="type">種類</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">UDP-over-TCP難読化プロトコルで接続する必要のあるVPNサーバーのTCPポートです。</string>
     <string name="udp_over_tcp_port_title">UDP-over-TCPポート</string>
@@ -299,6 +317,7 @@
     <string name="update_list_name">リスト名の更新</string>
     <string name="user_email_hint">あなたのメールアドレス (任意)</string>
     <string name="user_message_hint">最適なサポートを提供するため、英語またはスウェーデン語でご入力ください。また、接続元の国をお知らせください。</string>
+    <string name="username">ユーザー名</string>
     <string name="verifying_voucher">バウチャーを確認中…</string>
     <string name="view_logs">アプリのログを表示</string>
     <string name="virtual_adapter_problem">仮想アダプタのエラー</string>
