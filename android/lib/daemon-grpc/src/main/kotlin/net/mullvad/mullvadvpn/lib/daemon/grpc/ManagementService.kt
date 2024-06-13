@@ -210,6 +210,10 @@ class ManagementService(
             .map { it.toDomain() }
             .mapLeft { GetDeviceStateError.Unknown(it) }
 
+    suspend fun updateDevice() {
+        grpc.updateDevice(Empty.getDefaultInstance())
+    }
+
     suspend fun getDeviceList(token: AccountNumber): Either<GetDeviceListError, List<Device>> =
         Either.catch { grpc.listDevices(StringValue.of(token.value)) }
             .map { it.devicesList.map(ManagementInterface.Device::toDomain) }
