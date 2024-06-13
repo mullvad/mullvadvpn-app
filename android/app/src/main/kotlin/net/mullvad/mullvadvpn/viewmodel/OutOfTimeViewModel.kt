@@ -78,6 +78,7 @@ class OutOfTimeViewModel(
         }
         verifyPurchases()
         fetchPaymentAvailability()
+        deviceRepository.refreshDeviceState()
     }
 
     private fun ConnectionProxy.tunnelStateFlow(): Flow<TunnelState> =

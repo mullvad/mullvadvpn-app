@@ -142,6 +142,7 @@ class ConnectViewModel(
         viewModelScope.launch {
             paymentUseCase.verifyPurchases { accountRepository.fetchAccountExpiry() }
         }
+        deviceRepository.refreshDeviceState()
     }
 
     private fun ConnectionProxy.tunnelUiStateFlow(): Flow<TunnelState> =

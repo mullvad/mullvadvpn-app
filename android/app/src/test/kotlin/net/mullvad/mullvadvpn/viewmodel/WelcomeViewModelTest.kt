@@ -2,8 +2,10 @@ package net.mullvad.mullvadvpn.viewmodel
 
 import androidx.lifecycle.viewModelScope
 import app.cash.turbine.test
+import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
@@ -70,6 +72,8 @@ class WelcomeViewModelTest {
         mockkStatic(PURCHASE_RESULT_EXTENSIONS_CLASS)
 
         every { mockDeviceRepository.deviceState } returns deviceStateFlow
+
+        every { mockDeviceRepository.refreshDeviceState() } just Runs
 
         every { mockServiceConnectionManager.connectionState } returns serviceConnectionStateFlow
 

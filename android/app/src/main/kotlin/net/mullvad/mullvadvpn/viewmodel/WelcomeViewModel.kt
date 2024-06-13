@@ -84,6 +84,7 @@ class WelcomeViewModel(
         }
         verifyPurchases()
         fetchPaymentAvailability()
+        deviceRepository.refreshDeviceState()
     }
 
     private fun hasAddedTimeEffect() =

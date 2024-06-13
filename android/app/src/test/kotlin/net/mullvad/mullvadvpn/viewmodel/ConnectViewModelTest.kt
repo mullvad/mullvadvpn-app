@@ -2,8 +2,10 @@ package net.mullvad.mullvadvpn.viewmodel
 
 import androidx.lifecycle.viewModelScope
 import app.cash.turbine.test
+import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
@@ -118,6 +120,8 @@ class ConnectViewModelTest {
         every { mockAccountRepository.accountExpiryState } returns accountExpiryState
 
         every { mockDeviceRepository.deviceState } returns deviceState
+
+        every { mockDeviceRepository.refreshDeviceState() } just Runs
 
         every { mockInAppNotificationController.notifications } returns notifications
 
