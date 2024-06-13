@@ -42,6 +42,7 @@ data class Dimensions(
     val dropdownMenuBorder: Dp = 1.dp,
     val expandableCellChevronSize: Dp = 30.dp,
     val filterTittlePadding: Dp = 4.dp,
+    val formTextFieldMinHeight: Dp = 72.dp,
     val iconFailSuccessTopMargin: Dp = 30.dp,
     val iconHeight: Dp = 44.dp,
     val indentedCellStartPadding: Dp = 38.dp,

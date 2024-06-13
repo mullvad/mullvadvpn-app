@@ -2,6 +2,8 @@ package net.mullvad.mullvadvpn.lib.theme.color
 
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuDefaults
+import androidx.compose.material3.MenuItemColors
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
@@ -33,3 +35,12 @@ val ColorScheme.onVariant: Color
 
 val ColorScheme.selected: Color
     @Composable get() = MaterialTheme.colorScheme.surface
+
+val menuItemColors: MenuItemColors
+    @Composable
+    get() =
+        MenuDefaults.itemColors()
+            .copy(
+                leadingIconColor = MaterialTheme.colorScheme.onSurface,
+                textColor = MaterialTheme.colorScheme.onSurface,
+            )

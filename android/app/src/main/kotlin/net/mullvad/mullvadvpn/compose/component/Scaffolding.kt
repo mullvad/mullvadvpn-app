@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyListState
@@ -245,7 +246,7 @@ fun ScaffoldWithLargeTopBarAndButton(
                         horizontal = Dimens.sideMargin,
                         vertical = Dimens.screenVerticalMargin
                     ),
-                icon = {
+                trailingIcon = {
                     Icon(
                         painter = painterResource(id = R.drawable.icon_extlink),
                         contentDescription = null
@@ -274,7 +275,7 @@ fun ScaffoldWithSmallTopBar(
     content: @Composable (modifier: Modifier) -> Unit
 ) {
     Scaffold(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize().imePadding(),
         topBar = {
             MullvadSmallTopBar(
                 title = appBarTitle,
