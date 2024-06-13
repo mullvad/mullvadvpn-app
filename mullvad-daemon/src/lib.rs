@@ -33,7 +33,7 @@ use api::AccessMethodEvent;
 use device::{AccountEvent, PrivateAccountAndDevice, PrivateDeviceEvent};
 use futures::{
     channel::{mpsc, oneshot},
-    future::{abortable, AbortHandle, Future, LocalBoxFuture},
+    future::{abortable, AbortHandle, Future},
     StreamExt,
 };
 use geoip::GeoIpHandler;
@@ -467,7 +467,7 @@ impl DaemonCommandChannel {
     }
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct DaemonCommandSender(Arc<mpsc::UnboundedSender<InternalDaemonEvent>>);
 
 impl DaemonCommandSender {
@@ -540,7 +540,7 @@ where
 }
 
 /// Trait representing something that can broadcast daemon events.
-pub trait EventListener {
+pub trait EventListener: Clone + Send + Sync + 'static {
     /// Notify that the tunnel state changed.
     fn notify_new_state(&self, new_state: TunnelState);
 
@@ -585,7 +585,7 @@ pub struct Daemon<L: EventListener> {
     relay_selector: RelaySelector,
     relay_list_updater: RelayListUpdaterHandle,
     parameters_generator: tunnel::ParametersGenerator,
-    shutdown_tasks: Vec<Pin<Box<dyn Future<Output = ()>>>>,
+    shutdown_tasks: Vec<Pin<Box<dyn Future<Output = ()> + Send + Sync>>>,
     tunnel_state_machine_handle: TunnelStateMachineHandle,
     #[cfg(target_os = "windows")]
     volume_update_tx: mpsc::UnboundedSender<()>,
@@ -594,7 +594,7 @@ pub struct Daemon<L: EventListener> {
 
 impl<L> Daemon<L>
 where
-    L: EventListener + Clone + Send + 'static,
+    L: EventListener,
 {
     pub async fn start(
         log_dir: Option<PathBuf>,
@@ -897,46 +897,27 @@ where
     /// Destroy daemon safely, by dropping all objects in the correct order, waiting for them to
     /// be destroyed, and executing shutdown tasks
     async fn finalize(self) {
-        let (event_listener, shutdown_tasks, api_runtime, tunnel_state_machine_handle) =
-            self.shutdown();
-        for future in shutdown_tasks {
-            future.await;
-        }
-
-        tunnel_state_machine_handle.try_join().await;
-
-        drop(event_listener);
-        drop(api_runtime);
-    }
-
-    /// Shuts down the daemon without shutting down the underlying event listener and the shutdown
-    /// callbacks
-    fn shutdown<'a>(
-        self,
-    ) -> (
-        L,
-        Vec<LocalBoxFuture<'a, ()>>,
-        mullvad_api::Runtime,
-        TunnelStateMachineHandle,
-    ) {
         let Daemon {
             event_listener,
-            mut shutdown_tasks,
+            shutdown_tasks,
             api_runtime,
             tunnel_state_machine_handle,
             target_state,
             account_manager,
             ..
         } = self;
-        shutdown_tasks.push(Box::pin(target_state.finalize()));
-        shutdown_tasks.push(Box::pin(account_manager.shutdown()));
 
-        (
-            event_listener,
-            shutdown_tasks,
-            api_runtime,
-            tunnel_state_machine_handle,
-        )
+        for future in shutdown_tasks {
+            future.await;
+        }
+
+        target_state.finalize().await;
+        account_manager.shutdown().await;
+
+        tunnel_state_machine_handle.try_join().await;
+
+        drop(event_listener);
+        drop(api_runtime);
     }
 
     async fn handle_event(&mut self, event: InternalDaemonEvent) -> bool {
@@ -1686,7 +1667,7 @@ where
 
     #[cfg(not(target_os = "android"))]
     async fn on_factory_reset(&mut self, tx: ResponseTx<(), Error>) {
-        let mut last_error = Ok(());
+        let mut last_error = None;
 
         if let Err(error) = self.account_manager.logout().await {
             log::error!(
@@ -1700,12 +1681,12 @@ where
                 "{}",
                 error.display_chain_with_msg("Failed to clear account history")
             );
-            last_error = Err(Error::FactoryResetError("Failed to clear account history"));
+            last_error = Some("Failed to clear account history");
         }
 
         if let Err(e) = self.settings.reset().await {
             log::error!("Failed to reset settings: {}", e);
-            last_error = Err(Error::FactoryResetError("Failed to reset settings"));
+            last_error = Some("Failed to reset settings");
         }
 
         // Shut the daemon down.
@@ -1717,11 +1698,12 @@ where
                     "{}",
                     e.display_chain_with_msg("Failed to clear cache and log directories")
                 );
-                last_error = Err(Error::FactoryResetError(
-                    "Failed to clear cache and log directories",
-                ));
+                last_error = Some("Failed to clear cache and log directories");
             }
-            Self::oneshot_send(tx, last_error, "factory_reset response");
+            let result = last_error
+                .map(|error| Err(Error::FactoryResetError(error)))
+                .unwrap_or(Ok(()));
+            Self::oneshot_send(tx, result, "factory_reset response");
         }));
     }
 
