@@ -7,12 +7,14 @@
     <string name="account_number">หมายเลขบัญชี</string>
     <string name="account_time_notification_channel_description">แสดงการแจ้งเตือน ในขณะที่เวลาบัญชีใกล้หมดอายุ</string>
     <string name="account_time_notification_channel_name">การแจ้งเตือนเวลาบัญชี</string>
+    <string name="add">เพิ่ม</string>
     <string name="add_30_days_time">เพิ่มเวลา 30 วัน</string>
     <string name="add_30_days_time_x">เพิ่มเวลา 30 วัน (%1$s)</string>
     <string name="add_a_server">เพิ่มเซิร์ฟเวอร์</string>
     <string name="add_dns_server_dialog_title">เพิ่มเซิร์ฟเวอร์ DNS</string>
     <string name="add_location_to_list">เพิ่ม %1$s ลงในรายการ</string>
     <string name="add_locations">เพิ่มตำแหน่งที่ตั้ง</string>
+    <string name="add_method">เพิ่มวิธีการ</string>
     <string name="add_time_to_account">ซื้อเครดิตบนเว็บไซต์ของเรา หรือแลกรับบัตรกำนัล</string>
     <string name="added_to_your_account">%1$s ถูกเพิ่มลงในบัญชีของคุณแล้ว</string>
     <string name="agree_and_continue">ยอมรับและดำเนินการต่อ</string>
@@ -23,9 +25,16 @@
     <string name="always_on_vpn_error_notification_content">ไม่สามารถเริ่มการเชื่อมต่ออุโมงค์ได้ โปรดปิดใช้งาน Always-on VPN เป็นเวลา &lt;b&gt;%1$s&lt;/b&gt; ก่อนที่จะใช้งาน Mullvad VPN</string>
     <string name="always_on_vpn_error_notification_title">Always-on VPN ได้รับการมอบหมายไปยังแอปอื่นแล้ว</string>
     <string name="any">อะไรก็ได้</string>
+    <string name="api_access_description">จัดการและเพิ่มวิธีแบบกำหนดเอง เพื่อเข้าถึง Mullvad API</string>
+    <string name="api_access_method_info_first_line">แอปจำเป็นต้องสื่อสารกับเซิร์ฟเวอร์ Mullvad API เพื่อนำคุณเข้าสู่ระบบ ดึงข้อมูลรายการเซิร์ฟเวอร์ และการดำเนินการที่สำคัญอื่นๆ</string>
+    <string name="api_access_method_info_second_line">คุณอาจไม่สามารถเข้าถึงเซิร์ฟเวอร์ API ได้โดยตรง ในบางเครือข่ายที่มีการใช้งานเซ็นเซอร์หลายประเภท</string>
+    <string name="api_access_method_info_third_line">คุณลักษณะนี้ช่วยให้คุณหลีกเลี่ยงการเซ็นเซอร์ โดยการเพิ่มวิธีที่กำหนดเองในการเข้าถึง API ผ่านพร็อกซี่ และวิธีการที่คล้ายคลึงกัน</string>
+    <string name="api_reachable">เข้าถึง API ได้</string>
+    <string name="api_unreachable">ไม่สามารถเข้าถึง API ได้</string>
     <string name="app_version">เวอร์ชันแอป</string>
     <string name="apply">ใช้</string>
     <string name="auth_failed">ไม่สามารถตรวจสอบความถูกต้องของบัญชีได้ โปรดส่งรายงานปัญหา</string>
+    <string name="authentication">การรับรองความถูกต้อง</string>
     <string name="auto_connect">เชื่อมต่ออัตโนมัติ</string>
     <string name="auto_connect_and_lockdown_mode">เชื่อมต่ออัตโนมัติและโหมดล็อกดาวน์</string>
     <string name="auto_connect_and_lockdown_mode_footer">ตรวจสอบให้แน่ใจว่า อุปกรณ์อยู่ในช่องทาง VPN เสมอ</string>
@@ -50,6 +59,7 @@
     <string name="buy_more_credit">ซื้อเครดิตเพิ่ม</string>
     <string name="cancel">ยกเลิก</string>
     <string name="changes_dialog_subtitle">การเปลี่ยนแปลงในเวอร์ชันนี้:</string>
+    <string name="cipher">เข้ารหัส</string>
     <string name="confirm_local_dns">เซิร์ฟเวอร์ DNS ท้องถิ่นจะไม่ทำงาน เว้นแต่คุณจะเปิดใช้ \"การแชร์ในเครือข่ายท้องถิ่น\" ซึ่งอยู่ในส่วนการกำหนดค่า</string>
     <string name="confirm_no_email">คุณกำลังจะส่งรายงานปัญหา โดยไม่มีการระบุวิธีการติดต่อกลับให้กับเรา และคุณจำเป็นต้องป้อนที่อยู่อีเมลของคุณ หากคุณอยากให้เราตอบกลับการรายงานของคุณ</string>
     <string name="confirm_removal">ใช่ นำอุปกรณ์ออกจากระบบ</string>
@@ -108,6 +118,7 @@
     <string name="edit_lists">แก้ไขรายการ</string>
     <string name="edit_locations">แก้ไขตำแหน่งที่ตั้ง</string>
     <string name="edit_message">แก้ไขข้อความ</string>
+    <string name="edit_method">แก้ไขวิธี</string>
     <string name="edit_name">แก้ไขชื่อ</string>
     <string name="enable">เปิดใช้งาน</string>
     <string name="enable_custom_dns">ใช้เซิร์ฟเวอร์ DNS แบบกำหนดเอง</string>
@@ -173,6 +184,7 @@
     <string name="max_devices_warning_title">มีอุปกรณ์มากเกินไป</string>
     <string name="mullvad_account_number">หมายเลขบัญชี Mullvad</string>
     <string name="mullvad_owned_only">ของ Mullvad เท่านั้น</string>
+    <string name="name">ชื่อ</string>
     <string name="name_was_changed_to">ชื่อถูกเปลี่ยนเป็น %1$s</string>
     <string name="new_device_notification_message">ยินดีต้อนรับ ขณะนี้อุปกรณ์นี้จะมีชื่อว่า &lt;b&gt;%1$s&lt;/b&gt; สำหรับข้อมูลเพิ่มเติม โปรดกดปุ่มข้อมูลในบัญชี</string>
     <string name="new_device_notification_title">สร้างอุปกรณ์ใหม่แล้ว</string>
@@ -196,6 +208,7 @@
     <string name="owned">เป็นเจ้าของ</string>
     <string name="ownership">ความเป็นเจ้าของ</string>
     <string name="paid_until">ชำระเงินแล้วจนถึง</string>
+    <string name="password">รหัสผ่าน</string>
     <string name="patch_not_matching_specification">แพตช์ไม่ตรงกับข้อมูลจำเพาะ</string>
     <string name="pay_to_start_using">คุณจำเป็นต้องเพิ่มเวลาไปยังบัญชีของคุณก่อน เพื่อที่จะเริ่มใช้งานแอป</string>
     <string name="payment_billing_error_dialog_message">เราไม่สามารถเริ่มกระบวนการชำระเงินได้ โปรดตรวจสอบให้แน่ใจว่า คุณมี Google Play เวอร์ชันล่าสุด </string>
@@ -242,6 +255,7 @@
     <string name="sent">ส่ง</string>
     <string name="sent_contact">เราจะติดต่อคุณไปทาง %1$s ในกรณีจำเป็น</string>
     <string name="sent_thanks">ขอบคุณ!</string>
+    <string name="server">เซิร์ฟเวอร์</string>
     <string name="server_ip_overrides">โอเวอร์ไรด์ IP เซิร์ฟเวอร์</string>
     <string name="server_ip_overrides_active">เปิดใช้โอเวอร์ไรด์อยู่</string>
     <string name="server_ip_overrides_import_by">นำเข้าโอเวอร์ไรด์ใหม่โดยใช้</string>
@@ -259,6 +273,7 @@
     <string name="set_firewall_policy_error">ไม่สามารถใช้กฎไฟร์วอลล์ได้ โปรดแก้ไขปัญหา หรือส่งรายงานปัญหา</string>
     <string name="settings">การตั้งค่า</string>
     <string name="settings_account">บัญชี</string>
+    <string name="settings_api_access">การเข้าถึง API</string>
     <string name="settings_changes_effect_warning_content_blocker">การเปลี่ยนแปลงการตั้งค่าที่เกี่ยวข้องกับ DNS อาจไม่มีผลทันที เนื่องจากผลลัพธ์ที่แคชไว้</string>
     <string name="settings_changes_effect_warning_short">การตั้งค่า DNS อาจไม่มีผลทันที</string>
     <string name="settings_patch_error_failed_to_apply_patch">ล้มเหลวในการปรับใช้แพตช์</string>
@@ -277,12 +292,15 @@
     <string name="submit_button">ส่ง</string>
     <string name="switch_location">สลับตำแหน่ง</string>
     <string name="tcp">TCP</string>
+    <string name="testing">กำลังทดสอบ...</string>
     <string name="to_add_locations_to_a_list">กด \"︙\" หรือกดประเทศ เมือง หรือเซิร์ฟเวอร์ค้างไว้ เพื่อเพิ่มตำแหน่งที่ตั้งลงในรายการ</string>
     <string name="to_create_a_custom_list">กด \"︙\" เพื่อสร้างรายการแบบกำหนดเอง</string>
     <string name="toggle_vpn">เปิด/ปิด VPN</string>
     <string name="top_bar_device_name">ชื่ออุปกรณ์: %1$s</string>
     <string name="top_bar_time_left">เหลือเวลา: %1$s</string>
+    <string name="transport_protocol">โพรโทคอลการส่งข้อมูล</string>
     <string name="try_again">ลองอีกครั้ง</string>
+    <string name="type">ประเภท</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">พอร์ต TCP ใดที่โพรโทคอลการทำให้ข้อมูลยุ่งเหยิง UDP-ผ่าน-TCP ควรเชื่อมต่อบนเซิร์ฟเวอร์ VPN</string>
     <string name="udp_over_tcp_port_title">พอร์ต UDP-ผ่าน-TCP</string>
@@ -299,6 +317,7 @@
     <string name="update_list_name">อัปเดตชื่อรายการ</string>
     <string name="user_email_hint">อีเมลของคุณ (ไม่บังคับ)</string>
     <string name="user_message_hint">โปรดเขียนเป็นภาษาอังกฤษหรือสวีเดน พร้อมระบุประเทศต้นทางที่คุณเชื่อมต่อ เพื่อให้รับความช่วยเหลือได้ดียิ่งขึ้น</string>
+    <string name="username">ชื่อผู้ใช้</string>
     <string name="verifying_voucher">กำลังตรวจสอบยืนยันบัตรกำนัล…</string>
     <string name="view_logs">ดูบันทึกของแอป</string>
     <string name="virtual_adapter_problem">ข้อผิดพลาดของอะแดปเตอร์เสมือน</string>
