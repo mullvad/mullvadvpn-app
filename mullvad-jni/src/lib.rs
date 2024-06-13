@@ -1,33 +1,23 @@
 #![cfg(target_os = "android")]
 
 mod classes;
-mod daemon_interface;
 mod is_null;
 mod problem_report;
 mod talpid_vpn_service;
 
-use crate::daemon_interface::DaemonInterface;
 use jnix::{
-    jni::{
-        objects::{GlobalRef, JObject, JValue},
-        signature::{JavaType, Primitive},
-        sys::jlong,
-        JNIEnv, JavaVM,
-    },
+    jni::{objects::JObject, sys::jlong, JNIEnv},
     FromJava, JnixEnv,
 };
 use mullvad_daemon::{
-    cleanup_old_rpc_socket, exception_logging, logging, runtime::new_multi_thread, version, Daemon,
-    DaemonCommandChannel,
+    cleanup_old_rpc_socket, exception_logging, logging,
+    management_interface::ManagementInterfaceServer, runtime::new_multi_thread, version, Daemon,
+    DaemonCommandChannel, DaemonCommandSender,
 };
 use std::{
     io,
     path::{Path, PathBuf},
-    sync::{
-        atomic::{AtomicUsize, Ordering},
-        mpsc, Arc, Once,
-    },
-    thread,
+    sync::{mpsc, Arc, Once},
 };
 use talpid_types::{android::AndroidContext, ErrorExt};
 
@@ -36,7 +26,6 @@ use std::net::{IpAddr, SocketAddr};
 
 const LOG_FILENAME: &str = "daemon.log";
 
-static DAEMON_INSTANCE_COUNT: AtomicUsize = AtomicUsize::new(0);
 static LOAD_CLASSES: Once = Once::new();
 static LOG_START: Once = Once::new();
 static mut LOG_INIT_RESULT: Option<Result<(), String>> = None;
@@ -49,8 +38,14 @@ pub enum Error {
     #[error("Failed to get Java VM instance")]
     GetJvmInstance(#[source] jnix::jni::errors::Error),
 
+    #[error("Failed to initialize logging: {0}")]
+    InitializeLogging(String),
+
     #[error("Failed to initialize the mullvad daemon")]
     InitializeDaemon(#[source] mullvad_daemon::Error),
+
+    #[error("Mullvad daemon exited with an error")]
+    DaemonFailed(#[source] mullvad_daemon::Error),
 
     #[error("Failed to spawn the tokio runtime")]
     InitializeTokioRuntime(#[source] io::Error),
@@ -59,58 +54,196 @@ pub enum Error {
     SpawnManagementInterface(#[source] mullvad_daemon::management_interface::Error),
 }
 
+struct DaemonContext {
+    daemon_command_tx: DaemonCommandSender,
+    shutdown_complete_rx: mpsc::Receiver<()>,
+}
+
+/// Spawn Mullvad daemon. On success, a handle that can be passed to `MullvadDaemon.stop` is
+/// returned. On error, an exception is thrown.
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_initialize(
+pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_start(
     env: JNIEnv<'_>,
-    this: JObject<'_>,
+    _this: JObject<'_>,
     vpnService: JObject<'_>,
     rpcSocketPath: JObject<'_>,
     filesDirectory: JObject<'_>,
     cacheDirectory: JObject<'_>,
     apiEndpoint: JObject<'_>,
-) {
-    let env = JnixEnv::from(env);
-    let rpc_socket = PathBuf::from(String::from_java(&env, rpcSocketPath));
-    let files_dir = PathBuf::from(String::from_java(&env, filesDirectory));
-    let cache_dir = PathBuf::from(String::from_java(&env, cacheDirectory));
+) -> jlong {
+    match start(
+        env,
+        vpnService,
+        rpcSocketPath,
+        filesDirectory,
+        cacheDirectory,
+        apiEndpoint,
+    ) {
+        Ok(daemon) => Box::into_raw(daemon) as jlong,
+        Err(message) => {
+            env.throw(message.to_string())
+                .expect("Failed to throw exception");
+            0
+        }
+    }
+}
 
-    let api_endpoint = if !apiEndpoint.is_null() {
-        #[cfg(feature = "api-override")]
-        {
-            Some(api_endpoint_from_java(&env, apiEndpoint))
+/// Shut down Mullvad daemon. The handle must be a valid handle returned by `MullvadDaemon.start`.
+#[no_mangle]
+#[allow(non_snake_case)]
+pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_stop(
+    _: JNIEnv<'_>,
+    _: JObject<'_>,
+    daemon_handle: jlong,
+) {
+    let pointer = daemon_handle as *mut DaemonContext;
+    if pointer.is_null() {
+        return;
+    }
+
+    // SAFETY: The caller promises that this is a valid pointer to a DaemonContext.
+    let context: Box<DaemonContext> = unsafe { Box::from_raw(pointer) };
+
+    context.daemon_command_tx.shutdown();
+    _ = context.shutdown_complete_rx.recv();
+}
+
+fn start(
+    env: JNIEnv<'_>,
+    vpn_service: JObject<'_>,
+    rpc_socket_path: JObject<'_>,
+    files_directory: JObject<'_>,
+    cache_directory: JObject<'_>,
+    api_endpoint: JObject<'_>,
+) -> Result<Box<DaemonContext>, Error> {
+    let env = JnixEnv::from(env);
+
+    LOAD_CLASSES.call_once(|| env.preload_classes(classes::CLASSES.iter().cloned()));
+
+    let rpc_socket = PathBuf::from(String::from_java(&env, rpc_socket_path));
+    let files_dir = PathBuf::from(String::from_java(&env, files_directory));
+    let cache_dir = PathBuf::from(String::from_java(&env, cache_directory));
+
+    start_logging(&files_dir).map_err(Error::InitializeLogging)?;
+    version::log_version();
+
+    let android_context = create_android_context(&env, vpn_service)?;
+
+    #[cfg(feature = "api-override")]
+    if !api_endpoint.is_null() {
+        let api_endpoint = api_endpoint_from_java(&env, apiEndpoint);
+        log::debug!("Overriding API endpoint: {api_endpoint:?}");
+        if mullvad_api::API.override_init(api_endpoint).is_err() {
+            log::warn!("Ignoring API settings (already initialized)");
         }
-        #[cfg(not(feature = "api-override"))]
-        {
-            log::warn!("apiEndpoint will be ignored since 'api-override' is not enabled");
-            None
-        }
-    } else {
-        None
+    }
+    #[cfg(not(feature = "api-override"))]
+    if !api_endpoint.is_null() {
+        log::warn!("api_endpoint will be ignored since 'api-override' is not enabled");
+    }
+
+    run_daemon(android_context, rpc_socket, files_dir, cache_dir)
+}
+
+fn run_daemon(
+    android_context: AndroidContext,
+    rpc_socket: PathBuf,
+    files_dir: PathBuf,
+    cache_dir: PathBuf,
+) -> Result<Box<DaemonContext>, Error> {
+    let daemon_command_channel = DaemonCommandChannel::new();
+    let (shutdown_complete_tx, shutdown_complete_rx) = mpsc::channel();
+
+    let context = DaemonContext {
+        daemon_command_tx: daemon_command_channel.sender(),
+        shutdown_complete_rx,
     };
 
-    match start_logging(&files_dir) {
-        Ok(()) => {
-            version::log_version();
+    let (init_complete_tx, init_complete_rx) = mpsc::channel();
 
-            LOAD_CLASSES.call_once(|| env.preload_classes(classes::CLASSES.iter().cloned()));
+    let daemon_thread = std::thread::spawn(move || {
+        let runtime = new_multi_thread()
+            .build()
+            .map_err(Error::InitializeTokioRuntime)?;
 
-            if let Err(error) = initialize(
-                &env,
-                &this,
-                &vpnService,
-                rpc_socket,
-                files_dir,
-                cache_dir,
-                api_endpoint,
-            ) {
-                log::error!("{}", error.display_chain());
-            }
-        }
-        Err(message) => env
-            .throw(message.as_str())
-            .expect("Failed to throw exception"),
+        runtime.block_on(run_daemon_inner(
+            rpc_socket,
+            files_dir,
+            cache_dir,
+            daemon_command_channel,
+            android_context,
+            init_complete_tx,
+        ))?;
+
+        _ = shutdown_complete_tx.send(());
+
+        Ok::<(), Error>(())
+    });
+
+    // Do this silly maneuver instead of moving `daemon.run()` into `tokio::spawn()`,
+    // since the latter requires that futures be `Send`, and `Daemon` isn't sendable.
+    if init_complete_rx.recv().is_err() {
+        return Err(daemon_thread.join().expect("thread panicked").unwrap_err());
     }
+
+    Ok(Box::new(context))
+}
+
+async fn run_daemon_inner(
+    rpc_socket: PathBuf,
+    files_dir: PathBuf,
+    cache_dir: PathBuf,
+    command_channel: DaemonCommandChannel,
+    android_context: AndroidContext,
+    init_complete_tx: mpsc::Sender<()>,
+) -> Result<(), Error> {
+    cleanup_old_rpc_socket(&rpc_socket).await;
+
+    let event_listener = ManagementInterfaceServer::start(command_channel.sender(), &rpc_socket)
+        .map_err(Error::SpawnManagementInterface)?;
+
+    log::info!("Management interface listening on {}", rpc_socket.display());
+
+    let daemon = Daemon::start(
+        Some(files_dir.clone()),
+        files_dir.clone(),
+        files_dir,
+        cache_dir,
+        event_listener,
+        command_channel,
+        android_context,
+    )
+    .await
+    .map_err(Error::InitializeDaemon)?;
+
+    _ = init_complete_tx.send(());
+
+    daemon.run().await.map_err(Error::DaemonFailed)?;
+
+    log::info!("Mullvad daemon has stopped");
+
+    Ok(())
+}
+
+fn start_logging(log_dir: &Path) -> Result<(), String> {
+    unsafe {
+        LOG_START.call_once(|| LOG_INIT_RESULT = Some(initialize_logging(log_dir)));
+        LOG_INIT_RESULT
+            .clone()
+            .expect("Logging not properly initialized")
+    }
+}
+
+fn initialize_logging(log_dir: &Path) -> Result<(), String> {
+    let log_file = log_dir.join(LOG_FILENAME);
+
+    logging::init_logger(log::LevelFilter::Debug, Some(&log_file), true)
+        .map_err(|error| error.display_chain_with_msg("Failed to start logger"))?;
+    exception_logging::enable();
+    log_panics::init();
+
+    Ok(())
 }
 
 #[cfg(feature = "api-override")]
@@ -203,55 +336,6 @@ fn try_hostname_from_java(env: &JnixEnv<'_>, address: JObject<'_>) -> Option<Str
     Some(String::from_java(env, hostname))
 }
 
-fn start_logging(log_dir: &Path) -> Result<(), String> {
-    unsafe {
-        LOG_START.call_once(|| LOG_INIT_RESULT = Some(initialize_logging(log_dir)));
-        LOG_INIT_RESULT
-            .clone()
-            .expect("Logging not properly initialized")
-    }
-}
-
-fn initialize_logging(log_dir: &Path) -> Result<(), String> {
-    let log_file = log_dir.join(LOG_FILENAME);
-
-    logging::init_logger(log::LevelFilter::Debug, Some(&log_file), true)
-        .map_err(|error| error.display_chain_with_msg("Failed to start logger"))?;
-    exception_logging::enable();
-    log_panics::init();
-
-    Ok(())
-}
-
-fn initialize(
-    env: &JnixEnv<'_>,
-    this: &JObject<'_>,
-    vpn_service: &JObject<'_>,
-    rpc_socket: PathBuf,
-    files_dir: PathBuf,
-    cache_dir: PathBuf,
-    api_endpoint: Option<mullvad_api::ApiEndpoint>,
-) -> Result<(), Error> {
-    let android_context = create_android_context(env, *vpn_service)?;
-    let daemon_command_channel = DaemonCommandChannel::new();
-    let daemon_interface = Box::new(DaemonInterface::new(daemon_command_channel.sender()));
-
-    spawn_daemon(
-        env,
-        this,
-        rpc_socket,
-        files_dir,
-        cache_dir,
-        api_endpoint,
-        daemon_command_channel,
-        android_context,
-    )?;
-
-    set_daemon_interface_address(env, this, Box::into_raw(daemon_interface) as jlong);
-
-    Ok(())
-}
-
 fn create_android_context(
     env: &JnixEnv<'_>,
     vpn_service: JObject<'_>,
@@ -262,242 +346,4 @@ fn create_android_context(
             .new_global_ref(vpn_service)
             .map_err(Error::CreateGlobalReference)?,
     })
-}
-
-#[allow(clippy::too_many_arguments)]
-fn spawn_daemon(
-    env: &JnixEnv<'_>,
-    this: &JObject<'_>,
-    rpc_socket: PathBuf,
-    files_dir: PathBuf,
-    cache_dir: PathBuf,
-    #[cfg_attr(not(feature = "api-override"), allow(unused_variables))] api_endpoint: Option<
-        mullvad_api::ApiEndpoint,
-    >,
-    command_channel: DaemonCommandChannel,
-    android_context: AndroidContext,
-) -> Result<(), Error> {
-    let daemon_object = env
-        .new_global_ref(*this)
-        .map_err(Error::CreateGlobalReference)?;
-    let (tx, rx) = mpsc::channel();
-
-    let runtime = new_multi_thread()
-        .build()
-        .map_err(Error::InitializeTokioRuntime)?;
-
-    thread::spawn(move || {
-        let jvm = android_context.jvm.clone();
-        let running_instances = DAEMON_INSTANCE_COUNT.fetch_add(1, Ordering::AcqRel);
-
-        if running_instances != 0 {
-            log::error!(
-                "It seems that there are already {} instances of the Mullvad daemon running",
-                running_instances
-            );
-        }
-
-        #[cfg(feature = "api-override")]
-        if let Some(api_endpoint) = api_endpoint {
-            log::debug!("Overriding API endpoint: {api_endpoint:?}");
-            if mullvad_api::API.override_init(api_endpoint).is_err() {
-                log::warn!("Ignoring API settings (already initialized)");
-            }
-        }
-
-        runtime.block_on(cleanup_old_rpc_socket(&rpc_socket));
-
-        let event_listener = match runtime
-            .block_on(async { spawn_management_interface(command_channel.sender(), &rpc_socket) })
-        {
-            Ok(event_listener) => event_listener,
-            Err(error) => {
-                let _ = tx.send(Err(error));
-                return;
-            }
-        };
-
-        let daemon = runtime.block_on(Daemon::start(
-            Some(files_dir.clone()),
-            files_dir.clone(),
-            files_dir,
-            cache_dir,
-            event_listener,
-            command_channel,
-            android_context,
-        ));
-
-        DAEMON_INSTANCE_COUNT.fetch_sub(1, Ordering::AcqRel);
-
-        match daemon {
-            Ok(daemon) => {
-                let _ = tx.send(Ok(()));
-                match runtime.block_on(daemon.run()) {
-                    Ok(()) => log::info!("Mullvad daemon has stopped"),
-                    Err(error) => log::error!("{}", error.display_chain()),
-                }
-            }
-            Err(error) => {
-                let _ = tx.send(Err(Error::InitializeDaemon(error)));
-            }
-        }
-
-        notify_daemon_stopped(jvm, daemon_object);
-    });
-
-    rx.recv().unwrap()
-}
-
-use mullvad_daemon::{
-    management_interface::{ManagementInterfaceEventBroadcaster, ManagementInterfaceServer},
-    DaemonCommandSender,
-};
-
-fn spawn_management_interface(
-    command_sender: DaemonCommandSender,
-    rpc_socket_path: impl AsRef<Path>,
-) -> Result<ManagementInterfaceEventBroadcaster, Error> {
-    let event_broadcaster = ManagementInterfaceServer::start(command_sender, &rpc_socket_path)
-        .map_err(|error| {
-            log::error!(
-                "{}",
-                error.display_chain_with_msg("Unable to start management interface server")
-            );
-            Error::SpawnManagementInterface(error)
-        })?;
-
-    log::info!(
-        "Management interface listening on {}",
-        rpc_socket_path.as_ref().display()
-    );
-
-    Ok(event_broadcaster)
-}
-
-fn notify_daemon_stopped(jvm: Arc<JavaVM>, daemon_object: GlobalRef) {
-    match jvm.attach_current_thread_as_daemon() {
-        Ok(env) => {
-            let env = JnixEnv::from(env);
-            let class = env.get_class("net/mullvad/mullvadvpn/service/MullvadDaemon");
-            let object = daemon_object.as_obj();
-            let method_id = env
-                .get_method_id(&class, "notifyDaemonStopped", "()V")
-                .expect("Failed to get method ID for MullvadDaemon.notifyDaemonStopped");
-            let return_type = JavaType::Primitive(Primitive::Void);
-
-            let result = env.call_method_unchecked(object, method_id, return_type, &[]);
-
-            match result {
-                Ok(JValue::Void) => {}
-                Ok(value) => panic!(
-                    "Unexpected return value from MullvadDaemon.notifyDaemonStopped: {:?}",
-                    value
-                ),
-                Err(error) => panic!(
-                    "{}",
-                    error
-                        .display_chain_with_msg("Failed to call MullvadDaemon.notifyDaemonStopped")
-                ),
-            }
-        }
-        Err(error) => log::error!(
-            "{}",
-            error.display_chain_with_msg("Failed to notify that the daemon stopped")
-        ),
-    }
-}
-
-fn set_daemon_interface_address(env: &JnixEnv<'_>, this: &JObject<'_>, address: jlong) {
-    let class = env.get_class("net/mullvad/mullvadvpn/service/MullvadDaemon");
-    let method_id = env
-        .get_method_id(&class, "setDaemonInterfaceAddress", "(J)V")
-        .expect("Failed to get method ID for MullvadDaemon.setDaemonInterfaceAddress");
-    let return_type = JavaType::Primitive(Primitive::Void);
-
-    let result = env.call_method_unchecked(*this, method_id, return_type, &[JValue::Long(address)]);
-
-    match result {
-        Ok(JValue::Void) => {}
-        Ok(value) => panic!(
-            "Unexpected return value from MullvadDaemon.setDaemonInterfaceAddress: {:?}",
-            value
-        ),
-        Err(error) => panic!(
-            "{}",
-            error.display_chain_with_msg("Failed to call MullvadDaemon.setDaemonInterfaceAddress")
-        ),
-    }
-}
-
-fn get_daemon_interface_address(env: &JnixEnv<'_>, this: &JObject<'_>) -> *mut DaemonInterface {
-    let class = env.get_class("net/mullvad/mullvadvpn/service/MullvadDaemon");
-    let method_id = env
-        .get_method_id(&class, "getDaemonInterfaceAddress", "()J")
-        .expect("Failed to get method ID for MullvadDaemon.getDaemonInterfaceAddress");
-    let return_type = JavaType::Primitive(Primitive::Long);
-
-    let result = env.call_method_unchecked(*this, method_id, return_type, &[]);
-
-    match result {
-        Ok(JValue::Long(address)) => address as *mut DaemonInterface,
-        Ok(value) => panic!(
-            "Invalid return value from MullvadDaemon.getDaemonInterfaceAddress: {:?}",
-            value
-        ),
-        Err(error) => panic!(
-            "{}",
-            error.display_chain_with_msg("Failed to call MullvadDaemon.getDaemonInterfaceAddress")
-        ),
-    }
-}
-
-#[no_mangle]
-#[allow(non_snake_case)]
-pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_deinitialize(
-    env: JNIEnv<'_>,
-    this: JObject<'_>,
-) {
-    let env = JnixEnv::from(env);
-    let daemon_interface_address = get_daemon_interface_address(&env, &this);
-
-    set_daemon_interface_address(&env, &this, 0);
-
-    if !daemon_interface_address.is_null() {
-        let _ = unsafe { Box::from_raw(daemon_interface_address) };
-    }
-}
-
-/// # Safety
-///
-/// `address` must either be zero or a valid pointer to a `DaemonInterface` instance.
-/// This function has no concept of lifetimes, so the caller must ensure that the
-/// pointed to `DaemonInterface` is valid for at least as long as the return value
-/// of this function is still alive.
-unsafe fn get_daemon_interface(address: jlong) -> Option<&'static mut DaemonInterface> {
-    let pointer = address as *mut DaemonInterface;
-
-    if !pointer.is_null() {
-        Some(&mut *pointer)
-    } else {
-        log::error!("Attempt to get daemon interface while it is null");
-        None
-    }
-}
-
-#[no_mangle]
-#[allow(non_snake_case)]
-pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_shutdown(
-    _: JNIEnv<'_>,
-    _: JObject<'_>,
-    daemon_interface_address: jlong,
-) {
-    // SAFETY: The address points to an instance valid for the duration of this function call
-    if let Some(daemon_interface) = unsafe { get_daemon_interface(daemon_interface_address) } {
-        if let Err(error) = daemon_interface.shutdown() {
-            log::error!(
-                "{}",
-                error.display_chain_with_msg("Failed to shutdown daemon thread")
-            );
-        }
-    }
 }

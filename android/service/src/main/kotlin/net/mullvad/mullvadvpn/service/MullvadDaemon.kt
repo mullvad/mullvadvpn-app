@@ -21,10 +21,7 @@ class MullvadDaemon(
     apiEndpointConfiguration: ApiEndpointConfiguration,
     migrateSplitTunneling: MigrateSplitTunneling
 ) {
-    // Used by JNI
-    @Suppress("ProtectedMemberInFinalClass") protected var daemonInterfaceAddress = 0L
-
-    private val shutdownSignal = Channel<Unit>()
+    private var mullvadDaemonHandle = 0L
 
     init {
         System.loadLibrary("mullvad_jni")
@@ -33,7 +30,7 @@ class MullvadDaemon(
 
         migrateSplitTunneling.migrate()
 
-        initialize(
+        mullvadDaemonHandle = initialize(
             vpnService = vpnService,
             rpcSocketPath = rpcSocketFile.absolutePath,
             filesDirectory = vpnService.filesDir.absolutePath,
@@ -42,13 +39,14 @@ class MullvadDaemon(
         )
     }
 
-    suspend fun shutdown() =
-        withContext(Dispatchers.IO) {
-            val shutdownSignal = async { shutdownSignal.receive() }
-            shutdown(daemonInterfaceAddress)
-            shutdownSignal.await()
-            deinitialize()
+    fun shutdown() {
+        if (mullvadDaemonHandle == 0L) {
+            return
         }
+
+        stop(mullvadDaemonHandle)
+        mullvadDaemonHandle = 0L
+    }
 
     private fun prepareFiles(context: Context) {
         val shouldOverwriteRelayList =
@@ -60,24 +58,13 @@ class MullvadDaemon(
     private fun lastUpdatedTime(context: Context): Long =
         context.packageManager.getPackageInfo(context.packageName, 0).lastUpdateTime
 
-    // Used by JNI
-    @Suppress("unused")
-    private fun notifyDaemonStopped() {
-        runBlocking {
-            shutdownSignal.send(Unit)
-            shutdownSignal.close()
-        }
-    }
-
-    private external fun initialize(
+    private external fun start(
         vpnService: MullvadVpnService,
         rpcSocketPath: String,
         filesDirectory: String,
         cacheDirectory: String,
         apiEndpoint: ApiEndpoint?
-    )
+    ): Long
 
-    private external fun deinitialize()
-
-    private external fun shutdown(daemonInterfaceAddress: Long)
+    private external fun stop(mullvadDaemonHandle: Long)
 }
