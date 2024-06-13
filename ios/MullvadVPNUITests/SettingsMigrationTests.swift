@@ -98,6 +98,7 @@ class SettingsMigrationTests: BaseUITestCase {
             .tapUDPOverTCPPortExpandButton()
             .tapUDPOverTCPPort80Cell()
             .tapUDPOverTCPPortExpandButton()
+            .tapMultihopSwitch()
     }
 
     func testVerifyCustomDNSSettingsStillChanged() {
@@ -145,6 +146,7 @@ class SettingsMigrationTests: BaseUITestCase {
             .tapWireGuardObfuscationExpandButton()
             .tapUDPOverTCPPortExpandButton()
             .verifyUDPOverTCPPort80Selected()
+            .verifyMultihopSwitchOn()
             .tapBackButton()
     }
 }

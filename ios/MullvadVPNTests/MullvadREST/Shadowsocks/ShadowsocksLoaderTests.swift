@@ -20,56 +20,50 @@ class ShadowsocksLoaderTests: XCTestCase {
     private var relaySelector: ShadowsocksRelaySelectorStub!
     private var shadowsocksLoader: ShadowsocksLoader!
     private var relayConstraints = RelayConstraints()
+    private var multihopStateListener = MultihopStateListener()
 
     override func setUpWithError() throws {
         relayConstraintsUpdater = RelayConstraintsUpdater()
         shadowsocksConfigurationCache = ShadowsocksConfigurationCacheStub()
         relaySelector = ShadowsocksRelaySelectorStub(relays: sampleRelays)
 
-        shadowsocksLoader = ShadowsocksLoader(
-            cache: shadowsocksConfigurationCache,
-            relaySelector: relaySelector,
-            constraintsUpdater: relayConstraintsUpdater
-        )
-    }
-
-    func testLoadConfigWithMultihopDisabled() throws {
-        relaySelector.multihopState = .off
         relaySelector.exitBridgeResult = .success(try XCTUnwrap(closetRelayTo(
             location: relayConstraints.exitLocations,
             port: relayConstraints.port,
             filter: relayConstraints.filter,
             in: sampleRelays
         )))
-        relaySelector.entryBridgeResult = .failure(ShadowsocksRelaySelectorStubError())
 
-        let configuration = try XCTUnwrap(shadowsocksLoader.load())
-        XCTAssertEqual(configuration, try XCTUnwrap(shadowsocksConfigurationCache.read()))
-    }
-
-    func testLoadConfigWithMultihopEnabled() throws {
-        relaySelector.multihopState = .on
         relaySelector.entryBridgeResult = .success(try XCTUnwrap(closetRelayTo(
             location: relayConstraints.entryLocations,
             port: relayConstraints.port,
             filter: relayConstraints.filter,
             in: sampleRelays
         )))
-        relaySelector.exitBridgeResult = .failure(ShadowsocksRelaySelectorStubError())
 
+        shadowsocksLoader = ShadowsocksLoader(
+            cache: shadowsocksConfigurationCache,
+            relaySelector: relaySelector,
+            constraintsUpdater: relayConstraintsUpdater,
+            multihopUpdater: MultihopUpdater(listener: multihopStateListener)
+        )
+    }
+
+    func testLoadConfigWithMultihopDisabled() throws {
+        multihopStateListener.onNewMultihop?(.off)
+        relaySelector.entryBridgeResult = .failure(ShadowsocksRelaySelectorStubError())
+        let configuration = try XCTUnwrap(shadowsocksLoader.load())
+        XCTAssertEqual(configuration, try XCTUnwrap(shadowsocksConfigurationCache.read()))
+    }
+
+    func testLoadConfigWithMultihopEnabled() throws {
+        multihopStateListener.onNewMultihop?(.on)
+        relaySelector.exitBridgeResult = .failure(ShadowsocksRelaySelectorStubError())
         let configuration = try XCTUnwrap(shadowsocksLoader.load())
         XCTAssertEqual(configuration, try XCTUnwrap(shadowsocksConfigurationCache.read()))
     }
 
     func testConstraintsUpdateClearsCache() throws {
-        relaySelector.exitBridgeResult = .success(try XCTUnwrap(closetRelayTo(
-            location: relayConstraints.exitLocations,
-            port: relayConstraints.port,
-            filter: relayConstraints.filter,
-            in: sampleRelays
-        )))
-        relaySelector.entryBridgeResult = .failure(ShadowsocksRelaySelectorStubError())
-
         relayConstraints = RelayConstraints(
             entryLocations: .only(UserSelectedRelays(locations: [.city("ca", "tor")])),
             exitLocations: .only(UserSelectedRelays(locations: [.country("ae")]))
@@ -77,6 +71,11 @@ class ShadowsocksLoaderTests: XCTestCase {
 
         relayConstraintsUpdater.onNewConstraints?(relayConstraints)
 
+        XCTAssertNil(shadowsocksConfigurationCache.cachedConfiguration)
+    }
+
+    func testMultihopUpdateClearsCache() throws {
+        multihopStateListener.onNewMultihop?(.off)
         XCTAssertNil(shadowsocksConfigurationCache.cachedConfiguration)
     }
 
@@ -98,15 +97,13 @@ class ShadowsocksLoaderTests: XCTestCase {
 private class ShadowsocksRelaySelectorStub: ShadowsocksRelaySelectorProtocol {
     var entryBridgeResult: Result<REST.BridgeRelay, Error> = .failure(ShadowsocksRelaySelectorStubError())
     var exitBridgeResult: Result<REST.BridgeRelay, Error> = .failure(ShadowsocksRelaySelectorStubError())
-    var multihopState: MultihopState = .off
-
     private let relays: REST.ServerRelaysResponse
 
     init(relays: REST.ServerRelaysResponse) {
         self.relays = relays
     }
 
-    func selectRelay(with constraints: RelayConstraints) throws -> REST.BridgeRelay? {
+    func selectRelay(with constraints: RelayConstraints, multihopState: MultihopState) throws -> REST.BridgeRelay? {
         switch multihopState {
         case .on:
             try entryBridgeResult.get()

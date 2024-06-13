@@ -119,6 +119,23 @@ class VPNSettingsPage: Page {
         return self
     }
 
+    @discardableResult func tapMultihopSwitch() -> Self {
+        app.cells[AccessibilityIdentifier.multihopSwitch]
+            .switches[AccessibilityIdentifier.customSwitch]
+            .tap()
+
+        let promptIsShown = app
+            .otherElements[AccessibilityIdentifier.multihopPromptAlert.rawValue]
+            .waitForExistence(timeout: 1.0)
+
+        if promptIsShown {
+            MultihopPromptAlert(app)
+                .tapEnableAnyway()
+        }
+
+        return self
+    }
+
     @discardableResult func verifyCustomWireGuardPortSelected(portNumber: String) -> Self {
         let cell = app.cells[AccessibilityIdentifier.wireGuardCustomPort]
         XCTAssertTrue(cell.isSelected)
@@ -148,6 +165,19 @@ class VPNSettingsPage: Page {
     @discardableResult func verifyQuantumResistantTunnelOffSelected() -> Self {
         let cell = app.cells[AccessibilityIdentifier.quantumResistanceOff]
         XCTAssertTrue(cell.isSelected)
+        return self
+    }
+
+    @discardableResult func verifyMultihopSwitchOn() -> Self {
+        let switchElement = app.cells[AccessibilityIdentifier.multihopSwitch]
+            .switches[AccessibilityIdentifier.customSwitch]
+
+        guard let switchValue = switchElement.value as? String else {
+            XCTFail("Failed to read switch state")
+            return self
+        }
+
+        XCTAssertEqual(switchValue, "1")
         return self
     }
 }

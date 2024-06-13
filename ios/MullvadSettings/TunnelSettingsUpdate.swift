@@ -39,7 +39,7 @@ extension TunnelSettingsUpdate {
         case .obfuscation: "obfuscation settings"
         case .relayConstraints: "relay constraints"
         case .quantumResistance: "quantum resistance"
-        case .multihop: "Multihop"
+        case .multihop: "multihop"
         }
     }
 }

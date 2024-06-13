@@ -20,11 +20,6 @@ import WireGuardKitTypes
 class PacketTunnelProvider: NEPacketTunnelProvider {
     private let internalQueue = DispatchQueue(label: "PacketTunnel-internalQueue")
     private let providerLogger: Logger
-    private let constraintsUpdater = RelayConstraintsUpdater()
-    private let multihopStateListener = MultihopStateListener()
-
-    private var multihopUpdater: MultihopUpdater
-    private let settingsReader = SettingsReader()
 
     private var actor: PacketTunnelActor!
     private var postQuantumActor: PostQuantumKeyExchangeActor!
@@ -33,6 +28,10 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     private var deviceChecker: DeviceChecker!
     private var adapter: WgAdapter!
     private var relaySelector: RelaySelectorWrapper!
+
+    private let multihopStateListener = MultihopStateListener()
+    private let multihopUpdater: MultihopUpdater
+    private let constraintsUpdater = RelayConstraintsUpdater()
 
     override init() {
         Self.configureLogging()
@@ -73,16 +72,12 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         )
         let accountsProxy = proxyFactory.createAccountsProxy()
         let devicesProxy = proxyFactory.createDevicesProxy()
-        let multihopState = (try? settingsReader.read().multihopState) ?? .off
 
         deviceChecker = DeviceChecker(accountsProxy: accountsProxy, devicesProxy: devicesProxy)
         relaySelector = RelaySelectorWrapper(
             relayCache: ipOverrideWrapper,
-            multihopUpdater: multihopUpdater,
-            multihopState: multihopState
+            multihopUpdater: multihopUpdater
         )
-
-        multihopStateListener.onNewMultihop?(multihopState)
 
         actor = PacketTunnelActor(
             timings: PacketTunnelActorTimings(),
@@ -91,7 +86,11 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             defaultPathObserver: PacketTunnelPathObserver(packetTunnelProvider: self, eventQueue: internalQueue),
             blockedStateErrorMapper: BlockedStateErrorMapper(),
             relaySelector: relaySelector,
-            settingsReader: settingsReader,
+            settingsReader: TunnelSettingsManager(settingsReader: SettingsReader()) { [weak self] settings in
+                guard let self = self else { return }
+                multihopStateListener.onNewMultihop?(settings.multihopState)
+                constraintsUpdater.onNewConstraints?(settings.relayConstraints)
+            },
             protocolObfuscator: ProtocolObfuscator<UDPOverTCPObfuscator>()
         )
 
@@ -169,12 +168,9 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         let urlSession = REST.makeURLSession()
         let urlSessionTransport = URLSessionTransport(urlSession: urlSession)
         let shadowsocksCache = ShadowsocksConfigurationCache(cacheDirectory: appContainerURL)
-        let multihopState = (try? settingsReader.read().multihopState) ?? .off
 
         let shadowsocksRelaySelector = ShadowsocksRelaySelector(
-            relayCache: ipOverrideWrapper,
-            multihopUpdater: multihopUpdater,
-            multihopState: multihopState
+            relayCache: ipOverrideWrapper
         )
 
         let transportStrategy = TransportStrategy(
@@ -182,7 +178,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             shadowsocksLoader: ShadowsocksLoader(
                 cache: shadowsocksCache,
                 relaySelector: shadowsocksRelaySelector,
-                constraintsUpdater: constraintsUpdater
+                constraintsUpdater: constraintsUpdater,
+                multihopUpdater: multihopUpdater
             )
         )
 
@@ -241,11 +238,6 @@ extension PacketTunnelProvider {
             var lastConnectionAttempt: UInt = 0
 
             for await newState in stateStream {
-                // Pass relay constraints retrieved during the last read from setting into transport provider.
-                if let relayConstraints = newState.relayConstraints {
-                    constraintsUpdater.onNewConstraints?(relayConstraints)
-                }
-
                 // Tell packet tunnel when reconnection begins.
                 // Packet tunnel moves to `NEVPNStatus.reasserting` state once `reasserting` flag is set to `true`.
                 if case .reconnecting = newState, !self.reasserting {
