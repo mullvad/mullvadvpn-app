@@ -14,7 +14,7 @@ import TalpidTunnelConfigClientProxy
 import WireGuardKitTypes
 
 // swiftlint:disable function_parameter_count
-public protocol PostQuantumKeyNegotiation {
+public protocol PostQuantumKeyNegotiating {
     func startNegotiation(
         gatewayIP: IPv4Address,
         devicePublicKey: PublicKey,
@@ -32,7 +32,7 @@ public protocol PostQuantumKeyNegotiation {
 /**
  Attempt to start the asynchronous process of key negotiation. Returns true if successfully started, false if failed.
  */
-public class PostQuantumKeyNegotiator: PostQuantumKeyNegotiation {
+public class PostQuantumKeyNegotiator: PostQuantumKeyNegotiating {
     required public init() {}
 
     var cancelToken: PostQuantumCancelToken?

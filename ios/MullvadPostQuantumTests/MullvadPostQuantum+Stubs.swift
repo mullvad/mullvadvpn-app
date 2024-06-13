@@ -43,7 +43,7 @@ class TunnelProviderStub: TunnelProvider {
     }
 }
 
-class FailedNegotiatorStub: PostQuantumKeyNegotiation {
+class FailedNegotiatorStub: PostQuantumKeyNegotiating {
     var onCancelKeyNegotiation: (() -> Void)?
 
     required init() {
@@ -68,7 +68,7 @@ class FailedNegotiatorStub: PostQuantumKeyNegotiation {
     }
 }
 
-class SuccessfulNegotiatorStub: PostQuantumKeyNegotiation {
+class SuccessfulNegotiatorStub: PostQuantumKeyNegotiating {
     var onCancelKeyNegotiation: (() -> Void)?
     required init() {
         onCancelKeyNegotiation = nil
