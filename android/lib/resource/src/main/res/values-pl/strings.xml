@@ -7,12 +7,14 @@
     <string name="account_number">Numer konta</string>
     <string name="account_time_notification_channel_description">Pokazuje przypomnienia, gdy kończy się czas na koncie</string>
     <string name="account_time_notification_channel_name">Przypomnienia o czasie na koncie</string>
+    <string name="add">Dodaj</string>
     <string name="add_30_days_time">Dodaj 30 dni</string>
     <string name="add_30_days_time_x">Dodaj 30 dni (%1$s)</string>
     <string name="add_a_server">Dodaj serwer</string>
     <string name="add_dns_server_dialog_title">Dodaj serwer DNS</string>
     <string name="add_location_to_list">Dodaj lokalizację %1$s do listy</string>
     <string name="add_locations">Dodaj lokalizacje</string>
+    <string name="add_method">Dodaj metodę</string>
     <string name="add_time_to_account">Doładuj w naszej witrynie internetowej lub zrealizuj kupon.</string>
     <string name="added_to_your_account">Do konta dodano %1$s.</string>
     <string name="agree_and_continue">Zaakceptuj i kontynuuj</string>
@@ -23,9 +25,16 @@
     <string name="always_on_vpn_error_notification_content">Nie można uruchomić połączenia tunelowego. Przed rozpoczęciem użytkowania usługi Mullvad VPN wyłącz opcję „Zawsze włączony VPN” w &lt;b&gt;%1$s&lt;/b&gt;.</string>
     <string name="always_on_vpn_error_notification_title">Opcja „Zawsze włączony VPN” przypisana jest do innej aplikacji</string>
     <string name="any">Dowolny</string>
+    <string name="api_access_description">Zarządzaj i dodawaj niestandardowe metody dostępu do interfejsu API Mullvad.</string>
+    <string name="api_access_method_info_first_line">Aplikacja musi komunikować się z serwerem API Mullvad, aby można było się zalogować, pobrać listy serwerów i wykonywać inne krytyczne operacje.</string>
+    <string name="api_access_method_info_second_line">W niektórych sieciach, w których stosowane są różne rodzaje cenzury, serwery API mogą nie być bezpośrednio dostępne.</string>
+    <string name="api_access_method_info_third_line">Ta funkcja pozwala ominąć tę cenzurę, dodając niestandardowe sposoby dostępu do API za pośrednictwem serwerów proxy i podobnych metod.</string>
+    <string name="api_reachable">API osiągalny</string>
+    <string name="api_unreachable">API nieosiągalny</string>
     <string name="app_version">Wersja aplikacji</string>
     <string name="apply">Zastosuj</string>
     <string name="auth_failed">Nie można uwierzytelnić konta. Wyślij zgłoszenie problemu.</string>
+    <string name="authentication">Uwierzytelnianie</string>
     <string name="auto_connect">Automatyczne łączenie</string>
     <string name="auto_connect_and_lockdown_mode">Automatyczne łączenie i tryb Lockdown</string>
     <string name="auto_connect_and_lockdown_mode_footer">Zapewnia, że urządzenie zawsze działa za pośrednictwem tunelu VPN.</string>
@@ -50,6 +59,7 @@
     <string name="buy_more_credit">Doładuj konto</string>
     <string name="cancel">Anuluj</string>
     <string name="changes_dialog_subtitle">Zmiany w tej wersji:</string>
+    <string name="cipher">Szyfrowanie</string>
     <string name="confirm_local_dns">Lokalny serwer DNS nie będzie działał, dopóki nie włączysz opcji „Udostępnianie sieci lokalnej” w Preferencjach.</string>
     <string name="confirm_no_email">Za chwilę wyślesz zgłoszenie problemu, nie umożliwiając nam skontaktowania się z Tobą. Aby uzyskać odpowiedź na zgłoszenie, musisz podać adres e-mail.</string>
     <string name="confirm_removal">Tak, wyloguj urządzenie</string>
@@ -108,6 +118,7 @@
     <string name="edit_lists">Edytuj listy</string>
     <string name="edit_locations">Edytuj lokalizacje</string>
     <string name="edit_message">Edytuj wiadomość</string>
+    <string name="edit_method">Edytuj metodę</string>
     <string name="edit_name">Edytuj nazwę</string>
     <string name="enable">Włącz</string>
     <string name="enable_custom_dns">Użyj niestandardowego serwera DNS</string>
@@ -173,6 +184,7 @@
     <string name="max_devices_warning_title">Zbyt wiele urządzeń</string>
     <string name="mullvad_account_number">Numer konta Mullvad</string>
     <string name="mullvad_owned_only">Wyłącznie firmy Mullvad</string>
+    <string name="name">Nazwa</string>
     <string name="name_was_changed_to">Nazwę zmieniono na %1$s</string>
     <string name="new_device_notification_message">Witaj, to urządzenie nazywa się teraz &lt;b&gt;%1$s&lt;/b&gt;. Więcej szczegółów znajdziesz, korzystając z przycisku Informacje na koncie.</string>
     <string name="new_device_notification_title">UTWORZONO NOWE URZĄDZENIE</string>
@@ -196,6 +208,7 @@
     <string name="owned">Posiadane</string>
     <string name="ownership">Własność</string>
     <string name="paid_until">Płatne do</string>
+    <string name="password">Hasło</string>
     <string name="patch_not_matching_specification">Poprawka niezgodna ze specyfikacją</string>
     <string name="pay_to_start_using">Aby rozpocząć korzystanie z aplikacji, musisz najpierw dodać czas do swojego konta.</string>
     <string name="payment_billing_error_dialog_message">Nie mogliśmy rozpocząć procesu płatności. Upewnij się, że masz najnowszą wersję aplikacji Google Play.</string>
@@ -242,6 +255,7 @@
     <string name="sent">Wysłano</string>
     <string name="sent_contact">W razie potrzeby skontaktujemy się z Tobą pod adresem %1$s</string>
     <string name="sent_thanks">Dziękujemy!</string>
+    <string name="server">Serwer</string>
     <string name="server_ip_overrides">Zastąpienie adresu IP serwera</string>
     <string name="server_ip_overrides_active">Zastąpienia aktywne</string>
     <string name="server_ip_overrides_import_by">Importuj nowe zastąpienia z</string>
@@ -259,6 +273,7 @@
     <string name="set_firewall_policy_error">Nie można zastosować reguł zapory. Rozwiąż problem lub wyślij zgłoszenie problemu.</string>
     <string name="settings">Ustawienia</string>
     <string name="settings_account">Konto</string>
+    <string name="settings_api_access">Dostęp do API</string>
     <string name="settings_changes_effect_warning_content_blocker">Zmiany w ustawieniach związanych z usługą DNS mogą nie zostać wprowadzone natychmiast ze względu na zbuforowane wyniki.</string>
     <string name="settings_changes_effect_warning_short">Ustawienia usługi DNS mogą nie zostać zastosowane natychmiast</string>
     <string name="settings_patch_error_failed_to_apply_patch">Nie udało się zastosować poprawki</string>
@@ -277,12 +292,15 @@
     <string name="submit_button">Prześlij</string>
     <string name="switch_location">Zmień lokalizację</string>
     <string name="tcp">TCP</string>
+    <string name="testing">Testowanie...</string>
     <string name="to_add_locations_to_a_list">Aby dodać lokalizacje do listy, naciśnij przycisk „︙” lub naciśnij i przytrzymaj kraj, miasto albo serwer.</string>
     <string name="to_create_a_custom_list">Aby utworzyć listę niestandardową, naciśnij przycisk „︙”</string>
     <string name="toggle_vpn">Przełącz VPN</string>
     <string name="top_bar_device_name">Nazwa urządzenia: %1$s</string>
     <string name="top_bar_time_left">Pozostało: %1$s</string>
+    <string name="transport_protocol">Protokół transportowy</string>
     <string name="try_again">Spróbuj ponownie</string>
+    <string name="type">Typ</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">Port TCP, z którym powinien łączyć się protokół zaciemniania UDP-przez-TCP na serwerze VPN.</string>
     <string name="udp_over_tcp_port_title">Port UDP-przez-TCP</string>
@@ -299,6 +317,7 @@
     <string name="update_list_name">Zaktualizuj nazwę listy</string>
     <string name="user_email_hint">Twój adres e-mail (opcjonalnie)</string>
     <string name="user_message_hint">Abyśmy mogli lepiej Ci pomóc, napisz w języku angielskim lub szwedzkim i podaj kraj, z którego się łączysz.</string>
+    <string name="username">Nazwa użytkownika</string>
     <string name="verifying_voucher">Weryfikowanie kuponu…</string>
     <string name="view_logs">Wyświetl dzienniki aplikacji</string>
     <string name="virtual_adapter_problem">Błąd wirtualnej karty sieciowej</string>

@@ -7,12 +7,14 @@
     <string name="account_number">Kontonummer</string>
     <string name="account_time_notification_channel_description">Visar påminnelser när kontots tidsgräns uppnås</string>
     <string name="account_time_notification_channel_name">Påminnelser om kontotid</string>
+    <string name="add">Lägg till</string>
     <string name="add_30_days_time">Lägg till 30 dagar</string>
     <string name="add_30_days_time_x">Lägg till 30 dagar (%1$s)</string>
     <string name="add_a_server">Lägg till en server</string>
     <string name="add_dns_server_dialog_title">Lägg till DNS-server</string>
     <string name="add_location_to_list">Lägg till %1$s i listan</string>
     <string name="add_locations">Lägg till platser</string>
+    <string name="add_method">Lägg till metod</string>
     <string name="add_time_to_account">Du kan antingen köpa kredit på vår webbplats eller lösa in en kupong.</string>
     <string name="added_to_your_account">%1$s har lagts till på ditt konto.</string>
     <string name="agree_and_continue">Godkänn och fortsätt</string>
@@ -23,9 +25,16 @@
     <string name="always_on_vpn_error_notification_content">Det går inte att starta tunnelanslutning. Aktivera VPN som alltid är på för &lt;b&gt;%1$s&lt;/b&gt; innan du använder Mullvad VPN.</string>
     <string name="always_on_vpn_error_notification_title">VPN som alltid är på har tilldelats till annan app</string>
     <string name="any">Valfri</string>
+    <string name="api_access_description">Hantera och lägg till anpassade metoder för att komma åt Mullvad API.</string>
+    <string name="api_access_method_info_first_line">Appen måste kommunicera med en Mullvad API-server för att logga in dig, hämta serverlistor och andra viktiga åtgärder.</string>
+    <string name="api_access_method_info_second_line">Det kanske inte går att nå API-servrarna direkt på nätverk som använder olika censureringstyper.</string>
+    <string name="api_access_method_info_third_line">Men den här funktionen kan du kringgå censureringen genom att lägga till anpassade sätt att komma åt API:n via proxyservrar och liknande metoder.</string>
+    <string name="api_reachable">API kan nås</string>
+    <string name="api_unreachable">API kan inte nås</string>
     <string name="app_version">Appversion</string>
     <string name="apply">Använd</string>
     <string name="auth_failed">Det går inte att autentisera kontot. Skicka en problemrapport.</string>
+    <string name="authentication">Autentisering</string>
     <string name="auto_connect">Anslut automatiskt</string>
     <string name="auto_connect_and_lockdown_mode">Anslut automatiskt och Låsningsläge</string>
     <string name="auto_connect_and_lockdown_mode_footer">Ser till att enheten alltid är i VPN-tunneln.</string>
@@ -50,6 +59,7 @@
     <string name="buy_more_credit">Köp mer kredit</string>
     <string name="cancel">Avbryt</string>
     <string name="changes_dialog_subtitle">Ändringar i den här versionen:</string>
+    <string name="cipher">Chiffrering</string>
     <string name="confirm_local_dns">Den lokala DNS-servern fungerar inte om du inte aktiverar \"Lokal nätverksdelning\" under Inställningar.</string>
     <string name="confirm_no_email">Du är på väg att skicka problemrapporten utan att vi har möjlighet att besvara dig. Om du vill ha svar på din rapport måste du ange en e-postadress.</string>
     <string name="confirm_removal">Ja, logga ut enheten</string>
@@ -108,6 +118,7 @@
     <string name="edit_lists">Redigera listor</string>
     <string name="edit_locations">Redigera platser</string>
     <string name="edit_message">Redigera meddelande</string>
+    <string name="edit_method">Redigera metod</string>
     <string name="edit_name">Redigera namn</string>
     <string name="enable">Aktivera</string>
     <string name="enable_custom_dns">Använd anpassad DNS-server</string>
@@ -173,6 +184,7 @@
     <string name="max_devices_warning_title">För många enheter</string>
     <string name="mullvad_account_number">Mullvad-kontonummer</string>
     <string name="mullvad_owned_only">Endast Mullvad-ägd</string>
+    <string name="name">Namn</string>
     <string name="name_was_changed_to">Namnet har ändrats till %1$s</string>
     <string name="new_device_notification_message">Välkommen! Den här enheten heter nu &lt;b&gt;%1$s&lt;/b&gt;. Använd informationsknappen i Konto för mer information.</string>
     <string name="new_device_notification_title">NY ENHET HAR SKAPATS</string>
@@ -196,6 +208,7 @@
     <string name="owned">Ägd</string>
     <string name="ownership">Ägarskap</string>
     <string name="paid_until">Betalat till</string>
+    <string name="password">Lösenord</string>
     <string name="patch_not_matching_specification">Konfigurationsfilen överensstämmer inte med specifikationen</string>
     <string name="pay_to_start_using">Om du vill börja använda appen måste du först lägga till tid i ditt konto.</string>
     <string name="payment_billing_error_dialog_message">Vi kunde inte starta betalningsprocessen. Se till att du har den senaste versionen av Google Play.</string>
@@ -242,6 +255,7 @@
     <string name="sent">Skickat</string>
     <string name="sent_contact">Om det behövs kontaktar vi dig på %1$s</string>
     <string name="sent_thanks">Tack!</string>
+    <string name="server">Server</string>
     <string name="server_ip_overrides">Åsidosättning av server-IP</string>
     <string name="server_ip_overrides_active">Åsidosättningar aktiva</string>
     <string name="server_ip_overrides_import_by">Importera nya åsidosättningar med</string>
@@ -259,6 +273,7 @@
     <string name="set_firewall_policy_error">Det går inte att tillämpa brandväggsregler. Felsök eller skicka en problemrapport.</string>
     <string name="settings">Inställningar</string>
     <string name="settings_account">Konto</string>
+    <string name="settings_api_access">API-åtkomst</string>
     <string name="settings_changes_effect_warning_content_blocker">Ändringar i DNS-relaterade inställningar kanske inte börjar gälla direkt på grund av cachade resultat.</string>
     <string name="settings_changes_effect_warning_short">DNS-inställningarna kanske inte börjar gälla direkt</string>
     <string name="settings_patch_error_failed_to_apply_patch">Konfigurationsfilen kunde inte tillämpas</string>
@@ -277,12 +292,15 @@
     <string name="submit_button">Skicka</string>
     <string name="switch_location">Växla plats</string>
     <string name="tcp">TCP</string>
+    <string name="testing">Testar ...</string>
     <string name="to_add_locations_to_a_list">Om du vill lägga till platser i en lista kan du trycka på \"︙\" eller trycka länge på ett land, en stad eller en server.</string>
     <string name="to_create_a_custom_list">Om du vill skapa en anpassad lista trycker du på \"︙\"</string>
     <string name="toggle_vpn">Växla VPN</string>
     <string name="top_bar_device_name">Enhetsnamn: %1$s</string>
     <string name="top_bar_time_left">Tid kvar: %1$s</string>
+    <string name="transport_protocol">Transportprotokoll</string>
     <string name="try_again">Försök igen</string>
+    <string name="type">Typ</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">Vilken TCP-port som UDP-över-TCP-obfuskeringsprotokoll bör ansluta till på VPN-servern.</string>
     <string name="udp_over_tcp_port_title">UDP-över-TCP-port</string>
@@ -299,6 +317,7 @@
     <string name="update_list_name">Uppdatera listnamn</string>
     <string name="user_email_hint">Din e-postadress (valfritt)</string>
     <string name="user_message_hint">Skriv på engelska eller svenska och ange från vilket land du är ansluten så att vi kan hjälpa dig bättre.</string>
+    <string name="username">Användarnamn</string>
     <string name="verifying_voucher">Verifierar kupong …</string>
     <string name="view_logs">Visa appens loggar</string>
     <string name="virtual_adapter_problem">Fel med virtuell adapter</string>
