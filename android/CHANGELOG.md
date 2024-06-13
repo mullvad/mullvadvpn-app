@@ -22,6 +22,9 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Added
+- Add the ability to customize how the app talks to the api.
+
 ### Changed
 - Migrate underlaying communication wtih daemon to gRPC. This also implies major changes and
   improvements throughout the app.
