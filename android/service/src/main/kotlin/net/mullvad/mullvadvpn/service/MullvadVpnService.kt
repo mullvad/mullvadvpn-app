@@ -193,7 +193,7 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
         managementService.stop()
 
         // Shutting down the daemon gracefully
-        runBlocking { daemonInstance.shutdown() }
+        daemonInstance.shutdown()
         super.onDestroy()
     }
 
