@@ -30,7 +30,7 @@ pub enum Error {
 
 impl<L> Daemon<L>
 where
-    L: EventListener + Clone + Send + 'static,
+    L: EventListener,
 {
     /// Add a [`AccessMethod`] to the daemon's settings.
     ///

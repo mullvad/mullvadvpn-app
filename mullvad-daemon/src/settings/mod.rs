@@ -94,7 +94,7 @@ pub struct SettingsPersister {
     settings: Settings,
     path: PathBuf,
     #[allow(clippy::type_complexity)]
-    on_change_listeners: Vec<Box<dyn Fn(&Settings)>>,
+    on_change_listeners: Vec<Box<dyn Fn(&Settings) + Send + Sync>>,
 }
 
 pub type MadeChanges = bool;
@@ -353,7 +353,10 @@ impl SettingsPersister {
         }
     }
 
-    pub fn register_change_listener(&mut self, change_listener: impl Fn(&Settings) + 'static) {
+    pub fn register_change_listener(
+        &mut self,
+        change_listener: impl Fn(&Settings) + Send + Sync + 'static,
+    ) {
         self.on_change_listeners.push(Box::new(change_listener));
     }
 
