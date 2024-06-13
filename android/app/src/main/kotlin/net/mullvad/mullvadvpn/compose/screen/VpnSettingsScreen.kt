@@ -31,10 +31,12 @@ import androidx.core.text.HtmlCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.launch
+import mullvad_daemon.management_interface.portRange
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.BaseCell
 import net.mullvad.mullvadvpn.compose.cell.ContentBlockersDisableModeCellSubtitle
@@ -199,40 +201,30 @@ fun VpnSettings(
     VpnSettingsScreen(
         state = state,
         snackbarHostState = snackbarHostState,
-        navigateToContentBlockersInfo = {
-            navigator.navigate(ContentBlockersInfoDialogDestination) { launchSingleTop = true }
-        },
-        navigateToAutoConnectScreen = {
-            navigator.navigate(AutoConnectAndLockdownModeDestination) { launchSingleTop = true }
-        },
-        navigateToCustomDnsInfo = {
-            navigator.navigate(CustomDnsInfoDialogDestination) { launchSingleTop = true }
-        },
-        navigateToMalwareInfo = {
-            navigator.navigate(MalwareInfoDialogDestination) { launchSingleTop = true }
-        },
-        navigateToObfuscationInfo = {
-            navigator.navigate(ObfuscationInfoDialogDestination) { launchSingleTop = true }
-        },
-        navigateToQuantumResistanceInfo = {
-            navigator.navigate(QuantumResistanceInfoDialogDestination) { launchSingleTop = true }
-        },
-        navigateUdp2TcpInfo = {
-            navigator.navigate(UdpOverTcpPortInfoDialogDestination) { launchSingleTop = true }
-        },
+        navigateToContentBlockersInfo =
+            dropUnlessResumed { navigator.navigate(ContentBlockersInfoDialogDestination) },
+        navigateToAutoConnectScreen =
+            dropUnlessResumed { navigator.navigate(AutoConnectAndLockdownModeDestination) },
+        navigateToCustomDnsInfo =
+            dropUnlessResumed { navigator.navigate(CustomDnsInfoDialogDestination) },
+        navigateToMalwareInfo =
+            dropUnlessResumed { navigator.navigate(MalwareInfoDialogDestination) },
+        navigateToObfuscationInfo =
+            dropUnlessResumed { navigator.navigate(ObfuscationInfoDialogDestination) },
+        navigateToQuantumResistanceInfo =
+            dropUnlessResumed { navigator.navigate(QuantumResistanceInfoDialogDestination) },
+        navigateUdp2TcpInfo =
+            dropUnlessResumed { navigator.navigate(UdpOverTcpPortInfoDialogDestination) },
         navigateToWireguardPortInfo = {
             navigator.navigate(
-                WireguardPortInfoDialogDestination(WireguardPortInfoDialogArgument(it))
-            ) {
-                launchSingleTop = true
-            }
+                WireguardPortInfoDialogDestination(WireguardPortInfoDialogArgument(it)),
+                onlyIfResumed = true
+            )
         },
-        navigateToLocalNetworkSharingInfo = {
-            navigator.navigate(LocalNetworkSharingInfoDialogDestination) { launchSingleTop = true }
-        },
-        navigateToServerIpOverrides = {
-            navigator.navigate(ServerIpOverridesDestination) { launchSingleTop = true }
-        },
+        navigateToLocalNetworkSharingInfo =
+            dropUnlessResumed { navigator.navigate(LocalNetworkSharingInfoDialogDestination) },
+        navigateToServerIpOverrides =
+            dropUnlessResumed { navigator.navigate(ServerIpOverridesDestination) },
         onToggleBlockTrackers = vm::onToggleBlockTrackers,
         onToggleBlockAds = vm::onToggleBlockAds,
         onToggleBlockMalware = vm::onToggleBlockMalware,
@@ -242,10 +234,10 @@ fun VpnSettings(
         onToggleBlockGambling = vm::onToggleBlockGambling,
         onToggleBlockSocialMedia = vm::onToggleBlockSocialMedia,
         navigateToMtuDialog = {
-            navigator.navigate(MtuDialogDestination(it)) { launchSingleTop = true }
+            navigator.navigate(MtuDialogDestination(it), onlyIfResumed = true)
         },
         navigateToDns = { index, address ->
-            navigator.navigate(DnsDialogDestination(index, address)) { launchSingleTop = true }
+            navigator.navigate(DnsDialogDestination(index, address), onlyIfResumed = true)
         },
         navigateToWireguardPortDialog = {
             val args =
@@ -253,12 +245,10 @@ fun VpnSettings(
                     state.customWireguardPort?.toPortOrNull(),
                     state.availablePortRanges
                 )
-            navigator.navigate(WireguardCustomPortDialogDestination(args)) {
-                launchSingleTop = true
-            }
+            navigator.navigate(WireguardCustomPortDialogDestination(args), onlyIfResumed = true)
         },
         onToggleDnsClick = vm::onToggleCustomDns,
-        onBackClick = navigator::navigateUp,
+        onBackClick = dropUnlessResumed { navigator.navigateUp() },
         onSelectObfuscationSetting = vm::onSelectObfuscationSetting,
         onSelectQuantumResistanceSetting = vm::onSelectQuantumResistanceSetting,
         onWireguardPortSelected = vm::onWireguardPortSelected,
