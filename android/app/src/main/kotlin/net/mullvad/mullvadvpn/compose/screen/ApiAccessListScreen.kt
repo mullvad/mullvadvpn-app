@@ -36,8 +36,8 @@ import net.mullvad.mullvadvpn.compose.preview.ApiAccessListUiStateParameterProvi
 import net.mullvad.mullvadvpn.compose.state.ApiAccessListUiState
 import net.mullvad.mullvadvpn.compose.test.API_ACCESS_LIST_INFO_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
-import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodName
+import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodSetting
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.viewmodel.ApiAccessListViewModel
@@ -76,7 +76,7 @@ fun ApiAccessList(navigator: DestinationsNavigator) {
 fun ApiAccessListScreen(
     state: ApiAccessListUiState,
     onAddMethodClick: () -> Unit = {},
-    onApiAccessMethodClick: (apiAccessMethod: ApiAccessMethod) -> Unit = {},
+    onApiAccessMethodClick: (apiAccessMethodSetting: ApiAccessMethodSetting) -> Unit = {},
     onApiAccessInfoClick: () -> Unit = {},
     onBackClick: () -> Unit = {}
 ) {
@@ -87,11 +87,11 @@ fun ApiAccessListScreen(
         LazyColumn(modifier = modifier, state = lazyListState) {
             description()
             currentAccessMethod(
-                currentApiAccessMethodName = state.currentApiAccessMethod?.name,
+                currentApiAccessMethodName = state.currentApiAccessMethodSetting?.name,
                 onInfoClicked = onApiAccessInfoClick
             )
             apiAccessMethodItems(
-                state.apiAccessMethods,
+                state.apiAccessMethodSettings,
                 onApiAccessMethodClick = onApiAccessMethodClick
             )
             buttonPanel(onAddMethodClick = onAddMethodClick)
@@ -156,29 +156,32 @@ private fun LazyListScope.currentAccessMethod(
 }
 
 private fun LazyListScope.apiAccessMethodItems(
-    apiAccessMethods: List<ApiAccessMethod>,
-    onApiAccessMethodClick: (apiAccessMethod: ApiAccessMethod) -> Unit
+    apiAccessMethodSettings: List<ApiAccessMethodSetting>,
+    onApiAccessMethodClick: (apiAccessMethodSetting: ApiAccessMethodSetting) -> Unit
 ) {
     itemsWithDivider(
-        items = apiAccessMethods,
+        items = apiAccessMethodSettings,
         key = { item -> item.id },
         contentType = { ContentType.ITEM },
     ) {
-        ApiAccessMethodItem(apiAccessMethod = it, onApiAccessMethodClick = onApiAccessMethodClick)
+        ApiAccessMethodItem(
+            apiAccessMethodSetting = it,
+            onApiAccessMethodClick = onApiAccessMethodClick
+        )
     }
 }
 
 @Composable
 private fun ApiAccessMethodItem(
-    apiAccessMethod: ApiAccessMethod,
-    onApiAccessMethodClick: (apiAccessMethod: ApiAccessMethod) -> Unit
+    apiAccessMethodSetting: ApiAccessMethodSetting,
+    onApiAccessMethodClick: (apiAccessMethodSetting: ApiAccessMethodSetting) -> Unit
 ) {
     TwoRowCell(
-        titleText = apiAccessMethod.name.value,
+        titleText = apiAccessMethodSetting.name.value,
         subtitleText =
             stringResource(
                 id =
-                    if (apiAccessMethod.enabled) {
+                    if (apiAccessMethodSetting.enabled) {
                         R.string.on
                     } else {
                         R.string.off
@@ -186,8 +189,8 @@ private fun ApiAccessMethodItem(
             ),
         titleStyle = MaterialTheme.typography.titleMedium,
         subtitleColor = MaterialTheme.colorScheme.onSecondary,
-        bodyView = { DefaultNavigationView(apiAccessMethod.name.value) },
-        onCellClicked = { onApiAccessMethodClick(apiAccessMethod) }
+        bodyView = { DefaultNavigationView(apiAccessMethodSetting.name.value) },
+        onCellClicked = { onApiAccessMethodClick(apiAccessMethodSetting) }
     )
 }
 

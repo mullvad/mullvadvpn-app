@@ -16,7 +16,7 @@ import net.mullvad.mullvadvpn.lib.model.AddApiAccessMethodError
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodName
-import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodType
+import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodSetting
 import net.mullvad.mullvadvpn.lib.model.GetApiAccessMethodError
 import net.mullvad.mullvadvpn.lib.model.NewAccessMethod
 import net.mullvad.mullvadvpn.lib.model.SetApiAccessMethodError
@@ -85,7 +85,7 @@ class ApiAccessRepositoryTest {
         coEvery { mockManagementService.setApiAccessMethod(apiAccessMethodId) } returns Unit.right()
 
         // Act
-        val result = apiAccessRepository.setApiAccessMethod(apiAccessMethodId)
+        val result = apiAccessRepository.setCurrentApiAccessMethod(apiAccessMethodId)
 
         // Assert
         coVerify { mockManagementService.setApiAccessMethod(apiAccessMethodId) }
@@ -101,7 +101,7 @@ class ApiAccessRepositoryTest {
             setApiAccessMethodError.left()
 
         // Act
-        val result = apiAccessRepository.setApiAccessMethod(apiAccessMethodId)
+        val result = apiAccessRepository.setCurrentApiAccessMethod(apiAccessMethodId)
 
         // Assert
         coVerify { mockManagementService.setApiAccessMethod(apiAccessMethodId) }
@@ -142,7 +142,7 @@ class ApiAccessRepositoryTest {
     @Test
     fun `test custom api access method should return successful when successful`() = runTest {
         // Arrange
-        val customProxy: ApiAccessMethodType.CustomProxy = mockk()
+        val customProxy: ApiAccessMethod.CustomProxy = mockk()
         coEvery { mockManagementService.testCustomApiAccessMethod(customProxy) } returns
             Unit.right()
 
@@ -157,7 +157,7 @@ class ApiAccessRepositoryTest {
     @Test
     fun `test custom api access method should return error when not successful`() = runTest {
         // Arrange
-        val customProxy: ApiAccessMethodType.CustomProxy = mockk()
+        val customProxy: ApiAccessMethod.CustomProxy = mockk()
         val testApiAccessMethodError: TestApiAccessMethodError = mockk()
         coEvery { mockManagementService.testCustomApiAccessMethod(customProxy) } returns
             testApiAccessMethodError.left()
@@ -176,18 +176,18 @@ class ApiAccessRepositoryTest {
             // Arrange
             val apiAccessMethodId: ApiAccessMethodId = ApiAccessMethodId.fromString(UUID)
             val expectedResult =
-                ApiAccessMethod(
+                ApiAccessMethodSetting(
                     name = ApiAccessMethodName.fromString("Name"),
-                    apiAccessMethodType = ApiAccessMethodType.Direct,
+                    apiAccessMethod = ApiAccessMethod.Direct,
                     enabled = true,
                     id = apiAccessMethodId
                 )
             val mockSettings: Settings = mockk()
-            every { mockSettings.apiAccessMethods } returns listOf(expectedResult)
+            every { mockSettings.apiAccessMethodSettings } returns listOf(expectedResult)
             settingsFlow.value = mockSettings
 
             // Act
-            val result = apiAccessRepository.getApiAccessMethodById(apiAccessMethodId)
+            val result = apiAccessRepository.getApiAccessMethodSettingById(apiAccessMethodId)
 
             // Assert
             assertEquals(expectedResult.right(), result)
@@ -200,11 +200,11 @@ class ApiAccessRepositoryTest {
             val apiAccessMethodId: ApiAccessMethodId = ApiAccessMethodId.fromString(UUID)
             val expectedError = GetApiAccessMethodError.NotFound
             val mockSettings: Settings = mockk()
-            every { mockSettings.apiAccessMethods } returns emptyList()
+            every { mockSettings.apiAccessMethodSettings } returns emptyList()
             settingsFlow.value = mockSettings
 
             // Act
-            val result = apiAccessRepository.getApiAccessMethodById(apiAccessMethodId)
+            val result = apiAccessRepository.getApiAccessMethodSettingById(apiAccessMethodId)
 
             // Assert
             assertEquals(expectedError.left(), result)
@@ -215,16 +215,16 @@ class ApiAccessRepositoryTest {
         runTest {
             // Arrange
             val apiAccessMethodId: ApiAccessMethodId = ApiAccessMethodId.fromString(UUID)
-            val apiAccessMethod =
-                ApiAccessMethod(
+            val apiAccessMethodSetting =
+                ApiAccessMethodSetting(
                     name = ApiAccessMethodName.fromString("Name"),
-                    apiAccessMethodType = ApiAccessMethodType.Direct,
+                    apiAccessMethod = ApiAccessMethod.Direct,
                     enabled = true,
                     id = apiAccessMethodId
                 )
             val mockSettings: Settings = mockk()
-            every { mockSettings.apiAccessMethods } returns listOf(apiAccessMethod)
-            coEvery { mockManagementService.updateApiAccessMethod(apiAccessMethod) } returns
+            every { mockSettings.apiAccessMethodSettings } returns listOf(apiAccessMethodSetting)
+            coEvery { mockManagementService.updateApiAccessMethod(apiAccessMethodSetting) } returns
                 Unit.right()
             settingsFlow.value = mockSettings
 
@@ -242,7 +242,7 @@ class ApiAccessRepositoryTest {
             val apiAccessMethodId: ApiAccessMethodId = ApiAccessMethodId.fromString(UUID)
             val expectedError = GetApiAccessMethodError.NotFound
             val mockSettings: Settings = mockk()
-            every { mockSettings.apiAccessMethods } returns emptyList()
+            every { mockSettings.apiAccessMethodSettings } returns emptyList()
             settingsFlow.value = mockSettings
 
             // Act
@@ -258,16 +258,16 @@ class ApiAccessRepositoryTest {
             // Arrange
             val expectedError: UnknownApiAccessMethodError = mockk()
             val apiAccessMethodId: ApiAccessMethodId = ApiAccessMethodId.fromString(UUID)
-            val apiAccessMethod =
-                ApiAccessMethod(
+            val apiAccessMethodSetting =
+                ApiAccessMethodSetting(
                     name = ApiAccessMethodName.fromString("Name"),
-                    apiAccessMethodType = ApiAccessMethodType.Direct,
+                    apiAccessMethod = ApiAccessMethod.Direct,
                     enabled = true,
                     id = apiAccessMethodId
                 )
             val mockSettings: Settings = mockk()
-            every { mockSettings.apiAccessMethods } returns listOf(apiAccessMethod)
-            coEvery { mockManagementService.updateApiAccessMethod(apiAccessMethod) } returns
+            every { mockSettings.apiAccessMethodSettings } returns listOf(apiAccessMethodSetting)
+            coEvery { mockManagementService.updateApiAccessMethod(apiAccessMethodSetting) } returns
                 expectedError.left()
             settingsFlow.value = mockSettings
 

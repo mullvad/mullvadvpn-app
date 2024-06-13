@@ -7,5 +7,5 @@ import kotlinx.parcelize.Parcelize
 data class NewAccessMethod(
     val name: ApiAccessMethodName,
     val enabled: Boolean,
-    val apiAccessMethodType: ApiAccessMethodType.CustomProxy
+    val apiAccessMethod: ApiAccessMethod.CustomProxy
 ) : Parcelable

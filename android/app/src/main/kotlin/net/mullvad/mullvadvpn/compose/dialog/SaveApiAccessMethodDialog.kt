@@ -27,9 +27,9 @@ import net.mullvad.mullvadvpn.compose.test.SAVE_API_ACCESS_METHOD_CANCEL_BUTTON_
 import net.mullvad.mullvadvpn.compose.test.SAVE_API_ACCESS_METHOD_LOADING_SPINNER_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.SAVE_API_ACCESS_METHOD_SAVE_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
+import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodName
-import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodType
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.viewmodel.SaveApiAccessMethodSideEffect
 import net.mullvad.mullvadvpn.viewmodel.SaveApiAccessMethodViewModel
@@ -51,7 +51,7 @@ fun SaveApiAccessMethod(
     backNavigator: ResultBackNavigator<Boolean>,
     id: ApiAccessMethodId?,
     name: ApiAccessMethodName,
-    customProxy: ApiAccessMethodType.CustomProxy
+    customProxy: ApiAccessMethod.CustomProxy
 ) {
     val viewModel =
         koinViewModel<SaveApiAccessMethodViewModel>(
@@ -106,7 +106,7 @@ fun SaveApiAccessMethodDialog(
             }
         },
         title = { Text(text = state.text(), style = MaterialTheme.typography.headlineSmall) },
-        onDismissRequest = { /*Should not be able to dismiss*/ },
+        onDismissRequest = { /*Should not be able to dismiss*/},
         confirmButton = {
             PrimaryButton(
                 onClick = onCancel,

@@ -2,8 +2,8 @@ package net.mullvad.mullvadvpn.compose.state
 
 import arrow.core.NonEmptyList
 import net.mullvad.mullvadvpn.lib.common.util.getFirstInstanceOrNull
+import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodName
-import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodType
 import net.mullvad.mullvadvpn.lib.model.Cipher
 import net.mullvad.mullvadvpn.lib.model.InvalidDataError
 
@@ -52,12 +52,9 @@ data class EditApiAccessFormData(
         fun empty() =
             EditApiAccessFormData(name = "", password = "", port = "", serverIp = "", username = "")
 
-        fun fromCustomProxy(
-            name: ApiAccessMethodName,
-            customProxy: ApiAccessMethodType.CustomProxy
-        ) =
+        fun fromCustomProxy(name: ApiAccessMethodName, customProxy: ApiAccessMethod.CustomProxy) =
             when (customProxy) {
-                is ApiAccessMethodType.CustomProxy.Shadowsocks -> {
+                is ApiAccessMethod.CustomProxy.Shadowsocks -> {
                     EditApiAccessFormData(
                         name = name.value,
                         serverIp = customProxy.ip,
@@ -67,7 +64,7 @@ data class EditApiAccessFormData(
                         username = "",
                     )
                 }
-                is ApiAccessMethodType.CustomProxy.Socks5Remote ->
+                is ApiAccessMethod.CustomProxy.Socks5Remote ->
                     EditApiAccessFormData(
                         name = name.value,
                         serverIp = customProxy.ip,

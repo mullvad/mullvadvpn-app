@@ -11,15 +11,14 @@ import net.mullvad.mullvadvpn.compose.state.SaveApiAccessMethodUiState
 import net.mullvad.mullvadvpn.compose.state.TestApiAccessMethodState
 import net.mullvad.mullvadvpn.data.UUID
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
+import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodName
-import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodType
 import net.mullvad.mullvadvpn.lib.model.NewAccessMethod
 import net.mullvad.mullvadvpn.lib.model.TestApiAccessMethodError
 import net.mullvad.mullvadvpn.lib.model.UnknownApiAccessMethodError
 import net.mullvad.mullvadvpn.repository.ApiAccessRepository
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -35,7 +34,7 @@ class SaveApiAccessMethodViewModelTest {
             // Arrange
             val apiAccessMethodId = ApiAccessMethodId.fromString(UUID)
             val apiAccessMethodName = ApiAccessMethodName.fromString("Name")
-            val customProxy = mockk<ApiAccessMethodType.CustomProxy>()
+            val customProxy = mockk<ApiAccessMethod.CustomProxy>()
             coEvery { mockApiAccessRepository.testCustomApiAccessMethod(customProxy) } returns
                 Unit.right()
             coEvery {
@@ -76,7 +75,7 @@ class SaveApiAccessMethodViewModelTest {
         // Arrange
         val apiAccessMethodId = ApiAccessMethodId.fromString(UUID)
         val apiAccessMethodName = ApiAccessMethodName.fromString("Name")
-        val customProxy = mockk<ApiAccessMethodType.CustomProxy>()
+        val customProxy = mockk<ApiAccessMethod.CustomProxy>()
         coEvery { mockApiAccessRepository.testCustomApiAccessMethod(customProxy) } returns
             TestApiAccessMethodError.CouldNotAccess.left()
         createSaveApiAccessMethodViewModel(
@@ -102,7 +101,7 @@ class SaveApiAccessMethodViewModelTest {
         // Arrange
         val apiAccessMethodId = ApiAccessMethodId.fromString(UUID)
         val apiAccessMethodName = ApiAccessMethodName.fromString("Name")
-        val customProxy = mockk<ApiAccessMethodType.CustomProxy>()
+        val customProxy = mockk<ApiAccessMethod.CustomProxy>()
         coEvery { mockApiAccessRepository.testCustomApiAccessMethod(customProxy) } returns
             TestApiAccessMethodError.CouldNotAccess.left()
         coEvery {
@@ -149,7 +148,7 @@ class SaveApiAccessMethodViewModelTest {
         // Arrange
         val apiAccessMethodId = ApiAccessMethodId.fromString(UUID)
         val apiAccessMethodName = ApiAccessMethodName.fromString("Name")
-        val customProxy = mockk<ApiAccessMethodType.CustomProxy>()
+        val customProxy = mockk<ApiAccessMethod.CustomProxy>()
         coEvery { mockApiAccessRepository.testCustomApiAccessMethod(customProxy) } returns
             Unit.right()
         coEvery {
@@ -177,7 +176,7 @@ class SaveApiAccessMethodViewModelTest {
         // Arrange
         val apiAccessMethodId = null
         val apiAccessMethodName = ApiAccessMethodName.fromString("Name")
-        val customProxy = mockk<ApiAccessMethodType.CustomProxy>()
+        val customProxy = mockk<ApiAccessMethod.CustomProxy>()
         coEvery { mockApiAccessRepository.testCustomApiAccessMethod(customProxy) } returns
             Unit.right()
         coEvery {
@@ -185,7 +184,7 @@ class SaveApiAccessMethodViewModelTest {
                 NewAccessMethod(
                     name = apiAccessMethodName,
                     enabled = true,
-                    apiAccessMethodType = customProxy
+                    apiAccessMethod = customProxy
                 )
             )
         } returns ApiAccessMethodId.fromString(UUID).right()
@@ -201,7 +200,7 @@ class SaveApiAccessMethodViewModelTest {
                 NewAccessMethod(
                     name = apiAccessMethodName,
                     enabled = true,
-                    apiAccessMethodType = customProxy
+                    apiAccessMethod = customProxy
                 )
             )
         }
@@ -210,7 +209,7 @@ class SaveApiAccessMethodViewModelTest {
     private fun createSaveApiAccessMethodViewModel(
         apiAccessMethodId: ApiAccessMethodId?,
         apiAccessMethodName: ApiAccessMethodName,
-        customProxy: ApiAccessMethodType.CustomProxy
+        customProxy: ApiAccessMethod.CustomProxy
     ) {
         saveApiAccessMethodViewModel =
             SaveApiAccessMethodViewModel(

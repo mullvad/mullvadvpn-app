@@ -3,7 +3,7 @@ package net.mullvad.mullvadvpn.lib.daemon.grpc.mapper
 import mullvad_daemon.management_interface.ManagementInterface
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
-import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodType
+import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodSetting
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.CustomDnsOptions
 import net.mullvad.mullvadvpn.lib.model.CustomList
@@ -172,37 +172,34 @@ internal fun NewAccessMethod.fromDomain(): ManagementInterface.NewAccessMethodSe
         .setName(name.value)
         .setEnabled(enabled)
         .setAccessMethod(
-            ManagementInterface.AccessMethod.newBuilder()
-                .setCustom(apiAccessMethodType.fromDomain())
+            ManagementInterface.AccessMethod.newBuilder().setCustom(apiAccessMethod.fromDomain())
         )
         .build()
 
-internal fun ApiAccessMethodType.fromDomain(): ManagementInterface.AccessMethod =
+internal fun ApiAccessMethod.fromDomain(): ManagementInterface.AccessMethod =
     ManagementInterface.AccessMethod.newBuilder()
         .let {
             when (this) {
-                ApiAccessMethodType.Direct ->
+                ApiAccessMethod.Direct ->
                     it.setDirect(ManagementInterface.AccessMethod.Direct.getDefaultInstance())
-                ApiAccessMethodType.Bridges ->
+                ApiAccessMethod.Bridges ->
                     it.setBridges(ManagementInterface.AccessMethod.Bridges.getDefaultInstance())
-                is ApiAccessMethodType.CustomProxy -> it.setCustom(this.fromDomain())
+                is ApiAccessMethod.CustomProxy -> it.setCustom(this.fromDomain())
             }
         }
         .build()
 
-internal fun ApiAccessMethodType.CustomProxy.fromDomain(): ManagementInterface.CustomProxy =
+internal fun ApiAccessMethod.CustomProxy.fromDomain(): ManagementInterface.CustomProxy =
     ManagementInterface.CustomProxy.newBuilder()
         .let {
             when (this) {
-                is ApiAccessMethodType.CustomProxy.Shadowsocks ->
-                    it.setShadowsocks(this.fromDomain())
-                is ApiAccessMethodType.CustomProxy.Socks5Remote ->
-                    it.setSocks5Remote(this.fromDomain())
+                is ApiAccessMethod.CustomProxy.Shadowsocks -> it.setShadowsocks(this.fromDomain())
+                is ApiAccessMethod.CustomProxy.Socks5Remote -> it.setSocks5Remote(this.fromDomain())
             }
         }
         .build()
 
-internal fun ApiAccessMethodType.CustomProxy.Socks5Remote.fromDomain():
+internal fun ApiAccessMethod.CustomProxy.Socks5Remote.fromDomain():
     ManagementInterface.Socks5Remote =
     ManagementInterface.Socks5Remote.newBuilder().setIp(ip).setPort(port.value).let {
         auth?.let { auth -> it.setAuth(auth.fromDomain()) }
@@ -212,8 +209,7 @@ internal fun ApiAccessMethodType.CustomProxy.Socks5Remote.fromDomain():
 internal fun SocksAuth.fromDomain(): ManagementInterface.SocksAuth =
     ManagementInterface.SocksAuth.newBuilder().setUsername(username).setPassword(password).build()
 
-internal fun ApiAccessMethodType.CustomProxy.Shadowsocks.fromDomain():
-    ManagementInterface.Shadowsocks =
+internal fun ApiAccessMethod.CustomProxy.Shadowsocks.fromDomain(): ManagementInterface.Shadowsocks =
     ManagementInterface.Shadowsocks.newBuilder()
         .setIp(ip)
         .setCipher(cipher.label)
@@ -234,10 +230,10 @@ internal fun TransportProtocol.fromDomain(): ManagementInterface.TransportProtoc
 internal fun ApiAccessMethodId.fromDomain(): ManagementInterface.UUID =
     ManagementInterface.UUID.newBuilder().setValue(value.toString()).build()
 
-internal fun ApiAccessMethod.fromDomain(): ManagementInterface.AccessMethodSetting =
+internal fun ApiAccessMethodSetting.fromDomain(): ManagementInterface.AccessMethodSetting =
     ManagementInterface.AccessMethodSetting.newBuilder()
         .setName(name.value)
         .setId(id.fromDomain())
         .setEnabled(enabled)
-        .setAccessMethod(apiAccessMethodType.fromDomain())
+        .setAccessMethod(apiAccessMethod.fromDomain())
         .build()

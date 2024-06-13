@@ -11,13 +11,14 @@ class ApiAccessListUiStateParameterProvider : PreviewParameterProvider<ApiAccess
             ApiAccessListUiState(),
             // Without custom api access method
             ApiAccessListUiState(
-                currentApiAccessMethod = defaultAccessMethods.first(),
-                apiAccessMethods = defaultAccessMethods
+                currentApiAccessMethodSetting = defaultAccessMethods.first(),
+                apiAccessMethodSettings = defaultAccessMethods
             ),
             // With custom api
             ApiAccessListUiState(
-                currentApiAccessMethod = defaultAccessMethods.first(),
-                apiAccessMethods = defaultAccessMethods.plus(listOf(shadowsocks, socks5Remote))
+                currentApiAccessMethodSetting = defaultAccessMethods.first(),
+                apiAccessMethodSettings =
+                    defaultAccessMethods.plus(listOf(shadowsocks, socks5Remote))
             )
         )
 }

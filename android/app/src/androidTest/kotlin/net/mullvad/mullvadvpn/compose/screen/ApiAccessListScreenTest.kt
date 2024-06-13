@@ -11,7 +11,7 @@ import net.mullvad.mullvadvpn.compose.data.DIRECT_ACCESS_METHOD
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.ApiAccessListUiState
 import net.mullvad.mullvadvpn.compose.test.API_ACCESS_LIST_INFO_TEST_TAG
-import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod
+import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodSetting
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 
@@ -26,7 +26,8 @@ class ApiAccessListScreenTest {
             val currentApiAccessMethod = DIRECT_ACCESS_METHOD
             setContentWithTheme {
                 ApiAccessListScreen(
-                    state = ApiAccessListUiState(currentApiAccessMethod = currentApiAccessMethod)
+                    state =
+                        ApiAccessListUiState(currentApiAccessMethodSetting = currentApiAccessMethod)
                 )
             }
 
@@ -41,7 +42,7 @@ class ApiAccessListScreenTest {
             val apiAccessMethod = DIRECT_ACCESS_METHOD
             setContentWithTheme {
                 ApiAccessListScreen(
-                    state = ApiAccessListUiState(apiAccessMethods = listOf(apiAccessMethod))
+                    state = ApiAccessListUiState(apiAccessMethodSettings = listOf(apiAccessMethod))
                 )
             }
 
@@ -93,10 +94,10 @@ class ApiAccessListScreenTest {
         composeExtension.use {
             // Arrange
             val apiAccessMethod = DIRECT_ACCESS_METHOD
-            val onApiAccessMethodClick: (ApiAccessMethod) -> Unit = mockk(relaxed = true)
+            val onApiAccessMethodClick: (ApiAccessMethodSetting) -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 ApiAccessListScreen(
-                    state = ApiAccessListUiState(apiAccessMethods = listOf(apiAccessMethod)),
+                    state = ApiAccessListUiState(apiAccessMethodSettings = listOf(apiAccessMethod)),
                     onApiAccessMethodClick = onApiAccessMethodClick
                 )
             }

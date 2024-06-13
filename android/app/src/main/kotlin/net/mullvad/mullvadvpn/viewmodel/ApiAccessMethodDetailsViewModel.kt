@@ -13,8 +13,8 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.ApiAccessMethodDetailsUiState
+import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
-import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodType
 import net.mullvad.mullvadvpn.lib.model.TestApiAccessMethodError
 import net.mullvad.mullvadvpn.repository.ApiAccessRepository
 
@@ -29,7 +29,7 @@ class ApiAccessMethodDetailsViewModel(
     private val isTestingApiAccessMethodState = MutableStateFlow(false)
     val uiState =
         combine(
-                apiAccessRepository.apiAccessMethodById(apiAccessMethodId),
+                apiAccessRepository.apiAccessMethodSettingById(apiAccessMethodId),
                 apiAccessRepository.enabledApiAccessMethods(),
                 apiAccessRepository.currentAccessMethod,
                 isTestingApiAccessMethodState
@@ -42,8 +42,7 @@ class ApiAccessMethodDetailsViewModel(
                     apiAccessMethodId = apiAccessMethodId,
                     name = apiAccessMethod.name,
                     enabled = apiAccessMethod.enabled,
-                    isEditable =
-                        apiAccessMethod.apiAccessMethodType is ApiAccessMethodType.CustomProxy,
+                    isEditable = apiAccessMethod.apiAccessMethod is ApiAccessMethod.CustomProxy,
                     isDisableable = enabledApiAccessMethods.any { it.id != apiAccessMethodId },
                     isCurrentMethod = currentAccessMethod?.id == apiAccessMethodId,
                     isTestingAccessMethod = isTestingApiAccessMethod
@@ -60,7 +59,7 @@ class ApiAccessMethodDetailsViewModel(
             viewModelScope.launch {
                 testMethodWithStatus().onRight {
                     apiAccessRepository
-                        .setApiAccessMethod(apiAccessMethodId = apiAccessMethodId)
+                        .setCurrentApiAccessMethod(apiAccessMethodId = apiAccessMethodId)
                         .onLeft {
                             _uiSideEffect.send(ApiAccessMethodDetailsSideEffect.GenericError)
                         }

@@ -6,15 +6,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodName
-import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodType
+import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodSetting
 import net.mullvad.mullvadvpn.lib.model.GetApiAccessMethodError
 import net.mullvad.mullvadvpn.lib.model.NewAccessMethod
 
@@ -24,7 +22,7 @@ class ApiAccessRepository(
 ) {
     val accessMethods =
         managementService.settings
-            .mapNotNull { it.apiAccessMethods }
+            .mapNotNull { it.apiAccessMethodSettings }
             .stateIn(CoroutineScope(dispatcher), SharingStarted.Eagerly, null)
 
     val currentAccessMethod =
@@ -40,48 +38,48 @@ class ApiAccessRepository(
     suspend fun removeApiAccessMethod(apiAccessMethodId: ApiAccessMethodId) =
         managementService.removeApiAccessMethod(apiAccessMethodId)
 
-    suspend fun setApiAccessMethod(apiAccessMethodId: ApiAccessMethodId) =
+    suspend fun setCurrentApiAccessMethod(apiAccessMethodId: ApiAccessMethodId) =
         managementService.setApiAccessMethod(apiAccessMethodId)
 
-    private suspend fun updateApiAccessMethod(apiAccessMethod: ApiAccessMethod) =
-        managementService.updateApiAccessMethod(apiAccessMethod)
+    private suspend fun updateApiAccessMethod(apiAccessMethodSetting: ApiAccessMethodSetting) =
+        managementService.updateApiAccessMethod(apiAccessMethodSetting)
 
     suspend fun updateApiAccessMethod(
         apiAccessMethodId: ApiAccessMethodId,
         apiAccessMethodName: ApiAccessMethodName,
-        apiAccessMethodType: ApiAccessMethodType
+        apiAccessMethod: ApiAccessMethod
     ) = either {
-        val apiAccessMethod = getApiAccessMethodById(apiAccessMethodId).bind()
+        val apiAccessMethodSetting = getApiAccessMethodSettingById(apiAccessMethodId).bind()
         updateApiAccessMethod(
-                apiAccessMethod.copy(
+                apiAccessMethodSetting.copy(
                     id = apiAccessMethodId,
                     name = apiAccessMethodName,
-                    apiAccessMethodType = apiAccessMethodType
+                    apiAccessMethod = apiAccessMethod
                 )
             )
             .bind()
     }
 
-    suspend fun testCustomApiAccessMethod(customProxy: ApiAccessMethodType.CustomProxy) =
+    suspend fun testCustomApiAccessMethod(customProxy: ApiAccessMethod.CustomProxy) =
         managementService.testCustomApiAccessMethod(customProxy)
 
     suspend fun testApiAccessMethodById(apiAccessMethodId: ApiAccessMethodId) =
         managementService.testApiAccessMethodById(apiAccessMethodId)
 
-    fun getApiAccessMethodById(id: ApiAccessMethodId) =
-        either<GetApiAccessMethodError, ApiAccessMethod> {
+    fun getApiAccessMethodSettingById(id: ApiAccessMethodId) =
+        either<GetApiAccessMethodError, ApiAccessMethodSetting> {
             accessMethods.value?.firstOrNull { it.id == id }
                 ?: raise(GetApiAccessMethodError.NotFound)
         }
 
-    fun apiAccessMethodById(id: ApiAccessMethodId): Flow<ApiAccessMethod> =
+    fun apiAccessMethodSettingById(id: ApiAccessMethodId): Flow<ApiAccessMethodSetting> =
         accessMethods.mapNotNull { it?.firstOrNull { accessMethod -> accessMethod.id == id } }
 
-    fun enabledApiAccessMethods(): Flow<List<ApiAccessMethod>> =
+    fun enabledApiAccessMethods(): Flow<List<ApiAccessMethodSetting>> =
         accessMethods.mapNotNull { it?.filter { accessMethod -> accessMethod.enabled } }
 
     suspend fun setEnabledApiAccessMethod(id: ApiAccessMethodId, enabled: Boolean) = either {
-        val accessMethod = getApiAccessMethodById(id).bind()
+        val accessMethod = getApiAccessMethodSettingById(id).bind()
         updateApiAccessMethod(accessMethod.copy(enabled = enabled)).bind()
     }
 }

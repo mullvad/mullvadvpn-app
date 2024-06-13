@@ -23,9 +23,9 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.ApiAccessMethodTypes
 import net.mullvad.mullvadvpn.compose.state.EditApiAccessFormData
 import net.mullvad.mullvadvpn.compose.state.EditApiAccessMethodUiState
+import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodName
-import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodType
 import net.mullvad.mullvadvpn.lib.model.Cipher
 import net.mullvad.mullvadvpn.lib.model.InvalidDataError
 import net.mullvad.mullvadvpn.lib.model.ParsePortError
@@ -145,13 +145,13 @@ class EditApiAccessMethodViewModel(
             EditApiAccessFormData.empty()
         } else {
             apiAccessRepository
-                .getApiAccessMethodById(apiAccessMethodId)
+                .getApiAccessMethodSettingById(apiAccessMethodId)
                 .map { accessMethod ->
                     EditApiAccessFormData.fromCustomProxy(
                         accessMethod.name,
-                        accessMethod.apiAccessMethodType as? ApiAccessMethodType.CustomProxy
+                        accessMethod.apiAccessMethod as? ApiAccessMethod.CustomProxy
                             ?: error(
-                                "${accessMethod.apiAccessMethodType} api access type can not be edited"
+                                "${accessMethod.apiAccessMethod} api access type can not be edited"
                             )
                     )
                 }
@@ -159,7 +159,7 @@ class EditApiAccessMethodViewModel(
         }
 
     private fun EditApiAccessFormData.parseFormData():
-        EitherNel<InvalidDataError, Pair<ApiAccessMethodName, ApiAccessMethodType.CustomProxy>> =
+        EitherNel<InvalidDataError, Pair<ApiAccessMethodName, ApiAccessMethod.CustomProxy>> =
         zipOrAccumulate(parseName(name), parseConnectionFormData()) { name, customProxy ->
             name to customProxy
         }
@@ -176,9 +176,9 @@ class EditApiAccessMethodViewModel(
 
     private fun parseShadowSocksFormData(
         formData: EditApiAccessFormData
-    ): EitherNel<InvalidDataError, ApiAccessMethodType.CustomProxy.Shadowsocks> =
+    ): EitherNel<InvalidDataError, ApiAccessMethod.CustomProxy.Shadowsocks> =
         parseIpAndPort(formData.serverIp, formData.port).map { (ip, port) ->
-            ApiAccessMethodType.CustomProxy.Shadowsocks(
+            ApiAccessMethod.CustomProxy.Shadowsocks(
                 ip = ip,
                 port = port,
                 password = formData.password.ifBlank { null },
@@ -208,7 +208,7 @@ class EditApiAccessMethodViewModel(
 
     private fun parseSocks5RemoteFormData(
         formData: EditApiAccessFormData
-    ): EitherNel<InvalidDataError, ApiAccessMethodType.CustomProxy.Socks5Remote> =
+    ): EitherNel<InvalidDataError, ApiAccessMethod.CustomProxy.Socks5Remote> =
         zipOrAccumulate(
             parseIpAndPort(formData.serverIp, formData.port),
             parseAuth(
@@ -217,7 +217,7 @@ class EditApiAccessMethodViewModel(
                 inputPassword = formData.password
             )
         ) { (ip, port), auth ->
-            ApiAccessMethodType.CustomProxy.Socks5Remote(ip = ip, port = port, auth = auth)
+            ApiAccessMethod.CustomProxy.Socks5Remote(ip = ip, port = port, auth = auth)
         }
 
     private fun parseIpAndPort(ipInput: String, portInput: String) =
@@ -267,7 +267,7 @@ sealed interface EditApiAccessSideEffect {
     data class OpenSaveDialog(
         val id: ApiAccessMethodId?,
         val name: ApiAccessMethodName,
-        val customProxy: ApiAccessMethodType.CustomProxy
+        val customProxy: ApiAccessMethod.CustomProxy
     ) : EditApiAccessSideEffect
 
     data class TestApiAccessMethodResult(val successful: Boolean) : EditApiAccessSideEffect

@@ -10,16 +10,16 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.SaveApiAccessMethodUiState
 import net.mullvad.mullvadvpn.compose.state.TestApiAccessMethodState
+import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodName
-import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodType
 import net.mullvad.mullvadvpn.lib.model.NewAccessMethod
 import net.mullvad.mullvadvpn.repository.ApiAccessRepository
 
 class SaveApiAccessMethodViewModel(
     private val apiAccessMethodId: ApiAccessMethodId?,
     private val apiAccessMethodName: ApiAccessMethodName,
-    private val customProxy: ApiAccessMethodType.CustomProxy,
+    private val customProxy: ApiAccessMethod.CustomProxy,
     private val apiAccessRepository: ApiAccessRepository
 ) : ViewModel() {
     private val _uiSideEffect = Channel<SaveApiAccessMethodSideEffect>()
@@ -54,14 +54,14 @@ class SaveApiAccessMethodViewModel(
                 updateAccessMethod(
                     id = apiAccessMethodId,
                     name = apiAccessMethodName,
-                    apiAccessMethodType = customProxy
+                    apiAccessMethod = customProxy
                 )
             } else {
                 addNewAccessMethod(
                     NewAccessMethod(
                         name = apiAccessMethodName,
                         enabled = true,
-                        apiAccessMethodType = customProxy
+                        apiAccessMethod = customProxy
                     )
                 )
             }
@@ -80,13 +80,13 @@ class SaveApiAccessMethodViewModel(
     private suspend fun updateAccessMethod(
         id: ApiAccessMethodId,
         name: ApiAccessMethodName,
-        apiAccessMethodType: ApiAccessMethodType.CustomProxy
+        apiAccessMethod: ApiAccessMethod.CustomProxy
     ) {
         apiAccessRepository
             .updateApiAccessMethod(
                 apiAccessMethodId = id,
                 apiAccessMethodName = name,
-                apiAccessMethodType = apiAccessMethodType
+                apiAccessMethod = apiAccessMethod
             )
             .fold(
                 { _uiSideEffect.send(SaveApiAccessMethodSideEffect.CouldNotSaveApiAccessMethod) },

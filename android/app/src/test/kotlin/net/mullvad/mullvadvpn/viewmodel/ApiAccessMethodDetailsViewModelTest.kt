@@ -15,8 +15,8 @@ import kotlinx.coroutines.time.delay
 import net.mullvad.mullvadvpn.compose.state.ApiAccessMethodDetailsUiState
 import net.mullvad.mullvadvpn.data.UUID
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
-import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
+import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodSetting
 import net.mullvad.mullvadvpn.lib.model.TestApiAccessMethodError
 import net.mullvad.mullvadvpn.lib.model.UnknownApiAccessMethodError
 import net.mullvad.mullvadvpn.repository.ApiAccessRepository
@@ -32,13 +32,13 @@ class ApiAccessMethodDetailsViewModelTest {
 
     private lateinit var apiAccessMethodDetailsViewModel: ApiAccessMethodDetailsViewModel
 
-    private val accessMethodFlow = MutableStateFlow<ApiAccessMethod>(mockk(relaxed = true))
-    private val enabledMethodsFlow = MutableStateFlow<List<ApiAccessMethod>>(emptyList())
-    private val currentAccessMethodFlow = MutableStateFlow<ApiAccessMethod?>(null)
+    private val accessMethodFlow = MutableStateFlow<ApiAccessMethodSetting>(mockk(relaxed = true))
+    private val enabledMethodsFlow = MutableStateFlow<List<ApiAccessMethodSetting>>(emptyList())
+    private val currentAccessMethodFlow = MutableStateFlow<ApiAccessMethodSetting?>(null)
 
     @BeforeEach
     fun setUp() {
-        every { mockApiAccessRepository.apiAccessMethodById(apiAccessMethodId) } returns
+        every { mockApiAccessRepository.apiAccessMethodSettingById(apiAccessMethodId) } returns
             accessMethodFlow
         every { mockApiAccessRepository.enabledApiAccessMethods() } returns enabledMethodsFlow
         every { mockApiAccessRepository.currentAccessMethod } returns currentAccessMethodFlow
@@ -56,13 +56,16 @@ class ApiAccessMethodDetailsViewModelTest {
             // Arrange
             coEvery { mockApiAccessRepository.testApiAccessMethodById(apiAccessMethodId) } returns
                 Unit.right()
-            coEvery { mockApiAccessRepository.setApiAccessMethod(any()) } returns Unit.right()
+            coEvery { mockApiAccessRepository.setCurrentApiAccessMethod(any()) } returns
+                Unit.right()
 
             // Act
             apiAccessMethodDetailsViewModel.setCurrentMethod()
 
             // Assert
-            coVerify(exactly = 1) { mockApiAccessRepository.setApiAccessMethod(apiAccessMethodId) }
+            coVerify(exactly = 1) {
+                mockApiAccessRepository.setCurrentApiAccessMethod(apiAccessMethodId)
+            }
         }
 
     @Test
@@ -71,13 +74,16 @@ class ApiAccessMethodDetailsViewModelTest {
             // Arrange
             coEvery { mockApiAccessRepository.testApiAccessMethodById(apiAccessMethodId) } returns
                 TestApiAccessMethodError.CouldNotAccess.left()
-            coEvery { mockApiAccessRepository.setApiAccessMethod(any()) } returns Unit.right()
+            coEvery { mockApiAccessRepository.setCurrentApiAccessMethod(any()) } returns
+                Unit.right()
 
             // Act
             apiAccessMethodDetailsViewModel.setCurrentMethod()
 
             // Assert
-            coVerify(exactly = 0) { mockApiAccessRepository.setApiAccessMethod(apiAccessMethodId) }
+            coVerify(exactly = 0) {
+                mockApiAccessRepository.setCurrentApiAccessMethod(apiAccessMethodId)
+            }
         }
 
     @Test

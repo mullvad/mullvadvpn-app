@@ -1,8 +1,8 @@
 package net.mullvad.mullvadvpn.compose.state
 
-import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod
+import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodSetting
 
 data class ApiAccessListUiState(
-    val currentApiAccessMethod: ApiAccessMethod? = null,
-    val apiAccessMethods: List<ApiAccessMethod> = emptyList()
+    val currentApiAccessMethodSetting: ApiAccessMethodSetting? = null,
+    val apiAccessMethodSettings: List<ApiAccessMethodSetting> = emptyList()
 )

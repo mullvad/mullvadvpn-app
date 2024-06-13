@@ -48,7 +48,7 @@ import net.mullvad.mullvadvpn.lib.model.AddApiAccessMethodError
 import net.mullvad.mullvadvpn.lib.model.AddSplitTunnelingAppError
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
-import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodType
+import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodSetting
 import net.mullvad.mullvadvpn.lib.model.AppId
 import net.mullvad.mullvadvpn.lib.model.AppVersionInfo as ModelAppVersionInfo
 import net.mullvad.mullvadvpn.lib.model.ClearAllOverridesError
@@ -173,8 +173,9 @@ class ManagementService(
     val wireguardEndpointData: Flow<ModelWireguardEndpointData> =
         relayList.mapNotNull { it.wireguardEndpointData }
 
-    private val _mutableCurrentAccessMethod = MutableStateFlow<ApiAccessMethod?>(null)
-    val currentAccessMethod: Flow<ApiAccessMethod> = _mutableCurrentAccessMethod.filterNotNull()
+    private val _mutableCurrentAccessMethod = MutableStateFlow<ApiAccessMethodSetting?>(null)
+    val currentAccessMethod: Flow<ApiAccessMethodSetting> =
+        _mutableCurrentAccessMethod.filterNotNull()
 
     fun start() {
         // Just to ensure that connection is set up since the connection won't be setup without a
@@ -608,17 +609,17 @@ class ManagementService(
             .mapEmpty()
 
     suspend fun updateApiAccessMethod(
-        apiAccessMethod: ApiAccessMethod
+        apiAccessMethodSetting: ApiAccessMethodSetting
     ): Either<UpdateApiAccessMethodError, Unit> =
-        Either.catch { grpc.updateApiAccessMethod(apiAccessMethod.fromDomain()) }
+        Either.catch { grpc.updateApiAccessMethod(apiAccessMethodSetting.fromDomain()) }
             .mapLeft(::UnknownApiAccessMethodError)
             .mapEmpty()
 
-    private suspend fun getCurrentApiAccessMethod(): ApiAccessMethod =
+    private suspend fun getCurrentApiAccessMethod(): ApiAccessMethodSetting =
         grpc.getCurrentApiAccessMethod(Empty.getDefaultInstance()).toDomain()
 
     suspend fun testCustomApiAccessMethod(
-        customProxy: ApiAccessMethodType.CustomProxy
+        customProxy: ApiAccessMethod.CustomProxy
     ): Either<TestApiAccessMethodError, Unit> =
         Either.catch { grpc.testCustomApiAccessMethod(customProxy.fromDomain()) }
             .mapLeftStatus { TestApiAccessMethodError.Grpc }

@@ -4,7 +4,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import arrow.core.nonEmptyListOf
 import net.mullvad.mullvadvpn.compose.state.EditApiAccessFormData
 import net.mullvad.mullvadvpn.compose.state.EditApiAccessMethodUiState
-import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodType
+import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod
 import net.mullvad.mullvadvpn.lib.model.InvalidDataError
 
 class EditApiAccessMethodUiStateParameterProvider :
@@ -25,8 +25,7 @@ class EditApiAccessMethodUiStateParameterProvider :
                 hasChanges = false,
                 formData =
                     shadowsocks.let {
-                        val data =
-                            (it.apiAccessMethodType as ApiAccessMethodType.CustomProxy.Shadowsocks)
+                        val data = (it.apiAccessMethod as ApiAccessMethod.CustomProxy.Shadowsocks)
                         EditApiAccessFormData(
                             name = it.name.value,
                             serverIp = data.ip,
@@ -44,8 +43,7 @@ class EditApiAccessMethodUiStateParameterProvider :
                 hasChanges = false,
                 formData =
                     socks5Remote.let {
-                        val data =
-                            (it.apiAccessMethodType as ApiAccessMethodType.CustomProxy.Socks5Remote)
+                        val data = (it.apiAccessMethod as ApiAccessMethod.CustomProxy.Socks5Remote)
                         EditApiAccessFormData(
                             name = it.name.value,
                             serverIp = data.ip,
