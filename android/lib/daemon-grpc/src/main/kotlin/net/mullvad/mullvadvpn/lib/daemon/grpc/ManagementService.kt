@@ -14,6 +14,7 @@ import io.grpc.ConnectivityState
 import io.grpc.Status
 import io.grpc.StatusException
 import io.grpc.android.UdsChannelBuilder
+import java.io.File
 import java.net.InetAddress
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -115,14 +116,19 @@ import net.mullvad.mullvadvpn.lib.model.wireguardConstraints
 
 @Suppress("TooManyFunctions")
 class ManagementService(
-    rpcSocketPath: String,
+    rpcSocketFile: File,
     private val extensiveLogging: Boolean,
     private val scope: CoroutineScope,
 ) {
     private var job: Job? = null
 
+    // We expect daemon to create the rpc socket file on the path provided on initialisation
     private val channel =
-        UdsChannelBuilder.forPath(rpcSocketPath, LocalSocketAddress.Namespace.FILESYSTEM).build()
+        UdsChannelBuilder.forPath(
+                rpcSocketFile.absolutePath,
+                LocalSocketAddress.Namespace.FILESYSTEM
+            )
+            .build()
 
     val connectionState: StateFlow<GrpcConnectivityState> =
         channel
