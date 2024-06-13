@@ -24,7 +24,7 @@ fun DiscardChangesDialog(resultBackNavigator: ResultBackNavigator<Boolean>) {
         dismissButton = {
             PrimaryButton(
                 modifier = Modifier.focusRequester(FocusRequester()),
-                onClick = dropUnlessResumed {resultBackNavigator.navigateBack()},
+                onClick = dropUnlessResumed { resultBackNavigator.navigateBack() },
                 text = stringResource(id = R.string.cancel)
             )
         },

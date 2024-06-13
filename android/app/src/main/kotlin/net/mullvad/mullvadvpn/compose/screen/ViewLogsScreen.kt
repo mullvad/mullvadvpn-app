@@ -28,6 +28,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
@@ -64,7 +65,7 @@ private fun PreviewViewLogsLoadingScreen() {
 fun ViewLogs(navigator: DestinationsNavigator) {
     val vm = koinViewModel<ViewLogsViewModel>()
     val state by vm.uiState.collectAsStateWithLifecycle()
-    ViewLogsScreen(state = state, onBackClick = navigator::navigateUp)
+    ViewLogsScreen(state = state, onBackClick = dropUnlessResumed { navigator.navigateUp() })
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

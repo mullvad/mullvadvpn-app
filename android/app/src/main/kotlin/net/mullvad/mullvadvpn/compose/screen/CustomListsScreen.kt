@@ -23,6 +23,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.NavResult
@@ -92,19 +93,21 @@ fun CustomLists(
     CustomListsScreen(
         state = state,
         snackbarHostState = snackbarHostState,
-        addCustomList = {
+        addCustomList =
+            dropUnlessResumed {
+                navigator.navigate(
+                    CreateCustomListDestination(),
+                )
+            },
+        openCustomList = { customList ->
             navigator.navigate(
-                CreateCustomListDestination(),
+                EditCustomListDestination(customListId = customList.id),
+                onlyIfResumed = true
             ) {
                 launchSingleTop = true
             }
         },
-        openCustomList = { customList ->
-            navigator.navigate(EditCustomListDestination(customListId = customList.id)) {
-                launchSingleTop = true
-            }
-        },
-        onBackClick = navigator::navigateUp
+        onBackClick = dropUnlessResumed { navigator.navigateUp() }
     )
 }
 

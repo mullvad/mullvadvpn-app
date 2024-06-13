@@ -31,6 +31,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.popUpTo
@@ -146,19 +147,18 @@ fun DeviceList(
     DeviceListScreen(
         state = state,
         snackbarHostState = snackbarHostState,
-        onBackClick = navigator::navigateUp,
-        onContinueWithLogin = {
-            navigator.navigate(LoginDestination(accountNumber)) {
-                launchSingleTop = true
-                popUpTo(LoginDestination) { inclusive = true }
-            }
-        },
-        onSettingsClicked = { navigator.navigate(SettingsDestination) { launchSingleTop = true } },
+        onBackClick = dropUnlessResumed { navigator.navigateUp() },
+        onContinueWithLogin =
+            dropUnlessResumed {
+                navigator.navigate(LoginDestination(accountNumber)) {
+                    launchSingleTop = true
+                    popUpTo(LoginDestination) { inclusive = true }
+                }
+            },
+        onSettingsClicked = dropUnlessResumed() { navigator.navigate(SettingsDestination) },
         onTryAgainClicked = viewModel::fetchDevices,
         navigateToRemoveDeviceConfirmationDialog = {
-            navigator.navigate(RemoveDeviceConfirmationDialogDestination(it)) {
-                launchSingleTop = true
-            }
+            navigator.navigate(RemoveDeviceConfirmationDialogDestination(it), onlyIfResumed = true)
         }
     )
 }

@@ -40,6 +40,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
@@ -143,17 +144,16 @@ fun ServerIpOverrides(
 
     ServerIpOverridesScreen(
         state,
-        onBackClick = navigator::navigateUp,
-        onInfoClick = {
-            navigator.navigate(ServerIpOverridesInfoDialogDestination, onlyIfResumed = true)
-        },
-        onResetOverridesClick = {
-            navigator.navigate(ResetServerIpOverridesConfirmationDestination, onlyIfResumed = true)
-        },
-        onImportByFile = { openFileLauncher.launch("application/json") },
-        onImportByText = {
-            navigator.navigate(ImportOverridesByTextDestination, onlyIfResumed = true)
-        },
+        onBackClick = dropUnlessResumed { navigator.navigateUp() },
+        onInfoClick =
+            dropUnlessResumed() { navigator.navigate(ServerIpOverridesInfoDialogDestination) },
+        onResetOverridesClick =
+            dropUnlessResumed() {
+                navigator.navigate(ResetServerIpOverridesConfirmationDestination)
+            },
+        onImportByFile = dropUnlessResumed() { openFileLauncher.launch("application/json") },
+        onImportByText =
+            dropUnlessResumed() { navigator.navigate(ImportOverridesByTextDestination) },
         snackbarHostState
     )
 }

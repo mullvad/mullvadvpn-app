@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.compose.dialog
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
@@ -26,6 +27,6 @@ fun LocalNetworkSharingInfoDialog(navigator: DestinationsNavigator) {
                 appendLine(stringResource(id = R.string.local_network_sharing_additional_info))
                 appendLine(textResource(id = R.string.local_network_sharing_ip_ranges))
             },
-        onDismiss = navigator::navigateUp
+        onDismiss = dropUnlessResumed { navigator.navigateUp() }
     )
 }

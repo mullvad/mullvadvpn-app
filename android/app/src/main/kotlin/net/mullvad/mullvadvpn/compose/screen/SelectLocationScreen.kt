@@ -150,7 +150,7 @@ fun SelectLocation(
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
 
-    val navigateBack = dropUnlessResumed { backNavigator.navigateBack(result = true)}
+    val navigateBack = dropUnlessResumed { backNavigator.navigateBack(result = true) }
     LaunchedEffectCollect(vm.uiSideEffect) {
         when (it) {
             SelectLocationSideEffect.CloseScreen -> navigateBack()
@@ -205,28 +205,37 @@ fun SelectLocation(
         onBackClick = dropUnlessResumed { backNavigator.navigateBack() },
         onFilterClick = dropUnlessResumed { navigator.navigate(FilterScreenDestination) },
         onCreateCustomList = { relayItem ->
-            navigator.navigate(CreateCustomListDestination(locationCode = relayItem?.id)) {
+            navigator.navigate(
+                CreateCustomListDestination(locationCode = relayItem?.id),
+                onlyIfResumed = true
+            ) {
                 launchSingleTop = true
             }
         },
-        onEditCustomLists = { navigator.navigate(CustomListsDestination()) },
+        onEditCustomLists = dropUnlessResumed() { navigator.navigate(CustomListsDestination()) },
         removeOwnershipFilter = vm::removeOwnerFilter,
         removeProviderFilter = vm::removeProviderFilter,
         onAddLocationToList = vm::addLocationToList,
         onRemoveLocationFromList = vm::removeLocationFromList,
         onEditCustomListName = {
             navigator.navigate(
-                EditCustomListNameDestination(customListId = it.id, initialName = it.customListName)
+                EditCustomListNameDestination(
+                    customListId = it.id,
+                    initialName = it.customListName
+                ),
+                onlyIfResumed = true
             )
         },
         onEditLocationsCustomList = {
             navigator.navigate(
-                CustomListLocationsDestination(customListId = it.id, newList = false)
+                CustomListLocationsDestination(customListId = it.id, newList = false),
+                onlyIfResumed = true
             )
         },
         onDeleteCustomList = {
             navigator.navigate(
-                DeleteCustomListDestination(customListId = it.id, name = it.customListName)
+                DeleteCustomListDestination(customListId = it.id, name = it.customListName),
+                onlyIfResumed = true
             )
         }
     )
