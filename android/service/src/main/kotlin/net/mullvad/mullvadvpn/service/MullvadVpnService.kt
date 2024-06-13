@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.service
 
 import android.app.KeyguardManager
+import android.content.Context
 import android.content.Intent
 import android.os.Binder
 import android.os.Build
@@ -18,6 +19,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import net.mullvad.mullvadvpn.lib.common.constant.BuildTypes
 import net.mullvad.mullvadvpn.lib.common.constant.GRPC_SOCKET_FILE_NAMED_ARGUMENT
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_CONNECT_ACTION
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_DISCONNECT_ACTION
@@ -40,12 +42,13 @@ import org.koin.android.ext.android.getKoin
 import org.koin.core.context.loadKoinModules
 import org.koin.core.qualifier.named
 
+private const val RELAYS_FILE = "relays.json"
+
 class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
     private val _shouldBeOnForeground = MutableStateFlow(false)
     override val shouldBeOnForeground: StateFlow<Boolean> = _shouldBeOnForeground
 
     private lateinit var keyguardManager: KeyguardManager
-    private lateinit var daemonInstance: MullvadDaemon
 
     private lateinit var apiEndpointConfiguration: ApiEndpointConfiguration
     private lateinit var managementService: ManagementService
@@ -90,15 +93,11 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
         // with intent from API)
         lifecycleScope.launch(context = Dispatchers.IO) {
             managementService.start()
-            daemonInstance =
-                MullvadDaemon(
-                    vpnService = this@MullvadVpnService,
-                    rpcSocketFile = rpcSocketFile,
-                    apiEndpointConfiguration =
-                        intentProvider.getLatestIntent()?.getApiEndpointConfigurationExtras()
-                            ?: apiEndpointConfiguration,
-                    migrateSplitTunneling = migrateSplitTunneling
-                )
+
+            prepareFiles(this@MullvadVpnService)
+            migrateSplitTunneling.migrate()
+
+            startDaemon()
         }
     }
 
@@ -144,6 +143,24 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
         // will return a binder that shall be user, otherwise we return an empty dummy binder to
         // keep connection service alive since the actual communication happens over gRPC.
         return super.onBind(intent) ?: emptyBinder()
+    }
+
+    private fun startDaemon() {
+        val apiEndpointConfiguration =
+            if (Build.TYPE == BuildTypes.DEBUG) {
+                intentProvider.getLatestIntent()?.getApiEndpointConfigurationExtras()
+                    ?: apiEndpointConfiguration
+            } else {
+                apiEndpointConfiguration
+            }
+
+        MullvadDaemon.initialize(
+            vpnService = this@MullvadVpnService,
+            rpcSocketPath = rpcSocketFile.absolutePath,
+            filesDirectory = filesDir.absolutePath,
+            cacheDirectory = cacheDir.absolutePath,
+            apiEndpoint = apiEndpointConfiguration.apiEndpoint()
+        )
     }
 
     private fun emptyBinder() =
@@ -193,7 +210,7 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
         managementService.stop()
 
         // Shutting down the daemon gracefully
-        runBlocking { daemonInstance.shutdown() }
+        MullvadDaemon.shutdown()
         super.onDestroy()
     }
 
@@ -201,6 +218,16 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
     private fun Intent?.isFromSystem(): Boolean {
         return this?.action == SERVICE_INTERFACE
     }
+
+    private fun prepareFiles(context: Context) {
+        val shouldOverwriteRelayList =
+            lastUpdatedTime(context) > File(context.filesDir, RELAYS_FILE).lastModified()
+
+        FileResourceExtractor(context).apply { extract(RELAYS_FILE, shouldOverwriteRelayList) }
+    }
+
+    private fun lastUpdatedTime(context: Context): Long =
+        context.packageManager.getPackageInfo(context.packageName, 0).lastUpdateTime
 
     companion object {
         init {
