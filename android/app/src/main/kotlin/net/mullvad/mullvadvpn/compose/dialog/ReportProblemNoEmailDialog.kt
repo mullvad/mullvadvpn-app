@@ -33,7 +33,7 @@ private fun PreviewReportProblemNoEmailDialog() {
 @Composable
 fun ReportProblemNoEmailDialog(resultBackNavigator: ResultBackNavigator<Boolean>) {
     AlertDialog(
-        onDismissRequest = dropUnlessResumed {resultBackNavigator.navigateBack() },
+        onDismissRequest = dropUnlessResumed { resultBackNavigator.navigateBack() },
         icon = {
             Icon(
                 painter = painterResource(id = R.drawable.icon_alert),

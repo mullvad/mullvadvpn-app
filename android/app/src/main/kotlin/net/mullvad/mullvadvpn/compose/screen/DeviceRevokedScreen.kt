@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.popUpTo
@@ -63,7 +64,7 @@ fun DeviceRevoked(navigator: DestinationsNavigator) {
 
     DeviceRevokedScreen(
         state = state,
-        onSettingsClicked = { navigator.navigate(SettingsDestination) { launchSingleTop = true } },
+        onSettingsClicked = dropUnlessResumed { navigator.navigate(SettingsDestination) },
         onGoToLoginClicked = viewModel::onGoToLoginClicked
     )
 }

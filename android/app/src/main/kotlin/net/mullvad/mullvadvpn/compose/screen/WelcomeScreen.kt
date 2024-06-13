@@ -27,6 +27,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.popUpTo
@@ -142,21 +143,17 @@ fun Welcome(
 
     WelcomeScreen(
         state = state,
-        onSitePaymentClick = vm::onSitePaymentClick,
-        onRedeemVoucherClick = {
-            navigator.navigate(RedeemVoucherDestination) { launchSingleTop = true }
-        },
-        onSettingsClick = { navigator.navigate(SettingsDestination) { launchSingleTop = true } },
-        onAccountClick = { navigator.navigate(AccountDestination) { launchSingleTop = true } },
-        navigateToDeviceInfoDialog = {
-            navigator.navigate(DeviceNameInfoDialogDestination) { launchSingleTop = true }
-        },
+        onSitePaymentClick = dropUnlessResumed { vm.onSitePaymentClick() },
+        onRedeemVoucherClick = dropUnlessResumed { navigator.navigate(RedeemVoucherDestination) },
+        onSettingsClick = dropUnlessResumed { navigator.navigate(SettingsDestination) },
+        onAccountClick = dropUnlessResumed { navigator.navigate(AccountDestination) },
+        navigateToDeviceInfoDialog =
+            dropUnlessResumed { navigator.navigate(DeviceNameInfoDialogDestination) },
         onPurchaseBillingProductClick = { productId ->
-            navigator.navigate(PaymentDestination(productId)) { launchSingleTop = true }
+            navigator.navigate(PaymentDestination(productId), onlyIfResumed = true)
         },
-        navigateToVerificationPendingDialog = {
-            navigator.navigate(VerificationPendingDialogDestination) { launchSingleTop = true }
-        }
+        navigateToVerificationPendingDialog =
+            dropUnlessResumed { navigator.navigate(VerificationPendingDialogDestination) }
     )
 }
 

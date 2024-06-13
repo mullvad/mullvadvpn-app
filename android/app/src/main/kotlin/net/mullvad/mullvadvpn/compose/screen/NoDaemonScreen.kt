@@ -22,6 +22,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.app.ActivityCompat.finishAffinity
+import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import net.mullvad.mullvadvpn.R
@@ -43,7 +44,7 @@ private fun PreviewNoDaemonScreen() {
 @Destination(style = DefaultTransition::class)
 @Composable
 fun NoDaemonScreen(navigator: DestinationsNavigator) {
-    NoDaemonScreen { navigator.navigate(SettingsDestination) }
+    NoDaemonScreen(dropUnlessResumed { navigator.navigate(SettingsDestination) })
 }
 
 @Composable

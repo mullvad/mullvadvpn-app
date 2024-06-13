@@ -44,6 +44,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.popUpTo
@@ -143,12 +144,12 @@ fun Connect(
                 openAccountPage(sideEffect.token)
             }
             is ConnectViewModel.UiSideEffect.OutOfTime ->
-                navigator.navigate(OutOfTimeDestination, true) {
+                navigator.navigate(OutOfTimeDestination) {
                     launchSingleTop = true
                     popUpTo(NavGraphs.root) { inclusive = true }
                 }
             ConnectViewModel.UiSideEffect.RevokedDevice ->
-                navigator.navigate(DeviceRevokedDestination, true) {
+                navigator.navigate(DeviceRevokedDestination) {
                     launchSingleTop = true
                     popUpTo(NavGraphs.root) { inclusive = true }
                 }
@@ -175,9 +176,7 @@ fun Connect(
         onReconnectClick = connectViewModel::onReconnectClick,
         onConnectClick = connectViewModel::onConnectClick,
         onCancelClick = connectViewModel::onCancelClick,
-        onSwitchLocationClick = {
-            navigator.navigate(SelectLocationDestination, true) { launchSingleTop = true }
-        },
+        onSwitchLocationClick = dropUnlessResumed { navigator.navigate(SelectLocationDestination) },
         onUpdateVersionClick = {
             val intent =
                 Intent(
@@ -192,12 +191,8 @@ fun Connect(
             context.startActivity(intent)
         },
         onManageAccountClick = connectViewModel::onManageAccountClick,
-        onSettingsClick = {
-            navigator.navigate(SettingsDestination, true) { launchSingleTop = true }
-        },
-        onAccountClick = {
-            navigator.navigate(AccountDestination, true) { launchSingleTop = true }
-        },
+        onSettingsClick = dropUnlessResumed { navigator.navigate(SettingsDestination) },
+        onAccountClick = dropUnlessResumed { navigator.navigate(AccountDestination) },
         onDismissNewDeviceClick = connectViewModel::dismissNewDeviceNotification,
     )
 }

@@ -26,6 +26,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.NavResult
@@ -115,13 +116,14 @@ fun CustomListLocations(
         onSearchTermInput = customListsViewModel::onSearchTermInput,
         onSaveClick = customListsViewModel::save,
         onRelaySelectionClick = customListsViewModel::onRelaySelectionClick,
-        onBackClick = {
-            if (state.hasUnsavedChanges) {
-                navigator.navigate(DiscardChangesDialogDestination) { launchSingleTop = true }
-            } else {
-                backNavigator.navigateBack()
+        onBackClick =
+            dropUnlessResumed {
+                if (state.hasUnsavedChanges) {
+                    navigator.navigate(DiscardChangesDialogDestination)
+                } else {
+                    backNavigator.navigateBack()
+                }
             }
-        }
     )
 }
 
