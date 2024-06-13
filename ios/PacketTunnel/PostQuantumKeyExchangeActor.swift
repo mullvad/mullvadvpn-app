@@ -15,7 +15,7 @@ import WireGuardKitTypes
 
 public class PostQuantumKeyExchangeActor {
     struct Negotiation {
-        var negotiator: PostQuantumKeyNegotiation
+        var negotiator: PostQuantumKeyNegotiating
         var inTunnelTCPConnection: NWTCPConnection
         var tcpConnectionObserver: NSKeyValueObservation
 
@@ -30,7 +30,7 @@ public class PostQuantumKeyExchangeActor {
     internal var negotiation: Negotiation?
     private var timer: DispatchSourceTimer?
     private var keyExchangeRetriesIterator: AnyIterator<Duration>
-    private let negotiationProvider: PostQuantumKeyNegotiation.Type
+    private let negotiationProvider: PostQuantumKeyNegotiating.Type
 
     // Callback in the event of the negotiation failing on startup
     var onFailure: () -> Void
@@ -38,7 +38,7 @@ public class PostQuantumKeyExchangeActor {
     public init(
         packetTunnel: any TunnelProvider,
         onFailure: @escaping (() -> Void),
-        negotiationProvider: PostQuantumKeyNegotiation.Type = PostQuantumKeyNegotiator.self,
+        negotiationProvider: PostQuantumKeyNegotiating.Type = PostQuantumKeyNegotiator.self,
         keyExchangeRetriesIterator: AnyIterator<Duration> = REST.RetryStrategy.postQuantumKeyExchange
             .makeDelayIterator()
     ) {
