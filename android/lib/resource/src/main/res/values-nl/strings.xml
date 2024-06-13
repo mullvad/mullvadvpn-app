@@ -7,12 +7,14 @@
     <string name="account_number">Accountnummer</string>
     <string name="account_time_notification_channel_description">Toont herinneringen wanneer de accounttijd op het punt staat te verlopen</string>
     <string name="account_time_notification_channel_name">Accounttijdherinneringen</string>
+    <string name="add">Toevoegen</string>
     <string name="add_30_days_time">30 dagen tijd toevoegen</string>
     <string name="add_30_days_time_x">30 dagen tijd toevoegen (%1$s)</string>
     <string name="add_a_server">Server toevoegen</string>
     <string name="add_dns_server_dialog_title">DNS-server toevoegen</string>
     <string name="add_location_to_list">%1$s toevoegen aan lijst</string>
     <string name="add_locations">Voeg locaties toe</string>
+    <string name="add_method">Methode toevoegen</string>
     <string name="add_time_to_account">Koop krediet op onze website of wissel een voucher in.</string>
     <string name="added_to_your_account">%1$s is toegevoegd aan uw account.</string>
     <string name="agree_and_continue">Akkoord en doorgaan</string>
@@ -23,9 +25,16 @@
     <string name="always_on_vpn_error_notification_content">Kan de tunnelverbinding niet starten. Schakel Altijd-aan VPN uit voor &lt;b&gt;%1$s&lt;/b&gt; voordat u Mullvad VPN gebruikt.</string>
     <string name="always_on_vpn_error_notification_title">Altijd-aan VPN toegewezen aan andere app</string>
     <string name="any">Elke</string>
+    <string name="api_access_description">Beheer en voeg aangepaste methoden toe om toegang te krijgen tot de Mullvad-API.</string>
+    <string name="api_access_method_info_first_line">De app moet communiceren met een Mullvad-API-server om u aan te melden, serverlijsten op te halen en andere belangrijke handelingen uit te voeren.</string>
+    <string name="api_access_method_info_second_line">Op sommige netwerken, waar verschillende soorten censuur worden gebruikt, zijn de API-servers mogelijk niet direct bereikbaar.</string>
+    <string name="api_access_method_info_third_line">Met deze functie kunt u die censuur omzeilen door aangepaste manieren toe te voegen om toegang te krijgen tot de API via proxy\'s en dergelijke methoden.</string>
+    <string name="api_reachable">API bereikbaar</string>
+    <string name="api_unreachable">API onbereikbaar</string>
     <string name="app_version">Appversie</string>
     <string name="apply">Toevoegen</string>
     <string name="auth_failed">Kan account niet verifiëren. Stuur een probleemrapport.</string>
+    <string name="authentication">Authenticatie</string>
     <string name="auto_connect">Automatisch verbinden</string>
     <string name="auto_connect_and_lockdown_mode">Automatisch verbinden en lockdownmodus</string>
     <string name="auto_connect_and_lockdown_mode_footer">Zorg dat het apparaat altijd de VPN-tunnel gebruikt.</string>
@@ -50,6 +59,7 @@
     <string name="buy_more_credit">Meer krediet kopen</string>
     <string name="cancel">Annuleren</string>
     <string name="changes_dialog_subtitle">Wijzigingen in deze versie:</string>
+    <string name="cipher">Versleuteling</string>
     <string name="confirm_local_dns">De lokale DNS-server werkt niet tenzij u \"Lokale netwerken delen\" inschakelt onder Voorkeuren.</string>
     <string name="confirm_no_email">U staat op het punt om het probleemrapport te verzenden zonder een contactmethode op te geven. Voer een e-mailadres in als u een antwoord wenst op het rapport.</string>
     <string name="confirm_removal">Ja, apparaat afmelden</string>
@@ -108,6 +118,7 @@
     <string name="edit_lists">Lijsten bewerken</string>
     <string name="edit_locations">Locaties bewerken</string>
     <string name="edit_message">Bericht bewerken</string>
+    <string name="edit_method">Methode bewerken</string>
     <string name="edit_name">Naam bewerken</string>
     <string name="enable">Inschakelen</string>
     <string name="enable_custom_dns">Aangepaste DNS-server gebruiken</string>
@@ -173,6 +184,7 @@
     <string name="max_devices_warning_title">Te veel apparaten</string>
     <string name="mullvad_account_number">Mullvad-accountnummer</string>
     <string name="mullvad_owned_only">Alleen in eigendom van Multivad</string>
+    <string name="name">Naam</string>
     <string name="name_was_changed_to">Naam is gewijzigd in %1$s</string>
     <string name="new_device_notification_message">Welkom, dit apparaat heet nu &lt;b&gt;%1$s&lt;/b&gt;. Zie voor meer informatie de infoknop in Account.</string>
     <string name="new_device_notification_title">NIEUW APPARAAT GEMAAKT</string>
@@ -196,6 +208,7 @@
     <string name="owned">In eigendom</string>
     <string name="ownership">Eigendom</string>
     <string name="paid_until">Betaald tot</string>
+    <string name="password">Wachtwoord</string>
     <string name="patch_not_matching_specification">Patch komt niet overeen met specificatie</string>
     <string name="pay_to_start_using">Om de app te gebruiken, moet u eerst tijd toevoegen aan uw account.</string>
     <string name="payment_billing_error_dialog_message">We kunnen het betalingsproces niet starten. Controleer of u de nieuwste versie van Google Play hebt.</string>
@@ -242,6 +255,7 @@
     <string name="sent">Verzonden</string>
     <string name="sent_contact">Indien nodig nemen we u contact op via %1$s</string>
     <string name="sent_thanks">Bedankt!</string>
+    <string name="server">Server</string>
     <string name="server_ip_overrides">Overschrijving van server-IP-adressen</string>
     <string name="server_ip_overrides_active">Overschrijvingen actief</string>
     <string name="server_ip_overrides_import_by">Nieuwe overschrijvingen importeren vanuit</string>
@@ -259,6 +273,7 @@
     <string name="set_firewall_policy_error">Kan firewallregels niet toepassen. Los problemen op of stuur een probleemmelding.</string>
     <string name="settings">Instellingen</string>
     <string name="settings_account">Account</string>
+    <string name="settings_api_access">API-toegang</string>
     <string name="settings_changes_effect_warning_content_blocker">Wijzigingen in DNS-gerelateerde instellingen worden mogelijk niet onmiddellijk van kracht vanwege gecachete resultaten.</string>
     <string name="settings_changes_effect_warning_short">DNS-instellingen worden mogelijk niet onmiddellijk van kracht</string>
     <string name="settings_patch_error_failed_to_apply_patch">Patch toepassen mislukt</string>
@@ -277,12 +292,15 @@
     <string name="submit_button">Verzenden</string>
     <string name="switch_location">Locatie wijzigen</string>
     <string name="tcp">TCP</string>
+    <string name="testing">Testen...</string>
     <string name="to_add_locations_to_a_list">Druk op de \"︙\" of druk lang op een land, plaats of server om locaties toe te voegen.</string>
     <string name="to_create_a_custom_list">Druk op de \"︙\" om een aangepaste lijst te maken</string>
     <string name="toggle_vpn">VPN in-/uitschakelen</string>
     <string name="top_bar_device_name">Apparaatnaam: %1$s</string>
     <string name="top_bar_time_left">Resterende tijd: %1$s</string>
+    <string name="transport_protocol">Transportprotocol</string>
     <string name="try_again">Probeer het opnieuw</string>
+    <string name="type">Type</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">Met welke TCP-poort moet het UDP-over-TCP-obfuscatieprotocol verbinding maken op de VPN-server.</string>
     <string name="udp_over_tcp_port_title">UDP-over-TCP-poort</string>
@@ -299,6 +317,7 @@
     <string name="update_list_name">Lijstnaam bijwerken</string>
     <string name="user_email_hint">Uw e-mailadres (optioneel)</string>
     <string name="user_message_hint">Om u beter te kunnen helpen, kunt u in het Engels of Zweeds schrijven. Vermeld uit welk land u komt.</string>
+    <string name="username">Gebruikersnaam</string>
     <string name="verifying_voucher">Voucher verifiëren …</string>
     <string name="view_logs">Applogboeken weergeven</string>
     <string name="virtual_adapter_problem">Fout virtuele adapter</string>
