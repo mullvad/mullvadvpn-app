@@ -1383,6 +1383,7 @@ msgctxt "select-location-view"
 msgid "Providers: %(numberOfProviders)d"
 msgstr ""
 
+#. This refers to our VPN relays/servers
 msgctxt "select-location-view"
 msgid "Relay"
 msgstr ""
@@ -2126,6 +2127,12 @@ msgstr ""
 msgid "30 days was added to your account."
 msgstr ""
 
+msgid "API reachable, adding method..."
+msgstr ""
+
+msgid "API unreachable, save method anyway?"
+msgstr ""
+
 msgid "Account credit expires in a few minutes"
 msgstr ""
 
@@ -2150,6 +2157,9 @@ msgstr ""
 msgid "Add locations"
 msgstr ""
 
+msgid "Adding method..."
+msgstr ""
+
 msgid "Agree and continue"
 msgstr ""
 
@@ -2166,6 +2176,9 @@ msgid "Always-on VPN assigned to other app"
 msgstr ""
 
 msgid "Always-on VPN might be enabled for another app"
+msgstr ""
+
+msgid "At least one method needs to be enabled"
 msgstr ""
 
 msgid "Attention: Split tunneling is a privacy risk."
@@ -2213,6 +2226,9 @@ msgstr ""
 msgid "Critical error (your attention is required)"
 msgstr ""
 
+msgid "Current: %s"
+msgstr ""
+
 msgid "Custom DNS server addresses %s are invalid"
 msgstr ""
 
@@ -2220,6 +2236,12 @@ msgid "DNS settings might not go into effect immediately"
 msgstr ""
 
 msgid "Delete \"%s\"?"
+msgstr ""
+
+msgid "Delete method"
+msgstr ""
+
+msgid "Delete method?"
 msgstr ""
 
 msgid "Disable all <b>%s</b> above to activate this setting."
@@ -2246,6 +2268,9 @@ msgstr ""
 msgid "Edit name"
 msgstr ""
 
+msgid "Enable method"
+msgstr ""
+
 msgid "Enter MTU"
 msgstr ""
 
@@ -2253,6 +2278,12 @@ msgid "Excluded applications"
 msgstr ""
 
 msgid "Failed to apply patch"
+msgstr ""
+
+msgid "Failed to set to current - API not reachable"
+msgstr ""
+
+msgid "Failed to set to current - Unknown reason"
 msgstr ""
 
 msgid "File"
@@ -2339,10 +2370,19 @@ msgstr ""
 msgid "Overrides inactive"
 msgstr ""
 
+msgid "Password (optional)"
+msgstr ""
+
 msgid "Paste or write overrides to be imported"
 msgstr ""
 
 msgid "Patch not matching specification"
+msgstr ""
+
+msgid "Please enter a valid IPv4 or IPv6 address"
+msgstr ""
+
+msgid "Please enter a valid remote server port"
 msgstr ""
 
 msgid "Please use the <b>Always-on</b> system setting instead by following the guide in <b>%s</b> above."
@@ -2381,6 +2421,9 @@ msgstr ""
 msgid "Reset to default"
 msgstr ""
 
+msgid "SOCKS5"
+msgstr ""
+
 msgid "Secured"
 msgstr ""
 
@@ -2388,6 +2431,9 @@ msgid "Set WireGuard MTU value. Valid range: %d - %d."
 msgstr ""
 
 msgid "Set port"
+msgstr ""
+
+msgid "Shadowsocks"
 msgstr ""
 
 msgid "Show system apps"
@@ -2402,6 +2448,12 @@ msgstr ""
 msgid "Submit"
 msgstr ""
 
+msgid "Test method"
+msgstr ""
+
+msgid "Testing %s..."
+msgstr ""
+
 msgid "Text"
 msgstr ""
 
@@ -2411,6 +2463,9 @@ msgstr ""
 msgid "The Lockdown mode blocks all internet access if the VPN tunnel is manually disconnected. <br/><b>Warning: This setting blocks split apps and the Local Network Sharing feature</b>."
 msgstr ""
 
+msgid "The \"Current\" method represent which method the app is currently trying to reach the API with."
+msgstr ""
+
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under Preferences."
 msgstr ""
 
@@ -2418,6 +2473,12 @@ msgid "There is no VPN settings on your device"
 msgstr ""
 
 msgid "This address has already been entered."
+msgstr ""
+
+msgid "This field is required"
+msgstr ""
+
+msgid "This is already set as current"
 msgstr ""
 
 msgid "To add locations to a list, press the \"︙\" or long press on a country, city, or server."
@@ -2462,6 +2523,9 @@ msgstr ""
 msgid "Update list name"
 msgstr ""
 
+msgid "Use method"
+msgstr ""
+
 msgid "VPN permission error"
 msgstr ""
 
@@ -2475,6 +2539,9 @@ msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
 msgstr ""
 
 msgid "Valid ranges: %s"
+msgstr ""
+
+msgid "Verifying API method..."
 msgstr ""
 
 msgid "Verifying purchase"

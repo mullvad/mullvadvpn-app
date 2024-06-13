@@ -7,12 +7,14 @@
     <string name="account_number">Tilin numero</string>
     <string name="account_time_notification_channel_description">Näyttää muistutuksia, kun tilin käyttöaika on umpeutumassa</string>
     <string name="account_time_notification_channel_name">Muistutukset tilin käyttöajasta</string>
+    <string name="add">Lisää</string>
     <string name="add_30_days_time">Lisää 30 päivää käyttöaikaa</string>
     <string name="add_30_days_time_x">Lisää 30 päivää käyttöaikaa (%1$s)</string>
     <string name="add_a_server">Lisää palvelin</string>
     <string name="add_dns_server_dialog_title">Lisää DNS-palvelin</string>
     <string name="add_location_to_list">Lisää %1$s luetteloon</string>
     <string name="add_locations">Lisää sijainteja</string>
+    <string name="add_method">Lisää menetelmä</string>
     <string name="add_time_to_account">Osta käyttöaikaa verkkosivustoltamme tai lunasta kuponki.</string>
     <string name="added_to_your_account">Tilillesi lisättiin %1$s käyttöaikaa.</string>
     <string name="agree_and_continue">Hyväksy ja jatka</string>
@@ -23,9 +25,16 @@
     <string name="always_on_vpn_error_notification_content">Tunneliyhteyden käynnistäminen ei onnistu. Poista aina päällä oleva VPN käytöstä sovellukselle &lt;b&gt;%1$s&lt;/b&gt; ennen Mullvad VPN:n käyttämistä.</string>
     <string name="always_on_vpn_error_notification_title">Aina päällä oleva VPN on määritetty toiselle sovellukselle</string>
     <string name="any">Mikä tahansa</string>
+    <string name="api_access_description">Hallitse ja lisää mukautettuja menetelmiä Mullvadin ohjelmointirajapinnan käyttämiseksi.</string>
+    <string name="api_access_method_info_first_line">Sovelluksen on kommunikoitava Mullvadin ohjelmointirajapinnan palvelimen kanssa, jotta sinut voidaan kirjata sisään, palvelinluetteloiden hakemiseksi sekä muiden tärkeiden toimintojen suorittamiseksi.</string>
+    <string name="api_access_method_info_second_line">Ohjelmointirajapinnan palvelimet eivät välttämättä ole suoraan tavoitettavissa joissakin useita erityyppisiä sensurointimenetelmiä käyttävissä verkoissa.</string>
+    <string name="api_access_method_info_third_line">Tämän ominaisuuden avulla voit kiertää sensuurin lisäämällä välityspalvelinten ja vastaavien menetelmien kautta toimivia, mukautettuja ohjelmointirajapinnan käyttötapoja.</string>
+    <string name="api_reachable">Ohjelmointirajapinta saavutettavissa</string>
+    <string name="api_unreachable">Ohjelmointirajapinta ei ole saavutettavissa</string>
     <string name="app_version">Sovelluksen versio</string>
     <string name="apply">Ota käyttöön</string>
     <string name="auth_failed">Tilin todentaminen ei onnistu. Lähetä ongelmaraportti.</string>
+    <string name="authentication">Todennus</string>
     <string name="auto_connect">Automaattinen yhteys</string>
     <string name="auto_connect_and_lockdown_mode">Automaattinen yhdistäminen ja lukitustila</string>
     <string name="auto_connect_and_lockdown_mode_footer">Varmistaa, että laite on aina yhteydessä VPN-tunnelin kautta.</string>
@@ -53,6 +62,7 @@
     <string name="buy_more_credit">Uudista tilaus</string>
     <string name="cancel">Peruuta</string>
     <string name="changes_dialog_subtitle">Muutokset tässä versiossa:</string>
+    <string name="cipher">Salaus</string>
     <string name="confirm_local_dns">Paikallinen DNS-palvelin ei toimi, ellet ota paikallisen verkon jakamisasetusta käyttöön asetuksissa.</string>
     <string name="confirm_no_email">Olet aikeissa lähettää ongelmaraportin ilman yhteystietojasi. Mikäli haluat vastauksen raporttiisi, anna sähköpostosoite.</string>
     <string name="confirm_removal">Kyllä, kirjaa laite ulos</string>
@@ -111,6 +121,7 @@
     <string name="edit_lists">Muokkaa luetteloita</string>
     <string name="edit_locations">Muokkaa sijainteja</string>
     <string name="edit_message">Muokkaa viestiä</string>
+    <string name="edit_method">Muokkaa menetelmää</string>
     <string name="edit_name">Muokkaa nimeä</string>
     <string name="enable">Ota käyttöön</string>
     <string name="enable_custom_dns">Käytä mukautettua DNS-palvelinta</string>
@@ -176,6 +187,7 @@
     <string name="max_devices_warning_title">Liikaa laitteita</string>
     <string name="mullvad_account_number">Mullvad-tilin numero</string>
     <string name="mullvad_owned_only">Vain Mullvadin omistamat</string>
+    <string name="name">Nimi</string>
     <string name="name_was_changed_to">Nimeksi vaihdettiin \"%1$s\"</string>
     <string name="new_device_notification_message">Tervetuloa! Tämän laitteen nimi on nyt &lt;b&gt;%1$s&lt;/b&gt;. Katso lisätietoja tilin infopainikkeesta.</string>
     <string name="new_device_notification_title">UUSI LAITE LUOTIIN</string>
@@ -199,6 +211,7 @@
     <string name="owned">Omistettu</string>
     <string name="ownership">Omistajuus</string>
     <string name="paid_until">Maksu ennen</string>
+    <string name="password">Salasana</string>
     <string name="patch_not_matching_specification">Muutostiedosto ei vastaa määritelmää</string>
     <string name="pay_to_start_using">Voit aloittaa sovelluksen käyttämisen lisäämällä ensin aikaa tilillesi.</string>
     <string name="payment_billing_error_dialog_message">Emme pystyneet aloittamaan maksun käsittelyä. Varmista, että käytät Google Playn uusinta versiota.</string>
@@ -245,6 +258,7 @@
     <string name="sent">Lähetetty</string>
     <string name="sent_contact">Tarvittaessa otamme sinuun yhteyttä osoitteeseen %1$s</string>
     <string name="sent_thanks">Kiitos!</string>
+    <string name="server">Palvelin</string>
     <string name="server_ip_overrides">Palvelimen IP-osoitteen ohitus</string>
     <string name="server_ip_overrides_active">Ohituksia on käytössä</string>
     <string name="server_ip_overrides_import_by">Uusien ohitusten tuontitapa</string>
@@ -262,6 +276,7 @@
     <string name="set_firewall_policy_error">Palomuurisääntöjä ei voida käyttää. Suorita vianetsintä tai lähetä ongelmaraportti.</string>
     <string name="settings">Asetukset</string>
     <string name="settings_account">Tili</string>
+    <string name="settings_api_access">Ohjelmointirajapinnan käyttö</string>
     <string name="settings_changes_effect_warning_content_blocker">DNS-asetuksiin tehdyt muutokset eivät välttämättä astu voimaan välittömästi välimuistissa olevien tulosten vuoksi.</string>
     <string name="settings_changes_effect_warning_short">Uudet DNS-asetukset eivät välttämättä astu voimaan välittömästi</string>
     <string name="settings_patch_error_failed_to_apply_patch">Muutostiedoston käyttöönotto ei onnistunut</string>
@@ -280,12 +295,15 @@
     <string name="submit_button">Lähetä</string>
     <string name="switch_location">Vaihda sijaintia</string>
     <string name="tcp">TCP</string>
+    <string name="testing">Testataan...</string>
     <string name="to_add_locations_to_a_list">Jos haluat lisätä luetteloon sijainteja, paina \"︙\" tai paina pitkään maata, kaupunkia tai palvelinta.</string>
     <string name="to_create_a_custom_list">Voit luoda mukautetun luettelon painamalla \"︙\"</string>
     <string name="toggle_vpn">Vaihda VPN:ää</string>
     <string name="top_bar_device_name">Laitteen nimi: %1$s</string>
     <string name="top_bar_time_left">Aikaa jäljellä: %1$s</string>
+    <string name="transport_protocol">Siirtoprotokolla</string>
     <string name="try_again">Yritä uudelleen</string>
+    <string name="type">Tyyppi</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">Määrittää, mihin VPN-palvelimen TCP-porttiin \"UDP TCP:n kautta\" -hämäysteknologia-protokollan tulee muodostaa yhteys.</string>
     <string name="udp_over_tcp_port_title">Portti: UDP TPC:n kautta</string>
@@ -302,6 +320,7 @@
     <string name="update_list_name">Päivitä luettelon nimi</string>
     <string name="user_email_hint">Sähköpostisi (valinnainen)</string>
     <string name="user_message_hint">Jotta voisimme avustaa sinua paremmin, kirjoita englanniksi tai ruotsiksi ja mainitse, mistä maasta muodostat yhteyden.</string>
+    <string name="username">Käyttäjätunnus</string>
     <string name="verifying_voucher">Kuponkia vahvistetaan…</string>
     <string name="view_logs">Tarkastele sovelluslokeja</string>
     <string name="virtual_adapter_problem">Virtuaalisovittimen virhe</string>

@@ -7,12 +7,14 @@
     <string name="account_number">Kontonummer</string>
     <string name="account_time_notification_channel_description">Erinnerungen anzeigen, wenn die Kontozeit bald abläuft</string>
     <string name="account_time_notification_channel_name">Erinnerungen an die Kontozeit</string>
+    <string name="add">Hinzufügen</string>
     <string name="add_30_days_time">30 Tage Zeit hinzufügen</string>
     <string name="add_30_days_time_x">30 Tage Zeit hinzufügen (%1$s)</string>
     <string name="add_a_server">Server hinzufügen</string>
     <string name="add_dns_server_dialog_title">DNS-Server hinzufügen</string>
     <string name="add_location_to_list">%1$s zur Liste hinzufügen</string>
     <string name="add_locations">Standorte hinzufügen</string>
+    <string name="add_method">Methode hinzufügen</string>
     <string name="add_time_to_account">Kaufen Sie entweder Guthaben über unsere Seite oder lösen Sie einen Gutschein ein.</string>
     <string name="added_to_your_account">%1$s wurde zu Ihrem Konto hinzugefügt.</string>
     <string name="agree_and_continue">Akzeptieren und weiter</string>
@@ -23,9 +25,16 @@
     <string name="always_on_vpn_error_notification_content">Tunnelverbindung kann nicht gestartet werden. Bitte deaktivieren Sie Always-on VPN für &lt;b&gt;%1$s&lt;/b&gt;, bevor Sie Mullvad VPN verwenden.</string>
     <string name="always_on_vpn_error_notification_title">Always-on VPN ist einer anderen App zugeordnet</string>
     <string name="any">Beliebige</string>
+    <string name="api_access_description">Verwaltung und Hinzufügen benutzerdefinierter Methoden für den Zugriff auf die Mullvad-API.</string>
+    <string name="api_access_method_info_first_line">Die App muss mit einem Mullvad API-Server kommunizieren, um Sie anzumelden, Serverlisten abzurufen und andere wichtige Vorgänge durchzuführen.</string>
+    <string name="api_access_method_info_second_line">In einigen Netzwerken, in denen verschiedene Arten der Zensur eingesetzt werden, sind die API-Server möglicherweise nicht direkt erreichbar.</string>
+    <string name="api_access_method_info_third_line">Mit dieser Funktion können Sie diese Zensur umgehen, indem Sie benutzerdefinierte Wege zum Zugriff auf die API über Proxys und ähnliche Methoden hinzufügen.</string>
+    <string name="api_reachable">API erreichbar</string>
+    <string name="api_unreachable">API nicht erreichbar</string>
     <string name="app_version">App-Version</string>
     <string name="apply">Anwenden</string>
     <string name="auth_failed">Konto konnte nicht authentifiziert werden. Bitte senden Sie einen Problembericht.</string>
+    <string name="authentication">Authentifizierung</string>
     <string name="auto_connect">Automatische Verbindung</string>
     <string name="auto_connect_and_lockdown_mode">Automatische Verbindung &amp; Sperrmodus</string>
     <string name="auto_connect_and_lockdown_mode_footer">Gewährleistet, dass sich das Gerät immer im VPN-Tunnel befindet.</string>
@@ -53,6 +62,7 @@
     <string name="buy_more_credit">Mehr Guthaben erwerben</string>
     <string name="cancel">Abbrechen</string>
     <string name="changes_dialog_subtitle">Änderungen in dieser Version:</string>
+    <string name="cipher">Chiffre</string>
     <string name="confirm_local_dns">Der lokale DNS-Server wird nicht funktionieren, solange „Teilen im lokalen Netzwerk“ nicht in den Einstellungen aktiviert ist.</string>
     <string name="confirm_no_email">Sie wollen einen Problembericht senden, ohne uns die Möglichkeit zu geben, Sie zu erreichen. Wenn Sie sich eine Antwort zu Ihrem Problem wünschen, müssen Sie eine E-Mail-Adresse eingeben.</string>
     <string name="confirm_removal">Ja, von Gerät abmelden</string>
@@ -111,6 +121,7 @@
     <string name="edit_lists">Listen bearbeiten</string>
     <string name="edit_locations">Standorte bearbeiten</string>
     <string name="edit_message">Nachricht bearbeiten</string>
+    <string name="edit_method">Methode bearbeiten</string>
     <string name="edit_name">Name bearbeiten</string>
     <string name="enable">Aktivieren</string>
     <string name="enable_custom_dns">Benutzerdefinierten DNS-Server verwenden</string>
@@ -176,6 +187,7 @@
     <string name="max_devices_warning_title">Zu viele Geräte</string>
     <string name="mullvad_account_number">Mullvad-Kontonummer</string>
     <string name="mullvad_owned_only">Nur im Besitz von Mullvad</string>
+    <string name="name">Name</string>
     <string name="name_was_changed_to">Name wurde geändert in %1$s</string>
     <string name="new_device_notification_message">Dieses Gerät heißt jetzt &lt;b&gt;%1$s&lt;/b&gt;. Weitere Details finden Sie über die Info-Schaltfläche in Ihrem Konto.</string>
     <string name="new_device_notification_title">NEUES GERÄT ERSTELLT</string>
@@ -199,6 +211,7 @@
     <string name="owned">In Besitz</string>
     <string name="ownership">Eigentümerschaft</string>
     <string name="paid_until">Bezahlt bis</string>
+    <string name="password">Passwort</string>
     <string name="patch_not_matching_specification">Patch entspricht nicht der Spezifikation</string>
     <string name="pay_to_start_using">Um mit der Nutzung dieser App zu beginnen, müssen Sie erst einmal Zeit zu Ihrem Konto hinzufügen.</string>
     <string name="payment_billing_error_dialog_message">Wir konnten den Zahlungsvorgang nicht starten. Bitte vergewissern Sie sich, dass Sie die neueste Version von Google Play haben.</string>
@@ -245,6 +258,7 @@
     <string name="sent">Gesendet</string>
     <string name="sent_contact">Bei Bedarf werden wir Sie über %1$s kontaktieren</string>
     <string name="sent_thanks">Danke!</string>
+    <string name="server">Server</string>
     <string name="server_ip_overrides">Server-IP überschreiben</string>
     <string name="server_ip_overrides_active">Überschreibungen aktiv</string>
     <string name="server_ip_overrides_import_by">Neue Überschreibungen importieren via</string>
@@ -262,6 +276,7 @@
     <string name="set_firewall_policy_error">Firewall-Regeln können nicht angewendet werden. Bitte beheben Sie das Problem oder senden Sie einen Problembericht.</string>
     <string name="settings">Einstellungen</string>
     <string name="settings_account">Konto</string>
+    <string name="settings_api_access">API-Zugriff</string>
     <string name="settings_changes_effect_warning_content_blocker">Änderungen an DNS-Einstellungen werden aufgrund von zwischengespeicherten Daten möglicherweise nicht sofort wirksam.</string>
     <string name="settings_changes_effect_warning_short">Die DNS-Einstellungen werden möglicherweise nicht sofort wirksam</string>
     <string name="settings_patch_error_failed_to_apply_patch">Patch konnte nicht angewendet werden</string>
@@ -280,12 +295,15 @@
     <string name="submit_button">Absenden</string>
     <string name="switch_location">Ort wechseln</string>
     <string name="tcp">TCP</string>
+    <string name="testing">Testen …</string>
     <string name="to_add_locations_to_a_list">Um Standorte zu einer Liste hinzuzufügen, drücken Sie auf „︙“ oder drücken Sie lange auf ein Land, eine Stadt oder einen Server.</string>
     <string name="to_create_a_custom_list">Um eine eigene Liste zu erstellen, drücken Sie auf „︙“</string>
     <string name="toggle_vpn">VPN umschalten</string>
     <string name="top_bar_device_name">Gerätename: %1$s</string>
     <string name="top_bar_time_left">Verbleibende Zeit: %1$s</string>
+    <string name="transport_protocol">Transport-Protokoll</string>
     <string name="try_again">Erneut versuchen</string>
+    <string name="type">Typ</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">Mit welchem TCP-Port sich das UDP-über-TCP-Verschleierungsprotokoll auf dem VPN-Server verbinden soll.</string>
     <string name="udp_over_tcp_port_title">Port für UDP über TCP</string>
@@ -302,6 +320,7 @@
     <string name="update_list_name">Name der Liste ändern</string>
     <string name="user_email_hint">Ihre E-Mail-Adresse (optional)</string>
     <string name="user_message_hint">Um Ihnen besser weiterhelfen zu können, schreiben Sie uns bitte auf Englisch oder Schwedisch und geben Sie an, aus welchem Land Sie die Verbindung herstellen.</string>
+    <string name="username">Benutzername</string>
     <string name="verifying_voucher">Gutschein verifizieren …</string>
     <string name="view_logs">App-Protokolle anzeigen</string>
     <string name="virtual_adapter_problem">Virtueller Adapterfehler</string>

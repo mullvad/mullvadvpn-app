@@ -7,12 +7,14 @@
     <string name="account_number">Número de conta</string>
     <string name="account_time_notification_channel_description">Mostra lembretes quando o tempo da conta está prestes a expirar</string>
     <string name="account_time_notification_channel_name">Lembretes de tempo da conta</string>
+    <string name="add">Adicionar</string>
     <string name="add_30_days_time">Adicionar 30 dias</string>
     <string name="add_30_days_time_x">Adicionar 30 dias (%1$s)</string>
     <string name="add_a_server">Adicionar um servidor</string>
     <string name="add_dns_server_dialog_title">Adicionar servidor DNS</string>
     <string name="add_location_to_list">Adicionar %1$s à lista</string>
     <string name="add_locations">Adicionar localizações</string>
+    <string name="add_method">Adicionar método</string>
     <string name="add_time_to_account">Compre crédito no nosso sítio da web ou reclame um voucher.</string>
     <string name="added_to_your_account">%1$s foi adicionado à sua conta.</string>
     <string name="agree_and_continue">Concordar e continuar</string>
@@ -23,9 +25,16 @@
     <string name="always_on_vpn_error_notification_content">Não foi possível iniciar a ligação de túnel. Desative a VPN sempre ligada para &lt;b&gt;%1$s&lt;/b&gt; antes de utilizar a Mullvad VPN.</string>
     <string name="always_on_vpn_error_notification_title">VPN sempre ligada atribuída a outra app</string>
     <string name="any">Qualquer</string>
+    <string name="api_access_description">Gerir e adicionar métodos personalizados para aceder à Mullvad API.</string>
+    <string name="api_access_method_info_first_line">A app precisa de comunicar com um servidor da Mullvad API para iniciar a sua sessão, obter listas de servidores e outras operações críticas.</string>
+    <string name="api_access_method_info_second_line">Em algumas redes, onde são utilizados vários tipos de censura, os servidores de API podem não ser diretamente alcançáveis.</string>
+    <string name="api_access_method_info_third_line">Esta funcionalidade permite-lhe contornar essa censura, adicionando formas personalizadas de aceder à API através de proxies e métodos semelhantes.</string>
+    <string name="api_reachable">API alcançável</string>
+    <string name="api_unreachable">API inalcançável</string>
     <string name="app_version">Versão da app</string>
     <string name="apply">Aplicar</string>
     <string name="auth_failed">Não foi possível autenticar a conta. Envie um relatório do problema.</string>
+    <string name="authentication">Autenticação</string>
     <string name="auto_connect">Ligação automática</string>
     <string name="auto_connect_and_lockdown_mode">Ligação automática e modo de bloqueio</string>
     <string name="auto_connect_and_lockdown_mode_footer">Assegura que o dispositivo está sempre no túnel VPN.</string>
@@ -53,6 +62,7 @@
     <string name="buy_more_credit">Comprar mais crédito</string>
     <string name="cancel">Cancelar</string>
     <string name="changes_dialog_subtitle">Alterações nesta versão:</string>
+    <string name="cipher">Cifra</string>
     <string name="confirm_local_dns">O servidor DNS local não funcionará exceto se ativar \"Partilha de rede local\" em Preferências.</string>
     <string name="confirm_no_email">Está prestes a enviar o relatório de problema sem que tenhamos uma forma de lhe responder. Se pretender uma resposta ao seu relatório, tem de introduzir um endereço de email.</string>
     <string name="confirm_removal">Sim, desligar o dispositivo</string>
@@ -111,6 +121,7 @@
     <string name="edit_lists">Editar listas</string>
     <string name="edit_locations">Editar localizações</string>
     <string name="edit_message">Editar mensagem</string>
+    <string name="edit_method">Editar método</string>
     <string name="edit_name">Editar nome</string>
     <string name="enable">Ativar</string>
     <string name="enable_custom_dns">Usar servidor DNS personalizado</string>
@@ -176,6 +187,7 @@
     <string name="max_devices_warning_title">Demasiados dispositivos</string>
     <string name="mullvad_account_number">Número de conta Mullvad</string>
     <string name="mullvad_owned_only">Apenas propriedade de Mullvad</string>
+    <string name="name">Nome</string>
     <string name="name_was_changed_to">O nome foi alterado para %1$s</string>
     <string name="new_device_notification_message">Bem-vindo, este dispositivo é agora chamado &lt;b&gt;%1$s&lt;/b&gt;. Para mais detalhes consulte o botão de informação na Conta.</string>
     <string name="new_device_notification_title">NOVO DISPOSITIVO CRIADO</string>
@@ -199,6 +211,7 @@
     <string name="owned">Propriedade de</string>
     <string name="ownership">Propriedade</string>
     <string name="paid_until">Pago até</string>
+    <string name="password">Palavra-passe</string>
     <string name="patch_not_matching_specification">A correção não corresponde à especificação</string>
     <string name="pay_to_start_using">Para começar a utilizar a aplicação, primeiro tem de adicionar tempo à sua conta.</string>
     <string name="payment_billing_error_dialog_message">Não foi possível iniciar o processo de pagamento. Verifique se tem a versão mais recente do Google Play.</string>
@@ -245,6 +258,7 @@
     <string name="sent">Enviado</string>
     <string name="sent_contact">Se necessário, iremos contactá-lo através de %1$s</string>
     <string name="sent_thanks">Obrigado!</string>
+    <string name="server">Servidor</string>
     <string name="server_ip_overrides">Substituição de IP de servidor</string>
     <string name="server_ip_overrides_active">Substituições ativas</string>
     <string name="server_ip_overrides_import_by">Importar novas substituições através de</string>
@@ -262,6 +276,7 @@
     <string name="set_firewall_policy_error">Não foi possível aplicar as regras de firewall. Experimente a resolução de problemas ou envie um relatório do problema.</string>
     <string name="settings">Definições</string>
     <string name="settings_account">Conta</string>
+    <string name="settings_api_access">Acesso à API</string>
     <string name="settings_changes_effect_warning_content_blocker">As alterações às definições relacionadas com o DNS podem não fazer efeito imediatamente devido aos resultados em cache.</string>
     <string name="settings_changes_effect_warning_short">As definições de DNS podem não fazer efeito imediatamente</string>
     <string name="settings_patch_error_failed_to_apply_patch">Erro ao aplicar patch</string>
@@ -280,12 +295,15 @@
     <string name="submit_button">Enviar</string>
     <string name="switch_location">Alterar local</string>
     <string name="tcp">TCP</string>
+    <string name="testing">A testar...</string>
     <string name="to_add_locations_to_a_list">Para adicionar localizações a uma lista, prima o botão \"︙\" ou mantenha premido um país, uma cidade ou um servidor.</string>
     <string name="to_create_a_custom_list">Para criar uma lista personalizada prima o botão \"︙\"</string>
     <string name="toggle_vpn">Alternar VPN</string>
     <string name="top_bar_device_name">Nome do dispositivo: %1$s</string>
     <string name="top_bar_time_left">Tempo restante: %1$s</string>
+    <string name="transport_protocol">Protocolo de transporte</string>
     <string name="try_again">Tentar novamente</string>
+    <string name="type">Tipo</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">A que porta TCP o protocolo de ofuscação UDP sobre TCP deve ligar-se no servidor VPN.</string>
     <string name="udp_over_tcp_port_title">Porta UDP sobre TCP</string>
@@ -302,6 +320,7 @@
     <string name="update_list_name">Atualizar nome da lista</string>
     <string name="user_email_hint">O seu email (opcional)</string>
     <string name="user_message_hint">Para o ajudar melhor, escreva em inglês ou sueco e indique o país de onde está a efetuar a ligação.</string>
+    <string name="username">Nome de utilizador</string>
     <string name="verifying_voucher">A verificar voucher…</string>
     <string name="view_logs">Ver os registos da app</string>
     <string name="virtual_adapter_problem">Erro de adaptador virtual</string>

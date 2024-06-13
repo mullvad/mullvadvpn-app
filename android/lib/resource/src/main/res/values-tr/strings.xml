@@ -7,12 +7,14 @@
     <string name="account_number">Hesap Kimliği</string>
     <string name="account_time_notification_channel_description">Hesap süresinin dolmak üzere olduğunu bildiren hatırlatıcıları gösterir</string>
     <string name="account_time_notification_channel_name">Hesap süresi hatırlatıcıları</string>
+    <string name="add">Ekle</string>
     <string name="add_30_days_time">30 gün süre ekleyin</string>
     <string name="add_30_days_time_x">30 gün süre ekleyin (%1$s)</string>
     <string name="add_a_server">Sunucu ekle</string>
     <string name="add_dns_server_dialog_title">DNS sunucusu ekle</string>
     <string name="add_location_to_list">%1$s konumunu listeye ekle</string>
     <string name="add_locations">Konum ekle</string>
+    <string name="add_method">Yöntem ekle</string>
     <string name="add_time_to_account">Web sitemizden kredi satın alın veya kupon kullanın.</string>
     <string name="added_to_your_account">%1$s, hesabınıza eklendi.</string>
     <string name="agree_and_continue">Kabul et ve devam et</string>
@@ -23,9 +25,16 @@
     <string name="always_on_vpn_error_notification_content">Tünel bağlantısı başlatılamıyor. Mullvad VPN\'i kullanmadan önce lütfen Her zaman açık VPN\'i &lt;b&gt;%1$s&lt;/b&gt; için devre dışı bırakın.</string>
     <string name="always_on_vpn_error_notification_title">Her zaman açık VPN başka bir uygulamaya atandı</string>
     <string name="any">Tümü</string>
+    <string name="api_access_description">Mullvad API\'sine erişim için özel yöntemler ekleyip yönetin.</string>
+    <string name="api_access_method_info_first_line">Uygulamanın oturumunuzu açmak, sunucu listelerini almak ve diğer kritik işlemleri yapmak için bir Mullvad API sunucusuyla iletişim kurması gerekir.</string>
+    <string name="api_access_method_info_second_line">Çeşitli sansür türlerinin kullanıldığı bazı ağlarda API sunucularına doğrudan erişilemeyebilir.</string>
+    <string name="api_access_method_info_third_line">Bu özellik, proxy\'ler ve benzer yöntemler aracılığıyla API\'ye erişmenin özel yollarını ekleyerek bu sansürü aşmanıza imkan tanır.</string>
+    <string name="api_reachable">Erişilebilir API</string>
+    <string name="api_unreachable">Erişilemez API</string>
     <string name="app_version">Uygulama sürümü</string>
     <string name="apply">Uygula</string>
     <string name="auth_failed">Hesap doğrulanamıyor. Lütfen bir hata raporu gönderin.</string>
+    <string name="authentication">Yetkilendirme</string>
     <string name="auto_connect">Otomatik Bağlan</string>
     <string name="auto_connect_and_lockdown_mode">Otomatik bağlantı ve Kilitleme modu</string>
     <string name="auto_connect_and_lockdown_mode_footer">Cihazın her zaman VPN tünelinde olduğundan emin olun.</string>
@@ -53,6 +62,7 @@
     <string name="buy_more_credit">Daha fazla kredi satın alın</string>
     <string name="cancel">İptal et</string>
     <string name="changes_dialog_subtitle">Bu sürümdeki değişiklikler:</string>
+    <string name="cipher">Şifre</string>
     <string name="confirm_local_dns">Tercihler sekmesinin altındaki \"Yerel Ağ Paylaşımı\" seçeneğini etkinleştirmediğiniz sürece yerel DNS sunucusu çalışmaz.</string>
     <string name="confirm_no_email">Sorun raporunu, size geri dönüş yapmamıza imkan vermeyen bir şekilde göndermek üzeresiniz. Sorununuz için yanıt almak istiyorsanız bir e-posta adresi girmelisiniz.</string>
     <string name="confirm_removal">Evet, cihazdan çıkış yap</string>
@@ -111,6 +121,7 @@
     <string name="edit_lists">Listeleri düzenle</string>
     <string name="edit_locations">Konumları düzenle</string>
     <string name="edit_message">Mesajı düzenle</string>
+    <string name="edit_method">Yöntemi düzenle</string>
     <string name="edit_name">Adı düzenle</string>
     <string name="enable">Etkinleştir</string>
     <string name="enable_custom_dns">Özel DNS sunucusu kullanın</string>
@@ -176,6 +187,7 @@
     <string name="max_devices_warning_title">Cihaz sayısı çok fazla</string>
     <string name="mullvad_account_number">Mullvad hesap numarası</string>
     <string name="mullvad_owned_only">Sadece Mullvad\'a ait olanlar</string>
+    <string name="name">Ad</string>
     <string name="name_was_changed_to">Ad, %1$s olarak değiştirildi</string>
     <string name="new_device_notification_message">Hoş geldiniz, bu cihazın adı artık &lt;b&gt;%1$s&lt;/b&gt;. Daha fazla ayrıntı için Hesap içinden bilgi düğmesine bakın.</string>
     <string name="new_device_notification_title">YENİ CİHAZ OLUŞTURULDU</string>
@@ -199,6 +211,7 @@
     <string name="owned">Tarafımıza ait olanlar</string>
     <string name="ownership">Sahiplik durumu</string>
     <string name="paid_until">Şu tarihe kadar ödendi:</string>
+    <string name="password">Parola</string>
     <string name="patch_not_matching_specification">Yama spesifikasyonla eşleşmiyor</string>
     <string name="pay_to_start_using">Uygulamayı kullanmaya başlamak için önce hesabınıza süre eklemeniz gerekir.</string>
     <string name="payment_billing_error_dialog_message">Ödeme işlemini başlatamadık. Lütfen Google Play\'in en son sürümüne sahip olduğunuzdan emin olun.</string>
@@ -245,6 +258,7 @@
     <string name="sent">Gönderildi</string>
     <string name="sent_contact">Gerektiğinde sizinle %1$s adresinden iletişime geçeceğiz</string>
     <string name="sent_thanks">Teşekkürler!</string>
+    <string name="server">Sunucu</string>
     <string name="server_ip_overrides">Sunucu IP\'sini geçersiz kılma</string>
     <string name="server_ip_overrides_active">Geçersiz kılmalar etkin</string>
     <string name="server_ip_overrides_import_by">Şuradaki yeni geçersiz kılmaları içe aktar</string>
@@ -262,6 +276,7 @@
     <string name="set_firewall_policy_error">Güvenlik duvarı kuralları uygulanamıyor. Lütfen sorunu çözmeye çalışın veya bir hata raporu gönderin.</string>
     <string name="settings">Ayarlar</string>
     <string name="settings_account">Hesap</string>
+    <string name="settings_api_access">API erişimi</string>
     <string name="settings_changes_effect_warning_content_blocker">DNS ile ilgili ayarlarda yapılan değişiklikler, önbelleğe alınan sonuçlar nedeniyle hemen etkili olmayabilir.</string>
     <string name="settings_changes_effect_warning_short">DNS ayarları hemen etkili olmayabilir</string>
     <string name="settings_patch_error_failed_to_apply_patch">Yama uygulanamadı</string>
@@ -280,12 +295,15 @@
     <string name="submit_button">Gönder</string>
     <string name="switch_location">Konum değiştir</string>
     <string name="tcp">TCP</string>
+    <string name="testing">Test ediliyor...</string>
     <string name="to_add_locations_to_a_list">Listeye konum eklemek için \"︙\" düğmesine basın veya bir ülke, şehir veya sunucunun üzerine uzun basın.</string>
     <string name="to_create_a_custom_list">Özel bir liste oluşturmak için \"︙\" düğmesine basın</string>
     <string name="toggle_vpn">VPN\'i aç/kapat</string>
     <string name="top_bar_device_name">Cihaz adı: %1$s</string>
     <string name="top_bar_time_left">Kalan süre: %1$s</string>
+    <string name="transport_protocol">Taşıma protokolü</string>
     <string name="try_again">Tekrar dene</string>
+    <string name="type">Tür</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">TCP üzerinden UDP gizleme protokolünün VPN sunucusunda hangi TCP portuna bağlanması gerekiyor.</string>
     <string name="udp_over_tcp_port_title">TCP üzerinden UDP portu</string>
@@ -302,6 +320,7 @@
     <string name="update_list_name">Liste adını güncelle</string>
     <string name="user_email_hint">E-posta adresiniz (isteğe bağlı)</string>
     <string name="user_message_hint">Size daha iyi yardımcı olabilmemiz için lütfen mesajınızı İngilizce veya İsveççe olarak yazın ve hangi ülkeden bağlandığınızı belirtin.</string>
+    <string name="username">Kullanıcı adı</string>
     <string name="verifying_voucher">Kupon doğrulanıyor…</string>
     <string name="view_logs">Uygulama kayıtlarını görüntüle</string>
     <string name="virtual_adapter_problem">Sanal adaptör hatası</string>

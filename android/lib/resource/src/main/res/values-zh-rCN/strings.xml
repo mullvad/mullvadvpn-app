@@ -7,12 +7,14 @@
     <string name="account_number">帐号</string>
     <string name="account_time_notification_channel_description">在帐户时间即将到期时显示提醒</string>
     <string name="account_time_notification_channel_name">帐户时间提醒</string>
+    <string name="add">添加</string>
     <string name="add_30_days_time">增加 30 天</string>
     <string name="add_30_days_time_x">增加 30 天 (%1$s)</string>
     <string name="add_a_server">添加服务器</string>
     <string name="add_dns_server_dialog_title">添加 DNS 服务器</string>
     <string name="add_location_to_list">将%1$s添加到列表中</string>
     <string name="add_locations">添加位置</string>
+    <string name="add_method">添加方法</string>
     <string name="add_time_to_account">在我们的网站上购买额度或兑换优惠券。</string>
     <string name="added_to_your_account">%1$s已添加到您的帐户中。</string>
     <string name="agree_and_continue">同意并继续</string>
@@ -23,9 +25,16 @@
     <string name="always_on_vpn_error_notification_content">无法启动隧道连接。在使用 Mullvad VPN 之前，请为 &lt;b&gt;%1$s&lt;/b&gt; 禁用“始终开启的 VPN”。</string>
     <string name="always_on_vpn_error_notification_title">“始终开启的 VPN”已分配给其他应用</string>
     <string name="any">任何</string>
+    <string name="api_access_description">管理和添加访问 Mulvad API 的自定义方法。</string>
+    <string name="api_access_method_info_first_line">该应用需要与 Mulvad API 服务器通信，以便您登录、获取服务器列表和执行其他关键操作。</string>
+    <string name="api_access_method_info_second_line">在某些使用各类审查的网络上，可能无法直接访问 API 服务器。</string>
+    <string name="api_access_method_info_third_line">此功能允许您通过代理和类似方法添加访问 API 的自定义方式，从而规避审查。</string>
+    <string name="api_reachable">可通过 API 访问</string>
+    <string name="api_unreachable">无法通过 API 访问</string>
     <string name="app_version">应用版本</string>
     <string name="apply">应用</string>
     <string name="auth_failed">无法验证帐户。请发送问题报告。</string>
+    <string name="authentication">身份验证</string>
     <string name="auto_connect">自动连接</string>
     <string name="auto_connect_and_lockdown_mode">自动连接和锁定模式</string>
     <string name="auto_connect_and_lockdown_mode_footer">确保设备始终位于 VPN 隧道上。</string>
@@ -53,6 +62,7 @@
     <string name="buy_more_credit">购买更多额度</string>
     <string name="cancel">取消</string>
     <string name="changes_dialog_subtitle">此版本中的变更：</string>
+    <string name="cipher">加密方式</string>
     <string name="confirm_local_dns">除非您在“偏好设置”下启用“本地网络共享”，否则本地 DNS 服务器将不会运行。</string>
     <string name="confirm_no_email">您即将发送问题报告，但没有提供让我们可以联系到您的方式。如果您希望获得回复，必须输入您的电子邮件地址。</string>
     <string name="confirm_removal">是，退出设备</string>
@@ -111,6 +121,7 @@
     <string name="edit_lists">编辑列表</string>
     <string name="edit_locations">编辑位置</string>
     <string name="edit_message">编辑消息</string>
+    <string name="edit_method">编辑方法</string>
     <string name="edit_name">编辑名称</string>
     <string name="enable">启用</string>
     <string name="enable_custom_dns">使用自定义 DNS 服务器</string>
@@ -176,6 +187,7 @@
     <string name="max_devices_warning_title">设备过多</string>
     <string name="mullvad_account_number">Mullvad 帐号</string>
     <string name="mullvad_owned_only">仅 Mullvad 自有</string>
+    <string name="name">名称</string>
     <string name="name_was_changed_to">名称已更改为“%1$s”</string>
     <string name="new_device_notification_message">欢迎，此设备现在名为 &lt;b&gt;%1$s&lt;/b&gt;。有关详情，请点击“帐户”中的信息按钮。</string>
     <string name="new_device_notification_title">已创建新设备</string>
@@ -199,6 +211,7 @@
     <string name="owned">自有</string>
     <string name="ownership">所有权</string>
     <string name="paid_until">到期时间</string>
+    <string name="password">密码</string>
     <string name="patch_not_matching_specification">补丁与规范不匹配</string>
     <string name="pay_to_start_using">要开始使用本应用，您首先需要向帐户中充入时间。</string>
     <string name="payment_billing_error_dialog_message">我们无法启动付款流程，请确保拥有最新版本的 Google Play。</string>
@@ -245,6 +258,7 @@
     <string name="sent">已发送</string>
     <string name="sent_contact">如果需要，我们将通过 %1$s 与您联系</string>
     <string name="sent_thanks">谢谢！</string>
+    <string name="server">服务器</string>
     <string name="server_ip_overrides">服务器 IP 覆盖</string>
     <string name="server_ip_overrides_active">覆盖设置已激活</string>
     <string name="server_ip_overrides_import_by">导入新覆盖设置的方式</string>
@@ -262,6 +276,7 @@
     <string name="set_firewall_policy_error">无法应用防火墙规则。请排查问题或发送问题报告。</string>
     <string name="settings">设置</string>
     <string name="settings_account">帐户</string>
+    <string name="settings_api_access">API 访问</string>
     <string name="settings_changes_effect_warning_content_blocker">由于缓存结果，对 DNS 相关设置的更改可能不会立即生效。</string>
     <string name="settings_changes_effect_warning_short">DNS 设置可能不会立即生效</string>
     <string name="settings_patch_error_failed_to_apply_patch">无法应用补丁</string>
@@ -280,12 +295,15 @@
     <string name="submit_button">提交</string>
     <string name="switch_location">切换位置</string>
     <string name="tcp">TCP</string>
+    <string name="testing">正在测试…</string>
     <string name="to_add_locations_to_a_list">要将位置添加到列表中，请按“︙”或长按国家/地区、城市或服务器。</string>
     <string name="to_create_a_custom_list">要创建自定义列表，请按“︙”</string>
     <string name="toggle_vpn">切换 VPN</string>
     <string name="top_bar_device_name">设备名称：%1$s</string>
     <string name="top_bar_time_left">剩余时间：%1$s</string>
+    <string name="transport_protocol">传输协议</string>
     <string name="try_again">重试</string>
+    <string name="type">类型</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">UDP-over-TCP 混淆协议应连接到 VPN 服务器上的哪个 TCP 端口。</string>
     <string name="udp_over_tcp_port_title">UDP-over-TCP 端口</string>
@@ -302,6 +320,7 @@
     <string name="update_list_name">更新列表名称</string>
     <string name="user_email_hint">您的电子邮件（可选）</string>
     <string name="user_message_hint">为了更好地帮助您，请用英语或瑞典语书写，并包含您连接时所在的国家/地区。</string>
+    <string name="username">用户名</string>
     <string name="verifying_voucher">正在验证优惠券…</string>
     <string name="view_logs">查看应用日志</string>
     <string name="virtual_adapter_problem">虚拟适配器错误</string>
