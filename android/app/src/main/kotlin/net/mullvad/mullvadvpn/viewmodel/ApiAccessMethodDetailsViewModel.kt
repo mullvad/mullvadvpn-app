@@ -105,7 +105,7 @@ class ApiAccessMethodDetailsViewModel(
             }
             .onRight {
                 isTestingApiAccessMethodState.value = false
-                ApiAccessMethodDetailsSideEffect.TestApiAccessMethodResult(true)
+                _uiSideEffect.send(ApiAccessMethodDetailsSideEffect.TestApiAccessMethodResult(true))
             }
     }
 }
