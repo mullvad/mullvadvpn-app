@@ -87,9 +87,8 @@ pub mod resources;
 #[cfg(not(target_os = "android"))]
 pub use crate::resources::{get_default_resource_dir, get_resource_dir};
 
+#[cfg(not(target_os = "android"))]
 mod rpc_socket;
-#[cfg(target_os = "android")]
-pub use crate::rpc_socket::get_rpc_socket_path;
 #[cfg(not(target_os = "android"))]
 pub use crate::rpc_socket::{get_default_rpc_socket_path, get_rpc_socket_path};
 
