@@ -1,6 +1,5 @@
 use std::path::PathBuf;
 
-#[cfg(not(target_os = "android"))]
 pub fn get_rpc_socket_path() -> PathBuf {
     match std::env::var_os("MULLVAD_RPC_SOCKET_PATH") {
         Some(path) => PathBuf::from(path),

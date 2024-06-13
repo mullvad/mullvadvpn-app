@@ -1,8 +1,8 @@
+#![cfg(not(target_os = "android"))]
+
 #[cfg(any(target_os = "linux", target_os = "macos"))]
 use std::fs;
-use std::io;
-#[cfg(not(target_os = "android"))]
-use std::path::PathBuf;
+use std::{io, path::PathBuf};
 
 #[cfg(windows)]
 use crate::windows::create_dir_recursive;
@@ -29,7 +29,6 @@ pub enum Error {
     #[error("Failed to create security attributes")]
     GetSecurityAttributes(#[source] io::Error),
 
-    #[cfg(target_os = "android")]
     #[error("Device data directory has not been set")]
     NoDataDir,
 }
@@ -72,29 +71,19 @@ fn create_and_return(
     Ok(dir)
 }
 
-#[cfg(not(target_os = "android"))]
 mod cache;
-#[cfg(not(target_os = "android"))]
 pub use crate::cache::{cache_dir, get_cache_dir, get_default_cache_dir};
 
-#[cfg(not(target_os = "android"))]
 mod logs;
-#[cfg(not(target_os = "android"))]
 pub use crate::logs::{get_default_log_dir, get_log_dir, log_dir};
 
-#[cfg(not(target_os = "android"))]
 pub mod resources;
-#[cfg(not(target_os = "android"))]
 pub use crate::resources::{get_default_resource_dir, get_resource_dir};
 
-#[cfg(not(target_os = "android"))]
 mod rpc_socket;
-#[cfg(not(target_os = "android"))]
 pub use crate::rpc_socket::{get_default_rpc_socket_path, get_rpc_socket_path};
 
-#[cfg(not(target_os = "android"))]
 mod settings;
-#[cfg(not(target_os = "android"))]
 pub use crate::settings::{get_default_settings_dir, settings_dir};
 
 #[cfg(windows)]

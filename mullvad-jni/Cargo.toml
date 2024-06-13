@@ -29,7 +29,6 @@ rand = "0.8.5"
 
 mullvad-api = { path = "../mullvad-api" }
 mullvad-daemon = { path = "../mullvad-daemon" }
-mullvad-paths = { path = "../mullvad-paths" }
 mullvad-problem-report = { path = "../mullvad-problem-report" }
 mullvad-types = { path = "../mullvad-types" }
 talpid-tunnel = { path = "../talpid-tunnel" }
