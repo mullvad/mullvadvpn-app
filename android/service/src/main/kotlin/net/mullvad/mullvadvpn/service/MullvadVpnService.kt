@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.service
 
 import android.app.KeyguardManager
+import android.content.Context
 import android.content.Intent
 import android.os.Binder
 import android.os.Build
@@ -40,12 +41,13 @@ import org.koin.android.ext.android.getKoin
 import org.koin.core.context.loadKoinModules
 import org.koin.core.qualifier.named
 
+private const val RELAYS_FILE = "relays.json"
+
 class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
     private val _shouldBeOnForeground = MutableStateFlow(false)
     override val shouldBeOnForeground: StateFlow<Boolean> = _shouldBeOnForeground
 
     private lateinit var keyguardManager: KeyguardManager
-    private lateinit var daemonInstance: MullvadDaemon
 
     private lateinit var apiEndpointConfiguration: ApiEndpointConfiguration
     private lateinit var managementService: ManagementService
@@ -90,15 +92,17 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
         // with intent from API)
         lifecycleScope.launch(context = Dispatchers.IO) {
             managementService.start()
-            daemonInstance =
-                MullvadDaemon(
-                    vpnService = this@MullvadVpnService,
-                    rpcSocketFile = rpcSocketFile,
-                    apiEndpointConfiguration =
-                        intentProvider.getLatestIntent()?.getApiEndpointConfigurationExtras()
-                            ?: apiEndpointConfiguration,
-                    migrateSplitTunneling = migrateSplitTunneling
-                )
+
+            prepareFiles(this@MullvadVpnService)
+            migrateSplitTunneling.migrate()
+
+            MullvadDaemon.start(
+                vpnService = this@MullvadVpnService,
+                rpcSocketFile = rpcSocketFile,
+                apiEndpointConfiguration =
+                    intentProvider.getLatestIntent()?.getApiEndpointConfigurationExtras()
+                        ?: apiEndpointConfiguration,
+            )
         }
     }
 
@@ -193,7 +197,7 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
         managementService.stop()
 
         // Shutting down the daemon gracefully
-        runBlocking { daemonInstance.shutdown() }
+        MullvadDaemon.shutdown()
         super.onDestroy()
     }
 
@@ -201,6 +205,16 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
     private fun Intent?.isFromSystem(): Boolean {
         return this?.action == SERVICE_INTERFACE
     }
+
+    private fun prepareFiles(context: Context) {
+        val shouldOverwriteRelayList =
+            lastUpdatedTime(context) > File(context.filesDir, RELAYS_FILE).lastModified()
+
+        FileResourceExtractor(context).apply { extract(RELAYS_FILE, shouldOverwriteRelayList) }
+    }
+
+    private fun lastUpdatedTime(context: Context): Long =
+        context.packageManager.getPackageInfo(context.packageName, 0).lastUpdateTime
 
     companion object {
         init {
