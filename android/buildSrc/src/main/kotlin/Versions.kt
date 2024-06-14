@@ -25,7 +25,7 @@ object Versions {
         const val appcompat = "1.6.1"
         const val coreKtx = "1.12.0"
         const val espresso = "3.5.1"
-        const val lifecycle = "2.7.0"
+        const val lifecycle = "2.8.2"
         const val fragment = "1.6.2"
         const val test = "1.5.0"
         const val testMonitor = "1.6.1"
