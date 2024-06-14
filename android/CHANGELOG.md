@@ -23,6 +23,17 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 
+## [android/2024.3-beta1] - 2024-06-14
+### Changed
+- Always show account history if present on login screen.
+- Clarifications to in-app lockdown guide.
+
+### Deprecated
+- Mark auto-connect setting as legacy on all platforms.
+
+### Fixed
+- Improve device revoked detection.
+
 
 ## [android/2024.2] - 2024-05-29
 ### Fixed
