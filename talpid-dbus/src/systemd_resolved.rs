@@ -322,7 +322,7 @@ impl SystemdResolved {
             // replaced in systemd-resolved.
             // v248.3
             link_object
-                .method_call(
+                .method_call::<(), _, _, _>(
                     LINK_INTERFACE,
                     SET_DNS_METHOD,
                     (Vec::<(i32, Vec<u8>)>::new(),),
