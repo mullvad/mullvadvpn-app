@@ -64,7 +64,7 @@ unsafe impl Send for ConnectionContext {}
 
 impl IosTcpProvider {
     /// # Safety
-    /// `tcp_connection` must be pointing to a valid instance of a `NWTCPConnection`, created by the
+    /// `connection` must be pointing to a valid instance of a `NWTCPConnection`, created by the
     /// `PacketTunnelProvider`
     pub unsafe fn new(connection: Arc<Mutex<ConnectionContext>>) -> (Self, IosTcpShutdownHandle) {
         let (tx, rx) = mpsc::unbounded_channel();
@@ -93,17 +93,15 @@ impl IosTcpProvider {
 
 impl IosTcpShutdownHandle {
     pub fn shutdown(self) {
-        {
-            let Ok(mut context) = self.context.lock() else {
-                return;
-            };
+        let Ok(mut context) = self.context.lock() else {
+            return;
+        };
 
-            context.tcp_connection = None;
-            if let Some(waker) = context.waker.take() {
-                waker.wake();
-            }
-            std::mem::drop(context);
+        context.tcp_connection = None;
+        if let Some(waker) = context.waker.take() {
+            waker.wake();
         }
+        std::mem::drop(context);
     }
 }
 
@@ -136,7 +134,6 @@ impl AsyncWrite for IosTcpProvider {
                     let raw_sender = Weak::into_raw(Arc::downgrade(&self.write_tx));
                     unsafe {
                         swift_nw_tcp_connection_send(
-                            // self.tcp_connection,
                             tcp_ptr,
                             buf.as_ptr() as _,
                             buf.len(),
@@ -193,7 +190,6 @@ impl AsyncRead for IosTcpProvider {
                 if !self.read_in_progress {
                     let raw_sender = Weak::into_raw(Arc::downgrade(&self.read_tx));
                     unsafe {
-                        // TODO
                         swift_nw_tcp_connection_read(tcp_ptr, raw_sender as _);
                     }
                     self.read_in_progress = true;

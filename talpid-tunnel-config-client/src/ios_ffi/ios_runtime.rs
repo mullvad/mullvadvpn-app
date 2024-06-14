@@ -96,8 +96,8 @@ impl IOSRuntime {
             self.run_service_inner();
         });
     }
-    /// Creates a `RelayConfigService` using the in-tunnel TCP Connection provided by the Packet
-    /// Tunnel Provider # Safety
+    /// Creates a `RelayConfigService` using the in-tunnel TCP Connection provided by the Packet Tunnel Provider
+    /// # Safety
     /// It is unsafe to call this with an already used `SwiftContext`
     async unsafe fn ios_tcp_client(
         ctx: SwiftContext,
@@ -153,16 +153,20 @@ impl IOSRuntime {
                                     let preshared_key_bytes = preshared_key.as_bytes();
                                     swift_post_quantum_key_ready(packet_tunnel_ptr, preshared_key_bytes.as_ptr(), self.ephemeral_key.as_ptr());
                                 },
-                                None => unsafe {
+                                None => {
                                     log::error!("No suitable peer was found");
-                                    swift_post_quantum_key_ready(packet_tunnel_ptr, ptr::null(), ptr::null());
+                                    unsafe {
+                                        swift_post_quantum_key_ready(packet_tunnel_ptr, ptr::null(), ptr::null());
+                                    }
                                 }
 
                             }
                         },
-                        Err(error) => unsafe {
+                        Err(error) => {
                             log::error!("Key exchange failed {}", error);
-                            swift_post_quantum_key_ready(packet_tunnel_ptr, ptr::null(), ptr::null());
+                            unsafe {
+                                swift_post_quantum_key_ready(packet_tunnel_ptr, ptr::null(), ptr::null());
+                            }
                         }
                     }
                 }
