@@ -87,7 +87,7 @@
     <![CDATA[2. To enable Auto-connect, click on the toggle next to <b>Always-on VPN</b>.]]>
      </string>
     <string name="auto_connect_carousel_third_slide_top_text">
-        <![CDATA[The Lockdown mode is called <b>Block connections without VPN</b> in the Android system settings. It helps minimize leaks, however it has some known limitations which you can read more about it]]>
+        <![CDATA[The Lockdown mode is called <b>Block connections without VPN</b> in the Android system settings. It helps minimize leaks, however it has some known limitations which you can read more about]]>
     </string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">here</string>
     <string name="auto_connect_carousel_third_slide_bottom_text">
