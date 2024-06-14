@@ -27,6 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.NavResult
@@ -120,12 +121,13 @@ fun ReportProblem(
         state,
         onSendReport = { vm.sendReport(state.email, state.description) },
         onClearSendResult = vm::clearSendResult,
-        onNavigateToViewLogs = {
-            navigator.navigate(ViewLogsDestination()) { launchSingleTop = true }
-        },
+        onNavigateToViewLogs =
+            dropUnlessResumed {
+                navigator.navigate(ViewLogsDestination()) { launchSingleTop = true }
+            },
         onEmailChanged = vm::updateEmail,
         onDescriptionChanged = vm::updateDescription,
-        onBackClick = navigator::navigateUp,
+        onBackClick = dropUnlessResumed { navigator.navigateUp() },
     )
 }
 

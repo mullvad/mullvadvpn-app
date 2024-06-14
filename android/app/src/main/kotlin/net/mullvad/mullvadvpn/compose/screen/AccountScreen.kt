@@ -24,6 +24,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.popUpTo
@@ -123,9 +124,7 @@ fun Account(
     AccountScreen(
         state = state,
         uiSideEffect = vm.uiSideEffect,
-        onRedeemVoucherClick = {
-            navigator.navigate(RedeemVoucherDestination) { launchSingleTop = true }
-        },
+        onRedeemVoucherClick = dropUnlessResumed { navigator.navigate(RedeemVoucherDestination) },
         onManageAccountClick = vm::onManageAccountClick,
         onLogoutClick = vm::onLogoutClick,
         navigateToLogin = {
@@ -135,16 +134,14 @@ fun Account(
             }
         },
         onCopyAccountNumber = vm::onCopyAccountNumber,
-        onBackClick = navigator::navigateUp,
-        navigateToDeviceInfo = {
-            navigator.navigate(DeviceNameInfoDialogDestination) { launchSingleTop = true }
-        },
+        onBackClick = dropUnlessResumed { navigator.navigateUp() },
+        navigateToDeviceInfo =
+            dropUnlessResumed { navigator.navigate(DeviceNameInfoDialogDestination) },
         onPurchaseBillingProductClick = { productId ->
-            navigator.navigate(PaymentDestination(productId)) { launchSingleTop = true }
+            navigator.navigate(PaymentDestination(productId), onlyIfResumed = true)
         },
-        navigateToVerificationPendingDialog = {
-            navigator.navigate(VerificationPendingDialogDestination) { launchSingleTop = true }
-        }
+        navigateToVerificationPendingDialog =
+            dropUnlessResumed { navigator.navigate(VerificationPendingDialogDestination) }
     )
 }
 

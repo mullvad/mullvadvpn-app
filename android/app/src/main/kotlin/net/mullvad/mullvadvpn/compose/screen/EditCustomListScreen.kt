@@ -21,6 +21,7 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.NavResult
@@ -100,24 +101,23 @@ fun EditCustomList(
         state = state,
         onDeleteList = { name ->
             navigator.navigate(
-                DeleteCustomListDestination(customListId = customListId, name = name)
-            ) {
-                launchSingleTop = true
-            }
+                DeleteCustomListDestination(customListId = customListId, name = name),
+                onlyIfResumed = true
+            )
         },
         onNameClicked = { id, name ->
             navigator.navigate(
-                EditCustomListNameDestination(customListId = id, initialName = name)
-            ) {
-                launchSingleTop = true
-            }
+                EditCustomListNameDestination(customListId = id, initialName = name),
+                onlyIfResumed = true
+            )
         },
         onLocationsClicked = {
-            navigator.navigate(CustomListLocationsDestination(customListId = it, newList = false)) {
-                launchSingleTop = true
-            }
+            navigator.navigate(
+                CustomListLocationsDestination(customListId = it, newList = false),
+                onlyIfResumed = true
+            )
         },
-        onBackClick = backNavigator::navigateBack
+        onBackClick = dropUnlessResumed { backNavigator.navigateBack() }
     )
 }
 

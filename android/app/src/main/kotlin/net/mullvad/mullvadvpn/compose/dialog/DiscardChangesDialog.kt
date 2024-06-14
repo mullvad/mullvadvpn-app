@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
@@ -18,18 +19,18 @@ import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 @Composable
 fun DiscardChangesDialog(resultBackNavigator: ResultBackNavigator<Boolean>) {
     AlertDialog(
-        onDismissRequest = resultBackNavigator::navigateBack,
+        onDismissRequest = dropUnlessResumed { resultBackNavigator.navigateBack() },
         title = { Text(text = stringResource(id = R.string.discard_changes)) },
         dismissButton = {
             PrimaryButton(
                 modifier = Modifier.focusRequester(FocusRequester()),
-                onClick = resultBackNavigator::navigateBack,
+                onClick = dropUnlessResumed { resultBackNavigator.navigateBack() },
                 text = stringResource(id = R.string.cancel)
             )
         },
         confirmButton = {
             PrimaryButton(
-                onClick = { resultBackNavigator.navigateBack(result = true) },
+                onClick = dropUnlessResumed { resultBackNavigator.navigateBack(result = true) },
                 text = stringResource(id = R.string.discard)
             )
         },

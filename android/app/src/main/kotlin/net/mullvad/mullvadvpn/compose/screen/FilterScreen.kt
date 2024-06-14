@@ -27,6 +27,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import net.mullvad.mullvadvpn.R
@@ -79,7 +80,7 @@ fun FilterScreen(navigator: DestinationsNavigator) {
     }
     FilterScreen(
         state = state,
-        onBackClick = navigator::navigateUp,
+        onBackClick = dropUnlessResumed { navigator.navigateUp() },
         onApplyClick = viewModel::onApplyButtonClicked,
         onSelectedOwnership = viewModel::setSelectedOwnership,
         onAllProviderCheckChange = viewModel::setAllProviders,

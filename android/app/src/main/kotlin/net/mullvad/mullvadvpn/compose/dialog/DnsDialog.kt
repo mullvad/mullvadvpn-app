@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
@@ -75,7 +76,8 @@ fun DnsDialog(
         viewModel::onDnsInputChange,
         onSaveDnsClick = viewModel::onSaveDnsClick,
         onRemoveDnsClick = viewModel::onRemoveDnsClick,
-        onDismiss = { resultNavigator.navigateBack(result = DnsDialogResult.Cancel) }
+        onDismiss =
+            dropUnlessResumed { resultNavigator.navigateBack(result = DnsDialogResult.Cancel) }
     )
 }
 

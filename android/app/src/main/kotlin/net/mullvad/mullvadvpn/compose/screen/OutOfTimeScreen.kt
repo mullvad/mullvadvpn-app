@@ -23,6 +23,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.popUpTo
@@ -151,17 +152,15 @@ fun OutOfTime(
     OutOfTimeScreen(
         state = state,
         onSitePaymentClick = vm::onSitePaymentClick,
-        onRedeemVoucherClick = {
-            navigator.navigate(RedeemVoucherDestination) { launchSingleTop = true }
-        },
-        onSettingsClick = { navigator.navigate(SettingsDestination) { launchSingleTop = true } },
-        onAccountClick = { navigator.navigate(AccountDestination) { launchSingleTop = true } },
+        onRedeemVoucherClick = dropUnlessResumed { navigator.navigate(RedeemVoucherDestination) },
+        onSettingsClick = dropUnlessResumed { navigator.navigate(SettingsDestination) },
+        onAccountClick = dropUnlessResumed { navigator.navigate(AccountDestination) },
         onDisconnectClick = vm::onDisconnectClick,
         onPurchaseBillingProductClick = { productId ->
-            navigator.navigate(PaymentDestination(productId)) { launchSingleTop = true }
+            navigator.navigate(PaymentDestination(productId), onlyIfResumed = true)
         },
         navigateToVerificationPendingDialog = {
-            navigator.navigate(VerificationPendingDialogDestination) { launchSingleTop = true }
+            navigator.navigate(VerificationPendingDialogDestination, onlyIfResumed = true)
         }
     )
 }
