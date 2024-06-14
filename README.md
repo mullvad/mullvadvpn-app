@@ -354,7 +354,7 @@ The cache directory can be changed by setting the `MULLVAD_CACHE_DIR` environmen
 | Linux | `/var/cache/mullvad-vpn/` |
 | macOS | `/Library/Caches/mullvad-vpn/` |
 | Windows | `C:\ProgramData\Mullvad VPN\cache` |
-| Android | [`getFilesDir()`](https://developer.android.com/reference/android/content/Context#getFilesDir())  |
+| Android | [`getCacheDir()`](https://developer.android.com/reference/android/content/Context#getCacheDir())  |
 
 #### RPC address file
 
