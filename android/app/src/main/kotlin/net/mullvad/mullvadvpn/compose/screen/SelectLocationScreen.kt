@@ -46,6 +46,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.NavResult
@@ -151,7 +152,7 @@ fun SelectLocation(
 
     LaunchedEffectCollect(vm.uiSideEffect) {
         when (it) {
-            SelectLocationSideEffect.CloseScreen -> backNavigator.navigateBack(result = true, true)
+            SelectLocationSideEffect.CloseScreen -> backNavigator.navigateBack(result = true)
             is SelectLocationSideEffect.LocationAddedToCustomList ->
                 launch {
                     snackbarHostState.showResultSnackbar(
@@ -200,31 +201,40 @@ fun SelectLocation(
         snackbarHostState = snackbarHostState,
         onSelectRelay = vm::selectRelay,
         onSearchTermInput = vm::onSearchTermInput,
-        onBackClick = { backNavigator.navigateBack(true) },
-        onFilterClick = { navigator.navigate(FilterScreenDestination, true) },
+        onBackClick = dropUnlessResumed { backNavigator.navigateBack() },
+        onFilterClick = dropUnlessResumed { navigator.navigate(FilterScreenDestination) },
         onCreateCustomList = { relayItem ->
-            navigator.navigate(CreateCustomListDestination(locationCode = relayItem?.id)) {
+            navigator.navigate(
+                CreateCustomListDestination(locationCode = relayItem?.id),
+                onlyIfResumed = true
+            ) {
                 launchSingleTop = true
             }
         },
-        onEditCustomLists = { navigator.navigate(CustomListsDestination()) },
+        onEditCustomLists = dropUnlessResumed { navigator.navigate(CustomListsDestination()) },
         removeOwnershipFilter = vm::removeOwnerFilter,
         removeProviderFilter = vm::removeProviderFilter,
         onAddLocationToList = vm::addLocationToList,
         onRemoveLocationFromList = vm::removeLocationFromList,
         onEditCustomListName = {
             navigator.navigate(
-                EditCustomListNameDestination(customListId = it.id, initialName = it.customListName)
+                EditCustomListNameDestination(
+                    customListId = it.id,
+                    initialName = it.customListName
+                ),
+                onlyIfResumed = true
             )
         },
         onEditLocationsCustomList = {
             navigator.navigate(
-                CustomListLocationsDestination(customListId = it.id, newList = false)
+                CustomListLocationsDestination(customListId = it.id, newList = false),
+                onlyIfResumed = true
             )
         },
         onDeleteCustomList = {
             navigator.navigate(
-                DeleteCustomListDestination(customListId = it.id, name = it.customListName)
+                DeleteCustomListDestination(customListId = it.id, name = it.customListName),
+                onlyIfResumed = true
             )
         }
     )

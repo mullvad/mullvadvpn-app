@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.compose.dialog
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
@@ -24,6 +25,6 @@ fun ContentBlockersInfoDialog(navigator: DestinationsNavigator) {
                     stringResource(id = R.string.settings_changes_effect_warning_content_blocker)
                 )
             },
-        onDismiss = navigator::navigateUp
+        onDismiss = dropUnlessResumed { navigator.navigateUp() }
     )
 }

@@ -15,6 +15,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.result.EmptyResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultBackNavigator
@@ -42,7 +43,7 @@ private fun PreviewRemoveDeviceConfirmationDialog(
 @Composable
 fun RemoveDeviceConfirmationDialog(navigator: ResultBackNavigator<DeviceId>, device: Device) {
     AlertDialog(
-        onDismissRequest = navigator::navigateBack,
+        onDismissRequest = dropUnlessResumed { navigator.navigateBack() },
         icon = {
             Icon(
                 modifier = Modifier.fillMaxWidth().height(Dimens.dialogIconHeight),
@@ -62,14 +63,14 @@ fun RemoveDeviceConfirmationDialog(navigator: ResultBackNavigator<DeviceId>, dev
         },
         dismissButton = {
             NegativeButton(
-                onClick = { navigator.navigateBack(result = device.id) },
+                onClick = dropUnlessResumed { navigator.navigateBack(result = device.id) },
                 text = stringResource(id = R.string.confirm_removal)
             )
         },
         confirmButton = {
             PrimaryButton(
                 modifier = Modifier.focusRequester(FocusRequester()),
-                onClick = { navigator.navigateBack() },
+                onClick = dropUnlessResumed { navigator.navigateBack() },
                 text = stringResource(id = R.string.back)
             )
         },

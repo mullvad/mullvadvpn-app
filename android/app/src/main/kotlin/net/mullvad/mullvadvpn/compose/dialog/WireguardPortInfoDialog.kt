@@ -4,6 +4,7 @@ import android.os.Parcelable
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
@@ -40,6 +41,6 @@ fun WireguardPortInfoDialog(
                 id = R.string.wireguard_port_info_port_range,
                 argument.portRanges.asString()
             ),
-        onDismiss = navigator::navigateUp
+        onDismiss = dropUnlessResumed { navigator.navigateUp() }
     )
 }
