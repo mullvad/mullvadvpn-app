@@ -7,12 +7,14 @@
     <string name="account_number">အကောင့် နံပါတ်</string>
     <string name="account_time_notification_channel_description">အကောင့်အချိန် သက်တမ်းကုန်ခါနီးချိန်၌ သတိပေးချက်များ ပြသပေးပါသည်</string>
     <string name="account_time_notification_channel_name">အကောင့်အချိန် သတိပေးချက်များ</string>
+    <string name="add">ပေါင်းထည့်ရန်</string>
     <string name="add_30_days_time">အချိန် ရက် 30 ကို‌ ပေါင်းထည့်ရန်</string>
     <string name="add_30_days_time_x">အချိန် ရက် 30 ကို‌ ပေါင်းထည့်ရန် (%1$s)</string>
     <string name="add_a_server">ဆာဗာ ပေါင်းထည့်ရန်</string>
     <string name="add_dns_server_dialog_title">DNS ဆာဗာကို ပေါင်းထည့်ရန်</string>
     <string name="add_location_to_list">စာရင်းထဲသို့ %1$s ပေါင်းထည့်ရန်</string>
     <string name="add_locations">တည်နေရာများ ပေါင်းထည့်ရန်</string>
+    <string name="add_method">နည်းလမ်း ပေါင်းထည့်ရန်</string>
     <string name="add_time_to_account">ကျွန်ုပ်တို့၏ ဝက်ဘ်ဆိုက်တွင် ခရက်ဒစ် ဝယ်ယူပါ သို့မဟုတ် ဘောက်ချာဖြင့် လဲယူပါ။</string>
     <string name="added_to_your_account">သင့်အကောင့်သို့ %1$s ကို ထည့်ပြီးပါပြီ။</string>
     <string name="agree_and_continue">သဘောတူပြီး ဆက်လုပ်ရန်</string>
@@ -23,9 +25,16 @@
     <string name="always_on_vpn_error_notification_content">Tunnel ချိတ်ဆက်မှုကို စတင်၍ မရနိုင်ပါ။ Mullvad VPN ကို မသုံးမီ &lt;b&gt;%1$s&lt;/b&gt; အတွက် VPN အမြဲဖွင့်ထားမှုကို ပိတ်ပေးပါ။</string>
     <string name="always_on_vpn_error_notification_title">အမြဲဖွင့် VPN ကို အခြားအက်ပ်တစ်ခုသို့ သတ်မှတ်ထားပါသည်</string>
     <string name="any">တစ်ခုခု</string>
+    <string name="api_access_description">Mullvad API ကို ရယူသုံးစွဲရန် စိတ်ကြိုက် နည်းလမ်းများကို ပေါင်းထည့်၍ စီမံပါ။</string>
+    <string name="api_access_method_info_first_line">Mullvad API ဆာဗာသို့ သင်ဝင်ရောက်ရန်၊ ဆာဗာစာရင်းများ ရယူရန်နှင့် အလွန်အရေးပါသည့် အခြားလုပ်ဆောင်မှုများအတွက် ဤအက်ပ်သည် ၎င်းနှင့်ဆက်သွယ်ရန် လိုအပ်ပါသည်။</string>
+    <string name="api_access_method_info_second_line">စိစစ်ဖြတ်တောက်မှု အမျိုးအစားများစွာကို သုံးထားသော အချို့ကွန်ရက်များတွင် API ဆာဗာများသည် တိုက်ရိုက် ဝင်ရောက် သုံးစွဲနိုင်စွမ်း မရှိပါ။</string>
+    <string name="api_access_method_info_third_line">ဤလုပ်ဆောင်ချက်သည် ပရောက်စီများနှင့် အလားတူနည်းလမ်းများမှတစ်ဆင့် API ကို ဝင်ရောက်သုံးစွဲရန် မိမိစိတ်ကြိုက်နည်းလမ်းများကို ပေါင်းထည့်ခြင်းအားဖြင့် ထိုစိစစ်ဖြတ်တောက်မှုကို ရှောင်လွှဲနိုင်စေပါသည်။</string>
+    <string name="api_reachable">API ဝင်ရောက် သုံးစွဲနိုင်ပါသည်</string>
+    <string name="api_unreachable">API ဝင်ရောက် သုံးစွဲ၍ မရနိုင်ပါ</string>
     <string name="app_version">အက်ပ်ဗားရှင်း</string>
     <string name="apply">သုံးရန်</string>
     <string name="auth_failed">အကောင့်ကို စစ်မှန်ကြောင်း အတည်ပြု၍ မရနိုင်ပါ။ ပြဿနာ ရီပို့တ်တစ်ခု ပေးပို့ပေးပါ။</string>
+    <string name="authentication">စစ်မှန်ကြောင်း အတည်ပြုခြင်း</string>
     <string name="auto_connect">အော်တို ချိတ်ဆက်မှု</string>
     <string name="auto_connect_and_lockdown_mode">အော်တို ချိတ်ဆက်မှု နှင့် လော့ခ်ဒေါင်းစနစ်</string>
     <string name="auto_connect_and_lockdown_mode_footer">စက်သည် VPN Tunnel ကို အမြဲဖွင့်ထားကြောင်း သေချာပါစေ။</string>
@@ -50,6 +59,7 @@
     <string name="buy_more_credit">ခရက်ဒစ်များ ဝယ်ရန်</string>
     <string name="cancel">မလုပ်တော့ပါ</string>
     <string name="changes_dialog_subtitle">ဤဗားရှင်းတွင် ပြောင်းလဲမှုများ-</string>
+    <string name="cipher">ဝှက်စာ</string>
     <string name="confirm_local_dns">လိုကယ် DNS ဆာဗာသည် လိုလားမှုများအောက်ရှိ \"လိုကယ် ကွန်ရက် ဝေမျှမှု\"ကို မဖွင့်မချင်း အလုပ်လုပ်မည် မဟုတ်ပါ။</string>
     <string name="confirm_no_email">သင်သည် သင့်ထံ ကျွန်ုပ်တို့ ပြန်ဆက်သွယ်နိုင်မည့် နည်းလမ်း မပါဘဲ ပြဿနာ ရီပို့တ်ကို ပေးပို့တော့မည် ဖြစ်ပါသည်။ သင့်ရီပို့တ်အတွက် အဖြေ ရရှိလိုပါက အီမေးလိပ်စာ ဖြည့်သွင်းပေးရပါမည်။</string>
     <string name="confirm_removal">စက်မှ ထွက်မည်</string>
@@ -108,6 +118,7 @@
     <string name="edit_lists">စာရင်းများကို တည်းဖြတ်ရန်</string>
     <string name="edit_locations">တည်နေရာများကို တည်းဖြတ်ရန်</string>
     <string name="edit_message">မက်ဆေ့ချ် တည်းဖြတ်ရန်</string>
+    <string name="edit_method">နည်းလမ်းကို တည်းဖြတ်ပါ</string>
     <string name="edit_name">အမည် တည်းဖြတ်ရန်</string>
     <string name="enable">ဖွင့်ရန်</string>
     <string name="enable_custom_dns">စိတ်ကြိုက် DNS ဆာဗာကို သုံးရန်</string>
@@ -173,6 +184,7 @@
     <string name="max_devices_warning_title">စက်များလွန်းနေသည်</string>
     <string name="mullvad_account_number">Mullvad အကောင့်နံပါတ်</string>
     <string name="mullvad_owned_only">Mullvad ပိုင်ဆိုင်သည်များသာ</string>
+    <string name="name">အမည်</string>
     <string name="name_was_changed_to">အမည်ကို %1$s သို့ ပြောင်းလိုက်ပါသည်</string>
     <string name="new_device_notification_message">ကြိုဆိုပါသည်၊ ယခုမှစ၍ ဤစက်ကို &lt;b&gt;%1$s&lt;/b&gt; ဟု ခေါ်ဆိုပါမည်။ နောက်ထပ်အသေးစိတ်တို့အတွက် အကောင့်တွင် အချက်အလက် ခလုတ်ကို နှိပ်၍ ကြည့်နိုင်သည်။</string>
     <string name="new_device_notification_title">စက်အသစ် ဖန်တီးထားသည်</string>
@@ -196,6 +208,7 @@
     <string name="owned">အပိုင်</string>
     <string name="ownership">ပိုင်ဆိုင်မှု</string>
     <string name="paid_until">ဖော်ပြပါအထိ ပေးချေထားပြီး</string>
+    <string name="password">စကားဝှက်</string>
     <string name="patch_not_matching_specification">ပက်ချ်သည် သတ်မှတ်ချက်နှင့် မကိုက်ညီပါ</string>
     <string name="pay_to_start_using">အက်ပ်ကို စသုံးရန်အတွက် ဦးစွာ သင့်အကောင့်တွင် အချိန်ပေါင်းထည့်ပေးရန် လိုအပ်ပါသည်။</string>
     <string name="payment_billing_error_dialog_message">လက်ရှိတွင် ပေးချေမှု လုပ်ငန်းစဉ်ကို စတင်၍ မရနိုင်ပါ၊ Google Play နောက်ဆုံး ဗားရှင်း သင့်တွင်ရှိနေကြောင်း သေချာပါစေ။</string>
@@ -242,6 +255,7 @@
     <string name="sent">ပို့ပြီး</string>
     <string name="sent_contact">လိုအပ်ပါက %1$s မှတစ်ဆင့် ကျွန်ုပ်တို့ထံ ဆက်သွယ်ပါ</string>
     <string name="sent_thanks">ကျေးဇူးတင်ပါသည်။</string>
+    <string name="server">ဆာဗာ</string>
     <string name="server_ip_overrides">ဆာဗာ IP ကျော်လွန် ပယ်ဖျက်မှု</string>
     <string name="server_ip_overrides_active">ကျော်လွန် ပယ်ဖျက်မှုများ သက်ဝင်နေသည်</string>
     <string name="server_ip_overrides_import_by">ဖော်ပြပါဖြင့် ကျော်လွန် ပယ်ဖျက်မှုအသစ်များကို ထည့်သွင်းရန်</string>
@@ -259,6 +273,7 @@
     <string name="set_firewall_policy_error">Firewall စည်းမျဉ်းများကို အသုံးချ၍ မရနိုင်ပါ။ ပြစ်ချက် ရှာဖွေဖယ်ရှာပေးပါ သို့မဟုတ် ပြဿနာ ရီပို့တ် ပေးပို့ပေးပါ။</string>
     <string name="settings">ဆက်တင်</string>
     <string name="settings_account">အကောင့်</string>
+    <string name="settings_api_access">API ရယူသုံးစွဲခွင့်</string>
     <string name="settings_changes_effect_warning_content_blocker">DNS နှင့်ဆက်စပ်သော ဆက်တင်များ၌ ပြုလုပ်သည့် ပြောင်းလဲမှုများသည် ယာယီသိမ်းထားသော ရလဒ်များကြောင့် ချက်ချင်း အကျိုးမသက်ရောက်နိုင်ပါ။</string>
     <string name="settings_changes_effect_warning_short">DNS ဆက်တင်ကို ချက်ချင်း အကျိုးမရောက်နိုင်ပါ။</string>
     <string name="settings_patch_error_failed_to_apply_patch">ပတ်(ချ်) သုံးခြင်း မအောင်မြင်ပါ</string>
@@ -277,12 +292,15 @@
     <string name="submit_button">ပေးပို့ရန်</string>
     <string name="switch_location">တည်နေရာ ပြောင်းရန်</string>
     <string name="tcp">TCP</string>
+    <string name="testing">စမ်းသပ်နေဆဲ...</string>
     <string name="to_add_locations_to_a_list">စာရင်းထဲသို့ တည်နေရာများကို ပေါင်းထည့်ရန် \"︙\" ကို နှိပ်ပါ သို့မဟုတ် နိုင်ငံ၊ မြို့၊ ဆာဗာကို နှိပ်ပါ။</string>
     <string name="to_create_a_custom_list">စိတ်ကြိုက် စာရင်းများကို ဖန်တီးရန် \"︙\" ကို နှိပ်ပါ</string>
     <string name="toggle_vpn">VPN ရွေးသုံးရန်</string>
     <string name="top_bar_device_name">စက်အမည်- %1$s</string>
     <string name="top_bar_time_left">ကျန်သည့် အချိန်- %1$s</string>
+    <string name="transport_protocol">ပို့ဆောင်ရေး ပရိုတိုကောလ်</string>
     <string name="try_again">ထပ်ကြိုးစားရန်</string>
+    <string name="type">အမျိုးအစား</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">VPN ဆာဗာကို ဖွင့်ရန် ၎င်း TCP ပေါ့တ် UDP-over-TCP Obfuscation ပရိုတိုကောလ်နှင့် ချိတ်ဆက်ထားသင့်ပါသည်။</string>
     <string name="udp_over_tcp_port_title">UDP-over-TCP ပေါ့တ်</string>
@@ -299,6 +317,7 @@
     <string name="update_list_name">စာရင်း အမည်ကို အပ်ဒိတ်လုပ်ရန်</string>
     <string name="user_email_hint">သင့်အီးမေးလ် (မဖြည့်လည်း ရပါသည်)</string>
     <string name="user_message_hint">သင့်အား ပို၍ အကူအညီပေးနိုင်ရန် အင်္ဂလိပ်ဘာသာ သို့မဟုတ် ဆွီဒင်ဘာသာဖြင့် ရေးပြီး မည်သည့်နိုင်ငံမှ သင်ချိတ်ဆက်နေသည်ကို ထည့်သွင်းဖော်ပြပါ။</string>
+    <string name="username">သုံးစွဲသူအမည်</string>
     <string name="verifying_voucher">ဘောက်ချာကို စစ်ဆေးနေဆဲ…</string>
     <string name="view_logs">အက်ပ်မှတ်တမ်းများ ကြည့်ရန်</string>
     <string name="virtual_adapter_problem">စက်တွင်း အဒက်တာ ချို့ယွင်းချက်</string>

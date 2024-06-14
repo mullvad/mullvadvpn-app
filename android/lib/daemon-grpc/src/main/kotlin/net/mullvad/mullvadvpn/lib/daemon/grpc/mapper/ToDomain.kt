@@ -13,8 +13,13 @@ import net.mullvad.mullvadvpn.lib.model.AccountData
 import net.mullvad.mullvadvpn.lib.model.AccountId
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.ActionAfterDisconnect
+import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod
+import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
+import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodName
+import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodSetting
 import net.mullvad.mullvadvpn.lib.model.AppId
 import net.mullvad.mullvadvpn.lib.model.AppVersionInfo
+import net.mullvad.mullvadvpn.lib.model.Cipher
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.CustomDnsOptions
 import net.mullvad.mullvadvpn.lib.model.CustomList
@@ -53,6 +58,7 @@ import net.mullvad.mullvadvpn.lib.model.RelayOverride
 import net.mullvad.mullvadvpn.lib.model.RelaySettings
 import net.mullvad.mullvadvpn.lib.model.SelectedObfuscation
 import net.mullvad.mullvadvpn.lib.model.Settings
+import net.mullvad.mullvadvpn.lib.model.SocksAuth
 import net.mullvad.mullvadvpn.lib.model.SplitTunnelSettings
 import net.mullvad.mullvadvpn.lib.model.TransportProtocol
 import net.mullvad.mullvadvpn.lib.model.TunnelEndpoint
@@ -246,7 +252,8 @@ internal fun ManagementInterface.Settings.toDomain(): Settings =
         tunnelOptions = tunnelOptions.toDomain(),
         relayOverrides = relayOverridesList.map { it.toDomain() },
         showBetaReleases = showBetaReleases,
-        splitTunnelSettings = splitTunnel.toDomain()
+        splitTunnelSettings = splitTunnel.toDomain(),
+        apiAccessMethodSettings = apiAccessMethods.toDomain()
     )
 
 internal fun ManagementInterface.RelayOverride.toDomain(): RelayOverride =
@@ -519,3 +526,53 @@ internal fun ManagementInterface.SplitTunnelSettings.toDomain(): SplitTunnelSett
 
 internal fun ManagementInterface.PlayPurchasePaymentToken.toDomain(): PlayPurchasePaymentToken =
     PlayPurchasePaymentToken(value = token)
+
+internal fun ManagementInterface.ApiAccessMethodSettings.toDomain(): List<ApiAccessMethodSetting> =
+    listOf(direct.toDomain(), mullvadBridges.toDomain()).plus(customList.map { it.toDomain() })
+
+internal fun ManagementInterface.AccessMethodSetting.toDomain(): ApiAccessMethodSetting =
+    ApiAccessMethodSetting(
+        id = ApiAccessMethodId.fromString(id.value),
+        name = ApiAccessMethodName.fromString(name),
+        enabled = enabled,
+        apiAccessMethod = accessMethod.toDomain()
+    )
+
+internal fun ManagementInterface.AccessMethod.toDomain(): ApiAccessMethod =
+    when {
+        hasDirect() -> ApiAccessMethod.Direct
+        hasBridges() -> ApiAccessMethod.Bridges
+        hasCustom() -> custom.toDomain()
+        else -> error("Type not found")
+    }
+
+internal fun ManagementInterface.CustomProxy.toDomain(): ApiAccessMethod.CustomProxy =
+    when {
+        hasShadowsocks() -> shadowsocks.toDomain()
+        hasSocks5Remote() -> socks5Remote.toDomain()
+        hasSocks5Local() -> error("Socks5 local not supported")
+        else -> error("Custom proxy not found")
+    }
+
+internal fun ManagementInterface.Shadowsocks.toDomain(): ApiAccessMethod.CustomProxy.Shadowsocks =
+    ApiAccessMethod.CustomProxy.Shadowsocks(
+        ip = ip,
+        port = Port(port),
+        password = password,
+        cipher = Cipher.fromString(cipher)
+    )
+
+internal fun ManagementInterface.Socks5Remote.toDomain(): ApiAccessMethod.CustomProxy.Socks5Remote =
+    ApiAccessMethod.CustomProxy.Socks5Remote(
+        ip = ip,
+        port = Port(port),
+        auth =
+            if (hasAuth()) {
+                auth.toDomain()
+            } else {
+                null
+            }
+    )
+
+internal fun ManagementInterface.SocksAuth.toDomain(): SocksAuth =
+    SocksAuth(username = username, password = password)
