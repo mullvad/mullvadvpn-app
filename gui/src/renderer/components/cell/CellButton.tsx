@@ -16,8 +16,8 @@ const StyledCellButton = styled(Row)<IStyledCellButtonProps>((props) => {
   const backgroundColor = props.$selected
     ? colors.green
     : props.$containedInSection
-    ? colors.blue40
-    : colors.blue;
+      ? colors.blue40
+      : colors.blue;
   const backgroundColorHover = props.$selected ? colors.green : colors.blue80;
 
   return {

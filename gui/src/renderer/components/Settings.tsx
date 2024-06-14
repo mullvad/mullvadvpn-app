@@ -166,10 +166,10 @@ function AppVersionButton() {
   const isOffline = useSelector((state) => state.connection.isBlocked);
 
   const { openUrl } = useAppContext();
-  const openDownloadLink = useCallback(() => openUrl(getDownloadUrl(suggestedIsBeta)), [
-    openUrl,
-    suggestedIsBeta,
-  ]);
+  const openDownloadLink = useCallback(
+    () => openUrl(getDownloadUrl(suggestedIsBeta)),
+    [openUrl, suggestedIsBeta],
+  );
 
   let icon;
   let footer;

@@ -13,7 +13,8 @@ interface InconsistentVersionNotificationContext {
 }
 
 export class InconsistentVersionNotificationProvider
-  implements SystemNotificationProvider, InAppNotificationProvider {
+  implements SystemNotificationProvider, InAppNotificationProvider
+{
   public constructor(private context: InconsistentVersionNotificationContext) {}
 
   public mayDisplay = () => !this.context.consistent;

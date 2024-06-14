@@ -208,9 +208,7 @@ function NotificationActionWrapper(props: INotificationActionWrapperProps) {
         <ModalMessage>{troubleshootInfo?.details}</ModalMessage>
         <ModalMessage>
           <ModalMessageList>
-            {troubleshootInfo?.steps.map((step) => (
-              <li key={step}>{step}</li>
-            ))}
+            {troubleshootInfo?.steps.map((step) => <li key={step}>{step}</li>)}
           </ModalMessageList>
         </ModalMessage>
         <ModalMessage>

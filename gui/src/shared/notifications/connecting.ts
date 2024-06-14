@@ -17,7 +17,8 @@ interface ConnectingNotificationContext {
 }
 
 export class ConnectingNotificationProvider
-  implements SystemNotificationProvider, InAppNotificationProvider {
+  implements SystemNotificationProvider, InAppNotificationProvider
+{
   public constructor(private context: ConnectingNotificationContext) {}
 
   public mayDisplay() {

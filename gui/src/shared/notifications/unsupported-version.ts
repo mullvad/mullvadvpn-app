@@ -17,7 +17,8 @@ interface UnsupportedVersionNotificationContext {
 }
 
 export class UnsupportedVersionNotificationProvider
-  implements SystemNotificationProvider, InAppNotificationProvider {
+  implements SystemNotificationProvider, InAppNotificationProvider
+{
   public constructor(private context: UnsupportedVersionNotificationContext) {}
 
   public mayDisplay() {

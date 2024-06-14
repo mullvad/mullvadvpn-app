@@ -17,7 +17,8 @@ interface UpdateAvailableNotificationContext {
 }
 
 export class UpdateAvailableNotificationProvider
-  implements InAppNotificationProvider, SystemNotificationProvider {
+  implements InAppNotificationProvider, SystemNotificationProvider
+{
   public constructor(private context: UpdateAvailableNotificationContext) {}
 
   public mayDisplay() {

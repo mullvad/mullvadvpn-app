@@ -588,9 +588,8 @@ function LockdownMode() {
   const blockWhenDisconnected = useSelector((state) => state.settings.blockWhenDisconnected);
   const { setBlockWhenDisconnected: setBlockWhenDisconnectedImpl } = useAppContext();
 
-  const [confirmationDialogVisible, showConfirmationDialog, hideConfirmationDialog] = useBoolean(
-    false,
-  );
+  const [confirmationDialogVisible, showConfirmationDialog, hideConfirmationDialog] =
+    useBoolean(false);
 
   const setBlockWhenDisconnected = useCallback(
     async (blockWhenDisconnected: boolean) => {

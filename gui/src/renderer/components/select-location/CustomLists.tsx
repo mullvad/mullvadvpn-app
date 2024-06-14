@@ -57,9 +57,10 @@ const StyledSideButtonIcon = styled(Cell.Icon)({
     backgroundColor: colors.white40,
   },
 
-  [`${StyledCellButton}:not(:disabled):hover &&, ${StyledAddListCellButton}:not(:disabled):hover &&`]: {
-    backgroundColor: colors.white,
-  },
+  [`${StyledCellButton}:not(:disabled):hover &&, ${StyledAddListCellButton}:not(:disabled):hover &&`]:
+    {
+      backgroundColor: colors.white,
+    },
 });
 
 const StyledInput = styled(SimpleInput)<{ $error: boolean }>((props) => ({

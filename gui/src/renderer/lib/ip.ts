@@ -23,7 +23,10 @@ export abstract class IpAddress<G extends number[]> {
 
 // Abstract class representing an IP range or subnet
 export abstract class IpRange<G extends number[]> {
-  public constructor(public readonly groups: G, public readonly prefixSize: number) {}
+  public constructor(
+    public readonly groups: G,
+    public readonly prefixSize: number,
+  ) {}
 
   // Returns whether or not this subnet includes the provided IP
   protected includes<T extends IpAddress<G>>(ip: T, groupSize: number): boolean {

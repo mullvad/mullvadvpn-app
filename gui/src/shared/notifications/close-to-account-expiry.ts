@@ -18,7 +18,8 @@ interface CloseToAccountExpiryNotificationContext {
 }
 
 export class CloseToAccountExpiryNotificationProvider
-  implements InAppNotificationProvider, SystemNotificationProvider {
+  implements InAppNotificationProvider, SystemNotificationProvider
+{
   public constructor(private context: CloseToAccountExpiryNotificationContext) {}
 
   public mayDisplay = () => closeToExpiry(this.context.accountExpiry);

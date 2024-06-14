@@ -1,7 +1,10 @@
 class CommandLineOption {
   private flags: string[];
 
-  public constructor(private description: string, ...flags: string[]) {
+  public constructor(
+    private description: string,
+    ...flags: string[]
+  ) {
     this.flags = flags;
   }
 

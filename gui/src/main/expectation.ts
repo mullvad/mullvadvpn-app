@@ -2,7 +2,10 @@ export default class Expectation {
   private fulfilled = false;
   private timeout: NodeJS.Timeout;
 
-  constructor(private handler: () => void, timeout = 2000) {
+  constructor(
+    private handler: () => void,
+    timeout = 2000,
+  ) {
     this.timeout = global.setTimeout(() => {
       this.fulfill();
     }, timeout);

@@ -90,7 +90,8 @@ class ApplicationMain
     UserInterfaceDelegate,
     TunnelStateHandlerDelegate,
     SettingsDelegate,
-    AccountDelegate {
+    AccountDelegate
+{
   private daemonRpc: DaemonRpc;
 
   private notificationController = new NotificationController(this);

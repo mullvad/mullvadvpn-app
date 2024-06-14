@@ -26,7 +26,8 @@ interface ErrorNotificationContext {
 }
 
 export class ErrorNotificationProvider
-  implements SystemNotificationProvider, InAppNotificationProvider {
+  implements SystemNotificationProvider, InAppNotificationProvider
+{
   public constructor(private context: ErrorNotificationContext) {}
 
   public mayDisplay = () => this.context.tunnelState.state === 'error';
