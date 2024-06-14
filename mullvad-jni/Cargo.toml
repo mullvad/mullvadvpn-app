@@ -15,7 +15,7 @@ workspace = true
 api-override = ["mullvad-api/api-override"]
 
 [lib]
-crate_type = ["cdylib"]
+crate-type = ["cdylib"]
 
 [target.'cfg(target_os = "android")'.dependencies]
 thiserror = { workspace = true }
