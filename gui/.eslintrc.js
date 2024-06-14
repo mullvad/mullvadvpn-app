@@ -15,6 +15,10 @@ const namingConvention = [
     leadingUnderscore: 'allow',
   },
   {
+    selector: 'import',
+    format: ['camelCase', 'PascalCase', 'snake_case'],
+  },
+  {
     selector: 'parameter',
     format: ['camelCase', 'PascalCase'],
     leadingUnderscore: 'allow',
