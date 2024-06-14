@@ -10,7 +10,10 @@ export const OLD_LOG_FILES = ['main.log', 'renderer.log', 'frontend.log'];
 export class FileOutput implements ILogOutput {
   private fileDescriptor: number;
 
-  constructor(public level: LogLevel, filePath: string) {
+  constructor(
+    public level: LogLevel,
+    filePath: string,
+  ) {
     this.fileDescriptor = fs.openSync(filePath, fs.constants.O_CREAT | fs.constants.O_WRONLY);
   }
 

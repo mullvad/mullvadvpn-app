@@ -10,7 +10,8 @@ import {
 } from './notification';
 
 export class ReconnectingNotificationProvider
-  implements SystemNotificationProvider, InAppNotificationProvider {
+  implements SystemNotificationProvider, InAppNotificationProvider
+{
   public constructor(private context: TunnelState) {}
 
   public mayDisplay() {

@@ -170,9 +170,8 @@ export class WindowsSplitTunnelingAppListRetriever implements ISplitTunnelingApp
       shortcuts.map(async (shortcut) => {
         const lowercaseTarget = shortcut.target.toLowerCase();
         if (this.applicationCache[lowercaseTarget] === undefined) {
-          this.applicationCache[lowercaseTarget] = await this.convertToSplitTunnelingApplication(
-            shortcut,
-          );
+          this.applicationCache[lowercaseTarget] =
+            await this.convertToSplitTunnelingApplication(shortcut);
         }
 
         return this.applicationCache[lowercaseTarget];
@@ -246,21 +245,24 @@ export class WindowsSplitTunnelingAppListRetriever implements ISplitTunnelingApp
 
   // Removes all duplicate shortcuts.
   private removeDuplicates(shortcuts: ShortcutDetails[]): ShortcutDetails[] {
-    const unique = shortcuts.reduce((shortcuts, shortcut) => {
-      const lowercaseTarget = shortcut.target.toLowerCase();
-      if (shortcuts[lowercaseTarget]) {
-        if (
-          shortcuts[lowercaseTarget].args &&
-          shortcuts[lowercaseTarget].args !== '' &&
-          (!shortcut.args || shortcut.args === '')
-        ) {
+    const unique = shortcuts.reduce(
+      (shortcuts, shortcut) => {
+        const lowercaseTarget = shortcut.target.toLowerCase();
+        if (shortcuts[lowercaseTarget]) {
+          if (
+            shortcuts[lowercaseTarget].args &&
+            shortcuts[lowercaseTarget].args !== '' &&
+            (!shortcut.args || shortcut.args === '')
+          ) {
+            shortcuts[lowercaseTarget] = shortcut;
+          }
+        } else {
           shortcuts[lowercaseTarget] = shortcut;
         }
-      } else {
-        shortcuts[lowercaseTarget] = shortcut;
-      }
-      return shortcuts;
-    }, {} as Record<string, ShortcutDetails>);
+        return shortcuts;
+      },
+      {} as Record<string, ShortcutDetails>,
+    );
 
     return Object.values(unique);
   }
@@ -431,15 +433,18 @@ export class WindowsSplitTunnelingAppListRetriever implements ISplitTunnelingApp
           [[16], [1], [0, 1033]],
         );
 
-        const productName = await leafOffsets.reduce(async (alreadyFoundValue, leafOffset) => {
-          const value = await alreadyFoundValue;
-          if (value) {
-            return value;
-          } else {
-            const strings = await this.getVsVersionInfoStrings(fileHandle, leafOffset);
-            return strings.get('FileDescription') ?? strings.get('ProductName');
-          }
-        }, Promise.resolve() as Promise<string | undefined>);
+        const productName = await leafOffsets.reduce(
+          async (alreadyFoundValue, leafOffset) => {
+            const value = await alreadyFoundValue;
+            if (value) {
+              return value;
+            } else {
+              const strings = await this.getVsVersionInfoStrings(fileHandle, leafOffset);
+              return strings.get('FileDescription') ?? strings.get('ProductName');
+            }
+          },
+          Promise.resolve() as Promise<string | undefined>,
+        );
 
         return productName;
       } else {

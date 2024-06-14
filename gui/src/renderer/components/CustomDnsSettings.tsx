@@ -325,10 +325,10 @@ function CellListItem(props: ICellListItemProps) {
 
   const inputContainerRef = useStyledRef<HTMLDivElement>();
 
-  const onRemove = useCallback(() => props.onRemove(props.children), [
-    props.onRemove,
-    props.children,
-  ]);
+  const onRemove = useCallback(
+    () => props.onRemove(props.children),
+    [props.onRemove, props.children],
+  );
 
   const onSubmit = useCallback(
     async (value: string) => {

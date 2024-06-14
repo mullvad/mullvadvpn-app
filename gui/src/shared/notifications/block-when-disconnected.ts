@@ -19,7 +19,8 @@ interface BlockWhenDisconnectedNotificationContext {
 }
 
 export class BlockWhenDisconnectedNotificationProvider
-  implements InAppNotificationProvider, SystemNotificationProvider {
+  implements InAppNotificationProvider, SystemNotificationProvider
+{
   public constructor(private context: BlockWhenDisconnectedNotificationContext) {}
 
   public mayDisplay() {

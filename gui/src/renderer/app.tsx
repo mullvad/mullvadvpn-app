@@ -554,9 +554,8 @@ export default class AppRenderer {
   }
 
   public setPreferredLocale = async (preferredLocale: string): Promise<void> => {
-    const translations = await IpcRendererEventChannel.guiSettings.setPreferredLocale(
-      preferredLocale,
-    );
+    const translations =
+      await IpcRendererEventChannel.guiSettings.setPreferredLocale(preferredLocale);
 
     // set current locale
     this.setLocale(translations.locale);

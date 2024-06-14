@@ -16,10 +16,10 @@ export type Datatype = PrimitiveWrapper | StructWrapper | ArrayWrapper;
 type ValueType<T extends Datatype> = T extends PrimitiveWrapper
   ? PrimitiveValue<T>
   : T extends ArrayWrapper
-  ? ArrayValue<T>
-  : T extends StructWrapper
-  ? StructValue<T>
-  : never;
+    ? ArrayValue<T>
+    : T extends StructWrapper
+      ? StructValue<T>
+      : never;
 
 // Represents any kind of parseable value within the PE headers. Value is extended by
 // PrimitiveValue, ArrayValue and StructValue.
@@ -160,7 +160,7 @@ export class StructValue<T extends StructWrapper = StructWrapper> extends Value<
   // Parses and returns the value for the specified key.
   public get<
     U extends ValueType<T['struct'][number]['datatype']>,
-    V extends StructItem = T['struct'][number]
+    V extends StructItem = T['struct'][number],
   >(name: V['name']): U {
     const index = this.datatype.struct.findIndex((entry) => entry.name === name);
     if (index === -1) {

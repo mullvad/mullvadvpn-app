@@ -82,7 +82,10 @@ export interface Coordinate {
 }
 
 class Vector {
-  public constructor(public x: number, public y: number) {}
+  public constructor(
+    public x: number,
+    public y: number,
+  ) {}
 
   public static fromCoordinate(coordinate: Coordinate): Vector {
     return new Vector(coordinate.latitude, coordinate.longitude);
@@ -138,7 +141,10 @@ class Globe {
 
   private programInfo: ProgramInfo;
 
-  public constructor(private gl: WebGL2RenderingContext, data: MapData) {
+  public constructor(
+    private gl: WebGL2RenderingContext,
+    data: MapData,
+  ) {
     this.landVertexBuffer = initArrayBuffer(gl, data.landPositions);
     this.oceanVertexBuffer = initArrayBuffer(gl, data.oceanPositions);
 
@@ -240,7 +246,10 @@ class LocationMarker {
   private positionBuffer: WebGLBuffer;
   private colorBuffer: WebGLBuffer;
 
-  public constructor(private gl: WebGL2RenderingContext, color: ColorRgb) {
+  public constructor(
+    private gl: WebGL2RenderingContext,
+    color: ColorRgb,
+  ) {
     const white: ColorRgb = [1.0, 1.0, 1.0];
     const black: ColorRgb = [0.0, 0.0, 0.0];
     const rings = [

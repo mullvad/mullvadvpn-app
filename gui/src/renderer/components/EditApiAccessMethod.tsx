@@ -146,8 +146,8 @@ function TestingDialog(props: TestingDialogProps) {
   const type = props.testing
     ? ModalAlertType.loading
     : props.testResult
-    ? ModalAlertType.success
-    : ModalAlertType.failure;
+      ? ModalAlertType.success
+      : ModalAlertType.failure;
   const prevType = useRef<ModalAlertType>(type);
 
   const isOpen = props.testing || props.testResult !== undefined;

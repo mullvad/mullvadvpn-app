@@ -39,7 +39,7 @@ type IpcMainFn<I extends AnyIpcCall> = I['direction'] extends 'main-to-renderer'
 // Renames all receiving IPC calls, e.g. `callName` to `listenCallName`.
 type IpcRendererKey<
   N extends string,
-  I extends AnyIpcCall
+  I extends AnyIpcCall,
 > = I['direction'] extends 'main-to-renderer' ? `listen${Capitalize<N>}` : N;
 
 // Selects either the send or receive function depending on direction.

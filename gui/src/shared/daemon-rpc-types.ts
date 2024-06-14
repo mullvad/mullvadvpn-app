@@ -490,11 +490,10 @@ export type NewAccessMethodSetting<T extends AccessMethod = AccessMethod> = Name
   enabled: boolean;
 };
 
-export type AccessMethodSetting<
-  T extends AccessMethod = AccessMethod
-> = NewAccessMethodSetting<T> & {
-  id: string;
-};
+export type AccessMethodSetting<T extends AccessMethod = AccessMethod> =
+  NewAccessMethodSetting<T> & {
+    id: string;
+  };
 
 export type ApiAccessMethodSettings = {
   direct: AccessMethodSetting<DirectMethod>;
