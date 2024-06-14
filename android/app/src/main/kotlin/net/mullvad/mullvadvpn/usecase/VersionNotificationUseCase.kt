@@ -11,7 +11,7 @@ class VersionNotificationUseCase(
     private val isVersionInfoNotificationEnabled: Boolean,
 ) {
 
-    fun notifications() =
+    operator fun invoke() =
         appVersionInfoRepository
             .versionInfo()
             .map { versionInfo ->

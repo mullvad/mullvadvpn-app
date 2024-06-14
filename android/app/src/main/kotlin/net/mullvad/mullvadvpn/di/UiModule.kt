@@ -19,6 +19,7 @@ import net.mullvad.mullvadvpn.repository.ApiAccessRepository
 import net.mullvad.mullvadvpn.repository.ChangelogRepository
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.InAppNotificationController
+import net.mullvad.mullvadvpn.repository.NewDeviceRepository
 import net.mullvad.mullvadvpn.repository.PrivacyDisclaimerRepository
 import net.mullvad.mullvadvpn.repository.ProblemReportRepository
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
@@ -30,16 +31,16 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.usecase.AccountExpiryNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.AvailableProvidersUseCase
-import net.mullvad.mullvadvpn.usecase.ConnectivityUseCase
 import net.mullvad.mullvadvpn.usecase.EmptyPaymentUseCase
 import net.mullvad.mullvadvpn.usecase.FilteredRelayListUseCase
+import net.mullvad.mullvadvpn.usecase.InternetAvailableUseCase
 import net.mullvad.mullvadvpn.usecase.LastKnownLocationUseCase
 import net.mullvad.mullvadvpn.usecase.NewDeviceNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.usecase.PlayPaymentUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationTitleUseCase
-import net.mullvad.mullvadvpn.usecase.SystemVpnSettingsUseCase
+import net.mullvad.mullvadvpn.usecase.SystemVpnSettingsAvailableUseCase
 import net.mullvad.mullvadvpn.usecase.TunnelStateNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.VersionNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
@@ -122,14 +123,15 @@ val uiModule = module {
     single { VoucherRepository(get(), get()) }
     single { SplitTunnelingRepository(get()) }
     single { ApiAccessRepository(get()) }
+    single { NewDeviceRepository() }
 
     single { AccountExpiryNotificationUseCase(get()) }
     single { TunnelStateNotificationUseCase(get()) }
     single { VersionNotificationUseCase(get(), BuildConfig.ENABLE_IN_APP_VERSION_NOTIFICATIONS) }
-    single { NewDeviceNotificationUseCase(get()) }
+    single { NewDeviceNotificationUseCase(get(), get()) }
     single { OutOfTimeUseCase(get(), get(), MainScope()) }
-    single { ConnectivityUseCase(get()) }
-    single { SystemVpnSettingsUseCase(androidContext()) }
+    single { InternetAvailableUseCase(get()) }
+    single { SystemVpnSettingsAvailableUseCase(androidContext()) }
     single { CustomListActionUseCase(get(), get()) }
     single { SelectedLocationTitleUseCase(get(), get()) }
     single { AvailableProvidersUseCase(get()) }

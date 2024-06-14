@@ -9,7 +9,7 @@ import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
 import net.mullvad.mullvadvpn.repository.InAppNotification
 
 class TunnelStateNotificationUseCase(private val connectionProxy: ConnectionProxy) {
-    fun notifications(): Flow<List<InAppNotification>> =
+    operator fun invoke(): Flow<List<InAppNotification>> =
         connectionProxy.tunnelState
             .distinctUntilChanged()
             .map(::tunnelStateNotification)

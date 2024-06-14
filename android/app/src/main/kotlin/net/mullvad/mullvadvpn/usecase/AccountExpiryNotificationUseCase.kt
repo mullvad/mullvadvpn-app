@@ -12,7 +12,7 @@ import org.joda.time.DateTime
 class AccountExpiryNotificationUseCase(
     private val accountRepository: AccountRepository,
 ) {
-    fun notifications(): Flow<List<InAppNotification>> =
+    operator fun invoke(): Flow<List<InAppNotification>> =
         accountRepository.accountData
             .map(::accountExpiryNotification)
             .map(::listOfNotNull)

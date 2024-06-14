@@ -46,12 +46,12 @@ class TunnelStateNotificationUseCaseTest {
     @Test
     fun `initial state should be empty`() = runTest {
         // Arrange, Act, Assert
-        tunnelStateNotificationUseCase.notifications().test { assertTrue { awaitItem().isEmpty() } }
+        tunnelStateNotificationUseCase().test { assertTrue { awaitItem().isEmpty() } }
     }
 
     @Test
     fun `when TunnelState is error use case should emit TunnelStateError notification`() = runTest {
-        tunnelStateNotificationUseCase.notifications().test {
+        tunnelStateNotificationUseCase().test {
             // Arrange, Act
             assertEquals(emptyList(), awaitItem())
             val errorState: ErrorState = mockk()
@@ -65,7 +65,7 @@ class TunnelStateNotificationUseCaseTest {
     @Test
     fun `when TunnelState is Disconnecting with blocking use case should emit TunnelStateBlocked notification`() =
         runTest {
-            tunnelStateNotificationUseCase.notifications().test {
+            tunnelStateNotificationUseCase().test {
                 // Arrange, Act
                 assertEquals(emptyList(), awaitItem())
                 tunnelState.emit(TunnelState.Disconnecting(ActionAfterDisconnect.Block))

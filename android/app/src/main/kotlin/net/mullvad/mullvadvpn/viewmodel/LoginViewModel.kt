@@ -27,8 +27,8 @@ import net.mullvad.mullvadvpn.compose.state.LoginUiState
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.LoginAccountError
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
-import net.mullvad.mullvadvpn.usecase.ConnectivityUseCase
-import net.mullvad.mullvadvpn.usecase.NewDeviceNotificationUseCase
+import net.mullvad.mullvadvpn.repository.NewDeviceRepository
+import net.mullvad.mullvadvpn.usecase.InternetAvailableUseCase
 import net.mullvad.mullvadvpn.util.getOrDefault
 
 private const val MINIMUM_LOADING_SPINNER_TIME_MILLIS = 500L
@@ -45,8 +45,8 @@ sealed interface LoginUiSideEffect {
 
 class LoginViewModel(
     private val accountRepository: AccountRepository,
-    private val newDeviceNotificationUseCase: NewDeviceNotificationUseCase,
-    private val connectivityUseCase: ConnectivityUseCase,
+    private val newDeviceRepository: NewDeviceRepository,
+    private val internetAvailableUseCase: InternetAvailableUseCase,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
     private val _loginState = MutableStateFlow(LoginUiState.INITIAL.loginState)
@@ -123,7 +123,7 @@ class LoginViewModel(
     }
 
     private suspend fun onSuccessfulLogin() {
-        newDeviceNotificationUseCase.newDeviceCreated()
+        newDeviceRepository.newDeviceCreated()
 
         viewModelScope.launch(dispatcher) {
             // Find if user is out of time
@@ -161,7 +161,7 @@ class LoginViewModel(
         }
 
     private fun isInternetAvailable(): Boolean {
-        return connectivityUseCase.isInternetAvailable()
+        return internetAvailableUseCase()
     }
 
     companion object {
