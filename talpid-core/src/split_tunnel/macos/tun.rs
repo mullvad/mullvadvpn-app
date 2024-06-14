@@ -240,6 +240,7 @@ fn redirect_packets_for_pktap_stream(
     let st_utun_name = st_tun_device.get_ref().name().to_owned();
 
     let (abort_tx, abort_rx) = broadcast::channel(1);
+    let abort_read_rx = abort_tx.subscribe();
 
     let ingress_task: tokio::task::JoinHandle<tun::AsyncDevice> = tokio::spawn(run_ingress_task(
         st_tun_device,
@@ -247,6 +248,7 @@ fn redirect_packets_for_pktap_stream(
         read_buffer_size,
         vpn_interface.clone(),
         abort_rx,
+        abort_read_rx,
     ));
 
     let egress_abort_rx = abort_tx.subscribe();
@@ -300,6 +302,7 @@ async fn run_ingress_task(
     read_buffer_size: usize,
     vpn_interface: Option<VpnInterface>,
     mut abort_rx: broadcast::Receiver<()>,
+    mut abort_read_rx: broadcast::Receiver<()>,
 ) -> tun::AsyncDevice {
     let mut read_buffer = vec![0u8; read_buffer_size];
     log::trace!("Default BPF reader buffer size: {:?}", read_buffer.len());
@@ -308,8 +311,6 @@ async fn run_ingress_task(
     let vpn_v6 = vpn_interface.and_then(|iface| iface.v6_address);
 
     let (mut tun_reader, mut tun_writer) = tokio::io::split(st_tun_device);
-
-    let mut abort_read_rx = abort_rx.resubscribe();
 
     // Swallow all data written to the tun by reading from it
     // Do this to prevent the read buffer from filling up and preventing writes
