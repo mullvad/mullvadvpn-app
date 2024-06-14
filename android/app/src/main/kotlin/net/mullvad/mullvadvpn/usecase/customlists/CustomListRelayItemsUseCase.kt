@@ -14,9 +14,7 @@ class CustomListRelayItemsUseCase(
     private val customListsRepository: CustomListsRepository,
     private val relayListRepository: RelayListRepository
 ) {
-    fun getRelayItemLocationsForCustomList(
-        customListId: CustomListId
-    ): Flow<List<RelayItem.Location>> =
+    operator fun invoke(customListId: CustomListId): Flow<List<RelayItem.Location>> =
         combine(
             customListsRepository.customLists.mapNotNull { it?.getById(customListId) },
             relayListRepository.relayList

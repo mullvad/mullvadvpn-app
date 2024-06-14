@@ -28,6 +28,6 @@ class CustomListsViewModel(
             )
 
     fun undoDeleteCustomList(action: CustomListAction.Create) {
-        viewModelScope.launch { customListActionUseCase.performAction(action) }
+        viewModelScope.launch { customListActionUseCase(action) }
     }
 }

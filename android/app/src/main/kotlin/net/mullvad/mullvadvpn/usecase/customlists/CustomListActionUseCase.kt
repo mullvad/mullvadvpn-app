@@ -22,32 +22,32 @@ class CustomListActionUseCase(
     private val customListsRepository: CustomListsRepository,
     private val relayListRepository: RelayListRepository
 ) {
-    suspend fun performAction(
+    suspend operator fun invoke(
         action: CustomListAction
     ): Either<CustomListActionError, CustomListSuccess> {
         return when (action) {
             is CustomListAction.Create -> {
-                performAction(action)
+                invoke(action)
             }
             is CustomListAction.Rename -> {
-                performAction(action)
+                invoke(action)
             }
             is CustomListAction.Delete -> {
-                performAction(action)
+                invoke(action)
             }
             is CustomListAction.UpdateLocations -> {
-                performAction(action)
+                invoke(action)
             }
         }
     }
 
-    suspend fun performAction(action: CustomListAction.Rename): Either<RenameError, Renamed> =
+    suspend operator fun invoke(action: CustomListAction.Rename): Either<RenameError, Renamed> =
         customListsRepository
             .updateCustomListName(action.id, action.newName)
             .map { Renamed(undo = action.not()) }
             .mapLeft(::RenameError)
 
-    suspend fun performAction(
+    suspend operator fun invoke(
         action: CustomListAction.Create
     ): Either<CreateWithLocationsError, Created> = either {
         val customListId =
@@ -79,7 +79,7 @@ class CustomListActionUseCase(
         )
     }
 
-    suspend fun performAction(
+    suspend operator fun invoke(
         action: CustomListAction.Delete
     ): Either<DeleteWithUndoError, Deleted> = either {
         val customList =
@@ -94,7 +94,7 @@ class CustomListActionUseCase(
         Deleted(undo = action.not(locations = customList.locations, name = customList.name))
     }
 
-    suspend fun performAction(
+    suspend operator fun invoke(
         action: CustomListAction.UpdateLocations
     ): Either<UpdateLocationsError, LocationsChanged> = either {
         val customList =

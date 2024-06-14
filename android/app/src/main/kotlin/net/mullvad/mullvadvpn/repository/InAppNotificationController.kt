@@ -56,7 +56,7 @@ sealed class InAppNotification {
 
 class InAppNotificationController(
     accountExpiryNotificationUseCase: AccountExpiryNotificationUseCase,
-    newDeviceNotificationUseCase: NewDeviceNotificationUseCase,
+    newDeviceNotificationUseRepository: NewDeviceNotificationUseCase,
     versionNotificationUseCase: VersionNotificationUseCase,
     tunnelStateNotificationUseCase: TunnelStateNotificationUseCase,
     scope: CoroutineScope,
@@ -64,10 +64,10 @@ class InAppNotificationController(
 
     val notifications =
         combine(
-                tunnelStateNotificationUseCase.notifications(),
-                versionNotificationUseCase.notifications(),
-                accountExpiryNotificationUseCase.notifications(),
-                newDeviceNotificationUseCase.notifications(),
+                tunnelStateNotificationUseCase(),
+                versionNotificationUseCase(),
+                accountExpiryNotificationUseCase(),
+                newDeviceNotificationUseRepository(),
             ) { a, b, c, d ->
                 a + b + c + d
             }

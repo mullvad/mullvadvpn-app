@@ -25,8 +25,8 @@ import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
 import net.mullvad.mullvadvpn.lib.shared.VpnPermissionRepository
 import net.mullvad.mullvadvpn.repository.InAppNotificationController
+import net.mullvad.mullvadvpn.repository.NewDeviceRepository
 import net.mullvad.mullvadvpn.usecase.LastKnownLocationUseCase
-import net.mullvad.mullvadvpn.usecase.NewDeviceNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationTitleUseCase
@@ -40,7 +40,7 @@ class ConnectViewModel(
     private val accountRepository: AccountRepository,
     private val deviceRepository: DeviceRepository,
     inAppNotificationController: InAppNotificationController,
-    private val newDeviceNotificationUseCase: NewDeviceNotificationUseCase,
+    private val newDeviceRepository: NewDeviceRepository,
     selectedLocationTitleUseCase: SelectedLocationTitleUseCase,
     private val outOfTimeUseCase: OutOfTimeUseCase,
     private val paymentUseCase: PaymentUseCase,
@@ -57,7 +57,7 @@ class ConnectViewModel(
     @OptIn(FlowPreview::class)
     val uiState: StateFlow<ConnectUiState> =
         combine(
-                selectedLocationTitleUseCase.selectedLocationTitle(),
+                selectedLocationTitleUseCase(),
                 inAppNotificationController.notifications,
                 connectionProxy.tunnelState,
                 lastKnownLocationUseCase.lastKnownDisconnectedLocation,
@@ -167,7 +167,7 @@ class ConnectViewModel(
     }
 
     fun dismissNewDeviceNotification() {
-        newDeviceNotificationUseCase.clearNewDeviceCreatedNotification()
+        newDeviceRepository.clearNewDeviceCreatedNotification()
     }
 
     private fun outOfTimeEffect() =

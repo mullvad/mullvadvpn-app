@@ -27,7 +27,7 @@ import net.mullvad.mullvadvpn.lib.model.AccountData
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.LoginAccountError
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
-import net.mullvad.mullvadvpn.usecase.ConnectivityUseCase
+import net.mullvad.mullvadvpn.usecase.InternetAvailableUseCase
 import net.mullvad.mullvadvpn.usecase.NewDeviceNotificationUseCase
 import org.joda.time.DateTime
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -38,7 +38,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(TestCoroutineRule::class)
 class LoginViewModelTest {
 
-    @MockK private lateinit var connectivityUseCase: ConnectivityUseCase
+    @MockK private lateinit var connectivityUseCase: InternetAvailableUseCase
     @MockK private lateinit var mockedAccountRepository: AccountRepository
     @MockK private lateinit var mockedNewDeviceNotificationUseCase: NewDeviceNotificationUseCase
 
@@ -48,7 +48,7 @@ class LoginViewModelTest {
     fun setup() {
         Dispatchers.setMain(UnconfinedTestDispatcher())
         MockKAnnotations.init(this, relaxUnitFun = true)
-        every { connectivityUseCase.isInternetAvailable() } returns true
+        every { connectivityUseCase() } returns true
         every { mockedNewDeviceNotificationUseCase.newDeviceCreated() } returns Unit
         coEvery { mockedAccountRepository.fetchAccountHistory() } returns null
 
@@ -56,7 +56,7 @@ class LoginViewModelTest {
             LoginViewModel(
                 accountRepository = mockedAccountRepository,
                 newDeviceNotificationUseCase = mockedNewDeviceNotificationUseCase,
-                connectivityUseCase = connectivityUseCase,
+                internetAvailableUseCase = connectivityUseCase,
                 UnconfinedTestDispatcher()
             )
     }
@@ -65,7 +65,7 @@ class LoginViewModelTest {
     fun `given no internet when logging in then show no internet error`() = runTest {
         turbineScope {
             // Arrange
-            every { connectivityUseCase.isInternetAvailable() } returns false
+            every { connectivityUseCase() } returns false
             val uiStates = loginViewModel.uiState.testIn(backgroundScope)
 
             // Act
