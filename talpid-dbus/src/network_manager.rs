@@ -574,8 +574,11 @@ impl NetworkManager {
         settings: Settings,
         version_id: u64,
     ) -> Result<()> {
-        self.as_path(device)
-            .method_call(NM_DEVICE, "Reapply", (settings, version_id, 0u32))?;
+        self.as_path(device).method_call::<(), _, _, _>(
+            NM_DEVICE,
+            "Reapply",
+            (settings, version_id, 0u32),
+        )?;
         Ok(())
     }
 
