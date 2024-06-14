@@ -1,4 +1,2 @@
-Add the ability to create and manage custom lists in the location selection screen.
-Add the ability to import server IP overrides using text or file.
-Fix broken IPv6 connectivity by making sure the app automatically attempts IPv6 server connections.
-Fix DNS leaks in blocking states or when no valid DNS has been configured due to an underlying OS issue.
+Auto-connect is now legacy on all android devices. This setting will be replaced with a new one for devices without native OS support.
+Improve device revoked detection.
