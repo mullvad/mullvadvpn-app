@@ -11,6 +11,7 @@
     <string name="add_30_days_time_x">အချိန် ရက် 30 ကို‌ ပေါင်းထည့်ရန် (%1$s)</string>
     <string name="add_a_server">ဆာဗာ ပေါင်းထည့်ရန်</string>
     <string name="add_dns_server_dialog_title">DNS ဆာဗာကို ပေါင်းထည့်ရန်</string>
+    <string name="add_location_to_list">စာရင်းထဲသို့ %1$s ပေါင်းထည့်ရန်</string>
     <string name="add_time_to_account">ကျွန်ုပ်တို့၏ ဝက်ဘ်ဆိုက်တွင် ခရက်ဒစ် ဝယ်ယူပါ သို့မဟုတ် ဘောက်ချာဖြင့် လဲယူပါ။</string>
     <string name="added_to_your_account">သင့်အကောင့်သို့ %1$s ကို ထည့်ပြီးပါပြီ။</string>
     <string name="agree_and_continue">သဘောတူပြီး ဆက်လုပ်ရန်</string>
@@ -31,7 +32,7 @@
     <string name="auto_connect_carousel_first_slide_top_text">အော်တို ချိတ်ဆက်မှုနှင့် လော့ခ်ဒေါင်းစနစ် ဆက်တင်များကို Android စနစ် ဆက်တင်များတွင် ရှာတွေ့နိုင်ပြီး တစ်ခု သို့မဟုတ် နှစ်ခုလုံးကို ဖွင့်ရန် ဤလမ်းညွှန်ချက်ကို လိုက်နာပါ။</string>
     <string name="auto_connect_carousel_second_slide_bottom_text">2. အော်တို ချိတ်ဆက်မှု ဖွင့်ရန် &lt;b&gt;အမြဲဖွင့် VPN&lt;/b&gt; ဘေးရှိ ဖွင့်/ပိတ် ခလုတ်ကို နှိပ်ပါ။</string>
     <string name="auto_connect_carousel_second_slide_top_text">Android စနစ် ဆက်တင်တွင် အော်တိုချိတ်ဆက်မှုကို အမြဲဖွင့် VPN ဟုခေါ်ပြီး VPN Tunnel ကို အမြဲချိတ်ဆက်ထားကြောင်း သေချာစေပြီး အစမှ ပြန်ဖွင့်ပြီးနောက် အော်တို ချိတ်ဆက်ပါသည်။</string>
-    <string name="auto_connect_footer">အက်ပ် စတင်ဆောင်ရွက်ချိန်တွင် ဆာဗာနှင့် အော်တို ချိတ်ဆက်သွားပါမည်။</string>
+    <string name="auto_connect_footer_legacy">အထက်ပါ &lt;b&gt;%1$s&lt;/b&gt; တွင် အောက်ပါ လမ်းညွှန်အတိုင်း လိုက်နာခြင်းဖြင့် &lt;b&gt;အမြဲဖွင့်&lt;/b&gt; စနစ်ဆက်တင်ကို ‌အစားထိုး သုံးပါ။</string>
     <string name="automatic">အလိုအလျောက်</string>
     <string name="back">နောက်သို့</string>
     <string name="block_ads_title">ကြောငြာများ</string>
@@ -119,6 +120,8 @@
     <string name="here_is_your_account_number">ဤသည်မှာ သင့်အကောင့်နံပါတ် ဖြစ်ပါသည်။ သိမ်းမှတ်ထားပါ။</string>
     <string name="hide_account_number">အကောင့်နံပါတ်ကို ဝှက်ရန်</string>
     <string name="hint_default">ပုံသေ</string>
+    <string name="import_override_textfield_placeholder">ကျော်လွန် ပယ်ဖျက်မှုများကို ထည့်သွင်းရန် ကူးထည့်ပါ သို့မဟုတ် ရေးပါ</string>
+    <string name="import_overrides_bottom_sheet_override_warning">ကျော်လွန် ပယ်ဖျက်မှု အသစ်များကို ထည့်သွင်းခြင်းသည် ယခင်ထည့်သွင်းထားသော ကျော်လွန် ပယ်ဖျက်မှု အချို့ကို အစားထိုးနိုင်ပါသည်။</string>
     <string name="import_overrides_import">ထည့်ရန်</string>
     <string name="import_overrides_text_title">စာသားမှတစ်ဆင့် ထည့်သွင်းရန်</string>
     <string name="in_address">အဝင်</string>
@@ -136,8 +139,6 @@
     <string name="local_network_sharing_info">ဤလုပ်ဆောင်ချက်သည် မျှဝေခြင်း၊ ပရင့်ထုတ်ခြင်း၊ တိုက်ရိုက်ကြည့်ရှုနားဆင်ခြင်းအစရှိသည်တို့အတွက် ဒေသတွင်း ကွန်ရက်ရှိ အခြားစက်များကို ရယူသုံးစွဲခွင့်ပေးပါသည်။</string>
     <string name="location_added">%1$s (ထည့်ပြီး)</string>
     <string name="location_was_added_to_list">\"%1$s\" သို့ %2$s ကို ထည့်ပြီးပါပြီ</string>
-    <string name="locations">တည်နေရာများ</string>
-    <string name="locations_were_changed_for">\"%1$s\" အတွက် တည်နေရာများကို ပြောင်းလိုက်ပါသည်</string>
     <string name="log_out">ထွက်ရန်</string>
     <string name="logged_in_description">မှန်ကန်သည့် အကောင့်နံပါတ်</string>
     <string name="logged_in_title">ဝင်ရောက်ထားပြီး</string>
@@ -159,9 +160,11 @@
     <string name="new_device_notification_message">ကြိုဆိုပါသည်၊ ယခုမှစ၍ ဤစက်ကို &lt;b&gt;%1$s&lt;/b&gt; ဟု ခေါ်ဆိုပါမည်။ နောက်ထပ်အသေးစိတ်တို့အတွက် အကောင့်တွင် အချက်အလက် ခလုတ်ကို နှိပ်၍ ကြည့်နိုင်သည်။</string>
     <string name="new_device_notification_title">စက်အသစ် ဖန်တီးထားသည်</string>
     <string name="no_internet_connection">အင်တာနက် ချိတ်ဆက်မှု မရှိပါ</string>
+    <string name="no_locations_found">တည်နေရာများကို ရှာမတွေ့ပါ</string>
     <string name="no_matching_relay">သင့်ဆက်တင်နှင့် ကိုက်ညီသော ဆာဗာများ မရှိပါ၊ ဆာဗာ သို့မဟုတ် အခြားဆက်တင်တို့ကို ပြောင်းလဲရန် ကြိုးစားကြည့်ပါ။</string>
     <string name="no_wireguard_key">အကျုံးဝင်သည့် WireGuard ကီး မရှိပါ။ အဆင့်မြင့်ဆက်တင် အောက်တွင် ကီးများကို စီမံခန့်ခွဲပါ။</string>
     <string name="not_blocking_internet">ကွန်ရက် ကူးလူးမှု ပေါက်ကြားနေနိုင်ပါသည်</string>
+    <string name="not_found">ရှာမတွေ့ပါ</string>
     <string name="number_of_providers">ပံ့ပိုးသူများ- %1$d</string>
     <string name="obfuscation_info">Obfuscation သည် အခြားပရိုတိုကောလ်အတွင်းရှိ WireGuard ကူးလူးမှုကို ဝှက်ထားပေးပါသည်။ သာမန် WireGuard ချိတ်ဆက်မှုကို ပိတ်ဆို့မည့် အခြားသော စစ်ထုတ်မှု အမျိုးအစားများနှင့် ဆင်ဆာဖြတ်တောက်ခြင်းကို ရှောင်လွှဲနိုင်စေရာတွင် ကူညီနိုင်စေရန် ဤသည်ကို သုံးနိုင်ပါသည်။</string>
     <string name="obfuscation_on_udp_over_tcp">ဖွင့် (UDP-over-TCP)</string>
@@ -170,6 +173,7 @@
     <string name="on">ဖွင့်</string>
     <string name="out_address">အထွက်</string>
     <string name="out_of_time">အချိန်စေ့သွားပါပြီ</string>
+    <string name="overrides_cleared">ကျော်လွန် ပယ်ဖျက်မှုများ ရှင်းပြီးပါပြီ</string>
     <string name="owned">အပိုင်</string>
     <string name="ownership">ပိုင်ဆိုင်မှု</string>
     <string name="paid_until">ဖော်ပြပါအထိ ပေးချေထားပြီး</string>
@@ -222,8 +226,6 @@
     <string name="server_ip_overrides">ဆာဗာ IP ကျော်လွန် ပယ်ဖျက်မှု</string>
     <string name="server_ip_overrides_active">ကျော်လွန် ပယ်ဖျက်မှုများ သက်ဝင်နေသည်</string>
     <string name="server_ip_overrides_import_by">ဖော်ပြပါဖြင့် ကျော်လွန် ပယ်ဖျက်မှုအသစ်များကို ထည့်သွင်းရန်</string>
-    <string name="server_ip_overrides_import_by_file">ဖိုင်</string>
-    <string name="server_ip_overrides_import_by_text">စာသား</string>
     <string name="server_ip_overrides_inactive">ကျော်လွန် ပယ်ဖျက်မှုများ သက်ဝင်မှု မရှိပါ</string>
     <string name="server_ip_overrides_info_first_paragraph">အမျိုးအမျိုးသော စိစစ်ဖြတ်တောက်မှု အမျိုးအစားများ အသုံးပြုသည့် ကွန်ရက်အချို့တွင် ကျွန်ုပ်တို့၏ ဆာဗာ IP လိပ်စာများကို တစ်ခါတစ်ရံ ပိတ်ဆို့ထားပါသည်။</string>
     <string name="server_ip_overrides_info_second_paragraph">ဤသည်ကို ရှောင်လွှဲရန် ကျွန်ုပ်တို့ အကူအညီပေးရေးအဖွဲ့မှ ပေးထားသော တည်နေရာ ရွေးရန် ပြသမှုအတွင်းရှိ ဆာဗာများ၏ ပုံသေ လိပ်စာများကို ကျော်လွန် ပယ်ဖျက်သည့် IP လိပ်စာအသစ်များဖြင့် ဖိုင် သို့မဟုတ် စာသားကို သင် ထည့်သွင်းနိုင်ပါသည်။</string>
@@ -234,10 +236,6 @@
     <string name="settings_account">အကောင့်</string>
     <string name="settings_changes_effect_warning_content_blocker">DNS နှင့်ဆက်စပ်သော ဆက်တင်များ၌ ပြုလုပ်သည့် ပြောင်းလဲမှုများသည် ယာယီသိမ်းထားသော ရလဒ်များကြောင့် ချက်ချင်း အကျိုးမသက်ရောက်နိုင်ပါ။</string>
     <string name="settings_changes_effect_warning_short">DNS ဆက်တင်ကို ချက်ချင်း အကျိုးမရောက်နိုင်ပါ။</string>
-    <string name="settings_patch_error_failed_to_apply_patch">ပတ်(ချ်) သုံးခြင်း မအောင်မြင်ပါ</string>
-    <string name="settings_patch_error_invalid_or_missing_value">\"%1$s\" တန်ဖိုး မမှန်ကန်ပါ သို့မဟုတ် မရှိပါ</string>
-    <string name="settings_patch_error_recursion_limit">ထပ်တလဲလဲ လုပ်ဆောင်မှု ကန့်သတ်ချက်</string>
-    <string name="settings_patch_error_unable_to_parse">Patch ကို ခွဲခြမ်းစိတ်ဖြာ၍ မရပါ</string>
     <string name="settings_patch_error_unknown_or_prohibited_key">မသိသော သို့မဟုတ် တားမြစ်ထားသော ကီး \"%1$s\"</string>
     <string name="settings_patch_success">ထည့်သွင်းမှု အောင်မြင်ပါသည်၊ ကျော်လွန် ပယ်ဖျက်မှု သက်ဝင်ပါသည်</string>
     <string name="settings_preferences">လိုလားမှုများ</string>
@@ -254,6 +252,7 @@
     <string name="try_again">ထပ်ကြိုးစားရန်</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">VPN ဆာဗာကို ဖွင့်ရန် ၎င်း TCP ပေါ့တ် UDP-over-TCP Obfuscation ပရိုတိုကောလ်နှင့် ချိတ်ဆက်ထားသင့်ပါသည်။</string>
+    <string name="undo">မလုပ်တော့ပါ</string>
     <string name="unsecured">မလုံခြုံပါ</string>
     <string name="unsecured_connection">မလုံခြုံသည့် ချိတ်ဆက်မှု</string>
     <string name="unsupported_version">တွဲဖက်မလုပ်ဆောင်နိုင်သည့် ဗားရှင်း</string>

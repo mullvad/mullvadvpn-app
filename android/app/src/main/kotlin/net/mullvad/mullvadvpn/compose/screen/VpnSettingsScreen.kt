@@ -318,14 +318,7 @@ fun VpnSettingsScreen(
             item {
                 Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
                 HeaderSwitchComposeCell(
-                    title =
-                        stringResource(
-                            if (state.systemVpnSettingsAvailable) {
-                                R.string.auto_connect_legacy
-                            } else {
-                                R.string.auto_connect
-                            }
-                        ),
+                    title = stringResource(R.string.auto_connect_legacy),
                     isToggled = state.isAutoConnectEnabled,
                     isEnabled = true,
                     onCellClicked = { newValue -> onToggleAutoConnect(newValue) }
@@ -341,7 +334,7 @@ fun VpnSettingsScreen(
                                         textResource(R.string.auto_connect_and_lockdown_mode)
                                     )
                                 } else {
-                                    textResource(R.string.auto_connect_footer)
+                                    textResource(R.string.auto_connect_footer_legacy_tv)
                                 },
                                 HtmlCompat.FROM_HTML_MODE_COMPACT
                             )

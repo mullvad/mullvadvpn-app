@@ -93,8 +93,7 @@
     <string name="auto_connect_carousel_third_slide_bottom_text">
         <![CDATA[3. To enable Lockdown mode, click on the toggle next to <b>Block connections without VPN</b>.<br /><br /><b>Warning: This setting blocks split apps and the Local Network Sharing feature.</b>]]>
     </string>
-
-    <string name="auto_connect_footer">Automatically connect to a server when the app launches.</string>
+    <string name="auto_connect_footer_legacy_tv">Automatically connect when the app launches. This setting will be replaced with a new connect on device start-up feature in a future update.</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
     <string name="wireguard_mtu_footer">Set WireGuard MTU value. Valid range: %1$d - %2$d.</string>
     <string name="hint_default">Default</string>

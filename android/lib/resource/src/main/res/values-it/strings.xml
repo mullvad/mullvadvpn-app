@@ -11,6 +11,7 @@
     <string name="add_30_days_time_x">Aggiungi 30 giorni di tempo (%1$s)</string>
     <string name="add_a_server">Aggiungi un server</string>
     <string name="add_dns_server_dialog_title">Aggiungi server DNS</string>
+    <string name="add_location_to_list">Aggiungi %1$s all\'elenco</string>
     <string name="add_time_to_account">Acquista credito sul nostro sito web o riscatta un voucher.</string>
     <string name="added_to_your_account">%1$s aggiunti al tuo account.</string>
     <string name="agree_and_continue">Accetta e continua</string>
@@ -31,7 +32,7 @@
     <string name="auto_connect_carousel_first_slide_top_text">Le impostazioni della modalità di Connessione automatica e di Blocco si trovano nelle impostazioni del sistema Android. Segui questa guida per abilitare una o entrambe.</string>
     <string name="auto_connect_carousel_second_slide_bottom_text">2. Per abilitare la connessione automatica, clicca sull\'interruttore accanto a &lt;b&gt;VPN sempre attiva&lt;/b&gt;.</string>
     <string name="auto_connect_carousel_second_slide_top_text">La connessione automatica è denominata VPN sempre attiva nelle impostazioni del sistema Android e garantisce di essere costantemente connessi al tunnel VPN e di connettersi automaticamente dopo il riavvio.</string>
-    <string name="auto_connect_footer">Connettiti automaticamente al server all\'avvio dell\'app.</string>
+    <string name="auto_connect_footer_legacy">Utilizza piuttosto l\'impostazione di sistema &lt;b&gt;Sempre attivo&lt;/b&gt; seguendo la guida in &lt;b&gt;%1$s&lt;/b&gt; sopra.</string>
     <string name="automatic">Automatico</string>
     <string name="back">Indietro</string>
     <string name="block_ads_title">Annunci</string>
@@ -119,6 +120,8 @@
     <string name="here_is_your_account_number">Ecco il tuo numero di account. Salvalo!</string>
     <string name="hide_account_number">Nascondi numero di account</string>
     <string name="hint_default">Predefinito</string>
+    <string name="import_override_textfield_placeholder">Incolla o scrivi le sovrascritture da importare</string>
+    <string name="import_overrides_bottom_sheet_override_warning">L\'importazione di nuove sovrascritture potrebbe sostituire alcune sovrascritture precedentemente importate.</string>
     <string name="import_overrides_import">Importa</string>
     <string name="import_overrides_text_title">Importa tramite testo</string>
     <string name="in_address">Ricezione</string>
@@ -134,6 +137,8 @@
     <string name="local_network_sharing">Condivisione rete locale</string>
     <string name="local_network_sharing_additional_info">Lo fa consentendo la comunicazione di rete al di fuori del tunnel verso intervalli multicast e broadcast locali, nonché da e verso questi intervalli IP privati:</string>
     <string name="local_network_sharing_info">Questa funzione consente l\'accesso ad altri dispositivi sulla rete locale, ad esempio per la condivisione, la stampa, lo streaming, ecc.</string>
+    <string name="location_added">%1$s (aggiunto)</string>
+    <string name="location_was_added_to_list">%1$s aggiunto a \"%2$s\"</string>
     <string name="log_out">Esci</string>
     <string name="logged_in_description">Numero di account valido</string>
     <string name="logged_in_title">Accesso effettuato</string>
@@ -155,9 +160,11 @@
     <string name="new_device_notification_message">Benvenuto, questo dispositivo ora si chiama &lt;b&gt;%1$s&lt;/b&gt;. Per maggiori dettagli, premi il pulsante delle informazioni in Account.</string>
     <string name="new_device_notification_title">NUOVO DISPOSITIVO CREATO</string>
     <string name="no_internet_connection">Nessuna connessione Internet</string>
+    <string name="no_locations_found">Nessuna posizione trovata</string>
     <string name="no_matching_relay">Nessun server corrispondente alle tue impostazioni, prova a cambiare server o impostazioni.</string>
     <string name="no_wireguard_key">Manca una chiave WireGuard valida. Gestisci le chiavi da Impostazioni avanzate.</string>
     <string name="not_blocking_internet">POSSIBILI PERDITE NEL TRAFFICO DI RETE</string>
+    <string name="not_found">Non trovato</string>
     <string name="number_of_providers">Fornitori: %1$d</string>
     <string name="obfuscation_info">L\'offuscamento nasconde il traffico WireGuard all\'interno di un altro protocollo. Può essere utilizzato per aggirare la censura e altri tipi di filtraggio, in cui una semplice connessione WireGuard verrebbe bloccata.</string>
     <string name="obfuscation_on_udp_over_tcp">On (UDP-over-TCP)</string>
@@ -166,9 +173,11 @@
     <string name="on">On</string>
     <string name="out_address">Invio</string>
     <string name="out_of_time">Scaduto</string>
+    <string name="overrides_cleared">Sovrascritture cancellate</string>
     <string name="owned">Di proprietà</string>
     <string name="ownership">Proprietà</string>
     <string name="paid_until">Pagato fino al</string>
+    <string name="patch_not_matching_specification">La patch non corrisponde alle specifiche</string>
     <string name="pay_to_start_using">Per iniziare a utilizzare l\'app, devi prima aggiungere tempo al tuo account.</string>
     <string name="payment_billing_error_dialog_message">Non siamo riusciti ad avviare il processo di pagamento, assicurati di avere la versione più recente di Google Play.</string>
     <string name="payment_billing_error_dialog_title">Google Play non disponibile</string>
@@ -217,8 +226,6 @@
     <string name="server_ip_overrides">Sovrascritture IP server</string>
     <string name="server_ip_overrides_active">Sovrascritture attive</string>
     <string name="server_ip_overrides_import_by">Importa nuove sovrascritture tramite</string>
-    <string name="server_ip_overrides_import_by_file">File</string>
-    <string name="server_ip_overrides_import_by_text">Testo</string>
     <string name="server_ip_overrides_inactive">Sovrascritture inattive</string>
     <string name="server_ip_overrides_info_first_paragraph">Su alcune reti, dove vengono utilizzati vari tipi di censura, gli indirizzi IP dei nostri server vengono talvolta bloccati.</string>
     <string name="server_ip_overrides_info_second_paragraph">Per aggirare questo problema, puoi importare un file o un testo, fornito dal nostro team di supporto, con nuovi indirizzi IP che sovrascrivono gli indirizzi predefiniti dei server nella vista Seleziona posizione.</string>
@@ -229,6 +236,8 @@
     <string name="settings_account">Account</string>
     <string name="settings_changes_effect_warning_content_blocker">Le modifiche alle impostazioni relative al DNS potrebbero non avere effetto immediato a causa dei risultati memorizzati nella cache.</string>
     <string name="settings_changes_effect_warning_short">Le impostazioni DNS potrebbero non avere effetto immediato</string>
+    <string name="settings_patch_error_unknown_or_prohibited_key">Chiave \"%1$s\" sconosciuta o vietata</string>
+    <string name="settings_patch_success">Importazione riuscita, sovrascritture attiva</string>
     <string name="settings_preferences">Preferenze</string>
     <string name="settings_vpn">Impostazioni VPN</string>
     <string name="show_account_number">Mostra numero di account</string>
@@ -243,6 +252,7 @@
     <string name="try_again">Riprova</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">A quale porta TCP deve connettersi il protocollo di offuscamento UDP-over-TCP sul server VPN.</string>
+    <string name="undo">Annulla</string>
     <string name="unsecured">Non protetto</string>
     <string name="unsecured_connection">CONNESSIONE NON PROTETTA</string>
     <string name="unsupported_version">VERSIONE NON SUPPORTATA</string>

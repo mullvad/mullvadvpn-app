@@ -11,6 +11,7 @@
     <string name="add_30_days_time_x">增加 30 天時間 (%1$s)</string>
     <string name="add_a_server">新增伺服器</string>
     <string name="add_dns_server_dialog_title">新增 DNS 伺服器</string>
+    <string name="add_location_to_list">將 %1$s 新增至清單</string>
     <string name="add_time_to_account">在我們網站上購買點數或兌換憑證。</string>
     <string name="added_to_your_account">%1$s已新增至您的帳戶。</string>
     <string name="agree_and_continue">同意並繼續</string>
@@ -31,7 +32,7 @@
     <string name="auto_connect_carousel_first_slide_top_text">自動連線和鎖定模式設定皆可在 Android 系統設定中找到，請按照本指南的指示，啟用其中一項或兩項設定。</string>
     <string name="auto_connect_carousel_second_slide_bottom_text">2. 若要啟用自動連線，請按一下&lt;b&gt;始終啟用 VPN&lt;/b&gt; 旁邊的開關。</string>
     <string name="auto_connect_carousel_second_slide_top_text">自動連線在 Android 系統設定中稱為「始終啟用 VPN」，此功能可確保您始終與 VPN 通道連線，並且會在重新啟動後自動連線。</string>
-    <string name="auto_connect_footer">啟動應用程式時，自動連線伺服器。</string>
+    <string name="auto_connect_footer_legacy">請依照前述 &lt;b&gt;%1$s&lt;/b&gt; 中的指南，改用&lt;b&gt;一律啟用&lt;/b&gt;系統設定。</string>
     <string name="automatic">自動</string>
     <string name="back">返回</string>
     <string name="block_ads_title">廣告</string>
@@ -119,6 +120,8 @@
     <string name="here_is_your_account_number">以下是您的帳號。請妥善保管！</string>
     <string name="hide_account_number">隱藏帳號</string>
     <string name="hint_default">預設</string>
+    <string name="import_override_textfield_placeholder">貼上或撰寫要匯入的覆寫設定</string>
+    <string name="import_overrides_bottom_sheet_override_warning">匯入新的覆寫設定，可能會取代一部分先前已匯入的覆寫設定。</string>
     <string name="import_overrides_import">匯入</string>
     <string name="import_overrides_text_title">透過文字匯入</string>
     <string name="in_address">入境</string>
@@ -134,6 +137,8 @@
     <string name="local_network_sharing">本機網路分享</string>
     <string name="local_network_sharing_additional_info">其原理是允許通道外的網路與本機網路進行通訊，包括以下私人 IP 範圍內的多點傳送和廣播：</string>
     <string name="local_network_sharing_info">此功能可允許存取本機網路上的其他裝置，以便用於分享、列印、串流等。</string>
+    <string name="location_added">%1$s (已新增)</string>
+    <string name="location_was_added_to_list">已將 %1$s 新增至「%2$s」</string>
     <string name="log_out">登出</string>
     <string name="logged_in_description">有效帳號</string>
     <string name="logged_in_title">已登入</string>
@@ -155,9 +160,11 @@
     <string name="new_device_notification_message">歡迎，此裝置現在稱為 &lt;b&gt;%1$s&lt;/b&gt;。如需詳細資訊，請點按「帳戶」中的資訊按鈕。</string>
     <string name="new_device_notification_title">已建立新裝置</string>
     <string name="no_internet_connection">沒有網際網路連線</string>
+    <string name="no_locations_found">找不到位置</string>
     <string name="no_matching_relay">沒有與您的設定相符的伺服器，請嘗試變更伺服器或其他設定。</string>
     <string name="no_wireguard_key">缺少有效的 WireGuard 金鑰。在「進階」設定下管理金鑰。</string>
     <string name="not_blocking_internet">您的網路流量可能正在洩露</string>
+    <string name="not_found">找不到</string>
     <string name="number_of_providers">供應商：%1$d</string>
     <string name="obfuscation_info">藉由混淆，WireGuard 的流量能隱藏在另一個通訊協定中。這有助於規避審查或其他類型的篩選。在這類篩選中，普通 WireGuard 連線將遭到封鎖。</string>
     <string name="obfuscation_on_udp_over_tcp">開 (UDP-over-TCP)</string>
@@ -166,9 +173,11 @@
     <string name="on">開啟</string>
     <string name="out_address">出境</string>
     <string name="out_of_time">逾時</string>
+    <string name="overrides_cleared">覆寫設定已清除</string>
     <string name="owned">自有</string>
     <string name="ownership">所有權狀態</string>
     <string name="paid_until">支付至</string>
+    <string name="patch_not_matching_specification">修補檔與規範不相符</string>
     <string name="pay_to_start_using">需先在帳戶中加時，才能開始使用本應用程式。</string>
     <string name="payment_billing_error_dialog_message">我們無法啟動付款流程，請確認您是否擁有最新版本的 Google Play。</string>
     <string name="payment_billing_error_dialog_title">Google Play 無法使用</string>
@@ -215,6 +224,9 @@
     <string name="sent_contact">如有需要，我們將透過 %1$s 與您聯絡</string>
     <string name="sent_thanks">謝謝！</string>
     <string name="server_ip_overrides">伺服器 IP 覆寫</string>
+    <string name="server_ip_overrides_active">覆寫設定已啟用</string>
+    <string name="server_ip_overrides_import_by">匯入新覆寫設定的方式</string>
+    <string name="server_ip_overrides_inactive">覆寫設定未啟用</string>
     <string name="server_ip_overrides_info_first_paragraph">在某些採用了各類審查功能的網路上，我們的伺服器 IP 位址有時會遭到封鎖。</string>
     <string name="server_ip_overrides_info_second_paragraph">為了避免這種情況，您可以匯入由我們支援團隊所提供的檔案或文字，其中的新 IP 位址會覆蓋「選取位置」視圖中伺服器的預設位址。</string>
     <string name="server_ip_overrides_info_third_paragraph">如果您在連線至 VPN 伺服器時遇到問題，請聯絡支援人員。</string>
@@ -224,6 +236,8 @@
     <string name="settings_account">帳戶</string>
     <string name="settings_changes_effect_warning_content_blocker">由於快取的結果，對 DNS 相關設定所做的變更可能不會立即生效。</string>
     <string name="settings_changes_effect_warning_short">DNS 設定可能不會立即生效</string>
+    <string name="settings_patch_error_unknown_or_prohibited_key">未知或遭到禁用的金鑰「%1$s」</string>
+    <string name="settings_patch_success">匯入成功，覆寫設定已啟用</string>
     <string name="settings_preferences">喜好設定</string>
     <string name="settings_vpn">VPN 設定</string>
     <string name="show_account_number">顯示帳號</string>
@@ -238,6 +252,7 @@
     <string name="try_again">再試一次</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">UDP-over-TCP 混淆通訊協定應連線到 VPN 伺服器上的哪個 TCP 連接埠。</string>
+    <string name="undo">復原</string>
     <string name="unsecured">不安全</string>
     <string name="unsecured_connection">不安全的連線</string>
     <string name="unsupported_version">不支援的版本</string>

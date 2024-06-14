@@ -11,6 +11,7 @@
     <string name="add_30_days_time_x">Añadir 30 días (%1$s)</string>
     <string name="add_a_server">Añadir un servidor</string>
     <string name="add_dns_server_dialog_title">Añadir servidor DNS</string>
+    <string name="add_location_to_list">Añadir %1$s a la lista</string>
     <string name="add_time_to_account">Compre crédito en nuestro sitio web o canjee un cupón.</string>
     <string name="added_to_your_account">Se ha(n) añadido %1$s a su cuenta.</string>
     <string name="agree_and_continue">Aceptar y continuar</string>
@@ -31,7 +32,7 @@
     <string name="auto_connect_carousel_first_slide_top_text">La configuración del modo de bloqueo y de la conexión automática puede encontrarse en la configuración del sistema Android, siga esta guía para habilitar uno o ambos.</string>
     <string name="auto_connect_carousel_second_slide_bottom_text">2. Para habilitar la conexión automática, haga clic en el botón &lt;b&gt;VPN siempre activa&lt;/b&gt;.</string>
     <string name="auto_connect_carousel_second_slide_top_text">La conexión automática se llama VPN siempre activa en la configuración del sistema Android y asegura estar conectado constantemente al túnel de la VPN y conectarse automáticamente después de cada reinicio.</string>
-    <string name="auto_connect_footer">Al iniciarse la aplicación, se conecta automáticamente a un servidor.</string>
+    <string name="auto_connect_footer_legacy">En su lugar, utilice el ajuste de sistema &lt;b&gt;Siempre activado&lt;/b&gt; siguiendo arriba la guía en &lt;b&gt;%1$s&lt;/b&gt;.</string>
     <string name="automatic">Automático</string>
     <string name="back">Volver</string>
     <string name="block_ads_title">Anuncios</string>
@@ -119,6 +120,8 @@
     <string name="here_is_your_account_number">Este es un número de cuenta. ¡Guárdelo bien!</string>
     <string name="hide_account_number">Ocultar número de cuenta</string>
     <string name="hint_default">Predeterminado</string>
+    <string name="import_override_textfield_placeholder">Pegue o escriba las anulaciones que se deben importar</string>
+    <string name="import_overrides_bottom_sheet_override_warning">Importar nuevas anulaciones podría reemplazar algunas anulaciones anteriormente importadas.</string>
     <string name="import_overrides_import">Importar</string>
     <string name="import_overrides_text_title">Importación a través de texto</string>
     <string name="in_address">Entrada</string>
@@ -136,8 +139,6 @@
     <string name="local_network_sharing_info">Esta característica permite el acceso a otros dispositivos de la red local, como para compartir, imprimir, transmitir, etc.</string>
     <string name="location_added">%1$s (añadido)</string>
     <string name="location_was_added_to_list">%1$s se ha añadido a «%2$s»</string>
-    <string name="locations">Ubicaciones</string>
-    <string name="locations_were_changed_for">Se han cambiado las ubicaciones para «%1$s»</string>
     <string name="log_out">Cerrar sesión</string>
     <string name="logged_in_description">Número de cuenta válido</string>
     <string name="logged_in_title">Sesión iniciada</string>
@@ -159,9 +160,11 @@
     <string name="new_device_notification_message">Hola, este dispositivo se llama ahora &lt;b&gt;%1$s&lt;/b&gt;. Para más información, consulte el botón de información en la Cuenta.</string>
     <string name="new_device_notification_title">NUEVO DISPOSITIVO CREADO</string>
     <string name="no_internet_connection">No hay conexión a Internet</string>
+    <string name="no_locations_found">No se ha encontrado ninguna ubicación</string>
     <string name="no_matching_relay">Ningún servidor coincide con su configuración, pruebe con otro servidor u otra configuración.</string>
     <string name="no_wireguard_key">Falta una clave de WireGuard válida. Para administrar las claves, vaya a Configuración avanzada.</string>
     <string name="not_blocking_internet">PUEDE QUE SE ESTÉ FILTRANDO EL TRÁFICO DE RED</string>
+    <string name="not_found">No encontrado</string>
     <string name="number_of_providers">Proveedores: %1$d</string>
     <string name="obfuscation_info">La ofuscación oculta el tráfico de WireGuard dentro de otro protocolo. Puede usarse para sortear la censura y otros tipos de filtrado donde podría bloquearse una conexión de WireGuard normal.</string>
     <string name="obfuscation_on_udp_over_tcp">Activado (UDP sobre TCP)</string>
@@ -170,9 +173,11 @@
     <string name="on">Activado</string>
     <string name="out_address">Salida</string>
     <string name="out_of_time">Tiempo agotado</string>
+    <string name="overrides_cleared">Anulaciones borradas</string>
     <string name="owned">Propios</string>
     <string name="ownership">Propiedad</string>
     <string name="paid_until">Pagado hasta</string>
+    <string name="patch_not_matching_specification">El parche no coincide con la especificación</string>
     <string name="pay_to_start_using">Para empezar a usar la aplicación, primero necesita agregar tiempo a su cuenta.</string>
     <string name="payment_billing_error_dialog_message">No hemos podido iniciar el proceso de pago. Asegúrese de tener la última versión de Google Play.</string>
     <string name="payment_billing_error_dialog_title">Google Play no disponible</string>
@@ -219,6 +224,9 @@
     <string name="sent_contact">Si es necesario, le enviaremos un correo electrónico a %1$s</string>
     <string name="sent_thanks">¡Gracias!</string>
     <string name="server_ip_overrides">Anulación de IP de servidor</string>
+    <string name="server_ip_overrides_active">Anulaciones activas</string>
+    <string name="server_ip_overrides_import_by">Importar nuevas anulaciones por</string>
+    <string name="server_ip_overrides_inactive">Anulaciones inactivas</string>
     <string name="server_ip_overrides_info_first_paragraph">En algunas redes, donde se aplican diversos tipos de censura, a veces se bloquean las direcciones IP de nuestro servidor.</string>
     <string name="server_ip_overrides_info_second_paragraph">Para eludir esto, puede importar un archivo o texto, suministrado por nuestro equipo de asistencia, con nuevas direcciones IP que anulan las direcciones predeterminadas de los servidores en la vista Seleccionar ubicación.</string>
     <string name="server_ip_overrides_info_third_paragraph">Si tiene problemas para conectarse a los servidores VPN, póngase en contacto con el servicio de asistencia.</string>
@@ -228,6 +236,8 @@
     <string name="settings_account">Cuenta</string>
     <string name="settings_changes_effect_warning_content_blocker">Los cambios en la configuración relacionada con el DNS no surtirán efecto inmediatamente debido a los resultados en caché.</string>
     <string name="settings_changes_effect_warning_short">La configuración de DNS podría no surtir efecto inmediatamente</string>
+    <string name="settings_patch_error_unknown_or_prohibited_key">Clave «%1$s» desconocida o prohibida</string>
+    <string name="settings_patch_success">Importación realizada correctamente. Anulaciones activas</string>
     <string name="settings_preferences">Preferencias</string>
     <string name="settings_vpn">Configuración de VPN</string>
     <string name="show_account_number">Mostrar número de cuenta</string>
@@ -242,6 +252,7 @@
     <string name="try_again">Volver a intentarlo</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">El puerto TCP al que se conectará el protocolo de ofuscación de UDP sobre TCP en el servidor VPN.</string>
+    <string name="undo">Deshacer</string>
     <string name="unsecured">No protegido</string>
     <string name="unsecured_connection">CONEXIÓN NO SEGURA</string>
     <string name="unsupported_version">VERSIÓN NO ADMITIDA</string>

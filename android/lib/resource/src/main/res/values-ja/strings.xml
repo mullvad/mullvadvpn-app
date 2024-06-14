@@ -11,6 +11,7 @@
     <string name="add_30_days_time_x">30日分を追加する (%1$s)</string>
     <string name="add_a_server">サーバーを追加</string>
     <string name="add_dns_server_dialog_title">DNS サーバーを追加</string>
+    <string name="add_location_to_list">%1$s をリストに追加する</string>
     <string name="add_time_to_account">当社ウェブサイトでクレジットを購入するか、バウチャーを使用してください。</string>
     <string name="added_to_your_account">%1$s がご利用のアカウントに追加されました。</string>
     <string name="agree_and_continue">同意して続行</string>
@@ -31,7 +32,7 @@
     <string name="auto_connect_carousel_first_slide_top_text">自動接続とロックダウンモードの設定はAndroidシステム設定にあります。どちらか、または両方をこのガイドに従って有効にしてください。</string>
     <string name="auto_connect_carousel_second_slide_bottom_text">2. 自動接続を有効にするには、[&lt;b&gt;Always-on VPN&lt;/b&gt;] の横のトグルボタンをクリックします。</string>
     <string name="auto_connect_carousel_second_slide_top_text">自動接続はAndroidシステム設定で「Always-on VPN」と呼ばれており、確実に一貫してVPNトンネルに接続し、再起動の後に自動接続を行う機能です。</string>
-    <string name="auto_connect_footer">アプリ起動時に自動的にサーバーに接続します。</string>
+    <string name="auto_connect_footer_legacy">上の &lt;b&gt;%1$s&lt;/b&gt; のガイドに従い、&lt;b&gt;Always-on&lt;/b&gt; のシステム設定を代わりに使用してください。</string>
     <string name="automatic">自動</string>
     <string name="back">戻る</string>
     <string name="block_ads_title">広告</string>
@@ -119,6 +120,8 @@
     <string name="here_is_your_account_number">これがあなたのアカウント番号です。保存してください！</string>
     <string name="hide_account_number">アカウント番号の非表示</string>
     <string name="hint_default">デフォルト</string>
+    <string name="import_override_textfield_placeholder">インポートするオーバーライドを貼り付けるか、または記入してください</string>
+    <string name="import_overrides_bottom_sheet_override_warning">新しいオーバーライドをインポートすると、以前インポートしたオーバーライドが置き換えられる可能性があります。</string>
     <string name="import_overrides_import">インポート</string>
     <string name="import_overrides_text_title">テキストでインポート</string>
     <string name="in_address">内側</string>
@@ -134,6 +137,8 @@
     <string name="local_network_sharing">ローカルネットワーク共有</string>
     <string name="local_network_sharing_additional_info">これは、トンネル外のネットワーク通信をローカルのマルチキャストおよびブロードキャスト範囲、および以下のプライベート IP 範囲との間で許可することによって行われます。</string>
     <string name="local_network_sharing_info">この機能は、共有、印刷、ストリーミングなどのため、ローカルネットワーク上の他デバイスへのアクセスを許可します。</string>
+    <string name="location_added">%1$s (追加済み)</string>
+    <string name="location_was_added_to_list">%1$s が \"%2$s\" に追加されました</string>
     <string name="log_out">ログアウト</string>
     <string name="logged_in_description">有効なアカウント番号</string>
     <string name="logged_in_title">ログインしました</string>
@@ -155,9 +160,11 @@
     <string name="new_device_notification_message">ようこそ。このデバイスの名前は&lt;b&gt;%1$s&lt;/b&gt;です。詳細はアカウントの情報ボタンで確認してください。</string>
     <string name="new_device_notification_title">新しいデバイスが作成されました</string>
     <string name="no_internet_connection">インターネット接続がありません</string>
+    <string name="no_locations_found">場所が見つかりませんでした</string>
     <string name="no_matching_relay">設定に一致するサーバーはありません。サーバーまたは他の設定を変更してみてください。</string>
     <string name="no_wireguard_key">有効なWireGuard鍵が見つかりません。詳細設定で鍵を管理してください。</string>
     <string name="not_blocking_internet">ネットワーク通信が漏洩している可能性があります</string>
+    <string name="not_found">見つかりませんでした</string>
     <string name="number_of_providers">プロバイダ数: %1$d</string>
     <string name="obfuscation_info">難読化は、WireGuardトラフィックを別のプロトコル内に隠します。プレーンなWireGuard接続がブロックされる検閲やその他のフィルタリングを回避するために使用できます。</string>
     <string name="obfuscation_on_udp_over_tcp">オン (UDP-over-TCP)</string>
@@ -166,9 +173,11 @@
     <string name="on">オン</string>
     <string name="out_address">外側</string>
     <string name="out_of_time">時間切れ</string>
+    <string name="overrides_cleared">オーバーライドがクリアされました</string>
     <string name="owned">自社サーバー</string>
     <string name="ownership">所有権</string>
     <string name="paid_until">次の日時まで支払い済み</string>
+    <string name="patch_not_matching_specification">パッチが仕様に一致していません</string>
     <string name="pay_to_start_using">アプリを使い始めるには、まずはアカウントに時間を追加する必要があります。</string>
     <string name="payment_billing_error_dialog_message">決済処理を開始できませんでした。最新バージョンのGoogle Playを使用していることを確認してください。</string>
     <string name="payment_billing_error_dialog_title">Google Playを使用できません</string>
@@ -215,6 +224,9 @@
     <string name="sent_contact">必要に応じて %1$s 宛にご連絡します　</string>
     <string name="sent_thanks">ありがとうございます！</string>
     <string name="server_ip_overrides">サーバーIPのオーバーライド</string>
+    <string name="server_ip_overrides_active">オーバーライドは有効です</string>
+    <string name="server_ip_overrides_import_by">新しいオーバーライドのインポート</string>
+    <string name="server_ip_overrides_inactive">オーバーライドは無効です</string>
     <string name="server_ip_overrides_info_first_paragraph">各種の検閲が使用されている一部のネットワークでは、サーバーIPアドレスがブロックされる場合があります。</string>
     <string name="server_ip_overrides_info_second_paragraph">これを回避するには、「場所を選択」ビューでサポートチームが提供したサーバーのデフォルトアドレスをオーバーライドする新しいIPアドレスを含むファイルまたはテキストをインポートできます。</string>
     <string name="server_ip_overrides_info_third_paragraph">VPNサーバーへの接続に問題が生じている場合は、サポートにお問い合わせください。</string>
@@ -224,6 +236,8 @@
     <string name="settings_account">アカウント</string>
     <string name="settings_changes_effect_warning_content_blocker">結果がキャッシュされているため、DNS関連の設定の変更はすぐには適用されない可能性があります。</string>
     <string name="settings_changes_effect_warning_short">DNS設定はすぐに適用されない可能性があります</string>
+    <string name="settings_patch_error_unknown_or_prohibited_key">キー \"%1$s\" は不明であるか、または禁止されています</string>
+    <string name="settings_patch_success">インポートが正常に完了しました。オーバーライドは有効です</string>
     <string name="settings_preferences">環境設定</string>
     <string name="settings_vpn">VPN設定</string>
     <string name="show_account_number">アカウント番号の表示</string>
@@ -238,6 +252,7 @@
     <string name="try_again">再試行</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">UDP-over-TCP難読化プロトコルで接続する必要のあるVPNサーバーのTCPポートです。</string>
+    <string name="undo">元に戻す</string>
     <string name="unsecured">セキュリティ保護されていません</string>
     <string name="unsecured_connection">セキュリティ保護されていない接続</string>
     <string name="unsupported_version">未対応のバージョン</string>

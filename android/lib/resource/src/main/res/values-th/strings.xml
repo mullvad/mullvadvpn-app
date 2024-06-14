@@ -11,6 +11,7 @@
     <string name="add_30_days_time_x">เพิ่มเวลา 30 วัน (%1$s)</string>
     <string name="add_a_server">เพิ่มเซิร์ฟเวอร์</string>
     <string name="add_dns_server_dialog_title">เพิ่มเซิร์ฟเวอร์ DNS</string>
+    <string name="add_location_to_list">เพิ่ม %1$s ลงในรายการ</string>
     <string name="add_time_to_account">ซื้อเครดิตบนเว็บไซต์ของเรา หรือแลกรับบัตรกำนัล</string>
     <string name="added_to_your_account">%1$s ถูกเพิ่มลงในบัญชีของคุณแล้ว</string>
     <string name="agree_and_continue">ยอมรับและดำเนินการต่อ</string>
@@ -31,7 +32,7 @@
     <string name="auto_connect_carousel_first_slide_top_text">การตั้งค่าการเชื่อมต่ออัตโนมัติและโหมดล็อกดาวน์ อยู่ในการตั้งค่าระบบ Android โปรดทำตามคำแนะนำนี้ เพื่อเปิดใช้งานโหมดใดโหมดหนึ่ง หรือทั้งสองโหมด</string>
     <string name="auto_connect_carousel_second_slide_bottom_text">2. ในการเปิดใช้การเชื่อมต่ออัตโนมัติ ให้คลิกปุ่มเปิด/ปิดที่อยู่ถัดจาก &lt;b&gt;Always-on VPN&lt;/b&gt;</string>
     <string name="auto_connect_carousel_second_slide_top_text">การเชื่อมต่ออัตโนมัติเรียกว่า Always-on VPN ในการตั้งค่าระบบ Android ซึ่งจะช่วยให้คุณมั่นใจได้ว่า คุณเชื่อมต่อกับช่องทาง VPN อย่างต่อเนื่อง และมีการเชื่อมต่ออัตโนมัติหลังจากรีสตาร์ต</string>
-    <string name="auto_connect_footer">เชื่อมต่อเซิร์ฟเวอร์โดยอัตโนมัติทันทีที่เปิดแอป</string>
+    <string name="auto_connect_footer_legacy">โปรดใช้การตั้งค่าระบบ&lt;b&gt;เปิดใช้งานเสมอ&lt;/b&gt;แทน โดยทำตามคำแนะนำใน &lt;b&gt;%1$s&lt;/b&gt; ที่อยู่ด้านบน</string>
     <string name="automatic">อัตโนมัติ</string>
     <string name="back">ย้อนกลับ</string>
     <string name="block_ads_title">โฆษณา</string>
@@ -119,6 +120,8 @@
     <string name="here_is_your_account_number">นี่คือหมายเลขบัญชีของคุณ จดบันทึกไว้ด้วยนะ!</string>
     <string name="hide_account_number">ซ่อนหมายเลขบัญชี</string>
     <string name="hint_default">ค่าเริ่มต้น</string>
+    <string name="import_override_textfield_placeholder">วางหรือพิมพ์โอเวอร์ไรด์เพื่อนำเข้า</string>
+    <string name="import_overrides_bottom_sheet_override_warning">การนำเข้าโอเวอร์ไรด์ใหม่ อาจแทนที่โอเวอร์ไรด์ที่นำเข้าก่อนหน้านี้</string>
     <string name="import_overrides_import">นำเข้า</string>
     <string name="import_overrides_text_title">นำเข้าผ่านข้อความ</string>
     <string name="in_address">เข้า</string>
@@ -134,6 +137,8 @@
     <string name="local_network_sharing">การแชร์ในเครือข่ายท้องถิ่น</string>
     <string name="local_network_sharing_additional_info">ทำเช่นนี้ได้โดยการอนุญาตให้มีการสื่อสารเครือข่ายนอกอุโมงค์ ไปยังมัลติคาสต์และช่วงการเผยแพร่ในท้องถิ่น รวมถึงการสื่อสารไปมาในช่วง IP ส่วนตัวเหล่านี้:</string>
     <string name="local_network_sharing_info">คุณลักษณะนี้จะช่วยให้สามารถเข้าถึงอุปกรณ์อื่นๆ บนเครือข่ายท้องถิ่น เช่น การแชร์ การพิมพ์ การสตรีม ฯลฯ</string>
+    <string name="location_added">%1$s (เพิ่มแล้ว)</string>
+    <string name="location_was_added_to_list">%1$s ถูกเพิ่มลงใน \"%2$s\"</string>
     <string name="log_out">ลงชื่อออก</string>
     <string name="logged_in_description">หมายเลขบัญชีที่ถูกต้อง</string>
     <string name="logged_in_title">เข้าสู่ระบบแล้ว</string>
@@ -155,9 +160,11 @@
     <string name="new_device_notification_message">ยินดีต้อนรับ ขณะนี้อุปกรณ์นี้จะมีชื่อว่า &lt;b&gt;%1$s&lt;/b&gt; สำหรับข้อมูลเพิ่มเติม โปรดกดปุ่มข้อมูลในบัญชี</string>
     <string name="new_device_notification_title">สร้างอุปกรณ์ใหม่แล้ว</string>
     <string name="no_internet_connection">ไม่มีการเชื่อมต่ออินเทอร์เน็ต</string>
+    <string name="no_locations_found">ไม่พบตำแหน่งที่ตั้ง</string>
     <string name="no_matching_relay">ไม่มีเซิร์ฟเวอร์ที่ตรงกับการตั้งค่าของคุณ โปรดลองเปลี่ยนเซิร์ฟเวอร์ หรือการตั้งค่าอื่นๆ</string>
     <string name="no_wireguard_key">คีย์ WireGuard ที่ใช้ได้ขาดหายไป จัดการคีย์ภายใต้การตั้งค่าขั้นสูง</string>
     <string name="not_blocking_internet">คุณอาจมีการรับส่งข้อมูลทางเครือข่ายที่รั่วไหลอยู่</string>
+    <string name="not_found">ไม่พบ</string>
     <string name="number_of_providers">ผู้ให้บริการ: %1$d</string>
     <string name="obfuscation_info">การทำให้ข้อมูลยุ่งเหยิง จะซ่อนการรับส่งข้อมูล WireGuard ภายในอีกโพรโทคอลหนึ่ง ซึ่งใช้เพื่อช่วยหลบเลี่ยงการเซ็นเซอร์ และการกรองประเภทอื่นๆ ที่การเชื่อมต่อ WireGuard แบบธรรมดาจะถูกบล็อกได้</string>
     <string name="obfuscation_on_udp_over_tcp">เปิด (UDP-ผ่าน-TCP)</string>
@@ -166,9 +173,11 @@
     <string name="on">เปิด</string>
     <string name="out_address">ออก</string>
     <string name="out_of_time">หมดเวลา</string>
+    <string name="overrides_cleared">ล้างโอเวอร์ไรด์แล้ว</string>
     <string name="owned">เป็นเจ้าของ</string>
     <string name="ownership">ความเป็นเจ้าของ</string>
     <string name="paid_until">ชำระเงินแล้วจนถึง</string>
+    <string name="patch_not_matching_specification">แพตช์ไม่ตรงกับข้อมูลจำเพาะ</string>
     <string name="pay_to_start_using">คุณจำเป็นต้องเพิ่มเวลาไปยังบัญชีของคุณก่อน เพื่อที่จะเริ่มใช้งานแอป</string>
     <string name="payment_billing_error_dialog_message">เราไม่สามารถเริ่มกระบวนการชำระเงินได้ โปรดตรวจสอบให้แน่ใจว่า คุณมี Google Play เวอร์ชันล่าสุด </string>
     <string name="payment_billing_error_dialog_title">Google Play ไม่พร้อมใช้งาน</string>
@@ -215,6 +224,9 @@
     <string name="sent_contact">เราจะติดต่อคุณไปทาง %1$s ในกรณีจำเป็น</string>
     <string name="sent_thanks">ขอบคุณ!</string>
     <string name="server_ip_overrides">โอเวอร์ไรด์เซิร์ฟเวอร์ IP</string>
+    <string name="server_ip_overrides_active">เปิดใช้โอเวอร์ไรด์อยู่</string>
+    <string name="server_ip_overrides_import_by">นำเข้าโอเวอร์ไรด์ใหม่โดยใช้</string>
+    <string name="server_ip_overrides_inactive">ปิดใช้โอเวอร์ไรด์อยู่</string>
     <string name="server_ip_overrides_info_first_paragraph">บางครั้งที่อยู่ IP เซิร์ฟเวอร์ของเราอาจถูกบล็อก ในบางเครือข่ายที่มีการใช้งานเซ็นเซอร์หลายประเภท</string>
     <string name="server_ip_overrides_info_second_paragraph">ในการหลีกเลี่ยงปัญหานี้ คุณสามารถนำเข้าไฟล์หรือข้อความที่ได้รับจากทีมสนับสนุนของเรา พร้อมด้วยที่อยู่ IP ใหม่ที่โอเวอร์ไรด์ที่อยู่เริ่มต้นของเซิร์ฟเวอร์ในมุมมองเลือกตำแหน่งที่ตั้ง</string>
     <string name="server_ip_overrides_info_third_paragraph">หากคุณประสบปัญหาในการเชื่อมต่อกับเซิร์ฟเวอร์ VPN โปรดติดต่อฝ่ายสนับสนุน</string>
@@ -224,10 +236,6 @@
     <string name="settings_account">บัญชี</string>
     <string name="settings_changes_effect_warning_content_blocker">การเปลี่ยนแปลงการตั้งค่าที่เกี่ยวข้องกับ DNS อาจไม่มีผลทันที เนื่องจากผลลัพธ์ที่แคชไว้</string>
     <string name="settings_changes_effect_warning_short">การตั้งค่า DNS อาจไม่มีผลทันที</string>
-    <string name="settings_patch_error_failed_to_apply_patch">ล้มเหลวในการปรับใช้แพตช์</string>
-    <string name="settings_patch_error_invalid_or_missing_value">ค่า \"%1$s\" ไม่ถูกต้องหรือหายไป</string>
-    <string name="settings_patch_error_recursion_limit">ขีดจำกัดการเรียกซ้ำ</string>
-    <string name="settings_patch_error_unable_to_parse">ไม่สามารถแยกวิเคราะห์แพตช์ได้</string>
     <string name="settings_patch_error_unknown_or_prohibited_key">คีย์ที่ไม่รู้จัก หรือมีคีย์ต้องห้าม \"%1$s\"</string>
     <string name="settings_patch_success">นำเข้าสำเร็จ เปิดใช้โอเวอร์ไรด์อยู่</string>
     <string name="settings_preferences">การกำหนดค่า</string>
@@ -244,6 +252,7 @@
     <string name="try_again">ลองอีกครั้ง</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">พอร์ต TCP ใดที่โพรโทคอลการทำให้ข้อมูลยุ่งเหยิง UDP-ผ่าน-TCP ควรเชื่อมต่อบนเซิร์ฟเวอร์ VPN</string>
+    <string name="undo">เลิกทำ</string>
     <string name="unsecured">ไม่ปลอดภัย</string>
     <string name="unsecured_connection">การเชื่อมต่อที่ไม่ปลอดภัย</string>
     <string name="unsupported_version">เวอร์ชันที่ไม่รองรับ</string>

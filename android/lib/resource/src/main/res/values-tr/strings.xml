@@ -11,6 +11,7 @@
     <string name="add_30_days_time_x">30 gün süre ekleyin (%1$s)</string>
     <string name="add_a_server">Sunucu ekle</string>
     <string name="add_dns_server_dialog_title">DNS sunucusu ekle</string>
+    <string name="add_location_to_list">%1$s konumunu listeye ekle</string>
     <string name="add_time_to_account">Web sitemizden kredi satın alın veya kupon kullanın.</string>
     <string name="added_to_your_account">Hesabınıza %1$s eklendi.</string>
     <string name="agree_and_continue">Kabul et ve devam et</string>
@@ -31,7 +32,7 @@
     <string name="auto_connect_carousel_first_slide_top_text">Otomatik Bağlantı ve Kilitleme modu ayarları Android sistem ayarlarında yer alır. Bu ayarlardan birini veya her ikisini de etkinleştirmek için bu kılavuza göz atın.</string>
     <string name="auto_connect_carousel_second_slide_bottom_text">2. Otomatik bağlantıyı etkinleştirmek için &lt;b&gt;VPN her zaman açık&lt;/b&gt; seçeneğinin yanındaki düğmeye tıklayın.</string>
     <string name="auto_connect_carousel_second_slide_top_text">Otomatik bağlantı, Android sistem ayarlarında VPN her zaman açık olarak gösterilir ve VPN tüneline sürekli bağlı olmanızı ve yeniden başlatma sonrası otomatik olarak bağlanmanızı sağlar.</string>
-    <string name="auto_connect_footer">Uygulama başladığında bir sunucuya otomatik olarak bağlan.</string>
+    <string name="auto_connect_footer_legacy">Lütfen yukarıdaki &lt;b&gt;%1$s&lt;/b&gt; bölümündeki kılavuzu izleyerek &lt;b&gt;Her zaman açık&lt;/b&gt; sistem ayarını kullanın.</string>
     <string name="automatic">Otomatik</string>
     <string name="back">Geri</string>
     <string name="block_ads_title">Reklamlar</string>
@@ -119,6 +120,8 @@
     <string name="here_is_your_account_number">İşte hesap numaranız. Kaydedin!</string>
     <string name="hide_account_number">Hesap numarasını gizle</string>
     <string name="hint_default">Varsayılan</string>
+    <string name="import_override_textfield_placeholder">İçe aktarılacak geçersiz kılmaları yapıştırın veya yazın</string>
+    <string name="import_overrides_bottom_sheet_override_warning">Yeni geçersiz kılmaların içe aktarılması, önceden içe aktarılan bazı geçersiz kılmaların yerine geçebilir.</string>
     <string name="import_overrides_import">İçe aktar</string>
     <string name="import_overrides_text_title">Metin yoluyla içe aktar</string>
     <string name="in_address">Giriş</string>
@@ -134,6 +137,8 @@
     <string name="local_network_sharing">Yerel ağ paylaşımı</string>
     <string name="local_network_sharing_additional_info">Bunu, yerel çok noktaya yayın ve yayın aralıklarının yanı sıra aşağıdaki özel IP aralıkları arasında tünel dışı ağ iletişimine izin vererek yapar:</string>
     <string name="local_network_sharing_info">Bu özellik; paylaşım, yazdırma, akış sağlama gibi özellikler için yerel ağdaki diğer cihazlara erişim izni verir.</string>
+    <string name="location_added">%1$s (eklendi)</string>
+    <string name="location_was_added_to_list">%1$s, \"%2$s\" listesine eklendi</string>
     <string name="log_out">Oturumu kapat</string>
     <string name="logged_in_description">Geçerli hesap numarası</string>
     <string name="logged_in_title">Oturum açıldı</string>
@@ -155,9 +160,11 @@
     <string name="new_device_notification_message">Hoş geldiniz, bu cihazın adı artık &lt;b&gt;%1$s&lt;/b&gt;. Daha fazla ayrıntı için Hesap içinden bilgi düğmesine bakın.</string>
     <string name="new_device_notification_title">YENİ CİHAZ OLUŞTURULDU</string>
     <string name="no_internet_connection">İnternet bağlantısı yok</string>
+    <string name="no_locations_found">Konum bulunamadı</string>
     <string name="no_matching_relay">Ayarlarınızla eşleşen sunucu yok. Sunucuyu veya diğer ayarları değiştirmeyi deneyin.</string>
     <string name="no_wireguard_key">Geçerli WireGuard anahtarı eksik. Gelişmiş ayarlardan anahtarları yönetin.</string>
     <string name="not_blocking_internet">AĞ TRAFİĞİNİZDE SIZINTI OLABİLİR</string>
+    <string name="not_found">Bulunamadı</string>
     <string name="number_of_providers">Hizmet sağlayıcılar: %1$d</string>
     <string name="obfuscation_info">Gizleme, WireGuard trafiğini başka bir protokolün içinde gizler. Normal bir WireGuard bağlantısının engelleneceği sansürü ve diğer filtreleme türlerini aşmaya yardımcı olmak için kullanılabilir.</string>
     <string name="obfuscation_on_udp_over_tcp">Açık (TCP üzerinden UDP)</string>
@@ -166,9 +173,11 @@
     <string name="on">Açık</string>
     <string name="out_address">Çıkış</string>
     <string name="out_of_time">Süre doldu</string>
+    <string name="overrides_cleared">Geçersiz kılmalar temizlendi</string>
     <string name="owned">Tarafımıza ait olanlar</string>
     <string name="ownership">Sahiplik durumu</string>
     <string name="paid_until">Şu tarihe kadar ödendi:</string>
+    <string name="patch_not_matching_specification">Yama spesifikasyonla eşleşmiyor</string>
     <string name="pay_to_start_using">Uygulamayı kullanmaya başlamak için önce hesabınıza süre eklemeniz gerekir.</string>
     <string name="payment_billing_error_dialog_message">Ödeme işlemini başlatamadık. Lütfen Google Play\'in en son sürümüne sahip olduğunuzdan emin olun.</string>
     <string name="payment_billing_error_dialog_title">Google Play kullanılamıyor</string>
@@ -217,8 +226,6 @@
     <string name="server_ip_overrides">Sunucu IP\'sini geçersiz kılma</string>
     <string name="server_ip_overrides_active">Geçersiz kılmalar etkin</string>
     <string name="server_ip_overrides_import_by">Şuradaki yeni geçersiz kılmaları içe aktar</string>
-    <string name="server_ip_overrides_import_by_file">Dosya</string>
-    <string name="server_ip_overrides_import_by_text">Metin</string>
     <string name="server_ip_overrides_inactive">Geçersiz kılmalar etkin değil</string>
     <string name="server_ip_overrides_info_first_paragraph">Farklı sansür türlerinin kullanıldığı bazı ağlarda sunucu IP adreslerimiz zaman zaman engellenir.</string>
     <string name="server_ip_overrides_info_second_paragraph">Bu sınırlamadan kaçınmak için Konum Seç görünümündeki varsayılan sunucu adreslerini geçersiz kılan yeni IP adreslerine sahip bir dosyayı veya metni (destek ekibimiz tarafından sağlanır) içe aktarabilirsiniz.</string>
@@ -229,6 +236,8 @@
     <string name="settings_account">Hesap</string>
     <string name="settings_changes_effect_warning_content_blocker">DNS ile ilgili ayarlarda yapılan değişiklikler, önbelleğe alınan sonuçlar nedeniyle hemen etkili olmayabilir.</string>
     <string name="settings_changes_effect_warning_short">DNS ayarları hemen etkili olmayabilir</string>
+    <string name="settings_patch_error_unknown_or_prohibited_key">Bilinmeyen veya yasaklanmış \"%1$s\" anahtarı</string>
+    <string name="settings_patch_success">İçe aktarma başarılı, geçersiz kılmalar etkin</string>
     <string name="settings_preferences">Tercihler</string>
     <string name="settings_vpn">VPN ayarları</string>
     <string name="show_account_number">Hesap numarasını göster</string>
@@ -243,6 +252,7 @@
     <string name="try_again">Tekrar dene</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">TCP üzerinden UDP gizleme protokolünün VPN sunucusunda hangi TCP portuna bağlanması gerekiyor.</string>
+    <string name="undo">Geri al</string>
     <string name="unsecured">Güvenli değil</string>
     <string name="unsecured_connection">GÜVENLİ OLMAYAN BAĞLANTI</string>
     <string name="unsupported_version">DESTEKLENMEYEN SÜRÜM</string>

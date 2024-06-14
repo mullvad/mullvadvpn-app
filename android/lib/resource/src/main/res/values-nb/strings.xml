@@ -11,6 +11,7 @@
     <string name="add_30_days_time_x">Legg til 30 dager (%1$s)</string>
     <string name="add_a_server">Legg til en server</string>
     <string name="add_dns_server_dialog_title">Legg til DNS-server</string>
+    <string name="add_location_to_list">Legg til %1$s i listen</string>
     <string name="add_time_to_account">Du kan enten kjøpe kreditt på nettsiden vår eller løse inn en kupong.</string>
     <string name="added_to_your_account">%1$s ble lagt til kontoen din.</string>
     <string name="agree_and_continue">Godta og fortsett</string>
@@ -31,7 +32,7 @@
     <string name="auto_connect_carousel_first_slide_top_text">Du finner innstillingene for automatisk tilkobling og låsemodus i Androids systeminnstillinger. Følg denne veiledningen for å aktivere én eller begge.</string>
     <string name="auto_connect_carousel_second_slide_bottom_text">2. For å aktivere Automatisk tilkobling trykker du på bryteren ved siden av &lt;b&gt;VPN alltid på&lt;/b&gt;.</string>
     <string name="auto_connect_carousel_second_slide_top_text">Automatisk tilkobling heter «Alltid-på-VPN» i Androids systeminnstillinger og sørger for at du alltid er tilkoblet VPN-tunnelen og automatisk tilkobling etter omstart.</string>
-    <string name="auto_connect_footer">Kobler automatisk til en server når appen starter.</string>
+    <string name="auto_connect_footer_legacy">Bruk systeminnstillingen &lt;b&gt;alltid på&lt;/b&gt; i stedet for å følge veiledningen i &lt;b&gt;%1$s&lt;/b&gt; ovenfor.</string>
     <string name="automatic">Automatisk</string>
     <string name="back">Tilbake</string>
     <string name="block_ads_title">Annonser</string>
@@ -119,6 +120,8 @@
     <string name="here_is_your_account_number">Dette er kontonummeret ditt. Ta vare på det!</string>
     <string name="hide_account_number">Skjul kontonummer</string>
     <string name="hint_default">Standard</string>
+    <string name="import_override_textfield_placeholder">Lim eller skriv inn overstyringer som skal importeres</string>
+    <string name="import_overrides_bottom_sheet_override_warning">Importering av nye overstyringer kan erstatte tidligere importerte overstyringer.</string>
     <string name="import_overrides_import">Importer</string>
     <string name="import_overrides_text_title">Importer via tekst</string>
     <string name="in_address">Inngående</string>
@@ -134,6 +137,8 @@
     <string name="local_network_sharing">Deling over lokalt nettverk</string>
     <string name="local_network_sharing_additional_info">Den gjør det ved å tillate nettverkkommunikasjon utenfor tunnelen til lokale multicast- og sendingsintervall, samt mellom følgende privat IP-intervall:</string>
     <string name="local_network_sharing_info">Funksjonen gir tilgang til andre enheter på det lokale nettverket for ting som deling, utskrift, strømming osv.</string>
+    <string name="location_added">%1$s (lagt til)</string>
+    <string name="location_was_added_to_list">%1$s ble lagt til «%2$s»</string>
     <string name="log_out">Logg ut</string>
     <string name="logged_in_description">Gyldig kontonummer</string>
     <string name="logged_in_title">Du er logget inn</string>
@@ -155,9 +160,11 @@
     <string name="new_device_notification_message">Velkommen. Denne enheten har fått navnet &lt;b&gt;%1$s&lt;/b&gt;. For å finne ut mer kan du bruke informasjonsknappen under Konto.</string>
     <string name="new_device_notification_title">NY ENHET OPPRETTET</string>
     <string name="no_internet_connection">Ingen internettforbindelse</string>
+    <string name="no_locations_found">Ingen plasseringer funnet</string>
     <string name="no_matching_relay">Ingen servere passer til innstillingene dine. Prøv å endre server eller andre innstillinger.</string>
     <string name="no_wireguard_key">Det mangler en gyldig WireGuard-nøkkel. Du kan behandle nøklene under avanserte innstillinger.</string>
     <string name="not_blocking_internet">DET KAN VÆRE EN NETTVERKSLEKKASJE HOS DEG</string>
+    <string name="not_found">Ikke funnet</string>
     <string name="number_of_providers">Leverandører: %1$d</string>
     <string name="obfuscation_info">Tilsløring skjuler WireGuard-trafikken i en annen protokoll. Man kan på den måten omgå sensur og andre typer filter i tilfeller der en vanlig WireGuard-tilkobling ville blitt blokkert.</string>
     <string name="obfuscation_on_udp_over_tcp">På (UDP-over-TCP)</string>
@@ -166,9 +173,11 @@
     <string name="on">På</string>
     <string name="out_address">Utgående</string>
     <string name="out_of_time">Tiden har utløpt</string>
+    <string name="overrides_cleared">Overstyringer fjernet</string>
     <string name="owned">Eid</string>
     <string name="ownership">Eierskap</string>
     <string name="paid_until">Betalt fram til</string>
+    <string name="patch_not_matching_specification">Oppdateringen samsvarer ikke med spesifikasjon</string>
     <string name="pay_to_start_using">For å starte bruken av appen, må du først legge til tid til kontoen.</string>
     <string name="payment_billing_error_dialog_message">Vi kunne ikke starte betalingsprosessen. Kontroller om du har siste versjon av Google Play.</string>
     <string name="payment_billing_error_dialog_title">Google Play utilgjengelig</string>
@@ -215,6 +224,9 @@
     <string name="sent_contact">Vi vil kontakte deg på %1$s ved behov</string>
     <string name="sent_thanks">Takk!</string>
     <string name="server_ip_overrides">Overstyring av server-IP</string>
+    <string name="server_ip_overrides_active">Overstyringer aktive</string>
+    <string name="server_ip_overrides_import_by">Importer nye overstyringer via</string>
+    <string name="server_ip_overrides_inactive">Overstyringer inaktive</string>
     <string name="server_ip_overrides_info_first_paragraph">På enkelte nettverk der det brukes ulike typer sensur, kan server-IP-adressene av og til være blokkerte.</string>
     <string name="server_ip_overrides_info_second_paragraph">For å omgå dette kan du importere en fil eller tekst, som du har fått fra kundestøtteteamet, med nye IP-adresser som overstyrer standardadressene til serverne i «Velg plassering».</string>
     <string name="server_ip_overrides_info_third_paragraph">Hvis du har mistet tilkoblingen til VPN-serverne, kan du ta kontak med kundestøtten.</string>
@@ -224,6 +236,8 @@
     <string name="settings_account">Konto</string>
     <string name="settings_changes_effect_warning_content_blocker">Endringer til DNS-relaterte innstillinger vil kanskje ikke tre i kraft umiddelbart på grunn av bufrede resultater.</string>
     <string name="settings_changes_effect_warning_short">DNS-innstillinger vil kanskje ikke tre i kraft umiddelbart</string>
+    <string name="settings_patch_error_unknown_or_prohibited_key">Ukjent eller forbudt nøkkel «%1$s»</string>
+    <string name="settings_patch_success">Importering vellykket. Overstyringer aktive</string>
     <string name="settings_preferences">Preferanser</string>
     <string name="settings_vpn">VPN-innstillinger</string>
     <string name="show_account_number">Vis kontonummer</string>
@@ -238,6 +252,7 @@
     <string name="try_again">Prøv på nytt</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">TCP-porten som UDP-over-TCP-tilsløringen skal koble til på VPN-serveren.</string>
+    <string name="undo">Angre</string>
     <string name="unsecured">Usikret</string>
     <string name="unsecured_connection">USIKKER TILKOBLING</string>
     <string name="unsupported_version">VERSJON UTEN STØTTE</string>
