@@ -4,6 +4,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.lib.model.ActionAfterDisconnect
@@ -58,6 +59,8 @@ private fun DisconnectedText(modifier: Modifier) {
         text = textResource(id = R.string.unsecured_connection),
         color = MaterialTheme.colorScheme.error,
         style = MaterialTheme.typography.connectionStatus,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
         modifier = modifier
     )
 }
@@ -73,6 +76,8 @@ private fun ConnectingText(isQuantumResistant: Boolean, modifier: Modifier) {
             ),
         color = MaterialTheme.colorScheme.onPrimary,
         style = MaterialTheme.typography.connectionStatus,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
         modifier = modifier
     )
 }
@@ -88,6 +93,8 @@ private fun ConnectedText(isQuantumResistant: Boolean, modifier: Modifier) {
             ),
         color = MaterialTheme.colorScheme.surface,
         style = MaterialTheme.typography.connectionStatus,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
         modifier = modifier
     )
 }
@@ -103,6 +110,8 @@ private fun ErrorText(isBlocking: Boolean, modifier: Modifier) {
             if (isBlocking) MaterialTheme.colorScheme.onPrimary
             else MaterialTheme.colorScheme.error,
         style = MaterialTheme.typography.connectionStatus,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
         modifier = modifier
     )
 }

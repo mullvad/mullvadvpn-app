@@ -41,6 +41,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -352,12 +353,16 @@ private fun ConnectionInfo(state: ConnectUiState) {
         text = state.location?.country ?: "",
         style = MaterialTheme.typography.headlineLarge,
         color = MaterialTheme.colorScheme.onPrimary,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
         modifier = Modifier.padding(horizontal = Dimens.sideMargin)
     )
     Text(
         text = state.location?.city ?: "",
         style = MaterialTheme.typography.headlineLarge,
         color = MaterialTheme.colorScheme.onPrimary,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
         modifier = Modifier.padding(horizontal = Dimens.sideMargin)
     )
     var expanded by rememberSaveable { mutableStateOf(false) }
