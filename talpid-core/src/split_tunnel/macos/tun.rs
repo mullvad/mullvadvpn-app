@@ -318,13 +318,13 @@ async fn run_ingress_task(
     let dummy_read = tokio::spawn(async move {
         loop {
             tokio::select! {
+                biased; Ok(()) | Err(_) = abort_read_rx.recv() => {
+                    break;
+                }
                 result = tun_reader.read(&mut garbage) => {
                     if result.is_err() {
                         break;
                     }
-                }
-                Ok(()) | Err(_) = abort_read_rx.recv() => {
-                    break;
                 }
             }
         }
@@ -334,6 +334,9 @@ async fn run_ingress_task(
     // Write data incoming on the default interface to the ST utun
     let tun_writer = loop {
         tokio::select! {
+            biased; Ok(()) | Err(_) = abort_rx.recv() => {
+                break tun_writer;
+            }
             result = default_read.read(&mut read_buffer) => {
                 let Ok(read_n) = result else {
                     break tun_writer;
@@ -344,9 +347,6 @@ async fn run_ingress_task(
                 while let Some(payload) = iter.next() {
                     handle_incoming_data(&mut tun_writer, payload, vpn_v4, vpn_v6).await;
                 }
-            }
-            Ok(()) | Err(_) = abort_rx.recv() => {
-                break tun_writer;
             }
         }
     };
@@ -382,6 +382,10 @@ async fn run_egress_task(
 
     loop {
         tokio::select! {
+            biased; Ok(()) | Err(_) = abort_rx.recv() => {
+                log::debug!("stopping packet processing");
+                break Ok(EgressResult { pktap_stream, classify });
+            }
             packet = pktap_stream.next() => {
                 let mut packet = packet.ok_or_else(|| {
                     log::debug!("packet stream closed");
@@ -395,10 +399,6 @@ async fn run_egress_task(
                 };
 
                 classify_and_send(&classify, &mut packet, &default_interface, &mut default_write, vpn_device)
-            }
-            Ok(()) | Err(_) = abort_rx.recv() => {
-                log::debug!("stopping packet processing");
-                break Ok(EgressResult { pktap_stream, classify });
             }
         }
     }
