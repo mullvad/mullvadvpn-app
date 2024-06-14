@@ -286,6 +286,9 @@ fn open_default_bpf(
     default_dev
         .set_see_sent(false)
         .map_err(Error::ConfigDefaultBpf)?;
+    default_dev
+        .set_nonblocking(true)
+        .map_err(Error::ConfigDefaultBpf)?;
 
     // Split the default device BPF handle into a read and write half
     let (default_read, default_write) = default_dev.split().map_err(Error::ConfigDefaultBpf)?;
@@ -412,6 +415,7 @@ fn open_vpn_bpf(vpn_interface: &VpnInterface) -> Result<bpf::Bpf, Error> {
         .map_err(Error::ConfigVpnBpf)?;
     vpn_dev.set_immediate(true).map_err(Error::ConfigVpnBpf)?;
     vpn_dev.set_see_sent(false).map_err(Error::ConfigVpnBpf)?;
+    vpn_dev.set_nonblocking(true).map_err(Error::ConfigVpnBpf)?;
     Ok(vpn_dev)
 }
 
