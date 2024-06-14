@@ -29,6 +29,18 @@ Line wrap the file at 100 chars.                                              Th
 - Migrate underlaying communication wtih daemon to gRPC. This also implies major changes and
   improvements throughout the app.
 
+## [android/2024.3-beta1] - 2024-06-14
+### Changed
+- Always show account history if present on login screen.
+- Clarifications to in-app lockdown guide.
+
+### Deprecated
+- Auto-connect is now legacy on all android devices. This setting will be replaced with a new one
+  for devices without native OS support.
+
+### Fixed
+- Improve device revoked detection.
+
 
 ## [android/2024.2] - 2024-05-29
 ### Fixed
