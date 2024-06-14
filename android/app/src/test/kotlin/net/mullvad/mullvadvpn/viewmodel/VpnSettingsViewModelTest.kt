@@ -28,7 +28,7 @@ import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 import net.mullvad.mullvadvpn.lib.model.WireguardTunnelOptions
 import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
-import net.mullvad.mullvadvpn.usecase.SystemVpnSettingsUseCase
+import net.mullvad.mullvadvpn.usecase.SystemVpnSettingsAvailableUseCase
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -38,7 +38,8 @@ import org.junit.jupiter.api.extension.ExtendWith
 class VpnSettingsViewModelTest {
 
     private val mockSettingsRepository: SettingsRepository = mockk()
-    private val mockSystemVpnSettingsUseCase: SystemVpnSettingsUseCase = mockk(relaxed = true)
+    private val mockSystemVpnSettingsUseCase: SystemVpnSettingsAvailableUseCase =
+        mockk(relaxed = true)
     private val mockRelayListRepository: RelayListRepository = mockk()
 
     private val mockSettingsUpdate = MutableStateFlow<Settings?>(null)

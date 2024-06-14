@@ -10,7 +10,7 @@ class CustomListsRelayItemUseCase(
     private val relayListRepository: RelayListRepository,
 ) {
 
-    fun relayItemCustomLists() =
+    operator fun invoke() =
         combine(customListsRepository.customLists, relayListRepository.relayList) {
             customLists,
             relayList ->

@@ -43,15 +43,13 @@ class AccountExpiryNotificationUseCaseTest {
     @Test
     fun `initial state should be empty`() = runTest {
         // Arrange, Act, Assert
-        accountExpiryNotificationUseCase.notifications().test {
-            assertTrue { awaitItem().isEmpty() }
-        }
+        accountExpiryNotificationUseCase().test { assertTrue { awaitItem().isEmpty() } }
     }
 
     @Test
     fun `account that expires within 3 days should emit a notification`() = runTest {
         // Arrange, Act, Assert
-        accountExpiryNotificationUseCase.notifications().test {
+        accountExpiryNotificationUseCase().test {
             assertTrue { awaitItem().isEmpty() }
             val closeToExpiry = AccountData(mockk(relaxed = true), DateTime.now().plusDays(2))
             accountExpiry.value = closeToExpiry
@@ -66,7 +64,7 @@ class AccountExpiryNotificationUseCaseTest {
     @Test
     fun `account that expires in 4 days should not emit a notification`() = runTest {
         // Arrange, Act, Assert
-        accountExpiryNotificationUseCase.notifications().test {
+        accountExpiryNotificationUseCase().test {
             assertTrue { awaitItem().isEmpty() }
             accountExpiry.value = AccountData(mockk(relaxed = true), DateTime.now().plusDays(4))
             expectNoEvents()

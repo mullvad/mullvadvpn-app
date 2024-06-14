@@ -77,7 +77,7 @@ class CustomListActionUseCaseTest {
             )
 
         // Act
-        val result = customListActionUseCase.performAction(action)
+        val result = customListActionUseCase(action)
 
         // Assert
         assertEquals(expectedResult, result)
@@ -94,7 +94,7 @@ class CustomListActionUseCaseTest {
             CustomListAlreadyExists.left()
 
         // Act
-        val result = customListActionUseCase.performAction(action)
+        val result = customListActionUseCase(action)
 
         // Assert
         assertEquals(expectedError, result)
@@ -113,7 +113,7 @@ class CustomListActionUseCaseTest {
         } returns Unit.right()
 
         // Act
-        val result = customListActionUseCase.performAction(action)
+        val result = customListActionUseCase(action)
 
         // Assert
         assertEquals(expectedResult, result)
@@ -133,7 +133,7 @@ class CustomListActionUseCaseTest {
         val expectedError = RenameError(NameAlreadyExists(newName.value)).left()
 
         // Act
-        val result = customListActionUseCase.performAction(action)
+        val result = customListActionUseCase(action)
 
         // Assert
         assertEquals(expectedError, result)
@@ -158,7 +158,7 @@ class CustomListActionUseCaseTest {
             mockCustomList.right()
 
         // Act
-        val result = customListActionUseCase.performAction(action)
+        val result = customListActionUseCase(action)
 
         // Assert
         assertEquals(expectedResult, result)
@@ -184,7 +184,7 @@ class CustomListActionUseCaseTest {
         } returns Unit.right()
 
         // Act
-        val result = customListActionUseCase.performAction(action)
+        val result = customListActionUseCase(action)
 
         // Assert
         assertEquals(expectedResult, result)

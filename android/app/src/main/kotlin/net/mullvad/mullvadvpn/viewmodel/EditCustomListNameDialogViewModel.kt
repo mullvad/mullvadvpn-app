@@ -41,8 +41,7 @@ class EditCustomListNameDialogViewModel(
 
     fun updateCustomListName(name: String) {
         viewModelScope.launch {
-            customListActionUseCase
-                .performAction(
+            customListActionUseCase(
                     CustomListAction.Rename(
                         id = customListId,
                         name = initialName,

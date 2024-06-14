@@ -8,7 +8,7 @@ import net.mullvad.mullvadvpn.repository.RelayListRepository
 
 class AvailableProvidersUseCase(private val relayListRepository: RelayListRepository) {
 
-    fun availableProviders(): Flow<List<Provider>> =
+    operator fun invoke(): Flow<List<Provider>> =
         relayListRepository.relayList.map { relayList ->
             relayList
                 .flatMap(RelayItem.Location.Country::cities)

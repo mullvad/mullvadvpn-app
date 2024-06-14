@@ -58,13 +58,13 @@ class NewDeviceUseNotificationCaseTest {
     @Test
     fun `initial state should be empty`() = runTest {
         // Arrange, Act, Assert
-        newDeviceNotificationUseCase.notifications().test { assertTrue { awaitItem().isEmpty() } }
+        newDeviceNotificationUseCase().test { assertTrue { awaitItem().isEmpty() } }
     }
 
     @Test
     fun `when newDeviceCreated is called notifications should emit NewDevice notification containing device name`() =
         runTest {
-            newDeviceNotificationUseCase.notifications().test {
+            newDeviceNotificationUseCase().test {
                 // Arrange, Act
                 awaitItem()
                 newDeviceNotificationUseCase.newDeviceCreated()
@@ -76,7 +76,7 @@ class NewDeviceUseNotificationCaseTest {
 
     @Test
     fun `clearNewDeviceCreatedNotification should clear notifications`() = runTest {
-        newDeviceNotificationUseCase.notifications().test {
+        newDeviceNotificationUseCase().test {
             // Arrange, Act
             awaitItem()
             newDeviceNotificationUseCase.newDeviceCreated()

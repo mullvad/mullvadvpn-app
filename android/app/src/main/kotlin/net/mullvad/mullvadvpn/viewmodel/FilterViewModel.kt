@@ -35,7 +35,7 @@ class FilterViewModel(
         viewModelScope.launch {
             selectedProviders.value =
                 combine(
-                        availableProvidersUseCase.availableProviders(),
+                        availableProvidersUseCase(),
                         relayListFilterRepository.selectedProviders,
                     ) { allProviders, selectedConstraintProviders ->
                         selectedConstraintProviders.toSelectedProviders(allProviders)
@@ -50,7 +50,7 @@ class FilterViewModel(
     val uiState: StateFlow<RelayFilterState> =
         combine(
                 selectedOwnership,
-                availableProvidersUseCase.availableProviders(),
+                availableProvidersUseCase(),
                 selectedProviders,
             ) { selectedOwnership, allProviders, selectedProviders ->
                 RelayFilterState(
@@ -86,7 +86,7 @@ class FilterViewModel(
         viewModelScope.launch {
             selectedProviders.value =
                 if (isChecked) {
-                    availableProvidersUseCase.availableProviders().first()
+                    availableProvidersUseCase().first()
                 } else {
                     emptyList()
                 }

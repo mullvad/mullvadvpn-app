@@ -29,7 +29,7 @@ import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
-import net.mullvad.mullvadvpn.usecase.SystemVpnSettingsUseCase
+import net.mullvad.mullvadvpn.usecase.SystemVpnSettingsAvailableUseCase
 import net.mullvad.mullvadvpn.util.isCustom
 
 sealed interface VpnSettingsSideEffect {
@@ -45,7 +45,7 @@ sealed interface VpnSettingsSideEffect {
 class VpnSettingsViewModel(
     private val repository: SettingsRepository,
     private val relayListRepository: RelayListRepository,
-    private val systemVpnSettingsUseCase: SystemVpnSettingsUseCase,
+    private val systemVpnSettingsUseCase: SystemVpnSettingsAvailableUseCase,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
 
@@ -76,8 +76,7 @@ class VpnSettingsViewModel(
                     selectedWireguardPort = settings?.getWireguardPort() ?: Constraint.Any,
                     customWireguardPort = customWgPort,
                     availablePortRanges = portRanges,
-                    systemVpnSettingsAvailable =
-                        systemVpnSettingsUseCase.systemVpnSettingsAvailable()
+                    systemVpnSettingsAvailable = systemVpnSettingsUseCase()
                 )
             }
             .stateIn(

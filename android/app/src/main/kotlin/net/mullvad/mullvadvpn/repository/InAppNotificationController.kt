@@ -64,10 +64,10 @@ class InAppNotificationController(
 
     val notifications =
         combine(
-                tunnelStateNotificationUseCase.notifications(),
-                versionNotificationUseCase.notifications(),
-                accountExpiryNotificationUseCase.notifications(),
-                newDeviceNotificationUseCase.notifications(),
+                tunnelStateNotificationUseCase(),
+                versionNotificationUseCase(),
+                accountExpiryNotificationUseCase(),
+                newDeviceNotificationUseCase(),
             ) { a, b, c, d ->
                 a + b + c + d
             }

@@ -16,7 +16,7 @@ class SelectedLocationTitleUseCase(
     private val customListsRepository: CustomListsRepository,
     private val relayListRepository: RelayListRepository,
 ) {
-    fun selectedLocationTitle() =
+    operator fun invoke() =
         combine(
             customListsRepository.customLists,
             relayListRepository.relayList,

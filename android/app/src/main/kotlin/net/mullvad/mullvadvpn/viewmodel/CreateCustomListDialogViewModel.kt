@@ -37,8 +37,7 @@ class CreateCustomListDialogViewModel(
 
     fun createCustomList(name: String) {
         viewModelScope.launch {
-            customListActionUseCase
-                .performAction(
+            customListActionUseCase(
                     CustomListAction.Create(
                         CustomListName.fromString(name),
                         listOfNotNull(locationCode)

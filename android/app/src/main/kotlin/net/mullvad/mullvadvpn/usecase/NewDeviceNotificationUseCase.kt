@@ -1,19 +1,20 @@
 package net.mullvad.mullvadvpn.usecase
 
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
 import net.mullvad.mullvadvpn.repository.InAppNotification
+import net.mullvad.mullvadvpn.repository.NewDeviceRepository
 
-class NewDeviceNotificationUseCase(private val deviceRepository: DeviceRepository) {
-    private val _mutableShowNewDeviceNotification = MutableStateFlow(false)
-
-    fun notifications() =
+class NewDeviceNotificationUseCase(
+    private val newDeviceRepository: NewDeviceRepository,
+    private val deviceRepository: DeviceRepository
+) {
+    operator fun invoke() =
         combine(
                 deviceRepository.deviceState.map { it?.displayName() },
-                _mutableShowNewDeviceNotification
+                newDeviceRepository.isNewDevice
             ) { deviceName, newDeviceCreated ->
                 if (newDeviceCreated && deviceName != null) {
                     InAppNotification.NewDevice(deviceName)
@@ -21,12 +22,4 @@ class NewDeviceNotificationUseCase(private val deviceRepository: DeviceRepositor
             }
             .map(::listOfNotNull)
             .distinctUntilChanged()
-
-    fun newDeviceCreated() {
-        _mutableShowNewDeviceNotification.value = true
-    }
-
-    fun clearNewDeviceCreatedNotification() {
-        _mutableShowNewDeviceNotification.value = false
-    }
 }
