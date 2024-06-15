@@ -18,15 +18,13 @@ use mullvad_daemon::{
 use std::{
     io,
     path::{Path, PathBuf},
-    sync::{mpsc, Arc, Once},
+    sync::{mpsc, Arc, Once, OnceLock},
 };
 use talpid_types::{android::AndroidContext, ErrorExt};
 
 const LOG_FILENAME: &str = "daemon.log";
 
 static LOAD_CLASSES: Once = Once::new();
-static LOG_START: Once = Once::new();
-static mut LOG_INIT_RESULT: Option<Result<(), String>> = None;
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
@@ -225,19 +223,16 @@ async fn run_daemon_inner(
 }
 
 fn start_logging(log_dir: &Path) -> Result<(), String> {
-    unsafe {
-        LOG_START.call_once(|| LOG_INIT_RESULT = Some(initialize_logging(log_dir)));
-        LOG_INIT_RESULT
-            .clone()
-            .expect("Logging not properly initialized")
-    }
+    static LOGGER_RESULT: OnceLock<Result<(), String>> = OnceLock::new();
+    LOGGER_RESULT
+        .get_or_init(|| start_logging_inner(log_dir).map_err(|e| e.display_chain()))
+        .to_owned()
 }
 
-fn initialize_logging(log_dir: &Path) -> Result<(), String> {
+fn start_logging_inner(log_dir: &Path) -> Result<(), logging::Error> {
     let log_file = log_dir.join(LOG_FILENAME);
 
-    logging::init_logger(log::LevelFilter::Debug, Some(&log_file), true)
-        .map_err(|error| error.display_chain_with_msg("Failed to start logger"))?;
+    logging::init_logger(log::LevelFilter::Debug, Some(&log_file), true)?;
     exception_logging::enable();
     log_panics::init();
 
