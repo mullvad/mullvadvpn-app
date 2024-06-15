@@ -2,7 +2,6 @@
 
 mod api;
 mod classes;
-mod is_null;
 mod problem_report;
 mod talpid_vpn_service;
 
