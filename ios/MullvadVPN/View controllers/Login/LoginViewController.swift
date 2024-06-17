@@ -178,17 +178,6 @@ class LoginViewController: UIViewController, RootContainment {
         )
     }
 
-    override var disablesAutomaticKeyboardDismissal: Bool {
-        // Allow dismissing the keyboard in .formSheet presentation style
-        false
-    }
-
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        if traitCollection.userInterfaceIdiom != previousTraitCollection?.userInterfaceIdiom {
-            updateCreateButtonEnabled()
-        }
-    }
-
     // MARK: - Public
 
     func start(action: LoginAction) {
@@ -320,14 +309,7 @@ class LoginViewController: UIViewController, RootContainment {
 
         switch loginState {
         case .failure, .default:
-            // Disable "Create account" button on iPad as user types in the account token,
-            // however leave it enabled on iPhone to avoid confusion to why it's being disabled
-            // since it's likely overlaid by keyboard.
-            if case .pad = traitCollection.userInterfaceIdiom {
-                isEnabled = contentView.accountInputGroup.textField.text?.isEmpty ?? true
-            } else {
-                isEnabled = true
-            }
+            isEnabled = true
 
         case .success, .authenticating:
             isEnabled = false

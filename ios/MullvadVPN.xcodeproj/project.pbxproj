@@ -114,7 +114,6 @@
 		5838322B2AC3EF9600EA2071 /* EventChannel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5838322A2AC3EF9600EA2071 /* EventChannel.swift */; };
 		583D86482A2678DC0060D63B /* DeviceStateAccessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583D86472A2678DC0060D63B /* DeviceStateAccessor.swift */; };
 		583DA21425FA4B5C00318683 /* LocationDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583DA21325FA4B5C00318683 /* LocationDataSource.swift */; };
-		583FE01029C0F532006E85F9 /* CustomSplitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583FE00F29C0F532006E85F9 /* CustomSplitViewController.swift */; };
 		583FE02429C1ACB3006E85F9 /* RESTCreateApplePaymentResponse+Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67828F83CA50033DD93 /* RESTCreateApplePaymentResponse+Localization.swift */; };
 		584023222A406BF5007B27AC /* UDPOverTCPObfuscator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584023212A406BF5007B27AC /* UDPOverTCPObfuscator.swift */; };
 		584023292A407F5F007B27AC /* libtunnel_obfuscator_proxy.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 584023282A407F5F007B27AC /* libtunnel_obfuscator_proxy.a */; };
@@ -137,8 +136,6 @@
 		58607A4D2947287800BC467D /* AccountExpiryInAppNotificationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58607A4C2947287800BC467D /* AccountExpiryInAppNotificationProvider.swift */; };
 		586168692976F6BD00EF8598 /* DisplayError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586168682976F6BD00EF8598 /* DisplayError.swift */; };
 		5862805422428EF100F5A6E1 /* TranslucentButtonBlurView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5862805322428EF100F5A6E1 /* TranslucentButtonBlurView.swift */; };
-		5864859929A0D028006C5743 /* FormsheetPresentationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5864859829A0D028006C5743 /* FormsheetPresentationController.swift */; };
-		5864859B29A0EAF2006C5743 /* SecondaryContextPresentationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5864859A29A0EAF2006C5743 /* SecondaryContextPresentationController.swift */; };
 		5864AF0729C78843005B0CD9 /* SettingsCellFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5864AF0029C7879B005B0CD9 /* SettingsCellFactory.swift */; };
 		5864AF0829C78849005B0CD9 /* CellFactoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5864AF0129C7879B005B0CD9 /* CellFactoryProtocol.swift */; };
 		5864AF0929C78850005B0CD9 /* VPNSettingsCellFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5864AF0229C7879B005B0CD9 /* VPNSettingsCellFactory.swift */; };
@@ -610,6 +607,7 @@
 		7ADCB2DA2B6A730400C88F89 /* IPOverrideRepositoryStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ADCB2D92B6A730400C88F89 /* IPOverrideRepositoryStub.swift */; };
 		7AE044BB2A935726003915D8 /* Routing.h in Headers */ = {isa = PBXBuildFile; fileRef = 7A88DCD02A8FABBE00D2FF0E /* Routing.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		7AEBA52A2C2179F20018BEC5 /* RelaySelectorWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AEBA5292C2179F20018BEC5 /* RelaySelectorWrapper.swift */; };
+		7AE2414A2C20682B0076CE33 /* FormsheetPresentationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE241482C20682B0076CE33 /* FormsheetPresentationController.swift */; };
 		7AED35CC2BD13F60002A67D1 /* ApplicationConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BFA5CB22A7CE1F00A6173D /* ApplicationConfiguration.swift */; };
 		7AED35CD2BD13FC4002A67D1 /* ApplicationTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C76A072A33850E00100D75 /* ApplicationTarget.swift */; };
 		7AEF7F1A2AD00F52006FE45D /* AppMessageHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AEF7F192AD00F52006FE45D /* AppMessageHandler.swift */; };
@@ -1556,7 +1554,6 @@
 		583E1E292848DF67004838B3 /* OperationObserverTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationObserverTests.swift; sourceTree = "<group>"; };
 		583E60952A9F6D0800DC61EF /* ConfigurationBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigurationBuilder.swift; sourceTree = "<group>"; };
 		583FE00B29C0C7FD006E85F9 /* ModalPresentationConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModalPresentationConfiguration.swift; sourceTree = "<group>"; };
-		583FE00F29C0F532006E85F9 /* CustomSplitViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSplitViewController.swift; sourceTree = "<group>"; };
 		583FE01129C0F99A006E85F9 /* PresentationControllerDismissalInterceptor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PresentationControllerDismissalInterceptor.swift; sourceTree = "<group>"; };
 		5840231F2A406BF5007B27AC /* TunnelObfuscation.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = TunnelObfuscation.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		584023212A406BF5007B27AC /* UDPOverTCPObfuscator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UDPOverTCPObfuscator.swift; sourceTree = "<group>"; };
@@ -1589,8 +1586,6 @@
 		58607A4C2947287800BC467D /* AccountExpiryInAppNotificationProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountExpiryInAppNotificationProvider.swift; sourceTree = "<group>"; };
 		586168682976F6BD00EF8598 /* DisplayError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplayError.swift; sourceTree = "<group>"; };
 		5862805322428EF100F5A6E1 /* TranslucentButtonBlurView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslucentButtonBlurView.swift; sourceTree = "<group>"; };
-		5864859829A0D028006C5743 /* FormsheetPresentationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormsheetPresentationController.swift; sourceTree = "<group>"; };
-		5864859A29A0EAF2006C5743 /* SecondaryContextPresentationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecondaryContextPresentationController.swift; sourceTree = "<group>"; };
 		5864AF0029C7879B005B0CD9 /* SettingsCellFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsCellFactory.swift; sourceTree = "<group>"; };
 		5864AF0129C7879B005B0CD9 /* CellFactoryProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CellFactoryProtocol.swift; sourceTree = "<group>"; };
 		5864AF0229C7879B005B0CD9 /* VPNSettingsCellFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VPNSettingsCellFactory.swift; sourceTree = "<group>"; };
@@ -1986,6 +1981,7 @@
 		7ADCB2D72B6A6EB300C88F89 /* AnyRelay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyRelay.swift; sourceTree = "<group>"; };
 		7ADCB2D92B6A730400C88F89 /* IPOverrideRepositoryStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPOverrideRepositoryStub.swift; sourceTree = "<group>"; };
 		7AEBA5292C2179F20018BEC5 /* RelaySelectorWrapper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RelaySelectorWrapper.swift; sourceTree = "<group>"; };
+		7AE241482C20682B0076CE33 /* FormsheetPresentationController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FormsheetPresentationController.swift; sourceTree = "<group>"; };
 		7AEF7F192AD00F52006FE45D /* AppMessageHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppMessageHandler.swift; sourceTree = "<group>"; };
 		7AF10EB12ADE859200C090B9 /* AlertViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlertViewController.swift; sourceTree = "<group>"; };
 		7AF10EB32ADE85BC00C090B9 /* RelayFilterCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RelayFilterCoordinator.swift; sourceTree = "<group>"; };
@@ -3144,15 +3140,6 @@
 			path = RelayCacheTracker;
 			sourceTree = "<group>";
 		};
-		5864859729A0D012006C5743 /* Presentation controllers */ = {
-			isa = PBXGroup;
-			children = (
-				5864859829A0D028006C5743 /* FormsheetPresentationController.swift */,
-				5864859A29A0EAF2006C5743 /* SecondaryContextPresentationController.swift */,
-			);
-			path = "Presentation controllers";
-			sourceTree = "<group>";
-		};
 		5864AF0629C78816005B0CD9 /* Protocols */ = {
 			isa = PBXGroup;
 			children = (
@@ -3415,7 +3402,6 @@
 			children = (
 				58D1560C29C0B27600749324 /* Root */,
 				583FE01329C102EB006E85F9 /* Navigation */,
-				583FE00F29C0F532006E85F9 /* CustomSplitViewController.swift */,
 			);
 			path = Containers;
 			sourceTree = "<group>";
@@ -3587,7 +3573,7 @@
 				F09D04B82AE94F27003D4F89 /* GeneralAPIs */,
 				58B26E1F2943516500D5980C /* Notifications */,
 				586A950B2901250A007BAF2B /* Operations */,
-				5864859729A0D012006C5743 /* Presentation controllers */,
+				7AE241492C20682B0076CE33 /* Presentation controllers */,
 				5864AF0629C78816005B0CD9 /* Protocols */,
 				585DA87526B0249A00B8C587 /* RelayCacheTracker */,
 				58E25F802837BBBB002CFB2C /* SceneDelegate.swift */,
@@ -3942,6 +3928,14 @@
 				7A9BE5A12B8F88C500E2A7D0 /* LocationNodeTests.swift */,
 			);
 			path = SelectLocation;
+			sourceTree = "<group>";
+		};
+		7AE241492C20682B0076CE33 /* Presentation controllers */ = {
+			isa = PBXGroup;
+			children = (
+				7AE241482C20682B0076CE33 /* FormsheetPresentationController.swift */,
+			);
+			path = "Presentation controllers";
 			sourceTree = "<group>";
 		};
 		7AF9BE912A39F47D00DBFEDB /* RelayFilter */ = {
@@ -5687,7 +5681,6 @@
 				5891BF5125E66B1E006D6FB0 /* UIBarButtonItem+KeyboardNavigation.swift in Sources */,
 				58E511E628DDDEAC00B0BCDE /* CodingErrors+CustomErrorDescription.swift in Sources */,
 				58C76A0B2A338E4300100D75 /* BackgroundTask.swift in Sources */,
-				5864859B29A0EAF2006C5743 /* SecondaryContextPresentationController.swift in Sources */,
 				7A9CCCC32A96302800DD6A34 /* ApplicationCoordinator.swift in Sources */,
 				5864AF0729C78843005B0CD9 /* SettingsCellFactory.swift in Sources */,
 				587B75412668FD7800DEF7E9 /* AccountExpirySystemNotificationProvider.swift in Sources */,
@@ -5816,7 +5809,6 @@
 				586A950E290125F3007BAF2B /* ProductsRequestOperation.swift in Sources */,
 				7AF9BE902A39F26000DBFEDB /* Collection+Sorting.swift in Sources */,
 				58F19E35228C15BA00C7710B /* SpinnerActivityIndicatorView.swift in Sources */,
-				5864859929A0D028006C5743 /* FormsheetPresentationController.swift in Sources */,
 				58CEB3022AFD365600E6E088 /* SwitchCellContentConfiguration.swift in Sources */,
 				7A9CCCB52A96302800DD6A34 /* AddCreditSucceededCoordinator.swift in Sources */,
 				7A0C0F632A979C4A0058EFCE /* Coordinator+Router.swift in Sources */,
@@ -5896,6 +5888,7 @@
 				5807E2C02432038B00F5FF30 /* String+Split.swift in Sources */,
 				58B26E242943520C00D5980C /* NotificationProviderProtocol.swift in Sources */,
 				5877F94E2A0A59AA0052D9E9 /* NotificationResponse.swift in Sources */,
+				7AE2414A2C20682B0076CE33 /* FormsheetPresentationController.swift in Sources */,
 				7A6389E52B7E4247008E77E1 /* EditCustomListCoordinator.swift in Sources */,
 				58677712290976FB006F721F /* SettingsInteractor.swift in Sources */,
 				58EF875D2B1638BF00C098B2 /* ProxyConfigurationTesterProtocol.swift in Sources */,
@@ -5905,7 +5898,6 @@
 				5878F50029CDA742003D4BE2 /* UIView+AutoLayoutBuilder.swift in Sources */,
 				7A28826D2BAAC9DE00FD9F20 /* IPOverrideHeaderView.swift in Sources */,
 				A98502032B627B120061901E /* LocalNetworkProbe.swift in Sources */,
-				583FE01029C0F532006E85F9 /* CustomSplitViewController.swift in Sources */,
 				7A6F2FA92AFD0842006D0856 /* CustomDNSDataSource.swift in Sources */,
 				58EF580B25D69D7A00AEBA94 /* ProblemReportSubmissionOverlayView.swift in Sources */,
 				5892A45E265FABFF00890742 /* EmptyTableViewHeaderFooterView.swift in Sources */,
