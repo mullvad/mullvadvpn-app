@@ -1,20 +1,24 @@
 package net.mullvad.mullvadvpn.usecase
 
 import android.app.Activity
+import arrow.core.Either
+import arrow.core.right
+import arrow.resilience.Schedule
+import arrow.resilience.retryEither
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.transform
 import net.mullvad.mullvadvpn.constant.VERIFICATION_BACK_OFF_FACTOR
-import net.mullvad.mullvadvpn.constant.VERIFICATION_INITIAL_BACK_OFF_MILLISECONDS
+import net.mullvad.mullvadvpn.constant.VERIFICATION_INITIAL_BACK_OFF_DURATION
 import net.mullvad.mullvadvpn.constant.VERIFICATION_MAX_ATTEMPTS
 import net.mullvad.mullvadvpn.lib.payment.PaymentRepository
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentAvailability
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
+import net.mullvad.mullvadvpn.lib.payment.model.VerificationError
 import net.mullvad.mullvadvpn.lib.payment.model.VerificationResult
-import net.mullvad.mullvadvpn.util.retryWithExponentialBackOff
 
 interface PaymentUseCase {
     val paymentAvailability: Flow<PaymentAvailability?>
@@ -26,7 +30,7 @@ interface PaymentUseCase {
 
     suspend fun resetPurchaseResult()
 
-    suspend fun verifyPurchases(onSuccessfulVerification: () -> Unit = {})
+    suspend fun verifyPurchases(): Either<VerificationError, VerificationResult>
 }
 
 class PlayPaymentUseCase(private val paymentRepository: PaymentRepository) : PaymentUseCase {
@@ -60,24 +64,19 @@ class PlayPaymentUseCase(private val paymentRepository: PaymentRepository) : Pay
     }
 
     @Suppress("ensure every public functions method is named 'invoke' with operator modifier")
-    override suspend fun verifyPurchases(onSuccessfulVerification: () -> Unit) {
-        paymentRepository
-            .verifyPurchases()
-            .retryWithExponentialBackOff(
-                maxAttempts = VERIFICATION_MAX_ATTEMPTS,
-                initialBackOffDelay = VERIFICATION_INITIAL_BACK_OFF_MILLISECONDS,
-                backOffDelayFactor = VERIFICATION_BACK_OFF_FACTOR
-            ) {
-                it is VerificationResult.Error
-            }
-            .collect {
+    override suspend fun verifyPurchases() =
+        Schedule.exponential<VerificationError>(
+                VERIFICATION_INITIAL_BACK_OFF_DURATION,
+                VERIFICATION_BACK_OFF_FACTOR
+            )
+            .and(Schedule.recurs(VERIFICATION_MAX_ATTEMPTS.toLong()))
+            .retryEither { paymentRepository.verifyPurchases() }
+            .onRight {
                 if (it == VerificationResult.Success) {
                     // Update the payment availability after a successful verification.
                     queryPaymentAvailability()
-                    onSuccessfulVerification()
                 }
             }
-    }
 
     private fun PurchaseResult?.shouldDelayLoading() =
         this is PurchaseResult.FetchingProducts || this is PurchaseResult.VerificationStarted
@@ -107,7 +106,5 @@ class EmptyPaymentUseCase : PaymentUseCase {
     }
 
     @Suppress("ensure every public functions method is named 'invoke' with operator modifier")
-    override suspend fun verifyPurchases(onSuccessfulVerification: () -> Unit) {
-        // No op
-    }
+    override suspend fun verifyPurchases() = VerificationResult.NothingToVerify.right()
 }

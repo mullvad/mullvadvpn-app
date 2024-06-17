@@ -21,6 +21,7 @@ import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
+import net.mullvad.mullvadvpn.util.isSuccess
 import net.mullvad.mullvadvpn.util.toPaymentState
 
 class WelcomeViewModel(
@@ -79,8 +80,9 @@ class WelcomeViewModel(
 
     private fun verifyPurchases() {
         viewModelScope.launch {
-            paymentUseCase.verifyPurchases()
-            updateAccountExpiry()
+            if (paymentUseCase.verifyPurchases().isSuccess()) {
+                updateAccountExpiry()
+            }
         }
     }
 

@@ -24,6 +24,7 @@ import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
+import net.mullvad.mullvadvpn.util.isSuccess
 import net.mullvad.mullvadvpn.util.toPaymentState
 import org.joda.time.DateTime
 
@@ -90,8 +91,9 @@ class AccountViewModel(
 
     private fun verifyPurchases() {
         viewModelScope.launch {
-            paymentUseCase.verifyPurchases()
-            updateAccountExpiry()
+            if (paymentUseCase.verifyPurchases().isSuccess()) {
+                updateAccountExpiry()
+            }
         }
     }
 

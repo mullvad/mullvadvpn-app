@@ -3,11 +3,7 @@
 package net.mullvad.mullvadvpn.util
 
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.retryWhen
 
 inline fun <T1, T2, T3, T4, T5, T6, R> combine(
     flow: Flow<T1>,
@@ -90,34 +86,3 @@ fun <T> Deferred<T>.getOrDefault(default: T) =
     } catch (e: IllegalStateException) {
         default
     }
-
-@Suppress("UNCHECKED_CAST")
-suspend inline fun <T> Flow<T>.retryWithExponentialBackOff(
-    maxAttempts: Int,
-    initialBackOffDelay: Long,
-    backOffDelayFactor: Long,
-    crossinline predicate: (T) -> Boolean,
-): Flow<T> =
-    map {
-            if (predicate(it)) {
-                throw ExceptionWrapper(it as Any)
-            }
-            it
-        }
-        .retryWhen { _, attempt ->
-            if (attempt >= maxAttempts) {
-                return@retryWhen false
-            }
-            val backOffDelay = initialBackOffDelay * backOffDelayFactor.pow(attempt.toInt())
-            delay(backOffDelay)
-            true
-        }
-        .catch {
-            if (it is ExceptionWrapper) {
-                this.emit(it.item as T)
-            } else {
-                throw it
-            }
-        }
-
-class ExceptionWrapper(val item: Any) : Throwable()

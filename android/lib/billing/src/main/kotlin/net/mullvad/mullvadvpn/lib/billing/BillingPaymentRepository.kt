@@ -1,6 +1,9 @@
 package net.mullvad.mullvadvpn.lib.billing
 
 import android.app.Activity
+import arrow.core.Either
+import arrow.core.raise.either
+import arrow.core.raise.ensure
 import com.android.billingclient.api.BillingClient.BillingResponseCode
 import com.android.billingclient.api.Purchase
 import kotlinx.coroutines.flow.Flow
@@ -22,6 +25,7 @@ import net.mullvad.mullvadvpn.lib.payment.ProductIds
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentAvailability
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
+import net.mullvad.mullvadvpn.lib.payment.model.VerificationError
 import net.mullvad.mullvadvpn.lib.payment.model.VerificationResult
 
 class BillingPaymentRepository(
@@ -129,28 +133,19 @@ class BillingPaymentRepository(
         }
     }
 
-    override fun verifyPurchases(): Flow<VerificationResult> = flow {
-        emit(VerificationResult.FetchingUnfinishedPurchases)
+    override suspend fun verifyPurchases(): Either<VerificationError, VerificationResult> = either {
         val purchasesResult = billingRepository.queryPurchases()
-        when (purchasesResult.responseCode()) {
-            BillingResponseCode.OK -> {
-                val purchases = purchasesResult.nonPendingPurchases()
-                if (purchases.isNotEmpty()) {
-                    emit(VerificationResult.VerificationStarted)
-                    emit(
-                        verifyPurchase(purchases.first())
-                            .fold(
-                                { VerificationResult.Error.VerificationError(null) },
-                                { VerificationResult.Success }
-                            )
-                    )
-                } else {
-                    emit(VerificationResult.NothingToVerify)
-                }
-            }
-            else ->
-                emit(VerificationResult.Error.BillingError(purchasesResult.toBillingException()))
+        ensure(purchasesResult.responseCode() == BillingResponseCode.OK) {
+            VerificationError.BillingError(purchasesResult.toBillingException())
         }
+        val purchases = purchasesResult.nonPendingPurchases()
+        if (purchases.isEmpty()) {
+            return@either VerificationResult.NothingToVerify
+        }
+        verifyPurchase(purchases.first())
+            .mapLeft { VerificationError.PlayVerificationError }
+            .map { VerificationResult.Success }
+            .bind()
     }
 
     private suspend fun initialisePurchase() = playPurchaseRepository.initializePlayPurchase()
