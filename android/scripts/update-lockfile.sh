@@ -11,6 +11,8 @@ TEMP_GRADLE_HOME_DIR=$(mktemp -d)
 TEMP_GRADLE_PROJECT_CACHE_DIR=$(mktemp -d)
 
 function cleanup {
+    echo "Stopping gradle..."
+    ../gradlew -q --stop || printf "Unable to stop gradle\n\n"
     echo "Cleaning up temp dirs..."
     rm -rf -- "$TEMP_GRADLE_HOME_DIR" "$TEMP_GRADLE_PROJECT_CACHE_DIR"
 }
