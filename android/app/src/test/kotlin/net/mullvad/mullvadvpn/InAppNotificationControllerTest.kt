@@ -44,11 +44,10 @@ class InAppNotificationControllerTest {
         val newDeviceNotificationUseCase: NewDeviceNotificationUseCase = mockk()
         val versionNotificationUseCase: VersionNotificationUseCase = mockk()
         val tunnelStateNotificationUseCase: TunnelStateNotificationUseCase = mockk()
-        every { accountExpiryNotificationUseCase.notifications() } returns
-            accountExpiryNotifications
-        every { newDeviceNotificationUseCase.notifications() } returns newDeviceNotifications
-        every { versionNotificationUseCase.notifications() } returns versionNotifications
-        every { tunnelStateNotificationUseCase.notifications() } returns tunnelStateNotifications
+        every { accountExpiryNotificationUseCase.invoke() } returns accountExpiryNotifications
+        every { newDeviceNotificationUseCase.invoke() } returns newDeviceNotifications
+        every { versionNotificationUseCase.invoke() } returns versionNotifications
+        every { tunnelStateNotificationUseCase.invoke() } returns tunnelStateNotifications
         job = Job()
 
         inAppNotificationController =
