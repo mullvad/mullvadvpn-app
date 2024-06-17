@@ -15,6 +15,7 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.OutOfTimeUiState
 import net.mullvad.mullvadvpn.constant.ACCOUNT_EXPIRY_POLL_INTERVAL
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
+import net.mullvad.mullvadvpn.lib.payment.model.VerificationResult
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
@@ -76,8 +77,9 @@ class OutOfTimeViewModel(
 
     private fun verifyPurchases() {
         viewModelScope.launch {
-            paymentUseCase.verifyPurchases()
-            updateAccountExpiry()
+            if (paymentUseCase.verifyPurchases().getOrNull() == VerificationResult.Success) {
+                updateAccountExpiry()
+            }
         }
     }
 
