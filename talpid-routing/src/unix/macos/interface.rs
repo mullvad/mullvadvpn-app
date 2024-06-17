@@ -1,7 +1,7 @@
 use futures::channel::mpsc::{self, UnboundedReceiver, UnboundedSender};
 use ipnetwork::IpNetwork;
 use nix::{
-    net::if_::{if_nametoindex, InterfaceFlags},
+    net::if_::if_nametoindex,
     sys::socket::{AddressFamily, SockaddrLike, SockaddrStorage},
 };
 use std::{
@@ -24,8 +24,8 @@ use system_configuration::{
     network_configuration::SCNetworkSet,
     preferences::SCPreferences,
     sys::schema_definitions::{
-        kSCDynamicStorePropNetPrimaryInterface, kSCPropInterfaceName, kSCPropNetIPv4Router,
-        kSCPropNetIPv6Router,
+        kSCDynamicStorePropNetPrimaryInterface, kSCPropInterfaceName, kSCPropNetIPv4Addresses,
+        kSCPropNetIPv4Router, kSCPropNetIPv6Addresses, kSCPropNetIPv6Router,
     },
 };
 
@@ -213,25 +213,25 @@ impl PrimaryInterfaceMonitor {
         } else {
             STATE_IPV6_KEY
         };
-        let ip_dict = self
+        let global_dict = self
             .store
             .get(key)
             .and_then(|v| v.downcast_into::<CFDictionary>())?;
-        let name =
-            get_dict_elem_as_string(&ip_dict, unsafe { kSCDynamicStorePropNetPrimaryInterface })
-                .or_else(|| {
-                    log::debug!("Missing name for primary interface ({family})");
-                    None
-                })?;
-        let router_ip = get_service_router_ip(&ip_dict, family).or_else(|| {
+        let name = get_dict_elem_as_string(&global_dict, unsafe {
+            kSCDynamicStorePropNetPrimaryInterface
+        })
+        .or_else(|| {
+            log::debug!("Missing name for primary interface ({family})");
+            None
+        })?;
+        let router_ip = get_service_router_ip(&global_dict, family).or_else(|| {
             log::debug!("Missing router IP for primary interface ({name}, {family})");
             None
         })?;
-        let first_ip = find_first_ip(&name, family).or_else(|| {
+        let first_ip = get_service_first_ip(&global_dict, family).or_else(|| {
             log::debug!("Missing IP for primary interface ({name}, {family})");
             None
         })?;
-
         Some(NetworkServiceDetails {
             name,
             router_ip,
@@ -250,20 +250,20 @@ impl PrimaryInterfaceMonitor {
                 } else {
                     format!("State:/Network/Service/{service_id_s}/IPv6")
                 };
-                let ip_dict = self
+                let service_dict = self
                     .store
                     .get(CFString::new(&service_key))
                     .and_then(|v| v.downcast_into::<CFDictionary>())?;
-                let name = get_dict_elem_as_string(&ip_dict, unsafe { kSCPropInterfaceName })
+                let name = get_dict_elem_as_string(&service_dict, unsafe { kSCPropInterfaceName })
                     .or_else(|| {
                         log::debug!("Missing name for service {service_key} ({family})");
                         None
                     })?;
-                let router_ip = get_service_router_ip(&ip_dict, family).or_else(|| {
+                let router_ip = get_service_router_ip(&service_dict, family).or_else(|| {
                     log::debug!("Missing router IP for {service_key} ({name}, {family})");
                     None
                 })?;
-                let first_ip = find_first_ip(&name, family).or_else(|| {
+                let first_ip = get_service_first_ip(&service_dict, family).or_else(|| {
                     log::debug!("Missing IP for \"{service_key}\" ({name}, {family})");
                     None
                 })?;
@@ -303,51 +303,40 @@ pub fn get_interface_link_addresses() -> io::Result<BTreeMap<String, SockaddrSto
     Ok(gateway_link_addrs)
 }
 
-/// Return the first assigned (unicast) IP address for the given interface
-fn find_first_ip(interface_name: &str, family: Family) -> Option<IpAddr> {
-    let required_link_flags: InterfaceFlags = InterfaceFlags::IFF_UP | InterfaceFlags::IFF_RUNNING;
-    nix::ifaddrs::getifaddrs()
-        .ok()?
-        .filter(|addr| (addr.flags & required_link_flags) == required_link_flags)
-        .filter(|addr| addr.interface_name == interface_name)
-        .filter_map(|addr| addr.address)
-        .find_map(|addr| match family {
-            Family::V4 => addr
-                .as_sockaddr_in()
-                .map(|addr_in| IpAddr::from(addr_in.ip())),
-            Family::V6 => addr
-                .as_sockaddr_in6()
-                .map(|addr_in| IpAddr::from(addr_in.ip())),
-        })
-        .filter(is_routable)
-}
-
-fn is_routable(addr: &IpAddr) -> bool {
-    match addr {
-        IpAddr::V4(ip) => is_routable_v4(ip),
-        IpAddr::V6(ip) => is_routable_v6(ip),
-    }
-}
-
-fn is_routable_v4(addr: &Ipv4Addr) -> bool {
-    !addr.is_unspecified() && !addr.is_loopback() && !addr.is_link_local()
-}
-
-fn is_routable_v6(addr: &Ipv6Addr) -> bool {
-    !addr.is_unspecified() && !addr.is_loopback() && !is_link_local_v6(addr)
-}
-
 fn is_link_local_v6(addr: &Ipv6Addr) -> bool {
     (addr.segments()[0] & 0xffc0) == 0xfe80
 }
 
-fn get_service_router_ip(ip_dict: &CFDictionary, family: Family) -> Option<IpAddr> {
+fn get_service_router_ip(service_dict: &CFDictionary, family: Family) -> Option<IpAddr> {
     let router_key = if family == Family::V4 {
         unsafe { kSCPropNetIPv4Router }
     } else {
         unsafe { kSCPropNetIPv6Router }
     };
-    get_dict_elem_as_string(ip_dict, router_key).and_then(|ip| ip.parse().ok())
+    get_dict_elem_as_string(service_dict, router_key).and_then(|ip| ip.parse().ok())
+}
+
+/// Return the first IP address of a network service (e.g., a dictionary at
+/// `State:/Network/Service/{service id}/IPv4`).
+/// The array of IP addresses is found using the key `kSCPropNetIPv4Addresses` or
+/// `kSCPropNetIPv6Addresses`, depending on the family.
+fn get_service_first_ip(service_dict: &CFDictionary, family: Family) -> Option<IpAddr> {
+    let ip_key = if family == Family::V4 {
+        unsafe { kSCPropNetIPv4Addresses }
+    } else {
+        unsafe { kSCPropNetIPv6Addresses }
+    };
+    service_dict
+        .find(ip_key.to_void())
+        .map(|s| unsafe { CFType::wrap_under_get_rule(*s) })
+        .and_then(|s| s.downcast::<CFArray>())
+        .and_then(|ips| {
+            ips.get(0)
+                .map(|ip| unsafe { CFType::wrap_under_get_rule(*ip) })
+        })
+        .and_then(|s| s.downcast::<CFString>())
+        .map(|s| s.to_string())
+        .and_then(|ip| ip.parse().ok())
 }
 
 fn get_dict_elem_as_string(dict: &CFDictionary, key: CFStringRef) -> Option<String> {
