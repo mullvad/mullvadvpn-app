@@ -32,6 +32,7 @@ import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationTitleUseCase
 import net.mullvad.mullvadvpn.util.combine
 import net.mullvad.mullvadvpn.util.daysFromNow
+import net.mullvad.mullvadvpn.util.isSuccess
 import net.mullvad.mullvadvpn.util.toInAddress
 import net.mullvad.mullvadvpn.util.toOutAddress
 
@@ -114,8 +115,8 @@ class ConnectViewModel(
 
     init {
         viewModelScope.launch {
-            paymentUseCase.verifyPurchases {
-                viewModelScope.launch { accountRepository.getAccountData() }
+            if (paymentUseCase.verifyPurchases().isSuccess()) {
+                accountRepository.getAccountData()
             }
         }
         viewModelScope.launch { deviceRepository.updateDevice() }
