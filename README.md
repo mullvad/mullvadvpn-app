@@ -332,7 +332,7 @@ The settings directory can be changed by setting the `MULLVAD_SETTINGS_DIR` envi
 | Linux | `/etc/mullvad-vpn/` |
 | macOS | `/etc/mullvad-vpn/` |
 | Windows | `%LOCALAPPDATA%\Mullvad VPN\` |
-| Android | `/data/data/net.mullvad.mullvadvpn/` |
+| Android | [`getFilesDir()`](https://developer.android.com/reference/android/content/Context#getFilesDir()) |
 
 #### Logs
 
@@ -343,7 +343,7 @@ The log directory can be changed by setting the `MULLVAD_LOG_DIR` environment va
 | Linux | `/var/log/mullvad-vpn/` + systemd |
 | macOS | `/var/log/mullvad-vpn/` |
 | Windows | `C:\ProgramData\Mullvad VPN\` |
-| Android | `/data/data/net.mullvad.mullvadvpn/` |
+| Android | [`getFilesDir()`](https://developer.android.com/reference/android/content/Context#getFilesDir()) |
 
 #### Cache
 
@@ -354,7 +354,7 @@ The cache directory can be changed by setting the `MULLVAD_CACHE_DIR` environmen
 | Linux | `/var/cache/mullvad-vpn/` |
 | macOS | `/Library/Caches/mullvad-vpn/` |
 | Windows | `C:\ProgramData\Mullvad VPN\cache` |
-| Android | `/data/data/net.mullvad.mullvadvpn/cache` |
+| Android | [`getCacheDir()`](https://developer.android.com/reference/android/content/Context#getCacheDir())  |
 
 #### RPC address file
 
@@ -366,7 +366,7 @@ environment variable.
 | Linux | `/var/run/mullvad-vpn` |
 | macOS | `/var/run/mullvad-vpn` |
 | Windows | `//./pipe/Mullvad VPN` |
-| Android | `/data/data/net.mullvad.mullvadvpn/rpc-socket` |
+| Android | [`getNoBackupFilesDir()`](https://developer.android.com/reference/android/content/ContextWrapper#getNoBackupFilesDir()) |
 
 ### GUI
 

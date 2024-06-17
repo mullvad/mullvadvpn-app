@@ -2894,8 +2894,8 @@ fn oneshot_map<T1: Send + 'static, T2: Send + 'static>(
 
 /// Remove any old RPC socket (if it exists).
 #[cfg(not(windows))]
-pub async fn cleanup_old_rpc_socket() {
-    if let Err(err) = tokio::fs::remove_file(mullvad_paths::get_rpc_socket_path()).await {
+pub async fn cleanup_old_rpc_socket(rpc_socket_path: impl AsRef<std::path::Path>) {
+    if let Err(err) = tokio::fs::remove_file(rpc_socket_path).await {
         if err.kind() != std::io::ErrorKind::NotFound {
             log::error!("Failed to remove old RPC socket: {}", err);
         }

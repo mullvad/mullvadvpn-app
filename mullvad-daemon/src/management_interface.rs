@@ -21,6 +21,7 @@ use mullvad_types::{
     wireguard::{RotationInterval, RotationIntervalError},
 };
 use std::{
+    path::Path,
     str::FromStr,
     sync::{Arc, Mutex},
     time::Duration,
@@ -1024,21 +1025,22 @@ pub struct ManagementInterfaceServer(());
 impl ManagementInterfaceServer {
     pub fn start(
         tunnel_tx: DaemonCommandSender,
-    ) -> Result<(String, ManagementInterfaceEventBroadcaster), Error> {
+        rpc_socket_path: impl AsRef<Path>,
+    ) -> Result<ManagementInterfaceEventBroadcaster, Error> {
         let subscriptions = Arc::<Mutex<Vec<EventsListenerSender>>>::default();
-
-        let socket_path = mullvad_paths::get_rpc_socket_path()
-            .to_string_lossy()
-            .to_string();
 
         let (server_abort_tx, server_abort_rx) = mpsc::channel(0);
         let server = ManagementServiceImpl {
             daemon_tx: tunnel_tx,
             subscriptions: subscriptions.clone(),
         };
-        let join_handle = mullvad_management_interface::spawn_rpc_server(server, async move {
-            server_abort_rx.into_future().await;
-        })
+        let join_handle = mullvad_management_interface::spawn_rpc_server(
+            server,
+            async move {
+                server_abort_rx.into_future().await;
+            },
+            rpc_socket_path,
+        )
         .map_err(Error::SetupError)?;
 
         tokio::spawn(async move {
@@ -1048,13 +1050,10 @@ impl ManagementInterfaceServer {
             log::info!("Management interface shut down");
         });
 
-        Ok((
-            socket_path,
-            ManagementInterfaceEventBroadcaster {
-                subscriptions,
-                _close_handle: server_abort_tx,
-            },
-        ))
+        Ok(ManagementInterfaceEventBroadcaster {
+            subscriptions,
+            _close_handle: server_abort_tx,
+        })
     }
 }
 

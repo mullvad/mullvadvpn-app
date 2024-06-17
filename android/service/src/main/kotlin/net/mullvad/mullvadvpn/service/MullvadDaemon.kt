@@ -17,6 +17,7 @@ private const val RELAYS_FILE = "relays.json"
 @SuppressLint("SdCardPath")
 class MullvadDaemon(
     vpnService: MullvadVpnService,
+    rpcSocketFile: File,
     apiEndpointConfiguration: ApiEndpointConfiguration,
     migrateSplitTunneling: MigrateSplitTunneling
 ) {
@@ -34,8 +35,9 @@ class MullvadDaemon(
 
         initialize(
             vpnService = vpnService,
+            rpcSocketPath = rpcSocketFile.absolutePath,
+            filesDirectory = vpnService.filesDir.absolutePath,
             cacheDirectory = vpnService.cacheDir.absolutePath,
-            resourceDirectory = vpnService.filesDir.absolutePath,
             apiEndpoint = apiEndpointConfiguration.apiEndpoint()
         )
     }
@@ -69,8 +71,9 @@ class MullvadDaemon(
 
     private external fun initialize(
         vpnService: MullvadVpnService,
+        rpcSocketPath: String,
+        filesDirectory: String,
         cacheDirectory: String,
-        resourceDirectory: String,
         apiEndpoint: ApiEndpoint?
     )
 

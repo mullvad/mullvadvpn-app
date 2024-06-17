@@ -1,32 +1,43 @@
 //! Client that returns and takes mullvad types as arguments instead of prost-generated types
 
 use crate::types;
+#[cfg(not(target_os = "android"))]
 use futures::{Stream, StreamExt};
 #[cfg(target_os = "windows")]
 use mullvad_types::wireguard::DaitaSettings;
 use mullvad_types::{
-    access_method::{self, AccessMethod, AccessMethodSetting},
+    access_method::AccessMethodSetting,
+    device::{DeviceEvent, RemoveDeviceEvent},
+    relay_list::RelayList,
+    settings::Settings,
+    states::TunnelState,
+    version::AppVersionInfo,
+};
+
+#[cfg(not(target_os = "android"))]
+use mullvad_types::{
+    access_method::{self, AccessMethod},
     account::{AccountData, AccountToken, VoucherSubmission},
     custom_list::{CustomList, Id},
-    device::{Device, DeviceEvent, DeviceId, DeviceState, RemoveDeviceEvent},
+    device::{Device, DeviceId, DeviceState},
     relay_constraints::{
         BridgeSettings, BridgeState, ObfuscationSettings, RelayOverride, RelaySettings,
     },
-    relay_list::RelayList,
-    settings::{DnsOptions, Settings},
-    states::TunnelState,
-    version::AppVersionInfo,
+    settings::DnsOptions,
     wireguard::{PublicKey, QuantumResistantState, RotationInterval},
 };
+#[cfg(not(target_os = "android"))]
 use std::{path::Path, str::FromStr};
 #[cfg(target_os = "windows")]
 use talpid_types::split_tunnel::ExcludedProcess;
+#[cfg(not(target_os = "android"))]
 use tonic::{Code, Status};
 
 type Error = super::Error;
 
 pub type Result<T> = std::result::Result<T, super::Error>;
 
+#[cfg(not(target_os = "android"))]
 #[derive(Debug, Clone)]
 pub struct MullvadProxyClient(crate::ManagementServiceClient);
 
@@ -73,6 +84,7 @@ impl TryFrom<types::daemon_event::Event> for DaemonEvent {
     }
 }
 
+#[cfg(not(target_os = "android"))]
 impl MullvadProxyClient {
     pub async fn new() -> Result<Self> {
         #[allow(deprecated)]
@@ -712,6 +724,7 @@ impl MullvadProxyClient {
     }
 }
 
+#[cfg(not(target_os = "android"))]
 fn map_device_error(status: Status) -> Error {
     match status.code() {
         Code::ResourceExhausted => Error::TooManyDevices,
@@ -722,6 +735,7 @@ fn map_device_error(status: Status) -> Error {
     }
 }
 
+#[cfg(not(target_os = "android"))]
 fn map_custom_list_error(status: Status) -> Error {
     match status.code() {
         Code::NotFound => {

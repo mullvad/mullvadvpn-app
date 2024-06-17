@@ -5,7 +5,11 @@ use mullvad_daemon::{
     management_interface::{ManagementInterfaceEventBroadcaster, ManagementInterfaceServer},
     rpc_uniqueness_check, runtime, version, Daemon, DaemonCommandChannel, DaemonCommandSender,
 };
-use std::{path::PathBuf, thread, time::Duration};
+use std::{
+    path::{Path, PathBuf},
+    thread,
+    time::Duration,
+};
 use talpid_types::ErrorExt;
 
 mod cli;
@@ -163,7 +167,7 @@ fn get_log_dir(config: &cli::Config) -> Result<Option<PathBuf>, String> {
 
 async fn run_standalone(log_dir: Option<PathBuf>) -> Result<(), String> {
     #[cfg(not(windows))]
-    cleanup_old_rpc_socket().await;
+    cleanup_old_rpc_socket(mullvad_paths::get_rpc_socket_path()).await;
 
     if !running_as_admin() {
         log::warn!("Running daemon as a non-administrator user, clients might refuse to connect");
@@ -192,6 +196,7 @@ async fn run_standalone(log_dir: Option<PathBuf>) -> Result<(), String> {
 async fn create_daemon(
     log_dir: Option<PathBuf>,
 ) -> Result<Daemon<ManagementInterfaceEventBroadcaster>, String> {
+    let rpc_socket_path = mullvad_paths::get_rpc_socket_path();
     let resource_dir = mullvad_paths::get_resource_dir();
     let settings_dir = mullvad_paths::settings_dir()
         .map_err(|e| e.display_chain_with_msg("Unable to get settings dir"))?;
@@ -199,7 +204,7 @@ async fn create_daemon(
         .map_err(|e| e.display_chain_with_msg("Unable to get cache dir"))?;
 
     let command_channel = DaemonCommandChannel::new();
-    let event_listener = spawn_management_interface(command_channel.sender())?;
+    let event_listener = spawn_management_interface(command_channel.sender(), rpc_socket_path)?;
 
     Daemon::start(
         log_dir,
@@ -215,13 +220,17 @@ async fn create_daemon(
 
 fn spawn_management_interface(
     command_sender: DaemonCommandSender,
+    rpc_socket_path: impl AsRef<Path>,
 ) -> Result<ManagementInterfaceEventBroadcaster, String> {
-    let (socket_path, event_broadcaster) = ManagementInterfaceServer::start(command_sender)
+    let event_broadcaster = ManagementInterfaceServer::start(command_sender, &rpc_socket_path)
         .map_err(|error| {
             error.display_chain_with_msg("Unable to start management interface server")
         })?;
 
-    log::info!("Management interface listening on {}", socket_path);
+    log::info!(
+        "Management interface listening on {}",
+        rpc_socket_path.as_ref().display()
+    );
 
     Ok(event_broadcaster)
 }
