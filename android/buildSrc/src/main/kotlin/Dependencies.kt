@@ -151,6 +151,34 @@ object Dependencies {
         const val playPublisher =
             "com.github.triplet.gradle:play-publisher:${Versions.Plugin.playPublisher}"
         const val playPublisherId = "com.github.triplet.play"
-        const val protobufId = "com.google.protobuf"
+
+        object Protobuf {
+            const val protobufId = "com.google.protobuf"
+            const val protocGenGrpcJava =
+                "io.grpc:protoc-gen-grpc-java:${Versions.Grpc.grpcVersion}"
+            const val protoc = "com.google.protobuf:protoc:${Versions.Grpc.protobufVersion}"
+            const val protocGenGrpcKotlin =
+                "io.grpc:protoc-gen-grpc-kotlin:${Versions.Grpc.grpcKotlinVersion}:jdk8@jar"
+
+            const val protocGenGrpcJavaLinuxAarch_64 = "$protocGenGrpcJava:linux-aarch_64@exe"
+            const val protocGenGrpcJavaLinuxPpcle_64 = "$protocGenGrpcJava:linux-ppcle_64@exe"
+            const val protocGenGrpcJavaLinuxS390_64 = "$protocGenGrpcJava:linux-s390_64@exe"
+            const val protocGenGrpcJavaLinuxX86_32 = "$protocGenGrpcJava:linux-x86_32@exe"
+            const val protocGenGrpcJavaLinuxX86_64 = "$protocGenGrpcJava:linux-x86_64@exe"
+            const val protocGenGrpcJavaOsxAarch_64 = "$protocGenGrpcJava:osx-aarch_64@exe"
+            const val protocGenGrpcJavaOsxX86_64 = "$protocGenGrpcJava:osx-x86_64@exe"
+            const val protocGenGrpcJavaWindowsX86_32 = "$protocGenGrpcJava:windows-x86_32@exe"
+            const val protocGenGrpcJavaWindowsX86_64 = "$protocGenGrpcJava:windows-x86_64@exe"
+
+            const val protocLinuxAarch_64 = "$protoc:linux-aarch_64@exe"
+            const val protocLinuxPpcle_64 = "$protoc:linux-ppcle_64@exe"
+            const val protocLinuxS390_64 = "$protoc:linux-s390_64@exe"
+            const val protocLinuxX86_32 = "$protoc:linux-x86_32@exe"
+            const val protocLinuxX86_64 = "$protoc:linux-x86_64@exe"
+            const val protocOsxAarch_64 = "$protoc:osx-aarch_64@exe"
+            const val protocOsxX86_64 = "$protoc:osx-x86_64@exe"
+            const val protocWindowsX86_32 = "$protoc:windows-x86_32@exe"
+            const val protocWindowsX86_64 = "$protoc:windows-x86_64@exe"
+        }
     }
 }
