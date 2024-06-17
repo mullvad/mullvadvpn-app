@@ -43,7 +43,7 @@ class CustomListsViewModelTest {
         viewModel.undoDeleteCustomList(action)
 
         // Assert
-        coVerify { mockCustomListsActionUseCase.performAction(action) }
+        coVerify { mockCustomListsActionUseCase(action) }
     }
 
     private fun createViewModel() =

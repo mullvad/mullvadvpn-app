@@ -28,7 +28,6 @@ import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.LoginAccountError
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.usecase.InternetAvailableUseCase
-import net.mullvad.mullvadvpn.usecase.NewDeviceNotificationUseCase
 import org.joda.time.DateTime
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
@@ -40,7 +39,6 @@ class LoginViewModelTest {
 
     @MockK private lateinit var connectivityUseCase: InternetAvailableUseCase
     @MockK private lateinit var mockedAccountRepository: AccountRepository
-    @MockK private lateinit var mockedNewDeviceNotificationUseCase: NewDeviceNotificationUseCase
 
     private lateinit var loginViewModel: LoginViewModel
 
@@ -49,13 +47,12 @@ class LoginViewModelTest {
         Dispatchers.setMain(UnconfinedTestDispatcher())
         MockKAnnotations.init(this, relaxUnitFun = true)
         every { connectivityUseCase() } returns true
-        every { mockedNewDeviceNotificationUseCase.newDeviceCreated() } returns Unit
         coEvery { mockedAccountRepository.fetchAccountHistory() } returns null
 
         loginViewModel =
             LoginViewModel(
                 accountRepository = mockedAccountRepository,
-                newDeviceNotificationUseCase = mockedNewDeviceNotificationUseCase,
+                newDeviceRepository = mockk(relaxUnitFun = true),
                 internetAvailableUseCase = connectivityUseCase,
                 UnconfinedTestDispatcher()
             )

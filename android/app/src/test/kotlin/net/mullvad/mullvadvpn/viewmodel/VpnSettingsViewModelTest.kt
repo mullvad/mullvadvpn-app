@@ -182,8 +182,7 @@ class VpnSettingsViewModelTest {
         runTest {
             val systemVpnSettingsAvailable = true
 
-            every { mockSystemVpnSettingsUseCase.systemVpnSettingsAvailable() } returns
-                systemVpnSettingsAvailable
+            every { mockSystemVpnSettingsUseCase() } returns systemVpnSettingsAvailable
 
             viewModel.uiState.test {
                 assertEquals(systemVpnSettingsAvailable, awaitItem().systemVpnSettingsAvailable)

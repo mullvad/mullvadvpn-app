@@ -33,9 +33,8 @@ class CreateCustomListDialogViewModelTest {
             val expectedResult: Created = mockk()
             val customListName = "list"
             val viewModel = createViewModelWithLocationCode(GeoLocationId.Country("AB"))
-            coEvery {
-                mockCustomListActionUseCase.performAction(any<CustomListAction.Create>())
-            } returns expectedResult.right()
+            coEvery { mockCustomListActionUseCase(any<CustomListAction.Create>()) } returns
+                expectedResult.right()
             every { expectedResult.locationNames } returns listOf("locationName")
 
             // Act, Assert
@@ -61,9 +60,8 @@ class CreateCustomListDialogViewModelTest {
                     undo = CustomListAction.Delete(createdId)
                 )
             val viewModel = createViewModelWithLocationCode(GeoLocationId.Country("AB"))
-            coEvery {
-                mockCustomListActionUseCase.performAction(any<CustomListAction.Create>())
-            } returns expectedResult.right()
+            coEvery { mockCustomListActionUseCase(any<CustomListAction.Create>()) } returns
+                expectedResult.right()
 
             // Act, Assert
             viewModel.uiSideEffect.test {
@@ -82,9 +80,8 @@ class CreateCustomListDialogViewModelTest {
         val expectedError = CreateWithLocationsError.Create(CustomListAlreadyExists)
         val customListName = "list"
         val viewModel = createViewModelWithLocationCode(GeoLocationId.Country("AB"))
-        coEvery {
-            mockCustomListActionUseCase.performAction(any<CustomListAction.Create>())
-        } returns expectedError.left()
+        coEvery { mockCustomListActionUseCase(any<CustomListAction.Create>()) } returns
+            expectedError.left()
 
         // Act, Assert
         viewModel.uiState.test {
@@ -101,9 +98,8 @@ class CreateCustomListDialogViewModelTest {
             val expectedError = CreateWithLocationsError.Create(CustomListAlreadyExists)
             val customListName = "list"
             val viewModel = createViewModelWithLocationCode(GeoLocationId.Country("AB"))
-            coEvery {
-                mockCustomListActionUseCase.performAction(any<CustomListAction.Create>())
-            } returns expectedError.left()
+            coEvery { mockCustomListActionUseCase(any<CustomListAction.Create>()) } returns
+                expectedError.left()
 
             // Act, Assert
             viewModel.uiState.test {

@@ -41,8 +41,7 @@ class CustomListLocationsViewModelTest {
     @BeforeEach
     fun setup() {
         every { mockRelayListRepository.relayList } returns relayListFlow
-        every { mockCustomListRelayItemsUseCase.getRelayItemLocationsForCustomList(any()) } returns
-            selectedLocationsFlow
+        every { mockCustomListRelayItemsUseCase(any()) } returns selectedLocationsFlow
     }
 
     @Test
@@ -185,9 +184,8 @@ class CustomListLocationsViewModelTest {
             val customListId = CustomListId("1")
             val newList = true
             val expectedResult: LocationsChanged = mockk()
-            coEvery {
-                mockCustomListUseCase.performAction(any<CustomListAction.UpdateLocations>())
-            } returns expectedResult.right()
+            coEvery { mockCustomListUseCase(any<CustomListAction.UpdateLocations>()) } returns
+                expectedResult.right()
             val viewModel = createViewModel(customListId, newList)
 
             // Act, Assert
@@ -205,9 +203,8 @@ class CustomListLocationsViewModelTest {
             val customListId = CustomListId("1")
             val newList = false
             val expectedResult: LocationsChanged = mockk()
-            coEvery {
-                mockCustomListUseCase.performAction(any<CustomListAction.UpdateLocations>())
-            } returns expectedResult.right()
+            coEvery { mockCustomListUseCase(any<CustomListAction.UpdateLocations>()) } returns
+                expectedResult.right()
             val viewModel = createViewModel(customListId, newList)
 
             // Act, Assert

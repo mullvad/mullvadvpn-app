@@ -65,11 +65,10 @@ class SelectLocationViewModelTest {
 
         every { mockRelayListFilterRepository.selectedOwnership } returns selectedOwnership
         every { mockRelayListFilterRepository.selectedProviders } returns selectedProviders
-        every { mockAvailableProvidersUseCase.availableProviders() } returns allProviders
+        every { mockAvailableProvidersUseCase() } returns allProviders
         every { mockRelayListRepository.selectedLocation } returns selectedRelayItemFlow
-        every { mockFilteredRelayListUseCase.filteredRelayList() } returns filteredRelayList
-        every { mockCustomListsRelayItemUseCase.relayItemCustomLists() } returns
-            customRelayListItems
+        every { mockFilteredRelayListUseCase() } returns filteredRelayList
+        every { mockCustomListsRelayItemUseCase() } returns customRelayListItems
 
         mockkStatic(RELAY_LIST_EXTENSIONS)
         mockkStatic(RELAY_ITEM_EXTENSIONS)
@@ -247,7 +246,7 @@ class SelectLocationViewModelTest {
         viewModel.performAction(action)
 
         // Assert
-        coVerify { mockCustomListActionUseCase.performAction(action) }
+        coVerify { mockCustomListActionUseCase(action) }
     }
 
     @Test
@@ -265,9 +264,8 @@ class SelectLocationViewModelTest {
                 locations = emptyList(),
                 expanded = false
             )
-        coEvery {
-            mockCustomListActionUseCase.performAction(any<CustomListAction.UpdateLocations>())
-        } returns expectedResult.right()
+        coEvery { mockCustomListActionUseCase(any<CustomListAction.UpdateLocations>()) } returns
+            expectedResult.right()
 
         // Act, Assert
         viewModel.uiSideEffect.test {

@@ -3,7 +3,7 @@ package net.mullvad.mullvadvpn.usecase
 import app.cash.turbine.test
 import io.mockk.MockKAnnotations
 import io.mockk.every
-import io.mockk.mockk
+import io.mockk.impl.annotations.MockK
 import io.mockk.unmockkAll
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -17,6 +17,7 @@ import net.mullvad.mullvadvpn.lib.model.DeviceId
 import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
 import net.mullvad.mullvadvpn.repository.InAppNotification
+import net.mullvad.mullvadvpn.repository.NewDeviceRepository
 import org.joda.time.DateTime
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -24,7 +25,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TestCoroutineRule::class)
-class NewDeviceUseNotificationCaseTest {
+class NewDeviceNotificationUseCaseTest {
 
     private val deviceName = "Frank Zebra"
     private val deviceState =
@@ -38,16 +39,26 @@ class NewDeviceUseNotificationCaseTest {
                 )
             )
         )
+    private val isNewDeviceState = MutableStateFlow(false)
+
     private lateinit var newDeviceNotificationUseCase: NewDeviceNotificationUseCase
+
+    @MockK lateinit var mockDeviceRepository: DeviceRepository
+
+    @MockK lateinit var mockNewDeviceRepository: NewDeviceRepository
 
     @BeforeEach
     fun setup() {
         MockKAnnotations.init(this)
 
-        val mockDeviceRepository: DeviceRepository = mockk()
+        every { mockNewDeviceRepository.isNewDevice } returns isNewDeviceState
         every { mockDeviceRepository.deviceState } returns deviceState
+
         newDeviceNotificationUseCase =
-            NewDeviceNotificationUseCase(deviceRepository = mockDeviceRepository)
+            NewDeviceNotificationUseCase(
+                newDeviceRepository = mockNewDeviceRepository,
+                deviceRepository = mockDeviceRepository
+            )
     }
 
     @AfterEach
@@ -62,26 +73,27 @@ class NewDeviceUseNotificationCaseTest {
     }
 
     @Test
-    fun `when newDeviceCreated is called notifications should emit NewDevice notification containing device name`() =
-        runTest {
-            newDeviceNotificationUseCase().test {
-                // Arrange, Act
-                awaitItem()
-                newDeviceNotificationUseCase.newDeviceCreated()
-
-                // Assert
-                assertEquals(awaitItem(), listOf(InAppNotification.NewDevice(deviceName)))
-            }
-        }
-
-    @Test
-    fun `clearNewDeviceCreatedNotification should clear notifications`() = runTest {
+    fun `when a new device has been created a device notification should be emitted`() = runTest {
         newDeviceNotificationUseCase().test {
             // Arrange, Act
             awaitItem()
-            newDeviceNotificationUseCase.newDeviceCreated()
+            newDeviceNotificationUseCase.invoke()
+            isNewDeviceState.value = true
+
+            // Assert
+            assertEquals(awaitItem(), listOf(InAppNotification.NewDevice(deviceName)))
+        }
+    }
+
+    @Test
+    fun `when a device is unmarked as new the device notification should be cleared`() = runTest {
+        // Arrange
+        isNewDeviceState.value = true
+
+        // Act
+        newDeviceNotificationUseCase().test {
             awaitItem()
-            newDeviceNotificationUseCase.clearNewDeviceCreatedNotification()
+            isNewDeviceState.value = false
 
             // Assert
             assertEquals(awaitItem(), emptyList())

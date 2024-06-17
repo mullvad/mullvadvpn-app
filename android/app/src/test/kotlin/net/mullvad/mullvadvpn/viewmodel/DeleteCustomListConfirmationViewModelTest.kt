@@ -24,9 +24,8 @@ class DeleteCustomListConfirmationViewModelTest {
         // Arrange
         val expectedResult: Deleted = mockk()
         val viewModel = createViewModel()
-        coEvery {
-            mockCustomListActionUseCase.performAction(any<CustomListAction.Delete>())
-        } returns expectedResult.right()
+        coEvery { mockCustomListActionUseCase(any<CustomListAction.Delete>()) } returns
+            expectedResult.right()
 
         // Act, Assert
         viewModel.uiSideEffect.test {
