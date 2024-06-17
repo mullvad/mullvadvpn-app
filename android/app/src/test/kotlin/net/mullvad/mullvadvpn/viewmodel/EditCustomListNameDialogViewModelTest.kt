@@ -31,9 +31,8 @@ class EditCustomListNameDialogViewModelTest {
         val customListId = CustomListId("id")
         val customListName = "list"
         val viewModel = createViewModel(customListId, customListName)
-        coEvery {
-            mockCustomListActionUseCase.performAction(any<CustomListAction.Rename>())
-        } returns expectedResult.right()
+        coEvery { mockCustomListActionUseCase(any<CustomListAction.Rename>()) } returns
+            expectedResult.right()
 
         // Act, Assert
         viewModel.uiSideEffect.test {
@@ -51,9 +50,8 @@ class EditCustomListNameDialogViewModelTest {
         val customListName = "list2"
         val expectedError = RenameError(NameAlreadyExists(customListName))
         val viewModel = createViewModel(customListId, customListName)
-        coEvery {
-            mockCustomListActionUseCase.performAction(any<CustomListAction.Rename>())
-        } returns expectedError.left()
+        coEvery { mockCustomListActionUseCase(any<CustomListAction.Rename>()) } returns
+            expectedError.left()
 
         // Act, Assert
         viewModel.uiState.test {
@@ -71,9 +69,8 @@ class EditCustomListNameDialogViewModelTest {
             val customListName = "list"
             val expectedError = RenameError(NameAlreadyExists(customListName))
             val viewModel = createViewModel(customListId, customListName)
-            coEvery {
-                mockCustomListActionUseCase.performAction(any<CustomListAction.Rename>())
-            } returns expectedError.left()
+            coEvery { mockCustomListActionUseCase(any<CustomListAction.Rename>()) } returns
+                expectedError.left()
 
             // Act, Assert
             viewModel.uiState.test {
