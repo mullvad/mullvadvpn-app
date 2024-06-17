@@ -41,4 +41,5 @@ android {
 dependencies {
     implementation(Dependencies.Kotlin.stdlib)
     implementation(Dependencies.KotlinX.coroutinesAndroid)
+    implementation(Dependencies.Arrow.core)
 }

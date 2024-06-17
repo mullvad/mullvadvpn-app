@@ -90,8 +90,9 @@ class AccountViewModel(
 
     private fun verifyPurchases() {
         viewModelScope.launch {
-            paymentUseCase.verifyPurchases()
-            updateAccountExpiry()
+            if (paymentUseCase.verifyPurchases()) {
+                updateAccountExpiry()
+            }
         }
     }
 
