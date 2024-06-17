@@ -50,9 +50,7 @@ struct SocksSectionHandler {
         contentConfiguration.inputFilter = .digitsOnly
         contentConfiguration.editingEvents.onChange = subject.bindTextAction(to: \.socks.port)
         contentConfiguration.textFieldProperties = .withSmartFeaturesDisabled()
-        if case .phone = cell.traitCollection.userInterfaceIdiom {
-            contentConfiguration.textFieldProperties.keyboardType = .numberPad
-        }
+        contentConfiguration.textFieldProperties.keyboardType = .numberPad
         cell.accessibilityIdentifier = .socks5PortCell
         cell.contentConfiguration = contentConfiguration
     }

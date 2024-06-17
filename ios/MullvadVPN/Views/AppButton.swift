@@ -156,16 +156,4 @@ class AppButton: CustomButton {
         guard let directionalEdgeInsets = innerDirectionalContentEdgeInsets else { return }
         super.contentEdgeInsets = directionalEdgeInsets.toEdgeInsets(effectiveUserInterfaceLayoutDirection)
     }
-
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-
-        if traitCollection.userInterfaceIdiom != previousTraitCollection?.userInterfaceIdiom {
-            if overrideContentEdgeInsets {
-                updateContentEdgeInsetsFromDirectional()
-            } else {
-                contentEdgeInsets = defaultContentInsets
-            }
-        }
-    }
 }
