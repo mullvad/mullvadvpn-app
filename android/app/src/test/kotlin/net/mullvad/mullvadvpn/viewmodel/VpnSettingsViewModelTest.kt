@@ -110,12 +110,12 @@ class VpnSettingsViewModelTest {
             val expectedResistantState = QuantumResistantState.On
             val mockSettings: Settings = mockk(relaxed = true)
             val mockTunnelOptions: TunnelOptions = mockk(relaxed = true)
-            val mockWireguardTunnelOptions: WireguardTunnelOptions = mockk(relaxed = true)
+            // Can not use a mock here since mocking a value class val leads to class cast exception
+            val mockWireguardTunnelOptions =
+                WireguardTunnelOptions(mtu = Mtu(0), quantumResistant = expectedResistantState)
 
             every { mockSettings.tunnelOptions } returns mockTunnelOptions
             every { mockTunnelOptions.wireguard } returns mockWireguardTunnelOptions
-            every { mockWireguardTunnelOptions.quantumResistant } returns expectedResistantState
-            every { mockWireguardTunnelOptions.mtu } returns Mtu(0)
             every { mockSettings.relaySettings } returns mockk<RelaySettings>(relaxed = true)
 
             viewModel.uiState.test {
