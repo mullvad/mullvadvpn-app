@@ -7,6 +7,7 @@ on:
       - android/gradle/verification-metadata.xml
       - android/config/dependency-check-suppression.xml
       - android/test/test-suppression.xml
+      - android/scripts/update-lockfile.sh
   schedule:
     # At 06:20 UTC every day.
     # Notifications for scheduled workflows are sent to the user who last modified the cron
@@ -59,3 +60,26 @@ jobs:
 
       - name: Run gradle audit task
         run: android/gradlew -p android dependencyCheckAnalyze
+
+  ensure-clean-lockfile:
+    needs: prepare
+    name: Ensure clean lockfile
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ needs.prepare.outputs.container_image }}
+    steps:
+      # Fix for HOME path overridden by GH runners when building in containers, see:
+      # https://github.com/actions/runner/issues/863
+      - name: Fix HOME path
+        run: echo "HOME=/root" >> $GITHUB_ENV
+
+      - name: Set locale
+        run: echo "LC_ALL=C.UTF-8" >> $GITHUB_ENV
+
+      - uses: actions/checkout@v3
+
+      - name: Re-generate lockfile
+        run: android/scripts/update-lockfile.sh
+
+      - name: Ensure no changes
+        run: git diff --exit-code
