@@ -11,14 +11,7 @@ import UIKit
 
 class DisconnectSplitButton: UIView {
     private var secondaryButtonSize: CGSize {
-        switch traitCollection.userInterfaceIdiom {
-        case .phone:
-            return UIMetrics.DisconnectSplitButton.secondaryButtonPhone
-        case .pad:
-            return UIMetrics.DisconnectSplitButton.secondaryButtonPad
-        default:
-            return .zero
-        }
+        UIMetrics.DisconnectSplitButton.secondaryButton
     }
 
     let primaryButton = AppButton(style: .translucentDangerSplitLeft)
@@ -69,14 +62,6 @@ class DisconnectSplitButton: UIView {
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-
-        if traitCollection.userInterfaceIdiom != previousTraitCollection?.userInterfaceIdiom {
-            updateTraitConstraints()
-        }
     }
 
     private func updateTraitConstraints() {

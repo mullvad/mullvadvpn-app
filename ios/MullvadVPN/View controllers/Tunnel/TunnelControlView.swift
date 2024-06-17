@@ -129,21 +129,6 @@ final class TunnelControlView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-
-        if traitCollection.userInterfaceIdiom != previousTraitCollection?.userInterfaceIdiom {
-            updateTraitConstraints()
-        }
-
-        if previousTraitCollection?.userInterfaceIdiom != traitCollection.userInterfaceIdiom ||
-            previousTraitCollection?.horizontalSizeClass != traitCollection.horizontalSizeClass {
-            if let viewModel {
-                updateActionButtons(tunnelState: viewModel.tunnelStatus.state)
-            }
-        }
-    }
-
     func update(with model: TunnelControlViewModel) {
         viewModel = model
         let tunnelState = model.tunnelStatus.state
@@ -355,30 +340,9 @@ final class TunnelControlView: UIView {
     private func updateTraitConstraints() {
         var layoutConstraints = [NSLayoutConstraint]()
 
-        switch traitCollection.userInterfaceIdiom {
-        case .pad:
-            // Max container width is 70% width of iPad in portrait mode
-            let maxWidth = min(
-                UIScreen.main.nativeBounds.width * 0.7,
-                UIMetrics.maximumSplitViewContentContainerWidth
-            )
-
-            layoutConstraints.append(contentsOf: [
-                containerView.trailingAnchor.constraint(
-                    lessThanOrEqualTo: layoutMarginsGuide.trailingAnchor
-                ),
-                containerView.widthAnchor.constraint(equalToConstant: maxWidth)
-                    .withPriority(.defaultHigh),
-            ])
-
-        case .phone:
-            layoutConstraints.append(
-                containerView.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor)
-            )
-
-        default:
-            break
-        }
+        layoutConstraints.append(
+            containerView.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor)
+        )
 
         removeConstraints(traitConstraints)
         traitConstraints = layoutConstraints
@@ -456,40 +420,19 @@ final class TunnelControlView: UIView {
 
 private extension TunnelState {
     func actionButtons(traitCollection: UITraitCollection) -> [TunnelControlActionButton] {
-        switch (traitCollection.userInterfaceIdiom, traitCollection.horizontalSizeClass) {
-        case (.phone, _), (.pad, .compact):
-            switch self {
-            case .disconnected, .disconnecting(.nothing), .waitingForConnectivity(.noNetwork):
-                [.selectLocation, .connect]
+        switch self {
+        case .disconnected, .disconnecting(.nothing), .waitingForConnectivity(.noNetwork):
+            [.selectLocation, .connect]
 
-            case .connecting, .pendingReconnect, .disconnecting(.reconnect),
-                 .waitingForConnectivity(.noConnection):
-                [.selectLocation, .cancel]
+        case .connecting, .pendingReconnect, .disconnecting(.reconnect),
+             .waitingForConnectivity(.noConnection):
+            [.selectLocation, .cancel]
 
-            case .negotiatingPostQuantumKey:
-                [.selectLocation, .cancel]
+        case .negotiatingPostQuantumKey:
+            [.selectLocation, .cancel]
 
-            case .connected, .reconnecting, .error:
-                [.selectLocation, .disconnect]
-            }
-
-        case (.pad, .regular):
-            switch self {
-            case .disconnected, .disconnecting(.nothing), .waitingForConnectivity(.noNetwork):
-                [.connect]
-
-            case .connecting, .pendingReconnect, .disconnecting(.reconnect),
-                 .waitingForConnectivity(.noConnection):
-                [.cancel]
-
-            case .negotiatingPostQuantumKey:
-                [.cancel]
-            case .connected, .reconnecting, .error:
-                [.disconnect]
-            }
-
-        default:
-            []
+        case .connected, .reconnecting, .error:
+            [.selectLocation, .disconnect]
         }
     }
 

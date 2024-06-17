@@ -26,43 +26,16 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     private(set) var router: ApplicationRouter<AppRoute>!
 
     /**
-     Primary navigation container.
+     Navigation container.
 
-     On iPhone, it is used as a container for horizontal flows (TOS, Login, Revoked, Out-of-time).
-
-     On iPad, it is used as a container to hold split view controller. Secondary navigation
-     container presented modally is used for horizontal flows.
+     Used as a container for horizontal flows (TOS, Login, Revoked, Out-of-time).
      */
-    private let primaryNavigationContainer = RootContainerViewController()
-
-    /**
-     Secondary navigation container.
-
-     On iPad, it is used in place of primary container for horizontal flows and displayed modally
-     above primary container. Unused on iPhone.
-     */
-    private let secondaryNavigationContainer = RootContainerViewController()
+    private let navigationContainer = RootContainerViewController()
 
     /// Posts `preferredAccountNumber` notification when user inputs the account number instead of voucher code
     private let preferredAccountNumberSubject = PassthroughSubject<String, Never>()
 
-    private lazy var secondaryRootConfiguration = ModalPresentationConfiguration(
-        preferredContentSize: UIMetrics.preferredFormSheetContentSize,
-        modalPresentationStyle: .custom,
-        isModalInPresentation: true,
-        transitioningDelegate: SecondaryContextTransitioningDelegate(adjustViewWhenKeyboardAppears: false)
-    )
-
     private let notificationController = NotificationController()
-
-    private let splitViewController: CustomSplitViewController = {
-        let svc = CustomSplitViewController()
-        svc.minimumPrimaryColumnWidth = UIMetrics.minimumSplitViewSidebarWidth
-        svc.preferredPrimaryColumnWidthFraction = UIMetrics.maximumSplitViewSidebarWidthFraction
-        svc.dividerColor = UIColor.MainSplitView.dividerColor
-        svc.primaryEdge = .trailing
-        return svc
-    }()
 
     private var splitTunnelCoordinator: TunnelCoordinator?
     private var splitLocationCoordinator: LocationCoordinator?
@@ -84,7 +57,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     private var outOfTimeTimer: Timer?
 
     var rootViewController: UIViewController {
-        primaryNavigationContainer
+        navigationContainer
     }
 
     init(
@@ -115,8 +88,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
 
         super.init()
 
-        primaryNavigationContainer.delegate = self
-        secondaryNavigationContainer.delegate = self
+        navigationContainer.delegate = self
 
         router = ApplicationRouter(self)
 
@@ -126,11 +98,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     }
 
     func start() {
-        if isPad {
-            setupSplitView()
-        }
-
-        setNotificationControllerParent(isPrimary: true)
+        navigationContainer.notificationController = notificationController
 
         continueFlow(animated: false)
     }
@@ -189,7 +157,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         if context.isClosing {
             switch dismissedRoute.route.routeGroup {
             case .primary:
-                endHorizontalFlow(animated: context.isAnimated, completion: completion)
+                completion()
                 context.dismissedRoutes.forEach { $0.coordinator.removeFromParent() }
 
             case .selectLocation, .account, .settings, .changelog, .alert:
@@ -292,19 +260,6 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     private func continueFlow(animated: Bool) {
         var nextRoutes = evaluateNextRoutes()
 
-        if isPad {
-            /*
-             On iPad the main route is always visible as it's a part of root controller hence we never
-             ask router to navigate to it. Instead this is when we hide the primary horizontal
-             navigation.
-             */
-            if nextRoutes.contains(.main) {
-                router.dismissAll(.primary, animated: animated)
-            }
-
-            nextRoutes.removeAll { $0 == .main }
-        }
-
         for nextRoute in nextRoutes {
             router.present(nextRoute, animated: animated)
         }
@@ -354,165 +309,15 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     }
 
     private func didDismissAccount(_ reason: AccountDismissReason) {
-        if isPad {
-            router.dismiss(.account, animated: true)
-            if reason == .userLoggedOut {
-                router.dismissAll(.primary, animated: true)
-                continueFlow(animated: true)
-            }
-        } else {
-            if reason == .userLoggedOut {
-                router.dismissAll(.primary, animated: false)
-                continueFlow(animated: false)
-            }
-            router.dismiss(.account, animated: true)
+        if reason == .userLoggedOut {
+            router.dismissAll(.primary, animated: false)
+            continueFlow(animated: false)
         }
-    }
-
-    /**
-     Navigation controller used for horizontal flows.
-     */
-    private var horizontalFlowController: RootContainerViewController {
-        if isPad {
-            return secondaryNavigationContainer
-        } else {
-            return primaryNavigationContainer
-        }
-    }
-
-    /**
-     Begins horizontal flow presenting a navigation controller suitable for current user interface
-     idiom.
-
-     On iPad this takes care of presenting a secondary navigation context using modal presentation.
-
-     On iPhone this does nothing.
-     */
-    private func beginHorizontalFlow(animated: Bool, completion: @escaping () -> Void) {
-        if isPad, secondaryNavigationContainer.presentingViewController == nil {
-            secondaryRootConfiguration.apply(to: secondaryNavigationContainer)
-            addSecondaryContextPresentationStyleObserver()
-
-            primaryNavigationContainer.present(
-                secondaryNavigationContainer,
-                animated: animated,
-                completion: completion
-            )
-        } else {
-            completion()
-        }
-    }
-
-    /**
-     Marks the end of horizontal flow.
-
-     On iPad this method dismisses the modally presented  secondary navigation container and
-     releases all child view controllers from it.
-
-     Does nothing on iPhone.
-     */
-    private func endHorizontalFlow(animated: Bool = true, completion: (() -> Void)? = nil) {
-        if isPad {
-            removeSecondaryContextPresentationStyleObserver()
-
-            secondaryNavigationContainer.dismiss(animated: animated) {
-                // Put notification controller back into primary container.
-                self.setNotificationControllerParent(isPrimary: true)
-
-                completion?()
-            }
-        } else {
-            completion?()
-        }
-    }
-
-    /**
-     Assigns notification controller to either primary or secondary container making sure that only one of them holds
-     the reference.
-     */
-    private func setNotificationControllerParent(isPrimary: Bool) {
-        if isPrimary {
-            secondaryNavigationContainer.notificationController = nil
-            primaryNavigationContainer.notificationController = notificationController
-        } else {
-            primaryNavigationContainer.notificationController = nil
-            secondaryNavigationContainer.notificationController = notificationController
-        }
-    }
-
-    /**
-     Start observing secondary context presentation style which is in compact environment turns into fullscreen
-     and otherwise looks like formsheet.
-
-     In response to compact environment and fullscreen presentation, the observer re-assigns notification controller
-     from primary to secondary context to mimic the look and feel of iPhone app. The opposite is also true, that it
-     will make sure that notification controller is presented within primary context when secondary context is in
-     formsheet presentation style.
-     */
-    private func addSecondaryContextPresentationStyleObserver() {
-        removeSecondaryContextPresentationStyleObserver()
-
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(formSheetControllerWillChangeFullscreenPresentation(_:)),
-            name: FormSheetPresentationController.willChangeFullScreenPresentation,
-            object: secondaryNavigationContainer
-        )
-    }
-
-    /**
-     Stop observing secondary context presentation style.
-     */
-    private func removeSecondaryContextPresentationStyleObserver() {
-        NotificationCenter.default.removeObserver(
-            self,
-            name: FormSheetPresentationController.willChangeFullScreenPresentation,
-            object: secondaryNavigationContainer
-        )
-    }
-
-    /**
-     This method is called in response to changes in fullscreen presentation style of form sheet presentation
-     controller.
-     */
-    @objc private func formSheetControllerWillChangeFullscreenPresentation(_ note: Notification) {
-        guard let isFullscreenNumber = note
-            .userInfo?[SecondaryContextPresentationController.isFullScreenUserInfoKey] as? NSNumber else { return }
-
-        setNotificationControllerParent(isPrimary: !isFullscreenNumber.boolValue)
-    }
-
-    private var isPad: Bool {
-        UIDevice.current.userInterfaceIdiom == .pad
-    }
-
-    private func setupSplitView() {
-        let tunnelCoordinator = makeTunnelCoordinator()
-        let locationCoordinator = makeLocationCoordinator(forModalPresentation: false)
-
-        addChild(tunnelCoordinator)
-        addChild(locationCoordinator)
-
-        splitTunnelCoordinator = tunnelCoordinator
-        splitLocationCoordinator = locationCoordinator
-
-        splitViewController.delegate = self
-        splitViewController.viewControllers = [
-            locationCoordinator.navigationController,
-            tunnelCoordinator.rootViewController,
-        ]
-
-        primaryNavigationContainer.setViewControllers([splitViewController], animated: false)
-
-        primaryNavigationContainer.notificationViewLayoutGuide = tunnelCoordinator.rootViewController.view
-            .safeAreaLayoutGuide
-
-        tunnelCoordinator.start()
-        locationCoordinator.start()
+        router.dismiss(.account, animated: true)
     }
 
     private func presentTOS(animated: Bool, completion: @escaping (Coordinator) -> Void) {
-        let coordinator = TermsOfServiceCoordinator(navigationController: horizontalFlowController)
+        let coordinator = TermsOfServiceCoordinator(navigationController: navigationContainer)
 
         coordinator.didFinish = { [weak self] _ in
             self?.appPreferences.isAgreedToTermsOfService = true
@@ -522,9 +327,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         addChild(coordinator)
         coordinator.start()
 
-        beginHorizontalFlow(animated: animated) {
-            completion(coordinator)
-        }
+        completion(coordinator)
     }
 
     private func presentChangeLog(animated: Bool, completion: @escaping (Coordinator) -> Void) {
@@ -543,10 +346,9 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     }
 
     private func presentMain(animated: Bool, completion: @escaping (Coordinator) -> Void) {
-        precondition(!isPad)
         let tunnelCoordinator = makeTunnelCoordinator()
 
-        horizontalFlowController.pushViewController(
+        navigationContainer.pushViewController(
             tunnelCoordinator.rootViewController,
             animated: animated
         )
@@ -554,14 +356,12 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         addChild(tunnelCoordinator)
         tunnelCoordinator.start()
 
-        beginHorizontalFlow(animated: animated) {
-            completion(tunnelCoordinator)
-        }
+        completion(tunnelCoordinator)
     }
 
     private func presentRevoked(animated: Bool, completion: @escaping (Coordinator) -> Void) {
         let coordinator = RevokedCoordinator(
-            navigationController: horizontalFlowController,
+            navigationController: navigationContainer,
             tunnelManager: tunnelManager
         )
 
@@ -572,14 +372,12 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         addChild(coordinator)
         coordinator.start(animated: animated)
 
-        beginHorizontalFlow(animated: animated) {
-            completion(coordinator)
-        }
+        completion(coordinator)
     }
 
     private func presentOutOfTime(animated: Bool, completion: @escaping (Coordinator) -> Void) {
         let coordinator = OutOfTimeCoordinator(
-            navigationController: horizontalFlowController,
+            navigationController: navigationContainer,
             storePaymentManager: storePaymentManager,
             tunnelManager: tunnelManager
         )
@@ -596,14 +394,12 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         addChild(coordinator)
         coordinator.start(animated: animated)
 
-        beginHorizontalFlow(animated: animated) {
-            completion(coordinator)
-        }
+        completion(coordinator)
     }
 
     private func presentWelcome(animated: Bool, completion: @escaping (Coordinator) -> Void) {
         let coordinator = WelcomeCoordinator(
-            navigationController: horizontalFlowController,
+            navigationController: navigationContainer,
             storePaymentManager: storePaymentManager,
             tunnelManager: tunnelManager,
             accountsProxy: accountsProxy
@@ -624,9 +420,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         addChild(coordinator)
         coordinator.start(animated: animated)
 
-        beginHorizontalFlow(animated: animated) {
-            completion(coordinator)
-        }
+        completion(coordinator)
     }
 
     private func shouldDismissOutOfTime() -> Bool {
@@ -644,7 +438,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
 
     private func presentLogin(animated: Bool, completion: @escaping (Coordinator) -> Void) {
         let coordinator = LoginCoordinator(
-            navigationController: horizontalFlowController,
+            navigationController: navigationContainer,
             tunnelManager: tunnelManager,
             devicesProxy: devicesProxy
         )
@@ -661,9 +455,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         addChild(coordinator)
         coordinator.start(animated: animated)
 
-        beginHorizontalFlow(animated: animated) {
-            completion(coordinator)
-        }
+        completion(coordinator)
     }
 
     private func presentAlert(
@@ -743,11 +535,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
 
         presentChild(
             coordinator,
-            animated: animated,
-            configuration: ModalPresentationConfiguration(
-                preferredContentSize: UIMetrics.preferredFormSheetContentSize,
-                modalPresentationStyle: .formSheet
-            )
+            animated: animated
         ) { [weak self] in
             completion(coordinator)
 
@@ -795,11 +583,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
 
         presentChild(
             coordinator,
-            animated: animated,
-            configuration: ModalPresentationConfiguration(
-                preferredContentSize: UIMetrics.preferredFormSheetContentSize,
-                modalPresentationStyle: .formSheet
-            )
+            animated: animated
         ) {
             completion(coordinator)
         }
@@ -824,12 +608,9 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         self.tunnelObserver = tunnelObserver
 
         updateDeviceInfo(deviceState: tunnelManager.deviceState)
-
-        splitViewController.preferredDisplayMode = tunnelManager.deviceState.splitViewMode
     }
 
     private func deviceStateDidChange(_ deviceState: DeviceState, previousDeviceState: DeviceState) {
-        splitViewController.preferredDisplayMode = deviceState.splitViewMode
         updateDeviceInfo(deviceState: deviceState)
 
         switch deviceState {
@@ -867,8 +648,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
             isPresentingAccountExpiryBanner: isPresentingAccountExpiryBanner,
             deviceState: deviceState
         )
-        self.primaryNavigationContainer.update(configuration: rootDeviceInfoViewModel.configuration)
-        self.secondaryNavigationContainer.update(configuration: rootDeviceInfoViewModel.configuration)
+        self.navigationContainer.update(configuration: rootDeviceInfoViewModel.configuration)
     }
 
     // MARK: - Out of time
@@ -968,11 +748,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
 
     func rootContainerViewSupportedInterfaceOrientations(_ controller: RootContainerViewController)
         -> UIInterfaceOrientationMask {
-        if isPad {
-            return [.landscape, .portrait]
-        } else {
-            return [.portrait]
-        }
+        return [.portrait]
     }
 
     func rootContainerViewAccessibilityPerformMagicTap(_ controller: RootContainerViewController)
@@ -1019,7 +795,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     // MARK: - Presenting
 
     var presentationContext: UIViewController {
-        primaryNavigationContainer.presentedViewController ?? primaryNavigationContainer
+        navigationContainer.presentedViewController ?? navigationContainer
     }
 }
 

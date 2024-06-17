@@ -15,9 +15,6 @@ class AutomaticKeyboardResponder {
 
     private var lastKeyboardRect: CGRect?
 
-    private let logger = Logger(label: "AutomaticKeyboardResponder")
-    private var presentationFrameObserver: NSKeyValueObservation?
-
     init<T: UIView>(targetView: T, handler: @escaping (T, CGFloat) -> Void) {
         self.targetView = targetView
         self.handler = { view, adjustment in
@@ -32,18 +29,6 @@ class AutomaticKeyboardResponder {
             name: UIResponder.keyboardWillChangeFrameNotification,
             object: nil
         )
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(keyboardWillShow(_:)),
-            name: UIResponder.keyboardWillShowNotification,
-            object: nil
-        )
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(keyboardWillHide(_:)),
-            name: UIResponder.keyboardWillHideNotification,
-            object: nil
-        )
     }
 
     func updateContentInsets() {
@@ -52,14 +37,6 @@ class AutomaticKeyboardResponder {
     }
 
     // MARK: - Keyboard notifications
-
-    @objc private func keyboardWillShow(_ notification: Notification) {
-        addPresentationControllerObserver()
-    }
-
-    @objc private func keyboardWillHide(_ notification: Notification) {
-        presentationFrameObserver = nil
-    }
 
     @objc private func keyboardWillChangeFrame(_ notification: Notification) {
         handleKeyboardNotification(notification)
@@ -97,75 +74,6 @@ class AutomaticKeyboardResponder {
 
             adjustContentInsets(convertedKeyboardFrameEnd: convertedKeyboardFrameEnd)
         }
-    }
-
-    private func addPresentationControllerObserver() {
-        guard isFormSheetPresentation else { return }
-
-        // Presentation controller follows the keyboard on iPad.
-        // Install the observer to listen for the container view frame and adjust the target view
-        // accordingly.
-        guard let containerView = presentationContainerView else {
-            logger.warning("Cannot determine the container view in form sheet presentation.")
-            return
-        }
-
-        presentationFrameObserver = containerView.observe(
-            \.frame,
-            options: [.new],
-            changeHandler: { [weak self] _, _ in
-                guard let self,
-                      let keyboardFrameValue = lastKeyboardRect else { return }
-
-                adjustContentInsets(convertedKeyboardFrameEnd: keyboardFrameValue)
-            }
-        )
-    }
-
-    /// Returns the first parent controller in the responder chain
-    private var parentViewController: UIViewController? {
-        var responder: UIResponder? = targetView
-        let iterator = AnyIterator { () -> UIResponder? in
-            responder = responder?.next
-            return responder
-        }
-        return iterator.first { $0 is UIViewController } as? UIViewController
-    }
-
-    /// Returns the presentation container view that's moved along with the keyboard on iPad
-    private var presentationContainerView: UIView? {
-        var currentView = parentViewController?.view
-        let iterator = AnyIterator { () -> UIView? in
-            currentView = currentView?.superview
-            return currentView
-        }
-
-        // Find the container view that private `_UIFormSheetPresentationController` moves
-        // along with the keyboard.
-        return iterator.first { view -> Bool in
-            view.description.starts(with: "<UIDropShadowView")
-        }
-    }
-
-    private var isFormSheetPresentation: Bool {
-        // Form sheet is only supported on iPad
-        guard UIDevice.current.userInterfaceIdiom == .pad else { return false }
-
-        // Find the parent controller holding the view
-        guard let parent = parentViewController else { return false }
-
-        // Determine presentation style within the context
-        let presentationStyle: UIModalPresentationStyle
-
-        // Use the presentation style of a presented controller,
-        // when parent controller is being presented as a child of other modal controller.
-        if let presented = parent.presentingViewController?.presentedViewController {
-            presentationStyle = presented.modalPresentationStyle
-        } else {
-            presentationStyle = parent.modalPresentationStyle
-        }
-
-        return presentationStyle == .formSheet
     }
 
     private func adjustContentInsets(convertedKeyboardFrameEnd: CGRect) {
