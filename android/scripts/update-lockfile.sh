@@ -12,8 +12,4 @@ echo "Removing old components..."
 sed -i '/<components>/,/<\/components>/d' ../gradle/verification-metadata.xml
 
 echo "Generating new components..."
-android_container_image_name=$(cat "../../building/android-container-image.txt")
-podman run --rm -it \
-    -v ../..:/build:Z \
-    "$android_container_image_name" \
-    bash -c 'android/gradlew -q -p android -M sha256 assemble compileDebugUnitTestKotlin assembleAndroidTest lint'
+../gradlew -q -p .. -M sha256 assemble compileDebugUnitTestKotlin assembleAndroidTest lint
