@@ -21,6 +21,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import net.mullvad.mullvadvpn.R
@@ -40,7 +41,7 @@ fun ImportOverridesByText(
     resultNavigator: ResultBackNavigator<String>,
 ) {
     ImportOverridesByTextScreen(
-        onNavigateBack = resultNavigator::navigateBack,
+        onNavigateBack = dropUnlessResumed { resultNavigator.navigateBack() },
         onImportClicked = { resultNavigator.navigateBack(result = it) }
     )
 }
@@ -67,7 +68,7 @@ fun ImportOverridesByTextScreen(
                         colors =
                             ButtonDefaults.textButtonColors()
                                 .copy(contentColor = MaterialTheme.colorScheme.onPrimary),
-                        onClick = { onImportClicked(text) }
+                        onClick = dropUnlessResumed { onImportClicked(text) }
                     ) {
                         Text(
                             text = stringResource(R.string.import_overrides_import),

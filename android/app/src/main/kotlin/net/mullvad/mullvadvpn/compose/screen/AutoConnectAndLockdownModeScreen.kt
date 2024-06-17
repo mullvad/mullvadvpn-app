@@ -47,6 +47,7 @@ import androidx.constraintlayout.compose.ConstrainedLayoutReference
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.ConstraintLayoutScope
 import androidx.core.text.HtmlCompat
+import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
@@ -74,7 +75,7 @@ private fun PreviewAutoConnectAndLockdownModeScreen() {
 @Destination(style = SlideInFromRightTransition::class)
 @Composable
 fun AutoConnectAndLockdownMode(navigator: DestinationsNavigator) {
-    AutoConnectAndLockdownModeScreen(onBackClick = navigator::navigateUp)
+    AutoConnectAndLockdownModeScreen(onBackClick = dropUnlessResumed { navigator.navigateUp() })
 }
 
 @OptIn(ExperimentalFoundationApi::class)

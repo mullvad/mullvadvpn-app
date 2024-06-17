@@ -19,6 +19,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import net.mullvad.mullvadvpn.R
@@ -67,19 +68,13 @@ fun Settings(navigator: DestinationsNavigator) {
     val state by vm.uiState.collectAsStateWithLifecycle()
     SettingsScreen(
         state = state,
-        onVpnSettingCellClick = {
-            navigator.navigate(VpnSettingsDestination) { launchSingleTop = true }
-        },
-        onSplitTunnelingCellClick = {
-            navigator.navigate(SplitTunnelingDestination) { launchSingleTop = true }
-        },
-        onReportProblemCellClick = {
-            navigator.navigate(ReportProblemDestination) { launchSingleTop = true }
-        },
-        onApiAccessClick = {
-            navigator.navigate(ApiAccessListDestination) { launchSingleTop = true }
-        },
-        onBackClick = navigator::navigateUp
+        onVpnSettingCellClick = dropUnlessResumed { navigator.navigate(VpnSettingsDestination) },
+        onSplitTunnelingCellClick =
+            dropUnlessResumed { navigator.navigate(SplitTunnelingDestination) },
+        onReportProblemCellClick =
+            dropUnlessResumed { navigator.navigate(ApiAccessListDestination) },
+        onApiAccessClick = dropUnlessResumed { navigator.navigate(ReportProblemDestination) },
+        onBackClick = dropUnlessResumed { navigator.navigateUp() }
     )
 }
 

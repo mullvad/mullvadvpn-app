@@ -47,6 +47,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.popUpTo
@@ -156,7 +157,7 @@ fun Login(
         vm::createAccount,
         vm::clearAccountHistory,
         vm::onAccountNumberChange,
-        { navigator.navigate(SettingsDestination) }
+        dropUnlessResumed { navigator.navigate(SettingsDestination) }
     )
 }
 

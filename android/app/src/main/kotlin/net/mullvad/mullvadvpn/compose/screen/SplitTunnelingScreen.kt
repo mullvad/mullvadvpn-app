@@ -22,6 +22,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import net.mullvad.mullvadvpn.R
@@ -98,7 +99,7 @@ fun SplitTunneling(navigator: DestinationsNavigator) {
         onShowSystemAppsClick = viewModel::onShowSystemAppsClick,
         onExcludeAppClick = viewModel::onExcludeAppClick,
         onIncludeAppClick = viewModel::onIncludeAppClick,
-        onBackClick = navigator::navigateUp,
+        onBackClick = dropUnlessResumed { navigator.navigateUp() },
         onResolveIcon = { packageName ->
             packageManager.getApplicationIconBitmapOrNull(packageName)
         },
