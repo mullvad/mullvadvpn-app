@@ -25,9 +25,30 @@ buildscript {
 
         // Required for Gradle metadata verification to work properly, see:
         // https://github.com/gradle/gradle/issues/19228
+        // Aapt plugin
         classpath(Dependencies.Plugin.aaptLinux)
         classpath(Dependencies.Plugin.aaptOsx)
         classpath(Dependencies.Plugin.aaptWindows)
+        // ProtoC gen grpc java plugin
+        classpath(Dependencies.Plugin.Protobuf.protocGenGrpcJavaLinuxAarch_64)
+        classpath(Dependencies.Plugin.Protobuf.protocGenGrpcJavaLinuxPpcle_64)
+        classpath(Dependencies.Plugin.Protobuf.protocGenGrpcJavaLinuxS390_64)
+        classpath(Dependencies.Plugin.Protobuf.protocGenGrpcJavaLinuxX86_32)
+        classpath(Dependencies.Plugin.Protobuf.protocGenGrpcJavaLinuxX86_64)
+        classpath(Dependencies.Plugin.Protobuf.protocGenGrpcJavaOsxAarch_64)
+        classpath(Dependencies.Plugin.Protobuf.protocGenGrpcJavaOsxX86_64)
+        classpath(Dependencies.Plugin.Protobuf.protocGenGrpcJavaWindowsX86_32)
+        classpath(Dependencies.Plugin.Protobuf.protocGenGrpcJavaWindowsX86_64)
+        // Protoc plugin
+        classpath(Dependencies.Plugin.Protobuf.protocLinuxAarch_64)
+        classpath(Dependencies.Plugin.Protobuf.protocLinuxPpcle_64)
+        classpath(Dependencies.Plugin.Protobuf.protocLinuxS390_64)
+        classpath(Dependencies.Plugin.Protobuf.protocLinuxX86_32)
+        classpath(Dependencies.Plugin.Protobuf.protocLinuxX86_64)
+        classpath(Dependencies.Plugin.Protobuf.protocOsxAarch_64)
+        classpath(Dependencies.Plugin.Protobuf.protocOsxX86_64)
+        classpath(Dependencies.Plugin.Protobuf.protocWindowsX86_32)
+        classpath(Dependencies.Plugin.Protobuf.protocWindowsX86_64)
     }
 }
 
@@ -35,10 +56,11 @@ val baselineFile = file("$rootDir/config/baseline.xml")
 val configFile = files("$rootDir/config/detekt.yml")
 
 val projectSource = file(projectDir)
-val detektExcludedPaths = listOf(
+val detektExcludedPaths =
+    listOf(
         "**/build/**",
         "**/mullvad_daemon/management_interface/**",
-)
+    )
 
 detekt {
     buildUponDefaultConfig = true

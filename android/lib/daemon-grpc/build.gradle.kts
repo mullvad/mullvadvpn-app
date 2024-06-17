@@ -4,7 +4,7 @@ plugins {
     id(Dependencies.Plugin.androidLibraryId)
     id(Dependencies.Plugin.kotlinAndroidId)
     id(Dependencies.Plugin.kotlinParcelizeId)
-    id(Dependencies.Plugin.protobufId) version Versions.Plugin.protobuf
+    id(Dependencies.Plugin.Protobuf.protobufId) version Versions.Plugin.protobuf
     id(Dependencies.Plugin.junit5) version Versions.Plugin.junit5
 }
 
@@ -35,13 +35,11 @@ android {
 }
 
 protobuf {
-    protoc { artifact = "com.google.protobuf:protoc:${Versions.Grpc.protobufVersion}" }
+    protoc { artifact = Dependencies.Plugin.Protobuf.protoc }
     plugins {
-        create("java") { artifact = "io.grpc:protoc-gen-grpc-java:${Versions.Grpc.grpcVersion}" }
-        create("grpc") { artifact = "io.grpc:protoc-gen-grpc-java:${Versions.Grpc.grpcVersion}" }
-        create("grpckt") {
-            artifact = "io.grpc:protoc-gen-grpc-kotlin:${Versions.Grpc.grpcKotlinVersion}:jdk8@jar"
-        }
+        create("java") { artifact = Dependencies.Plugin.Protobuf.protocGenGrpcJava }
+        create("grpc") { artifact = Dependencies.Plugin.Protobuf.protocGenGrpcJava }
+        create("grpckt") { artifact = Dependencies.Plugin.Protobuf.protocGenGrpcKotlin }
     }
     generateProtoTasks {
         all().forEach {
