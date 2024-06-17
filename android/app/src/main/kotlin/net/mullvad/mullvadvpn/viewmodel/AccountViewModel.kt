@@ -21,6 +21,7 @@ import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
+import net.mullvad.mullvadvpn.lib.payment.model.VerificationResult
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
@@ -90,8 +91,9 @@ class AccountViewModel(
 
     private fun verifyPurchases() {
         viewModelScope.launch {
-            paymentUseCase.verifyPurchases()
-            updateAccountExpiry()
+            if (paymentUseCase.verifyPurchases().getOrNull() == VerificationResult.Success) {
+                updateAccountExpiry()
+            }
         }
     }
 
