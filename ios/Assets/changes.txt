@@ -1,1 +1,1 @@
-Added support for quantum-safe tunnels.
+Added support for quantum-safe tunnels, this can be enabled in VPN Settings.
