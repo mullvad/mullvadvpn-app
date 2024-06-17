@@ -7,13 +7,15 @@
 //
 
 import Foundation
-import MullvadPostQuantum
+import MullvadREST
+import MullvadTypes
 import NetworkExtension
+import PacketTunnelCore
 import WireGuardKitTypes
 
-class PostQuantumKeyExchangeActor {
+public class PostQuantumKeyExchangeActor {
     struct Negotiation {
-        var negotiator: PostQuantumKeyNegotiator
+        var negotiator: PostQuantumKeyNegotiating
         var inTunnelTCPConnection: NWTCPConnection
         var tcpConnectionObserver: NSKeyValueObservation
 
@@ -24,16 +26,26 @@ class PostQuantumKeyExchangeActor {
         }
     }
 
-    unowned let packetTunnel: PacketTunnelProvider
-    private var negotiation: Negotiation?
+    unowned let packetTunnel: any TunnelProvider
+    internal var negotiation: Negotiation?
     private var timer: DispatchSourceTimer?
+    private var keyExchangeRetriesIterator: AnyIterator<Duration>
+    private let negotiationProvider: PostQuantumKeyNegotiating.Type
 
     // Callback in the event of the negotiation failing on startup
     var onFailure: () -> Void
 
-    init(packetTunnel: PacketTunnelProvider, onFailure: @escaping (() -> Void)) {
+    public init(
+        packetTunnel: any TunnelProvider,
+        onFailure: @escaping (() -> Void),
+        negotiationProvider: PostQuantumKeyNegotiating.Type = PostQuantumKeyNegotiator.self,
+        keyExchangeRetriesIterator: AnyIterator<Duration> = REST.RetryStrategy.postQuantumKeyExchange
+            .makeDelayIterator()
+    ) {
         self.packetTunnel = packetTunnel
         self.onFailure = onFailure
+        self.negotiationProvider = negotiationProvider
+        self.keyExchangeRetriesIterator = keyExchangeRetriesIterator
     }
 
     private func createTCPConnection(_ gatewayEndpoint: NWHostEndpoint) -> NWTCPConnection {
@@ -45,8 +57,17 @@ class PostQuantumKeyExchangeActor {
         )
     }
 
-    func startNegotiation(with privateKey: PrivateKey) {
-        let negotiator = PostQuantumKeyNegotiator()
+    /// Starts a new key exchange.
+    ///
+    /// Any ongoing key negotiation is stopped before starting a new one.
+    /// An exponential backoff timer is used to stop the exchange if it takes too long,
+    /// or if the TCP connection takes too long to become ready.
+    /// It is reset after every successful key exchange.
+    ///
+    /// - Parameter privateKey: The device's current private key
+    public func startNegotiation(with privateKey: PrivateKey) {
+        endCurrentNegotiation()
+        let negotiator = negotiationProvider.init()
 
         let gatewayAddress = "10.64.0.1"
         let IPv4Gateway = IPv4Address(gatewayAddress)!
@@ -56,8 +77,9 @@ class PostQuantumKeyExchangeActor {
         // This will become the new private key of the device
         let ephemeralSharedKey = PrivateKey()
 
+        let tcpConnectionTimeout = keyExchangeRetriesIterator.next() ?? .seconds(10)
         // If the connection never becomes viable, force a reconnection after 10 seconds
-        scheduleInTunnelConnectionTimeout(startTime: .now() + 10)
+        scheduleInTunnelConnectionTimeout(startTime: .now() + tcpConnectionTimeout)
 
         let tcpConnectionObserver = inTunnelTCPConnection.observe(\.isViable, options: [
             .initial,
@@ -72,7 +94,8 @@ class PostQuantumKeyExchangeActor {
                 devicePublicKey: privateKey.publicKey,
                 presharedKey: ephemeralSharedKey,
                 packetTunnel: packetTunnel,
-                tcpConnection: inTunnelTCPConnection
+                tcpConnection: inTunnelTCPConnection,
+                postQuantumKeyExchangeTimeout: tcpConnectionTimeout
             ) {
                 self.negotiation = nil
                 self.onFailure()
@@ -85,9 +108,16 @@ class PostQuantumKeyExchangeActor {
         )
     }
 
-    func endCurrentNegotiation() {
+    /// Cancels the ongoing key exchange.
+    public func endCurrentNegotiation() {
         negotiation?.cancel()
         negotiation = nil
+    }
+
+    /// Resets the exponential timeout for successful key exchanges, and ends the current key exchange.
+    public func reset() {
+        keyExchangeRetriesIterator = REST.RetryStrategy.postQuantumKeyExchange.makeDelayIterator()
+        endCurrentNegotiation()
     }
 
     private func scheduleInTunnelConnectionTimeout(startTime: DispatchWallTime) {

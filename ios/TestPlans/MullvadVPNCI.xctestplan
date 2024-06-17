@@ -64,6 +64,13 @@
         "identifier" : "7A88DCD62A8FABBE00D2FF0E",
         "name" : "RoutingTests"
       }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:MullvadVPN.xcodeproj",
+        "identifier" : "A98F1B4D2C19C48D003C869E",
+        "name" : "MullvadPostQuantumTests"
+      }
     }
   ],
   "version" : 1
