@@ -962,7 +962,7 @@ class ApplicationMain
     return (
       process.env.NODE_ENV === 'development' &&
       // Downloading of React and Redux developer tools.
-      (url.startsWith('devtools://devtools/') ||
+      (url.startsWith('devtools://') ||
         url.startsWith('chrome-extension://') ||
         url.startsWith('https://clients2.google.com') ||
         url.startsWith('https://clients2.googleusercontent.com'))
