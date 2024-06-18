@@ -252,6 +252,7 @@ fun VpnSettings(
         onSelectQuantumResistanceSetting = vm::onSelectQuantumResistanceSetting,
         onWireguardPortSelected = vm::onWireguardPortSelected,
         onObfuscationPortSelected = vm::onObfuscationPortSelected,
+        onToggleConnectOnStart = vm::onToggleConnectOnStart
     )
 }
 
@@ -288,6 +289,7 @@ fun VpnSettingsScreen(
     onSelectQuantumResistanceSetting: (quantumResistant: QuantumResistantState) -> Unit = {},
     onWireguardPortSelected: (port: Constraint<Port>) -> Unit = {},
     onObfuscationPortSelected: (port: Constraint<Port>) -> Unit = {},
+    onToggleConnectOnStart: (Boolean) -> Unit = {}
 ) {
     var expandContentBlockersState by rememberSaveable { mutableStateOf(false) }
     var expandUdp2TcpPortSettings by rememberSaveable { mutableStateOf(false) }
@@ -316,33 +318,50 @@ fun VpnSettingsScreen(
                         text = stringResource(id = R.string.auto_connect_and_lockdown_mode_footer)
                     )
                 }
-            }
-            item {
-                Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
-                HeaderSwitchComposeCell(
-                    title = stringResource(R.string.auto_connect_legacy),
-                    isToggled = state.isAutoConnectEnabled,
-                    isEnabled = true,
-                    onCellClicked = { newValue -> onToggleAutoConnect(newValue) }
-                )
-            }
-            item {
-                SwitchComposeSubtitleCell(
-                    text =
-                        HtmlCompat.fromHtml(
-                                if (state.systemVpnSettingsAvailable) {
+                item {
+                    Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
+                    HeaderSwitchComposeCell(
+                        title = stringResource(R.string.auto_connect_legacy),
+                        isToggled = state.isAutoConnectEnabled,
+                        isEnabled = true,
+                        onCellClicked = { newValue -> onToggleAutoConnect(newValue) }
+                    )
+                }
+                item {
+                    SwitchComposeSubtitleCell(
+                        text =
+                            HtmlCompat.fromHtml(
                                     textResource(
                                         R.string.auto_connect_footer_legacy,
                                         textResource(R.string.auto_connect_and_lockdown_mode)
-                                    )
-                                } else {
-                                    textResource(R.string.auto_connect_footer_legacy_tv)
-                                },
-                                HtmlCompat.FROM_HTML_MODE_COMPACT
-                            )
-                            .toAnnotatedString(boldFontWeight = FontWeight.ExtraBold)
-                )
+                                    ),
+                                    HtmlCompat.FROM_HTML_MODE_COMPACT
+                                )
+                                .toAnnotatedString(boldFontWeight = FontWeight.ExtraBold)
+                    )
+                }
+            } else {
+                item {
+                    Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
+                    HeaderSwitchComposeCell(
+                        title = stringResource(R.string.connect_on_start),
+                        isToggled = state.connectOnStart,
+                        onCellClicked = { newValue -> onToggleConnectOnStart(newValue) }
+                    )
+                    SwitchComposeSubtitleCell(
+                        text =
+                            HtmlCompat.fromHtml(
+                                    textResource(
+                                        R.string.connect_on_start_footer,
+                                        textResource(R.string.auto_connect_and_lockdown_mode)
+                                    ),
+                                    HtmlCompat.FROM_HTML_MODE_COMPACT
+                                )
+                                .toAnnotatedString(boldFontWeight = FontWeight.ExtraBold)
+                    )
+                }
             }
+
             item {
                 Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
                 HeaderSwitchComposeCell(
