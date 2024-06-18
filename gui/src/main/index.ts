@@ -178,6 +178,16 @@ class ApplicationMain
       });
     }
 
+    process.on('SIGINT', () => {
+      console.log(`Caught signal SIGINT`);
+    });
+    process.on('SIGTERM', () => {
+      console.log(`Caught signal SIGTERM`);
+    });
+    process.on('SIGQUIT', () => {
+      console.log(`Caught signal SIGQUIT`);
+    });
+
     this.settings.gui.load();
     this.changelog = readChangelog();
 
