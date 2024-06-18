@@ -28,7 +28,7 @@ class WelcomeViewModel(
     private val accountRepository: AccountRepository,
     deviceRepository: DeviceRepository,
     private val paymentUseCase: PaymentUseCase,
-    connectionProxy: ConnectionProxy,
+    private val connectionProxy: ConnectionProxy,
     private val pollAccountExpiry: Boolean = true,
     private val isPlayBuild: Boolean
 ) : ViewModel() {
@@ -76,6 +76,10 @@ class WelcomeViewModel(
                 _uiSideEffect.send(UiSideEffect.OpenAccountView(token))
             }
         }
+    }
+
+    fun onDisconnectClick() {
+        viewModelScope.launch { connectionProxy.disconnect() }
     }
 
     private fun verifyPurchases() {
