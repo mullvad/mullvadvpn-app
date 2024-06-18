@@ -27,6 +27,7 @@ import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
 import net.mullvad.mullvadvpn.lib.model.SelectedObfuscation
 import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
+import net.mullvad.mullvadvpn.repository.ConnectOnStartRepository
 import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.usecase.SystemVpnSettingsUseCase
@@ -46,6 +47,7 @@ class VpnSettingsViewModel(
     private val repository: SettingsRepository,
     private val relayListRepository: RelayListRepository,
     private val systemVpnSettingsUseCase: SystemVpnSettingsUseCase,
+    private val connectOnStartRepository: ConnectOnStartRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
 
@@ -59,7 +61,8 @@ class VpnSettingsViewModel(
                 repository.settingsUpdates,
                 relayListRepository.portRanges,
                 customPort,
-            ) { settings, portRanges, customWgPort ->
+                connectOnStartRepository.connectOnStart
+            ) { settings, portRanges, customWgPort, connectOnStart ->
                 VpnSettingsViewModelState(
                     mtuValue = settings?.tunnelOptions?.wireguard?.mtu,
                     isAutoConnectEnabled = settings?.autoConnect ?: false,
@@ -77,7 +80,8 @@ class VpnSettingsViewModel(
                     customWireguardPort = customWgPort,
                     availablePortRanges = portRanges,
                     systemVpnSettingsAvailable =
-                        systemVpnSettingsUseCase.systemVpnSettingsAvailable()
+                        systemVpnSettingsUseCase.systemVpnSettingsAvailable(),
+                    connectOnStart = connectOnStart
                 )
             }
             .stateIn(
@@ -243,6 +247,10 @@ class VpnSettingsViewModel(
                 )
             }
         }
+    }
+
+    fun onToggleConnectOnStart(connect: Boolean) {
+        viewModelScope.launch(dispatcher) { connectOnStartRepository.setConnectOnStart(connect) }
     }
 
     private fun updateDefaultDnsOptionsViaRepository(contentBlockersOption: DefaultDnsOptions) =
