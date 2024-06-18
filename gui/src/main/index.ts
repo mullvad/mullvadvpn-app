@@ -322,6 +322,10 @@ class ApplicationMain
   };
 
   private onBeforeQuit = (event: Electron.Event) => {
+    if (this.tunnelState.hasReceivedFullDiskAccessError) {
+      this.daemonRpc.prepareRestart(true);
+    }
+
     log.info('before-quit received');
     if (this.quitInitiated) {
       event.preventDefault();
