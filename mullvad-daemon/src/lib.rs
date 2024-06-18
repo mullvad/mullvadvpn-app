@@ -76,9 +76,9 @@ use std::{
     sync::{Arc, Weak},
     time::Duration,
 };
-use talpid_core::split_tunnel;
 use talpid_core::{
     mpsc::Sender,
+    split_tunnel,
     tunnel_state_machine::{self, TunnelCommand, TunnelStateMachineHandle},
 };
 #[cfg(target_os = "android")]
@@ -350,7 +350,7 @@ pub enum DaemonCommand {
     SetObfuscationSettings(ResponseTx<(), settings::Error>, ObfuscationSettings),
     /// Saves the target tunnel state and enters a blocking state. The state is restored
     /// upon restart.
-    PrepareRestart,
+    PrepareRestart(bool),
     /// Causes a socket to bypass the tunnel. This has no effect when connected. It is only used
     /// to bypass the tunnel in blocking states.
     #[cfg(target_os = "android")]
@@ -1281,7 +1281,7 @@ where
             SetObfuscationSettings(tx, settings) => {
                 self.on_set_obfuscation_settings(tx, settings).await
             }
-            PrepareRestart => self.on_prepare_restart(),
+            PrepareRestart(shutdown) => self.on_prepare_restart(shutdown),
             #[cfg(target_os = "android")]
             BypassSocket(fd, tx) => self.on_bypass_socket(fd, tx),
             #[cfg(target_os = "android")]
@@ -2688,7 +2688,11 @@ where
         self.disconnect_tunnel();
     }
 
-    fn on_prepare_restart(&mut self) {
+    /// Prepare the daemon for a restart by setting the target state to [`TargetState::Secured`].
+    ///
+    /// - `shutdown`: If the daemon should shut down itself when after setting the secured target
+    ///   state. set to `false` if the intention is to close the daemon process manually.
+    fn on_prepare_restart(&mut self, shutdown: bool) {
         // TODO: See if this can be made to also shut down the daemon
         //       without causing the service to be restarted.
 
@@ -2697,6 +2701,11 @@ where
             self.send_tunnel_command(TunnelCommand::BlockWhenDisconnected(true, tx));
         }
         self.target_state.lock();
+
+        if shutdown {
+            self.state.shutdown(&self.tunnel_state);
+            self.disconnect_tunnel();
+        }
     }
 
     #[cfg(target_os = "android")]

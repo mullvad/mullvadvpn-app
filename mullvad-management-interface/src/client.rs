@@ -149,8 +149,22 @@ impl MullvadProxyClient {
         }))
     }
 
+    /// DEPRECATED: Prefer to use `prepare_restart_v2`.
     pub async fn prepare_restart(&mut self) -> Result<()> {
         self.0.prepare_restart(()).await.map_err(Error::Rpc)?;
+        Ok(())
+    }
+
+    /// Tell the daemon to get ready for a restart by securing a user, i.e. putting firewall rules
+    /// in place.
+    ///
+    /// - `shutdown`: Whether the daemon should shutdown immediately after its prepare-for-restart
+    /// routine.
+    pub async fn prepare_restart_v2(&mut self, shutdown: bool) -> Result<()> {
+        self.0
+            .prepare_restart_v2(shutdown)
+            .await
+            .map_err(Error::Rpc)?;
         Ok(())
     }
 
