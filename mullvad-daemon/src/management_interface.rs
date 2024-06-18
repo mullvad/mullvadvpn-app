@@ -102,7 +102,7 @@ impl ManagementService for ManagementServiceImpl {
         Ok(Response::new(UnboundedReceiverStream::new(rx)))
     }
 
-    async fn prepare_restart(&self, _: Request<()>) -> ServiceResult<()> {
+    async fn prepare_restart(&self, _: Request<bool>) -> ServiceResult<()> {
         log::debug!("prepare_restart");
         self.send_command_to_daemon(DaemonCommand::PrepareRestart)?;
         Ok(Response::new(()))

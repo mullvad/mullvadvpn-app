@@ -128,7 +128,9 @@ async fn prepare_restart() -> Result<(), Error> {
     let mut rpc = MullvadProxyClient::new()
         .await
         .map_err(Error::RpcConnectionError)?;
-    rpc.prepare_restart().await.map_err(Error::DaemonRpcError)?;
+    rpc.prepare_restart(false)
+        .await
+        .map_err(Error::DaemonRpcError)?;
     Ok(())
 }
 
