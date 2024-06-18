@@ -56,7 +56,7 @@ sealed class InAppNotification {
 
 class InAppNotificationController(
     accountExpiryNotificationUseCase: AccountExpiryNotificationUseCase,
-    newDeviceNotificationUseRepository: NewDeviceNotificationUseCase,
+    newDeviceNotificationUseCase: NewDeviceNotificationUseCase,
     versionNotificationUseCase: VersionNotificationUseCase,
     tunnelStateNotificationUseCase: TunnelStateNotificationUseCase,
     scope: CoroutineScope,
@@ -67,7 +67,7 @@ class InAppNotificationController(
                 tunnelStateNotificationUseCase(),
                 versionNotificationUseCase(),
                 accountExpiryNotificationUseCase(),
-                newDeviceNotificationUseRepository(),
+                newDeviceNotificationUseCase(),
             ) { a, b, c, d ->
                 a + b + c + d
             }
