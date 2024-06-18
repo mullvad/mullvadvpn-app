@@ -88,7 +88,7 @@ function notify_repository_service {
 }
 
 stable_or_beta="stable"
-if [[ $version == *"-beta-"* ]]; then
+if [[ $version == *"-beta"* ]]; then
     stable_or_beta="beta"
 fi
 repository_inbox_dir="$LINUX_REPOSITORY_INBOX_DIR_BASE/$environment/$stable_or_beta"
