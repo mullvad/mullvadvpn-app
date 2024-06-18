@@ -17,7 +17,11 @@ service ManagementService {
 
   // Control the daemon and receive events
   rpc EventsListen(google.protobuf.Empty) returns (stream DaemonEvent) {}
+  // DEPRECATED: Prefer PrepareRestartV2.
   rpc PrepareRestart(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  // Takes a a boolean argument which says whether the daemon should stop after
+  // it is done preparing for a restart.
+  rpc PrepareRestartV2(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
   rpc FactoryReset(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 
   rpc GetCurrentVersion(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
