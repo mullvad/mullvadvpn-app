@@ -17,8 +17,8 @@ fi
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-# shellcheck source=ci/buildserver-config.sh
-source "$SCRIPT_DIR/buildserver-config.sh"
+# shellcheck source=ci/build-linux-repositories-config.sh
+source "$SCRIPT_DIR/build-linux-repositories-config.sh"
 
 repo_dir=${1:?"Specify the output repository directory as the first argument"}
 
