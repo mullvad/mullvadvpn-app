@@ -1,0 +1,10 @@
+[Unit]
+Description=Run Mullvad Linux repository generation and upload service periodically
+Requires=build-linux-repositories@.service
+
+[Timer]
+OnCalendar=*-*-* *:*:30
+Persistent=true
+
+[Install]
+WantedBy=timers.target
