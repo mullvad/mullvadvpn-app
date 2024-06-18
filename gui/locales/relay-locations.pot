@@ -390,6 +390,10 @@ msgstr ""
 msgid "Oslo"
 msgstr ""
 
+#. IT PMO
+msgid "Palermo"
+msgstr ""
+
 #. FR PAR
 msgid "Paris"
 msgstr ""
