@@ -4,15 +4,18 @@ set -eu
 # nullglob is needed to produce expected results when globing an empty directory
 shopt -s nullglob
 
-function print_usage {
-    echo -e "Usage: ./prepare-apt-repository.sh <repository dir> <artifact dirs...>
-
-Will create a deb repository in <repository dir> and add all .deb files from all <artifact dirs>"
+function usage() {
+    echo "Usage: $0 <repository dir> <artifact dirs...>"
+    echo
+    echo "Will create a deb repository in <repository dir> and add all .deb files from all <artifact dirs>"
+    echo
+    echo "Options:"
+    echo "  -h | --help		Show this help message and exit."
+    exit 1
 }
 
-if [ "$#" = 0 ]; then
-    print_usage
-    exit 1
+if [[ "$#" == 0 || $1 == "-h" || $1 == "--help" ]]; then
+    usage
 fi
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"

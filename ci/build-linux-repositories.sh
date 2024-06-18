@@ -21,15 +21,22 @@ set -eu
 # nullglob is needed to produce expected results when globing an empty directory
 shopt -s nullglob
 
-function print_usage {
-    echo -e "Usage: ./build-linux-repositories.sh <environment>-<repository>
-
-Example usage: ./build-linux-repositories.sh production-beta"
+function usage() {
+    echo "Usage: $0 <environment>-<repository>"
+    echo
+    echo "Example usage: ./build-linux-repositories.sh production-beta"
+    echo
+    echo "This script reads an inbox folder for the corresponding server environment and"
+    echo "repository name. It then generates and uploads new Linux repositories for all"
+    echo "the latest artifacts"
+    echo
+    echo "Options:"
+    echo "  -h | --help		Show this help message and exit."
+    exit 1
 }
 
-if [ "$#" = 0 ]; then
-    print_usage
-    exit 1
+if [[ "$#" == 0 || $1 == "-h" || $1 == "--help" ]]; then
+    usage
 fi
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"

@@ -4,18 +4,21 @@ set -eu
 # nullglob is needed to produce expected results when globing an empty directory
 shopt -s nullglob
 
-function print_usage {
-    echo -e "Usage: ./prepare-rpm-repository.sh <repository dir> <repository server url> <remote repo dir> <stable_or_beta> <artifact dirs...>
-
-Example: ./prepare-rpm-repository.sh ./repos/rpm https://cdn.mullvad.net/ rpm/stable stable inbox/app.latest inbox/browser.latest
-Will create an rpm repository in <repository dir> and add all .rpm files from all <artifact dirs> to it."
+function usage() {
+    echo "Usage: $0 <repository dir> <repository server url> <remote repo dir> <stable_or_beta> <artifact dirs...>"
+    echo
+    echo "Example: ./prepare-rpm-repository.sh ./repos/rpm https://cdn.mullvad.net/ rpm/stable stable inbox/app.latest inbox/browser.latest"
+    echo
+    echo "Will create an rpm repository in <repository dir> and add all .rpm files from all <artifact dirs> to it."
+    echo
+    echo "Options:"
+    echo "  -h | --help		Show this help message and exit."
+    exit 1
 }
 
-if [ "$#" = 0 ]; then
-    print_usage
-    exit 1
+if [[ "$#" == 0 || $1 == "-h" || $1 == "--help" ]]; then
+    usage
 fi
-
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
