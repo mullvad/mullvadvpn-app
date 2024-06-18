@@ -30,7 +30,7 @@ class MullvadDaemon(
 
         migrateSplitTunneling.migrate()
 
-        mullvadDaemonHandle = initialize(
+        mullvadDaemonHandle = start(
             vpnService = vpnService,
             rpcSocketPath = rpcSocketFile.absolutePath,
             filesDirectory = vpnService.filesDir.absolutePath,
