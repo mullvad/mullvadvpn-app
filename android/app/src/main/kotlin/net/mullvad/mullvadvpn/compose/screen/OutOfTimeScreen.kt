@@ -48,7 +48,6 @@ import net.mullvad.mullvadvpn.compose.state.OutOfTimeUiState
 import net.mullvad.mullvadvpn.compose.test.OUT_OF_TIME_SCREEN_TITLE_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.HomeTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
-import net.mullvad.mullvadvpn.lib.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.lib.model.ErrorState
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
 import net.mullvad.mullvadvpn.lib.model.TunnelState
@@ -320,17 +319,6 @@ private fun ButtonPanel(
         )
     }
 }
-
-private fun TunnelState.showDisconnectButton(): Boolean =
-    when (this) {
-        is TunnelState.Disconnected -> false
-        is TunnelState.Connecting,
-        is TunnelState.Connected -> true
-        is TunnelState.Disconnecting -> {
-            this.actionAfterDisconnect != ActionAfterDisconnect.Nothing
-        }
-        is TunnelState.Error -> this.errorState.isBlocking
-    }
 
 private fun TunnelState.enableSitePaymentButton(): Boolean = this is TunnelState.Disconnected
 

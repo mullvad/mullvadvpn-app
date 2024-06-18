@@ -32,4 +32,15 @@ sealed class TunnelState {
             is Error -> this.errorState.isBlocking
         }
     }
+
+    fun showDisconnectButton(): Boolean =
+        when (this) {
+            is Disconnected -> false
+            is Connecting,
+            is Connected -> true
+            is Disconnecting -> {
+                this.actionAfterDisconnect != ActionAfterDisconnect.Nothing
+            }
+            is Error -> this.errorState.isBlocking
+        }
 }
