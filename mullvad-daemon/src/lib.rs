@@ -443,6 +443,7 @@ enum DaemonExecutionState {
 }
 
 impl DaemonExecutionState {
+    /// TODO: Document what `tunnel_state` is used for.
     pub fn shutdown(&mut self, tunnel_state: &TunnelState) {
         use self::DaemonExecutionState::*;
 
@@ -1289,7 +1290,9 @@ where
             SetObfuscationSettings(tx, settings) => {
                 self.on_set_obfuscation_settings(tx, settings).await
             }
-            PrepareRestart => self.on_prepare_restart(),
+            PrepareRestart => {
+                self.on_prepare_restart(true /*TODO: This should be passed down!*/)
+            }
             #[cfg(target_os = "android")]
             BypassSocket(fd, tx) => self.on_bypass_socket(fd, tx),
             #[cfg(target_os = "android")]
@@ -2681,6 +2684,7 @@ where
         }
     }
 
+    // TODO: See if this can be unified with `on_prepare_restart`
     fn trigger_shutdown_event(&mut self, user_init_shutdown: bool) {
         // Block all traffic before shutting down to ensure that no traffic can leak on boot or
         // shutdown.
@@ -2696,7 +2700,10 @@ where
         self.disconnect_tunnel();
     }
 
-    fn on_prepare_restart(&mut self) {
+    /// Prepare the daemon for a restart by setting the target state to [`TargetState::Secured`].
+    ///
+    /// - `shutdown`: If the daemon should shut down itself when .. TODO
+    fn on_prepare_restart(&mut self, shutdown: bool) {
         // TODO: See if this can be made to also shut down the daemon
         //       without causing the service to be restarted.
 
@@ -2705,6 +2712,12 @@ where
             self.send_tunnel_command(TunnelCommand::BlockWhenDisconnected(true, tx));
         }
         self.target_state.lock();
+
+        if shutdown {
+            // TODO: Explain pls
+            self.state.shutdown(&self.tunnel_state);
+            self.disconnect_tunnel();
+        }
     }
 
     #[cfg(target_os = "android")]
