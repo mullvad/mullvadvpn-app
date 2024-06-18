@@ -149,8 +149,10 @@ impl MullvadProxyClient {
         }))
     }
 
-    pub async fn prepare_restart(&mut self) -> Result<()> {
-        self.0.prepare_restart(()).await.map_err(Error::Rpc)?;
+    /// TODO: Document
+    /// - `shutdown`: TODO
+    pub async fn prepare_restart(&mut self, shutdown: bool) -> Result<()> {
+        self.0.prepare_restart(shutdown).await.map_err(Error::Rpc)?;
         Ok(())
     }
 
