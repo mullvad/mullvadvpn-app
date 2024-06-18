@@ -10,6 +10,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import net.mullvad.mullvadvpn.compose.textfield.CustomTextField
 import net.mullvad.mullvadvpn.lib.model.CustomListName
@@ -50,6 +51,7 @@ fun CustomListNameTextField(
                     )
                 }
             },
+        capitalization = KeyboardCapitalization.Words,
         modifier =
             modifier.focusRequester(focusRequester).onFocusChanged { focusState ->
                 if (focusState.hasFocus) {

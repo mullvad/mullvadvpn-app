@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
@@ -43,12 +44,14 @@ fun CustomTextField(
     visualTransformation: VisualTransformation = VisualTransformation.None,
     supportingText: @Composable (() -> Unit)? = null,
     colors: TextFieldColors = mullvadDarkTextFieldColors(),
+    capitalization: KeyboardCapitalization = KeyboardCapitalization.None,
     keyboardOptions: KeyboardOptions =
         KeyboardOptions(
             keyboardType = keyboardType,
             imeAction = ImeAction.Done,
             autoCorrect = false,
-        )
+            capitalization = capitalization
+        ),
 ) {
 
     val scope = rememberCoroutineScope()
