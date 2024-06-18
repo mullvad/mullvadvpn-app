@@ -35,6 +35,7 @@ import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.NavGraphs
+import net.mullvad.mullvadvpn.compose.button.NegativeButton
 import net.mullvad.mullvadvpn.compose.button.RedeemVoucherButton
 import net.mullvad.mullvadvpn.compose.button.SitePaymentButton
 import net.mullvad.mullvadvpn.compose.component.CopyAnimatedIconButton
@@ -89,7 +90,8 @@ private fun PreviewWelcomeScreen() {
             onAccountClick = {},
             onPurchaseBillingProductClick = { _ -> },
             navigateToDeviceInfoDialog = {},
-            navigateToVerificationPendingDialog = {}
+            navigateToVerificationPendingDialog = {},
+            onDisconnectClick = {}
         )
     }
 }
@@ -152,6 +154,7 @@ fun Welcome(
         onPurchaseBillingProductClick = { productId ->
             navigator.navigate(PaymentDestination(productId), onlyIfResumed = true)
         },
+        onDisconnectClick = vm::onDisconnectClick,
         navigateToVerificationPendingDialog =
             dropUnlessResumed { navigator.navigate(VerificationPendingDialogDestination) }
     )
@@ -165,6 +168,7 @@ fun WelcomeScreen(
     onSettingsClick: () -> Unit,
     onAccountClick: () -> Unit,
     onPurchaseBillingProductClick: (productId: ProductId) -> Unit,
+    onDisconnectClick: () -> Unit,
     navigateToDeviceInfoDialog: () -> Unit,
     navigateToVerificationPendingDialog: () -> Unit
 ) {
@@ -193,14 +197,16 @@ fun WelcomeScreen(
 
             Spacer(modifier = Modifier.weight(1f))
 
-            // Payment button area
-            PaymentPanel(
+            // Button area
+            ButtonPanel(
+                showDisconnectButton = state.tunnelState.isSecured(),
                 showSitePayment = state.showSitePayment,
                 billingPaymentState = state.billingPaymentState,
                 onSitePaymentClick = onSitePaymentClick,
                 onRedeemVoucherClick = onRedeemVoucherClick,
                 onPurchaseBillingProductClick = onPurchaseBillingProductClick,
-                onPaymentInfoClick = navigateToVerificationPendingDialog
+                onPaymentInfoClick = navigateToVerificationPendingDialog,
+                onDisconnectClick = onDisconnectClick
             )
         }
     }
@@ -326,16 +332,30 @@ fun DeviceNameRow(deviceName: String?, navigateToDeviceInfoDialog: () -> Unit) {
 }
 
 @Composable
-private fun PaymentPanel(
+private fun ButtonPanel(
+    showDisconnectButton: Boolean,
     showSitePayment: Boolean,
     billingPaymentState: PaymentState?,
     onSitePaymentClick: () -> Unit,
     onRedeemVoucherClick: () -> Unit,
     onPurchaseBillingProductClick: (productId: ProductId) -> Unit,
-    onPaymentInfoClick: () -> Unit
+    onPaymentInfoClick: () -> Unit,
+    onDisconnectClick: () -> Unit
 ) {
     Column(modifier = Modifier.fillMaxWidth().padding(top = Dimens.mediumPadding)) {
         Spacer(modifier = Modifier.padding(top = Dimens.screenVerticalMargin))
+        if (showDisconnectButton) {
+            NegativeButton(
+                onClick = onDisconnectClick,
+                text = stringResource(id = R.string.disconnect),
+                modifier =
+                    Modifier.padding(
+                        start = Dimens.sideMargin,
+                        end = Dimens.sideMargin,
+                        bottom = Dimens.buttonSpacing
+                    )
+            )
+        }
         billingPaymentState?.let {
             PlayPayment(
                 billingPaymentState = billingPaymentState,
