@@ -58,12 +58,8 @@ import {
 export default function SelectLocation() {
   const history = useHistory();
   const relaySettingsUpdater = useRelaySettingsUpdater();
-  const {
-    saveScrollPosition,
-    resetScrollPositions,
-    scrollViewRef,
-    spacePreAllocationViewRef,
-  } = useScrollPositionContext();
+  const { saveScrollPosition, resetScrollPositions, scrollViewRef, spacePreAllocationViewRef } =
+    useScrollPositionContext();
   const { locationType, setLocationType, setSearchTerm } = useSelectLocationContext();
   const { expandSearchResults } = useRelayListContext();
 

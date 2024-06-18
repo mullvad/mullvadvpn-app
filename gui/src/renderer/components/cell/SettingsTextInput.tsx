@@ -73,7 +73,7 @@ export function SettingsNumberInput(props: SettingsNumberInputProps) {
 type ValueTypes = 'text' | 'number';
 type ValueType<T extends ValueTypes> = T extends 'number' ? number | '' : string;
 
-interface InputProps<T extends ValueTypes> extends React.HTMLAttributes<HTMLInputElement> {
+interface InputProps<T extends ValueTypes> extends React.InputHTMLAttributes<HTMLInputElement> {
   type?: T;
   value?: ValueType<T>;
   defaultValue?: ValueType<T>;

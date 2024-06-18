@@ -215,10 +215,8 @@ function ExternalPaymentButton() {
 }
 
 function BlockWhenDisconnectedAlert() {
-  const {
-    showBlockWhenDisconnectedAlert,
-    setShowBlockWhenDisconnectedAlert,
-  } = useExpiredAccountContext();
+  const { showBlockWhenDisconnectedAlert, setShowBlockWhenDisconnectedAlert } =
+    useExpiredAccountContext();
   const { setBlockWhenDisconnected } = useAppContext();
   const blockWhenDisconnected = useSelector((state) => state.settings.blockWhenDisconnected);
 

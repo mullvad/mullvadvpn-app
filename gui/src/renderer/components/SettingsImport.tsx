@@ -55,9 +55,8 @@ export default function SettingsImport() {
     showOpenDialog,
     getPathBaseName,
   } = useAppContext();
-  const { clearSettingsImportForm, unsetSubmitSettingsImportForm } = useActions(
-    settingsImportActions,
-  );
+  const { clearSettingsImportForm, unsetSubmitSettingsImportForm } =
+    useActions(settingsImportActions);
 
   // Status of the text form which is used to for example submit it.
   const textForm = useSelector((state) => state.settingsImport);

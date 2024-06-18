@@ -121,8 +121,8 @@ function HeaderBarDeviceInfo() {
   const formattedExpiry = isOutOfTime
     ? sprintf(messages.ngettext('1 day', '%d days', 0), 0)
     : accountExpiry
-    ? formatRemainingTime(accountExpiry)
-    : '';
+      ? formatRemainingTime(accountExpiry)
+      : '';
 
   return (
     <StyledAccountInfo>

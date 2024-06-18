@@ -159,7 +159,10 @@ export default class WindowController {
     return this.webContentsValue.isDestroyed() ? undefined : this.webContentsValue;
   }
 
-  constructor(private delegate: WindowControllerDelegate, windowValue: BrowserWindow) {
+  constructor(
+    private delegate: WindowControllerDelegate,
+    windowValue: BrowserWindow,
+  ) {
     this.windowValue = windowValue;
     this.webContentsValue = windowValue.webContents;
     this.windowPositioning = delegate.isUnpinnedWindow()

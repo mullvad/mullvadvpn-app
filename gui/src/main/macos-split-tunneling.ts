@@ -25,9 +25,7 @@ export class MacOsSplitTunnelingAppListRetriever implements ISplitTunnelingAppLi
    */
   private additionalApplications = new AdditionalApplications();
 
-  public async getApplications(
-    updateCaches = false,
-  ): Promise<{
+  public async getApplications(updateCaches = false): Promise<{
     fromCache: boolean;
     applications: ISplitTunnelingApplication[];
   }> {

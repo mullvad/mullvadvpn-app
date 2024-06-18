@@ -414,9 +414,11 @@ export default class UserInterface implements WindowControllerDelegate {
   }
 
   private async installDevTools() {
-    const { default: installer, REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } = await import(
-      'electron-devtools-installer'
-    );
+    const {
+      default: installer,
+      REACT_DEVELOPER_TOOLS,
+      REDUX_DEVTOOLS,
+    } = await import('electron-devtools-installer');
     const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
     const options = { forceDownload, loadExtensionOptions: { allowFileAccess: true } };
     try {
