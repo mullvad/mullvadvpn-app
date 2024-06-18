@@ -1,88 +1,103 @@
 #!/usr/bin/bash -e
 
+
+# TODO: Uncomment when alpha is to be released
+# BROWSER_RELEASES=("alpha" "stable")
 BROWSER_RELEASES=("alpha")
-# Uncomment when stable is available
-#BROWSER_RELEASES=("alpha" "stable")
-OUTPUT_DIR=/tmp/mullvad-browser-download
+TMP_DIR=$(mktemp -q -d )
+WORKDIR=/tmp/mullvad-browser-download
+NOTIFY_DIR=/tmp/linux-repositories/production
 
 
 function usage() {
-    echo "Usage: $0 <notify_file>"
+    echo "Usage: $0"
     echo
     echo "This script downloads, verifies, and notifies about Mullvad browser packages."
     echo
-    echo "Arguments:"
-    echo "  <notify_file>   The path to the file where notifications of updated packages will be written."
-    echo
     echo "Options:"
-    echo "  --help          Show this help message and exit."
+    echo "  -h | --help		Show this help message and exit."
     exit 1
 }
 
 
 function main() {
-	# mullvad-browser-alpha.deb
+	# mullvad-browser-stable.deb
 	PACKAGE_FILENAME=$1
 	PACKAGE_URL=https://cdn.mullvad.net/browser/$PACKAGE_FILENAME
 	SIGNATURE_URL=$PACKAGE_URL.asc
 
 	echo "[#] Downloading $PACKAGE_FILENAME"
-	if ! wget --quiet --show-progress $PACKAGE_URL; then
+	if ! wget --quiet --show-progress "$PACKAGE_URL"; then
 		echo "[!] Failed to download $PACKAGE_URL"
 		exit 1
 	fi
 
-	echo "[#] Downloading $PACKAGE_FILENAME signature"
-	if ! wget --quiet --show-progress $SIGNATURE_URL; then
+	echo "[#] Downloading $PACKAGE_FILENAME.asc"
+	if ! wget --quiet --show-progress "$SIGNATURE_URL"; then
 		echo "[!] Failed to download $SIGNATURE_URL"
 		exit 1
 	fi
 
 	echo "[#] Verifying $PACKAGE_FILENAME signature"
-	if ! gpg --verify $PACKAGE_FILENAME.asc; then
+	if ! gpg --verify "$PACKAGE_FILENAME".asc; then
 		echo "[!] Failed to verify signature"
 		exit 1
 	fi
+	rm "$PACKAGE_FILENAME.asc"
 
 	# Check if the deb package has changed since last time
 	# Handle the bootstrap problem by checking if the "output file" even exists and just moving on if it doesn't
-	if [[ -f $OUTPUT_DIR/$PACKAGE_FILENAME ]] && cmp $PACKAGE_FILENAME $OUTPUT_DIR/$PACKAGE_FILENAME; then
+	if [[ -f "$WORKDIR/$PACKAGE_FILENAME" ]] && cmp "$PACKAGE_FILENAME" "$PACKAGE_FILENAME"; then
 		echo "[#] $PACKAGE_FILENAME has not changed"
+		rm "$PACKAGE_FILENAME"
 		return
 	fi
+
 	echo "[#] $PACKAGE_FILENAME has changed"
-
-	echo "[#] Moving $PACKAGE_FILENAME file to $OUTPUT_DIR"
-	mv $PACKAGE_FILENAME $OUTPUT_DIR/
-
-	echo "[#] Notifying $NOTIFY_FILE"
-	echo "$OUTPUT_DIR/$PACKAGE_FILENAME" >> $NOTIFY_FILE
+	ln "$PACKAGE_FILENAME" $WORKDIR/
 }
 
-if [[ $# == 0 ]] || [[ $1 == "--help" ]]; then
+
+if [[ $1 == "-h" ]] || [[ $1 == "--help" ]]; then
 	usage
 fi
 
 
-NOTIFY_FILE=$(readlink -f $1)
-if [[ -z $NOTIFY_FILE ]]; then
-	echo "Please provide the output path as the first argument"
+if ! [[ -d $NOTIFY_DIR ]]; then
+	echo "[!] $NOTIFY_DIR does not exist"
 	exit 1
-fi 
-
-if ! [[ -d $OUTPUT_DIR ]]; then
-	echo "[#] Creating $OUTPUT_DIR"
-	mkdir -p $OUTPUT_DIR
 fi
 
-# Prepare working area
-WORKDIR=$(mktemp -q -d )
-pushd $WORKDIR > /dev/null
-trap "{ rm -r $WORKDIR; }" EXIT
 
-for release in ${BROWSER_RELEASES[@]}; do
-	main mullvad-browser-$release.deb
-	# Uncomment when rpm is available
-	#main mullvad-browser-$release.rpm
+if ! [[ -d $WORKDIR ]]; then
+	echo "[#] Creating $WORKDIR"
+	mkdir -p $WORKDIR
+fi
+
+
+pushd "$TMP_DIR" > /dev/null
+
+
+echo "[#] Configured releases are: ${BROWSER_RELEASES[*]}"
+for release in "${BROWSER_RELEASES[@]}"; do
+	main "mullvad-browser-$release.deb"
+	# TODO: Uncomment when rpm is available
+	# main "mullvad-browser-$release.rpm"
 done
 
+
+if [[ -z "$(ls -A "$TMP_DIR")" ]]; then
+	echo "[#] No new browser build(s) exist"
+	exit
+fi
+
+
+echo "[#] New browser build(s) exist"
+# TODO: Uncomment when we release both alpha and stable
+# for DIR in "$NOTIFY_DIR"/*; do
+for DIR in $NOTIFY_DIR/stable; do
+	NOTIFY_FILE=$DIR/browser.src
+	echo "[#] Notifying $NOTIFY_FILE"
+	echo "Writing $TMP_DIR to $NOTIFY_FILE"
+	echo "$TMP_DIR" > "$NOTIFY_FILE"
+done
