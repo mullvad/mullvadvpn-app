@@ -178,16 +178,6 @@ class ApplicationMain
       });
     }
 
-    process.on('SIGINT', () => {
-      console.log(`Caught signal SIGINT`);
-    });
-    process.on('SIGTERM', () => {
-      console.log(`Caught signal SIGTERM`);
-    });
-    process.on('SIGQUIT', () => {
-      console.log(`Caught signal SIGQUIT`);
-    });
-
     this.settings.gui.load();
     this.changelog = readChangelog();
 
@@ -331,6 +321,10 @@ class ApplicationMain
   };
 
   private onBeforeQuit = (event: Electron.Event) => {
+    if (this.tunnelState.hasReceivedFullDiskError) {
+      this.daemonRpc.prepareRestart(true);
+    }
+
     log.info('before-quit received');
     if (this.quitInitiated) {
       event.preventDefault();
