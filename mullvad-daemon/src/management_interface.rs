@@ -8,14 +8,13 @@ use mullvad_management_interface::{
     types::{self, daemon_event, management_service_server::ManagementService},
     Code, Request, Response, Status,
 };
-use mullvad_types::settings::DnsOptions;
 use mullvad_types::{
     account::AccountToken,
     relay_constraints::{
         BridgeSettings, BridgeState, ObfuscationSettings, RelayOverride, RelaySettings,
     },
     relay_list::RelayList,
-    settings::Settings,
+    settings::{DnsOptions, Settings},
     states::{TargetState, TunnelState},
     version,
     wireguard::{RotationInterval, RotationIntervalError},
