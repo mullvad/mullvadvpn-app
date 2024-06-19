@@ -94,10 +94,16 @@ fi
 
 echo "[#] New browser build(s) exist"
 # TODO: Uncomment when we release both alpha and stable
-# for DIR in "$NOTIFY_DIR"/*; do
-for DIR in $NOTIFY_DIR/stable; do
-    NOTIFY_FILE=$DIR/browser.src
+#for REPOSITORY_NOTIFY_DIR in $NOTIFY_DIR/stable; do
+for REPOSITORY_NOTIFY_DIR in "$NOTIFY_DIR"/*; do
+    REPOSITORY_TMP_ARTIFACT_DIR=$(mktemp -qdt mullvad-browser-tmp-XXXXXXX)
+    cp "$TMP_DIR/*" "$REPOSITORY_TMP_ARTIFACT_DIR"
+
+    NOTIFY_FILE=$REPOSITORY_NOTIFY_DIR/browser.src
     echo "[#] Notifying $NOTIFY_FILE"
-    echo "Writing $TMP_DIR to $NOTIFY_FILE"
-    echo "$TMP_DIR" > "$NOTIFY_FILE"
+    echo "Writing $REPOSITORY_TMP_ARTIFACT_DIR to $NOTIFY_FILE"
+    echo "$REPOSITORY_TMP_ARTIFACT_DIR" > "$NOTIFY_FILE"
 done
+
+# Remove our temporary working directory
+rm -r "$TMP_DIR"
