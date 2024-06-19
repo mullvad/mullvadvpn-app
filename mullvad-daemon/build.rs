@@ -1,8 +1,4 @@
-use std::{
-    env, fs,
-    path::PathBuf,
-    process::Command,
-};
+use std::{env, fs, path::PathBuf, process::Command};
 
 #[cfg(windows)]
 fn make_lang_id(p: u16, s: u16) -> u16 {
