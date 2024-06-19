@@ -56,6 +56,7 @@ the current state of the latest code in git, not necessarily any existing releas
 | OpenVPN                       |    ✓    |   ✓   |   ✓   |         |     |
 | WireGuard                     |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
 | Quantum-resistant tunnels     |    ✓    |   ✓   |   ✓   |    ✓    |     |
+| [DAITA]                       |    ✓    |       |        |         |     |
 | WireGuard multihop            |    ✓    |   ✓   |   ✓   |         |     |
 | WireGuard over TCP            |    ✓    |   ✓   |   ✓   |    ✓    |     |
 | OpenVPN over Shadowsocks      |    ✓    |   ✓   |   ✓   |         |     |
@@ -66,6 +67,8 @@ the current state of the latest code in git, not necessarily any existing releas
 | [Externally audited](./audits)|    ✓    |   ✓   |   ✓   |    ✓    |  ✓ |
 
 \* The local network is always accessible on iOS with the current implementation
+
+[DAITA]: https://mullvad.net/en/blog/introducing-defense-against-ai-guided-traffic-analysis-daita
 
 ## Security and anonymity
 
