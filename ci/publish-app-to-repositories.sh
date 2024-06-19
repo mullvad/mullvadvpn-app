@@ -1,13 +1,31 @@
 #!/usr/bin/env bash
-#
-# Usage: ./publish-app-to-repositories.sh [--production/--staging/--dev] <artifact dir> <app version>
-#
-# Copies app deb and rpm artifacts over to the repository building service inbox directory.
-# Makes that service publish the new artifacts to the corresponding repository server.
 
 set -eu
 # nullglob is needed to produce expected results when globing an empty directory
 shopt -s nullglob
+
+function usage() {
+    echo "Usage: $0 [--production/--staging/--dev] <artifact dir> <app version>"
+    echo
+    echo "Copies app deb and rpm artifacts over to the repository building service inbox directory."
+    echo "Makes that service publish the new artifacts to the corresponding repository server."
+    echo
+    echo "Options:"
+    echo "  -h | --help		Show this help message and exit."
+    echo "  --production    Publish app to production environment"
+    echo "  --staging       Publish app to staging environment"
+    echo "  --dev           Publish app to development environment"
+    echo ""
+    echo "Arguments:"
+    echo "  <artifact dir>  Directory to copy from. Will copy all app deb/rpms matching <version>"
+    echo "  <version>       App version to copy. If <artifact dir> has apps for multiple versions"
+    echo "                  only apps matching this version will be copied"
+    exit 1
+}
+
+if [[ "$#" == 0 || $1 == "-h" || $1 == "--help" ]]; then
+    usage
+fi
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
