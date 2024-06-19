@@ -8,14 +8,13 @@ use mullvad_management_interface::{
     types::{self, daemon_event, management_service_server::ManagementService},
     Code, Request, Response, Status,
 };
-use mullvad_types::settings::DnsOptions;
 use mullvad_types::{
     account::AccountToken,
     relay_constraints::{
         BridgeSettings, BridgeState, ObfuscationSettings, RelayOverride, RelaySettings,
     },
     relay_list::RelayList,
-    settings::Settings,
+    settings::{DnsOptions, Settings},
     states::{TargetState, TunnelState},
     version,
     wireguard::{RotationInterval, RotationIntervalError},
@@ -102,9 +101,9 @@ impl ManagementService for ManagementServiceImpl {
         Ok(Response::new(UnboundedReceiverStream::new(rx)))
     }
 
-    async fn prepare_restart(&self, _: Request<bool>) -> ServiceResult<()> {
+    async fn prepare_restart(&self, shutdown: Request<bool>) -> ServiceResult<()> {
         log::debug!("prepare_restart");
-        self.send_command_to_daemon(DaemonCommand::PrepareRestart)?;
+        self.send_command_to_daemon(DaemonCommand::PrepareRestart(shutdown.into_inner()))?;
         Ok(Response::new(()))
     }
 
