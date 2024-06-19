@@ -115,6 +115,7 @@ for notify_file in "$inbox_dir"/*.src; do
         echo "Moving $src_rpm into $artifact_dir/"
         mv "$src_rpm" "$artifact_dir/"
     done
+    rm -r "$src_dir" || echo "Failed to remove src dir $src_dir"
 done
 
 if [[ $found_new_artifacts == "false" ]]; then
