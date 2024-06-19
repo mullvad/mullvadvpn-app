@@ -1,6 +1,5 @@
 [Unit]
 Description=Run Mullvad Linux repository generation and upload service periodically
-Requires=build-linux-repositories@.service
 
 [Timer]
 OnCalendar=*-*-* *:*:30
