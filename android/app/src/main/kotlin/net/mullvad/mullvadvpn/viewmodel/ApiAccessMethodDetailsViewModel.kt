@@ -14,10 +14,12 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.ApiAccessMethodDetailsUiState
+import net.mullvad.mullvadvpn.constant.MINIMUM_LOADING_TIME_MILLIS
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.model.TestApiAccessMethodError
 import net.mullvad.mullvadvpn.repository.ApiAccessRepository
+import net.mullvad.mullvadvpn.util.delayAtLeast
 
 class ApiAccessMethodDetailsViewModel(
     private val apiAccessMethodId: ApiAccessMethodId,
@@ -107,8 +109,9 @@ class ApiAccessMethodDetailsViewModel(
 
     private suspend fun testMethodById(): Either<TestApiAccessMethodError, Unit> {
         isTestingApiAccessMethodState.value = true
-        return apiAccessRepository
-            .testApiAccessMethodById(apiAccessMethodId)
+        return delayAtLeast(MINIMUM_LOADING_TIME_MILLIS) {
+                apiAccessRepository.testApiAccessMethodById(apiAccessMethodId)
+            }
             .onLeft { isTestingApiAccessMethodState.value = false }
             .onRight { isTestingApiAccessMethodState.value = false }
     }

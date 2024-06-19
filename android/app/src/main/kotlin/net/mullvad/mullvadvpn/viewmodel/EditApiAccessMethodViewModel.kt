@@ -23,6 +23,7 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.ApiAccessMethodTypes
 import net.mullvad.mullvadvpn.compose.state.EditApiAccessFormData
 import net.mullvad.mullvadvpn.compose.state.EditApiAccessMethodUiState
+import net.mullvad.mullvadvpn.constant.MINIMUM_LOADING_TIME_MILLIS
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodName
@@ -32,6 +33,7 @@ import net.mullvad.mullvadvpn.lib.model.ParsePortError
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.SocksAuth
 import net.mullvad.mullvadvpn.repository.ApiAccessRepository
+import net.mullvad.mullvadvpn.util.delayAtLeast
 import org.apache.commons.validator.routines.InetAddressValidator
 
 class EditApiAccessMethodViewModel(
@@ -104,7 +106,10 @@ class EditApiAccessMethodViewModel(
                         { errors -> formData.update { it.updateWithErrors(errors) } },
                         { customProxy ->
                             isTestingApiAccessMethod.value = true
-                            val result = apiAccessRepository.testCustomApiAccessMethod(customProxy)
+                            val result =
+                                delayAtLeast(MINIMUM_LOADING_TIME_MILLIS) {
+                                    apiAccessRepository.testCustomApiAccessMethod(customProxy)
+                                }
                             _uiSideEffect.send(
                                 EditApiAccessSideEffect.TestApiAccessMethodResult(result.isRight())
                             )
