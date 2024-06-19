@@ -48,7 +48,7 @@ function main() {
 
     # Check if the deb package has changed since last time
     # Handle the bootstrap problem by checking if the "output file" even exists and just moving on if it doesn't
-    if [[ -f "$WORKDIR/$PACKAGE_FILENAME" ]] && cmp "$PACKAGE_FILENAME" "$PACKAGE_FILENAME"; then
+    if [[ -f "$WORKDIR/$PACKAGE_FILENAME" ]] && cmp "$PACKAGE_FILENAME" "$WORKDIR/$PACKAGE_FILENAME"; then
         echo "[#] $PACKAGE_FILENAME has not changed"
         rm "$PACKAGE_FILENAME"
         return
