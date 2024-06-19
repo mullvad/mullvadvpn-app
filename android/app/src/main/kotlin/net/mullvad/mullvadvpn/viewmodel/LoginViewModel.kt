@@ -29,6 +29,7 @@ import net.mullvad.mullvadvpn.lib.model.LoginAccountError
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.repository.NewDeviceRepository
 import net.mullvad.mullvadvpn.usecase.InternetAvailableUseCase
+import net.mullvad.mullvadvpn.util.delayAtLeast
 import net.mullvad.mullvadvpn.util.getOrDefault
 
 private const val MINIMUM_LOADING_SPINNER_TIME_MILLIS = 500L
@@ -101,15 +102,12 @@ class LoginViewModel(
         }
         _loginState.value = Loading.LoggingIn
         viewModelScope.launch(dispatcher) {
-            // Ensure we always take at least MINIMUM_LOADING_SPINNER_TIME_MILLIS to show the
-            // loading indicator
-            val result = async { accountRepository.login(AccountNumber(accountNumber)) }
-
-            delay(MINIMUM_LOADING_SPINNER_TIME_MILLIS)
-
             val uiState =
-                result
-                    .await()
+                // Ensure we always take at least MINIMUM_LOADING_SPINNER_TIME_MILLIS to show the
+                // loading indicator
+                delayAtLeast(MINIMUM_LOADING_SPINNER_TIME_MILLIS) {
+                        accountRepository.login(AccountNumber(accountNumber))
+                    }
                     .fold(
                         { it.toUiState() },
                         {
