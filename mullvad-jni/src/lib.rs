@@ -39,11 +39,8 @@ pub enum Error {
     #[error("Failed to initialize the mullvad daemon")]
     InitializeDaemon(#[source] mullvad_daemon::Error),
 
-    #[error("Mullvad daemon exited with an error")]
-    DaemonFailed(#[source] mullvad_daemon::Error),
-
-    #[error("Failed to spawn the tokio runtime")]
-    InitializeTokioRuntime(#[source] io::Error),
+    #[error("Failed to init Tokio runtime")]
+    InitTokio(#[source] io::Error),
 
     #[error("Failed to spawn the management interface")]
     SpawnManagementInterface(#[source] mullvad_daemon::management_interface::Error),
@@ -100,7 +97,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_stop(
     // SAFETY: The caller promises that this is a valid pointer to a DaemonContext.
     let context: Box<DaemonContext> = unsafe { Box::from_raw(pointer) };
 
-    context.daemon_command_tx.shutdown();
+    _ = context.daemon_command_tx.shutdown();
     _ = context.shutdown_complete_rx.recv();
 }
 
@@ -138,10 +135,10 @@ fn start(
         log::warn!("api_endpoint will be ignored since 'api-override' is not enabled");
     }
 
-    run_daemon(android_context, rpc_socket, files_dir, cache_dir)
+    spawn_daemon(android_context, rpc_socket, files_dir, cache_dir)
 }
 
-fn run_daemon(
+fn spawn_daemon(
     android_context: AndroidContext,
     rpc_socket: PathBuf,
     files_dir: PathBuf,
@@ -155,43 +152,32 @@ fn run_daemon(
         shutdown_complete_rx,
     };
 
-    let (init_complete_tx, init_complete_rx) = mpsc::channel();
+    let runtime = new_multi_thread().build().map_err(Error::InitTokio)?;
 
-    let daemon_thread = std::thread::spawn(move || {
-        let runtime = new_multi_thread()
-            .build()
-            .map_err(Error::InitializeTokioRuntime)?;
+    runtime.block_on(spawn_daemon_inner(
+        rpc_socket,
+        files_dir,
+        cache_dir,
+        daemon_command_channel,
+        android_context,
+    ))?;
 
-        runtime.block_on(run_daemon_inner(
-            rpc_socket,
-            files_dir,
-            cache_dir,
-            daemon_command_channel,
-            android_context,
-            init_complete_tx,
-        ))?;
-
+    // Spawn a thread to keep the tokio runtime alive
+    std::thread::spawn(move || {
+        drop(runtime);
         _ = shutdown_complete_tx.send(());
-
         Ok::<(), Error>(())
     });
-
-    // Do this silly maneuver instead of moving `daemon.run()` into `tokio::spawn()`,
-    // since the latter requires that futures be `Send`, and `Daemon` isn't sendable.
-    if init_complete_rx.recv().is_err() {
-        return Err(daemon_thread.join().expect("thread panicked").unwrap_err());
-    }
 
     Ok(Box::new(context))
 }
 
-async fn run_daemon_inner(
+async fn spawn_daemon_inner(
     rpc_socket: PathBuf,
     files_dir: PathBuf,
     cache_dir: PathBuf,
     command_channel: DaemonCommandChannel,
     android_context: AndroidContext,
-    init_complete_tx: mpsc::Sender<()>,
 ) -> Result<(), Error> {
     cleanup_old_rpc_socket(&rpc_socket).await;
 
@@ -212,11 +198,15 @@ async fn run_daemon_inner(
     .await
     .map_err(Error::InitializeDaemon)?;
 
-    _ = init_complete_tx.send(());
-
-    daemon.run().await.map_err(Error::DaemonFailed)?;
-
-    log::info!("Mullvad daemon has stopped");
+    tokio::spawn(async move {
+        match daemon.run().await {
+            Ok(()) => log::info!("Mullvad daemon has stopped"),
+            Err(error) => log::error!(
+                "{}",
+                error.display_chain_with_msg("Mullvad daemon exited with an error")
+            ),
+        }
+    });
 
     Ok(())
 }

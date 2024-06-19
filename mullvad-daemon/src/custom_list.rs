@@ -8,7 +8,7 @@ use talpid_types::net::TunnelType;
 
 impl<L> Daemon<L>
 where
-    L: EventListener + Clone + Send + 'static,
+    L: EventListener,
 {
     /// Create a new custom list.
     ///
