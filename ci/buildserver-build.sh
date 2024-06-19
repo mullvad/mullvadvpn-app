@@ -54,12 +54,12 @@ function publish_linux_repositories {
     local artifact_dir=$1
     local version=$2
 
-    "$SCRIPT_DIR/publish-linux-repositories.sh" --dev "$artifact_dir" "$version"
+    "$SCRIPT_DIR/publish-app-to-repositories.sh" --dev "$artifact_dir" "$version"
 
     # If this is a release build, also push to staging.
     # Publishing to production is done manually.
     if [[ $version != *"-dev-"* ]]; then
-        "$SCRIPT_DIR/publish-linux-repositories.sh" --staging "$artifact_dir" "$version"
+        "$SCRIPT_DIR/publish-app-to-repositories.sh" --staging "$artifact_dir" "$version"
     fi
 }
 

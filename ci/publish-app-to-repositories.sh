@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Usage: ./publish-linux-repositories.sh [--production/--staging/--dev] <artifact dir> <app version>
+# Usage: ./publish-app-to-repositories.sh [--production/--staging/--dev] <artifact dir> <app version>
 #
 # Copies app deb and rpm artifacts over to the repository building service inbox directory.
 # Makes that service publish the new artifacts to the corresponding repository server.
