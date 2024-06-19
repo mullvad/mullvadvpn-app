@@ -15,6 +15,3 @@ Description=Mullvad Browser download service
 Type=oneshot
 Environment="GNUPGHOME=..."
 ExecStart=./download-mullvad-browser.sh
-
-[Install]
-WantedBy=multi-user.target

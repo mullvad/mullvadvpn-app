@@ -23,6 +23,3 @@ Description=Mullvad Linux repository generation and upload service
 [Service]
 Type=oneshot
 ExecStart=./build-linux-repositories.sh %i
-
-[Install]
-WantedBy=multi-user.target
