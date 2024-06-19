@@ -33,7 +33,7 @@ use api::AccessMethodEvent;
 use device::{AccountEvent, PrivateAccountAndDevice, PrivateDeviceEvent};
 use futures::{
     channel::{mpsc, oneshot},
-    future::{abortable, AbortHandle, Future, LocalBoxFuture},
+    future::{abortable, AbortHandle, Future},
     StreamExt,
 };
 use geoip::GeoIpHandler;
@@ -586,7 +586,7 @@ where
 }
 
 /// Trait representing something that can broadcast daemon events.
-pub trait EventListener {
+pub trait EventListener: Clone + Send + Sync + 'static {
     /// Notify that the tunnel state changed.
     fn notify_new_state(&self, new_state: TunnelState);
 
@@ -632,7 +632,7 @@ pub struct Daemon<L: EventListener> {
     relay_selector: RelaySelector,
     relay_list_updater: RelayListUpdaterHandle,
     parameters_generator: tunnel::ParametersGenerator,
-    shutdown_tasks: Vec<Pin<Box<dyn Future<Output = ()>>>>,
+    shutdown_tasks: Vec<Pin<Box<dyn Future<Output = ()> + Send + Sync>>>,
     tunnel_state_machine_handle: TunnelStateMachineHandle,
     #[cfg(target_os = "windows")]
     volume_update_tx: mpsc::UnboundedSender<()>,
@@ -641,7 +641,7 @@ pub struct Daemon<L: EventListener> {
 
 impl<L> Daemon<L>
 where
-    L: EventListener + Clone + Send + 'static,
+    L: EventListener,
 {
     pub async fn start(
         log_dir: Option<PathBuf>,
@@ -926,9 +926,21 @@ where
         Ok(())
     }
 
+    /// Safely destroy the daemon, drop everything in a safe order, and call shutdown tasks
     async fn finalize(self) {
-        let (event_listener, shutdown_tasks, api_runtime, tunnel_state_machine_handle) =
-            self.shutdown();
+        let Daemon {
+            event_listener,
+            mut shutdown_tasks,
+            api_runtime,
+            tunnel_state_machine_handle,
+            target_state,
+            account_manager,
+            ..
+        } = self;
+
+        shutdown_tasks.push(Box::pin(target_state.finalize()));
+        shutdown_tasks.push(Box::pin(account_manager.shutdown()));
+
         for future in shutdown_tasks {
             future.await;
         }
@@ -944,37 +956,6 @@ where
                 log::error!("Failed to remove old RPC socket: {}", err);
             }
         }
-    }
-
-    /// Shuts down the daemon without shutting down the underlying event listener and the shutdown
-    /// callbacks
-    fn shutdown<'a>(
-        self,
-    ) -> (
-        L,
-        Vec<LocalBoxFuture<'a, ()>>,
-        mullvad_api::Runtime,
-        TunnelStateMachineHandle,
-    ) {
-        let Daemon {
-            event_listener,
-            mut shutdown_tasks,
-            api_runtime,
-            tunnel_state_machine_handle,
-            target_state,
-            account_manager,
-            ..
-        } = self;
-
-        shutdown_tasks.push(Box::pin(target_state.finalize()));
-        shutdown_tasks.push(Box::pin(account_manager.shutdown()));
-
-        (
-            event_listener,
-            shutdown_tasks,
-            api_runtime,
-            tunnel_state_machine_handle,
-        )
     }
 
     async fn handle_event(&mut self, event: InternalDaemonEvent) {
