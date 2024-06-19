@@ -81,8 +81,7 @@ pushd "$TMP_DIR" > /dev/null
 echo "[#] Configured releases are: ${BROWSER_RELEASES[*]}"
 for release in "${BROWSER_RELEASES[@]}"; do
     main "mullvad-browser-$release.deb"
-    # TODO: Uncomment when rpm is available
-    # main "mullvad-browser-$release.rpm"
+    main "mullvad-browser-$release.rpm"
 done
 
 
