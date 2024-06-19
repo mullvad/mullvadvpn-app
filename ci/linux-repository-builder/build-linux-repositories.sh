@@ -76,6 +76,11 @@ inbox_dir="$LINUX_REPOSITORY_INBOX_DIR_BASE/$environment/$stable_or_beta"
 deb_remote_repo_dir="deb/$stable_or_beta"
 rpm_remote_repo_dir="rpm/$stable_or_beta"
 
+if [[ ! -d "$inbox_dir" ]]; then
+    echo "Inbox $inbox_dir does not exist" 1>&2
+    exit 1
+fi
+
 found_new_artifacts="false"
 # Read all notify files and move the artifacts they point to into a local .latest copy
 for notify_file in "$inbox_dir"/*.src; do
@@ -112,7 +117,7 @@ for notify_file in "$inbox_dir"/*.src; do
 done
 
 if [[ $found_new_artifacts == "false" ]]; then
-    echo "No new artifacts. Skipping repository generation and upload"
+    echo "Nothing new in inbox at $inbox_dir"
     exit 0
 fi
 
