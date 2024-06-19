@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # The directory to use as inbox. This is where .src files are read
-export LINUX_REPOSITORY_INBOX_DIR_BASE="/tmp/linux-repositories"
+#export LINUX_REPOSITORY_INBOX_DIR_BASE="PLEASE CONFIGURE ME"
 
 # GPG key to sign the repositories with
 export CODE_SIGNING_KEY_FINGERPRINT="A1198702FC3E0A09A9AE5B75D5A1D4F266DE8DDF"

@@ -9,7 +9,7 @@ export PRODUCTION_UPLOAD_SERVERS=("cdn.mullvad.net")
 # Where to publish new app artifact notification files to, so that
 # build-linux-repositories picks it up.
 # Keep in sync with build-linux-repositories-config.sh
-export LINUX_REPOSITORY_INBOX_DIR_BASE="/tmp/linux-repositories"
+#export LINUX_REPOSITORY_INBOX_DIR_BASE="PLEASE CONFIGURE ME"
 
 # What container volumes cargo should put caches in.
 # Specify differently if running multiple builds in parallel on one machine,
