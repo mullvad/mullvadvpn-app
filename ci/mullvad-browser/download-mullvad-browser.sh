@@ -1,5 +1,6 @@
 #!/usr/bin/bash -e
 
+set -eu
 
 # TODO: Uncomment when alpha is to be released
 # BROWSER_RELEASES=("alpha" "stable")
@@ -57,8 +58,7 @@ function main() {
     ln "$PACKAGE_FILENAME" $WORKDIR/
 }
 
-
-if [[ $1 == "-h" ]] || [[ $1 == "--help" ]]; then
+if [[ ${1:-} == "-h" ]] || [[ ${1:-} == "--help" ]]; then
     usage
 fi
 
