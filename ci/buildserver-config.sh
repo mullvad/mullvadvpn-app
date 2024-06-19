@@ -6,10 +6,6 @@
 # Servers to upload build artifacts to.
 export PRODUCTION_UPLOAD_SERVERS=("cdn.mullvad.net")
 
-# Base directory `publish-app-to-repositories.sh` will store artifacts under for
-# `build-linux-repositories.sh` to pick them up from.
-export LINUX_REPOSITORY_TMP_STORE_DIR_BASE="/tmp/app-artifacts/"
-
 # Where to publish new app artifact notification files to, so that
 # build-linux-repositories picks it up.
 # Keep in sync with build-linux-repositories-config.sh

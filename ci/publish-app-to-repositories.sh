@@ -92,10 +92,9 @@ if [[ $version == *"-beta"* ]]; then
     stable_or_beta="beta"
 fi
 repository_inbox_dir="$LINUX_REPOSITORY_INBOX_DIR_BASE/$environment/$stable_or_beta"
-repository_tmp_store_dir="$LINUX_REPOSITORY_TMP_STORE_DIR_BASE/$environment/$stable_or_beta/$version"
+repository_tmp_store_dir="$(mktemp -d)"
 
 echo "Copying app artifacts for $version from $artifact_dir to $repository_tmp_store_dir"
-rm -rf "$repository_tmp_store_dir" && mkdir -p "$repository_tmp_store_dir" || exit 1
 copy_linux_artifacts_to_dir "$artifact_dir" "$version" "$repository_tmp_store_dir"
 
 echo "Notifying repository building service in $repository_inbox_dir"
