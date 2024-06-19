@@ -26,8 +26,8 @@ export default class TunnelStateHandler {
 
   public constructor(private delegate: TunnelStateHandlerDelegate) {}
 
-  public get hasReceivedFullDiskError() {
-    return this.receivedFullDiskError;
+  public get hasReceivedFullDiskAccessError() {
+    return this.receivedFullDiskAccessError;
   }
   public get tunnelState() {
     return this.tunnelStateValue;
