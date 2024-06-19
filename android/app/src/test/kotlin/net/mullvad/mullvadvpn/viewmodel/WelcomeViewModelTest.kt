@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.viewmodel
 import androidx.lifecycle.viewModelScope
 import app.cash.turbine.test
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
@@ -212,6 +213,18 @@ class WelcomeViewModelTest {
                 assertLists(expectedProductList, result.products)
             }
         }
+
+    @Test
+    fun `when on disconnect click is called should call connection proxy disconnect`() = runTest {
+        // Arrange
+        coEvery { mockConnectionProxy.disconnect() } returns true
+
+        // Act
+        viewModel.onDisconnectClick()
+
+        // Assert
+        coVerify { mockConnectionProxy.disconnect() }
+    }
 
     companion object {
         private const val PURCHASE_RESULT_EXTENSIONS_CLASS =

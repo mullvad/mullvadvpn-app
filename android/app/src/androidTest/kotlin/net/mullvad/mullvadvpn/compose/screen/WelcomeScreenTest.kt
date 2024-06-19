@@ -14,6 +14,7 @@ import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.compose.state.WelcomeUiState
 import net.mullvad.mullvadvpn.compose.test.PLAY_PAYMENT_INFO_ICON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
+import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
@@ -44,7 +45,8 @@ class WelcomeScreenTest {
                     onAccountClick = {},
                     onPurchaseBillingProductClick = { _ -> },
                     navigateToDeviceInfoDialog = {},
-                    navigateToVerificationPendingDialog = {}
+                    navigateToVerificationPendingDialog = {},
+                    onDisconnectClick = {}
                 )
             }
 
@@ -66,7 +68,8 @@ class WelcomeScreenTest {
                     onAccountClick = {},
                     onPurchaseBillingProductClick = { _ -> },
                     navigateToDeviceInfoDialog = {},
-                    navigateToVerificationPendingDialog = {}
+                    navigateToVerificationPendingDialog = {},
+                    onDisconnectClick = {}
                 )
             }
 
@@ -94,7 +97,8 @@ class WelcomeScreenTest {
                     onAccountClick = {},
                     onPurchaseBillingProductClick = { _ -> },
                     navigateToDeviceInfoDialog = {},
-                    navigateToVerificationPendingDialog = {}
+                    navigateToVerificationPendingDialog = {},
+                    onDisconnectClick = {}
                 )
             }
 
@@ -116,7 +120,8 @@ class WelcomeScreenTest {
                     onAccountClick = {},
                     onPurchaseBillingProductClick = { _ -> },
                     navigateToDeviceInfoDialog = {},
-                    navigateToVerificationPendingDialog = {}
+                    navigateToVerificationPendingDialog = {},
+                    onDisconnectClick = {}
                 )
             }
 
@@ -141,7 +146,8 @@ class WelcomeScreenTest {
                     onAccountClick = {},
                     onPurchaseBillingProductClick = { _ -> },
                     navigateToDeviceInfoDialog = {},
-                    navigateToVerificationPendingDialog = {}
+                    navigateToVerificationPendingDialog = {},
+                    onDisconnectClick = {}
                 )
             }
 
@@ -165,7 +171,8 @@ class WelcomeScreenTest {
                     onAccountClick = {},
                     onPurchaseBillingProductClick = { _ -> },
                     navigateToDeviceInfoDialog = {},
-                    navigateToVerificationPendingDialog = {}
+                    navigateToVerificationPendingDialog = {},
+                    onDisconnectClick = {}
                 )
             }
 
@@ -193,7 +200,8 @@ class WelcomeScreenTest {
                     onAccountClick = {},
                     onPurchaseBillingProductClick = { _ -> },
                     navigateToDeviceInfoDialog = {},
-                    navigateToVerificationPendingDialog = {}
+                    navigateToVerificationPendingDialog = {},
+                    onDisconnectClick = {}
                 )
             }
 
@@ -222,7 +230,8 @@ class WelcomeScreenTest {
                     onAccountClick = {},
                     onPurchaseBillingProductClick = { _ -> },
                     navigateToDeviceInfoDialog = {},
-                    navigateToVerificationPendingDialog = {}
+                    navigateToVerificationPendingDialog = {},
+                    onDisconnectClick = {}
                 )
             }
 
@@ -252,7 +261,8 @@ class WelcomeScreenTest {
                     onAccountClick = {},
                     onPurchaseBillingProductClick = { _ -> },
                     navigateToVerificationPendingDialog = mockShowPendingInfo,
-                    navigateToDeviceInfoDialog = {}
+                    navigateToDeviceInfoDialog = {},
+                    onDisconnectClick = {}
                 )
             }
 
@@ -284,7 +294,8 @@ class WelcomeScreenTest {
                     onAccountClick = {},
                     onPurchaseBillingProductClick = { _ -> },
                     navigateToDeviceInfoDialog = {},
-                    navigateToVerificationPendingDialog = {}
+                    navigateToVerificationPendingDialog = {},
+                    onDisconnectClick = {}
                 )
             }
 
@@ -314,7 +325,8 @@ class WelcomeScreenTest {
                     onAccountClick = {},
                     onPurchaseBillingProductClick = clickHandler,
                     navigateToDeviceInfoDialog = {},
-                    navigateToVerificationPendingDialog = {}
+                    navigateToVerificationPendingDialog = {},
+                    onDisconnectClick = {}
                 )
             }
 
@@ -323,5 +335,33 @@ class WelcomeScreenTest {
 
             // Assert
             verify { clickHandler(ProductId("PRODUCT_ID")) }
+        }
+
+    @Test
+    fun testOnDisconnectClick() =
+        composeExtension.use {
+            // Arrange
+            val clickHandler: () -> Unit = mockk(relaxed = true)
+            val tunnelState: TunnelState = mockk(relaxed = true)
+            every { tunnelState.isSecured() } returns true
+            setContentWithTheme {
+                WelcomeScreen(
+                    state = WelcomeUiState(tunnelState = tunnelState),
+                    onSitePaymentClick = {},
+                    onRedeemVoucherClick = {},
+                    onSettingsClick = {},
+                    onAccountClick = {},
+                    onPurchaseBillingProductClick = {},
+                    navigateToDeviceInfoDialog = {},
+                    navigateToVerificationPendingDialog = {},
+                    onDisconnectClick = clickHandler
+                )
+            }
+
+            // Act
+            onNodeWithText("Disconnect").performClick()
+
+            // Assert
+            verify { clickHandler() }
         }
 }
