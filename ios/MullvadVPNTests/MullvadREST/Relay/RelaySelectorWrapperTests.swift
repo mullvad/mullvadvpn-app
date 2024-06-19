@@ -34,6 +34,7 @@ class RelaySelectorWrapperTests: XCTestCase {
             relayCache: relayCache,
             multihopUpdater: multihopUpdater
         )
+        multihopStateListener.onNewMultihop?(.off)
 
         multihopStateListener.onNewMultihop?(.off)
 

@@ -53,7 +53,7 @@ extension PacketTunnelActor {
                 case .random:
                     return "reconnect(random, \(stopTunnelMonitor))"
                 case let .preSelected(selectedRelays):
-                    return "reconnect(\(selectedRelays.exit.hostname), \(stopTunnelMonitor))" // TODO: Multihop
+                    return "reconnect(\(selectedRelays.exit.hostname)\(selectedRelays.entry.flatMap { " via \($0.hostname)" } ?? ""), \(stopTunnelMonitor))"
                 }
             case let .error(reason):
                 return "error(\(reason))"
