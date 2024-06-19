@@ -90,7 +90,8 @@ function build_unix {
     mkdir -p "$BUILD_DIR/lib/$TARGET"
     pushd libwg
 
-    local tags=()
+    local tags
+    tags=()
     if [[ "$DAITA" == "true" ]]; then
         tags+=(--tags daita)
     fi
