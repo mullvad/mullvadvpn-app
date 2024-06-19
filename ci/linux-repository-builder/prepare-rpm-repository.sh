@@ -7,7 +7,7 @@ shopt -s nullglob
 function usage() {
     echo "Usage: $0 <repository dir> <repository server url> <remote repo dir> <stable_or_beta> <artifact dirs...>"
     echo
-    echo "Example: ./prepare-rpm-repository.sh ./repos/rpm https://cdn.mullvad.net/ rpm/stable stable inbox/app.latest inbox/browser.latest"
+    echo "Example: $0 ./repos/rpm https://cdn.mullvad.net/ rpm/stable stable inbox/app.latest inbox/browser.latest"
     echo
     echo "Will create an rpm repository in <repository dir> and add all .rpm files from all <artifact dirs> to it."
     echo
