@@ -1,12 +1,14 @@
 package net.mullvad.mullvadvpn.viewmodel
 
 import app.cash.turbine.test
+import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkStatic
 import java.time.Duration
 import kotlin.test.assertIs
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,6 +22,7 @@ import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodSetting
 import net.mullvad.mullvadvpn.lib.model.TestApiAccessMethodError
 import net.mullvad.mullvadvpn.lib.model.UnknownApiAccessMethodError
 import net.mullvad.mullvadvpn.repository.ApiAccessRepository
+import net.mullvad.mullvadvpn.util.delayAtLeast
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -38,6 +41,7 @@ class ApiAccessMethodDetailsViewModelTest {
 
     @BeforeEach
     fun setUp() {
+        mockkStatic(DELAY_UTIL)
         every { mockApiAccessRepository.apiAccessMethodSettingById(apiAccessMethodId) } returns
             accessMethodFlow
         every { mockApiAccessRepository.enabledApiAccessMethods() } returns enabledMethodsFlow
@@ -57,6 +61,8 @@ class ApiAccessMethodDetailsViewModelTest {
             coEvery { mockApiAccessRepository.testApiAccessMethodById(apiAccessMethodId) } returns
                 Unit.right()
             coEvery { mockApiAccessRepository.setCurrentApiAccessMethod(any()) } returns
+                Unit.right()
+            coEvery { delayAtLeast<Either<TestApiAccessMethodError, Unit>>(any(), any()) } returns
                 Unit.right()
 
             // Act
@@ -176,5 +182,9 @@ class ApiAccessMethodDetailsViewModelTest {
                 awaitItem()
             )
         }
+    }
+
+    companion object {
+        private const val DELAY_UTIL = "net.mullvad.mullvadvpn.util.DelayKt"
     }
 }
