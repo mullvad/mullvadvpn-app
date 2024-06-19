@@ -110,7 +110,7 @@ if [[ $version == *"-beta"* ]]; then
     stable_or_beta="beta"
 fi
 repository_inbox_dir="$LINUX_REPOSITORY_INBOX_DIR_BASE/$environment/$stable_or_beta"
-repository_tmp_store_dir="$(mktemp -d)"
+repository_tmp_store_dir="$(mktemp -qdt "mullvadvpn-app-$version-tmp-XXXXXXX")"
 
 echo "Copying app artifacts for $version from $artifact_dir to $repository_tmp_store_dir"
 copy_linux_artifacts_to_dir "$artifact_dir" "$version" "$repository_tmp_store_dir"

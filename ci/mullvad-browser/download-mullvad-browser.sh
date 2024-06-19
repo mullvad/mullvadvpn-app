@@ -4,7 +4,7 @@
 # TODO: Uncomment when alpha is to be released
 # BROWSER_RELEASES=("alpha" "stable")
 BROWSER_RELEASES=("alpha")
-TMP_DIR=$(mktemp -q -d )
+TMP_DIR=$(mktemp -qdt mullvad-browser-tmp-XXXXXXX)
 WORKDIR=/tmp/mullvad-browser-download
 NOTIFY_DIR=/tmp/linux-repositories/production
 
