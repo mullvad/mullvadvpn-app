@@ -70,15 +70,14 @@ use std::collections::HashSet;
 use std::os::unix::io::RawFd;
 use std::{
     marker::PhantomData,
-    mem,
     path::PathBuf,
     pin::Pin,
     sync::{Arc, Weak},
     time::Duration,
 };
-use talpid_core::split_tunnel;
 use talpid_core::{
     mpsc::Sender,
+    split_tunnel,
     tunnel_state_machine::{self, TunnelCommand, TunnelStateMachineHandle},
 };
 #[cfg(target_os = "android")]
@@ -435,49 +434,6 @@ impl From<(AccessMethodEvent, oneshot::Sender<()>)> for InternalDaemonEvent {
     }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
-enum DaemonExecutionState {
-    Running,
-    Exiting,
-    Finished,
-}
-
-impl DaemonExecutionState {
-    pub fn shutdown(&mut self, tunnel_state: &TunnelState) {
-        use self::DaemonExecutionState::*;
-
-        match self {
-            Running => {
-                match tunnel_state {
-                    TunnelState::Disconnected { .. } => mem::replace(self, Finished),
-                    _ => mem::replace(self, Exiting),
-                };
-            }
-            Exiting | Finished => {}
-        };
-    }
-
-    pub fn disconnected(&mut self) {
-        use self::DaemonExecutionState::*;
-
-        match self {
-            Exiting => {
-                let _ = mem::replace(self, Finished);
-            }
-            Running | Finished => {}
-        };
-    }
-
-    pub fn is_running(&self) -> bool {
-        use self::DaemonExecutionState::*;
-
-        match self {
-            Running => true,
-            Exiting | Finished => false,
-        }
-    }
-}
-
 pub struct DaemonCommandChannel {
     sender: DaemonCommandSender,
     receiver: mpsc::UnboundedReceiver<InternalDaemonEvent>,
@@ -613,7 +569,7 @@ pub trait EventListener {
 pub struct Daemon<L: EventListener> {
     tunnel_state: TunnelState,
     target_state: PersistentTargetState,
-    state: DaemonExecutionState,
+    shutting_down: bool,
     #[cfg(target_os = "linux")]
     exclude_pids: split_tunnel::PidManager,
     rx: mpsc::UnboundedReceiver<InternalDaemonEvent>,
@@ -869,7 +825,7 @@ where
                 locked_down: settings.block_when_disconnected,
             },
             target_state,
-            state: DaemonExecutionState::Running,
+            shutting_down: false,
             #[cfg(target_os = "linux")]
             exclude_pids: split_tunnel::PidManager::new().map_err(Error::InitSplitTunneling)?,
             rx: internal_event_rx,
@@ -917,7 +873,7 @@ where
 
         while let Some(event) = self.rx.next().await {
             self.handle_event(event).await;
-            if self.state == DaemonExecutionState::Finished {
+            if self.shutting_down && self.tunnel_state.is_disconnected() {
                 break;
             }
         }
@@ -1046,7 +1002,6 @@ where
         }
 
         match &tunnel_state {
-            TunnelState::Disconnected { .. } => self.state.disconnected(),
             TunnelState::Connecting { .. } => {
                 log::debug!("Settings: {}", self.settings.summary());
             }
@@ -1183,7 +1138,7 @@ where
 
     async fn handle_command(&mut self, command: DaemonCommand) {
         use self::DaemonCommand::*;
-        if !self.state.is_running() {
+        if self.shutting_down {
             log::trace!("Dropping daemon command because the daemon is shutting down",);
             return;
         }
@@ -1462,7 +1417,7 @@ where
         tx: oneshot::Sender<bool>,
         new_target_state: TargetState,
     ) {
-        if self.state.is_running() {
+        if !self.shutting_down {
             let state_change_initated = self.set_target_state(new_target_state).await;
             Self::oneshot_send(tx, state_change_initated, "state change initiated");
         } else {
@@ -2692,7 +2647,7 @@ where
             self.send_tunnel_command(TunnelCommand::BlockWhenDisconnected(true, tx));
         }
 
-        self.state.shutdown(&self.tunnel_state);
+        self.shutting_down = true;
         self.disconnect_tunnel();
     }
 
