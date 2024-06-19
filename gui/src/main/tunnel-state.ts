@@ -20,7 +20,7 @@ export default class TunnelStateHandler {
   // Scheduler for discarding the assumed next state.
   private tunnelStateFallbackScheduler = new Scheduler();
 
-  private receivedFullDiskError = false;
+  private receivedFullDiskAccessError = false;
 
   private lastKnownDisconnectedLocation: Partial<ILocation> | undefined;
 
