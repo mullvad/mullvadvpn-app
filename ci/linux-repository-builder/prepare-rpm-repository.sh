@@ -71,7 +71,6 @@ gpgkey=$repository_server_url/rpm/mullvad-keyring.asc" > "$repository_dir/mullva
 }
 
 for artifact_dir in "${artifact_dirs[@]}"; do
-    echo "DEBUG: artifact_dir=$artifact_dir"
     for arch in "${SUPPORTED_RPM_ARCHITECTURES[@]}"; do
         arch_repo_dir="$repo_dir/$arch"
         for rpm_path in "$artifact_dir"/*"$arch".rpm; do

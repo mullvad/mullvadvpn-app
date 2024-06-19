@@ -76,16 +76,9 @@ inbox_dir="$LINUX_REPOSITORY_INBOX_DIR_BASE/$environment/$stable_or_beta"
 deb_remote_repo_dir="deb/$stable_or_beta"
 rpm_remote_repo_dir="rpm/$stable_or_beta"
 
-echo "DEBUG: inbox_dir: $inbox_dir"
-echo "DEBUG: repository_server_upload_domain: $repository_server_upload_domain"
-echo "DEBUG: repository_server_public_url: $repository_server_public_url"
-echo "DEBUG: deb_remote_repo_dir: $deb_remote_repo_dir"
-echo "DEBUG: rpm_remote_repo_dir: $rpm_remote_repo_dir"
-
 found_new_artifacts="false"
 # Read all notify files and move the artifacts they point to into a local .latest copy
 for notify_file in "$inbox_dir"/*.src; do
-    echo "DEBUG: notify_file=$notify_file"
     if [[ ! -f "$notify_file" ]]; then
         echo "Ignoring non-file $notify_file" 1>&2
         continue
@@ -96,7 +89,7 @@ for notify_file in "$inbox_dir"/*.src; do
         continue
     fi
 
-    echo "DEBUG: Removing notify file $notify_file"
+    echo "Processing notify file $notify_file"
     rm "$notify_file"
 
     artifact_dir=${notify_file/%.src/.latest}
@@ -130,7 +123,7 @@ if [ "${#artifact_dirs[@]}" -lt 1 ]; then
     exit 1
 fi
 
-echo "DEBUG: Generating repositories from these artifact directories: ${artifact_dirs[*]}"
+echo "Generating repositories from these artifact directories: ${artifact_dirs[*]}"
 
 # Generate deb repository from all the .latest artifacts
 
