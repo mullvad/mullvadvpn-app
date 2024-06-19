@@ -416,8 +416,14 @@ extension PacketTunnelActor {
         guard let connectionState = try makeConnectionState(nextRelays: nextRelays, settings: settings, reason: reason)
         else { return nil }
 
+        //
+        // Obfuscator will always be applied to the first hop,
+        // i.e., the entry in multi-hop or exit in single-hop.
+        //
+        let endpoint = connectionState.selectedRelays.entry?.endpoint ?? connectionState.selectedRelays.exit.endpoint
+
         let obfuscatedEndpoint = protocolObfuscator.obfuscate(
-            connectionState.selectedRelays.exit.endpoint, // TODO: Multihop
+            endpoint,
             settings: settings,
             retryAttempts: connectionState.selectedRelays.exit.retryAttempts // TODO: Multihop
         )

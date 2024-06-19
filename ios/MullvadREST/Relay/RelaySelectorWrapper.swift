@@ -53,7 +53,12 @@ public final class RelaySelectorWrapper: RelaySelectorProtocol {
 
     private func addObserver() {
         self.observer = MultihopObserverBlock(didUpdateMultihop: { [weak self] _, multihopState in
+            // Discard applying multi-hop settings until it's under development
+            #if DEBUG
             self?.multihopState = multihopState
+            #else
+            self?.multihopState = .off
+            #endif
         })
 
         multihopUpdater.addObserver(observer)

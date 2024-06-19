@@ -47,10 +47,9 @@ extension State {
     func logFormat() -> String {
         switch self {
         case let .connecting(connState), let .connected(connState), let .reconnecting(connState):
-            let hostname = connState.selectedRelays.exit.hostname // TODO: Multihop
-
             return """
-            \(name) to \(hostname), \
+            \(name) to \(connState.selectedRelays.entry.flatMap { "entry location: \($0.hostname) " } ?? ""),\
+            exit location: \(connState.selectedRelays.exit.hostname), \
             key: \(connState.keyPolicy.logFormat()), \
             net: \(connState.networkReachability), \
             attempt: \(connState.connectionAttemptCount)

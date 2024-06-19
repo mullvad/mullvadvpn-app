@@ -53,10 +53,16 @@ public class ShadowsocksLoader: ShadowsocksLoaderProtocol {
 
         // The multihop state gets updated a lot when observing the tunnel, clear the cache if the multihop settings have changed.
         self.observer = MultihopObserverBlock(didUpdateMultihop: { [weak self] _, newMultihopState in
+            // Discard applying multi-hop settings until it's under development
+            #if DEBUG
             if self?.multihopState != newMultihopState {
                 self?.multihopState = newMultihopState
                 try? self?.clear()
             }
+            #else
+            self?.multihopState = .off
+            #endif
+
         })
         multihopUpdater.addObserver(self.observer)
     }
