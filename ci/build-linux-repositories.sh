@@ -96,6 +96,9 @@ for notify_file in "$inbox_dir"/*.src; do
         continue
     fi
 
+    echo "DEBUG: Removing notify file $notify_file"
+    rm "$notify_file"
+
     artifact_dir=${notify_file/%.src/.latest}
     # Recreate the artifact dir, cleaning it
     rm -rf "$artifact_dir" && mkdir -p "$artifact_dir" || exit 1
@@ -112,9 +115,6 @@ for notify_file in "$inbox_dir"/*.src; do
         echo "Moving $src_rpm into $artifact_dir/"
         mv "$src_rpm" "$artifact_dir/"
     done
-
-    echo "DEBUG: Removing notify file $notify_file"
-    rm "$notify_file"
 done
 
 if [[ $found_new_artifacts == "false" ]]; then
