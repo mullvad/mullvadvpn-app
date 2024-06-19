@@ -10,9 +10,6 @@ export PRODUCTION_UPLOAD_SERVERS=("cdn.mullvad.net")
 # `build-linux-repositories.sh` to pick them up from.
 export LINUX_REPOSITORY_TMP_STORE_DIR_BASE="/tmp/app-artifacts/"
 
-# Temporary storage of .src files before atomically moving into
-# $LINUX_REPOSITORY_INBOX_DIR_BASE/$environment/$stable_or_beta
-export LINUX_REPOSITORY_NOTIFY_FILE_TMP_DIR="/tmp/linux-repositories"
 # Where to publish new app artifact notification files to, so that
 # build-linux-repositories picks it up.
 # Keep in sync with build-linux-repositories-config.sh

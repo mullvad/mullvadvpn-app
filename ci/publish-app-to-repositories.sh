@@ -75,7 +75,7 @@ function notify_repository_service {
     local repository_inbox_dir=$3
 
     local tmp_notify_file
-    tmp_notify_file=$(mktemp -p "$LINUX_REPOSITORY_NOTIFY_FILE_TMP_DIR")
+    tmp_notify_file=$(mktemp -p "$repository_inbox_dir")
     local notify_file="$repository_inbox_dir/app.src"
 
     # Temporarily write the file to a different path and then move it.
@@ -83,7 +83,7 @@ function notify_repository_service {
     # this is guaranteed to be atomic, preventing partial reads by the consuming
     # repository building service.
     echo "$artifact_dir" > "$tmp_notify_file"
-    echo "DEBUG: Moving notify file $tmp_notify_file -> $notify_file"
+    echo "Writing notify file $notify_file"
     mv "$tmp_notify_file" "$notify_file"
 }
 
