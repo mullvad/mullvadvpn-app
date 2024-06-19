@@ -9,7 +9,7 @@ import net.mullvad.mullvadvpn.lib.common.constant.VPN_SERVICE_CLASS
 
 class BootCompletedReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
-        if (intent?.action == "android.intent.action.BOOT_COMPLETED") {
+        if (intent?.action == Intent.ACTION_BOOT_COMPLETED) {
             context?.let { startAndConnectTunnel(context) }
         }
     }
