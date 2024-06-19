@@ -5,6 +5,7 @@ set -eu
 # TODO: Uncomment when alpha is to be released
 # BROWSER_RELEASES=("alpha" "stable")
 BROWSER_RELEASES=("stable")
+REPOSITORIES=("stable" "beta")
 TMP_DIR=$(mktemp -qdt mullvad-browser-tmp-XXXXXXX)
 WORKDIR=/tmp/mullvad-browser-download
 NOTIFY_DIR=/tmp/linux-repositories/production
@@ -84,24 +85,21 @@ for release in "${BROWSER_RELEASES[@]}"; do
     main "mullvad-browser-$release.rpm"
 done
 
-
 if [[ -z "$(ls -A "$TMP_DIR")" ]]; then
     echo "[#] No new browser build(s) exist"
     exit
 fi
 
-
 echo "[#] New browser build(s) exist"
-# TODO: Uncomment when we release both alpha and stable
-#for REPOSITORY_NOTIFY_DIR in $NOTIFY_DIR/stable; do
-for REPOSITORY_NOTIFY_DIR in $NOTIFY_DIR/stable $NOTIFY_DIR/beta; do
-    REPOSITORY_TMP_ARTIFACT_DIR=$(mktemp -qdt mullvad-browser-tmp-XXXXXXX)
-    cp "$TMP_DIR/*" "$REPOSITORY_TMP_ARTIFACT_DIR"
+for repository in "${REPOSITORIES[@]}"; do
+    inbox_dir="$NOTIFY_DIR/$repository"
 
-    NOTIFY_FILE=$REPOSITORY_NOTIFY_DIR/browser.src
-    echo "[#] Notifying $NOTIFY_FILE"
-    echo "Writing $REPOSITORY_TMP_ARTIFACT_DIR to $NOTIFY_FILE"
-    echo "$REPOSITORY_TMP_ARTIFACT_DIR" > "$NOTIFY_FILE"
+    REPOSITORY_TMP_ARTIFACT_DIR=$(mktemp -qdt mullvad-browser-tmp-XXXXXXX)
+    cp "$TMP_DIR"/* "$REPOSITORY_TMP_ARTIFACT_DIR"
+
+    repository_notify_file="$inbox_dir/browser.src"
+    echo "[#] Notifying $repository_notify_file"
+    echo "$REPOSITORY_TMP_ARTIFACT_DIR" > "$repository_notify_file"
 done
 
 # Remove our temporary working directory
