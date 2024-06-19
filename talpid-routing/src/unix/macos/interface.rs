@@ -213,21 +213,22 @@ impl PrimaryInterfaceMonitor {
         } else {
             STATE_IPV6_KEY
         };
-        let ip_dict = self
+        let global_dict = self
             .store
             .get(key)
             .and_then(|v| v.downcast_into::<CFDictionary>())?;
-        let name =
-            get_dict_elem_as_string(&ip_dict, unsafe { kSCDynamicStorePropNetPrimaryInterface })
-                .or_else(|| {
-                    log::debug!("Missing name for primary interface ({family})");
-                    None
-                })?;
-        let router_ip = get_service_router_ip(&ip_dict, family).or_else(|| {
+        let name = get_dict_elem_as_string(&global_dict, unsafe {
+            kSCDynamicStorePropNetPrimaryInterface
+        })
+        .or_else(|| {
+            log::debug!("Missing name for primary interface ({family})");
+            None
+        })?;
+        let router_ip = get_service_router_ip(&global_dict, family).or_else(|| {
             log::debug!("Missing router IP for primary interface ({name}, {family})");
             None
         })?;
-        let first_ip = get_service_first_ip(&ip_dict, family).or_else(|| {
+        let first_ip = get_service_first_ip(&global_dict, family).or_else(|| {
             log::debug!("Missing IP for primary interface ({name}, {family})");
             None
         })?;
@@ -249,20 +250,20 @@ impl PrimaryInterfaceMonitor {
                 } else {
                     format!("State:/Network/Service/{service_id_s}/IPv6")
                 };
-                let ip_dict = self
+                let service_dict = self
                     .store
                     .get(CFString::new(&service_key))
                     .and_then(|v| v.downcast_into::<CFDictionary>())?;
-                let name = get_dict_elem_as_string(&ip_dict, unsafe { kSCPropInterfaceName })
+                let name = get_dict_elem_as_string(&service_dict, unsafe { kSCPropInterfaceName })
                     .or_else(|| {
                         log::debug!("Missing name for service {service_key} ({family})");
                         None
                     })?;
-                let router_ip = get_service_router_ip(&ip_dict, family).or_else(|| {
+                let router_ip = get_service_router_ip(&service_dict, family).or_else(|| {
                     log::debug!("Missing router IP for {service_key} ({name}, {family})");
                     None
                 })?;
-                let first_ip = get_service_first_ip(&ip_dict, family).or_else(|| {
+                let first_ip = get_service_first_ip(&service_dict, family).or_else(|| {
                     log::debug!("Missing IP for \"{service_key}\" ({name}, {family})");
                     None
                 })?;
@@ -306,22 +307,26 @@ fn is_link_local_v6(addr: &Ipv6Addr) -> bool {
     (addr.segments()[0] & 0xffc0) == 0xfe80
 }
 
-fn get_service_router_ip(ip_dict: &CFDictionary, family: Family) -> Option<IpAddr> {
+fn get_service_router_ip(service_dict: &CFDictionary, family: Family) -> Option<IpAddr> {
     let router_key = if family == Family::V4 {
         unsafe { kSCPropNetIPv4Router }
     } else {
         unsafe { kSCPropNetIPv6Router }
     };
-    get_dict_elem_as_string(ip_dict, router_key).and_then(|ip| ip.parse().ok())
+    get_dict_elem_as_string(service_dict, router_key).and_then(|ip| ip.parse().ok())
 }
 
-fn get_service_first_ip(ip_dict: &CFDictionary, family: Family) -> Option<IpAddr> {
+/// Return the first IP address of a network service (e.g., a dictionary at
+/// `State:/Network/Service/{service id}/IPv4`).
+/// The array of IP addresses is found using the key `kSCPropNetIPv4Addresses` or
+/// `kSCPropNetIPv6Addresses`, depending on the family.
+fn get_service_first_ip(service_dict: &CFDictionary, family: Family) -> Option<IpAddr> {
     let ip_key = if family == Family::V4 {
         unsafe { kSCPropNetIPv4Addresses }
     } else {
         unsafe { kSCPropNetIPv6Addresses }
     };
-    ip_dict
+    service_dict
         .find(ip_key.to_void())
         .map(|s| unsafe { CFType::wrap_under_get_rule(*s) })
         .and_then(|s| s.downcast::<CFArray>())
