@@ -10,4 +10,5 @@ log.workspace = true
 zeroize = "1.8.1"
 
 [target.'cfg(target_os = "linux")'.dependencies]
+# wireguard-go depends on maybenot-ffi
 maybenot-ffi = "1.0.0"

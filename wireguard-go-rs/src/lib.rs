@@ -26,6 +26,10 @@ pub type LoggingContext = u64;
 pub type LoggingCallback =
     unsafe extern "system" fn(level: WgLogLevel, msg: *const c_char, context: LoggingContext);
 
+// Make symbols from maybenot-ffi visible to wireguard-go
+#[cfg(daita)]
+use maybenot_ffi as _;
+
 /// A wireguard-go tunnel
 pub struct Tunnel {
     /// wireguard-go handle to the tunnel.
@@ -283,7 +287,3 @@ mod ffi {
         pub fn wgGetSocketV6(handle: i32) -> Fd;
     }
 }
-
-// Make symbols from maybenot-ffi visible
-#[cfg(daita)]
-use maybenot_ffi as _;
