@@ -68,6 +68,9 @@ class SelectLocationPage: Page {
     }
 
     @discardableResult func tapCustomListEllipsisButton() -> Self {
+        // This wait should not be needed, but is due to the issues we are having with the ellipsis button
+        _ = app.buttons[.openCustomListsMenuButton].waitForExistence(timeout: BaseUITestCase.shortTimeout)
+
         let customListEllipsisButtons = app.buttons
             .matching(identifier: AccessibilityIdentifier.openCustomListsMenuButton.rawValue).allElementsBoundByIndex
 
