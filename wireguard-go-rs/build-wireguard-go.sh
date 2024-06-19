@@ -90,12 +90,11 @@ function build_unix {
     mkdir -p "$BUILD_DIR/lib/$TARGET"
     pushd libwg
 
-    local tags=""
     if [[ "$DAITA" == "true" ]]; then
-        tags="--tags daita"
+        go build -v --tags daita -o "$BUILD_DIR/lib/$TARGET"/libwg.a -buildmode c-archive
+    else
+        go build -v -o "$BUILD_DIR/lib/$TARGET"/libwg.a -buildmode c-archive
     fi
-
-    go build -v "$tags" -o "$BUILD_DIR/lib/$TARGET"/libwg.a -buildmode c-archive
 
     popd
 }
