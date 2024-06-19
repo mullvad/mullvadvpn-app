@@ -33,7 +33,7 @@ use api::AccessMethodEvent;
 use device::{AccountEvent, PrivateAccountAndDevice, PrivateDeviceEvent};
 use futures::{
     channel::{mpsc, oneshot},
-    future::{abortable, AbortHandle, Future, LocalBoxFuture},
+    future::{abortable, AbortHandle, Future},
     StreamExt,
 };
 use geoip::GeoIpHandler;
@@ -90,8 +90,6 @@ use talpid_types::{
     tunnel::{ErrorStateCause, TunnelStateTransition},
     ErrorExt,
 };
-#[cfg(any(target_os = "macos", target_os = "linux"))]
-use tokio::fs;
 use tokio::io;
 
 /// Delay between generating a new WireGuard key and reconnecting
@@ -926,36 +924,9 @@ where
         Ok(())
     }
 
+    /// Destroy daemon safely, by dropping all objects in the correct order, waiting for them to
+    /// be destroyed, and executing shutdown tasks
     async fn finalize(self) {
-        let (event_listener, shutdown_tasks, api_runtime, tunnel_state_machine_handle) =
-            self.shutdown();
-        for future in shutdown_tasks {
-            future.await;
-        }
-
-        tunnel_state_machine_handle.try_join().await;
-
-        drop(event_listener);
-        drop(api_runtime);
-
-        #[cfg(any(target_os = "macos", target_os = "linux"))]
-        if let Err(err) = fs::remove_file(mullvad_paths::get_rpc_socket_path()).await {
-            if err.kind() != std::io::ErrorKind::NotFound {
-                log::error!("Failed to remove old RPC socket: {}", err);
-            }
-        }
-    }
-
-    /// Shuts down the daemon without shutting down the underlying event listener and the shutdown
-    /// callbacks
-    fn shutdown<'a>(
-        self,
-    ) -> (
-        L,
-        Vec<LocalBoxFuture<'a, ()>>,
-        mullvad_api::Runtime,
-        TunnelStateMachineHandle,
-    ) {
         let Daemon {
             event_listener,
             mut shutdown_tasks,
@@ -969,12 +940,14 @@ where
         shutdown_tasks.push(Box::pin(target_state.finalize()));
         shutdown_tasks.push(Box::pin(account_manager.shutdown()));
 
-        (
-            event_listener,
-            shutdown_tasks,
-            api_runtime,
-            tunnel_state_machine_handle,
-        )
+        for future in shutdown_tasks {
+            future.await;
+        }
+
+        tunnel_state_machine_handle.try_join().await;
+
+        drop(event_listener);
+        drop(api_runtime);
     }
 
     async fn handle_event(&mut self, event: InternalDaemonEvent) {
