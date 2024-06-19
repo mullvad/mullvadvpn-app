@@ -1,6 +1,5 @@
 [Unit]
 Description=Run Mullvad Browser download service periodically
-Requires=build-linux-repositories@.service
 
 [Timer]
 # Run every fifteen minutes
