@@ -42,12 +42,12 @@ class SelectLocationViewModel(
     @Suppress("DestructuringDeclarationWithTooManyEntries")
     val uiState =
         combine(
-                filteredRelayListUseCase.filteredRelayList(),
-                customListsRelayItemUseCase.relayItemCustomLists(),
+                filteredRelayListUseCase(),
+                customListsRelayItemUseCase(),
                 relayListRepository.selectedLocation,
                 _searchTerm,
                 relayListFilterRepository.selectedOwnership,
-                availableProvidersUseCase.availableProviders(),
+                availableProvidersUseCase(),
                 relayListFilterRepository.selectedProviders,
             ) {
                 relayCountries,
@@ -135,8 +135,7 @@ class SelectLocationViewModel(
         viewModelScope.launch {
             val newLocations =
                 (customList.locations + item).filter { it !in item.descendants() }.map { it.id }
-            customListActionUseCase
-                .performAction(CustomListAction.UpdateLocations(customList.id, newLocations))
+            customListActionUseCase(CustomListAction.UpdateLocations(customList.id, newLocations))
                 .fold(
                     { _uiSideEffect.send(SelectLocationSideEffect.GenericError) },
                     { _uiSideEffect.send(SelectLocationSideEffect.LocationAddedToCustomList(it)) },
@@ -145,14 +144,13 @@ class SelectLocationViewModel(
     }
 
     fun performAction(action: CustomListAction) {
-        viewModelScope.launch { customListActionUseCase.performAction(action) }
+        viewModelScope.launch { customListActionUseCase(action) }
     }
 
     fun removeLocationFromList(item: RelayItem.Location, customList: RelayItem.CustomList) {
         viewModelScope.launch {
             val newLocations = (customList.locations - item).map { it.id }
-            customListActionUseCase
-                .performAction(CustomListAction.UpdateLocations(customList.id, newLocations))
+            customListActionUseCase(CustomListAction.UpdateLocations(customList.id, newLocations))
                 .fold(
                     { _uiSideEffect.send(SelectLocationSideEffect.GenericError) },
                     {

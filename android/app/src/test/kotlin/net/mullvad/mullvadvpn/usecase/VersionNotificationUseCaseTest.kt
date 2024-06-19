@@ -49,13 +49,13 @@ class VersionNotificationUseCaseTest {
     @Test
     fun `initial state should be empty`() = runTest {
         // Arrange, Act, Assert
-        versionNotificationUseCase.notifications().test { assertTrue { awaitItem().isEmpty() } }
+        versionNotificationUseCase().test { assertTrue { awaitItem().isEmpty() } }
     }
 
     @Test
     fun `when a new version is available use case should emit UpdateAvailable with new version`() =
         runTest {
-            versionNotificationUseCase.notifications().test {
+            versionNotificationUseCase().test {
                 // Arrange, Act
                 val upgradeVersionInfo =
                     VersionInfo(
@@ -77,7 +77,7 @@ class VersionNotificationUseCaseTest {
     @Test
     fun `when an unsupported version use case should emit UnsupportedVersion notification`() =
         runTest {
-            versionNotificationUseCase.notifications().test {
+            versionNotificationUseCase().test {
                 // Arrange, Act
                 val upgradeVersionInfo =
                     VersionInfo(

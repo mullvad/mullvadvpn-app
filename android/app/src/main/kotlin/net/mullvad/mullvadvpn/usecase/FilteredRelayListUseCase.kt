@@ -13,7 +13,7 @@ class FilteredRelayListUseCase(
     private val relayListRepository: RelayListRepository,
     private val relayListFilterRepository: RelayListFilterRepository
 ) {
-    fun filteredRelayList() =
+    operator fun invoke() =
         combine(
             relayListRepository.relayList,
             relayListFilterRepository.selectedOwnership,

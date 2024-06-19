@@ -79,8 +79,7 @@ class CustomListLocationsViewModel(
     fun save() {
         viewModelScope.launch {
             _selectedLocations.value?.let { selectedLocations ->
-                customListActionUseCase
-                    .performAction(
+                customListActionUseCase(
                         CustomListAction.UpdateLocations(
                             customListId,
                             selectedLocations.calculateLocationsToSave().map { it.id }
@@ -191,11 +190,7 @@ class CustomListLocationsViewModel(
 
     private suspend fun fetchInitialSelectedLocations() {
         val selectedLocations =
-            customListRelayItemsUseCase
-                .getRelayItemLocationsForCustomList(customListId)
-                .first()
-                .withDescendants()
-                .toSet()
+            customListRelayItemsUseCase(customListId).first().withDescendants().toSet()
 
         _initialLocations.value = selectedLocations
         _selectedLocations.value = selectedLocations

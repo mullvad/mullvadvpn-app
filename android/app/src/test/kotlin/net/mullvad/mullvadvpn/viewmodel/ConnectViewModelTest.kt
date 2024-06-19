@@ -115,8 +115,7 @@ class ConnectViewModelTest {
         every { mockLocation.country } returns "dummy country"
 
         // Flows
-        every { mockSelectedLocationTitleUseCase.selectedLocationTitle() } returns
-            selectedRelayItemFlow
+        every { mockSelectedLocationTitleUseCase() } returns selectedRelayItemFlow
 
         every { outOfTimeUseCase.isOutOfTime } returns outOfTimeViewFlow
         viewModel =
@@ -124,7 +123,7 @@ class ConnectViewModelTest {
                 accountRepository = mockAccountRepository,
                 deviceRepository = mockDeviceRepository,
                 inAppNotificationController = mockInAppNotificationController,
-                newDeviceNotificationUseCase = mockk(),
+                newDeviceRepository = mockk(),
                 outOfTimeUseCase = outOfTimeUseCase,
                 paymentUseCase = mockPaymentUseCase,
                 selectedLocationTitleUseCase = mockSelectedLocationTitleUseCase,
