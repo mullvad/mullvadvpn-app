@@ -844,7 +844,22 @@ private fun CustomListSuccess.message(context: Context): String =
             } ?: context.getString(R.string.locations_were_changed_for, name)
         is Deleted -> context.getString(R.string.delete_custom_list_message, name)
         is Renamed -> context.getString(R.string.name_was_changed_to, name)
-        is LocationsChanged -> context.getString(R.string.locations_were_changed_for, name)
+        is LocationsChanged ->
+            when {
+                locationNamesAdded != null ->
+                    context.getString(
+                        R.string.location_was_added_to_list,
+                        locationNamesAdded.first(),
+                        name
+                    )
+                locationNamesRemoved != null ->
+                    context.getString(
+                        R.string.location_was_removed_from_list,
+                        locationNamesRemoved.first(),
+                        name
+                    )
+                else -> context.getString(R.string.locations_were_changed_for, name)
+            }
     }
 
 @Composable

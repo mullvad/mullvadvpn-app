@@ -138,7 +138,13 @@ class SelectLocationViewModel(
             customListActionUseCase(CustomListAction.UpdateLocations(customList.id, newLocations))
                 .fold(
                     { _uiSideEffect.send(SelectLocationSideEffect.GenericError) },
-                    { _uiSideEffect.send(SelectLocationSideEffect.LocationAddedToCustomList(it)) },
+                    {
+                        _uiSideEffect.send(
+                            SelectLocationSideEffect.LocationAddedToCustomList(
+                                it.copy(locationNamesAdded = listOf(item.name))
+                            )
+                        )
+                    },
                 )
         }
     }
@@ -155,7 +161,9 @@ class SelectLocationViewModel(
                     { _uiSideEffect.send(SelectLocationSideEffect.GenericError) },
                     {
                         _uiSideEffect.send(
-                            SelectLocationSideEffect.LocationRemovedFromCustomList(it)
+                            SelectLocationSideEffect.LocationRemovedFromCustomList(
+                                it.copy(locationNamesRemoved = listOf(item.name))
+                            )
                         )
                     }
                 )
