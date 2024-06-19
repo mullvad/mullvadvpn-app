@@ -22,16 +22,18 @@ data class SplitTunnelingViewModelState(
             ?.let { (excluded, included) ->
                 SplitTunnelingUiState.ShowAppList(
                     enabled = enabled,
-                    excludedApps = excluded.sortedBy { it.name },
+                    excludedApps = excluded.sort(),
                     includedApps =
                         if (showSystemApps) {
                                 included
                             } else {
                                 included.filter { appData -> !appData.isSystemApp }
                             }
-                            .sortedBy { it.name },
+                            .sort(),
                     showSystemApps = showSystemApps
                 )
             } ?: SplitTunnelingUiState.Loading(enabled = enabled)
     }
 }
+
+private fun List<AppData>.sort() = sortedBy { it.name.lowercase() }
