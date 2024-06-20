@@ -4,8 +4,8 @@ object Versions {
     const val junit = "5.10.2"
     const val jvmTarget = "17"
     const val konsist = "0.14.0"
-    const val kotlin = "1.9.22"
-    const val kotlinCompilerExtensionVersion = "1.5.10"
+    const val kotlin = "1.9.24"
+    const val kotlinCompilerExtensionVersion = "1.5.14"
     const val kotlinx = "1.8.0"
     const val leakCanary = "2.13"
     const val mockk = "1.13.11"
@@ -22,7 +22,7 @@ object Versions {
     }
 
     object AndroidX {
-        const val appcompat = "1.6.1"
+        const val appcompat = "1.7.0"
         const val coreKtx = "1.12.0"
         const val espresso = "3.5.1"
         const val lifecycle = "2.8.2"
@@ -40,14 +40,14 @@ object Versions {
 
     object Compose {
         const val destinations = "1.10.2"
-        const val base = "1.6.3"
+        const val base = "1.7.0-beta03"
         const val constrainLayout = "1.0.1"
         const val foundation = base
-        const val material3 = "1.2.1"
+        const val material3 = "1.3.0-beta03"
     }
 
     object Grpc {
-        const val grpcVersion = "1.63.0"
+        const val grpcVersion = "1.64.0"
         const val grpcKotlinVersion = "1.4.1"
         const val protobufVersion = "3.25.3"
     }
@@ -56,8 +56,8 @@ object Versions {
         // The androidAapt plugin version must be in sync with the android plugin version.
         // Required for Gradle metadata verification to work properly, see:
         // https://github.com/gradle/gradle/issues/19228
-        const val android = "8.3.0"
-        const val androidAapt = "$android-10880808"
+        const val android = "8.4.0"
+        const val androidAapt = "$android-11315950"
         const val playPublisher = "3.9.0"
         const val protobuf = "0.9.4"
         const val dependencyCheck = "9.0.9"
@@ -67,7 +67,7 @@ object Versions {
         const val ktfmt = "0.17.0"
         // Ksp version is linked with kotlin version, find matching release here:
         // https://github.com/google/ksp/releases
-        const val ksp = "${kotlin}-1.0.17"
+        const val ksp = "${kotlin}-1.0.20"
     }
 
     object Koin {
