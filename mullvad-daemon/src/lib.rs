@@ -467,7 +467,7 @@ impl DaemonCommandChannel {
     }
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct DaemonCommandSender(Arc<mpsc::UnboundedSender<InternalDaemonEvent>>);
 
 impl DaemonCommandSender {
