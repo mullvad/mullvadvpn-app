@@ -196,7 +196,7 @@ impl RouteManagerHandle {
             .map_err(Error::PlatformError)
     }
 
-    /// Removes all routes previously applied in [`RouteManager::add_routes`].
+    /// Removes all routes previously applied in [`RouteManagerHandle::add_routes`].
     pub fn clear_routes(&self) -> Result<(), Error> {
         self.tx
             .unbounded_send(RouteManagerCommand::ClearRoutes)
