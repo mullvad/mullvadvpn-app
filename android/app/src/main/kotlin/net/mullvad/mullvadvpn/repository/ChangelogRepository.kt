@@ -3,7 +3,7 @@ package net.mullvad.mullvadvpn.repository
 import android.content.SharedPreferences
 import androidx.compose.ui.util.fastJoinToString
 import net.mullvad.mullvadvpn.util.IChangelogDataProvider
-import net.mullvad.mullvadvpn.util.trim
+import net.mullvad.mullvadvpn.util.trimAll
 
 private const val MISSING_VERSION_CODE = -1
 private const val NEWLINE_CHAR = '\n'
@@ -26,6 +26,6 @@ class ChangelogRepository(
         dataProvider
             .getChangelog()
             .split(BULLET_POINT_CHAR)
-            .map { it.split(NEWLINE_CHAR).trim().fastJoinToString(SPACE_STRING).trim() }
+            .map { it.split(NEWLINE_CHAR).trimAll().fastJoinToString(SPACE_STRING).trim() }
             .filter { it.isNotEmpty() }
 }
