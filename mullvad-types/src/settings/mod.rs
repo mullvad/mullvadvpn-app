@@ -122,7 +122,8 @@ pub struct SplitApp(String);
 #[cfg(any(windows, target_os = "macos"))]
 impl SplitApp {
     /// Convert the underlying path to a [`String`].
-    /// This function will fail if the underlying path string is not valid UTF-8. See [`std::ffi::OsStr::to_str`] for details.
+    /// This function will fail if the underlying path string is not valid UTF-8. See
+    /// [`std::ffi::OsStr::to_str`] for details.
     pub fn to_string(self) -> Option<String> {
         self.0.as_os_str().to_str().map(str::to_string)
     }
@@ -142,7 +143,8 @@ impl SplitApp {
     /// Convert the underlying app name to a [`String`].
     ///
     /// # Note
-    /// This function is fallible due to the Window's dito being fallible, and it is convenient to have the same API across all platforms.
+    /// This function is fallible due to the Window's dito being fallible, and it is convenient to
+    /// have the same API across all platforms.
     pub fn to_string(self) -> Option<String> {
         Some(self.0)
     }

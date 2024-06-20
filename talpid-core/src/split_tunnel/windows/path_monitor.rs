@@ -10,10 +10,10 @@
 //       update.
 //       This would still have the limitation that changes to symlinks would not be detected without
 //       any monitoring. Assume that C:\a.exe is a symlink that points to
-//       \Device\HarddiskVolume1\test.exe. If C:\a.exe were deleted or replaced with a symlink pointing
-//       to \Device\HarddiskVolume2\lol.exe instead, then those old processes whose image is
-//       \Device\HarddiskVolume1\test.exe would still be excluded from the tunnel. This might be an
-//       acceptable limitation.
+//       \Device\HarddiskVolume1\test.exe. If C:\a.exe were deleted or replaced with a symlink
+//       pointing to \Device\HarddiskVolume2\lol.exe instead, then those old processes whose image
+//       is \Device\HarddiskVolume1\test.exe would still be excluded from the tunnel. This might be
+//       an acceptable limitation.
 
 use std::{
     collections::HashSet,

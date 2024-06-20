@@ -596,7 +596,8 @@ pub async fn get_daemon_environment() -> Result<HashMap<String, String>, test_rp
     Ok(env)
 }
 
-/// Parse a systemd env-file. `input` is assumed to be the entire text content of a systemd-env file.
+/// Parse a systemd env-file. `input` is assumed to be the entire text content of a systemd-env
+/// file.
 ///
 /// Example systemd-env file:
 /// ```
@@ -624,7 +625,8 @@ pub async fn get_daemon_environment() -> Result<HashMap<String, String>, test_rp
                 test_rpc::Error::Registry(format!("Failed to open Mullvad VPN subkey: {}", error))
             })?;
 
-            // The Strings will be quoted (surrounded by ") when read from the registry - we should trim that!
+            // The Strings will be quoted (surrounded by ") when read from the registry - we should
+            // trim that!
             let trim = |string: String| string.trim_matches('"').to_owned();
             let env = key
                 .open_subkey("Environment")
@@ -661,7 +663,8 @@ pub async fn get_daemon_environment() -> Result<HashMap<String, String>, test_rp
         .as_dictionary()
         .ok_or_else(|| test_rpc::Error::Service("plist missing dict".to_owned()))?;
     let Some(env_vars) = plist_tree.get("EnvironmentVariables") else {
-        // `EnvironmentVariables` does not exist in plist file, so there are no env variables to parse.
+        // `EnvironmentVariables` does not exist in plist file, so there are no env variables to
+        // parse.
         return Ok(HashMap::new());
     };
     let env_vars = env_vars.as_dictionary().ok_or_else(|| {

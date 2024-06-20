@@ -60,8 +60,8 @@ pub fn migrate(
 
     // TODO: Remove this comment when closing the migration:
     // While this is an open migration, we check to see if the split tunnel apps have been migrated
-    // already. If so, we don't want to run the migration code again. The call to `split_tunnel_subkey_exists`
-    // can safely be removed when closing this migration.
+    // already. If so, we don't want to run the migration code again. The call to
+    // `split_tunnel_subkey_exists` can safely be removed when closing this migration.
     #[cfg(target_os = "android")]
     if !android::split_tunnel_subkey_exists(json_blob) {
         if let Some(directories) = directories {
@@ -136,7 +136,8 @@ mod android {
         enabled: bool,
         apps: Vec<String>,
     ) {
-        // Create the "split_tunnel" key in the settings object and store the read split tunnel state in the daemon's settings
+        // Create the "split_tunnel" key in the settings object and store the read split tunnel
+        // state in the daemon's settings
         settings.insert(
             "split_tunnel".to_string(),
             json!({ "enable_exclusions": enabled, "apps": apps }),
@@ -144,8 +145,8 @@ mod android {
     }
 
     /// Read the target file and parse the stored split tunneling state. If split tunneling was
-    /// previously enabled in the android app, the return value of this function will be `Some(true)`,
-    /// otherwise `Some(false)`.
+    /// previously enabled in the android app, the return value of this function will be
+    /// `Some(true)`, otherwise `Some(false)`.
     ///
     /// If the file could not be found or read, some logging will occur and `None` will be returned.
     pub fn read_split_tunnel_state(directories: &Directories<'_>) -> Option<bool> {
@@ -179,7 +180,8 @@ mod android {
     }
 
     /// Remove the lingering, old files split tunnelling related files. They should have been
-    /// completely migrated to the daemon settings at this point, so they won't be needed any longer.
+    /// completely migrated to the daemon settings at this point, so they won't be needed any
+    /// longer.
     ///
     /// Note: We don't really care if these operations fail - they won't ever be read again, and new
     /// app installations shall not create them.

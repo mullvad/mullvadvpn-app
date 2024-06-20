@@ -155,8 +155,8 @@ pub async fn request_ephemeral_peer_with(
                 actual: ciphertexts.len(),
             })?;
 
-        // Store the PSK data on the heap. So it can be passed around and then zeroized on drop without
-        // being stored in a bunch of places on the stack.
+        // Store the PSK data on the heap. So it can be passed around and then zeroized on drop
+        // without being stored in a bunch of places on the stack.
         let mut psk_data = Box::new([0u8; 32]);
 
         // Decapsulate Classic McEliece and mix into PSK
@@ -164,9 +164,9 @@ pub async fn request_ephemeral_peer_with(
             let mut shared_secret = classic_mceliece::decapsulate(&cme_kem_secret, cme_ciphertext)?;
             xor_assign(&mut psk_data, shared_secret.as_array());
 
-            // This should happen automatically due to `SharedSecret` implementing ZeroizeOnDrop. But
-            // doing it explicitly provides a stronger guarantee that it's not accidentally
-            // removed.
+            // This should happen automatically due to `SharedSecret` implementing ZeroizeOnDrop.
+            // But doing it explicitly provides a stronger guarantee that it's not
+            // accidentally removed.
             shared_secret.zeroize();
         }
         // Decapsulate Kyber and mix into PSK

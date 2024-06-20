@@ -1,13 +1,14 @@
 use super::WIREGUARD_KEY_LENGTH;
 use maybenot::framework::MachineId;
 use once_cell::sync::OnceCell;
-use std::{collections::HashMap, fs, io, path::Path, time::Duration};
-use std::{os::windows::prelude::RawHandle, sync::Arc};
+use std::{
+    collections::HashMap, fs, io, os::windows::prelude::RawHandle, path::Path, sync::Arc,
+    time::Duration,
+};
 use talpid_types::net::wireguard::PublicKey;
 use tokio::task::JoinHandle;
-use windows_sys::Win32::Foundation::BOOLEAN;
 use windows_sys::Win32::{
-    Foundation::ERROR_NO_MORE_ITEMS,
+    Foundation::{BOOLEAN, ERROR_NO_MORE_ITEMS},
     System::Threading::{WaitForMultipleObjects, WaitForSingleObject, INFINITE},
 };
 
@@ -238,7 +239,8 @@ impl MachineMap {
 }
 
 impl Machinist {
-    /// Spawn an actor that handles scheduling of Maybenot actions and forwards DAITA events to the framework.
+    /// Spawn an actor that handles scheduling of Maybenot actions and forwards DAITA events to the
+    /// framework.
     pub fn spawn(
         resource_dir: &Path,
         daita: Session,

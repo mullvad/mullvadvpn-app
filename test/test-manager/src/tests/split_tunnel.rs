@@ -2,8 +2,7 @@ use anyhow::Context;
 use mullvad_management_interface::MullvadProxyClient;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use test_macro::test_function;
-use test_rpc::meta::OsVersion;
-use test_rpc::ServiceClient;
+use test_rpc::{meta::OsVersion, ServiceClient};
 
 use super::{
     helpers::{self, ConnChecker},

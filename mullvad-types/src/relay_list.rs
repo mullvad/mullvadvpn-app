@@ -87,7 +87,8 @@ pub struct Relay {
 }
 
 impl PartialEq for Relay {
-    /// Hostnames are assumed to be unique per relay, i.e. a relay can be uniquely identified by its hostname.
+    /// Hostnames are assumed to be unique per relay, i.e. a relay can be uniquely identified by its
+    /// hostname.
     ///
     /// # Example
     ///
@@ -128,10 +129,12 @@ impl PartialEq for Relay {
     }
 }
 
-/// Hostnames are assumed to be unique per relay, i.e. a relay can be uniquely identified by its hostname.
+/// Hostnames are assumed to be unique per relay, i.e. a relay can be uniquely identified by its
+/// hostname.
 impl Eq for Relay {}
 
-/// Hostnames are assumed to be unique per relay, i.e. a relay can be uniquely identified by its hostname.
+/// Hostnames are assumed to be unique per relay, i.e. a relay can be uniquely identified by its
+/// hostname.
 impl std::hash::Hash for Relay {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         self.hostname.hash(state)
