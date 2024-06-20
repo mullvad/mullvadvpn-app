@@ -71,21 +71,20 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_JNILib_
     let mut ctx = DAEMON_CONTEXT.lock().unwrap();
     assert!(ctx.is_none(), "multiple calls to MullvadDaemon.init");
 
-    start(
+    match start(
         env,
         vpnService,
         rpcSocketPath,
         filesDirectory,
         cacheDirectory,
         apiEndpoint,
-    )
-    .map(|daemon| {
-        *ctx = Some(daemon);
-    })
-    .unwrap_or_else(|error| {
-        env.throw(error.to_string())
-            .expect("Failed to throw exception");
-    });
+    ) {
+        Ok(daemon) => *ctx = Some(daemon),
+        Err(err) => {
+            env.throw(err.to_string())
+                .expect("Failed to throw exception");
+        }
+    }
 }
 
 /// Shut down Mullvad daemon that was initialized using `MullvadDaemon.init`.
