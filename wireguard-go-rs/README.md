@@ -1,6 +1,6 @@
 # `wireguard-go-rs`
 This crate is a Rust-friendly wrapper around `wireguard-go`.
-It wraps `libwg`, which in turn wraps [Mullvad VPN's fork of wireguard-go](https://github.com/mullvad/wireguard-go) that extends `wireguard-go` with [DAITA](https://mullvad.net/en/blog/introducing-defense-against-ai-guided-traffic-analysis-daita).
+It wraps `libwg`, which in turn wraps [Mullvad VPN's fork of wireguard-go](https://github.com/mullvad/wireguard-go) that extends `wireguard-go` with [DAITA](https://mullvad.net/blog/introducing-defense-against-ai-guided-traffic-analysis-daita).
 
 ## Known limitation
 To extend `wireguard-go` with DAITA capabilities, `wireguard-go` links against [maybenot](https://github.com/maybenot-io/maybenot/). This is done statically, which at the time of writing will cause issues if `wireguard-go` in turn is statically linked from another Rust crate: https://github.com/rust-lang/rust/issues/104707.
