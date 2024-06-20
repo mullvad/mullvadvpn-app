@@ -20,6 +20,8 @@ export SUPPORTED_DEB_CODENAMES
 
 export SUPPORTED_RPM_ARCHITECTURES=("x86_64" "aarch64")
 
+export REPOSITORIES=("stable" "beta")
+
 export PRODUCTION_LINUX_REPOSITORY_PUBLIC_URL="https://repository.mullvad.net"
 export STAGING_LINUX_REPOSITORY_PUBLIC_URL="https://repository.stagemole.eu"
 export DEV_LINUX_REPOSITORY_PUBLIC_URL="https://repository.devmole.eu"
