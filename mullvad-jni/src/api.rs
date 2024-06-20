@@ -1,5 +1,3 @@
-#![cfg(feature = "api-override")]
-
 use jnix::{
     jni::{
         objects::JObject,
@@ -9,7 +7,14 @@ use jnix::{
 };
 use std::net::{IpAddr, SocketAddr};
 
-pub fn api_endpoint_from_java(env: &JnixEnv<'_>, object: JObject<'_>) -> mullvad_api::ApiEndpoint {
+pub fn api_endpoint_from_java(
+    env: &JnixEnv<'_>,
+    object: JObject<'_>,
+) -> Option<mullvad_api::ApiEndpoint> {
+    if object.is_null() {
+        return None;
+    }
+
     let mut endpoint = mullvad_api::ApiEndpoint::from_env_vars();
 
     let address = env
@@ -22,18 +27,21 @@ pub fn api_endpoint_from_java(env: &JnixEnv<'_>, object: JObject<'_>) -> mullvad
         try_socketaddr_from_java(env, address).expect("received unresolved InetSocketAddress"),
     );
     endpoint.host = try_hostname_from_java(env, address);
-    endpoint.disable_address_cache = env
-        .call_method(object, "component2", "()Z", &[])
-        .expect("missing ApiEndpoint.disableAddressCache")
-        .z()
-        .expect("ApiEndpoint.disableAddressCache is not a bool");
-    endpoint.disable_tls = env
-        .call_method(object, "component3", "()Z", &[])
-        .expect("missing ApiEndpoint.disableTls")
-        .z()
-        .expect("ApiEndpoint.disableTls is not a bool");
+    #[cfg(feature = "api-override")]
+    {
+        endpoint.disable_address_cache = env
+            .call_method(object, "component2", "()Z", &[])
+            .expect("missing ApiEndpoint.disableAddressCache")
+            .z()
+            .expect("ApiEndpoint.disableAddressCache is not a bool");
+        endpoint.disable_tls = env
+            .call_method(object, "component3", "()Z", &[])
+            .expect("missing ApiEndpoint.disableTls")
+            .z()
+            .expect("ApiEndpoint.disableTls is not a bool");
+    }
 
-    endpoint
+    Some(endpoint)
 }
 
 /// Converts InetSocketAddress to a SocketAddr. Return `None` if the hostname is unresolved.

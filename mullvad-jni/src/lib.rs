@@ -50,6 +50,21 @@ pub enum Error {
     SpawnManagementInterface(#[source] mullvad_daemon::management_interface::Error),
 }
 
+/// Throw a Java exception and return if `result` is an error
+macro_rules! ok_or_throw {
+    ($env:expr, $result:expr) => {{
+        match $result {
+            Ok(val) => val,
+            Err(err) => {
+                let env = $env;
+                env.throw(err.to_string())
+                    .expect("Failed to throw exception");
+                return;
+            }
+        }
+    }};
+}
+
 #[derive(Debug)]
 struct DaemonContext {
     daemon_command_tx: DaemonCommandSender,
@@ -59,32 +74,41 @@ struct DaemonContext {
 /// Spawn Mullvad daemon. There can only be a single instance, which must be shut down using
 /// `MullvadDaemon.shutdown`. On success, nothing is returned. On error, an exception is thrown.
 #[no_mangle]
-#[allow(non_snake_case)]
 pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_JNILib_00024Companion_init(
     env: JNIEnv<'_>,
-    vpnService: JObject<'_>,
-    rpcSocketPath: JObject<'_>,
-    filesDirectory: JObject<'_>,
-    cacheDirectory: JObject<'_>,
-    apiEndpoint: JObject<'_>,
+    vpn_service: JObject<'_>,
+    rpc_socket_path: JObject<'_>,
+    files_directory: JObject<'_>,
+    cache_directory: JObject<'_>,
+    api_endpoint: JObject<'_>,
 ) {
     let mut ctx = DAEMON_CONTEXT.lock().unwrap();
     assert!(ctx.is_none(), "multiple calls to MullvadDaemon.init");
 
-    match start(
-        env,
-        vpnService,
-        rpcSocketPath,
-        filesDirectory,
-        cacheDirectory,
-        apiEndpoint,
-    ) {
-        Ok(daemon) => *ctx = Some(daemon),
-        Err(err) => {
-            env.throw(err.to_string())
-                .expect("Failed to throw exception");
-        }
-    }
+    let env = JnixEnv::from(env);
+
+    LOAD_CLASSES.call_once(|| env.preload_classes(classes::CLASSES.iter().cloned()));
+
+    let rpc_socket = pathbuf_from_java(&env, rpc_socket_path);
+    let files_dir = pathbuf_from_java(&env, files_directory);
+    let cache_dir = pathbuf_from_java(&env, cache_directory);
+
+    let android_context = ok_or_throw!(&env, create_android_context(&env, vpn_service));
+
+    let api_endpoint = api::api_endpoint_from_java(&env, api_endpoint);
+
+    let daemon = ok_or_throw!(
+        &env,
+        start(
+            android_context,
+            rpc_socket,
+            files_dir,
+            cache_dir,
+            api_endpoint,
+        )
+    );
+
+    *ctx = Some(daemon);
 }
 
 /// Shut down Mullvad daemon that was initialized using `MullvadDaemon.init`.
@@ -100,36 +124,24 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_JNILib_
 }
 
 fn start(
-    env: JNIEnv<'_>,
-    vpn_service: JObject<'_>,
-    rpc_socket_path: JObject<'_>,
-    files_directory: JObject<'_>,
-    cache_directory: JObject<'_>,
-    api_endpoint: JObject<'_>,
+    android_context: AndroidContext,
+    rpc_socket: PathBuf,
+    files_dir: PathBuf,
+    cache_dir: PathBuf,
+    api_endpoint: Option<mullvad_api::ApiEndpoint>,
 ) -> Result<DaemonContext, Error> {
-    let env = JnixEnv::from(env);
-
-    LOAD_CLASSES.call_once(|| env.preload_classes(classes::CLASSES.iter().cloned()));
-
-    let rpc_socket = PathBuf::from(String::from_java(&env, rpc_socket_path));
-    let files_dir = PathBuf::from(String::from_java(&env, files_directory));
-    let cache_dir = PathBuf::from(String::from_java(&env, cache_directory));
-
     start_logging(&files_dir).map_err(Error::InitializeLogging)?;
     version::log_version();
 
-    let android_context = create_android_context(&env, vpn_service)?;
-
     #[cfg(feature = "api-override")]
-    if !api_endpoint.is_null() {
-        let api_endpoint = api::api_endpoint_from_java(&env, api_endpoint);
+    if let Some(api_endpoint) = api_endpoint {
         log::debug!("Overriding API endpoint: {api_endpoint:?}");
         if mullvad_api::API.override_init(api_endpoint).is_err() {
             log::warn!("Ignoring API settings (already initialized)");
         }
     }
     #[cfg(not(feature = "api-override"))]
-    if !api_endpoint.is_null() {
+    if api_endpoint.is_some() {
         log::warn!("api_endpoint will be ignored since 'api-override' is not enabled");
     }
 
@@ -236,4 +248,8 @@ fn create_android_context(
             .new_global_ref(vpn_service)
             .map_err(Error::CreateGlobalReference)?,
     })
+}
+
+fn pathbuf_from_java(env: &JnixEnv<'_>, path: JObject<'_>) -> PathBuf {
+    PathBuf::from(String::from_java(env, path))
 }
