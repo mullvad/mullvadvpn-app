@@ -67,7 +67,8 @@ pub enum Error {
 
 impl Tunnel {
     /// Creates a new wireguard tunnel, uses the specific interface name, and file descriptors
-    /// for the tunnel device and logging. For targets other than android, this also takes an MTU value.
+    /// for the tunnel device and logging. For targets other than android, this also takes an MTU
+    /// value.
     ///
     /// The `logging_callback` let's you provide a Rust function that receives any logging output
     /// from wireguard-go. `logging_context` is a value that will be passed to each invocation of
@@ -109,7 +110,8 @@ impl Tunnel {
     /// This takes a function to make sure the cstr get's zeroed and freed afterwards.
     /// Returns `None` if the call to wgGetConfig returned nil.
     ///
-    /// **NOTE:** You should take extra care to avoid copying any secrets from the config without zeroizing them afterwards.
+    /// **NOTE:** You should take extra care to avoid copying any secrets from the config without
+    /// zeroizing them afterwards.
     // NOTE: this could return a guard type with a custom Drop impl instead, but me lazy.
     pub fn get_config<T>(&self, f: impl FnOnce(&CStr) -> T) -> Option<T> {
         let ptr = unsafe { ffi::wgGetConfig(self.handle) };
@@ -222,7 +224,8 @@ mod ffi {
 
     extern "C" {
         /// Creates a new wireguard tunnel, uses the specific interface name, and file descriptors
-        /// for the tunnel device and logging. For targets other than android, this also takes an MTU value.
+        /// for the tunnel device and logging. For targets other than android, this also takes an
+        /// MTU value.
         ///
         /// Positive return values are tunnel handles for this specific wireguard tunnel instance.
         /// Negative return values signify errors.
@@ -257,8 +260,8 @@ mod ffi {
 
         /// Activate DAITA for the specified peer.
         ///
-        /// `tunnel_handle` must come from [wgTurnOn]. `machines` is a string containing LF-separated
-        /// maybenot machines.
+        /// `tunnel_handle` must come from [wgTurnOn]. `machines` is a string containing
+        /// LF-separated maybenot machines.
         ///
         /// Negative return values signify errors.
         ///
