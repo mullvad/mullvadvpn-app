@@ -17,7 +17,7 @@ class MullvadDaemon {
             rpcSocketFile: File,
             apiEndpointConfiguration: ApiEndpointConfiguration,
         ) {
-            init(
+            initialize(
                 vpnService = vpnService,
                 rpcSocketPath = rpcSocketFile.absolutePath,
                 filesDirectory = vpnService.filesDir.absolutePath,
@@ -26,7 +26,7 @@ class MullvadDaemon {
             )
         }
 
-        private external fun init(
+        private external fun initialize(
             vpnService: MullvadVpnService,
             rpcSocketPath: String,
             filesDirectory: String,
