@@ -21,31 +21,19 @@ class MullvadDaemon(
     apiEndpointConfiguration: ApiEndpointConfiguration,
     migrateSplitTunneling: MigrateSplitTunneling
 ) {
-    private var mullvadDaemonHandle = 0L
-
     init {
         System.loadLibrary("mullvad_jni")
 
         prepareFiles(vpnService)
-
         migrateSplitTunneling.migrate()
 
-        mullvadDaemonHandle = start(
+        init(
             vpnService = vpnService,
             rpcSocketPath = rpcSocketFile.absolutePath,
             filesDirectory = vpnService.filesDir.absolutePath,
             cacheDirectory = vpnService.cacheDir.absolutePath,
             apiEndpoint = apiEndpointConfiguration.apiEndpoint()
         )
-    }
-
-    fun shutdown() {
-        if (mullvadDaemonHandle == 0L) {
-            return
-        }
-
-        stop(mullvadDaemonHandle)
-        mullvadDaemonHandle = 0L
     }
 
     private fun prepareFiles(context: Context) {
@@ -58,13 +46,13 @@ class MullvadDaemon(
     private fun lastUpdatedTime(context: Context): Long =
         context.packageManager.getPackageInfo(context.packageName, 0).lastUpdateTime
 
-    private external fun start(
+    private external fun init(
         vpnService: MullvadVpnService,
         rpcSocketPath: String,
         filesDirectory: String,
         cacheDirectory: String,
         apiEndpoint: ApiEndpoint?
-    ): Long
+    )
 
-    private external fun stop(mullvadDaemonHandle: Long)
+    public external fun shutdown()
 }

@@ -6,7 +6,7 @@ mod problem_report;
 mod talpid_vpn_service;
 
 use jnix::{
-    jni::{objects::JObject, sys::jlong, JNIEnv},
+    jni::{objects::JObject, JNIEnv},
     FromJava, JnixEnv,
 };
 use mullvad_daemon::{
@@ -17,12 +17,13 @@ use mullvad_daemon::{
 use std::{
     io,
     path::{Path, PathBuf},
-    sync::{mpsc, Arc, Once, OnceLock},
+    sync::{mpsc, Arc, Mutex, Once, OnceLock},
 };
 use talpid_types::{android::AndroidContext, ErrorExt};
 
 const LOG_FILENAME: &str = "daemon.log";
 
+static DAEMON_CONTEXT: Mutex<Option<DaemonContext>> = Mutex::new(None);
 static LOAD_CLASSES: Once = Once::new();
 
 #[derive(Debug, thiserror::Error)]
@@ -46,16 +47,17 @@ pub enum Error {
     SpawnManagementInterface(#[source] mullvad_daemon::management_interface::Error),
 }
 
+#[derive(Debug)]
 struct DaemonContext {
     daemon_command_tx: DaemonCommandSender,
     shutdown_complete_rx: mpsc::Receiver<()>,
 }
 
-/// Spawn Mullvad daemon. On success, a handle that can be passed to `MullvadDaemon.stop` is
-/// returned. On error, an exception is thrown.
+/// Spawn Mullvad daemon. There can only be a single instance, which must be shut down using
+/// `MullvadDaemon.shutdown`. On success, nothing is returned. On error, an exception is thrown.
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_start(
+pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_init(
     env: JNIEnv<'_>,
     _this: JObject<'_>,
     vpnService: JObject<'_>,
@@ -63,42 +65,38 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_start(
     filesDirectory: JObject<'_>,
     cacheDirectory: JObject<'_>,
     apiEndpoint: JObject<'_>,
-) -> jlong {
-    match start(
+) {
+    let mut ctx = DAEMON_CONTEXT.lock().unwrap();
+    assert!(ctx.is_none(), "multiple calls to MullvadDaemon.init");
+
+    start(
         env,
         vpnService,
         rpcSocketPath,
         filesDirectory,
         cacheDirectory,
         apiEndpoint,
-    ) {
-        Ok(daemon) => Box::into_raw(daemon) as jlong,
-        Err(message) => {
-            env.throw(message.to_string())
-                .expect("Failed to throw exception");
-            0
-        }
-    }
+    )
+    .map(|daemon| {
+        *ctx = Some(daemon);
+    })
+    .unwrap_or_else(|error| {
+        env.throw(error.to_string())
+            .expect("Failed to throw exception");
+    });
 }
 
-/// Shut down Mullvad daemon. The handle must be a valid handle returned by `MullvadDaemon.start`.
+/// Shut down Mullvad daemon that was initialized using `MullvadDaemon.init`.
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_stop(
+pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_shutdown(
     _: JNIEnv<'_>,
     _: JObject<'_>,
-    daemon_handle: jlong,
 ) {
-    let pointer = daemon_handle as *mut DaemonContext;
-    if pointer.is_null() {
-        return;
+    if let Some(context) = DAEMON_CONTEXT.lock().unwrap().take() {
+        _ = context.daemon_command_tx.shutdown();
+        _ = context.shutdown_complete_rx.recv();
     }
-
-    // SAFETY: The caller promises that this is a valid pointer to a DaemonContext.
-    let context: Box<DaemonContext> = unsafe { Box::from_raw(pointer) };
-
-    _ = context.daemon_command_tx.shutdown();
-    _ = context.shutdown_complete_rx.recv();
 }
 
 fn start(
@@ -108,7 +106,7 @@ fn start(
     files_directory: JObject<'_>,
     cache_directory: JObject<'_>,
     api_endpoint: JObject<'_>,
-) -> Result<Box<DaemonContext>, Error> {
+) -> Result<DaemonContext, Error> {
     let env = JnixEnv::from(env);
 
     LOAD_CLASSES.call_once(|| env.preload_classes(classes::CLASSES.iter().cloned()));
@@ -143,7 +141,7 @@ fn spawn_daemon(
     rpc_socket: PathBuf,
     files_dir: PathBuf,
     cache_dir: PathBuf,
-) -> Result<Box<DaemonContext>, Error> {
+) -> Result<DaemonContext, Error> {
     let daemon_command_channel = DaemonCommandChannel::new();
     let (shutdown_complete_tx, shutdown_complete_rx) = mpsc::channel();
 
@@ -154,7 +152,7 @@ fn spawn_daemon(
 
     let runtime = new_multi_thread().build().map_err(Error::InitTokio)?;
 
-    runtime.block_on(spawn_daemon_inner(
+    let running_daemon = runtime.block_on(spawn_daemon_inner(
         rpc_socket,
         files_dir,
         cache_dir,
@@ -164,12 +162,12 @@ fn spawn_daemon(
 
     // Spawn a thread to keep the tokio runtime alive
     std::thread::spawn(move || {
-        drop(runtime);
+        _ = runtime.block_on(running_daemon);
         _ = shutdown_complete_tx.send(());
         Ok::<(), Error>(())
     });
 
-    Ok(Box::new(context))
+    Ok(context)
 }
 
 async fn spawn_daemon_inner(
@@ -178,7 +176,7 @@ async fn spawn_daemon_inner(
     cache_dir: PathBuf,
     command_channel: DaemonCommandChannel,
     android_context: AndroidContext,
-) -> Result<(), Error> {
+) -> Result<tokio::task::JoinHandle<()>, Error> {
     cleanup_old_rpc_socket(&rpc_socket).await;
 
     let event_listener = ManagementInterfaceServer::start(command_channel.sender(), &rpc_socket)
@@ -198,7 +196,7 @@ async fn spawn_daemon_inner(
     .await
     .map_err(Error::InitializeDaemon)?;
 
-    tokio::spawn(async move {
+    let running_daemon = tokio::spawn(async move {
         match daemon.run().await {
             Ok(()) => log::info!("Mullvad daemon has stopped"),
             Err(error) => log::error!(
@@ -208,7 +206,7 @@ async fn spawn_daemon_inner(
         }
     });
 
-    Ok(())
+    Ok(running_daemon)
 }
 
 fn start_logging(log_dir: &Path) -> Result<(), String> {
