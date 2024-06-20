@@ -188,6 +188,9 @@ async fn run_standalone(log_dir: Option<PathBuf>) -> Result<(), String> {
 
     daemon.run().await.map_err(|e| e.display_chain())?;
 
+    #[cfg(not(windows))]
+    cleanup_old_rpc_socket(mullvad_paths::get_rpc_socket_path()).await;
+
     log::info!("Mullvad daemon is quitting");
     thread::sleep(Duration::from_millis(500));
     Ok(())
