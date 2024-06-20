@@ -36,7 +36,11 @@ fun mullvadWhiteTextFieldColors(): TextFieldColors =
         unfocusedSupportingTextColor = Color.Black,
         focusedIndicatorColor = MaterialTheme.colorScheme.onPrimary,
         unfocusedIndicatorColor = MaterialTheme.colorScheme.onPrimary,
-        errorIndicatorColor = MaterialTheme.colorScheme.error
+        errorIndicatorColor = MaterialTheme.colorScheme.error,
+        focusedContainerColor = MaterialTheme.colorScheme.onBackground,
+        unfocusedContainerColor = MaterialTheme.colorScheme.onBackground,
+        errorContainerColor = MaterialTheme.colorScheme.onBackground,
+        disabledContainerColor = MaterialTheme.colorScheme.onBackground
     )
 
 @Preview
