@@ -568,8 +568,8 @@ export class DaemonRpc {
     await this.callEmpty(this.client.updateDevice);
   }
 
-  public prepareRestart(quit: boolean) {
-    this.callBool(this.client.prepareRestart, quit);
+  public async prepareRestart(quit: boolean): Promise<void> {
+    await this.callBool(this.client.prepareRestartV2, quit);
   }
 
   public async setDaitaSettings(daitaSettings: IDaitaSettings): Promise<void> {

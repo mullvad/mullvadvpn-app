@@ -443,7 +443,6 @@ enum DaemonExecutionState {
 }
 
 impl DaemonExecutionState {
-    /// TODO: Document what `tunnel_state` is used for.
     pub fn shutdown(&mut self, tunnel_state: &TunnelState) {
         use self::DaemonExecutionState::*;
 
@@ -2682,7 +2681,6 @@ where
         }
     }
 
-    // TODO: See if this can be unified with `on_prepare_restart`
     fn trigger_shutdown_event(&mut self, user_init_shutdown: bool) {
         // Block all traffic before shutting down to ensure that no traffic can leak on boot or
         // shutdown.
@@ -2713,7 +2711,6 @@ where
         self.target_state.lock();
 
         if shutdown {
-            // TODO: Explain pls
             self.state.shutdown(&self.tunnel_state);
             self.disconnect_tunnel();
         }
