@@ -17,7 +17,7 @@ public final class TunnelMonitor: TunnelMonitorProtocol {
     private let tunnelDeviceInfo: TunnelDeviceInfoProtocol
 
     private let nslock = NSLock()
-    private let timerQueue = DispatchQueue(label: "TunnelMonitor-timerQueue")
+    private let timerQueue = DispatchQueue(label: "TunnelMonitor-timerQueue", qos: .userInitiated)
     private let eventQueue: DispatchQueue
     private let timings: TunnelMonitorTimings
 
