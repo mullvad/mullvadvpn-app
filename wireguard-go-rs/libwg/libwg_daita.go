@@ -1,6 +1,11 @@
 //go:build daita
 // +build daita
 
+/* SPDX-License-Identifier: Apache-2.0
+ *
+ * Copyright (C) 2024 Mullvad VPN AB. All Rights Reserved.
+ */
+
 package main
 
 // #include <stdio.h>
