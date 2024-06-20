@@ -23,7 +23,10 @@ use talpid_types::{android::AndroidContext, ErrorExt};
 
 const LOG_FILENAME: &str = "daemon.log";
 
+/// Mullvad daemon instance. It must be initialized and destroyed by `MullvadDaemon.init` and
+/// `MullvadDaemon.shutdown`, respectively.
 static DAEMON_CONTEXT: Mutex<Option<DaemonContext>> = Mutex::new(None);
+
 static LOAD_CLASSES: Once = Once::new();
 
 #[derive(Debug, thiserror::Error)]
@@ -57,9 +60,8 @@ struct DaemonContext {
 /// `MullvadDaemon.shutdown`. On success, nothing is returned. On error, an exception is thrown.
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_init(
+pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_JNILib_00024Companion_init(
     env: JNIEnv<'_>,
-    _this: JObject<'_>,
     vpnService: JObject<'_>,
     rpcSocketPath: JObject<'_>,
     filesDirectory: JObject<'_>,
@@ -89,9 +91,8 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_init(
 /// Shut down Mullvad daemon that was initialized using `MullvadDaemon.init`.
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_shutdown(
+pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_JNILib_00024Companion_shutdown(
     _: JNIEnv<'_>,
-    _: JObject<'_>,
 ) {
     if let Some(context) = DAEMON_CONTEXT.lock().unwrap().take() {
         _ = context.daemon_command_tx.shutdown();
