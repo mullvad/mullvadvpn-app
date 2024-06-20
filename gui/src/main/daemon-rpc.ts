@@ -568,7 +568,7 @@ export class DaemonRpc {
     await this.callEmpty(this.client.updateDevice);
   }
 
-  public async prepareRestart(quit: boolean): Promise<void> {
+  public async prepareRestart(quit: boolean) {
     await this.callBool(this.client.prepareRestartV2, quit);
   }
 
