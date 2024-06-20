@@ -464,10 +464,10 @@ impl<T> Drop for AbortOnDrop<T> {
 
 pub async fn set_relay_settings(
     mullvad_client: &mut MullvadProxyClient,
-    relay_settings: RelaySettings,
+    relay_settings: impl Into<RelaySettings>,
 ) -> Result<(), Error> {
     mullvad_client
-        .set_relay_settings(relay_settings)
+        .set_relay_settings(relay_settings.into())
         .await
         .map_err(|error| Error::Daemon(format!("Failed to set relay settings: {}", error)))
 }
