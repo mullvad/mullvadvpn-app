@@ -9,8 +9,7 @@ use std::{
 /// application.
 ///
 /// * If `source` is "-", read the patch from standard input
-/// * Otherwise, interpret `source` as a filepath and read from the provided
-///   file
+/// * Otherwise, interpret `source` as a filepath and read from the provided file
 pub async fn import(source: String) -> Result<()> {
     let json_blob = tokio::task::spawn_blocking(move || match source.as_str() {
         "-" => read_to_string(BufReader::new(stdin())).context("Failed to read from stdin"),
@@ -33,8 +32,7 @@ pub async fn import(source: String) -> Result<()> {
 /// Output a settings patch including all currently patchable settings.
 ///
 /// * If `source` is "-", write the patch to standard output
-/// * Otherwise, interpret `source` as a filepath and write to the provided
-///   file
+/// * Otherwise, interpret `source` as a filepath and write to the provided file
 pub async fn export(dest: String) -> Result<()> {
     let mut rpc = MullvadProxyClient::new().await?;
     let blob = rpc

@@ -1,7 +1,7 @@
 #[cfg(not(target_os = "android"))]
 use futures::TryFutureExt;
-use mullvad_types::custom_list::Error as CustomListError;
 use mullvad_types::{
+    custom_list::Error as CustomListError,
     relay_constraints::{RelayConstraints, RelaySettings, WireguardConstraints},
     settings::{DnsState, Settings},
 };

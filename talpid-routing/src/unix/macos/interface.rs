@@ -11,14 +11,13 @@ use std::{
 };
 
 use super::data::{Destination, RouteMessage};
-use system_configuration::core_foundation::string::CFStringRef;
 use system_configuration::{
     core_foundation::{
         array::CFArray,
         base::{CFType, TCFType, ToVoid},
         dictionary::CFDictionary,
         runloop::{kCFRunLoopCommonModes, CFRunLoop},
-        string::CFString,
+        string::{CFString, CFStringRef},
     },
     dynamic_store::{SCDynamicStore, SCDynamicStoreBuilder, SCDynamicStoreCallBackContext},
     network_configuration::SCNetworkSet,
