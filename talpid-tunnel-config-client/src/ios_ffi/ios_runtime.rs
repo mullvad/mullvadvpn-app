@@ -96,8 +96,10 @@ impl IOSRuntime {
             self.run_service_inner();
         });
     }
-    /// Creates a `RelayConfigService` using the in-tunnel TCP Connection provided by the Packet Tunnel Provider
-    /// # Safety
+    /// Creates a `RelayConfigService` using the in-tunnel TCP Connection provided by the Packet
+    /// Tunnel Provider
+    ///
+    /// ## Safety
     /// It is unsafe to call this with an already used `SwiftContext`
     async unsafe fn ios_tcp_client(
         ctx: SwiftContext,

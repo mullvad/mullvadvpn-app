@@ -20,9 +20,8 @@ use pnet_packet::{
     udp::MutableUdpPacket,
     MutablePacket, Packet,
 };
-use std::ffi::c_uint;
 use std::{
-    ffi::CStr,
+    ffi::{c_uint, CStr},
     io::{self, IoSlice, Write},
     net::{Ipv4Addr, Ipv6Addr},
     ptr::NonNull,
@@ -269,7 +268,8 @@ fn redirect_packets_for_pktap_stream(
     })
 }
 
-/// Open a BPF device for the specified default interface. Return a read and write half, and the buffer size.
+/// Open a BPF device for the specified default interface. Return a read and write half, and the
+/// buffer size.
 fn open_default_bpf(
     default_interface: &DefaultInterface,
 ) -> Result<(bpf::BpfStream, bpf::WriteHalf, usize), Error> {
@@ -692,7 +692,7 @@ fn capture_outbound_packets(
 
     // TODO: This is unsupported on macOS 13 and lower, so we determine the direction using the
     //       pktap header flags. Once macOS 13 is no longer supported, this can be uncommented.
-    //cap.direction(pcap::Direction::Out)
+    // cap.direction(pcap::Direction::Out)
     //    .map_err(Error::SetDirection)?;
 
     let cap = cap.setnonblock().map_err(Error::EnableNonblock)?;

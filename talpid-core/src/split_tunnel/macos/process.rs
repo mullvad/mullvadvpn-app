@@ -9,9 +9,8 @@ use futures::channel::oneshot;
 use libc::{proc_listallpids, proc_pidpath};
 use once_cell::sync::Lazy;
 use serde::Deserialize;
-use std::collections::HashSet;
 use std::{
-    collections::HashMap,
+    collections::{HashMap, HashSet},
     ffi::c_void,
     io,
     path::PathBuf,
