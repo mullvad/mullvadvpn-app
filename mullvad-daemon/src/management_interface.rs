@@ -101,8 +101,16 @@ impl ManagementService for ManagementServiceImpl {
         Ok(Response::new(UnboundedReceiverStream::new(rx)))
     }
 
-    async fn prepare_restart(&self, shutdown: Request<bool>) -> ServiceResult<()> {
+    async fn prepare_restart(&self, _: Request<()>) -> ServiceResult<()> {
         log::debug!("prepare_restart");
+        // Note: The old `PrepareRestart` behavior never shutdown the daemon.
+        let shutdown = false;
+        self.send_command_to_daemon(DaemonCommand::PrepareRestart(shutdown))?;
+        Ok(Response::new(()))
+    }
+
+    async fn prepare_restart_v2(&self, shutdown: Request<bool>) -> ServiceResult<()> {
+        log::debug!("prepare_restart_v2");
         self.send_command_to_daemon(DaemonCommand::PrepareRestart(shutdown.into_inner()))?;
         Ok(Response::new(()))
     }
