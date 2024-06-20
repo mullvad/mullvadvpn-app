@@ -225,6 +225,21 @@ fn print_error_state(error_state: &ErrorState) {
             println!("Blocked: {cause}");
             println!("Your kernel might be terribly out of date or missing nftables");
         }
+        #[cfg(target_os = "macos")]
+        cause @ talpid_types::tunnel::ErrorStateCause::NeedFullDiskPermissions => {
+            println!("Blocked: {cause}");
+            println!();
+            println!(
+                r#"Enable "Full Disk Access" for "Mullvad VPN" in the macOS system settings:"#
+            );
+            println!(
+                r#"open "x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles""#
+            );
+            println!();
+            println!("Restart the Mullvad daemon for the change to take effect:");
+            println!("launchctl unload -w /Library/LaunchDaemons/net.mullvad.daemon.plist");
+            println!("launchctl load -w /Library/LaunchDaemons/net.mullvad.daemon.plist");
+        }
         talpid_types::tunnel::ErrorStateCause::AuthFailed(Some(auth_failed)) => {
             println!(
                 "Blocked: Authentication with remote server failed: {}",

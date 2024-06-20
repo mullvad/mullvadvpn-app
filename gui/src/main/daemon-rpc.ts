@@ -568,6 +568,10 @@ export class DaemonRpc {
     await this.callEmpty(this.client.updateDevice);
   }
 
+  public async prepareRestart(quit: boolean) {
+    await this.callBool(this.client.prepareRestartV2, quit);
+  }
+
   public async setDaitaSettings(daitaSettings: IDaitaSettings): Promise<void> {
     const grpcDaitaSettings = new grpcTypes.DaitaSettings();
     grpcDaitaSettings.setEnabled(daitaSettings.enabled);
