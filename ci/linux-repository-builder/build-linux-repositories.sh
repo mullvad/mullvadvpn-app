@@ -105,12 +105,14 @@ for notify_file in "$inbox_dir"/*.src; do
     # Move all deb and rpm files into the .latest dir
     for src_deb in "$src_dir"/*.deb; do
         found_new_artifacts="true"
-        echo "Moving $src_deb into $artifact_dir/"
+        echo "Signing and moving $src_deb into $artifact_dir/"
+        dpkg-sig --sign builder "$src_deb"
         mv "$src_deb" "$artifact_dir/"
     done
     for src_rpm in "$src_dir"/*.rpm; do
         found_new_artifacts="true"
-        echo "Moving $src_rpm into $artifact_dir/"
+        echo "Signing and moving $src_rpm into $artifact_dir/"
+        rpm --addsign "$src_rpm"
         mv "$src_rpm" "$artifact_dir/"
     done
     rm -r "$src_dir" || echo "Failed to remove src dir $src_dir"
