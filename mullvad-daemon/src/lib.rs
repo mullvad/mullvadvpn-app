@@ -76,9 +76,9 @@ use std::{
     sync::{Arc, Weak},
     time::Duration,
 };
-use talpid_core::split_tunnel;
 use talpid_core::{
     mpsc::Sender,
+    split_tunnel,
     tunnel_state_machine::{self, TunnelCommand, TunnelStateMachineHandle},
 };
 #[cfg(target_os = "android")]

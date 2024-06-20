@@ -76,10 +76,10 @@ pub struct ShadowsocksProxySettings {
 /// and Shadowsocks variant.
 ///
 /// The predefined access methods "Direct" and "Mullvad Bridges" are now stored as distinct keys in
-/// the api_access_methods settings, separating them from user-defined access methods in the settings
-/// datastructure.
+/// the api_access_methods settings, separating them from user-defined access methods in the
+/// settings data structure.
 ///
-/// We also take the oppertunity to rename a couple of fields that relate to proxy types.
+/// We also take the opportunity to rename a couple of fields that relate to proxy types.
 /// We rename
 /// - shadowsocks.peer to shadowsocks.endpoint
 /// - socks5_remote.authentication to socks5_remote.auth
@@ -145,10 +145,12 @@ fn migrate_api_access_settings(settings: &mut serde_json::Value) -> Result<()> {
         }
     }
 
-    // Step 1. Rename { "api_access_methods": { "access_method_settings": .. } } to { "api_access_methods": { "custom": .. } }.
-    // Step 2. Collect all of the built-in methods from { "api_access_methods": { "custom": [ .. ] } }.
-    // Step 3. Remove all of the built-in methods from { "api_access_methods": { "custom": [ .. ] } }.
-    // Step 4. Add the collected built-in methods from step 2 to { "api_access_methods": { .. } } under some appropriate key.
+    // Step 1. Rename { "api_access_methods": { "access_method_settings": .. } } to
+    // {"api_access_methods": { "custom": .. } }.
+    // Step 2. Collect all of the built-in methods from {"api_access_methods": {"custom": [ .. ] } }
+    // Step 3. Remove all of the built-in methods from {"api_access_methods": {"custom": [..] } }
+    // Step 4. Add the collected built-in methods from step 2 to { "api_access_methods": { .. } }
+    // under some appropriate key.
     if let Some(access_method_settings) = settings
         .get_mut("api_access_methods")
         .and_then(serde_json::value::Value::as_object_mut)

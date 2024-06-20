@@ -4,8 +4,7 @@ use once_cell::sync::Lazy;
 use talpid_routing::RouteManagerHandle;
 #[cfg(target_os = "android")]
 use talpid_types::android::AndroidContext;
-use talpid_types::net::Connectivity;
-use talpid_types::ErrorExt;
+use talpid_types::{net::Connectivity, ErrorExt};
 
 #[cfg(target_os = "macos")]
 #[path = "macos.rs"]
