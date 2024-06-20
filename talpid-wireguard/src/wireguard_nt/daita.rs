@@ -1,4 +1,3 @@
-#![cfg(daita)]
 use super::WIREGUARD_KEY_LENGTH;
 use maybenot::framework::MachineId;
 use once_cell::sync::OnceCell;
