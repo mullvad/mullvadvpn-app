@@ -3,7 +3,6 @@ pub const CLASSES: &[&str] = &[
     "java/net/InetAddress",
     "java/net/InetSocketAddress",
     "java/util/ArrayList",
-    "java/util/HashSet",
     "net/mullvad/mullvadvpn/service/MullvadDaemon",
     "net/mullvad/mullvadvpn/service/MullvadVpnService",
     "net/mullvad/talpid/model/InetNetwork",
