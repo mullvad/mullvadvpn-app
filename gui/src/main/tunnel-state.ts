@@ -58,7 +58,7 @@ export default class TunnelStateHandler {
   }
 
   public handleNewTunnelState(newState: TunnelState) {
-    if (newState.state === 'error') {
+    if (newState.state === 'error' && newState.details) {
       if (newState.details.cause === ErrorStateCause.needFullDiskPermissions) {
         this.receivedFullDiskAccessError = true;
       }
