@@ -946,7 +946,7 @@ where
             }
             Command(command) => self.handle_command(command).await,
             TriggerShutdown(user_init_shutdown) => {
-                self.trigger_shutdown(user_init_shutdown);
+                self.on_trigger_shutdown(user_init_shutdown);
                 should_stop = true;
             }
             NewAppVersionInfo(app_version_info) => {
@@ -2636,7 +2636,7 @@ where
         }
     }
 
-    fn trigger_shutdown(&mut self, user_init_shutdown: bool) {
+    fn on_trigger_shutdown(&mut self, user_init_shutdown: bool) {
         // Block all traffic before shutting down to ensure that no traffic can leak on boot or
         // shutdown.
         if !user_init_shutdown
@@ -2665,8 +2665,7 @@ where
         self.target_state.lock();
 
         if shutdown {
-            self.state.shutdown(&self.tunnel_state);
-            self.disconnect_tunnel();
+            let _ = self.tx.send(InternalDaemonEvent::TriggerShutdown(false));
         }
     }
 
