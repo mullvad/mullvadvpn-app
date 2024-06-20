@@ -401,6 +401,33 @@ pub async fn test_wireguard_autoconnect(
     Ok(())
 }
 
+#[test_function]
+pub async fn test_daita_connect(
+    _: TestContext,
+    rpc: ServiceClient,
+    mut mullvad_client: MullvadProxyClient,
+) -> Result<(), Error> {
+    log::info!("Setting tunnel protocol to WireGuard");
+
+    set_relay_settings(
+        &mut mullvad_client,
+        RelaySettings::Normal(
+            RelayQueryBuilder::new()
+                .wireguard()
+                .daita()
+                .into_constraint(),
+        ),
+    )
+    .await?;
+
+    connect_and_wait(&mut mullvad_client).await?;
+
+    log::info!("Check that the connection works");
+    let _ = helpers::geoip_lookup_with_retries(&rpc).await?;
+
+    Ok(())
+}
+
 /// Test whether the daemon automatically connects on reboot when using
 /// OpenVPN.
 ///
