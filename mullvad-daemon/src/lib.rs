@@ -875,6 +875,8 @@ where
 
         // Wait for tunnel state machine to disconnect
         if !self.tunnel_state.is_disconnected() {
+            self.disconnect_tunnel();
+
             while let Some(event) = self.rx.next().await {
                 if let InternalDaemonEvent::TunnelStateTransition(transition) = event {
                     self.handle_tunnel_state_transition(transition).await;
@@ -2642,7 +2644,7 @@ where
         if !user_init_shutdown
             && (*self.target_state == TargetState::Secured || self.settings.auto_connect)
         {
-            log::debug!("Blocking firewall during shutdown since system is going down");
+            log::debug!("Blocking firewall during shutdown");
             let (tx, _rx) = oneshot::channel();
             self.send_tunnel_command(TunnelCommand::BlockWhenDisconnected(true, tx));
         }
