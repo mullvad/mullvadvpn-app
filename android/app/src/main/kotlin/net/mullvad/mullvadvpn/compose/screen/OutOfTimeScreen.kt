@@ -25,24 +25,24 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.generated.NavGraphs
+import com.ramcosta.composedestinations.generated.destinations.AccountDestination
+import com.ramcosta.composedestinations.generated.destinations.ConnectDestination
+import com.ramcosta.composedestinations.generated.destinations.PaymentDestination
+import com.ramcosta.composedestinations.generated.destinations.RedeemVoucherDestination
+import com.ramcosta.composedestinations.generated.destinations.SettingsDestination
+import com.ramcosta.composedestinations.generated.destinations.VerificationPendingDialogDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.ramcosta.composedestinations.navigation.popUpTo
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.NavGraphs
 import net.mullvad.mullvadvpn.compose.button.NegativeButton
 import net.mullvad.mullvadvpn.compose.button.RedeemVoucherButton
 import net.mullvad.mullvadvpn.compose.button.SitePaymentButton
 import net.mullvad.mullvadvpn.compose.component.PlayPayment
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBarAndDeviceName
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
-import net.mullvad.mullvadvpn.compose.destinations.AccountDestination
-import net.mullvad.mullvadvpn.compose.destinations.ConnectDestination
-import net.mullvad.mullvadvpn.compose.destinations.PaymentDestination
-import net.mullvad.mullvadvpn.compose.destinations.RedeemVoucherDestination
-import net.mullvad.mullvadvpn.compose.destinations.SettingsDestination
-import net.mullvad.mullvadvpn.compose.destinations.VerificationPendingDialogDestination
 import net.mullvad.mullvadvpn.compose.extensions.createOpenAccountPageHook
 import net.mullvad.mullvadvpn.compose.state.OutOfTimeUiState
 import net.mullvad.mullvadvpn.compose.test.OUT_OF_TIME_SCREEN_TITLE_TEST_TAG
@@ -107,7 +107,7 @@ private fun PreviewOutOfTimeScreenError() {
     }
 }
 
-@Destination(style = HomeTransition::class)
+@Destination<RootGraph>(style = HomeTransition::class)
 @Composable
 fun OutOfTime(
     navigator: DestinationsNavigator,
@@ -156,10 +156,10 @@ fun OutOfTime(
         onAccountClick = dropUnlessResumed { navigator.navigate(AccountDestination) },
         onDisconnectClick = vm::onDisconnectClick,
         onPurchaseBillingProductClick = { productId ->
-            navigator.navigate(PaymentDestination(productId), onlyIfResumed = true)
+            navigator.navigate(PaymentDestination(productId))
         },
         navigateToVerificationPendingDialog = {
-            navigator.navigate(VerificationPendingDialogDestination, onlyIfResumed = true)
+            navigator.navigate(VerificationPendingDialogDestination)
         }
     )
 }

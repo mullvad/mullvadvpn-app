@@ -33,8 +33,11 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.generated.destinations.LoginDestination
+import com.ramcosta.composedestinations.generated.destinations.RemoveDeviceConfirmationDialogDestination
+import com.ramcosta.composedestinations.generated.destinations.SettingsDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.ramcosta.composedestinations.navigation.popUpTo
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.launch
@@ -46,9 +49,6 @@ import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicator
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorMedium
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
-import net.mullvad.mullvadvpn.compose.destinations.LoginDestination
-import net.mullvad.mullvadvpn.compose.destinations.RemoveDeviceConfirmationDialogDestination
-import net.mullvad.mullvadvpn.compose.destinations.SettingsDestination
 import net.mullvad.mullvadvpn.compose.preview.DeviceListPreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.DeviceItemUiState
 import net.mullvad.mullvadvpn.compose.state.DeviceListUiState
@@ -102,7 +102,7 @@ private fun PreviewDeviceListError() {
     }
 }
 
-@Destination(style = DefaultTransition::class)
+@Destination<RootGraph>(style = DefaultTransition::class)
 @Composable
 fun DeviceList(
     navigator: DestinationsNavigator,
@@ -158,7 +158,7 @@ fun DeviceList(
         onSettingsClicked = dropUnlessResumed { navigator.navigate(SettingsDestination) },
         onTryAgainClicked = viewModel::fetchDevices,
         navigateToRemoveDeviceConfirmationDialog = {
-            navigator.navigate(RemoveDeviceConfirmationDialogDestination(it), onlyIfResumed = true)
+            navigator.navigate(RemoveDeviceConfirmationDialogDestination(it))
         }
     )
 }

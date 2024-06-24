@@ -23,6 +23,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.generated.destinations.CustomListLocationsDestination
+import com.ramcosta.composedestinations.generated.destinations.DeleteCustomListDestination
+import com.ramcosta.composedestinations.generated.destinations.EditCustomListNameDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultBackNavigator
@@ -34,9 +38,6 @@ import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicator
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.component.SpacedColumn
-import net.mullvad.mullvadvpn.compose.destinations.CustomListLocationsDestination
-import net.mullvad.mullvadvpn.compose.destinations.DeleteCustomListDestination
-import net.mullvad.mullvadvpn.compose.destinations.EditCustomListNameDestination
 import net.mullvad.mullvadvpn.compose.state.EditCustomListState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.test.DELETE_DROPDOWN_MENU_ITEM_TEST_TAG
@@ -77,7 +78,7 @@ private fun PreviewEditCustomListScreen() {
 }
 
 @Composable
-@Destination(style = SlideInFromRightTransition::class)
+@Destination<RootGraph>(style = SlideInFromRightTransition::class)
 fun EditCustomList(
     navigator: DestinationsNavigator,
     backNavigator: ResultBackNavigator<Deleted>,
@@ -102,19 +103,16 @@ fun EditCustomList(
         onDeleteList = { name ->
             navigator.navigate(
                 DeleteCustomListDestination(customListId = customListId, name = name),
-                onlyIfResumed = true
             )
         },
         onNameClicked = { id, name ->
             navigator.navigate(
                 EditCustomListNameDestination(customListId = id, initialName = name),
-                onlyIfResumed = true
             )
         },
         onLocationsClicked = {
             navigator.navigate(
                 CustomListLocationsDestination(customListId = it, newList = false),
-                onlyIfResumed = true
             )
         },
         onBackClick = dropUnlessResumed { backNavigator.navigateBack() }
