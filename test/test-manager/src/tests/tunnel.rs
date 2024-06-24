@@ -10,7 +10,9 @@ use crate::{
     tests::helpers::{login_with_retries, ConnChecker},
 };
 
-use anyhow::{bail, ensure, Context};
+#[cfg(not(target_os = "macos"))]
+use anyhow::Context;
+use anyhow::{bail, ensure};
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_relay_selector::query::builder::RelayQueryBuilder;
 use mullvad_types::{
@@ -401,6 +403,7 @@ pub async fn test_wireguard_autoconnect(
     Ok(())
 }
 
+#[cfg(not(target_os = "macos"))]
 #[test_function(target_os = "linux", target_os = "windows")]
 pub async fn test_daita(
     _: TestContext,
