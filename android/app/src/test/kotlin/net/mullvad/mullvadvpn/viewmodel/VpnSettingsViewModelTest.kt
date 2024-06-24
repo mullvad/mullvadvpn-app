@@ -3,11 +3,14 @@ package net.mullvad.mullvadvpn.viewmodel
 import androidx.lifecycle.viewModelScope
 import app.cash.turbine.test
 import arrow.core.right
+import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
 import io.mockk.unmockkAll
+import io.mockk.verify
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlinx.coroutines.cancel
@@ -26,6 +29,7 @@ import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.lib.model.TunnelOptions
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 import net.mullvad.mullvadvpn.lib.model.WireguardTunnelOptions
+import net.mullvad.mullvadvpn.repository.ConnectOnStartRepository
 import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.usecase.SystemVpnSettingsAvailableUseCase
@@ -41,9 +45,11 @@ class VpnSettingsViewModelTest {
     private val mockSystemVpnSettingsUseCase: SystemVpnSettingsAvailableUseCase =
         mockk(relaxed = true)
     private val mockRelayListRepository: RelayListRepository = mockk()
+    private val mockConnectOnStartRepository: ConnectOnStartRepository = mockk()
 
     private val mockSettingsUpdate = MutableStateFlow<Settings?>(null)
     private val portRangeFlow = MutableStateFlow(emptyList<PortRange>())
+    private val connectOnStartFlow = MutableStateFlow(false)
 
     private lateinit var viewModel: VpnSettingsViewModel
 
@@ -51,13 +57,15 @@ class VpnSettingsViewModelTest {
     fun setup() {
         every { mockSettingsRepository.settingsUpdates } returns mockSettingsUpdate
         every { mockRelayListRepository.portRanges } returns portRangeFlow
+        every { mockConnectOnStartRepository.connectOnStart } returns connectOnStartFlow
 
         viewModel =
             VpnSettingsViewModel(
                 repository = mockSettingsRepository,
                 systemVpnSettingsUseCase = mockSystemVpnSettingsUseCase,
                 relayListRepository = mockRelayListRepository,
-                dispatcher = UnconfinedTestDispatcher()
+                dispatcher = UnconfinedTestDispatcher(),
+                connectOnStartRepository = mockConnectOnStartRepository
             )
     }
 
@@ -187,5 +195,31 @@ class VpnSettingsViewModelTest {
             viewModel.uiState.test {
                 assertEquals(systemVpnSettingsAvailable, awaitItem().systemVpnSettingsAvailable)
             }
+        }
+
+    @Test
+    fun `when connectOnStart is true then uiState should be connectOnStart=true`() = runTest {
+        // Arrange
+        val connectOnStart = true
+
+        // Act
+        connectOnStartFlow.value = connectOnStart
+
+        // Assert
+        viewModel.uiState.test { assertEquals(connectOnStart, awaitItem().connectOnStart) }
+    }
+
+    @Test
+    fun `calling onToggleConnectOnStart should call connectOnStartRepository setConnectOnStart`() =
+        runTest {
+            // Arrange
+            val targetState = true
+            every { mockConnectOnStartRepository.setConnectOnStart(targetState) } just Runs
+
+            // Act
+            viewModel.onToggleConnectOnStart(targetState)
+
+            // Assert
+            verify { mockConnectOnStartRepository.setConnectOnStart(targetState) }
         }
 }
