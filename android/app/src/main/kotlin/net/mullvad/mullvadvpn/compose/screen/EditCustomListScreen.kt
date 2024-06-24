@@ -52,7 +52,6 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.menuItemColors
 import net.mullvad.mullvadvpn.viewmodel.EditCustomListViewModel
 import org.koin.androidx.compose.koinViewModel
-import org.koin.core.parameter.parametersOf
 
 @Preview
 @Composable
@@ -78,16 +77,19 @@ private fun PreviewEditCustomListScreen() {
     }
 }
 
+data class EditCustomListNavArgs(val customListId: CustomListId)
+
 @Composable
-@Destination<RootGraph>(style = SlideInFromRightTransition::class)
+@Destination<RootGraph>(
+    style = SlideInFromRightTransition::class,
+    navArgs = EditCustomListNavArgs::class
+)
 fun EditCustomList(
     navigator: DestinationsNavigator,
     backNavigator: ResultBackNavigator<Deleted>,
-    customListId: CustomListId,
     confirmDeleteListResultRecipient: ResultRecipient<DeleteCustomListDestination, Deleted>
 ) {
-    val viewModel =
-        koinViewModel<EditCustomListViewModel>(parameters = { parametersOf(customListId) })
+    val viewModel = koinViewModel<EditCustomListViewModel>()
 
     confirmDeleteListResultRecipient.onNavResult {
         when (it) {
@@ -103,9 +105,9 @@ fun EditCustomList(
     EditCustomListScreen(
         state = state,
         onDeleteList =
-            dropUnlessResumed { name ->
+            dropUnlessResumed { id, name ->
                 navigator.navigate(
-                    DeleteCustomListDestination(customListId = customListId, name = name),
+                    DeleteCustomListDestination(customListId = id, name = name),
                 )
             },
         onNameClicked =
@@ -127,21 +129,25 @@ fun EditCustomList(
 @Composable
 fun EditCustomListScreen(
     state: EditCustomListState,
-    onDeleteList: (name: CustomListName) -> Unit = {},
+    onDeleteList: (id: CustomListId, name: CustomListName) -> Unit = { _, _ -> },
     onNameClicked: (id: CustomListId, name: CustomListName) -> Unit = { _, _ -> },
     onLocationsClicked: (CustomListId) -> Unit = {},
     onBackClick: () -> Unit = {}
 ) {
-    val title =
-        when (state) {
-            EditCustomListState.Loading,
-            EditCustomListState.NotFound -> null
-            is EditCustomListState.Content -> state.name
-        }
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.edit_list),
         navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) },
-        actions = { Actions(enabled = title != null, onDeleteList = { onDeleteList(title!!) }) },
+        actions = {
+            val content = state as? EditCustomListState.Content
+            Actions(
+                enabled = content?.name != null,
+                onDeleteList = {
+                    if (content is EditCustomListState.Content) {
+                        onDeleteList(content.id, content.name)
+                    }
+                }
+            )
+        },
     ) { modifier: Modifier ->
         SpacedColumn(modifier = modifier, alignment = Alignment.Top) {
             when (state) {

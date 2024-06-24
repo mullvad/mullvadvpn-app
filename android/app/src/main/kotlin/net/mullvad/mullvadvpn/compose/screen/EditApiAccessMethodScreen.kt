@@ -72,7 +72,6 @@ import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
 import net.mullvad.mullvadvpn.viewmodel.EditApiAccessMethodViewModel
 import net.mullvad.mullvadvpn.viewmodel.EditApiAccessSideEffect
 import org.koin.androidx.compose.koinViewModel
-import org.koin.core.parameter.parametersOf
 
 @Preview
 @Composable
@@ -83,17 +82,20 @@ private fun PreviewEditApiAccessMethodScreen(
     AppTheme { EditApiAccessMethodScreen(state = state) }
 }
 
-@Destination<RootGraph>(style = SlideInFromRightTransition::class)
+data class EditApiAccessMethodNavArgs(val accessMethodId: ApiAccessMethodId?)
+
+@Destination<RootGraph>(
+    style = SlideInFromRightTransition::class,
+    navArgs = EditApiAccessMethodNavArgs::class
+)
 @Composable
 fun EditApiAccessMethod(
     navigator: DestinationsNavigator,
     backNavigator: ResultBackNavigator<Boolean>,
     saveApiAccessMethodResultRecipient: ResultRecipient<SaveApiAccessMethodDestination, Boolean>,
     discardChangesResultRecipient: ResultRecipient<DiscardChangesDialogDestination, Boolean>,
-    accessMethodId: ApiAccessMethodId?
 ) {
-    val viewModel =
-        koinViewModel<EditApiAccessMethodViewModel>(parameters = { parametersOf(accessMethodId) })
+    val viewModel = koinViewModel<EditApiAccessMethodViewModel>()
 
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current

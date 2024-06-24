@@ -35,7 +35,6 @@ import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.viewmodel.SaveApiAccessMethodSideEffect
 import net.mullvad.mullvadvpn.viewmodel.SaveApiAccessMethodViewModel
 import org.koin.androidx.compose.koinViewModel
-import org.koin.core.parameter.parametersOf
 
 @Preview
 @Composable
@@ -46,18 +45,21 @@ private fun PreviewSaveApiAccessMethodDialog(
     AppTheme { SaveApiAccessMethodDialog(state = state) }
 }
 
-@Destination<RootGraph>(style = DestinationStyle.Dialog::class)
+data class SaveApiAccessMethodNavArgs(
+    val id: ApiAccessMethodId?,
+    val name: ApiAccessMethodName,
+    val customProxy: ApiAccessMethod.CustomProxy
+)
+
+@Destination<RootGraph>(
+    style = DestinationStyle.Dialog::class,
+    navArgs = SaveApiAccessMethodNavArgs::class
+)
 @Composable
 fun SaveApiAccessMethod(
     backNavigator: ResultBackNavigator<Boolean>,
-    id: ApiAccessMethodId?,
-    name: ApiAccessMethodName,
-    customProxy: ApiAccessMethod.CustomProxy
 ) {
-    val viewModel =
-        koinViewModel<SaveApiAccessMethodViewModel>(
-            parameters = { parametersOf(id, name, customProxy) }
-        )
+    val viewModel = koinViewModel<SaveApiAccessMethodViewModel>()
 
     LaunchedEffectCollect(sideEffect = viewModel.uiSideEffect) {
         when (it) {

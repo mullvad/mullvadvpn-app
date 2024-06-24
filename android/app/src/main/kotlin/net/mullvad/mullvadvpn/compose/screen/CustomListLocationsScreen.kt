@@ -60,7 +60,6 @@ import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.viewmodel.CustomListLocationsSideEffect
 import net.mullvad.mullvadvpn.viewmodel.CustomListLocationsViewModel
 import org.koin.androidx.compose.koinViewModel
-import org.koin.core.parameter.parametersOf
 
 @Composable
 @Preview
@@ -68,19 +67,22 @@ private fun PreviewCustomListLocationScreen() {
     AppTheme { CustomListLocationsScreen(state = CustomListLocationsUiState.Content.Data()) }
 }
 
+data class CustomListLocationsNavArgs(
+    val customListId: CustomListId,
+    val newList: Boolean,
+)
+
 @Composable
-@Destination<RootGraph>(style = SlideInFromRightTransition::class)
+@Destination<RootGraph>(
+    style = SlideInFromRightTransition::class,
+    navArgs = CustomListLocationsNavArgs::class
+)
 fun CustomListLocations(
     navigator: DestinationsNavigator,
     backNavigator: ResultBackNavigator<LocationsChanged>,
     discardChangesResultRecipient: ResultRecipient<DiscardChangesDialogDestination, Boolean>,
-    customListId: CustomListId,
-    newList: Boolean,
 ) {
-    val customListsViewModel =
-        koinViewModel<CustomListLocationsViewModel>(
-            parameters = { parametersOf(customListId, newList) }
-        )
+    val customListsViewModel = koinViewModel<CustomListLocationsViewModel>()
 
     discardChangesResultRecipient.onNavResult {
         when (it) {
