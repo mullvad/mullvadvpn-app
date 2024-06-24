@@ -10,7 +10,7 @@ use crate::{
     tests::helpers::{login_with_retries, ConnChecker},
 };
 
-use anyhow::{bail, ensure};
+use anyhow::{bail, ensure, Context};
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_relay_selector::query::builder::RelayQueryBuilder;
 use mullvad_types::{
@@ -401,19 +401,24 @@ pub async fn test_wireguard_autoconnect(
     Ok(())
 }
 
-#[test_function]
-pub async fn test_daita_connect(
+#[test_function(target_os = "linux", target_os = "windows")]
+pub async fn test_daita(
     _: TestContext,
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
-) -> Result<(), Error> {
+) -> anyhow::Result<()> {
     log::info!("Connecting to relay with DAITA");
 
     set_relay_settings(
         &mut mullvad_client,
-        RelayQueryBuilder::new().wireguard().daita().build(),
+        RelayQueryBuilder::new().wireguard().build(),
     )
     .await?;
+
+    mullvad_client
+        .set_daita_settings(wireguard::DaitaSettings { enabled: true })
+        .await
+        .context("Failed to enable daita")?;
 
     connect_and_wait(&mut mullvad_client).await?;
 
