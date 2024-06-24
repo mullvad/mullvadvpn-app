@@ -15,8 +15,8 @@ class BootCompletedReceiver : BroadcastReceiver() {
     }
 
     private fun startAndConnectTunnel(context: Context) {
-        // Check for vpn permission
-        if (VpnService.prepare(context) == null) {
+        val hasVpnPermission = VpnService.prepare(context) == null
+        if (hasVpnPermission) {
             val intent =
                 Intent().apply {
                     setClassName(context.packageName, VPN_SERVICE_CLASS)
