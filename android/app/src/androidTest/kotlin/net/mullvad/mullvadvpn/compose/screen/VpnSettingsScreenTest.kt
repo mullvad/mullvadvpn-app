@@ -610,10 +610,7 @@ class VpnSettingsScreenTest {
             // Arrange
             setContentWithTheme {
                 VpnSettingsScreen(
-                    state =
-                    VpnSettingsUiState.createDefault(
-                        systemVpnSettingsAvailable = false
-                    ),
+                    state = VpnSettingsUiState.createDefault(systemVpnSettingsAvailable = false),
                 )
             }
 
@@ -629,10 +626,10 @@ class VpnSettingsScreenTest {
             setContentWithTheme {
                 VpnSettingsScreen(
                     state =
-                    VpnSettingsUiState.createDefault(
-                        systemVpnSettingsAvailable = false,
-                        connectOnStart = false
-                    ),
+                        VpnSettingsUiState.createDefault(
+                            systemVpnSettingsAvailable = false,
+                            connectOnStart = false
+                        ),
                     onToggleConnectOnStart = mockOnToggleConnectOnStart
                 )
             }
