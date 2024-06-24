@@ -7,8 +7,8 @@
 //
 
 import Foundation
+import MullvadRustRuntime
 import MullvadTypes
-import TunnelObfuscation
 
 public protocol ProtocolObfuscation {
     func obfuscate(_ endpoint: MullvadEndpoint, settings: Settings, retryAttempts: UInt) -> MullvadEndpoint

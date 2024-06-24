@@ -10,6 +10,7 @@ import BackgroundTasks
 import MullvadLogging
 import MullvadMockData
 import MullvadREST
+import MullvadRustRuntime
 import MullvadSettings
 import MullvadTypes
 import Operations

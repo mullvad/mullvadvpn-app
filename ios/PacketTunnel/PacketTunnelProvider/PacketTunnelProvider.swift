@@ -8,13 +8,12 @@
 
 import Foundation
 import MullvadLogging
-import MullvadPostQuantum
 import MullvadREST
+import MullvadRustRuntime
 import MullvadSettings
 import MullvadTypes
 import NetworkExtension
 import PacketTunnelCore
-import TunnelObfuscation
 import WireGuardKitTypes
 
 class PacketTunnelProvider: NEPacketTunnelProvider {
@@ -32,6 +31,9 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     private let multihopStateListener = MultihopStateListener()
     private let multihopUpdater: MultihopUpdater
     private let constraintsUpdater = RelayConstraintsUpdater()
+    private lazy var postQuantumReceiver = {
+        PostQuantumKeyReceiver(tunnelProvider: self)
+    }()
 
     override init() {
         Self.configureLogging()
@@ -93,8 +95,9 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         )
 
         postQuantumActor = PostQuantumKeyExchangeActor(
-            packetTunnel: self,
-            onFailure: self.keyExchangeFailed
+            packetTunnel: postQuantumReceiver,
+            onFailure: self.keyExchangeFailed,
+            iteratorProvider: { REST.RetryStrategy.postQuantumKeyExchange.makeDelayIterator() }
         )
 
         let urlRequestProxy = URLRequestProxy(dispatchQueue: internalQueue, transportProvider: transportProvider)

@@ -7,8 +7,8 @@
 //
 
 import Foundation
+import MullvadRustRuntime
 import MullvadTypes
-import TunnelObfuscation
 import WireGuardKitTypes
 
 /**
