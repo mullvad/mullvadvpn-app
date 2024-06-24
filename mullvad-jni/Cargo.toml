@@ -18,6 +18,8 @@ api-override = ["mullvad-api/api-override"]
 crate-type = ["cdylib"]
 
 [target.'cfg(target_os = "android")'.dependencies]
+tokio = { workspace = true, features = ["rt"] }
+
 thiserror = { workspace = true }
 futures = "0.3"
 ipnetwork = "0.16"
