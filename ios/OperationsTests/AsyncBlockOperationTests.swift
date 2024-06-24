@@ -6,6 +6,7 @@
 //  Copyright © 2023 Mullvad VPN AB. All rights reserved.
 //
 
+@testable import MullvadMockData
 import MullvadTypes
 import Operations
 import XCTest
@@ -28,7 +29,7 @@ final class AsyncBlockOperationTests: XCTestCase {
 
         operationQueue.addOperation(operation)
 
-        waitForExpectations(timeout: 1)
+        waitForExpectations(timeout: .UnitTest.timeout)
     }
 
     func testSynchronousBlockOperation() {
@@ -45,7 +46,7 @@ final class AsyncBlockOperationTests: XCTestCase {
 
         operationQueue.addOperation(operation)
 
-        waitForExpectations(timeout: 1)
+        waitForExpectations(timeout: .UnitTest.timeout)
     }
 
     func testCancellableTaskBlockOperation() {
@@ -72,7 +73,7 @@ final class AsyncBlockOperationTests: XCTestCase {
 
         operationQueue.addOperation(operation)
 
-        waitForExpectations(timeout: 1)
+        waitForExpectations(timeout: .UnitTest.timeout)
     }
 
     func testCancellationShouldNotFireBeforeOperationIsEnqueued() throws {
@@ -83,7 +84,7 @@ final class AsyncBlockOperationTests: XCTestCase {
         operation.onCancel { _ in expect.fulfill() }
         operation.cancel()
 
-        waitForExpectations(timeout: 1)
+        waitForExpectations(timeout: .UnitTest.invertedTimeout)
     }
 
     func testCancellationShouldFireAfterCancelledOperationIsEnqueued() throws {
@@ -94,6 +95,6 @@ final class AsyncBlockOperationTests: XCTestCase {
         operation.cancel()
         operationQueue.addOperation(operation)
 
-        waitForExpectations(timeout: 1)
+        waitForExpectations(timeout: .UnitTest.timeout)
     }
 }

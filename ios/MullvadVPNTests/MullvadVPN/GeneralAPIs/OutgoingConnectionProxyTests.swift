@@ -5,6 +5,8 @@
 //  Created by Mojgan on 2023-10-25.
 //  Copyright © 2023 Mullvad VPN AB. All rights reserved.
 //
+
+@testable import MullvadMockData
 import MullvadREST
 import XCTest
 
@@ -37,7 +39,7 @@ final class OutgoingConnectionProxyTests: XCTestCase {
         if result.ip == IPV4ConnectionData.mock.ip {
             iPv4Expectation.fulfill()
         }
-        await fulfillment(of: [iPv4Expectation], timeout: 1)
+        await fulfillment(of: [iPv4Expectation], timeout: .UnitTest.timeout)
     }
 
     func testFailureGettingIPV4() async throws {
@@ -50,7 +52,7 @@ final class OutgoingConnectionProxyTests: XCTestCase {
         await XCTAssertThrowsErrorAsync(try await outgoingConnectionProxy.getIPV4(retryStrategy: .noRetry)) { _ in
             noIPv4Expectation.fulfill()
         }
-        await fulfillment(of: [noIPv4Expectation], timeout: 1)
+        await fulfillment(of: [noIPv4Expectation], timeout: .UnitTest.timeout)
     }
 
     func testSuccessGettingIPV6() async throws {
@@ -65,7 +67,7 @@ final class OutgoingConnectionProxyTests: XCTestCase {
         if result.ip == IPV6ConnectionData.mock.ip {
             ipv6Expectation.fulfill()
         }
-        await fulfillment(of: [ipv6Expectation], timeout: 1.0)
+        await fulfillment(of: [ipv6Expectation], timeout: .UnitTest.timeout)
     }
 
     func testFailureGettingIPV6() async throws {
@@ -78,7 +80,7 @@ final class OutgoingConnectionProxyTests: XCTestCase {
         await XCTAssertThrowsErrorAsync(try await outgoingConnectionProxy.getIPV6(retryStrategy: .noRetry)) { _ in
             noIPv6Expectation.fulfill()
         }
-        await fulfillment(of: [noIPv6Expectation], timeout: 1)
+        await fulfillment(of: [noIPv6Expectation], timeout: .UnitTest.timeout)
     }
 }
 

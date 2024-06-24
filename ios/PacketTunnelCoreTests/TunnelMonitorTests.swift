@@ -6,6 +6,7 @@
 //  Copyright © 2023 Mullvad VPN AB. All rights reserved.
 //
 
+@testable import MullvadMockData
 import MullvadTypes
 import Network
 @testable import PacketTunnelCore
@@ -37,7 +38,7 @@ final class TunnelMonitorTests: XCTestCase {
 
         tunnelMonitor.start(probeAddress: .loopback)
 
-        waitForExpectations(timeout: 1)
+        waitForExpectations(timeout: .UnitTest.invertedTimeout)
     }
 
     func testInitialConnectionTimings() {

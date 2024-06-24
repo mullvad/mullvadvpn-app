@@ -7,6 +7,7 @@
 //
 
 import Combine
+@testable import MullvadMockData
 @testable import MullvadREST
 @testable import MullvadSettings
 import MullvadTypes
@@ -56,7 +57,7 @@ final class PacketTunnelActorTests: XCTestCase {
 
         actor.start(options: launchOptions)
 
-        await fulfillment(of: allExpectations, timeout: 1, enforceOrder: true)
+        await fulfillment(of: allExpectations, timeout: .UnitTest.timeout, enforceOrder: true)
     }
 
     func testStartIgnoresSubsequentStarts() async throws {
@@ -88,7 +89,7 @@ final class PacketTunnelActorTests: XCTestCase {
         actor.start(options: launchOptions)
         actor.start(options: launchOptions)
 
-        await fulfillment(of: allExpectations, timeout: 1, enforceOrder: true)
+        await fulfillment(of: allExpectations, timeout: .UnitTest.timeout, enforceOrder: true)
     }
 
     /**
@@ -120,7 +121,7 @@ final class PacketTunnelActorTests: XCTestCase {
             }
 
         actor.start(options: StartOptions(launchSource: .app))
-        await fulfillment(of: [connectingStateExpectation], timeout: 1)
+        await fulfillment(of: [connectingStateExpectation], timeout: .UnitTest.timeout)
     }
 
     func testPostQuantumReconnectionTransition() async throws {
@@ -151,7 +152,7 @@ final class PacketTunnelActorTests: XCTestCase {
             }
 
         actor.start(options: StartOptions(launchSource: .app))
-        await fulfillment(of: [negotiatingPostQuantumKeyStateExpectation], timeout: 1)
+        await fulfillment(of: [negotiatingPostQuantumKeyStateExpectation], timeout: .UnitTest.timeout)
     }
 
     /**
@@ -193,7 +194,7 @@ final class PacketTunnelActorTests: XCTestCase {
         actor.start(options: StartOptions(launchSource: .app))
         await fulfillment(
             of: [connectingStateExpectation, connectedStateExpectation, reconnectingStateExpectation],
-            timeout: 1,
+            timeout: .UnitTest.timeout,
             enforceOrder: true
         )
     }
@@ -207,7 +208,7 @@ final class PacketTunnelActorTests: XCTestCase {
      3. The issue goes away on the second attempt to read settings.
      4. An actor should transition through `.connecting` towards`.connected` state.
      */
-    func testLockedDeviceErrorOnBoot() async throws {
+    func testLockedDeviceErrorOnBoot() async throws { // swiftlint:disable:this function_body_length
         let initialStateExpectation = expectation(description: "Expect initial state")
         let errorStateExpectation = expectation(description: "Expect error state")
         let connectingStateExpectation = expectation(description: "Expect connecting state")
@@ -265,7 +266,7 @@ final class PacketTunnelActorTests: XCTestCase {
 
         actor.start(options: launchOptions)
 
-        await fulfillment(of: allExpectations, timeout: 1, enforceOrder: true)
+        await fulfillment(of: allExpectations, timeout: .UnitTest.timeout, enforceOrder: true)
     }
 
     func testStopGoesToDisconnected() async throws {
@@ -281,13 +282,13 @@ final class PacketTunnelActorTests: XCTestCase {
 
         // Wait for the connected state to happen so it doesn't get coalesced immediately after the call to `actor.stop`
         actor.start(options: launchOptions)
-        await fulfillment(of: [connectedStateExpectation], timeout: 1)
+        await fulfillment(of: [connectedStateExpectation], timeout: .UnitTest.timeout)
 
         await expect(.disconnected, on: actor) {
             disconnectedStateExpectation.fulfill()
         }
         actor.stop()
-        await fulfillment(of: [disconnectedStateExpectation], timeout: 1)
+        await fulfillment(of: [disconnectedStateExpectation], timeout: .UnitTest.timeout)
     }
 
     func testStopIsNoopBeforeStart() async throws {
@@ -304,7 +305,7 @@ final class PacketTunnelActorTests: XCTestCase {
         actor.stop()
         actor.stop()
 
-        await fulfillment(of: [disconnectedExpectation], timeout: Duration.milliseconds(100).timeInterval)
+        await fulfillment(of: [disconnectedExpectation], timeout: .UnitTest.invertedTimeout)
     }
 
     func testStopCancelsDefaultPathObserver() async throws {
@@ -323,7 +324,7 @@ final class PacketTunnelActorTests: XCTestCase {
         }
 
         actor.start(options: launchOptions)
-        await fulfillment(of: [connectedStateExpectation], timeout: 1)
+        await fulfillment(of: [connectedStateExpectation], timeout: .UnitTest.timeout)
 
         let disconnectedStateExpectation = expectation(description: "Disconnected state")
 
@@ -331,7 +332,7 @@ final class PacketTunnelActorTests: XCTestCase {
             disconnectedStateExpectation.fulfill()
         }
         actor.stop()
-        await fulfillment(of: [disconnectedStateExpectation, didStopObserverExpectation], timeout: 1)
+        await fulfillment(of: [disconnectedStateExpectation, didStopObserverExpectation], timeout: .UnitTest.timeout)
     }
 
     func testCannotEnterErrorStateWhenStopping() async throws {
@@ -350,7 +351,7 @@ final class PacketTunnelActorTests: XCTestCase {
             connectingStateExpectation.fulfill()
         }
         actor.start(options: launchOptions)
-        await fulfillment(of: [connectingStateExpectation], timeout: 1)
+        await fulfillment(of: [connectingStateExpectation], timeout: .UnitTest.timeout)
 
         stateSink = await actor.$observedState
             .receive(on: DispatchQueue.main)
@@ -368,8 +369,8 @@ final class PacketTunnelActorTests: XCTestCase {
         actor.stop()
         actor.setErrorState(reason: .readSettings)
 
-        await fulfillment(of: [disconnectedStateExpectation], timeout: 1)
-        await fulfillment(of: [errorStateExpectation], timeout: Duration.milliseconds(100).timeInterval)
+        await fulfillment(of: [disconnectedStateExpectation], timeout: .UnitTest.timeout)
+        await fulfillment(of: [errorStateExpectation], timeout: .UnitTest.invertedTimeout)
     }
 
     func testReconnectIsNoopBeforeConnecting() async throws {
@@ -387,7 +388,7 @@ final class PacketTunnelActorTests: XCTestCase {
 
         await fulfillment(
             of: [reconnectingStateExpectation],
-            timeout: Duration.milliseconds(100).timeInterval
+            timeout: .UnitTest.invertedTimeout
         )
     }
 
@@ -402,12 +403,12 @@ final class PacketTunnelActorTests: XCTestCase {
 
         actor.start(options: launchOptions)
         // Wait for the connected state to happen so it doesn't get coalesced immediately after the call to `actor.stop`
-        await fulfillment(of: [connectedStateExpectation], timeout: 1)
+        await fulfillment(of: [connectedStateExpectation], timeout: .UnitTest.timeout)
 
         let disconnectedStateExpectation = expectation(description: "Expect disconnected state")
         await expect(.disconnected, on: actor) { disconnectedStateExpectation.fulfill() }
         actor.stop()
-        await fulfillment(of: [disconnectedStateExpectation], timeout: 1)
+        await fulfillment(of: [disconnectedStateExpectation], timeout: .UnitTest.timeout)
 
         let reconnectingStateExpectation = expectation(description: "Expect reconnecting state")
         reconnectingStateExpectation.isInverted = true
@@ -417,7 +418,7 @@ final class PacketTunnelActorTests: XCTestCase {
         actor.reconnect(to: .random, reconnectReason: .userInitiated)
         await fulfillment(
             of: [reconnectingStateExpectation],
-            timeout: Duration.milliseconds(100).timeInterval
+            timeout: .UnitTest.invertedTimeout
         )
     }
 
@@ -440,13 +441,13 @@ final class PacketTunnelActorTests: XCTestCase {
             connectedExpectation.fulfill()
         }
         actor.start(options: launchOptions)
-        await fulfillment(of: [connectedExpectation], timeout: 1)
+        await fulfillment(of: [connectedExpectation], timeout: .UnitTest.timeout)
 
         // Cancel the state sink to avoid overfulfilling the connected expectation
         stateSink?.cancel()
 
         actor.reconnect(to: .random, reconnectReason: .userInitiated)
-        await fulfillment(of: [stopMonitorExpectation], timeout: 1)
+        await fulfillment(of: [stopMonitorExpectation], timeout: .UnitTest.timeout)
     }
 }
 

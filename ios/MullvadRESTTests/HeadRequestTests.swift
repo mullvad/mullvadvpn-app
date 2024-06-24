@@ -6,6 +6,7 @@
 //  Copyright © 2024 Mullvad VPN AB. All rights reserved.
 //
 
+@testable import MullvadMockData
 @testable import MullvadREST
 import XCTest
 
@@ -21,7 +22,7 @@ class HeadRequestTests: XCTestCase {
             }
         }
 
-        wait(for: [successfulRequestExpectation], timeout: 1)
+        wait(for: [successfulRequestExpectation], timeout: .UnitTest.timeout)
     }
 
     func testRequestWithErrors() throws {
@@ -35,6 +36,6 @@ class HeadRequestTests: XCTestCase {
             }
         }
 
-        wait(for: [failedRequestExpectation], timeout: 1)
+        wait(for: [failedRequestExpectation], timeout: .UnitTest.timeout)
     }
 }

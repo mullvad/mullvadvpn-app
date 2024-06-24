@@ -7,6 +7,7 @@
 //
 
 import Foundation
+@testable import MullvadMockData
 import XCTest
 
 final class OutgoingConnectionServiceTests: XCTestCase {
@@ -23,7 +24,7 @@ final class OutgoingConnectionServiceTests: XCTestCase {
            result.ipv6 == .mock {
             successExpectation.fulfill()
         }
-        await fulfillment(of: [successExpectation], timeout: 1.0)
+        await fulfillment(of: [successExpectation], timeout: .UnitTest.timeout)
     }
 
     func testFailureGetOutgoingConnectionInfo() async throws {
@@ -40,7 +41,7 @@ final class OutgoingConnectionServiceTests: XCTestCase {
         } catch {
             failExpectation.fulfill()
         }
-        await fulfillment(of: [failExpectation], timeout: 1.0)
+        await fulfillment(of: [failExpectation], timeout: .UnitTest.timeout)
     }
 }
 

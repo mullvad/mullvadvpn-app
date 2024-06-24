@@ -6,6 +6,7 @@
 //  Copyright © 2022 Mullvad VPN AB. All rights reserved.
 //
 
+@testable import MullvadMockData
 import Operations
 import XCTest
 
@@ -33,8 +34,8 @@ class OperationObserverTests: XCTestCase {
         let operationQueue = AsyncOperationQueue()
         operationQueue.addOperation(operation)
 
-        let expectations = [expectDidCancel, expectDidAttach, expectDidStart, expectDidFinish]
-        wait(for: expectations, timeout: 1, enforceOrder: true)
+        wait(for: [expectDidCancel], timeout: .UnitTest.invertedTimeout)
+        wait(for: [expectDidAttach, expectDidStart, expectDidFinish], timeout: .UnitTest.timeout, enforceOrder: true)
     }
 
     func testBlockObserverWithCancelledOperation() {
@@ -61,7 +62,7 @@ class OperationObserverTests: XCTestCase {
         let operationQueue = AsyncOperationQueue()
         operationQueue.addOperation(operation)
 
-        let expectations = [expectDidAttach, expectDidCancel, expectDidStart, expectDidFinish]
-        wait(for: expectations, timeout: 1, enforceOrder: true)
+        wait(for: [expectDidStart], timeout: .UnitTest.invertedTimeout)
+        wait(for: [expectDidAttach, expectDidCancel, expectDidFinish], timeout: .UnitTest.timeout, enforceOrder: true)
     }
 }

@@ -6,6 +6,7 @@
 //  Copyright © 2024 Mullvad VPN AB. All rights reserved.
 //
 
+@testable import MullvadMockData
 @testable import MullvadPostQuantum
 @testable import MullvadTypes
 import NetworkExtension
@@ -86,6 +87,6 @@ class MullvadPostQuantumTests: XCTestCase {
 
         keyExchangeActor.reset()
 
-        wait(for: [negotationCancelledExpectation, unexpectedNegotiationFailure], timeout: 0.5)
+        wait(for: [negotationCancelledExpectation, unexpectedNegotiationFailure], timeout: .UnitTest.invertedTimeout)
     }
 }
