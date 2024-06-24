@@ -15,6 +15,11 @@ import com.ramcosta.composedestinations.generated.destinations.ChangelogDestinat
 import com.ramcosta.composedestinations.generated.destinations.ConnectDestination
 import com.ramcosta.composedestinations.generated.destinations.NoDaemonScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.OutOfTimeDestination
+import com.ramcosta.composedestinations.generated.NavGraphs
+import com.ramcosta.composedestinations.generated.destinations.ChangelogDestination
+import com.ramcosta.composedestinations.generated.destinations.ConnectDestination
+import com.ramcosta.composedestinations.generated.destinations.NoDaemonScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.OutOfTimeDestination
 import com.ramcosta.composedestinations.rememberNavHostEngine
 import com.ramcosta.composedestinations.utils.destination
 import kotlinx.coroutines.flow.first
