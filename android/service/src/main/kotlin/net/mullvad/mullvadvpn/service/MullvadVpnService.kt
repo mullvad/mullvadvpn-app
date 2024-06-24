@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import net.mullvad.mullvadvpn.lib.common.constant.BuildTypes
 import net.mullvad.mullvadvpn.lib.common.constant.GRPC_SOCKET_FILE_NAMED_ARGUMENT
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_CONNECT_ACTION
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_DISCONNECT_ACTION
@@ -96,13 +97,7 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
             prepareFiles(this@MullvadVpnService)
             migrateSplitTunneling.migrate()
 
-            MullvadDaemon.start(
-                vpnService = this@MullvadVpnService,
-                rpcSocketFile = rpcSocketFile,
-                apiEndpointConfiguration =
-                    intentProvider.getLatestIntent()?.getApiEndpointConfigurationExtras()
-                        ?: apiEndpointConfiguration,
-            )
+            startDaemon()
         }
     }
 
@@ -148,6 +143,24 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
         // will return a binder that shall be user, otherwise we return an empty dummy binder to
         // keep connection service alive since the actual communication happens over gRPC.
         return super.onBind(intent) ?: emptyBinder()
+    }
+
+    private fun startDaemon() {
+        val apiEndpointConfiguration =
+            if (Build.TYPE == BuildTypes.DEBUG) {
+                intentProvider.getLatestIntent()?.getApiEndpointConfigurationExtras()
+                    ?: apiEndpointConfiguration
+            } else {
+                apiEndpointConfiguration
+            }
+
+        MullvadDaemon.initialize(
+            vpnService = this@MullvadVpnService,
+            rpcSocketPath = rpcSocketFile.absolutePath,
+            filesDirectory = filesDir.absolutePath,
+            cacheDirectory = cacheDir.absolutePath,
+            apiEndpoint = apiEndpointConfiguration.apiEndpoint()
+        )
     }
 
     private fun emptyBinder() =
