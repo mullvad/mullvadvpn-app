@@ -6,6 +6,7 @@
 //  Copyright © 2023 Mullvad VPN AB. All rights reserved.
 //
 
+@testable import MullvadMockData
 @testable import MullvadREST
 @testable import MullvadTypes
 import XCTest
@@ -42,7 +43,7 @@ final class RequestExecutorTests: XCTestCase {
             expectation.fulfill()
         }
 
-        waitForExpectations(timeout: 2)
+        waitForExpectations(timeout: .UnitTest.timeout)
     }
 
     func testCancelAsyncExecution() async throws {
@@ -70,6 +71,6 @@ final class RequestExecutorTests: XCTestCase {
 
         cancellationToken.cancel()
 
-        waitForExpectations(timeout: 2)
+        waitForExpectations(timeout: .UnitTest.timeout)
     }
 }

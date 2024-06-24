@@ -6,6 +6,7 @@
 //  Copyright © 2023 Mullvad VPN AB. All rights reserved.
 //
 
+@testable import MullvadMockData
 @testable import MullvadREST
 @testable import MullvadSettings
 @testable import MullvadTypes
@@ -38,7 +39,7 @@ final class MigrationManagerTests: XCTestCase {
                 nothingToMigrateExpectation.fulfill()
             }
         }
-        wait(for: [nothingToMigrateExpectation], timeout: 1)
+        wait(for: [nothingToMigrateExpectation], timeout: .UnitTest.timeout)
     }
 
     func testNothingToMigrateWhenSettingsAreNotFound() throws {
@@ -51,7 +52,7 @@ final class MigrationManagerTests: XCTestCase {
                 nothingToMigrateExpectation.fulfill()
             }
         }
-        wait(for: [nothingToMigrateExpectation], timeout: 1)
+        wait(for: [nothingToMigrateExpectation], timeout: .UnitTest.timeout)
 
         // Reset the `SettingsManager` unit test store to avoid affecting other tests
         // since it's a globally shared instance
@@ -66,7 +67,7 @@ final class MigrationManagerTests: XCTestCase {
                 failedMigrationExpectation.fulfill()
             }
         }
-        wait(for: [failedMigrationExpectation], timeout: 1)
+        wait(for: [failedMigrationExpectation], timeout: .UnitTest.timeout)
     }
 
     func testFailedMigrationResetsSettings() throws {
@@ -116,7 +117,7 @@ final class MigrationManagerTests: XCTestCase {
                 failedMigrationExpectation.fulfill()
             }
         }
-        wait(for: [failedMigrationExpectation], timeout: 1)
+        wait(for: [failedMigrationExpectation], timeout: .UnitTest.timeout)
     }
 
     func testSuccessfulMigrationFromV4ToLatest() throws {
@@ -198,7 +199,7 @@ final class MigrationManagerTests: XCTestCase {
                 successfulMigrationExpectation.fulfill()
             }
         }
-        wait(for: [successfulMigrationExpectation], timeout: 1)
+        wait(for: [successfulMigrationExpectation], timeout: .UnitTest.timeout)
     }
 
     private func write(settings: any TunnelSettings, version: Int, in store: SettingsStore) throws {

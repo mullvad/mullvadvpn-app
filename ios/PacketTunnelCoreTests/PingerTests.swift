@@ -6,6 +6,7 @@
 //  Copyright © 2023 Mullvad VPN AB. All rights reserved.
 //
 
+@testable import MullvadMockData
 import Network
 import PacketTunnelCore
 import XCTest
@@ -27,6 +28,6 @@ final class PingerTests: XCTestCase {
         try pinger.openSocket(bindTo: "lo0")
         sendResult = try pinger.send(to: .loopback)
 
-        waitForExpectations(timeout: 1)
+        waitForExpectations(timeout: .UnitTest.timeout)
     }
 }

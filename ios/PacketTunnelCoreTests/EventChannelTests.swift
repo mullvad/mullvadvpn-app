@@ -7,6 +7,7 @@
 //  Formerly known as CommandChannelTests
 //
 
+@testable import MullvadMockData
 @testable import PacketTunnelCore
 import XCTest
 
@@ -77,7 +78,7 @@ final class EventChannelTests: XCTestCase {
             channel.finish()
         }
 
-        await fulfillment(of: [expectFinish, expectEndIteration], timeout: 100, enforceOrder: true)
+        await fulfillment(of: [expectFinish, expectEndIteration], timeout: .UnitTest.timeout, enforceOrder: true)
     }
 }
 
