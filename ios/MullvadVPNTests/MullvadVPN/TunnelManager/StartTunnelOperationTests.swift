@@ -6,6 +6,7 @@
 //  Copyright © 2024 Mullvad VPN AB. All rights reserved.
 //
 
+@testable import MullvadMockData
 import MullvadSettings
 import Network
 import Operations
@@ -63,7 +64,7 @@ class StartTunnelOperationTests: XCTestCase {
         }
 
         operationQueue.addOperation(operation)
-        wait(for: [expectation], timeout: 1.0)
+        wait(for: [expectation], timeout: .UnitTest.timeout)
     }
 
     func testSetsReconnectIfDisconnecting() {
@@ -80,7 +81,7 @@ class StartTunnelOperationTests: XCTestCase {
             expectation.fulfill()
         }
         operationQueue.addOperation(operation)
-        wait(for: [expectation], timeout: 1.0)
+        wait(for: [expectation], timeout: .UnitTest.timeout)
     }
 
     func testStartsTunnelIfDisconnected() {
@@ -95,6 +96,6 @@ class StartTunnelOperationTests: XCTestCase {
             expectation.fulfill()
         }
         operationQueue.addOperation(operation)
-        wait(for: [expectation], timeout: 1.0)
+        wait(for: [expectation], timeout: .UnitTest.timeout)
     }
 }

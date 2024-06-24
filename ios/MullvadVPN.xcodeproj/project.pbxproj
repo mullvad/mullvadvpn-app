@@ -609,6 +609,7 @@
 		7AE044BB2A935726003915D8 /* Routing.h in Headers */ = {isa = PBXBuildFile; fileRef = 7A88DCD02A8FABBE00D2FF0E /* Routing.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		7AEBA52A2C2179F20018BEC5 /* RelaySelectorWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AEBA5292C2179F20018BEC5 /* RelaySelectorWrapper.swift */; };
 		7AE2414A2C20682B0076CE33 /* FormsheetPresentationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE241482C20682B0076CE33 /* FormsheetPresentationController.swift */; };
+		7AEBA52C2C22C65B0018BEC5 /* TimeInterval+Timeout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AEBA52B2C22C65B0018BEC5 /* TimeInterval+Timeout.swift */; };
 		7AED35CC2BD13F60002A67D1 /* ApplicationConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BFA5CB22A7CE1F00A6173D /* ApplicationConfiguration.swift */; };
 		7AED35CD2BD13FC4002A67D1 /* ApplicationTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C76A072A33850E00100D75 /* ApplicationTarget.swift */; };
 		7AEF7F1A2AD00F52006FE45D /* AppMessageHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AEF7F192AD00F52006FE45D /* AppMessageHandler.swift */; };
@@ -1178,6 +1179,20 @@
 			proxyType = 1;
 			remoteGlobalIDString = 58D223D4294C8E5E0029F5F8;
 			remoteInfo = MullvadTypes;
+		};
+		7A4BFF7F2C2AAB3900754DCB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 58CE5E58224146200008646E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F0ACE3072BE4E478006D5333;
+			remoteInfo = MullvadMockData;
+		};
+		7A4BFF802C2AB2B100754DCB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 58CE5E58224146200008646E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F0ACE3072BE4E478006D5333;
+			remoteInfo = MullvadMockData;
 		};
 		7A88DCD92A8FABBE00D2FF0E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -1984,6 +1999,7 @@
 		7ADCB2D92B6A730400C88F89 /* IPOverrideRepositoryStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPOverrideRepositoryStub.swift; sourceTree = "<group>"; };
 		7AEBA5292C2179F20018BEC5 /* RelaySelectorWrapper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RelaySelectorWrapper.swift; sourceTree = "<group>"; };
 		7AE241482C20682B0076CE33 /* FormsheetPresentationController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FormsheetPresentationController.swift; sourceTree = "<group>"; };
+		7AEBA52B2C22C65B0018BEC5 /* TimeInterval+Timeout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TimeInterval+Timeout.swift"; sourceTree = "<group>"; };
 		7AEF7F192AD00F52006FE45D /* AppMessageHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppMessageHandler.swift; sourceTree = "<group>"; };
 		7AF10EB12ADE859200C090B9 /* AlertViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlertViewController.swift; sourceTree = "<group>"; };
 		7AF10EB32ADE85BC00C090B9 /* RelayFilterCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RelayFilterCoordinator.swift; sourceTree = "<group>"; };
@@ -3941,6 +3957,14 @@
 			path = "Presentation controllers";
 			sourceTree = "<group>";
 		};
+		7AEBA52D2C2310D20018BEC5 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				7AEBA52B2C22C65B0018BEC5 /* TimeInterval+Timeout.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
 		7AF9BE912A39F47D00DBFEDB /* RelayFilter */ = {
 			isa = PBXGroup;
 			children = (
@@ -4147,6 +4171,7 @@
 			isa = PBXGroup;
 			children = (
 				F0ACE30A2BE4E478006D5333 /* MullvadMockData.h */,
+				7AEBA52D2C2310D20018BEC5 /* Extensions */,
 				F0ACE3172BE4E487006D5333 /* MullvadREST */,
 				F0ACE32B2BE4E748006D5333 /* MullvadTypes */,
 			);
@@ -4492,6 +4517,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				7A4BFF812C2AB2B100754DCB /* PBXTargetDependency */,
 			);
 			name = OperationsTests;
 			productName = OperationsTests;
@@ -4727,6 +4753,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				7AEBA5312C2981870018BEC5 /* PBXTargetDependency */,
 				58FBFBEC291622580020E046 /* PBXTargetDependency */,
 			);
 			name = MullvadRESTTests;
@@ -6266,6 +6293,7 @@
 				F0ACE31E2BE4E4F2006D5333 /* AccountsProxy+Stubs.swift in Sources */,
 				F0ACE3202BE4E4F2006D5333 /* AccessTokenManager+Stubs.swift in Sources */,
 				F0ACE32C2BE4E77E006D5333 /* DeviceMock.swift in Sources */,
+				7AEBA52C2C22C65B0018BEC5 /* TimeInterval+Timeout.swift in Sources */,
 				F0ACE3222BE4E4F2006D5333 /* APIProxy+Stubs.swift in Sources */,
 				F0ACE3332BE516F1006D5333 /* RESTRequestExecutor+Stubs.swift in Sources */,
 				F0ACE32D2BE4E784006D5333 /* AccountMock.swift in Sources */,
@@ -6434,6 +6462,11 @@
 			target = 58D223D4294C8E5E0029F5F8 /* MullvadTypes */;
 			targetProxy = 58FE65972AB1D90600E53CB5 /* PBXContainerItemProxy */;
 		};
+		7A4BFF812C2AB2B100754DCB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F0ACE3072BE4E478006D5333 /* MullvadMockData */;
+			targetProxy = 7A4BFF802C2AB2B100754DCB /* PBXContainerItemProxy */;
+		};
 		7A88DCDA2A8FABBE00D2FF0E /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 7A88DCCD2A8FABBE00D2FF0E /* Routing */;
@@ -6453,6 +6486,11 @@
 			isa = PBXTargetDependency;
 			target = 7A88DCCD2A8FABBE00D2FF0E /* Routing */;
 			targetProxy = 7ABCA5B52A9349F20044A708 /* PBXContainerItemProxy */;
+		};
+		7AEBA5312C2981870018BEC5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F0ACE3072BE4E478006D5333 /* MullvadMockData */;
+			targetProxy = 7A4BFF7F2C2AAB3900754DCB /* PBXContainerItemProxy */;
 		};
 		8529692C2B4D9C1F007EAD4C /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;

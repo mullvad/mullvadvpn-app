@@ -45,7 +45,7 @@ class DeviceCheckOperationTests: XCTestCase {
             expect.fulfill()
         }
 
-        waitForExpectations(timeout: 1)
+        waitForExpectations(timeout: .UnitTest.timeout)
     }
 
     func testShouldNotRotateKeyForInvalidAccount() {
@@ -76,7 +76,7 @@ class DeviceCheckOperationTests: XCTestCase {
             expect.fulfill()
         }
 
-        waitForExpectations(timeout: 1)
+        waitForExpectations(timeout: .UnitTest.timeout)
     }
 
     func testShouldNotRotateKeyForRevokedDevice() {
@@ -107,7 +107,7 @@ class DeviceCheckOperationTests: XCTestCase {
             expect.fulfill()
         }
 
-        waitForExpectations(timeout: 1)
+        waitForExpectations(timeout: .UnitTest.timeout)
     }
 
     func testShouldRotateKeyOnMismatchImmediately() {
@@ -136,7 +136,7 @@ class DeviceCheckOperationTests: XCTestCase {
             expect.fulfill()
         }
 
-        waitForExpectations(timeout: 1)
+        waitForExpectations(timeout: .UnitTest.timeout)
     }
 
     func testShouldRespectCooldownWhenAttemptingToRotateImmediately() {
@@ -165,7 +165,7 @@ class DeviceCheckOperationTests: XCTestCase {
             expect.fulfill()
         }
 
-        waitForExpectations(timeout: 1)
+        waitForExpectations(timeout: .UnitTest.timeout)
     }
 
     func testShouldNotRotateDeviceKeyWhenServerKeyIsIdentical() {
@@ -188,7 +188,7 @@ class DeviceCheckOperationTests: XCTestCase {
             expect.fulfill()
         }
 
-        waitForExpectations(timeout: 1)
+        waitForExpectations(timeout: .UnitTest.timeout)
     }
 
     func testShouldNotRotateKeyBeforeRetryIntervalPassed() {
@@ -213,7 +213,7 @@ class DeviceCheckOperationTests: XCTestCase {
             expect.fulfill()
         }
 
-        waitForExpectations(timeout: 1)
+        waitForExpectations(timeout: .UnitTest.timeout)
     }
 
     func testShouldRotateKeyOnceInTwentyFourHours() {
@@ -238,7 +238,7 @@ class DeviceCheckOperationTests: XCTestCase {
             expect.fulfill()
         }
 
-        waitForExpectations(timeout: 1)
+        waitForExpectations(timeout: .UnitTest.timeout)
     }
 
     func testShouldReportFailedKeyRotataionAttempt() {
@@ -268,7 +268,7 @@ class DeviceCheckOperationTests: XCTestCase {
             expect.fulfill()
         }
 
-        waitForExpectations(timeout: 1)
+        waitForExpectations(timeout: .UnitTest.timeout)
     }
 
     func testShouldFailOnKeyRotationRace() {
@@ -305,7 +305,7 @@ class DeviceCheckOperationTests: XCTestCase {
             expect.fulfill()
         }
 
-        waitForExpectations(timeout: 1)
+        waitForExpectations(timeout: .UnitTest.timeout)
     }
 
     private func startDeviceCheck(
