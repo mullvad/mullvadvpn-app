@@ -2244,6 +2244,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "mullvad-ios"
+version = "0.0.0"
+dependencies = [
+ "cbindgen",
+ "libc",
+ "log",
+ "oslog",
+ "shadowsocks-service",
+ "talpid-tunnel-config-client",
+ "talpid-types",
+ "tokio",
+ "tonic",
+ "tower",
+ "tunnel-obfuscation",
+]
+
+[[package]]
 name = "mullvad-jni"
 version = "0.0.0"
 dependencies = [
@@ -3615,17 +3632,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "shadowsocks-proxy"
-version = "0.0.0"
-dependencies = [
- "cbindgen",
- "log",
- "oslog",
- "shadowsocks-service",
- "tokio",
-]
-
-[[package]]
 name = "shadowsocks-service"
 version = "1.18.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4490,17 +4496,6 @@ dependencies = [
  "thiserror",
  "tokio",
  "udp-over-tcp",
-]
-
-[[package]]
-name = "tunnel-obfuscator-proxy"
-version = "0.0.0"
-dependencies = [
- "cbindgen",
- "log",
- "oslog",
- "tokio",
- "tunnel-obfuscation",
 ]
 
 [[package]]

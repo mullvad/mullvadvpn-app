@@ -1,0 +1,36 @@
+[package]
+name = "mullvad-ios"
+description = "Entry point for all FFI code on iOS"
+authors.workspace = true
+repository.workspace = true
+license.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[lints]
+workspace = true
+
+[target.'cfg(target_os = "ios")'.dependencies]
+libc = "0.2"
+log = { workspace = true }
+tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
+tonic = { workspace = true }
+tower = { workspace = true }
+tunnel-obfuscation = { path = "../tunnel-obfuscation" }
+oslog = "0.2"
+talpid-types = { path = "../talpid-types" }
+talpid-tunnel-config-client = { path = "../talpid-tunnel-config-client" }
+
+shadowsocks-service = { workspace = true, features = [
+    "local",
+    "stream-cipher",
+    "local-http",
+    "local-tunnel",
+] }
+
+[target.'cfg(target_os = "ios")'.build-dependencies]
+cbindgen = { version = "0.24.3", default-features = false }
+
+[lib]
+crate-type = ["staticlib"]
+bench = false
