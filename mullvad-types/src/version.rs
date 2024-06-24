@@ -1,8 +1,11 @@
 use once_cell::sync::Lazy;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
-use std::fmt::{self, Formatter};
-use std::{cmp::Ordering, str::FromStr};
+use std::{
+    cmp::Ordering,
+    fmt::{self, Formatter},
+    str::FromStr,
+};
 
 static STABLE_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r"^(\d{4})\.(\d+)$").unwrap());
 static BETA_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r"^(\d{4})\.(\d+)-beta(\d+)$").unwrap());

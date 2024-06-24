@@ -129,8 +129,9 @@ impl ParsedRelays {
         Ok((last_modified, file))
     }
 
-    /// Create a new [`ParsedRelays`] from [relay_list][`RelayList`] and [overrides][`RelayOverride`].
-    /// This will apply `overrides` to `relay_list` and store the result in `self.parsed_list`.
+    /// Create a new [`ParsedRelays`] from [relay_list][`RelayList`] and
+    /// [overrides][`RelayOverride`]. This will apply `overrides` to `relay_list` and store the
+    /// result in `self.parsed_list`.
     pub(crate) fn from_relay_list(
         relay_list: RelayList,
         last_updated: SystemTime,

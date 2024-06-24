@@ -42,7 +42,8 @@ pub enum EndpointErrorDetails {
     /// No valid Wireguard endpoint could be constructed from this [`WireguardConfig`].
     ///
     /// # Note
-    /// The inner value is boxed to not bloat the size of [`Error`] due to the size of [`WireguardConfig`].
+    /// The inner value is boxed to not bloat the size of [`Error`] due to the size of
+    /// [`WireguardConfig`].
     Wireguard(Box<WireguardConfig>),
     /// No valid OpenVPN endpoint could be constructed from this [`Relay`]
     ///

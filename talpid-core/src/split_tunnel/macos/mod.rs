@@ -1,10 +1,11 @@
 use core::fmt;
-use std::collections::HashSet;
-use std::path::PathBuf;
-use std::sync::{Arc, Weak};
+use std::{
+    collections::HashSet,
+    path::PathBuf,
+    sync::{Arc, Weak},
+};
 use talpid_routing::RouteManagerHandle;
-use talpid_types::tunnel::ErrorStateCause;
-use talpid_types::ErrorExt;
+use talpid_types::{tunnel::ErrorStateCause, ErrorExt};
 use tokio::sync::{mpsc, oneshot};
 
 use self::process::ExclusionStatus;
@@ -407,7 +408,8 @@ impl State {
             }
             // If 'paths' is empty, do nothing
             State::NoExclusions { .. } => Ok(self),
-            // If split tunneling is already initialized, or only the process monitor is, update the paths only
+            // If split tunneling is already initialized, or only the process monitor is, update the
+            // paths only
             State::Initialized {
                 ref mut process, ..
             }
