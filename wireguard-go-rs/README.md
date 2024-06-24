@@ -13,8 +13,9 @@ To update the fork, find the desired release of `wireguard-go` at
 Change directory to `libwg` and run `go mod tidy` to update indirect dependencies.
 
 To upgrade the version of `Go` run `go mod edit -go=XX`. You will also need to update the
-`ARG GOLANG_VERSION` version in `building/Dockerfile` and build and distribute new development
-container images, see the corresponding [instructions](../building/README.md).
+`ARG GOLANG_VERSION` version in `building/Dockerfile` and build and distribute new container images,
+see the corresponding [instructions](../building/README.md).
+
 
 Before upgrading the version of `Go` or `wireguard-go`, be aware that we depend on a patch for the
 internal clocks of the go runtime on android,
