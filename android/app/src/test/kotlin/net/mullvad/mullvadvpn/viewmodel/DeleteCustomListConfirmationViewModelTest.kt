@@ -2,14 +2,17 @@ package net.mullvad.mullvadvpn.viewmodel
 
 import app.cash.turbine.test
 import arrow.core.right
+import com.ramcosta.composedestinations.generated.navargs.toSavedStateHandle
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlin.test.assertIs
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.Deleted
+import net.mullvad.mullvadvpn.compose.dialog.DeleteCustomListNavArgs
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -38,7 +41,12 @@ class DeleteCustomListConfirmationViewModelTest {
 
     private fun createViewModel() =
         DeleteCustomListConfirmationViewModel(
-            customListId = CustomListId("1"),
-            customListActionUseCase = mockCustomListActionUseCase
+            customListActionUseCase = mockCustomListActionUseCase,
+            savedStateHandle =
+                DeleteCustomListNavArgs(
+                        customListId = CustomListId("1"),
+                        name = CustomListName.fromString("asdf")
+                    )
+                    .toSavedStateHandle()
         )
 }

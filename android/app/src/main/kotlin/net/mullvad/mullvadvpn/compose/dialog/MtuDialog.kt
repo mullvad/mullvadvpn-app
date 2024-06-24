@@ -34,18 +34,19 @@ import net.mullvad.mullvadvpn.viewmodel.MtuDialogSideEffect
 import net.mullvad.mullvadvpn.viewmodel.MtuDialogUiState
 import net.mullvad.mullvadvpn.viewmodel.MtuDialogViewModel
 import org.koin.androidx.compose.koinViewModel
-import org.koin.core.parameter.parametersOf
 
 @Preview
 @Composable
 private fun PreviewMtuDialog() {
-    AppTheme { MtuDialog(mtuInitial = Mtu(1234), EmptyResultBackNavigator()) }
+    AppTheme { MtuDialog(EmptyResultBackNavigator()) }
 }
 
-@Destination<RootGraph>(style = DestinationStyle.Dialog::class)
+data class MtuNavArgs(val initialMtu: Mtu? = null)
+
+@Destination<RootGraph>(style = DestinationStyle.Dialog::class, navArgs = MtuNavArgs::class)
 @Composable
-fun MtuDialog(mtuInitial: Mtu?, navigator: ResultBackNavigator<Boolean>) {
-    val viewModel = koinViewModel<MtuDialogViewModel>(parameters = { parametersOf(mtuInitial) })
+fun MtuDialog(navigator: ResultBackNavigator<Boolean>) {
+    val viewModel = koinViewModel<MtuDialogViewModel>()
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     LaunchedEffectCollect(viewModel.uiSideEffect) {

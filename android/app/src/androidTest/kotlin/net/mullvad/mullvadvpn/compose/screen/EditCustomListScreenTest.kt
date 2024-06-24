@@ -93,7 +93,7 @@ class EditCustomListScreenTest {
     fun whenClickingOnDeleteDropdownShouldCallOnDeleteList() =
         composeExtension.use {
             // Arrange
-            val mockedOnDelete: (CustomListName) -> Unit = mockk(relaxed = true)
+            val mockedOnDelete: (CustomListId, CustomListName) -> Unit = mockk(relaxed = true)
             val customList = DUMMY_CUSTOM_LISTS[0]
             setContentWithTheme {
                 EditCustomListScreen(
@@ -112,7 +112,7 @@ class EditCustomListScreenTest {
             onNodeWithTag(DELETE_DROPDOWN_MENU_ITEM_TEST_TAG).performClick()
 
             // Assert
-            verify { mockedOnDelete(customList.name) }
+            verify { mockedOnDelete(customList.id, customList.name) }
         }
 
     @Test

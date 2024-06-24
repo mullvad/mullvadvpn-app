@@ -32,8 +32,7 @@ class DeleteCustomListConfirmationDialogTest {
             val name = CustomListName.fromString("List should be deleted")
             setContentWithTheme {
                 DeleteCustomListConfirmationDialog(
-                    name = name,
-                    state = DeleteCustomListUiState(null)
+                    state = DeleteCustomListUiState(name = name, deleteError = null),
                 )
             }
 
@@ -49,8 +48,7 @@ class DeleteCustomListConfirmationDialogTest {
             val mockedOnDelete: () -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 DeleteCustomListConfirmationDialog(
-                    name = name,
-                    state = DeleteCustomListUiState(null),
+                    state = DeleteCustomListUiState(name = name, deleteError = null),
                     onDelete = mockedOnDelete
                 )
             }
@@ -70,8 +68,7 @@ class DeleteCustomListConfirmationDialogTest {
             val mockedOnBack: () -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 DeleteCustomListConfirmationDialog(
-                    name = name,
-                    state = DeleteCustomListUiState(null),
+                    state = DeleteCustomListUiState(name = name, deleteError = null),
                     onBack = mockedOnBack
                 )
             }

@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.viewmodel
 
 import app.cash.turbine.test
 import arrow.core.right
+import com.ramcosta.composedestinations.generated.navargs.toSavedStateHandle
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -10,6 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.LocationsChanged
+import net.mullvad.mullvadvpn.compose.screen.CustomListLocationsNavArgs
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsUiState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.CustomList
@@ -221,11 +223,15 @@ class CustomListLocationsViewModelTest {
         newList: Boolean
     ): CustomListLocationsViewModel {
         return CustomListLocationsViewModel(
-            customListId = customListId,
-            newList = newList,
             relayListRepository = mockRelayListRepository,
             customListRelayItemsUseCase = mockCustomListRelayItemsUseCase,
-            customListActionUseCase = mockCustomListUseCase
+            customListActionUseCase = mockCustomListUseCase,
+            savedStateHandle =
+                CustomListLocationsNavArgs(
+                        customListId = customListId,
+                        newList = newList,
+                    )
+                    .toSavedStateHandle()
         )
     }
 

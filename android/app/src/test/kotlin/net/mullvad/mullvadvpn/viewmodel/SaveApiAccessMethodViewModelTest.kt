@@ -3,10 +3,12 @@ package net.mullvad.mullvadvpn.viewmodel
 import app.cash.turbine.test
 import arrow.core.left
 import arrow.core.right
+import com.ramcosta.composedestinations.generated.navargs.toSavedStateHandle
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
+import net.mullvad.mullvadvpn.compose.dialog.SaveApiAccessMethodNavArgs
 import net.mullvad.mullvadvpn.compose.state.SaveApiAccessMethodUiState
 import net.mullvad.mullvadvpn.compose.state.TestApiAccessMethodState
 import net.mullvad.mullvadvpn.data.UUID
@@ -212,10 +214,14 @@ class SaveApiAccessMethodViewModelTest {
     ) {
         saveApiAccessMethodViewModel =
             SaveApiAccessMethodViewModel(
-                apiAccessMethodId = apiAccessMethodId,
-                apiAccessMethodName = apiAccessMethodName,
-                customProxy = customProxy,
-                apiAccessRepository = mockApiAccessRepository
+                apiAccessRepository = mockApiAccessRepository,
+                savedStateHandle =
+                    SaveApiAccessMethodNavArgs(
+                            id = apiAccessMethodId,
+                            name = apiAccessMethodName,
+                            customProxy = customProxy,
+                        )
+                        .toSavedStateHandle()
             )
     }
 }

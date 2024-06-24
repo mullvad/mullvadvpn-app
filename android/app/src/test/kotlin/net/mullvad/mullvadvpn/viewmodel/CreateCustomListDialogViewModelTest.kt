@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.viewmodel
 import app.cash.turbine.test
 import arrow.core.left
 import arrow.core.right
+import com.ramcosta.composedestinations.generated.navargs.toSavedStateHandle
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -10,6 +11,7 @@ import kotlin.test.assertIs
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.communication.Created
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
+import net.mullvad.mullvadvpn.compose.dialog.CreateCustomListNavArgs
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.CustomListAlreadyExists
 import net.mullvad.mullvadvpn.lib.model.CustomListId
@@ -113,7 +115,11 @@ class CreateCustomListDialogViewModelTest {
 
     private fun createViewModelWithLocationCode(locationCode: GeoLocationId) =
         CreateCustomListDialogViewModel(
-            locationCode = locationCode,
-            customListActionUseCase = mockCustomListActionUseCase
+            customListActionUseCase = mockCustomListActionUseCase,
+            savedStateHandle =
+                CreateCustomListNavArgs(
+                        locationCode = locationCode,
+                    )
+                    .toSavedStateHandle()
         )
 }

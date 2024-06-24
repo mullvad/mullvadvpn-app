@@ -32,7 +32,6 @@ import net.mullvad.mullvadvpn.viewmodel.DnsDialogViewModel
 import net.mullvad.mullvadvpn.viewmodel.DnsDialogViewState
 import net.mullvad.mullvadvpn.viewmodel.ValidationError
 import org.koin.androidx.compose.koinViewModel
-import org.koin.core.parameter.parametersOf
 
 @Preview
 @Composable
@@ -52,15 +51,17 @@ private fun PreviewDnsDialogEditAllowLanDisabled() {
     AppTheme { DnsDialog(DnsDialogViewState("192.168.1.1", null, true, false, 0), {}, {}, {}, {}) }
 }
 
-@Destination<RootGraph>(style = DestinationStyle.Dialog::class)
+data class DnsDialogNavArgs(
+    val index: Int? = null,
+    val initialValue: String? = null,
+)
+
+@Destination<RootGraph>(style = DestinationStyle.Dialog::class, navArgs = DnsDialogNavArgs::class)
 @Composable
 fun DnsDialog(
     resultNavigator: ResultBackNavigator<DnsDialogResult>,
-    index: Int?,
-    initialValue: String?,
 ) {
-    val viewModel =
-        koinViewModel<DnsDialogViewModel>(parameters = { parametersOf(initialValue, index) })
+    val viewModel = koinViewModel<DnsDialogViewModel>()
 
     LaunchedEffectCollect(viewModel.uiSideEffect) {
         when (it) {

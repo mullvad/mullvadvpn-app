@@ -1,10 +1,12 @@
 package net.mullvad.mullvadvpn.viewmodel
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import arrow.core.Either
 import arrow.core.raise.either
 import arrow.core.raise.ensure
+import com.ramcosta.composedestinations.generated.destinations.DnsDialogDestination
 import java.net.InetAddress
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -48,13 +50,13 @@ sealed class ValidationError {
 class DnsDialogViewModel(
     private val repository: SettingsRepository,
     private val inetAddressValidator: InetAddressValidator,
-    index: Int? = null,
-    initialValue: String?,
+    savedStateHandle: SavedStateHandle,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : ViewModel() {
+    private val navArgs = DnsDialogDestination.argsFrom(savedStateHandle)
 
-    private val currentIndex = MutableStateFlow(index)
-    private val _ipAddressInput = MutableStateFlow(initialValue ?: EMPTY_STRING)
+    private val currentIndex = MutableStateFlow(navArgs.index)
+    private val _ipAddressInput = MutableStateFlow(navArgs.initialValue ?: EMPTY_STRING)
 
     val uiState: StateFlow<DnsDialogViewState> =
         combine(_ipAddressInput, currentIndex, repository.settingsUpdates.filterNotNull()) {

@@ -1,7 +1,9 @@
 package net.mullvad.mullvadvpn.viewmodel
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ramcosta.composedestinations.generated.destinations.CustomListLocationsDestination
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -14,7 +16,6 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.LocationsChanged
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsUiState
-import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.relaylist.descendants
 import net.mullvad.mullvadvpn.relaylist.filterOnSearchTerm
@@ -24,12 +25,13 @@ import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListRelayItemsUseCase
 
 class CustomListLocationsViewModel(
-    private val customListId: CustomListId,
-    private val newList: Boolean,
     relayListRepository: RelayListRepository,
     private val customListRelayItemsUseCase: CustomListRelayItemsUseCase,
-    private val customListActionUseCase: CustomListActionUseCase
+    private val customListActionUseCase: CustomListActionUseCase,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
+    private val navArgs =
+        CustomListLocationsDestination.argsFrom(savedStateHandle = savedStateHandle)
     private val _uiSideEffect =
         MutableSharedFlow<CustomListLocationsSideEffect>(replay = 1, extraBufferCapacity = 1)
     val uiSideEffect: SharedFlow<CustomListLocationsSideEffect> = _uiSideEffect
@@ -47,15 +49,15 @@ class CustomListLocationsViewModel(
 
                 when {
                     selectedLocations == null ->
-                        CustomListLocationsUiState.Loading(newList = newList)
+                        CustomListLocationsUiState.Loading(newList = navArgs.newList)
                     filteredRelayCountries.isEmpty() ->
                         CustomListLocationsUiState.Content.Empty(
-                            newList = newList,
+                            newList = navArgs.newList,
                             searchTerm = searchTerm
                         )
                     else ->
                         CustomListLocationsUiState.Content.Data(
-                            newList = newList,
+                            newList = navArgs.newList,
                             searchTerm = searchTerm,
                             availableLocations = filteredRelayCountries,
                             selectedLocations = selectedLocations,
@@ -69,7 +71,7 @@ class CustomListLocationsViewModel(
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(),
-                CustomListLocationsUiState.Loading(newList = newList)
+                CustomListLocationsUiState.Loading(newList = navArgs.newList)
             )
 
     init {
@@ -81,7 +83,7 @@ class CustomListLocationsViewModel(
             _selectedLocations.value?.let { selectedLocations ->
                 customListActionUseCase(
                         CustomListAction.UpdateLocations(
-                            customListId,
+                            navArgs.customListId,
                             selectedLocations.calculateLocationsToSave().map { it.id }
                         )
                     )
@@ -91,7 +93,7 @@ class CustomListLocationsViewModel(
                             _uiSideEffect.tryEmit(
                                 // This is so that we don't show a snackbar after returning to the
                                 // select location screen
-                                if (newList) {
+                                if (navArgs.newList) {
                                     CustomListLocationsSideEffect.CloseScreen
                                 } else {
                                     CustomListLocationsSideEffect.ReturnWithResult(it)
@@ -190,7 +192,7 @@ class CustomListLocationsViewModel(
 
     private suspend fun fetchInitialSelectedLocations() {
         val selectedLocations =
-            customListRelayItemsUseCase(customListId).first().withDescendants().toSet()
+            customListRelayItemsUseCase(navArgs.customListId).first().withDescendants().toSet()
 
         _initialLocations.value = selectedLocations
         _selectedLocations.value = selectedLocations

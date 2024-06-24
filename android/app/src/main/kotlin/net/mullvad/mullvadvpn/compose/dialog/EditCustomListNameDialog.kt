@@ -4,10 +4,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -35,7 +32,6 @@ import net.mullvad.mullvadvpn.usecase.customlists.RenameError
 import net.mullvad.mullvadvpn.viewmodel.EditCustomListNameDialogSideEffect
 import net.mullvad.mullvadvpn.viewmodel.EditCustomListNameDialogViewModel
 import org.koin.androidx.compose.koinViewModel
-import org.koin.core.parameter.parametersOf
 
 @Preview
 @Composable
@@ -43,15 +39,20 @@ private fun PreviewEditCustomListNameDialog() {
     AppTheme { EditCustomListNameDialog(EditCustomListNameUiState()) }
 }
 
+data class EditCustomListNameNavArgs(
+    val customListId: CustomListId,
+    val initialName: CustomListName
+)
+
 @Composable
-@Destination<RootGraph>(style = DestinationStyle.Dialog::class)
+@Destination<RootGraph>(
+    style = DestinationStyle.Dialog::class,
+    navArgs = EditCustomListNameNavArgs::class
+)
 fun EditCustomListName(
     backNavigator: ResultBackNavigator<Renamed>,
-    customListId: CustomListId,
-    initialName: CustomListName
 ) {
-    val vm: EditCustomListNameDialogViewModel =
-        koinViewModel(parameters = { parametersOf(customListId, initialName) })
+    val vm: EditCustomListNameDialogViewModel = koinViewModel()
     LaunchedEffectCollect(vm.uiSideEffect) { sideEffect ->
         when (sideEffect) {
             is EditCustomListNameDialogSideEffect.ReturnWithResult -> {
@@ -64,7 +65,7 @@ fun EditCustomListName(
     EditCustomListNameDialog(
         state = state,
         updateName = vm::updateCustomListName,
-        onInputChanged = vm::clearError,
+        onInputChanged = vm::onNameChanged,
         onDismiss = dropUnlessResumed { backNavigator.navigateBack() }
     )
 }
@@ -73,12 +74,9 @@ fun EditCustomListName(
 fun EditCustomListNameDialog(
     state: EditCustomListNameUiState,
     updateName: (String) -> Unit = {},
-    onInputChanged: () -> Unit = {},
+    onInputChanged: (String) -> Unit = {},
     onDismiss: () -> Unit = {}
 ) {
-    val name = remember { mutableStateOf(state.name) }
-    val isValidName by remember { derivedStateOf { name.value.isNotBlank() } }
-
     AlertDialog(
         title = {
             Text(
@@ -87,14 +85,11 @@ fun EditCustomListNameDialog(
         },
         text = {
             CustomListNameTextField(
-                name = name.value,
-                isValidName = isValidName,
+                name = state.name,
+                isValidName = state.isValidName,
                 error = state.error?.errorString(),
                 onSubmit = updateName,
-                onValueChanged = {
-                    name.value = it
-                    onInputChanged()
-                },
+                onValueChanged = onInputChanged,
                 modifier = Modifier.testTag(EDIT_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG)
             )
         },
@@ -104,8 +99,8 @@ fun EditCustomListNameDialog(
         confirmButton = {
             PrimaryButton(
                 text = stringResource(id = R.string.save),
-                onClick = { updateName(name.value) },
-                isEnabled = isValidName
+                onClick = { updateName(state.name) },
+                isEnabled = state.isValidName
             )
         },
         dismissButton = {
