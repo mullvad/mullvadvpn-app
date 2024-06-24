@@ -1,5 +1,0 @@
-framework module Shadowsocks {
-    header "shadowsocks.h"
-    link "libshadowsocks_proxy"
-    export *
-}

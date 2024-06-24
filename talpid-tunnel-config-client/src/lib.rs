@@ -22,9 +22,6 @@ mod proto {
     tonic::include_proto!("ephemeralpeer");
 }
 
-#[cfg(target_os = "ios")]
-pub mod ios_ffi;
-
 #[cfg(not(target_os = "ios"))]
 use libc::setsockopt;
 
