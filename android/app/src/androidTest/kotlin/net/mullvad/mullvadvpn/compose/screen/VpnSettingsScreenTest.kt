@@ -54,8 +54,6 @@ class VpnSettingsScreenTest {
                 )
             }
 
-            onNodeWithText("Auto-connect (legacy)").assertExists()
-
             onNodeWithTag(LAZY_LIST_TEST_TAG)
                 .performScrollToNode(hasTestTag(LAZY_LIST_LAST_ITEM_TEST_TAG))
 
@@ -604,6 +602,46 @@ class VpnSettingsScreenTest {
 
             // Assert
             verify { mockOnShowCustomPortDialog.invoke() }
+        }
+
+    @Test
+    fun ensureConnectOnStartIsShownWhenSystemVpnSettingsAvailableIsFalse() =
+        composeExtension.use {
+            // Arrange
+            setContentWithTheme {
+                VpnSettingsScreen(
+                    state =
+                    VpnSettingsUiState.createDefault(
+                        systemVpnSettingsAvailable = false
+                    ),
+                )
+            }
+
+            // Assert
+            onNodeWithText("Connect on start").assertExists()
+        }
+
+    @Test
+    fun whenClickingOnConnectOnStartShouldCallOnToggleConnectOnStart() =
+        composeExtension.use {
+            // Arrange
+            val mockOnToggleConnectOnStart: (Boolean) -> Unit = mockk(relaxed = true)
+            setContentWithTheme {
+                VpnSettingsScreen(
+                    state =
+                    VpnSettingsUiState.createDefault(
+                        systemVpnSettingsAvailable = false,
+                        connectOnStart = false
+                    ),
+                    onToggleConnectOnStart = mockOnToggleConnectOnStart
+                )
+            }
+
+            // Act
+            onNodeWithText("Connect on start").performClick()
+
+            // Assert
+            verify { mockOnToggleConnectOnStart.invoke(true) }
         }
 
     companion object {
