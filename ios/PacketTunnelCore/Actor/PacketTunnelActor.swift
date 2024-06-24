@@ -9,9 +9,9 @@
 import Foundation
 import MullvadLogging
 import MullvadREST
+import MullvadRustRuntime
 import MullvadTypes
 import NetworkExtension
-import TunnelObfuscation
 import WireGuardKitTypes
 
 /**

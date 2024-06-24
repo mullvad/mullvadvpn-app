@@ -7,9 +7,9 @@
 //
 
 import Foundation
+@testable import MullvadRustRuntime
 @testable import MullvadTypes
 import Network
-@testable import TunnelObfuscation
 
 struct TunnelObfuscationStub: TunnelObfuscation {
     var transportLayer: TransportLayer { .udp }

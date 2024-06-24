@@ -35,7 +35,6 @@ tonic-build = { workspace = true, default-features = false, features = [
     "transport",
     "prost",
 ] }
-cbindgen = { version = "0.24.3", default-features = false }
 
 [target.'cfg(target_os = "ios")'.dependencies]
 oslog = "0.2"
