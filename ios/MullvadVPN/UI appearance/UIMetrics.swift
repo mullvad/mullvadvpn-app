@@ -104,8 +104,7 @@ enum UIMetrics {
     }
 
     enum DisconnectSplitButton {
-        static let secondaryButtonPhone = CGSize(width: 42, height: 42)
-        static let secondaryButtonPad = CGSize(width: 52, height: 52)
+        static let secondaryButton = CGSize(width: 42, height: 42)
     }
 
     enum FilterView {

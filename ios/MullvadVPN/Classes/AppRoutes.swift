@@ -10,8 +10,7 @@ import Routing
 import UIKit
 
 /**
- Enum type describing groups of routes. Each group is a modal layer with horizontal navigation
- inside with exception where primary navigation is a part of root controller on iPhone.
+ Enum type describing groups of routes.
  */
 enum AppRouteGroup: AppRouteGroupProtocol {
     /**
@@ -47,7 +46,7 @@ enum AppRouteGroup: AppRouteGroupProtocol {
     var isModal: Bool {
         switch self {
         case .primary:
-            return UIDevice.current.userInterfaceIdiom == .pad
+            return false
 
         case .selectLocation, .account, .settings, .changelog, .alert:
             return true
