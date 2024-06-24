@@ -22,6 +22,8 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+
+## [2024.4-beta1] - 2024-06-24
 ### Added
 - Add custom bridge settings in GUI.
 - Bundle https://github.com/mullvad/apisocks5 as a standalone binary.
