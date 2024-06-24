@@ -29,7 +29,7 @@ Line wrap the file at 100 chars.                                              Th
 - Bundle https://github.com/mullvad/apisocks5 as a standalone binary.
 
 #### macOS
-- Add support for split tunneling (beta).
+- Add support for split tunneling.
 
 ### Changed
 - Update Electron from 28.1.3 to 30.0.4.
