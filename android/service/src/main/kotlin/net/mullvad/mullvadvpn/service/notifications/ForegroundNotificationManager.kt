@@ -24,10 +24,10 @@ class ForegroundNotificationManager(
         scope.launch {
             foregroundProvider.shouldBeOnForeground.collect {
                 if (it) {
-                    Logger.d("Starting foreground")
+                    Logger.i("Starting foreground")
                     notifyForeground(getTunnelStateNotificationOrDefault())
                 } else {
-                    Logger.d("Stopping foreground")
+                    Logger.i("Stopping foreground")
                     vpnService.stopForeground(Service.STOP_FOREGROUND_DETACH)
                 }
             }
@@ -50,12 +50,12 @@ class ForegroundNotificationManager(
         if (VpnService.prepare(vpnService) != null) {
             // Got connect/disconnect intent, but we  don't have permission to go in foreground.
             // tunnel state will return permission and we will eventually get stopped by system.
-            Logger.d("Did not start foreground: VPN permission not granted")
+            Logger.i("Did not start foreground: VPN permission not granted")
             return
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            Logger.d("Starting foreground UPSIDE_DOWN_CAKE")
+            Logger.i("Starting foreground UPSIDE_DOWN_CAKE")
             vpnService.startForeground(
                 tunnelStateNotificationProvider.notificationId.value,
                 androidNotification,

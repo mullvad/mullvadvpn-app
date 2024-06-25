@@ -36,7 +36,7 @@ class DeviceRepository(
         managementService.getDeviceList(accountNumber)
 
     suspend fun updateDevice() {
-        Logger.d("Update device")
+        Logger.i("Update device")
         managementService.updateDevice()
     }
 }
