@@ -80,9 +80,11 @@ function copy_linux_artifacts_to_dir {
     local dst_dir=$3
 
     for deb_path in "$src_dir"/MullvadVPN-"$version"*.deb; do
+        echo "Copying $deb_path into $dst_dir/"
         cp "$deb_path" "$dst_dir/"
     done
     for rpm_path in "$src_dir"/MullvadVPN-"$version"*.rpm; do
+        echo "Copying $rpm_path into $dst_dir/"
         cp "$rpm_path" "$dst_dir/"
     done
 }
