@@ -1,8 +1,8 @@
 package net.mullvad.mullvadvpn.test.e2e.misc
 
 import android.content.Context
-import android.util.Log
 import androidx.test.services.events.TestEventException
+import co.touchlab.kermit.Logger
 import com.android.volley.Request
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.JsonObjectRequest
@@ -13,7 +13,6 @@ import net.mullvad.mullvadvpn.test.e2e.constant.ACCOUNT_URL
 import net.mullvad.mullvadvpn.test.e2e.constant.AUTH_URL
 import net.mullvad.mullvadvpn.test.e2e.constant.CONN_CHECK_URL
 import net.mullvad.mullvadvpn.test.e2e.constant.DEVICE_LIST_URL
-import net.mullvad.mullvadvpn.test.e2e.constant.LOG_TAG
 import net.mullvad.mullvadvpn.test.e2e.constant.PARTNER_ACCOUNT_URL
 import org.json.JSONArray
 import org.json.JSONObject
@@ -23,19 +22,19 @@ class SimpleMullvadHttpClient(context: Context) {
     private val queue = Volley.newRequestQueue(context)
 
     fun removeAllDevices(accountNumber: String) {
-        Log.v(LOG_TAG, "Remove all devices")
+        Logger.v("Remove all devices")
         val token = login(accountNumber)
         val devices = getDeviceList(token)
         devices.forEach { removeDevice(token, it) }
-        Log.v(LOG_TAG, "All devices removed")
+        Logger.v("All devices removed")
     }
 
     fun login(accountNumber: String): String {
-        Log.v(LOG_TAG, "Attempt login with account token: $accountNumber")
+        Logger.v("Attempt login with account token: $accountNumber")
         val json = JSONObject().apply { put("account_number", accountNumber) }
         return sendSimpleSynchronousRequest(Request.Method.POST, AUTH_URL, json)!!.let { response ->
             response.getString("access_token").also { accessToken ->
-                Log.v(LOG_TAG, "Successfully logged in and received access token: $accessToken")
+                Logger.v("Successfully logged in and received access token: $accessToken")
             }
         }
     }
@@ -59,7 +58,7 @@ class SimpleMullvadHttpClient(context: Context) {
     }
 
     fun getDeviceList(accessToken: String): List<String> {
-        Log.v(LOG_TAG, "Get devices")
+        Logger.v("Get devices")
 
         val response =
             sendSimpleSynchronousRequestArray(
@@ -74,14 +73,14 @@ class SimpleMullvadHttpClient(context: Context) {
             .toList()
             .also {
                 it.map { jsonObject -> jsonObject.getString("name") }
-                    .also { deviceNames -> Log.v(LOG_TAG, "Devices received: $deviceNames") }
+                    .also { deviceNames -> Logger.v("Devices received: $deviceNames") }
             }
             .map { it.getString("id") }
             .toList()
     }
 
     fun removeDevice(token: String, deviceId: String) {
-        Log.v(LOG_TAG, "Remove device: $deviceId")
+        Logger.v("Remove device: $deviceId")
         sendSimpleSynchronousRequestString(
             method = Request.Method.DELETE,
             url = "$DEVICE_LIST_URL/$deviceId",
@@ -122,11 +121,9 @@ class SimpleMullvadHttpClient(context: Context) {
             }
         queue.add(request)
         return try {
-            future.get().also { response ->
-                Log.v(LOG_TAG, "Json object request response: $response")
-            }
+            future.get().also { response -> Logger.v("Json object request response: $response") }
         } catch (e: Exception) {
-            Log.v(LOG_TAG, "Json object request error: ${e.message}")
+            Logger.v("Json object request error: ${e.message}")
             throw TestEventException(REQUEST_ERROR_MESSAGE)
         }
     }
@@ -153,9 +150,9 @@ class SimpleMullvadHttpClient(context: Context) {
             }
         queue.add(request)
         return try {
-            future.get().also { response -> Log.v(LOG_TAG, "String request response: $response") }
+            future.get().also { response -> Logger.v("String request response: $response") }
         } catch (e: Exception) {
-            Log.v(LOG_TAG, "String request error: ${e.message}")
+            Logger.v("String request error: ${e.message}")
             throw TestEventException(REQUEST_ERROR_MESSAGE)
         }
     }
@@ -180,11 +177,9 @@ class SimpleMullvadHttpClient(context: Context) {
             }
         queue.add(request)
         return try {
-            future.get().also { response ->
-                Log.v(LOG_TAG, "Json array request response: $response")
-            }
+            future.get().also { response -> Logger.v("Json array request response: $response") }
         } catch (e: Exception) {
-            Log.v(LOG_TAG, "Json array request error: ${e.message}")
+            Logger.v("Json array request error: ${e.message}")
             throw TestEventException(REQUEST_ERROR_MESSAGE)
         }
     }

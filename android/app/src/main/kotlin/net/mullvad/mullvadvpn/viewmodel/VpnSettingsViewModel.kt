@@ -1,8 +1,8 @@
 package net.mullvad.mullvadvpn.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import co.touchlab.kermit.Logger
 import java.net.InetAddress
 import java.net.UnknownHostException
 import kotlinx.coroutines.CoroutineDispatcher
@@ -259,7 +259,7 @@ class VpnSettingsViewModel(
         return try {
             map { InetAddress.getByName(it) }
         } catch (ex: UnknownHostException) {
-            Log.e("mullvad", "Error parsing the DNS address list.")
+            Logger.e("Error parsing the DNS address list.")
             emptyList()
         }
     }

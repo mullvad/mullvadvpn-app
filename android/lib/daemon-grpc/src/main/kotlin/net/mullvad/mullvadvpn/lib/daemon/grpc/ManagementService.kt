@@ -1,13 +1,13 @@
 package net.mullvad.mullvadvpn.lib.daemon.grpc
 
 import android.net.LocalSocketAddress
-import android.util.Log
 import arrow.core.Either
 import arrow.core.raise.either
 import arrow.core.raise.ensure
 import arrow.optics.copy
 import arrow.optics.dsl.index
 import arrow.optics.typeclasses.Index
+import co.touchlab.kermit.Logger
 import com.google.protobuf.BoolValue
 import com.google.protobuf.Empty
 import com.google.protobuf.StringValue
@@ -38,7 +38,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import mullvad_daemon.management_interface.ManagementInterface
 import mullvad_daemon.management_interface.ManagementServiceGrpcKt
-import net.mullvad.mullvadvpn.lib.common.constant.TAG
 import net.mullvad.mullvadvpn.lib.daemon.grpc.mapper.fromDomain
 import net.mullvad.mullvadvpn.lib.daemon.grpc.mapper.toDomain
 import net.mullvad.mullvadvpn.lib.daemon.grpc.util.LogInterceptor
@@ -204,7 +203,7 @@ class ManagementService(
             launch {
                 grpc.eventsListen(Empty.getDefaultInstance()).collect { event ->
                     if (extensiveLogging) {
-                        Log.d(TAG, "Event: $event")
+                        Logger.d("Event: $event")
                     }
                     @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
                     when (event.eventCase) {

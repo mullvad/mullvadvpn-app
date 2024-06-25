@@ -1,8 +1,8 @@
 package net.mullvad.talpid
 
 import android.os.ParcelFileDescriptor
-import android.util.Log
 import androidx.annotation.CallSuper
+import co.touchlab.kermit.Logger
 import java.net.Inet4Address
 import java.net.Inet6Address
 import java.net.InetAddress
@@ -106,8 +106,7 @@ open class TalpidVpnService : LifecycleVpnService() {
                 // since apps then may leak DNS requests.
                 // https://issuetracker.google.com/issues/337961996
                 if (invalidDnsServerAddresses.size == config.dnsServers.size) {
-                    Log.w(
-                        "mullvad",
+                    Logger.w(
                         "All DNS servers invalid or non set, using fallback DNS server to " +
                             "minimize leaks, dnsServers.isEmpty(): ${config.dnsServers.isEmpty()}"
                     )

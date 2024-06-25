@@ -1,10 +1,13 @@
 package net.mullvad.mullvadvpn
 
 import android.app.Application
+import co.touchlab.kermit.Logger
 import net.mullvad.mullvadvpn.di.appModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.loadKoinModules
 import org.koin.core.context.startKoin
+
+private const val LOG_TAG = "mullvad"
 
 /**
  * In Android, separate instances of the application class (MullvadApplication) will be instantiated
@@ -13,7 +16,7 @@ import org.koin.core.context.startKoin
 class MullvadApplication : Application() {
     override fun onCreate() {
         super.onCreate()
-        // Used to create/start separate DI graphs for each process. Avoid non-common classes etc.
+        Logger.setTag(LOG_TAG)
         startKoin { androidContext(this@MullvadApplication) }
         loadKoinModules(listOf(appModule))
     }
