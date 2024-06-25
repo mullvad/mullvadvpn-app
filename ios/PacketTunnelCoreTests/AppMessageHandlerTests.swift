@@ -30,7 +30,7 @@ final class AppMessageHandlerTests: XCTestCase {
             TunnelProviderMessage.sendURLRequest(urlRequest).encode()
         )
 
-        await fulfillment(of: [sendRequestExpectation], timeout: 1)
+        await fulfillment(of: [sendRequestExpectation], timeout: .UnitTest.timeout)
     }
 
     func testHandleAppMessageForCancelURLRequest() async throws {
@@ -43,7 +43,7 @@ final class AppMessageHandlerTests: XCTestCase {
             TunnelProviderMessage.cancelURLRequest(UUID()).encode()
         )
 
-        await fulfillment(of: [cancelRequestExpectation], timeout: 1)
+        await fulfillment(of: [cancelRequestExpectation], timeout: .UnitTest.timeout)
     }
 
     func testHandleAppMessageForTunnelStatus() async throws {
@@ -56,7 +56,7 @@ final class AppMessageHandlerTests: XCTestCase {
             TunnelProviderMessage.getTunnelStatus.encode()
         )
 
-        await fulfillment(of: [stateExpectation], timeout: 1)
+        await fulfillment(of: [stateExpectation], timeout: .UnitTest.timeout)
     }
 
     func testHandleAppMessageForKeyRotation() async throws {
@@ -69,7 +69,7 @@ final class AppMessageHandlerTests: XCTestCase {
             TunnelProviderMessage.privateKeyRotation.encode()
         )
 
-        await fulfillment(of: [keyRotationExpectation], timeout: 1)
+        await fulfillment(of: [keyRotationExpectation], timeout: .UnitTest.timeout)
     }
 
     func testHandleAppMessageForReconnectTunnel() async throws {
@@ -98,7 +98,7 @@ final class AppMessageHandlerTests: XCTestCase {
             TunnelProviderMessage.reconnectTunnel(.preSelected(selectedRelay)).encode()
         )
 
-        await fulfillment(of: [reconnectExpectation], timeout: 1)
+        await fulfillment(of: [reconnectExpectation], timeout: .UnitTest.timeout)
     }
 }
 

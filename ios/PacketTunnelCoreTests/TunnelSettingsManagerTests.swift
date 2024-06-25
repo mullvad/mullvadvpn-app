@@ -13,7 +13,7 @@ import PacketTunnelCore
 import XCTest
 
 class TunnelSettingsManagerTests: XCTestCase {
-    func notifyWhenSettingsLoadedTest() throws {
+    func testNotifyWhenSettingsLoaded() throws {
         var loadedConfiguration: Settings?
         let tunnelSettingsManager = TunnelSettingsManager(
             settingsReader: SettingsReaderStub.staticConfiguration(),
