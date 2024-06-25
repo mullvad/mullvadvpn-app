@@ -33,8 +33,6 @@ class SettingsScreenTest {
                             isLoggedIn = true,
                             isUpdateAvailable = true,
                             isPlayBuild = false,
-                            isMaterialYouTheme = false,
-                            darkThemeState = DarkThemeState.OFF
                         ),
                 )
             }
@@ -58,8 +56,6 @@ class SettingsScreenTest {
                             isLoggedIn = false,
                             isUpdateAvailable = true,
                             isPlayBuild = false,
-                            isMaterialYouTheme = false,
-                            darkThemeState = DarkThemeState.OFF
                         ),
                 )
             }

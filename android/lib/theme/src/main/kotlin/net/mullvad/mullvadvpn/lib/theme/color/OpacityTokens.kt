@@ -35,5 +35,4 @@ internal object OpacityTokens {
     val WhiteOnBlue30 = Color(0xFF69829D)
     val WhiteOnBlue20 = Color(0xFF54718F)
     val WhiteOnBlue10 = Color(0xFF3E5F81)
-
 }

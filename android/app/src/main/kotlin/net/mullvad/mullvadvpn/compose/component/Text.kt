@@ -1,7 +1,6 @@
 package net.mullvad.mullvadvpn.compose.component
 
 import androidx.compose.material3.LocalTextStyle
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
