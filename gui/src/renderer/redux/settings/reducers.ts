@@ -188,6 +188,9 @@ const initialState: ISettingsReduxState = {
     udp2tcpSettings: {
       port: 'any',
     },
+    shadowsocksSettings: {
+      port: 'any',
+    },
   },
   customLists: [],
   apiAccessMethods: getDefaultApiAccessMethods(),

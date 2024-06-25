@@ -393,6 +393,11 @@ export class DaemonRpc {
           grpcTypes.ObfuscationSettings.SelectedObfuscation.UDP2TCP,
         );
         break;
+      case ObfuscationType.shadowsocks:
+        grpcObfuscationSettings.setSelectedObfuscation(
+          grpcTypes.ObfuscationSettings.SelectedObfuscation.SHADOWSOCKS,
+        );
+        break;
     }
 
     if (obfuscationSettings.udp2tcpSettings) {
@@ -401,6 +406,14 @@ export class DaemonRpc {
         grpcUdp2tcpSettings.setPort(obfuscationSettings.udp2tcpSettings.port.only);
       }
       grpcObfuscationSettings.setUdp2tcp(grpcUdp2tcpSettings);
+    }
+
+    if (obfuscationSettings.shadowsocksSettings) {
+      const grpcShadowsocksSettings = new grpcTypes.ShadowsocksSettings();
+      if (obfuscationSettings.shadowsocksSettings.port !== 'any') {
+        grpcShadowsocksSettings.setPort(obfuscationSettings.shadowsocksSettings.port.only);
+      }
+      grpcObfuscationSettings.setShadowsocks(grpcShadowsocksSettings);
     }
 
     await this.call<grpcTypes.ObfuscationSettings, Empty>(
@@ -1151,8 +1164,9 @@ function convertFromProxyEndpoint(proxyEndpoint: grpcTypes.ProxyEndpoint.AsObjec
 function convertFromObfuscationEndpoint(
   obfuscationEndpoint: grpcTypes.ObfuscationEndpoint.AsObject,
 ): IObfuscationEndpoint {
-  const obfuscationTypes: Record<grpcTypes.ObfuscationType, EndpointObfuscationType> = {
-    [grpcTypes.ObfuscationType.UDP2TCP]: 'udp2tcp',
+  const obfuscationTypes: Record<grpcTypes.ObfuscationEndpoint.ObfuscationType, EndpointObfuscationType> = {
+    [grpcTypes.ObfuscationEndpoint.ObfuscationType.UDP2TCP]: 'udp2tcp',
+    [grpcTypes.ObfuscationEndpoint.ObfuscationType.SHADOWSOCKS]: 'shadowsocks',
   };
 
   return {
@@ -1418,12 +1432,18 @@ function convertFromObfuscationSettings(
     case grpcTypes.ObfuscationSettings.SelectedObfuscation.UDP2TCP:
       selectedObfuscationType = ObfuscationType.udp2tcp;
       break;
+    case grpcTypes.ObfuscationSettings.SelectedObfuscation.SHADOWSOCKS:
+      selectedObfuscationType = ObfuscationType.shadowsocks;
+      break;
   }
 
   return {
     selectedObfuscation: selectedObfuscationType,
     udp2tcpSettings: obfuscationSettings?.udp2tcp
       ? { port: convertFromConstraint(obfuscationSettings.udp2tcp.port) }
+      : { port: 'any' },
+    shadowsocksSettings: obfuscationSettings?.shadowsocks
+      ? { port: convertFromConstraint(obfuscationSettings.shadowsocks.port) }
       : { port: 'any' },
   };
 }

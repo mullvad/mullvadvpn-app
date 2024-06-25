@@ -112,7 +112,7 @@ export function tunnelTypeToString(tunnel: TunnelType): string {
 }
 
 export type RelayProtocol = 'tcp' | 'udp';
-export type EndpointObfuscationType = 'udp2tcp';
+export type EndpointObfuscationType = 'udp2tcp' | 'shadowsocks';
 
 export type Constraint<T> = 'any' | { only: T };
 export type LiftedConstraint<T> = 'any' | T;
@@ -415,15 +415,21 @@ export type Udp2TcpObfuscationSettings = {
   port: Constraint<number>;
 };
 
+export type ShadowsocksSettings = {
+  port: Constraint<number>;
+};
+
 export enum ObfuscationType {
   auto,
   off,
   udp2tcp,
+  shadowsocks,
 }
 
 export type ObfuscationSettings = {
   selectedObfuscation: ObfuscationType;
   udp2tcpSettings: Udp2TcpObfuscationSettings;
+  shadowsocksSettings: ShadowsocksSettings;
 };
 
 export interface IBridgeConstraints {
