@@ -13,7 +13,7 @@ internal class LogInterceptor : ClientInterceptor {
         callOptions: CallOptions?,
         next: Channel?
     ): ClientCall<ReqT, RespT> {
-        Logger.d("Intercepted call: ${method?.fullMethodName}")
+        Logger.v("Intercepted call: ${method?.fullMethodName}")
         return next!!.newCall(method, callOptions)
     }
 }

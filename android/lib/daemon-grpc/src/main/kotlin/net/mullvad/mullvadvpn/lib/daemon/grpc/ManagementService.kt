@@ -203,7 +203,7 @@ class ManagementService(
             launch {
                 grpc.eventsListen(Empty.getDefaultInstance()).collect { event ->
                     if (extensiveLogging) {
-                        Logger.d("Event: $event")
+                        Logger.v("Event: $event")
                     }
                     @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
                     when (event.eventCase) {
