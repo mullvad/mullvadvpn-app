@@ -63,8 +63,7 @@ dnf install git gcc protobuf-devel libpcap-devel qemu \
 Building the `test-runner` binary is done with the `build-runner.sh` script.
 Currently, only `x86_64` platforms are supported for Windows/Linux and `ARM64` (Apple Silicon) for macOS.
 
-The `build-runner.sh` requires the `$TARGET` environment variable to be set.
-For example, building `test-runner` for Linux would look like this:
+For example, building `test-runner` for Windows would look like this:
 
 ``` bash
 ./container-run.sh ./build-runner.sh windows
