@@ -78,29 +78,44 @@ enum TunnelState: Equatable, CustomStringConvertible {
     case error(BlockedStateReason)
 
     var description: String {
-        switch self {
+        return switch self {
         case .pendingReconnect:
             "pending reconnect after disconnect"
         case let .connecting(tunnelRelays, isPostQuantum):
             if let tunnelRelays {
-                "connecting \(isPostQuantum ? "(PQ) " : "")to \(tunnelRelays.exit.hostname)" // TODO: Multihop
+                """
+                connecting \(isPostQuantum ? "(PQ) " : "")\
+                to \(tunnelRelays.exit.hostname)\
+                \(tunnelRelays.entry.flatMap { " via \($0.hostname)" } ?? "")
+                """
             } else {
                 "connecting\(isPostQuantum ? " (PQ)" : ""), fetching relay"
             }
         case let .connected(tunnelRelays, isPostQuantum):
-            "connected \(isPostQuantum ? "(PQ) " : "")to \(tunnelRelays.exit.hostname)" // TODO: Multihop
+            """
+            connected \(isPostQuantum ? "(PQ) " : "")\
+            to \(tunnelRelays.exit.hostname)\
+            \(tunnelRelays.entry.flatMap { " via \($0.hostname)" } ?? "")
+            """
         case let .disconnecting(actionAfterDisconnect):
             "disconnecting and then \(actionAfterDisconnect)"
         case .disconnected:
             "disconnected"
         case let .reconnecting(tunnelRelays, isPostQuantum):
-            "reconnecting \(isPostQuantum ? "(PQ) " : "")to \(tunnelRelays.exit.hostname)" // TODO: Multihop
+            """
+            reconnecting \(isPostQuantum ? "(PQ) " : "")\
+            to \(tunnelRelays.exit.hostname)\
+            \(tunnelRelays.entry.flatMap { " via \($0.hostname)" } ?? "")
+            """
         case .waitingForConnectivity:
             "waiting for connectivity"
         case let .error(blockedStateReason):
             "error state: \(blockedStateReason)"
         case let .negotiatingPostQuantumKey(tunnelRelays, _):
-            "negotiating key with \(tunnelRelays.exit.hostname)" // TODO: Multihop
+            """
+            negotiating key with exit relay: \(tunnelRelays.exit.hostname)\
+            \(tunnelRelays.entry.flatMap { " via \($0.hostname)" } ?? "")
+            """
         }
     }
 

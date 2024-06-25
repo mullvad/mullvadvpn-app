@@ -35,6 +35,8 @@ extension WireGuardAdapterError: LocalizedError {
 
         case let .startWireGuardBackend(code):
             return "Failure to start WireGuard backend (error code: \(code))."
+        case .noInterfaceIp:
+            return "Failed to find IP for WireGuard interface"
         }
     }
 }

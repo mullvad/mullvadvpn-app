@@ -1,4 +1,5 @@
 {
+  "originHash" : "c15149b2d59d9e9c72375f65339c04f41a19943e1117e682df27fc9f943fdc56",
   "pins" : [
     {
       "identity" : "swift-log",
@@ -14,9 +15,9 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/mullvad/wireguard-apple.git",
       "state" : {
-        "revision" : "15242e1698fc45261285d7417ed2cd5130d7332e"
+        "revision" : "0cbbdedb3083e705429d6c12801128351a55e1ec"
       }
     }
   ],
-  "version" : 2
+  "version" : 3
 }
