@@ -485,8 +485,8 @@
 		7A3353912AAA014400F0A71C /* SimulatorVPNConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A3353902AAA014400F0A71C /* SimulatorVPNConnection.swift */; };
 		7A3353932AAA089000F0A71C /* SimulatorTunnelInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A3353922AAA089000F0A71C /* SimulatorTunnelInfo.swift */; };
 		7A3353972AAA0F8600F0A71C /* OperationBlockObserverSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A3353962AAA0F8600F0A71C /* OperationBlockObserverSupport.swift */; };
-		7A3EFAAB2BDFDAE800318736 /* RelaySelection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A3EFAAA2BDFDAE800318736 /* RelaySelection.swift */; };
 		7A3AD5012C1068A800E9AD90 /* RelayPicking.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A3AD5002C1068A800E9AD90 /* RelayPicking.swift */; };
+		7A3EFAAB2BDFDAE800318736 /* (null) in Sources */ = {isa = PBXBuildFile; };
 		7A3FD1B52AD4465A0042BEA6 /* AppMessageHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A3FD1B42AD4465A0042BEA6 /* AppMessageHandlerTests.swift */; };
 		7A3FD1B72AD54ABD0042BEA6 /* AnyTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BDEB982A98F4ED00F578F2 /* AnyTransport.swift */; };
 		7A3FD1B82AD54AE60042BEA6 /* TimeServerProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BDEB9A2A98F58600F578F2 /* TimeServerProxy.swift */; };
@@ -607,9 +607,9 @@
 		7ADCB2D82B6A6EB300C88F89 /* AnyRelay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ADCB2D72B6A6EB300C88F89 /* AnyRelay.swift */; };
 		7ADCB2DA2B6A730400C88F89 /* IPOverrideRepositoryStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ADCB2D92B6A730400C88F89 /* IPOverrideRepositoryStub.swift */; };
 		7AE044BB2A935726003915D8 /* Routing.h in Headers */ = {isa = PBXBuildFile; fileRef = 7A88DCD02A8FABBE00D2FF0E /* Routing.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		7AE2414A2C20682B0076CE33 /* FormsheetPresentationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE241482C20682B0076CE33 /* FormsheetPresentationController.swift */; };
-		7AEBA52C2C22C65B0018BEC5 /* TimeInterval+Timeout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AEBA52B2C22C65B0018BEC5 /* TimeInterval+Timeout.swift */; };
+		7AE2414A2C20682B0076CE33 /* (null) in Sources */ = {isa = PBXBuildFile; };
 		7AEBA52A2C2179F20018BEC5 /* RelaySelectorWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AEBA5292C2179F20018BEC5 /* RelaySelectorWrapper.swift */; };
+		7AEBA52C2C22C65B0018BEC5 /* (null) in Sources */ = {isa = PBXBuildFile; };
 		7AED35CC2BD13F60002A67D1 /* ApplicationConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BFA5CB22A7CE1F00A6173D /* ApplicationConfiguration.swift */; };
 		7AED35CD2BD13FC4002A67D1 /* ApplicationTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C76A072A33850E00100D75 /* ApplicationTarget.swift */; };
 		7AEF7F1A2AD00F52006FE45D /* AppMessageHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AEF7F192AD00F52006FE45D /* AppMessageHandler.swift */; };
@@ -861,12 +861,15 @@
 		F0164EBE2B4BFF940020268D /* ShadowsocksLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0164EBD2B4BFF940020268D /* ShadowsocksLoader.swift */; };
 		F0164EC32B4C49D30020268D /* ShadowsocksLoaderStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0164EC22B4C49D30020268D /* ShadowsocksLoaderStub.swift */; };
 		F0164ED12B4F2DCB0020268D /* AccessMethodIterator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0164ED02B4F2DCB0020268D /* AccessMethodIterator.swift */; };
+		F01DAE332C2B032A00521E46 /* RelaySelection.swift in Sources */ = {isa = PBXBuildFile; fileRef = F01DAE322C2B032A00521E46 /* RelaySelection.swift */; };
 		F028A56A2A34D4E700C0CAA3 /* RedeemVoucherViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F028A5692A34D4E700C0CAA3 /* RedeemVoucherViewController.swift */; };
 		F028A56C2A34D8E600C0CAA3 /* AddCreditSucceededViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F028A56B2A34D8E600C0CAA3 /* AddCreditSucceededViewController.swift */; };
 		F02F41A02B9723AF00625A4F /* AddLocationsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F02F419A2B9723AE00625A4F /* AddLocationsViewController.swift */; };
 		F02F41A12B9723AF00625A4F /* AddLocationsDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F02F419B2B9723AE00625A4F /* AddLocationsDataSource.swift */; };
 		F02F41A22B9723AF00625A4F /* AddLocationsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F02F419C2B9723AF00625A4F /* AddLocationsCoordinator.swift */; };
 		F03580252A13842C00E5DAFD /* IncreasedHitButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = F03580242A13842C00E5DAFD /* IncreasedHitButton.swift */; };
+		F03A69F72C2AD2D6000E2E7E /* TimeInterval+Timeout.swift in Sources */ = {isa = PBXBuildFile; fileRef = F03A69F62C2AD2D5000E2E7E /* TimeInterval+Timeout.swift */; };
+		F03A69F92C2AD414000E2E7E /* FormsheetPresentationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F03A69F82C2AD413000E2E7E /* FormsheetPresentationController.swift */; };
 		F04413612BA45CD70018A6EE /* CustomListLocationNodeBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04413602BA45CD70018A6EE /* CustomListLocationNodeBuilder.swift */; };
 		F04413622BA45CE30018A6EE /* CustomListLocationNodeBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04413602BA45CD70018A6EE /* CustomListLocationNodeBuilder.swift */; };
 		F04F95A12B21D24400431E08 /* shadowsocks.h in Headers */ = {isa = PBXBuildFile; fileRef = F04F95A02B21D24400431E08 /* shadowsocks.h */; settings = {ATTRIBUTES = (Private, ); }; };
@@ -1896,12 +1899,7 @@
 		7A3353902AAA014400F0A71C /* SimulatorVPNConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimulatorVPNConnection.swift; sourceTree = "<group>"; };
 		7A3353922AAA089000F0A71C /* SimulatorTunnelInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimulatorTunnelInfo.swift; sourceTree = "<group>"; };
 		7A3353962AAA0F8600F0A71C /* OperationBlockObserverSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationBlockObserverSupport.swift; sourceTree = "<group>"; };
-<<<<<<< HEAD
-		7A3EFAAA2BDFDAE800318736 /* RelaySelection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelaySelection.swift; sourceTree = "<group>"; };
-		7A3AD5002C1068A800E9AD90 /* RelaySelectorPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelaySelectorPicker.swift; sourceTree = "<group>"; };
-=======
 		7A3AD5002C1068A800E9AD90 /* RelayPicking.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayPicking.swift; sourceTree = "<group>"; };
->>>>>>> ea6605a04 (Add RelaySelectorWrapper tests)
 		7A3FD1B42AD4465A0042BEA6 /* AppMessageHandlerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppMessageHandlerTests.swift; sourceTree = "<group>"; };
 		7A42DEC82A05164100B209BE /* SettingsInputCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsInputCell.swift; sourceTree = "<group>"; };
 		7A45CFC22C05FF2F00D80B21 /* ScreenshotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotTests.swift; sourceTree = "<group>"; };
@@ -2004,12 +2002,7 @@
 		7AD0AA202AD6CB0000119E10 /* URLRequestProxyStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLRequestProxyStub.swift; sourceTree = "<group>"; };
 		7ADCB2D72B6A6EB300C88F89 /* AnyRelay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyRelay.swift; sourceTree = "<group>"; };
 		7ADCB2D92B6A730400C88F89 /* IPOverrideRepositoryStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPOverrideRepositoryStub.swift; sourceTree = "<group>"; };
-<<<<<<< HEAD
-		7AE241482C20682B0076CE33 /* FormsheetPresentationController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FormsheetPresentationController.swift; sourceTree = "<group>"; };
-		7AEBA52B2C22C65B0018BEC5 /* TimeInterval+Timeout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TimeInterval+Timeout.swift"; sourceTree = "<group>"; };
-=======
 		7AEBA5292C2179F20018BEC5 /* RelaySelectorWrapper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RelaySelectorWrapper.swift; sourceTree = "<group>"; };
->>>>>>> ea6605a04 (Add RelaySelectorWrapper tests)
 		7AEF7F192AD00F52006FE45D /* AppMessageHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppMessageHandler.swift; sourceTree = "<group>"; };
 		7AF10EB12ADE859200C090B9 /* AlertViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlertViewController.swift; sourceTree = "<group>"; };
 		7AF10EB32ADE85BC00C090B9 /* RelayFilterCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RelayFilterCoordinator.swift; sourceTree = "<group>"; };
@@ -2166,12 +2159,15 @@
 		F0164EBD2B4BFF940020268D /* ShadowsocksLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowsocksLoader.swift; sourceTree = "<group>"; };
 		F0164EC22B4C49D30020268D /* ShadowsocksLoaderStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowsocksLoaderStub.swift; sourceTree = "<group>"; };
 		F0164ED02B4F2DCB0020268D /* AccessMethodIterator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessMethodIterator.swift; sourceTree = "<group>"; };
+		F01DAE322C2B032A00521E46 /* RelaySelection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RelaySelection.swift; sourceTree = "<group>"; };
 		F028A5692A34D4E700C0CAA3 /* RedeemVoucherViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RedeemVoucherViewController.swift; sourceTree = "<group>"; };
 		F028A56B2A34D8E600C0CAA3 /* AddCreditSucceededViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCreditSucceededViewController.swift; sourceTree = "<group>"; };
 		F02F419A2B9723AE00625A4F /* AddLocationsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddLocationsViewController.swift; sourceTree = "<group>"; };
 		F02F419B2B9723AE00625A4F /* AddLocationsDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddLocationsDataSource.swift; sourceTree = "<group>"; };
 		F02F419C2B9723AF00625A4F /* AddLocationsCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddLocationsCoordinator.swift; sourceTree = "<group>"; };
 		F03580242A13842C00E5DAFD /* IncreasedHitButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncreasedHitButton.swift; sourceTree = "<group>"; };
+		F03A69F62C2AD2D5000E2E7E /* TimeInterval+Timeout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "TimeInterval+Timeout.swift"; sourceTree = "<group>"; };
+		F03A69F82C2AD413000E2E7E /* FormsheetPresentationController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FormsheetPresentationController.swift; sourceTree = "<group>"; };
 		F04413602BA45CD70018A6EE /* CustomListLocationNodeBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomListLocationNodeBuilder.swift; sourceTree = "<group>"; };
 		F04DD3D72C130DF600E03E28 /* TunnelSettingsManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TunnelSettingsManager.swift; sourceTree = "<group>"; };
 		F04F95A02B21D24400431E08 /* shadowsocks.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = shadowsocks.h; sourceTree = "<group>"; };
@@ -2852,6 +2848,7 @@
 		583FE01729C196F3006E85F9 /* SelectLocation */ = {
 			isa = PBXGroup;
 			children = (
+				F01DAE322C2B032A00521E46 /* RelaySelection.swift */,
 				F050AE5F2B73A41E003F4EDB /* AllLocationDataSource.swift */,
 				F04413602BA45CD70018A6EE /* CustomListLocationNodeBuilder.swift */,
 				F050AE612B74DBAC003F4EDB /* CustomListsDataSource.swift */,
@@ -2865,7 +2862,6 @@
 				F0BE65362B9F136A005CC385 /* LocationSectionHeaderView.swift */,
 				5888AD86227B17950051EB06 /* LocationViewController.swift */,
 				7AB3BEB42BD7A6CB00E34384 /* LocationViewControllerWrapper.swift */,
-				7A3EFAAA2BDFDAE800318736 /* RelaySelection.swift */,
 			);
 			path = SelectLocation;
 			sourceTree = "<group>";
@@ -3966,7 +3962,7 @@
 		7AE241492C20682B0076CE33 /* Presentation controllers */ = {
 			isa = PBXGroup;
 			children = (
-				7AE241482C20682B0076CE33 /* FormsheetPresentationController.swift */,
+				F03A69F82C2AD413000E2E7E /* FormsheetPresentationController.swift */,
 			);
 			path = "Presentation controllers";
 			sourceTree = "<group>";
@@ -3974,7 +3970,7 @@
 		7AEBA52D2C2310D20018BEC5 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
-				7AEBA52B2C22C65B0018BEC5 /* TimeInterval+Timeout.swift */,
+				F03A69F62C2AD2D5000E2E7E /* TimeInterval+Timeout.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -5727,11 +5723,7 @@
 				5891BF5125E66B1E006D6FB0 /* UIBarButtonItem+KeyboardNavigation.swift in Sources */,
 				58E511E628DDDEAC00B0BCDE /* CodingErrors+CustomErrorDescription.swift in Sources */,
 				58C76A0B2A338E4300100D75 /* BackgroundTask.swift in Sources */,
-<<<<<<< HEAD
-=======
 				F0A0868E2C22D60100BF83E7 /* Tunnel+Settings.swift in Sources */,
-				5864859B29A0EAF2006C5743 /* SecondaryContextPresentationController.swift in Sources */,
->>>>>>> b2a2cf80a (Apply multi-hop settings into tunnel)
 				7A9CCCC32A96302800DD6A34 /* ApplicationCoordinator.swift in Sources */,
 				5864AF0729C78843005B0CD9 /* SettingsCellFactory.swift in Sources */,
 				587B75412668FD7800DEF7E9 /* AccountExpirySystemNotificationProvider.swift in Sources */,
@@ -5771,6 +5763,7 @@
 				7A9CCCB32A96302800DD6A34 /* WelcomeCoordinator.swift in Sources */,
 				587B753B2666467500DEF7E9 /* NotificationBannerView.swift in Sources */,
 				5827B0922B0CAB2800CCBBA1 /* MethodSettingsViewController.swift in Sources */,
+				F01DAE332C2B032A00521E46 /* RelaySelection.swift in Sources */,
 				58B993B12608A34500BA7811 /* LoginContentView.swift in Sources */,
 				7A516C2E2B6D357500BBD33D /* URL+Scoping.swift in Sources */,
 				5878A27529093A310096FC88 /* StorePaymentEvent.swift in Sources */,
@@ -5819,6 +5812,7 @@
 				58CEB30C2AFD586600E6E088 /* DynamicBackgroundConfiguration.swift in Sources */,
 				587B7536266528A200DEF7E9 /* NotificationManager.swift in Sources */,
 				5820EDA9288FE064006BF4E4 /* DeviceManagementInteractor.swift in Sources */,
+				F03A69F92C2AD414000E2E7E /* FormsheetPresentationController.swift in Sources */,
 				7A9CCCB92A96302800DD6A34 /* LocationCoordinator.swift in Sources */,
 				58FB865A26EA214400F188BC /* RelayCacheTrackerObserver.swift in Sources */,
 				581DFAEC2B1770C1005D6D1C /* AccessMethodViewModel+NavigationItem.swift in Sources */,
@@ -5939,7 +5933,7 @@
 				5807E2C02432038B00F5FF30 /* String+Split.swift in Sources */,
 				58B26E242943520C00D5980C /* NotificationProviderProtocol.swift in Sources */,
 				5877F94E2A0A59AA0052D9E9 /* NotificationResponse.swift in Sources */,
-				7AE2414A2C20682B0076CE33 /* FormsheetPresentationController.swift in Sources */,
+				7AE2414A2C20682B0076CE33 /* (null) in Sources */,
 				7A6389E52B7E4247008E77E1 /* EditCustomListCoordinator.swift in Sources */,
 				58677712290976FB006F721F /* SettingsInteractor.swift in Sources */,
 				58EF875D2B1638BF00C098B2 /* ProxyConfigurationTesterProtocol.swift in Sources */,
@@ -5949,7 +5943,7 @@
 				5878F50029CDA742003D4BE2 /* UIView+AutoLayoutBuilder.swift in Sources */,
 				7A28826D2BAAC9DE00FD9F20 /* IPOverrideHeaderView.swift in Sources */,
 				A98502032B627B120061901E /* LocalNetworkProbe.swift in Sources */,
-				7A3EFAAB2BDFDAE800318736 /* RelaySelection.swift in Sources */,
+				7A3EFAAB2BDFDAE800318736 /* (null) in Sources */,
 				7A6F2FA92AFD0842006D0856 /* CustomDNSDataSource.swift in Sources */,
 				58EF580B25D69D7A00AEBA94 /* ProblemReportSubmissionOverlayView.swift in Sources */,
 				5892A45E265FABFF00890742 /* EmptyTableViewHeaderFooterView.swift in Sources */,
@@ -6314,11 +6308,12 @@
 				F0ACE31E2BE4E4F2006D5333 /* AccountsProxy+Stubs.swift in Sources */,
 				F0ACE3202BE4E4F2006D5333 /* AccessTokenManager+Stubs.swift in Sources */,
 				F0ACE32C2BE4E77E006D5333 /* DeviceMock.swift in Sources */,
-				7AEBA52C2C22C65B0018BEC5 /* TimeInterval+Timeout.swift in Sources */,
+				7AEBA52C2C22C65B0018BEC5 /* (null) in Sources */,
 				F0ACE3222BE4E4F2006D5333 /* APIProxy+Stubs.swift in Sources */,
 				F0ACE3332BE516F1006D5333 /* RESTRequestExecutor+Stubs.swift in Sources */,
 				F0ACE32D2BE4E784006D5333 /* AccountMock.swift in Sources */,
 				7A52F96A2C1735AE00B133B9 /* RelaySelectorStub.swift in Sources */,
+				F03A69F72C2AD2D6000E2E7E /* TimeInterval+Timeout.swift in Sources */,
 				F0ACE32F2BE4EA8B006D5333 /* MockProxyFactory.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -9633,7 +9628,7 @@
 			repositoryURL = "https://github.com/mullvad/wireguard-apple.git";
 			requirement = {
 				kind = revision;
-				revision = 15242e1698fc45261285d7417ed2cd5130d7332e;
+				revision = 0cbbdedb3083e705429d6c12801128351a55e1ec;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
