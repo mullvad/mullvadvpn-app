@@ -68,6 +68,7 @@ function get_solution_output_path {
     case $build_target in
         "x86") echo "$solution_root/bin/Win32-$build_mode";;
         "x64") echo "$solution_root/bin/x64-$build_mode";;
+        "ARM64") echo "$solution_root/bin/ARM64-$build_mode";;
         *)
             echo "Unknown build target: $build_target"
             exit 1
