@@ -232,8 +232,10 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          submodules: true
+      - name: Checkout submodules
+        run: |
+          git config --global --add safe.directory '*'
+          git submodule update --init --recursive --depth=1 wireguard-go-rs
       - name: Install Go
         uses: actions/setup-go@v3
         with:

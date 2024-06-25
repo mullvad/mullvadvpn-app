@@ -98,8 +98,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          submodules: true
+
+      - name: Checkout wireguard-go submodule
+        if: matrix.os == 'macos-latest'
+        run: |
+          git config --global --add safe.directory '*'
+          git submodule update --init --depth=1 wireguard-go-rs
 
       - name: Install Protoc
         uses: arduino/setup-protoc@v3
