@@ -63,8 +63,7 @@ dnf install git gcc protobuf-devel libpcap-devel qemu \
 Building the `test-runner` binary is done with the `build-runner.sh` script.
 Currently, only `x86_64` platforms are supported for Windows/Linux and `ARM64` (Apple Silicon) for macOS.
 
-The `build-runner.sh` requires the `$TARGET` environment variable to be set.
-For example, building `test-runner` for Linux would look like this:
+For example, building `test-runner` for Windows would look like this:
 
 ``` bash
 ./container-run.sh ./build-runner.sh windows
@@ -109,7 +108,7 @@ cargo run --bin test-manager set debian11 qemu ./os-images/debian11.qcow2 linux 
     --package-type deb --architecture x64 \
     --provisioner ssh --ssh-user test --ssh-password test
 
-# Try it out to see if it works
+# Try it out to see if it works - you should reach the VM's graphical desktop environment
 cargo run --bin test-manager run-vm debian11
 
 # Run all tests
