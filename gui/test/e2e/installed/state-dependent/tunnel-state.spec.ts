@@ -62,6 +62,7 @@ test('App should show correct WireGuard port', async () => {
 
   await expect(inData).toContainText(new RegExp(':[0-9]+'));
 
+  await exec('mullvad obfuscation set mode off');
   await exec('mullvad relay set tunnel wireguard --port=53');
   await expectConnected(page);
   await expect(inData).toContainText(new RegExp(':53'));
@@ -71,6 +72,7 @@ test('App should show correct WireGuard port', async () => {
   await expect(inData).toContainText(new RegExp(':51820'));
 
   await exec('mullvad relay set tunnel wireguard --port=any');
+  await exec('mullvad obfuscation set mode auto');
 });
 
 test('App should show correct WireGuard transport protocol', async () => {
