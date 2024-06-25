@@ -339,6 +339,7 @@ dependencies {
     ksp(Dependencies.Compose.destinationsKsp)
 
     implementation(Dependencies.jodaTime)
+    implementation(Dependencies.kermit)
     implementation(Dependencies.Koin.core)
     implementation(Dependencies.Koin.android)
     implementation(Dependencies.Koin.compose)

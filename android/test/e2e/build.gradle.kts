@@ -134,6 +134,7 @@ dependencies {
     implementation(Dependencies.AndroidX.testRules)
     implementation(Dependencies.AndroidX.testUiAutomator)
     implementation(Dependencies.androidVolley)
+    implementation(Dependencies.kermit)
     implementation(Dependencies.junitAndroidTestExtensions)
     implementation(Dependencies.junitApi)
     implementation(Dependencies.junitAndroidTestCore)

@@ -11,6 +11,7 @@ object Dependencies {
         "de.mannodermaus.junit5:android-test-extensions:${Versions.Android.junit}"
     const val junitAndroidTestRunner =
         "de.mannodermaus.junit5:android-test-runner:${Versions.Android.junit}"
+    const val kermit = "co.touchlab:kermit:${Versions.kermit}"
     const val konsist = "com.lemonappdev:konsist:${Versions.konsist}"
     const val leakCanary = "com.squareup.leakcanary:leakcanary-android:${Versions.leakCanary}"
     const val mockkWebserver = "com.squareup.okhttp3:mockwebserver:${Versions.mockWebserver}"

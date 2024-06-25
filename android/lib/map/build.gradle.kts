@@ -35,12 +35,10 @@ android {
 }
 
 dependencies {
-
-    //Model
     implementation(project(Dependencies.Mullvad.modelLib))
 
+    implementation(Dependencies.AndroidX.lifecycleRuntimeKtx)
     implementation(Dependencies.Compose.ui)
     implementation(Dependencies.Compose.foundation)
-
-    implementation(Dependencies.AndroidX.lifecycleRuntimeKtx)
+    implementation(Dependencies.kermit)
 }

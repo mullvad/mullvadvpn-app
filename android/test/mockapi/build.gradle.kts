@@ -78,6 +78,7 @@ dependencies {
     implementation(Dependencies.AndroidX.testRunner)
     implementation(Dependencies.AndroidX.testRules)
     implementation(Dependencies.AndroidX.testUiAutomator)
+    implementation(Dependencies.kermit)
     implementation(Dependencies.jodaTime)
     implementation(Dependencies.junitAndroidTestExtensions)
     implementation(Dependencies.junitApi)

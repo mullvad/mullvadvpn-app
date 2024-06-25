@@ -48,6 +48,7 @@ dependencies {
     implementation(Dependencies.AndroidX.testRules)
     implementation(Dependencies.AndroidX.testUiAutomator)
     implementation(Dependencies.junitEngine)
+    implementation(Dependencies.kermit)
     implementation(Dependencies.Kotlin.stdlib)
 
     androidTestUtil(Dependencies.AndroidX.testOrchestrator)
