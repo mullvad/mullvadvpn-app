@@ -650,7 +650,6 @@ async fn connect_local_wg_relay(mullvad_client: &mut MullvadProxyClient) -> Resu
                 allowed_ips: vec!["0.0.0.0/0".parse().unwrap()],
                 endpoint: peer_addr,
                 psk: None,
-                #[cfg(target_os = "linux")]
                 constant_packet_size: false,
             },
             ipv4_gateway: CUSTOM_TUN_GATEWAY,
