@@ -81,9 +81,9 @@ function upload {
     sha256sum "${files[@]}" > "$checksums_path"
 
     case "$(uname -s)" in
-        # Linux is both the build and upload server. Just move directly to target dir
+        # Linux is both the build and upload server. Just copy directly to target dir
         Linux*)
-            mv "${files[@]}" "$checksums_path" "$UPLOAD_DIR/"
+            cp "${files[@]}" "$checksums_path" "$UPLOAD_DIR/"
             ;;
         # Other platforms need to transfer their artifacts to the Linux build machine.
         Darwin*|MINGW*|MSYS_NT*)
