@@ -77,6 +77,7 @@ fi
 # Returns 1 if no new artifacts were found
 function process_inbox {
     local inbox_dir=$1
+    echo "[#] Processing inbox at $inbox_dir"
 
     local found_new_artifacts="false"
     # Read all notify files and move the artifacts they point to into a local .latest copy
