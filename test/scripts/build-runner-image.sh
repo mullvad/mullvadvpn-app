@@ -4,7 +4,7 @@
 
 set -eu
 
-TEST_RUNNER_IMAGE_SIZE_MB=1000
+TEST_RUNNER_IMAGE_SIZE_MB=5000
 
 case $TARGET in
     "x86_64-pc-windows-gnu")
