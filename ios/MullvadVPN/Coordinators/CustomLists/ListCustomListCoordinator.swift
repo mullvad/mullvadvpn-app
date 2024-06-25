@@ -60,9 +60,25 @@ class ListCustomListCoordinator: Coordinator, Presentable, Presenting {
 
         coordinator.didFinish = { [weak self] editCustomListCoordinator, action, list in
             guard let self else { return }
+
             popToList()
             editCustomListCoordinator.removeFromParent()
-            self.updateRelayConstraints(for: action, in: list)
+
+            var relayConstraints = tunnelManager.settings.relayConstraints
+            relayConstraints.entryLocations = self.updateRelayConstraint(
+                relayConstraints.entryLocations,
+                for: action,
+                in: list
+            )
+            relayConstraints.exitLocations = self.updateRelayConstraint(
+                relayConstraints.exitLocations,
+                for: action,
+                in: list
+            )
+
+            tunnelManager.updateSettings([.relayConstraints(relayConstraints)]) { [weak self] in
+                self?.tunnelManager.reconnectTunnel(selectNewRelay: true)
+            }
         }
 
         coordinator.didCancel = { [weak self] editCustomListCoordinator in
@@ -75,38 +91,39 @@ class ListCustomListCoordinator: Coordinator, Presentable, Presenting {
         addChild(coordinator)
     }
 
-    private func updateRelayConstraints(for action: EditCustomListCoordinator.FinishAction, in list: CustomList) {
-        var relayConstraints = tunnelManager.settings.relayConstraints
+    private func updateRelayConstraint(
+        _ relayConstraint: RelayConstraint<UserSelectedRelays>,
+        for action: EditCustomListCoordinator.FinishAction,
+        in list: CustomList
+    ) -> RelayConstraint<UserSelectedRelays> {
+        var relayConstraint = relayConstraint
 
-        guard let customListSelection = relayConstraints.exitLocations.value?.customListSelection,
+        guard let customListSelection = relayConstraint.value?.customListSelection,
               customListSelection.listId == list.id
-        else { return }
+        else { return relayConstraint }
 
         switch action {
         case .save:
-            // TODO: - Add entry locations
             if customListSelection.isList {
                 let selectedRelays = UserSelectedRelays(
                     locations: list.locations,
                     customListSelection: UserSelectedRelays.CustomListSelection(listId: list.id, isList: true)
                 )
-                relayConstraints.exitLocations = .only(selectedRelays)
+                relayConstraint = .only(selectedRelays)
             } else {
                 let selectedConstraintIsRemovedFromList = list.locations.filter {
-                    relayConstraints.exitLocations.value?.locations.contains($0) ?? false
+                    relayConstraint.value?.locations.contains($0) ?? false
                 }.isEmpty
 
                 if selectedConstraintIsRemovedFromList {
-                    relayConstraints.exitLocations = .only(UserSelectedRelays(locations: []))
+                    relayConstraint = .only(UserSelectedRelays(locations: []))
                 }
             }
         case .delete:
-            relayConstraints.exitLocations = .only(UserSelectedRelays(locations: []))
+            relayConstraint = .only(UserSelectedRelays(locations: []))
         }
 
-        tunnelManager.updateSettings([.relayConstraints(relayConstraints)]) { [weak self] in
-            self?.tunnelManager.reconnectTunnel(selectNewRelay: true)
-        }
+        return relayConstraint
     }
 
     private func popToList() {

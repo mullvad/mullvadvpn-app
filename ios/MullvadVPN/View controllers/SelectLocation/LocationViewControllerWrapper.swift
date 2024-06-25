@@ -14,25 +14,72 @@ import UIKit
 protocol LocationViewControllerWrapperDelegate: AnyObject {
     func navigateToCustomLists(nodes: [LocationNode])
     func navigateToFilter()
-    func didSelectRelays(relays: UserSelectedRelays)
-    func didUpdateFilter(filter: RelayFilter)
+    func didSelectEntryRelays(_ relays: UserSelectedRelays)
+    func didSelectExitRelays(_ relays: UserSelectedRelays)
+    func didUpdateFilter(_ filter: RelayFilter)
 }
 
 final class LocationViewControllerWrapper: UIViewController {
-    private let locationViewController: LocationViewController
+    enum MultihopContext: Int, CaseIterable, CustomStringConvertible {
+        case entry, exit
+
+        var description: String {
+            switch self {
+            case .entry:
+                NSLocalizedString(
+                    "MULTIHOP_ENTRY",
+                    tableName: "SelectLocation",
+                    value: "Entry",
+                    comment: ""
+                )
+            case .exit:
+                NSLocalizedString(
+                    "MULTIHOP_EXIT",
+                    tableName: "SelectLocation",
+                    value: "Exit",
+                    comment: ""
+                )
+            }
+        }
+    }
+
+    private let entryLocationViewController: LocationViewController
+    private let exitLocationViewController: LocationViewController
     private let segmentedControl = UISegmentedControl()
+    private let locationViewContainer = UIStackView()
+
+    private var selectedEntry: UserSelectedRelays?
+    private var selectedExit: UserSelectedRelays?
+    private let multihopEnabled: Bool
+    private var multihopContext: MultihopContext = .exit
 
     weak var delegate: LocationViewControllerWrapperDelegate?
 
-    init(customListRepository: CustomListRepositoryProtocol, selectedRelays: UserSelectedRelays?) {
-        locationViewController = LocationViewController(
+    init(
+        customListRepository: CustomListRepositoryProtocol,
+        constraints: RelayConstraints,
+        multihopEnabled: Bool
+    ) {
+        self.multihopEnabled = multihopEnabled
+
+        selectedEntry = constraints.entryLocations.value
+        selectedExit = constraints.exitLocations.value
+
+        entryLocationViewController = LocationViewController(
             customListRepository: customListRepository,
-            selectedRelays: selectedRelays
+            selectedRelays: RelaySelection()
+        )
+
+        exitLocationViewController = LocationViewController(
+            customListRepository: customListRepository,
+            selectedRelays: RelaySelection()
         )
 
         super.init(nibName: nil, bundle: nil)
 
-        locationViewController.delegate = self
+        updateViewControllers {
+            $0.delegate = self
+        }
     }
 
     var didFinish: (() -> Void)?
@@ -50,14 +97,25 @@ final class LocationViewControllerWrapper: UIViewController {
         setUpNavigation()
         setUpSegmentedControl()
         addSubviews()
+        swapViewController()
     }
 
     func setCachedRelays(_ cachedRelays: CachedRelays, filter: RelayFilter) {
-        locationViewController.setCachedRelays(cachedRelays, filter: filter)
+        updateViewControllers {
+            $0.setCachedRelays(cachedRelays, filter: filter)
+        }
     }
 
     func refreshCustomLists() {
-        locationViewController.refreshCustomLists()
+        updateViewControllers {
+            $0.refreshCustomLists()
+        }
+    }
+
+    private func updateViewControllers(callback: (LocationViewController) -> Void) {
+        [entryLocationViewController, exitLocationViewController]
+            .compactMap { $0 }
+            .forEach { callback($0) }
     }
 
     private func setUpNavigation() {
@@ -100,44 +158,76 @@ final class LocationViewControllerWrapper: UIViewController {
             .font: UIFont.systemFont(ofSize: 17, weight: .medium),
         ], for: .normal)
 
-        segmentedControl.insertSegment(withTitle: NSLocalizedString(
-            "MULTIHOP_TAB_ENTRY",
-            tableName: "SelectLocation",
-            value: "Entry",
-            comment: ""
-        ), at: 0, animated: false)
-        segmentedControl.insertSegment(withTitle: NSLocalizedString(
-            "MULTIHOP_TAB_EXIT",
-            tableName: "SelectLocation",
-            value: "Exit",
-            comment: ""
-        ), at: 1, animated: false)
+        segmentedControl.insertSegment(
+            withTitle: MultihopContext.entry.description,
+            at: MultihopContext.entry.rawValue,
+            animated: false
+        )
+        segmentedControl.insertSegment(
+            withTitle: MultihopContext.exit.description,
+            at: MultihopContext.exit.rawValue,
+            animated: false
+        )
 
-        segmentedControl.selectedSegmentIndex = 0
+        segmentedControl.selectedSegmentIndex = multihopContext.rawValue
         segmentedControl.addTarget(self, action: #selector(segmentedControlDidChange), for: .valueChanged)
     }
 
     private func addSubviews() {
-        addChild(locationViewController)
-        locationViewController.didMove(toParent: self)
-
-        view.addConstrainedSubviews([segmentedControl, locationViewController.view]) {
+        view.addConstrainedSubviews([segmentedControl, locationViewContainer]) {
             segmentedControl.heightAnchor.constraint(equalToConstant: 44)
             segmentedControl.pinEdgesToSuperviewMargins(PinnableEdges([.top(0), .leading(8), .trailing(8)]))
 
-            locationViewController.view.pinEdgesToSuperview(.all().excluding(.top))
+            locationViewContainer.pinEdgesToSuperview(.all().excluding(.top))
 
-            #if DEBUG
-            locationViewController.view.topAnchor.constraint(equalTo: segmentedControl.bottomAnchor, constant: 4)
-            #else
-            locationViewController.view.pinEdgeToSuperviewMargin(.top(0))
-            #endif
+            if multihopEnabled {
+                locationViewContainer.topAnchor.constraint(equalTo: segmentedControl.bottomAnchor, constant: 4)
+            } else {
+                locationViewContainer.pinEdgeToSuperviewMargin(.top(0))
+            }
         }
     }
 
     @objc
     private func segmentedControlDidChange(sender: UISegmentedControl) {
-        refreshCustomLists()
+        multihopContext = .allCases[segmentedControl.selectedSegmentIndex]
+        swapViewController()
+    }
+
+    func swapViewController() {
+        locationViewContainer.arrangedSubviews.forEach { view in
+            view.removeFromSuperview()
+        }
+
+        let (selectedRelays, oldViewController, newViewController) = switch multihopContext {
+        case .entry:
+            (
+                RelaySelection(
+                    selected: selectedEntry,
+                    excluded: selectedExit,
+                    excludedTitle: MultihopContext.exit.description
+                ),
+                exitLocationViewController,
+                entryLocationViewController
+            )
+        case .exit:
+            (
+                RelaySelection(
+                    selected: selectedExit,
+                    excluded: multihopEnabled ? selectedEntry : nil,
+                    excludedTitle: MultihopContext.entry.description
+                ),
+                entryLocationViewController,
+                exitLocationViewController
+            )
+        }
+
+        oldViewController.removeFromParent()
+        newViewController.setSelectedRelays(selectedRelays)
+        addChild(newViewController)
+        newViewController.didMove(toParent: self)
+
+        locationViewContainer.addArrangedSubview(newViewController.view)
     }
 }
 
@@ -147,10 +237,21 @@ extension LocationViewControllerWrapper: LocationViewControllerDelegate {
     }
 
     func didSelectRelays(relays: UserSelectedRelays) {
-        delegate?.didSelectRelays(relays: relays)
+        switch multihopContext {
+        case .entry:
+            selectedEntry = relays
+            delegate?.didSelectEntryRelays(relays)
+
+            // Trigger change in segmented control, which in turn triggers view controller swap.
+            segmentedControl.selectedSegmentIndex = MultihopContext.exit.rawValue
+            segmentedControl.sendActions(for: .valueChanged)
+        case .exit:
+            delegate?.didSelectExitRelays(relays)
+            didFinish?()
+        }
     }
 
     func didUpdateFilter(filter: RelayFilter) {
-        delegate?.didUpdateFilter(filter: filter)
+        delegate?.didUpdateFilter(filter)
     }
 }
