@@ -44,7 +44,6 @@ import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.SettingsTransition
 import net.mullvad.mullvadvpn.lib.common.util.openLink
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
-import net.mullvad.mullvadvpn.lib.theme.DarkThemeState
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.util.appendHideNavOnPlayBuild
 import net.mullvad.mullvadvpn.viewmodel.SettingsViewModel
@@ -62,8 +61,6 @@ private fun PreviewSettings() {
                     isLoggedIn = true,
                     isSupportedVersion = true,
                     isPlayBuild = false,
-                    isMaterialYouTheme = false,
-                    darkThemeState = DarkThemeState.SYSTEM
                 ),
         )
     }
@@ -83,8 +80,6 @@ fun Settings(navigator: DestinationsNavigator) {
         onApiAccessClick = dropUnlessResumed { navigator.navigate(ApiAccessListDestination) },
         onReportProblemCellClick =
             dropUnlessResumed { navigator.navigate(ReportProblemDestination) },
-        onUseMaterialYouThemeClick = vm::setUseMaterialYouTheme,
-        onDarkThemeStateSelected = vm::onDarkThemeStateSelected,
         onBackClick = dropUnlessResumed { navigator.navigateUp() }
     )
 }
@@ -97,8 +92,6 @@ fun SettingsScreen(
     onSplitTunnelingCellClick: () -> Unit = {},
     onReportProblemCellClick: () -> Unit = {},
     onApiAccessClick: () -> Unit = {},
-    onUseMaterialYouThemeClick: (Boolean) -> Unit = {},
-    onDarkThemeStateSelected: (DarkThemeState) -> Unit = {},
     onBackClick: () -> Unit = {}
 ) {
     val context = LocalContext.current
@@ -112,11 +105,7 @@ fun SettingsScreen(
             state = lazyListState
         ) {
             item { Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding)) }
-            item {
-                MaterialYou(state = state, onUseMaterialYouThemeClick = onUseMaterialYouThemeClick)
-            }
             item { Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding)) }
-            item { DarkTheme(state = state, onDarkThemeStateSelected = onDarkThemeStateSelected) }
             if (state.isLoggedIn) {
                 item { Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding)) }
                 item {
@@ -260,40 +249,4 @@ private fun PrivacyPolicy(context: Context, state: SettingsUiState) {
             )
         }
     )
-}
-
-@Composable
-private fun MaterialYou(state: SettingsUiState, onUseMaterialYouThemeClick: (Boolean) -> Unit) {
-    HeaderSwitchComposeCell(
-        title = stringResource(id = R.string.use_material_you),
-        isToggled = state.isMaterialYouTheme,
-        onCellClicked = onUseMaterialYouThemeClick
-    )
-}
-
-@Composable
-private fun DarkTheme(
-    state: SettingsUiState,
-    onDarkThemeStateSelected: (DarkThemeState) -> Unit = {}
-) {
-    Column {
-        HeaderCell(
-            text = stringResource(id = R.string.use_dark_theme),
-        )
-        SelectableCell(
-            title = stringResource(id = R.string.use_system_setting),
-            isSelected = state.darkThemeState == DarkThemeState.SYSTEM,
-            onCellClicked = { onDarkThemeStateSelected(DarkThemeState.SYSTEM) }
-        )
-        SelectableCell(
-            title = stringResource(id = R.string.on),
-            isSelected = state.darkThemeState == DarkThemeState.ON,
-            onCellClicked = { onDarkThemeStateSelected(DarkThemeState.ON) }
-        )
-        SelectableCell(
-            title = stringResource(id = R.string.off),
-            isSelected = state.darkThemeState == DarkThemeState.OFF,
-            onCellClicked = { onDarkThemeStateSelected(DarkThemeState.OFF) }
-        )
-    }
 }

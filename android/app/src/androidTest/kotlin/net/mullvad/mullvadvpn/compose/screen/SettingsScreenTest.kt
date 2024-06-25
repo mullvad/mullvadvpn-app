@@ -7,7 +7,6 @@ import io.mockk.MockKAnnotations
 import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.SettingsUiState
-import net.mullvad.mullvadvpn.lib.theme.DarkThemeState
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
