@@ -3,6 +3,7 @@ object Versions {
     const val jodaTime = "2.12.7"
     const val junit = "5.10.2"
     const val jvmTarget = "17"
+    const val kermit = "2.0.4"
     const val konsist = "0.14.0"
     const val kotlin = "1.9.24"
     const val kotlinCompilerExtensionVersion = "1.5.14"

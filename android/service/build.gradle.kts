@@ -60,6 +60,7 @@ dependencies {
     implementation(Dependencies.AndroidX.coreKtx)
     implementation(Dependencies.AndroidX.lifecycleService)
     implementation(Dependencies.Arrow.core)
+    implementation(Dependencies.kermit)
     implementation(Dependencies.Koin.android)
     implementation(Dependencies.Koin.core)
     implementation(Dependencies.Kotlin.stdlib)

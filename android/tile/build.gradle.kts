@@ -36,6 +36,7 @@ dependencies {
     implementation(Dependencies.Koin.android)
 
     implementation(Dependencies.AndroidX.appcompat)
+    implementation(Dependencies.kermit)
     implementation(Dependencies.Kotlin.stdlib)
     implementation(Dependencies.KotlinX.coroutinesAndroid)
 }
