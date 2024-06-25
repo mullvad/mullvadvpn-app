@@ -6,6 +6,10 @@ CARGO_REGISTRY_VOLUME_NAME=${CARGO_REGISTRY_VOLUME_NAME:-"cargo-registry"}
 CONTAINER_RUNNER=${CONTAINER_RUNNER:-"podman"}
 PACKAGES_DIR=${PACKAGES_DIR:-"$HOME/.cache/mullvad-test/packages"}
 
+if [ ! -d "$PACKAGES_DIR" ]; then
+  echo "$PACKAGES_DIR does not exist. It is needed to build the test bundle, so please go ahead and create the directory and re-run this script."
+fi
+
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_DIR="$SCRIPT_DIR/.."
 cd "$SCRIPT_DIR"
