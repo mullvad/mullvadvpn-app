@@ -17,14 +17,16 @@ function usage() {
     echo "This script downloads, verifies, and notifies about Mullvad browser packages."
     echo
     echo "Options:"
-    echo "  -h | --help	Show this help message and exit."
+    echo "  -h | --help    Show this help message and exit."
     exit 1
 }
 
 
 function main() {
-    # mullvad-browser-stable.deb
-    PACKAGE_FILENAME=$1
+    local package_filename_base=$1
+    local extension=$2
+    PACKAGE_FILENAME="$package_filename_base.$extension"
+
     PACKAGE_URL=https://cdn.mullvad.net/browser/$PACKAGE_FILENAME
     SIGNATURE_URL=$PACKAGE_URL.asc
 
@@ -46,6 +48,11 @@ function main() {
         exit 1
     fi
     rm "$PACKAGE_FILENAME.asc"
+
+    # Hack to get the architecture into the filename
+    local filename_with_arch="${package_filename_base}_x86_64.$extension"
+    mv "$PACKAGE_FILENAME" "$filename_with_arch"
+    PACKAGE_FILENAME="$filename_with_arch"
 
     # Check if the deb package has changed since last time
     # Handle the bootstrap problem by checking if the "output file" even exists and just moving on if it doesn't
@@ -81,8 +88,8 @@ pushd "$TMP_DIR" > /dev/null
 
 echo "[#] Configured releases are: ${BROWSER_RELEASES[*]}"
 for release in "${BROWSER_RELEASES[@]}"; do
-    main "mullvad-browser-$release.deb"
-    main "mullvad-browser-$release.rpm"
+    main "mullvad-browser-$release" "deb"
+    main "mullvad-browser-$release" "rpm"
 done
 
 if [[ -z "$(ls -A "$TMP_DIR")" ]]; then
