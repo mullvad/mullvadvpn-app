@@ -55,10 +55,10 @@ the current state of the latest code in git, not necessarily any existing releas
 |-------------------------------|:-------:|:-----:|:-----:|:-------:|:---:|
 | OpenVPN                       |    ✓    |   ✓   |   ✓   |         |     |
 | WireGuard                     |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
-| Quantum-resistant tunnels     |    ✓    |   ✓   |   ✓   |    ✓    |     |
-| [DAITA]                       |    ✓    |       |        |         |     |
+| Quantum-resistant tunnels     |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
+| [DAITA]                       |    ✓    |       |       |         |     |
 | WireGuard multihop            |    ✓    |   ✓   |   ✓   |         |     |
-| WireGuard over TCP            |    ✓    |   ✓   |   ✓   |    ✓    |     |
+| WireGuard over TCP            |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
 | OpenVPN over Shadowsocks      |    ✓    |   ✓   |   ✓   |         |     |
 | Split tunneling               |    ✓    |   ✓   |   ✓   |    ✓    |     |
 | Custom DNS server             |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
