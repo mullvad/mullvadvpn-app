@@ -108,7 +108,7 @@ cargo run --bin test-manager set debian11 qemu ./os-images/debian11.qcow2 linux 
     --package-type deb --architecture x64 \
     --provisioner ssh --ssh-user test --ssh-password test
 
-# Try it out to see if it works
+# Try it out to see if it works - you should reach the VM's graphical desktop environment
 cargo run --bin test-manager run-vm debian11
 
 # Run all tests
