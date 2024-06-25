@@ -55,7 +55,8 @@ fun ConnectionButton(
         if (state is TunnelState.Disconnected) {
             MaterialTheme.colorScheme.variant
         } else {
-            MaterialTheme.colorScheme.error//.copy(alpha = AlphaDisconnectButton)
+            // TODO Should we make this transparent or not?
+            MaterialTheme.colorScheme.error // .copy(alpha = AlphaDisconnectButton)
         }
 
     val contentColor =
