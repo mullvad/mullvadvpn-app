@@ -20,7 +20,6 @@ jobs:
     env:
       SOURCE_PACKAGES_PATH: .spm
       TEST_ACCOUNT: ${{ secrets.IOS_TEST_ACCOUNT_NUMBER }}
-      PARTNER_API_TOKEN: ${{ secrets.STAGEMOLE_PARTNER_AUTH }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
