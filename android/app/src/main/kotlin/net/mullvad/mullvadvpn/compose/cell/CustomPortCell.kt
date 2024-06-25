@@ -89,11 +89,12 @@ fun CustomPortCell(
                 title = title,
                 style = MaterialTheme.typography.labelLarge,
                 textAlign = TextAlign.Start,
-                textColor = if (isSelected) {
-                    MaterialTheme.colorScheme.onSelected
-                } else {
-                    MaterialTheme.colorScheme.onSurface
-                }
+                textColor =
+                    if (isSelected) {
+                        MaterialTheme.colorScheme.onSelected
+                    } else {
+                        MaterialTheme.colorScheme.onSurface
+                    }
             )
         }
         Spacer(modifier = Modifier.width(Dimens.verticalSpacer))

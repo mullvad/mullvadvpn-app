@@ -33,7 +33,6 @@ object Versions {
         const val testOrchestrator = "1.5.0"
         const val testRunner = "1.6.1"
         const val uiautomator = "2.4.0-alpha01"
-        const val dataStore = "1.0.0"
     }
 
     object Arrow {

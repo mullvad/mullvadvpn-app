@@ -42,7 +42,6 @@ object Dependencies {
             "androidx.test.uiautomator:uiautomator:${Versions.AndroidX.uiautomator}"
         const val testOrchestrator =
             "androidx.test:orchestrator:${Versions.AndroidX.testOrchestrator}"
-        const val dataStorePreferences = "androidx.datastore:datastore-preferences:${Versions.AndroidX.dataStore}"
     }
 
     object Arrow {

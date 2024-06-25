@@ -3,8 +3,6 @@ package net.mullvad.mullvadvpn.di
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
-import androidx.datastore.dataStoreFile
-import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import net.mullvad.mullvadvpn.BuildConfig
@@ -160,9 +158,6 @@ val uiModule = module {
     }
 
     single { ProblemReportRepository() }
-    single {
-        PreferenceDataStoreFactory.create { androidContext().dataStoreFile(APP_PREFERENCES_NAME) }
-    }
 
     single { AppVersionInfoRepository(get(), get()) }
 
