@@ -75,7 +75,7 @@ for artifact_dir in "${artifact_dirs[@]}"; do
         arch_repo_dir="$repo_dir/$arch"
         for rpm_path in "$artifact_dir"/*"$arch".rpm; do
             mkdir -p "$arch_repo_dir"
-            echo "Copying $rpm_path to $arch_repo_dir/"
+            echo "[#] Copying $rpm_path to $arch_repo_dir/"
             cp "$rpm_path" "$arch_repo_dir"/
         done
     done

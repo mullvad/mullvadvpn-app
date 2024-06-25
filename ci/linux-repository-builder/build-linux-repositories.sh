@@ -173,7 +173,9 @@ for repository in "${REPOSITORIES[@]}"; do
 
     # rsync repositories to repository server
 
+    echo "[#] Syncing deb repository to $deb_remote_repo_dir"
     rsync_repo "$deb_repo_dir" "$deb_remote_repo_dir"
+    echo "[#] Syncing rpm repository to $rpm_remote_repo_dir"
     rsync_repo "$rpm_repo_dir" "$rpm_remote_repo_dir"
 
 done
