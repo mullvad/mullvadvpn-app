@@ -64,7 +64,7 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
 
     override fun onCreate() {
         super.onCreate()
-        Logger.d("MullvadVpnService: onCreate")
+        Logger.i("MullvadVpnService: onCreate")
 
         loadKoinModules(listOf(vpnServiceModule, apiEndpointModule))
         with(getKoin()) {
@@ -101,7 +101,7 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Logger.d(
+        Logger.i(
             "onStartCommand (intent=$intent, action=${intent?.action}, flags=$flags, startId=$startId)"
         )
 
@@ -111,7 +111,7 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
         // where the service would potentially otherwise be too slow running `startForeground`.
         when {
             keyguardManager.isKeyguardLocked -> {
-                Logger.d("Keyguard is locked, ignoring command")
+                Logger.i("Keyguard is locked, ignoring command")
             }
             intent.isFromSystem() || intent?.action == KEY_CONNECT_ACTION -> {
                 // Only show on foreground if we have permission
@@ -130,10 +130,10 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
 
     override fun onBind(intent: Intent?): IBinder {
         bindCount.incrementAndGet()
-        Logger.d("onBind: $intent")
+        Logger.i("onBind: $intent")
 
         if (intent.isFromSystem()) {
-            Logger.d("onBind from system")
+            Logger.i("onBind from system")
             _shouldBeOnForeground.update { true }
         }
 
@@ -177,14 +177,14 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
 
         // Foreground?
         if (intent.isFromSystem()) {
-            Logger.d("onUnbind from system")
+            Logger.i("onUnbind from system")
             _shouldBeOnForeground.update { false }
         }
 
         if (count == 0) {
-            Logger.d("No one bound to the service, stopSelf()")
+            Logger.i("No one bound to the service, stopSelf()")
             lifecycleScope.launch {
-                Logger.d("Waiting for disconnected state")
+                Logger.i("Waiting for disconnected state")
                 // TODO This needs reworking, we should not wait for the disconnected state, what we
                 // want is the notification of disconnected to go out before we start shutting down
                 connectionProxy.tunnelState
@@ -195,7 +195,7 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
                     .first()
 
                 if (bindCount.get() == 0) {
-                    Logger.d("Stopping service")
+                    Logger.i("Stopping service")
                     stopSelf()
                 }
             }
@@ -204,7 +204,7 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
     }
 
     override fun onDestroy() {
-        Logger.d("MullvadVpnService: onDestroy")
+        Logger.i("MullvadVpnService: onDestroy")
         managementService.stop()
 
         // Shutting down the daemon gracefully

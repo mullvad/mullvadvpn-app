@@ -91,7 +91,7 @@ class MullvadTileService : TileService() {
         val isSetup = VpnService.prepare(applicationContext) == null
         // TODO This logic should be more advanced, we should ensure user has an account setup etc.
         if (!isSetup) {
-            Logger.d("TileService: VPN service not setup, starting main activity")
+            Logger.i("TileService: VPN service not setup, starting main activity")
 
             val intent =
                 Intent().apply {
@@ -105,7 +105,7 @@ class MullvadTileService : TileService() {
             startActivityAndCollapseCompat(intent)
             return
         } else {
-            Logger.d("TileService: VPN service is setup")
+            Logger.i("TileService: VPN service is setup")
         }
         val intent =
             Intent().apply {
