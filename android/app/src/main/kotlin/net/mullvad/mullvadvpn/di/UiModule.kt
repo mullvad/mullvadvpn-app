@@ -198,13 +198,9 @@ val uiModule = module {
     viewModel { PaymentViewModel(get()) }
     viewModel { FilterViewModel(get(), get()) }
     viewModel { (location: GeoLocationId?) -> CreateCustomListDialogViewModel(location, get()) }
-    viewModel { parameters ->
-        CustomListLocationsViewModel(parameters.get(), parameters.get(), get(), get(), get())
-    }
+    viewModel { CustomListLocationsViewModel(get(), get(), get(), get()) }
     viewModel { parameters -> EditCustomListViewModel(parameters.get(), get()) }
-    viewModel { parameters ->
-        EditCustomListNameDialogViewModel(parameters.get(), parameters.get(), get())
-    }
+    viewModel { EditCustomListNameDialogViewModel(get(), get()) }
     viewModel { CustomListsViewModel(get(), get()) }
     viewModel { parameters -> DeleteCustomListConfirmationViewModel(parameters.get(), get()) }
     viewModel { ServerIpOverridesViewModel(get(), get()) }
