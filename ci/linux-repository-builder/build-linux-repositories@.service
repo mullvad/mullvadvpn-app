@@ -1,0 +1,24 @@
+# Create separate services with instance names being set to "$server_environment".
+# See the build-linux-repositories.sh script for details.
+#
+# For example:
+# * build-linux-repositories@production.service
+# * build-linux-repositories@staging.service
+# * build-linux-repositories@dev.service
+#
+# To install this service, do the following:
+#
+# * Log in to the user with `sudo machinectl shell <build account>@` to get a proper shell
+# * Copy this service file and corresponding timer file to ~/.config/systemd/user
+# * Edit `ExecStart` path to point to absolute path to script
+# * Reload systemd: `systemctl --user daemon-reload`
+# * Start the timers:
+#   $ systemctl --user enable --now build-linux-repositories@production.timer
+#   ... Repeat for other environments.
+
+[Unit]
+Description=Mullvad Linux repository generation and upload service
+
+[Service]
+Type=oneshot
+ExecStart=./build-linux-repositories.sh %i

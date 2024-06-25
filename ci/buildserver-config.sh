@@ -3,29 +3,13 @@
 # Buildserver configuration. Runtime values are defined here instead of
 # the scripts where they are used.
 
-# Which gpg key to sign things with
-export CODE_SIGNING_KEY_FINGERPRINT="A1198702FC3E0A09A9AE5B75D5A1D4F266DE8DDF"
-
-# Debian codenames we support.
-SUPPORTED_DEB_CODENAMES=("sid" "testing" "bookworm" "bullseye")
-# Ubuntu codenames we support (latest two LTS) ...
-SUPPORTED_DEB_CODENAMES+=("noble" "jammy" "focal")
-# ... + latest non-LTS Ubuntu. We officially only support the latest non-LTS.
-# But to not cause too much disturbance just when Ubuntu is released, we keep
-# the last two codenames working in the repository.
-SUPPORTED_DEB_CODENAMES+=("mantic")
-export SUPPORTED_DEB_CODENAMES
-
-export SUPPORTED_RPM_ARCHITECTURES=("x86_64" "aarch64")
-
-# Servers to upload Linux deb/rpm repositories and all other build artifacts to.
-export DEV_UPLOAD_SERVERS=("cdn.devmole.eu")
-export STAGING_UPLOAD_SERVERS=("cdn.stagemole.eu")
+# Servers to upload build artifacts to.
 export PRODUCTION_UPLOAD_SERVERS=("cdn.mullvad.net")
 
-export DEV_LINUX_REPOSITORY_PUBLIC_URL="https://repository.devmole.eu"
-export STAGING_LINUX_REPOSITORY_PUBLIC_URL="https://repository.stagemole.eu"
-export PRODUCTION_LINUX_REPOSITORY_PUBLIC_URL="https://repository.mullvad.net"
+# Where to publish new app artifact notification files to, so that
+# build-linux-repositories picks it up.
+# Keep in sync with build-linux-repositories-config.sh
+#export LINUX_REPOSITORY_INBOX_DIR_BASE="PLEASE CONFIGURE ME"
 
 # What container volumes cargo should put caches in.
 # Specify differently if running multiple builds in parallel on one machine,

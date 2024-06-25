@@ -1,0 +1,17 @@
+# To install this do the following:
+#
+# * Create a directory for the browser GPG keyring (used to verify downloaded artifacts)
+# * Import the key there: `GNUPGHOME=/the/gpg/home gpg --import ./tor-browser-developers-signing-key.asc`
+# * Copy this service file and corresponding timer file to ~/.config/systemd/user
+# * Edit `Environment` below to point `GNUPGHOME` to the path you created above
+# * Edit `ExecStart` path to point to absolute path to download script
+# * Reload systemd: `systemctl --user daemon-reload`
+# * Start the timer: `systemctl --user enable --now download-mullvad-browser.timer`
+
+[Unit]
+Description=Mullvad Browser download service
+
+[Service]
+Type=oneshot
+Environment="GNUPGHOME=..."
+ExecStart=./download-mullvad-browser.sh
