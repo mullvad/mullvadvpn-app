@@ -7,9 +7,9 @@ import android.os.Build
 import android.os.Environment
 import android.os.Environment.DIRECTORY_PICTURES
 import android.provider.MediaStore
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
+import co.touchlab.kermit.Logger
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -22,7 +22,7 @@ import org.junit.jupiter.api.extension.TestWatcher
 class CaptureScreenshotOnFailedTestRule(private val testTag: String) : TestWatcher {
 
     override fun testFailed(context: ExtensionContext, cause: Throwable) {
-        Log.d(testTag, "Capturing screenshot of failed test: " + context.requiredTestMethod.name)
+        Logger.d("Capturing screenshot of failed test: " + context.requiredTestMethod.name)
         val timestamp = OffsetDateTime.now().truncatedTo(ChronoUnit.MILLIS)
         val screenshotName = "$timestamp-${context.requiredTestMethod.name}.jpeg"
         captureScreenshot(testTag, screenshotName)
@@ -71,12 +71,12 @@ class CaptureScreenshotOnFailedTestRule(private val testTag: String) : TestWatch
                 try {
                     this.compress(Bitmap.CompressFormat.JPEG, 50, it!!)
                 } catch (e: IOException) {
-                    Log.e(testTag, "Unable to store screenshot: ${e.message}")
+                    Logger.e("Unable to store screenshot: ${e.message}")
                 }
             }
             contentResolver.update(uri, contentValues, null, null)
         } else {
-            Log.e(testTag, "Unable to store screenshot")
+            Logger.e("Unable to store screenshot")
         }
     }
 
@@ -101,7 +101,7 @@ class CaptureScreenshotOnFailedTestRule(private val testTag: String) : TestWatch
             try {
                 this.compress(Bitmap.CompressFormat.JPEG, 50, outputStream)
             } catch (e: IOException) {
-                Log.e(testTag, "Unable to store screenshot: ${e.message}")
+                Logger.e("Unable to store screenshot: ${e.message}")
             }
         }
         contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)

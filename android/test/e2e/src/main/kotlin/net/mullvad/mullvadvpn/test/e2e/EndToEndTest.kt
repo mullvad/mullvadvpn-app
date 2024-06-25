@@ -5,6 +5,7 @@ import android.content.Context
 import android.os.Build
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
+import co.touchlab.kermit.Logger
 import de.mannodermaus.junit5.extensions.GrantPermissionExtension
 import net.mullvad.mullvadvpn.test.common.interactor.AppInteractor
 import net.mullvad.mullvadvpn.test.common.rule.CaptureScreenshotOnFailedTestRule
@@ -34,6 +35,8 @@ abstract class EndToEndTest(private val infra: String) {
 
     @BeforeEach
     fun setup() {
+        Logger.setTag(LOG_TAG)
+
         device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         targetContext = InstrumentationRegistry.getInstrumentation().targetContext
 

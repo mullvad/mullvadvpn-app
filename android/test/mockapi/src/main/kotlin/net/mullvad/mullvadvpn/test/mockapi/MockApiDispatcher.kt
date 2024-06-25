@@ -1,13 +1,12 @@
 package net.mullvad.mullvadvpn.test.mockapi
 
-import android.util.Log
+import co.touchlab.kermit.Logger
 import net.mullvad.mullvadvpn.test.mockapi.constant.ACCOUNT_URL_PATH
 import net.mullvad.mullvadvpn.test.mockapi.constant.AUTH_TOKEN_URL_PATH
 import net.mullvad.mullvadvpn.test.mockapi.constant.CREATE_ACCOUNT_URL_PATH
 import net.mullvad.mullvadvpn.test.mockapi.constant.DEVICES_URL_PATH
 import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_ACCESS_TOKEN
 import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_ID_1
-import net.mullvad.mullvadvpn.test.mockapi.constant.LOG_TAG
 import net.mullvad.mullvadvpn.test.mockapi.util.accessTokenJsonResponse
 import net.mullvad.mullvadvpn.test.mockapi.util.accountCreationJson
 import net.mullvad.mullvadvpn.test.mockapi.util.accountInfoJson
@@ -34,7 +33,7 @@ class MockApiDispatcher : Dispatcher() {
     private var cachedPubKeyFromAppUnderTest: String? = null
 
     override fun dispatch(request: RecordedRequest): MockResponse {
-        Log.d(LOG_TAG, "Request: $request (body=${request.body.peek().readUtf8()})")
+        Logger.d("Request: $request (body=${request.body.peek().readUtf8()})")
         return when (request.path ?: "") {
             AUTH_TOKEN_URL_PATH -> handleLoginRequest(request.body)
             DEVICES_URL_PATH -> {
@@ -70,7 +69,7 @@ class MockApiDispatcher : Dispatcher() {
                 }
             }
         }.also { response ->
-            Log.d(LOG_TAG, "Response: $response (body=${response.getBody()?.peek()?.readUtf8()})")
+            Logger.d("Response: $response (body=${response.getBody()?.peek()?.readUtf8()})")
         }
     }
 
@@ -89,8 +88,7 @@ class MockApiDispatcher : Dispatcher() {
                         .toString()
                 )
         } else {
-            Log.e(
-                LOG_TAG,
+            Logger.e(
                 "Unexpected account number (expected=$expectedAccountNumber was=$accountNumber)"
             )
             MockResponse().setResponseCode(400)

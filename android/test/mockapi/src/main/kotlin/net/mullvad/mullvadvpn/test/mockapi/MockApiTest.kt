@@ -3,9 +3,9 @@ package net.mullvad.mullvadvpn.test.mockapi
 import android.Manifest.permission.READ_EXTERNAL_STORAGE
 import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
 import android.content.Context
-import android.util.Log
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
+import co.touchlab.kermit.Logger
 import de.mannodermaus.junit5.extensions.GrantPermissionExtension
 import java.net.InetAddress
 import net.mullvad.mullvadvpn.lib.endpoint.CustomApiEndpointConfiguration
@@ -37,13 +37,15 @@ abstract class MockApiTest {
 
     @BeforeEach
     open fun setup() {
+        Logger.setTag(LOG_TAG)
+
         device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         targetContext = InstrumentationRegistry.getInstrumentation().targetContext
 
         app = AppInteractor(device, targetContext, PACKAGE_NAME)
 
         mockWebServer.start()
-        Log.d(LOG_TAG, "Mocked web server started using port: ${mockWebServer.port}")
+        Logger.d("Mocked web server started using port: ${mockWebServer.port}")
         endpoint = createEndpoint(mockWebServer.port)
     }
 

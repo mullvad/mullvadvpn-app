@@ -8,7 +8,7 @@ import android.net.VpnService
 import android.os.Build
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
-import android.util.Log
+import co.touchlab.kermit.Logger
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.MainScope
@@ -23,7 +23,6 @@ import kotlinx.coroutines.withTimeoutOrNull
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_CONNECT_ACTION
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_DISCONNECT_ACTION
 import net.mullvad.mullvadvpn.lib.common.constant.MAIN_ACTIVITY_CLASS
-import net.mullvad.mullvadvpn.lib.common.constant.TAG
 import net.mullvad.mullvadvpn.lib.common.constant.VPN_SERVICE_CLASS
 import net.mullvad.mullvadvpn.lib.common.util.SdkUtils
 import net.mullvad.mullvadvpn.lib.common.util.SdkUtils.setSubtitleIfSupported
@@ -73,7 +72,7 @@ class MullvadTileService : TileService() {
                 if (isUnlockStatusPropagated) {
                     toggleTunnel()
                 } else {
-                    Log.e("mullvad", "Unable to toggle tunnel state")
+                    Logger.e("Unable to toggle tunnel state")
                 }
             }
         }
@@ -92,7 +91,7 @@ class MullvadTileService : TileService() {
         val isSetup = VpnService.prepare(applicationContext) == null
         // TODO This logic should be more advanced, we should ensure user has an account setup etc.
         if (!isSetup) {
-            Log.d(TAG, "TileService: VPN service not setup, starting main activity")
+            Logger.d("TileService: VPN service not setup, starting main activity")
 
             val intent =
                 Intent().apply {
@@ -106,7 +105,7 @@ class MullvadTileService : TileService() {
             startActivityAndCollapseCompat(intent)
             return
         } else {
-            Log.d(TAG, "TileService: VPN service is setup")
+            Logger.d("TileService: VPN service is setup")
         }
         val intent =
             Intent().apply {

@@ -6,10 +6,10 @@ import android.content.Intent
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
-import android.util.Log
 import androidx.core.content.getSystemService
 import androidx.lifecycle.lifecycleScope
 import arrow.atomic.AtomicInt
+import co.touchlab.kermit.Logger
 import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,7 +23,6 @@ import net.mullvad.mullvadvpn.lib.common.constant.BuildTypes
 import net.mullvad.mullvadvpn.lib.common.constant.GRPC_SOCKET_FILE_NAMED_ARGUMENT
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_CONNECT_ACTION
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_DISCONNECT_ACTION
-import net.mullvad.mullvadvpn.lib.common.constant.TAG
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointConfiguration
 import net.mullvad.mullvadvpn.lib.endpoint.getApiEndpointConfigurationExtras
@@ -65,7 +64,7 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
 
     override fun onCreate() {
         super.onCreate()
-        Log.d(TAG, "MullvadVpnService: onCreate")
+        Logger.d("MullvadVpnService: onCreate")
 
         loadKoinModules(listOf(vpnServiceModule, apiEndpointModule))
         with(getKoin()) {
@@ -102,8 +101,7 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.d(
-            TAG,
+        Logger.d(
             "onStartCommand (intent=$intent, action=${intent?.action}, flags=$flags, startId=$startId)"
         )
 
@@ -113,7 +111,7 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
         // where the service would potentially otherwise be too slow running `startForeground`.
         when {
             keyguardManager.isKeyguardLocked -> {
-                Log.d(TAG, "Keyguard is locked, ignoring command")
+                Logger.d("Keyguard is locked, ignoring command")
             }
             intent.isFromSystem() || intent?.action == KEY_CONNECT_ACTION -> {
                 // Only show on foreground if we have permission
@@ -132,10 +130,10 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
 
     override fun onBind(intent: Intent?): IBinder {
         bindCount.incrementAndGet()
-        Log.d(TAG, "onBind: $intent")
+        Logger.d("onBind: $intent")
 
         if (intent.isFromSystem()) {
-            Log.d(TAG, "onBind from system")
+            Logger.d("onBind from system")
             _shouldBeOnForeground.update { true }
         }
 
@@ -179,14 +177,14 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
 
         // Foreground?
         if (intent.isFromSystem()) {
-            Log.d(TAG, "onUnbind from system")
+            Logger.d("onUnbind from system")
             _shouldBeOnForeground.update { false }
         }
 
         if (count == 0) {
-            Log.d(TAG, "No one bound to the service, stopSelf()")
+            Logger.d("No one bound to the service, stopSelf()")
             lifecycleScope.launch {
-                Log.d(TAG, "Waiting for disconnected state")
+                Logger.d("Waiting for disconnected state")
                 // TODO This needs reworking, we should not wait for the disconnected state, what we
                 // want is the notification of disconnected to go out before we start shutting down
                 connectionProxy.tunnelState
@@ -197,7 +195,7 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
                     .first()
 
                 if (bindCount.get() == 0) {
-                    Log.d(TAG, "Stopping service")
+                    Logger.d("Stopping service")
                     stopSelf()
                 }
             }
@@ -206,7 +204,7 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
     }
 
     override fun onDestroy() {
-        Log.d(TAG, "MullvadVpnService: onDestroy")
+        Logger.d("MullvadVpnService: onDestroy")
         managementService.stop()
 
         // Shutting down the daemon gracefully

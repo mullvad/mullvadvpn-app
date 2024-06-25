@@ -4,10 +4,9 @@ import android.app.Service
 import android.content.pm.ServiceInfo
 import android.net.VpnService
 import android.os.Build
-import android.util.Log
+import co.touchlab.kermit.Logger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.lib.common.constant.TAG
 import net.mullvad.mullvadvpn.lib.model.Notification
 import net.mullvad.mullvadvpn.lib.model.NotificationChannel
 import net.mullvad.mullvadvpn.lib.model.NotificationTunnelState
@@ -25,10 +24,10 @@ class ForegroundNotificationManager(
         scope.launch {
             foregroundProvider.shouldBeOnForeground.collect {
                 if (it) {
-                    Log.d(TAG, "Starting foreground")
+                    Logger.d("Starting foreground")
                     notifyForeground(getTunnelStateNotificationOrDefault())
                 } else {
-                    Log.d(TAG, "Stopping foreground")
+                    Logger.d("Stopping foreground")
                     vpnService.stopForeground(Service.STOP_FOREGROUND_DETACH)
                 }
             }
@@ -51,12 +50,12 @@ class ForegroundNotificationManager(
         if (VpnService.prepare(vpnService) != null) {
             // Got connect/disconnect intent, but we  don't have permission to go in foreground.
             // tunnel state will return permission and we will eventually get stopped by system.
-            Log.d(TAG, "Did not start foreground: VPN permission not granted")
+            Logger.d("Did not start foreground: VPN permission not granted")
             return
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            Log.d(TAG, "Starting foreground UPSIDE_DOWN_CAKE")
+            Logger.d("Starting foreground UPSIDE_DOWN_CAKE")
             vpnService.startForeground(
                 tunnelStateNotificationProvider.notificationId.value,
                 androidNotification,

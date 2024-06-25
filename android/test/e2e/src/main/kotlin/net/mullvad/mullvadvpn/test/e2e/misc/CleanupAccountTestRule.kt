@@ -1,8 +1,7 @@
 package net.mullvad.mullvadvpn.test.e2e.misc
 
-import android.util.Log
 import androidx.test.platform.app.InstrumentationRegistry
-import net.mullvad.mullvadvpn.test.e2e.constant.LOG_TAG
+import co.touchlab.kermit.Logger
 import net.mullvad.mullvadvpn.test.e2e.constant.VALID_TEST_ACCOUNT_NUMBER_ARGUMENT_KEY
 import net.mullvad.mullvadvpn.test.e2e.extension.getRequiredArgument
 import net.mullvad.mullvadvpn.test.e2e.interactor.MullvadAccountInteractor
@@ -12,7 +11,7 @@ import org.junit.jupiter.api.extension.ExtensionContext
 class CleanupAccountTestRule : BeforeEachCallback {
 
     override fun beforeEach(context: ExtensionContext) {
-        Log.d(LOG_TAG, "Cleaning up account before test: ${context.requiredTestMethod.name}")
+        Logger.d("Cleaning up account before test: ${context.requiredTestMethod.name}")
         val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
         val validTestAccountNumber =
             InstrumentationRegistry.getArguments()
