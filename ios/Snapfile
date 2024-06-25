@@ -4,9 +4,9 @@ ios_version '17.2'
 devices([
   "iPhone SE (3rd generation)",
   "iPhone 15 Pro",
-  "iPhone 15 Pro Max"
-  #"iPad Pro (11-inch) (4th generation)",
-  #"iPad Pro (12.9-inch) (6th generation)"
+  "iPhone 15 Pro Max",
+  "iPad Pro (11-inch) (4th generation)",
+  "iPad Pro (12.9-inch) (6th generation)"
 ])
 
 languages([

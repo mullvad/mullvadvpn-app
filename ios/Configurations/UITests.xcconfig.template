@@ -10,8 +10,7 @@ TEST_DEVICE_IDENTIFIER_UUID =
 // PARTNER_API_TOKEN = 
 
 // Mullvad accounts used by UI tests
-HAS_TIME_ACCOUNT_NUMBER[config=Debug] = 
-HAS_TIME_ACCOUNT_NUMBER[config=Staging] = 
+HAS_TIME_ACCOUNT_NUMBER = 
 
 // Ad serving domain used when testing ad blocking. Note that we are assuming there's an HTTP server running on the host.
 AD_SERVING_DOMAIN = vpnlist.to

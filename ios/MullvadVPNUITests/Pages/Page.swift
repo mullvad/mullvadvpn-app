@@ -50,7 +50,7 @@ class Page {
     }
 
     @discardableResult func tapWhereStatusBarShouldBeToScrollToTopMostPosition() -> Self {
-        app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0)).tap()
+        app.coordinate(withNormalizedOffset: CGVector(dx: 0.75, dy: 0)).tap()
         return self
     }
 }
