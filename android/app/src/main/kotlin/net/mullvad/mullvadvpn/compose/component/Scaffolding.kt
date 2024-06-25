@@ -127,7 +127,6 @@ fun ScaffoldWithMediumTopBar(
     actions: @Composable RowScope.() -> Unit = {},
     lazyListState: LazyListState = rememberLazyListState(),
     scrollbarColor: Color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
-    toolbarColor: Color = MaterialTheme.colorScheme.surface,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     content: @Composable (modifier: Modifier, lazyListState: LazyListState) -> Unit
 ) {

@@ -168,31 +168,13 @@ private val LocalAppDimens = staticCompositionLocalOf { defaultDimensions }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppTheme(content: @Composable () -> Unit) {
-    val themeRepository: ThemeRepository = get().get()
-    val dynamicColor = themeRepository.useMaterialYouTheme().collectAsState().value
-    val darkTheme =
-        when (themeRepository.useDarkTheme().collectAsState().value) {
-            DarkThemeState.SYSTEM -> isSystemInDarkTheme()
-            DarkThemeState.ON -> true
-            DarkThemeState.OFF -> false
-        }
-    val context = LocalContext.current
-    val colorScheme =
-        when {
-            dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-                if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-            }
-            darkTheme -> darkColorScheme
-            else -> lightColorScheme
-        }
-
     val typography = MullvadTypography
     // Set dimensions and type scale based on configurations here
     val dimensions = defaultDimensions
 
     ProvideDimens(dimensions = dimensions) {
         MaterialTheme(
-            colorScheme = colorScheme.switch(),
+            colorScheme = darkColorScheme,
             shapes = Shapes,
             typography = typography,
             content = {
