@@ -96,16 +96,16 @@ export default function NotificationArea(props: IProps) {
 
     if (notification) {
       return (
-        <NotificationBanner className={props.className} data-test-id="notificationBanner">
+        <NotificationBanner className={props.className} data-testid="notificationBanner">
           <NotificationIndicator
             $type={notification.indicator}
-            data-test-id="notificationIndicator"
+            data-testid="notificationIndicator"
           />
           <NotificationContent role="status" aria-live="polite">
-            <NotificationTitle data-test-id="notificationTitle">
+            <NotificationTitle data-testid="notificationTitle">
               {notification.title}
             </NotificationTitle>
-            <NotificationSubtitle data-test-id="notificationSubTitle">
+            <NotificationSubtitle data-testid="notificationSubTitle">
               {formatHtml(notification.subtitle ?? '')}
             </NotificationSubtitle>
           </NotificationContent>
