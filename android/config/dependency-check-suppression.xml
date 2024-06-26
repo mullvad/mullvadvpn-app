@@ -41,4 +41,11 @@
         <cve>CVE-2023-33953</cve>
         <cve>CVE-2023-44487</cve>
     </suppress>
+    <suppress until="2024-12-26Z">
+        <notes><![CDATA[
+            False-positive related to a NodeJS library and not the one we use.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/commons\-validator/commons\-validator@.*$</packageUrl>
+        <cve>CVE-2021-3765</cve>
+    </suppress>
 </suppressions>
