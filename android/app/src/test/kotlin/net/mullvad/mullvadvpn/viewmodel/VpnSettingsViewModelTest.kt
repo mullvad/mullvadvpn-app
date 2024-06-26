@@ -200,19 +200,18 @@ class VpnSettingsViewModelTest {
         }
 
     @Test
-    fun `when autoStartAndConnectOnBoot is true then uiState should be autoStart=true`() =
-        runTest {
-            // Arrange
-            val connectOnStart = true
+    fun `when autoStartAndConnectOnBoot is true then uiState should be autoStart=true`() = runTest {
+        // Arrange
+        val connectOnStart = true
 
-            // Act
-            autoStartAndConnectOnBootFlow.value = connectOnStart
+        // Act
+        autoStartAndConnectOnBootFlow.value = connectOnStart
 
-            // Assert
-            viewModel.uiState.test {
-                assertEquals(connectOnStart, awaitItem().autoStartAndConnectOnBoot)
-            }
+        // Assert
+        viewModel.uiState.test {
+            assertEquals(connectOnStart, awaitItem().autoStartAndConnectOnBoot)
         }
+    }
 
     @Test
     fun `calling onToggleAutoStartAndConnectOnBoot should call autoStartAndConnectOnBoot`() =
