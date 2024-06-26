@@ -252,7 +252,7 @@ fun VpnSettings(
         onSelectQuantumResistanceSetting = vm::onSelectQuantumResistanceSetting,
         onWireguardPortSelected = vm::onWireguardPortSelected,
         onObfuscationPortSelected = vm::onObfuscationPortSelected,
-        onToggleConnectOnStart = vm::onToggleConnectOnStart
+        onToggleAutoStartAndConnectOnBoot = vm::onToggleAutoStartAndConnectOnBoot
     )
 }
 
@@ -289,7 +289,7 @@ fun VpnSettingsScreen(
     onSelectQuantumResistanceSetting: (quantumResistant: QuantumResistantState) -> Unit = {},
     onWireguardPortSelected: (port: Constraint<Port>) -> Unit = {},
     onObfuscationPortSelected: (port: Constraint<Port>) -> Unit = {},
-    onToggleConnectOnStart: (Boolean) -> Unit = {}
+    onToggleAutoStartAndConnectOnBoot: (Boolean) -> Unit = {}
 ) {
     var expandContentBlockersState by rememberSaveable { mutableStateOf(false) }
     var expandUdp2TcpPortSettings by rememberSaveable { mutableStateOf(false) }
@@ -345,8 +345,8 @@ fun VpnSettingsScreen(
                     Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
                     HeaderSwitchComposeCell(
                         title = stringResource(R.string.connect_on_start),
-                        isToggled = state.connectOnStart,
-                        onCellClicked = { newValue -> onToggleConnectOnStart(newValue) }
+                        isToggled = state.autoStartAndConnectOnBoot,
+                        onCellClicked = { newValue -> onToggleAutoStartAndConnectOnBoot(newValue) }
                     )
                     SwitchComposeSubtitleCell(
                         text =

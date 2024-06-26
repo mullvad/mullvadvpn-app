@@ -8,13 +8,13 @@ import android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_ENABLED
 import android.content.pm.PackageManager.DONT_KILL_APP
 import kotlinx.coroutines.flow.MutableStateFlow
 
-class ConnectOnStartRepository(
+class AutoStartAndConnectOnBootRepository(
     private val packageManager: PackageManager,
     private val bootCompletedComponentName: ComponentName
 ) {
-    val connectOnStart = MutableStateFlow(isConnectOnStart())
+    val autoStartAndConnectOnBoot = MutableStateFlow(isAutoStartAndConnectOnBoot())
 
-    fun setConnectOnStart(connect: Boolean) {
+    fun setAutoStartAndConnectOnBoot(connect: Boolean) {
         packageManager.setComponentEnabledSetting(
             bootCompletedComponentName,
             if (connect) {
@@ -25,10 +25,10 @@ class ConnectOnStartRepository(
             DONT_KILL_APP
         )
 
-        connectOnStart.value = isConnectOnStart()
+        autoStartAndConnectOnBoot.value = isAutoStartAndConnectOnBoot()
     }
 
-    private fun isConnectOnStart(): Boolean =
+    private fun isAutoStartAndConnectOnBoot(): Boolean =
         when (packageManager.getComponentEnabledSetting(bootCompletedComponentName)) {
             COMPONENT_ENABLED_STATE_DEFAULT -> BOOT_COMPLETED_DEFAULT_STATE
             COMPONENT_ENABLED_STATE_ENABLED -> true

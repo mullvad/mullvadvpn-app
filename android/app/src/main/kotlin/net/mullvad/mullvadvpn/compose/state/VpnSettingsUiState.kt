@@ -23,7 +23,7 @@ data class VpnSettingsUiState(
     val customWireguardPort: Constraint<Port>?,
     val availablePortRanges: List<PortRange>,
     val systemVpnSettingsAvailable: Boolean,
-    val connectOnStart: Boolean
+    val autoStartAndConnectOnBoot: Boolean
 ) {
     val selectObfuscationPortEnabled = selectedObfuscation != SelectedObfuscation.Off
 
@@ -42,7 +42,7 @@ data class VpnSettingsUiState(
             customWireguardPort: Constraint.Only<Port>? = null,
             availablePortRanges: List<PortRange> = emptyList(),
             systemVpnSettingsAvailable: Boolean = false,
-            connectOnStart: Boolean = false,
+            autoStartAndConnectOnBoot: Boolean = false,
         ) =
             VpnSettingsUiState(
                 mtu,
@@ -58,7 +58,7 @@ data class VpnSettingsUiState(
                 customWireguardPort,
                 availablePortRanges,
                 systemVpnSettingsAvailable,
-                connectOnStart
+                autoStartAndConnectOnBoot
             )
     }
 }

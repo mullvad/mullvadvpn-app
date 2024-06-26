@@ -619,18 +619,18 @@ class VpnSettingsScreenTest {
         }
 
     @Test
-    fun whenClickingOnConnectOnStartShouldCallOnToggleConnectOnStart() =
+    fun whenClickingOnConnectOnStartShouldCallOnToggleAutoStartAndConnectOnBoot() =
         composeExtension.use {
             // Arrange
-            val mockOnToggleConnectOnStart: (Boolean) -> Unit = mockk(relaxed = true)
+            val mockOnToggleAutoStartAndConnectOnBoot: (Boolean) -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 VpnSettingsScreen(
                     state =
                         VpnSettingsUiState.createDefault(
                             systemVpnSettingsAvailable = false,
-                            connectOnStart = false
+                            autoStartAndConnectOnBoot = false
                         ),
-                    onToggleConnectOnStart = mockOnToggleConnectOnStart
+                    onToggleAutoStartAndConnectOnBoot = mockOnToggleAutoStartAndConnectOnBoot
                 )
             }
 
@@ -638,7 +638,7 @@ class VpnSettingsScreenTest {
             onNodeWithText("Connect on start").performClick()
 
             // Assert
-            verify { mockOnToggleConnectOnStart.invoke(true) }
+            verify { mockOnToggleAutoStartAndConnectOnBoot.invoke(true) }
         }
 
     companion object {

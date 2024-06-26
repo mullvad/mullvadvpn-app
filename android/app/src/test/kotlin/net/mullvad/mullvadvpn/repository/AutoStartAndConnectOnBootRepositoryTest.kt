@@ -13,34 +13,36 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
-class ConnectOnStartRepositoryTest {
+class AutoStartAndConnectOnBootRepositoryTest {
 
     private val mockPackageManager: PackageManager = mockk()
     private val mockComponentName: ComponentName = mockk()
 
-    private lateinit var connectOnStartRepository: ConnectOnStartRepository
+    private lateinit var autoStartAndConnectOnBootRepository: AutoStartAndConnectOnBootRepository
 
     @BeforeEach
     fun setUp() {
         every { mockPackageManager.getComponentEnabledSetting(mockComponentName) } returns
             PackageManager.COMPONENT_ENABLED_STATE_DEFAULT
 
-        connectOnStartRepository =
-            ConnectOnStartRepository(
+        autoStartAndConnectOnBootRepository =
+            AutoStartAndConnectOnBootRepository(
                 packageManager = mockPackageManager,
                 bootCompletedComponentName = mockComponentName
             )
     }
 
     @Test
-    fun `connectOnStart should emit false when default state is returned by package manager`() =
+    fun `autoStartAndConnectOnBoot should emit false when default state is returned by package manager`() =
         runTest {
             // Assert
-            connectOnStartRepository.connectOnStart.test { assertEquals(false, awaitItem()) }
+            autoStartAndConnectOnBootRepository.autoStartAndConnectOnBoot.test {
+                assertEquals(false, awaitItem())
+            }
         }
 
     @Test
-    fun `when setting connectOnStart true should call package manager and update connectOnStart`() =
+    fun `when setting autoStartAndConnectOnBoot to true should call package manager and update autoStartAndConnectOnBoot`() =
         runTest {
             // Arrange
             val targetState = true
@@ -55,9 +57,9 @@ class ConnectOnStartRepositoryTest {
                 PackageManager.COMPONENT_ENABLED_STATE_ENABLED
 
             // Act, Assert
-            connectOnStartRepository.connectOnStart.test {
+            autoStartAndConnectOnBootRepository.autoStartAndConnectOnBoot.test {
                 assertEquals(false, awaitItem()) // Default state
-                connectOnStartRepository.setConnectOnStart(targetState)
+                autoStartAndConnectOnBootRepository.setAutoStartAndConnectOnBoot(targetState)
                 verify {
                     mockPackageManager.setComponentEnabledSetting(
                         mockComponentName,

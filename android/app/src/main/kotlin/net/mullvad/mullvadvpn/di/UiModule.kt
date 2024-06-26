@@ -18,8 +18,8 @@ import net.mullvad.mullvadvpn.lib.payment.PaymentProvider
 import net.mullvad.mullvadvpn.lib.shared.VoucherRepository
 import net.mullvad.mullvadvpn.receiver.BootCompletedReceiver
 import net.mullvad.mullvadvpn.repository.ApiAccessRepository
+import net.mullvad.mullvadvpn.repository.AutoStartAndConnectOnBootRepository
 import net.mullvad.mullvadvpn.repository.ChangelogRepository
-import net.mullvad.mullvadvpn.repository.ConnectOnStartRepository
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.InAppNotificationController
 import net.mullvad.mullvadvpn.repository.NewDeviceRepository
@@ -131,7 +131,12 @@ val uiModule = module {
     single { SplitTunnelingRepository(get()) }
     single { ApiAccessRepository(get()) }
     single { NewDeviceRepository() }
-    single { ConnectOnStartRepository(get(), get(named(BOOT_COMPLETED_RECEIVER_COMPONENT_NAME))) }
+    single {
+        AutoStartAndConnectOnBootRepository(
+            get(),
+            get(named(BOOT_COMPLETED_RECEIVER_COMPONENT_NAME))
+        )
+    }
 
     single { AccountExpiryNotificationUseCase(get()) }
     single { TunnelStateNotificationUseCase(get()) }

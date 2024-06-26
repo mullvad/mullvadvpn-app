@@ -29,7 +29,7 @@ import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.lib.model.TunnelOptions
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 import net.mullvad.mullvadvpn.lib.model.WireguardTunnelOptions
-import net.mullvad.mullvadvpn.repository.ConnectOnStartRepository
+import net.mullvad.mullvadvpn.repository.AutoStartAndConnectOnBootRepository
 import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.usecase.SystemVpnSettingsAvailableUseCase
@@ -45,11 +45,12 @@ class VpnSettingsViewModelTest {
     private val mockSystemVpnSettingsUseCase: SystemVpnSettingsAvailableUseCase =
         mockk(relaxed = true)
     private val mockRelayListRepository: RelayListRepository = mockk()
-    private val mockConnectOnStartRepository: ConnectOnStartRepository = mockk()
+    private val mockAutoStartAndConnectOnBootRepository: AutoStartAndConnectOnBootRepository =
+        mockk()
 
     private val mockSettingsUpdate = MutableStateFlow<Settings?>(null)
     private val portRangeFlow = MutableStateFlow(emptyList<PortRange>())
-    private val connectOnStartFlow = MutableStateFlow(false)
+    private val autoStartAndConnectOnBootFlow = MutableStateFlow(false)
 
     private lateinit var viewModel: VpnSettingsViewModel
 
@@ -57,7 +58,8 @@ class VpnSettingsViewModelTest {
     fun setup() {
         every { mockSettingsRepository.settingsUpdates } returns mockSettingsUpdate
         every { mockRelayListRepository.portRanges } returns portRangeFlow
-        every { mockConnectOnStartRepository.connectOnStart } returns connectOnStartFlow
+        every { mockAutoStartAndConnectOnBootRepository.autoStartAndConnectOnBoot } returns
+            autoStartAndConnectOnBootFlow
 
         viewModel =
             VpnSettingsViewModel(
@@ -65,7 +67,7 @@ class VpnSettingsViewModelTest {
                 systemVpnSettingsUseCase = mockSystemVpnSettingsUseCase,
                 relayListRepository = mockRelayListRepository,
                 dispatcher = UnconfinedTestDispatcher(),
-                connectOnStartRepository = mockConnectOnStartRepository
+                autoStartAndConnectOnBootRepository = mockAutoStartAndConnectOnBootRepository
             )
     }
 
@@ -198,28 +200,35 @@ class VpnSettingsViewModelTest {
         }
 
     @Test
-    fun `when connectOnStart is true then uiState should be connectOnStart=true`() = runTest {
-        // Arrange
-        val connectOnStart = true
+    fun `when autoStartAndConnectOnBoot is true then uiState should be autoStart=true`() =
+        runTest {
+            // Arrange
+            val connectOnStart = true
 
-        // Act
-        connectOnStartFlow.value = connectOnStart
+            // Act
+            autoStartAndConnectOnBootFlow.value = connectOnStart
 
-        // Assert
-        viewModel.uiState.test { assertEquals(connectOnStart, awaitItem().connectOnStart) }
-    }
+            // Assert
+            viewModel.uiState.test {
+                assertEquals(connectOnStart, awaitItem().autoStartAndConnectOnBoot)
+            }
+        }
 
     @Test
-    fun `calling onToggleConnectOnStart should call connectOnStartRepository setConnectOnStart`() =
+    fun `calling onToggleAutoStartAndConnectOnBoot should call autoStartAndConnectOnBoot`() =
         runTest {
             // Arrange
             val targetState = true
-            every { mockConnectOnStartRepository.setConnectOnStart(targetState) } just Runs
+            every {
+                mockAutoStartAndConnectOnBootRepository.setAutoStartAndConnectOnBoot(targetState)
+            } just Runs
 
             // Act
-            viewModel.onToggleConnectOnStart(targetState)
+            viewModel.onToggleAutoStartAndConnectOnBoot(targetState)
 
             // Assert
-            verify { mockConnectOnStartRepository.setConnectOnStart(targetState) }
+            verify {
+                mockAutoStartAndConnectOnBootRepository.setAutoStartAndConnectOnBoot(targetState)
+            }
         }
 }
