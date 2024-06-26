@@ -14,7 +14,7 @@ struct TunnelControlViewModel {
     let enableButtons: Bool
     let city: String
     let country: String
-    let connectedRelayName: String
+    let connectedRelaysName: String
     let outgoingConnectionInfo: OutgoingConnectionInfo?
 
     var connectionPanel: ConnectionPanelData? {
@@ -29,7 +29,7 @@ struct TunnelControlViewModel {
         }
 
         return ConnectionPanelData(
-            inAddress: "\(tunnelRelays.exit.endpoint.ipv4Relay.ip)\(portAndTransport)", // TODO: Multihop
+            inAddress: "\(tunnelRelays.entry?.endpoint.ipv4Relay.ip ?? tunnelRelays.exit.endpoint.ipv4Relay.ip)\(portAndTransport)",
             outAddress: outgoingConnectionInfo?.outAddress
         )
     }
@@ -41,7 +41,7 @@ struct TunnelControlViewModel {
             enableButtons: true,
             city: "",
             country: "",
-            connectedRelayName: "",
+            connectedRelaysName: "",
             outgoingConnectionInfo: nil
         )
     }
@@ -53,7 +53,7 @@ struct TunnelControlViewModel {
             enableButtons: enableButtons,
             city: city,
             country: country,
-            connectedRelayName: connectedRelayName,
+            connectedRelaysName: connectedRelaysName,
             outgoingConnectionInfo: nil
         )
     }
@@ -65,7 +65,7 @@ struct TunnelControlViewModel {
             enableButtons: enableButtons,
             city: city,
             country: country,
-            connectedRelayName: connectedRelayName,
+            connectedRelaysName: connectedRelaysName,
             outgoingConnectionInfo: outgoingConnectionInfo
         )
     }
