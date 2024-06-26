@@ -51,14 +51,65 @@ impl Firewall {
     pub fn apply_policy(&mut self, policy: FirewallPolicy) -> Result<()> {
         self.enable()?;
         self.add_anchor()?;
-        self.set_rules(policy)?;
+        self.set_rules(policy.clone())?;
 
-        // When entering a secured state, clear connection states
-        // Otherwise, an existing connection may be approved by some other anchor, and leak
-        if let Err(error) = self.pf.clear_interface_states(pfctl::Interface::Any) {
-            log::error!("Failed to clear source state tracking nodes: {error}");
+        if let Err(error) = self.flush_states(policy) {
+            log::error!("Failed to clear PF connection states: {error}");
         }
 
+        Ok(())
+    }
+
+    /// Clear PF connection states. That is, forget connections that were previously approved by a
+    /// `pass` rule, and force PF to make new verdicts.
+    /// PF retains approved connections forever, even after a responsible anchor or rule has been
+    /// removed. Therefore, they should be flushed after every state transition to ensure approved
+    /// states conform to our desired policy.
+    /// Clearing all states unfortunately seems to interrupt ephemeral key exchange on some
+    /// machines. Exempting the VPN server connection prevents this.
+    pub fn flush_states(&mut self, policy: FirewallPolicy) -> Result<()> {
+        let peer_endpoint = policy.peer_endpoint().map(|endpoint| endpoint.endpoint);
+        let tunnel_ips = policy
+            .tunnel()
+            .map(|tunnel| tunnel.ips.clone())
+            .unwrap_or_default();
+        let allowed_tunnel_traffic = policy.allowed_tunnel_traffic();
+
+        let states_to_delete = self.pf.get_states()?.into_iter().filter(|state| {
+            match (
+                peer_endpoint,
+                state.local_address(),
+                state.remote_address(),
+                state.proto(),
+            ) {
+                (Some(peer), Ok(local_address), Ok(remote_address), Ok(proto)) => {
+                    if tunnel_ips.contains(&local_address.ip()) {
+                        // Tunnel traffic: Clear states except those allowed in the tunnel
+                        // Ephemeral peer exchange becomes unreliable otherwise, when multihop is enabled
+                        match allowed_tunnel_traffic {
+                            AllowedTunnelTraffic::None => true,
+                            AllowedTunnelTraffic::All => false,
+                            AllowedTunnelTraffic::One(endpoint) => {
+                                endpoint.address != remote_address
+                            }
+                            AllowedTunnelTraffic::Two(endpoint1, endpoint2) => {
+                                endpoint1.address != remote_address
+                                    && endpoint2.address != remote_address
+                            }
+                        }
+                    } else {
+                        // Non-tunnel traffic: Clear all states except traffic destined for the VPN endpoint
+                        // Ephemeral peer exchange becomes unreliable otherwise
+                        peer.address != remote_address || as_pfctl_proto(peer.protocol) != proto
+                    }
+                }
+                (None, Ok(_), Ok(_), Ok(_)) => true,
+                _ => false,
+            }
+        });
+        for state in states_to_delete {
+            let _ = self.pf.kill_state(&state);
+        }
         Ok(())
     }
 

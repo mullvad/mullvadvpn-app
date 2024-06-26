@@ -157,6 +157,41 @@ pub enum FirewallPolicy {
     },
 }
 
+impl FirewallPolicy {
+    /// Return the tunnel peer endpoint, if available
+    pub fn peer_endpoint(&self) -> Option<&AllowedEndpoint> {
+        match self {
+            FirewallPolicy::Connecting { peer_endpoint, .. }
+            | FirewallPolicy::Connected { peer_endpoint, .. } => Some(peer_endpoint),
+            _ => None,
+        }
+    }
+
+    /// Return tunnel metadata, if available
+    pub fn tunnel(&self) -> Option<&crate::tunnel::TunnelMetadata> {
+        match self {
+            FirewallPolicy::Connecting {
+                tunnel: Some(tunnel),
+                ..
+            }
+            | FirewallPolicy::Connected { tunnel, .. } => Some(tunnel),
+            _ => None,
+        }
+    }
+
+    /// Return allowed in-tunnel traffic
+    pub fn allowed_tunnel_traffic(&self) -> &AllowedTunnelTraffic {
+        match self {
+            FirewallPolicy::Connecting {
+                allowed_tunnel_traffic,
+                ..
+            } => allowed_tunnel_traffic,
+            FirewallPolicy::Connected { .. } => &AllowedTunnelTraffic::All,
+            _ => &AllowedTunnelTraffic::None,
+        }
+    }
+}
+
 impl fmt::Display for FirewallPolicy {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
