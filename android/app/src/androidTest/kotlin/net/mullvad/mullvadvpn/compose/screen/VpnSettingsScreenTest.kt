@@ -615,7 +615,7 @@ class VpnSettingsScreenTest {
             }
 
             // Assert
-            onNodeWithText("Connect on start").assertExists()
+            onNodeWithText("Connect on boot").assertExists()
         }
 
     @Test
@@ -635,7 +635,7 @@ class VpnSettingsScreenTest {
             }
 
             // Act
-            onNodeWithText("Connect on start").performClick()
+            onNodeWithText("Connect on boot").performClick()
 
             // Assert
             verify { mockOnToggleAutoStartAndConnectOnBoot.invoke(true) }
