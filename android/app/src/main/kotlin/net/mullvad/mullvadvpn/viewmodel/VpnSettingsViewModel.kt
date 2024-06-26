@@ -27,6 +27,7 @@ import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
 import net.mullvad.mullvadvpn.lib.model.SelectedObfuscation
 import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
+import net.mullvad.mullvadvpn.repository.AutoStartAndConnectOnBootRepository
 import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.usecase.SystemVpnSettingsAvailableUseCase
@@ -46,6 +47,7 @@ class VpnSettingsViewModel(
     private val repository: SettingsRepository,
     private val relayListRepository: RelayListRepository,
     private val systemVpnSettingsUseCase: SystemVpnSettingsAvailableUseCase,
+    private val autoStartAndConnectOnBootRepository: AutoStartAndConnectOnBootRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
 
@@ -59,7 +61,8 @@ class VpnSettingsViewModel(
                 repository.settingsUpdates,
                 relayListRepository.portRanges,
                 customPort,
-            ) { settings, portRanges, customWgPort ->
+                autoStartAndConnectOnBootRepository.autoStartAndConnectOnBoot
+            ) { settings, portRanges, customWgPort, autoStartAndConnectOnBoot ->
                 VpnSettingsViewModelState(
                     mtuValue = settings?.tunnelOptions?.wireguard?.mtu,
                     isAutoConnectEnabled = settings?.autoConnect ?: false,
@@ -76,7 +79,8 @@ class VpnSettingsViewModel(
                     selectedWireguardPort = settings?.getWireguardPort() ?: Constraint.Any,
                     customWireguardPort = customWgPort,
                     availablePortRanges = portRanges,
-                    systemVpnSettingsAvailable = systemVpnSettingsUseCase()
+                    systemVpnSettingsAvailable = systemVpnSettingsUseCase(),
+                    autoStartAndConnectOnBoot = autoStartAndConnectOnBoot
                 )
             }
             .stateIn(
@@ -241,6 +245,12 @@ class VpnSettingsViewModel(
                     WireguardConstraints(port = Constraint.Any)
                 )
             }
+        }
+    }
+
+    fun onToggleAutoStartAndConnectOnBoot(autoStartAndConnect: Boolean) {
+        viewModelScope.launch(dispatcher) {
+            autoStartAndConnectOnBootRepository.setAutoStartAndConnectOnBoot(autoStartAndConnect)
         }
     }
 
