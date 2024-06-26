@@ -51,15 +51,73 @@ impl Firewall {
     pub fn apply_policy(&mut self, policy: FirewallPolicy) -> Result<()> {
         self.enable()?;
         self.add_anchor()?;
-        self.set_rules(policy)?;
+        self.set_rules(&policy)?;
 
-        // When entering a secured state, clear connection states
-        // Otherwise, an existing connection may be approved by some other anchor, and leak
-        if let Err(error) = self.pf.clear_interface_states(pfctl::Interface::Any) {
-            log::error!("Failed to clear source state tracking nodes: {error}");
+        if let Err(error) = self.flush_states(&policy) {
+            log::error!("Failed to clear PF connection states: {error}");
         }
 
         Ok(())
+    }
+
+    /// Clear PF connection states. That is, forget connections that were previously approved by a
+    /// `pass` rule, and force PF to make new verdicts.
+    /// PF retains approved connections forever, even after a responsible anchor or rule has been
+    /// removed. Therefore, they should be flushed after every state transition to ensure approved
+    /// states conform to our desired policy.
+    /// Clearing all states unfortunately seems to interrupt ephemeral key exchange on some
+    /// machines. Exempting the VPN server connection prevents this.
+    fn flush_states(&mut self, policy: &FirewallPolicy) -> Result<()> {
+        self.pf
+            .get_states()?
+            .into_iter()
+            .filter(|state| {
+                // If we can't parse a state for whatever reason, err on the safe side and keep it
+                Self::should_delete_state(policy, state).unwrap_or(false)
+            })
+            .for_each(|state| {
+                if let Err(error) = self.pf.kill_state(&state) {
+                    log::warn!("Failed to delete PF state: {error}");
+                }
+            });
+
+        Ok(())
+    }
+
+    fn should_delete_state(policy: &FirewallPolicy, state: &pfctl::State) -> Result<bool> {
+        let allowed_tunnel_traffic = policy.allowed_tunnel_traffic();
+        let tunnel_ips = policy
+            .tunnel()
+            .map(|tunnel| tunnel.ips.as_slice())
+            .unwrap_or_default();
+
+        let local_address = state.local_address()?;
+        let remote_address = state.remote_address()?;
+        let proto = state.proto()?;
+
+        let Some(peer) = policy.peer_endpoint().map(|endpoint| endpoint.endpoint) else {
+            // If there's no peer, there's also no tunnel. We have no states to preserve
+            return Ok(true);
+        };
+
+        let should_delete = if tunnel_ips.contains(&local_address.ip()) {
+            // Tunnel traffic: Clear states except those allowed in the tunnel
+            // Ephemeral peer exchange becomes unreliable otherwise, when multihop is enabled
+            match allowed_tunnel_traffic {
+                AllowedTunnelTraffic::None => true,
+                AllowedTunnelTraffic::All => false,
+                AllowedTunnelTraffic::One(endpoint) => endpoint.address != remote_address,
+                AllowedTunnelTraffic::Two(endpoint1, endpoint2) => {
+                    endpoint1.address != remote_address && endpoint2.address != remote_address
+                }
+            }
+        } else {
+            // Non-tunnel traffic: Clear all states except traffic destined for the VPN endpoint
+            // Ephemeral peer exchange becomes unreliable otherwise
+            peer.address != remote_address || as_pfctl_proto(peer.protocol) != proto
+        };
+
+        Ok(should_delete)
     }
 
     pub fn reset_policy(&mut self) -> Result<()> {
@@ -71,13 +129,13 @@ impl Firewall {
             .and(self.restore_state())
     }
 
-    fn set_rules(&mut self, policy: FirewallPolicy) -> Result<()> {
+    fn set_rules(&mut self, policy: &FirewallPolicy) -> Result<()> {
         let mut new_filter_rules = vec![];
 
         new_filter_rules.append(&mut self.get_allow_loopback_rules()?);
         new_filter_rules.append(&mut self.get_allow_dhcp_client_rules()?);
         new_filter_rules.append(&mut self.get_allow_ndp_rules()?);
-        new_filter_rules.append(&mut self.get_policy_specific_rules(&policy)?);
+        new_filter_rules.append(&mut self.get_policy_specific_rules(policy)?);
 
         let return_out_rule = self
             .create_rule_builder(FilterRuleAction::Drop(DropAction::Return))
@@ -94,7 +152,7 @@ impl Firewall {
 
         let mut anchor_change = pfctl::AnchorChange::new();
         anchor_change.set_filter_rules(new_filter_rules);
-        anchor_change.set_redirect_rules(self.get_dns_redirect_rules(&policy)?);
+        anchor_change.set_redirect_rules(self.get_dns_redirect_rules(policy)?);
         self.pf.set_rules(ANCHOR_NAME, anchor_change)
     }
 
