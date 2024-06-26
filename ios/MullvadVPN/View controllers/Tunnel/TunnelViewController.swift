@@ -150,15 +150,15 @@ class TunnelViewController: UIViewController, RootContainment {
         case let .connecting(tunnelRelays, _):
             mapViewController.removeLocationMarker()
             contentView.setAnimatingActivity(true)
-            mapViewController.setCenter(tunnelRelays?.exit.location.geoCoordinate, animated: animated) // TODO: Multihop
+            mapViewController.setCenter(tunnelRelays?.exit.location.geoCoordinate, animated: animated)
 
         case let .reconnecting(tunnelRelays, _), let .negotiatingPostQuantumKey(tunnelRelays, _):
             mapViewController.removeLocationMarker()
             contentView.setAnimatingActivity(true)
-            mapViewController.setCenter(tunnelRelays.exit.location.geoCoordinate, animated: animated) // TODO: Multihop
+            mapViewController.setCenter(tunnelRelays.exit.location.geoCoordinate, animated: animated)
 
         case let .connected(tunnelRelays, _):
-            let center = tunnelRelays.exit.location.geoCoordinate // TODO: Multihop
+            let center = tunnelRelays.exit.location.geoCoordinate
             mapViewController.setCenter(center, animated: animated) {
                 self.contentView.setAnimatingActivity(false)
 
