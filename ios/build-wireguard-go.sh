@@ -12,6 +12,8 @@
 # Passed by Xcode
 ACTION=$1
 
+export PATH="/opt/homebrew/opt/go@1.20/bin:$PATH"
+
 # Do normal builds when building documentation.
 if [ "$ACTION" == "docbuild" ]; then
   ACTION="build"
