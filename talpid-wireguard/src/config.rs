@@ -157,11 +157,13 @@ impl Config {
     }
 
     /// Return the exit peer. `exit_peer` if it is set, otherwise `entry_peer`.
+    pub fn exit_peer(&self) -> &wireguard::PeerConfig {
+        self.exit_peer.as_ref().unwrap_or(&self.entry_peer)
+    }
+
+    /// Return the exit peer. `exit_peer` if it is set, otherwise `entry_peer`.
     pub fn exit_peer_mut(&mut self) -> &mut wireguard::PeerConfig {
-        if let Some(ref mut peer) = self.exit_peer {
-            return peer;
-        }
-        &mut self.entry_peer
+        self.exit_peer.as_mut().unwrap_or(&mut self.entry_peer)
     }
 
     /// Return an iterator over all peers.
