@@ -59,6 +59,7 @@ dependencies {
     implementation(project(Dependencies.Mullvad.talpidLib))
 
     implementation(Dependencies.jodaTime)
+    implementation(Dependencies.kermit)
     implementation(Dependencies.Kotlin.stdlib)
     implementation(Dependencies.KotlinX.coroutinesCore)
     implementation(Dependencies.KotlinX.coroutinesAndroid)

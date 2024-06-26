@@ -2,8 +2,8 @@ package net.mullvad.mullvadvpn.lib.map.internal
 
 import android.opengl.GLES20
 import android.opengl.Matrix
-import android.util.Log
 import androidx.compose.ui.graphics.Color
+import co.touchlab.kermit.Logger
 import java.nio.Buffer
 import java.nio.ByteBuffer
 import java.nio.FloatBuffer
@@ -31,7 +31,7 @@ internal fun initShaderProgram(vsSource: String, fsSource: String): Int {
     GLES20.glGetProgramiv(program, GLES20.GL_LINK_STATUS, linked, 0)
     if (linked[0] == GLES20.GL_FALSE) {
         val infoLog = GLES20.glGetProgramInfoLog(program)
-        Log.e("GLHelper", "Could not link program: $infoLog")
+        Logger.e("Could not link program: $infoLog")
         GLES20.glDeleteProgram(program)
         error("Could not link program with vsSource: $vsSource and fsSource: $fsSource")
     }
@@ -54,7 +54,7 @@ private fun loadShader(type: Int, shaderCode: String): Int {
     GLES20.glGetShaderiv(shader, GLES20.GL_COMPILE_STATUS, compiled, 0)
     if (compiled[0] == GLES20.GL_FALSE) {
         val infoLog = GLES20.glGetShaderInfoLog(shader)
-        Log.e("GLHelper", "Could not compile shader $type:$infoLog")
+        Logger.e("Could not compile shader $type:$infoLog")
         GLES20.glDeleteShader(shader)
 
         error("Could not compile shader with shaderCode: $shaderCode")

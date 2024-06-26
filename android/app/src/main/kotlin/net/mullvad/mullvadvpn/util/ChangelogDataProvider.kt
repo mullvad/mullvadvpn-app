@@ -1,7 +1,7 @@
 package net.mullvad.mullvadvpn.util
 
 import android.content.res.AssetManager
-import android.util.Log
+import co.touchlab.kermit.Logger
 import java.io.IOException
 
 private const val CHANGELOG_FILE = "en-US/default.txt"
@@ -12,7 +12,7 @@ class ChangelogDataProvider(private var assets: AssetManager) : IChangelogDataPr
         return try {
             assets.open(CHANGELOG_FILE).bufferedReader().use { it.readText() }
         } catch (ex: IOException) {
-            Log.e("mullvad", "Unable to read bundled changelog file.")
+            Logger.e("Unable to read bundled changelog file.")
             EMPTY_DEFAULT_STRING_WHEN_UNABLE_TO_READ_CHANGELOG
         }
     }

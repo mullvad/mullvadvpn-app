@@ -1,7 +1,7 @@
 package net.mullvad.mullvadvpn.lib.shared
 
-import android.util.Log
 import arrow.core.Either
+import co.touchlab.kermit.Logger
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -36,7 +36,7 @@ class DeviceRepository(
         managementService.getDeviceList(accountNumber)
 
     suspend fun updateDevice() {
-        Log.d("mullvad", "Update device")
+        Logger.i("Update device")
         managementService.updateDevice()
     }
 }
