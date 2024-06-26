@@ -47,12 +47,17 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.generated.NavGraphs
+import com.ramcosta.composedestinations.generated.destinations.AccountDestination
+import com.ramcosta.composedestinations.generated.destinations.DeviceRevokedDestination
+import com.ramcosta.composedestinations.generated.destinations.OutOfTimeDestination
+import com.ramcosta.composedestinations.generated.destinations.SelectLocationDestination
+import com.ramcosta.composedestinations.generated.destinations.SettingsDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.ramcosta.composedestinations.navigation.popUpTo
 import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.NavGraphs
 import net.mullvad.mullvadvpn.compose.button.ConnectionButton
 import net.mullvad.mullvadvpn.compose.button.SwitchLocationButton
 import net.mullvad.mullvadvpn.compose.component.ConnectionStatusText
@@ -61,11 +66,6 @@ import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicator
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBarAndDeviceName
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.component.notificationbanner.NotificationBanner
-import net.mullvad.mullvadvpn.compose.destinations.AccountDestination
-import net.mullvad.mullvadvpn.compose.destinations.DeviceRevokedDestination
-import net.mullvad.mullvadvpn.compose.destinations.OutOfTimeDestination
-import net.mullvad.mullvadvpn.compose.destinations.SelectLocationDestination
-import net.mullvad.mullvadvpn.compose.destinations.SettingsDestination
 import net.mullvad.mullvadvpn.compose.extensions.createOpenAccountPageHook
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
@@ -116,7 +116,7 @@ private fun PreviewConnectScreen() {
     }
 }
 
-@Destination(style = HomeTransition::class)
+@Destination<RootGraph>(style = HomeTransition::class)
 @Composable
 fun Connect(
     navigator: DestinationsNavigator,

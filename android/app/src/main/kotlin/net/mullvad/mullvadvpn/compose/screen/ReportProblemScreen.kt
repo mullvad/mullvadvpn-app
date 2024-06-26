@@ -29,6 +29,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.generated.destinations.ReportProblemNoEmailDialogDestination
+import com.ramcosta.composedestinations.generated.destinations.ViewLogsDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
@@ -38,8 +41,6 @@ import net.mullvad.mullvadvpn.compose.button.VariantButton
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
-import net.mullvad.mullvadvpn.compose.destinations.ReportProblemNoEmailDialogDestination
-import net.mullvad.mullvadvpn.compose.destinations.ViewLogsDestination
 import net.mullvad.mullvadvpn.compose.textfield.mullvadWhiteTextFieldColors
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
@@ -94,7 +95,7 @@ private fun PreviewReportProblemErrorScreen() {
     }
 }
 
-@Destination(style = SlideInFromRightTransition::class)
+@Destination<RootGraph>(style = SlideInFromRightTransition::class)
 @Composable
 fun ReportProblem(
     navigator: DestinationsNavigator,

@@ -32,6 +32,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.generated.destinations.DeleteApiAccessMethodConfirmationDestination
+import com.ramcosta.composedestinations.generated.destinations.EditApiAccessMethodDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.launch
@@ -44,8 +47,6 @@ import net.mullvad.mullvadvpn.compose.cell.SwitchComposeSubtitleCell
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
-import net.mullvad.mullvadvpn.compose.destinations.DeleteApiAccessMethodConfirmationDestination
-import net.mullvad.mullvadvpn.compose.destinations.EditApiAccessMethodDestination
 import net.mullvad.mullvadvpn.compose.preview.ApiAccessMethodDetailsUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.ApiAccessMethodDetailsUiState
 import net.mullvad.mullvadvpn.compose.test.API_ACCESS_DETAILS_EDIT_BUTTON
@@ -75,7 +76,7 @@ private fun PreviewApiAccessMethodDetailsScreen(
     AppTheme { ApiAccessMethodDetailsScreen(state = state) }
 }
 
-@Destination(style = SlideInFromRightTransition::class)
+@Destination<RootGraph>(style = SlideInFromRightTransition::class)
 @Composable
 fun ApiAccessMethodDetails(
     navigator: DestinationsNavigator,

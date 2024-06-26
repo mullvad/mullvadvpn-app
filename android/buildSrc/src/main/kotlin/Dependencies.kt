@@ -91,6 +91,15 @@ object Dependencies {
         const val reflect = "org.jetbrains.kotlin:kotlin-reflect:${Versions.kotlin}"
         const val stdlib = "org.jetbrains.kotlin:kotlin-stdlib:${Versions.kotlin}"
         const val test = "org.jetbrains.kotlin:kotlin-test:${Versions.kotlin}"
+
+        const val kotlinNavtivePrebuiltWindowsX86_64 =
+            "org.jetbrains.kotlin:kotlin-native-prebuilt:${Versions.kotlin}:windows-x86_64@zip"
+        const val kotlinNavtivePrebuiltLinuxX86_64 =
+            "org.jetbrains.kotlin:kotlin-native-prebuilt:${Versions.kotlin}:linux-x86_64@tar.gz"
+        const val kotlinNavtivePrebuiltMacOsAArch64 =
+            "org.jetbrains.kotlin:kotlin-native-prebuilt:${Versions.kotlin}:macos-aarch64@tar.gz"
+        const val kotlinNavtivePrebuiltMacOsX86_64 =
+            "org.jetbrains.kotlin:kotlin-native-prebuilt:${Versions.kotlin}:macos-x86_64@tar.gz"
     }
 
     object KotlinX {
@@ -142,6 +151,7 @@ object Dependencies {
             "org.owasp:dependency-check-gradle:${Versions.Plugin.dependencyCheck}"
         const val dependencyCheckId = "org.owasp.dependencycheck"
         const val detektId = "io.gitlab.arturbosch.detekt"
+        const val composeCompiler = "org.jetbrains.kotlin.plugin.compose"
         const val gradleVersionsId = "com.github.ben-manes.versions"
         const val junit5 = "de.mannodermaus.android-junit5"
         const val kotlin = "org.jetbrains.kotlin:kotlin-gradle-plugin:${Versions.kotlin}"

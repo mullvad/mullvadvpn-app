@@ -23,6 +23,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.MullvadSmallTopBar
@@ -35,7 +36,7 @@ private fun PreviewImportOverridesByText() {
     ImportOverridesByTextScreen({}, {})
 }
 
-@Destination(style = DefaultTransition::class)
+@Destination<RootGraph>(style = DefaultTransition::class)
 @Composable
 fun ImportOverridesByText(
     resultNavigator: ResultBackNavigator<String>,
