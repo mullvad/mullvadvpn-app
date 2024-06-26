@@ -30,6 +30,9 @@ tunnel-obfuscation = { path = "../tunnel-obfuscation" }
 rand = "0.8.5"
 surge-ping = "0.8.0"
 
+[target.'cfg(not(windows))'.dependencies]
+wireguard-go-rs = { path = "../wireguard-go-rs"}
+
 [target.'cfg(target_os="android")'.dependencies]
 duct = "0.13"
 
@@ -54,7 +57,7 @@ talpid-dbus = { path = "../talpid-dbus" }
 bitflags = "1.2"
 talpid-windows = { path = "../talpid-windows" }
 widestring = "1.0"
-maybenot = "1.0"
+maybenot = "1.1.2"
 
 # TODO: Figure out which features are needed and which are not
 [target.'cfg(windows)'.dependencies.windows-sys]

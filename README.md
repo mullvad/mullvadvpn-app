@@ -56,7 +56,7 @@ the current state of the latest code in git, not necessarily any existing releas
 | OpenVPN                       |    ✓    |   ✓   |   ✓   |         |     |
 | WireGuard                     |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
 | Quantum-resistant tunnels     |    ✓    |   ✓   |   ✓   |    ✓    |     |
-| [DAITA]                       |    ✓    |       |        |         |     |
+| [DAITA]                       |    ✓    |   ✓   |       |         |     |
 | WireGuard multihop            |    ✓    |   ✓   |   ✓   |         |     |
 | WireGuard over TCP            |    ✓    |   ✓   |   ✓   |    ✓    |     |
 | OpenVPN over Shadowsocks      |    ✓    |   ✓   |   ✓   |         |     |
@@ -90,6 +90,12 @@ git clone https://github.com/mullvad/mullvadvpn-app.git
 cd mullvadvpn-app
 git submodule update --init
 ```
+
+On Android, Linux and macOS you also want to checkout the wireguard-go submodule recursively:
+```bash
+git submodule update --init --recursive --depth=1 wireguard-go-rs
+```
+Further details on why this is necessary can be found in the [wireguard-go-rs crate](./wireguard-go-rs/README.md).
 
 We sign every commit on the `main` branch as well as our release tags. If you would like to verify
 your checkout, you can find our developer keys on [Mullvad's Open Source page].

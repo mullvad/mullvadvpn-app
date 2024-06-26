@@ -8,15 +8,17 @@ use bitflags::bitflags;
 use futures::SinkExt;
 use ipnetwork::IpNetwork;
 use once_cell::sync::{Lazy, OnceCell};
+#[cfg(daita)]
+use std::{ffi::c_uchar, path::PathBuf};
 use std::{
-    ffi::{c_uchar, CStr},
+    ffi::CStr,
     fmt,
     future::Future,
     io,
     mem::{self, MaybeUninit},
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
     os::windows::io::RawHandle,
-    path::{Path, PathBuf},
+    path::Path,
     pin::Pin,
     ptr,
     sync::{Arc, Mutex},
@@ -36,6 +38,7 @@ use windows_sys::{
     },
 };
 
+#[cfg(daita)]
 mod daita;
 
 static WG_NT_DLL: OnceCell<WgNtDll> = OnceCell::new();
@@ -70,7 +73,6 @@ type WireGuardGetConfigurationFn = unsafe extern "stdcall" fn(
 type WireGuardSetStateFn =
     unsafe extern "stdcall" fn(adapter: RawHandle, state: WgAdapterState) -> BOOL;
 
-#[cfg(windows)]
 #[repr(C)]
 #[allow(dead_code)]
 enum LogLevel {
@@ -79,7 +81,6 @@ enum LogLevel {
     Err = 2,
 }
 
-#[cfg(windows)]
 impl From<LogLevel> for logging::LogLevel {
     fn from(level: LogLevel) -> Self {
         match level {
@@ -161,20 +162,24 @@ pub enum Error {
     InvalidConfigData,
 
     /// DAITA machinist failed
+    #[cfg(daita)]
     #[error("Failed to enable DAITA on tunnel device")]
     EnableTunnelDaita(#[source] io::Error),
 
     /// DAITA machinist failed
+    #[cfg(daita)]
     #[error("Failed to initialize DAITA machinist")]
     InitializeMachinist(#[source] daita::Error),
 }
 
 pub struct WgNtTunnel {
+    #[cfg(daita)]
     resource_dir: PathBuf,
     config: Arc<Mutex<Config>>,
     device: Option<Arc<WgNtAdapter>>,
     interface_name: String,
     setup_handle: tokio::task::JoinHandle<()>,
+    #[cfg(daita)]
     daita_handle: Option<daita::MachinistHandle>,
     _logger_handle: LoggerHandle,
 }
@@ -316,6 +321,7 @@ bitflags! {
         const REPLACE_ALLOWED_IPS = 0b00100000;
         const REMOVE = 0b01000000;
         const UPDATE = 0b10000000;
+        #[cfg(daita)]
         const HAS_CONSTANT_PACKET_SIZE = 0b100000000;
     }
 }
@@ -334,6 +340,7 @@ struct WgPeer {
     rx_bytes: u64,
     last_handshake: u64,
     allowed_ips_count: u32,
+    #[cfg(daita)]
     constant_packet_size: c_uchar,
 }
 
@@ -430,7 +437,7 @@ impl WgNtTunnel {
 
             match error {
                 Error::CreateTunnelDevice(error) => super::TunnelError::SetupTunnelDevice(error),
-                _ => super::TunnelError::FatalStartWireguardError,
+                _ => super::TunnelError::FatalStartWireguardError(Box::new(error)),
             }
         })
     }
@@ -470,11 +477,13 @@ impl WgNtTunnel {
         });
 
         Ok(WgNtTunnel {
+            #[cfg(daita)]
             resource_dir: resource_dir.to_owned(),
             config: Arc::new(Mutex::new(config.clone())),
             device,
             interface_name,
             setup_handle,
+            #[cfg(daita)]
             daita_handle: None,
             _logger_handle: logger_handle,
         })
@@ -482,12 +491,14 @@ impl WgNtTunnel {
 
     fn stop_tunnel(&mut self) {
         self.setup_handle.abort();
+        #[cfg(daita)]
         if let Some(daita_handle) = self.daita_handle.take() {
             let _ = daita_handle.close();
         }
         let _ = self.device.take();
     }
 
+    #[cfg(daita)]
     fn spawn_machinist(&mut self) -> Result<()> {
         if let Some(handle) = self.daita_handle.take() {
             log::info!("Stopping previous DAITA machines");
@@ -542,11 +553,11 @@ impl Drop for WgNtTunnel {
     }
 }
 
-static LOG_CONTEXT: Lazy<Mutex<Option<u32>>> = Lazy::new(|| Mutex::new(None));
+static LOG_CONTEXT: Lazy<Mutex<Option<u64>>> = Lazy::new(|| Mutex::new(None));
 
 struct LoggerHandle {
     dll: &'static WgNtDll,
-    context: u32,
+    context: u64,
 }
 
 impl LoggerHandle {
@@ -668,10 +679,13 @@ struct WgNtDll {
     func_set_adapter_state: WireGuardSetStateFn,
     func_set_logger: WireGuardSetLoggerFn,
     func_set_adapter_logging: WireGuardSetAdapterLoggingFn,
-
+    #[cfg(daita)]
     func_daita_activate: daita::bindings::WireGuardDaitaActivateFn,
+    #[cfg(daita)]
     func_daita_event_data_available_event: daita::bindings::WireGuardDaitaEventDataAvailableEventFn,
+    #[cfg(daita)]
     func_daita_receive_events: daita::bindings::WireGuardDaitaReceiveEventsFn,
+    #[cfg(daita)]
     func_daita_send_action: daita::bindings::WireGuardDaitaSendActionFn,
 }
 
@@ -745,24 +759,28 @@ impl WgNtDll {
                     CStr::from_bytes_with_nul(b"WireGuardSetAdapterLogging\0").unwrap(),
                 )?) as *const _ as *const _)
             },
+            #[cfg(daita)]
             func_daita_activate: unsafe {
                 *((&get_proc_fn(
                     handle,
                     CStr::from_bytes_with_nul(b"WireGuardDaitaActivate\0").unwrap(),
                 )?) as *const _ as *const _)
             },
+            #[cfg(daita)]
             func_daita_event_data_available_event: unsafe {
                 *((&get_proc_fn(
                     handle,
                     CStr::from_bytes_with_nul(b"WireGuardDaitaEventDataAvailableEvent\0").unwrap(),
                 )?) as *const _ as *const _)
             },
+            #[cfg(daita)]
             func_daita_receive_events: unsafe {
                 *((&get_proc_fn(
                     handle,
                     CStr::from_bytes_with_nul(b"WireGuardDaitaReceiveEvents\0").unwrap(),
                 )?) as *const _ as *const _)
             },
+            #[cfg(daita)]
             func_daita_send_action: unsafe {
                 *((&get_proc_fn(
                     handle,
@@ -866,6 +884,7 @@ impl WgNtDll {
         Ok(())
     }
 
+    #[cfg(daita)]
     pub unsafe fn daita_activate(
         &self,
         adapter: RawHandle,
@@ -878,6 +897,7 @@ impl WgNtDll {
         Ok(())
     }
 
+    #[cfg(daita)]
     pub unsafe fn daita_event_data_available_event(
         &self,
         adapter: RawHandle,
@@ -889,6 +909,7 @@ impl WgNtDll {
         Ok(ready_event)
     }
 
+    #[cfg(daita)]
     pub unsafe fn daita_receive_events(
         &self,
         adapter: RawHandle,
@@ -901,6 +922,7 @@ impl WgNtDll {
         Ok(num_events)
     }
 
+    #[cfg(daita)]
     pub unsafe fn daita_send_action(
         &self,
         adapter: RawHandle,
@@ -937,12 +959,16 @@ fn serialize_config(config: &Config) -> Result<Vec<MaybeUninit<u8>>> {
     buffer.extend(as_uninit_byte_slice(&header));
 
     for peer in config.peers() {
+        #[cfg(not(daita))]
+        let mut flags = WgPeerFlag::HAS_PUBLIC_KEY | WgPeerFlag::HAS_ENDPOINT;
+        #[cfg(daita)]
         let mut flags = WgPeerFlag::HAS_PUBLIC_KEY
             | WgPeerFlag::HAS_ENDPOINT
             | WgPeerFlag::HAS_CONSTANT_PACKET_SIZE;
         if peer.psk.is_some() {
             flags |= WgPeerFlag::HAS_PRESHARED_KEY;
         }
+        #[cfg(daita)]
         let constant_packet_size = if peer.constant_packet_size { 1 } else { 0 };
         let wg_peer = WgPeer {
             flags,
@@ -959,6 +985,7 @@ fn serialize_config(config: &Config) -> Result<Vec<MaybeUninit<u8>>> {
             rx_bytes: 0,
             last_handshake: 0,
             allowed_ips_count: u32::try_from(peer.allowed_ips.len()).unwrap(),
+            #[cfg(daita)]
             constant_packet_size,
         };
 
@@ -1080,7 +1107,7 @@ impl Tunnel for WgNtTunnel {
     }
 
     fn set_config(
-        &self,
+        &mut self,
         config: Config,
     ) -> Pin<Box<dyn Future<Output = std::result::Result<(), super::TunnelError>> + Send>> {
         let device = self.device.clone();
@@ -1103,6 +1130,7 @@ impl Tunnel for WgNtTunnel {
         })
     }
 
+    #[cfg(daita)]
     fn start_daita(&mut self) -> std::result::Result<(), crate::TunnelError> {
         self.spawn_machinist().map_err(|error| {
             log::error!(
@@ -1145,7 +1173,6 @@ mod tests {
             allowed_ips: vec!["1.3.3.0/24".parse().unwrap()],
             endpoint: "1.2.3.4:1234".parse().unwrap(),
             psk: None,
-            #[cfg(target_os = "windows")]
             constant_packet_size: false,
         },
         exit_peer: None,
@@ -1153,6 +1180,7 @@ mod tests {
         ipv6_gateway: None,
         mtu: 0,
         obfuscator_config: None,
+        #[cfg(daita)]
         daita: false,
         quantum_resistant: false,
     });
@@ -1181,7 +1209,6 @@ mod tests {
             rx_bytes: 0,
             last_handshake: 0,
             allowed_ips_count: 1,
-            #[cfg(target_os = "windows")]
             constant_packet_size: 0,
         },
         p0_allowed_ip_0: WgAllowedIp {

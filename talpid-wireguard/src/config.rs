@@ -97,9 +97,9 @@ impl Config {
             enable_ipv6: generic_options.enable_ipv6,
             obfuscator_config: obfuscator_config.to_owned(),
             quantum_resistant: wg_options.quantum_resistant,
-            #[cfg(target_os = "windows")]
+            #[cfg(daita)]
             daita: wg_options.daita,
-            #[cfg(not(target_os = "windows"))]
+            #[cfg(not(daita))]
             daita: false,
         };
 
@@ -140,6 +140,10 @@ impl Config {
             }
             for addr in &peer.allowed_ips {
                 wg_conf.add("allowed_ip", addr.to_string().as_str());
+            }
+            #[cfg(daita)]
+            if peer.constant_packet_size {
+                wg_conf.add("constant_packet_size", "true");
             }
         }
 

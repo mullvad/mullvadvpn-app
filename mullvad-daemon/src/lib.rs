@@ -44,7 +44,7 @@ use mullvad_relay_selector::{
 use mullvad_types::account::{PlayPurchase, PlayPurchasePaymentToken};
 #[cfg(any(windows, target_os = "android", target_os = "macos"))]
 use mullvad_types::settings::SplitApp;
-#[cfg(target_os = "windows")]
+#[cfg(daita)]
 use mullvad_types::wireguard::DaitaSettings;
 use mullvad_types::{
     access_method::{AccessMethod, AccessMethodSetting},
@@ -255,7 +255,7 @@ pub enum DaemonCommand {
     /// Set whether to enable PQ PSK exchange in the tunnel
     SetQuantumResistantTunnel(ResponseTx<(), settings::Error>, QuantumResistantState),
     /// Set DAITA settings for the tunnel
-    #[cfg(target_os = "windows")]
+    #[cfg(daita)]
     SetDaitaSettings(ResponseTx<(), settings::Error>, DaitaSettings),
     /// Set DNS options or servers to use
     SetDnsOptions(ResponseTx<(), settings::Error>, DnsOptions),
@@ -1172,7 +1172,7 @@ where
                 self.on_set_quantum_resistant_tunnel(tx, quantum_resistant_state)
                     .await
             }
-            #[cfg(target_os = "windows")]
+            #[cfg(daita)]
             SetDaitaSettings(tx, daita_settings) => {
                 self.on_set_daita_settings(tx, daita_settings).await
             }
@@ -2240,7 +2240,7 @@ where
         }
     }
 
-    #[cfg(target_os = "windows")]
+    #[cfg(daita)]
     async fn on_set_daita_settings(
         &mut self,
         tx: ResponseTx<(), settings::Error>,
@@ -2804,9 +2804,9 @@ impl DaemonShutdownHandle {
 fn new_selector_config(settings: &Settings) -> SelectorConfig {
     let additional_constraints = AdditionalRelayConstraints {
         wireguard: AdditionalWireguardConstraints {
-            #[cfg(target_os = "windows")]
+            #[cfg(daita)]
             daita: settings.tunnel_options.wireguard.daita.enabled,
-            #[cfg(not(target_os = "windows"))]
+            #[cfg(not(daita))]
             daita: false,
         },
     };

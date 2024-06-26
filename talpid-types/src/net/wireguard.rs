@@ -62,7 +62,7 @@ pub struct PeerConfig {
     #[serde(skip)]
     pub psk: Option<PresharedKey>,
     /// Enable constant packet sizes for `entry_peer``
-    #[cfg(target_os = "windows")]
+    #[cfg(daita)]
     #[serde(skip)]
     pub constant_packet_size: bool,
 }
@@ -82,7 +82,7 @@ pub struct TunnelOptions {
     /// Perform PQ-safe PSK exchange when connecting
     pub quantum_resistant: bool,
     /// Enable DAITA during tunnel config
-    #[cfg(target_os = "windows")]
+    #[cfg(daita)]
     pub daita: bool,
 }
 

@@ -38,7 +38,7 @@ impl TunnelParameters {
                 obfuscation: None,
                 entry_endpoint: None,
                 tunnel_interface: None,
-                #[cfg(target_os = "windows")]
+                #[cfg(daita)]
                 daita: false,
             },
             TunnelParameters::Wireguard(params) => TunnelEndpoint {
@@ -55,7 +55,7 @@ impl TunnelParameters {
                     .get_exit_endpoint()
                     .map(|_| params.connection.get_endpoint()),
                 tunnel_interface: None,
-                #[cfg(target_os = "windows")]
+                #[cfg(daita)]
                 daita: params.options.daita,
             },
         }
@@ -179,7 +179,7 @@ pub struct TunnelEndpoint {
     pub obfuscation: Option<ObfuscationEndpoint>,
     pub entry_endpoint: Option<Endpoint>,
     pub tunnel_interface: Option<String>,
-    #[cfg(target_os = "windows")]
+    #[cfg(daita)]
     pub daita: bool,
 }
 

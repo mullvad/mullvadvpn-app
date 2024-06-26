@@ -51,7 +51,7 @@ impl FromStr for QuantumResistantState {
 #[error("Not a valid state")]
 pub struct QuantumResistantStateParseError;
 
-#[cfg(target_os = "windows")]
+#[cfg(daita)]
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 pub struct DaitaSettings {
     pub enabled: bool,
@@ -195,7 +195,7 @@ pub struct TunnelOptions {
     /// Obtain a PSK using the relay config client.
     pub quantum_resistant: QuantumResistantState,
     /// Configure DAITA
-    #[cfg(target_os = "windows")]
+    #[cfg(daita)]
     pub daita: DaitaSettings,
     /// Interval used for automatic key rotation
     pub rotation_interval: Option<RotationInterval>,
@@ -207,7 +207,7 @@ impl Default for TunnelOptions {
         TunnelOptions {
             mtu: None,
             quantum_resistant: QuantumResistantState::Auto,
-            #[cfg(target_os = "windows")]
+            #[cfg(daita)]
             daita: DaitaSettings::default(),
             rotation_interval: None,
         }
@@ -223,7 +223,7 @@ impl TunnelOptions {
                 QuantumResistantState::On => true,
                 QuantumResistantState::Off => false,
             },
-            #[cfg(target_os = "windows")]
+            #[cfg(daita)]
             daita: self.daita.enabled,
         }
     }

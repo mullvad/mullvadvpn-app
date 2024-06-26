@@ -29,6 +29,9 @@ Line wrap the file at 100 chars.                                              Th
 #### macOS
 - Add support for split tunneling (beta).
 
+#### Linux
+- Add DAITA (Defence against AI-guided Traffic Analysis) setting.
+
 ### Changed
 - Update Electron from 28.1.3 to 30.0.4.
 

@@ -33,8 +33,8 @@ use mullvad_types::{
     constraints::Constraint,
     relay_constraints::{
         BridgeConstraints, LocationConstraint, OpenVpnConstraints, Ownership, Providers,
-        RelayConstraints, SelectedObfuscation, TransportPort, Udp2TcpObfuscationSettings,
-        WireguardConstraints,
+        RelayConstraints, RelaySettings, SelectedObfuscation, TransportPort,
+        Udp2TcpObfuscationSettings, WireguardConstraints,
     },
     Intersection,
 };
@@ -126,6 +126,12 @@ impl From<RelayQuery> for RelayConstraints {
             wireguard_constraints: WireguardConstraints::from(value.wireguard_constraints),
             openvpn_constraints: OpenVpnConstraints::from(value.openvpn_constraints),
         }
+    }
+}
+
+impl From<RelayQuery> for RelaySettings {
+    fn from(value: RelayQuery) -> Self {
+        RelayConstraints::from(value).into()
     }
 }
 
