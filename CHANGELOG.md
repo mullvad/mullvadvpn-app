@@ -25,12 +25,10 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Add custom bridge settings in GUI.
 - Bundle https://github.com/mullvad/apisocks5 as a standalone binary.
+- Add DAITA (Defence against AI-guided Traffic Analysis) setting for Linux and macOS.
 
 #### macOS
 - Add support for split tunneling (beta).
-
-#### Linux
-- Add DAITA (Defence against AI-guided Traffic Analysis) setting.
 
 ### Changed
 - Update Electron from 28.1.3 to 30.0.4.
