@@ -25,6 +25,7 @@ import net.mullvad.mullvadvpn.lib.model.CustomDnsOptions
 import net.mullvad.mullvadvpn.lib.model.CustomList
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
+import net.mullvad.mullvadvpn.lib.model.DaitaState
 import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.lib.model.Device
 import net.mullvad.mullvadvpn.lib.model.DeviceId
@@ -365,6 +366,7 @@ internal fun ManagementInterface.TunnelOptions.WireguardOptions.toDomain(): Wire
     WireguardTunnelOptions(
         mtu = if (hasMtu()) Mtu(mtu) else null,
         quantumResistant = quantumResistant.toDomain(),
+        daita = daita.enabled
     )
 
 internal fun ManagementInterface.QuantumResistantState.toDomain(): QuantumResistantState =
@@ -412,6 +414,16 @@ internal fun QuantumResistantState.toDomain(): ManagementInterface.QuantumResist
                 QuantumResistantState.Auto -> ManagementInterface.QuantumResistantState.State.AUTO
                 QuantumResistantState.On -> ManagementInterface.QuantumResistantState.State.ON
                 QuantumResistantState.Off -> ManagementInterface.QuantumResistantState.State.OFF
+            }
+        )
+        .build()
+
+internal fun DaitaState.toDomain(): ManagementInterface.DaitaSettings =
+    ManagementInterface.DaitaSettings.newBuilder()
+        .setEnabled(
+            when (this) {
+                DaitaState.On -> true
+                DaitaState.Off -> false
             }
         )
         .build()

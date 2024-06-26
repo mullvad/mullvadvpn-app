@@ -114,6 +114,8 @@ import net.mullvad.mullvadvpn.lib.model.UpdateCustomListError
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints as ModelWireguardConstraints
 import net.mullvad.mullvadvpn.lib.model.WireguardEndpointData as ModelWireguardEndpointData
+import net.mullvad.mullvadvpn.lib.model.DaitaState
+import net.mullvad.mullvadvpn.lib.model.SetDaitaError
 import net.mullvad.mullvadvpn.lib.model.addresses
 import net.mullvad.mullvadvpn.lib.model.customOptions
 import net.mullvad.mullvadvpn.lib.model.location
@@ -404,6 +406,13 @@ class ManagementService(
     ): Either<SetWireguardQuantumResistantError, Unit> =
         Either.catch { grpc.setQuantumResistantTunnel(value.toDomain()) }
             .mapLeft(SetWireguardQuantumResistantError::Unknown)
+            .mapEmpty()
+
+    suspend fun setDaita(
+        value: DaitaState
+    ): Either<SetDaitaError, Unit> =
+        Either.catch { grpc.setDaitaSettings(value.toDomain()) }
+            .mapLeft(SetDaitaError::Unknown)
             .mapEmpty()
 
     // Todo needs to be more advanced

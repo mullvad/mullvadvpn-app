@@ -19,7 +19,11 @@ fn main() {
             cmd.arg("--daita");
         }
         "android" => {
-            cmd.arg("--android");
+            // Enable DAITA
+            println!(r#"cargo::rustc-cfg=daita"#);
+            // Tell the build script to build wireguard-go for android
+            // with DAITA support
+            cmd.args(["--android", "--daita"]);
         }
         // building wireguard-go-rs for windows is not implemented
         _ => return,
