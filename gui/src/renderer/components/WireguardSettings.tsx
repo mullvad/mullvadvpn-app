@@ -99,11 +99,9 @@ export default function WireguardSettings() {
                   <Udp2tcpPortSetting />
                 </Cell.Group>
 
-                {(window.env.platform === 'linux' || window.env.platform === 'win32') && (
-                  <Cell.Group>
-                    <DaitaSettings />
-                  </Cell.Group>
-                )}
+                <Cell.Group>
+                  <DaitaSettings />
+                </Cell.Group>
 
                 <Cell.Group>
                   <QuantumResistantSetting />

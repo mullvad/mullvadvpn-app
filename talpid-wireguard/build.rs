@@ -14,9 +14,9 @@ fn add_wireguard_go_cfg(target_os: &str) {
         println!("cargo::rustc-cfg=wireguard_go");
     }
 
-    // Enable Daita by default on Linux and Windows.
+    // Enable DAITA by default on desktop
     println!("cargo::rustc-check-cfg=cfg(daita)");
-    if matches!(target_os, "linux" | "windows") {
+    if matches!(target_os, "linux" | "macos" | "windows") {
         println!(r#"cargo::rustc-cfg=daita"#);
     }
 }

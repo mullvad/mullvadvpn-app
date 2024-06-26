@@ -12,7 +12,7 @@ fn main() {
     cmd.arg("./build-wireguard-go.sh");
 
     match target_os.as_str() {
-        "linux" => {
+        "linux" | "macos" => {
             // Enable DAITA
             println!(r#"cargo::rustc-cfg=daita"#);
             // Tell the build script to build wireguard-go with DAITA support
@@ -21,7 +21,6 @@ fn main() {
         "android" => {
             cmd.arg("--android");
         }
-        "macos" => {}
         // building wireguard-go-rs for windows is not implemented
         _ => return,
     }

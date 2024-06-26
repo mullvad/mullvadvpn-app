@@ -10,9 +10,7 @@ use crate::{
     tests::helpers::{login_with_retries, ConnChecker},
 };
 
-#[cfg(not(target_os = "macos"))]
-use anyhow::Context;
-use anyhow::{bail, ensure};
+use anyhow::{bail, ensure, Context};
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_relay_selector::query::builder::RelayQueryBuilder;
 use mullvad_types::{
@@ -408,8 +406,7 @@ pub async fn test_wireguard_autoconnect(
 /// # Limitations
 ///
 /// The test does not analyze any traffic, nor verify that DAITA is in use.
-#[cfg(not(target_os = "macos"))]
-#[test_function(target_os = "linux", target_os = "windows")]
+#[test_function]
 pub async fn test_daita(
     _: TestContext,
     rpc: ServiceClient,
