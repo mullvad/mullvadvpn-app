@@ -258,7 +258,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
      Continues application flow by evaluating what route to present next.
      */
     private func continueFlow(animated: Bool) {
-        var nextRoutes = evaluateNextRoutes()
+        let nextRoutes = evaluateNextRoutes()
 
         for nextRoute in nextRoutes {
             router.present(nextRoute, animated: animated)
@@ -413,7 +413,9 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         coordinator.didLogout = { [weak self] preferredAccountNumber in
             guard let self else { return }
             router.dismissAll(.primary, animated: true)
-            continueFlow(animated: true)
+            DispatchQueue.main.async {
+                self.continueFlow(animated: true)
+            }
             preferredAccountNumberSubject.send(preferredAccountNumber)
         }
 

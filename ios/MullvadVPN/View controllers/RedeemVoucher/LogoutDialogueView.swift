@@ -20,11 +20,8 @@ class LogoutDialogueView: UIView {
 
     private let messageLabel: UILabel = {
         let label = UILabel()
-        label.font = .preferredFont(forTextStyle: .callout, weight: .semibold)
-        label.numberOfLines = .zero
-        label.lineBreakMode = .byWordWrapping
-        label.textColor = .white
-        label.text = NSLocalizedString(
+
+        let message = NSMutableAttributedString(string: NSLocalizedString(
             "ACCOUNT_NUMBER_AS_VOUCHER_INPUT_ERROR_BODY",
             tableName: "CreateAccountRedeemingVoucher",
             value: """
@@ -33,7 +30,14 @@ class LogoutDialogueView: UIView {
             If so, click log out below to log in with the other account number.
             """,
             comment: ""
-        )
+        ))
+        message.apply(paragraphStyle: .alert)
+
+        label.attributedText = message
+        label.font = .preferredFont(forTextStyle: .callout, weight: .semibold)
+        label.numberOfLines = .zero
+        label.textColor = .white
+
         return label
     }()
 
