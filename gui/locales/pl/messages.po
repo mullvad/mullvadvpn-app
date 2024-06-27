@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Polish\n"
 "Language: pl_PL\n"
-"PO-Revision-Date: 2024-05-15 07:28\n"
+"PO-Revision-Date: 2024-06-27 08:16\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "Dodano %(duration)s, konto opłacone do %(expiry)s."
@@ -1109,6 +1109,14 @@ msgid "Disconnected and unsecure"
 msgstr "Rozłączony i niezabezpieczony"
 
 msgctxt "notifications"
+msgid "Failed to enable split tunneling."
+msgstr "Nie udało się włączyć dzielonego tunelowania."
+
+msgctxt "notifications"
+msgid "Failed to enable split tunneling. Please try reconnecting or disable split tunneling."
+msgstr "Nie udało się włączyć dzielonego tunelowania. Spróbuj połączyć się ponownie lub wyłącz dzielone tunelowanie."
+
+msgctxt "notifications"
 msgid "Lockdown mode active, connection blocked"
 msgstr "Tryb Lockdown aktywny, połączenie zablokowane"
 
@@ -1701,12 +1709,24 @@ msgid "Connecting. %(location)s"
 msgstr "Łączenie. %(location)s"
 
 msgctxt "troubleshoot"
+msgid "Enable “Full Disk Access” for “Mullvad VPN” in the macOS system settings."
+msgstr "Włącz opcję „Pełny dostęp do dysku” dla „Mullvad VPN” w ustawieniach systemu macOS."
+
+msgctxt "troubleshoot"
+msgid "Failed to enable split tunneling. This is because the app is missing system permissions. What you can do:"
+msgstr "Nie udało się włączyć dzielonego tunelowania: aplikacji brakuje uprawnień systemowych. Co można zrobić:"
+
+msgctxt "troubleshoot"
 msgid "If these steps do not work please send a problem report."
 msgstr "Jeśli te kroki nie zadziałają, wyślij zgłoszenie problemu."
 
 msgctxt "troubleshoot"
 msgid "Make sure you have NF tables support."
 msgstr "Zapewnij obsługę podsystemu nftables."
+
+msgctxt "troubleshoot"
+msgid "Open system settings"
+msgstr "Otwórz ustawienia systemu"
 
 msgctxt "troubleshoot"
 msgid "This error can happen when something other than Mullvad is actively updating the DNS."
@@ -2110,11 +2130,9 @@ msgstr "Port TCP, z którym powinien łączyć się protokół zaciemniania UDP-
 msgid "%s (added)"
 msgstr "%s (dodano)"
 
-msgctxt "A location was added to a custom list"
 msgid "%s was added to \"%s\""
 msgstr "Lokalizację %s dodano do listy „%s”"
 
-msgctxt "Shown as a toast when user added e.g 30 days or 3 months of time to their account"
 msgid "%s was added to your account."
 msgstr "Do konta dodano %s."
 
@@ -2124,11 +2142,17 @@ msgstr "1. Po kliknięciu poniższego przycisku <b>Przejdź do ustawień VPN</b>
 msgid "2. To enable Auto-connect, click on the toggle next to <b>Always-on VPN</b>."
 msgstr "2. Aby włączyć automatyczne łączenie, kliknij przełącznik obok opcji <b>Zawsze włączony VPN</b>."
 
-msgid "3. To enable Lockdown mode, click on the toggle next to <b>Block connections without VPN</b>."
-msgstr "3. Aby włączyć tryb Lockdown, kliknij przełącznik opcji <b>Blokuj połączenia bez VPN</b>."
+msgid "3. To enable Lockdown mode, click on the toggle next to <b>Block connections without VPN</b>.<br /><br /><b>Warning: This setting blocks split apps and the Local Network Sharing feature.</b>"
+msgstr "3. Aby włączyć tryb Lockdown, kliknij przełącznik obok opcji <b>Blokuj połączenia bez VPN</b>.<br /><br /><b>Ostrzeżenie: to ustawienie blokuje aplikacje dzielące i funkcję udostępniania sieci lokalnej.</b>"
 
 msgid "30 days was added to your account."
 msgstr "Do konta dodano 30 dni."
+
+msgid "API reachable, adding method..."
+msgstr "Interfejs API osiągalny, dodawanie metody..."
+
+msgid "API unreachable, save method anyway?"
+msgstr "Interfejs API nieosiągalny, zapisać metodę mimo to?"
 
 msgid "Account credit expires in a few minutes"
 msgstr "Doładowanie konta wygasa za kilka minut"
@@ -2139,7 +2163,6 @@ msgstr "Doładowanie konta wkrótce wygasa"
 msgid "Account time reminders"
 msgstr "Przypomnienia o czasie na koncie"
 
-msgctxt "Add a Country,City, or Server to a custom list"
 msgid "Add %s to list"
 msgstr "Dodaj lokalizację %s do listy"
 
@@ -2154,6 +2177,9 @@ msgstr "Dodaj serwer DNS"
 
 msgid "Add locations"
 msgstr "Dodaj lokalizacje"
+
+msgid "Adding method..."
+msgstr "Dodawanie metody..."
 
 msgid "Agree and continue"
 msgstr "Zaakceptuj i kontynuuj"
@@ -2173,6 +2199,9 @@ msgstr "Opcja „Zawsze włączony VPN” przypisana jest do innej aplikacji"
 msgid "Always-on VPN might be enabled for another app"
 msgstr "Opcja „Zawsze włączony VPN” może być włączona dla innej aplikacji"
 
+msgid "At least one method needs to be enabled"
+msgstr "Należy włączyć co najmniej jedną metodę"
+
 msgid "Attention: Split tunneling is a privacy risk."
 msgstr "Uwaga: dzielone tunelowanie stwarza ryzyko dla prywatności."
 
@@ -2190,6 +2219,10 @@ msgstr "Automatyczne łączenie (starsza wersja)"
 
 msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
 msgstr "Automatyczne łączenie w ustawieniach systemu Android nazywa się „Zawsze włączony VPN” i zapewnia stałe połączenie z tunelem VPN oraz automatyczne łączenie po ponownym uruchomieniu."
+
+msgctxt "Description of the existing \"auto-connect\" functionality as well as a notification about it being removed/replaced in a future update."
+msgid "Automatically connect when the app launches. This setting will be replaced with a new connect on device start-up feature in a future update."
+msgstr "Połącz automatycznie przy uruchamianiu aplikacji. W przyszłej aktualizacji ustawienie to zostanie zastąpione nową funkcją łączenia przy uruchamianiu urządzenia."
 
 msgid "Blocking internet (device offline)"
 msgstr "Blokowanie Internetu (urządzenie rozłączone)"
@@ -2218,6 +2251,10 @@ msgstr "Utwórz nową listę"
 msgid "Critical error (your attention is required)"
 msgstr "Błąd krytyczny (wymagana uwaga)"
 
+msgctxt "Status information about which method/configuration is actively being used. The placeholder is replaced by a built-in or custom method. For example \"Current: Direct\" or \"Current: MyCustomMethod\". Note that it's not \"current\" as in \"present time\"."
+msgid "Current: %s"
+msgstr "Bieżąca: %s"
+
 msgid "Custom DNS server addresses %s are invalid"
 msgstr "Niestandardowe adresy serwerów DNS %s są nieprawidłowe"
 
@@ -2226,6 +2263,12 @@ msgstr "Ustawienia usługi DNS mogą nie zostać zastosowane natychmiast"
 
 msgid "Delete \"%s\"?"
 msgstr "Usunąć „%s”?"
+
+msgid "Delete method"
+msgstr "Usuń metodę"
+
+msgid "Delete method?"
+msgstr "Usunąć metodę?"
 
 msgid "Disable all <b>%s</b> above to activate this setting."
 msgstr "Aby aktywować to ustawienie, wyłącz powyżej wszystkie <b>%s</b>."
@@ -2251,6 +2294,9 @@ msgstr "Edytuj lokalizacje"
 msgid "Edit name"
 msgstr "Edytuj nazwę"
 
+msgid "Enable method"
+msgstr "Włącz metodę"
+
 msgid "Enter MTU"
 msgstr "Wprowadź MTU"
 
@@ -2259,6 +2305,12 @@ msgstr "Wykluczone aplikacje"
 
 msgid "Failed to apply patch"
 msgstr "Nie udało się zastosować poprawki"
+
+msgid "Failed to set to current - API not reachable"
+msgstr "Nie udało się ustawić jako bieżącą — interfejs API nieosiągalny"
+
+msgid "Failed to set to current - Unknown reason"
+msgstr "Nie udało się ustawić jako bieżącą — przyczyna nieznana"
 
 msgid "File"
 msgstr "Plik"
@@ -2344,12 +2396,20 @@ msgstr "Usunięto zastąpienia"
 msgid "Overrides inactive"
 msgstr "Zastąpienia nieaktywne"
 
+msgid "Password (optional)"
+msgstr "Hasło (opcjonalnie)"
+
 msgid "Paste or write overrides to be imported"
 msgstr "Wklej lub wpisz zastąpienia do zaimportowania"
 
-msgctxt "The patch is a partial settings file that can be applied to the users' list of servers, overriding some of the values for the servers. This is part of Server IP overrides."
 msgid "Patch not matching specification"
 msgstr "Poprawka niezgodna ze specyfikacją"
+
+msgid "Please enter a valid IPv4 or IPv6 address"
+msgstr "Wprowadź prawidłowy adres IPv4 lub IPv6"
+
+msgid "Please enter a valid remote server port"
+msgstr "Wprowadź prawidłowy port serwera zdalnego"
 
 msgid "Please use the <b>Always-on</b> system setting instead by following the guide in <b>%s</b> above."
 msgstr "Zamiast tego użyj ustawienia systemowego <b>Zawsze włączone</b>, postępując zgodnie z poradnikiem w powyższej sekcji <b>%s</b>."
@@ -2369,7 +2429,6 @@ msgstr "Limit rekurencji"
 msgid "Remove"
 msgstr "Usuń"
 
-msgctxt "Remove a Country, City, or Server from a custom list."
 msgid "Remove %s from list"
 msgstr "Usuń lokalizację %s z listy"
 
@@ -2409,14 +2468,23 @@ msgstr "Pokazuje przypomnienia, gdy kończy się czas na koncie"
 msgid "Submit"
 msgstr "Prześlij"
 
+msgid "Test method"
+msgstr "Przetestuj metodę"
+
+msgid "Testing %s..."
+msgstr "Testowanie %s..."
+
 msgid "Text"
 msgstr "Tekst"
 
 msgid "The Auto-connect and Lockdown mode settings can be found in the Android system settings, follow this guide to enable one or both."
 msgstr "Ustawienia trybu automatycznego łączenia i trybu Lockdown można znaleźć w ustawieniach systemu Android. Aby włączyć jeden lub oba tryby, postępuj zgodnie z niniejszym poradnikiem."
 
-msgid "The Lockdown mode blocks all internet access if the VPN tunnel is manually disconnected. <br/><b>Warning: This setting blocks split apps and the Local Network Sharing feature</b>."
-msgstr "Jeśli tunel VPN jest ręcznie odłączony, wówczas tryb Lockdown całkowicie blokuje dostęp do Internetu. <br/><b>Ostrzeżenie: to ustawienie blokuje aplikacje dzielące i udostępnianie sieci lokalnej</b>."
+msgid "The Lockdown mode is called <b>Block connections without VPN</b> in the Android system settings. It helps minimize leaks, however it has some known limitations which you can read more about"
+msgstr "Tryb Lockdown w ustawieniach systemu Android nazywa się <b>Blokuj połączenia bez VPN</b>. Pomaga zminimalizować wycieki, jednak ma pewne znane ograniczenia, o których można przeczytać więcej"
+
+msgid "The \"Current\" method represent which method the app is using to reach the API."
+msgstr "Metoda „Bieżąca” reprezentuje metodę używaną przez aplikację w celu uzyskania dostępu do interfejsu API."
 
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under Preferences."
 msgstr "Lokalny serwer DNS nie będzie działał, dopóki nie włączysz opcji „Udostępnianie sieci lokalnej” w Preferencjach."
@@ -2426,6 +2494,12 @@ msgstr "Na Twoim urządzeniu nie ma ustawień VPN"
 
 msgid "This address has already been entered."
 msgstr "Ten adres został już wprowadzony."
+
+msgid "This field is required"
+msgstr "To pole jest wymagane"
+
+msgid "This is already set as current"
+msgstr "Już ustawiona jako bieżąca"
 
 msgid "To add locations to a list, press the \"︙\" or long press on a country, city, or server."
 msgstr "Aby dodać lokalizacje do listy, naciśnij przycisk „︙” lub naciśnij i przytrzymaj kraj, miasto albo serwer."
@@ -2451,12 +2525,15 @@ msgstr "Nie można uruchomić połączenia tunelowego. Przed rozpoczęciem użyt
 msgid "Undo"
 msgstr "Cofnij"
 
-msgctxt "Key is refering to a JSON key. The user selected a file or written/pasted a Server IP Override patch that was missing or using an invalid key."
 msgid "Unknown or prohibited key \"%s\""
 msgstr "Nieznany lub zabroniony klucz „%s”"
 
 msgid "Unsecured"
 msgstr "Niezabezpieczone"
+
+msgctxt "Notification message shown when the app lacks a permission called \"VPN permission\"."
+msgid "Unsecured (No VPN permission)"
+msgstr "Niezabezpieczony (brak uprawnienia VPN)"
 
 msgid "Update DNS server"
 msgstr "Zaktualizuj serwer DNS"
@@ -2466,6 +2543,9 @@ msgstr "Dostępna jest aktualizacja. Aby zachować bezpieczeństwo, pobierz ją.
 
 msgid "Update list name"
 msgstr "Zaktualizuj nazwę listy"
+
+msgid "Use method"
+msgstr "Użyj metody"
 
 msgid "VPN permission error"
 msgstr "Błąd uprawnienia VPN"
@@ -2481,6 +2561,9 @@ msgstr "Brak prawidłowego klucza WireGuard. Zarządzaj kluczami w Ustawieniach 
 
 msgid "Valid ranges: %s"
 msgstr "Prawidłowe zakresy: %s"
+
+msgid "Verifying API method..."
+msgstr "Weryfikowanie metody interfejsu API..."
 
 msgid "Verifying purchase"
 msgstr "Weryfikowanie zakupu"
@@ -2526,6 +2609,10 @@ msgstr "Używasz nieobsługiwanej wersji aplikacji."
 
 msgid "\"%s\" was deleted"
 msgstr "Usunięto „%s”"
+
+msgctxt "Clickable link that leads to our website."
+msgid "here"
+msgstr "tutaj"
 
 msgid "less than a minute ago"
 msgstr "mniej niż minutę temu"

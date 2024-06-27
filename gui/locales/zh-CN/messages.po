@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2024-05-15 07:28\n"
+"PO-Revision-Date: 2024-06-27 08:16\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "已添加 %(duration)s，帐户到期时间为 %(expiry)s。"
@@ -1091,6 +1091,14 @@ msgid "Disconnected and unsecure"
 msgstr "已断开连接且未受保护"
 
 msgctxt "notifications"
+msgid "Failed to enable split tunneling."
+msgstr "无法启用拆分隧道。"
+
+msgctxt "notifications"
+msgid "Failed to enable split tunneling. Please try reconnecting or disable split tunneling."
+msgstr "无法启用拆分隧道。请尝试重新连接或禁用拆分隧道。"
+
+msgctxt "notifications"
 msgid "Lockdown mode active, connection blocked"
 msgstr "锁定模式已激活，阻止连接"
 
@@ -1683,12 +1691,24 @@ msgid "Connecting. %(location)s"
 msgstr "正在连接。%(location)s"
 
 msgctxt "troubleshoot"
+msgid "Enable “Full Disk Access” for “Mullvad VPN” in the macOS system settings."
+msgstr "在 macOS 系统设置中，为“Mullvad VPN”启用“完全磁盘访问权限”。"
+
+msgctxt "troubleshoot"
+msgid "Failed to enable split tunneling. This is because the app is missing system permissions. What you can do:"
+msgstr "无法启用拆分隧道。这是因为应用缺少系统权限。您可以执行以下操作："
+
+msgctxt "troubleshoot"
 msgid "If these steps do not work please send a problem report."
 msgstr "如果以上操作仍无法解决问题，请发送问题报告。"
 
 msgctxt "troubleshoot"
 msgid "Make sure you have NF tables support."
 msgstr "确保您具有 nftables 支持。"
+
+msgctxt "troubleshoot"
+msgid "Open system settings"
+msgstr "打开系统设置"
 
 msgctxt "troubleshoot"
 msgid "This error can happen when something other than Mullvad is actively updating the DNS."
@@ -2092,11 +2112,9 @@ msgstr "UDP-over-TCP 混淆协议应连接到 VPN 服务器上的哪个 TCP 端�
 msgid "%s (added)"
 msgstr "%s（已添加）"
 
-msgctxt "A location was added to a custom list"
 msgid "%s was added to \"%s\""
 msgstr "%s已添加到“%s”中"
 
-msgctxt "Shown as a toast when user added e.g 30 days or 3 months of time to their account"
 msgid "%s was added to your account."
 msgstr "%s已添加到您的帐户中。"
 
@@ -2106,11 +2124,17 @@ msgstr "1. 点击下方的<b>前往 VPN 设置</b>按钮后，点击 <b>Mullvad 
 msgid "2. To enable Auto-connect, click on the toggle next to <b>Always-on VPN</b>."
 msgstr "2. 要启用自动连接，请点击<b>始终开启的 VPN</b> 旁边的开关。"
 
-msgid "3. To enable Lockdown mode, click on the toggle next to <b>Block connections without VPN</b>."
-msgstr "3. 要启用锁定模式，请点击<b>在没有 VPN 的情况下阻止连接</b>旁边的开关。"
+msgid "3. To enable Lockdown mode, click on the toggle next to <b>Block connections without VPN</b>.<br /><br /><b>Warning: This setting blocks split apps and the Local Network Sharing feature.</b>"
+msgstr "3. 要启用锁定模式，请点击<b>屏蔽未使用 VPN 的所有连接</b>旁边的开关。<br /><br /><b>警告：此设置会阻止拆分应用和“本地网络共享”功能</b>。"
 
 msgid "30 days was added to your account."
 msgstr "已向您的帐户增加 30 天。"
+
+msgid "API reachable, adding method..."
+msgstr "可通过 API 访问，正在添加方法…"
+
+msgid "API unreachable, save method anyway?"
+msgstr "无法通过 API 访问，是否仍然保存方法？"
 
 msgid "Account credit expires in a few minutes"
 msgstr "帐户额度将在几分钟后到期"
@@ -2121,7 +2145,6 @@ msgstr "帐户额度即将到期"
 msgid "Account time reminders"
 msgstr "帐户时间提醒"
 
-msgctxt "Add a Country,City, or Server to a custom list"
 msgid "Add %s to list"
 msgstr "将%s添加到列表中"
 
@@ -2136,6 +2159,9 @@ msgstr "添加 DNS 服务器"
 
 msgid "Add locations"
 msgstr "添加位置"
+
+msgid "Adding method..."
+msgstr "正在添加方法…"
 
 msgid "Agree and continue"
 msgstr "同意并继续"
@@ -2155,6 +2181,9 @@ msgstr "“始终开启的 VPN”已分配给其他应用"
 msgid "Always-on VPN might be enabled for another app"
 msgstr "可能为另一个应用启用了“始终开启的 VPN”"
 
+msgid "At least one method needs to be enabled"
+msgstr "至少需要启用一个方法"
+
 msgid "Attention: Split tunneling is a privacy risk."
 msgstr "注意：拆分隧道存在隐私风险。"
 
@@ -2172,6 +2201,10 @@ msgstr "自动连接（旧）"
 
 msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
 msgstr "自动连接在 Android 系统设置中称为“始终开启的 VPN”，此功能可确保您始终连接到 VPN 隧道并在重新启动后自动连接。"
+
+msgctxt "Description of the existing \"auto-connect\" functionality as well as a notification about it being removed/replaced in a future update."
+msgid "Automatically connect when the app launches. This setting will be replaced with a new connect on device start-up feature in a future update."
+msgstr "在应用启动时自动连接。在以后的更新中，此设置将被替换为新的“设备启动时连接”功能。"
 
 msgid "Blocking internet (device offline)"
 msgstr "正在阻止网络（设备离线）"
@@ -2200,6 +2233,10 @@ msgstr "创建新列表"
 msgid "Critical error (your attention is required)"
 msgstr "严重错误（需要注意）"
 
+msgctxt "Status information about which method/configuration is actively being used. The placeholder is replaced by a built-in or custom method. For example \"Current: Direct\" or \"Current: MyCustomMethod\". Note that it's not \"current\" as in \"present time\"."
+msgid "Current: %s"
+msgstr "当前：%s"
+
 msgid "Custom DNS server addresses %s are invalid"
 msgstr "自定义 DNS 服务器地址 %s 无效"
 
@@ -2208,6 +2245,12 @@ msgstr "DNS 设置可能不会立即生效"
 
 msgid "Delete \"%s\"?"
 msgstr "删除“%s”？"
+
+msgid "Delete method"
+msgstr "删除方法"
+
+msgid "Delete method?"
+msgstr "是否删除方法？"
 
 msgid "Disable all <b>%s</b> above to activate this setting."
 msgstr "禁用上方的所有 <b>%s</b>以激活此设置。"
@@ -2233,6 +2276,9 @@ msgstr "编辑位置"
 msgid "Edit name"
 msgstr "编辑名称"
 
+msgid "Enable method"
+msgstr "启用方法"
+
 msgid "Enter MTU"
 msgstr "输入 MTU"
 
@@ -2241,6 +2287,12 @@ msgstr "排除的应用程序"
 
 msgid "Failed to apply patch"
 msgstr "无法应用补丁"
+
+msgid "Failed to set to current - API not reachable"
+msgstr "无法设置为当前方法 – 无法通过 API 访问"
+
+msgid "Failed to set to current - Unknown reason"
+msgstr "无法设置为当前方法 – 未知原因"
 
 msgid "File"
 msgstr "文件"
@@ -2326,12 +2378,20 @@ msgstr "覆盖设置已清除"
 msgid "Overrides inactive"
 msgstr "覆盖设置未激活"
 
+msgid "Password (optional)"
+msgstr "密码（可选）"
+
 msgid "Paste or write overrides to be imported"
 msgstr "粘贴或编写要导入的覆盖设置"
 
-msgctxt "The patch is a partial settings file that can be applied to the users' list of servers, overriding some of the values for the servers. This is part of Server IP overrides."
 msgid "Patch not matching specification"
 msgstr "补丁与规范不匹配"
+
+msgid "Please enter a valid IPv4 or IPv6 address"
+msgstr "请输入有效的 IPv4 或 IPv6 地址"
+
+msgid "Please enter a valid remote server port"
+msgstr "请输入有效的远程服务器端口"
 
 msgid "Please use the <b>Always-on</b> system setting instead by following the guide in <b>%s</b> above."
 msgstr "请按照上述<b>%s</b>中的指南操作，改用<b>始终开启</b>系统设置。"
@@ -2351,7 +2411,6 @@ msgstr "递归限制"
 msgid "Remove"
 msgstr "移除"
 
-msgctxt "Remove a Country, City, or Server from a custom list."
 msgid "Remove %s from list"
 msgstr "从列表中移除%s"
 
@@ -2391,14 +2450,23 @@ msgstr "在帐户时间即将到期时显示提醒"
 msgid "Submit"
 msgstr "提交"
 
+msgid "Test method"
+msgstr "测试方法"
+
+msgid "Testing %s..."
+msgstr "正在测试 %s…"
+
 msgid "Text"
 msgstr "文本"
 
 msgid "The Auto-connect and Lockdown mode settings can be found in the Android system settings, follow this guide to enable one or both."
 msgstr "自动连接和锁定模式设置可以在 Android 系统设置中找到，请按照本指南启用其中一项或两项。"
 
-msgid "The Lockdown mode blocks all internet access if the VPN tunnel is manually disconnected. <br/><b>Warning: This setting blocks split apps and the Local Network Sharing feature</b>."
-msgstr "如果手动断开 VPN 隧道，锁定模式会阻止所有互联网访问。<br/><b>警告：此设置会阻止拆分应用和“本地网络共享”功能</b>。"
+msgid "The Lockdown mode is called <b>Block connections without VPN</b> in the Android system settings. It helps minimize leaks, however it has some known limitations which you can read more about"
+msgstr "在 Android 系统设置中，锁定模式被称为<b>屏蔽未使用 VPN 的所有连接</b>。它有助于尽可能减少泄露，但是也有一些已知的限制，要了解详情，请点击"
+
+msgid "The \"Current\" method represent which method the app is using to reach the API."
+msgstr "“当前”方法表示应用用来访问 API 的方法。"
 
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under Preferences."
 msgstr "除非您在“偏好设置”下启用“本地网络共享”，否则本地 DNS 服务器将不会运行。"
@@ -2408,6 +2476,12 @@ msgstr "您的设备上没有 VPN 设置"
 
 msgid "This address has already been entered."
 msgstr "此地址已输入过。"
+
+msgid "This field is required"
+msgstr "此字段为必填项"
+
+msgid "This is already set as current"
+msgstr "它已被设置为当前方法"
 
 msgid "To add locations to a list, press the \"︙\" or long press on a country, city, or server."
 msgstr "要将位置添加到列表中，请按“︙”或长按国家/地区、城市或服务器。"
@@ -2433,12 +2507,15 @@ msgstr "无法启动隧道连接。在使用 Mullvad VPN 之前，请为 <b>%s</
 msgid "Undo"
 msgstr "撤消"
 
-msgctxt "Key is refering to a JSON key. The user selected a file or written/pasted a Server IP Override patch that was missing or using an invalid key."
 msgid "Unknown or prohibited key \"%s\""
 msgstr "未知或禁止的键“%s”"
 
 msgid "Unsecured"
 msgstr "未受保护"
+
+msgctxt "Notification message shown when the app lacks a permission called \"VPN permission\"."
+msgid "Unsecured (No VPN permission)"
+msgstr "不安全（无 VPN 权限）"
 
 msgid "Update DNS server"
 msgstr "更新 DNS 服务器"
@@ -2448,6 +2525,9 @@ msgstr "有可用更新，请下载以保持安全。"
 
 msgid "Update list name"
 msgstr "更新列表名称"
+
+msgid "Use method"
+msgstr "使用方法"
 
 msgid "VPN permission error"
 msgstr "VPN 权限错误"
@@ -2463,6 +2543,9 @@ msgstr "缺少有效的 WireGuard 密钥。在“高级”设置下管理密钥�
 
 msgid "Valid ranges: %s"
 msgstr "有效范围：%s"
+
+msgid "Verifying API method..."
+msgstr "正在验证 API 方法…"
 
 msgid "Verifying purchase"
 msgstr "正在验证购买"
@@ -2508,6 +2591,10 @@ msgstr "您正在运行不受支持的应用版本。"
 
 msgid "\"%s\" was deleted"
 msgstr "“%s”已被删除"
+
+msgctxt "Clickable link that leads to our website."
+msgid "here"
+msgstr "此处"
 
 msgid "less than a minute ago"
 msgstr "不到 1 分钟前"
