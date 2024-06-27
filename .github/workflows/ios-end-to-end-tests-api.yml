@@ -1,0 +1,9 @@
+---
+name: iOS end-to-end API tests
+on:
+  workflow_dispatch:
+jobs:
+  reuse-e2e-workflow:
+    uses: ./.github/workflows/ios-end-to-end-tests.yml
+    with:
+      arg_tests_json_key: "api-tests"

@@ -28,5 +28,9 @@
 	<string>$(SHOULD_BE_REACHABLE_DOMAIN)</string>
 	<key>TestDeviceIdentifier</key>
 	<string>$(TEST_DEVICE_IDENTIFIER_UUID</string>
+	<key>TestDeviceIsIPad</key>
+	<string>$(TEST_DEVICE_IS_IPAD)</string>
+	<key>UninstallAppInTestSuiteTearDown</key>
+	<string>$(UNINSTALL_APP_IN_TEST_SUITE_TEAR_DOWN)</string>
 </dict>
 </plist>

@@ -1,72 +1,156 @@
 ---
 name: iOS end-to-end tests
+env:
+  TEST_DEVICE_UDID: 00008130-0019181022F3803A
 permissions:
   contents: read
   issues: write
   pull-requests: write
 on:
-  pull_request:
-    types:
-      - closed
-    branches:
-      - main
-    paths:
-      - .github/workflows/ios-end-to-end-tests.yml
-      - ios/**
+  workflow_call:
+    inputs:
+      arg_tests_json_key:
+        type: string
+        required: false
   workflow_dispatch:
     inputs:
       # Optionally specify a test case or suite to run.
       # Must be in the format MullvadVPNUITest/<test-suite-name>/<test-case-name> where test case name is optional.
-      test_name:
+      user_supplied_test_name:
         description: 'Only run test case/suite'
         required: false
-  schedule:
-    # At midnight every day.
-    # Notifications for scheduled workflows are sent to the user who last modified the cron
-    # syntax in the workflow file. If you update this you must have notifications for
-    # Github Actions enabled, so these don't go unnoticed.
-    # https://docs.github.com/en/actions/monitoring-and-troubleshooting-workflows/notifications-for-workflow-runs
-    - cron: '0 0 * * *'
 jobs:
-  test:
-    if: github.event.pull_request.merged || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-    name: End to end tests
+  set-up-outputs-directory:
+    name: Set up outputs directory
     runs-on: [self-hosted, macOS, ios-test]
-    timeout-minutes: 60
+    outputs:
+      job_outputs_directory: ${{ steps.set-up-job-outputs-directory.outputs.job_outputs_directory }}
     steps:
+      - name: Set up job outputs directory
+        id: set-up-job-outputs-directory
+        run: |
+          job_outputs_directory="$HOME/workflow-outputs/job-outputs-${{ github.run_id }}"
+          echo "job_outputs_directory=$job_outputs_directory" >> "$GITHUB_OUTPUT"
+          mkdir -p "$job_outputs_directory"
+
+        shell: bash
+
+  # Define the set of tests to run based on the event type and input
+  define-test-suites-matrix:
+    name: Define test suites matrix
+    runs-on: [self-hosted, macOS, ios-test]
+    needs: set-up-outputs-directory
+    steps:
+      - name: Test runs to JSON
+        id: test-runs-to-json
+        run: |
+          if [ -n "${{ inputs.arg_tests_json_key }}" ]; then
+          # JSON key supplied by another workflow calling this reusable workflow
+          echo "Using calling workflow supplied test suites JSON key: ${{ inputs.arg_tests_json_key }}"
+            test_suites_json=$(jq -r --compact-output '.tests."${{ inputs.arg_tests_json_key }}"' tests.json)
+            echo "test_suites_json=$test_suites_json" >> $GITHUB_ENV
+          elif [ -n "${{ inputs.user_supplied_test_name }}" ]; then
+            # User specified test case/suite when manually triggering run
+            echo "Using user supplied test name: ${{ inputs.user_supplied_test_name }}"
+            test_suites_json="['${{ inputs.user_supplied_test_name }}']" >> $GITHUB_ENV
+            echo "test_suites_json=$test_suites_json" >> $GITHUB_ENV
+          else
+            echo "Tests not specified, will fallback to running nightly(all) tests scope"
+            test_suites_json=$(jq -r --compact-output '.tests.nightly' tests.json)
+            echo "test_suites_json=$test_suites_json" >> $GITHUB_ENV
+          fi
+
+          echo "Test suites/cases to run: $test_suites_json"
+        working-directory: ios/MullvadVPNUITests
+    outputs:
+      test_suites_json: ${{ env.test_suites_json }}
+
+  # Build app and tests target
+  build:
+    name: Build for end to end testing
+    runs-on: [self-hosted, macOS, ios-test]
+    needs: set-up-outputs-directory
+    timeout-minutes: 20
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          clean: true
+
       - name: Configure Rust
-        uses: actions-rs/toolchain@v1
+        uses: actions-rs/toolchain@v1.0.6
         with:
           toolchain: stable
           override: true
           target: aarch64-apple-ios
-      - name: Checkout repository
-        uses: actions/checkout@v4
 
-      - name: Select test plan to execute
-        run: |
-          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            echo "XCODE_TEST_PLAN=MullvadVPNUITestsSmoke" >> $GITHUB_ENV
-          elif [[ "${{ github.event_name }}" == "schedule" ]]; then
-            echo "XCODE_TEST_PLAN=MullvadVPNUITestsAll" >> $GITHUB_ENV
-          elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            echo "XCODE_TEST_PLAN=MullvadVPNUITestsAll" >> $GITHUB_ENV
-          fi
-
-      - name: iOS end to end tests action
-        uses: ./.github/actions/ios-end-to-end-tests
+      - name: Build iOS end to end tests action
+        uses: ./.github/actions/build-ios-e2e-tests
         with:
-          xcode_test_plan: ${{ env.XCODE_TEST_PLAN }}
-          test_name: ${{ github.event.inputs.test_name }}
+          test_name: ${{ github.event.inputs.user_supplied_test_name }}
           ios_device_pin_code: ${{ secrets.IOS_DEVICE_PIN_CODE }}
           test_device_identifier_uuid: ${{ secrets.IOS_TEST_DEVICE_IDENTIFIER_UUID }}
           has_time_account_number: ${{ secrets.IOS_HAS_TIME_ACCOUNT_NUMBER_PRODUCTION }}
           no_time_account_number: ${{ secrets.IOS_NO_TIME_ACCOUNT_NUMBER_PRODUCTION }}
-          test_device_udid: ${{ secrets.IOS_TEST_DEVICE_UDID }}
+          test_device_udid: ${{ env.TEST_DEVICE_UDID }}
           partner_api_token: ${{ secrets.STAGEMOLE_PARTNER_AUTH }}
+          outputs_path: ${{ needs.set-up-outputs-directory.outputs.job_outputs_directory }}
 
+      - name: Debug print job output directory
+        run: |
+          echo "Job output directory: ${{ needs.set-up-outputs-directory.outputs.job_outputs_directory }}"
+        shell: bash
+
+      - name: Copy build output and project to output directory
+        run: |
+          mkdir -p "$JOB_OUTPUTS_DIRECTORY/derived-data"
+          cp -R ios/derived-data "$JOB_OUTPUTS_DIRECTORY"
+          cp -R . $JOB_OUTPUTS_DIRECTORY/mullvadvpn-app
+        shell: bash
+        env:
+          JOB_OUTPUTS_DIRECTORY: ${{ needs.set-up-outputs-directory.outputs.job_outputs_directory }}
+
+      - name: Clean up
+        run: |
+          rm -rf ios/Configurations/*.xcconfig
+          rm -rf ios/derived-data
+        shell: bash
+
+  test:
+    name: Run tests
+    runs-on: [self-hosted, macOS, ios-test]
+    needs: [build, define-test-suites-matrix, set-up-outputs-directory]
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        test_suite: ${{fromJson(needs.define-test-suites-matrix.outputs.test_suites_json)}}
+    steps:
+      - name: Run iOS end to end tests action
+        uses: ./.github/actions/run-ios-e2e-tests
+        with:
+          test_name: "MullvadVPNUITests/${{ matrix.test_suite }}"
+          test_device_udid: ${{ env.TEST_DEVICE_UDID }}
+          outputs_path: ${{ needs.set-up-outputs-directory.outputs.job_outputs_directory }}
+
+  clean-up-outputs-directory:
+    if: always()
+    name: Clean up outputs directory
+    runs-on: [self-hosted, macOS, ios-test]
+    needs: [test, set-up-outputs-directory]
+    steps:
+      - name: Clean up outputs directory
+        run: rm -rf ${{ needs.set-up-outputs-directory.outputs.job_outputs_directory }}
+        shell: bash
+
+  notify-on-failure:
+    if: failure() && github.event_name == 'pull_request'
+    name: Notify team on failure(if PR related)
+    runs-on: [self-hosted, macOS, ios-test]
+    needs: test
+    timeout-minutes: 5
+    steps:
       - name: Comment PR on test failure
-        if: failure() && github.event_name == 'pull_request'
         uses: actions/github-script@v7
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
@@ -80,19 +164,3 @@ jobs:
               issue_number: issue_number,
               body: `🚨 End to end tests failed. Please check the [failed workflow run](${run_url}).`
             });
-
-      - name: Store test report artifact
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results
-          path: |
-            ios/junit-test-report/junit.xml
-            ios/xcode-test-report.xcresult
-
-      - name: Store app log artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-logs
-          path: ios/xcode-test-report/**/app-log-*.log

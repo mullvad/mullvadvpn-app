@@ -22,6 +22,13 @@ class SelectLocationPage: Page {
         return self
     }
 
+    @discardableResult func tapCountryLocationCellExpandButton(withName name: String) -> Self {
+        let cell = app.cells.containing(.any, identifier: name)
+        let expandButton = cell.buttons[AccessibilityIdentifier.expandButton]
+        expandButton.tap()
+        return self
+    }
+
     @discardableResult func tapCountryLocationCellExpandButton(withIndex: Int) -> Self {
         let cell = app.cells.containing(.any, identifier: AccessibilityIdentifier.countryLocationCell.rawValue)
             .element(boundBy: withIndex)

@@ -1,0 +1,74 @@
+name: 'Run iOS end to end tests action'
+description: 'Runs end to end tests on iOS device'
+inputs:
+  test_name:
+    description: 'Test case/suite name. Will run all tests in the test plan if not provided.'
+    required: false
+  test_device_udid:
+    description: 'Test Device UDID'
+    required: true
+  outputs_path:
+    description: 'Path to where outputs are stored - both build outputs and outputs from running tests. This should be unique for each job run in order to avoid concurrency issues.'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+      # Set up a unique output directory
+    - name: Set up outputs directory
+      run: |
+        if [ -n "$TEST_NAME" ]; then
+          # Strip slashes to avoid creating subdirectories
+          test_name_sanitized=$(printf "$TEST_NAME" | sed 's/\//_/g')
+          echo "Setting output directory tests-output-test-name-sanitized"
+          echo "$test_name_sanitized"
+          test_output_directory="${{ env.OUTPUTS_PATH }}/tests-output-$test_name_sanitized"
+        else
+          echo "Setting output directory output"
+          test_output_directory="${{ env.OUTPUTS_PATH }}/tests-output"
+        fi
+        
+        echo "TEST_OUTPUT_DIRECTORY=$test_output_directory" >> $GITHUB_ENV
+        echo "TEST_NAME_SANITIZED=$test_name_sanitized" >> $GITHUB_ENV
+      shell: bash
+      env:
+        TEST_NAME: ${{ inputs.test_name }}
+        OUTPUTS_PATH: ${{ inputs.outputs_path }}
+
+    - name: Uninstall app
+      run: ios-deploy --id $TEST_DEVICE_UDID --uninstall_only --bundle_id net.mullvad.MullvadVPN
+      shell: bash
+      env:
+        TEST_DEVICE_UDID: ${{ inputs.test_device_udid }}
+
+    - name: Run end-to-end-tests
+      run: |
+        if [ -n "$TEST_NAME" ]; then
+          TEST_NAME_ARGUMENT=" -only-testing $TEST_NAME"
+        else
+          TEST_NAME_ARGUMENT=""
+        fi
+        set -o pipefail && env NSUnbufferedIO=YES xcodebuild \
+          -project MullvadVPN.xcodeproj \
+          -scheme MullvadVPNUITests \
+          -testPlan MullvadVPNUITestsAll $TEST_NAME_ARGUMENT \
+          -resultBundlePath ${{ env.TEST_OUTPUT_DIRECTORY }}/xcode-test-report \
+          -derivedDataPath derived-data \
+          -destination "platform=iOS,id=$TEST_DEVICE_UDID" \
+          test-without-building 2>&1 #| xcbeautify --report junit --report-path ${{ env.TEST_OUTPUT_DIRECTORY }}/junit-test-report
+      shell: bash
+      working-directory: ${{ inputs.outputs_path }}/mullvadvpn-app/ios
+      env:
+        TEST_NAME: ${{ inputs.test_name }}
+        TEST_DEVICE_UDID: ${{ inputs.test_device_udid }}
+
+    - name: Store test report artifact
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.TEST_NAME_SANITIZED }}-test-results
+        path: |
+          ${{ env.TEST_OUTPUT_DIRECTORY }}/junit-test-report/junit.xml
+          ${{ env.TEST_OUTPUT_DIRECTORY }}/xcode-test-report.xcresult
+      env:
+        TEST_NAME: ${{ inputs.test_name }}
