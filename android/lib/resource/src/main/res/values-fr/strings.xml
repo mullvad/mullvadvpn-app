@@ -16,7 +16,8 @@
     <string name="add_locations">Ajouter des localisations</string>
     <string name="add_method">Ajouter un mode</string>
     <string name="add_time_to_account">Achetez du crédit sur notre site web ou échangez un bon.</string>
-    <string name="added_to_your_account">%1$s ajouté(s) à votre compte.</string>
+    <string name="added_to_your_account">%1$s a été ajouté à votre compte.</string>
+    <string name="adding_method">Ajout de la méthode...</string>
     <string name="agree_and_continue">Accepter et continuer</string>
     <string name="all_applications">Toutes les applications</string>
     <string name="all_locations">Toutes les localisations</string>
@@ -27,12 +28,16 @@
     <string name="any">N\'importe lequel</string>
     <string name="api_access_description">Gérez et ajoutez des modes d\'accès personnalisés à l\'API Mullvad.</string>
     <string name="api_access_method_info_first_line">L\'application doit communiquer avec un serveur d\'API Mullvad pour vous connecter, récupérer des listes de serveurs et effectuer d\'autres opérations critiques.</string>
+    <string name="api_access_method_info_fourth_line">La méthode « Actuelle » représente la méthode utilisée par l\'application pour atteindre l\'API.</string>
     <string name="api_access_method_info_second_line">Sur certains réseaux, où divers types de censure sont utilisés, les serveurs API peuvent ne pas être directement accessibles.</string>
     <string name="api_access_method_info_third_line">Cette fonctionnalité vous permet de contourner cette censure en ajoutant des moyens personnalisés d\'accéder à l\'API via des proxys et des méthodes similaires.</string>
     <string name="api_reachable">API joignable</string>
+    <string name="api_reachable_adding_method">API joignable, ajout de la méthode...</string>
     <string name="api_unreachable">API injoignable</string>
+    <string name="api_unreachable_save_anyway">API injoignable, enregistrer quand même la méthode ?</string>
     <string name="app_version">Version de l\'application</string>
     <string name="apply">Appliquer</string>
+    <string name="at_least_on_method_needs_to_enabled">Au moins une méthode doit être activée</string>
     <string name="auth_failed">Impossible d\'authentifier le compte. Veuillez envoyer un rapport de problème.</string>
     <string name="authentication">Authentification</string>
     <string name="auto_connect">Connexion automatique</string>
@@ -42,7 +47,11 @@
     <string name="auto_connect_carousel_first_slide_top_text">Les paramètres de la connexion automatique et du mode Verrouillage se trouvent dans les paramètres du système Android, suivez ce guide pour activer l\'un, l\'autre ou les deux.</string>
     <string name="auto_connect_carousel_second_slide_bottom_text">2. Pour activer la connexion automatique, cliquez sur l\'interrupteur situé à côté de &lt;b&gt;VPN toujours actif&lt;/b&gt;.</string>
     <string name="auto_connect_carousel_second_slide_top_text">La connexion automatique est appelée VPN toujours actif dans les paramètres du système Android et elle s\'assure que vous êtes constamment connecté au tunnel VPN et se connecte automatiquement après le redémarrage.</string>
+    <string name="auto_connect_carousel_third_slide_bottom_text">3. Pour activer le mode Verrouillage, cliquez sur l\'interrupteur situé à côté de &lt;b&gt;Bloquer les connexions sans VPN&lt;/b&gt;.&lt;br /&gt;&lt;br /&gt;&lt;b&gt;Avertissement : ce paramètre bloque les applications fractionnées et la fonctionnalité de partage du réseau local.&lt;/b&gt;</string>
+    <string name="auto_connect_carousel_third_slide_top_text">Le mode Verrouillage est appelé &lt;b&gt;Bloquer les connexions sans VPN&lt;/b&gt; dans les paramètres système d\'Android. Il permet de minimiser les fuites, mais il présente des limites connues sur lesquelles vous pouvez en savoir plus</string>
+    <string name="auto_connect_carousel_third_slide_top_text_website_link">ici</string>
     <string name="auto_connect_footer_legacy">Veuillez utiliser le paramètre système &lt;b&gt;Toujours activé&lt;/b&gt; en suivant le guide dans &lt;b&gt;%1$s&lt;/b&gt; ci-dessus.</string>
+    <string name="auto_connect_footer_legacy_tv">Se connecter automatiquement au lancement de l\'application. Ce paramètre sera remplacé par une nouvelle fonctionnalité de connexion au démarrage de l\'appareil dans une prochaine mise à jour.</string>
     <string name="auto_connect_legacy">Connexion automatique (obsolète)</string>
     <string name="automatic">Automatique</string>
     <string name="back">Retour</string>
@@ -79,6 +88,7 @@
     <string name="creating_new_account">Création du compte…</string>
     <string name="creating_secure_connection">CRÉATION D\'UNE CONNEXION SÉCURISÉE</string>
     <string name="critical_error">Erreur critique (votre attention est requise)</string>
+    <string name="current_method">Actuel : %1$s</string>
     <string name="custom_dns_disable_mode_subtitle">Désactivez tous les &lt;b&gt;%1$s&lt;/b&gt; ci-dessus pour activer ce paramètre.</string>
     <string name="custom_dns_footer">Activez pour ajouter au moins un serveur DNS.</string>
     <string name="custom_dns_hint">Saisir l\'IP</string>
@@ -94,6 +104,8 @@
     <string name="delete_custom_list_confirmation_description">Supprimer « %1$s » ?</string>
     <string name="delete_custom_list_message">« %1$s » a été supprimé</string>
     <string name="delete_list">Supprimer la liste</string>
+    <string name="delete_method">Supprimer la méthode</string>
+    <string name="delete_method_question">Supprimer la méthode ?</string>
     <string name="device_inactive_description">Vous avez supprimé cet appareil. Vous devrez vous reconnecter pour connecter cet appareil à nouveau.</string>
     <string name="device_inactive_title">L\'appareil est inactif</string>
     <string name="device_inactive_unblock_warning">Aller à la connexion débloquera la connexion Internet sur cet appareil.</string>
@@ -122,6 +134,7 @@
     <string name="edit_name">Modifier le nom</string>
     <string name="enable">Activer</string>
     <string name="enable_custom_dns">Utiliser un serveur DNS personnalisé</string>
+    <string name="enable_method">Activer la méthode</string>
     <string name="enter_value_placeholder">Saisir le MTU</string>
     <string name="enter_voucher_code">Saisir un code de bon</string>
     <string name="error_occurred">Une erreur est survenue.</string>
@@ -133,6 +146,8 @@
     <string name="failed_to_remove_device">Impossible de supprimer l\'appareil</string>
     <string name="failed_to_send">Échec de l\'envoi</string>
     <string name="failed_to_send_details">Si vous quittez le formulaire et réessayez plus tard, les informations que vous avez déjà saisies seront toujours là.</string>
+    <string name="failed_to_set_current_test_error">Impossible de définir sur la méthode actuelle - API injoignable</string>
+    <string name="failed_to_set_current_unknown_error">Impossible de définir sur la méthode actuelle - Raison inconnue</string>
     <string name="faqs_and_guides">FAQ et guides</string>
     <string name="filter">Filtrer</string>
     <string name="filtered">Filtré :</string>
@@ -209,6 +224,7 @@
     <string name="ownership">Propriété</string>
     <string name="paid_until">Payé jusqu\'au</string>
     <string name="password">Mot de passe</string>
+    <string name="password_optional">Mot de passe (facultatif)</string>
     <string name="patch_not_matching_specification">Le correctif ne correspond pas à la spécification</string>
     <string name="pay_to_start_using">Pour commencer à utiliser l\'application, vous devez d\'abord ajouter du temps à votre compte.</string>
     <string name="payment_billing_error_dialog_message">Nous n\'avons pas pu lancer le processus de paiement, merci de vérifier que vous disposez de la dernière version de Google Play.</string>
@@ -220,6 +236,8 @@
     <string name="payment_pending_dialog_message">Nous vérifions actuellement votre achat, ce qui peut prendre un certain temps. Votre temps sera ajouté si la vérification réussit.</string>
     <string name="payment_pending_dialog_title">Vérification de l\'achat</string>
     <string name="payment_status_pending">Paiement Google Play en attente</string>
+    <string name="please_enter_a_valid_ip_address">Merci de saisir une adresse IPv4 ou IPv6 valide</string>
+    <string name="please_enter_a_valid_remote_server_port">Merci de saisir un port de serveur distant valide</string>
     <string name="port">Port</string>
     <string name="privacy_disclaimer_body_first_paragraph">Pour vous assurer que vous disposez de la version la plus sécurisée et pour vous informer de tout problème lié à la version en cours d\'exécution, l\'application effectue automatiquement des vérifications de version. Elle envoie ainsi la version de l\'application et la version du système Android aux serveurs de Mullvad. Mullvad tient des compteurs sur le nombre de versions d\'applications et de versions d\'Android utilisées. Les données ne sont jamais stockées ou utilisées de manière à vous identifier.</string>
     <string name="privacy_disclaimer_body_second_paragraph">Si la fonctionnalité de split tunneling est utilisée, l\'application demande à votre système la liste de toutes les applications installées. Cette liste n\'est récupérée que dans la vue de split tunneling. La liste des applications installées n\'est jamais envoyée par l\'appareil.</string>
@@ -292,7 +310,11 @@
     <string name="submit_button">Envoyer</string>
     <string name="switch_location">Changer de localisation</string>
     <string name="tcp">TCP</string>
+    <string name="test_method">Tester la méthode</string>
     <string name="testing">Test...</string>
+    <string name="testing_name">Test de %1$s...</string>
+    <string name="this_field_is_required">Ce champ est requis</string>
+    <string name="this_is_already_set_as_current">Déjà définie comme méthode actuelle</string>
     <string name="to_add_locations_to_a_list">Pour ajouter des localisations à une liste, appuyez sur la touche « ︙ » ou appuyez longuement sur un pays, une ville ou un serveur.</string>
     <string name="to_create_a_custom_list">Appuyez sur « ︙ » pour créer une liste personnalisée</string>
     <string name="toggle_vpn">Activer/désactiver le VPN</string>
@@ -307,6 +329,7 @@
     <string name="undo">Annuler</string>
     <string name="unsecured">Non sécurisé</string>
     <string name="unsecured_connection">CONNEXION NON SÉCURISÉE</string>
+    <string name="unsecured_vpn_permission_error">Non sécurisé (aucune autorisation VPN)</string>
     <string name="unsupported_version">VERSION NON PRISE EN CHARGE</string>
     <string name="unsupported_version_description">Votre confidentialité peut être en danger avec cette version non prise en charge de l\'application. Veuillez la mettre à jour maintenant.</string>
     <string name="unsupported_version_without_upgrade">Vous utilisez une version de l\'application non prise en charge.</string>
@@ -315,9 +338,11 @@
     <string name="update_available_footer">Mise à jour disponible. Téléchargez-la pour rester en sécurité.</string>
     <string name="update_dns_server_dialog_title">Mettre à jour le serveur DNS</string>
     <string name="update_list_name">Mettre à jour le nom de la liste</string>
+    <string name="use_method">Utiliser la méthode</string>
     <string name="user_email_hint">Votre e-mail (facultatif)</string>
     <string name="user_message_hint">Pour nous permettre de mieux vous assister, merci d\'écrire en anglais ou en suédois et d\'indiquer le pays à partir duquel vous vous connectez.</string>
     <string name="username">Nom d\'utilisateur</string>
+    <string name="verifying_api_method">Vérification de la méthode API...</string>
     <string name="verifying_voucher">Vérification du bon…</string>
     <string name="view_logs">Afficher les journaux de l\'application</string>
     <string name="virtual_adapter_problem">Erreur d\'adaptateur virtuel</string>

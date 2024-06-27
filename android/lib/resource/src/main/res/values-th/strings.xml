@@ -17,6 +17,7 @@
     <string name="add_method">เพิ่มวิธีการ</string>
     <string name="add_time_to_account">ซื้อเครดิตบนเว็บไซต์ของเรา หรือแลกรับบัตรกำนัล</string>
     <string name="added_to_your_account">%1$s ถูกเพิ่มลงในบัญชีของคุณแล้ว</string>
+    <string name="adding_method">กำลังเพิ่มวิธีการ...</string>
     <string name="agree_and_continue">ยอมรับและดำเนินการต่อ</string>
     <string name="all_applications">แอปพลิเคชันทั้งหมด</string>
     <string name="all_locations">ตำแหน่งที่ตั้งทั้งหมด</string>
@@ -27,12 +28,16 @@
     <string name="any">อะไรก็ได้</string>
     <string name="api_access_description">จัดการและเพิ่มวิธีแบบกำหนดเอง เพื่อเข้าถึง Mullvad API</string>
     <string name="api_access_method_info_first_line">แอปจำเป็นต้องสื่อสารกับเซิร์ฟเวอร์ Mullvad API เพื่อนำคุณเข้าสู่ระบบ ดึงข้อมูลรายการเซิร์ฟเวอร์ และการดำเนินการที่สำคัญอื่นๆ</string>
+    <string name="api_access_method_info_fourth_line">วิธีการ \"ปัจจุบัน\" แสดงถึงวิธีที่แอปใช้ในการเข้าถึง API</string>
     <string name="api_access_method_info_second_line">คุณอาจไม่สามารถเข้าถึงเซิร์ฟเวอร์ API ได้โดยตรง ในบางเครือข่ายที่มีการใช้งานเซ็นเซอร์หลายประเภท</string>
     <string name="api_access_method_info_third_line">คุณลักษณะนี้ช่วยให้คุณหลีกเลี่ยงการเซ็นเซอร์ โดยการเพิ่มวิธีที่กำหนดเองในการเข้าถึง API ผ่านพร็อกซี่ และวิธีการที่คล้ายคลึงกัน</string>
     <string name="api_reachable">เข้าถึง API ได้</string>
+    <string name="api_reachable_adding_method">เข้าถึง API ได้ กำลังเพิ่มวิธีการ...</string>
     <string name="api_unreachable">ไม่สามารถเข้าถึง API ได้</string>
+    <string name="api_unreachable_save_anyway">เข้าถึง API ไม่ได้ บันทึกวิธีการหรือไม่</string>
     <string name="app_version">เวอร์ชันแอป</string>
     <string name="apply">ใช้</string>
+    <string name="at_least_on_method_needs_to_enabled">จำเป็นต้องเปิดใช้อย่างน้อยหนึ่งวิธีการ</string>
     <string name="auth_failed">ไม่สามารถตรวจสอบความถูกต้องของบัญชีได้ โปรดส่งรายงานปัญหา</string>
     <string name="authentication">การรับรองความถูกต้อง</string>
     <string name="auto_connect">เชื่อมต่ออัตโนมัติ</string>
@@ -42,7 +47,11 @@
     <string name="auto_connect_carousel_first_slide_top_text">การตั้งค่าการเชื่อมต่ออัตโนมัติและโหมดล็อกดาวน์ อยู่ในการตั้งค่าระบบ Android โปรดทำตามคำแนะนำนี้ เพื่อเปิดใช้งานโหมดใดโหมดหนึ่ง หรือทั้งสองโหมด</string>
     <string name="auto_connect_carousel_second_slide_bottom_text">2. ในการเปิดใช้การเชื่อมต่ออัตโนมัติ ให้คลิกปุ่มเปิด/ปิดที่อยู่ถัดจาก &lt;b&gt;Always-on VPN&lt;/b&gt;</string>
     <string name="auto_connect_carousel_second_slide_top_text">การเชื่อมต่ออัตโนมัติเรียกว่า Always-on VPN ในการตั้งค่าระบบ Android ซึ่งจะช่วยให้คุณมั่นใจได้ว่า คุณเชื่อมต่อกับช่องทาง VPN อย่างต่อเนื่อง และมีการเชื่อมต่ออัตโนมัติหลังจากรีสตาร์ต</string>
+    <string name="auto_connect_carousel_third_slide_bottom_text">3. ในการเปิดโหมดล็อกดาวน์ ให้คลิกปุ่มเปิด/ปิดที่อยู่ถัดจาก&lt;b&gt;ปิดกั้นการเชื่อมต่อโดยไม่ใช้ VPN&lt;/b&gt; &lt;br /&gt;&lt;br /&gt;&lt;b&gt;คำเตือน: การตั้งค่านี้จะบล็อกแอปที่มีการแยก และคุณลักษณะการแชร์เครือข่ายท้องถิ่น&lt;/b&gt;</string>
+    <string name="auto_connect_carousel_third_slide_top_text">โหมดล็อกดาวน์ถูกเรียกใช้ &lt;b&gt;ปิดกั้นการเชื่อมต่อโดยไม่ใช้ VPN&lt;/b&gt; ในการตั้งค่าระบบ Android ซึ่งจะช่วยลดการรั่วไหล แต่ก็มีข้อจำกัดบางประการ ที่คุณสามารถอ่านข้อมูลเพิ่มเติมเกี่ยวกับเรื่องดังกล่าวได้</string>
+    <string name="auto_connect_carousel_third_slide_top_text_website_link">ที่นี่</string>
     <string name="auto_connect_footer_legacy">โปรดใช้การตั้งค่าระบบ&lt;b&gt;เปิดใช้งานเสมอ&lt;/b&gt;แทน โดยทำตามคำแนะนำใน &lt;b&gt;%1$s&lt;/b&gt; ที่อยู่ด้านบน</string>
+    <string name="auto_connect_footer_legacy_tv">เชื่อมต่อโดยอัตโนมัติเมื่อเปิดแอป การตั้งค่านี้จะถูกแทนที่ด้วยคุณลักษณะใหม่ คือการเชื่อมต่อเมื่อเริ่มต้นอุปกรณ์ ในการอัปเดตในอนาคต</string>
     <string name="auto_connect_legacy">เชื่อมต่ออัตโนมัติ (เดิม)</string>
     <string name="automatic">อัตโนมัติ</string>
     <string name="back">ย้อนกลับ</string>
@@ -79,6 +88,7 @@
     <string name="creating_new_account">กำลังสร้างบัญชี...</string>
     <string name="creating_secure_connection">กำลังสร้างการเชื่อมต่อที่ปลอดภัย</string>
     <string name="critical_error">ข้อผิดพลาดร้ายแรง (คุณจำเป็นต้องตรวจสอบ)</string>
+    <string name="current_method">ปัจจุบัน: %1$s</string>
     <string name="custom_dns_disable_mode_subtitle">ปิดใช้งาน &lt;b&gt;%1$s&lt;/b&gt; ด้านบนทั้งหมด เพื่อเปิดใช้การตั้งค่านี้</string>
     <string name="custom_dns_footer">เปิดเพื่อเพิ่มเซิร์ฟเวอร์ DNS อย่างน้อยหนึ่งรายการ</string>
     <string name="custom_dns_hint">ป้อน IP</string>
@@ -94,6 +104,8 @@
     <string name="delete_custom_list_confirmation_description">ลบ \"%1$s\" หรือไม่</string>
     <string name="delete_custom_list_message">\"%1$s\" ถูกลบแล้ว</string>
     <string name="delete_list">ลบรายการ</string>
+    <string name="delete_method">ลบวิธีการ</string>
+    <string name="delete_method_question">ลบวิธีการหรือไม่</string>
     <string name="device_inactive_description">คุณได้ลบอุปกรณ์เครื่องนี้แล้ว หากต้องการเชื่อมต่ออีกครั้ง คุณจะต้องเข้าสู่ระบบใหม่อีกครั้ง</string>
     <string name="device_inactive_title">อุปกรณ์ไม่ได้ใช้งาน</string>
     <string name="device_inactive_unblock_warning">การไปที่ส่วนเข้าสู่ระบบจะปลดบล็อกอินเทอร์เน็ตบนอุปกรณ์เครื่องนี้</string>
@@ -122,6 +134,7 @@
     <string name="edit_name">แก้ไขชื่อ</string>
     <string name="enable">เปิดใช้งาน</string>
     <string name="enable_custom_dns">ใช้เซิร์ฟเวอร์ DNS แบบกำหนดเอง</string>
+    <string name="enable_method">เปิดใช้งานวิธีการ</string>
     <string name="enter_value_placeholder">ป้อน MTU</string>
     <string name="enter_voucher_code">ป้อนรหัสบัตรกำนัล</string>
     <string name="error_occurred">เกิดข้อผิดพลาดขึ้น</string>
@@ -133,6 +146,8 @@
     <string name="failed_to_remove_device">ไม่สามารถลบอุปกรณ์ได้</string>
     <string name="failed_to_send">ไม่สามารถส่งได้</string>
     <string name="failed_to_send_details">หากคุณออกจากแบบฟอร์มแล้วเข้ามาใหม่ในภายหลัง ข้อมูลที่คุณกรอกไว้จะยังคงอยู่ที่นี่ดังเดิม</string>
+    <string name="failed_to_set_current_test_error">ไม่สามารถตั้งค่าเป็นปัจจุบันได้ - ไม่สามารถเข้าถึง API ได้</string>
+    <string name="failed_to_set_current_unknown_error">ไม่สามารถตั้งค่าเป็นปัจจุบันได้ - ไม่ทราบสาเหตุ</string>
     <string name="faqs_and_guides">คำถามที่พบบ่อยและคำแนะนำ</string>
     <string name="filter">ตัวกรอง</string>
     <string name="filtered">กรอง:</string>
@@ -163,7 +178,7 @@
     <string name="local_network_sharing_additional_info">ทำเช่นนี้ได้โดยการอนุญาตให้มีการสื่อสารเครือข่ายนอกอุโมงค์ ไปยังมัลติคาสต์และช่วงการเผยแพร่ในท้องถิ่น รวมถึงการสื่อสารไปมาในช่วง IP ส่วนตัวเหล่านี้:</string>
     <string name="local_network_sharing_info">คุณลักษณะนี้จะช่วยให้สามารถเข้าถึงอุปกรณ์อื่นๆ บนเครือข่ายท้องถิ่น เช่น การแชร์ การพิมพ์ การสตรีม ฯลฯ</string>
     <string name="location_added">%1$s (เพิ่มแล้ว)</string>
-    <string name="location_was_added_to_list">%1$s ถูกเพิ่มลงใน \"%2$s\"</string>
+    <string name="location_was_added_to_list">%1$s ได้ถูกเพิ่มไปยัง \"%2$s\"</string>
     <string name="locations">ตำแหน่งที่ตั้ง</string>
     <string name="locations_were_changed_for">ตำแหน่งที่ตั้งสำหรับ \"%1$s\" มีการเปลี่ยนแปลง</string>
     <string name="log_out">ลงชื่อออก</string>
@@ -209,6 +224,7 @@
     <string name="ownership">ความเป็นเจ้าของ</string>
     <string name="paid_until">ชำระเงินแล้วจนถึง</string>
     <string name="password">รหัสผ่าน</string>
+    <string name="password_optional">รหัสผ่าน (ไม่บังคับ)</string>
     <string name="patch_not_matching_specification">แพตช์ไม่ตรงกับข้อมูลจำเพาะ</string>
     <string name="pay_to_start_using">คุณจำเป็นต้องเพิ่มเวลาไปยังบัญชีของคุณก่อน เพื่อที่จะเริ่มใช้งานแอป</string>
     <string name="payment_billing_error_dialog_message">เราไม่สามารถเริ่มกระบวนการชำระเงินได้ โปรดตรวจสอบให้แน่ใจว่า คุณมี Google Play เวอร์ชันล่าสุด </string>
@@ -220,6 +236,8 @@
     <string name="payment_pending_dialog_message">เรากำลังตรวจสอบยืนยันการซื้อของคุณ ซึ่งอาจใช้เวลาสักครู่ คุณจะได้รับเวลาเพิ่ม หากการตรวจสอบยืนยันสำเร็จ</string>
     <string name="payment_pending_dialog_title">กำลังตรวจสอบยืนยันการซื้อ</string>
     <string name="payment_status_pending">กำลังชำระเงิน Google Play</string>
+    <string name="please_enter_a_valid_ip_address">โปรดป้อนที่อยู่ IPv4 หรือ IPv6 ที่ถูกต้อง</string>
+    <string name="please_enter_a_valid_remote_server_port">โปรดป้อนพอร์ตเซิร์ฟเวอร์ระยะไกลที่ถูกต้อง</string>
     <string name="port">พอร์ต</string>
     <string name="privacy_disclaimer_body_first_paragraph">แอปจะตรวจสอบเวอร์ชันโดยอัตโนมัติ เพื่อให้แน่ใจว่า คุณใช้งานเวอร์ชันที่ปลอดภัยที่สุด และเพื่อแจ้งปัญหาใดๆ ของเวอร์ชันปัจจุบันที่ใช้งานอยู่ให้คุณทราบ โดยระบบจะส่งเวอร์ชันแอปและเวอร์ชันระบบ Android ไปยังเซิร์ฟเวอร์ Mullavid ซึ่ง Mullvad จะติดตามจำนวนเวอร์ชันแอปที่ใช้และเวอร์ชัน Android ทั้งนี้ข้อมูลจะไม่ถูกจัดเก็บ หรือนำไปใช้ในลักษณะใดๆ ที่สามารถระบุตัวตนคุณได้</string>
     <string name="privacy_disclaimer_body_second_paragraph">หากมีการใช้งานคุณลักษณะการแยกอุโมงค์ แอปจะขอให้ระบบของคุณระบุแอปพลิเคชันที่ติดตั้งไว้ทั้งหมด รายการนี้จะได้รับการเรียกใช้งานในมุมมองการแยกอุโมงค์เท่านั้น รายการแอปพลิเคชันที่ติดตั้งไว้ทั้งหมด จะไม่ถูกส่งออกจากอุปกรณ์</string>
@@ -236,7 +254,7 @@
     <string name="redeem">แลกรับ</string>
     <string name="redeem_voucher">แลกบัตรกำนัล</string>
     <string name="remove_button">ลบ</string>
-    <string name="remove_location_from_list">นำ %1$s ออกจากรายการ</string>
+    <string name="remove_location_from_list">ลบ %1$s ออกจากรายการ</string>
     <string name="rented">เช่า</string>
     <string name="rented_only">เช่าเท่านั้น</string>
     <string name="report_a_problem">รายงานปัญหา</string>
@@ -280,7 +298,7 @@
     <string name="settings_patch_error_invalid_or_missing_value">ค่า \"%1$s\" ไม่ถูกต้องหรือหายไป</string>
     <string name="settings_patch_error_recursion_limit">ขีดจำกัดการเรียกซ้ำ</string>
     <string name="settings_patch_error_unable_to_parse">ไม่สามารถแยกวิเคราะห์แพตช์ได้</string>
-    <string name="settings_patch_error_unknown_or_prohibited_key">คีย์ที่ไม่รู้จัก หรือมีคีย์ต้องห้าม \"%1$s\"</string>
+    <string name="settings_patch_error_unknown_or_prohibited_key">คีย์ที่ไม่รู้จัก หรือต้องห้าม \"%1$s\"</string>
     <string name="settings_patch_success">นำเข้าสำเร็จ เปิดใช้โอเวอร์ไรด์อยู่</string>
     <string name="settings_preferences">การกำหนดค่า</string>
     <string name="settings_vpn">การตั้งค่า VPN</string>
@@ -292,7 +310,11 @@
     <string name="submit_button">ส่ง</string>
     <string name="switch_location">สลับตำแหน่ง</string>
     <string name="tcp">TCP</string>
+    <string name="test_method">ทดสอบวิธีการ</string>
     <string name="testing">กำลังทดสอบ...</string>
+    <string name="testing_name">กำลังทดสอบ %1$s...</string>
+    <string name="this_field_is_required">จำเป็นต้องกรอกช่องนี้</string>
+    <string name="this_is_already_set_as_current">นี่ได้รับการตั้งค่าเป็นปัจจุบันแล้ว</string>
     <string name="to_add_locations_to_a_list">กด \"︙\" หรือกดประเทศ เมือง หรือเซิร์ฟเวอร์ค้างไว้ เพื่อเพิ่มตำแหน่งที่ตั้งลงในรายการ</string>
     <string name="to_create_a_custom_list">กด \"︙\" เพื่อสร้างรายการแบบกำหนดเอง</string>
     <string name="toggle_vpn">เปิด/ปิด VPN</string>
@@ -307,6 +329,7 @@
     <string name="undo">เลิกทำ</string>
     <string name="unsecured">ไม่ปลอดภัย</string>
     <string name="unsecured_connection">การเชื่อมต่อที่ไม่ปลอดภัย</string>
+    <string name="unsecured_vpn_permission_error">ไม่ปลอดภัย (ไม่มีสิทธิ์ VPN)</string>
     <string name="unsupported_version">เวอร์ชันที่ไม่รองรับ</string>
     <string name="unsupported_version_description">ความเป็นส่วนตัวของคุณอาจมีความเสี่ยง ในขณะที่ใช้งานเวอร์ชันแอปที่ไม่ได้รับการสนับสนุนนี้ โปรดอัปเดตตอนนี้เลย</string>
     <string name="unsupported_version_without_upgrade">คุณกำลังใช้งานเวอร์ชันแอปที่ไม่ได้รับการสนับสนุน</string>
@@ -315,9 +338,11 @@
     <string name="update_available_footer">มีอัปเดตพร้อมใช้งาน ดาวน์โหลดเพื่อคงความปลอดภัยไว้</string>
     <string name="update_dns_server_dialog_title">อัปเดตเซิร์ฟเวอร์ DNS</string>
     <string name="update_list_name">อัปเดตชื่อรายการ</string>
+    <string name="use_method">ใช้วิธีการ</string>
     <string name="user_email_hint">อีเมลของคุณ (ไม่บังคับ)</string>
     <string name="user_message_hint">โปรดเขียนเป็นภาษาอังกฤษหรือสวีเดน พร้อมระบุประเทศต้นทางที่คุณเชื่อมต่อ เพื่อให้รับความช่วยเหลือได้ดียิ่งขึ้น</string>
     <string name="username">ชื่อผู้ใช้</string>
+    <string name="verifying_api_method">กำลังตรวจสอบยืนยันวิธีการ API...</string>
     <string name="verifying_voucher">กำลังตรวจสอบยืนยันบัตรกำนัล…</string>
     <string name="view_logs">ดูบันทึกของแอป</string>
     <string name="virtual_adapter_problem">ข้อผิดพลาดของอะแดปเตอร์เสมือน</string>
