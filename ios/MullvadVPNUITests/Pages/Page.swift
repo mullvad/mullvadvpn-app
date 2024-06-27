@@ -50,7 +50,8 @@ class Page {
     }
 
     @discardableResult func tapWhereStatusBarShouldBeToScrollToTopMostPosition() -> Self {
-        app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0)).tap()
+        // Tapping but not at center x coordinate because on iPad there's an ellipsis button in the center of the status bar
+        app.coordinate(withNormalizedOffset: CGVector(dx: 0.75, dy: 0)).tap()
         return self
     }
 }
