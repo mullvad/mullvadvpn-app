@@ -6,6 +6,12 @@ IOS_DEVICE_PIN_CODE =
 // UUID to identify test runs. Should be unique per test device. Generate with for example uuidgen on macOS.
 TEST_DEVICE_IDENTIFIER_UUID = 
 
+// Specify whether test device is an iPad or not
+TEST_DEVICE_IS_IPAD = 0
+
+// Uninstall app after each test suite finish running?
+UNINSTALL_APP_IN_TEST_SUITE_TEAR_DOWN = 1
+
 // Base64 encoded token for the partner API. Will only be used if account numbers are not configured.
 // PARTNER_API_TOKEN = 
 

@@ -1,5 +1,8 @@
 ---
 name: iOS settings migration tests
+concurrency:
+  group: ios-end-to-end-tests
+  cancel-in-progress: false
 permissions:
   contents: read
 on:
@@ -11,6 +14,8 @@ on:
     # Github Actions enabled, so these don't go unnoticed.
     # https://docs.github.com/en/actions/monitoring-and-troubleshooting-workflows/notifications-for-workflow-runs
     - cron: '0 0 * * *'
+env:
+  TEST_DEVICE_UDID: 00008130-0019181022F3803A
 jobs:
   test:
     name: Settings migration end to end tests
@@ -19,14 +24,15 @@ jobs:
       OLD_APP_COMMIT_HASH: 895b7d98825e678f5d7023d5ea3c9b7beee89280
     steps:
       - name: Configure Rust
-        uses: actions-rs/toolchain@v1
+        uses: actions-rs/toolchain@v1.0.6
         with:
           toolchain: stable
           override: true
           target: aarch64-apple-ios
 
       - name: Uninstall app
-        run: ios-deploy --id ${{ secrets.IOS_TEST_DEVICE_UDID }} --uninstall_only --bundle_id net.mullvad.MullvadVPN
+        timeout-minutes: 5
+        run: ios-deploy --id $${{ env.TEST_DEVICE_UDID }} --uninstall_only --bundle_id net.mullvad.MullvadVPN
 
       - name: Checkout old repository version
         uses: actions/checkout@v4
@@ -40,7 +46,7 @@ jobs:
           test_device_identifier_uuid: ${{ secrets.IOS_TEST_DEVICE_IDENTIFIER_UUID }}
           has_time_account_number: ${{ secrets.IOS_HAS_TIME_ACCOUNT_NUMBER_PRODUCTION }}
           no_time_account_number: ${{ secrets.IOS_NO_TIME_ACCOUNT_NUMBER_PRODUCTION }}
-          test_device_udid: ${{ secrets.IOS_TEST_DEVICE_UDID }}
+          test_device_udid: ${{ env.TEST_DEVICE_UDID }}
           xcode_test_plan: 'MullvadVPNUITestsChangeDNSSettings'
           partner_api_token: ${{ secrets.STAGEMOLE_PARTNER_AUTH }}
 
@@ -62,7 +68,7 @@ jobs:
           test_device_identifier_uuid: ${{ secrets.IOS_TEST_DEVICE_IDENTIFIER_UUID }}
           has_time_account_number: ${{ secrets.IOS_HAS_TIME_ACCOUNT_NUMBER_PRODUCTION }}
           no_time_account_number: ${{ secrets.IOS_NO_TIME_ACCOUNT_NUMBER_PRODUCTION }}
-          test_device_udid: ${{ secrets.IOS_TEST_DEVICE_UDID }}
+          test_device_udid: ${{ env.TEST_DEVICE_UDID }}
           partner_api_token: ${{ secrets.STAGEMOLE_PARTNER_AUTH }}
           xcode_test_plan: 'MullvadVPNUITestsVerifyDNSSettingsChanged'
 
@@ -86,7 +92,7 @@ jobs:
           test_device_identifier_uuid: ${{ secrets.IOS_TEST_DEVICE_IDENTIFIER_UUID }}
           has_time_account_number: ${{ secrets.IOS_HAS_TIME_ACCOUNT_NUMBER_PRODUCTION }}
           no_time_account_number: ${{ secrets.IOS_NO_TIME_ACCOUNT_NUMBER_PRODUCTION }}
-          test_device_udid: ${{ secrets.IOS_TEST_DEVICE_UDID }}
+          test_device_udid: ${{ env.TEST_DEVICE_UDID }}
           partner_api_token: ${{ secrets.STAGEMOLE_PARTNER_AUTH }}
           xcode_test_plan: 'MullvadVPNUITestsChangeSettings'
 
@@ -108,7 +114,7 @@ jobs:
           test_device_identifier_uuid: ${{ secrets.IOS_TEST_DEVICE_IDENTIFIER_UUID }}
           has_time_account_number: ${{ secrets.IOS_HAS_TIME_ACCOUNT_NUMBER_PRODUCTION }}
           no_time_account_number: ${{ secrets.IOS_NO_TIME_ACCOUNT_NUMBER_PRODUCTION }}
-          test_device_udid: ${{ secrets.IOS_TEST_DEVICE_UDID }}
+          test_device_udid: ${{ env.TEST_DEVICE_UDID }}
           partner_api_token: ${{ secrets.STAGEMOLE_PARTNER_AUTH }}
           xcode_test_plan: 'MullvadVPNUITestsVerifySettingsChanged'
 

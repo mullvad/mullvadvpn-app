@@ -17,9 +17,6 @@
             default = "YES">
          </TestPlanReference>
          <TestPlanReference
-            reference = "container:TestPlans/MullvadVPNUITestsSmoke.xctestplan">
-         </TestPlanReference>
-         <TestPlanReference
             reference = "container:TestPlans/MullvadVPNUITestsVerifyDNSSettingsChanged.xctestplan">
          </TestPlanReference>
          <TestPlanReference
@@ -72,15 +69,6 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "58CE5E5F224146200008646E"
-            BuildableName = "MullvadVPN.app"
-            BlueprintName = "MullvadVPN"
-            ReferencedContainer = "container:MullvadVPN.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">
