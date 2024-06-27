@@ -17,6 +17,7 @@
     <string name="add_method">新增方式</string>
     <string name="add_time_to_account">在我們網站上購買點數或兌換憑證。</string>
     <string name="added_to_your_account">%1$s 已新增至您的帳戶。</string>
+    <string name="adding_method">正在新增方式…</string>
     <string name="agree_and_continue">同意並繼續</string>
     <string name="all_applications">所有應用程式</string>
     <string name="all_locations">所有位置</string>
@@ -27,12 +28,16 @@
     <string name="any">任何</string>
     <string name="api_access_description">管理並新增自訂方式以存取 Mullvad API。</string>
     <string name="api_access_method_info_first_line">該應用程式需要與 Mulvad API 伺服器通訊，以便您登入、取得伺服器清單並執行其他重要作業。</string>
+    <string name="api_access_method_info_fourth_line">「目前」方式表示應用程式正用來存取 API 的方式。</string>
     <string name="api_access_method_info_second_line">在某些採用了各類審查制度的網路上，可能無法直接存取 API 伺服器。</string>
     <string name="api_access_method_info_third_line">此功能允許您透過代理伺服器和類似方式來新增存取 API 的自訂方式，從而規避審查。</string>
     <string name="api_reachable">可透過 API 存取</string>
+    <string name="api_reachable_adding_method">可透過 API 存取，正在新增方式…</string>
     <string name="api_unreachable">無法透過 API 存取</string>
+    <string name="api_unreachable_save_anyway">無法透過 API 存取，仍要儲存方式嗎？</string>
     <string name="app_version">應用程式版本</string>
     <string name="apply">套用</string>
+    <string name="at_least_on_method_needs_to_enabled">至少需要啟用一種方式</string>
     <string name="auth_failed">無法驗證帳戶。請傳送問題回報。</string>
     <string name="authentication">驗證</string>
     <string name="auto_connect">自動連線</string>
@@ -42,7 +47,11 @@
     <string name="auto_connect_carousel_first_slide_top_text">自動連線和鎖定模式設定皆可在 Android 系統設定中找到，請按照本指南的指示，啟用其中一項或兩項設定。</string>
     <string name="auto_connect_carousel_second_slide_bottom_text">2. 若要啟用自動連線，請按一下&lt;b&gt;始終啟用 VPN&lt;/b&gt; 旁邊的開關。</string>
     <string name="auto_connect_carousel_second_slide_top_text">自動連線在 Android 系統設定中稱為「始終啟用 VPN」，此功能可確保您始終與 VPN 通道連線，並且會在重新啟動後自動連線。</string>
+    <string name="auto_connect_carousel_third_slide_bottom_text">3. 若要啟用鎖定模式，請按一下&lt;b&gt;在沒有 VPN 的情況下封鎖連線&lt;/b&gt;旁邊的開關。&lt;br /&gt;&lt;br /&gt;&lt;b&gt;警告：此設定會封鎖分割應用程式和「本機網路共享」功能。&lt;/b&gt;</string>
+    <string name="auto_connect_carousel_third_slide_top_text">在 Android 系統設定中，鎖定模式稱為 &lt;b&gt;在沒有 VPN 的情況下封鎖連線&lt;/b&gt;。這有助於將洩漏的情形降至最低。然而，也有一些已知的侷限性。如需進一步的相關資訊，請按一下</string>
+    <string name="auto_connect_carousel_third_slide_top_text_website_link">此處</string>
     <string name="auto_connect_footer_legacy">請依照前述 &lt;b&gt;%1$s&lt;/b&gt; 中的指南，改用&lt;b&gt;一律啟用&lt;/b&gt;系統設定。</string>
+    <string name="auto_connect_footer_legacy_tv">在啟動應用程式時自動連線。在未來的更新中，此設定將由裝置啟動時即進行連線的新功能所取代。</string>
     <string name="auto_connect_legacy">自動連線 (舊)</string>
     <string name="automatic">自動</string>
     <string name="back">返回</string>
@@ -79,6 +88,7 @@
     <string name="creating_new_account">正在建立帳戶…</string>
     <string name="creating_secure_connection">建立安全連線</string>
     <string name="critical_error">嚴重錯誤 (需注意)</string>
+    <string name="current_method">目前：%1$s</string>
     <string name="custom_dns_disable_mode_subtitle">停用上方所有 &lt;b&gt;%1$s&lt;/b&gt;以啟動此設定。</string>
     <string name="custom_dns_footer">啟用以新增至少一個 DNS 伺服器。</string>
     <string name="custom_dns_hint">輸入 IP</string>
@@ -94,6 +104,8 @@
     <string name="delete_custom_list_confirmation_description">要刪除「%1$s」嗎？</string>
     <string name="delete_custom_list_message">「%1$s」已刪除</string>
     <string name="delete_list">刪除清單</string>
+    <string name="delete_method">刪除方式</string>
+    <string name="delete_method_question">要刪除方式嗎？</string>
     <string name="device_inactive_description">您已移除此裝置。若要重新連線，您需要重新登入。</string>
     <string name="device_inactive_title">裝置處於非活動狀態</string>
     <string name="device_inactive_unblock_warning">若前往登入，則會在此裝置上解除對網際網路的封鎖。</string>
@@ -122,6 +134,7 @@
     <string name="edit_name">編輯名稱</string>
     <string name="enable">啟用</string>
     <string name="enable_custom_dns">使用自訂 DNS 伺服器</string>
+    <string name="enable_method">啟用方式</string>
     <string name="enter_value_placeholder">輸入 MTU</string>
     <string name="enter_voucher_code">輸入優惠券兌換碼</string>
     <string name="error_occurred">發生錯誤了。</string>
@@ -133,6 +146,8 @@
     <string name="failed_to_remove_device">無法移除裝置</string>
     <string name="failed_to_send">無法傳送</string>
     <string name="failed_to_send_details">如果您關閉表格後再重新嘗試，所輸入的資訊仍會出現在這裡。</string>
+    <string name="failed_to_set_current_test_error">無法設定為目前方式 - 無法透過 API 存取</string>
+    <string name="failed_to_set_current_unknown_error">無法設定為目前方式 - 不明原因</string>
     <string name="faqs_and_guides">常見問題集與指南</string>
     <string name="filter">篩選</string>
     <string name="filtered">已篩選：</string>
@@ -163,7 +178,7 @@
     <string name="local_network_sharing_additional_info">其原理是允許通道外的網路與本機網路進行通訊，包括以下私人 IP 範圍內的多點傳送和廣播：</string>
     <string name="local_network_sharing_info">此功能可允許存取本機網路上的其他裝置，以便用於分享、列印、串流等。</string>
     <string name="location_added">%1$s (已新增)</string>
-    <string name="location_was_added_to_list">已將 %1$s 新增至「%2$s」</string>
+    <string name="location_was_added_to_list">%1$s 已新增至「%2$s」</string>
     <string name="locations">位置</string>
     <string name="locations_were_changed_for">已變更「%1$s」的位置</string>
     <string name="log_out">登出</string>
@@ -209,6 +224,7 @@
     <string name="ownership">所有權狀態</string>
     <string name="paid_until">支付至</string>
     <string name="password">密碼</string>
+    <string name="password_optional">密碼 (可選)</string>
     <string name="patch_not_matching_specification">修補檔與規範不相符</string>
     <string name="pay_to_start_using">需先在帳戶中加時，才能開始使用本應用程式。</string>
     <string name="payment_billing_error_dialog_message">我們無法啟動付款流程，請確認您是否擁有最新版本的 Google Play。</string>
@@ -220,6 +236,8 @@
     <string name="payment_pending_dialog_message">我們目前正在驗證您的購買，這可能需要一些時間。如果驗證成功，您的時間就會增加。</string>
     <string name="payment_pending_dialog_title">正在驗證購買</string>
     <string name="payment_status_pending">Google Play 付款尚待處理</string>
+    <string name="please_enter_a_valid_ip_address">請輸入有效的 IPv4 或 IPv6 位址。</string>
+    <string name="please_enter_a_valid_remote_server_port">請輸入有效的遠端伺服器連接埠</string>
     <string name="port">連接埠</string>
     <string name="privacy_disclaimer_body_first_paragraph">為確保您擁有最安全的版本，並告知您目前執行的版本有無任何問題，該應用程式會自動進行版本檢查。為此，應用程式會將其版本和 Android 系統版本傳送至 Mullvad 伺服器，以便讓 Mullvad 統計已使用的應用程式版本和 Android 版本的數量。這些資料永遠不會以任何方式儲存或用來辨識您的身分。</string>
     <string name="privacy_disclaimer_body_second_paragraph">如果使用了分割通道功能，該應用程式會查詢您的系統，以取得所有已安裝應用程式的清單。我們只會在分割通道視圖中擷取這份清單，絕不會傳送至他處。</string>
@@ -292,7 +310,11 @@
     <string name="submit_button">提交</string>
     <string name="switch_location">切換位置</string>
     <string name="tcp">TCP</string>
+    <string name="test_method">測試方式</string>
     <string name="testing">正在測試…</string>
+    <string name="testing_name">正在測試 %1$s…</string>
+    <string name="this_field_is_required">此欄位為必填項</string>
+    <string name="this_is_already_set_as_current">已將其設定為目前方式</string>
     <string name="to_add_locations_to_a_list">若要在清單中新增位置，請按下「︙」，或是長按下國家/地區、城市或伺服器。</string>
     <string name="to_create_a_custom_list">若要建立自訂清單，請按下「︙」</string>
     <string name="toggle_vpn">切換 VPN</string>
@@ -307,6 +329,7 @@
     <string name="undo">復原</string>
     <string name="unsecured">不安全</string>
     <string name="unsecured_connection">不安全的連線</string>
+    <string name="unsecured_vpn_permission_error">不安全 (無 VPN 權限)</string>
     <string name="unsupported_version">不支援的版本</string>
     <string name="unsupported_version_description">此應用程式版本不受支援，因此您的隱私可能存在風險。請立即更新。</string>
     <string name="unsupported_version_without_upgrade">您所執行的應用程式版本不受支援。</string>
@@ -315,9 +338,11 @@
     <string name="update_available_footer">更新可用，請下載以維持安全。</string>
     <string name="update_dns_server_dialog_title">更新 DNS 伺服器</string>
     <string name="update_list_name">更新清單名稱</string>
+    <string name="use_method">使用方式</string>
     <string name="user_email_hint">您的電子郵件 (選填)</string>
     <string name="user_message_hint">為了給您提供更完善的協助，請您使用英語或瑞典語書寫，並註明您是從哪個國家/地區進行連線。</string>
     <string name="username">使用者名稱</string>
+    <string name="verifying_api_method">正在驗證 API 方式…</string>
     <string name="verifying_voucher">正在驗證優惠券…</string>
     <string name="view_logs">檢視應用程式日誌</string>
     <string name="virtual_adapter_problem">虛擬配接器錯誤</string>

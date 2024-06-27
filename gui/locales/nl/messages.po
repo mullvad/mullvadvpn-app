@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Dutch\n"
 "Language: nl_NL\n"
-"PO-Revision-Date: 2024-05-15 07:28\n"
+"PO-Revision-Date: 2024-06-27 08:16\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "%(duration)s is toegevoegd, account betaald tot %(expiry)s."
@@ -1097,6 +1097,14 @@ msgid "Disconnected and unsecure"
 msgstr "Verbinding verbroken en niet veilig"
 
 msgctxt "notifications"
+msgid "Failed to enable split tunneling."
+msgstr "Inschakelen van split tunneling mislukt."
+
+msgctxt "notifications"
+msgid "Failed to enable split tunneling. Please try reconnecting or disable split tunneling."
+msgstr "Inschakelen van split tunneling mislukt. Probeer opnieuw verbinding te maken of schakel split tunneling uit."
+
+msgctxt "notifications"
 msgid "Lockdown mode active, connection blocked"
 msgstr "Lockdownmodus actief, verbinding geblokkeerd"
 
@@ -1689,12 +1697,24 @@ msgid "Connecting. %(location)s"
 msgstr "Bezig met verbinden. %(location)s"
 
 msgctxt "troubleshoot"
+msgid "Enable “Full Disk Access” for “Mullvad VPN” in the macOS system settings."
+msgstr "Schakel \"Volledige schijftoegang\" in voor \"Mullad VPN\" in de systeeminstellingen van macOS"
+
+msgctxt "troubleshoot"
+msgid "Failed to enable split tunneling. This is because the app is missing system permissions. What you can do:"
+msgstr "Inschakelen van split tunneling mislukt. Dit komt omdat de app systeemrechten mist. Wat je kunt doen:"
+
+msgctxt "troubleshoot"
 msgid "If these steps do not work please send a problem report."
 msgstr "Als deze stappen niet werken, stuur dan een probleemrapport."
 
 msgctxt "troubleshoot"
 msgid "Make sure you have NF tables support."
 msgstr "Zorg dat u ondersteuning voor NF-tabellen hebt."
+
+msgctxt "troubleshoot"
+msgid "Open system settings"
+msgstr "Systeeminstellingen openen"
 
 msgctxt "troubleshoot"
 msgid "This error can happen when something other than Mullvad is actively updating the DNS."
@@ -2098,11 +2118,9 @@ msgstr "Met welke TCP-poort moet het UDP-over-TCP-obfuscatieprotocol verbinding 
 msgid "%s (added)"
 msgstr "%s (toegevoegd)"
 
-msgctxt "A location was added to a custom list"
 msgid "%s was added to \"%s\""
 msgstr "%s is toegevoegd aan \"%s\""
 
-msgctxt "Shown as a toast when user added e.g 30 days or 3 months of time to their account"
 msgid "%s was added to your account."
 msgstr "%s is toegevoegd aan uw account."
 
@@ -2112,11 +2130,17 @@ msgstr "1. Klik nadat u op de knop <b>Naar VPN-instellingen</b> hebt geklikt op 
 msgid "2. To enable Auto-connect, click on the toggle next to <b>Always-on VPN</b>."
 msgstr "2. Klik om Automatisch verbinden in te schakelen op de schakelaar naast <b>Altijd-aan VPN</b>."
 
-msgid "3. To enable Lockdown mode, click on the toggle next to <b>Block connections without VPN</b>."
-msgstr "3. Klik om Lockdownmodus in te schakelen op de schakelaar naast <b>Verbindingen zonder VPN blokkeren</b>."
+msgid "3. To enable Lockdown mode, click on the toggle next to <b>Block connections without VPN</b>.<br /><br /><b>Warning: This setting blocks split apps and the Local Network Sharing feature.</b>"
+msgstr "3. Klik om de Lockdownmodus in te schakelen op de schakelaar naast <b>Verbindingen zonder VPN blokkeren</b>.<br /><br /><b>Waarschuwing: deze instelling blokkeert gesplitste apps en de functie Lokaal netwerk delen.</b>"
 
 msgid "30 days was added to your account."
 msgstr "Er zijn 30 dagen toegevoegd aan uw account."
+
+msgid "API reachable, adding method..."
+msgstr "API bereikbaar, methode toevoegen ..."
+
+msgid "API unreachable, save method anyway?"
+msgstr "API onbereikbaar, methode toch opslaan?"
 
 msgid "Account credit expires in a few minutes"
 msgstr "Accountkrediet verloopt over enkele minuten"
@@ -2127,7 +2151,6 @@ msgstr "Accountkrediet verloopt binnenkort"
 msgid "Account time reminders"
 msgstr "Accounttijdherinneringen"
 
-msgctxt "Add a Country,City, or Server to a custom list"
 msgid "Add %s to list"
 msgstr "%s toevoegen aan lijst"
 
@@ -2142,6 +2165,9 @@ msgstr "DNS-server toevoegen"
 
 msgid "Add locations"
 msgstr "Voeg locaties toe"
+
+msgid "Adding method..."
+msgstr "Methode toevoegen ..."
 
 msgid "Agree and continue"
 msgstr "Akkoord en doorgaan"
@@ -2161,6 +2187,9 @@ msgstr "Altijd-aan VPN toegewezen aan andere app"
 msgid "Always-on VPN might be enabled for another app"
 msgstr "Altijd-aan VPN is mogelijk ingeschakeld voor een andere app"
 
+msgid "At least one method needs to be enabled"
+msgstr "Er moet minimaal één methode ingeschakeld zijn"
+
 msgid "Attention: Split tunneling is a privacy risk."
 msgstr "Let op: split tunneling is een privacyrisico."
 
@@ -2178,6 +2207,10 @@ msgstr "Automatisch verbinden (verouderd)"
 
 msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
 msgstr "Automatisch verbinden heet Altijd-aan VPN in de Android-systeeminstellingen en zorgt ervoor dat u altijd verbonden bent met de VPN-tunnel en automatisch verbinding maakt na een herstart."
+
+msgctxt "Description of the existing \"auto-connect\" functionality as well as a notification about it being removed/replaced in a future update."
+msgid "Automatically connect when the app launches. This setting will be replaced with a new connect on device start-up feature in a future update."
+msgstr "Maak automatisch verbinding wanneer de app wordt gestart. Deze instelling wordt in een toekomstige update vervangen door een nieuwe functie om verbinding te maken bij het opstarten van het apparaat."
 
 msgid "Blocking internet (device offline)"
 msgstr "Internet wordt geblokkeerd (apparaat offline)"
@@ -2206,6 +2239,10 @@ msgstr "Nieuwe lijst maken"
 msgid "Critical error (your attention is required)"
 msgstr "Kritieke fout (uw aandacht is vereist)"
 
+msgctxt "Status information about which method/configuration is actively being used. The placeholder is replaced by a built-in or custom method. For example \"Current: Direct\" or \"Current: MyCustomMethod\". Note that it's not \"current\" as in \"present time\"."
+msgid "Current: %s"
+msgstr "Huidig: %s"
+
 msgid "Custom DNS server addresses %s are invalid"
 msgstr "Aangepaste DNS-serveradressen %s zijn ongeldig"
 
@@ -2214,6 +2251,12 @@ msgstr "DNS-instellingen worden mogelijk niet onmiddellijk van kracht"
 
 msgid "Delete \"%s\"?"
 msgstr "\"%s\" verwijderen?"
+
+msgid "Delete method"
+msgstr "Methode verwijderen"
+
+msgid "Delete method?"
+msgstr "Methode verwijderen?"
 
 msgid "Disable all <b>%s</b> above to activate this setting."
 msgstr "Schakel alle <b>%s</b> hierboven uit om deze instelling te activeren."
@@ -2239,6 +2282,9 @@ msgstr "Locaties bewerken"
 msgid "Edit name"
 msgstr "Naam bewerken"
 
+msgid "Enable method"
+msgstr "Methode inschakelen"
+
 msgid "Enter MTU"
 msgstr "Voer MTU in"
 
@@ -2247,6 +2293,12 @@ msgstr "Uitgesloten toepassingen"
 
 msgid "Failed to apply patch"
 msgstr "Patch toepassen mislukt"
+
+msgid "Failed to set to current - API not reachable"
+msgstr "Instellen als huidige mislukt. API niet bereikbaar"
+
+msgid "Failed to set to current - Unknown reason"
+msgstr "Instellen als huidige mislukt. Reden onbekend"
 
 msgid "File"
 msgstr "Bestand"
@@ -2332,12 +2384,20 @@ msgstr "Overschrijvingen gewist"
 msgid "Overrides inactive"
 msgstr "Overschrijvingen inactief"
 
+msgid "Password (optional)"
+msgstr "Wachtwoord (optioneel)"
+
 msgid "Paste or write overrides to be imported"
 msgstr "Plak of schrijf overschrijvingen om te importeren"
 
-msgctxt "The patch is a partial settings file that can be applied to the users' list of servers, overriding some of the values for the servers. This is part of Server IP overrides."
 msgid "Patch not matching specification"
 msgstr "Patch komt niet overeen met specificatie"
+
+msgid "Please enter a valid IPv4 or IPv6 address"
+msgstr "Voer een geldig IPv4- of IPv6-adres in"
+
+msgid "Please enter a valid remote server port"
+msgstr "Voer een geldige poort op de externe server in"
 
 msgid "Please use the <b>Always-on</b> system setting instead by following the guide in <b>%s</b> above."
 msgstr "Gebruik in plaats hiervan de systeeminstelling <b>Altijd aan</b> door de aanwijzingen hierboven in <b>%s</b> te volgen."
@@ -2357,7 +2417,6 @@ msgstr "Recursielimiet"
 msgid "Remove"
 msgstr "Verwijderen"
 
-msgctxt "Remove a Country, City, or Server from a custom list."
 msgid "Remove %s from list"
 msgstr "%s verwijderen uit lijst"
 
@@ -2397,14 +2456,23 @@ msgstr "Toont herinneringen wanneer de accounttijd op het punt staat te verlopen
 msgid "Submit"
 msgstr "Verzenden"
 
+msgid "Test method"
+msgstr "Methode testen"
+
+msgid "Testing %s..."
+msgstr "%s testen ..."
+
 msgid "Text"
 msgstr "Tekst"
 
 msgid "The Auto-connect and Lockdown mode settings can be found in the Android system settings, follow this guide to enable one or both."
 msgstr "De instellingen Automatisch verbinden en Lockdownmodus zijn te vinden in de Android-systeeminstellingen, volg deze gids om een of beide in te schakelen."
 
-msgid "The Lockdown mode blocks all internet access if the VPN tunnel is manually disconnected. <br/><b>Warning: This setting blocks split apps and the Local Network Sharing feature</b>."
-msgstr "De Lockdownmodus blokkeert alle internettoegang als de VPN-tunnel handmatig wordt verbroken. <br><b>Waarschuwing: deze instelling blokkeert gesplitste apps en de functie Lokaal netwerk delen</b>."
+msgid "The Lockdown mode is called <b>Block connections without VPN</b> in the Android system settings. It helps minimize leaks, however it has some known limitations which you can read more about"
+msgstr "De Lockdownmodus heet <b>Verbindingen zonder VPN blokkeren</b> in de Android-systeeminstellingen. Deze helpt om lekken te minimaliseren, maar heeft enkele bekende beperkingen. Meer daarover leest u"
+
+msgid "The \"Current\" method represent which method the app is using to reach the API."
+msgstr "De \"Huidige\" methode geeft aan welke methode de app gebruikt om de API te benaderen."
 
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under Preferences."
 msgstr "De lokale DNS-server werkt niet tenzij u \"Lokale netwerken delen\" inschakelt onder Voorkeuren."
@@ -2414,6 +2482,12 @@ msgstr "Er zijn geen VPN-instellingen op uw apparaat"
 
 msgid "This address has already been entered."
 msgstr "Dit adres is al ingevoerd."
+
+msgid "This field is required"
+msgstr "Dit veld is verplicht"
+
+msgid "This is already set as current"
+msgstr "Deze is al ingesteld als huidige"
 
 msgid "To add locations to a list, press the \"︙\" or long press on a country, city, or server."
 msgstr "Druk op de \"︙\" of druk lang op een land, plaats of server om locaties toe te voegen."
@@ -2439,12 +2513,15 @@ msgstr "Kan de tunnelverbinding niet starten. Schakel Altijd-aan VPN uit voor <b
 msgid "Undo"
 msgstr "Ongedaan maken"
 
-msgctxt "Key is refering to a JSON key. The user selected a file or written/pasted a Server IP Override patch that was missing or using an invalid key."
 msgid "Unknown or prohibited key \"%s\""
 msgstr "Onbekende of verboden sleutel \"%s\""
 
 msgid "Unsecured"
 msgstr "Niet beveiligd"
+
+msgctxt "Notification message shown when the app lacks a permission called \"VPN permission\"."
+msgid "Unsecured (No VPN permission)"
+msgstr "Onbeveiligd (geen VPN-toestemming)"
 
 msgid "Update DNS server"
 msgstr "DNS-server bijwerken"
@@ -2454,6 +2531,9 @@ msgstr "Update beschikbaar, download deze om veilig te blijven."
 
 msgid "Update list name"
 msgstr "Lijstnaam bijwerken"
+
+msgid "Use method"
+msgstr "Methode gebruiken"
 
 msgid "VPN permission error"
 msgstr "VPN-machtigingsfout"
@@ -2469,6 +2549,9 @@ msgstr "Geldige WireGuard-sleutel ontbreekt. Beheer sleutels onder Geavanceerde 
 
 msgid "Valid ranges: %s"
 msgstr "Geldige bereiken: %s"
+
+msgid "Verifying API method..."
+msgstr "API-methode verifiëren ..."
 
 msgid "Verifying purchase"
 msgstr "Aankoop verifiëren"
@@ -2514,6 +2597,10 @@ msgstr "U gebruikt een niet-ondersteunde versie van de app."
 
 msgid "\"%s\" was deleted"
 msgstr "\"%s\" is verwijderd"
+
+msgctxt "Clickable link that leads to our website."
+msgid "here"
+msgstr "hier"
 
 msgid "less than a minute ago"
 msgstr "minder dan een minuut geleden"

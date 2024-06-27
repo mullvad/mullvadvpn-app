@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Norwegian Bokmal\n"
 "Language: nb_NO\n"
-"PO-Revision-Date: 2024-05-15 07:28\n"
+"PO-Revision-Date: 2024-06-27 08:16\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "%(duration)s ble lagt til, konto betalt til %(expiry)s."
@@ -1097,6 +1097,14 @@ msgid "Disconnected and unsecure"
 msgstr "Frakoblet og usikret"
 
 msgctxt "notifications"
+msgid "Failed to enable split tunneling."
+msgstr "Kunne ikke aktivere delt tunnelering."
+
+msgctxt "notifications"
+msgid "Failed to enable split tunneling. Please try reconnecting or disable split tunneling."
+msgstr "Kunne ikke aktivere delt tunnelering. Prøv å koble til på nytt eller deaktivere delt tunnelering."
+
+msgctxt "notifications"
 msgid "Lockdown mode active, connection blocked"
 msgstr "Låsemodus aktivert, tilkobling blokkert"
 
@@ -1689,12 +1697,24 @@ msgid "Connecting. %(location)s"
 msgstr "Kobler til. %(location)s"
 
 msgctxt "troubleshoot"
+msgid "Enable “Full Disk Access” for “Mullvad VPN” in the macOS system settings."
+msgstr "Aktiver «Full disktilgang» for «Mullvad VPN» i systeminnstillingene for macOS."
+
+msgctxt "troubleshoot"
+msgid "Failed to enable split tunneling. This is because the app is missing system permissions. What you can do:"
+msgstr "Kunne ikke aktivere delt tunnelering. Dette skyldes at appen mangler systemtillatelser. Dette kan du gjøre:"
+
+msgctxt "troubleshoot"
 msgid "If these steps do not work please send a problem report."
 msgstr "Hvis disse trinnene ikke løser noe, kan du sende inn en problemrapport."
 
 msgctxt "troubleshoot"
 msgid "Make sure you have NF tables support."
 msgstr "Sørg for at NF-tabeller støttes."
+
+msgctxt "troubleshoot"
+msgid "Open system settings"
+msgstr "Åpne systeminnstillinger"
 
 msgctxt "troubleshoot"
 msgid "This error can happen when something other than Mullvad is actively updating the DNS."
@@ -2007,7 +2027,7 @@ msgstr "%(wireguard)s-innstillinger"
 
 msgctxt "wireguard-settings-view"
 msgid "%(daita)s (%(daitaFull)s) hides patterns in your encrypted VPN traffic. If anyone is monitoring your connection, this makes it significantly harder for them to identify what websites you are visiting. It does this by carefully adding network noise and making all network packets the same size."
-msgstr "%(daita)s (%(daitaFull)s) skjuler mønstre i den krypterte VPN-trafikken. Hvis noen overvåker tilkoblingen din, gjør dette det betydelig vanskeligere for dem å identifisere hvilke nettsteder du besøker. Dette gjøres ved å varsomt legge til nettverksstøy og gjøre alle nettverkspakker like store."
+msgstr "%(daita)s (%(daitaFull)s) skjuler mønstre i den krypterte VPN-trafikken. Hvis noen overvåker tilkoblingen din, gjør dette det betydelig vanskeligere for dem å identifisere hvilke nettsteder du besøker. Dette gjøres ved varsomt å legge til nettverksstøy og gjøre alle nettverkspakker like store."
 
 #. Available placeholders:
 #. %(wireguard)s - Will be replaced with the string "WireGuard"
@@ -2098,11 +2118,9 @@ msgstr "TCP-porten som UDP-over-TCP-tilsløringen skal koble til på VPN-servere
 msgid "%s (added)"
 msgstr "%s (lagt til)"
 
-msgctxt "A location was added to a custom list"
 msgid "%s was added to \"%s\""
 msgstr "%s ble lagt til «%s»"
 
-msgctxt "Shown as a toast when user added e.g 30 days or 3 months of time to their account"
 msgid "%s was added to your account."
 msgstr "%s ble lagt til kontoen din."
 
@@ -2112,11 +2130,17 @@ msgstr "1. Etter at du har trykket på <b>Gå til VPN-innstillinger</b> nedenfor
 msgid "2. To enable Auto-connect, click on the toggle next to <b>Always-on VPN</b>."
 msgstr "2. For å aktivere Automatisk tilkobling trykker du på bryteren ved siden av <b>VPN alltid på</b>."
 
-msgid "3. To enable Lockdown mode, click on the toggle next to <b>Block connections without VPN</b>."
-msgstr "3. For å aktivere låsemodus trykker du på bryteren ved siden av <b>Blokker tilkoblinger uten VPN</b>."
+msgid "3. To enable Lockdown mode, click on the toggle next to <b>Block connections without VPN</b>.<br /><br /><b>Warning: This setting blocks split apps and the Local Network Sharing feature.</b>"
+msgstr "3. Klikk på bryteren ved siden av <b>Blokker tilkoblinger uten VPN</b> for å aktivere låsemodusen.<br /><br /><b>Advarsel: Denne innstillingen blokkerer delte apper og funksjonen Deling over lokalt nettverk.</b>"
 
 msgid "30 days was added to your account."
 msgstr "30 dager ble lagt til kontoen din."
+
+msgid "API reachable, adding method..."
+msgstr "API tilgjengelig, legger til metode …"
+
+msgid "API unreachable, save method anyway?"
+msgstr "API ikke tilgjengelig, lagre metoden uansett?"
 
 msgid "Account credit expires in a few minutes"
 msgstr "Kontokreditt utløper om noen få minutter"
@@ -2127,9 +2151,8 @@ msgstr "Kontokreditt utløper snart"
 msgid "Account time reminders"
 msgstr "Påminnelser om tidsavbrudd for konto"
 
-msgctxt "Add a Country,City, or Server to a custom list"
 msgid "Add %s to list"
-msgstr "Legg til %s i listen"
+msgstr "Legg %s til i listen"
 
 msgid "Add 30 days time"
 msgstr "Legg til 30 dager"
@@ -2142,6 +2165,9 @@ msgstr "Legg til DNS-server"
 
 msgid "Add locations"
 msgstr "Legg til plasseringer"
+
+msgid "Adding method..."
+msgstr "Legger til metoden ..."
 
 msgid "Agree and continue"
 msgstr "Godta og fortsett"
@@ -2161,6 +2187,9 @@ msgstr "VPN som alltid er på, er tilordnet en annen app"
 msgid "Always-on VPN might be enabled for another app"
 msgstr "VPN som alltid er på, kan være aktivert for en annen app"
 
+msgid "At least one method needs to be enabled"
+msgstr "Minst én metode må være aktivert"
+
 msgid "Attention: Split tunneling is a privacy risk."
 msgstr "OBS: Delt tunnelering utgjør en risiko mot personvernet."
 
@@ -2178,6 +2207,10 @@ msgstr "Automatisk tilkobling (eldre)"
 
 msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
 msgstr "Automatisk tilkobling heter «Alltid-på-VPN» i Androids systeminnstillinger og sørger for at du alltid er tilkoblet VPN-tunnelen og automatisk tilkobling etter omstart."
+
+msgctxt "Description of the existing \"auto-connect\" functionality as well as a notification about it being removed/replaced in a future update."
+msgid "Automatically connect when the app launches. This setting will be replaced with a new connect on device start-up feature in a future update."
+msgstr "Koble til automatisk når appen startes. Denne innstillingen vil i en fremtidig oppdatering bli erstattet med en ny funksjon for tilkobling ved oppstart av enheten."
 
 msgid "Blocking internet (device offline)"
 msgstr "Blokkerer internett (enhet frakoblet)"
@@ -2206,6 +2239,10 @@ msgstr "Opprett ny liste"
 msgid "Critical error (your attention is required)"
 msgstr "Kritisk feil (krever din oppmerksomhet)"
 
+msgctxt "Status information about which method/configuration is actively being used. The placeholder is replaced by a built-in or custom method. For example \"Current: Direct\" or \"Current: MyCustomMethod\". Note that it's not \"current\" as in \"present time\"."
+msgid "Current: %s"
+msgstr "Gjeldende: %s"
+
 msgid "Custom DNS server addresses %s are invalid"
 msgstr "Egendefinerte DNS-serveradresser %s er ugyldige"
 
@@ -2214,6 +2251,12 @@ msgstr "DNS-innstillinger vil kanskje ikke tre i kraft umiddelbart"
 
 msgid "Delete \"%s\"?"
 msgstr "Slette «%s»?"
+
+msgid "Delete method"
+msgstr "Slett metoden"
+
+msgid "Delete method?"
+msgstr "Slette metoden?"
 
 msgid "Disable all <b>%s</b> above to activate this setting."
 msgstr "Deaktiver alle <b>%s</b> ovenfor for å aktivere denne innstillingen."
@@ -2239,6 +2282,9 @@ msgstr "Endre plasseringer"
 msgid "Edit name"
 msgstr "Endre navn"
 
+msgid "Enable method"
+msgstr "Aktiver metoden"
+
 msgid "Enter MTU"
 msgstr "Angi MTU"
 
@@ -2247,6 +2293,12 @@ msgstr "Ekskluder applikasjoner"
 
 msgid "Failed to apply patch"
 msgstr "Kunne ikke bruke oppdatering"
+
+msgid "Failed to set to current - API not reachable"
+msgstr "Kunne ikke angi til gjeldende – API ikke tilgjengelig"
+
+msgid "Failed to set to current - Unknown reason"
+msgstr "Kunne ikke angi til gjeldende – ukjent årsak"
 
 msgid "File"
 msgstr "Fil"
@@ -2332,12 +2384,20 @@ msgstr "Overstyringer fjernet"
 msgid "Overrides inactive"
 msgstr "Overstyringer inaktive"
 
+msgid "Password (optional)"
+msgstr "Passord (valgfritt)"
+
 msgid "Paste or write overrides to be imported"
 msgstr "Lim eller skriv inn overstyringer som skal importeres"
 
-msgctxt "The patch is a partial settings file that can be applied to the users' list of servers, overriding some of the values for the servers. This is part of Server IP overrides."
 msgid "Patch not matching specification"
 msgstr "Oppdateringen samsvarer ikke med spesifikasjon"
+
+msgid "Please enter a valid IPv4 or IPv6 address"
+msgstr "Skriv inn en gyldig IPv4- eller IPv6-adresse"
+
+msgid "Please enter a valid remote server port"
+msgstr "Skriv inn en gyldig ekstern server-port"
 
 msgid "Please use the <b>Always-on</b> system setting instead by following the guide in <b>%s</b> above."
 msgstr "Bruk systeminnstillingen <b>alltid på</b> i stedet for å følge veiledningen i <b>%s</b> ovenfor."
@@ -2357,7 +2417,6 @@ msgstr "Rekursjonsgrense"
 msgid "Remove"
 msgstr "Fjern"
 
-msgctxt "Remove a Country, City, or Server from a custom list."
 msgid "Remove %s from list"
 msgstr "Fjern %s fra listen"
 
@@ -2397,14 +2456,23 @@ msgstr "Viser påminnelser når tidsavbrudd for kontoen er i ferd med å inntref
 msgid "Submit"
 msgstr "Send inn"
 
+msgid "Test method"
+msgstr "Test metoden"
+
+msgid "Testing %s..."
+msgstr "Tester %s ..."
+
 msgid "Text"
 msgstr "Tekst"
 
 msgid "The Auto-connect and Lockdown mode settings can be found in the Android system settings, follow this guide to enable one or both."
 msgstr "Du finner innstillingene for automatisk tilkobling og låsemodus i Androids systeminnstillinger. Følg denne veiledningen for å aktivere én eller begge."
 
-msgid "The Lockdown mode blocks all internet access if the VPN tunnel is manually disconnected. <br/><b>Warning: This setting blocks split apps and the Local Network Sharing feature</b>."
-msgstr "Låsemodusen blokkerer all internettilgang når VPN-tunnelen er manuelt frakoblet. <br/><b>Advarsel: Innstillingen blokkerer delte apper og funksjonen Deling over lokalt nettverk</b>."
+msgid "The Lockdown mode is called <b>Block connections without VPN</b> in the Android system settings. It helps minimize leaks, however it has some known limitations which you can read more about"
+msgstr "Låsemodusen kalles <b>Blokker tilkoblinger uten VPN</b> i systeminnstillingene for Android. Den bidrar til å minimere lekkasjer, men den har noen kjente begrensninger som du kan lese mer om"
+
+msgid "The \"Current\" method represent which method the app is using to reach the API."
+msgstr "«Gjeldende» metode betyr den metoden som appen bruker for å nå API."
 
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under Preferences."
 msgstr "Den lokale DNS-serveren fungerer ikke med mindre du aktiverer «Deling av lokalt nettverk» under Innstillinger."
@@ -2414,6 +2482,12 @@ msgstr "Det er ingen VPN-innstillinger på enheten din"
 
 msgid "This address has already been entered."
 msgstr "Denne adressen er allerede skrevet inn."
+
+msgid "This field is required"
+msgstr "Feltet er påkrevd"
+
+msgid "This is already set as current"
+msgstr "Denne er allerede angitt som gjeldende"
 
 msgid "To add locations to a list, press the \"︙\" or long press on a country, city, or server."
 msgstr "Hvis du vil legge til plasseringer i en liste, trykker du på ︙ eller trykker på og holder inne et land, en by eller en server."
@@ -2439,12 +2513,15 @@ msgstr "Kunne ikke starte tunneltilkobling. Deaktiver VPN som alltid er på, for
 msgid "Undo"
 msgstr "Angre"
 
-msgctxt "Key is refering to a JSON key. The user selected a file or written/pasted a Server IP Override patch that was missing or using an invalid key."
 msgid "Unknown or prohibited key \"%s\""
 msgstr "Ukjent eller forbudt nøkkel «%s»"
 
 msgid "Unsecured"
 msgstr "Usikret"
+
+msgctxt "Notification message shown when the app lacks a permission called \"VPN permission\"."
+msgid "Unsecured (No VPN permission)"
+msgstr "Usikret (ingen VPN-tillatelse)"
 
 msgid "Update DNS server"
 msgstr "Oppdater DNS-serveren"
@@ -2454,6 +2531,9 @@ msgstr "Oppdatering tilgjengelig. Last ned for å oppdatere sikkerheten."
 
 msgid "Update list name"
 msgstr "Oppdater listenavn"
+
+msgid "Use method"
+msgstr "Bruk metode"
 
 msgid "VPN permission error"
 msgstr "Feil med VPN-tillatelse"
@@ -2469,6 +2549,9 @@ msgstr "Det mangler en gyldig WireGuard-nøkkel. Du kan behandle nøklene under 
 
 msgid "Valid ranges: %s"
 msgstr "Gyldige verdiområder: %s"
+
+msgid "Verifying API method..."
+msgstr "Bekrefter API-metode ..."
 
 msgid "Verifying purchase"
 msgstr "Bekrefter kjøp"
@@ -2514,6 +2597,10 @@ msgstr "Du kjører en appversjon som ikke støttes."
 
 msgid "\"%s\" was deleted"
 msgstr "«%s» ble slettet"
+
+msgctxt "Clickable link that leads to our website."
+msgid "here"
+msgstr "her"
 
 msgid "less than a minute ago"
 msgstr "mindre enn ett minutt siden"

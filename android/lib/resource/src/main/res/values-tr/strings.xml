@@ -17,6 +17,7 @@
     <string name="add_method">Yöntem ekle</string>
     <string name="add_time_to_account">Web sitemizden kredi satın alın veya kupon kullanın.</string>
     <string name="added_to_your_account">%1$s, hesabınıza eklendi.</string>
+    <string name="adding_method">Yöntem ekleniyor...</string>
     <string name="agree_and_continue">Kabul et ve devam et</string>
     <string name="all_applications">Tüm uygulamalar</string>
     <string name="all_locations">Tüm konumlar</string>
@@ -27,12 +28,16 @@
     <string name="any">Tümü</string>
     <string name="api_access_description">Mullvad API\'sine erişim için özel yöntemler ekleyip yönetin.</string>
     <string name="api_access_method_info_first_line">Uygulamanın oturumunuzu açmak, sunucu listelerini almak ve diğer kritik işlemleri yapmak için bir Mullvad API sunucusuyla iletişim kurması gerekir.</string>
+    <string name="api_access_method_info_fourth_line">\"Geçerli\" yöntem, uygulamanın API\'ye ulaşmak için kullandığı yöntemi temsil eder.</string>
     <string name="api_access_method_info_second_line">Çeşitli sansür türlerinin kullanıldığı bazı ağlarda API sunucularına doğrudan erişilemeyebilir.</string>
     <string name="api_access_method_info_third_line">Bu özellik, proxy\'ler ve benzer yöntemler aracılığıyla API\'ye erişmenin özel yollarını ekleyerek bu sansürü aşmanıza imkan tanır.</string>
     <string name="api_reachable">Erişilebilir API</string>
+    <string name="api_reachable_adding_method">Erişilebilir API, yöntem ekleniyor...</string>
     <string name="api_unreachable">Erişilemez API</string>
+    <string name="api_unreachable_save_anyway">API\'ye erişilemiyor, yöntem yine de kaydedilsin mi?</string>
     <string name="app_version">Uygulama sürümü</string>
     <string name="apply">Uygula</string>
+    <string name="at_least_on_method_needs_to_enabled">En az bir yöntemin etkinleştirilmesi gerekiyor</string>
     <string name="auth_failed">Hesap doğrulanamıyor. Lütfen bir hata raporu gönderin.</string>
     <string name="authentication">Yetkilendirme</string>
     <string name="auto_connect">Otomatik Bağlan</string>
@@ -42,7 +47,11 @@
     <string name="auto_connect_carousel_first_slide_top_text">Otomatik Bağlantı ve Kilitleme modu ayarları Android sistem ayarlarında yer alır. Bu ayarlardan birini veya her ikisini de etkinleştirmek için bu kılavuza göz atın.</string>
     <string name="auto_connect_carousel_second_slide_bottom_text">2. Otomatik bağlantıyı etkinleştirmek için &lt;b&gt;VPN her zaman açık&lt;/b&gt; seçeneğinin yanındaki düğmeye tıklayın.</string>
     <string name="auto_connect_carousel_second_slide_top_text">Otomatik bağlantı, Android sistem ayarlarında VPN her zaman açık olarak gösterilir ve VPN tüneline sürekli bağlı olmanızı ve yeniden başlatma sonrası otomatik olarak bağlanmanızı sağlar.</string>
+    <string name="auto_connect_carousel_third_slide_bottom_text">3. Kilitleme modunu etkinleştirmek için &lt;b&gt;VPN üzerinden olmayan bağlantıları engelle&lt;/b&gt; seçeneğinin yanındaki düğmeyi tıklayın.&lt;br /&gt;&lt;br /&gt;&lt;b&gt;Uyarı: Bu ayar, bölünmüş uygulamaları ve Yerel Ağ Paylaşımı özelliğini engeller. &lt;/b&gt;</string>
+    <string name="auto_connect_carousel_third_slide_top_text">Android sistem ayarlarında Kilitleme modu &lt;b&gt;VPN üzerinden olmayan bağlantıları engelle&lt;/b&gt; olarak adlandırılmıştır. Sızıntıları en aza indirmeye yardımcı olsa da ayrıntılar konusunda daha fazla bilgi edinmeniz gereken bazı bilinen sınırlamaları vardır</string>
+    <string name="auto_connect_carousel_third_slide_top_text_website_link">burada</string>
     <string name="auto_connect_footer_legacy">Lütfen yukarıdaki &lt;b&gt;%1$s&lt;/b&gt; bölümündeki kılavuzu izleyerek &lt;b&gt;Her zaman açık&lt;/b&gt; sistem ayarını kullanın.</string>
+    <string name="auto_connect_footer_legacy_tv">Uygulama başlatıldığında otomatik olarak bağlanır. Bu ayar, daha sonraki bir güncellemede yeni bir cihazda bağlantı başlatma özelliğiyle değiştirilecektir.</string>
     <string name="auto_connect_legacy">Otomatik bağlan (eski)</string>
     <string name="automatic">Otomatik</string>
     <string name="back">Geri</string>
@@ -79,6 +88,7 @@
     <string name="creating_new_account">Hesap oluşturuluyor...</string>
     <string name="creating_secure_connection">GÜVENLİ BAĞLANTI OLUŞTURULUYOR</string>
     <string name="critical_error">Kritik hata (Lütfen dikkatli olun)</string>
+    <string name="current_method">Geçerli: %1$s</string>
     <string name="custom_dns_disable_mode_subtitle">Bu ayarı etkinleştirmek için yukarıdaki &lt;b&gt;%1$s&lt;/b&gt; öğelerinin tümünü devre dışı bırakın.</string>
     <string name="custom_dns_footer">En az bir DNS sunucusu eklemek için etkinleştirin.</string>
     <string name="custom_dns_hint">IP\'yi girin</string>
@@ -94,6 +104,8 @@
     <string name="delete_custom_list_confirmation_description">\"%1$s\" silinsin mi\"?</string>
     <string name="delete_custom_list_message">\"%1$s\" silindi</string>
     <string name="delete_list">Listeyi sil</string>
+    <string name="delete_method">Yöntemi sil</string>
+    <string name="delete_method_question">Yöntem silinsin mi?</string>
     <string name="device_inactive_description">Bu cihazı kaldırdın. Tekrar bağlanmak için yeniden giriş yapmanız gerekecek.</string>
     <string name="device_inactive_title">Cihaz etkin değil</string>
     <string name="device_inactive_unblock_warning">Giriş yapmak bu cihazdaki internet engelini kaldıracaktır.</string>
@@ -122,6 +134,7 @@
     <string name="edit_name">Adı düzenle</string>
     <string name="enable">Etkinleştir</string>
     <string name="enable_custom_dns">Özel DNS sunucusu kullanın</string>
+    <string name="enable_method">Yöntemi etkinleştir</string>
     <string name="enter_value_placeholder">MTU\'yu girin</string>
     <string name="enter_voucher_code">Kupon kodunu girin</string>
     <string name="error_occurred">Bir hata oluştu.</string>
@@ -133,6 +146,8 @@
     <string name="failed_to_remove_device">Cihaz kaldırılamadı</string>
     <string name="failed_to_send">Gönderme başarısız</string>
     <string name="failed_to_send_details">Formdan çıkıp daha sonra tekrar denerseniz, girmiş olduğunuz bilgiler hala burada olacaktır.</string>
+    <string name="failed_to_set_current_test_error">Geçerli olarak ayarlanamadı - API\'ye ulaşılamıyor</string>
+    <string name="failed_to_set_current_unknown_error">Geçerli olarak ayarlanamadı - Bilinmeyen neden</string>
     <string name="faqs_and_guides">SSS ve Kılavuzlar</string>
     <string name="filter">Filtrele</string>
     <string name="filtered">Filtrelendi:</string>
@@ -209,6 +224,7 @@
     <string name="ownership">Sahiplik durumu</string>
     <string name="paid_until">Şu tarihe kadar ödendi:</string>
     <string name="password">Parola</string>
+    <string name="password_optional">Şifre (isteğe bağlı)</string>
     <string name="patch_not_matching_specification">Yama spesifikasyonla eşleşmiyor</string>
     <string name="pay_to_start_using">Uygulamayı kullanmaya başlamak için önce hesabınıza süre eklemeniz gerekir.</string>
     <string name="payment_billing_error_dialog_message">Ödeme işlemini başlatamadık. Lütfen Google Play\'in en son sürümüne sahip olduğunuzdan emin olun.</string>
@@ -220,6 +236,8 @@
     <string name="payment_pending_dialog_message">Şu anda satın alma işleminizi doğruluyoruz. Bu işlem biraz zaman alabilir. Süreniz, doğrulama işleminin başarılı olması durumunda eklenecektir.</string>
     <string name="payment_pending_dialog_title">Satın alma işlemi doğrulanıyor</string>
     <string name="payment_status_pending">Google Play ödemesi bekleniyor</string>
+    <string name="please_enter_a_valid_ip_address">Lütfen geçerli bir IPv4 veya IPv6 adresi girin</string>
+    <string name="please_enter_a_valid_remote_server_port">Lütfen geçerli bir uzak sunucu portu girin</string>
     <string name="port">Port</string>
     <string name="privacy_disclaimer_body_first_paragraph">Uygulama, en güvenli sürüme sahip olduğunuzdan emin olmak ve çalışan mevcut sürümle ilgili sorunları size bildirmek için sürüm kontrollerini otomatik olarak gerçekleştirir. Bu işlem, uygulama sürümünü ve Android sistem sürümünü Mullvad sunucularına gönderir. Mullvad, kullanılan uygulama sürümlerinin ve Android sürümlerinin numarasını kaydeder. Veriler asla sizi tanımlayacak şekilde saklanmaz veya kullanılmaz.</string>
     <string name="privacy_disclaimer_body_second_paragraph">Bölünmüş tünelleme özelliği kullanılıyorsa uygulama, yüklü tüm uygulamaların bir listesi için sisteminizi sorgular. Bu liste yalnızca bölünmüş tünelleme görünümünde alınır. Yüklü uygulamaların listesi hiçbir zaman cihazdan gönderilmez.</string>
@@ -292,7 +310,11 @@
     <string name="submit_button">Gönder</string>
     <string name="switch_location">Konum değiştir</string>
     <string name="tcp">TCP</string>
+    <string name="test_method">Yöntemi test et</string>
     <string name="testing">Test ediliyor...</string>
+    <string name="testing_name">%1$s test ediliyor...</string>
+    <string name="this_field_is_required">Bu alan gereklidir</string>
+    <string name="this_is_already_set_as_current">Bu, zaten geçerli olarak ayarlı yöntemdir</string>
     <string name="to_add_locations_to_a_list">Listeye konum eklemek için \"︙\" düğmesine basın veya bir ülke, şehir veya sunucunun üzerine uzun basın.</string>
     <string name="to_create_a_custom_list">Özel bir liste oluşturmak için \"︙\" düğmesine basın</string>
     <string name="toggle_vpn">VPN\'i aç/kapat</string>
@@ -307,6 +329,7 @@
     <string name="undo">Geri al</string>
     <string name="unsecured">Güvenli değil</string>
     <string name="unsecured_connection">GÜVENLİ OLMAYAN BAĞLANTI</string>
+    <string name="unsecured_vpn_permission_error">Güvenli değil (VPN izni yok)</string>
     <string name="unsupported_version">DESTEKLENMEYEN SÜRÜM</string>
     <string name="unsupported_version_description">Bu desteklenmeyen uygulama sürümüyle gizliliğiniz risk altında olabilir. Lütfen hemen güncelleyin.</string>
     <string name="unsupported_version_without_upgrade">Desteklenmeyen bir uygulama sürümünü kullanıyorsunuz.</string>
@@ -315,9 +338,11 @@
     <string name="update_available_footer">Güncelleme mevcut, güvende kalmak için güncellemeyi indirin.</string>
     <string name="update_dns_server_dialog_title">DNS sunucusunu güncelle</string>
     <string name="update_list_name">Liste adını güncelle</string>
+    <string name="use_method">Yöntemi kullan</string>
     <string name="user_email_hint">E-posta adresiniz (isteğe bağlı)</string>
     <string name="user_message_hint">Size daha iyi yardımcı olabilmemiz için lütfen mesajınızı İngilizce veya İsveççe olarak yazın ve hangi ülkeden bağlandığınızı belirtin.</string>
     <string name="username">Kullanıcı adı</string>
+    <string name="verifying_api_method">API yöntemi doğrulanıyor...</string>
     <string name="verifying_voucher">Kupon doğrulanıyor…</string>
     <string name="view_logs">Uygulama kayıtlarını görüntüle</string>
     <string name="virtual_adapter_problem">Sanal adaptör hatası</string>
