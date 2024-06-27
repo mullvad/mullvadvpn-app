@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: French\n"
 "Language: fr_FR\n"
-"PO-Revision-Date: 2024-05-15 07:28\n"
+"PO-Revision-Date: 2024-06-27 08:16\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "%(duration)s ont été ajouté(es), compte payé jusqu’au %(expiry)s."
@@ -136,6 +136,12 @@ msgstr "Déconnexion en cours"
 msgid "Dismiss"
 msgstr "Ignorer"
 
+msgid "Edit"
+msgstr "Modifier"
+
+msgid "Enable"
+msgstr "Activer"
+
 msgid "Enable anyway"
 msgstr "Activer quand même"
 
@@ -228,6 +234,11 @@ msgstr "Valeur par défaut du système"
 msgid "TCP"
 msgstr "TCP"
 
+msgid "Test"
+msgstr "Test"
+
+#. Warning shown in dialog to users when they enable setting that increases
+#. network latency (decreases performance).
 #. Warning text in a dialog that is displayed after a setting is toggled.
 msgid "This setting increases latency. Use only if needed."
 msgstr "Ce paramètre augmente la latence. Utilisez-le uniquement si nécessaire."
@@ -249,6 +260,9 @@ msgstr "Débloquer"
 
 msgid "UNSECURED CONNECTION"
 msgstr "CONNEXION NON SÉCURISÉE"
+
+msgid "Use"
+msgstr "Utiliser"
 
 msgid "Username"
 msgstr "Nom d'utilisateur"
@@ -393,9 +407,10 @@ msgctxt "api-access-methods-view"
 msgid "Authentication"
 msgstr "Authentification"
 
+#. %(save)s - Will be replaced with the translation for the word "Save".
 msgctxt "api-access-methods-view"
-msgid "Clicking “Save” changes the in use method."
-msgstr "Cliquer sur « Enregistrer » change le mode utilisé."
+msgid "Clicking “%(save)s” changes the in use method."
+msgstr "Cliquer sur « %(save)s » change le mode utilisé."
 
 msgctxt "api-access-methods-view"
 msgid "Delete %(name)s?"
@@ -644,6 +659,10 @@ msgctxt "connection-info"
 msgid "%(relay)s via %(entry)s"
 msgstr "%(relay)s via %(entry)s"
 
+msgctxt "connection-info"
+msgid "%(relay)s via Custom bridge"
+msgstr "%(relay)s via un pont personnalisé"
+
 #. The tunnel type line displayed below the hostname line on the main screen
 #. Available placeholders:
 #. %(tunnelType)s - the tunnel type, i.e OpenVPN
@@ -659,6 +678,22 @@ msgstr "Entrante"
 msgctxt "connection-info"
 msgid "Out"
 msgstr "Sortante"
+
+msgctxt "custom-bridge"
+msgid "Add custom bridge"
+msgstr "Ajouter un pont personnalisé"
+
+msgctxt "custom-bridge"
+msgid "Delete custom bridge?"
+msgstr "Supprimer le pont personnalisé ?"
+
+msgctxt "custom-bridge"
+msgid "Deleting the custom bridge will take you back to the select location view and the Automatic option will be selected instead."
+msgstr "Si vous supprimez le pont personnalisé, vous revenez à la vue de sélection de la localisation et l'option Automatique est sélectionnée à la place."
+
+msgctxt "custom-bridge"
+msgid "Edit custom bridge"
+msgstr "Modifier le pont personnalisé"
 
 #. Text displayed above button which logs out another device.
 #. The text enclosed in "<b></b>" will appear bold.
@@ -1062,6 +1097,14 @@ msgid "Disconnected and unsecure"
 msgstr "Déconnecté et non sécurisé"
 
 msgctxt "notifications"
+msgid "Failed to enable split tunneling."
+msgstr "Échec de l'activation du split tunneling."
+
+msgctxt "notifications"
+msgid "Failed to enable split tunneling. Please try reconnecting or disable split tunneling."
+msgstr "Échec de l'activation du split tunneling. Veuillez essayer de vous reconnecter ou de désactiver le split tunneling."
+
+msgctxt "notifications"
 msgid "Lockdown mode active, connection blocked"
 msgstr "Mode verrouillage actif, connexion bloquée"
 
@@ -1168,6 +1211,10 @@ msgctxt "openvpn-settings-view"
 msgid "Bridge mode"
 msgstr "Mode pont"
 
+msgctxt "openvpn-settings-view"
+msgid "Enable bridge mode?"
+msgstr "Activer le mode pont ?"
+
 #. This is used as a description for the bridge mode
 #. setting.
 #. Available placeholders:
@@ -1213,6 +1260,12 @@ msgstr "Revenez en arrière et changez le paramètre <b>%(tunnelProtocol)s</b> e
 msgctxt "openvpn-settings-view"
 msgid "To activate UDP, change <b>Bridge mode</b> to <b>Automatic</b> or <b>Off</b>."
 msgstr "Changez le paramètre <b>Mode Pont</b> de <b>Automatique</b> à <b>Off</b> pour activer UDP."
+
+#. This text is shown beneath the bridge mode setting to instruct users how to
+#. configure the feature further.
+msgctxt "openvpn-settings-view"
+msgid "To select a specific bridge server, go to the Select location view."
+msgstr "Pour sélectionner un serveur de pont spécifique, accédez à la vue Sélectionner une localisation."
 
 msgctxt "openvpn-settings-view"
 msgid "Transport protocol"
@@ -1277,6 +1330,10 @@ msgctxt "select-location-view"
 msgid "%(location)s (%(info)s)"
 msgstr "%(location)s (%(info)s)"
 
+msgctxt "select-location-view"
+msgid "A custom bridge server can be used to circumvent censorship when regular Mullvad bridge servers don’t work."
+msgstr "Un serveur pont personnalisé peut être utilisé pour contourner la censure lorsque les serveurs ponts Mullvad habituels ne fonctionnent pas."
+
 #. This is a label shown above a list of options.
 #. Available placeholder:
 #. %(locationType) - Could be either "Country", "City" and "Relay"
@@ -1295,6 +1352,10 @@ msgstr "Ville"
 msgctxt "select-location-view"
 msgid "Country"
 msgstr "Pays"
+
+msgctxt "select-location-view"
+msgid "Custom bridge"
+msgstr "Pont personnalisé"
 
 msgctxt "select-location-view"
 msgid "Custom lists"
@@ -1636,12 +1697,24 @@ msgid "Connecting. %(location)s"
 msgstr "Connexion. %(location)s"
 
 msgctxt "troubleshoot"
+msgid "Enable “Full Disk Access” for “Mullvad VPN” in the macOS system settings."
+msgstr "Activez « Accès complet au disque » pour « Mullvad VPN » dans les paramètres système de macOS."
+
+msgctxt "troubleshoot"
+msgid "Failed to enable split tunneling. This is because the app is missing system permissions. What you can do:"
+msgstr "Échec de l'activation du split tunneling. Cela est dû au fait que l'application ne dispose pas des autorisations système nécessaires. Ce que vous pouvez faire :"
+
+msgctxt "troubleshoot"
 msgid "If these steps do not work please send a problem report."
 msgstr "Si ces étapes ne fonctionnent pas, veuillez envoyer un rapport de problème."
 
 msgctxt "troubleshoot"
 msgid "Make sure you have NF tables support."
 msgstr "Assurez-vous que Nftables est pris en charge."
+
+msgctxt "troubleshoot"
+msgid "Open system settings"
+msgstr "Ouvrir les paramètres système"
 
 msgctxt "troubleshoot"
 msgid "This error can happen when something other than Mullvad is actively updating the DNS."
@@ -2045,13 +2118,11 @@ msgstr "Le port TCP auquel le protocole de dissimulation UDP sur TCP doit se con
 msgid "%s (added)"
 msgstr "%s (ajouté)"
 
-msgctxt "A location was added to a custom list"
 msgid "%s was added to \"%s\""
 msgstr "%s a été ajouté à « %s »"
 
-msgctxt "Shown as a toast when user added e.g 30 days or 3 months of time to their account"
 msgid "%s was added to your account."
-msgstr "%s ajouté(s) à votre compte."
+msgstr "%s a été ajouté à votre compte."
 
 msgid "1. After clicking on the <b>Go to VPN settings</b> button below, click on the cogwheel next to the <b>Mullvad VPN</b> name."
 msgstr "1. Après avoir cliqué sur le bouton <b>Aller aux paramètres VPN</b> ci-dessous, cliquez sur l'engrenage à côté du nom <b>Mullvad VPN</b>."
@@ -2059,11 +2130,17 @@ msgstr "1. Après avoir cliqué sur le bouton <b>Aller aux paramètres VPN</b> c
 msgid "2. To enable Auto-connect, click on the toggle next to <b>Always-on VPN</b>."
 msgstr "2. Pour activer la connexion automatique, cliquez sur l'interrupteur situé à côté de <b>VPN toujours actif</b>."
 
-msgid "3. To enable Lockdown mode, click on the toggle next to <b>Block connections without VPN</b>."
-msgstr "3. Pour activer le mode Verrouillage, cliquez sur l'interrupteur situé à côté de <b>Bloquer les connexions sans VPN</b>."
+msgid "3. To enable Lockdown mode, click on the toggle next to <b>Block connections without VPN</b>.<br /><br /><b>Warning: This setting blocks split apps and the Local Network Sharing feature.</b>"
+msgstr "3. Pour activer le mode Verrouillage, cliquez sur l'interrupteur situé à côté de <b>Bloquer les connexions sans VPN</b>.<br /><br /><b>Avertissement : ce paramètre bloque les applications fractionnées et la fonctionnalité de partage du réseau local.</b>"
 
 msgid "30 days was added to your account."
 msgstr "30 jours ont été ajoutés à votre compte."
+
+msgid "API reachable, adding method..."
+msgstr "API joignable, ajout de la méthode..."
+
+msgid "API unreachable, save method anyway?"
+msgstr "API injoignable, enregistrer quand même la méthode ?"
 
 msgid "Account credit expires in a few minutes"
 msgstr "Les crédits du compte expirent dans quelques minutes"
@@ -2074,7 +2151,6 @@ msgstr "Les crédits du compte expirent bientôt"
 msgid "Account time reminders"
 msgstr "Rappels de temps pour le compte"
 
-msgctxt "Add a Country,City, or Server to a custom list"
 msgid "Add %s to list"
 msgstr "Ajouter %s à la liste"
 
@@ -2087,11 +2163,20 @@ msgstr "Ajouter 30 jours de temps (%s)"
 msgid "Add DNS server"
 msgstr "Ajouter un serveur DNS"
 
+msgid "Add locations"
+msgstr "Ajouter des localisations"
+
+msgid "Adding method..."
+msgstr "Ajout de la méthode..."
+
 msgid "Agree and continue"
 msgstr "Accepter et continuer"
 
 msgid "All applications"
 msgstr "Toutes les applications"
+
+msgid "All overrides will be reset and servers IP addresses, in the Select location view, will go back to default."
+msgstr "Toutes les substitutions seront réinitialisées et les adresses IP des serveurs, dans la vue Sélectionner une localisation, reviendront à leur valeur par défaut."
 
 msgid "Allows access to other devices on the same network for sharing, printing etc."
 msgstr "Autorise l'accès aux autres appareils sur le même réseau pour partager, imprimer, etc."
@@ -2102,6 +2187,12 @@ msgstr "« Toujours exiger un VPN » est assigné à une autre application"
 msgid "Always-on VPN might be enabled for another app"
 msgstr "« Toujours exiger un VPN » est peut-être activé pour une autre application"
 
+msgid "At least one method needs to be enabled"
+msgstr "Au moins une méthode doit être activée"
+
+msgid "Attention: Split tunneling is a privacy risk."
+msgstr "Attention : le split tunneling est un risque de confidentialité."
+
 msgid "Attention: this setting cannot be used in combination with <b>Use custom DNS server</b>."
 msgstr "Attention : ce paramètre ne peut pas être utilisé en combinaison avec <b>Utiliser un serveur DNS personnalisé</b>."
 
@@ -2111,8 +2202,15 @@ msgstr "Connexion automatique et mode Verrouillage"
 msgid "Auto-connect & \\nLockdown mode"
 msgstr "Connexion automatique et \\nmode Verrouillage"
 
+msgid "Auto-connect (legacy)"
+msgstr "Connexion automatique (obsolète)"
+
 msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
 msgstr "La connexion automatique est appelée VPN toujours actif dans les paramètres du système Android et elle s'assure que vous êtes constamment connecté au tunnel VPN et se connecte automatiquement après le redémarrage."
+
+msgctxt "Description of the existing \"auto-connect\" functionality as well as a notification about it being removed/replaced in a future update."
+msgid "Automatically connect when the app launches. This setting will be replaced with a new connect on device start-up feature in a future update."
+msgstr "Se connecter automatiquement au lancement de l'application. Ce paramètre sera remplacé par une nouvelle fonctionnalité de connexion au démarrage de l'appareil dans une prochaine mise à jour."
 
 msgid "Blocking internet (device offline)"
 msgstr "Internet bloqué (appareil hors ligne)"
@@ -2132,8 +2230,18 @@ msgstr "Journaux copiés dans le presse-papiers"
 msgid "Copied to clipboard"
 msgstr "Copié dans le presse-papiers"
 
+msgid "Create"
+msgstr "Créer"
+
+msgid "Create new list"
+msgstr "Créer une nouvelle liste"
+
 msgid "Critical error (your attention is required)"
 msgstr "Erreur critique (votre attention est requise)"
+
+msgctxt "Status information about which method/configuration is actively being used. The placeholder is replaced by a built-in or custom method. For example \"Current: Direct\" or \"Current: MyCustomMethod\". Note that it's not \"current\" as in \"present time\"."
+msgid "Current: %s"
+msgstr "Actuel : %s"
 
 msgid "Custom DNS server addresses %s are invalid"
 msgstr "Les adresses de serveur DNS personnalisées %s ne sont pas valides"
@@ -2141,17 +2249,59 @@ msgstr "Les adresses de serveur DNS personnalisées %s ne sont pas valides"
 msgid "DNS settings might not go into effect immediately"
 msgstr "Les paramètres DNS peuvent ne pas être immédiatement pris en compte"
 
+msgid "Delete \"%s\"?"
+msgstr "Supprimer « %s » ?"
+
+msgid "Delete method"
+msgstr "Supprimer la méthode"
+
+msgid "Delete method?"
+msgstr "Supprimer la méthode ?"
+
 msgid "Disable all <b>%s</b> above to activate this setting."
 msgstr "Désactivez tous les <b>%s</b> ci-dessus pour activer ce paramètre."
 
-msgid "Enable"
-msgstr "Activer"
+msgid "Discard"
+msgstr "Annuler"
+
+msgid "Discard changes?"
+msgstr "Annuler les modifications ?"
+
+msgid "Edit custom lists"
+msgstr "Modifier les listes personnalisées"
+
+msgid "Edit list"
+msgstr "Modifier la liste"
+
+msgid "Edit lists"
+msgstr "Modifier les listes"
+
+msgid "Edit locations"
+msgstr "Modifier les localisations"
+
+msgid "Edit name"
+msgstr "Modifier le nom"
+
+msgid "Enable method"
+msgstr "Activer la méthode"
 
 msgid "Enter MTU"
 msgstr "Saisir le MTU"
 
 msgid "Excluded applications"
 msgstr "Applications exclues"
+
+msgid "Failed to apply patch"
+msgstr "Impossible d'appliquer le correctif"
+
+msgid "Failed to set to current - API not reachable"
+msgstr "Impossible de définir sur la méthode actuelle - API injoignable"
+
+msgid "Failed to set to current - Unknown reason"
+msgstr "Impossible de définir sur la méthode actuelle - Raison inconnue"
+
+msgid "File"
+msgstr "Fichier"
 
 msgid "Go to VPN settings"
 msgstr "Aller aux paramètres VPN"
@@ -2180,6 +2330,21 @@ msgstr "L'importation de nouvelles substitutions peut remplacer certaines substi
 msgid "Install Mullvad VPN (%s) to stay up to date"
 msgstr "Installez Mullvad VPN (%s) pour rester à jour"
 
+msgid "Invalid or missing value \"%s\""
+msgstr "Valeur « %s » non valide ou manquante"
+
+msgid "Lets you select apps that should access the Internet directly without going through the VPN tunnel."
+msgstr "Vous permet de sélectionner les applications qui doivent accéder directement à Internet sans passer par le tunnel VPN."
+
+msgid "List name"
+msgstr "Nom de la liste"
+
+msgid "Locations"
+msgstr "Localisations"
+
+msgid "Locations were changed for \"%s\""
+msgstr "Les localisations ont été modifiées pour « %s »"
+
 msgid "Makes sure the device is always on the VPN tunnel."
 msgstr "Permet de s'assurer que l'appareil est toujours sur le tunnel VPN."
 
@@ -2191,6 +2356,15 @@ msgstr "Numéro de compte Mullvad"
 
 msgid "Mullvad services unavailable"
 msgstr "Services Mullvad indisponibles"
+
+msgid "Name was changed to %s"
+msgstr "Le nom a été changé en %s"
+
+msgid "New list"
+msgstr "Nouvelle liste"
+
+msgid "No custom lists available"
+msgstr "Aucune liste personnalisée disponible"
 
 msgid "No internet connection"
 msgstr "Aucune connexion à Internet"
@@ -2210,12 +2384,20 @@ msgstr "Substitutions supprimées"
 msgid "Overrides inactive"
 msgstr "Substitutions inactives"
 
+msgid "Password (optional)"
+msgstr "Mot de passe (facultatif)"
+
 msgid "Paste or write overrides to be imported"
 msgstr "Collez ou saisissez les substitutions à importer"
 
-msgctxt "The patch is a partial settings file that can be applied to the users' list of servers, overriding some of the values for the servers. This is part of Server IP overrides."
 msgid "Patch not matching specification"
 msgstr "Le correctif ne correspond pas à la spécification"
+
+msgid "Please enter a valid IPv4 or IPv6 address"
+msgstr "Merci de saisir une adresse IPv4 ou IPv6 valide"
+
+msgid "Please enter a valid remote server port"
+msgstr "Merci de saisir un port de serveur distant valide"
 
 msgid "Please use the <b>Always-on</b> system setting instead by following the guide in <b>%s</b> above."
 msgstr "Veuillez utiliser le paramètre système <b>Toujours activé</b> en suivant le guide dans <b>%s</b> ci-dessus."
@@ -2229,15 +2411,26 @@ msgstr "Confidentialité"
 msgid "Privacy policy"
 msgstr "Politique de confidentialité"
 
+msgid "Recursion limit"
+msgstr "Limite de récursion"
+
 msgid "Remove"
 msgstr "Supprimer"
 
-msgctxt "Remove a Country, City, or Server from a custom list."
 msgid "Remove %s from list"
 msgstr "Supprimer %s de la liste"
 
 msgid "Remove custom port"
 msgstr "Supprimer le port personnalisé"
+
+msgid "Reset"
+msgstr "Réinitialiser"
+
+msgid "Reset all overrides"
+msgstr "Réinitialiser toutes les substitutions"
+
+msgid "Reset overrides"
+msgstr "Réinitialiser les substitutions"
 
 msgid "Reset to default"
 msgstr "Réinitialiser à la valeur par défaut"
@@ -2260,17 +2453,26 @@ msgstr "Affiche l'état actuel du tunnel VPN"
 msgid "Shows reminders when the account time is about to expire"
 msgstr "Affiche des rappels lorsque le temps du compte va expirer"
 
-msgid "Split tunneling is disabled."
-msgstr "Le split tunneling est désactivé."
-
 msgid "Submit"
 msgstr "Envoyer"
+
+msgid "Test method"
+msgstr "Tester la méthode"
+
+msgid "Testing %s..."
+msgstr "Test de %s..."
+
+msgid "Text"
+msgstr "Texte"
 
 msgid "The Auto-connect and Lockdown mode settings can be found in the Android system settings, follow this guide to enable one or both."
 msgstr "Les paramètres de la connexion automatique et du mode Verrouillage se trouvent dans les paramètres du système Android, suivez ce guide pour activer l'un, l'autre ou les deux."
 
-msgid "The Lockdown mode blocks all internet access if the VPN tunnel is manually disconnected. <br/><b>Warning: This setting blocks split apps and the Local Network Sharing feature</b>."
-msgstr "Le mode Verrouillage bloque tout accès à Internet si le tunnel VPN est déconnecté manuellement. <br/><b>Avertissement : Ce paramètre bloque les applications fractionnées et la fonctionnalité de partage du réseau local</b>."
+msgid "The Lockdown mode is called <b>Block connections without VPN</b> in the Android system settings. It helps minimize leaks, however it has some known limitations which you can read more about"
+msgstr "Le mode Verrouillage est appelé <b>Bloquer les connexions sans VPN</b> dans les paramètres système d'Android. Il permet de minimiser les fuites, mais il présente des limites connues sur lesquelles vous pouvez en savoir plus"
+
+msgid "The \"Current\" method represent which method the app is using to reach the API."
+msgstr "La méthode « Actuelle » représente la méthode utilisée par l'application pour atteindre l'API."
 
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under Preferences."
 msgstr "Le serveur DNS local ne fonctionnera pas si vous n'activez pas le « Partage du réseau local » dans les préférences."
@@ -2281,6 +2483,18 @@ msgstr "Votre appareil n'a pas de paramètres VPN"
 msgid "This address has already been entered."
 msgstr "Cette adresse a déjà été saisie."
 
+msgid "This field is required"
+msgstr "Ce champ est requis"
+
+msgid "This is already set as current"
+msgstr "Déjà définie comme méthode actuelle"
+
+msgid "To add locations to a list, press the \"︙\" or long press on a country, city, or server."
+msgstr "Pour ajouter des localisations à une liste, appuyez sur la touche « ︙ » ou appuyez longuement sur un pays, une ville ou un serveur."
+
+msgid "To create a custom list press the \"︙\""
+msgstr "Appuyez sur « ︙ » pour créer une liste personnalisée"
+
 msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you."
 msgstr "Pour vous assurer que vous disposez de la version la plus sécurisée et pour vous informer de tout problème lié à la version en cours d'exécution, l'application effectue automatiquement des vérifications de version. Elle envoie ainsi la version de l'application et la version du système Android aux serveurs de Mullvad. Mullvad tient des compteurs sur le nombre de versions d'applications et de versions d'Android utilisées. Les données ne sont jamais stockées ou utilisées de manière à vous identifier."
 
@@ -2290,24 +2504,36 @@ msgstr "Activer/désactiver le VPN"
 msgid "Unable to apply firewall rules. Please troubleshoot or send a problem report."
 msgstr "Impossible d'appliquer les règles du pare-feu. Merci de résoudre le problème ou d'envoyer un rapport de problème."
 
+msgid "Unable to parse patch"
+msgstr "Impossible d'analyser le correctif"
+
 msgid "Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN."
 msgstr "Impossible de démarrer la connexion au tunnel. Veuillez désactiver « Toujours exiger un VPN « pour <b>%s</b> avant d'utiliser Mullvad VPN."
 
 msgid "Undo"
 msgstr "Annuler"
 
-msgctxt "Key is refering to a JSON key. The user selected a file or written/pasted a Server IP Override patch that was missing or using an invalid key."
 msgid "Unknown or prohibited key \"%s\""
 msgstr "Clé « %s » inconnue ou interdite"
 
 msgid "Unsecured"
 msgstr "Non sécurisé"
 
+msgctxt "Notification message shown when the app lacks a permission called \"VPN permission\"."
+msgid "Unsecured (No VPN permission)"
+msgstr "Non sécurisé (aucune autorisation VPN)"
+
 msgid "Update DNS server"
 msgstr "Mettre à jour le serveur DNS"
 
 msgid "Update available, download to remain safe."
 msgstr "Mise à jour disponible. Téléchargez-la pour rester en sécurité."
+
+msgid "Update list name"
+msgstr "Mettre à jour le nom de la liste"
+
+msgid "Use method"
+msgstr "Utiliser la méthode"
 
 msgid "VPN permission error"
 msgstr "Erreur de permission VPN"
@@ -2321,9 +2547,11 @@ msgstr "État du tunnel VPN"
 msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
 msgstr "Une clé WireGuard valide manque. Gérez les clés dans les paramètres avancés."
 
-msgctxt "Help text to explain which numbers are valid to configure. The user should enter a single number/integer that either matches one of the listed numbers or is within one of the listed ranges. Example: \"Valid ranges: 53, 123, 4000-33433\""
 msgid "Valid ranges: %s"
 msgstr "Plages valides : %s"
+
+msgid "Verifying API method..."
+msgstr "Vérification de la méthode API..."
 
 msgid "Verifying purchase"
 msgstr "Vérification de l'achat"
@@ -2367,6 +2595,13 @@ msgstr "VOUS POURRIEZ AVOIR DES FUITES DE TRAFIC RÉSEAU"
 msgid "You are running an unsupported app version."
 msgstr "Vous utilisez une version de l'application non prise en charge."
 
+msgid "\"%s\" was deleted"
+msgstr "« %s » a été supprimé"
+
+msgctxt "Clickable link that leads to our website."
+msgid "here"
+msgstr "ici"
+
 msgid "less than a minute ago"
 msgstr "il y a moins d'une minute"
 
@@ -2377,6 +2612,11 @@ msgid "%d day"
 msgid_plural "%d days"
 msgstr[0] "%d jour"
 msgstr[1] "%d jours"
+
+msgid "%d location"
+msgid_plural "%d locations"
+msgstr[0] "%d localisation"
+msgstr[1] "%d localisations"
 
 msgid "%d month"
 msgid_plural "%d months"

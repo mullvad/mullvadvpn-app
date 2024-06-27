@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Thai\n"
 "Language: th_TH\n"
-"PO-Revision-Date: 2024-05-15 07:28\n"
+"PO-Revision-Date: 2024-06-27 08:16\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "มีการเพิ่ม %(duration)s แล้ว บัญชีได้ชำระเงินจนถึง %(expiry)s"
@@ -130,6 +130,12 @@ msgstr "กำลังตัดการเชื่อมต่อ"
 msgid "Dismiss"
 msgstr "ละทิ้ง"
 
+msgid "Edit"
+msgstr "แก้ไข"
+
+msgid "Enable"
+msgstr "เปิดใช้งาน"
+
 msgid "Enable anyway"
 msgstr "เปิดใช้งานต่อไป"
 
@@ -222,6 +228,11 @@ msgstr "ค่าเริ่มต้นของระบบ"
 msgid "TCP"
 msgstr "TCP"
 
+msgid "Test"
+msgstr "ทดสอบ"
+
+#. Warning shown in dialog to users when they enable setting that increases
+#. network latency (decreases performance).
 #. Warning text in a dialog that is displayed after a setting is toggled.
 msgid "This setting increases latency. Use only if needed."
 msgstr "การตั้งค่านี้จะเพิ่มความหน่วงแฝง ใช้เมื่อจำเป็นเท่านั้น"
@@ -243,6 +254,9 @@ msgstr "ปลดบล็อก"
 
 msgid "UNSECURED CONNECTION"
 msgstr "การเชื่อมต่อที่ไม่ปลอดภัย"
+
+msgid "Use"
+msgstr "ใช้"
 
 msgid "Username"
 msgstr "ชื่อผู้ใช้"
@@ -387,9 +401,10 @@ msgctxt "api-access-methods-view"
 msgid "Authentication"
 msgstr "การรับรองความถูกต้อง"
 
+#. %(save)s - Will be replaced with the translation for the word "Save".
 msgctxt "api-access-methods-view"
-msgid "Clicking “Save” changes the in use method."
-msgstr "การคลิก “บันทึก” จะเปลี่ยนวิธีที่ใช้งานอยู่"
+msgid "Clicking “%(save)s” changes the in use method."
+msgstr "การคลิก “%(save)s” จะเปลี่ยนวิธีที่ใช้งานอยู่"
 
 msgctxt "api-access-methods-view"
 msgid "Delete %(name)s?"
@@ -638,6 +653,10 @@ msgctxt "connection-info"
 msgid "%(relay)s via %(entry)s"
 msgstr "%(relay)s ผ่าน %(entry)s"
 
+msgctxt "connection-info"
+msgid "%(relay)s via Custom bridge"
+msgstr "%(relay)s ผ่าน Bridge แบบกำหนดเอง"
+
 #. The tunnel type line displayed below the hostname line on the main screen
 #. Available placeholders:
 #. %(tunnelType)s - the tunnel type, i.e OpenVPN
@@ -653,6 +672,22 @@ msgstr "เข้า"
 msgctxt "connection-info"
 msgid "Out"
 msgstr "ออก"
+
+msgctxt "custom-bridge"
+msgid "Add custom bridge"
+msgstr "เพิ่ม Bridge แบบกำหนดเอง"
+
+msgctxt "custom-bridge"
+msgid "Delete custom bridge?"
+msgstr "ลบ Bridge แบบกำหนดเองหรือไม่"
+
+msgctxt "custom-bridge"
+msgid "Deleting the custom bridge will take you back to the select location view and the Automatic option will be selected instead."
+msgstr "การลบ Bridge แบบกำหนดเอง จะนำคุณกำลังไปยังมุมมองตำแหน่งที่เลือก และตัวเลือกอัตโนมัติจะถูกเลือกแทน"
+
+msgctxt "custom-bridge"
+msgid "Edit custom bridge"
+msgstr "แก้ไข Bridge แบบกำหนดเอง"
 
 #. Text displayed above button which logs out another device.
 #. The text enclosed in "<b></b>" will appear bold.
@@ -1056,6 +1091,14 @@ msgid "Disconnected and unsecure"
 msgstr "ตัดการเชื่อมต่อและไม่ปลอดภัย"
 
 msgctxt "notifications"
+msgid "Failed to enable split tunneling."
+msgstr "ล้มเหลวในการเปิดใช้การแยกอุโมงค์"
+
+msgctxt "notifications"
+msgid "Failed to enable split tunneling. Please try reconnecting or disable split tunneling."
+msgstr "ล้มเหลวในการเปิดใช้การแยกอุโมงค์ โปรดลองเชื่อมต่อใหม่อีกครั้ง หรือปิดใช้งานการแยกอุโมงค์"
+
+msgctxt "notifications"
 msgid "Lockdown mode active, connection blocked"
 msgstr "เปิดใช้โหมดล็อกดาวน์ ปิดกั้นการเชื่อมต่อแล้ว"
 
@@ -1162,6 +1205,10 @@ msgctxt "openvpn-settings-view"
 msgid "Bridge mode"
 msgstr "โหมดบริดจ์"
 
+msgctxt "openvpn-settings-view"
+msgid "Enable bridge mode?"
+msgstr "เปิดใช้โหมด Bridge หรือไม่"
+
 #. This is used as a description for the bridge mode
 #. setting.
 #. Available placeholders:
@@ -1207,6 +1254,12 @@ msgstr "ในการเปิดใช้โหมด บริดจ์ ใ�
 msgctxt "openvpn-settings-view"
 msgid "To activate UDP, change <b>Bridge mode</b> to <b>Automatic</b> or <b>Off</b>."
 msgstr "ในการเปิดใช้งาน UDP ให้เปลี่ยน <b>โหมดบริดจ์</b> เป็น <b>อัตโนมัติ</b> หรือ <b>ปิด</b>"
+
+#. This text is shown beneath the bridge mode setting to instruct users how to
+#. configure the feature further.
+msgctxt "openvpn-settings-view"
+msgid "To select a specific bridge server, go to the Select location view."
+msgstr "ไปที่มุมมองตำแหน่งที่เลือก เพื่อเลือกเซิร์ฟเวอร์ Bridge เฉพาะ"
 
 msgctxt "openvpn-settings-view"
 msgid "Transport protocol"
@@ -1271,6 +1324,10 @@ msgctxt "select-location-view"
 msgid "%(location)s (%(info)s)"
 msgstr "%(location)s (%(info)s)"
 
+msgctxt "select-location-view"
+msgid "A custom bridge server can be used to circumvent censorship when regular Mullvad bridge servers don’t work."
+msgstr "เซิร์ฟเวอร์ Bridge แบบกำหนดเองสามารถนำมาใช้เพื่อหลีกเลี่ยงการเซ็นเซอร์ได้ เมื่อเซิร์ฟเวอร์บริดจ์ Mullvad ตามปกติไม่ทำงาน"
+
 #. This is a label shown above a list of options.
 #. Available placeholder:
 #. %(locationType) - Could be either "Country", "City" and "Relay"
@@ -1289,6 +1346,10 @@ msgstr "เมือง"
 msgctxt "select-location-view"
 msgid "Country"
 msgstr "ประเทศ"
+
+msgctxt "select-location-view"
+msgid "Custom bridge"
+msgstr "Bridge แบบกำหนดเอง"
 
 msgctxt "select-location-view"
 msgid "Custom lists"
@@ -1356,7 +1417,7 @@ msgstr "ล้างโอเวอร์ไรด์ทั้งหมดหร
 
 msgctxt "settings-import"
 msgid "Clearing the imported overrides changes the server IPs, in the Select location view, back to default."
-msgstr "การล้างการโอเวอร์ไรด์ที่นำเข้า จะเปลี่ยน IP ของเซิร์ฟเวอร์ ในมุมมองเลือกตำแหน่งที่ตั้ง ให้กลับไปเป็นค่าเริ่มต้น"
+msgstr "การล้างโอเวอร์ไรด์ที่นำเข้า จะเป็นการเปลี่ยน IP ของเซิร์ฟเวอร์ ในมุมมองเลือกตำแหน่งที่ตั้ง ให้กลับไปเป็นค่าเริ่มต้น"
 
 msgctxt "settings-import"
 msgid "If you are having issues connecting to VPN servers, please contact support."
@@ -1411,7 +1472,7 @@ msgstr "เปิดใช้โอเวอร์ไรด์อยู่"
 #. users import server IP settings.
 msgctxt "settings-import"
 msgid "Server IP override"
-msgstr "โอเวอร์ไรด์เซิร์ฟเวอร์ IP"
+msgstr "โอเวอร์ไรด์ IP เซิร์ฟเวอร์"
 
 msgctxt "settings-import"
 msgid "To circumvent this you can import a file or a text, provided by our support team, with new IP addresses that override the default addresses of the servers in the Select location view."
@@ -1630,12 +1691,24 @@ msgid "Connecting. %(location)s"
 msgstr "กำลังเชื่อมต่อ %(location)s"
 
 msgctxt "troubleshoot"
+msgid "Enable “Full Disk Access” for “Mullvad VPN” in the macOS system settings."
+msgstr "เปิดใช้งาน \"การเข้าถึงดิสก์อย่างเต็มที่\" สำหรับ “Mullvad VPN” ในการตั้งค่าระบบ macOS"
+
+msgctxt "troubleshoot"
+msgid "Failed to enable split tunneling. This is because the app is missing system permissions. What you can do:"
+msgstr "ล้มเหลวในการเปิดใช้การแยกอุโมงค์ ซึ่งเกิดจากแอปไม่มีสิทธิ์อนุญาตของระบบ สิ่งที่คุณทำได้มีดังนี้:"
+
+msgctxt "troubleshoot"
 msgid "If these steps do not work please send a problem report."
 msgstr "หากขั้นตอนเหล่านี้ใช้ไม่ได้ผล โปรดส่งรายงานปัญหา"
 
 msgctxt "troubleshoot"
 msgid "Make sure you have NF tables support."
 msgstr "โปรดตรวจสอบให้แน่ใจว่าคุณมีการรองรับตาราง NF"
+
+msgctxt "troubleshoot"
+msgid "Open system settings"
+msgstr "เปิดการตั้งค่าระบบ"
 
 msgctxt "troubleshoot"
 msgid "This error can happen when something other than Mullvad is actively updating the DNS."
@@ -1863,7 +1936,7 @@ msgstr "มัลแวร์"
 
 msgctxt "vpn-settings-view"
 msgid "Server IP override"
-msgstr "โอเวอร์ไรด์เซิร์ฟเวอร์ IP"
+msgstr "โอเวอร์ไรด์ IP เซิร์ฟเวอร์"
 
 #. Label for settings that enables block of social media.
 msgctxt "vpn-settings-view"
@@ -2039,11 +2112,9 @@ msgstr "พอร์ต TCP ใดที่โพรโทคอลการท�
 msgid "%s (added)"
 msgstr "%s (เพิ่มแล้ว)"
 
-msgctxt "A location was added to a custom list"
 msgid "%s was added to \"%s\""
-msgstr "%s ถูกเพิ่มลงใน \"%s\""
+msgstr "%s ได้ถูกเพิ่มไปยัง \"%s\""
 
-msgctxt "Shown as a toast when user added e.g 30 days or 3 months of time to their account"
 msgid "%s was added to your account."
 msgstr "%s ถูกเพิ่มลงในบัญชีของคุณแล้ว"
 
@@ -2053,11 +2124,17 @@ msgstr "1. หลังจากคลิกปุ่ม<b>ไปที่กา
 msgid "2. To enable Auto-connect, click on the toggle next to <b>Always-on VPN</b>."
 msgstr "2. ในการเปิดใช้การเชื่อมต่ออัตโนมัติ ให้คลิกปุ่มเปิด/ปิดที่อยู่ถัดจาก <b>Always-on VPN</b>"
 
-msgid "3. To enable Lockdown mode, click on the toggle next to <b>Block connections without VPN</b>."
-msgstr "3. ในการเปิดใช้โหมดล็อกดาวน์ ให้คลิกปุ่มเปิด/ปิดที่อยู่ถัดจาก<b>ปิดกั้นการเชื่อมต่อโดยไม่ใช้ VPN</b>"
+msgid "3. To enable Lockdown mode, click on the toggle next to <b>Block connections without VPN</b>.<br /><br /><b>Warning: This setting blocks split apps and the Local Network Sharing feature.</b>"
+msgstr "3. ในการเปิดโหมดล็อกดาวน์ ให้คลิกปุ่มเปิด/ปิดที่อยู่ถัดจาก<b>ปิดกั้นการเชื่อมต่อโดยไม่ใช้ VPN</b> <br /><br /><b>คำเตือน: การตั้งค่านี้จะบล็อกแอปที่มีการแยก และคุณลักษณะการแชร์เครือข่ายท้องถิ่น</b>"
 
 msgid "30 days was added to your account."
 msgstr "30 วัน ถูกเพิ่มลงในบัญชีของคุณแล้ว"
+
+msgid "API reachable, adding method..."
+msgstr "เข้าถึง API ได้ กำลังเพิ่มวิธีการ..."
+
+msgid "API unreachable, save method anyway?"
+msgstr "เข้าถึง API ไม่ได้ บันทึกวิธีการหรือไม่"
 
 msgid "Account credit expires in a few minutes"
 msgstr "เครดิตของบัญชีจะหมดอายุในอีกไม่กี่นาที"
@@ -2068,7 +2145,6 @@ msgstr "เครดิตของบัญชีจะหมดอายุใ
 msgid "Account time reminders"
 msgstr "การแจ้งเตือนเวลาบัญชี"
 
-msgctxt "Add a Country,City, or Server to a custom list"
 msgid "Add %s to list"
 msgstr "เพิ่ม %s ลงในรายการ"
 
@@ -2081,11 +2157,20 @@ msgstr "เพิ่มเวลา 30 วัน (%s)"
 msgid "Add DNS server"
 msgstr "เพิ่มเซิร์ฟเวอร์ DNS"
 
+msgid "Add locations"
+msgstr "เพิ่มตำแหน่งที่ตั้ง"
+
+msgid "Adding method..."
+msgstr "กำลังเพิ่มวิธีการ..."
+
 msgid "Agree and continue"
 msgstr "ยอมรับและดำเนินการต่อ"
 
 msgid "All applications"
 msgstr "แอปพลิเคชันทั้งหมด"
+
+msgid "All overrides will be reset and servers IP addresses, in the Select location view, will go back to default."
+msgstr "โอเวอร์ไรด์ทั้งหมดจะถูกรีเซ็ต และที่อยู่ IP ของเซิร์ฟเวอร์ในมุมมองตำแหน่งที่ตั้งที่เลือก จะกลับไปเป็นค่าเริ่มต้น"
 
 msgid "Allows access to other devices on the same network for sharing, printing etc."
 msgstr "อนุญาตให้เข้าถึงอุปกรณ์อื่นๆ บนเครือข่ายเดียวกัน เพื่อแชร์ พิมพ์ ฯลฯ"
@@ -2096,6 +2181,12 @@ msgstr "Always-on VPN ได้รับการมอบหมายไปย�
 msgid "Always-on VPN might be enabled for another app"
 msgstr "Always-on VPN อาจได้รับการเปิดใช้งานสำหรับแอปอื่น"
 
+msgid "At least one method needs to be enabled"
+msgstr "จำเป็นต้องเปิดใช้อย่างน้อยหนึ่งวิธีการ"
+
+msgid "Attention: Split tunneling is a privacy risk."
+msgstr "โปรดทราบ: การแยกอุโมงค์เป็นความเสี่ยงด้านความเป็นส่วนตัว"
+
 msgid "Attention: this setting cannot be used in combination with <b>Use custom DNS server</b>."
 msgstr "โปรดทราบ: การตั้งค่านี้ไม่สามารถใช้ร่วมกับ<b>การใช้เซิร์ฟเวอร์ DNS แบบกำหนดเอง</b>ได้"
 
@@ -2105,8 +2196,15 @@ msgstr "เชื่อมต่ออัตโนมัติและโหม
 msgid "Auto-connect & \\nLockdown mode"
 msgstr "เชื่อมต่ออัตโนมัติและ\\nโหมดล็อกดาวน์"
 
+msgid "Auto-connect (legacy)"
+msgstr "เชื่อมต่ออัตโนมัติ (เดิม)"
+
 msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
 msgstr "การเชื่อมต่ออัตโนมัติเรียกว่า Always-on VPN ในการตั้งค่าระบบ Android ซึ่งจะช่วยให้คุณมั่นใจได้ว่า คุณเชื่อมต่อกับช่องทาง VPN อย่างต่อเนื่อง และมีการเชื่อมต่ออัตโนมัติหลังจากรีสตาร์ต"
+
+msgctxt "Description of the existing \"auto-connect\" functionality as well as a notification about it being removed/replaced in a future update."
+msgid "Automatically connect when the app launches. This setting will be replaced with a new connect on device start-up feature in a future update."
+msgstr "เชื่อมต่อโดยอัตโนมัติเมื่อเปิดแอป การตั้งค่านี้จะถูกแทนที่ด้วยคุณลักษณะใหม่ คือการเชื่อมต่อเมื่อเริ่มต้นอุปกรณ์ ในการอัปเดตในอนาคต"
 
 msgid "Blocking internet (device offline)"
 msgstr "กำลังบล็อกอินเทอร์เน็ต (อุปกรณ์ออฟไลน์)"
@@ -2126,8 +2224,18 @@ msgstr "คัดลอกบันทึกล็อกไปยังคลิ
 msgid "Copied to clipboard"
 msgstr "คัดลอกไปยังคลิปบอร์ดแล้ว"
 
+msgid "Create"
+msgstr "สร้าง"
+
+msgid "Create new list"
+msgstr "สร้างรายการใหม่"
+
 msgid "Critical error (your attention is required)"
 msgstr "ข้อผิดพลาดร้ายแรง (คุณจำเป็นต้องตรวจสอบ)"
+
+msgctxt "Status information about which method/configuration is actively being used. The placeholder is replaced by a built-in or custom method. For example \"Current: Direct\" or \"Current: MyCustomMethod\". Note that it's not \"current\" as in \"present time\"."
+msgid "Current: %s"
+msgstr "ปัจจุบัน: %s"
 
 msgid "Custom DNS server addresses %s are invalid"
 msgstr "ที่อยู่เซิร์ฟเวอร์ DNS %s ที่กำหนดเองไม่ถูกต้อง"
@@ -2135,17 +2243,59 @@ msgstr "ที่อยู่เซิร์ฟเวอร์ DNS %s ที่�
 msgid "DNS settings might not go into effect immediately"
 msgstr "การตั้งค่า DNS อาจไม่มีผลทันที"
 
+msgid "Delete \"%s\"?"
+msgstr "ลบ \"%s\" หรือไม่"
+
+msgid "Delete method"
+msgstr "ลบวิธีการ"
+
+msgid "Delete method?"
+msgstr "ลบวิธีการหรือไม่"
+
 msgid "Disable all <b>%s</b> above to activate this setting."
 msgstr "ปิดใช้งาน <b>%s</b> ด้านบนทั้งหมด เพื่อเปิดใช้การตั้งค่านี้"
 
-msgid "Enable"
-msgstr "เปิดใช้งาน"
+msgid "Discard"
+msgstr "ละทิ้ง"
+
+msgid "Discard changes?"
+msgstr "ละทิ้งการเปลี่ยนแปลงหรือไม่"
+
+msgid "Edit custom lists"
+msgstr "แก้ไขรายการแบบกำหนดเอง"
+
+msgid "Edit list"
+msgstr "แก้ไขรายการ"
+
+msgid "Edit lists"
+msgstr "แก้ไขรายการ"
+
+msgid "Edit locations"
+msgstr "แก้ไขตำแหน่งที่ตั้ง"
+
+msgid "Edit name"
+msgstr "แก้ไขชื่อ"
+
+msgid "Enable method"
+msgstr "เปิดใช้งานวิธีการ"
 
 msgid "Enter MTU"
 msgstr "ป้อน MTU"
 
 msgid "Excluded applications"
 msgstr "แอปพลิเคชันที่แยกออก"
+
+msgid "Failed to apply patch"
+msgstr "ล้มเหลวในการปรับใช้แพตช์"
+
+msgid "Failed to set to current - API not reachable"
+msgstr "ไม่สามารถตั้งค่าเป็นปัจจุบันได้ - ไม่สามารถเข้าถึง API ได้"
+
+msgid "Failed to set to current - Unknown reason"
+msgstr "ไม่สามารถตั้งค่าเป็นปัจจุบันได้ - ไม่ทราบสาเหตุ"
+
+msgid "File"
+msgstr "ไฟล์"
 
 msgid "Go to VPN settings"
 msgstr "ไปที่การตั้งค่า VPN"
@@ -2174,6 +2324,21 @@ msgstr "การนำเข้าโอเวอร์ไรด์ใหม่
 msgid "Install Mullvad VPN (%s) to stay up to date"
 msgstr "ติดตั้ง Mullvad VPN (%s) เพื่อรับอัปเดตล่าสุดอยู่เสมอ"
 
+msgid "Invalid or missing value \"%s\""
+msgstr "ค่า \"%s\" ไม่ถูกต้องหรือหายไป"
+
+msgid "Lets you select apps that should access the Internet directly without going through the VPN tunnel."
+msgstr "ช่วยให้คุณเลือกแอปที่เข้าถึงอินเทอร์เน็ตได้โดยตรง โดยไม่ต้องผ่านอุโมงค์ VPN"
+
+msgid "List name"
+msgstr "ชื่อรายการ"
+
+msgid "Locations"
+msgstr "ตำแหน่งที่ตั้ง"
+
+msgid "Locations were changed for \"%s\""
+msgstr "ตำแหน่งที่ตั้งสำหรับ \"%s\" มีการเปลี่ยนแปลง"
+
 msgid "Makes sure the device is always on the VPN tunnel."
 msgstr "ตรวจสอบให้แน่ใจว่า อุปกรณ์อยู่ในช่องทาง VPN เสมอ"
 
@@ -2185,6 +2350,15 @@ msgstr "หมายเลขบัญชี Mullvad"
 
 msgid "Mullvad services unavailable"
 msgstr "บริการ Mullavad ไม่พร้อมใช้งาน"
+
+msgid "Name was changed to %s"
+msgstr "ชื่อถูกเปลี่ยนเป็น %s"
+
+msgid "New list"
+msgstr "รายการใหม่"
+
+msgid "No custom lists available"
+msgstr "ไม่มีรายการแบบกำหนดเองที่พร้อมใช้งาน"
 
 msgid "No internet connection"
 msgstr "ไม่มีการเชื่อมต่ออินเทอร์เน็ต"
@@ -2204,12 +2378,20 @@ msgstr "ล้างโอเวอร์ไรด์แล้ว"
 msgid "Overrides inactive"
 msgstr "ปิดใช้โอเวอร์ไรด์อยู่"
 
+msgid "Password (optional)"
+msgstr "รหัสผ่าน (ไม่บังคับ)"
+
 msgid "Paste or write overrides to be imported"
 msgstr "วางหรือพิมพ์โอเวอร์ไรด์เพื่อนำเข้า"
 
-msgctxt "The patch is a partial settings file that can be applied to the users' list of servers, overriding some of the values for the servers. This is part of Server IP overrides."
 msgid "Patch not matching specification"
 msgstr "แพตช์ไม่ตรงกับข้อมูลจำเพาะ"
+
+msgid "Please enter a valid IPv4 or IPv6 address"
+msgstr "โปรดป้อนที่อยู่ IPv4 หรือ IPv6 ที่ถูกต้อง"
+
+msgid "Please enter a valid remote server port"
+msgstr "โปรดป้อนพอร์ตเซิร์ฟเวอร์ระยะไกลที่ถูกต้อง"
 
 msgid "Please use the <b>Always-on</b> system setting instead by following the guide in <b>%s</b> above."
 msgstr "โปรดใช้การตั้งค่าระบบ<b>เปิดใช้งานเสมอ</b>แทน โดยทำตามคำแนะนำใน <b>%s</b> ที่อยู่ด้านบน"
@@ -2223,15 +2405,26 @@ msgstr "ความเป็นส่วนตัว"
 msgid "Privacy policy"
 msgstr "นโยบายความเป็นส่วนตัว"
 
+msgid "Recursion limit"
+msgstr "ขีดจำกัดการเรียกซ้ำ"
+
 msgid "Remove"
 msgstr "ลบ"
 
-msgctxt "Remove a Country, City, or Server from a custom list."
 msgid "Remove %s from list"
-msgstr "นำ %s ออกจากรายการ"
+msgstr "ลบ %s ออกจากรายการ"
 
 msgid "Remove custom port"
 msgstr "นำพอร์ตแบบกำหนดเองออก"
+
+msgid "Reset"
+msgstr "รีเซ็ต"
+
+msgid "Reset all overrides"
+msgstr "รีเซ็ตโอเวอร์ไรด์ทั้งหมด"
+
+msgid "Reset overrides"
+msgstr "รีเซ็ตโอเวอร์ไรด์"
 
 msgid "Reset to default"
 msgstr "รีเซ็ตเป็นค่าเริ่มต้น"
@@ -2254,17 +2447,26 @@ msgstr "แสดงสถานะอุโมงค์ VPN ในปัจจ�
 msgid "Shows reminders when the account time is about to expire"
 msgstr "แสดงการแจ้งเตือน ในขณะที่เวลาบัญชีใกล้หมดอายุ"
 
-msgid "Split tunneling is disabled."
-msgstr "ปิดใช้งานการแยกอุโมงค์อยู่"
-
 msgid "Submit"
 msgstr "ส่ง"
+
+msgid "Test method"
+msgstr "ทดสอบวิธีการ"
+
+msgid "Testing %s..."
+msgstr "กำลังทดสอบ %s..."
+
+msgid "Text"
+msgstr "ข้อความ"
 
 msgid "The Auto-connect and Lockdown mode settings can be found in the Android system settings, follow this guide to enable one or both."
 msgstr "การตั้งค่าการเชื่อมต่ออัตโนมัติและโหมดล็อกดาวน์ อยู่ในการตั้งค่าระบบ Android โปรดทำตามคำแนะนำนี้ เพื่อเปิดใช้งานโหมดใดโหมดหนึ่ง หรือทั้งสองโหมด"
 
-msgid "The Lockdown mode blocks all internet access if the VPN tunnel is manually disconnected. <br/><b>Warning: This setting blocks split apps and the Local Network Sharing feature</b>."
-msgstr "โหมดล็อกดาวน์ปิดกั้นการเข้าถึงอินเทอร์เน็ตทั้งหมด หากช่องทาง VPN ถูกตัดการเชื่อมต่อด้วยตนเอง <br/><b>คำเตือน: การตั้งค่านี้จะบล็อกแอปที่มีการแยก และคุณลักษณะการแชร์เครือข่ายท้องถิ่น</b>"
+msgid "The Lockdown mode is called <b>Block connections without VPN</b> in the Android system settings. It helps minimize leaks, however it has some known limitations which you can read more about"
+msgstr "โหมดล็อกดาวน์ถูกเรียกใช้ <b>ปิดกั้นการเชื่อมต่อโดยไม่ใช้ VPN</b> ในการตั้งค่าระบบ Android ซึ่งจะช่วยลดการรั่วไหล แต่ก็มีข้อจำกัดบางประการ ที่คุณสามารถอ่านข้อมูลเพิ่มเติมเกี่ยวกับเรื่องดังกล่าวได้"
+
+msgid "The \"Current\" method represent which method the app is using to reach the API."
+msgstr "วิธีการ \"ปัจจุบัน\" แสดงถึงวิธีที่แอปใช้ในการเข้าถึง API"
 
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under Preferences."
 msgstr "เซิร์ฟเวอร์ DNS ท้องถิ่นจะไม่ทำงาน เว้นแต่คุณจะเปิดใช้ \"การแชร์ในเครือข่ายท้องถิ่น\" ซึ่งอยู่ในส่วนการกำหนดค่า"
@@ -2275,6 +2477,18 @@ msgstr "ไม่มีการตั้งค่า VPN บนอุปกร�
 msgid "This address has already been entered."
 msgstr "ที่อยู่นี้ได้รับการป้อนไปแล้ว"
 
+msgid "This field is required"
+msgstr "จำเป็นต้องกรอกช่องนี้"
+
+msgid "This is already set as current"
+msgstr "นี่ได้รับการตั้งค่าเป็นปัจจุบันแล้ว"
+
+msgid "To add locations to a list, press the \"︙\" or long press on a country, city, or server."
+msgstr "กด \"︙\" หรือกดประเทศ เมือง หรือเซิร์ฟเวอร์ค้างไว้ เพื่อเพิ่มตำแหน่งที่ตั้งลงในรายการ"
+
+msgid "To create a custom list press the \"︙\""
+msgstr "กด \"︙\" เพื่อสร้างรายการแบบกำหนดเอง"
+
 msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you."
 msgstr "แอปจะตรวจสอบเวอร์ชันโดยอัตโนมัติ เพื่อให้แน่ใจว่า คุณใช้งานเวอร์ชันที่ปลอดภัยที่สุด และเพื่อแจ้งปัญหาใดๆ ของเวอร์ชันปัจจุบันที่ใช้งานอยู่ให้คุณทราบ โดยระบบจะส่งเวอร์ชันแอปและเวอร์ชันระบบ Android ไปยังเซิร์ฟเวอร์ Mullavid ซึ่ง Mullvad จะติดตามจำนวนเวอร์ชันแอปที่ใช้และเวอร์ชัน Android ทั้งนี้ข้อมูลจะไม่ถูกจัดเก็บ หรือนำไปใช้ในลักษณะใดๆ ที่สามารถระบุตัวตนคุณได้"
 
@@ -2284,24 +2498,36 @@ msgstr "เปิด/ปิด VPN"
 msgid "Unable to apply firewall rules. Please troubleshoot or send a problem report."
 msgstr "ไม่สามารถใช้กฎไฟร์วอลล์ได้ โปรดแก้ไขปัญหา หรือส่งรายงานปัญหา"
 
+msgid "Unable to parse patch"
+msgstr "ไม่สามารถแยกวิเคราะห์แพตช์ได้"
+
 msgid "Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN."
 msgstr "ไม่สามารถเริ่มการเชื่อมต่ออุโมงค์ได้ โปรดปิดใช้งาน Always-on VPN เป็นเวลา <b>%s</b> ก่อนที่จะใช้งาน Mullvad VPN"
 
 msgid "Undo"
 msgstr "เลิกทำ"
 
-msgctxt "Key is refering to a JSON key. The user selected a file or written/pasted a Server IP Override patch that was missing or using an invalid key."
 msgid "Unknown or prohibited key \"%s\""
-msgstr "คีย์ที่ไม่รู้จัก หรือมีคีย์ต้องห้าม \"%s\""
+msgstr "คีย์ที่ไม่รู้จัก หรือต้องห้าม \"%s\""
 
 msgid "Unsecured"
 msgstr "ไม่ปลอดภัย"
+
+msgctxt "Notification message shown when the app lacks a permission called \"VPN permission\"."
+msgid "Unsecured (No VPN permission)"
+msgstr "ไม่ปลอดภัย (ไม่มีสิทธิ์ VPN)"
 
 msgid "Update DNS server"
 msgstr "อัปเดตเซิร์ฟเวอร์ DNS"
 
 msgid "Update available, download to remain safe."
 msgstr "มีอัปเดตพร้อมใช้งาน ดาวน์โหลดเพื่อคงความปลอดภัยไว้"
+
+msgid "Update list name"
+msgstr "อัปเดตชื่อรายการ"
+
+msgid "Use method"
+msgstr "ใช้วิธีการ"
 
 msgid "VPN permission error"
 msgstr "เกิดข้อผิดพลาดในการอนุญาต VPN"
@@ -2315,9 +2541,11 @@ msgstr "สถานะอุโมงค์ VPN"
 msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
 msgstr "คีย์ WireGuard ที่ใช้ได้ขาดหายไป จัดการคีย์ภายใต้การตั้งค่าขั้นสูง"
 
-msgctxt "Help text to explain which numbers are valid to configure. The user should enter a single number/integer that either matches one of the listed numbers or is within one of the listed ranges. Example: \"Valid ranges: 53, 123, 4000-33433\""
 msgid "Valid ranges: %s"
 msgstr "ช่วงที่ใช้ได้: %s"
+
+msgid "Verifying API method..."
+msgstr "กำลังตรวจสอบยืนยันวิธีการ API..."
 
 msgid "Verifying purchase"
 msgstr "กำลังตรวจสอบยืนยันการซื้อ"
@@ -2361,6 +2589,13 @@ msgstr "คุณอาจมีการรับส่งข้อมูลท
 msgid "You are running an unsupported app version."
 msgstr "คุณกำลังใช้งานเวอร์ชันแอปที่ไม่ได้รับการสนับสนุน"
 
+msgid "\"%s\" was deleted"
+msgstr "\"%s\" ถูกลบแล้ว"
+
+msgctxt "Clickable link that leads to our website."
+msgid "here"
+msgstr "ที่นี่"
+
 msgid "less than a minute ago"
 msgstr "น้อยกว่าหนึ่งนาทีก่อน"
 
@@ -2370,6 +2605,10 @@ msgstr "น้อยกว่าหนึ่งวัน"
 msgid "%d day"
 msgid_plural "%d days"
 msgstr[0] "%d วัน"
+
+msgid "%d location"
+msgid_plural "%d locations"
+msgstr[0] "%d ตำแหน่งที่ตั้ง"
 
 msgid "%d month"
 msgid_plural "%d months"
