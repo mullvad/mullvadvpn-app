@@ -1,6 +1,7 @@
 plugins {
     id(Dependencies.Plugin.androidLibraryId)
     id(Dependencies.Plugin.kotlinAndroidId)
+    id(Dependencies.Plugin.composeCompiler) version Versions.kotlin
 }
 
 android {
@@ -10,8 +11,6 @@ android {
     defaultConfig { minSdk = Versions.Android.minSdkVersion }
 
     buildFeatures { compose = true }
-
-    composeOptions { kotlinCompilerExtensionVersion = Versions.kotlinCompilerExtensionVersion }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17

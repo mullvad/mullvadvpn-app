@@ -49,6 +49,11 @@ buildscript {
         classpath(Dependencies.Plugin.Protobuf.protocOsxX86_64)
         classpath(Dependencies.Plugin.Protobuf.protocWindowsX86_32)
         classpath(Dependencies.Plugin.Protobuf.protocWindowsX86_64)
+        // Kotlin Native Prebuilt
+        classpath(Dependencies.Kotlin.kotlinNavtivePrebuiltLinuxX86_64)
+        classpath(Dependencies.Kotlin.kotlinNavtivePrebuiltMacOsAArch64)
+        classpath(Dependencies.Kotlin.kotlinNavtivePrebuiltMacOsX86_64)
+        classpath(Dependencies.Kotlin.kotlinNavtivePrebuiltWindowsX86_64)
     }
 }
 
