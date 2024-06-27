@@ -93,11 +93,12 @@ ipnetwork = "0.20"
 proptest = "1.4"
 
 [profile.release]
-opt-level = 3
+opt-level = "s"
 lto = true
 strip = true
 
-# Key generation may take over one minute without optimizations
-# enabled.
+# Key generation may take over one minute without optimizations enabled.
 [profile.dev.package."classic-mceliece-rust"]
+opt-level = 3
+[profile.release.package."classic-mceliece-rust"]
 opt-level = 3
