@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.viewmodel
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import arrow.core.Either
@@ -9,6 +10,7 @@ import arrow.core.getOrElse
 import arrow.core.nel
 import arrow.core.raise.either
 import arrow.core.raise.ensure
+import com.ramcosta.composedestinations.generated.destinations.EditApiAccessMethodDestination
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
@@ -37,11 +39,13 @@ import net.mullvad.mullvadvpn.util.delayAtLeast
 import org.apache.commons.validator.routines.InetAddressValidator
 
 class EditApiAccessMethodViewModel(
-    private val apiAccessMethodId: ApiAccessMethodId?,
     private val apiAccessRepository: ApiAccessRepository,
-    private val inetAddressValidator: InetAddressValidator
+    private val inetAddressValidator: InetAddressValidator,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private var testingJob: Job? = null
+    private val apiAccessMethodId =
+        EditApiAccessMethodDestination.argsFrom(savedStateHandle).accessMethodId
 
     private val _uiSideEffect = Channel<EditApiAccessSideEffect>(Channel.BUFFERED)
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
@@ -56,14 +60,12 @@ class EditApiAccessMethodViewModel(
                     editMode = apiAccessMethodId != null,
                     formData = formData,
                     hasChanges = initialData != formData,
-                    isTestingApiAccessMethod = isTestingApiAccessMethod
-                )
+                    isTestingApiAccessMethod = isTestingApiAccessMethod)
             }
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(),
-                EditApiAccessMethodUiState.Loading(editMode = apiAccessMethodId != null)
-            )
+                EditApiAccessMethodUiState.Loading(editMode = apiAccessMethodId != null))
 
     fun setAccessMethodType(accessMethodType: ApiAccessMethodTypes) {
         formData.update { it.copy(apiAccessMethodTypes = accessMethodType) }
@@ -111,11 +113,9 @@ class EditApiAccessMethodViewModel(
                                     apiAccessRepository.testCustomApiAccessMethod(customProxy)
                                 }
                             _uiSideEffect.send(
-                                EditApiAccessSideEffect.TestApiAccessMethodResult(result.isRight())
-                            )
+                                EditApiAccessSideEffect.TestApiAccessMethodResult(result.isRight()))
                             isTestingApiAccessMethod.value = false
-                        }
-                    )
+                        })
             }
     }
 
@@ -128,13 +128,8 @@ class EditApiAccessMethodViewModel(
                     { (name, customProxy) ->
                         _uiSideEffect.send(
                             EditApiAccessSideEffect.OpenSaveDialog(
-                                id = apiAccessMethodId,
-                                name = name,
-                                customProxy = customProxy
-                            )
-                        )
-                    }
-                )
+                                id = apiAccessMethodId, name = name, customProxy = customProxy))
+                    })
         }
     }
 
@@ -156,9 +151,7 @@ class EditApiAccessMethodViewModel(
                         accessMethod.name,
                         accessMethod.apiAccessMethod as? ApiAccessMethod.CustomProxy
                             ?: error(
-                                "${accessMethod.apiAccessMethod} api access type can not be edited"
-                            )
-                    )
+                                "${accessMethod.apiAccessMethod} api access type can not be edited"))
                 }
                 .getOrElse { error("Access method with id $apiAccessMethodId not found") }
         }
@@ -187,8 +180,7 @@ class EditApiAccessMethodViewModel(
                 ip = ip,
                 port = port,
                 password = formData.password.ifBlank { null },
-                cipher = formData.cipher
-            )
+                cipher = formData.cipher)
         }
 
     private fun parseIpAddress(input: String): Either<InvalidDataError.ServerIpError, String> =
@@ -219,11 +211,9 @@ class EditApiAccessMethodViewModel(
             parseAuth(
                 authEnabled = formData.enableAuthentication,
                 inputUsername = formData.username,
-                inputPassword = formData.password
-            )
-        ) { (ip, port), auth ->
-            ApiAccessMethod.CustomProxy.Socks5Remote(ip = ip, port = port, auth = auth)
-        }
+                inputPassword = formData.password)) { (ip, port), auth ->
+                ApiAccessMethod.CustomProxy.Socks5Remote(ip = ip, port = port, auth = auth)
+            }
 
     private fun parseIpAndPort(ipInput: String, portInput: String) =
         zipOrAccumulate(

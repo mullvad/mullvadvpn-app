@@ -32,7 +32,6 @@ import net.mullvad.mullvadvpn.viewmodel.DnsDialogViewModel
 import net.mullvad.mullvadvpn.viewmodel.DnsDialogViewState
 import net.mullvad.mullvadvpn.viewmodel.ValidationError
 import org.koin.androidx.compose.koinViewModel
-import org.koin.core.parameter.parametersOf
 
 @Preview
 @Composable
@@ -52,15 +51,17 @@ private fun PreviewDnsDialogEditAllowLanDisabled() {
     AppTheme { DnsDialog(DnsDialogViewState("192.168.1.1", null, true, false, 0), {}, {}, {}, {}) }
 }
 
-@Destination<RootGraph>(style = DestinationStyle.Dialog::class)
+data class DnsDialogNavArgs(
+    val index: Int? = null,
+    val initialValue: String? = null,
+)
+
+@Destination<RootGraph>(style = DestinationStyle.Dialog::class, navArgs = DnsDialogNavArgs::class)
 @Composable
 fun DnsDialog(
     resultNavigator: ResultBackNavigator<DnsDialogResult>,
-    index: Int?,
-    initialValue: String?,
 ) {
-    val viewModel =
-        koinViewModel<DnsDialogViewModel>(parameters = { parametersOf(initialValue, index) })
+    val viewModel = koinViewModel<DnsDialogViewModel>()
 
     LaunchedEffectCollect(viewModel.uiSideEffect) {
         when (it) {
@@ -78,8 +79,7 @@ fun DnsDialog(
         onSaveDnsClick = viewModel::onSaveDnsClick,
         onRemoveDnsClick = viewModel::onRemoveDnsClick,
         onDismiss =
-            dropUnlessResumed { resultNavigator.navigateBack(result = DnsDialogResult.Cancel) }
-    )
+            dropUnlessResumed { resultNavigator.navigateBack(result = DnsDialogResult.Cancel) })
 }
 
 @Composable
@@ -111,8 +111,7 @@ fun DnsDialog(
                     onSubmit = onSaveDnsClick,
                     isEnabled = true,
                     placeholderText = stringResource(R.string.custom_dns_hint),
-                    modifier = Modifier.fillMaxWidth()
-                )
+                    modifier = Modifier.fillMaxWidth())
 
                 val errorMessage =
                     when {
@@ -132,8 +131,7 @@ fun DnsDialog(
                         text = errorMessage,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.padding(top = Dimens.smallPadding)
-                    )
+                        modifier = Modifier.padding(top = Dimens.smallPadding))
                 }
             }
         },
@@ -150,15 +148,13 @@ fun DnsDialog(
                     NegativeButton(
                         modifier = Modifier.fillMaxWidth(),
                         onClick = { onRemoveDnsClick(state.index) },
-                        text = stringResource(id = R.string.remove_button)
-                    )
+                        text = stringResource(id = R.string.remove_button))
                 }
 
                 PrimaryButton(
                     modifier = Modifier.fillMaxWidth(),
                     onClick = onDismiss,
-                    text = stringResource(id = R.string.cancel)
-                )
+                    text = stringResource(id = R.string.cancel))
             }
         },
         onDismissRequest = onDismiss,

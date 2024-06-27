@@ -9,10 +9,6 @@ import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.applist.ApplicationsProvider
 import net.mullvad.mullvadvpn.constant.IS_PLAY_BUILD
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
-import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod
-import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
-import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodName
-import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.payment.PaymentProvider
 import net.mullvad.mullvadvpn.lib.shared.VoucherRepository
 import net.mullvad.mullvadvpn.repository.ApiAccessRepository
@@ -169,10 +165,8 @@ val uiModule = module {
     }
     viewModel { parameters -> DeviceListViewModel(get(), parameters.get()) }
     viewModel { DeviceRevokedViewModel(get(), get()) }
-    viewModel { parameters -> MtuDialogViewModel(get(), parameters.getOrNull()) }
-    viewModel { parameters ->
-        DnsDialogViewModel(get(), get(), parameters.getOrNull(), parameters.getOrNull())
-    }
+    viewModel { MtuDialogViewModel(get(), get()) }
+    viewModel { DnsDialogViewModel(get(), get(), get()) }
     viewModel { LoginViewModel(get(), get(), get()) }
     viewModel { PrivacyDisclaimerViewModel(get(), IS_PLAY_BUILD) }
     viewModel { SelectLocationViewModel(get(), get(), get(), get(), get(), get()) }
@@ -186,7 +180,7 @@ val uiModule = module {
     viewModel { OutOfTimeViewModel(get(), get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
     viewModel { PaymentViewModel(get()) }
     viewModel { FilterViewModel(get(), get()) }
-    viewModel { (location: GeoLocationId?) -> CreateCustomListDialogViewModel(location, get()) }
+    viewModel { CreateCustomListDialogViewModel(get(), get()) }
     viewModel { CustomListLocationsViewModel(get(), get(), get(), get()) }
     viewModel { parameters -> EditCustomListViewModel(parameters.get(), get()) }
     viewModel { EditCustomListNameDialogViewModel(get(), get()) }
@@ -196,20 +190,10 @@ val uiModule = module {
     viewModel { ResetServerIpOverridesConfirmationViewModel(get()) }
     viewModel { VpnPermissionViewModel(get(), get()) }
     viewModel { ApiAccessListViewModel(get()) }
-    viewModel { (accessMethodId: ApiAccessMethodId?) ->
-        EditApiAccessMethodViewModel(accessMethodId, get(), get())
-    }
-    viewModel {
-        (
-            id: ApiAccessMethodId?,
-            name: ApiAccessMethodName,
-            customProxy: ApiAccessMethod.CustomProxy) ->
-        SaveApiAccessMethodViewModel(id, name, customProxy, get())
-    }
+    viewModel { EditApiAccessMethodViewModel(get(), get(), get()) }
+    viewModel { SaveApiAccessMethodViewModel(get(), get()) }
     viewModel { ApiAccessMethodDetailsViewModel(get(), get()) }
-    viewModel { (accessMethodId: ApiAccessMethodId) ->
-        DeleteApiAccessMethodConfirmationViewModel(accessMethodId, get())
-    }
+    viewModel { DeleteApiAccessMethodConfirmationViewModel(get(), get()) }
 
     // This view model must be single so we correctly attach lifecycle and share it with activity
     single { NoDaemonViewModel(get()) }

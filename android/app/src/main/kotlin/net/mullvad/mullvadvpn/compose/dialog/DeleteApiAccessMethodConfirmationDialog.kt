@@ -16,7 +16,6 @@ import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.viewmodel.DeleteApiAccessMethodConfirmationSideEffect
 import net.mullvad.mullvadvpn.viewmodel.DeleteApiAccessMethodConfirmationViewModel
 import org.koin.androidx.compose.koinViewModel
-import org.koin.core.parameter.parametersOf
 
 @Preview
 @Composable
@@ -24,16 +23,14 @@ private fun PreviewDeleteApiAccessMethodConfirmationDialog() {
     AppTheme { DeleteApiAccessMethodConfirmationDialog(state = DeleteApiAccessMethodUiState(null)) }
 }
 
+data class DeleteApiAccessMethodNavArgs(val apiAccessMethodId: ApiAccessMethodId)
+
 @Composable
-@Destination<RootGraph>(style = DestinationStyle.Dialog::class)
+@Destination<RootGraph>(style = DestinationStyle.Dialog::class, navArgs = DeleteApiAccessMethodNavArgs::class)
 fun DeleteApiAccessMethodConfirmation(
     navigator: ResultBackNavigator<Boolean>,
-    apiAccessMethodId: ApiAccessMethodId
 ) {
-    val viewModel =
-        koinViewModel<DeleteApiAccessMethodConfirmationViewModel>(
-            parameters = { parametersOf(apiAccessMethodId) }
-        )
+    val viewModel = koinViewModel<DeleteApiAccessMethodConfirmationViewModel>()
     val state = viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffectCollect(viewModel.uiSideEffect) {
@@ -46,8 +43,7 @@ fun DeleteApiAccessMethodConfirmation(
     DeleteApiAccessMethodConfirmationDialog(
         state = state.value,
         onDelete = viewModel::deleteApiAccessMethod,
-        onBack = navigator::navigateBack
-    )
+        onBack = navigator::navigateBack)
 }
 
 @Composable
@@ -68,6 +64,5 @@ fun DeleteApiAccessMethodConfirmationDialog(
                 stringResource(id = R.string.error_occurred)
             } else {
                 null
-            }
-    )
+            })
 }

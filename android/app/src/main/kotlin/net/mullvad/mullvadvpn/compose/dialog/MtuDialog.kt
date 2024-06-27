@@ -34,18 +34,19 @@ import net.mullvad.mullvadvpn.viewmodel.MtuDialogSideEffect
 import net.mullvad.mullvadvpn.viewmodel.MtuDialogUiState
 import net.mullvad.mullvadvpn.viewmodel.MtuDialogViewModel
 import org.koin.androidx.compose.koinViewModel
-import org.koin.core.parameter.parametersOf
 
 @Preview
 @Composable
 private fun PreviewMtuDialog() {
-    AppTheme { MtuDialog(mtuInitial = Mtu(1234), EmptyResultBackNavigator()) }
+    AppTheme { MtuDialog(EmptyResultBackNavigator()) }
 }
 
-@Destination<RootGraph>(style = DestinationStyle.Dialog::class)
+data class MtuNavArgs(val initialMtu: Mtu? = null)
+
+@Destination<RootGraph>(style = DestinationStyle.Dialog::class, navArgs = MtuNavArgs::class)
 @Composable
-fun MtuDialog(mtuInitial: Mtu?, navigator: ResultBackNavigator<Boolean>) {
-    val viewModel = koinViewModel<MtuDialogViewModel>(parameters = { parametersOf(mtuInitial) })
+fun MtuDialog(navigator: ResultBackNavigator<Boolean>) {
+    val viewModel = koinViewModel<MtuDialogViewModel>()
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     LaunchedEffectCollect(viewModel.uiSideEffect) {
@@ -59,8 +60,7 @@ fun MtuDialog(mtuInitial: Mtu?, navigator: ResultBackNavigator<Boolean>) {
         onInputChanged = viewModel::onInputChanged,
         onSaveMtu = viewModel::onSaveClick,
         onResetMtu = viewModel::onRestoreClick,
-        onDismiss = dropUnlessResumed { navigator.navigateBack() }
-    )
+        onDismiss = dropUnlessResumed { navigator.navigateBack() })
 }
 
 @Composable
@@ -89,20 +89,15 @@ fun MtuDialog(
                     placeholderText = stringResource(R.string.enter_value_placeholder),
                     maxCharLength = 4,
                     isValidValue = state.isValidInput,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                    modifier = Modifier.fillMaxWidth())
 
                 Text(
                     text =
                         stringResource(
-                            id = R.string.wireguard_mtu_footer,
-                            MTU_MIN_VALUE,
-                            MTU_MAX_VALUE
-                        ),
+                            id = R.string.wireguard_mtu_footer, MTU_MIN_VALUE, MTU_MAX_VALUE),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaDescription),
-                    modifier = Modifier.padding(top = Dimens.smallPadding)
-                )
+                    modifier = Modifier.padding(top = Dimens.smallPadding))
             }
         },
         confirmButton = {
@@ -111,22 +106,19 @@ fun MtuDialog(
                     modifier = Modifier.fillMaxWidth(),
                     isEnabled = state.isValidInput,
                     text = stringResource(R.string.submit_button),
-                    onClick = { onSaveMtu(state.mtuInput) }
-                )
+                    onClick = { onSaveMtu(state.mtuInput) })
 
                 if (state.showResetToDefault) {
                     NegativeButton(
                         modifier = Modifier.fillMaxWidth(),
                         text = stringResource(R.string.reset_to_default_button),
-                        onClick = onResetMtu
-                    )
+                        onClick = onResetMtu)
                 }
 
                 PrimaryButton(
                     modifier = Modifier.fillMaxWidth(),
                     text = stringResource(R.string.cancel),
-                    onClick = onDismiss
-                )
+                    onClick = onDismiss)
             }
         },
         containerColor = MaterialTheme.colorScheme.background,

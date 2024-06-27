@@ -1,7 +1,9 @@
 package net.mullvad.mullvadvpn.viewmodel
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ramcosta.composedestinations.generated.destinations.DeleteCustomListDestination
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -13,13 +15,18 @@ import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.Deleted
 import net.mullvad.mullvadvpn.compose.state.DeleteCustomListUiState
 import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.DeleteWithUndoError
 
 class DeleteCustomListConfirmationViewModel(
-    private val customListId: CustomListId,
-    private val customListActionUseCase: CustomListActionUseCase
+    private val customListActionUseCase: CustomListActionUseCase,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
+    private val navArgs = DeleteCustomListDestination.argsFrom(savedStateHandle)
+    private val name: CustomListName = navArgs.name
+    private val customListId: CustomListId = navArgs.customListId
+
     private val _uiSideEffect = Channel<DeleteCustomListConfirmationSideEffect>(Channel.BUFFERED)
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
@@ -27,12 +34,11 @@ class DeleteCustomListConfirmationViewModel(
 
     val uiState =
         _error
-            .map { DeleteCustomListUiState(it) }
+            .map { DeleteCustomListUiState(name, it) }
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(),
-                DeleteCustomListUiState(null)
-            )
+                DeleteCustomListUiState(name, null))
 
     fun deleteCustomList() {
         viewModelScope.launch {
@@ -42,10 +48,8 @@ class DeleteCustomListConfirmationViewModel(
                     { _error.tryEmit(it) },
                     {
                         _uiSideEffect.send(
-                            DeleteCustomListConfirmationSideEffect.ReturnWithResult(it)
-                        )
-                    }
-                )
+                            DeleteCustomListConfirmationSideEffect.ReturnWithResult(it))
+                    })
         }
     }
 }

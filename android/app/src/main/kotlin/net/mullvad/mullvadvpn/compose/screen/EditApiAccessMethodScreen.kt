@@ -72,7 +72,6 @@ import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
 import net.mullvad.mullvadvpn.viewmodel.EditApiAccessMethodViewModel
 import net.mullvad.mullvadvpn.viewmodel.EditApiAccessSideEffect
 import org.koin.androidx.compose.koinViewModel
-import org.koin.core.parameter.parametersOf
 
 @Preview
 @Composable
@@ -83,17 +82,17 @@ private fun PreviewEditApiAccessMethodScreen(
     AppTheme { EditApiAccessMethodScreen(state = state) }
 }
 
-@Destination<RootGraph>(style = SlideInFromRightTransition::class)
+data class EditApiAccessMethodNavArgs(val accessMethodId: ApiAccessMethodId?)
+
+@Destination<RootGraph>(style = SlideInFromRightTransition::class, navArgs = EditApiAccessMethodNavArgs::class)
 @Composable
 fun EditApiAccessMethod(
     navigator: DestinationsNavigator,
     backNavigator: ResultBackNavigator<Boolean>,
     saveApiAccessMethodResultRecipient: ResultRecipient<SaveApiAccessMethodDestination, Boolean>,
     discardChangesResultRecipient: ResultRecipient<DiscardChangesDialogDestination, Boolean>,
-    accessMethodId: ApiAccessMethodId?
 ) {
-    val viewModel =
-        koinViewModel<EditApiAccessMethodViewModel>(parameters = { parametersOf(accessMethodId) })
+    val viewModel = koinViewModel<EditApiAccessMethodViewModel>()
 
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
@@ -104,13 +103,9 @@ fun EditApiAccessMethod(
             is EditApiAccessSideEffect.OpenSaveDialog ->
                 navigator.navigate(
                     SaveApiAccessMethodDestination(
-                        id = it.id,
-                        name = it.name,
-                        customProxy = it.customProxy
-                    )
-                ) {
-                    launchSingleTop = true
-                }
+                        id = it.id, name = it.name, customProxy = it.customProxy)) {
+                        launchSingleTop = true
+                    }
             is EditApiAccessSideEffect.TestApiAccessMethodResult -> {
                 launch {
                     snackbarHostState.showSnackbarImmediately(
@@ -120,9 +115,7 @@ fun EditApiAccessMethod(
                                     R.string.api_reachable
                                 } else {
                                     R.string.api_unreachable
-                                }
-                            )
-                    )
+                                }))
                 }
             }
         }
@@ -135,8 +128,7 @@ fun EditApiAccessMethod(
             // Show error snackbar
             scope.launch {
                 snackbarHostState.showSnackbarImmediately(
-                    message = context.getString(R.string.error_occurred)
-                )
+                    message = context.getString(R.string.error_occurred))
             }
         }
     }
@@ -156,8 +148,7 @@ fun EditApiAccessMethod(
                     message = context.getString(R.string.testing),
                     duration = SnackbarDuration.Indefinite,
                     actionLabel = context.getString(R.string.cancel),
-                    onAction = viewModel::cancelTestMethod
-                )
+                    onAction = viewModel::cancelTestMethod)
             }
         }
     }
@@ -181,8 +172,7 @@ fun EditApiAccessMethod(
             } else {
                 navigator.navigateUp()
             }
-        }
-    )
+        })
 }
 
 @Composable
@@ -210,8 +200,7 @@ fun EditApiAccessMethodScreen(
                     R.string.edit_method
                 } else {
                     R.string.add_method
-                }
-            ),
+                }),
     ) { modifier ->
         val scrollState = rememberScrollState()
         Column(
@@ -219,55 +208,48 @@ fun EditApiAccessMethodScreen(
                 modifier
                     .drawVerticalScrollbar(
                         state = scrollState,
-                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaScrollbar)
-                    )
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaScrollbar))
                     .verticalScroll(scrollState)
-                    .padding(horizontal = Dimens.sideMargin, vertical = Dimens.screenVerticalMargin)
-        ) {
-            when (state) {
-                is EditApiAccessMethodUiState.Loading -> Loading()
-                is EditApiAccessMethodUiState.Content -> {
-                    NameInputField(
-                        name = state.formData.name,
-                        nameError = state.formData.nameError,
-                        onNameChanged = onNameChanged
-                    )
-                    Spacer(modifier = Modifier.height(Dimens.verticalSpace))
-                    ApiAccessMethodTypeSelection(state.formData, onTypeSelected)
-                    Spacer(modifier = Modifier.height(Dimens.verticalSpace))
-                    when (state.formData.apiAccessMethodTypes) {
-                        ApiAccessMethodTypes.SHADOWSOCKS ->
-                            ShadowsocksForm(
-                                formData = state.formData,
-                                onIpChanged = onIpChanged,
-                                onPortChanged = onPortChanged,
-                                onPasswordChanged = onPasswordChanged,
-                                onCipherChange = onCipherChange
-                            )
-                        ApiAccessMethodTypes.SOCKS5_REMOTE ->
-                            Socks5RemoteForm(
-                                formData = state.formData,
-                                onIpChanged = onIpChanged,
-                                onPortChanged = onPortChanged,
-                                onToggleAuthenticationEnabled = onToggleAuthenticationEnabled,
-                                onUsernameChanged = onUsernameChanged,
-                                onPasswordChanged = onPasswordChanged
-                            )
+                    .padding(
+                        horizontal = Dimens.sideMargin, vertical = Dimens.screenVerticalMargin)) {
+                when (state) {
+                    is EditApiAccessMethodUiState.Loading -> Loading()
+                    is EditApiAccessMethodUiState.Content -> {
+                        NameInputField(
+                            name = state.formData.name,
+                            nameError = state.formData.nameError,
+                            onNameChanged = onNameChanged)
+                        Spacer(modifier = Modifier.height(Dimens.verticalSpace))
+                        ApiAccessMethodTypeSelection(state.formData, onTypeSelected)
+                        Spacer(modifier = Modifier.height(Dimens.verticalSpace))
+                        when (state.formData.apiAccessMethodTypes) {
+                            ApiAccessMethodTypes.SHADOWSOCKS ->
+                                ShadowsocksForm(
+                                    formData = state.formData,
+                                    onIpChanged = onIpChanged,
+                                    onPortChanged = onPortChanged,
+                                    onPasswordChanged = onPasswordChanged,
+                                    onCipherChange = onCipherChange)
+                            ApiAccessMethodTypes.SOCKS5_REMOTE ->
+                                Socks5RemoteForm(
+                                    formData = state.formData,
+                                    onIpChanged = onIpChanged,
+                                    onPortChanged = onPortChanged,
+                                    onToggleAuthenticationEnabled = onToggleAuthenticationEnabled,
+                                    onUsernameChanged = onUsernameChanged,
+                                    onPasswordChanged = onPasswordChanged)
+                        }
+                        Spacer(modifier = Modifier.weight(1f))
+                        TestMethodButton(
+                            modifier =
+                                Modifier.padding(
+                                    bottom = Dimens.verticalSpace, top = Dimens.largePadding),
+                            isTesting = state.isTestingApiAccessMethod,
+                            onTestMethod = onTestMethod)
+                        AddMethodButton(isNew = !state.editMode, onAddMethod = onAddMethod)
                     }
-                    Spacer(modifier = Modifier.weight(1f))
-                    TestMethodButton(
-                        modifier =
-                            Modifier.padding(
-                                bottom = Dimens.verticalSpace,
-                                top = Dimens.largePadding
-                            ),
-                        isTesting = state.isTestingApiAccessMethod,
-                        onTestMethod = onTestMethod
-                    )
-                    AddMethodButton(isNew = !state.editMode, onAddMethod = onAddMethod)
                 }
             }
-        }
     }
 }
 
@@ -292,8 +274,7 @@ private fun NameInputField(
         maxCharLength = ApiAccessMethodName.MAX_LENGTH,
         errorText = nameError?.let { textResource(id = R.string.this_field_is_required) },
         capitalization = KeyboardCapitalization.Words,
-        modifier = Modifier.animateContentSize().testTag(EDIT_API_ACCESS_NAME_INPUT)
-    )
+        modifier = Modifier.animateContentSize().testTag(EDIT_API_ACCESS_NAME_INPUT))
 }
 
 @Composable
@@ -305,30 +286,26 @@ private fun ApiAccessMethodTypeSelection(
         modifier = Modifier.padding(vertical = Dimens.miniPadding),
         label = stringResource(id = R.string.type),
         title = formData.apiAccessMethodTypes.text(),
-        colors = apiAccessTextFieldColors()
-    ) { close ->
-        ApiAccessMethodTypes.entries.forEach {
-            MullvadDropdownMenuItem(
-                text = it.text(),
-                onClick = {
-                    close()
-                    onTypeSelected(it)
-                },
-                leadingIcon = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.icon_tick),
-                        contentDescription = null,
-                        modifier =
-                            Modifier.padding(end = Dimens.selectableCellTextMargin)
-                                .alpha(
-                                    if (it == formData.apiAccessMethodTypes) AlphaVisible
-                                    else AlphaInvisible
-                                )
-                    )
-                }
-            )
+        colors = apiAccessTextFieldColors()) { close ->
+            ApiAccessMethodTypes.entries.forEach {
+                MullvadDropdownMenuItem(
+                    text = it.text(),
+                    onClick = {
+                        close()
+                        onTypeSelected(it)
+                    },
+                    leadingIcon = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.icon_tick),
+                            contentDescription = null,
+                            modifier =
+                                Modifier.padding(end = Dimens.selectableCellTextMargin)
+                                    .alpha(
+                                        if (it == formData.apiAccessMethodTypes) AlphaVisible
+                                        else AlphaInvisible))
+                    })
+            }
         }
-    }
 }
 
 @Composable
@@ -342,15 +319,13 @@ private fun ShadowsocksForm(
     ServerIpInput(
         serverIp = formData.serverIp,
         serverIpError = formData.serverIpError,
-        onIpChanged = onIpChanged
-    )
+        onIpChanged = onIpChanged)
     PortInput(port = formData.port, formData.portError, onPortChanged = onPortChanged)
     PasswordInput(
         password = formData.password,
         passwordError = formData.passwordError,
         optional = true,
-        onPasswordChanged = onPasswordChanged
-    )
+        onPasswordChanged = onPasswordChanged)
     CipherSelection(cipher = formData.cipher, onCipherChange = onCipherChange)
 }
 
@@ -366,8 +341,7 @@ private fun Socks5RemoteForm(
     ServerIpInput(
         serverIp = formData.serverIp,
         serverIpError = formData.serverIpError,
-        onIpChanged = onIpChanged
-    )
+        onIpChanged = onIpChanged)
     PortInput(port = formData.port, portError = formData.portError, onPortChanged = onPortChanged)
     EnableAuthentication(formData.enableAuthentication, onToggleAuthenticationEnabled)
     if (formData.enableAuthentication) {
@@ -380,8 +354,7 @@ private fun Socks5RemoteForm(
             password = formData.password,
             passwordError = formData.passwordError,
             optional = false,
-            onPasswordChanged = onPasswordChanged
-        )
+            onPasswordChanged = onPasswordChanged)
     }
 }
 
@@ -407,11 +380,9 @@ private fun ServerIpInput(
                                 R.string.please_enter_a_valid_ip_address
                             InvalidDataError.ServerIpError.Required ->
                                 R.string.this_field_is_required
-                        }
-                )
+                        })
             },
-        modifier = Modifier.animateContentSize()
-    )
+        modifier = Modifier.animateContentSize())
 }
 
 @Composable
@@ -435,11 +406,9 @@ private fun PortInput(
                             is InvalidDataError.PortError.Invalid ->
                                 R.string.please_enter_a_valid_remote_server_port
                             InvalidDataError.PortError.Required -> R.string.this_field_is_required
-                        }
-                )
+                        })
             },
-        modifier = Modifier.animateContentSize()
-    )
+        modifier = Modifier.animateContentSize())
 }
 
 @Composable
@@ -460,8 +429,7 @@ private fun PasswordInput(
                         R.string.password_optional
                     } else {
                         R.string.password
-                    }
-            ),
+                    }),
         isValidValue = passwordError == null,
         isDigitsOnlyAllowed = false,
         imeAction =
@@ -472,8 +440,7 @@ private fun PasswordInput(
                 ImeAction.Done
             },
         errorText = passwordError?.let { textResource(id = R.string.this_field_is_required) },
-        modifier = Modifier.animateContentSize()
-    )
+        modifier = Modifier.animateContentSize())
 }
 
 @Composable
@@ -482,27 +449,24 @@ private fun CipherSelection(cipher: Cipher, onCipherChange: (Cipher) -> Unit) {
         modifier = Modifier.padding(vertical = Dimens.miniPadding),
         label = stringResource(id = R.string.cipher),
         title = cipher.label,
-        colors = apiAccessTextFieldColors()
-    ) { close ->
-        Cipher.listAll().forEach {
-            MullvadDropdownMenuItem(
-                text = it.label,
-                onClick = {
-                    close()
-                    onCipherChange(it)
-                },
-                leadingIcon = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.icon_tick),
-                        contentDescription = null,
-                        modifier =
-                            Modifier.padding(end = Dimens.selectableCellTextMargin)
-                                .alpha(if (it == cipher) AlphaVisible else AlphaInvisible)
-                    )
-                }
-            )
+        colors = apiAccessTextFieldColors()) { close ->
+            Cipher.listAll().forEach {
+                MullvadDropdownMenuItem(
+                    text = it.label,
+                    onClick = {
+                        close()
+                        onCipherChange(it)
+                    },
+                    leadingIcon = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.icon_tick),
+                            contentDescription = null,
+                            modifier =
+                                Modifier.padding(end = Dimens.selectableCellTextMargin)
+                                    .alpha(if (it == cipher) AlphaVisible else AlphaInvisible))
+                    })
+            }
         }
-    }
 }
 
 @Composable
@@ -520,45 +484,39 @@ private fun EnableAuthentication(
                         R.string.on
                     } else {
                         R.string.off
-                    }
-            ),
-        colors = apiAccessTextFieldColors()
-    ) { close ->
-        MullvadDropdownMenuItem(
-            text = stringResource(id = R.string.on),
-            onClick = {
-                close()
-                onToggleAuthenticationEnabled(true)
-            },
-            leadingIcon = {
-                Icon(
-                    painter = painterResource(id = R.drawable.icon_tick),
-                    contentDescription = null,
-                    modifier =
-                        Modifier.padding(end = Dimens.selectableCellTextMargin)
-                            .alpha(if (authenticationEnabled) AlphaVisible else AlphaInvisible)
-                )
-            }
-        )
-        MullvadDropdownMenuItem(
-            text = stringResource(id = R.string.off),
-            onClick = {
-                close()
-                onToggleAuthenticationEnabled(false)
-            },
-            leadingIcon = {
-                Icon(
-                    painter = painterResource(id = R.drawable.icon_tick),
-                    contentDescription = null,
-                    modifier =
-                        Modifier.padding(end = Dimens.selectableCellTextMargin)
-                            .alpha(
-                                if (authenticationEnabled.not()) AlphaVisible else AlphaInvisible
-                            )
-                )
-            }
-        )
-    }
+                    }),
+        colors = apiAccessTextFieldColors()) { close ->
+            MullvadDropdownMenuItem(
+                text = stringResource(id = R.string.on),
+                onClick = {
+                    close()
+                    onToggleAuthenticationEnabled(true)
+                },
+                leadingIcon = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.icon_tick),
+                        contentDescription = null,
+                        modifier =
+                            Modifier.padding(end = Dimens.selectableCellTextMargin)
+                                .alpha(if (authenticationEnabled) AlphaVisible else AlphaInvisible))
+                })
+            MullvadDropdownMenuItem(
+                text = stringResource(id = R.string.off),
+                onClick = {
+                    close()
+                    onToggleAuthenticationEnabled(false)
+                },
+                leadingIcon = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.icon_tick),
+                        contentDescription = null,
+                        modifier =
+                            Modifier.padding(end = Dimens.selectableCellTextMargin)
+                                .alpha(
+                                    if (authenticationEnabled.not()) AlphaVisible
+                                    else AlphaInvisible))
+                })
+        }
 }
 
 @Composable
@@ -575,8 +533,7 @@ private fun UsernameInput(
         isValidValue = usernameError == null,
         isDigitsOnlyAllowed = false,
         errorText = usernameError?.let { textResource(id = R.string.this_field_is_required) },
-        modifier = Modifier.animateContentSize()
-    )
+        modifier = Modifier.animateContentSize())
 }
 
 @Composable
@@ -590,9 +547,7 @@ private fun AddMethodButton(isNew: Boolean, onAddMethod: () -> Unit) {
                         R.string.add
                     } else {
                         R.string.save
-                    }
-            )
-    )
+                    }))
 }
 
 @Composable

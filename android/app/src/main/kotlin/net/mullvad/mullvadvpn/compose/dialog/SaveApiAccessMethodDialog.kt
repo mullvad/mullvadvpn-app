@@ -35,7 +35,6 @@ import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.viewmodel.SaveApiAccessMethodSideEffect
 import net.mullvad.mullvadvpn.viewmodel.SaveApiAccessMethodViewModel
 import org.koin.androidx.compose.koinViewModel
-import org.koin.core.parameter.parametersOf
 
 @Preview
 @Composable
@@ -46,18 +45,19 @@ private fun PreviewSaveApiAccessMethodDialog(
     AppTheme { SaveApiAccessMethodDialog(state = state) }
 }
 
-@Destination<RootGraph>(style = DestinationStyle.Dialog::class)
+data class SaveApiAccessMethodNavArgs(
+    val id: ApiAccessMethodId?,
+    val name: ApiAccessMethodName,
+    val customProxy: ApiAccessMethod.CustomProxy
+)
+
+@Destination<RootGraph>(
+    style = DestinationStyle.Dialog::class, navArgs = SaveApiAccessMethodNavArgs::class)
 @Composable
 fun SaveApiAccessMethod(
     backNavigator: ResultBackNavigator<Boolean>,
-    id: ApiAccessMethodId?,
-    name: ApiAccessMethodName,
-    customProxy: ApiAccessMethod.CustomProxy
 ) {
-    val viewModel =
-        koinViewModel<SaveApiAccessMethodViewModel>(
-            parameters = { parametersOf(id, name, customProxy) }
-        )
+    val viewModel = koinViewModel<SaveApiAccessMethodViewModel>()
 
     LaunchedEffectCollect(sideEffect = viewModel.uiSideEffect) {
         when (it) {
@@ -70,10 +70,7 @@ fun SaveApiAccessMethod(
 
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     SaveApiAccessMethodDialog(
-        state = state,
-        onCancel = backNavigator::navigateBack,
-        onSave = viewModel::save
-    )
+        state = state, onCancel = backNavigator::navigateBack, onSave = viewModel::save)
 }
 
 @Composable
@@ -90,24 +87,21 @@ fun SaveApiAccessMethodDialog(
                         painter =
                             painterResource(
                                 id =
-                                    if (
-                                        testingState is TestApiAccessMethodState.Result.Successful
-                                    ) {
+                                    if (testingState
+                                        is TestApiAccessMethodState.Result.Successful) {
                                         R.drawable.icon_success
                                     } else {
                                         R.drawable.icon_fail
-                                    }
-                            ),
-                        contentDescription = null
-                    )
+                                    }),
+                        contentDescription = null)
                 TestApiAccessMethodState.Testing ->
                     MullvadCircularProgressIndicatorMedium(
-                        modifier = Modifier.testTag(SAVE_API_ACCESS_METHOD_LOADING_SPINNER_TEST_TAG)
-                    )
+                        modifier =
+                            Modifier.testTag(SAVE_API_ACCESS_METHOD_LOADING_SPINNER_TEST_TAG))
             }
         },
         title = { Text(text = state.text(), style = MaterialTheme.typography.headlineSmall) },
-        onDismissRequest = { /*Should not be able to dismiss*/},
+        onDismissRequest = { /*Should not be able to dismiss*/ },
         confirmButton = {
             PrimaryButton(
                 onClick = onCancel,
@@ -115,16 +109,14 @@ fun SaveApiAccessMethodDialog(
                 isEnabled =
                     state.testingState is TestApiAccessMethodState.Testing ||
                         state.testingState is TestApiAccessMethodState.Result.Failure,
-                modifier = Modifier.testTag(SAVE_API_ACCESS_METHOD_CANCEL_BUTTON_TEST_TAG)
-            )
+                modifier = Modifier.testTag(SAVE_API_ACCESS_METHOD_CANCEL_BUTTON_TEST_TAG))
         },
         dismissButton = {
             if (state.testingState is TestApiAccessMethodState.Result.Failure) {
                 PrimaryButton(
                     onClick = onSave,
                     text = stringResource(id = R.string.save),
-                    modifier = Modifier.testTag(SAVE_API_ACCESS_METHOD_SAVE_BUTTON_TEST_TAG)
-                )
+                    modifier = Modifier.testTag(SAVE_API_ACCESS_METHOD_SAVE_BUTTON_TEST_TAG))
             }
         },
         containerColor = MaterialTheme.colorScheme.background,
@@ -147,5 +139,4 @@ private fun SaveApiAccessMethodUiState.text() =
                         R.string.api_unreachable_save_anyway
                     }
                 }
-            }
-    )
+            })

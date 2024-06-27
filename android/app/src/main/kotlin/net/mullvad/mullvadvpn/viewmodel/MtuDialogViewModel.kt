@@ -1,7 +1,9 @@
 package net.mullvad.mullvadvpn.viewmodel
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ramcosta.composedestinations.generated.destinations.MtuDialogDestination
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
@@ -17,19 +19,20 @@ import net.mullvad.mullvadvpn.repository.SettingsRepository
 
 class MtuDialogViewModel(
     private val repository: SettingsRepository,
-    private val initialMtu: Mtu?,
+    savedStateHandle: SavedStateHandle,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
+    private val navArgs = MtuDialogDestination.argsFrom(savedStateHandle)
 
-    private val _mtuInput = MutableStateFlow(initialMtu?.value?.toString() ?: "")
+    private val _mtuInput = MutableStateFlow(navArgs.initialMtu?.value?.toString() ?: "")
     private val _isValidMtu = MutableStateFlow(true)
+
     val uiState: StateFlow<MtuDialogUiState> =
         combine(_mtuInput, _isValidMtu, ::createState)
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(),
-                createState(_mtuInput.value, _isValidMtu.value)
-            )
+                createState(_mtuInput.value, _isValidMtu.value))
 
     private val _uiSideEffect = Channel<MtuDialogSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
@@ -38,8 +41,7 @@ class MtuDialogViewModel(
         MtuDialogUiState(
             mtuInput = mtuInput,
             isValidInput = isValidMtuInput,
-            showResetToDefault = initialMtu != null
-        )
+            showResetToDefault = navArgs.initialMtu != null)
 
     fun onInputChanged(value: String) {
         _mtuInput.value = value
@@ -53,8 +55,7 @@ class MtuDialogViewModel(
                 .setWireguardMtu(mtu)
                 .fold(
                     { _uiSideEffect.send(MtuDialogSideEffect.Error) },
-                    { _uiSideEffect.send(MtuDialogSideEffect.Complete) }
-                )
+                    { _uiSideEffect.send(MtuDialogSideEffect.Complete) })
         }
 
     fun onRestoreClick() =
@@ -63,8 +64,7 @@ class MtuDialogViewModel(
                 .resetWireguardMtu()
                 .fold(
                     { _uiSideEffect.send(MtuDialogSideEffect.Error) },
-                    { _uiSideEffect.send(MtuDialogSideEffect.Complete) }
-                )
+                    { _uiSideEffect.send(MtuDialogSideEffect.Complete) })
         }
 }
 

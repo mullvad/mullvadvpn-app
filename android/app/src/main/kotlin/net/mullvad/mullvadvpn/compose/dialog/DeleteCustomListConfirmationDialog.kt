@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.compose.dialog
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -19,29 +20,26 @@ import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.viewmodel.DeleteCustomListConfirmationSideEffect
 import net.mullvad.mullvadvpn.viewmodel.DeleteCustomListConfirmationViewModel
 import org.koin.androidx.compose.koinViewModel
-import org.koin.core.parameter.parametersOf
 
 @Preview
 @Composable
 private fun PreviewRemoveDeviceConfirmationDialog() {
     AppTheme {
         DeleteCustomListConfirmationDialog(
-            state = DeleteCustomListUiState(null),
-            name = CustomListName.fromString("My Custom List")
-        )
+            state = DeleteCustomListUiState(CustomListName.fromString("My Custom List"), null))
     }
 }
 
+data class DeleteCustomListNavArgs(val customListId: CustomListId, val name: CustomListName)
+
 @Composable
-@Destination<RootGraph>(style = DestinationStyle.Dialog::class)
+@Destination<RootGraph>(
+    style = DestinationStyle.Dialog::class, navArgs = DeleteCustomListNavArgs::class)
 fun DeleteCustomList(
     navigator: ResultBackNavigator<Deleted>,
-    customListId: CustomListId,
-    name: CustomListName
 ) {
-    val viewModel: DeleteCustomListConfirmationViewModel =
-        koinViewModel(parameters = { parametersOf(customListId) })
-    val state = viewModel.uiState.collectAsStateWithLifecycle()
+    val viewModel: DeleteCustomListConfirmationViewModel = koinViewModel()
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffectCollect(viewModel.uiSideEffect) {
         when (it) {
@@ -51,17 +49,14 @@ fun DeleteCustomList(
     }
 
     DeleteCustomListConfirmationDialog(
-        state = state.value,
-        name = name,
+        state = state,
         onDelete = viewModel::deleteCustomList,
-        onBack = dropUnlessResumed { navigator.navigateBack() }
-    )
+        onBack = dropUnlessResumed { navigator.navigateBack() })
 }
 
 @Composable
 fun DeleteCustomListConfirmationDialog(
     state: DeleteCustomListUiState,
-    name: CustomListName,
     onDelete: () -> Unit = {},
     onBack: () -> Unit = {}
 ) {
@@ -69,12 +64,12 @@ fun DeleteCustomListConfirmationDialog(
         onDelete = onDelete,
         onBack = onBack,
         message =
-            stringResource(id = R.string.delete_custom_list_confirmation_description, name.value),
+            stringResource(
+                id = R.string.delete_custom_list_confirmation_description, state.name.value),
         errorMessage =
             if (state.deleteError != null) {
                 stringResource(id = R.string.error_occurred)
             } else {
                 null
-            }
-    )
+            })
 }
