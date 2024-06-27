@@ -20,6 +20,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.generated.destinations.ApiAccessMethodDetailsDestination
+import com.ramcosta.composedestinations.generated.destinations.ApiAccessMethodInfoDialogDestination
+import com.ramcosta.composedestinations.generated.destinations.EditApiAccessMethodDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
@@ -28,9 +32,6 @@ import net.mullvad.mullvadvpn.compose.cell.TwoRowCell
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.constant.ContentType
-import net.mullvad.mullvadvpn.compose.destinations.ApiAccessMethodDetailsDestination
-import net.mullvad.mullvadvpn.compose.destinations.ApiAccessMethodInfoDialogDestination
-import net.mullvad.mullvadvpn.compose.destinations.EditApiAccessMethodDestination
 import net.mullvad.mullvadvpn.compose.extensions.itemsWithDivider
 import net.mullvad.mullvadvpn.compose.preview.ApiAccessListUiStateParameterProvider
 import net.mullvad.mullvadvpn.compose.state.ApiAccessListUiState
@@ -51,7 +52,7 @@ private fun PreviewApiAccessList(
     AppTheme { ApiAccessListScreen(state = state) }
 }
 
-@Destination(style = SlideInFromRightTransition::class)
+@Destination<RootGraph>(style = SlideInFromRightTransition::class)
 @Composable
 fun ApiAccessList(navigator: DestinationsNavigator) {
     val viewModel = koinViewModel<ApiAccessListViewModel>()

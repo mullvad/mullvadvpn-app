@@ -7,7 +7,7 @@ import com.ramcosta.composedestinations.result.ResultRecipient
 import com.ramcosta.composedestinations.spec.DestinationSpec
 
 @Composable
-fun <D : DestinationSpec<*>, V> ResultRecipient<D, V>.OnNavResultValue(
+fun <D : DestinationSpec, V> ResultRecipient<D, V>.OnNavResultValue(
     onValue: @DisallowComposableCalls (value: V) -> Unit
 ) = onNavResult {
     when (it) {

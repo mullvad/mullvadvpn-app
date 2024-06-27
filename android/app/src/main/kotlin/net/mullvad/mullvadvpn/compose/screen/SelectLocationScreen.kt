@@ -48,6 +48,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.generated.destinations.CreateCustomListDestination
+import com.ramcosta.composedestinations.generated.destinations.CustomListLocationsDestination
+import com.ramcosta.composedestinations.generated.destinations.CustomListsDestination
+import com.ramcosta.composedestinations.generated.destinations.DeleteCustomListDestination
+import com.ramcosta.composedestinations.generated.destinations.EditCustomListNameDestination
+import com.ramcosta.composedestinations.generated.destinations.FilterScreenDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultBackNavigator
@@ -73,12 +80,7 @@ import net.mullvad.mullvadvpn.compose.component.MullvadModalBottomSheet
 import net.mullvad.mullvadvpn.compose.component.MullvadSnackbar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.constant.ContentType
-import net.mullvad.mullvadvpn.compose.destinations.CreateCustomListDestination
-import net.mullvad.mullvadvpn.compose.destinations.CustomListLocationsDestination
-import net.mullvad.mullvadvpn.compose.destinations.CustomListsDestination
-import net.mullvad.mullvadvpn.compose.destinations.DeleteCustomListDestination
-import net.mullvad.mullvadvpn.compose.destinations.EditCustomListNameDestination
-import net.mullvad.mullvadvpn.compose.destinations.FilterScreenDestination
+import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG
@@ -131,7 +133,7 @@ private fun PreviewSelectLocationScreen() {
     }
 }
 
-@Destination(style = SelectLocationTransition::class)
+@Destination<RootGraph>(style = SelectLocationTransition::class)
 @Suppress("LongMethod")
 @Composable
 fun SelectLocation(
@@ -203,38 +205,41 @@ fun SelectLocation(
         onSearchTermInput = vm::onSearchTermInput,
         onBackClick = dropUnlessResumed { backNavigator.navigateBack() },
         onFilterClick = dropUnlessResumed { navigator.navigate(FilterScreenDestination) },
-        onCreateCustomList = { relayItem ->
-            navigator.navigate(
-                CreateCustomListDestination(locationCode = relayItem?.id),
-                onlyIfResumed = true
-            )
-        },
+        onCreateCustomList =
+            dropUnlessResumed { relayItem ->
+                navigator.navigate(
+                    CreateCustomListDestination(locationCode = relayItem?.id),
+                )
+            },
         onEditCustomLists = dropUnlessResumed { navigator.navigate(CustomListsDestination()) },
         removeOwnershipFilter = vm::removeOwnerFilter,
         removeProviderFilter = vm::removeProviderFilter,
         onAddLocationToList = vm::addLocationToList,
         onRemoveLocationFromList = vm::removeLocationFromList,
-        onEditCustomListName = {
-            navigator.navigate(
-                EditCustomListNameDestination(
-                    customListId = it.id,
-                    initialName = it.customListName
-                ),
-                onlyIfResumed = true
-            )
-        },
-        onEditLocationsCustomList = {
-            navigator.navigate(
-                CustomListLocationsDestination(customListId = it.id, newList = false),
-                onlyIfResumed = true
-            )
-        },
-        onDeleteCustomList = {
-            navigator.navigate(
-                DeleteCustomListDestination(customListId = it.id, name = it.customListName),
-                onlyIfResumed = true
-            )
-        }
+        onEditCustomListName =
+            dropUnlessResumed { customList: RelayItem.CustomList ->
+                navigator.navigate(
+                    EditCustomListNameDestination(
+                        customListId = customList.id,
+                        initialName = customList.customListName
+                    ),
+                )
+            },
+        onEditLocationsCustomList =
+            dropUnlessResumed { customList: RelayItem.CustomList ->
+                navigator.navigate(
+                    CustomListLocationsDestination(customListId = customList.id, newList = false),
+                )
+            },
+        onDeleteCustomList =
+            dropUnlessResumed { customList: RelayItem.CustomList ->
+                navigator.navigate(
+                    DeleteCustomListDestination(
+                        customListId = customList.id,
+                        name = customList.customListName
+                    ),
+                )
+            }
     )
 }
 
@@ -848,7 +853,7 @@ private fun CustomListSuccess.message(context: Context): String =
     }
 
 @Composable
-private fun <D : DestinationSpec<*>, R : CustomListSuccess> ResultRecipient<D, R>
+private fun <D : DestinationSpec, R : CustomListSuccess> ResultRecipient<D, R>
     .OnCustomListNavResult(
     snackbarHostState: SnackbarHostState,
     performAction: (action: CustomListAction) -> Unit

@@ -42,6 +42,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.generated.destinations.ImportOverridesByTextDestination
+import com.ramcosta.composedestinations.generated.destinations.ResetServerIpOverridesConfirmationDestination
+import com.ramcosta.composedestinations.generated.destinations.ServerIpOverridesInfoDialogDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.launch
@@ -55,9 +59,6 @@ import net.mullvad.mullvadvpn.compose.component.MullvadModalBottomSheet
 import net.mullvad.mullvadvpn.compose.component.MullvadSnackbar
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
-import net.mullvad.mullvadvpn.compose.destinations.ImportOverridesByTextDestination
-import net.mullvad.mullvadvpn.compose.destinations.ResetServerIpOverridesConfirmationDestination
-import net.mullvad.mullvadvpn.compose.destinations.ServerIpOverridesInfoDialogDestination
 import net.mullvad.mullvadvpn.compose.test.SERVER_IP_OVERRIDES_IMPORT_BY_FILE_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.SERVER_IP_OVERRIDES_IMPORT_BY_TEXT_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.SERVER_IP_OVERRIDE_IMPORT_TEST_TAG
@@ -93,7 +94,7 @@ private fun PreviewServerIpOverridesScreen() {
     }
 }
 
-@Destination(style = SlideInFromRightLeafTransition::class)
+@Destination<RootGraph>(style = SlideInFromRightLeafTransition::class)
 @Composable
 fun ServerIpOverrides(
     navigator: DestinationsNavigator,
