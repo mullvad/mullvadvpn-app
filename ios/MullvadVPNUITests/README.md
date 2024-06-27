@@ -34,8 +34,8 @@
   - `IOS_DEVICE_PIN_CODE` - Device passcode if the device require it, otherwise leave blank. Devices used with CI should not require passcode.
   - `IOS_HAS_TIME_ACCOUNT_NUMBER` - Production server account without time left
   - `IOS_NO_TIME_ACCOUNT_NUMBER` - Production server account with time added to it
-  - `IOS_TEST_DEVICE_IDENTIFIER_UUID` - unique identifier for the test device. Create new identifier with `uuidgen`.
-  - `IOS_TEST_DEVICE_UDID` - the iOS device's UDID.
+  - `TEST_DEVICE_IDENTIFIER_UUID` - unique identifier for the test device. Create new identifier with `uuidgen`.
+  - `TEST_DEVICE_UDID` - the iOS device's UDID.
   - `PARTNER_API_TOKEN` - secret token for partner API. Optional and only intended to be used in CI when running tests against staging environment.
 
 ## Test plans

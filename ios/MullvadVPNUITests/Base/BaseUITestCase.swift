@@ -44,6 +44,14 @@ class BaseUITestCase: XCTestCase {
         .infoDictionary?["AttachAppLogsOnFailure"] as! String == "1"
     // swiftlint:enable force_cast
 
+    static func testDeviceIsIPad() -> Bool {
+        if let testDeviceIsIPad = Bundle(for: BaseUITestCase.self).infoDictionary?["TestDeviceIsIPad"] as? String {
+            return testDeviceIsIPad == "1"
+        }
+
+        return false
+    }
+
     /// Get an account number with time. If an account with time is specified in the configuration file that account will be used, else a temporary account will be created if partner API token has been configured.
     func getAccountWithTime() -> String {
         if let configuredAccountWithTime = bundleHasTimeAccountNumber, !configuredAccountWithTime.isEmpty {
@@ -280,17 +288,33 @@ class BaseUITestCase: XCTestCase {
         let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
         let spotlight = XCUIApplication(bundleIdentifier: "com.apple.Spotlight")
 
-        springboard.swipeDown()
-        spotlight.textFields["SpotlightSearchField"].typeText(searchQuery)
+        /// iPhone uses spotlight, iPad uses springboard. But the usage is quite similar
+        let spotlightOrSpringboard = BaseUITestCase.testDeviceIsIPad() ? springboard : spotlight
 
-        let appIcon = spotlight.icons[appName].firstMatch
+        // How to navigate to Spotlight search differs between iPhone and iPad
+        if BaseUITestCase.testDeviceIsIPad() == false { // iPhone
+            springboard.swipeDown()
+            spotlight.textFields["SpotlightSearchField"].typeText(searchQuery)
+        } else { // iPad
+            // Swipe left enough times to reach the last page
+            for _ in 0 ..< 3 {
+                springboard.swipeLeft()
+                Thread.sleep(forTimeInterval: 0.5)
+            }
+
+            springboard.swipeDown()
+            springboard.searchFields.firstMatch.typeText(searchQuery)
+        }
+
+        // The rest of the delete app flow is same for iPhone and iPad with the exception that iPhone uses spotlight and iPad uses springboard
+        let appIcon = spotlightOrSpringboard.icons.matching(identifier: appName).allElementsBoundByIndex[1]
         if appIcon.waitForExistence(timeout: timeout) {
             appIcon.press(forDuration: 2)
         } else {
             XCTFail("Failed to find app icon named \(appName)")
         }
 
-        let deleteAppButton = spotlight.buttons["Delete App"]
+        let deleteAppButton = spotlightOrSpringboard.buttons["Delete App"]
         if deleteAppButton.waitForExistence(timeout: timeout) {
             deleteAppButton.tap()
         } else {

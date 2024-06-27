@@ -47,10 +47,16 @@ runs:
             "/TEST_DEVICE_IDENTIFIER_UUID =/ s/= .*/= $TEST_DEVICE_IDENTIFIER_UUID/" \
             UITests.xcconfig
           sed -i "" \
+            "s#^// PARTNER_API_TOKEN =#PARTNER_API_TOKEN =#" \
+            UITests.xcconfig
+          sed -i "" \
             "/PARTNER_API_TOKEN =/ s#= .*#= $PARTNER_API_TOKEN#" \
             UITests.xcconfig
           sed -i "" \
             "/ATTACH_APP_LOGS_ON_FAILURE =/ s#= .*#= 1#" \
+            UITests.xcconfig
+          sed -i "" \
+            "/TEST_DEVICE_IS_IPAD =/ s#= .*#= 1#" \
             UITests.xcconfig
       shell: bash
       working-directory: ios/Configurations
