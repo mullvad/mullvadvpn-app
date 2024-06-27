@@ -29,6 +29,10 @@ Line wrap the file at 100 chars.                                              Th
 - Fix mullvad cli bug causing `mullvad status listen` command to miss events if they occurred
   too quickly.
 
+#### macOS
+- Fix intermittent failures to connect with PQ enabled.
+
+
 ## [2024.4-beta1] - 2024-06-24
 ### Added
 - Add custom bridge settings in GUI.
