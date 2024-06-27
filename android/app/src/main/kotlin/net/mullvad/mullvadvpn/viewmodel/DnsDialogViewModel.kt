@@ -47,7 +47,6 @@ sealed class ValidationError {
     data object DuplicateAddress : ValidationError()
 }
 
-
 class DnsDialogViewModel(
     private val repository: SettingsRepository,
     private val inetAddressValidator: InetAddressValidator,
@@ -69,7 +68,8 @@ class DnsDialogViewModel(
             .stateIn(
                 viewModelScope,
                 SharingStarted.Lazily,
-                createViewState(emptyList(), null, false, _ipAddressInput.value))
+                createViewState(emptyList(), null, false, _ipAddressInput.value)
+            )
 
     private val _uiSideEffect = Channel<DnsDialogSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
@@ -85,7 +85,8 @@ class DnsDialogViewModel(
             input.validateDnsEntry(currentIndex, customDnsList).leftOrNull(),
             input.isLocalAddress(),
             isAllowLanEnabled = isAllowLanEnabled,
-            currentIndex)
+            currentIndex
+        )
 
     private fun String.validateDnsEntry(
         index: Int?,
@@ -120,7 +121,8 @@ class DnsDialogViewModel(
 
             result.fold(
                 { _uiSideEffect.send(DnsDialogSideEffect.Error) },
-                { _uiSideEffect.send(DnsDialogSideEffect.Complete) })
+                { _uiSideEffect.send(DnsDialogSideEffect.Complete) }
+            )
         }
 
     fun onRemoveDnsClick(index: Int) =
@@ -129,7 +131,8 @@ class DnsDialogViewModel(
                 .deleteCustomDns(index)
                 .fold(
                     { _uiSideEffect.send(DnsDialogSideEffect.Error) },
-                    { _uiSideEffect.send(DnsDialogSideEffect.Complete) })
+                    { _uiSideEffect.send(DnsDialogSideEffect.Complete) }
+                )
         }
 
     private fun String.isValidIp(): Boolean {

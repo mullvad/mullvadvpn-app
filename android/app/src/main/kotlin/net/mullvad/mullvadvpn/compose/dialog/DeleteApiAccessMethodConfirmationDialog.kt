@@ -26,7 +26,10 @@ private fun PreviewDeleteApiAccessMethodConfirmationDialog() {
 data class DeleteApiAccessMethodNavArgs(val apiAccessMethodId: ApiAccessMethodId)
 
 @Composable
-@Destination<RootGraph>(style = DestinationStyle.Dialog::class, navArgs = DeleteApiAccessMethodNavArgs::class)
+@Destination<RootGraph>(
+    style = DestinationStyle.Dialog::class,
+    navArgs = DeleteApiAccessMethodNavArgs::class
+)
 fun DeleteApiAccessMethodConfirmation(
     navigator: ResultBackNavigator<Boolean>,
 ) {
@@ -43,7 +46,8 @@ fun DeleteApiAccessMethodConfirmation(
     DeleteApiAccessMethodConfirmationDialog(
         state = state.value,
         onDelete = viewModel::deleteApiAccessMethod,
-        onBack = navigator::navigateBack)
+        onBack = navigator::navigateBack
+    )
 }
 
 @Composable
@@ -64,5 +68,6 @@ fun DeleteApiAccessMethodConfirmationDialog(
                 stringResource(id = R.string.error_occurred)
             } else {
                 null
-            })
+            }
+    )
 }

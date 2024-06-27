@@ -66,9 +66,14 @@ private fun PreviewEditCustomListScreen() {
                         listOf(
                             GeoLocationId.Hostname(
                                 GeoLocationId.City(
-                                    GeoLocationId.Country("country"), cityCode = "city"),
+                                    GeoLocationId.Country("country"),
+                                    cityCode = "city"
+                                ),
                                 "hostname",
-                            ))))
+                            )
+                        )
+                )
+        )
     }
 }
 
@@ -76,7 +81,9 @@ data class EditCustomListNavArgs(val customListId: CustomListId)
 
 @Composable
 @Destination<RootGraph>(
-    style = SlideInFromRightTransition::class, navArgs = EditCustomListNavArgs::class)
+    style = SlideInFromRightTransition::class,
+    navArgs = EditCustomListNavArgs::class
+)
 fun EditCustomList(
     navigator: DestinationsNavigator,
     backNavigator: ResultBackNavigator<Deleted>,
@@ -115,7 +122,8 @@ fun EditCustomList(
                     CustomListLocationsDestination(customListId = id, newList = false),
                 )
             },
-        onBackClick = dropUnlessResumed { backNavigator.navigateBack() })
+        onBackClick = dropUnlessResumed { backNavigator.navigateBack() }
+    )
 }
 
 @Composable
@@ -137,28 +145,32 @@ fun EditCustomListScreen(
                     if (content is EditCustomListState.Content) {
                         onDeleteList(content.id, content.name)
                     }
-                })
+                }
+            )
         },
     ) { modifier: Modifier ->
         SpacedColumn(modifier = modifier, alignment = Alignment.Top) {
             when (state) {
                 EditCustomListState.Loading -> {
                     MullvadCircularProgressIndicatorLarge(
-                        modifier = Modifier.testTag(CIRCULAR_PROGRESS_INDICATOR))
+                        modifier = Modifier.testTag(CIRCULAR_PROGRESS_INDICATOR)
+                    )
                 }
                 EditCustomListState.NotFound -> {
                     Text(
                         text = stringResource(id = R.string.not_found),
                         modifier = Modifier.padding(Dimens.screenVerticalMargin),
                         style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSecondary)
+                        color = MaterialTheme.colorScheme.onSecondary
+                    )
                 }
                 is EditCustomListState.Content -> {
                     // Name cell
                     TwoRowCell(
                         titleText = stringResource(id = R.string.list_name),
                         subtitleText = state.name.value,
-                        onCellClicked = { onNameClicked(state.id, state.name) })
+                        onCellClicked = { onNameClicked(state.id, state.name) }
+                    )
                     // Locations cell
                     TwoRowCell(
                         titleText = stringResource(id = R.string.locations),
@@ -166,8 +178,10 @@ fun EditCustomListScreen(
                             pluralStringResource(
                                 id = R.plurals.number_of_locations,
                                 state.locations.size,
-                                state.locations.size),
-                        onCellClicked = { onLocationsClicked(state.id) })
+                                state.locations.size
+                            ),
+                        onCellClicked = { onLocationsClicked(state.id) }
+                    )
                 }
             }
         }
@@ -179,31 +193,32 @@ private fun Actions(enabled: Boolean, onDeleteList: () -> Unit) {
     var showMenu by remember { mutableStateOf(false) }
     IconButton(
         onClick = { showMenu = true },
-        modifier = Modifier.testTag(TOP_BAR_DROPDOWN_BUTTON_TEST_TAG)) {
-            Icon(
-                painter = painterResource(id = R.drawable.icon_more_vert),
-                contentDescription = null)
-            if (showMenu) {
-                DropdownMenu(
-                    expanded = true,
-                    onDismissRequest = { showMenu = false },
-                    modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainer)) {
-                        DropdownMenuItem(
-                            text = { Text(text = stringResource(id = R.string.delete_list)) },
-                            leadingIcon = {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.icon_delete),
-                                    contentDescription = null,
-                                )
-                            },
-                            colors = menuItemColors,
-                            onClick = {
-                                onDeleteList()
-                                showMenu = false
-                            },
-                            enabled = enabled,
-                            modifier = Modifier.testTag(DELETE_DROPDOWN_MENU_ITEM_TEST_TAG))
-                    }
+        modifier = Modifier.testTag(TOP_BAR_DROPDOWN_BUTTON_TEST_TAG)
+    ) {
+        Icon(painter = painterResource(id = R.drawable.icon_more_vert), contentDescription = null)
+        if (showMenu) {
+            DropdownMenu(
+                expanded = true,
+                onDismissRequest = { showMenu = false },
+                modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainer)
+            ) {
+                DropdownMenuItem(
+                    text = { Text(text = stringResource(id = R.string.delete_list)) },
+                    leadingIcon = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.icon_delete),
+                            contentDescription = null,
+                        )
+                    },
+                    colors = menuItemColors,
+                    onClick = {
+                        onDeleteList()
+                        showMenu = false
+                    },
+                    enabled = enabled,
+                    modifier = Modifier.testTag(DELETE_DROPDOWN_MENU_ITEM_TEST_TAG)
+                )
             }
         }
+    }
 }

@@ -79,7 +79,8 @@ fun DnsDialog(
         onSaveDnsClick = viewModel::onSaveDnsClick,
         onRemoveDnsClick = viewModel::onRemoveDnsClick,
         onDismiss =
-            dropUnlessResumed { resultNavigator.navigateBack(result = DnsDialogResult.Cancel) })
+            dropUnlessResumed { resultNavigator.navigateBack(result = DnsDialogResult.Cancel) }
+    )
 }
 
 @Composable
@@ -111,7 +112,8 @@ fun DnsDialog(
                     onSubmit = onSaveDnsClick,
                     isEnabled = true,
                     placeholderText = stringResource(R.string.custom_dns_hint),
-                    modifier = Modifier.fillMaxWidth())
+                    modifier = Modifier.fillMaxWidth()
+                )
 
                 val errorMessage =
                     when {
@@ -131,7 +133,8 @@ fun DnsDialog(
                         text = errorMessage,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.padding(top = Dimens.smallPadding))
+                        modifier = Modifier.padding(top = Dimens.smallPadding)
+                    )
                 }
             }
         },
@@ -148,13 +151,15 @@ fun DnsDialog(
                     NegativeButton(
                         modifier = Modifier.fillMaxWidth(),
                         onClick = { onRemoveDnsClick(state.index) },
-                        text = stringResource(id = R.string.remove_button))
+                        text = stringResource(id = R.string.remove_button)
+                    )
                 }
 
                 PrimaryButton(
                     modifier = Modifier.fillMaxWidth(),
                     onClick = onDismiss,
-                    text = stringResource(id = R.string.cancel))
+                    text = stringResource(id = R.string.cancel)
+                )
             }
         },
         onDismissRequest = onDismiss,

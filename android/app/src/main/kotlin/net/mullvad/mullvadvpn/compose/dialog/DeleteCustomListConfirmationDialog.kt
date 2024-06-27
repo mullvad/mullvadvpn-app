@@ -26,7 +26,8 @@ import org.koin.androidx.compose.koinViewModel
 private fun PreviewRemoveDeviceConfirmationDialog() {
     AppTheme {
         DeleteCustomListConfirmationDialog(
-            state = DeleteCustomListUiState(CustomListName.fromString("My Custom List"), null))
+            state = DeleteCustomListUiState(CustomListName.fromString("My Custom List"), null)
+        )
     }
 }
 
@@ -34,7 +35,9 @@ data class DeleteCustomListNavArgs(val customListId: CustomListId, val name: Cus
 
 @Composable
 @Destination<RootGraph>(
-    style = DestinationStyle.Dialog::class, navArgs = DeleteCustomListNavArgs::class)
+    style = DestinationStyle.Dialog::class,
+    navArgs = DeleteCustomListNavArgs::class
+)
 fun DeleteCustomList(
     navigator: ResultBackNavigator<Deleted>,
 ) {
@@ -51,7 +54,8 @@ fun DeleteCustomList(
     DeleteCustomListConfirmationDialog(
         state = state,
         onDelete = viewModel::deleteCustomList,
-        onBack = dropUnlessResumed { navigator.navigateBack() })
+        onBack = dropUnlessResumed { navigator.navigateBack() }
+    )
 }
 
 @Composable
@@ -65,11 +69,14 @@ fun DeleteCustomListConfirmationDialog(
         onBack = onBack,
         message =
             stringResource(
-                id = R.string.delete_custom_list_confirmation_description, state.name.value),
+                id = R.string.delete_custom_list_confirmation_description,
+                state.name.value
+            ),
         errorMessage =
             if (state.deleteError != null) {
                 stringResource(id = R.string.error_occurred)
             } else {
                 null
-            })
+            }
+    )
 }

@@ -69,7 +69,8 @@ fun ApiAccessList(navigator: DestinationsNavigator) {
         onApiAccessInfoClick = {
             navigator.navigate(ApiAccessMethodInfoDialogDestination) { launchSingleTop = true }
         },
-        onBackClick = navigator::navigateUp)
+        onBackClick = navigator::navigateUp
+    )
 }
 
 @Composable
@@ -88,9 +89,12 @@ fun ApiAccessListScreen(
             description()
             currentAccessMethod(
                 currentApiAccessMethodName = state.currentApiAccessMethodSetting?.name,
-                onInfoClicked = onApiAccessInfoClick)
+                onInfoClicked = onApiAccessInfoClick
+            )
             apiAccessMethodItems(
-                state.apiAccessMethodSettings, onApiAccessMethodClick = onApiAccessMethodClick)
+                state.apiAccessMethodSettings,
+                onApiAccessMethodClick = onApiAccessMethodClick
+            )
             buttonPanel(onAddMethodClick = onAddMethodClick)
         }
     }
@@ -104,7 +108,8 @@ private fun LazyListScope.description() {
             color = MaterialTheme.colorScheme.onSecondary,
             modifier =
                 Modifier.padding(start = Dimens.cellStartPadding, end = Dimens.cellEndPadding)
-                    .fillMaxWidth())
+                    .fillMaxWidth()
+        )
     }
 }
 
@@ -118,29 +123,32 @@ private fun LazyListScope.currentAccessMethod(
                 Modifier.padding(
                     start = Dimens.sideMargin,
                     end = Dimens.sideMargin,
-                    bottom = Dimens.mediumPadding),
-            verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    text =
-                        stringResource(
-                            id = R.string.current_method,
-                            currentApiAccessMethodName?.value ?: "-",
-                        ),
+                    bottom = Dimens.mediumPadding
+                ),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onBackground,
+                text =
+                    stringResource(
+                        id = R.string.current_method,
+                        currentApiAccessMethodName?.value ?: "-",
+                    ),
+            )
+            IconButton(
+                onClick = onInfoClicked,
+                modifier =
+                    Modifier.align(Alignment.CenterVertically)
+                        .testTag(API_ACCESS_LIST_INFO_TEST_TAG),
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.icon_info),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onBackground
                 )
-                IconButton(
-                    onClick = onInfoClicked,
-                    modifier =
-                        Modifier.align(Alignment.CenterVertically)
-                            .testTag(API_ACCESS_LIST_INFO_TEST_TAG),
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.icon_info),
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onBackground)
-                }
             }
+        }
     }
 }
 
@@ -154,7 +162,9 @@ private fun LazyListScope.apiAccessMethodItems(
         contentType = { ContentType.ITEM },
     ) {
         ApiAccessMethodItem(
-            apiAccessMethodSetting = it, onApiAccessMethodClick = onApiAccessMethodClick)
+            apiAccessMethodSetting = it,
+            onApiAccessMethodClick = onApiAccessMethodClick
+        )
     }
 }
 
@@ -172,11 +182,13 @@ private fun ApiAccessMethodItem(
                         R.string.on
                     } else {
                         R.string.off
-                    }),
+                    }
+            ),
         titleStyle = MaterialTheme.typography.titleMedium,
         subtitleColor = MaterialTheme.colorScheme.onSecondary,
         bodyView = { DefaultNavigationView(apiAccessMethodSetting.name.value) },
-        onCellClicked = { onApiAccessMethodClick(apiAccessMethodSetting) })
+        onCellClicked = { onApiAccessMethodClick(apiAccessMethodSetting) }
+    )
 }
 
 private fun LazyListScope.buttonPanel(onAddMethodClick: () -> Unit) {
@@ -185,6 +197,7 @@ private fun LazyListScope.buttonPanel(onAddMethodClick: () -> Unit) {
             modifier =
                 Modifier.padding(horizontal = Dimens.sideMargin, vertical = Dimens.largePadding),
             onClick = onAddMethodClick,
-            text = stringResource(id = R.string.add))
+            text = stringResource(id = R.string.add)
+        )
     }
 }

@@ -40,24 +40,27 @@ class ApiAccessMethodDetailsViewModel(
                 apiAccessRepository.apiAccessMethodSettingById(apiAccessMethodId),
                 apiAccessRepository.enabledApiAccessMethods(),
                 apiAccessRepository.currentAccessMethod,
-                isTestingApiAccessMethodState) {
-                    apiAccessMethod,
-                    enabledApiAccessMethods,
-                    currentAccessMethod,
-                    isTestingApiAccessMethod ->
-                    ApiAccessMethodDetailsUiState.Content(
-                        apiAccessMethodId = apiAccessMethodId,
-                        name = apiAccessMethod.name,
-                        enabled = apiAccessMethod.enabled,
-                        isEditable = apiAccessMethod.apiAccessMethod is ApiAccessMethod.CustomProxy,
-                        isDisableable = enabledApiAccessMethods.any { it.id != apiAccessMethodId },
-                        isCurrentMethod = currentAccessMethod?.id == apiAccessMethodId,
-                        isTestingAccessMethod = isTestingApiAccessMethod)
-                }
+                isTestingApiAccessMethodState
+            ) {
+                apiAccessMethod,
+                enabledApiAccessMethods,
+                currentAccessMethod,
+                isTestingApiAccessMethod ->
+                ApiAccessMethodDetailsUiState.Content(
+                    apiAccessMethodId = apiAccessMethodId,
+                    name = apiAccessMethod.name,
+                    enabled = apiAccessMethod.enabled,
+                    isEditable = apiAccessMethod.apiAccessMethod is ApiAccessMethod.CustomProxy,
+                    isDisableable = enabledApiAccessMethods.any { it.id != apiAccessMethodId },
+                    isCurrentMethod = currentAccessMethod?.id == apiAccessMethodId,
+                    isTestingAccessMethod = isTestingApiAccessMethod
+                )
+            }
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(),
-                ApiAccessMethodDetailsUiState.Loading(apiAccessMethodId = apiAccessMethodId))
+                ApiAccessMethodDetailsUiState.Loading(apiAccessMethodId = apiAccessMethodId)
+            )
 
     fun setCurrentMethod() {
         testingJob =
@@ -71,7 +74,9 @@ class ApiAccessMethodDetailsViewModel(
                     .onLeft {
                         _uiSideEffect.send(
                             ApiAccessMethodDetailsSideEffect.UnableToSetCurrentMethod(
-                                testMethodFailed = it is TestApiAccessMethodError))
+                                testMethodFailed = it is TestApiAccessMethodError
+                            )
+                        )
                     }
             }
     }
@@ -81,7 +86,8 @@ class ApiAccessMethodDetailsViewModel(
             viewModelScope.launch {
                 val result = testMethodById()
                 _uiSideEffect.send(
-                    ApiAccessMethodDetailsSideEffect.TestApiAccessMethodResult(result.isRight()))
+                    ApiAccessMethodDetailsSideEffect.TestApiAccessMethodResult(result.isRight())
+                )
             }
     }
 

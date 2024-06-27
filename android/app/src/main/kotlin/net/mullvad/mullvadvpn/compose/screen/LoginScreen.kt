@@ -157,7 +157,8 @@ fun Login(
         vm::createAccount,
         vm::clearAccountHistory,
         vm::onAccountNumberChange,
-        dropUnlessResumed { navigator.navigate(SettingsDestination) })
+        dropUnlessResumed { navigator.navigate(SettingsDestination) }
+    )
 }
 
 @Composable
@@ -182,17 +183,19 @@ private fun LoginScreen(
                 Modifier.padding(it)
                     .fillMaxSize()
                     .background(MaterialTheme.colorScheme.primary)
-                    .verticalScroll(scrollState)) {
-                Spacer(modifier = Modifier.weight(1f))
-                LoginIcon(
-                    state.loginState,
-                    modifier =
-                        Modifier.align(Alignment.CenterHorizontally)
-                            .padding(bottom = Dimens.largePadding))
-                LoginContent(state, onAccountNumberChange, onLoginClick, onDeleteHistoryClick)
-                Spacer(modifier = Modifier.weight(3f))
-                CreateAccountPanel(onCreateAccountClick, isEnabled = state.loginState is Idle)
-            }
+                    .verticalScroll(scrollState)
+        ) {
+            Spacer(modifier = Modifier.weight(1f))
+            LoginIcon(
+                state.loginState,
+                modifier =
+                    Modifier.align(Alignment.CenterHorizontally)
+                        .padding(bottom = Dimens.largePadding)
+            )
+            LoginContent(state, onAccountNumberChange, onLoginClick, onDeleteHistoryClick)
+            Spacer(modifier = Modifier.weight(3f))
+            CreateAccountPanel(onCreateAccountClick, isEnabled = state.loginState is Idle)
+        }
     }
 }
 
@@ -211,7 +214,8 @@ private fun LoginContent(
             modifier =
                 Modifier.testTag(LOGIN_TITLE_TEST_TAG)
                     .fillMaxWidth()
-                    .padding(bottom = Dimens.smallPadding))
+                    .padding(bottom = Dimens.smallPadding)
+        )
 
         LoginInput(state, onLoginClick, onAccountNumberChange, onDeleteHistoryClick)
 
@@ -220,7 +224,8 @@ private fun LoginContent(
             isEnabled = state.loginButtonEnabled,
             onClick = { onLoginClick(state.accountNumberInput) },
             text = stringResource(id = R.string.login_title),
-            modifier = Modifier.padding(bottom = Dimens.mediumPadding))
+            modifier = Modifier.padding(bottom = Dimens.mediumPadding)
+        )
     }
 }
 
@@ -266,13 +271,15 @@ private fun ColumnScope.LoginInput(
                 text = stringResource(id = R.string.login_description),
                 color = Color.Unspecified,
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis)
+                overflow = TextOverflow.Ellipsis
+            )
         },
         keyboardActions = KeyboardActions(onDone = { onLoginClick(state.accountNumberInput) }),
         keyboardOptions =
             KeyboardOptions(
                 imeAction = if (state.loginButtonEnabled) ImeAction.Done else ImeAction.None,
-                keyboardType = KeyboardType.NumberPassword),
+                keyboardType = KeyboardType.NumberPassword
+            ),
         onValueChange = onAccountNumberChange,
         singleLine = true,
         maxLines = 1,
@@ -297,7 +304,8 @@ private fun ColumnScope.LoginInput(
                 }
             },
             enabled = state.loginState is Idle,
-            onDeleteClick = onDeleteHistoryClick)
+            onDeleteClick = onDeleteHistoryClick
+        )
     }
 }
 
@@ -310,7 +318,8 @@ private fun LoginIcon(loginState: LoginState, modifier: Modifier = Modifier) {
                     Image(
                         painter = painterResource(id = R.drawable.icon_fail),
                         contentDescription = stringResource(id = R.string.login_fail_title),
-                        contentScale = ContentScale.Inside)
+                        contentScale = ContentScale.Inside
+                    )
                 } else {
                     // If view is Idle, we display empty box to keep the same size as other states
                 }
@@ -336,7 +345,8 @@ private fun LoginState.title(): String =
                     }
                 is Loading -> R.string.logging_in_title
                 Success -> R.string.logged_in_title
-            })
+            }
+    )
 
 @Composable
 private fun LoginState.supportingText(): String? {
@@ -371,27 +381,33 @@ private fun AccountDropDownItem(
             modifier
                 .clip(
                     MaterialTheme.shapes.medium.copy(
-                        topStart = CornerSize(0f), topEnd = CornerSize(0f)))
+                        topStart = CornerSize(0f),
+                        topEnd = CornerSize(0f)
+                    )
+                )
                 .background(MaterialTheme.colorScheme.background)
                 .height(IntrinsicSize.Min),
-        verticalAlignment = Alignment.CenterVertically) {
-            Box(
-                modifier =
-                    Modifier.clickable(enabled = enabled, onClick = onClick)
-                        .fillMaxHeight()
-                        .weight(1f)
-                        .padding(horizontal = Dimens.mediumPadding, vertical = Dimens.smallPadding),
-                contentAlignment = Alignment.CenterStart) {
-                    Text(text = accountNumber, overflow = TextOverflow.Clip)
-                }
-            IconButton(enabled = enabled, onClick = onDeleteClick) {
-                Icon(
-                    painter = painterResource(id = R.drawable.account_history_remove_pressed),
-                    contentDescription = null,
-                    modifier = Modifier.size(Dimens.listIconSize),
-                    tint = Color.Unspecified)
-            }
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier =
+                Modifier.clickable(enabled = enabled, onClick = onClick)
+                    .fillMaxHeight()
+                    .weight(1f)
+                    .padding(horizontal = Dimens.mediumPadding, vertical = Dimens.smallPadding),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            Text(text = accountNumber, overflow = TextOverflow.Clip)
         }
+        IconButton(enabled = enabled, onClick = onDeleteClick) {
+            Icon(
+                painter = painterResource(id = R.drawable.account_history_remove_pressed),
+                contentDescription = null,
+                modifier = Modifier.size(Dimens.listIconSize),
+                tint = Color.Unspecified
+            )
+        }
+    }
 }
 
 @Composable
@@ -410,6 +426,7 @@ private fun CreateAccountPanel(onCreateAccountClick: () -> Unit, isEnabled: Bool
             modifier = Modifier.fillMaxWidth(),
             text = stringResource(id = R.string.create_account),
             isEnabled = isEnabled,
-            onClick = onCreateAccountClick)
+            onClick = onCreateAccountClick
+        )
     }
 }

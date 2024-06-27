@@ -52,7 +52,9 @@ data class SaveApiAccessMethodNavArgs(
 )
 
 @Destination<RootGraph>(
-    style = DestinationStyle.Dialog::class, navArgs = SaveApiAccessMethodNavArgs::class)
+    style = DestinationStyle.Dialog::class,
+    navArgs = SaveApiAccessMethodNavArgs::class
+)
 @Composable
 fun SaveApiAccessMethod(
     backNavigator: ResultBackNavigator<Boolean>,
@@ -70,7 +72,10 @@ fun SaveApiAccessMethod(
 
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     SaveApiAccessMethodDialog(
-        state = state, onCancel = backNavigator::navigateBack, onSave = viewModel::save)
+        state = state,
+        onCancel = backNavigator::navigateBack,
+        onSave = viewModel::save
+    )
 }
 
 @Composable
@@ -87,21 +92,24 @@ fun SaveApiAccessMethodDialog(
                         painter =
                             painterResource(
                                 id =
-                                    if (testingState
-                                        is TestApiAccessMethodState.Result.Successful) {
+                                    if (
+                                        testingState is TestApiAccessMethodState.Result.Successful
+                                    ) {
                                         R.drawable.icon_success
                                     } else {
                                         R.drawable.icon_fail
-                                    }),
-                        contentDescription = null)
+                                    }
+                            ),
+                        contentDescription = null
+                    )
                 TestApiAccessMethodState.Testing ->
                     MullvadCircularProgressIndicatorMedium(
-                        modifier =
-                            Modifier.testTag(SAVE_API_ACCESS_METHOD_LOADING_SPINNER_TEST_TAG))
+                        modifier = Modifier.testTag(SAVE_API_ACCESS_METHOD_LOADING_SPINNER_TEST_TAG)
+                    )
             }
         },
         title = { Text(text = state.text(), style = MaterialTheme.typography.headlineSmall) },
-        onDismissRequest = { /*Should not be able to dismiss*/ },
+        onDismissRequest = { /*Should not be able to dismiss*/},
         confirmButton = {
             PrimaryButton(
                 onClick = onCancel,
@@ -109,14 +117,16 @@ fun SaveApiAccessMethodDialog(
                 isEnabled =
                     state.testingState is TestApiAccessMethodState.Testing ||
                         state.testingState is TestApiAccessMethodState.Result.Failure,
-                modifier = Modifier.testTag(SAVE_API_ACCESS_METHOD_CANCEL_BUTTON_TEST_TAG))
+                modifier = Modifier.testTag(SAVE_API_ACCESS_METHOD_CANCEL_BUTTON_TEST_TAG)
+            )
         },
         dismissButton = {
             if (state.testingState is TestApiAccessMethodState.Result.Failure) {
                 PrimaryButton(
                     onClick = onSave,
                     text = stringResource(id = R.string.save),
-                    modifier = Modifier.testTag(SAVE_API_ACCESS_METHOD_SAVE_BUTTON_TEST_TAG))
+                    modifier = Modifier.testTag(SAVE_API_ACCESS_METHOD_SAVE_BUTTON_TEST_TAG)
+                )
             }
         },
         containerColor = MaterialTheme.colorScheme.background,
@@ -139,4 +149,5 @@ private fun SaveApiAccessMethodUiState.text() =
                         R.string.api_unreachable_save_anyway
                     }
                 }
-            })
+            }
+    )

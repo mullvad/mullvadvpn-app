@@ -47,7 +47,8 @@ class SaveApiAccessMethodViewModel(
                             it.copy(testingState = TestApiAccessMethodState.Result.Successful)
                         }
                         save()
-                    })
+                    }
+                )
         }
     }
 
@@ -58,11 +59,16 @@ class SaveApiAccessMethodViewModel(
                 updateAccessMethod(
                     id = apiAccessMethodId,
                     name = apiAccessMethodName,
-                    apiAccessMethod = customProxy)
+                    apiAccessMethod = customProxy
+                )
             } else {
                 addNewAccessMethod(
                     NewAccessMethodSetting(
-                        name = apiAccessMethodName, enabled = true, apiAccessMethod = customProxy))
+                        name = apiAccessMethodName,
+                        enabled = true,
+                        apiAccessMethod = customProxy
+                    )
+                )
             }
         }
     }
@@ -72,7 +78,8 @@ class SaveApiAccessMethodViewModel(
             .addApiAccessMethod(newAccessMethodSetting)
             .fold(
                 { _uiSideEffect.send(SaveApiAccessMethodSideEffect.CouldNotSaveApiAccessMethod) },
-                { _uiSideEffect.send(SaveApiAccessMethodSideEffect.SuccessfullyCreatedApiMethod) })
+                { _uiSideEffect.send(SaveApiAccessMethodSideEffect.SuccessfullyCreatedApiMethod) }
+            )
     }
 
     private suspend fun updateAccessMethod(
@@ -84,10 +91,12 @@ class SaveApiAccessMethodViewModel(
             .updateApiAccessMethod(
                 apiAccessMethodId = id,
                 apiAccessMethodName = name,
-                apiAccessMethod = apiAccessMethod)
+                apiAccessMethod = apiAccessMethod
+            )
             .fold(
                 { _uiSideEffect.send(SaveApiAccessMethodSideEffect.CouldNotSaveApiAccessMethod) },
-                { _uiSideEffect.send(SaveApiAccessMethodSideEffect.SuccessfullyCreatedApiMethod) })
+                { _uiSideEffect.send(SaveApiAccessMethodSideEffect.SuccessfullyCreatedApiMethod) }
+            )
     }
 }
 

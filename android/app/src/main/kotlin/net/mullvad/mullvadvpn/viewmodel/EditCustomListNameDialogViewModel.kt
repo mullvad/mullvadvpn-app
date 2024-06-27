@@ -38,7 +38,8 @@ class EditCustomListNameDialogViewModel(
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(),
-                EditCustomListNameUiState(name = navArgs.initialName.value))
+                EditCustomListNameUiState(name = navArgs.initialName.value)
+            )
 
     fun updateCustomListName(name: String) {
         viewModelScope.launch {
@@ -46,10 +47,13 @@ class EditCustomListNameDialogViewModel(
                     CustomListAction.Rename(
                         id = navArgs.customListId,
                         name = navArgs.initialName,
-                        newName = CustomListName.fromString(name)))
+                        newName = CustomListName.fromString(name)
+                    )
+                )
                 .fold(
                     { _error.emit(it) },
-                    { _uiSideEffect.send(EditCustomListNameDialogSideEffect.ReturnWithResult(it)) })
+                    { _uiSideEffect.send(EditCustomListNameDialogSideEffect.ReturnWithResult(it)) }
+                )
         }
     }
 

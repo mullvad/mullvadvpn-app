@@ -46,17 +46,17 @@ class DeviceListViewModel(
                 loadingDevices,
                 deviceList.map { it.sortedBy { it.creationDate } },
                 loading,
-                error) { loadingDevices, devices, loading, error ->
-                    when {
-                        loading -> DeviceListUiState.Loading
-                        error != null -> DeviceListUiState.Error(error)
-                        else ->
-                            DeviceListUiState.Content(
-                                devices.map {
-                                    DeviceItemUiState(it, loadingDevices.contains(it.id))
-                                })
-                    }
+                error
+            ) { loadingDevices, devices, loading, error ->
+                when {
+                    loading -> DeviceListUiState.Loading
+                    error != null -> DeviceListUiState.Error(error)
+                    else ->
+                        DeviceListUiState.Content(
+                            devices.map { DeviceItemUiState(it, loadingDevices.contains(it.id)) }
+                        )
                 }
+            }
             .onStart { fetchDevices() }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), DeviceListUiState.Loading)
 
@@ -81,7 +81,8 @@ class DeviceListViewModel(
                         setLoadingState(deviceIdToRemove, false)
                         deviceRepository.deviceList(accountNumber).onRight { deviceList.value = it }
                     },
-                    { removeDeviceFromState(deviceIdToRemove) })
+                    { removeDeviceFromState(deviceIdToRemove) }
+                )
         }
 
     private fun setLoadingState(deviceId: DeviceId, isLoading: Boolean) {

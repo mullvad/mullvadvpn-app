@@ -35,7 +35,8 @@ class DeleteApiAccessMethodConfirmationViewModel(
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(),
-                DeleteApiAccessMethodUiState(null))
+                DeleteApiAccessMethodUiState(null)
+            )
 
     fun deleteApiAccessMethod() {
         viewModelScope.launch {
@@ -44,7 +45,8 @@ class DeleteApiAccessMethodConfirmationViewModel(
                 .removeApiAccessMethod(apiAccessMethodId)
                 .fold(
                     { _error.tryEmit(it) },
-                    { _uiSideEffect.send(DeleteApiAccessMethodConfirmationSideEffect.Deleted) })
+                    { _uiSideEffect.send(DeleteApiAccessMethodConfirmationSideEffect.Deleted) }
+                )
         }
     }
 }

@@ -25,7 +25,10 @@ class EditCustomListViewModel(
                     ?.find { it.id == customListId }
                     ?.let {
                         EditCustomListState.Content(
-                            id = it.id, name = it.name, locations = it.locations)
+                            id = it.id,
+                            name = it.name,
+                            locations = it.locations
+                        )
                     } ?: EditCustomListState.NotFound
             }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), EditCustomListState.Loading)

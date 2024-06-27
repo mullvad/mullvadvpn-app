@@ -46,7 +46,9 @@ data class EditCustomListNameNavArg(
 
 @Composable
 @Destination<RootGraph>(
-    style = DestinationStyle.Dialog::class, navArgs = EditCustomListNameNavArg::class)
+    style = DestinationStyle.Dialog::class,
+    navArgs = EditCustomListNameNavArg::class
+)
 fun EditCustomListName(
     backNavigator: ResultBackNavigator<Renamed>,
 ) {
@@ -64,7 +66,8 @@ fun EditCustomListName(
         state = state,
         updateName = vm::updateCustomListName,
         onInputChanged = vm::onNameChanged,
-        onDismiss = dropUnlessResumed { backNavigator.navigateBack() })
+        onDismiss = dropUnlessResumed { backNavigator.navigateBack() }
+    )
 }
 
 @Composable
@@ -87,7 +90,8 @@ fun EditCustomListNameDialog(
                 error = state.error?.errorString(),
                 onSubmit = updateName,
                 onValueChanged = onInputChanged,
-                modifier = Modifier.testTag(EDIT_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG))
+                modifier = Modifier.testTag(EDIT_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG)
+            )
         },
         containerColor = MaterialTheme.colorScheme.background,
         titleContentColor = MaterialTheme.colorScheme.onBackground,
@@ -96,11 +100,13 @@ fun EditCustomListNameDialog(
             PrimaryButton(
                 text = stringResource(id = R.string.save),
                 onClick = { updateName(state.name) },
-                isEnabled = state.isValidName)
+                isEnabled = state.isValidName
+            )
         },
         dismissButton = {
             PrimaryButton(text = stringResource(id = R.string.cancel), onClick = onDismiss)
-        })
+        }
+    )
 }
 
 @Composable
@@ -110,4 +116,5 @@ private fun RenameError.errorString() =
             is NameAlreadyExists -> R.string.custom_list_error_list_exists
             is GetCustomListError,
             is UnknownCustomListError -> R.string.error_occurred
-        })
+        }
+    )

@@ -48,7 +48,9 @@ private fun PreviewCreateCustomListDialogError() {
         CreateCustomListDialog(
             state =
                 CreateCustomListUiState(
-                    error = CreateWithLocationsError.Create(CustomListAlreadyExists)))
+                    error = CreateWithLocationsError.Create(CustomListAlreadyExists)
+                )
+        )
     }
 }
 
@@ -56,7 +58,9 @@ data class CreateCustomListNavArgs(val locationCode: GeoLocationId?)
 
 @Composable
 @Destination<RootGraph>(
-    style = DestinationStyle.Dialog::class, navArgs = CreateCustomListNavArgs::class)
+    style = DestinationStyle.Dialog::class,
+    navArgs = CreateCustomListNavArgs::class
+)
 fun CreateCustomList(
     navigator: DestinationsNavigator,
     backNavigator: ResultBackNavigator<Created>,
@@ -68,9 +72,12 @@ fun CreateCustomList(
                 is CreateCustomListDialogSideEffect.NavigateToCustomListLocationsScreen -> {
                     navigator.navigate(
                         CustomListLocationsDestination(
-                            customListId = sideEffect.customListId, newList = true)) {
-                            launchSingleTop = true
-                        }
+                            customListId = sideEffect.customListId,
+                            newList = true
+                        )
+                    ) {
+                        launchSingleTop = true
+                    }
                 }
                 is CreateCustomListDialogSideEffect.ReturnWithResult -> {
                     backNavigator.navigateBack(result = sideEffect.result)
@@ -83,7 +90,8 @@ fun CreateCustomList(
         state = state,
         createCustomList = vm::createCustomList,
         onInputChanged = vm::clearError,
-        onDismiss = dropUnlessResumed { backNavigator.navigateBack() })
+        onDismiss = dropUnlessResumed { backNavigator.navigateBack() }
+    )
 }
 
 @Composable
@@ -113,7 +121,8 @@ fun CreateCustomListDialog(
                     name.value = it
                     onInputChanged()
                 },
-                modifier = Modifier.testTag(CREATE_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG))
+                modifier = Modifier.testTag(CREATE_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG)
+            )
         },
         containerColor = MaterialTheme.colorScheme.background,
         titleContentColor = MaterialTheme.colorScheme.onBackground,
@@ -122,11 +131,13 @@ fun CreateCustomListDialog(
             PrimaryButton(
                 text = stringResource(id = R.string.create),
                 onClick = { createCustomList(name.value) },
-                isEnabled = isValidName)
+                isEnabled = isValidName
+            )
         },
         dismissButton = {
             PrimaryButton(text = stringResource(id = R.string.cancel), onClick = onDismiss)
-        })
+        }
+    )
 }
 
 @Composable
@@ -136,4 +147,5 @@ private fun CreateWithLocationsError.errorString() =
             R.string.custom_list_error_list_exists
         } else {
             R.string.error_occurred
-        })
+        }
+    )

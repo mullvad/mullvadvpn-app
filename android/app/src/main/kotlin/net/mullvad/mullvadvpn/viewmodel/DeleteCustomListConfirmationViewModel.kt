@@ -38,7 +38,8 @@ class DeleteCustomListConfirmationViewModel(
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(),
-                DeleteCustomListUiState(name, null))
+                DeleteCustomListUiState(name, null)
+            )
 
     fun deleteCustomList() {
         viewModelScope.launch {
@@ -48,8 +49,10 @@ class DeleteCustomListConfirmationViewModel(
                     { _error.tryEmit(it) },
                     {
                         _uiSideEffect.send(
-                            DeleteCustomListConfirmationSideEffect.ReturnWithResult(it))
-                    })
+                            DeleteCustomListConfirmationSideEffect.ReturnWithResult(it)
+                        )
+                    }
+                )
         }
     }
 }

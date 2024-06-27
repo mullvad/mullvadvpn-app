@@ -97,7 +97,8 @@ private fun PreviewDeviceListError() {
     AppTheme {
         DeviceListScreen(
             state =
-                DeviceListUiState.Error(GetDeviceListError.Unknown(IllegalStateException("Error"))))
+                DeviceListUiState.Error(GetDeviceListError.Unknown(IllegalStateException("Error")))
+        )
     }
 }
 
@@ -127,22 +128,24 @@ fun DeviceList(
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
     CollectSideEffectWithLifecycle(
-        viewModel.uiSideEffect, minActiveState = Lifecycle.State.RESUMED) { sideEffect ->
-            when (sideEffect) {
-                DeviceListSideEffect.FailedToRemoveDevice -> {
-                    launch {
-                        snackbarHostState.showSnackbarImmediately(
-                            message = context.getString(R.string.failed_to_remove_device))
-                    }
+        viewModel.uiSideEffect,
+        minActiveState = Lifecycle.State.RESUMED
+    ) { sideEffect ->
+        when (sideEffect) {
+            DeviceListSideEffect.FailedToRemoveDevice -> {
+                launch {
+                    snackbarHostState.showSnackbarImmediately(
+                        message = context.getString(R.string.failed_to_remove_device)
+                    )
                 }
-
-                is DeviceListSideEffect.NavigateToLogin ->
-                    navigator.navigate(LoginDestination(sideEffect.accountNumber.value)) {
-                        launchSingleTop = true
-                        popUpTo(LoginDestination) { inclusive = true }
-                    }
             }
+            is DeviceListSideEffect.NavigateToLogin ->
+                navigator.navigate(LoginDestination(sideEffect.accountNumber.value)) {
+                    launchSingleTop = true
+                    popUpTo(LoginDestination) { inclusive = true }
+                }
         }
+    }
 
     DeviceListScreen(
         state = state,
@@ -154,7 +157,8 @@ fun DeviceList(
         navigateToRemoveDeviceConfirmationDialog =
             dropUnlessResumed<Device> {
                 navigator.navigate(RemoveDeviceConfirmationDialogDestination(it))
-            })
+            }
+    )
 }
 
 @Composable
@@ -173,33 +177,37 @@ fun DeviceListScreen(
         iconTintColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaTopBar),
         onSettingsClicked = onSettingsClicked,
         onAccountClicked = null,
-        snackbarHostState = snackbarHostState) {
+        snackbarHostState = snackbarHostState
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize().padding(it),
+        ) {
+            val scrollState = rememberScrollState()
             Column(
-                modifier = Modifier.fillMaxSize().padding(it),
+                modifier =
+                    Modifier.drawVerticalScrollbar(
+                            scrollState,
+                            MaterialTheme.colorScheme.onBackground
+                        )
+                        .verticalScroll(scrollState)
+                        .weight(1f)
+                        .fillMaxWidth(),
             ) {
-                val scrollState = rememberScrollState()
-                Column(
-                    modifier =
-                        Modifier.drawVerticalScrollbar(
-                                scrollState, MaterialTheme.colorScheme.onBackground)
-                            .verticalScroll(scrollState)
-                            .weight(1f)
-                            .fillMaxWidth(),
-                ) {
-                    DeviceListHeader(state)
-                    when (state) {
-                        is DeviceListUiState.Content ->
-                            DeviceListContent(
-                                state,
-                                navigateToRemoveDeviceConfirmationDialog =
-                                    navigateToRemoveDeviceConfirmationDialog)
-                        is DeviceListUiState.Error -> DeviceListError(onTryAgainClicked)
-                        DeviceListUiState.Loading -> {}
-                    }
+                DeviceListHeader(state)
+                when (state) {
+                    is DeviceListUiState.Content ->
+                        DeviceListContent(
+                            state,
+                            navigateToRemoveDeviceConfirmationDialog =
+                                navigateToRemoveDeviceConfirmationDialog
+                        )
+                    is DeviceListUiState.Error -> DeviceListError(onTryAgainClicked)
+                    DeviceListUiState.Loading -> {}
                 }
-                DeviceListButtonPanel(state, onContinueWithLogin, onBackClick)
             }
+            DeviceListButtonPanel(state, onContinueWithLogin, onBackClick)
         }
+    }
 }
 
 @Composable
@@ -207,13 +215,18 @@ private fun ColumnScope.DeviceListError(tryAgain: () -> Unit) {
     Column(Modifier.weight(1f), verticalArrangement = Arrangement.Center) {
         Text(
             text = stringResource(id = R.string.failed_to_fetch_devices),
-            modifier = Modifier.padding(Dimens.smallPadding).align(Alignment.CenterHorizontally))
+            modifier = Modifier.padding(Dimens.smallPadding).align(Alignment.CenterHorizontally)
+        )
         PrimaryButton(
             onClick = tryAgain,
             text = stringResource(id = R.string.try_again),
             modifier =
                 Modifier.padding(
-                    top = Dimens.buttonSpacing, start = Dimens.sideMargin, end = Dimens.sideMargin))
+                    top = Dimens.buttonSpacing,
+                    start = Dimens.sideMargin,
+                    end = Dimens.sideMargin
+                )
+        )
     }
 }
 
@@ -247,12 +260,14 @@ private fun ColumnScope.DeviceListHeader(state: DeviceListUiState) {
                                 R.drawable.icon_fail
                             } else {
                                 R.drawable.icon_success
-                            }),
+                            }
+                    ),
                 contentDescription = null, // No meaningful user info or action.
                 modifier =
                     Modifier.align(Alignment.CenterHorizontally)
                         .padding(top = Dimens.iconFailSuccessTopMargin)
-                        .size(Dimens.bigIconSize))
+                        .size(Dimens.bigIconSize)
+            )
         is DeviceListUiState.Error ->
             Image(
                 painter = painterResource(id = R.drawable.icon_fail),
@@ -260,12 +275,14 @@ private fun ColumnScope.DeviceListHeader(state: DeviceListUiState) {
                 modifier =
                     Modifier.align(Alignment.CenterHorizontally)
                         .padding(top = Dimens.iconFailSuccessTopMargin)
-                        .size(Dimens.bigIconSize))
+                        .size(Dimens.bigIconSize)
+            )
         DeviceListUiState.Loading ->
             MullvadCircularProgressIndicatorLarge(
                 modifier =
                     Modifier.align(Alignment.CenterHorizontally)
-                        .padding(top = Dimens.iconFailSuccessTopMargin))
+                        .padding(top = Dimens.iconFailSuccessTopMargin)
+            )
     }
 
     Text(
@@ -276,14 +293,16 @@ private fun ColumnScope.DeviceListHeader(state: DeviceListUiState) {
                         R.string.max_devices_resolved_title
                     } else {
                         R.string.max_devices_warning_title
-                    }),
+                    }
+            ),
         style = MaterialTheme.typography.headlineSmall,
         color = MaterialTheme.colorScheme.onBackground,
         modifier =
             Modifier.padding(
                 start = Dimens.sideMargin,
                 end = Dimens.sideMargin,
-                top = Dimens.screenVerticalMargin),
+                top = Dimens.screenVerticalMargin
+            ),
     )
 
     if (state is DeviceListUiState.Content) {
@@ -295,7 +314,8 @@ private fun ColumnScope.DeviceListHeader(state: DeviceListUiState) {
                             R.string.max_devices_warning_description
                         } else {
                             R.string.max_devices_resolved_description
-                        }),
+                        }
+                ),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onBackground,
             modifier =
@@ -305,7 +325,9 @@ private fun ColumnScope.DeviceListHeader(state: DeviceListUiState) {
                         top = Dimens.smallPadding,
                         start = Dimens.sideMargin,
                         end = Dimens.sideMargin,
-                        bottom = Dimens.spacingAboveButton))
+                        bottom = Dimens.spacingAboveButton
+                    )
+        )
     }
 }
 
@@ -319,7 +341,8 @@ private fun DeviceListItem(device: Device, isLoading: Boolean, onDeviceRemovalCl
                     modifier = Modifier.fillMaxWidth(),
                     text = device.displayName(),
                     style = MaterialTheme.typography.listItemText,
-                    color = MaterialTheme.colorScheme.onPrimary)
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
                 Text(
                     modifier = Modifier.fillMaxWidth(),
                     text =
@@ -328,20 +351,23 @@ private fun DeviceListItem(device: Device, isLoading: Boolean, onDeviceRemovalCl
                     color =
                         MaterialTheme.colorScheme.onPrimary
                             .copy(alpha = AlphaDescription)
-                            .compositeOver(MaterialTheme.colorScheme.primary))
+                            .compositeOver(MaterialTheme.colorScheme.primary)
+                )
             }
         },
         bodyView = {
             if (isLoading) {
                 MullvadCircularProgressIndicatorMedium(
-                    modifier = Modifier.padding(Dimens.smallPadding))
+                    modifier = Modifier.padding(Dimens.smallPadding)
+                )
             } else {
                 IconButton(onClick = onDeviceRemovalClicked) {
                     Icon(
                         painter = painterResource(id = R.drawable.icon_close),
                         contentDescription = stringResource(id = R.string.remove_button),
                         tint = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.size(size = Dimens.deleteIconSize))
+                        modifier = Modifier.size(size = Dimens.deleteIconSize)
+                    )
                 }
             }
         },
@@ -361,16 +387,20 @@ private fun DeviceListButtonPanel(
                 start = Dimens.sideMargin,
                 end = Dimens.sideMargin,
                 top = Dimens.spacingAboveButton,
-                bottom = Dimens.screenVerticalMargin)) {
-            VariantButton(
-                text = stringResource(id = R.string.continue_login),
-                onClick = onContinueWithLogin,
-                isEnabled = state is DeviceListUiState.Content && !state.hasTooManyDevices,
-                background = MaterialTheme.colorScheme.secondary)
+                bottom = Dimens.screenVerticalMargin
+            )
+    ) {
+        VariantButton(
+            text = stringResource(id = R.string.continue_login),
+            onClick = onContinueWithLogin,
+            isEnabled = state is DeviceListUiState.Content && !state.hasTooManyDevices,
+            background = MaterialTheme.colorScheme.secondary
+        )
 
-            PrimaryButton(
-                text = stringResource(id = R.string.back),
-                onClick = onBackClick,
-                modifier = Modifier.padding(top = Dimens.buttonSpacing))
-        }
+        PrimaryButton(
+            text = stringResource(id = R.string.back),
+            onClick = onBackClick,
+            modifier = Modifier.padding(top = Dimens.buttonSpacing)
+        )
+    }
 }

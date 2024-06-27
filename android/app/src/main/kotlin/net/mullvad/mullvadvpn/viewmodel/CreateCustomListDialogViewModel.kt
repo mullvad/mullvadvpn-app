@@ -44,19 +44,25 @@ class CreateCustomListDialogViewModel(
         viewModelScope.launch {
             customListActionUseCase(
                     CustomListAction.Create(
-                        CustomListName.fromString(name), listOfNotNull(locationCode)))
+                        CustomListName.fromString(name),
+                        listOfNotNull(locationCode)
+                    )
+                )
                 .fold(
                     { _error.emit(it) },
                     {
                         if (it.locationNames.isEmpty()) {
                             _uiSideEffect.send(
                                 CreateCustomListDialogSideEffect
-                                    .NavigateToCustomListLocationsScreen(it.id))
+                                    .NavigateToCustomListLocationsScreen(it.id)
+                            )
                         } else {
                             _uiSideEffect.send(
-                                CreateCustomListDialogSideEffect.ReturnWithResult(it))
+                                CreateCustomListDialogSideEffect.ReturnWithResult(it)
+                            )
                         }
-                    })
+                    }
+                )
         }
     }
 
