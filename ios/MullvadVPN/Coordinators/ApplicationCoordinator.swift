@@ -413,7 +413,9 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         coordinator.didLogout = { [weak self] preferredAccountNumber in
             guard let self else { return }
             router.dismissAll(.primary, animated: true)
-            continueFlow(animated: true)
+            DispatchQueue.main.async {
+                self.continueFlow(animated: true)
+            }
             preferredAccountNumberSubject.send(preferredAccountNumber)
         }
 

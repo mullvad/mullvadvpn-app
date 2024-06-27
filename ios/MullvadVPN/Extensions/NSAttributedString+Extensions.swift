@@ -58,3 +58,10 @@ extension NSAttributedString {
         self.init(attributedString: attributedString)
     }
 }
+
+extension NSMutableAttributedString {
+    func apply(paragraphStyle: NSParagraphStyle) {
+        let attributeRange = NSRange(location: 0, length: length)
+        addAttribute(.paragraphStyle, value: paragraphStyle, range: attributeRange)
+    }
+}
