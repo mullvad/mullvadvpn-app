@@ -113,7 +113,6 @@ extension CustomDNSViewController: DNSSettingsDataSourceDelegate {
                 When this feature is enabled it stops the device from contacting certain \
                 domains or websites known for distributing ads, malware, trackers and more. \
                 This might cause issues on certain websites, services, and apps.
-
                 Attention: this setting cannot be used in combination with **Use custom DNS**.
                 """,
                 comment: ""

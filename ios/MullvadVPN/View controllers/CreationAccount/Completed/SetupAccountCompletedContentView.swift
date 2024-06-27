@@ -32,22 +32,25 @@ class SetupAccountCompletedContentView: UIView {
 
     private let commentLabel: UILabel = {
         let label = UILabel()
-        label.font = .preferredFont(forTextStyle: .body)
-        label.textColor = .white
-        label.adjustsFontForContentSizeCategory = true
-        label.lineBreakMode = .byWordWrapping
-        label.numberOfLines = .zero
-        label.text = NSLocalizedString(
+
+        let message = NSMutableAttributedString(string: NSLocalizedString(
             "CREATED_ACCOUNT_CONFIRMATION_PAGE_BODY",
             tableName: "CreatedAccountConfirmation",
             value: """
             Go ahead and start using the app to begin reclaiming your online privacy.
-
             To continue your journey as a privacy ninja, \
             visit our website to pick up other privacy-friendly habits and tools.
             """,
             comment: ""
-        )
+        ))
+        message.apply(paragraphStyle: .alert)
+
+        label.attributedText = message
+        label.font = .preferredFont(forTextStyle: .body)
+        label.textColor = .white
+        label.adjustsFontForContentSizeCategory = true
+        label.numberOfLines = .zero
+
         return label
     }()
 
