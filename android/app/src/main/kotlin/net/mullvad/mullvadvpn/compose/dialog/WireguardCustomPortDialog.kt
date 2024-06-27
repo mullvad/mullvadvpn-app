@@ -17,6 +17,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.result.EmptyResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
@@ -54,7 +55,7 @@ data class WireguardCustomPortNavArgs(
     val allowedPortRanges: List<PortRange>,
 ) : Parcelable
 
-@Destination(style = DestinationStyle.Dialog::class)
+@Destination<RootGraph>(style = DestinationStyle.Dialog::class)
 @Composable
 fun WireguardCustomPortDialog(
     navArg: WireguardCustomPortNavArgs,

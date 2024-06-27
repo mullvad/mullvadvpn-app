@@ -26,8 +26,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.generated.NavGraphs
+import com.ramcosta.composedestinations.generated.destinations.DeviceNameInfoDialogDestination
+import com.ramcosta.composedestinations.generated.destinations.LoginDestination
+import com.ramcosta.composedestinations.generated.destinations.PaymentDestination
+import com.ramcosta.composedestinations.generated.destinations.RedeemVoucherDestination
+import com.ramcosta.composedestinations.generated.destinations.VerificationPendingDialogDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.ramcosta.composedestinations.navigation.popUpTo
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.flow.Flow
@@ -35,7 +41,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.NavGraphs
 import net.mullvad.mullvadvpn.compose.button.ExternalButton
 import net.mullvad.mullvadvpn.compose.button.NegativeButton
 import net.mullvad.mullvadvpn.compose.button.RedeemVoucherButton
@@ -45,12 +50,8 @@ import net.mullvad.mullvadvpn.compose.component.MissingPolicy
 import net.mullvad.mullvadvpn.compose.component.NavigateBackDownIconButton
 import net.mullvad.mullvadvpn.compose.component.PlayPayment
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
-import net.mullvad.mullvadvpn.compose.destinations.DeviceNameInfoDialogDestination
-import net.mullvad.mullvadvpn.compose.destinations.LoginDestination
-import net.mullvad.mullvadvpn.compose.destinations.PaymentDestination
-import net.mullvad.mullvadvpn.compose.destinations.RedeemVoucherDestination
-import net.mullvad.mullvadvpn.compose.destinations.VerificationPendingDialogDestination
 import net.mullvad.mullvadvpn.compose.extensions.createOpenAccountPageHook
+import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromBottomTransition
 import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
@@ -103,7 +104,7 @@ private fun PreviewAccountScreen() {
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Destination(style = SlideInFromBottomTransition::class)
+@Destination<RootGraph>(style = SlideInFromBottomTransition::class)
 @Composable
 fun Account(
     navigator: DestinationsNavigator,
@@ -137,9 +138,8 @@ fun Account(
         onBackClick = dropUnlessResumed { navigator.navigateUp() },
         navigateToDeviceInfo =
             dropUnlessResumed { navigator.navigate(DeviceNameInfoDialogDestination) },
-        onPurchaseBillingProductClick = { productId ->
-            navigator.navigate(PaymentDestination(productId), onlyIfResumed = true)
-        },
+        onPurchaseBillingProductClick =
+            dropUnlessResumed { productId -> navigator.navigate(PaymentDestination(productId)) },
         navigateToVerificationPendingDialog =
             dropUnlessResumed { navigator.navigate(VerificationPendingDialogDestination) }
     )

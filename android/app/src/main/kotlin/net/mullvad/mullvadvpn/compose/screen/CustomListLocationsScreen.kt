@@ -28,6 +28,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.generated.destinations.DiscardChangesDialogDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultBackNavigator
@@ -43,7 +45,6 @@ import net.mullvad.mullvadvpn.compose.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.constant.CommonContentKey
 import net.mullvad.mullvadvpn.compose.constant.ContentType
-import net.mullvad.mullvadvpn.compose.destinations.DiscardChangesDialogDestination
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.test.SAVE_BUTTON_TEST_TAG
@@ -68,7 +69,7 @@ private fun PreviewCustomListLocationScreen() {
 }
 
 @Composable
-@Destination(style = SlideInFromRightTransition::class)
+@Destination<RootGraph>(style = SlideInFromRightTransition::class)
 fun CustomListLocations(
     navigator: DestinationsNavigator,
     backNavigator: ResultBackNavigator<LocationsChanged>,

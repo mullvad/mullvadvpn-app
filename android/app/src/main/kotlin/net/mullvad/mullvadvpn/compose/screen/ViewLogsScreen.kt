@@ -30,6 +30,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
@@ -60,7 +61,7 @@ private fun PreviewViewLogsLoadingScreen() {
     AppTheme { ViewLogsScreen(state = ViewLogsUiState()) }
 }
 
-@Destination(style = SlideInFromRightTransition::class)
+@Destination<RootGraph>(style = SlideInFromRightTransition::class)
 @Composable
 fun ViewLogs(navigator: DestinationsNavigator) {
     val vm = koinViewModel<ViewLogsViewModel>()

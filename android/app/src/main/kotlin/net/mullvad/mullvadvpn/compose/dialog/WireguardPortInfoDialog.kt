@@ -6,6 +6,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
@@ -28,7 +29,7 @@ private fun PreviewWireguardPortInfoDialog() {
 
 @Parcelize data class WireguardPortInfoDialogArgument(val portRanges: List<PortRange>) : Parcelable
 
-@Destination(style = DestinationStyle.Dialog::class)
+@Destination<RootGraph>(style = DestinationStyle.Dialog::class)
 @Composable
 fun WireguardPortInfoDialog(
     navigator: DestinationsNavigator,

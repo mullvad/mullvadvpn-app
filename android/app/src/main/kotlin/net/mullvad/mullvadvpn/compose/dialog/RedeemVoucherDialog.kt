@@ -26,6 +26,7 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.SecureFlagPolicy
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.BuildConfig
@@ -104,7 +105,7 @@ private fun PreviewRedeemVoucherDialogSuccess() {
     }
 }
 
-@Destination(style = DestinationStyle.Dialog::class)
+@Destination<RootGraph>(style = DestinationStyle.Dialog::class)
 @Composable
 fun RedeemVoucher(resultBackNavigator: ResultBackNavigator<Boolean>) {
     val vm = koinViewModel<VoucherDialogViewModel>()

@@ -49,6 +49,7 @@ import androidx.constraintlayout.compose.ConstraintLayoutScope
 import androidx.core.text.HtmlCompat
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
@@ -72,7 +73,7 @@ private fun PreviewAutoConnectAndLockdownModeScreen() {
     AppTheme { AutoConnectAndLockdownModeScreen() }
 }
 
-@Destination(style = SlideInFromRightTransition::class)
+@Destination<RootGraph>(style = SlideInFromRightTransition::class)
 @Composable
 fun AutoConnectAndLockdownMode(navigator: DestinationsNavigator) {
     AutoConnectAndLockdownModeScreen(onBackClick = dropUnlessResumed { navigator.navigateUp() })

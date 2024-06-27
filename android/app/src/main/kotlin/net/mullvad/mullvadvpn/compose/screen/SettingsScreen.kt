@@ -21,6 +21,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.generated.destinations.ApiAccessListDestination
+import com.ramcosta.composedestinations.generated.destinations.ReportProblemDestination
+import com.ramcosta.composedestinations.generated.destinations.SplitTunnelingDestination
+import com.ramcosta.composedestinations.generated.destinations.VpnSettingsDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.DefaultExternalLinkView
@@ -28,10 +33,6 @@ import net.mullvad.mullvadvpn.compose.cell.NavigationCellBody
 import net.mullvad.mullvadvpn.compose.cell.NavigationComposeCell
 import net.mullvad.mullvadvpn.compose.component.NavigateBackDownIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
-import net.mullvad.mullvadvpn.compose.destinations.ApiAccessListDestination
-import net.mullvad.mullvadvpn.compose.destinations.ReportProblemDestination
-import net.mullvad.mullvadvpn.compose.destinations.SplitTunnelingDestination
-import net.mullvad.mullvadvpn.compose.destinations.VpnSettingsDestination
 import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
 import net.mullvad.mullvadvpn.compose.state.SettingsUiState
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_TEST_TAG
@@ -61,7 +62,7 @@ private fun PreviewSettings() {
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Destination(style = SettingsTransition::class)
+@Destination<RootGraph>(style = SettingsTransition::class)
 @Composable
 fun Settings(navigator: DestinationsNavigator) {
     val vm = koinViewModel<SettingsViewModel>()

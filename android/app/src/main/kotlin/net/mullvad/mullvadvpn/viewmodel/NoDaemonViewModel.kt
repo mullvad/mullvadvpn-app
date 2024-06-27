@@ -8,6 +8,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
+import com.ramcosta.composedestinations.generated.destinations.PrivacyDisclaimerDestination
+import com.ramcosta.composedestinations.generated.destinations.SplashDestination
 import com.ramcosta.composedestinations.spec.DestinationSpec
 import com.ramcosta.composedestinations.utils.destination
 import kotlin.time.Duration.Companion.seconds
@@ -20,8 +22,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.compose.destinations.PrivacyDisclaimerDestination
-import net.mullvad.mullvadvpn.compose.destinations.SplashDestination
 import net.mullvad.mullvadvpn.lib.daemon.grpc.GrpcConnectivityState
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 
@@ -31,7 +31,7 @@ class NoDaemonViewModel(managementService: ManagementService) :
     ViewModel(), LifecycleEventObserver, NavController.OnDestinationChangedListener {
 
     private val lifecycleFlow: MutableSharedFlow<Lifecycle.Event> = MutableSharedFlow()
-    private val destinationFlow: MutableSharedFlow<DestinationSpec<*>> = MutableSharedFlow()
+    private val destinationFlow: MutableSharedFlow<DestinationSpec> = MutableSharedFlow()
 
     @OptIn(FlowPreview::class)
     val uiSideEffect =
@@ -67,7 +67,7 @@ class NoDaemonViewModel(managementService: ManagementService) :
     private fun toDaemonState(
         lifecycleEvent: Lifecycle.Event,
         serviceState: GrpcConnectivityState,
-        currentDestination: DestinationSpec<*>
+        currentDestination: DestinationSpec
     ): DaemonState {
         // In these destinations we don't care about showing the NoDaemonScreen
         if (currentDestination in noServiceDestinations) {
