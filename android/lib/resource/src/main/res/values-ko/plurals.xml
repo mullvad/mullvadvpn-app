@@ -12,6 +12,9 @@
     <plurals name="days">
         <item quantity="other">%1$d일</item>
     </plurals>
+    <plurals name="number_of_locations">
+        <item quantity="other">위치 %1$d개</item>
+    </plurals>
     <plurals name="months">
         <item quantity="other">%1$d개월</item>
     </plurals>

@@ -16,6 +16,10 @@
         <item quantity="one">%1$d jour</item>
         <item quantity="other">%1$d jours</item>
     </plurals>
+    <plurals name="number_of_locations">
+        <item quantity="one">%1$d localisation</item>
+        <item quantity="other">%1$d localisations</item>
+    </plurals>
     <plurals name="months">
         <item quantity="one">%1$d mois</item>
         <item quantity="other">%1$d mois</item>

@@ -16,6 +16,10 @@
         <item quantity="one">%1$d päivä</item>
         <item quantity="other">%1$d päivää</item>
     </plurals>
+    <plurals name="number_of_locations">
+        <item quantity="one">%1$d sijainti</item>
+        <item quantity="other">%1$d sijaintia</item>
+    </plurals>
     <plurals name="months">
         <item quantity="one">%1$d kuukausi</item>
         <item quantity="other">%1$d kuukautta</item>

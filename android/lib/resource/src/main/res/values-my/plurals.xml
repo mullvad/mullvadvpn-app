@@ -12,6 +12,9 @@
     <plurals name="days">
         <item quantity="other">%1$d ရက်</item>
     </plurals>
+    <plurals name="number_of_locations">
+        <item quantity="other">%1$d တည်နေရာများ</item>
+    </plurals>
     <plurals name="months">
         <item quantity="other">%1$d လ</item>
     </plurals>
