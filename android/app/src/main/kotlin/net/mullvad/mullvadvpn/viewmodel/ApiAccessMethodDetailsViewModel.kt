@@ -1,9 +1,11 @@
 package net.mullvad.mullvadvpn.viewmodel
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import arrow.core.Either
 import arrow.core.raise.either
+import com.ramcosta.composedestinations.generated.destinations.ApiAccessMethodDetailsDestination
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
@@ -22,10 +24,13 @@ import net.mullvad.mullvadvpn.repository.ApiAccessRepository
 import net.mullvad.mullvadvpn.util.delayAtLeast
 
 class ApiAccessMethodDetailsViewModel(
-    private val apiAccessMethodId: ApiAccessMethodId,
-    private val apiAccessRepository: ApiAccessRepository
+    private val apiAccessRepository: ApiAccessRepository,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private var testingJob: Job? = null
+
+    private val apiAccessMethodId: ApiAccessMethodId =
+        ApiAccessMethodDetailsDestination.argsFrom(savedStateHandle).accessMethodId
 
     private val _uiSideEffect = Channel<ApiAccessMethodDetailsSideEffect>(Channel.BUFFERED)
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
@@ -35,27 +40,24 @@ class ApiAccessMethodDetailsViewModel(
                 apiAccessRepository.apiAccessMethodSettingById(apiAccessMethodId),
                 apiAccessRepository.enabledApiAccessMethods(),
                 apiAccessRepository.currentAccessMethod,
-                isTestingApiAccessMethodState
-            ) {
-                apiAccessMethod,
-                enabledApiAccessMethods,
-                currentAccessMethod,
-                isTestingApiAccessMethod ->
-                ApiAccessMethodDetailsUiState.Content(
-                    apiAccessMethodId = apiAccessMethodId,
-                    name = apiAccessMethod.name,
-                    enabled = apiAccessMethod.enabled,
-                    isEditable = apiAccessMethod.apiAccessMethod is ApiAccessMethod.CustomProxy,
-                    isDisableable = enabledApiAccessMethods.any { it.id != apiAccessMethodId },
-                    isCurrentMethod = currentAccessMethod?.id == apiAccessMethodId,
-                    isTestingAccessMethod = isTestingApiAccessMethod
-                )
-            }
+                isTestingApiAccessMethodState) {
+                    apiAccessMethod,
+                    enabledApiAccessMethods,
+                    currentAccessMethod,
+                    isTestingApiAccessMethod ->
+                    ApiAccessMethodDetailsUiState.Content(
+                        apiAccessMethodId = apiAccessMethodId,
+                        name = apiAccessMethod.name,
+                        enabled = apiAccessMethod.enabled,
+                        isEditable = apiAccessMethod.apiAccessMethod is ApiAccessMethod.CustomProxy,
+                        isDisableable = enabledApiAccessMethods.any { it.id != apiAccessMethodId },
+                        isCurrentMethod = currentAccessMethod?.id == apiAccessMethodId,
+                        isTestingAccessMethod = isTestingApiAccessMethod)
+                }
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(),
-                ApiAccessMethodDetailsUiState.Loading(apiAccessMethodId = apiAccessMethodId)
-            )
+                ApiAccessMethodDetailsUiState.Loading(apiAccessMethodId = apiAccessMethodId))
 
     fun setCurrentMethod() {
         testingJob =
@@ -69,9 +71,7 @@ class ApiAccessMethodDetailsViewModel(
                     .onLeft {
                         _uiSideEffect.send(
                             ApiAccessMethodDetailsSideEffect.UnableToSetCurrentMethod(
-                                testMethodFailed = it is TestApiAccessMethodError
-                            )
-                        )
+                                testMethodFailed = it is TestApiAccessMethodError))
                     }
             }
     }
@@ -81,8 +81,7 @@ class ApiAccessMethodDetailsViewModel(
             viewModelScope.launch {
                 val result = testMethodById()
                 _uiSideEffect.send(
-                    ApiAccessMethodDetailsSideEffect.TestApiAccessMethodResult(result.isRight())
-                )
+                    ApiAccessMethodDetailsSideEffect.TestApiAccessMethodResult(result.isRight()))
             }
     }
 
