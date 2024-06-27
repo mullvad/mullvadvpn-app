@@ -43,7 +43,8 @@ for arch in ${ARCHITECTURES:-armv7 aarch64 x86_64 i686}; do
     # Build Wireguard-Go
     pwd
     make -f Android.mk clean
-    make -f Android.mk
+    export BUILD_DIR=$(realpath -s "../../build/")
+    LDFLAGS="-L$BUILD_DIR/lib/$RUST_TARGET_TRIPLE" make -f Android.mk
 
     # Strip and copy the library to `android/build/extraJni/$ANDROID_ABI` to be able to build the APK
     UNSTRIPPED_LIB_PATH="../../build/lib/$RUST_TARGET_TRIPLE/libwg.so"
