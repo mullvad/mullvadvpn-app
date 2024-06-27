@@ -76,7 +76,7 @@ $GRADLE_CMD --console plain clean
 mkdir -p "app/build/extraJni"
 popd
 
-for ARCHITECTURE in ${ARCHITECTURES:-aarch64 armv7 x86_64 i686}; do
+for ARCHITECTURE in ${ARCHITECTURES:-x86_64}; do
     case "$ARCHITECTURE" in
         "x86_64")
             TARGET="x86_64-linux-android"
