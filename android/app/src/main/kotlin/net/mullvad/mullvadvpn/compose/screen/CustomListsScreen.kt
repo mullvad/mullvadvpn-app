@@ -25,6 +25,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.generated.destinations.CreateCustomListDestination
+import com.ramcosta.composedestinations.generated.destinations.EditCustomListDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
@@ -36,8 +39,7 @@ import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicator
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.constant.ContentType
-import net.mullvad.mullvadvpn.compose.destinations.CreateCustomListDestination
-import net.mullvad.mullvadvpn.compose.destinations.EditCustomListDestination
+import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.extensions.itemsWithDivider
 import net.mullvad.mullvadvpn.compose.state.CustomListsUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
@@ -58,7 +60,7 @@ private fun PreviewCustomListsScreen() {
 }
 
 @Composable
-@Destination(style = SlideInFromRightTransition::class)
+@Destination<RootGraph>(style = SlideInFromRightTransition::class)
 fun CustomLists(
     navigator: DestinationsNavigator,
     editCustomListResultRecipient: ResultRecipient<EditCustomListDestination, Deleted>
@@ -99,12 +101,12 @@ fun CustomLists(
                     CreateCustomListDestination(),
                 )
             },
-        openCustomList = { customList ->
-            navigator.navigate(
-                EditCustomListDestination(customListId = customList.id),
-                onlyIfResumed = true
-            )
-        },
+        openCustomList =
+            dropUnlessResumed { customList ->
+                navigator.navigate(
+                    EditCustomListDestination(customListId = customList.id),
+                )
+            },
         onBackClick = dropUnlessResumed { navigator.navigateUp() }
     )
 }

@@ -19,17 +19,16 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootNavGraph
+import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.generated.NavGraphs
+import com.ramcosta.composedestinations.generated.destinations.ConnectDestination
+import com.ramcosta.composedestinations.generated.destinations.DeviceRevokedDestination
+import com.ramcosta.composedestinations.generated.destinations.LoginDestination
+import com.ramcosta.composedestinations.generated.destinations.OutOfTimeDestination
+import com.ramcosta.composedestinations.generated.destinations.PrivacyDisclaimerDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.ramcosta.composedestinations.navigation.popUpTo
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.NavGraphs
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
-import net.mullvad.mullvadvpn.compose.destinations.ConnectDestination
-import net.mullvad.mullvadvpn.compose.destinations.DeviceRevokedDestination
-import net.mullvad.mullvadvpn.compose.destinations.LoginDestination
-import net.mullvad.mullvadvpn.compose.destinations.OutOfTimeDestination
-import net.mullvad.mullvadvpn.compose.destinations.PrivacyDisclaimerDestination
 import net.mullvad.mullvadvpn.compose.transitions.DefaultTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -46,8 +45,7 @@ private fun PreviewLoadingScreen() {
 }
 
 // Set this as the start destination of the default nav graph
-@RootNavGraph(start = true)
-@Destination(style = DefaultTransition::class)
+@Destination<RootGraph>(start = true, style = DefaultTransition::class)
 @Composable
 fun Splash(navigator: DestinationsNavigator) {
     val viewModel: SplashViewModel = koinViewModel()

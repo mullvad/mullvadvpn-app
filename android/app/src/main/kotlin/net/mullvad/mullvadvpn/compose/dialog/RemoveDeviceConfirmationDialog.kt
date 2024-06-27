@@ -17,6 +17,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.result.EmptyResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
@@ -39,7 +40,7 @@ private fun PreviewRemoveDeviceConfirmationDialog(
     AppTheme { RemoveDeviceConfirmationDialog(EmptyResultBackNavigator(), device = device) }
 }
 
-@Destination(style = DestinationStyle.Dialog::class)
+@Destination<RootGraph>(style = DestinationStyle.Dialog::class)
 @Composable
 fun RemoveDeviceConfirmationDialog(navigator: ResultBackNavigator<DeviceId>, device: Device) {
     AlertDialog(
