@@ -49,19 +49,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.generated.NavGraphs
+import com.ramcosta.composedestinations.generated.destinations.ConnectDestination
+import com.ramcosta.composedestinations.generated.destinations.DeviceListDestination
+import com.ramcosta.composedestinations.generated.destinations.OutOfTimeDestination
+import com.ramcosta.composedestinations.generated.destinations.SettingsDestination
+import com.ramcosta.composedestinations.generated.destinations.WelcomeDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.ramcosta.composedestinations.navigation.popUpTo
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.NavGraphs
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.button.VariantButton
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
-import net.mullvad.mullvadvpn.compose.destinations.ConnectDestination
-import net.mullvad.mullvadvpn.compose.destinations.DeviceListDestination
-import net.mullvad.mullvadvpn.compose.destinations.OutOfTimeDestination
-import net.mullvad.mullvadvpn.compose.destinations.SettingsDestination
-import net.mullvad.mullvadvpn.compose.destinations.WelcomeDestination
 import net.mullvad.mullvadvpn.compose.state.LoginError
 import net.mullvad.mullvadvpn.compose.state.LoginState
 import net.mullvad.mullvadvpn.compose.state.LoginState.Idle
@@ -111,7 +111,7 @@ private fun PreviewLoginSuccess() {
     AppTheme { LoginScreen(state = LoginUiState(loginState = Success)) }
 }
 
-@Destination(style = LoginTransition::class)
+@Destination<RootGraph>(style = LoginTransition::class)
 @Composable
 fun Login(
     navigator: DestinationsNavigator,

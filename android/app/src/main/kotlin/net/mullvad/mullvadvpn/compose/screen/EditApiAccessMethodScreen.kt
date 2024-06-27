@@ -32,6 +32,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.generated.destinations.DiscardChangesDialogDestination
+import com.ramcosta.composedestinations.generated.destinations.SaveApiAccessMethodDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
@@ -46,8 +49,6 @@ import net.mullvad.mullvadvpn.compose.component.NavigateCloseIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.component.textResource
-import net.mullvad.mullvadvpn.compose.destinations.DiscardChangesDialogDestination
-import net.mullvad.mullvadvpn.compose.destinations.SaveApiAccessMethodDestination
 import net.mullvad.mullvadvpn.compose.preview.EditApiAccessMethodUiStateParameterProvider
 import net.mullvad.mullvadvpn.compose.state.ApiAccessMethodTypes
 import net.mullvad.mullvadvpn.compose.state.EditApiAccessFormData
@@ -82,7 +83,7 @@ private fun PreviewEditApiAccessMethodScreen(
     AppTheme { EditApiAccessMethodScreen(state = state) }
 }
 
-@Destination(style = SlideInFromRightTransition::class)
+@Destination<RootGraph>(style = SlideInFromRightTransition::class)
 @Composable
 fun EditApiAccessMethod(
     navigator: DestinationsNavigator,

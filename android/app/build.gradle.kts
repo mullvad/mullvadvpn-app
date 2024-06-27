@@ -13,6 +13,7 @@ plugins {
     id(Dependencies.Plugin.kotlinParcelizeId)
     id(Dependencies.Plugin.ksp) version Versions.Plugin.ksp
     id(Dependencies.Plugin.junit5) version Versions.Plugin.junit5
+    id(Dependencies.Plugin.composeCompiler) version Versions.kotlin
 }
 
 val repoRootPath = rootProject.projectDir.absoluteFile.parentFile.absolutePath
@@ -126,8 +127,6 @@ android {
         compose = true
         buildConfig = true
     }
-
-    composeOptions { kotlinCompilerExtensionVersion = Versions.kotlinCompilerExtensionVersion }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -243,6 +242,8 @@ android {
     project.tasks.assemble.dependsOn("ensureJniDirectoryExist")
     project.tasks.assemble.dependsOn("ensureValidVersionCode")
 }
+
+composeCompiler { enableStrongSkippingMode = true }
 
 androidComponents {
     beforeVariants { variantBuilder ->

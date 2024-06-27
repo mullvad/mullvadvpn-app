@@ -35,19 +35,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.generated.NavGraphs
+import com.ramcosta.composedestinations.generated.destinations.LoginDestination
+import com.ramcosta.composedestinations.generated.destinations.SplashDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.ramcosta.composedestinations.navigation.popUpTo
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.NavGraphs
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorMedium
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
-import net.mullvad.mullvadvpn.compose.destinations.LoginDestination
-import net.mullvad.mullvadvpn.compose.destinations.SplashDestination
 import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
 import net.mullvad.mullvadvpn.compose.util.toDp
 import net.mullvad.mullvadvpn.constant.DAEMON_READY_TIMEOUT_MS
@@ -74,7 +74,7 @@ private fun PreviewPrivacyDisclaimerScreen() {
     }
 }
 
-@Destination
+@Destination<RootGraph>
 @Composable
 fun PrivacyDisclaimer(
     navigator: DestinationsNavigator,

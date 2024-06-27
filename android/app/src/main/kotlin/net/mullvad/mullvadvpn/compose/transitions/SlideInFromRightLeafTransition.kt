@@ -1,30 +1,44 @@
 package net.mullvad.mullvadvpn.compose.transitions
 
 import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.navigation.NavBackStackEntry
+import com.ramcosta.composedestinations.generated.destinations.NoDaemonScreenDestination
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import com.ramcosta.composedestinations.utils.destination
-import net.mullvad.mullvadvpn.compose.destinations.NoDaemonScreenDestination
 import net.mullvad.mullvadvpn.constant.SCREEN_ANIMATION_TIME_MILLIS
 
-object SlideInFromRightLeafTransition : DestinationStyle.Animated {
-    override fun AnimatedContentTransitionScope<NavBackStackEntry>.enterTransition() =
-        slideInHorizontally(initialOffsetX = { it })
-
-    override fun AnimatedContentTransitionScope<NavBackStackEntry>.exitTransition() =
-        when (targetState.destination()) {
-            NoDaemonScreenDestination -> fadeOut(snap(SCREEN_ANIMATION_TIME_MILLIS))
-            else -> fadeOut()
+object SlideInFromRightLeafTransition : DestinationStyle.Animated() {
+    override val enterTransition:
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition =
+        {
+            slideInHorizontally(initialOffsetX = { it })
         }
 
-    override fun AnimatedContentTransitionScope<NavBackStackEntry>.popEnterTransition() =
-        fadeIn(snap(0))
+    override val exitTransition:
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition =
+        {
+            when (targetState.destination()) {
+                NoDaemonScreenDestination -> fadeOut(snap(SCREEN_ANIMATION_TIME_MILLIS))
+                else -> fadeOut()
+            }
+        }
 
-    override fun AnimatedContentTransitionScope<NavBackStackEntry>.popExitTransition() =
-        slideOutHorizontally(targetOffsetX = { it })
+    override val popEnterTransition:
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition =
+        {
+            fadeIn(snap(0))
+        }
+
+    override val popExitTransition:
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition =
+        {
+            slideOutHorizontally(targetOffsetX = { it })
+        }
 }
