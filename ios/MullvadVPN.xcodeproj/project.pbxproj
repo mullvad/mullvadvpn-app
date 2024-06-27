@@ -274,7 +274,7 @@
 		58BDEB992A98F4ED00F578F2 /* AnyTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BDEB982A98F4ED00F578F2 /* AnyTransport.swift */; };
 		58BDEB9B2A98F58600F578F2 /* TimeServerProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BDEB9A2A98F58600F578F2 /* TimeServerProxy.swift */; };
 		58BDEB9D2A98F69E00F578F2 /* MemoryCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BDEB9C2A98F69E00F578F2 /* MemoryCache.swift */; };
-		58BE4B9D2B18A85B007EA1D3 /* NSAttributedString+Markdown.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58DFF7CF2B02560400F864E0 /* NSAttributedString+Markdown.swift */; };
+		58BE4B9D2B18A85B007EA1D3 /* NSAttributedString+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58DFF7CF2B02560400F864E0 /* NSAttributedString+Extensions.swift */; };
 		58BFA5C622A7C97F00A6173D /* RelayCacheTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BFA5C522A7C97F00A6173D /* RelayCacheTracker.swift */; };
 		58BFA5CC22A7CE1F00A6173D /* ApplicationConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BFA5CB22A7CE1F00A6173D /* ApplicationConfiguration.swift */; };
 		58C3A4B222456F1B00340BDB /* AccountInputGroupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C3A4B122456F1A00340BDB /* AccountInputGroupView.swift */; };
@@ -389,7 +389,7 @@
 		58D22435294C975B0029F5F8 /* Operations.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58D223A5294C8A480029F5F8 /* Operations.framework */; platformFilter = ios; };
 		58DDA18F2ABC32380039C360 /* Timings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58DDA18E2ABC32380039C360 /* Timings.swift */; };
 		58DF28A52417CB4B00E836B0 /* StorePaymentManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58DF28A42417CB4B00E836B0 /* StorePaymentManager.swift */; };
-		58DFF7D02B02560400F864E0 /* NSAttributedString+Markdown.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58DFF7CF2B02560400F864E0 /* NSAttributedString+Markdown.swift */; };
+		58DFF7D02B02560400F864E0 /* NSAttributedString+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58DFF7CF2B02560400F864E0 /* NSAttributedString+Extensions.swift */; };
 		58DFF7D22B0256A300F864E0 /* MarkdownStylingOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58DFF7D12B0256A300F864E0 /* MarkdownStylingOptions.swift */; };
 		58DFF7D32B02570000F864E0 /* MarkdownStylingOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58DFF7D12B0256A300F864E0 /* MarkdownStylingOptions.swift */; };
 		58DFF7D82B02774C00F864E0 /* ListItemPickerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58DFF7D72B02774C00F864E0 /* ListItemPickerViewController.swift */; };
@@ -604,6 +604,7 @@
 		7ADCB2DA2B6A730400C88F89 /* IPOverrideRepositoryStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ADCB2D92B6A730400C88F89 /* IPOverrideRepositoryStub.swift */; };
 		7AE044BB2A935726003915D8 /* Routing.h in Headers */ = {isa = PBXBuildFile; fileRef = 7A88DCD02A8FABBE00D2FF0E /* Routing.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		7AE2414A2C20682B0076CE33 /* FormsheetPresentationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE241482C20682B0076CE33 /* FormsheetPresentationController.swift */; };
+		7AE90B682C2D726000375A60 /* NSParagraphStyle+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE90B672C2D726000375A60 /* NSParagraphStyle+Extensions.swift */; };
 		7AEBA52C2C22C65B0018BEC5 /* TimeInterval+Timeout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AEBA52B2C22C65B0018BEC5 /* TimeInterval+Timeout.swift */; };
 		7AED35CC2BD13F60002A67D1 /* ApplicationConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BFA5CB22A7CE1F00A6173D /* ApplicationConfiguration.swift */; };
 		7AED35CD2BD13FC4002A67D1 /* ApplicationTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C76A072A33850E00100D75 /* ApplicationTarget.swift */; };
@@ -1794,7 +1795,7 @@
 		58D229B6298D1D5200BB5A2D /* URLRequestProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLRequestProxy.swift; sourceTree = "<group>"; };
 		58DDA18E2ABC32380039C360 /* Timings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Timings.swift; sourceTree = "<group>"; };
 		58DF28A42417CB4B00E836B0 /* StorePaymentManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorePaymentManager.swift; sourceTree = "<group>"; };
-		58DFF7CF2B02560400F864E0 /* NSAttributedString+Markdown.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSAttributedString+Markdown.swift"; sourceTree = "<group>"; };
+		58DFF7CF2B02560400F864E0 /* NSAttributedString+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSAttributedString+Extensions.swift"; sourceTree = "<group>"; };
 		58DFF7D12B0256A300F864E0 /* MarkdownStylingOptions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarkdownStylingOptions.swift; sourceTree = "<group>"; };
 		58DFF7D72B02774C00F864E0 /* ListItemPickerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListItemPickerViewController.swift; sourceTree = "<group>"; };
 		58DFF7D92B02862E00F864E0 /* ShadowsocksCipherOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowsocksCipherOptions.swift; sourceTree = "<group>"; };
@@ -1989,6 +1990,7 @@
 		7ADCB2D72B6A6EB300C88F89 /* AnyRelay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyRelay.swift; sourceTree = "<group>"; };
 		7ADCB2D92B6A730400C88F89 /* IPOverrideRepositoryStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPOverrideRepositoryStub.swift; sourceTree = "<group>"; };
 		7AE241482C20682B0076CE33 /* FormsheetPresentationController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FormsheetPresentationController.swift; sourceTree = "<group>"; };
+		7AE90B672C2D726000375A60 /* NSParagraphStyle+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSParagraphStyle+Extensions.swift"; sourceTree = "<group>"; };
 		7AEBA52B2C22C65B0018BEC5 /* TimeInterval+Timeout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TimeInterval+Timeout.swift"; sourceTree = "<group>"; };
 		7AEF7F192AD00F52006FE45D /* AppMessageHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppMessageHandler.swift; sourceTree = "<group>"; };
 		7AF10EB12ADE859200C090B9 /* AlertViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlertViewController.swift; sourceTree = "<group>"; };
@@ -3009,9 +3011,10 @@
 				7AF9BE8F2A39F26000DBFEDB /* Collection+Sorting.swift */,
 				7A0C0F622A979C4A0058EFCE /* Coordinator+Router.swift */,
 				5811DE4F239014550011EB53 /* NEVPNStatus+Debug.swift */,
-				58DFF7CF2B02560400F864E0 /* NSAttributedString+Markdown.swift */,
+				58DFF7CF2B02560400F864E0 /* NSAttributedString+Extensions.swift */,
 				5827B0C42B14D3E800CCBBA1 /* NSDiffableDataSourceSnapshot+Reconfigure.swift */,
 				587D9675288989DB00CD8F1C /* NSLayoutConstraint+Helpers.swift */,
+				7AE90B672C2D726000375A60 /* NSParagraphStyle+Extensions.swift */,
 				5871FB9F254C26BF0051A0A4 /* NSRegularExpression+IPAddress.swift */,
 				06FAE67828F83CA50033DD93 /* RESTCreateApplePaymentResponse+Localization.swift */,
 				58B9EB142489139B00095626 /* RESTError+Display.swift */,
@@ -5491,7 +5494,7 @@
 				A9A5FA162ACB05160083449F /* RotateKeyOperation.swift in Sources */,
 				F072D3CF2C07122400906F64 /* MultihopUpdaterTests.swift in Sources */,
 				F09D04B52AE93CB6003D4F89 /* OutgoingConnectionProxy+Stub.swift in Sources */,
-				58BE4B9D2B18A85B007EA1D3 /* NSAttributedString+Markdown.swift in Sources */,
+				58BE4B9D2B18A85B007EA1D3 /* NSAttributedString+Extensions.swift in Sources */,
 				A9A5FA172ACB05160083449F /* SendTunnelProviderMessageOperation.swift in Sources */,
 				7A83A0C62B29A750008B5CE7 /* APIAccessMethodsTests.swift in Sources */,
 				A9A5FA182ACB05160083449F /* SetAccountOperation.swift in Sources */,
@@ -5780,6 +5783,7 @@
 				5820EDA9288FE064006BF4E4 /* DeviceManagementInteractor.swift in Sources */,
 				7A9CCCB92A96302800DD6A34 /* LocationCoordinator.swift in Sources */,
 				58FB865A26EA214400F188BC /* RelayCacheTrackerObserver.swift in Sources */,
+				7AE90B682C2D726000375A60 /* NSParagraphStyle+Extensions.swift in Sources */,
 				581DFAEC2B1770C1005D6D1C /* AccessMethodViewModel+NavigationItem.swift in Sources */,
 				58ACF64D26567A5000ACE4B7 /* CustomSwitch.swift in Sources */,
 				F0DA874B2A9CBACB006044F1 /* AccountNumberRow.swift in Sources */,
@@ -5938,7 +5942,7 @@
 				5878A27329091D6D0096FC88 /* TunnelBlockObserver.swift in Sources */,
 				A9E034642ABB302000E59A5A /* UIEdgeInsets+Extensions.swift in Sources */,
 				58CEB2E92AFBBA4A00E6E088 /* AddAccessMethodCoordinator.swift in Sources */,
-				58DFF7D02B02560400F864E0 /* NSAttributedString+Markdown.swift in Sources */,
+				58DFF7D02B02560400F864E0 /* NSAttributedString+Extensions.swift in Sources */,
 				58E0A98827C8F46300FE6BDD /* Tunnel.swift in Sources */,
 				7A12D0762B062D5C00E9602D /* URLSessionProtocol.swift in Sources */,
 				58ACF64F26567A7100ACE4B7 /* CustomSwitchContainer.swift in Sources */,
