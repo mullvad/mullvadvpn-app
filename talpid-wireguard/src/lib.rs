@@ -335,15 +335,7 @@ impl WireguardMonitor {
                 .await?;
 
             let metadata = Self::tunnel_metadata(&iface_name, &config);
-            let allowed_traffic = if config.quantum_resistant || config.daita {
-                AllowedTunnelTraffic::One(Endpoint::new(
-                    config.ipv4_gateway,
-                    talpid_tunnel_config_client::CONFIG_SERVICE_PORT,
-                    TransportProtocol::Tcp,
-                ))
-            } else {
-                AllowedTunnelTraffic::All
-            };
+            let allowed_traffic = Self::allowed_traffic_during_tunnel_config(&config);
             (on_event)(TunnelEvent::InterfaceUp(metadata.clone(), allowed_traffic)).await;
 
             // Add non-default routes before establishing the tunnel.
@@ -370,14 +362,19 @@ impl WireguardMonitor {
                     &tunnel,
                     &mut config,
                     args.retry_attempt,
-                    args.on_event.clone(),
-                    &iface_name,
                     obfuscator.clone(),
                     ephemeral_obfs_sender,
                     #[cfg(target_os = "android")]
                     args.tun_provider,
                 )
                 .await?;
+
+                let metadata = Self::tunnel_metadata(&iface_name, &config);
+                (on_event)(TunnelEvent::InterfaceUp(
+                    metadata,
+                    Self::allowed_traffic_after_tunnel_config(),
+                ))
+                .await;
             }
 
             #[cfg(not(target_os = "android"))]
@@ -471,48 +468,46 @@ impl WireguardMonitor {
         Ok(monitor)
     }
 
-    #[allow(clippy::too_many_arguments)]
-    async fn config_ephemeral_peers<F>(
+    fn allowed_traffic_during_tunnel_config(config: &Config) -> AllowedTunnelTraffic {
+        // During ephemeral peer negotiation, only allow traffic to the config service.
+        if config.quantum_resistant || config.daita {
+            let config_endpoint = Endpoint::new(
+                config.ipv4_gateway,
+                talpid_tunnel_config_client::CONFIG_SERVICE_PORT,
+                TransportProtocol::Tcp,
+            );
+            if config.is_multihop() {
+                // If multihop is enabled, allow traffic to the exit peer as well.
+                AllowedTunnelTraffic::Two(
+                    config_endpoint,
+                    Endpoint::from_socket_address(
+                        config.exit_peer().endpoint,
+                        TransportProtocol::Udp,
+                    ),
+                )
+            } else {
+                AllowedTunnelTraffic::One(config_endpoint)
+            }
+        } else {
+            AllowedTunnelTraffic::All
+        }
+    }
+
+    fn allowed_traffic_after_tunnel_config() -> AllowedTunnelTraffic {
+        // After ephemeral peer negotiation, allow all tunnel traffic again.
+        AllowedTunnelTraffic::All
+    }
+
+    async fn config_ephemeral_peers(
         tunnel: &Arc<AsyncMutex<Option<Box<dyn Tunnel>>>>,
         config: &mut Config,
         retry_attempt: u32,
-        on_event: F,
-        iface_name: &str,
         obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
         close_obfs_sender: sync_mpsc::Sender<CloseMsg>,
         #[cfg(target_os = "android")] tun_provider: Arc<Mutex<TunProvider>>,
-    ) -> std::result::Result<(), CloseMsg>
-    where
-        F: (Fn(TunnelEvent) -> Pin<Box<dyn std::future::Future<Output = ()> + Send>>)
-            + Send
-            + Sync
-            + Clone
-            + 'static,
-    {
+    ) -> std::result::Result<(), CloseMsg> {
         let ephemeral_private_key = PrivateKey::new_from_random();
         let close_obfs_sender = close_obfs_sender.clone();
-
-        let allowed_traffic = Endpoint::new(
-            config.ipv4_gateway,
-            talpid_tunnel_config_client::CONFIG_SERVICE_PORT,
-            TransportProtocol::Tcp,
-        );
-        let allowed_traffic = if config.is_multihop() {
-            // NOTE: We need to let traffic meant for the exit IP through the firewall. This
-            // should not allow any non-PQ traffic to leak since you can only reach the
-            // exit peer with these rules and not the broader internet.
-            AllowedTunnelTraffic::Two(
-                allowed_traffic,
-                Endpoint::from_socket_address(
-                    config.exit_peer_mut().endpoint,
-                    TransportProtocol::Udp,
-                ),
-            )
-        } else {
-            AllowedTunnelTraffic::One(allowed_traffic)
-        };
-        let metadata = Self::tunnel_metadata(iface_name, config);
-        (on_event)(TunnelEvent::InterfaceUp(metadata, allowed_traffic.clone())).await;
 
         let exit_should_have_daita = config.daita && !config.is_multihop();
         let exit_psk = Self::request_ephemeral_peer(
@@ -587,13 +582,6 @@ impl WireguardMonitor {
                     .map_err(CloseMsg::SetupError)?;
             }
         }
-
-        let metadata = Self::tunnel_metadata(iface_name, config);
-        (on_event)(TunnelEvent::InterfaceUp(
-            metadata,
-            AllowedTunnelTraffic::All,
-        ))
-        .await;
 
         Ok(())
     }
