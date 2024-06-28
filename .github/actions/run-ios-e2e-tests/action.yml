@@ -4,6 +4,9 @@ inputs:
   test_name:
     description: 'Test case/suite name. Will run all tests in the test plan if not provided.'
     required: false
+  xcode_test_plan:
+    description: 'Xcode Test Plan to run'
+    required: true
 
 runs:
   using: 'composite'
@@ -26,3 +29,4 @@ runs:
       working-directory: ios/
       env:
         TEST_NAME: ${{ inputs.test_name }}
+        XCODE_TEST_PLAN: ${{ inputs.xcode_test_plan }}

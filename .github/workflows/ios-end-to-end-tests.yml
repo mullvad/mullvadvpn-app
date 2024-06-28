@@ -42,14 +42,32 @@ jobs:
         shell: bash
         run: echo "::set-output name=uuid::$(uuidgen)"
 
+  determine-test-plan-to-use:
+    if: github.event.pull_request.merged || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    name: Determine test plan to use
+    runs-on: [self-hosted, macOS, ios-test]
+    outputs:
+      test_plan: ${{ steps.determine-test-plan.outputs.test_plan }}
+    steps:
+      - name: Select test plan to execute
+        id: determine-test-plan
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            echo "::set-output name=test_plan::MullvadVPNUITestsSmoke"
+          elif [[ "${{ github.event_name }}" == "schedule" ]]; then
+            echo "::set-output name=test_plan::MullvadVPNUITestsAll"
+          elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "::set-output name=test_plan::MullvadVPNUITestsAll"
+          fi
+
   build:
     if: github.event.pull_request.merged || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     name: Build for end to end tests
     runs-on: [self-hosted, macOS, ios-test]
-    needs: generate-derived-data-cache-uuid
+    needs: determine-test-plan-to-use
     timeout-minutes: 20
     env:
-      DERIVED_DATA_CACHE_KEY: ${{ needs.generate-derived-data-cache-uuid.outputs.uuid }}
+      XCODE_TEST_PLAN: ${{ needs.determine-test-plan-to-use.outputs.test_plan }}
     steps:
       - name: Configure Rust
         uses: actions-rs/toolchain@v1
@@ -96,10 +114,10 @@ jobs:
     if: github.event.pull_request.merged || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     name: Run tests
     runs-on: [self-hosted, macOS, ios-test]
-    needs: generate-derived-data-cache-uuid
+    needs: determine-test-plan-to-use
     timeout-minutes: 60
     env:
-      DERIVED_DATA_CACHE_KEY: ${{ needs.generate-derived-data-cache-uuid.outputs.uuid }}
+      XCODE_TEST_PLAN: ${{ needs.determine-test-plan-to-use.outputs.test_plan }}
     steps:
 #      - name: Restore derived data cache
 #        uses: actions/cache/restore@v4
@@ -117,6 +135,7 @@ jobs:
         uses: ./.github/actions/run-ios-e2e-tests
         with:
           test_name: "MullvadVPNUITests/AccountTests"
+          xcode_test_plan: ${{ needs.determine-test-plan-to-use.outputs.test_plan }}
 
 #      - name: Comment PR on test failure
 #        if: failure() && github.event_name == 'pull_request'
