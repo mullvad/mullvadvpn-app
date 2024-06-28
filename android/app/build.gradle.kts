@@ -326,6 +326,7 @@ dependencies {
 
     implementation(Dependencies.commonsValidator)
     implementation(Dependencies.AndroidX.coreKtx)
+    implementation(Dependencies.AndroidX.coreSplashscreen)
     implementation(Dependencies.AndroidX.lifecycleRuntimeKtx)
     implementation(Dependencies.AndroidX.lifecycleViewmodelKtx)
     implementation(Dependencies.AndroidX.lifecycleRuntimeCompose)
