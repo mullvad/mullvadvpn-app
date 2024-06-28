@@ -2,8 +2,8 @@ name: 'Run iOS end to end tests action'
 description: 'Runs end to end tests on iOS device'
 inputs:
   test_name:
-  description: 'Test case/suite name. Will run all tests in the test plan if not provided.'
-  required: false
+    description: 'Test case/suite name. Will run all tests in the test plan if not provided.'
+    required: false
 
 runs:
   using: 'composite'
