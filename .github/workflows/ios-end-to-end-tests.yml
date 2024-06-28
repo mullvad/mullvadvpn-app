@@ -71,10 +71,9 @@ jobs:
       - name: Store derived data in cache
         id: store-derived-data-cache
         uses: actions/cache/save@v4
-        key: derived-data-cache-key
         with:
-          path: derived-data
-        working-directory: ios/
+          path: ios/derived-data
+          key: derived-data-cache-key
 
   test:
     if: github.event.pull_request.merged || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
@@ -84,10 +83,9 @@ jobs:
     steps:
       - name: Restore derived data cache
         uses: actions/cache/restore@v2
-        key: derived-data-cache-key
         with:
-          path: derived-data
-        working-directory: ios/
+          path: ios/derived-data
+          key: derived-data-cache-key
 
       - name: Build iOS end to end tests action
         uses: ./.github/actions/run-ios-e2e-tests
