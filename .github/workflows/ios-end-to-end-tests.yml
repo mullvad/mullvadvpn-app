@@ -35,9 +35,10 @@ jobs:
     name: Generate derived data cache UUID
     runs-on: [self-hosted, macOS, ios-test]
     outputs:
-      uuid: ${{ steps.generate-derived-data-cache-uuid.outputs.uuid }}
+      uuid: ${{ steps.generate-uuid.outputs.uuid }}
     steps:
       - name: Generate cache key for derived data
+        id: generate-uuid
         shell: bash
         run: echo "::set-output name=uuid::$(uuidgen)"
 
