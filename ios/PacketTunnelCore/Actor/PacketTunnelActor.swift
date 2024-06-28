@@ -427,7 +427,7 @@ extension PacketTunnelActor {
         let obfuscatedEndpoint = protocolObfuscator.obfuscate(
             connectionState.connectedEndpoint,
             settings: settings,
-            retryAttempts: connectionState.selectedRelays.exit.retryAttempts // TODO: Multihop
+            retryAttempts: connectionState.selectedRelays.retryAttempt
         )
 
         let transportLayer = protocolObfuscator.transportLayer.map { $0 } ?? .udp

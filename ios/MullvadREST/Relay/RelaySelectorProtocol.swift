@@ -25,15 +25,11 @@ public struct SelectedRelay: Equatable, Codable {
     /// Relay geo location.
     public let location: Location
 
-    /// Number of retried attempts to connect to a relay.
-    public let retryAttempts: UInt
-
     /// Designated initializer.
-    public init(endpoint: MullvadEndpoint, hostname: String, location: Location, retryAttempts: UInt) {
+    public init(endpoint: MullvadEndpoint, hostname: String, location: Location) {
         self.endpoint = endpoint
         self.hostname = hostname
         self.location = location
-        self.retryAttempts = retryAttempts
     }
 }
 
@@ -46,10 +42,12 @@ extension SelectedRelay: CustomDebugStringConvertible {
 public struct SelectedRelays: Equatable, Codable {
     public let entry: SelectedRelay?
     public let exit: SelectedRelay
+    public let retryAttempt: UInt
 
-    public init(entry: SelectedRelay?, exit: SelectedRelay) {
+    public init(entry: SelectedRelay?, exit: SelectedRelay, retryAttempt: UInt) {
         self.entry = entry
         self.exit = exit
+        self.retryAttempt = retryAttempt
     }
 }
 
