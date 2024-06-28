@@ -1,11 +1,16 @@
-<resources>
-    <style name="AppTheme"
-           parent="Theme.AppCompat.NoActionBar">
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+        <item name="postSplashScreenTheme">@style/AppTheme</item>
+        <item name="windowSplashScreenAnimationDuration">300</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/icon_android</item>
+        <item name="windowSplashScreenBackground">@color/darkBlue</item>
+    </style>
+
+    <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
-        <item name="android:windowBackground">@color/blue</item>
-        <item name="android:spotShadowAlpha">0</item>
-        <item name="actionBarSize">48dp</item>
+        <item name="android:windowBackground">@color/darkBlue</item>
     </style>
 </resources>

@@ -29,7 +29,6 @@ import com.ramcosta.composedestinations.generated.destinations.PrivacyDisclaimer
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
-import net.mullvad.mullvadvpn.compose.transitions.DefaultTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -45,7 +44,7 @@ private fun PreviewLoadingScreen() {
 }
 
 // Set this as the start destination of the default nav graph
-@Destination<RootGraph>(start = true, style = DefaultTransition::class)
+@Destination<RootGraph>(start = true)
 @Composable
 fun Splash(navigator: DestinationsNavigator) {
     val viewModel: SplashViewModel = koinViewModel()
