@@ -78,10 +78,9 @@ runs:
           -project MullvadVPN.xcodeproj \
           -scheme MullvadVPNUITests \
           -testPlan $XCODE_TEST_PLAN $TEST_NAME_ARGUMENT \
-          -resultBundlePath xcode-test-report \
           -destination "platform=iOS,id=$TEST_DEVICE_UDID" \
           -derivedDataPath derived-data \
-          clean build-for-testing 2>&1 | xcbeautify --report junit --report-path junit-test-report
+          clean build-for-testing 2>&1
       shell: bash
       working-directory: ios/
       env:
