@@ -139,7 +139,7 @@ final class TunnelControlView: UIView {
         connectButtonBlurView.isEnabled = model.enableButtons
         cityLabel.attributedText = attributedStringForLocation(string: model.city)
         countryLabel.attributedText = attributedStringForLocation(string: model.country)
-        connectionPanel.connectedRelayName = model.connectedRelayName
+        connectionPanel.connectedRelayName = model.connectedRelaysName
         connectionPanel.dataSource = model.connectionPanel
 
         updateSecureLabel(tunnelState: tunnelState)
@@ -227,14 +227,15 @@ final class TunnelControlView: UIView {
     private func updateTunnelRelays(tunnelRelays: SelectedRelays?) {
         if let tunnelRelays {
             cityLabel.attributedText = attributedStringForLocation(
-                string: tunnelRelays.exit.location.city // TODO: Multihop
+                string: tunnelRelays.exit.location.city
             )
             countryLabel.attributedText = attributedStringForLocation(
-                string: tunnelRelays.exit.location.country // TODO: Multihop
+                string: tunnelRelays.exit.location.country
             )
 
             connectionPanel.isHidden = false
-            connectionPanel.connectedRelayName = tunnelRelays.exit.hostname // TODO: Multihop
+            connectionPanel.connectedRelayName = tunnelRelays.exit
+                .hostname + "\(tunnelRelays.entry.flatMap { " via \($0.hostname)" } ?? "")"
         } else {
             countryLabel.attributedText = attributedStringForLocation(string: " ")
             cityLabel.attributedText = attributedStringForLocation(string: " ")

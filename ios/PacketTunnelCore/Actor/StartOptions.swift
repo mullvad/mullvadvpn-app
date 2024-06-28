@@ -27,7 +27,8 @@ public struct StartOptions {
     public func logFormat() -> String {
         var s = "Start the tunnel via \(launchSource)"
         if let selectedRelays {
-            s += ", connect to \(selectedRelays.exit.hostname)" // TODO: Multihop
+            s += ", connect to \(selectedRelays.exit.hostname)"
+            s += selectedRelays.entry.flatMap { " via \($0.hostname)" } ?? ""
         }
         s += "."
         return s

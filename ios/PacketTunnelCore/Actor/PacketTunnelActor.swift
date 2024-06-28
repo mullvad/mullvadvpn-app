@@ -316,7 +316,7 @@ extension PacketTunnelActor {
         try await tunnelAdapter.start(configuration: configurationBuilder.makeConfiguration())
 
         // Resume tunnel monitoring and use IPv4 gateway as a probe address.
-        tunnelMonitor.start(probeAddress: connectionState.selectedRelays.exit.endpoint.ipv4Gateway) // TODO: Multihop
+        tunnelMonitor.start(probeAddress: connectionState.selectedRelays.exit.endpoint.ipv4Gateway)
     }
 
     /**
@@ -384,6 +384,8 @@ extension PacketTunnelActor {
             return nil
         }
         let selectedRelays = try callRelaySelector(nil, 0)
+        let selectedRelay = selectedRelays.entry ?? selectedRelays.exit
+
         return State.ConnectionData(
             selectedRelays: selectedRelays,
             relayConstraints: settings.relayConstraints,
@@ -392,9 +394,9 @@ extension PacketTunnelActor {
             networkReachability: networkReachability,
             connectionAttemptCount: 0,
             lastKeyRotation: lastKeyRotation,
-            connectedEndpoint: selectedRelays.exit.endpoint, // TODO: Multihop
+            connectedEndpoint: selectedRelay.endpoint,
             transportLayer: .udp,
-            remotePort: selectedRelays.exit.endpoint.ipv4Relay.port, // TODO: Multihop
+            remotePort: selectedRelay.endpoint.ipv4Relay.port,
             isPostQuantum: settings.quantumResistance.isEnabled
         )
     }
@@ -416,8 +418,14 @@ extension PacketTunnelActor {
         guard let connectionState = try makeConnectionState(nextRelays: nextRelays, settings: settings, reason: reason)
         else { return nil }
 
+        //
+        // Obfuscator will always be applied to the first hop,
+        // i.e., the entry in multi-hop or exit in single-hop.
+        //
+        let endpoint = connectionState.selectedRelays.entry?.endpoint ?? connectionState.selectedRelays.exit.endpoint
+
         let obfuscatedEndpoint = protocolObfuscator.obfuscate(
-            connectionState.selectedRelays.exit.endpoint, // TODO: Multihop
+            connectionState.connectedEndpoint,
             settings: settings,
             retryAttempts: connectionState.selectedRelays.exit.retryAttempts // TODO: Multihop
         )
