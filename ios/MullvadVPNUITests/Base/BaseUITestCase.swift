@@ -290,11 +290,13 @@ class BaseUITestCase: XCTestCase {
 
         /// iPhone uses spotlight, iPad uses springboard. But the usage is quite similar
         let spotlightOrSpringboard = BaseUITestCase.testDeviceIsIPad() ? springboard : spotlight
+        var mullvadAppIcon: XCUIElement
 
         // How to navigate to Spotlight search differs between iPhone and iPad
         if BaseUITestCase.testDeviceIsIPad() == false { // iPhone
             springboard.swipeDown()
             spotlight.textFields["SpotlightSearchField"].typeText(searchQuery)
+            mullvadAppIcon = spotlightOrSpringboard.icons.firstMatch
         } else { // iPad
             // Swipe left enough times to reach the last page
             for _ in 0 ..< 3 {
@@ -304,12 +306,12 @@ class BaseUITestCase: XCTestCase {
 
             springboard.swipeDown()
             springboard.searchFields.firstMatch.typeText(searchQuery)
+            mullvadAppIcon = spotlightOrSpringboard.icons.matching(identifier: appName).allElementsBoundByIndex[1]
         }
 
         // The rest of the delete app flow is same for iPhone and iPad with the exception that iPhone uses spotlight and iPad uses springboard
-        let appIcon = spotlightOrSpringboard.icons.matching(identifier: appName).allElementsBoundByIndex[1]
-        if appIcon.waitForExistence(timeout: timeout) {
-            appIcon.press(forDuration: 2)
+        if mullvadAppIcon.waitForExistence(timeout: timeout) {
+            mullvadAppIcon.press(forDuration: 2)
         } else {
             XCTFail("Failed to find app icon named \(appName)")
         }
