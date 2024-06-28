@@ -83,12 +83,12 @@ jobs:
           test_device_udid: ${{ env.TEST_DEVICE_UDID }}
           partner_api_token: ${{ secrets.STAGEMOLE_PARTNER_AUTH }}
 
-      - name: Store derived data in cache
-        id: store-derived-data-cache
-        uses: actions/cache/save@v4
-        with:
-          path: ios/derived-data
-          key: ${{ env.DERIVED_DATA_CACHE_KEY }}
+#      - name: Store derived data in cache
+#        id: store-derived-data-cache
+#        uses: actions/cache/save@v4
+#        with:
+#          path: ios/derived-data
+#          key: ${{ env.DERIVED_DATA_CACHE_KEY }}
 
   test:
     if: github.event.pull_request.merged || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
@@ -99,11 +99,11 @@ jobs:
     env:
       DERIVED_DATA_CACHE_KEY: ${{ needs.generate-derived-data-cache-uuid.outputs.uuid }}
     steps:
-      - name: Restore derived data cache
-        uses: actions/cache/restore@v4
-        with:
-          path: ios/derived-data
-          key: ${{ env.DERIVED_DATA_CACHE_KEY }}
+#      - name: Restore derived data cache
+#        uses: actions/cache/restore@v4
+#        with:
+#          path: ios/derived-data
+#          key: ${{ env.DERIVED_DATA_CACHE_KEY }}
 
       - name: Build iOS end to end tests action
         uses: ./.github/actions/run-ios-e2e-tests
