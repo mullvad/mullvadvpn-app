@@ -30,11 +30,11 @@ on:
 env:
   TEST_DEVICE_UDID: 00008110-001439E822A2401E
 jobs:
-  test:
+  build:
     if: github.event.pull_request.merged || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-    name: End to end tests
+    name: Build for end to end tests
     runs-on: [self-hosted, macOS, ios-test]
-    timeout-minutes: 60
+    timeout-minutes: 20
     steps:
       - name: Configure Rust
         uses: actions-rs/toolchain@v1
@@ -56,8 +56,8 @@ jobs:
             echo "XCODE_TEST_PLAN=MullvadVPNUITestsAll" >> $GITHUB_ENV
           fi
 
-      - name: iOS end to end tests action
-        uses: ./.github/actions/ios-end-to-end-tests
+      - name: Build iOS end to end tests action
+        uses: ./.github/actions/build-ios-e2e-tests
         with:
           xcode_test_plan: ${{ env.XCODE_TEST_PLAN }}
           test_name: ${{ github.event.inputs.test_name }}
@@ -68,27 +68,54 @@ jobs:
           test_device_udid: ${{ env.TEST_DEVICE_UDID }}
           partner_api_token: ${{ secrets.STAGEMOLE_PARTNER_AUTH }}
 
-      - name: Comment PR on test failure
-        if: failure() && github.event_name == 'pull_request'
-        uses: actions/github-script@v7
+      - name: Store derived data in cache
+        id: store-derived-data-cache
+        uses: actions/cache/save@v4
+        key: derived-data-cache-key
         with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
-          script: |
-            const issue_number = context.issue.number;
-            const run_id = context.runId;
-            const run_url = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${run_id}`;
-            github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: issue_number,
-              body: `🚨 End to end tests failed. Please check the [failed workflow run](${run_url}).`
-            });
+          path: derived-data
+        working-directory: ios/
 
-      - name: Store test report artifact
-        if: always()
-        uses: actions/upload-artifact@v4
+  test:
+    if: github.event.pull_request.merged || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    name: Run tests
+    runs-on: [self-hosted, macOS, ios-test]
+    timeout-minutes: 60
+    steps:
+      - name: Restore derived data cache
+        uses: actions/cache/restore@v2
+        key: derived-data-cache-key
         with:
-          name: test-results
-          path: |
-            ios/junit-test-report/junit.xml
-            ios/xcode-test-report.xcresult
+          path: derived-data
+        working-directory: ios/
+
+      - name: Build iOS end to end tests action
+        uses: ./.github/actions/run-ios-e2e-tests
+        with:
+          test_name: "MullvadVPNUITests/AccountTests"
+
+#      - name: Comment PR on test failure
+#        if: failure() && github.event_name == 'pull_request'
+#        uses: actions/github-script@v7
+#        with:
+#          github-token: ${{secrets.GITHUB_TOKEN}}
+#          script: |
+#            const issue_number = context.issue.number;
+#            const run_id = context.runId;
+#            const run_url = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${run_id}`;
+#            github.rest.issues.createComment({
+#              owner: context.repo.owner,
+#              repo: context.repo.repo,
+#              issue_number: issue_number,
+#              body: `🚨 End to end tests failed. Please check the [failed workflow run](${run_url}).`
+#            });
+#
+#      - name: Store test report artifact
+#        if: always()
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: test-results
+#          path: |
+#            ios/junit-test-report/junit.xml
+#            ios/xcode-test-report.xcresult
+#

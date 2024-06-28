@@ -1,0 +1,40 @@
+name: 'Run iOS end to end tests action'
+description: 'Runs end to end tests on iOS device'
+inputs:
+  test_name:
+  description: 'Test case/suite name. Will run all tests in the test plan if not provided.'
+  required: false
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Make sure app is not installed
+      run: ios-deploy --id $IOS_TEST_DEVICE_UDID --uninstall_only --bundle_id net.mullvad.MullvadVPN
+      shell: bash
+      env:
+        IOS_TEST_DEVICE_UDID: ${{ inputs.test_device_udid }}
+
+    - name: Run end-to-end-tests
+      run: |
+        if [ -n "$TEST_NAME" ]; then
+          TEST_NAME_ARGUMENT=" -only-testing $TEST_NAME"
+        else
+          TEST_NAME_ARGUMENT=""
+        fi
+        set -o pipefail && env NSUnbufferedIO=YES xcodebuild \
+          -project MullvadVPN.xcodeproj \
+          -scheme MullvadVPNUITests \
+          -testPlan $XCODE_TEST_PLAN $TEST_NAME_ARGUMENT \
+          -resultBundlePath xcode-test-report \
+          -destination "platform=iOS,id=$TEST_DEVICE_UDID" \
+          clean test-without-building 2>&1 | xcbeautify --report junit --report-path junit-test-report
+      shell: bash
+      working-directory: ios/
+      env:
+        TEST_NAME: ${{ inputs.test_name }}
+
+    - name: Uninstall app if still installed
+      run: ios-deploy --id $IOS_TEST_DEVICE_UDID --uninstall_only --bundle_id net.mullvad.MullvadVPN
+      shell: bash
+      env:
+        IOS_TEST_DEVICE_UDID: ${{ inputs.test_device_udid }}
