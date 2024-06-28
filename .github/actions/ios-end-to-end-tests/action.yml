@@ -56,7 +56,7 @@ runs:
             "/ATTACH_APP_LOGS_ON_FAILURE =/ s#= .*#= 1#" \
             UITests.xcconfig
           sed -i "" \
-            "/TEST_DEVICE_IS_IPAD =/ s#= .*#= 1#" \
+            "/TEST_DEVICE_IS_IPAD =/ s#= .*#= 0#" \
             UITests.xcconfig
       shell: bash
       working-directory: ios/Configurations
