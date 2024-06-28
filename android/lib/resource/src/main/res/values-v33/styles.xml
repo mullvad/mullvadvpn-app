@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+        <item name="postSplashScreenTheme">@style/AppTheme</item>
+        <item name="windowSplashScreenAnimationDuration">300</item>
+        <item name="windowSplashScreenBackground">@color/darkBlue</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/avd_splash_anim</item>
+        <item name="android:windowSplashScreenBehavior">icon_preferred</item>
+    </style>
+</resources>
