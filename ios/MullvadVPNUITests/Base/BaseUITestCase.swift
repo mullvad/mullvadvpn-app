@@ -296,7 +296,7 @@ class BaseUITestCase: XCTestCase {
         if BaseUITestCase.testDeviceIsIPad() == false { // iPhone
             springboard.swipeDown()
             spotlight.textFields["SpotlightSearchField"].typeText(searchQuery)
-            mullvadAppIcon = spotlightOrSpringboard.icons.firstMatch
+            mullvadAppIcon = spotlightOrSpringboard.icons[appName]
         } else { // iPad
             // Swipe left enough times to reach the last page
             for _ in 0 ..< 3 {
