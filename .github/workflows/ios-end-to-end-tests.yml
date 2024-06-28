@@ -82,7 +82,7 @@ jobs:
     timeout-minutes: 60
     steps:
       - name: Restore derived data cache
-        uses: actions/cache/restore@v2
+        uses: actions/cache/restore@v4
         with:
           path: ios/derived-data
           key: derived-data-cache-key
