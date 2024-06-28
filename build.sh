@@ -154,6 +154,7 @@ fi
 if [[ "$IS_RELEASE" == "true" ]]; then
     log_info "Removing old Rust build artifacts..."
     cargo clean
+    pnpm store prune
 
     # Will not allow an outdated lockfile in releases
     CARGO_ARGS+=(--locked)
@@ -332,14 +333,14 @@ cargo run --bin relay_list "${CARGO_ARGS[@]}" > build/relays.json
 log_header "Installing JavaScript dependencies"
 
 pushd gui
-npm ci
+pnpm install --frozen-lockfile
 
 log_header "Packing Mullvad VPN $PRODUCT_VERSION artifact(s)"
 
 case "$(uname -s)" in
-    Linux*)     npm run pack:linux -- "${NPM_PACK_ARGS[@]}";;
-    Darwin*)    npm run pack:mac -- "${NPM_PACK_ARGS[@]}";;
-    MINGW*)     npm run pack:win -- "${NPM_PACK_ARGS[@]}";;
+    Linux*)     pnpm run pack:linux "${NPM_PACK_ARGS[@]}";;
+    Darwin*)    pnpm run pack:mac "${NPM_PACK_ARGS[@]}";;
+    MINGW*)     pnpm run pack:win "${NPM_PACK_ARGS[@]}";;
 esac
 popd
 

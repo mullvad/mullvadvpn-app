@@ -13,6 +13,7 @@
   "license": "GPL-3.0",
   "dependencies": {
     "@grpc/grpc-js": "^1.9.6",
+    "@types/react-redux": "^7.1.33",
     "argv-split": "^2.0.1",
     "gettext-parser": "^6.0.0",
     "gl-matrix": "^3.4.3",
@@ -107,6 +108,7 @@
   },
   "volta": {
     "node": "20.13.0",
-    "npm": "9.9.0"
+    "npm": "9.9.0",
+    "pnpm": "9.4.0"
   }
 }
