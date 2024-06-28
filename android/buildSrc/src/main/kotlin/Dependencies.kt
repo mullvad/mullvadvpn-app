@@ -21,6 +21,7 @@ object Dependencies {
     object AndroidX {
         const val appcompat = "androidx.appcompat:appcompat:${Versions.AndroidX.appcompat}"
         const val coreKtx = "androidx.core:core-ktx:${Versions.AndroidX.coreKtx}"
+        const val coreSplashscreen = "androidx.core:core-splashscreen:${Versions.AndroidX.coreSplashscreen}"
         const val fragmentTestning =
             "androidx.fragment:fragment-testing:${Versions.AndroidX.fragment}"
         const val lifecycleRuntimeKtx =
