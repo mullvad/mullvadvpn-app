@@ -41,7 +41,7 @@ security.
 | Linux (Fedora) | The versions that are not yet [EOL](https://fedoraproject.org/wiki/End_of_life) |
 | Linux (Debian) | 11 and newer    |
 | Android     | 8 and newer        |
-| iOS         | 13 and newer       |
+| iOS         | 14.2 and newer     |
 
 On Linux we test using the Gnome desktop environment. The app should, and probably does work
 in other DEs, but we don't regularly test those.
