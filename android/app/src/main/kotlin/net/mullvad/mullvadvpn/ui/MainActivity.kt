@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -17,6 +18,7 @@ import net.mullvad.mullvadvpn.lib.common.util.SdkUtils.requestNotificationPermis
 import net.mullvad.mullvadvpn.lib.intent.IntentProvider
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.repository.PrivacyDisclaimerRepository
+import net.mullvad.mullvadvpn.repository.SplashCompleteRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.viewmodel.NoDaemonViewModel
 import org.koin.android.ext.android.getKoin
@@ -31,6 +33,8 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var privacyDisclaimerRepository: PrivacyDisclaimerRepository
     private lateinit var serviceConnectionManager: ServiceConnectionManager
+    private lateinit var splashCompleteRepository: SplashCompleteRepository
+    private var isReadyNextDraw: Boolean = false
     private lateinit var noDaemonViewModel: NoDaemonViewModel
     private lateinit var intentProvider: IntentProvider
 
@@ -45,6 +49,7 @@ class MainActivity : ComponentActivity() {
             serviceConnectionManager = get()
             noDaemonViewModel = get()
             intentProvider = get()
+            splashCompleteRepository = get()
         }
         lifecycle.addObserver(noDaemonViewModel)
 
@@ -55,6 +60,11 @@ class MainActivity : ComponentActivity() {
             intentProvider.setStartIntent(intent)
         }
 
+        installSplashScreen().setKeepOnScreenCondition {
+            val isReady = isReadyNextDraw
+            isReadyNextDraw = splashCompleteRepository.isSplashComplete()
+            !isReady
+        }
         setContent { AppTheme { MullvadApp() } }
 
         // This is to protect against tapjacking attacks

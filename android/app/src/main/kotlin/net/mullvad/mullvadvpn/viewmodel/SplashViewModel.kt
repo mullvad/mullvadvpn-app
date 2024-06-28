@@ -3,6 +3,8 @@ package net.mullvad.mullvadvpn.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
@@ -14,14 +16,24 @@ import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
 import net.mullvad.mullvadvpn.repository.PrivacyDisclaimerRepository
+import net.mullvad.mullvadvpn.repository.SplashCompleteRepository
+
+data class SplashScreenState(val splashComplete: Boolean = false)
 
 class SplashViewModel(
     private val privacyDisclaimerRepository: PrivacyDisclaimerRepository,
     private val accountRepository: AccountRepository,
     private val deviceRepository: DeviceRepository,
+    private val splashCompleteRepository: SplashCompleteRepository
 ) : ViewModel() {
 
-    val uiSideEffect = flow { emit(getStartDestination()) }
+    val uiSideEffect = flow {
+        emit(getStartDestination())
+        splashCompleteRepository.onSplashCompleted()
+    }
+
+    private val _mutableUiState = MutableStateFlow<SplashScreenState>(SplashScreenState(false))
+    val uiState: StateFlow<SplashScreenState> = _mutableUiState
 
     private suspend fun getStartDestination(): SplashUiSideEffect {
         if (!privacyDisclaimerRepository.hasAcceptedPrivacyDisclosure()) {

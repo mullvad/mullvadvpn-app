@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowBackground">@color/blue</item>
+        <item name="android:spotShadowAlpha">0</item>
+        <item name="actionBarSize">48dp</item>
+
+        <item name="android:windowSplashScreenBackground">@color/darkBlue</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/avd_splash_anim</item>
+        <item name="android:windowSplashScreenAnimationDuration">100</item>
+        <item name="android:windowSplashScreenBehavior">icon_preferred</item>
+    </style>
+</resources>
