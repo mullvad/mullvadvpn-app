@@ -28,17 +28,6 @@ runs:
         echo "${{ env.TEST_OUTPUT_DIRECTORY }}"
       shell: bash
 
-    - name: Store test report artifact
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: test-results
-        path: |
-          ${{ env.TEST_OUTPUT_DIRECTORY }}/junit-test-report/junit.xml
-          ${{ env.TEST_OUTPUT_DIRECTORY }}/xcode-test-report.xcresult
-      env:
-        TEST_NAME: ${{ inputs.test_name }}
-
     - name: Run end-to-end-tests
       run: |
         if [ -n "$TEST_NAME" ]; then
@@ -60,3 +49,14 @@ runs:
       env:
         TEST_NAME: ${{ inputs.test_name }}
         XCODE_TEST_PLAN: ${{ inputs.xcode_test_plan }}
+
+    - name: Store test report artifact
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results
+        path: |
+          ${{ env.TEST_OUTPUT_DIRECTORY }}/junit-test-report/junit.xml
+          ${{ env.TEST_OUTPUT_DIRECTORY }}/xcode-test-report.xcresult
+      env:
+        TEST_NAME: ${{ inputs.test_name }}
