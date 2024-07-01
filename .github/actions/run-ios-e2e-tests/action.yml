@@ -25,7 +25,7 @@ runs:
           -resultBundlePath xcode-test-report \
           -derivedDataPath derived-data \
           -destination "platform=iOS,id=$TEST_DEVICE_UDID" \
-          clean test-without-building 2>&1 #| xcbeautify --report junit --report-path junit-test-report
+          test-without-building 2>&1 #| xcbeautify --report junit --report-path junit-test-report
       shell: bash
       working-directory: ios/
       env:
