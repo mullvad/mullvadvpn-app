@@ -26,9 +26,7 @@ class SettingsViewModelTest {
     private val mockAppVersionInfoRepository: AppVersionInfoRepository = mockk()
 
     private val versionInfo =
-        MutableStateFlow(
-            VersionInfo(currentVersion = "", isSupported = false, suggestedUpgradeVersion = null)
-        )
+        MutableStateFlow(VersionInfo(currentVersion = "", isSupported = false))
 
     private lateinit var viewModel: SettingsViewModel
 
@@ -60,53 +58,30 @@ class SettingsViewModelTest {
     }
 
     @Test
-    fun `when AppVersionInfoCache returns isOutdated false uiState should return isUpdateAvailable false`() =
+    fun `when AppVersionInfoRepository returns isSupported true uiState should return isSupportedVersion true`() =
         runTest {
             // Arrange
-            val versionInfoTestItem =
-                VersionInfo(
-                    currentVersion = "1.0",
-                    isSupported = true,
-                    suggestedUpgradeVersion = null
-                )
-
-            // Act, Assert
-            viewModel.uiState.test {
-                awaitItem() // Wait for initial value
-
-                versionInfo.value = versionInfoTestItem
-                val result = awaitItem()
-                assertEquals(false, result.isUpdateAvailable)
-            }
-        }
-
-    @Test
-    fun `when AppVersionInfoCache returns isSupported false uiState should return isUpdateAvailable true`() =
-        runTest {
-            // Arrange
-            val versionInfoTestItem =
-                VersionInfo(currentVersion = "", isSupported = false, suggestedUpgradeVersion = "")
+            val versionInfoTestItem = VersionInfo(currentVersion = "", isSupported = true)
             versionInfo.value = versionInfoTestItem
 
             // Act, Assert
             viewModel.uiState.test {
                 val result = awaitItem()
-                assertEquals(true, result.isUpdateAvailable)
+                assertEquals(true, result.isSupportedVersion)
             }
         }
 
     @Test
-    fun `when AppVersionInfoCache returns isOutdated true uiState should return isUpdateAvailable true`() =
+    fun `when AppVersionInfoRepository returns isSupported false uiState should return isSupportedVersion false`() =
         runTest {
             // Arrange
-            val versionInfoTestItem =
-                VersionInfo(currentVersion = "", isSupported = true, suggestedUpgradeVersion = "")
+            val versionInfoTestItem = VersionInfo(currentVersion = "", isSupported = false)
             versionInfo.value = versionInfoTestItem
 
             // Act, Assert
             viewModel.uiState.test {
                 val result = awaitItem()
-                assertEquals(true, result.isUpdateAvailable)
+                assertEquals(false, result.isSupportedVersion)
             }
         }
 }

@@ -24,8 +24,7 @@ class SettingsViewModel(
                 SettingsUiState(
                     isLoggedIn = deviceState is DeviceState.LoggedIn,
                     appVersion = versionInfo.currentVersion,
-                    isUpdateAvailable =
-                        versionInfo.let { it.isSupported.not() || it.isUpdateAvailable },
+                    isSupportedVersion = versionInfo.isSupported,
                     isPlayBuild = isPlayBuild
                 )
             }
@@ -35,7 +34,7 @@ class SettingsViewModel(
                 SettingsUiState(
                     appVersion = "",
                     isLoggedIn = false,
-                    isUpdateAvailable = false,
+                    isSupportedVersion = true,
                     isPlayBuild
                 )
             )
@@ -47,7 +46,7 @@ class SettingsViewModel(
             SettingsUiState(
                 appVersion = "",
                 isLoggedIn = false,
-                isUpdateAvailable = false,
+                isSupportedVersion = true,
                 isPlayBuild
             )
         )

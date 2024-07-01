@@ -50,12 +50,7 @@ private fun PreviewNotificationBanner() {
             val bannerDataList =
                 listOf(
                         InAppNotification.UnsupportedVersion(
-                            versionInfo =
-                                VersionInfo(
-                                    currentVersion = "1.0",
-                                    isSupported = false,
-                                    suggestedUpgradeVersion = null
-                                ),
+                            versionInfo = VersionInfo(currentVersion = "1.0", isSupported = false),
                         ),
                         InAppNotification.AccountExpiry(expiry = DateTime.now()),
                         InAppNotification.TunnelStateBlocked,

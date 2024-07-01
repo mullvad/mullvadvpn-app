@@ -77,8 +77,7 @@ class InAppNotificationControllerTest {
         tunnelStateNotifications.value = listOf(tunnelStateBlocked, tunnelStateError)
 
         val unsupportedVersion = InAppNotification.UnsupportedVersion(mockk())
-        val updateAvailable = InAppNotification.UpdateAvailable(mockk())
-        versionNotifications.value = listOf(unsupportedVersion, updateAvailable)
+        versionNotifications.value = listOf(unsupportedVersion)
 
         val accountExpiry = InAppNotification.AccountExpiry(DateTime.now())
         accountExpiryNotifications.value = listOf(accountExpiry)
@@ -93,7 +92,6 @@ class InAppNotificationControllerTest {
                     unsupportedVersion,
                     accountExpiry,
                     newDevice,
-                    updateAvailable,
                 ),
                 notifications
             )

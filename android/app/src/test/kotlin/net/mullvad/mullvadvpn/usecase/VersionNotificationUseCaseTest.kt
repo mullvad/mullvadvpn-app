@@ -23,10 +23,7 @@ class VersionNotificationUseCaseTest {
 
     private val mockAppVersionInfoRepository: AppVersionInfoRepository = mockk()
 
-    private val versionInfo =
-        MutableStateFlow(
-            VersionInfo(currentVersion = "", isSupported = true, suggestedUpgradeVersion = null)
-        )
+    private val versionInfo = MutableStateFlow(VersionInfo(currentVersion = "", isSupported = true))
     private lateinit var versionNotificationUseCase: VersionNotificationUseCase
 
     @BeforeEach
@@ -53,28 +50,6 @@ class VersionNotificationUseCaseTest {
     }
 
     @Test
-    fun `when a new version is available use case should emit UpdateAvailable with new version`() =
-        runTest {
-            versionNotificationUseCase().test {
-                // Arrange, Act
-                val upgradeVersionInfo =
-                    VersionInfo(
-                        currentVersion = "1.0",
-                        isSupported = true,
-                        suggestedUpgradeVersion = "1.1"
-                    )
-                awaitItem()
-                versionInfo.value = upgradeVersionInfo
-
-                // Assert
-                assertEquals(
-                    awaitItem(),
-                    listOf(InAppNotification.UpdateAvailable(upgradeVersionInfo))
-                )
-            }
-        }
-
-    @Test
     fun `when an unsupported version use case should emit UnsupportedVersion notification`() =
         runTest {
             versionNotificationUseCase().test {
@@ -83,7 +58,6 @@ class VersionNotificationUseCaseTest {
                     VersionInfo(
                         currentVersion = "1.0",
                         isSupported = false,
-                        suggestedUpgradeVersion = null
                     )
                 awaitItem()
                 versionInfo.value = upgradeVersionInfo
