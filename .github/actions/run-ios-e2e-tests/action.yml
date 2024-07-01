@@ -47,8 +47,7 @@ runs:
     - name: Run end-to-end-tests
       run: |
         if [ -n "$TEST_NAME" ]; then
-          #TEST_NAME_ARGUMENT=" -only-testing $TEST_NAME"
-          TEST_NAME_ARGUMNET=""
+          TEST_NAME_ARGUMENT=" -only-testing $TEST_NAME"
         else
           TEST_NAME_ARGUMENT=""
         fi
