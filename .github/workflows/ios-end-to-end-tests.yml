@@ -60,7 +60,7 @@ jobs:
 
             echo "$test_suites"
             echo "\n\n\n"
-            echo $test_suites_json"
+            echo "$test_suites_json"
 
             echo "test_suites_json=$test_suites_json >> $GITHUB_ENV"
           fi
