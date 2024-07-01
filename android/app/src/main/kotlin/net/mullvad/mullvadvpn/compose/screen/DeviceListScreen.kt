@@ -33,7 +33,6 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
-import co.touchlab.kermit.Logger
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.LoginDestination
@@ -162,7 +161,7 @@ fun DeviceList(
         onTryAgainClicked = viewModel::fetchDevices,
         navigateToRemoveDeviceConfirmationDialog =
             dropUnlessResumed<Device> {
-                //Logger.i("DeviceList: remove device: $it")
+                // Logger.i("DeviceList: remove device: $it")
                 Log.d("mullvad", "DeviceList: remove device: $it")
                 navigator.navigate(RemoveDeviceConfirmationDialogDestination(it))
             }
