@@ -81,7 +81,7 @@ jobs:
 
   build:
     if: github.event.pull_request.merged || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-    name: Build for end to end tests
+    name: Build for end to end testing
     runs-on: [self-hosted, macOS, ios-test]
     needs: [checkout-repository, determine-test-plan-to-use]
     timeout-minutes: 20
