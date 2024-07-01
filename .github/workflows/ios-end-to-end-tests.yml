@@ -130,12 +130,6 @@ jobs:
     env:
       XCODE_TEST_PLAN: ${{ needs.determine-test-plan-to-use.outputs.test_plan }}
     steps:
-      - name: Uninstall app
-        run: ios-deploy --id $IOS_TEST_DEVICE_UDID --uninstall_only --bundle_id net.mullvad.MullvadVPN
-        shell: bash
-        env:
-          IOS_TEST_DEVICE_UDID: ${{ env.TEST_DEVICE_UDID }}
-
       - name: Run iOS end to end tests action
         uses: ./.github/actions/run-ios-e2e-tests
         with:
