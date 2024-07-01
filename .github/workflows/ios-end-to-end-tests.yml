@@ -131,7 +131,7 @@ jobs:
     steps:
       - name: Debug print test suites
         run: |
-          echo "Test suites: ${{fromJson(needs.define-test-suites-matrix.outputs.test_suites_json)}}"
+          echo "Test suites: ${{ needs.define-test-suites-matrix.outputs.test_suites_json }}"
       - name: Debug print test plan
         run: |
           echo "Test plan: ${{ needs.determine-test-plan-to-use.outputs.test_plan }}"
