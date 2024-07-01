@@ -17,10 +17,12 @@ runs:
         if [ -n "$TEST_NAME" ]; then
           # Strip slashes to avoid creating subdirectories
           test_name_sanitized=$(printf "$TEST_NAME" | sed 's/\//_/g')
-          printf "TEST_OUTPUT_DIRECTORY=ios/output-$test_name_sanitized" >> $GITHUB_ENV
+          printf "TEST_OUTPUT_DIRECTORY=output-$test_name_sanitized" >> $GITHUB_ENV
         else
-          printf "TEST_OUTPUT_DIRECTORY=ios/output" >> $GITHUB_ENV
+          printf "TEST_OUTPUT_DIRECTORY=output" >> $GITHUB_ENV
         fi
+
+        mkdir "$TEST_OUTPUT_DIRECTORY"
       shell: bash
       env:
         TEST_NAME: ${{ inputs.test_name }}
@@ -59,7 +61,7 @@ runs:
       with:
         name: test-results
         path: |
-          ${{ env.TEST_OUTPUT_DIRECTORY }}/junit-test-report/junit.xml
-          ${{ env.TEST_OUTPUT_DIRECTORY }}/xcode-test-report.xcresult
+          ios/${{ env.TEST_OUTPUT_DIRECTORY }}/junit-test-report/junit.xml
+          ios/${{ env.TEST_OUTPUT_DIRECTORY }}/xcode-test-report.xcresult
       env:
         TEST_NAME: ${{ inputs.test_name }}
