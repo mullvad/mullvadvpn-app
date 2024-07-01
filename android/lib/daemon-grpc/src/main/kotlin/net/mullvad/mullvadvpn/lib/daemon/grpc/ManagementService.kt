@@ -65,6 +65,7 @@ import net.mullvad.mullvadvpn.lib.model.DeleteDeviceError
 import net.mullvad.mullvadvpn.lib.model.Device
 import net.mullvad.mullvadvpn.lib.model.DeviceId
 import net.mullvad.mullvadvpn.lib.model.DeviceState as ModelDeviceState
+import net.mullvad.mullvadvpn.lib.model.DeviceUpdateError
 import net.mullvad.mullvadvpn.lib.model.DnsOptions as ModelDnsOptions
 import net.mullvad.mullvadvpn.lib.model.DnsOptions
 import net.mullvad.mullvadvpn.lib.model.DnsState as ModelDnsState
@@ -233,9 +234,10 @@ class ManagementService(
             .map { it.toDomain() }
             .mapLeft { GetDeviceStateError.Unknown(it) }
 
-    suspend fun updateDevice() {
-        grpc.updateDevice(Empty.getDefaultInstance())
-    }
+    suspend fun updateDevice(): Either<DeviceUpdateError, Unit> =
+        Either.catch { grpc.updateDevice(Empty.getDefaultInstance()) }
+            .mapEmpty()
+            .mapLeft { DeviceUpdateError(it) }
 
     suspend fun getDeviceList(token: AccountNumber): Either<GetDeviceListError, List<Device>> =
         Either.catch { grpc.listDevices(StringValue.of(token.value)) }
