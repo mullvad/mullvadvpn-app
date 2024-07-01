@@ -30,7 +30,9 @@ runs:
 
         echo "Creating output directory $test_output_directory"
         mkdir "$test_output_directory"
+        
         echo "TEST_OUTPUT_DIRECTORY=$test_output_directory" >> $GITHUB_ENV
+        echo "TEST_NAME_SANITIZED=$test_name_sanitized" >> $GITHUB_ENV
       shell: bash
       env:
         TEST_NAME: ${{ inputs.test_name }}
@@ -73,7 +75,7 @@ runs:
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: test-results
+        name: ${{ env.TEST_NAME_SANITIZED }}-test-results
         path: |
           ios/${{ env.TEST_OUTPUT_DIRECTORY }}/junit-test-report/junit.xml
           ios/${{ env.TEST_OUTPUT_DIRECTORY }}/xcode-test-report.xcresult
