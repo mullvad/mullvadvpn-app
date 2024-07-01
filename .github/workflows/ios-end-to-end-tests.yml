@@ -30,6 +30,34 @@ on:
 env:
   TEST_DEVICE_UDID: 00008130-0019181022F3803A
 jobs:
+  checkout-repository:
+    if: github.event.pull_request.merged || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    name: Checkout repository
+    runs-on: [self-hosted, macOS, ios-test]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          clean: true
+
+  identify-test-runs:
+    if: github.event.pull_request.merged || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    name: Identify test runs
+    runs-on: [self-hosted, macOS, ios-test]
+    needs: checkout-repository
+    steps:
+      - name: Test runs to JSON
+        id: test-runs-to-json
+        run: |
+          if [ -n "$TEST_NAME" ]; then
+            echo "::set-output name=test_runs_json::'[\"$TEST_NAME\""]'"
+          else
+            # List test suites based on file names
+            test_suites=$(find . -name "*Tests.swift" | sed 's/.*\///' | sed 's/\.swift//' | sort)
+            test_suites_json=$(printf "$test_suites" | jq --raw-input --slurp 'split("\n")')
+            echo "::set-output name=test_runs_json::$test_suites_json"
+          fi
+
   generate-derived-data-cache-uuid:
     if: github.event.pull_request.merged || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     name: Generate derived data cache UUID
@@ -64,7 +92,7 @@ jobs:
     if: github.event.pull_request.merged || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     name: Build for end to end tests
     runs-on: [self-hosted, macOS, ios-test]
-    needs: determine-test-plan-to-use
+    needs: [checkout-repository, determine-test-plan-to-use]
     timeout-minutes: 20
     env:
       XCODE_TEST_PLAN: ${{ needs.determine-test-plan-to-use.outputs.test_plan }}
@@ -75,11 +103,6 @@ jobs:
           toolchain: stable
           override: true
           target: aarch64-apple-ios
-
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          clean: true
 
       - name: Select test plan to execute
         run: |
@@ -114,7 +137,7 @@ jobs:
     if: github.event.pull_request.merged || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     name: Run tests
     runs-on: [self-hosted, macOS, ios-test]
-    needs: [build, determine-test-plan-to-use]
+    needs: [build, determine-test-plan-to-use, identify-test-runs]
     timeout-minutes: 60
     env:
       XCODE_TEST_PLAN: ${{ needs.determine-test-plan-to-use.outputs.test_plan }}
