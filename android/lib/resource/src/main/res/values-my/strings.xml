@@ -333,8 +333,6 @@
     <string name="unsupported_version">တွဲဖက်မလုပ်ဆောင်နိုင်သည့် ဗားရှင်း</string>
     <string name="unsupported_version_description">တွဲဖက်မလုပ်ဆောင်နိုင်သည့် ဤအက်ပ်ဗားရှင်းကြောင့် သင့်ကိုယ်ရေးအချက်အလက်များ အန္တရာယ် ရှိနိုင်ပါသည်။ ယခုပင် အပ်ဒိတ်လုပ်ပေးပါ။</string>
     <string name="unsupported_version_without_upgrade">တွဲဖက်မလုပ်ဆောင်နိုင်သည့် အက်ပ်ဗားရှင်းဖြင့် လုပ်ဆောင်နေပါသည်။</string>
-    <string name="update_available">အပ်ဒိတ် ရရှိနိုင်ပါပြီ</string>
-    <string name="update_available_description">အပ်ဒိတ် ဖြစ်နေစေရန် Mullvad VPN (%1$s) ကို ထည့်သွင်းပါ</string>
     <string name="update_available_footer">အပ်ဒိတ် ရရှိနိုင်ပါပြီ၊ ဆက်လက် လုံခြုံစေရန် ဒေါင်းလုဒ်လုပ်ပါ။</string>
     <string name="update_dns_server_dialog_title">DNS ဆာဗာကို အပ်ဒိတ်လုပ်ရန်</string>
     <string name="update_list_name">စာရင်း အမည်ကို အပ်ဒိတ်လုပ်ရန်</string>

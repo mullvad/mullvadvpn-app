@@ -2315,9 +2315,6 @@ msgstr ""
 msgid "Importing new overrides might replace some previously imported overrides."
 msgstr ""
 
-msgid "Install Mullvad VPN (%s) to stay up to date"
-msgstr ""
-
 msgid "Invalid or missing value \"%s\""
 msgstr ""
 
