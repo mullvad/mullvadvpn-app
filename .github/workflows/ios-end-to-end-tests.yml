@@ -146,6 +146,7 @@ jobs:
     needs: [build, determine-test-plan-to-use, define-test-suites-matrix]
     timeout-minutes: 60
     strategy:
+      fail-fast: false
       matrix:
         test_suite: ${{fromJson(needs.define-test-suites-matrix.outputs.test_suites_json)}}
     env:
