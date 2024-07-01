@@ -61,18 +61,6 @@ jobs:
           fi
         working-directory: ios/MullvadVPNUITests
 
-  generate-derived-data-cache-uuid:
-    if: github.event.pull_request.merged || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-    name: Generate derived data cache UUID
-    runs-on: [self-hosted, macOS, ios-test]
-    outputs:
-      uuid: ${{ steps.generate-uuid.outputs.uuid }}
-    steps:
-      - name: Generate cache key for derived data
-        id: generate-uuid
-        shell: bash
-        run: echo "::set-output name=uuid::$(uuidgen)"
-
   determine-test-plan-to-use:
     if: github.event.pull_request.merged || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     name: Determine test plan to use
