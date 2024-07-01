@@ -4,6 +4,9 @@ inputs:
   test_name:
     description: 'Test case/suite name. Will run all tests in the test plan if not provided.'
     required: false
+  test_device_udid:
+    description: 'Test Device UDID'
+    required: true
   xcode_test_plan:
     description: 'Xcode Test Plan to run'
     required: true
