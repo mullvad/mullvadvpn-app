@@ -18,6 +18,7 @@ runs:
           # Strip slashes to avoid creating subdirectories
           test_name_sanitized=$(printf "$TEST_NAME" | sed 's/\//_/g')
           echo "Setting output directory output-test-name-sanitized"
+          echo "$test_name_sanitized"
           echo "TEST_OUTPUT_DIRECTORY=output-$test_name_sanitized" >> $GITHUB_ENV
         else
           echo "Setting output directory output"
