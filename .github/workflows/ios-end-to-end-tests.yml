@@ -45,8 +45,6 @@ jobs:
     name: Define test suites matrix
     runs-on: [self-hosted, macOS, ios-test]
     needs: checkout-repository
-    outputs:
-      test_suites_json: ${{ env.test_suites_json }}
     steps:
       - name: Test runs to JSON
         id: test-runs-to-json
@@ -60,6 +58,8 @@ jobs:
             echo "test_suites_json=$test_suites_json >> $GITHUB_ENV"
           fi
         working-directory: ios/MullvadVPNUITests
+    outputs:
+      test_suites_json: ${{ env.test_suites_json }}
 
   determine-test-plan-to-use:
     if: github.event.pull_request.merged || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
