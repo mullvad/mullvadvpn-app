@@ -15,12 +15,15 @@ runs:
     - name: Set up outputs directory
       run: |
         if [ -n "$TEST_NAME" ]; then
+          # Strip slashes to avoid creating subdirectories
           test_name_sanitized=$(printf "$TEST_NAME" | sed 's/\//_/g')
           printf "TEST_OUTPUT_DIRECTORY=ios/output-$test_name_sanitized" >> $GITHUB_ENV
         else
           printf "TEST_OUTPUT_DIRECTORY=ios/output" >> $GITHUB_ENV
         fi
       shell: bash
+      env:
+        TEST_NAME: ${{ inputs.test_name }}
 
     - name: Debug print
       run: |
