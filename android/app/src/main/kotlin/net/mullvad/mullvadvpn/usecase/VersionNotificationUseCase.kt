@@ -16,21 +16,10 @@ class VersionNotificationUseCase(
             .versionInfo()
             .map { versionInfo ->
                 listOfNotNull(
-                    unsupportedVersionNotification(versionInfo),
-                    updateAvailableNotification(versionInfo)
+                    unsupportedVersionNotification(versionInfo)
                 )
             }
             .distinctUntilChanged()
-
-    private fun updateAvailableNotification(versionInfo: VersionInfo): InAppNotification? {
-        if (!isVersionInfoNotificationEnabled) {
-            return null
-        }
-
-        return if (versionInfo.isUpdateAvailable) {
-            InAppNotification.UpdateAvailable(versionInfo)
-        } else null
-    }
 
     private fun unsupportedVersionNotification(versionInfo: VersionInfo): InAppNotification? {
         if (!isVersionInfoNotificationEnabled) {

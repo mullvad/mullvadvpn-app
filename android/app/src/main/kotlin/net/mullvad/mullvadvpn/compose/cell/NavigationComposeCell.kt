@@ -95,7 +95,7 @@ internal fun NavigationTitleView(
         Image(
             painter = painterResource(id = R.drawable.icon_alert),
             modifier = Modifier.padding(end = Dimens.smallPadding),
-            contentDescription = stringResource(id = R.string.update_available)
+            contentDescription = ""
         )
     }
     Text(
