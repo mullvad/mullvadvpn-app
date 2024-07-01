@@ -123,6 +123,21 @@ jobs:
 #        with:
 #          path: ios/derived-data
 #          key: ${{ env.DERIVED_DATA_CACHE_KEY }}
+  debug-print:
+    if: github.event.pull_request.merged || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    name: Debug prints
+    runs-on: [self-hosted, macOS, ios-test]
+    needs: [define-test-suites-matrix]
+    steps:
+      - name: Debug print test suites
+        run: |
+          echo "Test suites: ${{fromJson(needs.define-test-suites-matrix.outputs.test_suites_json)}}"
+      - name: Debug print test plan
+        run: |
+          echo "Test plan: ${{ needs.determine-test-plan-to-use.outputs.test_plan }}"
+      - name: Debug print test plan
+        run: |
+          echo "Test plan: ${{ needs.determine-test-plan-to-use.outputs.test_plan }}"
 
   test:
     if: github.event.pull_request.merged || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
