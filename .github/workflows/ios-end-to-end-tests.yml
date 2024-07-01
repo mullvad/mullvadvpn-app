@@ -63,7 +63,7 @@ jobs:
 
   determine-test-plan-to-use:
     if: github.event.pull_request.merged || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-    name: Determine test plan to use
+    name: Determine Xcode test plan to use
     runs-on: [self-hosted, macOS, ios-test]
     outputs:
       test_plan: ${{ steps.determine-test-plan.outputs.test_plan }}
