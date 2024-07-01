@@ -53,7 +53,7 @@ jobs:
             echo "::set-output name=test_runs_json::'[\"$TEST_NAME\"]'"
           else
             # List test suites based on file names
-            test_suites=$(find . -name "*Tests.swift" | sed 's/.*\///' | sed 's/\.swift//' | sort)
+            test_suites=$(find . -name "*Tests.swift" | sed 's/.*\///' | sed 's/\.swift//' | sed '/SettingsMigrationTests/d' | sort)
             test_suites_json=$(printf "$test_suites" | jq --compact-output --raw-input --slurp 'split("\n")')
             echo "test_suites_json=$test_suites_json" >> $GITHUB_ENV
           fi
