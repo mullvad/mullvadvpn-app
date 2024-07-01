@@ -52,6 +52,14 @@ class BaseUITestCase: XCTestCase {
         return false
     }
 
+    static func uninstallAppInTestSuiteTearDown() -> Bool {
+        if let uninstallAppInTestSuiteTearDown = Bundle(for: BaseUITestCase.self).infoDictionary?["UninstallAppInTestSuiteTearDown"] as? String {
+            return uninstallAppInTestSuiteTearDown == "1"
+        }
+
+        return false
+    }
+
     /// Get an account number with time. If an account with time is specified in the configuration file that account will be used, else a temporary account will be created if partner API token has been configured.
     func getAccountWithTime() -> String {
         if let configuredAccountWithTime = bundleHasTimeAccountNumber, !configuredAccountWithTime.isEmpty {
@@ -142,7 +150,7 @@ class BaseUITestCase: XCTestCase {
 
     /// Suite level teardown ran after all tests in suite have been executed
     override class func tearDown() {
-        if shouldUninstallAppInTeardown() {
+        if shouldUninstallAppInTeardown() && uninstallAppInTestSuiteTearDown() {
             uninstallApp()
         }
     }

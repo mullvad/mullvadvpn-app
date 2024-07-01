@@ -58,6 +58,9 @@ runs:
           sed -i "" \
             "/TEST_DEVICE_IS_IPAD =/ s#= .*#= 0#" \
             UITests.xcconfig
+          sed -i "" \
+            "/UNINSTALL_APP_IN_TEST_SUITE_TEAR_DOWN =/ s#= .*#= 0#" \
+            UITests.xcconfig
       shell: bash
       working-directory: ios/Configurations
       env:
