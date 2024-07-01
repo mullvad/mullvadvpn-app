@@ -141,7 +141,7 @@ fun Login(
                     popUpTo(NavGraphs.root) { inclusive = true }
                 }
             is LoginUiSideEffect.TooManyDevices ->
-                navigator.navigate(DeviceListDestination(it.accountNumber.value)) {
+                navigator.navigate(DeviceListDestination(it.accountNumber)) {
                     launchSingleTop = true
                 }
             LoginUiSideEffect.NavigateToOutOfTime ->

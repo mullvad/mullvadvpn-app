@@ -1,7 +1,9 @@
 package net.mullvad.mullvadvpn.viewmodel
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ramcosta.composedestinations.generated.destinations.MtuDialogDestination
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
@@ -17,12 +19,14 @@ import net.mullvad.mullvadvpn.repository.SettingsRepository
 
 class MtuDialogViewModel(
     private val repository: SettingsRepository,
-    private val initialMtu: Mtu?,
+    savedStateHandle: SavedStateHandle,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
+    private val navArgs = MtuDialogDestination.argsFrom(savedStateHandle)
 
-    private val _mtuInput = MutableStateFlow(initialMtu?.value?.toString() ?: "")
+    private val _mtuInput = MutableStateFlow(navArgs.initialMtu?.value?.toString() ?: "")
     private val _isValidMtu = MutableStateFlow(true)
+
     val uiState: StateFlow<MtuDialogUiState> =
         combine(_mtuInput, _isValidMtu, ::createState)
             .stateIn(
@@ -38,7 +42,7 @@ class MtuDialogViewModel(
         MtuDialogUiState(
             mtuInput = mtuInput,
             isValidInput = isValidMtuInput,
-            showResetToDefault = initialMtu != null
+            showResetToDefault = navArgs.initialMtu != null
         )
 
     fun onInputChanged(value: String) {

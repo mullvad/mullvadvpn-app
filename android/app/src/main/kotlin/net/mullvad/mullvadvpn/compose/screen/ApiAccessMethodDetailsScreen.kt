@@ -65,7 +65,6 @@ import net.mullvad.mullvadvpn.lib.theme.color.menuItemColors
 import net.mullvad.mullvadvpn.viewmodel.ApiAccessMethodDetailsSideEffect
 import net.mullvad.mullvadvpn.viewmodel.ApiAccessMethodDetailsViewModel
 import org.koin.androidx.compose.koinViewModel
-import org.koin.core.parameter.parametersOf
 
 @Preview
 @Composable
@@ -76,18 +75,19 @@ private fun PreviewApiAccessMethodDetailsScreen(
     AppTheme { ApiAccessMethodDetailsScreen(state = state) }
 }
 
-@Destination<RootGraph>(style = SlideInFromRightTransition::class)
+data class ApiAccessMethodDetailsNavArgs(val accessMethodId: ApiAccessMethodId)
+
+@Destination<RootGraph>(
+    style = SlideInFromRightTransition::class,
+    navArgs = ApiAccessMethodDetailsNavArgs::class
+)
 @Composable
 fun ApiAccessMethodDetails(
     navigator: DestinationsNavigator,
-    accessMethodId: ApiAccessMethodId,
     confirmDeleteListResultRecipient:
         ResultRecipient<DeleteApiAccessMethodConfirmationDestination, Boolean>
 ) {
-    val viewModel =
-        koinViewModel<ApiAccessMethodDetailsViewModel>(
-            parameters = { parametersOf(accessMethodId) }
-        )
+    val viewModel = koinViewModel<ApiAccessMethodDetailsViewModel>()
 
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current

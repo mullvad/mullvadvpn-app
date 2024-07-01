@@ -98,7 +98,7 @@ fun CustomLists(
         addCustomList =
             dropUnlessResumed {
                 navigator.navigate(
-                    CreateCustomListDestination(),
+                    CreateCustomListDestination(null),
                 )
             },
         openCustomList =
