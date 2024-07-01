@@ -42,7 +42,7 @@ jobs:
 
   define-test-suites-matrix:
     if: github.event.pull_request.merged || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-    name: Identify test runs
+    name: Define test suites matrix
     runs-on: [self-hosted, macOS, ios-test]
     needs: checkout-repository
     outputs:
