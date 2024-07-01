@@ -333,8 +333,6 @@
     <string name="unsupported_version">VERSJON UTEN STØTTE</string>
     <string name="unsupported_version_description">Personvernet ditt kan være i fare med denne appversjonen som ikke støttes. Oppdater nå.</string>
     <string name="unsupported_version_without_upgrade">Du kjører en appversjon som ikke støttes.</string>
-    <string name="update_available">OPPDATERING TILGJENGELIG</string>
-    <string name="update_available_description">Installer Mullvad VPN (%1$s) for å holde deg oppdatert</string>
     <string name="update_available_footer">Oppdatering tilgjengelig. Last ned for å oppdatere sikkerheten.</string>
     <string name="update_dns_server_dialog_title">Oppdater DNS-serveren</string>
     <string name="update_list_name">Oppdater listenavn</string>
