@@ -7,6 +7,7 @@
 4. Set the value of `TEST_DEVICE_UDID` to the UDID of the test device in `ios-end-to-end-tests.yml` and `ios-end-to-end-tests-settings-migration.yml`.
 5. Make sure the test device is connected to the WiFi `app-team-ios-tests`
 6. Make sure iCloud syncing of keychain is off on the device so that the device isn't getting WiFi passwords from another device causing it to sometimes connect to another WiFi.
+7. After the device is set up download updated provisioning profiles on the GitHub runner computer(Download manual profiles in Xcode settings)
 
 ## Set up of runner environment
 1. Install Xcode
