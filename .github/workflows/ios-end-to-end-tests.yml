@@ -40,13 +40,13 @@ jobs:
         with:
           clean: true
 
-  identify-test-runs:
+  define-test-suites-matrix:
     if: github.event.pull_request.merged || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     name: Identify test runs
     runs-on: [self-hosted, macOS, ios-test]
     needs: checkout-repository
     outputs:
-      test_runs_json: ${{ steps.test-runs-to-json.outputs.test_runs_json }}
+      test_suites_json: ${{ steps.test-runs-to-json.outputs.test_runs_json }}
     steps:
       - name: Test runs to JSON
         id: test-runs-to-json
@@ -57,7 +57,7 @@ jobs:
             # List test suites based on file names
             test_suites=$(find . -name "*Tests.swift" | sed 's/.*\///' | sed 's/\.swift//' | sort)
             test_suites_json=$(printf "$test_suites" | jq --raw-input --slurp 'split("\n")')
-            echo "::set-output name=test_runs_json::$test_suites_json"
+            echo "::set-output name=test_suites_json::$test_suites_json"
           fi
         working-directory: ios/MullvadVPNUITests
 
@@ -140,8 +140,11 @@ jobs:
     if: github.event.pull_request.merged || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     name: Run tests
     runs-on: [self-hosted, macOS, ios-test]
-    needs: [build, determine-test-plan-to-use, identify-test-runs]
+    needs: [build, determine-test-plan-to-use, define-test-suites-matrix]
     timeout-minutes: 60
+    strategy:
+      matrix:
+        test_suite: ${{fromJson(needs.define-test-suites-matrix.outputs.test_suites_json)}}
     env:
       XCODE_TEST_PLAN: ${{ needs.determine-test-plan-to-use.outputs.test_plan }}
     steps:
@@ -160,7 +163,7 @@ jobs:
       - name: Run iOS end to end tests action
         uses: ./.github/actions/run-ios-e2e-tests
         with:
-          test_name: "MullvadVPNUITests/AccountTests"
+          test_name: "MullvadVPNUITests/${{ matrix.test_suite }}"
           xcode_test_plan: ${{ needs.determine-test-plan-to-use.outputs.test_plan }}
 
 #      - name: Comment PR on test failure
