@@ -135,6 +135,7 @@ jobs:
         with:
           test_name: "MullvadVPNUITests/${{ matrix.test_suite }}"
           xcode_test_plan: ${{ needs.determine-test-plan-to-use.outputs.test_plan }}
+          test_device_udid: ${{ env.TEST_DEVICE_UDID }}
 
 #      - name: Comment PR on test failure
 #        if: failure() && github.event_name == 'pull_request'
