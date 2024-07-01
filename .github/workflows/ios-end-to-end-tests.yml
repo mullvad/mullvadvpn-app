@@ -46,7 +46,7 @@ jobs:
     runs-on: [self-hosted, macOS, ios-test]
     needs: checkout-repository
     outputs:
-      test_suites_json: ${{ steps.test-runs-to-json.outputs.test_runs_json }}
+      test_suites_json: ${{ steps.test-runs-to-json.outputs.test_suites_json }}
     steps:
       - name: Test runs to JSON
         id: test-runs-to-json
