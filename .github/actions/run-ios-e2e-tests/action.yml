@@ -17,9 +17,9 @@ runs:
         if [ -n "$TEST_NAME" ]; then
           # Strip slashes to avoid creating subdirectories
           test_name_sanitized=$(printf "$TEST_NAME" | sed 's/\//_/g')
-          printf "TEST_OUTPUT_DIRECTORY=output-$test_name_sanitized" >> $GITHUB_ENV
+          echo "TEST_OUTPUT_DIRECTORY=output-$test_name_sanitized" >> $GITHUB_ENV
         else
-          printf "TEST_OUTPUT_DIRECTORY=output" >> $GITHUB_ENV
+          echo "TEST_OUTPUT_DIRECTORY=output" >> $GITHUB_ENV
         fi
 
         echo "Creating output directory ${{ env.TEST_OUTPUT_DIRECTORY }}"
