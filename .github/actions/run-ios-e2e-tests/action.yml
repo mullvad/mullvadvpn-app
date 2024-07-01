@@ -31,3 +31,25 @@ runs:
       env:
         TEST_NAME: ${{ inputs.test_name }}
         XCODE_TEST_PLAN: ${{ inputs.xcode_test_plan }}
+  
+    # Set up a unique output directory
+    - name: Set up outputs directory
+      run: |
+        if [ -n "$TEST_NAME" ]; then
+          test_name_sanitized=$(printf "$TEST_NAME" | sed 's/\//_/g')
+          printf "TEST_OUTPUT_DIRECTORY=ios/output-$test_name_sanitized" >> $GITHUB_ENV
+        else
+          printf "TEST_OUTPUT_DIRECTORY=ios/output" >> $GITHUB_ENV
+        fi
+      shell: bash
+
+    - name: Store test report artifact
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results
+        path: |
+          $TEST_OUTPUT_DIRECTORY/junit-test-report/junit.xml
+          $TEST_OUTPUT_DIRECTORY/xcode-test-report.xcresult
+      env:
+        TEST_NAME: ${{ inputs.test_name }}
