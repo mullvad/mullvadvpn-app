@@ -22,13 +22,19 @@ runs:
         fi
       shell: bash
 
+    - name: Debug print
+      run: |
+        echo "TEST_OUTPUT_DIRECTORY: $TEST_OUTPUT_DIRECTORY"
+        echo "${{ env.TEST_OUTPUT_DIRECTORY }}"
+      shell: bash
+
     - name: Store test report artifact
       if: always()
       uses: actions/upload-artifact@v4
       with:
         name: test-results
         path: |
-          ${{ env.TEST_OUTPUT_DIRECTORY }} /junit-test-report/junit.xml
+          ${{ env.TEST_OUTPUT_DIRECTORY }}/junit-test-report/junit.xml
           ${{ env.TEST_OUTPUT_DIRECTORY }}/xcode-test-report.xcresult
       env:
         TEST_NAME: ${{ inputs.test_name }}
