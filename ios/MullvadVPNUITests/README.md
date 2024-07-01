@@ -17,8 +17,8 @@
 5. Install yeetd
  - `wget https://github.com/biscuitehh/yeetd/releases/download/1.0/yeetd-normal.pkg`
  - `sudo installer -pkg yeetd-normal.pkg -target yeetd`
-6. Install ios-deploy
-  - `brew install ios-deploy`
+6. Install ios-deploy and jq
+  - `brew install ios-deploy jq`
 7. Install Homebrew and dependencies
   - `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
   - `brew install xcbeautify wget swiftlint protobuf`
