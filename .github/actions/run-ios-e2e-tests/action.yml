@@ -39,7 +39,7 @@ runs:
       shell: bash
 
     - name: Uninstall app
-      run: ios-deploy --id $IOS_TEST_DEVICE_UDID --uninstall_only --bundle_id net.mullvad.MullvadVPN
+      run: ios-deploy --id $TEST_DEVICE_UDID --uninstall_only --bundle_id net.mullvad.MullvadVPN
       shell: bash
       env:
         TEST_DEVICE_UDID: ${{ inputs.test_device_udid }}
