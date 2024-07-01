@@ -19,14 +19,15 @@ runs:
           test_name_sanitized=$(printf "$TEST_NAME" | sed 's/\//_/g')
           echo "Setting output directory output-test-name-sanitized"
           echo "$test_name_sanitized"
-          echo "TEST_OUTPUT_DIRECTORY=output-$test_name_sanitized" >> $GITHUB_ENV
+          test_output_directory="output-$test_name_sanitized"
         else
           echo "Setting output directory output"
-          echo "TEST_OUTPUT_DIRECTORY=output" >> $GITHUB_ENV
+          test_output_directory="output"
         fi
 
-        echo "Creating output directory ${{ env.TEST_OUTPUT_DIRECTORY }}"
-        mkdir "${{ env.TEST_OUTPUT_DIRECTORY }}"
+        echo "Creating output directory $test_output_directory"
+        mkdir "$test_output_directory"
+        echo "TEST_OUTPUT_DIRECTORY=$test_output_directory" >> $GITHUB_ENV
       shell: bash
       env:
         TEST_NAME: ${{ inputs.test_name }}
