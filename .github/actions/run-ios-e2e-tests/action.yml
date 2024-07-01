@@ -22,6 +22,7 @@ runs:
           printf "TEST_OUTPUT_DIRECTORY=output" >> $GITHUB_ENV
         fi
 
+        echo "Creating output directory $TEST_OUTPUT_DIRECTORY"
         mkdir "$TEST_OUTPUT_DIRECTORY"
       shell: bash
       env:
