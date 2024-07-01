@@ -9,7 +9,6 @@
 import MullvadMockData
 import MullvadTypes
 @testable import PacketTunnelCore
-@testable import PacketTunnelCoreTests
 import WireGuardKitTypes
 import XCTest
 
@@ -26,7 +25,7 @@ final class PacketTunnelActorReducerTests: XCTestCase {
             keyPolicy: keyPolicy,
             networkReachability: .reachable,
             connectionAttemptCount: 0,
-            connectedEndpoint: selectedRelays.exit.endpoint, // TODO: Multihop
+            connectedEndpoint: selectedRelays.entry?.endpoint ?? selectedRelays.exit.endpoint,
             transportLayer: .udp,
             remotePort: 12345,
             isPostQuantum: false

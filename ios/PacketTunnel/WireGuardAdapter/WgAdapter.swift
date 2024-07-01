@@ -45,6 +45,40 @@ struct WgAdapter: TunnelAdapterProtocol {
         }
     }
 
+    func startMultihop(
+        exitConfiguration: TunnelAdapterConfiguration,
+        entryConfiguration: TunnelAdapterConfiguration? = nil
+    ) async throws {
+        let exitConfiguration = exitConfiguration.asWgConfig
+        let entryConfiguration = entryConfiguration?.asWgConfig
+
+        logger.info("\(exitConfiguration.peers)")
+
+        if let entryConfiguration {
+            logger.info("\(entryConfiguration.peers)")
+        }
+
+        do {
+            try await adapter.stop()
+            adapter.startMultihop(exitConfiguration: exitConfiguration, entryConfiguration: entryConfiguration) {
+                logger.error("\($0?.localizedDescription ?? "Error starting the adapter")")
+            }
+        } catch WireGuardAdapterError.invalidState {
+            adapter.startMultihop(exitConfiguration: exitConfiguration, entryConfiguration: entryConfiguration) {
+                logger.error("\($0?.localizedDescription ?? "Error starting the adapter")")
+            }
+        }
+
+        let exitTunAddresses = exitConfiguration.interface.addresses.map { $0.address }
+        let entryTunAddresses = entryConfiguration?.interface.addresses.map { $0.address } ?? []
+        let tunAddresses = exitTunAddresses + entryTunAddresses
+
+        // TUN addresses can be empty when adapter is configured for blocked state.
+        if !tunAddresses.isEmpty {
+            logIfDeviceHasSameIP(than: tunAddresses)
+        }
+    }
+
     func stop() async throws {
         try await adapter.stop()
     }

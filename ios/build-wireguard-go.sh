@@ -9,6 +9,8 @@
 # Directory: $(SOURCE_ROOT)
 # Pass build settings in environment: YES
 
+export PATH="/opt/homebrew/opt/go@1.20/bin:$PATH"
+
 # Passed by Xcode
 ACTION=$1
 
