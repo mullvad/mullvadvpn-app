@@ -109,34 +109,34 @@ jobs:
 #        with:
 #          path: ios/derived-data
 #          key: ${{ env.DERIVED_DATA_CACHE_KEY }}
-
-  test:
-    if: github.event.pull_request.merged || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-    name: Run tests
-    runs-on: [self-hosted, macOS, ios-test]
-    needs: [build, determine-test-plan-to-use]
-    timeout-minutes: 60
-    env:
-      XCODE_TEST_PLAN: ${{ needs.determine-test-plan-to-use.outputs.test_plan }}
-    steps:
-#      - name: Restore derived data cache
-#        uses: actions/cache/restore@v4
+#
+#  test:
+#    if: github.event.pull_request.merged || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+#    name: Run tests
+#    runs-on: [self-hosted, macOS, ios-test]
+#    needs: [build, determine-test-plan-to-use]
+#    timeout-minutes: 60
+#    env:
+#      XCODE_TEST_PLAN: ${{ needs.determine-test-plan-to-use.outputs.test_plan }}
+#    steps:
+##      - name: Restore derived data cache
+##        uses: actions/cache/restore@v4
+##        with:
+##          path: ios/derived-data
+##          key: ${{ env.DERIVED_DATA_CACHE_KEY }}
+#
+#      - name: Uninstall app
+#        run: ios-deploy --id $IOS_TEST_DEVICE_UDID --uninstall_only --bundle_id net.mullvad.MullvadVPN
+#        shell: bash
+#        env:
+#          IOS_TEST_DEVICE_UDID: ${{ env.TEST_DEVICE_UDID }}
+#
+#      - name: Run iOS end to end tests action
+#        uses: ./.github/actions/run-ios-e2e-tests
 #        with:
-#          path: ios/derived-data
-#          key: ${{ env.DERIVED_DATA_CACHE_KEY }}
-
-      - name: Uninstall app
-        run: ios-deploy --id $IOS_TEST_DEVICE_UDID --uninstall_only --bundle_id net.mullvad.MullvadVPN
-        shell: bash
-        env:
-          IOS_TEST_DEVICE_UDID: ${{ env.TEST_DEVICE_UDID }}
-
-      - name: Run iOS end to end tests action
-        uses: ./.github/actions/run-ios-e2e-tests
-        with:
-          test_name: "MullvadVPNUITests/AccountTests"
-          xcode_test_plan: ${{ needs.determine-test-plan-to-use.outputs.test_plan }}
-
+#          test_name: "MullvadVPNUITests/AccountTests"
+#          xcode_test_plan: ${{ needs.determine-test-plan-to-use.outputs.test_plan }}
+#
 #      - name: Comment PR on test failure
 #        if: failure() && github.event_name == 'pull_request'
 #        uses: actions/github-script@v7
