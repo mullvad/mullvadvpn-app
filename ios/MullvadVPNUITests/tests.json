@@ -1,16 +1,16 @@
 {
     "tests": {
         "all": [
-            "MullvadVPNUITests/AccountTests",
-            "MullvadVPNUITests/ConnectivityTests",
-            "MullvadVPNUITests/CustomListsTests",
-            "MullvadVPNUITests/RelayTests",
-            "MullvadVPNUITests/ScreenshotTests",
-            "MullvadVPNUITests/SettingsTests"
+            "AccountTests",
+            "ConnectivityTests",
+            "CustomListsTests",
+            "RelayTests",
+            "ScreenshotTests",
+            "SettingsTests"
         ],
         "pr-merge-to-main": [
-            "MullvadVPNUITests/AccountTests/testLogin",
-            "MullvadVPNUITests/AccountTests/testCreateAccount"
+            "AccountTests/testLogin",
+            "AccountTests/testCreateAccount"
         ]
     }
 }
