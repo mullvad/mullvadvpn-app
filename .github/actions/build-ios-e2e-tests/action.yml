@@ -16,9 +16,6 @@ inputs:
   test_device_udid:
     description: 'Test Device UDID'
     required: true
-  xcode_test_plan:
-    description: 'Xcode Test Plan to run'
-    required: true
   partner_api_token:
     description: 'Partner API Token'
     required: true
@@ -80,13 +77,12 @@ runs:
         set -o pipefail && env NSUnbufferedIO=YES xcodebuild \
           -project MullvadVPN.xcodeproj \
           -scheme MullvadVPNUITests \
-          -testPlan $XCODE_TEST_PLAN $TEST_NAME_ARGUMENT \
+          -testPlan MullvadVPNUITestsAll $TEST_NAME_ARGUMENT \
           -destination "platform=iOS,id=$TEST_DEVICE_UDID" \
           -derivedDataPath derived-data \
           clean build-for-testing 2>&1
       shell: bash
       working-directory: ios/
       env:
-        XCODE_TEST_PLAN: ${{ inputs.xcode_test_plan }}
         TEST_DEVICE_UDID: ${{ inputs.test_device_udid }}
         TEST_NAME: ${{ inputs.test_name }}

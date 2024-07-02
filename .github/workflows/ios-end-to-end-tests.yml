@@ -40,6 +40,7 @@ jobs:
         with:
           clean: true
 
+  # Define the set of tests to run based on the event type and input
   define-test-suites-matrix:
     if: github.event.pull_request.merged || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     name: Define test suites matrix
@@ -68,32 +69,13 @@ jobs:
     outputs:
       test_suites_json: ${{ env.test_suites_json }}
 
-  determine-test-plan-to-use:
-    if: github.event.pull_request.merged || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-    name: Determine Xcode test plan to use
-    runs-on: [self-hosted, macOS, ios-test]
-    outputs:
-      test_plan: ${{ steps.determine-test-plan.outputs.test_plan }}
-    steps:
-      - name: Select test plan to execute
-        id: determine-test-plan
-        run: |
-          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            echo "::set-output name=test_plan::MullvadVPNUITestsSmoke"
-          elif [[ "${{ github.event_name }}" == "schedule" ]]; then
-            echo "::set-output name=test_plan::MullvadVPNUITestsAll"
-          elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            echo "::set-output name=test_plan::MullvadVPNUITestsAll"
-          fi
-
+  # Build app and tests target
   build:
     if: github.event.pull_request.merged || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     name: Build for end to end testing
     runs-on: [self-hosted, macOS, ios-test]
-    needs: [checkout-repository, determine-test-plan-to-use]
+    needs: [checkout-repository]
     timeout-minutes: 20
-    env:
-      XCODE_TEST_PLAN: ${{ needs.determine-test-plan-to-use.outputs.test_plan }}
     steps:
       - name: Configure Rust
         uses: actions-rs/toolchain@v1
@@ -102,20 +84,9 @@ jobs:
           override: true
           target: aarch64-apple-ios
 
-      - name: Select test plan to execute
-        run: |
-          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            echo "XCODE_TEST_PLAN=MullvadVPNUITestsSmoke" >> $GITHUB_ENV
-          elif [[ "${{ github.event_name }}" == "schedule" ]]; then
-            echo "XCODE_TEST_PLAN=MullvadVPNUITestsAll" >> $GITHUB_ENV
-          elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            echo "XCODE_TEST_PLAN=MullvadVPNUITestsAll" >> $GITHUB_ENV
-          fi
-
       - name: Build iOS end to end tests action
         uses: ./.github/actions/build-ios-e2e-tests
         with:
-          xcode_test_plan: ${{ env.XCODE_TEST_PLAN }}
           test_name: ${{ github.event.inputs.user_supplied_test_name }}
           ios_device_pin_code: ${{ secrets.IOS_DEVICE_PIN_CODE }}
           test_device_identifier_uuid: ${{ secrets.IOS_TEST_DEVICE_IDENTIFIER_UUID }}
@@ -128,20 +99,17 @@ jobs:
     if: github.event.pull_request.merged || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     name: Run tests
     runs-on: [self-hosted, macOS, ios-test]
-    needs: [build, determine-test-plan-to-use, define-test-suites-matrix]
+    needs: [build, define-test-suites-matrix]
     timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
         test_suite: ${{fromJson(needs.define-test-suites-matrix.outputs.test_suites_json)}}
-    env:
-      XCODE_TEST_PLAN: ${{ needs.determine-test-plan-to-use.outputs.test_plan }}
     steps:
       - name: Run iOS end to end tests action
         uses: ./.github/actions/run-ios-e2e-tests
         with:
           test_name: "MullvadVPNUITests/${{ matrix.test_suite }}"
-          xcode_test_plan: ${{ needs.determine-test-plan-to-use.outputs.test_plan }}
           test_device_udid: ${{ env.TEST_DEVICE_UDID }}
 
 #      - name: Comment PR on test failure
@@ -159,13 +127,3 @@ jobs:
 #              issue_number: issue_number,
 #              body: `🚨 End to end tests failed. Please check the [failed workflow run](${run_url}).`
 #            });
-#
-#      - name: Store test report artifact
-#        if: always()
-#        uses: actions/upload-artifact@v4
-#        with:
-#          name: test-results
-#          path: |
-#            ios/junit-test-report/junit.xml
-#            ios/xcode-test-report.xcresult
-#
