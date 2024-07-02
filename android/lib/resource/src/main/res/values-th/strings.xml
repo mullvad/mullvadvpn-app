@@ -333,8 +333,6 @@
     <string name="unsupported_version">เวอร์ชันที่ไม่รองรับ</string>
     <string name="unsupported_version_description">ความเป็นส่วนตัวของคุณอาจมีความเสี่ยง ในขณะที่ใช้งานเวอร์ชันแอปที่ไม่ได้รับการสนับสนุนนี้ โปรดอัปเดตตอนนี้เลย</string>
     <string name="unsupported_version_without_upgrade">คุณกำลังใช้งานเวอร์ชันแอปที่ไม่ได้รับการสนับสนุน</string>
-    <string name="update_available">มีการอัปเดตให้ใช้งาน</string>
-    <string name="update_available_description">ติดตั้ง Mullvad VPN (%1$s) เพื่อรับอัปเดตล่าสุดอยู่เสมอ</string>
     <string name="update_available_footer">มีอัปเดตพร้อมใช้งาน ดาวน์โหลดเพื่อคงความปลอดภัยไว้</string>
     <string name="update_dns_server_dialog_title">อัปเดตเซิร์ฟเวอร์ DNS</string>
     <string name="update_list_name">อัปเดตชื่อรายการ</string>

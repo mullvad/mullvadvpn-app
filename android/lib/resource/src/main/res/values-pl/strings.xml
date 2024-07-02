@@ -333,8 +333,6 @@
     <string name="unsupported_version">WERSJA NIEOBSŁUGIWANA</string>
     <string name="unsupported_version_description">W tej nieobsługiwanej wersji aplikacji prywatność może być zagrożona. Zaktualizuj już teraz.</string>
     <string name="unsupported_version_without_upgrade">Używasz nieobsługiwanej wersji aplikacji.</string>
-    <string name="update_available">DOSTĘPNA JEST AKTUALIZACJA</string>
-    <string name="update_available_description">Aby być na bieżąco, zainstaluj Mullvad VPN (%1$s)</string>
     <string name="update_available_footer">Dostępna jest aktualizacja. Aby zachować bezpieczeństwo, pobierz ją.</string>
     <string name="update_dns_server_dialog_title">Zaktualizuj serwer DNS</string>
     <string name="update_list_name">Zaktualizuj nazwę listy</string>

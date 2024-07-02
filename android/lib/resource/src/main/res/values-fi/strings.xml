@@ -333,8 +333,6 @@
     <string name="unsupported_version">EI-TUETTU VERSIO</string>
     <string name="unsupported_version_description">Yksityisyytesi saattaa olla vaarassa tämän sovellusversion, jota ei tueta, vuoksi. Päivitä versio heti.</string>
     <string name="unsupported_version_without_upgrade">Sovellusversiotasi ei tueta.</string>
-    <string name="update_available">PÄIVITYS SAATAVILLA</string>
-    <string name="update_available_description">Asenna Mullvad VPN (%1$s) pysyäksesi ajan tasalla</string>
     <string name="update_available_footer">Päivitys saatavilla. Lataa se pysyäksesi suojattuna.</string>
     <string name="update_dns_server_dialog_title">Päivitä DNS-palvelin</string>
     <string name="update_list_name">Päivitä luettelon nimi</string>

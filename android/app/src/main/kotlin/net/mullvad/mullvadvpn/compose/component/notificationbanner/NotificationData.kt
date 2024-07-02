@@ -93,19 +93,6 @@ fun InAppNotification.toNotificationData(
                     if (isPlayBuild) null
                     else NotificationAction(R.drawable.icon_extlink, onClickUpdateVersion)
             )
-        is InAppNotification.UpdateAvailable ->
-            NotificationData(
-                title = stringResource(id = R.string.update_available),
-                message =
-                    stringResource(
-                        id = R.string.update_available_description,
-                        versionInfo.suggestedUpgradeVersion ?: ""
-                    ),
-                statusLevel = StatusLevel.Warning,
-                action =
-                    if (isPlayBuild) null
-                    else NotificationAction(R.drawable.icon_extlink, onClickUpdateVersion)
-            )
     }
 
 @Composable

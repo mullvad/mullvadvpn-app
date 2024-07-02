@@ -333,8 +333,6 @@
     <string name="unsupported_version">DESTEKLENMEYEN SÜRÜM</string>
     <string name="unsupported_version_description">Bu desteklenmeyen uygulama sürümüyle gizliliğiniz risk altında olabilir. Lütfen hemen güncelleyin.</string>
     <string name="unsupported_version_without_upgrade">Desteklenmeyen bir uygulama sürümünü kullanıyorsunuz.</string>
-    <string name="update_available">GÜNCELLEME MEVCUT</string>
-    <string name="update_available_description">Güncel kalmak için Mullvad VPN (%1$s) yükleyin</string>
     <string name="update_available_footer">Güncelleme mevcut, güvende kalmak için güncellemeyi indirin.</string>
     <string name="update_dns_server_dialog_title">DNS sunucusunu güncelle</string>
     <string name="update_list_name">Liste adını güncelle</string>

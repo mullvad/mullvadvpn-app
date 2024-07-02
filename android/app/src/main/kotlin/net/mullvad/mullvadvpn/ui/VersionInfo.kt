@@ -4,6 +4,4 @@ data class VersionInfo(
     val currentVersion: String,
     val isSupported: Boolean,
     val suggestedUpgradeVersion: String?
-) {
-    val isUpdateAvailable: Boolean = suggestedUpgradeVersion != null
-}
+)

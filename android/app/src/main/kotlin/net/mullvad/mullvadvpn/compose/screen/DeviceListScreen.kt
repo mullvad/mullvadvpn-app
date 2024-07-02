@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.compose.screen
 
+import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -160,6 +161,8 @@ fun DeviceList(
         onTryAgainClicked = viewModel::fetchDevices,
         navigateToRemoveDeviceConfirmationDialog =
             dropUnlessResumed<Device> {
+                // Logger.i("DeviceList: remove device: $it")
+                Log.d("mullvad", "DeviceList: remove device: $it")
                 navigator.navigate(RemoveDeviceConfirmationDialogDestination(it))
             }
     )

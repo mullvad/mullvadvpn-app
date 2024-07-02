@@ -333,8 +333,6 @@
     <string name="unsupported_version">NICHT UNTERSTÜTZTE VERSION</string>
     <string name="unsupported_version_description">Ihre Privatsphäre könnte mit dieser nicht unterstützen Version der App gefährdet sein. Bitte aktualisieren Sie sie.</string>
     <string name="unsupported_version_without_upgrade">Sie verwenden eine nicht unterstützte Version der App. </string>
-    <string name="update_available">UPDATE VERFÜGBAR</string>
-    <string name="update_available_description">Installieren Sie Mullvad VPN (%1$s), um auf dem neuesten Stand zu bleiben</string>
     <string name="update_available_footer">Update verfügbar, laden Sie es herunter, um sicher zu bleiben.</string>
     <string name="update_dns_server_dialog_title">DNS-Server aktualisieren</string>
     <string name="update_list_name">Name der Liste ändern</string>
