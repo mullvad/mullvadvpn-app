@@ -14,7 +14,7 @@ workspace = true
 chrono = { workspace = true, features = ["clock"] }
 thiserror = { workspace = true }
 futures = "0.3.15"
-ipnetwork = "0.16"
+ipnetwork = "0.20"
 libc = "0.2"
 log = { workspace = true }
 once_cell = { workspace = true }
@@ -48,7 +48,7 @@ duct = "0.13"
 [target.'cfg(target_os = "macos")'.dependencies]
 async-trait = "0.1"
 duct = "0.13"
-pfctl = "0.4.6"
+pfctl = { git = "https://github.com/mullvad/pfctl-rs", rev = "0cae58767a64a3859cbf14f7a41842c46135ac82" }
 subslice = "0.2"
 system-configuration = "0.5.1"
 hickory-proto = "0.24.1"

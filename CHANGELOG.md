@@ -40,6 +40,9 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Fix race condition that could result in crashes when DAITA was enabled during disconnects.
 
+#### macOS
+- Fix intermittent failures to connect with PQ enabled.
+
 
 ## [2024.3] - 2024-05-15
 This release is identical to 2024.3-beta1.
