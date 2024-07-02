@@ -1,8 +1,5 @@
 ---
 name: iOS end-to-end tests
-concurrency:
-  group: ios-end-to-end-tests
-  cancel-in-progress: false
 permissions:
   contents: read
   issues: write
