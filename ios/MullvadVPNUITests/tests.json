@@ -5,7 +5,6 @@
             "ConnectivityTests",
             "CustomListsTests",
             "RelayTests",
-            "ScreenshotTests",
             "SettingsTests"
         ],
         "pr-merge-to-main": [
