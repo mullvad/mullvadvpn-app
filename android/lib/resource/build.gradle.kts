@@ -25,4 +25,7 @@ android {
     }
 }
 
-dependencies { implementation(Dependencies.AndroidX.appcompat) }
+dependencies {
+    implementation(Dependencies.AndroidX.appcompat)
+    implementation(Dependencies.AndroidX.coreSplashscreen)
+}

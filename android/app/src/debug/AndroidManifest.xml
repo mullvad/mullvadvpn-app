@@ -8,10 +8,10 @@
                      tools:ignore="ScopedStorage" />
     <application android:icon="@mipmap/ic_launcher"
                  android:roundIcon="@mipmap/ic_launcher"
-                 android:theme="@style/AppTheme"
+                 android:theme="@style/Theme.App.Starting"
                  android:extractNativeLibs="true"
                  android:allowBackup="false"
                  android:banner="@drawable/banner"
                  android:name=".MullvadApplication"
-                 tools:ignore="DataExtractionRules,GoogleAppIndexingWarning"></application>
+                 tools:ignore="DataExtractionRules,GoogleAppIndexingWarning"/>
 </manifest>
