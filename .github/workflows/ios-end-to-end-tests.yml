@@ -51,7 +51,7 @@ jobs:
         id: test-runs-to-json
         run: |
           if [ -n "$TEST_NAME" ]; then
-            echo "::set-output name=test_runs_json::'[\"$TEST_NAME\"]'"
+            test_suites_json="['$TEST_NAME']" >> $GITHUB_ENV
           else
             if [[ "${{ github.event_name }}" == "pull_request" ]]; then
               test_suites_json=$(jq -r --compact-output .tests.pr-merge-to-main tests.json)
