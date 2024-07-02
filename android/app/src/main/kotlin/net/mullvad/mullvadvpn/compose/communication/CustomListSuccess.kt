@@ -32,5 +32,7 @@ data class Renamed(override val undo: CustomListAction.Rename) : CustomListSucce
 @Parcelize
 data class LocationsChanged(
     val name: CustomListName,
+    val locationNamesAdded: List<String>? = null,
+    val locationNamesRemoved: List<String>? = null,
     override val undo: CustomListAction.UpdateLocations
 ) : CustomListSuccess
