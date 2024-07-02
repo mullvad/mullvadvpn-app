@@ -10,7 +10,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.LocalMinimumInteractiveComponentEnforcement
+import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -146,7 +146,8 @@ private fun ConnectionButton(
 
         val (connectionButton, reconnectButton) = createRefs()
         CompositionLocalProvider(
-            LocalMinimumInteractiveComponentEnforcement provides false,
+            LocalMinimumInteractiveComponentSize provides
+                Dimens.reconnectButtonMinInteractiveComponentSize,
         ) {
             val dividerSize = Dimens.listItemDivider
 
