@@ -1,0 +1,19 @@
+# See repository root `osv-scanner.toml` for instructions and rules for this file.
+
+# Pillow arbitrary code execution
+[[IgnoredVulns]]
+id = "CVE-2023-50447" # GHSA-3f63-hfp8-52jq
+ignoreUntil = 2024-09-05
+reason = "Only used internally, on trusted input. This tool is also scheduled for removal completely, so not worth trying to upgrade"
+
+# Pillow buffer overflow
+[[IgnoredVulns]]
+id = "CVE-2024-28219" # GHSA-44wm-f244-xhp3
+ignoreUntil = 2024-09-05
+reason = "Only used internally, on trusted input. This tool is also scheduled for removal completely, so not worth trying to upgrade"
+
+# libwebp bundled with Pillow is vulnerable to CVE-2023-5129
+[[IgnoredVulns]]
+id = "GHSA-56pw-mpj4-fxww"
+ignoreUntil = 2024-09-05
+reason = "Only used internally, on trusted input. This tool is also scheduled for removal completely, so not worth trying to upgrade"

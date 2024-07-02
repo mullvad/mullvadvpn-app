@@ -22,6 +22,7 @@ on:
       - '!prepare-release.sh'
       - '!rustfmt.toml'
       - '!.yamllint'
+      - '!**/osv-scanner.toml'
 
   workflow_dispatch:
     inputs:

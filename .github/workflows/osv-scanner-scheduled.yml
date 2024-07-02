@@ -1,0 +1,21 @@
+---
+name: OSV-Scanner Scheduled Scan
+
+on:
+  schedule:
+    - cron: "30 12 * * 1"
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  # Require writing security events to upload SARIF file to security tab
+  security-events: write
+  # Only need to read contents
+  contents: read
+  actions: read
+
+jobs:
+  scan-scheduled:
+    # yamllint disable rule:line-length
+    uses: "google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@f0e45d2960258cf40285d596a10f817af70af1f7"  # v1.7.4

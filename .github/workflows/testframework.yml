@@ -23,6 +23,7 @@ on:
       - '!prepare-release.sh'
       - '!rustfmt.toml'
       - '!.yamllint'
+      - '!**/osv-scanner.toml'
   workflow_dispatch:
 jobs:
   prepare-build-test-framework-linux:

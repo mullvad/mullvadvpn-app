@@ -17,6 +17,7 @@ on:
       - '!scripts/**'
       - '!windows/**'
       - '!**/**.md'
+      - '!**/osv-scanner.toml'
   schedule:
     # At 06:20 UTC every day.
     # Notifications for scheduled workflows are sent to the user who last modified the cron
