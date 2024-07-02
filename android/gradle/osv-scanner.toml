@@ -63,7 +63,7 @@ ignoreUntil = 2024-08-02
 reason = "See top comment"
 
 [[IgnoredVulns]]
-name = "org.bouncycastle:bcpkix-jdk18on"
+name = "bcpkix-jdk18on"
 ignoreUntil = 2024-08-02
 reason = "See top comment"
 
