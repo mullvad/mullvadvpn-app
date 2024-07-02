@@ -32,7 +32,7 @@ class SettingsScreenTest {
                             appVersion = "",
                             isLoggedIn = true,
                             isUpdateAvailable = true,
-                            isPlayBuild = false
+                            isPlayBuild = false,
                         ),
                 )
             }
@@ -55,7 +55,7 @@ class SettingsScreenTest {
                             appVersion = "",
                             isLoggedIn = false,
                             isUpdateAvailable = true,
-                            isPlayBuild = false
+                            isPlayBuild = false,
                         ),
                 )
             }

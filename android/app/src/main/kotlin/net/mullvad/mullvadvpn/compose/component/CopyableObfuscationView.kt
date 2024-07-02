@@ -40,6 +40,8 @@ fun CopyableObfuscationView(
         AnimatedIconButton(
             defaultIcon = painterResource(id = R.drawable.icon_hide),
             secondaryIcon = painterResource(id = R.drawable.icon_show),
+            defaultIconTint = MaterialTheme.colorScheme.onSurface,
+            secondaryIconTint = MaterialTheme.colorScheme.onSurface,
             isToggleButton = true,
             contentDescription = stringResource(id = R.string.hide_account_number),
             onClick = { obfuscationEnabled = !obfuscationEnabled }
@@ -54,7 +56,8 @@ fun CopyAnimatedIconButton(onClick: () -> Unit) {
     AnimatedIconButton(
         defaultIcon = painterResource(id = R.drawable.icon_copy),
         secondaryIcon = painterResource(id = R.drawable.icon_tick),
-        secondaryIconTint = MaterialTheme.colorScheme.inversePrimary,
+        defaultIconTint = MaterialTheme.colorScheme.onSurface,
+        secondaryIconTint = MaterialTheme.colorScheme.tertiary,
         isToggleButton = false,
         contentDescription = stringResource(id = R.string.copy_account_number),
         onClick = onClick

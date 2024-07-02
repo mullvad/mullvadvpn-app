@@ -29,15 +29,15 @@ fun ThreeDotCell(
     modifier: Modifier = Modifier,
     onClickDots: () -> Unit = {},
     textStyle: TextStyle = MaterialTheme.typography.titleMedium,
-    textColor: Color = MaterialTheme.colorScheme.onPrimary,
-    background: Color = MaterialTheme.colorScheme.primary
+    textColor: Color = MaterialTheme.colorScheme.onSurface,
+    background: Color = MaterialTheme.colorScheme.surfaceContainerHighest
 ) {
     BaseCell(
         headlineContent = {
             BaseCellTitle(
                 title = text,
                 style = textStyle,
-                color = textColor,
+                textColor = textColor,
                 modifier = Modifier.weight(1f, true)
             )
         },

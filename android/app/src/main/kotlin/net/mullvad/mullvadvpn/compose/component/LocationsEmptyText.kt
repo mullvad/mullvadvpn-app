@@ -38,7 +38,7 @@ fun LocationsEmptyText(searchTerm: String) {
                 text = firstRow,
                 style = MaterialTheme.typography.labelMedium,
                 textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onSecondary,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -46,7 +46,7 @@ fun LocationsEmptyText(searchTerm: String) {
                 text = secondRow,
                 style = MaterialTheme.typography.labelMedium,
                 textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onSecondary,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
     } else {
@@ -54,7 +54,7 @@ fun LocationsEmptyText(searchTerm: String) {
             text = stringResource(R.string.no_locations_found),
             modifier = Modifier.padding(Dimens.screenVerticalMargin),
             style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSecondary
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }

@@ -4,5 +4,5 @@ data class SettingsUiState(
     val appVersion: String,
     val isLoggedIn: Boolean,
     val isUpdateAvailable: Boolean,
-    val isPlayBuild: Boolean
+    val isPlayBuild: Boolean,
 )

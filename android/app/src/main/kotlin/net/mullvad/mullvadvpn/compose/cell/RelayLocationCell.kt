@@ -235,7 +235,7 @@ private fun RelayLocationCell(
 private fun Name(modifier: Modifier = Modifier, relay: RelayItem) {
     Text(
         text = relay.name,
-        color = MaterialTheme.colorScheme.onPrimary,
+        color = MaterialTheme.colorScheme.onSurface,
         modifier =
             modifier
                 .alpha(
@@ -271,9 +271,9 @@ private fun RowScope.ExpandButton(isExpanded: Boolean, onClick: (expand: Boolean
 @Composable
 private fun Int.toBackgroundColor(): Color =
     when (this) {
-        0 -> MaterialTheme.colorScheme.surfaceContainerHighest
-        1 -> MaterialTheme.colorScheme.surfaceContainerHigh
-        2 -> MaterialTheme.colorScheme.surfaceContainerLow
+        0 -> MaterialTheme.colorScheme.surfaceContainerHigh
+        1 -> MaterialTheme.colorScheme.surfaceContainerLow
+        2 -> MaterialTheme.colorScheme.surfaceContainerLowest
         3 -> MaterialTheme.colorScheme.surfaceContainerLowest
         else -> MaterialTheme.colorScheme.surfaceContainerLowest
     }

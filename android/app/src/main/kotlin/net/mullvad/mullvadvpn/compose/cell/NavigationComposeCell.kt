@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -65,7 +66,13 @@ fun NavigationComposeCell(
     title: String,
     modifier: Modifier = Modifier,
     showWarning: Boolean = false,
-    bodyView: @Composable () -> Unit = { DefaultNavigationView(chevronContentDescription = title) },
+    textColor: Color = MaterialTheme.colorScheme.onSurface,
+    bodyView: @Composable () -> Unit = {
+        DefaultNavigationView(
+            chevronContentDescription = title,
+            colorFilter = ColorFilter.tint(textColor)
+        )
+    },
     isRowEnabled: Boolean = true,
     onClick: () -> Unit,
     testTag: String = ""
@@ -101,7 +108,7 @@ internal fun NavigationTitleView(
     Text(
         text = title,
         style = MaterialTheme.typography.titleMedium,
-        color = MaterialTheme.colorScheme.onPrimary,
+        color = MaterialTheme.colorScheme.onSurface,
         modifier = modifier,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis
@@ -109,18 +116,20 @@ internal fun NavigationTitleView(
 }
 
 @Composable
-internal fun DefaultNavigationView(chevronContentDescription: String) {
+internal fun DefaultNavigationView(chevronContentDescription: String, colorFilter: ColorFilter) {
     Image(
         painter = painterResource(id = R.drawable.icon_chevron),
-        contentDescription = chevronContentDescription
+        contentDescription = chevronContentDescription,
+        colorFilter = colorFilter
     )
 }
 
 @Composable
-internal fun DefaultExternalLinkView(chevronContentDescription: String) {
+internal fun DefaultExternalLinkView(chevronContentDescription: String, colorFilter: ColorFilter) {
     Image(
         painter = painterResource(id = R.drawable.icon_extlink),
-        contentDescription = chevronContentDescription
+        contentDescription = chevronContentDescription,
+        colorFilter = colorFilter
     )
 }
 
@@ -129,19 +138,23 @@ internal fun NavigationCellBody(
     content: String,
     contentBodyDescription: String,
     modifier: Modifier = Modifier,
-    contentColor: Color = MaterialTheme.colorScheme.onSecondary,
+    contentColor: Color = MaterialTheme.colorScheme.onSurface,
+    textColor: Color = MaterialTheme.colorScheme.onSurface,
     isExternalLink: Boolean = false
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier.wrapContentWidth().wrapContentHeight()
     ) {
-        Text(text = content, style = MaterialTheme.typography.labelMedium, color = contentColor)
+        Text(text = content, style = MaterialTheme.typography.labelMedium, color = textColor)
         Spacer(modifier = Modifier.width(Dimens.sideMargin))
         if (isExternalLink) {
-            DefaultExternalLinkView(content)
+            DefaultExternalLinkView(content, colorFilter = ColorFilter.tint(contentColor))
         } else {
-            DefaultNavigationView(chevronContentDescription = contentBodyDescription)
+            DefaultNavigationView(
+                chevronContentDescription = contentBodyDescription,
+                colorFilter = ColorFilter.tint(contentColor)
+            )
         }
     }
 }

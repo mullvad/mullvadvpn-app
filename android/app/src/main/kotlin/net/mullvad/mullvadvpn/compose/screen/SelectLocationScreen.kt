@@ -268,7 +268,7 @@ fun SelectLocationScreen(
     onEditLocationsCustomList: (RelayItem.CustomList) -> Unit = {},
     onDeleteCustomList: (RelayItem.CustomList) -> Unit = {}
 ) {
-    val backgroundColor = MaterialTheme.colorScheme.background
+    val backgroundColor = MaterialTheme.colorScheme.surface
 
     Scaffold(
         snackbarHost = {
@@ -313,8 +313,8 @@ fun SelectLocationScreen(
                     Modifier.fillMaxWidth()
                         .height(Dimens.searchFieldHeight)
                         .padding(horizontal = Dimens.searchFieldHorizontalPadding),
-                backgroundColor = MaterialTheme.colorScheme.tertiaryContainer,
                 textColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                backgroundColor = MaterialTheme.colorScheme.tertiaryContainer
             ) { searchString ->
                 onSearchTermInput.invoke(searchString)
             }
@@ -334,7 +334,7 @@ fun SelectLocationScreen(
                     Modifier.fillMaxSize()
                         .drawVerticalScrollbar(
                             lazyListState,
-                            MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaScrollbar),
+                            MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
                         ),
                 state = lazyListState,
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -410,7 +410,7 @@ private fun SelectLocationTopBar(onBackClick: () -> Unit, onFilterClick: () -> U
             Icon(
                 modifier = Modifier.rotate(270f),
                 painter = painterResource(id = R.drawable.icon_back),
-                tint = Color.Unspecified,
+                tint = MaterialTheme.colorScheme.onSurface,
                 contentDescription = null,
             )
         }
@@ -419,13 +419,13 @@ private fun SelectLocationTopBar(onBackClick: () -> Unit, onFilterClick: () -> U
             modifier = Modifier.align(Alignment.CenterVertically).weight(weight = 1f),
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.onPrimary,
+            color = MaterialTheme.colorScheme.onSurface,
         )
         IconButton(onClick = onFilterClick) {
             Icon(
                 painter = painterResource(id = R.drawable.icons_more_circle),
                 contentDescription = null,
-                tint = Color.Unspecified,
+                tint = MaterialTheme.colorScheme.onSurface,
             )
         }
     }
