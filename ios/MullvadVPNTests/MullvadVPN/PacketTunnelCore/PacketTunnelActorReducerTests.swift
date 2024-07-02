@@ -6,38 +6,26 @@
 //  Copyright © 2024 Mullvad VPN AB. All rights reserved.
 //
 
+import MullvadMockData
 import MullvadTypes
 @testable import PacketTunnelCore
 import WireGuardKitTypes
 import XCTest
 
 final class PacketTunnelActorReducerTests: XCTestCase {
-    // test data
-    let selectedRelay = SelectedRelay(
-        endpoint: MullvadEndpoint(
-            ipv4Relay: IPv4Endpoint(ip: .loopback, port: 1300),
-            ipv4Gateway: .loopback,
-            ipv6Gateway: .loopback,
-            publicKey: PrivateKey().publicKey.rawValue
-        ),
-        hostname: "se-got",
-        location: Location(
-            country: "",
-            countryCode: "se",
-            city: "",
-            cityCode: "got",
-            latitude: 0,
-            longitude: 0
-        ), retryAttempts: 0
-    )
+    // swiftlint:disable:next force_try
+    let selectedRelays = try! RelaySelectorStub
+        .nonFallible()
+        .selectRelays(with: RelayConstraints(), connectionAttemptCount: 0)
+
     func makeConnectionData(keyPolicy: State.KeyPolicy = .useCurrent) -> State.ConnectionData {
         State.ConnectionData(
-            selectedRelay: selectedRelay,
+            selectedRelays: selectedRelays,
             relayConstraints: RelayConstraints(),
             keyPolicy: keyPolicy,
             networkReachability: .reachable,
             connectionAttemptCount: 0,
-            connectedEndpoint: selectedRelay.endpoint,
+            connectedEndpoint: selectedRelays.exit.endpoint, // TODO: Multihop
             transportLayer: .udp,
             remotePort: 12345,
             isPostQuantum: false
@@ -65,13 +53,13 @@ final class PacketTunnelActorReducerTests: XCTestCase {
         // When
         let effects = PacketTunnelActor.Reducer.reduce(
             &state,
-            .start(StartOptions(launchSource: .app, selectedRelay: selectedRelay))
+            .start(StartOptions(launchSource: .app, selectedRelays: selectedRelays))
         )
         // Then
         XCTAssertEqual(effects, [
             .startDefaultPathObserver,
             .startTunnelMonitor,
-            .startConnection(.preSelected(selectedRelay)),
+            .startConnection(.preSelected(selectedRelays)),
         ])
     }
 

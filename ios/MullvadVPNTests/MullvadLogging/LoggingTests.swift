@@ -12,9 +12,11 @@ import XCTest
 
 class MullvadLoggingTests: XCTestCase {
     let fileManager = FileManager.default
-    let directoryPath = FileManager.default.temporaryDirectory.appendingPathComponent("LoggingTests", isDirectory: true)
+    var directoryPath: URL!
 
     override func setUpWithError() throws {
+        directoryPath = FileManager.default.temporaryDirectory.appendingPathComponent("LoggingTests", isDirectory: true)
+
         try fileManager.createDirectory(
             at: directoryPath,
             withIntermediateDirectories: true

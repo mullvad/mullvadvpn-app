@@ -22,16 +22,16 @@ private let dispatchQueue = DispatchQueue(label: "Tunnel.dispatchQueue")
 private let proxyRequestTimeout = REST.defaultAPINetworkTimeout + 2
 
 extension TunnelProtocol {
-    /// Request packet tunnel process to reconnect the tunnel with the given relay.
+    /// Request packet tunnel process to reconnect the tunnel with the given relays.
     func reconnectTunnel(
-        to nextRelay: NextRelay,
+        to nextRelays: NextRelays,
         completionHandler: @escaping (Result<Void, Error>) -> Void
     ) -> Cancellable {
         let operation = SendTunnelProviderMessageOperation(
             dispatchQueue: dispatchQueue,
             application: .shared,
             tunnel: self,
-            message: .reconnectTunnel(nextRelay),
+            message: .reconnectTunnel(nextRelays),
             completionHandler: completionHandler
         )
 

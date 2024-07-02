@@ -134,7 +134,6 @@ public enum RelaySelector {
     /// Produce a list of `RelayWithLocation` items satisfying the given constraints
     static func applyConstraints<T: AnyRelay>(
         _ relayConstraint: RelayConstraint<UserSelectedRelays>,
-        portConstraint: RelayConstraint<UInt16>,
         filterConstraint: RelayConstraint<RelayFilter>,
         relays: [RelayWithLocation<T>]
     ) -> [RelayWithLocation<T>] {

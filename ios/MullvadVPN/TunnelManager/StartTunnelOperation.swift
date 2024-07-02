@@ -72,12 +72,12 @@ class StartTunnelOperation: ResultOperation<Void> {
     }
 
     private func startTunnel(tunnel: any TunnelProtocol) throws {
-        let selectedRelay = try? interactor.selectRelay()
+        let selectedRelays = try? interactor.selectRelays()
         var tunnelOptions = PacketTunnelOptions()
 
         do {
-            if let selectedRelay {
-                try tunnelOptions.setSelectedRelay(selectedRelay)
+            if let selectedRelays {
+                try tunnelOptions.setSelectedRelays(selectedRelays)
             }
         } catch {
             logger.error(
@@ -91,7 +91,7 @@ class StartTunnelOperation: ResultOperation<Void> {
         interactor.updateTunnelStatus { tunnelStatus in
             tunnelStatus = TunnelStatus()
             tunnelStatus.state = .connecting(
-                selectedRelay,
+                selectedRelays,
                 isPostQuantum: interactor.settings.tunnelQuantumResistance.isEnabled
             )
         }

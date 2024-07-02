@@ -18,7 +18,7 @@ struct TunnelControlViewModel {
     let outgoingConnectionInfo: OutgoingConnectionInfo?
 
     var connectionPanel: ConnectionPanelData? {
-        guard let tunnelRelay = tunnelStatus.state.relay else {
+        guard let tunnelRelays = tunnelStatus.state.relays else {
             return nil
         }
 
@@ -29,7 +29,7 @@ struct TunnelControlViewModel {
         }
 
         return ConnectionPanelData(
-            inAddress: "\(tunnelRelay.endpoint.ipv4Relay.ip)\(portAndTransport)",
+            inAddress: "\(tunnelRelays.exit.endpoint.ipv4Relay.ip)\(portAndTransport)", // TODO: Multihop
             outAddress: outgoingConnectionInfo?.outAddress
         )
     }

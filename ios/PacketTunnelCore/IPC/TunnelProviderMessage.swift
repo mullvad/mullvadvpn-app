@@ -11,7 +11,7 @@ import Foundation
 /// Enum describing supported app messages handled by packet tunnel provider.
 public enum TunnelProviderMessage: Codable, CustomStringConvertible {
     /// Request the tunnel to reconnect.
-    case reconnectTunnel(NextRelay)
+    case reconnectTunnel(NextRelays)
 
     /// Request the tunnel status.
     case getTunnelStatus

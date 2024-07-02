@@ -6,13 +6,10 @@
 //  Copyright © 2023 Mullvad VPN AB. All rights reserved.
 //
 
-import Foundation
-import MullvadREST
 import MullvadSettings
 import MullvadTypes
-import PacketTunnelCore
 
-final class RelaySelectorWrapper: RelaySelectorProtocol {
+public final class RelaySelectorWrapper: RelaySelectorProtocol {
     let relayCache: RelayCacheProtocol
     let multihopUpdater: MultihopUpdater
     private var multihopState: MultihopState = .off
@@ -28,7 +25,30 @@ final class RelaySelectorWrapper: RelaySelectorProtocol {
     ) {
         self.relayCache = relayCache
         self.multihopUpdater = multihopUpdater
+
         self.addObserver()
+    }
+
+    public func selectRelays(
+        with constraints: RelayConstraints,
+        connectionAttemptCount: UInt
+    ) throws -> SelectedRelays {
+        let relays = try relayCache.read().relays
+
+        switch multihopState {
+        case .off:
+            return try SinglehopPicker(
+                constraints: constraints,
+                relays: relays,
+                connectionAttemptCount: connectionAttemptCount
+            ).pick()
+        case .on:
+            return try MultihopPicker(
+                constraints: constraints,
+                relays: relays,
+                connectionAttemptCount: connectionAttemptCount
+            ).pick()
+        }
     }
 
     private func addObserver() {
@@ -37,26 +57,5 @@ final class RelaySelectorWrapper: RelaySelectorProtocol {
         })
 
         multihopUpdater.addObserver(observer)
-    }
-
-    func selectRelay(
-        with constraints: RelayConstraints,
-        connectionAttemptFailureCount: UInt
-    ) throws -> SelectedRelay {
-        switch multihopState {
-        case .off, .on:
-            let selectorResult = try RelaySelector.WireGuard.evaluate(
-                by: constraints,
-                in: relayCache.read().relays,
-                numberOfFailedAttempts: connectionAttemptFailureCount
-            )
-
-            return SelectedRelay(
-                endpoint: selectorResult.endpoint,
-                hostname: selectorResult.relay.hostname,
-                location: selectorResult.location,
-                retryAttempts: connectionAttemptFailureCount
-            )
-        }
     }
 }

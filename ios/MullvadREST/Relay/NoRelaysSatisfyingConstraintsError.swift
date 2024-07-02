@@ -9,6 +9,8 @@
 import Foundation
 
 public struct NoRelaysSatisfyingConstraintsError: LocalizedError {
+    public init() {}
+
     public var errorDescription: String? {
         "No relays satisfying constraints."
     }

@@ -33,6 +33,7 @@ final class TunnelManagerTests: XCTestCase {
         let devicesProxy = DevicesProxyStub(deviceResult: .success(Device.mock(publicKey: PrivateKey().publicKey)))
         let apiProxy = APIProxyStub()
         let accessTokenManager = AccessTokenManagerStub()
+        let relaySelector = RelaySelectorStub.nonFallible()
         let tunnelManager = TunnelManager(
             application: application,
             tunnelStore: tunnelStore,
@@ -40,7 +41,8 @@ final class TunnelManagerTests: XCTestCase {
             accountsProxy: accountProxy,
             devicesProxy: devicesProxy,
             apiProxy: apiProxy,
-            accessTokenManager: accessTokenManager
+            accessTokenManager: accessTokenManager,
+            relaySelector: relaySelector
         )
         XCTAssertNotNil(tunnelManager)
     }
@@ -54,6 +56,7 @@ final class TunnelManagerTests: XCTestCase {
         let apiProxy = APIProxyStub()
         let accessTokenManager = AccessTokenManagerStub()
         accountProxy.createAccountResult = .success(REST.NewAccountData.mockValue())
+        let relaySelector = RelaySelectorStub.nonFallible()
         let tunnelManager = TunnelManager(
             application: application,
             tunnelStore: tunnelStore,
@@ -61,7 +64,8 @@ final class TunnelManagerTests: XCTestCase {
             accountsProxy: accountProxy,
             devicesProxy: devicesProxy,
             apiProxy: apiProxy,
-            accessTokenManager: accessTokenManager
+            accessTokenManager: accessTokenManager,
+            relaySelector: relaySelector
         )
         _ = try await tunnelManager.setNewAccount()
         XCTAssertEqual(tunnelManager.isRunningPeriodicPrivateKeyRotation, true)
@@ -76,6 +80,7 @@ final class TunnelManagerTests: XCTestCase {
         let apiProxy = APIProxyStub()
         let accessTokenManager = AccessTokenManagerStub()
         accountProxy.createAccountResult = .success(REST.NewAccountData.mockValue())
+        let relaySelector = RelaySelectorStub.nonFallible()
         let tunnelManager = TunnelManager(
             application: application,
             tunnelStore: tunnelStore,
@@ -83,7 +88,8 @@ final class TunnelManagerTests: XCTestCase {
             accountsProxy: accountProxy,
             devicesProxy: devicesProxy,
             apiProxy: apiProxy,
-            accessTokenManager: accessTokenManager
+            accessTokenManager: accessTokenManager,
+            relaySelector: relaySelector
         )
         _ = try await tunnelManager.setNewAccount()
         await tunnelManager.unsetAccount()

@@ -47,7 +47,7 @@ extension State {
     func logFormat() -> String {
         switch self {
         case let .connecting(connState), let .connected(connState), let .reconnecting(connState):
-            let hostname = connState.selectedRelay.hostname
+            let hostname = connState.selectedRelays.exit.hostname // TODO: Multihop
 
             return """
             \(name) to \(hostname), \
