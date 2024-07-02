@@ -112,18 +112,24 @@ jobs:
           test_name: "MullvadVPNUITests/${{ matrix.test_suite }}"
           test_device_udid: ${{ env.TEST_DEVICE_UDID }}
 
-#      - name: Comment PR on test failure
-#        if: failure() && github.event_name == 'pull_request'
-#        uses: actions/github-script@v7
-#        with:
-#          github-token: ${{secrets.GITHUB_TOKEN}}
-#          script: |
-#            const issue_number = context.issue.number;
-#            const run_id = context.runId;
-#            const run_url = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${run_id}`;
-#            github.rest.issues.createComment({
-#              owner: context.repo.owner,
-#              repo: context.repo.repo,
-#              issue_number: issue_number,
-#              body: `🚨 End to end tests failed. Please check the [failed workflow run](${run_url}).`
-#            });
+  notify-on-failure:
+    if: failure() && github.event_name == 'pull_request'
+    name: Notify team on failure
+    runs-on: [self-hosted, macOS, ios-test]
+    needs: test
+    timeout-minutes: 5
+    steps:
+    - name: Comment PR on test failure
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{secrets.GITHUB_TOKEN}}
+        script: |
+          const issue_number = context.issue.number;
+          const run_id = context.runId;
+          const run_url = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${run_id}`;
+          github.rest.issues.createComment({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: issue_number,
+            body: `🚨 End to end tests failed. Please check the [failed workflow run](${run_url}).`
+          });
