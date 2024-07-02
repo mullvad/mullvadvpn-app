@@ -25,6 +25,7 @@ on:
       - building/linux-container-image.txt
       - building/android-container-image.txt
       - building/sigstore/**
+      - '**/osv-scanner.toml'
 jobs:
   verify-signatures:
     runs-on: ubuntu-latest
