@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.compose.extensions
 
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 
 fun Lifecycle.State.dropUnlessResumed(block: () -> Unit) =
@@ -15,19 +16,19 @@ fun Lifecycle.State.runOnAtLeast(expectedState: Lifecycle.State, block: () -> Un
 
 @Composable
 fun <T> dropUnlessResumed(block: (T) -> Unit): (T) -> Unit {
-    val lifecycle = LocalLifecycleOwner.current.lifecycle
-    return dropUnlessResumed(lifecycle.currentState, block)
+    val lifecycleOwner = LocalLifecycleOwner.current
+    return dropUnlessResumed(lifecycleOwner, block)
 }
 
-fun <T> dropUnlessResumed(state: Lifecycle.State, block: (T) -> Unit): (T) -> Unit =
-    state.runOnAtLeast(Lifecycle.State.RESUMED, block)
+fun <T> dropUnlessResumed(lifecycleOwner: LifecycleOwner, block: (T) -> Unit): (T) -> Unit =
+    lifecycleOwner.runOnAtLeast(Lifecycle.State.RESUMED, block)
 
-fun <T> Lifecycle.State.runOnAtLeast(
+fun <T> LifecycleOwner.runOnAtLeast(
     expectedState: Lifecycle.State,
     block: (T) -> Unit
 ): (T) -> Unit {
     return {
-        if (isAtLeast(expectedState)) {
+        if (lifecycle.currentState.isAtLeast(expectedState)) {
             block(it)
         }
     }
@@ -35,19 +36,21 @@ fun <T> Lifecycle.State.runOnAtLeast(
 
 @Composable
 fun <T, T2> dropUnlessResumed(block: (T, T2) -> Unit): (T, T2) -> Unit {
-    val lifecycle = LocalLifecycleOwner.current.lifecycle
-    return dropUnlessResumed(lifecycle.currentState, block)
+    val lifecycleOwner = LocalLifecycleOwner.current
+    return dropUnlessResumed(lifecycleOwner, block)
 }
 
-fun <T, T2> dropUnlessResumed(state: Lifecycle.State, block: (T, T2) -> Unit): (T, T2) -> Unit =
-    state.runOnAtLeast(Lifecycle.State.RESUMED, block)
+fun <T, T2> dropUnlessResumed(
+    lifecycleOwner: LifecycleOwner,
+    block: (T, T2) -> Unit
+): (T, T2) -> Unit = lifecycleOwner.runOnAtLeast(Lifecycle.State.RESUMED, block)
 
-fun <T, T2> Lifecycle.State.runOnAtLeast(
+fun <T, T2> LifecycleOwner.runOnAtLeast(
     expectedState: Lifecycle.State,
     block: (T, T2) -> Unit
 ): (T, T2) -> Unit {
     return { t, t1 ->
-        if (isAtLeast(expectedState)) {
+        if (lifecycle.currentState.isAtLeast(expectedState)) {
             block(t, t1)
         }
     }
