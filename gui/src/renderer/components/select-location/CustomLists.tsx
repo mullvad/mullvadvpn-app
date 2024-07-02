@@ -123,7 +123,8 @@ interface AddListFormProps {
 
 function AddListForm(props: AddListFormProps) {
   const [name, setName] = useState('');
-  const nameValid = name.trim() !== '';
+  const nameTrimmed = name.trim();
+  const nameValid = nameTrimmed !== '';
   const [error, setError, unsetError] = useBoolean();
   const containerRef = useStyledRef<HTMLDivElement>();
   const inputRef = useStyledRef<HTMLInputElement>();
@@ -137,7 +138,7 @@ function AddListForm(props: AddListFormProps) {
   const createList = useCallback(async () => {
     if (nameValid) {
       try {
-        const result = await props.onCreateList(name);
+        const result = await props.onCreateList(nameTrimmed);
         if (result) {
           setError();
         }
