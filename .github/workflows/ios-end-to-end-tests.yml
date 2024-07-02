@@ -17,7 +17,7 @@ on:
     inputs:
       # Optionally specify a test case or suite to run.
       # Must be in the format MullvadVPNUITest/<test-suite-name>/<test-case-name> where test case name is optional.
-      test_name:
+      user_supplied_test_name:
         description: 'Only run test case/suite'
         required: false
   schedule:
@@ -52,10 +52,17 @@ jobs:
           if [ -n "$TEST_NAME" ]; then
             echo "::set-output name=test_runs_json::'[\"$TEST_NAME\"]'"
           else
-            # List test suites based on file names
-            test_suites=$(find . -name "*Tests.swift" | sed 's/.*\///' | sed 's/\.swift//' | sed '/SettingsMigrationTests/d' | sort)
-            test_suites_json=$(printf "$test_suites" | jq --compact-output --raw-input --slurp 'split("\n")')
-            echo "test_suites_json=$test_suites_json" >> $GITHUB_ENV
+            if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+              test_suites_json=$(jq -r --compact-output .tests.pr-merge-to-main tests.json)
+              echo "test_suites_json=$test_suites_json" >> $GITHUB_ENV
+            elif [[ "${{ github.event_name }}" == "schedule" ]] | [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+              test_suites_json=$(jq -r --compact-output .tests.all tests.json)
+              echo "test_suites_json=$test_suites_json" >> $GITHUB_ENV
+              # List test suites based on file names
+              #test_suites=$(find . -name "*Tests.swift" | sed 's/.*\///' | sed 's/\.swift//' | sed '/SettingsMigrationTests/d' | sort)
+              #test_suites_json=$(printf "$test_suites" | jq --compact-output --raw-input --slurp 'split("\n")')
+              #echo "test_suites_json=$test_suites_json" >> $GITHUB_ENV
+            fi
           fi
         working-directory: ios/MullvadVPNUITests
     outputs:
@@ -109,7 +116,7 @@ jobs:
         uses: ./.github/actions/build-ios-e2e-tests
         with:
           xcode_test_plan: ${{ env.XCODE_TEST_PLAN }}
-          test_name: ${{ github.event.inputs.test_name }}
+          test_name: ${{ github.event.inputs.user_supplied_test_name }}
           ios_device_pin_code: ${{ secrets.IOS_DEVICE_PIN_CODE }}
           test_device_identifier_uuid: ${{ secrets.IOS_TEST_DEVICE_IDENTIFIER_UUID }}
           has_time_account_number: ${{ secrets.IOS_HAS_TIME_ACCOUNT_NUMBER_PRODUCTION }}
