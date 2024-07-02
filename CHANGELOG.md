@@ -84,6 +84,7 @@ This release is identical to 2024.3-beta1.
 - Add automatic MTU detection for desktop platforms. This currently only uses information about
   dropped packets and does not take fragmentation into account.
 - Add ability to import server IP overrides in GUI.
+- Allow the 100.64.0.0/10 RFC6598 shared address space in addition to the other networks allowed when local network sharing is enabled.
 
 ### Changed
 - Change default obfuscation setting to `auto`.
