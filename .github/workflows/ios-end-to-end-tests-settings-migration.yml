@@ -1,5 +1,8 @@
 ---
 name: iOS settings migration tests
+concurrency:
+  group: ios-end-to-end-tests
+  cancel-in-progress: false
 permissions:
   contents: read
 on:
