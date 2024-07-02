@@ -71,6 +71,11 @@ runs:
         XCODE_TEST_PLAN: ${{ inputs.xcode_test_plan }}
         TEST_DEVICE_UDID: ${{ inputs.test_device_udid }}
 
+    - name: Debug environment variables
+      run: |
+        echo "TEST_OUTPUT_DIRECTORY: ${{ env.TEST_OUTPUT_DIRECTORY }}"
+        echo "TEST_NAME_SANITIZED: ${{ env.TEST_NAME_SANITIZED }}"
+
     - name: Store test report artifact
       if: always()
       uses: actions/upload-artifact@v4
