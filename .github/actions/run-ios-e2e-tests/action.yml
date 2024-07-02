@@ -75,6 +75,7 @@ runs:
       run: |
         echo "TEST_OUTPUT_DIRECTORY: ${{ env.TEST_OUTPUT_DIRECTORY }}"
         echo "TEST_NAME_SANITIZED: ${{ env.TEST_NAME_SANITIZED }}"
+      shell: bash
 
     - name: Store test report artifact
       if: always()
