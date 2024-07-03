@@ -63,11 +63,27 @@ ignoreUntil = 2024-08-02
 reason = "See top comment"
 
 [[IgnoredVulns]]
-name = "bcpkix-jdk18on"
+id = "CVE-2022-24329" # GHSA-2qp4-g3q3-f92w
 ignoreUntil = 2024-08-02
 reason = "See top comment"
 
-[[IgnoredVulns]]
-id = "CVE-2022-24329" # GHSA-2qp4-g3q3-f92w
-ignoreUntil = 2024-08-02
+[[PackageOverrides]]
+name = "org.bouncycastle:bcprov-jdk15on"
+ecosystem = "Maven"
+ignore = true
+ignoreUntil = 2024-02-02
+reason = "See top comment"
+
+[[PackageOverrides]]
+name = "org.bouncycastle:bcprov-jdk18on"
+ecosystem = "Maven"
+ignore = true
+effectiveUntil = 2024-08-02
+reason = "See top comment"
+
+[[PackageOverrides]]
+name = "org.bouncycastle:bcpkix-jdk18on"
+ecosystem = "Maven"
+ignore = true
+effectiveUntil = 2024-08-02
 reason = "See top comment"
