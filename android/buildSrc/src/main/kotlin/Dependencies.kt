@@ -19,6 +19,8 @@ object Dependencies {
     const val billingClient = "com.android.billingclient:billing-ktx:${Versions.billingClient}"
 
     object AndroidX {
+        const val activityCompose =
+            "androidx.activity:activity-compose:${Versions.AndroidX.activityCompose}"
         const val appcompat = "androidx.appcompat:appcompat:${Versions.AndroidX.appcompat}"
         const val coreKtx = "androidx.core:core-ktx:${Versions.AndroidX.coreKtx}"
         const val fragmentTestning =

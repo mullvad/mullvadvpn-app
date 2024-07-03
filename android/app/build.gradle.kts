@@ -325,6 +325,7 @@ dependencies {
     playImplementation(project(Dependencies.Mullvad.billingLib))
 
     implementation(Dependencies.commonsValidator)
+    implementation(Dependencies.AndroidX.activityCompose)
     implementation(Dependencies.AndroidX.coreKtx)
     implementation(Dependencies.AndroidX.lifecycleRuntimeKtx)
     implementation(Dependencies.AndroidX.lifecycleViewmodelKtx)
