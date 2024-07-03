@@ -22,7 +22,7 @@ object Dependencies {
         const val appcompat = "androidx.appcompat:appcompat:${Versions.AndroidX.appcompat}"
         const val coreKtx = "androidx.core:core-ktx:${Versions.AndroidX.coreKtx}"
         const val fragmentTestning =
-            "androidx.fragment:fragment-testing:${Versions.AndroidX.fragment}"
+            "androidx.fragment:fragment-testing:${Versions.AndroidX.fragmentTesting}"
         const val lifecycleRuntimeKtx =
             "androidx.lifecycle:lifecycle-runtime-ktx:${Versions.AndroidX.lifecycle}"
         const val lifecycleViewmodelKtx =
