@@ -63,7 +63,9 @@ fun Splash(navigator: DestinationsNavigator) {
                     popUpTo(NavGraphs.root) { inclusive = true }
                 }
             SplashUiSideEffect.NavigateToPrivacyDisclaimer ->
-                navigator.navigate(PrivacyDisclaimerDestination) { popUpTo(NavGraphs.root) {} }
+                navigator.navigate(PrivacyDisclaimerDestination) {
+                    popUpTo(NavGraphs.root) { inclusive = true }
+                }
             SplashUiSideEffect.NavigateToRevoked ->
                 navigator.navigate(DeviceRevokedDestination) {
                     popUpTo(NavGraphs.root) { inclusive = true }
@@ -95,36 +97,30 @@ fun SplashScreen() {
                     Modifier.background(backgroundColor)
                         .padding(it)
                         .padding(bottom = it.calculateTopPadding())
-                        .fillMaxSize()
-            ) {
-                Column(
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.launch_logo),
-                        contentDescription = "",
-                        modifier = Modifier.size(Dimens.splashLogoSize)
-                    )
-                    Image(
-                        painter = painterResource(id = R.drawable.logo_text),
-                        contentDescription = "",
-                        alpha = 0.6f,
-                        modifier =
-                            Modifier.padding(top = Dimens.mediumPadding)
-                                .height(Dimens.splashLogoTextHeight)
-                    )
-                    Text(
-                        text = stringResource(id = R.string.connecting_to_daemon),
-                        style = MaterialTheme.typography.bodySmall,
-                        color =
-                            MaterialTheme.colorScheme.onPrimary
-                                .copy(alpha = AlphaDescription)
-                                .compositeOver(backgroundColor),
-                        modifier = Modifier.padding(top = Dimens.mediumPadding)
-                    )
+                        .fillMaxSize()) {
+                    Column(
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally) {
+                            Image(
+                                painter = painterResource(id = R.drawable.launch_logo),
+                                contentDescription = "",
+                                modifier = Modifier.size(Dimens.splashLogoSize))
+                            Image(
+                                painter = painterResource(id = R.drawable.logo_text),
+                                contentDescription = "",
+                                alpha = 0.6f,
+                                modifier =
+                                    Modifier.padding(top = Dimens.mediumPadding)
+                                        .height(Dimens.splashLogoTextHeight))
+                            Text(
+                                text = stringResource(id = R.string.connecting_to_daemon),
+                                style = MaterialTheme.typography.bodySmall,
+                                color =
+                                    MaterialTheme.colorScheme.onPrimary
+                                        .copy(alpha = AlphaDescription)
+                                        .compositeOver(backgroundColor),
+                                modifier = Modifier.padding(top = Dimens.mediumPadding))
+                        }
                 }
-            }
-        }
-    )
+        })
 }
