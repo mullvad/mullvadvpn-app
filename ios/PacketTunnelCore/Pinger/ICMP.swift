@@ -7,13 +7,11 @@
 //
 
 import Foundation
-//import Network
 
 struct ICMP {
-    
     public enum Error: LocalizedError {
         case malformedResponse(MalformedResponseReason)
-        
+
         public var errorDescription: String? {
             switch self {
             case let .malformedResponse(reason):
@@ -21,7 +19,7 @@ struct ICMP {
             }
         }
     }
-    
+
     public enum MalformedResponseReason {
         case ipv4PacketTooSmall
         case icmpHeaderTooSmall
@@ -30,7 +28,6 @@ struct ICMP {
         case checksumMismatch(UInt16, UInt16)
     }
 
-    
     private static func in_chksum(_ data: some Sequence<UInt8>) -> UInt16 {
         var iterator = data.makeIterator()
         var words = [UInt16]()
@@ -47,7 +44,6 @@ struct ICMP {
         return ~sum
     }
 
-    
     static func createICMPPacket(identifier: UInt16, sequenceNumber: UInt16) -> Data {
         var header = ICMPHeader(
             type: UInt8(ICMP_ECHO),
@@ -114,7 +110,6 @@ struct ICMP {
             return icmpHeader
         }
     }
-
 }
 
 private extension IPv4Header {

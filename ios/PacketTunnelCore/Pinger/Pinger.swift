@@ -195,7 +195,6 @@ public final class Pinger: PingerProtocol {
         }
     }
 
-
     private func bindSocket(_ socket: CFSocket, to interfaceName: String) throws {
         var index = if_nametoindex(interfaceName)
         guard index > 0 else {
@@ -298,3 +297,4 @@ extension Pinger {
             }
         }
     }
+}
