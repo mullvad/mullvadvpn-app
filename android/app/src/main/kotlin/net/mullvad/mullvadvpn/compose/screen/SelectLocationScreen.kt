@@ -88,7 +88,7 @@ import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_CUSTOM_LIST_HEADER_TE
 import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG
 import net.mullvad.mullvadvpn.compose.textfield.SearchTextField
 import net.mullvad.mullvadvpn.compose.transitions.SelectLocationTransition
-import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
+import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.RunOnKeyChange
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.model.CustomListId
@@ -152,7 +152,7 @@ fun SelectLocation(
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
 
-    LaunchedEffectCollect(vm.uiSideEffect) {
+    CollectSideEffectWithLifecycle(vm.uiSideEffect) {
         when (it) {
             SelectLocationSideEffect.CloseScreen -> backNavigator.navigateBack(result = true)
             is SelectLocationSideEffect.LocationAddedToCustomList ->
