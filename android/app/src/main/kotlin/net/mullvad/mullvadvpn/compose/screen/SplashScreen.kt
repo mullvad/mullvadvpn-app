@@ -63,7 +63,9 @@ fun Splash(navigator: DestinationsNavigator) {
                     popUpTo(NavGraphs.root) { inclusive = true }
                 }
             SplashUiSideEffect.NavigateToPrivacyDisclaimer ->
-                navigator.navigate(PrivacyDisclaimerDestination) { popUpTo(NavGraphs.root) {} }
+                navigator.navigate(PrivacyDisclaimerDestination) {
+                    popUpTo(NavGraphs.root) { inclusive = true }
+                }
             SplashUiSideEffect.NavigateToRevoked ->
                 navigator.navigate(DeviceRevokedDestination) {
                     popUpTo(NavGraphs.root) { inclusive = true }
