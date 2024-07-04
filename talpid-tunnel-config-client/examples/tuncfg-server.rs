@@ -51,6 +51,7 @@ impl EphemeralPeer for EphemeralPeerImpl {
                             classic_mceliece_rust::encapsulate_boxed(&public_key, &mut rng);
                         (ciphertext.as_array().to_vec(), *shared_secret.as_array())
                     }
+                    // Kyber round3
                     "Kyber1024" => {
                         let public_key = kem_pubkey.key_data.as_slice();
                         let (ciphertext, shared_secret) =
