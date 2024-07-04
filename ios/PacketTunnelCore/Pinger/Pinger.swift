@@ -181,6 +181,9 @@ public final class Pinger: PingerProtocol {
             guard icmpHeader.identifier == identifier else {
                 throw Error.clientIdentifierMismatch
             }
+            guard icmpHeader.type == ICMP_ECHOREPLY else {
+                throw Error.invalidICMPType(icmpHeader.type)
+            }
             guard let sender = Self.makeIPAddress(from: address) else { throw Error.parseIPAddress }
 
             replyQueue.async {
@@ -268,6 +271,9 @@ extension Pinger {
         /// Failure to receive packet. Contains the `errno`.
         case receivePacket(Int32)
 
+        /// Unexpected ICMP reply type
+        case invalidICMPType(UInt8)
+
         /// Response identifier does not match the sender identifier.
         case clientIdentifierMismatch
 
@@ -290,6 +296,8 @@ extension Pinger {
                 return "Failure to send packet (errno: \(code))."
             case let .receivePacket(code):
                 return "Failure to receive packet (errno: \(code))."
+            case let .invalidICMPType(type):
+                return "Unexpected ICMP reply type: \(type)"
             case .clientIdentifierMismatch:
                 return "Response identifier does not match the sender identifier."
             case .parseIPAddress:

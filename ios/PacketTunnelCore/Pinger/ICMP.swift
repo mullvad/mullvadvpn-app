@@ -24,7 +24,6 @@ struct ICMP {
         case ipv4PacketTooSmall
         case icmpHeaderTooSmall
         case invalidIPVersion
-        case invalidEchoReplyType
         case checksumMismatch(UInt16, UInt16)
     }
 
@@ -80,11 +79,6 @@ struct ICMP {
             let icmpHeaderPointer = bufferPointer.baseAddress!
                 .advanced(by: ipv4Header.headerLength)
                 .assumingMemoryBound(to: ICMPHeader.self)
-
-            // Verify ICMP type.
-            guard icmpHeaderPointer.pointee.type == ICMP_ECHOREPLY else {
-                throw Error.malformedResponse(.invalidEchoReplyType)
-            }
 
             // Copy server checksum.
             let serverChecksum = icmpHeaderPointer.pointee.checksum.bigEndian
