@@ -18,4 +18,4 @@ permissions:
 jobs:
   scan-scheduled:
     # yamllint disable rule:line-length
-    uses: "google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@f0e45d2960258cf40285d596a10f817af70af1f7"  # v1.7.4
+    uses: "google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@dfa8609a7da62968d73f63f279418e504c1f523f"  # v1.8.1
