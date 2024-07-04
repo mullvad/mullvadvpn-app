@@ -124,7 +124,7 @@ impl Config {
         // the order of insertion matters, public key entry denotes a new peer entry
         let mut wg_conf = WgConfigBuffer::new();
         wg_conf
-            .add("private_key", self.tunnel.private_key.to_bytes().as_ref())
+            .add::<&[u8]>("private_key", self.tunnel.private_key.to_bytes().as_ref())
             .add("listen_port", "0");
 
         #[cfg(target_os = "linux")]
@@ -136,11 +136,11 @@ impl Config {
 
         for peer in self.peers() {
             wg_conf
-                .add("public_key", peer.public_key.as_bytes().as_ref())
+                .add::<&[u8]>("public_key", peer.public_key.as_bytes().as_ref())
                 .add("endpoint", peer.endpoint.to_string().as_str())
                 .add("replace_allowed_ips", "true");
             if let Some(ref psk) = peer.psk {
-                wg_conf.add("preshared_key", psk.as_bytes().as_ref());
+                wg_conf.add::<&[u8]>("preshared_key", psk.as_bytes().as_ref());
             }
             for addr in &peer.allowed_ips {
                 wg_conf.add("allowed_ip", addr.to_string().as_str());
