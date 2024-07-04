@@ -161,52 +161,51 @@ private fun ReportProblemScreen(
                     is SendingReportUiState.Error -> ErrorContent(onSendReport, onClearSendResult)
                     is SendingReportUiState.Success -> SentContent(state.sendingState)
                 }
-                return@ScaffoldWithMediumTopBar
             }
-        }
+        } else {
+            Column(
+                modifier =
+                    modifier
+                        .padding(
+                            start = Dimens.sideMargin,
+                            end = Dimens.sideMargin,
+                            bottom = Dimens.verticalSpace,
+                        )
+                        .height(IntrinsicSize.Max),
+                verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
+            ) {
+                Text(text = stringResource(id = R.string.problem_report_description))
 
-        Column(
-            modifier =
-                modifier
-                    .padding(
-                        start = Dimens.sideMargin,
-                        end = Dimens.sideMargin,
-                        bottom = Dimens.verticalSpace,
+                TextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = state.email,
+                    onValueChange = onEmailChanged,
+                    maxLines = 1,
+                    singleLine = true,
+                    placeholder = { Text(text = stringResource(id = R.string.user_email_hint)) },
+                    colors = mullvadWhiteTextFieldColors()
+                )
+
+                TextField(
+                    modifier = Modifier.fillMaxWidth().weight(1f),
+                    value = state.description,
+                    onValueChange = onDescriptionChanged,
+                    placeholder = { Text(stringResource(R.string.user_message_hint)) },
+                    colors = mullvadWhiteTextFieldColors()
+                )
+
+                Column {
+                    PrimaryButton(
+                        onClick = onNavigateToViewLogs,
+                        text = stringResource(id = R.string.view_logs)
                     )
-                    .height(IntrinsicSize.Max),
-            verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
-        ) {
-            Text(text = stringResource(id = R.string.problem_report_description))
-
-            TextField(
-                modifier = Modifier.fillMaxWidth(),
-                value = state.email,
-                onValueChange = onEmailChanged,
-                maxLines = 1,
-                singleLine = true,
-                placeholder = { Text(text = stringResource(id = R.string.user_email_hint)) },
-                colors = mullvadWhiteTextFieldColors()
-            )
-
-            TextField(
-                modifier = Modifier.fillMaxWidth().weight(1f),
-                value = state.description,
-                onValueChange = onDescriptionChanged,
-                placeholder = { Text(stringResource(R.string.user_message_hint)) },
-                colors = mullvadWhiteTextFieldColors()
-            )
-
-            Column {
-                PrimaryButton(
-                    onClick = onNavigateToViewLogs,
-                    text = stringResource(id = R.string.view_logs)
-                )
-                Spacer(modifier = Modifier.height(Dimens.buttonSpacing))
-                VariantButton(
-                    onClick = onSendReport,
-                    isEnabled = state.description.isNotEmpty(),
-                    text = stringResource(id = R.string.send)
-                )
+                    Spacer(modifier = Modifier.height(Dimens.buttonSpacing))
+                    VariantButton(
+                        onClick = onSendReport,
+                        isEnabled = state.description.isNotEmpty(),
+                        text = stringResource(id = R.string.send)
+                    )
+                }
             }
         }
     }
