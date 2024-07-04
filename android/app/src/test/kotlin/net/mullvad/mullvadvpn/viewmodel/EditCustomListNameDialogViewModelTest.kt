@@ -3,12 +3,14 @@ package net.mullvad.mullvadvpn.viewmodel
 import app.cash.turbine.test
 import arrow.core.left
 import arrow.core.right
+import com.ramcosta.composedestinations.generated.navargs.toSavedStateHandle
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlin.test.assertIs
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.Renamed
+import net.mullvad.mullvadvpn.compose.dialog.EditCustomListNameNavArgs
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
@@ -16,7 +18,6 @@ import net.mullvad.mullvadvpn.lib.model.NameAlreadyExists
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.RenameError
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -77,15 +78,17 @@ class EditCustomListNameDialogViewModelTest {
                 awaitItem() // Default state
                 viewModel.updateCustomListName(customListName)
                 assertEquals(expectedError, awaitItem().error) // Showing error
-                viewModel.clearError()
-                assertNull(awaitItem().error)
             }
         }
 
     private fun createViewModel(customListId: CustomListId, initialName: String) =
         EditCustomListNameDialogViewModel(
-            customListId = customListId,
-            initialName = CustomListName.fromString(initialName),
-            customListActionUseCase = mockCustomListActionUseCase
+            customListActionUseCase = mockCustomListActionUseCase,
+            savedStateHandle =
+                EditCustomListNameNavArgs(
+                        customListId = customListId,
+                        initialName = CustomListName.fromString(initialName),
+                    )
+                    .toSavedStateHandle()
         )
 }

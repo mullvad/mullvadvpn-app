@@ -70,7 +70,6 @@ import net.mullvad.mullvadvpn.util.formatDate
 import net.mullvad.mullvadvpn.viewmodel.DeviceListSideEffect
 import net.mullvad.mullvadvpn.viewmodel.DeviceListViewModel
 import org.koin.androidx.compose.koinViewModel
-import org.koin.core.parameter.parametersOf
 
 @Composable
 @Preview
@@ -103,18 +102,16 @@ private fun PreviewDeviceListError() {
     }
 }
 
-@Destination<RootGraph>(style = DefaultTransition::class)
+data class DeviceListNavArgs(val accountNumber: AccountNumber)
+
+@Destination<RootGraph>(style = DefaultTransition::class, navArgs = DeviceListNavArgs::class)
 @Composable
 fun DeviceList(
     navigator: DestinationsNavigator,
-    accountNumber: String,
     confirmRemoveResultRecipient:
         ResultRecipient<RemoveDeviceConfirmationDialogDestination, DeviceId>
 ) {
-    val viewModel =
-        koinViewModel<DeviceListViewModel>(
-            parameters = { parametersOf(AccountNumber(accountNumber)) }
-        )
+    val viewModel = koinViewModel<DeviceListViewModel>()
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     confirmRemoveResultRecipient.onNavResult {
@@ -142,6 +139,11 @@ fun DeviceList(
                     )
                 }
             }
+            is DeviceListSideEffect.NavigateToLogin ->
+                navigator.navigate(LoginDestination(sideEffect.accountNumber.value)) {
+                    launchSingleTop = true
+                    popUpTo(LoginDestination) { inclusive = true }
+                }
         }
     }
 
@@ -149,13 +151,7 @@ fun DeviceList(
         state = state,
         snackbarHostState = snackbarHostState,
         onBackClick = dropUnlessResumed { navigator.navigateUp() },
-        onContinueWithLogin =
-            dropUnlessResumed {
-                navigator.navigate(LoginDestination(accountNumber)) {
-                    launchSingleTop = true
-                    popUpTo(LoginDestination) { inclusive = true }
-                }
-            },
+        onContinueWithLogin = viewModel::continueToLogin,
         onSettingsClicked = dropUnlessResumed { navigator.navigate(SettingsDestination) },
         onTryAgainClicked = viewModel::fetchDevices,
         navigateToRemoveDeviceConfirmationDialog =

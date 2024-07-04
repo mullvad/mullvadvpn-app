@@ -126,7 +126,7 @@ class EditCustomListNameDialogTest {
     fun whenInputIsChangedShouldCallOnInputChanged() =
         composeExtension.use {
             // Arrange
-            val mockedOnInputChanged: () -> Unit = mockk(relaxed = true)
+            val mockedOnInputChanged: (String) -> Unit = mockk(relaxed = true)
             val inputText = "NEW NAME"
             val state = EditCustomListNameUiState()
             setContentWithTheme {
@@ -137,7 +137,7 @@ class EditCustomListNameDialogTest {
             onNodeWithTag(EDIT_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG).performTextInput(inputText)
 
             // Assert
-            verify { mockedOnInputChanged.invoke() }
+            verify { mockedOnInputChanged.invoke(inputText) }
         }
 
     companion object {

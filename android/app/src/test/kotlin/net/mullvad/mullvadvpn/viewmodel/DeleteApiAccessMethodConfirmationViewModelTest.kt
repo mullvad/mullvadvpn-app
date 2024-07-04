@@ -3,9 +3,11 @@ package net.mullvad.mullvadvpn.viewmodel
 import app.cash.turbine.test
 import arrow.core.left
 import arrow.core.right
+import com.ramcosta.composedestinations.generated.navargs.toSavedStateHandle
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
+import net.mullvad.mullvadvpn.compose.dialog.DeleteApiAccessMethodNavArgs
 import net.mullvad.mullvadvpn.data.UUID
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
@@ -29,8 +31,10 @@ class DeleteApiAccessMethodConfirmationViewModelTest {
 
         deleteApiAccessMethodConfirmationViewModel =
             DeleteApiAccessMethodConfirmationViewModel(
-                apiAccessMethodId = apiAccessMethodId,
-                apiAccessRepository = mockApiAccessRepository
+                apiAccessRepository = mockApiAccessRepository,
+                savedStateHandle =
+                    DeleteApiAccessMethodNavArgs(apiAccessMethodId = apiAccessMethodId)
+                        .toSavedStateHandle()
             )
     }
 

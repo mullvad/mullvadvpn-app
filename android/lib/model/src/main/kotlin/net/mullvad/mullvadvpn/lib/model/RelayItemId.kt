@@ -17,7 +17,8 @@ value class CustomListId(val value: String) : RelayItemId, Parcelable {
 }
 
 @optics
-sealed interface GeoLocationId : RelayItemId {
+@Parcelize
+sealed interface GeoLocationId : RelayItemId, Parcelable {
     @optics
     @Parcelize
     data class Country(val countryCode: String) : GeoLocationId {

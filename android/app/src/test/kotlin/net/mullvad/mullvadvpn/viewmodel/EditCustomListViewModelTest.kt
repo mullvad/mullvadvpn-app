@@ -1,11 +1,13 @@
 package net.mullvad.mullvadvpn.viewmodel
 
 import app.cash.turbine.test
+import com.ramcosta.composedestinations.generated.navargs.toSavedStateHandle
 import io.mockk.every
 import io.mockk.mockk
 import kotlin.test.assertIs
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
+import net.mullvad.mullvadvpn.compose.dialog.EditCustomListNameNavArgs
 import net.mullvad.mullvadvpn.compose.state.EditCustomListState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.CustomList
@@ -24,14 +26,10 @@ class EditCustomListViewModelTest {
     fun `given a custom list id that does not exists should return not found ui state`() = runTest {
         // Arrange
         val customListId = CustomListId("2")
-        val customList =
-            CustomList(
-                id = CustomListId("1"),
-                name = CustomListName.fromString("test"),
-                locations = emptyList()
-            )
+        val name = CustomListName.fromString("test")
+        val customList = CustomList(id = CustomListId("1"), name = name, locations = emptyList())
         every { mockCustomListsRepository.customLists } returns MutableStateFlow(listOf(customList))
-        val viewModel = createViewModel(customListId)
+        val viewModel = createViewModel(customListId, name)
 
         // Act, Assert
         viewModel.uiState.test {
@@ -44,14 +42,10 @@ class EditCustomListViewModelTest {
     fun `given a custom list id that exists should return content ui state`() = runTest {
         // Arrange
         val customListId = CustomListId("1")
-        val customList =
-            CustomList(
-                id = customListId,
-                name = CustomListName.fromString("test"),
-                locations = emptyList()
-            )
+        val name = CustomListName.fromString("test")
+        val customList = CustomList(id = customListId, name = name, locations = emptyList())
         every { mockCustomListsRepository.customLists } returns MutableStateFlow(listOf(customList))
-        val viewModel = createViewModel(customListId)
+        val viewModel = createViewModel(customListId, name)
 
         // Act, Assert
         viewModel.uiState.test {
@@ -63,9 +57,11 @@ class EditCustomListViewModelTest {
         }
     }
 
-    private fun createViewModel(customListId: CustomListId) =
+    private fun createViewModel(customListId: CustomListId, initialName: CustomListName) =
         EditCustomListViewModel(
-            customListId = customListId,
-            customListsRepository = mockCustomListsRepository
+            customListsRepository = mockCustomListsRepository,
+            savedStateHandle =
+                EditCustomListNameNavArgs(customListId = customListId, initialName = initialName)
+                    .toSavedStateHandle()
         )
 }

@@ -1,7 +1,9 @@
 package net.mullvad.mullvadvpn.viewmodel
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ramcosta.composedestinations.generated.destinations.DeleteApiAccessMethodConfirmationDestination
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -15,9 +17,12 @@ import net.mullvad.mullvadvpn.lib.model.RemoveApiAccessMethodError
 import net.mullvad.mullvadvpn.repository.ApiAccessRepository
 
 class DeleteApiAccessMethodConfirmationViewModel(
-    private val apiAccessMethodId: ApiAccessMethodId,
-    private val apiAccessRepository: ApiAccessRepository
+    private val apiAccessRepository: ApiAccessRepository,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
+    private val apiAccessMethodId: ApiAccessMethodId =
+        DeleteApiAccessMethodConfirmationDestination.argsFrom(savedStateHandle).apiAccessMethodId
+
     private val _uiSideEffect =
         Channel<DeleteApiAccessMethodConfirmationSideEffect>(Channel.BUFFERED)
     val uiSideEffect = _uiSideEffect.receiveAsFlow()

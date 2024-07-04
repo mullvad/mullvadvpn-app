@@ -34,7 +34,6 @@ import net.mullvad.mullvadvpn.usecase.customlists.CreateWithLocationsError
 import net.mullvad.mullvadvpn.viewmodel.CreateCustomListDialogSideEffect
 import net.mullvad.mullvadvpn.viewmodel.CreateCustomListDialogViewModel
 import org.koin.androidx.compose.koinViewModel
-import org.koin.core.parameter.parametersOf
 
 @Preview
 @Composable
@@ -55,15 +54,18 @@ private fun PreviewCreateCustomListDialogError() {
     }
 }
 
+data class CreateCustomListNavArgs(val locationCode: GeoLocationId?)
+
 @Composable
-@Destination<RootGraph>(style = DestinationStyle.Dialog::class)
+@Destination<RootGraph>(
+    style = DestinationStyle.Dialog::class,
+    navArgs = CreateCustomListNavArgs::class
+)
 fun CreateCustomList(
     navigator: DestinationsNavigator,
     backNavigator: ResultBackNavigator<Created>,
-    locationCode: GeoLocationId? = null
 ) {
-    val vm: CreateCustomListDialogViewModel =
-        koinViewModel(parameters = { parametersOf(locationCode) })
+    val vm: CreateCustomListDialogViewModel = koinViewModel()
     LaunchedEffect(key1 = Unit) {
         vm.uiSideEffect.collect { sideEffect ->
             when (sideEffect) {

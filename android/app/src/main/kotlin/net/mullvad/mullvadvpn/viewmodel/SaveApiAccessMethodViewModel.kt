@@ -1,7 +1,9 @@
 package net.mullvad.mullvadvpn.viewmodel
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ramcosta.composedestinations.generated.destinations.SaveApiAccessMethodDestination
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,11 +19,14 @@ import net.mullvad.mullvadvpn.lib.model.NewAccessMethodSetting
 import net.mullvad.mullvadvpn.repository.ApiAccessRepository
 
 class SaveApiAccessMethodViewModel(
-    private val apiAccessMethodId: ApiAccessMethodId?,
-    private val apiAccessMethodName: ApiAccessMethodName,
-    private val customProxy: ApiAccessMethod.CustomProxy,
-    private val apiAccessRepository: ApiAccessRepository
+    private val apiAccessRepository: ApiAccessRepository,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
+    private val navArgs = SaveApiAccessMethodDestination.argsFrom(savedStateHandle)
+    private val apiAccessMethodId: ApiAccessMethodId? = navArgs.id
+    private val apiAccessMethodName: ApiAccessMethodName = navArgs.name
+    private val customProxy: ApiAccessMethod.CustomProxy = navArgs.customProxy
+
     private val _uiSideEffect = Channel<SaveApiAccessMethodSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
     private val _uiState = MutableStateFlow(SaveApiAccessMethodUiState())

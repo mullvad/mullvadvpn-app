@@ -1,7 +1,9 @@
 package net.mullvad.mullvadvpn.viewmodel
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ramcosta.composedestinations.generated.destinations.DeviceListDestination
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
@@ -25,9 +27,12 @@ import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
 
 class DeviceListViewModel(
     private val deviceRepository: DeviceRepository,
-    private val token: AccountNumber,
+    savedStateHandle: SavedStateHandle,
     private val dispatcher: CoroutineDispatcher = Dispatchers.Default,
 ) : ViewModel() {
+    private val accountNumber: AccountNumber =
+        DeviceListDestination.argsFrom(savedStateHandle).accountNumber
+
     private val loadingDevices = MutableStateFlow<Set<DeviceId>>(emptySet())
     private val deviceList = MutableStateFlow<List<Device>>(emptyList())
     private val loading = MutableStateFlow(true)
@@ -59,7 +64,9 @@ class DeviceListViewModel(
         viewModelScope.launch {
             error.value = null
             loading.value = true
-            deviceRepository.deviceList(token).fold({ error.value = it }, { deviceList.value = it })
+            deviceRepository
+                .deviceList(accountNumber)
+                .fold({ error.value = it }, { deviceList.value = it })
             loading.value = false
         }
 
@@ -67,12 +74,12 @@ class DeviceListViewModel(
         viewModelScope.launch(dispatcher) {
             setLoadingState(deviceIdToRemove, true)
             deviceRepository
-                .removeDevice(token, deviceIdToRemove)
+                .removeDevice(accountNumber, deviceIdToRemove)
                 .fold(
                     {
                         _uiSideEffect.send(DeviceListSideEffect.FailedToRemoveDevice)
                         setLoadingState(deviceIdToRemove, false)
-                        deviceRepository.deviceList(token).onRight { deviceList.value = it }
+                        deviceRepository.deviceList(accountNumber).onRight { deviceList.value = it }
                     },
                     { removeDeviceFromState(deviceIdToRemove) }
                 )
@@ -82,6 +89,11 @@ class DeviceListViewModel(
         loadingDevices.update { if (isLoading) it + deviceId else it - deviceId }
     }
 
+    fun continueToLogin() =
+        viewModelScope.launch {
+            _uiSideEffect.send(DeviceListSideEffect.NavigateToLogin(accountNumber = accountNumber))
+        }
+
     private fun removeDeviceFromState(deviceId: DeviceId) {
         deviceList.update { devices -> devices.filter { item -> item.id != deviceId } }
         loadingDevices.update { it - deviceId }
@@ -90,4 +102,6 @@ class DeviceListViewModel(
 
 sealed interface DeviceListSideEffect {
     data object FailedToRemoveDevice : DeviceListSideEffect
+
+    data class NavigateToLogin(val accountNumber: AccountNumber) : DeviceListSideEffect
 }
