@@ -13,7 +13,7 @@ use tower::service_fn;
 use zeroize::Zeroize;
 
 mod classic_mceliece;
-mod kyber;
+mod ml_kem;
 #[cfg(not(target_os = "ios"))]
 mod socket;
 
@@ -35,7 +35,6 @@ pub enum Error {
     InvalidCiphertextCount {
         actual: usize,
     },
-    FailedDecapsulateKyber(kyber::KyberError),
     #[cfg(target_os = "ios")]
     TcpConnectionExpired,
     #[cfg(target_os = "ios")]
@@ -60,7 +59,6 @@ impl std::fmt::Display for Error {
             InvalidCiphertextCount { actual } => {
                 write!(f, "Expected 2 ciphertext in the response, got {actual}")
             }
-            FailedDecapsulateKyber(_) => "Failed to decapsulate Kyber1024 ciphertext".fmt(f),
             #[cfg(target_os = "ios")]
             TcpConnectionExpired => "TCP connection is already shut down".fmt(f),
             #[cfg(target_os = "ios")]
@@ -73,7 +71,6 @@ impl std::error::Error for Error {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match self {
             Self::GrpcConnectError(error) => Some(error),
-            Self::FailedDecapsulateKyber(error) => Some(error),
             _ => None,
         }
     }
@@ -110,7 +107,7 @@ pub async fn request_ephemeral_peer_with(
         .await
         .map_err(Error::GrpcError)?;
 
-    let psk = if let Some((cme_kem_secret, kyber_secret)) = kem_secrets {
+    let psk = if let Some((cme_kem_secret, ml_kem_secret)) = kem_secrets {
         let ciphertexts = response
             .into_inner()
             .post_quantum
@@ -118,7 +115,7 @@ pub async fn request_ephemeral_peer_with(
             .ciphertexts;
 
         // Unpack the ciphertexts into one per KEM without needing to access them by index.
-        let [cme_ciphertext, kyber_ciphertext] = <&[Vec<u8>; 2]>::try_from(ciphertexts.as_slice())
+        let [cme_ciphertext, ml_kem_ciphertext] = <&[Vec<u8>; 2]>::try_from(ciphertexts.as_slice())
             .map_err(|_| Error::InvalidCiphertextCount {
                 actual: ciphertexts.len(),
             })?;
@@ -137,9 +134,9 @@ pub async fn request_ephemeral_peer_with(
             // accidentally removed.
             shared_secret.zeroize();
         }
-        // Decapsulate Kyber and mix into PSK
+        // Decapsulate ML-KEM and mix into PSK
         {
-            let mut shared_secret = kyber::decapsulate(kyber_secret, kyber_ciphertext)?;
+            let mut shared_secret = ml_kem_secret.decapsulate(ml_kem_ciphertext)?;
             xor_assign(&mut psk_data, &shared_secret);
 
             // The shared secret is sadly stored in an array on the stack. So we can't get any
@@ -182,11 +179,11 @@ async fn post_quantum_secrets(
     enable_post_quantum: bool,
 ) -> (
     Option<PostQuantumRequestV1>,
-    Option<(classic_mceliece_rust::SecretKey<'static>, [u8; 3168])>,
+    Option<(classic_mceliece_rust::SecretKey<'static>, ml_kem::Keypair)>,
 ) {
     if enable_post_quantum {
         let (cme_kem_pubkey, cme_kem_secret) = classic_mceliece::generate_keys().await;
-        let kyber_keypair = kyber::keypair(&mut rand::thread_rng());
+        let ml_kem_keypair = ml_kem::keypair();
 
         (
             Some(proto::PostQuantumRequestV1 {
@@ -196,12 +193,12 @@ async fn post_quantum_secrets(
                         key_data: cme_kem_pubkey.as_array().to_vec(),
                     },
                     proto::KemPubkeyV1 {
-                        algorithm_name: kyber::ALGORITHM_NAME.to_owned(),
-                        key_data: kyber_keypair.public.to_vec(),
+                        algorithm_name: ml_kem::ALGORITHM_NAME.to_owned(),
+                        key_data: ml_kem_keypair.encapsulation_key(),
                     },
                 ],
             }),
-            Some((cme_kem_secret, kyber_keypair.secret)),
+            Some((cme_kem_secret, ml_kem_keypair)),
         )
     } else {
         (None, None)
