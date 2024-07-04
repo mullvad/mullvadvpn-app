@@ -116,6 +116,4 @@ private extension IPv4Header {
     var isIPv4Version: Bool {
         (versionAndHeaderLength & 0xF0) == 0x40
     }
-
-    // swiftlint:disable:next file_length
 }
