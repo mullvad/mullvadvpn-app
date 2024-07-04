@@ -25,6 +25,7 @@ object Versions {
         const val activityCompose = "1.9.0"
         const val appcompat = "1.7.0"
         const val coreKtx = "1.12.0"
+        const val coreSplashscreen = "1.1.0-rc01"
         const val espresso = "3.6.1"
         const val lifecycle = "2.8.2"
         const val fragmentTesting = "1.8.1"
