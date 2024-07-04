@@ -27,6 +27,7 @@ import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.RelayOverridesRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.SplitTunnelingRepository
+import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.usecase.AccountExpiryNotificationUseCase
@@ -100,9 +101,11 @@ val uiModule = module {
     single<String>(named(SELF_PACKAGE_NAME)) { androidContext().packageName }
 
     viewModel { SplitTunnelingViewModel(get(), get(), Dispatchers.Default) }
+
     single { ApplicationsProvider(get(), get(named(SELF_PACKAGE_NAME))) }
 
-    single { ServiceConnectionManager(androidContext()) }
+    scope<MainActivity> { scoped { ServiceConnectionManager(androidContext()) } }
+
     single { InetAddressValidator.getInstance() }
     single { androidContext().resources }
     single { androidContext().assets }

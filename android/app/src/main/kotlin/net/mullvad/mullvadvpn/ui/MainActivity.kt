@@ -9,6 +9,7 @@ import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import co.touchlab.kermit.Logger
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.screen.MullvadApp
 import net.mullvad.mullvadvpn.di.paymentModule
@@ -19,10 +20,14 @@ import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.repository.PrivacyDisclaimerRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.viewmodel.NoDaemonViewModel
-import org.koin.android.ext.android.getKoin
+import org.koin.android.scope.AndroidScopeComponent
+import org.koin.androidx.scope.activityScope
+import org.koin.androidx.scope.createActivityScope
 import org.koin.core.context.loadKoinModules
 
-class MainActivity : ComponentActivity() {
+class MainActivity : ComponentActivity(), AndroidScopeComponent {
+    override val scope by activityScope()
+
     private val requestNotificationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) {
             // NotificationManager.areNotificationsEnabled is used to check the state rather than
@@ -40,7 +45,7 @@ class MainActivity : ComponentActivity() {
         // Tell the system that we will draw behind the status bar and navigation bar
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
-        with(getKoin()) {
+        with(createActivityScope()) {
             privacyDisclaimerRepository = get()
             serviceConnectionManager = get()
             noDaemonViewModel = get()
@@ -65,6 +70,7 @@ class MainActivity : ComponentActivity() {
         // https://medium.com/@lepicekmichal/android-background-service-without-hiccup-501e4479110f
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
+                Logger.d("MainActivity $this: STARTED")
                 if (privacyDisclaimerRepository.hasAcceptedPrivacyDisclosure()) {
                     bindService()
                 }
@@ -82,8 +88,14 @@ class MainActivity : ComponentActivity() {
         serviceConnectionManager.bind()
     }
 
+    override fun onStart() {
+        super.onStart()
+        Logger.d("MainActivity $this: onStart")
+    }
+
     override fun onStop() {
         super.onStop()
+        Logger.d("MainActivity $this: onStop")
         serviceConnectionManager.unbind()
     }
 
