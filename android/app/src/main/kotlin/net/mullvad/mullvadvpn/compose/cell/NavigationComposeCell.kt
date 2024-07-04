@@ -14,7 +14,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.R
@@ -95,7 +94,7 @@ internal fun NavigationTitleView(
         Image(
             painter = painterResource(id = R.drawable.icon_alert),
             modifier = Modifier.padding(end = Dimens.smallPadding),
-            contentDescription = stringResource(id = R.string.update_available)
+            contentDescription = null
         )
     }
     Text(

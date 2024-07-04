@@ -598,49 +598,10 @@ class ConnectScreenTest {
     }
 
     @Test
-    fun testOutdatedVersionNotification() {
-        composeExtension.use {
-            // Arrange
-            val versionInfo =
-                VersionInfo(
-                    currentVersion = "1.0",
-                    isSupported = true,
-                    suggestedUpgradeVersion = "1.1"
-                )
-            setContentWithTheme {
-                ConnectScreen(
-                    state =
-                        ConnectUiState(
-                            location = null,
-                            selectedRelayItemTitle = null,
-                            tunnelState = TunnelState.Connecting(null, null),
-                            inAddress = null,
-                            outAddress = "",
-                            showLocation = false,
-                            deviceName = "",
-                            daysLeftUntilExpiry = null,
-                            inAppNotification = InAppNotification.UpdateAvailable(versionInfo),
-                            isPlayBuild = false
-                        ),
-                )
-            }
-
-            // Assert
-            onNodeWithText("UPDATE AVAILABLE").assertExists()
-            onNodeWithText("Install Mullvad VPN (1.1) to stay up to date").assertExists()
-        }
-    }
-
-    @Test
     fun testUnsupportedVersionNotification() {
         composeExtension.use {
             // Arrange
-            val versionInfo =
-                VersionInfo(
-                    currentVersion = "1.0",
-                    isSupported = false,
-                    suggestedUpgradeVersion = "1.1"
-                )
+            val versionInfo = VersionInfo(currentVersion = "1.0", isSupported = false)
             setContentWithTheme {
                 ConnectScreen(
                     state =
@@ -702,12 +663,7 @@ class ConnectScreenTest {
         composeExtension.use {
             // Arrange
             val mockedClickHandler: () -> Unit = mockk(relaxed = true)
-            val versionInfo =
-                VersionInfo(
-                    isSupported = false,
-                    currentVersion = "",
-                    suggestedUpgradeVersion = "1.1"
-                )
+            val versionInfo = VersionInfo(isSupported = false, currentVersion = "")
             setContentWithTheme {
                 ConnectScreen(
                     onUpdateVersionClick = mockedClickHandler,

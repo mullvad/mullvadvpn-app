@@ -145,8 +145,6 @@
     <string name="custom_tunnel_host_resolution_error">Unable to resolve host of custom tunnel. Try changing your settings.</string>
     <string name="is_offline">Your device is offline. The tunnel will automatically connect once your device is back online.</string>
     <string name="virtual_adapter_problem">Virtual adapter error</string>
-    <string name="update_available">UPDATE AVAILABLE</string>
-    <string name="update_available_description">Install Mullvad VPN (%1$s) to stay up to date</string>
     <string name="unsupported_version">UNSUPPORTED VERSION</string>
     <string name="unsupported_version_description">Your privacy might be at risk with this unsupported app version. Please update now.</string>
     <string name="unsupported_version_without_upgrade">You are running an unsupported app version.</string>

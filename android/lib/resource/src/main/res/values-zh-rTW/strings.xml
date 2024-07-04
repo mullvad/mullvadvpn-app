@@ -333,8 +333,6 @@
     <string name="unsupported_version">不支援的版本</string>
     <string name="unsupported_version_description">此應用程式版本不受支援，因此您的隱私可能存在風險。請立即更新。</string>
     <string name="unsupported_version_without_upgrade">您所執行的應用程式版本不受支援。</string>
-    <string name="update_available">可用的更新</string>
-    <string name="update_available_description">安裝 Mullvad VPN (%1$s) 以維持最新狀態</string>
     <string name="update_available_footer">更新可用，請下載以維持安全。</string>
     <string name="update_dns_server_dialog_title">更新 DNS 伺服器</string>
     <string name="update_list_name">更新清單名稱</string>

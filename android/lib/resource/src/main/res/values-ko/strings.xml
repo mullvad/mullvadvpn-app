@@ -333,8 +333,6 @@
     <string name="unsupported_version">지원되지 않는 버전</string>
     <string name="unsupported_version_description">지원되지 않는 이 앱 버전으로 인해 개인 정보가 위험할 수 있습니다. 지금 업데이트하세요.</string>
     <string name="unsupported_version_without_upgrade">지원되지 않는 앱 버전을 실행 중입니다.</string>
-    <string name="update_available">업데이트 사용 가능</string>
-    <string name="update_available_description">Mullvad VPN(%1$s)을 설치하여 최신 상태로 유지하세요.</string>
     <string name="update_available_footer">업데이트를 사용할 수 있습니다. 안전을 유지하기 위해 다운로드하세요.</string>
     <string name="update_dns_server_dialog_title">DNS 서버 업데이트</string>
     <string name="update_list_name">목록 이름 업데이트</string>

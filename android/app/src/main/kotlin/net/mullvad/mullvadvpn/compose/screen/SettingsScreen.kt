@@ -54,7 +54,7 @@ private fun PreviewSettings() {
                 SettingsUiState(
                     appVersion = "2222.22",
                     isLoggedIn = true,
-                    isUpdateAvailable = true,
+                    isSupportedVersion = true,
                     isPlayBuild = false
                 ),
         )
@@ -172,13 +172,13 @@ private fun AppVersion(context: Context, state: SettingsUiState) {
                     )
                 }
             },
-        showWarning = state.isUpdateAvailable,
+        showWarning = !state.isSupportedVersion,
         isRowEnabled = !state.isPlayBuild
     )
 
-    if (state.isUpdateAvailable) {
+    if (!state.isSupportedVersion) {
         Text(
-            text = stringResource(id = R.string.update_available_footer),
+            text = stringResource(id = R.string.unsupported_version_description),
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSecondary,
             modifier =

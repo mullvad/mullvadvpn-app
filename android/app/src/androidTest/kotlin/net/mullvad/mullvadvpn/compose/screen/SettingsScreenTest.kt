@@ -31,7 +31,7 @@ class SettingsScreenTest {
                         SettingsUiState(
                             appVersion = "",
                             isLoggedIn = true,
-                            isUpdateAvailable = true,
+                            isSupportedVersion = true,
                             isPlayBuild = false
                         ),
                 )
@@ -54,7 +54,7 @@ class SettingsScreenTest {
                         SettingsUiState(
                             appVersion = "",
                             isLoggedIn = false,
-                            isUpdateAvailable = true,
+                            isSupportedVersion = true,
                             isPlayBuild = false
                         ),
                 )

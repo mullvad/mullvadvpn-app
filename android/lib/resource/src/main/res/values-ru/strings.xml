@@ -333,8 +333,6 @@
     <string name="unsupported_version">НЕПОДДЕРЖИВАЕМАЯ ВЕРСИЯ</string>
     <string name="unsupported_version_description">Эта версия приложения не поддерживается, что может угрожать неприкосновенности ваших данных. Обновите приложение.</string>
     <string name="unsupported_version_without_upgrade">Версия приложения, с которой вы работаете, не поддерживается.</string>
-    <string name="update_available">ЕСТЬ ОБНОВЛЕНИЕ</string>
-    <string name="update_available_description">Пользуйтесь актуальной версией — установите Mullvad VPN (%1$s)</string>
     <string name="update_available_footer">Вышло обновление. Установите его, чтобы защитить подключения.</string>
     <string name="update_dns_server_dialog_title">Обновить DNS-сервер</string>
     <string name="update_list_name">Обновление названия списка</string>
