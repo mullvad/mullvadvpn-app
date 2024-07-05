@@ -3,7 +3,7 @@
 use serde::{Deserialize, Serialize};
 use std::{
     collections::BTreeMap,
-    io,
+    env, io,
     ops::Deref,
     path::{Path, PathBuf},
 };
@@ -157,17 +157,20 @@ impl VmConfig {
         Some((self.ssh_user.as_ref()?, self.ssh_password.as_ref()?))
     }
 
-    pub fn get_runner_dir(&self) -> &Path {
-        match self.architecture {
-            None | Some(Architecture::X64) => self.get_x64_runner_dir(),
-            Some(Architecture::Aarch64) => self.get_aarch64_runner_dir(),
-        }
+    pub fn get_runner_dir(&self) -> PathBuf {
+        let target_dir = self.get_target_dir();
+        let subdir = match self.architecture {
+            None | Some(Architecture::X64) => self.get_x64_runner_subdir(),
+            Some(Architecture::Aarch64) => self.get_aarch64_runner_subdir(),
+        };
+
+        target_dir.join(subdir)
     }
 
-    fn get_x64_runner_dir(&self) -> &Path {
-        pub const X64_LINUX_TARGET_DIR: &str = "./target/x86_64-unknown-linux-gnu/release";
-        pub const X64_WINDOWS_TARGET_DIR: &str = "./target/x86_64-pc-windows-gnu/release";
-        pub const X64_MACOS_TARGET_DIR: &str = "./target/x86_64-apple-darwin/release";
+    fn get_x64_runner_subdir(&self) -> &Path {
+        pub const X64_LINUX_TARGET_DIR: &str = "x86_64-unknown-linux-gnu/release";
+        pub const X64_WINDOWS_TARGET_DIR: &str = "x86_64-pc-windows-gnu/release";
+        pub const X64_MACOS_TARGET_DIR: &str = "x86_64-apple-darwin/release";
 
         match self.os_type {
             OsType::Linux => Path::new(X64_LINUX_TARGET_DIR),
@@ -176,15 +179,21 @@ impl VmConfig {
         }
     }
 
-    fn get_aarch64_runner_dir(&self) -> &Path {
-        pub const AARCH64_LINUX_TARGET_DIR: &str = "./target/aarch64-unknown-linux-gnu/release";
-        pub const AARCH64_MACOS_TARGET_DIR: &str = "./target/aarch64-apple-darwin/release";
+    fn get_aarch64_runner_subdir(&self) -> &Path {
+        pub const AARCH64_LINUX_TARGET_DIR: &str = "aarch64-unknown-linux-gnu/release";
+        pub const AARCH64_MACOS_TARGET_DIR: &str = "aarch64-apple-darwin/release";
 
         match self.os_type {
             OsType::Linux => Path::new(AARCH64_LINUX_TARGET_DIR),
             OsType::Macos => Path::new(AARCH64_MACOS_TARGET_DIR),
             _ => unimplemented!(),
         }
+    }
+
+    fn get_target_dir(&self) -> PathBuf {
+        env::var("CARGO_TARGET_DIR")
+            .unwrap_or_else(|_| "./target".into())
+            .into()
     }
 }
 
