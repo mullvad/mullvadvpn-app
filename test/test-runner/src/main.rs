@@ -233,6 +233,14 @@ impl Service for TestServer {
         net::get_interface_mtu(&interface)
     }
 
+    async fn get_interface_mac(
+        self,
+        _: context::Context,
+        interface: String,
+    ) -> Result<Option<[u8; 6]>, test_rpc::Error> {
+        net::get_interface_mac(&interface)
+    }
+
     async fn get_default_interface(self, _: context::Context) -> Result<String, test_rpc::Error> {
         Ok(net::get_default_interface().to_owned())
     }

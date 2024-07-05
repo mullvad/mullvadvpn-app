@@ -40,7 +40,8 @@ tokio-serde = { workspace = true }
 log = { workspace = true }
 
 pcap = { version = "1.3", features = ["capture-stream"] }
-pnet_packet = "0.31.0"
+pnet_packet = "0.34.0"
+pnet_base = "0.34.0"
 
 test-rpc = { path = "../test-rpc" }
 socks-server = { path = "../socks-server" }
@@ -59,7 +60,8 @@ talpid-types = { path = "../../talpid-types" }
 
 ssh2 = "0.9.4"
 
-nix = { version = "0.25", features = ["net"] }
+nix = { workspace = true }
+socket2 = "0.5.6"
 
 [target.'cfg(target_os = "macos")'.dependencies]
 tun = "0.5.1"

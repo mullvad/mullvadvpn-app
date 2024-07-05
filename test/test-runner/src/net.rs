@@ -173,7 +173,6 @@ pub async fn send_ping(
 #[cfg(unix)]
 pub fn get_interface_ip(interface: &str) -> Result<IpAddr, test_rpc::Error> {
     // TODO: IPv6
-    use std::net::Ipv4Addr;
 
     let addrs = nix::ifaddrs::getifaddrs().map_err(|error| {
         log::error!("Failed to obtain interfaces: {}", error);
@@ -183,13 +182,13 @@ pub fn get_interface_ip(interface: &str) -> Result<IpAddr, test_rpc::Error> {
         if addr.interface_name == interface {
             if let Some(address) = addr.address {
                 if let Some(sockaddr) = address.as_sockaddr_in() {
-                    return Ok(IpAddr::V4(Ipv4Addr::from(sockaddr.ip())));
+                    return Ok(IpAddr::V4(sockaddr.ip()));
                 }
             }
         }
     }
 
-    log::error!("Could not find tunnel interface");
+    log::error!("Could not find interface {interface:?}");
     Err(test_rpc::Error::InterfaceNotFound)
 }
 
@@ -213,6 +212,41 @@ fn get_interface_ip_for_family(
     talpid_windows::net::get_ip_address_for_interface(family, luid).map_err(|error| {
         log::error!("Failed to obtain interface IP: {error}");
     })
+}
+
+#[cfg(target_os = "linux")]
+pub fn get_interface_mac(interface: &str) -> Result<Option<[u8; 6]>, test_rpc::Error> {
+    let addrs = nix::ifaddrs::getifaddrs().map_err(|error| {
+        log::error!("Failed to obtain interfaces: {}", error);
+        test_rpc::Error::Syscall
+    })?;
+
+    let mut interface_exists = false;
+
+    let mac_addr = addrs
+        .filter(|addr| addr.interface_name == interface)
+        .find_map(|addr| {
+            // sadly, the only way of distinguishing between "iface doesn't exist" and
+            // "iface has no mac addr" is to check if the interface appears anywhere in the list.
+            interface_exists = true;
+
+            let addr = addr.address?;
+            let link_addr = addr.as_link_addr()?;
+            let mac_addr = link_addr.addr()?;
+            Some(mac_addr)
+        });
+
+    if interface_exists {
+        Ok(mac_addr)
+    } else {
+        log::error!("Could not find interface {interface:?}");
+        Err(test_rpc::Error::InterfaceNotFound)
+    }
+}
+
+#[cfg(not(target_os = "linux"))]
+pub fn get_interface_mac(_interface: &str) -> Result<Option<[u8; 6]>, test_rpc::Error> {
+    unimplemented!("get_interface_mac")
 }
 
 #[cfg(target_os = "windows")]
