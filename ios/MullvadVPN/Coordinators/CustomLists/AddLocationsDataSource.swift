@@ -161,10 +161,6 @@ extension AddLocationsDataSource {
     func nodeShouldBeSelected(_ node: LocationNode) -> Bool {
         customListLocationNode.children.contains(node)
     }
-
-    func excludedRelayTitle(_ node: LocationNode) -> String? {
-        nil // N/A
-    }
 }
 
 // MARK: - Toggle selection in table view

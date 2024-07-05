@@ -31,11 +31,7 @@ struct LocationCellViewModel: Hashable {
 }
 
 extension [LocationCellViewModel] {
-    mutating func addSubNodes(
-        from item: LocationCellViewModel,
-        at indexPath: IndexPath,
-        excludedRelayTitleCallback: ((LocationNode) -> String?)?
-    ) {
+    mutating func addSubNodes(from item: LocationCellViewModel, at indexPath: IndexPath) {
         let section = LocationSection.allCases[indexPath.section]
         let row = indexPath.row + 1
 
@@ -44,8 +40,7 @@ extension [LocationCellViewModel] {
                 section: section,
                 node: $0,
                 indentationLevel: item.indentationLevel + 1,
-                isSelected: false,
-                excludedRelayTitle: excludedRelayTitleCallback?($0)
+                isSelected: false
             )
         }
 
@@ -63,5 +58,55 @@ extension [LocationCellViewModel] {
 
             removeSubNodes(from: node)
         }
+    }
+}
+
+extension LocationCellViewModel {
+    /* Exclusion of other locations in the same node tree as the currently excluded location
+     happens when there are no more hosts in that tree that can be selected.
+     We check this by doing the following, in order:
+
+     1. Count host names in the tree. More than one means that there are other locations than
+     the excluded one for the relay selector to choose from. No exlusion.
+
+     2. Count host names in the excluded node. More than one means that there are multiple
+     locations for the relay selector to choose from. No exlusion.
+
+     3. Check existance of a location in the tree that match the currently excluded location.
+     No match means no exclusion.
+     */
+    func shouldExcludeLocation(_ excludedLocation: LocationCellViewModel?) -> Bool {
+        guard let excludedLocation else {
+            return false
+        }
+
+        var proxyNode = RootLocationNode(children: [node])
+        let allLocations = Set(proxyNode.flattened.flatMap { $0.locations })
+        let hostCount = allLocations.filter { location in
+            if case .hostname = location { true } else { false }
+        }.count
+
+        // If the there are more than one selectable relay in the current node we don't need
+        // show this in the location tree and can return early.
+        guard hostCount == 1 else { return false }
+
+        let proxyExcludedNode = RootLocationNode(children: [excludedLocation.node])
+        let allExcludedLocations = Set(proxyExcludedNode.flattened.flatMap { $0.locations })
+        let excludedHostCount = allExcludedLocations.filter { location in
+            if case .hostname = location { true } else { false }
+        }.count
+
+        // If the there are more than one selectable relay in the excluded node we don't need
+        // show this in the location tree and can return early.
+        guard excludedHostCount == 1 else { return false }
+
+        var containsExcludedLocation = false
+        if allLocations.contains(where: { allExcludedLocations.contains($0) }) {
+            containsExcludedLocation = true
+        }
+
+        // If the tree doesn't contain the excluded node we do nothing, otherwise the
+        // required conditions have now all been met.
+        return containsExcludedLocation
     }
 }
