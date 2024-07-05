@@ -14,7 +14,6 @@ protocol LocationDiffableDataSourceProtocol: UITableViewDiffableDataSource<Locat
     var sections: [LocationSection] { get }
     func nodeShowsChildren(_ node: LocationNode) -> Bool
     func nodeShouldBeSelected(_ node: LocationNode) -> Bool
-    func excludedRelayTitle(_ node: LocationNode) -> String?
 }
 
 extension LocationDiffableDataSourceProtocol {
@@ -40,10 +39,7 @@ extension LocationDiffableDataSourceProtocol {
         }
     }
 
-    func toggledItems(
-        for cell: LocationCell,
-        excludedRelayTitleCallback: ((LocationNode) -> String?)? = nil
-    ) -> [[LocationCellViewModel]] {
+    func toggledItems(for cell: LocationCell) -> [[LocationCellViewModel]] {
         guard let indexPath = tableView.indexPath(for: cell),
               let item = itemIdentifier(for: indexPath) else { return [[]] }
 
@@ -54,7 +50,7 @@ extension LocationDiffableDataSourceProtocol {
         item.node.showsChildren = !isExpanded
 
         if !isExpanded {
-            locationList.addSubNodes(from: item, at: indexPath, excludedRelayTitleCallback: excludedRelayTitleCallback)
+            locationList.addSubNodes(from: item, at: indexPath)
         } else {
             locationList.removeSubNodes(from: item.node)
         }
@@ -103,8 +99,7 @@ extension LocationDiffableDataSourceProtocol {
                     section: section,
                     node: childNode,
                     indentationLevel: indentationLevel,
-                    isSelected: nodeShouldBeSelected(childNode),
-                    excludedRelayTitle: excludedRelayTitle(childNode)
+                    isSelected: nodeShouldBeSelected(childNode)
                 )
             )
 
