@@ -24,7 +24,7 @@ pub async fn provision(
             ssh(
                 instance,
                 config.os_type,
-                config.get_runner_dir(),
+                &config.get_runner_dir(),
                 app_manifest,
                 user,
                 password,
@@ -182,8 +182,12 @@ fn ssh_send_file_path(session: &Session, source: &Path, dest_dir: &Path) -> Resu
         dest.display(),
     );
 
-    let mut file = File::open(source).context("Failed to open file")?;
-    let file_len = file.metadata().context("Failed to get file size")?.len();
+    let mut file =
+        File::open(source).with_context(|| format!("Failed to open file at {source:?}"))?;
+    let file_len = file
+        .metadata()
+        .with_context(|| format!("Failed to get file size of {source:?}"))?
+        .len();
     ssh_send_file(session, &mut file, file_len, &dest)
 }
 
