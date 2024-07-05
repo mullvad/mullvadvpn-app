@@ -58,7 +58,7 @@ features = ["codec"]
 default-features = false
 
 [target.'cfg(unix)'.dependencies]
-nix = { version = "0.25", features = ["socket", "net"] }
+nix = { version = "0.26", features = ["socket", "net"] }
 
 [target.'cfg(target_os = "linux")'.dependencies]
 rs-release = "0.1.7"
