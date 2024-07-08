@@ -1,15 +1,15 @@
 use std::{
-    ffi::{c_char, c_int, OsString},
+    ffi::{c_char, c_int, c_void, OsString},
     mem::{self, size_of, size_of_val},
     net::IpAddr,
     os::fd::RawFd,
     time::Duration,
 };
 
-use anyhow::{bail, Context};
+use anyhow::{anyhow, bail, Context};
 use bytemuck::{bytes_of, cast_slice, from_bytes, Pod, Zeroable};
 use futures::{select, FutureExt};
-use libc::{c_void, sockaddr_ll, ETH_ALEN, ETH_P_IP};
+use libc::{ETH_ALEN, ETH_P_IP};
 use mullvad_management_interface::MullvadProxyClient;
 use nix::{
     errno::{errno, Errno},
@@ -119,7 +119,7 @@ pub async fn test_cve_2019_14899_mitigation(
     .with_context(|| "Failed to create raw socket")?;
 
     let host_interface = TAP_NAME;
-    let victim_interface = "wg0-mullvad";
+    let victim_tunnel_if = "wg0-mullvad";
     let gateway_ip = NON_TUN_GATEWAY;
 
     log::info!("Binding raw socket to tap interface.");
@@ -128,19 +128,34 @@ pub async fn test_cve_2019_14899_mitigation(
         sockopt::BindToDevice,
         &OsString::from(host_interface),
     )
-    .with_context(|| format!("Failed to bind the socket to {host_interface:?}"))?;
+    .with_context(|| anyhow!("Failed to bind the socket to {host_interface:?}"))?;
 
     // Get the private IP address of the victims VPN tunnel
-    let victim_iface_ip = rpc
-        .get_interface_ip(victim_interface.to_string())
+    let victim_tunnel_ip = rpc
+        .get_interface_ip(victim_tunnel_if.to_string())
         .await
         .with_context(|| {
-            format!("Failed to get ip of guest tunnel interface {victim_interface:?}")
+            anyhow!("Failed to get ip of guest tunnel interface {victim_tunnel_if:?}")
         })?;
 
-    let IpAddr::V4(victim_iface_ip) = victim_iface_ip else {
+    let IpAddr::V4(victim_tunnel_ip) = victim_tunnel_ip else {
         bail!("I didn't ask for IPv6!");
     };
+
+    let victim_default_if = rpc
+        .get_default_interface()
+        .await
+        .context("failed to get guest default interface")?;
+
+    let victim_default_if_mac = rpc
+        .get_interface_mac(victim_default_if.clone())
+        .await
+        .with_context(|| {
+            anyhow!("Failed to get ip of guest default interface {victim_default_if:?}")
+        })?
+        .ok_or(anyhow!(
+            "No mac address for guest default interface {victim_default_if:?}"
+        ))?;
 
     // Get the MAC address and "index" of the tap interface.
     let mut host_interface_mac = [0u8; 6];
@@ -181,7 +196,7 @@ pub async fn test_cve_2019_14899_mitigation(
             source_addr: u32::from(gateway_ip).into(),
 
             // set the destination_addr to the victims private tunnel IP
-            destination_addr: u32::from(victim_iface_ip).into(),
+            destination_addr: u32::from(victim_tunnel_ip).into(),
 
             ..Ipv4Header::zeroed()
         },
@@ -202,8 +217,7 @@ pub async fn test_cve_2019_14899_mitigation(
     ip_packet.calculate_checksum();
 
     let eth_packet = EthernetPacket {
-        // TODO: query test runner for mac address
-        destination_mac: [0x52, 0x54, 0x00, 0x12, 0x34, 0x56],
+        destination_mac: victim_default_if_mac,
         source_mac: host_interface_mac,
         ether_type: (ETH_P_IP as u16).into(),
         data: ip_packet,
@@ -280,7 +294,7 @@ fn send_packet(
     packet: &EthernetPacket<Ipv4Packet<TcpHeader>>,
 ) -> anyhow::Result<()> {
     let result = {
-        let mut destination = sockaddr_ll {
+        let mut destination = libc::sockaddr_ll {
             sll_family: 0,
             sll_protocol: 0,
             sll_ifindex: interface_index,
@@ -297,8 +311,8 @@ fn send_packet(
                 bytes_of(packet).as_ptr() as *const c_void,
                 size_of_val(packet),
                 0,
-                (&destination as *const sockaddr_ll).cast(),
-                size_of::<sockaddr_ll>() as u32,
+                (&destination as *const libc::sockaddr_ll).cast(),
+                size_of::<libc::sockaddr_ll>() as u32,
             )
         }
     };

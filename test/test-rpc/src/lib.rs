@@ -187,6 +187,9 @@ mod service {
         /// Returns the MTU of the given interface.
         async fn get_interface_mtu(interface: String) -> Result<u16, Error>;
 
+        /// Returns the MAC address of the given interface.
+        async fn get_interface_mac(interface: String) -> Result<Option<[u8; 6]>, Error>;
+
         /// Returns the name of the default interface.
         async fn get_default_interface() -> Result<String, Error>;
 

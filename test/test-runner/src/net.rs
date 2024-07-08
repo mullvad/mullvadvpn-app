@@ -215,6 +215,32 @@ fn get_interface_ip_for_family(
     })
 }
 
+#[cfg(target_os = "linux")]
+pub fn get_interface_mac(interface: &str) -> Result<Option<[u8; 6]>, test_rpc::Error> {
+    let addrs = nix::ifaddrs::getifaddrs().map_err(|error| {
+        log::error!("Failed to obtain interfaces: {}", error);
+        test_rpc::Error::Syscall
+    })?;
+
+    for addr in addrs {
+        if addr.interface_name == interface {
+            if let Some(address) = addr.address {
+                if let Some(sockaddr) = address.as_link_addr() {
+                    return Ok(sockaddr.addr());
+                }
+            }
+        }
+    }
+
+    log::error!("Could not find tunnel interface");
+    Err(test_rpc::Error::InterfaceNotFound)
+}
+
+#[cfg(not(target_os = "linux"))]
+pub fn get_interface_mac(interface: &str) -> Result<Option<[u8; 6]>, test_rpc::Error> {
+    unimplemented!("get_interface_mac")
+}
+
 #[cfg(target_os = "windows")]
 pub fn get_default_interface() -> &'static str {
     use once_cell::sync::OnceCell;

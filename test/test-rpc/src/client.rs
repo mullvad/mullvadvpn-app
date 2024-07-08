@@ -208,6 +208,13 @@ impl ServiceClient {
             .await?
     }
 
+    /// Returns the MAC address of the given interface.
+    pub async fn get_interface_mac(&self, interface: String) -> Result<Option<[u8; 6]>, Error> {
+        self.client
+            .get_interface_mac(tarpc::context::current(), interface)
+            .await?
+    }
+
     /// Returns the name of the default non-tunnel interface
     pub async fn get_default_interface(&self) -> Result<String, Error> {
         self.client
