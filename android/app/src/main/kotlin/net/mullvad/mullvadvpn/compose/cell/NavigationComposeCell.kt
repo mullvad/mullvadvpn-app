@@ -1,12 +1,12 @@
 package net.mullvad.mullvadvpn.compose.cell
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -91,10 +91,11 @@ internal fun NavigationTitleView(
     showWarning: Boolean = false
 ) {
     if (showWarning) {
-        Image(
+        Icon(
             painter = painterResource(id = R.drawable.icon_alert),
             modifier = Modifier.padding(end = Dimens.smallPadding),
-            contentDescription = null
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.error
         )
     }
     Text(
@@ -109,17 +110,19 @@ internal fun NavigationTitleView(
 
 @Composable
 internal fun DefaultNavigationView(chevronContentDescription: String) {
-    Image(
+    Icon(
         painter = painterResource(id = R.drawable.icon_chevron),
-        contentDescription = chevronContentDescription
+        contentDescription = chevronContentDescription,
+        tint = Color.Unspecified
     )
 }
 
 @Composable
 internal fun DefaultExternalLinkView(chevronContentDescription: String) {
-    Image(
+    Icon(
         painter = painterResource(id = R.drawable.icon_extlink),
-        contentDescription = chevronContentDescription
+        contentDescription = chevronContentDescription,
+        tint = Color.Unspecified
     )
 }
 

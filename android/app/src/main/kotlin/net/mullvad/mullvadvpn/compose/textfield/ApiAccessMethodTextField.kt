@@ -1,11 +1,11 @@
 package net.mullvad.mullvadvpn.compose.textfield
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -70,10 +70,11 @@ private fun ErrorSupportingText(text: String) {
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.padding(top = Dimens.miniPadding)
     ) {
-        Image(
+        Icon(
             painter = painterResource(id = R.drawable.icon_alert),
             contentDescription = null,
-            modifier = Modifier.size(Dimens.smallIconSize)
+            modifier = Modifier.size(Dimens.smallIconSize),
+            tint = MaterialTheme.colorScheme.error
         )
         Text(
             text = text,

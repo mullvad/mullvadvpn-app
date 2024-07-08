@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.compose.component
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
@@ -8,6 +7,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -55,9 +55,10 @@ fun MullvadFilterChip(text: String, onRemoveClick: () -> Unit) {
                 style = MaterialTheme.typography.labelMedium
             )
             Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
-            Image(
+            Icon(
                 painter = painterResource(id = R.drawable.icon_close),
                 contentDescription = null,
+                tint = Color.Unspecified,
                 modifier = Modifier.size(Dimens.smallIconSize).clickable { onRemoveClick() }
             )
         }
