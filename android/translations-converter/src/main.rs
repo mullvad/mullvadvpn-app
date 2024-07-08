@@ -42,6 +42,7 @@ use std::{
     io::BufReader,
     path::Path,
 };
+use crate::gettext::MsgValue;
 
 fn main() {
     let resources_dir = Path::new("../lib/resource/src/main/res");
@@ -121,8 +122,8 @@ fn main() {
 
     for message in template {
         match message.value {
-            gettext::MsgValue::Invariant(_) => missing_translations.remove(&message.id.normalize()),
-            gettext::MsgValue::Plural { .. } => missing_plurals.remove(&message.id.normalize()),
+            MsgValue::Invariant(_) => missing_translations.remove(&message.id.normalize()),
+            MsgValue::Plural { .. } => missing_plurals.remove(&message.id.normalize()),
         };
     }
 
@@ -139,7 +140,7 @@ fn main() {
                     value: gettext::MsgString::empty().into(),
                 }),
         )
-        .expect("Failed to append missing translations to message template file");
+            .expect("Failed to append missing translations to message template file");
     }
 
     if !missing_plurals.is_empty() {
@@ -182,14 +183,76 @@ fn main() {
 
                     gettext::MsgEntry {
                         id,
-                        value: gettext::MsgValue::Plural {
+                        value: MsgValue::Plural {
                             plural_id,
                             values: vec![gettext::MsgString::empty(), gettext::MsgString::empty()],
                         },
                     }
                 }),
         )
-        .expect("Failed to append missing plural translations to message template file");
+            .expect("Failed to append missing plural translations to message template file");
+    }
+
+
+    // Generate all relay locale files
+
+    let relay_template_path = locale_dir.join("relay-locations.pot");
+
+    let default_translations = gettext::Messages::from_file(&relay_template_path)
+        .expect("Failed to load translations for a locale");
+
+    let resources_dir = Path::new("../lib/resource/src/main/res");
+
+    let relay_locations_path = resources_dir.join("values/relay_locations.xml");
+
+    let mut localized_strings = android::StringResources::new();
+    for translation in default_translations {
+        match translation.value {
+            MsgValue::Invariant(_) => {
+                if !translation.id.is_empty() {
+                    localized_strings.push(android::StringResource::new(
+                        android_locale_key(translation.id.normalize()),
+                        &translation.id.normalize(),
+                    ));
+                }
+            }
+            MsgValue::Plural { .. } => {}
+        }
+    }
+
+    localized_strings.sort();
+
+    fs::write(relay_locations_path, localized_strings.to_string())
+        .expect("Failed to create Android locale file");
+
+    let relay_locale_files = fs::read_dir(locale_dir)
+        .expect("Failed to open root locale directory")
+        .filter_map(|dir_entry_result| dir_entry_result.ok().map(|dir_entry| dir_entry.path()))
+        .filter(|dir_entry_path| dir_entry_path.is_dir())
+        .map(|dir_path| dir_path.join("relay-locations.po"))
+        .filter(|file_path| file_path.exists());
+
+    for relay_file in relay_locale_files {
+        let locale = relay_file
+            .parent()
+            .unwrap()
+            .file_name()
+            .unwrap()
+            .to_str()
+            .unwrap();
+        let destination_dir = resources_dir.join(android_locale_directory(locale));
+
+        if !destination_dir.exists() {
+            fs::create_dir(&destination_dir).expect("Failed to create Android locale directory");
+        }
+
+        let translations = gettext::Messages::from_file(&relay_file)
+            .expect("Failed to load translations for a locale");
+
+        generate_relay_translations(
+            translations,
+            destination_dir.join("relay_locations.xml"),
+        );
     }
 }
 
@@ -209,6 +272,36 @@ fn android_locale_directory(locale: &str) -> String {
     }
 
     directory
+}
+
+
+fn android_locale_key(id: String) -> String {
+    return id.replace(',', "").replace(' ', "_");
+}
+
+/// Generate translated Android relay resource strings for a locale.
+fn generate_relay_translations(
+    translations: gettext::Messages,
+    strings_output_path: impl AsRef<Path>,
+) {
+    let mut localized_strings = android::StringResources::new();
+
+    for translation in translations {
+        match translation.value {
+            MsgValue::Invariant(translation_value) => {
+                localized_strings.push(android::StringResource::new(
+                    android_locale_key(translation.id.normalize()),
+                    &translation_value.normalize(),
+                ));
+            }
+            MsgValue::Plural { .. } => {}
+        }
+    }
+
+    localized_strings.sort();
+
+    fs::write(strings_output_path, localized_strings.to_string())
+        .expect("Failed to create Android locale file");
 }
 
 /// Generate translated Android resource strings for a locale.
@@ -238,7 +331,7 @@ fn generate_translations(
 
     for translation in translations {
         match translation.value {
-            gettext::MsgValue::Invariant(translation_value) => {
+            MsgValue::Invariant(translation_value) => {
                 if let Some(android_key) = known_strings.remove(&translation.id.normalize()) {
                     localized_strings.push(android::StringResource::new(
                         android_key,
@@ -246,7 +339,7 @@ fn generate_translations(
                     ));
                 }
             }
-            gettext::MsgValue::Plural { values, .. } => {
+            MsgValue::Plural { values, .. } => {
                 if let Some(android_key) = known_plurals.remove(&translation.id.normalize()) {
                     let values = values.into_iter().map(|message| message.normalize());
 
