@@ -276,7 +276,7 @@ fn android_locale_directory(locale: &str) -> String {
 
 
 fn android_locale_key(id: String) -> String {
-    return id.replace(',', "").replace(' ', "_");
+    return id.replace(',', "").replace(' ', "_").replace('/', "_");
 }
 
 /// Generate translated Android relay resource strings for a locale.
