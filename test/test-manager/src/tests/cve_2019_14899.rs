@@ -1,8 +1,8 @@
 use std::{
-    ffi::{c_char, c_int, c_void, OsString},
+    ffi::{c_char, c_int, c_void},
     mem::{self, size_of, size_of_val},
     net::IpAddr,
-    os::fd::RawFd,
+    os::fd::AsRawFd,
     time::Duration,
 };
 
@@ -14,14 +14,11 @@ use mullvad_management_interface::MullvadProxyClient;
 use nix::{
     errno::{errno, Errno},
     ioctl_readwrite_bad,
-    sys::socket::{
-        setsockopt,
-        sockopt::{self},
-        AddressFamily, MsgFlags, SockFlag, SockProtocol, SockType,
-    },
+    sys::socket::{MsgFlags, SockProtocol},
 };
 use pnet_packet::{ip::IpNextHeaderProtocols, tcp::TcpFlags};
 use rend::{u16_be, u32_be};
+use socket2::Socket;
 use test_macro::test_function;
 use test_rpc::ServiceClient;
 use tokio::{pin, task::yield_now, time::sleep};
@@ -108,27 +105,23 @@ pub async fn test_cve_2019_14899_mitigation(
         .await
         .context("Failed to allow local network sharing")?;
 
-    // Create a raw socket which let's us send custom ethernet packets
-    log::info!("Creating raw socket.");
-    let socket: RawFd = nix::sys::socket::socket(
-        AddressFamily::Packet,
-        SockType::Raw,
-        SockFlag::empty(),
-        SockProtocol::EthAll,
-    )
-    .with_context(|| "Failed to create raw socket")?;
-
     let host_interface = TAP_NAME;
     let victim_tunnel_if = "wg0-mullvad";
     let gateway_ip = NON_TUN_GATEWAY;
 
-    log::info!("Binding raw socket to tap interface.");
-    setsockopt(
-        socket,
-        sockopt::BindToDevice,
-        &OsString::from(host_interface),
+    // Create a raw socket which let's us send custom ethernet packets
+    log::info!("Creating raw socket.");
+    let socket = Socket::new(
+        socket2::Domain::PACKET,
+        socket2::Type::RAW,
+        Some((SockProtocol::EthAll as c_int).into()),
     )
-    .with_context(|| anyhow!("Failed to bind the socket to {host_interface:?}"))?;
+    .with_context(|| "Failed to create raw socket")?;
+
+    log::info!("Binding raw socket to tap interface.");
+    socket
+        .bind_device(Some(host_interface.as_bytes()))
+        .with_context(|| anyhow!("Failed to bind the socket to {host_interface:?}"))?;
 
     // Get the private IP address of the victims VPN tunnel
     let victim_tunnel_ip = rpc
@@ -170,13 +163,13 @@ pub async fn test_cve_2019_14899_mitigation(
 
         // call the netdev ioctl that gets the interface index
         ioctl_readwrite_bad!(get_interface_index, libc::SIOCGIFINDEX, libc::ifreq);
-        unsafe { get_interface_index(socket, &mut if_index_request) }
+        unsafe { get_interface_index(socket.as_raw_fd(), &mut if_index_request) }
             .context("Failed to get index of host interface")?;
         host_interface_index = unsafe { if_index_request.ifr_ifru.ifru_ifindex };
 
         // call the netdev ioctl that gets the interface mac address
         ioctl_readwrite_bad!(get_interface_mac, libc::SIOCGIFHWADDR, libc::ifreq);
-        let result = unsafe { get_interface_mac(socket, &mut if_mac_request) }
+        let result = unsafe { get_interface_mac(socket.as_raw_fd(), &mut if_mac_request) }
             .context("Failed to get MAC address of host interface")?;
         log::warn!("SIOCGIFHWADDR result code: {result}");
 
@@ -205,11 +198,11 @@ pub async fn test_cve_2019_14899_mitigation(
             source_port: MALICIOUS_PACKET_PORT.into(),
             destination_port: MALICIOUS_PACKET_PORT.into(),
 
-            data_offset: 0x50.into(), // 5
+            data_offset: 0x50, // 5
             window_size: 0xff.into(),
 
-            // Important: Set the SYN and ACK flags
-            tcp_flags: ((TcpFlags::SYN | TcpFlags::ACK) as u8).into(),
+            // set flags required for exploit to work
+            tcp_flags: (TcpFlags::SYN | TcpFlags::ACK) as u8,
 
             ..TcpHeader::zeroed()
         },
@@ -234,8 +227,8 @@ pub async fn test_cve_2019_14899_mitigation(
     };
 
     let saw_packet = select! {
-        result = spam_packet(socket, host_interface_index, &eth_packet).fuse() => return result,
-        result = listen_for_packet(socket, filter, Duration::from_secs(3)).fuse() => result?,
+        result = spam_packet(&socket, host_interface_index, &eth_packet).fuse() => return result,
+        result = listen_for_packet(&socket, filter, Duration::from_secs(3)).fuse() => result?,
     };
 
     if saw_packet {
@@ -248,7 +241,7 @@ pub async fn test_cve_2019_14899_mitigation(
 /// Read from the socket and return true if we see a packet that passes the filter.
 /// Returns false if we don't see such a packet within the timeout.
 async fn listen_for_packet(
-    socket: RawFd,
+    socket: &Socket,
     filter: impl Fn(&Ipv4Packet<TcpHeader>) -> bool,
     timeout: Duration,
 ) -> anyhow::Result<bool> {
@@ -277,7 +270,7 @@ async fn listen_for_packet(
 
 /// Send `packet` on the socket in a loop.
 async fn spam_packet(
-    socket: RawFd,
+    socket: &Socket,
     interface_index: c_int,
     packet: &EthernetPacket<Ipv4Packet<TcpHeader>>,
 ) -> anyhow::Result<()> {
@@ -289,7 +282,7 @@ async fn spam_packet(
 
 /// Send an ethernet packet on the socket.
 fn send_packet(
-    socket: RawFd,
+    socket: &Socket,
     interface_index: c_int,
     packet: &EthernetPacket<Ipv4Packet<TcpHeader>>,
 ) -> anyhow::Result<()> {
@@ -307,7 +300,7 @@ fn send_packet(
 
         unsafe {
             libc::sendto(
-                socket,
+                socket.as_raw_fd(),
                 bytes_of(packet).as_ptr() as *const c_void,
                 size_of_val(packet),
                 0,
@@ -326,10 +319,10 @@ fn send_packet(
 }
 
 fn poll_for_packet(
-    socket: RawFd,
+    socket: &Socket,
     buf: &mut [u8],
 ) -> anyhow::Result<Option<EthernetPacket<Ipv4Packet<TcpHeader>>>> {
-    let n = match nix::sys::socket::recv(socket, &mut buf[..], MsgFlags::MSG_DONTWAIT) {
+    let n = match nix::sys::socket::recv(socket.as_raw_fd(), &mut buf[..], MsgFlags::MSG_DONTWAIT) {
         Ok(0) | Err(Errno::EWOULDBLOCK) => return Ok(None),
         Err(e) => return Err(e).context("failed to read from socket"),
         Ok(n) => n,
