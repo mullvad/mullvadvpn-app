@@ -3,7 +3,7 @@ name: OSV-Scanner Scheduled Scan
 
 on:
   schedule:
-    - cron: "30 12 * * 1"
+    - cron: "30 7 * * MON-FRI"
   push:
     branches: [main]
   workflow_dispatch:
