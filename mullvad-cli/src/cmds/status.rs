@@ -93,6 +93,11 @@ impl Status {
                         println!("New access method: {access_method:#?}");
                     }
                 }
+                DaemonEvent::FeatureIndicators(feature_indicators) => {
+                    if args.debug {
+                        println!("New feature flags: {feature_indicators:#?}");
+                    }
+                }
             }
         }
         Ok(())
