@@ -5,6 +5,7 @@ mod account;
 mod custom_list;
 mod custom_tunnel;
 mod device;
+mod features;
 mod location;
 mod net;
 pub mod relay_constraints;

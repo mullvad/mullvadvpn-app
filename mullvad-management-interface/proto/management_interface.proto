@@ -119,6 +119,9 @@ service ManagementService {
   rpc ApplyJsonSettings(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
   // Return a JSON blob containing all overridable settings, if there are any
   rpc ExportJsonSettings(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
+
+  // Get current feature indicators
+  rpc GetFeatureIndicators(google.protobuf.Empty) returns (FeatureIndicators) {}
 }
 
 message UUID { string value = 1; }
@@ -234,6 +237,26 @@ message TunnelEndpoint {
   Endpoint entry_endpoint = 7;
   TunnelMetadata tunnel_metadata = 8;
   bool daita = 9;
+}
+
+message FeatureIndicators {
+  repeated FeatureIndicator active_features = 1;
+}
+
+enum FeatureIndicator {
+  QUANTUM_RESISTANCE = 0;
+  MULTIHOP = 1;
+  BRIDGE_MODE = 2;
+  SPLIT_TUNNELING = 3;
+  LOCKDOWN_MODE = 4;
+  UDP_2_TCP = 5;
+  LAN_SHARING = 6;
+  DNS_CONTENT_BLOCKERS = 7;
+  CUSTOM_DNS = 8;
+  SERVER_IP_OVERRIDE = 9;
+  CUSTOM_MTU = 10;
+  CUSTOM_MSS_FIX = 11;
+  DAITA = 12;
 }
 
 enum ObfuscationType {
@@ -629,6 +652,7 @@ message DaemonEvent {
     DeviceEvent device = 5;
     RemoveDeviceEvent remove_device = 6;
     AccessMethodSetting new_access_method = 7;
+    FeatureIndicators feature_indicators = 8;
   }
 }
 

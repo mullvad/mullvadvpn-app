@@ -8,6 +8,7 @@ use mullvad_types::wireguard::DaitaSettings;
 use mullvad_types::{
     access_method::AccessMethodSetting,
     device::{DeviceEvent, RemoveDeviceEvent},
+    features::FeatureIndicators,
     relay_list::RelayList,
     settings::Settings,
     states::TunnelState,
@@ -50,6 +51,7 @@ pub enum DaemonEvent {
     Device(DeviceEvent),
     RemoveDevice(RemoveDeviceEvent),
     NewAccessMethod(AccessMethodSetting),
+    FeatureIndicators(FeatureIndicators),
 }
 
 impl TryFrom<types::daemon_event::Event> for DaemonEvent {
@@ -80,6 +82,9 @@ impl TryFrom<types::daemon_event::Event> for DaemonEvent {
                     .map(DaemonEvent::NewAccessMethod)
                     .map_err(Error::InvalidResponse)
             }
+            types::daemon_event::Event::FeatureIndicators(event) => Ok(
+                DaemonEvent::FeatureIndicators(FeatureIndicators::from(event)),
+            ),
         }
     }
 }
@@ -740,6 +745,15 @@ impl MullvadProxyClient {
     pub async fn export_json_settings(&mut self) -> Result<String> {
         let blob = self.0.export_json_settings(()).await.map_err(Error::Rpc)?;
         Ok(blob.into_inner())
+    }
+
+    pub async fn get_feature_indicators(&mut self) -> Result<FeatureIndicators> {
+        self.0
+            .get_feature_indicators(())
+            .await
+            .map_err(Error::Rpc)
+            .map(|response| response.into_inner())
+            .map(FeatureIndicators::from)
     }
 }
 

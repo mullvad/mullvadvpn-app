@@ -35,3 +35,24 @@ pub struct DefaultDnsOptions {
 pub struct CustomDnsOptions {
     pub addresses: Vec<IpAddr>,
 }
+
+impl DefaultDnsOptions {
+    /// Return whether any content blockers are enabled.
+    pub fn any_blockers_enabled(&self) -> bool {
+        let DefaultDnsOptions {
+            block_ads,
+            block_trackers,
+            block_malware,
+            block_adult_content,
+            block_gambling,
+            block_social_media,
+        } = *self;
+
+        block_ads
+            || block_trackers
+            || block_malware
+            || block_adult_content
+            || block_gambling
+            || block_social_media
+    }
+}
