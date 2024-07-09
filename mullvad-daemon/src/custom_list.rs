@@ -108,7 +108,6 @@ where
     ///
     /// If `custom_list_id` is `Some`, only changes to that custom list will trigger a reconnect.
     fn change_should_cause_reconnect(&self, custom_list_id: Option<Id>) -> bool {
-        use mullvad_types::states::TunnelState;
         let mut need_to_reconnect = false;
 
         let RelaySettings::Normal(relay_settings) = &self.settings.relay_settings else {
@@ -121,15 +120,7 @@ where
             need_to_reconnect |= custom_list_id.map(|id| &id == list_id).unwrap_or(true);
         }
 
-        if let TunnelState::Connecting {
-            endpoint,
-            location: _,
-        }
-        | TunnelState::Connected {
-            endpoint,
-            location: _,
-        } = &self.tunnel_state
-        {
+        if let Some(endpoint) = self.tunnel_state.endpoint() {
             match endpoint.tunnel_type {
                 TunnelType::Wireguard => {
                     if relay_settings.wireguard_constraints.multihop() {
