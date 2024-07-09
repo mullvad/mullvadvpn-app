@@ -121,14 +121,8 @@ where
             need_to_reconnect |= custom_list_id.map(|id| &id == list_id).unwrap_or(true);
         }
 
-        if let TunnelState::Connecting {
-            endpoint,
-            location: _,
-        }
-        | TunnelState::Connected {
-            endpoint,
-            location: _,
-        } = &self.tunnel_state
+        if let TunnelState::Connecting { endpoint, .. } | TunnelState::Connected { endpoint, .. } =
+            &self.tunnel_state
         {
             match endpoint.tunnel_type {
                 TunnelType::Wireguard => {

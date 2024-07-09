@@ -1014,6 +1014,23 @@ impl ManagementService for ManagementServiceImpl {
         log::error!("Called `verify_play_purchase` on non-Android platform");
         Ok(Response::new(()))
     }
+
+    async fn get_feature_indicators(
+        &self,
+        _: Request<()>,
+    ) -> ServiceResult<types::FeatureIndicators> {
+        log::debug!("get_feature_indicators");
+
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::GetFeatureIndicators(tx))?;
+
+        let feature_indicators = self
+            .wait_for_result(rx)
+            .await
+            .map(types::FeatureIndicators::from)?;
+
+        Ok(Response::new(feature_indicators))
+    }
 }
 
 impl ManagementServiceImpl {
@@ -1138,6 +1155,15 @@ impl EventListener for ManagementInterfaceEventBroadcaster {
         self.notify(types::DaemonEvent {
             event: Some(daemon_event::Event::NewAccessMethod(
                 types::AccessMethodSetting::from(new_access_method),
+            )),
+        })
+    }
+
+    fn notify_feature_indicators(&self, features: mullvad_types::features::FeatureIndicators) {
+        log::debug!("Broadcasting new feature indicators");
+        self.notify(types::DaemonEvent {
+            event: Some(daemon_event::Event::FeatureIndicators(
+                types::FeatureIndicators::from(features),
             )),
         })
     }
