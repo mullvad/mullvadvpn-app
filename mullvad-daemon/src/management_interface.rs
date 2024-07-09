@@ -1022,6 +1022,23 @@ impl ManagementService for ManagementServiceImpl {
         log::error!("Called `verify_play_purchase` on non-Android platform");
         Ok(Response::new(()))
     }
+
+    async fn get_feature_indicators(
+        &self,
+        _: Request<()>,
+    ) -> ServiceResult<types::FeatureIndicators> {
+        log::debug!("get_feature_indicators");
+
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::GetFeatureIndicators(tx))?;
+
+        let feature_indicators = self
+            .wait_for_result(rx)
+            .await
+            .map(types::FeatureIndicators::from)?;
+
+        Ok(Response::new(feature_indicators))
+    }
 }
 
 impl ManagementServiceImpl {

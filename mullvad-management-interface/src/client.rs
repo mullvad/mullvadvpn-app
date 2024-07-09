@@ -20,6 +20,7 @@ use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
     custom_list::{CustomList, Id},
     device::{Device, DeviceId, DeviceState},
+    features::FeatureIndicators,
     relay_constraints::{
         BridgeSettings, BridgeState, ObfuscationSettings, RelayOverride, RelaySettings,
     },
@@ -740,6 +741,15 @@ impl MullvadProxyClient {
     pub async fn export_json_settings(&mut self) -> Result<String> {
         let blob = self.0.export_json_settings(()).await.map_err(Error::Rpc)?;
         Ok(blob.into_inner())
+    }
+
+    pub async fn get_feature_indicators(&mut self) -> Result<FeatureIndicators> {
+        self.0
+            .get_feature_indicators(())
+            .await
+            .map_err(Error::Rpc)
+            .map(|response| response.into_inner())
+            .map(FeatureIndicators::from)
     }
 }
 
