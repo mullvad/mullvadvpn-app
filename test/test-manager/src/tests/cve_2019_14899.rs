@@ -7,7 +7,6 @@ use std::{
 };
 
 use anyhow::{anyhow, bail, Context};
-use bytemuck::cast_slice;
 use futures::{select, FutureExt};
 use libc::{ETH_ALEN, ETH_P_IP};
 use mullvad_management_interface::MullvadProxyClient;
@@ -117,7 +116,7 @@ pub async fn test_cve_2019_14899_mitigation(
     {
         // Set up ioctl request structs.
         let mut if_mac_request: libc::ifreq = unsafe { mem::zeroed() };
-        let host_interface: &[c_char] = cast_slice(host_interface.as_bytes());
+        let host_interface: &[c_char] = u8_slice_to_c_char(host_interface.as_bytes());
         if_mac_request.ifr_name[..host_interface.len()].copy_from_slice(host_interface);
 
         let mut if_index_request: libc::ifreq = if_mac_request;
@@ -133,7 +132,7 @@ pub async fn test_cve_2019_14899_mitigation(
         unsafe { get_interface_mac(socket.as_raw_fd(), &mut if_mac_request) }
             .context("Failed to get MAC address of host interface")?;
 
-        host_interface_mac.copy_from_slice(cast_slice(unsafe {
+        host_interface_mac.copy_from_slice(c_char_slice_to_u8(unsafe {
             &if_mac_request.ifr_ifru.ifru_hwaddr.sa_data[..6]
         }));
     }
@@ -311,4 +310,12 @@ fn poll_for_packet<'a>(
     }
 
     Ok(None)
+}
+
+fn u8_slice_to_c_char(slice: &[u8]) -> &[c_char] {
+    unsafe { std::mem::transmute(slice) }
+}
+
+fn c_char_slice_to_u8(slice: &[c_char]) -> &[u8] {
+    unsafe { std::mem::transmute(slice) }
 }
