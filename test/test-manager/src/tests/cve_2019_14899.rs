@@ -1,7 +1,7 @@
 use std::{
     ffi::{c_char, c_int, c_void},
     mem::{self, size_of},
-    net::IpAddr,
+    net::{IpAddr, Ipv4Addr},
     os::fd::AsRawFd,
     time::Duration,
 };
@@ -43,7 +43,7 @@ const ETH_LEN: usize = 14 + IP4_LEN;
 
 /// Test mitigation for cve-2019-14899.
 ///
-/// The vulnerability allowed a malicious router learn the victims private mullvad tunnel IP.
+/// The vulnerability allowed a malicious router to learn the victims private mullvad tunnel IP.
 /// It is performed by sending a TCP packet to the victim with SYN and ACK flags set.
 ///
 /// If the destination_addr of the packet was the same as the private IP, the victims computer
@@ -51,6 +51,8 @@ const ETH_LEN: usize = 14 + IP4_LEN;
 ///
 /// This test simply gets the private tunnel IP from the test runner and sends the SYN/ACK packet
 /// targeted to that address. If the guest does not respond, the test passes.
+///
+/// Note that only linux was susceptible to this vulnerability.
 #[test_function(target_os = "linux")]
 pub async fn test_cve_2019_14899_mitigation(
     _: TestContext,
@@ -70,7 +72,7 @@ pub async fn test_cve_2019_14899_mitigation(
     let gateway_ip = NON_TUN_GATEWAY;
 
     // Create a raw socket which let's us send custom ethernet packets
-    log::info!("Creating raw socket.");
+    log::info!("Creating raw socket");
     let socket = Socket::new(
         socket2::Domain::PACKET,
         socket2::Type::RAW,
@@ -78,7 +80,7 @@ pub async fn test_cve_2019_14899_mitigation(
     )
     .with_context(|| "Failed to create raw socket")?;
 
-    log::info!("Binding raw socket to tap interface.");
+    log::info!("Binding raw socket to tap interface");
     socket
         .bind_device(Some(host_interface.as_bytes()))
         .with_context(|| anyhow!("Failed to bind the socket to {host_interface:?}"))?;
@@ -137,41 +139,12 @@ pub async fn test_cve_2019_14899_mitigation(
         }));
     }
 
-    // craft a malicious packet.
-    let mut tcp_packet =
-        MutableTcpPacket::owned(vec![0u8; TCP_LEN]).expect("TCP_LEN bytes is enough");
-    tcp_packet.set_source(MALICIOUS_PACKET_PORT);
-    tcp_packet.set_destination(MALICIOUS_PACKET_PORT);
-    tcp_packet.set_data_offset(5); // 5 is smallest possible value
-    tcp_packet.set_window(0xff);
-    tcp_packet.set_flags(TcpFlags::SYN | TcpFlags::ACK);
-
-    let mut ip4_packet =
-        MutableIpv4Packet::owned(vec![0u8; IP4_LEN]).expect("IP4_LEN bytes is enough");
-    ip4_packet.set_version(4);
-    ip4_packet.set_header_length(5);
-    ip4_packet.set_total_length(IP4_LEN as u16);
-    ip4_packet.set_identification(0x77);
-    ip4_packet.set_ttl(0xff);
-    ip4_packet.set_next_level_protocol(IpNextHeaderProtocols::Tcp);
-    ip4_packet.set_source(gateway_ip);
-    ip4_packet.set_destination(victim_tunnel_ip);
-    tcp_packet.set_checksum(pnet_packet::tcp::ipv4_checksum(
-        &tcp_packet.to_immutable(),
-        &ip4_packet.get_source(),
-        &ip4_packet.get_destination(),
-    ));
-    ip4_packet.set_payload(tcp_packet.packet());
-    ip4_packet.set_checksum(pnet_packet::ipv4::checksum(&ip4_packet.to_immutable()));
-
-    let mut eth_packet =
-        MutableEthernetPacket::owned(vec![0u8; ETH_LEN]).expect("ETH_LEN bytes is enough");
-    eth_packet.set_destination(victim_default_if_mac.into());
-    eth_packet.set_source(host_interface_mac.into());
-    eth_packet.set_ethertype(EtherType::new(ETH_P_IP as u16));
-    eth_packet.set_payload(ip4_packet.packet());
-
-    let eth_packet = eth_packet.consume_to_immutable();
+    let malicious_packet = craft_malicious_packet(
+        host_interface_mac,
+        victim_default_if_mac,
+        gateway_ip,
+        victim_tunnel_ip,
+    );
 
     let filter = |tcp: &TcpPacket<'_>| {
         let reset_flag_set = (tcp.get_flags() & TcpFlags::RST) != 0;
@@ -182,12 +155,12 @@ pub async fn test_cve_2019_14899_mitigation(
     };
 
     let saw_rst_packet = select! {
-        result = spam_packet(&socket, host_interface_index, &eth_packet).fuse() => return result,
+        result = spam_packet(&socket, host_interface_index, &malicious_packet).fuse() => return result,
         result = listen_for_packet(&socket, filter, Duration::from_secs(6000)).fuse() => result?,
     };
 
     if saw_rst_packet {
-        bail!("Managed to leak private tunnel IP.");
+        bail!("Managed to leak private tunnel IP");
     }
 
     Ok(())
@@ -310,6 +283,48 @@ fn poll_for_packet<'a>(
     }
 
     Ok(None)
+}
+
+fn craft_malicious_packet(
+    source_mac: [u8; 6],
+    destination_mac: [u8; 6],
+    source_ip: Ipv4Addr,
+    destination_ip: Ipv4Addr,
+) -> EthernetPacket<'static> {
+    let mut tcp_packet =
+        MutableTcpPacket::owned(vec![0u8; TCP_LEN]).expect("TCP_LEN bytes is enough");
+    tcp_packet.set_source(MALICIOUS_PACKET_PORT);
+    tcp_packet.set_destination(MALICIOUS_PACKET_PORT);
+    tcp_packet.set_data_offset(5); // 5 is smallest possible value
+    tcp_packet.set_window(0xff);
+    tcp_packet.set_flags(TcpFlags::SYN | TcpFlags::ACK);
+
+    let mut ip4_packet =
+        MutableIpv4Packet::owned(vec![0u8; IP4_LEN]).expect("IP4_LEN bytes is enough");
+    ip4_packet.set_version(4);
+    ip4_packet.set_header_length(5);
+    ip4_packet.set_total_length(IP4_LEN as u16);
+    ip4_packet.set_identification(0x77);
+    ip4_packet.set_ttl(0xff);
+    ip4_packet.set_next_level_protocol(IpNextHeaderProtocols::Tcp);
+    ip4_packet.set_source(source_ip);
+    ip4_packet.set_destination(destination_ip);
+    tcp_packet.set_checksum(pnet_packet::tcp::ipv4_checksum(
+        &tcp_packet.to_immutable(),
+        &ip4_packet.get_source(),
+        &ip4_packet.get_destination(),
+    ));
+    ip4_packet.set_payload(tcp_packet.packet());
+    ip4_packet.set_checksum(pnet_packet::ipv4::checksum(&ip4_packet.to_immutable()));
+
+    let mut eth_packet =
+        MutableEthernetPacket::owned(vec![0u8; ETH_LEN]).expect("ETH_LEN bytes is enough");
+    eth_packet.set_destination(destination_mac.into());
+    eth_packet.set_source(source_mac.into());
+    eth_packet.set_ethertype(EtherType::new(ETH_P_IP as u16));
+    eth_packet.set_payload(ip4_packet.packet());
+
+    eth_packet.consume_to_immutable()
 }
 
 fn u8_slice_to_c_char(slice: &[u8]) -> &[c_char] {
