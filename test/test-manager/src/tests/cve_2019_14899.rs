@@ -145,7 +145,7 @@ pub async fn test_cve_2019_14899_mitigation(
     tcp_packet.set_destination(MALICIOUS_PACKET_PORT);
     tcp_packet.set_data_offset(5); // 5 is smallest possible value
     tcp_packet.set_window(0xff);
-    tcp_packet.set_flags((TcpFlags::SYN | TcpFlags::ACK) as u16);
+    tcp_packet.set_flags(TcpFlags::SYN | TcpFlags::ACK);
 
     let mut ip4_packet =
         MutableIpv4Packet::owned(vec![0u8; IP4_LEN]).expect("IP4_LEN bytes is enough");
@@ -175,7 +175,7 @@ pub async fn test_cve_2019_14899_mitigation(
     let eth_packet = eth_packet.consume_to_immutable();
 
     let filter = |tcp: &TcpPacket<'_>| {
-        let reset_flag_set = (tcp.get_flags() & TcpFlags::RST as u16) != 0;
+        let reset_flag_set = (tcp.get_flags() & TcpFlags::RST) != 0;
         let correct_source_port = tcp.get_source() == MALICIOUS_PACKET_PORT;
         let correct_destination_port = tcp.get_destination() == MALICIOUS_PACKET_PORT;
 
