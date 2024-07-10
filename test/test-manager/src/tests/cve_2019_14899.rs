@@ -1,6 +1,6 @@
 use std::{
-    ffi::{c_char, c_int, c_void},
-    mem::{self, size_of},
+    ffi::{c_int, c_uint, c_void},
+    mem::size_of,
     net::{IpAddr, Ipv4Addr},
     os::fd::AsRawFd,
     time::Duration,
@@ -12,7 +12,6 @@ use libc::{ETH_ALEN, ETH_P_IP};
 use mullvad_management_interface::MullvadProxyClient;
 use nix::{
     errno::Errno,
-    ioctl_readwrite_bad,
     sys::socket::{MsgFlags, SockProtocol},
 };
 use pnet_packet::{
@@ -61,7 +60,7 @@ pub async fn test_cve_2019_14899_mitigation(
 ) -> anyhow::Result<()> {
     helpers::connect_and_wait(&mut mullvad_client).await?;
 
-    // The vulnerability required local network sharing to be enabled.
+    // The vulnerability required local network sharing to be enabled
     mullvad_client
         .set_allow_lan(true)
         .await
@@ -97,51 +96,30 @@ pub async fn test_cve_2019_14899_mitigation(
         bail!("I didn't ask for IPv6!");
     };
 
-    let victim_default_if = rpc
+    let victim_default_interface = rpc
         .get_default_interface()
         .await
         .context("failed to get guest default interface")?;
 
-    let victim_default_if_mac = rpc
-        .get_interface_mac(victim_default_if.clone())
+    let victim_default_interface_mac = rpc
+        .get_interface_mac(victim_default_interface.clone())
         .await
         .with_context(|| {
-            anyhow!("Failed to get ip of guest default interface {victim_default_if:?}")
+            anyhow!("Failed to get ip of guest default interface {victim_default_interface:?}")
         })?
         .ok_or(anyhow!(
-            "No mac address for guest default interface {victim_default_if:?}"
+            "No mac address for guest default interface {victim_default_interface:?}"
         ))?;
 
-    // Get the MAC address and "index" of the tap interface.
-    let mut host_interface_mac = [0u8; 6];
-    let host_interface_index: c_int;
-    {
-        // Set up ioctl request structs.
-        let mut if_mac_request: libc::ifreq = unsafe { mem::zeroed() };
-        let host_interface: &[c_char] = u8_slice_to_c_char(host_interface.as_bytes());
-        if_mac_request.ifr_name[..host_interface.len()].copy_from_slice(host_interface);
-
-        let mut if_index_request: libc::ifreq = if_mac_request;
-
-        // call the netdev ioctl that gets the interface index
-        ioctl_readwrite_bad!(get_interface_index, libc::SIOCGIFINDEX, libc::ifreq);
-        unsafe { get_interface_index(socket.as_raw_fd(), &mut if_index_request) }
-            .context("Failed to get index of host interface")?;
-        host_interface_index = unsafe { if_index_request.ifr_ifru.ifru_ifindex };
-
-        // call the netdev ioctl that gets the interface mac address
-        ioctl_readwrite_bad!(get_interface_mac, libc::SIOCGIFHWADDR, libc::ifreq);
-        unsafe { get_interface_mac(socket.as_raw_fd(), &mut if_mac_request) }
-            .context("Failed to get MAC address of host interface")?;
-
-        host_interface_mac.copy_from_slice(c_char_slice_to_u8(unsafe {
-            &if_mac_request.ifr_ifru.ifru_hwaddr.sa_data[..6]
-        }));
-    }
+    // Get the MAC address and index of the tap interface
+    let host_interface_index = helpers::get_interface_index(host_interface)?;
+    let host_interface_mac = helpers::get_interface_mac(host_interface)?.ok_or(anyhow!(
+        "No mac address for host interface {host_interface:?}"
+    ))?;
 
     let malicious_packet = craft_malicious_packet(
         host_interface_mac,
-        victim_default_if_mac,
+        victim_default_interface_mac,
         gateway_ip,
         victim_tunnel_ip,
     );
@@ -210,7 +188,7 @@ async fn listen_for_packet(
 /// Send `packet` on the socket in a loop.
 async fn spam_packet(
     socket: &Socket,
-    interface_index: c_int,
+    interface_index: c_uint,
     packet: &EthernetPacket<'_>,
 ) -> anyhow::Result<()> {
     loop {
@@ -222,14 +200,14 @@ async fn spam_packet(
 /// Send an ethernet packet on the socket.
 fn send_packet(
     socket: &Socket,
-    interface_index: c_int,
+    interface_index: c_uint,
     packet: &EthernetPacket<'_>,
 ) -> anyhow::Result<()> {
     let result = {
         let mut destination = libc::sockaddr_ll {
             sll_family: 0,
             sll_protocol: 0,
-            sll_ifindex: interface_index,
+            sll_ifindex: interface_index as c_int,
             sll_hatype: 0,
             sll_pkttype: 0,
             sll_halen: ETH_ALEN as u8,
@@ -325,12 +303,4 @@ fn craft_malicious_packet(
     eth_packet.set_payload(ip4_packet.packet());
 
     eth_packet.consume_to_immutable()
-}
-
-fn u8_slice_to_c_char(slice: &[u8]) -> &[c_char] {
-    unsafe { std::mem::transmute(slice) }
-}
-
-fn c_char_slice_to_u8(slice: &[c_char]) -> &[u8] {
-    unsafe { std::mem::transmute(slice) }
 }

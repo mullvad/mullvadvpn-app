@@ -221,18 +221,27 @@ pub fn get_interface_mac(interface: &str) -> Result<Option<[u8; 6]>, test_rpc::E
         test_rpc::Error::Syscall
     })?;
 
-    for addr in addrs {
-        if addr.interface_name == interface {
-            if let Some(address) = addr.address {
-                if let Some(sockaddr) = address.as_link_addr() {
-                    return Ok(sockaddr.addr());
-                }
-            }
-        }
-    }
+    let mut interface_exists = false;
 
-    log::error!("Could not find interface {interface:?}");
-    Err(test_rpc::Error::InterfaceNotFound)
+    let mac_addr = addrs
+        .filter(|addr| addr.interface_name == interface)
+        .find_map(|addr| {
+            // sadly, the only way of distinguishing between "iface doesn't exist" and
+            // "iface has no mac addr" is to check if the interface appears anywhere in the list.
+            interface_exists = true;
+
+            let addr = addr.address?;
+            let link_addr = addr.as_link_addr()?;
+            let mac_addr = link_addr.addr()?;
+            Some(mac_addr)
+        });
+
+    if interface_exists {
+        Ok(mac_addr)
+    } else {
+        log::error!("Could not find interface {interface:?}");
+        Err(test_rpc::Error::InterfaceNotFound)
+    }
 }
 
 #[cfg(not(target_os = "linux"))]
