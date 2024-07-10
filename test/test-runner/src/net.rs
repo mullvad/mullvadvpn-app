@@ -173,7 +173,6 @@ pub async fn send_ping(
 #[cfg(unix)]
 pub fn get_interface_ip(interface: &str) -> Result<IpAddr, test_rpc::Error> {
     // TODO: IPv6
-    use std::net::Ipv4Addr;
 
     let addrs = nix::ifaddrs::getifaddrs().map_err(|error| {
         log::error!("Failed to obtain interfaces: {}", error);
@@ -183,7 +182,7 @@ pub fn get_interface_ip(interface: &str) -> Result<IpAddr, test_rpc::Error> {
         if addr.interface_name == interface {
             if let Some(address) = addr.address {
                 if let Some(sockaddr) = address.as_sockaddr_in() {
-                    return Ok(IpAddr::V4(Ipv4Addr::from(sockaddr.ip())));
+                    return Ok(IpAddr::V4(sockaddr.ip()));
                 }
             }
         }

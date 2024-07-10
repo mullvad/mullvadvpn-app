@@ -11,7 +11,7 @@ use futures::{select, FutureExt};
 use libc::{ETH_ALEN, ETH_P_IP};
 use mullvad_management_interface::MullvadProxyClient;
 use nix::{
-    errno::{errno, Errno},
+    errno::Errno,
     ioctl_readwrite_bad,
     sys::socket::{MsgFlags, SockProtocol},
 };
@@ -277,8 +277,8 @@ fn send_packet(
     };
 
     if result < 0 {
-        let err = errno();
-        bail!("Failed to send ethernet packet. code={err}");
+        let err = Errno::last();
+        bail!("Failed to send ethernet packet: {err}");
     }
 
     Ok(())
