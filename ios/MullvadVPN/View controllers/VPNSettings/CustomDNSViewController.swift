@@ -113,14 +113,13 @@ extension CustomDNSViewController: DNSSettingsDataSourceDelegate {
                 When this feature is enabled it stops the device from contacting certain \
                 domains or websites known for distributing ads, malware, trackers and more. \
                 This might cause issues on certain websites, services, and apps.
-
                 Attention: this setting cannot be used in combination with **Use custom DNS**.
                 """,
                 comment: ""
             ), options: MarkdownStylingOptions(font: .preferredFont(forTextStyle: .body)))
 
         case .blockMalware:
-            message = NSAttributedString(string: NSLocalizedString(
+            message = NSAttributedString(markdownString: NSLocalizedString(
                 "VPN_SETTINGS_CONTENT_BLOCKERS_MALWARE",
                 tableName: "ContentBlockers",
                 value: """
@@ -128,7 +127,7 @@ extension CustomDNSViewController: DNSSettingsDataSourceDelegate {
                 be treated as such, this is just an extra layer of protection.
                 """,
                 comment: ""
-            ))
+            ), options: MarkdownStylingOptions(font: .preferredFont(forTextStyle: .body)))
 
         default:
             assertionFailure("No matching InfoButtonItem")

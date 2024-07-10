@@ -29,24 +29,27 @@ class TermsOfServiceContentView: UIView {
 
     let bodyLabel: UILabel = {
         let bodyLabel = UILabel()
-        bodyLabel.translatesAutoresizingMaskIntoConstraints = false
-        bodyLabel.font = UIFont.systemFont(ofSize: 18)
-        bodyLabel.textColor = .white
-        bodyLabel.numberOfLines = 0
-        bodyLabel.text = NSLocalizedString(
+
+        let message = NSMutableAttributedString(string: NSLocalizedString(
             "PRIVACY_NOTICE_BODY",
             tableName: "TermsOfService",
             value: """
             You have a right to privacy. That’s why we never store activity logs, don’t ask for personal \
             information, and encourage anonymous payments.
-
             In some situations, as outlined in our privacy policy, we might process personal data that you \
             choose to send, for example if you email us.
-
             We strongly believe in retaining as little data as possible because we want you to remain anonymous.
             """,
             comment: ""
-        )
+        ))
+        message.apply(paragraphStyle: .alert)
+
+        bodyLabel.attributedText = message
+        bodyLabel.translatesAutoresizingMaskIntoConstraints = false
+        bodyLabel.font = UIFont.systemFont(ofSize: 18)
+        bodyLabel.textColor = .white
+        bodyLabel.numberOfLines = 0
+
         return bodyLabel
     }()
 

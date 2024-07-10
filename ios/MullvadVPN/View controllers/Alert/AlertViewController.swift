@@ -225,16 +225,11 @@ class AlertViewController: UIViewController {
     private func addMessage(_ message: String) {
         let label = UILabel()
 
-        let font = UIFont.preferredFont(forTextStyle: .body)
-        let style = NSMutableParagraphStyle()
-        style.paragraphSpacing = 16
-        style.lineBreakMode = .byWordWrapping
+        let message = NSMutableAttributedString(string: message)
+        message.apply(paragraphStyle: .alert)
 
-        label.attributedText = NSAttributedString(
-            string: message,
-            attributes: [.paragraphStyle: style]
-        )
-        label.font = font
+        label.attributedText = message
+        label.font = .preferredFont(forTextStyle: .body)
         label.textColor = .white.withAlphaComponent(0.8)
         label.adjustsFontForContentSizeCategory = true
         label.numberOfLines = 0
@@ -245,14 +240,9 @@ class AlertViewController: UIViewController {
     private func addMessage(_ message: NSAttributedString) {
         let label = UILabel()
 
-        let style = NSMutableParagraphStyle()
-        style.paragraphSpacing = 16
-        style.lineBreakMode = .byWordWrapping
-
         let message = NSMutableAttributedString(attributedString: message)
-        let attributeRange = NSRange(location: 0, length: message.length)
-        message.removeAttribute(.paragraphStyle, range: attributeRange)
-        message.addAttribute(.paragraphStyle, value: style, range: attributeRange)
+        message.removeAttribute(.paragraphStyle, range: NSRange(location: 0, length: message.length))
+        message.apply(paragraphStyle: .alert)
 
         label.attributedText = message
         label.textColor = .white.withAlphaComponent(0.8)
