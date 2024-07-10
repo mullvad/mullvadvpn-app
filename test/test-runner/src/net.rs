@@ -189,7 +189,7 @@ pub fn get_interface_ip(interface: &str) -> Result<IpAddr, test_rpc::Error> {
         }
     }
 
-    log::error!("Could not find tunnel interface");
+    log::error!("Could not find interface {interface:?}");
     Err(test_rpc::Error::InterfaceNotFound)
 }
 
@@ -232,7 +232,7 @@ pub fn get_interface_mac(interface: &str) -> Result<Option<[u8; 6]>, test_rpc::E
         }
     }
 
-    log::error!("Could not find tunnel interface");
+    log::error!("Could not find interface {interface:?}");
     Err(test_rpc::Error::InterfaceNotFound)
 }
 
