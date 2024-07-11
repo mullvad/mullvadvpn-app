@@ -8,4 +8,6 @@ object Versions {
     const val junitJupiter = "5.11.3"
     const val junit5Android = "1.6.0"
     const val junit5Plugin = "1.11.2.0"
+
+    const val rustAndroid = "0.9.4"
 }
