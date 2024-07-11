@@ -72,9 +72,8 @@ class WelcomeViewModel(
 
     fun onSitePaymentClick() {
         viewModelScope.launch {
-            accountRepository.getWebsiteAuthToken()?.let { token ->
-                _uiSideEffect.send(UiSideEffect.OpenAccountView(token))
-            }
+            val wwwAuthToken = accountRepository.getWebsiteAuthToken()
+            _uiSideEffect.send(UiSideEffect.OpenAccountView(wwwAuthToken))
         }
     }
 
@@ -116,7 +115,7 @@ class WelcomeViewModel(
     }
 
     sealed interface UiSideEffect {
-        data class OpenAccountView(val token: WebsiteAuthToken) : UiSideEffect
+        data class OpenAccountView(val token: WebsiteAuthToken?) : UiSideEffect
 
         data object OpenConnectScreen : UiSideEffect
     }

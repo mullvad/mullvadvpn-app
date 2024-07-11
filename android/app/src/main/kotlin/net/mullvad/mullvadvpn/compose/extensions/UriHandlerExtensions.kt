@@ -8,7 +8,7 @@ import net.mullvad.mullvadvpn.lib.common.util.createAccountUri
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 
 @Composable
-fun UriHandler.createOpenAccountPageHook(): (WebsiteAuthToken) -> Unit {
+fun UriHandler.createOpenAccountPageHook(): (WebsiteAuthToken?) -> Unit {
     val accountUrl = stringResource(id = R.string.account_url)
     return { token -> this.openUri(createAccountUri(accountUrl, token).toString()) }
 }

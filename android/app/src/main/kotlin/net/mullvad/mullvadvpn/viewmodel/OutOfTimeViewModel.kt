@@ -65,9 +65,8 @@ class OutOfTimeViewModel(
 
     fun onSitePaymentClick() {
         viewModelScope.launch {
-            accountRepository.getWebsiteAuthToken()?.let { wwwAuthToken ->
-                _uiSideEffect.send(UiSideEffect.OpenAccountView(wwwAuthToken))
-            }
+            val wwwAuthToken = accountRepository.getWebsiteAuthToken()
+            _uiSideEffect.send(UiSideEffect.OpenAccountView(wwwAuthToken))
         }
     }
 
@@ -116,7 +115,7 @@ class OutOfTimeViewModel(
             }
 
     sealed interface UiSideEffect {
-        data class OpenAccountView(val token: WebsiteAuthToken) : UiSideEffect
+        data class OpenAccountView(val token: WebsiteAuthToken?) : UiSideEffect
 
         data object OpenConnectScreen : UiSideEffect
     }

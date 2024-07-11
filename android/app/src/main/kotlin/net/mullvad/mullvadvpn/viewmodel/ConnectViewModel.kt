@@ -161,9 +161,8 @@ class ConnectViewModel(
 
     fun onManageAccountClick() {
         viewModelScope.launch {
-            accountRepository.getWebsiteAuthToken()?.let { wwwAuthToken ->
-                _uiSideEffect.send(UiSideEffect.OpenAccountManagementPageInBrowser(wwwAuthToken))
-            }
+            val wwwAuthToken = accountRepository.getWebsiteAuthToken()
+            _uiSideEffect.send(UiSideEffect.OpenAccountManagementPageInBrowser(wwwAuthToken))
         }
     }
 
@@ -180,7 +179,7 @@ class ConnectViewModel(
         }
 
     sealed interface UiSideEffect {
-        data class OpenAccountManagementPageInBrowser(val token: WebsiteAuthToken) : UiSideEffect
+        data class OpenAccountManagementPageInBrowser(val token: WebsiteAuthToken?) : UiSideEffect
 
         data object OutOfTime : UiSideEffect
 
