@@ -293,7 +293,7 @@ pub fn get_interface_index(interface: &str) -> anyhow::Result<c_uint> {
     match unsafe { libc::if_nametoindex(interface.as_ptr()) } {
         0 => {
             let err = Errno::last();
-            Err(anyhow!("Failed to get interface index").context(err))
+            Err(err).context("Failed to get interface index")
         }
         i => Ok(i),
     }
