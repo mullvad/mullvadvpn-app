@@ -289,7 +289,7 @@ private fun ColumnScope.LoginInput(
         isError = state.loginState.isError(),
     )
 
-    AnimatedVisibility(visible = state.lastUsedAccount != null) {
+    AnimatedVisibility(visible = state.lastUsedAccount != null && state.loginState is Idle) {
         val token = state.lastUsedAccount?.value.orEmpty()
         val accountTransformation = remember { accountNumberVisualTransformation() }
         val transformedText =
