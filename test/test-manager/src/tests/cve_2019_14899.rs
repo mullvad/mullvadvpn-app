@@ -36,10 +36,6 @@ use super::TestContext;
 /// The port number we set in the malicious packet.
 const MALICIOUS_PACKET_PORT: u16 = 12345;
 
-const TCP_LEN: usize = 20;
-const IPV4_LEN: usize = 20 + TCP_LEN;
-const ETH_LEN: usize = 14 + IPV4_LEN;
-
 /// Test mitigation for cve-2019-14899.
 ///
 /// The vulnerability allowed a malicious router to learn the victims private mullvad tunnel IP.
@@ -68,7 +64,7 @@ pub async fn test_cve_2019_14899_mitigation(
 
     let host_interface = TAP_NAME;
     let victim_tunnel_interface = "wg0-mullvad";
-    let gateway_ip = NON_TUN_GATEWAY;
+    let victim_gateway_ip = NON_TUN_GATEWAY;
 
     // Create a raw socket which let's us send custom ethernet packets
     log::info!("Creating raw socket");
@@ -120,7 +116,7 @@ pub async fn test_cve_2019_14899_mitigation(
     let malicious_packet = craft_malicious_packet(
         host_interface_mac,
         victim_default_interface_mac,
-        gateway_ip,
+        victim_gateway_ip,
         victim_tunnel_ip,
     );
 
@@ -151,7 +147,7 @@ async fn listen_for_packet(
     filter: impl Fn(&TcpPacket<'_>) -> bool,
     timeout: Duration,
 ) -> anyhow::Result<bool> {
-    let mut buf = vec![0u8; 0xffff];
+    let mut buf = vec![0u8; u16::MAX.into()];
 
     let wait_for_packet = async {
         loop {
@@ -159,19 +155,8 @@ async fn listen_for_packet(
             yield_now().await;
 
             match poll_for_packet(socket, &mut buf)? {
-                Some(eth_packet) => {
-                    let Some(ipv4_packet) = Ipv4Packet::new(eth_packet.payload()) else {
-                        continue;
-                    };
-
-                    let Some(tcp_packet) = TcpPacket::new(ipv4_packet.payload()) else {
-                        continue;
-                    };
-
-                    if filter(&tcp_packet) {
-                        break;
-                    }
-                }
+                Some(tcp_packet) if filter(&tcp_packet) => break,
+                Some(_other_packet) => continue,
                 None => sleep(Duration::from_millis(10)).await,
             }
         }
@@ -185,10 +170,13 @@ async fn listen_for_packet(
     }
 }
 
-fn poll_for_packet<'a>(
-    socket: &Socket,
-    buf: &'a mut [u8],
-) -> anyhow::Result<Option<EthernetPacket<'a>>> {
+/// Read once from the raw socket and try to parse response as an Ethernet/IPv4/TCP packet.
+///
+/// # Returns
+/// - `Err` if the `read` system call failed.
+/// - `Ok(None)` if no packets have come in, or if the read packet is not valid TCP.
+/// - A single TCP packet otherwise.
+fn poll_for_packet(socket: &Socket, buf: &mut [u8]) -> anyhow::Result<Option<TcpPacket<'static>>> {
     let n = match nix::sys::socket::recv(socket.as_raw_fd(), &mut buf[..], MsgFlags::MSG_DONTWAIT) {
         Ok(0) | Err(Errno::EWOULDBLOCK) => return Ok(None),
         Err(e) => return Err(e).context("failed to read from socket"),
@@ -196,21 +184,23 @@ fn poll_for_packet<'a>(
     };
 
     let packet = &buf[..n];
-    if packet.len() >= ETH_LEN {
-        let eth_packet = EthernetPacket::new(packet).expect("packet is big enough");
-        let Some(ipv4_packet) = Ipv4Packet::new(eth_packet.payload()) else {
-            return Ok(None);
-        };
 
-        let valid_ip_version = ipv4_packet.get_version() == 4;
-        let protocol_is_tcp = ipv4_packet.get_next_level_protocol() == IpNextHeaderProtocols::Tcp;
+    let Some(eth_packet) = EthernetPacket::new(packet) else {
+        return Ok(None);
+    };
 
-        if valid_ip_version && protocol_is_tcp {
-            return Ok(Some(eth_packet));
-        }
+    let Some(ipv4_packet) = Ipv4Packet::new(eth_packet.payload()) else {
+        return Ok(None);
+    };
+
+    let valid_ip_version = ipv4_packet.get_version() == 4;
+    let protocol_is_tcp = ipv4_packet.get_next_level_protocol() == IpNextHeaderProtocols::Tcp;
+
+    if !valid_ip_version || !protocol_is_tcp {
+        return Ok(None);
     }
 
-    Ok(None)
+    Ok(TcpPacket::owned(ipv4_packet.payload().to_vec()))
 }
 
 /// Send `packet` on the socket in a loop.
@@ -271,6 +261,11 @@ fn craft_malicious_packet(
     source_ip: Ipv4Addr,
     destination_ip: Ipv4Addr,
 ) -> EthernetPacket<'static> {
+    // length of the various parts of the malicious packet we'll be crafting.
+    const TCP_LEN: usize = 20; // a TCP packet is 20 bytes
+    const IPV4_LEN: usize = 20 + TCP_LEN; // an IPv4 packet is 20 bytes + payload
+    const ETH_LEN: usize = 14 + IPV4_LEN; // an ethernet packet is 14 bytes + payload
+
     let mut eth_packet =
         MutableEthernetPacket::owned(vec![0u8; ETH_LEN]).expect("ETH_LEN bytes is enough");
     eth_packet.set_destination(destination_mac.into());
