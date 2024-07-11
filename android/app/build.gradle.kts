@@ -1,7 +1,9 @@
 import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 import com.android.build.gradle.internal.tasks.factory.dependsOn
 import com.github.triplet.gradle.androidpublisher.ReleaseStatus
+import java.io.ByteArrayOutputStream
 import java.io.FileInputStream
+import java.io.FileOutputStream
 import java.util.Properties
 import org.gradle.internal.extensions.stdlib.capitalized
 
@@ -14,6 +16,7 @@ plugins {
     alias(libs.plugins.compose)
 
     id(Dependencies.junit5AndroidPluginId) version Versions.junit5Plugin
+    id(Dependencies.rustAndroid)
 }
 
 val repoRootPath = rootProject.projectDir.absoluteFile.parentFile.absolutePath
@@ -21,7 +24,8 @@ val extraAssetsDirectory = layout.buildDirectory.dir("extraAssets").get()
 val relayListPath = extraAssetsDirectory.file("relays.json").asFile
 val maybenotMachinesFile = extraAssetsDirectory.file("maybenot_machines").asFile
 val defaultChangelogAssetsDirectory = "$repoRootPath/android/src/main/play/release-notes/"
-val extraJniDirectory = layout.buildDirectory.dir("extraJni").get()
+//val extraJniDirectory = layout.buildDirectory.dir("extraJni").get()
+val rustJniLibs = layout.buildDirectory.dir("rustJniLibs/android").get()
 
 val credentialsPath = "${rootProject.projectDir}/credentials"
 val keystorePropertiesFile = file("$credentialsPath/keystore.properties")
@@ -128,7 +132,7 @@ android {
                     .getOrDefault("OVERRIDE_CHANGELOG_DIR", defaultChangelogAssetsDirectory)
 
             assets.srcDirs(extraAssetsDirectory, changelogDir)
-            jniLibs.srcDirs(extraJniDirectory)
+            //jniLibs.srcDirs(rustJniLibs)
         }
     }
 
@@ -148,7 +152,7 @@ android {
         freeCompilerArgs =
             listOf(
                 // Opt-in option for Koin annotation of KoinComponent.
-                "-opt-in=kotlin.RequiresOptIn"
+                "-opt-in=kotlin.RequiresOptIn",
             )
     }
 
@@ -249,6 +253,7 @@ android {
             dependsOn(tasks["ensureJniDirectoryExist"])
             dependsOn(tasks["ensureValidVersionCode"])
         }
+        ndkVersion = "25.2.9519653"
     }
 }
 
@@ -256,6 +261,33 @@ junitPlatform {
     instrumentationTests {
         version.set(Versions.junit5Android)
         includeExtensions.set(true)
+    }
+}
+
+cargo {
+    module = repoRootPath
+    libname = "mullvad-jni"
+    targets = listOf("arm", "arm64", "x86", "x86_64")
+    profile = "debug"
+    prebuiltToolchains = true
+    targetDirectory = "$repoRootPath/target"
+    //features()
+    targetIncludes = listOf("libmullvad_jni.so").toTypedArray()
+    extraCargoBuildArguments = listOf("--package=mullvad-jni")
+}
+
+tasks.register<Exec>("generateRelayList") {
+    workingDir = File(repoRootPath)
+    standardOutput = ByteArrayOutputStream()
+
+    commandLine("cargo", "run", "--bin", "relay_list")
+
+    doLast {
+        val output = standardOutput as ByteArrayOutputStream
+        // Create file if needed
+        File("$extraAssetsDirectory").mkdirs()
+        File("$extraAssetsDirectory/relays.json").createNewFile()
+        FileOutputStream("$extraAssetsDirectory/relays.json").use { it.write(output.toByteArray()) }
     }
 }
 
@@ -286,6 +318,7 @@ tasks.register("ensureRelayListExist") {
             throw GradleException("Missing relay list: $relayListPath")
         }
     }
+    dependsOn("generateRelayList")
 }
 
 tasks.register("ensureMaybenotMachinesExist") {
@@ -298,10 +331,11 @@ tasks.register("ensureMaybenotMachinesExist") {
 
 tasks.register("ensureJniDirectoryExist") {
     doLast {
-        if (!extraJniDirectory.asFile.exists()) {
-            throw GradleException("Missing JNI directory: $extraJniDirectory")
+        if (!rustJniLibs.asFile.exists()) {
+            throw GradleException("Missing JNI directory: $rustJniLibs")
         }
     }
+    dependsOn("cargoBuild")
 }
 
 // This is a safety net to avoid generating too big version codes, since that could potentially be
