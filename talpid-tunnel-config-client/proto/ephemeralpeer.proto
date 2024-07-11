@@ -46,7 +46,7 @@ message EphemeralPeerRequestV1 {
 // The v1 request supports exactly two algorithms.
 // The algorithms can appear soletary or in mixed order:
 // - "Classic-McEliece-460896f", but explicitly identified as "Classic-McEliece-460896f-round3"
-// - "Kyber1024"
+// - "Kyber1024", this is round3 of the Kyber KEM
 message PostQuantumRequestV1 { repeated KemPubkeyV1 kem_pubkeys = 1; }
 
 message KemPubkeyV1 {

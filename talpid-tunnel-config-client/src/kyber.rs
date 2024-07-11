@@ -1,3 +1,6 @@
+//! This module implements the Kyber round3 KEM as specified in:
+//! https://pq-crystals.org/kyber/data/kyber-specification-round3.pdf
+
 use pqc_kyber::KYBER_CIPHERTEXTBYTES;
 pub use pqc_kyber::{keypair, KyberError, SecretKey};
 
