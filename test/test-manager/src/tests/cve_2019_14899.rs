@@ -19,7 +19,7 @@ use pnet_packet::{
     ip::IpNextHeaderProtocols,
     ipv4::{Ipv4Packet, MutableIpv4Packet},
     tcp::{MutableTcpPacket, TcpFlags, TcpPacket},
-    Packet,
+    MutablePacket, Packet,
 };
 use socket2::Socket;
 use test_macro::test_function;
@@ -58,16 +58,16 @@ pub async fn test_cve_2019_14899_mitigation(
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> anyhow::Result<()> {
-    helpers::connect_and_wait(&mut mullvad_client).await?;
-
     // The vulnerability required local network sharing to be enabled
     mullvad_client
         .set_allow_lan(true)
         .await
         .context("Failed to allow local network sharing")?;
 
+    helpers::connect_and_wait(&mut mullvad_client).await?;
+
     let host_interface = TAP_NAME;
-    let victim_tunnel_if = "wg0-mullvad";
+    let victim_tunnel_interface = "wg0-mullvad";
     let gateway_ip = NON_TUN_GATEWAY;
 
     // Create a raw socket which let's us send custom ethernet packets
@@ -86,10 +86,10 @@ pub async fn test_cve_2019_14899_mitigation(
 
     // Get the private IP address of the victims VPN tunnel
     let victim_tunnel_ip = rpc
-        .get_interface_ip(victim_tunnel_if.to_string())
+        .get_interface_ip(victim_tunnel_interface.to_string())
         .await
         .with_context(|| {
-            anyhow!("Failed to get ip of guest tunnel interface {victim_tunnel_if:?}")
+            anyhow!("Failed to get ip of guest tunnel interface {victim_tunnel_interface:?}")
         })?;
 
     let IpAddr::V4(victim_tunnel_ip) = victim_tunnel_ip else {
@@ -134,7 +134,7 @@ pub async fn test_cve_2019_14899_mitigation(
 
     let saw_rst_packet = select! {
         result = spam_packet(&socket, host_interface_index, &malicious_packet).fuse() => return result,
-        result = listen_for_packet(&socket, filter, Duration::from_secs(6000)).fuse() => result?,
+        result = listen_for_packet(&socket, filter, Duration::from_secs(5)).fuse() => result?,
     };
 
     if saw_rst_packet {
@@ -197,7 +197,7 @@ async fn spam_packet(
     }
 }
 
-/// Send an ethernet packet on the socket.
+/// Send an ethernet packet on the raw socket.
 fn send_packet(
     socket: &Socket,
     interface_index: c_uint,
@@ -216,6 +216,8 @@ fn send_packet(
         destination.sll_addr[..6].copy_from_slice(&packet.get_destination().octets());
 
         unsafe {
+            // NOTE: since you're reading this, consider using https://docs.rs/pnet_datalink
+            // instead of whatever you're planning...
             libc::sendto(
                 socket.as_raw_fd(),
                 packet.packet().as_ptr() as *const c_void,
@@ -269,16 +271,14 @@ fn craft_malicious_packet(
     source_ip: Ipv4Addr,
     destination_ip: Ipv4Addr,
 ) -> EthernetPacket<'static> {
-    let mut tcp_packet =
-        MutableTcpPacket::owned(vec![0u8; TCP_LEN]).expect("TCP_LEN bytes is enough");
-    tcp_packet.set_source(MALICIOUS_PACKET_PORT);
-    tcp_packet.set_destination(MALICIOUS_PACKET_PORT);
-    tcp_packet.set_data_offset(5); // 5 is smallest possible value
-    tcp_packet.set_window(0xff);
-    tcp_packet.set_flags(TcpFlags::SYN | TcpFlags::ACK);
+    let mut eth_packet =
+        MutableEthernetPacket::owned(vec![0u8; ETH_LEN]).expect("ETH_LEN bytes is enough");
+    eth_packet.set_destination(destination_mac.into());
+    eth_packet.set_source(source_mac.into());
+    eth_packet.set_ethertype(EtherType::new(ETH_P_IP as u16));
 
     let mut ip4_packet =
-        MutableIpv4Packet::owned(vec![0u8; IP4_LEN]).expect("IP4_LEN bytes is enough");
+        MutableIpv4Packet::new(eth_packet.payload_mut()).expect("IP4_LEN bytes is enough");
     ip4_packet.set_version(4);
     ip4_packet.set_header_length(5);
     ip4_packet.set_total_length(IP4_LEN as u16);
@@ -287,20 +287,20 @@ fn craft_malicious_packet(
     ip4_packet.set_next_level_protocol(IpNextHeaderProtocols::Tcp);
     ip4_packet.set_source(source_ip);
     ip4_packet.set_destination(destination_ip);
-    tcp_packet.set_checksum(pnet_packet::tcp::ipv4_checksum(
-        &tcp_packet.to_immutable(),
-        &ip4_packet.get_source(),
-        &ip4_packet.get_destination(),
-    ));
-    ip4_packet.set_payload(tcp_packet.packet());
     ip4_packet.set_checksum(pnet_packet::ipv4::checksum(&ip4_packet.to_immutable()));
 
-    let mut eth_packet =
-        MutableEthernetPacket::owned(vec![0u8; ETH_LEN]).expect("ETH_LEN bytes is enough");
-    eth_packet.set_destination(destination_mac.into());
-    eth_packet.set_source(source_mac.into());
-    eth_packet.set_ethertype(EtherType::new(ETH_P_IP as u16));
-    eth_packet.set_payload(ip4_packet.packet());
+    let mut tcp_packet =
+        MutableTcpPacket::new(ip4_packet.payload_mut()).expect("TCP_LEN bytes is enough");
+    tcp_packet.set_source(MALICIOUS_PACKET_PORT);
+    tcp_packet.set_destination(MALICIOUS_PACKET_PORT);
+    tcp_packet.set_data_offset(5); // 5 is smallest possible value
+    tcp_packet.set_window(0xff);
+    tcp_packet.set_flags(TcpFlags::SYN | TcpFlags::ACK);
+    tcp_packet.set_checksum(pnet_packet::tcp::ipv4_checksum(
+        &tcp_packet.to_immutable(),
+        &source_ip,
+        &destination_ip,
+    ));
 
     eth_packet.consume_to_immutable()
 }
