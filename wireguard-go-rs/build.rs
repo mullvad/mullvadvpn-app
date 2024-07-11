@@ -273,7 +273,7 @@ fn android_arch_name(target: AndroidTarget) -> String {
 
 // Returns the path where the Android project expects Rust binaries to be
 fn android_output_path(target: AndroidTarget) -> anyhow::Result<PathBuf> {
-    let relative_output_path = Path::new("../android/app/build/extraJni").join(android_abi(target));
+    let relative_output_path = Path::new("../android/app/build/rustJniLibs/android").join(android_abi(target));
     std::fs::create_dir_all(relative_output_path.clone())?;
     let output_path = relative_output_path.canonicalize()?;
     Ok(output_path)
