@@ -12,4 +12,6 @@ object Dependencies {
         "de.mannodermaus.junit5:android-test-extensions:${Versions.junit5Android}"
     const val junit5AndroidTestRunner =
         "de.mannodermaus.junit5:android-test-runner:${Versions.junit5Android}"
+
+    const val rustAndroid = "org.mozilla.rust-android-gradle.rust-android"
 }
