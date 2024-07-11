@@ -185,6 +185,34 @@ async fn listen_for_packet(
     }
 }
 
+fn poll_for_packet<'a>(
+    socket: &Socket,
+    buf: &'a mut [u8],
+) -> anyhow::Result<Option<EthernetPacket<'a>>> {
+    let n = match nix::sys::socket::recv(socket.as_raw_fd(), &mut buf[..], MsgFlags::MSG_DONTWAIT) {
+        Ok(0) | Err(Errno::EWOULDBLOCK) => return Ok(None),
+        Err(e) => return Err(e).context("failed to read from socket"),
+        Ok(n) => n,
+    };
+
+    let packet = &buf[..n];
+    if packet.len() >= ETH_LEN {
+        let eth_packet = EthernetPacket::new(packet).expect("packet is big enough");
+        let Some(ipv4_packet) = Ipv4Packet::new(eth_packet.payload()) else {
+            return Ok(None);
+        };
+
+        let valid_ip_version = ipv4_packet.get_version() == 4;
+        let protocol_is_tcp = ipv4_packet.get_next_level_protocol() == IpNextHeaderProtocols::Tcp;
+
+        if valid_ip_version && protocol_is_tcp {
+            return Ok(Some(eth_packet));
+        }
+    }
+
+    Ok(None)
+}
+
 /// Send `packet` on the socket in a loop.
 async fn spam_packet(
     socket: &Socket,
@@ -235,34 +263,6 @@ fn send_packet(
     }
 
     Ok(())
-}
-
-fn poll_for_packet<'a>(
-    socket: &Socket,
-    buf: &'a mut [u8],
-) -> anyhow::Result<Option<EthernetPacket<'a>>> {
-    let n = match nix::sys::socket::recv(socket.as_raw_fd(), &mut buf[..], MsgFlags::MSG_DONTWAIT) {
-        Ok(0) | Err(Errno::EWOULDBLOCK) => return Ok(None),
-        Err(e) => return Err(e).context("failed to read from socket"),
-        Ok(n) => n,
-    };
-
-    let packet = &buf[..n];
-    if packet.len() >= ETH_LEN {
-        let eth_packet = EthernetPacket::new(packet).expect("packet is big enough");
-        let Some(ipv4_packet) = Ipv4Packet::new(eth_packet.payload()) else {
-            return Ok(None);
-        };
-
-        let valid_ip_version = ipv4_packet.get_version() == 4;
-        let protocol_is_tcp = ipv4_packet.get_next_level_protocol() == IpNextHeaderProtocols::Tcp;
-
-        if valid_ip_version && protocol_is_tcp {
-            return Ok(Some(eth_packet));
-        }
-    }
-
-    Ok(None)
 }
 
 fn craft_malicious_packet(
