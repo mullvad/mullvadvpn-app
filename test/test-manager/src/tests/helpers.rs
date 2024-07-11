@@ -255,7 +255,7 @@ pub async fn resolve_hostname_with_retries(
     }
 }
 
-/// Get the mac address (if any) of a network interface.
+/// Get the mac address (if any) of a network interface (on the test-manager machine).
 pub fn get_interface_mac(interface: &str) -> anyhow::Result<Option<[u8; 6]>> {
     let addrs = nix::ifaddrs::getifaddrs().map_err(|error| {
         log::error!("Failed to obtain interfaces: {}", error);
@@ -284,7 +284,7 @@ pub fn get_interface_mac(interface: &str) -> anyhow::Result<Option<[u8; 6]>> {
     }
 }
 
-/// Get the index of a network interface.
+/// Get the index of a network interface (on the test-manager machine).
 pub fn get_interface_index(interface: &str) -> anyhow::Result<c_uint> {
     let interface = CString::new(interface).context(anyhow!(
         "Failed to turn interface name {interface:?} into cstr"
