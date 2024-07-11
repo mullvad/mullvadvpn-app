@@ -37,8 +37,8 @@ use super::TestContext;
 const MALICIOUS_PACKET_PORT: u16 = 12345;
 
 const TCP_LEN: usize = 20;
-const IP4_LEN: usize = 20 + TCP_LEN;
-const ETH_LEN: usize = 14 + IP4_LEN;
+const IPV4_LEN: usize = 20 + TCP_LEN;
+const ETH_LEN: usize = 14 + IPV4_LEN;
 
 /// Test mitigation for cve-2019-14899.
 ///
@@ -160,11 +160,11 @@ async fn listen_for_packet(
 
             match poll_for_packet(socket, &mut buf)? {
                 Some(eth_packet) => {
-                    let Some(ip4_packet) = Ipv4Packet::new(eth_packet.payload()) else {
+                    let Some(ipv4_packet) = Ipv4Packet::new(eth_packet.payload()) else {
                         continue;
                     };
 
-                    let Some(tcp_packet) = TcpPacket::new(ip4_packet.payload()) else {
+                    let Some(tcp_packet) = TcpPacket::new(ipv4_packet.payload()) else {
                         continue;
                     };
 
@@ -250,12 +250,12 @@ fn poll_for_packet<'a>(
     let packet = &buf[..n];
     if packet.len() >= ETH_LEN {
         let eth_packet = EthernetPacket::new(packet).expect("packet is big enough");
-        let Some(ip4_packet) = Ipv4Packet::new(eth_packet.payload()) else {
+        let Some(ipv4_packet) = Ipv4Packet::new(eth_packet.payload()) else {
             return Ok(None);
         };
 
-        let valid_ip_version = ip4_packet.get_version() == 4;
-        let protocol_is_tcp = ip4_packet.get_next_level_protocol() == IpNextHeaderProtocols::Tcp;
+        let valid_ip_version = ipv4_packet.get_version() == 4;
+        let protocol_is_tcp = ipv4_packet.get_next_level_protocol() == IpNextHeaderProtocols::Tcp;
 
         if valid_ip_version && protocol_is_tcp {
             return Ok(Some(eth_packet));
@@ -277,20 +277,20 @@ fn craft_malicious_packet(
     eth_packet.set_source(source_mac.into());
     eth_packet.set_ethertype(EtherType::new(ETH_P_IP as u16));
 
-    let mut ip4_packet =
-        MutableIpv4Packet::new(eth_packet.payload_mut()).expect("IP4_LEN bytes is enough");
-    ip4_packet.set_version(4);
-    ip4_packet.set_header_length(5);
-    ip4_packet.set_total_length(IP4_LEN as u16);
-    ip4_packet.set_identification(0x77);
-    ip4_packet.set_ttl(0xff);
-    ip4_packet.set_next_level_protocol(IpNextHeaderProtocols::Tcp);
-    ip4_packet.set_source(source_ip);
-    ip4_packet.set_destination(destination_ip);
-    ip4_packet.set_checksum(pnet_packet::ipv4::checksum(&ip4_packet.to_immutable()));
+    let mut ipv4_packet =
+        MutableIpv4Packet::new(eth_packet.payload_mut()).expect("IPV4_LEN bytes is enough");
+    ipv4_packet.set_version(4);
+    ipv4_packet.set_header_length(5);
+    ipv4_packet.set_total_length(IPV4_LEN as u16);
+    ipv4_packet.set_identification(0x77);
+    ipv4_packet.set_ttl(0xff);
+    ipv4_packet.set_next_level_protocol(IpNextHeaderProtocols::Tcp);
+    ipv4_packet.set_source(source_ip);
+    ipv4_packet.set_destination(destination_ip);
+    ipv4_packet.set_checksum(pnet_packet::ipv4::checksum(&ipv4_packet.to_immutable()));
 
     let mut tcp_packet =
-        MutableTcpPacket::new(ip4_packet.payload_mut()).expect("TCP_LEN bytes is enough");
+        MutableTcpPacket::new(ipv4_packet.payload_mut()).expect("TCP_LEN bytes is enough");
     tcp_packet.set_source(MALICIOUS_PACKET_PORT);
     tcp_packet.set_destination(MALICIOUS_PACKET_PORT);
     tcp_packet.set_data_offset(5); // 5 is smallest possible value
