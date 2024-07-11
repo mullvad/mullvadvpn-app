@@ -245,7 +245,7 @@ pub fn get_interface_mac(interface: &str) -> Result<Option<[u8; 6]>, test_rpc::E
 }
 
 #[cfg(not(target_os = "linux"))]
-pub fn get_interface_mac(interface: &str) -> Result<Option<[u8; 6]>, test_rpc::Error> {
+pub fn get_interface_mac(_interface: &str) -> Result<Option<[u8; 6]>, test_rpc::Error> {
     unimplemented!("get_interface_mac")
 }
 

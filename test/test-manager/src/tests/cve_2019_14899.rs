@@ -1,3 +1,5 @@
+#![cfg(target_os = "linux")]
+
 use std::{
     ffi::{c_int, c_uint, c_void},
     mem::size_of,
