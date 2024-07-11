@@ -12,11 +12,4 @@ struct RelaySelection {
     var selected: UserSelectedRelays?
     var excluded: UserSelectedRelays?
     var excludedTitle: String?
-
-    var hasExcludedRelay: Bool {
-        if excluded?.locations.count == 1, case .hostname = excluded?.locations.first {
-            return true
-        }
-        return false
-    }
 }

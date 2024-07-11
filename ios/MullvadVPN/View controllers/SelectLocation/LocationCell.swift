@@ -209,7 +209,6 @@ class LocationCell: UITableViewCell {
 
     private func updateDisabled(_ isDisabled: Bool) {
         locationLabel.alpha = isDisabled ? 0.2 : 1
-        collapseButton.alpha = isDisabled ? 0.2 : 1
 
         if isDisabled {
             accessibilityTraits.insert(.notEnabled)
@@ -339,14 +338,14 @@ extension LocationCell {
             }
         }
 
-        setExcludedRelayTitle(item.excludedRelayTitle)
         setBehavior(behavior)
     }
 
-    private func setExcludedRelayTitle(_ title: String?) {
-        if let title {
-            locationLabel.text! += " (\(title))"
-            updateDisabled(true)
+    func setExcluded(relayTitle: String? = nil) {
+        updateDisabled(true)
+
+        if let relayTitle {
+            locationLabel.text! += " (\(relayTitle))"
         }
     }
 
