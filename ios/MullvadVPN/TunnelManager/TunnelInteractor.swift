@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadREST
 import MullvadSettings
 import PacketTunnelCore
 
@@ -38,5 +39,5 @@ protocol TunnelInteractor {
 
     func startTunnel()
     func prepareForVPNConfigurationDeletion()
-    func selectRelay() throws -> SelectedRelay
+    func selectRelays() throws -> SelectedRelays
 }
