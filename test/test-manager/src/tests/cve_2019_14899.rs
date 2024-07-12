@@ -16,6 +16,7 @@ use nix::{
     errno::Errno,
     sys::socket::{self, MsgFlags, SockProtocol},
 };
+use pnet_base::MacAddr;
 use pnet_packet::{
     ethernet::{EtherType, EthernetPacket, MutableEthernetPacket},
     ip::IpNextHeaderProtocols,
@@ -73,7 +74,7 @@ pub async fn test_cve_2019_14899_mitigation(
     let socket = Socket::new(
         socket2::Domain::PACKET,
         socket2::Type::RAW,
-        Some((SockProtocol::EthAll as c_int).into()),
+        Some(socket2::Protocol::from(SockProtocol::EthAll as c_int)),
     )
     .with_context(|| "Failed to create raw socket")?;
 
@@ -116,8 +117,8 @@ pub async fn test_cve_2019_14899_mitigation(
     ))?;
 
     let malicious_packet = craft_malicious_packet(
-        host_interface_mac,
-        victim_default_interface_mac,
+        MacAddr::from(host_interface_mac),
+        MacAddr::from(victim_default_interface_mac),
         victim_gateway_ip,
         victim_tunnel_ip,
     );
@@ -150,7 +151,7 @@ async fn filter_for_packet(
     filter: impl Fn(&TcpPacket<'_>) -> bool,
     timeout: Duration,
 ) -> anyhow::Result<Option<TcpPacket<'static>>> {
-    let mut buf = vec![0u8; u16::MAX.into()];
+    let mut buf = vec![0u8; usize::from(u16::MAX)];
 
     let wait_for_packet = async {
         loop {
@@ -266,8 +267,8 @@ fn send_packet(
 }
 
 fn craft_malicious_packet(
-    source_mac: [u8; 6],
-    destination_mac: [u8; 6],
+    source_mac: MacAddr,
+    destination_mac: MacAddr,
     source_ip: Ipv4Addr,
     destination_ip: Ipv4Addr,
 ) -> EthernetPacket<'static> {
@@ -278,8 +279,8 @@ fn craft_malicious_packet(
 
     let mut eth_packet =
         MutableEthernetPacket::owned(vec![0u8; ETH_LEN]).expect("ETH_LEN bytes is enough");
-    eth_packet.set_destination(destination_mac.into());
-    eth_packet.set_source(source_mac.into());
+    eth_packet.set_destination(destination_mac);
+    eth_packet.set_source(source_mac);
     eth_packet.set_ethertype(EtherType::new(ETH_P_IP as u16));
 
     let mut ipv4_packet =
