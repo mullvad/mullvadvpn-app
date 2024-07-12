@@ -10,7 +10,6 @@ use std::{
 
 use anyhow::{anyhow, bail, Context};
 use futures::{select, FutureExt};
-use libc::{ETH_ALEN, ETH_P_IP};
 use mullvad_management_interface::MullvadProxyClient;
 use nix::{
     errno::Errno,
@@ -18,7 +17,7 @@ use nix::{
 };
 use pnet_base::MacAddr;
 use pnet_packet::{
-    ethernet::{EtherType, EthernetPacket, MutableEthernetPacket},
+    ethernet::{EtherTypes, EthernetPacket, MutableEthernetPacket},
     ip::IpNextHeaderProtocols,
     ipv4::{Ipv4Packet, MutableIpv4Packet},
     tcp::{MutableTcpPacket, TcpFlags, TcpPacket},
@@ -27,7 +26,7 @@ use pnet_packet::{
 use socket2::Socket;
 use test_macro::test_function;
 use test_rpc::ServiceClient;
-use tokio::{pin, task::yield_now, time::sleep};
+use tokio::{task::yield_now, time::sleep};
 
 use crate::{
     tests::helpers,
@@ -153,19 +152,18 @@ async fn filter_for_packet(
 ) -> anyhow::Result<Option<TcpPacket<'static>>> {
     let mut buf = vec![0u8; usize::from(u16::MAX)];
 
-    let wait_for_packet = async {
+    let result = tokio::time::timeout(timeout, async {
         loop {
             let packet = poll_for_packet(socket, &mut buf).await?;
             if filter(&packet) {
                 return anyhow::Ok(packet);
             }
         }
-    };
-    pin!(wait_for_packet);
+    });
 
-    select! {
-        result = wait_for_packet.fuse() => result.map(Some),
-        _ = sleep(timeout).fuse() => Ok(None),
+    match result.await {
+        Ok(packet) => Ok(Some(packet?)),
+        Err(_timed_out) => Ok(None),
     }
 }
 
@@ -187,7 +185,7 @@ async fn poll_for_packet(socket: &Socket, buf: &mut [u8]) -> anyhow::Result<TcpP
                 sleep(Duration::from_millis(10)).await;
                 continue;
             }
-            Err(e) => return Err(e).context("failed to read from socket"),
+            Err(e) => return Err(e).context("Failed to read from socket"),
             Ok(n) => n,
         };
 
@@ -196,6 +194,10 @@ async fn poll_for_packet(socket: &Socket, buf: &mut [u8]) -> anyhow::Result<TcpP
         let Some(eth_packet) = EthernetPacket::new(packet) else {
             continue;
         };
+
+        if eth_packet.get_ethertype() != EtherTypes::Ipv4 {
+            continue;
+        }
 
         let Some(ipv4_packet) = Ipv4Packet::new(eth_packet.payload()) else {
             continue;
@@ -239,11 +241,10 @@ fn send_packet(
             sll_ifindex: interface_index as c_int,
             sll_hatype: 0,
             sll_pkttype: 0,
-            sll_halen: ETH_ALEN as u8,
+            sll_halen: size_of::<MacAddr>() as u8,
             sll_addr: [0; 8],
         };
         destination.sll_addr[..6].copy_from_slice(&packet.get_destination().octets());
-
         unsafe {
             // NOTE: since you're reading this, consider using https://docs.rs/pnet_datalink
             // instead of whatever you're planning...
@@ -281,7 +282,7 @@ fn craft_malicious_packet(
         MutableEthernetPacket::owned(vec![0u8; ETH_LEN]).expect("ETH_LEN bytes is enough");
     eth_packet.set_destination(destination_mac);
     eth_packet.set_source(source_mac);
-    eth_packet.set_ethertype(EtherType::new(ETH_P_IP as u16));
+    eth_packet.set_ethertype(EtherTypes::Ipv4);
 
     let mut ipv4_packet =
         MutableIpv4Packet::new(eth_packet.payload_mut()).expect("IPV4_LEN bytes is enough");
