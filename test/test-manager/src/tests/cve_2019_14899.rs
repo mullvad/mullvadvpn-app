@@ -14,7 +14,7 @@ use libc::{ETH_ALEN, ETH_P_IP};
 use mullvad_management_interface::MullvadProxyClient;
 use nix::{
     errno::Errno,
-    sys::socket::{MsgFlags, SockProtocol},
+    sys::socket::{self, MsgFlags, SockProtocol},
 };
 use pnet_packet::{
     ethernet::{EtherType, EthernetPacket, MutableEthernetPacket},
@@ -130,79 +130,87 @@ pub async fn test_cve_2019_14899_mitigation(
         reset_flag_set && correct_source_port && correct_destination_port
     };
 
-    let saw_rst_packet = select! {
+    let rst_packet = select! {
         result = spam_packet(&socket, host_interface_index, &malicious_packet).fuse() => return result,
-        result = listen_for_packet(&socket, filter, Duration::from_secs(5)).fuse() => result?,
+        result = filter_for_packet(&socket, filter, Duration::from_secs(5)).fuse() => result?,
     };
 
-    if saw_rst_packet {
+    if let Some(rst_packet) = rst_packet {
+        log::warn!("Victim responded with an RST packet: {rst_packet:?}");
         bail!("Managed to leak private tunnel IP");
     }
 
     Ok(())
 }
 
-/// Read from the socket and return true if we see a packet that passes the filter.
-/// Returns false if we don't see such a packet within the timeout.
-async fn listen_for_packet(
+/// Read from the socket and return the first packet that passes the filter.
+/// Returns `None` if we don't see such a packet within the timeout.
+async fn filter_for_packet(
     socket: &Socket,
     filter: impl Fn(&TcpPacket<'_>) -> bool,
     timeout: Duration,
-) -> anyhow::Result<bool> {
+) -> anyhow::Result<Option<TcpPacket<'static>>> {
     let mut buf = vec![0u8; u16::MAX.into()];
 
     let wait_for_packet = async {
         loop {
-            // yield so we don't end up hogging the runtime while polling the socket
-            yield_now().await;
-
-            match poll_for_packet(socket, &mut buf)? {
-                Some(tcp_packet) if filter(&tcp_packet) => break,
-                Some(_other_packet) => continue,
-                None => sleep(Duration::from_millis(10)).await,
+            let packet = poll_for_packet(socket, &mut buf).await?;
+            if filter(&packet) {
+                return anyhow::Ok(packet);
             }
         }
-        anyhow::Ok(())
     };
     pin!(wait_for_packet);
 
     select! {
-        result = wait_for_packet.fuse() => result.map(|_| true),
-        _ = sleep(timeout).fuse() => Ok(false),
+        result = wait_for_packet.fuse() => result.map(Some),
+        _ = sleep(timeout).fuse() => Ok(None),
     }
 }
 
-/// Read once from the raw socket and try to parse response as an Ethernet/IPv4/TCP packet.
+/// Repeatedly poll the raw socket until we receives an Ethernet/IPv4/TCP packet.
+/// Drops any non-TCP packets.
 ///
 /// # Returns
 /// - `Err` if the `read` system call failed.
-/// - `Ok(None)` if no packets have come in, or if the read packet is not valid TCP.
 /// - A single TCP packet otherwise.
-fn poll_for_packet(socket: &Socket, buf: &mut [u8]) -> anyhow::Result<Option<TcpPacket<'static>>> {
-    let n = match nix::sys::socket::recv(socket.as_raw_fd(), &mut buf[..], MsgFlags::MSG_DONTWAIT) {
-        Ok(0) | Err(Errno::EWOULDBLOCK) => return Ok(None),
-        Err(e) => return Err(e).context("failed to read from socket"),
-        Ok(n) => n,
-    };
+async fn poll_for_packet(socket: &Socket, buf: &mut [u8]) -> anyhow::Result<TcpPacket<'static>> {
+    loop {
+        // yield so we don't end up hogging the runtime while polling the socket
+        yield_now().await;
 
-    let packet = &buf[..n];
+        let result = socket::recv(socket.as_raw_fd(), &mut buf[..], MsgFlags::MSG_DONTWAIT);
 
-    let Some(eth_packet) = EthernetPacket::new(packet) else {
-        return Ok(None);
-    };
+        let n = match result {
+            Ok(0) | Err(Errno::EWOULDBLOCK) => {
+                sleep(Duration::from_millis(10)).await;
+                continue;
+            }
+            Err(e) => return Err(e).context("failed to read from socket"),
+            Ok(n) => n,
+        };
 
-    let Some(ipv4_packet) = Ipv4Packet::new(eth_packet.payload()) else {
-        return Ok(None);
-    };
+        let packet = &buf[..n];
 
-    let valid_ip_version = ipv4_packet.get_version() == 4;
-    let protocol_is_tcp = ipv4_packet.get_next_level_protocol() == IpNextHeaderProtocols::Tcp;
+        let Some(eth_packet) = EthernetPacket::new(packet) else {
+            continue;
+        };
 
-    if !valid_ip_version || !protocol_is_tcp {
-        return Ok(None);
+        let Some(ipv4_packet) = Ipv4Packet::new(eth_packet.payload()) else {
+            continue;
+        };
+
+        let valid_ip_version = ipv4_packet.get_version() == 4;
+        let protocol_is_tcp = ipv4_packet.get_next_level_protocol() == IpNextHeaderProtocols::Tcp;
+
+        if !valid_ip_version || !protocol_is_tcp {
+            continue;
+        }
+
+        if let Some(tcp_packet) = TcpPacket::owned(ipv4_packet.payload().to_vec()) {
+            return Ok(tcp_packet);
+        };
     }
-
-    Ok(TcpPacket::owned(ipv4_packet.payload().to_vec()))
 }
 
 /// Send `packet` on the socket in a loop.
