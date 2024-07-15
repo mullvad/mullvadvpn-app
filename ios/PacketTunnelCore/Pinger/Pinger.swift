@@ -9,6 +9,8 @@
 import Foundation
 import Network
 
+// This is the legacy Pinger using native TCP/IP networking.
+
 /// ICMP client.
 public final class Pinger: PingerProtocol {
     // Socket read buffer size.
@@ -22,6 +24,7 @@ public final class Pinger: PingerProtocol {
     private var readBuffer = [UInt8](repeating: 0, count: bufferSize)
     private let stateLock = NSRecursiveLock()
     private let replyQueue: DispatchQueue
+    private var destAddress: IPv4Address?
 
     public var onReply: ((PingerReply) -> Void)? {
         get {
@@ -49,11 +52,13 @@ public final class Pinger: PingerProtocol {
 
     /// Open socket and optionally bind it to the given interface.
     /// Automatically closes the previously opened socket when called multiple times in a row.
-    public func openSocket(bindTo interfaceName: String?) throws {
+    public func openSocket(bindTo interfaceName: String?, destAddress: IPv4Address) throws {
         stateLock.lock()
         defer { stateLock.unlock() }
 
         closeSocket()
+
+        self.destAddress = destAddress
 
         var context = CFSocketContext()
         context.info = Unmanaged.passUnretained(self).toOpaque()
@@ -109,7 +114,7 @@ public final class Pinger: PingerProtocol {
 
     /// Send ping packet to the given address.
     /// Returns `PingerSendResult` on success, otherwise throws a `Pinger.Error`.
-    public func send(to address: IPv4Address) throws -> PingerSendResult {
+    public func send() throws -> PingerSendResult {
         stateLock.lock()
         defer { stateLock.unlock() }
 
@@ -117,10 +122,14 @@ public final class Pinger: PingerProtocol {
             throw Error.closedSocket
         }
 
+        guard let destAddress else {
+            throw Error.parseIPAddress
+        }
+
         var sa = sockaddr_in()
         sa.sin_len = UInt8(MemoryLayout.size(ofValue: sa))
         sa.sin_family = sa_family_t(AF_INET)
-        sa.sin_addr = address.rawValue.withUnsafeBytes { buffer in
+        sa.sin_addr = destAddress.rawValue.withUnsafeBytes { buffer in
             buffer.bindMemory(to: in_addr.self).baseAddress!.pointee
         }
 
@@ -149,7 +158,7 @@ public final class Pinger: PingerProtocol {
             throw Error.sendPacket(errno)
         }
 
-        return PingerSendResult(sequenceNumber: sequenceNumber, bytesSent: UInt(bytesSent))
+        return PingerSendResult(sequenceNumber: sequenceNumber)
     }
 
     private func nextSequenceNumber() -> UInt16 {

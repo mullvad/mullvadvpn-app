@@ -37,6 +37,14 @@ extension WireGuardAdapterError: LocalizedError {
             return "Failure to start WireGuard backend (error code: \(code))."
         case .noInterfaceIp:
             return "Interface has no IP address specified."
+        case .noSuchTunnel:
+            return "No such WireGuard tunnel"
+        case .noTunnelVirtualInterface:
+            return "Tunnel has no virtual (IAN) interface"
+        case .icmpSocketNotOpen:
+            return "ICMP socket not open"
+        case let .internalError(code):
+            return "Internal error \(code)"
         }
     }
 }

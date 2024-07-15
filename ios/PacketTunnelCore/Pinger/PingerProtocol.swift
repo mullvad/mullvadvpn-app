@@ -23,15 +23,16 @@ public struct PingerSendResult {
     /// Sequence id.
     public var sequenceNumber: UInt16
 
-    /// How many bytes were sent.
-    public var bytesSent: UInt
+    public init(sequenceNumber: UInt16) {
+        self.sequenceNumber = sequenceNumber
+    }
 }
 
 /// A type capable of sending and receving ICMP traffic.
 public protocol PingerProtocol {
     var onReply: ((PingerReply) -> Void)? { get set }
 
-    func openSocket(bindTo interfaceName: String?) throws
+    func openSocket(bindTo interfaceName: String?, destAddress: IPv4Address) throws
     func closeSocket()
-    func send(to address: IPv4Address) throws -> PingerSendResult
+    func send() throws -> PingerSendResult
 }
