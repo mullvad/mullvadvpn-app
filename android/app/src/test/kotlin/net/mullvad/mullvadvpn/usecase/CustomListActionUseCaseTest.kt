@@ -175,7 +175,13 @@ class CustomListActionUseCaseTest {
         val customList = CustomList(id = customListId, name = name, locations = oldLocations)
         val action = CustomListAction.UpdateLocations(id = customListId, locations = newLocations)
         val expectedResult =
-            LocationsChanged(name = name, undo = action.not(locations = oldLocations)).right()
+            LocationsChanged(
+                    id = customListId,
+                    name = name,
+                    locations = newLocations,
+                    oldLocations = oldLocations,
+                )
+                .right()
         coEvery { mockCustomListsRepository.getCustomListById(customListId) } returns
             customList.right()
 
