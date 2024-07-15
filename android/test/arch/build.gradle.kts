@@ -32,6 +32,7 @@ dependencies {
     testRuntimeOnly(Dependencies.junitEngine)
 
     testImplementation(Dependencies.Compose.uiToolingAndroidPreview)
+    testImplementation(Dependencies.Compose.destinations)
     testImplementation(Dependencies.AndroidX.appcompat)
     testImplementation(Dependencies.junitApi)
     testImplementation(Dependencies.konsist)
