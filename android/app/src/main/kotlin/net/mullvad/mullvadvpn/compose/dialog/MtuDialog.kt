@@ -38,14 +38,14 @@ import org.koin.androidx.compose.koinViewModel
 @Preview
 @Composable
 private fun PreviewMtuDialog() {
-    AppTheme { MtuDialog(EmptyResultBackNavigator()) }
+    AppTheme { Mtu(EmptyResultBackNavigator()) }
 }
 
 data class MtuNavArgs(val initialMtu: Mtu? = null)
 
 @Destination<RootGraph>(style = DestinationStyle.Dialog::class, navArgs = MtuNavArgs::class)
 @Composable
-fun MtuDialog(navigator: ResultBackNavigator<Boolean>) {
+fun Mtu(navigator: ResultBackNavigator<Boolean>) {
     val viewModel = koinViewModel<MtuDialogViewModel>()
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()

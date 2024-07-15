@@ -32,7 +32,7 @@ import com.ramcosta.composedestinations.generated.destinations.ConnectDestinatio
 import com.ramcosta.composedestinations.generated.destinations.PaymentDestination
 import com.ramcosta.composedestinations.generated.destinations.RedeemVoucherDestination
 import com.ramcosta.composedestinations.generated.destinations.SettingsDestination
-import com.ramcosta.composedestinations.generated.destinations.VerificationPendingDialogDestination
+import com.ramcosta.composedestinations.generated.destinations.VerificationPendingDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
@@ -159,7 +159,7 @@ fun OutOfTime(
         onPurchaseBillingProductClick =
             dropUnlessResumed { productId -> navigator.navigate(PaymentDestination(productId)) },
         navigateToVerificationPendingDialog =
-            dropUnlessResumed { navigator.navigate(VerificationPendingDialogDestination) }
+            dropUnlessResumed { navigator.navigate(VerificationPendingDestination) }
     )
 }
 

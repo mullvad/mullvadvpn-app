@@ -30,7 +30,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
-import com.ramcosta.composedestinations.generated.destinations.ReportProblemNoEmailDialogDestination
+import com.ramcosta.composedestinations.generated.destinations.ReportProblemNoEmailDestination
 import com.ramcosta.composedestinations.generated.destinations.ViewLogsDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.NavResult
@@ -99,7 +99,7 @@ private fun PreviewReportProblemErrorScreen() {
 @Composable
 fun ReportProblem(
     navigator: DestinationsNavigator,
-    noEmailConfirmResultRecipent: ResultRecipient<ReportProblemNoEmailDialogDestination, Boolean>
+    noEmailConfirmResultRecipent: ResultRecipient<ReportProblemNoEmailDestination, Boolean>
 ) {
     val vm = koinViewModel<ReportProblemViewModel>()
     val state by vm.uiState.collectAsStateWithLifecycle()
@@ -107,7 +107,7 @@ fun ReportProblem(
     LaunchedEffectCollect(vm.uiSideEffect) {
         when (it) {
             is ReportProblemSideEffect.ShowConfirmNoEmail ->
-                navigator.navigate(ReportProblemNoEmailDialogDestination)
+                navigator.navigate(ReportProblemNoEmailDestination)
         }
     }
 

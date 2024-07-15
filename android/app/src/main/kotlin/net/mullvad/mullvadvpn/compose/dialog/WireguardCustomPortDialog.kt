@@ -39,7 +39,7 @@ import net.mullvad.mullvadvpn.util.inAnyOf
 @Composable
 private fun PreviewWireguardCustomPortDialog() {
     AppTheme {
-        WireguardCustomPortDialog(
+        WireguardCustomPort(
             WireguardCustomPortNavArgs(
                 customPort = null,
                 allowedPortRanges = listOf(PortRange(10..10), PortRange(40..50)),
@@ -57,7 +57,7 @@ data class WireguardCustomPortNavArgs(
 
 @Destination<RootGraph>(style = DestinationStyle.Dialog::class)
 @Composable
-fun WireguardCustomPortDialog(
+fun WireguardCustomPort(
     navArg: WireguardCustomPortNavArgs,
     backNavigator: ResultBackNavigator<Port?>,
 ) {

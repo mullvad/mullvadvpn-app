@@ -37,12 +37,12 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 private fun PreviewRemoveDeviceConfirmationDialog(
     @PreviewParameter(DevicePreviewParameterProvider::class) device: Device
 ) {
-    AppTheme { RemoveDeviceConfirmationDialog(EmptyResultBackNavigator(), device = device) }
+    AppTheme { RemoveDeviceConfirmation(EmptyResultBackNavigator(), device = device) }
 }
 
 @Destination<RootGraph>(style = DestinationStyle.Dialog::class)
 @Composable
-fun RemoveDeviceConfirmationDialog(navigator: ResultBackNavigator<DeviceId>, device: Device) {
+fun RemoveDeviceConfirmation(navigator: ResultBackNavigator<DeviceId>, device: Device) {
     AlertDialog(
         onDismissRequest = dropUnlessResumed { navigator.navigateBack() },
         icon = {

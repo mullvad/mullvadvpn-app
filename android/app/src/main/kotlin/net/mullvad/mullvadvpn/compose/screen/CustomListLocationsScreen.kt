@@ -29,7 +29,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
-import com.ramcosta.composedestinations.generated.destinations.DiscardChangesDialogDestination
+import com.ramcosta.composedestinations.generated.destinations.DiscardChangesDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultBackNavigator
@@ -80,7 +80,7 @@ data class CustomListLocationsNavArgs(
 fun CustomListLocations(
     navigator: DestinationsNavigator,
     backNavigator: ResultBackNavigator<LocationsChanged>,
-    discardChangesResultRecipient: ResultRecipient<DiscardChangesDialogDestination, Boolean>,
+    discardChangesResultRecipient: ResultRecipient<DiscardChangesDestination, Boolean>,
 ) {
     val customListsViewModel = koinViewModel<CustomListLocationsViewModel>()
 
@@ -122,7 +122,7 @@ fun CustomListLocations(
         onBackClick =
             dropUnlessResumed {
                 if (state.hasUnsavedChanges) {
-                    navigator.navigate(DiscardChangesDialogDestination)
+                    navigator.navigate(DiscardChangesDestination)
                 } else {
                     backNavigator.navigateBack()
                 }

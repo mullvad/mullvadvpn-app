@@ -15,12 +15,12 @@ import net.mullvad.mullvadvpn.compose.component.textResource
 @Preview
 @Composable
 private fun PreviewLocalNetworkSharingInfoDialog() {
-    LocalNetworkSharingInfoDialog(EmptyDestinationsNavigator)
+    LocalNetworkSharingInfo(EmptyDestinationsNavigator)
 }
 
 @Destination<RootGraph>(style = DestinationStyle.Dialog::class)
 @Composable
-fun LocalNetworkSharingInfoDialog(navigator: DestinationsNavigator) {
+fun LocalNetworkSharingInfo(navigator: DestinationsNavigator) {
     InfoDialog(
         message = stringResource(id = R.string.local_network_sharing_info),
         additionalInfo =

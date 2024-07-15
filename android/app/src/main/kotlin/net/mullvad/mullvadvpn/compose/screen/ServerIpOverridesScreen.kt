@@ -45,7 +45,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.ImportOverridesByTextDestination
 import com.ramcosta.composedestinations.generated.destinations.ResetServerIpOverridesConfirmationDestination
-import com.ramcosta.composedestinations.generated.destinations.ServerIpOverridesInfoDialogDestination
+import com.ramcosta.composedestinations.generated.destinations.ServerIpOverridesInfoDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.launch
@@ -146,8 +146,7 @@ fun ServerIpOverrides(
     ServerIpOverridesScreen(
         state,
         onBackClick = dropUnlessResumed { navigator.navigateUp() },
-        onInfoClick =
-            dropUnlessResumed { navigator.navigate(ServerIpOverridesInfoDialogDestination) },
+        onInfoClick = dropUnlessResumed { navigator.navigate(ServerIpOverridesInfoDestination) },
         onResetOverridesClick =
             dropUnlessResumed { navigator.navigate(ResetServerIpOverridesConfirmationDestination) },
         onImportByFile = dropUnlessResumed { openFileLauncher.launch("application/json") },

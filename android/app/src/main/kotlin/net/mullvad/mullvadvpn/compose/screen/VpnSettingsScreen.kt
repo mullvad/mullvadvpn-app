@@ -35,18 +35,18 @@ import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.AutoConnectAndLockdownModeDestination
-import com.ramcosta.composedestinations.generated.destinations.ContentBlockersInfoDialogDestination
-import com.ramcosta.composedestinations.generated.destinations.CustomDnsInfoDialogDestination
-import com.ramcosta.composedestinations.generated.destinations.DnsDialogDestination
-import com.ramcosta.composedestinations.generated.destinations.LocalNetworkSharingInfoDialogDestination
-import com.ramcosta.composedestinations.generated.destinations.MalwareInfoDialogDestination
-import com.ramcosta.composedestinations.generated.destinations.MtuDialogDestination
-import com.ramcosta.composedestinations.generated.destinations.ObfuscationInfoDialogDestination
-import com.ramcosta.composedestinations.generated.destinations.QuantumResistanceInfoDialogDestination
+import com.ramcosta.composedestinations.generated.destinations.ContentBlockersInfoDestination
+import com.ramcosta.composedestinations.generated.destinations.CustomDnsInfoDestination
+import com.ramcosta.composedestinations.generated.destinations.DnsDestination
+import com.ramcosta.composedestinations.generated.destinations.LocalNetworkSharingInfoDestination
+import com.ramcosta.composedestinations.generated.destinations.MalwareInfoDestination
+import com.ramcosta.composedestinations.generated.destinations.MtuDestination
+import com.ramcosta.composedestinations.generated.destinations.ObfuscationInfoDestination
+import com.ramcosta.composedestinations.generated.destinations.QuantumResistanceInfoDestination
 import com.ramcosta.composedestinations.generated.destinations.ServerIpOverridesDestination
-import com.ramcosta.composedestinations.generated.destinations.UdpOverTcpPortInfoDialogDestination
-import com.ramcosta.composedestinations.generated.destinations.WireguardCustomPortDialogDestination
-import com.ramcosta.composedestinations.generated.destinations.WireguardPortInfoDialogDestination
+import com.ramcosta.composedestinations.generated.destinations.UdpOverTcpPortInfoDestination
+import com.ramcosta.composedestinations.generated.destinations.WireguardCustomPortDestination
+import com.ramcosta.composedestinations.generated.destinations.WireguardPortInfoDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.launch
@@ -145,9 +145,9 @@ private fun PreviewVpnSettings() {
 @Suppress("LongMethod")
 fun VpnSettings(
     navigator: DestinationsNavigator,
-    dnsDialogResult: ResultRecipient<DnsDialogDestination, DnsDialogResult>,
-    customWgPortResult: ResultRecipient<WireguardCustomPortDialogDestination, Port?>,
-    mtuDialogResult: ResultRecipient<MtuDialogDestination, Boolean>,
+    dnsDialogResult: ResultRecipient<DnsDestination, DnsDialogResult>,
+    customWgPortResult: ResultRecipient<WireguardCustomPortDestination, Port?>,
+    mtuDialogResult: ResultRecipient<MtuDestination, Boolean>,
 ) {
     val vm = koinViewModel<VpnSettingsViewModel>()
     val state by vm.uiState.collectAsStateWithLifecycle()
@@ -184,7 +184,7 @@ fun VpnSettings(
             is VpnSettingsSideEffect.ShowToast ->
                 launch { snackbarHostState.showSnackbarImmediately(message = it.message(context)) }
             VpnSettingsSideEffect.NavigateToDnsDialog ->
-                navigator.navigate(DnsDialogDestination(null, null)) { launchSingleTop = true }
+                navigator.navigate(DnsDestination(null, null)) { launchSingleTop = true }
         }
     }
 
@@ -203,29 +203,28 @@ fun VpnSettings(
         state = state,
         snackbarHostState = snackbarHostState,
         navigateToContentBlockersInfo =
-            dropUnlessResumed { navigator.navigate(ContentBlockersInfoDialogDestination) },
+            dropUnlessResumed { navigator.navigate(ContentBlockersInfoDestination) },
         navigateToAutoConnectScreen =
             dropUnlessResumed { navigator.navigate(AutoConnectAndLockdownModeDestination) },
         navigateToCustomDnsInfo =
-            dropUnlessResumed { navigator.navigate(CustomDnsInfoDialogDestination) },
-        navigateToMalwareInfo =
-            dropUnlessResumed { navigator.navigate(MalwareInfoDialogDestination) },
+            dropUnlessResumed { navigator.navigate(CustomDnsInfoDestination) },
+        navigateToMalwareInfo = dropUnlessResumed { navigator.navigate(MalwareInfoDestination) },
         navigateToObfuscationInfo =
-            dropUnlessResumed { navigator.navigate(ObfuscationInfoDialogDestination) },
+            dropUnlessResumed { navigator.navigate(ObfuscationInfoDestination) },
         navigateToQuantumResistanceInfo =
-            dropUnlessResumed { navigator.navigate(QuantumResistanceInfoDialogDestination) },
+            dropUnlessResumed { navigator.navigate(QuantumResistanceInfoDestination) },
         navigateUdp2TcpInfo =
-            dropUnlessResumed { navigator.navigate(UdpOverTcpPortInfoDialogDestination) },
+            dropUnlessResumed { navigator.navigate(UdpOverTcpPortInfoDestination) },
         navigateToWireguardPortInfo =
             dropUnlessResumed { availablePortRanges: List<PortRange> ->
                 navigator.navigate(
-                    WireguardPortInfoDialogDestination(
+                    WireguardPortInfoDestination(
                         WireguardPortInfoDialogArgument(availablePortRanges)
                     ),
                 )
             },
         navigateToLocalNetworkSharingInfo =
-            dropUnlessResumed { navigator.navigate(LocalNetworkSharingInfoDialogDestination) },
+            dropUnlessResumed { navigator.navigate(LocalNetworkSharingInfoDestination) },
         navigateToServerIpOverrides =
             dropUnlessResumed { navigator.navigate(ServerIpOverridesDestination) },
         onToggleBlockTrackers = vm::onToggleBlockTrackers,
@@ -237,10 +236,10 @@ fun VpnSettings(
         onToggleBlockGambling = vm::onToggleBlockGambling,
         onToggleBlockSocialMedia = vm::onToggleBlockSocialMedia,
         navigateToMtuDialog =
-            dropUnlessResumed { mtu: Mtu? -> navigator.navigate(MtuDialogDestination(mtu)) },
+            dropUnlessResumed { mtu: Mtu? -> navigator.navigate(MtuDestination(mtu)) },
         navigateToDns =
             dropUnlessResumed { index: Int?, address: String? ->
-                navigator.navigate(DnsDialogDestination(index, address))
+                navigator.navigate(DnsDestination(index, address))
             },
         navigateToWireguardPortDialog =
             dropUnlessResumed {
@@ -249,7 +248,7 @@ fun VpnSettings(
                         state.customWireguardPort?.toPortOrNull(),
                         state.availablePortRanges
                     )
-                navigator.navigate(WireguardCustomPortDialogDestination(args))
+                navigator.navigate(WireguardCustomPortDestination(args))
             },
         onToggleDnsClick = vm::onToggleCustomDns,
         onBackClick = dropUnlessResumed { navigator.navigateUp() },

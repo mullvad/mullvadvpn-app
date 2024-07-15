@@ -22,7 +22,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.ApiAccessMethodDetailsDestination
-import com.ramcosta.composedestinations.generated.destinations.ApiAccessMethodInfoDialogDestination
+import com.ramcosta.composedestinations.generated.destinations.ApiAccessMethodInfoDestination
 import com.ramcosta.composedestinations.generated.destinations.EditApiAccessMethodDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import net.mullvad.mullvadvpn.R
@@ -67,7 +67,7 @@ fun ApiAccessList(navigator: DestinationsNavigator) {
             navigator.navigate(ApiAccessMethodDetailsDestination(it.id)) { launchSingleTop = true }
         },
         onApiAccessInfoClick = {
-            navigator.navigate(ApiAccessMethodInfoDialogDestination) { launchSingleTop = true }
+            navigator.navigate(ApiAccessMethodInfoDestination) { launchSingleTop = true }
         },
         onBackClick = navigator::navigateUp
     )

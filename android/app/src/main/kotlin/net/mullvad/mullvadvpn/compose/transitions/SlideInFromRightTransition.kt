@@ -9,7 +9,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.navigation.NavBackStackEntry
-import com.ramcosta.composedestinations.generated.destinations.NoDaemonScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.NoDaemonDestination
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import com.ramcosta.composedestinations.utils.destination
 import net.mullvad.mullvadvpn.constant.SCREEN_ANIMATION_TIME_MILLIS
@@ -26,7 +26,7 @@ object SlideInFromRightTransition : DestinationStyle.Animated() {
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition =
         {
             when (targetState.destination()) {
-                NoDaemonScreenDestination -> fadeOut(snap(SCREEN_ANIMATION_TIME_MILLIS))
+                NoDaemonDestination -> fadeOut(snap(SCREEN_ANIMATION_TIME_MILLIS))
                 else -> slideOutHorizontally(targetOffsetX = { -it.withHorizontalScalingFactor() })
             }
         }
@@ -35,7 +35,7 @@ object SlideInFromRightTransition : DestinationStyle.Animated() {
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition =
         {
             when (initialState.destination()) {
-                NoDaemonScreenDestination -> fadeIn(snap(0))
+                NoDaemonDestination -> fadeIn(snap(0))
                 else -> slideInHorizontally(initialOffsetX = { -it.withHorizontalScalingFactor() })
             }
         }

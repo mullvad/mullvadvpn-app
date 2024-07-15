@@ -33,11 +33,11 @@ import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.NavGraphs
 import com.ramcosta.composedestinations.generated.destinations.AccountDestination
 import com.ramcosta.composedestinations.generated.destinations.ConnectDestination
-import com.ramcosta.composedestinations.generated.destinations.DeviceNameInfoDialogDestination
+import com.ramcosta.composedestinations.generated.destinations.DeviceNameInfoDestination
 import com.ramcosta.composedestinations.generated.destinations.PaymentDestination
 import com.ramcosta.composedestinations.generated.destinations.RedeemVoucherDestination
 import com.ramcosta.composedestinations.generated.destinations.SettingsDestination
-import com.ramcosta.composedestinations.generated.destinations.VerificationPendingDialogDestination
+import com.ramcosta.composedestinations.generated.destinations.VerificationPendingDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
@@ -151,12 +151,12 @@ fun Welcome(
         onSettingsClick = dropUnlessResumed { navigator.navigate(SettingsDestination) },
         onAccountClick = dropUnlessResumed { navigator.navigate(AccountDestination) },
         navigateToDeviceInfoDialog =
-            dropUnlessResumed { navigator.navigate(DeviceNameInfoDialogDestination) },
+            dropUnlessResumed { navigator.navigate(DeviceNameInfoDestination) },
         onPurchaseBillingProductClick =
             dropUnlessResumed { productId -> navigator.navigate(PaymentDestination(productId)) },
         onDisconnectClick = vm::onDisconnectClick,
         navigateToVerificationPendingDialog =
-            dropUnlessResumed { navigator.navigate(VerificationPendingDialogDestination) }
+            dropUnlessResumed { navigator.navigate(VerificationPendingDestination) }
     )
 }
 

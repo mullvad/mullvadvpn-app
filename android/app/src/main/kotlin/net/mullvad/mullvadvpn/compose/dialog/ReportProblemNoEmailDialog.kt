@@ -27,12 +27,12 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 @Preview
 @Composable
 private fun PreviewReportProblemNoEmailDialog() {
-    AppTheme { ReportProblemNoEmailDialog(EmptyResultBackNavigator()) }
+    AppTheme { ReportProblemNoEmail(EmptyResultBackNavigator()) }
 }
 
 @Destination<RootGraph>(style = DestinationStyle.Dialog::class)
 @Composable
-fun ReportProblemNoEmailDialog(resultBackNavigator: ResultBackNavigator<Boolean>) {
+fun ReportProblemNoEmail(resultBackNavigator: ResultBackNavigator<Boolean>) {
     AlertDialog(
         onDismissRequest = dropUnlessResumed { resultBackNavigator.navigateBack() },
         icon = {
