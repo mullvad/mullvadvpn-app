@@ -97,6 +97,10 @@ struct WgAdapter: TunnelAdapterProtocol {
         let isUsingSameIP = (hasIPv4SameAddress || hasIPv6SameAddress) ? "" : "NOT "
         logger.debug("Same IP is \(isUsingSameIP)being used")
     }
+
+    public var icmpPingProvider: ICMPPingProvider {
+        adapter
+    }
 }
 
 extension WgAdapter: TunnelDeviceInfoProtocol {
