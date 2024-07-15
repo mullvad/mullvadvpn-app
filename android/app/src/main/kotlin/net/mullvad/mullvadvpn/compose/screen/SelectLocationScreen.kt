@@ -23,15 +23,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SheetState
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -49,12 +46,16 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.bottomsheet.spec.DestinationStyleBottomSheet
 import com.ramcosta.composedestinations.generated.destinations.CreateCustomListDestination
+import com.ramcosta.composedestinations.generated.destinations.CustomListEntryBottomSheetDestination
 import com.ramcosta.composedestinations.generated.destinations.CustomListLocationsDestination
-import com.ramcosta.composedestinations.generated.destinations.CustomListsDestination
+import com.ramcosta.composedestinations.generated.destinations.CustomListsBottomSheetDestination
 import com.ramcosta.composedestinations.generated.destinations.DeleteCustomListDestination
+import com.ramcosta.composedestinations.generated.destinations.EditCustomListBottomSheetDestination
 import com.ramcosta.composedestinations.generated.destinations.EditCustomListNameDestination
 import com.ramcosta.composedestinations.generated.destinations.FilterScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.LocationBottomSheetDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultBackNavigator
@@ -91,6 +92,7 @@ import net.mullvad.mullvadvpn.compose.transitions.SelectLocationTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.RunOnKeyChange
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
+import net.mullvad.mullvadvpn.lib.model.CustomList
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
@@ -116,16 +118,10 @@ private fun PreviewSelectLocationScreen() {
             countries =
                 listOf(
                     RelayItem.Location.Country(
-                        GeoLocationId.Country("Country 1"),
-                        "Code 1",
-                        false,
-                        emptyList()
-                    )
-                ),
+                        GeoLocationId.Country("Country 1"), "Code 1", false, emptyList())),
             selectedItem = null,
             customLists = emptyList(),
-            filteredCustomLists = emptyList()
-        )
+            filteredCustomLists = emptyList())
     AppTheme {
         SelectLocationScreen(
             state = state,
@@ -158,43 +154,30 @@ fun SelectLocation(
             is SelectLocationSideEffect.LocationAddedToCustomList ->
                 launch {
                     snackbarHostState.showResultSnackbar(
-                        context = context,
-                        result = it.result,
-                        onUndo = vm::performAction
-                    )
+                        context = context, result = it.result, onUndo = vm::performAction)
                 }
             is SelectLocationSideEffect.LocationRemovedFromCustomList ->
                 launch {
                     snackbarHostState.showResultSnackbar(
-                        context = context,
-                        result = it.result,
-                        onUndo = vm::performAction
-                    )
+                        context = context, result = it.result, onUndo = vm::performAction)
                 }
             SelectLocationSideEffect.GenericError ->
                 launch {
                     snackbarHostState.showSnackbarImmediately(
                         message = context.getString(R.string.error_occurred),
-                        duration = SnackbarDuration.Short
-                    )
+                        duration = SnackbarDuration.Short)
                 }
         }
     }
 
     createCustomListDialogResultRecipient.OnCustomListNavResult(
-        snackbarHostState,
-        vm::performAction
-    )
+        snackbarHostState, vm::performAction)
 
     editCustomListNameDialogResultRecipient.OnCustomListNavResult(
-        snackbarHostState,
-        vm::performAction
-    )
+        snackbarHostState, vm::performAction)
 
     deleteCustomListDialogResultRecipient.OnCustomListNavResult(
-        snackbarHostState,
-        vm::performAction
-    )
+        snackbarHostState, vm::performAction)
 
     updateCustomListResultRecipient.OnCustomListNavResult(snackbarHostState, vm::performAction)
 
@@ -205,41 +188,22 @@ fun SelectLocation(
         onSearchTermInput = vm::onSearchTermInput,
         onBackClick = dropUnlessResumed { backNavigator.navigateBack() },
         onFilterClick = dropUnlessResumed { navigator.navigate(FilterScreenDestination) },
-        onCreateCustomList =
-            dropUnlessResumed { relayItem ->
-                navigator.navigate(
-                    CreateCustomListDestination(locationCode = relayItem?.id),
-                )
-            },
-        onEditCustomLists = dropUnlessResumed { navigator.navigate(CustomListsDestination()) },
         removeOwnershipFilter = vm::removeOwnerFilter,
         removeProviderFilter = vm::removeProviderFilter,
-        onAddLocationToList = vm::addLocationToList,
-        onRemoveLocationFromList = vm::removeLocationFromList,
-        onEditCustomListName =
-            dropUnlessResumed { customList: RelayItem.CustomList ->
-                navigator.navigate(
-                    EditCustomListNameDestination(
-                        customListId = customList.id,
-                        initialName = customList.customListName
-                    ),
-                )
+        showCustomListBottomSheet =
+            dropUnlessResumed { navigator.navigate(CustomListsBottomSheetDestination(true)) },
+        showLocationBottomSheet =
+            dropUnlessResumed { location ->
+                navigator.navigate(LocationBottomSheetDestination(location))
             },
-        onEditLocationsCustomList =
-            dropUnlessResumed { customList: RelayItem.CustomList ->
-                navigator.navigate(
-                    CustomListLocationsDestination(customListId = customList.id, newList = false),
-                )
+        showEditCustomListBottomSheet =
+            dropUnlessResumed<CustomListId> {
+                navigator.navigate(EditCustomListBottomSheetDestination(it))
             },
-        onDeleteCustomList =
-            dropUnlessResumed { customList: RelayItem.CustomList ->
-                navigator.navigate(
-                    DeleteCustomListDestination(
-                        customListId = customList.id,
-                        name = customList.customListName
-                    ),
-                )
-            }
+        showEditCustomListEntryBottomSheet =
+            dropUnlessResumed { customList: CustomListId, location: GeoLocationId ->
+                navigator.navigate(CustomListEntryBottomSheetDestination(customList, location))
+            },
     )
 }
 
@@ -253,20 +217,12 @@ fun SelectLocationScreen(
     onSearchTermInput: (searchTerm: String) -> Unit = {},
     onBackClick: () -> Unit = {},
     onFilterClick: () -> Unit = {},
-    onCreateCustomList: (location: RelayItem.Location?) -> Unit = {},
-    onEditCustomLists: () -> Unit = {},
     removeOwnershipFilter: () -> Unit = {},
     removeProviderFilter: () -> Unit = {},
-    onAddLocationToList: (location: RelayItem.Location, customList: RelayItem.CustomList) -> Unit =
-        { _, _ ->
-        },
-    onRemoveLocationFromList:
-        (location: RelayItem.Location, customList: RelayItem.CustomList) -> Unit =
-        { _, _ ->
-        },
-    onEditCustomListName: (RelayItem.CustomList) -> Unit = {},
-    onEditLocationsCustomList: (RelayItem.CustomList) -> Unit = {},
-    onDeleteCustomList: (RelayItem.CustomList) -> Unit = {}
+    showCustomListBottomSheet: () -> Unit = {},
+    showEditCustomListBottomSheet: (CustomListId) -> Unit = {},
+    showEditCustomListEntryBottomSheet: (CustomListId, GeoLocationId) -> Unit = { _, _ -> },
+    showLocationBottomSheet: (GeoLocationId) -> Unit = { _ -> },
 ) {
     val backgroundColor = MaterialTheme.colorScheme.background
 
@@ -274,133 +230,108 @@ fun SelectLocationScreen(
         snackbarHost = {
             SnackbarHost(
                 snackbarHostState,
-                snackbar = { snackbarData -> MullvadSnackbar(snackbarData = snackbarData) }
-            )
-        }
-    ) {
-        var bottomSheetState by remember { mutableStateOf<BottomSheetState?>(null) }
-        BottomSheets(
-            bottomSheetState = bottomSheetState,
-            onCreateCustomList = onCreateCustomList,
-            onEditCustomLists = onEditCustomLists,
-            onAddLocationToList = onAddLocationToList,
-            onRemoveLocationFromList = onRemoveLocationFromList,
-            onEditCustomListName = onEditCustomListName,
-            onEditLocationsCustomList = onEditLocationsCustomList,
-            onDeleteCustomList = onDeleteCustomList,
-            onHideBottomSheet = { bottomSheetState = null }
-        )
+                snackbar = { snackbarData -> MullvadSnackbar(snackbarData = snackbarData) })
+        }) {
+            Column(modifier = Modifier.padding(it).background(backgroundColor).fillMaxSize()) {
+                SelectLocationTopBar(onBackClick = onBackClick, onFilterClick = onFilterClick)
 
-        Column(modifier = Modifier.padding(it).background(backgroundColor).fillMaxSize()) {
-            SelectLocationTopBar(onBackClick = onBackClick, onFilterClick = onFilterClick)
-
-            when (state) {
-                SelectLocationUiState.Loading -> {}
-                is SelectLocationUiState.Content -> {
-                    if (state.hasFilter) {
-                        FilterCell(
-                            ownershipFilter = state.selectedOwnership,
-                            selectedProviderFilter = state.selectedProvidersCount,
-                            removeOwnershipFilter = removeOwnershipFilter,
-                            removeProviderFilter = removeProviderFilter,
-                        )
-                    }
-                }
-            }
-
-            SearchTextField(
-                modifier =
-                    Modifier.fillMaxWidth()
-                        .height(Dimens.searchFieldHeight)
-                        .padding(horizontal = Dimens.searchFieldHorizontalPadding),
-                backgroundColor = MaterialTheme.colorScheme.tertiaryContainer,
-                textColor = MaterialTheme.colorScheme.onTertiaryContainer,
-            ) { searchString ->
-                onSearchTermInput.invoke(searchString)
-            }
-            Spacer(modifier = Modifier.height(height = Dimens.verticalSpace))
-            val lazyListState = rememberLazyListState()
-            val selectedItemCode = (state as? SelectLocationUiState.Content)?.selectedItem ?: ""
-            RunOnKeyChange(key = selectedItemCode) {
-                val index = state.indexOfSelectedRelayItem()
-
-                if (index >= 0) {
-                    lazyListState.scrollToItem(index)
-                    lazyListState.animateScrollAndCentralizeItem(index)
-                }
-            }
-            LazyColumn(
-                modifier =
-                    Modifier.fillMaxSize()
-                        .drawVerticalScrollbar(
-                            lazyListState,
-                            MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaScrollbar),
-                        ),
-                state = lazyListState,
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
                 when (state) {
-                    SelectLocationUiState.Loading -> {
-                        loading()
-                    }
+                    SelectLocationUiState.Loading -> {}
                     is SelectLocationUiState.Content -> {
-                        if (state.showCustomLists) {
-                            customLists(
-                                customLists = state.filteredCustomLists,
-                                selectedItem = state.selectedItem,
-                                backgroundColor = backgroundColor,
-                                onSelectRelay = onSelectRelay,
-                                onShowCustomListBottomSheet = {
-                                    bottomSheetState =
-                                        BottomSheetState.ShowCustomListsBottomSheet(
-                                            state.customLists.isNotEmpty()
-                                        )
-                                },
-                                onShowEditBottomSheet = { customList ->
-                                    bottomSheetState =
-                                        BottomSheetState.ShowEditCustomListBottomSheet(customList)
-                                },
-                                onShowEditCustomListEntryBottomSheet = {
-                                    item: RelayItem.Location,
-                                    customList: RelayItem.CustomList ->
-                                    bottomSheetState =
-                                        BottomSheetState.ShowCustomListsEntryBottomSheet(
-                                            customList,
-                                            item,
-                                        )
-                                }
+                        if (state.hasFilter) {
+                            FilterCell(
+                                ownershipFilter = state.selectedOwnership,
+                                selectedProviderFilter = state.selectedProvidersCount,
+                                removeOwnershipFilter = removeOwnershipFilter,
+                                removeProviderFilter = removeProviderFilter,
                             )
-                            item {
-                                Spacer(
-                                    modifier =
-                                        Modifier.height(Dimens.mediumPadding)
-                                            .animateItemPlacement()
-                                            .animateContentSize()
-                                )
+                        }
+                    }
+                }
+
+                SearchTextField(
+                    modifier =
+                        Modifier.fillMaxWidth()
+                            .height(Dimens.searchFieldHeight)
+                            .padding(horizontal = Dimens.searchFieldHorizontalPadding),
+                    backgroundColor = MaterialTheme.colorScheme.tertiaryContainer,
+                    textColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                ) { searchString ->
+                    onSearchTermInput.invoke(searchString)
+                }
+                Spacer(modifier = Modifier.height(height = Dimens.verticalSpace))
+                val lazyListState = rememberLazyListState()
+                val selectedItemCode = (state as? SelectLocationUiState.Content)?.selectedItem ?: ""
+                RunOnKeyChange(key = selectedItemCode) {
+                    val index = state.indexOfSelectedRelayItem()
+
+                    if (index >= 0) {
+                        lazyListState.scrollToItem(index)
+                        lazyListState.animateScrollAndCentralizeItem(index)
+                    }
+                }
+                LazyColumn(
+                    modifier =
+                        Modifier.fillMaxSize()
+                            .drawVerticalScrollbar(
+                                lazyListState,
+                                MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaScrollbar),
+                            ),
+                    state = lazyListState,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    when (state) {
+                        SelectLocationUiState.Loading -> {
+                            loading()
+                        }
+                        is SelectLocationUiState.Content -> {
+                            if (state.showCustomLists) {
+                                customLists(
+                                    customLists = state.filteredCustomLists,
+                                    selectedItem = state.selectedItem,
+                                    backgroundColor = backgroundColor,
+                                    onSelectRelay = onSelectRelay,
+                                    onShowCustomListBottomSheet = {
+                                        showCustomListBottomSheet()
+                                        //                                        bottomSheetState =
+                                        //
+                                        // BottomSheetState.ShowCustomListsBottomSheet(
+                                        //
+                                        // state.customLists.isNotEmpty())
+                                    },
+                                    onShowEditBottomSheet = { customList ->
+                                        showEditCustomListBottomSheet(customList)
+                                    },
+                                    onShowEditCustomListEntryBottomSheet = {
+                                        item: RelayItem.Location,
+                                        customList: RelayItem.CustomList ->
+                                        showEditCustomListEntryBottomSheet(customList.id, item.id)
+                                    })
+                                item {
+                                    Spacer(
+                                        modifier =
+                                            Modifier.height(Dimens.mediumPadding)
+                                                .animateItemPlacement()
+                                                .animateContentSize())
+                                }
+                            }
+                            if (state.countries.isNotEmpty()) {
+                                relayList(
+                                    countries = state.countries,
+                                    selectedItem = state.selectedItem,
+                                    onSelectRelay = onSelectRelay,
+                                    onShowLocationBottomSheet = { location ->
+                                        showLocationBottomSheet(location.id)
+                                    })
+                            }
+                            if (state.showEmpty) {
+                                item { LocationsEmptyText(searchTerm = state.searchTerm) }
                             }
                         }
-                        if (state.countries.isNotEmpty()) {
-                            relayList(
-                                countries = state.countries,
-                                selectedItem = state.selectedItem,
-                                onSelectRelay = onSelectRelay,
-                                onShowLocationBottomSheet = { location ->
-                                    bottomSheetState =
-                                        BottomSheetState.ShowLocationBottomSheet(
-                                            customLists = state.customLists,
-                                            item = location
-                                        )
-                                }
-                            )
-                        }
-                        if (state.showEmpty) {
-                            item { LocationsEmptyText(searchTerm = state.searchTerm) }
-                        }
                     }
                 }
             }
         }
-    }
 }
 
 @Composable
@@ -444,7 +375,7 @@ private fun LazyListScope.customLists(
     backgroundColor: Color,
     onSelectRelay: (item: RelayItem) -> Unit,
     onShowCustomListBottomSheet: () -> Unit,
-    onShowEditBottomSheet: (RelayItem.CustomList) -> Unit,
+    onShowEditBottomSheet: (CustomListId) -> Unit,
     onShowEditCustomListEntryBottomSheet: (item: RelayItem.Location, RelayItem.CustomList) -> Unit
 ) {
     item(
@@ -456,8 +387,7 @@ private fun LazyListScope.customLists(
             modifier =
                 Modifier.testTag(SELECT_LOCATION_CUSTOM_LIST_HEADER_TEST_TAG)
                     .animateItemPlacement()
-                    .animateContentSize()
-        )
+                    .animateContentSize())
     }
     if (customLists.isNotEmpty()) {
         items(
@@ -472,7 +402,7 @@ private fun LazyListScope.customLists(
                 onSelectRelay = onSelectRelay,
                 onLongClick = {
                     if (it is RelayItem.CustomList) {
-                        onShowEditBottomSheet(it)
+                        onShowEditBottomSheet(it.id)
                     } else if (it is RelayItem.Location && it in customList.locations) {
                         onShowEditCustomListEntryBottomSheet(it, customList)
                     }
@@ -484,16 +414,18 @@ private fun LazyListScope.customLists(
             SwitchComposeSubtitleCell(
                 text = stringResource(R.string.to_add_locations_to_a_list),
                 modifier =
-                    Modifier.background(backgroundColor).animateItemPlacement().animateContentSize()
-            )
+                    Modifier.background(backgroundColor)
+                        .animateItemPlacement()
+                        .animateContentSize())
         }
     } else {
         item(contentType = ContentType.EMPTY_TEXT) {
             SwitchComposeSubtitleCell(
                 text = stringResource(R.string.to_create_a_custom_list),
                 modifier =
-                    Modifier.background(backgroundColor).animateItemPlacement().animateContentSize()
-            )
+                    Modifier.background(backgroundColor)
+                        .animateItemPlacement()
+                        .animateContentSize())
         }
     }
 }
@@ -510,8 +442,7 @@ private fun LazyListScope.relayList(
     ) {
         HeaderCell(
             text = stringResource(R.string.all_locations),
-            modifier = Modifier.animateItemPlacement().animateContentSize()
-        )
+            modifier = Modifier.animateItemPlacement().animateContentSize())
     }
     items(
         items = countries,
@@ -525,85 +456,6 @@ private fun LazyListScope.relayList(
             onLongClick = { onShowLocationBottomSheet(it as RelayItem.Location) },
             modifier = Modifier.animateContentSize().animateItemPlacement(),
         )
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun BottomSheets(
-    bottomSheetState: BottomSheetState?,
-    onCreateCustomList: (RelayItem.Location?) -> Unit,
-    onEditCustomLists: () -> Unit,
-    onAddLocationToList: (RelayItem.Location, RelayItem.CustomList) -> Unit,
-    onRemoveLocationFromList: (RelayItem.Location, RelayItem.CustomList) -> Unit,
-    onEditCustomListName: (RelayItem.CustomList) -> Unit,
-    onEditLocationsCustomList: (RelayItem.CustomList) -> Unit,
-    onDeleteCustomList: (RelayItem.CustomList) -> Unit,
-    onHideBottomSheet: () -> Unit
-) {
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    val scope = rememberCoroutineScope()
-    val onCloseBottomSheet: (animate: Boolean) -> Unit = { animate ->
-        if (animate) {
-            scope
-                .launch { sheetState.hide() }
-                .invokeOnCompletion {
-                    if (!sheetState.isVisible) {
-                        onHideBottomSheet()
-                    }
-                }
-        } else {
-            onHideBottomSheet()
-        }
-    }
-    val onBackgroundColor: Color = MaterialTheme.colorScheme.onSurface
-
-    when (bottomSheetState) {
-        is BottomSheetState.ShowCustomListsBottomSheet -> {
-            CustomListsBottomSheet(
-                sheetState = sheetState,
-                onBackgroundColor = onBackgroundColor,
-                bottomSheetState = bottomSheetState,
-                onCreateCustomList = { onCreateCustomList(null) },
-                onEditCustomLists = onEditCustomLists,
-                closeBottomSheet = onCloseBottomSheet
-            )
-        }
-        is BottomSheetState.ShowLocationBottomSheet -> {
-            LocationBottomSheet(
-                sheetState = sheetState,
-                onBackgroundColor = onBackgroundColor,
-                customLists = bottomSheetState.customLists,
-                item = bottomSheetState.item,
-                onCreateCustomList = onCreateCustomList,
-                onAddLocationToList = onAddLocationToList,
-                closeBottomSheet = onCloseBottomSheet
-            )
-        }
-        is BottomSheetState.ShowEditCustomListBottomSheet -> {
-            EditCustomListBottomSheet(
-                sheetState = sheetState,
-                onBackgroundColor = onBackgroundColor,
-                customList = bottomSheetState.customList,
-                onEditName = onEditCustomListName,
-                onEditLocations = onEditLocationsCustomList,
-                onDeleteCustomList = onDeleteCustomList,
-                closeBottomSheet = onCloseBottomSheet
-            )
-        }
-        is BottomSheetState.ShowCustomListsEntryBottomSheet -> {
-            CustomListEntryBottomSheet(
-                sheetState = sheetState,
-                onBackgroundColor = onBackgroundColor,
-                customList = bottomSheetState.customList,
-                item = bottomSheetState.item,
-                onRemoveLocationFromList = onRemoveLocationFromList,
-                closeBottomSheet = onCloseBottomSheet
-            )
-        }
-        null -> {
-            /* Do nothing */
-        }
     }
 }
 
@@ -623,198 +475,158 @@ private fun SelectLocationUiState.indexOfSelectedRelayItem(): Int =
     }
 
 @OptIn(ExperimentalMaterial3Api::class)
+@Destination<RootGraph>(style = DestinationStyleBottomSheet::class)
 @Composable
-private fun CustomListsBottomSheet(
-    onBackgroundColor: Color,
-    sheetState: SheetState,
-    bottomSheetState: BottomSheetState.ShowCustomListsBottomSheet,
-    onCreateCustomList: () -> Unit,
-    onEditCustomLists: () -> Unit,
-    closeBottomSheet: (animate: Boolean) -> Unit
-) {
+fun CustomListsBottomSheet(navigator: DestinationsNavigator, editListEnabled: Boolean) {
     MullvadModalBottomSheet(
-        sheetState = sheetState,
-        onDismissRequest = { closeBottomSheet(false) },
-        modifier = Modifier.testTag(SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG)
-    ) {
-        HeaderCell(
-            text = stringResource(id = R.string.edit_custom_lists),
-            background = Color.Unspecified
-        )
-        HorizontalDivider(color = onBackgroundColor)
-        IconCell(
-            iconId = R.drawable.icon_add,
-            title = stringResource(id = R.string.new_list),
-            titleColor = onBackgroundColor,
-            onClick = {
-                onCreateCustomList()
-                closeBottomSheet(true)
-            },
-            background = Color.Unspecified
-        )
-        IconCell(
-            iconId = R.drawable.icon_edit,
-            title = stringResource(id = R.string.edit_lists),
-            titleColor =
-                onBackgroundColor.copy(
-                    alpha =
-                        if (bottomSheetState.editListEnabled) {
-                            AlphaVisible
-                        } else {
-                            AlphaInactive
-                        }
-                ),
-            onClick = {
-                onEditCustomLists()
-                closeBottomSheet(true)
-            },
-            background = Color.Unspecified,
-            enabled = bottomSheetState.editListEnabled
-        )
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun LocationBottomSheet(
-    onBackgroundColor: Color,
-    sheetState: SheetState,
-    customLists: List<RelayItem.CustomList>,
-    item: RelayItem.Location,
-    onCreateCustomList: (relayItem: RelayItem.Location) -> Unit,
-    onAddLocationToList: (location: RelayItem.Location, customList: RelayItem.CustomList) -> Unit,
-    closeBottomSheet: (animate: Boolean) -> Unit
-) {
-    MullvadModalBottomSheet(
-        sheetState = sheetState,
-        onDismissRequest = { closeBottomSheet(false) },
-        modifier = Modifier.testTag(SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG)
-    ) { ->
-        HeaderCell(
-            text = stringResource(id = R.string.add_location_to_list, item.name),
-            background = Color.Unspecified
-        )
-        HorizontalDivider(color = onBackgroundColor)
-        customLists.forEach {
-            val enabled = it.canAddLocation(item)
+        onDismissRequest = { navigator.navigateUp() },
+        modifier = Modifier.testTag(SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG)) {
+            HeaderCell(
+                text = stringResource(id = R.string.edit_custom_lists),
+                background = Color.Unspecified)
+            HorizontalDivider(color = MaterialTheme.colorScheme.onBackground)
             IconCell(
-                iconId = null,
-                title =
-                    if (enabled) {
-                        it.name
-                    } else {
-                        stringResource(id = R.string.location_added, it.name)
-                    },
+                iconId = R.drawable.icon_add,
+                title = stringResource(id = R.string.new_list),
+                titleColor = MaterialTheme.colorScheme.onBackground,
+                onClick = { navigator.navigateUp() },
+                background = Color.Unspecified)
+            IconCell(
+                iconId = R.drawable.icon_edit,
+                title = stringResource(id = R.string.edit_lists),
                 titleColor =
-                    if (enabled) {
-                        onBackgroundColor
-                    } else {
-                        MaterialTheme.colorScheme.onSecondary
-                    },
-                onClick = {
-                    onAddLocationToList(item, it)
-                    closeBottomSheet(true)
-                },
+                    MaterialTheme.colorScheme.onBackground.copy(
+                        alpha =
+                            if (editListEnabled) {
+                                AlphaVisible
+                            } else {
+                                AlphaInactive
+                            }),
+                onClick = { navigator.navigateUp() },
                 background = Color.Unspecified,
-                enabled = enabled
-            )
+                enabled = editListEnabled)
         }
-        IconCell(
-            iconId = R.drawable.icon_add,
-            title = stringResource(id = R.string.new_list),
-            titleColor = onBackgroundColor,
-            onClick = {
-                onCreateCustomList(item)
-                closeBottomSheet(true)
-            },
-            background = Color.Unspecified
-        )
-    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
+@Destination<RootGraph>(style = DestinationStyleBottomSheet::class)
 @Composable
-private fun EditCustomListBottomSheet(
-    onBackgroundColor: Color,
-    sheetState: SheetState,
-    customList: RelayItem.CustomList,
-    onEditName: (item: RelayItem.CustomList) -> Unit,
-    onEditLocations: (item: RelayItem.CustomList) -> Unit,
-    onDeleteCustomList: (item: RelayItem.CustomList) -> Unit,
-    closeBottomSheet: (animate: Boolean) -> Unit
+fun LocationBottomSheet(
+    navigator: DestinationsNavigator,
+    item: GeoLocationId,
 ) {
+    val name = "location name"
+    val customLists = emptyList<RelayItem.CustomList>()
     MullvadModalBottomSheet(
-        sheetState = sheetState,
-        onDismissRequest = { closeBottomSheet(false) }
-    ) {
-        HeaderCell(text = customList.name, background = Color.Unspecified)
+        onDismissRequest = dropUnlessResumed { navigator.navigateUp() },
+        modifier = Modifier.testTag(SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG)) { ->
+            HeaderCell(
+                text = stringResource(id = R.string.add_location_to_list, name),
+                background = Color.Unspecified)
+            HorizontalDivider(color = MaterialTheme.colorScheme.onBackground)
+            customLists.forEach {
+                val enabled = false//TODO FIX! it.canAddLocation(item)
+                IconCell(
+                    iconId = null,
+                    title =
+                        if (enabled) {
+                            it.name
+                        } else {
+                            stringResource(id = R.string.location_added, it.name)
+                        },
+                    titleColor =
+                        if (enabled) {
+                            MaterialTheme.colorScheme.onBackground
+                        } else {
+                            MaterialTheme.colorScheme.onSecondary
+                        },
+                    onClick = {
+                        //                        onAddLocationToList(item, it)
+                        //                        closeBottomSheet(true)
+                    },
+                    background = Color.Unspecified,
+                    enabled = enabled)
+            }
+            IconCell(
+                iconId = R.drawable.icon_add,
+                title = stringResource(id = R.string.new_list),
+                titleColor = MaterialTheme.colorScheme.onBackground,
+                onClick = {
+                    //                    onCreateCustomList(item)
+                    //                    closeBottomSheet(true)
+                },
+                background = Color.Unspecified)
+        }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Destination<RootGraph>(style = DestinationStyleBottomSheet::class)
+@Composable
+fun EditCustomListBottomSheet(
+    navigator: DestinationsNavigator,
+    customList: CustomListId,
+) {
+    val name = ""
+    MullvadModalBottomSheet(onDismissRequest = dropUnlessResumed { navigator.navigateUp() }) {
+        HeaderCell(text = name, background = Color.Unspecified)
         IconCell(
             iconId = R.drawable.icon_edit,
             title = stringResource(id = R.string.edit_name),
-            titleColor = onBackgroundColor,
+            titleColor = MaterialTheme.colorScheme.onBackground,
             onClick = {
-                onEditName(customList)
-                closeBottomSheet(true)
+                //                onEditName(customList)
+                //                closeBottomSheet(true)
             },
-            background = Color.Unspecified
-        )
+            background = Color.Unspecified)
         IconCell(
             iconId = R.drawable.icon_add,
             title = stringResource(id = R.string.edit_locations),
-            titleColor = onBackgroundColor,
+            titleColor = MaterialTheme.colorScheme.onBackground,
             onClick = {
-                onEditLocations(customList)
-                closeBottomSheet(true)
+                //                onEditLocations(customList)
+                //                closeBottomSheet(true)
             },
-            background = Color.Unspecified
-        )
-        HorizontalDivider(color = onBackgroundColor)
+            background = Color.Unspecified)
+        HorizontalDivider(color = MaterialTheme.colorScheme.onBackground)
         IconCell(
             iconId = R.drawable.icon_delete,
             title = stringResource(id = R.string.delete),
-            titleColor = onBackgroundColor,
+            titleColor = MaterialTheme.colorScheme.onBackground,
             onClick = {
-                onDeleteCustomList(customList)
-                closeBottomSheet(true)
+                //                onDeleteCustomList(customList)
+                //                closeBottomSheet(true)
             },
-            background = Color.Unspecified
-        )
+            background = Color.Unspecified)
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
+@Destination<RootGraph>(style = DestinationStyleBottomSheet::class)
 @Composable
-private fun CustomListEntryBottomSheet(
-    onBackgroundColor: Color,
-    sheetState: SheetState,
-    customList: RelayItem.CustomList,
-    item: RelayItem.Location,
-    onRemoveLocationFromList:
-        (location: RelayItem.Location, customList: RelayItem.CustomList) -> Unit,
-    closeBottomSheet: (animate: Boolean) -> Unit
+fun CustomListEntryBottomSheet(
+    navigator: DestinationsNavigator,
+    customListId: CustomListId,
+    location: GeoLocationId,
 ) {
+    val name = "derp"
     MullvadModalBottomSheet(
-        sheetState = sheetState,
-        onDismissRequest = { closeBottomSheet(false) },
-        modifier = Modifier.testTag(SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG)
-    ) {
-        HeaderCell(
-            text = stringResource(id = R.string.remove_location_from_list, item.name),
-            background = Color.Unspecified
-        )
-        HorizontalDivider(color = onBackgroundColor)
+        onDismissRequest = dropUnlessResumed { navigator.navigateUp() },
+        modifier = Modifier.testTag(SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG)) {
+            HeaderCell(
+                text = stringResource(id = R.string.remove_location_from_list, name),
+                background = Color.Unspecified)
+            HorizontalDivider(color = MaterialTheme.colorScheme.onBackground)
 
-        IconCell(
-            iconId = R.drawable.ic_remove,
-            title = stringResource(id = R.string.remove_button),
-            titleColor = onBackgroundColor,
-            onClick = {
-                onRemoveLocationFromList(item, customList)
-                closeBottomSheet(true)
-            },
-            background = Color.Unspecified
-        )
-    }
+            IconCell(
+                iconId = R.drawable.ic_remove,
+                title = stringResource(id = R.string.remove_button),
+                titleColor = MaterialTheme.colorScheme.onBackground,
+                onClick = {
+                    //                    onRemoveLocationFromList(item, customList)
+                    //                    closeBottomSheet(true)
+                },
+                background = Color.Unspecified)
+        }
 }
 
 private suspend fun LazyListState.animateScrollAndCentralizeItem(index: Int) {
@@ -837,8 +649,7 @@ private suspend fun SnackbarHostState.showResultSnackbar(
         message = result.message(context),
         actionLabel = context.getString(R.string.undo),
         duration = SnackbarDuration.Long,
-        onAction = { onUndo(result.undo) }
-    )
+        onAction = { onUndo(result.undo) })
 }
 
 private fun CustomListSuccess.message(context: Context): String =
@@ -869,10 +680,7 @@ private fun <D : DestinationSpec, R : CustomListSuccess> ResultRecipient<D, R>
                 // Handle result
                 scope.launch {
                     snackbarHostState.showResultSnackbar(
-                        context = context,
-                        result = result.value,
-                        onUndo = performAction
-                    )
+                        context = context, result = result.value, onUndo = performAction)
                 }
             }
         }

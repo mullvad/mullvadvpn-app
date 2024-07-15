@@ -2,6 +2,8 @@ package net.mullvad.mullvadvpn.compose.screen
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.navigation.ModalBottomSheetLayout
+import androidx.compose.material.navigation.rememberBottomSheetNavigator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -36,6 +38,9 @@ fun MullvadApp() {
     val engine = rememberNavHostEngine()
     val navController: NavHostController = engine.rememberNavController()
 
+    val bottomSheetNavigator = rememberBottomSheetNavigator()
+    navController.navigatorProvider.addNavigator(bottomSheetNavigator)
+
     val serviceVm = koinViewModel<NoDaemonViewModel>()
     val permissionVm = koinViewModel<VpnPermissionViewModel>()
 
@@ -44,12 +49,14 @@ fun MullvadApp() {
         onDispose { navController.removeOnDestinationChangedListener(serviceVm) }
     }
 
-    DestinationsNavHost(
-        modifier = Modifier.semantics { testTagsAsResourceId = true }.fillMaxSize(),
-        engine = engine,
-        navController = navController,
-        navGraph = NavGraphs.root,
-    )
+    ModalBottomSheetLayout(bottomSheetNavigator = bottomSheetNavigator) {
+        DestinationsNavHost(
+            modifier = Modifier.semantics { testTagsAsResourceId = true }.fillMaxSize(),
+            engine = engine,
+            navController = navController,
+            navGraph = NavGraphs.root,
+        )
+    }
 
     // Globally handle daemon dropped connection with NoDaemonScreen
     LaunchedEffectCollect(serviceVm.uiSideEffect) {
