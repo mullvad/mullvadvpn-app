@@ -55,3 +55,25 @@ fun <T, T2> LifecycleOwner.runOnAtLeast(
         }
     }
 }
+
+@Composable
+fun <T, T2, T3> dropUnlessResumed(block: (T, T2, T3) -> Unit): (T, T2, T3) -> Unit {
+    val lifecycleOwner = LocalLifecycleOwner.current
+    return dropUnlessResumed(lifecycleOwner, block)
+}
+
+fun <T, T2, T3> dropUnlessResumed(
+    lifecycleOwner: LifecycleOwner,
+    block: (T, T2, T3) -> Unit
+): (T, T2, T3) -> Unit = lifecycleOwner.runOnAtLeast(Lifecycle.State.RESUMED, block)
+
+fun <T, T2, T3> LifecycleOwner.runOnAtLeast(
+    expectedState: Lifecycle.State,
+    block: (T, T2, T3) -> Unit
+): (T, T2, T3) -> Unit {
+    return { t, t2, t3 ->
+        if (lifecycle.currentState.isAtLeast(expectedState)) {
+            block(t, t2, t3)
+        }
+    }
+}

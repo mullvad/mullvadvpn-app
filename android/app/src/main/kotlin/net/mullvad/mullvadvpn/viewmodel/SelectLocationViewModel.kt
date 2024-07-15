@@ -18,7 +18,6 @@ import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.Provider
 import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.RelayItem
-import net.mullvad.mullvadvpn.relaylist.descendants
 import net.mullvad.mullvadvpn.relaylist.filterOnOwnershipAndProvider
 import net.mullvad.mullvadvpn.relaylist.filterOnSearchTerm
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
@@ -131,35 +130,8 @@ class SelectLocationViewModel(
         viewModelScope.launch { relayListFilterRepository.updateSelectedProviders(Constraint.Any) }
     }
 
-    fun addLocationToList(item: RelayItem.Location, customList: RelayItem.CustomList) {
-        viewModelScope.launch {
-            val newLocations =
-                (customList.locations + item).filter { it !in item.descendants() }.map { it.id }
-            customListActionUseCase(CustomListAction.UpdateLocations(customList.id, newLocations))
-                .fold(
-                    { _uiSideEffect.send(SelectLocationSideEffect.GenericError) },
-                    { _uiSideEffect.send(SelectLocationSideEffect.LocationAddedToCustomList(it)) },
-                )
-        }
-    }
-
     fun performAction(action: CustomListAction) {
         viewModelScope.launch { customListActionUseCase(action) }
-    }
-
-    fun removeLocationFromList(item: RelayItem.Location, customList: RelayItem.CustomList) {
-        viewModelScope.launch {
-            val newLocations = (customList.locations - item).map { it.id }
-            customListActionUseCase(CustomListAction.UpdateLocations(customList.id, newLocations))
-                .fold(
-                    { _uiSideEffect.send(SelectLocationSideEffect.GenericError) },
-                    {
-                        _uiSideEffect.send(
-                            SelectLocationSideEffect.LocationRemovedFromCustomList(it)
-                        )
-                    }
-                )
-        }
     }
 
     private fun List<RelayItem.CustomList>.filterOnOwnershipAndProvider(
