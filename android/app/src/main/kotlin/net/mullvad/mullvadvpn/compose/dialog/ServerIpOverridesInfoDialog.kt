@@ -14,12 +14,12 @@ import net.mullvad.mullvadvpn.R
 @Preview
 @Composable
 private fun PreviewServerIpOverridesInfoDialog() {
-    ServerIpOverridesInfoDialog(EmptyDestinationsNavigator)
+    ServerIpOverridesInfo(EmptyDestinationsNavigator)
 }
 
 @Destination<RootGraph>(style = DestinationStyle.Dialog::class)
 @Composable
-fun ServerIpOverridesInfoDialog(navigator: DestinationsNavigator) {
+fun ServerIpOverridesInfo(navigator: DestinationsNavigator) {
     InfoDialog(
         message =
             buildString {

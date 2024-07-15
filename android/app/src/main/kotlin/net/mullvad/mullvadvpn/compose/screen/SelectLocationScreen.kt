@@ -54,7 +54,7 @@ import com.ramcosta.composedestinations.generated.destinations.CustomListLocatio
 import com.ramcosta.composedestinations.generated.destinations.CustomListsDestination
 import com.ramcosta.composedestinations.generated.destinations.DeleteCustomListDestination
 import com.ramcosta.composedestinations.generated.destinations.EditCustomListNameDestination
-import com.ramcosta.composedestinations.generated.destinations.FilterScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.FilterDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultBackNavigator
@@ -204,7 +204,7 @@ fun SelectLocation(
         onSelectRelay = vm::selectRelay,
         onSearchTermInput = vm::onSearchTermInput,
         onBackClick = dropUnlessResumed { backNavigator.navigateBack() },
-        onFilterClick = dropUnlessResumed { navigator.navigate(FilterScreenDestination) },
+        onFilterClick = dropUnlessResumed { navigator.navigate(FilterDestination) },
         onCreateCustomList =
             dropUnlessResumed { relayItem ->
                 navigator.navigate(

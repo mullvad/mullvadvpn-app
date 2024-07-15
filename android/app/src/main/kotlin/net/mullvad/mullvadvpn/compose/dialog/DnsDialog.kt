@@ -58,7 +58,7 @@ data class DnsDialogNavArgs(
 
 @Destination<RootGraph>(style = DestinationStyle.Dialog::class, navArgs = DnsDialogNavArgs::class)
 @Composable
-fun DnsDialog(
+fun Dns(
     resultNavigator: ResultBackNavigator<DnsDialogResult>,
 ) {
     val viewModel = koinViewModel<DnsDialogViewModel>()

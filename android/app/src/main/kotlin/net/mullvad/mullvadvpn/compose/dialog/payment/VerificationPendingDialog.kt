@@ -25,7 +25,7 @@ private fun PreviewVerificationPendingDialog() {
 
 @Destination<RootGraph>(style = DestinationStyle.Dialog::class)
 @Composable
-fun VerificationPendingDialog(navigator: DestinationsNavigator) {
+fun VerificationPending(navigator: DestinationsNavigator) {
     VerificationPendingDialog(onClose = dropUnlessResumed { navigator.navigateUp() })
 }
 

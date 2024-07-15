@@ -35,7 +35,7 @@ import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.LoginDestination
-import com.ramcosta.composedestinations.generated.destinations.RemoveDeviceConfirmationDialogDestination
+import com.ramcosta.composedestinations.generated.destinations.RemoveDeviceConfirmationDestination
 import com.ramcosta.composedestinations.generated.destinations.SettingsDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.NavResult
@@ -108,8 +108,7 @@ data class DeviceListNavArgs(val accountNumber: AccountNumber)
 @Composable
 fun DeviceList(
     navigator: DestinationsNavigator,
-    confirmRemoveResultRecipient:
-        ResultRecipient<RemoveDeviceConfirmationDialogDestination, DeviceId>
+    confirmRemoveResultRecipient: ResultRecipient<RemoveDeviceConfirmationDestination, DeviceId>
 ) {
     val viewModel = koinViewModel<DeviceListViewModel>()
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -156,7 +155,7 @@ fun DeviceList(
         onTryAgainClicked = viewModel::fetchDevices,
         navigateToRemoveDeviceConfirmationDialog =
             dropUnlessResumed<Device> {
-                navigator.navigate(RemoveDeviceConfirmationDialogDestination(it))
+                navigator.navigate(RemoveDeviceConfirmationDestination(it))
             }
     )
 }

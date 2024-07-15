@@ -44,7 +44,7 @@ private fun PreviewNoDaemonScreen() {
 // Set this as the start destination of the default nav graph
 @Destination<RootGraph>(style = DefaultTransition::class)
 @Composable
-fun NoDaemonScreen(navigator: DestinationsNavigator) {
+fun NoDaemon(navigator: DestinationsNavigator) {
     NoDaemonScreen(dropUnlessResumed { navigator.navigate(SettingsDestination) })
 }
 

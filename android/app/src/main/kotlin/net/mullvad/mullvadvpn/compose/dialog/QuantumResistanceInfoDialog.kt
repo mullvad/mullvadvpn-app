@@ -14,12 +14,12 @@ import net.mullvad.mullvadvpn.R
 @Preview
 @Composable
 private fun PreviewQuantumResistanceInfoDialog() {
-    QuantumResistanceInfoDialog(EmptyDestinationsNavigator)
+    QuantumResistanceInfo(EmptyDestinationsNavigator)
 }
 
 @Destination<RootGraph>(style = DestinationStyle.Dialog::class)
 @Composable
-fun QuantumResistanceInfoDialog(navigator: DestinationsNavigator) {
+fun QuantumResistanceInfo(navigator: DestinationsNavigator) {
     InfoDialog(
         message = stringResource(id = R.string.quantum_resistant_info_first_paragaph),
         additionalInfo = stringResource(id = R.string.quantum_resistant_info_second_paragaph),

@@ -15,12 +15,12 @@ import net.mullvad.mullvadvpn.lib.theme.AppTheme
 @Preview
 @Composable
 private fun PreviewApiAccessMethodInfoDialog() {
-    AppTheme { ApiAccessMethodInfoDialog(EmptyDestinationsNavigator) }
+    AppTheme { ApiAccessMethodInfo(EmptyDestinationsNavigator) }
 }
 
 @Destination<RootGraph>(style = DestinationStyle.Dialog::class)
 @Composable
-fun ApiAccessMethodInfoDialog(navigator: DestinationsNavigator) {
+fun ApiAccessMethodInfo(navigator: DestinationsNavigator) {
     InfoDialog(
         message =
             buildString {

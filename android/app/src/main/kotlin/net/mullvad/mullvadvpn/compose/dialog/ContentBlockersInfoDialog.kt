@@ -12,7 +12,7 @@ import net.mullvad.mullvadvpn.compose.component.textResource
 
 @Destination<RootGraph>(style = DestinationStyle.Dialog::class)
 @Composable
-fun ContentBlockersInfoDialog(navigator: DestinationsNavigator) {
+fun ContentBlockersInfo(navigator: DestinationsNavigator) {
     InfoDialog(
         message =
             buildString {
