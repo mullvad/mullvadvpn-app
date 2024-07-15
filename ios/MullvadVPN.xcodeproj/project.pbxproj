@@ -40,6 +40,7 @@
 		0697D6E728F01513007A9E99 /* TransportMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0697D6E628F01513007A9E99 /* TransportMonitor.swift */; };
 		06AC116228F94C450037AF9A /* ApplicationConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BFA5CB22A7CE1F00A6173D /* ApplicationConfiguration.swift */; };
 		449275422C3570CA000526DE /* ICMP.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449275412C3570CA000526DE /* ICMP.swift */; };
+		449275442C3C3029000526DE /* TunnelPinger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449275432C3C3029000526DE /* TunnelPinger.swift */; };
 		449872E12B7BBC5400094DDC /* TunnelSettingsUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449872E02B7BBC5400094DDC /* TunnelSettingsUpdate.swift */; };
 		449872E42B7CB96300094DDC /* TunnelSettingsUpdateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449872E32B7CB96300094DDC /* TunnelSettingsUpdateTests.swift */; };
 		449EBA262B975B9700DFA4EB /* PostQuantumKeyReceiving.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449EBA252B975B9700DFA4EB /* PostQuantumKeyReceiving.swift */; };
@@ -1363,6 +1364,7 @@
 		06FAE67B28F83CA50033DD93 /* REST.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = REST.swift; sourceTree = "<group>"; };
 		06FAE67D28F83CA50033DD93 /* RESTTransport.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTTransport.swift; sourceTree = "<group>"; };
 		449275412C3570CA000526DE /* ICMP.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ICMP.swift; sourceTree = "<group>"; };
+		449275432C3C3029000526DE /* TunnelPinger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelPinger.swift; sourceTree = "<group>"; };
 		449872E02B7BBC5400094DDC /* TunnelSettingsUpdate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelSettingsUpdate.swift; sourceTree = "<group>"; };
 		449872E32B7CB96300094DDC /* TunnelSettingsUpdateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelSettingsUpdateTests.swift; sourceTree = "<group>"; };
 		449EB9FC2B95F8AD00DFA4EB /* DeviceMock.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeviceMock.swift; sourceTree = "<group>"; };
@@ -3324,6 +3326,7 @@
 				5838318A27C40A3900000571 /* Pinger.swift */,
 				58799A352A84FC9F007BE51F /* PingerProtocol.swift */,
 				449275412C3570CA000526DE /* ICMP.swift */,
+				449275432C3C3029000526DE /* TunnelPinger.swift */,
 			);
 			path = Pinger;
 			sourceTree = "<group>";
@@ -5445,6 +5448,7 @@
 				583832272AC3193600EA2071 /* PacketTunnelActor+SleepCycle.swift in Sources */,
 				58FE25DC2AA72A8F003D1918 /* AnyTask.swift in Sources */,
 				F04AF92D2C466013004A8314 /* PostQuantumNegotiationState.swift in Sources */,
+				449275442C3C3029000526DE /* TunnelPinger.swift in Sources */,
 				58FE25D92AA72A8F003D1918 /* AutoCancellingTask.swift in Sources */,
 				58FE25E12AA72A9B003D1918 /* SettingsReaderProtocol.swift in Sources */,
 				58C7A4582A863FB90060C66F /* TunnelMonitorProtocol.swift in Sources */,
