@@ -252,20 +252,37 @@ class SelectLocationViewModelTest {
     @Test
     fun `after adding a location to a list should emit location added side effect`() = runTest {
         // Arrange
-        val expectedResult: LocationsChanged = mockk()
+        val customListId = CustomListId("1")
+        val addedLocationsId = GeoLocationId.Country("se")
+        val customListName = CustomListName.fromString("custom")
         val location: RelayItem.Location.Country = mockk {
             every { id } returns GeoLocationId.Country("se")
+            every { name } returns "Sweden"
             every { descendants() } returns emptyList()
         }
         val customList =
             RelayItem.CustomList(
                 id = CustomListId("1"),
-                customListName = CustomListName.fromString("custom"),
+                customListName = customListName,
                 locations = emptyList(),
                 expanded = false
             )
+        val expectedResult =
+            LocationsChanged(
+                id = customListId,
+                name = customListName,
+                locations = listOf(addedLocationsId),
+                oldLocations = emptyList(),
+            )
+
         coEvery { mockCustomListActionUseCase(any<CustomListAction.UpdateLocations>()) } returns
-            expectedResult.right()
+            LocationsChanged(
+                    id = customListId,
+                    name = customListName,
+                    locations = listOf(addedLocationsId),
+                    oldLocations = emptyList()
+                )
+                .right()
 
         // Act, Assert
         viewModel.uiSideEffect.test {
@@ -275,6 +292,51 @@ class SelectLocationViewModelTest {
             assertEquals(expectedResult, sideEffect.result)
         }
     }
+
+    @Test
+    fun `after removing a location from a list should emit location removed side effect`() =
+        runTest {
+            // Arrange
+            val locationName = "Sweden"
+            val customListId = CustomListId("1")
+            val removedLocationsId = GeoLocationId.Country("se")
+            val customListName = CustomListName.fromString("custom")
+            val location: RelayItem.Location.Country = mockk {
+                every { id } returns removedLocationsId
+                every { name } returns locationName
+                every { descendants() } returns emptyList()
+            }
+            val customList =
+                RelayItem.CustomList(
+                    id = customListId,
+                    customListName = customListName,
+                    locations = emptyList(),
+                    expanded = false
+                )
+            val expectedResult =
+                LocationsChanged(
+                    id = customListId,
+                    name = customListName,
+                    locations = emptyList(),
+                    oldLocations = listOf(removedLocationsId),
+                )
+            coEvery { mockCustomListActionUseCase(any<CustomListAction.UpdateLocations>()) } returns
+                LocationsChanged(
+                        id = customListId,
+                        name = customListName,
+                        locations = emptyList(),
+                        oldLocations = listOf(removedLocationsId),
+                    )
+                    .right()
+
+            // Act, Assert
+            viewModel.uiSideEffect.test {
+                viewModel.removeLocationFromList(item = location, customList = customList)
+                val sideEffect = awaitItem()
+                assertIs<SelectLocationSideEffect.LocationRemovedFromCustomList>(sideEffect)
+                assertEquals(expectedResult, sideEffect.result)
+            }
+        }
 
     companion object {
         private const val RELAY_LIST_EXTENSIONS =

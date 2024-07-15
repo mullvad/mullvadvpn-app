@@ -107,8 +107,10 @@ class CustomListActionUseCase(
             .mapLeft(UpdateLocationsError::UpdateLocations)
             .bind()
         LocationsChanged(
+            id = action.id,
             name = customList.name,
-            undo = action.not(locations = customList.locations)
+            locations = action.locations,
+            oldLocations = customList.locations,
         )
     }
 }

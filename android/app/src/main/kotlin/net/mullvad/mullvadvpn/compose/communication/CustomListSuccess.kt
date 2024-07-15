@@ -1,9 +1,11 @@
 package net.mullvad.mullvadvpn.compose.communication
 
 import android.os.Parcelable
+import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
+import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 
 sealed interface CustomListSuccess : Parcelable {
     val undo: CustomListAction
@@ -31,6 +33,14 @@ data class Renamed(override val undo: CustomListAction.Rename) : CustomListSucce
 
 @Parcelize
 data class LocationsChanged(
+    val id: CustomListId,
     val name: CustomListName,
+    val locations: List<GeoLocationId>,
+    val oldLocations: List<GeoLocationId>,
+) : CustomListSuccess {
     override val undo: CustomListAction.UpdateLocations
-) : CustomListSuccess
+        get() = CustomListAction.UpdateLocations(id, oldLocations)
+
+    @IgnoredOnParcel val addedLocations = locations - oldLocations
+    @IgnoredOnParcel val removedLocations = oldLocations - locations
+}

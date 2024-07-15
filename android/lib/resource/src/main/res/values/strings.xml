@@ -383,4 +383,5 @@
     <string name="delete_method_question">Delete method?</string>
     <string name="failed_to_set_current_test_error">Failed to set to current - API not reachable</string>
     <string name="failed_to_set_current_unknown_error">Failed to set to current - Unknown reason</string>
+    <string name="location_was_removed_from_list">%s was removed from \"%s\"</string>
 </resources>
