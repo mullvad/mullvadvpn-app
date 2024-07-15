@@ -5,10 +5,9 @@
     <ID>CyclomaticComplexMethod:MockApiDispatcher.kt$MockApiDispatcher$override fun dispatch(request: RecordedRequest): MockResponse</ID>
     <ID>EmptyFunctionBlock:AccountTestRule.kt$AccountTestRule${}</ID>
     <ID>EmptyKtFile:build.gradle.kts$.build.gradle.kts</ID>
-    <ID>LargeClass:ConnectScreenTest.kt$ConnectScreenTest</ID>
     <ID>LongMethod:ApiAccessMethodDetailsScreen.kt$@Destination&lt;RootGraph&gt;( style = SlideInFromRightTransition::class, navArgs = ApiAccessMethodDetailsNavArgs::class ) @Composable fun ApiAccessMethodDetails( navigator: DestinationsNavigator, confirmDeleteListResultRecipient: ResultRecipient&lt;DeleteApiAccessMethodConfirmationDestination, Boolean&gt; )</ID>
     <ID>LongMethod:ConnectionButton.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable private fun ConnectionButton( text: String, mainClick: () -&gt; Unit, reconnectClick: () -&gt; Unit, isReconnectButtonEnabled: Boolean, containerColor: Color, contentColor: Color, modifier: Modifier = Modifier, reconnectButtonTestTag: String = "" )</ID>
-    <ID>LongMethod:EditApiAccessMethodScreen.kt$@Destination&lt;RootGraph&gt;( style = SlideInFromRightTransition::class, navArgs = EditApiAccessMethodNavArgs::class ) @Composable fun EditApiAccessMethod( navigator: DestinationsNavigator, backNavigator: ResultBackNavigator&lt;Boolean&gt;, saveApiAccessMethodResultRecipient: ResultRecipient&lt;SaveApiAccessMethodDestination, Boolean&gt;, discardChangesResultRecipient: ResultRecipient&lt;DiscardChangesDialogDestination, Boolean&gt;, )</ID>
+    <ID>LongMethod:EditApiAccessMethodScreen.kt$@Destination&lt;RootGraph&gt;( style = SlideInFromRightTransition::class, navArgs = EditApiAccessMethodNavArgs::class ) @Composable fun EditApiAccessMethod( navigator: DestinationsNavigator, backNavigator: ResultBackNavigator&lt;Boolean&gt;, saveApiAccessMethodResultRecipient: ResultRecipient&lt;SaveApiAccessMethodDestination, Boolean&gt;, discardChangesResultRecipient: ResultRecipient&lt;DiscardChangesDestination, Boolean&gt;, )</ID>
     <ID>LongMethod:NotificationBanner.kt$@Composable private fun Notification(notificationBannerData: NotificationData)</ID>
     <ID>MagicNumber:Chevron.kt$100</ID>
     <ID>MagicNumber:Chevron.kt$270f</ID>
