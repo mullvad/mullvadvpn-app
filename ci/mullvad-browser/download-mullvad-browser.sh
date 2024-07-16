@@ -63,7 +63,7 @@ function main() {
     fi
 
     echo "[#] $PACKAGE_FILENAME has changed"
-    ln "$PACKAGE_FILENAME" $WORKDIR/
+    ln -f "$PACKAGE_FILENAME" $WORKDIR/
 }
 
 if [[ ${1:-} == "-h" ]] || [[ ${1:-} == "--help" ]]; then
