@@ -6,8 +6,10 @@ set -eu
 # BROWSER_RELEASES=("alpha" "stable")
 BROWSER_RELEASES=("stable")
 REPOSITORIES=("stable" "beta")
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 TMP_DIR=$(mktemp -qdt mullvad-browser-tmp-XXXXXXX)
-WORKDIR=/tmp/mullvad-browser-download
+WORKDIR="$SCRIPT_DIR/mullvad-browser-download"
 NOTIFY_DIR=/tmp/linux-repositories/production
 
 
@@ -31,13 +33,13 @@ function main() {
     SIGNATURE_URL=$PACKAGE_URL.asc
 
     echo "[#] Downloading $PACKAGE_FILENAME"
-    if ! wget --quiet --show-progress "$PACKAGE_URL"; then
+    if ! wget --quiet "$PACKAGE_URL"; then
         echo "[!] Failed to download $PACKAGE_URL"
         exit 1
     fi
 
     echo "[#] Downloading $PACKAGE_FILENAME.asc"
-    if ! wget --quiet --show-progress "$SIGNATURE_URL"; then
+    if ! wget --quiet "$SIGNATURE_URL"; then
         echo "[!] Failed to download $SIGNATURE_URL"
         exit 1
     fi
@@ -63,7 +65,7 @@ function main() {
     fi
 
     echo "[#] $PACKAGE_FILENAME has changed"
-    ln "$PACKAGE_FILENAME" $WORKDIR/
+    ln -f "$PACKAGE_FILENAME" "$WORKDIR/"
 }
 
 if [[ ${1:-} == "-h" ]] || [[ ${1:-} == "--help" ]]; then
@@ -79,11 +81,16 @@ fi
 
 if ! [[ -d $WORKDIR ]]; then
     echo "[#] Creating $WORKDIR"
-    mkdir -p $WORKDIR
+    mkdir -p "$WORKDIR"
 fi
 
 
 pushd "$TMP_DIR" > /dev/null
+function delete_tmp_dir {
+    echo "[#] Exiting and deleting $TMP_DIR"
+    rm -rf "$TMP_DIR"
+}
+trap 'delete_tmp_dir' EXIT
 
 
 echo "[#] Configured releases are: ${BROWSER_RELEASES[*]}"
@@ -108,6 +115,3 @@ for repository in "${REPOSITORIES[@]}"; do
     echo "[#] Notifying $repository_notify_file"
     echo "$REPOSITORY_TMP_ARTIFACT_DIR" > "$repository_notify_file"
 done
-
-# Remove our temporary working directory
-rm -r "$TMP_DIR"
