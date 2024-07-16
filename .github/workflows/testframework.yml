@@ -12,6 +12,7 @@ on:
       - '!audits/**'
       - '!build-apk.sh'
       - '!build.sh'
+      - '!ci/**'
       - '!clippy.toml'
       - '!deny.toml'
       - '!docs/**'
