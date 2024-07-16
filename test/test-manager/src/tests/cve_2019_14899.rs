@@ -1,6 +1,7 @@
 #![cfg(target_os = "linux")]
 
 use std::{
+    convert::Infallible,
     ffi::{c_int, c_uint, c_void},
     mem::size_of,
     net::{IpAddr, Ipv4Addr},
@@ -131,8 +132,12 @@ pub async fn test_cve_2019_14899_mitigation(
     };
 
     let rst_packet = select! {
-        result = spam_packet(&socket, host_interface_index, &malicious_packet).fuse() => return result,
         result = filter_for_packet(&socket, filter, Duration::from_secs(5)).fuse() => result?,
+
+        result = spam_packet(&socket, host_interface_index, &malicious_packet).fuse() => match result {
+            Err(e) => return Err(e),
+            Ok(never) => match never {}, // I dream of ! being stabilized
+        },
     };
 
     if let Some(rst_packet) = rst_packet {
@@ -217,11 +222,12 @@ async fn poll_for_packet(socket: &Socket, buf: &mut [u8]) -> anyhow::Result<TcpP
 }
 
 /// Send `packet` on the socket in a loop.
+// NOTE: Replace return type with ! if/when stable.
 async fn spam_packet(
     socket: &Socket,
     interface_index: c_uint,
     packet: &EthernetPacket<'_>,
-) -> anyhow::Result<()> {
+) -> anyhow::Result<Infallible> {
     loop {
         send_packet(socket, interface_index, packet)?;
         sleep(Duration::from_millis(50)).await;
