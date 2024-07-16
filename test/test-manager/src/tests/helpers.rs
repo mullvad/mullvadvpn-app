@@ -253,6 +253,55 @@ pub async fn resolve_hostname_with_retries(
     }
 }
 
+/// Get the mac address (if any) of a network interface (on the test-manager machine).
+#[cfg(target_os = "linux")] // not used on macos
+pub fn get_interface_mac(interface: &str) -> anyhow::Result<Option<[u8; 6]>> {
+    let addrs = nix::ifaddrs::getifaddrs().map_err(|error| {
+        log::error!("Failed to obtain interfaces: {}", error);
+        test_rpc::Error::Syscall
+    })?;
+
+    let mut interface_exists = false;
+
+    let mac_addr = addrs
+        .filter(|addr| addr.interface_name == interface)
+        .find_map(|addr| {
+            // sadly, the only way of distinguishing between "iface doesn't exist" and
+            // "iface has no mac addr" is to check if the interface appears anywhere in the list.
+            interface_exists = true;
+
+            let addr = addr.address.as_ref()?;
+            let link_addr = addr.as_link_addr()?;
+            let mac_addr = link_addr.addr()?;
+            Some(mac_addr)
+        });
+
+    if interface_exists {
+        Ok(mac_addr)
+    } else {
+        bail!("Interface not found: {interface:?}")
+    }
+}
+
+/// Get the index of a network interface (on the test-manager machine).
+#[cfg(target_os = "linux")] // not used on macos
+pub fn get_interface_index(interface: &str) -> anyhow::Result<std::ffi::c_uint> {
+    use nix::errno::Errno;
+    use std::ffi::CString;
+
+    let interface = CString::new(interface).context(anyhow!(
+        "Failed to turn interface name {interface:?} into cstr"
+    ))?;
+
+    match unsafe { libc::if_nametoindex(interface.as_ptr()) } {
+        0 => {
+            let err = Errno::last();
+            Err(err).context("Failed to get interface index")
+        }
+        i => Ok(i),
+    }
+}
+
 /// Log in and retry if it fails due to throttling
 pub async fn login_with_retries(
     mullvad_client: &mut MullvadProxyClient,
