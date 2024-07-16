@@ -31,13 +31,13 @@ function main() {
     SIGNATURE_URL=$PACKAGE_URL.asc
 
     echo "[#] Downloading $PACKAGE_FILENAME"
-    if ! wget --quiet --show-progress "$PACKAGE_URL"; then
+    if ! wget --quiet "$PACKAGE_URL"; then
         echo "[!] Failed to download $PACKAGE_URL"
         exit 1
     fi
 
     echo "[#] Downloading $PACKAGE_FILENAME.asc"
-    if ! wget --quiet --show-progress "$SIGNATURE_URL"; then
+    if ! wget --quiet "$SIGNATURE_URL"; then
         echo "[!] Failed to download $SIGNATURE_URL"
         exit 1
     fi
