@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.screen
+package net.mullvad.mullvadvpn.compose.bottomsheet
 
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -41,8 +41,8 @@ data class CustomListSheetNavArgs(
 fun CustomListSheet(
     navigator: DestinationsNavigator,
 ) {
-    val viewModel = koinViewModel<CustomListSheetViewModel>()
-    val state = viewModel.uiState.collectAsStateWithLifecycle()
+    val vm = koinViewModel<CustomListSheetViewModel>()
+    val state = vm.uiState.collectAsStateWithLifecycle()
     MullvadModalBottomSheet {
         CustomListContent(
             state.value,

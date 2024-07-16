@@ -3,7 +3,7 @@ package net.mullvad.mullvadvpn.viewmodel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.destinations.LocationBottomSheetDestination
+import com.ramcosta.composedestinations.generated.destinations.LocationSheetDestination
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.StateFlow
@@ -22,10 +22,14 @@ import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListsRelayItemUseCase
 
 sealed interface LocationUiState {
-    data object Loading : LocationUiState
+    val name: String
+
+    data class Loading(override val name: String) : LocationUiState
 
     data class Content(val location: RelayItem.Location, val customLists: List<CustomListEntry>) :
-        LocationUiState
+        LocationUiState {
+        override val name: String = location.name
+    }
 }
 
 data class CustomListEntry(val customList: RelayItem.CustomList, val canAdd: Boolean)
@@ -37,13 +41,15 @@ sealed interface LocationSideEffect {
         LocationSideEffect
 }
 
-class LocationViewModel(
+class LocationSheetViewModel(
     filteredRelayListUseCase: FilteredRelayListUseCase,
     val customListActionUseCase: CustomListActionUseCase,
     customListsRelayItemUseCase: CustomListsRelayItemUseCase,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
-    private val geoLocationId = LocationBottomSheetDestination.argsFrom(savedStateHandle).id
+    private val navArgs = LocationSheetDestination.argsFrom(savedStateHandle)
+    private val geoLocationId = navArgs.id
+    private val locationName = navArgs.locationName
 
     private val _uiSideEffect = Channel<LocationSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
@@ -55,17 +61,12 @@ class LocationViewModel(
             ) { customListsRelayItem, relayList ->
                 LocationUiState.Content(
                     relayList.findByGeoLocationId(geoLocationId)!!,
-                    customListsRelayItem
-                        .map {
-                            CustomListEntry(
-                                it,
-                                it.locations.withDescendants().none { it.id == geoLocationId }
-                            )
-                        }
-                        .sortedBy { it.customList.name }
-                )
+                    customListsRelayItem.map {
+                        CustomListEntry(
+                            it, it.locations.withDescendants().none { it.id == geoLocationId })
+                    })
             }
-            .stateIn(viewModelScope, WhileSubscribed(), LocationUiState.Loading)
+            .stateIn(viewModelScope, WhileSubscribed(), LocationUiState.Loading(locationName))
 
     fun addLocationToList(item: RelayItem.Location, customList: RelayItem.CustomList) {
         viewModelScope.launch {

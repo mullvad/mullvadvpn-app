@@ -12,13 +12,12 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.LocationsChanged
-import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.viewmodel.CustomListEntrySheetSideEffect.GenericError
 
 data class CustomListEntrySheetUiState(
-    val customListId: CustomListId,
+    val locationName: String,
 )
 
 sealed interface CustomListEntrySheetSideEffect {
@@ -39,7 +38,7 @@ class CustomListEntrySheetViewModel(
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
     val uiState: StateFlow<CustomListEntrySheetUiState> =
-        MutableStateFlow(CustomListEntrySheetUiState(customListId = navArgs.customListId))
+        MutableStateFlow(CustomListEntrySheetUiState(locationName = navArgs.name))
 
     fun removeLocationFromList() =
         viewModelScope.launch {
@@ -48,17 +47,14 @@ class CustomListEntrySheetViewModel(
                         customListsRepository.getCustomListById(navArgs.customListId).bind()
                     val newLocations = (customList.locations - navArgs.location)
                     customListActionUseCase(
-                            CustomListAction.UpdateLocations(customList.id, newLocations)
-                        )
+                            CustomListAction.UpdateLocations(customList.id, newLocations))
                         .bind()
                 }
                 .fold(
                     { _uiSideEffect.send(GenericError) },
                     {
                         _uiSideEffect.send(
-                            CustomListEntrySheetSideEffect.LocationRemovedFromCustomList(it)
-                        )
-                    }
-                )
+                            CustomListEntrySheetSideEffect.LocationRemovedFromCustomList(it))
+                    })
         }
 }

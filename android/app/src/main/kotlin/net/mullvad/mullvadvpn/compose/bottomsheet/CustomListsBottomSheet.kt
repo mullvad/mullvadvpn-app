@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.screen
+package net.mullvad.mullvadvpn.compose.bottomsheet
 
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -10,7 +10,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.bottomsheet.spec.DestinationStyleBottomSheet
 import com.ramcosta.composedestinations.generated.destinations.CreateCustomListDestination
-import com.ramcosta.composedestinations.generated.destinations.CustomListsBottomSheetDestination
+import com.ramcosta.composedestinations.generated.destinations.CustomListsSheetDestination
 import com.ramcosta.composedestinations.generated.destinations.CustomListsDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import net.mullvad.mullvadvpn.R
@@ -23,7 +23,7 @@ import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
 @OptIn(ExperimentalMaterial3Api::class)
 @Destination<RootGraph>(style = DestinationStyleBottomSheet::class)
 @Composable
-fun CustomListsBottomSheet(navigator: DestinationsNavigator, editListEnabled: Boolean) {
+fun CustomListsSheet(navigator: DestinationsNavigator, editListEnabled: Boolean) {
     MullvadModalBottomSheet {
         HeaderCell(
             text = stringResource(id = R.string.edit_custom_lists),
@@ -36,7 +36,7 @@ fun CustomListsBottomSheet(navigator: DestinationsNavigator, editListEnabled: Bo
             titleColor = MaterialTheme.colorScheme.onBackground,
             onClick = {
                 navigator.navigate(CreateCustomListDestination(null)) {
-                    popUpTo(CustomListsBottomSheetDestination) { inclusive = true }
+                    popUpTo(CustomListsSheetDestination) { inclusive = true }
                 }
             },
             background = Color.Unspecified

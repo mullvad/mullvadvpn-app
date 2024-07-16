@@ -1,7 +1,8 @@
-package net.mullvad.mullvadvpn.compose.screen
+package net.mullvad.mullvadvpn.compose.bottomsheet
 
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -13,11 +14,12 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.bottomsheet.spec.DestinationStyleBottomSheet
 import com.ramcosta.composedestinations.generated.destinations.CreateCustomListDestination
-import com.ramcosta.composedestinations.generated.destinations.LocationBottomSheetDestination
+import com.ramcosta.composedestinations.generated.destinations.LocationSheetDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import kotlin.collections.forEach
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.compose.cell.HeaderCell
 import net.mullvad.mullvadvpn.compose.cell.IconCell
 import net.mullvad.mullvadvpn.compose.communication.CustomListSuccess
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorMedium
@@ -27,10 +29,10 @@ import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.viewmodel.LocationSideEffect
 import net.mullvad.mullvadvpn.viewmodel.LocationUiState
-import net.mullvad.mullvadvpn.viewmodel.LocationViewModel
+import net.mullvad.mullvadvpn.viewmodel.LocationSheetViewModel
 import org.koin.androidx.compose.koinViewModel
 
-data class LocationNavArgs(val id: GeoLocationId)
+data class LocationNavArgs(val locationName: String, val id: GeoLocationId)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Destination<RootGraph>(
@@ -38,11 +40,11 @@ data class LocationNavArgs(val id: GeoLocationId)
     style = DestinationStyleBottomSheet::class
 )
 @Composable
-fun LocationBottomSheet(
+fun LocationSheet(
     navigator: DestinationsNavigator,
     backNavigator: ResultBackNavigator<CustomListSuccess>,
 ) {
-    val viewModel = koinViewModel<LocationViewModel>()
+    val viewModel = koinViewModel<LocationSheetViewModel>()
     val state = viewModel.uiState.collectAsStateWithLifecycle()
 
     CollectSideEffectWithLifecycle(viewModel.uiSideEffect) {
@@ -56,18 +58,24 @@ fun LocationBottomSheet(
     }
 
     MullvadModalBottomSheet {
+        HeaderCell(
+            text = stringResource(id = R.string.add_location_to_list, state.value.name),
+            background = Color.Unspecified
+        )
+        HorizontalDivider(color = MaterialTheme.colorScheme.onBackground)
+
         when (val s = state.value) {
             is LocationUiState.Content ->
                 LocationContent(
                     s,
                     {
                         navigator.navigate(CreateCustomListDestination(s.location.id)) {
-                            popUpTo(LocationBottomSheetDestination) { inclusive = true }
+                            popUpTo(LocationSheetDestination) { inclusive = true }
                         }
                     },
                     viewModel::addLocationToList
                 )
-            LocationUiState.Loading ->
+            is LocationUiState.Loading ->
                 MullvadCircularProgressIndicatorMedium(
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )

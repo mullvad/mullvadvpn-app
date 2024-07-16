@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.screen
+package net.mullvad.mullvadvpn.compose.bottomsheet
 
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -23,20 +23,22 @@ import net.mullvad.mullvadvpn.viewmodel.CustomListEntrySheetSideEffect
 import net.mullvad.mullvadvpn.viewmodel.CustomListEntrySheetViewModel
 import org.koin.androidx.compose.koinViewModel
 
-data class CustomListEntrySheetNavArgs(val customListId: CustomListId, val location: GeoLocationId)
+data class CustomListEntrySheetNavArgs(
+    val name: String,
+    val customListId: CustomListId,
+    val location: GeoLocationId
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Destination<RootGraph>(
-    navArgs = CustomListEntrySheetNavArgs::class,
-    style = DestinationStyleBottomSheet::class
-)
+    navArgs = CustomListEntrySheetNavArgs::class, style = DestinationStyleBottomSheet::class)
 @Composable
 fun CustomListEntrySheet(backNavigator: ResultBackNavigator<LocationsChanged>) {
     val vm = koinViewModel<CustomListEntrySheetViewModel>()
     val state = vm.uiState.collectAsStateWithLifecycle()
     CollectSideEffectWithLifecycle(vm.uiSideEffect) {
         when (it) {
-            CustomListEntrySheetSideEffect.GenericError -> TODO()
+            CustomListEntrySheetSideEffect.GenericError -> TODO("How do we handle error?")
             is CustomListEntrySheetSideEffect.LocationRemovedFromCustomList ->
                 backNavigator.navigateBack(it.locationsChanged)
         }
@@ -44,9 +46,8 @@ fun CustomListEntrySheet(backNavigator: ResultBackNavigator<LocationsChanged>) {
     MullvadModalBottomSheet {
         HeaderCell(
             text =
-                stringResource(id = R.string.remove_location_from_list, state.value.customListId),
-            background = Color.Unspecified
-        )
+                stringResource(id = R.string.remove_location_from_list, state.value.locationName),
+            background = Color.Unspecified)
         HorizontalDivider(color = MaterialTheme.colorScheme.onBackground)
 
         IconCell(
@@ -54,7 +55,6 @@ fun CustomListEntrySheet(backNavigator: ResultBackNavigator<LocationsChanged>) {
             title = stringResource(id = R.string.remove_button),
             titleColor = MaterialTheme.colorScheme.onBackground,
             onClick = vm::removeLocationFromList,
-            background = Color.Unspecified
-        )
+            background = Color.Unspecified)
     }
 }
