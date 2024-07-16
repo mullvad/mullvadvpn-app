@@ -84,6 +84,11 @@ fi
 
 
 pushd "$TMP_DIR" > /dev/null
+function delete_tmp_dir {
+    echo "[#] Exiting and deleting $TMP_DIR"
+    rm -rf "$TMP_DIR"
+}
+trap 'delete_tmp_dir' EXIT
 
 
 echo "[#] Configured releases are: ${BROWSER_RELEASES[*]}"
@@ -108,6 +113,3 @@ for repository in "${REPOSITORIES[@]}"; do
     echo "[#] Notifying $repository_notify_file"
     echo "$REPOSITORY_TMP_ARTIFACT_DIR" > "$repository_notify_file"
 done
-
-# Remove our temporary working directory
-rm -r "$TMP_DIR"
