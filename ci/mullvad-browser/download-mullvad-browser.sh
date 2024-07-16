@@ -65,7 +65,7 @@ function main() {
     fi
 
     echo "[#] $PACKAGE_FILENAME has changed"
-    ln -f "$PACKAGE_FILENAME" $WORKDIR/
+    ln -f "$PACKAGE_FILENAME" "$WORKDIR/"
 }
 
 if [[ ${1:-} == "-h" ]] || [[ ${1:-} == "--help" ]]; then
@@ -81,7 +81,7 @@ fi
 
 if ! [[ -d $WORKDIR ]]; then
     echo "[#] Creating $WORKDIR"
-    mkdir -p $WORKDIR
+    mkdir -p "$WORKDIR"
 fi
 
 
