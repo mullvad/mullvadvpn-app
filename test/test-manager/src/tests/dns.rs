@@ -8,7 +8,10 @@ use std::{
 use itertools::Itertools;
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{
-    relay_constraints::RelaySettings, settings, ConnectionConfig, CustomTunnelEndpoint,
+    relay_constraints::RelaySettings,
+    settings,
+    wireguard::{DaitaSettings, QuantumResistantState},
+    ConnectionConfig, CustomTunnelEndpoint,
 };
 use talpid_types::net::wireguard;
 use test_macro::test_function;
@@ -630,9 +633,18 @@ async fn run_dns_config_test<
     Ok(())
 }
 
-/// Connect to the WireGuard relay that is set up in scripts/setup-network.sh
-/// See that script for details.
+/// Connect to the WireGuard relay that is set up in test-manager/src/vm/network
+/// See those files for details.
 async fn connect_local_wg_relay(mullvad_client: &mut MullvadProxyClient) -> Result<(), Error> {
+    // the local wg relay doesn't support negotiating an ephemeral peer
+    // which means we can't use PQ or daita.
+    mullvad_client
+        .set_quantum_resistant_tunnel(QuantumResistantState::Off)
+        .await?;
+    mullvad_client
+        .set_daita_settings(DaitaSettings { enabled: false })
+        .await?;
+
     let peer_addr: SocketAddr = SocketAddr::new(
         IpAddr::V4(CUSTOM_TUN_REMOTE_REAL_ADDR),
         CUSTOM_TUN_REMOTE_REAL_PORT,
