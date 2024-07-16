@@ -51,7 +51,9 @@ import net.mullvad.mullvadvpn.viewmodel.ApiAccessMethodDetailsViewModel
 import net.mullvad.mullvadvpn.viewmodel.ChangelogViewModel
 import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
 import net.mullvad.mullvadvpn.viewmodel.CreateCustomListDialogViewModel
+import net.mullvad.mullvadvpn.viewmodel.CustomListEntrySheetViewModel
 import net.mullvad.mullvadvpn.viewmodel.CustomListLocationsViewModel
+import net.mullvad.mullvadvpn.viewmodel.CustomListSheetViewModel
 import net.mullvad.mullvadvpn.viewmodel.CustomListsViewModel
 import net.mullvad.mullvadvpn.viewmodel.DeleteApiAccessMethodConfirmationViewModel
 import net.mullvad.mullvadvpn.viewmodel.DeleteCustomListConfirmationViewModel
@@ -62,6 +64,7 @@ import net.mullvad.mullvadvpn.viewmodel.EditApiAccessMethodViewModel
 import net.mullvad.mullvadvpn.viewmodel.EditCustomListNameDialogViewModel
 import net.mullvad.mullvadvpn.viewmodel.EditCustomListViewModel
 import net.mullvad.mullvadvpn.viewmodel.FilterViewModel
+import net.mullvad.mullvadvpn.viewmodel.LocationViewModel
 import net.mullvad.mullvadvpn.viewmodel.LoginViewModel
 import net.mullvad.mullvadvpn.viewmodel.MtuDialogViewModel
 import net.mullvad.mullvadvpn.viewmodel.NoDaemonViewModel
@@ -207,6 +210,9 @@ val uiModule = module {
     viewModel { SaveApiAccessMethodViewModel(get(), get()) }
     viewModel { ApiAccessMethodDetailsViewModel(get(), get()) }
     viewModel { DeleteApiAccessMethodConfirmationViewModel(get(), get()) }
+    viewModel { LocationViewModel(get(), get(), get(), get()) }
+    viewModel { CustomListSheetViewModel(get()) }
+    viewModel { CustomListEntrySheetViewModel(get(), get(), get()) }
 
     // This view model must be single so we correctly attach lifecycle and share it with activity
     single { NoDaemonViewModel(get()) }

@@ -19,11 +19,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
-import androidx.compose.material3.SheetState
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,7 +41,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.bottomsheet.spec.DestinationStyleBottomSheet
 import com.ramcosta.composedestinations.generated.destinations.ImportOverridesByTextDestination
+import com.ramcosta.composedestinations.generated.destinations.ImportOverridesSheetDestination
 import com.ramcosta.composedestinations.generated.destinations.ResetServerIpOverridesConfirmationDestination
 import com.ramcosta.composedestinations.generated.destinations.ServerIpOverridesInfoDialogDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -87,8 +87,7 @@ private fun PreviewServerIpOverridesScreen() {
             onBackClick = {},
             onInfoClick = {},
             onResetOverridesClick = {},
-            onImportByFile = {},
-            onImportByText = {},
+            showBottomSheet = {},
             SnackbarHostState()
         )
     }
@@ -136,13 +135,6 @@ fun ServerIpOverrides(
         }
     }
 
-    val openFileLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) {
-            if (it != null) {
-                vm.importFile(it)
-            }
-        }
-
     ServerIpOverridesScreen(
         state,
         onBackClick = dropUnlessResumed { navigator.navigateUp() },
@@ -150,8 +142,7 @@ fun ServerIpOverrides(
             dropUnlessResumed { navigator.navigate(ServerIpOverridesInfoDialogDestination) },
         onResetOverridesClick =
             dropUnlessResumed { navigator.navigate(ResetServerIpOverridesConfirmationDestination) },
-        onImportByFile = dropUnlessResumed { openFileLauncher.launch("application/json") },
-        onImportByText = dropUnlessResumed { navigator.navigate(ImportOverridesByTextDestination) },
+        showBottomSheet = dropUnlessResumed { navigator.navigate(ImportOverridesSheetDestination) },
         snackbarHostState
     )
 }
@@ -163,14 +154,9 @@ fun ServerIpOverridesScreen(
     onBackClick: () -> Unit,
     onInfoClick: () -> Unit,
     onResetOverridesClick: () -> Unit,
-    onImportByFile: () -> Unit,
-    onImportByText: () -> Unit,
+    showBottomSheet: () -> Unit,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
 ) {
-
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    var showBottomSheet by remember { mutableStateOf(false) }
-
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.server_ip_overrides),
         navigationIcon = { NavigateBackIconButton(onBackClick) },
@@ -182,16 +168,6 @@ fun ServerIpOverridesScreen(
             )
         }
     ) { modifier ->
-        if (showBottomSheet && state.overridesActive != null) {
-            ImportOverridesByBottomSheet(
-                sheetState,
-                { showBottomSheet = it },
-                state.overridesActive!!,
-                onImportByFile,
-                onImportByText
-            )
-        }
-
         Column(
             modifier = modifier.animateContentSize(),
         ) {
@@ -199,7 +175,7 @@ fun ServerIpOverridesScreen(
 
             Spacer(modifier = Modifier.weight(1f))
             PrimaryButton(
-                onClick = { showBottomSheet = true },
+                onClick = showBottomSheet,
                 text = stringResource(R.string.server_ip_overrides_import_button),
                 modifier =
                     Modifier.padding(horizontal = Dimens.sideMargin)
@@ -214,29 +190,21 @@ fun ServerIpOverridesScreen(
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
+@Destination<RootGraph>(style = DestinationStyleBottomSheet::class)
 @Composable
-private fun ImportOverridesByBottomSheet(
-    sheetState: SheetState,
-    showBottomSheet: (Boolean) -> Unit,
-    overridesActive: Boolean,
-    onImportByFile: () -> Unit,
-    onImportByText: () -> Unit
+fun ImportOverridesSheet(
+    navigator: DestinationsNavigator,
 ) {
-    val scope = rememberCoroutineScope()
-    val onCloseSheet = {
-        scope
-            .launch { sheetState.hide() }
-            .invokeOnCompletion {
-                if (!sheetState.isVisible) {
-                    showBottomSheet(false)
-                }
+    val openFileLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) {
+            if (it != null) {
+                TODO()
+                // vm.importFile(it)
             }
-    }
+        }
+    val overridesActive = false
 
-    MullvadModalBottomSheet(
-        sheetState = sheetState,
-        onDismissRequest = { showBottomSheet(false) },
-    ) {
+    MullvadModalBottomSheet {
         HeaderCell(
             text = stringResource(id = R.string.server_ip_overrides_import_by),
             background = Color.Unspecified
@@ -245,20 +213,14 @@ private fun ImportOverridesByBottomSheet(
         IconCell(
             iconId = R.drawable.icon_upload_file,
             title = stringResource(id = R.string.server_ip_overrides_import_by_file),
-            onClick = {
-                onImportByFile()
-                onCloseSheet()
-            },
+            onClick = dropUnlessResumed { openFileLauncher.launch("application/json") },
             background = Color.Unspecified,
             modifier = Modifier.testTag(SERVER_IP_OVERRIDES_IMPORT_BY_FILE_TEST_TAG)
         )
         IconCell(
             iconId = R.drawable.icon_text_fields,
             title = stringResource(id = R.string.server_ip_overrides_import_by_text),
-            onClick = {
-                onImportByText()
-                onCloseSheet()
-            },
+            onClick = dropUnlessResumed { navigator.navigate(ImportOverridesByTextDestination) },
             background = Color.Unspecified,
             modifier = Modifier.testTag(SERVER_IP_OVERRIDES_IMPORT_BY_TEXT_TEST_TAG)
         )

@@ -380,3 +380,9 @@ dependencies {
     androidTestImplementation(Dependencies.junitApi)
     androidTestImplementation(Dependencies.Compose.junit5)
 }
+
+configurations.all {
+    resolutionStrategy {
+        force("androidx.navigation:navigation-compose:2.8.0-beta05")
+    }
+}

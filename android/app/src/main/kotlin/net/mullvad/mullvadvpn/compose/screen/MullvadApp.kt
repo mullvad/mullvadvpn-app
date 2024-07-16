@@ -4,6 +4,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.navigation.ModalBottomSheetLayout
 import androidx.compose.material.navigation.rememberBottomSheetNavigator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -43,13 +44,16 @@ fun MullvadApp() {
 
     val serviceVm = koinViewModel<NoDaemonViewModel>()
     val permissionVm = koinViewModel<VpnPermissionViewModel>()
-
     DisposableEffect(Unit) {
         navController.addOnDestinationChangedListener(serviceVm)
         onDispose { navController.removeOnDestinationChangedListener(serviceVm) }
     }
 
-    ModalBottomSheetLayout(bottomSheetNavigator = bottomSheetNavigator) {
+    ModalBottomSheetLayout(
+        bottomSheetNavigator = bottomSheetNavigator,
+        sheetBackgroundColor = MaterialTheme.colorScheme.surfaceContainer,
+        sheetContentColor = MaterialTheme.colorScheme.onSurface,
+    ) {
         DestinationsNavHost(
             modifier = Modifier.semantics { testTagsAsResourceId = true }.fillMaxSize(),
             engine = engine,
