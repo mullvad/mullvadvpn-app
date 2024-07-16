@@ -6,8 +6,10 @@ set -eu
 # BROWSER_RELEASES=("alpha" "stable")
 BROWSER_RELEASES=("stable")
 REPOSITORIES=("stable" "beta")
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 TMP_DIR=$(mktemp -qdt mullvad-browser-tmp-XXXXXXX)
-WORKDIR=/tmp/mullvad-browser-download
+WORKDIR="$SCRIPT_DIR/mullvad-browser-download"
 NOTIFY_DIR=/tmp/linux-repositories/production
 
 
