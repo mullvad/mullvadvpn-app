@@ -4,11 +4,15 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.BottomSheetDefaults.DragHandle
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.compose.cell.HeaderCell
@@ -38,7 +42,10 @@ private fun PreviewMullvadModalBottomSheet() {
 @Composable
 fun MullvadModalBottomSheet(sheetContent: @Composable ColumnScope.() -> Unit) {
     val paddingValues = BottomSheetDefaults.windowInsets.asPaddingValues()
-    Column {
+    Column(Modifier.fillMaxWidth()) {
+        DragHandle(
+            modifier = Modifier.align(CenterHorizontally),
+            color = MaterialTheme.colorScheme.onSurface)
         sheetContent()
         Spacer(modifier = Modifier.height(Dimens.smallPadding))
         Spacer(modifier = Modifier.height(paddingValues.calculateBottomPadding()))
