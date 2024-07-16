@@ -31,7 +31,9 @@ data class CustomListEntrySheetNavArgs(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Destination<RootGraph>(
-    navArgs = CustomListEntrySheetNavArgs::class, style = DestinationStyleBottomSheet::class)
+    navArgs = CustomListEntrySheetNavArgs::class,
+    style = DestinationStyleBottomSheet::class
+)
 @Composable
 fun CustomListEntrySheet(backNavigator: ResultBackNavigator<LocationsChanged>) {
     val vm = koinViewModel<CustomListEntrySheetViewModel>()
@@ -47,7 +49,8 @@ fun CustomListEntrySheet(backNavigator: ResultBackNavigator<LocationsChanged>) {
         HeaderCell(
             text =
                 stringResource(id = R.string.remove_location_from_list, state.value.locationName),
-            background = Color.Unspecified)
+            background = Color.Unspecified
+        )
         HorizontalDivider(color = MaterialTheme.colorScheme.onBackground)
 
         IconCell(
@@ -55,6 +58,7 @@ fun CustomListEntrySheet(backNavigator: ResultBackNavigator<LocationsChanged>) {
             title = stringResource(id = R.string.remove_button),
             titleColor = MaterialTheme.colorScheme.onBackground,
             onClick = vm::removeLocationFromList,
-            background = Color.Unspecified)
+            background = Color.Unspecified
+        )
     }
 }

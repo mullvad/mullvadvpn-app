@@ -63,8 +63,11 @@ class LocationSheetViewModel(
                     relayList.findByGeoLocationId(geoLocationId)!!,
                     customListsRelayItem.map {
                         CustomListEntry(
-                            it, it.locations.withDescendants().none { it.id == geoLocationId })
-                    })
+                            it,
+                            it.locations.withDescendants().none { it.id == geoLocationId }
+                        )
+                    }
+                )
             }
             .stateIn(viewModelScope, WhileSubscribed(), LocationUiState.Loading(locationName))
 

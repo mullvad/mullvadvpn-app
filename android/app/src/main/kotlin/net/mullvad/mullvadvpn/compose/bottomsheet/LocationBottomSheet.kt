@@ -27,9 +27,9 @@ import net.mullvad.mullvadvpn.compose.component.MullvadModalBottomSheet
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
+import net.mullvad.mullvadvpn.viewmodel.LocationSheetViewModel
 import net.mullvad.mullvadvpn.viewmodel.LocationSideEffect
 import net.mullvad.mullvadvpn.viewmodel.LocationUiState
-import net.mullvad.mullvadvpn.viewmodel.LocationSheetViewModel
 import org.koin.androidx.compose.koinViewModel
 
 data class LocationNavArgs(val locationName: String, val id: GeoLocationId)

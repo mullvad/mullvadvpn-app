@@ -47,14 +47,17 @@ class CustomListEntrySheetViewModel(
                         customListsRepository.getCustomListById(navArgs.customListId).bind()
                     val newLocations = (customList.locations - navArgs.location)
                     customListActionUseCase(
-                            CustomListAction.UpdateLocations(customList.id, newLocations))
+                            CustomListAction.UpdateLocations(customList.id, newLocations)
+                        )
                         .bind()
                 }
                 .fold(
                     { _uiSideEffect.send(GenericError) },
                     {
                         _uiSideEffect.send(
-                            CustomListEntrySheetSideEffect.LocationRemovedFromCustomList(it))
-                    })
+                            CustomListEntrySheetSideEffect.LocationRemovedFromCustomList(it)
+                        )
+                    }
+                )
         }
 }

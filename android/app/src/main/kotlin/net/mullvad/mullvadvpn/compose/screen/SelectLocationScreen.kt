@@ -105,10 +105,16 @@ private fun PreviewSelectLocationScreen() {
             countries =
                 listOf(
                     RelayItem.Location.Country(
-                        GeoLocationId.Country("Country 1"), "Code 1", false, emptyList())),
+                        GeoLocationId.Country("Country 1"),
+                        "Code 1",
+                        false,
+                        emptyList()
+                    )
+                ),
             selectedItem = null,
             customLists = emptyList(),
-            filteredCustomLists = emptyList())
+            filteredCustomLists = emptyList()
+        )
     AppTheme {
         SelectLocationScreen(
             state = state,
@@ -141,30 +147,43 @@ fun SelectLocation(
             is SelectLocationSideEffect.LocationAddedToCustomList ->
                 launch {
                     snackbarHostState.showResultSnackbar(
-                        context = context, result = it.result, onUndo = vm::performAction)
+                        context = context,
+                        result = it.result,
+                        onUndo = vm::performAction
+                    )
                 }
             is SelectLocationSideEffect.LocationRemovedFromCustomList ->
                 launch {
                     snackbarHostState.showResultSnackbar(
-                        context = context, result = it.result, onUndo = vm::performAction)
+                        context = context,
+                        result = it.result,
+                        onUndo = vm::performAction
+                    )
                 }
             SelectLocationSideEffect.GenericError ->
                 launch {
                     snackbarHostState.showSnackbarImmediately(
                         message = context.getString(R.string.error_occurred),
-                        duration = SnackbarDuration.Short)
+                        duration = SnackbarDuration.Short
+                    )
                 }
         }
     }
 
     createCustomListDialogResultRecipient.OnCustomListNavResult(
-        snackbarHostState, vm::performAction)
+        snackbarHostState,
+        vm::performAction
+    )
 
     editCustomListNameDialogResultRecipient.OnCustomListNavResult(
-        snackbarHostState, vm::performAction)
+        snackbarHostState,
+        vm::performAction
+    )
 
     deleteCustomListDialogResultRecipient.OnCustomListNavResult(
-        snackbarHostState, vm::performAction)
+        snackbarHostState,
+        vm::performAction
+    )
 
     updateCustomListResultRecipient.OnCustomListNavResult(snackbarHostState, vm::performAction)
 
@@ -193,7 +212,8 @@ fun SelectLocation(
                 customList: CustomListId,
                 location: GeoLocationId ->
                 navigator.navigate(
-                    CustomListEntrySheetDestination(locationName, customList, location))
+                    CustomListEntrySheetDestination(locationName, customList, location)
+                )
             },
     )
 }
@@ -222,98 +242,105 @@ fun SelectLocationScreen(
         snackbarHost = {
             SnackbarHost(
                 snackbarHostState,
-                snackbar = { snackbarData -> MullvadSnackbar(snackbarData = snackbarData) })
-        }) {
-            Column(modifier = Modifier.padding(it).background(backgroundColor).fillMaxSize()) {
-                SelectLocationTopBar(onBackClick = onBackClick, onFilterClick = onFilterClick)
+                snackbar = { snackbarData -> MullvadSnackbar(snackbarData = snackbarData) }
+            )
+        }
+    ) {
+        Column(modifier = Modifier.padding(it).background(backgroundColor).fillMaxSize()) {
+            SelectLocationTopBar(onBackClick = onBackClick, onFilterClick = onFilterClick)
 
+            when (state) {
+                SelectLocationUiState.Loading -> {}
+                is SelectLocationUiState.Content -> {
+                    if (state.hasFilter) {
+                        FilterCell(
+                            ownershipFilter = state.selectedOwnership,
+                            selectedProviderFilter = state.selectedProvidersCount,
+                            removeOwnershipFilter = removeOwnershipFilter,
+                            removeProviderFilter = removeProviderFilter,
+                        )
+                    }
+                }
+            }
+
+            SearchTextField(
+                modifier =
+                    Modifier.fillMaxWidth()
+                        .height(Dimens.searchFieldHeight)
+                        .padding(horizontal = Dimens.searchFieldHorizontalPadding),
+                backgroundColor = MaterialTheme.colorScheme.tertiaryContainer,
+                textColor = MaterialTheme.colorScheme.onTertiaryContainer,
+            ) { searchString ->
+                onSearchTermInput.invoke(searchString)
+            }
+            Spacer(modifier = Modifier.height(height = Dimens.verticalSpace))
+            val lazyListState = rememberLazyListState()
+            val selectedItemCode = (state as? SelectLocationUiState.Content)?.selectedItem ?: ""
+            RunOnKeyChange(key = selectedItemCode) {
+                val index = state.indexOfSelectedRelayItem()
+
+                if (index >= 0) {
+                    lazyListState.scrollToItem(index)
+                    lazyListState.animateScrollAndCentralizeItem(index)
+                }
+            }
+            LazyColumn(
+                modifier =
+                    Modifier.fillMaxSize()
+                        .drawVerticalScrollbar(
+                            lazyListState,
+                            MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaScrollbar),
+                        ),
+                state = lazyListState,
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
                 when (state) {
-                    SelectLocationUiState.Loading -> {}
+                    SelectLocationUiState.Loading -> {
+                        loading()
+                    }
                     is SelectLocationUiState.Content -> {
-                        if (state.hasFilter) {
-                            FilterCell(
-                                ownershipFilter = state.selectedOwnership,
-                                selectedProviderFilter = state.selectedProvidersCount,
-                                removeOwnershipFilter = removeOwnershipFilter,
-                                removeProviderFilter = removeProviderFilter,
+                        if (state.showCustomLists) {
+                            customLists(
+                                customLists = state.filteredCustomLists,
+                                selectedItem = state.selectedItem,
+                                backgroundColor = backgroundColor,
+                                onSelectRelay = onSelectRelay,
+                                onShowCustomListBottomSheet = showCustomListBottomSheet,
+                                onShowEditBottomSheet = showEditCustomListBottomSheet,
+                                onShowEditCustomListEntryBottomSheet = {
+                                    item: RelayItem.Location,
+                                    customList: RelayItem.CustomList ->
+                                    showEditCustomListEntryBottomSheet(
+                                        item.name,
+                                        customList.id,
+                                        item.id
+                                    )
+                                }
+                            )
+                            item {
+                                Spacer(
+                                    modifier = Modifier.height(Dimens.mediumPadding).animateItem()
+                                )
+                            }
+                        }
+                        if (state.countries.isNotEmpty()) {
+                            relayList(
+                                countries = state.countries,
+                                selectedItem = state.selectedItem,
+                                onSelectRelay = onSelectRelay,
+                                onShowLocationBottomSheet = { location ->
+                                    showLocationBottomSheet(location.name, location.id)
+                                }
                             )
                         }
-                    }
-                }
-
-                SearchTextField(
-                    modifier =
-                        Modifier.fillMaxWidth()
-                            .height(Dimens.searchFieldHeight)
-                            .padding(horizontal = Dimens.searchFieldHorizontalPadding),
-                    backgroundColor = MaterialTheme.colorScheme.tertiaryContainer,
-                    textColor = MaterialTheme.colorScheme.onTertiaryContainer,
-                ) { searchString ->
-                    onSearchTermInput.invoke(searchString)
-                }
-                Spacer(modifier = Modifier.height(height = Dimens.verticalSpace))
-                val lazyListState = rememberLazyListState()
-                val selectedItemCode = (state as? SelectLocationUiState.Content)?.selectedItem ?: ""
-                RunOnKeyChange(key = selectedItemCode) {
-                    val index = state.indexOfSelectedRelayItem()
-
-                    if (index >= 0) {
-                        lazyListState.scrollToItem(index)
-                        lazyListState.animateScrollAndCentralizeItem(index)
-                    }
-                }
-                LazyColumn(
-                    modifier =
-                        Modifier.fillMaxSize()
-                            .drawVerticalScrollbar(
-                                lazyListState,
-                                MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaScrollbar),
-                            ),
-                    state = lazyListState,
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    when (state) {
-                        SelectLocationUiState.Loading -> {
-                            loading()
-                        }
-                        is SelectLocationUiState.Content -> {
-                            if (state.showCustomLists) {
-                                customLists(
-                                    customLists = state.filteredCustomLists,
-                                    selectedItem = state.selectedItem,
-                                    backgroundColor = backgroundColor,
-                                    onSelectRelay = onSelectRelay,
-                                    onShowCustomListBottomSheet = showCustomListBottomSheet,
-                                    onShowEditBottomSheet = showEditCustomListBottomSheet,
-                                    onShowEditCustomListEntryBottomSheet = {
-                                        item: RelayItem.Location,
-                                        customList: RelayItem.CustomList ->
-                                        showEditCustomListEntryBottomSheet(
-                                            item.name, customList.id, item.id)
-                                    })
-                                item {
-                                    Spacer(
-                                        modifier =
-                                            Modifier.height(Dimens.mediumPadding).animateItem())
-                                }
-                            }
-                            if (state.countries.isNotEmpty()) {
-                                relayList(
-                                    countries = state.countries,
-                                    selectedItem = state.selectedItem,
-                                    onSelectRelay = onSelectRelay,
-                                    onShowLocationBottomSheet = { location ->
-                                        showLocationBottomSheet(location.name, location.id)
-                                    })
-                            }
-                            if (state.showEmpty) {
-                                item { LocationsEmptyText(searchTerm = state.searchTerm) }
-                            }
+                        if (state.showEmpty) {
+                            item { LocationsEmptyText(searchTerm = state.searchTerm) }
                         }
                     }
                 }
             }
         }
+    }
 }
 
 @Composable
@@ -366,7 +393,8 @@ private fun LazyListScope.customLists(
         ThreeDotCell(
             text = stringResource(R.string.custom_lists),
             onClickDots = onShowCustomListBottomSheet,
-            modifier = Modifier.testTag(SELECT_LOCATION_CUSTOM_LIST_HEADER_TEST_TAG).animateItem())
+            modifier = Modifier.testTag(SELECT_LOCATION_CUSTOM_LIST_HEADER_TEST_TAG).animateItem()
+        )
     }
     if (customLists.isNotEmpty()) {
         items(
@@ -392,13 +420,15 @@ private fun LazyListScope.customLists(
         item {
             SwitchComposeSubtitleCell(
                 text = stringResource(R.string.to_add_locations_to_a_list),
-                modifier = Modifier.background(backgroundColor).animateItem())
+                modifier = Modifier.background(backgroundColor).animateItem()
+            )
         }
     } else {
         item(contentType = ContentType.EMPTY_TEXT) {
             SwitchComposeSubtitleCell(
                 text = stringResource(R.string.to_create_a_custom_list),
-                modifier = Modifier.background(backgroundColor).animateItem())
+                modifier = Modifier.background(backgroundColor).animateItem()
+            )
         }
     }
 }
@@ -426,7 +456,8 @@ private fun LazyListScope.relayList(
             selectedItem = selectedItem,
             onSelectRelay = onSelectRelay,
             onLongClick = { onShowLocationBottomSheet(it as RelayItem.Location) },
-            modifier = Modifier.animateItem())
+            modifier = Modifier.animateItem()
+        )
     }
 }
 
@@ -465,7 +496,8 @@ private suspend fun SnackbarHostState.showResultSnackbar(
         message = result.message(context),
         actionLabel = context.getString(R.string.undo),
         duration = SnackbarDuration.Long,
-        onAction = { onUndo(result.undo) })
+        onAction = { onUndo(result.undo) }
+    )
 }
 
 private fun CustomListSuccess.message(context: Context): String =
@@ -496,7 +528,10 @@ private fun <D : DestinationSpec, R : CustomListSuccess> ResultRecipient<D, R>
                 // Handle result
                 scope.launch {
                     snackbarHostState.showResultSnackbar(
-                        context = context, result = result.value, onUndo = performAction)
+                        context = context,
+                        result = result.value,
+                        onUndo = performAction
+                    )
                 }
             }
         }

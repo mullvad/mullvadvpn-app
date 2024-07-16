@@ -77,7 +77,8 @@ private fun PreviewServerIpOverridesScreen() {
             onInfoClick = {},
             onResetOverridesClick = {},
             showBottomSheet = {},
-            SnackbarHostState())
+            SnackbarHostState()
+        )
     }
 }
 
@@ -105,7 +106,9 @@ fun ServerIpOverrides(
             is ServerIpOverridesUiSideEffect.ImportResult ->
                 launch {
                     snackbarHostState.showSnackbarImmediately(
-                        message = sideEffect.error.toString(context), actionLabel = null)
+                        message = sideEffect.error.toString(context),
+                        actionLabel = null
+                    )
                 }
         }
     }
@@ -124,7 +127,8 @@ fun ServerIpOverrides(
                     } else {
                         context.getString(R.string.error_occurred)
                     },
-                actionLabel = null)
+                actionLabel = null
+            )
         }
     }
 
@@ -136,7 +140,8 @@ fun ServerIpOverrides(
         onResetOverridesClick =
             dropUnlessResumed { navigator.navigate(ResetServerIpOverridesConfirmationDestination) },
         showBottomSheet = dropUnlessResumed { navigator.navigate(ImportOverridesSheetDestination) },
-        snackbarHostState)
+        snackbarHostState
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -156,28 +161,29 @@ fun ServerIpOverridesScreen(
             TopBarActions(
                 overridesActive = state.overridesActive,
                 onInfoClick = onInfoClick,
-                onResetOverridesClick = onResetOverridesClick)
-        }) { modifier ->
-            Column(
-                modifier = modifier.animateContentSize(),
-            ) {
-                ServerIpOverridesCell(active = state.overridesActive)
+                onResetOverridesClick = onResetOverridesClick
+            )
+        }
+    ) { modifier ->
+        Column(
+            modifier = modifier.animateContentSize(),
+        ) {
+            ServerIpOverridesCell(active = state.overridesActive)
 
-                Spacer(modifier = Modifier.weight(1f))
-                PrimaryButton(
-                    onClick = showBottomSheet,
-                    text = stringResource(R.string.server_ip_overrides_import_button),
-                    modifier =
-                        Modifier.padding(horizontal = Dimens.sideMargin)
-                            .padding(bottom = Dimens.screenVerticalMargin)
-                            .testTag(SERVER_IP_OVERRIDE_IMPORT_TEST_TAG),
-                )
-                SnackbarHost(
-                    hostState = snackbarHostState, modifier = Modifier.animateContentSize()) {
-                        MullvadSnackbar(snackbarData = it)
-                    }
+            Spacer(modifier = Modifier.weight(1f))
+            PrimaryButton(
+                onClick = showBottomSheet,
+                text = stringResource(R.string.server_ip_overrides_import_button),
+                modifier =
+                    Modifier.padding(horizontal = Dimens.sideMargin)
+                        .padding(bottom = Dimens.screenVerticalMargin)
+                        .testTag(SERVER_IP_OVERRIDE_IMPORT_TEST_TAG),
+            )
+            SnackbarHost(hostState = snackbarHostState, modifier = Modifier.animateContentSize()) {
+                MullvadSnackbar(snackbarData = it)
             }
         }
+    }
 }
 
 @Composable
@@ -188,36 +194,42 @@ private fun TopBarActions(
 ) {
     var showMenu by remember { mutableStateOf(false) }
     InfoIconButton(
-        onClick = onInfoClick, modifier = Modifier.testTag(SERVER_IP_OVERRIDE_INFO_TEST_TAG))
+        onClick = onInfoClick,
+        modifier = Modifier.testTag(SERVER_IP_OVERRIDE_INFO_TEST_TAG)
+    )
     IconButton(
         onClick = { showMenu = !showMenu },
-        modifier = Modifier.testTag(SERVER_IP_OVERRIDE_MORE_VERT_TEST_TAG)) {
-            Icon(painterResource(id = R.drawable.icon_more_vert), contentDescription = null)
-        }
+        modifier = Modifier.testTag(SERVER_IP_OVERRIDE_MORE_VERT_TEST_TAG)
+    ) {
+        Icon(painterResource(id = R.drawable.icon_more_vert), contentDescription = null)
+    }
     DropdownMenu(
         modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainer),
         expanded = showMenu,
-        onDismissRequest = { showMenu = false }) {
-            DropdownMenuItem(
-                text = { Text(text = stringResource(R.string.server_ip_overrides_reset)) },
-                onClick = {
-                    showMenu = false
-                    onResetOverridesClick()
-                },
-                enabled = overridesActive ?: false,
-                colors =
-                    MenuDefaults.itemColors(
-                        leadingIconColor = MaterialTheme.colorScheme.onPrimary,
-                        disabledLeadingIconColor =
-                            MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaDisabled)),
-                leadingIcon = {
-                    Icon(
-                        Icons.Filled.Delete,
-                        contentDescription = null,
-                    )
-                },
-                modifier = Modifier.testTag(SERVER_IP_OVERRIDE_RESET_OVERRIDES_TEST_TAG))
-        }
+        onDismissRequest = { showMenu = false }
+    ) {
+        DropdownMenuItem(
+            text = { Text(text = stringResource(R.string.server_ip_overrides_reset)) },
+            onClick = {
+                showMenu = false
+                onResetOverridesClick()
+            },
+            enabled = overridesActive ?: false,
+            colors =
+                MenuDefaults.itemColors(
+                    leadingIconColor = MaterialTheme.colorScheme.onPrimary,
+                    disabledLeadingIconColor =
+                        MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaDisabled)
+                ),
+            leadingIcon = {
+                Icon(
+                    Icons.Filled.Delete,
+                    contentDescription = null,
+                )
+            },
+            modifier = Modifier.testTag(SERVER_IP_OVERRIDE_RESET_OVERRIDES_TEST_TAG)
+        )
+    }
 }
 
 private fun SettingsPatchError?.toString(context: Context) =

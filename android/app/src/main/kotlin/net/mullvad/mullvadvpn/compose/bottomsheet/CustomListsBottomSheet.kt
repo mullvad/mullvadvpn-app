@@ -10,8 +10,8 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.bottomsheet.spec.DestinationStyleBottomSheet
 import com.ramcosta.composedestinations.generated.destinations.CreateCustomListDestination
-import com.ramcosta.composedestinations.generated.destinations.CustomListsSheetDestination
 import com.ramcosta.composedestinations.generated.destinations.CustomListsDestination
+import com.ramcosta.composedestinations.generated.destinations.CustomListsSheetDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.HeaderCell

@@ -52,7 +52,7 @@ fun ImportOverridesSheet(
         IconCell(
             iconId = R.drawable.icon_upload_file,
             title = stringResource(id = R.string.server_ip_overrides_import_by_file),
-            onClick = dropUnlessResumed { resultRecipient.navigateBack(true)},
+            onClick = dropUnlessResumed { resultRecipient.navigateBack(true) },
             background = Color.Unspecified,
             modifier = Modifier.testTag(SERVER_IP_OVERRIDES_IMPORT_BY_FILE_TEST_TAG)
         )
@@ -76,11 +76,11 @@ fun ImportOverridesSheet(
                 )
                 Text(
                     modifier =
-                    Modifier.padding(
-                        top = Dimens.smallPadding,
-                        end = Dimens.mediumPadding,
-                        bottom = Dimens.smallPadding
-                    ),
+                        Modifier.padding(
+                            top = Dimens.smallPadding,
+                            end = Dimens.mediumPadding,
+                            bottom = Dimens.smallPadding
+                        ),
                     text = stringResource(R.string.import_overrides_bottom_sheet_override_warning),
                     maxLines = 2,
                     style = MaterialTheme.typography.bodySmall,

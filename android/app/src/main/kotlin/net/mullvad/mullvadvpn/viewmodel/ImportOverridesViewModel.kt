@@ -20,5 +20,6 @@ class ImportOverridesSheetViewModel(
             .stateIn(
                 viewModelScope,
                 started = SharingStarted.WhileSubscribed(),
-                ImportOverridesSheetUiState(overridesActive = false))
+                ImportOverridesSheetUiState(overridesActive = false)
+            )
 }

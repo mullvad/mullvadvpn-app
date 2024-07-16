@@ -45,7 +45,8 @@ fun MullvadModalBottomSheet(sheetContent: @Composable ColumnScope.() -> Unit) {
     Column(Modifier.fillMaxWidth()) {
         DragHandle(
             modifier = Modifier.align(CenterHorizontally),
-            color = MaterialTheme.colorScheme.onSurface)
+            color = MaterialTheme.colorScheme.onSurface
+        )
         sheetContent()
         Spacer(modifier = Modifier.height(Dimens.smallPadding))
         Spacer(modifier = Modifier.height(paddingValues.calculateBottomPadding()))
