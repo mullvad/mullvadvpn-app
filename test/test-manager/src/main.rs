@@ -94,7 +94,7 @@ enum Commands {
         ///
         /// The CLI interface must be compatible with the upgrade test.
         #[arg(long, short)]
-        previous_app: String,
+        previous_app: Option<String>,
 
         /// Only run tests matching substrings
         test_filters: Vec<String>,
@@ -284,16 +284,10 @@ async fn main() -> Result<()> {
                         .into_owned(),
                     previous_app_filename: manifest
                         .previous_app_path
-                        .file_name()
-                        .unwrap()
-                        .to_string_lossy()
-                        .into_owned(),
+                        .map(|path| path.file_name().unwrap().to_string_lossy().into_owned()),
                     ui_e2e_tests_filename: manifest
                         .ui_e2e_tests_path
-                        .file_name()
-                        .unwrap()
-                        .to_string_lossy()
-                        .into_owned(),
+                        .map(|path| path.file_name().unwrap().to_string_lossy().into_owned()),
                     mullvad_host,
                     #[cfg(target_os = "macos")]
                     host_bridge_name: crate::vm::network::macos::find_vm_bridge()?,

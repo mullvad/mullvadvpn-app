@@ -22,8 +22,13 @@ pub async fn test_install_previous_app(_: TestContext, rpc: ServiceClient) -> an
 
     // install package
     log::debug!("Installing old app");
-    rpc.install_app(get_package_desc(&TEST_CONFIG.previous_app_filename)?)
-        .await?;
+    rpc.install_app(get_package_desc(
+        TEST_CONFIG
+            .previous_app_filename
+            .as_ref()
+            .context("Missing previous app version")?,
+    )?)
+    .await?;
 
     // verify that daemon is running
     if rpc.mullvad_daemon_get_status().await? != ServiceStatus::Running {
