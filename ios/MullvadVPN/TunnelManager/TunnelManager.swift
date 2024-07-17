@@ -939,16 +939,16 @@ final class TunnelManager: StorePaymentObserver {
         let operation = AsyncBlockOperation(dispatchQueue: internalQueue) {
             let currentSettings = self._tunnelSettings
             var updatedSettings = self._tunnelSettings
+            let settingsStrategy = TunnelSettingsStrategy(logger: self.logger)
 
             modificationBlock(&updatedSettings)
 
-            // Select new relay only when relay constraints change.
-            let currentConstraints = currentSettings.relayConstraints
-            let updatedConstraints = updatedSettings.relayConstraints
-            let selectNewRelay = currentConstraints != updatedConstraints
-
             self.setSettings(updatedSettings, persist: true)
-            self.reconnectTunnel(selectNewRelay: selectNewRelay, completionHandler: nil)
+            self.reconnectTunnel(
+                selectNewRelay: settingsStrategy
+                    .shouldReconnectToNewRelay(oldSettings: currentSettings, newSettings: updatedSettings),
+                completionHandler: nil
+            )
         }
 
         operation.completionBlock = {
@@ -1146,27 +1146,27 @@ extension TunnelManager {
 
      ```
      func delay(seconds: UInt) async throws {
-         try await Task.sleep(nanoseconds: UInt64(seconds) * 1_000_000_000)
+     try await Task.sleep(nanoseconds: UInt64(seconds) * 1_000_000_000)
      }
 
      Task {
-         print("Wait 5 seconds")
-         try await delay(seconds: 5)
+     print("Wait 5 seconds")
+     try await delay(seconds: 5)
 
-         print("Simulate active account")
-         self.tunnelManager.simulateAccountExpiration(option: .active)
-         try await delay(seconds: 5)
+     print("Simulate active account")
+     self.tunnelManager.simulateAccountExpiration(option: .active)
+     try await delay(seconds: 5)
 
-         print("Simulate close to expiry")
-         self.tunnelManager.simulateAccountExpiration(option: .closeToExpiry)
-         try await delay(seconds: 10)
+     print("Simulate close to expiry")
+     self.tunnelManager.simulateAccountExpiration(option: .closeToExpiry)
+     try await delay(seconds: 10)
 
-         print("Simulate expired account")
-         self.tunnelManager.simulateAccountExpiration(option: .expired)
-         try await delay(seconds: 5)
+     print("Simulate expired account")
+     self.tunnelManager.simulateAccountExpiration(option: .expired)
+     try await delay(seconds: 5)
 
-         print("Simulate active account")
-         self.tunnelManager.simulateAccountExpiration(option: .active)
+     print("Simulate active account")
+     self.tunnelManager.simulateAccountExpiration(option: .active)
      }
      ```
 

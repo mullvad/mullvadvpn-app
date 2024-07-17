@@ -34,7 +34,6 @@ class RelaySelectorWrapperTests: XCTestCase {
             relayCache: relayCache,
             multihopUpdater: multihopUpdater
         )
-
         multihopStateListener.onNewMultihop?(.off)
 
         let selectedRelays = try wrapper.selectRelays(with: RelayConstraints(), connectionAttemptCount: 0)
