@@ -1,0 +1,5 @@
+framework module MullvadRustRuntimeProxy {
+   header "mullvad_rust_runtime.h"
+   link "libmullvad_ios"
+   export *
+}

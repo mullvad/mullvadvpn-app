@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadRustRuntime
 import MullvadTypes
 
 public final class ShadowsocksTransport: RESTTransport {
