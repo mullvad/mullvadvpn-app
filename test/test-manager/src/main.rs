@@ -79,7 +79,15 @@ enum Commands {
         #[arg(long, short)]
         account: String,
 
-        /// App package to test.
+        /// App package to test. Can be a path to the package, just the package file name, git hash
+        /// or tag. If the direct path is not given, the package is assumed to be in the cache
+        /// directory for the host OS, given by the following table:
+        ///
+        /// |Platform | Value                               | Example                      |
+        /// | ------- | ----------------------------------- | ---------------------------- |
+        /// | Linux   | `$XDG_CACHE_HOME` or `$HOME`/.cache | /home/alice/.cache           |
+        /// | macOS   | `$HOME`/Library/Caches              | /Users/Alice/Library/Caches  |
+        /// | Windows | `{FOLDERID_LocalAppData}`           | C:\Users\Alice\AppData\Local |
         ///
         /// # Note
         ///
@@ -88,7 +96,8 @@ enum Commands {
         #[arg(long, short)]
         current_app: String,
 
-        /// App package to upgrade from.
+        /// App package to upgrade from when running `test_install_previous_app`, can be left empty
+        /// if this test is not ran. Parsed the same way as `--current-app`.
         ///
         /// # Note
         ///
