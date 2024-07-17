@@ -22,7 +22,7 @@ tokio = { workspace = true, features = ["rt"] }
 
 thiserror = { workspace = true }
 futures = "0.3"
-ipnetwork = "0.16"
+ipnetwork = { workspace = true }
 jnix = { version = "0.5.1", features = ["derive"] }
 log = { workspace = true }
 log-panics = "2"

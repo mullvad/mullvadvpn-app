@@ -499,7 +499,7 @@ dependencies = [
  "anstream",
  "anstyle",
  "clap_lex",
- "strsim 0.11.1",
+ "strsim",
 ]
 
 [[package]]
@@ -707,9 +707,9 @@ dependencies = [
 
 [[package]]
 name = "darling"
-version = "0.10.2"
+version = "0.20.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0d706e75d87e35569db781a9b5e2416cff1236a47ed380831f959382ccd5f858"
+checksum = "6f63b86c8a8826a49b8c21f08a2d07338eec8d900540f8630dc76284be802989"
 dependencies = [
  "darling_core",
  "darling_macro",
@@ -717,27 +717,27 @@ dependencies = [
 
 [[package]]
 name = "darling_core"
-version = "0.10.2"
+version = "0.20.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f0c960ae2da4de88a91b2d920c2a7233b400bc33cb28453a2987822d8392519b"
+checksum = "95133861a8032aaea082871032f5815eb9e98cef03fa916ab4500513994df9e5"
 dependencies = [
  "fnv",
  "ident_case",
  "proc-macro2",
  "quote",
- "strsim 0.9.3",
- "syn 1.0.109",
+ "strsim",
+ "syn 2.0.60",
 ]
 
 [[package]]
 name = "darling_macro"
-version = "0.10.2"
+version = "0.20.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d9b5a2f4ac4969822c62224815d069952656cadc7084fdca9751e6d959189b72"
+checksum = "d336a2a514f6ccccaa3e09b02d41d35330c07ddf03a62165fcec10bb561c7806"
 dependencies = [
  "darling_core",
  "quote",
- "syn 1.0.109",
+ "syn 2.0.60",
 ]
 
 [[package]]
@@ -808,27 +808,33 @@ dependencies = [
 
 [[package]]
 name = "derive_builder"
-version = "0.9.0"
+version = "0.20.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a2658621297f2cf68762a6f7dc0bb7e1ff2cfd6583daef8ee0fed6f7ec468ec0"
+checksum = "0350b5cb0331628a5916d6c5c0b72e97393b8b6b03b47a9284f4e7f5a405ffd7"
 dependencies = [
- "darling",
- "derive_builder_core",
- "proc-macro2",
- "quote",
- "syn 1.0.109",
+ "derive_builder_macro",
 ]
 
 [[package]]
 name = "derive_builder_core"
-version = "0.9.0"
+version = "0.20.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2791ea3e372c8495c0bc2033991d76b512cd799d07491fbd6890124db9458bef"
+checksum = "d48cda787f839151732d396ac69e3473923d54312c070ee21e9effcaa8ca0b1d"
 dependencies = [
  "darling",
  "proc-macro2",
  "quote",
- "syn 1.0.109",
+ "syn 2.0.60",
+]
+
+[[package]]
+name = "derive_builder_macro"
+version = "0.20.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "206868b8242f27cecce124c19fd88157fbd0dd334df2587f36417bafbc85097b"
+dependencies = [
+ "derive_builder_core",
+ "syn 2.0.60",
 ]
 
 [[package]]
@@ -1010,16 +1016,6 @@ checksum = "aa68f1b12764fab894d2755d2518754e71b4fd80ecfb822714a1206c2aab39bf"
 dependencies = [
  "cc",
  "libc",
-]
-
-[[package]]
-name = "error-chain"
-version = "0.12.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2d2f06b9cac1506ece98fe3231e3cc9c4410ec3d5b1f24ae1c8946f0742cdefc"
-dependencies = [
- "backtrace",
- "version_check",
 ]
 
 [[package]]
@@ -1717,6 +1713,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1c429fffa658f288669529fc26565f728489a2e39bc7b24a428aaaf51355182e"
 
 [[package]]
+name = "ioctl-sys"
+version = "0.8.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8bd11f3a29434026f5ff98c730b668ba74b1033637b8817940b54d040696133c"
+
+[[package]]
 name = "ipconfig"
 version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1736,9 +1738,9 @@ checksum = "8f518f335dce6725a761382244631d86cf0ccb2863413590b31338feb467f9c3"
 
 [[package]]
 name = "ipnetwork"
-version = "0.16.0"
+version = "0.20.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b8eca9f51da27bc908ef3dd85c21e1bbba794edaf94d7841e37356275b82d31e"
+checksum = "bf466541e9d546596ee94f9f69590f89473455f88372423e0008fc1a7daf100e"
 dependencies = [
  "serde",
 ]
@@ -2819,14 +2821,12 @@ dependencies = [
 
 [[package]]
 name = "pfctl"
-version = "0.4.6"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "27590368dee28aa01e3024b639818a6bf0ad31635d9eca000aad63021a59284d"
+checksum = "3eef3d868ab90cdd1a3814668982f248fbb8849922f2617142e398e7d037a81e"
 dependencies = [
  "derive_builder",
- "errno 0.2.8",
- "error-chain",
- "ioctl-sys",
+ "ioctl-sys 0.8.0",
  "ipnetwork",
  "libc",
 ]
@@ -3769,12 +3769,6 @@ dependencies = [
 
 [[package]]
 name = "strsim"
-version = "0.9.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6446ced80d6c486436db5c078dde11a9f73d42b57fb273121e160b84f63d894c"
-
-[[package]]
-name = "strsim"
 version = "0.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7da8b5736845d9f2fcb837ea5d9e2628564b3b043a70948a3f0b778838c5fb4f"
@@ -4480,7 +4474,7 @@ dependencies = [
  "byteorder",
  "bytes",
  "futures-core",
- "ioctl-sys",
+ "ioctl-sys 0.6.0",
  "libc",
  "thiserror",
  "tokio",
