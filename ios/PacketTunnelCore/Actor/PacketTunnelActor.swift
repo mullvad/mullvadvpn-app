@@ -20,11 +20,11 @@ import WireGuardKitTypes
  - Actor receives events for execution over the `EventChannel`.
 
  - Events are consumed in a detached task via for-await loop over the channel. Each event, once received, is executed in its entirety before the next
-   event is processed. See the implementation of `consumeEvents()` which is the central task dispatcher inside of actor.
+ event is processed. See the implementation of `consumeEvents()` which is the central task dispatcher inside of actor.
 
  - Most of calls that actor performs suspend for a very short amount of time. `EventChannel` proactively discards unwanted tasks as they arrive to prevent
-   future execution, such as repeating commands to reconnect are coalesced and all events prior to stop are discarded entirely as the outcome would be the
-   same anyway.
+ future execution, such as repeating commands to reconnect are coalesced and all events prior to stop are discarded entirely as the outcome would be the
+ same anyway.
  */
 public actor PacketTunnelActor {
     var state: State = .initial {
@@ -209,8 +209,8 @@ extension PacketTunnelActor {
      Reconnect tunnel to new relays. Enters error state on failure.
 
      - Parameters:
-         - nextRelay: next relays to connect to
-         - reason: reason for reconnect
+     - nextRelay: next relays to connect to
+     - reason: reason for reconnect
      */
     private func reconnect(to nextRelays: NextRelays, reason: ActorReconnectReason) async {
         do {
@@ -269,8 +269,8 @@ extension PacketTunnelActor {
      - Reactivate default path observation (disabled when configuring tunnel adapter)
 
      - Parameters:
-         - nextRelays: which relays should be selected next.
-         - reason: reason for reconnect
+     - nextRelays: which relays should be selected next.
+     - reason: reason for reconnect
      */
     private func tryStartConnection(
         withSettings settings: Settings,
@@ -289,16 +289,30 @@ extension PacketTunnelActor {
             state = .reconnecting(connectionState)
         }
 
-        let configurationBuilder = ConfigurationBuilder(
+        let entryConfiguration: TunnelAdapterConfiguration? = if let entry = connectionState.selectedRelays.entry {
+            try ConfigurationBuilder(
+                privateKey: activeKey,
+                interfaceAddresses: settings.interfaceAddresses,
+                dns: settings.dnsServers,
+                endpoint: entry.endpoint,
+                allowedIPs: [
+                    IPAddressRange(from: "\(connectionState.selectedRelays.exit.endpoint.ipv4Relay.ip)/32")!,
+                ]
+            ).makeConfiguration()
+        } else {
+            nil
+        }
+
+        let exitConfiguration = try ConfigurationBuilder(
             privateKey: activeKey,
             interfaceAddresses: settings.interfaceAddresses,
             dns: settings.dnsServers,
-            endpoint: connectionState.connectedEndpoint,
+            endpoint: connectionState.selectedRelays.exit.endpoint,
             allowedIPs: [
                 IPAddressRange(from: "0.0.0.0/0")!,
                 IPAddressRange(from: "::/0")!,
             ]
-        )
+        ).makeConfiguration()
 
         /*
          Stop default path observer while updating WireGuard configuration since it will call the system method
@@ -313,19 +327,22 @@ extension PacketTunnelActor {
             startDefaultPathObserver(notifyObserverWithCurrentPath: true)
         }
 
-        try await tunnelAdapter.start(configuration: configurationBuilder.makeConfiguration())
+        try await tunnelAdapter.startMultihop(
+            entryConfiguration: entryConfiguration,
+            exitConfiguration: exitConfiguration
+        )
 
         // Resume tunnel monitoring and use IPv4 gateway as a probe address.
-        tunnelMonitor.start(probeAddress: connectionState.selectedRelays.exit.endpoint.ipv4Gateway) // TODO: Multihop
+        tunnelMonitor.start(probeAddress: connectionState.selectedRelays.exit.endpoint.ipv4Gateway)
     }
 
     /**
      Derive `ConnectionState` from current `state` updating it with new relays and settings.
 
      - Parameters:
-         - nextRelays: relay preference that should be used when selecting next relays.
-         - settings: current settings
-         - reason: reason for reconnect
+     - nextRelays: relay preference that should be used when selecting next relays.
+     - settings: current settings
+     - reason: reason for reconnect
 
      - Returns: New connection state or `nil` if current state is at or past `.disconnecting` phase.
      */
@@ -348,8 +365,6 @@ extension PacketTunnelActor {
         }
 
         switch state {
-        case .initial:
-            break
         // Handle PQ PSK separately as it doesn't interfere with either the `.connecting` or `.reconnecting` states.
         case var .negotiatingPostQuantumKey(connectionState, _):
             if reason == .connectionLoss {
@@ -359,8 +374,12 @@ extension PacketTunnelActor {
                 connectionState.selectedRelays,
                 connectionState.connectionAttemptCount
             )
+            let connectedRelay = selectedRelays.entry ?? selectedRelays.exit
             connectionState.selectedRelays = selectedRelays
             connectionState.relayConstraints = settings.relayConstraints
+            connectionState.connectedEndpoint = connectedRelay.endpoint
+            connectionState.remotePort = connectedRelay.endpoint.ipv4Relay.port
+
             return connectionState
         case var .connecting(connectionState), var .reconnecting(connectionState):
             if reason == .connectionLoss {
@@ -372,31 +391,37 @@ extension PacketTunnelActor {
                 connectionState.selectedRelays,
                 connectionState.connectionAttemptCount
             )
+            let connectedRelay = selectedRelays.entry ?? selectedRelays.exit
             connectionState.selectedRelays = selectedRelays
             connectionState.relayConstraints = settings.relayConstraints
             connectionState.currentKey = settings.privateKey
+            connectionState.connectedEndpoint = connectedRelay.endpoint
+            connectionState.remotePort = connectedRelay.endpoint.ipv4Relay.port
             return connectionState
         case let .error(blockedState):
             keyPolicy = blockedState.keyPolicy
             lastKeyRotation = blockedState.lastKeyRotation
             networkReachability = blockedState.networkReachability
+            fallthrough
+        case .initial:
+            let selectedRelays = try callRelaySelector(nil, 0)
+            let connectedRelay = selectedRelays.entry ?? selectedRelays.exit
+            return State.ConnectionData(
+                selectedRelays: selectedRelays,
+                relayConstraints: settings.relayConstraints,
+                currentKey: settings.privateKey,
+                keyPolicy: keyPolicy,
+                networkReachability: networkReachability,
+                connectionAttemptCount: 0,
+                lastKeyRotation: lastKeyRotation,
+                connectedEndpoint: connectedRelay.endpoint,
+                transportLayer: .udp,
+                remotePort: connectedRelay.endpoint.ipv4Relay.port,
+                isPostQuantum: settings.quantumResistance.isEnabled
+            )
         case .disconnecting, .disconnected:
             return nil
         }
-        let selectedRelays = try callRelaySelector(nil, 0)
-        return State.ConnectionData(
-            selectedRelays: selectedRelays,
-            relayConstraints: settings.relayConstraints,
-            currentKey: settings.privateKey,
-            keyPolicy: keyPolicy,
-            networkReachability: networkReachability,
-            connectionAttemptCount: 0,
-            lastKeyRotation: lastKeyRotation,
-            connectedEndpoint: selectedRelays.exit.endpoint, // TODO: Multihop
-            transportLayer: .udp,
-            remotePort: selectedRelays.exit.endpoint.ipv4Relay.port, // TODO: Multihop
-            isPostQuantum: settings.quantumResistance.isEnabled
-        )
     }
 
     internal func activeKey(from state: State.ConnectionData, in settings: Settings) -> PrivateKey {
@@ -417,9 +442,9 @@ extension PacketTunnelActor {
         else { return nil }
 
         let obfuscatedEndpoint = protocolObfuscator.obfuscate(
-            connectionState.selectedRelays.exit.endpoint, // TODO: Multihop
+            connectionState.connectedEndpoint,
             settings: settings,
-            retryAttempts: connectionState.selectedRelays.exit.retryAttempts // TODO: Multihop
+            retryAttempts: connectionState.selectedRelays.retryAttempt
         )
 
         let transportLayer = protocolObfuscator.transportLayer.map { $0 } ?? .udp
@@ -442,10 +467,10 @@ extension PacketTunnelActor {
      Select next relay to connect to based on `NextRelays` and other input parameters.
 
      - Parameters:
-         - nextRelays: next relays to connect to.
-         - relayConstraints: relay constraints.
-         - currentRelays: currently selected relays.
-         - connectionAttemptCount: number of failed connection attempts so far.
+     - nextRelays: next relays to connect to.
+     - relayConstraints: relay constraints.
+     - currentRelays: currently selected relays.
+     - connectionAttemptCount: number of failed connection attempts so far.
 
      - Returns: selector result that contains the credentials of the next relays that the tunnel should connect to.
      */
