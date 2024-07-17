@@ -36,7 +36,7 @@ extension WireGuardAdapterError: LocalizedError {
         case let .startWireGuardBackend(code):
             return "Failure to start WireGuard backend (error code: \(code))."
         case .noInterfaceIp:
-            return "No IP address is assigned to the network interface."
+            return "Interface has no IP address specified."
         }
     }
 }
