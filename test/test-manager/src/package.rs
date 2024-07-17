@@ -11,8 +11,8 @@ static VERSION_REGEX: Lazy<Regex> =
 #[derive(Debug, Clone)]
 pub struct Manifest {
     pub current_app_path: PathBuf,
-    pub previous_app_path: PathBuf,
-    pub ui_e2e_tests_path: PathBuf,
+    pub previous_app_path: Option<PathBuf>,
+    pub ui_e2e_tests_path: Option<PathBuf>,
 }
 
 /// Obtain app packages and their filenames
@@ -22,15 +22,20 @@ pub struct Manifest {
 pub async fn get_app_manifest(
     config: &VmConfig,
     current_app: String,
-    previous_app: String,
+    previous_app: Option<String>,
 ) -> Result<Manifest> {
     let package_type = (config.os_type, config.package_type, config.architecture);
 
     let current_app_path = find_app(&current_app, false, package_type).await?;
     log::info!("Current app: {}", current_app_path.display());
 
-    let previous_app_path = find_app(&previous_app, false, package_type).await?;
-    log::info!("Previous app: {}", previous_app_path.display());
+    let previous_app_path = if let Some(previous_app) = previous_app {
+        log::info!("Previous app: {}", previous_app);
+        Some(find_app(&previous_app, false, package_type).await?)
+    } else {
+        log::warn!("No previous app version specified");
+        None
+    };
 
     let capture = VERSION_REGEX
         .captures(current_app_path.to_str().unwrap())
@@ -39,8 +44,12 @@ pub async fn get_app_manifest(
         .map(|c| c.as_str())
         .expect("Could not parse version from package name: {current_app}");
 
-    let ui_e2e_tests_path = find_app(capture, true, package_type).await?;
-    log::info!("Runner executable: {}", ui_e2e_tests_path.display());
+    let ui_e2e_tests_path = find_app(capture, true, package_type).await.ok();
+    if let Some(ui_e2e_tests_path) = &ui_e2e_tests_path {
+        log::info!("GUI e2e test binary: {}", ui_e2e_tests_path.display());
+    } else {
+        log::warn!("Could not find GUI e2e test binary matching, running test that require graphics will not be possible");
+    }
 
     Ok(Manifest {
         current_app_path,

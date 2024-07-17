@@ -37,15 +37,23 @@ pub async fn run_test_env<
         Os::Linux => {
             bin_path = PathBuf::from("/usr/bin/xvfb-run");
 
-            let ui_runner_path =
-                Path::new(&TEST_CONFIG.artifacts_dir).join(&TEST_CONFIG.ui_e2e_tests_filename);
+            let ui_runner_path = Path::new(&TEST_CONFIG.artifacts_dir).join(
+                TEST_CONFIG
+                    .ui_e2e_tests_filename
+                    .as_ref()
+                    .ok_or(Error::MissingGuiTest)?,
+            );
             new_params = std::iter::once(ui_runner_path.to_string_lossy().into_owned())
                 .chain(params.iter().map(|param| param.as_ref().to_owned()))
                 .collect();
         }
         _ => {
-            bin_path =
-                Path::new(&TEST_CONFIG.artifacts_dir).join(&TEST_CONFIG.ui_e2e_tests_filename);
+            bin_path = Path::new(&TEST_CONFIG.artifacts_dir).join(
+                TEST_CONFIG
+                    .ui_e2e_tests_filename
+                    .as_ref()
+                    .ok_or(Error::MissingGuiTest)?,
+            );
             new_params = params
                 .iter()
                 .map(|param| param.as_ref().to_owned())

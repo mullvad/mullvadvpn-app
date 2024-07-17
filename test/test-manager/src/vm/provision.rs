@@ -117,10 +117,18 @@ fn blocking_ssh(
     // Transfer app packages
     ssh_send_file_path(&session, &local_app_manifest.current_app_path, temp_dir)
         .context("Failed to send current app package to remote")?;
-    ssh_send_file_path(&session, &local_app_manifest.previous_app_path, temp_dir)
-        .context("Failed to send previous app package to remote")?;
-    ssh_send_file_path(&session, &local_app_manifest.ui_e2e_tests_path, temp_dir)
-        .context("Failed to send UI test runner to remote")?;
+    if let Some(previous_app_path) = &local_app_manifest.previous_app_path {
+        ssh_send_file_path(&session, previous_app_path, temp_dir)
+            .context("Failed to send previous app package to remote")?;
+    } else {
+        log::warn!("Not copying previous app build to remote")
+    }
+    if let Some(ui_e2e_tests_path) = &local_app_manifest.ui_e2e_tests_path {
+        ssh_send_file_path(&session, ui_e2e_tests_path, temp_dir)
+            .context("Failed to send ui_e2e_tests_path to remote")?;
+    } else {
+        log::warn!("Not copying GUI e2e test to remote")
+    }
 
     // Transfer openvpn cert
     let dest: std::path::PathBuf = temp_dir.join("openvpn.ca.crt");
@@ -157,14 +165,12 @@ fn blocking_ssh(
             .to_string_lossy(),
         local_app_manifest
             .previous_app_path
-            .file_name()
-            .unwrap()
-            .to_string_lossy(),
+            .map(|path| path.file_name().unwrap().to_string_lossy().into_owned())
+            .unwrap_or_default(),
         local_app_manifest
             .ui_e2e_tests_path
-            .file_name()
-            .unwrap()
-            .to_string_lossy(),
+            .map(|path| path.file_name().unwrap().to_string_lossy().into_owned())
+            .unwrap_or_default(),
     );
 
     log::debug!("Running setup script on remote, args: {args}");
