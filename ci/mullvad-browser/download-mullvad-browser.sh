@@ -110,7 +110,7 @@ for repository in "${REPOSITORIES[@]}"; do
     inbox_dir="$NOTIFY_DIR/$repository"
 
     REPOSITORY_TMP_ARTIFACT_DIR=$(mktemp -qdt mullvad-browser-tmp-XXXXXXX)
-    cp "$TMP_DIR"/* "$REPOSITORY_TMP_ARTIFACT_DIR"
+    cp "$WORKDIR"/* "$REPOSITORY_TMP_ARTIFACT_DIR"
 
     repository_notify_file="$inbox_dir/browser.src"
     echo "[#] Notifying $repository_notify_file"
