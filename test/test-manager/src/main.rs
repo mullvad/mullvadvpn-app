@@ -80,14 +80,8 @@ enum Commands {
         account: String,
 
         /// App package to test. Can be a path to the package, just the package file name, git hash
-        /// or tag. If the direct path is not given, the package is assumed to be in the cache
-        /// directory for the host OS, given by the following table:
-        ///
-        /// |Platform | Value                               | Example                      |
-        /// | ------- | ----------------------------------- | ---------------------------- |
-        /// | Linux   | `$XDG_CACHE_HOME` or `$HOME`/.cache | /home/alice/.cache           |
-        /// | macOS   | `$HOME`/Library/Caches              | /Users/Alice/Library/Caches  |
-        /// | Windows | `{FOLDERID_LocalAppData}`           | C:\Users\Alice\AppData\Local |
+        /// or tag. If the direct path is not given, the package is assumed to be in the directory
+        /// specified by the `--package-folder` argument.
         ///
         /// # Note
         ///
@@ -103,7 +97,11 @@ enum Commands {
         ///
         /// The CLI interface must be compatible with the upgrade test.
         #[arg(long, short)]
-        previous_app: Option<String>,
+        old_app: Option<String>,
+
+        /// Folder to search for packages. Defaults to current directory.
+        #[arg(short, long, value_name = "DIR")]
+        package_folder: Option<PathBuf>,
 
         /// Only run tests matching substrings
         test_filters: Vec<String>,
@@ -227,7 +225,8 @@ async fn main() -> Result<()> {
             vnc,
             account,
             current_app,
-            previous_app,
+            old_app,
+            package_folder,
             test_filters,
             verbose,
             test_report,
@@ -261,9 +260,10 @@ async fn main() -> Result<()> {
                 None => None,
             };
 
-            let manifest = package::get_app_manifest(vm_config, current_app, previous_app)
-                .await
-                .context("Could not find the specified app packages")?;
+            let manifest =
+                package::get_app_manifest(vm_config, current_app, old_app, package_folder)
+                    .await
+                    .context("Could not find the specified app packages")?;
 
             let mut instance = vm::run(&config, &name)
                 .await

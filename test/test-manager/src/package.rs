@@ -23,15 +23,17 @@ pub async fn get_app_manifest(
     config: &VmConfig,
     current_app: String,
     previous_app: Option<String>,
+    package_folder: Option<PathBuf>,
 ) -> Result<Manifest> {
     let package_type = (config.os_type, config.package_type, config.architecture);
 
-    let current_app_path = find_app(&current_app, false, package_type).await?;
+    let current_app_path =
+        find_app(&current_app, false, package_type, package_folder.as_ref()).await?;
     log::info!("Current app: {}", current_app_path.display());
 
     let previous_app_path = if let Some(previous_app) = previous_app {
         log::info!("Previous app: {}", previous_app);
-        Some(find_app(&previous_app, false, package_type).await?)
+        Some(find_app(&previous_app, false, package_type, package_folder.as_ref()).await?)
     } else {
         log::warn!("No previous app version specified");
         None
@@ -44,7 +46,9 @@ pub async fn get_app_manifest(
         .map(|c| c.as_str())
         .expect("Could not parse version from package name: {current_app}");
 
-    let ui_e2e_tests_path = find_app(capture, true, package_type).await.ok();
+    let ui_e2e_tests_path = find_app(capture, true, package_type, package_folder.as_ref())
+        .await
+        .ok();
     if let Some(ui_e2e_tests_path) = &ui_e2e_tests_path {
         log::info!("GUI e2e test binary: {}", ui_e2e_tests_path.display());
     } else {
@@ -62,6 +66,7 @@ async fn find_app(
     app: &str,
     e2e_bin: bool,
     package_type: (OsType, Option<PackageType>, Option<Architecture>),
+    package_folder: Option<&PathBuf>,
 ) -> Result<PathBuf> {
     // If it's a path, use that path
     let app_path = Path::new(app);
@@ -73,10 +78,8 @@ async fn find_app(
     let mut app = app.to_owned();
     app.make_ascii_lowercase();
 
-    let packages_dir = dirs::cache_dir()
-        .context("Could not find cache directory")?
-        .join("mullvad-test")
-        .join("packages");
+    let current_dir = std::env::current_dir().expect("Unable to get current directory");
+    let packages_dir = package_folder.unwrap_or(&current_dir);
     fs::create_dir_all(&packages_dir).await?;
     let mut dir = fs::read_dir(packages_dir.clone())
         .await
