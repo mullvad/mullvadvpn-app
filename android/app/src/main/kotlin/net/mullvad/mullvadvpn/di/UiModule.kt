@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.di
 
+import android.content.ComponentName
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
@@ -11,7 +12,9 @@ import net.mullvad.mullvadvpn.constant.IS_PLAY_BUILD
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
 import net.mullvad.mullvadvpn.lib.payment.PaymentProvider
 import net.mullvad.mullvadvpn.lib.shared.VoucherRepository
+import net.mullvad.mullvadvpn.receiver.BootCompletedReceiver
 import net.mullvad.mullvadvpn.repository.ApiAccessRepository
+import net.mullvad.mullvadvpn.repository.AutoStartAndConnectOnBootRepository
 import net.mullvad.mullvadvpn.repository.ChangelogRepository
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.InAppNotificationController
@@ -97,6 +100,10 @@ val uiModule = module {
     single<PackageManager> { androidContext().packageManager }
     single<String>(named(SELF_PACKAGE_NAME)) { androidContext().packageName }
 
+    single<ComponentName>(named(BOOT_COMPLETED_RECEIVER_COMPONENT_NAME)) {
+        ComponentName(androidContext(), BootCompletedReceiver::class.java)
+    }
+
     viewModel { SplitTunnelingViewModel(get(), get(), Dispatchers.Default) }
 
     single { ApplicationsProvider(get(), get(named(SELF_PACKAGE_NAME))) }
@@ -123,6 +130,12 @@ val uiModule = module {
     single { ApiAccessRepository(get()) }
     single { NewDeviceRepository() }
     single { SplashCompleteRepository() }
+    single {
+        AutoStartAndConnectOnBootRepository(
+            get(),
+            get(named(BOOT_COMPLETED_RECEIVER_COMPONENT_NAME))
+        )
+    }
 
     single { AccountExpiryNotificationUseCase(get()) }
     single { TunnelStateNotificationUseCase(get()) }
@@ -187,7 +200,7 @@ val uiModule = module {
     viewModel { SettingsViewModel(get(), get(), IS_PLAY_BUILD) }
     viewModel { SplashViewModel(get(), get(), get(), get()) }
     viewModel { VoucherDialogViewModel(get()) }
-    viewModel { VpnSettingsViewModel(get(), get(), get()) }
+    viewModel { VpnSettingsViewModel(get(), get(), get(), get()) }
     viewModel { WelcomeViewModel(get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
     viewModel { ReportProblemViewModel(get(), get()) }
     viewModel { ViewLogsViewModel(get()) }
@@ -215,3 +228,4 @@ val uiModule = module {
 
 const val SELF_PACKAGE_NAME = "SELF_PACKAGE_NAME"
 const val APP_PREFERENCES_NAME = "${BuildConfig.APPLICATION_ID}.app_preferences"
+const val BOOT_COMPLETED_RECEIVER_COMPONENT_NAME = "BOOT_COMPLETED_RECEIVER_COMPONENT_NAME"
