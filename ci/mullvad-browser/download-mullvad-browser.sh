@@ -47,6 +47,7 @@ function main() {
     echo "[#] Verifying $PACKAGE_FILENAME signature"
     if ! gpg --verify "$PACKAGE_FILENAME".asc; then
         echo "[!] Failed to verify signature"
+        rm "$PACKAGE_FILENAME" "$PACKAGE_FILENAME.asc"
         exit 1
     fi
     rm "$PACKAGE_FILENAME.asc"
@@ -65,7 +66,8 @@ function main() {
     fi
 
     echo "[#] $PACKAGE_FILENAME has changed"
-    ln -f "$PACKAGE_FILENAME" "$WORKDIR/"
+    cp "$PACKAGE_FILENAME" "$WORKDIR/"
+    # Leaving a file in `$TMP_DIR` is used as an indicator further down that something changed
 }
 
 if [[ ${1:-} == "-h" ]] || [[ ${1:-} == "--help" ]]; then
@@ -109,7 +111,7 @@ for repository in "${REPOSITORIES[@]}"; do
     inbox_dir="$NOTIFY_DIR/$repository"
 
     REPOSITORY_TMP_ARTIFACT_DIR=$(mktemp -qdt mullvad-browser-tmp-XXXXXXX)
-    cp "$TMP_DIR"/* "$REPOSITORY_TMP_ARTIFACT_DIR"
+    cp "$WORKDIR"/* "$REPOSITORY_TMP_ARTIFACT_DIR"
 
     repository_notify_file="$inbox_dir/browser.src"
     echo "[#] Notifying $repository_notify_file"
