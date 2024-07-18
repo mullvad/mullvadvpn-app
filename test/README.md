@@ -116,7 +116,7 @@ cargo run --bin test-manager run-tests debian11 \
     --display \
     --account 0123456789 \
     --current-app <git hash or tag> \
-    --previous-app 2023.2
+    --old-app 2023.2
 ```
 
 ## macOS
@@ -142,7 +142,7 @@ cargo run --bin test-manager run-tests macos-ventura \
     --display \
     --account 0123456789 \
     --current-app <git hash or tag> \
-    --previous-app 2023.2
+    --old-app 2023.2
 ```
 
 ## Note on `ci-runtests.sh`
