@@ -4,6 +4,10 @@ on:
   push:
     tags:
       - ios/*
+  pull_request:
+    paths:
+      - ios/Gemfile
+      - ios/Gemfile.lock
   workflow_dispatch:
 jobs:
   test:
