@@ -27,6 +27,10 @@ Line wrap the file at 100 chars.                                              Th
 - Add DAITA (Defence against AI-guided Traffic Analysis) setting.
 - Add WireGuard over Shadowsocks.
 - Add feature indicators to the main view along with redesigning the connection details.
+- Add auto connect and start setting for devices without system vpn settings.
+
+### Removed
+- Legacy auto connect feature.
 
 ### Changed
 - Update colors in the app to be more in line with material design.
