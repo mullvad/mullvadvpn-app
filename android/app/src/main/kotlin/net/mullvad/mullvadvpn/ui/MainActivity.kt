@@ -21,22 +21,27 @@ import net.mullvad.mullvadvpn.repository.PrivacyDisclaimerRepository
 import net.mullvad.mullvadvpn.repository.SplashCompleteRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.viewmodel.NoDaemonViewModel
-import org.koin.android.ext.android.getKoin
+import org.koin.android.ext.android.inject
+import org.koin.android.scope.AndroidScopeComponent
+import org.koin.androidx.scope.activityScope
 import org.koin.core.context.loadKoinModules
 
-class MainActivity : ComponentActivity() {
+class MainActivity : ComponentActivity(), AndroidScopeComponent {
+    override val scope by activityScope()
+
     private val requestNotificationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) {
             // NotificationManager.areNotificationsEnabled is used to check the state rather than
             // handling the callback value.
         }
 
-    private lateinit var privacyDisclaimerRepository: PrivacyDisclaimerRepository
-    private lateinit var serviceConnectionManager: ServiceConnectionManager
-    private lateinit var splashCompleteRepository: SplashCompleteRepository
+    private val intentProvider by inject<IntentProvider>()
+    private val noDaemonViewModel by inject<NoDaemonViewModel>()
+    private val privacyDisclaimerRepository by inject<PrivacyDisclaimerRepository>()
+    private val serviceConnectionManager by inject<ServiceConnectionManager>()
+    private val splashCompleteRepository by inject<SplashCompleteRepository>()
+
     private var isReadyNextDraw: Boolean = false
-    private lateinit var noDaemonViewModel: NoDaemonViewModel
-    private lateinit var intentProvider: IntentProvider
 
     override fun onCreate(savedInstanceState: Bundle?) {
         loadKoinModules(listOf(uiModule, paymentModule))
@@ -44,13 +49,6 @@ class MainActivity : ComponentActivity() {
         // Tell the system that we will draw behind the status bar and navigation bar
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
-        with(getKoin()) {
-            privacyDisclaimerRepository = get()
-            serviceConnectionManager = get()
-            noDaemonViewModel = get()
-            intentProvider = get()
-            splashCompleteRepository = get()
-        }
         lifecycle.addObserver(noDaemonViewModel)
 
         installSplashScreen().setKeepOnScreenCondition {
