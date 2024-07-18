@@ -37,9 +37,11 @@ Line wrap the file at 100 chars.                                              Th
 - Update Electron from 28.1.3 to 30.0.4.
 
 ### Fixed
+- Fix mullvad cli bug causing `mullvad status listen` command to miss events if they occurred
+  too quickly.
+
 #### Windows
 - Fix race condition that could result in crashes when DAITA was enabled during disconnects.
-
 
 ## [2024.3] - 2024-05-15
 This release is identical to 2024.3-beta1.
