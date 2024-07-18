@@ -25,8 +25,8 @@ async fn main() {
         true,
         false,
     )
-    .await
-    .unwrap();
+        .await
+        .unwrap();
 
     println!("private key: {private_key:?}");
     println!("psk: {:?}", ephemeral_peer.psk);
