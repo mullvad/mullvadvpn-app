@@ -27,7 +27,8 @@ impl Status {
     pub async fn listen(mut rpc: MullvadProxyClient, args: StatusArgs) -> Result<()> {
         let mut previous_tunnel_state = None;
 
-        while let Some(event) = rpc.events_listen().await?.next().await {
+        let mut event_stream = rpc.events_listen().await?;
+        while let Some(event) = event_stream.next().await {
             match event? {
                 DaemonEvent::TunnelState(new_state) => {
                     if args.debug {
