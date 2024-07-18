@@ -68,9 +68,8 @@ class AccountViewModel(
 
     fun onManageAccountClick() {
         viewModelScope.launch {
-            accountRepository.getWebsiteAuthToken()?.let { wwwAuthToken ->
-                _uiSideEffect.send(UiSideEffect.OpenAccountManagementPageInBrowser(wwwAuthToken))
-            }
+            val wwwAuthToken = accountRepository.getWebsiteAuthToken()
+            _uiSideEffect.send(UiSideEffect.OpenAccountManagementPageInBrowser(wwwAuthToken))
         }
     }
 
@@ -124,7 +123,8 @@ class AccountViewModel(
     sealed class UiSideEffect {
         data object NavigateToLogin : UiSideEffect()
 
-        data class OpenAccountManagementPageInBrowser(val token: WebsiteAuthToken) : UiSideEffect()
+        data class OpenAccountManagementPageInBrowser(val token: WebsiteAuthToken?) :
+            UiSideEffect()
 
         data class CopyAccountNumber(val accountNumber: String) : UiSideEffect()
     }
