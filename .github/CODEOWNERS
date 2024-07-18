@@ -1,0 +1,26 @@
+# Defining who has to review changes to what files.
+# Try to keep the entries sorted alphabetically, so they end up in the same order as
+# they would if you listed the entire repository as a tree.
+
+# Container images used for building the app are owned by respective team leads and tech lead
+/building/android-container-image.txt @faern @albin-mullvad
+/building/linux-container-image.txt @faern @raksooo
+
+# Developer signing keys must be approved by team/tech leads
+/ci/keys/ @faern @raksooo @pinkisemils @albin-mullvad
+
+# Desktop build server files owned by desktop leads
+/ci/buildserver* @faern @raksooo
+/ci/linux-repository-builder/ @faern @raksooo
+
+# Cargo deny config must be approved by tech lead or desktop team lead
+**/deny.toml @faern @raksooo
+
+# Changes to what CVEs are ignored must be approved by leads
+**/osv-scanner.toml @faern @raksooo @pinkisemils @albin-mullvad
+/.github/workflows/osv-scanner*.yml @faern @raksooo @pinkisemils @albin-mullvad
+
+# The CODEOWNERS itself must be protected from unauthorized changes,
+# otherwise the protection becomes quite moot.
+# Keep this entry last, so it is sure to override any existing previous wildcard match
+/.github/CODEOWNERS @faern @raksooo @pinkisemils @albin-mullvad
