@@ -385,4 +385,6 @@
     <string name="failed_to_set_current_unknown_error">Failed to set to current - Unknown reason</string>
     <string name="location_was_removed_from_list">%s was removed from \"%s\"</string>
     <string name="create_custom_list_message">\"%s\" was created</string>
+    <string name="connect_on_start">Connect on boot</string>
+    <string name="connect_on_start_footer">Automatically connect on device start up. Please make sure the app has VPN permission.</string>
 </resources>
