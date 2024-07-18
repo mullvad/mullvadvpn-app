@@ -23,7 +23,10 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
+<<<<<<< HEAD
 - Add support for predictive back.
+- Add the ability to customize how the app talks to the api.
+- Add auto connect and start setting for devices without system vpn settings.
 
 ### Changed
 - Update colors in the app to be more in line with material design.
