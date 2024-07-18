@@ -4,6 +4,8 @@ import android.content.ComponentName
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DEFAULT
 import android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DISABLED
+import android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED
+import android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DISABLED_USER
 import android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_ENABLED
 import android.content.pm.PackageManager.DONT_KILL_APP
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -33,6 +35,9 @@ class AutoStartAndConnectOnBootRepository(
             COMPONENT_ENABLED_STATE_DEFAULT -> BOOT_COMPLETED_DEFAULT_STATE
             COMPONENT_ENABLED_STATE_ENABLED -> true
             COMPONENT_ENABLED_STATE_DISABLED -> false
+            COMPONENT_ENABLED_STATE_DISABLED_USER,
+            COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED ->
+                error("Enabled setting only applicable for application enabled setting")
             else -> error("Unknown component enabled setting")
         }
 
