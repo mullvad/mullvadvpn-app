@@ -403,4 +403,6 @@
     <string name="connection_details_in">In</string>
     <string name="feature_indicators_show_more">%1$s more...</string>
     <string name="connect">Connect</string>
+    <string name="connect_on_start">Connect on boot</string>
+    <string name="connect_on_start_footer">Automatically connect on device start up. Please make sure the app has VPN permission.</string>
 </resources>
