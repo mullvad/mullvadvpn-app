@@ -855,13 +855,13 @@ private fun CustomListSuccess.message(context: Context): String =
         is Renamed -> context.getString(R.string.name_was_changed_to, name)
         is LocationsChanged ->
             when {
-                addedLocations.isNotEmpty() && removedLocations.isEmpty() ->
+                addedLocations.size == 1 && removedLocations.isEmpty() ->
                     context.getString(
                         R.string.location_was_added_to_list,
                         addedLocations.first(),
                         name
                     )
-                removedLocations.isNotEmpty() && addedLocations.isEmpty() ->
+                removedLocations.size == 1 && addedLocations.isEmpty() ->
                     context.getString(
                         R.string.location_was_removed_from_list,
                         removedLocations.first(),
