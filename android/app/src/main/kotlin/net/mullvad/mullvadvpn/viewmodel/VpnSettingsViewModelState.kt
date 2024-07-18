@@ -25,6 +25,7 @@ data class VpnSettingsViewModelState(
     val customWireguardPort: Port?,
     val availablePortRanges: List<PortRange>,
     val systemVpnSettingsAvailable: Boolean,
+    val autoStartAndConnectOnBoot: Boolean,
 ) {
     val isCustomWireguardPort =
         selectedWireguardPort is Constraint.Only &&
@@ -47,6 +48,7 @@ data class VpnSettingsViewModelState(
             customWireguardPort,
             availablePortRanges,
             systemVpnSettingsAvailable,
+            autoStartAndConnectOnBoot,
         )
 
     companion object {
@@ -67,6 +69,7 @@ data class VpnSettingsViewModelState(
                 customWireguardPort = null,
                 availablePortRanges = emptyList(),
                 systemVpnSettingsAvailable = false,
+                autoStartAndConnectOnBoot = false,
             )
     }
 }
