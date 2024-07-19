@@ -10,7 +10,7 @@ static VERSION_REGEX: Lazy<Regex> =
 #[derive(Debug, Clone)]
 pub struct Manifest {
     pub app_package_path: PathBuf,
-    pub previous_app_path: Option<PathBuf>,
+    pub app_package_to_upgrade_from_path: Option<PathBuf>,
     pub ui_e2e_tests_path: Option<PathBuf>,
 }
 
@@ -21,7 +21,7 @@ pub struct Manifest {
 pub fn get_app_manifest(
     config: &VmConfig,
     app_package: String,
-    previous_app: Option<String>,
+    app_package_to_upgrade_from: Option<String>,
     package_folder: Option<PathBuf>,
 ) -> Result<Manifest> {
     let package_type = (config.os_type, config.package_type, config.architecture);
@@ -29,10 +29,10 @@ pub fn get_app_manifest(
     let app_package_path = find_app(&app_package, false, package_type, package_folder.as_ref())?;
     log::info!("App package: {}", app_package_path.display());
 
-    let previous_app_path = previous_app
+    let app_package_to_upgrade_from_path = app_package_to_upgrade_from
         .map(|app| find_app(&app, false, package_type, package_folder.as_ref()))
         .transpose()?;
-    log::info!("Previous app: {previous_app_path:?}");
+    log::info!("App package to upgrade from: {app_package_to_upgrade_from_path:?}");
 
     let capture = VERSION_REGEX
         .captures(app_package_path.to_str().unwrap())
@@ -46,7 +46,7 @@ pub fn get_app_manifest(
 
     Ok(Manifest {
         app_package_path,
-        previous_app_path,
+        app_package_to_upgrade_from_path,
         ui_e2e_tests_path,
     })
 }
