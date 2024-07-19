@@ -198,7 +198,7 @@ function run_tests_for_os {
         run-tests \
         --account "${ACCOUNT_TOKEN:?Error: ACCOUNT_TOKEN not set}" \
         --app-package "${cur_filename}" \
-        --previous-app "${prev_filename}" \
+        --app-package-to-upgrade-from "${prev_filename}" \
         --package-folder "$PACKAGES_DIR" \
         --test-report "$SCRIPT_DIR/.ci-logs/${os}_report" \
         "$os" 2>&1 | sed "s/${ACCOUNT_TOKEN}/\{ACCOUNT_TOKEN\}/g"

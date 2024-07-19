@@ -117,8 +117,10 @@ fn blocking_ssh(
     // Transfer app packages
     ssh_send_file_path(&session, &local_app_manifest.app_package_path, temp_dir)
         .context("Failed to send current app package to remote")?;
-    if let Some(previous_app_path) = &local_app_manifest.previous_app_path {
-        ssh_send_file_path(&session, previous_app_path, temp_dir)
+    if let Some(app_package_to_upgrade_from_path) =
+        &local_app_manifest.app_package_to_upgrade_from_path
+    {
+        ssh_send_file_path(&session, app_package_to_upgrade_from_path, temp_dir)
             .context("Failed to send previous app package to remote")?;
     } else {
         log::warn!("No previous app to send to remote")
@@ -160,8 +162,8 @@ fn blocking_ssh(
         .file_name()
         .unwrap()
         .to_string_lossy();
-    let previous_app_path = local_app_manifest
-        .previous_app_path
+    let app_package_to_upgrade_from_path = local_app_manifest
+        .app_package_to_upgrade_from_path
         .map(|path| path.file_name().unwrap().to_string_lossy().into_owned())
         .unwrap_or_default();
     let ui_e2e_tests_path = local_app_manifest
@@ -170,7 +172,7 @@ fn blocking_ssh(
         .unwrap_or_default();
 
     let cmd = format!(
-        "sudo {} {remote_dir} \"{app_package_path}\" \"{previous_app_path}\" \"{ui_e2e_tests_path}\"",
+        "sudo {} {remote_dir} \"{app_package_path}\" \"{app_package_to_upgrade_from_path}\" \"{ui_e2e_tests_path}\"",
         dest.display()
     );
     log::debug!("Running setup script on remote, cmd: {cmd}");

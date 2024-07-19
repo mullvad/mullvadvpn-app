@@ -97,7 +97,7 @@ enum Commands {
         ///
         /// The CLI interface must be compatible with the upgrade test.
         #[arg(long)]
-        previous_app: Option<String>,
+        app_package_to_upgrade_from: Option<String>,
 
         /// Folder to search for packages. Defaults to current directory.
         #[arg(long, value_name = "DIR")]
@@ -225,7 +225,7 @@ async fn main() -> Result<()> {
             vnc,
             account,
             app_package,
-            previous_app,
+            app_package_to_upgrade_from,
             package_folder,
             test_filters,
             verbose,
@@ -260,10 +260,14 @@ async fn main() -> Result<()> {
                 None => None,
             };
 
-            let manifest =
-                package::get_app_manifest(vm_config, app_package, previous_app, package_folder)
-                    .await
-                    .context("Could not find the specified app packages")?;
+            let manifest = package::get_app_manifest(
+                vm_config,
+                app_package,
+                app_package_to_upgrade_from,
+                package_folder,
+            )
+            .await
+            .context("Could not find the specified app packages")?;
 
             let mut instance = vm::run(&config, &name)
                 .await
@@ -291,8 +295,8 @@ async fn main() -> Result<()> {
                         .unwrap()
                         .to_string_lossy()
                         .into_owned(),
-                    previous_app_filename: manifest
-                        .previous_app_path
+                    app_package_to_upgrade_from_filename: manifest
+                        .app_package_to_upgrade_from_path
                         .map(|path| path.file_name().unwrap().to_string_lossy().into_owned()),
                     ui_e2e_tests_filename: manifest
                         .ui_e2e_tests_path

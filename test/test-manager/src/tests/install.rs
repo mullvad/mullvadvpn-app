@@ -24,7 +24,7 @@ pub async fn test_install_previous_app(_: TestContext, rpc: ServiceClient) -> an
     log::debug!("Installing old app");
     rpc.install_app(get_package_desc(
         TEST_CONFIG
-            .previous_app_filename
+            .app_package_to_upgrade_from_filename
             .as_ref()
             .context("Missing previous app version")?,
     )?)
