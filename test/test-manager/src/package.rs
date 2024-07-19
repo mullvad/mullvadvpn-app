@@ -3,7 +3,6 @@ use anyhow::{Context, Result};
 use once_cell::sync::Lazy;
 use regex::Regex;
 use std::path::{Path, PathBuf};
-use tokio::fs;
 
 static VERSION_REGEX: Lazy<Regex> =
     Lazy::new(|| Regex::new(r"\d{4}\.\d+(-beta\d+)?(-dev)?-([0-9a-z])+").unwrap());
@@ -19,7 +18,7 @@ pub struct Manifest {
 /// If it's a path, use the path.
 /// If it corresponds to a file in packages/, use that package.
 /// TODO: If it's a git tag or rev, download it.
-pub async fn get_app_manifest(
+pub fn get_app_manifest(
     config: &VmConfig,
     current_app: String,
     previous_app: Option<String>,
@@ -27,17 +26,13 @@ pub async fn get_app_manifest(
 ) -> Result<Manifest> {
     let package_type = (config.os_type, config.package_type, config.architecture);
 
-    let current_app_path =
-        find_app(&current_app, false, package_type, package_folder.as_ref()).await?;
+    let current_app_path = find_app(&current_app, false, package_type, package_folder.as_ref())?;
     log::info!("Current app: {}", current_app_path.display());
 
-    let previous_app_path = if let Some(previous_app) = previous_app {
-        log::info!("Previous app: {}", previous_app);
-        Some(find_app(&previous_app, false, package_type, package_folder.as_ref()).await?)
-    } else {
-        log::warn!("No previous app version specified");
-        None
-    };
+    let previous_app_path = previous_app
+        .map(|app| find_app(&app, false, package_type, package_folder.as_ref()))
+        .transpose()?;
+    log::info!("Previous app: {previous_app_path:?}");
 
     let capture = VERSION_REGEX
         .captures(current_app_path.to_str().unwrap())
@@ -46,14 +41,8 @@ pub async fn get_app_manifest(
         .map(|c| c.as_str())
         .expect("Could not parse version from package name: {current_app}");
 
-    let ui_e2e_tests_path = find_app(capture, true, package_type, package_folder.as_ref())
-        .await
-        .ok();
-    if let Some(ui_e2e_tests_path) = &ui_e2e_tests_path {
-        log::info!("GUI e2e test binary: {}", ui_e2e_tests_path.display());
-    } else {
-        log::warn!("Could not find UI e2e test binary");
-    }
+    let ui_e2e_tests_path = find_app(capture, true, package_type, package_folder.as_ref()).ok();
+    log::info!("GUI e2e test binary: {ui_e2e_tests_path:?}");
 
     Ok(Manifest {
         current_app_path,
@@ -62,7 +51,7 @@ pub async fn get_app_manifest(
     })
 }
 
-async fn find_app(
+fn find_app(
     app: &str,
     e2e_bin: bool,
     package_type: (OsType, Option<PackageType>, Option<Architecture>),
@@ -80,14 +69,12 @@ async fn find_app(
 
     let current_dir = std::env::current_dir().expect("Unable to get current directory");
     let packages_dir = package_folder.unwrap_or(&current_dir);
-    fs::create_dir_all(&packages_dir).await?;
-    let mut dir = fs::read_dir(packages_dir.clone())
-        .await
-        .context("Failed to list packages")?;
+    std::fs::create_dir_all(packages_dir)?;
+    let mut dir = std::fs::read_dir(packages_dir.clone()).context("Failed to list packages")?;
 
     let mut matches = vec![];
 
-    while let Ok(Some(entry)) = dir.next_entry().await {
+    while let Some(Ok(entry)) = dir.next() {
         let path = entry.path();
         if !path.is_file() {
             continue;

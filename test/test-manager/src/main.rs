@@ -262,7 +262,6 @@ async fn main() -> Result<()> {
 
             let manifest =
                 package::get_app_manifest(vm_config, current_app, previous_app, package_folder)
-                    .await
                     .context("Could not find the specified app packages")?;
 
             let mut instance = vm::run(&config, &name)
