@@ -33,7 +33,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
-import com.ramcosta.composedestinations.generated.destinations.DiscardChangesDialogDestination
+import com.ramcosta.composedestinations.generated.destinations.DiscardChangesDestination
 import com.ramcosta.composedestinations.generated.destinations.SaveApiAccessMethodDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultBackNavigator
@@ -93,7 +93,7 @@ fun EditApiAccessMethod(
     navigator: DestinationsNavigator,
     backNavigator: ResultBackNavigator<Boolean>,
     saveApiAccessMethodResultRecipient: ResultRecipient<SaveApiAccessMethodDestination, Boolean>,
-    discardChangesResultRecipient: ResultRecipient<DiscardChangesDialogDestination, Boolean>,
+    discardChangesResultRecipient: ResultRecipient<DiscardChangesDestination, Boolean>,
 ) {
     val viewModel = koinViewModel<EditApiAccessMethodViewModel>()
 
@@ -179,7 +179,7 @@ fun EditApiAccessMethod(
         onAddMethod = viewModel::trySave,
         onNavigateBack = {
             if (state.hasChanges()) {
-                navigator.navigate(DiscardChangesDialogDestination) { launchSingleTop = true }
+                navigator.navigate(DiscardChangesDestination) { launchSingleTop = true }
             } else {
                 navigator.navigateUp()
             }

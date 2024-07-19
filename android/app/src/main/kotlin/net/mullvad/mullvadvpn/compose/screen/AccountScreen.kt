@@ -28,11 +28,11 @@ import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.NavGraphs
-import com.ramcosta.composedestinations.generated.destinations.DeviceNameInfoDialogDestination
+import com.ramcosta.composedestinations.generated.destinations.DeviceNameInfoDestination
 import com.ramcosta.composedestinations.generated.destinations.LoginDestination
 import com.ramcosta.composedestinations.generated.destinations.PaymentDestination
 import com.ramcosta.composedestinations.generated.destinations.RedeemVoucherDestination
-import com.ramcosta.composedestinations.generated.destinations.VerificationPendingDialogDestination
+import com.ramcosta.composedestinations.generated.destinations.VerificationPendingDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
@@ -136,12 +136,11 @@ fun Account(
         },
         onCopyAccountNumber = vm::onCopyAccountNumber,
         onBackClick = dropUnlessResumed { navigator.navigateUp() },
-        navigateToDeviceInfo =
-            dropUnlessResumed { navigator.navigate(DeviceNameInfoDialogDestination) },
+        navigateToDeviceInfo = dropUnlessResumed { navigator.navigate(DeviceNameInfoDestination) },
         onPurchaseBillingProductClick =
             dropUnlessResumed { productId -> navigator.navigate(PaymentDestination(productId)) },
         navigateToVerificationPendingDialog =
-            dropUnlessResumed { navigator.navigate(VerificationPendingDialogDestination) }
+            dropUnlessResumed { navigator.navigate(VerificationPendingDestination) }
     )
 }
 

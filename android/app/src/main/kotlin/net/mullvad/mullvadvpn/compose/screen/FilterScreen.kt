@@ -70,7 +70,7 @@ private fun PreviewFilterScreen() {
 
 @Destination<RootGraph>(style = SlideInFromRightTransition::class)
 @Composable
-fun FilterScreen(navigator: DestinationsNavigator) {
+fun Filter(navigator: DestinationsNavigator) {
     val viewModel = koinViewModel<FilterViewModel>()
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 

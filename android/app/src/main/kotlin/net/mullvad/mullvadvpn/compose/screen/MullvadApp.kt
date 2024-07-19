@@ -13,7 +13,7 @@ import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.generated.NavGraphs
 import com.ramcosta.composedestinations.generated.destinations.ChangelogDestination
 import com.ramcosta.composedestinations.generated.destinations.ConnectDestination
-import com.ramcosta.composedestinations.generated.destinations.NoDaemonScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.NoDaemonDestination
 import com.ramcosta.composedestinations.generated.destinations.OutOfTimeDestination
 import com.ramcosta.composedestinations.rememberNavHostEngine
 import com.ramcosta.composedestinations.utils.destination
@@ -55,8 +55,8 @@ fun MullvadApp() {
     LaunchedEffectCollect(serviceVm.uiSideEffect) {
         when (it) {
             DaemonScreenEvent.Show ->
-                navController.navigate(NoDaemonScreenDestination) { launchSingleTop = true }
-            DaemonScreenEvent.Remove -> navController.popBackStack(NoDaemonScreenDestination, true)
+                navController.navigate(NoDaemonDestination) { launchSingleTop = true }
+            DaemonScreenEvent.Remove -> navController.popBackStack(NoDaemonDestination, true)
         }
     }
 

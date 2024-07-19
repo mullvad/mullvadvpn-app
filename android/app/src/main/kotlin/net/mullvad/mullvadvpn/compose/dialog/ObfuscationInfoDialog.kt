@@ -14,12 +14,12 @@ import net.mullvad.mullvadvpn.R
 @Preview
 @Composable
 private fun PreviewObfuscationInfoDialog() {
-    ObfuscationInfoDialog(EmptyDestinationsNavigator)
+    ObfuscationInfo(EmptyDestinationsNavigator)
 }
 
 @Destination<RootGraph>(style = DestinationStyle.Dialog::class)
 @Composable
-fun ObfuscationInfoDialog(navigator: DestinationsNavigator) {
+fun ObfuscationInfo(navigator: DestinationsNavigator) {
     InfoDialog(
         message = stringResource(id = R.string.obfuscation_info),
         onDismiss = dropUnlessResumed { navigator.navigateUp() }

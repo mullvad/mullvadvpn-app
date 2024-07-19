@@ -15,12 +15,12 @@ import net.mullvad.mullvadvpn.lib.theme.AppTheme
 @Preview
 @Composable
 private fun PreviewUdpOverTcpPortInfoDialog() {
-    AppTheme { UdpOverTcpPortInfoDialog(EmptyDestinationsNavigator) }
+    AppTheme { UdpOverTcpPortInfo(EmptyDestinationsNavigator) }
 }
 
 @Destination<RootGraph>(style = DestinationStyle.Dialog::class)
 @Composable
-fun UdpOverTcpPortInfoDialog(navigator: DestinationsNavigator) {
+fun UdpOverTcpPortInfo(navigator: DestinationsNavigator) {
     InfoDialog(
         message = stringResource(id = R.string.udp_over_tcp_port_info),
         onDismiss = dropUnlessResumed { navigator.navigateUp() }

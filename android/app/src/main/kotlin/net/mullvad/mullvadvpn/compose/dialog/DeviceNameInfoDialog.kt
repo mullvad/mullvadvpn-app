@@ -11,7 +11,7 @@ import net.mullvad.mullvadvpn.R
 
 @Destination<RootGraph>(style = DestinationStyle.Dialog::class)
 @Composable
-fun DeviceNameInfoDialog(navigator: DestinationsNavigator) {
+fun DeviceNameInfo(navigator: DestinationsNavigator) {
     InfoDialog(
         message =
             buildString {

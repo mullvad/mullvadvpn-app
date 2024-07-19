@@ -20,7 +20,7 @@ import net.mullvad.mullvadvpn.util.asString
 @Composable
 private fun PreviewWireguardPortInfoDialog() {
     AppTheme {
-        WireguardPortInfoDialog(
+        WireguardPortInfo(
             EmptyDestinationsNavigator,
             argument = WireguardPortInfoDialogArgument(listOf(PortRange(1..2)))
         )
@@ -31,10 +31,7 @@ private fun PreviewWireguardPortInfoDialog() {
 
 @Destination<RootGraph>(style = DestinationStyle.Dialog::class)
 @Composable
-fun WireguardPortInfoDialog(
-    navigator: DestinationsNavigator,
-    argument: WireguardPortInfoDialogArgument
-) {
+fun WireguardPortInfo(navigator: DestinationsNavigator, argument: WireguardPortInfoDialogArgument) {
     InfoDialog(
         message = stringResource(id = R.string.wireguard_port_info_description),
         additionalInfo =

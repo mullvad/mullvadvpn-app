@@ -14,12 +14,12 @@ import net.mullvad.mullvadvpn.R
 @Preview
 @Composable
 private fun PreviewCustomDnsInfoDialog() {
-    CustomDnsInfoDialog(EmptyDestinationsNavigator)
+    CustomDnsInfo(EmptyDestinationsNavigator)
 }
 
 @Destination<RootGraph>(style = DestinationStyle.Dialog::class)
 @Composable
-fun CustomDnsInfoDialog(navigator: DestinationsNavigator) {
+fun CustomDnsInfo(navigator: DestinationsNavigator) {
     InfoDialog(
         message = stringResource(id = R.string.settings_changes_effect_warning_content_blocker),
         onDismiss = dropUnlessResumed { navigator.navigateUp() }

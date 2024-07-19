@@ -3,7 +3,7 @@ package net.mullvad.mullvadvpn.viewmodel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.destinations.MtuDialogDestination
+import com.ramcosta.composedestinations.generated.destinations.MtuDestination
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
@@ -22,7 +22,7 @@ class MtuDialogViewModel(
     savedStateHandle: SavedStateHandle,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
-    private val navArgs = MtuDialogDestination.argsFrom(savedStateHandle)
+    private val navArgs = MtuDestination.argsFrom(savedStateHandle)
 
     private val _mtuInput = MutableStateFlow(navArgs.initialMtu?.value?.toString() ?: "")
     private val _isValidMtu = MutableStateFlow(true)
