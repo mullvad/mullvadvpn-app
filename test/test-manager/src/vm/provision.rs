@@ -115,7 +115,7 @@ fn blocking_ssh(
         .context("Failed to send connection-checker to remote")?;
 
     // Transfer app packages
-    ssh_send_file_path(&session, &local_app_manifest.current_app_path, temp_dir)
+    ssh_send_file_path(&session, &local_app_manifest.app_package_path, temp_dir)
         .context("Failed to send current app package to remote")?;
     if let Some(previous_app_path) = &local_app_manifest.previous_app_path {
         ssh_send_file_path(&session, previous_app_path, temp_dir)
@@ -155,8 +155,8 @@ fn blocking_ssh(
     .context("failed to send bootstrap script to remote")?;
 
     // Run setup script
-    let current_app_path = local_app_manifest
-        .current_app_path
+    let app_package_path = local_app_manifest
+        .app_package_path
         .file_name()
         .unwrap()
         .to_string_lossy();
@@ -170,7 +170,7 @@ fn blocking_ssh(
         .unwrap_or_default();
 
     let cmd = format!(
-        "sudo {} {remote_dir} \"{current_app_path}\" \"{previous_app_path}\" \"{ui_e2e_tests_path}\"",
+        "sudo {} {remote_dir} \"{app_package_path}\" \"{previous_app_path}\" \"{ui_e2e_tests_path}\"",
         dest.display()
     );
     log::debug!("Running setup script on remote, cmd: {cmd}");

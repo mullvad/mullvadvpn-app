@@ -87,11 +87,11 @@ enum Commands {
         ///
         /// The gRPC interface must be compatible with the version specified for
         /// `mullvad-management-interface` in Cargo.toml.
-        #[arg(long, short)]
-        current_app: String,
+        #[arg(long)]
+        app_package: String,
 
         /// App package to upgrade from when running `test_install_previous_app`, can be left empty
-        /// if this test is not ran. Parsed the same way as `--current-app`.
+        /// if this test is not ran. Parsed the same way as `--app-package`.
         ///
         /// # Note
         ///
@@ -224,7 +224,7 @@ async fn main() -> Result<()> {
             display,
             vnc,
             account,
-            current_app,
+            app_package,
             previous_app,
             package_folder,
             test_filters,
@@ -261,7 +261,7 @@ async fn main() -> Result<()> {
             };
 
             let manifest =
-                package::get_app_manifest(vm_config, current_app, previous_app, package_folder)
+                package::get_app_manifest(vm_config, app_package, previous_app, package_folder)
                     .await
                     .context("Could not find the specified app packages")?;
 
@@ -285,8 +285,8 @@ async fn main() -> Result<()> {
                 tests::config::TestConfig {
                     account_number: account,
                     artifacts_dir,
-                    current_app_filename: manifest
-                        .current_app_path
+                    app_package_filename: manifest
+                        .app_package_path
                         .file_name()
                         .unwrap()
                         .to_string_lossy()
