@@ -9,7 +9,7 @@ static VERSION_REGEX: Lazy<Regex> =
 
 #[derive(Debug, Clone)]
 pub struct Manifest {
-    pub current_app_path: PathBuf,
+    pub app_package_path: PathBuf,
     pub previous_app_path: Option<PathBuf>,
     pub ui_e2e_tests_path: Option<PathBuf>,
 }
@@ -20,14 +20,14 @@ pub struct Manifest {
 /// TODO: If it's a git tag or rev, download it.
 pub fn get_app_manifest(
     config: &VmConfig,
-    current_app: String,
+    app_package: String,
     previous_app: Option<String>,
     package_folder: Option<PathBuf>,
 ) -> Result<Manifest> {
     let package_type = (config.os_type, config.package_type, config.architecture);
 
-    let current_app_path = find_app(&current_app, false, package_type, package_folder.as_ref())?;
-    log::info!("Current app: {}", current_app_path.display());
+    let app_package_path = find_app(&app_package, false, package_type, package_folder.as_ref())?;
+    log::info!("App package: {}", app_package_path.display());
 
     let previous_app_path = previous_app
         .map(|app| find_app(&app, false, package_type, package_folder.as_ref()))
@@ -35,17 +35,17 @@ pub fn get_app_manifest(
     log::info!("Previous app: {previous_app_path:?}");
 
     let capture = VERSION_REGEX
-        .captures(current_app_path.to_str().unwrap())
-        .with_context(|| format!("Cannot parse version: {}", current_app_path.display()))?
+        .captures(app_package_path.to_str().unwrap())
+        .with_context(|| format!("Cannot parse version: {}", app_package_path.display()))?
         .get(0)
         .map(|c| c.as_str())
-        .expect("Could not parse version from package name: {current_app}");
+        .expect("Could not parse version from package name: {app_package}");
 
     let ui_e2e_tests_path = find_app(capture, true, package_type, package_folder.as_ref()).ok();
     log::info!("GUI e2e test binary: {ui_e2e_tests_path:?}");
 
     Ok(Manifest {
-        current_app_path,
+        app_package_path,
         previous_app_path,
         ui_e2e_tests_path,
     })
