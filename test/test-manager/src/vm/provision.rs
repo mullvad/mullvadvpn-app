@@ -160,7 +160,7 @@ fn blocking_ssh(
         .file_name()
         .unwrap()
         .to_string_lossy();
-    let old_app_path = local_app_manifest
+    let previous_app_path = local_app_manifest
         .previous_app_path
         .map(|path| path.file_name().unwrap().to_string_lossy().into_owned())
         .unwrap_or_default();
@@ -170,7 +170,7 @@ fn blocking_ssh(
         .unwrap_or_default();
 
     let cmd = format!(
-        "sudo {} {remote_dir} \"{current_app_path}\" \"{old_app_path}\" \"{ui_e2e_tests_path}\"",
+        "sudo {} {remote_dir} \"{current_app_path}\" \"{previous_app_path}\" \"{ui_e2e_tests_path}\"",
         dest.display()
     );
     log::debug!("Running setup script on remote, cmd: {cmd}");
