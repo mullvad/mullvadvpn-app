@@ -16,7 +16,7 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.HeaderCell
 import net.mullvad.mullvadvpn.compose.cell.IconCell
-import net.mullvad.mullvadvpn.compose.component.MullvadModalBottomSheet
+import net.mullvad.mullvadvpn.compose.component.MullvadModalBottomContainer
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInactive
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
 
@@ -24,7 +24,7 @@ import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
 @Destination<RootGraph>(style = DestinationStyleBottomSheet::class)
 @Composable
 fun CustomListsSheet(navigator: DestinationsNavigator, editListEnabled: Boolean) {
-    MullvadModalBottomSheet {
+    MullvadModalBottomContainer {
         HeaderCell(
             text = stringResource(id = R.string.edit_custom_lists),
             background = Color.Unspecified

@@ -25,7 +25,7 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 @Composable
 private fun PreviewMullvadModalBottomSheet() {
     AppTheme {
-        MullvadModalBottomSheet {
+        MullvadModalBottomContainer {
             HeaderCell(
                 text = "Title",
             )
@@ -40,7 +40,7 @@ private fun PreviewMullvadModalBottomSheet() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MullvadModalBottomSheet(sheetContent: @Composable ColumnScope.() -> Unit) {
+fun MullvadModalBottomContainer(sheetContent: @Composable ColumnScope.() -> Unit) {
     val paddingValues = BottomSheetDefaults.windowInsets.asPaddingValues()
     Column(Modifier.fillMaxWidth()) {
         DragHandle(

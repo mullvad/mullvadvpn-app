@@ -13,6 +13,8 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.LocationsChanged
+import net.mullvad.mullvadvpn.compose.state.CustomListEntry
+import net.mullvad.mullvadvpn.compose.state.LocationUiState
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.relaylist.descendants
 import net.mullvad.mullvadvpn.relaylist.findByGeoLocationId
@@ -20,26 +22,6 @@ import net.mullvad.mullvadvpn.relaylist.withDescendants
 import net.mullvad.mullvadvpn.usecase.FilteredRelayListUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListsRelayItemUseCase
-
-sealed interface LocationUiState {
-    val name: String
-
-    data class Loading(override val name: String) : LocationUiState
-
-    data class Content(val location: RelayItem.Location, val customLists: List<CustomListEntry>) :
-        LocationUiState {
-        override val name: String = location.name
-    }
-}
-
-data class CustomListEntry(val customList: RelayItem.CustomList, val canAdd: Boolean)
-
-sealed interface LocationSideEffect {
-    data object GenericError : LocationSideEffect
-
-    data class LocationAddedToCustomList(val locationsChanged: LocationsChanged) :
-        LocationSideEffect
-}
 
 class LocationSheetViewModel(
     filteredRelayListUseCase: FilteredRelayListUseCase,
@@ -82,4 +64,11 @@ class LocationSheetViewModel(
                 )
         }
     }
+}
+
+sealed interface LocationSideEffect {
+    data object GenericError : LocationSideEffect
+
+    data class LocationAddedToCustomList(val locationsChanged: LocationsChanged) :
+        LocationSideEffect
 }

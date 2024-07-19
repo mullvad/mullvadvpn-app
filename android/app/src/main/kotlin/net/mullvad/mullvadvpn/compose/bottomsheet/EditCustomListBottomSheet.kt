@@ -20,10 +20,10 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.HeaderCell
 import net.mullvad.mullvadvpn.compose.cell.IconCell
-import net.mullvad.mullvadvpn.compose.component.MullvadModalBottomSheet
+import net.mullvad.mullvadvpn.compose.component.MullvadModalBottomContainer
+import net.mullvad.mullvadvpn.compose.state.CustomListSheetUiState
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
-import net.mullvad.mullvadvpn.viewmodel.CustomListSheetUiState
 import net.mullvad.mullvadvpn.viewmodel.CustomListSheetViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -43,7 +43,7 @@ fun CustomListSheet(
 ) {
     val vm = koinViewModel<CustomListSheetViewModel>()
     val state = vm.uiState.collectAsStateWithLifecycle()
-    MullvadModalBottomSheet {
+    MullvadModalBottomContainer {
         CustomListContent(
             state.value,
             dropUnlessResumed {

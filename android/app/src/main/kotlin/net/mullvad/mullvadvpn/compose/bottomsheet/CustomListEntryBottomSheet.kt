@@ -15,7 +15,7 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.HeaderCell
 import net.mullvad.mullvadvpn.compose.cell.IconCell
 import net.mullvad.mullvadvpn.compose.communication.LocationsChanged
-import net.mullvad.mullvadvpn.compose.component.MullvadModalBottomSheet
+import net.mullvad.mullvadvpn.compose.component.MullvadModalBottomContainer
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
@@ -45,7 +45,7 @@ fun CustomListEntrySheet(backNavigator: ResultBackNavigator<LocationsChanged>) {
                 backNavigator.navigateBack(it.locationsChanged)
         }
     }
-    MullvadModalBottomSheet {
+    MullvadModalBottomContainer {
         HeaderCell(
             text =
                 stringResource(id = R.string.remove_location_from_list, state.value.locationName),

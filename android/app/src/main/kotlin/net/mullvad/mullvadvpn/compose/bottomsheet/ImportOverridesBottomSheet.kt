@@ -26,7 +26,7 @@ import com.ramcosta.composedestinations.result.ResultBackNavigator
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.HeaderCell
 import net.mullvad.mullvadvpn.compose.cell.IconCell
-import net.mullvad.mullvadvpn.compose.component.MullvadModalBottomSheet
+import net.mullvad.mullvadvpn.compose.component.MullvadModalBottomContainer
 import net.mullvad.mullvadvpn.compose.test.SERVER_IP_OVERRIDES_IMPORT_BY_FILE_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.SERVER_IP_OVERRIDES_IMPORT_BY_TEXT_TEST_TAG
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -43,7 +43,7 @@ fun ImportOverridesSheet(
     val vm = koinViewModel<ImportOverridesSheetViewModel>()
     val state = vm.uiState.collectAsStateWithLifecycle()
 
-    MullvadModalBottomSheet {
+    MullvadModalBottomContainer {
         HeaderCell(
             text = stringResource(id = R.string.server_ip_overrides_import_by),
             background = Color.Unspecified

@@ -23,13 +23,13 @@ import net.mullvad.mullvadvpn.compose.cell.HeaderCell
 import net.mullvad.mullvadvpn.compose.cell.IconCell
 import net.mullvad.mullvadvpn.compose.communication.CustomListSuccess
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorMedium
-import net.mullvad.mullvadvpn.compose.component.MullvadModalBottomSheet
+import net.mullvad.mullvadvpn.compose.component.MullvadModalBottomContainer
+import net.mullvad.mullvadvpn.compose.state.LocationUiState
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.viewmodel.LocationSheetViewModel
 import net.mullvad.mullvadvpn.viewmodel.LocationSideEffect
-import net.mullvad.mullvadvpn.viewmodel.LocationUiState
 import org.koin.androidx.compose.koinViewModel
 
 data class LocationNavArgs(val locationName: String, val id: GeoLocationId)
@@ -57,7 +57,7 @@ fun LocationSheet(
         }
     }
 
-    MullvadModalBottomSheet {
+    MullvadModalBottomContainer {
         HeaderCell(
             text = stringResource(id = R.string.add_location_to_list, state.value.name),
             background = Color.Unspecified

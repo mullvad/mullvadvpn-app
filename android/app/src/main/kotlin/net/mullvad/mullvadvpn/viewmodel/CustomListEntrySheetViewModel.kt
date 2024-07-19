@@ -12,20 +12,10 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.LocationsChanged
+import net.mullvad.mullvadvpn.compose.state.CustomListEntrySheetUiState
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.viewmodel.CustomListEntrySheetSideEffect.GenericError
-
-data class CustomListEntrySheetUiState(
-    val locationName: String,
-)
-
-sealed interface CustomListEntrySheetSideEffect {
-    data object GenericError : CustomListEntrySheetSideEffect
-
-    data class LocationRemovedFromCustomList(val locationsChanged: LocationsChanged) :
-        CustomListEntrySheetSideEffect
-}
 
 class CustomListEntrySheetViewModel(
     val customListsRepository: CustomListsRepository,
@@ -60,4 +50,11 @@ class CustomListEntrySheetViewModel(
                     }
                 )
         }
+}
+
+sealed interface CustomListEntrySheetSideEffect {
+    data object GenericError : CustomListEntrySheetSideEffect
+
+    data class LocationRemovedFromCustomList(val locationsChanged: LocationsChanged) :
+        CustomListEntrySheetSideEffect
 }

@@ -7,17 +7,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
-import net.mullvad.mullvadvpn.lib.model.CustomListId
-import net.mullvad.mullvadvpn.lib.model.CustomListName
-
-data class CustomListSheetUiState(
-    val customListId: CustomListId,
-    val customListName: CustomListName
-)
-
-sealed interface CustomListSheetSideEffect {
-    data object GenericError : CustomListSheetSideEffect
-}
+import net.mullvad.mullvadvpn.compose.state.CustomListSheetUiState
 
 class CustomListSheetViewModel(
     savedStateHandle: SavedStateHandle,
@@ -34,4 +24,8 @@ class CustomListSheetViewModel(
                 customListName = navArgs.customListName
             )
         )
+}
+
+sealed interface CustomListSheetSideEffect {
+    data object GenericError : CustomListSheetSideEffect
 }

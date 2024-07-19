@@ -5,9 +5,8 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import net.mullvad.mullvadvpn.compose.state.ImportOverridesSheetUiState
 import net.mullvad.mullvadvpn.repository.RelayOverridesRepository
-
-data class ImportOverridesSheetUiState(val overridesActive: Boolean)
 
 class ImportOverridesSheetViewModel(
     serverIpOverridesRepository: RelayOverridesRepository,
