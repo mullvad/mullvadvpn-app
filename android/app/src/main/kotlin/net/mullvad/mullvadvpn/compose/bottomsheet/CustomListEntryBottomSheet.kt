@@ -14,7 +14,7 @@ import com.ramcosta.composedestinations.result.ResultBackNavigator
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.HeaderCell
 import net.mullvad.mullvadvpn.compose.cell.IconCell
-import net.mullvad.mullvadvpn.compose.communication.LocationsChanged
+import net.mullvad.mullvadvpn.compose.communication.CustomListActionResult
 import net.mullvad.mullvadvpn.compose.component.MullvadModalBottomContainer
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.model.CustomListId
@@ -35,14 +35,13 @@ data class CustomListEntrySheetNavArgs(
     style = DestinationStyleBottomSheet::class
 )
 @Composable
-fun CustomListEntrySheet(backNavigator: ResultBackNavigator<LocationsChanged>) {
+fun CustomListEntrySheet(backNavigator: ResultBackNavigator<CustomListActionResult>) {
     val vm = koinViewModel<CustomListEntrySheetViewModel>()
     val state = vm.uiState.collectAsStateWithLifecycle()
     CollectSideEffectWithLifecycle(vm.uiSideEffect) {
         when (it) {
-            CustomListEntrySheetSideEffect.GenericError -> TODO("How do we handle error?")
-            is CustomListEntrySheetSideEffect.LocationRemovedFromCustomList ->
-                backNavigator.navigateBack(it.locationsChanged)
+            is CustomListEntrySheetSideEffect.LocationRemovedResult ->
+                backNavigator.navigateBack(it.result)
         }
     }
     MullvadModalBottomContainer {

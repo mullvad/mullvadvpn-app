@@ -64,8 +64,10 @@ import net.mullvad.mullvadvpn.compose.cell.SwitchComposeSubtitleCell
 import net.mullvad.mullvadvpn.compose.cell.ThreeDotCell
 import net.mullvad.mullvadvpn.compose.communication.Created
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
+import net.mullvad.mullvadvpn.compose.communication.CustomListActionResult
 import net.mullvad.mullvadvpn.compose.communication.CustomListSuccess
 import net.mullvad.mullvadvpn.compose.communication.Deleted
+import net.mullvad.mullvadvpn.compose.communication.GenericError
 import net.mullvad.mullvadvpn.compose.communication.LocationsChanged
 import net.mullvad.mullvadvpn.compose.communication.Renamed
 import net.mullvad.mullvadvpn.compose.component.LocationsEmptyText
@@ -134,9 +136,9 @@ fun SelectLocation(
     deleteCustomListDialogResultRecipient: ResultRecipient<DeleteCustomListDestination, Deleted>,
     updateCustomListResultRecipient:
         ResultRecipient<CustomListLocationsDestination, LocationsChanged>,
-    locationSheetResultRecipient: ResultRecipient<LocationSheetDestination, CustomListSuccess>,
+    locationSheetResultRecipient: ResultRecipient<LocationSheetDestination, CustomListActionResult>,
     customListEntryResultRecipient:
-        ResultRecipient<CustomListEntrySheetDestination, LocationsChanged>
+        ResultRecipient<CustomListEntrySheetDestination, CustomListActionResult>
 ) {
     val vm = koinViewModel<SelectLocationViewModel>()
     val state = vm.uiState.collectAsStateWithLifecycle().value
@@ -519,7 +521,7 @@ private fun CustomListSuccess.message(context: Context): String =
     }
 
 @Composable
-private fun <D : DestinationSpec, R : CustomListSuccess> ResultRecipient<D, R>
+private fun <D : DestinationSpec, R : CustomListActionResult> ResultRecipient<D, R>
     .OnCustomListNavResult(
     snackbarHostState: SnackbarHostState,
     performAction: (action: CustomListAction) -> Unit
@@ -533,12 +535,24 @@ private fun <D : DestinationSpec, R : CustomListSuccess> ResultRecipient<D, R>
             }
             is NavResult.Value -> {
                 // Handle result
-                scope.launch {
-                    snackbarHostState.showResultSnackbar(
-                        context = context,
-                        result = result.value,
-                        onUndo = performAction
-                    )
+                val customListActionResult = result.value
+                when (customListActionResult) {
+                    is GenericError -> {
+                        scope.launch {
+                            snackbarHostState.showSnackbarImmediately(
+                                message = context.getString(R.string.error_occurred),
+                                duration = SnackbarDuration.Short
+                            )
+                        }
+                    }
+                    is CustomListSuccess ->
+                        scope.launch {
+                            snackbarHostState.showResultSnackbar(
+                                context = context,
+                                result = customListActionResult,
+                                onUndo = performAction
+                            )
+                        }
                 }
             }
         }

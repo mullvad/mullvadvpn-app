@@ -11,11 +11,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
-import net.mullvad.mullvadvpn.compose.communication.LocationsChanged
+import net.mullvad.mullvadvpn.compose.communication.CustomListActionResult
+import net.mullvad.mullvadvpn.compose.communication.GenericError
 import net.mullvad.mullvadvpn.compose.state.CustomListEntrySheetUiState
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
-import net.mullvad.mullvadvpn.viewmodel.CustomListEntrySheetSideEffect.GenericError
 
 class CustomListEntrySheetViewModel(
     val customListsRepository: CustomListsRepository,
@@ -32,29 +32,22 @@ class CustomListEntrySheetViewModel(
 
     fun removeLocationFromList() =
         viewModelScope.launch {
-            either {
-                    val customList =
-                        customListsRepository.getCustomListById(navArgs.customListId).bind()
-                    val newLocations = (customList.locations - navArgs.location)
-                    customListActionUseCase(
-                            CustomListAction.UpdateLocations(customList.id, newLocations)
-                        )
-                        .bind()
-                }
-                .fold(
-                    { _uiSideEffect.send(GenericError) },
-                    {
-                        _uiSideEffect.send(
-                            CustomListEntrySheetSideEffect.LocationRemovedFromCustomList(it)
-                        )
+            val result =
+                either {
+                        val customList =
+                            customListsRepository.getCustomListById(navArgs.customListId).bind()
+                        val newLocations = (customList.locations - navArgs.location)
+                        customListActionUseCase(
+                                CustomListAction.UpdateLocations(customList.id, newLocations)
+                            )
+                            .bind()
                     }
-                )
+                    .fold({ GenericError }, { it })
+            _uiSideEffect.send(CustomListEntrySheetSideEffect.LocationRemovedResult(result))
         }
 }
 
 sealed interface CustomListEntrySheetSideEffect {
-    data object GenericError : CustomListEntrySheetSideEffect
-
-    data class LocationRemovedFromCustomList(val locationsChanged: LocationsChanged) :
+    data class LocationRemovedResult(val result: CustomListActionResult) :
         CustomListEntrySheetSideEffect
 }

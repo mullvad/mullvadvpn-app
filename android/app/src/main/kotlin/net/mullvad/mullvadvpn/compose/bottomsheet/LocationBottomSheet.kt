@@ -21,7 +21,7 @@ import kotlin.collections.forEach
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.HeaderCell
 import net.mullvad.mullvadvpn.compose.cell.IconCell
-import net.mullvad.mullvadvpn.compose.communication.CustomListSuccess
+import net.mullvad.mullvadvpn.compose.communication.CustomListActionResult
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorMedium
 import net.mullvad.mullvadvpn.compose.component.MullvadModalBottomContainer
 import net.mullvad.mullvadvpn.compose.state.LocationUiState
@@ -42,18 +42,14 @@ data class LocationNavArgs(val locationName: String, val id: GeoLocationId)
 @Composable
 fun LocationSheet(
     navigator: DestinationsNavigator,
-    backNavigator: ResultBackNavigator<CustomListSuccess>,
+    backNavigator: ResultBackNavigator<CustomListActionResult>,
 ) {
     val viewModel = koinViewModel<LocationSheetViewModel>()
     val state = viewModel.uiState.collectAsStateWithLifecycle()
 
     CollectSideEffectWithLifecycle(viewModel.uiSideEffect) {
         when (it) {
-            LocationSideEffect.GenericError -> {
-                TODO("Handle")
-            }
-            is LocationSideEffect.LocationAddedToCustomList ->
-                backNavigator.navigateBack(it.locationsChanged)
+            is LocationSideEffect.AddLocationResult -> backNavigator.navigateBack(it.result)
         }
     }
 
