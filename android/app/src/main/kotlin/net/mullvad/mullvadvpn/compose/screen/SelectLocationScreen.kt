@@ -74,7 +74,6 @@ import net.mullvad.mullvadvpn.compose.component.MullvadSnackbar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.constant.ContentType
 import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
-import net.mullvad.mullvadvpn.compose.state.CustomListEntry
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_CUSTOM_LIST_HEADER_TEST_TAG
@@ -136,7 +135,8 @@ fun SelectLocation(
     updateCustomListResultRecipient:
         ResultRecipient<CustomListLocationsDestination, LocationsChanged>,
     locationSheetResultRecipient: ResultRecipient<LocationSheetDestination, CustomListSuccess>,
-    customListEntryResultRecipient: ResultRecipient<CustomListEntrySheetDestination, LocationsChanged>
+    customListEntryResultRecipient:
+        ResultRecipient<CustomListEntrySheetDestination, LocationsChanged>
 ) {
     val vm = koinViewModel<SelectLocationViewModel>()
     val state = vm.uiState.collectAsStateWithLifecycle().value
@@ -188,15 +188,9 @@ fun SelectLocation(
         vm::performAction
     )
 
-    locationSheetResultRecipient.OnCustomListNavResult(
-        snackbarHostState,
-        vm::performAction
-    )
+    locationSheetResultRecipient.OnCustomListNavResult(snackbarHostState, vm::performAction)
 
-    customListEntryResultRecipient.OnCustomListNavResult(
-        snackbarHostState,
-        vm::performAction
-    )
+    customListEntryResultRecipient.OnCustomListNavResult(snackbarHostState, vm::performAction)
 
     updateCustomListResultRecipient.OnCustomListNavResult(snackbarHostState, vm::performAction)
 
