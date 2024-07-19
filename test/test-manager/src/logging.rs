@@ -30,7 +30,7 @@ impl Logger {
             logger.filter_module("tower", log::LevelFilter::Info);
             logger.filter_module("hyper", log::LevelFilter::Info);
             logger.filter_module("rustls", log::LevelFilter::Info);
-            logger.filter_level(log::LevelFilter::Debug);
+            logger.filter_level(log::LevelFilter::Info);
             logger.parse_env(env_logger::DEFAULT_FILTER_ENV);
 
             let env_logger = logger.build();

@@ -12,9 +12,9 @@ pub struct TestConfig {
     pub account_number: String,
 
     pub artifacts_dir: String,
-    pub current_app_filename: String,
-    pub previous_app_filename: String,
-    pub ui_e2e_tests_filename: String,
+    pub app_package_filename: String,
+    pub app_package_to_upgrade_from_filename: Option<String>,
+    pub ui_e2e_tests_filename: Option<String>,
 
     /// Used to override MULLVAD_API_*, for conncheck,
     /// and for resolving relay IPs.

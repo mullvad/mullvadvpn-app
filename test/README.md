@@ -115,8 +115,8 @@ cargo run --bin test-manager run-vm debian11
 cargo run --bin test-manager run-tests debian11 \
     --display \
     --account 0123456789 \
-    --current-app <git hash or tag> \
-    --previous-app 2023.2
+    --app-package <git hash or tag> \
+    --app-package-to-upgrade-from 2023.2
 ```
 
 ## macOS
@@ -141,8 +141,8 @@ cargo run --bin test-manager set macos-ventura tart ventura-base macos \
 cargo run --bin test-manager run-tests macos-ventura \
     --display \
     --account 0123456789 \
-    --current-app <git hash or tag> \
-    --previous-app 2023.2
+    --app-package <git hash or tag> \
+    --app-package-to-upgrade-from 2023.2
 ```
 
 ## Note on `ci-runtests.sh`

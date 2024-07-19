@@ -59,6 +59,9 @@ pub enum Error {
     #[error("The gRPC client ran into an error: {0}")]
     ManagementInterface(#[from] mullvad_management_interface::Error),
 
+    #[error("GUI test binary missing")]
+    MissingGuiTest,
+
     #[cfg(target_os = "macos")]
     #[error("An error occurred: {0}")]
     Other(String),

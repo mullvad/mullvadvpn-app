@@ -115,12 +115,22 @@ fn blocking_ssh(
         .context("Failed to send connection-checker to remote")?;
 
     // Transfer app packages
-    ssh_send_file_path(&session, &local_app_manifest.current_app_path, temp_dir)
+    ssh_send_file_path(&session, &local_app_manifest.app_package_path, temp_dir)
         .context("Failed to send current app package to remote")?;
-    ssh_send_file_path(&session, &local_app_manifest.previous_app_path, temp_dir)
-        .context("Failed to send previous app package to remote")?;
-    ssh_send_file_path(&session, &local_app_manifest.ui_e2e_tests_path, temp_dir)
-        .context("Failed to send UI test runner to remote")?;
+    if let Some(app_package_to_upgrade_from_path) =
+        &local_app_manifest.app_package_to_upgrade_from_path
+    {
+        ssh_send_file_path(&session, app_package_to_upgrade_from_path, temp_dir)
+            .context("Failed to send previous app package to remote")?;
+    } else {
+        log::warn!("No previous app to send to remote")
+    }
+    if let Some(ui_e2e_tests_path) = &local_app_manifest.ui_e2e_tests_path {
+        ssh_send_file_path(&session, ui_e2e_tests_path, temp_dir)
+            .context("Failed to send ui_e2e_tests_path to remote")?;
+    } else {
+        log::warn!("No UI e2e test to send to remote")
+    }
 
     // Transfer openvpn cert
     let dest: std::path::PathBuf = temp_dir.join("openvpn.ca.crt");
@@ -147,28 +157,26 @@ fn blocking_ssh(
     .context("failed to send bootstrap script to remote")?;
 
     // Run setup script
+    let app_package_path = local_app_manifest
+        .app_package_path
+        .file_name()
+        .unwrap()
+        .to_string_lossy();
+    let app_package_to_upgrade_from_path = local_app_manifest
+        .app_package_to_upgrade_from_path
+        .map(|path| path.file_name().unwrap().to_string_lossy().into_owned())
+        .unwrap_or_default();
+    let ui_e2e_tests_path = local_app_manifest
+        .ui_e2e_tests_path
+        .map(|path| path.file_name().unwrap().to_string_lossy().into_owned())
+        .unwrap_or_default();
 
-    let args = format!(
-        "{remote_dir} \"{}\" \"{}\" \"{}\"",
-        local_app_manifest
-            .current_app_path
-            .file_name()
-            .unwrap()
-            .to_string_lossy(),
-        local_app_manifest
-            .previous_app_path
-            .file_name()
-            .unwrap()
-            .to_string_lossy(),
-        local_app_manifest
-            .ui_e2e_tests_path
-            .file_name()
-            .unwrap()
-            .to_string_lossy(),
+    let cmd = format!(
+        "sudo {} {remote_dir} \"{app_package_path}\" \"{app_package_to_upgrade_from_path}\" \"{ui_e2e_tests_path}\"",
+        dest.display()
     );
-
-    log::debug!("Running setup script on remote, args: {args}");
-    ssh_exec(&session, &format!("sudo {} {args}", dest.display()))
+    log::debug!("Running setup script on remote, cmd: {cmd}");
+    ssh_exec(&session, &cmd)
         .map(drop)
         .context("Failed to run setup script")
 }

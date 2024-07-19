@@ -28,7 +28,9 @@ pub async fn relaunch_with_rootlesskit(vnc_port: Option<u16>) {
 
     cmd.args(std::env::args());
 
-    let status = cmd.status().await.unwrap();
+    let status = cmd.status().await.unwrap_or_else(|e| {
+        panic!("failed to execute [{:?}]: {}", cmd, e);
+    });
 
     std::process::exit(status.code().unwrap_or(1));
 }

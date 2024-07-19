@@ -22,8 +22,13 @@ pub async fn test_install_previous_app(_: TestContext, rpc: ServiceClient) -> an
 
     // install package
     log::debug!("Installing old app");
-    rpc.install_app(get_package_desc(&TEST_CONFIG.previous_app_filename)?)
-        .await?;
+    rpc.install_app(get_package_desc(
+        TEST_CONFIG
+            .app_package_to_upgrade_from_filename
+            .as_ref()
+            .context("Missing previous app version")?,
+    )?)
+    .await?;
 
     // verify that daemon is running
     if rpc.mullvad_daemon_get_status().await? != ServiceStatus::Running {
@@ -103,7 +108,7 @@ pub async fn test_upgrade_app(ctx: TestContext, rpc: ServiceClient) -> anyhow::R
 
     // install new package
     log::debug!("Installing new app");
-    rpc.install_app(get_package_desc(&TEST_CONFIG.current_app_filename)?)
+    rpc.install_app(get_package_desc(&TEST_CONFIG.app_package_filename)?)
         .await?;
 
     // Give it some time to start
@@ -253,7 +258,7 @@ pub async fn test_install_new_app(_: TestContext, rpc: ServiceClient) -> anyhow:
 
     // install package
     log::debug!("Installing new app");
-    rpc.install_app(get_package_desc(&TEST_CONFIG.current_app_filename)?)
+    rpc.install_app(get_package_desc(&TEST_CONFIG.app_package_filename)?)
         .await?;
 
     // verify that daemon is running
@@ -308,7 +313,7 @@ pub async fn test_installation_idempotency(
     for _ in 0..2 {
         // Install the app
         log::info!("Installing new app");
-        let app_package = get_package_desc(&TEST_CONFIG.current_app_filename)?;
+        let app_package = get_package_desc(&TEST_CONFIG.app_package_filename)?;
         rpc.install_app(app_package).await?;
         log::info!("App was successfully installed!");
 

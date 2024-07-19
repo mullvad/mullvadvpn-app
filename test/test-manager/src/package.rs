@@ -3,56 +3,59 @@ use anyhow::{Context, Result};
 use once_cell::sync::Lazy;
 use regex::Regex;
 use std::path::{Path, PathBuf};
-use tokio::fs;
 
 static VERSION_REGEX: Lazy<Regex> =
     Lazy::new(|| Regex::new(r"\d{4}\.\d+(-beta\d+)?(-dev)?-([0-9a-z])+").unwrap());
 
 #[derive(Debug, Clone)]
 pub struct Manifest {
-    pub current_app_path: PathBuf,
-    pub previous_app_path: PathBuf,
-    pub ui_e2e_tests_path: PathBuf,
+    pub app_package_path: PathBuf,
+    pub app_package_to_upgrade_from_path: Option<PathBuf>,
+    pub ui_e2e_tests_path: Option<PathBuf>,
 }
 
 /// Obtain app packages and their filenames
 /// If it's a path, use the path.
 /// If it corresponds to a file in packages/, use that package.
 /// TODO: If it's a git tag or rev, download it.
-pub async fn get_app_manifest(
+pub fn get_app_manifest(
     config: &VmConfig,
-    current_app: String,
-    previous_app: String,
+    app_package: String,
+    app_package_to_upgrade_from: Option<String>,
+    package_folder: Option<PathBuf>,
 ) -> Result<Manifest> {
     let package_type = (config.os_type, config.package_type, config.architecture);
 
-    let current_app_path = find_app(&current_app, false, package_type).await?;
-    log::info!("Current app: {}", current_app_path.display());
+    let app_package_path = find_app(&app_package, false, package_type, package_folder.as_ref())?;
+    log::info!("App package: {}", app_package_path.display());
 
-    let previous_app_path = find_app(&previous_app, false, package_type).await?;
-    log::info!("Previous app: {}", previous_app_path.display());
+    let app_package_to_upgrade_from_path = app_package_to_upgrade_from
+        .map(|app| find_app(&app, false, package_type, package_folder.as_ref()))
+        .transpose()?;
+    log::info!("App package to upgrade from: {app_package_to_upgrade_from_path:?}");
 
     let capture = VERSION_REGEX
-        .captures(current_app_path.to_str().unwrap())
-        .with_context(|| format!("Cannot parse version: {}", current_app_path.display()))?
+        .captures(app_package_path.to_str().unwrap())
+        .with_context(|| format!("Cannot parse version: {}", app_package_path.display()))?
         .get(0)
         .map(|c| c.as_str())
-        .expect("Could not parse version from package name: {current_app}");
+        .expect("Could not parse version from package name: {app_package}");
 
-    let ui_e2e_tests_path = find_app(capture, true, package_type).await?;
-    log::info!("Runner executable: {}", ui_e2e_tests_path.display());
+    let ui_e2e_tests_path = find_app(capture, true, package_type, package_folder.as_ref()).ok();
+    log::info!("GUI e2e test binary: {ui_e2e_tests_path:?}");
 
     Ok(Manifest {
-        current_app_path,
-        previous_app_path,
+        app_package_path,
+        app_package_to_upgrade_from_path,
         ui_e2e_tests_path,
     })
 }
 
-async fn find_app(
+fn find_app(
     app: &str,
     e2e_bin: bool,
     package_type: (OsType, Option<PackageType>, Option<Architecture>),
+    package_folder: Option<&PathBuf>,
 ) -> Result<PathBuf> {
     // If it's a path, use that path
     let app_path = Path::new(app);
@@ -64,79 +67,45 @@ async fn find_app(
     let mut app = app.to_owned();
     app.make_ascii_lowercase();
 
-    let packages_dir = dirs::cache_dir()
-        .context("Could not find cache directory")?
-        .join("mullvad-test")
-        .join("packages");
-    fs::create_dir_all(&packages_dir).await?;
-    let mut dir = fs::read_dir(packages_dir.clone())
-        .await
-        .context("Failed to list packages")?;
+    let current_dir = std::env::current_dir().expect("Unable to get current directory");
+    let packages_dir = package_folder.unwrap_or(&current_dir);
+    std::fs::create_dir_all(packages_dir)?;
+    let dir = std::fs::read_dir(packages_dir.clone()).context("Failed to list packages")?;
 
-    let mut matches = vec![];
-
-    while let Ok(Some(entry)) = dir.next_entry().await {
-        let path = entry.path();
-        if !path.is_file() {
-            continue;
-        }
-
-        // Filter out irrelevant platforms
-        if !e2e_bin {
-            let ext = get_ext(package_type);
-
-            // Skip file if wrong file extension
-            if !path
+    dir
+        .filter_map(|entry| entry.ok())
+        .map(|entry| entry.path())
+        .filter(|entry| entry.is_file())
+        .filter(|path| {
+            e2e_bin ||
+            path
                 .extension()
-                .map(|m_ext| m_ext.eq_ignore_ascii_case(ext))
+                .map(|m_ext| m_ext.eq_ignore_ascii_case(get_ext(package_type)))
                 .unwrap_or(false)
-            {
-                continue;
-            }
-        }
-
-        let mut u8_path = path.as_os_str().to_string_lossy().into_owned();
-        u8_path.make_ascii_lowercase();
-
-        // Skip non-UI-e2e binaries or vice versa
-        if e2e_bin ^ u8_path.contains("app-e2e-tests") {
-            continue;
-        }
-
-        // Filter out irrelevant platforms
-        if e2e_bin && !u8_path.contains(get_os_name(package_type)) {
-            continue;
-        }
-
-        // Skip file if it doesn't match the architecture
-        if let Some(arch) = package_type.2 {
-            // Skip for non-e2e bin on non-Linux, because there's only one package
-            if (e2e_bin || package_type.0 == OsType::Linux)
-                && !arch.get_identifiers().iter().any(|id| u8_path.contains(id))
-            {
-                continue;
-            }
-        }
-
-        if u8_path.contains(&app) {
-            matches.push(path);
-        }
-    }
-
-    // TODO: Search for package in git repository if not found
-
-    // Take the shortest match
-    matches.sort_unstable_by_key(|path| path.as_os_str().len());
-    matches.into_iter().next().context(if e2e_bin {
-        format!(
-            "Could not find UI/e2e test for package: {app}.\n\
-         Expecting a binary named like `app-e2e-tests-{app}_ARCH` to exist in {package_dir}/\n\
-         Example ARCH: `amd64-unknown-linux-gnu`, `x86_64-unknown-linux-gnu`",
-            package_dir = packages_dir.display()
-        )
-    } else {
-        format!("Could not find package for app: {app}")
-    })
+        }) // Filter out irrelevant platforms
+        .map(|path| {
+            let u8_path = path.as_os_str().to_string_lossy().to_ascii_lowercase();
+            (path, u8_path)
+        })
+        .filter(|(_path, u8_path)| !(e2e_bin ^ u8_path.contains("app-e2e-tests"))) // Skip non-UI-e2e binaries or vice versa
+        .filter(|(_path, u8_path)| !e2e_bin || u8_path.contains(get_os_name(package_type))) // Filter out irrelevant platforms
+        .filter(|(_path, u8_path)| {
+            let linux = e2e_bin || package_type.0 == OsType::Linux;
+            let matching_ident = package_type.2.map(|arch| arch.get_identifiers().iter().any(|id| u8_path.contains(id))).unwrap_or(true);
+            // Skip for non-Linux, because there's only one package
+            !linux || matching_ident
+        }) // Skip file if it doesn't match the architecture
+        .find(|(_path, u8_path)| u8_path.contains(&app)) //  Find match
+        .map(|(path, _)| path).context(if e2e_bin {
+            format!(
+                "Could not find UI/e2e test for package: {app}.\n\
+                Expecting a binary named like `app-e2e-tests-{app}_ARCH` to exist in {package_dir}/\n\
+                Example ARCH: `amd64-unknown-linux-gnu`, `x86_64-unknown-linux-gnu`",
+                package_dir = packages_dir.display()
+            )
+        } else {
+            format!("Could not find package for app: {app}")
+        })
 }
 
 fn get_ext(package_type: (OsType, Option<PackageType>, Option<Architecture>)) -> &'static str {

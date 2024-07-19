@@ -79,22 +79,29 @@ enum Commands {
         #[arg(long, short)]
         account: String,
 
-        /// App package to test.
+        /// App package to test. Can be a path to the package, just the package file name, git hash
+        /// or tag. If the direct path is not given, the package is assumed to be in the directory
+        /// specified by the `--package-folder` argument.
         ///
         /// # Note
         ///
         /// The gRPC interface must be compatible with the version specified for
         /// `mullvad-management-interface` in Cargo.toml.
-        #[arg(long, short)]
-        current_app: String,
+        #[arg(long)]
+        app_package: String,
 
-        /// App package to upgrade from.
+        /// App package to upgrade from when running `test_install_previous_app`, can be left empty
+        /// if this test is not ran. Parsed the same way as `--app-package`.
         ///
         /// # Note
         ///
         /// The CLI interface must be compatible with the upgrade test.
-        #[arg(long, short)]
-        previous_app: String,
+        #[arg(long)]
+        app_package_to_upgrade_from: Option<String>,
+
+        /// Folder to search for packages. Defaults to current directory.
+        #[arg(long, value_name = "DIR")]
+        package_folder: Option<PathBuf>,
 
         /// Only run tests matching substrings
         test_filters: Vec<String>,
@@ -217,8 +224,9 @@ async fn main() -> Result<()> {
             display,
             vnc,
             account,
-            current_app,
-            previous_app,
+            app_package,
+            app_package_to_upgrade_from,
+            package_folder,
             test_filters,
             verbose,
             test_report,
@@ -252,9 +260,13 @@ async fn main() -> Result<()> {
                 None => None,
             };
 
-            let manifest = package::get_app_manifest(vm_config, current_app, previous_app)
-                .await
-                .context("Could not find the specified app packages")?;
+            let manifest = package::get_app_manifest(
+                vm_config,
+                app_package,
+                app_package_to_upgrade_from,
+                package_folder,
+            )
+            .context("Could not find the specified app packages")?;
 
             let mut instance = vm::run(&config, &name)
                 .await
@@ -276,24 +288,18 @@ async fn main() -> Result<()> {
                 tests::config::TestConfig {
                     account_number: account,
                     artifacts_dir,
-                    current_app_filename: manifest
-                        .current_app_path
+                    app_package_filename: manifest
+                        .app_package_path
                         .file_name()
                         .unwrap()
                         .to_string_lossy()
                         .into_owned(),
-                    previous_app_filename: manifest
-                        .previous_app_path
-                        .file_name()
-                        .unwrap()
-                        .to_string_lossy()
-                        .into_owned(),
+                    app_package_to_upgrade_from_filename: manifest
+                        .app_package_to_upgrade_from_path
+                        .map(|path| path.file_name().unwrap().to_string_lossy().into_owned()),
                     ui_e2e_tests_filename: manifest
                         .ui_e2e_tests_path
-                        .file_name()
-                        .unwrap()
-                        .to_string_lossy()
-                        .into_owned(),
+                        .map(|path| path.file_name().unwrap().to_string_lossy().into_owned()),
                     mullvad_host,
                     #[cfg(target_os = "macos")]
                     host_bridge_name: crate::vm::network::macos::find_vm_bridge()?,
