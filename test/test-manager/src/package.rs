@@ -70,72 +70,42 @@ fn find_app(
     let current_dir = std::env::current_dir().expect("Unable to get current directory");
     let packages_dir = package_folder.unwrap_or(&current_dir);
     std::fs::create_dir_all(packages_dir)?;
-    let mut dir = std::fs::read_dir(packages_dir.clone()).context("Failed to list packages")?;
+    let dir = std::fs::read_dir(packages_dir.clone()).context("Failed to list packages")?;
 
-    let mut matches = vec![];
-
-    while let Some(Ok(entry)) = dir.next() {
-        let path = entry.path();
-        if !path.is_file() {
-            continue;
-        }
-
-        // Filter out irrelevant platforms
-        if !e2e_bin {
-            let ext = get_ext(package_type);
-
-            // Skip file if wrong file extension
-            if !path
+    dir
+        .filter_map(|entry| entry.ok())
+        .map(|entry| entry.path())
+        .filter(|entry| entry.is_file())
+        .filter(|path| {
+            e2e_bin ||
+            path
                 .extension()
-                .map(|m_ext| m_ext.eq_ignore_ascii_case(ext))
+                .map(|m_ext| m_ext.eq_ignore_ascii_case(get_ext(package_type)))
                 .unwrap_or(false)
-            {
-                continue;
-            }
-        }
-
-        let mut u8_path = path.as_os_str().to_string_lossy().into_owned();
-        u8_path.make_ascii_lowercase();
-
-        // Skip non-UI-e2e binaries or vice versa
-        if e2e_bin ^ u8_path.contains("app-e2e-tests") {
-            continue;
-        }
-
-        // Filter out irrelevant platforms
-        if e2e_bin && !u8_path.contains(get_os_name(package_type)) {
-            continue;
-        }
-
-        // Skip file if it doesn't match the architecture
-        if let Some(arch) = package_type.2 {
-            // Skip for non-e2e bin on non-Linux, because there's only one package
-            if (e2e_bin || package_type.0 == OsType::Linux)
-                && !arch.get_identifiers().iter().any(|id| u8_path.contains(id))
-            {
-                continue;
-            }
-        }
-
-        if u8_path.contains(&app) {
-            matches.push(path);
-        }
-    }
-
-    // TODO: Search for package in git repository if not found
-
-    // Take the shortest match
-    matches.sort_unstable_by_key(|path| path.as_os_str().len());
-    matches.into_iter().next().context(if e2e_bin {
-        format!(
-            "Could not find UI/e2e test for package: {app}.\n\
-         Expecting a binary named like `app-e2e-tests-{app}_ARCH` to exist in {package_dir}/\n\
-         Example ARCH: `amd64-unknown-linux-gnu`, `x86_64-unknown-linux-gnu`",
-            package_dir = packages_dir.display()
-        )
-    } else {
-        format!("Could not find package for app: {app}")
-    })
+        }) // Filter out irrelevant platforms
+        .map(|path| {
+            let u8_path = path.as_os_str().to_string_lossy().to_ascii_lowercase();
+            (path, u8_path)
+        })
+        .filter(|(_path, u8_path)| !(e2e_bin ^ u8_path.contains("app-e2e-tests"))) // Skip non-UI-e2e binaries or vice versa
+        .filter(|(_path, u8_path)| !e2e_bin || u8_path.contains(get_os_name(package_type))) // Filter out irrelevant platforms
+        .filter(|(_path, u8_path)| {
+            let linux = e2e_bin || package_type.0 == OsType::Linux;
+            let matching_ident = package_type.2.map(|arch| arch.get_identifiers().iter().any(|id| u8_path.contains(id))).unwrap_or(true);
+            // Skip for non-Linux, because there's only one package
+            !linux || matching_ident
+        }) // Skip file if it doesn't match the architecture
+        .find(|(_path, u8_path)| u8_path.contains(&app)) //  Find match
+        .map(|(path, _)| path).context(if e2e_bin {
+            format!(
+                "Could not find UI/e2e test for package: {app}.\n\
+                Expecting a binary named like `app-e2e-tests-{app}_ARCH` to exist in {package_dir}/\n\
+                Example ARCH: `amd64-unknown-linux-gnu`, `x86_64-unknown-linux-gnu`",
+                package_dir = packages_dir.display()
+            )
+        } else {
+            format!("Could not find package for app: {app}")
+        })
 }
 
 fn get_ext(package_type: (OsType, Option<PackageType>, Option<Architecture>)) -> &'static str {
