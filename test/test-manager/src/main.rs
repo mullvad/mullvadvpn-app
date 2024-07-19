@@ -266,7 +266,6 @@ async fn main() -> Result<()> {
                 app_package_to_upgrade_from,
                 package_folder,
             )
-            .await
             .context("Could not find the specified app packages")?;
 
             let mut instance = vm::run(&config, &name)

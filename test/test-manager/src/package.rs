@@ -3,7 +3,6 @@ use anyhow::{Context, Result};
 use once_cell::sync::Lazy;
 use regex::Regex;
 use std::path::{Path, PathBuf};
-use tokio::fs;
 
 static VERSION_REGEX: Lazy<Regex> =
     Lazy::new(|| Regex::new(r"\d{4}\.\d+(-beta\d+)?(-dev)?-([0-9a-z])+").unwrap());
@@ -19,7 +18,7 @@ pub struct Manifest {
 /// If it's a path, use the path.
 /// If it corresponds to a file in packages/, use that package.
 /// TODO: If it's a git tag or rev, download it.
-pub async fn get_app_manifest(
+pub fn get_app_manifest(
     config: &VmConfig,
     app_package: String,
     app_package_to_upgrade_from: Option<String>,
@@ -27,26 +26,13 @@ pub async fn get_app_manifest(
 ) -> Result<Manifest> {
     let package_type = (config.os_type, config.package_type, config.architecture);
 
-    let app_package_path =
-        find_app(&app_package, false, package_type, package_folder.as_ref()).await?;
+    let app_package_path = find_app(&app_package, false, package_type, package_folder.as_ref())?;
     log::info!("Current app: {}", app_package_path.display());
 
-    let app_package_to_upgrade_from_path =
-        if let Some(app_package_to_upgrade_from) = app_package_to_upgrade_from {
-            log::info!("Previous app: {}", app_package_to_upgrade_from);
-            Some(
-                find_app(
-                    &app_package_to_upgrade_from,
-                    false,
-                    package_type,
-                    package_folder.as_ref(),
-                )
-                .await?,
-            )
-        } else {
-            log::warn!("No previous app version specified");
-            None
-        };
+    let app_package_to_upgrade_from_path = app_package_to_upgrade_from
+        .map(|app| find_app(&app, false, package_type, package_folder.as_ref()))
+        .transpose()?;
+    log::info!("Previous app: {app_package_to_upgrade_from_path:?}");
 
     let capture = VERSION_REGEX
         .captures(app_package_path.to_str().unwrap())
@@ -55,14 +41,8 @@ pub async fn get_app_manifest(
         .map(|c| c.as_str())
         .expect("Could not parse version from package name: {app_package}");
 
-    let ui_e2e_tests_path = find_app(capture, true, package_type, package_folder.as_ref())
-        .await
-        .ok();
-    if let Some(ui_e2e_tests_path) = &ui_e2e_tests_path {
-        log::info!("GUI e2e test binary: {}", ui_e2e_tests_path.display());
-    } else {
-        log::warn!("Could not find UI e2e test binary");
-    }
+    let ui_e2e_tests_path = find_app(capture, true, package_type, package_folder.as_ref()).ok();
+    log::info!("GUI e2e test binary: {ui_e2e_tests_path:?}");
 
     Ok(Manifest {
         app_package_path,
@@ -71,7 +51,7 @@ pub async fn get_app_manifest(
     })
 }
 
-async fn find_app(
+fn find_app(
     app: &str,
     e2e_bin: bool,
     package_type: (OsType, Option<PackageType>, Option<Architecture>),
@@ -89,14 +69,12 @@ async fn find_app(
 
     let current_dir = std::env::current_dir().expect("Unable to get current directory");
     let packages_dir = package_folder.unwrap_or(&current_dir);
-    fs::create_dir_all(&packages_dir).await?;
-    let mut dir = fs::read_dir(packages_dir.clone())
-        .await
-        .context("Failed to list packages")?;
+    std::fs::create_dir_all(packages_dir)?;
+    let mut dir = std::fs::read_dir(packages_dir.clone()).context("Failed to list packages")?;
 
     let mut matches = vec![];
 
-    while let Ok(Some(entry)) = dir.next_entry().await {
+    while let Some(Ok(entry)) = dir.next() {
         let path = entry.path();
         if !path.is_file() {
             continue;
