@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.compose.textfield
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -9,6 +8,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
@@ -20,7 +20,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -78,7 +77,7 @@ fun SearchTextField(
                     interactionSource = interactionSource,
                     visualTransformation = visualTransformation,
                     leadingIcon = {
-                        Image(
+                        Icon(
                             painter = painterResource(id = R.drawable.icons_search),
                             contentDescription = null,
                             modifier =
@@ -86,7 +85,7 @@ fun SearchTextField(
                                     width = Dimens.searchIconSize,
                                     height = Dimens.searchIconSize,
                                 ),
-                            colorFilter = ColorFilter.tint(color = textColor),
+                            tint = textColor,
                         )
                     },
                     placeholder = {
@@ -94,13 +93,14 @@ fun SearchTextField(
                     },
                     trailingIcon = {
                         if (searchTerm.isNotEmpty()) {
-                            Image(
+                            Icon(
                                 modifier =
                                     Modifier.size(Dimens.smallIconSize).clickable {
                                         searchTerm = ""
                                         onValueChange.invoke(searchTerm)
                                     },
                                 painter = painterResource(id = R.drawable.icon_close),
+                                tint = Color.Unspecified,
                                 contentDescription = null,
                             )
                         }

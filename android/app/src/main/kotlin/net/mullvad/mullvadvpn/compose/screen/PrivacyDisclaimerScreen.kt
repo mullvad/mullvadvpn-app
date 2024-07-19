@@ -2,7 +2,6 @@ package net.mullvad.mullvadvpn.compose.screen
 
 import android.content.Context
 import android.net.Uri
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,6 +15,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -182,14 +182,15 @@ private fun Content(onPrivacyPolicyLinkClicked: () -> Unit) {
                     )
             )
 
-            Image(
+            Icon(
                 painter = painterResource(id = R.drawable.icon_extlink),
                 contentDescription = null,
                 modifier =
                     Modifier.align(Alignment.CenterVertically)
                         .padding(start = 2.dp, top = 2.dp)
                         .width(10.dp)
-                        .height(10.dp)
+                        .height(10.dp),
+                tint = Color.Unspecified
             )
         }
     }
