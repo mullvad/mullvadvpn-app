@@ -68,12 +68,8 @@ import net.mullvad.mullvadvpn.compose.cell.IconCell
 import net.mullvad.mullvadvpn.compose.cell.StatusRelayItemCell
 import net.mullvad.mullvadvpn.compose.cell.SwitchComposeSubtitleCell
 import net.mullvad.mullvadvpn.compose.cell.ThreeDotCell
-import net.mullvad.mullvadvpn.compose.communication.Created
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
-import net.mullvad.mullvadvpn.compose.communication.CustomListSuccess
-import net.mullvad.mullvadvpn.compose.communication.Deleted
-import net.mullvad.mullvadvpn.compose.communication.LocationsChanged
-import net.mullvad.mullvadvpn.compose.communication.Renamed
+import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.compose.component.LocationsEmptyText
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.MullvadModalBottomSheet
@@ -132,12 +128,17 @@ private fun PreviewSelectLocationScreen() {
 fun SelectLocation(
     navigator: DestinationsNavigator,
     backNavigator: ResultBackNavigator<Boolean>,
-    createCustomListDialogResultRecipient: ResultRecipient<CreateCustomListDestination, Created>,
+    createCustomListDialogResultRecipient:
+        ResultRecipient<
+            CreateCustomListDestination,
+            CustomListActionResultData.CreatedWithLocations
+        >,
     editCustomListNameDialogResultRecipient:
-        ResultRecipient<EditCustomListNameDestination, Renamed>,
-    deleteCustomListDialogResultRecipient: ResultRecipient<DeleteCustomListDestination, Deleted>,
+        ResultRecipient<EditCustomListNameDestination, CustomListActionResultData.Renamed>,
+    deleteCustomListDialogResultRecipient:
+        ResultRecipient<DeleteCustomListDestination, CustomListActionResultData.Deleted>,
     updateCustomListResultRecipient:
-        ResultRecipient<CustomListLocationsDestination, LocationsChanged>
+        ResultRecipient<CustomListLocationsDestination, CustomListActionResultData>
 ) {
     val vm = koinViewModel<SelectLocationViewModel>()
     val state = vm.uiState.collectAsStateWithLifecycle()
@@ -147,22 +148,12 @@ fun SelectLocation(
     val lazyListState = rememberLazyListState()
     CollectSideEffectWithLifecycle(vm.uiSideEffect) {
         when (it) {
-            SelectLocationSideEffect.CloseScreen -> {
-                backNavigator.navigateBack(result = true)
-            }
-            is SelectLocationSideEffect.LocationAddedToCustomList ->
+            SelectLocationSideEffect.CloseScreen -> backNavigator.navigateBack(result = true)
+            is SelectLocationSideEffect.CustomListActionToast ->
                 launch {
                     snackbarHostState.showResultSnackbar(
                         context = context,
-                        result = it.result,
-                        onUndo = vm::performAction
-                    )
-                }
-            is SelectLocationSideEffect.LocationRemovedFromCustomList ->
-                launch {
-                    snackbarHostState.showResultSnackbar(
-                        context = context,
-                        result = it.result,
+                        result = it.resultData,
                         onUndo = vm::performAction
                     )
                 }
@@ -335,7 +326,7 @@ fun SelectLocationScreen(
 
                         itemsIndexed(
                             items = state.relayListItems,
-                            key = { index: Int, item: RelayListItem -> item.key },
+                            key = { _: Int, item: RelayListItem -> item.key },
                             contentType = { _, item -> item.contentType },
                             itemContent = { index: Int, listItem: RelayListItem ->
                                 Column(modifier = Modifier.animateItem()) {
@@ -834,45 +825,49 @@ private suspend fun LazyListState.animateScrollAndCentralizeItem(index: Int) {
 
 private suspend fun SnackbarHostState.showResultSnackbar(
     context: Context,
-    result: CustomListSuccess,
+    result: CustomListActionResultData,
     onUndo: (CustomListAction) -> Unit
 ) {
+
     showSnackbarImmediately(
         message = result.message(context),
-        actionLabel = context.getString(R.string.undo),
+        actionLabel =
+            if (result.hasUndo()) context.getString(R.string.undo)
+            else {
+                null
+            },
         duration = SnackbarDuration.Long,
-        onAction = { onUndo(result.undo) }
+        onAction = { result.undo?.let { onUndo(it) } }
     )
 }
 
-private fun CustomListSuccess.message(context: Context): String =
+private fun CustomListActionResultData.message(context: Context): String =
     when (this) {
-        is Created ->
-            locationNames.firstOrNull()?.let { locationName ->
-                context.getString(R.string.location_was_added_to_list, locationName, name)
-            } ?: context.getString(R.string.locations_were_changed_for, name)
-        is Deleted -> context.getString(R.string.delete_custom_list_message, name)
-        is Renamed -> context.getString(R.string.name_was_changed_to, name)
-        is LocationsChanged ->
-            when {
-                addedLocations.size == 1 && removedLocations.isEmpty() ->
-                    context.getString(
-                        R.string.location_was_added_to_list,
-                        addedLocations.first(),
-                        name
-                    )
-                removedLocations.size == 1 && addedLocations.isEmpty() ->
-                    context.getString(
-                        R.string.location_was_removed_from_list,
-                        removedLocations.first(),
-                        name
-                    )
-                else -> context.getString(R.string.locations_were_changed_for, name)
+        is CustomListActionResultData.CreatedWithLocations ->
+            if (locationNames.size == 1) {
+                context.getString(
+                    R.string.location_was_added_to_list,
+                    locationNames.first(),
+                    customListName
+                )
+            } else {
+                context.getString(R.string.create_custom_list_message, customListName)
             }
+        is CustomListActionResultData.Deleted ->
+            context.getString(R.string.delete_custom_list_message, customListName)
+        is CustomListActionResultData.LocationAdded ->
+            context.getString(R.string.location_was_added_to_list, locationName, customListName)
+        is CustomListActionResultData.LocationRemoved ->
+            context.getString(R.string.location_was_removed_from_list, locationName, customListName)
+        is CustomListActionResultData.LocationChanged ->
+            context.getString(R.string.locations_were_changed_for, customListName)
+        is CustomListActionResultData.Renamed ->
+            context.getString(R.string.name_was_changed_to, newName)
+        CustomListActionResultData.GenericError -> context.getString(R.string.error_occurred)
     }
 
 @Composable
-private fun <D : DestinationSpec, R : CustomListSuccess> ResultRecipient<D, R>
+private fun <D : DestinationSpec, R : CustomListActionResultData> ResultRecipient<D, R>
     .OnCustomListNavResult(
     snackbarHostState: SnackbarHostState,
     performAction: (action: CustomListAction) -> Unit

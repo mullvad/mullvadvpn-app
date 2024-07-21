@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
-import net.mullvad.mullvadvpn.compose.communication.Renamed
+import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.compose.state.EditCustomListNameUiState
 import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
@@ -52,7 +52,16 @@ class EditCustomListNameDialogViewModel(
                 )
                 .fold(
                     { _error.emit(it) },
-                    { _uiSideEffect.send(EditCustomListNameDialogSideEffect.ReturnWithResult(it)) }
+                    {
+                        _uiSideEffect.send(
+                            EditCustomListNameDialogSideEffect.ReturnWithResult(
+                                CustomListActionResultData.Renamed(
+                                    newName = it.name,
+                                    undo = it.undo
+                                )
+                            )
+                        )
+                    }
                 )
         }
     }
@@ -64,5 +73,6 @@ class EditCustomListNameDialogViewModel(
 }
 
 sealed interface EditCustomListNameDialogSideEffect {
-    data class ReturnWithResult(val result: Renamed) : EditCustomListNameDialogSideEffect
+    data class ReturnWithResult(val result: CustomListActionResultData.Renamed) :
+        EditCustomListNameDialogSideEffect
 }

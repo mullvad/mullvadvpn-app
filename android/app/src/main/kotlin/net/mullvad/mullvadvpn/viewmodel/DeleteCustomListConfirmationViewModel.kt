@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
+import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.compose.communication.Deleted
 import net.mullvad.mullvadvpn.compose.state.DeleteCustomListUiState
 import net.mullvad.mullvadvpn.lib.model.CustomListId
@@ -49,7 +50,12 @@ class DeleteCustomListConfirmationViewModel(
                     { _error.tryEmit(it) },
                     {
                         _uiSideEffect.send(
-                            DeleteCustomListConfirmationSideEffect.ReturnWithResult(it)
+                            DeleteCustomListConfirmationSideEffect.ReturnWithResult(
+                                CustomListActionResultData.Deleted(
+                                    customListName = it.name,
+                                    undo = it.undo
+                                )
+                            )
                         )
                     }
                 )
@@ -58,5 +64,6 @@ class DeleteCustomListConfirmationViewModel(
 }
 
 sealed interface DeleteCustomListConfirmationSideEffect {
-    data class ReturnWithResult(val result: Deleted) : DeleteCustomListConfirmationSideEffect
+    data class ReturnWithResult(val result: CustomListActionResultData.Deleted) :
+        DeleteCustomListConfirmationSideEffect
 }

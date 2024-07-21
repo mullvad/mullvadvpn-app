@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import arrow.core.getOrElse
 import arrow.core.raise.either
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,7 +15,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
-import net.mullvad.mullvadvpn.compose.communication.LocationsChanged
+import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.compose.state.FilterChip
 import net.mullvad.mullvadvpn.compose.state.RelayListItem
 import net.mullvad.mullvadvpn.compose.state.RelayListItem.CustomListHeader
@@ -44,7 +45,7 @@ import net.mullvad.mullvadvpn.usecase.customlists.FilterCustomListsRelayItemUseC
 class SelectLocationViewModel(
     private val relayListFilterRepository: RelayListFilterRepository,
     private val availableProvidersUseCase: AvailableProvidersUseCase,
-    private val customListsRelayItemUseCase: CustomListsRelayItemUseCase,
+    customListsRelayItemUseCase: CustomListsRelayItemUseCase,
     private val filteredCustomListRelayItemsUseCase: FilterCustomListsRelayItemUseCase,
     private val customListsRepository: CustomListsRepository,
     private val customListActionUseCase: CustomListActionUseCase,
@@ -79,8 +80,7 @@ class SelectLocationViewModel(
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
     private fun initialExpand(): Set<String> = buildSet {
-        val item = relayListRepository.selectedLocation.value.getOrNull()
-        when (item) {
+        when (val item = relayListRepository.selectedLocation.value.getOrNull()) {
             is GeoLocationId.City -> {
                 add(item.country.code)
             }
@@ -131,7 +131,7 @@ class SelectLocationViewModel(
                             .size
                 }
 
-            buildList<FilterChip> {
+            buildList {
                 if (ownershipFilter != null) {
                     add(FilterChip.Ownership(ownershipFilter))
                 }
@@ -157,9 +157,10 @@ class SelectLocationViewModel(
                         searchTerm.length >= MIN_SEARCH_LENGTH,
                         selectedItem.getOrNull(),
                         filteredCustomLists,
-                        relayCountries,
-                        { it in expandedItems }
-                    )
+                        relayCountries
+                    ) {
+                        it in expandedItems
+                    }
                 if (relayItems.isEmpty()) {
                     add(RelayListItem.LocationsEmptyText(searchTerm))
                 } else {
@@ -201,7 +202,7 @@ class SelectLocationViewModel(
     ): List<RelayListItem> =
         customLists.flatMap { customList ->
             val expanded = isExpanded(customList.id.expandKey())
-            buildList<RelayListItem> {
+            buildList {
                 add(
                     RelayListItem.CustomListItem(
                         customList,
@@ -243,36 +244,35 @@ class SelectLocationViewModel(
         item: RelayItem.Location,
         depth: Int = 1,
         isExpanded: (String) -> Boolean,
-    ): List<RelayListItem.CustomListEntryItem> =
-        buildList<RelayListItem.CustomListEntryItem> {
-            val expanded = isExpanded(item.id.expandKey(parent))
-            add(
-                RelayListItem.CustomListEntryItem(
-                    parentId = parent,
-                    item = item,
-                    expanded = expanded,
-                    depth
-                )
+    ): List<RelayListItem.CustomListEntryItem> = buildList {
+        val expanded = isExpanded(item.id.expandKey(parent))
+        add(
+            RelayListItem.CustomListEntryItem(
+                parentId = parent,
+                item = item,
+                expanded = expanded,
+                depth
             )
+        )
 
-            if (expanded) {
-                when (item) {
-                    is RelayItem.Location.City ->
-                        addAll(
-                            item.relays.flatMap {
-                                createCustomListEntry(parent, it, depth + 1, isExpanded)
-                            }
-                        )
-                    is RelayItem.Location.Country ->
-                        addAll(
-                            item.cities.flatMap {
-                                createCustomListEntry(parent, it, depth + 1, isExpanded)
-                            }
-                        )
-                    is RelayItem.Location.Relay -> {} // No children to add
-                }
+        if (expanded) {
+            when (item) {
+                is RelayItem.Location.City ->
+                    addAll(
+                        item.relays.flatMap {
+                            createCustomListEntry(parent, it, depth + 1, isExpanded)
+                        }
+                    )
+                is RelayItem.Location.Country ->
+                    addAll(
+                        item.cities.flatMap {
+                            createCustomListEntry(parent, it, depth + 1, isExpanded)
+                        }
+                    )
+                is RelayItem.Location.Relay -> {} // No children to add
             }
         }
+    }
 
     private fun createGeoLocationEntry(
         item: RelayItem.Location,
@@ -363,11 +363,28 @@ class SelectLocationViewModel(
         viewModelScope.launch {
             val newLocations =
                 (customList.locations + item).filter { it !in item.descendants() }.map { it.id }
-            customListActionUseCase(CustomListAction.UpdateLocations(customList.id, newLocations))
-                .fold(
-                    { _uiSideEffect.send(SelectLocationSideEffect.GenericError) },
-                    { _uiSideEffect.send(SelectLocationSideEffect.LocationAddedToCustomList(it)) },
-                )
+            val result =
+                customListActionUseCase(
+                        CustomListAction.UpdateLocations(customList.id, newLocations)
+                    )
+                    .fold(
+                        { CustomListActionResultData.GenericError },
+                        {
+                            if (it.removedLocations.isEmpty()) {
+                                CustomListActionResultData.LocationAdded(
+                                    customListName = it.name,
+                                    locationName = item.name,
+                                    undo = it.undo
+                                )
+                            } else {
+                                CustomListActionResultData.LocationChanged(
+                                    customListName = it.name,
+                                    undo = it.undo
+                                )
+                            }
+                        },
+                    )
+            _uiSideEffect.send(SelectLocationSideEffect.CustomListActionToast(result))
         }
     }
 
@@ -382,17 +399,26 @@ class SelectLocationViewModel(
                         val customList =
                             customListsRepository.getCustomListById(customListId).bind()
                         val newLocations = (customList.locations - item.id)
-
-                        customListActionUseCase(
-                                CustomListAction.UpdateLocations(customList.id, newLocations)
+                        val success =
+                            customListActionUseCase(
+                                    CustomListAction.UpdateLocations(customList.id, newLocations)
+                                )
+                                .bind()
+                        if (success.addedLocations.isEmpty()) {
+                            CustomListActionResultData.LocationRemoved(
+                                customListName = success.name,
+                                locationName = item.name,
+                                undo = success.undo
                             )
-                            .bind()
+                        } else {
+                            CustomListActionResultData.LocationChanged(
+                                customListName = success.name,
+                                undo = success.undo
+                            )
+                        }
                     }
-                    .fold(
-                        { SelectLocationSideEffect.GenericError },
-                        { SelectLocationSideEffect.LocationRemovedFromCustomList(it) }
-                    )
-            _uiSideEffect.send(result)
+                    .getOrElse { CustomListActionResultData.GenericError }
+            _uiSideEffect.send(SelectLocationSideEffect.CustomListActionToast(result))
         }
     }
 
@@ -404,9 +430,12 @@ class SelectLocationViewModel(
 sealed interface SelectLocationSideEffect {
     data object CloseScreen : SelectLocationSideEffect
 
-    data class LocationAddedToCustomList(val result: LocationsChanged) : SelectLocationSideEffect
+    // data class LocationAddedToCustomList(val result: LocationsChanged) : SelectLocationSideEffect
 
-    class LocationRemovedFromCustomList(val result: LocationsChanged) : SelectLocationSideEffect
+    // class LocationRemovedFromCustomList(val result: LocationsChanged) : SelectLocationSideEffect
+
+    data class CustomListActionToast(val resultData: CustomListActionResultData) :
+        SelectLocationSideEffect
 
     data object GenericError : SelectLocationSideEffect
 }

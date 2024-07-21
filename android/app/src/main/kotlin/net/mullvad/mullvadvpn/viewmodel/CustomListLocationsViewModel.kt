@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
-import net.mullvad.mullvadvpn.compose.communication.LocationsChanged
+import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsUiState
 import net.mullvad.mullvadvpn.compose.state.RelayLocationListItem
 import net.mullvad.mullvadvpn.lib.model.RelayItem
@@ -108,23 +108,55 @@ class CustomListLocationsViewModel(
     fun save() {
         viewModelScope.launch {
             _selectedLocations.value?.let { selectedLocations ->
+                val locationsToSave = selectedLocations.calculateLocationsToSave()
                 customListActionUseCase(
                         CustomListAction.UpdateLocations(
                             navArgs.customListId,
-                            selectedLocations.calculateLocationsToSave().map { it.id }
+                            locationsToSave.map { it.id }
                         )
                     )
                     .fold(
                         { _uiSideEffect.tryEmit(CustomListLocationsSideEffect.Error) },
-                        {
-                            _uiSideEffect.tryEmit(
-                                // This is so that we don't show a snackbar after returning to the
-                                // select location screen
+                        { result ->
+                            val resultData =
                                 if (navArgs.newList) {
-                                    CustomListLocationsSideEffect.CloseScreen
+                                    CustomListActionResultData.CreatedWithLocations(
+                                        customListName = result.name,
+                                        locationNames = locationsToSave.map { it.name },
+                                        undo = CustomListAction.Delete(id = result.id)
+                                    )
                                 } else {
-                                    CustomListLocationsSideEffect.ReturnWithResult(it)
+                                    when {
+                                        result.addedLocations.size == 1 &&
+                                            result.removedLocations.isEmpty() ->
+                                            CustomListActionResultData.LocationAdded(
+                                                customListName = result.name,
+                                                relayListRepository
+                                                    .find(result.removedLocations.first())!!
+                                                    .name,
+                                                undo = result.undo
+                                            )
+                                        result.removedLocations.size == 1 &&
+                                            result.addedLocations.isEmpty() ->
+                                            CustomListActionResultData.LocationRemoved(
+                                                customListName = result.name,
+                                                locationName =
+                                                    relayListRepository
+                                                        .find(result.removedLocations.first())!!
+                                                        .name,
+                                                undo = result.undo
+                                            )
+                                        else ->
+                                            CustomListActionResultData.LocationChanged(
+                                                customListName = result.name,
+                                                undo = result.undo
+                                            )
+                                    }
                                 }
+                            _uiSideEffect.tryEmit(
+                                CustomListLocationsSideEffect.ReturnWithResultData(
+                                    result = resultData
+                                )
                             )
                         }
                     )
@@ -283,9 +315,8 @@ class CustomListLocationsViewModel(
 }
 
 sealed interface CustomListLocationsSideEffect {
-    data object CloseScreen : CustomListLocationsSideEffect
-
-    data class ReturnWithResult(val result: LocationsChanged) : CustomListLocationsSideEffect
+    data class ReturnWithResultData(val result: CustomListActionResultData) :
+        CustomListLocationsSideEffect
 
     data object Error : CustomListLocationsSideEffect
 }
