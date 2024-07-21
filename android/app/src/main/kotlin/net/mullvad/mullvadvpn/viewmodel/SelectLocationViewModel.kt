@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
-import net.mullvad.mullvadvpn.compose.communication.LocationsChanged
+import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.compose.state.toNullableOwnership
 import net.mullvad.mullvadvpn.compose.state.toSelectedProviders
@@ -135,11 +135,28 @@ class SelectLocationViewModel(
         viewModelScope.launch {
             val newLocations =
                 (customList.locations + item).filter { it !in item.descendants() }.map { it.id }
-            customListActionUseCase(CustomListAction.UpdateLocations(customList.id, newLocations))
-                .fold(
-                    { _uiSideEffect.send(SelectLocationSideEffect.GenericError) },
-                    { _uiSideEffect.send(SelectLocationSideEffect.LocationAddedToCustomList(it)) },
-                )
+            val result =
+                customListActionUseCase(
+                        CustomListAction.UpdateLocations(customList.id, newLocations)
+                    )
+                    .fold(
+                        { CustomListActionResultData.GenericError },
+                        {
+                            if (it.removedLocations.isEmpty()) {
+                                CustomListActionResultData.LocationAdded(
+                                    customListName = it.name,
+                                    locationName = item.name,
+                                    undo = it.undo
+                                )
+                            } else {
+                                CustomListActionResultData.LocationChanged(
+                                    customListName = it.name,
+                                    undo = it.undo
+                                )
+                            }
+                        },
+                    )
+            _uiSideEffect.send(SelectLocationSideEffect.CustomListActionToast(result))
         }
     }
 
@@ -150,15 +167,28 @@ class SelectLocationViewModel(
     fun removeLocationFromList(item: RelayItem.Location, customList: RelayItem.CustomList) {
         viewModelScope.launch {
             val newLocations = (customList.locations - item).map { it.id }
-            customListActionUseCase(CustomListAction.UpdateLocations(customList.id, newLocations))
-                .fold(
-                    { _uiSideEffect.send(SelectLocationSideEffect.GenericError) },
-                    {
-                        _uiSideEffect.send(
-                            SelectLocationSideEffect.LocationRemovedFromCustomList(it)
-                        )
-                    }
-                )
+            val result =
+                customListActionUseCase(
+                        CustomListAction.UpdateLocations(customList.id, newLocations)
+                    )
+                    .fold(
+                        { CustomListActionResultData.GenericError },
+                        {
+                            if (it.addedLocations.isEmpty()) {
+                                CustomListActionResultData.LocationRemoved(
+                                    customListName = it.name,
+                                    locationName = item.name,
+                                    undo = it.undo
+                                )
+                            } else {
+                                CustomListActionResultData.LocationChanged(
+                                    customListName = it.name,
+                                    undo = it.undo
+                                )
+                            }
+                        },
+                    )
+            _uiSideEffect.send(SelectLocationSideEffect.CustomListActionToast(result))
         }
     }
 
@@ -177,9 +207,12 @@ class SelectLocationViewModel(
 sealed interface SelectLocationSideEffect {
     data object CloseScreen : SelectLocationSideEffect
 
-    data class LocationAddedToCustomList(val result: LocationsChanged) : SelectLocationSideEffect
+    // data class LocationAddedToCustomList(val result: LocationsChanged) : SelectLocationSideEffect
 
-    class LocationRemovedFromCustomList(val result: LocationsChanged) : SelectLocationSideEffect
+    // class LocationRemovedFromCustomList(val result: LocationsChanged) : SelectLocationSideEffect
+
+    data class CustomListActionToast(val resultData: CustomListActionResultData) :
+        SelectLocationSideEffect
 
     data object GenericError : SelectLocationSideEffect
 }

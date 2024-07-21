@@ -37,7 +37,7 @@ import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.CheckableRelayLocationCell
-import net.mullvad.mullvadvpn.compose.communication.LocationsChanged
+import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.compose.component.LocationsEmptyText
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
@@ -79,7 +79,7 @@ data class CustomListLocationsNavArgs(
 )
 fun CustomListLocations(
     navigator: DestinationsNavigator,
-    backNavigator: ResultBackNavigator<LocationsChanged>,
+    backNavigator: ResultBackNavigator<CustomListActionResultData>,
     discardChangesResultRecipient: ResultRecipient<DiscardChangesDestination, Boolean>,
 ) {
     val customListsViewModel = koinViewModel<CustomListLocationsViewModel>()
@@ -99,9 +99,8 @@ fun CustomListLocations(
     val context: Context = LocalContext.current
     LaunchedEffectCollect(customListsViewModel.uiSideEffect) { sideEffect ->
         when (sideEffect) {
-            is CustomListLocationsSideEffect.ReturnWithResult ->
+            is CustomListLocationsSideEffect.ReturnWithResultData ->
                 backNavigator.navigateBack(result = sideEffect.result)
-            CustomListLocationsSideEffect.CloseScreen -> backNavigator.navigateBack()
             CustomListLocationsSideEffect.Error ->
                 launch {
                     snackbarHostState.showSnackbarImmediately(
