@@ -82,7 +82,7 @@ pub async fn run_test_env<
         let stdout = std::str::from_utf8(&result.stdout).unwrap_or("invalid utf8");
         let stderr = std::str::from_utf8(&result.stderr).unwrap_or("invalid utf8");
 
-        log::debug!("UI test failed:\n\nstdout:\n\n{stdout}\n\n{stderr}\n");
+        log::error!("UI test failed:\n\nstdout:\n\n{stdout}\n\n{stderr}\n");
     }
 
     Ok(result)
