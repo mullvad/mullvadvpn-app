@@ -272,10 +272,7 @@ class SelectLocationViewModelTest {
             CustomListActionResultData.LocationAdded(
                 customListName = customListName,
                 locationName = location.name,
-                undo = CustomListAction.UpdateLocations(
-                    id = customListId,
-                    locations = emptyList()
-                )
+                undo = CustomListAction.UpdateLocations(id = customListId, locations = emptyList())
             )
 
         coEvery { mockCustomListActionUseCase(any<CustomListAction.UpdateLocations>()) } returns
@@ -320,10 +317,11 @@ class SelectLocationViewModelTest {
                 CustomListActionResultData.LocationRemoved(
                     customListName = customListName,
                     locationName = locationName,
-                    undo = CustomListAction.UpdateLocations(
-                        id = customListId,
-                        locations = listOf(location.id)
-                    )
+                    undo =
+                        CustomListAction.UpdateLocations(
+                            id = customListId,
+                            locations = listOf(location.id)
+                        )
                 )
             coEvery { mockCustomListActionUseCase(any<CustomListAction.UpdateLocations>()) } returns
                 LocationsChanged(
