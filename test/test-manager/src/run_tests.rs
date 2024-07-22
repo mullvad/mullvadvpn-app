@@ -106,7 +106,8 @@ pub async fn run(
             // disabled cleanup.
             if test.cleanup || matches!(test_result.result, Err(_) | Ok(Err(_))) {
                 crate::tests::cleanup_after_test(client.clone(), &test_context.rpc_provider)
-                    .await?;
+                    .await
+                    .context("Failed to clean up after test")?;
             }
         }
 
