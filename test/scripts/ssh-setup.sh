@@ -113,7 +113,7 @@ function install_packages_apt {
 
 # Install required packages
 if which apt &>/dev/null; then
-    install_packages_apt
+    echo "not doing install_packages_apt"
 elif which dnf &>/dev/null; then
     dnf install -y xorg-x11-server-Xvfb wireguard-tools podman
 fi
