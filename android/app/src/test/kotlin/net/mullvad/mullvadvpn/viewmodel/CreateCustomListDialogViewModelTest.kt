@@ -11,6 +11,7 @@ import kotlin.test.assertIs
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.communication.Created
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
+import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.compose.dialog.CreateCustomListNavArgs
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.CustomListAlreadyExists
@@ -32,16 +33,27 @@ class CreateCustomListDialogViewModelTest {
     fun `when successfully creating a list with locations should emit return with result side effect`() =
         runTest {
             // Arrange
-            val expectedResult: Created = mockk()
-            val customListName = "list"
+            val mockCreated: Created = mockk()
+            val mockUndo: CustomListAction.Delete = mockk()
+            val customListName = CustomListName.fromString("list")
+            val customListId = CustomListId("1")
+            val locationNames = listOf("locationName")
+            val expectedResult = CustomListActionResultData.CreatedWithLocations(
+                customListName = customListName,
+                locationNames = locationNames,
+                undo = mockUndo
+            )
             val viewModel = createViewModelWithLocationCode(GeoLocationId.Country("AB"))
             coEvery { mockCustomListActionUseCase(any<CustomListAction.Create>()) } returns
-                expectedResult.right()
-            every { expectedResult.locationNames } returns listOf("locationName")
+                mockCreated.right()
+            every { mockCreated.locationNames } returns locationNames
+            every { mockCreated.name } returns customListName
+            every { mockCreated.id } returns customListId
+            every { mockCreated.undo } returns mockUndo
 
             // Act, Assert
             viewModel.uiSideEffect.test {
-                viewModel.createCustomList(customListName)
+                viewModel.createCustomList(customListName.value)
                 val sideEffect = awaitItem()
                 assertIs<CreateCustomListDialogSideEffect.ReturnWithResult>(sideEffect)
                 assertEquals(expectedResult, sideEffect.result)

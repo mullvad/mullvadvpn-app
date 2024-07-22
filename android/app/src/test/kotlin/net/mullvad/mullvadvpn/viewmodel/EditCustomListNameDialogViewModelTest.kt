@@ -5,10 +5,12 @@ import arrow.core.left
 import arrow.core.right
 import com.ramcosta.composedestinations.generated.navargs.toSavedStateHandle
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.mockk
 import kotlin.test.assertIs
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
+import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.compose.communication.Renamed
 import net.mullvad.mullvadvpn.compose.dialog.EditCustomListNameNavArgs
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
@@ -28,16 +30,21 @@ class EditCustomListNameDialogViewModelTest {
     @Test
     fun `when successfully renamed list should emit return with result side effect`() = runTest {
         // Arrange
-        val expectedResult: Renamed = mockk()
+        val renamed: Renamed = mockk()
         val customListId = CustomListId("id")
-        val customListName = "list"
-        val viewModel = createViewModel(customListId, customListName)
+        val customListName = CustomListName.fromString("list")
+        val undo: CustomListAction.Rename = mockk()
+        val expectedResult =
+            CustomListActionResultData.Renamed(newName = customListName, undo = undo)
+        every { renamed.name } returns customListName
+        every { renamed.undo } returns undo
+        val viewModel = createViewModel(customListId, customListName.value)
         coEvery { mockCustomListActionUseCase(any<CustomListAction.Rename>()) } returns
-            expectedResult.right()
+            renamed.right()
 
         // Act, Assert
         viewModel.uiSideEffect.test {
-            viewModel.updateCustomListName(customListName)
+            viewModel.updateCustomListName(customListName.value)
             val sideEffect = awaitItem()
             assertIs<EditCustomListNameDialogSideEffect.ReturnWithResult>(sideEffect)
             assertEquals(expectedResult, sideEffect.result)
