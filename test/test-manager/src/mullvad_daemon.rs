@@ -69,7 +69,7 @@ impl RpcClientProvider {
         // FIXME: Ugly workaround to ensure that we don't receive stuff from a
         // previous RPC session.
         tokio::time::sleep(std::time::Duration::from_millis(500)).await;
-        log::debug!("Mullvad daemon: connecting");
+        log::trace!("Mullvad daemon: connecting");
         let channel = tonic::transport::Endpoint::from_static("serial://placeholder")
             .timeout(GRPC_REQUEST_TIMEOUT)
             .connect_with_connector(self.service.clone())
