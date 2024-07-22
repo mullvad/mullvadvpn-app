@@ -51,6 +51,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - uses: actions/checkout@v4
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        with:
+          limit-access-to-actor: true
+          detached: true
+
       - name: Configure cache
         uses: actions/cache@v3
         with:
@@ -59,10 +66,20 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-spm-
 
+      # Do not use the github actions to install go, it will not install the correct version
       - name: Setup go-lang
-        uses: actions/setup-go@v3
-        with:
-          go-version: 1.20.14
+        run: |
+          brew install go@1.20
+
+      - name: Install xcbeautify
+        run: |
+          brew update
+          brew install xcbeautify
+
+      - name: Install protobuf
+        run: |
+          brew update
+          brew install protobuf
 
       - name: Set up yeetd to workaround XCode being slow in CI
         run: |
@@ -74,7 +91,15 @@ jobs:
         with:
           xcode-version: '15.0.1'
       - name: Configure Rust
+        # Since the https://github.com/actions/runner-images/releases/tag/macos-13-arm64%2F20240721.1 release
+        # Brew does not install tools at the correct location anymore
+        # This update broke the rust build script which was assuming the cargo binary was located in ~/.cargo/bin/cargo
+        # The workaround is to fix brew paths by running brew bundle dump, and then brew bundle
+        # WARNING: This has to be the last brew "upgrade" commands that is ran,
+        # otherwise the brew path will be broken again.
         run: |
+          brew bundle dump
+          brew bundle
           rustup default stable
           rustup update stable
           rustup target add aarch64-apple-ios-sim
@@ -87,16 +112,6 @@ jobs:
           cp Screenshots.xcconfig.template Screenshots.xcconfig
           cp Api.xcconfig.template Api.xcconfig
         working-directory: ios/Configurations
-
-      - name: Install xcbeautify
-        run: |
-          brew update
-          brew install xcbeautify
-
-      - name: Install protobuf
-        run: |
-          brew update
-          brew install protobuf
 
       - name: Run unit tests
         run: |
