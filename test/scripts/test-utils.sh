@@ -3,59 +3,53 @@
 set -eu
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-APP_DIR="$SCRIPT_DIR/../"
+TEST_DIR="$SCRIPT_DIR/.."
+APP_DIR="$SCRIPT_DIR/../.."
 cd "$SCRIPT_DIR"
 
 BUILD_RELEASE_REPOSITORY="https://releases.mullvad.net/desktop/releases"
 BUILD_DEV_REPOSITORY="https://releases.mullvad.net/desktop/builds"
 
-if [[ ("$(uname -s)" == "Darwin") ]]; then
-    export PACKAGE_FOLDER=$HOME/Library/Caches/mullvad-test/packages
-elif [[ ("$(uname -s)" == "Linux") ]]; then
-    export PACKAGE_FOLDER=$HOME/.cache/mullvad-test/packages
-else
-    echo "Unsupported OS" 1>&2
-    exit 1
-fi
-
-if [[ "$#" -lt 1 ]]; then
-    echo "usage: $0 TEST_OS" 1>&2
-    exit 1
-fi
-
-TEST_OS=$1
-
 # Infer stable version from GitHub repo
 RELEASES=$(curl -sf https://api.github.com/repos/mullvad/mullvadvpn-app/releases | jq -r '[.[] | select(((.tag_name|(startswith("android") or startswith("ios"))) | not))]')
-OLD_APP_VERSION=$(jq -r '[.[] | select(.prerelease==false)] | .[0].tag_name' <<<"$RELEASES")
+LATEST_STABLE_RELEASE=$(jq -r '[.[] | select(.prerelease==false)] | .[0].tag_name' <<<"$RELEASES")
 
-NEW_APP_VERSION=$(cargo run -q --manifest-path="$APP_DIR/Cargo.toml" --bin mullvad-version)
+CURRENT_VERSION=$(cargo run -q --manifest-path="$APP_DIR/Cargo.toml" --bin mullvad-version)
 commit=$(git rev-parse HEAD^\{commit\})
 commit=${commit:0:6}
 
 TAG=$(git describe --exact-match HEAD 2>/dev/null || echo "")
 
-if [[ -n "$TAG" && ${NEW_APP_VERSION} =~ -dev- ]]; then
-    NEW_APP_VERSION+="+${TAG}"
+if [[ -n "$TAG" && ${CURRENT_VERSION} =~ -dev- ]]; then
+    CURRENT_VERSION+="+${TAG}"
 fi
 
-echo "**********************************"
-echo "* Version to upgrade from: $OLD_APP_VERSION"
-echo "* Version to test: $NEW_APP_VERSION"
-echo "**********************************"
-
-
-if [[ -z "${ACCOUNT_TOKENS+x}" ]]; then
-    echo "'ACCOUNT_TOKENS' must be specified" 1>&2
-    exit 1
-fi
-if ! readarray -t tokens < "${ACCOUNT_TOKENS}"; then
-    echo "Specify account tokens in 'ACCOUNT_TOKENS' file" 1>&2
+if [[ ("$(uname -s)" == "Darwin") ]]; then
+    export CACHE_FOLDER=$HOME/Library/Caches/mullvad-test/packages
+elif [[ ("$(uname -s)" == "Linux") ]]; then
+    export CACHE_FOLDER=$HOME/.cache/mullvad-test/packages
+else
+    echo "Unsupported OS" 1>&2
     exit 1
 fi
 
-mkdir -p "$SCRIPT_DIR/.ci-logs"
-echo "$NEW_APP_VERSION" > "$SCRIPT_DIR/.ci-logs/last-version.log"
+export CURRENT_VERSION
+export LATEST_STABLE_RELEASE
+
+function print_available_releases {
+    for release in $(jq -r '.[].tag_name'<<<"$RELEASES"); do
+        echo "$release"
+    done
+}
+
+function create_package_folder {
+    if [[ -z "${PACKAGE_FOLDER+x}" ]]; then
+        echo "'PACKAGE_FOLDER' must be specified" 1>&2
+        exit 1
+    else
+        mkdir -p "$PACKAGE_FOLDER"
+    fi
+}
 
 function nice_time {
     SECONDS=0
@@ -126,7 +120,7 @@ function download_app_package {
     filename=$(get_app_filename "$version" "$os")
     local url="${package_repo}/$version/$filename"
 
-    mkdir -p "$PACKAGE_FOLDER"
+    create_package_folder
     if [[ ! -f "$PACKAGE_FOLDER/$filename" ]]; then
         echo "Downloading build for $version ($os) from $url"
         curl -sf -o "$PACKAGE_FOLDER/$filename" "$url"
@@ -161,9 +155,9 @@ function get_e2e_filename {
 }
 
 function download_e2e_executable {
-    local version=$1
-    local os=$2
-    local package_repo=""
+    local version=${1:?Error: version not set}
+    local os=${2:?Error: os not set}
+    local package_repo
 
     if is_dev_version "$version"; then
         package_repo="${BUILD_DEV_REPOSITORY}"
@@ -175,7 +169,7 @@ function download_e2e_executable {
     filename=$(get_e2e_filename "$version" "$os")
     local url="${package_repo}/$version/additional-files/$filename"
 
-    mkdir -p "$PACKAGE_FOLDER"
+    create_package_folder
     if [[ ! -f "$PACKAGE_FOLDER/$filename" ]]; then
         echo "Downloading e2e executable for $version ($os) from $url"
         curl -sf -o "$PACKAGE_FOLDER/$filename" "$url"
@@ -184,63 +178,52 @@ function download_e2e_executable {
     fi
 }
 
-function run_tests_for_os {
-    local os=$1
-
-    local prev_filename
-    prev_filename=$(get_app_filename "$OLD_APP_VERSION" "$os")
-    local cur_filename
-    cur_filename=$(get_app_filename "$NEW_APP_VERSION" "$os")
-
-    rm -f "$SCRIPT_DIR/.ci-logs/${os}_report"
-
-    RUST_LOG=debug cargo run --bin test-manager \
-        run-tests \
-        --account "${ACCOUNT_TOKEN:?Error: ACCOUNT_TOKEN not set}" \
-        --app-package "${cur_filename}" \
-        --app-package-to-upgrade-from "${prev_filename}" \
-        --package-folder "$PACKAGE_FOLDER" \
-        --test-report "$SCRIPT_DIR/.ci-logs/${os}_report" \
-        --vm "$os" 2>&1 | sed "s/${ACCOUNT_TOKEN}/\{ACCOUNT_TOKEN\}/g"
-}
-
-echo "**********************************"
-echo "* Downloading app packages"
-echo "**********************************"
-
-find "$PACKAGE_FOLDER" -type f -mtime +5 -delete || true
-
-mkdir -p "$PACKAGE_FOLDER"
-nice_time download_app_package "$OLD_APP_VERSION" "$TEST_OS"
-nice_time download_app_package "$NEW_APP_VERSION" "$TEST_OS"
-nice_time download_e2e_executable "$NEW_APP_VERSION" "$TEST_OS"
-
-echo "**********************************"
-echo "* Building test runner"
-echo "**********************************"
-
 function build_test_runner {
-    if [[ "${TEST_OS}" =~ "debian"|"ubuntu"|"fedora" ]]; then
-        ./container-run.sh ./build-runner.sh linux
-    elif [[ "${TEST_OS}" =~ "windows" ]]; then
-        ./container-run.sh ./build-runner.sh windows
-    elif [[ "${TEST_OS}" =~ "macos" ]]; then
-        ./build-runner.sh macos
+    local test_os=${1:?Error: test os not set}
+    if [[ "${test_os}" =~ "debian"|"ubuntu"|"fedora" ]]; then
+        "$SCRIPT_DIR"/container-run.sh scripts/build-runner.sh linux
+    elif [[ "${test_os}" =~ "windows" ]]; then
+        "$SCRIPT_DIR"/container-run.sh scripts/build-runner.sh windows
+    elif [[ "${test_os}" =~ "macos" ]]; then
+        "$SCRIPT_DIR"/build-runner.sh macos
     fi
 }
 
-nice_time build_test_runner
+function run_tests_for_os {
+    local vm=$1
 
-echo "**********************************"
-echo "* Building test manager"
-echo "**********************************"
+    if [[ -z "${ACCOUNT_TOKEN+x}" ]]; then
+        echo "'ACCOUNT_TOKEN' must be specified" 1>&2
+        exit 1
+    fi
 
-cargo build -p test-manager
+    echo "**********************************"
+    echo "* Building test runner"
+    echo "**********************************"
 
-echo "**********************************"
-echo "* Running tests"
-echo "**********************************"
+    nice_time build_test_runner "$vm"
 
-mkdir -p "$SCRIPT_DIR/.ci-logs/os/"
-set -o pipefail
-ACCOUNT_TOKEN=${tokens[0]} nice_time run_tests_for_os "${TEST_OS}"
+
+    echo "**********************************"
+    echo "* Running tests"
+    echo "**********************************"
+
+    local upgrade_package_arg
+    if [[ -z "${APP_PACKAGE_TO_UPGRADE_FROM+x}" ]]; then
+        echo "'APP_PACKAGE_TO_UPGRADE_FROM' env not set, not testing upgrades"
+        upgrade_package_arg=()
+    else
+        upgrade_package_arg=(--app-package-to-upgrade-from "${APP_PACKAGE_TO_UPGRADE_FROM}")
+    fi
+    pushd "$TEST_DIR"
+        cargo run --bin test-manager \
+            run-tests \
+            --account "${ACCOUNT_TOKEN:?Error: ACCOUNT_TOKEN not set}" \
+            --app-package "${APP_PACKAGE:?Error: APP_PACKAGE not set}" \
+            "${upgrade_package_arg[@]}" \
+            --package-folder "${PACKAGE_FOLDER:?Error: PACKAGE_FOLDER not set}" \
+            --vm "$vm" \
+            "${TEST_FILTERS:-}" \
+            2>&1 | sed -r "s/${ACCOUNT_TOKEN}/\{ACCOUNT_TOKEN\}/g"
+    popd
+}
