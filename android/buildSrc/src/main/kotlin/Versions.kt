@@ -63,7 +63,7 @@ object Versions {
         const val playPublisher = "3.9.0"
         const val protobuf = "0.9.4"
         const val dependencyCheck = "10.0.1"
-        const val detekt = "1.23.5"
+        const val detekt = "1.23.6"
         const val gradleVersions = "0.51.0"
         const val junit5 = "1.10.0.0"
         const val ktfmt = "0.17.0"
