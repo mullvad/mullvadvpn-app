@@ -98,7 +98,7 @@ impl Codec {
                 payload = seg.payload().to_vec();
             }
             IpHeaderProtocols::Icmp => {}
-            proto => log::debug!("ignoring v4 packet, transport/protocol type {proto}"),
+            proto => log::warn!("ignoring v4 packet, transport/protocol type {proto}"),
         }
 
         Some(ParsedPacket {
@@ -140,7 +140,7 @@ impl Codec {
                 payload = seg.payload().to_vec();
             }
             IpHeaderProtocols::Icmpv6 => {}
-            proto => log::debug!("ignoring v6 packet, transport/protocol type {proto}"),
+            proto => log::warn!("ignoring v6 packet, transport/protocol type {proto}"),
         }
 
         Some(ParsedPacket {
