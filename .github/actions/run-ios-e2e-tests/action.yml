@@ -8,7 +8,9 @@ inputs:
     description: 'Test Device UDID'
     required: true
   outputs_path:
-    description: 'Path to where outputs are stored - both build outputs and outputs from running tests. This should be unique for each job run in order to avoid concurrency issues.'
+    description: >
+      Path to where outputs are stored - both build outputs and outputs from running tests.
+      This should be unique for each job run in order to avoid concurrency issues.
     required: true
 
 runs:
@@ -27,7 +29,7 @@ runs:
           echo "Setting output directory output"
           test_output_directory="${{ env.OUTPUTS_PATH }}/tests-output"
         fi
-        
+
         echo "TEST_OUTPUT_DIRECTORY=$test_output_directory" >> $GITHUB_ENV
         echo "TEST_NAME_SANITIZED=$test_name_sanitized" >> $GITHUB_ENV
       shell: bash
@@ -55,7 +57,8 @@ runs:
           -resultBundlePath ${{ env.TEST_OUTPUT_DIRECTORY }}/xcode-test-report \
           -derivedDataPath derived-data \
           -destination "platform=iOS,id=$TEST_DEVICE_UDID" \
-          test-without-building 2>&1 #| xcbeautify --report junit --report-path ${{ env.TEST_OUTPUT_DIRECTORY }}/junit-test-report
+          test-without-building 2>&1 #| xcbeautify --report junit \
+          --report-path ${{ env.TEST_OUTPUT_DIRECTORY }}/junit-test-report
       shell: bash
       working-directory: ${{ inputs.outputs_path }}/mullvadvpn-app/ios
       env:
