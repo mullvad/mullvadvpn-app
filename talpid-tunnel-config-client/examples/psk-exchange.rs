@@ -4,13 +4,13 @@
 // Usage: ./psk-exchange <tuncf_server_ip> <wireguard_public_key>
 // e. g. ./psk-exchange 10.64.0.1 NkECLsf+VbZUjve7RVN6sE3NYUcYUmUn8qpFugqbXFk=
 
-use std::net::{IpAddr, Ipv4Addr};
+use std::net::IpAddr;
 use talpid_types::net::wireguard::{PrivateKey, PublicKey};
 
 #[tokio::main]
 async fn main() {
     let mut args = std::env::args().skip(1);
-    let tuncfg_server_ip: Ipv4Addr = args
+    let tuncfg_server_ip = args
         .next()
         .expect("Give tuncfg server IP as first argument")
         .parse()
