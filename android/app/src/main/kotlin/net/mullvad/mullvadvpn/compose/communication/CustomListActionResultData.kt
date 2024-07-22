@@ -22,7 +22,7 @@ sealed interface CustomListActionResultData : Parcelable {
     ) : CustomListActionResultData
 
     @Parcelize
-    data class Renamed(val newName: CustomListName, override val undo: CustomListAction) :
+    data class Renamed(val newName: CustomListName, override val undo: CustomListAction.Rename) :
         CustomListActionResultData
 
     @Parcelize

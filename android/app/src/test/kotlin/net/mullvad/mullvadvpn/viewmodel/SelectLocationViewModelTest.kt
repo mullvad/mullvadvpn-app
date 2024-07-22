@@ -16,6 +16,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
+import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.compose.communication.LocationsChanged
 import net.mullvad.mullvadvpn.compose.state.RelayListItem
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
@@ -292,11 +293,13 @@ class SelectLocationViewModelTest {
                 locations = emptyList(),
             )
         val expectedResult =
-            LocationsChanged(
-                id = customListId,
-                name = customListName,
-                locations = listOf(addedLocationsId),
-                oldLocations = emptyList(),
+            CustomListActionResultData.LocationAdded(
+                customListName = customListName,
+                locationName = location.name,
+                undo = CustomListAction.UpdateLocations(
+                    id = customListId,
+                    locations = emptyList()
+                )
             )
 
         coEvery { mockCustomListActionUseCase(any<CustomListAction.UpdateLocations>()) } returns
@@ -312,8 +315,8 @@ class SelectLocationViewModelTest {
         viewModel.uiSideEffect.test {
             viewModel.addLocationToList(item = location, customList = customList)
             val sideEffect = awaitItem()
-            assertIs<SelectLocationSideEffect.LocationAddedToCustomList>(sideEffect)
-            assertEquals(expectedResult, sideEffect.result)
+            assertIs<SelectLocationSideEffect.CustomListActionToast>(sideEffect)
+            assertEquals(expectedResult, sideEffect.resultData)
         }
     }
 
@@ -331,11 +334,13 @@ class SelectLocationViewModelTest {
                 every { descendants() } returns emptyList()
             }
             val expectedResult =
-                LocationsChanged(
-                    id = customListId,
-                    name = customListName,
-                    locations = emptyList(),
-                    oldLocations = listOf(removedLocationsId),
+                CustomListActionResultData.LocationRemoved(
+                    customListName = customListName,
+                    locationName = locationName,
+                    undo = CustomListAction.UpdateLocations(
+                        id = customListId,
+                        locations = listOf(location.id)
+                    )
                 )
             coEvery { mockCustomListActionUseCase(any<CustomListAction.UpdateLocations>()) } returns
                 LocationsChanged(
@@ -350,8 +355,8 @@ class SelectLocationViewModelTest {
             viewModel.uiSideEffect.test {
                 viewModel.removeLocationFromList(item = location, customListId = customListId)
                 val sideEffect = awaitItem()
-                assertIs<SelectLocationSideEffect.LocationRemovedFromCustomList>(sideEffect)
-                assertEquals(expectedResult, sideEffect.result)
+                assertIs<SelectLocationSideEffect.CustomListActionToast>(sideEffect)
+                assertEquals(expectedResult, sideEffect.resultData)
             }
         }
 
