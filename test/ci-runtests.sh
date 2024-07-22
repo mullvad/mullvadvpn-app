@@ -201,7 +201,7 @@ function run_tests_for_os {
         --app-package-to-upgrade-from "${prev_filename}" \
         --package-folder "$PACKAGES_DIR" \
         --test-report "$SCRIPT_DIR/.ci-logs/${os}_report" \
-        "$os" 2>&1 | sed "s/${ACCOUNT_TOKEN}/\{ACCOUNT_TOKEN\}/g"
+        --vm "$os" 2>&1 | sed "s/${ACCOUNT_TOKEN}/\{ACCOUNT_TOKEN\}/g"
 }
 
 echo "**********************************"
