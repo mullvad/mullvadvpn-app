@@ -178,6 +178,37 @@ pub async fn test_upgrade_app(ctx: TestContext, rpc: ServiceClient) -> anyhow::R
     Ok(())
 }
 
+/// Install the app cleanly, failing if the installer doesn't succeed
+/// or if the VPN service is not running afterwards.
+#[test_function(always_run = true, must_succeed = true, priority = -170)]
+pub async fn test_install_new_app(_: TestContext, rpc: ServiceClient) -> anyhow::Result<()> {
+    // verify that daemon is not already running
+    if rpc.mullvad_daemon_get_status().await? != ServiceStatus::NotRunning {
+        rpc.stop_mullvad_daemon().await.unwrap();
+    }
+
+    // install package
+    log::debug!("Installing new app");
+    rpc.install_app(get_package_desc(&TEST_CONFIG.app_package_filename)?)
+        .await?;
+
+    // verify that daemon is running
+    if rpc.mullvad_daemon_get_status().await? != ServiceStatus::Running {
+        bail!(Error::DaemonNotRunning);
+    }
+
+    // Set the log level to trace
+    rpc.set_daemon_log_level(test_rpc::mullvad_daemon::Verbosity::Trace)
+        .await?;
+
+    replace_openvpn_cert(&rpc).await?;
+
+    // Override env vars
+    rpc.set_daemon_environment(get_app_env().await?).await?;
+
+    Ok(())
+}
+
 /// Uninstall the app version being tested. This verifies
 /// that that the uninstaller works, and also that logs,
 /// application files, system services are removed.
@@ -189,15 +220,23 @@ pub async fn test_upgrade_app(ctx: TestContext, rpc: ServiceClient) -> anyhow::R
 /// Files due to Electron, temporary files, registry
 /// values/keys, and device drivers are not guaranteed
 /// to be deleted.
-#[test_function(priority = -170, cleanup = false)]
+#[test_function(priority = -160, cleanup = false)]
 pub async fn test_uninstall_app(
-    _: TestContext,
+    _ctx: TestContext,
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> anyhow::Result<()> {
     if rpc.mullvad_daemon_get_status().await? != ServiceStatus::Running {
         bail!(Error::DaemonNotRunning);
     }
+
+    // Clear devices before logging in
+    let device_client = super::account::new_device_client()
+        .await
+        .context("Failed to create device client")?;
+    super::account::clear_devices(&device_client)
+        .await
+        .context("failed to clear devices")?;
 
     // Login to test preservation of device/account
     // TODO: Remove once we can login before upgrade above
@@ -247,36 +286,8 @@ pub async fn test_uninstall_app(
         uninstalled_device,
     );
 
-    Ok(())
-}
-
-/// Install the app cleanly, failing if the installer doesn't succeed
-/// or if the VPN service is not running afterwards.
-#[test_function(always_run = true, must_succeed = true, priority = -160)]
-pub async fn test_install_new_app(_: TestContext, rpc: ServiceClient) -> anyhow::Result<()> {
-    // verify that daemon is not already running
-    if rpc.mullvad_daemon_get_status().await? != ServiceStatus::NotRunning {
-        bail!(Error::DaemonRunning);
-    }
-
-    // install package
-    log::debug!("Installing new app");
-    rpc.install_app(get_package_desc(&TEST_CONFIG.app_package_filename)?)
-        .await?;
-
-    // verify that daemon is running
-    if rpc.mullvad_daemon_get_status().await? != ServiceStatus::Running {
-        bail!(Error::DaemonNotRunning);
-    }
-
-    // Set the log level to trace
-    rpc.set_daemon_log_level(test_rpc::mullvad_daemon::Verbosity::Trace)
-        .await?;
-
-    replace_openvpn_cert(&rpc).await?;
-
-    // Override env vars
-    rpc.set_daemon_environment(get_app_env().await?).await?;
+    // Re-install the app to ensure that the next test can run
+    test_install_new_app(_ctx, rpc).await?;
 
     Ok(())
 }
