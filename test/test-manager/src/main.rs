@@ -29,26 +29,26 @@ enum Commands {
     /// Create or edit a VM config
     Set {
         /// Name of the config
-        name: String,
+        vm: String,
 
         /// VM config
         #[clap(flatten)]
         config: config::VmConfig,
     },
 
-    /// Remove specified configuration
+    /// Remove specified VM config
     Remove {
         /// Name of the config
-        name: String,
+        vm: String,
     },
 
-    /// List available configurations
+    /// List available VM configurations
     List,
 
     /// Spawn a runner instance without running any tests
     RunVm {
-        /// Name of the runner config
-        name: String,
+        /// Name of the VM config
+        vm: String,
 
         /// Run VNC server on a specified port
         #[arg(long)]
@@ -64,8 +64,9 @@ enum Commands {
 
     /// Spawn a runner instance and run tests
     RunTests {
-        /// Name of the runner config
-        name: String,
+        /// Name of the VM config
+        #[arg(long)]
+        vm: String,
 
         /// Show display of guest
         #[arg(long, group = "display_args")]
@@ -127,7 +128,7 @@ enum Commands {
     /// to have `provisioner` set to `ssh`, `ssh_user` & `ssh_password` set and
     /// the `ssh_user` should be able to execute commands with sudo/ as root.
     Update {
-        /// Name of the runner config
+        /// Name of the VM config
         name: String,
     },
 }
@@ -156,34 +157,34 @@ async fn main() -> Result<()> {
         .context("Failed to load config")?;
     match args.cmd {
         Commands::Set {
-            name,
+            vm,
             config: vm_config,
-        } => vm::set_config(&mut config, &name, vm_config)
+        } => vm::set_config(&mut config, &vm, vm_config)
             .await
             .context("Failed to edit or create VM config"),
-        Commands::Remove { name } => {
-            if config.get_vm(&name).is_none() {
+        Commands::Remove { vm } => {
+            if config.get_vm(&vm).is_none() {
                 println!("No such configuration");
                 return Ok(());
             }
             config
                 .edit(|config| {
-                    config.vms.remove_entry(&name);
+                    config.vms.remove_entry(&vm);
                 })
                 .await
                 .context("Failed to remove config entry")?;
-            println!("Removed configuration \"{name}\"");
+            println!("Removed configuration \"{vm}\"");
             Ok(())
         }
         Commands::List => {
             println!("Available configurations:");
-            for name in config.vms.keys() {
-                println!("{}", name);
+            for (vm, config) in config.vms.iter() {
+                println!("{vm}: {config:#?}");
             }
             Ok(())
         }
         Commands::RunVm {
-            name,
+            vm,
             vnc,
             keep_changes,
         } => {
@@ -195,9 +196,7 @@ async fn main() -> Result<()> {
                 config::Display::Local
             };
 
-            let mut instance = vm::run(&config, &name)
-                .await
-                .context("Failed to start VM")?;
+            let mut instance = vm::run(&config, &vm).await.context("Failed to start VM")?;
 
             instance.wait().await;
 
@@ -215,7 +214,7 @@ async fn main() -> Result<()> {
             Ok(())
         }
         Commands::RunTests {
-            name,
+            vm,
             display,
             vnc,
             account,
@@ -240,12 +239,12 @@ async fn main() -> Result<()> {
                 .unwrap_or(DEFAULT_MULLVAD_HOST.to_owned());
             log::debug!("Mullvad host: {mullvad_host}");
 
-            let vm_config = vm::get_vm_config(&config, &name).context("Cannot get VM config")?;
+            let vm_config = vm::get_vm_config(&config, &vm).context("Cannot get VM config")?;
 
             let summary_logger = match test_report {
                 Some(path) => Some(
                     summary::SummaryLogger::new(
-                        &name,
+                        &vm,
                         test_rpc::meta::Os::from(vm_config.os_type),
                         &path,
                     )
@@ -263,10 +262,8 @@ async fn main() -> Result<()> {
             )
             .context("Could not find the specified app packages")?;
 
-            let mut instance = vm::run(&config, &name)
-                .await
-                .context("Failed to start VM")?;
-            let artifacts_dir = vm::provision(&config, &name, &*instance, &manifest)
+            let mut instance = vm::run(&config, &vm).await.context("Failed to start VM")?;
+            let artifacts_dir = vm::provision(&config, &vm, &*instance, &manifest)
                 .await
                 .context("Failed to run provisioning for VM")?;
 
