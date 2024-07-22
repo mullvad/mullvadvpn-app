@@ -106,7 +106,7 @@ pub async fn setup_test_network() -> Result<NetworkHandle> {
 
     let test_subnet = TEST_SUBNET.to_string();
 
-    log::info!("Create bridge network: dev {BRIDGE_NAME}, net {test_subnet}");
+    log::debug!("Create bridge network: dev {BRIDGE_NAME}, net {test_subnet}");
 
     run_ip_cmd(["link", "add", BRIDGE_NAME, "type", "bridge"]).await?;
     run_ip_cmd(["addr", "add", "dev", BRIDGE_NAME, &test_subnet]).await?;
