@@ -218,6 +218,7 @@ fn ssh_send_file<R: Read>(
 fn ssh_exec(session: &Session, command: &str) -> Result<String> {
     let mut channel = session.channel_session()?;
     channel.exec(command)?;
+    let mut stderr_handle = channel.stderr();
     let mut output = String::new();
     channel.read_to_string(&mut output)?;
     channel.send_eof()?;
@@ -228,7 +229,9 @@ fn ssh_exec(session: &Session, command: &str) -> Result<String> {
         .exit_status()
         .context("Failed to obtain exit status")?;
     if exit_status != 0 {
-        log::error!("command failed: {command}\n{output}");
+        let mut stderr = String::new();
+        stderr_handle.read_to_string(&mut stderr).unwrap();
+        log::error!("Command failed: command: {command}\n\noutput:\n{output}\n\nstderr: {stderr}");
         bail!("command failed: {exit_status}");
     }
 
