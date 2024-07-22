@@ -37,7 +37,7 @@ object Versions {
     }
 
     object Arrow {
-        const val base = "1.2.3"
+        const val base = "1.2.4"
     }
 
     object Compose {
