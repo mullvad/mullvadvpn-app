@@ -51,7 +51,7 @@ object Versions {
     object Grpc {
         const val grpcVersion = "1.65.1"
         const val grpcKotlinVersion = "1.4.1"
-        const val protobufVersion = "3.25.3"
+        const val protobufVersion = "4.27.2"
     }
 
     object Plugin {
