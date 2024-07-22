@@ -66,27 +66,27 @@ Currently, only `x86_64` platforms are supported for Windows/Linux and `ARM64` (
 For example, building `test-runner` for Windows would look like this:
 
 ``` bash
-./container-run.sh ./build-runner.sh windows
+./scripts/container-run.sh ./scripts/build-runner.sh windows
 ```
 
 ## Linux
 Using `podman` is the recommended way to build the `test-runner`. See the [Linux section under Prerequisities](#Prerequisities) for more details.
 
 ``` bash
-./container-run.sh ./build-runner.sh linux
+./scripts/container-run.sh ./scripts/build-runner.sh linux
 ```
 
 ## macOS
 
 ``` bash
-./build-runner.sh macos
+./scripts/build-runner.sh macos
 ```
 
 ## Windows
 The `test-runner` binary for Windows may be cross-compiled from a Linux host.
 
 ``` bash
-./container-run.sh ./build-runner.sh windows
+./scripts/container-run.sh ./scripts/build-runner.sh windows
 ```
 
 # Building base images
