@@ -97,10 +97,13 @@ pub async fn test_too_many_devices(
     log::info!("Log in with too many devices");
     let login_result = login_with_retries(&mut mullvad_client).await;
 
-    assert!(matches!(
-        login_result,
-        Err(mullvad_management_interface::Error::TooManyDevices)
-    ));
+    assert!(
+        matches!(
+            login_result,
+            Err(mullvad_management_interface::Error::TooManyDevices)
+        ),
+        "Expected too many devices error, got {login_result:?}"
+    );
 
     // Run UI test
     let ui_result = ui::run_test_env(
