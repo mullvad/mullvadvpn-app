@@ -34,6 +34,15 @@ pub fn get_app_manifest(
         .transpose()?;
     log::info!("App package to upgrade from: {app_package_to_upgrade_from_path:?}");
 
+    // Automatically try to find the UI e2e tests based on the app package
+
+    // Search the specified package folder, or same folder as the app package if missing
+    let ui_e2e_package_folder = package_folder.unwrap_or(
+        app_package_path
+            .parent()
+            .expect("Path to app package should have parent")
+            .into(),
+    );
     let capture = VERSION_REGEX
         .captures(app_package_path.to_str().unwrap())
         .with_context(|| format!("Cannot parse version: {}", app_package_path.display()))?
@@ -41,7 +50,8 @@ pub fn get_app_manifest(
         .map(|c| c.as_str())
         .expect("Could not parse version from package name: {app_package}");
 
-    let ui_e2e_tests_path = find_app(capture, true, package_type, package_folder.as_ref()).ok();
+    let ui_e2e_tests_path =
+        find_app(capture, true, package_type, Some(&ui_e2e_package_folder)).ok();
     log::info!("GUI e2e test binary: {ui_e2e_tests_path:?}");
 
     Ok(Manifest {
