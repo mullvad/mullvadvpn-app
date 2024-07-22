@@ -30,7 +30,7 @@ pub async fn run(
 
     let pty_path = instance.get_pty();
 
-    log::info!("Connecting to {pty_path}");
+    log::debug!("Connecting to {pty_path}");
 
     let serial_stream =
         tokio_serial::SerialStream::open(&tokio_serial::new(pty_path, BAUD)).unwrap();

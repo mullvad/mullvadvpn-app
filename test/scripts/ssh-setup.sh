@@ -17,7 +17,7 @@ echo "Copying test-runner to $RUNNER_DIR"
 mkdir -p "$RUNNER_DIR"
 
 for file in test-runner connection-checker $APP_PACKAGE $PREVIOUS_APP $UI_RUNNER; do
-    echo "Moving $file to $RUNNER_DIR"
+    echo "Moving $SCRIPT_DIR/$file to $RUNNER_DIR"
     cp -f "$SCRIPT_DIR/$file" "$RUNNER_DIR"
 done
 
@@ -106,6 +106,7 @@ fi
 setup_systemd
 
 function install_packages_apt {
+    echo "Installing required apt packages"
     apt update
     apt install -yf xvfb wireguard-tools curl
     curl -fsSL https://get.docker.com | sh
