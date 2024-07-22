@@ -122,7 +122,7 @@ fn blocking_ssh(
         ssh_send_file(&session, app_package_to_upgrade_from_path, temp_dir)
             .context("Failed to send previous app package to remote")?;
     } else {
-        log::warn!("No previous app to send to remote")
+        log::warn!("No previous app package to upgrade from to send to remote")
     }
     if let Some(gui_package_path) = &local_app_manifest.gui_package_path {
         ssh_send_file(&session, gui_package_path, temp_dir)
