@@ -15,6 +15,10 @@ use super::{
 /// Install the last stable version of the app and verify that it is running.
 #[test_function(priority = -200)]
 pub async fn test_install_previous_app(_: TestContext, rpc: ServiceClient) -> anyhow::Result<()> {
+    let Some(previous_app) = TEST_CONFIG.app_package_to_upgrade_from_filename.as_ref() else {
+        bail!("Missing previous app version");
+    };
+
     // verify that daemon is not already running
     if rpc.mullvad_daemon_get_status().await? != ServiceStatus::NotRunning {
         bail!(Error::DaemonRunning);
@@ -22,13 +26,7 @@ pub async fn test_install_previous_app(_: TestContext, rpc: ServiceClient) -> an
 
     // install package
     log::debug!("Installing old app");
-    rpc.install_app(get_package_desc(
-        TEST_CONFIG
-            .app_package_to_upgrade_from_filename
-            .as_ref()
-            .context("Missing previous app version")?,
-    )?)
-    .await?;
+    rpc.install_app(get_package_desc(previous_app)?).await?;
 
     // verify that daemon is running
     if rpc.mullvad_daemon_get_status().await? != ServiceStatus::Running {
@@ -51,6 +49,11 @@ pub async fn test_install_previous_app(_: TestContext, rpc: ServiceClient) -> an
 /// * The VPN service is not running after the upgrade.
 #[test_function(priority = -190)]
 pub async fn test_upgrade_app(ctx: TestContext, rpc: ServiceClient) -> anyhow::Result<()> {
+    anyhow::ensure!(
+        TEST_CONFIG.app_package_to_upgrade_from_filename.is_some(),
+        "Missing previous app version"
+    );
+
     // Verify that daemon is running
     if rpc.mullvad_daemon_get_status().await? != ServiceStatus::Running {
         bail!(Error::DaemonNotRunning);
