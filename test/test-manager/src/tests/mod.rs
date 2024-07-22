@@ -197,11 +197,18 @@ pub async fn cleanup_after_test(
 /// due to assuming a default configuration. In that case, reset the environment variables and
 /// restart.
 async fn restart_daemon(rpc: ServiceClient) -> anyhow::Result<()> {
-    let current_env = rpc.get_daemon_environment().await?;
-    let default_env = get_app_env().await?;
+    let current_env = rpc
+        .get_daemon_environment()
+        .await
+        .context("Failed to get daemon env variables")?;
+    let default_env = get_app_env()
+        .await
+        .context("Failed to get daemon default env variables")?;
     if current_env != default_env {
         log::debug!("Restarting daemon due changed environment variables. Values since last test {current_env:?}");
-        rpc.set_daemon_environment(default_env).await?;
+        rpc.set_daemon_environment(default_env)
+            .await
+            .context("Failed to restart daemon")?;
     }
     Ok(())
 }
