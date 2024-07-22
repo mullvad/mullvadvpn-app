@@ -2,28 +2,26 @@ package net.mullvad.mullvadvpn.lib.model
 
 import arrow.optics.optics
 
+typealias DomainCustomList = CustomList
+
 @optics
 sealed interface RelayItem {
     val id: RelayItemId
     val name: String
+
     val active: Boolean
     val hasChildren: Boolean
-    val expanded: Boolean
 
     @optics
     data class CustomList(
-        override val id: CustomListId,
-        val customListName: CustomListName,
+        val customList: DomainCustomList,
         val locations: List<Location>,
-        override val expanded: Boolean,
     ) : RelayItem {
-        override val name: String = customListName.value
+        override val name: String = customList.name.value
+        override val id = customList.id
 
-        override val active
-            get() = locations.any { location -> location.active }
-
-        override val hasChildren
-            get() = locations.isNotEmpty()
+        override val active = locations.any { it.active }
+        override val hasChildren: Boolean = locations.isNotEmpty()
 
         companion object
     }
@@ -36,16 +34,11 @@ sealed interface RelayItem {
         data class Country(
             override val id: GeoLocationId.Country,
             override val name: String,
-            override val expanded: Boolean,
             val cities: List<City>
         ) : Location {
             val relays = cities.flatMap { city -> city.relays }
-
-            override val active
-                get() = cities.any { city -> city.active }
-
-            override val hasChildren
-                get() = cities.isNotEmpty()
+            override val active = cities.any { it.active }
+            override val hasChildren: Boolean = cities.isNotEmpty()
 
             companion object
         }
@@ -54,15 +47,10 @@ sealed interface RelayItem {
         data class City(
             override val id: GeoLocationId.City,
             override val name: String,
-            override val expanded: Boolean,
             val relays: List<Relay>
         ) : Location {
-
-            override val active
-                get() = relays.any { relay -> relay.active }
-
-            override val hasChildren
-                get() = relays.isNotEmpty()
+            override val active = relays.any { it.active }
+            override val hasChildren: Boolean = relays.isNotEmpty()
 
             companion object
         }
@@ -74,9 +62,7 @@ sealed interface RelayItem {
             override val active: Boolean,
         ) : Location {
             override val name: String = id.hostname
-
-            override val hasChildren = false
-            override val expanded = false
+            override val hasChildren: Boolean = false
 
             companion object
         }

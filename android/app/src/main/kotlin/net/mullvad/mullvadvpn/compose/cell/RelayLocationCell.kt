@@ -34,6 +34,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.Chevron
 import net.mullvad.mullvadvpn.compose.component.MullvadCheckbox
@@ -75,6 +76,76 @@ private fun PreviewCheckableRelayLocationCell(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun RelayItemCell(
+    item: RelayItem,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit,
+    onToggleExpand: ((Boolean) -> Unit),
+    isExpanded: Boolean,
+    depth: Int,
+    modifier: Modifier = Modifier,
+    activeColor: Color = MaterialTheme.colorScheme.selected,
+    inactiveColor: Color = MaterialTheme.colorScheme.error,
+    disabledColor: Color = MaterialTheme.colorScheme.onSecondary,
+) {
+
+    val leadingContentStartPadding = Dimens.cellStartPadding
+    val leadingContentStarPaddingModifier = Dimens.mediumPadding
+    val startPadding = leadingContentStartPadding + leadingContentStarPaddingModifier * depth
+    Row(
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .height(IntrinsicSize.Min)
+                .background(
+                    when {
+                        isSelected -> MaterialTheme.colorScheme.selected
+                        //                        item is RelayItem.CustomList && !relayItem.active
+                        // ->
+                        //                            MaterialTheme.colorScheme.surfaceTint
+                        else -> depth.toBackgroundColor()
+                    }
+                    /*specialBackgroundColor.invoke(item) ?: */
+                )
+                .combinedClickable(
+                    enabled = item.active,
+                    onClick = onClick,
+                    onLongClick = onLongClick,
+                )
+                .padding(start = startPadding),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        if (isSelected) {
+            Icon(painter = painterResource(id = R.drawable.icon_tick), contentDescription = null)
+        } else {
+            Box(
+                modifier =
+                    Modifier.padding(4.dp)
+                        .size(Dimens.relayCircleSize)
+                        .background(
+                            color =
+                                when {
+                                    isSelected -> Color.Unspecified
+                                    item is RelayItem.CustomList && item.locations.isEmpty() ->
+                                        disabledColor
+                                    item.active -> activeColor
+                                    else -> inactiveColor
+                                },
+                            shape = CircleShape
+                        )
+            )
+        }
+        Name(modifier = Modifier.weight(1f), relay = item)
+
+        if (item.hasChildren) {
+            ExpandButton(isExpanded = isExpanded, onClick = { onToggleExpand(!isExpanded) })
+        }
+    }
+}
+
 @Composable
 fun StatusRelayLocationCell(
     relay: RelayItem,
@@ -87,7 +158,7 @@ fun StatusRelayLocationCell(
     onLongClick: (item: RelayItem) -> Unit = {},
 ) {
     RelayLocationCell(
-        relay = relay,
+        item = relay,
         leadingContent = { relayItem ->
             val selected = selectedItem == relayItem.id
             Box(
@@ -98,8 +169,8 @@ fun StatusRelayLocationCell(
                             color =
                                 when {
                                     selected -> Color.Unspecified
-                                    relayItem is RelayItem.CustomList && !relayItem.hasChildren ->
-                                        disabledColor
+                                    relayItem is RelayItem.CustomList &&
+                                        relayItem.locations.isEmpty() -> disabledColor
                                     relayItem.active -> activeColor
                                     else -> inactiveColor
                                 },
@@ -144,7 +215,7 @@ fun CheckableRelayLocationCell(
     selectedRelays: Set<RelayItem> = emptySet(),
 ) {
     RelayLocationCell(
-        relay = relay,
+        item = relay,
         leadingContent = { relayItem ->
             val checked = selectedRelays.contains(relayItem)
             MullvadCheckbox(
@@ -163,7 +234,7 @@ fun CheckableRelayLocationCell(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun RelayLocationCell(
-    relay: RelayItem,
+    item: RelayItem,
     leadingContent: @Composable BoxScope.(relay: RelayItem) -> Unit,
     modifier: Modifier = Modifier,
     leadingContentStartPadding: Dp = Dimens.cellStartPadding,
@@ -174,8 +245,7 @@ private fun RelayLocationCell(
     depth: Int
 ) {
     val startPadding = leadingContentStartPadding + leadingContentStarPaddingModifier * depth
-    val expanded =
-        rememberSaveable(key = relay.expanded.toString()) { mutableStateOf(relay.expanded) }
+    val expanded = rememberSaveable(key = item.id.toString()) { mutableStateOf(false) }
     Column(
         modifier =
             modifier
@@ -190,36 +260,33 @@ private fun RelayLocationCell(
                     .wrapContentHeight()
                     .height(IntrinsicSize.Min)
                     .fillMaxWidth()
-                    .background(specialBackgroundColor.invoke(relay) ?: depth.toBackgroundColor())
+                    .background(specialBackgroundColor.invoke(item) ?: depth.toBackgroundColor())
         ) {
             Row(
                 modifier =
                     Modifier.weight(1f)
                         .combinedClickable(
-                            enabled = relay.active,
-                            onClick = { onClick(relay) },
-                            onLongClick = { onLongClick?.invoke(relay) },
+                            enabled = item.active,
+                            onClick = { onClick(item) },
+                            onLongClick = { onLongClick?.invoke(item) },
                         )
             ) {
                 Box(
                     modifier =
                         Modifier.align(Alignment.CenterVertically).padding(start = startPadding)
                 ) {
-                    leadingContent(relay)
+                    leadingContent(item)
                 }
-                Name(
-                    modifier = Modifier.weight(1f).align(Alignment.CenterVertically),
-                    relay = relay
-                )
+                Name(modifier = Modifier.weight(1f).align(Alignment.CenterVertically), relay = item)
             }
-            if (relay.hasChildren) {
+            if (item.children().isNotEmpty()) {
                 ExpandButton(isExpanded = expanded.value) { expand -> expanded.value = expand }
             }
         }
         if (expanded.value) {
-            relay.children().forEach {
+            item.children().forEach {
                 RelayLocationCell(
-                    relay = it,
+                    item = it,
                     onClick = onClick,
                     modifier = Modifier.animateContentSize(),
                     leadingContent = leadingContent,
@@ -275,6 +342,5 @@ private fun Int.toBackgroundColor(): Color =
         0 -> MaterialTheme.colorScheme.surfaceContainerHighest
         1 -> MaterialTheme.colorScheme.surfaceContainerHigh
         2 -> MaterialTheme.colorScheme.surfaceContainerLow
-        3 -> MaterialTheme.colorScheme.surfaceContainerLowest
         else -> MaterialTheme.colorScheme.surfaceContainerLowest
     }

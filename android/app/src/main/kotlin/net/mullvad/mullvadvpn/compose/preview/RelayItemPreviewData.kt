@@ -12,8 +12,6 @@ internal object RelayItemPreviewData {
         cityNames: List<String>,
         relaysPerCity: Int,
         active: Boolean = true,
-        expanded: Boolean = false,
-        expandChildren: Boolean = false,
     ) =
         RelayItem.Location.Country(
             name = name,
@@ -25,10 +23,8 @@ internal object RelayItemPreviewData {
                         name.generateCountryCode(),
                         relaysPerCity,
                         active,
-                        expandChildren
                     )
                 },
-            expanded = expanded,
         )
 }
 
@@ -37,7 +33,6 @@ private fun generateRelayItemCity(
     countryCode: GeoLocationId.Country,
     numberOfRelays: Int,
     active: Boolean = true,
-    expanded: Boolean = false,
 ) =
     RelayItem.Location.City(
         name = name,
@@ -50,7 +45,6 @@ private fun generateRelayItemCity(
                     active
                 )
             },
-        expanded = expanded,
     )
 
 private fun generateRelayItemRelay(

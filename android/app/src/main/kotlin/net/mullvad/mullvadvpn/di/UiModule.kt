@@ -183,7 +183,7 @@ val uiModule = module {
     viewModel { DnsDialogViewModel(get(), get(), get()) }
     viewModel { LoginViewModel(get(), get(), get()) }
     viewModel { PrivacyDisclaimerViewModel(get(), IS_PLAY_BUILD) }
-    viewModel { SelectLocationViewModel(get(), get(), get(), get(), get(), get()) }
+    viewModel { SelectLocationViewModel(get(), get(), get(), get(), get(), get(), get()) }
     viewModel { SettingsViewModel(get(), get(), IS_PLAY_BUILD) }
     viewModel { SplashViewModel(get(), get(), get(), get()) }
     viewModel { VoucherDialogViewModel(get()) }
