@@ -42,7 +42,7 @@ object Versions {
 
     object Compose {
         const val base = "1.7.0-beta03"
-        const val destinations = "2.1.0-beta09"
+        const val destinations = "2.1.0-beta10"
         const val constrainLayout = "1.0.1"
         const val foundation = base
         const val material3 = "1.3.0-beta03"
@@ -69,7 +69,7 @@ object Versions {
         const val ktfmt = "0.17.0"
         // Ksp version is linked with kotlin version, find matching release here:
         // https://github.com/google/ksp/releases
-        const val ksp = "${kotlin}-1.0.21"
+        const val ksp = "${kotlin}-1.0.22"
     }
 
     object Koin {
