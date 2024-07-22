@@ -38,11 +38,12 @@ class CreateCustomListDialogViewModelTest {
             val customListName = CustomListName.fromString("list")
             val customListId = CustomListId("1")
             val locationNames = listOf("locationName")
-            val expectedResult = CustomListActionResultData.CreatedWithLocations(
-                customListName = customListName,
-                locationNames = locationNames,
-                undo = mockUndo
-            )
+            val expectedResult =
+                CustomListActionResultData.CreatedWithLocations(
+                    customListName = customListName,
+                    locationNames = locationNames,
+                    undo = mockUndo
+                )
             val viewModel = createViewModelWithLocationCode(GeoLocationId.Country("AB"))
             coEvery { mockCustomListActionUseCase(any<CustomListAction.Create>()) } returns
                 mockCreated.right()
