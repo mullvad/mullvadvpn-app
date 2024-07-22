@@ -455,7 +455,6 @@ internal fun ManagementInterface.RelayListCountry.toDomain(): RelayItem.Location
     return RelayItem.Location.Country(
         countryCode,
         name,
-        false,
         citiesList
             .map { city -> city.toDomain(countryCode) }
             .filter { it.relays.isNotEmpty() }
@@ -470,7 +469,6 @@ internal fun ManagementInterface.RelayListCity.toDomain(
     return RelayItem.Location.City(
         name = name,
         id = cityCode,
-        expanded = false,
         relays =
             relaysList
                 .filter { it.endpointType == ManagementInterface.Relay.RelayType.WIREGUARD }

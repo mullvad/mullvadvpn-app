@@ -18,14 +18,11 @@ class RelayItemCheckableCellPreviewParameterProvider :
                     name = "Relay country Expanded",
                     cityNames = listOf("Normal city"),
                     relaysPerCity = 2,
-                    expanded = true
                 ),
                 generateRelayItemCountry(
                     name = "Country and city Expanded",
                     cityNames = listOf("Expanded city A", "Expanded city B"),
                     relaysPerCity = 2,
-                    expanded = true,
-                    expandChildren = true
                 )
             )
         )

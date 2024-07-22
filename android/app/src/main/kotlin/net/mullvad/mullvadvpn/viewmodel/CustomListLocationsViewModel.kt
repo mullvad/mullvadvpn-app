@@ -18,7 +18,6 @@ import net.mullvad.mullvadvpn.compose.communication.LocationsChanged
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsUiState
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.relaylist.descendants
-import net.mullvad.mullvadvpn.relaylist.filterOnSearchTerm
 import net.mullvad.mullvadvpn.relaylist.withDescendants
 import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
@@ -45,7 +44,9 @@ class CustomListLocationsViewModel(
                 relayCountries,
                 searchTerm,
                 selectedLocations ->
-                val filteredRelayCountries = relayCountries.filterOnSearchTerm(searchTerm, null)
+                //                val filteredRelayCountries =
+                // relayCountries.filterOnSearchTerm(searchTerm, null)
+                val filteredRelayCountries = relayCountries
 
                 when {
                     selectedLocations == null ->
