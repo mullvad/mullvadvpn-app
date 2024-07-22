@@ -10,9 +10,9 @@ BUILD_RELEASE_REPOSITORY="https://releases.mullvad.net/desktop/releases"
 BUILD_DEV_REPOSITORY="https://releases.mullvad.net/desktop/builds"
 
 if [[ ("$(uname -s)" == "Darwin") ]]; then
-    export PACKAGES_DIR=$HOME/Library/Caches/mullvad-test/packages
+    export PACKAGE_FOLDER=$HOME/Library/Caches/mullvad-test/packages
 elif [[ ("$(uname -s)" == "Linux") ]]; then
-    export PACKAGES_DIR=$HOME/.cache/mullvad-test/packages
+    export PACKAGE_FOLDER=$HOME/.cache/mullvad-test/packages
 else
     echo "Unsupported OS" 1>&2
     exit 1
@@ -126,10 +126,10 @@ function download_app_package {
     filename=$(get_app_filename "$version" "$os")
     local url="${package_repo}/$version/$filename"
 
-    mkdir -p "$PACKAGES_DIR"
-    if [[ ! -f "$PACKAGES_DIR/$filename" ]]; then
+    mkdir -p "$PACKAGE_FOLDER"
+    if [[ ! -f "$PACKAGE_FOLDER/$filename" ]]; then
         echo "Downloading build for $version ($os) from $url"
-        curl -sf -o "$PACKAGES_DIR/$filename" "$url"
+        curl -sf -o "$PACKAGE_FOLDER/$filename" "$url"
     else
         echo "Found build for $version ($os)"
     fi
@@ -175,10 +175,10 @@ function download_e2e_executable {
     filename=$(get_e2e_filename "$version" "$os")
     local url="${package_repo}/$version/additional-files/$filename"
 
-    mkdir -p "$PACKAGES_DIR"
-    if [[ ! -f "$PACKAGES_DIR/$filename" ]]; then
+    mkdir -p "$PACKAGE_FOLDER"
+    if [[ ! -f "$PACKAGE_FOLDER/$filename" ]]; then
         echo "Downloading e2e executable for $version ($os) from $url"
-        curl -sf -o "$PACKAGES_DIR/$filename" "$url"
+        curl -sf -o "$PACKAGE_FOLDER/$filename" "$url"
     else
         echo "Found e2e executable for $version ($os)"
     fi
@@ -199,7 +199,7 @@ function run_tests_for_os {
         --account "${ACCOUNT_TOKEN:?Error: ACCOUNT_TOKEN not set}" \
         --app-package "${cur_filename}" \
         --app-package-to-upgrade-from "${prev_filename}" \
-        --package-folder "$PACKAGES_DIR" \
+        --package-folder "$PACKAGE_FOLDER" \
         --test-report "$SCRIPT_DIR/.ci-logs/${os}_report" \
         --vm "$os" 2>&1 | sed "s/${ACCOUNT_TOKEN}/\{ACCOUNT_TOKEN\}/g"
 }
@@ -208,9 +208,9 @@ echo "**********************************"
 echo "* Downloading app packages"
 echo "**********************************"
 
-find "$PACKAGES_DIR" -type f -mtime +5 -delete || true
+find "$PACKAGE_FOLDER" -type f -mtime +5 -delete || true
 
-mkdir -p "$PACKAGES_DIR"
+mkdir -p "$PACKAGE_FOLDER"
 nice_time download_app_package "$OLD_APP_VERSION" "$TEST_OS"
 nice_time download_app_package "$NEW_APP_VERSION" "$TEST_OS"
 nice_time download_e2e_executable "$NEW_APP_VERSION" "$TEST_OS"
