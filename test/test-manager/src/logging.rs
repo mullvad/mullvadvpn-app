@@ -31,6 +31,7 @@ impl Logger {
             logger.filter_module("hyper", log::LevelFilter::Info);
             logger.filter_module("rustls", log::LevelFilter::Info);
             logger.filter_module("tarpc", log::LevelFilter::Warn);
+            logger.filter_module("mio_serial", log::LevelFilter::Warn);
             logger.filter_level(log::LevelFilter::Info);
             logger.parse_env(env_logger::DEFAULT_FILTER_ENV);
 

@@ -18,7 +18,7 @@ pub async fn provision(
 ) -> Result<String> {
     match config.provisioner {
         Provisioner::Ssh => {
-            log::info!("SSH provisioning");
+            log::debug!("SSH provisioning");
 
             let (user, password) = config.get_ssh_options().context("missing SSH config")?;
             ssh(
