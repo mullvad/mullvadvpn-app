@@ -24,7 +24,7 @@ object Versions {
     object AndroidX {
         const val activityCompose = "1.9.0"
         const val appcompat = "1.7.0"
-        const val coreKtx = "1.12.0"
+        const val coreKtx = "1.13.1"
         const val coreSplashscreen = "1.1.0-rc01"
         const val espresso = "3.5.1"
         const val lifecycle = "2.8.3"
