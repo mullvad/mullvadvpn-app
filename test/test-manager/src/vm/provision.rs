@@ -107,27 +107,28 @@ fn blocking_ssh(
 
     // Transfer a test runner
     let source = local_runner_dir.join("test-runner");
-    ssh_send_file(&session, &source, temp_dir).context("Failed to send test runner to remote")?;
+    ssh_send_file(&session, &source, temp_dir)
+        .with_context(|| format!("Failed to send '{source:?}' to remote"))?;
 
     // Transfer connection-checker
     let source = local_runner_dir.join("connection-checker");
     ssh_send_file(&session, &source, temp_dir)
-        .context("Failed to send connection-checker to remote")?;
+        .with_context(|| format!("Failed to send '{source:?}' to remote"))?;
 
     // Transfer app packages
-    ssh_send_file(&session, &local_app_manifest.app_package_path, temp_dir)
-        .context("Failed to send current app package to remote")?;
-    if let Some(app_package_to_upgrade_from_path) =
-        &local_app_manifest.app_package_to_upgrade_from_path
-    {
-        ssh_send_file(&session, app_package_to_upgrade_from_path, temp_dir)
-            .context("Failed to send previous app package to remote")?;
+    let source = &local_app_manifest.app_package_path;
+    ssh_send_file(&session, source, temp_dir)
+        .with_context(|| format!("Failed to send '{source:?}' to remote"))?;
+
+    if let Some(source) = &local_app_manifest.app_package_to_upgrade_from_path {
+        ssh_send_file(&session, source, temp_dir)
+            .with_context(|| format!("Failed to send '{source:?}' to remote"))?;
     } else {
-        log::warn!("No previous app to send to remote")
+        log::warn!("No previous app package to upgrade from to send to remote")
     }
-    if let Some(gui_package_path) = &local_app_manifest.gui_package_path {
-        ssh_send_file(&session, gui_package_path, temp_dir)
-            .context("Failed to send gui_package_path to remote")?;
+    if let Some(source) = &local_app_manifest.gui_package_path {
+        ssh_send_file(&session, source, temp_dir)
+            .with_context(|| format!("Failed to send '{source:?}' to remote"))?;
     } else {
         log::warn!("No UI e2e test to send to remote")
     }

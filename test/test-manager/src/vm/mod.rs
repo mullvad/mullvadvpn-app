@@ -37,7 +37,7 @@ pub async fn set_config(config: &mut ConfigFile, vm_name: &str, vm_config: VmCon
 pub async fn run(config: &Config, name: &str) -> Result<Box<dyn VmInstance>> {
     let vm_conf = get_vm_config(config, name)?;
 
-    log::info!("Starting \"{name}\"");
+    log::info!("Starting VM \"{name}\"");
 
     let instance = match vm_conf.vm_type {
         VmType::Qemu => Box::new(
@@ -55,7 +55,7 @@ pub async fn run(config: &Config, name: &str) -> Result<Box<dyn VmInstance>> {
         VmType::Tart => return Err(anyhow::anyhow!("Failed to run Tart VM on a non-macOS host")),
     };
 
-    log::info!("Started instance of \"{name}\" vm");
+    log::debug!("Started instance of \"{name}\" vm");
 
     Ok(instance)
 }

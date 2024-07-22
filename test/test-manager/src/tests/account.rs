@@ -289,7 +289,7 @@ async fn get_current_wireguard_key(
 
 /// Remove all devices on the current account
 pub async fn clear_devices(device_client: &DevicesProxy) -> anyhow::Result<()> {
-    log::info!("Removing all devices for account");
+    log::debug!("Removing all devices for account");
 
     for dev in list_devices_with_retries(device_client).await?.into_iter() {
         if let Err(error) = device_client

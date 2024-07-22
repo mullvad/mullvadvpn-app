@@ -306,6 +306,7 @@ pub fn get_interface_index(interface: &str) -> anyhow::Result<std::ffi::c_uint> 
 pub async fn login_with_retries(
     mullvad_client: &mut MullvadProxyClient,
 ) -> Result<(), mullvad_management_interface::Error> {
+    log::debug!("Logging in/generating device");
     loop {
         match mullvad_client
             .login_account(TEST_CONFIG.account_number.clone())
@@ -339,6 +340,7 @@ pub async fn ensure_logged_in(
     if mullvad_client.get_device().await?.is_logged_in() {
         return Ok(());
     }
+    log::info!("Current device not logged in. Clearing devices and logging in.");
     // We are apparently not logged in already.. Try to log in.
     login_with_retries(mullvad_client).await
 }
@@ -375,7 +377,7 @@ pub async fn connect_and_wait(
 }
 
 pub async fn disconnect_and_wait(mullvad_client: &mut MullvadProxyClient) -> Result<(), Error> {
-    log::info!("Disconnecting");
+    log::debug!("Disconnecting");
     mullvad_client.disconnect_tunnel().await?;
 
     wait_for_tunnel_state(mullvad_client.clone(), |state| {
@@ -383,7 +385,7 @@ pub async fn disconnect_and_wait(mullvad_client: &mut MullvadProxyClient) -> Res
     })
     .await?;
 
-    log::info!("Disconnected");
+    log::debug!("Disconnected");
 
     Ok(())
 }
