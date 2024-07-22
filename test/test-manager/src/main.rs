@@ -182,8 +182,8 @@ async fn main() -> Result<()> {
         }
         Commands::List => {
             println!("Available configurations:");
-            for name in config.vms.keys() {
-                println!("{}", name);
+            for (name, config) in config.vms.iter() {
+                println!("{name}: {config:#?}",);
             }
             Ok(())
         }
