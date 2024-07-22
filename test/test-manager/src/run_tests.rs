@@ -101,16 +101,6 @@ pub async fn run(
         )
         .await;
 
-        if test.mullvad_client_version == MullvadClientVersion::New {
-            // Try to reset the daemon state if the test failed OR if the test doesn't explicitly
-            // disabled cleanup.
-            if test.cleanup || matches!(test_result.result, Err(_) | Ok(Err(_))) {
-                crate::tests::cleanup_after_test(client.clone(), &test_context.rpc_provider)
-                    .await
-                    .context("Failed to clean up after test")?;
-            }
-        }
-
         if print_failed_tests_only {
             // Print results of failed test
             if matches!(test_result.result, Err(_) | Ok(Err(_))) {
@@ -122,6 +112,16 @@ pub async fn run(
         }
 
         test_result.print();
+
+        if test.mullvad_client_version == MullvadClientVersion::New {
+            // Try to reset the daemon state if the test failed OR if the test doesn't explicitly
+            // disabled cleanup.
+            if test.cleanup || matches!(test_result.result, Err(_) | Ok(Err(_))) {
+                crate::tests::cleanup_after_test(client.clone(), &test_context.rpc_provider)
+                    .await
+                    .context("Failed to clean up after test")?;
+            }
+        }
 
         let test_succeeded = matches!(test_result.result, Ok(Ok(_)));
 
