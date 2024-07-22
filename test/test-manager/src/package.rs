@@ -4,9 +4,6 @@ use once_cell::sync::Lazy;
 use regex::Regex;
 use std::path::{Path, PathBuf};
 
-static VERSION_REGEX: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r"\d{4}\.\d+(-beta\d+)?(-dev)?-([0-9a-z])+").unwrap());
-
 #[derive(Debug, Clone)]
 pub struct Manifest {
     pub app_package_path: PathBuf,
@@ -43,12 +40,7 @@ pub fn get_app_manifest(
             .expect("Path to app package should have parent")
             .into(),
     );
-    let capture = VERSION_REGEX
-        .captures(app_package_path.to_str().unwrap())
-        .with_context(|| format!("Cannot parse version: {}", app_package_path.display()))?
-        .get(0)
-        .map(|c| c.as_str())
-        .expect("Could not parse version from package name: {app_package}");
+    let capture = get_version_from_path(&app_package_path)?;
 
     let ui_e2e_tests_path =
         find_app(capture, true, package_type, Some(&ui_e2e_package_folder)).ok();
@@ -59,6 +51,18 @@ pub fn get_app_manifest(
         app_package_to_upgrade_from_path,
         ui_e2e_tests_path,
     })
+}
+
+fn get_version_from_path(app_package_path: &Path) -> Result<&str, anyhow::Error> {
+    static VERSION_REGEX: Lazy<Regex> =
+        Lazy::new(|| Regex::new(r"\d{4}\.\d+((-beta\d+)?(-dev)?-([0-9a-z])+)?").unwrap());
+
+    VERSION_REGEX
+        .captures(app_package_path.to_str().unwrap())
+        .with_context(|| format!("Cannot parse version: {}", app_package_path.display()))?
+        .get(0)
+        .map(|c| c.as_str())
+        .context("Could not parse version from package name: {app_package}")
 }
 
 fn find_app(
@@ -134,5 +138,29 @@ fn get_os_name(package_type: (OsType, Option<PackageType>, Option<Architecture>)
         OsType::Windows => "windows",
         OsType::Macos => "apple",
         OsType::Linux => "linux",
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_version_regex() {
+        let path = Path::new("../some/path/MullvadVPN-2024.4-beta1-dev-f7df8e_amd64.deb");
+        let capture = get_version_from_path(path).unwrap();
+        assert_eq!(capture, "2024.4-beta1-dev-f7df8e");
+
+        let path = Path::new("../some/path/MullvadVPN-2024.4-beta1-f7df8e_amd64.deb");
+        let capture = get_version_from_path(path).unwrap();
+        assert_eq!(capture, "2024.4-beta1-f7df8e");
+
+        let path = Path::new("../some/path/MullvadVPN-2024.4-dev-f7df8e_amd64.deb");
+        let capture = get_version_from_path(path).unwrap();
+        assert_eq!(capture, "2024.4-dev-f7df8e");
+
+        let path = Path::new("../some/path/MullvadVPN-2024.3_amd64.deb");
+        let capture = get_version_from_path(path).unwrap();
+        assert_eq!(capture, "2024.3");
     }
 }
