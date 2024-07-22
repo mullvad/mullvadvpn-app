@@ -319,7 +319,7 @@ impl InnerProcessStates {
 
         // no exec yet; only pid and parent pid change
         if base_info.is_excluded() {
-            println!(
+            log::trace!(
                 "{pid} excluded (inherited from {parent_pid}) (exclude paths: {:?}",
                 base_info.excluded_by_paths
             );
