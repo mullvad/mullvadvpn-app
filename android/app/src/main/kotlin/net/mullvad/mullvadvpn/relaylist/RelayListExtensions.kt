@@ -10,34 +10,33 @@ fun List<RelayItem.Location.Country>.findByGeoLocationId(geoLocationId: GeoLocat
 fun List<RelayItem.Location.Country>.findByGeoLocationId(geoLocationId: GeoLocationId.City) =
     flatMap { it.cities }.firstOrNull { it.id == geoLocationId }
 
-fun List<RelayItem.Location.Country>.newFilterOnSearch(searchTerm: String): Pair<Set<GeoLocationId>, List<RelayItem.Location.Country>> {
+fun List<RelayItem.Location.Country>.newFilterOnSearch(
+    searchTerm: String
+): Pair<Set<GeoLocationId>, List<RelayItem.Location.Country>> {
     val matchesIds =
         withDescendants().filter { it.name.contains(searchTerm, ignoreCase = true) }.map { it.id }
 
     val expansionSet = matchesIds.flatMap { it.parents() }.toSet()
     Logger.d("Expansion Set: $expansionSet")
 
-    val filteredCountryList = filter { it.id in expansionSet || it.id in matchesIds }
-        .map {
-            it.copy(
+    val filteredCountryList = mapNotNull { country ->
+        if (country.id in matchesIds) {
+            country
+        } else if (country.id in expansionSet) {
+            country.copy(
                 cities =
-                    it.cities
-                        .filter {
-                            it.id in expansionSet ||
-                                it.id in matchesIds ||
-                                it.id.country in matchesIds
-                        }
-                        .map {
-                            it.copy(
-                                relays =
-                                    it.relays.filter {
-                                        it.id in expansionSet ||
-                                            it.id in matchesIds ||
-                                            it.id.city in matchesIds ||
-                                            it.id.country in matchesIds
-                                    })
-                        })
+                    country.cities.mapNotNull { city ->
+                        if (city.id in matchesIds) {
+                            city
+                        } else if (city.id in expansionSet) {
+                            city.copy(
+                                relays = city.relays.filter { relay -> relay.id in matchesIds })
+                        } else null
+                    })
+        } else {
+            null
         }
+    }
     return expansionSet to filteredCountryList
 }
 

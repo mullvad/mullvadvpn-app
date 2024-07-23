@@ -6,6 +6,8 @@ import arrow.core.raise.either
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -45,7 +47,7 @@ class SelectLocationViewModel(
     customListsRelayItemUseCase: CustomListsRelayItemUseCase,
     private val customListsRepository: CustomListsRepository,
     private val customListActionUseCase: CustomListActionUseCase,
-    filteredRelayListUseCase: FilteredRelayListUseCase,
+    private val filteredRelayListUseCase: FilteredRelayListUseCase,
     private val relayListRepository: RelayListRepository
 ) : ViewModel() {
     private val _searchTerm = MutableStateFlow(EMPTY_SEARCH_TERM)
@@ -62,18 +64,31 @@ class SelectLocationViewModel(
     }
 
     private val _expandedItems = MutableStateFlow(initialExpand())
-    private val _searchExpandedItems = MutableStateFlow(setOf<String>())
-    private val _searchCollapsedItems = MutableStateFlow(setOf<String>())
+
+    fun searchRelayListLocations() =
+        kotlinx.coroutines.flow
+            .combine(
+                _searchTerm,
+                filteredRelayListUseCase(),
+            ) { searchTerm, relayCountries ->
+                val isSearching = searchTerm.length >= MIN_SEARCH_LENGTH
+                if (isSearching) {
+                    val (exp, filteredRelayCountries) = relayCountries.newFilterOnSearch(searchTerm)
+                    exp.map { it.expandKey() }.toSet() to filteredRelayCountries
+                } else {
+                    initialExpand() to relayCountries
+                }
+            }
+            .onEach { _expandedItems.value = it.first }
+            .map { it.second }
 
     @Suppress("DestructuringDeclarationWithTooManyEntries")
     val uiState =
         combine(
-                filteredRelayListUseCase(),
+                searchRelayListLocations(),
                 customListsRelayItemUseCase(),
                 relayListRepository.selectedLocation,
                 _expandedItems,
-                _searchExpandedItems,
-                _searchCollapsedItems,
                 _searchTerm,
                 relayListFilterRepository.selectedOwnership,
                 availableProvidersUseCase(),
@@ -83,8 +98,6 @@ class SelectLocationViewModel(
                 customLists,
                 selectedItem,
                 expandedItems,
-                searchExpandedItems,
-                searchCollapsedItems,
                 searchTerm,
                 selectedOwnership,
                 allProviders,
@@ -102,17 +115,6 @@ class SelectLocationViewModel(
                                 .size
                     }
 
-                val isSearching = searchTerm.length >= MIN_SEARCH_LENGTH
-                val (expansionList, relayCountries1) =
-                    if (isSearching) {
-                        val (exp, filteredRelayCountries) =
-                            relayCountries.newFilterOnSearch(searchTerm)
-                        (searchExpandedItems + exp.map { it.expandKey() } - searchCollapsedItems) to
-                            filteredRelayCountries
-                    } else {
-                        expandedItems to relayCountries
-                    }
-
                 val filteredCustomLists =
                     customLists
                         .filterOnSearchTerm(searchTerm)
@@ -127,11 +129,18 @@ class SelectLocationViewModel(
                     selectedProvidersCount = selectedProvidersCount,
                     relayListItems =
                         createRelayListItems(
-                            isSearching,
-                            selectedItem.getOrNull(),
-                            filteredCustomLists,
-                            relayCountries1,
-                            expansionList),
+                                searchTerm.length >= MIN_SEARCH_LENGTH,
+                                selectedItem.getOrNull(),
+                                filteredCustomLists,
+                                relayCountries,
+                                expandedItems)
+                            .let {
+                                if (it.isEmpty()) {
+                                    listOf(RelayListItem.LocationsEmptyText(searchTerm))
+                                } else {
+                                    it
+                                }
+                            },
                     customLists = customLists,
                     selectedItem = selectRelayItemId,
                 )
@@ -151,40 +160,57 @@ class SelectLocationViewModel(
         customLists: List<RelayItem.CustomList>,
         countries: List<RelayItem.Location.Country>,
         expandedkeys: Set<String>
+    ): List<RelayListItem> =
+        createCustomListRelayListItems(isSearching, selectedItem, customLists, expandedkeys) +
+            createLocationRelayListItems(isSearching, selectedItem, countries, expandedkeys)
+
+    fun createCustomListRelayListItems(
+        isSearching: Boolean,
+        selectedItem: RelayItemId?,
+        customLists: List<RelayItem.CustomList>,
+        expandedkeys: Set<String>
     ): List<RelayListItem> {
+        return if (isSearching && customLists.isEmpty()) emptyList()
+        else {
+            val customListItems =
+                customLists.flatMap { customList ->
+                    val expanded = customList.id.expandKey() in expandedkeys
+                    val item =
+                        listOf(
+                            RelayListItem.CustomListItem(
+                                customList, isSelected = selectedItem == customList.id, expanded))
 
-        val customListItems: List<RelayListItem> =
-            if (isSearching && customLists.isEmpty()) emptyList()
-            else {
-                listOf(CustomListHeader) +
-                    customLists.flatMap { customList ->
-                        val expanded = customList.id.expandKey() in expandedkeys
-                        val item =
-                            listOf(
-                                RelayListItem.CustomListItem(
-                                    customList,
-                                    isSelected = selectedItem == customList.id,
-                                    expanded))
-
-                        if (expanded) {
-                            item +
-                                customList.locations.flatMap {
-                                    createCustomListEntry(
-                                        parent = customList.id, item = it, 1, expandedkeys)
-                                }
-                        } else {
-                            item
-                        }
+                    if (expanded) {
+                        item +
+                            customList.locations.flatMap {
+                                createCustomListEntry(
+                                    parent = customList.id, item = it, 1, expandedkeys)
+                            }
+                    } else {
+                        item
                     }
-            }
-        val relayLocations: List<RelayListItem> =
-            countries.flatMap { country ->
-                createGeoLocationEntry(country, selectedItem, expandedkeys = expandedkeys)
-            }
+                }
+            listOf(CustomListHeader) +
+                customListItems +
+                RelayListItem.CustomListFooter(customListItems.isNotEmpty())
+        }
+    }
 
-        return customListItems + listOf(
-            RelayListItem.CustomListFooter(customListItems.isNotEmpty()),
-            RelayListItem.LocationHeader) + relayLocations
+    fun createLocationRelayListItems(
+        isSearching: Boolean,
+        selectedItem: RelayItemId?,
+        countries: List<RelayItem.Location.Country>,
+        expandedkeys: Set<String>
+    ): List<RelayListItem> {
+        return if (isSearching && countries.isEmpty()) {
+            emptyList()
+        } else {
+            val relayLocations: List<RelayListItem> =
+                countries.flatMap { country ->
+                    createGeoLocationEntry(country, selectedItem, expandedkeys = expandedkeys)
+                }
+            listOf(RelayListItem.LocationHeader) + relayLocations
+        }
     }
 
     fun createCustomListEntry(
@@ -273,33 +299,18 @@ class SelectLocationViewModel(
     }
 
     fun onToggleExpand(item: RelayItemId, parent: CustomListId? = null, expand: Boolean) {
-        if (_searchTerm.value.length >= MIN_SEARCH_LENGTH) {
+        _expandedItems.update {
             val key = item.expandKey(parent)
             if (expand) {
-                _searchExpandedItems.update { it + key }
-                _searchCollapsedItems.update { it - key }
+                it + key
             } else {
-                _searchExpandedItems.update { it - key }
-                _searchCollapsedItems.update { it + key }
-            }
-        } else {
-            _expandedItems.update {
-                val key = item.expandKey(parent)
-                if (expand) {
-                    it + key
-                } else {
-                    it - key
-                }
+                it - key
             }
         }
     }
 
     fun onSearchTermInput(searchTerm: String) {
-        viewModelScope.launch {
-            _searchExpandedItems.update { setOf() }
-            _searchCollapsedItems.update { setOf() }
-            _searchTerm.emit(searchTerm)
-        }
+        viewModelScope.launch { _searchTerm.emit(searchTerm) }
     }
 
     private fun filterSelectedProvidersByOwnership(
