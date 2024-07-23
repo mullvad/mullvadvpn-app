@@ -22,6 +22,7 @@ on:
         type: string
 jobs:
   prepare-matrices:
+    name: Prepare virtual machines
     runs-on: ubuntu-latest
     steps:
       - name: Generate matrix for Linux builds
@@ -72,6 +73,7 @@ jobs:
       macos_matrix: ${{ env.macos_matrix }}
 
   prepare-linux:
+    name: Prepare Linux build container
     needs: prepare-matrices
     if: |
       needs.prepare-matrices.outputs.linux_matrix != '[]' &&
@@ -91,6 +93,7 @@ jobs:
     outputs:
       container_image: ${{ env.inner_container_image }}
   build-linux:
+    name: Build Linux
     needs: prepare-linux
     runs-on: ubuntu-latest
     container:
@@ -126,7 +129,10 @@ jobs:
   e2e-test-linux:
     name: Linux end-to-end tests
     needs: [prepare-matrices, build-linux]
-    if: '!cancelled()'
+    if: |
+      !cancelled() &&
+      needs.prepare-matrices.outputs.linux_matrix != '[]' &&
+      needs.prepare-matrices.outputs.linux_matrix != ''
     runs-on: [self-hosted, desktop-test, Linux] # app-test-linux
     timeout-minutes: 240
     strategy:
@@ -153,6 +159,7 @@ jobs:
           path: ./test/.ci-logs/${{ matrix.os }}_report
 
   build-windows:
+    name: Build Windows
     needs: prepare-matrices
     if: |
       needs.prepare-matrices.outputs.windows_matrix != '[]' &&
@@ -196,7 +203,10 @@ jobs:
 
   e2e-test-windows:
     needs: [prepare-matrices, build-windows]
-    if: '!cancelled()'
+    if: |
+      !cancelled() &&
+      needs.prepare-matrices.outputs.windows_matrix != '[]' &&
+      needs.prepare-matrices.outputs.windows_matrix != ''
     name: Windows end-to-end tests
     runs-on: [self-hosted, desktop-test, Linux] # app-test-linux
     timeout-minutes: 240
@@ -224,6 +234,7 @@ jobs:
           path: ./test/.ci-logs/${{ matrix.os }}_report
 
   build-macos:
+    name: Build macOS
     needs: prepare-matrices
     if: |
       needs.prepare-matrices.outputs.macos_matrix != '[]' &&
@@ -263,7 +274,10 @@ jobs:
 
   e2e-test-macos:
     needs: [prepare-matrices, build-macos]
-    if: '!cancelled()'
+    if: |
+      !cancelled() &&
+      needs.prepare-matrices.outputs.macos_matrix != '[]' &&
+      needs.prepare-matrices.outputs.macos_matrix != ''
     name: macOS end-to-end tests
     runs-on: [self-hosted, desktop-test, macOS] # app-test-macos-arm
     timeout-minutes: 240
