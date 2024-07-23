@@ -19,6 +19,8 @@ use crate::{
     tests::helpers::get_app_env,
 };
 use anyhow::Context;
+use config::TEST_CONFIG;
+use helpers::install_app;
 pub use test_metadata::TestMetadata;
 use test_rpc::ServiceClient;
 
@@ -81,7 +83,10 @@ pub async fn cleanup_after_test(
 ) -> anyhow::Result<()> {
     log::debug!("Resetting daemon settings after test");
     // Check if daemon should be restarted
-    restart_daemon(rpc).await?;
+
+    if let Err(e) = restart_daemon(&rpc).await {
+        log::error!("Failed to restart daemon: {e}");
+    }
     let mut mullvad_client = rpc_provider.new_client().await;
     mullvad_client
         .reset_settings()
@@ -96,7 +101,7 @@ pub async fn cleanup_after_test(
 /// If the daemon was started with non-standard environment variables, subsequent tests may break
 /// due to assuming a default configuration. In that case, reset the environment variables and
 /// restart.
-async fn restart_daemon(rpc: ServiceClient) -> anyhow::Result<()> {
+async fn restart_daemon(rpc: &ServiceClient) -> anyhow::Result<()> {
     let current_env = rpc
         .get_daemon_environment()
         .await
