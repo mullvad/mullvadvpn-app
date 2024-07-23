@@ -52,12 +52,12 @@ The test device must be on the office WiFi `app-team-ios-tests` in order to be a
   - `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
   - `brew install xcbeautify wget swiftlint protobuf`
 8. Install Ruby
-  - `\curl -sSL https://get.rvm.io | bash`
+  - `curl -sSL https://get.rvm.io | bash`
 9. Install Rust and add iOS targets
   - `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh`
   - `rustup target install aarch64-apple-ios aarch64-apple-ios-sim`
-10. Install Go 1.19
-  - `brew install go@1.19`
+10. Install Go 1.20
+  - `brew install go@1.20`
 
 ### GitHub runner setup
 1. Ask GitHub admin for new runner token and setup steps from GitHub. Set it up according to the steps, pass `--labels ios-test` to `config.sh` when running it. By default it will also have the labels `self-hosted` and `macOS` which are required as well.
