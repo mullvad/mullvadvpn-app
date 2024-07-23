@@ -2,6 +2,7 @@
 
 set -eu
 
+CALLER_DIR=$(pwd)
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 TEST_DIR="$SCRIPT_DIR/.."
 APP_DIR="$SCRIPT_DIR/../.."
@@ -225,5 +226,41 @@ function run_tests_for_os {
             --vm "$vm" \
             "${TEST_FILTERS:-}" \
             2>&1 | sed -r "s/${ACCOUNT_TOKEN}/\{ACCOUNT_TOKEN\}/g"
+    popd
+}
+
+# Build the current version of the app and move the package to the package folder
+# Currently unused, but may be useful in the future
+function build_current_version {
+    pushd "$CALLER_DIR"
+        local app_filename
+        app_filename=$(get_app_filename "$CURRENT_VERSION" "${TEST_OS:?Error: TEST_OS not set}")
+        if [[ -z "$PACKAGE_FOLDER" ]]; then
+            echo "PACKAGE_FOLDER not set" 1>&2
+            exit 1
+        fi
+        APP_PACKAGE="$PACKAGE_FOLDER"/"$app_filename"
+
+        local gui_test_filename
+        gui_test_filename=$(get_e2e_filename "$CURRENT_VERSION" "$TEST_OS")
+        GUI_TEST_BIN="$PACKAGE_FOLDER"/"$gui_test_filename"
+
+        if [ ! -f "$APP_PACKAGE" ]; then
+            pushd "$APP_DIR"
+                if [[ $(git diff --quiet) ]]; then
+                    echo "WARNING: the app repository contains uncommitted changes, this script will only rebuild the app package when the git hash changes"
+                fi
+                ./build.sh
+            popd
+        fi
+
+        if [ ! -f "$GUI_TEST_BIN" ]; then
+            pushd "$APP_DIR"/gui
+                npm run build-test-executable
+            popd
+        fi
+
+        mv -n "$APP_DIR"/dist/"$app_filename" "$APP_PACKAGE"
+        mv -n "$APP_DIR"/dist/"$gui_test_filename" "$APP_PACKAGE"
     popd
 }
