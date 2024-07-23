@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.relaylist
 
-import co.touchlab.kermit.Logger
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 
@@ -10,14 +9,16 @@ fun List<RelayItem.Location.Country>.findByGeoLocationId(geoLocationId: GeoLocat
 fun List<RelayItem.Location.Country>.findByGeoLocationId(geoLocationId: GeoLocationId.City) =
     flatMap { it.cities }.firstOrNull { it.id == geoLocationId }
 
+fun List<RelayItem.Location.Country>.search(searchTerm: String): List<GeoLocationId> =
+    withDescendants().filter { it.name.contains(searchTerm, ignoreCase = true) }.map { it.id }
+
+fun List<GeoLocationId>.expansionSet() = flatMap { it.ancestors() }.toSet()
+
 fun List<RelayItem.Location.Country>.newFilterOnSearch(
     searchTerm: String
 ): Pair<Set<GeoLocationId>, List<RelayItem.Location.Country>> {
-    val matchesIds =
-        withDescendants().filter { it.name.contains(searchTerm, ignoreCase = true) }.map { it.id }
-
-    val expansionSet = matchesIds.flatMap { it.ancestors() }.toSet()
-    Logger.d("Expansion Set: $expansionSet")
+    val matchesIds = search(searchTerm)
+    val expansionSet = matchesIds.expansionSet()
 
     val filteredCountryList = mapNotNull { country ->
         if (country.id in matchesIds) {
