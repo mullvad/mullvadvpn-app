@@ -358,7 +358,7 @@ fun SelectLocationScreen(
                                                 onShowCustomListBottomSheet = {
                                                     bottomSheetState =
                                                         ShowCustomListsBottomSheet(
-                                                            editListEnabled = false
+                                                            editListEnabled = state.customLists.isNotEmpty()
                                                         )
                                                 }
                                             )
@@ -643,7 +643,7 @@ private fun SelectLocationUiState.indexOfSelectedRelayItem(): Int =
 private fun CustomListsBottomSheet(
     onBackgroundColor: Color,
     sheetState: SheetState,
-    bottomSheetState: BottomSheetState.ShowCustomListsBottomSheet,
+    bottomSheetState: ShowCustomListsBottomSheet,
     onCreateCustomList: () -> Unit,
     onEditCustomLists: () -> Unit,
     closeBottomSheet: (animate: Boolean) -> Unit
