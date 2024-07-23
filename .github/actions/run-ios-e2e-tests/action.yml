@@ -45,19 +45,20 @@ runs:
 
     - name: Run end-to-end-tests
       run: >
+        echo "$(cat $0)"
         if [ -n "$TEST_NAME" ]; then
           TEST_NAME_ARGUMENT=" -only-testing $TEST_NAME"
         else
           TEST_NAME_ARGUMENT=""
         fi
-        set -o pipefail && env NSUnbufferedIO=YES xcodebuild \
-          -project MullvadVPN.xcodeproj \
-          -scheme MullvadVPNUITests \
-          -testPlan MullvadVPNUITestsAll $TEST_NAME_ARGUMENT \
-          -resultBundlePath ${{ env.TEST_OUTPUT_DIRECTORY }}/xcode-test-report \
-          -derivedDataPath derived-data \
-          -destination "platform=iOS,id=$TEST_DEVICE_UDID" \
-          test-without-building 2>&1 #| xcbeautify --report junit \
+        set -o pipefail && env NSUnbufferedIO=YES xcodebuild
+          -project MullvadVPN.xcodeproj
+          -scheme MullvadVPNUITests
+          -testPlan MullvadVPNUITestsAll $TEST_NAME_ARGUMENT
+          -resultBundlePath ${{ env.TEST_OUTPUT_DIRECTORY }}/xcode-test-report
+          -derivedDataPath derived-data
+          -destination "platform=iOS,id=$TEST_DEVICE_UDID"
+          test-without-building 2>&1 #| xcbeautify --report junit
           --report-path ${{ env.TEST_OUTPUT_DIRECTORY }}/junit-test-report
       shell: bash
       working-directory: ${{ inputs.outputs_path }}/mullvadvpn-app/ios
