@@ -159,7 +159,7 @@ impl MullvadProxyClient {
     /// in place.
     ///
     /// - `shutdown`: Whether the daemon should shutdown immediately after its prepare-for-restart
-    /// routine.
+    ///   routine.
     pub async fn prepare_restart_v2(&mut self, shutdown: bool) -> Result<()> {
         self.0
             .prepare_restart_v2(shutdown)
