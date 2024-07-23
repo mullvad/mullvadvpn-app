@@ -20,22 +20,22 @@ pub fn get_app_manifest(
     app_package: String,
     app_package_to_upgrade_from: Option<String>,
     gui_package: Option<String>,
-    package_folder: Option<PathBuf>,
+    package_dir: Option<PathBuf>,
 ) -> Result<Manifest> {
     let package_type = (config.os_type, config.package_type, config.architecture);
 
-    let app_package_path = find_app(&app_package, false, package_type, package_folder.as_ref())?;
+    let app_package_path = find_app(&app_package, false, package_type, package_dir.as_ref())?;
     log::info!("App package: {}", app_package_path.display());
 
     let app_package_to_upgrade_from_path = app_package_to_upgrade_from
-        .map(|app| find_app(&app, false, package_type, package_folder.as_ref()))
+        .map(|app| find_app(&app, false, package_type, package_dir.as_ref()))
         .transpose()?;
     log::info!("App package to upgrade from: {app_package_to_upgrade_from_path:?}");
 
     // Automatically try to find the UI e2e tests based on the app package
 
     // Search the specified package folder, or same folder as the app package if missing
-    let ui_e2e_package_folder = package_folder.unwrap_or(
+    let ui_e2e_package_dir = package_dir.unwrap_or(
         app_package_path
             .parent()
             .expect("Path to app package should have parent")
@@ -50,7 +50,7 @@ pub fn get_app_manifest(
         },
         true,
         package_type,
-        Some(&ui_e2e_package_folder),
+        Some(&ui_e2e_package_dir),
     );
 
     // Don't allow the UI/e2e test binary to missing if it's flag was specified
@@ -84,7 +84,7 @@ fn find_app(
     app: &str,
     e2e_bin: bool,
     package_type: (OsType, Option<PackageType>, Option<Architecture>),
-    package_folder: Option<&PathBuf>,
+    package_dir: Option<&PathBuf>,
 ) -> Result<PathBuf> {
     // If it's a path, use that path
     let app_path = Path::new(app);
@@ -97,7 +97,7 @@ fn find_app(
     app.make_ascii_lowercase();
 
     let current_dir = std::env::current_dir().expect("Unable to get current directory");
-    let packages_dir = package_folder.unwrap_or(&current_dir);
+    let packages_dir = package_dir.unwrap_or(&current_dir);
     std::fs::create_dir_all(packages_dir)?;
     let dir = std::fs::read_dir(packages_dir.clone()).context("Failed to list packages")?;
 
