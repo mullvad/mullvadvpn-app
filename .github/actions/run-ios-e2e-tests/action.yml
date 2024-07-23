@@ -57,7 +57,7 @@ runs:
           -resultBundlePath ${{ env.TEST_OUTPUT_DIRECTORY }}/xcode-test-report \
           -derivedDataPath derived-data \
           -destination "platform=iOS,id=$TEST_DEVICE_UDID" \
-          test-without-building 2>&1 #| xcbeautify --report junit \
+          test-without-building 2>&1 #| xcbeautify --report junit ^
           --report-path ${{ env.TEST_OUTPUT_DIRECTORY }}/junit-test-report
       shell: bash
       working-directory: ${{ inputs.outputs_path }}/mullvadvpn-app/ios
