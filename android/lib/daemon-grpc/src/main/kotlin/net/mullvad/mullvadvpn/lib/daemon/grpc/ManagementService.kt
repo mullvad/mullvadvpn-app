@@ -51,6 +51,7 @@ import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodSetting
 import net.mullvad.mullvadvpn.lib.model.AppId
 import net.mullvad.mullvadvpn.lib.model.AppVersionInfo as ModelAppVersionInfo
+import net.mullvad.mullvadvpn.lib.model.ClearAccountHistoryError
 import net.mullvad.mullvadvpn.lib.model.ClearAllOverridesError
 import net.mullvad.mullvadvpn.lib.model.ConnectError
 import net.mullvad.mullvadvpn.lib.model.Constraint
@@ -75,6 +76,7 @@ import net.mullvad.mullvadvpn.lib.model.GetDeviceListError
 import net.mullvad.mullvadvpn.lib.model.GetDeviceStateError
 import net.mullvad.mullvadvpn.lib.model.GetVersionInfoError
 import net.mullvad.mullvadvpn.lib.model.LoginAccountError
+import net.mullvad.mullvadvpn.lib.model.LogoutAccountError
 import net.mullvad.mullvadvpn.lib.model.NewAccessMethodSetting
 import net.mullvad.mullvadvpn.lib.model.ObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.Ownership as ModelOwnership
@@ -264,9 +266,13 @@ class ManagementService(
         Either.catch { grpc.connectTunnel(Empty.getDefaultInstance()).value }
             .mapLeft(ConnectError::Unknown)
 
-    suspend fun disconnect(): Boolean = grpc.disconnectTunnel(Empty.getDefaultInstance()).value
+    suspend fun disconnect(): Either<ConnectError, Boolean> =
+        Either.catch { grpc.disconnectTunnel(Empty.getDefaultInstance()).value }
+            .mapLeft(ConnectError::Unknown)
 
-    suspend fun reconnect(): Boolean = grpc.reconnectTunnel(Empty.getDefaultInstance()).value
+    suspend fun reconnect(): Either<ConnectError, Boolean> =
+        Either.catch { grpc.reconnectTunnel(Empty.getDefaultInstance()).value }
+            .mapLeft(ConnectError::Unknown)
 
     private suspend fun getTunnelState(): ModelTunnelState =
         grpc.getTunnelState(Empty.getDefaultInstance()).toDomain()
@@ -286,9 +292,13 @@ class ManagementService(
         Either.catch { grpc.getVersionInfo(Empty.getDefaultInstance()).toDomain() }
             .mapLeft { GetVersionInfoError.Unknown(it) }
 
-    suspend fun logoutAccount() {
-        grpc.logoutAccount(Empty.getDefaultInstance())
-    }
+    private suspend fun getCurrentApiAccessMethod(): ApiAccessMethodSetting =
+        grpc.getCurrentApiAccessMethod(Empty.getDefaultInstance()).toDomain()
+
+    suspend fun logoutAccount(): Either<LogoutAccountError, Unit> =
+        Either.catch { grpc.logoutAccount(Empty.getDefaultInstance()) }
+            .mapLeft(LogoutAccountError::Unknown)
+            .mapEmpty()
 
     suspend fun loginAccount(accountNumber: AccountNumber): Either<LoginAccountError, Unit> =
         Either.catch { grpc.loginAccount(StringValue.of(accountNumber.value)) }
@@ -303,9 +313,10 @@ class ManagementService(
             }
             .mapEmpty()
 
-    suspend fun clearAccountHistory() {
-        grpc.clearAccountHistory(Empty.getDefaultInstance())
-    }
+    suspend fun clearAccountHistory(): Either<ClearAccountHistoryError, Unit> =
+        Either.catch { grpc.clearAccountHistory(Empty.getDefaultInstance()) }
+            .mapLeft(ClearAccountHistoryError::Unknown)
+            .mapEmpty()
 
     suspend fun getAccountHistory(): Either<GetAccountHistoryError, AccountNumber?> =
         Either.catch {
@@ -411,11 +422,6 @@ class ManagementService(
         Either.catch { grpc.setQuantumResistantTunnel(value.toDomain()) }
             .mapLeft(SetWireguardQuantumResistantError::Unknown)
             .mapEmpty()
-
-    // Todo needs to be more advanced
-    suspend fun setRelaySettings(value: RelaySettings) {
-        grpc.setRelaySettings(value.fromDomain())
-    }
 
     suspend fun setObfuscation(
         value: SelectedObfuscation
@@ -629,9 +635,6 @@ class ManagementService(
         Either.catch { grpc.updateApiAccessMethod(apiAccessMethodSetting.fromDomain()) }
             .mapLeft(::UnknownApiAccessMethodError)
             .mapEmpty()
-
-    private suspend fun getCurrentApiAccessMethod(): ApiAccessMethodSetting =
-        grpc.getCurrentApiAccessMethod(Empty.getDefaultInstance()).toDomain()
 
     suspend fun testCustomApiAccessMethod(
         customProxy: ApiAccessMethod.CustomProxy
