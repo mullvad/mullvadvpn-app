@@ -58,12 +58,12 @@ function print_available_releases {
     done
 }
 
-function create_package_folder {
-    if [[ -z "${PACKAGE_FOLDER+x}" ]]; then
-        echo "'PACKAGE_FOLDER' must be specified" 1>&2
+function create_package_dir {
+    if [[ -z "${PACKAGE_DIR+x}" ]]; then
+        echo "'PACKAGE_DIR' must be specified" 1>&2
         exit 1
     else
-        mkdir -p "$PACKAGE_FOLDER"
+        mkdir -p "$PACKAGE_DIR"
     fi
 }
 
@@ -136,10 +136,10 @@ function download_app_package {
     filename=$(get_app_filename "$version" "$os")
     local url="${package_repo}/$version/$filename"
 
-    create_package_folder
-    if [[ ! -f "$PACKAGE_FOLDER/$filename" ]]; then
+    create_package_dir
+    if [[ ! -f "$PACKAGE_DIR/$filename" ]]; then
         echo "Downloading build for $version ($os) from $url"
-        curl -sf -o "$PACKAGE_FOLDER/$filename" "$url"
+        curl -sf -o "$PACKAGE_DIR/$filename" "$url"
     else
         echo "Found build for $version ($os)"
     fi
@@ -185,10 +185,10 @@ function download_e2e_executable {
     filename=$(get_e2e_filename "$version" "$os")
     local url="${package_repo}/$version/additional-files/$filename"
 
-    create_package_folder
-    if [[ ! -f "$PACKAGE_FOLDER/$filename" ]]; then
+    create_package_dir
+    if [[ ! -f "$PACKAGE_DIR/$filename" ]]; then
         echo "Downloading e2e executable for $version ($os) from $url"
-        curl -sf -o "$PACKAGE_FOLDER/$filename" "$url"
+        curl -sf -o "$PACKAGE_DIR/$filename" "$url"
     else
         echo "Found e2e executable for $version ($os)"
     fi
@@ -241,7 +241,7 @@ function run_tests_for_os {
             --account "${ACCOUNT_TOKEN:?Error: ACCOUNT_TOKEN not set}" \
             --app-package "${APP_PACKAGE:?Error: APP_PACKAGE not set}" \
             "${upgrade_package_arg[@]}" \
-            --package-folder "${PACKAGE_FOLDER:?Error: PACKAGE_FOLDER not set}" \
+            --package-dir "${PACKAGE_DIR:?Error: PACKAGE_DIR not set}" \
             --vm "$vm" \
             "${TEST_FILTERS:-}" \
             2>&1 | sed -r "s/${ACCOUNT_TOKEN}/\{ACCOUNT_TOKEN\}/g"
@@ -256,15 +256,15 @@ function build_current_version {
     local app_filename
     app_filename=$(get_app_filename "$CURRENT_VERSION" "${TEST_OS:?Error: TEST_OS not set}")
     pushd "$CALLER_DIR"
-        if [[ -z "$PACKAGE_FOLDER" ]]; then
-            echo "PACKAGE_FOLDER not set" 1>&2
+        if [[ -z "$PACKAGE_DIR" ]]; then
+            echo "PACKAGE_DIR not set" 1>&2
             exit 1
         fi
-        APP_PACKAGE="$PACKAGE_FOLDER"/"$app_filename"
+        APP_PACKAGE="$PACKAGE_DIR"/"$app_filename"
 
         local gui_test_filename
         gui_test_filename=$(get_e2e_filename "$CURRENT_VERSION" "$TEST_OS")
-        GUI_TEST_BIN="$PACKAGE_FOLDER"/"$gui_test_filename"
+        GUI_TEST_BIN="$PACKAGE_DIR"/"$gui_test_filename"
 
         if [ ! -f "$APP_PACKAGE" ]; then
             pushd "$app_dir"
