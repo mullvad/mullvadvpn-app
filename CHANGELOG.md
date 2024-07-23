@@ -25,6 +25,10 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Add DAITA (Defence against AI-guided Traffic Analysis) setting for Linux and macOS.
 
+### Fixed
+- Fix mullvad cli bug causing `mullvad status listen` command to miss events if they occurred
+  too quickly.
+
 ## [2024.4-beta1] - 2024-06-24
 ### Added
 - Add custom bridge settings in GUI.
@@ -35,10 +39,6 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Changed
 - Update Electron from 28.1.3 to 30.0.4.
-
-### Fixed
-- Fix mullvad cli bug causing `mullvad status listen` command to miss events if they occurred
-  too quickly.
 
 #### Windows
 - Fix race condition that could result in crashes when DAITA was enabled during disconnects.
