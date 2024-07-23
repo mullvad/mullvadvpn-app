@@ -56,7 +56,7 @@ private fun generateRelayItemRelay(
         id =
             GeoLocationId.Hostname(
                 city = cityCode,
-                hostname = hostName,
+                code = hostName,
             ),
         active = active,
         provider = Provider(ProviderId("Provider"), Ownership.MullvadOwned),
@@ -69,6 +69,6 @@ private fun String.generateCityCode(countryCode: GeoLocationId.Country) =
     GeoLocationId.City(countryCode, take(CITY_CODE_LENGTH).lowercase())
 
 private fun generateHostname(city: GeoLocationId.City, index: Int) =
-    "${city.countryCode.countryCode}-${city.cityCode}-wg-${index+1}"
+    "${city.country.code}-${city.code}-wg-${index+1}"
 
 private const val CITY_CODE_LENGTH = 3

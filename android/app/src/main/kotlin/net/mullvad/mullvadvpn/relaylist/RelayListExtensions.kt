@@ -16,7 +16,7 @@ fun List<RelayItem.Location.Country>.newFilterOnSearch(
     val matchesIds =
         withDescendants().filter { it.name.contains(searchTerm, ignoreCase = true) }.map { it.id }
 
-    val expansionSet = matchesIds.flatMap { it.parents() }.toSet()
+    val expansionSet = matchesIds.flatMap { it.ancestors() }.toSet()
     Logger.d("Expansion Set: $expansionSet")
 
     val filteredCountryList = mapNotNull { country ->
@@ -40,7 +40,7 @@ fun List<RelayItem.Location.Country>.newFilterOnSearch(
     return expansionSet to filteredCountryList
 }
 
-private fun GeoLocationId.parents(): List<GeoLocationId> =
+private fun GeoLocationId.ancestors(): List<GeoLocationId> =
     when (this) {
         is GeoLocationId.City -> listOf(country)
         is GeoLocationId.Country -> emptyList()

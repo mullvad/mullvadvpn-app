@@ -56,9 +56,9 @@ class SelectLocationViewModel(
         val item = relayListRepository.selectedLocation.value.getOrNull()
         return when (item) {
             is CustomListId -> setOf()
-            is GeoLocationId.City -> setOf(item.countryCode.countryCode)
+            is GeoLocationId.City -> setOf(item.country.code)
             is GeoLocationId.Country -> setOf()
-            is GeoLocationId.Hostname -> setOf(item.country.countryCode, item.city.cityCode)
+            is GeoLocationId.Hostname -> setOf(item.country.code, item.city.code)
             null -> setOf()
         }
     }
@@ -281,9 +281,7 @@ class SelectLocationViewModel(
         (parent?.value ?: "") +
             when (this) {
                 is CustomListId -> value
-                is GeoLocationId.City -> cityCode
-                is GeoLocationId.Country -> countryCode
-                is GeoLocationId.Hostname -> hostname
+                is GeoLocationId -> code
             }
 
     fun selectRelay(relayItem: RelayItem) {
