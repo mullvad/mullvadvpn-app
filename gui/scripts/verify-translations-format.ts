@@ -73,7 +73,7 @@ function checkHtmlTagsImpl(value: string): { correct: boolean, amount: number } 
   for (let tag of tagTypes) {
     const selfClosing = tag.endsWith('/');
     const endTag = tag.startsWith('/');
-    tag = endTag ? tag.slice(1) : selfClosing ? tag.slice(0, -1) : tag;
+    tag = endTag ? tag.slice(1) : selfClosing ? tag.slice(0, -1).trim() : tag;
 
     if (!ALLOWED_TAGS.includes(tag)) {
       console.error(`Tag "<${tag}>" not allowed: "${value}"`);

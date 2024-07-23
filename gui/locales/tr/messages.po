@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Turkish\n"
 "Language: tr_TR\n"
-"PO-Revision-Date: 2024-05-15 07:28\n"
+"PO-Revision-Date: 2024-06-27 08:16\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "%(duration)s eklendi, hesap için %(expiry)s tarihine kadar ödeme yapıldı."
@@ -1097,6 +1097,14 @@ msgid "Disconnected and unsecure"
 msgstr "Bağlantı kesildi ve güvenli değil"
 
 msgctxt "notifications"
+msgid "Failed to enable split tunneling."
+msgstr "Bölünmüş tünelleme etkinleştirilemedi."
+
+msgctxt "notifications"
+msgid "Failed to enable split tunneling. Please try reconnecting or disable split tunneling."
+msgstr "Bölünmüş tünelleme etkinleştirilemedi. Lütfen yeniden bağlanmayı deneyin veya bölünmüş tünellemeyi devre dışı bırakın."
+
+msgctxt "notifications"
 msgid "Lockdown mode active, connection blocked"
 msgstr "Kilitleme modu etkin, bağlantı engellendi"
 
@@ -1689,12 +1697,24 @@ msgid "Connecting. %(location)s"
 msgstr "Bağlanılıyor. %(location)s"
 
 msgctxt "troubleshoot"
+msgid "Enable “Full Disk Access” for “Mullvad VPN” in the macOS system settings."
+msgstr "MacOS sistem ayarlarında \"Mullvad VPN\" için \"Tam Disk Erişimi\"ni etkinleştirin."
+
+msgctxt "troubleshoot"
+msgid "Failed to enable split tunneling. This is because the app is missing system permissions. What you can do:"
+msgstr "Uygulamanın sistem izinleri eksik olduğu için bölünmüş tünelleme etkinleştirilemedi. Yapabilecekleriniz:"
+
+msgctxt "troubleshoot"
 msgid "If these steps do not work please send a problem report."
 msgstr "Bu adımlar işe yaramazsa lütfen bir hata raporu gönderin."
 
 msgctxt "troubleshoot"
 msgid "Make sure you have NF tables support."
 msgstr "NFtables desteğinizin olduğundan emin olun."
+
+msgctxt "troubleshoot"
+msgid "Open system settings"
+msgstr "Sistem ayarlarını aç"
 
 msgctxt "troubleshoot"
 msgid "This error can happen when something other than Mullvad is actively updating the DNS."
@@ -2098,11 +2118,9 @@ msgstr "TCP üzerinden UDP gizleme protokolünün VPN sunucusunda hangi TCP port
 msgid "%s (added)"
 msgstr "%s (eklendi)"
 
-msgctxt "A location was added to a custom list"
 msgid "%s was added to \"%s\""
 msgstr "%s, \"%s\" listesine eklendi"
 
-msgctxt "Shown as a toast when user added e.g 30 days or 3 months of time to their account"
 msgid "%s was added to your account."
 msgstr "%s, hesabınıza eklendi."
 
@@ -2112,11 +2130,17 @@ msgstr "1. Aşağıdaki <b>VPN ayarlarına git</b> düğmesine tıkladıktan son
 msgid "2. To enable Auto-connect, click on the toggle next to <b>Always-on VPN</b>."
 msgstr "2. Otomatik bağlantıyı etkinleştirmek için <b>VPN her zaman açık</b> seçeneğinin yanındaki düğmeye tıklayın."
 
-msgid "3. To enable Lockdown mode, click on the toggle next to <b>Block connections without VPN</b>."
-msgstr "3. Kilitleme modunu etkinleştirmek için <b>VPN olmadığında bağlantıları engelle</b> seçeneğinin yanındaki düğmeye tıklayın."
+msgid "3. To enable Lockdown mode, click on the toggle next to <b>Block connections without VPN</b>.<br /><br /><b>Warning: This setting blocks split apps and the Local Network Sharing feature.</b>"
+msgstr "3. Kilitleme modunu etkinleştirmek için <b>VPN üzerinden olmayan bağlantıları engelle</b> seçeneğinin yanındaki düğmeyi tıklayın.<br /><br /><b>Uyarı: Bu ayar, bölünmüş uygulamaları ve Yerel Ağ Paylaşımı özelliğini engeller. </b>"
 
 msgid "30 days was added to your account."
 msgstr "Hesabınıza 30gün eklendi."
+
+msgid "API reachable, adding method..."
+msgstr "Erişilebilir API, yöntem ekleniyor..."
+
+msgid "API unreachable, save method anyway?"
+msgstr "API'ye erişilemiyor, yöntem yine de kaydedilsin mi?"
 
 msgid "Account credit expires in a few minutes"
 msgstr "Hesap kredisinin süresi birkaç dakika içinde doluyor"
@@ -2127,7 +2151,6 @@ msgstr "Hesap kredisinin süresi yakında doluyor"
 msgid "Account time reminders"
 msgstr "Hesap süresi hatırlatıcıları"
 
-msgctxt "Add a Country,City, or Server to a custom list"
 msgid "Add %s to list"
 msgstr "%s konumunu listeye ekle"
 
@@ -2142,6 +2165,9 @@ msgstr "DNS sunucusu ekle"
 
 msgid "Add locations"
 msgstr "Konum ekle"
+
+msgid "Adding method..."
+msgstr "Yöntem ekleniyor..."
 
 msgid "Agree and continue"
 msgstr "Kabul et ve devam et"
@@ -2161,6 +2187,9 @@ msgstr "Her zaman açık VPN başka bir uygulamaya atandı"
 msgid "Always-on VPN might be enabled for another app"
 msgstr "Her zaman açık VPN başka bir uygulama için etkinleştirilebilir"
 
+msgid "At least one method needs to be enabled"
+msgstr "En az bir yöntemin etkinleştirilmesi gerekiyor"
+
 msgid "Attention: Split tunneling is a privacy risk."
 msgstr "Dikkat: Bölünmüş tünelleme gizlilik riski taşır."
 
@@ -2178,6 +2207,10 @@ msgstr "Otomatik bağlan (eski)"
 
 msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
 msgstr "Otomatik bağlantı, Android sistem ayarlarında VPN her zaman açık olarak gösterilir ve VPN tüneline sürekli bağlı olmanızı ve yeniden başlatma sonrası otomatik olarak bağlanmanızı sağlar."
+
+msgctxt "Description of the existing \"auto-connect\" functionality as well as a notification about it being removed/replaced in a future update."
+msgid "Automatically connect when the app launches. This setting will be replaced with a new connect on device start-up feature in a future update."
+msgstr "Uygulama başlatıldığında otomatik olarak bağlanır. Bu ayar, daha sonraki bir güncellemede yeni bir cihazda bağlantı başlatma özelliğiyle değiştirilecektir."
 
 msgid "Blocking internet (device offline)"
 msgstr "İnternet bağlantısı engelleniyor (cihaz çevrimdışı)"
@@ -2206,6 +2239,10 @@ msgstr "Yeni liste oluştur"
 msgid "Critical error (your attention is required)"
 msgstr "Kritik hata (Lütfen dikkatli olun)"
 
+msgctxt "Status information about which method/configuration is actively being used. The placeholder is replaced by a built-in or custom method. For example \"Current: Direct\" or \"Current: MyCustomMethod\". Note that it's not \"current\" as in \"present time\"."
+msgid "Current: %s"
+msgstr "Geçerli: %s"
+
 msgid "Custom DNS server addresses %s are invalid"
 msgstr "Özel DNS sunucu adresleri (%s) geçersiz"
 
@@ -2214,6 +2251,12 @@ msgstr "DNS ayarları hemen etkili olmayabilir"
 
 msgid "Delete \"%s\"?"
 msgstr "\"%s\" silinsin mi\"?"
+
+msgid "Delete method"
+msgstr "Yöntemi sil"
+
+msgid "Delete method?"
+msgstr "Yöntem silinsin mi?"
 
 msgid "Disable all <b>%s</b> above to activate this setting."
 msgstr "Bu ayarı etkinleştirmek için yukarıdaki <b>%s</b> öğelerinin tümünü devre dışı bırakın."
@@ -2239,6 +2282,9 @@ msgstr "Konumları düzenle"
 msgid "Edit name"
 msgstr "Adı düzenle"
 
+msgid "Enable method"
+msgstr "Yöntemi etkinleştir"
+
 msgid "Enter MTU"
 msgstr "MTU'yu girin"
 
@@ -2247,6 +2293,12 @@ msgstr "Hariç tutulan uygulamalar"
 
 msgid "Failed to apply patch"
 msgstr "Yama uygulanamadı"
+
+msgid "Failed to set to current - API not reachable"
+msgstr "Geçerli olarak ayarlanamadı - API'ye ulaşılamıyor"
+
+msgid "Failed to set to current - Unknown reason"
+msgstr "Geçerli olarak ayarlanamadı - Bilinmeyen neden"
 
 msgid "File"
 msgstr "Dosya"
@@ -2332,12 +2384,20 @@ msgstr "Geçersiz kılmalar temizlendi"
 msgid "Overrides inactive"
 msgstr "Geçersiz kılmalar etkin değil"
 
+msgid "Password (optional)"
+msgstr "Şifre (isteğe bağlı)"
+
 msgid "Paste or write overrides to be imported"
 msgstr "İçe aktarılacak geçersiz kılmaları yapıştırın veya yazın"
 
-msgctxt "The patch is a partial settings file that can be applied to the users' list of servers, overriding some of the values for the servers. This is part of Server IP overrides."
 msgid "Patch not matching specification"
 msgstr "Yama spesifikasyonla eşleşmiyor"
+
+msgid "Please enter a valid IPv4 or IPv6 address"
+msgstr "Lütfen geçerli bir IPv4 veya IPv6 adresi girin"
+
+msgid "Please enter a valid remote server port"
+msgstr "Lütfen geçerli bir uzak sunucu portu girin"
 
 msgid "Please use the <b>Always-on</b> system setting instead by following the guide in <b>%s</b> above."
 msgstr "Lütfen yukarıdaki <b>%s</b> bölümündeki kılavuzu izleyerek <b>Her zaman açık</b> sistem ayarını kullanın."
@@ -2357,7 +2417,6 @@ msgstr "Yineleme sınırı"
 msgid "Remove"
 msgstr "Kaldır"
 
-msgctxt "Remove a Country, City, or Server from a custom list."
 msgid "Remove %s from list"
 msgstr "%s konumunu listeden kaldır"
 
@@ -2397,14 +2456,23 @@ msgstr "Hesap süresinin dolmak üzere olduğunu bildiren hatırlatıcıları g�
 msgid "Submit"
 msgstr "Gönder"
 
+msgid "Test method"
+msgstr "Yöntemi test et"
+
+msgid "Testing %s..."
+msgstr "%s test ediliyor..."
+
 msgid "Text"
 msgstr "Metin"
 
 msgid "The Auto-connect and Lockdown mode settings can be found in the Android system settings, follow this guide to enable one or both."
 msgstr "Otomatik Bağlantı ve Kilitleme modu ayarları Android sistem ayarlarında yer alır. Bu ayarlardan birini veya her ikisini de etkinleştirmek için bu kılavuza göz atın."
 
-msgid "The Lockdown mode blocks all internet access if the VPN tunnel is manually disconnected. <br/><b>Warning: This setting blocks split apps and the Local Network Sharing feature</b>."
-msgstr "Kilitleme modu, VPN tünelinin bağlantısı manuel olarak kesilirse tüm internet erişimini engeller. <br/><b>Uyarı: Bu ayar, bölünmüş uygulamaları ve Yerel Ağ Paylaşımı özelliğini engeller</b>."
+msgid "The Lockdown mode is called <b>Block connections without VPN</b> in the Android system settings. It helps minimize leaks, however it has some known limitations which you can read more about"
+msgstr "Android sistem ayarlarında Kilitleme modu <b>VPN üzerinden olmayan bağlantıları engelle</b> olarak adlandırılmıştır. Sızıntıları en aza indirmeye yardımcı olsa da ayrıntılar konusunda daha fazla bilgi edinmeniz gereken bazı bilinen sınırlamaları vardır"
+
+msgid "The \"Current\" method represent which method the app is using to reach the API."
+msgstr "\"Geçerli\" yöntem, uygulamanın API'ye ulaşmak için kullandığı yöntemi temsil eder."
 
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under Preferences."
 msgstr "Tercihler sekmesinin altındaki \"Yerel Ağ Paylaşımı\" seçeneğini etkinleştirmediğiniz sürece yerel DNS sunucusu çalışmaz."
@@ -2414,6 +2482,12 @@ msgstr "Cihazınızda VPN ayarları belirlenmemiş"
 
 msgid "This address has already been entered."
 msgstr "Bu adres zaten girilmiş."
+
+msgid "This field is required"
+msgstr "Bu alan gereklidir"
+
+msgid "This is already set as current"
+msgstr "Bu, zaten geçerli olarak ayarlı yöntemdir"
 
 msgid "To add locations to a list, press the \"︙\" or long press on a country, city, or server."
 msgstr "Listeye konum eklemek için \"︙\" düğmesine basın veya bir ülke, şehir veya sunucunun üzerine uzun basın."
@@ -2439,12 +2513,15 @@ msgstr "Tünel bağlantısı başlatılamıyor. Mullvad VPN'i kullanmadan önce 
 msgid "Undo"
 msgstr "Geri al"
 
-msgctxt "Key is refering to a JSON key. The user selected a file or written/pasted a Server IP Override patch that was missing or using an invalid key."
 msgid "Unknown or prohibited key \"%s\""
 msgstr "Bilinmeyen veya yasaklanmış \"%s\" anahtarı"
 
 msgid "Unsecured"
 msgstr "Güvenli değil"
+
+msgctxt "Notification message shown when the app lacks a permission called \"VPN permission\"."
+msgid "Unsecured (No VPN permission)"
+msgstr "Güvenli değil (VPN izni yok)"
 
 msgid "Update DNS server"
 msgstr "DNS sunucusunu güncelle"
@@ -2454,6 +2531,9 @@ msgstr "Güncelleme mevcut, güvende kalmak için güncellemeyi indirin."
 
 msgid "Update list name"
 msgstr "Liste adını güncelle"
+
+msgid "Use method"
+msgstr "Yöntemi kullan"
 
 msgid "VPN permission error"
 msgstr "VPN izin hatası"
@@ -2469,6 +2549,9 @@ msgstr "Geçerli WireGuard anahtarı eksik. Gelişmiş ayarlardan anahtarları y
 
 msgid "Valid ranges: %s"
 msgstr "Geçerli aralıklar: %s"
+
+msgid "Verifying API method..."
+msgstr "API yöntemi doğrulanıyor..."
 
 msgid "Verifying purchase"
 msgstr "Satın alma işlemi doğrulanıyor"
@@ -2514,6 +2597,10 @@ msgstr "Desteklenmeyen bir uygulama sürümünü kullanıyorsunuz."
 
 msgid "\"%s\" was deleted"
 msgstr "\"%s\" silindi"
+
+msgctxt "Clickable link that leads to our website."
+msgid "here"
+msgstr "burada"
 
 msgid "less than a minute ago"
 msgstr "bir dakikadan az"
