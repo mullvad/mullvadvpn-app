@@ -40,14 +40,14 @@ private val DUMMY_RELAY_2 =
 private val DUMMY_RELAY_CITY_1 =
     RelayItem.Location.City(
         name = "Relay City 1",
-        id = GeoLocationId.City(countryCode = GeoLocationId.Country("RCo1"), cityCode = "RCi1"),
+        id = GeoLocationId.City(country = GeoLocationId.Country("RCo1"), code = "RCi1"),
         relays = listOf(DUMMY_RELAY_1),
         expanded = false
     )
 private val DUMMY_RELAY_CITY_2 =
     RelayItem.Location.City(
         name = "Relay City 2",
-        id = GeoLocationId.City(countryCode = GeoLocationId.Country("RCo2"), cityCode = "RCi2"),
+        id = GeoLocationId.City(country = GeoLocationId.Country("RCo2"), code = "RCi2"),
         relays = listOf(DUMMY_RELAY_2),
         expanded = false
     )

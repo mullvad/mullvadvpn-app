@@ -67,7 +67,7 @@ private fun PreviewEditCustomListScreen() {
                             GeoLocationId.Hostname(
                                 GeoLocationId.City(
                                     GeoLocationId.Country("country"),
-                                    cityCode = "city"
+                                    code = "city"
                                 ),
                                 "hostname",
                             )

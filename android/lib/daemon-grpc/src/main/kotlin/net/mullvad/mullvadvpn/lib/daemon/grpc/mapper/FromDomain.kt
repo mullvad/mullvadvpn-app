@@ -106,12 +106,12 @@ internal fun GeoLocationId.fromDomain(): ManagementInterface.GeographicLocationC
     ManagementInterface.GeographicLocationConstraint.newBuilder()
         .apply {
             when (val id = this@fromDomain) {
-                is GeoLocationId.Country -> setCountry(id.countryCode)
-                is GeoLocationId.City -> setCountry(id.countryCode.countryCode).setCity(id.cityCode)
+                is GeoLocationId.Country -> setCountry(id.code)
+                is GeoLocationId.City -> setCountry(id.country.code).setCity(id.code)
                 is GeoLocationId.Hostname ->
-                    setCountry(id.country.countryCode)
-                        .setCity(id.city.cityCode)
-                        .setHostname(id.hostname)
+                    setCountry(id.country.code)
+                        .setCity(id.city.code)
+                        .setHostname(id.code)
             }
         }
         .build()

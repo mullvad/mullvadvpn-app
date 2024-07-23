@@ -61,7 +61,7 @@ sealed interface RelayItem {
             val provider: Provider,
             override val active: Boolean,
         ) : Location {
-            override val name: String = id.hostname
+            override val name: String = id.code
             override val hasChildren: Boolean = false
 
             companion object
