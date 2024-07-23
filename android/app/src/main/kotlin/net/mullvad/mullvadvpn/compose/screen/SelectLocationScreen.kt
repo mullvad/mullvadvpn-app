@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.compose.screen
 
 import android.content.Context
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.animateScrollBy
@@ -47,6 +48,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
+import arrow.core.toNonEmptyListOrNull
+import co.touchlab.kermit.Logger
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.CreateCustomListDestination
@@ -88,6 +91,7 @@ import net.mullvad.mullvadvpn.compose.screen.BottomSheetState.ShowEditCustomList
 import net.mullvad.mullvadvpn.compose.screen.BottomSheetState.ShowLocationBottomSheet
 import net.mullvad.mullvadvpn.compose.state.RelayListItem
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
+import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState.Content
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_CUSTOM_LIST_HEADER_TEST_TAG
@@ -95,7 +99,6 @@ import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_LOCATION_BOTTOM_SHEET
 import net.mullvad.mullvadvpn.compose.textfield.SearchTextField
 import net.mullvad.mullvadvpn.compose.transitions.SelectLocationTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
-import net.mullvad.mullvadvpn.compose.util.RunOnKeyChange
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.model.CustomList
 import net.mullvad.mullvadvpn.lib.model.CustomListId
@@ -120,7 +123,7 @@ private fun PreviewSelectLocationScreen() {
             emptyList(),
             relayListItems = emptyList(),
             customLists = emptyList(),
-            )
+        )
     AppTheme {
         SelectLocationScreen(
             state = state,
@@ -147,6 +150,8 @@ fun SelectLocation(
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
 
+    val lazyListState = rememberLazyListState()
+
     CollectSideEffectWithLifecycle(vm.uiSideEffect) {
         when (it) {
             SelectLocationSideEffect.CloseScreen -> backNavigator.navigateBack(result = true)
@@ -166,6 +171,16 @@ fun SelectLocation(
                         message = context.getString(R.string.error_occurred),
                         duration = SnackbarDuration.Short)
                 }
+
+            is SelectLocationSideEffect.CenterOnItem -> {
+                val index = state.indexOfSelectedRelayItem()
+                Logger.d("CENTER ON ITEM $index")
+
+                if (index >= 0) {
+                    lazyListState.scrollToItem(index)
+                    lazyListState.animateScrollAndCentralizeItem(index)
+                }
+            }
         }
     }
 
@@ -182,6 +197,7 @@ fun SelectLocation(
 
     SelectLocationScreen(
         state = state,
+        lazyListState = lazyListState,
         snackbarHostState = snackbarHostState,
         onSelectRelay = vm::selectRelay,
         onSearchTermInput = vm::onSearchTermInput,
@@ -226,6 +242,7 @@ fun SelectLocation(
 @Composable
 fun SelectLocationScreen(
     state: SelectLocationUiState,
+    lazyListState: LazyListState = rememberLazyListState(),
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onSelectRelay: (item: RelayItem) -> Unit = {},
     onSearchTermInput: (searchTerm: String) -> Unit = {},
@@ -269,15 +286,11 @@ fun SelectLocationScreen(
             Column(modifier = Modifier.padding(it).background(backgroundColor).fillMaxSize()) {
                 SelectLocationTopBar(onBackClick = onBackClick, onFilterClick = onFilterClick)
 
-                when (state) {
-                    SelectLocationUiState.Loading -> {}
-                    is SelectLocationUiState.Content -> {
-                        if (state.filterChips.isNotEmpty()) {
-                            FilterRow(
-                                filters = state.filterChips,
-                                removeOwnershipFilter,
-                                removeProviderFilter)
-                        }
+                val filterChips = (state as? Content)?.filterChips?.toNonEmptyListOrNull()
+                AnimatedContent(filterChips) {
+                    if (it != null) {
+                        FilterRow(
+                            filters = it.toList(), removeOwnershipFilter, removeProviderFilter)
                     }
                 }
 
@@ -292,17 +305,6 @@ fun SelectLocationScreen(
                     onSearchTermInput.invoke(searchString)
                 }
                 Spacer(modifier = Modifier.height(height = Dimens.verticalSpace))
-                val lazyListState = rememberLazyListState()
-
-//                val selectedItemCode = (state as? SelectLocationUiState.Content)?.selectedItem ?: ""
-//                RunOnKeyChange(key = selectedItemCode) {
-//                    val index = state.indexOfSelectedRelayItem()
-//
-//                    if (index >= 0) {
-//                        lazyListState.scrollToItem(index)
-//                        lazyListState.animateScrollAndCentralizeItem(index)
-//                    }
-//                }
 
                 LazyColumn(
                     modifier =

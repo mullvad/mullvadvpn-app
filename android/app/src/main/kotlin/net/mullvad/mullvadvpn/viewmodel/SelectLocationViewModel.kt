@@ -3,10 +3,17 @@ package net.mullvad.mullvadvpn.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import arrow.core.raise.either
+import co.touchlab.kermit.Logger
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flatMap
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -18,6 +25,7 @@ import net.mullvad.mullvadvpn.compose.communication.LocationsChanged
 import net.mullvad.mullvadvpn.compose.state.RelayListItem
 import net.mullvad.mullvadvpn.compose.state.RelayListItem.CustomListHeader
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
+import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState.Content
 import net.mullvad.mullvadvpn.compose.state.toNullableOwnership
 import net.mullvad.mullvadvpn.compose.state.toSelectedProviders
 import net.mullvad.mullvadvpn.lib.model.Constraint
@@ -144,7 +152,7 @@ class SelectLocationViewModel(
                 relayListItems,
                 filterChips,
                 customLists ->
-                SelectLocationUiState.Content(
+                Content(
                     searchTerm = searchTerm,
                     filterChips = filterChips,
                     relayListItems = relayListItems,
@@ -158,6 +166,22 @@ class SelectLocationViewModel(
 
     private val _uiSideEffect = Channel<SelectLocationSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
+
+    init {
+        viewModelScope.launch {
+            uiState
+                .map { it is Content }
+                .filter { it }
+                .distinctUntilChanged()
+                .flatMapLatest { relayListRepository.selectedLocation.filterNotNull() }
+                .filterIsInstance<Constraint.Only<RelayItemId>>()
+                .map { it.value }
+                .collect {
+                    Logger.d("SELECTED LOCATION CHANGED!")
+                    _uiSideEffect.send(SelectLocationSideEffect.CenterOnItem(it))
+                }
+        }
+    }
 
     fun createRelayListItems(
         isSearching: Boolean,
@@ -386,4 +410,6 @@ sealed interface SelectLocationSideEffect {
     class LocationRemovedFromCustomList(val result: LocationsChanged) : SelectLocationSideEffect
 
     data object GenericError : SelectLocationSideEffect
+
+    data class CenterOnItem(val selectedItem: RelayItemId?) : SelectLocationSideEffect
 }

@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.compose.cell
 
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -40,9 +41,9 @@ fun FilterRow(
                     horizontal = Dimens.searchFieldHorizontalPadding,
                 )
                 .fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(Dimens.chipSpace)
     ) {
         Text(
-            modifier = Modifier.padding(end = Dimens.filterTittlePadding),
             text = stringResource(id = R.string.filtered),
             color = MaterialTheme.colorScheme.onPrimary,
             style = MaterialTheme.typography.labelMedium)

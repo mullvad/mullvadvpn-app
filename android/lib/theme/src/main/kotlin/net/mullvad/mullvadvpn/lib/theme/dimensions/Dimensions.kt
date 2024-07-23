@@ -41,7 +41,7 @@ data class Dimensions(
     val dropdownMenuVerticalPadding: Dp = 8.dp, // Used to remove padding from dropdown menu
     val dropdownMenuBorder: Dp = 1.dp,
     val expandableCellChevronSize: Dp = 30.dp,
-    val filterTittlePadding: Dp = 4.dp,
+    val filterTitlePadding: Dp = 4.dp,
     val formTextFieldMinHeight: Dp = 72.dp,
     val iconFailSuccessTopMargin: Dp = 30.dp,
     val iconHeight: Dp = 44.dp,
