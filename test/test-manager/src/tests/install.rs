@@ -4,11 +4,13 @@ use std::time::Duration;
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{constraints::Constraint, relay_constraints};
 use test_macro::test_function;
-use test_rpc::{meta::Os, mullvad_daemon::ServiceStatus, ServiceClient};
+use test_rpc::{mullvad_daemon::ServiceStatus, ServiceClient};
 
 use super::{
     config::TEST_CONFIG,
-    helpers::{connect_and_wait, get_app_env, get_package_desc, wait_for_tunnel_state, Pinger},
+    helpers::{
+        connect_and_wait, get_app_env, get_package_desc, install_app, wait_for_tunnel_state, Pinger,
+    },
     Error, TestContext,
 };
 
@@ -19,24 +21,7 @@ pub async fn test_install_previous_app(_: TestContext, rpc: ServiceClient) -> an
         bail!("Missing previous app version");
     };
 
-    // verify that daemon is not already running
-    if rpc.mullvad_daemon_get_status().await? != ServiceStatus::NotRunning {
-        bail!(Error::DaemonRunning);
-    }
-
-    // install package
-    log::debug!("Installing old app");
-    rpc.install_app(get_package_desc(previous_app)?).await?;
-
-    // verify that daemon is running
-    if rpc.mullvad_daemon_get_status().await? != ServiceStatus::Running {
-        bail!(Error::DaemonNotRunning);
-    }
-
-    replace_openvpn_cert(&rpc).await?;
-
-    // Override env vars
-    rpc.set_daemon_environment(get_app_env().await?).await?;
+    install_app(&rpc, previous_app).await?;
 
     Ok(())
 }
@@ -187,24 +172,7 @@ pub async fn test_install_new_app(_: TestContext, rpc: ServiceClient) -> anyhow:
         rpc.stop_mullvad_daemon().await.unwrap();
     }
 
-    // install package
-    log::debug!("Installing new app");
-    rpc.install_app(get_package_desc(&TEST_CONFIG.app_package_filename)?)
-        .await?;
-
-    // verify that daemon is running
-    if rpc.mullvad_daemon_get_status().await? != ServiceStatus::Running {
-        bail!(Error::DaemonNotRunning);
-    }
-
-    // Set the log level to trace
-    rpc.set_daemon_log_level(test_rpc::mullvad_daemon::Verbosity::Trace)
-        .await?;
-
-    replace_openvpn_cert(&rpc).await?;
-
-    // Override env vars
-    rpc.set_daemon_environment(get_app_env().await?).await?;
+    install_app(&rpc, &TEST_CONFIG.app_package_filename).await?;
 
     Ok(())
 }
@@ -220,7 +188,7 @@ pub async fn test_install_new_app(_: TestContext, rpc: ServiceClient) -> anyhow:
 /// Files due to Electron, temporary files, registry
 /// values/keys, and device drivers are not guaranteed
 /// to be deleted.
-#[test_function(priority = -160, cleanup = false)]
+#[test_function(priority = -160)]
 pub async fn test_uninstall_app(
     _ctx: TestContext,
     rpc: ServiceClient,
@@ -285,9 +253,6 @@ pub async fn test_uninstall_app(
         "device id {} still exists after uninstall",
         uninstalled_device,
     );
-
-    // Re-install the app to ensure that the next test can run
-    test_install_new_app(_ctx, rpc).await?;
 
     Ok(())
 }
@@ -360,32 +325,4 @@ pub async fn test_installation_idempotency(
     );
 
     Ok(())
-}
-
-async fn replace_openvpn_cert(rpc: &ServiceClient) -> Result<(), Error> {
-    use std::path::Path;
-
-    const SOURCE_CERT_FILENAME: &str = "openvpn.ca.crt";
-    const DEST_CERT_FILENAME: &str = "ca.crt";
-
-    let dest_dir = match TEST_CONFIG.os {
-        Os::Windows => "C:\\Program Files\\Mullvad VPN\\resources",
-        Os::Linux => "/opt/Mullvad VPN/resources",
-        Os::Macos => "/Applications/Mullvad VPN.app/Contents/Resources",
-    };
-
-    rpc.copy_file(
-        Path::new(&TEST_CONFIG.artifacts_dir)
-            .join(SOURCE_CERT_FILENAME)
-            .as_os_str()
-            .to_string_lossy()
-            .into_owned(),
-        Path::new(dest_dir)
-            .join(DEST_CERT_FILENAME)
-            .as_os_str()
-            .to_string_lossy()
-            .into_owned(),
-    )
-    .await
-    .map_err(Error::Rpc)
 }
