@@ -44,7 +44,7 @@ runs:
         TEST_DEVICE_UDID: ${{ inputs.test_device_udid }}
 
     - name: Run end-to-end-tests
-      run: |
+      run: >
         if [ -n "$TEST_NAME" ]; then
           TEST_NAME_ARGUMENT=" -only-testing $TEST_NAME"
         else
@@ -57,7 +57,7 @@ runs:
           -resultBundlePath ${{ env.TEST_OUTPUT_DIRECTORY }}/xcode-test-report \
           -derivedDataPath derived-data \
           -destination "platform=iOS,id=$TEST_DEVICE_UDID" \
-          test-without-building 2>&1 #| xcbeautify --report junit ^
+          test-without-building 2>&1 #| xcbeautify --report junit \
           --report-path ${{ env.TEST_OUTPUT_DIRECTORY }}/junit-test-report
       shell: bash
       working-directory: ${{ inputs.outputs_path }}/mullvadvpn-app/ios
