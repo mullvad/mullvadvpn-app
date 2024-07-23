@@ -216,10 +216,10 @@ pub enum GetRelay {
 /// for an arbitrary Wireguard [`query`].
 ///
 /// - [`WireguardConfig::Singlehop`]; A normal wireguard relay where VPN traffic enters and exits
-/// through this sole relay.
+///   through this sole relay.
 /// - [`WireguardConfig::Multihop`]; Two wireguard relays to be used in a multihop circuit. VPN
-/// traffic will enter through `entry` and eventually come out from `exit` before the traffic
-/// will actually be routed to the broader internet.
+///   traffic will enter through `entry` and eventually come out from `exit` before the traffic will
+///   actually be routed to the broader internet.
 #[derive(Clone, Debug)]
 pub enum WireguardConfig {
     /// Strongly prefer to instantiate this variant using [`WireguardConfig::singlehop`] as that
@@ -608,8 +608,7 @@ impl RelaySelector {
     ///
     /// # Returns
     /// * A randomly selected relay that meets the specified constraints (and a random bridge/entry
-    ///   relay if applicable).
-    /// See [`GetRelay`] for more details.
+    ///   relay if applicable). See [`GetRelay`] for more details.
     /// * An `Err` if no suitable relay is found
     /// * An `Err` if no suitable bridge is found
     #[cfg(not(target_os = "android"))]
