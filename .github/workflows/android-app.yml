@@ -6,6 +6,7 @@ on:
       - '**'
       - '!.github/workflows/**'
       - '.github/workflows/android-app.yml'
+      - '!.github/CODEOWNERS'
       - '!audits/**'
       - '!ci/**'
       - '!dist-assets/**'
