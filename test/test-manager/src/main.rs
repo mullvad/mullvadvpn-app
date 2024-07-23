@@ -82,7 +82,7 @@ enum Commands {
 
         /// App package to test. Can be a path to the package, just the package file name, git hash
         /// or tag. If the direct path is not given, the package is assumed to be in the directory
-        /// specified by the `--package-folder` argument.
+        /// specified by the `--package-dir` argument.
         ///
         /// # Note
         ///
@@ -108,7 +108,7 @@ enum Commands {
 
         /// Folder to search for packages. Defaults to current directory.
         #[arg(long, value_name = "DIR")]
-        package_folder: Option<PathBuf>,
+        package_dir: Option<PathBuf>,
 
         /// Only run tests matching substrings
         test_filters: Vec<String>,
@@ -232,7 +232,7 @@ async fn main() -> Result<()> {
             app_package,
             app_package_to_upgrade_from,
             gui_package,
-            package_folder,
+            package_dir,
             test_filters,
             verbose,
             test_report,
@@ -271,7 +271,7 @@ async fn main() -> Result<()> {
                 app_package,
                 app_package_to_upgrade_from,
                 gui_package,
-                package_folder,
+                package_dir,
             )
             .context("Could not find the specified app packages")?;
 
