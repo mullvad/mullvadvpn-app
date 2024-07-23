@@ -2,10 +2,7 @@
 
 set -eu
 
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-TEST_DIR="$SCRIPT_DIR/.."
-APP_DIR="$SCRIPT_DIR/../.."
-cd "$SCRIPT_DIR"
+CALLER_DIR=$(pwd)
 
 # Returns the directory of the test-utils.sh script
 function get_test_utls_dir {
@@ -248,5 +245,45 @@ function run_tests_for_os {
             --vm "$vm" \
             "${TEST_FILTERS:-}" \
             2>&1 | sed -r "s/${ACCOUNT_TOKEN}/\{ACCOUNT_TOKEN\}/g"
+    popd
+}
+
+# Build the current version of the app and move the package to the package folder
+# Currently unused, but may be useful in the future
+function build_current_version {
+    local app_dir
+    app_dir="$(get_test_utls_dir)/../.."
+    local app_filename
+    app_filename=$(get_app_filename "$CURRENT_VERSION" "${TEST_OS:?Error: TEST_OS not set}")
+    pushd "$CALLER_DIR"
+        if [[ -z "$PACKAGE_FOLDER" ]]; then
+            echo "PACKAGE_FOLDER not set" 1>&2
+            exit 1
+        fi
+        APP_PACKAGE="$PACKAGE_FOLDER"/"$app_filename"
+
+        local gui_test_filename
+        gui_test_filename=$(get_e2e_filename "$CURRENT_VERSION" "$TEST_OS")
+        GUI_TEST_BIN="$PACKAGE_FOLDER"/"$gui_test_filename"
+
+        if [ ! -f "$APP_PACKAGE" ]; then
+            pushd "$app_dir"
+                if [[ $(git diff --quiet) ]]; then
+                    echo "WARNING: the app repository contains uncommitted changes, this script will only rebuild the app package when the git hash changes"
+                fi
+                ./build.sh
+            popd
+        fi
+
+        if [ ! -f "$GUI_TEST_BIN" ]; then
+            pushd "$app_dir"/gui
+                npm run build-test-executable
+            popd
+        fi
+
+        echo "Moving '$(realpath "$app_dir/dist/$app_filename")' to '$(realpath "$APP_PACKAGE")'"
+        mv -n "$app_dir"/dist/"$app_filename" "$APP_PACKAGE"
+        echo "Moving '$(realpath "$app_dir/dist/$gui_test_filename")' to '$(realpath "$GUI_TEST_BIN")'"
+        mv -n "$app_dir"/dist/"$gui_test_filename" "$APP_PACKAGE"
     popd
 }
