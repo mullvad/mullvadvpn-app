@@ -27,7 +27,9 @@ use std::{
     time::Duration,
 };
 use talpid_types::net::wireguard::{PeerConfig, PrivateKey, TunnelConfig};
-use test_rpc::{meta::Os, package::Package, AmIMullvad, ServiceClient, SpawnOpts};
+use test_rpc::{
+    meta::Os, mullvad_daemon::ServiceStatus, package::Package, AmIMullvad, ServiceClient, SpawnOpts,
+};
 use tokio::time::sleep;
 
 pub const THROTTLE_RETRY_DELAY: Duration = Duration::from_secs(120);
@@ -52,6 +54,56 @@ macro_rules! assert_tunnel_state {
         let state = $mullvad_client.get_tunnel_state().await?;
         assert!(matches!(state, $pattern), "state: {:?}", state);
     }};
+}
+
+pub async fn install_app(rpc: &ServiceClient, app_filename: &str) -> anyhow::Result<()> {
+    // install package
+    log::debug!("Installing new app");
+    rpc.install_app(get_package_desc(app_filename)?).await?;
+
+    // verify that daemon is running
+    if rpc.mullvad_daemon_get_status().await? != ServiceStatus::Running {
+        bail!(Error::DaemonNotRunning);
+    }
+
+    // Set the log level to trace
+    rpc.set_daemon_log_level(test_rpc::mullvad_daemon::Verbosity::Trace)
+        .await?;
+
+    replace_openvpn_cert(rpc).await?;
+
+    // Override env vars
+    rpc.set_daemon_environment(get_app_env().await?).await?;
+
+    Ok(())
+}
+
+pub async fn replace_openvpn_cert(rpc: &ServiceClient) -> Result<(), Error> {
+    use std::path::Path;
+
+    const SOURCE_CERT_FILENAME: &str = "openvpn.ca.crt";
+    const DEST_CERT_FILENAME: &str = "ca.crt";
+
+    let dest_dir = match TEST_CONFIG.os {
+        Os::Windows => "C:\\Program Files\\Mullvad VPN\\resources",
+        Os::Linux => "/opt/Mullvad VPN/resources",
+        Os::Macos => "/Applications/Mullvad VPN.app/Contents/Resources",
+    };
+
+    rpc.copy_file(
+        Path::new(&TEST_CONFIG.artifacts_dir)
+            .join(SOURCE_CERT_FILENAME)
+            .as_os_str()
+            .to_string_lossy()
+            .into_owned(),
+        Path::new(dest_dir)
+            .join(DEST_CERT_FILENAME)
+            .as_os_str()
+            .to_string_lossy()
+            .into_owned(),
+    )
+    .await
+    .map_err(Error::Rpc)
 }
 
 pub fn get_package_desc(name: &str) -> Result<Package, Error> {
