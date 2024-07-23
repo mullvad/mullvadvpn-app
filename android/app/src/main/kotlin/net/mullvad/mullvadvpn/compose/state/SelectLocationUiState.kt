@@ -1,10 +1,7 @@
 package net.mullvad.mullvadvpn.compose.state
 
 import net.mullvad.mullvadvpn.lib.model.CustomListId
-import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.RelayItem
-import net.mullvad.mullvadvpn.lib.model.RelayItemId
-import net.mullvad.mullvadvpn.relaylist.MIN_SEARCH_LENGTH
 
 sealed interface SelectLocationUiState {
 
@@ -12,15 +9,16 @@ sealed interface SelectLocationUiState {
 
     data class Content(
         val searchTerm: String,
-        val selectedOwnership: Ownership?,
-        val selectedProvidersCount: Int?,
+        val filterChips: List<FilterChip>,
         val relayListItems: List<RelayListItem>,
         val customLists: List<RelayItem.CustomList>,
-        val selectedItem: RelayItemId?
-    ) : SelectLocationUiState {
-        val hasFilter: Boolean = (selectedProvidersCount != null || selectedOwnership != null)
-        val inSearch = searchTerm.length >= MIN_SEARCH_LENGTH
-    }
+    ) : SelectLocationUiState
+}
+
+sealed interface FilterChip {
+    data class Ownership(val ownership: net.mullvad.mullvadvpn.lib.model.Ownership) : FilterChip
+
+    data class Provider(val count: Int) : FilterChip
 }
 
 sealed interface RelayListItem {

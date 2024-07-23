@@ -35,7 +35,7 @@ import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.usecase.AvailableProvidersUseCase
 import net.mullvad.mullvadvpn.usecase.FilteredRelayListUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
-import net.mullvad.mullvadvpn.usecase.customlists.CustomListsRelayItemUseCase
+import net.mullvad.mullvadvpn.usecase.customlists.FilteredCustomListRelayItemsUseCase
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -47,7 +47,7 @@ class SelectLocationViewModelTest {
     private val mockRelayListFilterRepository: RelayListFilterRepository = mockk()
     private val mockAvailableProvidersUseCase: AvailableProvidersUseCase = mockk(relaxed = true)
     private val mockCustomListActionUseCase: CustomListActionUseCase = mockk(relaxed = true)
-    private val mockCustomListsRelayItemUseCase: CustomListsRelayItemUseCase = mockk()
+    private val mockFilteredCustomListRelayItemsUseCase: FilteredCustomListRelayItemsUseCase = mockk()
     private val mockFilteredRelayListUseCase: FilteredRelayListUseCase = mockk()
     private val mockRelayListRepository: RelayListRepository = mockk()
 
@@ -68,7 +68,7 @@ class SelectLocationViewModelTest {
         every { mockAvailableProvidersUseCase() } returns allProviders
         every { mockRelayListRepository.selectedLocation } returns selectedRelayItemFlow
         every { mockFilteredRelayListUseCase() } returns filteredRelayList
-        every { mockCustomListsRelayItemUseCase() } returns customRelayListItems
+        every { mockFilteredCustomListRelayItemsUseCase() } returns customRelayListItems
 
         mockkStatic(RELAY_LIST_EXTENSIONS)
         mockkStatic(RELAY_ITEM_EXTENSIONS)
@@ -77,7 +77,7 @@ class SelectLocationViewModelTest {
             SelectLocationViewModel(
                 relayListFilterRepository = mockRelayListFilterRepository,
                 availableProvidersUseCase = mockAvailableProvidersUseCase,
-                customListsRelayItemUseCase = mockCustomListsRelayItemUseCase,
+                filteredCustomListRelayItemsUseCase = mockFilteredCustomListRelayItemsUseCase,
                 customListActionUseCase = mockCustomListActionUseCase,
                 filteredRelayListUseCase = mockFilteredRelayListUseCase,
                 relayListRepository = mockRelayListRepository

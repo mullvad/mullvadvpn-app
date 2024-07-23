@@ -6,6 +6,7 @@ import arrow.core.raise.either
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -39,12 +40,13 @@ import net.mullvad.mullvadvpn.usecase.AvailableProvidersUseCase
 import net.mullvad.mullvadvpn.usecase.FilteredRelayListUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListsRelayItemUseCase
-import net.mullvad.mullvadvpn.util.combine
+import net.mullvad.mullvadvpn.usecase.customlists.FilterCustomListsRelayItemUseCase
 
 class SelectLocationViewModel(
     private val relayListFilterRepository: RelayListFilterRepository,
-    availableProvidersUseCase: AvailableProvidersUseCase,
-    customListsRelayItemUseCase: CustomListsRelayItemUseCase,
+    private val availableProvidersUseCase: AvailableProvidersUseCase,
+    private val customListsRelayItemUseCase: CustomListsRelayItemUseCase,
+    private val filteredCustomListRelayItemsUseCase: FilterCustomListsRelayItemUseCase,
     private val customListsRepository: CustomListsRepository,
     private val customListActionUseCase: CustomListActionUseCase,
     private val filteredRelayListUseCase: FilteredRelayListUseCase,
@@ -66,8 +68,7 @@ class SelectLocationViewModel(
     private val _expandedItems = MutableStateFlow(initialExpand())
 
     fun searchRelayListLocations() =
-        kotlinx.coroutines.flow
-            .combine(
+        combine(
                 _searchTerm,
                 filteredRelayListUseCase(),
             ) { searchTerm, relayCountries ->
@@ -82,68 +83,72 @@ class SelectLocationViewModel(
             .onEach { _expandedItems.value = it.first }
             .map { it.second }
 
+    fun relayListItems() =
+        combine(
+            _searchTerm,
+            searchRelayListLocations(),
+            filteredCustomListRelayItemsUseCase(),
+            relayListRepository.selectedLocation,
+            _expandedItems,
+        ) { searchTerm, relayCountries, customLists, selectedItem, expandedItems ->
+            val filteredCustomLists = customLists.filterOnSearchTerm(searchTerm)
+
+            createRelayListItems(
+                    searchTerm.length >= MIN_SEARCH_LENGTH,
+                    selectedItem.getOrNull(),
+                    filteredCustomLists,
+                    relayCountries,
+                    expandedItems)
+                .let {
+                    if (it.isEmpty()) {
+                        listOf(RelayListItem.LocationsEmptyText(searchTerm))
+                    } else {
+                        it
+                    }
+                }
+        }
+
+    fun filterChips() =
+        combine(
+            relayListFilterRepository.selectedOwnership,
+            relayListFilterRepository.selectedProviders,
+            availableProvidersUseCase(),
+        ) { selectedOwnership, selectedConstraintProviders, allProviders,
+            ->
+            val selectedOwnershipItem = selectedOwnership.toNullableOwnership()
+            val selectedProvidersCount =
+                when (selectedConstraintProviders) {
+                    is Constraint.Any -> null
+                    is Constraint.Only ->
+                        filterSelectedProvidersByOwnership(
+                                selectedConstraintProviders.toSelectedProviders(allProviders),
+                                selectedOwnershipItem,
+                            )
+                            .size
+                }
+
+            listOfNotNull(
+                selectedOwnershipItem?.let {
+                    net.mullvad.mullvadvpn.compose.state.FilterChip.Ownership(it)
+                },
+                selectedProvidersCount?.let {
+                    net.mullvad.mullvadvpn.compose.state.FilterChip.Provider(it)
+                },
+            )
+        }
+
     @Suppress("DestructuringDeclarationWithTooManyEntries")
     val uiState =
-        combine(
-                searchRelayListLocations(),
-                customListsRelayItemUseCase(),
-                relayListRepository.selectedLocation,
-                _expandedItems,
-                _searchTerm,
-                relayListFilterRepository.selectedOwnership,
-                availableProvidersUseCase(),
-                relayListFilterRepository.selectedProviders,
-            ) {
-                relayCountries,
-                customLists,
-                selectedItem,
-                expandedItems,
+        combine(_searchTerm, relayListItems(), filterChips(), customListsRelayItemUseCase()) {
                 searchTerm,
-                selectedOwnership,
-                allProviders,
-                selectedConstraintProviders ->
-                val selectRelayItemId = selectedItem.getOrNull()
-                val selectedOwnershipItem = selectedOwnership.toNullableOwnership()
-                val selectedProvidersCount =
-                    when (selectedConstraintProviders) {
-                        is Constraint.Any -> null
-                        is Constraint.Only ->
-                            filterSelectedProvidersByOwnership(
-                                    selectedConstraintProviders.toSelectedProviders(allProviders),
-                                    selectedOwnershipItem,
-                                )
-                                .size
-                    }
-
-                val filteredCustomLists =
-                    customLists
-                        .filterOnSearchTerm(searchTerm)
-                        .filterOnOwnershipAndProvider(
-                            ownership = selectedOwnership,
-                            providers = selectedConstraintProviders,
-                        )
-
+                relayListItems,
+                filterChips,
+                customLists ->
                 SelectLocationUiState.Content(
                     searchTerm = searchTerm,
-                    selectedOwnership = selectedOwnershipItem,
-                    selectedProvidersCount = selectedProvidersCount,
-                    relayListItems =
-                        createRelayListItems(
-                                searchTerm.length >= MIN_SEARCH_LENGTH,
-                                selectedItem.getOrNull(),
-                                filteredCustomLists,
-                                relayCountries,
-                                expandedItems)
-                            .let {
-                                if (it.isEmpty()) {
-                                    listOf(RelayListItem.LocationsEmptyText(searchTerm))
-                                } else {
-                                    it
-                                }
-                            },
-                    customLists = customLists,
-                    selectedItem = selectRelayItemId,
-                )
+                    filterChips = filterChips,
+                    relayListItems = relayListItems,
+                    customLists = customLists)
             }
             .stateIn(
                 viewModelScope,
