@@ -22,6 +22,7 @@ on:
         type: string
 jobs:
   prepare-matrices:
+    name: Prepare virtual machines
     runs-on: ubuntu-latest
     steps:
       - name: Generate matrix for Linux builds
@@ -72,6 +73,7 @@ jobs:
       macos_matrix: ${{ env.macos_matrix }}
 
   prepare-linux:
+    name: Prepare Linux build container
     needs: prepare-matrices
     if: |
       needs.prepare-matrices.outputs.linux_matrix != '[]' &&
@@ -91,6 +93,7 @@ jobs:
     outputs:
       container_image: ${{ env.inner_container_image }}
   build-linux:
+    name: Build Linux
     needs: prepare-linux
     runs-on: ubuntu-latest
     container:
@@ -156,6 +159,7 @@ jobs:
           path: ./test/.ci-logs/${{ matrix.os }}_report
 
   build-windows:
+    name: Build Windows
     needs: prepare-matrices
     if: |
       needs.prepare-matrices.outputs.windows_matrix != '[]' &&
@@ -230,6 +234,7 @@ jobs:
           path: ./test/.ci-logs/${{ matrix.os }}_report
 
   build-macos:
+    name: Build macOS
     needs: prepare-matrices
     if: |
       needs.prepare-matrices.outputs.macos_matrix != '[]' &&
