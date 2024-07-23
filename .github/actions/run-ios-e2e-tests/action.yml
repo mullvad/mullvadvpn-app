@@ -46,6 +46,8 @@ runs:
     - name: Run end-to-end-tests
       run: >
         echo "$(cat $0)"
+        echo get relieved on
+        exit 1
         if [ -n "$TEST_NAME" ]; then
           TEST_NAME_ARGUMENT=" -only-testing $TEST_NAME"
         else
