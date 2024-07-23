@@ -1526,15 +1526,6 @@ checksum = "8f518f335dce6725a761382244631d86cf0ccb2863413590b31338feb467f9c3"
 
 [[package]]
 name = "ipnetwork"
-version = "0.16.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b8eca9f51da27bc908ef3dd85c21e1bbba794edaf94d7841e37356275b82d31e"
-dependencies = [
- "serde",
-]
-
-[[package]]
-name = "ipnetwork"
 version = "0.20.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bf466541e9d546596ee94f9f69590f89473455f88372423e0008fc1a7daf100e"
@@ -1862,7 +1853,7 @@ dependencies = [
  "futures",
  "http",
  "hyper",
- "ipnetwork 0.16.0",
+ "ipnetwork",
  "libc",
  "log",
  "mullvad-fs",
@@ -1930,7 +1921,7 @@ version = "0.0.0"
 dependencies = [
  "chrono",
  "intersection-derive",
- "ipnetwork 0.16.0",
+ "ipnetwork",
  "itertools 0.12.1",
  "log",
  "mullvad-types",
@@ -1947,7 +1938,7 @@ version = "0.0.0"
 dependencies = [
  "chrono",
  "intersection-derive",
- "ipnetwork 0.16.0",
+ "ipnetwork",
  "log",
  "once_cell",
  "regex",
@@ -3259,7 +3250,7 @@ name = "talpid-types"
 version = "0.0.0"
 dependencies = [
  "base64 0.22.0",
- "ipnetwork 0.16.0",
+ "ipnetwork",
  "jnix",
  "log",
  "serde",
@@ -3342,7 +3333,7 @@ dependencies = [
  "env_logger",
  "futures",
  "inventory",
- "ipnetwork 0.20.0",
+ "ipnetwork",
  "itertools 0.10.5",
  "libc",
  "log",
