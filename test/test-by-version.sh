@@ -8,9 +8,9 @@ cd "$SCRIPT_DIR"
 # shellcheck source=test/scripts/test-utils.sh
 source "scripts/test-utils.sh"
 
-if [[ -z "${PACKAGE_FOLDER+x}" ]]; then
-    echo "'PACKAGE_FOLDER' not set, defaulting to $CACHE_FOLDER for downloading app packages."
-    PACKAGE_FOLDER="$CACHE_FOLDER"
+if [[ -z "${PACKAGE_DIR+x}" ]]; then
+    echo "'PACKAGE_DIR' not set, defaulting to $CACHE_FOLDER for downloading app packages."
+    PACKAGE_DIR="$CACHE_FOLDER"
 fi
 
 if [[ -z "${ACCOUNT_TOKEN+x}" ]]; then
@@ -40,7 +40,7 @@ echo "* Downloading app packages"
 echo "**********************************"
 
 # Clean up old packages
-find "$PACKAGE_FOLDER" -type f -mtime +5 -delete || true
+find "$PACKAGE_DIR" -type f -mtime +5 -delete || true
 
 nice_time download_app_package "$APP_VERSION" "$TEST_OS"
 nice_time download_e2e_executable "$APP_VERSION" "$TEST_OS"
