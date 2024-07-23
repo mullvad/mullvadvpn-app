@@ -100,9 +100,9 @@ final class AppMessageHandlerTests: XCTestCase {
             exit: SelectedRelay(
                 endpoint: match.endpoint,
                 hostname: match.relay.hostname,
-                location: match.location,
-                retryAttempts: 0
-            )
+                location: match.location
+            ),
+            retryAttempt: 0
         )
 
         _ = try? await appMessageHandler.handleAppMessage(
