@@ -53,7 +53,7 @@ pub enum Error {
 /// - A configured endpoint for Wireguard relay, encapsulating either a single-hop or multi-hop
 ///   connection.
 /// - Returns [`Option::None`] if the desired port is not in a valid port range (see
-/// [`WireguardRelayQuery::port`]) or relay addresses cannot be resolved.
+///   [`WireguardRelayQuery::port`]) or relay addresses cannot be resolved.
 pub fn wireguard_endpoint(
     query: &WireguardRelayQuery,
     data: &WireguardEndpointData,

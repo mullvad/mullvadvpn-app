@@ -64,9 +64,9 @@ pub enum Error {
 /// The connectivity monitor will start sending pings and start the countdown to `PING_TIMEOUT` in
 /// the following cases:
 /// - In case that we have observed a bump in the outgoing traffic but no corresponding incoming
-/// traffic for longer than `BYTES_RX_TIMEOUT`, then the monitor will start pinging.
+///   traffic for longer than `BYTES_RX_TIMEOUT`, then the monitor will start pinging.
 /// - In case that no increase in outgoing or incoming traffic has been observed for longer than
-/// `TRAFFIC_TIMEOUT`, then the monitor will start pinging as well.
+///   `TRAFFIC_TIMEOUT`, then the monitor will start pinging as well.
 ///
 /// Once a connection established, a connection is only considered broken once the connectivity
 /// monitor has started pinging and no traffic has been received for a duration of `PING_TIMEOUT`.
