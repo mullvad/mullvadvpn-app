@@ -26,6 +26,10 @@ on:
       - building/linux-container-image.txt
       - building/android-container-image.txt
       - building/sigstore/**
+  workflow_dispatch:
+
+permissions: {}
+
 jobs:
   verify-signatures:
     runs-on: ubuntu-latest

@@ -3,8 +3,12 @@ name: Check formatting of proto files
 on:
   pull_request:
     paths:
+      - .github/workflows/proto-format-check.yml
       - '**/*.proto'
   workflow_dispatch:
+
+permissions: {}
+
 jobs:
   check-formatting:
     runs-on: ubuntu-latest
