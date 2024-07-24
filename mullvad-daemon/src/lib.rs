@@ -2828,7 +2828,11 @@ where
     /// daemon is disconnected while calling this function the caller will see an empty set of
     /// [`FeatureIndicators`].
     fn get_feature_indicators(&self) -> FeatureIndicators {
-        let tunnel = &self.tunnel_state;
+        // Check if there is an active tunnel.
+        let Some(endpoint) = self.tunnel_state.endpoint() else {
+            // If there is not, no features are actually active and thus should not be displayed.
+            return Default::default();
+        };
         let settings = self.settings.to_settings();
 
         #[cfg(any(windows, target_os = "android", target_os = "macos"))]
@@ -2855,16 +2859,7 @@ where
             (server_ip_override, FeatureIndicator::ServerIpOverride),
         ];
 
-        let (TunnelState::Connecting { endpoint, .. } | TunnelState::Connected { endpoint, .. }) =
-            tunnel
-        else {
-            // If disconnected, no features are actually active and thus should not be displayed.
-            return Default::default();
-        };
-
-        // TODO: should protocol-specific features be shown if we are not connected using that protocol?
-        // If this is partially intended to help users debug connectivity issues, then doing this may
-        // hide settings which hinder you from using a particular tunnel type.
+        // Pick protocol-specific features and whether they are currently enabled.
         let protocol_features = match endpoint.tunnel_type {
             TunnelType::OpenVpn => {
                 let bridge_mode = endpoint.proxy.is_some();
