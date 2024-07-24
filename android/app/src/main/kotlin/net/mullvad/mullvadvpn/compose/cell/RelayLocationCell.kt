@@ -132,6 +132,8 @@ fun RelayItemCell(
                 .background(
                     when {
                         isSelected -> MaterialTheme.colorScheme.selected
+                        item is RelayItem.CustomList && !item.active ->
+                            MaterialTheme.colorScheme.surfaceTint
                         else -> depth.toBackgroundColor()
                     }
                 )
