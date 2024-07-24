@@ -30,6 +30,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -139,13 +140,11 @@ fun SelectLocation(
         ResultRecipient<CustomListLocationsDestination, LocationsChanged>
 ) {
     val vm = koinViewModel<SelectLocationViewModel>()
-    val state = vm.uiState.collectAsStateWithLifecycle().value
+    val state = vm.uiState.collectAsStateWithLifecycle()
 
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
-
     val lazyListState = rememberLazyListState()
-
     CollectSideEffectWithLifecycle(vm.uiSideEffect) {
         when (it) {
             SelectLocationSideEffect.CloseScreen -> backNavigator.navigateBack(result = true)
@@ -166,13 +165,17 @@ fun SelectLocation(
                         duration = SnackbarDuration.Short)
                 }
             is SelectLocationSideEffect.CenterOnItem -> {
-                val index = state.indexOfSelectedRelayItem()
+                val index = state.value.indexOfSelectedRelayItem()
                 if (index != -1) {
                     lazyListState.scrollToItem(index)
                     lazyListState.animateScrollAndCentralizeItem(index)
                 }
             }
         }
+    }
+
+    if (state.value is SelectLocationUiState.Content) {
+        LaunchedEffect(Unit) { vm.centerOnSelected() }
     }
 
     createCustomListDialogResultRecipient.OnCustomListNavResult(
@@ -187,7 +190,7 @@ fun SelectLocation(
     updateCustomListResultRecipient.OnCustomListNavResult(snackbarHostState, vm::performAction)
 
     SelectLocationScreen(
-        state = state,
+        state = state.value,
         lazyListState = lazyListState,
         snackbarHostState = snackbarHostState,
         onSelectRelay = vm::selectRelay,
@@ -309,6 +312,7 @@ fun SelectLocationScreen(
                             loading()
                         }
                         is SelectLocationUiState.Content -> {
+
                             itemsIndexed(
                                 items = state.relayListItems,
                                 key = { index: Int, item: RelayListItem -> item.key },
