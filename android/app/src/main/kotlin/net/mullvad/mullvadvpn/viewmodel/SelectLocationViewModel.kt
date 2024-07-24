@@ -7,11 +7,6 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -83,18 +78,13 @@ class SelectLocationViewModel(
     private val _uiSideEffect = Channel<SelectLocationSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
-    init {
+    fun centerOnSelected() =
         viewModelScope.launch {
-            uiState
-                .map { it is Content }
-                .filter { it }
-                .distinctUntilChanged()
-                .flatMapLatest { relayListRepository.selectedLocation.filterNotNull() }
-                .filterIsInstance<Constraint.Only<RelayItemId>>()
-                .map { it.value }
-                .collect { _uiSideEffect.send(SelectLocationSideEffect.CenterOnItem(it)) }
+            val selectedLocation = relayListRepository.selectedLocation.value.getOrNull()
+            if (selectedLocation != null) {
+                _uiSideEffect.send(SelectLocationSideEffect.CenterOnItem(selectedLocation))
+            }
         }
-    }
 
     private fun initialExpand(): Set<String> = buildSet {
         val item = relayListRepository.selectedLocation.value.getOrNull()
