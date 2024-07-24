@@ -26,6 +26,7 @@
     <ID>ReturnCount:RelayNameComparator.kt$RelayNameComparator$private infix fun List&lt;String&gt;.compareWith(other: List&lt;String&gt;): Int</ID>
     <ID>ReturnCount:TalpidVpnService.kt$TalpidVpnService$private fun createTun(config: TunConfig): CreateTunResult</ID>
     <ID>TooManyFunctions:EditApiAccessMethodViewModel.kt$EditApiAccessMethodViewModel : ViewModel</ID>
+    <ID>TooManyFunctions:SelectLocationViewModel.kt$SelectLocationViewModel : ViewModel</ID>
     <ID>TooManyFunctions:VpnSettingsViewModel.kt$VpnSettingsViewModel : ViewModel</ID>
     <ID>UnusedParameter:SimpleMullvadHttpClient.kt$SimpleMullvadHttpClient$body: JSONArray? = null</ID>
     <ID>UnusedPrivateMember:ConnectivityListener.kt$ConnectivityListener$private fun finalize()</ID>
