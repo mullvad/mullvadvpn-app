@@ -237,7 +237,7 @@ private fun LazyListScope.content(
         uiState.locations,
         key = { index, listItem -> listItem.item.id },
     ) { index, listItem ->
-        Column {
+        Column(modifier = Modifier.animateItem()) {
             if (index != 0) {
                 HorizontalDivider()
             }
