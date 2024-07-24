@@ -238,9 +238,7 @@ message TunnelEndpoint {
   bool daita = 9;
 }
 
-message FeatureIndicators {
-  repeated FeatureIndicator active_features = 1;
-}
+message FeatureIndicators { repeated FeatureIndicator active_features = 1; }
 
 enum FeatureIndicator {
   QUANTUM_RESISTANCE = 0;
