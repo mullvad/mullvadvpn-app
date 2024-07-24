@@ -95,7 +95,7 @@ impl Status {
                 }
                 DaemonEvent::FeatureIndicators(feature_indicators) => {
                     if args.debug {
-                        println!("New feature flags: {feature_indicators:#?}");
+                        println!("New feature indicators: {feature_indicators:#?}");
                     }
                 }
             }
