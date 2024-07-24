@@ -154,7 +154,7 @@ final class CustomDNSCellFactory: CellFactoryProtocol {
             cell.titleLabel.text = NSLocalizedString(
                 "CUSTOM_DNS_CELL_LABEL",
                 tableName: "VPNSettings",
-                value: "Use custom DNS",
+                value: "Use custom DNS server",
                 comment: ""
             )
             cell.setEnabled(viewModel.customDNSPrecondition == .satisfied)
