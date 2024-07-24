@@ -31,9 +31,11 @@ fun List<RelayItem.Location.Country>.newFilterOnSearch(
                             city
                         } else if (city.id in expansionSet) {
                             city.copy(
-                                relays = city.relays.filter { relay -> relay.id in matchesIds })
+                                relays = city.relays.filter { relay -> relay.id in matchesIds }
+                            )
                         } else null
-                    })
+                    }
+            )
         } else {
             null
         }

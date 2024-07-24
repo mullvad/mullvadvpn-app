@@ -166,7 +166,18 @@ val uiModule = module {
     viewModel { ChangelogViewModel(get(), get(), BuildConfig.ALWAYS_SHOW_CHANGELOG) }
     viewModel {
         ConnectViewModel(
-            get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), IS_PLAY_BUILD)
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            IS_PLAY_BUILD
+        )
     }
     viewModel { DeviceListViewModel(get(), get()) }
     viewModel { DeviceRevokedViewModel(get(), get()) }

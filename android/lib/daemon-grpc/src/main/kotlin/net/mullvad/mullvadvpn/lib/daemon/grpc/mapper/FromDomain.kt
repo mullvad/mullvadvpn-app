@@ -109,9 +109,7 @@ internal fun GeoLocationId.fromDomain(): ManagementInterface.GeographicLocationC
                 is GeoLocationId.Country -> setCountry(id.code)
                 is GeoLocationId.City -> setCountry(id.country.code).setCity(id.code)
                 is GeoLocationId.Hostname ->
-                    setCountry(id.country.code)
-                        .setCity(id.city.code)
-                        .setHostname(id.code)
+                    setCountry(id.country.code).setCity(id.city.code).setHostname(id.code)
             }
         }
         .build()
