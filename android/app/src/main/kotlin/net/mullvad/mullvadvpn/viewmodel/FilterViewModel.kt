@@ -13,7 +13,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.RelayFilterState
 import net.mullvad.mullvadvpn.compose.state.toConstraintProviders
-import net.mullvad.mullvadvpn.compose.state.toNullableOwnership
 import net.mullvad.mullvadvpn.compose.state.toOwnershipConstraint
 import net.mullvad.mullvadvpn.compose.state.toSelectedProviders
 import net.mullvad.mullvadvpn.lib.model.Ownership
@@ -43,7 +42,7 @@ class FilterViewModel(
                     .first()
 
             val ownershipConstraint = relayListFilterRepository.selectedOwnership.first()
-            selectedOwnership.value = ownershipConstraint.toNullableOwnership()
+            selectedOwnership.value = ownershipConstraint.getOrNull()
         }
     }
 

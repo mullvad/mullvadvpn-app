@@ -2,7 +2,6 @@ package net.mullvad.mullvadvpn.lib.model
 
 import android.os.Parcelable
 import arrow.optics.optics
-import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 
 @optics

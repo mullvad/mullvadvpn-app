@@ -47,7 +47,8 @@ class SelectLocationViewModelTest {
     private val mockRelayListFilterRepository: RelayListFilterRepository = mockk()
     private val mockAvailableProvidersUseCase: AvailableProvidersUseCase = mockk(relaxed = true)
     private val mockCustomListActionUseCase: CustomListActionUseCase = mockk(relaxed = true)
-    private val mockFilteredCustomListRelayItemsUseCase: FilteredCustomListRelayItemsUseCase = mockk()
+    private val mockFilteredCustomListRelayItemsUseCase: FilteredCustomListRelayItemsUseCase =
+        mockk()
     private val mockFilteredRelayListUseCase: FilteredRelayListUseCase = mockk()
     private val mockRelayListRepository: RelayListRepository = mockk()
 

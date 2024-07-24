@@ -5,12 +5,6 @@ import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.Provider
 import net.mullvad.mullvadvpn.lib.model.Providers
 
-fun Constraint<Ownership>.toNullableOwnership(): Ownership? =
-    when (this) {
-        Constraint.Any -> null
-        is Constraint.Only -> this.value
-    }
-
 fun Ownership?.toOwnershipConstraint(): Constraint<Ownership> =
     when (this) {
         null -> Constraint.Any
