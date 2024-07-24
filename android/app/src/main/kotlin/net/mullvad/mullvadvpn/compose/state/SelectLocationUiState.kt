@@ -21,11 +21,23 @@ sealed interface FilterChip {
     data class Provider(val count: Int) : FilterChip
 }
 
+enum class RelayListItemContentType {
+    CUSTOM_LIST_HEADER,
+    CUSTOM_LIST_ITEM,
+    CUSTOM_LIST_ENTRY_ITEM,
+    CUSTOM_LIST_FOOTER,
+    LOCATION_HEADER,
+    LOCATION_ITEM,
+    LOCATIONS_EMPTY_TEXT
+}
+
 sealed interface RelayListItem {
     val key: Any
+    val contentType: RelayListItemContentType
 
     data object CustomListHeader : RelayListItem {
         override val key = "custom_list_header"
+        override val contentType = RelayListItemContentType.CUSTOM_LIST_HEADER
     }
 
     sealed interface SelectableItem : RelayListItem {
@@ -41,6 +53,7 @@ sealed interface RelayListItem {
     ) : SelectableItem {
         override val key = item.id
         override val depth: Int = 0
+        override val contentType = RelayListItemContentType.CUSTOM_LIST_ITEM
     }
 
     data class CustomListEntryItem(
@@ -53,6 +66,17 @@ sealed interface RelayListItem {
 
         // Can't be displayed as selected
         override val isSelected: Boolean = false
+        override val contentType = RelayListItemContentType.CUSTOM_LIST_ENTRY_ITEM
+    }
+
+    data class CustomListFooter(val hasCustomList: Boolean) : RelayListItem {
+        override val key = "custom_list_footer"
+        override val contentType = RelayListItemContentType.CUSTOM_LIST_FOOTER
+    }
+
+    data object LocationHeader : RelayListItem {
+        override val key: Any = "location_header"
+        override val contentType = RelayListItemContentType.LOCATION_HEADER
     }
 
     data class GeoLocationItem(
@@ -62,17 +86,11 @@ sealed interface RelayListItem {
         override val expanded: Boolean,
     ) : SelectableItem {
         override val key = item.id
-    }
-
-    data class CustomListFooter(val hasCustomList: Boolean) : RelayListItem {
-        override val key = "custom_list_footer"
-    }
-
-    data object LocationHeader : RelayListItem {
-        override val key: Any = "location_header"
+        override val contentType = RelayListItemContentType.LOCATION_ITEM
     }
 
     data class LocationsEmptyText(val searchTerm: String) : RelayListItem {
         override val key: Any = "locations_empty_text"
+        override val contentType = RelayListItemContentType.LOCATIONS_EMPTY_TEXT
     }
 }
