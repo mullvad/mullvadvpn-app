@@ -8,6 +8,9 @@ on:
       - '**/**.yml'
       - '**/**.yaml'
   workflow_dispatch:
+
+permissions: {}
+
 jobs:
   check-formatting:
     runs-on: ubuntu-latest
