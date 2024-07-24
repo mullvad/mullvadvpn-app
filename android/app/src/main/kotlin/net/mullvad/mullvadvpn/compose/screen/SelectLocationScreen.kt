@@ -367,12 +367,16 @@ fun SelectLocationScreen(
                                             CustomListEntryItem(
                                                 listItem,
                                                 { onSelectRelay(listItem.item) },
-                                                {
-                                                    bottomSheetState =
-                                                        ShowCustomListsEntryBottomSheet(
-                                                            listItem.parentId,
-                                                            listItem.item
-                                                        )
+                                                if (listItem.depth == 1) {
+                                                    {
+                                                        bottomSheetState =
+                                                            ShowCustomListsEntryBottomSheet(
+                                                                listItem.parentId,
+                                                                listItem.item
+                                                            )
+                                                    }
+                                                } else {
+                                                    null
                                                 },
                                                 { expand: Boolean ->
                                                     onToggleExpand(
@@ -390,6 +394,7 @@ fun SelectLocationScreen(
                                                 listItem,
                                                 { onSelectRelay(listItem.item) },
                                                 {
+                                                    // Only direct children can be removed
                                                     bottomSheetState =
                                                         ShowLocationBottomSheet(
                                                             state.customLists,
@@ -460,7 +465,7 @@ fun LazyItemScope.CustomListItem(
 fun LazyItemScope.CustomListEntryItem(
     itemState: RelayListItem.CustomListEntryItem,
     onSelectRelay: () -> Unit,
-    onShowEditCustomListEntryBottomSheet: () -> Unit,
+    onShowEditCustomListEntryBottomSheet: (() -> Unit)?,
     onToggleExpand: (Boolean) -> Unit,
 ) {
     val customListEntryItem = itemState.item

@@ -60,7 +60,7 @@ fun StatusRelayItemCell(
     item: RelayItem,
     isSelected: Boolean,
     onClick: () -> Unit,
-    onLongClick: () -> Unit,
+    onLongClick: (() -> Unit)? = null,
     onToggleExpand: ((Boolean) -> Unit),
     isExpanded: Boolean,
     depth: Int,
