@@ -65,7 +65,7 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.FilterRow
 import net.mullvad.mullvadvpn.compose.cell.HeaderCell
 import net.mullvad.mullvadvpn.compose.cell.IconCell
-import net.mullvad.mullvadvpn.compose.cell.RelayItemCell
+import net.mullvad.mullvadvpn.compose.cell.StatusRelayItemCell
 import net.mullvad.mullvadvpn.compose.cell.SwitchComposeSubtitleCell
 import net.mullvad.mullvadvpn.compose.cell.ThreeDotCell
 import net.mullvad.mullvadvpn.compose.communication.Created
@@ -426,7 +426,7 @@ fun LazyItemScope.RelayLocationItem(
     onExpand: (Boolean) -> Unit,
 ) {
     val location = relayItem.item
-    RelayItemCell(
+    StatusRelayItemCell(
         location,
         relayItem.isSelected,
         { onSelectRelay() },
@@ -445,7 +445,7 @@ fun LazyItemScope.CustomListItem(
     onExpand: ((CustomListId, Boolean) -> Unit),
 ) {
     val customListItem = itemState.item
-    RelayItemCell(
+    StatusRelayItemCell(
         customListItem,
         itemState.isSelected,
         { onSelectRelay(customListItem) },
@@ -464,7 +464,7 @@ fun LazyItemScope.CustomListEntryItem(
     onToggleExpand: (Boolean) -> Unit,
 ) {
     val customListEntryItem = itemState.item
-    RelayItemCell(
+    StatusRelayItemCell(
         customListEntryItem,
         false,
         onSelectRelay,

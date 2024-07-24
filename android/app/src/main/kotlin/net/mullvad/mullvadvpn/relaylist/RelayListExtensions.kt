@@ -43,7 +43,7 @@ fun List<RelayItem.Location.Country>.newFilterOnSearch(
     return expansionSet to filteredCountryList
 }
 
-private fun GeoLocationId.ancestors(): List<GeoLocationId> =
+fun GeoLocationId.ancestors(): List<GeoLocationId> =
     when (this) {
         is GeoLocationId.City -> listOf(country)
         is GeoLocationId.Country -> emptyList()
