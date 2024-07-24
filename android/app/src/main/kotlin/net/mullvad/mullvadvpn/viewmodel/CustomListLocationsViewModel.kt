@@ -232,14 +232,10 @@ class CustomListLocationsViewModel(
         _expandedItems.value = initialExpands(selectedLocations)
     }
 
-    fun initialExpands(locations: Set<RelayItem.Location>): Set<RelayItemId> =
+    private fun initialExpands(locations: Set<RelayItem.Location>): Set<RelayItemId> =
         locations.flatMap { it.id.ancestors() }.toSet()
 
-    companion object {
-        private const val EMPTY_SEARCH_TERM = ""
-    }
-
-    fun List<RelayItem.Location>.toRelayItems(
+    private fun List<RelayItem.Location>.toRelayItems(
         isSelected: (RelayItem) -> Boolean,
         isExpanded: (RelayItemId) -> Boolean,
         depth: Int = 0,
@@ -278,6 +274,10 @@ class CustomListLocationsViewModel(
                 }
             }
         }
+    }
+
+    companion object {
+        private const val EMPTY_SEARCH_TERM = ""
     }
 }
 
