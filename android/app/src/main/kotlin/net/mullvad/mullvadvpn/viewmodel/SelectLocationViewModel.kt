@@ -104,7 +104,7 @@ class SelectLocationViewModel(
         }
     }
 
-    fun searchRelayListLocations() =
+    private fun searchRelayListLocations() =
         combine(
                 _searchTerm,
                 filteredRelayListUseCase(),
@@ -120,7 +120,7 @@ class SelectLocationViewModel(
             .onEach { _expandedItems.value = it.first }
             .map { it.second }
 
-    fun filterChips() =
+    private fun filterChips() =
         combine(
             relayListFilterRepository.selectedOwnership,
             relayListFilterRepository.selectedProviders,
@@ -149,7 +149,7 @@ class SelectLocationViewModel(
             }
         }
 
-    fun relayListItems() =
+    private fun relayListItems() =
         combine(
             _searchTerm,
             searchRelayListLocations(),
@@ -176,7 +176,7 @@ class SelectLocationViewModel(
             }
         }
 
-    fun createRelayListItems(
+    private fun createRelayListItems(
         isSearching: Boolean,
         selectedItem: RelayItemId?,
         customLists: List<RelayItem.CustomList>,
@@ -186,7 +186,7 @@ class SelectLocationViewModel(
         createCustomListSection(isSearching, selectedItem, customLists, isExpanded) +
             createLocationSection(isSearching, selectedItem, countries, isExpanded)
 
-    fun createCustomListSection(
+    private fun createCustomListSection(
         isSearching: Boolean,
         selectedItem: RelayItemId?,
         customLists: List<RelayItem.CustomList>,
@@ -202,7 +202,7 @@ class SelectLocationViewModel(
         }
     }
 
-    fun createCustomListRelayItems(
+    private fun createCustomListRelayItems(
         customLists: List<RelayItem.CustomList>,
         selectedItem: RelayItemId?,
         isExpanded: (String) -> Boolean
@@ -228,7 +228,7 @@ class SelectLocationViewModel(
             }
         }
 
-    fun createLocationSection(
+    private fun createLocationSection(
         isSearching: Boolean,
         selectedItem: RelayItemId?,
         countries: List<RelayItem.Location.Country>,
@@ -246,7 +246,7 @@ class SelectLocationViewModel(
         }
     }
 
-    fun createCustomListEntry(
+    private fun createCustomListEntry(
         parent: CustomListId,
         item: RelayItem.Location,
         depth: Int = 1,
@@ -282,7 +282,7 @@ class SelectLocationViewModel(
             }
         }
 
-    fun createGeoLocationEntry(
+    private fun createGeoLocationEntry(
         item: RelayItem.Location,
         selectedItem: RelayItemId?,
         depth: Int = 0,
