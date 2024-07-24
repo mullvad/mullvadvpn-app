@@ -87,7 +87,7 @@ val DUMMY_RELAY_ITEM_CUSTOM_LISTS =
         RelayItem.CustomList(
             customList =
                 CustomList(
-                    name = CustomListName.fromString("Empty List list"),
+                    name = CustomListName.fromString("Empty list"),
                     id = CustomListId("2"),
                     locations = emptyList()
                 ),
