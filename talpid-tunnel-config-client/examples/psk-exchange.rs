@@ -4,7 +4,6 @@
 // Usage: ./psk-exchange <tuncfg_server_ip> <wireguard_public_key>
 // e. g. ./psk-exchange 10.64.0.1 NkECLsf+VbZUjve7RVN6sE3NYUcYUmUn8qpFugqbXFk=
 
-use std::net::IpAddr;
 use talpid_types::net::wireguard::{PrivateKey, PublicKey};
 
 #[tokio::main]
@@ -24,7 +23,7 @@ async fn main() {
     let ephemeral_private_key = PrivateKey::new_from_random();
 
     let ephemeral_peer = talpid_tunnel_config_client::request_ephemeral_peer(
-        IpAddr::V4(tuncfg_server_ip),
+        tuncfg_server_ip,
         public_key, // Parent connection's public key.
         ephemeral_private_key.public_key(),
         true,  // Whether to negotiate a "PQ-safe" PSK.
