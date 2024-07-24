@@ -3,7 +3,6 @@ package net.mullvad.mullvadvpn.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import arrow.core.raise.either
-import kotlin.math.exp
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -97,14 +96,21 @@ class SelectLocationViewModel(
         }
     }
 
-    private fun initialExpand(): Set<String> {
+    private fun initialExpand(): Set<String> = buildSet {
         val item = relayListRepository.selectedLocation.value.getOrNull()
-        return when (item) {
-            is CustomListId -> setOf()
-            is GeoLocationId.City -> setOf(item.country.code)
-            is GeoLocationId.Country -> setOf()
-            is GeoLocationId.Hostname -> setOf(item.country.code, item.city.code)
-            null -> setOf()
+        when (item) {
+            is GeoLocationId.City -> {
+                add(item.country.code)
+            }
+            is GeoLocationId.Hostname -> {
+                add(item.country.code)
+                add(item.city.code)
+            }
+            is CustomListId,
+            is GeoLocationId.Country,
+            null -> {
+                /* No expands */
+            }
         }
     }
 
@@ -131,24 +137,24 @@ class SelectLocationViewModel(
             availableProvidersUseCase(),
         ) { selectedOwnership, selectedConstraintProviders, allProviders,
             ->
-            val selectedOwnershipItem = selectedOwnership.getOrNull()
-            val selectedProvidersCount =
+            val ownershipFilter = selectedOwnership.getOrNull()
+            val providerCountFilter =
                 when (selectedConstraintProviders) {
                     is Constraint.Any -> null
                     is Constraint.Only ->
                         filterSelectedProvidersByOwnership(
                                 selectedConstraintProviders.toSelectedProviders(allProviders),
-                                selectedOwnershipItem,
+                                ownershipFilter,
                             )
                             .size
                 }
 
             buildList<FilterChip> {
-                if (selectedOwnershipItem != null) {
-                    add(FilterChip.Ownership(selectedOwnershipItem))
+                if (ownershipFilter != null) {
+                    add(FilterChip.Ownership(ownershipFilter))
                 }
-                if (selectedProvidersCount != null) {
-                    add(FilterChip.Provider(selectedProvidersCount))
+                if (providerCountFilter != null) {
+                    add(FilterChip.Provider(providerCountFilter))
                 }
             }
         }
@@ -163,20 +169,21 @@ class SelectLocationViewModel(
         ) { searchTerm, relayCountries, customLists, selectedItem, expandedItems ->
             val filteredCustomLists = customLists.filterOnSearchTerm(searchTerm)
 
-            createRelayListItems(
-                    searchTerm.length >= MIN_SEARCH_LENGTH,
-                    selectedItem.getOrNull(),
-                    filteredCustomLists,
-                    relayCountries,
-                    { it in expandedItems }
-                )
-                .let {
-                    if (it.isEmpty()) {
-                        listOf(RelayListItem.LocationsEmptyText(searchTerm))
-                    } else {
-                        it
-                    }
+            buildList {
+                val relayItems =
+                    createRelayListItems(
+                        searchTerm.length >= MIN_SEARCH_LENGTH,
+                        selectedItem.getOrNull(),
+                        filteredCustomLists,
+                        relayCountries,
+                        { it in expandedItems }
+                    )
+                if (relayItems.isEmpty()) {
+                    add(RelayListItem.LocationsEmptyText(searchTerm))
+                } else {
+                    addAll(relayItems)
                 }
+            }
         }
 
     fun createRelayListItems(
