@@ -62,4 +62,15 @@ impl TunnelState {
     pub fn is_disconnected(&self) -> bool {
         matches!(self, TunnelState::Disconnected { .. })
     }
+
+    /// Returns the tunnel endpoint for an ongoing connection.
+    /// This value exists in the connecting and connected states.
+    pub fn endpoint(&self) -> Option<&TunnelEndpoint> {
+        match self {
+            TunnelState::Connecting { endpoint, .. } | TunnelState::Connected { endpoint, .. } => {
+                Some(endpoint)
+            }
+            _ => None,
+        }
+    }
 }
