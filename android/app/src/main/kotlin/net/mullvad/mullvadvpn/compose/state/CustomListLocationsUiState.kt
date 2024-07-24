@@ -22,11 +22,17 @@ sealed interface CustomListLocationsUiState {
 
         data class Data(
             override val newList: Boolean = false,
-            val availableLocations: List<RelayItem.Location.Country> = emptyList(),
-            val selectedLocations: Set<RelayItem> = emptySet(),
+            val locations: List<RelayLocationItem>,
             override val searchTerm: String = "",
             override val saveEnabled: Boolean = false,
             override val hasUnsavedChanges: Boolean = false
         ) : Content
     }
 }
+
+data class RelayLocationItem(
+    val item: RelayItem.Location,
+    val depth: Int,
+    val checked: Boolean,
+    val expanded: Boolean
+)
