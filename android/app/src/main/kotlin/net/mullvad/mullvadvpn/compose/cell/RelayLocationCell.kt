@@ -29,7 +29,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
-import mullvad_daemon.management_interface.relay
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.Chevron
 import net.mullvad.mullvadvpn.compose.component.MullvadCheckbox
@@ -49,7 +48,10 @@ private fun PreviewCheckableRelayLocationCell(
 ) {
     AppTheme {
         Column(Modifier.background(color = MaterialTheme.colorScheme.background)) {
-            //            relayItems.map { CheckableRelayLocationCell(item = it) }
+            relayItems.map {
+                CheckableRelayLocationCell(
+                    item = it, checked = false, expanded = false, depth = 0, onExpand = {})
+            }
         }
     }
 }
@@ -71,14 +73,13 @@ fun StatusRelayItemCell(
 ) {
 
     RelayItemCell(
+        modifier = modifier,
         item,
         isSelected,
         leadingContent = {
             if (isSelected) {
                 Icon(
-                    painter = painterResource(id = R.drawable.icon_tick),
-                    contentDescription = null
-                )
+                    painter = painterResource(id = R.drawable.icon_tick), contentDescription = null)
             } else {
                 Box(
                     modifier =
@@ -93,9 +94,7 @@ fun StatusRelayItemCell(
                                         item.active -> activeColor
                                         else -> inactiveColor
                                     },
-                                shape = CircleShape
-                            )
-                )
+                                shape = CircleShape))
             }
         },
         onClick = onClick,
@@ -103,13 +102,13 @@ fun StatusRelayItemCell(
         onToggleExpand = onToggleExpand,
         isExpanded = isExpanded,
         depth = depth,
-        modifier = modifier,
     )
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun RelayItemCell(
+    modifier: Modifier = Modifier,
     item: RelayItem,
     isSelected: Boolean,
     leadingContent: (@Composable RowScope.() -> Unit)? = null,
@@ -118,7 +117,6 @@ fun RelayItemCell(
     onToggleExpand: ((Boolean) -> Unit),
     isExpanded: Boolean,
     depth: Int,
-    modifier: Modifier = Modifier,
 ) {
 
     val leadingContentStartPadding = Dimens.cellStartPadding
@@ -135,25 +133,23 @@ fun RelayItemCell(
                         item is RelayItem.CustomList && !item.active ->
                             MaterialTheme.colorScheme.surfaceTint
                         else -> depth.toBackgroundColor()
-                    }
-                )
+                    })
                 .combinedClickable(
                     enabled = item.active,
                     onClick = onClick,
                     onLongClick = onLongClick,
                 )
                 .padding(start = startPadding),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        if (leadingContent != null) {
-            leadingContent()
-        }
-        Name(modifier = Modifier.weight(1f), relay = item)
+        verticalAlignment = Alignment.CenterVertically) {
+            if (leadingContent != null) {
+                leadingContent()
+            }
+            Name(modifier = Modifier.weight(1f), relay = item)
 
-        if (item.hasChildren) {
-            ExpandButton(isExpanded = isExpanded, onClick = { onToggleExpand(!isExpanded) })
+            if (item.hasChildren) {
+                ExpandButton(isExpanded = isExpanded, onClick = { onToggleExpand(!isExpanded) })
+            }
         }
-    }
 }
 
 @Composable
@@ -167,20 +163,18 @@ fun CheckableRelayLocationCell(
     depth: Int
 ) {
     RelayItemCell(
+        modifier = modifier,
         item = item,
-        isExpanded = expanded,
-        onToggleExpand = onExpand,
+        isSelected = false,
         leadingContent = {
             MullvadCheckbox(
                 checked = checked,
-                onCheckedChange = { isChecked -> onRelayCheckedChange(isChecked) }
-            )
+                onCheckedChange = { isChecked -> onRelayCheckedChange(isChecked) })
         },
-        modifier = modifier,
         onClick = { onRelayCheckedChange(!checked) },
-        onLongClick = null,
-        depth = depth,
-        isSelected = false
+        onToggleExpand = onExpand,
+        isExpanded = expanded,
+        depth = depth
     )
 }
 
@@ -196,28 +190,24 @@ private fun Name(modifier: Modifier = Modifier, relay: RelayItem) {
                         AlphaVisible
                     } else {
                         AlphaInactive
-                    }
-                )
+                    })
                 .padding(horizontal = Dimens.smallPadding, vertical = Dimens.mediumPadding),
         maxLines = 1,
-        overflow = TextOverflow.Ellipsis
-    )
+        overflow = TextOverflow.Ellipsis)
 }
 
 @Composable
 private fun RowScope.ExpandButton(isExpanded: Boolean, onClick: (expand: Boolean) -> Unit) {
     VerticalDivider(
         color = MaterialTheme.colorScheme.background,
-        modifier = Modifier.padding(vertical = Dimens.verticalDividerPadding)
-    )
+        modifier = Modifier.padding(vertical = Dimens.verticalDividerPadding))
     Chevron(
         isExpanded = isExpanded,
         modifier =
             Modifier.fillMaxHeight()
                 .clickable { onClick(!isExpanded) }
                 .padding(horizontal = Dimens.largePadding)
-                .align(Alignment.CenterVertically)
-    )
+                .align(Alignment.CenterVertically))
 }
 
 @Suppress("MagicNumber")
