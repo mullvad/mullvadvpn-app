@@ -47,7 +47,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
-import co.touchlab.kermit.Logger
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.CreateCustomListDestination
@@ -175,9 +174,7 @@ fun SelectLocation(
                 }
             is SelectLocationSideEffect.CenterOnItem -> {
                 val index = state.indexOfSelectedRelayItem()
-                Logger.d("CENTER ON ITEM $index")
-
-                if (index >= 0) {
+                if (index != -1) {
                     lazyListState.scrollToItem(index)
                     lazyListState.animateScrollAndCentralizeItem(index)
                 }

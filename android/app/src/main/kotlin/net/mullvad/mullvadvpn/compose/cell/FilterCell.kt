@@ -25,7 +25,10 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 private fun PreviewFilterCell() {
     AppTheme {
         FilterRow(
-            listOf(FilterChip.Ownership(Ownership.MullvadOwned), FilterChip.Provider(2)), {}, {})
+            listOf(FilterChip.Ownership(Ownership.MullvadOwned), FilterChip.Provider(2)),
+            {},
+            {}
+        )
     }
 }
 
@@ -44,32 +47,37 @@ fun FilterRow(
                     horizontal = Dimens.searchFieldHorizontalPadding,
                 )
                 .fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(Dimens.chipSpace)) {
-            Text(
-                text = stringResource(id = R.string.filtered),
-                color = MaterialTheme.colorScheme.onPrimary,
-                style = MaterialTheme.typography.labelMedium)
-            filters.forEach {
-                when (it) {
-                    is FilterChip.Ownership ->
-                        OwnershipFilterChip(it.ownership, onRemoveOwnershipFilter)
-                    is FilterChip.Provider -> ProviderFilterChip(it.count, onRemoveProviderFilter)
-                }
+        horizontalArrangement = Arrangement.spacedBy(Dimens.chipSpace)
+    ) {
+        Text(
+            text = stringResource(id = R.string.filtered),
+            color = MaterialTheme.colorScheme.onPrimary,
+            style = MaterialTheme.typography.labelMedium
+        )
+        filters.forEach {
+            when (it) {
+                is FilterChip.Ownership ->
+                    OwnershipFilterChip(it.ownership, onRemoveOwnershipFilter)
+                is FilterChip.Provider -> ProviderFilterChip(it.count, onRemoveProviderFilter)
             }
         }
+    }
 }
 
 @Composable
 fun ProviderFilterChip(providers: Int, onRemoveClick: () -> Unit) {
     MullvadFilterChip(
         text = stringResource(id = R.string.number_of_providers, providers),
-        onRemoveClick = onRemoveClick)
+        onRemoveClick = onRemoveClick
+    )
 }
 
 @Composable
 fun OwnershipFilterChip(ownership: Ownership, onRemoveClick: () -> Unit) {
     MullvadFilterChip(
-        text = stringResource(ownership.stringResources()), onRemoveClick = onRemoveClick)
+        text = stringResource(ownership.stringResources()),
+        onRemoveClick = onRemoveClick
+    )
 }
 
 private fun Ownership.stringResources(): Int =
