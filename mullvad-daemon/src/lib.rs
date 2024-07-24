@@ -2820,6 +2820,11 @@ where
         }
     }
 
+    /// Source all active [`FeatureIndicators`].
+    ///
+    /// Note that [`FeatureIndicators`] only affect an active connection, which means that when the
+    /// daemon is disconnected while calling this function the caller will see an empty set of
+    /// [`FeatureIndicators`].
     fn get_feature_indicators(&self) -> FeatureIndicators {
         let tunnel = &self.tunnel_state;
         let settings = self.settings.to_settings();
@@ -2851,8 +2856,7 @@ where
         let (TunnelState::Connecting { endpoint, .. } | TunnelState::Connected { endpoint, .. }) =
             tunnel
         else {
-            // if disconnected, all features are disabled
-            // TODO: is this actually what we want?
+            // If disconnected, no features are actually active and thus should not be displayed.
             return Default::default();
         };
 
