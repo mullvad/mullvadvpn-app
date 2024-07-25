@@ -32,7 +32,6 @@ import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.relaylist.descendants
-import net.mullvad.mullvadvpn.relaylist.filterOnSearchTerm
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.repository.RelayListRepository
@@ -170,11 +169,7 @@ class SelectLocationViewModelTest {
     @Test
     fun `on onSearchTermInput call uiState should emit with filtered countries`() = runTest {
         // Arrange
-        val mockCountries = listOf<RelayItem.Location.Country>(mockk(), mockk())
-        val selectedItem: RelayItemId? = null
-        val mockRelayList: List<RelayItem.Location.Country> = mockk(relaxed = true)
         val mockSearchString = "got"
-        every { mockCustomList.filterOnSearchTerm(mockSearchString) } returns mockCustomList
         filteredRelayList.value = testCountries
         selectedRelayItemFlow.value = Constraint.Any
 
@@ -186,11 +181,17 @@ class SelectLocationViewModelTest {
             // Update search string
             viewModel.onSearchTermInput(mockSearchString)
 
-            // Assert
+            // We get some unnecessary emissions for now
+            awaitItem()
+            awaitItem()
+            awaitItem()
+
             val actualState = awaitItem()
             assertIs<SelectLocationUiState.Content>(actualState)
-            // assertLists(mockCountries, actualState.countries)
-            // assertEquals(selectedItem, actualState.selectedItem)
+            assertTrue(
+                actualState.relayListItems.filterIsInstance<RelayListItem.GeoLocationItem>().any {
+                    it.item is RelayItem.Location.City && it.item.name == "Gothenburg"
+                })
         }
     }
 
