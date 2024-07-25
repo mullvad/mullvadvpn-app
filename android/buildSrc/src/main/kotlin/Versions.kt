@@ -45,7 +45,7 @@ object Versions {
         const val destinations = "2.1.0-beta10"
         const val constrainLayout = "1.0.1"
         const val foundation = base
-        const val material3 = "1.3.0-beta03"
+        const val material3 = "1.2.1"
     }
 
     object Grpc {

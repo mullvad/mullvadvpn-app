@@ -161,7 +161,7 @@ private fun ConstraintLayoutScope.AutoConnectCarousel(
 ) {
     HorizontalPager(
         state = pagerState,
-        beyondViewportPageCount = 2,
+        beyondBoundsPageCount = 2,
         modifier =
             Modifier.constrainAs(pager) {
                 top.linkTo(parent.top)

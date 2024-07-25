@@ -1,16 +1,17 @@
 package net.mullvad.mullvadvpn.lib.theme
 
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ripple.LocalRippleTheme
 import androidx.compose.material.ripple.RippleAlpha
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.LocalRippleConfiguration
+import androidx.compose.material.ripple.RippleTheme
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RippleConfiguration
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
@@ -136,7 +137,6 @@ fun ProvideDimens(dimensions: Dimensions, content: @Composable () -> Unit) {
 
 private val LocalAppDimens = staticCompositionLocalOf { defaultDimensions }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppTheme(content: @Composable () -> Unit) {
     val colors = darkColorScheme
@@ -150,12 +150,15 @@ fun AppTheme(content: @Composable () -> Unit) {
             shapes = Shapes,
             typography = typography,
             content = {
-                CompositionLocalProvider(
-                    LocalRippleConfiguration provides RippleConfiguration(rippleAlpha = rippleAlpha)
-                ) {
-                    content()
-                }
+                CompositionLocalProvider(LocalRippleTheme provides MullvadRippleTheme) { content() }
             }
         )
     }
+}
+
+@Immutable
+object MullvadRippleTheme : RippleTheme {
+    @Composable override fun defaultColor() = LocalContentColor.current
+
+    @Composable override fun rippleAlpha() = rippleAlpha
 }

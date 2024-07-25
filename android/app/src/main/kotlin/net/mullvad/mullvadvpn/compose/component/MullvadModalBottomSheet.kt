@@ -59,7 +59,7 @@ fun MullvadModalBottomSheet(
         sheetState = sheetState,
         containerColor = backgroundColor,
         modifier = modifier,
-        contentWindowInsets = { WindowInsets(0, 0, 0, 0) }, // No insets
+        windowInsets = WindowInsets(0, 0, 0, 0), // No insets
         dragHandle = { BottomSheetDefaults.DragHandle(color = onBackgroundColor) }
     ) {
         sheetContent()
