@@ -71,7 +71,6 @@ class CustomListActionUseCaseTest {
                 RelayItem.Location.Country(
                     id = locationId,
                     name = locationName,
-                    expanded = false,
                     cities = emptyList()
                 )
             )
