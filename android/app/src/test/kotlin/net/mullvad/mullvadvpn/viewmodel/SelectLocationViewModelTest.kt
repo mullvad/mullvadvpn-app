@@ -120,14 +120,12 @@ class SelectLocationViewModelTest {
             assertIs<SelectLocationUiState.Content>(actualState)
             assertLists(
                 testCountries.map { it.id },
-                actualState.relayListItems.mapNotNull { it.relayItemId() }
-            )
+                actualState.relayListItems.mapNotNull { it.relayItemId() })
             assertTrue(
                 actualState.relayListItems
                     .filterIsInstance<RelayListItem.SelectableItem>()
                     .first { it.relayItemId() == selectedId }
-                    .isSelected
-            )
+                    .isSelected)
         }
     }
 
@@ -143,13 +141,11 @@ class SelectLocationViewModelTest {
             assertIs<SelectLocationUiState.Content>(actualState)
             assertLists(
                 testCountries.map { it.id },
-                actualState.relayListItems.mapNotNull { it.relayItemId() }
-            )
+                actualState.relayListItems.mapNotNull { it.relayItemId() })
             assertTrue(
                 actualState.relayListItems.filterIsInstance<RelayListItem.SelectableItem>().all {
                     !it.isSelected
-                }
-            )
+                })
         }
     }
 
@@ -174,13 +170,12 @@ class SelectLocationViewModelTest {
     @Test
     fun `on onSearchTermInput call uiState should emit with filtered countries`() = runTest {
         // Arrange
-        val mockCustomList = listOf<RelayItem.CustomList>(mockk(relaxed = true))
         val mockCountries = listOf<RelayItem.Location.Country>(mockk(), mockk())
         val selectedItem: RelayItemId? = null
         val mockRelayList: List<RelayItem.Location.Country> = mockk(relaxed = true)
-        val mockSearchString = "SEARCH"
+        val mockSearchString = "got"
         every { mockCustomList.filterOnSearchTerm(mockSearchString) } returns mockCustomList
-        filteredRelayList.value = mockRelayList
+        filteredRelayList.value = testCountries
         selectedRelayItemFlow.value = Constraint.Any
 
         // Act, Assert
@@ -202,12 +197,8 @@ class SelectLocationViewModelTest {
     @Test
     fun `when onSearchTermInput returns empty result uiState should return empty list`() = runTest {
         // Arrange
-        val mockCustomList = listOf<RelayItem.CustomList>(mockk(relaxed = true))
-        val mockCountries = emptyList<RelayItem.Location.Country>()
-        val selectedItem: RelayItemId? = null
-        val mockRelayList: List<RelayItem.Location.Country> = mockk(relaxed = true)
+        filteredRelayList.value = testCountries
         val mockSearchString = "SEARCH"
-        every { mockCustomList.filterOnSearchTerm(mockSearchString) } returns mockCustomList
 
         // Act, Assert
         viewModel.uiState.test {
@@ -217,10 +208,16 @@ class SelectLocationViewModelTest {
             // Update search string
             viewModel.onSearchTermInput(mockSearchString)
 
+            // We get some unnecessary emissions for now
+            awaitItem()
+            awaitItem()
+
             // Assert
             val actualState = awaitItem()
             assertIs<SelectLocationUiState.Content>(actualState)
-            assertEquals(mockSearchString, actualState.searchTerm)
+            assertEquals(
+                listOf(RelayListItem.LocationsEmptyText(mockSearchString)),
+                actualState.relayListItems)
         }
     }
 
@@ -280,8 +277,7 @@ class SelectLocationViewModelTest {
                     CustomList(
                         id = CustomListId("1"),
                         name = CustomListName.fromString("custom"),
-                        locations = emptyList()
-                    ),
+                        locations = emptyList()),
                 locations = emptyList(),
             )
         coEvery { mockCustomListActionUseCase(any<CustomListAction.UpdateLocations>()) } returns
@@ -317,8 +313,14 @@ class SelectLocationViewModelTest {
 
         private val testCountries =
             listOf<RelayItem.Location.Country>(
-                RelayItem.Location.Country(id = GeoLocationId.Country("se"), "Sweden", emptyList()),
-                RelayItem.Location.Country(id = GeoLocationId.Country("no"), "Norway", emptyList())
-            )
+                RelayItem.Location.Country(
+                    id = GeoLocationId.Country("se"),
+                    "Sweden",
+                    listOf(
+                        RelayItem.Location.City(
+                            id = GeoLocationId.City(GeoLocationId.Country("se"), "got"),
+                            "Gothenburg",
+                            emptyList()))),
+                RelayItem.Location.Country(id = GeoLocationId.Country("no"), "Norway", emptyList()))
     }
 }
