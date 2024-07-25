@@ -30,8 +30,7 @@ extension RelayPicking {
         return SelectedRelay(
             endpoint: match.endpoint,
             hostname: match.relay.hostname,
-            location: match.location,
-            retryAttempts: connectionAttemptCount
+            location: match.location
         )
     }
 }
@@ -50,7 +49,7 @@ struct SinglehopPicker: RelayPicking {
 
         let match = try findBestMatch(from: candidates)
 
-        return SelectedRelays(entry: nil, exit: match)
+        return SelectedRelays(entry: nil, exit: match, retryAttempt: connectionAttemptCount)
     }
 }
 

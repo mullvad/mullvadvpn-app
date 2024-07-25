@@ -22,6 +22,18 @@ extension WireGuardAdapter {
         }
     }
 
+    func startMultihop(entryConfiguration: TunnelConfiguration?, exitConfiguration: TunnelConfiguration) async throws {
+        return try await withCheckedThrowingContinuation { continuation in
+            startMultihop(exitConfiguration: exitConfiguration, entryConfiguration: entryConfiguration) { error in
+                if let error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume(returning: ())
+                }
+            }
+        }
+    }
+
     func stop() async throws {
         return try await withCheckedThrowingContinuation { continuation in
             stop { error in
