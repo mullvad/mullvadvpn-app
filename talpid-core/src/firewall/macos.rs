@@ -68,11 +68,13 @@ impl Firewall {
     /// Clearing all states unfortunately seems to interrupt ephemeral key exchange on some
     /// machines. Exempting the VPN server connection prevents this.
     fn flush_states(&mut self, policy: FirewallPolicy) -> Result<()> {
-        self
-            .pf
+        self.pf
             .get_states()?
             .into_iter()
-            .filter(|state| Self::should_delete_state(&policy, state))
+            .filter(|state| {
+                // If we can't parse a state for whatever reason, err on the safe side and keep it
+                Self::should_delete_state(&policy, state).unwrap_or(false)
+            })
             .for_each(|state| {
                 if let Err(error) = self.pf.kill_state(&state) {
                     log::warn!("Failed to delete PF state: {error}");
@@ -82,45 +84,40 @@ impl Firewall {
         Ok(())
     }
 
-    fn should_delete_state(policy: &FirewallPolicy, state: &pfctl::State) -> bool {
-        let peer_endpoint = policy.peer_endpoint().map(|endpoint| endpoint.endpoint);
+    fn should_delete_state(policy: &FirewallPolicy, state: &pfctl::State) -> Result<bool> {
         let allowed_tunnel_traffic = policy.allowed_tunnel_traffic();
         let tunnel_ips = policy
             .tunnel()
             .map(|tunnel| tunnel.ips.as_slice())
             .unwrap_or_default();
 
-        match (
-            peer_endpoint,
-            state.local_address(),
-            state.remote_address(),
-            state.proto(),
-        ) {
-            (Some(peer), Ok(local_address), Ok(remote_address), Ok(proto)) => {
-                if tunnel_ips.contains(&local_address.ip()) {
-                    // Tunnel traffic: Clear states except those allowed in the tunnel
-                    // Ephemeral peer exchange becomes unreliable otherwise, when multihop is enabled
-                    match allowed_tunnel_traffic {
-                        AllowedTunnelTraffic::None => true,
-                        AllowedTunnelTraffic::All => false,
-                        AllowedTunnelTraffic::One(endpoint) => {
-                            endpoint.address != remote_address
-                        }
-                        AllowedTunnelTraffic::Two(endpoint1, endpoint2) => {
-                            endpoint1.address != remote_address
-                                && endpoint2.address != remote_address
-                        }
-                    }
-                } else {
-                    // Non-tunnel traffic: Clear all states except traffic destined for the VPN endpoint
-                    // Ephemeral peer exchange becomes unreliable otherwise
-                    peer.address != remote_address || as_pfctl_proto(peer.protocol) != proto
+        let local_address = state.local_address()?;
+        let remote_address = state.remote_address()?;
+        let proto = state.proto()?;
+
+        let Some(peer) = policy.peer_endpoint().map(|endpoint| endpoint.endpoint) else {
+            // If there's no peer, there's also no tunnel. We have no states to preserve
+            return Ok(true);
+        };
+
+        let should_delete = if tunnel_ips.contains(&local_address.ip()) {
+            // Tunnel traffic: Clear states except those allowed in the tunnel
+            // Ephemeral peer exchange becomes unreliable otherwise, when multihop is enabled
+            match allowed_tunnel_traffic {
+                AllowedTunnelTraffic::None => true,
+                AllowedTunnelTraffic::All => false,
+                AllowedTunnelTraffic::One(endpoint) => endpoint.address != remote_address,
+                AllowedTunnelTraffic::Two(endpoint1, endpoint2) => {
+                    endpoint1.address != remote_address && endpoint2.address != remote_address
                 }
             }
-            // TODO: explain why we delete this case, but not the remaining stuff
-            (None, Ok(_), Ok(_), Ok(_)) => true,
-            _ => false,
-        }
+        } else {
+            // Non-tunnel traffic: Clear all states except traffic destined for the VPN endpoint
+            // Ephemeral peer exchange becomes unreliable otherwise
+            peer.address != remote_address || as_pfctl_proto(peer.protocol) != proto
+        };
+
+        Ok(should_delete)
     }
 
     pub fn reset_policy(&mut self) -> Result<()> {
