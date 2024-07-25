@@ -50,8 +50,8 @@ sealed interface RelayListItem {
 
     data class CustomListItem(
         val item: RelayItem.CustomList,
-        override val isSelected: Boolean,
-        override val expanded: Boolean,
+        override val isSelected: Boolean = false,
+        override val expanded: Boolean = false,
     ) : SelectableItem {
         override val key = item.id
         override val depth: Int = 0
@@ -83,9 +83,9 @@ sealed interface RelayListItem {
 
     data class GeoLocationItem(
         val item: RelayItem.Location,
-        override val isSelected: Boolean,
-        override val depth: Int,
-        override val expanded: Boolean,
+        override val isSelected: Boolean = false,
+        override val depth: Int = 0,
+        override val expanded: Boolean = false,
     ) : SelectableItem {
         override val key = item.id
         override val contentType = RelayListItemContentType.LOCATION_ITEM

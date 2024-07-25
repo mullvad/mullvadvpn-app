@@ -12,6 +12,7 @@ import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.data.DUMMY_RELAY_COUNTRIES
 import net.mullvad.mullvadvpn.compose.data.DUMMY_RELAY_ITEM_CUSTOM_LISTS
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
+import net.mullvad.mullvadvpn.compose.state.RelayListItem
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG
@@ -54,13 +55,13 @@ class SelectLocationScreenTest {
                 SelectLocationScreen(
                     state =
                         SelectLocationUiState.Content(
+                            searchTerm = "",
+                            filterChips = emptyList(),
+                            relayListItems =
+                                DUMMY_RELAY_COUNTRIES.map {
+                                    RelayListItem.GeoLocationItem(item = it)
+                                },
                             customLists = emptyList(),
-                            filteredCustomLists = emptyList(),
-                            countries = DUMMY_RELAY_COUNTRIES,
-                            selectedItem = null,
-                            selectedOwnership = null,
-                            selectedProvidersCount = 0,
-                            searchTerm = ""
                         ),
                 )
             }
@@ -75,45 +76,6 @@ class SelectLocationScreenTest {
         }
 
     @Test
-    fun testShowRelayListStateSelected() =
-        composeExtension.use {
-            val updatedDummyList =
-                DUMMY_RELAY_COUNTRIES.let {
-                    val cities = it[0].cities.toMutableList()
-                    val city = cities.removeAt(0)
-                    cities.add(0, city.copy(expanded = true))
-
-                    val mutableRelayList = it.toMutableList()
-                    mutableRelayList[0] = it[0].copy(expanded = true, cities = cities.toList())
-                    mutableRelayList
-                }
-
-            // Arrange
-            setContentWithTheme {
-                SelectLocationScreen(
-                    state =
-                        SelectLocationUiState.Content(
-                            customLists = emptyList(),
-                            filteredCustomLists = emptyList(),
-                            countries = updatedDummyList,
-                            selectedItem = updatedDummyList[0].cities[0].relays[0].id,
-                            selectedOwnership = null,
-                            selectedProvidersCount = 0,
-                            searchTerm = ""
-                        ),
-                )
-            }
-
-            // Assert
-            onNodeWithText("Relay Country 1").assertExists()
-            onNodeWithText("Relay City 1").assertExists()
-            onNodeWithText("Relay host 1").assertExists()
-            onNodeWithText("Relay Country 2").assertExists()
-            onNodeWithText("Relay City 2").assertDoesNotExist()
-            onNodeWithText("Relay host 2").assertDoesNotExist()
-        }
-
-    @Test
     fun testSearchInput() =
         composeExtension.use {
             // Arrange
@@ -122,13 +84,10 @@ class SelectLocationScreenTest {
                 SelectLocationScreen(
                     state =
                         SelectLocationUiState.Content(
-                            customLists = emptyList(),
-                            filteredCustomLists = emptyList(),
-                            countries = emptyList(),
-                            selectedItem = null,
-                            selectedOwnership = null,
-                            selectedProvidersCount = 0,
-                            searchTerm = ""
+                            searchTerm = "",
+                            filterChips = emptyList(),
+                            relayListItems = emptyList(),
+                            customLists = emptyList()
                         ),
                     onSearchTermInput = mockedSearchTermInput
                 )
@@ -152,13 +111,11 @@ class SelectLocationScreenTest {
                 SelectLocationScreen(
                     state =
                         SelectLocationUiState.Content(
+                            searchTerm = mockSearchString,
+                            filterChips = emptyList(),
+                            relayListItems =
+                                listOf(RelayListItem.LocationsEmptyText(mockSearchString)),
                             customLists = emptyList(),
-                            filteredCustomLists = emptyList(),
-                            countries = emptyList(),
-                            selectedItem = null,
-                            selectedOwnership = null,
-                            selectedProvidersCount = 0,
-                            searchTerm = mockSearchString
                         ),
                     onSearchTermInput = mockedSearchTermInput
                 )
@@ -170,7 +127,7 @@ class SelectLocationScreenTest {
         }
 
     @Test
-    fun givenNoCustomListsAndSearchIsTermIsEmptyShouldShowCustomListsEmptyText() =
+    fun customListFooterShouldShowEmptyTextWhenNoCustomList() =
         composeExtension.use {
             // Arrange
             val mockSearchString = ""
@@ -178,13 +135,10 @@ class SelectLocationScreenTest {
                 SelectLocationScreen(
                     state =
                         SelectLocationUiState.Content(
+                            searchTerm = mockSearchString,
+                            filterChips = emptyList(),
+                            relayListItems = listOf(RelayListItem.CustomListFooter(false)),
                             customLists = emptyList(),
-                            filteredCustomLists = emptyList(),
-                            countries = emptyList(),
-                            selectedItem = null,
-                            selectedOwnership = null,
-                            selectedProvidersCount = 0,
-                            searchTerm = mockSearchString
                         ),
                 )
             }
@@ -202,13 +156,10 @@ class SelectLocationScreenTest {
                 SelectLocationScreen(
                     state =
                         SelectLocationUiState.Content(
+                            searchTerm = mockSearchString,
+                            filterChips = emptyList(),
+                            relayListItems = emptyList(),
                             customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
-                            filteredCustomLists = emptyList(),
-                            countries = emptyList(),
-                            selectedItem = null,
-                            selectedOwnership = null,
-                            selectedProvidersCount = 0,
-                            searchTerm = mockSearchString
                         ),
                 )
             }
@@ -228,13 +179,10 @@ class SelectLocationScreenTest {
                 SelectLocationScreen(
                     state =
                         SelectLocationUiState.Content(
-                            customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
-                            filteredCustomLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
-                            countries = emptyList(),
-                            selectedItem = null,
-                            selectedOwnership = null,
-                            selectedProvidersCount = 0,
-                            searchTerm = ""
+                            searchTerm = "",
+                            filterChips = emptyList(),
+                            relayListItems = listOf(RelayListItem.CustomListItem(customList)),
+                            customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS
                         ),
                     onSelectRelay = mockedOnSelectRelay
                 )
@@ -257,13 +205,11 @@ class SelectLocationScreenTest {
                 SelectLocationScreen(
                     state =
                         SelectLocationUiState.Content(
-                            customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
-                            filteredCustomLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
-                            countries = emptyList(),
-                            selectedItem = null,
-                            selectedOwnership = null,
-                            selectedProvidersCount = 0,
-                            searchTerm = ""
+                            searchTerm = "",
+                            filterChips = emptyList(),
+                            relayListItems =
+                                listOf(RelayListItem.CustomListItem(item = customList)),
+                            customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS
                         ),
                     onSelectRelay = mockedOnSelectRelay
                 )
@@ -286,13 +232,10 @@ class SelectLocationScreenTest {
                 SelectLocationScreen(
                     state =
                         SelectLocationUiState.Content(
+                            searchTerm = "",
+                            filterChips = emptyList(),
+                            relayListItems = listOf(RelayListItem.GeoLocationItem(relayItem)),
                             customLists = emptyList(),
-                            filteredCustomLists = emptyList(),
-                            countries = DUMMY_RELAY_COUNTRIES,
-                            selectedItem = null,
-                            selectedOwnership = null,
-                            selectedProvidersCount = 0,
-                            searchTerm = ""
                         ),
                     onSelectRelay = mockedOnSelectRelay
                 )

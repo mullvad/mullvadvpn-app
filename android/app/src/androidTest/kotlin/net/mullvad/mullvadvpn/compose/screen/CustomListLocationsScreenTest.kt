@@ -80,8 +80,7 @@ class CustomListLocationsScreenTest {
                 CustomListLocationsScreen(
                     state =
                         CustomListLocationsUiState.Content.Data(
-                            availableLocations = DUMMY_RELAY_COUNTRIES,
-                            selectedLocations = emptySet(),
+                            locations = emptyList(),
                             searchTerm = ""
                         ),
                 )
@@ -107,8 +106,7 @@ class CustomListLocationsScreenTest {
                     state =
                         CustomListLocationsUiState.Content.Data(
                             newList = false,
-                            availableLocations = DUMMY_RELAY_COUNTRIES,
-                            selectedLocations = setOf(selectedCountry)
+                            locations = emptyList()
                         ),
                     onRelaySelectionClick = mockedOnRelaySelectionClicked
                 )
@@ -131,7 +129,7 @@ class CustomListLocationsScreenTest {
                     state =
                         CustomListLocationsUiState.Content.Data(
                             newList = false,
-                            availableLocations = DUMMY_RELAY_COUNTRIES,
+                            locations = emptyList(),
                         ),
                     onSearchTermInput = mockedSearchTermInput
                 )
@@ -197,7 +195,7 @@ class CustomListLocationsScreenTest {
                     state =
                         CustomListLocationsUiState.Content.Data(
                             newList = false,
-                            availableLocations = DUMMY_RELAY_COUNTRIES,
+                            locations = emptyList(),
                             saveEnabled = true,
                         ),
                     onSaveClick = mockOnSaveClick
@@ -221,7 +219,7 @@ class CustomListLocationsScreenTest {
                     state =
                         CustomListLocationsUiState.Content.Data(
                             newList = false,
-                            availableLocations = DUMMY_RELAY_COUNTRIES,
+                            locations = emptyList(),
                             saveEnabled = false,
                         ),
                     onSaveClick = mockOnSaveClick
