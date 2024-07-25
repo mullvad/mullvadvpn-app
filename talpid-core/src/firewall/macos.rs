@@ -51,9 +51,9 @@ impl Firewall {
     pub fn apply_policy(&mut self, policy: FirewallPolicy) -> Result<()> {
         self.enable()?;
         self.add_anchor()?;
-        self.set_rules(policy.clone())?;
+        self.set_rules(&policy)?;
 
-        if let Err(error) = self.flush_states(policy) {
+        if let Err(error) = self.flush_states(&policy) {
             log::error!("Failed to clear PF connection states: {error}");
         }
 
@@ -67,13 +67,13 @@ impl Firewall {
     /// states conform to our desired policy.
     /// Clearing all states unfortunately seems to interrupt ephemeral key exchange on some
     /// machines. Exempting the VPN server connection prevents this.
-    fn flush_states(&mut self, policy: FirewallPolicy) -> Result<()> {
+    fn flush_states(&mut self, policy: &FirewallPolicy) -> Result<()> {
         self.pf
             .get_states()?
             .into_iter()
             .filter(|state| {
                 // If we can't parse a state for whatever reason, err on the safe side and keep it
-                Self::should_delete_state(&policy, state).unwrap_or(false)
+                Self::should_delete_state(policy, state).unwrap_or(false)
             })
             .for_each(|state| {
                 if let Err(error) = self.pf.kill_state(&state) {
@@ -129,13 +129,13 @@ impl Firewall {
             .and(self.restore_state())
     }
 
-    fn set_rules(&mut self, policy: FirewallPolicy) -> Result<()> {
+    fn set_rules(&mut self, policy: &FirewallPolicy) -> Result<()> {
         let mut new_filter_rules = vec![];
 
         new_filter_rules.append(&mut self.get_allow_loopback_rules()?);
         new_filter_rules.append(&mut self.get_allow_dhcp_client_rules()?);
         new_filter_rules.append(&mut self.get_allow_ndp_rules()?);
-        new_filter_rules.append(&mut self.get_policy_specific_rules(&policy)?);
+        new_filter_rules.append(&mut self.get_policy_specific_rules(policy)?);
 
         let return_out_rule = self
             .create_rule_builder(FilterRuleAction::Drop(DropAction::Return))
@@ -152,7 +152,7 @@ impl Firewall {
 
         let mut anchor_change = pfctl::AnchorChange::new();
         anchor_change.set_filter_rules(new_filter_rules);
-        anchor_change.set_redirect_rules(self.get_dns_redirect_rules(&policy)?);
+        anchor_change.set_redirect_rules(self.get_dns_redirect_rules(policy)?);
         self.pf.set_rules(ANCHOR_NAME, anchor_change)
     }
 
