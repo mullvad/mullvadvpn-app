@@ -78,14 +78,6 @@ class SelectLocationViewModel(
     private val _uiSideEffect = Channel<SelectLocationSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
-    fun centerOnSelected() =
-        viewModelScope.launch {
-            val selectedLocation = relayListRepository.selectedLocation.value.getOrNull()
-            if (selectedLocation != null) {
-                _uiSideEffect.send(SelectLocationSideEffect.CenterOnItem(selectedLocation))
-            }
-        }
-
     private fun initialExpand(): Set<String> = buildSet {
         val item = relayListRepository.selectedLocation.value.getOrNull()
         when (item) {
@@ -331,8 +323,8 @@ class SelectLocationViewModel(
             relayListRepository
                 .updateSelectedRelayLocation(locationConstraint)
                 .fold(
-                    { _uiSideEffect.trySend(SelectLocationSideEffect.GenericError) },
-                    { _uiSideEffect.trySend(SelectLocationSideEffect.CloseScreen) },
+                    { _uiSideEffect.send(SelectLocationSideEffect.GenericError) },
+                    { _uiSideEffect.send(SelectLocationSideEffect.CloseScreen) },
                 )
         }
     }
@@ -417,6 +409,4 @@ sealed interface SelectLocationSideEffect {
     class LocationRemovedFromCustomList(val result: LocationsChanged) : SelectLocationSideEffect
 
     data object GenericError : SelectLocationSideEffect
-
-    data class CenterOnItem(val selectedItem: RelayItemId?) : SelectLocationSideEffect
 }

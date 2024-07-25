@@ -30,7 +30,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,7 +45,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.currentStateAsState
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
@@ -95,6 +96,7 @@ import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_LOCATION_BOTTOM_SHEET
 import net.mullvad.mullvadvpn.compose.textfield.SearchTextField
 import net.mullvad.mullvadvpn.compose.transitions.SelectLocationTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.compose.util.RunOnKeyChange
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
@@ -147,7 +149,9 @@ fun SelectLocation(
     val lazyListState = rememberLazyListState()
     CollectSideEffectWithLifecycle(vm.uiSideEffect) {
         when (it) {
-            SelectLocationSideEffect.CloseScreen -> backNavigator.navigateBack(result = true)
+            SelectLocationSideEffect.CloseScreen -> {
+                backNavigator.navigateBack(result = true)
+            }
             is SelectLocationSideEffect.LocationAddedToCustomList ->
                 launch {
                     snackbarHostState.showResultSnackbar(
@@ -171,18 +175,21 @@ fun SelectLocation(
                         duration = SnackbarDuration.Short
                     )
                 }
-            is SelectLocationSideEffect.CenterOnItem -> {
-                val index = state.value.indexOfSelectedRelayItem()
-                if (index != -1) {
-                    lazyListState.scrollToItem(index)
-                    lazyListState.animateScrollAndCentralizeItem(index)
-                }
-            }
         }
     }
 
-    if (state.value is SelectLocationUiState.Content) {
-        LaunchedEffect(Unit) { vm.centerOnSelected() }
+    val stateActual = state.value
+    RunOnKeyChange(stateActual is SelectLocationUiState.Content) {
+        if (stateActual is SelectLocationUiState.Content) {
+            val index =
+                stateActual.relayListItems.indexOfFirst {
+                    it is RelayListItem.SelectableItem && it.isSelected
+                }
+            if (index != -1) {
+                lazyListState.scrollToItem(index)
+                lazyListState.animateScrollAndCentralizeItem(index)
+            }
+        }
     }
 
     createCustomListDialogResultRecipient.OnCustomListNavResult(
@@ -285,6 +292,8 @@ fun SelectLocationScreen(
             )
         }
     ) {
+        val lifecycleState = LocalLifecycleOwner.current.lifecycle.currentStateAsState()
+        Text(text = lifecycleState.value.toString())
         var bottomSheetState by remember { mutableStateOf<BottomSheetState?>(null) }
         BottomSheets(
             bottomSheetState = bottomSheetState,
