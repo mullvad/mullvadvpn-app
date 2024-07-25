@@ -1,6 +1,9 @@
 ---
 name: Bidirectional Unicode scan
 on: [pull_request, workflow_dispatch]
+
+permissions: {}
+
 jobs:
   build-linux:
     runs-on: ubuntu-latest

@@ -3,9 +3,13 @@ name: Check changelog format
 on:
   pull_request:
     paths:
+      - .github/workflows/check-changelog.yml
       - 'CHANGELOG.md'
       - 'ios/CHANGELOG.md'
       - 'android/CHANGELOG.md'
+
+permissions: {}
+
 env:
   LINE_LIMIT: 100
 jobs:
