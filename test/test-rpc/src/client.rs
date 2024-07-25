@@ -11,6 +11,7 @@ use super::*;
 const INSTALL_TIMEOUT: Duration = Duration::from_secs(300);
 const REBOOT_TIMEOUT: Duration = Duration::from_secs(30);
 const LOG_LEVEL_TIMEOUT: Duration = Duration::from_secs(60);
+const DAEMON_RESTART_TIMEOUT: Duration = Duration::from_secs(30);
 
 #[derive(Debug, Clone)]
 pub struct ServiceClient {
@@ -264,10 +265,11 @@ impl ServiceClient {
     /// blocking execution until then.
     pub async fn stop_mullvad_daemon(&self) -> Result<(), Error> {
         // TODO: Increase timeout and log how long it took (?)
-        let _ = self
-            .client
-            .stop_mullvad_daemon(tarpc::context::current())
-            .await?;
+        let mut ctx = tarpc::context::current();
+        ctx.deadline = SystemTime::now()
+            .checked_add(DAEMON_RESTART_TIMEOUT)
+            .unwrap();
+        let _ = self.client.stop_mullvad_daemon(ctx).await?;
         Ok(())
     }
 
