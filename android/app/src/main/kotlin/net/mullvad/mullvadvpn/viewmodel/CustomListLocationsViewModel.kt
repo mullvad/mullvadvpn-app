@@ -97,8 +97,9 @@ class CustomListLocationsViewModel(
                     val (exp, filteredRelayCountries) = relayCountries.newFilterOnSearch(searchTerm)
                     exp.toSet() to filteredRelayCountries
                 } else {
-                    initialExpands((_selectedLocations.value ?: emptyList()).toSet()) to
-                        relayCountries
+                    initialExpands(
+                        _selectedLocations.value?.calculateLocationsToSave() ?: emptyList()
+                    ) to relayCountries
                 }
             }
             .onEach { _expandedItems.value = it.first }
@@ -223,16 +224,16 @@ class CustomListLocationsViewModel(
     }
 
     private suspend fun fetchInitialSelectedLocations() {
-        val selectedLocations =
-            customListRelayItemsUseCase(navArgs.customListId).first().withDescendants().toSet()
+        val locations = customListRelayItemsUseCase(navArgs.customListId).first()
+        val selectedLocations = locations.withDescendants().toSet()
 
         _initialLocations.value = selectedLocations
         _selectedLocations.value = selectedLocations
         // Initial expand
-        _expandedItems.value = initialExpands(selectedLocations)
+        _expandedItems.value = initialExpands(locations)
     }
 
-    private fun initialExpands(locations: Set<RelayItem.Location>): Set<RelayItemId> =
+    private fun initialExpands(locations: List<RelayItem.Location>): Set<RelayItemId> =
         locations.flatMap { it.id.ancestors() }.toSet()
 
     private fun List<RelayItem.Location>.toRelayItems(
