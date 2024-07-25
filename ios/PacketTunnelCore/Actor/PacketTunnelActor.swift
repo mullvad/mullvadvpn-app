@@ -138,8 +138,15 @@ public actor PacketTunnelActor {
 
         case let .cacheActiveKey(lastKeyRotation):
             cacheActiveKey(lastKeyRotation: lastKeyRotation)
-        case let .postQuantumConnect(key, privateKey: privateKey):
-            await postQuantumConnect(with: key, privateKey: privateKey)
+        case let .reconfigureForPostQuantum(configuration):
+            do {
+                try await replacePostQuantumConfiguration(configuration)
+            } catch {
+                logger.error(error: error, message: "Failed to reconfigure tunnel after each hop negotiation.")
+                await setErrorStateInternal(with: error)
+            }
+        case .postQuantumConnect:
+            await postQuantumConnect()
         case .setDisconnectedState:
             self.state = .disconnected
         }

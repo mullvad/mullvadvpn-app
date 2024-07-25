@@ -20,20 +20,7 @@ extension PacketTunnelActor {
         reason: ActorReconnectReason
     ) async throws {
         if let connectionState = try obfuscateConnection(nextRelays: nextRelays, settings: settings, reason: reason) {
-            let selectedEndpoint = connectionState.connectedEndpoint
             let activeKey = activeKey(from: connectionState, in: settings)
-
-            let configurationBuilder = ConfigurationBuilder(
-                privateKey: activeKey,
-                interfaceAddresses: settings.interfaceAddresses,
-                dns: settings.dnsServers,
-                endpoint: selectedEndpoint,
-                allowedIPs: [
-                    IPAddressRange(from: "10.64.0.1/32")!,
-                ]
-            )
-
-            try await tunnelAdapter.start(configuration: configurationBuilder.makeConfiguration())
             state = .negotiatingPostQuantumKey(connectionState, activeKey)
         }
     }
@@ -41,44 +28,75 @@ extension PacketTunnelActor {
     /**
      Called on receipt of the new PQ-negotiated key, to reconnect to the relay, in PQ-secure mode.
      */
-    internal func postQuantumConnect(with key: PreSharedKey, privateKey: PrivateKey) async {
-        guard
-            // It is important to select the same relay that was saved in the connection state as the key negotiation happened with this specific relay.
-            let selectedRelays = state.connectionData?.selectedRelays,
-            let settings: Settings = try? settingsReader.read(),
-            let connectionState = try? obfuscateConnection(
-                nextRelays: .preSelected(selectedRelays),
-                settings: settings,
-                reason: .userInitiated
-            )
+    internal func postQuantumConnect() async {
+        guard let connectionData = state.connectionData
         else {
             logger.error("Could not create connection state in PostQuantumConnect")
-
-            let nextRelays: NextRelays = (state.connectionData?.selectedRelays).map { .preSelected($0) } ?? .current
-            eventChannel.send(.reconnect(nextRelays))
+            eventChannel.send(.reconnect(.current))
             return
         }
 
-        let configurationBuilder = ConfigurationBuilder(
-            privateKey: privateKey,
-            interfaceAddresses: settings.interfaceAddresses,
-            dns: settings.dnsServers,
-            endpoint: connectionState.connectedEndpoint,
-            allowedIPs: [
-                IPAddressRange(from: "0.0.0.0/0")!,
-                IPAddressRange(from: "::/0")!,
-            ],
-            preSharedKey: key
-        )
         stopDefaultPathObserver()
 
-        state = .connecting(connectionState)
+        state = .connecting(connectionData)
 
-        try? await tunnelAdapter.start(configuration: configurationBuilder.makeConfiguration())
-        // Resume tunnel monitoring and use exit IPv4 gateway as a probe address.
-        tunnelMonitor.start(probeAddress: connectionState.selectedRelays.exit.endpoint.ipv4Gateway)
+        // Resume tunnel monitoring and use IPv4 gateway as a probe address.
+        tunnelMonitor.start(probeAddress: connectionData.selectedRelays.exit.endpoint.ipv4Gateway)
         // Restart default path observer and notify the observer with the current path that might have changed while
         // path observer was paused.
         startDefaultPathObserver(notifyObserverWithCurrentPath: false)
+    }
+
+    /**
+     Called to reconfigure the tunnel after each key negotiation.
+     */
+    internal func replacePostQuantumConfiguration(_ negotiationState: PostQuantumNegotiationState) async throws {
+        /**
+         The obfuscater needs to be restarted every time a new tunnel configuration is being used,
+         because the obfuscation may be tied to a specific UDP session, as is the case for udp2tcp.
+         */
+        let settings: Settings = try settingsReader.read()
+        let connectionData = try obfuscateConnection(
+            nextRelays: .current,
+            settings: settings,
+            reason: .userInitiated
+        )
+
+        switch negotiationState {
+        case let .single(hop):
+            let exitConfiguration = try ConfigurationBuilder(
+                privateKey: hop.configuration.privateKey,
+                interfaceAddresses: settings.interfaceAddresses,
+                dns: settings.dnsServers,
+                endpoint: connectionData!.connectedEndpoint,
+                allowedIPs: hop.configuration.allowedIPs,
+                preSharedKey: hop.configuration.preSharedKey
+            ).makeConfiguration()
+
+            try await tunnelAdapter.start(configuration: exitConfiguration)
+
+        case let .multi(firstHop, secondHop):
+            let entryConfiguration = try ConfigurationBuilder(
+                privateKey: firstHop.configuration.privateKey,
+                interfaceAddresses: settings.interfaceAddresses,
+                dns: settings.dnsServers,
+                endpoint: connectionData!.connectedEndpoint,
+                allowedIPs: firstHop.configuration.allowedIPs,
+                preSharedKey: firstHop.configuration.preSharedKey
+            ).makeConfiguration()
+
+            let exitConfiguration = try ConfigurationBuilder(
+                privateKey: secondHop.configuration.privateKey,
+                interfaceAddresses: settings.interfaceAddresses,
+                dns: settings.dnsServers,
+                endpoint: secondHop.relay.endpoint,
+                allowedIPs: secondHop.configuration.allowedIPs,
+                preSharedKey: secondHop.configuration.preSharedKey
+            ).makeConfiguration()
+
+            try await tunnelAdapter.startMultihop(
+                entryConfiguration: entryConfiguration, exitConfiguration: exitConfiguration
+            )
+        }
     }
 }
