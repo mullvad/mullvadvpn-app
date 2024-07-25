@@ -79,6 +79,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             ipOverrideRepository: ipOverrideRepository
         )
 
+        let constraintsUpdater = RelayConstraintsUpdater()
+        let multihopListener = MultihopStateListener()
+        let multihopUpdater = MultihopUpdater(listener: multihopListener)
+
         relayCacheTracker = RelayCacheTracker(
             relayCache: ipOverrideWrapper,
             application: application,
@@ -86,11 +90,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         )
 
         addressCacheTracker = AddressCacheTracker(application: application, apiProxy: apiProxy, store: addressCache)
-        tunnelStore = TunnelStore(application: application)
 
-        let constraintsUpdater = RelayConstraintsUpdater()
-        let multihopListener = MultihopStateListener()
-        let multihopUpdater = MultihopUpdater(listener: multihopListener)
+        tunnelStore = TunnelStore(application: application)
 
         let relaySelector = RelaySelectorWrapper(
             relayCache: ipOverrideWrapper,

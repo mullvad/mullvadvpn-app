@@ -37,7 +37,7 @@ struct OneToOne: MultihopDecisionFlow {
 
         let entryMatch = try relayPicker.findBestMatch(from: entryCandidates)
         let exitMatch = try relayPicker.findBestMatch(from: exitCandidates)
-        return SelectedRelays(entry: entryMatch, exit: exitMatch)
+        return SelectedRelays(entry: entryMatch, exit: exitMatch, retryAttempt: relayPicker.connectionAttemptCount)
     }
 
     func canHandle(entryCandidates: [RelayCandidate], exitCandidates: [RelayCandidate]) -> Bool {
@@ -70,11 +70,11 @@ struct OneToMany: MultihopDecisionFlow {
         case let (1, count) where count > 1:
             let entryMatch = try multihopPicker.findBestMatch(from: entryCandidates)
             let exitMatch = try multihopPicker.exclude(relay: entryMatch, from: exitCandidates)
-            return SelectedRelays(entry: entryMatch, exit: exitMatch)
+            return SelectedRelays(entry: entryMatch, exit: exitMatch, retryAttempt: relayPicker.connectionAttemptCount)
         default:
             let exitMatch = try multihopPicker.findBestMatch(from: exitCandidates)
             let entryMatch = try multihopPicker.exclude(relay: exitMatch, from: entryCandidates)
-            return SelectedRelays(entry: entryMatch, exit: exitMatch)
+            return SelectedRelays(entry: entryMatch, exit: exitMatch, retryAttempt: relayPicker.connectionAttemptCount)
         }
     }
 
@@ -107,7 +107,7 @@ struct ManyToMany: MultihopDecisionFlow {
 
         let exitMatch = try multihopPicker.findBestMatch(from: exitCandidates)
         let entryMatch = try multihopPicker.exclude(relay: exitMatch, from: entryCandidates)
-        return SelectedRelays(entry: entryMatch, exit: exitMatch)
+        return SelectedRelays(entry: entryMatch, exit: exitMatch, retryAttempt: relayPicker.connectionAttemptCount)
     }
 
     func canHandle(entryCandidates: [RelayCandidate], exitCandidates: [RelayCandidate]) -> Bool {

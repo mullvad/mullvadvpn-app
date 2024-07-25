@@ -141,12 +141,12 @@ extension State {
         }
 
         /// The actual endpoint fed to WireGuard, can be a local endpoint if obfuscation is used.
-        public let connectedEndpoint: MullvadEndpoint
+        public var connectedEndpoint: MullvadEndpoint
         /// Via which transport protocol was the connection made to the relay
         public let transportLayer: TransportLayer
 
         /// The remote port that was chosen to connect to `connectedEndpoint`
-        public let remotePort: UInt16
+        public var remotePort: UInt16
 
         /// True if post-quantum key exchange is enabled
         public let isPostQuantum: Bool

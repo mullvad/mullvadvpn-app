@@ -177,7 +177,8 @@ final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
                     networkReachability: .reachable,
                     connectionAttemptCount: 0,
                     transportLayer: .udp,
-                    remotePort: selectedRelays.exit.endpoint.ipv4Relay.port, // TODO: Multihop
+                    remotePort: selectedRelays.entry?.endpoint.ipv4Relay.port ?? selectedRelays.exit.endpoint.ipv4Relay
+                        .port,
                     isPostQuantum: settings.tunnelQuantumResistance.isEnabled
                 )
             )

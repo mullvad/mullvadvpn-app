@@ -43,12 +43,13 @@ extension RelaySelectorStub {
                     cityCode: "got",
                     latitude: 0,
                     longitude: 0
-                ), retryAttempts: 0
+                )
             )
 
             return SelectedRelays(
                 entry: cityRelay,
-                exit: cityRelay
+                exit: cityRelay,
+                retryAttempt: 0
             )
         }
     }
