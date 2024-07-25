@@ -436,11 +436,11 @@ fun LazyItemScope.RelayLocationItem(
     StatusRelayItemCell(
         location,
         relayItem.isSelected,
-        { onSelectRelay() },
-        { onLongClick() },
-        { onExpand(it) },
-        relayItem.expanded,
-        relayItem.depth
+        onClick = { onSelectRelay() },
+        onLongClick = { onLongClick() },
+        onToggleExpand = { onExpand(it) },
+        isExpanded = relayItem.expanded,
+        depth = relayItem.depth
     )
 }
 
@@ -455,11 +455,10 @@ fun LazyItemScope.CustomListItem(
     StatusRelayItemCell(
         customListItem,
         itemState.isSelected,
-        { onSelectRelay(customListItem) },
-        { onShowEditBottomSheet(customListItem) },
-        { onExpand(customListItem.id, it) },
-        itemState.expanded,
-        0
+        onClick = { onSelectRelay(customListItem) },
+        onLongClick = { onShowEditBottomSheet(customListItem) },
+        onToggleExpand = { onExpand(customListItem.id, it) },
+        isExpanded = itemState.expanded
     )
 }
 
@@ -474,11 +473,11 @@ fun LazyItemScope.CustomListEntryItem(
     StatusRelayItemCell(
         customListEntryItem,
         false,
-        onSelectRelay,
-        onShowEditCustomListEntryBottomSheet,
-        onToggleExpand,
-        itemState.expanded,
-        itemState.depth
+        onClick = onSelectRelay,
+        onLongClick = onShowEditCustomListEntryBottomSheet,
+        onToggleExpand = onToggleExpand,
+        isExpanded = itemState.expanded,
+        depth = itemState.depth
     )
 }
 
