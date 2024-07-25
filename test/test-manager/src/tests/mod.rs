@@ -80,7 +80,8 @@ pub async fn cleanup_after_test(
     rpc_provider: &RpcClientProvider,
 ) -> anyhow::Result<()> {
     log::debug!("Cleaning up daemon in test cleanup");
-    // Check if daemon should be restarted
+    // Check if daemon should be restarted.
+    // TODO: The deamon needs to be up and running after this line.
     restart_daemon(rpc).await?;
     let mut mullvad_client = rpc_provider.new_client().await;
 

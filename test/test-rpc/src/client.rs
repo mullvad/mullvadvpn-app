@@ -263,6 +263,7 @@ impl ServiceClient {
     /// This function will return *after* the app has been stopped, thus
     /// blocking execution until then.
     pub async fn stop_mullvad_daemon(&self) -> Result<(), Error> {
+        // TODO: Increase timeout and log how long it took (?)
         let _ = self
             .client
             .stop_mullvad_daemon(tarpc::context::current())
