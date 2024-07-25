@@ -1,7 +1,6 @@
 package net.mullvad.mullvadvpn.compose.screen
 
 import android.content.Context
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,8 +8,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
@@ -54,7 +55,6 @@ import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
-import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.viewmodel.CustomListLocationsSideEffect
@@ -64,7 +64,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 @Preview
 private fun PreviewCustomListLocationScreen() {
-    AppTheme { CustomListLocationsScreen(state = CustomListLocationsUiState.Content.Data()) }
+    //    AppTheme { CustomListLocationsScreen(state = CustomListLocationsUiState.Content.Data()) }
 }
 
 data class CustomListLocationsNavArgs(
@@ -119,6 +119,7 @@ fun CustomListLocations(
         onSearchTermInput = customListsViewModel::onSearchTermInput,
         onSaveClick = customListsViewModel::save,
         onRelaySelectionClick = customListsViewModel::onRelaySelectionClick,
+        onExpand = customListsViewModel::onExpand,
         onBackClick =
             dropUnlessResumed {
                 if (state.hasUnsavedChanges) {
@@ -137,6 +138,7 @@ fun CustomListLocationsScreen(
     onSearchTermInput: (String) -> Unit = {},
     onSaveClick: () -> Unit = {},
     onRelaySelectionClick: (RelayItem.Location, selected: Boolean) -> Unit = { _, _ -> },
+    onExpand: (RelayItem.Location, selected: Boolean) -> Unit = { _, _ -> },
     onBackClick: () -> Unit = {}
 ) {
     ScaffoldWithSmallTopBar(
@@ -184,7 +186,11 @@ fun CustomListLocationsScreen(
                         empty(searchTerm = state.searchTerm)
                     }
                     is CustomListLocationsUiState.Content.Data -> {
-                        content(uiState = state, onRelaySelectedChanged = onRelaySelectionClick)
+                        content(
+                            uiState = state,
+                            onRelaySelectedChanged = onRelaySelectionClick,
+                            onExpand = onExpand
+                        )
                     }
                 }
             }
@@ -224,21 +230,27 @@ private fun LazyListScope.empty(searchTerm: String) {
 
 private fun LazyListScope.content(
     uiState: CustomListLocationsUiState.Content.Data,
+    onExpand: (RelayItem.Location, expand: Boolean) -> Unit,
     onRelaySelectedChanged: (RelayItem.Location, selected: Boolean) -> Unit,
 ) {
-    items(
-        count = uiState.availableLocations.size,
-        key = { index -> uiState.availableLocations[index].hashCode() },
-        contentType = { ContentType.ITEM },
-    ) { index ->
-        val country = uiState.availableLocations[index]
-        CheckableRelayLocationCell(
-            relay = country,
-            modifier = Modifier.animateContentSize(),
-            onRelayCheckedChange = { item, isChecked ->
-                onRelaySelectedChanged(item as RelayItem.Location, isChecked)
-            },
-            selectedRelays = uiState.selectedLocations,
-        )
+    itemsIndexed(
+        uiState.locations,
+        key = { index, listItem -> listItem.item.id },
+    ) { index, listItem ->
+        Column(modifier = Modifier.animateItem()) {
+            if (index != 0) {
+                HorizontalDivider()
+            }
+            CheckableRelayLocationCell(
+                item = listItem.item,
+                onRelayCheckedChange = { isChecked ->
+                    onRelaySelectedChanged(listItem.item, isChecked)
+                },
+                checked = listItem.checked,
+                depth = listItem.depth,
+                onExpand = { expand -> onExpand(listItem.item, expand) },
+                expanded = listItem.expanded,
+            )
+        }
     }
 }

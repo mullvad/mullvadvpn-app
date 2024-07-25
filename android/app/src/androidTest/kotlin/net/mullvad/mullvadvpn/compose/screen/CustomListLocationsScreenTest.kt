@@ -12,6 +12,7 @@ import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.data.DUMMY_RELAY_COUNTRIES
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsUiState
+import net.mullvad.mullvadvpn.compose.state.RelayLocationListItem
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.test.SAVE_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.model.RelayItem
@@ -80,8 +81,14 @@ class CustomListLocationsScreenTest {
                 CustomListLocationsScreen(
                     state =
                         CustomListLocationsUiState.Content.Data(
-                            availableLocations = DUMMY_RELAY_COUNTRIES,
-                            selectedLocations = emptySet(),
+                            locations =
+                                listOf(
+                                    RelayLocationListItem(DUMMY_RELAY_COUNTRIES[0], checked = true),
+                                    RelayLocationListItem(
+                                        DUMMY_RELAY_COUNTRIES[1],
+                                        checked = false
+                                    ),
+                                ),
                             searchTerm = ""
                         ),
                 )
@@ -89,11 +96,7 @@ class CustomListLocationsScreenTest {
 
             // Assert
             onNodeWithText("Relay Country 1").assertExists()
-            onNodeWithText("Relay City 1").assertDoesNotExist()
-            onNodeWithText("Relay host 1").assertDoesNotExist()
             onNodeWithText("Relay Country 2").assertExists()
-            onNodeWithText("Relay City 2").assertDoesNotExist()
-            onNodeWithText("Relay host 2").assertDoesNotExist()
         }
 
     @Test
@@ -107,8 +110,8 @@ class CustomListLocationsScreenTest {
                     state =
                         CustomListLocationsUiState.Content.Data(
                             newList = false,
-                            availableLocations = DUMMY_RELAY_COUNTRIES,
-                            selectedLocations = setOf(selectedCountry)
+                            locations =
+                                listOf(RelayLocationListItem(selectedCountry, checked = true))
                         ),
                     onRelaySelectionClick = mockedOnRelaySelectionClicked
                 )
@@ -131,7 +134,7 @@ class CustomListLocationsScreenTest {
                     state =
                         CustomListLocationsUiState.Content.Data(
                             newList = false,
-                            availableLocations = DUMMY_RELAY_COUNTRIES,
+                            locations = emptyList(),
                         ),
                     onSearchTermInput = mockedSearchTermInput
                 )
@@ -197,7 +200,7 @@ class CustomListLocationsScreenTest {
                     state =
                         CustomListLocationsUiState.Content.Data(
                             newList = false,
-                            availableLocations = DUMMY_RELAY_COUNTRIES,
+                            locations = emptyList(),
                             saveEnabled = true,
                         ),
                     onSaveClick = mockOnSaveClick
@@ -221,7 +224,7 @@ class CustomListLocationsScreenTest {
                     state =
                         CustomListLocationsUiState.Content.Data(
                             newList = false,
-                            availableLocations = DUMMY_RELAY_COUNTRIES,
+                            locations = emptyList(),
                             saveEnabled = false,
                         ),
                     onSaveClick = mockOnSaveClick

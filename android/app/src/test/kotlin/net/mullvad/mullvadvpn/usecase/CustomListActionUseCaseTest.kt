@@ -71,7 +71,6 @@ class CustomListActionUseCaseTest {
                 RelayItem.Location.Country(
                     id = locationId,
                     name = locationName,
-                    expanded = false,
                     cities = emptyList()
                 )
             )
@@ -151,7 +150,7 @@ class CustomListActionUseCaseTest {
         val action = CustomListAction.Delete(id = customListId)
         val expectedResult =
             Deleted(undo = action.not(name = name, locations = listOf(location))).right()
-        every { mockLocation.countryCode } returns location.countryCode
+        every { mockLocation.code } returns location.code
         coEvery { mockCustomListsRepository.deleteCustomList(id = customListId) } returns
             Unit.right()
         coEvery { mockCustomListsRepository.getCustomListById(customListId) } returns

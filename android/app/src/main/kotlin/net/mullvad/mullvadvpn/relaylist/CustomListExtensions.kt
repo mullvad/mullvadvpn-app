@@ -8,9 +8,7 @@ fun CustomList.toRelayItemCustomList(
     relayCountries: List<RelayItem.Location.Country>
 ): RelayItem.CustomList =
     RelayItem.CustomList(
-        id = id,
-        customListName = name,
-        expanded = false,
+        customList = this,
         locations = locations.mapNotNull { relayCountries.findByGeoLocationId(it) },
     )
 

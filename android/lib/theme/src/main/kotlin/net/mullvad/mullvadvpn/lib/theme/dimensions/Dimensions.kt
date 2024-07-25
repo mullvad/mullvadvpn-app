@@ -18,7 +18,7 @@ data class Dimensions(
     val cellHeight: Dp = 56.dp,
     val cellHeightTwoRows: Dp = 72.dp,
     val cellLabelVerticalPadding: Dp = 14.dp,
-    val cellStartPadding: Dp = 22.dp,
+    val cellStartPadding: Dp = 14.dp,
     val cellStartPaddingInteractive: Dp = 14.dp,
     val cellTopPadding: Dp = 6.dp,
     val cellVerticalSpacing: Dp = 14.dp,
@@ -41,7 +41,7 @@ data class Dimensions(
     val dropdownMenuVerticalPadding: Dp = 8.dp, // Used to remove padding from dropdown menu
     val dropdownMenuBorder: Dp = 1.dp,
     val expandableCellChevronSize: Dp = 30.dp,
-    val filterTittlePadding: Dp = 4.dp,
+    val filterTitlePadding: Dp = 4.dp,
     val formTextFieldMinHeight: Dp = 72.dp,
     val iconFailSuccessTopMargin: Dp = 30.dp,
     val iconHeight: Dp = 44.dp,

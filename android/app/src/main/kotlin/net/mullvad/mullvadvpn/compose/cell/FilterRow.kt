@@ -1,11 +1,10 @@
 package net.mullvad.mullvadvpn.compose.cell
 
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -16,6 +15,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.MullvadFilterChip
+import net.mullvad.mullvadvpn.compose.state.FilterChip
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -24,21 +24,19 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 @Composable
 private fun PreviewFilterCell() {
     AppTheme {
-        FilterCell(
-            ownershipFilter = Ownership.MullvadOwned,
-            selectedProviderFilter = 3,
-            removeOwnershipFilter = {},
-            removeProviderFilter = {}
+        FilterRow(
+            listOf(FilterChip.Ownership(Ownership.MullvadOwned), FilterChip.Provider(2)),
+            {},
+            {}
         )
     }
 }
 
 @Composable
-fun FilterCell(
-    ownershipFilter: Ownership?,
-    selectedProviderFilter: Int?,
-    removeOwnershipFilter: () -> Unit,
-    removeProviderFilter: () -> Unit
+fun FilterRow(
+    filters: List<FilterChip>,
+    onRemoveOwnershipFilter: () -> Unit,
+    onRemoveProviderFilter: () -> Unit
 ) {
     val scrollState = rememberScrollState()
     Row(
@@ -49,29 +47,37 @@ fun FilterCell(
                     horizontal = Dimens.searchFieldHorizontalPadding,
                 )
                 .fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(Dimens.chipSpace)
     ) {
         Text(
-            modifier = Modifier.padding(end = Dimens.filterTittlePadding),
             text = stringResource(id = R.string.filtered),
             color = MaterialTheme.colorScheme.onPrimary,
             style = MaterialTheme.typography.labelMedium
         )
-
-        if (selectedProviderFilter != null) {
-            MullvadFilterChip(
-                text = stringResource(id = R.string.number_of_providers, selectedProviderFilter),
-                onRemoveClick = removeProviderFilter
-            )
-            Spacer(modifier = Modifier.size(Dimens.chipSpace))
-        }
-
-        if (ownershipFilter != null) {
-            MullvadFilterChip(
-                text = stringResource(ownershipFilter.stringResources()),
-                onRemoveClick = removeOwnershipFilter
-            )
+        filters.forEach {
+            when (it) {
+                is FilterChip.Ownership ->
+                    OwnershipFilterChip(it.ownership, onRemoveOwnershipFilter)
+                is FilterChip.Provider -> ProviderFilterChip(it.count, onRemoveProviderFilter)
+            }
         }
     }
+}
+
+@Composable
+fun ProviderFilterChip(providers: Int, onRemoveClick: () -> Unit) {
+    MullvadFilterChip(
+        text = stringResource(id = R.string.number_of_providers, providers),
+        onRemoveClick = onRemoveClick
+    )
+}
+
+@Composable
+fun OwnershipFilterChip(ownership: Ownership, onRemoveClick: () -> Unit) {
+    MullvadFilterChip(
+        text = stringResource(ownership.stringResources()),
+        onRemoveClick = onRemoveClick
+    )
 }
 
 private fun Ownership.stringResources(): Int =

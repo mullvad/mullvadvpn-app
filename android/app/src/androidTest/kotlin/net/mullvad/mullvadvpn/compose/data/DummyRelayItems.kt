@@ -40,29 +40,25 @@ private val DUMMY_RELAY_2 =
 private val DUMMY_RELAY_CITY_1 =
     RelayItem.Location.City(
         name = "Relay City 1",
-        id = GeoLocationId.City(countryCode = GeoLocationId.Country("RCo1"), cityCode = "RCi1"),
+        id = GeoLocationId.City(country = GeoLocationId.Country("RCo1"), code = "RCi1"),
         relays = listOf(DUMMY_RELAY_1),
-        expanded = false
     )
 private val DUMMY_RELAY_CITY_2 =
     RelayItem.Location.City(
         name = "Relay City 2",
-        id = GeoLocationId.City(countryCode = GeoLocationId.Country("RCo2"), cityCode = "RCi2"),
+        id = GeoLocationId.City(country = GeoLocationId.Country("RCo2"), code = "RCi2"),
         relays = listOf(DUMMY_RELAY_2),
-        expanded = false
     )
 private val DUMMY_RELAY_COUNTRY_1 =
     RelayItem.Location.Country(
         name = "Relay Country 1",
         id = GeoLocationId.Country("RCo1"),
-        expanded = false,
         cities = listOf(DUMMY_RELAY_CITY_1)
     )
 private val DUMMY_RELAY_COUNTRY_2 =
     RelayItem.Location.Country(
         name = "Relay Country 2",
         id = GeoLocationId.Country("RCo2"),
-        expanded = false,
         cities = listOf(DUMMY_RELAY_CITY_2)
     )
 
@@ -80,15 +76,21 @@ val DUMMY_RELAY_LIST =
 val DUMMY_RELAY_ITEM_CUSTOM_LISTS =
     listOf(
         RelayItem.CustomList(
-            customListName = CustomListName.fromString("First list"),
-            expanded = false,
-            id = CustomListId("1"),
+            customList =
+                CustomList(
+                    name = CustomListName.fromString("First list"),
+                    id = CustomListId("1"),
+                    locations = emptyList()
+                ),
             locations = DUMMY_RELAY_COUNTRIES
         ),
         RelayItem.CustomList(
-            customListName = CustomListName.fromString("Empty list"),
-            expanded = false,
-            id = CustomListId("2"),
+            customList =
+                CustomList(
+                    name = CustomListName.fromString("Empty list"),
+                    id = CustomListId("2"),
+                    locations = emptyList()
+                ),
             locations = emptyList()
         )
     )
