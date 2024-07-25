@@ -13,7 +13,9 @@ import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.LocationsChanged
 import net.mullvad.mullvadvpn.compose.screen.CustomListLocationsNavArgs
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsUiState
+import net.mullvad.mullvadvpn.compose.state.RelayLocationListItem
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
+import net.mullvad.mullvadvpn.lib.common.test.assertLists
 import net.mullvad.mullvadvpn.lib.model.CustomList
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
@@ -23,6 +25,7 @@ import net.mullvad.mullvadvpn.lib.model.Provider
 import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.relaylist.descendants
+import net.mullvad.mullvadvpn.relaylist.withDescendants
 import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListRelayItemsUseCase
@@ -66,15 +69,20 @@ class CustomListLocationsViewModelTest {
     fun `when selected locations is not null and relay countries is not empty should return ui state content`() =
         runTest {
             // Arrange
-            val expectedList = DUMMY_COUNTRIES
+            val expectedList =
+                DUMMY_COUNTRIES.map {
+                    RelayLocationListItem(
+                        item = it,
+                        depth = it.toDepth(),
+                        checked = false,
+                        expanded = false
+                    )
+                }
             val customListId = CustomListId("id")
             val expectedState =
-                CustomListLocationsUiState.Content.Data(
-                    newList = true,
-                    availableLocations = expectedList
-                )
+                CustomListLocationsUiState.Content.Data(newList = true, locations = expectedList)
             val viewModel = createViewModel(customListId, true)
-            relayListFlow.value = expectedList
+            relayListFlow.value = DUMMY_COUNTRIES
 
             // Act, Assert
             viewModel.uiState.test { assertEquals(expectedState, awaitItem()) }
@@ -85,8 +93,8 @@ class CustomListLocationsViewModelTest {
         // Arrange
         val expectedList = DUMMY_COUNTRIES
         val customListId = CustomListId("id")
-        val expectedSelection =
-            (DUMMY_COUNTRIES + DUMMY_COUNTRIES.flatMap { it.descendants() }).toSet()
+        val expectedSelection = (DUMMY_COUNTRIES.take(1).withDescendants()).map { it.id }
+
         val viewModel = createViewModel(customListId, true)
         relayListFlow.value = expectedList
 
@@ -95,12 +103,19 @@ class CustomListLocationsViewModelTest {
             // Check no selected
             val firstState = awaitItem()
             assertIs<CustomListLocationsUiState.Content.Data>(firstState)
-            assertEquals(emptySet<RelayItem>(), firstState.selectedLocations)
+            assertEquals(emptyList<RelayItem>(), firstState.selectedLocations())
+            // Expand country
+            viewModel.onExpand(DUMMY_COUNTRIES[0], true)
+            awaitItem()
+            // Expand city
+            viewModel.onExpand(DUMMY_COUNTRIES[0].cities[0], expand = true)
+            awaitItem()
+            // Select country
             viewModel.onRelaySelectionClick(DUMMY_COUNTRIES[0], true)
             // Check all items selected
             val secondState = awaitItem()
             assertIs<CustomListLocationsUiState.Content.Data>(secondState)
-            assertEquals(expectedSelection, secondState.selectedLocations)
+            assertLists(expectedSelection, secondState.selectedLocations())
         }
     }
 
@@ -108,25 +123,29 @@ class CustomListLocationsViewModelTest {
     fun `when deselecting child should deselect parent`() = runTest {
         // Arrange
         val expectedList = DUMMY_COUNTRIES
-        val initialSelection =
-            (DUMMY_COUNTRIES + DUMMY_COUNTRIES.flatMap { it.descendants() }).toSet()
+        val initialSelection = DUMMY_COUNTRIES.withDescendants()
+        val initialSelectionIds = initialSelection.map { it.id }
         val customListId = CustomListId("id")
-        val expectedSelection = emptySet<RelayItem>()
+        val expectedSelection = emptyList<RelayItem>()
         relayListFlow.value = expectedList
-        selectedLocationsFlow.value = initialSelection.toList()
+        selectedLocationsFlow.value = initialSelection
         val viewModel = createViewModel(customListId, true)
 
         // Act, Assert
         viewModel.uiState.test {
+            // Expand country
+            viewModel.onExpand(DUMMY_COUNTRIES[0], true)
+            // Expand city
+            viewModel.onExpand(DUMMY_COUNTRIES[0].cities[0], true)
             // Check initial selected
             val firstState = awaitItem()
             assertIs<CustomListLocationsUiState.Content.Data>(firstState)
-            assertEquals(initialSelection, firstState.selectedLocations)
+            assertEquals(initialSelectionIds, firstState.selectedLocations())
             viewModel.onRelaySelectionClick(DUMMY_COUNTRIES[0].cities[0].relays[0], false)
             // Check all items selected
             val secondState = awaitItem()
             assertIs<CustomListLocationsUiState.Content.Data>(secondState)
-            assertEquals(expectedSelection, secondState.selectedLocations)
+            assertEquals(expectedSelection, secondState.selectedLocations())
         }
     }
 
@@ -136,23 +155,28 @@ class CustomListLocationsViewModelTest {
         val expectedList = DUMMY_COUNTRIES
         val initialSelection =
             (DUMMY_COUNTRIES + DUMMY_COUNTRIES.flatMap { it.descendants() }).toSet()
+        val initialSelectionIds = initialSelection.map { it.id }
         val customListId = CustomListId("id")
-        val expectedSelection = emptySet<RelayItem>()
+        val expectedSelection = emptyList<RelayItem>()
         relayListFlow.value = expectedList
         selectedLocationsFlow.value = initialSelection.toList()
         val viewModel = createViewModel(customListId, true)
 
         // Act, Assert
         viewModel.uiState.test {
+            // Expand country
+            viewModel.onExpand(DUMMY_COUNTRIES[0], true)
+            // Expand city
+            viewModel.onExpand(DUMMY_COUNTRIES[0].cities[0], true)
             // Check initial selected
             val firstState = awaitItem()
             assertIs<CustomListLocationsUiState.Content.Data>(firstState)
-            assertEquals(initialSelection, firstState.selectedLocations)
+            assertEquals(initialSelectionIds, firstState.selectedLocations())
             viewModel.onRelaySelectionClick(DUMMY_COUNTRIES[0], false)
             // Check all items selected
             val secondState = awaitItem()
             assertIs<CustomListLocationsUiState.Content.Data>(secondState)
-            assertEquals(expectedSelection, secondState.selectedLocations)
+            assertEquals(expectedSelection, secondState.selectedLocations())
         }
     }
 
@@ -161,21 +185,27 @@ class CustomListLocationsViewModelTest {
         // Arrange
         val expectedList = DUMMY_COUNTRIES
         val customListId = CustomListId("id")
-        val expectedSelection = DUMMY_COUNTRIES[0].cities[0].relays.toSet()
+        val expectedSelection = DUMMY_COUNTRIES[0].cities[0].relays.map { it.id }
         val viewModel = createViewModel(customListId, true)
         relayListFlow.value = expectedList
 
         // Act, Assert
         viewModel.uiState.test {
+            awaitItem() // Initial item
+            // Expand country
+            viewModel.onExpand(DUMMY_COUNTRIES[0], true)
+            awaitItem()
+            // Expand city
+            viewModel.onExpand(DUMMY_COUNTRIES[0].cities[0], true)
             // Check no selected
             val firstState = awaitItem()
             assertIs<CustomListLocationsUiState.Content.Data>(firstState)
-            assertEquals(emptySet<RelayItem>(), firstState.selectedLocations)
+            assertEquals(emptyList<RelayItem>(), firstState.selectedLocations())
             viewModel.onRelaySelectionClick(DUMMY_COUNTRIES[0].cities[0].relays[0], true)
             // Check all items selected
             val secondState = awaitItem()
             assertIs<CustomListLocationsUiState.Content.Data>(secondState)
-            assertEquals(expectedSelection, secondState.selectedLocations)
+            assertEquals(expectedSelection, secondState.selectedLocations())
         }
     }
 
@@ -235,18 +265,26 @@ class CustomListLocationsViewModelTest {
         )
     }
 
+    private fun CustomListLocationsUiState.Content.Data.selectedLocations() =
+        this.locations.filter { it.checked }.map { it.item.id }
+
+    private fun RelayItem.Location.toDepth() =
+        when (this) {
+            is RelayItem.Location.Country -> 0
+            is RelayItem.Location.City -> 1
+            is RelayItem.Location.Relay -> 2
+        }
+
     companion object {
         private val DUMMY_COUNTRIES =
             listOf(
                 RelayItem.Location.Country(
                     name = "Sweden",
                     id = GeoLocationId.Country("SE"),
-                    expanded = false,
                     cities =
                         listOf(
                             RelayItem.Location.City(
                                 name = "Gothenburg",
-                                expanded = false,
                                 id = GeoLocationId.City(GeoLocationId.Country("SE"), "GBG"),
                                 relays =
                                     listOf(
