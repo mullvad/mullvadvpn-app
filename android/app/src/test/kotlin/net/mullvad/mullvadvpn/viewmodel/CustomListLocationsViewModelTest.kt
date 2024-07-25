@@ -133,8 +133,10 @@ class CustomListLocationsViewModelTest {
 
         // Act, Assert
         viewModel.uiState.test {
+            awaitItem()
             // Expand country
             viewModel.onExpand(DUMMY_COUNTRIES[0], true)
+            awaitItem()
             // Expand city
             viewModel.onExpand(DUMMY_COUNTRIES[0].cities[0], true)
             // Check initial selected
@@ -164,8 +166,10 @@ class CustomListLocationsViewModelTest {
 
         // Act, Assert
         viewModel.uiState.test {
+            awaitItem()
             // Expand country
             viewModel.onExpand(DUMMY_COUNTRIES[0], true)
+            awaitItem()
             // Expand city
             viewModel.onExpand(DUMMY_COUNTRIES[0].cities[0], true)
             // Check initial selected
