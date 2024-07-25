@@ -148,11 +148,18 @@ impl IOSRuntime {
                     Ok(peer) => {
                         match peer.psk {
                             Some(preshared_key) => unsafe {
+                                if let Ok(mut connection) = self.packet_tunnel.tcp_connection.lock() {
+                                    connection.shutdown();
+                                };
                                 let preshared_key_bytes = preshared_key.as_bytes();
                                 swift_post_quantum_key_ready(self.packet_tunnel.packet_tunnel, preshared_key_bytes.as_ptr(), self.ephemeral_key.as_ptr());
                             },
                             None => {
                                 log::error!("No suitable peer was found");
+
+                                if let Ok(mut connection) = self.packet_tunnel.tcp_connection.lock() {
+                                    connection.shutdown();
+                                };
                                 unsafe {
                                     swift_post_quantum_key_ready(self.packet_tunnel.packet_tunnel, ptr::null(), ptr::null());
                                 }
@@ -162,6 +169,9 @@ impl IOSRuntime {
                     },
                     Err(error) => {
                         log::error!("Key exchange failed {}", error);
+                        if let Ok(mut connection) = self.packet_tunnel.tcp_connection.lock() {
+                            connection.shutdown();
+                        };
                         unsafe {
                             swift_post_quantum_key_ready(self.packet_tunnel.packet_tunnel, ptr::null(), ptr::null());
                         }
@@ -170,6 +180,9 @@ impl IOSRuntime {
             }
 
             _ = tokio::time::sleep(std::time::Duration::from_secs(self.post_quantum_key_exchange_timeout)) => {
+                        if let Ok(mut connection) = self.packet_tunnel.tcp_connection.lock() {
+                            connection.shutdown();
+                        };
                         shutdown_handle.shutdown();
                         unsafe { swift_post_quantum_key_ready(self.packet_tunnel.packet_tunnel, ptr::null(), ptr::null()); }
             }
