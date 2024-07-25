@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.viewmodel
 
 import androidx.lifecycle.viewModelScope
 import app.cash.turbine.test
+import arrow.core.right
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -146,7 +147,7 @@ class OutOfTimeViewModelTest {
     @Test
     fun `onDisconnectClick should invoke disconnect on ConnectionProxy`() = runTest {
         // Arrange
-        coEvery { mockConnectionProxy.disconnect() } returns true
+        coEvery { mockConnectionProxy.disconnect() } returns true.right()
 
         // Act
         viewModel.onDisconnectClick()
