@@ -287,8 +287,6 @@ fun SelectLocationScreen(
             )
         }
     ) {
-        val lifecycleState = LocalLifecycleOwner.current.lifecycle.currentStateAsState()
-        Text(text = lifecycleState.value.toString())
         var bottomSheetState by remember { mutableStateOf<BottomSheetState?>(null) }
         BottomSheets(
             bottomSheetState = bottomSheetState,
