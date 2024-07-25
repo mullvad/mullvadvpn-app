@@ -67,7 +67,7 @@ impl Firewall {
     /// states conform to our desired policy.
     /// Clearing all states unfortunately seems to interrupt ephemeral key exchange on some
     /// machines. Exempting the VPN server connection prevents this.
-    pub fn flush_states(&mut self, policy: FirewallPolicy) -> Result<()> {
+    fn flush_states(&mut self, policy: FirewallPolicy) -> Result<()> {
         self
             .pf
             .get_states()?
@@ -82,7 +82,7 @@ impl Firewall {
         Ok(())
     }
 
-    pub fn should_delete_state(policy: &FirewallPolicy, state: &pfctl::State) -> bool {
+    fn should_delete_state(policy: &FirewallPolicy, state: &pfctl::State) -> bool {
         let peer_endpoint = policy.peer_endpoint().map(|endpoint| endpoint.endpoint);
         let allowed_tunnel_traffic = policy.allowed_tunnel_traffic();
         let tunnel_ips = policy
