@@ -13,7 +13,7 @@ import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.LocationsChanged
 import net.mullvad.mullvadvpn.compose.screen.CustomListLocationsNavArgs
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsUiState
-import net.mullvad.mullvadvpn.compose.state.RelayLocationItem
+import net.mullvad.mullvadvpn.compose.state.RelayLocationListItem
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.common.test.assertLists
 import net.mullvad.mullvadvpn.lib.model.CustomList
@@ -71,7 +71,7 @@ class CustomListLocationsViewModelTest {
             // Arrange
             val expectedList =
                 DUMMY_COUNTRIES.map {
-                    RelayLocationItem(
+                    RelayLocationListItem(
                         item = it,
                         depth = it.toDepth(),
                         checked = false,

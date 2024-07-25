@@ -119,12 +119,14 @@ class SelectLocationViewModelTest {
             assertIs<SelectLocationUiState.Content>(actualState)
             assertLists(
                 testCountries.map { it.id },
-                actualState.relayListItems.mapNotNull { it.relayItemId() })
+                actualState.relayListItems.mapNotNull { it.relayItemId() }
+            )
             assertTrue(
                 actualState.relayListItems
                     .filterIsInstance<RelayListItem.SelectableItem>()
                     .first { it.relayItemId() == selectedId }
-                    .isSelected)
+                    .isSelected
+            )
         }
     }
 
@@ -140,11 +142,13 @@ class SelectLocationViewModelTest {
             assertIs<SelectLocationUiState.Content>(actualState)
             assertLists(
                 testCountries.map { it.id },
-                actualState.relayListItems.mapNotNull { it.relayItemId() })
+                actualState.relayListItems.mapNotNull { it.relayItemId() }
+            )
             assertTrue(
                 actualState.relayListItems.filterIsInstance<RelayListItem.SelectableItem>().all {
                     !it.isSelected
-                })
+                }
+            )
         }
     }
 
@@ -191,7 +195,8 @@ class SelectLocationViewModelTest {
             assertTrue(
                 actualState.relayListItems.filterIsInstance<RelayListItem.GeoLocationItem>().any {
                     it.item is RelayItem.Location.City && it.item.name == "Gothenburg"
-                })
+                }
+            )
         }
     }
 
@@ -218,7 +223,8 @@ class SelectLocationViewModelTest {
             assertIs<SelectLocationUiState.Content>(actualState)
             assertEquals(
                 listOf(RelayListItem.LocationsEmptyText(mockSearchString)),
-                actualState.relayListItems)
+                actualState.relayListItems
+            )
         }
     }
 
@@ -278,7 +284,8 @@ class SelectLocationViewModelTest {
                     CustomList(
                         id = CustomListId("1"),
                         name = CustomListName.fromString("custom"),
-                        locations = emptyList()),
+                        locations = emptyList()
+                    ),
                 locations = emptyList(),
             )
         coEvery { mockCustomListActionUseCase(any<CustomListAction.UpdateLocations>()) } returns
@@ -321,7 +328,11 @@ class SelectLocationViewModelTest {
                         RelayItem.Location.City(
                             id = GeoLocationId.City(GeoLocationId.Country("se"), "got"),
                             "Gothenburg",
-                            emptyList()))),
-                RelayItem.Location.Country(id = GeoLocationId.Country("no"), "Norway", emptyList()))
+                            emptyList()
+                        )
+                    )
+                ),
+                RelayItem.Location.Country(id = GeoLocationId.Country("no"), "Norway", emptyList())
+            )
     }
 }

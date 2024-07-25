@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.LocationsChanged
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsUiState
-import net.mullvad.mullvadvpn.compose.state.RelayLocationItem
+import net.mullvad.mullvadvpn.compose.state.RelayLocationListItem
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.relaylist.MIN_SEARCH_LENGTH
@@ -239,11 +239,11 @@ class CustomListLocationsViewModel(
         isSelected: (RelayItem) -> Boolean,
         isExpanded: (RelayItemId) -> Boolean,
         depth: Int = 0,
-    ): List<RelayLocationItem> = flatMap { relayItem ->
-        buildList<RelayLocationItem> {
+    ): List<RelayLocationListItem> = flatMap { relayItem ->
+        buildList<RelayLocationListItem> {
             val expanded = isExpanded(relayItem.id)
             add(
-                RelayLocationItem(
+                RelayLocationListItem(
                     item = relayItem,
                     depth = depth,
                     checked = isSelected(relayItem),
