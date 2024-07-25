@@ -11,7 +11,7 @@ pub const DEFAULT_ROTATION_INTERVAL: Duration = MAX_ROTATION_INTERVAL;
 /// Whether to enable or disable quantum resistant tunnels when the setting is set to
 /// `QuantumResistantState::Auto`. It is currently enabled by default on Linux but disabled on all
 /// other platforms.
-const QUANTUM_RESISTANT_AUTO_STATE: bool = cfg!(target_os = "linux");
+const QUANTUM_RESISTANT_AUTO_STATE: bool = cfg!(any(target_os = "linux", target_os = "macos"));
 
 #[derive(Serialize, Deserialize, Copy, Clone, Debug, PartialEq, Eq)]
 #[serde(rename_all = "lowercase")]
