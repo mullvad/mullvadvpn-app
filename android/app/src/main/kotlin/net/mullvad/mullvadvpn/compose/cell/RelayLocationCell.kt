@@ -50,7 +50,12 @@ private fun PreviewCheckableRelayLocationCell(
         Column(Modifier.background(color = MaterialTheme.colorScheme.background)) {
             relayItems.map {
                 CheckableRelayLocationCell(
-                    item = it, checked = false, expanded = false, depth = 0, onExpand = {})
+                    item = it,
+                    checked = false,
+                    expanded = false,
+                    depth = 0,
+                    onExpand = {}
+                )
             }
         }
     }
@@ -79,7 +84,9 @@ fun StatusRelayItemCell(
         leadingContent = {
             if (isSelected) {
                 Icon(
-                    painter = painterResource(id = R.drawable.icon_tick), contentDescription = null)
+                    painter = painterResource(id = R.drawable.icon_tick),
+                    contentDescription = null
+                )
             } else {
                 Box(
                     modifier =
@@ -94,7 +101,9 @@ fun StatusRelayItemCell(
                                         item.active -> activeColor
                                         else -> inactiveColor
                                     },
-                                shape = CircleShape))
+                                shape = CircleShape
+                            )
+                )
             }
         },
         onClick = onClick,
@@ -133,23 +142,25 @@ fun RelayItemCell(
                         item is RelayItem.CustomList && !item.active ->
                             MaterialTheme.colorScheme.surfaceTint
                         else -> depth.toBackgroundColor()
-                    })
+                    }
+                )
                 .combinedClickable(
                     enabled = item.active,
                     onClick = onClick,
                     onLongClick = onLongClick,
                 )
                 .padding(start = startPadding),
-        verticalAlignment = Alignment.CenterVertically) {
-            if (leadingContent != null) {
-                leadingContent()
-            }
-            Name(modifier = Modifier.weight(1f), relay = item)
-
-            if (item.hasChildren) {
-                ExpandButton(isExpanded = isExpanded, onClick = { onToggleExpand(!isExpanded) })
-            }
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        if (leadingContent != null) {
+            leadingContent()
         }
+        Name(modifier = Modifier.weight(1f), relay = item)
+
+        if (item.hasChildren) {
+            ExpandButton(isExpanded = isExpanded, onClick = { onToggleExpand(!isExpanded) })
+        }
+    }
 }
 
 @Composable
@@ -169,7 +180,8 @@ fun CheckableRelayLocationCell(
         leadingContent = {
             MullvadCheckbox(
                 checked = checked,
-                onCheckedChange = { isChecked -> onRelayCheckedChange(isChecked) })
+                onCheckedChange = { isChecked -> onRelayCheckedChange(isChecked) }
+            )
         },
         onClick = { onRelayCheckedChange(!checked) },
         onToggleExpand = onExpand,
@@ -190,24 +202,28 @@ private fun Name(modifier: Modifier = Modifier, relay: RelayItem) {
                         AlphaVisible
                     } else {
                         AlphaInactive
-                    })
+                    }
+                )
                 .padding(horizontal = Dimens.smallPadding, vertical = Dimens.mediumPadding),
         maxLines = 1,
-        overflow = TextOverflow.Ellipsis)
+        overflow = TextOverflow.Ellipsis
+    )
 }
 
 @Composable
 private fun RowScope.ExpandButton(isExpanded: Boolean, onClick: (expand: Boolean) -> Unit) {
     VerticalDivider(
         color = MaterialTheme.colorScheme.background,
-        modifier = Modifier.padding(vertical = Dimens.verticalDividerPadding))
+        modifier = Modifier.padding(vertical = Dimens.verticalDividerPadding)
+    )
     Chevron(
         isExpanded = isExpanded,
         modifier =
             Modifier.fillMaxHeight()
                 .clickable { onClick(!isExpanded) }
                 .padding(horizontal = Dimens.largePadding)
-                .align(Alignment.CenterVertically))
+                .align(Alignment.CenterVertically)
+    )
 }
 
 @Suppress("MagicNumber")
