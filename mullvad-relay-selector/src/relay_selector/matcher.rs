@@ -40,6 +40,7 @@ pub fn filter_matching_relay_list(
             .filter(|relay| filter_on_providers(&query.providers, relay))
             // Filter by DAITA support
             .filter(|relay| filter_on_daita(&query.wireguard_constraints.daita, relay))
+            // Filter by obfuscation support
             .filter(|relay| filter_on_obfuscation(&query.wireguard_constraints, relay_list, relay));
 
     // The last filtering to be done is on the `include_in_country` attribute found on each
