@@ -21,6 +21,9 @@
     <ID>MagicNumber:SelectLocationScreen.kt$270f</ID>
     <ID>MagicNumber:TalpidVpnService.kt$TalpidVpnService$128</ID>
     <ID>MagicNumber:TalpidVpnService.kt$TalpidVpnService$32</ID>
+    <ID>MatchingDeclarationName:CustomListEntryBottomSheet.kt$CustomListEntrySheetNavArgs</ID>
+    <ID>MatchingDeclarationName:EditCustomListBottomSheet.kt$CustomListSheetNavArgs</ID>
+    <ID>MatchingDeclarationName:LocationBottomSheet.kt$LocationNavArgs</ID>
     <ID>NestedBlockDepth:MockApiDispatcher.kt$MockApiDispatcher$override fun dispatch(request: RecordedRequest): MockResponse</ID>
     <ID>PrintStackTrace:Extensions.kt$ex</ID>
     <ID>ReturnCount:RelayNameComparator.kt$RelayNameComparator$private infix fun List&lt;String&gt;.compareWith(other: List&lt;String&gt;): Int</ID>
