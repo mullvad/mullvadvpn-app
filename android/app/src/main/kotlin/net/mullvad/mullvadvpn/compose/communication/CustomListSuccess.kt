@@ -5,7 +5,11 @@ import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
 
-sealed interface CustomListSuccess : Parcelable {
+@Parcelize sealed interface CustomListActionResult : Parcelable
+
+@Parcelize data object GenericError : CustomListActionResult, Parcelable
+
+sealed interface CustomListSuccess : CustomListActionResult, Parcelable {
     val undo: CustomListAction
 }
 

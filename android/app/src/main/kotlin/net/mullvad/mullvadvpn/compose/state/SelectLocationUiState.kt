@@ -13,7 +13,6 @@ sealed interface SelectLocationUiState {
         val searchTerm: String,
         val filterChips: List<FilterChip>,
         val relayListItems: List<RelayListItem>,
-        val customLists: List<RelayItem.CustomList>,
     ) : SelectLocationUiState
 }
 

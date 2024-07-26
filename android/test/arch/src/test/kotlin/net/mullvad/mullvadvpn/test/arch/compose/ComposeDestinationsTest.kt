@@ -23,6 +23,6 @@ class ComposeDestinationsTest {
         Konsist.scopeFromProduction("app").functions().withAllAnnotationsOf(Destination::class)
 
     companion object {
-        private val DESTINATION_SUFFIXES = listOf("Screen", "Dialog")
+        private val DESTINATION_SUFFIXES = listOf("Screen", "Dialog", "BottomSheet")
     }
 }

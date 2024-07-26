@@ -15,9 +15,10 @@ import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.RelayListItem
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
-import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_CUSTOM_LIST_HEADER_TEST_TAG
-import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG
+import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.CustomListName
+import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.performLongClick
 import org.junit.jupiter.api.BeforeEach
@@ -61,7 +62,6 @@ class SelectLocationScreenTest {
                                 DUMMY_RELAY_COUNTRIES.map {
                                     RelayListItem.GeoLocationItem(item = it)
                                 },
-                            customLists = emptyList(),
                         ),
                 )
             }
@@ -87,7 +87,6 @@ class SelectLocationScreenTest {
                             searchTerm = "",
                             filterChips = emptyList(),
                             relayListItems = emptyList(),
-                            customLists = emptyList()
                         ),
                     onSearchTermInput = mockedSearchTermInput
                 )
@@ -115,7 +114,6 @@ class SelectLocationScreenTest {
                             filterChips = emptyList(),
                             relayListItems =
                                 listOf(RelayListItem.LocationsEmptyText(mockSearchString)),
-                            customLists = emptyList(),
                         ),
                     onSearchTermInput = mockedSearchTermInput
                 )
@@ -138,7 +136,6 @@ class SelectLocationScreenTest {
                             searchTerm = mockSearchString,
                             filterChips = emptyList(),
                             relayListItems = listOf(RelayListItem.CustomListFooter(false)),
-                            customLists = emptyList(),
                         ),
                 )
             }
@@ -159,7 +156,6 @@ class SelectLocationScreenTest {
                             searchTerm = mockSearchString,
                             filterChips = emptyList(),
                             relayListItems = emptyList(),
-                            customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
                         ),
                 )
             }
@@ -182,7 +178,6 @@ class SelectLocationScreenTest {
                             searchTerm = "",
                             filterChips = emptyList(),
                             relayListItems = listOf(RelayListItem.CustomListItem(customList)),
-                            customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS
                         ),
                     onSelectRelay = mockedOnSelectRelay
                 )
@@ -200,7 +195,7 @@ class SelectLocationScreenTest {
         composeExtension.use {
             // Arrange
             val customList = DUMMY_RELAY_ITEM_CUSTOM_LISTS[0]
-            val mockedOnSelectRelay: (RelayItem) -> Unit = mockk(relaxed = true)
+            val mockedOnSelectRelay: (CustomListId, CustomListName) -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 SelectLocationScreen(
                     state =
@@ -209,9 +204,8 @@ class SelectLocationScreenTest {
                             filterChips = emptyList(),
                             relayListItems =
                                 listOf(RelayListItem.CustomListItem(item = customList)),
-                            customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS
                         ),
-                    onSelectRelay = mockedOnSelectRelay
+                    showEditCustomListBottomSheet = mockedOnSelectRelay
                 )
             }
 
@@ -219,7 +213,7 @@ class SelectLocationScreenTest {
             onNodeWithText(customList.name).performLongClick()
 
             // Assert
-            onNodeWithTag(SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG)
+            verify { mockedOnSelectRelay(customList.id, customList.customList.name) }
         }
 
     @Test
@@ -227,7 +221,7 @@ class SelectLocationScreenTest {
         composeExtension.use {
             // Arrange
             val relayItem = DUMMY_RELAY_COUNTRIES[0]
-            val mockedOnSelectRelay: (RelayItem) -> Unit = mockk(relaxed = true)
+            val mockedOnSelectRelay: (String, GeoLocationId) -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 SelectLocationScreen(
                     state =
@@ -235,9 +229,8 @@ class SelectLocationScreenTest {
                             searchTerm = "",
                             filterChips = emptyList(),
                             relayListItems = listOf(RelayListItem.GeoLocationItem(relayItem)),
-                            customLists = emptyList(),
                         ),
-                    onSelectRelay = mockedOnSelectRelay
+                    showLocationBottomSheet = mockedOnSelectRelay
                 )
             }
 
@@ -245,7 +238,7 @@ class SelectLocationScreenTest {
             onNodeWithText(relayItem.name).performLongClick()
 
             // Assert
-            onNodeWithTag(SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG)
+            verify { mockedOnSelectRelay(relayItem.name, relayItem.id) }
         }
 
     companion object {

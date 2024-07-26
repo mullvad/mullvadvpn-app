@@ -23,7 +23,8 @@ object Dependencies {
             "androidx.activity:activity-compose:${Versions.AndroidX.activityCompose}"
         const val appcompat = "androidx.appcompat:appcompat:${Versions.AndroidX.appcompat}"
         const val coreKtx = "androidx.core:core-ktx:${Versions.AndroidX.coreKtx}"
-        const val coreSplashscreen = "androidx.core:core-splashscreen:${Versions.AndroidX.coreSplashscreen}"
+        const val coreSplashscreen =
+            "androidx.core:core-splashscreen:${Versions.AndroidX.coreSplashscreen}"
         const val fragmentTestning =
             "androidx.fragment:fragment-testing:${Versions.AndroidX.fragmentTesting}"
         const val lifecycleRuntimeKtx =
@@ -58,6 +59,8 @@ object Dependencies {
             "androidx.constraintlayout:constraintlayout-compose:${Versions.Compose.constrainLayout}"
         const val destinations =
             "io.github.raamcosta.compose-destinations:core:${Versions.Compose.destinations}"
+        const val destinationsBottomSheet =
+            "io.github.raamcosta.compose-destinations:bottom-sheet:${Versions.Compose.destinations}"
         const val destinationsKsp =
             "io.github.raamcosta.compose-destinations:ksp:${Versions.Compose.destinations}"
         const val foundation =
