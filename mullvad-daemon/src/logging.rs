@@ -4,7 +4,7 @@ use std::{
     sync::atomic::{AtomicBool, Ordering},
 };
 use talpid_core::logging::rotate_log;
-use tracing_subscriber;
+use tracing_subscriber::{self, filter::LevelFilter, EnvFilter};
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -52,21 +52,8 @@ pub const SILENCED_CRATES: &[&str] = &[
 ];
 const SLIGHTLY_SILENCED_CRATES: &[&str] = &["nftnl", "udp_over_tcp"];
 
-// const COLORS: ColoredLevelConfig = ColoredLevelConfig {
-//     error: Color::Red,
-//     warn: Color::Yellow,
-//     info: Color::Green,
-//     debug: Color::Blue,
-//     trace: Color::Black,
-// };
-
-#[cfg(not(windows))]
-const LINE_SEPARATOR: &str = "\n";
-
 #[cfg(windows)]
 const LINE_SEPARATOR: &str = "\r\n";
-
-const DATE_TIME_FORMAT_STR: &str = "[%Y-%m-%d %H:%M:%S%.3f]";
 
 /// Whether a [log] logger has been initialized.
 // the log crate doesn't provide a nice way to tell if a logger has been initialized :(
@@ -82,18 +69,43 @@ pub fn init_logger(
     log_file: Option<&PathBuf>,
     output_timestamp: bool,
 ) -> Result<(), Error> {
-    tracing_subscriber::fmt::init();
-    // for silenced_crate in WARNING_SILENCED_CRATES {
-    //     top_dispatcher = top_dispatcher.level_for(*silenced_crate, log::LevelFilter::Error);
-    // }
-    // for silenced_crate in SILENCED_CRATES {
-    //     top_dispatcher = top_dispatcher.level_for(*silenced_crate, log::LevelFilter::Warn);
-    // }
-    // for silenced_crate in SLIGHTLY_SILENCED_CRATES {
-    //     top_dispatcher = top_dispatcher.level_for(*silenced_crate, one_level_quieter(log_level));
-    // }
+    let level_filter = match log_level {
+        log::LevelFilter::Off => LevelFilter::OFF,
+        log::LevelFilter::Error => LevelFilter::ERROR,
+        log::LevelFilter::Warn => LevelFilter::WARN,
+        log::LevelFilter::Info => LevelFilter::INFO,
+        log::LevelFilter::Debug => LevelFilter::DEBUG,
+        log::LevelFilter::Trace => LevelFilter::TRACE,
+    };
 
-    if let Some(ref log_file) = log_file {
+    let mut env_filter = EnvFilter::from_default_env().add_directive(level_filter.into());
+
+    for silenced_crate in WARNING_SILENCED_CRATES {
+        env_filter = env_filter.add_directive(format!("{silenced_crate}=error").parse().unwrap());
+    }
+    for silenced_crate in SILENCED_CRATES {
+        env_filter = env_filter.add_directive(format!("{silenced_crate}=warn").parse().unwrap());
+    }
+
+    for silenced_crate in SLIGHTLY_SILENCED_CRATES {
+        env_filter = env_filter.add_directive(
+            format!("{silenced_crate}={}", one_level_quieter(log_level))
+                .parse()
+                .unwrap(),
+        );
+    }
+
+    let fmt_subscriber = tracing_subscriber::fmt::fmt()
+        .with_env_filter(env_filter)
+        .with_ansi(true);
+
+    if output_timestamp {
+        fmt_subscriber.init();
+    } else {
+        fmt_subscriber.without_time().init();
+    }
+
+    if let Some(log_file) = log_file {
         rotate_log(log_file).map_err(Error::RotateLog)?;
     }
     #[cfg(all(target_os = "android", debug_assertions))]
@@ -120,14 +132,4 @@ fn one_level_quieter(level: log::LevelFilter) -> log::LevelFilter {
         Debug => Info,
         Trace => Debug,
     }
-}
-
-#[cfg(not(windows))]
-fn escape_newlines(text: String) -> String {
-    text
-}
-
-#[cfg(windows)]
-fn escape_newlines(text: String) -> String {
-    text.replace('\n', LINE_SEPARATOR)
 }
