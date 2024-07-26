@@ -55,6 +55,8 @@ const SLIGHTLY_SILENCED_CRATES: &[&str] = &["nftnl", "udp_over_tcp"];
 #[cfg(windows)]
 const LINE_SEPARATOR: &str = "\r\n";
 
+const DATE_TIME_FORMAT_STR: &str = "[%Y-%m-%d %H:%M:%S%.3f]";
+
 /// Whether a [log] logger has been initialized.
 // the log crate doesn't provide a nice way to tell if a logger has been initialized :(
 static LOG_ENABLED: AtomicBool = AtomicBool::new(false);
@@ -101,7 +103,11 @@ pub fn init_logger(
         .with_ansi(true);
 
     if output_timestamp {
-        fmt_subscriber.init();
+        fmt_subscriber
+            .with_timer(tracing_subscriber::fmt::time::ChronoUtc::new(
+                DATE_TIME_FORMAT_STR.to_owned(),
+            ))
+            .init();
     } else {
         fmt_subscriber.without_time().init();
     }
