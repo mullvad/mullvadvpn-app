@@ -134,6 +134,7 @@ impl DisconnectingState {
 }
 
 impl TunnelState for DisconnectingState {
+    #[tracing::instrument(skip_all, name = "Disconnecting")]
     fn handle_event(
         mut self: Box<Self>,
         runtime: &tokio::runtime::Handle,

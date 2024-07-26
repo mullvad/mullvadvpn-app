@@ -432,6 +432,7 @@ impl ConnectedState {
 }
 
 impl TunnelState for ConnectedState {
+    #[tracing::instrument(skip_all, name = "Connected")]
     fn handle_event(
         mut self: Box<Self>,
         runtime: &tokio::runtime::Handle,

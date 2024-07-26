@@ -655,6 +655,9 @@ fn should_retry(error: &tunnel_monitor::Error, retry_attempt: u32) -> bool {
 }
 
 impl TunnelState for ConnectingState {
+    // #[tracing::instrument(skip_all, name = "Connecting", fields(tunnel_parameters =
+    // %self.tunnel_parameters))]
+    #[tracing::instrument(skip_all, name = "Connecting")]
     fn handle_event(
         mut self: Box<Self>,
         runtime: &tokio::runtime::Handle,

@@ -112,6 +112,7 @@ impl ErrorState {
 
 impl TunnelState for ErrorState {
     #[cfg_attr(not(target_os = "macos"), allow(unused_mut))]
+    #[tracing::instrument(skip_all, name = "Error")]
     fn handle_event(
         self: Box<Self>,
         runtime: &tokio::runtime::Handle,
