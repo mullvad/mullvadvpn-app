@@ -22,8 +22,10 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
-
-
+### Added
+- Add multihop, a feature that routes traffic through two
+  of our relays before it reaches the internet.
+ 
 ## [2024.4 - 2024-06-25]
 ### Added
 - Add Post-Quantum secure tunnels.
