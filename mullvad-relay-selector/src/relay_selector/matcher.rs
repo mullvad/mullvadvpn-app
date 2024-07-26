@@ -163,8 +163,9 @@ fn filter_on_shadowsocks(
     let ip_version = super::detailer::resolve_ip_version(*ip_version);
 
     match (settings, &relay.endpoint_data) {
-        // If Shadowsocks is specifically asked for, we must check if the specific relay supports our port.
-        // If there are extra addresses, then all ports are available, so we do not need to do this.
+        // If Shadowsocks is specifically asked for, we must check if the specific relay supports
+        // our port. If there are extra addresses, then all ports are available, so we do
+        // not need to do this.
         (
             ShadowsocksSettings {
                 port: Constraint::Only(desired_port),

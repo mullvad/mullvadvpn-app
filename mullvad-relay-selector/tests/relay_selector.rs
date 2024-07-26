@@ -715,7 +715,8 @@ fn test_selecting_any_relay_will_consider_multihop() {
     }
 }
 
-/// Test whether Shadowsocks is always selected as the obfuscation protocol when Shadowsocks is selected.
+/// Test whether Shadowsocks is always selected as the obfuscation protocol when Shadowsocks is
+/// selected.
 #[test]
 fn test_selecting_wireguard_over_shadowsocks() {
     let relay_selector = default_relay_selector();
