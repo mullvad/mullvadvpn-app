@@ -145,7 +145,7 @@ env_logger = "0.11.7"
 thiserror = "2.0"
 anyhow = "1.0"
 log = "0.4"
-fern = { version = "0.6", default-features = false }
+tracing = "0.1.40"
 
 # Shadowsocks
 shadowsocks = "1.23.2"

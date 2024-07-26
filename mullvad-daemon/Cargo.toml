@@ -26,6 +26,7 @@ fern = { workspace = true, features = ["colored"] }
 futures = { workspace = true }
 libc = "0.2"
 log = { workspace = true }
+tracing = { workspace = true }
 regex = "1.0"
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true, features = ["std"] }

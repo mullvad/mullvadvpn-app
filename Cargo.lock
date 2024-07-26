@@ -2989,6 +2989,7 @@ dependencies = [
  "thiserror 2.0.9",
  "tokio",
  "tokio-stream",
+ "tracing",
  "tracing-subscriber",
  "winapi",
  "windows-service",
