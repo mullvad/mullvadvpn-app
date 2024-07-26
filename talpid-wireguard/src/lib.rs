@@ -222,7 +222,7 @@ async fn maybe_create_obfuscator(
                     } else {
                         SocketAddr::from((Ipv6Addr::LOCALHOST, 51820))
                     },
-                    //wireguard_endpoint: config.entry_peer.endpoint,
+                    // wireguard_endpoint: config.entry_peer.endpoint,
                     #[cfg(target_os = "linux")]
                     fwmark: config.fwmark,
                 })
