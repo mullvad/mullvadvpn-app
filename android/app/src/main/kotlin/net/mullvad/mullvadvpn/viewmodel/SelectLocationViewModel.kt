@@ -2,7 +2,6 @@ package net.mullvad.mullvadvpn.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import arrow.core.raise.either
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -29,24 +28,19 @@ import net.mullvad.mullvadvpn.lib.model.Provider
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.relaylist.MIN_SEARCH_LENGTH
-import net.mullvad.mullvadvpn.relaylist.descendants
 import net.mullvad.mullvadvpn.relaylist.filterOnSearchTerm
 import net.mullvad.mullvadvpn.relaylist.newFilterOnSearch
-import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.usecase.AvailableProvidersUseCase
 import net.mullvad.mullvadvpn.usecase.FilteredRelayListUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
-import net.mullvad.mullvadvpn.usecase.customlists.CustomListsRelayItemUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.FilterCustomListsRelayItemUseCase
 
 class SelectLocationViewModel(
     private val relayListFilterRepository: RelayListFilterRepository,
     private val availableProvidersUseCase: AvailableProvidersUseCase,
-    private val customListsRelayItemUseCase: CustomListsRelayItemUseCase,
     private val filteredCustomListRelayItemsUseCase: FilterCustomListsRelayItemUseCase,
-    private val customListsRepository: CustomListsRepository,
     private val customListActionUseCase: CustomListActionUseCase,
     private val filteredRelayListUseCase: FilteredRelayListUseCase,
     private val relayListRepository: RelayListRepository
@@ -57,16 +51,14 @@ class SelectLocationViewModel(
 
     @Suppress("DestructuringDeclarationWithTooManyEntries")
     val uiState =
-        combine(_searchTerm, relayListItems(), filterChips(), customListsRelayItemUseCase()) {
+        combine(_searchTerm, relayListItems(), filterChips()) {
                 searchTerm,
                 relayListItems,
-                filterChips,
-                customLists ->
+                filterChips ->
                 Content(
                     searchTerm = searchTerm,
                     filterChips = filterChips,
                     relayListItems = relayListItems,
-                    customLists = customLists
                 )
             }
             .stateIn(
@@ -359,41 +351,8 @@ class SelectLocationViewModel(
         viewModelScope.launch { relayListFilterRepository.updateSelectedProviders(Constraint.Any) }
     }
 
-    fun addLocationToList(item: RelayItem.Location, customList: RelayItem.CustomList) {
-        viewModelScope.launch {
-            val newLocations =
-                (customList.locations + item).filter { it !in item.descendants() }.map { it.id }
-            customListActionUseCase(CustomListAction.UpdateLocations(customList.id, newLocations))
-                .fold(
-                    { _uiSideEffect.send(SelectLocationSideEffect.GenericError) },
-                    { _uiSideEffect.send(SelectLocationSideEffect.LocationAddedToCustomList(it)) },
-                )
-        }
-    }
-
     fun performAction(action: CustomListAction) {
         viewModelScope.launch { customListActionUseCase(action) }
-    }
-
-    fun removeLocationFromList(item: RelayItem.Location, customListId: CustomListId) {
-        viewModelScope.launch {
-            val result =
-                either {
-                        val customList =
-                            customListsRepository.getCustomListById(customListId).bind()
-                        val newLocations = (customList.locations - item.id)
-
-                        customListActionUseCase(
-                                CustomListAction.UpdateLocations(customList.id, newLocations)
-                            )
-                            .bind()
-                    }
-                    .fold(
-                        { SelectLocationSideEffect.GenericError },
-                        { SelectLocationSideEffect.LocationRemovedFromCustomList(it) }
-                    )
-            _uiSideEffect.send(result)
-        }
     }
 
     companion object {
