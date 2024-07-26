@@ -821,7 +821,6 @@
 		A9D4A4792C2DAB5F00F1E522 /* libmullvad_ios.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A9C75BC12C2D8C9E00B4CDF5 /* libmullvad_ios.a */; };
 		A9D99B9A2A1F7C3200DE27D3 /* RESTTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67D28F83CA50033DD93 /* RESTTransport.swift */; };
 		A9D9A4AE2C36CFE9004088DD /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = A9D9A4AD2C36CFE9004088DD /* WireGuardKitTypes */; };
-		A9D9A4B02C36CFE9004088DD /* WireGuardKitTypes in Embed Frameworks */ = {isa = PBXBuildFile; productRef = A9D9A4AD2C36CFE9004088DD /* WireGuardKitTypes */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		A9D9A4B12C36D10E004088DD /* ShadowSocksProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DDE40F2B220458006B57A7 /* ShadowSocksProxy.swift */; };
 		A9D9A4B22C36D12D004088DD /* UDPOverTCPObfuscator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584023212A406BF5007B27AC /* UDPOverTCPObfuscator.swift */; };
 		A9D9A4BB2C36D397004088DD /* PostQuantumKeyNegotiator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9EB4F9C2B7FAB21002A2D7A /* PostQuantumKeyNegotiator.swift */; };
@@ -1307,26 +1306,6 @@
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		586A0DD32A20E371006C731C /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		58915D6F2A26037A0066445B /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		58CE5E85224146470008646E /* Embed Foundation Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1336,57 +1315,6 @@
 				58CE5E81224146470008646E /* PacketTunnel.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		58F097442A20C24C00DA2DAD /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		58FE25E92AA7399D003D1918 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		7A88DCF02A8FB08D00D2FF0E /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		A9D9A4AF2C36CFE9004088DD /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				A9D9A4B02C36CFE9004088DD /* WireGuardKitTypes in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		F0ACE3292BE4E712006D5333 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-			);
-			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -4422,7 +4350,6 @@
 				06799AB828F98E1D00ACD94E /* Sources */,
 				06799AB928F98E1D00ACD94E /* Frameworks */,
 				06799ABA28F98E1D00ACD94E /* Resources */,
-				586A0DD32A20E371006C731C /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -4466,7 +4393,6 @@
 				58B0A29C238EE67E00BC001D /* Sources */,
 				58B0A29D238EE67E00BC001D /* Frameworks */,
 				58B0A29E238EE67E00BC001D /* Resources */,
-				58915D6F2A26037A0066445B /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -4534,7 +4460,6 @@
 				58C7A4392A863F450060C66F /* Sources */,
 				58C7A43A2A863F450060C66F /* Frameworks */,
 				58C7A43B2A863F450060C66F /* Resources */,
-				58FE25E92AA7399D003D1918 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -4639,7 +4564,6 @@
 				58D223D1294C8E5E0029F5F8 /* Sources */,
 				58D223D2294C8E5E0029F5F8 /* Frameworks */,
 				58D223D3294C8E5E0029F5F8 /* Resources */,
-				58F097442A20C24C00DA2DAD /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -4703,7 +4627,6 @@
 				7A88DCCA2A8FABBE00D2FF0E /* Sources */,
 				7A88DCCB2A8FABBE00D2FF0E /* Frameworks */,
 				7A88DCCC2A8FABBE00D2FF0E /* Resources */,
-				7A88DCF02A8FB08D00D2FF0E /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -4765,7 +4688,6 @@
 				A992DA192C24709F00DE7CE5 /* Sources */,
 				A992DA1A2C24709F00DE7CE5 /* Frameworks */,
 				A992DA1B2C24709F00DE7CE5 /* Resources */,
-				A9D9A4AF2C36CFE9004088DD /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -4810,7 +4732,6 @@
 				F0ACE3042BE4E478006D5333 /* Sources */,
 				F0ACE3052BE4E478006D5333 /* Frameworks */,
 				F0ACE3062BE4E478006D5333 /* Resources */,
-				F0ACE3292BE4E712006D5333 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
