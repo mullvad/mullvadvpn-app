@@ -22,12 +22,19 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+
+## [android/2024.4-beta1] - 2024-07-26
 ### Added
 - Add the ability to customize how the app talks to the api.
+- Add splash screen animation.
 
 ### Changed
 - Migrate underlaying communication wtih daemon to gRPC. This also implies major changes and
   improvements throughout the app.
+
+### Fixed
+- Fix animations in Select Location.
+
 
 ## [android/2024.3] - 2024-06-27
 Identical to `android/2024.3-beta1` except for updated translations.
