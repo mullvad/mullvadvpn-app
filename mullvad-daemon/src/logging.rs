@@ -78,7 +78,8 @@ pub fn init_logger(
         log::LevelFilter::Trace => LevelFilter::TRACE,
     };
 
-    let mut env_filter = EnvFilter::from_default_env().add_directive(level_filter.into());
+    let mut env_filter = EnvFilter::try_from_default_env()
+        .unwrap_or_else(|_| EnvFilter::from_default_env().add_directive(level_filter.into()));
 
     for silenced_crate in WARNING_SILENCED_CRATES {
         env_filter = env_filter.add_directive(format!("{silenced_crate}=error").parse().unwrap());
