@@ -55,7 +55,7 @@ constraints the following default ones will take effect:
   - The third attempt will connect to a Wireguard relay over IPv6 (if IPv6 is configured on the host) on a random port
 - The fourth-to-seventh attempt will alternate between Wireguard and OpenVPN
   - The fourth attempt will connect to an OpenVPN relay over TCP on port 443
-  - The fifth attempt will connect to a Wireguard relay on a random port using Shadowsocks
+  - The fifth attempt will connect to a Wireguard relay on a random port using Shadowsocks for obfuscation
   - The sixth attempt will connect to a Wireguard relay on a random port using [UDP2TCP obfuscation](https://github.com/mullvad/udp-over-tcp)
   - The seventh attempt will connect to a Wireguard relay over IPv6 on a random port using UDP2TCP obfuscation (if IPv6 is configured on the host)
   - The eighth attempt will connect to an OpenVPN relay over a bridge on a random port
