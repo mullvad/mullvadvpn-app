@@ -339,6 +339,7 @@ dependencies {
     implementation(Dependencies.Compose.ui)
     implementation(Dependencies.Compose.uiUtil)
     implementation(Dependencies.Compose.destinations)
+    implementation(Dependencies.Compose.destinationsBottomSheet)
     ksp(Dependencies.Compose.destinationsKsp)
 
     implementation(Dependencies.jodaTime)
