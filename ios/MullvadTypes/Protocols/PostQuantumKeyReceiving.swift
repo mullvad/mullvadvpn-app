@@ -9,7 +9,7 @@
 import Foundation
 import WireGuardKitTypes
 
-public protocol PostQuantumKeyReceiving: AnyObject {
+public protocol PostQuantumKeyReceiving {
     func receivePostQuantumKey(_ key: PreSharedKey, ephemeralKey: PrivateKey)
     func keyExchangeFailed()
 }

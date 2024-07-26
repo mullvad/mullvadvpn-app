@@ -21,12 +21,12 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     private let providerLogger: Logger
 
     private var actor: PacketTunnelActor!
-    private var postQuantumActor: PostQuantumKeyExchangeActor!
     private var appMessageHandler: AppMessageHandler!
     private var stateObserverTask: AnyTask?
     private var deviceChecker: DeviceChecker!
     private var adapter: WgAdapter!
     private var relaySelector: RelaySelectorWrapper!
+    private var postQuantumKeyExchangingPipeline: PostQuantumKeyExchangingPipeline!
 
     private let multihopStateListener = MultihopStateListener()
     private let multihopUpdater: MultihopUpdater
@@ -94,14 +94,21 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             protocolObfuscator: ProtocolObfuscator<UDPOverTCPObfuscator>()
         )
 
-        postQuantumActor = PostQuantumKeyExchangeActor(
-            packetTunnel: postQuantumReceiver,
-            onFailure: self.keyExchangeFailed,
-            iteratorProvider: { REST.RetryStrategy.postQuantumKeyExchange.makeDelayIterator() }
-        )
-
         let urlRequestProxy = URLRequestProxy(dispatchQueue: internalQueue, transportProvider: transportProvider)
         appMessageHandler = AppMessageHandler(packetTunnelActor: actor, urlRequestProxy: urlRequestProxy)
+
+        postQuantumKeyExchangingPipeline = PostQuantumKeyExchangingPipeline(
+            PostQuantumKeyExchangeActor(
+                packetTunnel: postQuantumReceiver,
+                onFailure: self.keyExchangeFailed,
+                iteratorProvider: { REST.RetryStrategy.postQuantumKeyExchange.makeDelayIterator() }
+            ),
+            onUpdateConfiguration: { [unowned self] configuration in
+                actor.replaceKeyWithPQ(configuration: configuration)
+            }, onFinish: { [unowned self] in
+                actor.notifyPostQuantumKeyExchanged()
+            }
+        )
     }
 
     override func startTunnel(options: [String: NSObject]? = nil) async throws {
@@ -251,8 +258,8 @@ extension PacketTunnelProvider {
                 }
 
                 switch newState {
-                case let .reconnecting(connState), let .connecting(connState):
-                    let connectionAttempt = connState.connectionAttemptCount
+                case let .reconnecting(observedConnectionState), let .connecting(observedConnectionState):
+                    let connectionAttempt = observedConnectionState.connectionAttemptCount
 
                     // Start device check every second failure attempt to connect.
                     if lastConnectionAttempt != connectionAttempt, connectionAttempt > 0,
@@ -263,9 +270,8 @@ extension PacketTunnelProvider {
                     // Cache last connection attempt to filter out repeating calls.
                     lastConnectionAttempt = connectionAttempt
 
-                case let .negotiatingPostQuantumKey(_, privateKey):
-                    postQuantumActor.startNegotiation(with: privateKey)
-
+                case let .negotiatingPostQuantumKey(observedConnectionState, privateKey):
+                    postQuantumKeyExchangingPipeline.startNegotiation(observedConnectionState, privateKey: privateKey)
                 case .initial, .connected, .disconnecting, .disconnected, .error:
                     break
                 }
@@ -310,8 +316,7 @@ extension PacketTunnelProvider {
 
 extension PacketTunnelProvider: PostQuantumKeyReceiving {
     func receivePostQuantumKey(_ key: PreSharedKey, ephemeralKey: PrivateKey) {
-        postQuantumActor.reset()
-        actor.replacePreSharedKey(key, ephemeralKey: ephemeralKey)
+        postQuantumKeyExchangingPipeline.receivePostQuantumKey(key, ephemeralKey: ephemeralKey)
     }
 
     func keyExchangeFailed() {

@@ -1,6 +1,6 @@
 //
-//  PostQuantumKeyExchangeActorTests.swift
-//  PostQuantumKeyExchangeActorTests
+//  MullvadPostQuantumTests.swift
+//  MullvadPostQuantumTests
 //
 //  Created by Marco Nikic on 2024-06-12.
 //  Copyright © 2024 Mullvad VPN AB. All rights reserved.
@@ -71,7 +71,7 @@ class MullvadPostQuantumTests: XCTestCase {
                 unexpectedNegotiationFailure.fulfill()
             },
             negotiationProvider: SuccessfulNegotiatorStub.self,
-            iteratorProvider: { AnyIterator { .milliseconds(10) } }
+            iteratorProvider: { AnyIterator { .seconds(1) } }
         )
 
         let privateKey = PrivateKey()
