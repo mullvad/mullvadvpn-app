@@ -3000,6 +3000,7 @@ dependencies = [
  "tokio-stream",
  "tracing",
  "tracing-appender",
+ "tracing-futures",
  "tracing-subscriber",
  "winapi",
  "windows-service",
