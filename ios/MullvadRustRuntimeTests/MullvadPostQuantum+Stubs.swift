@@ -58,7 +58,7 @@ class FailedNegotiatorStub: PostQuantumKeyNegotiating {
         gatewayIP: IPv4Address,
         devicePublicKey: WireGuardKitTypes.PublicKey,
         presharedKey: WireGuardKitTypes.PrivateKey,
-        packetTunnel: PacketTunnelCore.TunnelProvider,
+        postQuantumKeyReceiver packetTunnel: any MullvadTypes.TunnelProvider,
         tcpConnection: NWTCPConnection,
         postQuantumKeyExchangeTimeout: MullvadTypes.Duration
     ) -> Bool { false }
@@ -82,7 +82,7 @@ class SuccessfulNegotiatorStub: PostQuantumKeyNegotiating {
         gatewayIP: IPv4Address,
         devicePublicKey: WireGuardKitTypes.PublicKey,
         presharedKey: WireGuardKitTypes.PrivateKey,
-        packetTunnel: PacketTunnelCore.TunnelProvider,
+        postQuantumKeyReceiver packetTunnel: any MullvadTypes.TunnelProvider,
         tcpConnection: NWTCPConnection,
         postQuantumKeyExchangeTimeout: MullvadTypes.Duration
     ) -> Bool { true }

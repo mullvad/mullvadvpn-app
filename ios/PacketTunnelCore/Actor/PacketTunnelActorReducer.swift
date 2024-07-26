@@ -19,12 +19,15 @@ extension PacketTunnelActor {
         case updateTunnelMonitorPath(NetworkPath)
         case startConnection(NextRelays)
         case restartConnection(NextRelays, ActorReconnectReason)
+
         // trigger a reconnect, which becomes several effects depending on the state
         case reconnect(NextRelays)
         case stopTunnelAdapter
         case configureForErrorState(BlockedStateReason)
         case cacheActiveKey(Date?)
-        case postQuantumConnect(PreSharedKey, privateKey: PrivateKey)
+        case reconfigureForPostQuantum(PostQuantumNegotiationState)
+        case postQuantumConnect
+
         // acknowledge that the disconnection process has concluded, go to .disconnected.
         case setDisconnectedState
 
@@ -42,8 +45,8 @@ extension PacketTunnelActor {
             case (.stopTunnelAdapter, .stopTunnelAdapter): true
             case let (.configureForErrorState(r0), .configureForErrorState(r1)): r0 == r1
             case let (.cacheActiveKey(d0), .cacheActiveKey(d1)): d0 == d1
-            case let (.postQuantumConnect(psk0, privateKey: pk0), .postQuantumConnect(psk1, privateKey: pk1)): psk0 ==
-                psk1 && pk0 == pk1
+            case let (.reconfigureForPostQuantum(pqns0), .reconfigureForPostQuantum(pqns1)): pqns0 == pqns1
+            case (.postQuantumConnect, .postQuantumConnect): true
             case (.setDisconnectedState, .setDisconnectedState): true
             default: false
             }
@@ -86,8 +89,11 @@ extension PacketTunnelActor {
                 state.mutateAssociatedData { $0.networkReachability = newReachability }
                 return [.updateTunnelMonitorPath(defaultPath)]
 
-            case let .replaceDevicePrivateKey(key, ephemeralKey: ephemeralKey):
-                return [.postQuantumConnect(key, privateKey: ephemeralKey)]
+            case let .postQuantumNegotiationStateChanged(configuration):
+                return [.reconfigureForPostQuantum(configuration)]
+
+            case .notifyPostQuantumKeyExchanged:
+                return [.postQuantumConnect]
             }
         }
 

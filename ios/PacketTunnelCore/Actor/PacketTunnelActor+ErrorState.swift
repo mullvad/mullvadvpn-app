@@ -120,7 +120,7 @@ extension PacketTunnelActor {
             )
             var config = try configurationBuilder.makeConfiguration()
             config.dns = [IPv4Address.loopback]
-            config.interfaceAddresses = [IPAddressRange(from: "10.64.0.1/8")!]
+            config.interfaceAddresses = [IPAddressRange(from: "\(LocalNetworkIPs.gatewayAddress.rawValue)/8")!]
             config.peer = TunnelPeer(
                 endpoint: .ipv4(IPv4Endpoint(string: "127.0.0.1:9090")!),
                 publicKey: PrivateKey().publicKey
