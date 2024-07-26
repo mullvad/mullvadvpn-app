@@ -554,13 +554,7 @@ private fun BottomSheets(
     val scope = rememberCoroutineScope()
     val onCloseBottomSheet: (animate: Boolean) -> Unit = { animate ->
         if (animate) {
-            scope
-                .launch { sheetState.hide() }
-                .invokeOnCompletion {
-                    if (!sheetState.isVisible) {
-                        onHideBottomSheet()
-                    }
-                }
+            scope.launch { sheetState.hide() }.invokeOnCompletion { onHideBottomSheet() }
         } else {
             onHideBottomSheet()
         }
