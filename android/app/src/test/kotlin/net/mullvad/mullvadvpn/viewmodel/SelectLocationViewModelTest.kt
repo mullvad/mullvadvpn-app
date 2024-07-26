@@ -16,29 +16,22 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
-import net.mullvad.mullvadvpn.compose.communication.LocationsChanged
 import net.mullvad.mullvadvpn.compose.state.RelayListItem
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.common.test.assertLists
 import net.mullvad.mullvadvpn.lib.model.Constraint
-import net.mullvad.mullvadvpn.lib.model.CustomList
-import net.mullvad.mullvadvpn.lib.model.CustomListId
-import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.Provider
 import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
-import net.mullvad.mullvadvpn.relaylist.descendants
-import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.usecase.AvailableProvidersUseCase
 import net.mullvad.mullvadvpn.usecase.FilteredRelayListUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
-import net.mullvad.mullvadvpn.usecase.customlists.CustomListsRelayItemUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.FilterCustomListsRelayItemUseCase
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -54,8 +47,6 @@ class SelectLocationViewModelTest {
     private val mockFilteredCustomListRelayItemsUseCase: FilterCustomListsRelayItemUseCase = mockk()
     private val mockFilteredRelayListUseCase: FilteredRelayListUseCase = mockk()
     private val mockRelayListRepository: RelayListRepository = mockk()
-    private val mockCustomListsRepository: CustomListsRepository = mockk()
-    private val mockCustomListsRelayItemUseCase: CustomListsRelayItemUseCase = mockk()
 
     private lateinit var viewModel: SelectLocationViewModel
 
@@ -66,7 +57,6 @@ class SelectLocationViewModelTest {
     private val filteredRelayList = MutableStateFlow<List<RelayItem.Location.Country>>(emptyList())
     private val filteredCustomRelayListItems =
         MutableStateFlow<List<RelayItem.CustomList>>(emptyList())
-    private val customListsRelayItem = MutableStateFlow<List<RelayItem.CustomList>>(emptyList())
 
     @BeforeEach
     fun setup() {
@@ -77,7 +67,6 @@ class SelectLocationViewModelTest {
         every { mockRelayListRepository.selectedLocation } returns selectedRelayItemFlow
         every { mockFilteredRelayListUseCase() } returns filteredRelayList
         every { mockFilteredCustomListRelayItemsUseCase() } returns filteredCustomRelayListItems
-        every { mockCustomListsRelayItemUseCase() } returns customListsRelayItem
 
         mockkStatic(RELAY_LIST_EXTENSIONS)
         mockkStatic(RELAY_ITEM_EXTENSIONS)
@@ -90,8 +79,6 @@ class SelectLocationViewModelTest {
                 customListActionUseCase = mockCustomListActionUseCase,
                 filteredRelayListUseCase = mockFilteredRelayListUseCase,
                 relayListRepository = mockRelayListRepository,
-                customListsRepository = mockCustomListsRepository,
-                customListsRelayItemUseCase = mockCustomListsRelayItemUseCase,
             )
     }
 
@@ -268,36 +255,6 @@ class SelectLocationViewModelTest {
 
         // Assert
         coVerify { mockCustomListActionUseCase(action) }
-    }
-
-    @Test
-    fun `after adding a location to a list should emit location added side effect`() = runTest {
-        // Arrange
-        val expectedResult: LocationsChanged = mockk()
-        val location: RelayItem.Location.Country = mockk {
-            every { id } returns GeoLocationId.Country("se")
-            every { descendants() } returns emptyList()
-        }
-        val customList =
-            RelayItem.CustomList(
-                customList =
-                    CustomList(
-                        id = CustomListId("1"),
-                        name = CustomListName.fromString("custom"),
-                        locations = emptyList()
-                    ),
-                locations = emptyList(),
-            )
-        coEvery { mockCustomListActionUseCase(any<CustomListAction.UpdateLocations>()) } returns
-            expectedResult.right()
-
-        // Act, Assert
-        viewModel.uiSideEffect.test {
-            viewModel.addLocationToList(item = location, customList = customList)
-            val sideEffect = awaitItem()
-            assertIs<SelectLocationSideEffect.LocationAddedToCustomList>(sideEffect)
-            assertEquals(expectedResult, sideEffect.result)
-        }
     }
 
     fun RelayListItem.relayItemId() =
