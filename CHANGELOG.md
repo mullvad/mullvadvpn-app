@@ -25,6 +25,10 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Add DAITA (Defence against AI-guided Traffic Analysis) setting for Linux and macOS.
 
+### Changed
+#### macOS
+- Enable quantum resistant tunnels by default (when set to `auto`).
+
 ### Fixed
 - Fix mullvad cli bug causing `mullvad status listen` command to miss events if they occurred
   too quickly.
