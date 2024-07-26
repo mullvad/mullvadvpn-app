@@ -39,8 +39,8 @@ impl<T: Match<U>, U> Match<U> for Constraint<T> {
 /// assert_eq!(query_a.intersection(query_b), None);
 /// ```
 ///
-/// * Otherwise, a new `RelayQuery` is returned where each constraint is
-/// as specific as possible. See [`Constraint`] for further details.
+/// * Otherwise, a new `RelayQuery` is returned where each constraint is as specific as possible.
+///   See [`Constraint`] for further details.
 /// ```rust, ignore
 /// let query_a = RelayQueryBuilder::new().wireguard().build();
 /// let query_b = RelayQueryBuilder::new().location(city("Sweden", "Gothenburg")).build();

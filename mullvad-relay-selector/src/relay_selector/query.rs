@@ -322,10 +322,9 @@ pub mod builder {
     /// type of VPN tunnel protocol. Some [`RelayQuery`] options are
     /// generic over the VPN protocol, while some options are protocol-specific.
     ///
-    /// - The type parameter `VpnProtocol` keeps track of which VPN protocol that
-    /// is being configured. Different instantiations of `VpnProtocol` will
-    /// expose different functions for configuring a [`RelayQueryBuilder`]
-    /// further.
+    /// - The type parameter `VpnProtocol` keeps track of which VPN protocol that is being
+    ///   configured. Different instantiations of `VpnProtocol` will expose different functions for
+    ///   configuring a [`RelayQueryBuilder`] further.
     pub struct RelayQueryBuilder<VpnProtocol = Any> {
         query: RelayQuery,
         protocol: VpnProtocol,
@@ -421,9 +420,8 @@ pub mod builder {
 
     /// Internal builder state for a [`WireguardRelayQuery`] configuration.
     ///
-    /// - The type parameter `Multihop` keeps track of the state of multihop.
-    /// If multihop has been enabled, the builder should expose an option to
-    /// select entry point.
+    /// - The type parameter `Multihop` keeps track of the state of multihop. If multihop has been
+    ///   enabled, the builder should expose an option to select entry point.
     ///
     /// [`WireguardRelayQuery`]: super::WireguardRelayQuery
     pub struct Wireguard<Multihop, Obfuscation, Daita> {
@@ -531,10 +529,9 @@ pub mod builder {
 
     /// Internal builder state for a [`OpenVpnRelayQuery`] configuration.
     ///
-    /// - The type parameter `TransportPort` keeps track of which
-    /// [`TransportProtocol`] & port-combo to use. [`TransportProtocol`] has
-    /// to be set first before the option to select a specific port is
-    /// exposed.
+    /// - The type parameter `TransportPort` keeps track of which [`TransportProtocol`] & port-combo
+    ///   to use. [`TransportProtocol`] has to be set first before the option to select a specific
+    ///   port is exposed.
     ///
     /// [`OpenVpnRelayQuery`]: super::OpenVpnRelayQuery
     pub struct OpenVPN<TransportPort, Bridge> {

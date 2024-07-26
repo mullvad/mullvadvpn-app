@@ -21,6 +21,7 @@ pub struct AppVersionInfo {
     /// * API endpoints it uses might not work any more.
     /// * Software bundled with this version, such as OpenVPN or OpenSSL, has known security
     ///   issues, so using it is no longer recommended.
+    ///
     /// The user should really upgrade when this is false.
     pub supported: bool,
     /// Latest stable version
