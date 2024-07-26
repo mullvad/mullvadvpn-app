@@ -75,7 +75,7 @@ public class PostQuantumKeyExchangeActor: PostQuantumKeyExchangeActorProtocol {
         endCurrentNegotiation()
         let negotiator = negotiationProvider.init()
 
-        let gatewayAddress = LocalNetworkIPs.gatewayAddress.rawValue
+        let gatewayAddress = "10.64.0.1"
         let IPv4Gateway = IPv4Address(gatewayAddress)!
         let endpoint = NWHostEndpoint(hostname: gatewayAddress, port: "\(CONFIG_SERVICE_PORT)")
         let inTunnelTCPConnection = createTCPConnection(endpoint)
