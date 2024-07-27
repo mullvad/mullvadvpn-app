@@ -68,7 +68,7 @@ elif which gradle > /dev/null; then
     GRADLE_CMD="gradle"
 else
     echo "ERROR: No gradle command found" >&2
-    echo "       Please either install gradle or restore the gradlew file" >&2
+    echo "       Please either install gradle or restore the gradle file" >&2
     exit 2
 fi
 
