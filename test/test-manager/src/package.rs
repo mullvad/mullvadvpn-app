@@ -1,9 +1,11 @@
 use crate::config::{Architecture, OsType, PackageType, VmConfig};
 use anyhow::{Context, Result};
 use itertools::Itertools;
-use once_cell::sync::Lazy;
 use regex::Regex;
-use std::path::{Path, PathBuf};
+use std::{
+    path::{Path, PathBuf},
+    sync::LazyLock,
+};
 
 #[derive(Debug, Clone)]
 pub struct Manifest {
@@ -70,8 +72,8 @@ pub fn get_app_manifest(
 }
 
 pub fn get_version_from_path(app_package_path: &Path) -> Result<String, anyhow::Error> {
-    static VERSION_REGEX: Lazy<Regex> =
-        Lazy::new(|| Regex::new(r"\d{4}\.\d+((-beta\d+)?(-dev)?-([0-9a-z])+)?").unwrap());
+    static VERSION_REGEX: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(r"\d{4}\.\d+((-beta\d+)?(-dev)?-([0-9a-z])+)?").unwrap());
 
     VERSION_REGEX
         .captures(app_package_path.to_str().unwrap())

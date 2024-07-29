@@ -15,7 +15,6 @@ either = "1.11"
 chrono = { workspace = true, features = ["clock", "serde"] }
 thiserror = { workspace = true }
 ipnetwork = { workspace = true }
-once_cell = { workspace = true }
 log = { workspace = true }
 regex = "1"
 serde = { workspace = true, features = ["derive"] }

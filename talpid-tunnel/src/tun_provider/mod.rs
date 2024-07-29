@@ -1,7 +1,9 @@
 use cfg_if::cfg_if;
 use ipnetwork::IpNetwork;
-use once_cell::sync::Lazy;
-use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
+use std::{
+    net::{IpAddr, Ipv4Addr, Ipv6Addr},
+    sync::LazyLock,
+};
 
 cfg_if! {
     if #[cfg(target_os = "android")] {
@@ -85,13 +87,13 @@ pub fn blocking_config() -> TunConfig {
     }
 }
 
-static DEFAULT_ROUTES: Lazy<Vec<IpNetwork>> =
-    Lazy::new(|| vec![*IPV4_DEFAULT_ROUTE, *IPV6_DEFAULT_ROUTE]);
-static IPV4_DEFAULT_ROUTE: Lazy<IpNetwork> = Lazy::new(|| {
+static DEFAULT_ROUTES: LazyLock<Vec<IpNetwork>> =
+    LazyLock::new(|| vec![*IPV4_DEFAULT_ROUTE, *IPV6_DEFAULT_ROUTE]);
+static IPV4_DEFAULT_ROUTE: LazyLock<IpNetwork> = LazyLock::new(|| {
     IpNetwork::new(IpAddr::V4(Ipv4Addr::UNSPECIFIED), 0)
         .expect("Invalid IP network prefix for IPv4 address")
 });
-static IPV6_DEFAULT_ROUTE: Lazy<IpNetwork> = Lazy::new(|| {
+static IPV6_DEFAULT_ROUTE: LazyLock<IpNetwork> = LazyLock::new(|| {
     IpNetwork::new(IpAddr::V6(Ipv6Addr::UNSPECIFIED), 0)
         .expect("Invalid IP network prefix for IPv6 address")
 });
