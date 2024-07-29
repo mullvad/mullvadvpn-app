@@ -28,7 +28,6 @@ object Versions {
         const val coreSplashscreen = "1.1.0-rc01"
         const val espresso = "3.6.1"
         const val lifecycle = "2.8.4"
-        const val fragmentTesting = "1.8.2"
         const val test = "1.6.1"
         const val testMonitor = "1.7.1"
         const val testOrchestrator = "1.5.0"
