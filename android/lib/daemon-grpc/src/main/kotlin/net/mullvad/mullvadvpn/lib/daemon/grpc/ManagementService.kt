@@ -73,6 +73,7 @@ import net.mullvad.mullvadvpn.lib.model.GetAccountDataError
 import net.mullvad.mullvadvpn.lib.model.GetAccountHistoryError
 import net.mullvad.mullvadvpn.lib.model.GetDeviceListError
 import net.mullvad.mullvadvpn.lib.model.GetDeviceStateError
+import net.mullvad.mullvadvpn.lib.model.GetVersionInfoError
 import net.mullvad.mullvadvpn.lib.model.LoginAccountError
 import net.mullvad.mullvadvpn.lib.model.NewAccessMethodSetting
 import net.mullvad.mullvadvpn.lib.model.ObfuscationSettings
@@ -279,8 +280,11 @@ class ManagementService(
     private suspend fun getRelayList(): ModelRelayList =
         grpc.getRelayLocations(Empty.getDefaultInstance()).toDomain()
 
-    private suspend fun getVersionInfo(): ModelAppVersionInfo =
-        grpc.getVersionInfo(Empty.getDefaultInstance()).toDomain()
+    // On release build this will return error until services have published the new beta, daemon
+    // will get 404 until the api have been published, thus we need to ignore error downstream.
+    private suspend fun getVersionInfo(): Either<GetVersionInfoError, ModelAppVersionInfo> =
+        Either.catch { grpc.getVersionInfo(Empty.getDefaultInstance()).toDomain() }
+            .mapLeft { GetVersionInfoError.Unknown(it) }
 
     suspend fun logoutAccount() {
         grpc.logoutAccount(Empty.getDefaultInstance())
@@ -320,7 +324,7 @@ class ManagementService(
                 async { _mutableTunnelState.update { getTunnelState() } },
                 async { _mutableDeviceState.update { getDeviceState() } },
                 async { _mutableSettings.update { getSettings() } },
-                async { _mutableVersionInfo.update { getVersionInfo() } },
+                async { _mutableVersionInfo.update { getVersionInfo().getOrNull() } },
                 async { _mutableRelayList.update { getRelayList() } },
                 async { _mutableCurrentAccessMethod.update { getCurrentApiAccessMethod() } }
             )
