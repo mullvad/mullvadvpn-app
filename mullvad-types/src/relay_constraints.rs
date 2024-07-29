@@ -198,6 +198,13 @@ impl GeographicLocationConstraint {
     pub fn is_country(&self) -> bool {
         matches!(self, GeographicLocationConstraint::Country(_))
     }
+
+    pub fn get_hostname(&self) -> Option<&Hostname> {
+        match self {
+            GeographicLocationConstraint::Hostname(_, _, hostname) => Some(hostname),
+            _ => None,
+        }
+    }
 }
 
 impl Match<Relay> for GeographicLocationConstraint {
