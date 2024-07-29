@@ -5,7 +5,7 @@ use crate::{
     constraints::{Constraint, Match},
     custom_list::{CustomListsSettings, Id},
     location::{CityCode, CountryCode, Hostname},
-    relay_list::Relay,
+    relay_list::{Relay, RelayEndpointData},
     CustomTunnelEndpoint, Intersection,
 };
 use serde::{Deserialize, Serialize};
@@ -666,6 +666,17 @@ impl RelayOverride {
                 relay.hostname
             );
             relay.ipv6_addr_in = Some(ipv6_addr_in);
+        }
+
+        // Additional IPs should be ignored when overrides are present
+        if let RelayEndpointData::Wireguard(data) = &mut relay.endpoint_data {
+            data.shadowsocks_extra_addr_in.retain(|addr| {
+                let not_overridden_v4 = self.ipv4_addr_in.is_none() && addr.is_ipv4();
+                let not_overridden_v6 = self.ipv6_addr_in.is_none() && addr.is_ipv6();
+
+                // Keep address if it's not overridden
+                not_overridden_v4 || not_overridden_v6
+            });
         }
     }
 }
