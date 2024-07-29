@@ -6,7 +6,6 @@ use futures::{
 };
 use mullvad_api::{availability::ApiAvailabilityHandle, rest::MullvadRestHandle, AppVersionProxy};
 use mullvad_types::version::{AppVersionInfo, ParsedAppVersion};
-use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
 use std::{
     cmp::max,
@@ -15,6 +14,7 @@ use std::{
     path::{Path, PathBuf},
     pin::Pin,
     str::FromStr,
+    sync::LazyLock,
     time::{Duration, SystemTime},
 };
 use talpid_core::mpsc::Sender;
@@ -24,9 +24,9 @@ use tokio::{fs::File, io::AsyncReadExt};
 
 const VERSION_INFO_FILENAME: &str = "version-info.json";
 
-static APP_VERSION: Lazy<ParsedAppVersion> =
-    Lazy::new(|| ParsedAppVersion::from_str(mullvad_version::VERSION).unwrap());
-static IS_DEV_BUILD: Lazy<bool> = Lazy::new(|| APP_VERSION.is_dev());
+static APP_VERSION: LazyLock<ParsedAppVersion> =
+    LazyLock::new(|| ParsedAppVersion::from_str(mullvad_version::VERSION).unwrap());
+static IS_DEV_BUILD: LazyLock<bool> = LazyLock::new(|| APP_VERSION.is_dev());
 
 const DOWNLOAD_TIMEOUT: Duration = Duration::from_secs(15);
 

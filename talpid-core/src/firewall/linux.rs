@@ -5,12 +5,12 @@ use nftnl::{
     expr::{self, IcmpCode, Payload, RejectionType, Verdict},
     nft_expr, table, Batch, Chain, FinalizedBatch, ProtoFamily, Rule, Table,
 };
-use once_cell::sync::Lazy;
 use std::{
     env,
     ffi::{CStr, CString},
     fs, io,
     net::{IpAddr, Ipv4Addr},
+    sync::LazyLock,
 };
 use talpid_types::net::{
     AllowedEndpoint, AllowedTunnelTraffic, Endpoint, TransportProtocol, ALLOWED_LAN_MULTICAST_NETS,
@@ -55,23 +55,24 @@ pub enum Error {
 
 /// TODO(linus): This crate is not supposed to be Mullvad-aware. So at some point this should be
 /// replaced by allowing the table name to be configured from the public API of this crate.
-static TABLE_NAME: Lazy<CString> = Lazy::new(|| CString::new("mullvad").unwrap());
-static IN_CHAIN_NAME: Lazy<CString> = Lazy::new(|| CString::new("input").unwrap());
-static OUT_CHAIN_NAME: Lazy<CString> = Lazy::new(|| CString::new("output").unwrap());
-static FORWARD_CHAIN_NAME: Lazy<CString> = Lazy::new(|| CString::new("forward").unwrap());
-static PREROUTING_CHAIN_NAME: Lazy<CString> = Lazy::new(|| CString::new("prerouting").unwrap());
-static MANGLE_CHAIN_NAME: Lazy<CString> = Lazy::new(|| CString::new("mangle").unwrap());
-static NAT_CHAIN_NAME: Lazy<CString> = Lazy::new(|| CString::new("nat").unwrap());
+static TABLE_NAME: LazyLock<CString> = LazyLock::new(|| CString::new("mullvad").unwrap());
+static IN_CHAIN_NAME: LazyLock<CString> = LazyLock::new(|| CString::new("input").unwrap());
+static OUT_CHAIN_NAME: LazyLock<CString> = LazyLock::new(|| CString::new("output").unwrap());
+static FORWARD_CHAIN_NAME: LazyLock<CString> = LazyLock::new(|| CString::new("forward").unwrap());
+static PREROUTING_CHAIN_NAME: LazyLock<CString> =
+    LazyLock::new(|| CString::new("prerouting").unwrap());
+static MANGLE_CHAIN_NAME: LazyLock<CString> = LazyLock::new(|| CString::new("mangle").unwrap());
+static NAT_CHAIN_NAME: LazyLock<CString> = LazyLock::new(|| CString::new("nat").unwrap());
 
 /// Allows controlling whether firewall rules should have packet counters or not from an env
 /// variable. Useful for debugging the rules.
-static ADD_COUNTERS: Lazy<bool> = Lazy::new(|| {
+static ADD_COUNTERS: LazyLock<bool> = LazyLock::new(|| {
     env::var("TALPID_FIREWALL_DEBUG")
         .map(|v| v != "0")
         .unwrap_or(false)
 });
 
-static DONT_SET_SRC_VALID_MARK: Lazy<bool> = Lazy::new(|| {
+static DONT_SET_SRC_VALID_MARK: LazyLock<bool> = LazyLock::new(|| {
     env::var("TALPID_FIREWALL_DONT_SET_SRC_VALID_MARK")
         .map(|v| v != "0")
         .unwrap_or(false)
@@ -1066,10 +1067,10 @@ fn set_src_valid_mark_sysctl() -> io::Result<()> {
 /// Tables that are no longer used but need to be deleted due to upgrades.
 /// This can be removed when upgrades from 2023.3 are no longer supported.
 fn batch_deprecated_tables(batch: &mut Batch) {
-    static MANGLE_TABLE_NAME_V4: Lazy<CString> =
-        Lazy::new(|| CString::new("mullvadmangle4").unwrap());
-    static MANGLE_TABLE_NAME_V6: Lazy<CString> =
-        Lazy::new(|| CString::new("mullvadmangle6").unwrap());
+    static MANGLE_TABLE_NAME_V4: LazyLock<CString> =
+        LazyLock::new(|| CString::new("mullvadmangle4").unwrap());
+    static MANGLE_TABLE_NAME_V6: LazyLock<CString> =
+        LazyLock::new(|| CString::new("mullvadmangle6").unwrap());
     let tables = [
         Table::new(&*MANGLE_TABLE_NAME_V4, ProtoFamily::Ipv4),
         Table::new(&*MANGLE_TABLE_NAME_V6, ProtoFamily::Ipv6),

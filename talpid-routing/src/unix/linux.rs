@@ -31,14 +31,14 @@ use netlink_packet_route::{
     rule::{nlas::Nla as RuleNla, RuleHeader, RuleMessage},
     NetlinkMessage, NetlinkPayload, RtnlMessage,
 };
-use once_cell::sync::Lazy;
 use rtnetlink::{
     constants::{RTMGRP_IPV4_ROUTE, RTMGRP_IPV6_ROUTE, RTMGRP_LINK, RTMGRP_NOTIFY},
     sys::SocketAddr,
     Handle, IpVersion,
 };
+use std::sync::LazyLock;
 
-static SUPPRESS_RULE_V4: Lazy<RuleMessage> = Lazy::new(|| RuleMessage {
+static SUPPRESS_RULE_V4: LazyLock<RuleMessage> = LazyLock::new(|| RuleMessage {
     header: RuleHeader {
         family: AF_INET as u8,
         action: FR_ACT_TO_TBL,
@@ -49,7 +49,7 @@ static SUPPRESS_RULE_V4: Lazy<RuleMessage> = Lazy::new(|| RuleMessage {
         RuleNla::Table(RT_TABLE_MAIN as u32),
     ],
 });
-static SUPPRESS_RULE_V6: Lazy<RuleMessage> = Lazy::new(|| {
+static SUPPRESS_RULE_V6: LazyLock<RuleMessage> = LazyLock::new(|| {
     let mut v6_rule = SUPPRESS_RULE_V4.clone();
     v6_rule.header.family = AF_INET6 as u8;
     v6_rule
