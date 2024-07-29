@@ -7,7 +7,7 @@ use std::{
 };
 
 use hyper::client::connect::{Connected, Connection};
-use once_cell::sync::Lazy;
+use std::sync::LazyLock;
 use tokio::io::{AsyncRead, AsyncWrite, ReadBuf};
 use tokio_rustls::{
     rustls::{self, ClientConfig, ServerName},
@@ -25,7 +25,7 @@ where
     S: AsyncRead + AsyncWrite + Unpin,
 {
     pub async fn connect_https(stream: S, domain: &str) -> io::Result<TlsStream<S>> {
-        static TLS_CONFIG: Lazy<Arc<ClientConfig>> = Lazy::new(|| {
+        static TLS_CONFIG: LazyLock<Arc<ClientConfig>> = LazyLock::new(|| {
             let config = ClientConfig::builder()
                 .with_safe_default_cipher_suites()
                 .with_safe_default_kx_groups()

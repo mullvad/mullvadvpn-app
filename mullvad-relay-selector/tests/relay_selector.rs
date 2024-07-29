@@ -1,9 +1,9 @@
 //! Tests for verifying that the relay selector works as expected.
 
-use once_cell::sync::Lazy;
 use std::{
     collections::HashSet,
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
+    sync::LazyLock,
 };
 use talpid_types::net::{
     obfuscation::ObfuscatorConfig,
@@ -32,7 +32,7 @@ use mullvad_types::{
     },
 };
 
-static RELAYS: Lazy<RelayList> = Lazy::new(|| RelayList {
+static RELAYS: LazyLock<RelayList> = LazyLock::new(|| RelayList {
     etag: None,
     countries: vec![RelayListCountry {
         name: "Sweden".to_string(),
@@ -185,7 +185,7 @@ static RELAYS: Lazy<RelayList> = Lazy::new(|| RelayList {
 });
 
 /// A Shadowsocks relay with additional addresses
-static SHADOWSOCKS_RELAY: Lazy<Relay> = Lazy::new(|| Relay {
+static SHADOWSOCKS_RELAY: LazyLock<Relay> = LazyLock::new(|| Relay {
     hostname: SHADOWSOCKS_RELAY_LOCATION
         .get_hostname()
         .unwrap()
@@ -212,8 +212,8 @@ const SHADOWSOCKS_RELAY_EXTRA_ADDRS: &[IpAddr; 2] = &[
     IpAddr::V4(Ipv4Addr::new(123, 123, 123, 2)),
     IpAddr::V6(Ipv6Addr::new(0x123, 0, 0, 0, 0, 0, 0, 2)),
 ];
-static SHADOWSOCKS_RELAY_LOCATION: Lazy<GeographicLocationConstraint> =
-    Lazy::new(|| GeographicLocationConstraint::hostname("se", "got", "se1337-wireguard"));
+static SHADOWSOCKS_RELAY_LOCATION: LazyLock<GeographicLocationConstraint> =
+    LazyLock::new(|| GeographicLocationConstraint::hostname("se", "got", "se1337-wireguard"));
 
 // Helper functions
 fn unwrap_relay(get_result: GetRelay) -> Relay {
