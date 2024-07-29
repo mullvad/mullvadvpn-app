@@ -52,7 +52,7 @@ jobs:
 
       - uses: taiki-e/install-action@v2
         with:
-          tool: cargo-udeps@0.1.48
+          tool: cargo-udeps
 
       - name: Check for unused dependencies
         shell: bash
@@ -85,7 +85,7 @@ jobs:
 
       - uses: taiki-e/install-action@v2
         with:
-          tool: cargo-udeps@0.1.48
+          tool: cargo-udeps
 
       - name: Check for unused dependencies
         run: cargo udeps --target aarch64-linux-android --package mullvad-jni
@@ -119,7 +119,7 @@ jobs:
 
       - uses: taiki-e/install-action@v2
         with:
-          tool: cargo-udeps@0.1.48
+          tool: cargo-udeps
 
       - name: Install Go
         if: matrix.os == 'macos-latest'
