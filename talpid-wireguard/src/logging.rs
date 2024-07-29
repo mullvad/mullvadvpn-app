@@ -1,8 +1,7 @@
-use once_cell::sync::Lazy;
 use parking_lot::Mutex;
-use std::{collections::HashMap, fmt, fs, io::Write, path::Path};
+use std::{collections::HashMap, fmt, fs, io::Write, path::Path, sync::LazyLock};
 
-static LOG_MUTEX: Lazy<Mutex<LogState>> = Lazy::new(|| Mutex::new(LogState::default()));
+static LOG_MUTEX: LazyLock<Mutex<LogState>> = LazyLock::new(|| Mutex::new(LogState::default()));
 
 #[derive(Default)]
 struct LogState {

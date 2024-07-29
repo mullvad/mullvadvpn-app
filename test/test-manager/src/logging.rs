@@ -24,7 +24,7 @@ struct StoredRecord {
 
 impl Logger {
     pub fn get_or_init() -> Self {
-        static LOGGER: once_cell::sync::Lazy<Logger> = once_cell::sync::Lazy::new(|| {
+        static LOGGER: std::sync::LazyLock<Logger> = std::sync::LazyLock::new(|| {
             let mut logger = env_logger::Builder::new();
             logger.filter_module("h2", log::LevelFilter::Info);
             logger.filter_module("tower", log::LevelFilter::Info);

@@ -28,12 +28,12 @@ use hickory_server::{
     server::{Request, RequestHandler, ResponseHandler, ResponseInfo},
     ServerFuture,
 };
-use once_cell::sync::Lazy;
+use std::sync::LazyLock;
 
 const ALLOWED_RECORD_TYPES: &[RecordType] = &[RecordType::A, RecordType::CNAME];
 const CAPTIVE_PORTAL_DOMAINS: &[&str] = &["captive.apple.com", "netcts.cdn-apple.com"];
 
-static ALLOWED_DOMAINS: Lazy<Vec<LowerName>> = Lazy::new(|| {
+static ALLOWED_DOMAINS: LazyLock<Vec<LowerName>> = LazyLock::new(|| {
     CAPTIVE_PORTAL_DOMAINS
         .iter()
         .map(|domain| LowerName::from(Name::from_str(domain).unwrap()))

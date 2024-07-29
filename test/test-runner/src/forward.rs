@@ -1,4 +1,4 @@
-use once_cell::sync::Lazy;
+use std::sync::LazyLock;
 use std::{
     collections::HashMap,
     net::SocketAddr,
@@ -10,8 +10,8 @@ use std::{
 use test_rpc::net::SockHandleId;
 use tokio::net::{TcpListener, TcpStream};
 
-static SERVERS: Lazy<Mutex<HashMap<SockHandleId, Handle>>> =
-    Lazy::new(|| Mutex::new(HashMap::new()));
+static SERVERS: LazyLock<Mutex<HashMap<SockHandleId, Handle>>> =
+    LazyLock::new(|| Mutex::new(HashMap::new()));
 
 /// Spawn a TCP forwarder that sends TCP via `via_addr`
 pub async fn start_server(

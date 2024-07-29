@@ -1,7 +1,6 @@
 //! Tests for verifying that the relay selector works as expected.
 
-use once_cell::sync::Lazy;
-use std::collections::HashSet;
+use std::{collections::HashSet, sync::LazyLock};
 use talpid_types::net::{
     obfuscation::ObfuscatorConfig,
     wireguard::PublicKey,
@@ -29,7 +28,7 @@ use mullvad_types::{
     },
 };
 
-static RELAYS: Lazy<RelayList> = Lazy::new(|| RelayList {
+static RELAYS: LazyLock<RelayList> = LazyLock::new(|| RelayList {
     etag: None,
     countries: vec![RelayListCountry {
         name: "Sweden".to_string(),

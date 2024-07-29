@@ -1,5 +1,5 @@
-use once_cell::sync::Lazy;
 use regex::Regex;
+use std::sync::LazyLock;
 
 pub trait Normalize {
     /// Normalize the string value into a common format.
@@ -12,9 +12,9 @@ mod android {
     use super::*;
     use crate::android::StringValue;
 
-    static APOSTROPHES: Lazy<Regex> = Lazy::new(|| Regex::new(r"\\'").unwrap());
-    static DOUBLE_QUOTES: Lazy<Regex> = Lazy::new(|| Regex::new(r#"\\""#).unwrap());
-    static PARAMETERS: Lazy<Regex> = Lazy::new(|| Regex::new(r"%[0-9]*\$").unwrap());
+    static APOSTROPHES: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\\'").unwrap());
+    static DOUBLE_QUOTES: LazyLock<Regex> = LazyLock::new(|| Regex::new(r#"\\""#).unwrap());
+    static PARAMETERS: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"%[0-9]*\$").unwrap());
 
     impl Normalize for StringValue {
         fn normalize(&self) -> String {
@@ -35,9 +35,9 @@ mod gettext {
     use super::*;
     use crate::gettext::MsgString;
 
-    static ESCAPED_SINGLE_QUOTES: Lazy<Regex> = Lazy::new(|| Regex::new(r"\\'").unwrap());
-    static ESCAPED_DOUBLE_QUOTES: Lazy<Regex> = Lazy::new(|| Regex::new(r#"\\""#).unwrap());
-    static PARAMETERS: Lazy<Regex> = Lazy::new(|| Regex::new(r"%\([^)]*\)").unwrap());
+    static ESCAPED_SINGLE_QUOTES: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\\'").unwrap());
+    static ESCAPED_DOUBLE_QUOTES: LazyLock<Regex> = LazyLock::new(|| Regex::new(r#"\\""#).unwrap());
+    static PARAMETERS: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"%\([^)]*\)").unwrap());
 
     impl Normalize for MsgString {
         fn normalize(&self) -> String {

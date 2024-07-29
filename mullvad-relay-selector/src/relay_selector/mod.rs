@@ -8,11 +8,10 @@ pub mod query;
 
 use chrono::{DateTime, Local};
 use itertools::Itertools;
-use once_cell::sync::Lazy;
 use rand::{seq::IteratorRandom, thread_rng};
 use std::{
     path::Path,
-    sync::{Arc, Mutex},
+    sync::{Arc, LazyLock, Mutex},
     time::SystemTime,
 };
 
@@ -51,7 +50,7 @@ use self::{
 /// preferences. See [the documentation on `RelayQuery`][RelayQuery] for further details.
 ///
 /// This list should be kept in sync with the expected behavior defined in `docs/relay-selector.md`
-pub static RETRY_ORDER: Lazy<Vec<RelayQuery>> = Lazy::new(|| {
+pub static RETRY_ORDER: LazyLock<Vec<RelayQuery>> = LazyLock::new(|| {
     use query::builder::{IpVersion, RelayQueryBuilder};
     vec![
         // 1

@@ -1,8 +1,8 @@
 use ipnetwork::{IpNetwork, Ipv4Network, Ipv6Network};
-use once_cell::sync::Lazy;
 use std::{
     fmt,
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
+    sync::LazyLock,
 };
 use talpid_types::net::{AllowedEndpoint, AllowedTunnelTraffic};
 
@@ -25,7 +25,7 @@ mod imp;
 pub use self::imp::Error;
 
 /// When "allow local network" is enabled the app will allow traffic to and from these networks.
-pub(crate) static ALLOWED_LAN_NETS: Lazy<[IpNetwork; 6]> = Lazy::new(|| {
+pub(crate) static ALLOWED_LAN_NETS: LazyLock<[IpNetwork; 6]> = LazyLock::new(|| {
     [
         IpNetwork::V4(Ipv4Network::new(Ipv4Addr::new(10, 0, 0, 0), 8).unwrap()),
         IpNetwork::V4(Ipv4Network::new(Ipv4Addr::new(172, 16, 0, 0), 12).unwrap()),
@@ -37,7 +37,7 @@ pub(crate) static ALLOWED_LAN_NETS: Lazy<[IpNetwork; 6]> = Lazy::new(|| {
 });
 /// When "allow local network" is enabled the app will allow traffic to these networks.
 #[cfg(any(target_os = "linux", target_os = "macos", target_os = "android"))]
-pub(crate) static ALLOWED_LAN_MULTICAST_NETS: Lazy<[IpNetwork; 8]> = Lazy::new(|| {
+pub(crate) static ALLOWED_LAN_MULTICAST_NETS: LazyLock<[IpNetwork; 8]> = LazyLock::new(|| {
     [
         // Local network broadcast. Not routable
         IpNetwork::V4(Ipv4Network::new(Ipv4Addr::new(255, 255, 255, 255), 32).unwrap()),
@@ -58,23 +58,24 @@ pub(crate) static ALLOWED_LAN_MULTICAST_NETS: Lazy<[IpNetwork; 8]> = Lazy::new(|
     ]
 });
 #[cfg(any(target_os = "linux", target_os = "macos"))]
-static IPV6_LINK_LOCAL: Lazy<Ipv6Network> =
-    Lazy::new(|| Ipv6Network::new(Ipv6Addr::new(0xfe80, 0, 0, 0, 0, 0, 0, 0), 10).unwrap());
+static IPV6_LINK_LOCAL: LazyLock<Ipv6Network> =
+    LazyLock::new(|| Ipv6Network::new(Ipv6Addr::new(0xfe80, 0, 0, 0, 0, 0, 0, 0), 10).unwrap());
 /// The allowed target addresses of outbound DHCPv6 requests
 #[cfg(any(target_os = "linux", target_os = "macos"))]
-static DHCPV6_SERVER_ADDRS: Lazy<[Ipv6Addr; 2]> = Lazy::new(|| {
+static DHCPV6_SERVER_ADDRS: LazyLock<[Ipv6Addr; 2]> = LazyLock::new(|| {
     [
         Ipv6Addr::new(0xff02, 0, 0, 0, 0, 0, 1, 2),
         Ipv6Addr::new(0xff05, 0, 0, 0, 0, 0, 1, 3),
     ]
 });
 #[cfg(any(target_os = "linux", target_os = "macos"))]
-static ROUTER_SOLICITATION_OUT_DST_ADDR: Lazy<Ipv6Addr> =
-    Lazy::new(|| Ipv6Addr::new(0xff02, 0, 0, 0, 0, 0, 0, 2));
+static ROUTER_SOLICITATION_OUT_DST_ADDR: LazyLock<Ipv6Addr> =
+    LazyLock::new(|| Ipv6Addr::new(0xff02, 0, 0, 0, 0, 0, 0, 2));
 #[cfg(any(target_os = "linux", target_os = "macos"))]
-static SOLICITED_NODE_MULTICAST: Lazy<Ipv6Network> =
-    Lazy::new(|| Ipv6Network::new(Ipv6Addr::new(0xff02, 0, 0, 0, 0, 1, 0xFF00, 0), 104).unwrap());
-static LOOPBACK_NETS: Lazy<[IpNetwork; 2]> = Lazy::new(|| {
+static SOLICITED_NODE_MULTICAST: LazyLock<Ipv6Network> = LazyLock::new(|| {
+    Ipv6Network::new(Ipv6Addr::new(0xff02, 0, 0, 0, 0, 1, 0xFF00, 0), 104).unwrap()
+});
+static LOOPBACK_NETS: LazyLock<[IpNetwork; 2]> = LazyLock::new(|| {
     [
         IpNetwork::V4(ipnetwork::Ipv4Network::new(Ipv4Addr::new(127, 0, 0, 0), 8).unwrap()),
         IpNetwork::V6(

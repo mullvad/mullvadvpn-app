@@ -1,7 +1,6 @@
 use mullvad_types::account::AccountToken;
-use once_cell::sync::Lazy;
 use regex::Regex;
-use std::path::Path;
+use std::{path::Path, sync::LazyLock};
 use talpid_types::ErrorExt;
 use tokio::{
     fs,
@@ -32,7 +31,7 @@ pub struct AccountHistory {
     token: Option<AccountToken>,
 }
 
-static ACCOUNT_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r"^[0-9]+$").unwrap());
+static ACCOUNT_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^[0-9]+$").unwrap());
 
 impl AccountHistory {
     pub async fn new(

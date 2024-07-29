@@ -139,8 +139,7 @@ pub struct ApiEndpoint {
     /// Whether bridges/proxies can be used to access the API or not. This is
     /// useful primarily for testing purposes.
     ///
-    /// * If `force_direct` is `true`, bridges and proxies will not be used to
-    ///   reach the API.
+    /// * If `force_direct` is `true`, bridges and proxies will not be used to reach the API.
     /// * If `force_direct` is `false`, bridges and proxies can be used to reach the API.
     ///
     /// # Note

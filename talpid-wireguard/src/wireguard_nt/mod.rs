@@ -7,7 +7,7 @@ use super::{
 use bitflags::bitflags;
 use futures::SinkExt;
 use ipnetwork::IpNetwork;
-use once_cell::sync::{Lazy, OnceCell};
+use once_cell::sync::OnceCell;
 #[cfg(daita)]
 use std::{ffi::c_uchar, path::PathBuf};
 use std::{
@@ -21,7 +21,7 @@ use std::{
     path::Path,
     pin::Pin,
     ptr,
-    sync::{Arc, Mutex},
+    sync::{Arc, LazyLock, Mutex},
 };
 use talpid_types::{BoxedError, ErrorExt};
 use talpid_windows::net;
@@ -42,8 +42,10 @@ use windows_sys::{
 mod daita;
 
 static WG_NT_DLL: OnceCell<WgNtDll> = OnceCell::new();
-static ADAPTER_TYPE: Lazy<U16CString> = Lazy::new(|| U16CString::from_str("Mullvad").unwrap());
-static ADAPTER_ALIAS: Lazy<U16CString> = Lazy::new(|| U16CString::from_str("Mullvad").unwrap());
+static ADAPTER_TYPE: LazyLock<U16CString> =
+    LazyLock::new(|| U16CString::from_str("Mullvad").unwrap());
+static ADAPTER_ALIAS: LazyLock<U16CString> =
+    LazyLock::new(|| U16CString::from_str("Mullvad").unwrap());
 
 const ADAPTER_GUID: GUID = GUID {
     data1: 0x514a3988,
@@ -553,7 +555,7 @@ impl Drop for WgNtTunnel {
     }
 }
 
-static LOG_CONTEXT: Lazy<Mutex<Option<u64>>> = Lazy::new(|| Mutex::new(None));
+static LOG_CONTEXT: LazyLock<Mutex<Option<u64>>> = LazyLock::new(|| Mutex::new(None));
 
 struct LoggerHandle {
     dll: &'static WgNtDll,
@@ -1159,11 +1161,11 @@ mod tests {
         p0_allowed_ip_0: WgAllowedIp,
     }
 
-    static WG_PRIVATE_KEY: Lazy<wireguard::PrivateKey> =
-        Lazy::new(wireguard::PrivateKey::new_from_random);
-    static WG_PUBLIC_KEY: Lazy<wireguard::PublicKey> =
-        Lazy::new(|| wireguard::PrivateKey::new_from_random().public_key());
-    static WG_CONFIG: Lazy<Config> = Lazy::new(|| Config {
+    static WG_PRIVATE_KEY: LazyLock<wireguard::PrivateKey> =
+        LazyLock::new(wireguard::PrivateKey::new_from_random);
+    static WG_PUBLIC_KEY: LazyLock<wireguard::PublicKey> =
+        LazyLock::new(|| wireguard::PrivateKey::new_from_random().public_key());
+    static WG_CONFIG: LazyLock<Config> = LazyLock::new(|| Config {
         tunnel: wireguard::TunnelConfig {
             private_key: WG_PRIVATE_KEY.clone(),
             addresses: vec![],
@@ -1185,7 +1187,7 @@ mod tests {
         quantum_resistant: false,
     });
 
-    static WG_STRUCT_CONFIG: Lazy<Interface> = Lazy::new(|| Interface {
+    static WG_STRUCT_CONFIG: LazyLock<Interface> = LazyLock::new(|| Interface {
         interface: WgInterface {
             flags: WgInterfaceFlag::HAS_PRIVATE_KEY | WgInterfaceFlag::REPLACE_PEERS,
             listen_port: 0,

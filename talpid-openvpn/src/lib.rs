@@ -3,11 +3,11 @@
 #![deny(missing_docs)]
 
 use crate::proxy::ProxyMonitor;
-#[cfg(windows)]
-use once_cell::sync::Lazy;
 use process::openvpn::{OpenVpnCommand, OpenVpnProcHandle};
 #[cfg(target_os = "linux")]
 use std::collections::{HashMap, HashSet};
+#[cfg(windows)]
+use std::sync::LazyLock;
 #[cfg(target_os = "windows")]
 use std::{ffi::OsString, sync::Arc};
 use std::{
@@ -39,10 +39,11 @@ mod process;
 mod proxy;
 
 #[cfg(windows)]
-static ADAPTER_ALIAS: Lazy<U16CString> = Lazy::new(|| U16CString::from_str("Mullvad").unwrap());
+static ADAPTER_ALIAS: LazyLock<U16CString> =
+    LazyLock::new(|| U16CString::from_str("Mullvad").unwrap());
 #[cfg(windows)]
-static ADAPTER_TUNNEL_TYPE: Lazy<U16CString> =
-    Lazy::new(|| U16CString::from_str("Mullvad").unwrap());
+static ADAPTER_TUNNEL_TYPE: LazyLock<U16CString> =
+    LazyLock::new(|| U16CString::from_str("Mullvad").unwrap());
 
 #[cfg(windows)]
 const ADAPTER_GUID: GUID = GUID {

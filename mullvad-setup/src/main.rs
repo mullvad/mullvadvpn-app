@@ -1,6 +1,5 @@
 use clap::Parser;
-use once_cell::sync::Lazy;
-use std::{path::PathBuf, process, str::FromStr, time::Duration};
+use std::{path::PathBuf, process, str::FromStr, sync::LazyLock, time::Duration};
 
 use mullvad_api::{proxy::ApiConnectionMode, DEVICE_NOT_FOUND};
 use mullvad_management_interface::MullvadProxyClient;
@@ -9,8 +8,8 @@ use talpid_core::firewall::{self, Firewall};
 use talpid_future::retry::{retry_future, ConstantInterval};
 use talpid_types::ErrorExt;
 
-static APP_VERSION: Lazy<ParsedAppVersion> =
-    Lazy::new(|| ParsedAppVersion::from_str(mullvad_version::VERSION).unwrap());
+static APP_VERSION: LazyLock<ParsedAppVersion> =
+    LazyLock::new(|| ParsedAppVersion::from_str(mullvad_version::VERSION).unwrap());
 
 const DEVICE_REMOVAL_STRATEGY: ConstantInterval = ConstantInterval::new(Duration::ZERO, Some(5));
 

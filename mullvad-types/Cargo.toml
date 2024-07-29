@@ -14,7 +14,6 @@ workspace = true
 chrono = { workspace = true, features = ["clock", "serde"] }
 thiserror = { workspace = true }
 ipnetwork = { workspace = true }
-once_cell = { workspace = true }
 log = { workspace = true }
 regex = "1"
 serde = { version = "1.0", features = ["derive"] }
