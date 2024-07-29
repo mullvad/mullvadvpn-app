@@ -254,6 +254,8 @@ pub async fn test_uninstall_app(
         uninstalled_device,
     );
 
+    // Re-install the app to ensure that the next test can run
+    install_app(&rpc, &TEST_CONFIG.app_package_filename).await?;
     Ok(())
 }
 
