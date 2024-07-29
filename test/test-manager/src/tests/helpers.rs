@@ -581,14 +581,14 @@ pub fn unreachable_wireguard_tunnel() -> talpid_types::net::wireguard::Connectio
 /// # Note
 /// This is independent of the running daemon's environment.
 /// It is solely dependant on the current value of [`TEST_CONFIG`].
-pub async fn get_app_env() -> anyhow::Result<HashMap<String, String>> {
+pub async fn get_app_env() -> Result<HashMap<String, String>, Error> {
     use mullvad_api::env;
 
     let api_host = format!("api.{}", TEST_CONFIG.mullvad_host);
     let api_host_with_port = format!("{api_host}:443");
     let api_addr = resolve_hostname_with_retries(api_host_with_port)
         .await
-        .context("failed to resolve API host")?;
+        .map_err(Error::DnsLookup)?;
 
     Ok(HashMap::from_iter(vec![
         (env::API_HOST_VAR.to_string(), api_host),
