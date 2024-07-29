@@ -21,6 +21,7 @@ use crate::{
 use anyhow::Context;
 use config::TEST_CONFIG;
 use helpers::install_app;
+use mullvad_management_interface::MullvadProxyClient;
 pub use test_metadata::TestMetadata;
 use test_rpc::ServiceClient;
 
@@ -84,23 +85,15 @@ pub async fn cleanup_after_test(
     log::debug!("Cleaning up daemon in test cleanup");
     // Check if daemon should be restarted
 
-    if let Err(e) = restart_daemon(&rpc).await {
-        log::error!("Failed to restart daemon: {e}");
-    }
     let mut mullvad_client = rpc_provider.new_client().await;
 
-    use crate::tests::Error::*;
-    match helpers::disconnect_and_wait(&mut mullvad_client).await {
-        Err(ManagementInterface(..) | DaemonNotRunning) => {
-            log::info!("Failed to reach daemon after test, re-installing app");
-            // Re-install the app to ensure that the next test can run
-            install_app(&rpc, &TEST_CONFIG.app_package_filename)
-                .await
-                .context("Failed to install app")?;
-            helpers::disconnect_and_wait(&mut mullvad_client).await?;
-        }
-        _ => (),
-    }
+    restart_daemon(&rpc, &mut mullvad_client)
+        .await
+        .context("Failed to restart daemon")?;
+
+    helpers::disconnect_and_wait(&mut mullvad_client)
+        .await
+        .context("Failed to disconnect daemon after test")?;
 
     // Bring all the settings into scope so we remember to reset them.
     let mullvad_types::settings::Settings {
@@ -212,19 +205,35 @@ pub async fn cleanup_after_test(
 /// If the daemon was started with non-standard environment variables, subsequent tests may break
 /// due to assuming a default configuration. In that case, reset the environment variables and
 /// restart.
-async fn restart_daemon(rpc: &ServiceClient) -> anyhow::Result<()> {
-    let current_env = rpc
-        .get_daemon_environment()
-        .await
-        .context("Failed to get daemon env variables")?;
-    let default_env = get_app_env()
-        .await
-        .context("Failed to get daemon default env variables")?;
-    if current_env != default_env {
-        log::debug!("Restarting daemon due changed environment variables. Values since last test {current_env:?}");
-        rpc.set_daemon_environment(default_env)
-            .await
-            .context("Failed to restart daemon")?;
+async fn restart_daemon(
+    rpc: &ServiceClient,
+    mullvad_client: &mut MullvadProxyClient,
+) -> anyhow::Result<()> {
+    use mullvad_management_interface::Error::*;
+    match mullvad_client.get_current_version().await {
+        Err(Rpc(..)) => {
+            log::info!("Failed to reach daemon after test, re-installing app");
+            // Re-install the app to ensure that the next test can run
+            install_app(rpc, &TEST_CONFIG.app_package_filename)
+                .await
+                .context("Failed to install app")?;
+        }
+        Err(e) => return Err(e.into()),
+        Ok(_version) => {
+            let current_env = rpc
+                .get_daemon_environment()
+                .await
+                .context("Failed to get daemon env variables")?;
+            let default_env = get_app_env()
+                .await
+                .context("Failed to get daemon default env variables")?;
+            if current_env != default_env {
+                log::debug!("Restarting daemon due changed environment variables. Values since last test {current_env:?}");
+                rpc.set_daemon_environment(default_env)
+                    .await
+                    .context("Failed to restart daemon")?;
+            }
+        }
     }
     Ok(())
 }
