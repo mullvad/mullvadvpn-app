@@ -1,5 +1,5 @@
 use crate::{
-    logging::{panic_as_string, TestOutput},
+    logging::{Panic, TestOutput, TestResult},
     mullvad_daemon::{self, MullvadClientArgument},
     summary::{self, maybe_log_test_result},
     tests::{self, config::TEST_CONFIG, get_tests, TestContext},
@@ -24,7 +24,7 @@ pub async fn run(
     skip_wait: bool,
     print_failed_tests_only: bool,
     mut summary_logger: Option<summary::SummaryLogger>,
-) -> Result<()> {
+) -> Result<TestResult> {
     log::trace!("Setting test constants");
     TEST_CONFIG.init(config);
 
@@ -68,8 +68,6 @@ pub async fn run(
         });
     }
 
-    let mut final_result = Ok(());
-
     let test_context = TestContext {
         rpc_provider: mullvad_client,
     };
@@ -79,6 +77,7 @@ pub async fn run(
 
     let logger = super::logging::Logger::get_or_init();
 
+    let mut final_result = TestResult::Pass;
     for test in tests {
         let mullvad_client = test_context
             .rpc_provider
@@ -93,7 +92,7 @@ pub async fn run(
         }
 
         // TODO: Log how long each test took to run.
-        let test_result = run_test(
+        let test_output = run_test(
             client.clone(),
             mullvad_client,
             &test.func,
@@ -105,7 +104,7 @@ pub async fn run(
         // Record test result
         if print_failed_tests_only {
             // Print results of failed test
-            if matches!(test_result.result, Err(_) | Ok(Err(_))) {
+            if test_output.result.failure() {
                 logger.print_stored_records();
             } else {
                 logger.flush_records();
@@ -113,27 +112,42 @@ pub async fn run(
             logger.store_records(false);
         }
 
-        test_result.print();
-
-        let test_succeeded = matches!(test_result.result, Ok(Ok(_)));
+        test_output.print();
 
         maybe_log_test_result(
             summary_logger.as_mut(),
             test.name,
-            if test_succeeded {
-                summary::TestResult::Pass
-            } else {
-                summary::TestResult::Fail
-            },
+            test_output.result.summary(),
         )
         .await
         .context("Failed to log test result")?;
+
+        let failed = test_output.result.failure();
+        match test_output.result {
+            TestResult::Panic(panic) => {
+                failed_tests.push(test.name);
+                final_result = TestResult::Panic(panic);
+                if test.must_succeed {
+                    break;
+                }
+            }
+            TestResult::Fail(failure) => {
+                failed_tests.push(test.name);
+                final_result = TestResult::Fail(failure);
+                if test.must_succeed {
+                    break;
+                }
+            }
+            TestResult::Pass => {
+                successful_tests.push(test.name);
+            }
+        }
 
         // Perform clean up between tests
         if test.mullvad_client_version == MullvadClientVersion::New {
             // Try to reset the daemon state if the test failed OR if the test doesn't explicitly
             // disabled cleanup.
-            if test.cleanup || matches!(test_result.result, Err(_) | Ok(Err(_))) {
+            if test.cleanup || failed {
                 if let Err(cleanup_error) =
                     crate::tests::cleanup_after_test(client.clone(), &test_context.rpc_provider)
                         .await
@@ -143,27 +157,6 @@ pub async fn run(
                     log::error!("Exiting test run");
                     break;
                 }
-            }
-        }
-
-        match test_result.result {
-            Err(panic) => {
-                failed_tests.push(test.name);
-                final_result = Err(panic).context("test panicked");
-                if test.must_succeed {
-                    break;
-                }
-            }
-            Ok(Err(failure)) => {
-                failed_tests.push(test.name);
-                final_result = Err(failure).context("test failed");
-                if test.must_succeed {
-                    break;
-                }
-            }
-            Ok(Ok(result)) => {
-                successful_tests.push(test.name);
-                final_result = final_result.and(Ok(result));
             }
         }
     }
@@ -182,7 +175,7 @@ pub async fn run(
     drop(test_context);
     let _ = tokio::time::timeout(Duration::from_secs(5), completion_handle).await;
 
-    final_result
+    Ok(final_result)
 }
 
 pub async fn run_test<F, R>(
@@ -202,13 +195,15 @@ where
     // assertion being incorrect can not lead to memory unsafety however it could theoretically
     // lead to logic bugs. The problem of forcing the test to be unwind safe is that it causes a
     // large amount of unergonomic design.
-    let result = panic::AssertUnwindSafe(test(test_context, runner_rpc.clone(), mullvad_rpc))
-        .catch_unwind()
-        .await
-        .map_err(panic_as_string);
+    let result: TestResult =
+        panic::AssertUnwindSafe(test(test_context, runner_rpc.clone(), mullvad_rpc))
+            .catch_unwind()
+            .await
+            .map_err(Panic::new)
+            .into();
 
     let mut output = vec![];
-    if matches!(result, Ok(Err(_)) | Err(_)) {
+    if result.failure() {
         let output_after_test = runner_rpc.try_poll_output().await;
         match output_after_test {
             Ok(mut output_after_test) => {
