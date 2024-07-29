@@ -243,6 +243,13 @@ android {
     project.tasks.assemble.dependsOn("ensureValidVersionCode")
 }
 
+junitPlatform {
+    instrumentationTests {
+        version.set(Versions.Android.junit)
+        includeExtensions.set(true)
+    }
+}
+
 composeCompiler { enableStrongSkippingMode = true }
 
 androidComponents {
