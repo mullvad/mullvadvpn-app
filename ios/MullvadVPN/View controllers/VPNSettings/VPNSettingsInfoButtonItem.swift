@@ -13,4 +13,5 @@ enum VPNSettingsInfoButtonItem {
     case wireGuardObfuscation
     case wireGuardObfuscationPort
     case quantumResistance
+    case multihop
 }

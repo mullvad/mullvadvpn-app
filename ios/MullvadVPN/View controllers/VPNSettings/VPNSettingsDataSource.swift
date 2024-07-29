@@ -617,19 +617,8 @@ extension VPNSettingsDataSource: VPNSettingsCellEventHandler {
     }
 
     func switchMultihop(_ state: MultihopState) {
-        if state == .on {
-            delegate?.showMultihopConfirmation({ [weak self] in
-                guard let self else { return }
-                viewModel.setMultihop(state)
-                self.delegate?.didChangeViewModel(viewModel)
-            }, onDiscard: { [weak self] in
-                guard let self else { return }
-                reload(item: .multihop)
-            })
-        } else {
-            viewModel.setMultihop(state)
-            delegate?.didChangeViewModel(viewModel)
-        }
+        viewModel.setMultihop(state)
+        delegate?.didChangeViewModel(viewModel)
     }
 }
 

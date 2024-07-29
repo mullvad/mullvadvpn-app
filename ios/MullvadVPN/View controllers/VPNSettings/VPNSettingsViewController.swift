@@ -175,6 +175,14 @@ extension VPNSettingsViewController: VPNSettingsDataSourceDelegate {
                 """,
                 comment: ""
             )
+
+        case .multihop:
+            message = NSLocalizedString(
+                "MULTIHOP_INFORMATION_TEXT",
+                tableName: "Multihop",
+                value: "This setting increases latency. Use only if needed.",
+                comment: ""
+            )
         default:
             assertionFailure("No matching InfoButtonItem")
         }
@@ -193,49 +201,5 @@ extension VPNSettingsViewController: VPNSettingsDataSourceDelegate {
 
     func didSelectWireGuardPort(_ port: UInt16?) {
         interactor.setPort(port)
-    }
-
-    func showMultihopConfirmation(_ onSave: @escaping () -> Void, onDiscard: @escaping () -> Void) {
-        let presentation = AlertPresentation(
-            id: "multihop-confirm-alert",
-            accessibilityIdentifier: .multihopPromptAlert,
-            icon: .info,
-            message: NSLocalizedString(
-                "MULTIHOP_CONFIRM_ALERT_TEXT",
-                tableName: "Multihop",
-                value: "This setting increases latency. Use only if needed.",
-                comment: ""
-            ),
-            buttons: [
-                AlertAction(
-                    title: NSLocalizedString(
-                        "MULTIHOP_CONFIRM_ALERT_ENABLE_BUTTON",
-                        tableName: "Multihop",
-                        value: "Enable anyway",
-                        comment: ""
-                    ),
-                    style: .destructive,
-                    accessibilityId: .multihopConfirmAlertEnableButton,
-                    handler: {
-                        onSave()
-                    }
-                ),
-                AlertAction(
-                    title: NSLocalizedString(
-                        "MULTIHOP_CONFIRM_ALERT_BACK_BUTTON",
-                        tableName: "Multihop",
-                        value: "Back",
-                        comment: ""
-                    ),
-                    style: .default,
-                    accessibilityId: .multihopConfirmAlertBackButton,
-                    handler: {
-                        onDiscard()
-                    }
-                ),
-            ]
-        )
-
-        alertPresenter.showAlert(presentation: presentation, animated: true)
     }
 }
