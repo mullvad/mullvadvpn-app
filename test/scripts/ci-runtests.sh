@@ -16,8 +16,6 @@ TEST_OS=$1
 # shellcheck source=test/scripts/test-utils.sh
 source "test-utils.sh"
 
-PACKAGE_DIR="${CACHE_FOLDER}"
-
 echo "**********************************"
 echo "* Version to upgrade from: $LATEST_STABLE_RELEASE"
 echo "* Version to test: $CURRENT_VERSION"
@@ -40,9 +38,6 @@ echo "$CURRENT_VERSION" > "$SCRIPT_DIR/.ci-logs/last-version.log"
 echo "**********************************"
 echo "* Downloading app packages"
 echo "**********************************"
-
-# Clean up old packages
-find "$PACKAGE_DIR" -type f -mtime +5 -delete || true
 
 
 nice_time download_app_package "$LATEST_STABLE_RELEASE" "$TEST_OS"
