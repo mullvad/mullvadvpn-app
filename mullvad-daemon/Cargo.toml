@@ -56,6 +56,7 @@ talpid-routing = { path = "../talpid-routing" }
 clap = { workspace = true }
 log-panics = "2.0.0"
 mullvad-management-interface = { path = "../mullvad-management-interface" }
+tracing-appender = "0.2.3"
 
 [dev-dependencies]
 insta = { workspace = true, features = ["json"] }

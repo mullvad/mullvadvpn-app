@@ -4,7 +4,11 @@ use std::{
     sync::atomic::{AtomicBool, Ordering},
 };
 use talpid_core::logging::rotate_log;
-use tracing_subscriber::{self, filter::LevelFilter, EnvFilter};
+use tracing_appender::non_blocking;
+use tracing_subscriber::{
+    self, filter::LevelFilter, fmt::format::FmtSpan, layer::SubscriberExt, util::SubscriberInitExt,
+    EnvFilter,
+};
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -24,6 +28,8 @@ pub enum Error {
 }
 
 pub const WARNING_SILENCED_CRATES: &[&str] = &["netlink_proto", "quinn_udp"];
+// TODO: Should this be removed?
+const DAEMON_LOG_FILENAME: &str = "daemon.log";
 pub const SILENCED_CRATES: &[&str] = &[
     "h2",
     "tokio_core",
@@ -52,9 +58,6 @@ pub const SILENCED_CRATES: &[&str] = &[
 ];
 const SLIGHTLY_SILENCED_CRATES: &[&str] = &["nftnl", "udp_over_tcp"];
 
-#[cfg(windows)]
-const LINE_SEPARATOR: &str = "\r\n";
-
 const DATE_TIME_FORMAT_STR: &str = "[%Y-%m-%d %H:%M:%S%.3f]";
 
 /// Whether a [log] logger has been initialized.
@@ -66,9 +69,13 @@ pub fn is_enabled() -> bool {
     LOG_ENABLED.load(Ordering::SeqCst)
 }
 
+pub struct LogHandle {
+    _file_appender_guard: non_blocking::WorkerGuard,
+}
+
 pub fn init_logger(
     log_level: log::LevelFilter,
-    log_file: Option<&PathBuf>,
+    log_dir: Option<&PathBuf>,
     output_timestamp: bool,
 ) -> Result<(), Error> {
     let level_filter = match log_level {
@@ -80,41 +87,51 @@ pub fn init_logger(
         log::LevelFilter::Trace => LevelFilter::TRACE,
     };
 
-    let mut env_filter = EnvFilter::try_from_default_env()
+    let env_filter = EnvFilter::try_from_default_env()
         .unwrap_or_else(|_| EnvFilter::from_default_env().add_directive(level_filter.into()));
 
-    for silenced_crate in WARNING_SILENCED_CRATES {
-        env_filter = env_filter.add_directive(format!("{silenced_crate}=error").parse().unwrap());
-    }
-    for silenced_crate in SILENCED_CRATES {
-        env_filter = env_filter.add_directive(format!("{silenced_crate}=warn").parse().unwrap());
-    }
+    let default_filter = get_default_filter(level_filter);
 
-    for silenced_crate in SLIGHTLY_SILENCED_CRATES {
-        env_filter = env_filter.add_directive(
-            format!("{silenced_crate}={}", one_level_quieter(log_level))
-                .parse()
-                .unwrap(),
-        );
-    }
+    // TODO: Switch this to a rolling appender, likely daily or hourly
+    let file_appender = tracing_appender::rolling::never(log_dir.unwrap(), DAEMON_LOG_FILENAME);
+    let (non_blocking_file_appender, _file_appender_guard) = non_blocking(file_appender);
 
-    let fmt_subscriber = tracing_subscriber::fmt::fmt()
-        .with_env_filter(env_filter)
-        .with_ansi(true);
+    let stdout_formatter = tracing_subscriber::fmt::layer()
+        .with_ansi(true)
+        .with_span_events(FmtSpan::NEW | FmtSpan::CLOSE);
+
+    let reg = tracing_subscriber::registry()
+        .with(env_filter)
+        .with(default_filter);
+
+    if let Some(log_dir) = dbg!(log_dir) {
+        rotate_log(&log_dir.join(DAEMON_LOG_FILENAME)).map_err(Error::RotateLog)?;
+    }
 
     if output_timestamp {
-        fmt_subscriber
-            .with_timer(tracing_subscriber::fmt::time::ChronoUtc::new(
-                DATE_TIME_FORMAT_STR.to_owned(),
-            ))
-            .init();
+        let file_formatter = tracing_subscriber::fmt::layer()
+            .with_ansi(false)
+            .with_writer(non_blocking_file_appender);
+        reg.with(
+            stdout_formatter.with_timer(tracing_subscriber::fmt::time::ChronoUtc::new(
+                DATE_TIME_FORMAT_STR.to_string(),
+            )),
+        )
+        .with(
+            file_formatter.with_timer(tracing_subscriber::fmt::time::ChronoUtc::new(
+                DATE_TIME_FORMAT_STR.to_string(),
+            )),
+        )
+        .init();
     } else {
-        fmt_subscriber.without_time().init();
+        let file_formatter = tracing_subscriber::fmt::layer()
+            .with_ansi(false)
+            .with_writer(non_blocking_file_appender);
+        reg.with(stdout_formatter.without_time())
+            .with(file_formatter.without_time())
+            .init();
     }
 
-    if let Some(log_file) = log_file {
-        rotate_log(log_file).map_err(Error::RotateLog)?;
-    }
     #[cfg(all(target_os = "android", debug_assertions))]
     {
         use android_logger::{AndroidLogger, Config};
@@ -129,14 +146,34 @@ pub fn init_logger(
     Ok(())
 }
 
-fn one_level_quieter(level: log::LevelFilter) -> log::LevelFilter {
-    use log::LevelFilter::*;
+fn get_default_filter(level_filter: LevelFilter) -> EnvFilter {
+    let mut env_filter = EnvFilter::builder().parse("trace").unwrap();
+    for silenced_crate in WARNING_SILENCED_CRATES {
+        env_filter = env_filter.add_directive(format!("{silenced_crate}=error").parse().unwrap());
+    }
+    for silenced_crate in SILENCED_CRATES {
+        env_filter = env_filter.add_directive(format!("{silenced_crate}=warn").parse().unwrap());
+    }
+
+    // NOTE: the levels set here will never be overwritten, since the default filter cannot be
+    // reloaded
+    for silenced_crate in SLIGHTLY_SILENCED_CRATES {
+        env_filter = env_filter.add_directive(
+            format!("{silenced_crate}={}", one_level_quieter(level_filter))
+                .parse()
+                .unwrap(),
+        );
+    }
+    env_filter
+}
+
+fn one_level_quieter(level: LevelFilter) -> LevelFilter {
     match level {
-        Off => Off,
-        Error => Off,
-        Warn => Error,
-        Info => Warn,
-        Debug => Info,
-        Trace => Debug,
+        LevelFilter::OFF => LevelFilter::OFF,
+        LevelFilter::ERROR => LevelFilter::OFF,
+        LevelFilter::WARN => LevelFilter::ERROR,
+        LevelFilter::INFO => LevelFilter::WARN,
+        LevelFilter::DEBUG => LevelFilter::INFO,
+        LevelFilter::TRACE => LevelFilter::DEBUG,
     }
 }

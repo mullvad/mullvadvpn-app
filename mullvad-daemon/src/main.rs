@@ -16,7 +16,6 @@ mod macos_launch_daemon;
 #[cfg(windows)]
 mod system_service;
 
-const DAEMON_LOG_FILENAME: &str = "daemon.log";
 #[cfg(target_os = "linux")]
 const EARLY_BOOT_LOG_FILENAME: &str = "early-boot-fw.log";
 
@@ -112,9 +111,8 @@ async fn assert_unique() -> Result<(), &'static str> {
 /// Initialize logging to stderr and to file (if configured).
 fn init_daemon_logging(config: &cli::Config) -> Result<Option<PathBuf>, String> {
     let log_dir = get_log_dir(config)?;
-    let log_path = |filename| log_dir.as_ref().map(|dir| dir.join(filename));
 
-    init_logger(config, log_path(DAEMON_LOG_FILENAME))?;
+    init_logger(config, log_dir.clone())?;
 
     if let Some(ref log_dir) = log_dir {
         log::info!("Logging to {}", log_dir.display());

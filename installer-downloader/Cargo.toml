@@ -21,7 +21,7 @@ windows-sys = { workspace = true, features = ["Win32_System", "Win32_System_Libr
 anyhow = { workspace = true }
 async-trait = "0.1"
 chrono = { workspace = true, features = ["clock"] }
-fern = { workspace = true }
+tracing = { workspace = true }
 hex = "0.4"
 log = { workspace = true }
 rand = { workspace = true }
