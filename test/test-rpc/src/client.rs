@@ -326,7 +326,7 @@ impl ServiceClient {
     /// # Returns
     /// - `Result::Ok(env)` if the current environment variables could be read.
     /// - `Result::Err(Error)` if communication with the daemon failed or the environment values
-    /// could not be parsed.
+    ///   could not be parsed.
     pub async fn get_daemon_environment(&self) -> Result<HashMap<String, String>, Error> {
         let env = self
             .client

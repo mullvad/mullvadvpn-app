@@ -349,8 +349,8 @@ pub async fn ensure_logged_in(
 /// - `Result::Ok(new_state)` if the daemon successfully connected to a tunnel
 /// - `Result::Err` if:
 ///     - The daemon failed to even begin connecting. Then [`Error::Rpc`] is returned.
-///     - The daemon started to connect but ended up in the [`TunnelState::Error`] state.
-///     Then [`Error::UnexpectedErrorState`] is returned
+///     - The daemon started to connect but ended up in the [`TunnelState::Error`] state. Then
+///       [`Error::UnexpectedErrorState`] is returned
 pub async fn connect_and_wait(
     mullvad_client: &mut MullvadProxyClient,
 ) -> Result<TunnelState, Error> {
