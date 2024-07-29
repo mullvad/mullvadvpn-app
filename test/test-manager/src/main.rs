@@ -320,7 +320,8 @@ async fn main() -> Result<()> {
                 instance.wait().await;
             }
             socks.close();
-            result
+            // Propagate any error from the test run if applicable
+            result?.anyhow()
         }
         Commands::FormatTestReports { reports } => {
             summary::print_summary_table(&reports).await;

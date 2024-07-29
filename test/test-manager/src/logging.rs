@@ -3,6 +3,8 @@ use colored::Colorize;
 use std::sync::{Arc, Mutex};
 use test_rpc::logging::{LogOutput, Output};
 
+use crate::summary;
+
 /// Logger that optionally supports logging records to a buffer
 #[derive(Clone)]
 pub struct Logger {
@@ -107,25 +109,94 @@ impl log::Log for Logger {
     fn flush(&self) {}
 }
 
+/// Encapsulate caught unwound panics, such that we can catch tests that panic and differentiate
+/// them from tests that just fail.
 #[derive(Debug, thiserror::Error)]
-#[error("Test panic: {0}")]
-pub struct PanicMessage(String);
+#[error("Test panic: {}", self.as_string())]
+pub struct Panic(Box<dyn std::any::Any + Send + 'static>);
+
+impl Panic {
+    /// Create a new [`Panic`] from a caught unwound panic.
+    pub fn new(result: Box<dyn std::any::Any + Send + 'static>) -> Self {
+        Self(result)
+    }
+
+    /// Convert this panic to a [`String`] representation.
+    pub fn as_string(&self) -> String {
+        if let Some(result) = self.0.downcast_ref::<String>() {
+            return result.clone();
+        }
+        match self.0.downcast_ref::<&str>() {
+            Some(s) => String::from(*s),
+            None => String::from("unknown message"),
+        }
+    }
+}
 
 pub struct TestOutput {
     pub error_messages: Vec<Output>,
     pub test_name: &'static str,
-    pub result: Result<Result<(), Error>, PanicMessage>,
+    pub result: TestResult,
     pub log_output: Option<LogOutput>,
+}
+
+// Convert this unwieldy return type to a workable `TestResult`.
+// What we are converting from is the acutal return type of the test execution.
+impl From<Result<Result<(), Error>, Panic>> for TestResult {
+    fn from(value: Result<Result<(), Error>, Panic>) -> Self {
+        match value {
+            Ok(Ok(())) => TestResult::Pass,
+            Ok(Err(e)) => TestResult::Fail(e),
+            Err(e) => TestResult::Panic(e),
+        }
+    }
+}
+
+/// Result from a test execution. This may carry information in case the test failed during
+/// execution.
+pub enum TestResult {
+    /// Test passed.
+    Pass,
+    /// Test failed during execution. Contains the source error which caused the test to fail.
+    Fail(Error),
+    /// Test panicked during execution. Contains the caught unwound panic.
+    Panic(Panic),
+}
+
+impl TestResult {
+    /// Returns `true` if test failed or panicked, i.e. when `TestResult` is `Fail` or `Panic`.
+    pub const fn failure(&self) -> bool {
+        matches!(self, TestResult::Fail(_) | TestResult::Panic(_))
+    }
+
+    /// Convert `self` to a [`summary::TestResult`], which is used for creating fancy exports of
+    /// the results for a test run.
+    pub const fn summary(&self) -> summary::TestResult {
+        match self {
+            TestResult::Pass => summary::TestResult::Pass,
+            TestResult::Fail(_) | TestResult::Panic(_) => summary::TestResult::Fail,
+        }
+    }
+
+    /// Consume `self` and convert into a [`Result`] where [`TestResult::Pass`] is mapped to [`Ok`]
+    /// while [`TestResult::Fail`] & [`TestResult::Panic`] is mapped to [`Err`].
+    pub fn anyhow(self) -> anyhow::Result<()> {
+        match self {
+            TestResult::Pass => Ok(()),
+            TestResult::Fail(error) => anyhow::bail!(error),
+            TestResult::Panic(error) => anyhow::bail!(error.to_string()),
+        }
+    }
 }
 
 impl TestOutput {
     pub fn print(&self) {
         match &self.result {
-            Ok(Ok(_)) => {
+            TestResult::Pass => {
                 println!("{}", format!("TEST {} SUCCEEDED!", self.test_name).green());
                 return;
             }
-            Ok(Err(e)) => {
+            TestResult::Fail(e) => {
                 println!(
                     "{}",
                     format!(
@@ -136,13 +207,13 @@ impl TestOutput {
                     .red()
                 );
             }
-            Err(panic_msg) => {
+            TestResult::Panic(panic_msg) => {
                 println!(
                     "{}",
                     format!(
                         "TEST {} PANICKED WITH MESSAGE: {}",
                         self.test_name,
-                        panic_msg.0.bold()
+                        panic_msg.as_string().bold()
                     )
                     .red()
                 );
@@ -187,15 +258,5 @@ impl TestOutput {
         }
 
         println!("{}", format!("TEST {} END OF OUTPUT", self.test_name).red());
-    }
-}
-
-pub fn panic_as_string(error: Box<dyn std::any::Any + Send + 'static>) -> PanicMessage {
-    if let Some(result) = error.downcast_ref::<String>() {
-        return PanicMessage(result.clone());
-    }
-    match error.downcast_ref::<&str>() {
-        Some(s) => PanicMessage(String::from(*s)),
-        None => PanicMessage(String::from("unknown message")),
     }
 }
