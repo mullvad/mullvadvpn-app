@@ -220,12 +220,27 @@ mod tests {
     #[test]
     fn test_shadowsocks_no_extra_addrs() {
         const PORT_RANGES: &[(u16, u16)] = &[(100, 200), (1000, 2000)];
+        const WITHIN_RANGE_PORT: u16 = 100;
         const OUT_OF_RANGE_PORT: u16 = 1;
         let wg_in_ip: IpAddr = "1.2.3.4".parse().unwrap();
 
         let selected_addr =
             get_shadowsocks_obfuscator_inner(wg_in_ip, PORT_RANGES, &[], Constraint::Any)
                 .expect("should find valid port without constraint");
+
+        assert_eq!(selected_addr.ip(), wg_in_ip);
+        assert!(
+            port_in_range(selected_addr.port(), PORT_RANGES),
+            "expected port in port range"
+        );
+
+        let selected_addr = get_shadowsocks_obfuscator_inner(
+            wg_in_ip,
+            PORT_RANGES,
+            &[],
+            Constraint::Only(WITHIN_RANGE_PORT),
+        )
+        .expect("should find within-range port");
 
         assert_eq!(selected_addr.ip(), wg_in_ip);
         assert!(
