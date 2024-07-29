@@ -1,0 +1,3 @@
+- Add splash screen animation on app start up.
+- Improve animation in Select Location view.
+- Rework internal communcation in the app.
