@@ -15,8 +15,10 @@ import com.ramcosta.composedestinations.generated.destinations.ChangelogDestinat
 import com.ramcosta.composedestinations.generated.destinations.ConnectDestination
 import com.ramcosta.composedestinations.generated.destinations.NoDaemonDestination
 import com.ramcosta.composedestinations.generated.destinations.OutOfTimeDestination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.rememberNavHostEngine
 import com.ramcosta.composedestinations.utils.destination
+import com.ramcosta.composedestinations.utils.rememberDestinationsNavigator
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
@@ -34,20 +36,21 @@ private val changeLogDestinations = listOf(ConnectDestination, OutOfTimeDestinat
 @Composable
 fun MullvadApp() {
     val engine = rememberNavHostEngine()
-    val navController: NavHostController = engine.rememberNavController()
+    val navHostController: NavHostController = engine.rememberNavController()
+    val navigator: DestinationsNavigator = navHostController.rememberDestinationsNavigator()
 
     val serviceVm = koinViewModel<NoDaemonViewModel>()
     val permissionVm = koinViewModel<VpnPermissionViewModel>()
 
     DisposableEffect(Unit) {
-        navController.addOnDestinationChangedListener(serviceVm)
-        onDispose { navController.removeOnDestinationChangedListener(serviceVm) }
+        navHostController.addOnDestinationChangedListener(serviceVm)
+        onDispose { navHostController.removeOnDestinationChangedListener(serviceVm) }
     }
 
     DestinationsNavHost(
         modifier = Modifier.semantics { testTagsAsResourceId = true }.fillMaxSize(),
         engine = engine,
-        navController = navController,
+        navController = navHostController,
         navGraph = NavGraphs.root,
     )
 
@@ -55,8 +58,8 @@ fun MullvadApp() {
     LaunchedEffectCollect(serviceVm.uiSideEffect) {
         when (it) {
             DaemonScreenEvent.Show ->
-                navController.navigate(NoDaemonDestination) { launchSingleTop = true }
-            DaemonScreenEvent.Remove -> navController.popBackStack(NoDaemonDestination, true)
+                navigator.navigate(NoDaemonDestination) { launchSingleTop = true }
+            DaemonScreenEvent.Remove -> navigator.popBackStack(NoDaemonDestination, true)
         }
     }
 
@@ -65,11 +68,11 @@ fun MullvadApp() {
     LaunchedEffectCollect(changeLogsViewModel.uiSideEffect) {
 
         // Wait until we are in an acceptable destination
-        navController.currentBackStackEntryFlow
+        navHostController.currentBackStackEntryFlow
             .map { it.destination() }
             .first { it in changeLogDestinations }
 
-        navController.navigate(ChangelogDestination(it).route)
+        navigator.navigate(ChangelogDestination(it))
     }
 
     // Ask for VPN Permission
