@@ -21,7 +21,7 @@ members = [
 non_ascii_idents = "forbid"
 
 # Deny old style Rust
-rust_2018_idioms = "deny"
+rust_2018_idioms = { level = "deny", priority = -1 }
 macro_use_extern_crate = "deny"
 absolute_paths_not_starting_with_crate = "deny"
 

@@ -7,39 +7,33 @@ use test_rpc::meta::Os;
 ///
 /// The `test_function` macro will inject two arguments to your function:
 ///
-/// * `rpc` - a [`test_rpc::client::ServiceClient]` used to make
-/// remote-procedure calls inside the virtual machine running the test. This can
-/// be used to perform arbitrary network requests, inspect the local file
-/// system, rebooting ..
+/// * `rpc` - a [`test_rpc::client::ServiceClient]` used to make remote-procedure calls inside the
+///   virtual machine running the test. This can be used to perform arbitrary network requests,
+///   inspect the local file system, rebooting ..
 ///
-/// * `mullvad_client` - a [`mullvad_management_interface::MullvadProxyClient`]
-/// which provides a bi-directional communication channel with the
-/// `mullvad-daemon` running inside of the virtual machine. All RPC-calls as
-/// defined in [`mullvad_management_interface::MullvadProxyClient`] are
-/// available on `mullvad_client`.
+/// * `mullvad_client` - a [`mullvad_management_interface::MullvadProxyClient`] which provides a
+///   bi-directional communication channel with the `mullvad-daemon` running inside of the virtual
+///   machine. All RPC-calls as defined in [`mullvad_management_interface::MullvadProxyClient`] are
+///   available on `mullvad_client`.
 ///
 /// # Arguments
 ///
 /// The `test_function` macro takes 4 optional arguments
 ///
-/// * `priority` - The order in which tests will be run where low numbers run
-/// before high numbers and tests with the same number run in undefined order.
-/// `priority` defaults to 0.
+/// * `priority` - The order in which tests will be run where low numbers run before high numbers
+///   and tests with the same number run in undefined order. `priority` defaults to 0.
 ///
-/// * `cleanup` - If the cleanup function will run after the test is finished
-/// and among other things reset the settings to the default value for the
-/// daemon.
-/// `cleanup` defaults to true.
+/// * `cleanup` - If the cleanup function will run after the test is finished and among other things
+///   reset the settings to the default value for the daemon. `cleanup` defaults to true.
 ///
-/// * `must_succeed` - If the testing suite stops running if this test fails.
-/// `must_succeed` defaults to false.
+/// * `must_succeed` - If the testing suite stops running if this test fails. `must_succeed`
+///   defaults to false.
 ///
-/// * `always_run` - If the test should always run regardless of what test
-/// filters are provided by the user.
-/// `always_run` defaults to false.
+/// * `always_run` - If the test should always run regardless of what test filters are provided by
+///   the user. `always_run` defaults to false.
 ///
-/// * `target_os` - The test should only run on the specified OS. This can currently be
-/// set to `linux`, `windows`, or `macos`.
+/// * `target_os` - The test should only run on the specified OS. This can currently be set to
+///   `linux`, `windows`, or `macos`.
 ///
 /// # Examples
 ///
