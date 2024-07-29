@@ -2,8 +2,6 @@
 
 set -eu
 
-CALLER_DIR=$(pwd)
-
 # Returns the directory of the test-utils.sh script
 function get_test_utls_dir {
     local script_path="${BASH_SOURCE[0]}"
@@ -39,16 +37,6 @@ if [[ -n "$TAG" && ${CURRENT_VERSION} =~ -dev- ]]; then
     CURRENT_VERSION+="+${TAG}"
 fi
 
-if [[ ("$(uname -s)" == "Darwin") ]]; then
-    CACHE_FOLDER=$HOME/Library/Caches/mullvad-test/packages
-elif [[ ("$(uname -s)" == "Linux") ]]; then
-    CACHE_FOLDER=$HOME/.cache/mullvad-test/packages
-else
-    echo "Unsupported OS" 1>&2
-    exit 1
-fi
-
-export CACHE_FOLDER
 export CURRENT_VERSION
 export LATEST_STABLE_RELEASE
 
@@ -58,13 +46,28 @@ function print_available_releases {
     done
 }
 
-function create_package_dir {
-    if [[ -z "${PACKAGE_DIR+x}" ]]; then
-        echo "'PACKAGE_DIR' must be specified" 1>&2
-        exit 1
+function get_package_dir {
+    local package_dir
+    if [[ -n "${PACKAGE_DIR+x}" ]]; then
+        # Resolve the package dir to an absolute path since cargo must be invoked from the test directory
+        pushd "$PACKAGE_DIR"
+            package_dir=$(pwd)
+        popd
+    elif [[ ("$(uname -s)" == "Darwin") ]]; then
+        package_dir="$HOME/Library/Caches/mullvad-test/packages"
+    elif [[ ("$(uname -s)" == "Linux") ]]; then
+        package_dir="$HOME/.cache/mullvad-test/packages"
     else
-        mkdir -p "$PACKAGE_DIR"
+        echo "Unsupported OS" 1>&2
+        exit 1
     fi
+
+    mkdir -p  "$package_dir" || exit 1
+    # Clean up old packages
+    find "$package_dir" -type f -mtime +5 -delete || true
+
+    echo "$package_dir"
+    return 0
 }
 
 function nice_time {
@@ -136,12 +139,13 @@ function download_app_package {
     filename=$(get_app_filename "$version" "$os")
     local url="${package_repo}/$version/$filename"
 
-    create_package_dir
-    if [[ ! -f "$PACKAGE_DIR/$filename" ]]; then
+    local package_dir
+    package_dir=$(get_package_dir)
+    if [[ ! -f "$package_dir/$filename" ]]; then
         echo "Downloading build for $version ($os) from $url"
-        curl -sf -o "$PACKAGE_DIR/$filename" "$url"
+        curl -sf -o "$package_dir/$filename" "$url"
     else
-        echo "Found build for $version ($os)"
+        echo "App package for version $version ($os) already exists at $package_dir/$filename, skipping download"
     fi
 }
 
@@ -185,12 +189,16 @@ function download_e2e_executable {
     filename=$(get_e2e_filename "$version" "$os")
     local url="${package_repo}/$version/additional-files/$filename"
 
-    create_package_dir
-    if [[ ! -f "$PACKAGE_DIR/$filename" ]]; then
+    local package_dir
+    package_dir=$(get_package_dir)
+    if [[ ! -f "$package_dir/$filename" ]]; then
         echo "Downloading e2e executable for $version ($os) from $url"
-        curl -sf -o "$PACKAGE_DIR/$filename" "$url"
+        if ! curl -sf -o "$package_dir/$filename" "$url"; then
+            echo "Failed to download package, $url not found" 1>&2
+            exit 1
+        fi
     else
-        echo "Found e2e executable for $version ($os)"
+        echo "GUI e2e executable for version $version ($os) already exists at $package_dir/$filename, skipping download"
     fi
 }
 
@@ -233,6 +241,8 @@ function run_tests_for_os {
     else
         upgrade_package_arg=(--app-package-to-upgrade-from "${APP_PACKAGE_TO_UPGRADE_FROM}")
     fi
+    local package_dir
+    package_dir=$(get_package_dir)
     local test_dir
     test_dir=$(get_test_utls_dir)/..
     pushd "$test_dir"
@@ -241,7 +251,7 @@ function run_tests_for_os {
             --account "${ACCOUNT_TOKEN:?Error: ACCOUNT_TOKEN not set}" \
             --app-package "${APP_PACKAGE:?Error: APP_PACKAGE not set}" \
             "${upgrade_package_arg[@]}" \
-            --package-dir "${PACKAGE_DIR:?Error: PACKAGE_DIR not set}" \
+            --package-dir "${package_dir}" \
             --vm "$vm" \
             "${TEST_FILTERS:-}" \
             2>&1 | sed -r "s/${ACCOUNT_TOKEN}/\{ACCOUNT_TOKEN\}/g"; then
@@ -257,36 +267,36 @@ function build_current_version {
     local app_dir
     app_dir="$(get_test_utls_dir)/../.."
     local app_filename
-    app_filename=$(get_app_filename "$CURRENT_VERSION" "${TEST_OS:?Error: TEST_OS not set}")
-    pushd "$CALLER_DIR"
-        if [[ -z "$PACKAGE_DIR" ]]; then
-            echo "PACKAGE_DIR not set" 1>&2
-            exit 1
-        fi
-        APP_PACKAGE="$PACKAGE_DIR"/"$app_filename"
+    # TODO: TEST_OS must be set to local OS manually, should be set automatically
+    app_filename=$(get_app_filename "$CURRENT_VERSION" "${TEST_OS:?Error: TEST_OS not set}") 
+    local package_dir
+    package_dir=$(get_package_dir)
+    local app_package="$package_dir"/"$app_filename"
 
-        local gui_test_filename
-        gui_test_filename=$(get_e2e_filename "$CURRENT_VERSION" "$TEST_OS")
-        GUI_TEST_BIN="$PACKAGE_DIR"/"$gui_test_filename"
+    local gui_test_filename
+    gui_test_filename=$(get_e2e_filename "$CURRENT_VERSION" "$TEST_OS")
+    local gui_test_bin="$package_dir"/"$gui_test_filename"
 
-        if [ ! -f "$APP_PACKAGE" ]; then
-            pushd "$app_dir"
-                if [[ $(git diff --quiet) ]]; then
-                    echo "WARNING: the app repository contains uncommitted changes, this script will only rebuild the app package when the git hash changes"
-                fi
-                ./build.sh
-            popd
-        fi
+    if [ ! -f "$app_package" ]; then
+        pushd "$app_dir"
+            if [[ $(git diff --quiet) ]]; then
+                echo "WARNING: the app repository contains uncommitted changes, this script will only rebuild the app package when the git hash changes"
+            fi
+            ./build.sh
+        popd
+        echo "Moving '$(realpath "$app_dir/dist/$app_filename")' to '$(realpath "$app_package")'"
+        mv -n "$app_dir"/dist/"$app_filename" "$app_package"
+    else
+        echo "App package for current version already exists at $app_package, skipping build"
+    fi
 
-        if [ ! -f "$GUI_TEST_BIN" ]; then
-            pushd "$app_dir"/gui
-                npm run build-test-executable
-            popd
-        fi
-
-        echo "Moving '$(realpath "$app_dir/dist/$app_filename")' to '$(realpath "$APP_PACKAGE")'"
-        mv -n "$app_dir"/dist/"$app_filename" "$APP_PACKAGE"
-        echo "Moving '$(realpath "$app_dir/dist/$gui_test_filename")' to '$(realpath "$GUI_TEST_BIN")'"
-        mv -n "$app_dir"/dist/"$gui_test_filename" "$APP_PACKAGE"
-    popd
+    if [ ! -f "$gui_test_bin" ]; then
+        pushd "$app_dir"/gui
+            npm run build-test-executable
+        popd
+        echo "Moving '$(realpath "$app_dir/dist/$gui_test_filename")' to '$(realpath "$gui_test_bin")'"
+        mv -n "$app_dir"/dist/"$gui_test_filename" "$gui_test_bin"
+    else
+        echo "GUI e2e executable for current version already exists at $gui_test_bin, skipping build"
+    fi
 }
