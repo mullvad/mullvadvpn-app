@@ -42,7 +42,8 @@
                   android:launchMode="singleInstance"
                   android:screenOrientation="fullUser"
                   android:windowSoftInputMode="adjustResize"
-                  tools:ignore="DiscouragedApi">
+                  android:enableOnBackInvokedCallback="true"
+                  tools:ignore="DiscouragedApi,UnusedAttribute">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

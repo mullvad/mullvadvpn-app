@@ -24,6 +24,7 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 ### Added
 - Add the ability to customize how the app talks to the api.
+- Add support for predictive back.
 
 ### Changed
 - Migrate underlaying communication wtih daemon to gRPC. This also implies major changes and
