@@ -224,7 +224,6 @@ class ManagementService(
                         }
                         ManagementInterface.DaemonEvent.EventCase.REMOVE_DEVICE -> {}
                         ManagementInterface.DaemonEvent.EventCase.EVENT_NOT_SET -> {}
-                        ManagementInterface.DaemonEvent.EventCase.FEATURE_INDICATORS -> {}
                     }
                 }
             }

@@ -1,4 +1,8 @@
-use mullvad_types::{auth_failed::AuthFailed, location::GeoIpLocation, states::TunnelState};
+use itertools::Itertools;
+use mullvad_types::{
+    auth_failed::AuthFailed, features::FeatureIndicators, location::GeoIpLocation,
+    states::TunnelState,
+};
 use talpid_types::{
     net::{Endpoint, TunnelEndpoint},
     tunnel::ErrorState,
@@ -19,18 +23,27 @@ pub fn print_state(state: &TunnelState, verbose: bool) {
 
     match state {
         Error(error) => print_error_state(error),
-        Connected { endpoint, location } => {
+        Connected {
+            endpoint,
+            location,
+            feature_indicators,
+        } => {
             println!(
                 "Connected to {}",
                 format_relay_connection(endpoint, location.as_ref(), verbose)
             );
             if verbose {
+                println!("Using {}", format_feature_indicators(feature_indicators));
                 if let Some(tunnel_interface) = &endpoint.tunnel_interface {
                     println!("Tunnel interface: {tunnel_interface}")
                 }
             }
         }
-        Connecting { endpoint, location } => {
+        Connecting {
+            endpoint,
+            location,
+            feature_indicators: _,
+        } => {
             let ellipsis = if !verbose { "..." } else { "" };
             println!(
                 "Connecting to {}{ellipsis}",
@@ -166,24 +179,6 @@ fn format_relay_connection(
     } else {
         String::new()
     };
-    let quantum_resistant = if !verbose {
-        ""
-    } else if endpoint.quantum_resistant {
-        "\nQuantum resistant tunnel: yes"
-    } else {
-        "\nQuantum resistant tunnel: no"
-    };
-
-    #[cfg(daita)]
-    let daita = if !verbose {
-        ""
-    } else if endpoint.daita {
-        "\nDAITA: yes"
-    } else {
-        "\nDAITA: no"
-    };
-    #[cfg(not(daita))]
-    let daita = "";
 
     let mut bridge_type = String::new();
     let mut obfuscator_type = String::new();
@@ -197,11 +192,19 @@ fn format_relay_connection(
     }
 
     format!(
-        "{exit_endpoint}{first_hop}{bridge}{obfuscator}{tunnel_type}{quantum_resistant}{daita}{bridge_type}{obfuscator_type}",
+        "{exit_endpoint}{first_hop}{bridge}{obfuscator}{tunnel_type}{bridge_type}{obfuscator_type}",
         first_hop = first_hop.unwrap_or_default(),
         bridge = bridge.unwrap_or_default(),
         obfuscator = obfuscator.unwrap_or_default(),
     )
+}
+
+fn format_feature_indicators(feature_indicators: &FeatureIndicators) -> String {
+    feature_indicators
+        .active_features()
+        // Sort the features alphabetically (Just to have some order, arbitrarily chosen)
+        .sorted_by_key(|feature| feature.to_string())
+        .join(", ")
 }
 
 fn format_endpoint(hostname: Option<&str>, endpoint: &Endpoint, verbose: bool) -> String {

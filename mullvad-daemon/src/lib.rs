@@ -86,7 +86,7 @@ use talpid_types::android::AndroidContext;
 #[cfg(target_os = "windows")]
 use talpid_types::split_tunnel::ExcludedProcess;
 use talpid_types::{
-    net::{IpVersion, ObfuscationType, TunnelEndpoint, TunnelType},
+    net::{IpVersion, ObfuscationType, TunnelType},
     tunnel::{ErrorStateCause, TunnelStateTransition},
     ErrorExt,
 };
@@ -394,12 +394,11 @@ pub(crate) enum InternalDaemonEvent {
     DeviceMigrationEvent(Result<PrivateAccountAndDevice, device::Error>),
     /// A geographical location has has been received from am.i.mullvad.net
     LocationEvent(LocationEventData),
+    /// A generic event for when any settings change.
+    SettingsChanged,
     /// The split tunnel paths or state were updated.
     #[cfg(any(windows, target_os = "android", target_os = "macos"))]
     ExcludedPathsEvent(ExcludedPathsUpdate, oneshot::Sender<Result<(), Error>>),
-
-    /// A setting in the [SettingsPersister] was changed.
-    SettingsChanged,
 }
 
 #[cfg(any(windows, target_os = "android", target_os = "macos"))]
@@ -571,9 +570,6 @@ pub trait EventListener: Clone + Send + Sync + 'static {
 
     /// Notify that the api access method changed.
     fn notify_new_access_method_event(&self, new_access_method: AccessMethodSetting);
-
-    /// Notify that the feature indicators have changed.
-    fn notify_feature_indicators(&self, feature_indicators: FeatureIndicators);
 }
 
 pub struct Daemon<L: EventListener> {
@@ -751,11 +747,6 @@ where
             settings.tunnel_options.clone(),
         );
 
-        let settings_daemon_tx = internal_event_tx.clone();
-        settings.register_change_listener(move |_| {
-            let _ = settings_daemon_tx.send(InternalDaemonEvent::SettingsChanged);
-        });
-
         let param_gen = parameters_generator.clone();
         let (param_gen_tx, mut param_gen_rx) = mpsc::unbounded();
         tokio::spawn(async move {
@@ -765,6 +756,13 @@ where
         });
         settings.register_change_listener(move |settings| {
             let _ = param_gen_tx.unbounded_send(settings.tunnel_options.to_owned());
+        });
+
+        // Register a listener for generic settings changes.
+        // This is useful for example for updating feature indicators when the settings change.
+        let settings_changed_event_sender = internal_event_tx.clone();
+        settings.register_change_listener(move |_settings| {
+            let _ = settings_changed_event_sender.send(InternalDaemonEvent::SettingsChanged);
         });
 
         let (offline_state_tx, offline_state_rx) = mpsc::unbounded();
@@ -959,9 +957,11 @@ where
             } => self.handle_access_method_event(event, endpoint_active_tx),
             DeviceMigrationEvent(event) => self.handle_device_migration_event(event),
             LocationEvent(location_data) => self.handle_location_event(location_data),
+            SettingsChanged => {
+                self.handle_feature_indicator_event();
+            }
             #[cfg(any(windows, target_os = "android", target_os = "macos"))]
             ExcludedPathsEvent(update, tx) => self.handle_new_excluded_paths(update, tx).await,
-            SettingsChanged => self.handle_settings_changed(),
         }
         should_stop
     }
@@ -980,12 +980,14 @@ where
                 locked_down,
             },
             TunnelStateTransition::Connecting(endpoint) => TunnelState::Connecting {
-                location: self.parameters_generator.get_last_location().await,
                 endpoint,
+                location: self.parameters_generator.get_last_location().await,
+                feature_indicators: self.get_feature_indicators(),
             },
             TunnelStateTransition::Connected(endpoint) => TunnelState::Connected {
-                location: self.parameters_generator.get_last_location().await,
                 endpoint,
+                location: self.parameters_generator.get_last_location().await,
+                feature_indicators: self.get_feature_indicators(),
             },
             TunnelStateTransition::Disconnecting(after_disconnect) => {
                 TunnelState::Disconnecting(after_disconnect)
@@ -1039,8 +1041,6 @@ where
 
         self.tunnel_state = tunnel_state.clone();
         self.event_listener.notify_new_state(tunnel_state);
-        self.event_listener
-            .notify_feature_indicators(self.get_feature_indicators());
         self.fetch_am_i_mullvad();
     }
 
@@ -1110,6 +1110,23 @@ where
 
         self.event_listener
             .notify_new_state(self.tunnel_state.clone());
+    }
+
+    /// Update the set of feature indicators.
+    fn handle_feature_indicator_event(&mut self) {
+        // Note: If the current tunnel state carries information about active feature indicators,
+        // we should care to update the known set of feature indicators (i.e. in the connecting /
+        // connected state). Otherwise, we can just skip broadcasting a new tunnel state.
+        if let Some(current_feature_indicators) = self.tunnel_state.get_feature_indicators() {
+            let new_feature_indicators = self.get_feature_indicators();
+            if *current_feature_indicators != new_feature_indicators {
+                // Make sure to update the daemon's actual tunnel state. Otherwise feature indicator changes won't be persisted.
+                self.tunnel_state
+                    .set_feature_indicators(new_feature_indicators);
+                self.event_listener
+                    .notify_new_state(self.tunnel_state.clone());
+            }
+        }
     }
 
     fn reset_rpc_sockets_on_tunnel_state_transition(
@@ -1418,11 +1435,6 @@ where
                 .map_err(Error::SettingsError),
         };
         let _ = tx.send(save_result.map(|_| ()));
-    }
-
-    fn handle_settings_changed(&mut self) {
-        self.event_listener
-            .notify_feature_indicators(self.get_feature_indicators())
     }
 
     async fn on_set_target_state(
@@ -2780,30 +2792,15 @@ where
         }
     }
 
-    fn get_connected_tunnel_type(&self) -> Option<TunnelType> {
-        if let TunnelState::Connected {
-            endpoint: TunnelEndpoint { tunnel_type, .. },
-            ..
-        } = self.tunnel_state
-        {
-            Some(tunnel_type)
-        } else {
-            None
+    const fn get_connected_tunnel_type(&self) -> Option<TunnelType> {
+        match self.tunnel_state.get_tunnel_type() {
+            Some(tunnel_type) if self.tunnel_state.is_connected() => Some(tunnel_type),
+            Some(_) | None => None,
         }
     }
 
-    fn get_target_tunnel_type(&self) -> Option<TunnelType> {
-        match self.tunnel_state {
-            TunnelState::Connected {
-                endpoint: TunnelEndpoint { tunnel_type, .. },
-                ..
-            }
-            | TunnelState::Connecting {
-                endpoint: TunnelEndpoint { tunnel_type, .. },
-                ..
-            } => Some(tunnel_type),
-            _ => None,
-        }
+    const fn get_target_tunnel_type(&self) -> Option<TunnelType> {
+        self.tunnel_state.get_tunnel_type()
     }
 
     fn send_tunnel_command(&self, command: TunnelCommand) {
@@ -2893,13 +2890,11 @@ where
         };
 
         // use the booleans to filter into a list of only the active features
-        let active_features = generic_features
+        generic_features
             .into_iter()
             .chain(protocol_features)
             .filter_map(|(active, feature)| active.then_some(feature))
-            .collect();
-
-        FeatureIndicators { active_features }
+            .collect()
     }
 }
 
