@@ -26,6 +26,8 @@ Line wrap the file at 100 chars.                                              Th
 - Add DAITA (Defence against AI-guided Traffic Analysis) setting for Linux and macOS.
 
 ### Changed
+- Ignore obfuscation protocol constraints when the obfuscation mode is set to auto.
+
 #### macOS
 - Enable quantum resistant tunnels by default (when set to `auto`).
 
