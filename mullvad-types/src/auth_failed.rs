@@ -1,5 +1,5 @@
-use once_cell::sync::Lazy;
 use regex::Regex;
+use std::sync::LazyLock;
 use talpid_types::tunnel::ErrorStateCause;
 
 /// Used to parse [`talpid_types::tunnel::ErrorStateCause::AuthFailed`], which may be returned
@@ -68,7 +68,7 @@ impl TryFrom<&ErrorStateCause> for AuthFailed {
 // * "This is not a valid Mullvad account" - human-readable message (ignored).
 // In the case that the message has preceding whitespace, it will be trimmed.
 fn parse_string(reason: &str) -> Option<&str> {
-    static REASON_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r"^\[(\w+)\]\s*").unwrap());
+    static REASON_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^\[(\w+)\]\s*").unwrap());
     let captures = REASON_REGEX.captures(reason)?;
     captures.get(1).map(|m| m.as_str())
 }

@@ -24,10 +24,10 @@ pub type ManagementServiceClient =
 pub use types::management_service_server::{ManagementService, ManagementServiceServer};
 
 #[cfg(unix)]
-use once_cell::sync::Lazy;
+use std::sync::LazyLock;
 #[cfg(unix)]
-static MULLVAD_MANAGEMENT_SOCKET_GROUP: Lazy<Option<String>> =
-    Lazy::new(|| env::var("MULLVAD_MANAGEMENT_SOCKET_GROUP").ok());
+static MULLVAD_MANAGEMENT_SOCKET_GROUP: LazyLock<Option<String>> =
+    LazyLock::new(|| env::var("MULLVAD_MANAGEMENT_SOCKET_GROUP").ok());
 
 pub const CUSTOM_LIST_LIST_NOT_FOUND_DETAILS: &[u8] = b"custom_list_list_not_found";
 pub const CUSTOM_LIST_LIST_EXISTS_DETAILS: &[u8] = b"custom_list_list_exists";

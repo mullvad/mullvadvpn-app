@@ -14,7 +14,6 @@ workspace = true
 async-trait = "0.1"
 thiserror = { workspace = true }
 futures = "0.3.15"
-once_cell = { workspace = true }
 log = { workspace = true }
 shell-escape = "0.1"
 talpid-routing = { path = "../talpid-routing" }
@@ -34,6 +33,7 @@ prost = { workspace = true }
 widestring = "1.0"
 winreg = { version = "0.51", features = ["transactions"] }
 talpid-windows = { path = "../talpid-windows" }
+once_cell = { workspace = true }
 
 [target.'cfg(windows)'.dependencies.windows-sys]
 workspace = true

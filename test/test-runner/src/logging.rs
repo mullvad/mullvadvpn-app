@@ -1,8 +1,8 @@
 use log::{Level, LevelFilter, Metadata, Record, SetLoggerError};
-use once_cell::sync::Lazy;
 use std::{
     ffi::OsStr,
     path::{Path, PathBuf},
+    sync::LazyLock,
 };
 use test_rpc::logging::{Error, LogFile, LogOutput, Output};
 use tokio::{
@@ -22,7 +22,7 @@ const EXCLUDE_LOG_FILE_CONTAIN: &str = ".old";
 /// Maximum number of lines that each log file may contain
 const TRUNCATE_LOG_FILE_LINES: usize = 100;
 
-pub static LOGGER: Lazy<StdOutBuffer> = Lazy::new(|| {
+pub static LOGGER: LazyLock<StdOutBuffer> = LazyLock::new(|| {
     let (sender, listener) = channel(MAX_OUTPUT_BUFFER);
     StdOutBuffer(Mutex::new(listener), sender)
 });

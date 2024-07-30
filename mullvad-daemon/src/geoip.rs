@@ -3,7 +3,7 @@ use std::time::Duration;
 use futures::join;
 use mullvad_api::rest::{Error, RequestServiceHandle};
 use mullvad_types::location::{AmIMullvad, GeoIpLocation, LocationEventData};
-use once_cell::sync::Lazy;
+use std::sync::LazyLock;
 use talpid_core::mpsc::Sender;
 use talpid_future::retry::{retry_future, ExponentialBackoff, Jittered};
 use talpid_types::ErrorExt;
@@ -19,7 +19,7 @@ use crate::{DaemonEventSender, InternalDaemonEvent};
 // production build, a warning will be logged and the env variable *won´t* have
 // any effect on the api call. The default host name `am.i.mullvad.net` will
 // always be used in release mode.
-static MULLVAD_CONNCHECK_HOST: Lazy<String> = Lazy::new(|| {
+static MULLVAD_CONNCHECK_HOST: LazyLock<String> = LazyLock::new(|| {
     const DEFAULT_CONNCHECK_HOST: &str = "am.i.mullvad.net";
     let conncheck_host_var = std::env::var("MULLVAD_CONNCHECK_HOST").ok();
     let host = if cfg!(feature = "api-override") {

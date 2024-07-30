@@ -1,13 +1,12 @@
 use crate::cli;
 use mullvad_daemon::{runtime::new_multi_thread, DaemonShutdownHandle};
-use once_cell::sync::Lazy;
 use std::{
     env,
     ffi::{c_void, OsString},
     ptr, slice,
     sync::{
         atomic::{AtomicBool, AtomicUsize, Ordering},
-        mpsc, Arc,
+        mpsc, Arc, LazyLock,
     },
     thread,
     time::{Duration, Instant},
@@ -39,7 +38,7 @@ static SERVICE_TYPE: ServiceType = ServiceType::OWN_PROCESS;
 const SERVICE_RECOVERY_LAST_RESTART_DELAY: Duration = Duration::from_secs(60 * 10);
 const SERVICE_FAILURE_RESET_PERIOD: Duration = Duration::from_secs(60 * 15);
 
-static SERVICE_ACCESS: Lazy<ServiceAccess> = Lazy::new(|| {
+static SERVICE_ACCESS: LazyLock<ServiceAccess> = LazyLock::new(|| {
     ServiceAccess::QUERY_CONFIG
         | ServiceAccess::CHANGE_CONFIG
         | ServiceAccess::START

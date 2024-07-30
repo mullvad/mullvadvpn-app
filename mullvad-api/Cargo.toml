@@ -29,7 +29,6 @@ tokio = { workspace = true, features = ["macros", "time", "rt-multi-thread", "ne
 tokio-rustls = "0.24.1"
 tokio-socks = "0.5.1"
 rustls-pemfile = "1.0.3"
-once_cell = { workspace = true }
 
 mullvad-fs = { path = "../mullvad-fs" }
 mullvad-types = { path = "../mullvad-types" }

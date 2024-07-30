@@ -13,7 +13,7 @@ use mullvad_types::{
     endpoint::MullvadWireguardEndpoint, location::GeoIpLocation, relay_list::Relay,
     settings::TunnelOptions,
 };
-use once_cell::sync::Lazy;
+use std::sync::LazyLock;
 use talpid_core::tunnel_state_machine::TunnelParametersGenerator;
 #[cfg(not(target_os = "android"))]
 use talpid_types::net::{
@@ -31,9 +31,9 @@ use crate::device::{AccountManagerHandle, PrivateAccountAndDevice};
 /// "Same IP" functionality. This means all clients have the same in-tunnel IP on these
 /// servers. This improves anonymity since the in-tunnel IP will not be unique to a specific
 /// peer.
-static SAME_IP_V4: Lazy<IpAddr> =
-    Lazy::new(|| Ipv4Addr::from_str("10.127.255.254").unwrap().into());
-static SAME_IP_V6: Lazy<IpAddr> = Lazy::new(|| {
+static SAME_IP_V4: LazyLock<IpAddr> =
+    LazyLock::new(|| Ipv4Addr::from_str("10.127.255.254").unwrap().into());
+static SAME_IP_V6: LazyLock<IpAddr> = LazyLock::new(|| {
     Ipv6Addr::from_str("fc00:bbbb:bbbb:bb01:ffff:ffff:ffff:ffff")
         .unwrap()
         .into()

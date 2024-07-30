@@ -22,7 +22,6 @@ talpid-types = { path = "../talpid-types" }
 
 [target.'cfg(target_os = "linux")'.dependencies]
 libc = "0.2"
-once_cell = { workspace = true }
 rtnetlink = "0.11"
 netlink-packet-route = { version = "0.13", features = ["rich_nlas"] }
 netlink-sys = "0.8.3"

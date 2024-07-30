@@ -13,7 +13,6 @@ workspace = true
 [dependencies]
 dirs = "5.0.1"
 thiserror = { workspace = true }
-once_cell = { workspace = true }
 log = { workspace = true }
 regex = "1.0"
 uuid = { version = "1.4.1", features = ["v4"] }

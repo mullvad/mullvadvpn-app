@@ -1,7 +1,7 @@
 use clap::{Args, Parser};
-use once_cell::sync::Lazy;
+use std::sync::LazyLock;
 
-static ENV_DESC: Lazy<String> = Lazy::new(|| {
+static ENV_DESC: LazyLock<String> = LazyLock::new(|| {
     format!(
 "ENV:
 
@@ -119,7 +119,7 @@ impl From<CommandFlags> for Command {
 }
 
 pub fn get_config() -> &'static Config {
-    static CONFIG: Lazy<Config> = Lazy::new(create_config);
+    static CONFIG: LazyLock<Config> = LazyLock::new(create_config);
     &CONFIG
 }
 

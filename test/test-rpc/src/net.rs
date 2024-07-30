@@ -1,15 +1,14 @@
 use futures::channel::oneshot;
 use hyper::{Client, Uri};
-use once_cell::sync::Lazy;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
-use std::{net::SocketAddr, time::Duration};
+use std::{net::SocketAddr, sync::LazyLock, time::Duration};
 use tokio_rustls::rustls::ClientConfig;
 
 use crate::{AmIMullvad, Error};
 
 const LE_ROOT_CERT: &[u8] = include_bytes!("../../../mullvad-api/le_root_cert.pem");
 
-static CLIENT_CONFIG: Lazy<ClientConfig> = Lazy::new(|| {
+static CLIENT_CONFIG: LazyLock<ClientConfig> = LazyLock::new(|| {
     ClientConfig::builder()
         .with_safe_default_cipher_suites()
         .with_safe_default_kx_groups()

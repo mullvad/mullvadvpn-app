@@ -7,7 +7,6 @@
 
 use futures::channel::oneshot;
 use libc::{proc_listallpids, proc_pidpath};
-use once_cell::sync::Lazy;
 use serde::Deserialize;
 use std::{
     collections::{HashMap, HashSet},
@@ -16,7 +15,7 @@ use std::{
     path::PathBuf,
     process::Stdio,
     ptr,
-    sync::{Arc, Mutex},
+    sync::{Arc, LazyLock, Mutex},
     time::Duration,
 };
 use talpid_platform_metadata::MacosVersion;
@@ -26,8 +25,8 @@ use tokio::io::{AsyncBufReadExt, BufReader};
 const SHUTDOWN_TIMEOUT: Duration = Duration::from_secs(3);
 const EARLY_FAIL_TIMEOUT: Duration = Duration::from_millis(500);
 
-static MIN_OS_VERSION: Lazy<MacosVersion> =
-    Lazy::new(|| MacosVersion::from_raw_version("13.0.0").unwrap());
+static MIN_OS_VERSION: LazyLock<MacosVersion> =
+    LazyLock::new(|| MacosVersion::from_raw_version("13.0.0").unwrap());
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
