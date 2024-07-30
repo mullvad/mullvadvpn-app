@@ -28,7 +28,7 @@ This is a folder with gettext translations for Mullvad VPN app.
    
    1. ZIP file with the following command:
    
-      ```
+      ```bash
       cd gui/locales
       zip payload.zip <NEW_LOCALE>/relay-locations.po
       ```
@@ -42,7 +42,7 @@ This is a folder with gettext translations for Mullvad VPN app.
 
 Use the localization script to sync localizations by running the following command from the
 root-directory:
-```
+```bash
 ./scripts/localization sync-local-files
 ```
 
@@ -53,7 +53,7 @@ all local files are in sync.
 
 Use the localization script to prepare the pot-files by running the following command from the
 root-directory:
-```
+```bash
 ./scripts/localization prepare
 ```
 
@@ -63,7 +63,7 @@ update `relay-localizations.pot`. The changes to each file will also be committe
 ## Uploading translations template to Crowdin
 
 After updating the translations template (POT) locally, make sure to upload it to Crowdin:
-```
+```bash
 CROWDIN_API_KEY=$YOUR_CROWDIN_KEY `./scripts/localization upload`
 ```
 
@@ -72,7 +72,7 @@ Triggering Crowdin to start translating has to be done manually. Speak to the pr
 ## Downloading translations from Crowdin
 
 When the translations are done, download it by running:
-```
+```bash
 CROWDIN_API_KEY=$YOUR_CROWDIN_KEY `./scripts/localization download`
 ```
 
@@ -80,7 +80,7 @@ CROWDIN_API_KEY=$YOUR_CROWDIN_KEY `./scripts/localization download`
 
 Use the localization script to verify that the strings are valid HTML and that they contain the
 correct amount of format specifiers:
-```
+```bash
 ./scripts/localization verify
 ```
 
