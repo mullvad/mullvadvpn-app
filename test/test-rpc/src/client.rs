@@ -10,6 +10,9 @@ use super::*;
 
 const INSTALL_TIMEOUT: Duration = Duration::from_secs(300);
 const REBOOT_TIMEOUT: Duration = Duration::from_secs(30);
+/// How long to wait before proceeding after a reboot and a connection to the test-runner has been
+/// re-established
+const POST_REBOOT_GRACE_PERIOD: Duration = Duration::from_secs(5);
 const LOG_LEVEL_TIMEOUT: Duration = Duration::from_secs(60);
 const DAEMON_RESTART_TIMEOUT: Duration = Duration::from_secs(30);
 
@@ -370,7 +373,7 @@ impl ServiceClient {
         self.connection_handle.reset_connected_state().await;
         self.connection_handle.wait_for_server().await?;
 
-        tokio::time::sleep(std::time::Duration::from_secs(5)).await;
+        tokio::time::sleep(POST_REBOOT_GRACE_PERIOD).await;
 
         Ok(())
     }
