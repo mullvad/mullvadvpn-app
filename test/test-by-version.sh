@@ -37,6 +37,9 @@ echo "**********************************"
 nice_time download_app_package "$APP_VERSION" "$TEST_OS"
 nice_time download_e2e_executable "$APP_VERSION" "$TEST_OS"
 
+if [[ -n "${APP_PACKAGE_TO_UPGRADE_FROM+x}" ]]; then
+    nice_time download_app_package "$APP_PACKAGE_TO_UPGRADE_FROM" "$TEST_OS"
+fi
 
 set -o pipefail
 APP_PACKAGE=$(get_app_filename "$APP_VERSION" "$TEST_OS")
