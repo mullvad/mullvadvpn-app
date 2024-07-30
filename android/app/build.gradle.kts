@@ -243,6 +243,13 @@ android {
     project.tasks.assemble.dependsOn("ensureValidVersionCode")
 }
 
+junitPlatform {
+    instrumentationTests {
+        version.set(Versions.Android.junit)
+        includeExtensions.set(true)
+    }
+}
+
 composeCompiler { enableStrongSkippingMode = true }
 
 androidComponents {
@@ -369,9 +376,6 @@ dependencies {
     testImplementation(Dependencies.junitParams)
 
     // UI test dependencies
-    debugImplementation(Dependencies.AndroidX.fragmentTestning)
-    // Fixes: https://github.com/android/android-test/issues/1589
-    debugImplementation(Dependencies.AndroidX.testMonitor)
     debugImplementation(Dependencies.Compose.testManifest)
     androidTestImplementation(Dependencies.Koin.test)
     androidTestImplementation(Dependencies.Kotlin.test)
