@@ -1277,8 +1277,7 @@ fn openvpn_handle_bridge_settings() {
     }
     // Tweaking the query just slightly to try to enable bridge mode, while sill using UDP,
     // should fail.
-    query.openvpn_constraints.bridge_settings =
-        Constraint::Only(BridgeQuery::Normal(BridgeConstraints::default()));
+    query.openvpn_constraints.bridge_settings = BridgeQuery::Normal(BridgeConstraints::default());
     let relay = relay_selector.get_relay_by_query(query.clone());
     assert!(relay.is_err());
 
@@ -1514,9 +1513,10 @@ fn valid_user_setting_should_yield_relay() {
     // Make a valid user relay constraint
     let location = GeographicLocationConstraint::hostname("se", "got", "se9-wireguard");
     let user_query = RelayQueryBuilder::new().location(location.clone()).build();
-    let user_constraints = RelayQueryBuilder::new()
+    let (user_constraints, ..) = RelayQueryBuilder::new()
         .location(location.clone())
-        .into_constraint();
+        .build()
+        .into_settings();
 
     let config = SelectorConfig {
         relay_settings: user_constraints.into(),

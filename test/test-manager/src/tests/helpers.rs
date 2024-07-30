@@ -19,8 +19,7 @@ use mullvad_types::{
     constraints::Constraint,
     location::Location,
     relay_constraints::{
-        BridgeSettings, GeographicLocationConstraint, LocationConstraint, OpenVpnConstraints,
-        RelayConstraints, RelaySettings, WireguardConstraints,
+        GeographicLocationConstraint, LocationConstraint, RelayConstraints, RelaySettings,
     },
     relay_list::Relay,
     states::TunnelState,
@@ -589,6 +588,30 @@ impl<T> Drop for AbortOnDrop<T> {
     }
 }
 
+pub async fn apply_settings_from_relay_query(
+    mullvad_client: &mut MullvadProxyClient,
+    query: RelayQuery,
+) -> Result<(), Error> {
+    let (constraints, bridge_state, bridge_settings, obfuscation) = query.into_settings();
+
+    mullvad_client
+        .set_relay_settings(constraints.into())
+        .await
+        .map_err(|error| Error::Daemon(format!("Failed to set relay settings: {}", error)))?;
+    mullvad_client
+        .set_bridge_state(bridge_state)
+        .await
+        .map_err(|error| Error::Daemon(format!("Failed to set bridge state: {}", error)))?;
+    mullvad_client
+        .set_bridge_settings(bridge_settings)
+        .await
+        .map_err(|error| Error::Daemon(format!("Failed to set bridge settings: {}", error)))?;
+    mullvad_client
+        .set_obfuscation_settings(obfuscation)
+        .await
+        .map_err(|error| Error::Daemon(format!("Failed to set obfuscation settings: {}", error)))
+}
+
 pub async fn set_relay_settings(
     mullvad_client: &mut MullvadProxyClient,
     relay_settings: impl Into<RelaySettings>,
@@ -597,16 +620,6 @@ pub async fn set_relay_settings(
         .set_relay_settings(relay_settings.into())
         .await
         .map_err(|error| Error::Daemon(format!("Failed to set relay settings: {}", error)))
-}
-
-pub async fn set_bridge_settings(
-    mullvad_client: &mut MullvadProxyClient,
-    bridge_settings: BridgeSettings,
-) -> Result<(), Error> {
-    mullvad_client
-        .set_bridge_settings(bridge_settings)
-        .await
-        .map_err(|error| Error::Daemon(format!("Failed to set bridge settings: {}", error)))
 }
 
 /// Wait for the relay list to be updated, to make sure we have the overridden one.
@@ -698,12 +711,8 @@ pub async fn constrain_to_relay(
             }
             | GetRelay::OpenVpn { exit, .. } => {
                 let location = into_constraint(&exit)?;
-                let relay_constraints = RelayConstraints {
-                    location,
-                    wireguard_constraints: WireguardConstraints::from(query.wireguard_constraints),
-                    openvpn_constraints: OpenVpnConstraints::from(query.openvpn_constraints),
-                    ..Default::default()
-                };
+                let (mut relay_constraints, ..) = query.into_settings();
+                relay_constraints.location = location;
                 Ok((exit, relay_constraints))
             }
             unsupported => bail!("Can not constrain to a {unsupported:?}"),
