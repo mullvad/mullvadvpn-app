@@ -113,6 +113,9 @@ pub enum Error {
     #[error("API availability check failed")]
     ApiCheckError(#[source] mullvad_api::availability::Error),
 
+    #[error("Version check failed")]
+    VersionCheckError(#[source] version_check::Error),
+
     #[error("Unable to load account history")]
     LoadAccountHistory(#[source] account_history::Error),
 
@@ -307,7 +310,7 @@ pub enum DaemonCommand {
         talpid_types::net::proxy::CustomProxy,
     ),
     /// Get information about the currently running and latest app versions
-    GetVersionInfo(oneshot::Sender<Option<AppVersionInfo>>),
+    GetVersionInfo(oneshot::Sender<Result<AppVersionInfo, Error>>),
     /// Return whether the daemon is performing post-upgrade tasks
     IsPerformingPostUpgrade(oneshot::Sender<bool>),
     /// Get current version of the app
@@ -1637,7 +1640,7 @@ where
         Self::oneshot_send(tx, result, "clear_account_history response");
     }
 
-    fn on_get_version_info(&mut self, tx: oneshot::Sender<Option<AppVersionInfo>>) {
+    fn on_get_version_info(&mut self, tx: oneshot::Sender<Result<AppVersionInfo, Error>>) {
         let mut handle = self.version_updater_handle.clone();
         tokio::spawn(async move {
             Self::oneshot_send(
@@ -1645,13 +1648,13 @@ where
                 handle
                     .get_version_info()
                     .await
-                    .map_err(|error| {
+                    .inspect_err(|error| {
                         log::error!(
                             "{}",
                             error.display_chain_with_msg("Error running version check")
                         )
                     })
-                    .ok(),
+                    .map_err(Error::VersionCheckError),
                 "get_version_info response",
             );
         });

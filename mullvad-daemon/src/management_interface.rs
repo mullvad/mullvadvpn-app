@@ -1,4 +1,6 @@
-use crate::{account_history, device, DaemonCommand, DaemonCommandSender, EventListener};
+use crate::{
+    account_history, device, version_check, DaemonCommand, DaemonCommandSender, EventListener,
+};
 use futures::{
     channel::{mpsc, oneshot},
     StreamExt,
@@ -147,9 +149,9 @@ impl ManagementService for ManagementServiceImpl {
         self.send_command_to_daemon(DaemonCommand::GetVersionInfo(tx))?;
         self.wait_for_result(rx)
             .await?
-            .ok_or_else(|| Status::not_found("no version cache"))
             .map(types::AppVersionInfo::from)
             .map(Response::new)
+            .map_err(map_daemon_error)
     }
 
     async fn is_performing_post_upgrade(&self, _: Request<()>) -> ServiceResult<bool> {
@@ -1169,6 +1171,7 @@ fn map_daemon_error(error: crate::Error) -> Status {
         DaemonError::NoAccountToken | DaemonError::NoAccountTokenHistory => {
             Status::unauthenticated(error.to_string())
         }
+        DaemonError::VersionCheckError(error) => map_version_check_error(error),
         error => Status::unknown(error.to_string()),
     }
 }
@@ -1237,6 +1240,15 @@ fn map_account_history_error(error: account_history::Error) -> Status {
         account_history::Error::Serialize(..) | account_history::Error::WriteCancelled(..) => {
             Status::new(Code::Internal, error.to_string())
         }
+    }
+}
+
+fn map_version_check_error(error: version_check::Error) -> Status {
+    match error {
+        version_check::Error::Download(..)
+        | version_check::Error::ReadVersionCache(..)
+        | version_check::Error::ApiCheck(..) => Status::unavailable(error.to_string()),
+        _ => Status::unknown(error.to_string()),
     }
 }
 
