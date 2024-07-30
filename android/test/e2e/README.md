@@ -12,7 +12,7 @@ Set tokens in the below command and then execute the command in the `android` di
 ```
 
 For convenience, the tokens can also be set in `<REPO-ROOT>/android/local.properties` in the following way:
-```bash
+```.properties
 valid_test_account_number=XXXX
 invalid_test_account_number=XXXX
 ```
