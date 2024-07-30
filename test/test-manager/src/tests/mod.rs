@@ -131,7 +131,7 @@ pub async fn cleanup_after_test(
                 rpc.reset_daemon_environment().await?;
             }
             #[cfg(target_os = "macos")]
-            Other(_) => todo!("Remove this variant, we can't handle this error properly"),
+            Error::Other(_) => todo!("Remove this variant, we can't handle this error properly"),
         }
     }
     let mut mullvad_client = rpc_provider.new_client().await;
