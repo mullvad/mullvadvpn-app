@@ -73,15 +73,16 @@ pub fn get_udp2tcp_obfuscator(
 }
 
 pub fn get_udp2tcp_obfuscator_port(
-    obfuscation_settings_constraint: &Udp2TcpObfuscationSettings,
+    obfuscation_settings: &Udp2TcpObfuscationSettings,
     udp2tcp_ports: &[u16],
 ) -> Option<u16> {
-    match obfuscation_settings_constraint {
-        obfuscation_settings if obfuscation_settings.port.is_only() => udp2tcp_ports
+    if let Constraint::Only(desired_port) = obfuscation_settings.port {
+        udp2tcp_ports
             .iter()
-            .find(|&candidate| obfuscation_settings.port == Constraint::Only(*candidate))
-            .copied(),
+            .find(|&candidate| desired_port == *candidate)
+            .copied()
+    } else {
         // There are no specific obfuscation settings to take into consideration in this case.
-        _ => udp2tcp_ports.choose(&mut thread_rng()).copied(),
+        udp2tcp_ports.choose(&mut thread_rng()).copied()
     }
 }
