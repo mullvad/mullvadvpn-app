@@ -54,9 +54,15 @@ impl Status {
                                 // Do print an updated state if the lockdown setting was changed
                             ) if was_locked_down == locked_down => continue,
                             (
-                                Some(TunnelState::Connected { .. }),
-                                TunnelState::Connected { .. },
-                            ) => continue,
+                                Some(TunnelState::Connected {
+                                    feature_indicators: old_feature_indicators,
+                                    ..
+                                }),
+                                TunnelState::Connected {
+                                    feature_indicators, ..
+                                },
+                                // Do print an updated state if the feature indicators changed
+                            ) if old_feature_indicators == feature_indicators => continue,
                             _ => {}
                         }
                         format::print_state(&new_state, args.verbose);
@@ -91,11 +97,6 @@ impl Status {
                 DaemonEvent::NewAccessMethod(access_method) => {
                     if args.debug {
                         println!("New access method: {access_method:#?}");
-                    }
-                }
-                DaemonEvent::FeatureIndicators(feature_indicators) => {
-                    if args.debug {
-                        println!("New feature indicators: {feature_indicators:#?}");
                     }
                 }
             }

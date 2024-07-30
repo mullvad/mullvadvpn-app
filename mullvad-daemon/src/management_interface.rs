@@ -1166,15 +1166,6 @@ impl EventListener for ManagementInterfaceEventBroadcaster {
             )),
         })
     }
-
-    fn notify_feature_indicators(&self, features: mullvad_types::features::FeatureIndicators) {
-        log::debug!("Broadcasting new feature indicators");
-        self.notify(types::DaemonEvent {
-            event: Some(daemon_event::Event::FeatureIndicators(
-                types::FeatureIndicators::from(features),
-            )),
-        })
-    }
 }
 
 impl ManagementInterfaceEventBroadcaster {

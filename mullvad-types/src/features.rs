@@ -7,8 +7,18 @@ use serde::{Deserialize, Serialize};
 ///
 /// Note that the feature indicators are not ordered.
 #[derive(Default, Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct FeatureIndicators {
-    pub active_features: HashSet<FeatureIndicator>,
+pub struct FeatureIndicators(HashSet<FeatureIndicator>);
+
+impl FeatureIndicators {
+    pub fn active_features(&self) -> impl Iterator<Item = FeatureIndicator> {
+        self.0.clone().into_iter()
+    }
+}
+
+impl FromIterator<FeatureIndicator> for FeatureIndicators {
+    fn from_iter<T: IntoIterator<Item = FeatureIndicator>>(iter: T) -> Self {
+        Self(iter.into_iter().collect())
+    }
 }
 
 /// All possible feature indicators. These represent a subset of all VPN settings in a
@@ -28,4 +38,25 @@ pub enum FeatureIndicator {
     CustomMtu,
     CustomMssFix,
     Daita,
+}
+
+impl std::fmt::Display for FeatureIndicator {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let feature = match self {
+            FeatureIndicator::QuantumResistance => "Quantum Resistance",
+            FeatureIndicator::Multihop => "Multihop",
+            FeatureIndicator::BridgeMode => "Bridge Mode",
+            FeatureIndicator::SplitTunneling => "Split Tunneling",
+            FeatureIndicator::LockdownMode => "Lockdown Mode",
+            FeatureIndicator::Udp2Tcp => "Udp2Tcp",
+            FeatureIndicator::LanSharing => "LAN Sharing",
+            FeatureIndicator::DnsContentBlockers => "Dns Content Blocker",
+            FeatureIndicator::CustomDns => "Custom Dns",
+            FeatureIndicator::ServerIpOverride => "Server Ip Override",
+            FeatureIndicator::CustomMtu => "Custom MTU",
+            FeatureIndicator::CustomMssFix => "Custom MSS",
+            FeatureIndicator::Daita => "DAITA",
+        };
+        write!(f, "{feature}")
+    }
 }

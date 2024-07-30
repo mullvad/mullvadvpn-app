@@ -8,7 +8,6 @@ use mullvad_types::wireguard::DaitaSettings;
 use mullvad_types::{
     access_method::AccessMethodSetting,
     device::{DeviceEvent, RemoveDeviceEvent},
-    features::FeatureIndicators,
     relay_list::RelayList,
     settings::Settings,
     states::TunnelState,
@@ -21,6 +20,7 @@ use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
     custom_list::{CustomList, Id},
     device::{Device, DeviceId, DeviceState},
+    features::FeatureIndicators,
     relay_constraints::{
         BridgeSettings, BridgeState, ObfuscationSettings, RelayOverride, RelaySettings,
     },
@@ -51,7 +51,6 @@ pub enum DaemonEvent {
     Device(DeviceEvent),
     RemoveDevice(RemoveDeviceEvent),
     NewAccessMethod(AccessMethodSetting),
-    FeatureIndicators(FeatureIndicators),
 }
 
 impl TryFrom<types::daemon_event::Event> for DaemonEvent {
@@ -82,9 +81,6 @@ impl TryFrom<types::daemon_event::Event> for DaemonEvent {
                     .map(DaemonEvent::NewAccessMethod)
                     .map_err(Error::InvalidResponse)
             }
-            types::daemon_event::Event::FeatureIndicators(event) => Ok(
-                DaemonEvent::FeatureIndicators(FeatureIndicators::from(event)),
-            ),
         }
     }
 }

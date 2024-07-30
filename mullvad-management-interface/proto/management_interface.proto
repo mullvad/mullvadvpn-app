@@ -203,8 +203,14 @@ message TunnelState {
     GeoIpLocation disconnected_location = 1;
     bool locked_down = 2;
   }
-  message Connecting { TunnelStateRelayInfo relay_info = 1; }
-  message Connected { TunnelStateRelayInfo relay_info = 1; }
+  message Connecting {
+    TunnelStateRelayInfo relay_info = 1;
+    FeatureIndicators feature_indicators = 2;
+  }
+  message Connected {
+    TunnelStateRelayInfo relay_info = 1;
+    FeatureIndicators feature_indicators = 2;
+  }
   message Disconnecting { AfterDisconnect after_disconnect = 1; }
   message Error { ErrorState error_state = 1; }
 
@@ -650,7 +656,6 @@ message DaemonEvent {
     DeviceEvent device = 5;
     RemoveDeviceEvent remove_device = 6;
     AccessMethodSetting new_access_method = 7;
-    FeatureIndicators feature_indicators = 8;
   }
 }
 
