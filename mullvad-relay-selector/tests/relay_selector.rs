@@ -11,7 +11,7 @@ use talpid_types::net::{
 };
 
 use mullvad_relay_selector::{
-    query::{builder::RelayQueryBuilder, BridgeQuery, OpenVpnRelayQuery},
+    query::{builder::RelayQueryBuilder, BridgeQuery, ObfuscationQuery, OpenVpnRelayQuery},
     Error, GetRelay, RelaySelector, RuntimeParameters, SelectorConfig, WireguardConfig,
     RETRY_ORDER,
 };
@@ -20,7 +20,7 @@ use mullvad_types::{
     endpoint::MullvadEndpoint,
     relay_constraints::{
         BridgeConstraints, BridgeState, GeographicLocationConstraint, Ownership, Providers,
-        SelectedObfuscation, TransportPort,
+        TransportPort,
     },
     relay_list::{
         BridgeEndpointData, OpenVpnEndpoint, OpenVpnEndpointData, Relay, RelayEndpointData,
@@ -311,10 +311,10 @@ fn test_retry_order() {
                     .wireguard_constraints
                     .port
                     .matches_eq(&endpoint.peer.endpoint.port()));
-                assert!(match query.wireguard_constraints.obfuscation {
-                    SelectedObfuscation::Auto => true,
-                    SelectedObfuscation::Off => obfuscator.is_none(),
-                    SelectedObfuscation::Udp2Tcp => obfuscator.is_some(),
+                assert!(match &query.wireguard_constraints.obfuscation {
+                    ObfuscationQuery::Auto => true,
+                    ObfuscationQuery::Off => obfuscator.is_none(),
+                    ObfuscationQuery::Udp2tcp { .. } => obfuscator.is_some(),
                 });
             }
             GetRelay::OpenVpn {
@@ -737,15 +737,13 @@ fn test_selecting_wireguard_endpoint_with_udp2tcp_obfuscation() {
 /// multihop is explicitly turned off. Assert that the relay selector does *not* return an
 /// obfuscator config.
 ///
-/// # Note
-/// This is a highly specific test which details how the relay selector should behave at the time of
-/// writing this test. The cost (in latency primarily) of using obfuscation is deemed to be too high
-/// to enable it as an auto-configuration.
+/// [`RelaySelector::get_relay`] may still enable obfuscation if it is present in [`RETRY_ORDER`].
 #[test]
 fn test_selecting_wireguard_endpoint_with_auto_obfuscation() {
     let relay_selector = default_relay_selector();
+
     let mut query = RelayQueryBuilder::new().wireguard().build();
-    query.wireguard_constraints.obfuscation = SelectedObfuscation::Auto;
+    query.wireguard_constraints.obfuscation = ObfuscationQuery::Auto;
 
     for _ in 0..100 {
         let relay = relay_selector.get_relay_by_query(query.clone()).unwrap();

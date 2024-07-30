@@ -9,6 +9,7 @@ pub mod query;
 use chrono::{DateTime, Local};
 use itertools::Itertools;
 use once_cell::sync::Lazy;
+use query::ObfuscationQuery;
 use rand::{seq::IteratorRandom, thread_rng};
 use std::{
     path::Path,
@@ -24,7 +25,7 @@ use mullvad_types::{
     relay_constraints::{
         BridgeSettings, BridgeState, InternalBridgeConstraints, ObfuscationSettings,
         OpenVpnConstraints, RelayConstraints, RelayOverride, RelaySettings, ResolvedBridgeSettings,
-        SelectedObfuscation, WireguardConstraints,
+        WireguardConstraints,
     },
     relay_list::{Relay, RelayEndpointData, RelayList},
     settings::Settings,
@@ -342,8 +343,7 @@ impl<'a> From<NormalSelectorConfig<'a>> for RelayQuery {
                 ip_version,
                 use_multihop: Constraint::Only(use_multihop),
                 entry_location,
-                obfuscation: obfuscation_settings.selected_obfuscation,
-                udp2tcp_port: Constraint::Only(obfuscation_settings.udp2tcp.clone()),
+                obfuscation: ObfuscationQuery::from(obfuscation_settings),
                 daita: Constraint::Only(daita),
             }
         }
@@ -790,23 +790,18 @@ impl RelaySelector {
         endpoint: &MullvadWireguardEndpoint,
         parsed_relays: &ParsedRelays,
     ) -> Result<Option<SelectedObfuscator>, Error> {
-        match query.wireguard_constraints.obfuscation {
-            SelectedObfuscation::Off | SelectedObfuscation::Auto => Ok(None),
-            SelectedObfuscation::Udp2Tcp => {
+        match &query.wireguard_constraints.obfuscation {
+            ObfuscationQuery::Off | ObfuscationQuery::Auto => Ok(None),
+            ObfuscationQuery::Udp2tcp { port } => {
                 let obfuscator_relay = match relay {
                     WireguardConfig::Singlehop { exit } => exit,
                     WireguardConfig::Multihop { entry, .. } => entry,
                 };
                 let udp2tcp_ports = &parsed_relays.parsed_list().wireguard.udp2tcp_ports;
 
-                helpers::get_udp2tcp_obfuscator(
-                    &query.wireguard_constraints.udp2tcp_port,
-                    udp2tcp_ports,
-                    obfuscator_relay,
-                    endpoint,
-                )
-                .map(Some)
-                .ok_or(Error::NoObfuscator)
+                helpers::get_udp2tcp_obfuscator(&port, udp2tcp_ports, obfuscator_relay, endpoint)
+                    .map(Some)
+                    .ok_or(Error::NoObfuscator)
             }
         }
     }
