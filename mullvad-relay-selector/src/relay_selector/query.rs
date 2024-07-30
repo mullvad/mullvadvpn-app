@@ -32,8 +32,8 @@ use crate::AdditionalWireguardConstraints;
 use mullvad_types::{
     constraints::Constraint,
     relay_constraints::{
-        BridgeConstraints, LocationConstraint, OpenVpnConstraints, Ownership, Providers,
-        RelayConstraints, RelaySettings, SelectedObfuscation, TransportPort,
+        BridgeConstraints, LocationConstraint, ObfuscationSettings, OpenVpnConstraints, Ownership,
+        Providers, RelayConstraints, RelaySettings, SelectedObfuscation, TransportPort,
         Udp2TcpObfuscationSettings, WireguardConstraints,
     },
     Intersection,
@@ -150,9 +150,48 @@ pub struct WireguardRelayQuery {
     pub ip_version: Constraint<IpVersion>,
     pub use_multihop: Constraint<bool>,
     pub entry_location: Constraint<LocationConstraint>,
-    pub obfuscation: SelectedObfuscation,
-    pub udp2tcp_port: Constraint<Udp2TcpObfuscationSettings>,
+    pub obfuscation: ObfuscationQuery,
     pub daita: Constraint<bool>,
+}
+
+#[derive(Default, Debug, Clone, Eq, PartialEq)]
+pub enum ObfuscationQuery {
+    Off,
+    #[default]
+    Auto,
+    Udp2tcp {
+        port: Udp2TcpObfuscationSettings,
+    },
+}
+
+impl From<ObfuscationSettings> for ObfuscationQuery {
+    /// A query for obfuscation settings.
+    ///
+    /// Note that this drops obfuscation protocol specific constraints from [`ObfuscationSettings`]
+    /// when the selected obfuscation type is auto.
+    fn from(obfuscation: ObfuscationSettings) -> Self {
+        match obfuscation.selected_obfuscation {
+            SelectedObfuscation::Off => ObfuscationQuery::Off,
+            SelectedObfuscation::Auto => ObfuscationQuery::Auto,
+            SelectedObfuscation::Udp2Tcp => ObfuscationQuery::Udp2tcp {
+                port: obfuscation.udp2tcp,
+            },
+        }
+    }
+}
+
+impl Intersection for ObfuscationQuery {
+    fn intersection(self, other: Self) -> Option<Self> {
+        match (self, other) {
+            (ObfuscationQuery::Off, _) | (_, ObfuscationQuery::Off) => Some(ObfuscationQuery::Off),
+            (ObfuscationQuery::Auto, other) | (other, ObfuscationQuery::Auto) => Some(other),
+            (ObfuscationQuery::Udp2tcp { port: a }, ObfuscationQuery::Udp2tcp { port: b }) => {
+                Some(ObfuscationQuery::Udp2tcp {
+                    port: a.intersection(b)?,
+                })
+            }
+        }
+    }
 }
 
 impl WireguardRelayQuery {
@@ -168,8 +207,7 @@ impl WireguardRelayQuery {
             ip_version: Constraint::Any,
             use_multihop: Constraint::Any,
             entry_location: Constraint::Any,
-            obfuscation: SelectedObfuscation::Auto,
-            udp2tcp_port: Constraint::Any,
+            obfuscation: ObfuscationQuery::Auto,
             daita: Constraint::Any,
         }
     }
@@ -310,7 +348,7 @@ pub mod builder {
     };
     use talpid_types::net::TunnelType;
 
-    use super::{BridgeQuery, RelayQuery};
+    use super::{BridgeQuery, ObfuscationQuery, RelayQuery};
 
     // Re-exports
     pub use mullvad_types::relay_constraints::{
@@ -505,8 +543,8 @@ pub mod builder {
                 obfuscation: obfuscation.clone(),
                 daita: self.protocol.daita,
             };
-            self.query.wireguard_constraints.udp2tcp_port = Constraint::Only(obfuscation);
-            self.query.wireguard_constraints.obfuscation = SelectedObfuscation::Udp2Tcp;
+            self.query.wireguard_constraints.obfuscation =
+                ObfuscationQuery::Udp2tcp { port: obfuscation };
             RelayQueryBuilder {
                 query: self.query,
                 protocol,
@@ -519,8 +557,9 @@ pub mod builder {
         /// protocol should use to connect to a relay.
         pub fn udp2tcp_port(mut self, port: u16) -> Self {
             self.protocol.obfuscation.port = Constraint::Only(port);
-            self.query.wireguard_constraints.udp2tcp_port =
-                Constraint::Only(self.protocol.obfuscation.clone());
+            self.query.wireguard_constraints.obfuscation = ObfuscationQuery::Udp2tcp {
+                port: self.protocol.obfuscation.clone(),
+            };
             self
         }
     }
@@ -639,10 +678,26 @@ pub mod builder {
 
 #[cfg(test)]
 mod test {
-    use mullvad_types::constraints::Constraint;
+    use mullvad_types::{
+        constraints::Constraint,
+        relay_constraints::{ObfuscationSettings, SelectedObfuscation, Udp2TcpObfuscationSettings},
+    };
     use proptest::prelude::*;
 
-    use super::Intersection;
+    use super::{Intersection, ObfuscationQuery};
+
+    /// When obfuscation is set to automatic in [`ObfuscationSettings`], the query should not
+    /// contain any specific obfuscation protocol settings.
+    #[test]
+    fn test_auto_obfuscation_settings() {
+        let query = ObfuscationQuery::from(ObfuscationSettings {
+            selected_obfuscation: SelectedObfuscation::Auto,
+            udp2tcp: Udp2TcpObfuscationSettings {
+                port: Constraint::Only(1234),
+            },
+        });
+        assert_eq!(query, ObfuscationQuery::Auto);
+    }
 
     // Define proptest combinators for the `Constraint` type.
 

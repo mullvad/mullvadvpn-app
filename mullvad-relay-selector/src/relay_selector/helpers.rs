@@ -58,7 +58,7 @@ pub fn pick_random_relay_weighted<RelayType>(
 }
 
 pub fn get_udp2tcp_obfuscator(
-    obfuscation_settings_constraint: &Constraint<Udp2TcpObfuscationSettings>,
+    obfuscation_settings_constraint: &Udp2TcpObfuscationSettings,
     udp2tcp_ports: &[u16],
     relay: Relay,
     endpoint: &MullvadWireguardEndpoint,
@@ -73,17 +73,16 @@ pub fn get_udp2tcp_obfuscator(
 }
 
 pub fn get_udp2tcp_obfuscator_port(
-    obfuscation_settings_constraint: &Constraint<Udp2TcpObfuscationSettings>,
+    obfuscation_settings: &Udp2TcpObfuscationSettings,
     udp2tcp_ports: &[u16],
 ) -> Option<u16> {
-    match obfuscation_settings_constraint {
-        Constraint::Only(obfuscation_settings) if obfuscation_settings.port.is_only() => {
-            udp2tcp_ports
-                .iter()
-                .find(|&candidate| obfuscation_settings.port == Constraint::Only(*candidate))
-                .copied()
-        }
+    if let Constraint::Only(desired_port) = obfuscation_settings.port {
+        udp2tcp_ports
+            .iter()
+            .find(|&candidate| desired_port == *candidate)
+            .copied()
+    } else {
         // There are no specific obfuscation settings to take into consideration in this case.
-        Constraint::Any | Constraint::Only(_) => udp2tcp_ports.choose(&mut thread_rng()).copied(),
+        udp2tcp_ports.choose(&mut thread_rng()).copied()
     }
 }
