@@ -1,7 +1,8 @@
 use super::{
     config::TEST_CONFIG,
     helpers::{
-        self, connect_and_wait, disconnect_and_wait, set_bridge_settings, set_relay_settings,
+        self, apply_settings_from_relay_query, connect_and_wait, disconnect_and_wait,
+        set_relay_settings,
     },
     Error, TestContext,
 };
@@ -17,8 +18,7 @@ use mullvad_types::{
     constraints::Constraint,
     relay_constraints::{
         self, BridgeConstraints, BridgeSettings, BridgeType, OpenVpnConstraints, RelayConstraints,
-        RelaySettings, SelectedObfuscation, ShadowsocksSettings, TransportPort,
-        Udp2TcpObfuscationSettings, WireguardConstraints,
+        RelaySettings, TransportPort, WireguardConstraints,
     },
     states::TunnelState,
     wireguard,
@@ -145,25 +145,9 @@ pub async fn test_udp2tcp_tunnel(
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> Result<(), Error> {
-    mullvad_client
-        .set_obfuscation_settings(relay_constraints::ObfuscationSettings {
-            selected_obfuscation: SelectedObfuscation::Udp2Tcp,
-            udp2tcp: Udp2TcpObfuscationSettings {
-                port: Constraint::Any,
-            },
-            ..Default::default()
-        })
-        .await
-        .expect("failed to enable udp2tcp");
+    let query = RelayQueryBuilder::new().wireguard().udp2tcp().build();
 
-    let relay_settings = RelaySettings::Normal(RelayConstraints {
-        tunnel_protocol: Constraint::Only(TunnelType::Wireguard),
-        ..Default::default()
-    });
-
-    set_relay_settings(&mut mullvad_client, relay_settings)
-        .await
-        .expect("failed to update relay settings");
+    apply_settings_from_relay_query(&mut mullvad_client, query).await?;
 
     log::info!("Connect to WireGuard via tcp2udp endpoint");
 
@@ -211,25 +195,9 @@ pub async fn test_wireguard_over_shadowsocks(
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> anyhow::Result<()> {
-    mullvad_client
-        .set_obfuscation_settings(relay_constraints::ObfuscationSettings {
-            selected_obfuscation: SelectedObfuscation::Shadowsocks,
-            shadowsocks: ShadowsocksSettings {
-                port: Constraint::Any,
-            },
-            ..Default::default()
-        })
-        .await
-        .context("Failed to enable shadowsocks")?;
+    let query = RelayQueryBuilder::new().wireguard().shadowsocks().build();
 
-    let relay_settings = RelaySettings::Normal(RelayConstraints {
-        tunnel_protocol: Constraint::Only(TunnelType::Wireguard),
-        ..Default::default()
-    });
-
-    set_relay_settings(&mut mullvad_client, relay_settings)
-        .await
-        .context("Failed to update relay settings")?;
+    apply_settings_from_relay_query(&mut mullvad_client, query).await?;
 
     log::info!("Connect to WireGuard via shadowsocks endpoint");
 
@@ -259,24 +227,9 @@ pub async fn test_bridge(
     //
     log::info!("Updating bridge settings");
 
-    mullvad_client
-        .set_bridge_state(relay_constraints::BridgeState::On)
-        .await
-        .expect("failed to enable bridge mode");
+    let query = RelayQueryBuilder::new().openvpn().bridge().build();
 
-    set_bridge_settings(&mut mullvad_client, BridgeSettings::default())
-        .await
-        .expect("failed to update bridge settings");
-
-    set_relay_settings(
-        &mut mullvad_client,
-        RelaySettings::Normal(RelayConstraints {
-            tunnel_protocol: Constraint::Only(TunnelType::OpenVpn),
-            ..Default::default()
-        }),
-    )
-    .await
-    .expect("failed to update relay settings");
+    apply_settings_from_relay_query(&mut mullvad_client, query).await?;
 
     // Connect to VPN
     //
@@ -341,17 +294,9 @@ pub async fn test_multihop(
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> Result<(), Error> {
-    let relay_constraints = RelayQueryBuilder::new()
-        .wireguard()
-        .multihop()
-        .into_constraint();
+    let query = RelayQueryBuilder::new().wireguard().multihop().build();
 
-    set_relay_settings(
-        &mut mullvad_client,
-        RelaySettings::Normal(relay_constraints),
-    )
-    .await
-    .expect("failed to update relay settings");
+    apply_settings_from_relay_query(&mut mullvad_client, query).await?;
 
     // Connect
     //
@@ -458,7 +403,7 @@ pub async fn test_daita(
 ) -> anyhow::Result<()> {
     log::info!("Connecting to relay with DAITA");
 
-    set_relay_settings(
+    apply_settings_from_relay_query(
         &mut mullvad_client,
         RelayQueryBuilder::new().wireguard().build(),
     )
@@ -616,26 +561,13 @@ pub async fn test_quantum_resistant_multihop_udp2tcp_tunnel(
         .await
         .expect("Failed to enable PQ tunnels");
 
-    mullvad_client
-        .set_obfuscation_settings(relay_constraints::ObfuscationSettings {
-            selected_obfuscation: SelectedObfuscation::Udp2Tcp,
-            udp2tcp: Udp2TcpObfuscationSettings {
-                port: Constraint::Any,
-            },
-            ..Default::default()
-        })
-        .await
-        .expect("Failed to enable obfuscation");
-
-    let relay_constraints = RelayQueryBuilder::new()
+    let query = RelayQueryBuilder::new()
         .wireguard()
         .multihop()
-        .into_constraint();
+        .udp2tcp()
+        .build();
 
-    mullvad_client
-        .set_relay_settings(RelaySettings::Normal(relay_constraints))
-        .await
-        .expect("Failed to update relay settings");
+    apply_settings_from_relay_query(&mut mullvad_client, query).await?;
 
     connect_and_wait(&mut mullvad_client).await?;
 
@@ -664,26 +596,13 @@ pub async fn test_quantum_resistant_multihop_shadowsocks_tunnel(
         .await
         .context("Failed to enable PQ tunnels")?;
 
-    mullvad_client
-        .set_obfuscation_settings(relay_constraints::ObfuscationSettings {
-            selected_obfuscation: SelectedObfuscation::Shadowsocks,
-            shadowsocks: ShadowsocksSettings {
-                port: Constraint::Any,
-            },
-            ..Default::default()
-        })
-        .await
-        .context("Failed to enable obfuscation")?;
-
-    let relay_constraints = RelayQueryBuilder::new()
+    let query = RelayQueryBuilder::new()
         .wireguard()
         .multihop()
-        .into_constraint();
+        .shadowsocks()
+        .build();
 
-    mullvad_client
-        .set_relay_settings(RelaySettings::Normal(relay_constraints))
-        .await
-        .context("Failed to update relay settings")?;
+    apply_settings_from_relay_query(&mut mullvad_client, query).await?;
 
     connect_and_wait(&mut mullvad_client).await?;
 
