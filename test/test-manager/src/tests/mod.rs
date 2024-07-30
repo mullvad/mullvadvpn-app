@@ -141,7 +141,7 @@ async fn have_you_tried_turning_it_off_and_on_again(mut rpc: ServiceClient) -> a
                 rpc.reset_daemon_environment().await?;
             }
             #[cfg(target_os = "macos")]
-            Other(_) => todo!("Remove this variant, we can't handle this error properly"),
+            Error::Other(_) => todo!("Remove this variant, we can't handle this error properly"),
         }
     }
 
