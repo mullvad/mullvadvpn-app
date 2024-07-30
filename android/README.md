@@ -22,7 +22,7 @@ structure and can therefore be opened in Android Studio or any other IDE or edit
 
 The easiest and recommended way to build the Android project including the `mullvad-daemon` and
 `wireguard-go` is to use the following command (which requires `podman`):
-```
+```bash
 ../building/containerized-build.sh android --dev-build
 ```
 See the [build instructions](BuildInstructions.md) for further information.
@@ -44,12 +44,12 @@ In order to format XML files, the script `scripts/tidy.sh` is used. As the scrip
 container image is used.
 
 Command to format:
-```
+```bash
 scripts/tidy.sh format
 ```
 
 Command to format and check for any changes:
-```
+```bash
 scripts/tidy.sh formatAndCheckDiff
 ```
 
