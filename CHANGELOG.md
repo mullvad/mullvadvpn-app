@@ -25,6 +25,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Add DAITA (Defence against AI-guided Traffic Analysis) setting for Linux and macOS.
 - Add `--json` flag to `mullvad status` CLI.
+- Add WireGuard over Shadowsocks obfuscation to the CLI.
 
 #### Windows
 - Add experimental support for Windows ARM64.
