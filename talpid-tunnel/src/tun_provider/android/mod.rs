@@ -299,7 +299,7 @@ impl AndroidTunProvider {
     }
 
     fn prepare_tun_config_for_excluded_apps(&self, config: &mut TunConfig) {
-        config.excluded_packages = self.excluded_apps.clone();
+        config.excluded_packages.clone_from(&self.excluded_apps);
     }
 
     /// Allow a socket to bypass the tunnel.

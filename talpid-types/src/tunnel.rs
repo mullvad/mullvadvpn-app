@@ -96,7 +96,7 @@ pub enum ErrorStateCause {
     #[cfg(target_os = "android")]
     VpnPermissionDenied,
     /// Error reported by split tunnel module.
-    #[cfg(any(target_os = "windows", target_os = "macos"))]
+    #[cfg(any(target_os = "windows", target_os = "macos", target_os = "android"))]
     SplitTunnelError,
     /// Missing permissions required by macOS split tunneling.
     #[cfg(target_os = "macos")]
@@ -202,7 +202,7 @@ impl fmt::Display for ErrorStateCause {
             IsOffline => "This device is offline, no tunnels can be established",
             #[cfg(target_os = "android")]
             VpnPermissionDenied => "The Android VPN permission was denied when creating the tunnel",
-            #[cfg(any(target_os = "windows", target_os = "macos"))]
+            #[cfg(any(target_os = "windows", target_os = "macos", target_os = "android"))]
             SplitTunnelError => "The split tunneling module reported an error",
             #[cfg(target_os = "macos")]
             NeedFullDiskPermissions => "Need full disk access to enable split tunneling",

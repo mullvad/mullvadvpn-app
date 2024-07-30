@@ -651,14 +651,10 @@ impl SharedTunnelStateValues {
     }
 
     /// Update the set of excluded paths (split tunnel apps) for the tunnel provider.
+    /// Returns `Ok(true)` if the tunnel state machine should issue a tunnel reconnect.
     #[cfg(target_os = "android")]
-    pub fn exclude_paths(
-        &mut self,
-        apps: Vec<String>,
-        tx: oneshot::Sender<Result<(), split_tunnel::Error>>,
-    ) {
-        let exclude_apps_result = self
-            .tun_provider
+    pub fn exclude_paths(&mut self, apps: Vec<String>) -> Result<bool, split_tunnel::Error> {
+        self.tun_provider
             .lock()
             .unwrap()
             .set_exclude_apps(apps)
@@ -670,9 +666,12 @@ impl SharedTunnelStateValues {
                         "Failed to restart tunnel after updating excluded apps",
                     )
                 );
-            });
-
-        let _ = tx.send(exclude_apps_result);
+            })?;
+        // NOTE: For now, we tell the TSM to always reconnect when this function has been
+        // successfully called. We still return a boolean value in case we would like to introduce
+        // some condition in the future, thus forcing the TSM to be ready to handle both cases
+        // already.
+        Ok(true)
     }
 }
 
