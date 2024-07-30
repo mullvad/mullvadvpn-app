@@ -39,22 +39,28 @@ impl From<mullvad_types::states::TunnelState> for proto::TunnelState {
                 disconnected_location: disconnected_location.map(proto::GeoIpLocation::from),
                 locked_down,
             }),
-            MullvadTunnelState::Connecting { endpoint, location } => {
-                proto::tunnel_state::State::Connecting(proto::tunnel_state::Connecting {
-                    relay_info: Some(proto::TunnelStateRelayInfo {
-                        tunnel_endpoint: Some(proto::TunnelEndpoint::from(endpoint)),
-                        location: location.map(proto::GeoIpLocation::from),
-                    }),
-                })
-            }
-            MullvadTunnelState::Connected { endpoint, location } => {
-                proto::tunnel_state::State::Connected(proto::tunnel_state::Connected {
-                    relay_info: Some(proto::TunnelStateRelayInfo {
-                        tunnel_endpoint: Some(proto::TunnelEndpoint::from(endpoint)),
-                        location: location.map(proto::GeoIpLocation::from),
-                    }),
-                })
-            }
+            MullvadTunnelState::Connecting {
+                endpoint,
+                location,
+                feature_indicators,
+            } => proto::tunnel_state::State::Connecting(proto::tunnel_state::Connecting {
+                relay_info: Some(proto::TunnelStateRelayInfo {
+                    tunnel_endpoint: Some(proto::TunnelEndpoint::from(endpoint)),
+                    location: location.map(proto::GeoIpLocation::from),
+                }),
+                feature_indicators: Some(proto::FeatureIndicators::from(feature_indicators)),
+            }),
+            MullvadTunnelState::Connected {
+                endpoint,
+                location,
+                feature_indicators,
+            } => proto::tunnel_state::State::Connected(proto::tunnel_state::Connected {
+                relay_info: Some(proto::TunnelStateRelayInfo {
+                    tunnel_endpoint: Some(proto::TunnelEndpoint::from(endpoint)),
+                    location: location.map(proto::GeoIpLocation::from),
+                }),
+                feature_indicators: Some(proto::FeatureIndicators::from(feature_indicators)),
+            }),
             MullvadTunnelState::Disconnecting(after_disconnect) => {
                 proto::tunnel_state::State::Disconnecting(proto::tunnel_state::Disconnecting {
                     after_disconnect: match after_disconnect {
@@ -233,11 +239,17 @@ impl TryFrom<proto::TunnelState> for mullvad_types::states::TunnelState {
                         tunnel_endpoint: Some(tunnel_endpoint),
                         location,
                     }),
+                feature_indicators,
             })) => MullvadState::Connecting {
                 endpoint: talpid_net::TunnelEndpoint::try_from(tunnel_endpoint)?,
                 location: location
                     .map(mullvad_types::location::GeoIpLocation::try_from)
                     .transpose()?,
+                feature_indicators: feature_indicators
+                    .map(mullvad_types::features::FeatureIndicators::from)
+                    .ok_or(FromProtobufTypeError::InvalidArgument(
+                        "Missing feature indicators",
+                    ))?,
             },
             Some(proto::tunnel_state::State::Connected(proto::tunnel_state::Connected {
                 relay_info:
@@ -245,11 +257,17 @@ impl TryFrom<proto::TunnelState> for mullvad_types::states::TunnelState {
                         tunnel_endpoint: Some(tunnel_endpoint),
                         location,
                     }),
+                feature_indicators,
             })) => MullvadState::Connected {
                 endpoint: talpid_net::TunnelEndpoint::try_from(tunnel_endpoint)?,
                 location: location
                     .map(mullvad_types::location::GeoIpLocation::try_from)
                     .transpose()?,
+                feature_indicators: feature_indicators
+                    .map(mullvad_types::features::FeatureIndicators::from)
+                    .ok_or(FromProtobufTypeError::InvalidArgument(
+                        "Missing feature indicators",
+                    ))?,
             },
             Some(proto::tunnel_state::State::Disconnecting(
                 proto::tunnel_state::Disconnecting { after_disconnect },
