@@ -7,7 +7,7 @@ use nftnl::{
 };
 use std::{
     env,
-    ffi::{CStr, CString},
+    ffi::CStr,
     fs, io,
     net::{IpAddr, Ipv4Addr},
     sync::LazyLock,
@@ -55,14 +55,13 @@ pub enum Error {
 
 /// TODO(linus): This crate is not supposed to be Mullvad-aware. So at some point this should be
 /// replaced by allowing the table name to be configured from the public API of this crate.
-static TABLE_NAME: LazyLock<CString> = LazyLock::new(|| CString::new("mullvad").unwrap());
-static IN_CHAIN_NAME: LazyLock<CString> = LazyLock::new(|| CString::new("input").unwrap());
-static OUT_CHAIN_NAME: LazyLock<CString> = LazyLock::new(|| CString::new("output").unwrap());
-static FORWARD_CHAIN_NAME: LazyLock<CString> = LazyLock::new(|| CString::new("forward").unwrap());
-static PREROUTING_CHAIN_NAME: LazyLock<CString> =
-    LazyLock::new(|| CString::new("prerouting").unwrap());
-static MANGLE_CHAIN_NAME: LazyLock<CString> = LazyLock::new(|| CString::new("mangle").unwrap());
-static NAT_CHAIN_NAME: LazyLock<CString> = LazyLock::new(|| CString::new("nat").unwrap());
+const TABLE_NAME: &CStr = c"mullvad";
+const IN_CHAIN_NAME: &CStr = c"input";
+const OUT_CHAIN_NAME: &CStr = c"output";
+const FORWARD_CHAIN_NAME: &CStr = c"forward";
+const PREROUTING_CHAIN_NAME: &CStr = c"prerouting";
+const MANGLE_CHAIN_NAME: &CStr = c"mangle";
+const NAT_CHAIN_NAME: &CStr = c"nat";
 
 /// Allows controlling whether firewall rules should have packet counters or not from an env
 /// variable. Useful for debugging the rules.
@@ -105,15 +104,15 @@ impl Firewall {
     }
 
     pub fn apply_policy(&mut self, policy: FirewallPolicy) -> Result<()> {
-        let table = Table::new(&*TABLE_NAME, ProtoFamily::Inet);
+        let table = Table::new(&TABLE_NAME, ProtoFamily::Inet);
         let batch = PolicyBatch::new(&table).finalize(&policy, self.fwmark)?;
         Self::send_and_process(&batch)?;
         Self::apply_kernel_config(&policy);
-        self.verify_tables(&[&TABLE_NAME])
+        self.verify_tables(&[TABLE_NAME])
     }
 
     pub fn reset_policy(&mut self) -> Result<()> {
-        let table = Table::new(&*TABLE_NAME, ProtoFamily::Inet);
+        let table = Table::new(&TABLE_NAME, ProtoFamily::Inet);
         let mut batch = Batch::new();
 
         // Our batch will add and remove the table even though the goal is just to remove
@@ -236,33 +235,33 @@ impl<'a> PolicyBatch<'a> {
         batch.add(table, nftnl::MsgType::Del);
         batch.add(table, nftnl::MsgType::Add);
 
-        let mut prerouting_chain = Chain::new(&*PREROUTING_CHAIN_NAME, table);
+        let mut prerouting_chain = Chain::new(&PREROUTING_CHAIN_NAME, table);
         prerouting_chain.set_hook(nftnl::Hook::PreRouting, PREROUTING_CHAIN_PRIORITY);
         prerouting_chain.set_type(nftnl::ChainType::Filter);
         batch.add(&prerouting_chain, nftnl::MsgType::Add);
 
-        let mut out_chain = Chain::new(&*OUT_CHAIN_NAME, table);
+        let mut out_chain = Chain::new(&OUT_CHAIN_NAME, table);
         out_chain.set_hook(nftnl::Hook::Out, 0);
         out_chain.set_policy(nftnl::Policy::Drop);
         batch.add(&out_chain, nftnl::MsgType::Add);
 
-        let mut in_chain = Chain::new(&*IN_CHAIN_NAME, table);
+        let mut in_chain = Chain::new(&IN_CHAIN_NAME, table);
         in_chain.set_hook(nftnl::Hook::In, 0);
         in_chain.set_policy(nftnl::Policy::Drop);
         batch.add(&in_chain, nftnl::MsgType::Add);
 
-        let mut forward_chain = Chain::new(&*FORWARD_CHAIN_NAME, table);
+        let mut forward_chain = Chain::new(&FORWARD_CHAIN_NAME, table);
         forward_chain.set_hook(nftnl::Hook::Forward, 0);
         forward_chain.set_policy(nftnl::Policy::Drop);
         batch.add(&forward_chain, nftnl::MsgType::Add);
 
-        let mut mangle_chain = Chain::new(&*MANGLE_CHAIN_NAME, table);
+        let mut mangle_chain = Chain::new(&MANGLE_CHAIN_NAME, table);
         mangle_chain.set_hook(nftnl::Hook::Out, MANGLE_CHAIN_PRIORITY);
         mangle_chain.set_type(nftnl::ChainType::Route);
         mangle_chain.set_policy(nftnl::Policy::Accept);
         batch.add(&mangle_chain, nftnl::MsgType::Add);
 
-        let mut nat_chain = Chain::new(&*NAT_CHAIN_NAME, table);
+        let mut nat_chain = Chain::new(&NAT_CHAIN_NAME, table);
         nat_chain.set_hook(nftnl::Hook::PostRouting, libc::NF_IP_PRI_NAT_SRC);
         nat_chain.set_type(nftnl::ChainType::Nat);
         nat_chain.set_policy(nftnl::Policy::Accept);
@@ -1067,13 +1066,12 @@ fn set_src_valid_mark_sysctl() -> io::Result<()> {
 /// Tables that are no longer used but need to be deleted due to upgrades.
 /// This can be removed when upgrades from 2023.3 are no longer supported.
 fn batch_deprecated_tables(batch: &mut Batch) {
-    static MANGLE_TABLE_NAME_V4: LazyLock<CString> =
-        LazyLock::new(|| CString::new("mullvadmangle4").unwrap());
-    static MANGLE_TABLE_NAME_V6: LazyLock<CString> =
-        LazyLock::new(|| CString::new("mullvadmangle6").unwrap());
+    const MANGLE_TABLE_NAME_V4: &CStr = c"mullvadmangle4";
+    const MANGLE_TABLE_NAME_V6: &CStr = c"mullvadmangle6";
+
     let tables = [
-        Table::new(&*MANGLE_TABLE_NAME_V4, ProtoFamily::Ipv4),
-        Table::new(&*MANGLE_TABLE_NAME_V6, ProtoFamily::Ipv6),
+        Table::new(&MANGLE_TABLE_NAME_V4, ProtoFamily::Ipv4),
+        Table::new(&MANGLE_TABLE_NAME_V6, ProtoFamily::Ipv6),
     ];
     for table in &tables {
         batch.add(table, nftnl::MsgType::Add);
