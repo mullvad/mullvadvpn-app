@@ -8,13 +8,21 @@ import androidx.activity.result.contract.ActivityResultContract
 
 class RequestVpnPermission : ActivityResultContract<Unit, Boolean>() {
     override fun createIntent(context: Context, input: Unit): Intent {
-        // We expect this permission to only be requested when the permission is missing, however,
-        // if it for some reason is called incorrectly we should return an empty intent so we avoid
-        // a crash.
-        return VpnService.prepare(context) ?: Intent()
+        return VpnService.prepare(context)
     }
 
     override fun parseResult(resultCode: Int, intent: Intent?): Boolean {
         return resultCode == Activity.RESULT_OK
+    }
+
+    // We expect this permission to only be requested when the permission is missing, however,
+    // if it for some reason is called incorrectly we will skip the call to create intent
+    // to avoid crashing. The app will then proceed as the user accepted permission.
+    override fun getSynchronousResult(context: Context, input: Unit): SynchronousResult<Boolean>? {
+        return if (VpnService.prepare(context) == null) {
+            SynchronousResult(true)
+        } else {
+            null
+        }
     }
 }
