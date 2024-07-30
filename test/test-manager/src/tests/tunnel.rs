@@ -145,23 +145,13 @@ pub async fn test_udp2tcp_tunnel(
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> Result<(), Error> {
+    let query = RelayQueryBuilder::new().wireguard().udp2tcp().build();
+
     mullvad_client
-        .set_obfuscation_settings(relay_constraints::ObfuscationSettings {
-            selected_obfuscation: SelectedObfuscation::Udp2Tcp,
-            udp2tcp: Udp2TcpObfuscationSettings {
-                port: Constraint::Any,
-            },
-            ..Default::default()
-        })
+        .set_obfuscation_settings(query.clone().into_obfuscation_settings())
         .await
         .expect("failed to enable udp2tcp");
-
-    let relay_settings = RelaySettings::Normal(RelayConstraints {
-        tunnel_protocol: Constraint::Only(TunnelType::Wireguard),
-        ..Default::default()
-    });
-
-    set_relay_settings(&mut mullvad_client, relay_settings)
+    set_relay_settings(&mut mullvad_client, query.into_relay_constraints())
         .await
         .expect("failed to update relay settings");
 
@@ -452,7 +442,10 @@ pub async fn test_daita(
 
     set_relay_settings(
         &mut mullvad_client,
-        RelayQueryBuilder::new().wireguard().build().into_relay_constraints(),
+        RelayQueryBuilder::new()
+            .wireguard()
+            .build()
+            .into_relay_constraints(),
     )
     .await?;
 
