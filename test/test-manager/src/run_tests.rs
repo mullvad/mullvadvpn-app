@@ -8,7 +8,7 @@ use crate::{
 use anyhow::{Context, Result};
 use futures::FutureExt;
 use std::{future::Future, panic, time::Duration};
-use test_rpc::{logging::Output, mullvad_daemon::MullvadClientVersion, ServiceClient};
+use test_rpc::{logging::Output, ServiceClient};
 
 /// The baud rate of the serial connection between the test manager and the test runner.
 /// There is a known issue with setting a baud rate at all or macOS, and the workaround
@@ -79,7 +79,19 @@ pub async fn run(
 
     let logger = super::logging::Logger::get_or_init();
 
+    if let Some(previous_app) = TEST_CONFIG.app_package_to_upgrade_from_filename.as_ref() {
+        if let Err(e) = tests::test_upgrade_app(&test_context, &client, previous_app).await {
+            log::error!("Failed to to run 'test_upgrade_app': {e}");
+        }
+    } else {
+        log::warn!("No previous app to upgrade from, skipping upgrade test");
+    };
+
     for test in tests {
+        crate::tests::reset_before_test(client.clone(), &test_context.rpc_provider)
+            .await
+            .context("Failed to reset daemon before test")?;
+
         let mullvad_client = test_context
             .rpc_provider
             .mullvad_client(test.mullvad_client_version)
@@ -112,16 +124,6 @@ pub async fn run(
         }
 
         test_result.print();
-
-        if test.mullvad_client_version == MullvadClientVersion::New {
-            // Try to reset the daemon state if the test failed OR if the test doesn't explicitly
-            // disabled cleanup.
-            if test.cleanup || matches!(test_result.result, Err(_) | Ok(Err(_))) {
-                crate::tests::cleanup_after_test(client.clone(), &test_context.rpc_provider)
-                    .await
-                    .context("Failed to clean up after test")?;
-            }
-        }
 
         let test_succeeded = matches!(test_result.result, Ok(Ok(_)));
 
