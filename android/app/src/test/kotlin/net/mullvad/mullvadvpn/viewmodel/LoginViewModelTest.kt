@@ -148,6 +148,7 @@ class LoginViewModelTest {
                 uiStates.skipDefaultItem()
                 loginViewModel.login(DUMMY_ACCOUNT_NUMBER.value)
                 assertEquals(Loading.LoggingIn, uiStates.awaitItem().loginState)
+                assertEquals(Idle(null), uiStates.awaitItem().loginState)
                 assertEquals(
                     LoginUiSideEffect.TooManyDevices(DUMMY_ACCOUNT_NUMBER),
                     sideEffects.awaitItem()
