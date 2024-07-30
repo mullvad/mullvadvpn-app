@@ -14,30 +14,21 @@ use super::{
     Error, TestContext,
 };
 
-/// Install the last stable version of the app and verify that it is running.
-#[test_function(priority = -200)]
-pub async fn test_install_previous_app(_: TestContext, rpc: ServiceClient) -> anyhow::Result<()> {
-    let Some(previous_app) = TEST_CONFIG.app_package_to_upgrade_from_filename.as_ref() else {
-        bail!("Missing previous app version");
-    };
-
-    install_app(&rpc, previous_app).await?;
-
-    Ok(())
-}
-
 /// Upgrade to the "version under test". This test fails if:
 ///
 /// * Leaks (TCP/UDP/ICMP) to a single public IP address are successfully produced during the
 ///   upgrade.
 /// * The installer does not successfully complete.
 /// * The VPN service is not running after the upgrade.
-#[test_function(priority = -190)]
-pub async fn test_upgrade_app(ctx: TestContext, rpc: ServiceClient) -> anyhow::Result<()> {
-    anyhow::ensure!(
-        TEST_CONFIG.app_package_to_upgrade_from_filename.is_some(),
-        "Missing previous app version"
-    );
+pub async fn test_upgrade_app(
+    ctx: &TestContext,
+    rpc: &ServiceClient,
+    previous_app: &str,
+) -> anyhow::Result<()> {
+    // Install the last stable version of the app and verify that it is running.
+    install_app(rpc, previous_app)
+        .await
+        .context("Failed to install previous app version")?;
 
     // Verify that daemon is running
     if rpc.mullvad_daemon_get_status().await? != ServiceStatus::Running {
@@ -92,7 +83,7 @@ pub async fn test_upgrade_app(ctx: TestContext, rpc: ServiceClient) -> anyhow::R
 
     // Begin monitoring outgoing traffic and pinging
     //
-    let pinger = Pinger::start(&rpc).await;
+    let pinger = Pinger::start(rpc).await;
 
     // install new package
     log::debug!("Installing new app");
@@ -159,20 +150,6 @@ pub async fn test_upgrade_app(ctx: TestContext, rpc: ServiceClient) -> anyhow::R
     // Some(TEST_CONFIG.account_number.clone()),
     // "lost account history"
     // );
-
-    Ok(())
-}
-
-/// Install the app cleanly, failing if the installer doesn't succeed
-/// or if the VPN service is not running afterwards.
-#[test_function(always_run = true, must_succeed = true, priority = -170)]
-pub async fn test_install_new_app(_: TestContext, rpc: ServiceClient) -> anyhow::Result<()> {
-    // verify that daemon is not already running
-    if rpc.mullvad_daemon_get_status().await? != ServiceStatus::NotRunning {
-        rpc.stop_mullvad_daemon().await.unwrap();
-    }
-
-    install_app(&rpc, &TEST_CONFIG.app_package_filename).await?;
 
     Ok(())
 }
@@ -254,7 +231,7 @@ pub async fn test_uninstall_app(
         uninstalled_device,
     );
 
-    // Re-install the app to ensure that the next test can run
+    // Re-install the app, not strictly necessary as it's done by the cleanup function
     install_app(&rpc, &TEST_CONFIG.app_package_filename).await?;
     Ok(())
 }
@@ -287,7 +264,7 @@ pub async fn test_installation_idempotency(
 
     // Check for traffic leaks during the installation processes.
     //
-    // Start continously pinging while monitoring the network traffic. No
+    // Start continuously pinging while monitoring the network traffic. No
     // traffic should be observed going outside of the tunnel during either
     // installation process.
     let pinger = Pinger::start(&rpc).await;

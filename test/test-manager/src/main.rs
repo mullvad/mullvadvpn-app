@@ -91,8 +91,9 @@ enum Commands {
         #[arg(long)]
         app_package: String,
 
-        /// App package to upgrade from when running `test_install_previous_app`, can be left empty
-        /// if this test is not ran. Parsed the same way as `--app-package`.
+        /// Given this argument, the `test_upgrade_app` test will run, which installs the previous
+        /// version then upgrades to the version specified in by `--app-package`. If left empty,
+        /// the test will be skipped. Parsed the same way as `--app-package`.
         ///
         /// # Note
         ///
