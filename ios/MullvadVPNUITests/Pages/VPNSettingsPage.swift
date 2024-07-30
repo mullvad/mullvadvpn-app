@@ -123,16 +123,6 @@ class VPNSettingsPage: Page {
         app.cells[AccessibilityIdentifier.multihopSwitch]
             .switches[AccessibilityIdentifier.customSwitch]
             .tap()
-
-        let promptIsShown = app
-            .otherElements[AccessibilityIdentifier.multihopPromptAlert.rawValue]
-            .waitForExistence(timeout: 1.0)
-
-        if promptIsShown {
-            MultihopPromptAlert(app)
-                .tapEnableAnyway()
-        }
-
         return self
     }
 

@@ -218,6 +218,10 @@ final class VPNSettingsCellFactory: CellFactoryProtocol {
             cell.accessibilityIdentifier = item.accessibilityIdentifier
             cell.setOn(viewModel.multihopState.isEnabled, animated: false)
 
+            cell.infoButtonHandler = { [weak self] in
+                self?.delegate?.showInfo(for: .multihop)
+            }
+
             cell.action = { [weak self] isEnabled in
                 let state: MultihopState = isEnabled ? .on : .off
                 self?.delegate?.switchMultihop(state)
