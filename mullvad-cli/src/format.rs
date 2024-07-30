@@ -19,7 +19,11 @@ pub fn print_state(state: &TunnelState, verbose: bool) {
 
     match state {
         Error(error) => print_error_state(error),
-        Connected { endpoint, location } => {
+        Connected {
+            endpoint,
+            location,
+            feature_indicators: _,
+        } => {
             println!(
                 "Connected to {}",
                 format_relay_connection(endpoint, location.as_ref(), verbose)
@@ -30,7 +34,11 @@ pub fn print_state(state: &TunnelState, verbose: bool) {
                 }
             }
         }
-        Connecting { endpoint, location } => {
+        Connecting {
+            endpoint,
+            location,
+            feature_indicators: _,
+        } => {
             let ellipsis = if !verbose { "..." } else { "" };
             println!(
                 "Connecting to {}{ellipsis}",
