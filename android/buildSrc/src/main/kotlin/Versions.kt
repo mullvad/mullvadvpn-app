@@ -15,7 +15,7 @@ object Versions {
 
     object Android {
         const val compileSdkVersion = 34
-        const val junit = "1.4.0"
+        const val junit = "1.5.0"
         const val minSdkVersion = 26
         const val targetSdkVersion = 34
         const val volley = "1.2.1"
@@ -64,7 +64,7 @@ object Versions {
         const val dependencyCheck = "10.0.3"
         const val detekt = "1.23.6"
         const val gradleVersions = "0.51.0"
-        const val junit5 = "1.10.0.0"
+        const val junit5 = "1.10.2.0"
         const val ktfmt = "0.17.0"
         // Ksp version is linked with kotlin version, find matching release here:
         // https://github.com/google/ksp/releases

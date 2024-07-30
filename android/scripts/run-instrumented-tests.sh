@@ -10,8 +10,8 @@ AUTO_FETCH_TEST_HELPER_APKS=${AUTO_FETCH_TEST_HELPER_APKS:-"false"}
 APK_BASE_DIR=${APK_BASE_DIR:-"$SCRIPT_DIR/.."}
 LOG_FAILURE_MESSAGE="FAILURES!!!"
 
-ORCHESTRATOR_URL=https://dl.google.com/android/maven2/androidx/test/orchestrator/1.4.2/orchestrator-1.4.2.apk
-TEST_SERVICES_URL=https://dl.google.com/android/maven2/androidx/test/services/test-services/1.4.2/test-services-1.4.2.apk
+ORCHESTRATOR_URL=https://dl.google.com/android/maven2/androidx/test/orchestrator/1.5.0/orchestrator-1.5.0.apk
+TEST_SERVICES_URL=https://dl.google.com/android/maven2/androidx/test/services/test-services/1.5.0/test-services-1.5.0.apk
 
 PARTNER_AUTH="${PARTNER_AUTH:-}"
 VALID_TEST_ACCOUNT_NUMBER="${VALID_TEST_ACCOUNT_NUMBER:-}"
