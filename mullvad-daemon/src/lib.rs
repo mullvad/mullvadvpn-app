@@ -397,9 +397,6 @@ pub(crate) enum InternalDaemonEvent {
     /// The split tunnel paths or state were updated.
     #[cfg(any(windows, target_os = "android", target_os = "macos"))]
     ExcludedPathsEvent(ExcludedPathsUpdate, oneshot::Sender<Result<(), Error>>),
-
-    /// A setting in the [SettingsPersister] was changed.
-    SettingsChanged,
 }
 
 #[cfg(any(windows, target_os = "android", target_os = "macos"))]
@@ -571,9 +568,6 @@ pub trait EventListener: Clone + Send + Sync + 'static {
 
     /// Notify that the api access method changed.
     fn notify_new_access_method_event(&self, new_access_method: AccessMethodSetting);
-
-    /// Notify that the feature indicators have changed.
-    fn notify_feature_indicators(&self, feature_indicators: FeatureIndicators);
 }
 
 pub struct Daemon<L: EventListener> {
@@ -750,11 +744,6 @@ where
             relay_selector.clone(),
             settings.tunnel_options.clone(),
         );
-
-        let settings_daemon_tx = internal_event_tx.clone();
-        settings.register_change_listener(move |_| {
-            let _ = settings_daemon_tx.send(InternalDaemonEvent::SettingsChanged);
-        });
 
         let param_gen = parameters_generator.clone();
         let (param_gen_tx, mut param_gen_rx) = mpsc::unbounded();
@@ -961,7 +950,6 @@ where
             LocationEvent(location_data) => self.handle_location_event(location_data),
             #[cfg(any(windows, target_os = "android", target_os = "macos"))]
             ExcludedPathsEvent(update, tx) => self.handle_new_excluded_paths(update, tx).await,
-            SettingsChanged => self.handle_settings_changed(),
         }
         should_stop
     }
@@ -980,12 +968,14 @@ where
                 locked_down,
             },
             TunnelStateTransition::Connecting(endpoint) => TunnelState::Connecting {
-                location: self.parameters_generator.get_last_location().await,
                 endpoint,
+                location: self.parameters_generator.get_last_location().await,
+                feature_indicators: self.get_feature_indicators(),
             },
             TunnelStateTransition::Connected(endpoint) => TunnelState::Connected {
-                location: self.parameters_generator.get_last_location().await,
                 endpoint,
+                location: self.parameters_generator.get_last_location().await,
+                feature_indicators: self.get_feature_indicators(),
             },
             TunnelStateTransition::Disconnecting(after_disconnect) => {
                 TunnelState::Disconnecting(after_disconnect)
@@ -1039,8 +1029,6 @@ where
 
         self.tunnel_state = tunnel_state.clone();
         self.event_listener.notify_new_state(tunnel_state);
-        self.event_listener
-            .notify_feature_indicators(self.get_feature_indicators());
         self.fetch_am_i_mullvad();
     }
 
@@ -1418,11 +1406,6 @@ where
                 .map_err(Error::SettingsError),
         };
         let _ = tx.send(save_result.map(|_| ()));
-    }
-
-    fn handle_settings_changed(&mut self) {
-        self.event_listener
-            .notify_feature_indicators(self.get_feature_indicators())
     }
 
     async fn on_set_target_state(
@@ -2893,13 +2876,11 @@ where
         };
 
         // use the booleans to filter into a list of only the active features
-        let active_features = generic_features
+        generic_features
             .into_iter()
             .chain(protocol_features)
             .filter_map(|(active, feature)| active.then_some(feature))
-            .collect();
-
-        FeatureIndicators { active_features }
+            .collect()
     }
 }
 

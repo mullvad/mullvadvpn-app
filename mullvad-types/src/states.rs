@@ -1,4 +1,4 @@
-use crate::location::GeoIpLocation;
+use crate::{features::FeatureIndicators, location::GeoIpLocation};
 use serde::{Deserialize, Serialize};
 use std::fmt;
 use talpid_types::{
@@ -38,10 +38,12 @@ pub enum TunnelState {
     Connecting {
         endpoint: TunnelEndpoint,
         location: Option<GeoIpLocation>,
+        feature_indicators: FeatureIndicators,
     },
     Connected {
         endpoint: TunnelEndpoint,
         location: Option<GeoIpLocation>,
+        feature_indicators: FeatureIndicators,
     },
     Disconnecting(ActionAfterDisconnect),
     Error(ErrorState),
