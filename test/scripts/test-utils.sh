@@ -143,7 +143,10 @@ function download_app_package {
     package_dir=$(get_package_dir)
     if [[ ! -f "$package_dir/$filename" ]]; then
         echo "Downloading build for $version ($os) from $url"
-        curl -sf -o "$package_dir/$filename" "$url"
+        if ! curl -sf -o "$package_dir/$filename" "$url"; then
+            echo "Failed to download package, $url not found" 1>&2
+            exit 1
+        fi
     else
         echo "App package for version $version ($os) already exists at $package_dir/$filename, skipping download"
     fi
