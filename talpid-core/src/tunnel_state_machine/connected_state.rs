@@ -330,10 +330,30 @@ impl ConnectedState {
                 shared_values.bypass_socket(fd, done_tx);
                 SameState(self)
             }
-            #[cfg(any(windows, target_os = "android"))]
+            #[cfg(windows)]
             Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
                 shared_values.exclude_paths(paths, result_tx);
                 SameState(self)
+            }
+            #[cfg(target_os = "android")]
+            Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
+                match shared_values.exclude_paths(paths) {
+                    Ok(changed) => {
+                        let _ = result_tx.send(Ok(()));
+                        if changed {
+                            self.disconnect(shared_values, AfterDisconnect::Reconnect(0))
+                        } else {
+                            SameState(self)
+                        }
+                    }
+                    Err(err) => {
+                        let _ = result_tx.send(Err(err));
+                        self.disconnect(
+                            shared_values,
+                            AfterDisconnect::Block(ErrorStateCause::SplitTunnelError),
+                        )
+                    }
+                }
             }
             #[cfg(target_os = "macos")]
             Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
