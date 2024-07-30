@@ -8,7 +8,7 @@ cd "$SCRIPT_DIR"
 AUTO_FETCH_TEST_HELPER_APKS=${AUTO_FETCH_TEST_HELPER_APKS:-"false"}
 
 APK_BASE_DIR=${APK_BASE_DIR:-"$SCRIPT_DIR/.."}
-LOG_FAILURE_MESSAGE="FAILURES!!!"
+LOG_SUCCESS_REGEX="OK \([0-9]+ tests\)"
 
 ORCHESTRATOR_URL=https://dl.google.com/android/maven2/androidx/test/orchestrator/1.5.0/orchestrator-1.5.0.apk
 TEST_SERVICES_URL=https://dl.google.com/android/maven2/androidx/test/services/test-services/1.5.0/test-services-1.5.0.apk
@@ -226,15 +226,15 @@ adb uninstall androidx.test.services || echo "Test services package not installe
 adb uninstall androidx.test.orchestrator || echo "Test orchestrator package not installed"
 echo ""
 
-echo "### Checking logs for failures ###"
-if grep -q "$LOG_FAILURE_MESSAGE" "$INSTRUMENTATION_LOG_FILE_PATH"; then
+echo "### Checking logs for success message ###"
+if grep -q -E "$LOG_SUCCESS_REGEX" "$INSTRUMENTATION_LOG_FILE_PATH"; then
+    echo "Success, no failures!"
+else
     echo "One or more tests failed, see logs for more details."
     echo "Collecting report..."
     adb pull "$DEVICE_SCREENSHOT_PATH" "$LOCAL_SCREENSHOT_PATH" || echo "No screenshots"
     adb logcat -d > "$LOGCAT_FILE_PATH"
     exit 1
-else
-    echo "No failures!"
 fi
 
 if [[ -n ${TEMP_DOWNLOAD_DIR-} ]]; then
