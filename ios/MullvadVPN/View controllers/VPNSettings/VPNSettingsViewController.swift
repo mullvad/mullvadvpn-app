@@ -180,7 +180,11 @@ extension VPNSettingsViewController: VPNSettingsDataSourceDelegate {
             message = NSLocalizedString(
                 "MULTIHOP_INFORMATION_TEXT",
                 tableName: "Multihop",
-                value: "This setting increases latency. Use only if needed.",
+                value: """
+                Multihop routes your traffic into one WireGuard server and out another, making it harder to trace.
+                This results in increased latency but increases anonymity online.
+                """,
+
                 comment: ""
             )
         default:
