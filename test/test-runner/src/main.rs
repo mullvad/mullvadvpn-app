@@ -422,7 +422,7 @@ impl Service for TestServer {
                     match stderr.read_line(&mut line).await {
                         Ok(0) => break,
                         Ok(_) => {
-                            let trimmed = line.trim_end_matches(&['\r', '\n']);
+                            let trimmed = line.trim_end_matches(['\r', '\n']);
                             log::info!("child stderr (pid={pid}): {trimmed}");
                             line.clear();
                         }
