@@ -211,23 +211,14 @@ pub async fn test_wireguard_over_shadowsocks(
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> anyhow::Result<()> {
+    let query = RelayQueryBuilder::new().wireguard().shadowsocks().build();
+
     mullvad_client
-        .set_obfuscation_settings(relay_constraints::ObfuscationSettings {
-            selected_obfuscation: SelectedObfuscation::Shadowsocks,
-            shadowsocks: ShadowsocksSettings {
-                port: Constraint::Any,
-            },
-            ..Default::default()
-        })
+        .set_obfuscation_settings(query.clone().into_obfuscation_settings())
         .await
         .context("Failed to enable shadowsocks")?;
 
-    let relay_settings = RelaySettings::Normal(RelayConstraints {
-        tunnel_protocol: Constraint::Only(TunnelType::Wireguard),
-        ..Default::default()
-    });
-
-    set_relay_settings(&mut mullvad_client, relay_settings)
+    set_relay_settings(&mut mullvad_client, query.into_relay_constraints())
         .await
         .context("Failed to update relay settings")?;
 
@@ -344,7 +335,8 @@ pub async fn test_multihop(
     let relay_constraints = RelayQueryBuilder::new()
         .wireguard()
         .multihop()
-        .into_constraint();
+        .build()
+        .into_relay_constraints();
 
     set_relay_settings(
         &mut mullvad_client,
@@ -460,7 +452,7 @@ pub async fn test_daita(
 
     set_relay_settings(
         &mut mullvad_client,
-        RelayQueryBuilder::new().wireguard().build(),
+        RelayQueryBuilder::new().wireguard().build().into_relay_constraints(),
     )
     .await?;
 
@@ -630,7 +622,8 @@ pub async fn test_quantum_resistant_multihop_udp2tcp_tunnel(
     let relay_constraints = RelayQueryBuilder::new()
         .wireguard()
         .multihop()
-        .into_constraint();
+        .build()
+        .into_relay_constraints();
 
     mullvad_client
         .set_relay_settings(RelaySettings::Normal(relay_constraints))
@@ -678,7 +671,8 @@ pub async fn test_quantum_resistant_multihop_shadowsocks_tunnel(
     let relay_constraints = RelayQueryBuilder::new()
         .wireguard()
         .multihop()
-        .into_constraint();
+        .build()
+        .into_relay_constraints();
 
     mullvad_client
         .set_relay_settings(RelaySettings::Normal(relay_constraints))

@@ -1516,7 +1516,8 @@ fn valid_user_setting_should_yield_relay() {
     let user_query = RelayQueryBuilder::new().location(location.clone()).build();
     let user_constraints = RelayQueryBuilder::new()
         .location(location.clone())
-        .into_constraint();
+        .build()
+        .into_relay_constraints();
 
     let config = SelectorConfig {
         relay_settings: user_constraints.into(),

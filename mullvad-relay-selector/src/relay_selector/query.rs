@@ -33,8 +33,8 @@ use mullvad_types::{
     constraints::Constraint,
     relay_constraints::{
         BridgeConstraints, LocationConstraint, ObfuscationSettings, OpenVpnConstraints, Ownership,
-        Providers, RelayConstraints, RelaySettings, SelectedObfuscation, ShadowsocksSettings,
-        TransportPort, Udp2TcpObfuscationSettings, WireguardConstraints,
+        Providers, RelayConstraints, SelectedObfuscation, ShadowsocksSettings, TransportPort,
+        Udp2TcpObfuscationSettings, WireguardConstraints,
     },
     Intersection,
 };
@@ -107,31 +107,48 @@ impl RelayQuery {
             openvpn_constraints: OpenVpnRelayQuery::new(),
         }
     }
+
+    /// The mapping from [`RelayQuery`] to [`RelayConstraints`]. Note that this does not contain
+    /// obfuscation or bridge settings.
+    pub fn into_relay_constraints(self) -> RelayConstraints {
+        RelayConstraints {
+            location: self.location,
+            providers: self.providers,
+            ownership: self.ownership,
+            tunnel_protocol: self.tunnel_protocol,
+            wireguard_constraints: WireguardConstraints::from(self.wireguard_constraints),
+            openvpn_constraints: OpenVpnConstraints::from(self.openvpn_constraints),
+        }
+    }
+
+    /// The mapping from [`RelayQuery`] to [`ObfuscationSettings`]
+    pub fn into_obfuscation_settings(self) -> ObfuscationSettings {
+        match self.wireguard_constraints.obfuscation {
+            ObfuscationQuery::Auto => ObfuscationSettings {
+                selected_obfuscation: SelectedObfuscation::Auto,
+                ..Default::default()
+            },
+            ObfuscationQuery::Off => ObfuscationSettings {
+                selected_obfuscation: SelectedObfuscation::Off,
+                ..Default::default()
+            },
+            ObfuscationQuery::Udp2tcp(settings) => ObfuscationSettings {
+                selected_obfuscation: SelectedObfuscation::Udp2Tcp,
+                udp2tcp: settings,
+                ..Default::default()
+            },
+            ObfuscationQuery::Shadowsocks(settings) => ObfuscationSettings {
+                selected_obfuscation: SelectedObfuscation::Shadowsocks,
+                shadowsocks: settings,
+                ..Default::default()
+            },
+        }
+    }
 }
 
 impl Default for RelayQuery {
     fn default() -> Self {
         Self::new()
-    }
-}
-
-impl From<RelayQuery> for RelayConstraints {
-    /// The mapping from [`RelayQuery`] to [`RelayConstraints`].
-    fn from(value: RelayQuery) -> Self {
-        RelayConstraints {
-            location: value.location,
-            providers: value.providers,
-            ownership: value.ownership,
-            tunnel_protocol: value.tunnel_protocol,
-            wireguard_constraints: WireguardConstraints::from(value.wireguard_constraints),
-            openvpn_constraints: OpenVpnConstraints::from(value.openvpn_constraints),
-        }
-    }
-}
-
-impl From<RelayQuery> for RelaySettings {
-    fn from(value: RelayQuery) -> Self {
-        RelayConstraints::from(value).into()
     }
 }
 
@@ -400,10 +417,6 @@ pub mod builder {
         /// through `self`.
         pub fn build(self) -> RelayQuery {
             self.query
-        }
-
-        pub fn into_constraint(self) -> RelayConstraints {
-            RelayConstraints::from(self.build())
         }
     }
 
