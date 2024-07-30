@@ -7,8 +7,18 @@ use serde::{Deserialize, Serialize};
 ///
 /// Note that the feature indicators are not ordered.
 #[derive(Default, Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct FeatureIndicators {
-    pub active_features: HashSet<FeatureIndicator>,
+pub struct FeatureIndicators(HashSet<FeatureIndicator>);
+
+impl FeatureIndicators {
+    pub fn active_features(&self) -> impl Iterator<Item = FeatureIndicator> {
+        self.0.clone().into_iter()
+    }
+}
+
+impl FromIterator<FeatureIndicator> for FeatureIndicators {
+    fn from_iter<T: IntoIterator<Item = FeatureIndicator>>(iter: T) -> Self {
+        Self(iter.into_iter().collect())
+    }
 }
 
 /// All possible feature indicators. These represent a subset of all VPN settings in a

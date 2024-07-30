@@ -43,12 +43,10 @@ impl From<proto::FeatureIndicator> for mullvad_types::features::FeatureIndicator
 
 impl From<proto::FeatureIndicators> for mullvad_types::features::FeatureIndicators {
     fn from(features: proto::FeatureIndicators) -> Self {
-        Self {
-            active_features: features
-                .active_features()
-                .map(mullvad_types::features::FeatureIndicator::from)
-                .collect(),
-        }
+        features
+            .active_features()
+            .map(mullvad_types::features::FeatureIndicator::from)
+            .collect()
     }
 }
 
@@ -57,8 +55,7 @@ impl From<mullvad_types::features::FeatureIndicators> for proto::FeatureIndicato
         let mut proto_features = Self::default();
 
         features
-            .active_features
-            .into_iter()
+            .active_features()
             .map(proto::FeatureIndicator::from)
             .for_each(|feature| proto_features.push_active_features(feature));
 
