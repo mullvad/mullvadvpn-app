@@ -10,7 +10,7 @@ object Versions {
     const val leakCanary = "2.13"
     const val mockk = "1.13.12"
     const val mockWebserver = "4.12.0"
-    const val turbine = "1.0.0"
+    const val turbine = "1.1.0"
     const val billingClient = "6.2.0"
 
     object Android {
