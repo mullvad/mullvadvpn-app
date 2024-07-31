@@ -10,12 +10,16 @@ use std::{
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
+    #[error("Could not find config dir")]
+    FindConfigDir,
+    #[error("Could not create config dir")]
+    CreateConfigDir(#[source] io::Error),
     #[error("Failed to read config")]
-    Read(io::Error),
+    Read(#[source] io::Error),
     #[error("Failed to parse config")]
     InvalidConfig(#[from] serde_json::Error),
     #[error("Failed to write config")]
-    Write(io::Error),
+    Write(#[source] io::Error),
 }
 
 #[derive(Default, Serialize, Deserialize, Clone)]
@@ -72,7 +76,32 @@ pub struct ConfigFile {
 
 impl ConfigFile {
     /// Make config changes and save them to disk
-    pub async fn load_or_default<P: AsRef<Path>>(path: P) -> Result<Self, Error> {
+    pub async fn load_or_default() -> Result<Self, Error> {
+        Self::load_or_default_inner(Self::get_config_path()?).await
+    }
+
+    /// Get configuration file path
+    fn get_config_path() -> Result<PathBuf, Error> {
+        Ok(Self::get_config_dir()?.join("config.json"))
+    }
+
+    /// Get configuration file directory
+    fn get_config_dir() -> Result<PathBuf, Error> {
+        let dir = dirs::config_dir()
+            .ok_or(Error::FindConfigDir)?
+            .join("mullvad-test");
+        Ok(dir)
+    }
+
+    /// Create configuration file directory if it does not exist
+    async fn ensure_config_dir() -> Result<(), Error> {
+        tokio::fs::create_dir_all(Self::get_config_dir()?)
+            .await
+            .map_err(Error::CreateConfigDir)
+    }
+
+    /// Make config changes and save them to disk
+    async fn load_or_default_inner<P: AsRef<Path>>(path: P) -> Result<Self, Error> {
         Ok(Self {
             path: path.as_ref().to_path_buf(),
             config: Config::load_or_default(path).await?,
@@ -81,6 +110,8 @@ impl ConfigFile {
 
     /// Make config changes and save them to disk
     pub async fn edit(&mut self, edit: impl FnOnce(&mut Config)) -> Result<(), Error> {
+        Self::ensure_config_dir().await?;
+
         edit(&mut self.config);
         self.config.save(&self.path).await
     }
