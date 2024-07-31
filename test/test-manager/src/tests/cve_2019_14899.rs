@@ -66,7 +66,9 @@ pub async fn test_cve_2019_14899_mitigation(
     helpers::connect_and_wait(&mut mullvad_client).await?;
 
     let host_interface = TAP_NAME;
-    let victim_tunnel_interface = "wg0-mullvad";
+    let victim_tunnel_interface = helpers::get_tunnel_interface(&mut mullvad_client)
+        .await
+        .context("Failed to find tunnel interface")?;
     let victim_gateway_ip = NON_TUN_GATEWAY;
 
     // Create a raw socket which let's us send custom ethernet packets
