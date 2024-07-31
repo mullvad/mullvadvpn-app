@@ -71,8 +71,8 @@ pub async fn install_app(
     rpc_provider: &RpcClientProvider,
 ) -> anyhow::Result<MullvadProxyClient> {
     // install package
-    log::debug!("Installing new app");
-    rpc.install_app(get_package_desc(app_filename)?).await?;
+    log::debug!("Installing app '{}'", app_filename);
+    rpc.install_app(get_package_desc(app_filename)).await?;
 
     // verify that daemon is running
     if rpc.mullvad_daemon_get_status().await? != ServiceStatus::Running {
@@ -90,7 +90,9 @@ pub async fn install_app(
 
     // Wait for the relay list to be updated
     let mut mullvad_client = rpc_provider.new_client().await;
-    helpers::ensure_updated_relay_list(&mut mullvad_client).await?;
+    helpers::ensure_updated_relay_list(&mut mullvad_client)
+        .await
+        .context("Failed to update relay list")?;
     Ok(mullvad_client)
 }
 
@@ -142,10 +144,10 @@ pub async fn replace_openvpn_cert(rpc: &ServiceClient) -> Result<(), Error> {
     .map_err(Error::Rpc)
 }
 
-pub fn get_package_desc(name: &str) -> Result<Package, Error> {
-    Ok(Package {
+pub fn get_package_desc(name: &str) -> Package {
+    Package {
         path: Path::new(&TEST_CONFIG.artifacts_dir).join(name),
-    })
+    }
 }
 
 /// Reboot the guest virtual machine.
