@@ -7,7 +7,7 @@ Tests can be triggered locally from Xcode in the Test navigator or by running te
 There are five workflows running tests:
  - [ios-end-to-end-tests.yml](https://github.com/mullvad/mullvadvpn-app/actions/workflows/ios-end-to-end-tests.yml) - super workflow which other workflows reuse. This is also the workflow you can manually trigger to run all tests or optionally specify which tests to run.
  - [ios-end-to-end-tests-nightly.yml](https://github.com/mullvad/mullvadvpn-app/actions/workflows/ios-end-to-end-tests-nightly.yml) - scheduled nightly test run, running all tests.
- - [ios-end-to-end-tests-merge-to-main.yml](https://github.com/mullvad/mullvadvpn-app/actions/workflows/ios-end-to-end-tests-merge-to-main.yml) - automatically tryggered by a PR merge to `main`.
+ - [ios-end-to-end-tests-merge-to-main.yml](https://github.com/mullvad/mullvadvpn-app/actions/workflows/ios-end-to-end-tests-merge-to-main.yml) - automatically triggered by a PR merge to `main`.
  - [ios-end-to-end-tests-api.yml](https://github.com/mullvad/mullvadvpn-app/actions/workflows/ios-end-to-end-tests-api.yml) - manually triggered tests focusing on making sure the API is functioning as intended on stagemole.
  - [ios-end-to-end-tests-settings-migration.yml](https://github.com/mullvad/mullvadvpn-app/actions/workflows/ios-end-to-end-tests-settings-migration.yml) - for now this is still manually triggered. Tests installing older version of the app, changing settings, upgrading the app and verifying that settings were correctly migrated.
 
@@ -17,7 +17,7 @@ When adding more files with test suites they must be added to the `MullvadVPNUIT
 ## Set up local environment
 To run tests locally you need to make sure you have copied the configuration template `UITests.xcconfig.template` to `UITests.xcconfig` and set up the configuration attributes. The configuration attributes you're mostly likely to want to set custom values for are at the top:
 ```
-// Pin code of the iOS device under test
+// Pin code of the iOS device under test.
 IOS_DEVICE_PIN_CODE = 
 
 // UUID to identify test runs. Should be unique per test device. Generate with for example uuidgen on macOS.
@@ -40,7 +40,7 @@ The test device must be on the office WiFi `app-team-ios-tests` in order to be a
 
 ### Set up of runner build environment
 1. Install Xcode
-2. Sign in with Apple id in Xcode
+2. Sign in with Apple ID in Xcode
 3. Download manual provisioning profiles in Xcode
 4. Install Xcode command line tools `xcode-select --install`
 5. Install yeetd
@@ -62,9 +62,9 @@ The test device must be on the office WiFi `app-team-ios-tests` in order to be a
 ### GitHub runner setup
 1. Ask GitHub admin for new runner token and setup steps from GitHub. Set it up according to the steps, pass `--labels ios-test` to `config.sh` when running it. By default it will also have the labels `self-hosted` and `macOS` which are required as well.
 2. Make sure GitHub actions secrets for the GitHub project are correctly set up:
-  - `IOS_DEVICE_PIN_CODE` - Device passcode if the device require it, otherwise leave blank. Devices used with CI should not require passcode.
-  - `IOS_HAS_TIME_ACCOUNT_NUMBER` - Production server account without time left
-  - `IOS_NO_TIME_ACCOUNT_NUMBER` - Production server account with time added to it
+  - `IOS_DEVICE_PIN_CODE` - Device passcode for the device you want to run tests on, otherwise leave blank. Devices used with CI should not require passcode.
+  - `IOS_HAS_TIME_ACCOUNT_NUMBER` - Production server account with time added to it.
+  - `IOS_NO_TIME_ACCOUNT_NUMBER` - Production server account with no time. Make sure that the account has not been deleted if left unused for too long.
   - `TEST_DEVICE_IDENTIFIER_UUID` - unique identifier for the test device. Create new identifier with `uuidgen`.
   - `PARTNER_API_TOKEN` - secret token for partner API. Optional and only intended to be used in CI when running tests against staging environment.
 
@@ -90,7 +90,7 @@ The iOS team NUC is hosting APIs consumed by tests:
 The NUC is hosting a WiFi which test devices need to be on in order to be able to access the firewall and packet capture APIs. The SSID is `app-team-ios-tests`. The APIs running on the NUC are accessed by using IP address `8.8.8.8` and port `80` from test devices. This is a workaround for local network access not working from UI tests. `8.8.8.8` which is a public IP address is re-routed to the NUC. This way we don't need to allow local network access in order to access the local NUC.
 ## Troubleshooting
 ### Restarting services
-The easiest way to restart test services running on the NUC is by SSH:ing into it at `192.168.105.1` as `root`(password is written on a sticker under it) and rebooting `sudo shutdown -r now`.
+The easiest way to restart test services running on the NUC is by SSH:ing into it at `192.168.105.1` as `root` (password is written on a sticker under it) and rebooting `sudo shutdown -r now`.
 
 ## Gotchas
 ### GitHub actions concurrency
@@ -99,4 +99,4 @@ The way concurrency with GitHub actions work is that multiple workflows run conc
 To make the test workflows not clash with each other the jobs output files to `~/workflow-outputs`. They create a directory which is unique for the test run, and after the test run finished the directory is removed. This is necessary because we cannot depend on the state of the working directory, since if we did test runs would be changing the working directory for each other.
 
 ### Packet capture API timeout
-Tests always attempt to stop packet capture, but there is no guarantee that it can always be stopped. For example when running tests locally and stopping test execution mid packet capture the test cannot stop the packet capture. So the packet capture API has a timeout(5 minutes?) in place. If a packet capture session exceeds this duration it will be stopped. This means that tests cannot do packet capture exceeding this time limit(or we need to increase the limit).
+Tests always attempt to stop packet capture, but there is no guarantee that it can always be stopped. For example when running tests locally and stopping test execution mid packet capture the test cannot stop the packet capture. So the packet capture API has a timeout (5 minutes) in place. If a packet capture session exceeds this duration it will be stopped. This means that tests cannot do packet capture exceeding this time limit.
