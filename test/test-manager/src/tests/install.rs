@@ -87,16 +87,10 @@ pub async fn test_upgrade_app(
 
     // install new package
     log::debug!("Installing new app");
-    rpc.install_app(get_package_desc(&TEST_CONFIG.app_package_filename)?)
-        .await?;
 
-    // Give it some time to start
-    tokio::time::sleep(Duration::from_secs(3)).await;
-
-    // verify that daemon is running
-    if rpc.mullvad_daemon_get_status().await? != ServiceStatus::Running {
-        bail!(Error::DaemonNotRunning);
-    }
+    let mut mullvad_client = install_app(rpc, &TEST_CONFIG.app_package_filename, &ctx.rpc_provider)
+        .await
+        .context("Failed to install previous app version")?;
 
     // Check if any traffic was observed
     //
@@ -107,10 +101,6 @@ pub async fn test_upgrade_app(
         0,
         "observed unexpected packets from {guest_ip}"
     );
-
-    // NOTE: Need to create a new `mullvad_client` here after the restart
-    // otherwise we *probably* can't communicate with the daemon.
-    let mut mullvad_client = ctx.rpc_provider.new_client().await;
 
     // check if settings were (partially) preserved
     log::info!("Sanity checking settings");
@@ -231,8 +221,6 @@ pub async fn test_uninstall_app(
         uninstalled_device,
     );
 
-    // Re-install the app, not strictly necessary as it's done by the cleanup function
-    install_app(&rpc, &TEST_CONFIG.app_package_filename).await?;
     Ok(())
 }
 
