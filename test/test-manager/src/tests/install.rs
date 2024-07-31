@@ -23,10 +23,10 @@ use super::{
 pub async fn test_upgrade_app(
     ctx: &TestContext,
     rpc: &ServiceClient,
-    previous_app: &str,
+    app_to_upgrade_from: &str,
 ) -> anyhow::Result<()> {
-    // Install the last stable version of the app and verify that it is running.
-    install_app(rpc, previous_app)
+    // Install the older version of the app and verify that it is running.
+    install_app(rpc, app_to_upgrade_from, &ctx.rpc_provider)
         .await
         .context("Failed to install previous app version")?;
 

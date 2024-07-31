@@ -43,11 +43,11 @@ pub async fn run(
 
     log::info!("Running client");
 
-    let client = ServiceClient::new(connection_handle.clone(), runner_transport);
-    let mullvad_client =
+    let test_runner_client = ServiceClient::new(connection_handle.clone(), runner_transport);
+    let mullvad_client_provider =
         mullvad_daemon::new_rpc_client(connection_handle, mullvad_daemon_transport);
 
-    print_os_version(&client).await;
+    print_os_version(&test_runner_client).await;
 
     let mut tests = get_tests();
 
@@ -69,7 +69,7 @@ pub async fn run(
     }
 
     let test_context = TestContext {
-        rpc_provider: mullvad_client,
+        rpc_provider: mullvad_client_provider,
     };
 
     let mut successful_tests = vec![];
@@ -77,17 +77,18 @@ pub async fn run(
 
     let logger = super::logging::Logger::get_or_init();
 
-    if let Some(previous_app) = TEST_CONFIG.app_package_to_upgrade_from_filename.as_ref() {
-        if let Err(e) = tests::test_upgrade_app(&test_context, &client, previous_app).await {
+    if let Some(app_to_upgrade_from) = TEST_CONFIG.app_package_to_upgrade_from_filename.as_ref() {
+        if let Err(e) =
+            tests::test_upgrade_app(&test_context, &test_runner_client, app_to_upgrade_from).await
+        {
             log::error!("Failed to to run 'test_upgrade_app': {e}");
         }
     } else {
         log::warn!("No previous app to upgrade from, skipping upgrade test");
     };
 
-    let mut final_result = TestResult::Pass;
     for test in tests {
-        crate::tests::reset_before_test(client.clone(), &test_context.rpc_provider)
+        crate::tests::prepare_daemon(&test_runner_client, &test_context.rpc_provider)
             .await
             .context("Failed to reset daemon before test")?;
 
@@ -105,7 +106,7 @@ pub async fn run(
 
         // TODO: Log how long each test took to run.
         let test_output = run_test(
-            client.clone(),
+            test_runner_client.clone(),
             mullvad_client,
             &test.func,
             test.name,
