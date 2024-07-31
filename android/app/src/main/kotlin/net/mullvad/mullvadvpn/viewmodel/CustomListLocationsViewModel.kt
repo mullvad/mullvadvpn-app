@@ -3,6 +3,8 @@ package net.mullvad.mullvadvpn.viewmodel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import arrow.core.getOrElse
+import arrow.core.raise.either
 import com.ramcosta.composedestinations.generated.destinations.CustomListLocationsDestination
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,6 +19,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
+import net.mullvad.mullvadvpn.compose.communication.LocationsChanged
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsUiState
 import net.mullvad.mullvadvpn.compose.state.RelayLocationListItem
 import net.mullvad.mullvadvpn.lib.model.RelayItem
@@ -87,7 +90,7 @@ class CustomListLocationsViewModel(
         viewModelScope.launch { fetchInitialSelectedLocations() }
     }
 
-    fun searchRelayListLocations() =
+    private fun searchRelayListLocations() =
         combine(
                 _searchTerm,
                 relayListRepository.relayList,
@@ -109,63 +112,22 @@ class CustomListLocationsViewModel(
         viewModelScope.launch {
             _selectedLocations.value?.let { selectedLocations ->
                 val locationsToSave = selectedLocations.calculateLocationsToSave()
-                customListActionUseCase(
-                        CustomListAction.UpdateLocations(
-                            navArgs.customListId,
-                            locationsToSave.map { it.id }
-                        )
-                    )
-                    .fold(
-                        {
-                            _uiSideEffect.tryEmit(
-                                CustomListLocationsSideEffect.ReturnWithResultData(
-                                    CustomListActionResultData.GenericError
-                                )
-                            )
-                        },
-                        { result ->
-                            val resultData =
-                                if (navArgs.newList) {
-                                    CustomListActionResultData.Success.CreatedWithLocations(
-                                        customListName = result.name,
-                                        locationNames = locationsToSave.map { it.name },
-                                        undo = CustomListAction.Delete(id = result.id)
+                val result =
+                    either {
+                            val success =
+                                customListActionUseCase(
+                                        CustomListAction.UpdateLocations(
+                                            navArgs.customListId,
+                                            locationsToSave.map { it.id }
+                                        )
                                     )
-                                } else {
-                                    when {
-                                        result.addedLocations.size == 1 &&
-                                            result.removedLocations.isEmpty() ->
-                                            CustomListActionResultData.Success.LocationAdded(
-                                                customListName = result.name,
-                                                relayListRepository
-                                                    .find(result.removedLocations.first())!!
-                                                    .name,
-                                                undo = result.undo
-                                            )
-                                        result.removedLocations.size == 1 &&
-                                            result.addedLocations.isEmpty() ->
-                                            CustomListActionResultData.Success.LocationRemoved(
-                                                customListName = result.name,
-                                                locationName =
-                                                    relayListRepository
-                                                        .find(result.removedLocations.first())!!
-                                                        .name,
-                                                undo = result.undo
-                                            )
-                                        else ->
-                                            CustomListActionResultData.Success.LocationChanged(
-                                                customListName = result.name,
-                                                undo = result.undo
-                                            )
-                                    }
-                                }
-                            _uiSideEffect.tryEmit(
-                                CustomListLocationsSideEffect.ReturnWithResultData(
-                                    result = resultData
-                                )
-                            )
+                                    .bind()
+                            calculateResultData(success, locationsToSave)
                         }
-                    )
+                        .getOrElse { CustomListActionResultData.GenericError }
+                _uiSideEffect.tryEmit(
+                    CustomListLocationsSideEffect.ReturnWithResultData(result = result)
+                )
             }
         }
     }
@@ -279,7 +241,7 @@ class CustomListLocationsViewModel(
         isExpanded: (RelayItemId) -> Boolean,
         depth: Int = 0,
     ): List<RelayLocationListItem> = flatMap { relayItem ->
-        buildList<RelayLocationListItem> {
+        buildList {
             val expanded = isExpanded(relayItem.id)
             add(
                 RelayLocationListItem(
@@ -314,6 +276,39 @@ class CustomListLocationsViewModel(
             }
         }
     }
+
+    private fun calculateResultData(
+        success: LocationsChanged,
+        locationsToSave: List<RelayItem.Location>
+    ) =
+        if (navArgs.newList) {
+            CustomListActionResultData.Success.CreatedWithLocations(
+                customListName = success.name,
+                locationNames = locationsToSave.map { it.name },
+                undo = CustomListAction.Delete(id = success.id)
+            )
+        } else {
+            when {
+                success.addedLocations.size == 1 && success.removedLocations.isEmpty() ->
+                    CustomListActionResultData.Success.LocationAdded(
+                        customListName = success.name,
+                        relayListRepository.find(success.removedLocations.first())!!.name,
+                        undo = success.undo
+                    )
+                success.removedLocations.size == 1 && success.addedLocations.isEmpty() ->
+                    CustomListActionResultData.Success.LocationRemoved(
+                        customListName = success.name,
+                        locationName =
+                            relayListRepository.find(success.removedLocations.first())!!.name,
+                        undo = success.undo
+                    )
+                else ->
+                    CustomListActionResultData.Success.LocationChanged(
+                        customListName = success.name,
+                        undo = success.undo
+                    )
+            }
+        }
 
     companion object {
         private const val EMPTY_SEARCH_TERM = ""
