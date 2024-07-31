@@ -246,6 +246,14 @@ impl ManagementService for ManagementServiceImpl {
             .map(|settings| Response::new(types::Settings::from(&settings)))
     }
 
+    async fn reset_settings(&self, _: Request<()>) -> ServiceResult<()> {
+        log::debug!("reset_settings");
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::ResetSettings(tx))?;
+        self.wait_for_result(rx).await??;
+        Ok(Response::new(()))
+    }
+
     async fn set_allow_lan(&self, request: Request<bool>) -> ServiceResult<()> {
         let allow_lan = request.into_inner();
         log::debug!("set_allow_lan({})", allow_lan);

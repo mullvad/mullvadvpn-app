@@ -220,7 +220,6 @@ impl SettingsPersister {
     }
 
     /// Resets default settings
-    #[cfg(not(target_os = "android"))]
     pub async fn reset(&mut self) -> Result<(), Error> {
         self.settings = Self::default_settings();
         let path = self.path.clone();
