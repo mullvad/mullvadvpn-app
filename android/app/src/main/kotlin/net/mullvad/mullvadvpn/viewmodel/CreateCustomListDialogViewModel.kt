@@ -82,6 +82,7 @@ sealed interface CreateCustomListDialogSideEffect {
     data class NavigateToCustomListLocationsScreen(val customListId: CustomListId) :
         CreateCustomListDialogSideEffect
 
-    data class ReturnWithResult(val result: CustomListActionResultData.Success.CreatedWithLocations) :
-        CreateCustomListDialogSideEffect
+    data class ReturnWithResult(
+        val result: CustomListActionResultData.Success.CreatedWithLocations
+    ) : CreateCustomListDialogSideEffect
 }
