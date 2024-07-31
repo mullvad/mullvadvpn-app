@@ -1,4 +1,4 @@
-use anyhow::{bail, Context};
+use anyhow::{bail, ensure, Context};
 use std::time::Duration;
 
 use mullvad_management_interface::MullvadProxyClient;
@@ -47,7 +47,7 @@ pub async fn test_upgrade_app(
     // mullvad_client
     //    .login_account(TEST_CONFIG.account_number.clone())
     //    .await
-    //    .expect("login failed");
+    //    .context("login failed")?;
 
     // Start blocking
     //
@@ -93,10 +93,9 @@ pub async fn test_upgrade_app(
     // Check if any traffic was observed
     //
     let guest_ip = pinger.guest_ip;
-    let monitor_result = pinger.stop().await.unwrap();
-    assert_eq!(
-        monitor_result.packets.len(),
-        0,
+    let monitor_result = pinger.stop().await.context("Failed to stop pinger")?;
+    ensure!(
+        monitor_result.packets.is_empty(),
         "observed unexpected packets from {guest_ip}"
     );
 
@@ -121,7 +120,7 @@ pub async fn test_upgrade_app(
         _ => false,
     };
 
-    assert!(
+    ensure!(
         relay_location_was_preserved,
         "relay location was not preserved after upgrade. new settings: {:?}",
         settings,
@@ -130,13 +129,12 @@ pub async fn test_upgrade_app(
     // check if account history was preserved
     // TODO: Cannot check account history because overriding the API is impossible for releases
     // let history = mullvad_client
-    // .get_account_history(())
-    // .await
-    // .expect("failed to obtain account history");
-    // assert_eq!(
-    // history.into_inner().token,
-    // Some(TEST_CONFIG.account_number.clone()),
-    // "lost account history"
+    //     .get_account_history()
+    //     .await
+    //     .context("failed to obtain account history")?;
+    // ensure!(
+    //     history.into_inner().token == Some(TEST_CONFIG.account_number.clone()),
+    //     "lost account history"
     // );
 
     Ok(())
