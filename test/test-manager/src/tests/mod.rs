@@ -83,15 +83,22 @@ pub async fn prepare_daemon(
     rpc: &ServiceClient,
     rpc_provider: &RpcClientProvider,
 ) -> anyhow::Result<()> {
-    log::debug!("Resetting daemon settings after test");
     // Check if daemon should be restarted
+    let mut mullvad_client = restart_daemon(rpc, rpc_provider)
+        .await
+        .context("Failed to restart daemon")?;
 
-    let mut mullvad_client = rpc_provider.new_client().await;
+    helpers::ensure_logged_in(&mut mullvad_client).await?;
+
+    log::debug!("Resetting daemon settings before test");
     mullvad_client
         .reset_settings()
         .await
         .context("Failed to reset settings")?;
-    helpers::disconnect_and_wait(&mut mullvad_client).await?;
+    helpers::disconnect_and_wait(&mut mullvad_client)
+        .await
+        .context("Failed to disconnect daemon after test")?;
+
     Ok(())
 }
 
@@ -109,7 +116,7 @@ async fn restart_daemon(
     match mullvad_client.get_current_version().await {
         // Failing to reach the daemon is a sign that it is not installed
         Err(Rpc(..)) => {
-            log::info!("Failed to reach daemon before test, re-installing app");
+            log::info!("Could not reach active daemon before test, (re)installing app");
             // NOTE: Reinstalling the app resets the daemon environment
             mullvad_client = install_app(rpc, app_package_filename, rpc_provider)
                 .await

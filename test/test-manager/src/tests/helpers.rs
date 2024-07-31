@@ -4,7 +4,10 @@ use crate::{
     network_monitor::{
         self, start_packet_monitor, MonitorOptions, MonitorUnexpectedlyStopped, PacketMonitor,
     },
-    tests::helpers,
+    tests::{
+        account::{clear_devices, new_device_client},
+        helpers,
+    },
 };
 use anyhow::{anyhow, bail, ensure, Context};
 use futures::StreamExt;
@@ -420,14 +423,24 @@ pub async fn login_with_retries(
 /// This will first check whether we are logged in. If not, it will also try to login
 /// on your behalf. If this function returns without any errors, we are logged in to a valid
 /// account.
-pub async fn ensure_logged_in(
-    mullvad_client: &mut MullvadProxyClient,
-) -> Result<(), mullvad_management_interface::Error> {
+pub async fn ensure_logged_in(mullvad_client: &mut MullvadProxyClient) -> anyhow::Result<()> {
     if mullvad_client.get_device().await?.is_logged_in() {
         return Ok(());
     }
     // We are apparently not logged in already.. Try to log in.
-    login_with_retries(mullvad_client).await
+    clear_devices(
+        &new_device_client()
+            .await
+            .context("Failed to create device client")?,
+    )
+    .await
+    .context("failed to clear devices")?;
+
+    log::info!("Logging in/generating device");
+    login_with_retries(mullvad_client)
+        .await
+        .context("Failed to log in")?;
+    Ok(())
 }
 
 /// Try to connect to a Mullvad Tunnel.
