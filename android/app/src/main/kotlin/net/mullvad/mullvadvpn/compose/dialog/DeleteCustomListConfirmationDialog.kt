@@ -11,7 +11,7 @@ import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.communication.Deleted
+import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.compose.state.DeleteCustomListUiState
 import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
 import net.mullvad.mullvadvpn.lib.model.CustomListId
@@ -39,7 +39,7 @@ data class DeleteCustomListNavArgs(val customListId: CustomListId, val name: Cus
     navArgs = DeleteCustomListNavArgs::class
 )
 fun DeleteCustomList(
-    navigator: ResultBackNavigator<Deleted>,
+    navigator: ResultBackNavigator<CustomListActionResultData.Success.Deleted>,
 ) {
     val viewModel: DeleteCustomListConfirmationViewModel = koinViewModel()
     val state by viewModel.uiState.collectAsStateWithLifecycle()
