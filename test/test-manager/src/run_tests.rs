@@ -1,7 +1,7 @@
 use crate::{
     logging::{Panic, TestOutput, TestResult},
     mullvad_daemon::{self, MullvadClientArgument},
-    summary::{self, maybe_log_test_result},
+    summary::SummaryLogger,
     tests::{self, config::TEST_CONFIG, get_tests, TestContext},
     vm,
 };
@@ -23,7 +23,7 @@ pub async fn run(
     test_filters: &[String],
     skip_wait: bool,
     print_failed_tests_only: bool,
-    mut summary_logger: Option<summary::SummaryLogger>,
+    mut summary_logger: Option<SummaryLogger>,
 ) -> Result<TestResult> {
     log::trace!("Setting test constants");
     TEST_CONFIG.init(config);
@@ -126,33 +126,14 @@ pub async fn run(
 
         test_output.print();
 
-        maybe_log_test_result(
-            summary_logger.as_mut(),
+        register_test_result(
+            test_output.result,
+            &mut failed_tests,
             test.name,
-            test_output.result.summary(),
+            &mut successful_tests,
+            summary_logger.as_mut(),
         )
-        .await
-        .context("Failed to log test result")?;
-
-        match test_output.result {
-            TestResult::Panic(panic) => {
-                failed_tests.push(test.name);
-                final_result = TestResult::Panic(panic);
-                if test.must_succeed {
-                    break;
-                }
-            }
-            TestResult::Fail(failure) => {
-                failed_tests.push(test.name);
-                final_result = TestResult::Fail(failure);
-                if test.must_succeed {
-                    break;
-                }
-            }
-            TestResult::Pass => {
-                successful_tests.push(test.name);
-            }
-        }
+        .await?;
     }
 
     log::info!("TESTS THAT SUCCEEDED:");
@@ -161,7 +142,7 @@ pub async fn run(
     }
 
     log::info!("TESTS THAT FAILED:");
-    for test in failed_tests {
+    for test in &failed_tests {
         log::info!("{test}");
     }
 
@@ -169,7 +150,28 @@ pub async fn run(
     drop(test_context);
     let _ = tokio::time::timeout(Duration::from_secs(5), completion_handle).await;
 
-    Ok(final_result)
+
+async fn register_test_result<'a>(
+    test_result: TestResult,
+    failed_tests: &mut Vec<&'a str>,
+    test_name: &'a str,
+    successful_tests: &mut Vec<&'a str>,
+    summary_logger: Option<&mut SummaryLogger>,
+) -> anyhow::Result<()> {
+    if let Some(logger) = summary_logger {
+        logger
+            .log_test_result(test_name, test_result.summary())
+            .await
+            .context("Failed to log test result")?
+    };
+
+    if test_result.failure() {
+        failed_tests.push(test_name);
+    } else {
+        successful_tests.push(test_name);
+    }
+
+    Ok(())
 }
 
 pub async fn run_test<F, R>(
