@@ -12,8 +12,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.compose.communication.Created
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
+import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.compose.state.CreateCustomListUiState
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
@@ -58,7 +58,13 @@ class CreateCustomListDialogViewModel(
                             )
                         } else {
                             _uiSideEffect.send(
-                                CreateCustomListDialogSideEffect.ReturnWithResult(it)
+                                CreateCustomListDialogSideEffect.ReturnWithResult(
+                                    CustomListActionResultData.Success.CreatedWithLocations(
+                                        customListName = it.name,
+                                        locationNames = it.locationNames,
+                                        undo = it.undo
+                                    )
+                                )
                             )
                         }
                     }
@@ -76,5 +82,7 @@ sealed interface CreateCustomListDialogSideEffect {
     data class NavigateToCustomListLocationsScreen(val customListId: CustomListId) :
         CreateCustomListDialogSideEffect
 
-    data class ReturnWithResult(val result: Created) : CreateCustomListDialogSideEffect
+    data class ReturnWithResult(
+        val result: CustomListActionResultData.Success.CreatedWithLocations
+    ) : CreateCustomListDialogSideEffect
 }

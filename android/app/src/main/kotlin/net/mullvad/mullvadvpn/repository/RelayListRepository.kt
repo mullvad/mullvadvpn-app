@@ -11,11 +11,13 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.Constraint
+import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.PortRange
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 import net.mullvad.mullvadvpn.lib.model.WireguardEndpointData
+import net.mullvad.mullvadvpn.relaylist.findByGeoLocationId
 
 class RelayListRepository(
     private val managementService: ManagementService,
@@ -48,6 +50,8 @@ class RelayListRepository(
 
     suspend fun updateSelectedWireguardConstraints(value: WireguardConstraints) =
         managementService.setWireguardConstraints(value)
+
+    fun find(geoLocationId: GeoLocationId) = relayList.value.findByGeoLocationId(geoLocationId)
 
     private fun defaultWireguardEndpointData() = WireguardEndpointData(emptyList())
 }

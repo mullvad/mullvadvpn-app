@@ -17,7 +17,7 @@ import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
-import net.mullvad.mullvadvpn.compose.communication.Renamed
+import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.compose.component.CustomListNameTextField
 import net.mullvad.mullvadvpn.compose.state.EditCustomListNameUiState
 import net.mullvad.mullvadvpn.compose.test.EDIT_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG
@@ -50,7 +50,7 @@ data class EditCustomListNameNavArgs(
     navArgs = EditCustomListNameNavArgs::class
 )
 fun EditCustomListName(
-    backNavigator: ResultBackNavigator<Renamed>,
+    backNavigator: ResultBackNavigator<CustomListActionResultData.Success.Renamed>,
 ) {
     val vm: EditCustomListNameDialogViewModel = koinViewModel()
     LaunchedEffectCollect(vm.uiSideEffect) { sideEffect ->
