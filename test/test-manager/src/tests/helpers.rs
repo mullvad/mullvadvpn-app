@@ -117,8 +117,6 @@ pub async fn ensure_daemon_environment(rpc: &ServiceClient) -> Result<(), anyhow
 }
 
 pub async fn replace_openvpn_cert(rpc: &ServiceClient) -> Result<(), Error> {
-    use std::path::Path;
-
     const SOURCE_CERT_FILENAME: &str = "openvpn.ca.crt";
     const DEST_CERT_FILENAME: &str = "ca.crt";
 
