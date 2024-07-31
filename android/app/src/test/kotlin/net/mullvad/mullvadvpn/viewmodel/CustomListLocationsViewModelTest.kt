@@ -10,6 +10,7 @@ import kotlin.test.assertIs
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
+import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.compose.communication.LocationsChanged
 import net.mullvad.mullvadvpn.compose.screen.CustomListLocationsNavArgs
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsUiState
@@ -214,40 +215,57 @@ class CustomListLocationsViewModelTest {
     }
 
     @Test
-    fun `given new list true when saving successfully should emit close screen side effect`() =
+    fun `given new list true when saving successfully should emit return with result data`() =
         runTest {
             // Arrange
             val customListId = CustomListId("1")
+            val customListName = CustomListName.fromString("name")
             val newList = true
-            val expectedResult: LocationsChanged = mockk()
+            val locationChangedMock: LocationsChanged = mockk()
             coEvery { mockCustomListUseCase(any<CustomListAction.UpdateLocations>()) } returns
-                expectedResult.right()
+                locationChangedMock.right()
+            every { locationChangedMock.name } returns customListName
+            every { locationChangedMock.id } returns customListId
             val viewModel = createViewModel(customListId, newList)
 
             // Act, Assert
             viewModel.uiSideEffect.test {
                 viewModel.save()
                 val sideEffect = awaitItem()
-                assertIs<CustomListLocationsSideEffect.CloseScreen>(sideEffect)
+                assertIs<CustomListLocationsSideEffect.ReturnWithResultData>(sideEffect)
             }
         }
 
     @Test
-    fun `given new list false when saving successfully should emit return with result side effect`() =
+    fun `given new list false when saving successfully should emit return with result data`() =
         runTest {
             // Arrange
             val customListId = CustomListId("1")
+            val customListName = CustomListName.fromString("name")
+            val mockUndo: CustomListAction.UpdateLocations = mockk()
+            val addedLocations: List<GeoLocationId> = listOf(mockk())
+            val removedLocations: List<GeoLocationId> = listOf(mockk())
             val newList = false
-            val expectedResult: LocationsChanged = mockk()
+            val locationsChangedMock: LocationsChanged = mockk()
+            val expectedResult =
+                CustomListActionResultData.Success.LocationChanged(
+                    customListName = customListName,
+                    undo = mockUndo
+                )
             coEvery { mockCustomListUseCase(any<CustomListAction.UpdateLocations>()) } returns
-                expectedResult.right()
+                locationsChangedMock.right()
+            every { locationsChangedMock.id } returns customListId
+            every { locationsChangedMock.name } returns customListName
+            every { locationsChangedMock.addedLocations } returns addedLocations
+            every { locationsChangedMock.removedLocations } returns removedLocations
+            every { locationsChangedMock.undo } returns mockUndo
             val viewModel = createViewModel(customListId, newList)
 
             // Act, Assert
             viewModel.uiSideEffect.test {
                 viewModel.save()
                 val sideEffect = awaitItem()
-                assertIs<CustomListLocationsSideEffect.ReturnWithResult>(sideEffect)
+                assertIs<CustomListLocationsSideEffect.ReturnWithResultData>(sideEffect)
                 assertEquals(expectedResult, sideEffect.result)
             }
         }

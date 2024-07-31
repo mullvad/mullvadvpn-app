@@ -4,10 +4,12 @@ import app.cash.turbine.test
 import arrow.core.right
 import com.ramcosta.composedestinations.generated.navargs.toSavedStateHandle
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.mockk
 import kotlin.test.assertIs
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
+import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.compose.communication.Deleted
 import net.mullvad.mullvadvpn.compose.dialog.DeleteCustomListNavArgs
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
@@ -25,10 +27,16 @@ class DeleteCustomListConfirmationViewModelTest {
     @Test
     fun `when successfully deleting a list should emit return with result side effect`() = runTest {
         // Arrange
-        val expectedResult: Deleted = mockk()
+        val deleted: Deleted = mockk()
+        val customListName = CustomListName.fromString("name")
+        val undo: CustomListAction.Create = mockk()
+        val expectedResult =
+            CustomListActionResultData.Success.Deleted(customListName = customListName, undo = undo)
+        every { deleted.name } returns customListName
+        every { deleted.undo } returns undo
         val viewModel = createViewModel()
         coEvery { mockCustomListActionUseCase(any<CustomListAction.Delete>()) } returns
-            expectedResult.right()
+            deleted.right()
 
         // Act, Assert
         viewModel.uiSideEffect.test {
