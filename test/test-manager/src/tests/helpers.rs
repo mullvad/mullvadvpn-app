@@ -1,6 +1,10 @@
 use super::{config::TEST_CONFIG, Error, TestContext, WAIT_FOR_TUNNEL_STATE_TIMEOUT};
-use crate::network_monitor::{
-    self, start_packet_monitor, MonitorOptions, MonitorUnexpectedlyStopped, PacketMonitor,
+use crate::{
+    mullvad_daemon::RpcClientProvider,
+    network_monitor::{
+        self, start_packet_monitor, MonitorOptions, MonitorUnexpectedlyStopped, PacketMonitor,
+    },
+    tests::helpers,
 };
 use anyhow::{anyhow, bail, ensure, Context};
 use futures::StreamExt;
@@ -58,7 +62,11 @@ macro_rules! assert_tunnel_state {
 
 /// Install the app cleanly, failing if the installer doesn't succeed
 /// or if the VPN service is not running afterwards.
-pub async fn install_app(rpc: &ServiceClient, app_filename: &str) -> anyhow::Result<()> {
+pub async fn install_app(
+    rpc: &ServiceClient,
+    app_filename: &str,
+    rpc_provider: &RpcClientProvider,
+) -> anyhow::Result<MullvadProxyClient> {
     // install package
     log::debug!("Installing new app");
     rpc.install_app(get_package_desc(app_filename)?).await?;
@@ -75,9 +83,12 @@ pub async fn install_app(rpc: &ServiceClient, app_filename: &str) -> anyhow::Res
     replace_openvpn_cert(rpc).await?;
 
     // Override env vars
-    reset_daemon_environment(rpc).await?;
+    ensure_daemon_environment(rpc).await?;
 
-    Ok(())
+    // Wait for the relay list to be updated
+    let mut mullvad_client = rpc_provider.new_client().await;
+    helpers::ensure_updated_relay_list(&mut mullvad_client).await?;
+    Ok(mullvad_client)
 }
 
 /// Conditionally restart the running daemon
@@ -85,7 +96,7 @@ pub async fn install_app(rpc: &ServiceClient, app_filename: &str) -> anyhow::Res
 /// If the daemon was started with non-standard environment variables, subsequent tests may break
 /// due to assuming a default configuration. In that case, reset the environment variables and
 /// restart.
-pub async fn reset_daemon_environment(rpc: &ServiceClient) -> Result<(), anyhow::Error> {
+pub async fn ensure_daemon_environment(rpc: &ServiceClient) -> Result<(), anyhow::Error> {
     let current_env = rpc
         .get_daemon_environment()
         .await
