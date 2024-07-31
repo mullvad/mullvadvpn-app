@@ -24,6 +24,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -37,6 +38,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -73,6 +75,7 @@ import net.mullvad.mullvadvpn.compose.textfield.mullvadWhiteTextFieldColors
 import net.mullvad.mullvadvpn.compose.transitions.LoginTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.accountNumberVisualTransformation
+import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.viewmodel.LoginUiSideEffect
@@ -126,6 +129,8 @@ fun Login(
         }
     }
 
+    val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
     CollectSideEffectWithLifecycle(vm.uiSideEffect) {
         when (it) {
             LoginUiSideEffect.NavigateToWelcome ->
@@ -147,21 +152,27 @@ fun Login(
                     launchSingleTop = true
                     popUpTo(NavGraphs.root) { inclusive = true }
                 }
+            LoginUiSideEffect.GenericError ->
+                snackbarHostState.showSnackbarImmediately(
+                    message = context.getString(R.string.error_occurred),
+                )
         }
     }
     LoginScreen(
-        state,
-        vm::login,
-        vm::createAccount,
-        vm::clearAccountHistory,
-        vm::onAccountNumberChange,
-        dropUnlessResumed { navigator.navigate(SettingsDestination) }
+        state = state,
+        snackbarHostState = snackbarHostState,
+        onLoginClick = vm::login,
+        onCreateAccountClick = vm::createAccount,
+        onDeleteHistoryClick = vm::clearAccountHistory,
+        onAccountNumberChange = vm::onAccountNumberChange,
+        onSettingsClick = dropUnlessResumed { navigator.navigate(SettingsDestination) }
     )
 }
 
 @Composable
 private fun LoginScreen(
     state: LoginUiState,
+    snackbarHostState: SnackbarHostState = SnackbarHostState(),
     onLoginClick: (String) -> Unit = {},
     onCreateAccountClick: () -> Unit = {},
     onDeleteHistoryClick: () -> Unit = {},
@@ -169,6 +180,7 @@ private fun LoginScreen(
     onSettingsClick: () -> Unit = {},
 ) {
     ScaffoldWithTopBar(
+        snackbarHostState = snackbarHostState,
         topBarColor = MaterialTheme.colorScheme.primary,
         iconTintColor = MaterialTheme.colorScheme.onPrimary,
         onSettingsClicked = onSettingsClick,
