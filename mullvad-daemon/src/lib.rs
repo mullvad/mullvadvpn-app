@@ -273,6 +273,8 @@ pub enum DaemonCommand {
     SetWireguardRotationInterval(ResponseTx<(), settings::Error>, Option<RotationInterval>),
     /// Get the daemon settings
     GetSettings(oneshot::Sender<Settings>),
+    /// Reset all daemon settings to the defaults
+    ResetSettings(ResponseTx<(), settings::Error>),
     /// Generate new wireguard key
     RotateWireguardKey(ResponseTx<(), Error>),
     /// Return a public key of the currently set wireguard private key, if there is one
@@ -1189,6 +1191,7 @@ where
                 self.on_set_wireguard_rotation_interval(tx, interval).await
             }
             GetSettings(tx) => self.on_get_settings(tx),
+            ResetSettings(tx) => self.on_reset_settings(tx).await,
             RotateWireguardKey(tx) => self.on_rotate_wireguard_key(tx),
             GetWireguardKey(tx) => self.on_get_wireguard_key(tx).await,
             CreateCustomList(tx, name) => self.on_create_custom_list(tx, name).await,
@@ -2609,6 +2612,12 @@ where
         Self::oneshot_send(tx, self.settings.to_settings(), "get_settings response");
     }
 
+    async fn on_reset_settings(&mut self, tx: ResponseTx<(), settings::Error>) {
+        self.disconnect_tunnel();
+        let result = self.settings.reset().await;
+        Self::oneshot_send(tx, result, "reset_settings response");
+    }
+
     fn oneshot_send<T>(tx: oneshot::Sender<T>, t: T, msg: &'static str) {
         if tx.send(t).is_err() {
             log::warn!("Unable to send {} to the daemon command sender", msg);
@@ -2733,7 +2742,7 @@ where
         self.send_tunnel_command(TunnelCommand::Connect);
     }
 
-    fn disconnect_tunnel(&mut self) {
+    fn disconnect_tunnel(&self) {
         self.send_tunnel_command(TunnelCommand::Disconnect);
     }
 
