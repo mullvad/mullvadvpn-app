@@ -268,10 +268,12 @@ class ManagementService(
 
     suspend fun disconnect(): Either<ConnectError, Boolean> =
         Either.catch { grpc.disconnectTunnel(Empty.getDefaultInstance()).value }
+            .onLeft { Logger.e("Disconnect error", it) }
             .mapLeft(ConnectError::Unknown)
 
     suspend fun reconnect(): Either<ConnectError, Boolean> =
         Either.catch { grpc.reconnectTunnel(Empty.getDefaultInstance()).value }
+            .onLeft { Logger.e("Reconnect error", it) }
             .mapLeft(ConnectError::Unknown)
 
     private suspend fun getTunnelState(): ModelTunnelState =
@@ -297,6 +299,7 @@ class ManagementService(
 
     suspend fun logoutAccount(): Either<LogoutAccountError, Unit> =
         Either.catch { grpc.logoutAccount(Empty.getDefaultInstance()) }
+            .onLeft { Logger.e("Logout account error", it) }
             .mapLeft(LogoutAccountError::Unknown)
             .mapEmpty()
 
@@ -315,6 +318,7 @@ class ManagementService(
 
     suspend fun clearAccountHistory(): Either<ClearAccountHistoryError, Unit> =
         Either.catch { grpc.clearAccountHistory(Empty.getDefaultInstance()) }
+            .onLeft { Logger.e("Clear account history error", it) }
             .mapLeft(ClearAccountHistoryError::Unknown)
             .mapEmpty()
 
