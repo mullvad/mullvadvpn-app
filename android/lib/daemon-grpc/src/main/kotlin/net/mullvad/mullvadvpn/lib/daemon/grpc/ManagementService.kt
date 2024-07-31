@@ -78,8 +78,8 @@ import net.mullvad.mullvadvpn.lib.model.GetDeviceListError
 import net.mullvad.mullvadvpn.lib.model.GetDeviceStateError
 import net.mullvad.mullvadvpn.lib.model.GetVersionInfoError
 import net.mullvad.mullvadvpn.lib.model.LoginAccountError
-import net.mullvad.mullvadvpn.lib.model.NameAlreadyExists
 import net.mullvad.mullvadvpn.lib.model.LogoutAccountError
+import net.mullvad.mullvadvpn.lib.model.NameAlreadyExists
 import net.mullvad.mullvadvpn.lib.model.NewAccessMethodSetting
 import net.mullvad.mullvadvpn.lib.model.ObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.Ownership as ModelOwnership
