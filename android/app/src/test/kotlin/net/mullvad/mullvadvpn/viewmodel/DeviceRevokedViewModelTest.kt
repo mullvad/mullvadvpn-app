@@ -1,14 +1,13 @@
 package net.mullvad.mullvadvpn.viewmodel
 
 import app.cash.turbine.test
+import arrow.core.right
 import io.mockk.MockKAnnotations
-import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.coVerifyOrder
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import io.mockk.just
 import io.mockk.mockk
 import io.mockk.unmockkAll
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -70,8 +69,8 @@ class DeviceRevokedViewModelTest {
     @Test
     fun `onGoToLoginClicked should invoke logout on AccountRepository`() {
         // Arrange
-        coEvery { mockConnectionProxy.disconnect() } returns true
-        coEvery { mockedAccountRepository.logout() } just Runs
+        coEvery { mockConnectionProxy.disconnect() } returns true.right()
+        coEvery { mockedAccountRepository.logout() } returns Unit.right()
 
         // Act
         viewModel.onGoToLoginClicked()
@@ -83,8 +82,8 @@ class DeviceRevokedViewModelTest {
     @Test
     fun `onGoToLoginClicked should invoke disconnect before logout when connected`() {
         // Arrange
-        coEvery { mockConnectionProxy.disconnect() } returns true
-        coEvery { mockedAccountRepository.logout() } just Runs
+        coEvery { mockConnectionProxy.disconnect() } returns true.right()
+        coEvery { mockedAccountRepository.logout() } returns Unit.right()
 
         // Act
         viewModel.onGoToLoginClicked()
