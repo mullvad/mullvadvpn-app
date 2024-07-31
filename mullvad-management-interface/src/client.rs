@@ -313,6 +313,11 @@ impl MullvadProxyClient {
         Settings::try_from(settings).map_err(Error::InvalidResponse)
     }
 
+    pub async fn reset_settings(&mut self) -> Result<()> {
+        self.0.reset_settings(()).await.map_err(Error::Rpc)?;
+        Ok(())
+    }
+
     pub async fn set_allow_lan(&mut self, state: bool) -> Result<()> {
         self.0.set_allow_lan(state).await.map_err(Error::Rpc)?;
         Ok(())
