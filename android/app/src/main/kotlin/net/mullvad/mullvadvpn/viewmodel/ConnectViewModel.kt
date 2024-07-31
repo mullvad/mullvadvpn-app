@@ -127,7 +127,9 @@ class ConnectViewModel(
     }
 
     fun onReconnectClick() {
-        viewModelScope.launch { connectionProxy.reconnect() }
+        viewModelScope.launch { connectionProxy.reconnect().onLeft {
+            _uiSideEffect.send(UiSideEffect.ConnectError.Generic)
+        } }
     }
 
     fun onConnectClick() {
