@@ -22,6 +22,7 @@ import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.util.isSuccess
 import net.mullvad.mullvadvpn.util.toPaymentState
+import net.mullvad.mullvadvpn.viewmodel.WelcomeViewModel.UiSideEffect
 
 class OutOfTimeViewModel(
     private val accountRepository: AccountRepository,
@@ -71,7 +72,9 @@ class OutOfTimeViewModel(
     }
 
     fun onDisconnectClick() {
-        viewModelScope.launch { connectionProxy.disconnect() }
+        viewModelScope.launch { connectionProxy.disconnect().onLeft {
+            _uiSideEffect.send(UiSideEffect.GenericError)
+        } }
     }
 
     private fun verifyPurchases() {
@@ -118,5 +121,7 @@ class OutOfTimeViewModel(
         data class OpenAccountView(val token: WebsiteAuthToken?) : UiSideEffect
 
         data object OpenConnectScreen : UiSideEffect
+
+        data object GenericError : UiSideEffect
     }
 }

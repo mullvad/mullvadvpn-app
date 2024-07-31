@@ -11,11 +11,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -49,6 +52,7 @@ import net.mullvad.mullvadvpn.compose.state.OutOfTimeUiState
 import net.mullvad.mullvadvpn.compose.test.OUT_OF_TIME_SCREEN_TITLE_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.HomeTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.model.ErrorState
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
 import net.mullvad.mullvadvpn.lib.model.TunnelState
@@ -135,6 +139,8 @@ fun OutOfTime(
         }
     }
 
+    val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
     val openAccountPage = LocalUriHandler.current.createOpenAccountPageHook()
     CollectSideEffectWithLifecycle(vm.uiSideEffect, Lifecycle.State.RESUMED) { uiSideEffect ->
         when (uiSideEffect) {
@@ -145,11 +151,16 @@ fun OutOfTime(
                     launchSingleTop = true
                     popUpTo(NavGraphs.root) { inclusive = true }
                 }
+            OutOfTimeViewModel.UiSideEffect.GenericError ->
+                snackbarHostState.showSnackbarImmediately(
+                    message = context.getString(R.string.error_occurred)
+                )
         }
     }
 
     OutOfTimeScreen(
         state = state,
+        snackbarHostState = snackbarHostState,
         onSitePaymentClick = vm::onSitePaymentClick,
         onRedeemVoucherClick = dropUnlessResumed { navigator.navigate(RedeemVoucherDestination) },
         onSettingsClick = dropUnlessResumed { navigator.navigate(SettingsDestination) },
@@ -165,6 +176,7 @@ fun OutOfTime(
 @Composable
 fun OutOfTimeScreen(
     state: OutOfTimeUiState,
+    snackbarHostState: SnackbarHostState = SnackbarHostState(),
     onDisconnectClick: () -> Unit = {},
     onSitePaymentClick: () -> Unit = {},
     onRedeemVoucherClick: () -> Unit = {},
@@ -176,6 +188,7 @@ fun OutOfTimeScreen(
 
     val scrollState = rememberScrollState()
     ScaffoldWithTopBarAndDeviceName(
+        snackbarHostState = snackbarHostState,
         topBarColor =
             if (state.tunnelState.isSecured()) {
                 MaterialTheme.colorScheme.tertiary

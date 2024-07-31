@@ -21,6 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -57,6 +58,7 @@ import net.mullvad.mullvadvpn.compose.state.WelcomeUiState
 import net.mullvad.mullvadvpn.compose.transitions.HomeTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.createCopyToClipboardHandle
+import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.common.util.groupWithSpaces
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
@@ -131,6 +133,8 @@ fun Welcome(
         }
     }
 
+    val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
     val openAccountPage = LocalUriHandler.current.createOpenAccountPageHook()
     CollectSideEffectWithLifecycle(sideEffect = vm.uiSideEffect, Lifecycle.State.RESUMED) {
         uiSideEffect ->
@@ -141,11 +145,16 @@ fun Welcome(
                     launchSingleTop = true
                     popUpTo(NavGraphs.root) { inclusive = true }
                 }
+            WelcomeViewModel.UiSideEffect.GenericError ->
+                snackbarHostState.showSnackbarImmediately(
+                    message = context.getString(R.string.error_occurred)
+                )
         }
     }
 
     WelcomeScreen(
         state = state,
+        snackbarHostState = snackbarHostState,
         onSitePaymentClick = dropUnlessResumed { vm.onSitePaymentClick() },
         onRedeemVoucherClick = dropUnlessResumed { navigator.navigate(RedeemVoucherDestination) },
         onSettingsClick = dropUnlessResumed { navigator.navigate(SettingsDestination) },
@@ -163,6 +172,7 @@ fun Welcome(
 @Composable
 fun WelcomeScreen(
     state: WelcomeUiState,
+    snackbarHostState: SnackbarHostState = SnackbarHostState(),
     onSitePaymentClick: () -> Unit,
     onRedeemVoucherClick: () -> Unit,
     onSettingsClick: () -> Unit,
@@ -173,7 +183,6 @@ fun WelcomeScreen(
     navigateToVerificationPendingDialog: () -> Unit
 ) {
     val scrollState = rememberScrollState()
-    val snackbarHostState = remember { SnackbarHostState() }
 
     ScaffoldWithTopBar(
         topBarColor = MaterialTheme.colorScheme.primary,
