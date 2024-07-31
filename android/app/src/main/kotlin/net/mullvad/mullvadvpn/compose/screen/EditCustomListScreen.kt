@@ -84,9 +84,9 @@ data class EditCustomListNavArgs(val customListId: CustomListId)
 )
 fun EditCustomList(
     navigator: DestinationsNavigator,
-    backNavigator: ResultBackNavigator<CustomListActionResultData.Deleted>,
+    backNavigator: ResultBackNavigator<CustomListActionResultData.Success.Deleted>,
     confirmDeleteListResultRecipient:
-        ResultRecipient<DeleteCustomListDestination, CustomListActionResultData.Deleted>
+        ResultRecipient<DeleteCustomListDestination, CustomListActionResultData.Success.Deleted>
 ) {
     val viewModel = koinViewModel<EditCustomListViewModel>()
 

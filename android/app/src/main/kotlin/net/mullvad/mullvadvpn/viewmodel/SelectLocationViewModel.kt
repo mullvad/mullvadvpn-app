@@ -371,13 +371,13 @@ class SelectLocationViewModel(
                         { CustomListActionResultData.GenericError },
                         {
                             if (it.removedLocations.isEmpty()) {
-                                CustomListActionResultData.LocationAdded(
+                                CustomListActionResultData.Success.LocationAdded(
                                     customListName = it.name,
                                     locationName = item.name,
                                     undo = it.undo
                                 )
                             } else {
-                                CustomListActionResultData.LocationChanged(
+                                CustomListActionResultData.Success.LocationChanged(
                                     customListName = it.name,
                                     undo = it.undo
                                 )
@@ -405,13 +405,13 @@ class SelectLocationViewModel(
                                 )
                                 .bind()
                         if (success.addedLocations.isEmpty()) {
-                            CustomListActionResultData.LocationRemoved(
+                            CustomListActionResultData.Success.LocationRemoved(
                                 customListName = success.name,
                                 locationName = item.name,
                                 undo = success.undo
                             )
                         } else {
-                            CustomListActionResultData.LocationChanged(
+                            CustomListActionResultData.Success.LocationChanged(
                                 customListName = success.name,
                                 undo = success.undo
                             )

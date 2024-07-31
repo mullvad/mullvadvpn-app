@@ -39,7 +39,7 @@ data class DeleteCustomListNavArgs(val customListId: CustomListId, val name: Cus
     navArgs = DeleteCustomListNavArgs::class
 )
 fun DeleteCustomList(
-    navigator: ResultBackNavigator<CustomListActionResultData.Deleted>,
+    navigator: ResultBackNavigator<CustomListActionResultData.Success.Deleted>,
 ) {
     val viewModel: DeleteCustomListConfirmationViewModel = koinViewModel()
     val state by viewModel.uiState.collectAsStateWithLifecycle()

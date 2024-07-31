@@ -50,7 +50,7 @@ data class EditCustomListNameNavArgs(
     navArgs = EditCustomListNameNavArgs::class
 )
 fun EditCustomListName(
-    backNavigator: ResultBackNavigator<CustomListActionResultData.Renamed>,
+    backNavigator: ResultBackNavigator<CustomListActionResultData.Success.Renamed>,
 ) {
     val vm: EditCustomListNameDialogViewModel = koinViewModel()
     LaunchedEffectCollect(vm.uiSideEffect) { sideEffect ->

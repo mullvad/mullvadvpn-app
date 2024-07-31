@@ -120,7 +120,7 @@ class CustomListLocationsViewModel(
                         { result ->
                             val resultData =
                                 if (navArgs.newList) {
-                                    CustomListActionResultData.CreatedWithLocations(
+                                    CustomListActionResultData.Success.CreatedWithLocations(
                                         customListName = result.name,
                                         locationNames = locationsToSave.map { it.name },
                                         undo = CustomListAction.Delete(id = result.id)
@@ -129,7 +129,7 @@ class CustomListLocationsViewModel(
                                     when {
                                         result.addedLocations.size == 1 &&
                                             result.removedLocations.isEmpty() ->
-                                            CustomListActionResultData.LocationAdded(
+                                            CustomListActionResultData.Success.LocationAdded(
                                                 customListName = result.name,
                                                 relayListRepository
                                                     .find(result.removedLocations.first())!!
@@ -138,7 +138,7 @@ class CustomListLocationsViewModel(
                                             )
                                         result.removedLocations.size == 1 &&
                                             result.addedLocations.isEmpty() ->
-                                            CustomListActionResultData.LocationRemoved(
+                                            CustomListActionResultData.Success.LocationRemoved(
                                                 customListName = result.name,
                                                 locationName =
                                                     relayListRepository
@@ -147,7 +147,7 @@ class CustomListLocationsViewModel(
                                                 undo = result.undo
                                             )
                                         else ->
-                                            CustomListActionResultData.LocationChanged(
+                                            CustomListActionResultData.Success.LocationChanged(
                                                 customListName = result.name,
                                                 undo = result.undo
                                             )
@@ -315,7 +315,7 @@ class CustomListLocationsViewModel(
 }
 
 sealed interface CustomListLocationsSideEffect {
-    data class ReturnWithResultData(val result: CustomListActionResultData) :
+    data class ReturnWithResultData(val result: CustomListActionResultData.Success) :
         CustomListLocationsSideEffect
 
     data object Error : CustomListLocationsSideEffect

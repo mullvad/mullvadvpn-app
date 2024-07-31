@@ -35,7 +35,7 @@ class EditCustomListNameDialogViewModelTest {
         val customListName = CustomListName.fromString("list")
         val undo: CustomListAction.Rename = mockk()
         val expectedResult =
-            CustomListActionResultData.Renamed(newName = customListName, undo = undo)
+            CustomListActionResultData.Success.Renamed(newName = customListName, undo = undo)
         every { renamed.name } returns customListName
         every { renamed.undo } returns undo
         val viewModel = createViewModel(customListId, customListName.value)

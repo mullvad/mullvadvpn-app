@@ -131,12 +131,12 @@ fun SelectLocation(
     createCustomListDialogResultRecipient:
         ResultRecipient<
             CreateCustomListDestination,
-            CustomListActionResultData.CreatedWithLocations
+            CustomListActionResultData.Success.CreatedWithLocations
         >,
     editCustomListNameDialogResultRecipient:
-        ResultRecipient<EditCustomListNameDestination, CustomListActionResultData.Renamed>,
+        ResultRecipient<EditCustomListNameDestination, CustomListActionResultData.Success.Renamed>,
     deleteCustomListDialogResultRecipient:
-        ResultRecipient<DeleteCustomListDestination, CustomListActionResultData.Deleted>,
+        ResultRecipient<DeleteCustomListDestination, CustomListActionResultData.Success.Deleted>,
     updateCustomListResultRecipient:
         ResultRecipient<CustomListLocationsDestination, CustomListActionResultData>
 ) {
@@ -832,18 +832,22 @@ private suspend fun SnackbarHostState.showResultSnackbar(
     showSnackbarImmediately(
         message = result.message(context),
         actionLabel =
-            if (result.hasUndo()) context.getString(R.string.undo)
+            if (result is CustomListActionResultData.Success) context.getString(R.string.undo)
             else {
                 null
             },
         duration = SnackbarDuration.Long,
-        onAction = { result.undo?.let { onUndo(it) } }
+        onAction = {
+            if (result is CustomListActionResultData.Success) {
+                onUndo(result.undo)
+            }
+        }
     )
 }
 
 private fun CustomListActionResultData.message(context: Context): String =
     when (this) {
-        is CustomListActionResultData.CreatedWithLocations ->
+        is CustomListActionResultData.Success.CreatedWithLocations ->
             if (locationNames.size == 1) {
                 context.getString(
                     R.string.location_was_added_to_list,
@@ -853,15 +857,15 @@ private fun CustomListActionResultData.message(context: Context): String =
             } else {
                 context.getString(R.string.create_custom_list_message, customListName)
             }
-        is CustomListActionResultData.Deleted ->
+        is CustomListActionResultData.Success.Deleted ->
             context.getString(R.string.delete_custom_list_message, customListName)
-        is CustomListActionResultData.LocationAdded ->
+        is CustomListActionResultData.Success.LocationAdded ->
             context.getString(R.string.location_was_added_to_list, locationName, customListName)
-        is CustomListActionResultData.LocationRemoved ->
+        is CustomListActionResultData.Success.LocationRemoved ->
             context.getString(R.string.location_was_removed_from_list, locationName, customListName)
-        is CustomListActionResultData.LocationChanged ->
+        is CustomListActionResultData.Success.LocationChanged ->
             context.getString(R.string.locations_were_changed_for, customListName)
-        is CustomListActionResultData.Renamed ->
+        is CustomListActionResultData.Success.Renamed ->
             context.getString(R.string.name_was_changed_to, newName)
         CustomListActionResultData.GenericError -> context.getString(R.string.error_occurred)
     }

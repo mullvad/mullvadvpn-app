@@ -63,7 +63,7 @@ data class CreateCustomListNavArgs(val locationCode: GeoLocationId?)
 )
 fun CreateCustomList(
     navigator: DestinationsNavigator,
-    backNavigator: ResultBackNavigator<CustomListActionResultData.CreatedWithLocations>,
+    backNavigator: ResultBackNavigator<CustomListActionResultData.Success.CreatedWithLocations>,
 ) {
     val vm: CreateCustomListDialogViewModel = koinViewModel()
     LaunchedEffect(key1 = Unit) {

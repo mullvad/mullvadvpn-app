@@ -59,7 +59,7 @@ class CreateCustomListDialogViewModel(
                         } else {
                             _uiSideEffect.send(
                                 CreateCustomListDialogSideEffect.ReturnWithResult(
-                                    CustomListActionResultData.CreatedWithLocations(
+                                    CustomListActionResultData.Success.CreatedWithLocations(
                                         customListName = it.name,
                                         locationNames = it.locationNames,
                                         undo = it.undo
@@ -82,6 +82,6 @@ sealed interface CreateCustomListDialogSideEffect {
     data class NavigateToCustomListLocationsScreen(val customListId: CustomListId) :
         CreateCustomListDialogSideEffect
 
-    data class ReturnWithResult(val result: CustomListActionResultData.CreatedWithLocations) :
+    data class ReturnWithResult(val result: CustomListActionResultData.Success.CreatedWithLocations) :
         CreateCustomListDialogSideEffect
 }

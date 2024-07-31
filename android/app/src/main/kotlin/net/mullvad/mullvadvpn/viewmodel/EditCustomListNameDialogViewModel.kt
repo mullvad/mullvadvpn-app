@@ -55,7 +55,7 @@ class EditCustomListNameDialogViewModel(
                     {
                         _uiSideEffect.send(
                             EditCustomListNameDialogSideEffect.ReturnWithResult(
-                                CustomListActionResultData.Renamed(
+                                CustomListActionResultData.Success.Renamed(
                                     newName = it.name,
                                     undo = it.undo
                                 )
@@ -73,6 +73,6 @@ class EditCustomListNameDialogViewModel(
 }
 
 sealed interface EditCustomListNameDialogSideEffect {
-    data class ReturnWithResult(val result: CustomListActionResultData.Renamed) :
+    data class ReturnWithResult(val result: CustomListActionResultData.Success.Renamed) :
         EditCustomListNameDialogSideEffect
 }

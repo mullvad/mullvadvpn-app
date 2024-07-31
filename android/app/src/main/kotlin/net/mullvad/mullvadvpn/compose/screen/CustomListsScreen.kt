@@ -65,7 +65,7 @@ private fun PreviewCustomListsScreen() {
 fun CustomLists(
     navigator: DestinationsNavigator,
     editCustomListResultRecipient:
-        ResultRecipient<EditCustomListDestination, CustomListActionResultData.Deleted>
+        ResultRecipient<EditCustomListDestination, CustomListActionResultData.Success.Deleted>
 ) {
     val viewModel = koinViewModel<CustomListsViewModel>()
     val state by viewModel.uiState.collectAsStateWithLifecycle()
