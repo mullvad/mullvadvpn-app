@@ -430,10 +430,6 @@ class SelectLocationViewModel(
 sealed interface SelectLocationSideEffect {
     data object CloseScreen : SelectLocationSideEffect
 
-    // data class LocationAddedToCustomList(val result: LocationsChanged) : SelectLocationSideEffect
-
-    // class LocationRemovedFromCustomList(val result: LocationsChanged) : SelectLocationSideEffect
-
     data class CustomListActionToast(val resultData: CustomListActionResultData) :
         SelectLocationSideEffect
 
