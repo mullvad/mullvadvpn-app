@@ -248,7 +248,7 @@ class CustomListLocationsViewModelTest {
             val newList = false
             val locationsChangedMock: LocationsChanged = mockk()
             val expectedResult =
-                CustomListActionResultData.LocationChanged(
+                CustomListActionResultData.Success.LocationChanged(
                     customListName = customListName,
                     undo = mockUndo
                 )

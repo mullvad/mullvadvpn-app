@@ -39,7 +39,7 @@ class CreateCustomListDialogViewModelTest {
             val customListId = CustomListId("1")
             val locationNames = listOf("locationName")
             val expectedResult =
-                CustomListActionResultData.CreatedWithLocations(
+                CustomListActionResultData.Success.CreatedWithLocations(
                     customListName = customListName,
                     locationNames = locationNames,
                     undo = mockUndo

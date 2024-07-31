@@ -293,7 +293,7 @@ class SelectLocationViewModelTest {
                 locations = emptyList(),
             )
         val expectedResult =
-            CustomListActionResultData.LocationAdded(
+            CustomListActionResultData.Success.LocationAdded(
                 customListName = customListName,
                 locationName = location.name,
                 undo = CustomListAction.UpdateLocations(id = customListId, locations = emptyList())
@@ -331,7 +331,7 @@ class SelectLocationViewModelTest {
                 every { descendants() } returns emptyList()
             }
             val expectedResult =
-                CustomListActionResultData.LocationRemoved(
+                CustomListActionResultData.Success.LocationRemoved(
                     customListName = customListName,
                     locationName = locationName,
                     undo =
@@ -346,6 +346,13 @@ class SelectLocationViewModelTest {
                         name = customListName,
                         locations = emptyList(),
                         oldLocations = listOf(removedLocationsId),
+                    )
+                    .right()
+            coEvery { mockCustomListsRepository.getCustomListById(customListId) } returns
+                CustomList(
+                        id = customListId,
+                        name = customListName,
+                        locations = listOf(removedLocationsId)
                     )
                     .right()
 

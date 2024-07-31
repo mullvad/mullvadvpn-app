@@ -31,7 +31,7 @@ class DeleteCustomListConfirmationViewModelTest {
         val customListName = CustomListName.fromString("name")
         val undo: CustomListAction.Create = mockk()
         val expectedResult =
-            CustomListActionResultData.Deleted(customListName = customListName, undo = undo)
+            CustomListActionResultData.Success.Deleted(customListName = customListName, undo = undo)
         every { deleted.name } returns customListName
         every { deleted.undo } returns undo
         val viewModel = createViewModel()
