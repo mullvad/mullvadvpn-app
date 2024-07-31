@@ -2256,18 +2256,10 @@ where
         {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set_daita_settings response");
-                if settings_changed {
-                    self.parameters_generator
-                        .set_tunnel_options(&self.settings.tunnel_options)
-                        .await;
-                    self.event_listener
-                        .notify_settings(self.settings.to_settings());
-                    self.relay_selector
-                        .set_config(new_selector_config(&self.settings));
-                    if self.get_target_tunnel_type() == Some(TunnelType::Wireguard) {
-                        log::info!("Reconnecting because DAITA settings changed");
-                        self.reconnect_tunnel();
-                    }
+                if settings_changed && self.get_target_tunnel_type() == Some(TunnelType::Wireguard)
+                {
+                    log::info!("Reconnecting because DAITA settings changed");
+                    self.reconnect_tunnel();
                 }
             }
             Err(e) => {
