@@ -168,7 +168,7 @@ async fn test_upgrade_app<'a>(
         let test_result = if let Err(e) =
             tests::test_upgrade_app(test_context, test_runner_client, app_to_upgrade_from).await
         {
-            log::error!("TEST 'test_upgrade_app' RETURNED ERROR : {e}");
+            log::error!("TEST 'test_upgrade_app' RETURNED ERROR : {e:?}");
             TestResult::Fail(e)
         } else {
             TestResult::Pass
