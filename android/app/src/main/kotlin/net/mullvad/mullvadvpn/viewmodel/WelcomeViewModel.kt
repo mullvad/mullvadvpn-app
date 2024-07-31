@@ -78,7 +78,9 @@ class WelcomeViewModel(
     }
 
     fun onDisconnectClick() {
-        viewModelScope.launch { connectionProxy.disconnect() }
+        viewModelScope.launch { connectionProxy.disconnect().onLeft {
+            _uiSideEffect.send(UiSideEffect.GenericError)
+        } }
     }
 
     private fun verifyPurchases() {
@@ -118,6 +120,8 @@ class WelcomeViewModel(
         data class OpenAccountView(val token: WebsiteAuthToken?) : UiSideEffect
 
         data object OpenConnectScreen : UiSideEffect
+
+        data object GenericError : UiSideEffect
     }
 
     companion object {
