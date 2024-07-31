@@ -236,7 +236,7 @@ pub async fn test_installation_idempotency(
     for _ in 0..2 {
         // Install the app
         log::info!("Installing new app");
-        let app_package = get_package_desc(&TEST_CONFIG.app_package_filename)?;
+        let app_package = get_package_desc(&TEST_CONFIG.app_package_filename);
         rpc.install_app(app_package).await?;
         log::info!("App was successfully installed!");
 
