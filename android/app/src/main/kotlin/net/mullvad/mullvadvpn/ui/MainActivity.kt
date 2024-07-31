@@ -91,7 +91,9 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
 
     override fun onStop() {
         super.onStop()
-        serviceConnectionManager.unbind()
+        if(privacyDisclaimerRepository.hasAcceptedPrivacyDisclosure()) {
+            serviceConnectionManager.unbind()
+        }
     }
 
     override fun onDestroy() {
