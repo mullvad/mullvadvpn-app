@@ -77,15 +77,14 @@ pub async fn run(
 
     let logger = super::logging::Logger::get_or_init();
 
-    if let Some(app_to_upgrade_from) = TEST_CONFIG.app_package_to_upgrade_from_filename.as_ref() {
-        if let Err(e) =
-            tests::test_upgrade_app(&test_context, &test_runner_client, app_to_upgrade_from).await
-        {
-            log::error!("Failed to to run 'test_upgrade_app': {e}");
-        }
-    } else {
-        log::warn!("No previous app to upgrade from, skipping upgrade test");
-    };
+    test_upgrade_app(
+        &test_context,
+        &test_runner_client,
+        &mut failed_tests,
+        &mut successful_tests,
+        &mut summary_logger,
+    )
+    .await?;
 
     for test in tests {
         crate::tests::prepare_daemon(&test_runner_client, &test_context.rpc_provider)
@@ -150,6 +149,43 @@ pub async fn run(
     drop(test_context);
     let _ = tokio::time::timeout(Duration::from_secs(5), completion_handle).await;
 
+    if failed_tests.is_empty() {
+        Ok(TestResult::Pass)
+    } else {
+        Ok(TestResult::Fail(anyhow::anyhow!("hej")))
+    }
+}
+
+/// Run `tests::test_upgrade_app` and register the result
+async fn test_upgrade_app<'a>(
+    test_context: &TestContext,
+    test_runner_client: &ServiceClient,
+    failed_tests: &mut Vec<&'a str>,
+    successful_tests: &mut Vec<&'a str>,
+    summary_logger: &mut Option<SummaryLogger>,
+) -> Result<(), anyhow::Error> {
+    if let Some(app_to_upgrade_from) = TEST_CONFIG.app_package_to_upgrade_from_filename.as_ref() {
+        let test_result = if let Err(e) =
+            tests::test_upgrade_app(test_context, test_runner_client, app_to_upgrade_from).await
+        {
+            log::error!("TEST 'test_upgrade_app' RETURNED ERROR : {e}");
+            TestResult::Fail(e)
+        } else {
+            TestResult::Pass
+        };
+        register_test_result(
+            test_result,
+            failed_tests,
+            "test_upgrade_app",
+            successful_tests,
+            summary_logger.as_mut(),
+        )
+        .await?;
+    } else {
+        log::warn!("No previous app to upgrade from, skipping upgrade test");
+    };
+    Ok(())
+}
 
 async fn register_test_result<'a>(
     test_result: TestResult,
