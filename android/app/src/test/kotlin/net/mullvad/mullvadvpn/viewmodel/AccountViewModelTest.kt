@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.viewmodel
 
 import android.app.Activity
 import app.cash.turbine.test
+import arrow.core.right
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -93,6 +94,9 @@ class AccountViewModelTest {
 
     @Test
     fun `onLogoutClick should invoke logout on AccountRepository`() {
+        // Arrange
+        coEvery { mockAccountRepository.logout() } returns Unit.right()
+
         // Act
         viewModel.onLogoutClick()
 
