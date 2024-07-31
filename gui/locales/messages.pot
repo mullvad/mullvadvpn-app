@@ -2114,6 +2114,9 @@ msgstr ""
 msgid "%s was added to your account."
 msgstr ""
 
+msgid "%s was removed from \"%s\""
+msgstr ""
+
 msgid "1. After clicking on the <b>Go to VPN settings</b> button below, click on the cogwheel next to the <b>Mullvad VPN</b> name."
 msgstr ""
 
@@ -2577,6 +2580,9 @@ msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
 msgstr ""
 
 msgid "You are running an unsupported app version."
+msgstr ""
+
+msgid "\"%s\" was created"
 msgstr ""
 
 msgid "\"%s\" was deleted"
