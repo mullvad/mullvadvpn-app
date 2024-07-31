@@ -42,6 +42,8 @@ sealed interface LoginUiSideEffect {
     data object NavigateToOutOfTime : LoginUiSideEffect
 
     data class TooManyDevices(val accountNumber: AccountNumber) : LoginUiSideEffect
+
+    data object GenericError : LoginUiSideEffect
 }
 
 class LoginViewModel(
@@ -78,9 +80,15 @@ class LoginViewModel(
 
     fun clearAccountHistory() =
         viewModelScope.launch {
-            accountRepository.clearAccountHistory()
-            _mutableAccountHistory.update { null }
-            _mutableAccountHistory.update { accountRepository.fetchAccountHistory() }
+            accountRepository
+                .clearAccountHistory()
+                .fold(
+                    { _uiSideEffect.send(LoginUiSideEffect.GenericError) },
+                    {
+                        _mutableAccountHistory.update { null }
+                        _mutableAccountHistory.update { accountRepository.fetchAccountHistory() }
+                    }
+                )
         }
 
     fun createAccount() {
