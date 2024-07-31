@@ -39,6 +39,7 @@ service ManagementService {
 
   // Settings
   rpc GetSettings(google.protobuf.Empty) returns (Settings) {}
+  rpc ResetSettings(google.protobuf.Empty) returns (google.protobuf.Empty) {}
   rpc SetAllowLan(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
   rpc SetShowBetaReleases(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
   rpc SetBlockWhenDisconnected(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
