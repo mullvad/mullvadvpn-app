@@ -116,7 +116,13 @@ class CustomListLocationsViewModel(
                         )
                     )
                     .fold(
-                        { _uiSideEffect.tryEmit(CustomListLocationsSideEffect.Error) },
+                        {
+                            _uiSideEffect.tryEmit(
+                                CustomListLocationsSideEffect.ReturnWithResultData(
+                                    CustomListActionResultData.GenericError
+                                )
+                            )
+                        },
                         { result ->
                             val resultData =
                                 if (navArgs.newList) {
@@ -315,8 +321,6 @@ class CustomListLocationsViewModel(
 }
 
 sealed interface CustomListLocationsSideEffect {
-    data class ReturnWithResultData(val result: CustomListActionResultData.Success) :
+    data class ReturnWithResultData(val result: CustomListActionResultData) :
         CustomListLocationsSideEffect
-
-    data object Error : CustomListLocationsSideEffect
 }

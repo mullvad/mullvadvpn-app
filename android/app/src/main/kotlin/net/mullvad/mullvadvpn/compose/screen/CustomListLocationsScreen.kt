@@ -95,26 +95,16 @@ fun CustomListLocations(
         }
     }
 
-    val snackbarHostState = remember { SnackbarHostState() }
-    val context: Context = LocalContext.current
     LaunchedEffectCollect(customListsViewModel.uiSideEffect) { sideEffect ->
         when (sideEffect) {
             is CustomListLocationsSideEffect.ReturnWithResultData ->
                 backNavigator.navigateBack(result = sideEffect.result)
-            CustomListLocationsSideEffect.Error ->
-                launch {
-                    snackbarHostState.showSnackbarImmediately(
-                        message = context.getString(R.string.error_occurred),
-                        duration = SnackbarDuration.Short
-                    )
-                }
         }
     }
 
     val state by customListsViewModel.uiState.collectAsStateWithLifecycle()
     CustomListLocationsScreen(
         state = state,
-        snackbarHostState = snackbarHostState,
         onSearchTermInput = customListsViewModel::onSearchTermInput,
         onSaveClick = customListsViewModel::save,
         onRelaySelectionClick = customListsViewModel::onRelaySelectionClick,
@@ -133,7 +123,6 @@ fun CustomListLocations(
 @Composable
 fun CustomListLocationsScreen(
     state: CustomListLocationsUiState,
-    snackbarHostState: SnackbarHostState = SnackbarHostState(),
     onSearchTermInput: (String) -> Unit = {},
     onSaveClick: () -> Unit = {},
     onRelaySelectionClick: (RelayItem.Location, selected: Boolean) -> Unit = { _, _ -> },
@@ -141,7 +130,6 @@ fun CustomListLocationsScreen(
     onBackClick: () -> Unit = {}
 ) {
     ScaffoldWithSmallTopBar(
-        snackbarHostState = snackbarHostState,
         appBarTitle =
             stringResource(
                 if (state.newList) {
