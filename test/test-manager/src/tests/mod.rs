@@ -91,111 +91,14 @@ pub async fn prepare_daemon(
         .context("Failed to restart daemon")?;
 
     helpers::ensure_logged_in(&mut mullvad_client).await?;
+
+    mullvad_client
+        .reset_settings()
+        .await
+        .context("Failed to reset settings")?;
     helpers::disconnect_and_wait(&mut mullvad_client)
         .await
         .context("Failed to disconnect daemon after test")?;
-
-    // Bring all the settings into scope so we remember to reset them.
-    let mullvad_types::settings::Settings {
-        relay_settings,
-        bridge_settings,
-        obfuscation_settings,
-        bridge_state,
-        custom_lists,
-        api_access_methods,
-        allow_lan,
-        block_when_disconnected,
-        auto_connect,
-        tunnel_options,
-        relay_overrides,
-        show_beta_releases,
-        #[cfg(target_os = "macos")]
-            split_tunnel: _,
-        settings_version: _, // N/A
-    } = Default::default();
-
-    mullvad_client
-        .clear_custom_access_methods()
-        .await
-        .context("Could not clear custom api access methods")?;
-    for access_method in api_access_methods.iter() {
-        mullvad_client
-            .update_access_method(access_method.clone())
-            .await
-            .context("Could not reset default access method")?;
-    }
-
-    mullvad_client
-        .set_relay_settings(relay_settings)
-        .await
-        .context("Could not set relay settings")?;
-
-    let _ = relay_overrides;
-    mullvad_client
-        .clear_all_relay_overrides()
-        .await
-        .context("Could not set relay overrides")?;
-
-    mullvad_client
-        .set_auto_connect(auto_connect)
-        .await
-        .context("Could not set auto connect in cleanup")?;
-
-    mullvad_client
-        .set_allow_lan(allow_lan)
-        .await
-        .context("Could not set allow lan in cleanup")?;
-
-    mullvad_client
-        .set_show_beta_releases(show_beta_releases)
-        .await
-        .context("Could not set show beta releases in cleanup")?;
-
-    mullvad_client
-        .set_bridge_state(bridge_state)
-        .await
-        .context("Could not set bridge state in cleanup")?;
-
-    mullvad_client
-        .set_bridge_settings(bridge_settings.clone())
-        .await
-        .context("Could not set bridge settings in cleanup")?;
-
-    mullvad_client
-        .set_obfuscation_settings(obfuscation_settings.clone())
-        .await
-        .context("Could set obfuscation settings in cleanup")?;
-
-    mullvad_client
-        .set_block_when_disconnected(block_when_disconnected)
-        .await
-        .context("Could not set block when disconnected setting in cleanup")?;
-
-    mullvad_client
-        .clear_split_tunnel_apps()
-        .await
-        .context("Could not clear split tunnel apps in cleanup")?;
-
-    mullvad_client
-        .clear_split_tunnel_processes()
-        .await
-        .context("Could not clear split tunnel processes in cleanup")?;
-
-    mullvad_client
-        .set_dns_options(tunnel_options.dns_options.clone())
-        .await
-        .context("Could not clear dns options in cleanup")?;
-
-    mullvad_client
-        .set_quantum_resistant_tunnel(tunnel_options.wireguard.quantum_resistant)
-        .await
-        .context("Could not clear PQ options in cleanup")?;
-
-    let _ = custom_lists;
-    mullvad_client
-        .clear_custom_lists()
-        .await
-        .context("Could not remove custom list")?;
 
     Ok(())
 }
