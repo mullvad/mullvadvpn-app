@@ -159,6 +159,7 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
             cacheDirectory = cacheDir.absolutePath,
             apiEndpoint = apiEndpointConfiguration.apiEndpoint()
         )
+        Logger.i("MullvadVpnService: Daemon initialized")
     }
 
     private fun emptyBinder() =
