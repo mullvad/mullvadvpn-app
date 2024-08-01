@@ -10,11 +10,15 @@ import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.screen.MullvadApp
 import net.mullvad.mullvadvpn.di.paymentModule
 import net.mullvad.mullvadvpn.di.uiModule
 import net.mullvad.mullvadvpn.lib.common.util.SdkUtils.requestNotificationPermissionIfMissing
+import net.mullvad.mullvadvpn.lib.daemon.grpc.GrpcConnectivityState
+import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.intent.IntentProvider
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.repository.PrivacyDisclaimerRepository
@@ -40,6 +44,7 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
     private val privacyDisclaimerRepository by inject<PrivacyDisclaimerRepository>()
     private val serviceConnectionManager by inject<ServiceConnectionManager>()
     private val splashCompleteRepository by inject<SplashCompleteRepository>()
+    private val managementService by inject<ManagementService>()
 
     private var isReadyNextDraw: Boolean = false
 
@@ -76,6 +81,20 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
                     bindService()
                 }
             }
+        }
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        lifecycleScope.launch {
+            if (privacyDisclaimerRepository.hasAcceptedPrivacyDisclosure()) {
+                // If service is to be started wait for it to be connected before dismissing Splash
+                // screen
+                managementService.connectionState
+                    .filter { it is GrpcConnectivityState.Ready }
+                    .first()
+            }
+            splashCompleteRepository.onSplashCompleted()
         }
     }
 

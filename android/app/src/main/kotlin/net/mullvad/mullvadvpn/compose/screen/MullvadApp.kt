@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.navigation.NavHostController
+import co.touchlab.kermit.Logger
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.generated.NavGraphs
 import com.ramcosta.composedestinations.generated.destinations.ChangelogDestination
@@ -56,6 +57,7 @@ fun MullvadApp() {
 
     // Globally handle daemon dropped connection with NoDaemonScreen
     LaunchedEffectCollect(serviceVm.uiSideEffect) {
+        Logger.i { "DaemonScreenEvent: $it" }
         when (it) {
             DaemonScreenEvent.Show ->
                 navigator.navigate(NoDaemonDestination) { launchSingleTop = true }

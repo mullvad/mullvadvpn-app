@@ -32,6 +32,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -147,9 +148,10 @@ class ManagementService(
         channel
             .connectivityFlow()
             .map(ConnectivityState::toDomain)
+            .onEach { Logger.i("ManagementService connection state: $it") }
             .stateIn(scope, SharingStarted.Eagerly, channel.getState(false).toDomain())
 
-    private val grpc =
+    private val grpc by lazy {
         ManagementServiceGrpcKt.ManagementServiceCoroutineStub(channel)
             .withExecutor(Dispatchers.IO.asExecutor())
             .let {
@@ -158,6 +160,7 @@ class ManagementService(
                 } else it
             }
             .withWaitForReady()
+    }
 
     private val _mutableDeviceState = MutableStateFlow<ModelDeviceState?>(null)
     val deviceState: Flow<ModelDeviceState> = _mutableDeviceState.filterNotNull()
