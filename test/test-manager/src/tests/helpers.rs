@@ -86,7 +86,7 @@ pub async fn install_app(
     replace_openvpn_cert(rpc).await?;
 
     // Override env vars
-    ensure_daemon_environment(rpc).await?;
+    rpc.set_daemon_environment(get_app_env().await?).await?;
 
     // Wait for the relay list to be updated
     let mut mullvad_client = rpc_provider.new_client().await;
@@ -94,28 +94,6 @@ pub async fn install_app(
         .await
         .context("Failed to update relay list")?;
     Ok(mullvad_client)
-}
-
-/// Conditionally restart the running daemon
-///
-/// If the daemon was started with non-standard environment variables, subsequent tests may break
-/// due to assuming a default configuration. In that case, reset the environment variables and
-/// restart.
-pub async fn ensure_daemon_environment(rpc: &ServiceClient) -> Result<(), anyhow::Error> {
-    let current_env = rpc
-        .get_daemon_environment()
-        .await
-        .context("Failed to get daemon env variables")?;
-    let default_env = get_app_env()
-        .await
-        .context("Failed to get daemon default env variables")?;
-    if current_env != default_env {
-        log::debug!("Restarting daemon due changed environment variables. Values since last test {current_env:?}");
-        rpc.set_daemon_environment(default_env)
-            .await
-            .context("Failed to restart daemon")?;
-    };
-    Ok(())
 }
 
 pub async fn replace_openvpn_cert(rpc: &ServiceClient) -> Result<(), Error> {
