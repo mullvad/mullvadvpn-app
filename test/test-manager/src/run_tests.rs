@@ -1,5 +1,5 @@
 use crate::{
-    logging::{Panic, TestOutput, TestResult},
+    logging::{Logger, Panic, TestOutput, TestResult},
     mullvad_daemon::{self, MullvadClientArgument},
     summary::SummaryLogger,
     tests::{self, config::TEST_CONFIG, get_tests, TestContext},
@@ -83,6 +83,8 @@ pub async fn run(
         &mut failed_tests,
         &mut successful_tests,
         &mut summary_logger,
+        print_failed_tests_only,
+        &logger,
     )
     .await?;
 
@@ -163,19 +165,40 @@ async fn test_upgrade_app<'a>(
     failed_tests: &mut Vec<&'a str>,
     successful_tests: &mut Vec<&'a str>,
     summary_logger: &mut Option<SummaryLogger>,
+    print_failed_tests_only: bool,
+    logger: &Logger,
 ) -> Result<(), anyhow::Error> {
-    if let Some(app_to_upgrade_from) = TEST_CONFIG.app_package_to_upgrade_from_filename.as_ref() {
-        log::info!("Running 'test_upgrade_app'");
-        let test_result = if let Err(e) =
-            tests::test_upgrade_app(test_context, test_runner_client, app_to_upgrade_from).await
-        {
-            log::error!("TEST 'test_upgrade_app' RETURNED ERROR: {e:?}");
-            TestResult::Fail(e)
-        } else {
-            TestResult::Pass
-        };
+    if TEST_CONFIG.app_package_to_upgrade_from_filename.is_some() {
+        log::info!("Running test_upgrade_app");
+
+        if print_failed_tests_only {
+            // Stop live record
+            logger.store_records(true);
+        }
+
+        let test_output = run_test(
+            test_runner_client.clone(),
+            MullvadClientArgument::None,
+            &tests::test_upgrade_app,
+            "test_upgrade_app",
+            test_context.clone(),
+        )
+        .await;
+
+        if print_failed_tests_only {
+            // Print results of failed test
+            if test_output.result.failure() {
+                logger.print_stored_records();
+            } else {
+                logger.flush_records();
+            }
+            logger.store_records(false);
+        }
+
+        test_output.print();
+
         register_test_result(
-            test_result,
+            test_output.result,
             failed_tests,
             "test_upgrade_app",
             successful_tests,
