@@ -6,7 +6,7 @@ use mullvad_types::{constraints::Constraint, relay_constraints};
 use test_macro::test_function;
 use test_rpc::{mullvad_daemon::ServiceStatus, ServiceClient};
 
-use crate::tests::helpers;
+use crate::{mullvad_daemon::MullvadClientArgument, tests::helpers};
 
 use super::{
     config::TEST_CONFIG,
@@ -23,14 +23,21 @@ use super::{
 /// * The installer does not successfully complete.
 /// * The VPN service is not running after the upgrade.
 pub async fn test_upgrade_app(
-    ctx: &TestContext,
-    rpc: &ServiceClient,
-    app_to_upgrade_from: &str,
+    ctx: TestContext,
+    rpc: ServiceClient,
+    _mullvad_client: MullvadClientArgument,
 ) -> anyhow::Result<()> {
     // Install the older version of the app and verify that it is running.
-    install_app(rpc, app_to_upgrade_from, &ctx.rpc_provider)
-        .await
-        .context("Failed to install previous app version")?;
+    install_app(
+        &rpc,
+        TEST_CONFIG
+            .app_package_to_upgrade_from_filename
+            .as_ref()
+            .unwrap(),
+        &ctx.rpc_provider,
+    )
+    .await
+    .context("Failed to install previous app version")?;
 
     // Verify that daemon is running
     if rpc.mullvad_daemon_get_status().await? != ServiceStatus::Running {
@@ -85,7 +92,7 @@ pub async fn test_upgrade_app(
 
     // Begin monitoring outgoing traffic and pinging
     //
-    let pinger = Pinger::start(rpc).await;
+    let pinger = Pinger::start(&rpc).await;
 
     // install new package
 
