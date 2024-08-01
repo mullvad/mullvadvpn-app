@@ -1,5 +1,6 @@
 use crate::config::{Architecture, OsType, PackageType, VmConfig};
 use anyhow::{Context, Result};
+use itertools::Itertools;
 use once_cell::sync::Lazy;
 use regex::Regex;
 use std::path::{Path, PathBuf};
@@ -124,6 +125,7 @@ fn find_app(
             // Skip for non-Linux, because there's only one package
             !linux || matching_ident
         }) // Skip file if it doesn't match the architecture
+        .sorted_unstable_by_key(|(_path, u8_path)| u8_path.len())
         .find(|(_path, u8_path)| u8_path.contains(&app)) //  Find match
         .map(|(path, _)| path).context(if e2e_bin {
             format!(
