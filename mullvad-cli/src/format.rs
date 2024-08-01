@@ -33,7 +33,10 @@ pub fn print_state(state: &TunnelState, verbose: bool) {
                 format_relay_connection(endpoint, location.as_ref(), verbose)
             );
             if verbose {
-                println!("Using {}", format_feature_indicators(feature_indicators));
+                println!(
+                    "Active features: {}",
+                    format_feature_indicators(feature_indicators)
+                );
                 if let Some(tunnel_interface) = &endpoint.tunnel_interface {
                     println!("Tunnel interface: {tunnel_interface}")
                 }
@@ -181,18 +184,14 @@ fn format_relay_connection(
     };
 
     let mut bridge_type = String::new();
-    let mut obfuscator_type = String::new();
     if verbose {
         if let Some(bridge) = &endpoint.proxy {
             bridge_type = format!("\nBridge type: {}", bridge.proxy_type);
         }
-        if let Some(obfuscator) = &endpoint.obfuscation {
-            obfuscator_type = format!("\nObfuscator: {}", obfuscator.obfuscation_type);
-        }
     }
 
     format!(
-        "{exit_endpoint}{first_hop}{bridge}{obfuscator}{tunnel_type}{bridge_type}{obfuscator_type}",
+        "{exit_endpoint}{first_hop}{bridge}{obfuscator}{tunnel_type}{bridge_type}",
         first_hop = first_hop.unwrap_or_default(),
         bridge = bridge.unwrap_or_default(),
         obfuscator = obfuscator.unwrap_or_default(),
