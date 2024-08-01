@@ -5,6 +5,7 @@ pub mod constraints;
 pub mod custom_list;
 pub mod device;
 pub mod endpoint;
+pub mod features;
 pub mod location;
 pub mod relay_constraints;
 pub mod relay_list;
