@@ -6,6 +6,8 @@ use mullvad_types::{constraints::Constraint, relay_constraints};
 use test_macro::test_function;
 use test_rpc::{mullvad_daemon::ServiceStatus, ServiceClient};
 
+use crate::tests::helpers;
+
 use super::{
     config::TEST_CONFIG,
     helpers::{
@@ -86,10 +88,18 @@ pub async fn test_upgrade_app(
     let pinger = Pinger::start(rpc).await;
 
     // install new package
-    let mut mullvad_client = install_app(rpc, &TEST_CONFIG.app_package_filename, &ctx.rpc_provider)
-        .await
-        .context("Failed to install new app version")?;
 
+    log::debug!("Installing new app");
+    rpc.install_app(helpers::get_package_desc(&TEST_CONFIG.app_package_filename))
+        .await?;
+
+    // Give it some time to start
+    tokio::time::sleep(Duration::from_secs(3)).await;
+
+    // verify that daemon is running
+    if rpc.mullvad_daemon_get_status().await? != ServiceStatus::Running {
+        bail!(Error::DaemonNotRunning);
+    }
     // Check if any traffic was observed
     //
     let guest_ip = pinger.guest_ip;
@@ -98,6 +108,10 @@ pub async fn test_upgrade_app(
         monitor_result.packets.is_empty(),
         "observed unexpected packets from {guest_ip}"
     );
+
+    // NOTE: Need to create a new `mullvad_client` here after the restart
+    // otherwise we *probably* can't communicate with the daemon.
+    let mut mullvad_client = ctx.rpc_provider.new_client().await;
 
     // check if settings were (partially) preserved
     log::info!("Sanity checking settings");

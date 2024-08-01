@@ -20,7 +20,7 @@ use crate::{
 };
 use anyhow::Context;
 use config::TEST_CONFIG;
-use helpers::install_app;
+use helpers::{get_app_env, install_app};
 pub use install::test_upgrade_app;
 use mullvad_management_interface::MullvadProxyClient;
 pub use test_metadata::TestMetadata;
@@ -78,17 +78,15 @@ pub fn get_tests() -> Vec<&'static TestMetadata> {
     tests
 }
 
-/// Make sure the daemon is installed and logged in. and restore settings to the defaults.
+/// Make sure the daemon is installed and logged in and restore settings to the defaults.
 pub async fn prepare_daemon(
     rpc: &ServiceClient,
     rpc_provider: &RpcClientProvider,
 ) -> anyhow::Result<()> {
     // Check if daemon should be restarted
-    let mut mullvad_client = restart_daemon(rpc, rpc_provider)
+    let mut mullvad_client = ensure_daemon_version(rpc, rpc_provider)
         .await
         .context("Failed to restart daemon")?;
-
-    helpers::ensure_logged_in(&mut mullvad_client).await?;
 
     log::debug!("Resetting daemon settings before test");
     mullvad_client
@@ -98,6 +96,7 @@ pub async fn prepare_daemon(
     helpers::disconnect_and_wait(&mut mullvad_client)
         .await
         .context("Failed to disconnect daemon after test")?;
+    helpers::ensure_logged_in(&mut mullvad_client).await?;
 
     Ok(())
 }
@@ -105,35 +104,69 @@ pub async fn prepare_daemon(
 /// Reset the daemons environment.
 ///
 /// Will and restart or reinstall it if necessary.
-async fn restart_daemon(
+async fn ensure_daemon_version(
     rpc: &ServiceClient,
     rpc_provider: &RpcClientProvider,
 ) -> anyhow::Result<MullvadProxyClient> {
-    let mut mullvad_client = rpc_provider.new_client().await;
     let app_package_filename = &TEST_CONFIG.app_package_filename;
+
+    let mullvad_client = if correct_daemon_version_is_running(rpc_provider.new_client().await).await
+    {
+        ensure_daemon_environment(rpc)
+            .await
+            .context("Failed to reset daemon environment")?;
+        rpc_provider.new_client().await
+    } else {
+        // NOTE: Reinstalling the app resets the daemon environment
+        install_app(rpc, app_package_filename, rpc_provider)
+            .await
+            .with_context(|| format!("Failed to install app '{app_package_filename}'"))?
+    };
+    Ok(mullvad_client)
+}
+
+/// Conditionally restart the running daemon
+///
+/// If the daemon was started with non-standard environment variables, subsequent tests may break
+/// due to assuming a default configuration. In that case, reset the environment variables and
+/// restart.
+pub async fn ensure_daemon_environment(rpc: &ServiceClient) -> Result<(), anyhow::Error> {
+    let current_env = rpc
+        .get_daemon_environment()
+        .await
+        .context("Failed to get daemon env variables")?;
+    let default_env = get_app_env()
+        .await
+        .context("Failed to get daemon default env variables")?;
+    if current_env != default_env {
+        log::debug!("Restarting daemon due changed environment variables. Values since last test {current_env:?}");
+        rpc.set_daemon_environment(default_env)
+            .await
+            .context("Failed to restart daemon")?;
+    };
+    Ok(())
+}
+
+/// Reset the daemons environment.
+///
+/// Will and restart or reinstall it if necessary.
+async fn correct_daemon_version_is_running(mut mullvad_client: MullvadProxyClient) -> bool {
+    let app_package_filename = &TEST_CONFIG.app_package_filename;
+    let expected_version = get_version_from_path(std::path::Path::new(app_package_filename))
+        .unwrap_or_else(|_| panic!("Invalid app version: {app_package_filename}"));
 
     use mullvad_management_interface::Error::*;
     match mullvad_client.get_current_version().await {
         // Failing to reach the daemon is a sign that it is not installed
         Err(Rpc(..)) => {
-            log::info!("Could not reach active daemon before test, (re)installing app");
-            // NOTE: Reinstalling the app resets the daemon environment
-            mullvad_client = install_app(rpc, app_package_filename, rpc_provider)
-                .await
-                .with_context(|| format!("Failed to install app '{app_package_filename}'"))?;
+            log::info!("Could not reach active daemon before test");
+            false
         }
-        Err(e) => return Err(anyhow::anyhow!(e).context("Failed to get app version")),
-        Ok(version) => {
-            if version != get_version_from_path(std::path::Path::new(app_package_filename))? {
-                log::info!("Daemon version mismatch, re-installing app");
-                mullvad_client = install_app(rpc, app_package_filename, rpc_provider)
-                    .await
-                    .context("Failed to install app")?;
-            }
-            helpers::ensure_daemon_environment(rpc)
-                .await
-                .context("Failed to reset daemon environment")?;
+        Err(e) => panic!("Failed to get app version: {e}"),
+        Ok(version) if version == expected_version => true,
+        _ => {
+            log::info!("Daemon version mismatch");
+            false
         }
     }
-    Ok(mullvad_client)
 }

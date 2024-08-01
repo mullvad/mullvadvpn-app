@@ -111,11 +111,6 @@ pub async fn test_revoked_device(
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> anyhow::Result<()> {
-    log::info!("Logging in/generating device");
-    login_with_retries(&mut mullvad_client)
-        .await
-        .context("login failed")?;
-
     let device_id = mullvad_client
         .get_device()
         .await
