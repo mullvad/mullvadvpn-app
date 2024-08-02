@@ -83,18 +83,21 @@ pub async fn cleanup_after_test(
     rpc_provider: &RpcClientProvider,
 ) -> anyhow::Result<()> {
     log::debug!("Resetting daemon settings after test");
-    // Check if daemon should be restarted.
-    have_you_tried_turning_it_off_and_on_again(rpc).await?;
     let mut mullvad_client = rpc_provider.new_client().await;
+    // Reset the daemon settings
     mullvad_client
         .reset_settings()
         .await
         .context("Failed to reset settings")?;
+    // Restart the daemon (if needed)
+    have_you_tried_turning_it_off_and_on_again(rpc).await?;
     helpers::disconnect_and_wait(&mut mullvad_client).await?;
     Ok(())
 }
 
-/// TODO: Document
+/// Restart the daemon _robustly_. Try to recover from any error that may arise during restart.
+/// This could lead to the entire test runner being rebooted in an attempt to recover from a broken
+/// environment.
 async fn have_you_tried_turning_it_off_and_on_again(mut rpc: ServiceClient) -> anyhow::Result<()> {
     if let Err(daemon_restart_error) = restart_daemon(&rpc).await {
         match daemon_restart_error {
