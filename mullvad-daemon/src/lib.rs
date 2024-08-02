@@ -37,6 +37,7 @@ use futures::{
     StreamExt,
 };
 use geoip::GeoIpHandler;
+use management_interface::ManagementInterfaceServer;
 use mullvad_relay_selector::{
     AdditionalRelayConstraints, AdditionalWireguardConstraints, RelaySelector, SelectorConfig,
 };
@@ -583,6 +584,7 @@ pub struct Daemon<L: EventListener> {
     tx: DaemonEventSender,
     reconnection_job: Option<AbortHandle>,
     event_listener: L,
+    rpc_server: ManagementInterfaceServer,
     migration_complete: migrations::MigrationComplete,
     settings: SettingsPersister,
     account_history: account_history::AccountHistory,
@@ -606,12 +608,14 @@ impl<L> Daemon<L>
 where
     L: EventListener,
 {
+    #[allow(clippy::too_many_arguments)]
     pub async fn start(
         log_dir: Option<PathBuf>,
         resource_dir: PathBuf,
         settings_dir: PathBuf,
         cache_dir: PathBuf,
         event_listener: L,
+        rpc_server: ManagementInterfaceServer,
         command_channel: DaemonCommandChannel,
         #[cfg(target_os = "android")] android_context: AndroidContext,
     ) -> Result<Self, Error> {
@@ -845,6 +849,7 @@ where
             tx: internal_event_tx,
             reconnection_job: None,
             event_listener,
+            rpc_server,
             migration_complete,
             settings,
             account_history,
@@ -916,6 +921,7 @@ where
     async fn finalize(self) {
         let Daemon {
             event_listener,
+            rpc_server,
             shutdown_tasks,
             api_runtime,
             tunnel_state_machine_handle,
@@ -932,6 +938,8 @@ where
         account_manager.shutdown().await;
 
         tunnel_state_machine_handle.try_join().await;
+        // Wait for gRPC server to shut down
+        rpc_server.stop().await;
 
         drop(event_listener);
         drop(api_runtime);

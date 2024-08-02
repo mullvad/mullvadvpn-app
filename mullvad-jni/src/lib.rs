@@ -189,8 +189,9 @@ async fn spawn_daemon_inner(
 ) -> Result<tokio::task::JoinHandle<()>, Error> {
     cleanup_old_rpc_socket(&rpc_socket).await;
 
-    let event_listener = ManagementInterfaceServer::start(command_channel.sender(), &rpc_socket)
-        .map_err(Error::SpawnManagementInterface)?;
+    let (event_listener, rpc_server) =
+        ManagementInterfaceServer::start(command_channel.sender(), &rpc_socket)
+            .map_err(Error::SpawnManagementInterface)?;
 
     log::info!("Management interface listening on {}", rpc_socket.display());
 
@@ -200,6 +201,7 @@ async fn spawn_daemon_inner(
         files_dir,
         cache_dir,
         event_listener,
+        rpc_server,
         command_channel,
         android_context,
     )
