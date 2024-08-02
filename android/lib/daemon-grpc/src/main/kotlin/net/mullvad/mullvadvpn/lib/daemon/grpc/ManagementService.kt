@@ -194,7 +194,6 @@ class ManagementService(
             error("ManagementService already started")
         }
 
-        channel.resetConnectBackoff()
         job = scope.launch { subscribeEvents() }
     }
 
@@ -204,6 +203,9 @@ class ManagementService(
         job = null
     }
 
+    fun enterIdle() {
+        channel.enterIdle()
+    }
     private suspend fun subscribeEvents() =
         withContext(Dispatchers.IO) {
             launch {
