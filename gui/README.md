@@ -24,17 +24,17 @@ The app has unit tests and integration tests located in test/:
 
 The tests in **test/e2e/installed** are run against the already installed app using the currently
 running daemon. It's possible to run these tests on any machine with the app installed by running
-```
+```bash
 npm run e2e:sequential installed/<test>
 ```
 or without building by running
-```
+```bash
 npm run e2e:sequential:no-build installed/<test>
 ```
 
 It is also possible to build these tests along with all its dependencies into an executable that can
 be run on any computer that has the app installed. The command for building the test executable is:
-```
+```bash
 npm run build-test-executable
 ```
 The executable for all platforms are outputted to `/dist/`.
@@ -43,7 +43,7 @@ The build is configured in `standalone-tests.ts`
 
 The artifact can be run by either calling without arguments or with specific tests. A lot of the
 tests are depending on the daemon already being in a specific state and will fail if it's not.
-```
+```bash
 ./mullvadvpn-app-e2e-tests-linux state-dependent/location.spec
 ```
 
