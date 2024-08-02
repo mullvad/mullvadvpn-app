@@ -207,7 +207,8 @@ async fn create_daemon(
         .map_err(|e| e.display_chain_with_msg("Unable to get cache dir"))?;
 
     let command_channel = DaemonCommandChannel::new();
-    let event_listener = spawn_management_interface(command_channel.sender(), rpc_socket_path)?;
+    let (event_listener, rpc_server) =
+        spawn_management_interface(command_channel.sender(), rpc_socket_path)?;
 
     Daemon::start(
         log_dir,
@@ -215,6 +216,7 @@ async fn create_daemon(
         settings_dir,
         cache_dir,
         event_listener,
+        rpc_server,
         command_channel,
     )
     .await
@@ -224,9 +226,15 @@ async fn create_daemon(
 fn spawn_management_interface(
     command_sender: DaemonCommandSender,
     rpc_socket_path: impl AsRef<Path>,
-) -> Result<ManagementInterfaceEventBroadcaster, String> {
-    let event_broadcaster = ManagementInterfaceServer::start(command_sender, &rpc_socket_path)
-        .map_err(|error| {
+) -> Result<
+    (
+        ManagementInterfaceEventBroadcaster,
+        ManagementInterfaceServer,
+    ),
+    String,
+> {
+    let (event_broadcaster, server) =
+        ManagementInterfaceServer::start(command_sender, &rpc_socket_path).map_err(|error| {
             error.display_chain_with_msg("Unable to start management interface server")
         })?;
 
@@ -235,7 +243,7 @@ fn spawn_management_interface(
         rpc_socket_path.as_ref().display()
     );
 
-    Ok(event_broadcaster)
+    Ok((event_broadcaster, server))
 }
 
 #[cfg(unix)]

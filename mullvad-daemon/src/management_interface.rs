@@ -8,7 +8,7 @@ use futures::{
 use mullvad_api::{rest::Error as RestError, StatusCode};
 use mullvad_management_interface::{
     types::{self, daemon_event, management_service_server::ManagementService},
-    Code, Request, Response, Status,
+    Code, Request, Response, ServerJoinHandle, Status,
 };
 use mullvad_types::{
     account::AccountToken,
@@ -28,7 +28,10 @@ use std::{
     time::Duration,
 };
 use talpid_types::ErrorExt;
+use tokio::time::timeout;
 use tokio_stream::wrappers::UnboundedReceiverStream;
+
+const RPC_SERVER_SHUTDOWN_TIMEOUT: Duration = Duration::from_secs(1);
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -1054,21 +1057,37 @@ impl ManagementServiceImpl {
     }
 }
 
-pub struct ManagementInterfaceServer(());
+/// The running management interface serving gRPC requests.
+pub struct ManagementInterfaceServer {
+    /// The rpc server spawned by [`Self::start`]. When the underlying join handle yields, the rpc
+    /// server has shutdown.
+    rpc_server_join_handle: ServerJoinHandle,
+    /// Channel used to signal the running gRPC server to shutdown. This needs to be done before
+    /// awaiting trying to join [`Self::rpc_server_join_handle`].
+    server_abort_tx: mpsc::Sender<()>,
+}
 
 impl ManagementInterfaceServer {
     pub fn start(
         tunnel_tx: DaemonCommandSender,
         rpc_socket_path: impl AsRef<Path>,
-    ) -> Result<ManagementInterfaceEventBroadcaster, Error> {
+    ) -> Result<
+        (
+            ManagementInterfaceEventBroadcaster,
+            ManagementInterfaceServer,
+        ),
+        Error,
+    > {
         let subscriptions = Arc::<Mutex<Vec<EventsListenerSender>>>::default();
-
+        // NOTE: It is important that the channel buffer size is kept at 0. When sending a signal
+        // to abort the gRPC server, the sender can be awaited to know when the gRPC server has
+        // received and started processing the shutdown signal.
         let (server_abort_tx, server_abort_rx) = mpsc::channel(0);
         let server = ManagementServiceImpl {
             daemon_tx: tunnel_tx,
             subscriptions: subscriptions.clone(),
         };
-        let join_handle = mullvad_management_interface::spawn_rpc_server(
+        let rpc_server_join_handle = mullvad_management_interface::spawn_rpc_server(
             server,
             async move {
                 server_abort_rx.into_future().await;
@@ -1077,17 +1096,42 @@ impl ManagementInterfaceServer {
         )
         .map_err(Error::SetupError)?;
 
-        tokio::spawn(async move {
-            if let Err(error) = join_handle.await {
-                log::error!("Management server panic: {}", error);
-            }
-            log::info!("Management interface shut down");
-        });
+        let server = Self {
+            rpc_server_join_handle,
+            server_abort_tx,
+        };
 
-        Ok(ManagementInterfaceEventBroadcaster {
-            subscriptions,
-            _close_handle: server_abort_tx,
-        })
+        Ok((
+            ManagementInterfaceEventBroadcaster { subscriptions },
+            server,
+        ))
+    }
+
+    /// Wait for the server to shut down gracefully. If that does not happend within [`RPC_SERVER_SHUTDOWN_TIMEOUT`],
+    /// the gRPC server is aborted and we yield the async execution.
+    pub async fn stop(mut self) {
+        use futures::SinkExt;
+        // Send a singal to the underlying RPC server to shut down.
+        let _ = self.server_abort_tx.send(()).await;
+
+        match timeout(RPC_SERVER_SHUTDOWN_TIMEOUT, self.rpc_server_join_handle).await {
+            // Joining the rpc server handle timed out
+            Err(timeout) => {
+                log::error!("Timed out while shutting down management server: {timeout}");
+            }
+            Ok(join_result) => match join_result {
+                // Joining the rpc server handle failed
+                Err(_join_error) => {
+                    log::error!("Management server task failed to execute until completion");
+                }
+                Ok(execution_result) => {
+                    if let Err(management_server_error) = execution_result {
+                        // The underlying rpc server failed to shut down gracefully
+                        log::error!("Management server panic: {management_server_error}");
+                    }
+                }
+            },
+        }
     }
 }
 
@@ -1095,7 +1139,6 @@ impl ManagementInterfaceServer {
 #[derive(Clone)]
 pub struct ManagementInterfaceEventBroadcaster {
     subscriptions: Arc<Mutex<Vec<EventsListenerSender>>>,
-    _close_handle: mpsc::Sender<()>,
 }
 
 impl EventListener for ManagementInterfaceEventBroadcaster {
