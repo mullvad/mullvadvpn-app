@@ -91,12 +91,14 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
         // TODO We should avoid lifecycleScope.launch (current needed due to InetSocketAddress
         // with intent from API)
         lifecycleScope.launch(context = Dispatchers.IO) {
-            managementService.start()
-
             prepareFiles(this@MullvadVpnService)
             migrateSplitTunneling.migrate()
 
+            Logger.d("Start daemon")
             startDaemon()
+
+            Logger.d("Start management service")
+            managementService.start()
         }
     }
 
@@ -206,9 +208,10 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
 
     override fun onDestroy() {
         Logger.i("MullvadVpnService: onDestroy")
+        // Shutting down the daemon gracefully
         managementService.stop()
 
-        // Shutting down the daemon gracefully
+        Logger.i("Shutdown MullvadDaemon")
         MullvadDaemon.shutdown()
         super.onDestroy()
     }
