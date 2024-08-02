@@ -194,6 +194,7 @@ class ManagementService(
             error("ManagementService already started")
         }
 
+        channel.resetConnectBackoff()
         job = scope.launch { subscribeEvents() }
     }
 
