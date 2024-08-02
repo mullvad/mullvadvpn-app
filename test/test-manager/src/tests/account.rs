@@ -142,8 +142,8 @@ pub async fn test_revoked_device(
         .get_device()
         .await
         .context("failed to get device data")?
-        .into_device()
-        .unwrap()
+        .logged_in()
+        .context("Client is not logged in to a valid account")?
         .device
         .id;
 
@@ -215,8 +215,8 @@ pub async fn test_automatic_wireguard_rotation(
     let old_key = mullvad_client
         .get_device()
         .await?
-        .into_device()
-        .context("Could not get device")?
+        .logged_in()
+        .context("Client is not logged in to a valid account")?
         .device
         .pubkey;
 
@@ -248,8 +248,8 @@ pub async fn test_automatic_wireguard_rotation(
     let new_key = mullvad_client
         .get_device()
         .await?
-        .into_device()
-        .context("Could not get device")?
+        .logged_in()
+        .context("Client is not logged in to a valid account")?
         .device
         .pubkey;
 
