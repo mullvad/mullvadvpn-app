@@ -78,9 +78,9 @@ impl From<mullvad_types::device::DeviceState> for proto::DeviceState {
     fn from(state: mullvad_types::device::DeviceState) -> Self {
         proto::DeviceState {
             state: proto::device_state::State::from(&state) as i32,
-            device: state.into_device().map(|device| proto::AccountAndDevice {
-                account_token: device.account_token,
-                device: Some(proto::Device::from(device.device)),
+            device: state.logged_in().map(|client| proto::AccountAndDevice {
+                account_token: client.account_token,
+                device: Some(proto::Device::from(client.device)),
             }),
         }
     }

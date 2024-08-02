@@ -209,8 +209,8 @@ pub async fn test_uninstall_app(
         .get_device()
         .await
         .context("failed to get device data")?
-        .into_device()
-        .context("failed to get device")?
+        .logged_in()
+        .context("Client is not logged in to a valid account")?
         .device
         .id;
 
