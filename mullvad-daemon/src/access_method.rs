@@ -1,4 +1,4 @@
-use crate::{api, settings, Daemon, EventListener};
+use crate::{api, settings, Daemon};
 use mullvad_api::{proxy::ApiConnectionMode, rest, ApiProxy};
 use mullvad_types::{
     access_method::{self, AccessMethod, AccessMethodSetting},
@@ -28,10 +28,7 @@ pub enum Error {
     Settings(#[from] settings::Error),
 }
 
-impl<L> Daemon<L>
-where
-    L: EventListener,
-{
+impl Daemon {
     /// Add a [`AccessMethod`] to the daemon's settings.
     ///
     /// If the daemon settings are successfully updated, the
