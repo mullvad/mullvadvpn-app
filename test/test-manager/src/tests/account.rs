@@ -265,19 +265,32 @@ pub async fn test_automatic_wireguard_rotation(
             DaemonEvent::Device(device_event) => Some(device_event),
             _ => None,
         };
-        let device_event = tokio::task::spawn(tokio::time::timeout(
+        let device_event_listener = tokio::time::timeout(
             Duration::from_secs(100),
             helpers::find_daemon_event(event_listener, device_event),
-        ))
-        .await?
-        .context("Tunnel event listener timed out")??;
-
-        let new_key = device_event
-            .new_state
-            .into_device()
-            .context("Could not get device")?
-            .device
-            .pubkey;
+        );
+        let new_key = match device_event_listener.await {
+            Err(err) => {
+                log::warn!("{err}");
+                log::warn!(
+                    "Did not observe any daemon event indicating that a key rotation happened"
+                );
+                // Note: The key rotation could possible have happened without us noticing due to
+                // some raceiness in the timeframe between starting the daemon and us starting to
+                // listen for new daemon events. Thus, it is probably a good idea to check manually if the
+                // device key was rotated.
+                log::info!("Manually checking if device key was rotated");
+                mullvad_client
+                    .get_device()
+                    .await
+                    .context("Failed to get device data")?
+            }
+            Ok(device_event) => device_event?.new_state,
+        }
+        .logged_in()
+        .context("Client is not logged in to a valid account")?
+        .device
+        .pubkey;
 
         assert_ne!(old_key, new_key);
     }
