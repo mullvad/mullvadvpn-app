@@ -37,7 +37,7 @@ use futures::{
     StreamExt,
 };
 use geoip::GeoIpHandler;
-use management_interface::ManagementInterfaceServer;
+use management_interface::{ManagementInterfaceEventBroadcaster, ManagementInterfaceServer};
 use mullvad_relay_selector::{
     AdditionalRelayConstraints, AdditionalWireguardConstraints, RelaySelector, SelectorConfig,
 };
@@ -111,6 +111,9 @@ pub enum Error {
 
     #[error("REST request failed")]
     RestError(#[source] mullvad_api::rest::Error),
+
+    #[error("Management interface error")]
+    ManagementInterfaceError(#[source] management_interface::Error),
 
     #[error("API availability check failed")]
     ApiCheckError(#[source] mullvad_api::availability::Error),
@@ -550,32 +553,7 @@ where
     }
 }
 
-/// Trait representing something that can broadcast daemon events.
-pub trait EventListener: Clone + Send + Sync + 'static {
-    /// Notify that the tunnel state changed.
-    fn notify_new_state(&self, new_state: TunnelState);
-
-    /// Notify that the settings changed.
-    fn notify_settings(&self, settings: Settings);
-
-    /// Notify that the relay list changed.
-    fn notify_relay_list(&self, relay_list: RelayList);
-
-    /// Notify that info about the latest available app version changed.
-    /// Or some flag about the currently running version is changed.
-    fn notify_app_version(&self, app_version_info: AppVersionInfo);
-
-    /// Notify that device changed (login, logout, or key rotation).
-    fn notify_device_event(&self, event: DeviceEvent);
-
-    /// Notify that a device was revoked using `RemoveDevice`.
-    fn notify_remove_device_event(&self, event: RemoveDeviceEvent);
-
-    /// Notify that the api access method changed.
-    fn notify_new_access_method_event(&self, new_access_method: AccessMethodSetting);
-}
-
-pub struct Daemon<L: EventListener> {
+pub struct Daemon {
     tunnel_state: TunnelState,
     target_state: PersistentTargetState,
     #[cfg(target_os = "linux")]
@@ -583,7 +561,7 @@ pub struct Daemon<L: EventListener> {
     rx: mpsc::UnboundedReceiver<InternalDaemonEvent>,
     tx: DaemonEventSender,
     reconnection_job: Option<AbortHandle>,
-    event_listener: L,
+    event_listener: ManagementInterfaceEventBroadcaster,
     rpc_server: ManagementInterfaceServer,
     migration_complete: migrations::MigrationComplete,
     settings: SettingsPersister,
@@ -604,28 +582,29 @@ pub struct Daemon<L: EventListener> {
     location_handler: GeoIpHandler,
 }
 
-impl<L> Daemon<L>
-where
-    L: EventListener,
-{
+impl Daemon {
     #[allow(clippy::too_many_arguments)]
     pub async fn start(
         log_dir: Option<PathBuf>,
         resource_dir: PathBuf,
         settings_dir: PathBuf,
         cache_dir: PathBuf,
-        event_listener: L,
-        rpc_server: ManagementInterfaceServer,
-        command_channel: DaemonCommandChannel,
+        rpc_socket_path: PathBuf,
         #[cfg(target_os = "android")] android_context: AndroidContext,
     ) -> Result<Self, Error> {
         #[cfg(target_os = "macos")]
         macos::bump_filehandle_limit();
 
-        mullvad_api::proxy::ApiConnectionMode::try_delete_cache(&cache_dir).await;
+        let command_channel = DaemonCommandChannel::new();
+        let command_sender = command_channel.sender();
+
+        let (event_listener, rpc_server) =
+            ManagementInterfaceServer::start(command_sender, rpc_socket_path)
+                .map_err(Error::ManagementInterfaceError)?;
 
         let (internal_event_tx, internal_event_rx) = command_channel.destructure();
 
+        mullvad_api::proxy::ApiConnectionMode::try_delete_cache(&cache_dir).await;
         let api_runtime = mullvad_api::Runtime::with_cache(
             &cache_dir,
             true,

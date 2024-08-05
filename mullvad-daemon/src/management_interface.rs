@@ -1,6 +1,4 @@
-use crate::{
-    account_history, device, version_check, DaemonCommand, DaemonCommandSender, EventListener,
-};
+use crate::{account_history, device, version_check, DaemonCommand, DaemonCommandSender};
 use futures::{
     channel::{mpsc, oneshot},
     StreamExt,
@@ -1069,7 +1067,7 @@ pub struct ManagementInterfaceServer {
 
 impl ManagementInterfaceServer {
     pub fn start(
-        tunnel_tx: DaemonCommandSender,
+        daemon_tx: DaemonCommandSender,
         rpc_socket_path: impl AsRef<Path>,
     ) -> Result<
         (
@@ -1084,7 +1082,7 @@ impl ManagementInterfaceServer {
         // received and started processing the shutdown signal.
         let (server_abort_tx, server_abort_rx) = mpsc::channel(0);
         let server = ManagementServiceImpl {
-            daemon_tx: tunnel_tx,
+            daemon_tx,
             subscriptions: subscriptions.clone(),
         };
         let rpc_server_join_handle = mullvad_management_interface::spawn_rpc_server(
@@ -1092,18 +1090,21 @@ impl ManagementInterfaceServer {
             async move {
                 server_abort_rx.into_future().await;
             },
-            rpc_socket_path,
+            &rpc_socket_path,
         )
         .map_err(Error::SetupError)?;
 
-        let server = Self {
-            rpc_server_join_handle,
-            server_abort_tx,
-        };
+        log::info!(
+            "Management interface listening on {}",
+            rpc_socket_path.as_ref().display()
+        );
 
         Ok((
             ManagementInterfaceEventBroadcaster { subscriptions },
-            server,
+            ManagementInterfaceServer {
+                rpc_server_join_handle,
+                server_abort_tx,
+            },
         ))
     }
 
@@ -1141,9 +1142,16 @@ pub struct ManagementInterfaceEventBroadcaster {
     subscriptions: Arc<Mutex<Vec<EventsListenerSender>>>,
 }
 
-impl EventListener for ManagementInterfaceEventBroadcaster {
+impl ManagementInterfaceEventBroadcaster {
+    fn notify(&self, value: types::DaemonEvent) {
+        let mut subscriptions = self.subscriptions.lock().unwrap();
+        subscriptions.retain(|tx| tx.send(Ok(value.clone())).is_ok());
+    }
+
+    /// Notify that the tunnel state changed.
+    ///
     /// Sends a new state update to all `new_state` subscribers of the management interface.
-    fn notify_new_state(&self, new_state: TunnelState) {
+    pub(crate) fn notify_new_state(&self, new_state: TunnelState) {
         self.notify(types::DaemonEvent {
             event: Some(daemon_event::Event::TunnelState(types::TunnelState::from(
                 new_state,
@@ -1151,8 +1159,10 @@ impl EventListener for ManagementInterfaceEventBroadcaster {
         })
     }
 
+    /// Notify that the settings changed.
+    ///
     /// Sends settings to all `settings` subscribers of the management interface.
-    fn notify_settings(&self, settings: Settings) {
+    pub(crate) fn notify_settings(&self, settings: Settings) {
         log::debug!("Broadcasting new settings");
         self.notify(types::DaemonEvent {
             event: Some(daemon_event::Event::Settings(types::Settings::from(
@@ -1161,8 +1171,10 @@ impl EventListener for ManagementInterfaceEventBroadcaster {
         })
     }
 
+    /// Notify that the relay list changed.
+    ///
     /// Sends relays to all subscribers of the management interface.
-    fn notify_relay_list(&self, relay_list: RelayList) {
+    pub(crate) fn notify_relay_list(&self, relay_list: RelayList) {
         log::debug!("Broadcasting new relay list");
         self.notify(types::DaemonEvent {
             event: Some(daemon_event::Event::RelayList(types::RelayList::from(
@@ -1171,7 +1183,9 @@ impl EventListener for ManagementInterfaceEventBroadcaster {
         })
     }
 
-    fn notify_app_version(&self, app_version_info: version::AppVersionInfo) {
+    /// Notify that info about the latest available app version changed.
+    /// Or some flag about the currently running version is changed.
+    pub(crate) fn notify_app_version(&self, app_version_info: version::AppVersionInfo) {
         log::debug!("Broadcasting new app version info");
         self.notify(types::DaemonEvent {
             event: Some(daemon_event::Event::VersionInfo(
@@ -1180,7 +1194,8 @@ impl EventListener for ManagementInterfaceEventBroadcaster {
         })
     }
 
-    fn notify_device_event(&self, device: mullvad_types::device::DeviceEvent) {
+    /// Notify that device changed (login, logout, or key rotation).
+    pub(crate) fn notify_device_event(&self, device: mullvad_types::device::DeviceEvent) {
         log::debug!("Broadcasting device event");
         self.notify(types::DaemonEvent {
             event: Some(daemon_event::Event::Device(types::DeviceEvent::from(
@@ -1189,7 +1204,11 @@ impl EventListener for ManagementInterfaceEventBroadcaster {
         })
     }
 
-    fn notify_remove_device_event(&self, remove_event: mullvad_types::device::RemoveDeviceEvent) {
+    /// Notify that a device was revoked using `RemoveDevice`.
+    pub(crate) fn notify_remove_device_event(
+        &self,
+        remove_event: mullvad_types::device::RemoveDeviceEvent,
+    ) {
         log::debug!("Broadcasting remove device event");
         self.notify(types::DaemonEvent {
             event: Some(daemon_event::Event::RemoveDevice(
@@ -1198,7 +1217,8 @@ impl EventListener for ManagementInterfaceEventBroadcaster {
         })
     }
 
-    fn notify_new_access_method_event(
+    /// Notify that the api access method changed.
+    pub(crate) fn notify_new_access_method_event(
         &self,
         new_access_method: mullvad_types::access_method::AccessMethodSetting,
     ) {
@@ -1208,13 +1228,6 @@ impl EventListener for ManagementInterfaceEventBroadcaster {
                 types::AccessMethodSetting::from(new_access_method),
             )),
         })
-    }
-}
-
-impl ManagementInterfaceEventBroadcaster {
-    fn notify(&self, value: types::DaemonEvent) {
-        let mut subscriptions = self.subscriptions.lock().unwrap();
-        subscriptions.retain(|tx| tx.send(Ok(value.clone())).is_ok());
     }
 }
 
