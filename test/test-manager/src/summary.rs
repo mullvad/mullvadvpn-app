@@ -107,19 +107,6 @@ impl SummaryLogger {
     }
 }
 
-/// Convenience function that logs when there's a value, and is a no-op otherwise.
-// y u no trait async fn
-pub async fn maybe_log_test_result(
-    summary_logger: Option<&mut SummaryLogger>,
-    test_name: &str,
-    test_result: TestResult,
-) -> Result<(), Error> {
-    match summary_logger {
-        Some(logger) => logger.log_test_result(test_name, test_result).await,
-        None => Ok(()),
-    }
-}
-
 /// Parsed summary results
 pub struct Summary {
     /// Name of the configuration
@@ -263,11 +250,7 @@ pub async fn print_summary_table<P: AsRef<Path>>(summary_files: &[P]) {
     for test in &tests {
         println!("<tr>");
 
-        println!(
-            "<td>{}{}</td>",
-            test.name,
-            if test.must_succeed { " *" } else { "" }
-        );
+        println!("<td>{}</td>", test.name,);
 
         let mut failed_platforms = vec![];
         for summary in &summaries {

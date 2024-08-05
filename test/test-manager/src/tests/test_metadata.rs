@@ -9,7 +9,6 @@ pub struct TestMetadata {
     pub func: TestWrapperFunction,
     pub priority: Option<i32>,
     pub always_run: bool,
-    pub must_succeed: bool,
 }
 
 impl TestMetadata {
