@@ -1,7 +1,7 @@
 use crate::{
     logging::{Logger, Panic, TestOutput, TestResult},
     mullvad_daemon::{self, MullvadClientArgument},
-    summary::{self, maybe_log_test_result},
+    summary::SummaryLogger,
     tests::{self, config::TEST_CONFIG, get_tests, TestContext},
     vm,
 };
@@ -23,8 +23,8 @@ pub async fn run(
     test_filters: &[String],
     skip_wait: bool,
     print_failed_tests_only: bool,
-    mut summary_logger: Option<summary::SummaryLogger>,
-) -> Result<()> {
+    mut summary_logger: Option<SummaryLogger>,
+) -> Result<TestResult> {
     log::trace!("Setting test constants");
     TEST_CONFIG.init(config);
 
@@ -127,38 +127,14 @@ pub async fn run(
 
         test_output.print();
 
-        maybe_log_test_result(
-            summary_logger.as_mut(),
+        register_test_result(
+            test_output.result,
+            &mut failed_tests,
             test.name,
-            if test_succeeded {
-                summary::TestResult::Pass
-            } else {
-                summary::TestResult::Fail
-            },
+            &mut successful_tests,
+            summary_logger.as_mut(),
         )
-        .await
-        .context("Failed to log test result")?;
-
-        match test_result.result {
-            Err(panic) => {
-                failed_tests.push(test.name);
-                final_result = Err(panic).context("test panicked");
-                if test.must_succeed {
-                    break;
-                }
-            }
-            Ok(Err(failure)) => {
-                failed_tests.push(test.name);
-                final_result = Err(failure).context("test failed");
-                if test.must_succeed {
-                    break;
-                }
-            }
-            Ok(Ok(result)) => {
-                successful_tests.push(test.name);
-                final_result = final_result.and(Ok(result));
-            }
-        }
+        .await?;
     }
 
     log::info!("TESTS THAT SUCCEEDED:");
@@ -167,7 +143,7 @@ pub async fn run(
     }
 
     log::info!("TESTS THAT FAILED:");
-    for test in failed_tests {
+    for test in &failed_tests {
         log::info!("{test}");
     }
 
