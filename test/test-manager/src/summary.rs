@@ -250,11 +250,7 @@ pub async fn print_summary_table<P: AsRef<Path>>(summary_files: &[P]) {
     for test in &tests {
         println!("<tr>");
 
-        println!(
-            "<td>{}{}</td>",
-            test.name,
-            if test.must_succeed { " *" } else { "" }
-        );
+        println!("<td>{}</td>", test.name,);
 
         let mut failed_platforms = vec![];
         for summary in &summaries {
