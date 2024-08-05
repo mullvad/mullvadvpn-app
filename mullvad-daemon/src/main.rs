@@ -196,9 +196,7 @@ async fn run_standalone(log_dir: Option<PathBuf>) -> Result<(), String> {
     Ok(())
 }
 
-async fn create_daemon(
-    log_dir: Option<PathBuf>,
-) -> Result<Daemon<ManagementInterfaceEventBroadcaster>, String> {
+async fn create_daemon(log_dir: Option<PathBuf>) -> Result<Daemon, String> {
     let rpc_socket_path = mullvad_paths::get_rpc_socket_path();
     let resource_dir = mullvad_paths::get_resource_dir();
     let settings_dir = mullvad_paths::settings_dir()
