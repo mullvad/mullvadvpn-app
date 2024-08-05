@@ -2638,9 +2638,53 @@ impl Daemon {
     }
 
     async fn on_reset_settings(&mut self, tx: ResponseTx<(), settings::Error>) {
-        self.disconnect_tunnel();
         let result = self.settings.reset().await;
         Self::oneshot_send(tx, result, "reset_settings response");
+
+        #[cfg(any(target_os = "windows", target_os = "macos", target_os = "android"))]
+        {
+            let (tx, _rx) = oneshot::channel();
+            self.send_tunnel_command(TunnelCommand::SetExcludedApps(tx, vec![]));
+        }
+
+        let (tx, _rx) = oneshot::channel();
+        self.send_tunnel_command(TunnelCommand::BlockWhenDisconnected(
+            self.settings.block_when_disconnected,
+            tx,
+        ));
+
+        let (tx, _rx) = oneshot::channel();
+        self.send_tunnel_command(TunnelCommand::AllowLan(self.settings.allow_lan, tx));
+
+        let (tx, _rx) = oneshot::channel();
+        let dns = dns::addresses_from_options(&self.settings.tunnel_options.dns_options);
+        self.send_tunnel_command(TunnelCommand::Dns(dns, tx));
+
+        self.version_updater_handle
+            .set_show_beta_releases(self.settings.show_beta_releases)
+            .await;
+        let access_mode_handler = self.access_mode_handler.clone();
+        tokio::spawn(async move {
+            if let Err(error) = access_mode_handler.rotate().await {
+                log::error!("Failed to rotate API endpoint: {error}");
+            }
+        });
+
+        let interval = self.settings.tunnel_options.wireguard.rotation_interval;
+        let account_manager = self.account_manager.clone();
+        tokio::spawn(async move {
+            if let Err(error) = account_manager
+                .set_rotation_interval(interval.unwrap_or_default())
+                .await
+            {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to update rotation interval")
+                );
+            }
+        });
+
+        self.reconnect_tunnel();
     }
 
     fn oneshot_send<T>(tx: oneshot::Sender<T>, t: T, msg: &'static str) {
