@@ -1,47 +1,20 @@
-use anyhow::{bail, Context};
+use anyhow::{bail, ensure, Context};
 use std::time::Duration;
 
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{constraints::Constraint, relay_constraints};
 use test_macro::test_function;
-use test_rpc::{meta::Os, mullvad_daemon::ServiceStatus, ServiceClient};
+use test_rpc::{mullvad_daemon::ServiceStatus, ServiceClient};
+
+use crate::{mullvad_daemon::MullvadClientArgument, tests::helpers};
 
 use super::{
     config::TEST_CONFIG,
-    helpers::{connect_and_wait, get_app_env, get_package_desc, wait_for_tunnel_state, Pinger},
+    helpers::{
+        connect_and_wait, get_app_env, get_package_desc, install_app, wait_for_tunnel_state, Pinger,
+    },
     Error, TestContext,
 };
-
-/// Install the last stable version of the app and verify that it is running.
-#[test_function(priority = -200)]
-pub async fn test_install_previous_app(_: TestContext, rpc: ServiceClient) -> anyhow::Result<()> {
-    // verify that daemon is not already running
-    if rpc.mullvad_daemon_get_status().await? != ServiceStatus::NotRunning {
-        bail!(Error::DaemonRunning);
-    }
-
-    // install package
-    log::debug!("Installing old app");
-    rpc.install_app(get_package_desc(
-        TEST_CONFIG
-            .app_package_to_upgrade_from_filename
-            .as_ref()
-            .context("Missing previous app version")?,
-    )?)
-    .await?;
-
-    // verify that daemon is running
-    if rpc.mullvad_daemon_get_status().await? != ServiceStatus::Running {
-        bail!(Error::DaemonNotRunning);
-    }
-
-    replace_openvpn_cert(&rpc).await?;
-
-    // Override env vars
-    rpc.set_daemon_environment(get_app_env().await?).await?;
-
-    Ok(())
-}
 
 /// Upgrade to the "version under test". This test fails if:
 ///
@@ -49,8 +22,23 @@ pub async fn test_install_previous_app(_: TestContext, rpc: ServiceClient) -> an
 ///   upgrade.
 /// * The installer does not successfully complete.
 /// * The VPN service is not running after the upgrade.
-#[test_function(priority = -190)]
-pub async fn test_upgrade_app(ctx: TestContext, rpc: ServiceClient) -> anyhow::Result<()> {
+pub async fn test_upgrade_app(
+    ctx: TestContext,
+    rpc: ServiceClient,
+    _mullvad_client: MullvadClientArgument,
+) -> anyhow::Result<()> {
+    // Install the older version of the app and verify that it is running.
+    install_app(
+        &rpc,
+        TEST_CONFIG
+            .app_package_to_upgrade_from_filename
+            .as_ref()
+            .unwrap(),
+        &ctx.rpc_provider,
+    )
+    .await
+    .context("Failed to install previous app version")?;
+
     // Verify that daemon is running
     if rpc.mullvad_daemon_get_status().await? != ServiceStatus::Running {
         bail!(Error::DaemonNotRunning);
@@ -68,7 +56,7 @@ pub async fn test_upgrade_app(ctx: TestContext, rpc: ServiceClient) -> anyhow::R
     // mullvad_client
     //    .login_account(TEST_CONFIG.account_number.clone())
     //    .await
-    //    .expect("login failed");
+    //    .context("login failed")?;
 
     // Start blocking
     //
@@ -107,8 +95,9 @@ pub async fn test_upgrade_app(ctx: TestContext, rpc: ServiceClient) -> anyhow::R
     let pinger = Pinger::start(&rpc).await;
 
     // install new package
+
     log::debug!("Installing new app");
-    rpc.install_app(get_package_desc(&TEST_CONFIG.app_package_filename)?)
+    rpc.install_app(helpers::get_package_desc(&TEST_CONFIG.app_package_filename))
         .await?;
 
     // Give it some time to start
@@ -118,14 +107,12 @@ pub async fn test_upgrade_app(ctx: TestContext, rpc: ServiceClient) -> anyhow::R
     if rpc.mullvad_daemon_get_status().await? != ServiceStatus::Running {
         bail!(Error::DaemonNotRunning);
     }
-
     // Check if any traffic was observed
     //
     let guest_ip = pinger.guest_ip;
-    let monitor_result = pinger.stop().await.unwrap();
-    assert_eq!(
-        monitor_result.packets.len(),
-        0,
+    let monitor_result = pinger.stop().await.context("Failed to stop pinger")?;
+    ensure!(
+        monitor_result.packets.is_empty(),
         "observed unexpected packets from {guest_ip}"
     );
 
@@ -154,7 +141,7 @@ pub async fn test_upgrade_app(ctx: TestContext, rpc: ServiceClient) -> anyhow::R
         _ => false,
     };
 
-    assert!(
+    ensure!(
         relay_location_was_preserved,
         "relay location was not preserved after upgrade. new settings: {:?}",
         settings,
@@ -163,13 +150,12 @@ pub async fn test_upgrade_app(ctx: TestContext, rpc: ServiceClient) -> anyhow::R
     // check if account history was preserved
     // TODO: Cannot check account history because overriding the API is impossible for releases
     // let history = mullvad_client
-    // .get_account_history(())
-    // .await
-    // .expect("failed to obtain account history");
-    // assert_eq!(
-    // history.into_inner().token,
-    // Some(TEST_CONFIG.account_number.clone()),
-    // "lost account history"
+    //     .get_account_history()
+    //     .await
+    //     .context("failed to obtain account history")?;
+    // ensure!(
+    //     history.into_inner().token == Some(TEST_CONFIG.account_number.clone()),
+    //     "lost account history"
     // );
 
     Ok(())
@@ -186,23 +172,12 @@ pub async fn test_upgrade_app(ctx: TestContext, rpc: ServiceClient) -> anyhow::R
 /// Files due to Electron, temporary files, registry
 /// values/keys, and device drivers are not guaranteed
 /// to be deleted.
-#[test_function(priority = -170, cleanup = false)]
+#[test_function(priority = -160)]
 pub async fn test_uninstall_app(
-    _: TestContext,
+    _ctx: TestContext,
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> anyhow::Result<()> {
-    if rpc.mullvad_daemon_get_status().await? != ServiceStatus::Running {
-        bail!(Error::DaemonNotRunning);
-    }
-
-    // Login to test preservation of device/account
-    // TODO: Remove once we can login before upgrade above
-    mullvad_client
-        .login_account(TEST_CONFIG.account_number.clone())
-        .await
-        .context("login failed")?;
-
     // save device to verify that uninstalling removes the device
     // we should still be logged in after upgrading
     let uninstalled_device = mullvad_client
@@ -247,37 +222,6 @@ pub async fn test_uninstall_app(
     Ok(())
 }
 
-/// Install the app cleanly, failing if the installer doesn't succeed
-/// or if the VPN service is not running afterwards.
-#[test_function(always_run = true, must_succeed = true, priority = -160)]
-pub async fn test_install_new_app(_: TestContext, rpc: ServiceClient) -> anyhow::Result<()> {
-    // verify that daemon is not already running
-    if rpc.mullvad_daemon_get_status().await? != ServiceStatus::NotRunning {
-        bail!(Error::DaemonRunning);
-    }
-
-    // install package
-    log::debug!("Installing new app");
-    rpc.install_app(get_package_desc(&TEST_CONFIG.app_package_filename)?)
-        .await?;
-
-    // verify that daemon is running
-    if rpc.mullvad_daemon_get_status().await? != ServiceStatus::Running {
-        bail!(Error::DaemonNotRunning);
-    }
-
-    // Set the log level to trace
-    rpc.set_daemon_log_level(test_rpc::mullvad_daemon::Verbosity::Trace)
-        .await?;
-
-    replace_openvpn_cert(&rpc).await?;
-
-    // Override env vars
-    rpc.set_daemon_environment(get_app_env().await?).await?;
-
-    Ok(())
-}
-
 /// Install the multiple times starting from a connected state with auto-connect
 /// disabled, failing if the app starts in a disconnected state.
 ///
@@ -306,14 +250,14 @@ pub async fn test_installation_idempotency(
 
     // Check for traffic leaks during the installation processes.
     //
-    // Start continously pinging while monitoring the network traffic. No
+    // Start continuously pinging while monitoring the network traffic. No
     // traffic should be observed going outside of the tunnel during either
     // installation process.
     let pinger = Pinger::start(&rpc).await;
     for _ in 0..2 {
         // Install the app
         log::info!("Installing new app");
-        let app_package = get_package_desc(&TEST_CONFIG.app_package_filename)?;
+        let app_package = get_package_desc(&TEST_CONFIG.app_package_filename);
         rpc.install_app(app_package).await?;
         log::info!("App was successfully installed!");
 
@@ -346,32 +290,4 @@ pub async fn test_installation_idempotency(
     );
 
     Ok(())
-}
-
-async fn replace_openvpn_cert(rpc: &ServiceClient) -> Result<(), Error> {
-    use std::path::Path;
-
-    const SOURCE_CERT_FILENAME: &str = "openvpn.ca.crt";
-    const DEST_CERT_FILENAME: &str = "ca.crt";
-
-    let dest_dir = match TEST_CONFIG.os {
-        Os::Windows => "C:\\Program Files\\Mullvad VPN\\resources",
-        Os::Linux => "/opt/Mullvad VPN/resources",
-        Os::Macos => "/Applications/Mullvad VPN.app/Contents/Resources",
-    };
-
-    rpc.copy_file(
-        Path::new(&TEST_CONFIG.artifacts_dir)
-            .join(SOURCE_CERT_FILENAME)
-            .as_os_str()
-            .to_string_lossy()
-            .into_owned(),
-        Path::new(dest_dir)
-            .join(DEST_CERT_FILENAME)
-            .as_os_str()
-            .to_string_lossy()
-            .into_owned(),
-    )
-    .await
-    .map_err(Error::Rpc)
 }

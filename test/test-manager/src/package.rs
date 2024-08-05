@@ -69,7 +69,7 @@ pub fn get_app_manifest(
     })
 }
 
-fn get_version_from_path(app_package_path: &Path) -> Result<String, anyhow::Error> {
+pub fn get_version_from_path(app_package_path: &Path) -> Result<String, anyhow::Error> {
     static VERSION_REGEX: Lazy<Regex> =
         Lazy::new(|| Regex::new(r"\d{4}\.\d+((-beta\d+)?(-dev)?-([0-9a-z])+)?").unwrap());
 
