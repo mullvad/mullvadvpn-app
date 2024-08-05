@@ -13,6 +13,8 @@ import com.google.protobuf.Empty
 import com.google.protobuf.StringValue
 import com.google.protobuf.UInt32Value
 import io.grpc.ConnectivityState
+import io.grpc.ManagedChannel
+import io.grpc.ManagedChannelBuilder
 import io.grpc.Status
 import io.grpc.StatusException
 import io.grpc.android.UdsChannelBuilder
