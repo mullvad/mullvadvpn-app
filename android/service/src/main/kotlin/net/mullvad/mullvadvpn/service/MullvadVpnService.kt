@@ -94,10 +94,10 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
             prepareFiles(this@MullvadVpnService)
             migrateSplitTunneling.migrate()
 
-            Logger.d("Start daemon")
+            Logger.i("Start daemon")
             startDaemon()
 
-            Logger.d("Start management service")
+            Logger.i("Start management service")
             managementService.start()
         }
     }
@@ -213,6 +213,9 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
 
         Logger.i("Shutdown MullvadDaemon")
         MullvadDaemon.shutdown()
+        Logger.i("Enter Idle")
+        managementService.enterIdle()
+        Logger.i("Shutdown complete")
         super.onDestroy()
     }
 
