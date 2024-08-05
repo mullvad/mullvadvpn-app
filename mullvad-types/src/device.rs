@@ -86,7 +86,7 @@ impl AccountAndDevice {
 }
 
 /// Reason why a [DeviceEvent] was emitted.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize)]
 pub enum DeviceEventCause {
     /// Logged in on a new device.
     LoggedIn,
@@ -101,7 +101,7 @@ pub enum DeviceEventCause {
 }
 
 /// Emitted when logging in or out of an account, or when the device changes.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize)]
 pub struct DeviceEvent {
     pub cause: DeviceEventCause,
     pub new_state: DeviceState,
@@ -109,7 +109,7 @@ pub struct DeviceEvent {
 
 /// Emitted when a device is removed using the `RemoveDevice` RPC.
 /// This is not sent by a normal logout or when it is revoked remotely.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize)]
 pub struct RemoveDeviceEvent {
     pub account_token: AccountToken,
     pub new_devices: Vec<Device>,
