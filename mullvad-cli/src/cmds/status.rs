@@ -1,8 +1,10 @@
-use anyhow::Result;
+use anyhow::{Context, Result};
 use clap::{Args, Subcommand};
 use futures::StreamExt;
 use mullvad_management_interface::{client::DaemonEvent, MullvadProxyClient};
 use mullvad_types::{device::DeviceState, states::TunnelState};
+use serde::Serialize;
+use std::fmt::Debug;
 
 use crate::format;
 
@@ -19,8 +21,12 @@ pub struct StatusArgs {
     verbose: bool,
 
     /// Enable debug output
-    #[arg(long, short = 'd')]
+    #[arg(long, short = 'd', conflicts_with_all = ["verbose", "json"])]
     debug: bool,
+
+    /// Format output as JSON
+    #[arg(long, short = 'j', conflicts_with_all = ["verbose", "debug"])]
+    json: bool,
 }
 
 impl Status {
@@ -33,6 +39,10 @@ impl Status {
                 DaemonEvent::TunnelState(new_state) => {
                     if args.debug {
                         println!("New tunnel state: {new_state:#?}");
+                    } else if args.json {
+                        let json = serde_json::to_string(&new_state)
+                            .context("Failed to format output as JSON")?;
+                        println!("{json}");
                     } else {
                         // When we enter the connected or disconnected state, am.i.mullvad.net will
                         // be polled to get exit location. When it arrives, we will get another
@@ -70,34 +80,22 @@ impl Status {
                     }
                 }
                 DaemonEvent::Settings(settings) => {
-                    if args.debug {
-                        println!("New settings: {settings:#?}");
-                    }
+                    print_debug_or_json(&args, "New settings", &settings)?;
                 }
                 DaemonEvent::RelayList(relay_list) => {
-                    if args.debug {
-                        println!("New relay list: {relay_list:#?}");
-                    }
+                    print_debug_or_json(&args, "New relay list", &relay_list)?;
                 }
                 DaemonEvent::AppVersionInfo(app_version_info) => {
-                    if args.debug {
-                        println!("New app version info: {app_version_info:#?}");
-                    }
+                    print_debug_or_json(&args, "New app version info", &app_version_info)?;
                 }
                 DaemonEvent::Device(device) => {
-                    if args.debug {
-                        println!("Device event: {device:#?}");
-                    }
+                    print_debug_or_json(&args, "Device event", &device)?;
                 }
                 DaemonEvent::RemoveDevice(device) => {
-                    if args.debug {
-                        println!("Remove device event: {device:#?}");
-                    }
+                    print_debug_or_json(&args, "Remove device event", &device)?;
                 }
                 DaemonEvent::NewAccessMethod(access_method) => {
-                    if args.debug {
-                        println!("New access method: {access_method:#?}");
-                    }
+                    print_debug_or_json(&args, "New access method", &access_method)?;
                 }
             }
         }
@@ -114,6 +112,9 @@ pub async fn handle(cmd: Option<Status>, args: StatusArgs) -> Result<()> {
 
     if args.debug {
         println!("Tunnel state: {state:#?}");
+    } else if args.json {
+        let json = serde_json::to_string(&state).context("Failed to format output as JSON")?;
+        println!("{json}");
     } else {
         format::print_state(&state, args.verbose);
         format::print_location(&state);
@@ -138,4 +139,19 @@ fn print_account_logged_out(state: &TunnelState, device: &DeviceState) {
         }
         TunnelState::Disconnected { .. } | TunnelState::Disconnecting(_) => (),
     }
+}
+
+fn print_debug_or_json<T: Debug + Serialize>(
+    args: &StatusArgs,
+    debug_message: &str,
+    t: &T,
+) -> Result<()> {
+    if args.debug {
+        println!("{debug_message}: {t:#?}");
+    } else if args.json {
+        let json = serde_json::to_string(&t).context("Failed to format output as JSON")?;
+        println!("{json}");
+    }
+
+    Ok(())
 }
