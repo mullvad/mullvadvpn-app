@@ -1,8 +1,4 @@
-use super::{
-    config::TEST_CONFIG,
-    helpers::{self, ensure_logged_in},
-    Error, TestContext,
-};
+use super::{config::TEST_CONFIG, helpers, Error, TestContext};
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_relay_selector::query::builder::RelayQueryBuilder;
 use std::{
@@ -124,7 +120,12 @@ pub async fn test_ui_tunnel_settings(
 
 /// Test whether logging in and logging out work in the GUI
 #[test_function(priority = 500)]
-pub async fn test_ui_login(_: TestContext, rpc: ServiceClient) -> Result<(), Error> {
+pub async fn test_ui_login(
+    _: TestContext,
+    rpc: ServiceClient,
+    mut mullvad_client: MullvadProxyClient,
+) -> Result<(), Error> {
+    mullvad_client.logout_account().await?;
     let ui_result = run_test_env(
         &rpc,
         &["login.spec"],
@@ -229,13 +230,6 @@ async fn test_custom_bridge_gui(
     // See `gui/test/e2e/installed/state-dependent/custom-bridge.spec.ts`
     // for details. The setup should be the same as in
     // `test_manager::tests::access_methods::test_shadowsocks`.
-    //
-    // # Note
-    // The test requires the app to already be logged in.
-
-    ensure_logged_in(&mut mullvad_client)
-        .await
-        .expect("ensure_logged_in failed");
 
     let gui_test = "custom-bridge.spec";
     let relay_list = mullvad_client.get_relay_locations().await.unwrap();
@@ -280,7 +274,12 @@ async fn test_custom_bridge_gui(
 /// # Note
 /// This test expects the daemon to be logged in
 #[test_function]
-pub async fn test_import_settings_ui(_: TestContext, rpc: ServiceClient) -> Result<(), Error> {
+pub async fn test_import_settings_ui(
+    _: TestContext,
+    rpc: ServiceClient,
+    mut mullvad_client: MullvadProxyClient,
+) -> Result<(), Error> {
+    mullvad_client.connect_tunnel().await?;
     let ui_result = run_test(&rpc, &["settings-import.spec"]).await?;
     assert!(ui_result.success());
     Ok(())

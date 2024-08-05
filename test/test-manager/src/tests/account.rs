@@ -9,35 +9,9 @@ use mullvad_types::{
     states::TunnelState,
 };
 use std::time::Duration;
-use talpid_types::net::wireguard;
-use talpid_types::net::wireguard::PublicKey;
+use talpid_types::net::{wireguard, wireguard::PublicKey};
 use test_macro::test_function;
 use test_rpc::ServiceClient;
-
-/// Log in and create a new device for the account.
-#[test_function(always_run = true, must_succeed = true, priority = -100)]
-pub async fn test_login(
-    _: TestContext,
-    _rpc: ServiceClient,
-    mut mullvad_client: MullvadProxyClient,
-) -> anyhow::Result<()> {
-    // Instruct daemon to log in
-    //
-
-    clear_devices(&new_device_client().await?)
-        .await
-        .context("failed to clear devices")?;
-
-    log::info!("Logging in/generating device");
-    login_with_retries(&mut mullvad_client)
-        .await
-        .context("login failed")?;
-
-    // Wait for the relay list to be updated
-    helpers::ensure_updated_relay_list(&mut mullvad_client).await?;
-
-    Ok(())
-}
 
 /// Log out and remove the current device
 /// from the account.
@@ -70,30 +44,33 @@ pub async fn test_too_many_devices(
 
     const MAX_ATTEMPTS: usize = 15;
 
-    for _ in 0..MAX_ATTEMPTS {
-        let pubkey = wireguard::PrivateKey::new_from_random().public_key();
+    let fill_devices = || async {
+        for _ in 0..MAX_ATTEMPTS {
+            let pubkey = wireguard::PrivateKey::new_from_random().public_key();
 
-        match device_client
-            .create(TEST_CONFIG.account_number.clone(), pubkey)
-            .await
-        {
-            Ok(_) => (),
-            Err(mullvad_api::rest::Error::ApiError(_status, ref code))
-                if code == mullvad_api::MAX_DEVICES_REACHED =>
+            match device_client
+                .create(TEST_CONFIG.account_number.clone(), pubkey)
+                .await
             {
-                break;
-            }
-            Err(error) => {
-                log::error!(
-                    "Failed to generate device: {error:?}. Retrying after {} seconds",
-                    THROTTLE_RETRY_DELAY.as_secs()
-                );
-                // Sleep for an overly long time.
-                // TODO: Only sleep for this long if the error is caused by throttling.
-                tokio::time::sleep(THROTTLE_RETRY_DELAY).await;
+                Ok(_) => (),
+                Err(mullvad_api::rest::Error::ApiError(_status, ref code))
+                    if code == mullvad_api::MAX_DEVICES_REACHED =>
+                {
+                    break;
+                }
+                Err(error) => {
+                    log::error!(
+                        "Failed to generate device: {error:?}. Retrying after {} seconds",
+                        THROTTLE_RETRY_DELAY.as_secs()
+                    );
+                    // Sleep for an overly long time.
+                    // TODO: Only sleep for this long if the error is caused by throttling.
+                    tokio::time::sleep(THROTTLE_RETRY_DELAY).await;
+                }
             }
         }
-    }
+    };
+    fill_devices().await;
 
     log::info!("Log in with too many devices");
     let login_result = login_with_retries(&mut mullvad_client).await;
@@ -105,6 +82,9 @@ pub async fn test_too_many_devices(
         ),
         "Expected too many devices error, got {login_result:?}"
     );
+
+    mullvad_client.logout_account().await?;
+    fill_devices().await;
 
     // Run UI test
     let ui_result = ui::run_test_env(
@@ -137,10 +117,7 @@ pub async fn test_revoked_device(
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> anyhow::Result<()> {
-    log::info!("Logging in/generating device");
-    login_with_retries(&mut mullvad_client)
-        .await
-        .context("login failed")?;
+    mullvad_client.connect_tunnel().await?;
 
     let device_id = mullvad_client
         .get_device()
@@ -150,8 +127,6 @@ pub async fn test_revoked_device(
         .context("Client is not logged in to a valid account")?
         .device
         .id;
-
-    helpers::connect_and_wait(&mut mullvad_client).await?;
 
     log::debug!("Removing current device");
 
@@ -249,8 +224,8 @@ pub async fn test_automatic_wireguard_rotation(
 
     // If key has not yet been updated, listen for changes to it
     if new_key == old_key {
-        // Verify rotation has happened within `ROTATION_TIMEOUT` - if the key hasn't been rotated after
-        // that, the rotation probably won't happen anytime soon.
+        // Verify rotation has happened within `ROTATION_TIMEOUT` - if the key hasn't been rotated
+        // after that, the rotation probably won't happen anytime soon.
         log::info!("Listening for device daemon event");
         let device_event = |daemon_event| match daemon_event {
             DaemonEvent::Device(device_event) => Some(device_event),
