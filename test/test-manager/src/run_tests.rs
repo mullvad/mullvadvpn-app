@@ -1,6 +1,6 @@
 use crate::{
     logging::{Logger, Panic, TestOutput, TestResult},
-    mullvad_daemon::{self, MullvadClientArgument},
+    mullvad_daemon::{self, MullvadClientArgument, RpcClientProvider},
     summary::SummaryLogger,
     tests::{self, config::TEST_CONFIG, get_tests, TestContext},
     vm,
@@ -17,13 +17,96 @@ use test_rpc::{logging::Output, ServiceClient};
 /// Keep this constant in sync with `test-runner/src/main.rs`
 const BAUD: u32 = if cfg!(target_os = "macos") { 0 } else { 115200 };
 
+struct TestHandler<'a> {
+    rpc_provider: &'a RpcClientProvider,
+    test_runner_client: &'a ServiceClient,
+    failed_tests: Vec<&'static str>,
+    successful_tests: Vec<&'static str>,
+    summary_logger: Option<SummaryLogger>,
+    print_failed_tests_only: bool,
+    logger: Logger,
+}
+
+impl TestHandler<'_> {
+    /// Run `tests::test_upgrade_app` and register the result
+    async fn run_test<R, F>(
+        &mut self,
+        test: &F,
+        test_name: &'static str,
+        mullvad_client: MullvadClientArgument,
+    ) -> Result<(), anyhow::Error>
+    where
+        F: Fn(super::tests::TestContext, ServiceClient, MullvadClientArgument) -> R,
+        R: Future<Output = anyhow::Result<()>>,
+    {
+        log::info!("Running {test_name}");
+
+        if self.print_failed_tests_only {
+            // Stop live record
+            self.logger.store_records(true);
+        }
+
+        let test_output = run_test_function(
+            self.test_runner_client.clone(),
+            mullvad_client,
+            &test,
+            test_name,
+            TestContext {
+                rpc_provider: self.rpc_provider.clone(),
+            },
+        )
+        .await;
+
+        if self.print_failed_tests_only {
+            // Print results of failed test
+            if test_output.result.failure() {
+                self.logger.print_stored_records();
+            } else {
+                self.logger.flush_records();
+            }
+            self.logger.store_records(false);
+        }
+
+        test_output.print();
+
+        register_test_result(
+            test_output.result,
+            &mut self.failed_tests,
+            test_name,
+            &mut self.successful_tests,
+            self.summary_logger.as_mut(),
+        )
+        .await?;
+
+        Ok(())
+    }
+
+    fn gather_results(self) -> TestResult {
+        log::info!("TESTS THAT SUCCEEDED:");
+        for test in self.successful_tests {
+            log::info!("{test}");
+        }
+
+        log::info!("TESTS THAT FAILED:");
+        for test in &self.failed_tests {
+            log::info!("{test}");
+        }
+
+        if self.failed_tests.is_empty() {
+            TestResult::Pass
+        } else {
+            TestResult::Fail(anyhow::anyhow!("Some tests failed"))
+        }
+    }
+}
+
 pub async fn run(
     config: tests::config::TestConfig,
     instance: &dyn vm::VmInstance,
     test_filters: &[String],
     skip_wait: bool,
     print_failed_tests_only: bool,
-    mut summary_logger: Option<SummaryLogger>,
+    summary_logger: Option<SummaryLogger>,
 ) -> Result<TestResult> {
     log::trace!("Setting test constants");
     TEST_CONFIG.init(config);
@@ -44,10 +127,19 @@ pub async fn run(
     log::info!("Running client");
 
     let test_runner_client = ServiceClient::new(connection_handle.clone(), runner_transport);
-    let mullvad_client_provider =
-        mullvad_daemon::new_rpc_client(connection_handle, mullvad_daemon_transport);
+    let rpc_provider = mullvad_daemon::new_rpc_client(connection_handle, mullvad_daemon_transport);
 
     print_os_version(&test_runner_client).await;
+
+    let mut test_handler = TestHandler {
+        rpc_provider: &rpc_provider,
+        test_runner_client: &test_runner_client,
+        failed_tests: vec![],
+        successful_tests: vec![],
+        summary_logger,
+        print_failed_tests_only,
+        logger: Logger::get_or_init(),
+    };
 
     let mut tests = get_tests();
 
@@ -68,155 +160,46 @@ pub async fn run(
         });
     }
 
-    let test_context = TestContext {
-        rpc_provider: mullvad_client_provider,
-    };
-
-    let mut successful_tests = vec![];
-    let mut failed_tests = vec![];
-
-    let logger = super::logging::Logger::get_or_init();
-
-    test_upgrade_app(
-        &test_context,
-        &test_runner_client,
-        &mut failed_tests,
-        &mut successful_tests,
-        &mut summary_logger,
-        print_failed_tests_only,
-        &logger,
-    )
-    .await?;
-
-    for test in tests {
-        crate::tests::prepare_daemon(&test_runner_client, &test_context.rpc_provider)
-            .await
-            .context("Failed to reset daemon before test")?;
-
-        let mullvad_client = test_context
-            .rpc_provider
-            .mullvad_client(test.mullvad_client_version)
-            .await;
-
-        log::info!("Running {}", test.name);
-
-        if print_failed_tests_only {
-            // Stop live record
-            logger.store_records(true);
-        }
-
-        // TODO: Log how long each test took to run.
-        let test_output = run_test(
-            test_runner_client.clone(),
-            mullvad_client,
-            &test.func,
-            test.name,
-            test_context.clone(),
-        )
-        .await;
-
-        if print_failed_tests_only {
-            // Print results of failed test
-            if test_output.result.failure() {
-                logger.print_stored_records();
-            } else {
-                logger.flush_records();
-            }
-            logger.store_records(false);
-        }
-
-        test_output.print();
-
-        register_test_result(
-            test_output.result,
-            &mut failed_tests,
-            test.name,
-            &mut successful_tests,
-            summary_logger.as_mut(),
-        )
-        .await?;
-    }
-
-    log::info!("TESTS THAT SUCCEEDED:");
-    for test in successful_tests {
-        log::info!("{test}");
-    }
-
-    log::info!("TESTS THAT FAILED:");
-    for test in &failed_tests {
-        log::info!("{test}");
-    }
-
-    // wait for cleanup
-    drop(client);
-    drop(test_context);
-    let _ = tokio::time::timeout(Duration::from_secs(5), completion_handle).await;
-
-    if failed_tests.is_empty() {
-        Ok(TestResult::Pass)
-    } else {
-        Ok(TestResult::Fail(anyhow::anyhow!("Some tests failed")))
-    }
-}
-
-/// Run `tests::test_upgrade_app` and register the result
-async fn test_upgrade_app<'a>(
-    test_context: &TestContext,
-    test_runner_client: &ServiceClient,
-    failed_tests: &mut Vec<&'a str>,
-    successful_tests: &mut Vec<&'a str>,
-    summary_logger: &mut Option<SummaryLogger>,
-    print_failed_tests_only: bool,
-    logger: &Logger,
-) -> Result<(), anyhow::Error> {
     if TEST_CONFIG.app_package_to_upgrade_from_filename.is_some() {
-        log::info!("Running test_upgrade_app");
-
-        if print_failed_tests_only {
-            // Stop live record
-            logger.store_records(true);
-        }
-
-        let test_output = run_test(
-            test_runner_client.clone(),
-            MullvadClientArgument::None,
-            &tests::test_upgrade_app,
-            "test_upgrade_app",
-            test_context.clone(),
-        )
-        .await;
-
-        if print_failed_tests_only {
-            // Print results of failed test
-            if test_output.result.failure() {
-                logger.print_stored_records();
-            } else {
-                logger.flush_records();
-            }
-            logger.store_records(false);
-        }
-
-        test_output.print();
-
-        register_test_result(
-            test_output.result,
-            failed_tests,
-            "test_upgrade_app",
-            successful_tests,
-            summary_logger.as_mut(),
-        )
-        .await?;
+        test_handler
+            .run_test(
+                &tests::test_upgrade_app,
+                "test_upgrade_app",
+                MullvadClientArgument::None,
+            )
+            .await?;
     } else {
         log::warn!("No previous app to upgrade from, skipping upgrade test");
     };
-    Ok(())
+
+    for test in tests {
+        tests::prepare_daemon(&test_runner_client, &rpc_provider)
+            .await
+            .context("Failed to reset daemon before test")?;
+
+        let mullvad_client = rpc_provider
+            .mullvad_client(test.mullvad_client_version)
+            .await;
+        test_handler
+            .run_test(&test.func, test.name, mullvad_client)
+            .await?;
+    }
+
+    let result = test_handler.gather_results();
+
+    // wait for cleanup
+    drop(test_runner_client);
+    drop(rpc_provider);
+    let _ = tokio::time::timeout(Duration::from_secs(5), completion_handle).await;
+
+    Ok(result)
 }
 
-async fn register_test_result<'a>(
+async fn register_test_result(
     test_result: TestResult,
-    failed_tests: &mut Vec<&'a str>,
-    test_name: &'a str,
-    successful_tests: &mut Vec<&'a str>,
+    failed_tests: &mut Vec<&str>,
+    test_name: &'static str,
+    successful_tests: &mut Vec<&str>,
     summary_logger: Option<&mut SummaryLogger>,
 ) -> anyhow::Result<()> {
     if let Some(logger) = summary_logger {
@@ -235,7 +218,7 @@ async fn register_test_result<'a>(
     Ok(())
 }
 
-pub async fn run_test<F, R>(
+pub async fn run_test_function<F, R>(
     runner_rpc: ServiceClient,
     mullvad_rpc: MullvadClientArgument,
     test: &F,
