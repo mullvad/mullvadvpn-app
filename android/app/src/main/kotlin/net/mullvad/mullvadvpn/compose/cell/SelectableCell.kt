@@ -37,6 +37,7 @@ private fun PreviewSelectableCell() {
 fun SelectableCell(
     title: String,
     isSelected: Boolean,
+    modifier: Modifier = Modifier,
     isEnabled: Boolean = true,
     iconContentDescription: String? = null,
     selectedIcon: @Composable RowScope.() -> Unit = {
@@ -60,6 +61,7 @@ fun SelectableCell(
     testTag: String = ""
 ) {
     BaseCell(
+        modifier = modifier,
         onCellClicked = onCellClicked,
         isRowEnabled = isEnabled,
         headlineContent = {

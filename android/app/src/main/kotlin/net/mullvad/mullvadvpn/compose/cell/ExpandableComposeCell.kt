@@ -46,6 +46,7 @@ private fun PreviewExpandedEnabledExpandableComposeCell() {
 fun ExpandableComposeCell(
     title: String,
     isExpanded: Boolean,
+    modifier: Modifier = Modifier,
     isEnabled: Boolean = true,
     testTag: String = "",
     onCellClicked: (Boolean) -> Unit = {},
@@ -55,7 +56,7 @@ fun ExpandableComposeCell(
     val bodyViewModifier = Modifier
 
     BaseCell(
-        modifier = Modifier.testTag(testTag).focusProperties { canFocus = false },
+        modifier = modifier.testTag(testTag).focusProperties { canFocus = false },
         headlineContent = {
             BaseCellTitle(
                 title = title,
