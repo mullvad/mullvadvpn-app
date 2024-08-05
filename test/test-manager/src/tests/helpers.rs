@@ -1,6 +1,13 @@
 use super::{config::TEST_CONFIG, Error, TestContext, WAIT_FOR_TUNNEL_STATE_TIMEOUT};
-use crate::network_monitor::{
-    self, start_packet_monitor, MonitorOptions, MonitorUnexpectedlyStopped, PacketMonitor,
+use crate::{
+    mullvad_daemon::RpcClientProvider,
+    network_monitor::{
+        self, start_packet_monitor, MonitorOptions, MonitorUnexpectedlyStopped, PacketMonitor,
+    },
+    tests::{
+        account::{clear_devices, new_device_client},
+        helpers,
+    },
 };
 use anyhow::{anyhow, bail, ensure, Context};
 use futures::StreamExt;
@@ -27,7 +34,9 @@ use std::{
     time::Duration,
 };
 use talpid_types::net::wireguard::{PeerConfig, PrivateKey, TunnelConfig};
-use test_rpc::{meta::Os, package::Package, AmIMullvad, ServiceClient, SpawnOpts};
+use test_rpc::{
+    meta::Os, mullvad_daemon::ServiceStatus, package::Package, AmIMullvad, ServiceClient, SpawnOpts,
+};
 use tokio::time::sleep;
 
 pub const THROTTLE_RETRY_DELAY: Duration = Duration::from_secs(120);
@@ -54,10 +63,69 @@ macro_rules! assert_tunnel_state {
     }};
 }
 
-pub fn get_package_desc(name: &str) -> Result<Package, Error> {
-    Ok(Package {
+/// Install the app cleanly, failing if the installer doesn't succeed
+/// or if the VPN service is not running afterwards.
+pub async fn install_app(
+    rpc: &ServiceClient,
+    app_filename: &str,
+    rpc_provider: &RpcClientProvider,
+) -> anyhow::Result<MullvadProxyClient> {
+    // install package
+    log::debug!("Installing app '{}'", app_filename);
+    rpc.install_app(get_package_desc(app_filename)).await?;
+
+    // verify that daemon is running
+    if rpc.mullvad_daemon_get_status().await? != ServiceStatus::Running {
+        bail!(Error::DaemonNotRunning);
+    }
+
+    // Set the log level to trace
+    rpc.set_daemon_log_level(test_rpc::mullvad_daemon::Verbosity::Trace)
+        .await?;
+
+    replace_openvpn_cert(rpc).await?;
+
+    // Override env vars
+    rpc.set_daemon_environment(get_app_env().await?).await?;
+
+    // Wait for the relay list to be updated
+    let mut mullvad_client = rpc_provider.new_client().await;
+    helpers::ensure_updated_relay_list(&mut mullvad_client)
+        .await
+        .context("Failed to update relay list")?;
+    Ok(mullvad_client)
+}
+
+pub async fn replace_openvpn_cert(rpc: &ServiceClient) -> Result<(), Error> {
+    const SOURCE_CERT_FILENAME: &str = "openvpn.ca.crt";
+    const DEST_CERT_FILENAME: &str = "ca.crt";
+
+    let dest_dir = match TEST_CONFIG.os {
+        Os::Windows => "C:\\Program Files\\Mullvad VPN\\resources",
+        Os::Linux => "/opt/Mullvad VPN/resources",
+        Os::Macos => "/Applications/Mullvad VPN.app/Contents/Resources",
+    };
+
+    rpc.copy_file(
+        Path::new(&TEST_CONFIG.artifacts_dir)
+            .join(SOURCE_CERT_FILENAME)
+            .as_os_str()
+            .to_string_lossy()
+            .into_owned(),
+        Path::new(dest_dir)
+            .join(DEST_CERT_FILENAME)
+            .as_os_str()
+            .to_string_lossy()
+            .into_owned(),
+    )
+    .await
+    .map_err(Error::Rpc)
+}
+
+pub fn get_package_desc(name: &str) -> Package {
+    Package {
         path: Path::new(&TEST_CONFIG.artifacts_dir).join(name),
-    })
+    }
 }
 
 /// Reboot the guest virtual machine.
@@ -333,14 +401,24 @@ pub async fn login_with_retries(
 /// This will first check whether we are logged in. If not, it will also try to login
 /// on your behalf. If this function returns without any errors, we are logged in to a valid
 /// account.
-pub async fn ensure_logged_in(
-    mullvad_client: &mut MullvadProxyClient,
-) -> Result<(), mullvad_management_interface::Error> {
+pub async fn ensure_logged_in(mullvad_client: &mut MullvadProxyClient) -> anyhow::Result<()> {
     if mullvad_client.get_device().await?.is_logged_in() {
         return Ok(());
     }
     // We are apparently not logged in already.. Try to log in.
-    login_with_retries(mullvad_client).await
+    clear_devices(
+        &new_device_client()
+            .await
+            .context("Failed to create device client")?,
+    )
+    .await
+    .context("failed to clear devices")?;
+
+    log::info!("Logging in/generating device");
+    login_with_retries(mullvad_client)
+        .await
+        .context("Failed to log in")?;
+    Ok(())
 }
 
 /// Try to connect to a Mullvad Tunnel.

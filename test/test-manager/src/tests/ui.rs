@@ -1,8 +1,4 @@
-use super::{
-    config::TEST_CONFIG,
-    helpers::{self, ensure_logged_in},
-    Error, TestContext,
-};
+use super::{config::TEST_CONFIG, helpers, Error, TestContext};
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_relay_selector::query::builder::RelayQueryBuilder;
 use std::{
@@ -229,13 +225,6 @@ async fn test_custom_bridge_gui(
     // See `gui/test/e2e/installed/state-dependent/custom-bridge.spec.ts`
     // for details. The setup should be the same as in
     // `test_manager::tests::access_methods::test_shadowsocks`.
-    //
-    // # Note
-    // The test requires the app to already be logged in.
-
-    ensure_logged_in(&mut mullvad_client)
-        .await
-        .expect("ensure_logged_in failed");
 
     let gui_test = "custom-bridge.spec";
     let relay_list = mullvad_client.get_relay_locations().await.unwrap();
