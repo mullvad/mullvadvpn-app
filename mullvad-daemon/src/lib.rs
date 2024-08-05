@@ -112,6 +112,9 @@ pub enum Error {
     #[error("REST request failed")]
     RestError(#[source] mullvad_api::rest::Error),
 
+    #[error("Management interface error")]
+    ManagementInterfaceError(#[source] management_interface::Error),
+
     #[error("API availability check failed")]
     ApiCheckError(#[source] mullvad_api::availability::Error),
 
@@ -558,7 +561,6 @@ pub struct Daemon {
     rx: mpsc::UnboundedReceiver<InternalDaemonEvent>,
     tx: DaemonEventSender,
     reconnection_job: Option<AbortHandle>,
-    /// TODO: Rename
     event_listener: ManagementInterfaceEventBroadcaster,
     rpc_server: ManagementInterfaceServer,
     migration_complete: migrations::MigrationComplete,
@@ -587,21 +589,21 @@ impl Daemon {
         resource_dir: PathBuf,
         settings_dir: PathBuf,
         cache_dir: PathBuf,
-        // TODO: Remove?
-        event_listener: ManagementInterfaceEventBroadcaster,
-        // TODO: Remove?
-        rpc_server: ManagementInterfaceServer,
-        // TODO: Remove
-        command_channel: DaemonCommandChannel,
+        rpc_socket_path: PathBuf,
         #[cfg(target_os = "android")] android_context: AndroidContext,
     ) -> Result<Self, Error> {
         #[cfg(target_os = "macos")]
         macos::bump_filehandle_limit();
 
-        mullvad_api::proxy::ApiConnectionMode::try_delete_cache(&cache_dir).await;
+        let command_channel = DaemonCommandChannel::new();
+        let command_sender = command_channel.sender();
+
+        let (event_listener, rpc_server) =
+            spawn_management_interface(command_sender, rpc_socket_path)?;
 
         let (internal_event_tx, internal_event_rx) = command_channel.destructure();
 
+        mullvad_api::proxy::ApiConnectionMode::try_delete_cache(&cache_dir).await;
         let api_runtime = mullvad_api::Runtime::with_cache(
             &cache_dir,
             true,
@@ -2917,6 +2919,29 @@ fn new_selector_config(settings: &Settings) -> SelectorConfig {
         custom_lists: settings.custom_lists.clone(),
         relay_overrides: settings.relay_overrides.clone(),
     }
+}
+
+fn spawn_management_interface(
+    command_sender: DaemonCommandSender,
+    rpc_socket_path: PathBuf,
+) -> Result<
+    (
+        ManagementInterfaceEventBroadcaster,
+        ManagementInterfaceServer,
+    ),
+    Error,
+> {
+    let (event_broadcaster, server) =
+        ManagementInterfaceServer::start(command_sender, &rpc_socket_path)
+            .inspect_err(|_error| log::error!("Unable to start management interface server"))
+            .map_err(Error::ManagementInterfaceError)?;
+
+    log::info!(
+        "Management interface listening on {}",
+        rpc_socket_path.display()
+    );
+
+    Ok((event_broadcaster, server))
 }
 
 /// Consume a oneshot sender of `T1` and return a sender that takes a different type `T2`.
