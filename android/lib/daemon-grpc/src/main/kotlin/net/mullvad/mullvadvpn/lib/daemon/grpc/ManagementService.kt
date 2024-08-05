@@ -41,6 +41,7 @@ import mullvad_daemon.management_interface.ManagementInterface
 import mullvad_daemon.management_interface.ManagementServiceGrpcKt
 import net.mullvad.mullvadvpn.lib.daemon.grpc.mapper.fromDomain
 import net.mullvad.mullvadvpn.lib.daemon.grpc.mapper.toDomain
+import net.mullvad.mullvadvpn.lib.daemon.grpc.resolver.DummyNameResolverFactory
 import net.mullvad.mullvadvpn.lib.daemon.grpc.util.LogInterceptor
 import net.mullvad.mullvadvpn.lib.daemon.grpc.util.connectivityFlow
 import net.mullvad.mullvadvpn.lib.model.AccountData
@@ -142,6 +143,10 @@ class ManagementService(
                 rpcSocketFile.absolutePath,
                 LocalSocketAddress.Namespace.FILESYSTEM
             )
+            // We need to provide a DummyNameResolver to avoid default NameResolver making incorrect
+            // InetSocketAddress look ups. For more info see:
+            // https://github.com/grpc/grpc-java/issues/11442
+            .nameResolverFactory(DummyNameResolverFactory())
             .build()
 
     val connectionState: StateFlow<GrpcConnectivityState> =
@@ -194,7 +199,6 @@ class ManagementService(
             error("ManagementService already started")
         }
 
-        channel.resetConnectBackoff()
         job = scope.launch { subscribeEvents() }
     }
 
@@ -203,6 +207,8 @@ class ManagementService(
             ?: error("ManagementService already stopped")
         job = null
     }
+
+    fun enterIdle() = channel.enterIdle()
 
     private suspend fun subscribeEvents() =
         withContext(Dispatchers.IO) {
