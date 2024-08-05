@@ -100,6 +100,12 @@ enum Commands {
         #[arg(long)]
         app_package_to_upgrade_from: Option<String>,
 
+        /// Package used for GUI tests. Parsed the same way as `--app-package`.
+        /// If not specified, will look for a package matching the version of the app package. If
+        /// no such package is found, the GUI tests will fail.
+        #[arg(long)]
+        gui_package: Option<String>,
+
         /// Folder to search for packages. Defaults to current directory.
         #[arg(long, value_name = "DIR")]
         package_folder: Option<PathBuf>,
@@ -220,6 +226,7 @@ async fn main() -> Result<()> {
             account,
             app_package,
             app_package_to_upgrade_from,
+            gui_package,
             package_folder,
             test_filters,
             verbose,
@@ -258,6 +265,7 @@ async fn main() -> Result<()> {
                 vm_config,
                 app_package,
                 app_package_to_upgrade_from,
+                gui_package,
                 package_folder,
             )
             .context("Could not find the specified app packages")?;
@@ -290,7 +298,7 @@ async fn main() -> Result<()> {
                         .app_package_to_upgrade_from_path
                         .map(|path| path.file_name().unwrap().to_string_lossy().into_owned()),
                     ui_e2e_tests_filename: manifest
-                        .ui_e2e_tests_path
+                        .gui_package_path
                         .map(|path| path.file_name().unwrap().to_string_lossy().into_owned()),
                     mullvad_host,
                     #[cfg(target_os = "macos")]
