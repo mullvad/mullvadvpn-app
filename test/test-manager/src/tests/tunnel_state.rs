@@ -366,7 +366,7 @@ pub async fn test_connected_state(
                     tunnel_type: TunnelType::Wireguard,
                     quantum_resistant: _,
                     proxy: None,
-                    obfuscation: None,
+                    obfuscation: _,
                     entry_endpoint: None,
                     tunnel_interface: _,
                     daita: _,
