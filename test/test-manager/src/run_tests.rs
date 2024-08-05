@@ -1,5 +1,5 @@
 use crate::{
-    logging::{panic_as_string, TestOutput},
+    logging::{Logger, Panic, TestOutput, TestResult},
     mullvad_daemon::{self, MullvadClientArgument},
     summary::{self, maybe_log_test_result},
     tests::{self, config::TEST_CONFIG, get_tests, TestContext},
@@ -8,7 +8,7 @@ use crate::{
 use anyhow::{Context, Result};
 use futures::FutureExt;
 use std::{future::Future, panic, time::Duration};
-use test_rpc::{logging::Output, mullvad_daemon::MullvadClientVersion, ServiceClient};
+use test_rpc::{logging::Output, ServiceClient};
 
 /// The baud rate of the serial connection between the test manager and the test runner.
 /// There is a known issue with setting a baud rate at all or macOS, and the workaround
@@ -43,11 +43,11 @@ pub async fn run(
 
     log::info!("Running client");
 
-    let client = ServiceClient::new(connection_handle.clone(), runner_transport);
-    let mullvad_client =
+    let test_runner_client = ServiceClient::new(connection_handle.clone(), runner_transport);
+    let mullvad_client_provider =
         mullvad_daemon::new_rpc_client(connection_handle, mullvad_daemon_transport);
 
-    print_os_version(&client).await;
+    print_os_version(&test_runner_client).await;
 
     let mut tests = get_tests();
 
@@ -68,10 +68,8 @@ pub async fn run(
         });
     }
 
-    let mut final_result = Ok(());
-
     let test_context = TestContext {
-        rpc_provider: mullvad_client,
+        rpc_provider: mullvad_client_provider,
     };
 
     let mut successful_tests = vec![];
@@ -79,7 +77,22 @@ pub async fn run(
 
     let logger = super::logging::Logger::get_or_init();
 
+    test_upgrade_app(
+        &test_context,
+        &test_runner_client,
+        &mut failed_tests,
+        &mut successful_tests,
+        &mut summary_logger,
+        print_failed_tests_only,
+        &logger,
+    )
+    .await?;
+
     for test in tests {
+        crate::tests::prepare_daemon(&test_runner_client, &test_context.rpc_provider)
+            .await
+            .context("Failed to reset daemon before test")?;
+
         let mullvad_client = test_context
             .rpc_provider
             .mullvad_client(test.mullvad_client_version)
@@ -92,8 +105,9 @@ pub async fn run(
             logger.store_records(true);
         }
 
-        let test_result = run_test(
-            client.clone(),
+        // TODO: Log how long each test took to run.
+        let test_output = run_test(
+            test_runner_client.clone(),
             mullvad_client,
             &test.func,
             test.name,
@@ -101,18 +115,9 @@ pub async fn run(
         )
         .await;
 
-        if test.mullvad_client_version == MullvadClientVersion::New {
-            // Try to reset the daemon state if the test failed OR if the test doesn't explicitly
-            // disabled cleanup.
-            if test.cleanup || matches!(test_result.result, Err(_) | Ok(Err(_))) {
-                crate::tests::cleanup_after_test(client.clone(), &test_context.rpc_provider)
-                    .await?;
-            }
-        }
-
         if print_failed_tests_only {
             // Print results of failed test
-            if matches!(test_result.result, Err(_) | Ok(Err(_))) {
+            if test_output.result.failure() {
                 logger.print_stored_records();
             } else {
                 logger.flush_records();
@@ -120,9 +125,7 @@ pub async fn run(
             logger.store_records(false);
         }
 
-        test_result.print();
-
-        let test_succeeded = matches!(test_result.result, Ok(Ok(_)));
+        test_output.print();
 
         maybe_log_test_result(
             summary_logger.as_mut(),
@@ -173,7 +176,87 @@ pub async fn run(
     drop(test_context);
     let _ = tokio::time::timeout(Duration::from_secs(5), completion_handle).await;
 
-    final_result
+    if failed_tests.is_empty() {
+        Ok(TestResult::Pass)
+    } else {
+        Ok(TestResult::Fail(anyhow::anyhow!("Some tests failed")))
+    }
+}
+
+/// Run `tests::test_upgrade_app` and register the result
+async fn test_upgrade_app<'a>(
+    test_context: &TestContext,
+    test_runner_client: &ServiceClient,
+    failed_tests: &mut Vec<&'a str>,
+    successful_tests: &mut Vec<&'a str>,
+    summary_logger: &mut Option<SummaryLogger>,
+    print_failed_tests_only: bool,
+    logger: &Logger,
+) -> Result<(), anyhow::Error> {
+    if TEST_CONFIG.app_package_to_upgrade_from_filename.is_some() {
+        log::info!("Running test_upgrade_app");
+
+        if print_failed_tests_only {
+            // Stop live record
+            logger.store_records(true);
+        }
+
+        let test_output = run_test(
+            test_runner_client.clone(),
+            MullvadClientArgument::None,
+            &tests::test_upgrade_app,
+            "test_upgrade_app",
+            test_context.clone(),
+        )
+        .await;
+
+        if print_failed_tests_only {
+            // Print results of failed test
+            if test_output.result.failure() {
+                logger.print_stored_records();
+            } else {
+                logger.flush_records();
+            }
+            logger.store_records(false);
+        }
+
+        test_output.print();
+
+        register_test_result(
+            test_output.result,
+            failed_tests,
+            "test_upgrade_app",
+            successful_tests,
+            summary_logger.as_mut(),
+        )
+        .await?;
+    } else {
+        log::warn!("No previous app to upgrade from, skipping upgrade test");
+    };
+    Ok(())
+}
+
+async fn register_test_result<'a>(
+    test_result: TestResult,
+    failed_tests: &mut Vec<&'a str>,
+    test_name: &'a str,
+    successful_tests: &mut Vec<&'a str>,
+    summary_logger: Option<&mut SummaryLogger>,
+) -> anyhow::Result<()> {
+    if let Some(logger) = summary_logger {
+        logger
+            .log_test_result(test_name, test_result.summary())
+            .await
+            .context("Failed to log test result")?
+    };
+
+    if test_result.failure() {
+        failed_tests.push(test_name);
+    } else {
+        successful_tests.push(test_name);
+    }
+
+    Ok(())
 }
 
 pub async fn run_test<F, R>(
@@ -193,13 +276,15 @@ where
     // assertion being incorrect can not lead to memory unsafety however it could theoretically
     // lead to logic bugs. The problem of forcing the test to be unwind safe is that it causes a
     // large amount of unergonomic design.
-    let result = panic::AssertUnwindSafe(test(test_context, runner_rpc.clone(), mullvad_rpc))
-        .catch_unwind()
-        .await
-        .map_err(panic_as_string);
+    let result: TestResult =
+        panic::AssertUnwindSafe(test(test_context, runner_rpc.clone(), mullvad_rpc))
+            .catch_unwind()
+            .await
+            .map_err(Panic::new)
+            .into();
 
     let mut output = vec![];
-    if matches!(result, Ok(Err(_)) | Err(_)) {
+    if result.failure() {
         let output_after_test = runner_rpc.try_poll_output().await;
         match output_after_test {
             Ok(mut output_after_test) => {
