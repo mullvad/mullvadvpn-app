@@ -117,6 +117,9 @@ import net.mullvad.mullvadvpn.lib.model.UpdateCustomListError
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints as ModelWireguardConstraints
 import net.mullvad.mullvadvpn.lib.model.WireguardEndpointData as ModelWireguardEndpointData
+import com.google.common.base.Preconditions
+import io.grpc.NameResolver
+import java.net.URI
 import net.mullvad.mullvadvpn.lib.model.addresses
 import net.mullvad.mullvadvpn.lib.model.customOptions
 import net.mullvad.mullvadvpn.lib.model.location
@@ -141,6 +144,33 @@ class ManagementService(
         UdsChannelBuilder.forPath(
                 rpcSocketFile.absolutePath,
                 LocalSocketAddress.Namespace.FILESYSTEM
+            )
+            .nameResolverFactory(
+                object : NameResolver.Factory() {
+                    override fun newNameResolver(
+                        targetUri: URI,
+                        args: NameResolver.Args
+                    ): NameResolver {
+                        val targetPath = Preconditions.checkNotNull(targetUri.path, "targetPath")
+                        Preconditions.checkArgument(
+                            targetPath.startsWith("/"),
+                            "the path component (%s) of the target (%s) must start with '/'",
+                            targetPath,
+                            targetUri,
+                        )
+                        val name = targetPath.substring(1)
+                        return SimpleDnsNameResolver(
+                            targetUri.authority,
+                            name,
+                            args,
+                            scope = scope
+                        )
+                    }
+
+                    override fun getDefaultScheme(): String {
+                        return "dns"
+                    }
+                },
             )
             .build()
 
