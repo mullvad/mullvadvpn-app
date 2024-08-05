@@ -13,8 +13,7 @@ use jnix::{
     FromJava, JnixEnv,
 };
 use mullvad_daemon::{
-    cleanup_old_rpc_socket, exception_logging, logging,
-    management_interface::ManagementInterfaceServer, runtime::new_multi_thread, version, Daemon,
+    cleanup_old_rpc_socket, exception_logging, logging, runtime::new_multi_thread, version, Daemon,
     DaemonCommandChannel, DaemonCommandSender,
 };
 use std::{
@@ -48,9 +47,6 @@ pub enum Error {
 
     #[error("Failed to init Tokio runtime")]
     InitTokio(#[source] io::Error),
-
-    #[error("Failed to spawn the management interface")]
-    SpawnManagementInterface(#[source] mullvad_daemon::management_interface::Error),
 }
 
 /// Throw a Java exception and return if `result` is an error
@@ -169,7 +165,6 @@ fn spawn_daemon(
         rpc_socket,
         files_dir,
         cache_dir,
-        daemon_command_channel,
         android_context,
     ))?;
 
@@ -184,25 +179,16 @@ async fn spawn_daemon_inner(
     rpc_socket: PathBuf,
     files_dir: PathBuf,
     cache_dir: PathBuf,
-    command_channel: DaemonCommandChannel,
     android_context: AndroidContext,
 ) -> Result<tokio::task::JoinHandle<()>, Error> {
     cleanup_old_rpc_socket(&rpc_socket).await;
-
-    let (event_listener, rpc_server) =
-        ManagementInterfaceServer::start(command_channel.sender(), &rpc_socket)
-            .map_err(Error::SpawnManagementInterface)?;
-
-    log::info!("Management interface listening on {}", rpc_socket.display());
 
     let daemon = Daemon::start(
         Some(files_dir.clone()),
         files_dir.clone(),
         files_dir,
         cache_dir,
-        event_listener,
-        rpc_server,
-        command_channel,
+        rpc_socket,
         android_context,
     )
     .await
