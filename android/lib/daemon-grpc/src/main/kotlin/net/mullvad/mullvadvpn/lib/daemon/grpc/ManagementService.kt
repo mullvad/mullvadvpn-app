@@ -120,6 +120,8 @@ import net.mullvad.mullvadvpn.lib.model.UpdateCustomListError
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints as ModelWireguardConstraints
 import net.mullvad.mullvadvpn.lib.model.WireguardEndpointData as ModelWireguardEndpointData
+import io.grpc.NameResolverRegistry
+import net.mullvad.mullvadvpn.lib.daemon.grpc.resolver.FixedUdsChannelBuilder
 import net.mullvad.mullvadvpn.lib.model.addresses
 import net.mullvad.mullvadvpn.lib.model.customOptions
 import net.mullvad.mullvadvpn.lib.model.location
@@ -139,16 +141,20 @@ class ManagementService(
 ) {
     private var job: Job? = null
 
+    /*private val test = NameResolverRegistry.getDefaultRegistry().apply {
+        this.register(UdsNameResolverProvider())
+    }*/
+
     // We expect daemon to create the rpc socket file on the path provided on initialisation
     private val channel =
-        UdsChannelBuilder.forPath(
+        FixedUdsChannelBuilder.forPath(
                 rpcSocketFile.absolutePath,
                 LocalSocketAddress.Namespace.FILESYSTEM
             )
             // We need to provide a DummyNameResolver to avoid default NameResolver making incorrect
             // InetSocketAddress look ups. For more info see:
             // https://github.com/grpc/grpc-java/issues/11442
-            .nameResolverFactory(DummyNameResolverFactory())
+            //.nameResolverFactory(DummyNameResolverFactory())
             .build()
 
     val connectionState: StateFlow<GrpcConnectivityState> =
