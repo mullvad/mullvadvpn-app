@@ -15,5 +15,5 @@ thiserror = { workspace = true }
 htmlize = { version = "1.0.2", features = ["unescape"] }
 once_cell = { workspace = true }
 regex = "1"
-serde = { version = "1", features = ["derive"] }
+serde = { workspace = true, features = ["derive"] }
 quick-xml = { version = "0.27.1", features = ["serialize"] }

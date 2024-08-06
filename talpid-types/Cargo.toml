@@ -11,7 +11,7 @@ rust-version.workspace = true
 workspace = true
 
 [dependencies]
-serde = { version = "1.0", features = ["derive"] }
+serde = { workspace = true, features = ["derive"] }
 ipnetwork = { workspace = true }
 base64 = "0.22.0"
 x25519-dalek = { version = "2.0.1", features = ["static_secrets", "zeroize", "getrandom"] }
