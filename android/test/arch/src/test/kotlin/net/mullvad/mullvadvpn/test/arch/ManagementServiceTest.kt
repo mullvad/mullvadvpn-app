@@ -19,12 +19,13 @@ class ManagementServiceTest {
     private fun managementServiceClass() =
         Konsist.scopeFromProject().classes().first { it.name == MANAGEMENT_SERVICE_CLASS_NAME }
 
-    private fun excludedFunctions() = setOf(START, STOP)
+    private fun excludedFunctions() = setOf(START, STOP, ENTER_IDLE)
 
     companion object {
         private const val MANAGEMENT_SERVICE_CLASS_NAME = "ManagementService"
         private const val START = "start"
         private const val STOP = "stop"
+        private const val ENTER_IDLE = "enterIdle"
         private const val EITHER_CLASS_NAME = "Either"
     }
 }
