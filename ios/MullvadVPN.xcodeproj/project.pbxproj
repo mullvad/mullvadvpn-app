@@ -9149,7 +9149,7 @@
 			repositoryURL = "https://github.com/mullvad/wireguard-apple.git";
 			requirement = {
 				kind = revision;
-				revision = 758a8a22ccdc9fe37c2483f991141d1c750144db;
+				revision = e3fdc2e95ccd7a30284ec78f3bdf4f9a252a1ed2;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
