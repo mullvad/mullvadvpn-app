@@ -169,6 +169,7 @@ pub async fn run(
     }
 
     // wait for cleanup
+    drop(client);
     drop(test_context);
     let _ = tokio::time::timeout(Duration::from_secs(5), completion_handle).await;
 
