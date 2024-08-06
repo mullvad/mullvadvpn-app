@@ -203,7 +203,7 @@ fn main() {
 
     let resources_dir = Path::new("../lib/resource/src/main/res");
 
-    let relay_locations_path = resources_dir.join("values/relay_locations.xml");
+    let relay_locations_path = resources_dir.join("xml/relay_locations.xml");
 
     let mut localized_strings = android::StringResources::new();
     for translation in default_translations {
@@ -240,7 +240,7 @@ fn main() {
             .unwrap()
             .to_str()
             .unwrap();
-        let destination_dir = resources_dir.join(android_locale_directory(locale));
+        let destination_dir = resources_dir.join(android_xml_directory(locale));
 
         if !destination_dir.exists() {
             fs::create_dir(&destination_dir).expect("Failed to create Android locale directory");
@@ -274,6 +274,23 @@ fn android_locale_directory(locale: &str) -> String {
     directory
 }
 
+/// Determines the localized value resources directory name based on a locale specification.
+///
+/// This just makes sure a locale such as `en-US' gets correctly mapped to the directory name
+/// `values-en-rUS`.
+fn android_xml_directory(locale: &str) -> String {
+    let mut directory = String::from("xml-");
+    let mut parts = locale.split('-');
+
+    directory.push_str(parts.next().unwrap());
+
+    if let Some(region) = parts.next() {
+        directory.push_str("-r");
+        directory.push_str(region);
+    }
+
+    directory
+}
 
 fn android_locale_key(id: String) -> String {
     return id.replace(',', "").replace(' ', "_").replace('/', "_");
