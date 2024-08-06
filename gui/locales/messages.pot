@@ -2321,6 +2321,9 @@ msgstr ""
 msgid "Invalid or missing value \"%s\""
 msgstr ""
 
+msgid "It looks like you\\’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
+msgstr ""
+
 msgid "Lets you select apps that should access the Internet directly without going through the VPN tunnel."
 msgstr ""
 
@@ -2331,9 +2334,6 @@ msgid "Locations"
 msgstr ""
 
 msgid "Locations were changed for \"%s\""
-msgstr ""
-
-msgid "Looks like you entered an account number"
 msgstr ""
 
 msgid "Makes sure the device is always on the VPN tunnel."
