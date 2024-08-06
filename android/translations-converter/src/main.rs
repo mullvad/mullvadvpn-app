@@ -35,6 +35,7 @@ mod android;
 mod gettext;
 mod normalize;
 
+use crate::gettext::MsgValue;
 use crate::normalize::Normalize;
 use std::{
     collections::HashMap,
@@ -42,7 +43,6 @@ use std::{
     io::BufReader,
     path::Path,
 };
-use crate::gettext::MsgValue;
 
 fn main() {
     let resources_dir = Path::new("../lib/resource/src/main/res");
@@ -140,7 +140,7 @@ fn main() {
                     value: gettext::MsgString::empty().into(),
                 }),
         )
-            .expect("Failed to append missing translations to message template file");
+        .expect("Failed to append missing translations to message template file");
     }
 
     if !missing_plurals.is_empty() {
@@ -190,9 +190,8 @@ fn main() {
                     }
                 }),
         )
-            .expect("Failed to append missing plural translations to message template file");
+        .expect("Failed to append missing plural translations to message template file");
     }
-
 
     // Generate all relay locale files
 
@@ -249,10 +248,7 @@ fn main() {
         let translations = gettext::Messages::from_file(&relay_file)
             .expect("Failed to load translations for a locale");
 
-        generate_relay_translations(
-            translations,
-            destination_dir.join("relay_locations.xml"),
-        );
+        generate_relay_translations(translations, destination_dir.join("relay_locations.xml"));
     }
 }
 
