@@ -22,7 +22,8 @@ sealed interface UpdateCustomListLocationsError {
 
 sealed interface UpdateCustomListError
 
-data class NameAlreadyExists(val name: String) : UpdateCustomListError, UpdateCustomListNameError
+data class NameAlreadyExists(val name: CustomListName) :
+    UpdateCustomListError, UpdateCustomListNameError
 
 data class UnknownCustomListError(val throwable: Throwable) :
     UpdateCustomListError,
