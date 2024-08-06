@@ -3,9 +3,7 @@ use clap::Subcommand;
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{
     constraints::Constraint,
-    relay_constraints::{
-        ObfuscationSettings, SelectedObfuscation, ShadowsocksSettings, Udp2TcpObfuscationSettings,
-    },
+    relay_constraints::{ObfuscationSettings, SelectedObfuscation, Udp2TcpObfuscationSettings},
 };
 
 #[derive(Subcommand, Debug)]
@@ -20,18 +18,12 @@ pub enum Obfuscation {
 
 #[derive(Subcommand, Debug, Clone)]
 pub enum SetCommands {
-    /// Specify which obfuscation protocol to use, if any.
+    /// Specifies if obfuscation should be used with WireGuard connections.
+    /// And if so, what obfuscation protocol it should use.
     Mode { mode: SelectedObfuscation },
 
-    /// Configure udp2tcp obfuscation.
+    /// Specifies the config for the udp2tcp obfuscator.
     Udp2tcp {
-        /// Port to use, or 'any'
-        #[arg(long, short = 'p')]
-        port: Constraint<u16>,
-    },
-
-    /// Configure Shadowsocks obfuscation.
-    Shadowsocks {
         /// Port to use, or 'any'
         #[arg(long, short = 'p')]
         port: Constraint<u16>,
@@ -49,7 +41,6 @@ impl Obfuscation {
                     obfuscation_settings.selected_obfuscation
                 );
                 println!("udp2tcp settings: {}", obfuscation_settings.udp2tcp);
-                println!("Shadowsocks settings: {}", obfuscation_settings.shadowsocks);
                 Ok(())
             }
             Obfuscation::Set(subcmd) => Self::set(subcmd).await,
@@ -71,13 +62,6 @@ impl Obfuscation {
             SetCommands::Udp2tcp { port } => {
                 rpc.set_obfuscation_settings(ObfuscationSettings {
                     udp2tcp: Udp2TcpObfuscationSettings { port },
-                    ..current_settings
-                })
-                .await?;
-            }
-            SetCommands::Shadowsocks { port } => {
-                rpc.set_obfuscation_settings(ObfuscationSettings {
-                    shadowsocks: ShadowsocksSettings { port },
                     ..current_settings
                 })
                 .await?;
