@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.compose.dialog
 
 import android.content.res.Configuration
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -126,6 +127,7 @@ fun RedeemVoucherDialog(
     onDismiss: (isTimeAdded: Boolean) -> Unit
 ) {
     AlertDialog(
+        modifier = Modifier,
         title = {
             if (state.voucherState !is VoucherDialogState.Success)
                 Text(
@@ -275,10 +277,23 @@ private fun EnterVoucherBody(
             )
         }
     }
+    if (
+        state.voucherState is VoucherDialogState.Error &&
+            state.voucherState.error is RedeemVoucherError.EnteredAccountNumber
+    ) {
+        Text(
+            modifier = Modifier.padding(top = Dimens.smallPadding),
+            text = stringResource(id = R.string.voucher_is_account_number),
+            color = MaterialTheme.colorScheme.onPrimary,
+            style = MaterialTheme.typography.bodySmall
+        )
+    }
 }
 
 private fun RedeemVoucherError.message(): Int =
     when (this) {
+        RedeemVoucherError.TooShortVoucher,
+        RedeemVoucherError.EnteredAccountNumber,
         RedeemVoucherError.InvalidVoucher -> R.string.invalid_voucher
         RedeemVoucherError.VoucherAlreadyUsed -> R.string.voucher_already_used
         RedeemVoucherError.RpcError,
