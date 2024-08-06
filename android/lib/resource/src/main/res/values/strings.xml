@@ -385,5 +385,4 @@
     <string name="failed_to_set_current_unknown_error">Failed to set to current - Unknown reason</string>
     <string name="location_was_removed_from_list">%s was removed from \"%s\"</string>
     <string name="create_custom_list_message">\"%s\" was created</string>
-    <string name="split_tunneling_disabled_description">Split tunneling is disabled.</string>
 </resources>
