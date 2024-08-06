@@ -2333,6 +2333,9 @@ msgstr ""
 msgid "Locations were changed for \"%s\""
 msgstr ""
 
+msgid "Looks like you entered an account number"
+msgstr ""
+
 msgid "Makes sure the device is always on the VPN tunnel."
 msgstr ""
 

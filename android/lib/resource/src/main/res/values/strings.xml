@@ -33,6 +33,7 @@
     <string name="redeem">Redeem</string>
     <string name="invalid_voucher">Voucher code is invalid.</string>
     <string name="voucher_already_used">Voucher code has already been used.</string>
+    <string name="voucher_is_account_number">Looks like you entered an account number</string>
     <string name="error_occurred">An error occurred.</string>
     <string name="settings">Settings</string>
     <string name="no_internet_connection">No internet connection</string>
