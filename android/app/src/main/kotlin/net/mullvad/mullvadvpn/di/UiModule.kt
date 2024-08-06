@@ -15,11 +15,13 @@ import net.mullvad.mullvadvpn.repository.ApiAccessRepository
 import net.mullvad.mullvadvpn.repository.ChangelogRepository
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.InAppNotificationController
+import net.mullvad.mullvadvpn.repository.LocaleRepository
 import net.mullvad.mullvadvpn.repository.NewDeviceRepository
 import net.mullvad.mullvadvpn.repository.PrivacyDisclaimerRepository
 import net.mullvad.mullvadvpn.repository.ProblemReportRepository
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.repository.RelayListRepository
+import net.mullvad.mullvadvpn.repository.RelayLocationTranslationRepository
 import net.mullvad.mullvadvpn.repository.RelayOverridesRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.SplashCompleteRepository
@@ -117,13 +119,15 @@ val uiModule = module {
     single { MullvadProblemReport(get()) }
     single { RelayOverridesRepository(get()) }
     single { CustomListsRepository(get()) }
-    single { RelayListRepository(get()) }
+    single { RelayListRepository(get(), get()) }
     single { RelayListFilterRepository(get()) }
     single { VoucherRepository(get(), get()) }
     single { SplitTunnelingRepository(get()) }
     single { ApiAccessRepository(get()) }
     single { NewDeviceRepository() }
     single { SplashCompleteRepository() }
+    single { LocaleRepository(get()) }
+    single { RelayLocationTranslationRepository(get(), get(), MainScope()) }
 
     single { AccountExpiryNotificationUseCase(get()) }
     single { TunnelStateNotificationUseCase(get()) }

@@ -1,11 +1,15 @@
 package net.mullvad.mullvadvpn.repository
 
+import arrow.optics.Every
+import arrow.optics.copy
+import arrow.optics.dsl.every
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -17,25 +21,46 @@ import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 import net.mullvad.mullvadvpn.lib.model.WireguardEndpointData
+import net.mullvad.mullvadvpn.lib.model.cities
+import net.mullvad.mullvadvpn.lib.model.name
 import net.mullvad.mullvadvpn.relaylist.findByGeoLocationId
 
 class RelayListRepository(
     private val managementService: ManagementService,
+    private val translationRepository: RelayLocationTranslationRepository,
     dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
     val relayList: StateFlow<List<RelayItem.Location.Country>> =
-        managementService.relayCountries.stateIn(
-            CoroutineScope(dispatcher),
-            SharingStarted.WhileSubscribed(),
-            emptyList()
-        )
+        combine(managementService.relayCountries, translationRepository.translationTable) {
+                countries,
+                translations ->
+                countries.translateRelay(translations)
+            }
+            .stateIn(CoroutineScope(dispatcher), SharingStarted.WhileSubscribed(), emptyList())
+
+    private fun List<RelayItem.Location.Country>.translateRelay(
+        translations: Map<String, String>
+    ): List<RelayItem.Location.Country> {
+        return if (translations.isEmpty()) {
+            return this
+        } else {
+            Every.list<RelayItem.Location.Country>().modify(this) {
+                it.copy<RelayItem.Location.Country> {
+                    RelayItem.Location.Country.name set translations.getOrDefault(it.name, it.name)
+                    RelayItem.Location.Country.cities.every(Every.list()).name transform
+                        { cityName ->
+                            translations.getOrDefault(cityName, cityName)
+                        }
+                }
+            }
+        }
+    }
 
     val wireguardEndpointData: StateFlow<WireguardEndpointData> =
         managementService.wireguardEndpointData.stateIn(
             CoroutineScope(dispatcher),
             SharingStarted.WhileSubscribed(),
-            defaultWireguardEndpointData()
-        )
+            defaultWireguardEndpointData())
 
     val selectedLocation: StateFlow<Constraint<RelayItemId>> =
         managementService.settings

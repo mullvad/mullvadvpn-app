@@ -10,6 +10,7 @@ import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import co.touchlab.kermit.Logger
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -21,7 +22,9 @@ import net.mullvad.mullvadvpn.lib.daemon.grpc.GrpcConnectivityState
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.intent.IntentProvider
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
+import net.mullvad.mullvadvpn.repository.LocaleRepository
 import net.mullvad.mullvadvpn.repository.PrivacyDisclaimerRepository
+import net.mullvad.mullvadvpn.repository.RelayLocationTranslationRepository
 import net.mullvad.mullvadvpn.repository.SplashCompleteRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.viewmodel.NoDaemonViewModel
@@ -45,6 +48,7 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
     private val serviceConnectionManager by inject<ServiceConnectionManager>()
     private val splashCompleteRepository by inject<SplashCompleteRepository>()
     private val managementService by inject<ManagementService>()
+    private val localeRepository by inject<LocaleRepository>()
 
     private var isReadyNextDraw: Boolean = false
 
@@ -63,6 +67,14 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
         }
         super.onCreate(savedInstanceState)
 
+        lifecycleScope.launch {
+            RelayLocationTranslationRepository(this@MainActivity, localeRepository, this).translationTable.collect {
+                Logger.d("Relay location translation table updated: $it")
+            }
+            localeRepository.currentLocale.collect {
+                Logger.d("Locale changed to: $it")
+            }
+        }
         // Needs to be before set content since we want to access the intent in compose
         if (savedInstanceState == null) {
             intentProvider.setStartIntent(intent)
