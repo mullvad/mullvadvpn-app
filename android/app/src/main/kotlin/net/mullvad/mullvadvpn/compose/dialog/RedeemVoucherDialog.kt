@@ -279,8 +279,10 @@ private fun EnterVoucherBody(
 
 private fun RedeemVoucherError.message(): Int =
     when (this) {
+        RedeemVoucherError.TooShortVoucher,
         RedeemVoucherError.InvalidVoucher -> R.string.invalid_voucher
         RedeemVoucherError.VoucherAlreadyUsed -> R.string.voucher_already_used
         RedeemVoucherError.RpcError,
         is RedeemVoucherError.Unknown -> R.string.error_occurred
+        RedeemVoucherError.EnteredAccountNumber -> R.string.voucher_is_account_number
     }

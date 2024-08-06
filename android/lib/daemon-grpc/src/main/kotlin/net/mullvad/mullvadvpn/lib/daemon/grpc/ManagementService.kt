@@ -115,6 +115,7 @@ import net.mullvad.mullvadvpn.lib.model.UnknownApiAccessMethodError
 import net.mullvad.mullvadvpn.lib.model.UnknownCustomListError
 import net.mullvad.mullvadvpn.lib.model.UpdateApiAccessMethodError
 import net.mullvad.mullvadvpn.lib.model.UpdateCustomListError
+import net.mullvad.mullvadvpn.lib.model.VoucherCode
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints as ModelWireguardConstraints
 import net.mullvad.mullvadvpn.lib.model.WireguardEndpointData as ModelWireguardEndpointData
@@ -569,8 +570,10 @@ class ManagementService(
             .mapLeft(SetWireguardConstraintsError::Unknown)
             .mapEmpty()
 
-    suspend fun submitVoucher(voucher: String): Either<RedeemVoucherError, RedeemVoucherSuccess> =
-        Either.catch { grpc.submitVoucher(StringValue.of(voucher)).toDomain() }
+    suspend fun submitVoucher(
+        voucher: VoucherCode
+    ): Either<RedeemVoucherError, RedeemVoucherSuccess> =
+        Either.catch { grpc.submitVoucher(StringValue.of(voucher.value)).toDomain() }
             .mapLeftStatus {
                 when (it.status.code) {
                     Status.Code.INVALID_ARGUMENT,
