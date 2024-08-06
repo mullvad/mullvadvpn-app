@@ -1,15 +1,8 @@
+use std::{path::PathBuf, thread, time::Duration};
+
 #[cfg(not(windows))]
 use mullvad_daemon::cleanup_old_rpc_socket;
-use mullvad_daemon::{
-    logging,
-    management_interface::{ManagementInterfaceEventBroadcaster, ManagementInterfaceServer},
-    rpc_uniqueness_check, runtime, version, Daemon, DaemonCommandChannel, DaemonCommandSender,
-};
-use std::{
-    path::{Path, PathBuf},
-    thread,
-    time::Duration,
-};
+use mullvad_daemon::{logging, rpc_uniqueness_check, runtime, version, Daemon};
 use talpid_types::ErrorExt;
 
 mod cli;
@@ -196,9 +189,7 @@ async fn run_standalone(log_dir: Option<PathBuf>) -> Result<(), String> {
     Ok(())
 }
 
-async fn create_daemon(
-    log_dir: Option<PathBuf>,
-) -> Result<Daemon<ManagementInterfaceEventBroadcaster>, String> {
+async fn create_daemon(log_dir: Option<PathBuf>) -> Result<Daemon, String> {
     let rpc_socket_path = mullvad_paths::get_rpc_socket_path();
     let resource_dir = mullvad_paths::get_resource_dir();
     let settings_dir = mullvad_paths::settings_dir()
@@ -206,36 +197,15 @@ async fn create_daemon(
     let cache_dir = mullvad_paths::cache_dir()
         .map_err(|e| e.display_chain_with_msg("Unable to get cache dir"))?;
 
-    let command_channel = DaemonCommandChannel::new();
-    let event_listener = spawn_management_interface(command_channel.sender(), rpc_socket_path)?;
-
     Daemon::start(
         log_dir,
         resource_dir,
         settings_dir,
         cache_dir,
-        event_listener,
-        command_channel,
+        rpc_socket_path,
     )
     .await
     .map_err(|e| e.display_chain_with_msg("Unable to initialize daemon"))
-}
-
-fn spawn_management_interface(
-    command_sender: DaemonCommandSender,
-    rpc_socket_path: impl AsRef<Path>,
-) -> Result<ManagementInterfaceEventBroadcaster, String> {
-    let event_broadcaster = ManagementInterfaceServer::start(command_sender, &rpc_socket_path)
-        .map_err(|error| {
-            error.display_chain_with_msg("Unable to start management interface server")
-        })?;
-
-    log::info!(
-        "Management interface listening on {}",
-        rpc_socket_path.as_ref().display()
-    );
-
-    Ok(event_broadcaster)
 }
 
 #[cfg(unix)]

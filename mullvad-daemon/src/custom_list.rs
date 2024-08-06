@@ -1,4 +1,4 @@
-use crate::{new_selector_config, Daemon, Error, EventListener};
+use crate::{new_selector_config, Daemon, Error};
 use mullvad_types::{
     constraints::Constraint,
     custom_list::{CustomList, Id},
@@ -6,10 +6,7 @@ use mullvad_types::{
 };
 use talpid_types::net::TunnelType;
 
-impl<L> Daemon<L>
-where
-    L: EventListener,
-{
+impl Daemon {
     /// Create a new custom list.
     ///
     /// Returns an error if the name is not unique.

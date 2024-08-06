@@ -133,7 +133,7 @@ pub async fn new_rpc_client() -> Result<ManagementServiceClient, Error> {
 #[cfg(not(target_os = "android"))]
 pub use client::MullvadProxyClient;
 
-pub type ServerJoinHandle = tokio::task::JoinHandle<Result<(), Error>>;
+pub type ServerJoinHandle = tokio::task::JoinHandle<()>;
 
 pub fn spawn_rpc_server<T: ManagementService, F: Future<Output = ()> + Send + 'static>(
     service: T,
@@ -164,11 +164,15 @@ pub fn spawn_rpc_server<T: ManagementService, F: Future<Output = ()> + Send + 's
     }
 
     Ok(tokio::spawn(async move {
-        Server::builder()
+        if let Err(execution_error) = Server::builder()
             .add_service(ManagementServiceServer::new(service))
             .serve_with_incoming_shutdown(incoming.map_ok(StreamBox), abort_rx)
             .await
             .map_err(Error::GrpcTransportError)
+        {
+            log::error!("Management server panic: {execution_error}");
+        }
+        log::trace!("gRPC server is shutting down");
     }))
 }
 
