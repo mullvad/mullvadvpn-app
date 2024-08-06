@@ -247,16 +247,19 @@ class ManagementService(
     suspend fun getDevice(): Either<GetDeviceStateError, ModelDeviceState> =
         Either.catch { grpc.getDevice(Empty.getDefaultInstance()) }
             .map { it.toDomain() }
+            .onLeft { Logger.e("Get device error") }
             .mapLeft { GetDeviceStateError.Unknown(it) }
 
     suspend fun updateDevice(): Either<DeviceUpdateError, Unit> =
         Either.catch { grpc.updateDevice(Empty.getDefaultInstance()) }
             .mapEmpty()
+            .onLeft { Logger.e("Update device error") }
             .mapLeft { DeviceUpdateError(it) }
 
     suspend fun getDeviceList(token: AccountNumber): Either<GetDeviceListError, List<Device>> =
         Either.catch { grpc.listDevices(StringValue.of(token.value)) }
             .map { it.devicesList.map(ManagementInterface.Device::toDomain) }
+            .onLeft { Logger.e("Get device list error") }
             .mapLeft { GetDeviceListError.Unknown(it) }
 
     suspend fun removeDevice(
@@ -272,18 +275,22 @@ class ManagementService(
                 )
             }
             .mapEmpty()
+            .onLeft { Logger.e("Remove device error") }
             .mapLeft { DeleteDeviceError.Unknown(it) }
 
     suspend fun connect(): Either<ConnectError, Boolean> =
         Either.catch { grpc.connectTunnel(Empty.getDefaultInstance()).value }
+            .onLeft { Logger.e("Connect error") }
             .mapLeft(ConnectError::Unknown)
 
     suspend fun disconnect(): Either<ConnectError, Boolean> =
         Either.catch { grpc.disconnectTunnel(Empty.getDefaultInstance()).value }
+            .onLeft { Logger.e("Disconnect error") }
             .mapLeft(ConnectError::Unknown)
 
     suspend fun reconnect(): Either<ConnectError, Boolean> =
         Either.catch { grpc.reconnectTunnel(Empty.getDefaultInstance()).value }
+            .onLeft { Logger.e("Reconnect error") }
             .mapLeft(ConnectError::Unknown)
 
     private suspend fun getTunnelState(): ModelTunnelState =
@@ -302,6 +309,7 @@ class ManagementService(
     // will get 404 until the api have been published, thus we need to ignore error downstream.
     private suspend fun getVersionInfo(): Either<GetVersionInfoError, ModelAppVersionInfo> =
         Either.catch { grpc.getVersionInfo(Empty.getDefaultInstance()).toDomain() }
+            .onLeft { Logger.e("Get version info error") }
             .mapLeft { GetVersionInfoError.Unknown(it) }
 
     private suspend fun getCurrentApiAccessMethod(): ApiAccessMethodSetting =
@@ -309,6 +317,7 @@ class ManagementService(
 
     suspend fun logoutAccount(): Either<LogoutAccountError, Unit> =
         Either.catch { grpc.logoutAccount(Empty.getDefaultInstance()) }
+            .onLeft { Logger.e("Logout account error") }
             .mapLeft(LogoutAccountError::Unknown)
             .mapEmpty()
 
@@ -320,13 +329,17 @@ class ManagementService(
                     Status.Code.RESOURCE_EXHAUSTED ->
                         LoginAccountError.MaxDevicesReached(accountNumber)
                     Status.Code.UNAVAILABLE -> LoginAccountError.RpcError
-                    else -> LoginAccountError.Unknown(it)
+                    else -> {
+                        Logger.e("Unknown login account error")
+                        LoginAccountError.Unknown(it)
+                    }
                 }
             }
             .mapEmpty()
 
     suspend fun clearAccountHistory(): Either<ClearAccountHistoryError, Unit> =
         Either.catch { grpc.clearAccountHistory(Empty.getDefaultInstance()) }
+            .onLeft { Logger.e("Clear account history error") }
             .mapLeft(ClearAccountHistoryError::Unknown)
             .mapEmpty()
 
@@ -339,6 +352,7 @@ class ManagementService(
                     null
                 }
             }
+            .onLeft { Logger.e("Get account history error") }
             .mapLeft(GetAccountHistoryError::Unknown)
 
     private suspend fun getInitialServiceState() {
@@ -358,6 +372,7 @@ class ManagementService(
         accountNumber: AccountNumber
     ): Either<GetAccountDataError, AccountData> =
         Either.catch { grpc.getAccountData(StringValue.of(accountNumber.value)).toDomain() }
+            .onLeft { Logger.e("Get account data error") }
             .mapLeft(GetAccountDataError::Unknown)
 
     suspend fun createAccount(): Either<CreateAccountError, AccountNumber> =
@@ -365,10 +380,12 @@ class ManagementService(
                 val accountNumberStringValue = grpc.createNewAccount(Empty.getDefaultInstance())
                 AccountNumber(accountNumberStringValue.value)
             }
+            .onLeft { Logger.e("Create account error") }
             .mapLeft(CreateAccountError::Unknown)
 
     suspend fun setDnsOptions(dnsOptions: ModelDnsOptions): Either<SetDnsOptionsError, Unit> =
         Either.catch { grpc.setDnsOptions(dnsOptions.fromDomain()) }
+            .onLeft { Logger.e("Set dns options error") }
             .mapLeft(SetDnsOptionsError::Unknown)
             .mapEmpty()
 
@@ -378,6 +395,7 @@ class ManagementService(
                 val updated = DnsOptions.state.set(currentDnsOptions, dnsState)
                 grpc.setDnsOptions(updated.fromDomain())
             }
+            .onLeft { Logger.e("Set dns state error") }
             .mapLeft(SetDnsOptionsError::Unknown)
             .mapEmpty()
 
@@ -391,6 +409,7 @@ class ManagementService(
 
                 grpc.setDnsOptions(updatedDnsOptions.fromDomain())
             }
+            .onLeft { Logger.e("Set custom dns error") }
             .mapLeft(SetDnsOptionsError::Unknown)
             .mapEmpty()
 
@@ -402,6 +421,7 @@ class ManagementService(
                 grpc.setDnsOptions(updatedDnsOptions.fromDomain())
                 updatedDnsOptions.customOptions.addresses.lastIndex
             }
+            .onLeft { Logger.e("Add custom dns error") }
             .mapLeft(SetDnsOptionsError::Unknown)
 
     suspend fun deleteCustomDns(index: Int): Either<SetDnsOptionsError, Unit> =
@@ -415,16 +435,19 @@ class ManagementService(
                     }
                 grpc.setDnsOptions(updatedDnsOptions.fromDomain())
             }
+            .onLeft { Logger.e("Delete custom dns error") }
             .mapLeft(SetDnsOptionsError::Unknown)
             .mapEmpty()
 
     suspend fun setWireguardMtu(value: Int): Either<SetWireguardMtuError, Unit> =
         Either.catch { grpc.setWireguardMtu(UInt32Value.of(value)) }
+            .onLeft { Logger.e("Set wireguard mtu error") }
             .mapLeft(SetWireguardMtuError::Unknown)
             .mapEmpty()
 
     suspend fun resetWireguardMtu(): Either<SetWireguardMtuError, Unit> =
         Either.catch { grpc.setWireguardMtu(UInt32Value.newBuilder().clearValue().build()) }
+            .onLeft { Logger.e("Reset wireguard mtu error") }
             .mapLeft(SetWireguardMtuError::Unknown)
             .mapEmpty()
 
@@ -432,6 +455,7 @@ class ManagementService(
         value: ModelQuantumResistantState
     ): Either<SetWireguardQuantumResistantError, Unit> =
         Either.catch { grpc.setQuantumResistantTunnel(value.toDomain()) }
+            .onLeft { Logger.e("Set wireguard quantum resistant error") }
             .mapLeft(SetWireguardQuantumResistantError::Unknown)
             .mapEmpty()
 
@@ -447,6 +471,7 @@ class ManagementService(
                     }
                 grpc.setObfuscationSettings(updatedObfuscationSettings.fromDomain())
             }
+            .onLeft { Logger.e("Set obfuscation error") }
             .mapLeft(SetObfuscationOptionsError::Unknown)
             .mapEmpty()
 
@@ -460,16 +485,19 @@ class ManagementService(
                     }
                 grpc.setObfuscationSettings(updatedSettings.fromDomain())
             }
+            .onLeft { Logger.e("Set obfuscation port error") }
             .mapLeft(SetObfuscationOptionsError::Unknown)
             .mapEmpty()
 
     suspend fun setAutoConnect(isEnabled: Boolean): Either<SetAutoConnectError, Unit> =
         Either.catch { grpc.setAutoConnect(BoolValue.of(isEnabled)) }
+            .onLeft { Logger.e("Set auto connect error") }
             .mapLeft(SetAutoConnectError::Unknown)
             .mapEmpty()
 
     suspend fun setAllowLan(allow: Boolean): Either<SetAllowLanError, Unit> =
         Either.catch { grpc.setAllowLan(BoolValue.of(allow)) }
+            .onLeft { Logger.e("Set allow lan error") }
             .mapLeft(SetAllowLanError::Unknown)
             .mapEmpty()
 
@@ -483,6 +511,7 @@ class ManagementService(
                     )
                 grpc.setRelaySettings(updatedRelaySettings.fromDomain())
             }
+            .onLeft { Logger.e("Set relay location error") }
             .mapLeft(SetRelayLocationError::Unknown)
             .mapEmpty()
 
@@ -494,7 +523,10 @@ class ManagementService(
             .mapLeftStatus {
                 when (it.status.code) {
                     Status.Code.ALREADY_EXISTS -> CustomListAlreadyExists
-                    else -> UnknownCustomListError(it)
+                    else -> {
+                        Logger.e("Unknown create custom list error")
+                        UnknownCustomListError(it)
+                    }
                 }
             }
 
@@ -503,18 +535,23 @@ class ManagementService(
             .mapLeftStatus {
                 when (it.status.code) {
                     Status.Code.ALREADY_EXISTS -> NameAlreadyExists(customList.name)
-                    else -> UnknownCustomListError(it)
+                    else -> {
+                        Logger.e("Unknown update custom list error")
+                        UnknownCustomListError(it)
+                    }
                 }
             }
             .mapEmpty()
 
     suspend fun deleteCustomList(id: CustomListId): Either<DeleteCustomListError, Unit> =
         Either.catch { grpc.deleteCustomList(StringValue.of(id.value)) }
+            .onLeft { Logger.e("Delete custom list error") }
             .mapLeft(::UnknownCustomListError)
             .mapEmpty()
 
     suspend fun clearAllRelayOverrides(): Either<ClearAllOverridesError, Unit> =
         Either.catch { grpc.clearAllRelayOverrides(Empty.getDefaultInstance()) }
+            .onLeft { Logger.e("Clear all relay overrides error") }
             .mapLeft(ClearAllOverridesError::Unknown)
             .mapEmpty()
 
@@ -524,7 +561,10 @@ class ManagementService(
                 when (it.status.code) {
                     // Currently we only get invalid argument errors from daemon via gRPC
                     Status.Code.INVALID_ARGUMENT -> SettingsPatchError.ParsePatch
-                    else -> SettingsPatchError.ApplyPatch
+                    else -> {
+                        Logger.e("Unknown apply settings patch error")
+                        SettingsPatchError.ApplyPatch
+                    }
                 }
             }
             .mapEmpty()
@@ -538,6 +578,7 @@ class ManagementService(
                     RelaySettings.relayConstraints.wireguardConstraints.set(relaySettings, value)
                 grpc.setRelaySettings(updated.fromDomain())
             }
+            .onLeft { Logger.e("Set wireguard constraints error") }
             .mapLeft(SetWireguardConstraintsError::Unknown)
             .mapEmpty()
 
@@ -556,6 +597,7 @@ class ManagementService(
                     }
                 grpc.setRelaySettings(updated.fromDomain())
             }
+            .onLeft { Logger.e("Set ownership and providers error") }
             .mapLeft(SetWireguardConstraintsError::Unknown)
             .mapEmpty()
 
@@ -567,6 +609,7 @@ class ManagementService(
                 val updated = RelaySettings.relayConstraints.ownership.set(relaySettings, ownership)
                 grpc.setRelaySettings(updated.fromDomain())
             }
+            .onLeft { Logger.e("Set ownership error") }
             .mapLeft(SetWireguardConstraintsError::Unknown)
             .mapEmpty()
 
@@ -579,6 +622,7 @@ class ManagementService(
                     RelaySettings.relayConstraints.providers.set(relaySettings, providersConstraint)
                 grpc.setRelaySettings(updated.fromDomain())
             }
+            .onLeft { Logger.e("Set providers error") }
             .mapLeft(SetWireguardConstraintsError::Unknown)
             .mapEmpty()
 
@@ -593,26 +637,33 @@ class ManagementService(
                     Status.Code.ALREADY_EXISTS,
                     Status.Code.RESOURCE_EXHAUSTED -> RedeemVoucherError.VoucherAlreadyUsed
                     Status.Code.UNAVAILABLE -> RedeemVoucherError.RpcError
-                    else -> RedeemVoucherError.Unknown(it)
+                    else -> {
+                        Logger.e("Unknown submit voucher error")
+                        RedeemVoucherError.Unknown(it)
+                    }
                 }
             }
 
     suspend fun initializePlayPurchase(): Either<PlayPurchaseInitError, PlayPurchasePaymentToken> =
         Either.catch { grpc.initPlayPurchase(Empty.getDefaultInstance()).toDomain() }
+            .onLeft { Logger.e("Initialize play purchase error") }
             .mapLeft { PlayPurchaseInitError.OtherError }
 
     suspend fun verifyPlayPurchase(purchase: PlayPurchase): Either<PlayPurchaseVerifyError, Unit> =
         Either.catch { grpc.verifyPlayPurchase(purchase.fromDomain()) }
+            .onLeft { Logger.e("Verify play purchase error") }
             .mapLeft { PlayPurchaseVerifyError.OtherError }
             .mapEmpty()
 
     suspend fun addSplitTunnelingApp(app: AppId): Either<AddSplitTunnelingAppError, Unit> =
         Either.catch { grpc.addSplitTunnelApp(StringValue.of(app.value)) }
+            .onLeft { Logger.e("Add split tunneling app error") }
             .mapLeft(AddSplitTunnelingAppError::Unknown)
             .mapEmpty()
 
     suspend fun removeSplitTunnelingApp(app: AppId): Either<RemoveSplitTunnelingAppError, Unit> =
         Either.catch { grpc.removeSplitTunnelApp(StringValue.of(app.value)) }
+            .onLeft { Logger.e("Remove split tunneling app error") }
             .mapLeft(RemoveSplitTunnelingAppError::Unknown)
             .mapEmpty()
 
@@ -620,17 +671,20 @@ class ManagementService(
         enabled: Boolean
     ): Either<RemoveSplitTunnelingAppError, Unit> =
         Either.catch { grpc.setSplitTunnelState(BoolValue.of(enabled)) }
+            .onLeft { Logger.e("Set split tunneling state error") }
             .mapLeft(RemoveSplitTunnelingAppError::Unknown)
             .mapEmpty()
 
     suspend fun getWebsiteAuthToken(): Either<Throwable, WebsiteAuthToken> =
         Either.catch { grpc.getWwwAuthToken(Empty.getDefaultInstance()) }
+            .onLeft { Logger.e("Get website auth token error") }
             .map { WebsiteAuthToken.fromString(it.value) }
 
     suspend fun addApiAccessMethod(
         newAccessMethodSetting: NewAccessMethodSetting
     ): Either<AddApiAccessMethodError, ApiAccessMethodId> =
         Either.catch { grpc.addApiAccessMethod(newAccessMethodSetting.fromDomain()) }
+            .onLeft { Logger.e("Add api access method error") }
             .mapLeft(AddApiAccessMethodError::Unknown)
             .map { ApiAccessMethodId.fromString(it.value) }
 
@@ -638,6 +692,7 @@ class ManagementService(
         apiAccessMethodId: ApiAccessMethodId
     ): Either<RemoveApiAccessMethodError, Unit> =
         Either.catch { grpc.removeApiAccessMethod(apiAccessMethodId.fromDomain()) }
+            .onLeft { Logger.e("Remove api access method error") }
             .mapLeft(RemoveApiAccessMethodError::Unknown)
             .mapEmpty()
 
@@ -645,6 +700,7 @@ class ManagementService(
         apiAccessMethodId: ApiAccessMethodId
     ): Either<SetApiAccessMethodError, Unit> =
         Either.catch { grpc.setApiAccessMethod(apiAccessMethodId.fromDomain()) }
+            .onLeft { Logger.e("Set api access method error") }
             .mapLeft(SetApiAccessMethodError::Unknown)
             .mapEmpty()
 
@@ -652,6 +708,7 @@ class ManagementService(
         apiAccessMethodSetting: ApiAccessMethodSetting
     ): Either<UpdateApiAccessMethodError, Unit> =
         Either.catch { grpc.updateApiAccessMethod(apiAccessMethodSetting.fromDomain()) }
+            .onLeft { Logger.e("Update api access method error") }
             .mapLeft(::UnknownApiAccessMethodError)
             .mapEmpty()
 
@@ -659,6 +716,7 @@ class ManagementService(
         customProxy: ApiAccessMethod.CustomProxy
     ): Either<TestApiAccessMethodError, Unit> =
         Either.catch { grpc.testCustomApiAccessMethod(customProxy.fromDomain()) }
+            .onLeft { Logger.e("Test custom api access method error") }
             .mapLeftStatus { TestApiAccessMethodError.Grpc }
             .map { result ->
                 either { ensure(result.value) { TestApiAccessMethodError.CouldNotAccess } }
@@ -668,6 +726,7 @@ class ManagementService(
         apiAccessMethodId: ApiAccessMethodId
     ): Either<TestApiAccessMethodError, Unit> =
         Either.catch { grpc.testApiAccessMethodById(apiAccessMethodId.fromDomain()) }
+            .onLeft { Logger.e("Test api access method error") }
             .mapLeftStatus { TestApiAccessMethodError.Grpc }
             .map { result ->
                 either { ensure(result.value) { TestApiAccessMethodError.CouldNotAccess } }
