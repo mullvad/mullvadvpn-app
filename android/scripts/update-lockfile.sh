@@ -32,4 +32,4 @@ echo "Removing old components..."
 sed -i '/<components>/,/<\/components>/d' ../gradle/verification-metadata.xml
 
 echo "Generating new components..."
-../gradlew -q -p .. --project-cache-dir "$TEMP_GRADLE_PROJECT_CACHE_DIR" -M sha256 "${GRADLE_TASKS[@]}"
+../gradlew -q -p .. --project-cache-dir "$TEMP_GRADLE_PROJECT_CACHE_DIR" -M pgp,sha256 --export-keys "${GRADLE_TASKS[@]}"
