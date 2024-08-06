@@ -2641,6 +2641,10 @@ impl Daemon {
         let result = self.settings.reset().await;
         Self::oneshot_send(tx, result, "reset_settings response");
 
+        // TODO: All of the functions below should probably be handled by settings observers
+        //       whenever settings are updated. For instance, changing "allow_lan" should probably
+        //       cause a tunnel command to be sent.
+
         #[cfg(any(target_os = "windows", target_os = "macos", target_os = "android"))]
         {
             let (tx, _rx) = oneshot::channel();
