@@ -13,7 +13,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -67,10 +66,7 @@ fun NavigationComposeCell(
     showWarning: Boolean = false,
     textColor: Color = MaterialTheme.colorScheme.onSurface,
     bodyView: @Composable () -> Unit = {
-        DefaultNavigationView(
-            chevronContentDescription = title,
-            tint = textColor
-        )
+        DefaultNavigationView(chevronContentDescription = title, tint = textColor)
     },
     isRowEnabled: Boolean = true,
     onClick: () -> Unit,

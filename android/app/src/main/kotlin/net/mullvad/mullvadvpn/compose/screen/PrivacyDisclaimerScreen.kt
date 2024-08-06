@@ -189,7 +189,7 @@ private fun Content(onPrivacyPolicyLinkClicked: () -> Unit) {
                         .padding(start = 2.dp, top = 2.dp)
                         .width(10.dp)
                         .height(10.dp),
-                tint = Color.Unspecified
+                tint = MaterialTheme.colorScheme.onSurface
             )
         }
     }

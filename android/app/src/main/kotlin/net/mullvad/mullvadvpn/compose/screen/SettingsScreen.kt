@@ -14,7 +14,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -214,7 +213,7 @@ private fun FaqAndGuides(context: Context) {
             @Composable {
                 DefaultExternalLinkView(
                     chevronContentDescription = faqGuideLabel,
-                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
+                    tint = MaterialTheme.colorScheme.onSurface
                 )
             },
         onClick = {
@@ -231,8 +230,8 @@ private fun PrivacyPolicy(context: Context, state: SettingsUiState) {
         bodyView =
             @Composable {
                 DefaultExternalLinkView(
-                    privacyPolicyLabel,
-                    ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
+                    chevronContentDescription = privacyPolicyLabel,
+                    tint = MaterialTheme.colorScheme.onSurface
                 )
             },
         onClick = {
