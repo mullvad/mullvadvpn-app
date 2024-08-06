@@ -137,23 +137,27 @@ const config = {
     artifactName: 'MullvadVPN-${version}_${arch}.${ext}',
     publisherName: 'Mullvad VPN AB',
     extraResources: [
-      { from: distAssets('mullvad.exe'), to: '.' },
-      { from: distAssets('mullvad-problem-report.exe'), to: '.' },
-      { from: distAssets('mullvad-daemon.exe'), to: '.' },
-      { from: distAssets('talpid_openvpn_plugin.dll'), to: '.' },
+      { from: distAssets(path.join('${env.BINARIES_PATH}', 'mullvad.exe')), to: '.' },
+      { from: distAssets(path.join('${env.BINARIES_PATH}', 'mullvad-problem-report.exe')), to: '.' },
+      { from: distAssets(path.join('${env.BINARIES_PATH}', 'mullvad-daemon.exe')), to: '.' },
+      {
+        from: distAssets(path.join('${env.BINARIES_PATH}', 'talpid_openvpn_plugin.dll')),
+        to: '.',
+      },
       {
         from: root(path.join('windows', 'winfw', 'bin', '${env.CPP_BUILD_TARGET}-${env.CPP_BUILD_MODE}', 'winfw.dll')),
         to: '.',
       },
-      { from: distAssets(path.join('binaries', getWindowsTargetSubdir(), 'openvpn.exe')), to: '.' },
-      { from: distAssets(path.join('binaries', getWindowsTargetSubdir(), 'apisocks5.exe')), to: '.' },
-      { from: distAssets(path.join('binaries', getWindowsTargetSubdir(), 'wintun/wintun.dll')), to: '.' },
+      // FIXME: Use ARM64 OpenVPN build when available
+      { from: distAssets(path.join('binaries', 'x86_64-windows-pc-msvc', 'openvpn.exe')), to: '.' },
+      { from: distAssets(path.join('binaries', '${env.TARGET_TRIPLE}', 'apisocks5.exe')), to: '.' },
+      { from: distAssets(path.join('binaries', '${env.TARGET_TRIPLE}', 'wintun/wintun.dll')), to: '.' },
       {
-        from: distAssets(path.join('binaries', getWindowsTargetSubdir(), 'split-tunnel/mullvad-split-tunnel.sys')),
+        from: distAssets(path.join('binaries', '${env.TARGET_TRIPLE}', 'split-tunnel/mullvad-split-tunnel.sys')),
         to: '.'
       },
       {
-        from: distAssets(path.join('binaries', getWindowsTargetSubdir(), 'wireguard-nt/mullvad-wireguard.dll')),
+        from: distAssets(path.join('binaries', '${env.TARGET_TRIPLE}', 'wireguard-nt/mullvad-wireguard.dll')),
         to: '.',
       },
       { from: distAssets('maybenot_machines'), to: '.' },
@@ -252,6 +256,23 @@ function packWin() {
       beforeBuild: (options) => {
         process.env.CPP_BUILD_MODE = release ? 'Release' : 'Debug';
         process.env.CPP_BUILD_TARGET = options.arch;
+
+        switch (options.arch) {
+          case 'x64':
+            process.env.TARGET_TRIPLE = 'x86_64-pc-windows-msvc';
+            break;
+          case 'arm64':
+            process.env.TARGET_TRIPLE = 'aarch64-pc-windows-msvc';
+            break;
+          default:
+            delete process.env.TARGET_TRIPLE;
+            break;
+        }
+
+        process.env.BINARIES_PATH = hostTargetTriple !== process.env.TARGET_TRIPLE
+          ? process.env.TARGET_TRIPLE
+          : '';
+
         return true;
       },
       afterAllArtifactBuild: (buildResult) => {
