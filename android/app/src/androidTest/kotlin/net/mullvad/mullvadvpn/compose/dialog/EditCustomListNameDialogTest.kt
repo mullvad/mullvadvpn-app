@@ -12,6 +12,7 @@ import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.EditCustomListNameUiState
 import net.mullvad.mullvadvpn.compose.test.EDIT_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG
+import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.lib.model.NameAlreadyExists
 import net.mullvad.mullvadvpn.lib.model.UnknownCustomListError
 import net.mullvad.mullvadvpn.usecase.customlists.RenameError
@@ -46,7 +47,10 @@ class EditCustomListNameDialogTest {
     fun givenCustomListExistsShouldShowCustomListExitsErrorText() =
         composeExtension.use {
             // Arrange
-            val state = EditCustomListNameUiState(error = RenameError(NameAlreadyExists("name")))
+            val state =
+                EditCustomListNameUiState(
+                    error = RenameError(NameAlreadyExists(CustomListName.fromString("name")))
+                )
             setContentWithTheme { EditCustomListNameDialog(state = state) }
 
             // Assert

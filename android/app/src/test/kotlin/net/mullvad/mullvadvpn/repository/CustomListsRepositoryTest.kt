@@ -146,7 +146,7 @@ class CustomListsRepositoryTest {
             // Arrange
             val customListId = CustomListId("1")
             val customListName = CustomListName.fromString("CUSTOM")
-            val expectedResult = NameAlreadyExists(customListName.value).left()
+            val expectedResult = NameAlreadyExists(customListName).left()
             val mockSettings: Settings = mockk()
             val mockCustomList =
                 CustomList(
