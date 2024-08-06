@@ -37,6 +37,7 @@ use futures::{
     StreamExt,
 };
 use geoip::GeoIpHandler;
+use management_interface::ManagementInterfaceServer;
 use mullvad_relay_selector::{
     AdditionalRelayConstraints, AdditionalWireguardConstraints, RelaySelector, SelectorConfig,
 };
@@ -110,6 +111,9 @@ pub enum Error {
 
     #[error("REST request failed")]
     RestError(#[source] mullvad_api::rest::Error),
+
+    #[error("Management interface error")]
+    ManagementInterfaceError(#[source] management_interface::Error),
 
     #[error("API availability check failed")]
     ApiCheckError(#[source] mullvad_api::availability::Error),
@@ -549,32 +553,7 @@ where
     }
 }
 
-/// Trait representing something that can broadcast daemon events.
-pub trait EventListener: Clone + Send + Sync + 'static {
-    /// Notify that the tunnel state changed.
-    fn notify_new_state(&self, new_state: TunnelState);
-
-    /// Notify that the settings changed.
-    fn notify_settings(&self, settings: Settings);
-
-    /// Notify that the relay list changed.
-    fn notify_relay_list(&self, relay_list: RelayList);
-
-    /// Notify that info about the latest available app version changed.
-    /// Or some flag about the currently running version is changed.
-    fn notify_app_version(&self, app_version_info: AppVersionInfo);
-
-    /// Notify that device changed (login, logout, or key rotation).
-    fn notify_device_event(&self, event: DeviceEvent);
-
-    /// Notify that a device was revoked using `RemoveDevice`.
-    fn notify_remove_device_event(&self, event: RemoveDeviceEvent);
-
-    /// Notify that the api access method changed.
-    fn notify_new_access_method_event(&self, new_access_method: AccessMethodSetting);
-}
-
-pub struct Daemon<L: EventListener> {
+pub struct Daemon {
     tunnel_state: TunnelState,
     target_state: PersistentTargetState,
     #[cfg(target_os = "linux")]
@@ -582,7 +561,7 @@ pub struct Daemon<L: EventListener> {
     rx: mpsc::UnboundedReceiver<InternalDaemonEvent>,
     tx: DaemonEventSender,
     reconnection_job: Option<AbortHandle>,
-    event_listener: L,
+    management_interface: ManagementInterfaceServer,
     migration_complete: migrations::MigrationComplete,
     settings: SettingsPersister,
     account_history: account_history::AccountHistory,
@@ -602,26 +581,29 @@ pub struct Daemon<L: EventListener> {
     location_handler: GeoIpHandler,
 }
 
-impl<L> Daemon<L>
-where
-    L: EventListener,
-{
+impl Daemon {
+    #[allow(clippy::too_many_arguments)]
     pub async fn start(
         log_dir: Option<PathBuf>,
         resource_dir: PathBuf,
         settings_dir: PathBuf,
         cache_dir: PathBuf,
-        event_listener: L,
-        command_channel: DaemonCommandChannel,
+        rpc_socket_path: PathBuf,
         #[cfg(target_os = "android")] android_context: AndroidContext,
     ) -> Result<Self, Error> {
         #[cfg(target_os = "macos")]
         macos::bump_filehandle_limit();
 
-        mullvad_api::proxy::ApiConnectionMode::try_delete_cache(&cache_dir).await;
+        let command_channel = DaemonCommandChannel::new();
+        let command_sender = command_channel.sender();
+
+        let management_interface =
+            ManagementInterfaceServer::start(command_sender, rpc_socket_path)
+                .map_err(Error::ManagementInterfaceError)?;
 
         let (internal_event_tx, internal_event_rx) = command_channel.destructure();
 
+        mullvad_api::proxy::ApiConnectionMode::try_delete_cache(&cache_dir).await;
         let api_runtime = mullvad_api::Runtime::with_cache(
             &cache_dir,
             true,
@@ -644,7 +626,7 @@ where
                 None
             });
 
-        let settings_event_listener = event_listener.clone();
+        let settings_event_listener = management_interface.notifier().clone();
         let mut settings = SettingsPersister::load(&settings_dir).await;
         settings.register_change_listener(move |settings| {
             // Notify management interface server of changes to the settings
@@ -804,7 +786,7 @@ where
 
         api::forward_offline_state(api_availability.clone(), offline_state_rx);
 
-        let relay_list_listener = event_listener.clone();
+        let relay_list_listener = management_interface.notifier().clone();
         let on_relay_list_update = move |relay_list: &RelayList| {
             relay_list_listener.notify_relay_list(relay_list.clone());
         };
@@ -844,7 +826,7 @@ where
             rx: internal_event_rx,
             tx: internal_event_tx,
             reconnection_job: None,
-            event_listener,
+            management_interface,
             migration_complete,
             settings,
             account_history,
@@ -915,7 +897,7 @@ where
     /// be destroyed, and executing shutdown tasks
     async fn finalize(self) {
         let Daemon {
-            event_listener,
+            management_interface,
             shutdown_tasks,
             api_runtime,
             tunnel_state_machine_handle,
@@ -932,8 +914,9 @@ where
         account_manager.shutdown().await;
 
         tunnel_state_machine_handle.try_join().await;
+        // Wait for the management interface server to shut down
+        management_interface.stop().await;
 
-        drop(event_listener);
         drop(api_runtime);
     }
 
@@ -1042,7 +1025,9 @@ where
         }
 
         self.tunnel_state = tunnel_state.clone();
-        self.event_listener.notify_new_state(tunnel_state);
+        self.management_interface
+            .notifier()
+            .notify_new_state(tunnel_state);
         self.fetch_am_i_mullvad();
     }
 
@@ -1110,7 +1095,8 @@ where
             _ => return,
         };
 
-        self.event_listener
+        self.management_interface
+            .notifier()
             .notify_new_state(self.tunnel_state.clone());
     }
 
@@ -1125,7 +1111,8 @@ where
                 // Make sure to update the daemon's actual tunnel state. Otherwise feature indicator changes won't be persisted.
                 self.tunnel_state
                     .set_feature_indicators(new_feature_indicators);
-                self.event_listener
+                self.management_interface
+                    .notifier()
                     .notify_new_state(self.tunnel_state.clone());
             }
         }
@@ -1287,7 +1274,9 @@ where
     }
 
     fn handle_new_app_version_info(&mut self, app_version_info: AppVersionInfo) {
-        self.event_listener.notify_app_version(app_version_info);
+        self.management_interface
+            .notifier()
+            .notify_app_version(app_version_info);
     }
 
     async fn handle_device_event(&mut self, event: AccountEvent) {
@@ -1338,7 +1327,8 @@ where
             _ => (),
         }
         if let AccountEvent::Device(event) = event {
-            self.event_listener
+            self.management_interface
+                .notifier()
                 .notify_device_event(DeviceEvent::from(event));
         }
     }
@@ -1367,14 +1357,14 @@ where
                 // currently active access method. The announcement should be
                 // made after the firewall policy has been updated, since the
                 // new access method will be useless before then.
-                let event_listener = self.event_listener.clone();
+                let notifier = self.management_interface.notifier().clone();
                 tokio::spawn(async move {
                     // Wait for the firewall policy to be updated.
                     let _ = completion_rx.await;
                     // Let the emitter of this event know that the firewall has been updated.
                     let _ = endpoint_active_tx.send(());
                     // Notify clients about the change if necessary.
-                    event_listener.notify_new_access_method_event(setting);
+                    notifier.notify_new_access_method_event(setting);
                 });
             }
         }
@@ -1385,7 +1375,7 @@ where
         result: Result<PrivateAccountAndDevice, device::Error>,
     ) {
         let account_manager = self.account_manager.clone();
-        let event_listener = self.event_listener.clone();
+        let notifier = self.management_interface.notifier().clone();
         tokio::spawn(async move {
             if let Ok(Some(_)) = account_manager
                 .data_after_login()
@@ -1414,7 +1404,7 @@ where
                         new_state: DeviceState::LoggedOut,
                     },
                 };
-                event_listener.notify_device_event(event);
+                notifier.notify_device_event(event);
             }
         });
     }
@@ -1639,7 +1629,7 @@ where
         device_id: DeviceId,
     ) {
         let device_service = self.account_manager.device_service.clone();
-        let event_listener = self.event_listener.clone();
+        let notifier = self.management_interface.notifier().clone();
 
         tokio::spawn(async move {
             let result = device_service
@@ -1648,7 +1638,7 @@ where
                 .map(move |new_devices| {
                     // FIXME: We should be able to get away with only returning the removed ID,
                     //        and not have to request the list from the API.
-                    event_listener.notify_remove_device_event(RemoveDeviceEvent {
+                    notifier.notify_remove_device_event(RemoveDeviceEvent {
                         account_token,
                         new_devices,
                     });
