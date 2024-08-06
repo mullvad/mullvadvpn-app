@@ -68,7 +68,7 @@ const config = {
     if (context.arch !== Arch.universal) {
       const resources = context.packager.platformSpecificBuildOptions.extraResources;
       for (const resource of resources) {
-        const filePath = resource.from.replace(/\$\{env\.(.*)\}/, function (match, captureGroup) {
+        const filePath = resource.from.replace(/\$\{env\.(.*?)\}/g, function (match, captureGroup) {
           return process.env[captureGroup];
         });
 
