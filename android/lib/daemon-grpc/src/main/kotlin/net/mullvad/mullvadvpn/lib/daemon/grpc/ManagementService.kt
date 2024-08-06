@@ -77,6 +77,7 @@ import net.mullvad.mullvadvpn.lib.model.GetDeviceListError
 import net.mullvad.mullvadvpn.lib.model.GetDeviceStateError
 import net.mullvad.mullvadvpn.lib.model.GetVersionInfoError
 import net.mullvad.mullvadvpn.lib.model.LoginAccountError
+import net.mullvad.mullvadvpn.lib.model.NameAlreadyExists
 import net.mullvad.mullvadvpn.lib.model.NewAccessMethodSetting
 import net.mullvad.mullvadvpn.lib.model.ObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.Ownership as ModelOwnership
@@ -492,7 +493,12 @@ class ManagementService(
 
     suspend fun updateCustomList(customList: ModelCustomList): Either<UpdateCustomListError, Unit> =
         Either.catch { grpc.updateCustomList(customList.fromDomain()) }
-            .mapLeft(::UnknownCustomListError)
+            .mapLeftStatus {
+                when (it.status.code) {
+                    Status.Code.ALREADY_EXISTS -> NameAlreadyExists(customList.name)
+                    else -> UnknownCustomListError(it)
+                }
+            }
             .mapEmpty()
 
     suspend fun deleteCustomList(id: CustomListId): Either<DeleteCustomListError, Unit> =

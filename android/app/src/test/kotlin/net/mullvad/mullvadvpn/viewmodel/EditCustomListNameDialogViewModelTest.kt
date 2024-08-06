@@ -48,16 +48,16 @@ class EditCustomListNameDialogViewModelTest {
     fun `when failing to rename a list should update ui state with error`() = runTest {
         // Arrange
         val customListId = CustomListId("id2")
-        val customListName = "list2"
+        val customListName = CustomListName.fromString("list2")
         val expectedError = RenameError(NameAlreadyExists(customListName))
-        val viewModel = createViewModel(customListId, customListName)
+        val viewModel = createViewModel(customListId, customListName.value)
         coEvery { mockCustomListActionUseCase(any<CustomListAction.Rename>()) } returns
             expectedError.left()
 
         // Act, Assert
         viewModel.uiState.test {
             awaitItem() // Default state
-            viewModel.updateCustomListName(customListName)
+            viewModel.updateCustomListName(customListName.value)
             assertEquals(expectedError, awaitItem().error)
         }
     }
@@ -67,16 +67,16 @@ class EditCustomListNameDialogViewModelTest {
         runTest {
             // Arrange
             val customListId = CustomListId("id")
-            val customListName = "list"
+            val customListName = CustomListName.fromString("list")
             val expectedError = RenameError(NameAlreadyExists(customListName))
-            val viewModel = createViewModel(customListId, customListName)
+            val viewModel = createViewModel(customListId, customListName.value)
             coEvery { mockCustomListActionUseCase(any<CustomListAction.Rename>()) } returns
                 expectedError.left()
 
             // Act, Assert
             viewModel.uiState.test {
                 awaitItem() // Default state
-                viewModel.updateCustomListName(customListName)
+                viewModel.updateCustomListName(customListName.value)
                 assertEquals(expectedError, awaitItem().error) // Showing error
             }
         }
