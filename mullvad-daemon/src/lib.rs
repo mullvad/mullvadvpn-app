@@ -2284,8 +2284,7 @@ impl Daemon {
         {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set_daita_settings response");
-                if settings_changed && self.get_target_tunnel_type() == Some(TunnelType::Wireguard)
-                {
+                if settings_changed && self.get_target_tunnel_type() != Some(TunnelType::OpenVpn) {
                     log::info!("Reconnecting because DAITA settings changed");
                     self.reconnect_tunnel();
                 }
