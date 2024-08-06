@@ -78,9 +78,9 @@ class WelcomeViewModel(
     }
 
     fun onDisconnectClick() {
-        viewModelScope.launch { connectionProxy.disconnect().onLeft {
-            _uiSideEffect.send(UiSideEffect.GenericError)
-        } }
+        viewModelScope.launch {
+            connectionProxy.disconnect().onLeft { _uiSideEffect.send(UiSideEffect.GenericError) }
+        }
     }
 
     private fun verifyPurchases() {
