@@ -16,6 +16,7 @@ import net.mullvad.mullvadvpn.compose.state.VoucherDialogState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.RedeemVoucherError
 import net.mullvad.mullvadvpn.lib.model.RedeemVoucherSuccess
+import net.mullvad.mullvadvpn.lib.model.VoucherCode
 import net.mullvad.mullvadvpn.lib.shared.VoucherRepository
 import org.joda.time.DateTime
 import org.junit.jupiter.api.AfterEach
@@ -45,11 +46,12 @@ class VoucherDialogViewModelTest {
     @Test
     fun `ensure onRedeem invokes submit on VoucherRedeemer with same voucher code`() = runTest {
         val voucher = DUMMY_INVALID_VOUCHER
+        val parsedVoucher = VoucherCode.fromString(voucher).getOrNull()!!
 
         // Arrange
         val timeAdded = 0L
         val newExpiry = DateTime()
-        coEvery { mockVoucherRepository.submitVoucher(voucher) } returns
+        coEvery { mockVoucherRepository.submitVoucher(parsedVoucher) } returns
             RedeemVoucherSuccess(timeAdded, newExpiry).right()
 
         // Act
@@ -57,7 +59,7 @@ class VoucherDialogViewModelTest {
         viewModel.onRedeem(voucher)
 
         // Assert
-        coVerify(exactly = 1) { mockVoucherRepository.submitVoucher(voucher) }
+        coVerify(exactly = 1) { mockVoucherRepository.submitVoucher(parsedVoucher) }
     }
 
     @Test
@@ -66,8 +68,9 @@ class VoucherDialogViewModelTest {
 
         // Arrange
         every { mockVoucherSubmission.timeAdded } returns 0
-        coEvery { mockVoucherRepository.submitVoucher(voucher) } returns
-            RedeemVoucherError.InvalidVoucher.left()
+        coEvery {
+            mockVoucherRepository.submitVoucher(VoucherCode.fromString(voucher).getOrNull()!!)
+        } returns RedeemVoucherError.InvalidVoucher.left()
 
         // Act, Assert
         viewModel.uiState.test {
@@ -84,8 +87,9 @@ class VoucherDialogViewModelTest {
 
         // Arrange
         every { mockVoucherSubmission.timeAdded } returns 0
-        coEvery { mockVoucherRepository.submitVoucher(voucher) } returns
-            RedeemVoucherSuccess(0, DateTime()).right()
+        coEvery {
+            mockVoucherRepository.submitVoucher(VoucherCode.fromString(voucher).getOrNull()!!)
+        } returns RedeemVoucherSuccess(0, DateTime()).right()
 
         // Act, Assert
         viewModel.uiState.test {
@@ -102,8 +106,9 @@ class VoucherDialogViewModelTest {
 
         // Arrange
         every { mockVoucherSubmission.timeAdded } returns 0
-        coEvery { mockVoucherRepository.submitVoucher(voucher) } returns
-            RedeemVoucherError.VoucherAlreadyUsed.left()
+        coEvery {
+            mockVoucherRepository.submitVoucher(VoucherCode.fromString(voucher).getOrNull()!!)
+        } returns RedeemVoucherError.VoucherAlreadyUsed.left()
 
         // Act, Assert
         viewModel.uiState.test {
