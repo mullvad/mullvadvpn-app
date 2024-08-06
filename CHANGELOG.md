@@ -34,6 +34,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 - Fix mullvad cli bug causing `mullvad status listen` command to miss events if they occurred
   too quickly.
+- Fix bug causing app to enter blocked state when toggling DAITA on and off.
 
 #### macOS
 - Fix intermittent failures to connect with PQ enabled.
