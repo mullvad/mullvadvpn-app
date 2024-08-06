@@ -127,9 +127,9 @@ class CustomListActionUseCaseTest {
         val action = CustomListAction.Rename(id = customListId, name = name, newName = newName)
         coEvery {
             mockCustomListsRepository.updateCustomListName(id = customListId, name = newName)
-        } returns NameAlreadyExists(newName.value).left()
+        } returns NameAlreadyExists(newName).left()
 
-        val expectedError = RenameError(NameAlreadyExists(newName.value)).left()
+        val expectedError = RenameError(NameAlreadyExists(newName)).left()
 
         // Act
         val result = customListActionUseCase(action)
