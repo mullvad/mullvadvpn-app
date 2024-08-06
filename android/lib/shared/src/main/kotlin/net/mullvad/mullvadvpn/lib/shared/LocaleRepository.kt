@@ -1,10 +1,9 @@
-package net.mullvad.mullvadvpn.repository
+package net.mullvad.mullvadvpn.lib.shared
 
 import android.content.res.Resources
-import android.os.Build
-import android.util.Log
 import co.touchlab.kermit.Logger
 import java.util.Locale
+import kotlin.also
 import kotlinx.coroutines.flow.MutableStateFlow
 
 class LocaleRepository(val resources: Resources) {
@@ -14,8 +13,6 @@ class LocaleRepository(val resources: Resources) {
 
     fun refreshLocale() {
         Logger.d("AppLang: Refreshing locale")
-        currentLocale.value = getLocale().also {
-            Logger.d("AppLang: New locale: $it")
-        }
+        currentLocale.value = getLocale().also { Logger.d("AppLang: New locale: $it") }
     }
 }

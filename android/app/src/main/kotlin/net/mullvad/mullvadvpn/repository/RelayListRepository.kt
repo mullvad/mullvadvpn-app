@@ -23,6 +23,7 @@ import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 import net.mullvad.mullvadvpn.lib.model.WireguardEndpointData
 import net.mullvad.mullvadvpn.lib.model.cities
 import net.mullvad.mullvadvpn.lib.model.name
+import net.mullvad.mullvadvpn.lib.shared.RelayLocationTranslationRepository
 import net.mullvad.mullvadvpn.relaylist.findByGeoLocationId
 
 class RelayListRepository(
@@ -31,7 +32,7 @@ class RelayListRepository(
     dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
     val relayList: StateFlow<List<RelayItem.Location.Country>> =
-        combine(managementService.relayCountries, translationRepository.translationTable) {
+        combine(managementService.relayCountries, translationRepository.translations) {
                 countries,
                 translations ->
                 countries.translateRelay(translations)
@@ -60,7 +61,8 @@ class RelayListRepository(
         managementService.wireguardEndpointData.stateIn(
             CoroutineScope(dispatcher),
             SharingStarted.WhileSubscribed(),
-            defaultWireguardEndpointData())
+            defaultWireguardEndpointData()
+        )
 
     val selectedLocation: StateFlow<Constraint<RelayItemId>> =
         managementService.settings

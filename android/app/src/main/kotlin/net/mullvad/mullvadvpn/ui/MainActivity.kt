@@ -21,10 +21,10 @@ import net.mullvad.mullvadvpn.lib.common.util.SdkUtils.requestNotificationPermis
 import net.mullvad.mullvadvpn.lib.daemon.grpc.GrpcConnectivityState
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.intent.IntentProvider
+import net.mullvad.mullvadvpn.lib.shared.LocaleRepository
+import net.mullvad.mullvadvpn.lib.shared.RelayLocationTranslationRepository
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
-import net.mullvad.mullvadvpn.repository.LocaleRepository
 import net.mullvad.mullvadvpn.repository.PrivacyDisclaimerRepository
-import net.mullvad.mullvadvpn.repository.RelayLocationTranslationRepository
 import net.mullvad.mullvadvpn.repository.SplashCompleteRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.viewmodel.NoDaemonViewModel
@@ -68,12 +68,10 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
         super.onCreate(savedInstanceState)
 
         lifecycleScope.launch {
-            RelayLocationTranslationRepository(this@MainActivity, localeRepository, this).translationTable.collect {
-                Logger.d("Relay location translation table updated: $it")
-            }
-            localeRepository.currentLocale.collect {
-                Logger.d("Locale changed to: $it")
-            }
+            RelayLocationTranslationRepository(this@MainActivity, localeRepository, this)
+                .translations
+                .collect { Logger.d("Relay location translation table updated: $it") }
+            localeRepository.currentLocale.collect { Logger.d("Locale changed to: $it") }
         }
         // Needs to be before set content since we want to access the intent in compose
         if (savedInstanceState == null) {

@@ -1,21 +1,25 @@
-package net.mullvad.mullvadvpn.repository
+package net.mullvad.mullvadvpn.lib.shared
 
 import android.content.Context
 import android.content.res.Configuration
 import android.content.res.XmlResourceParser
 import co.touchlab.kermit.Logger
 import java.util.Locale
+import kotlin.also
+import kotlin.collections.associate
+import kotlin.collections.set
+import kotlin.collections.toMap
+import kotlin.to
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.R
 
 class RelayLocationTranslationRepository(
     val context: Context,
     val localeRepository: LocaleRepository,
     scope: CoroutineScope
 ) {
-    val translationTable = MutableStateFlow<Map<String, String>>(mapOf())
+    val translations = MutableStateFlow<Map<String, String>>(mapOf())
 
     private val defaultTranslation: Map<String, String>
 
@@ -27,23 +31,20 @@ class RelayLocationTranslationRepository(
         Logger.d("AppLang: Default translation = $defaultTranslation")
 
         scope.launch { localeRepository.currentLocale.collect { dodo(it) } }
-
     }
 
     private fun dodo(locale: Locale?) {
         Logger.d("AppLang: Updating based on current locale to $locale")
-        if (locale == null || locale.language == DEFAULT_LANGUAGE)
-            translationTable.value = emptyMap()
+        if (locale == null || locale.language == DEFAULT_LANGUAGE) translations.value = emptyMap()
         else {
             // Load current translations
             val xml = context.resources.getXml(R.xml.relay_locations)
             val translation = loadRelayTranslation(xml)
 
-
-            translationTable.value =
-                translation.entries.associate { (id, name) -> defaultTranslation[id]!! to name }.also {
-                    Logger.d("AppLang: New translationTable: $it")
-                }
+            translations.value =
+                translation.entries
+                    .associate { (id, name) -> defaultTranslation[id]!! to name }
+                    .also { Logger.d("AppLang: New translationTable: $it") }
         }
     }
 

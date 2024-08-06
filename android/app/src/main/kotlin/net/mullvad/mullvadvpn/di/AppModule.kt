@@ -32,5 +32,5 @@ val appModule = module {
     single { AccountRepository(get(), get(), MainScope()) }
     single { DeviceRepository(get()) }
     single { VpnPermissionRepository(androidContext()) }
-    single { ConnectionProxy(get(), get()) }
+    single { ConnectionProxy(get(), get(), get()) }
 }
