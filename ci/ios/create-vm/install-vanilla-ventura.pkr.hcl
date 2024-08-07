@@ -23,8 +23,14 @@ source "tart-cli" "tart" {
    boot_command = [
     # hello, hola, bonjour, etc.
     "<wait60s><spacebar>",
-    # Force selection of english as a language.
-    "<wait30s>english<enter>",
+    # Language: most of the times we have a list of "English"[1], "English (UK)", etc. with
+    # "English" language already selected. If we type "english", it'll cause us to switch
+    # to the "English (UK)", which is not what we want. To solve this, we switch to some other
+    # language first, e.g. "Italiano" and then switch back to "English". We'll then jump to the
+    # first entry in a list of "english"-prefixed items, which will be "English".
+    #
+    # [1]: should be named "English (US)", but oh well 🤷
+    "<wait30s>italiano<esc>english<enter>",
     # Select Your Country and Region
     "<wait30s>united states<leftShiftOn><tab><leftShiftOff><spacebar>",
     # Written and Spoken Languages
@@ -52,7 +58,7 @@ source "tart-cli" "tart" {
     # Select Your Time Zone
     "<wait10s><tab>UTC<enter><leftShiftOn><tab><leftShiftOff><spacebar>",
     # Analytics
-    "<wait10s><tab><spacebar><leftShiftOn><tab><leftShiftOff><spacebar>",
+    "<wait10s><leftShiftOn><tab><leftShiftOff><spacebar>",
     # Screen Time
     "<wait10s><tab><spacebar>",
     # Siri
@@ -60,17 +66,21 @@ source "tart-cli" "tart" {
     # Choose Your Look
     "<wait10s><leftShiftOn><tab><leftShiftOff><spacebar>",
     # Enable Voice Over
-    "<wait10s><leftAltOn><f5><leftAltOff><wait5s>v",
+    "<wait10s><leftAltOn><f5><leftAltOff><wait5s>",
     # Now that the installation is done, open "System Settings"
     "<wait10s><leftAltOn><spacebar><leftAltOff>System Settings<enter>",
-    # Focus the Search pane
-    "<wait10s><leftAltOn>f<leftAltOff>",
     # Navigate to "Sharing"
-    "<wait10s>sharing<enter><wait5s><down>",
-    # Enable Screen Sharing
-    "<wait10s><tab><spacebar>",
-    # Enable Remote Login
+    "<wait10s><leftAltOn>f<leftAltOff>sharing<enter>",
+    # Navigate to "Screen Sharing" and enable it
+    "<wait10s><tab><down><spacebar>",
+    # Navigate to "Remote Login" and enable it
     "<wait10s><tab><tab><tab><tab><tab><tab><spacebar>",
+    # Open "Remote Login" details
+    "<wait10s><tab><spacebar>",
+    # Enable "Full Disk Access"
+    "<wait10s><tab><spacebar>",
+    # Click "Done"
+    "<wait10s><leftShiftOn><tab><leftShiftOff><leftShiftOn><tab><leftShiftOff><spacebar>",
     # Disable Voice Over
     "<leftAltOn><f5><leftAltOff>",
   ]
