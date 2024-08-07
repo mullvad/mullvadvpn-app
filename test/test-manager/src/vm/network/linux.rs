@@ -145,7 +145,8 @@ table ip mullvad_test_nat {{
 impl NetworkHandle {
     /// Return the first IP address acknowledged by the DHCP server. This can only be called once.
     pub async fn first_dhcp_ack(&mut self) -> Option<IpAddr> {
-        const LOG_PREFIX: &str = "[dnsmasq] ";
+        const LOG_PREFIX_STDOUT: &str = "[dnsmasq] [stdout] ";
+        const LOG_PREFIX_STDERR: &str = "[dnsmasq] [stderr] ";
         const LOG_LEVEL: log::Level = log::Level::Debug;
 
         // dnsmasq-dhcp: DHCPACK(br-mullvadtest) 172.29.1.112 52:54:00:12:34:56 debian
@@ -156,8 +157,10 @@ impl NetworkHandle {
         let reader = BufReader::new(stderr?);
         let mut lines = reader.lines();
 
+        let mut found_addr = None;
+
         while let Ok(Some(line)) = lines.next_line().await {
-            log::log!(LOG_LEVEL, "{LOG_PREFIX}{}", line);
+            log::log!(LOG_LEVEL, "{LOG_PREFIX_STDERR}{}", line);
 
             if let Some(addr) = re
                 .captures(&line)
@@ -166,18 +169,26 @@ impl NetworkHandle {
             {
                 if let Ok(parsed_addr) = IpAddr::from_str(addr) {
                     log::debug!("Captured DHCPACK: {}", parsed_addr);
-                    return Some(parsed_addr);
+                    found_addr = Some(parsed_addr);
+                    break;
                 }
             }
         }
 
+        if let Some(stdout) = self.dhcp_proc.child.stdout.take() {
+            tokio::spawn(crate::vm::logging::forward_logs(
+                LOG_PREFIX_STDOUT,
+                stdout,
+                LOG_LEVEL,
+            ));
+        }
         tokio::spawn(crate::vm::logging::forward_logs(
-            LOG_PREFIX,
+            LOG_PREFIX_STDERR,
             lines.into_inner().into_inner(),
             LOG_LEVEL,
         ));
 
-        None
+        found_addr
     }
 }
 
@@ -197,7 +208,9 @@ async fn start_dnsmasq() -> Result<DhcpProcHandle> {
         BRIDGE_NAME,
         "-F",
         &format!("{},{}", TEST_SUBNET_DHCP_FIRST, TEST_SUBNET_DHCP_LAST),
-        "--no-daemon",
+        "--no-hosts",
+        "--keep-in-foreground",
+        "--log-facility=-",
     ]);
 
     let leases_file = async_tempfile::TempFile::new()
