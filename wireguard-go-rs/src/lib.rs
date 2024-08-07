@@ -205,9 +205,10 @@ fn result_from_code(code: i32) -> Result<(), Error> {
         0.. => return Ok(()),
         -1 => Error::GeneralFailure,
         -2 => Error::IntermittentFailure,
-        -3 => Error::UnknownTunnel,
-        -4 => Error::UnknownPeer,
-        -5 => Error::EnableDaita,
+        -3 => Error::InvalidArgument,
+        -4 => Error::UnknownTunnel,
+        -5 => Error::UnknownPeer,
+        -6 => Error::EnableDaita,
         _ => Error::Other,
     })
 }
