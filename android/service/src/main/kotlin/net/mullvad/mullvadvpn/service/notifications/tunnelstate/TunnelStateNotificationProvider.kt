@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.lib.model.ActionAfterDisconnect
+import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
 import net.mullvad.mullvadvpn.lib.model.Notification
 import net.mullvad.mullvadvpn.lib.model.NotificationAction
@@ -40,6 +41,11 @@ class TunnelStateNotificationProvider(
                 deviceRepository.deviceState
             ) { tunnelState: TunnelState, actionAfterDisconnect: ActionAfterDisconnect?, deviceState
                 ->
+                if (
+                    deviceState is DeviceState.LoggedOut && tunnelState is TunnelState.Disconnected
+                ) {
+                    return@combine NotificationUpdate.Cancel(notificationId)
+                }
                 val notificationTunnelState =
                     tunnelState(
                         tunnelState,
