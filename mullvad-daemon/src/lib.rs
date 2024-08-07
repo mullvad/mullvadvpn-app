@@ -582,7 +582,6 @@ pub struct Daemon {
 }
 
 impl Daemon {
-    #[allow(clippy::too_many_arguments)]
     pub async fn start(
         log_dir: Option<PathBuf>,
         resource_dir: PathBuf,
