@@ -10,6 +10,7 @@ use mullvad_types::{
 };
 use std::time::Duration;
 use talpid_types::net::wireguard;
+use talpid_types::net::wireguard::PublicKey;
 use test_macro::test_function;
 use test_rpc::ServiceClient;
 
@@ -214,14 +215,10 @@ pub async fn test_automatic_wireguard_rotation(
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> anyhow::Result<()> {
+    const ROTATION_TIMEOUT: Duration = Duration::from_secs(120);
+
     // Make note of current WG key
-    let old_key = mullvad_client
-        .get_device()
-        .await?
-        .logged_in()
-        .context("Client is not logged in to a valid account")?
-        .device
-        .pubkey;
+    let old_key = get_current_wireguard_key(&mut mullvad_client).await?;
 
     log::info!("Old wireguard key: {old_key}");
 
@@ -240,25 +237,16 @@ pub async fn test_automatic_wireguard_rotation(
     drop(mullvad_client);
     let mut mullvad_client = ctx.rpc_provider.new_client().await;
 
-    // Check if the key rotation has already occurred when connected to the daemon, otherwise
-    // listen for device daemon events until we observe the change. We have to register the event
-    // listener before polling the current key to be sure we don't miss the change.
     log::info!("Verifying that wireguard key has changed");
     let event_listener = mullvad_client
         .events_listen()
         .await
         .context("Failed to begin listening for state changes")?;
-    let new_key = mullvad_client
-        .get_device()
-        .await?
-        .logged_in()
-        .context("Client is not logged in to a valid account")?
-        .device
-        .pubkey;
+    let new_key = get_current_wireguard_key(&mut mullvad_client).await?;
 
     // If key has not yet been updated, listen for changes to it
     if new_key == old_key {
-        // Verify rotation has happened within 100 seconds - if the key hasn't been rotated after
+        // Verify rotation has happened within `ROTATION_TIMEOUT` - if the key hasn't been rotated after
         // that, the rotation probably won't happen anytime soon.
         log::info!("Listening for device daemon event");
         let device_event = |daemon_event| match daemon_event {
@@ -266,36 +254,34 @@ pub async fn test_automatic_wireguard_rotation(
             _ => None,
         };
         let device_event_listener = tokio::time::timeout(
-            Duration::from_secs(100),
+            ROTATION_TIMEOUT,
             helpers::find_daemon_event(event_listener, device_event),
         );
-        let new_key = match device_event_listener.await {
-            Err(err) => {
-                log::warn!("{err}");
-                log::warn!(
-                    "Did not observe any daemon event indicating that a key rotation happened"
-                );
-                // Note: The key rotation could possible have happened without us noticing due to
-                // some raceiness in the timeframe between starting the daemon and us starting to
-                // listen for new daemon events. Thus, it is probably a good idea to check manually if the
-                // device key was rotated.
-                log::info!("Manually checking if device key was rotated");
-                mullvad_client
-                    .get_device()
-                    .await
-                    .context("Failed to get device data")?
-            }
-            Ok(device_event) => device_event?.new_state,
-        }
-        .logged_in()
-        .context("Client is not logged in to a valid account")?
-        .device
-        .pubkey;
+        let _ = device_event_listener.await;
+
+        // Note: The key rotation could possible have happened without us noticing due to
+        // some raceiness in the timeframe between starting the daemon and us starting to
+        // listen for new daemon events. Thus, it is probably a good idea to check manually if the
+        // device key was rotated.
+        let new_key = get_current_wireguard_key(&mut mullvad_client).await?;
 
         assert_ne!(old_key, new_key);
     }
 
     Ok(())
+}
+
+async fn get_current_wireguard_key(
+    mullvad_client: &mut MullvadProxyClient,
+) -> anyhow::Result<PublicKey> {
+    let pubkey = mullvad_client
+        .get_device()
+        .await?
+        .logged_in()
+        .context("Client is not logged in to a valid account")?
+        .device
+        .pubkey;
+    Ok(pubkey)
 }
 
 /// Remove all devices on the current account
