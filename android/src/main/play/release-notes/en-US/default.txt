@@ -1,3 +1,4 @@
-- Add splash screen animation on app start up.
-- Improve animation in Select Location view.
-- Rework internal communcation in the app.
+- Fix stuck in splash screen.
+- Fix privacy policy crash occurring in some usage flows.
+- Fix tunnel state notification sometimes showing incorrect information when logged out.
+- Fix and improve the internal app communication.
