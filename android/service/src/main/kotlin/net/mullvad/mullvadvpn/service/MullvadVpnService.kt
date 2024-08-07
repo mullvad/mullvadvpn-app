@@ -12,11 +12,8 @@ import arrow.atomic.AtomicInt
 import co.touchlab.kermit.Logger
 import java.io.File
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.mullvad.mullvadvpn.lib.common.constant.BuildTypes
@@ -35,7 +32,6 @@ import net.mullvad.mullvadvpn.service.migration.MigrateSplitTunneling
 import net.mullvad.mullvadvpn.service.notifications.ForegroundNotificationManager
 import net.mullvad.mullvadvpn.service.notifications.NotificationChannelFactory
 import net.mullvad.mullvadvpn.service.notifications.NotificationManager
-import net.mullvad.mullvadvpn.service.notifications.ShouldBeOnForegroundProvider
 import net.mullvad.talpid.TalpidVpnService
 import org.koin.android.ext.android.getKoin
 import org.koin.core.context.loadKoinModules
@@ -43,9 +39,7 @@ import org.koin.core.qualifier.named
 
 private const val RELAYS_FILE = "relays.json"
 
-class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
-    private val _shouldBeOnForeground = MutableStateFlow(false)
-    override val shouldBeOnForeground: StateFlow<Boolean> = _shouldBeOnForeground
+class MullvadVpnService : TalpidVpnService() {
 
     private lateinit var keyguardManager: KeyguardManager
 
@@ -74,7 +68,7 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
             managementService = get()
 
             foregroundNotificationHandler =
-                ForegroundNotificationManager(this@MullvadVpnService, get(), lifecycleScope)
+                ForegroundNotificationManager(this@MullvadVpnService, get())
             get<NotificationManager>()
 
             apiEndpointConfiguration = get()
@@ -85,8 +79,6 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
         }
 
         keyguardManager = getSystemService<KeyguardManager>()!!
-
-        lifecycleScope.launch { foregroundNotificationHandler.start(this@MullvadVpnService) }
 
         // TODO We should avoid lifecycleScope.launch (current needed due to InetSocketAddress
         // with intent from API)
@@ -118,7 +110,7 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
             intent.isFromSystem() || intent?.action == KEY_CONNECT_ACTION -> {
                 // Only show on foreground if we have permission
                 if (prepare(this) == null) {
-                    _shouldBeOnForeground.update { true }
+                    foregroundNotificationHandler.startForeground()
                 }
                 lifecycleScope.launch { connectionProxy.connectWithoutPermissionCheck() }
             }
@@ -131,18 +123,29 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
     }
 
     override fun onBind(intent: Intent?): IBinder {
-        bindCount.incrementAndGet()
-        Logger.i("onBind: $intent")
+        val count = bindCount.incrementAndGet()
+        Logger.i("onBind: $intent, bindCount: $count")
 
         if (intent.isFromSystem()) {
-            Logger.i("onBind from system")
-            _shouldBeOnForeground.update { true }
+            Logger.i("onBind was from system")
+            foregroundNotificationHandler.startForeground()
         }
 
         // We always need to return a binder. If the system binds to our VPN service, VpnService
         // will return a binder that shall be user, otherwise we return an empty dummy binder to
         // keep connection service alive since the actual communication happens over gRPC.
         return super.onBind(intent) ?: emptyBinder()
+    }
+
+    override fun onRebind(intent: Intent?) {
+        super.onRebind(intent)
+        val count = bindCount.incrementAndGet()
+        Logger.i("onRebind: $intent, bindCount: $count")
+
+        if (intent.isFromSystem()) {
+            Logger.i("onRebind from system")
+            foregroundNotificationHandler.startForeground()
+        }
     }
 
     private fun startDaemon() {
@@ -172,16 +175,18 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
         }
 
     override fun onRevoke() {
+        Logger.d("onRevoke")
         runBlocking { connectionProxy.disconnect() }
     }
 
     override fun onUnbind(intent: Intent): Boolean {
         val count = bindCount.decrementAndGet()
+        Logger.i("onUnbind: $intent, bindCount: $count")
 
         // Foreground?
         if (intent.isFromSystem()) {
             Logger.i("onUnbind from system")
-            _shouldBeOnForeground.update { false }
+            foregroundNotificationHandler.stopForeground()
         }
 
         if (count == 0) {
@@ -203,7 +208,7 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
                 }
             }
         }
-        return false
+        return true
     }
 
     override fun onDestroy() {

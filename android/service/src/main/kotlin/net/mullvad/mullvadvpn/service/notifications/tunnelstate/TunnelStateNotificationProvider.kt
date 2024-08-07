@@ -41,7 +41,9 @@ class TunnelStateNotificationProvider(
                 deviceRepository.deviceState
             ) { tunnelState: TunnelState, actionAfterDisconnect: ActionAfterDisconnect?, deviceState
                 ->
-                if (deviceState is DeviceState.LoggedOut) {
+                if (
+                    deviceState is DeviceState.LoggedOut && tunnelState is TunnelState.Disconnected
+                ) {
                     return@combine NotificationUpdate.Cancel(notificationId)
                 }
                 val notificationTunnelState =

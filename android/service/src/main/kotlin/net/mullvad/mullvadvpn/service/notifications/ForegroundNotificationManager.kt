@@ -5,8 +5,6 @@ import android.content.pm.ServiceInfo
 import android.net.VpnService
 import android.os.Build
 import co.touchlab.kermit.Logger
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.lib.model.Notification
 import net.mullvad.mullvadvpn.lib.model.NotificationChannel
 import net.mullvad.mullvadvpn.lib.model.NotificationTunnelState
@@ -18,20 +16,15 @@ import net.mullvad.mullvadvpn.service.notifications.tunnelstate.toNotification
 class ForegroundNotificationManager(
     private val vpnService: MullvadVpnService,
     private val tunnelStateNotificationProvider: TunnelStateNotificationProvider,
-    private val scope: CoroutineScope,
 ) {
-    suspend fun start(foregroundProvider: ShouldBeOnForegroundProvider) {
-        scope.launch {
-            foregroundProvider.shouldBeOnForeground.collect {
-                if (it) {
-                    Logger.i("Starting foreground")
-                    notifyForeground(getTunnelStateNotificationOrDefault())
-                } else {
-                    Logger.i("Stopping foreground")
-                    vpnService.stopForeground(Service.STOP_FOREGROUND_DETACH)
-                }
-            }
-        }
+    fun startForeground() {
+        Logger.d("startForeground")
+        notifyForeground(getTunnelStateNotificationOrDefault())
+    }
+
+    fun stopForeground() {
+        Logger.d("stopForeground")
+        vpnService.stopForeground(Service.STOP_FOREGROUND_DETACH)
     }
 
     private fun getTunnelStateNotificationOrDefault(): Notification.Tunnel {
