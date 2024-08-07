@@ -197,7 +197,9 @@ async fn start_dnsmasq() -> Result<DhcpProcHandle> {
         BRIDGE_NAME,
         "-F",
         &format!("{},{}", TEST_SUBNET_DHCP_FIRST, TEST_SUBNET_DHCP_LAST),
-        "--no-daemon",
+        "--no-hosts",
+        "--keep-in-foreground",
+        "--log-facility=-",
     ]);
 
     let leases_file = async_tempfile::TempFile::new()
