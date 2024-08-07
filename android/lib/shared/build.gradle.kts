@@ -28,6 +28,7 @@ android {
 }
 
 dependencies {
+    implementation(projects.lib.resource)
     implementation(projects.lib.common)
     implementation(projects.lib.daemonGrpc)
     implementation(projects.lib.model)
