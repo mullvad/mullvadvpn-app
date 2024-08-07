@@ -1,16 +1,17 @@
 use crate::{
     config::{OsType, Provisioner, VmConfig},
     package,
+    tests::config::BOOTSTRAP_SCRIPT,
 };
 use anyhow::{bail, Context, Result};
 use ssh2::Session;
 use std::{
-    fs::File,
     io::{self, Read},
     net::{IpAddr, SocketAddr, TcpStream},
-    path::Path,
+    path::{Path, PathBuf},
 };
 
+/// Returns the directory in the test runner where the test-runner binary is installed.
 pub async fn provision(
     config: &VmConfig,
     instance: &dyn super::VmInstance,
@@ -42,6 +43,7 @@ pub async fn provision(
     }
 }
 
+/// Returns the directory in the test runner where the test-runner binary is installed.
 async fn ssh(
     instance: &dyn super::VmInstance,
     os_type: OsType,
@@ -89,8 +91,6 @@ fn blocking_ssh(
 ) -> Result<()> {
     // Directory that receives the payload. Any directory that the SSH user has access to.
     const REMOTE_TEMP_DIR: &str = "/tmp/";
-    const SCRIPT_PAYLOAD: &[u8] = include_bytes!("../../../scripts/ssh-setup.sh");
-    const OPENVPN_CERT: &[u8] = include_bytes!("../../../openvpn.ca.crt");
 
     let temp_dir = Path::new(REMOTE_TEMP_DIR);
 
@@ -106,55 +106,36 @@ fn blocking_ssh(
 
     // Transfer a test runner
     let source = local_runner_dir.join("test-runner");
-    ssh_send_file_path(&session, &source, temp_dir)
-        .context("Failed to send test runner to remote")?;
+    ssh_send_file(&session, &source, temp_dir).context("Failed to send test runner to remote")?;
 
     // Transfer connection-checker
     let source = local_runner_dir.join("connection-checker");
-    ssh_send_file_path(&session, &source, temp_dir)
+    ssh_send_file(&session, &source, temp_dir)
         .context("Failed to send connection-checker to remote")?;
 
     // Transfer app packages
-    ssh_send_file_path(&session, &local_app_manifest.app_package_path, temp_dir)
+    ssh_send_file(&session, &local_app_manifest.app_package_path, temp_dir)
         .context("Failed to send current app package to remote")?;
     if let Some(app_package_to_upgrade_from_path) =
         &local_app_manifest.app_package_to_upgrade_from_path
     {
-        ssh_send_file_path(&session, app_package_to_upgrade_from_path, temp_dir)
+        ssh_send_file(&session, app_package_to_upgrade_from_path, temp_dir)
             .context("Failed to send previous app package to remote")?;
     } else {
         log::warn!("No previous app to send to remote")
     }
     if let Some(gui_package_path) = &local_app_manifest.gui_package_path {
-        ssh_send_file_path(&session, gui_package_path, temp_dir)
+        ssh_send_file(&session, gui_package_path, temp_dir)
             .context("Failed to send gui_package_path to remote")?;
     } else {
         log::warn!("No UI e2e test to send to remote")
     }
 
-    // Transfer openvpn cert
-    let dest: std::path::PathBuf = temp_dir.join("openvpn.ca.crt");
-    log::debug!("Copying remote openvpn.ca.crt -> {}", dest.display());
-    #[allow(const_item_mutation)]
-    ssh_send_file(
-        &session,
-        &mut OPENVPN_CERT,
-        u64::try_from(OPENVPN_CERT.len()).expect("cert too long"),
-        &dest,
-    )
-    .context("failed to send openvpn crt to remote")?;
-
     // Transfer setup script
-    let dest = temp_dir.join("ssh-setup.sh");
-    log::debug!("Copying remote setup script -> {}", dest.display());
-    #[allow(const_item_mutation)]
-    ssh_send_file(
-        &session,
-        &mut SCRIPT_PAYLOAD,
-        u64::try_from(SCRIPT_PAYLOAD.len()).expect("script too long"),
-        &dest,
-    )
-    .context("failed to send bootstrap script to remote")?;
+    // TODO: Move this name to a constant somewhere?
+    let bootstrap_script_dest = temp_dir.join("ssh-setup.sh");
+    ssh_write(&session, &bootstrap_script_dest, BOOTSTRAP_SCRIPT)
+        .context("failed to send bootstrap script to remote")?;
 
     // Run setup script
     let app_package_path = local_app_manifest
@@ -171,9 +152,10 @@ fn blocking_ssh(
         .map(|path| path.file_name().unwrap().to_string_lossy().into_owned())
         .unwrap_or_default();
 
+    // Run the setup script in the test runner
     let cmd = format!(
-        "sudo {} {remote_dir} \"{app_package_path}\" \"{app_package_to_upgrade_from_path}\" \"{gui_package_path}\"",
-        dest.display()
+        r#"sudo {} {remote_dir} "{app_package_path}" "{app_package_to_upgrade_from_path}" "{gui_package_path}""#,
+        bootstrap_script_dest.display(),
     );
     log::debug!("Running setup script on remote, cmd: {cmd}");
     ssh_exec(&session, &cmd)
@@ -181,31 +163,53 @@ fn blocking_ssh(
         .context("Failed to run setup script")
 }
 
-fn ssh_send_file_path(session: &Session, source: &Path, dest_dir: &Path) -> Result<()> {
-    let dest = dest_dir.join(source.file_name().context("Missing source file name")?);
+/// Copy a `source` file to `dest_dir` in the test runner.
+///
+/// Returns the aboslute path in the test runner where the file is stored.
+fn ssh_send_file<Source: AsRef<Path> + Copy>(
+    session: &Session,
+    source: Source,
+    dest_dir: &Path,
+) -> Result<PathBuf> {
+    let dest = dest_dir.join(
+        source
+            .as_ref()
+            .file_name()
+            .context("Missing source file name")?,
+    );
 
     log::debug!(
         "Copying file to remote: {} -> {}",
-        source.display(),
+        source.as_ref().display(),
         dest.display(),
     );
 
-    let mut file =
-        File::open(source).with_context(|| format!("Failed to open file at {source:?}"))?;
-    let file_len = file
-        .metadata()
-        .with_context(|| format!("Failed to get file size of {source:?}"))?
-        .len();
-    ssh_send_file(session, &mut file, file_len, &dest)
+    let source = std::fs::read(source)
+        .with_context(|| format!("Failed to open file at {}", source.as_ref().display()))?;
+
+    ssh_write(session, &dest, &source[..])?;
+
+    Ok(dest)
 }
 
-fn ssh_send_file<R: Read>(
+/// Analogues to [`std::fs::write`], but over ssh!
+fn ssh_write<P: AsRef<Path>, C: AsRef<[u8]>>(session: &Session, dest: P, source: C) -> Result<()> {
+    let bytes = source.as_ref();
+    ssh_write_inner(
+        session,
+        dest,
+        &mut &bytes[..],
+        u64::try_from(bytes.len()).context("File too large, did not fit in a u64")?,
+    )
+}
+
+fn ssh_write_inner<R: Read, P: AsRef<Path>>(
     session: &Session,
+    dest: P,
     source: &mut R,
     source_len: u64,
-    dest: &Path,
 ) -> Result<()> {
-    let mut remote_file = session.scp_send(dest, 0o744, source_len, None)?;
+    let mut remote_file = session.scp_send(dest.as_ref(), 0o744, source_len, None)?;
     io::copy(source, &mut remote_file).context("failed to write file")?;
     remote_file.send_eof()?;
     remote_file.wait_eof()?;
