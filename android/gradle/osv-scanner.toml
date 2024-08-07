@@ -22,6 +22,12 @@ id = "CVE-2023-44487" # GHSA-xpw8-rcwv-8f8p
 ignoreUntil = 2024-11-02
 reason = "No impact on this app since it uses UDS rather than HTTP2."
 
+# Same as the vuln above, but it seems like osv scanner does not always make the connection.
+[[IgnoredVulns]]
+id = "GHSA-xpw8-rcwv-8f8p"
+ignoreUntil = 2024-11-02
+reason = "No impact on this app since it uses UDS rather than HTTP2."
+
 [[IgnoredVulns]]
 id = "CVE-2023-34462" # GHSA-6mjq-h674-j845
 ignoreUntil = 2024-11-02
