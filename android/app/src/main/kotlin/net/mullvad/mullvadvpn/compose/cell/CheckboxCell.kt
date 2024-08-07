@@ -32,7 +32,7 @@ internal fun CheckboxCell(
     title: String,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
-    background: Color = MaterialTheme.colorScheme.secondaryContainer,
+    background: Color = MaterialTheme.colorScheme.primaryContainer,
     startPadding: Dp = Dimens.mediumPadding,
     endPadding: Dp = Dimens.cellEndPadding,
     minHeight: Dp = Dimens.cellHeight

@@ -178,7 +178,10 @@ private fun ConstraintLayoutScope.AutoConnectCarousel(
             val annotatedTopText = page.annotatedTopText()
             ClickableText(
                 modifier = Modifier.padding(horizontal = Dimens.largePadding),
-                style = MaterialTheme.typography.titleMedium,
+                style =
+                    MaterialTheme.typography.titleMedium.copy(
+                        color = MaterialTheme.colorScheme.onSurface
+                    ),
                 text = annotatedTopText,
                 onClick = {
                     annotatedTopText.getUrlAnnotations(it, it).let { annotation ->
@@ -194,7 +197,7 @@ private fun ConstraintLayoutScope.AutoConnectCarousel(
             Text(
                 modifier = Modifier.padding(horizontal = Dimens.largePadding),
                 style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSecondary,
+                color = MaterialTheme.colorScheme.onSurface,
                 text =
                     HtmlCompat.fromHtml(
                             stringResource(id = page.bottomText),
@@ -204,7 +207,7 @@ private fun ConstraintLayoutScope.AutoConnectCarousel(
                             boldSpanStyle =
                                 SpanStyle(
                                     fontWeight = FontWeight.ExtraBold,
-                                    color = MaterialTheme.colorScheme.onPrimary
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
                         )
             )

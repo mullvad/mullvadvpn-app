@@ -10,7 +10,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.SpacedColumn
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
-import net.mullvad.mullvadvpn.lib.theme.color.Alpha20
 
 @Preview
 @Composable
@@ -34,8 +33,8 @@ fun SwitchLocationButton(
         onClick = onClick,
         colors =
             ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.inverseSurface.copy(alpha = Alpha20),
-                contentColor = MaterialTheme.colorScheme.inverseSurface
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
             ),
         modifier = modifier,
         text = text,

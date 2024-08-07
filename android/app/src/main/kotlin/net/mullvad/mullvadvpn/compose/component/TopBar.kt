@@ -372,7 +372,7 @@ fun MullvadTopBarWithDeviceName(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaTopBar)
+                color = iconTintColor
             )
             if (daysLeftUntilExpiry != null) {
                 Text(
@@ -390,7 +390,7 @@ fun MullvadTopBarWithDeviceName(
                             }
                         ),
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaTopBar)
+                    color = iconTintColor
                 )
             } else {
                 Spacer(Modifier)

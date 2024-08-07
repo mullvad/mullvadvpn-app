@@ -64,7 +64,10 @@ fun NavigationComposeCell(
     title: String,
     modifier: Modifier = Modifier,
     showWarning: Boolean = false,
-    bodyView: @Composable () -> Unit = { DefaultNavigationView(chevronContentDescription = title) },
+    textColor: Color = MaterialTheme.colorScheme.onSurface,
+    bodyView: @Composable () -> Unit = {
+        DefaultNavigationView(chevronContentDescription = title, tint = textColor)
+    },
     isRowEnabled: Boolean = true,
     onClick: () -> Unit,
     testTag: String = ""
@@ -101,7 +104,7 @@ internal fun NavigationTitleView(
     Text(
         text = title,
         style = MaterialTheme.typography.titleMedium,
-        color = MaterialTheme.colorScheme.onPrimary,
+        color = MaterialTheme.colorScheme.onSurface,
         modifier = modifier,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis
@@ -109,20 +112,20 @@ internal fun NavigationTitleView(
 }
 
 @Composable
-internal fun DefaultNavigationView(chevronContentDescription: String) {
+internal fun DefaultNavigationView(chevronContentDescription: String, tint: Color) {
     Icon(
         painter = painterResource(id = R.drawable.icon_chevron),
         contentDescription = chevronContentDescription,
-        tint = Color.Unspecified
+        tint = tint
     )
 }
 
 @Composable
-internal fun DefaultExternalLinkView(chevronContentDescription: String) {
+internal fun DefaultExternalLinkView(chevronContentDescription: String, tint: Color) {
     Icon(
         painter = painterResource(id = R.drawable.icon_extlink),
         contentDescription = chevronContentDescription,
-        tint = Color.Unspecified
+        tint = tint
     )
 }
 
@@ -131,19 +134,23 @@ internal fun NavigationCellBody(
     content: String,
     contentBodyDescription: String,
     modifier: Modifier = Modifier,
-    contentColor: Color = MaterialTheme.colorScheme.onSecondary,
+    contentColor: Color = MaterialTheme.colorScheme.onSurface,
+    textColor: Color = MaterialTheme.colorScheme.onSurface,
     isExternalLink: Boolean = false
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier.wrapContentWidth().wrapContentHeight()
     ) {
-        Text(text = content, style = MaterialTheme.typography.labelMedium, color = contentColor)
+        Text(text = content, style = MaterialTheme.typography.labelMedium, color = textColor)
         Spacer(modifier = Modifier.width(Dimens.sideMargin))
         if (isExternalLink) {
-            DefaultExternalLinkView(content)
+            DefaultExternalLinkView(content, tint = contentColor)
         } else {
-            DefaultNavigationView(chevronContentDescription = contentBodyDescription)
+            DefaultNavigationView(
+                chevronContentDescription = contentBodyDescription,
+                tint = contentColor
+            )
         }
     }
 }

@@ -38,7 +38,7 @@ private fun PreviewInformationComposeCell() {
 fun InformationComposeCell(
     title: String,
     isEnabled: Boolean = true,
-    background: Color = MaterialTheme.colorScheme.primary,
+    background: Color = MaterialTheme.colorScheme.surfaceContainerHighest,
     onCellClicked: () -> Unit = {},
     onInfoClicked: (() -> Unit)? = null
 ) {
@@ -51,6 +51,7 @@ fun InformationComposeCell(
             BaseCellTitle(
                 title = title,
                 style = MaterialTheme.typography.titleMedium,
+                textColor = MaterialTheme.colorScheme.onSurface,
                 modifier = titleModifier.weight(1f, true)
             )
         },
@@ -78,7 +79,7 @@ private fun InformationComposeCellBody(modifier: Modifier, onInfoClicked: (() ->
                 Icon(
                     painter = painterResource(id = R.drawable.icon_info),
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onPrimary
+                    tint = MaterialTheme.colorScheme.onSurface
                 )
             }
         }
