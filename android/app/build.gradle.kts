@@ -340,6 +340,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.arrow)
+    implementation(libs.arrow.optics)
     implementation(libs.arrow.resilience)
     implementation(libs.compose.constrainlayout)
     implementation(libs.compose.foundation)
