@@ -32,8 +32,8 @@ Here is an example of what to expect
 % ls vm_shared_folder
 Xcode_15.0.1.xip
 % head -2 variables.pkrvars.hcl
-xcode_version = "15.0.1"
-xcode_xip_name = "Xcode_15.0.1.xip"
+xcode_version = "15.1"
+xcode_xip_name = "Xcode_15.1.xip"
 ```
 
 ### Sanity checks before running packer
