@@ -102,7 +102,7 @@ build {
   }
 
   // Add Apple root certs
-  privisioner "shell" {
+  provisioner "shell" {
     script = "scripts/add-apple-certs.sh"
   }
 
