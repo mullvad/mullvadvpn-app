@@ -24,6 +24,14 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 
 
+## [android/2024.4-beta2] - 2024-08-07
+### Fixed
+- Fix and improve the gRPC communication.
+- Fix stuck in splash screen.
+- Fix privacy policy crash occurring in some usage flows.
+- Fix tunnel state notification sometimes showing incorrect information when logged out.
+
+
 ## [android/2024.4-beta1] - 2024-07-26
 ### Added
 - Add API access setting which makes it possible to configure how the app communicates with our API.
