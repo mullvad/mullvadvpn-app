@@ -24,6 +24,7 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 ### Added
 - Add DAITA (Defence against AI-guided Traffic Analysis) setting for Linux and macOS.
+- Add `--json` flag to `mullvad status` CLI.
 
 ### Changed
 - Ignore obfuscation protocol constraints when the obfuscation mode is set to auto.

@@ -29,6 +29,8 @@ talpid-types = { path = "../talpid-types" }
 
 mullvad-management-interface = { path = "../mullvad-management-interface" }
 tokio = { workspace = true, features =  ["macros", "rt-multi-thread", "fs"] }
+serde = { workspace = true }
+serde_json = { workspace = true }
 
 [target.'cfg(all(unix, not(target_os = "android")))'.dependencies]
 clap_complete = { version = "4.4.8" }
