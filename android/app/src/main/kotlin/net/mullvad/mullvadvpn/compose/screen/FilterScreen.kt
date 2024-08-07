@@ -1,7 +1,6 @@
 package net.mullvad.mullvadvpn.compose.screen
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -36,6 +36,7 @@ import net.mullvad.mullvadvpn.compose.button.ApplyButton
 import net.mullvad.mullvadvpn.compose.cell.CheckboxCell
 import net.mullvad.mullvadvpn.compose.cell.ExpandableComposeCell
 import net.mullvad.mullvadvpn.compose.cell.SelectableCell
+import net.mullvad.mullvadvpn.compose.constant.ContentType
 import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
 import net.mullvad.mullvadvpn.compose.extensions.itemsWithDivider
 import net.mullvad.mullvadvpn.compose.state.RelayFilterState
@@ -102,61 +103,45 @@ fun FilterScreen(
     var ownershipExpanded by rememberSaveable { mutableStateOf(false) }
 
     val backgroundColor = MaterialTheme.colorScheme.background
-
     Scaffold(
         modifier = Modifier.background(backgroundColor).systemBarsPadding().fillMaxSize(),
-        topBar = {
-            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onClick = onBackClick) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.icon_back),
-                        contentDescription = null,
-                        tint = Color.Unspecified,
-                    )
-                }
-                Text(
-                    text = stringResource(R.string.filter),
-                    modifier = Modifier.weight(1f).padding(end = Dimens.titleIconSize),
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onPrimary
-                )
-            }
-        },
+        topBar = { TopBar(onBackClick = onBackClick) },
         bottomBar = {
-            Box(
-                modifier =
-                    Modifier.fillMaxWidth()
-                        .padding(top = Dimens.screenVerticalMargin)
-                        .clickable(enabled = false, onClick = onApplyClick)
-                        .background(color = backgroundColor),
-                contentAlignment = Alignment.BottomCenter
-            ) {
-                ApplyButton(
-                    onClick = onApplyClick,
-                    isEnabled = state.isApplyButtonEnabled,
-                    modifier =
-                        Modifier.padding(
-                            start = Dimens.sideMargin,
-                            end = Dimens.sideMargin,
-                            bottom = Dimens.screenVerticalMargin
-                        ),
-                )
-            }
+            BottomBar(
+                isApplyButtonEnabled = state.isApplyButtonEnabled,
+                backgroundColor = backgroundColor,
+                onApplyClick = onApplyClick
+            )
         },
     ) { contentPadding ->
         LazyColumn(modifier = Modifier.padding(contentPadding).fillMaxSize()) {
-            itemWithDivider { OwnershipHeader(ownershipExpanded) { ownershipExpanded = it } }
+            itemWithDivider(key = Keys.OWNERSHIP_TITLE, contentType = ContentType.HEADER) {
+                OwnershipHeader(ownershipExpanded) { ownershipExpanded = it }
+            }
             if (ownershipExpanded) {
-                item { AnyOwnership(state, onSelectedOwnership) }
-                itemsWithDivider(state.filteredOwnershipByProviders) { ownership ->
+                item(key = Keys.OWNERSHIP_ALL, contentType = ContentType.ITEM) {
+                    AnyOwnership(state, onSelectedOwnership)
+                }
+                itemsWithDivider(
+                    key = { it.name },
+                    contentType = { ContentType.ITEM },
+                    items = state.filteredOwnershipByProviders
+                ) { ownership ->
                     Ownership(ownership, state, onSelectedOwnership)
                 }
             }
-            itemWithDivider { ProvidersHeader(providerExpanded) { providerExpanded = it } }
+            itemWithDivider(key = Keys.PROVIDERS_TITLE, contentType = ContentType.HEADER) {
+                ProvidersHeader(providerExpanded) { providerExpanded = it }
+            }
             if (providerExpanded) {
-                itemWithDivider { AllProviders(state, onAllProviderCheckChange) }
-                itemsWithDivider(state.filteredProvidersByOwnership) { provider ->
+                itemWithDivider(key = Keys.PROVIDERS_ALL, contentType = ContentType.ITEM) {
+                    AllProviders(state, onAllProviderCheckChange)
+                }
+                itemsWithDivider(
+                    key = { it.providerId.value },
+                    contentType = { ContentType.ITEM },
+                    items = state.filteredProvidersByOwnership
+                ) { provider ->
                     Provider(provider, state, onSelectedProvider)
                 }
             }
@@ -165,30 +150,32 @@ fun FilterScreen(
 }
 
 @Composable
-private fun OwnershipHeader(expanded: Boolean, onToggleExpanded: (Boolean) -> Unit) {
+private fun LazyItemScope.OwnershipHeader(expanded: Boolean, onToggleExpanded: (Boolean) -> Unit) {
     ExpandableComposeCell(
         title = stringResource(R.string.ownership),
         isExpanded = expanded,
         isEnabled = true,
         onInfoClicked = null,
-        onCellClicked = { onToggleExpanded(!expanded) }
+        onCellClicked = { onToggleExpanded(!expanded) },
+        modifier = Modifier.animateItem()
     )
 }
 
 @Composable
-private fun AnyOwnership(
+private fun LazyItemScope.AnyOwnership(
     state: RelayFilterState,
     onSelectedOwnership: (ownership: Ownership?) -> Unit
 ) {
     SelectableCell(
         title = stringResource(id = R.string.any),
         isSelected = state.selectedOwnership == null,
-        onCellClicked = { onSelectedOwnership(null) }
+        onCellClicked = { onSelectedOwnership(null) },
+        modifier = Modifier.animateItem()
     )
 }
 
 @Composable
-private fun Ownership(
+private fun LazyItemScope.Ownership(
     ownership: Ownership,
     state: RelayFilterState,
     onSelectedOwnership: (ownership: Ownership?) -> Unit
@@ -196,35 +183,38 @@ private fun Ownership(
     SelectableCell(
         title = stringResource(id = ownership.stringResource()),
         isSelected = ownership == state.selectedOwnership,
-        onCellClicked = { onSelectedOwnership(ownership) }
+        onCellClicked = { onSelectedOwnership(ownership) },
+        modifier = Modifier.animateItem()
     )
 }
 
 @Composable
-private fun ProvidersHeader(expanded: Boolean, onToggleExpanded: (Boolean) -> Unit) {
+private fun LazyItemScope.ProvidersHeader(expanded: Boolean, onToggleExpanded: (Boolean) -> Unit) {
     ExpandableComposeCell(
         title = stringResource(R.string.providers),
         isExpanded = expanded,
         isEnabled = true,
         onInfoClicked = null,
-        onCellClicked = { onToggleExpanded(!expanded) }
+        onCellClicked = { onToggleExpanded(!expanded) },
+        modifier = Modifier.animateItem()
     )
 }
 
 @Composable
-private fun AllProviders(
+private fun LazyItemScope.AllProviders(
     state: RelayFilterState,
     onAllProviderCheckChange: (isChecked: Boolean) -> Unit
 ) {
     CheckboxCell(
         title = stringResource(R.string.all_providers),
         checked = state.isAllProvidersChecked,
-        onCheckedChange = { isChecked -> onAllProviderCheckChange(isChecked) }
+        onCheckedChange = { isChecked -> onAllProviderCheckChange(isChecked) },
+        modifier = Modifier.animateItem()
     )
 }
 
 @Composable
-private fun Provider(
+private fun LazyItemScope.Provider(
     provider: Provider,
     state: RelayFilterState,
     onSelectedProvider: (checked: Boolean, provider: Provider) -> Unit
@@ -232,8 +222,55 @@ private fun Provider(
     CheckboxCell(
         title = provider.providerId.value,
         checked = provider in state.selectedProviders,
-        onCheckedChange = { checked -> onSelectedProvider(checked, provider) }
+        onCheckedChange = { checked -> onSelectedProvider(checked, provider) },
+        modifier = Modifier.animateItem()
     )
+}
+
+@Composable
+private fun TopBar(onBackClick: () -> Unit) {
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        IconButton(onClick = onBackClick) {
+            Icon(
+                painter = painterResource(id = R.drawable.icon_back),
+                contentDescription = null,
+                tint = Color.Unspecified,
+            )
+        }
+        Text(
+            text = stringResource(R.string.filter),
+            modifier = Modifier.weight(1f).padding(end = Dimens.titleIconSize),
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onPrimary
+        )
+    }
+}
+
+@Composable
+private fun BottomBar(
+    isApplyButtonEnabled: Boolean,
+    backgroundColor: Color,
+    onApplyClick: () -> Unit
+) {
+    Box(
+        modifier =
+            Modifier.fillMaxWidth()
+                .background(color = backgroundColor)
+                .padding(top = Dimens.screenVerticalMargin),
+        contentAlignment = Alignment.BottomCenter
+    ) {
+        ApplyButton(
+            onClick = onApplyClick,
+            isEnabled = isApplyButtonEnabled,
+            modifier =
+                Modifier.padding(
+                    start = Dimens.sideMargin,
+                    end = Dimens.sideMargin,
+                    bottom = Dimens.screenVerticalMargin
+                ),
+        )
+    }
 }
 
 private fun Ownership.stringResource(): Int =
@@ -241,3 +278,10 @@ private fun Ownership.stringResource(): Int =
         Ownership.MullvadOwned -> R.string.mullvad_owned_only
         Ownership.Rented -> R.string.rented_only
     }
+
+private object Keys {
+    const val OWNERSHIP_TITLE = "ownership_title"
+    const val OWNERSHIP_ALL = "ownership_all"
+    const val PROVIDERS_TITLE = "providers_title"
+    const val PROVIDERS_ALL = "providers_all"
+}
