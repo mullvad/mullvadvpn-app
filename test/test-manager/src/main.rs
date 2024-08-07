@@ -9,12 +9,13 @@ mod summary;
 mod tests;
 mod vm;
 
-use std::path::PathBuf;
+use std::{
+    net::SocketAddr,
+    path::{Path, PathBuf},
+};
 
 use anyhow::{Context, Result};
 use clap::Parser;
-use std::net::SocketAddr;
-use tests::config::DEFAULT_MULLVAD_HOST;
 
 /// Test manager for Mullvad VPN app
 #[derive(Parser, Debug)]
@@ -109,6 +110,11 @@ enum Commands {
         /// Folder to search for packages. Defaults to current directory.
         #[arg(long, value_name = "DIR")]
         package_dir: Option<PathBuf>,
+
+        /// OpenVPN CA certificate to use with the app under test. The expected argument is a path
+        /// (absolut or relative) to the desired CA certificate.
+        #[arg(long, default_value = openvpn_cert_path().into_os_string())]
+        openvpn_cert: PathBuf,
 
         /// Only run tests matching substrings
         test_filters: Vec<String>,
@@ -228,6 +234,7 @@ async fn main() -> Result<()> {
             app_package_to_upgrade_from,
             gui_package,
             package_dir,
+            openvpn_cert,
             test_filters,
             verbose,
             test_report,
@@ -240,10 +247,7 @@ async fn main() -> Result<()> {
                 (true, true) => unreachable!("invalid combination"),
             };
 
-            let mullvad_host = config
-                .mullvad_host
-                .clone()
-                .unwrap_or(DEFAULT_MULLVAD_HOST.to_owned());
+            let mullvad_host = config.get_host();
             log::debug!("Mullvad host: {mullvad_host}");
 
             let vm_config = vm::get_vm_config(&config, &vm).context("Cannot get VM config")?;
@@ -270,8 +274,13 @@ async fn main() -> Result<()> {
             )
             .context("Could not find the specified app packages")?;
 
+            let assets = vm::provision::Assets {
+                bootstrap_script: bootstrap_script_path(),
+                openvpn_cert: openvpn_cert.clone(),
+            };
+
             let mut instance = vm::run(&config, &vm).await.context("Failed to start VM")?;
-            let artifacts_dir = vm::provision(&config, &vm, &*instance, &manifest)
+            let artifacts_dir = vm::provision(&config, &vm, &*instance, &manifest, assets)
                 .await
                 .context("Failed to run provisioning for VM")?;
 
@@ -285,28 +294,30 @@ async fn main() -> Result<()> {
             let skip_wait = vm_config.provisioner != config::Provisioner::Noop;
 
             let result = run_tests::run(
-                tests::config::TestConfig {
-                    account_number: account,
+                tests::config::TestConfig::new(
+                    account,
                     artifacts_dir,
-                    app_package_filename: manifest
+                    manifest
                         .app_package_path
                         .file_name()
                         .unwrap()
                         .to_string_lossy()
                         .into_owned(),
-                    app_package_to_upgrade_from_filename: manifest
+                    manifest
                         .app_package_to_upgrade_from_path
                         .map(|path| path.file_name().unwrap().to_string_lossy().into_owned()),
-                    ui_e2e_tests_filename: manifest
+                    manifest
                         .gui_package_path
                         .map(|path| path.file_name().unwrap().to_string_lossy().into_owned()),
                     mullvad_host,
-                    #[cfg(target_os = "macos")]
-                    host_bridge_name: crate::vm::network::macos::find_vm_bridge()?,
-                    #[cfg(not(target_os = "macos"))]
-                    host_bridge_name: crate::vm::network::linux::BRIDGE_NAME.to_owned(),
-                    os: test_rpc::meta::Os::from(vm_config.os_type),
-                },
+                    vm::network::bridge()?,
+                    test_rpc::meta::Os::from(vm_config.os_type),
+                    openvpn_cert
+                        .file_name()
+                        .unwrap()
+                        .to_string_lossy()
+                        .into_owned(),
+                ),
                 &*instance,
                 &test_filters,
                 skip_wait,
@@ -342,4 +353,20 @@ async fn main() -> Result<()> {
             Ok(())
         }
     }
+}
+
+const fn resolve_assets_path() -> &'static str {
+    concat!(env!("CARGO_MANIFEST_DIR"), "/assets/")
+}
+
+const fn resolve_scripts_path() -> &'static str {
+    concat!(env!("CARGO_MANIFEST_DIR"), "/scripts/")
+}
+
+fn bootstrap_script_path() -> PathBuf {
+    Path::new(resolve_scripts_path()).join("ssh-setup.sh")
+}
+
+fn openvpn_cert_path() -> PathBuf {
+    Path::new(resolve_assets_path()).join("openvpn.ca.crt")
 }

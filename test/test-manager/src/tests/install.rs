@@ -1,5 +1,5 @@
 use anyhow::{bail, Context};
-use std::time::Duration;
+use std::{path::Path, time::Duration};
 
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{constraints::Constraint, relay_constraints};
@@ -29,13 +29,13 @@ pub async fn test_install_previous_app(_: TestContext, rpc: ServiceClient) -> an
             .context("Missing previous app version")?,
     )?)
     .await?;
+    log::debug!("Replacing the OpenVPN CA certificate");
+    replace_openvpn_cert(&rpc).await?;
 
     // verify that daemon is running
     if rpc.mullvad_daemon_get_status().await? != ServiceStatus::Running {
         bail!(Error::DaemonNotRunning);
     }
-
-    replace_openvpn_cert(&rpc).await?;
 
     // Override env vars
     rpc.set_daemon_environment(get_app_env().await?).await?;
@@ -348,12 +348,9 @@ pub async fn test_installation_idempotency(
     Ok(())
 }
 
+/// Replace the OpenVPN CA certificate which is currently used by the installed Mullvad App.
+/// This needs to be invoked after reach (re)installation to use the custom OpenVPN certificate.
 async fn replace_openvpn_cert(rpc: &ServiceClient) -> Result<(), Error> {
-    use std::path::Path;
-
-    const SOURCE_CERT_FILENAME: &str = "openvpn.ca.crt";
-    const DEST_CERT_FILENAME: &str = "ca.crt";
-
     let dest_dir = match TEST_CONFIG.os {
         Os::Windows => "C:\\Program Files\\Mullvad VPN\\resources",
         Os::Linux => "/opt/Mullvad VPN/resources",
@@ -361,13 +358,9 @@ async fn replace_openvpn_cert(rpc: &ServiceClient) -> Result<(), Error> {
     };
 
     rpc.copy_file(
-        Path::new(&TEST_CONFIG.artifacts_dir)
-            .join(SOURCE_CERT_FILENAME)
-            .as_os_str()
-            .to_string_lossy()
-            .into_owned(),
+        TEST_CONFIG.openvpn_cert().to_string_lossy().into_owned(),
         Path::new(dest_dir)
-            .join(DEST_CERT_FILENAME)
+            .join("ca.crt")
             .as_os_str()
             .to_string_lossy()
             .into_owned(),
