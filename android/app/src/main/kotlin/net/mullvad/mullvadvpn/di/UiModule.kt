@@ -117,7 +117,7 @@ val uiModule = module {
     single { MullvadProblemReport(get()) }
     single { RelayOverridesRepository(get()) }
     single { CustomListsRepository(get()) }
-    single { RelayListRepository(get()) }
+    single { RelayListRepository(get(), get()) }
     single { RelayListFilterRepository(get()) }
     single { VoucherRepository(get(), get()) }
     single { SplitTunnelingRepository(get()) }
