@@ -165,6 +165,7 @@ fn spawn_daemon(
         rpc_socket,
         files_dir,
         cache_dir,
+        daemon_command_channel,
         android_context,
     ))?;
 
@@ -179,6 +180,7 @@ async fn spawn_daemon_inner(
     rpc_socket: PathBuf,
     files_dir: PathBuf,
     cache_dir: PathBuf,
+    daemon_command_channel: DaemonCommandChannel,
     android_context: AndroidContext,
 ) -> Result<tokio::task::JoinHandle<()>, Error> {
     cleanup_old_rpc_socket(&rpc_socket).await;
@@ -189,6 +191,7 @@ async fn spawn_daemon_inner(
         files_dir,
         cache_dir,
         rpc_socket,
+        daemon_command_channel,
         android_context,
     )
     .await
