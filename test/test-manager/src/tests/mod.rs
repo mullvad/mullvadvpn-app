@@ -14,17 +14,17 @@ mod tunnel;
 mod tunnel_state;
 mod ui;
 
+pub use test_metadata::TestMetadata;
+
+use anyhow::Context;
+use futures::future::BoxFuture;
+use std::time::Duration;
+
 use crate::{
     mullvad_daemon::{MullvadClientArgument, RpcClientProvider},
     tests::helpers::get_app_env,
 };
-use anyhow::Context;
-pub use test_metadata::TestMetadata;
 use test_rpc::ServiceClient;
-
-use futures::future::BoxFuture;
-
-use std::time::Duration;
 
 const WAIT_FOR_TUNNEL_STATE_TIMEOUT: Duration = Duration::from_secs(40);
 
