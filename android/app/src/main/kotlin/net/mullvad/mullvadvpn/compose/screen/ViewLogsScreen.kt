@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.compose.screen
 
 import android.content.Context
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -129,7 +130,8 @@ fun ViewLogsScreen(
                 LazyColumn(
                     state = listState,
                     modifier =
-                        Modifier.drawVerticalScrollbar(
+                        Modifier.fillMaxWidth()
+                            .drawVerticalScrollbar(
                                 listState,
                                 MaterialTheme.colorScheme.primary.copy(alpha = AlphaScrollbar)
                             )
