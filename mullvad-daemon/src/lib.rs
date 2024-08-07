@@ -572,26 +572,24 @@ pub struct Daemon {
 }
 
 impl Daemon {
-    #[allow(clippy::too_many_arguments)]
     pub async fn start(
         log_dir: Option<PathBuf>,
         resource_dir: PathBuf,
         settings_dir: PathBuf,
         cache_dir: PathBuf,
         rpc_socket_path: PathBuf,
+        daemon_command_channel: DaemonCommandChannel,
         #[cfg(target_os = "android")] android_context: AndroidContext,
     ) -> Result<Self, Error> {
         #[cfg(target_os = "macos")]
         macos::bump_filehandle_limit();
 
-        let command_channel = DaemonCommandChannel::new();
-        let command_sender = command_channel.sender();
-
+        let command_sender = daemon_command_channel.sender();
         let management_interface =
             ManagementInterfaceServer::start(command_sender, rpc_socket_path)
                 .map_err(Error::ManagementInterfaceError)?;
 
-        let (internal_event_tx, internal_event_rx) = command_channel.destructure();
+        let (internal_event_tx, internal_event_rx) = daemon_command_channel.destructure();
 
         mullvad_api::proxy::ApiConnectionMode::try_delete_cache(&cache_dir).await;
         let api_runtime = mullvad_api::Runtime::with_cache(
