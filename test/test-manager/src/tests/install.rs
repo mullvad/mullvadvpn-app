@@ -1,5 +1,5 @@
 use anyhow::{bail, Context};
-use std::time::Duration;
+use std::{path::Path, time::Duration};
 
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{constraints::Constraint, relay_constraints};
@@ -29,13 +29,13 @@ pub async fn test_install_previous_app(_: TestContext, rpc: ServiceClient) -> an
             .context("Missing previous app version")?,
     )?)
     .await?;
+    log::debug!("Replacing the OpenVPN CA certificate");
+    replace_openvpn_certificate(&rpc).await?;
 
     // verify that daemon is running
     if rpc.mullvad_daemon_get_status().await? != ServiceStatus::Running {
         bail!(Error::DaemonNotRunning);
     }
-
-    replace_openvpn_cert(&rpc).await?;
 
     // Override env vars
     rpc.set_daemon_environment(get_app_env().await?).await?;
@@ -270,7 +270,7 @@ pub async fn test_install_new_app(_: TestContext, rpc: ServiceClient) -> anyhow:
     rpc.set_daemon_log_level(test_rpc::mullvad_daemon::Verbosity::Trace)
         .await?;
 
-    replace_openvpn_cert(&rpc).await?;
+    replace_openvpn_certificate(&rpc).await?;
 
     // Override env vars
     rpc.set_daemon_environment(get_app_env().await?).await?;
@@ -348,10 +348,9 @@ pub async fn test_installation_idempotency(
     Ok(())
 }
 
-async fn replace_openvpn_cert(rpc: &ServiceClient) -> Result<(), Error> {
-    use std::path::Path;
-
-    const SOURCE_CERT_FILENAME: &str = "openvpn.ca.crt";
+/// Replace the OpenVPN CA certificate which is currently used by the installed Mullvad App.
+/// This needs to be invoked after reach (re)installation to use the custom OpenVPN certificate.
+async fn replace_openvpn_certificate(rpc: &ServiceClient) -> Result<(), Error> {
     const DEST_CERT_FILENAME: &str = "ca.crt";
 
     let dest_dir = match TEST_CONFIG.os {
@@ -360,18 +359,12 @@ async fn replace_openvpn_cert(rpc: &ServiceClient) -> Result<(), Error> {
         Os::Macos => "/Applications/Mullvad VPN.app/Contents/Resources",
     };
 
-    rpc.copy_file(
-        Path::new(&TEST_CONFIG.artifacts_dir)
-            .join(SOURCE_CERT_FILENAME)
-            .as_os_str()
-            .to_string_lossy()
-            .into_owned(),
-        Path::new(dest_dir)
-            .join(DEST_CERT_FILENAME)
-            .as_os_str()
-            .to_string_lossy()
-            .into_owned(),
-    )
-    .await
-    .map_err(Error::Rpc)
+    let dest = Path::new(dest_dir)
+        .join(DEST_CERT_FILENAME)
+        .as_os_str()
+        .to_string_lossy()
+        .into_owned();
+    rpc.write_file(dest, TEST_CONFIG.openvpn_certificate.to_vec())
+        .await
+        .map_err(Error::Rpc)
 }
