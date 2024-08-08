@@ -26,13 +26,13 @@ struct OneToOne: MultihopDecisionFlow {
     func pick(entryCandidates: [RelayCandidate], exitCandidates: [RelayCandidate]) throws -> SelectedRelays {
         guard canHandle(entryCandidates: entryCandidates, exitCandidates: exitCandidates) else {
             guard let next else {
-                throw NoRelaysSatisfyingConstraintsError()
+                throw NoRelaysSatisfyingConstraintsError(.multihopOther)
             }
             return try next.pick(entryCandidates: entryCandidates, exitCandidates: exitCandidates)
         }
 
         guard entryCandidates.first != exitCandidates.first else {
-            throw NoRelaysSatisfyingConstraintsError()
+            throw NoRelaysSatisfyingConstraintsError(.multihopEntryEqualsExit)
         }
 
         let entryMatch = try relayPicker.findBestMatch(from: entryCandidates)
@@ -61,7 +61,7 @@ struct OneToMany: MultihopDecisionFlow {
 
         guard canHandle(entryCandidates: entryCandidates, exitCandidates: exitCandidates) else {
             guard let next else {
-                throw NoRelaysSatisfyingConstraintsError()
+                throw NoRelaysSatisfyingConstraintsError(.multihopOther)
             }
             return try next.pick(entryCandidates: entryCandidates, exitCandidates: exitCandidates)
         }
@@ -100,7 +100,7 @@ struct ManyToMany: MultihopDecisionFlow {
 
         guard canHandle(entryCandidates: entryCandidates, exitCandidates: exitCandidates) else {
             guard let next else {
-                throw NoRelaysSatisfyingConstraintsError()
+                throw NoRelaysSatisfyingConstraintsError(.multihopOther)
             }
             return try next.pick(entryCandidates: entryCandidates, exitCandidates: exitCandidates)
         }

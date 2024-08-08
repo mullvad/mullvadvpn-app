@@ -171,8 +171,8 @@ final class SimulatorTunnelProviderManager: NSObject, VPNTunnelProviderManagerPr
     }
 
     override func isEqual(_ object: Any?) -> Bool {
-        guard let other = object as? Self else { return false }
-        return self.identifier == other.identifier
+        guard let multihopOther = object as? Self else { return false }
+        return self.identifier == multihopOther.identifier
     }
 }
 

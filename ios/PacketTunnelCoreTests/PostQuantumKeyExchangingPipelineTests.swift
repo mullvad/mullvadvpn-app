@@ -28,7 +28,8 @@ final class PostQuantumKeyExchangingPipelineTests: XCTestCase {
             from: try RelaySelector.WireGuard.findCandidates(
                 by: relayConstraints.exitLocations,
                 in: ServerRelaysResponseStubs.sampleRelays,
-                filterConstraint: relayConstraints.filter
+                filterConstraint: relayConstraints.filter,
+                daitaEnabled: false
             ),
             relays: ServerRelaysResponseStubs.sampleRelays,
             portConstraint: relayConstraints.port,
@@ -39,7 +40,8 @@ final class PostQuantumKeyExchangingPipelineTests: XCTestCase {
             from: try RelaySelector.WireGuard.findCandidates(
                 by: relayConstraints.entryLocations,
                 in: ServerRelaysResponseStubs.sampleRelays,
-                filterConstraint: relayConstraints.filter
+                filterConstraint: relayConstraints.filter,
+                daitaEnabled: false
             ),
             relays: ServerRelaysResponseStubs.sampleRelays,
             portConstraint: relayConstraints.port,

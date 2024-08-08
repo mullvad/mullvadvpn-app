@@ -39,12 +39,14 @@ public final class RelaySelectorWrapper: RelaySelectorProtocol {
         case .off:
             return try SinglehopPicker(
                 constraints: tunnelSettings.relayConstraints,
+                daitaSettings: tunnelSettings.daita,
                 relays: relays,
                 connectionAttemptCount: connectionAttemptCount
             ).pick()
         case .on:
             return try MultihopPicker(
                 constraints: tunnelSettings.relayConstraints,
+                daitaSettings: tunnelSettings.daita,
                 relays: relays,
                 connectionAttemptCount: connectionAttemptCount
             ).pick()

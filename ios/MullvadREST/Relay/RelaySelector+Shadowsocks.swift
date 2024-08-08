@@ -43,11 +43,12 @@ extension RelaySelector {
             in relaysResponse: REST.ServerRelaysResponse
         ) -> REST.BridgeRelay? {
             let mappedBridges = mapRelays(relays: relaysResponse.bridge.relays, locations: relaysResponse.locations)
-            let filteredRelays = applyConstraints(
+            let filteredRelays = (try? applyConstraints(
                 location,
                 filterConstraint: filter,
+                daitaEnabled: false,
                 relays: mappedBridges
-            )
+            )) ?? []
             guard filteredRelays.isEmpty == false else { return relay(from: relaysResponse) }
 
             // Compute the midpoint location from all the filtered relays

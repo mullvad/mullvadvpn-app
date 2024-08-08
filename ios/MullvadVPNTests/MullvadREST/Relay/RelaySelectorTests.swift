@@ -7,8 +7,10 @@
 //
 
 @testable import MullvadREST
+@testable import MullvadSettings
 import MullvadTypes
 import Network
+@testable import WireGuardKitTypes
 import XCTest
 
 private let portRanges: [[UInt16]] = [[4000, 4001], [5000, 5001]]
@@ -16,8 +18,6 @@ private let defaultPort: UInt16 = 53
 
 class RelaySelectorTests: XCTestCase {
     let sampleRelays = ServerRelaysResponseStubs.sampleRelays
-
-    // MARK: - single-Hop tests
 
     func testCountryConstraint() throws {
         let constraints = RelayConstraints(
@@ -71,9 +71,10 @@ class RelaySelectorTests: XCTestCase {
             )
         }
 
-        let constrainedLocations = RelaySelector.applyConstraints(
+        let constrainedLocations = try RelaySelector.applyConstraints(
             constraints.exitLocations,
             filterConstraint: constraints.filter,
+            daitaEnabled: false,
             relays: relayWithLocations
         )
 
@@ -88,6 +89,19 @@ class RelaySelectorTests: XCTestCase {
                 where: { $0.matches(location: .hostname("se", "sto", "se6-wireguard")) }
             )
         )
+    }
+
+    func testNoMatchingRelayConstraintError() throws {
+        let constraints = RelayConstraints(
+            exitLocations: .only(UserSelectedRelays(locations: [.country("-")]))
+        )
+
+        XCTAssertThrowsError(
+            try pickRelay(by: constraints, in: sampleRelays, failedAttemptCount: 0)
+        ) { error in
+            let error = error as? NoRelaysSatisfyingConstraintsError
+            XCTAssertEqual(error?.reason, .relayConstraintNotMatching)
+        }
     }
 
     func testSpecificPortConstraint() throws {
@@ -172,7 +186,10 @@ class RelaySelectorTests: XCTestCase {
             filter: .only(filter)
         )
 
-        XCTAssertThrowsError(try pickRelay(by: constraints, in: sampleRelays, failedAttemptCount: 0))
+        XCTAssertThrowsError(try pickRelay(by: constraints, in: sampleRelays, failedAttemptCount: 0)) { error in
+            let error = error as? NoRelaysSatisfyingConstraintsError
+            XCTAssertEqual(error?.reason, .filterConstraintNotMatching)
+        }
     }
 
     func testRelayFilterConstraintWithCorrectProvider() throws {
@@ -197,7 +214,44 @@ class RelaySelectorTests: XCTestCase {
             filter: .only(filter)
         )
 
-        XCTAssertThrowsError(try pickRelay(by: constraints, in: sampleRelays, failedAttemptCount: 0))
+        XCTAssertThrowsError(try pickRelay(by: constraints, in: sampleRelays, failedAttemptCount: 0)) { error in
+            let error = error as? NoRelaysSatisfyingConstraintsError
+            XCTAssertEqual(error?.reason, .filterConstraintNotMatching)
+        }
+    }
+
+    func testRelayWithDaita() throws {
+        let hasDaitaConstraints = RelayConstraints(
+            exitLocations: .only(UserSelectedRelays(locations: [.country("es")]))
+        )
+
+        let noDaitaConstraints = RelayConstraints(
+            exitLocations: .only(UserSelectedRelays(locations: [.country("se")]))
+        )
+
+        XCTAssertNoThrow(
+            try pickRelay(
+                by: hasDaitaConstraints,
+                in: sampleRelays,
+                failedAttemptCount: 0,
+                daitaEnabled: true
+            )
+        )
+        XCTAssertThrowsError(
+            try pickRelay(by: noDaitaConstraints, in: sampleRelays, failedAttemptCount: 0, daitaEnabled: true)
+        ) { error in
+            let error = error as? NoRelaysSatisfyingConstraintsError
+            XCTAssertEqual(error?.reason, .noDaitaRelaysFound)
+        }
+    }
+
+    func testNoActiveRelaysError() throws {
+        XCTAssertThrowsError(
+            try pickRelay(by: RelayConstraints(), in: sampleRelaysNoActive, failedAttemptCount: 0)
+        ) { error in
+            let error = error as? NoRelaysSatisfyingConstraintsError
+            XCTAssertEqual(error?.reason, .noActiveRelaysFound)
+        }
     }
 }
 
@@ -205,12 +259,14 @@ extension RelaySelectorTests {
     private func pickRelay(
         by constraints: RelayConstraints,
         in relays: REST.ServerRelaysResponse,
-        failedAttemptCount: UInt
+        failedAttemptCount: UInt,
+        daitaEnabled: Bool = false
     ) throws -> RelaySelectorMatch {
         let candidates = try RelaySelector.WireGuard.findCandidates(
             by: constraints.exitLocations,
             in: relays,
-            filterConstraint: constraints.filter
+            filterConstraint: constraints.filter,
+            daitaEnabled: daitaEnabled
         )
 
         return try RelaySelector.WireGuard.pickCandidate(
@@ -218,6 +274,42 @@ extension RelaySelectorTests {
             relays: relays,
             portConstraint: constraints.port,
             numberOfFailedAttempts: failedAttemptCount
+        )
+    }
+}
+
+extension RelaySelectorTests {
+    var sampleRelaysNoActive: REST.ServerRelaysResponse {
+        REST.ServerRelaysResponse(
+            locations: [
+                "es-mad": REST.ServerLocation(
+                    country: "Spain",
+                    city: "Madrid",
+                    latitude: 40.408566,
+                    longitude: -3.69222
+                ),
+            ],
+            wireguard: REST.ServerWireguardTunnels(
+                ipv4Gateway: .loopback,
+                ipv6Gateway: .loopback,
+                portRanges: portRanges,
+                relays: [
+                    REST.ServerRelay(
+                        hostname: "es1-wireguard",
+                        active: false,
+                        owned: true,
+                        location: "es-mad",
+                        provider: "",
+                        weight: 500,
+                        ipv4AddrIn: .loopback,
+                        ipv6AddrIn: .loopback,
+                        publicKey: PrivateKey().publicKey.rawValue,
+                        includeInCountry: true,
+                        daita: true
+                    ),
+                ]
+            ),
+            bridge: REST.ServerBridges(shadowsocks: [], relays: [])
         )
     }
 }

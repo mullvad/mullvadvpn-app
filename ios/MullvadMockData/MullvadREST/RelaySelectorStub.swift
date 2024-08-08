@@ -58,7 +58,7 @@ extension RelaySelectorStub {
     /// Returns a relay selector that cannot satisfy constraints .
     public static func unsatisfied() -> RelaySelectorStub {
         return RelaySelectorStub { _ in
-            throw NoRelaysSatisfyingConstraintsError()
+            throw NoRelaysSatisfyingConstraintsError(.relayConstraintNotMatching)
         }
     }
 }

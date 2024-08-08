@@ -34,6 +34,7 @@ extension REST {
         public let ipv4AddrIn: IPv4Address
         public let weight: UInt64
         public let includeInCountry: Bool
+        public var daita: Bool?
 
         public func override(ipv4AddrIn: IPv4Address?) -> Self {
             return BridgeRelay(
@@ -60,6 +61,7 @@ extension REST {
         public let ipv6AddrIn: IPv6Address
         public let publicKey: Data
         public let includeInCountry: Bool
+        public let daita: Bool?
 
         public func override(ipv4AddrIn: IPv4Address?, ipv6AddrIn: IPv6Address?) -> Self {
             return ServerRelay(
@@ -72,7 +74,8 @@ extension REST {
                 ipv4AddrIn: ipv4AddrIn ?? self.ipv4AddrIn,
                 ipv6AddrIn: ipv6AddrIn ?? self.ipv6AddrIn,
                 publicKey: publicKey,
-                includeInCountry: includeInCountry
+                includeInCountry: includeInCountry,
+                daita: daita
             )
         }
     }
