@@ -13,7 +13,7 @@ import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.compose.state.DeleteCustomListUiState
-import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
+import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -42,7 +42,7 @@ fun DeleteCustomList(navigator: ResultBackNavigator<CustomListActionResultData.S
     val viewModel: DeleteCustomListConfirmationViewModel = koinViewModel()
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
-    LaunchedEffectCollect(viewModel.uiSideEffect) {
+    CollectSideEffectWithLifecycle(viewModel.uiSideEffect) {
         when (it) {
             is DeleteCustomListConfirmationSideEffect.ReturnWithResult ->
                 navigator.navigateBack(result = it.result)

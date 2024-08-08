@@ -86,7 +86,7 @@ import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_CUSTOM_PORT_NUMBE
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
-import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
+import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.constant.UDP2TCP_PRESET_PORTS
@@ -178,7 +178,7 @@ fun VpnSettings(
 
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
-    LaunchedEffectCollect(vm.uiSideEffect) {
+    CollectSideEffectWithLifecycle(vm.uiSideEffect) {
         when (it) {
             is VpnSettingsSideEffect.ShowToast ->
                 launch { snackbarHostState.showSnackbarImmediately(message = it.message(context)) }

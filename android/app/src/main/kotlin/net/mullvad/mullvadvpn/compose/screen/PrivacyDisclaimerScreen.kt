@@ -47,7 +47,7 @@ import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorMedium
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
-import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
+import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.toDp
 import net.mullvad.mullvadvpn.constant.DAEMON_READY_TIMEOUT_MS
 import net.mullvad.mullvadvpn.lib.common.util.openLink
@@ -80,7 +80,7 @@ fun PrivacyDisclaimer(navigator: DestinationsNavigator) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
-    LaunchedEffectCollect(viewModel.uiSideEffect) {
+    CollectSideEffectWithLifecycle(viewModel.uiSideEffect) {
         when (it) {
             PrivacyDisclaimerUiSideEffect.NavigateToLogin ->
                 navigator.navigate(LoginDestination(null)) {
