@@ -6,11 +6,12 @@ import androidx.lifecycle.viewModelScope
 import arrow.core.getOrElse
 import arrow.core.raise.either
 import com.ramcosta.composedestinations.generated.destinations.CustomListLocationsDestination
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -41,9 +42,8 @@ class CustomListLocationsViewModel(
 ) : ViewModel() {
     private val navArgs =
         CustomListLocationsDestination.argsFrom(savedStateHandle = savedStateHandle)
-    private val _uiSideEffect =
-        MutableSharedFlow<CustomListLocationsSideEffect>(replay = 1, extraBufferCapacity = 1)
-    val uiSideEffect: SharedFlow<CustomListLocationsSideEffect> = _uiSideEffect
+    private val _uiSideEffect = Channel<CustomListLocationsSideEffect>()
+    val uiSideEffect: Flow<CustomListLocationsSideEffect> = _uiSideEffect.consumeAsFlow()
 
     private val _initialLocations = MutableStateFlow<Set<RelayItem.Location>>(emptySet())
     private val _selectedLocations = MutableStateFlow<Set<RelayItem.Location>?>(null)
@@ -125,7 +125,7 @@ class CustomListLocationsViewModel(
                             calculateResultData(success, locationsToSave)
                         }
                         .getOrElse { CustomListActionResultData.GenericError }
-                _uiSideEffect.tryEmit(
+                _uiSideEffect.send(
                     CustomListLocationsSideEffect.ReturnWithResultData(result = result)
                 )
             }

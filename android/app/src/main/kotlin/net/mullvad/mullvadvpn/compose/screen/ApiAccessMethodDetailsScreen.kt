@@ -55,7 +55,7 @@ import net.mullvad.mullvadvpn.compose.test.API_ACCESS_TEST_METHOD_BUTTON
 import net.mullvad.mullvadvpn.compose.test.API_ACCESS_USE_METHOD_BUTTON
 import net.mullvad.mullvadvpn.compose.test.DELETE_DROPDOWN_MENU_ITEM_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
-import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
+import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
@@ -93,7 +93,7 @@ fun ApiAccessMethodDetails(
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
 
-    LaunchedEffectCollect(sideEffect = viewModel.uiSideEffect) {
+    CollectSideEffectWithLifecycle(viewModel.uiSideEffect) {
         when (it) {
             ApiAccessMethodDetailsSideEffect.GenericError ->
                 launch {

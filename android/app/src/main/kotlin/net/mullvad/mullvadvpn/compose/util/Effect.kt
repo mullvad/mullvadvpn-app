@@ -11,6 +11,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
+@Deprecated("Use CollectSideEffectWithLifecycle instead")
 @Composable
 inline fun <T> LaunchedEffectCollect(
     sideEffect: Flow<T>,

@@ -32,7 +32,7 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.DeviceRevokedLoginButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.compose.state.DeviceRevokedUiState
-import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
+import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.viewmodel.DeviceRevokedSideEffect
@@ -52,7 +52,7 @@ fun DeviceRevoked(navigator: DestinationsNavigator) {
 
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
-    LaunchedEffectCollect(viewModel.uiSideEffect) { sideEffect ->
+    CollectSideEffectWithLifecycle(viewModel.uiSideEffect) { sideEffect ->
         when (sideEffect) {
             DeviceRevokedSideEffect.NavigateToLogin ->
                 navigator.navigate(LoginDestination()) {
