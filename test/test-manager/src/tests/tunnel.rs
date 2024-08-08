@@ -17,8 +17,8 @@ use mullvad_types::{
     constraints::Constraint,
     relay_constraints::{
         self, BridgeConstraints, BridgeSettings, BridgeType, OpenVpnConstraints, RelayConstraints,
-        RelaySettings, SelectedObfuscation, TransportPort, Udp2TcpObfuscationSettings,
-        WireguardConstraints,
+        RelaySettings, SelectedObfuscation, ShadowsocksSettings, TransportPort,
+        Udp2TcpObfuscationSettings, WireguardConstraints,
     },
     states::TunnelState,
     wireguard,
@@ -145,23 +145,13 @@ pub async fn test_udp2tcp_tunnel(
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> Result<(), Error> {
+    let query = RelayQueryBuilder::new().wireguard().udp2tcp().build();
+
     mullvad_client
-        .set_obfuscation_settings(relay_constraints::ObfuscationSettings {
-            selected_obfuscation: SelectedObfuscation::Udp2Tcp,
-            udp2tcp: Udp2TcpObfuscationSettings {
-                port: Constraint::Any,
-            },
-            ..Default::default()
-        })
+        .set_obfuscation_settings(query.clone().into_obfuscation_settings())
         .await
         .expect("failed to enable udp2tcp");
-
-    let relay_settings = RelaySettings::Normal(RelayConstraints {
-        tunnel_protocol: Constraint::Only(TunnelType::Wireguard),
-        ..Default::default()
-    });
-
-    set_relay_settings(&mut mullvad_client, relay_settings)
+    set_relay_settings(&mut mullvad_client, query.into_relay_constraints())
         .await
         .expect("failed to update relay settings");
 
@@ -198,6 +188,40 @@ pub async fn test_udp2tcp_tunnel(
     assert!(
         !monitor_result.packets.is_empty(),
         "detected no tcp traffic",
+    );
+
+    Ok(())
+}
+
+/// Use Shadowsocks obfuscation. This tests whether the daemon can establish a Shadowsocks tunnel.
+/// Note that this doesn't verify that Shadowsocks is in fact being used.
+#[test_function]
+pub async fn test_wireguard_over_shadowsocks(
+    _: TestContext,
+    rpc: ServiceClient,
+    mut mullvad_client: MullvadProxyClient,
+) -> anyhow::Result<()> {
+    let query = RelayQueryBuilder::new().wireguard().shadowsocks().build();
+
+    mullvad_client
+        .set_obfuscation_settings(query.clone().into_obfuscation_settings())
+        .await
+        .context("Failed to enable shadowsocks")?;
+
+    set_relay_settings(&mut mullvad_client, query.into_relay_constraints())
+        .await
+        .context("Failed to update relay settings")?;
+
+    log::info!("Connect to WireGuard via shadowsocks endpoint");
+
+    connect_and_wait(&mut mullvad_client).await?;
+
+    // Verify that we have a Mullvad exit IP
+    //
+
+    assert!(
+        helpers::using_mullvad_exit(&rpc).await,
+        "expected Mullvad exit IP"
     );
 
     Ok(())
@@ -301,7 +325,8 @@ pub async fn test_multihop(
     let relay_constraints = RelayQueryBuilder::new()
         .wireguard()
         .multihop()
-        .into_constraint();
+        .build()
+        .into_relay_constraints();
 
     set_relay_settings(
         &mut mullvad_client,
@@ -417,7 +442,10 @@ pub async fn test_daita(
 
     set_relay_settings(
         &mut mullvad_client,
-        RelayQueryBuilder::new().wireguard().build(),
+        RelayQueryBuilder::new()
+            .wireguard()
+            .build()
+            .into_relay_constraints(),
     )
     .await?;
 
@@ -587,7 +615,8 @@ pub async fn test_quantum_resistant_multihop_udp2tcp_tunnel(
     let relay_constraints = RelayQueryBuilder::new()
         .wireguard()
         .multihop()
-        .into_constraint();
+        .build()
+        .into_relay_constraints();
 
     mullvad_client
         .set_relay_settings(RelaySettings::Normal(relay_constraints))
@@ -599,6 +628,55 @@ pub async fn test_quantum_resistant_multihop_udp2tcp_tunnel(
     assert!(
         helpers::using_mullvad_exit(&rpc).await,
         "expected Mullvad exit IP"
+    );
+
+    Ok(())
+}
+
+/// Test Shadowsocks, PQ, and WireGuard combined.
+///
+/// # Limitations
+///
+/// This is not testing any of the individual components, just whether the daemon can connect when
+/// all of these features are combined.
+#[test_function]
+pub async fn test_quantum_resistant_multihop_shadowsocks_tunnel(
+    _: TestContext,
+    rpc: ServiceClient,
+    mut mullvad_client: MullvadProxyClient,
+) -> anyhow::Result<()> {
+    mullvad_client
+        .set_quantum_resistant_tunnel(wireguard::QuantumResistantState::On)
+        .await
+        .context("Failed to enable PQ tunnels")?;
+
+    mullvad_client
+        .set_obfuscation_settings(relay_constraints::ObfuscationSettings {
+            selected_obfuscation: SelectedObfuscation::Shadowsocks,
+            shadowsocks: ShadowsocksSettings {
+                port: Constraint::Any,
+            },
+            ..Default::default()
+        })
+        .await
+        .context("Failed to enable obfuscation")?;
+
+    let relay_constraints = RelayQueryBuilder::new()
+        .wireguard()
+        .multihop()
+        .build()
+        .into_relay_constraints();
+
+    mullvad_client
+        .set_relay_settings(RelaySettings::Normal(relay_constraints))
+        .await
+        .context("Failed to update relay settings")?;
+
+    connect_and_wait(&mut mullvad_client).await?;
+
+    assert!(
+        helpers::using_mullvad_exit(&rpc).await,
+        "Expected Mullvad exit IP"
     );
 
     Ok(())

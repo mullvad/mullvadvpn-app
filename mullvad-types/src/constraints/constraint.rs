@@ -41,6 +41,15 @@ impl<T: fmt::Display> fmt::Display for Constraint<T> {
     }
 }
 
+impl<T: Default> Constraint<T> {
+    pub fn unwrap_or_default(self) -> T {
+        match self {
+            Constraint::Any => Default::default(),
+            Constraint::Only(value) => value,
+        }
+    }
+}
+
 impl<T> Constraint<T> {
     pub fn unwrap(self) -> T {
         match self {
