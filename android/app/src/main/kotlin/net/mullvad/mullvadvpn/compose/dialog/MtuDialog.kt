@@ -23,7 +23,7 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.NegativeButton
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.textfield.MtuTextField
-import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
+import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.constant.MTU_MAX_VALUE
 import net.mullvad.mullvadvpn.constant.MTU_MIN_VALUE
 import net.mullvad.mullvadvpn.lib.model.Mtu
@@ -48,7 +48,7 @@ fun Mtu(navigator: ResultBackNavigator<Boolean>) {
     val viewModel = koinViewModel<MtuDialogViewModel>()
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    LaunchedEffectCollect(viewModel.uiSideEffect) {
+    CollectSideEffectWithLifecycle(viewModel.uiSideEffect) {
         when (it) {
             MtuDialogSideEffect.Complete -> navigator.navigateBack(result = true)
             MtuDialogSideEffect.Error -> navigator.navigateBack(result = false)
