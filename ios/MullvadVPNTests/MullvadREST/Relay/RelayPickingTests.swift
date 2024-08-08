@@ -9,6 +9,7 @@
 import Foundation
 
 @testable import MullvadREST
+@testable import MullvadSettings
 @testable import MullvadTypes
 import XCTest
 
@@ -23,6 +24,7 @@ class RelayPickingTests: XCTestCase {
 
         let picker = SinglehopPicker(
             constraints: constraints,
+            daitaSettings: DAITASettings(state: .off),
             relays: sampleRelays,
             connectionAttemptCount: 0
         )
@@ -41,6 +43,7 @@ class RelayPickingTests: XCTestCase {
 
         let picker = MultihopPicker(
             constraints: constraints,
+            daitaSettings: DAITASettings(state: .off),
             relays: sampleRelays,
             connectionAttemptCount: 0
         )
@@ -59,10 +62,16 @@ class RelayPickingTests: XCTestCase {
 
         let picker = MultihopPicker(
             constraints: constraints,
+            daitaSettings: DAITASettings(state: .off),
             relays: sampleRelays,
             connectionAttemptCount: 0
         )
 
-        XCTAssertThrowsError(try picker.pick())
+        XCTAssertThrowsError(
+            try picker.pick()
+        ) { error in
+            let error = error as? NoRelaysSatisfyingConstraintsError
+            XCTAssertEqual(error?.reason, .entryEqualsExit)
+        }
     }
 }

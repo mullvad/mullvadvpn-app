@@ -6,6 +6,7 @@
 //  Copyright © 2024 Mullvad VPN AB. All rights reserved.
 //
 
+import MullvadSettings
 import MullvadTypes
 
 extension RelaySelector {
@@ -14,13 +15,15 @@ extension RelaySelector {
         public static func findCandidates(
             by relayConstraint: RelayConstraint<UserSelectedRelays>,
             in relays: REST.ServerRelaysResponse,
-            filterConstraint: RelayConstraint<RelayFilter>
+            filterConstraint: RelayConstraint<RelayFilter>,
+            daitaEnabled: Bool
         ) throws -> [RelayWithLocation<REST.ServerRelay>] {
             let mappedRelays = mapRelays(relays: relays.wireguard.relays, locations: relays.locations)
 
-            return applyConstraints(
+            return try applyConstraints(
                 relayConstraint,
                 filterConstraint: filterConstraint,
+                daitaEnabled: daitaEnabled,
                 relays: mappedRelays
             )
         }
@@ -38,8 +41,12 @@ extension RelaySelector {
                 numberOfFailedAttempts: numberOfFailedAttempts
             )
 
-            guard let port, let relayWithLocation = pickRandomRelayByWeight(relays: relayWithLocations) else {
-                throw NoRelaysSatisfyingConstraintsError()
+            guard let port else {
+                throw NoRelaysSatisfyingConstraintsError(.invalidPort)
+            }
+
+            guard let relayWithLocation = pickRandomRelayByWeight(relays: relayWithLocations) else {
+                throw NoRelaysSatisfyingConstraintsError(.relayConstraintNotMatching)
             }
 
             let endpoint = MullvadEndpoint(

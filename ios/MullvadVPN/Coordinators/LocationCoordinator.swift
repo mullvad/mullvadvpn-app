@@ -57,7 +57,7 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
         let locationViewControllerWrapper = LocationViewControllerWrapper(
             customListRepository: customListRepository,
             constraints: tunnelManager.settings.relayConstraints,
-            multihopEnabled: tunnelManager.settings.tunnelMultihopState == .on
+            multihopEnabled: tunnelManager.settings.tunnelMultihopState.isEnabled
         )
         locationViewControllerWrapper.delegate = self
 

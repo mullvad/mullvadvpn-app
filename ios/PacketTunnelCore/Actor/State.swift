@@ -192,8 +192,17 @@ public enum BlockedStateReason: String, Codable, Equatable {
     /// Settings schema is outdated.
     case outdatedSchema
 
-    /// No relay satisfying constraints.
+    /// General error for no relays satisfying constraints.
     case noRelaysSatisfyingConstraints
+
+    /// No relays satisfying filter constraints.
+    case noRelaysSatisfyingFilterConstraints
+
+    /// No relays satisfying multihop constraints.
+    case multihopEntryEqualsExit
+
+    /// No relays satisfying DAITA constraints.
+    case noRelaysSatisfyingDaitaConstraints
 
     /// Any other failure when reading settings.
     case readSettings
