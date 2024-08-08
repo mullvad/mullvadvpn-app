@@ -147,9 +147,6 @@ pub async fn run(
 
     if !test_filters.is_empty() {
         tests.retain(|test| {
-            if test.always_run {
-                return true;
-            }
             for command in test_filters {
                 let command = command.to_lowercase();
                 if test.command.to_lowercase().contains(&command) {
