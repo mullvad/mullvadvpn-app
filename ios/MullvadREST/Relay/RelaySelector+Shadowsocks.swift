@@ -46,6 +46,7 @@ extension RelaySelector {
             let filteredRelays = applyConstraints(
                 location,
                 filterConstraint: filter,
+                daita: false,
                 relays: mappedBridges
             )
             guard filteredRelays.isEmpty == false else { return relay(from: relaysResponse) }

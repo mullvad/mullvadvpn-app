@@ -17,8 +17,6 @@ private let defaultPort: UInt16 = 53
 class RelaySelectorTests: XCTestCase {
     let sampleRelays = ServerRelaysResponseStubs.sampleRelays
 
-    // MARK: - single-Hop tests
-
     func testCountryConstraint() throws {
         let constraints = RelayConstraints(
             exitLocations: .only(UserSelectedRelays(locations: [.country("es")]))
@@ -74,6 +72,7 @@ class RelaySelectorTests: XCTestCase {
         let constrainedLocations = RelaySelector.applyConstraints(
             constraints.exitLocations,
             filterConstraint: constraints.filter,
+            daita: false,
             relays: relayWithLocations
         )
 
@@ -199,18 +198,35 @@ class RelaySelectorTests: XCTestCase {
 
         XCTAssertThrowsError(try pickRelay(by: constraints, in: sampleRelays, failedAttemptCount: 0))
     }
+
+    func testRelayWithDaita() throws {
+        let hasDaitaConstraints = RelayConstraints(
+            exitLocations: .only(UserSelectedRelays(locations: [.country("es")]))
+        )
+
+        let noDaitaConstraints = RelayConstraints(
+            exitLocations: .only(UserSelectedRelays(locations: [.country("se")]))
+        )
+
+        XCTAssertNoThrow(try pickRelay(by: hasDaitaConstraints, in: sampleRelays, failedAttemptCount: 0, daita: true))
+        XCTAssertThrowsError(
+            try pickRelay(by: noDaitaConstraints, in: sampleRelays, failedAttemptCount: 0, daita: true)
+        )
+    }
 }
 
 extension RelaySelectorTests {
     private func pickRelay(
         by constraints: RelayConstraints,
         in relays: REST.ServerRelaysResponse,
-        failedAttemptCount: UInt
+        failedAttemptCount: UInt,
+        daita: Bool = false
     ) throws -> RelaySelectorMatch {
         let candidates = try RelaySelector.WireGuard.findCandidates(
             by: constraints.exitLocations,
             in: relays,
-            filterConstraint: constraints.filter
+            filterConstraint: constraints.filter,
+            daita: daita
         )
 
         return try RelaySelector.WireGuard.pickCandidate(

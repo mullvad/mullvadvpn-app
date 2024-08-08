@@ -17,6 +17,7 @@ public protocol AnyRelay {
     var weight: UInt64 { get }
     var active: Bool { get }
     var includeInCountry: Bool { get }
+    var daita: Bool? { get }
 
     func override(ipv4AddrIn: IPv4Address?, ipv6AddrIn: IPv6Address?) -> Self
 }

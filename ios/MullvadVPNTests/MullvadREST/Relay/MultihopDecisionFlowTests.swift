@@ -119,6 +119,7 @@ extension MultihopDecisionFlowTests {
 
         return MultihopPicker(
             constraints: constraints,
+            daita: false,
             relays: sampleRelays,
             connectionAttemptCount: 0
         )

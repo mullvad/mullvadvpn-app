@@ -23,6 +23,7 @@ class RelayPickingTests: XCTestCase {
 
         let picker = SinglehopPicker(
             constraints: constraints,
+            daita: false,
             relays: sampleRelays,
             connectionAttemptCount: 0
         )
@@ -41,6 +42,7 @@ class RelayPickingTests: XCTestCase {
 
         let picker = MultihopPicker(
             constraints: constraints,
+            daita: false,
             relays: sampleRelays,
             connectionAttemptCount: 0
         )
@@ -59,6 +61,7 @@ class RelayPickingTests: XCTestCase {
 
         let picker = MultihopPicker(
             constraints: constraints,
+            daita: false,
             relays: sampleRelays,
             connectionAttemptCount: 0
         )
