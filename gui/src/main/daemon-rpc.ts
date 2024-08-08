@@ -29,7 +29,6 @@ import {
   DeviceEvent,
   DeviceState,
   DirectMethod,
-  EndpointObfuscationType,
   ErrorState,
   ErrorStateCause,
   FirewallPolicyError,
@@ -402,6 +401,8 @@ export class DaemonRpc {
       }
       grpcObfuscationSettings.setUdp2tcp(grpcUdp2tcpSettings);
     }
+
+    grpcObfuscationSettings.setShadowsocks(new grpcTypes.ShadowsocksSettings());
 
     await this.call<grpcTypes.ObfuscationSettings, Empty>(
       this.client.setObfuscationSettings,
@@ -1151,14 +1152,16 @@ function convertFromProxyEndpoint(proxyEndpoint: grpcTypes.ProxyEndpoint.AsObjec
 function convertFromObfuscationEndpoint(
   obfuscationEndpoint: grpcTypes.ObfuscationEndpoint.AsObject,
 ): IObfuscationEndpoint {
-  const obfuscationTypes: Record<grpcTypes.ObfuscationType, EndpointObfuscationType> = {
-    [grpcTypes.ObfuscationType.UDP2TCP]: 'udp2tcp',
-  };
+  if (
+    obfuscationEndpoint.obfuscationType !== grpcTypes.ObfuscationEndpoint.ObfuscationType.UDP2TCP
+  ) {
+    throw new Error('unsupported obfuscation protocol');
+  }
 
   return {
     ...obfuscationEndpoint,
     protocol: convertFromTransportProtocol(obfuscationEndpoint.protocol),
-    obfuscationType: obfuscationTypes[obfuscationEndpoint.obfuscationType],
+    obfuscationType: 'udp2tcp',
   };
 }
 
