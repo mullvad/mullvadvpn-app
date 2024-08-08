@@ -18,6 +18,21 @@ import StoreKit
 import UIKit
 import WireGuardKitTypes
 
+// struct OperationFactory {
+//
+//    typealias DesinationType = Simulator
+//    let object = DesinationType()
+//    case mapToStaus
+//    func make() {
+//        switch self {
+//            object.build(for theCase)
+//        }
+//    }
+// }
+//
+// struct Simulator : CommomProtocol {}
+// struct RealDevice {}
+
 /// Interval used for periodic polling of tunnel relay status when tunnel is establishing
 /// connection.
 private let establishingTunnelStatusPollInterval: Duration = .seconds(3)
@@ -42,7 +57,7 @@ final class TunnelManager: StorePaymentObserver {
 
     // MARK: - Internal variables
 
-    private let application: BackgroundTaskProvider
+    let application: BackgroundTaskProvider
     fileprivate let tunnelStore: any TunnelStoreProtocol
     private let relayCacheTracker: RelayCacheTrackerProtocol
     private let accountsProxy: RESTAccountHandling
@@ -77,6 +92,12 @@ final class TunnelManager: StorePaymentObserver {
 
     /// Last processed device check.
     private var lastPacketTunnelKeyRotation: Date?
+
+//    #if targetEnvironment(simulator)
+//    internal var MappingOperation = ConnectionStatusOperationStub.self
+//    #else
+//    internal var MappingOperation = MapConnectionStatusOperation.self
+//    #endif
 
     // MARK: - Initialization
 
@@ -811,11 +832,11 @@ final class TunnelManager: StorePaymentObserver {
             logger.error(error: error, message: "Failed to reconnect the tunnel.")
         }
 
-        // Refresh tunnel status only when connecting or reasserting to pick up the next relay,
+        // Refresh tunnel status only when connecting,reasserting or error to pick up the next relay,
         // since both states may persist for a long period of time until the tunnel is fully
         // connected.
         switch tunnelStatus.state {
-        case .connecting, .reconnecting:
+        case .connecting, .reconnecting, .error:
             logger.debug("Refresh tunnel status due to reconnect.")
             refreshTunnelStatus()
 
@@ -912,6 +933,13 @@ final class TunnelManager: StorePaymentObserver {
     private func updateTunnelStatus(_ connectionStatus: NEVPNStatus) {
         nslock.lock()
         defer { nslock.unlock() }
+
+//        let operation = MappingOperation.self.init(
+//            queue: internalQueue,
+//            interactor: TunnelInteractorProxy(self),
+//            connectionStatus: connectionStatus,
+//            networkStatus: networkMonitor?.currentPath.status
+//        )
 
         let operation = MapConnectionStatusOperation(
             queue: internalQueue,
@@ -1202,6 +1230,10 @@ private struct TunnelInteractorProxy: TunnelInteractor {
 
     var tunnel: (any TunnelProtocol)? {
         tunnelManager.tunnel
+    }
+
+    var application: any BackgroundTaskProvider {
+        tunnelManager.application
     }
 
     func getPersistentTunnels() -> [any TunnelProtocol] {

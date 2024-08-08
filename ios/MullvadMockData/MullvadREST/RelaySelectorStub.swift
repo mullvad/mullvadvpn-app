@@ -11,8 +11,12 @@ import MullvadTypes
 import WireGuardKitTypes
 
 /// Relay selector stub that accepts a block that can be used to provide custom implementation.
-public struct RelaySelectorStub: RelaySelectorProtocol {
-    let block: (RelayConstraints, UInt) throws -> SelectedRelays
+public final class RelaySelectorStub: RelaySelectorProtocol {
+    var block: (RelayConstraints, UInt) throws -> SelectedRelays
+
+    init(block: @escaping (RelayConstraints, UInt) throws -> SelectedRelays) {
+        self.block = block
+    }
 
     public func selectRelays(
         with constraints: RelayConstraints,
@@ -51,6 +55,13 @@ extension RelaySelectorStub {
                 exit: cityRelay,
                 retryAttempt: 0
             )
+        }
+    }
+
+    /// Returns a relay selector that cannot satisfy constraints .
+    public static func unsatisfied() -> RelaySelectorStub {
+        return RelaySelectorStub { _, _ in
+            throw NoRelaysSatisfyingConstraintsError()
         }
     }
 }

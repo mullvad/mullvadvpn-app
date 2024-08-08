@@ -14,7 +14,41 @@ import NetworkExtension
 import Operations
 import PacketTunnelCore
 
-class MapConnectionStatusOperation: AsyncOperation {
+protocol ConnectionStatusMapping: AsyncOperation {
+    init(
+        queue: DispatchQueue,
+        interactor: TunnelInteractor,
+        connectionStatus: NEVPNStatus,
+        networkStatus: Network.NWPath.Status?
+    )
+}
+
+class ConnectionStatusOperationStub: AsyncOperation, ConnectionStatusMapping {
+    let connectionStatus: NEVPNStatus
+    let interactor: any TunnelInteractor
+
+    var tunnelStatus = TunnelStatus()
+
+    required init(
+        queue: DispatchQueue,
+        interactor: any TunnelInteractor,
+        connectionStatus: NEVPNStatus,
+        networkStatus: Network.NWPath.Status?
+    ) {
+        self.connectionStatus = connectionStatus
+        self.interactor = interactor
+
+        super.init(dispatchQueue: queue)
+    }
+
+    override func main() {
+        interactor.updateTunnelStatus { newStatus in
+            newStatus = tunnelStatus
+        }
+    }
+}
+
+class MapConnectionStatusOperation: AsyncOperation, ConnectionStatusMapping {
     private let interactor: TunnelInteractor
     private let connectionStatus: NEVPNStatus
     private var request: Cancellable?
@@ -22,7 +56,7 @@ class MapConnectionStatusOperation: AsyncOperation {
 
     private let logger = Logger(label: "TunnelManager.MapConnectionStatusOperation")
 
-    init(
+    required init(
         queue: DispatchQueue,
         interactor: TunnelInteractor,
         connectionStatus: NEVPNStatus,

@@ -284,17 +284,16 @@ extension PacketTunnelActor {
         nextRelays: NextRelays,
         reason: ActorReconnectReason
     ) async throws {
+        defer {
+            // Restart default path observer and notify the observer with the current path that might have changed while
+            // path observer was paused.
+            startDefaultPathObserver(notifyObserverWithCurrentPath: true)
+        }
+
         guard let connectionState = try obfuscateConnection(nextRelays: nextRelays, settings: settings, reason: reason),
               let targetState = state.targetStateForReconnect else { return }
 
         let activeKey = activeKey(from: connectionState, in: settings)
-
-        switch targetState {
-        case .connecting:
-            state = .connecting(connectionState)
-        case .reconnecting:
-            state = .reconnecting(connectionState)
-        }
 
         let entryConfiguration: TunnelAdapterConfiguration? = if connectionState.selectedRelays.entry != nil {
             try ConfigurationBuilder(
@@ -330,12 +329,6 @@ extension PacketTunnelActor {
          */
         stopDefaultPathObserver()
 
-        defer {
-            // Restart default path observer and notify the observer with the current path that might have changed while
-            // path observer was paused.
-            startDefaultPathObserver(notifyObserverWithCurrentPath: true)
-        }
-
         try await tunnelAdapter.startMultihop(
             entryConfiguration: entryConfiguration,
             exitConfiguration: exitConfiguration
@@ -343,6 +336,13 @@ extension PacketTunnelActor {
 
         // Resume tunnel monitoring and use IPv4 gateway as a probe address.
         tunnelMonitor.start(probeAddress: connectionState.selectedRelays.exit.endpoint.ipv4Gateway)
+
+        switch targetState {
+        case .connecting:
+            state = .connecting(connectionState)
+        case .reconnecting:
+            state = .reconnecting(connectionState)
+        }
     }
 
     /**

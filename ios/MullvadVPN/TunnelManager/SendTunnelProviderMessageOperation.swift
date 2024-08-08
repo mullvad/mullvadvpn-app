@@ -23,7 +23,7 @@ private let defaultTimeout: Duration = .seconds(5)
 final class SendTunnelProviderMessageOperation<Output>: ResultOperation<Output> {
     typealias DecoderHandler = (Data?) throws -> Output
 
-    private let application: UIApplication
+    private let backgroundTaskProvider: BackgroundTaskProvider
     private let tunnel: any TunnelProtocol
     private let message: TunnelProviderMessage
     private let timeout: Duration
@@ -38,14 +38,14 @@ final class SendTunnelProviderMessageOperation<Output>: ResultOperation<Output> 
 
     init(
         dispatchQueue: DispatchQueue,
-        application: UIApplication,
+        backgroundTaskProvider: BackgroundTaskProvider,
         tunnel: any TunnelProtocol,
         message: TunnelProviderMessage,
         timeout: Duration? = nil,
         decoderHandler: @escaping DecoderHandler,
         completionHandler: CompletionHandler?
     ) {
-        self.application = application
+        self.backgroundTaskProvider = backgroundTaskProvider
         self.tunnel = tunnel
         self.message = message
         self.timeout = timeout ?? defaultTimeout
@@ -60,7 +60,7 @@ final class SendTunnelProviderMessageOperation<Output>: ResultOperation<Output> 
 
         addObserver(
             BackgroundObserver(
-                application: application,
+                application: backgroundTaskProvider,
                 name: "Send tunnel provider message: \(message)",
                 cancelUponExpiration: true
             )
@@ -193,7 +193,7 @@ final class SendTunnelProviderMessageOperation<Output>: ResultOperation<Output> 
             return
         }
 
-        guard application.backgroundTimeRemaining > timeout else {
+        guard backgroundTaskProvider.backgroundTimeRemaining > timeout else {
             finish(result: .failure(SendTunnelProviderMessageError.notEnoughBackgroundTime))
             return
         }
@@ -218,7 +218,7 @@ final class SendTunnelProviderMessageOperation<Output>: ResultOperation<Output> 
 extension SendTunnelProviderMessageOperation where Output: Codable {
     convenience init(
         dispatchQueue: DispatchQueue,
-        application: UIApplication,
+        backgroundTaskProvider: BackgroundTaskProvider,
         tunnel: any TunnelProtocol,
         message: TunnelProviderMessage,
         timeout: Duration? = nil,
@@ -226,7 +226,7 @@ extension SendTunnelProviderMessageOperation where Output: Codable {
     ) {
         self.init(
             dispatchQueue: dispatchQueue,
-            application: application,
+            backgroundTaskProvider: backgroundTaskProvider,
             tunnel: tunnel,
             message: message,
             timeout: timeout,
@@ -245,7 +245,7 @@ extension SendTunnelProviderMessageOperation where Output: Codable {
 extension SendTunnelProviderMessageOperation where Output == Void {
     convenience init(
         dispatchQueue: DispatchQueue,
-        application: UIApplication,
+        backgroundTaskProvider: BackgroundTaskProvider,
         tunnel: any TunnelProtocol,
         message: TunnelProviderMessage,
         timeout: Duration? = nil,
@@ -253,7 +253,7 @@ extension SendTunnelProviderMessageOperation where Output == Void {
     ) {
         self.init(
             dispatchQueue: dispatchQueue,
-            application: application,
+            backgroundTaskProvider: backgroundTaskProvider,
             tunnel: tunnel,
             message: message,
             timeout: timeout,
