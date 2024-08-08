@@ -66,11 +66,11 @@ source "tart-cli" "tart" {
     # Choose Your Look
     "<wait10s><leftShiftOn><tab><leftShiftOff><spacebar>",
     # Enable Voice Over
-    "<wait10s><leftAltOn><f5><leftAltOff><wait5s>",
+    "<wait10s><leftAltOn><f5><leftAltOff><wait5s><enter>",
     # Now that the installation is done, open "System Settings"
     "<wait10s><leftAltOn><spacebar><leftAltOff>System Settings<enter>",
     # Navigate to "Sharing"
-    "<wait10s><leftAltOn>f<leftAltOff>sharing<enter>",
+    "<wait10s><leftAltOn>f<leftAltOff>screen sharing<enter>",
     # Navigate to "Screen Sharing" and enable it
     "<wait10s><tab><down><spacebar>",
     # Navigate to "Remote Login" and enable it
