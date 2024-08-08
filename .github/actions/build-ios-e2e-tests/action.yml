@@ -1,5 +1,5 @@
-name: 'iOS end to end tests action'
-description: 'Prepares and runs end to end tests on iOS device'
+name: 'Build iOS end to end tests action'
+description: 'Prepares and builds end to end tests on iOS device'
 inputs:
   ios_device_pin_code:
     description: 'iOS Device Pin Code'
@@ -16,25 +16,19 @@ inputs:
   test_device_udid:
     description: 'Test Device UDID'
     required: true
-  xcode_test_plan:
-    description: 'Xcode Test Plan to run'
-    required: true
   partner_api_token:
     description: 'Partner API Token'
     required: true
   test_name:
     description: 'Test case/suite name. Will run all tests in the test plan if not provided.'
     required: false
+  outputs_path:
+    description: 'Path to store outputs. This should be unique for each job run in order to avoid concurrency issues.'
+    required: true
 
 runs:
   using: 'composite'
   steps:
-    - name: Make sure app is not installed
-      run: ios-deploy --id $IOS_TEST_DEVICE_UDID --uninstall_only --bundle_id net.mullvad.MullvadVPN
-      shell: bash
-      env:
-        IOS_TEST_DEVICE_UDID: ${{ inputs.test_device_udid }}
-
     - name: Configure Xcode project
       run: |
         for file in *.xcconfig.template ; do cp $file ${file//.template/} ; done
@@ -47,10 +41,19 @@ runs:
             "/TEST_DEVICE_IDENTIFIER_UUID =/ s/= .*/= $TEST_DEVICE_IDENTIFIER_UUID/" \
             UITests.xcconfig
           sed -i "" \
+            "s#^// PARTNER_API_TOKEN =#PARTNER_API_TOKEN =#" \
+            UITests.xcconfig
+          sed -i "" \
             "/PARTNER_API_TOKEN =/ s#= .*#= $PARTNER_API_TOKEN#" \
             UITests.xcconfig
           sed -i "" \
             "/ATTACH_APP_LOGS_ON_FAILURE =/ s#= .*#= 1#" \
+            UITests.xcconfig
+          sed -i "" \
+            "/TEST_DEVICE_IS_IPAD =/ s#= .*#= 0#" \
+            UITests.xcconfig
+          sed -i "" \
+            "/UNINSTALL_APP_IN_TEST_SUITE_TEAR_DOWN =/ s#= .*#= 0#" \
             UITests.xcconfig
       shell: bash
       working-directory: ios/Configurations
@@ -61,7 +64,7 @@ runs:
         NO_TIME_ACCOUNT_NUMBER: ${{ inputs.no_time_account_number }}
         PARTNER_API_TOKEN: ${{ inputs.partner_api_token }}
 
-    - name: Run end-to-end-tests
+    - name: Build app and tests for testing
       run: |
         if [ -n "$TEST_NAME" ]; then
           TEST_NAME_ARGUMENT=" -only-testing $TEST_NAME"
@@ -71,19 +74,12 @@ runs:
         set -o pipefail && env NSUnbufferedIO=YES xcodebuild \
           -project MullvadVPN.xcodeproj \
           -scheme MullvadVPNUITests \
-          -testPlan $XCODE_TEST_PLAN $TEST_NAME_ARGUMENT \
-          -resultBundlePath xcode-test-report \
+          -testPlan MullvadVPNUITestsAll $TEST_NAME_ARGUMENT \
           -destination "platform=iOS,id=$TEST_DEVICE_UDID" \
-          clean test 2>&1 | xcbeautify --report junit --report-path junit-test-report
+          -derivedDataPath derived-data \
+          clean build-for-testing 2>&1
       shell: bash
       working-directory: ios/
       env:
-        XCODE_TEST_PLAN: ${{ inputs.xcode_test_plan }}
         TEST_DEVICE_UDID: ${{ inputs.test_device_udid }}
         TEST_NAME: ${{ inputs.test_name }}
-
-    - name: Uninstall app if still installed
-      run: ios-deploy --id $IOS_TEST_DEVICE_UDID --uninstall_only --bundle_id net.mullvad.MullvadVPN
-      shell: bash
-      env:
-        IOS_TEST_DEVICE_UDID: ${{ inputs.test_device_udid }}

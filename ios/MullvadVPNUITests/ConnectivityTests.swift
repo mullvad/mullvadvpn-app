@@ -96,7 +96,10 @@ class ConnectivityTests: LoggedOutUITestCase {
 
         // Select the first country, its first city and its first relay
         SelectLocationPage(app)
-            .tapCountryLocationCellExpandButton(withIndex: 0)
+            .tapCountryLocationCellExpandButton(
+                withName: BaseUITestCase
+                    .testsDefaultCountryName
+            ) // Must be a little specific here in order to avoid using relay services country with experimental relays
             .tapCityLocationCellExpandButton(withIndex: 0)
             .tapRelayLocationCell(withIndex: 0)
 
