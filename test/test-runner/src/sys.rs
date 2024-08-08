@@ -434,7 +434,7 @@ impl EnvVar {
 
 #[cfg(target_os = "linux")]
 pub async fn set_daemon_environment(env: HashMap<String, String>) -> Result<(), test_rpc::Error> {
-    use std::fmt::Write;
+    use std::{fmt::Write, ops::Not};
 
     let mut override_content = String::new();
     override_content.push_str("[Service]\n");
@@ -459,17 +459,31 @@ pub async fn set_daemon_environment(env: HashMap<String, String>) -> Result<(), 
         .await
         .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
 
-    tokio::process::Command::new("systemctl")
+    if tokio::process::Command::new("systemctl")
         .args(["daemon-reload"])
         .status()
         .await
-        .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
+        .map_err(|e| test_rpc::Error::Io(e.to_string()))?
+        .success()
+        .not()
+    {
+        return Err(test_rpc::Error::Service(
+            "Daemon service could not be reloaded".to_owned(),
+        ));
+    };
 
-    tokio::process::Command::new("systemctl")
+    if tokio::process::Command::new("systemctl")
         .args(["restart", "mullvad-daemon"])
         .status()
         .await
-        .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
+        .map_err(|e| test_rpc::Error::Io(e.to_string()))?
+        .success()
+        .not()
+    {
+        return Err(test_rpc::Error::Service(
+            "Daemon service could not be restarted".to_owned(),
+        ));
+    };
 
     wait_for_service_state(ServiceState::Running).await?;
     Ok(())

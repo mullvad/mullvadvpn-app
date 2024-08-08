@@ -18,7 +18,7 @@ pub async fn provision(
 ) -> Result<String> {
     match config.provisioner {
         Provisioner::Ssh => {
-            log::info!("SSH provisioning");
+            log::debug!("SSH provisioning");
 
             let (user, password) = config.get_ssh_options().context("missing SSH config")?;
             ssh(
@@ -125,9 +125,9 @@ fn blocking_ssh(
     } else {
         log::warn!("No previous app to send to remote")
     }
-    if let Some(ui_e2e_tests_path) = &local_app_manifest.ui_e2e_tests_path {
-        ssh_send_file_path(&session, ui_e2e_tests_path, temp_dir)
-            .context("Failed to send ui_e2e_tests_path to remote")?;
+    if let Some(gui_package_path) = &local_app_manifest.gui_package_path {
+        ssh_send_file_path(&session, gui_package_path, temp_dir)
+            .context("Failed to send gui_package_path to remote")?;
     } else {
         log::warn!("No UI e2e test to send to remote")
     }
@@ -166,13 +166,13 @@ fn blocking_ssh(
         .app_package_to_upgrade_from_path
         .map(|path| path.file_name().unwrap().to_string_lossy().into_owned())
         .unwrap_or_default();
-    let ui_e2e_tests_path = local_app_manifest
-        .ui_e2e_tests_path
+    let gui_package_path = local_app_manifest
+        .gui_package_path
         .map(|path| path.file_name().unwrap().to_string_lossy().into_owned())
         .unwrap_or_default();
 
     let cmd = format!(
-        "sudo {} {remote_dir} \"{app_package_path}\" \"{app_package_to_upgrade_from_path}\" \"{ui_e2e_tests_path}\"",
+        "sudo {} {remote_dir} \"{app_package_path}\" \"{app_package_to_upgrade_from_path}\" \"{gui_package_path}\"",
         dest.display()
     );
     log::debug!("Running setup script on remote, cmd: {cmd}");
@@ -218,6 +218,7 @@ fn ssh_send_file<R: Read>(
 fn ssh_exec(session: &Session, command: &str) -> Result<String> {
     let mut channel = session.channel_session()?;
     channel.exec(command)?;
+    let mut stderr_handle = channel.stderr();
     let mut output = String::new();
     channel.read_to_string(&mut output)?;
     channel.send_eof()?;
@@ -228,7 +229,9 @@ fn ssh_exec(session: &Session, command: &str) -> Result<String> {
         .exit_status()
         .context("Failed to obtain exit status")?;
     if exit_status != 0 {
-        log::error!("command failed: {command}\n{output}");
+        let mut stderr = String::new();
+        stderr_handle.read_to_string(&mut stderr).unwrap();
+        log::error!("Command failed: command: {command}\n\noutput:\n{output}\n\nstderr: {stderr}");
         bail!("command failed: {exit_status}");
     }
 

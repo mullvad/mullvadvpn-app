@@ -13,31 +13,6 @@ use talpid_types::net::wireguard;
 use test_macro::test_function;
 use test_rpc::ServiceClient;
 
-/// Log in and create a new device for the account.
-#[test_function(always_run = true, must_succeed = true, priority = -100)]
-pub async fn test_login(
-    _: TestContext,
-    _rpc: ServiceClient,
-    mut mullvad_client: MullvadProxyClient,
-) -> anyhow::Result<()> {
-    // Instruct daemon to log in
-    //
-
-    clear_devices(&new_device_client().await?)
-        .await
-        .context("failed to clear devices")?;
-
-    log::info!("Logging in/generating device");
-    login_with_retries(&mut mullvad_client)
-        .await
-        .context("login failed")?;
-
-    // Wait for the relay list to be updated
-    helpers::ensure_updated_relay_list(&mut mullvad_client).await?;
-
-    Ok(())
-}
-
 /// Log out and remove the current device
 /// from the account.
 #[test_function(priority = 100)]
@@ -97,10 +72,13 @@ pub async fn test_too_many_devices(
     log::info!("Log in with too many devices");
     let login_result = login_with_retries(&mut mullvad_client).await;
 
-    assert!(matches!(
-        login_result,
-        Err(mullvad_management_interface::Error::TooManyDevices)
-    ));
+    assert!(
+        matches!(
+            login_result,
+            Err(mullvad_management_interface::Error::TooManyDevices)
+        ),
+        "Expected too many devices error, got {login_result:?}"
+    );
 
     // Run UI test
     let ui_result = ui::run_test_env(
@@ -133,11 +111,6 @@ pub async fn test_revoked_device(
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> anyhow::Result<()> {
-    log::info!("Logging in/generating device");
-    login_with_retries(&mut mullvad_client)
-        .await
-        .context("login failed")?;
-
     let device_id = mullvad_client
         .get_device()
         .await

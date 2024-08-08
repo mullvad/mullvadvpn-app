@@ -366,7 +366,7 @@ pub async fn test_connected_state(
                     tunnel_type: TunnelType::Wireguard,
                     quantum_resistant: _,
                     proxy: None,
-                    obfuscation: None,
+                    obfuscation: _,
                     entry_endpoint: None,
                     tunnel_interface: _,
                     daita: _,
@@ -440,13 +440,11 @@ pub async fn test_connecting_state_when_corrupted_state_cache(
     // side-effect of this is that no network traffic is allowed to leak.
     log::info!("Starting the app back up again");
     rpc.start_mullvad_daemon().await?;
-    wait_for_tunnel_state(mullvad_client.clone(), |state| !state.is_disconnected())
-        .await
-        .map_err(|err| {
+    wait_for_tunnel_state(mullvad_client.clone(), |state| !state.is_disconnected()).await
+        .inspect_err(|_| {
             log::error!("App did not start in an expected state. \
                         App is not in either `Connecting` or `Connected` state after starting with corrupt state cache! \
                         There is a possibility of leaks during app startup ");
-            err
         })?;
     log::info!("App successfully recovered from a corrupt tunnel state cache.");
 

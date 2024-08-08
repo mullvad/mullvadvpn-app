@@ -68,7 +68,7 @@ pub struct SummaryLogger {
 impl SummaryLogger {
     /// Create a new logger and log to `path`. If `path` does not exist, it will be created. If it
     /// already exists, it is truncated and overwritten.
-    pub async fn new(name: &str, os: Os, path: &Path) -> Result<SummaryLogger, Error> {
+    pub async fn new(vm: &str, os: Os, path: &Path) -> Result<SummaryLogger, Error> {
         let mut file = fs::OpenOptions::new()
             .create(true)
             .write(true)
@@ -77,9 +77,7 @@ impl SummaryLogger {
             .await
             .map_err(|err| Error::Open(err, path.to_path_buf()))?;
 
-        file.write_all(name.as_bytes())
-            .await
-            .map_err(Error::Write)?;
+        file.write_all(vm.as_bytes()).await.map_err(Error::Write)?;
         file.write_u8(b'\n').await.map_err(Error::Write)?;
         file.write_all(&serde_json::to_vec(&os).map_err(Error::Serialize)?)
             .await
@@ -106,19 +104,6 @@ impl SummaryLogger {
         self.file.write_u8(b'\n').await.map_err(Error::Write)?;
 
         Ok(())
-    }
-}
-
-/// Convenience function that logs when there's a value, and is a no-op otherwise.
-// y u no trait async fn
-pub async fn maybe_log_test_result(
-    summary_logger: Option<&mut SummaryLogger>,
-    test_name: &str,
-    test_result: TestResult,
-) -> Result<(), Error> {
-    match summary_logger {
-        Some(logger) => logger.log_test_result(test_name, test_result).await,
-        None => Ok(()),
     }
 }
 
@@ -265,11 +250,7 @@ pub async fn print_summary_table<P: AsRef<Path>>(summary_files: &[P]) {
     for test in &tests {
         println!("<tr>");
 
-        println!(
-            "<td>{}{}</td>",
-            test.name,
-            if test.must_succeed { " *" } else { "" }
-        );
+        println!("<td>{}</td>", test.name,);
 
         let mut failed_platforms = vec![];
         for summary in &summaries {

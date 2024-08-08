@@ -151,7 +151,7 @@ jobs:
         shell: bash -ieo pipefail {0}
         run: |
           git fetch --tags --force
-          ./test/ci-runtests.sh ${{ matrix.os }}
+          ./test/scripts/ci-runtests.sh ${{ matrix.os }}
       - uses: actions/upload-artifact@v3
         if: '!cancelled()'
         with:
@@ -226,7 +226,7 @@ jobs:
         shell: bash -ieo pipefail {0}
         run: |
           git fetch --tags --force
-          ./test/ci-runtests.sh ${{ matrix.os }}
+          ./test/scripts/ci-runtests.sh ${{ matrix.os }}
       - uses: actions/upload-artifact@v3
         if: '!cancelled()'
         with:
@@ -297,7 +297,7 @@ jobs:
         shell: bash -ieo pipefail {0}
         run: |
           git fetch --tags --force
-          ./test/ci-runtests.sh ${{ matrix.os }}
+          ./test/scripts/ci-runtests.sh ${{ matrix.os }}
       - uses: actions/upload-artifact@v3
         if: '!cancelled()'
         with:
