@@ -23,9 +23,6 @@ use test_rpc::meta::Os;
 /// * `priority` - The order in which tests will be run where low numbers run before high numbers
 ///   and tests with the same number run in undefined order. `priority` defaults to 0.
 ///
-/// * `always_run` - If the test should always run regardless of what test filters are provided by
-///   the user. `always_run` defaults to false.
-///
 /// * `target_os` - The test should only run on the specified OS. This can currently be set to
 ///   `linux`, `windows`, or `macos`.
 ///
@@ -48,10 +45,10 @@ use test_rpc::meta::Os;
 ///
 /// ## Create a test with custom parameters
 ///
-/// This test will run early in the test loop and will always run.
+/// This test will run early in the test loop.
 ///
 /// ```ignore
-/// #[test_function(priority = -1337, always_run = true)]
+/// #[test_function(priority = -1337)]
 /// pub async fn test_function(
 ///     rpc: ServiceClient,
 ///     mut mullvad_client: mullvad_management_interface::MullvadProxyClient,
@@ -105,7 +102,6 @@ fn parse_marked_test_function(
 
 fn get_test_macro_parameters(attributes: &syn::AttributeArgs) -> Result<MacroParameters> {
     let mut priority = None;
-    let mut always_run = false;
     let mut targets = vec![];
 
     for attribute in attributes {
@@ -119,11 +115,6 @@ fn get_test_macro_parameters(attributes: &syn::AttributeArgs) -> Result<MacroPar
             match lit {
                 Lit::Int(lit_int) => priority = Some(lit_int.base10_parse().unwrap()),
                 _ => bail!(nv, "'priority' should have an integer value"),
-            }
-        } else if nv.path.is_ident("always_run") {
-            match lit {
-                Lit::Bool(lit_bool) => always_run = lit_bool.value(),
-                _ => bail!(nv, "'always_run' should have a bool value"),
             }
         } else if nv.path.is_ident("target_os") {
             let Lit::Str(lit_str) = lit else {
@@ -145,11 +136,7 @@ fn get_test_macro_parameters(attributes: &syn::AttributeArgs) -> Result<MacroPar
         }
     }
 
-    Ok(MacroParameters {
-        priority,
-        always_run,
-        targets,
-    })
+    Ok(MacroParameters { priority, targets })
 }
 
 fn create_test(test_function: TestFunction) -> proc_macro2::TokenStream {
@@ -164,8 +151,6 @@ fn create_test(test_function: TestFunction) -> proc_macro2::TokenStream {
             Os::Windows => quote! { ::test_rpc::meta::Os::Windows, },
         })
         .collect();
-
-    let always_run = test_function.macro_parameters.always_run;
 
     let func_name = test_function.name;
     let function_mullvad_version = test_function.function_parameters.mullvad_client.version();
@@ -207,7 +192,6 @@ fn create_test(test_function: TestFunction) -> proc_macro2::TokenStream {
             mullvad_client_version: #function_mullvad_version,
             func: #wrapper_closure,
             priority: #test_function_priority,
-            always_run: #always_run,
         });
     }
 }
@@ -220,7 +204,6 @@ struct TestFunction {
 
 struct MacroParameters {
     priority: Option<i32>,
-    always_run: bool,
     targets: Vec<Os>,
 }
 
