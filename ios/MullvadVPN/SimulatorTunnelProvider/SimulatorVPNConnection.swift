@@ -9,6 +9,7 @@
 #if targetEnvironment(simulator)
 
 import Foundation
+import MullvadREST
 import NetworkExtension
 
 class SimulatorVPNConnection: NSObject, VPNConnectionProtocol {
@@ -94,6 +95,9 @@ class SimulatorVPNConnection: NSObject, VPNConnectionProtocol {
             if error == nil {
                 self.status = .connected
                 self.connectedDate = Date()
+            } else if error is NoRelaysSatisfyingConstraintsError {
+                self.reasserting = true
+                self.connectedDate = nil
             } else {
                 self.status = .disconnected
                 self.connectedDate = nil

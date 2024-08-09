@@ -9,6 +9,7 @@
 import Foundation
 import MullvadREST
 import MullvadSettings
+import MullvadTypes
 
 // this is still very minimal, and will be fleshed out as needed.
 class MockTunnelInteractor: TunnelInteractor {
@@ -21,6 +22,10 @@ class MockTunnelInteractor: TunnelInteractor {
     var onUpdateTunnelStatus: ((TunnelStatus) -> Void)?
 
     var tunnel: (any TunnelProtocol)?
+
+    var application: any BackgroundTaskProvider {
+        UIApplicationStub()
+    }
 
     init(
         isConfigurationLoaded: Bool,
@@ -41,7 +46,7 @@ class MockTunnelInteractor: TunnelInteractor {
     }
 
     func createNewTunnel() -> any TunnelProtocol {
-        return MockTunnel(tunnelProvider: SimulatorTunnelProviderManager())
+        return MockTunnel(tunnelProvider: SimulatorTunnelProviderManager(), backgroundTaskProvider: application)
     }
 
     func setTunnel(_ tunnel: (any TunnelProtocol)?, shouldRefreshTunnelState: Bool) {

@@ -23,6 +23,7 @@ final class TunnelStore: TunnelStoreProtocol, TunnelStatusObserver {
     typealias TunnelType = Tunnel
     private let logger = Logger(label: "TunnelStore")
     private let lock = NSLock()
+    private let application: BackgroundTaskProvider
 
     /// Persistent tunnels registered with the system.
     private var persistentTunnels: [TunnelType] = []
@@ -30,7 +31,8 @@ final class TunnelStore: TunnelStoreProtocol, TunnelStatusObserver {
     /// Newly created tunnels, stored as collection of weak boxes.
     private var newTunnels: [WeakBox<TunnelType>] = []
 
-    init(application: UIApplication) {
+    init(application: BackgroundTaskProvider) {
+        self.application = application
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(applicationDidBecomeActive(_:)),
@@ -62,7 +64,7 @@ final class TunnelStore: TunnelStoreProtocol, TunnelStatusObserver {
             }
 
             self.persistentTunnels = managers?.map { manager in
-                let tunnel = Tunnel(tunnelProvider: manager)
+                let tunnel = Tunnel(tunnelProvider: manager, backgroundTaskProvider: self.application)
                 tunnel.addObserver(self)
 
                 self.logger.debug(
@@ -79,7 +81,7 @@ final class TunnelStore: TunnelStoreProtocol, TunnelStatusObserver {
         defer { lock.unlock() }
 
         let tunnelProviderManager = TunnelProviderManagerType()
-        let tunnel = TunnelType(tunnelProvider: tunnelProviderManager)
+        let tunnel = TunnelType(tunnelProvider: tunnelProviderManager, backgroundTaskProvider: application)
         tunnel.addObserver(self)
 
         newTunnels = newTunnels.filter { $0.value != nil }

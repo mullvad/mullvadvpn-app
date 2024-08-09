@@ -7,16 +7,18 @@
 //
 
 import Foundation
+import MullvadTypes
 import NetworkExtension
 
 struct TunnelStoreStub: TunnelStoreProtocol {
     typealias TunnelType = TunnelStub
+    let backgroundTaskProvider: any BackgroundTaskProvider
     func getPersistentTunnels() -> [TunnelType] {
         []
     }
 
     func createNewTunnel() -> TunnelType {
-        TunnelStub(status: .invalid, isOnDemandEnabled: false)
+        TunnelStub(backgroundTaskProvider: backgroundTaskProvider, status: .invalid, isOnDemandEnabled: false)
     }
 }
 
@@ -25,23 +27,36 @@ class DummyTunnelStatusObserver: TunnelStatusObserver {
 }
 
 final class TunnelStub: TunnelProtocol, Equatable {
-    convenience init(tunnelProvider: TunnelProviderManagerType) {
-        self.init(status: .invalid, isOnDemandEnabled: false)
-    }
+    typealias TunnelManagerProtocol = SimulatorTunnelProviderManager
 
     static func == (lhs: TunnelStub, rhs: TunnelStub) -> Bool {
         ObjectIdentifier(lhs) == ObjectIdentifier(rhs)
     }
 
-    init(status: NEVPNStatus, isOnDemandEnabled: Bool, startDate: Date? = nil) {
+    convenience init(
+        tunnelProvider: SimulatorTunnelProviderManager,
+        backgroundTaskProvider: any BackgroundTaskProvider
+    ) {
+        self.init(backgroundTaskProvider: backgroundTaskProvider, status: .invalid, isOnDemandEnabled: false)
+    }
+
+    init(
+        backgroundTaskProvider: any BackgroundTaskProvider,
+        status: NEVPNStatus,
+        isOnDemandEnabled: Bool,
+        startDate: Date? = nil
+    ) {
         self.status = status
         self.isOnDemandEnabled = isOnDemandEnabled
         self.startDate = startDate
+        self.backgroundTaskProvider = backgroundTaskProvider
     }
 
     func addObserver(_ observer: TunnelStatusObserver) {}
 
     func removeObserver(_ observer: TunnelStatusObserver) {}
+
+    var backgroundTaskProvider: any BackgroundTaskProvider
 
     var status: NEVPNStatus
 

@@ -65,6 +65,11 @@ public struct ObservedConnectionState: Equatable, Codable {
 public struct ObservedBlockedState: Equatable, Codable {
     public var reason: BlockedStateReason
     public var relayConstraints: RelayConstraints?
+
+    public init(reason: BlockedStateReason, relayConstraints: RelayConstraints? = nil) {
+        self.reason = reason
+        self.relayConstraints = relayConstraints
+    }
 }
 
 extension State {

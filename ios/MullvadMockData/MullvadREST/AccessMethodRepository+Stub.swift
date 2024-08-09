@@ -1,5 +1,5 @@
 //
-//  AccessMethodRepositoryStub.swift
+//  AccessMethodRepository+Stub.swift
 //  MullvadRESTTests
 //
 //  Created by Mojgan on 2024-01-02.
@@ -9,27 +9,27 @@
 import Combine
 import MullvadSettings
 
-struct AccessMethodRepositoryStub: AccessMethodRepositoryDataSource {
-    var directAccess: PersistentAccessMethod
+public struct AccessMethodRepositoryStub: AccessMethodRepositoryDataSource {
+    public var directAccess: PersistentAccessMethod
 
-    var accessMethodsPublisher: AnyPublisher<[PersistentAccessMethod], Never> {
+    public var accessMethodsPublisher: AnyPublisher<[PersistentAccessMethod], Never> {
         passthroughSubject.eraseToAnyPublisher()
     }
 
     let passthroughSubject: CurrentValueSubject<[PersistentAccessMethod], Never> = CurrentValueSubject([])
 
-    init(accessMethods: [PersistentAccessMethod]) {
+    public init(accessMethods: [PersistentAccessMethod]) {
         directAccess = accessMethods.first(where: { $0.kind == .direct })!
         passthroughSubject.send(accessMethods)
     }
 
-    func fetchAll() -> [PersistentAccessMethod] {
+    public func fetchAll() -> [PersistentAccessMethod] {
         passthroughSubject.value
     }
 
-    func saveLastReachable(_ method: PersistentAccessMethod) {}
+    public func saveLastReachable(_ method: PersistentAccessMethod) {}
 
-    func fetchLastReachable() -> PersistentAccessMethod {
+    public func fetchLastReachable() -> PersistentAccessMethod {
         directAccess
     }
 }

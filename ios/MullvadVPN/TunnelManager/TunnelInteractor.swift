@@ -9,12 +9,14 @@
 import Foundation
 import MullvadREST
 import MullvadSettings
+import MullvadTypes
 import PacketTunnelCore
 
 protocol TunnelInteractor {
     // MARK: - Tunnel manipulation
 
     var tunnel: (any TunnelProtocol)? { get }
+    var application: any BackgroundTaskProvider { get }
 
     func getPersistentTunnels() -> [any TunnelProtocol]
     func createNewTunnel() -> any TunnelProtocol

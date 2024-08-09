@@ -42,7 +42,7 @@ final class TunnelManager: StorePaymentObserver {
 
     // MARK: - Internal variables
 
-    private let application: BackgroundTaskProvider
+    let application: BackgroundTaskProvider
     fileprivate let tunnelStore: any TunnelStoreProtocol
     private let relayCacheTracker: RelayCacheTrackerProtocol
     private let accountsProxy: RESTAccountHandling
@@ -811,11 +811,11 @@ final class TunnelManager: StorePaymentObserver {
             logger.error(error: error, message: "Failed to reconnect the tunnel.")
         }
 
-        // Refresh tunnel status only when connecting or reasserting to pick up the next relay,
+        // Refresh tunnel status only when connecting,reasserting or error to pick up the next relay,
         // since both states may persist for a long period of time until the tunnel is fully
         // connected.
         switch tunnelStatus.state {
-        case .connecting, .reconnecting:
+        case .connecting, .reconnecting, .error:
             logger.debug("Refresh tunnel status due to reconnect.")
             refreshTunnelStatus()
 
@@ -1202,6 +1202,10 @@ private struct TunnelInteractorProxy: TunnelInteractor {
 
     var tunnel: (any TunnelProtocol)? {
         tunnelManager.tunnel
+    }
+
+    var application: any BackgroundTaskProvider {
+        tunnelManager.application
     }
 
     func getPersistentTunnels() -> [any TunnelProtocol] {

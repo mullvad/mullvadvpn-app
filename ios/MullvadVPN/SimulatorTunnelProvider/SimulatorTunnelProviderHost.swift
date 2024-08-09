@@ -62,6 +62,9 @@ final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
             do {
                 setInternalStateConnected(with: try selectedRelays ?? pickRelays())
                 completionHandler(nil)
+            } catch let error where error is NoRelaysSatisfyingConstraintsError {
+                observedState = .error(ObservedBlockedState(reason: .noRelaysSatisfyingConstraints))
+                completionHandler(error)
             } catch {
                 providerLogger.error(
                     error: error,

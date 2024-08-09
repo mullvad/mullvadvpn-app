@@ -22,7 +22,7 @@ class MapConnectionStatusOperation: AsyncOperation {
 
     private let logger = Logger(label: "TunnelManager.MapConnectionStatusOperation")
 
-    init(
+    required init(
         queue: DispatchQueue,
         interactor: TunnelInteractor,
         connectionStatus: NEVPNStatus,

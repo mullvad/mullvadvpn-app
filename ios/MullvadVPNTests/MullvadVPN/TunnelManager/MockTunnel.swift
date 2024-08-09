@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadTypes
 import NetworkExtension
 
 class MockTunnel: TunnelProtocol {
@@ -18,10 +19,13 @@ class MockTunnel: TunnelProtocol {
 
     var startDate: Date?
 
-    required init(tunnelProvider: TunnelManagerProtocol) {
+    var backgroundTaskProvider: any BackgroundTaskProvider
+
+    required init(tunnelProvider: TunnelManagerProtocol, backgroundTaskProvider: BackgroundTaskProvider) {
         status = .disconnected
         isOnDemandEnabled = false
         startDate = nil
+        self.backgroundTaskProvider = backgroundTaskProvider
     }
 
     // Observers are currently unimplemented
