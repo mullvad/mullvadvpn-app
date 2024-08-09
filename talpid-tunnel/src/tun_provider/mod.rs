@@ -1,8 +1,6 @@
 use cfg_if::cfg_if;
 use ipnetwork::IpNetwork;
-#[cfg(target_os = "android")]
-use jnix::IntoJava;
-use std::net::IpAddr;
+use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 
 cfg_if! {
     if #[cfg(target_os = "android")] {
@@ -32,50 +30,30 @@ cfg_if! {
 
 /// Configuration for creating a tunnel device.
 #[derive(Clone, Debug, Eq, PartialEq)]
-#[cfg_attr(target_os = "android", derive(IntoJava))]
-#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.talpid.model"))]
 pub struct TunConfig {
     /// IP addresses for the tunnel interface.
     pub addresses: Vec<IpAddr>,
 
-    /// IP addresses for the DNS servers to use.
-    pub dns_servers: Vec<IpAddr>,
+    /// IPv4 address of the VPN server, and the default IPv4 DNS resolver.
+    pub ipv4_gateway: Ipv4Addr,
+
+    /// IPv6 address of the VPN server, and the default IPv6 DNS resolver.
+    pub ipv6_gateway: Option<Ipv6Addr>,
 
     /// Routes to configure for the tunnel.
-    #[cfg_attr(
-        target_os = "android",
-        jnix(map = "|networks| networks.into_iter().map(InetNetwork::from).collect::<Vec<_>>()")
-    )]
     pub routes: Vec<IpNetwork>,
 
-    /// Routes that are required to be configured for the tunnel.
-    #[cfg(target_os = "android")]
-    #[jnix(skip)]
-    pub required_routes: Vec<IpNetwork>,
-
-    /// App packages that should be excluded from the tunnel.
-    #[cfg(target_os = "android")]
-    pub excluded_packages: Vec<String>,
-
-    /// Maximum Transmission Unit in the tunnel.
-    #[cfg_attr(target_os = "android", jnix(map = "|mtu| mtu as i32"))]
+    /// MTU of the tunnel interface.
     pub mtu: u16,
 }
 
-#[cfg(target_os = "android")]
-#[derive(IntoJava)]
-#[jnix(package = "net.mullvad.talpid.model")]
-struct InetNetwork {
-    address: IpAddr,
-    prefix: i16,
-}
-
-#[cfg(target_os = "android")]
-impl From<IpNetwork> for InetNetwork {
-    fn from(ip_network: IpNetwork) -> Self {
-        InetNetwork {
-            address: ip_network.ip(),
-            prefix: ip_network.prefix() as i16,
+impl TunConfig {
+    /// Return a copy of all gateway addresses
+    pub fn gateway_ips(&self) -> Vec<IpAddr> {
+        let mut servers = vec![self.ipv4_gateway.into()];
+        if let Some(gateway) = self.ipv6_gateway {
+            servers.push(gateway.into());
         }
+        servers
     }
 }

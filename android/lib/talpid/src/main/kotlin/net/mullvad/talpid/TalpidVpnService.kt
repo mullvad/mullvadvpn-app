@@ -31,7 +31,7 @@ open class TalpidVpnService : LifecycleVpnService() {
     private val tunIsOpen
         get() = activeTunStatus?.isOpen ?: false
 
-    private var currentTunConfig = defaultTunConfig()
+    private var currentTunConfig
     private var attemptsWithSameTun = 0
 
     // Used by JNI
@@ -155,8 +155,6 @@ open class TalpidVpnService : LifecycleVpnService() {
             else -> throw IllegalArgumentException("Invalid IP address (not IPv4 nor IPv6)")
         }
     }
-
-    private external fun defaultTunConfig(): TunConfig
 
     private external fun waitForTunnelUp(tunFd: Int, isIpv6Enabled: Boolean)
 
