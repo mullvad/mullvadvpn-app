@@ -41,14 +41,14 @@ listing. The resulting 512x512 PNG image should be placed in the
 `android/app/src/main/play/listings/en-US/graphics/icon/` directory. The file can be generate with the
 following command:
 
-```
+```bash
 rsvg-convert ./icon-square.svg -w 512 -h 512 -o ../android/app/src/main/play/listings/en-US/graphics/icon/icon.png
 ```
 
 #### iOS
 
 `icon-square.svg` is used to generate the app icon for iOS. To regenerate the assets run:
-```
+```bash
 ios/convert-assets.rb --app-icon
 ```
 

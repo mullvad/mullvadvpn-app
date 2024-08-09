@@ -27,7 +27,7 @@ and `integrate-relay-locations.py` in this directory.
 
 1. Freeze dependencies:
 
-```
+```bash
 pip3 freeze -r requirements.txt
 ```
 
@@ -36,6 +36,6 @@ and save the output into `requirements.txt`.
 
 2. Hash them with `hashin` tool:
 
-```
+```bash
 hashin --python 3.7 --verbose --update-all
 ```

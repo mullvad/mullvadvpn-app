@@ -17,20 +17,20 @@ instructions document.
 The codebase is formatted using [SwiftFormat](https://github.com/nicklockwood/SwiftFormat). Please 
 format all contributions using the latest version of formatter.
 
-```
+```bash
 swiftformat ios/
 ```
 
 Install the latest version of SwiftFormat via Homebrew:
 
-```
+```bash
 brew install swiftformat
 ```
 
 CI uses the latest version available on Homebrew to check formatting, so please keep your local 
 installation up to date, if you see it complain:
 
-```
+```bash
 brew upgrade swiftformat 
 ```
 
@@ -46,13 +46,13 @@ configuration.
 
 1. Create the build configuration using a template file:
    
-   ```
+   ```bash
    cp ios/Configurations/Screenshots.xcconfig.template ios/Configurations/Screenshots.xcconfig
    ```
 
 1. Edit the configuration file and put your account number without quotes:
    
-   ```
+   ```bash
    vim ios/Configurations/Screenshots.xcconfig
    ```
 
@@ -62,7 +62,7 @@ configuration.
 1. Install Ruby 2.5.1 or later using `rvm install <VERSION>`.
 1. Install necessary third-party ruby gems:
    
-   ```
+   ```bash
    cd ios
    bundle install
    ```
@@ -71,7 +71,7 @@ configuration.
 
 Run the following command to take screenshots:
 
-```
+```bash
 cd ios
 bundle exec fastlane snapshot
 ```

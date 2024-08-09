@@ -9,7 +9,7 @@ the container images to ghcr.io.
 
 If you `sudo` into a `build` account that do the builds, you need to set the permissions on the tty,
 so podman can ask for the passphrase for the gpg key:
-```
+```bash
 realuser@server $ sudo chown build:build $(tty)
 realuser@server $ sudo -u build -i
 ```
@@ -28,7 +28,7 @@ https://docs.github.com/en/packages/working-with-a-github-packages-registry/work
 Build and publish the container image. Tag it with the github hash of the current commit.
 This also adds the container GPG signatures to the sigstore and commits that to git.
 The single sigstore addition (signed) commit can be pushed directly to the main branch without PR.
-```
+```bash
 # Builds a new container image, pushes it to the registry, signs it and commits the signatures in git
 ./build-and-publish-container-image.sh (linux|android)
 
@@ -68,7 +68,7 @@ verification steps](#pulling-verifying-and-using-build-images) with some slight 
 These instructions describe how anyone can pull the images and verify them with GPG before using them.
 
 Copy the Mullvad app container signing GPG key to somewhere outside the repository (so a `git pull` can't overwrite it with a malicious key):
-```
+```bash
 cp ${repo}/building/mullvad-app-container-signing.asc /path/to/mullvad-app-container-signing.asc
 ```
 
