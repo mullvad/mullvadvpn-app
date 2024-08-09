@@ -716,7 +716,7 @@ impl WireguardMonitor {
         let ephemeral = tokio::time::timeout(
             timeout,
             talpid_tunnel_config_client::request_ephemeral_peer(
-                IpAddr::from(config.ipv4_gateway),
+                config.ipv4_gateway,
                 config.tunnel.private_key.public_key(),
                 wg_psk_pubkey,
                 enable_pq,

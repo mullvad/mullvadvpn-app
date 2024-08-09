@@ -1,9 +1,9 @@
 use proto::PostQuantumRequestV1;
 use std::fmt;
 #[cfg(not(target_os = "ios"))]
-use std::net::IpAddr;
-#[cfg(not(target_os = "ios"))]
 use std::net::SocketAddr;
+#[cfg(not(target_os = "ios"))]
+use std::net::{IpAddr, Ipv4Addr};
 use talpid_types::net::wireguard::{PresharedKey, PublicKey};
 #[cfg(not(target_os = "ios"))]
 use tokio::net::TcpSocket;
@@ -189,7 +189,7 @@ pub async fn request_ephemeral_peer_with(
 /// Negotiate a short-lived peer with a PQ-safe PSK or with DAITA enabled.
 #[cfg(not(target_os = "ios"))]
 pub async fn request_ephemeral_peer(
-    service_address: IpAddr,
+    service_address: Ipv4Addr,
     parent_pubkey: PublicKey,
     ephemeral_pubkey: PublicKey,
     enable_post_quantum: bool,
@@ -245,8 +245,9 @@ fn xor_assign(dst: &mut [u8; 32], src: &[u8; 32]) {
 }
 
 #[cfg(not(target_os = "ios"))]
-async fn new_client(addr: IpAddr) -> Result<RelayConfigService, Error> {
+async fn new_client(addr: Ipv4Addr) -> Result<RelayConfigService, Error> {
     let endpoint = Endpoint::from_static("tcp://0.0.0.0:0");
+    let addr = IpAddr::V4(addr);
 
     let conn = endpoint
         .connect_with_connector(service_fn(move |_| async move {
