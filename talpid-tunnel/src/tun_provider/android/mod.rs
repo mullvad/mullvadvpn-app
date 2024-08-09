@@ -54,7 +54,7 @@ pub struct AndroidTunProvider {
     jvm: Arc<JavaVM>,
     class: GlobalRef,
     object: GlobalRef,
-    last_tun_config: (TunConfig, bool),
+    last_tun_config: Option<(TunConfig, bool)>,
     allow_lan: bool,
     custom_dns_servers: Option<Vec<IpAddr>>,
     allowed_lan_networks: Vec<IpNetwork>,
@@ -82,7 +82,7 @@ impl AndroidTunProvider {
             jvm: context.jvm,
             class: talpid_vpn_service_class,
             object: context.vpn_service,
-            last_tun_config: (TunConfig::default(), false),
+            last_tun_config: None,
             allow_lan,
             custom_dns_servers,
             allowed_lan_networks,
@@ -122,22 +122,27 @@ impl AndroidTunProvider {
     /// Retrieve a tunnel device with the provided configuration. Custom DNS and LAN routes are
     /// appended to the provided config.
     pub fn get_tun(&mut self, config: TunConfig) -> Result<VpnServiceTun, Error> {
-        let original_config = config;
-        let config = VpnServiceConfig::new(
-            original_config.clone(),
-            &self.allowed_lan_networks,
-            self.allow_lan,
-            self.custom_dns_servers.clone(),
-            self.excluded_packages.clone(),
-        );
-        let tun = self.get_tun_inner(config)?;
-        self.last_tun_config = (original_config, false);
-        Ok(tun)
+        self.get_tun_inner(config, false)
     }
 
     /// Retrieve a tunnel device with the provided configuration.
-    fn get_tun_inner(&self, config: VpnServiceConfig) -> Result<VpnServiceTun, Error> {
-        let tun_fd = self.get_tun_fd(config.clone())?;
+    fn get_tun_inner(&mut self, config: TunConfig, blocking: bool) -> Result<VpnServiceTun, Error> {
+        let service_config = VpnServiceConfig::new(
+            config.clone(),
+            &self.allowed_lan_networks,
+            self.allow_lan,
+            if !blocking {
+                self.custom_dns_servers.clone()
+            } else {
+                // Disable DNS
+                Some(vec![])
+            },
+            self.excluded_packages.clone(),
+        );
+
+        let tun_fd = self.get_tun_fd(service_config)?;
+
+        self.last_tun_config = Some((config, blocking));
 
         let jvm = unsafe { JavaVM::from_raw(self.jvm.get_java_vm_pointer()) }
             .map_err(Error::CloneJavaVm)?;
@@ -148,26 +153,6 @@ impl AndroidTunProvider {
             class: self.class.clone(),
             object: self.object.clone(),
         })
-    }
-
-    /// Open a tunnel device that routes everything but (potentially) LAN routes via the tunnel
-    /// device. Excluded apps will also be kept.
-    ///
-    /// Will open a new tunnel if there is already an active tunnel. The previous tunnel will be
-    /// closed.
-    pub fn create_blocking_tun(&mut self) -> Result<(), Error> {
-        let original_config = TunConfig::default();
-        let config = VpnServiceConfig::new(
-            original_config.clone(),
-            &self.allowed_lan_networks,
-            self.allow_lan,
-            // Disable DNS
-            Some(vec![]),
-            self.excluded_packages.clone(),
-        );
-        let _ = self.get_tun_inner(config)?;
-        self.last_tun_config = (original_config, true);
-        Ok(())
     }
 
     /// Open a tunnel device using the previous or the default configuration.
@@ -191,27 +176,6 @@ impl AndroidTunProvider {
         }
     }
 
-    /// Close currently active tunnel device.
-    pub fn close_tun(&mut self) {
-        let result = self.call_method("closeTun", "()V", JavaType::Primitive(Primitive::Void), &[]);
-
-        let error = match result {
-            Ok(JValue::Void) => None,
-            Ok(value) => Some(Error::InvalidMethodResult(
-                "closeTun",
-                format!("{:?}", value),
-            )),
-            Err(error) => Some(error),
-        };
-
-        if let Some(error) = error {
-            log::error!(
-                "{}",
-                error.display_chain_with_msg("Failed to close the tunnel")
-            );
-        }
-    }
-
     fn get_tun_fd(&self, config: VpnServiceConfig) -> Result<RawFd, Error> {
         let env = self.env()?;
         let java_config = config.into_java(&env);
@@ -229,35 +193,44 @@ impl AndroidTunProvider {
         }
     }
 
-    fn recreate_tun_if_open(&mut self) -> Result<(), Error> {
-        let (last_tun_config, blocking) = self.last_tun_config.clone();
+    /// Open a tunnel device that routes everything but (potentially) LAN routes via the tunnel
+    /// device. Excluded apps will also be kept.
+    ///
+    /// Will open a new tunnel if there is already an active tunnel. The previous tunnel will be
+    /// closed.
+    pub fn create_blocking_tun(&mut self) -> Result<(), Error> {
+        let _ = self.get_tun_inner(TunConfig::default(), true)?;
+        Ok(())
+    }
 
-        let config = VpnServiceConfig::new(
-            last_tun_config,
-            &self.allowed_lan_networks,
-            self.allow_lan,
-            if !blocking {
-                self.custom_dns_servers.clone()
-            } else {
-                Some(vec![])
-            },
-            self.excluded_packages.clone(),
-        );
+    /// Close currently active tunnel device.
+    pub fn close_tun(&mut self) {
+        let result = self.call_method("closeTun", "()V", JavaType::Primitive(Primitive::Void), &[]);
 
-        let env = self.env()?;
-        let java_config = config.into_java(&env);
+        let error = match result {
+            Ok(JValue::Void) => None,
+            Ok(value) => Some(Error::InvalidMethodResult(
+                "closeTun",
+                format!("{:?}", value),
+            )),
+            Err(error) => Some(error),
+        };
 
-        let result = self.call_method(
-            "recreateTunIfOpen",
-            "(Lnet/mullvad/talpid/model/TunConfig;)V",
-            JavaType::Primitive(Primitive::Void),
-            &[JValue::Object(java_config.as_obj())],
-        )?;
+        self.last_tun_config = None;
 
-        match result {
-            JValue::Void => Ok(()),
-            value => Err(Error::InvalidMethodResult("getTun", format!("{:?}", value))),
+        if let Some(error) = error {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to close the tunnel")
+            );
         }
+    }
+
+    fn recreate_tun_if_open(&mut self) -> Result<(), Error> {
+        if let Some((config, blocking)) = self.last_tun_config.clone() {
+            let _ = self.get_tun_inner(config, blocking)?;
+        }
+        Ok(())
     }
 
     /// Allow a socket to bypass the tunnel.
