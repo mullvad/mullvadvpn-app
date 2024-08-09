@@ -67,15 +67,6 @@ open class TalpidVpnService : LifecycleVpnService() {
         synchronized(this) { activeTunStatus = createTun(currentTunConfig) }
     }
 
-    fun recreateTunIfOpen(config: TunConfig) {
-        synchronized(this) {
-            if (tunIsOpen) {
-                currentTunConfig = config
-                activeTunStatus = createTun(config)
-            }
-        }
-    }
-
     fun closeTun() {
         synchronized(this) { activeTunStatus = null }
     }
