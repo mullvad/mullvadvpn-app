@@ -1,8 +1,7 @@
 use cfg_if::cfg_if;
 use ipnetwork::IpNetwork;
-#[cfg(target_os = "android")]
-use jnix::IntoJava;
-use std::net::IpAddr;
+use once_cell::sync::Lazy;
+use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 
 cfg_if! {
     if #[cfg(target_os = "android")] {
@@ -32,50 +31,67 @@ cfg_if! {
 
 /// Configuration for creating a tunnel device.
 #[derive(Clone, Debug, Eq, PartialEq)]
-#[cfg_attr(target_os = "android", derive(IntoJava))]
-#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.talpid.model"))]
 pub struct TunConfig {
     /// IP addresses for the tunnel interface.
     pub addresses: Vec<IpAddr>,
 
-    /// IP addresses for the DNS servers to use.
-    pub dns_servers: Vec<IpAddr>,
+    /// MTU of the tunnel interface.
+    pub mtu: u16,
+
+    /// IPv4 address of the VPN server, and the default IPv4 DNS resolver.
+    pub ipv4_gateway: Ipv4Addr,
+
+    /// IPv6 address of the VPN server, and the default IPv6 DNS resolver.
+    pub ipv6_gateway: Option<Ipv6Addr>,
 
     /// Routes to configure for the tunnel.
-    #[cfg_attr(
-        target_os = "android",
-        jnix(map = "|networks| networks.into_iter().map(InetNetwork::from).collect::<Vec<_>>()")
-    )]
     pub routes: Vec<IpNetwork>,
 
-    /// Routes that are required to be configured for the tunnel.
-    #[cfg(target_os = "android")]
-    #[jnix(skip)]
-    pub required_routes: Vec<IpNetwork>,
+    /// Exclude private IPs from the tunnel
+    pub allow_lan: bool,
 
-    /// App packages that should be excluded from the tunnel.
-    #[cfg(target_os = "android")]
+    /// DNS servers to use for the tunnel config.
+    /// Unless specified, the gateways will be used for DNS
+    pub dns_servers: Option<Vec<IpAddr>>,
+
+    /// Applications to exclude from the tunnel.
     pub excluded_packages: Vec<String>,
-
-    /// Maximum Transmission Unit in the tunnel.
-    #[cfg_attr(target_os = "android", jnix(map = "|mtu| mtu as i32"))]
-    pub mtu: u16,
 }
 
-#[cfg(target_os = "android")]
-#[derive(IntoJava)]
-#[jnix(package = "net.mullvad.talpid.model")]
-struct InetNetwork {
-    address: IpAddr,
-    prefix: i16,
-}
-
-#[cfg(target_os = "android")]
-impl From<IpNetwork> for InetNetwork {
-    fn from(ip_network: IpNetwork) -> Self {
-        InetNetwork {
-            address: ip_network.ip(),
-            prefix: ip_network.prefix() as i16,
+impl TunConfig {
+    /// Return a copy of all gateway addresses
+    pub fn gateways(&self) -> Vec<IpAddr> {
+        let mut servers = vec![self.ipv4_gateway.into()];
+        if let Some(gateway) = self.ipv6_gateway {
+            servers.push(gateway.into());
         }
+        servers
     }
 }
+
+/// Return a tunnel configuration that routes all traffic inside the tunnel.
+/// Most values except the routes are nonsensical. This is mostly used as a reasonable default on
+/// Android to route all traffic inside the tunnel.
+pub fn blocking_config() -> TunConfig {
+    TunConfig {
+        addresses: vec![IpAddr::V4(Ipv4Addr::new(10, 0, 0, 1))],
+        mtu: 1380,
+        ipv4_gateway: Ipv4Addr::new(10, 64, 0, 1),
+        ipv6_gateway: None,
+        routes: DEFAULT_ROUTES.clone(),
+        allow_lan: false,
+        dns_servers: None,
+        excluded_packages: vec![],
+    }
+}
+
+static DEFAULT_ROUTES: Lazy<Vec<IpNetwork>> =
+    Lazy::new(|| vec![*IPV4_DEFAULT_ROUTE, *IPV6_DEFAULT_ROUTE]);
+static IPV4_DEFAULT_ROUTE: Lazy<IpNetwork> = Lazy::new(|| {
+    IpNetwork::new(IpAddr::V4(Ipv4Addr::UNSPECIFIED), 0)
+        .expect("Invalid IP network prefix for IPv4 address")
+});
+static IPV6_DEFAULT_ROUTE: Lazy<IpNetwork> = Lazy::new(|| {
+    IpNetwork::new(IpAddr::V6(Ipv6Addr::UNSPECIFIED), 0)
+        .expect("Invalid IP network prefix for IPv6 address")
+});

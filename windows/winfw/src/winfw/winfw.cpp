@@ -50,7 +50,7 @@ std::optional<T> MakeOptional(T* object)
 //
 // Networks for which DNS requests can be made on all network adapters.
 //
-// This should be synchronized with `ALLOWED_LAN_NETS` in talpid-core,
+// This should be synchronized with `ALLOWED_LAN_NETS` in talpid-types,
 // but it also includes loopback addresses.
 //
 wfp::IpNetwork g_privateIpRanges[] = {

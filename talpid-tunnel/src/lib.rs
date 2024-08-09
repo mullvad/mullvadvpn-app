@@ -61,6 +61,17 @@ pub struct TunnelMetadata {
     pub ipv6_gateway: Option<Ipv6Addr>,
 }
 
+impl TunnelMetadata {
+    /// Return a copy of all gateway addresses
+    pub fn gateways(&self) -> Vec<IpAddr> {
+        let mut addrs = vec![self.ipv4_gateway.into()];
+        if let Some(gateway) = self.ipv6_gateway {
+            addrs.push(gateway.into());
+        }
+        addrs
+    }
+}
+
 /// Possible events from the VPN tunnel and the child process managing it.
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub enum TunnelEvent {

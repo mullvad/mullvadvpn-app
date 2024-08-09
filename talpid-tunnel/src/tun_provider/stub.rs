@@ -7,17 +7,11 @@ pub enum Error {}
 pub struct StubTunProvider;
 
 impl StubTunProvider {
-    pub fn new() -> Self {
+    pub fn new(_: TunConfig) -> Self {
         StubTunProvider
     }
 
-    pub fn get_tun(&mut self, _: TunConfig) -> Result<(), Error> {
+    pub fn open_tun(&mut self) -> Result<(), Error> {
         unimplemented!();
-    }
-}
-
-impl Default for StubTunProvider {
-    fn default() -> Self {
-        Self::new()
     }
 }

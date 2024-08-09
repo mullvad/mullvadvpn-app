@@ -106,17 +106,11 @@ impl ConnectedState {
             })
     }
 
-    #[allow(unused_variables)]
     fn get_dns_servers(&self, shared_values: &SharedTunnelStateValues) -> Vec<IpAddr> {
-        if let Some(ref servers) = shared_values.dns_servers {
-            servers.clone()
-        } else {
-            let mut dns_ips = vec![self.metadata.ipv4_gateway.into()];
-            if let Some(ipv6_gateway) = self.metadata.ipv6_gateway {
-                dns_ips.push(ipv6_gateway.into());
-            };
-            dns_ips
-        }
+        shared_values
+            .dns_servers
+            .clone()
+            .unwrap_or_else(|| self.metadata.gateways())
     }
 
     fn get_firewall_policy(&self, shared_values: &SharedTunnelStateValues) -> FirewallPolicy {
@@ -228,23 +222,34 @@ impl ConnectedState {
 
         match command {
             Some(TunnelCommand::AllowLan(allow_lan, complete_tx)) => {
-                let consequence = if let Err(error_cause) = shared_values.set_allow_lan(allow_lan) {
-                    self.disconnect(shared_values, AfterDisconnect::Block(error_cause))
-                } else {
-                    match self.set_firewall_policy(shared_values) {
-                        Ok(()) => {
-                            if cfg!(target_os = "android") {
-                                self.disconnect(shared_values, AfterDisconnect::Reconnect(0))
-                            } else {
-                                SameState(self)
-                            }
+                let consequence = if shared_values.set_allow_lan(allow_lan) {
+                    #[cfg(target_os = "android")]
+                    {
+                        if let Err(_err) = shared_values.restart_tunnel(false) {
+                            self.disconnect(
+                                shared_values,
+                                AfterDisconnect::Block(ErrorStateCause::StartTunnelError),
+                            )
+                        } else {
+                            self.disconnect(shared_values, AfterDisconnect::Reconnect(0))
                         }
-                        Err(error) => self.disconnect(
-                            shared_values,
-                            AfterDisconnect::Block(ErrorStateCause::SetFirewallPolicyError(error)),
-                        ),
                     }
+                    #[cfg(not(target_os = "android"))]
+                    {
+                        match self.set_firewall_policy(shared_values) {
+                            Ok(()) => SameState(self),
+                            Err(error) => self.disconnect(
+                                shared_values,
+                                AfterDisconnect::Block(ErrorStateCause::SetFirewallPolicyError(
+                                    error,
+                                )),
+                            ),
+                        }
+                    }
+                } else {
+                    SameState(self)
                 };
+
                 let _ = complete_tx.send(());
                 consequence
             }
@@ -254,8 +259,20 @@ impl ConnectedState {
                 SameState(self)
             }
             Some(TunnelCommand::Dns(servers, complete_tx)) => {
-                let consequence = match shared_values.set_dns_servers(servers) {
-                    Ok(true) => {
+                let consequence = if shared_values.set_dns_servers(servers) {
+                    #[cfg(target_os = "android")]
+                    {
+                        if let Err(_err) = shared_values.restart_tunnel(false) {
+                            self.disconnect(
+                                shared_values,
+                                AfterDisconnect::Block(ErrorStateCause::StartTunnelError),
+                            )
+                        } else {
+                            self.disconnect(shared_values, AfterDisconnect::Reconnect(0))
+                        }
+                    }
+                    #[cfg(not(target_os = "android"))]
+                    {
                         if let Err(error) = self.set_firewall_policy(shared_values) {
                             return self.disconnect(
                                 shared_values,
@@ -266,9 +283,6 @@ impl ConnectedState {
                         }
 
                         match self.set_dns(shared_values) {
-                            #[cfg(target_os = "android")]
-                            Ok(()) => self.disconnect(shared_values, AfterDisconnect::Reconnect(0)),
-                            #[cfg(not(target_os = "android"))]
                             Ok(()) => SameState(self),
                             Err(error) => {
                                 log::error!(
@@ -282,10 +296,8 @@ impl ConnectedState {
                             }
                         }
                     }
-                    Ok(false) => SameState(self),
-                    Err(error_cause) => {
-                        self.disconnect(shared_values, AfterDisconnect::Block(error_cause))
-                    }
+                } else {
+                    SameState(self)
                 };
                 let _ = complete_tx.send(());
                 consequence
@@ -327,22 +339,21 @@ impl ConnectedState {
             }
             #[cfg(target_os = "android")]
             Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
-                match shared_values.exclude_paths(paths) {
-                    Ok(changed) => {
-                        let _ = result_tx.send(Ok(()));
-                        if changed {
-                            self.disconnect(shared_values, AfterDisconnect::Reconnect(0))
-                        } else {
-                            SameState(self)
-                        }
-                    }
-                    Err(err) => {
-                        let _ = result_tx.send(Err(err));
+                if shared_values.set_excluded_paths(paths) {
+                    if let Err(err) = shared_values.restart_tunnel(false) {
+                        let _ =
+                            result_tx.send(Err(crate::split_tunnel::Error::SetExcludedApps(err)));
                         self.disconnect(
                             shared_values,
                             AfterDisconnect::Block(ErrorStateCause::SplitTunnelError),
                         )
+                    } else {
+                        let _ = result_tx.send(Ok(()));
+                        self.disconnect(shared_values, AfterDisconnect::Reconnect(0))
                     }
+                } else {
+                    let _ = result_tx.send(Ok(()));
+                    SameState(self)
                 }
             }
             #[cfg(target_os = "macos")]
