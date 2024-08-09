@@ -26,7 +26,6 @@ import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.viewmodel.Changelog
 import net.mullvad.mullvadvpn.viewmodel.ChangelogViewModel
-import net.mullvad.mullvadvpn.viewmodel.MullvadAppViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Destination<RootGraph>(style = DestinationStyle.Dialog::class)
