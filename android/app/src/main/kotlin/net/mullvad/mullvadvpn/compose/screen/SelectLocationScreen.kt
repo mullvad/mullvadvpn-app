@@ -92,7 +92,9 @@ import net.mullvad.mullvadvpn.compose.transitions.SelectLocationTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.RunOnKeyChange
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
+import net.mullvad.mullvadvpn.lib.model.CustomList
 import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -365,6 +367,7 @@ fun SelectLocationScreen(
                                                         bottomSheetState =
                                                             ShowCustomListsEntryBottomSheet(
                                                                 listItem.parentId,
+                                                                listItem.parentName,
                                                                 listItem.item
                                                             )
                                                     }
@@ -589,7 +592,8 @@ private fun BottomSheets(
             CustomListEntryBottomSheet(
                 sheetState = sheetState,
                 onBackgroundColor = onBackgroundColor,
-                customListId = bottomSheetState.parentId,
+                customListId = bottomSheetState.customListId,
+                customListName = bottomSheetState.customListName,
                 item = bottomSheetState.item,
                 onRemoveLocationFromList = onRemoveLocationFromList,
                 closeBottomSheet = onCloseBottomSheet
@@ -784,6 +788,7 @@ private fun CustomListEntryBottomSheet(
     onBackgroundColor: Color,
     sheetState: SheetState,
     customListId: CustomListId,
+    customListName: CustomListName,
     item: RelayItem.Location,
     onRemoveLocationFromList: (location: RelayItem.Location, customListId: CustomListId) -> Unit,
     closeBottomSheet: (animate: Boolean) -> Unit
@@ -794,7 +799,8 @@ private fun CustomListEntryBottomSheet(
         modifier = Modifier.testTag(SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG)
     ) {
         HeaderCell(
-            text = stringResource(id = R.string.remove_location_from_list, item.name),
+            text =
+                stringResource(id = R.string.remove_location_from_list, item.name, customListName),
             background = Color.Unspecified
         )
         HorizontalDivider(color = onBackgroundColor)
@@ -902,7 +908,8 @@ sealed interface BottomSheetState {
     data class ShowCustomListsBottomSheet(val editListEnabled: Boolean) : BottomSheetState
 
     data class ShowCustomListsEntryBottomSheet(
-        val parentId: CustomListId,
+        val customListId: CustomListId,
+        val customListName: CustomListName,
         val item: RelayItem.Location
     ) : BottomSheetState
 

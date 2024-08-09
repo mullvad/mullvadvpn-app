@@ -214,7 +214,7 @@ class SelectLocationViewModel(
                 if (expanded) {
                     addAll(
                         customList.locations.flatMap {
-                            createCustomListEntry(parent = customList.id, item = it, 1, isExpanded)
+                            createCustomListEntry(parent = customList, item = it, 1, isExpanded)
                         }
                     )
                 }
@@ -240,15 +240,16 @@ class SelectLocationViewModel(
     }
 
     private fun createCustomListEntry(
-        parent: CustomListId,
+        parent: RelayItem.CustomList,
         item: RelayItem.Location,
         depth: Int = 1,
         isExpanded: (String) -> Boolean,
     ): List<RelayListItem.CustomListEntryItem> = buildList {
-        val expanded = isExpanded(item.id.expandKey(parent))
+        val expanded = isExpanded(item.id.expandKey(parent.id))
         add(
             RelayListItem.CustomListEntryItem(
-                parentId = parent,
+                parentId = parent.id,
+                parentName = parent.customList.name,
                 item = item,
                 expanded = expanded,
                 depth
