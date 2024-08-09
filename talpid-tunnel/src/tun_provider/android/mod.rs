@@ -146,7 +146,7 @@ impl AndroidTunProvider {
     }
 
     /// Open a tunnel device that routes everything but (potentially) LAN routes via the tunnel
-    /// device.
+    /// device. Excluded apps will also be kept.
     ///
     /// Will open a new tunnel if there is already an active tunnel. The previous tunnel will be
     /// closed.
