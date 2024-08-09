@@ -8,7 +8,9 @@ use std::{
     ptr,
 };
 use subslice::SubsliceExt;
-use talpid_types::net::{self, AllowedEndpoint, AllowedTunnelTraffic};
+use talpid_types::net::{
+    self, AllowedEndpoint, AllowedTunnelTraffic, ALLOWED_LAN_MULTICAST_NETS, ALLOWED_LAN_NETS,
+};
 
 pub use pfctl::Error;
 
@@ -494,7 +496,7 @@ impl Firewall {
 
     fn get_allow_lan_rules(&self) -> Result<Vec<pfctl::FilterRule>> {
         let mut rules = vec![];
-        for net in &*super::ALLOWED_LAN_NETS {
+        for net in &*ALLOWED_LAN_NETS {
             let mut rule_builder = self.create_rule_builder(FilterRuleAction::Pass);
             rule_builder.quick(true);
             let allow_out = rule_builder
@@ -510,7 +512,7 @@ impl Firewall {
             rules.push(allow_out);
             rules.push(allow_in);
         }
-        for multicast_net in &*super::ALLOWED_LAN_MULTICAST_NETS {
+        for multicast_net in &*ALLOWED_LAN_MULTICAST_NETS {
             let allow_multicast_out = self
                 .create_rule_builder(FilterRuleAction::Pass)
                 .quick(true)

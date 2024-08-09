@@ -141,12 +141,6 @@ pub async fn spawn(
         #[cfg(target_os = "android")]
         initial_settings.dns_servers.clone(),
         #[cfg(target_os = "android")]
-        crate::firewall::ALLOWED_LAN_NETS
-            .iter()
-            .chain(crate::firewall::ALLOWED_LAN_MULTICAST_NETS.iter())
-            .cloned()
-            .collect(),
-        #[cfg(target_os = "android")]
         initial_settings.exclude_paths.clone(),
     );
 
