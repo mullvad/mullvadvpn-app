@@ -254,7 +254,6 @@
     <string name="redeem">Kullan</string>
     <string name="redeem_voucher">Kuponu kullan</string>
     <string name="remove_button">Kaldır</string>
-    <string name="remove_location_from_list">%1$s konumunu listeden kaldır</string>
     <string name="rented">Kiralananlar</string>
     <string name="rented_only">Sadece kiralananlar</string>
     <string name="report_a_problem">Bir sorun bildir</string>

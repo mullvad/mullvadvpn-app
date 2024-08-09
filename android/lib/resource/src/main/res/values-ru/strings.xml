@@ -254,7 +254,6 @@
     <string name="redeem">Погасить</string>
     <string name="redeem_voucher">Погасить ваучер</string>
     <string name="remove_button">Удалить</string>
-    <string name="remove_location_from_list">Удалить местоположение %1$s из списка</string>
     <string name="rented">Арендованные</string>
     <string name="rented_only">Только арендованные</string>
     <string name="report_a_problem">Сообщение о проблеме</string>
