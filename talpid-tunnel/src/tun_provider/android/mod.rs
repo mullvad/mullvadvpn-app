@@ -199,11 +199,6 @@ impl AndroidTunProvider {
         }
     }
 
-    /// Return a copy of all excluded apps.
-    pub fn get_excluded_apps(&self) -> impl Iterator<Item = String> + '_ {
-        self.excluded_apps.iter().cloned()
-    }
-
     fn get_tun_fd(&mut self, config: TunConfig) -> Result<RawFd, Error> {
         let env = self.env()?;
         let java_config = config.into_java(&env);
