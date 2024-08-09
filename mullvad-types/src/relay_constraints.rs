@@ -5,7 +5,7 @@ use crate::{
     constraints::{Constraint, Match},
     custom_list::{CustomListsSettings, Id},
     location::{CityCode, CountryCode, Hostname},
-    relay_list::Relay,
+    relay_list::{Relay, RelayEndpointData},
     CustomTunnelEndpoint, Intersection,
 };
 use serde::{Deserialize, Serialize};
@@ -197,6 +197,13 @@ impl GeographicLocationConstraint {
     /// Check if `self` is _just_ a country. See [`GeographicLocationConstraint`] for more details.
     pub fn is_country(&self) -> bool {
         matches!(self, GeographicLocationConstraint::Country(_))
+    }
+
+    pub fn get_hostname(&self) -> Option<&Hostname> {
+        match self {
+            GeographicLocationConstraint::Hostname(_, _, hostname) => Some(hostname),
+            _ => None,
+        }
     }
 }
 
@@ -477,6 +484,7 @@ pub enum SelectedObfuscation {
     Off,
     #[cfg_attr(feature = "clap", clap(name = "udp2tcp"))]
     Udp2Tcp,
+    Shadowsocks,
 }
 
 impl Intersection for SelectedObfuscation {
@@ -500,6 +508,7 @@ impl fmt::Display for SelectedObfuscation {
             SelectedObfuscation::Auto => "auto".fmt(f),
             SelectedObfuscation::Off => "off".fmt(f),
             SelectedObfuscation::Udp2Tcp => "udp2tcp".fmt(f),
+            SelectedObfuscation::Shadowsocks => "shadowsocks".fmt(f),
         }
     }
 }
@@ -519,6 +528,21 @@ impl fmt::Display for Udp2TcpObfuscationSettings {
     }
 }
 
+#[derive(Default, Debug, Clone, Eq, PartialEq, Deserialize, Serialize, Intersection)]
+#[serde(rename_all = "snake_case")]
+pub struct ShadowsocksSettings {
+    pub port: Constraint<u16>,
+}
+
+impl fmt::Display for ShadowsocksSettings {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self.port {
+            Constraint::Any => write!(f, "any port"),
+            Constraint::Only(port) => write!(f, "port {port}"),
+        }
+    }
+}
+
 /// Contains obfuscation settings
 #[derive(Default, Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -526,6 +550,7 @@ impl fmt::Display for Udp2TcpObfuscationSettings {
 pub struct ObfuscationSettings {
     pub selected_obfuscation: SelectedObfuscation,
     pub udp2tcp: Udp2TcpObfuscationSettings,
+    pub shadowsocks: ShadowsocksSettings,
 }
 
 /// Limits the set of bridge servers to use in `mullvad-daemon`.
@@ -641,6 +666,17 @@ impl RelayOverride {
                 relay.hostname
             );
             relay.ipv6_addr_in = Some(ipv6_addr_in);
+        }
+
+        // Additional IPs should be ignored when overrides are present
+        if let RelayEndpointData::Wireguard(data) = &mut relay.endpoint_data {
+            data.shadowsocks_extra_addr_in.retain(|addr| {
+                let not_overridden_v4 = self.ipv4_addr_in.is_none() && addr.is_ipv4();
+                let not_overridden_v6 = self.ipv6_addr_in.is_none() && addr.is_ipv6();
+
+                // Keep address if it's not overridden
+                not_overridden_v4 || not_overridden_v6
+            });
         }
     }
 }

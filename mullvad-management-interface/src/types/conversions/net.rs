@@ -29,7 +29,12 @@ impl From<talpid_types::net::TunnelEndpoint> for proto::TunnelEndpoint {
                         obfuscation_endpoint.endpoint.protocol,
                     )),
                     obfuscation_type: match obfuscation_endpoint.obfuscation_type {
-                        net::ObfuscationType::Udp2Tcp => i32::from(proto::ObfuscationType::Udp2tcp),
+                        net::ObfuscationType::Udp2Tcp => {
+                            i32::from(proto::obfuscation_endpoint::ObfuscationType::Udp2tcp)
+                        }
+                        net::ObfuscationType::Shadowsocks => {
+                            i32::from(proto::obfuscation_endpoint::ObfuscationType::Shadowsocks)
+                        }
                     },
                 }
             }),
@@ -100,18 +105,22 @@ impl TryFrom<proto::TunnelEndpoint> for talpid_types::net::TunnelEndpoint {
                             ),
                             protocol: try_transport_protocol_from_i32(obfs_ep.protocol)?,
                         },
-                        obfuscation_type: match proto::ObfuscationType::try_from(
-                            obfs_ep.obfuscation_type,
-                        ) {
-                            Ok(proto::ObfuscationType::Udp2tcp) => {
-                                talpid_net::ObfuscationType::Udp2Tcp
-                            }
-                            Err(_) => {
-                                return Err(FromProtobufTypeError::InvalidArgument(
-                                    "unknown obfuscation type",
-                                ))
-                            }
-                        },
+                        obfuscation_type:
+                            match proto::obfuscation_endpoint::ObfuscationType::try_from(
+                                obfs_ep.obfuscation_type,
+                            ) {
+                                Ok(proto::obfuscation_endpoint::ObfuscationType::Udp2tcp) => {
+                                    talpid_net::ObfuscationType::Udp2Tcp
+                                }
+                                Ok(proto::obfuscation_endpoint::ObfuscationType::Shadowsocks) => {
+                                    talpid_net::ObfuscationType::Shadowsocks
+                                }
+                                Err(_) => {
+                                    return Err(FromProtobufTypeError::InvalidArgument(
+                                        "unknown obfuscation type",
+                                    ))
+                                }
+                            },
                     })
                 })
                 .transpose()?,
