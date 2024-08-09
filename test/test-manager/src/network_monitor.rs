@@ -59,7 +59,7 @@ impl PacketCodec for Codec {
             EtherTypes::Ipv4 => Self::parse_ipv4(frame.payload()),
             EtherTypes::Ipv6 => Self::parse_ipv6(frame.payload()),
             ethertype => {
-                log::debug!("Ignoring unknown ethertype: {ethertype}");
+                log::trace!("Ignoring unknown ethertype: {ethertype}");
                 None
             }
         }
@@ -288,11 +288,11 @@ async fn start_packet_monitor_for_interface(
                         Some(Ok(packet))=> {
                             if let Some(packet) = packet {
                                 if !filter_fn(&packet) {
-                                    log::debug!("{interface} \"{packet:?}\" does not match closure conditions");
+                                    log::trace!("{interface} \"{packet:?}\" does not match closure conditions");
                                     monitor_result.discarded_packets =
                                         monitor_result.discarded_packets.saturating_add(1);
                                 } else {
-                                    log::debug!("{interface} \"{packet:?}\" matches closure conditions");
+                                    log::trace!("{interface} \"{packet:?}\" matches closure conditions");
 
                                     let should_continue = should_continue_fn(&packet);
 
