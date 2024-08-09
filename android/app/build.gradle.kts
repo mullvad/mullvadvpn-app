@@ -339,6 +339,7 @@ dependencies {
     implementation(Dependencies.AndroidX.lifecycleViewmodelKtx)
     implementation(Dependencies.AndroidX.lifecycleRuntimeCompose)
     implementation(Dependencies.Arrow.core)
+    implementation(Dependencies.Arrow.optics)
     implementation(Dependencies.Arrow.resilience)
     implementation(Dependencies.Compose.constrainLayout)
     implementation(Dependencies.Compose.foundation)

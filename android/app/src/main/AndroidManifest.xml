@@ -106,5 +106,11 @@
             <meta-data android:name="android.support.FILE_PROVIDER_PATHS"
                        android:resource="@xml/provider_paths" />
         </provider>
+        <receiver android:name=".broadcastreceiver.LocaleChangedBroadcastReceiver"
+                  android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.LOCALE_CHANGED" />
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>

@@ -27,6 +27,7 @@ android {
 }
 
 dependencies {
+    implementation(project(Dependencies.Mullvad.resourceLib))
     implementation(project(Dependencies.Mullvad.commonLib))
     implementation(project(Dependencies.Mullvad.daemonGrpc))
     implementation(project(Dependencies.Mullvad.modelLib))
