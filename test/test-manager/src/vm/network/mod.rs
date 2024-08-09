@@ -17,3 +17,13 @@ pub use platform::{
 
 /// Port on NON_TUN_GATEWAY that hosts a SOCKS5 server
 pub const SOCKS5_PORT: u16 = 54321;
+
+/// Get the name of the bridge interface between the test-manager and the test-runner.
+pub fn bridge() -> anyhow::Result<String> {
+    #[cfg(target_os = "macos")]
+    {
+        crate::vm::network::macos::find_vm_bridge()
+    }
+    #[cfg(not(target_os = "macos"))]
+    Ok(platform::BRIDGE_NAME.to_owned())
+}

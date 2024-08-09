@@ -27,7 +27,7 @@ inventory = "0.3"
 data-encoding-macro = "0.1.12"
 itertools = "0.10.5"
 libc = "0.2.14"
-clap = { version = "4.1", features = ["derive"] }
+clap = { version = "4.1", features = ["derive", "string"] }
 async-tempfile = "0.2"
 async-trait = { workspace = true }
 uuid = "1.3"

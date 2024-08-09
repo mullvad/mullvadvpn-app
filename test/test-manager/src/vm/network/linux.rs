@@ -21,7 +21,7 @@ pub const TEST_SUBNET_DHCP_FIRST: Ipv4Addr = Ipv4Addr::new(172, 29, 1, 2);
 pub const TEST_SUBNET_DHCP_LAST: Ipv4Addr = Ipv4Addr::new(172, 29, 1, 128);
 
 /// Bridge interface on the host
-pub const BRIDGE_NAME: &str = "br-mullvadtest";
+pub(crate) const BRIDGE_NAME: &str = "br-mullvadtest";
 /// TAP interface used by the guest
 pub const TAP_NAME: &str = "tap-mullvadtest";
 

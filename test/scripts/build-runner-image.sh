@@ -35,7 +35,6 @@ case $TARGET in
             "${SCRIPT_DIR}/../target/$TARGET/release/test-runner.exe" \
             "${SCRIPT_DIR}/../target/$TARGET/release/connection-checker.exe" \
             "${PACKAGE_DIR}/"*.exe \
-            "${SCRIPT_DIR}/../openvpn.ca.crt" \
             "::"
         mdir -i "${TEST_RUNNER_IMAGE_PATH}"
         ;;
