@@ -54,12 +54,11 @@ pub struct AndroidTunProvider {
     jvm: Arc<JavaVM>,
     class: GlobalRef,
     object: GlobalRef,
-    last_tun_config: TunConfig,
+    last_tun_config: (TunConfig, bool),
     allow_lan: bool,
-    blocking: bool,
     custom_dns_servers: Option<Vec<IpAddr>>,
     allowed_lan_networks: Vec<IpNetwork>,
-    excluded_apps: Vec<String>,
+    excluded_packages: Vec<String>,
 }
 
 impl AndroidTunProvider {
@@ -69,7 +68,7 @@ impl AndroidTunProvider {
         allow_lan: bool,
         custom_dns_servers: Option<Vec<IpAddr>>,
         allowed_lan_networks: Vec<IpNetwork>,
-        excluded_apps: Vec<String>,
+        excluded_packages: Vec<String>,
     ) -> Self {
         let env = JnixEnv::from(
             context
@@ -83,12 +82,11 @@ impl AndroidTunProvider {
             jvm: context.jvm,
             class: talpid_vpn_service_class,
             object: context.vpn_service,
-            last_tun_config: TunConfig::default(),
+            last_tun_config: (TunConfig::default(), false),
             allow_lan,
-            blocking: false,
             custom_dns_servers,
             allowed_lan_networks,
-            excluded_apps,
+            excluded_packages,
         }
     }
 
@@ -113,9 +111,9 @@ impl AndroidTunProvider {
     /// Update the set of excluded paths (split tunnel apps) for the tunnel provider.
     /// This will cause any pre-existing tunnel to be recreated if necessary. See
     /// [`AndroidTunProvider::recreate_tun_if_open()`] for details.
-    pub fn set_exclude_apps(&mut self, excluded_apps: Vec<String>) -> Result<(), Error> {
-        if self.excluded_apps != excluded_apps {
-            self.excluded_apps = excluded_apps;
+    pub fn set_exclude_apps(&mut self, excluded_packages: Vec<String>) -> Result<(), Error> {
+        if self.excluded_packages != excluded_packages {
+            self.excluded_packages = excluded_packages;
             self.recreate_tun_if_open()?;
         }
         Ok(())
@@ -123,16 +121,23 @@ impl AndroidTunProvider {
 
     /// Retrieve a tunnel device with the provided configuration. Custom DNS and LAN routes are
     /// appended to the provided config.
-    pub fn get_tun(&mut self, mut config: TunConfig) -> Result<VpnServiceTun, Error> {
-        self.prepare_tun_config(&mut config, false);
-        self.get_tun_inner(config)
+    pub fn get_tun(&mut self, config: TunConfig) -> Result<VpnServiceTun, Error> {
+        let original_config = config;
+        let config = VpnServiceConfig::new(
+            original_config.clone(),
+            &self.allowed_lan_networks,
+            self.allow_lan,
+            self.custom_dns_servers.clone(),
+            self.excluded_packages.clone(),
+        );
+        let tun = self.get_tun_inner(config)?;
+        self.last_tun_config = (original_config, false);
+        Ok(tun)
     }
 
     /// Retrieve a tunnel device with the provided configuration.
-    fn get_tun_inner(&mut self, config: TunConfig) -> Result<VpnServiceTun, Error> {
+    fn get_tun_inner(&self, config: VpnServiceConfig) -> Result<VpnServiceTun, Error> {
         let tun_fd = self.get_tun_fd(config.clone())?;
-
-        self.last_tun_config = config;
 
         let jvm = unsafe { JavaVM::from_raw(self.jvm.get_java_vm_pointer()) }
             .map_err(Error::CloneJavaVm)?;
@@ -151,9 +156,17 @@ impl AndroidTunProvider {
     /// Will open a new tunnel if there is already an active tunnel. The previous tunnel will be
     /// closed.
     pub fn create_blocking_tun(&mut self) -> Result<(), Error> {
-        let mut config = TunConfig::default();
-        self.prepare_tun_config(&mut config, true);
+        let original_config = TunConfig::default();
+        let config = VpnServiceConfig::new(
+            original_config.clone(),
+            &self.allowed_lan_networks,
+            self.allow_lan,
+            // Disable DNS
+            Some(vec![]),
+            self.excluded_packages.clone(),
+        );
         let _ = self.get_tun_inner(config)?;
+        self.last_tun_config = (original_config, true);
         Ok(())
     }
 
@@ -199,7 +212,7 @@ impl AndroidTunProvider {
         }
     }
 
-    fn get_tun_fd(&mut self, config: TunConfig) -> Result<RawFd, Error> {
+    fn get_tun_fd(&self, config: VpnServiceConfig) -> Result<RawFd, Error> {
         let env = self.env()?;
         let java_config = config.into_java(&env);
 
@@ -217,12 +230,22 @@ impl AndroidTunProvider {
     }
 
     fn recreate_tun_if_open(&mut self) -> Result<(), Error> {
-        let mut actual_config = self.last_tun_config.clone();
+        let (last_tun_config, blocking) = self.last_tun_config.clone();
 
-        self.prepare_tun_config(&mut actual_config, self.blocking);
+        let config = VpnServiceConfig::new(
+            last_tun_config,
+            &self.allowed_lan_networks,
+            self.allow_lan,
+            if !blocking {
+                self.custom_dns_servers.clone()
+            } else {
+                Some(vec![])
+            },
+            self.excluded_packages.clone(),
+        );
 
         let env = self.env()?;
-        let java_config = actual_config.into_java(&env);
+        let java_config = config.into_java(&env);
 
         let result = self.call_method(
             "recreateTunIfOpen",
@@ -235,65 +258,6 @@ impl AndroidTunProvider {
             JValue::Void => Ok(()),
             value => Err(Error::InvalidMethodResult("getTun", format!("{:?}", value))),
         }
-    }
-
-    fn prepare_tun_config(&mut self, config: &mut TunConfig, blocking: bool) {
-        self.blocking = blocking;
-        self.prepare_tun_config_for_allow_lan(config);
-        self.prepare_tun_config_for_excluded_apps(config);
-        if !blocking {
-            self.prepare_tun_config_for_custom_dns(config);
-        }
-    }
-
-    fn prepare_tun_config_for_allow_lan(&self, config: &mut TunConfig) {
-        if self.allow_lan {
-            let (required_ipv4_routes, required_ipv6_routes) = config
-                .required_routes
-                .iter()
-                .cloned()
-                .partition::<Vec<_>, _>(|route| route.is_ipv4());
-
-            let (original_lan_ipv4_networks, original_lan_ipv6_networks) = self
-                .allowed_lan_networks
-                .iter()
-                .cloned()
-                .partition::<Vec<_>, _>(|network| network.is_ipv4());
-
-            let lan_ipv4_networks = original_lan_ipv4_networks
-                .into_iter()
-                .flat_map(|network| network.sub_all(required_ipv4_routes.iter().cloned()))
-                .collect::<Vec<_>>();
-
-            let lan_ipv6_networks = original_lan_ipv6_networks
-                .into_iter()
-                .flat_map(|network| network.sub_all(required_ipv6_routes.iter().cloned()))
-                .collect::<Vec<_>>();
-
-            let routes = config
-                .routes
-                .iter()
-                .flat_map(|&route| {
-                    if route.is_ipv4() {
-                        route.sub_all(lan_ipv4_networks.iter().cloned())
-                    } else {
-                        route.sub_all(lan_ipv6_networks.iter().cloned())
-                    }
-                })
-                .collect();
-
-            config.routes = routes;
-        }
-    }
-
-    fn prepare_tun_config_for_custom_dns(&self, config: &mut TunConfig) {
-        if let Some(custom_dns_servers) = self.custom_dns_servers.clone() {
-            config.dns_servers = custom_dns_servers;
-        }
-    }
-
-    fn prepare_tun_config_for_excluded_apps(&self, config: &mut TunConfig) {
-        config.excluded_packages.clone_from(&self.excluded_apps);
     }
 
     /// Allow a socket to bypass the tunnel.
@@ -353,6 +317,122 @@ impl AndroidTunProvider {
     }
 }
 
+/// Configuration to use for VpnService
+#[derive(Clone, Debug, Eq, PartialEq, IntoJava)]
+#[jnix(class_name = "net.mullvad.talpid.model.TunConfig")]
+struct VpnServiceConfig {
+    /// IP addresses for the tunnel interface.
+    pub addresses: Vec<IpAddr>,
+
+    /// IP addresses for the DNS servers to use.
+    pub dns_servers: Vec<IpAddr>,
+
+    /// Routes to configure for the tunnel.
+    pub routes: Vec<InetNetwork>,
+
+    /// App packages that should be excluded from the tunnel.
+    pub excluded_packages: Vec<String>,
+
+    /// Maximum Transmission Unit in the tunnel.
+    #[jnix(map = "|mtu| mtu as i32")]
+    pub mtu: u16,
+}
+
+impl VpnServiceConfig {
+    pub fn new(
+        tun_config: TunConfig,
+        allowed_lan_networks: &[IpNetwork],
+        allow_lan: bool,
+        dns_servers: Option<Vec<IpAddr>>,
+        excluded_packages: Vec<String>,
+    ) -> VpnServiceConfig {
+        let dns_servers = Self::resolve_dns_servers(&tun_config, dns_servers);
+        let routes = Self::resolve_routes(&tun_config, allowed_lan_networks, allow_lan);
+
+        VpnServiceConfig {
+            addresses: tun_config.addresses,
+            dns_servers,
+            routes,
+            excluded_packages,
+            mtu: tun_config.mtu,
+        }
+    }
+
+    /// Return a list of custom DNS servers. If not specified, gateway addresses are used for DNS.
+    /// Note that `Some(vec![])` is different from `None`. `Some(vec![])` disables DNS.
+    fn resolve_dns_servers(config: &TunConfig, custom_dns: Option<Vec<IpAddr>>) -> Vec<IpAddr> {
+        custom_dns.unwrap_or_else(|| config.gateway_ips())
+    }
+
+    /// Potentially subtract LAN nets from the VPN service routes, excepting gateways.
+    /// This prevents LAN traffic from going in the tunnel.
+    fn resolve_routes(
+        config: &TunConfig,
+        allowed_lan_networks: &[IpNetwork],
+        allow_lan: bool,
+    ) -> Vec<InetNetwork> {
+        if !allow_lan {
+            return config
+                .routes
+                .iter()
+                .cloned()
+                .map(InetNetwork::from)
+                .collect();
+        }
+
+        let required_ipv4_routes = vec![IpNetwork::from(IpAddr::from(config.ipv4_gateway))];
+        let required_ipv6_routes = config
+            .ipv6_gateway
+            .map(|addr| IpNetwork::from(IpAddr::from(addr)))
+            .into_iter()
+            .collect::<Vec<IpNetwork>>();
+
+        let (original_lan_ipv4_networks, original_lan_ipv6_networks) = allowed_lan_networks
+            .iter()
+            .cloned()
+            .partition::<Vec<_>, _>(|network| network.is_ipv4());
+
+        let lan_ipv4_networks = original_lan_ipv4_networks
+            .into_iter()
+            .flat_map(|network| network.sub_all(required_ipv4_routes.clone()))
+            .collect::<Vec<_>>();
+
+        let lan_ipv6_networks = original_lan_ipv6_networks
+            .into_iter()
+            .flat_map(|network| network.sub_all(required_ipv6_routes.clone()))
+            .collect::<Vec<_>>();
+
+        config
+            .routes
+            .iter()
+            .flat_map(|&route| {
+                if route.is_ipv4() {
+                    route.sub_all(lan_ipv4_networks.clone())
+                } else {
+                    route.sub_all(lan_ipv6_networks.clone())
+                }
+            })
+            .map(InetNetwork::from)
+            .collect()
+    }
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, IntoJava)]
+#[jnix(package = "net.mullvad.talpid.model")]
+struct InetNetwork {
+    address: IpAddr,
+    prefix: i16,
+}
+
+impl From<IpNetwork> for InetNetwork {
+    fn from(ip_network: IpNetwork) -> Self {
+        InetNetwork {
+            address: ip_network.ip(),
+            prefix: ip_network.prefix() as i16,
+        }
+    }
+}
+
 /// Handle to a tunnel device on Android.
 pub struct VpnServiceTun {
     tunnel: RawFd,
@@ -407,15 +487,14 @@ impl Default for TunConfig {
         // stub values.
         TunConfig {
             addresses: vec![IpAddr::V4(Ipv4Addr::new(10, 0, 0, 1))],
-            dns_servers: Vec::new(),
+            ipv4_gateway: Ipv4Addr::new(10, 64, 0, 1),
+            ipv6_gateway: None,
             routes: vec![
                 IpNetwork::new(IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)), 0)
                     .expect("Invalid IP network prefix for IPv4 address"),
                 IpNetwork::new(IpAddr::V6(Ipv6Addr::new(0, 0, 0, 0, 0, 0, 0, 0)), 0)
                     .expect("Invalid IP network prefix for IPv6 address"),
             ],
-            required_routes: vec![],
-            excluded_packages: vec![],
             mtu: 1380,
         }
     }
