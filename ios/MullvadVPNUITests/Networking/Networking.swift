@@ -10,6 +10,12 @@ import Foundation
 import Network
 import XCTest
 
+enum NetworkTransportProtocol: String, Codable {
+    case TCP = "tcp"
+    case UDP = "udp"
+    case ICMP = "icmp"
+}
+
 enum NetworkingError: Error {
     case notConfiguredError
     case internalError(reason: String)
@@ -44,7 +50,7 @@ class Networking {
                 interfaceAddress.sa_family == UInt8(AF_INET) {
                 // Check if interface is en0 which is the WiFi connection on the iPhone
                 let name = String(cString: interfacePointer.pointee.ifa_name)
-                if name == "en0" {
+                if name.hasPrefix("en") {
                     // Convert interface address to a human readable string:
                     var hostname = [CChar](repeating: 0, count: Int(NI_MAXHOST))
                     if getnameinfo(
