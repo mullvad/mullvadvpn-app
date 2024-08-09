@@ -57,7 +57,7 @@ import net.mullvad.mullvadvpn.compose.test.EDIT_API_ACCESS_NAME_INPUT
 import net.mullvad.mullvadvpn.compose.textfield.ApiAccessMethodTextField
 import net.mullvad.mullvadvpn.compose.textfield.apiAccessTextFieldColors
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
-import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
+import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
@@ -101,7 +101,7 @@ fun EditApiAccessMethod(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    LaunchedEffectCollect(sideEffect = viewModel.uiSideEffect) {
+    CollectSideEffectWithLifecycle(viewModel.uiSideEffect) {
         when (it) {
             is EditApiAccessSideEffect.OpenSaveDialog ->
                 navigator.navigate(

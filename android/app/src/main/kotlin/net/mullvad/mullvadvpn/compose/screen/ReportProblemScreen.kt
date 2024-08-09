@@ -43,7 +43,7 @@ import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.textfield.mullvadWhiteTextFieldColors
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
-import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
+import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.SecureScreenWhileInView
 import net.mullvad.mullvadvpn.dataproxy.SendProblemReportResult
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -104,7 +104,7 @@ fun ReportProblem(
     val vm = koinViewModel<ReportProblemViewModel>()
     val state by vm.uiState.collectAsStateWithLifecycle()
 
-    LaunchedEffectCollect(vm.uiSideEffect) {
+    CollectSideEffectWithLifecycle(vm.uiSideEffect) {
         when (it) {
             is ReportProblemSideEffect.ShowConfirmNoEmail ->
                 navigator.navigate(ReportProblemNoEmailDestination)

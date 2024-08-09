@@ -21,7 +21,7 @@ import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.compose.component.CustomListNameTextField
 import net.mullvad.mullvadvpn.compose.state.EditCustomListNameUiState
 import net.mullvad.mullvadvpn.compose.test.EDIT_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG
-import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
+import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.lib.model.GetCustomListError
@@ -53,7 +53,7 @@ fun EditCustomListName(
     backNavigator: ResultBackNavigator<CustomListActionResultData.Success.Renamed>,
 ) {
     val vm: EditCustomListNameDialogViewModel = koinViewModel()
-    LaunchedEffectCollect(vm.uiSideEffect) { sideEffect ->
+    CollectSideEffectWithLifecycle(vm.uiSideEffect) { sideEffect ->
         when (sideEffect) {
             is EditCustomListNameDialogSideEffect.ReturnWithResult -> {
                 backNavigator.navigateBack(result = sideEffect.result)

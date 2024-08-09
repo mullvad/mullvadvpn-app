@@ -10,7 +10,7 @@ import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.state.DeleteApiAccessMethodUiState
-import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
+import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.viewmodel.DeleteApiAccessMethodConfirmationSideEffect
@@ -36,7 +36,7 @@ fun DeleteApiAccessMethodConfirmation(
     val viewModel = koinViewModel<DeleteApiAccessMethodConfirmationViewModel>()
     val state = viewModel.uiState.collectAsStateWithLifecycle()
 
-    LaunchedEffectCollect(viewModel.uiSideEffect) {
+    CollectSideEffectWithLifecycle(viewModel.uiSideEffect) {
         when (it) {
             is DeleteApiAccessMethodConfirmationSideEffect.Deleted ->
                 navigator.navigateBack(result = true)
