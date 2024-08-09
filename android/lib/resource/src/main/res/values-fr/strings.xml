@@ -254,7 +254,6 @@
     <string name="redeem">Échanger</string>
     <string name="redeem_voucher">Échanger un bon</string>
     <string name="remove_button">Supprimer</string>
-    <string name="remove_location_from_list">Supprimer %1$s de la liste</string>
     <string name="rented">Loué</string>
     <string name="rented_only">Loués uniquement</string>
     <string name="report_a_problem">Signaler un problème</string>
