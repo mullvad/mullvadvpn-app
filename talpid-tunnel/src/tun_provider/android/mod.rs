@@ -16,6 +16,7 @@ use std::{
     os::unix::io::{AsRawFd, RawFd},
     sync::Arc,
 };
+use talpid_types::net::{ALLOWED_LAN_MULTICAST_NETS, ALLOWED_LAN_NETS};
 use talpid_types::{android::AndroidContext, ErrorExt};
 
 /// Errors that occur while setting up VpnService tunnel.
@@ -57,7 +58,6 @@ pub struct AndroidTunProvider {
     last_tun_config: Option<(TunConfig, bool)>,
     allow_lan: bool,
     custom_dns_servers: Option<Vec<IpAddr>>,
-    allowed_lan_networks: Vec<IpNetwork>,
     excluded_packages: Vec<String>,
 }
 
@@ -67,7 +67,6 @@ impl AndroidTunProvider {
         context: AndroidContext,
         allow_lan: bool,
         custom_dns_servers: Option<Vec<IpAddr>>,
-        allowed_lan_networks: Vec<IpNetwork>,
         excluded_packages: Vec<String>,
     ) -> Self {
         let env = JnixEnv::from(
@@ -85,7 +84,6 @@ impl AndroidTunProvider {
             last_tun_config: None,
             allow_lan,
             custom_dns_servers,
-            allowed_lan_networks,
             excluded_packages,
         }
     }
@@ -129,7 +127,6 @@ impl AndroidTunProvider {
     fn get_tun_inner(&mut self, config: TunConfig, blocking: bool) -> Result<VpnServiceTun, Error> {
         let service_config = VpnServiceConfig::new(
             config.clone(),
-            &self.allowed_lan_networks,
             self.allow_lan,
             if !blocking {
                 self.custom_dns_servers.clone()
@@ -314,13 +311,12 @@ struct VpnServiceConfig {
 impl VpnServiceConfig {
     pub fn new(
         tun_config: TunConfig,
-        allowed_lan_networks: &[IpNetwork],
         allow_lan: bool,
         dns_servers: Option<Vec<IpAddr>>,
         excluded_packages: Vec<String>,
     ) -> VpnServiceConfig {
         let dns_servers = Self::resolve_dns_servers(&tun_config, dns_servers);
-        let routes = Self::resolve_routes(&tun_config, allowed_lan_networks, allow_lan);
+        let routes = Self::resolve_routes(&tun_config, allow_lan);
 
         VpnServiceConfig {
             addresses: tun_config.addresses,
@@ -339,11 +335,7 @@ impl VpnServiceConfig {
 
     /// Potentially subtract LAN nets from the VPN service routes, excepting gateways.
     /// This prevents LAN traffic from going in the tunnel.
-    fn resolve_routes(
-        config: &TunConfig,
-        allowed_lan_networks: &[IpNetwork],
-        allow_lan: bool,
-    ) -> Vec<InetNetwork> {
+    fn resolve_routes(config: &TunConfig, allow_lan: bool) -> Vec<InetNetwork> {
         if !allow_lan {
             return config
                 .routes
@@ -360,8 +352,7 @@ impl VpnServiceConfig {
             .into_iter()
             .collect::<Vec<IpNetwork>>();
 
-        let (original_lan_ipv4_networks, original_lan_ipv6_networks) = allowed_lan_networks
-            .iter()
+        let (original_lan_ipv4_networks, original_lan_ipv6_networks) = Self::allowed_lan_networks()
             .cloned()
             .partition::<Vec<_>, _>(|network| network.is_ipv4());
 
@@ -387,6 +378,12 @@ impl VpnServiceConfig {
             })
             .map(InetNetwork::from)
             .collect()
+    }
+
+    fn allowed_lan_networks() -> impl Iterator<Item = &'static IpNetwork> {
+        ALLOWED_LAN_NETS
+            .iter()
+            .chain(ALLOWED_LAN_MULTICAST_NETS.iter())
     }
 }
 
