@@ -61,7 +61,8 @@ class MullvadAppViewModelTest {
             version
         every { mockedChangelogRepository.getLastVersionChanges() } returns changes
 
-        viewModel = MullvadAppViewModel(mockedChangelogRepository, connectionProxy, buildVersion, false)
+        viewModel =
+            MullvadAppViewModel(mockedChangelogRepository, connectionProxy, buildVersion, false)
         // Given a new version with a change log we should return it
         viewModel.uiSideEffect.test {
             assertEquals(awaitItem(), Changelog(version = buildVersion.name, changes = changes))
@@ -74,7 +75,8 @@ class MullvadAppViewModelTest {
         every { mockedChangelogRepository.getVersionCodeOfMostRecentChangelogShowed() } returns -1
         every { mockedChangelogRepository.getLastVersionChanges() } returns emptyList()
 
-        viewModel = MullvadAppViewModel(mockedChangelogRepository, connectionProxy, buildVersion, false)
+        viewModel =
+            MullvadAppViewModel(mockedChangelogRepository, connectionProxy, buildVersion, false)
         // Given a new version with a change log we should not return it
         viewModel.uiSideEffect.test { expectNoEvents() }
     }
