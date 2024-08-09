@@ -135,11 +135,17 @@ public enum RelaySelector {
     static func applyConstraints<T: AnyRelay>(
         _ relayConstraint: RelayConstraint<UserSelectedRelays>,
         filterConstraint: RelayConstraint<RelayFilter>,
+        daita: Bool,
         relays: [RelayWithLocation<T>]
     ) -> [RelayWithLocation<T>] {
-        // Filter on active status, filter, and location.
+        // Filter on active status, daita support, filter constraint and location constraint.
         let filteredRelays = relays.filter { relayWithLocation -> Bool in
             guard relayWithLocation.relay.active else {
+                return false
+            }
+
+            let relaySupportsDaita = (relayWithLocation.relay.daita ?? false) == true
+            if daita && !relaySupportsDaita {
                 return false
             }
 

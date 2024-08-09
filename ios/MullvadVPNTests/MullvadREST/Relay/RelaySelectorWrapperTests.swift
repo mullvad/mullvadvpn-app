@@ -52,4 +52,74 @@ class RelaySelectorWrapperTests: XCTestCase {
         let selectedRelays = try wrapper.selectRelays(with: RelayConstraints(), connectionAttemptCount: 0)
         XCTAssertNotNil(selectedRelays.entry)
     }
+
+    func testCanSelectRelayWithMultihopOnAndDaitaOn() throws {
+        let wrapper = RelaySelectorWrapper(
+            relayCache: relayCache,
+            multihopUpdater: multihopUpdater
+        )
+
+        multihopStateListener.onNewMultihop?(.on)
+        wrapper.setDaita(state: .on)
+
+        let constraints = RelayConstraints(
+            entryLocations: .only(UserSelectedRelays(locations: [.country("es")])), // Relay with DAITA.
+            exitLocations: .only(UserSelectedRelays(locations: [.country("us")]))
+        )
+
+        XCTAssertNoThrow(try wrapper.selectRelays(with: constraints, connectionAttemptCount: 0))
+    }
+
+    func testCannotSelectRelayWithMultihopOnAndDaitaOn() throws {
+        let wrapper = RelaySelectorWrapper(
+            relayCache: relayCache,
+            multihopUpdater: multihopUpdater
+        )
+
+        multihopStateListener.onNewMultihop?(.on)
+        wrapper.setDaita(state: .on)
+
+        let constraints = RelayConstraints(
+            entryLocations: .only(UserSelectedRelays(locations: [.country("se")])), // Relay without DAITA.
+            exitLocations: .only(UserSelectedRelays(locations: [.country("us")]))
+        )
+
+        XCTAssertThrowsError(try wrapper.selectRelays(with: constraints, connectionAttemptCount: 0))
+    }
+
+    func testCanSelectRelayWithMultihopOffAndDaitaOn() throws {
+        let wrapper = RelaySelectorWrapper(
+            relayCache: relayCache,
+            multihopUpdater: multihopUpdater
+        )
+
+        multihopStateListener.onNewMultihop?(.off)
+        wrapper.setDaita(state: .on)
+
+        let constraints = RelayConstraints(
+            exitLocations: .only(UserSelectedRelays(locations: [.country("es")])) // Relay with DAITA.
+        )
+
+        let selectedRelays = try wrapper.selectRelays(with: constraints, connectionAttemptCount: 0)
+        XCTAssertNil(selectedRelays.entry)
+    }
+
+    // If DAITA is enabled and no supported relays are found, we should try to find the nearest
+    // available relay that supports DAITA and use it as entry in a multihop selection.
+    func testCanSelectRelayWithMultihopOffAndDaitaOnThroughMultihop() throws {
+        let wrapper = RelaySelectorWrapper(
+            relayCache: relayCache,
+            multihopUpdater: multihopUpdater
+        )
+
+        multihopStateListener.onNewMultihop?(.off)
+        wrapper.setDaita(state: .on)
+
+        let constraints = RelayConstraints(
+            exitLocations: .only(UserSelectedRelays(locations: [.country("se")])) // Relay without DAITA.
+        )
+
+        let selectedRelays = try wrapper.selectRelays(with: constraints, connectionAttemptCount: 0)
+        XCTAssertNotNil(selectedRelays.entry)
+    }
 }

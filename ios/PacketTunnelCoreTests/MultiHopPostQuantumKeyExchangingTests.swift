@@ -27,7 +27,8 @@ final class MultiHopPostQuantumKeyExchangingTests: XCTestCase {
             from: try RelaySelector.WireGuard.findCandidates(
                 by: relayConstraints.exitLocations,
                 in: ServerRelaysResponseStubs.sampleRelays,
-                filterConstraint: relayConstraints.filter
+                filterConstraint: relayConstraints.filter,
+                daita: false
             ),
             relays: ServerRelaysResponseStubs.sampleRelays,
             portConstraint: relayConstraints.port,
@@ -38,7 +39,8 @@ final class MultiHopPostQuantumKeyExchangingTests: XCTestCase {
             from: try RelaySelector.WireGuard.findCandidates(
                 by: relayConstraints.entryLocations,
                 in: ServerRelaysResponseStubs.sampleRelays,
-                filterConstraint: relayConstraints.filter
+                filterConstraint: relayConstraints.filter,
+                daita: false
             ),
             relays: ServerRelaysResponseStubs.sampleRelays,
             portConstraint: relayConstraints.port,

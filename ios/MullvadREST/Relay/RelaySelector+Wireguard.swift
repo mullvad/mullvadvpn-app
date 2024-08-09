@@ -14,13 +14,15 @@ extension RelaySelector {
         public static func findCandidates(
             by relayConstraint: RelayConstraint<UserSelectedRelays>,
             in relays: REST.ServerRelaysResponse,
-            filterConstraint: RelayConstraint<RelayFilter>
+            filterConstraint: RelayConstraint<RelayFilter>,
+            daita: Bool
         ) throws -> [RelayWithLocation<REST.ServerRelay>] {
             let mappedRelays = mapRelays(relays: relays.wireguard.relays, locations: relays.locations)
 
             return applyConstraints(
                 relayConstraint,
                 filterConstraint: filterConstraint,
+                daita: daita,
                 relays: mappedRelays
             )
         }

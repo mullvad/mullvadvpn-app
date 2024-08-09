@@ -13,7 +13,13 @@ public final class RelaySelectorWrapper: RelaySelectorProtocol {
     let relayCache: RelayCacheProtocol
     let multihopUpdater: MultihopUpdater
     private var multihopState: MultihopState = .off
+    private var daitaState: MultihopState = .on
     private var observer: MultihopObserverBlock!
+
+    // TODO: Remove, Jon
+    func setDaita(state: MultihopState) {
+        daitaState = state
+    }
 
     deinit {
         self.multihopUpdater.removeObserver(observer)
@@ -39,12 +45,14 @@ public final class RelaySelectorWrapper: RelaySelectorProtocol {
         case .off:
             return try SinglehopPicker(
                 constraints: constraints,
+                daita: daitaState == .on,
                 relays: relays,
                 connectionAttemptCount: connectionAttemptCount
             ).pick()
         case .on:
             return try MultihopPicker(
                 constraints: constraints,
+                daita: daitaState == .on,
                 relays: relays,
                 connectionAttemptCount: connectionAttemptCount
             ).pick()
