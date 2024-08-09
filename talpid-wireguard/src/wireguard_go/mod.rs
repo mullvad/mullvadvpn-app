@@ -5,7 +5,6 @@ use once_cell::sync::OnceCell;
 use std::{ffi::CString, fs, path::PathBuf};
 use std::{
     future::Future,
-    net::IpAddr,
     os::unix::io::{AsRawFd, RawFd},
     path::Path,
     pin::Pin,
@@ -108,35 +107,6 @@ impl WgGoTunnel {
         })
     }
 
-    fn create_tunnel_config(
-        config: &Config,
-        routes: impl Iterator<Item = IpNetwork>,
-    ) -> TunConfig {
-        let mut dns_servers = vec![IpAddr::V4(config.ipv4_gateway)];
-        dns_servers.extend(config.ipv6_gateway.map(IpAddr::V6));
-
-        TunConfig {
-            addresses: config.tunnel.addresses.clone(),
-            dns_servers,
-            routes: routes.collect(),
-            #[cfg(target_os = "android")]
-            required_routes: Self::create_required_routes(config),
-            mtu: config.mtu,
-        }
-    }
-
-    #[cfg(target_os = "android")]
-    fn create_required_routes(config: &Config) -> Vec<IpNetwork> {
-        let mut required_routes = vec![IpNetwork::new(IpAddr::V4(config.ipv4_gateway), 32)
-            .expect("Invalid IPv4 network prefix")];
-
-        required_routes.extend(config.ipv6_gateway.map(|address| {
-            IpNetwork::new(IpAddr::V6(address), 128).expect("Invalid IPv6 network prefix")
-        }));
-
-        required_routes
-    }
-
     #[cfg(target_os = "android")]
     fn bypass_tunnel_sockets(
         handle: &wireguard_go_rs::Tunnel,
@@ -159,10 +129,13 @@ impl WgGoTunnel {
         let mut last_error = None;
         let mut tun_provider = tun_provider.lock().unwrap();
 
-        let tunnel_config = Self::create_tunnel_config(
-            config,
-            routes,
-        );
+        let tunnel_config = TunConfig {
+            addresses: config.tunnel.addresses.clone(),
+            ipv4_gateway: config.ipv4_gateway,
+            ipv6_gateway: config.ipv6_gateway,
+            routes: routes.collect(),
+            mtu: config.mtu,
+        };
 
         for _ in 1..=MAX_PREPARE_TUN_ATTEMPTS {
             let tunnel_device = tun_provider
