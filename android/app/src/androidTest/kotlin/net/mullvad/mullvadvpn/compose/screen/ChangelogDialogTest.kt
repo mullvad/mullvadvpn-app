@@ -13,7 +13,7 @@ import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.dialog.ChangelogDialog
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.viewmodel.Changelog
-import net.mullvad.mullvadvpn.viewmodel.ChangelogViewModel
+import net.mullvad.mullvadvpn.viewmodel.MullvadAppViewModel
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
@@ -22,7 +22,7 @@ import org.junit.jupiter.api.extension.RegisterExtension
 class ChangelogDialogTest {
     @JvmField @RegisterExtension val composeExtension = createEdgeToEdgeComposeExtension()
 
-    @MockK lateinit var mockedViewModel: ChangelogViewModel
+    @MockK lateinit var mockedViewModel: MullvadAppViewModel
 
     @BeforeEach
     fun setup() {

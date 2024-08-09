@@ -18,11 +18,11 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TestCoroutineRule::class)
-class ChangelogViewModelTest {
+class MullvadAppViewModelTest {
 
     @MockK private lateinit var mockedChangelogRepository: ChangelogRepository
 
-    private lateinit var viewModel: ChangelogViewModel
+    private lateinit var viewModel: MullvadAppViewModel
 
     private val buildVersion = BuildVersion("1.0", 10)
 
@@ -43,7 +43,7 @@ class ChangelogViewModelTest {
         // Arrange
         every { mockedChangelogRepository.getVersionCodeOfMostRecentChangelogShowed() } returns
             buildVersion.code
-        viewModel = ChangelogViewModel(mockedChangelogRepository, buildVersion, false)
+        viewModel = MullvadAppViewModel(mockedChangelogRepository, buildVersion, false)
 
         // If we have the most up to date version code, we should not show the changelog dialog
         viewModel.uiSideEffect.test { expectNoEvents() }
@@ -58,7 +58,7 @@ class ChangelogViewModelTest {
             version
         every { mockedChangelogRepository.getLastVersionChanges() } returns changes
 
-        viewModel = ChangelogViewModel(mockedChangelogRepository, buildVersion, false)
+        viewModel = MullvadAppViewModel(mockedChangelogRepository, buildVersion, false)
         // Given a new version with a change log we should return it
         viewModel.uiSideEffect.test {
             assertEquals(awaitItem(), Changelog(version = buildVersion.name, changes = changes))
@@ -71,7 +71,7 @@ class ChangelogViewModelTest {
         every { mockedChangelogRepository.getVersionCodeOfMostRecentChangelogShowed() } returns -1
         every { mockedChangelogRepository.getLastVersionChanges() } returns emptyList()
 
-        viewModel = ChangelogViewModel(mockedChangelogRepository, buildVersion, false)
+        viewModel = MullvadAppViewModel(mockedChangelogRepository, buildVersion, false)
         // Given a new version with a change log we should not return it
         viewModel.uiSideEffect.test { expectNoEvents() }
     }
