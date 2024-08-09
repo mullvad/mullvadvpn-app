@@ -11,6 +11,7 @@ import kotlin.test.assertEquals
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.BuildVersion
+import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
 import net.mullvad.mullvadvpn.repository.ChangelogRepository
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -21,6 +22,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 class MullvadAppViewModelTest {
 
     @MockK private lateinit var mockedChangelogRepository: ChangelogRepository
+    @MockK private lateinit var connectionProxy: ConnectionProxy
 
     private lateinit var viewModel: MullvadAppViewModel
 
@@ -43,7 +45,8 @@ class MullvadAppViewModelTest {
         // Arrange
         every { mockedChangelogRepository.getVersionCodeOfMostRecentChangelogShowed() } returns
             buildVersion.code
-        viewModel = MullvadAppViewModel(mockedChangelogRepository, buildVersion, false)
+        viewModel =
+            MullvadAppViewModel(mockedChangelogRepository, connectionProxy, buildVersion, false)
 
         // If we have the most up to date version code, we should not show the changelog dialog
         viewModel.uiSideEffect.test { expectNoEvents() }
@@ -58,7 +61,7 @@ class MullvadAppViewModelTest {
             version
         every { mockedChangelogRepository.getLastVersionChanges() } returns changes
 
-        viewModel = MullvadAppViewModel(mockedChangelogRepository, buildVersion, false)
+        viewModel = MullvadAppViewModel(mockedChangelogRepository, connectionProxy, buildVersion, false)
         // Given a new version with a change log we should return it
         viewModel.uiSideEffect.test {
             assertEquals(awaitItem(), Changelog(version = buildVersion.name, changes = changes))
@@ -71,7 +74,7 @@ class MullvadAppViewModelTest {
         every { mockedChangelogRepository.getVersionCodeOfMostRecentChangelogShowed() } returns -1
         every { mockedChangelogRepository.getLastVersionChanges() } returns emptyList()
 
-        viewModel = MullvadAppViewModel(mockedChangelogRepository, buildVersion, false)
+        viewModel = MullvadAppViewModel(mockedChangelogRepository, connectionProxy, buildVersion, false)
         // Given a new version with a change log we should not return it
         viewModel.uiSideEffect.test { expectNoEvents() }
     }
