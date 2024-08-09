@@ -234,7 +234,7 @@ class ConnectViewModelTest {
     @Test
     fun `onDisconnectClick should invoke disconnect on ConnectionProxy`() = runTest {
         // Arrange
-        coEvery { mockConnectionProxy.disconnect() } returns true
+        coEvery { mockConnectionProxy.disconnect() } returns true.right()
 
         // Act
         viewModel.onDisconnectClick()
@@ -246,7 +246,7 @@ class ConnectViewModelTest {
     @Test
     fun `onReconnectClick should invoke reconnect on ConnectionProxy`() = runTest {
         // Arrange
-        coEvery { mockConnectionProxy.reconnect() } returns true
+        coEvery { mockConnectionProxy.reconnect() } returns true.right()
 
         // Act
         viewModel.onReconnectClick()
@@ -270,7 +270,7 @@ class ConnectViewModelTest {
     @Test
     fun `onCancelClick should invoke disconnect on ConnectionProxy`() = runTest {
         // Arrange
-        coEvery { mockConnectionProxy.disconnect() } returns true
+        coEvery { mockConnectionProxy.disconnect() } returns true.right()
 
         // Act
         viewModel.onCancelClick()

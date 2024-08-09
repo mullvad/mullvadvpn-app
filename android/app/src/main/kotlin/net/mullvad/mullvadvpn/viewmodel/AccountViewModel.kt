@@ -75,8 +75,12 @@ class AccountViewModel(
 
     fun onLogoutClick() {
         viewModelScope.launch {
-            accountRepository.logout()
-            _uiSideEffect.send(UiSideEffect.NavigateToLogin)
+            accountRepository
+                .logout()
+                .fold(
+                    { _uiSideEffect.send(UiSideEffect.GenericError) },
+                    { _uiSideEffect.send(UiSideEffect.NavigateToLogin) }
+                )
         }
     }
 
@@ -127,6 +131,8 @@ class AccountViewModel(
             UiSideEffect()
 
         data class CopyAccountNumber(val accountNumber: String) : UiSideEffect()
+
+        data object GenericError : UiSideEffect()
     }
 }
 

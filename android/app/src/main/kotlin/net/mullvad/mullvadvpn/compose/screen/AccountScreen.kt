@@ -57,6 +57,7 @@ import net.mullvad.mullvadvpn.compose.transitions.SlideInFromBottomTransition
 import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
 import net.mullvad.mullvadvpn.compose.util.SecureScreenWhileInView
 import net.mullvad.mullvadvpn.compose.util.createCopyToClipboardHandle
+import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
@@ -164,6 +165,7 @@ fun AccountScreen(
 
     val snackbarHostState = remember { SnackbarHostState() }
     val copyTextString = stringResource(id = R.string.copied_mullvad_account_number)
+    val errorString = stringResource(id = R.string.error_occurred)
     val copyToClipboard = createCopyToClipboardHandle(snackbarHostState = snackbarHostState)
     val openAccountPage = LocalUriHandler.current.createOpenAccountPageHook()
     LaunchedEffectCollect(uiSideEffect) { sideEffect ->
@@ -173,6 +175,8 @@ fun AccountScreen(
                 openAccountPage(sideEffect.token)
             is AccountViewModel.UiSideEffect.CopyAccountNumber ->
                 launch { copyToClipboard(sideEffect.accountNumber, copyTextString) }
+            AccountViewModel.UiSideEffect.GenericError ->
+                snackbarHostState.showSnackbarImmediately(message = errorString)
         }
     }
 

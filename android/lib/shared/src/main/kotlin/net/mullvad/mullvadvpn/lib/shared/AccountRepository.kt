@@ -54,10 +54,8 @@ class AccountRepository(
     suspend fun login(accountNumber: AccountNumber): Either<LoginAccountError, Unit> =
         managementService.loginAccount(accountNumber)
 
-    suspend fun logout() {
-        managementService.logoutAccount()
-        _isNewAccount.update { false }
-    }
+    suspend fun logout() =
+        managementService.logoutAccount().onRight { _isNewAccount.update { false } }
 
     suspend fun fetchAccountHistory(): AccountNumber? =
         managementService.getAccountHistory().getOrNull()

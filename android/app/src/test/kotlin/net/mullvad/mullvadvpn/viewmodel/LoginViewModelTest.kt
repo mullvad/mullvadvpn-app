@@ -208,6 +208,9 @@ class LoginViewModelTest {
 
     @Test
     fun `clearAccountHistory should invoke clearAccountHistory on AccountRepository`() = runTest {
+        // Arrange
+        coEvery { mockedAccountRepository.clearAccountHistory() } returns Unit.right()
+
         // Act, Assert
         loginViewModel.clearAccountHistory()
         coVerify { mockedAccountRepository.clearAccountHistory() }
