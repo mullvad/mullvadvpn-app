@@ -351,20 +351,20 @@ pub async fn test_installation_idempotency(
 /// Replace the OpenVPN CA certificate which is currently used by the installed Mullvad App.
 /// This needs to be invoked after reach (re)installation to use the custom OpenVPN certificate.
 async fn replace_openvpn_cert(rpc: &ServiceClient) -> Result<(), Error> {
+    const DEST_CERT_FILENAME: &str = "ca.crt";
+
     let dest_dir = match TEST_CONFIG.os {
         Os::Windows => "C:\\Program Files\\Mullvad VPN\\resources",
         Os::Linux => "/opt/Mullvad VPN/resources",
         Os::Macos => "/Applications/Mullvad VPN.app/Contents/Resources",
     };
 
-    rpc.copy_file(
-        TEST_CONFIG.openvpn_cert().to_string_lossy().into_owned(),
-        Path::new(dest_dir)
-            .join("ca.crt")
-            .as_os_str()
-            .to_string_lossy()
-            .into_owned(),
-    )
-    .await
-    .map_err(Error::Rpc)
+    let dest = Path::new(dest_dir)
+        .join(DEST_CERT_FILENAME)
+        .as_os_str()
+        .to_string_lossy()
+        .into_owned();
+    rpc.write_file(dest, TEST_CONFIG.openvpn_certificate.to_vec())
+        .await
+        .map_err(Error::Rpc)
 }

@@ -1,12 +1,23 @@
 use once_cell::sync::OnceCell;
-use std::{
-    ops::Deref,
-    path::{Path, PathBuf},
-};
+use std::{ops::Deref, path::Path};
 use test_rpc::meta::Os;
 
 // Default `mullvad_host`. This should match the production env.
 pub const DEFAULT_MULLVAD_HOST: &str = "mullvad.net";
+// Path to bundled OpenVPN CA certificte.
+const OPENVPN_CA_CERTIFICATE: &[u8] = include_bytes!(concat!(
+    env!("CARGO_MANIFEST_DIR"),
+    "/..",
+    "/assets/",
+    "openvpn.ca.crt"
+));
+// Path to `ssh-setup.sh` which should be installed in the test-runner.
+const BOOTSTRAP_SCRIPT: &[u8] = include_bytes!(concat!(
+    env!("CARGO_MANIFEST_DIR"),
+    "/..",
+    "/scripts/",
+    "ssh-setup.sh"
+));
 
 /// Constants that are accessible from each test via `TEST_CONFIG`.
 /// The constants must be initialized before running any tests using `TEST_CONFIG.init()`.
@@ -27,10 +38,7 @@ pub struct TestConfig {
 
     pub os: Os,
     /// The OpenVPN CA certificate to use with the the installed Mullvad App.
-    ///
-    /// # Note
-    /// This is expected to be *just the filename* of the CA certificate, i.e. not a full path.
-    openvpn_certificate: String,
+    pub openvpn_certificate: OpenVPNCertificate,
 }
 
 impl TestConfig {
@@ -45,7 +53,7 @@ impl TestConfig {
         mullvad_host: String,
         host_bridge_name: String,
         os: Os,
-        openvpn_certificate: String,
+        openvpn_certificate: OpenVPNCertificate,
     ) -> Self {
         Self {
             account_number,
@@ -59,11 +67,56 @@ impl TestConfig {
             openvpn_certificate,
         }
     }
+}
 
-    /// The OpenVPN CA certificate to use with the installed Mullvad App.
-    /// Note that this is the path *in the test-runner* where the new CA certificate is stored.
-    pub fn openvpn_cert(&self) -> PathBuf {
-        Path::new(&self.artifacts_dir).join(self.openvpn_certificate.clone())
+/// Assets provided by the test manager which should be copied over to the test runner before
+/// starting a test run.
+#[derive(Clone, Debug)]
+pub struct Assets {
+    /// Script for bootstrapping the test-runner after the test-manager has successfully logged
+    /// in.
+    pub bootstrap_script: BootstrapScript,
+}
+
+/// The OpenVPN CA certificate to use with the installed Mullvad App.
+#[derive(Clone, Debug)]
+pub struct OpenVPNCertificate(Vec<u8>);
+
+impl OpenVPNCertificate {
+    pub fn from_file(path: impl AsRef<Path>) -> std::io::Result<Self> {
+        Ok(Self(std::fs::read(path)?))
+    }
+}
+
+impl Deref for OpenVPNCertificate {
+    type Target = [u8];
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl Default for OpenVPNCertificate {
+    fn default() -> Self {
+        Self(Vec::from(OPENVPN_CA_CERTIFICATE))
+    }
+}
+
+/// A script which should be run *in* the test runner before the test run begins.
+#[derive(Clone, Debug)]
+pub struct BootstrapScript(Vec<u8>);
+
+impl Deref for BootstrapScript {
+    type Target = [u8];
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl Default for BootstrapScript {
+    fn default() -> Self {
+        Self(Vec::from(BOOTSTRAP_SCRIPT))
     }
 }
 

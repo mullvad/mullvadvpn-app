@@ -4,7 +4,7 @@ use std::net::IpAddr;
 use crate::{
     config::{Config, ConfigFile, VmConfig, VmType},
     package,
-    vm::provision::Assets,
+    tests::config::Assets,
 };
 
 mod logging;

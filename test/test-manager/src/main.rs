@@ -9,13 +9,12 @@ mod summary;
 mod tests;
 mod vm;
 
-use std::{
-    net::SocketAddr,
-    path::{Path, PathBuf},
-};
+use std::{net::SocketAddr, path::PathBuf};
 
 use anyhow::{Context, Result};
 use clap::Parser;
+
+use crate::tests::config::{Assets, BootstrapScript, OpenVPNCertificate};
 
 /// Test manager for Mullvad VPN app
 #[derive(Parser, Debug)]
@@ -113,8 +112,8 @@ enum Commands {
 
         /// OpenVPN CA certificate to use with the app under test. The expected argument is a path
         /// (absolut or relative) to the desired CA certificate.
-        #[arg(long, default_value = openvpn_cert_path().into_os_string())]
-        openvpn_cert: PathBuf,
+        #[arg(long)]
+        openvpn_cert: Option<PathBuf>,
 
         /// Only run tests matching substrings
         test_filters: Vec<String>,
@@ -274,13 +273,17 @@ async fn main() -> Result<()> {
             )
             .context("Could not find the specified app packages")?;
 
-            let assets = vm::provision::Assets {
-                bootstrap_script: bootstrap_script_path(),
-                openvpn_cert: openvpn_cert.clone(),
+            // Load a new OpenVPN CA certificate if the user provided a path.
+            let openvpn_cert = openvpn_cert
+                .map(|path| OpenVPNCertificate::from_file(path).unwrap())
+                .unwrap_or_default();
+
+            let assets = Assets {
+                bootstrap_script: BootstrapScript::default(),
             };
 
             let mut instance = vm::run(&config, &vm).await.context("Failed to start VM")?;
-            let artifacts_dir = vm::provision(&config, &vm, &*instance, &manifest, assets)
+            let artifacts_dir = vm::provision(&config, &vm, &*instance, &manifest, assets.clone())
                 .await
                 .context("Failed to run provisioning for VM")?;
 
@@ -312,11 +315,7 @@ async fn main() -> Result<()> {
                     mullvad_host,
                     vm::network::bridge()?,
                     test_rpc::meta::Os::from(vm_config.os_type),
-                    openvpn_cert
-                        .file_name()
-                        .unwrap()
-                        .to_string_lossy()
-                        .into_owned(),
+                    openvpn_cert,
                 ),
                 &*instance,
                 &test_filters,
@@ -353,20 +352,4 @@ async fn main() -> Result<()> {
             Ok(())
         }
     }
-}
-
-const fn resolve_assets_path() -> &'static str {
-    concat!(env!("CARGO_MANIFEST_DIR"), "/assets/")
-}
-
-const fn resolve_scripts_path() -> &'static str {
-    concat!(env!("CARGO_MANIFEST_DIR"), "/scripts/")
-}
-
-fn bootstrap_script_path() -> PathBuf {
-    Path::new(resolve_scripts_path()).join("ssh-setup.sh")
-}
-
-fn openvpn_cert_path() -> PathBuf {
-    Path::new(resolve_assets_path()).join("openvpn.ca.crt")
 }

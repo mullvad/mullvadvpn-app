@@ -1,6 +1,7 @@
 use crate::{
     config::{OsType, Provisioner, VmConfig},
     package,
+    tests::config::Assets,
 };
 use anyhow::{bail, Context, Result};
 use ssh2::Session;
@@ -84,16 +85,6 @@ async fn ssh(
     Ok(remote_dir.to_string())
 }
 
-/// Assets provided by the test manager which should be copied over to the test runner before
-/// starting a test run.
-pub struct Assets {
-    /// Script for bootstrapping the test-runner after the test-manager has successfully logged
-    /// in.
-    pub bootstrap_script: PathBuf,
-    /// OpenVPN CA certificate to use with the install Mullvad app in the test runner.
-    pub openvpn_cert: PathBuf,
-}
-
 fn blocking_ssh(
     user: String,
     password: String,
@@ -145,18 +136,10 @@ fn blocking_ssh(
         log::warn!("No UI e2e test to send to remote")
     }
 
-    // Transfer openvpn cert
-    log::debug!(
-        "Copying remote {} -> {}",
-        assets.openvpn_cert.display(),
-        temp_dir.display()
-    );
-    let openvpn_certificate = ssh_send_file(&session, &assets.openvpn_cert, temp_dir)
-        .context("failed to send openvpn crt to remote")?;
-
     // Transfer setup script
-    log::debug!("Copying remote setup script -> {}", temp_dir.display());
-    let bootstrap_script = ssh_send_file(&session, &assets.bootstrap_script, temp_dir)
+    // TODO: Move this name to a constant somewhere?
+    let bootstrap_script_dest = temp_dir.join("ssh-setup.sh");
+    ssh_send_bytes(&session, &assets.bootstrap_script, &bootstrap_script_dest)
         .context("failed to send bootstrap script to remote")?;
 
     // Run setup script
@@ -176,13 +159,8 @@ fn blocking_ssh(
 
     // Run the setup script in the test runner
     let cmd = format!(
-        r#"sudo {} {remote_dir} "{app_package_path}" "{app_package_to_upgrade_from_path}" "{gui_package_path}" "{}""#,
-        bootstrap_script.display(),
-        openvpn_certificate
-            .file_name()
-            .unwrap()
-            .to_string_lossy()
-            .into_owned(),
+        r#"sudo {} {remote_dir} "{app_package_path}" "{app_package_to_upgrade_from_path}" "{gui_package_path}""#,
+        bootstrap_script_dest.display(),
     );
     log::debug!("Running setup script on remote, cmd: {cmd}");
     ssh_exec(&session, &cmd)
@@ -214,23 +192,28 @@ fn ssh_send_file<Source: AsRef<Path> + Copy>(
     let source = std::fs::read(source)
         .with_context(|| format!("Failed to open file at {}", source.as_ref().display()))?;
 
-    ssh_send_file_inner(
-        session,
-        &mut &source[..],
-        u64::try_from(source.len()).context("File too large, did not fit in a u64")?,
-        &dest,
-    )?;
+    ssh_send_bytes(session, &source[..], &dest)?;
 
     Ok(dest)
 }
 
-fn ssh_send_file_inner<R: Read>(
+// TODO: Document
+fn ssh_send_bytes(session: &Session, source: &[u8], dest: impl AsRef<Path>) -> Result<()> {
+    ssh_send_bytes_inner(
+        session,
+        &mut &source[..],
+        u64::try_from(source.len()).context("File too large, did not fit in a u64")?,
+        dest,
+    )
+}
+
+fn ssh_send_bytes_inner<R: Read>(
     session: &Session,
     source: &mut R,
     source_len: u64,
-    dest: &Path,
+    dest: impl AsRef<Path>,
 ) -> Result<()> {
-    let mut remote_file = session.scp_send(dest, 0o744, source_len, None)?;
+    let mut remote_file = session.scp_send(dest.as_ref(), 0o744, source_len, None)?;
     io::copy(source, &mut remote_file).context("failed to write file")?;
     remote_file.send_eof()?;
     remote_file.wait_eof()?;

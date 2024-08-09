@@ -9,7 +9,6 @@ RUNNER_DIR="$1"
 APP_PACKAGE="$2"
 PREVIOUS_APP="$3"
 UI_RUNNER="$4"
-OPENVPN_CA_CERTIFICATE="$5"
 
 # Copy over test runner to correct place
 
@@ -17,7 +16,7 @@ echo "Copying test-runner to $RUNNER_DIR"
 
 mkdir -p "$RUNNER_DIR"
 
-for file in test-runner connection-checker $APP_PACKAGE $PREVIOUS_APP $UI_RUNNER $OPENVPN_CA_CERTIFICATE; do
+for file in test-runner connection-checker $APP_PACKAGE $PREVIOUS_APP $UI_RUNNER; do
     echo "Moving $file to $RUNNER_DIR"
     cp -f "$SCRIPT_DIR/$file" "$RUNNER_DIR"
 done
