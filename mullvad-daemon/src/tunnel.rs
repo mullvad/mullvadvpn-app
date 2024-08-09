@@ -25,7 +25,7 @@ use talpid_types::net::{obfuscation::ObfuscatorConfig, wireguard, TunnelParamete
 
 use talpid_types::{tunnel::ParameterGenerationError, ErrorExt};
 
-use crate::device::{AccountManagerHandle, PrivateAccountAndDevice};
+use crate::device::{AccountManagerHandle, Error as DeviceError, PrivateAccountAndDevice};
 
 /// The IP-addresses that the client uses when it connects to a server that supports the
 /// "Same IP" functionality. This means all clients have the same in-tunnel IP on these
@@ -49,6 +49,9 @@ pub enum Error {
 
     #[error("Failed to resolve hostname for custom relay")]
     ResolveCustomHostname,
+
+    #[error("Failed to get device data")]
+    Device(#[from] DeviceError),
 }
 
 #[derive(Clone)]
@@ -257,13 +260,8 @@ impl InnerParametersGenerator {
     }
 
     async fn device(&self) -> Result<PrivateAccountAndDevice, Error> {
-        self.account_manager
-            .data()
-            .await
-            .map(|s| s.into_device())
-            .ok()
-            .flatten()
-            .ok_or(Error::NoAuthDetails)
+        let device_state = self.account_manager.data().await?;
+        device_state.into_device().ok_or(Error::NoAuthDetails)
     }
 }
 
@@ -279,22 +277,28 @@ impl TunnelParametersGenerator for ParametersGenerator {
             inner
                 .generate(retry_attempt, ipv6)
                 .await
-                .map_err(|error| match error {
-                    Error::SelectRelay(mullvad_relay_selector::Error::NoBridge) => {
-                        ParameterGenerationError::NoMatchingBridgeRelay
-                    }
-                    Error::ResolveCustomHostname => {
-                        ParameterGenerationError::CustomTunnelHostResultionError
-                    }
-                    error => {
-                        log::error!(
-                            "{}",
-                            error.display_chain_with_msg("Failed to generate tunnel parameters")
-                        );
-                        ParameterGenerationError::NoMatchingRelay
-                    }
+                .inspect_err(|error| {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg("Failed to generate tunnel parameters")
+                    );
                 })
+                .map_err(ParameterGenerationError::from)
         })
+    }
+}
+
+impl From<Error> for ParameterGenerationError {
+    fn from(error: Error) -> Self {
+        match error {
+            Error::SelectRelay(mullvad_relay_selector::Error::NoBridge) => {
+                ParameterGenerationError::NoMatchingBridgeRelay
+            }
+            Error::ResolveCustomHostname => {
+                ParameterGenerationError::CustomTunnelHostResultionError
+            }
+            _error => ParameterGenerationError::NoMatchingRelay,
+        }
     }
 }
 

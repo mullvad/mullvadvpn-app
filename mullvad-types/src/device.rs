@@ -50,22 +50,17 @@ pub enum DeviceState {
 }
 
 impl DeviceState {
-    pub fn into_device(self) -> Option<AccountAndDevice> {
+    /// Returns the active account and device if the device is currently logged in to a valid
+    /// account.
+    pub fn logged_in(self) -> Option<AccountAndDevice> {
         match self {
-            DeviceState::LoggedIn(dev) => Some(dev),
+            DeviceState::LoggedIn(client) => Some(client),
             _ => None,
         }
     }
 
-    pub fn is_logged_in(&self) -> bool {
+    pub const fn is_logged_in(&self) -> bool {
         matches!(self, Self::LoggedIn(_))
-    }
-
-    pub fn get_account(&self) -> Option<&AccountAndDevice> {
-        match self {
-            DeviceState::LoggedIn(ref account) => Some(account),
-            _ => None,
-        }
     }
 }
 

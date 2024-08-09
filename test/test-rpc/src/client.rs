@@ -10,7 +10,11 @@ use super::*;
 
 const INSTALL_TIMEOUT: Duration = Duration::from_secs(300);
 const REBOOT_TIMEOUT: Duration = Duration::from_secs(30);
+/// How long to wait before proceeding after a reboot and a connection to the test-runner has been
+/// re-established
+const POST_REBOOT_GRACE_PERIOD: Duration = Duration::from_secs(5);
 const LOG_LEVEL_TIMEOUT: Duration = Duration::from_secs(60);
+const DAEMON_RESTART_TIMEOUT: Duration = Duration::from_secs(30);
 
 #[derive(Debug, Clone)]
 pub struct ServiceClient {
@@ -263,10 +267,12 @@ impl ServiceClient {
     /// This function will return *after* the app has been stopped, thus
     /// blocking execution until then.
     pub async fn stop_mullvad_daemon(&self) -> Result<(), Error> {
-        let _ = self
-            .client
-            .stop_mullvad_daemon(tarpc::context::current())
-            .await?;
+        // TODO: Increase timeout and log how long it took (?)
+        let mut ctx = tarpc::context::current();
+        ctx.deadline = SystemTime::now()
+            .checked_add(DAEMON_RESTART_TIMEOUT)
+            .unwrap();
+        let _ = self.client.stop_mullvad_daemon(ctx).await?;
         Ok(())
     }
 
@@ -291,6 +297,24 @@ impl ServiceClient {
         ctx.deadline = SystemTime::now().checked_add(LOG_LEVEL_TIMEOUT).unwrap();
         self.client
             .set_daemon_log_level(ctx, verbosity_level)
+            .await??;
+
+        self.mullvad_daemon_wait_for_state(|state| state == ServiceStatus::Running)
+            .await?;
+
+        Ok(())
+    }
+
+    /// Restart the Mullvad daemon with default environment variables..
+    ///
+    /// # Returns
+    /// - `Result::Ok` if the daemon was successfully restarted.
+    /// - `Result::Err(Error)` if the daemon could not be restarted and is thus no longer running.
+    pub async fn reset_daemon_environment(&self) -> Result<(), Error> {
+        let mut ctx = tarpc::context::current();
+        ctx.deadline = SystemTime::now().checked_add(LOG_LEVEL_TIMEOUT).unwrap();
+        self.client
+            .set_daemon_environment(ctx, Default::default())
             .await??;
 
         self.mullvad_daemon_wait_for_state(|state| state == ServiceStatus::Running)
@@ -367,7 +391,7 @@ impl ServiceClient {
         self.connection_handle.reset_connected_state().await;
         self.connection_handle.wait_for_server().await?;
 
-        tokio::time::sleep(std::time::Duration::from_secs(5)).await;
+        tokio::time::sleep(POST_REBOOT_GRACE_PERIOD).await;
 
         Ok(())
     }
