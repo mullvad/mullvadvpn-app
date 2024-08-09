@@ -11,6 +11,8 @@ import net.mullvad.talpid.model.CreateTunResult
 import net.mullvad.talpid.model.TunConfig
 import net.mullvad.talpid.util.TalpidSdkUtils.setMeteredIfSupported
 
+private const val MAX_ATTEMPTS_WITH_SAME_TUN = 5
+
 open class TalpidVpnService : LifecycleVpnService() {
     private var activeTunStatus by
         observable<CreateTunResult?>(null) { _, oldTunStatus, _ ->
@@ -30,6 +32,7 @@ open class TalpidVpnService : LifecycleVpnService() {
         get() = activeTunStatus?.isOpen ?: false
 
     private var currentTunConfig = defaultTunConfig()
+    private var attemptsWithSameTun = 0
 
     // Used by JNI
     val connectivityListener = ConnectivityListener()
@@ -49,10 +52,16 @@ open class TalpidVpnService : LifecycleVpnService() {
     fun getTun(config: TunConfig): CreateTunResult {
         synchronized(this) {
             val tunStatus = activeTunStatus
+            val hasSameTun = tunIsOpen && config == currentTunConfig
 
-            if (config == currentTunConfig && tunIsOpen) {
+            if (hasSameTun && attemptsWithSameTun <= MAX_ATTEMPTS_WITH_SAME_TUN) {
+                // Reuse existing VPN service
+                attemptsWithSameTun += 1
                 return tunStatus!!
             } else {
+                // Create a new VPN service
+                attemptsWithSameTun = 1
+
                 val newTunStatus = createTun(config)
 
                 currentTunConfig = config

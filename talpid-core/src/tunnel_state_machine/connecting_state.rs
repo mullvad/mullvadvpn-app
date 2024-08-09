@@ -33,8 +33,6 @@ use super::connected_state::TunnelEventsReceiver;
 
 pub(crate) type TunnelCloseEvent = Fuse<oneshot::Receiver<Option<ErrorStateCause>>>;
 
-#[cfg(target_os = "android")]
-const MAX_ATTEMPTS_WITH_SAME_TUN: u32 = 5;
 const MIN_TUNNEL_ALIVE_TIME: Duration = Duration::from_millis(1000);
 #[cfg(target_os = "windows")]
 const MAX_ATTEMPT_CREATE_TUN: u32 = 4;
@@ -98,20 +96,6 @@ impl ConnectingState {
                         ErrorStateCause::SetFirewallPolicyError(error),
                     )
                 } else {
-                    #[cfg(target_os = "android")]
-                    {
-                        if retry_attempt > 0 && retry_attempt % MAX_ATTEMPTS_WITH_SAME_TUN == 0 {
-                            if let Err(error) =
-                                { shared_values.tun_provider.lock().unwrap().create_tun() }
-                            {
-                                log::error!(
-                                    "{}",
-                                    error.display_chain_with_msg("Failed to recreate tun device")
-                                );
-                            }
-                        }
-                    }
-
                     let connecting_state = Self::start_tunnel(
                         shared_values.runtime.clone(),
                         tunnel_parameters,
