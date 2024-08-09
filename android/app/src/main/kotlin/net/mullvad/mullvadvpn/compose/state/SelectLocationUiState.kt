@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.compose.state
 
 import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 
 typealias ModelOwnership = net.mullvad.mullvadvpn.lib.model.Ownership
@@ -60,6 +61,7 @@ sealed interface RelayListItem {
 
     data class CustomListEntryItem(
         val parentId: CustomListId,
+        val parentName: CustomListName,
         val item: RelayItem.Location,
         override val expanded: Boolean,
         override val depth: Int = 0
