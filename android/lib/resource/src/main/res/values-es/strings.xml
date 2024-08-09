@@ -254,7 +254,6 @@
     <string name="redeem">Canjear</string>
     <string name="redeem_voucher">Canjear cupón</string>
     <string name="remove_button">Quitar</string>
-    <string name="remove_location_from_list">Quitar %1$s de la lista</string>
     <string name="rented">Alquilados</string>
     <string name="rented_only">Solo alquilados</string>
     <string name="report_a_problem">Informar de un problema</string>

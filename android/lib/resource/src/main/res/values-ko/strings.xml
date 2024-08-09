@@ -254,7 +254,6 @@
     <string name="redeem">사용</string>
     <string name="redeem_voucher">바우처 사용</string>
     <string name="remove_button">제거</string>
-    <string name="remove_location_from_list">목록에서 %1$s 제거</string>
     <string name="rented">대여</string>
     <string name="rented_only">대여만</string>
     <string name="report_a_problem">문제 신고</string>

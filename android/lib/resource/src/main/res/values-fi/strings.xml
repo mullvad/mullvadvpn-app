@@ -254,7 +254,6 @@
     <string name="redeem">Lunasta</string>
     <string name="redeem_voucher">Lunasta kuponki</string>
     <string name="remove_button">Poista</string>
-    <string name="remove_location_from_list">Poista %1$s luettelosta</string>
     <string name="rented">Vuokrattu</string>
     <string name="rented_only">Vain vuokratut</string>
     <string name="report_a_problem">Raportoi ongelma</string>
