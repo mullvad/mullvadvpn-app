@@ -138,13 +138,7 @@ impl TunnelState for DisconnectedState {
 
         match runtime.block_on(commands.next()) {
             Some(TunnelCommand::AllowLan(allow_lan, complete_tx)) => {
-                if shared_values.allow_lan != allow_lan {
-                    // The only platform that can fail is Android, but Android doesn't support the
-                    // "block when disconnected" option, so the following call never fails.
-                    shared_values
-                        .set_allow_lan(allow_lan)
-                        .expect("Failed to set allow LAN parameter");
-
+                if shared_values.set_allow_lan(allow_lan) {
                     Self::set_firewall_policy(shared_values, false);
                 }
                 let _ = complete_tx.send(());
@@ -160,9 +154,7 @@ impl TunnelState for DisconnectedState {
             }
             Some(TunnelCommand::Dns(servers, complete_tx)) => {
                 // Same situation as allow LAN above.
-                shared_values
-                    .set_dns_servers(servers)
-                    .expect("Failed to reconnect after changing custom DNS servers");
+                shared_values.set_dns_servers(servers);
                 let _ = complete_tx.send(());
                 SameState(self)
             }
@@ -218,7 +210,8 @@ impl TunnelState for DisconnectedState {
             }
             #[cfg(target_os = "android")]
             Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
-                let _ = result_tx.send(shared_values.exclude_paths(paths).map(|_| ()));
+                shared_values.set_excluded_paths(paths);
+                let _ = result_tx.send(Ok(()));
                 SameState(self)
             }
             #[cfg(target_os = "macos")]

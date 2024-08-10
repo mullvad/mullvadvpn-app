@@ -51,11 +51,12 @@ impl ErrorState {
         let block_failure = Self::set_firewall_policy(shared_values).err();
 
         #[cfg(target_os = "android")]
-        let block_failure = if !Self::create_blocking_tun(shared_values) {
+        let block_failure = if shared_values.restart_tunnel(true).is_err() {
             Some(FirewallPolicyError::Generic)
         } else {
             None
         };
+
         (
             Box::new(ErrorState {
                 block_reason: block_reason.clone(),
@@ -98,28 +99,6 @@ impl ErrorState {
             })
     }
 
-    /// Returns true if a new tunnel device was successfully created.
-    #[cfg(target_os = "android")]
-    fn create_blocking_tun(shared_values: &mut SharedTunnelStateValues) -> bool {
-        match shared_values
-            .tun_provider
-            .lock()
-            .unwrap()
-            .create_blocking_tun()
-        {
-            Ok(()) => true,
-            Err(error) => {
-                log::error!(
-                    "{}",
-                    error.display_chain_with_msg(
-                        "Failed to open tunnel adapter to drop packets for blocked state"
-                    )
-                );
-                false
-            }
-        }
-    }
-
     fn reset_dns(shared_values: &mut SharedTunnelStateValues) {
         if let Err(error) = shared_values.dns_monitor.reset() {
             log::error!("{}", error.display_chain_with_msg("Unable to reset DNS"));
@@ -139,13 +118,25 @@ impl TunnelState for ErrorState {
 
         match runtime.block_on(commands.next()) {
             Some(TunnelCommand::AllowLan(allow_lan, complete_tx)) => {
-                let consequence =
-                    if let Err(error_state_cause) = shared_values.set_allow_lan(allow_lan) {
-                        NewState(Self::enter(shared_values, error_state_cause))
+                let consequence = if shared_values.set_allow_lan(allow_lan) {
+                    #[cfg(target_os = "android")]
+                    if let Err(_err) = shared_values.restart_tunnel(true) {
+                        NewState(Self::enter(
+                            shared_values,
+                            ErrorStateCause::StartTunnelError,
+                        ))
                     } else {
+                        SameState(self)
+                    }
+                    #[cfg(not(target_os = "android"))]
+                    {
                         let _ = Self::set_firewall_policy(shared_values);
                         SameState(self)
-                    };
+                    }
+                } else {
+                    SameState(self)
+                };
+
                 let _ = complete_tx.send(());
                 consequence
             }
@@ -155,7 +146,7 @@ impl TunnelState for ErrorState {
                     let _ = Self::set_firewall_policy(shared_values);
 
                     #[cfg(target_os = "android")]
-                    if !Self::create_blocking_tun(shared_values) {
+                    if let Err(_err) = shared_values.restart_tunnel(true) {
                         let _ = tx.send(());
                         return NewState(Self::enter(
                             shared_values,
@@ -167,12 +158,21 @@ impl TunnelState for ErrorState {
                 SameState(self)
             }
             Some(TunnelCommand::Dns(servers, complete_tx)) => {
-                let consequence =
-                    if let Err(error_state_cause) = shared_values.set_dns_servers(servers) {
-                        NewState(Self::enter(shared_values, error_state_cause))
-                    } else {
+                let consequence = if shared_values.set_dns_servers(servers) {
+                    #[cfg(target_os = "android")]
+                    {
+                        // DNS is blocked in the error state, so only update tun config
+                        shared_values.prepare_tun_config(true);
                         SameState(self)
-                    };
+                    }
+                    #[cfg(not(target_os = "android"))]
+                    {
+                        let _ = Self::set_firewall_policy(shared_values);
+                        SameState(self)
+                    }
+                } else {
+                    SameState(self)
+                };
                 let _ = complete_tx.send(());
                 consequence
             }
@@ -213,7 +213,14 @@ impl TunnelState for ErrorState {
             }
             #[cfg(target_os = "android")]
             Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
-                let _ = result_tx.send(shared_values.exclude_paths(paths).map(|_| ()));
+                if shared_values.set_excluded_paths(paths) {
+                    if let Err(err) = shared_values.restart_tunnel(true) {
+                        let _ =
+                            result_tx.send(Err(crate::split_tunnel::Error::SetExcludedApps(err)));
+                    }
+                } else {
+                    let _ = result_tx.send(Ok(()));
+                }
                 SameState(self)
             }
             #[cfg(windows)]

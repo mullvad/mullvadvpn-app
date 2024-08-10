@@ -83,7 +83,8 @@ impl DisconnectingState {
                 }
                 #[cfg(target_os = "android")]
                 Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
-                    let _ = result_tx.send(shared_values.exclude_paths(paths).map(|_| ()));
+                    shared_values.set_excluded_paths(paths);
+                    let _ = result_tx.send(Ok(()));
                     AfterDisconnect::Nothing
                 }
                 #[cfg(target_os = "macos")]
@@ -139,7 +140,8 @@ impl DisconnectingState {
                 }
                 #[cfg(target_os = "android")]
                 Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
-                    let _ = result_tx.send(shared_values.exclude_paths(paths).map(|_| ()));
+                    shared_values.set_excluded_paths(paths);
+                    let _ = result_tx.send(Ok(()));
                     AfterDisconnect::Block(reason)
                 }
                 #[cfg(target_os = "macos")]
@@ -196,7 +198,8 @@ impl DisconnectingState {
                 }
                 #[cfg(target_os = "android")]
                 Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
-                    let _ = result_tx.send(shared_values.exclude_paths(paths).map(|_| ()));
+                    shared_values.set_excluded_paths(paths);
+                    let _ = result_tx.send(Ok(()));
                     AfterDisconnect::Reconnect(retry_attempt)
                 }
                 #[cfg(target_os = "macos")]
