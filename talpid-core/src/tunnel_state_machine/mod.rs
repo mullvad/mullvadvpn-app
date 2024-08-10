@@ -136,12 +136,6 @@ pub async fn spawn(
     let tun_provider = TunProvider::new(
         #[cfg(target_os = "android")]
         android_context.clone(),
-        #[cfg(target_os = "android")]
-        initial_settings.allow_lan,
-        #[cfg(target_os = "android")]
-        initial_settings.dns_servers.clone(),
-        #[cfg(target_os = "android")]
-        initial_settings.exclude_paths.clone(),
     );
 
     let (shutdown_tx, shutdown_rx) = oneshot::channel();
@@ -369,6 +363,8 @@ impl TunnelStateMachine {
         let mut shared_values = SharedTunnelStateValues {
             #[cfg(any(target_os = "windows", target_os = "macos"))]
             split_tunnel,
+            #[cfg(target_os = "android")]
+            excluded_packages: args.settings.exclude_paths,
             runtime,
             firewall,
             dns_monitor,
@@ -457,6 +453,8 @@ struct SharedTunnelStateValues {
     split_tunnel: split_tunnel::SplitTunnel,
     #[cfg(target_os = "macos")]
     split_tunnel: split_tunnel::Handle,
+    #[cfg(target_os = "android")]
+    excluded_packages: Vec<String>,
     runtime: tokio::runtime::Handle,
     firewall: Firewall,
     dns_monitor: DnsMonitor,
@@ -548,56 +546,21 @@ impl SharedTunnelStateValues {
             .map_err(|error| ErrorStateCause::from(&error))
     }
 
-    pub fn set_allow_lan(&mut self, allow_lan: bool) -> Result<(), ErrorStateCause> {
+    pub fn set_allow_lan(&mut self, allow_lan: bool) -> bool {
         if self.allow_lan != allow_lan {
             self.allow_lan = allow_lan;
-
-            #[cfg(target_os = "android")]
-            {
-                if let Err(error) = self.tun_provider.lock().unwrap().set_allow_lan(allow_lan) {
-                    log::error!(
-                        "{}",
-                        error.display_chain_with_msg(&format!(
-                            "Failed to restart tunnel after {} LAN connections",
-                            if allow_lan { "allowing" } else { "blocking" }
-                        ))
-                    );
-                    return Err(ErrorStateCause::StartTunnelError);
-                }
-            }
+            true
+        } else {
+            false
         }
-
-        Ok(())
     }
 
-    pub fn set_dns_servers(
-        &mut self,
-        dns_servers: Option<Vec<IpAddr>>,
-    ) -> Result<bool, ErrorStateCause> {
+    pub fn set_dns_servers(&mut self, dns_servers: Option<Vec<IpAddr>>) -> bool {
         if self.dns_servers != dns_servers {
             self.dns_servers = dns_servers;
-
-            #[cfg(target_os = "android")]
-            {
-                if let Err(error) = self
-                    .tun_provider
-                    .lock()
-                    .unwrap()
-                    .set_dns_servers(self.dns_servers.clone())
-                {
-                    log::error!(
-                        "{}",
-                        error.display_chain_with_msg(
-                            "Failed to restart tunnel after changing DNS servers",
-                        )
-                    );
-                    return Err(ErrorStateCause::StartTunnelError);
-                }
-            }
-
-            Ok(true)
+            true
         } else {
-            Ok(false)
+            false
         }
     }
 
@@ -645,27 +608,47 @@ impl SharedTunnelStateValues {
     }
 
     /// Update the set of excluded paths (split tunnel apps) for the tunnel provider.
-    /// Returns `Ok(true)` if the tunnel state machine should issue a tunnel reconnect.
     #[cfg(target_os = "android")]
-    pub fn exclude_paths(&mut self, apps: Vec<String>) -> Result<bool, split_tunnel::Error> {
-        self.tun_provider
-            .lock()
-            .unwrap()
-            .set_exclude_apps(apps)
-            .map_err(split_tunnel::Error::SetExcludedApps)
-            .inspect_err(|error| {
+    pub fn set_excluded_paths(&mut self, apps: Vec<String>) -> bool {
+        if apps != self.excluded_packages {
+            self.excluded_packages = apps;
+            true
+        } else {
+            false
+        }
+    }
+
+    /// Update the tunnel provider config. This does not actually create any tunnel.
+    #[cfg(target_os = "android")]
+    pub fn prepare_tun_config(&self, blocking: bool) {
+        let mut tun_provider = self.tun_provider.lock().unwrap();
+
+        let config = tun_provider.config_mut();
+        if blocking {
+            config.dns_servers = Some(vec![]);
+        } else {
+            config.dns_servers = self.dns_servers.clone();
+        }
+        config.allow_lan = self.allow_lan;
+        config.excluded_packages = self.excluded_packages.clone();
+    }
+
+    /// Recreate the tunnel device. Note that this causes the current tunnel fd used by
+    /// the tunnel monitor to become stale, so a reconnect is needed.
+    #[cfg(target_os = "android")]
+    pub fn restart_tunnel(&self, blocking: bool) -> Result<(), talpid_tunnel::tun_provider::Error> {
+        self.prepare_tun_config(blocking);
+
+        match self.tun_provider.lock().unwrap().get_tun() {
+            Ok(_tun) => Ok(()),
+            Err(error) => {
                 log::error!(
                     "{}",
-                    error.display_chain_with_msg(
-                        "Failed to restart tunnel after updating excluded apps",
-                    )
+                    error.display_chain_with_msg("Failed to restart tunnel")
                 );
-            })?;
-        // NOTE: For now, we tell the TSM to always reconnect when this function has been
-        // successfully called. We still return a boolean value in case we would like to introduce
-        // some condition in the future, thus forcing the TSM to be ready to handle both cases
-        // already.
-        Ok(true)
+                Err(error)
+            }
+        }
     }
 }
 

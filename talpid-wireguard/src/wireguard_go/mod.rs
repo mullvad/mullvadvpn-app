@@ -129,17 +129,20 @@ impl WgGoTunnel {
         let mut last_error = None;
         let mut tun_provider = tun_provider.lock().unwrap();
 
-        let tunnel_config = TunConfig {
+        let tun_config = tun_provider.config_mut();
+
+        *tun_config = TunConfig {
             addresses: config.tunnel.addresses.clone(),
             ipv4_gateway: config.ipv4_gateway,
             ipv6_gateway: config.ipv6_gateway,
             routes: routes.collect(),
             mtu: config.mtu,
+            ..tun_config.clone()
         };
 
         for _ in 1..=MAX_PREPARE_TUN_ATTEMPTS {
             let tunnel_device = tun_provider
-                .get_tun(tunnel_config.clone())
+                .get_tun()
                 .map_err(TunnelError::SetupTunnelDevice)?;
 
             match nix::unistd::dup(tunnel_device.as_raw_fd()) {
