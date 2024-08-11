@@ -97,13 +97,40 @@ fn try_sending_random_udp(is_ipv6_enabled: bool) -> Result<(), SendRandomDataErr
     let start = Instant::now();
 
     while start.elapsed() < TIMEOUT {
-        // pick any random route to select between Ipv4 and Ipv6
         // TODO: if we are to allow LAN on Android by changing the routes that are stuffed in
         // TunConfig, then this should be revisited to be fair between IPv4 and IPv6
-        let should_generate_ipv4 = !is_ipv6_enabled || thread_rng().gen();
+        let should_generate_ipv4 = !is_ipv6_enabled || tried_ipv6 || thread_rng().gen();
+        let (bound_addr, random_public_addr) = random_socket_addrs(should_generate_ipv4);
 
+        tried_ipv6 |= random_public_addr.ip().is_ipv6();
+
+        let socket = UdpSocket::bind(bound_addr).map_err(SendRandomDataError::BindUdpSocket)?;
+        match socket.send_to(&random_data(), random_public_addr) {
+            Ok(_) => return Ok(()),
+            // TODO: This condition looks wrong, but it's the same as in the original code
+            Err(_) if tried_ipv6 => continue,
+            Err(_err) if matches!(_err.raw_os_error(), Some(22) | Some(101)) => {
+                // Error code 101 - specified network is unreachable
+                // Error code 22 - specified address is not usable
+                continue;
+            }
+            Err(err) => return Err(SendRandomDataError::SendToUdpSocket(err)),
+        }
+    }
+    Ok(())
+}
+
+fn random_data() -> Vec<u8> {
+    let mut buf = vec![0u8; thread_rng().gen_range(17..214)];
+    thread_rng().fill(buf.as_mut_slice());
+    buf
+}
+
+/// Returns a random local and public destination socket address.
+fn random_socket_addrs(ipv4: bool) -> (SocketAddr, SocketAddr) {
+    loop {
         let rand_port = thread_rng().gen();
-        let (local_addr, rand_dest_addr) = if should_generate_ipv4 || tried_ipv6 {
+        let (local_addr, rand_dest_addr) = if ipv4 {
             let mut ipv4_bytes = [0u8; 4];
             thread_rng().fill(&mut ipv4_bytes);
             (
@@ -112,7 +139,6 @@ fn try_sending_random_udp(is_ipv6_enabled: bool) -> Result<(), SendRandomDataErr
             )
         } else {
             let mut ipv6_bytes = [0u8; 16];
-            tried_ipv6 = true;
             thread_rng().fill(&mut ipv6_bytes);
             (
                 SocketAddr::new(Ipv6Addr::UNSPECIFIED.into(), 0),
@@ -126,31 +152,8 @@ fn try_sending_random_udp(is_ipv6_enabled: bool) -> Result<(), SendRandomDataErr
             continue;
         }
 
-        let socket = UdpSocket::bind(local_addr).map_err(SendRandomDataError::BindUdpSocket)?;
-
-        let mut buf = vec![0u8; thread_rng().gen_range(17..214)];
-        // fill buff with random data
-        thread_rng().fill(buf.as_mut_slice());
-        match socket.send_to(&buf, rand_dest_addr) {
-            Ok(_) => return Ok(()),
-            Err(err) => {
-                if tried_ipv6 {
-                    continue;
-                }
-                match err.raw_os_error() {
-                    // Error code 101 - specified network is unreachable
-                    // Error code 22 - specified address is not usable
-                    Some(101) | Some(22) => {
-                        // if we failed whilst trying to send to IPv6, we should not try
-                        // IPv6 again.
-                        continue;
-                    }
-                    _ => return Err(SendRandomDataError::SendToUdpSocket(err)),
-                }
-            }
-        };
+        break (local_addr, rand_dest_addr);
     }
-    Ok(())
 }
 
 fn is_public_ip(addr: IpAddr) -> bool {
