@@ -107,8 +107,8 @@ fn try_sending_random_udp(is_ipv6_enabled: bool) -> Result<(), SendRandomDataErr
         let socket = UdpSocket::bind(bound_addr).map_err(SendRandomDataError::BindUdpSocket)?;
         match send_udp_data(socket, &random_data(), random_public_addr) {
             Ok(_) => return Ok(()),
-            // TODO: This condition looks wrong, but it's the same as in the original code
-            Err(_) if tried_ipv6 => continue,
+            // Always retry on IPv6 errors
+            Err(_) if random_public_addr.ip().is_ipv6() => continue,
             Err(_err) if matches!(_err.raw_os_error(), Some(22) | Some(101)) => {
                 // Error code 101 - specified network is unreachable
                 // Error code 22 - specified address is not usable
