@@ -1,5 +1,6 @@
 use ipnetwork::{IpNetwork, Ipv4Network, Ipv6Network};
 use obfuscation::ObfuscatorConfig;
+use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
 #[cfg(windows)]
 use std::path::PathBuf;
@@ -7,7 +8,6 @@ use std::{
     fmt,
     net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
     str::FromStr,
-    sync::LazyLock,
 };
 
 use self::proxy::{CustomProxy, Socks5Local};
@@ -18,7 +18,7 @@ pub mod proxy;
 pub mod wireguard;
 
 /// When "allow local network" is enabled the app will allow traffic to and from these networks.
-pub static ALLOWED_LAN_NETS: LazyLock<[IpNetwork; 6]> = LazyLock::new(|| {
+pub static ALLOWED_LAN_NETS: Lazy<[IpNetwork; 6]> = Lazy::new(|| {
     [
         IpNetwork::V4(Ipv4Network::new(Ipv4Addr::new(10, 0, 0, 0), 8).unwrap()),
         IpNetwork::V4(Ipv4Network::new(Ipv4Addr::new(172, 16, 0, 0), 12).unwrap()),
@@ -30,7 +30,7 @@ pub static ALLOWED_LAN_NETS: LazyLock<[IpNetwork; 6]> = LazyLock::new(|| {
 });
 
 /// When "allow local network" is enabled the app will allow traffic to these networks.
-pub static ALLOWED_LAN_MULTICAST_NETS: LazyLock<[IpNetwork; 8]> = LazyLock::new(|| {
+pub static ALLOWED_LAN_MULTICAST_NETS: Lazy<[IpNetwork; 8]> = Lazy::new(|| {
     [
         // Local network broadcast. Not routable
         IpNetwork::V4(Ipv4Network::new(Ipv4Addr::new(255, 255, 255, 255), 32).unwrap()),
