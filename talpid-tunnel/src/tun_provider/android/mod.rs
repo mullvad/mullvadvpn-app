@@ -60,7 +60,7 @@ pub struct AndroidTunProvider {
 
 impl AndroidTunProvider {
     /// Create a new AndroidTunProvider interfacing with Android's VpnService.
-    pub fn new(context: AndroidContext) -> Self {
+    pub fn new(context: AndroidContext, config: TunConfig) -> Self {
         let env = JnixEnv::from(
             context
                 .jvm
@@ -73,7 +73,7 @@ impl AndroidTunProvider {
             jvm: context.jvm,
             class: talpid_vpn_service_class,
             object: context.vpn_service,
-            config: TunConfig::default(),
+            config,
         }
     }
 

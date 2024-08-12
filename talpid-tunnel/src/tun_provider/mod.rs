@@ -1,5 +1,6 @@
 use cfg_if::cfg_if;
 use ipnetwork::IpNetwork;
+use once_cell::sync::Lazy;
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 
 cfg_if! {
@@ -68,22 +69,29 @@ impl TunConfig {
     }
 }
 
-impl Default for TunConfig {
-    fn default() -> Self {
-        TunConfig {
-            addresses: vec![IpAddr::V4(Ipv4Addr::new(10, 0, 0, 1))],
-            mtu: 1380,
-            ipv4_gateway: Ipv4Addr::new(10, 64, 0, 1),
-            ipv6_gateway: None,
-            routes: vec![
-                IpNetwork::new(IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)), 0)
-                    .expect("Invalid IP network prefix for IPv4 address"),
-                IpNetwork::new(IpAddr::V6(Ipv6Addr::new(0, 0, 0, 0, 0, 0, 0, 0)), 0)
-                    .expect("Invalid IP network prefix for IPv6 address"),
-            ],
-            allow_lan: false,
-            dns_servers: None,
-            excluded_packages: vec![],
-        }
+/// Return a tunnel configuration that routes all traffic inside the tunnel.
+/// Most values except the routes are nonsensical. This is mostly used as a reasonable default on
+/// Android to route all traffic inside the tunnel.
+pub fn blocking_config() -> TunConfig {
+    TunConfig {
+        addresses: vec![IpAddr::V4(Ipv4Addr::new(10, 0, 0, 1))],
+        mtu: 1380,
+        ipv4_gateway: Ipv4Addr::new(10, 64, 0, 1),
+        ipv6_gateway: None,
+        routes: DEFAULT_ROUTES.clone(),
+        allow_lan: false,
+        dns_servers: None,
+        excluded_packages: vec![],
     }
 }
+
+static DEFAULT_ROUTES: Lazy<Vec<IpNetwork>> =
+    Lazy::new(|| vec![*IPV4_DEFAULT_ROUTE, *IPV6_DEFAULT_ROUTE]);
+static IPV4_DEFAULT_ROUTE: Lazy<IpNetwork> = Lazy::new(|| {
+    IpNetwork::new(IpAddr::V4(Ipv4Addr::UNSPECIFIED), 0)
+        .expect("Invalid IP network prefix for IPv4 address")
+});
+static IPV6_DEFAULT_ROUTE: Lazy<IpNetwork> = Lazy::new(|| {
+    IpNetwork::new(IpAddr::V6(Ipv6Addr::UNSPECIFIED), 0)
+        .expect("Invalid IP network prefix for IPv6 address")
+});
