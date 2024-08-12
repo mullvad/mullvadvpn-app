@@ -106,7 +106,6 @@ impl ConnectedState {
             })
     }
 
-    #[allow(unused_variables)]
     fn get_dns_servers(&self, shared_values: &SharedTunnelStateValues) -> Vec<IpAddr> {
         if let Some(ref servers) = shared_values.dns_servers {
             servers.clone()
