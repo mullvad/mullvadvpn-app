@@ -30,10 +30,8 @@ pub struct UnixTunProvider {
 }
 
 impl UnixTunProvider {
-    pub fn new() -> Self {
-        UnixTunProvider {
-            config: TunConfig::default(),
-        }
+    pub fn new(config: TunConfig) -> Self {
+        UnixTunProvider { config }
     }
 
     /// Get the current tunnel config. Note that the tunnel must be recreated for any changes to
@@ -55,12 +53,6 @@ impl UnixTunProvider {
         tunnel_device.set_up(true).map_err(Error::SetUp)?;
 
         Ok(UnixTun(tunnel_device))
-    }
-}
-
-impl Default for UnixTunProvider {
-    fn default() -> Self {
-        Self::new()
     }
 }
 
