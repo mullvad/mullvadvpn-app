@@ -103,13 +103,13 @@ impl AndroidTunProvider {
         })
     }
 
-    /// Open a tunnel device using the previous or the default configuration.
+    /// Open a tunnel device using the current configuration.
     ///
     /// Will open a new tunnel if there is already an active tunnel. The previous tunnel will be
     /// closed.
-    pub fn create_tun(&mut self) -> Result<(), Error> {
+    pub fn recreate_tun(&mut self) -> Result<(), Error> {
         let result = self.call_method(
-            "createTun",
+            "recreateTun",
             "()V",
             JavaType::Primitive(Primitive::Void),
             &[],
@@ -118,7 +118,7 @@ impl AndroidTunProvider {
         match result {
             JValue::Void => Ok(()),
             value => Err(Error::InvalidMethodResult(
-                "createTun",
+                "recreateTun",
                 format!("{:?}", value),
             )),
         }
