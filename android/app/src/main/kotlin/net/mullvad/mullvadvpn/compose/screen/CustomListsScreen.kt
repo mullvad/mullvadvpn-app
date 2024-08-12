@@ -121,7 +121,7 @@ fun CustomListsScreen(
 ) {
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.edit_custom_lists),
-        navigationIcon = { NavigateBackIconButton(onBackClick) },
+        navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) },
         actions = {
             IconButton(
                 onClick = addCustomList,

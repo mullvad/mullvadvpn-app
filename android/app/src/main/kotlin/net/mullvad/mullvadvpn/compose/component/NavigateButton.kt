@@ -9,8 +9,8 @@ import androidx.compose.ui.res.painterResource
 import net.mullvad.mullvadvpn.R
 
 @Composable
-fun NavigateBackIconButton(onNavigateBack: () -> Unit) {
-    IconButton(onClick = onNavigateBack) {
+fun NavigateBackIconButton(modifier: Modifier = Modifier, onNavigateBack: () -> Unit) {
+    IconButton(onClick = onNavigateBack, modifier = modifier) {
         Icon(painter = painterResource(id = R.drawable.icon_back), contentDescription = null)
     }
 }

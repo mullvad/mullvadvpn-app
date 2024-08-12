@@ -189,7 +189,7 @@ fun ApiAccessMethodDetailsScreen(
 ) {
     ScaffoldWithMediumTopBar(
         appBarTitle = state.name(),
-        navigationIcon = { NavigateBackIconButton(onBackClicked) },
+        navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClicked) },
         snackbarHostState = snackbarHostState,
         actions = {
             if (state.canBeEdited()) {

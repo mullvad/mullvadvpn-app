@@ -145,7 +145,7 @@ private fun ReportProblemScreen(
 
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.report_a_problem),
-        navigationIcon = { NavigateBackIconButton(onBackClick) }
+        navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) }
     ) { modifier ->
         // Show sending states
         if (state.sendingState != null) {

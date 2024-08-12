@@ -85,7 +85,7 @@ fun AutoConnectAndLockdownModeScreen(onBackClick: () -> Unit = {}) {
     val context = LocalContext.current
     ScaffoldWithLargeTopBarAndButton(
         appBarTitle = stringResource(id = R.string.auto_connect_and_lockdown_mode_two_lines),
-        navigationIcon = { NavigateBackIconButton(onBackClick) },
+        navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) },
         buttonTitle = stringResource(id = R.string.go_to_vpn_settings),
         onButtonClick = { context.openVpnSettings() },
         content = { modifier ->
