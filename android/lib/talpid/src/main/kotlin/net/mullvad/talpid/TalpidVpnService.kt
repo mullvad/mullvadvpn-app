@@ -26,9 +26,6 @@ open class TalpidVpnService : LifecycleVpnService() {
             }
         }
 
-    private val tunIsOpen
-        get() = activeTunStatus?.isOpen ?: false
-
     private var currentTunConfig: TunConfig? = null
 
     // Used by JNI
@@ -50,8 +47,8 @@ open class TalpidVpnService : LifecycleVpnService() {
         synchronized(this) {
             val tunStatus = activeTunStatus
 
-            if (config == currentTunConfig && tunIsOpen) {
-                return tunStatus!!
+            if (config == currentTunConfig && tunStatus != null && tunStatus.isOpen) {
+                return tunStatus
             } else {
                 val newTunStatus = createTun(config)
 
