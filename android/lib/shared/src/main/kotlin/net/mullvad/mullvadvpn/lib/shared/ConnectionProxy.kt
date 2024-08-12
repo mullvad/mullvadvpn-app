@@ -4,16 +4,14 @@ import arrow.core.Either
 import arrow.core.raise.either
 import arrow.core.raise.ensure
 import kotlinx.coroutines.flow.combine
-import mullvad_daemon.management_interface.location
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.ConnectError
 import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
 import net.mullvad.mullvadvpn.lib.model.TunnelState
-import net.mullvad.mullvadvpn.lib.model.location
 
 class ConnectionProxy(
     private val managementService: ManagementService,
-    private val translationRepository: RelayLocationTranslationRepository,
+    translationRepository: RelayLocationTranslationRepository,
     private val vpnPermissionRepository: VpnPermissionRepository
 ) {
     val tunnelState =
