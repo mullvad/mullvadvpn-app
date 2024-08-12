@@ -85,12 +85,18 @@ impl AndroidTunProvider {
 
     /// Retrieve a tunnel device with the provided configuration.
     pub fn get_tun(&mut self) -> Result<VpnServiceTun, Error> {
-        self.get_tun_inner()
+        self.get_tun_inner("getTun")
     }
 
     /// Retrieve a tunnel device with the provided configuration.
-    fn get_tun_inner(&mut self) -> Result<VpnServiceTun, Error> {
-        let tun_fd = self.get_tun_fd()?;
+    /// Force recreation even if the tunnel config hasn't changed.
+    pub fn get_tun_forced(&mut self) -> Result<VpnServiceTun, Error> {
+        self.get_tun_inner("getTunForced")
+    }
+
+    /// Retrieve a tunnel device with the provided configuration.
+    fn get_tun_inner(&mut self, get_tun_func_name: &'static str) -> Result<VpnServiceTun, Error> {
+        let tun_fd = self.get_tun_fd(get_tun_func_name)?;
 
         let jvm = unsafe { JavaVM::from_raw(self.jvm.get_java_vm_pointer()) }
             .map_err(Error::CloneJavaVm)?;
@@ -103,35 +109,14 @@ impl AndroidTunProvider {
         })
     }
 
-    /// Open a tunnel device using the current configuration.
-    ///
-    /// Will open a new tunnel if there is already an active tunnel. The previous tunnel will be
-    /// closed.
-    pub fn recreate_tun(&mut self) -> Result<(), Error> {
-        let result = self.call_method(
-            "recreateTun",
-            "()V",
-            JavaType::Primitive(Primitive::Void),
-            &[],
-        )?;
-
-        match result {
-            JValue::Void => Ok(()),
-            value => Err(Error::InvalidMethodResult(
-                "recreateTun",
-                format!("{:?}", value),
-            )),
-        }
-    }
-
-    fn get_tun_fd(&self) -> Result<RawFd, Error> {
+    fn get_tun_fd(&self, get_tun_func_name: &'static str) -> Result<RawFd, Error> {
         let config = VpnServiceConfig::new(self.config.clone());
 
         let env = self.env()?;
         let java_config = config.into_java(&env);
 
         let result = self.call_method(
-            "getTun",
+            get_tun_func_name,
             "(Lnet/mullvad/talpid/model/TunConfig;)Lnet/mullvad/talpid/model/CreateTunResult;",
             JavaType::Object("net/mullvad/talpid/model/CreateTunResult".to_owned()),
             &[JValue::Object(java_config.as_obj())],
@@ -139,7 +124,10 @@ impl AndroidTunProvider {
 
         match result {
             JValue::Object(result) => CreateTunResult::from_java(&env, result).into(),
-            value => Err(Error::InvalidMethodResult("getTun", format!("{:?}", value))),
+            value => Err(Error::InvalidMethodResult(
+                get_tun_func_name,
+                format!("{:?}", value),
+            )),
         }
     }
 
