@@ -12,6 +12,7 @@ workspace = true
 
 [dependencies]
 serde = { workspace = true, features = ["derive"] }
+once_cell = { workspace = true }
 ipnetwork = { workspace = true }
 base64 = "0.22.0"
 x25519-dalek = { version = "2.0.1", features = ["static_secrets", "zeroize", "getrandom"] }
