@@ -531,6 +531,7 @@ function MtuSetting() {
 function DaitaSettings() {
   const { setDaitaSettings } = useAppContext();
   const daita = useSelector((state) => state.settings.wireguard.daita?.enabled ?? false);
+  const useAnywhere = useSelector((state) => state.settings.wireguard.daita?.useAnywhere ?? false);
 
   const [confirmationDialogVisible, showConfirmationDialog, hideConfirmationDialog] = useBoolean();
 
@@ -538,12 +539,16 @@ function DaitaSettings() {
     if (value) {
       showConfirmationDialog();
     } else {
-      void setDaitaSettings({ enabled: value });
+      void setDaitaSettings({ enabled: value, useAnywhere: useAnywhere });
     }
   }, []);
 
+  const setUseAnywhere = useCallback((value: boolean) => {
+    void setDaitaSettings({ enabled: daita, useAnywhere: value });
+  }, []);
+
   const confirmDaita = useCallback(() => {
-    void setDaitaSettings({ enabled: true });
+    void setDaitaSettings({ enabled: true, useAnywhere: useAnywhere });
     hideConfirmationDialog();
   }, []);
 
@@ -576,6 +581,16 @@ function DaitaSettings() {
           </InfoButton>
           <AriaInput>
             <Cell.Switch isOn={daita} onChange={setDaita} />
+          </AriaInput>
+        </Cell.Container>
+      </AriaInputGroup>
+      <AriaInputGroup>
+        <Cell.Container>
+          <AriaLabel>
+            <Cell.InputLabel>The "Just make it work" Button</Cell.InputLabel>
+          </AriaLabel>
+          <AriaInput>
+            <Cell.Switch isOn={useAnywhere} onChange={setUseAnywhere} />
           </AriaInput>
         </Cell.Container>
       </AriaInputGroup>
