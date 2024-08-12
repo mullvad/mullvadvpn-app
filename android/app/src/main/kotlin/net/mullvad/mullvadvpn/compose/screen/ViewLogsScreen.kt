@@ -24,7 +24,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -71,7 +74,7 @@ fun ViewLogs(navigator: DestinationsNavigator) {
     ViewLogsScreen(state = state, onBackClick = dropUnlessResumed { navigator.navigateUp() })
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun ViewLogsScreen(
     state: ViewLogsUiState,
@@ -92,16 +95,27 @@ fun ViewLogsScreen(
         topBar = {
             MullvadMediumTopBar(
                 title = stringResource(id = R.string.view_logs),
-                navigationIcon = { NavigateBackIconButton(onBackClick) },
+                navigationIcon = {
+                    NavigateBackIconButton(
+                        onNavigateBack = onBackClick,
+                        modifier = Modifier.focusProperties { down = FocusRequester.Cancel }
+                    )
+                },
                 actions = {
                     val clipboardToastMessage = stringResource(R.string.copied_logs_to_clipboard)
-                    IconButton(onClick = { clipboardHandle(state.text(), clipboardToastMessage) }) {
+                    IconButton(
+                        onClick = { clipboardHandle(state.text(), clipboardToastMessage) },
+                        modifier = Modifier.focusProperties { down = FocusRequester.Cancel }
+                    ) {
                         Icon(
                             painter = painterResource(id = R.drawable.icon_copy),
                             contentDescription = null
                         )
                     }
-                    IconButton(onClick = { scope.launch { shareText(context, state.text()) } }) {
+                    IconButton(
+                        onClick = { scope.launch { shareText(context, state.text()) } },
+                        modifier = Modifier.focusProperties { down = FocusRequester.Cancel }
+                    ) {
                         Icon(imageVector = Icons.Default.Share, contentDescription = null)
                     }
                 }
@@ -137,8 +151,8 @@ fun ViewLogsScreen(
                             )
                             .padding(horizontal = Dimens.smallPadding)
                 ) {
-                    items(state.allLines) {
-                        Text(text = it, style = MaterialTheme.typography.bodySmall)
+                    items(state.allLines) { text ->
+                        Text(text = text, style = MaterialTheme.typography.bodySmall)
                     }
                 }
             }

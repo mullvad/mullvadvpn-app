@@ -300,7 +300,7 @@ fun VpnSettingsScreen(
 
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.settings_vpn),
-        navigationIcon = { NavigateBackIconButton(onBackClick) },
+        navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) },
         snackbarHostState = snackbarHostState
     ) { modifier, lazyListState ->
         LazyColumn(

@@ -172,7 +172,7 @@ fun ServerIpOverridesScreen(
 
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.server_ip_overrides),
-        navigationIcon = { NavigateBackIconButton(onBackClick) },
+        navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) },
         actions = {
             TopBarActions(
                 overridesActive = state.overridesActive,
