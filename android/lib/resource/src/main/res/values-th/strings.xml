@@ -254,7 +254,6 @@
     <string name="redeem">แลกรับ</string>
     <string name="redeem_voucher">แลกบัตรกำนัล</string>
     <string name="remove_button">ลบ</string>
-    <string name="remove_location_from_list">ลบ %1$s ออกจากรายการ</string>
     <string name="rented">เช่า</string>
     <string name="rented_only">เช่าเท่านั้น</string>
     <string name="report_a_problem">รายงานปัญหา</string>

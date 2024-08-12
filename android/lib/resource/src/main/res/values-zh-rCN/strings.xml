@@ -254,7 +254,6 @@
     <string name="redeem">兑换</string>
     <string name="redeem_voucher">兑换优惠券</string>
     <string name="remove_button">移除</string>
-    <string name="remove_location_from_list">从列表中移除%1$s</string>
     <string name="rented">租用</string>
     <string name="rented_only">仅租用</string>
     <string name="report_a_problem">报告问题</string>

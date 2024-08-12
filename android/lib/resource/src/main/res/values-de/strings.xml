@@ -254,7 +254,6 @@
     <string name="redeem">Einlösen</string>
     <string name="redeem_voucher">Gutschein einlösen</string>
     <string name="remove_button">Entfernen</string>
-    <string name="remove_location_from_list">%1$s aus Liste entfernen</string>
     <string name="rented">Gemietet</string>
     <string name="rented_only">Nur gemietet</string>
     <string name="report_a_problem">Problem melden</string>

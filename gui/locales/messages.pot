@@ -2405,7 +2405,7 @@ msgstr ""
 msgid "Remove"
 msgstr ""
 
-msgid "Remove %s from list"
+msgid "Remove %s from %s"
 msgstr ""
 
 msgid "Remove custom port"
