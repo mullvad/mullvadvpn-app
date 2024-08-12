@@ -1,14 +1,14 @@
 plugins {
-    id(Dependencies.Plugin.kotlinAndroidId)
-    id(Dependencies.Plugin.androidLibraryId)
-    id(Dependencies.Plugin.composeCompiler) version Versions.kotlin
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.compose)
 }
 
 android {
     namespace = "net.mullvad.mullvadvpn.lib.map"
-    compileSdk = Versions.Android.compileSdkVersion
+    compileSdk = Versions.compileSdkVersion
 
-    defaultConfig { minSdk = Versions.Android.minSdkVersion }
+    defaultConfig { minSdk = Versions.minSdkVersion }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -30,10 +30,10 @@ android {
 }
 
 dependencies {
-    implementation(project(Dependencies.Mullvad.modelLib))
+    implementation(projects.lib.model)
 
-    implementation(Dependencies.AndroidX.lifecycleRuntimeKtx)
-    implementation(Dependencies.Compose.ui)
-    implementation(Dependencies.Compose.foundation)
-    implementation(Dependencies.kermit)
+    implementation(libs.androidx.lifecycle.runtime)
+    implementation(libs.compose.ui)
+    implementation(libs.compose.foundation)
+    implementation(libs.kermit)
 }

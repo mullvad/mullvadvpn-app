@@ -1,18 +1,19 @@
 import com.google.protobuf.gradle.proto
 
 plugins {
-    id(Dependencies.Plugin.androidLibraryId)
-    id(Dependencies.Plugin.kotlinAndroidId)
-    id(Dependencies.Plugin.kotlinParcelizeId)
-    id(Dependencies.Plugin.Protobuf.protobufId) version Versions.Plugin.protobuf
-    id(Dependencies.Plugin.junit5) version Versions.Plugin.junit5
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.parcelize)
+    alias(libs.plugins.protobuf.core)
+
+    id(Dependencies.junit5AndroidPluginId) version Versions.junit5Plugin
 }
 
 android {
     namespace = "net.mullvad.mullvadvpn.lib.daemon.grpc"
-    compileSdk = Versions.Android.compileSdkVersion
+    compileSdk = Versions.compileSdkVersion
 
-    defaultConfig { minSdk = Versions.Android.minSdkVersion }
+    defaultConfig { minSdk = Versions.minSdkVersion }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -35,11 +36,11 @@ android {
 }
 
 protobuf {
-    protoc { artifact = Dependencies.Plugin.Protobuf.protoc }
+    protoc { artifact = libs.plugins.protobuf.protoc.get().toString() }
     plugins {
-        create("java") { artifact = Dependencies.Plugin.Protobuf.protocGenGrpcJava }
-        create("grpc") { artifact = Dependencies.Plugin.Protobuf.protocGenGrpcJava }
-        create("grpckt") { artifact = Dependencies.Plugin.Protobuf.protocGenGrpcKotlin }
+        create("java") { artifact = libs.plugins.grpc.protoc.gen.grpc.java.get().toString() }
+        create("grpc") { artifact = libs.plugins.grpc.protoc.gen.grpc.java.get().toString() }
+        create("grpckt") { artifact = libs.plugins.grpc.protoc.gen.grpc.kotlin.get().toString() }
     }
     generateProtoTasks {
         all().forEach {
@@ -54,31 +55,31 @@ protobuf {
 }
 
 dependencies {
-    implementation(project(Dependencies.Mullvad.commonLib))
-    implementation(project(Dependencies.Mullvad.modelLib))
-    implementation(project(Dependencies.Mullvad.talpidLib))
+    implementation(projects.lib.common)
+    implementation(projects.lib.model)
+    implementation(projects.lib.talpid)
 
-    implementation(Dependencies.jodaTime)
-    implementation(Dependencies.kermit)
-    implementation(Dependencies.Kotlin.stdlib)
-    implementation(Dependencies.KotlinX.coroutinesCore)
-    implementation(Dependencies.KotlinX.coroutinesAndroid)
+    implementation(libs.jodatime)
+    implementation(libs.kermit)
+    implementation(libs.kotlin.stdlib)
+    implementation(libs.kotlinx.coroutines)
+    implementation(libs.kotlinx.coroutines.android)
 
-    implementation(Dependencies.Grpc.grpcOkHttp)
-    implementation(Dependencies.Grpc.grpcAndroid)
-    implementation(Dependencies.Grpc.grpcKotlinStub)
-    implementation(Dependencies.Grpc.protobufLite)
-    implementation(Dependencies.Grpc.protobufKotlinLite)
+    implementation(libs.grpc.okhttp)
+    implementation(libs.grpc.android)
+    implementation(libs.grpc.kotlin.stub)
+    implementation(libs.grpc.protobuf.lite)
+    implementation(libs.grpc.protobuf.kotlin.lite)
 
-    implementation(Dependencies.Arrow.core)
-    implementation(Dependencies.Arrow.optics)
+    implementation(libs.arrow)
+    implementation(libs.arrow.optics)
 
-    testImplementation(project(Dependencies.Mullvad.commonTestLib))
-    testImplementation(Dependencies.Kotlin.test)
-    testImplementation(Dependencies.KotlinX.coroutinesTest)
-    testImplementation(Dependencies.MockK.core)
-    testImplementation(Dependencies.turbine)
-    testImplementation(Dependencies.junitApi)
-    testRuntimeOnly(Dependencies.junitEngine)
-    testImplementation(Dependencies.junitParams)
+    testImplementation(projects.lib.commonTest)
+    testImplementation(libs.kotlin.test)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.mockk)
+    testImplementation(libs.turbine)
+    testImplementation(Dependencies.junitJupiterApi)
+    testRuntimeOnly(Dependencies.junitJupiterEngine)
+    testImplementation(Dependencies.junitJupiterParams)
 }

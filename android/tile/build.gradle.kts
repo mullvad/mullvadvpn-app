@@ -1,14 +1,14 @@
 plugins {
-    id(Dependencies.Plugin.androidLibraryId)
-    id(Dependencies.Plugin.kotlinAndroidId)
-    id(Dependencies.Plugin.kotlinParcelizeId)
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.parcelize)
 }
 
 android {
     namespace = "net.mullvad.mullvadvpn.tile"
-    compileSdk = Versions.Android.compileSdkVersion
+    compileSdk = Versions.compileSdkVersion
 
-    defaultConfig { minSdk = Versions.Android.minSdkVersion }
+    defaultConfig { minSdk = Versions.minSdkVersion }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -25,18 +25,18 @@ android {
 }
 
 dependencies {
-    implementation(project(Dependencies.Mullvad.commonLib))
-    implementation(project(Dependencies.Mullvad.daemonGrpc))
-    implementation(project(Dependencies.Mullvad.modelLib))
-    implementation(project(Dependencies.Mullvad.resourceLib))
-    implementation(project(Dependencies.Mullvad.sharedLib))
-    implementation(project(Dependencies.Mullvad.talpidLib))
+    implementation(projects.lib.common)
+    implementation(projects.lib.daemonGrpc)
+    implementation(projects.lib.model)
+    implementation(projects.lib.resource)
+    implementation(projects.lib.shared)
+    implementation(projects.lib.talpid)
 
-    implementation(Dependencies.Koin.core)
-    implementation(Dependencies.Koin.android)
+    implementation(libs.koin)
+    implementation(libs.koin.android)
 
-    implementation(Dependencies.AndroidX.appcompat)
-    implementation(Dependencies.kermit)
-    implementation(Dependencies.Kotlin.stdlib)
-    implementation(Dependencies.KotlinX.coroutinesAndroid)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.kermit)
+    implementation(libs.kotlin.stdlib)
+    implementation(libs.kotlinx.coroutines.android)
 }

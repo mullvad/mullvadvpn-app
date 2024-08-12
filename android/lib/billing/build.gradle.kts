@@ -1,15 +1,16 @@
 plugins {
-    id(Dependencies.Plugin.androidLibraryId)
-    id(Dependencies.Plugin.junit5) version Versions.Plugin.junit5
-    id(Dependencies.Plugin.kotlinAndroidId)
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
+
+    id(Dependencies.junit5AndroidPluginId) version Versions.junit5Plugin
 }
 
 android {
     namespace = "net.mullvad.mullvadvpn.lib.billing"
-    compileSdk = Versions.Android.compileSdkVersion
+    compileSdk = Versions.compileSdkVersion
 
     defaultConfig {
-        minSdk = Versions.Android.minSdkVersion
+        minSdk = Versions.minSdkVersion
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -40,40 +41,40 @@ android {
 }
 
 dependencies {
-    implementation(Dependencies.Kotlin.stdlib)
-    implementation(Dependencies.KotlinX.coroutinesAndroid)
+    implementation(libs.kotlin.stdlib)
+    implementation(libs.kotlinx.coroutines.android)
 
     //Billing library
-    implementation(Dependencies.billingClient)
+    implementation(libs.android.billingclient)
 
     //Model
-    implementation(project(Dependencies.Mullvad.modelLib))
+    implementation(projects.lib.model)
 
     //Payment library
-    implementation(project(Dependencies.Mullvad.paymentLib))
+    implementation(projects.lib.payment)
 
     //Either
-    implementation(Dependencies.Arrow.core)
+    implementation(libs.arrow)
 
     // Management service
-    implementation(project(Dependencies.Mullvad.daemonGrpc))
+    implementation(projects.lib.daemonGrpc)
 
     // Test dependencies
-    testRuntimeOnly(Dependencies.junitEngine)
+    testRuntimeOnly(Dependencies.junitJupiterEngine)
 
-    testImplementation(project(Dependencies.Mullvad.commonTestLib))
-    testImplementation(Dependencies.Kotlin.test)
-    testImplementation(Dependencies.KotlinX.coroutinesTest)
-    testImplementation(Dependencies.MockK.core)
-    testImplementation(Dependencies.junitApi)
-    testImplementation(Dependencies.turbine)
+    testImplementation(projects.lib.commonTest)
+    testImplementation(libs.kotlin.test)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.mockk)
+    testImplementation(Dependencies.junitJupiterApi)
+    testImplementation(libs.turbine)
 
-    androidTestImplementation(project(Dependencies.Mullvad.commonTestLib))
-    androidTestImplementation(Dependencies.MockK.android)
-    androidTestImplementation(Dependencies.Kotlin.test)
-    androidTestImplementation(Dependencies.KotlinX.coroutinesTest)
-    androidTestImplementation(Dependencies.turbine)
-    androidTestImplementation(Dependencies.junitApi)
-    androidTestImplementation(Dependencies.junitEngine)
-    androidTestImplementation(Dependencies.AndroidX.espressoCore)
+    androidTestImplementation(projects.lib.commonTest)
+    androidTestImplementation(libs.mockk.android)
+    androidTestImplementation(libs.kotlin.test)
+    androidTestImplementation(libs.kotlinx.coroutines.test)
+    androidTestImplementation(libs.turbine)
+    androidTestImplementation(Dependencies.junitJupiterApi)
+    androidTestImplementation(Dependencies.junitJupiterEngine)
+    androidTestImplementation(libs.androidx.espresso)
 }

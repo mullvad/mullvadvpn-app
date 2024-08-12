@@ -7,13 +7,14 @@ import java.util.Properties
 import org.gradle.configurationcache.extensions.capitalized
 
 plugins {
-    id(Dependencies.Plugin.androidApplicationId)
-    id(Dependencies.Plugin.playPublisherId)
-    id(Dependencies.Plugin.kotlinAndroidId)
-    id(Dependencies.Plugin.kotlinParcelizeId)
-    id(Dependencies.Plugin.ksp) version Versions.Plugin.ksp
-    id(Dependencies.Plugin.junit5) version Versions.Plugin.junit5
-    id(Dependencies.Plugin.composeCompiler) version Versions.kotlin
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.play.publisher)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.parcelize)
+    alias(libs.plugins.kotlin.ksp)
+    alias(libs.plugins.compose)
+
+    id(Dependencies.junit5AndroidPluginId) version Versions.junit5Plugin
 }
 
 val repoRootPath = rootProject.projectDir.absoluteFile.parentFile.absolutePath
@@ -31,14 +32,14 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace = "net.mullvad.mullvadvpn"
-    compileSdk = Versions.Android.compileSdkVersion
+    compileSdk = Versions.compileSdkVersion
 
     defaultConfig {
         val localProperties = gradleLocalProperties(rootProject.projectDir, providers)
 
         applicationId = "net.mullvad.mullvadvpn"
-        minSdk = Versions.Android.minSdkVersion
-        targetSdk = Versions.Android.targetSdkVersion
+        minSdk = Versions.minSdkVersion
+        targetSdk = Versions.targetSdkVersion
         versionCode = generateVersionCode(localProperties)
         versionName = generateVersionName(localProperties)
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -245,7 +246,7 @@ android {
 
 junitPlatform {
     instrumentationTests {
-        version.set(Versions.Android.junit)
+        version.set(Versions.junit5Android)
         includeExtensions.set(true)
     }
 }
@@ -314,72 +315,72 @@ afterEvaluate {
 play { serviceAccountCredentials.set(file("play-api-key.json")) }
 
 dependencies {
-    implementation(project(Dependencies.Mullvad.commonLib))
-    implementation(project(Dependencies.Mullvad.daemonGrpc))
-    implementation(project(Dependencies.Mullvad.endpointLib))
-    implementation(project(Dependencies.Mullvad.intentLib))
-    implementation(project(Dependencies.Mullvad.mapLib))
-    implementation(project(Dependencies.Mullvad.modelLib))
-    implementation(project(Dependencies.Mullvad.paymentLib))
-    implementation(project(Dependencies.Mullvad.resourceLib))
-    implementation(project(Dependencies.Mullvad.sharedLib))
-    implementation(project(Dependencies.Mullvad.talpidLib))
-    implementation(project(Dependencies.Mullvad.tileService))
-    implementation(project(Dependencies.Mullvad.themeLib))
-    implementation(project(Dependencies.Mullvad.vpnService))
+    implementation(projects.lib.common)
+    implementation(projects.lib.daemonGrpc)
+    implementation(projects.lib.endpoint)
+    implementation(projects.lib.intentProvider)
+    implementation(projects.lib.map)
+    implementation(projects.lib.model)
+    implementation(projects.lib.payment)
+    implementation(projects.lib.resource)
+    implementation(projects.lib.shared)
+    implementation(projects.lib.talpid)
+    implementation(projects.tile)
+    implementation(projects.lib.theme)
+    implementation(projects.service)
 
     // Play implementation
-    playImplementation(project(Dependencies.Mullvad.billingLib))
+    playImplementation(projects.lib.billing)
 
-    implementation(Dependencies.commonsValidator)
-    implementation(Dependencies.AndroidX.activityCompose)
-    implementation(Dependencies.AndroidX.coreKtx)
-    implementation(Dependencies.AndroidX.coreSplashscreen)
-    implementation(Dependencies.AndroidX.lifecycleRuntimeKtx)
-    implementation(Dependencies.AndroidX.lifecycleViewmodelKtx)
-    implementation(Dependencies.AndroidX.lifecycleRuntimeCompose)
-    implementation(Dependencies.Arrow.core)
-    implementation(Dependencies.Arrow.resilience)
-    implementation(Dependencies.Compose.constrainLayout)
-    implementation(Dependencies.Compose.foundation)
-    implementation(Dependencies.Compose.material3)
-    implementation(Dependencies.Compose.ui)
-    implementation(Dependencies.Compose.uiUtil)
-    implementation(Dependencies.Compose.destinations)
-    ksp(Dependencies.Compose.destinationsKsp)
+    implementation(libs.commons.validator)
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.ktx)
+    implementation(libs.androidx.coresplashscreen)
+    implementation(libs.androidx.lifecycle.runtime)
+    implementation(libs.androidx.lifecycle.viewmodel)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.arrow)
+    implementation(libs.arrow.resilience)
+    implementation(libs.compose.constrainlayout)
+    implementation(libs.compose.foundation)
+    implementation(libs.compose.material3)
+    implementation(libs.compose.ui)
+    implementation(libs.compose.ui.util)
+    implementation(libs.compose.destinations)
+    ksp(libs.compose.destinations.ksp)
 
-    implementation(Dependencies.jodaTime)
-    implementation(Dependencies.kermit)
-    implementation(Dependencies.Koin.core)
-    implementation(Dependencies.Koin.android)
-    implementation(Dependencies.Koin.compose)
-    implementation(Dependencies.Kotlin.reflect)
-    implementation(Dependencies.Kotlin.stdlib)
-    implementation(Dependencies.KotlinX.coroutinesAndroid)
+    implementation(libs.jodatime)
+    implementation(libs.kermit)
+    implementation(libs.koin)
+    implementation(libs.koin.android)
+    implementation(libs.koin.compose)
+    implementation(libs.kotlin.reflect)
+    implementation(libs.kotlin.stdlib)
+    implementation(libs.kotlinx.coroutines.android)
 
     // UI tooling
-    implementation(Dependencies.Compose.uiToolingPreview)
-    debugImplementation(Dependencies.Compose.uiTooling)
+    implementation(libs.compose.ui.tooling.preview)
+    debugImplementation(libs.compose.ui.tooling)
 
     // Leak canary
-    leakCanaryImplementation(Dependencies.leakCanary)
+    leakCanaryImplementation(libs.leakCanary)
 
     // Needed for createComposeExtension() and createAndroidComposeExtension()
-    debugImplementation(Dependencies.Compose.uiTestManifest)
-    testImplementation(project(Dependencies.Mullvad.commonTestLib))
-    testImplementation(Dependencies.Kotlin.test)
-    testImplementation(Dependencies.KotlinX.coroutinesTest)
-    testImplementation(Dependencies.MockK.core)
-    testImplementation(Dependencies.turbine)
-    testImplementation(Dependencies.junitApi)
-    testRuntimeOnly(Dependencies.junitEngine)
-    testImplementation(Dependencies.junitParams)
+    debugImplementation(libs.compose.ui.test.manifest)
+    testImplementation(projects.lib.commonTest)
+    testImplementation(libs.kotlin.test)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.mockk)
+    testImplementation(libs.turbine)
+    testImplementation(Dependencies.junitJupiterApi)
+    testRuntimeOnly(Dependencies.junitJupiterEngine)
+    testImplementation(Dependencies.junitJupiterParams)
 
     // UI test dependencies
-    debugImplementation(Dependencies.Compose.testManifest)
-    androidTestImplementation(Dependencies.Koin.test)
-    androidTestImplementation(Dependencies.Kotlin.test)
-    androidTestImplementation(Dependencies.MockK.android)
-    androidTestImplementation(Dependencies.junitApi)
-    androidTestImplementation(Dependencies.Compose.junit5)
+    debugImplementation(libs.compose.ui.test.manifest)
+    androidTestImplementation(libs.koin.test)
+    androidTestImplementation(libs.kotlin.test)
+    androidTestImplementation(libs.mockk.android)
+    androidTestImplementation(Dependencies.junitJupiterApi)
+    androidTestImplementation(Dependencies.junit5AndroidTestCompose)
 }

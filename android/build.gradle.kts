@@ -3,10 +3,20 @@ import io.gitlab.arturbosch.detekt.Detekt
 import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
 
 plugins {
-    id(Dependencies.Plugin.dependencyCheckId) version Versions.Plugin.dependencyCheck apply false
-    id(Dependencies.Plugin.gradleVersionsId) version Versions.Plugin.gradleVersions
-    id(Dependencies.Plugin.ktfmtId) version Versions.Plugin.ktfmt apply false
-    id(Dependencies.Plugin.detektId) version Versions.Plugin.detekt
+    alias(libs.plugins.android.application) apply false
+    alias(libs.plugins.android.library) apply false
+    alias(libs.plugins.android.test) apply false
+    alias(libs.plugins.dependency.check) apply false
+    alias(libs.plugins.dependency.versions) apply false
+    alias(libs.plugins.ktfmt) apply false
+    alias(libs.plugins.compose) apply false
+    alias(libs.plugins.play.publisher) apply false
+    alias(libs.plugins.kotlin.android) apply false
+    alias(libs.plugins.kotlin.ksp) apply false
+    alias(libs.plugins.kotlin.parcelize) apply false
+    alias(libs.plugins.protobuf.core) apply false
+
+    alias(libs.plugins.detekt) apply true
 }
 
 buildscript {
@@ -16,44 +26,47 @@ buildscript {
         maven(Repositories.GradlePlugins)
         gradlePluginPortal()
     }
-
     dependencies {
-        classpath(Dependencies.Plugin.android)
-        classpath(Dependencies.Plugin.playPublisher)
-        classpath(Dependencies.Plugin.kotlin)
-        classpath(Dependencies.Plugin.dependencyCheck)
+        // Dependency class paths are required for Gradle metadata verification to work properly, see:
+        // https://github.com/gradle/gradle/issues/19228s
+        //noinspection UseTomlInstead
+        val aapt = libs.android.gradle.aapt.get().toString()
+        val aaptVersion = libs.versions.android.gradle.aapt.get()
+        val agpVersion = libs.versions.android.gradle.plugin.get()
+        classpath("$aapt:$agpVersion-$aaptVersion:linux")
+        classpath("$aapt:$agpVersion-$aaptVersion:osx")
+        classpath("$aapt:$agpVersion-$aaptVersion:windows")
 
-        // Required for Gradle metadata verification to work properly, see:
-        // https://github.com/gradle/gradle/issues/19228
-        // Aapt plugin
-        classpath(Dependencies.Plugin.aaptLinux)
-        classpath(Dependencies.Plugin.aaptOsx)
-        classpath(Dependencies.Plugin.aaptWindows)
-        // ProtoC gen grpc java plugin
-        classpath(Dependencies.Plugin.Protobuf.protocGenGrpcJavaLinuxAarch_64)
-        classpath(Dependencies.Plugin.Protobuf.protocGenGrpcJavaLinuxPpcle_64)
-        classpath(Dependencies.Plugin.Protobuf.protocGenGrpcJavaLinuxS390_64)
-        classpath(Dependencies.Plugin.Protobuf.protocGenGrpcJavaLinuxX86_32)
-        classpath(Dependencies.Plugin.Protobuf.protocGenGrpcJavaLinuxX86_64)
-        classpath(Dependencies.Plugin.Protobuf.protocGenGrpcJavaOsxAarch_64)
-        classpath(Dependencies.Plugin.Protobuf.protocGenGrpcJavaOsxX86_64)
-        classpath(Dependencies.Plugin.Protobuf.protocGenGrpcJavaWindowsX86_32)
-        classpath(Dependencies.Plugin.Protobuf.protocGenGrpcJavaWindowsX86_64)
         // Protoc plugin
-        classpath(Dependencies.Plugin.Protobuf.protocLinuxAarch_64)
-        classpath(Dependencies.Plugin.Protobuf.protocLinuxPpcle_64)
-        classpath(Dependencies.Plugin.Protobuf.protocLinuxS390_64)
-        classpath(Dependencies.Plugin.Protobuf.protocLinuxX86_32)
-        classpath(Dependencies.Plugin.Protobuf.protocLinuxX86_64)
-        classpath(Dependencies.Plugin.Protobuf.protocOsxAarch_64)
-        classpath(Dependencies.Plugin.Protobuf.protocOsxX86_64)
-        classpath(Dependencies.Plugin.Protobuf.protocWindowsX86_32)
-        classpath(Dependencies.Plugin.Protobuf.protocWindowsX86_64)
+        val protoc = libs.plugins.protobuf.protoc.get().toString()
+        classpath("$protoc:linux-aarch_64@exe")
+        classpath("$protoc:linux-ppcle_64@exe")
+        classpath("$protoc:linux-s390_64@exe")
+        classpath("$protoc:linux-x86_32@exe")
+        classpath("$protoc:linux-x86_64@exe")
+        classpath("$protoc:osx-aarch_64@exe")
+        classpath("$protoc:osx-x86_64@exe")
+        classpath("$protoc:windows-x86_32@exe")
+        classpath("$protoc:windows-x86_64@exe")
+
+        // ProtoC gen grpc java plugin
+        val protocJava = libs.plugins.grpc.protoc.gen.grpc.java.get().toString()
+        classpath("$protocJava:linux-aarch_64@exe")
+        classpath("$protocJava:linux-ppcle_64@exe")
+        classpath("$protocJava:linux-s390_64@exe")
+        classpath("$protocJava:linux-x86_32@exe")
+        classpath("$protocJava:linux-x86_64@exe")
+        classpath("$protocJava:osx-aarch_64@exe")
+        classpath("$protocJava:osx-x86_64@exe")
+        classpath("$protocJava:windows-x86_32@exe")
+        classpath("$protocJava:windows-x86_64@exe")
+
         // Kotlin Native Prebuilt
-        classpath(Dependencies.Kotlin.kotlinNavtivePrebuiltLinuxX86_64)
-        classpath(Dependencies.Kotlin.kotlinNavtivePrebuiltMacOsAArch64)
-        classpath(Dependencies.Kotlin.kotlinNavtivePrebuiltMacOsX86_64)
-        classpath(Dependencies.Kotlin.kotlinNavtivePrebuiltWindowsX86_64)
+        val prebuilt = libs.kotlin.native.prebuilt.get().toString()
+        classpath("$prebuilt:windows-x86_64@zip")
+        classpath("$prebuilt:linux-x86_64@tar.gz")
+        classpath("$prebuilt:macos-aarch64@tar.gz")
+        classpath("$prebuilt:macos-x86_64@tar.gz")
     }
 }
 
@@ -89,8 +102,8 @@ tasks.withType<DetektCreateBaselineTask>().configureEach {
 }
 
 allprojects {
-    apply(plugin = Dependencies.Plugin.dependencyCheckId)
-    apply(plugin = Dependencies.Plugin.ktfmtId)
+    apply(plugin = rootProject.libs.plugins.dependency.check.get().pluginId)
+    apply(plugin = rootProject.libs.plugins.ktfmt.get().pluginId)
 
     repositories {
         google()
