@@ -102,9 +102,8 @@ tasks.withType<DetektCreateBaselineTask>().configureEach {
 }
 
 allprojects {
-    // TODO: Fix!
-    apply(plugin = "org.owasp.dependencycheck")
-    apply(plugin = "com.ncorti.ktfmt.gradle")
+    apply(plugin = rootProject.libs.plugins.dependency.check.get().pluginId)
+    apply(plugin = rootProject.libs.plugins.ktfmt.get().pluginId)
 
     repositories {
         google()
