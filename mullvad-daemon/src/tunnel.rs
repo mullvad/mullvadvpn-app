@@ -297,7 +297,9 @@ impl From<Error> for ParameterGenerationError {
             Error::ResolveCustomHostname => {
                 ParameterGenerationError::CustomTunnelHostResultionError
             }
-            _error => ParameterGenerationError::NoMatchingRelay,
+            Error::NoAuthDetails | Error::SelectRelay(_) | Error::Device(_) => {
+                ParameterGenerationError::NoMatchingRelay
+            }
         }
     }
 }
