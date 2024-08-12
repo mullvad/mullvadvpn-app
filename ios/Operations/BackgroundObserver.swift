@@ -14,13 +14,13 @@ import UIKit
 @available(iOSApplicationExtension, unavailable)
 public final class BackgroundObserver: OperationObserver {
     public let name: String
-    public let application: BackgroundTaskProvider
+    public let backgroundTaskProvider: BackgroundTaskProvider
     public let cancelUponExpiration: Bool
 
     private var taskIdentifier: UIBackgroundTaskIdentifier?
 
-    public init(application: BackgroundTaskProvider, name: String, cancelUponExpiration: Bool) {
-        self.application = application
+    public init(backgroundTaskProvider: BackgroundTaskProvider, name: String, cancelUponExpiration: Bool) {
+        self.backgroundTaskProvider = backgroundTaskProvider
         self.name = name
         self.cancelUponExpiration = cancelUponExpiration
     }
@@ -28,7 +28,7 @@ public final class BackgroundObserver: OperationObserver {
     public func didAttach(to operation: Operation) {
         let expirationHandler = cancelUponExpiration ? { operation.cancel() } : nil
 
-        taskIdentifier = application.beginBackgroundTask(
+        taskIdentifier = backgroundTaskProvider.beginBackgroundTask(
             withName: name,
             expirationHandler: expirationHandler
         )
@@ -44,7 +44,7 @@ public final class BackgroundObserver: OperationObserver {
 
     public func operationDidFinish(_ operation: Operation, error: Error?) {
         if let taskIdentifier {
-            application.endBackgroundTask(taskIdentifier)
+            backgroundTaskProvider.endBackgroundTask(taskIdentifier)
         }
     }
 }

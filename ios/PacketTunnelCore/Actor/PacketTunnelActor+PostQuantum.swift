@@ -29,8 +29,7 @@ extension PacketTunnelActor {
      Called on receipt of the new PQ-negotiated key, to reconnect to the relay, in PQ-secure mode.
      */
     internal func postQuantumConnect() async {
-        guard let connectionData = state.connectionData
-        else {
+        guard let connectionData = state.connectionData else {
             logger.error("Could not create connection state in PostQuantumConnect")
             eventChannel.send(.reconnect(.current))
             return

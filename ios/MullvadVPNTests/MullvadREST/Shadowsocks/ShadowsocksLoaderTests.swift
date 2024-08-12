@@ -94,7 +94,7 @@ class ShadowsocksLoaderTests: XCTestCase {
     }
 }
 
-private class ShadowsocksRelaySelectorStub: ShadowsocksRelaySelectorProtocol {
+class ShadowsocksRelaySelectorStub: ShadowsocksRelaySelectorProtocol {
     var entryBridgeResult: Result<REST.BridgeRelay, Error> = .failure(ShadowsocksRelaySelectorStubError())
     var exitBridgeResult: Result<REST.BridgeRelay, Error> = .failure(ShadowsocksRelaySelectorStubError())
     private let relays: REST.ServerRelaysResponse
@@ -117,7 +117,7 @@ private class ShadowsocksRelaySelectorStub: ShadowsocksRelaySelectorProtocol {
     }
 }
 
-private class ShadowsocksConfigurationCacheStub: ShadowsocksConfigurationCacheProtocol {
+class ShadowsocksConfigurationCacheStub: ShadowsocksConfigurationCacheProtocol {
     private(set) var cachedConfiguration: ShadowsocksConfiguration?
 
     func read() throws -> ShadowsocksConfiguration {

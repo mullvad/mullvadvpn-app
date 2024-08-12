@@ -103,7 +103,7 @@ final class AddressCacheTracker {
 
         operation.addObserver(
             BackgroundObserver(
-                application: application,
+                backgroundTaskProvider: application,
                 name: "Update endpoints",
                 cancelUponExpiration: true
             )

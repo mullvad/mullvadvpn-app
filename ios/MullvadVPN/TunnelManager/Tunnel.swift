@@ -26,8 +26,9 @@ protocol TunnelProtocol: AnyObject {
     var status: NEVPNStatus { get }
     var isOnDemandEnabled: Bool { get set }
     var startDate: Date? { get }
+    var backgroundTaskProvider: BackgroundTaskProvider { get }
 
-    init(tunnelProvider: TunnelManagerProtocol)
+    init(tunnelProvider: TunnelManagerProtocol, backgroundTaskProvider: BackgroundTaskProvider)
 
     func addObserver(_ observer: any TunnelStatusObserver)
     func removeObserver(_ observer: any TunnelStatusObserver)
@@ -51,6 +52,8 @@ protocol TunnelProtocol: AnyObject {
 final class Tunnel: TunnelProtocol, Equatable {
     /// Unique identifier assigned to instance at the time of creation.
     let identifier = UUID()
+
+    var backgroundTaskProvider: any BackgroundTaskProvider
 
     #if DEBUG
     /// System VPN configuration identifier.
@@ -114,8 +117,9 @@ final class Tunnel: TunnelProtocol, Equatable {
     private var _startDate: Date?
     internal let tunnelProvider: TunnelProviderManagerType
 
-    init(tunnelProvider: TunnelProviderManagerType) {
+    init(tunnelProvider: TunnelProviderManagerType, backgroundTaskProvider: BackgroundTaskProvider) {
         self.tunnelProvider = tunnelProvider
+        self.backgroundTaskProvider = backgroundTaskProvider
 
         NotificationCenter.default.addObserver(
             self, selector: #selector(handleVPNStatusChangeNotification(_:)),
