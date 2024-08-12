@@ -62,7 +62,7 @@ dependencies {
     implementation(projects.lib.talpid)
 
     implementation(libs.androidx.ktx)
-    implementation(libs.androidx.lifecycleService)
+    implementation(libs.androidx.lifecycle.service)
     implementation(libs.arrow)
     implementation(libs.kermit)
     implementation(libs.koin)

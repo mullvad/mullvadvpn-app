@@ -43,13 +43,13 @@ androidComponents {
 dependencies {
     implementation(projects.lib.endpoint)
 
-    implementation(libs.androidx.testCore)
-    implementation(libs.androidx.testRunner)
-    implementation(libs.androidx.testRules)
-    implementation(libs.androidx.testUiAutomator)
+    implementation(libs.androidx.test.core)
+    implementation(libs.androidx.test.runner)
+    implementation(libs.androidx.test.rules)
+    implementation(libs.androidx.test.uiautomator)
     implementation(Dependencies.junitJupiterEngine)
     implementation(libs.kermit)
     implementation(libs.kotlin.stdlib)
 
-    androidTestUtil(libs.androidx.testOrchestrator)
+    androidTestUtil(libs.androidx.test.orchestrator)
 }

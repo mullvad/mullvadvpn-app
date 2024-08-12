@@ -4,7 +4,7 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.parcelize)
-    alias(libs.plugins.protobuf)
+    alias(libs.plugins.protobuf.core)
 
     id(Dependencies.junit5AndroidPluginId) version Versions.junit5Plugin
 }
@@ -36,11 +36,11 @@ android {
 }
 
 protobuf {
-    protoc { artifact = libs.plugins.protoc.core.get().toString() }
+    protoc { artifact = libs.plugins.protobuf.protoc.get().toString() }
     plugins {
-        create("java") { artifact = libs.plugins.protoc.gen.grpc.java.get().toString() }
-        create("grpc") { artifact = libs.plugins.protoc.gen.grpc.java.get().toString() }
-        create("grpckt") { artifact = libs.plugins.protoc.gen.grpc.kotlin.get().toString() }
+        create("java") { artifact = libs.plugins.grpc.protoc.gen.grpc.java.get().toString() }
+        create("grpc") { artifact = libs.plugins.grpc.protoc.gen.grpc.java.get().toString() }
+        create("grpckt") { artifact = libs.plugins.grpc.protoc.gen.grpc.kotlin.get().toString() }
     }
     generateProtoTasks {
         all().forEach {

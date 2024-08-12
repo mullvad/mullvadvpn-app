@@ -73,12 +73,12 @@ dependencies {
     implementation(projects.lib.endpoint)
     implementation(projects.test.common)
 
-    implementation(libs.androidx.testCore)
+    implementation(libs.androidx.test.core)
     // Fixes: https://github.com/android/android-test/issues/1589
-    implementation(libs.androidx.testMonitor)
-    implementation(libs.androidx.testRunner)
-    implementation(libs.androidx.testRules)
-    implementation(libs.androidx.testUiAutomator)
+    implementation(libs.androidx.test.monitor)
+    implementation(libs.androidx.test.runner)
+    implementation(libs.androidx.test.rules)
+    implementation(libs.androidx.test.uiautomator)
     implementation(libs.kermit)
     implementation(libs.jodatime)
     implementation(Dependencies.junitJupiterApi)
@@ -87,5 +87,5 @@ dependencies {
     implementation(libs.kotlin.stdlib)
     implementation(libs.mockkWebserver)
 
-    androidTestUtil(libs.androidx.testOrchestrator)
+    androidTestUtil(libs.androidx.test.orchestrator)
 }

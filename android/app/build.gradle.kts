@@ -11,7 +11,7 @@ plugins {
     alias(libs.plugins.play.publisher)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.parcelize)
-    alias(libs.plugins.ksp)
+    alias(libs.plugins.kotlin.ksp)
     alias(libs.plugins.compose)
 
     id(Dependencies.junit5AndroidPluginId) version Versions.junit5Plugin
@@ -336,9 +336,9 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.ktx)
     implementation(libs.androidx.coresplashscreen)
-    implementation(libs.androidx.lifecycleRuntimeKtx)
-    implementation(libs.androidx.lifecycleViewmodelKtx)
-    implementation(libs.androidx.lifecycleRuntimeCompose)
+    implementation(libs.androidx.lifecycle.runtime)
+    implementation(libs.androidx.lifecycle.viewmodel)
+    implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.arrow)
     implementation(libs.arrow.resilience)
     implementation(libs.compose.constrainlayout)

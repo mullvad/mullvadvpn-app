@@ -10,11 +10,11 @@ plugins {
     alias(libs.plugins.dependency.versions) apply false
     alias(libs.plugins.ktfmt) apply false
     alias(libs.plugins.compose) apply false
-    alias(libs.plugins.ksp) apply false
     alias(libs.plugins.play.publisher) apply false
     alias(libs.plugins.kotlin.android) apply false
+    alias(libs.plugins.kotlin.ksp) apply false
     alias(libs.plugins.kotlin.parcelize) apply false
-    alias(libs.plugins.protobuf) apply false
+    alias(libs.plugins.protobuf.core) apply false
 
     alias(libs.plugins.detekt) apply true
 }
@@ -30,15 +30,15 @@ buildscript {
         // Dependency class paths are required for Gradle metadata verification to work properly, see:
         // https://github.com/gradle/gradle/issues/19228s
         //noinspection UseTomlInstead
-        val aapt = libs.aapt.get().toString()
-        val aaptVersion = libs.versions.aapt.get()
+        val aapt = libs.android.gradle.aapt.get().toString()
+        val aaptVersion = libs.versions.android.gradle.aapt.get()
         val agpVersion = libs.versions.android.gradle.plugin.get()
         classpath("$aapt:$agpVersion-$aaptVersion:linux")
         classpath("$aapt:$agpVersion-$aaptVersion:osx")
         classpath("$aapt:$agpVersion-$aaptVersion:windows")
 
         // Protoc plugin
-        val protoc = libs.plugins.protoc.core.get().toString()
+        val protoc = libs.plugins.protobuf.protoc.get().toString()
         classpath("$protoc:linux-aarch_64@exe")
         classpath("$protoc:linux-ppcle_64@exe")
         classpath("$protoc:linux-s390_64@exe")
@@ -50,7 +50,7 @@ buildscript {
         classpath("$protoc:windows-x86_64@exe")
 
         // ProtoC gen grpc java plugin
-        val protocJava = libs.plugins.protoc.gen.grpc.java.get().toString()
+        val protocJava = libs.plugins.grpc.protoc.gen.grpc.java.get().toString()
         classpath("$protocJava:linux-aarch_64@exe")
         classpath("$protocJava:linux-ppcle_64@exe")
         classpath("$protocJava:linux-s390_64@exe")

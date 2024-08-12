@@ -27,7 +27,7 @@ android {
 dependencies {
     implementation(projects.lib.model)
 
-    implementation(libs.androidx.lifecycleService)
+    implementation(libs.androidx.lifecycle.service)
     implementation(libs.kermit)
     implementation(libs.kotlin.stdlib)
     implementation(libs.kotlinx.coroutines.android)

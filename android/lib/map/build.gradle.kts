@@ -32,7 +32,7 @@ android {
 dependencies {
     implementation(projects.lib.model)
 
-    implementation(libs.androidx.lifecycleRuntimeKtx)
+    implementation(libs.androidx.lifecycle.runtime)
     implementation(libs.compose.ui)
     implementation(libs.compose.foundation)
     implementation(libs.kermit)
