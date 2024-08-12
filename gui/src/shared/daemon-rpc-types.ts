@@ -545,6 +545,7 @@ export interface RelayOverride {
 
 export interface IDaitaSettings {
   enabled: boolean;
+  useAnywhere: boolean;
 }
 
 export function parseSocketAddress(socketAddrStr: string): ISocketAddress {
