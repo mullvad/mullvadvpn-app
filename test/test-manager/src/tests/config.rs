@@ -4,7 +4,7 @@ use test_rpc::meta::Os;
 
 /// Default `mullvad_host`. This should match the production env.
 pub const DEFAULT_MULLVAD_HOST: &str = "mullvad.net";
-/// Bundled OpenVPN CA certificte.to use with the installed Mullvad app.
+/// Bundled OpenVPN CA certificate use with the installed Mullvad app.
 const OPENVPN_CA_CERTIFICATE: &[u8] = include_bytes!(concat!(
     env!("CARGO_MANIFEST_DIR"),
     "/../assets/",
