@@ -1,17 +1,18 @@
 plugins {
-    id(Dependencies.Plugin.androidLibraryId)
-    id(Dependencies.Plugin.junit5) version Versions.Plugin.junit5
-    id(Dependencies.Plugin.kotlinAndroidId)
-    id(Dependencies.Plugin.kotlinParcelizeId)
-    id(Dependencies.Plugin.ksp) version Versions.Plugin.ksp
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.parcelize)
+    alias(libs.plugins.ksp)
+
+    id(Dependencies.junit5AndroidPluginId) version Versions.junit5Plugin
 }
 
 android {
     namespace = "net.mullvad.mullvadvpn.lib.model"
-    compileSdk = Versions.Android.compileSdkVersion
+    compileSdk = Versions.compileSdkVersion
 
     defaultConfig {
-        minSdk = Versions.Android.minSdkVersion
+        minSdk = Versions.minSdkVersion
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -30,18 +31,18 @@ android {
 }
 
 dependencies {
-    implementation(Dependencies.jodaTime)
-    implementation(Dependencies.Kotlin.stdlib)
-    implementation(Dependencies.KotlinX.coroutinesAndroid)
-    implementation(Dependencies.Arrow.core)
-    implementation(Dependencies.Arrow.optics)
-    ksp(Dependencies.Arrow.opticsKsp)
+    implementation(libs.jodatime)
+    implementation(libs.kotlin.stdlib)
+    implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.arrow)
+    implementation(libs.arrow.optics)
+    ksp(libs.arrow.optics.ksp)
 
     // Test dependencies
-    testRuntimeOnly(Dependencies.junitEngine)
+    testRuntimeOnly(Dependencies.junitJupiterEngine)
 
-    testImplementation(Dependencies.Kotlin.test)
-    testImplementation(Dependencies.junitApi)
+    testImplementation(libs.kotlin.test)
+    testImplementation(Dependencies.junitJupiterApi)
 
-    testImplementation(project(Dependencies.Mullvad.commonTestLib))
+    testImplementation(projects.lib.commonTest)
 }

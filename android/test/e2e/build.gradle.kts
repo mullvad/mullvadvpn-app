@@ -3,17 +3,18 @@ import java.util.Properties
 import org.gradle.configurationcache.extensions.capitalized
 
 plugins {
-    id(Dependencies.Plugin.androidTestId)
-    id(Dependencies.Plugin.kotlinAndroidId)
-    id(Dependencies.Plugin.junit5) version Versions.Plugin.junit5
+    alias(libs.plugins.android.test)
+    alias(libs.plugins.kotlin.android)
+
+    id(Dependencies.junit5AndroidPluginId) version Versions.junit5Plugin
 }
 
 android {
     namespace = "net.mullvad.mullvadvpn.test.e2e"
-    compileSdk = Versions.Android.compileSdkVersion
+    compileSdk = Versions.compileSdkVersion
 
     defaultConfig {
-        minSdk = Versions.Android.minSdkVersion
+        minSdk = Versions.minSdkVersion
         testApplicationId = "net.mullvad.mullvadvpn.test.e2e"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testInstrumentationRunnerArguments["runnerBuilder"] =
@@ -125,21 +126,20 @@ configure<org.owasp.dependencycheck.gradle.extension.DependencyCheckExtension> {
 }
 
 dependencies {
-    implementation(project(Projects.testCommon))
-    implementation(project(Dependencies.Mullvad.endpointLib))
-    implementation(Dependencies.AndroidX.testCore)
+    implementation(projects.test.common)
+    implementation(projects.lib.endpoint)
+    implementation(libs.androidx.testCore)
     // Fixes: https://github.com/android/android-test/issues/1589
-    implementation(Dependencies.AndroidX.testMonitor)
-    implementation(Dependencies.AndroidX.testRunner)
-    implementation(Dependencies.AndroidX.testRules)
-    implementation(Dependencies.AndroidX.testUiAutomator)
-    implementation(Dependencies.androidVolley)
-    implementation(Dependencies.kermit)
-    implementation(Dependencies.junitAndroidTestExtensions)
-    implementation(Dependencies.junitApi)
-    implementation(Dependencies.junitAndroidTestCore)
-    implementation(Dependencies.junitAndroidTestRunner)
-    implementation(Dependencies.Kotlin.stdlib)
+    implementation(libs.androidx.testMonitor)
+    implementation(libs.androidx.testRunner)
+    implementation(libs.androidx.testRules)
+    implementation(libs.androidx.testUiAutomator)
+    implementation(libs.android.volley)
+    implementation(libs.kermit)
+    implementation(Dependencies.junitJupiterApi)
+    implementation(Dependencies.junit5AndroidTestExtensions)
+    implementation(Dependencies.junit5AndroidTestRunner)
+    implementation(libs.kotlin.stdlib)
 
-    androidTestUtil(Dependencies.AndroidX.testOrchestrator)
+    androidTestUtil(libs.androidx.testOrchestrator)
 }

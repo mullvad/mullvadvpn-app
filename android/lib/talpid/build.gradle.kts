@@ -1,14 +1,14 @@
 plugins {
-    id(Dependencies.Plugin.androidLibraryId)
-    id(Dependencies.Plugin.kotlinAndroidId)
-    id(Dependencies.Plugin.kotlinParcelizeId)
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.parcelize)
 }
 
 android {
     namespace = "net.mullvad.talpid"
-    compileSdk = Versions.Android.compileSdkVersion
+    compileSdk = Versions.compileSdkVersion
 
-    defaultConfig { minSdk = Versions.Android.minSdkVersion }
+    defaultConfig { minSdk = Versions.minSdkVersion }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -25,10 +25,10 @@ android {
 }
 
 dependencies {
-    implementation(project(Dependencies.Mullvad.modelLib))
+    implementation(projects.lib.model)
 
-    implementation(Dependencies.AndroidX.lifecycleService)
-    implementation(Dependencies.kermit)
-    implementation(Dependencies.Kotlin.stdlib)
-    implementation(Dependencies.KotlinX.coroutinesAndroid)
+    implementation(libs.androidx.lifecycleService)
+    implementation(libs.kermit)
+    implementation(libs.kotlin.stdlib)
+    implementation(libs.kotlinx.coroutines.android)
 }

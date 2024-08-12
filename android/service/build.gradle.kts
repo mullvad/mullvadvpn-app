@@ -1,21 +1,25 @@
 plugins {
-    id(Dependencies.Plugin.androidLibraryId)
-    id(Dependencies.Plugin.kotlinAndroidId)
-    id(Dependencies.Plugin.kotlinParcelizeId)
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.parcelize)
 }
 
 android {
     namespace = "net.mullvad.mullvadvpn.service"
-    compileSdk = Versions.Android.compileSdkVersion
+    compileSdk = Versions.compileSdkVersion
 
-    defaultConfig { minSdk = Versions.Android.minSdkVersion }
+    defaultConfig {
+        minSdk = Versions.minSdkVersion
+    }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions { jvmTarget = Versions.jvmTarget }
+    kotlinOptions {
+        jvmTarget = Versions.jvmTarget
+    }
 
     lint {
         lintConfig = file("${rootProject.projectDir}/config/lint.xml")
@@ -49,21 +53,21 @@ android {
 }
 
 dependencies {
-    implementation(project(Dependencies.Mullvad.commonLib))
-    implementation(project(Dependencies.Mullvad.daemonGrpc))
-    implementation(project(Dependencies.Mullvad.endpointLib))
-    implementation(project(Dependencies.Mullvad.intentLib))
-    implementation(project(Dependencies.Mullvad.modelLib))
-    implementation(project(Dependencies.Mullvad.sharedLib))
-    implementation(project(Dependencies.Mullvad.talpidLib))
+    implementation(projects.lib.common)
+    implementation(projects.lib.daemonGrpc)
+    implementation(projects.lib.endpoint)
+    implementation(projects.lib.intentProvider)
+    implementation(projects.lib.model)
+    implementation(projects.lib.shared)
+    implementation(projects.lib.talpid)
 
-    implementation(Dependencies.AndroidX.coreKtx)
-    implementation(Dependencies.AndroidX.lifecycleService)
-    implementation(Dependencies.Arrow.core)
-    implementation(Dependencies.kermit)
-    implementation(Dependencies.Koin.android)
-    implementation(Dependencies.Koin.core)
-    implementation(Dependencies.Kotlin.stdlib)
-    implementation(Dependencies.KotlinX.coroutinesAndroid)
-    implementation(Dependencies.jodaTime)
+    implementation(libs.androidx.ktx)
+    implementation(libs.androidx.lifecycleService)
+    implementation(libs.arrow)
+    implementation(libs.kermit)
+    implementation(libs.koin)
+    implementation(libs.koin.android)
+    implementation(libs.kotlin.stdlib)
+    implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.jodatime)
 }
