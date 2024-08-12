@@ -83,7 +83,7 @@ fun ApiAccessListScreen(
 ) {
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.settings_api_access),
-        navigationIcon = { NavigateBackIconButton(onBackClick) },
+        navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) },
     ) { modifier, lazyListState ->
         LazyColumn(modifier = modifier, state = lazyListState) {
             description()

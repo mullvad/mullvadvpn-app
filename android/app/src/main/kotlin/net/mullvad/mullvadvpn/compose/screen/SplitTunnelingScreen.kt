@@ -122,7 +122,7 @@ fun SplitTunnelingScreen(
     ScaffoldWithMediumTopBar(
         modifier = Modifier.fillMaxSize(),
         appBarTitle = stringResource(id = R.string.split_tunneling),
-        navigationIcon = { NavigateBackIconButton(onBackClick) },
+        navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) },
     ) { modifier, lazyListState ->
         LazyColumn(
             modifier = modifier,
