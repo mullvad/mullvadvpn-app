@@ -18,47 +18,42 @@ public protocol ShadowsocksLoaderProtocol {
 public class ShadowsocksLoader: ShadowsocksLoaderProtocol {
     let cache: ShadowsocksConfigurationCacheProtocol
     let relaySelector: ShadowsocksRelaySelectorProtocol
-    let constraintsUpdater: RelayConstraintsUpdater
-    let multihopUpdater: MultihopUpdater
-    private var multihopState: MultihopState = .off
-    private var observer: MultihopObserverBlock!
+    let settingsUpdater: SettingsUpdater
+
+    private var observer: SettingsObserverBlock!
+    private var tunnelSettings = LatestTunnelSettings()
+    private let settingsStrategy = TunnelSettingsStrategy()
 
     deinit {
-        self.multihopUpdater.removeObserver(observer)
+        self.settingsUpdater.removeObserver(observer)
     }
-
-    private var relayConstraints = RelayConstraints()
 
     public init(
         cache: ShadowsocksConfigurationCacheProtocol,
         relaySelector: ShadowsocksRelaySelectorProtocol,
-        constraintsUpdater: RelayConstraintsUpdater,
-        multihopUpdater: MultihopUpdater
+        settingsUpdater: SettingsUpdater
     ) {
         self.cache = cache
         self.relaySelector = relaySelector
-        self.constraintsUpdater = constraintsUpdater
-        self.multihopUpdater = multihopUpdater
+        self.settingsUpdater = settingsUpdater
         self.addObservers()
     }
 
     private func addObservers() {
-        // The constraints gets updated a lot when observing the tunnel, clear the cache if the constraints have changed.
-        constraintsUpdater.onNewConstraints = { [weak self] newConstraints in
-            if self?.relayConstraints != newConstraints {
-                self?.relayConstraints = newConstraints
-                try? self?.clear()
-            }
-        }
-
-        // The multihop state gets updated a lot when observing the tunnel, clear the cache if the multihop settings have changed.
-        self.observer = MultihopObserverBlock(didUpdateMultihop: { [weak self] _, newMultihopState in
-            if self?.multihopState != newMultihopState {
-                self?.multihopState = newMultihopState
-                try? self?.clear()
-            }
-        })
-        multihopUpdater.addObserver(self.observer)
+        observer =
+            SettingsObserverBlock(
+                didUpdateSettings: { [weak self] _, latestTunnelSettings in
+                    guard let self else { return }
+                    if settingsStrategy.shouldReconnectToNewRelay(
+                        oldSettings: tunnelSettings,
+                        newSettings: latestTunnelSettings
+                    ) {
+                        try? clear()
+                    }
+                    tunnelSettings = latestTunnelSettings
+                }
+            )
+        settingsUpdater.addObserver(self.observer)
     }
 
     public func clear() throws {
@@ -81,7 +76,7 @@ public class ShadowsocksLoader: ShadowsocksLoaderProtocol {
     /// Returns a randomly selected shadowsocks configuration.
     private func create() throws -> ShadowsocksConfiguration {
         let bridgeConfiguration = try relaySelector.getBridges()
-        let closestRelay = try relaySelector.selectRelay(with: relayConstraints, multihopState: multihopState)
+        let closestRelay = try relaySelector.selectRelay(with: tunnelSettings)
 
         guard let bridgeAddress = closestRelay?.ipv4AddrIn,
               let bridgeConfiguration else { throw POSIXError(.ENOENT) }

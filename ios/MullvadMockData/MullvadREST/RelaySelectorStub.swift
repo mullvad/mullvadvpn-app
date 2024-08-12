@@ -12,13 +12,10 @@ import WireGuardKitTypes
 
 /// Relay selector stub that accepts a block that can be used to provide custom implementation.
 public struct RelaySelectorStub: RelaySelectorProtocol {
-    let block: (RelayConstraints, UInt) throws -> SelectedRelays
+    let block: (UInt) throws -> SelectedRelays
 
-    public func selectRelays(
-        with constraints: RelayConstraints,
-        connectionAttemptCount: UInt
-    ) throws -> SelectedRelays {
-        return try block(constraints, connectionAttemptCount)
+    public func selectRelays(connectionAttemptCount: UInt) throws -> SelectedRelays {
+        return try block(connectionAttemptCount)
     }
 }
 
@@ -27,7 +24,7 @@ extension RelaySelectorStub {
     public static func nonFallible() -> RelaySelectorStub {
         let publicKey = PrivateKey().publicKey.rawValue
 
-        return RelaySelectorStub { _, _ in
+        return RelaySelectorStub { _ in
             let cityRelay = SelectedRelay(
                 endpoint: MullvadEndpoint(
                     ipv4Relay: IPv4Endpoint(ip: .loopback, port: 1300),

@@ -19,11 +19,7 @@ struct SettingsReader: SettingsReaderProtocol {
         return Settings(
             privateKey: deviceData.wgKeyData.privateKey,
             interfaceAddresses: [deviceData.ipv4Address, deviceData.ipv6Address],
-            relayConstraints: settings.relayConstraints,
-            dnsServers: settings.dnsSettings.selectedDNSServers,
-            obfuscation: settings.wireGuardObfuscation,
-            quantumResistance: settings.tunnelQuantumResistance,
-            multihopState: settings.tunnelMultihopState
+            tunnelSettings: settings
         )
     }
 }
@@ -43,22 +39,6 @@ private extension DeviceState {
             throw ReadDeviceDataError.loggedOut
         case let .loggedIn(_, deviceData):
             return deviceData
-        }
-    }
-}
-
-private extension DNSSettings {
-    /**
-     Converts `DNSSettings` to `SelectedDNSServers` structure.
-     */
-    var selectedDNSServers: SelectedDNSServers {
-        if effectiveEnableCustomDNS {
-            let addresses = Array(customDNSDomains.prefix(DNSSettings.maxAllowedCustomDNSDomains))
-            return .custom(addresses)
-        } else if let serverAddress = blockingOptions.serverAddress {
-            return .blocking(serverAddress)
-        } else {
-            return .gateway
         }
     }
 }

@@ -499,10 +499,7 @@ extension PacketTunnelActor {
             }
 
         case .random:
-            return try relaySelector.selectRelays(
-                with: relayConstraints,
-                connectionAttemptCount: connectionAttemptCount
-            )
+            return try relaySelector.selectRelays(connectionAttemptCount: connectionAttemptCount)
 
         case let .preSelected(selectedRelays):
             return selectedRelays

@@ -11,10 +11,7 @@ import MullvadSettings
 import MullvadTypes
 
 public protocol ShadowsocksRelaySelectorProtocol {
-    func selectRelay(
-        with constraints: RelayConstraints,
-        multihopState: MultihopState
-    ) throws -> REST.BridgeRelay?
+    func selectRelay(with settings: LatestTunnelSettings) throws -> REST.BridgeRelay?
 
     func getBridges() throws -> REST.ServerShadowsocks?
 }
@@ -28,21 +25,18 @@ final public class ShadowsocksRelaySelector: ShadowsocksRelaySelectorProtocol {
         self.relayCache = relayCache
     }
 
-    public func selectRelay(
-        with constraints: RelayConstraints,
-        multihopState: MultihopState
-    ) throws -> REST.BridgeRelay? {
+    public func selectRelay(with settings: LatestTunnelSettings) throws -> REST.BridgeRelay? {
         let cachedRelays = try relayCache.read().relays
 
-        let locationConstraint = switch multihopState {
-        case .on: constraints.entryLocations
-        case .off: constraints.exitLocations
+        let locationConstraint = switch settings.tunnelMultihopState {
+        case .on: settings.relayConstraints.entryLocations
+        case .off: settings.relayConstraints.exitLocations
         }
 
         return RelaySelector.Shadowsocks.closestRelay(
             location: locationConstraint,
-            port: constraints.port,
-            filter: constraints.filter,
+            port: settings.relayConstraints.port,
+            filter: settings.relayConstraints.filter,
             in: cachedRelays
         )
     }

@@ -15,15 +15,13 @@ import XCTest
 class ShadowsocksLoaderTests: XCTestCase {
     private let sampleRelays = ServerRelaysResponseStubs.sampleRelays
 
-    private var relayConstraintsUpdater: RelayConstraintsUpdater!
     private var shadowsocksConfigurationCache: ShadowsocksConfigurationCacheStub!
     private var relaySelector: ShadowsocksRelaySelectorStub!
     private var shadowsocksLoader: ShadowsocksLoader!
     private var relayConstraints = RelayConstraints()
-    private var multihopStateListener = MultihopStateListener()
+    private var settingsListener = TunnelSettingsListener()
 
     override func setUpWithError() throws {
-        relayConstraintsUpdater = RelayConstraintsUpdater()
         shadowsocksConfigurationCache = ShadowsocksConfigurationCacheStub()
         relaySelector = ShadowsocksRelaySelectorStub(relays: sampleRelays)
 
@@ -44,20 +42,19 @@ class ShadowsocksLoaderTests: XCTestCase {
         shadowsocksLoader = ShadowsocksLoader(
             cache: shadowsocksConfigurationCache,
             relaySelector: relaySelector,
-            constraintsUpdater: relayConstraintsUpdater,
-            multihopUpdater: MultihopUpdater(listener: multihopStateListener)
+            settingsUpdater: SettingsUpdater(listener: settingsListener)
         )
     }
 
     func testLoadConfigWithMultihopDisabled() throws {
-        multihopStateListener.onNewMultihop?(.off)
+        settingsListener.onNewSettings?(LatestTunnelSettings(tunnelMultihopState: .off))
         relaySelector.entryBridgeResult = .failure(ShadowsocksRelaySelectorStubError())
         let configuration = try XCTUnwrap(shadowsocksLoader.load())
         XCTAssertEqual(configuration, try XCTUnwrap(shadowsocksConfigurationCache.read()))
     }
 
     func testLoadConfigWithMultihopEnabled() throws {
-        multihopStateListener.onNewMultihop?(.on)
+        settingsListener.onNewSettings?(LatestTunnelSettings(tunnelMultihopState: .on))
         relaySelector.exitBridgeResult = .failure(ShadowsocksRelaySelectorStubError())
         let configuration = try XCTUnwrap(shadowsocksLoader.load())
         XCTAssertEqual(configuration, try XCTUnwrap(shadowsocksConfigurationCache.read()))
@@ -69,13 +66,13 @@ class ShadowsocksLoaderTests: XCTestCase {
             exitLocations: .only(UserSelectedRelays(locations: [.country("ae")]))
         )
 
-        relayConstraintsUpdater.onNewConstraints?(relayConstraints)
+        settingsListener.onNewSettings?(LatestTunnelSettings(relayConstraints: relayConstraints))
 
         XCTAssertNil(shadowsocksConfigurationCache.cachedConfiguration)
     }
 
     func testMultihopUpdateClearsCache() throws {
-        multihopStateListener.onNewMultihop?(.off)
+        settingsListener.onNewSettings?(LatestTunnelSettings(tunnelMultihopState: .off))
         XCTAssertNil(shadowsocksConfigurationCache.cachedConfiguration)
     }
 
@@ -103,8 +100,8 @@ private class ShadowsocksRelaySelectorStub: ShadowsocksRelaySelectorProtocol {
         self.relays = relays
     }
 
-    func selectRelay(with constraints: RelayConstraints, multihopState: MultihopState) throws -> REST.BridgeRelay? {
-        switch multihopState {
+    func selectRelay(with settings: LatestTunnelSettings) throws -> REST.BridgeRelay? {
+        switch settings.tunnelMultihopState {
         case .on:
             try entryBridgeResult.get()
         case .off:

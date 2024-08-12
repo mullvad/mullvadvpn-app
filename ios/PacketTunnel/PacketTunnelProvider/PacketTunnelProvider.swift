@@ -27,10 +27,9 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     private var adapter: WgAdapter!
     private var relaySelector: RelaySelectorWrapper!
     private var postQuantumKeyExchangingPipeline: PostQuantumKeyExchangingPipeline!
+    private let tunnelSettingsUpdater: SettingsUpdater!
 
-    private let multihopStateListener = MultihopStateListener()
-    private let multihopUpdater: MultihopUpdater
-    private let constraintsUpdater = RelayConstraintsUpdater()
+    private let tunnelSettingsListener = TunnelSettingsListener()
     private lazy var postQuantumReceiver = {
         PostQuantumKeyReceiver(tunnelProvider: self)
     }()
@@ -47,7 +46,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             relayCache: RelayCache(cacheDirectory: containerURL),
             ipOverrideRepository: IPOverrideRepository()
         )
-        multihopUpdater = MultihopUpdater(listener: multihopStateListener)
+        tunnelSettingsUpdater = SettingsUpdater(listener: tunnelSettingsListener)
 
         super.init()
 
@@ -76,7 +75,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         deviceChecker = DeviceChecker(accountsProxy: accountsProxy, devicesProxy: devicesProxy)
         relaySelector = RelaySelectorWrapper(
             relayCache: ipOverrideWrapper,
-            multihopUpdater: multihopUpdater
+            tunnelSettingsUpdater: tunnelSettingsUpdater
         )
 
         actor = PacketTunnelActor(
@@ -88,8 +87,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             relaySelector: relaySelector,
             settingsReader: TunnelSettingsManager(settingsReader: SettingsReader()) { [weak self] settings in
                 guard let self = self else { return }
-                multihopStateListener.onNewMultihop?(settings.multihopState)
-                constraintsUpdater.onNewConstraints?(settings.relayConstraints)
+                tunnelSettingsListener.onNewSettings?(settings.tunnelSettings)
             },
             protocolObfuscator: ProtocolObfuscator<UDPOverTCPObfuscator>()
         )
@@ -185,8 +183,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             shadowsocksLoader: ShadowsocksLoader(
                 cache: shadowsocksCache,
                 relaySelector: shadowsocksRelaySelector,
-                constraintsUpdater: constraintsUpdater,
-                multihopUpdater: multihopUpdater
+                settingsUpdater: tunnelSettingsUpdater
             )
         )
 

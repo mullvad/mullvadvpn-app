@@ -157,12 +157,9 @@ final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
     }
 
     private func pickRelays() throws -> SelectedRelays {
-        let tunnelSettings = try SettingsManager.readSettings()
+        let settings = try SettingsManager.readSettings()
 
-        return try relaySelector.selectRelays(
-            with: tunnelSettings.relayConstraints,
-            connectionAttemptCount: 0
-        )
+        return try relaySelector.selectRelays(connectionAttemptCount: 0)
     }
 
     private func setInternalStateConnected(with selectedRelays: SelectedRelays?) {

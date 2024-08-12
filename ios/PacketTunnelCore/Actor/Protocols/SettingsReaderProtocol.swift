@@ -31,36 +31,60 @@ public struct Settings: Equatable {
     /// IP addresses assigned for tunnel interface.
     public var interfaceAddresses: [IPAddressRange]
 
-    /// Relay constraints.
-    public var relayConstraints: RelayConstraints
-
-    /// DNS servers selected by user.
-    public var dnsServers: SelectedDNSServers
-
-    /// Obfuscation settings
-    public var obfuscation: WireGuardObfuscationSettings
-
-    public var quantumResistance: TunnelQuantumResistance
-
-    /// Whether multi-hop is enabled.
-    public var multihopState: MultihopState
+    public var tunnelSettings: LatestTunnelSettings
 
     public init(
         privateKey: PrivateKey,
         interfaceAddresses: [IPAddressRange],
-        relayConstraints: RelayConstraints,
-        dnsServers: SelectedDNSServers,
-        obfuscation: WireGuardObfuscationSettings,
-        quantumResistance: TunnelQuantumResistance,
-        multihopState: MultihopState
+        tunnelSettings: LatestTunnelSettings
     ) {
         self.privateKey = privateKey
         self.interfaceAddresses = interfaceAddresses
-        self.relayConstraints = relayConstraints
-        self.dnsServers = dnsServers
-        self.obfuscation = obfuscation
-        self.quantumResistance = quantumResistance
-        self.multihopState = multihopState
+        self.tunnelSettings = tunnelSettings
+    }
+}
+
+extension Settings {
+    /// Relay constraints.
+    public var relayConstraints: RelayConstraints {
+        tunnelSettings.relayConstraints
+    }
+
+    /// DNS servers selected by user.
+    public var dnsServers: SelectedDNSServers {
+        /**
+         Converts `DNSSettings` to `SelectedDNSServers` structure.
+         */
+        if tunnelSettings.dnsSettings.effectiveEnableCustomDNS {
+            let addresses = Array(
+                tunnelSettings.dnsSettings.customDNSDomains
+                    .prefix(DNSSettings.maxAllowedCustomDNSDomains)
+            )
+            return .custom(addresses)
+        } else if let serverAddress = tunnelSettings.dnsSettings.blockingOptions.serverAddress {
+            return .blocking(serverAddress)
+        } else {
+            return .gateway
+        }
+    }
+
+    /// Obfuscation settings
+    public var obfuscation: WireGuardObfuscationSettings {
+        tunnelSettings.wireGuardObfuscation
+    }
+
+    public var quantumResistance: TunnelQuantumResistance {
+        tunnelSettings.tunnelQuantumResistance
+    }
+
+    /// Whether multi-hop is enabled.
+    public var multihopState: MultihopState {
+        tunnelSettings.tunnelMultihopState
+    }
+
+    /// DAITA settings.
+    public var daita: DAITASettings {
+        tunnelSettings.daita
     }
 }
 

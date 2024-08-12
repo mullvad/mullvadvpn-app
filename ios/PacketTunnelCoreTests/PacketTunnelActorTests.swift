@@ -239,11 +239,7 @@ final class PacketTunnelActorTests: XCTestCase {
                 return Settings(
                     privateKey: privateKey,
                     interfaceAddresses: [IPAddressRange(from: "127.0.0.1/32")!],
-                    relayConstraints: RelayConstraints(),
-                    dnsServers: .gateway,
-                    obfuscation: WireGuardObfuscationSettings(state: .off, port: .automatic),
-                    quantumResistance: .automatic,
-                    multihopState: .off
+                    tunnelSettings: LatestTunnelSettings()
                 )
             }
         }
