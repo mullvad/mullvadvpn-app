@@ -50,20 +50,24 @@ open class TalpidVpnService : LifecycleVpnService() {
             if (config == currentTunConfig && tunStatus != null && tunStatus.isOpen) {
                 return tunStatus
             } else {
-                return getTunForced(config)
+                return getTunImpl(config)
             }
         }
     }
 
     fun getTunForced(config: TunConfig): CreateTunResult {
         synchronized(this) {
-            val newTunStatus = createTun(config)
-
-            currentTunConfig = config
-            activeTunStatus = newTunStatus
-
-            return newTunStatus
+            return getTunImpl(config)
         }
+    }
+
+    private fun getTunImpl(config: TunConfig): CreateTunResult {
+        val newTunStatus = createTun(config)
+
+        currentTunConfig = config
+        activeTunStatus = newTunStatus
+
+        return newTunStatus
     }
 
     fun closeTun() {
