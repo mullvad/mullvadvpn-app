@@ -28,7 +28,7 @@
 //! queries and ensure that queries are built in a type-safe manner, reducing the risk
 //! of runtime errors and improving code readability.
 
-use crate::{AdditionalWireguardConstraints, Error};
+use crate::Error;
 use mullvad_types::{
     constraints::Constraint,
     relay_constraints::{
@@ -261,6 +261,7 @@ pub struct WireguardRelayQuery {
     pub entry_location: Constraint<LocationConstraint>,
     pub obfuscation: ObfuscationQuery,
     pub daita: Constraint<bool>,
+    pub daita_use_anywhere: Constraint<bool>,
     pub quantum_resistant: QuantumResistantState,
 }
 
@@ -346,6 +347,7 @@ impl WireguardRelayQuery {
             entry_location: Constraint::Any,
             obfuscation: ObfuscationQuery::Auto,
             daita: Constraint::Any,
+            daita_use_anywhere: Constraint::Any,
             quantum_resistant: QuantumResistantState::Auto,
         }
     }
@@ -367,14 +369,14 @@ impl Default for WireguardRelayQuery {
     }
 }
 
-impl From<WireguardRelayQuery> for AdditionalWireguardConstraints {
-    /// The mapping from [`WireguardRelayQuery`] to [`AdditionalWireguardConstraints`].
+impl From<WireguardRelayQuery> for WireguardConstraints {
+    /// The mapping from [`WireguardRelayQuery`] to [`WireguardConstraints`].
     fn from(value: WireguardRelayQuery) -> Self {
-        AdditionalWireguardConstraints {
-            daita: value
-                .daita
-                .unwrap_or(AdditionalWireguardConstraints::default().daita),
-            quantum_resistant: value.quantum_resistant,
+        WireguardConstraints {
+            port: value.port,
+            ip_version: value.ip_version,
+            entry_location: value.entry_location,
+            use_multihop: value.use_multihop.unwrap_or(false),
         }
     }
 }

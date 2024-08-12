@@ -196,8 +196,11 @@ impl Tunnel {
 
         #[cfg(daita)]
         if let Some(daita) = daita {
-            rpc.set_daita_settings(DaitaSettings { enabled: *daita })
-                .await?;
+            rpc.set_daita_settings(DaitaSettings {
+                enabled: *daita,
+                use_anywhere: true, /* TODO */
+            })
+            .await?;
             println!("DAITA setting has been updated");
         }
 
