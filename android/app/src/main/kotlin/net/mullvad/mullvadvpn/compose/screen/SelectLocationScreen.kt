@@ -744,6 +744,7 @@ private fun EditCustomListBottomSheet(
         onDismissRequest = { closeBottomSheet(false) }
     ) {
         HeaderCell(text = customList.name, background = Color.Unspecified)
+        HorizontalDivider(color = onBackgroundColor)
         IconCell(
             iconId = R.drawable.icon_edit,
             title = stringResource(id = R.string.edit_name),
@@ -764,7 +765,6 @@ private fun EditCustomListBottomSheet(
             },
             background = Color.Unspecified
         )
-        HorizontalDivider(color = onBackgroundColor)
         IconCell(
             iconId = R.drawable.icon_delete,
             title = stringResource(id = R.string.delete),
