@@ -575,6 +575,7 @@ export class DaemonRpc {
   public async setDaitaSettings(daitaSettings: IDaitaSettings): Promise<void> {
     const grpcDaitaSettings = new grpcTypes.DaitaSettings();
     grpcDaitaSettings.setEnabled(daitaSettings.enabled);
+    grpcDaitaSettings.setUseAnywhere(daitaSettings.useAnywhere);
     await this.call<grpcTypes.DaitaSettings, Empty>(
       this.client.setDaitaSettings,
       grpcDaitaSettings,
