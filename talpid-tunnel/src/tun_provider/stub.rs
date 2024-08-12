@@ -11,7 +11,7 @@ impl StubTunProvider {
         StubTunProvider
     }
 
-    pub fn get_tun(&mut self, _: TunConfig) -> Result<(), Error> {
+    pub fn open_tun(&mut self, _: TunConfig) -> Result<(), Error> {
         unimplemented!();
     }
 }

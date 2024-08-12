@@ -142,7 +142,7 @@ impl WgGoTunnel {
 
         for _ in 1..=MAX_PREPARE_TUN_ATTEMPTS {
             let tunnel_device = tun_provider
-                .get_tun()
+                .open_tun()
                 .map_err(TunnelError::SetupTunnelDevice)?;
 
             match nix::unistd::dup(tunnel_device.as_raw_fd()) {

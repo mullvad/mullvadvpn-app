@@ -639,7 +639,7 @@ impl SharedTunnelStateValues {
     pub fn restart_tunnel(&self, blocking: bool) -> Result<(), talpid_tunnel::tun_provider::Error> {
         self.prepare_tun_config(blocking);
 
-        match self.tun_provider.lock().unwrap().get_tun() {
+        match self.tun_provider.lock().unwrap().open_tun() {
             Ok(_tun) => Ok(()),
             Err(error) => {
                 log::error!(

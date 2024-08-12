@@ -42,7 +42,8 @@ impl UnixTunProvider {
         &mut self.config
     }
 
-    pub fn get_tun(&mut self) -> Result<UnixTun, Error> {
+    /// Open a tunnel using the current tunnel config.
+    pub fn open_tun(&mut self) -> Result<UnixTun, Error> {
         let mut tunnel_device = TunnelDevice::new().map_err(Error::CreateTunnelDevice)?;
 
         for ip in self.config.addresses.iter() {
