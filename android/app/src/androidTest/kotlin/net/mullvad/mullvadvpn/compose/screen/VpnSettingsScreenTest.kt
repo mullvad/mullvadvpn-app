@@ -271,10 +271,7 @@ class VpnSettingsScreenTest {
                 )
 
             // Assert
-            onNodeWithTagAndText(
-                    testTag = String.format(LAZY_LIST_UDP_OVER_TCP_PORT_ITEM_X_TEST_TAG, 5001),
-                    text = "5001"
-                )
+            onNodeWithTag(String.format(LAZY_LIST_UDP_OVER_TCP_PORT_ITEM_X_TEST_TAG, 5001))
                 .assertExists()
                 .performClick()
 
