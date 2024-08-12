@@ -250,7 +250,7 @@ impl VpnServiceConfig {
         config
             .dns_servers
             .clone()
-            .unwrap_or_else(|| config.gateway_ips())
+            .unwrap_or_else(|| config.gateways())
     }
 
     /// Potentially subtract LAN nets from the VPN service routes, excepting gateways.
