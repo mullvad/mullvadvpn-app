@@ -49,25 +49,27 @@ enum Error {
 
 fn main() {
     #[cfg(target_os = "linux")]
-    match run() {
-        Err(Error::InvalidArguments) => {
-            let mut args = env::args();
-            let program = args.next().unwrap_or_else(|| PROGRAM_NAME.to_string());
-            eprintln!("Usage: {program} COMMAND [ARGS]");
-            std::process::exit(1);
-        }
-        Err(e) => {
-            let mut s = format!("{e}");
-            let mut source = e.source();
-            while let Some(error) = source {
-                write!(&mut s, "\nCaused by: {error}").expect("formatting failed");
-                source = error.source();
+    // Drop the impossible case
+    if let Err(error) = run().map(drop) {
+        match error {
+            Error::InvalidArguments => {
+                let mut args = env::args();
+                let program = args.next().unwrap_or_else(|| PROGRAM_NAME.to_string());
+                eprintln!("Usage: {program} COMMAND [ARGS]");
+                std::process::exit(1);
             }
-            eprintln!("{s}");
+            e => {
+                let mut s = format!("{e}");
+                let mut source = e.source();
+                while let Some(error) = source {
+                    write!(&mut s, "\nCaused by: {error}").expect("formatting failed");
+                    source = error.source();
+                }
+                eprintln!("{s}");
 
-            std::process::exit(1);
+                std::process::exit(1);
+            }
         }
-        _ => unreachable!("execv returned unexpectedly"),
     }
 }
 
