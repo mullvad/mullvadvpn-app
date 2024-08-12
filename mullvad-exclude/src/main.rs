@@ -67,7 +67,6 @@ fn main() {
 
             std::process::exit(1);
         }
-        _ => unreachable!("execv returned unexpectedly"),
     }
 }
 
