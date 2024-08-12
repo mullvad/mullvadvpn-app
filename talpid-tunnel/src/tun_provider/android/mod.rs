@@ -83,20 +83,20 @@ impl AndroidTunProvider {
         &mut self.config
     }
 
-    /// Retrieve a tunnel device with the provided configuration.
-    pub fn get_tun(&mut self) -> Result<VpnServiceTun, Error> {
-        self.get_tun_inner("getTun")
+    /// Open a tunnel with the current configuration.
+    pub fn open_tun(&mut self) -> Result<VpnServiceTun, Error> {
+        self.open_tun_inner("openTun")
     }
 
-    /// Retrieve a tunnel device with the provided configuration.
+    /// Open a tunnel with the current configuration.
     /// Force recreation even if the tunnel config hasn't changed.
-    pub fn get_tun_forced(&mut self) -> Result<VpnServiceTun, Error> {
-        self.get_tun_inner("getTunForced")
+    pub fn open_tun_forced(&mut self) -> Result<VpnServiceTun, Error> {
+        self.open_tun_inner("openTunForced")
     }
 
-    /// Retrieve a tunnel device with the provided configuration.
-    fn get_tun_inner(&mut self, get_tun_func_name: &'static str) -> Result<VpnServiceTun, Error> {
-        let tun_fd = self.get_tun_fd(get_tun_func_name)?;
+    /// Open a tunnel with the current configuration.
+    fn open_tun_inner(&mut self, get_tun_func_name: &'static str) -> Result<VpnServiceTun, Error> {
+        let tun_fd = self.open_tun_fd(get_tun_func_name)?;
 
         let jvm = unsafe { JavaVM::from_raw(self.jvm.get_java_vm_pointer()) }
             .map_err(Error::CloneJavaVm)?;
@@ -109,7 +109,7 @@ impl AndroidTunProvider {
         })
     }
 
-    fn get_tun_fd(&self, get_tun_func_name: &'static str) -> Result<RawFd, Error> {
+    fn open_tun_fd(&self, get_tun_func_name: &'static str) -> Result<RawFd, Error> {
         let config = VpnServiceConfig::new(self.config.clone());
 
         let env = self.env()?;
