@@ -2932,11 +2932,13 @@ impl DaemonShutdownHandle {
 
 fn new_selector_config(settings: &Settings) -> SelectorConfig {
     let additional_constraints = AdditionalRelayConstraints {
+        #[cfg(not(daita))]
+        wireguard: AdditionalWireguardConstraints::default(),
+
+        #[cfg(daita)]
         wireguard: AdditionalWireguardConstraints {
-            #[cfg(daita)]
             daita: settings.tunnel_options.wireguard.daita.enabled,
-            #[cfg(not(daita))]
-            daita: false,
+            daita_use_anywhere: settings.tunnel_options.wireguard.daita.use_anywhere,
         },
     };
 
