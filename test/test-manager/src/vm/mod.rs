@@ -1,13 +1,14 @@
+use anyhow::{Context, Result};
+use std::net::IpAddr;
+
 use crate::{
     config::{Config, ConfigFile, VmConfig, VmType},
     package,
 };
-use anyhow::{Context, Result};
-use std::net::IpAddr;
 
 mod logging;
 pub mod network;
-mod provision;
+pub mod provision;
 mod qemu;
 mod ssh;
 #[cfg(target_os = "macos")]
@@ -62,6 +63,7 @@ pub async fn run(config: &Config, name: &str) -> Result<Box<dyn VmInstance>> {
     Ok(instance)
 }
 
+/// Returns the directory in the test runner where the test-runner binary is installed.
 pub async fn provision(
     config: &Config,
     name: &str,

@@ -1,9 +1,21 @@
 use once_cell::sync::OnceCell;
-use std::ops::Deref;
+use std::{ops::Deref, path::Path};
 use test_rpc::meta::Os;
 
-// Default `mullvad_host`. This should match the production env.
+/// Default `mullvad_host`. This should match the production env.
 pub const DEFAULT_MULLVAD_HOST: &str = "mullvad.net";
+/// Bundled OpenVPN CA certificate use with the installed Mullvad app.
+const OPENVPN_CA_CERTIFICATE: &[u8] = include_bytes!(concat!(
+    env!("CARGO_MANIFEST_DIR"),
+    "/../assets/",
+    "openvpn.ca.crt"
+));
+/// Script for bootstrapping the test-runner after the test-manager has successfully logged in.
+pub const BOOTSTRAP_SCRIPT: &[u8] = include_bytes!(concat!(
+    env!("CARGO_MANIFEST_DIR"),
+    "/../scripts/",
+    "ssh-setup.sh"
+));
 
 /// Constants that are accessible from each test via `TEST_CONFIG`.
 /// The constants must be initialized before running any tests using `TEST_CONFIG.init()`.
@@ -23,6 +35,78 @@ pub struct TestConfig {
     pub host_bridge_name: String,
 
     pub os: Os,
+    /// The OpenVPN CA certificate to use with the the installed Mullvad App.
+    pub openvpn_certificate: OpenVPNCertificate,
+}
+
+impl TestConfig {
+    #[allow(clippy::too_many_arguments)]
+    // TODO: This argument list is very long, we should strive to shorten it if possible.
+    pub const fn new(
+        account_number: String,
+        artifacts_dir: String,
+        app_package_filename: String,
+        app_package_to_upgrade_from_filename: Option<String>,
+        ui_e2e_tests_filename: Option<String>,
+        mullvad_host: String,
+        host_bridge_name: String,
+        os: Os,
+        openvpn_certificate: OpenVPNCertificate,
+    ) -> Self {
+        Self {
+            account_number,
+            artifacts_dir,
+            app_package_filename,
+            app_package_to_upgrade_from_filename,
+            ui_e2e_tests_filename,
+            mullvad_host,
+            host_bridge_name,
+            os,
+            openvpn_certificate,
+        }
+    }
+}
+
+/// The OpenVPN CA certificate to use with the installed Mullvad App.
+#[derive(Clone, Debug)]
+pub struct OpenVPNCertificate(Vec<u8>);
+
+impl OpenVPNCertificate {
+    pub fn from_file(path: impl AsRef<Path>) -> std::io::Result<Self> {
+        Ok(Self(std::fs::read(path)?))
+    }
+}
+
+impl Deref for OpenVPNCertificate {
+    type Target = [u8];
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl Default for OpenVPNCertificate {
+    fn default() -> Self {
+        Self(Vec::from(OPENVPN_CA_CERTIFICATE))
+    }
+}
+
+/// A script which should be run *in* the test runner before the test run begins.
+#[derive(Clone, Debug)]
+pub struct BootstrapScript(Vec<u8>);
+
+impl Deref for BootstrapScript {
+    type Target = [u8];
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl Default for BootstrapScript {
+    fn default() -> Self {
+        Self(Vec::from(BOOTSTRAP_SCRIPT))
+    }
 }
 
 #[derive(Debug, Clone)]

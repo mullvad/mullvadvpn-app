@@ -16,7 +16,7 @@ echo "Copying test-runner to $RUNNER_DIR"
 
 mkdir -p "$RUNNER_DIR"
 
-for file in test-runner connection-checker $APP_PACKAGE $PREVIOUS_APP $UI_RUNNER openvpn.ca.crt; do
+for file in test-runner connection-checker $APP_PACKAGE $PREVIOUS_APP $UI_RUNNER; do
     echo "Moving $file to $RUNNER_DIR"
     cp -f "$SCRIPT_DIR/$file" "$RUNNER_DIR"
 done
