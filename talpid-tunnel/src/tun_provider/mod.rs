@@ -59,7 +59,7 @@ pub struct TunConfig {
 
 impl TunConfig {
     /// Return a copy of all gateway addresses
-    pub fn gateway_ips(&self) -> Vec<IpAddr> {
+    pub fn gateways(&self) -> Vec<IpAddr> {
         let mut servers = vec![self.ipv4_gateway.into()];
         if let Some(gateway) = self.ipv6_gateway {
             servers.push(gateway.into());
