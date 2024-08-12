@@ -57,6 +57,12 @@ impl UnixTunProvider {
     }
 }
 
+impl Default for UnixTunProvider {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 /// Generic tunnel device.
 ///
 /// Contains the file descriptor representing the device.
