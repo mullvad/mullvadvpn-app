@@ -276,7 +276,9 @@ async fn main() -> Result<()> {
 
             // Load a new OpenVPN CA certificate if the user provided a path.
             let openvpn_certificate = openvpn_certificate
-                .map(|path| OpenVPNCertificate::from_file(path).unwrap())
+                .map(OpenVPNCertificate::from_file)
+                .transpose()
+                .context("Could not find OpenVPN CA certificate")?
                 .unwrap_or_default();
 
             let mut instance = vm::run(&config, &vm).await.context("Failed to start VM")?;
