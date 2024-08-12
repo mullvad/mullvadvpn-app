@@ -22,7 +22,7 @@ pub async fn provision(
             log::debug!("SSH provisioning");
 
             let (user, password) = config.get_ssh_options().context("missing SSH config")?;
-            ssh(
+            provision_ssh(
                 instance,
                 config.os_type,
                 &config.get_runner_dir(),
@@ -44,7 +44,7 @@ pub async fn provision(
 }
 
 /// Returns the directory in the test runner where the test-runner binary is installed.
-async fn ssh(
+async fn provision_ssh(
     instance: &dyn super::VmInstance,
     os_type: OsType,
     local_runner_dir: &Path,
@@ -166,9 +166,9 @@ fn blocking_ssh(
 /// Copy a `source` file to `dest_dir` in the test runner.
 ///
 /// Returns the aboslute path in the test runner where the file is stored.
-fn ssh_send_file<Source: AsRef<Path> + Copy>(
+fn ssh_send_file<P: AsRef<Path> + Copy>(
     session: &Session,
-    source: Source,
+    source: P,
     dest_dir: &Path,
 ) -> Result<PathBuf> {
     let dest = dest_dir.join(
