@@ -13,11 +13,14 @@ class ConnectionProxyTest {
 
     private val mockManagementService: ManagementService = mockk(relaxed = true)
     private val mockVpnPermissionRepository: VpnPermissionRepository = mockk()
+    private val mockTranslationRepository: RelayLocationTranslationRepository =
+        mockk(relaxed = true)
 
     private val connectionProxy: ConnectionProxy =
         ConnectionProxy(
             managementService = mockManagementService,
-            vpnPermissionRepository = mockVpnPermissionRepository
+            vpnPermissionRepository = mockVpnPermissionRepository,
+            translationRepository = mockTranslationRepository
         )
 
     @Test
