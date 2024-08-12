@@ -111,7 +111,8 @@ enum Commands {
         package_dir: Option<PathBuf>,
 
         /// OpenVPN CA certificate to use with the app under test. The expected argument is a path
-        /// (absolut or relative) to the desired CA certificate.
+        /// (absolut or relative) to the desired CA certificate. The default certificate is
+        /// `assets/openvpn.ca.crt`.
         #[arg(long)]
         openvpn_certificate: Option<PathBuf>,
 
