@@ -73,7 +73,13 @@ internal fun BaseCell(
         horizontalArrangement = Arrangement.Start,
         modifier =
             modifier
-                .clickable(isRowEnabled, onClick = onCellClicked)
+                .then(
+                    if (isRowEnabled) {
+                        Modifier.clickable(onClick = onCellClicked)
+                    } else {
+                        Modifier
+                    }
+                )
                 .wrapContentHeight()
                 .defaultMinSize(minHeight = minHeight)
                 .fillMaxWidth()
