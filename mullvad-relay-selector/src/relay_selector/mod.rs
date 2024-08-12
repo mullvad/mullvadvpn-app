@@ -124,6 +124,11 @@ pub struct AdditionalWireguardConstraints {
     /// If true, select WireGuard relays that support DAITA. If false, select any
     /// server.
     pub daita: bool,
+
+    /// If true and multihop is disabled, will set up multihop with an automatic entry relay if
+    /// DAITA is enabled.
+    pub daita_use_anywhere: bool,
+
     /// If enabled, select relays that support PQ.
     pub quantum_resistant: QuantumResistantState,
 }
@@ -345,6 +350,7 @@ impl<'a> TryFrom<NormalSelectorConfig<'a>> for RelayQuery {
             } = wireguard_constraints;
             let AdditionalWireguardConstraints {
                 daita,
+                daita_use_anywhere,
                 quantum_resistant,
             } = additional_constraints;
             WireguardRelayQuery {
@@ -354,6 +360,7 @@ impl<'a> TryFrom<NormalSelectorConfig<'a>> for RelayQuery {
                 entry_location,
                 obfuscation: ObfuscationQuery::from(obfuscation_settings),
                 daita: Constraint::Only(daita),
+                daita_use_anywhere: Constraint::Only(daita_use_anywhere),
                 quantum_resistant,
             }
         }
@@ -718,10 +725,59 @@ impl RelaySelector {
         parsed_relays: &ParsedRelays,
     ) -> Result<WireguardConfig, Error> {
         let candidates = filter_matching_relay_list(query, parsed_relays, custom_lists);
+
+        // are we using daita?
+        let using_daita = || query.wireguard_constraints().daita == Constraint::Only(true);
+
+        // is the `candidates` list empty because DAITA is enabled?
+        let no_relay_because_daita = || {
+            let mut query = query.clone();
+            let mut wireguard_constraints = query.wireguard_constraints().clone();
+            wireguard_constraints.daita = Constraint::Any;
+            query.set_wireguard_constraints(wireguard_constraints)?;
+            let candidates = filter_matching_relay_list(&query, parsed_relays, custom_lists);
+            Result::<_, Error>::Ok(!candidates.is_empty())
+        };
+
+        // is `use_anywhere` enabled?
+        let use_anywhere = || {
+            query
+                .wireguard_constraints()
+                .daita_use_anywhere
+                .intersection(Constraint::Only(true))
+                .is_some()
+        };
+
+        // if we found no matching relays because DAITA was enabled, and `use_anywhere` is enabled,
+        // try enabling multihop and connecting using an automatically selected entry relay.
+        if candidates.is_empty() && using_daita() && no_relay_because_daita()? && use_anywhere() {
+            return Self::get_wireguard_auto_multihop_config(query, custom_lists, parsed_relays);
+        }
+
         helpers::pick_random_relay(&candidates)
             .cloned()
             .map(WireguardConfig::singlehop)
             .ok_or(Error::NoRelay)
+    }
+
+    /// Select a valid Wireguard exit relay, together with with an automatically chosen entry relay.
+    ///
+    /// # Returns
+    /// * An `Err` if no entry/exit relay can be chosen
+    /// * `Ok(WireguardInner::Multihop)` otherwise
+    fn get_wireguard_auto_multihop_config(
+        query: &RelayQuery,
+        custom_lists: &CustomListsSettings,
+        parsed_relays: &ParsedRelays,
+    ) -> Result<WireguardConfig, Error> {
+        // Modify the query to enable multihop
+        let mut query = query.clone();
+        let mut wireguard_constraints = query.wireguard_constraints().clone();
+        wireguard_constraints.use_multihop = Constraint::Only(true);
+        wireguard_constraints.entry_location = Constraint::Any; // TODO: smarter location selection
+        query.set_wireguard_constraints(wireguard_constraints)?;
+
+        Self::get_wireguard_multihop_config(&query, custom_lists, parsed_relays)
     }
 
     /// This function selects a valid entry and exit relay to be used in a multihop configuration.
