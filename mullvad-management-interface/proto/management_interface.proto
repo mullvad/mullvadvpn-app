@@ -535,7 +535,10 @@ message QuantumResistantState {
   State state = 1;
 }
 
-message DaitaSettings { bool enabled = 1; }
+message DaitaSettings {
+  bool enabled = 1;
+  bool use_anywhere = 2;
+}
 
 message TunnelOptions {
   message OpenvpnOptions { optional uint32 mssfix = 1; }

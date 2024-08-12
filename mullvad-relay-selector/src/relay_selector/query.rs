@@ -28,7 +28,6 @@
 //! queries and ensure that queries are built in a type-safe manner, reducing the risk
 //! of runtime errors and improving code readability.
 
-use crate::AdditionalWireguardConstraints;
 use mullvad_types::{
     constraints::Constraint,
     relay_constraints::{
@@ -152,6 +151,7 @@ pub struct WireguardRelayQuery {
     pub entry_location: Constraint<LocationConstraint>,
     pub obfuscation: ObfuscationQuery,
     pub daita: Constraint<bool>,
+    pub daita_use_anywhere: Constraint<bool>,
 }
 
 #[derive(Default, Debug, Clone, Eq, PartialEq)]
@@ -209,6 +209,7 @@ impl WireguardRelayQuery {
             entry_location: Constraint::Any,
             obfuscation: ObfuscationQuery::Auto,
             daita: Constraint::Any,
+            daita_use_anywhere: Constraint::Any,
         }
     }
 }
@@ -231,16 +232,16 @@ impl From<WireguardRelayQuery> for WireguardConstraints {
     }
 }
 
-impl From<WireguardRelayQuery> for AdditionalWireguardConstraints {
-    /// The mapping from [`WireguardRelayQuery`] to [`AdditionalWireguardConstraints`].
-    fn from(value: WireguardRelayQuery) -> Self {
-        AdditionalWireguardConstraints {
-            daita: value
-                .daita
-                .unwrap_or(AdditionalWireguardConstraints::default().daita),
-        }
-    }
-}
+//impl From<WireguardRelayQuery> for AdditionalWireguardConstraints {
+//    /// The mapping from [`WireguardRelayQuery`] to [`AdditionalWireguardConstraints`].
+//    fn from(value: WireguardRelayQuery) -> Self {
+//        AdditionalWireguardConstraints {
+//            daita: value
+//                .daita
+//                .unwrap_or(AdditionalWireguardConstraints::default().daita),
+//        }
+//    }
+//}
 
 /// A query for a relay with OpenVPN-specific properties, such as `bridge_settings`.
 ///
