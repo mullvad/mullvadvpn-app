@@ -107,15 +107,10 @@ impl ConnectedState {
     }
 
     fn get_dns_servers(&self, shared_values: &SharedTunnelStateValues) -> Vec<IpAddr> {
-        if let Some(ref servers) = shared_values.dns_servers {
-            servers.clone()
-        } else {
-            let mut dns_ips = vec![self.metadata.ipv4_gateway.into()];
-            if let Some(ipv6_gateway) = self.metadata.ipv6_gateway {
-                dns_ips.push(ipv6_gateway.into());
-            };
-            dns_ips
-        }
+        shared_values
+            .dns_servers
+            .clone()
+            .unwrap_or_else(|| self.metadata.gateways())
     }
 
     fn get_firewall_policy(&self, shared_values: &SharedTunnelStateValues) -> FirewallPolicy {
