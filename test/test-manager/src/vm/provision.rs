@@ -195,26 +195,19 @@ fn ssh_send_file<P: AsRef<Path> + Copy>(
 /// Analogues to [`std::fs::write`], but over ssh!
 fn ssh_write<P: AsRef<Path>, C: AsRef<[u8]>>(session: &Session, dest: P, source: C) -> Result<()> {
     let bytes = source.as_ref();
-    ssh_write_inner(
-        session,
-        dest,
-        &mut &bytes[..],
-        u64::try_from(bytes.len()).context("File too large, did not fit in a u64")?,
-    )
-}
 
-fn ssh_write_inner<R: Read, P: AsRef<Path>>(
-    session: &Session,
-    dest: P,
-    source: &mut R,
-    source_len: u64,
-) -> Result<()> {
+    let source = &mut &bytes[..];
+    let source_len = u64::try_from(bytes.len()).context("File too large, did not fit in a u64")?;
+
     let mut remote_file = session.scp_send(dest.as_ref(), 0o744, source_len, None)?;
+
     io::copy(source, &mut remote_file).context("failed to write file")?;
+
     remote_file.send_eof()?;
     remote_file.wait_eof()?;
     remote_file.close()?;
     remote_file.wait_close()?;
+
     Ok(())
 }
 
