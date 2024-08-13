@@ -18,6 +18,7 @@ use mullvad_relay_selector::{
 use mullvad_types::{
     constraints::Constraint,
     endpoint::MullvadEndpoint,
+    location::Location,
     relay_constraints::{
         BridgeConstraints, BridgeState, GeographicLocationConstraint, Ownership, Providers,
         TransportPort,
@@ -28,6 +29,15 @@ use mullvad_types::{
         WireguardRelayEndpointData,
     },
 };
+
+static DUMMY_LOCATION: Lazy<Location> = Lazy::new(|| Location {
+    country: "Sweden".to_string(),
+    country_code: "se".to_string(),
+    city: "Gothenburg".to_string(),
+    city_code: "got".to_string(),
+    latitude: 57.71,
+    longitude: 11.97,
+});
 
 static RELAYS: Lazy<RelayList> = Lazy::new(|| RelayList {
     etag: None,
@@ -56,7 +66,7 @@ static RELAYS: Lazy<RelayList> = Lazy::new(|| RelayList {
                         .unwrap(),
                         daita: false,
                     }),
-                    location: None,
+                    location: DUMMY_LOCATION.clone(),
                 },
                 Relay {
                     hostname: "se10-wireguard".to_string(),
@@ -74,7 +84,7 @@ static RELAYS: Lazy<RelayList> = Lazy::new(|| RelayList {
                         .unwrap(),
                         daita: false,
                     }),
-                    location: None,
+                    location: DUMMY_LOCATION.clone(),
                 },
                 Relay {
                     hostname: "se-got-001".to_string(),
@@ -86,7 +96,7 @@ static RELAYS: Lazy<RelayList> = Lazy::new(|| RelayList {
                     provider: "provider2".to_string(),
                     weight: 1,
                     endpoint_data: RelayEndpointData::Openvpn,
-                    location: None,
+                    location: DUMMY_LOCATION.clone(),
                 },
                 Relay {
                     hostname: "se-got-002".to_string(),
@@ -98,7 +108,7 @@ static RELAYS: Lazy<RelayList> = Lazy::new(|| RelayList {
                     provider: "provider0".to_string(),
                     weight: 1,
                     endpoint_data: RelayEndpointData::Openvpn,
-                    location: None,
+                    location: DUMMY_LOCATION.clone(),
                 },
                 Relay {
                     hostname: "se-got-br-001".to_string(),
@@ -110,7 +120,7 @@ static RELAYS: Lazy<RelayList> = Lazy::new(|| RelayList {
                     provider: "provider3".to_string(),
                     weight: 1,
                     endpoint_data: RelayEndpointData::Bridge,
-                    location: None,
+                    location: DUMMY_LOCATION.clone(),
                 },
             ],
         }],
@@ -438,7 +448,7 @@ fn test_wireguard_entry() {
                             .unwrap(),
                             daita: false,
                         }),
-                        location: None,
+                        location: DUMMY_LOCATION.clone(),
                     },
                     Relay {
                         hostname: "se10-wireguard".to_string(),
@@ -456,7 +466,7 @@ fn test_wireguard_entry() {
                             .unwrap(),
                             daita: false,
                         }),
-                        location: None,
+                        location: DUMMY_LOCATION.clone(),
                     },
                 ],
             }],
@@ -956,7 +966,7 @@ fn test_include_in_country() {
                             .unwrap(),
                             daita: false,
                         }),
-                        location: None,
+                        location: DUMMY_LOCATION.clone(),
                     },
                     Relay {
                         hostname: "se10-wireguard".to_string(),
@@ -974,7 +984,7 @@ fn test_include_in_country() {
                             .unwrap(),
                             daita: false,
                         }),
-                        location: None,
+                        location: DUMMY_LOCATION.clone(),
                     },
                 ],
             }],
@@ -1174,7 +1184,7 @@ fn test_daita() {
                             .unwrap(),
                             daita: false,
                         }),
-                        location: None,
+                        location: DUMMY_LOCATION.clone(),
                     },
                     Relay {
                         hostname: "se10-wireguard".to_string(),
@@ -1192,7 +1202,7 @@ fn test_daita() {
                             .unwrap(),
                             daita: true,
                         }),
-                        location: None,
+                        location: DUMMY_LOCATION.clone(),
                     },
                 ],
             }],
