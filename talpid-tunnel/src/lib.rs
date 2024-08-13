@@ -64,11 +64,11 @@ pub struct TunnelMetadata {
 impl TunnelMetadata {
     /// Return a copy of all gateway addresses
     pub fn gateways(&self) -> Vec<IpAddr> {
-        let mut servers = vec![self.ipv4_gateway.into()];
+        let mut addrs = vec![self.ipv4_gateway.into()];
         if let Some(gateway) = self.ipv6_gateway {
-            servers.push(gateway.into());
+            addrs.push(gateway.into());
         }
-        servers
+        addrs
     }
 }
 
