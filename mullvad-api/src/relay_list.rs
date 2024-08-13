@@ -162,7 +162,7 @@ fn into_mullvad_relay(
         provider: relay.provider,
         weight: relay.weight,
         endpoint_data,
-        location: Some(location),
+        location,
     }
 }
 
