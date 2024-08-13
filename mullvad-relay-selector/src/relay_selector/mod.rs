@@ -809,7 +809,7 @@ impl RelaySelector {
                     .wireguard
                     .shadowsocks_port_ranges;
                 let obfuscation = helpers::get_shadowsocks_obfuscator(
-                    &settings,
+                    settings,
                     port_ranges,
                     obfuscator_relay,
                     endpoint,
