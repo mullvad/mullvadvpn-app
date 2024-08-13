@@ -298,12 +298,7 @@ async fn pick_a_relay(
 
     let relay_ip = relay.ipv4_addr_in;
     let hostname = relay.hostname.clone();
-    let city = relay
-        .location
-        .as_ref()
-        .ok_or(anyhow!("Got Relay with an unknown location"))?
-        .city_code
-        .clone();
+    let city = relay.location.city_code.clone();
 
     log::info!("selected {hostname} ({relay_ip})");
     let location = GeographicLocationConstraint::Hostname(country, city, hostname.clone()).into();

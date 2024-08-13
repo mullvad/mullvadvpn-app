@@ -10,7 +10,6 @@ use mullvad_relay_selector::{
 };
 use mullvad_types::{
     constraints::Constraint,
-    location::Location,
     relay_constraints::{
         BridgeSettings, GeographicLocationConstraint, LocationConstraint, RelayConstraints,
         RelaySettings,
@@ -618,7 +617,7 @@ pub async fn constrain_to_relay(
                 ..
             }
             | GetRelay::OpenVpn { exit, .. } => {
-                let location = into_constraint(&exit)?;
+                let location = into_constraint(&exit);
                 let relay_constraints = RelayConstraints {
                     location,
                     ..Default::default()
@@ -646,22 +645,14 @@ pub async fn constrain_to_relay(
 /// # Panics
 ///
 /// The relay must have a location set.
-pub fn into_constraint(relay: &Relay) -> anyhow::Result<Constraint<LocationConstraint>> {
-    relay
-        .location
-        .as_ref()
-        .map(
-            |Location {
-                 country_code,
-                 city_code,
-                 ..
-             }| {
-                GeographicLocationConstraint::hostname(country_code, city_code, &relay.hostname)
-            },
-        )
-        .map(LocationConstraint::Location)
-        .map(Constraint::Only)
-        .ok_or(anyhow!("relay is missing location"))
+pub fn into_constraint(relay: &Relay) -> Constraint<LocationConstraint> {
+    let constraint = GeographicLocationConstraint::hostname(
+        relay.location.country_code.clone(),
+        relay.location.city_code.clone(),
+        &relay.hostname,
+    );
+
+    Constraint::Only(LocationConstraint::Location(constraint))
 }
 
 /// Ping monitoring made easy!

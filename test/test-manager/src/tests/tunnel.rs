@@ -421,7 +421,10 @@ pub async fn test_daita(
     .await?;
 
     mullvad_client
-        .set_daita_settings(wireguard::DaitaSettings { enabled: true })
+        .set_daita_settings(wireguard::DaitaSettings {
+            enabled: true,
+            use_anywhere: false,
+        })
         .await
         .context("Failed to enable daita")?;
 
