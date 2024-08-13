@@ -200,7 +200,7 @@ impl VmConfig {
         Some((self.ssh_user.as_ref()?, self.ssh_password.as_ref()?))
     }
 
-    pub fn get_runner_dir(&self) -> PathBuf {
+    pub fn get_default_runner_dir(&self) -> PathBuf {
         let target_dir = self.get_target_dir();
         let subdir = match self.architecture {
             None | Some(Architecture::X64) => self.get_x64_runner_subdir(),
