@@ -237,6 +237,9 @@ pub async fn test_automatic_wireguard_rotation(
     drop(mullvad_client);
     let mut mullvad_client = ctx.rpc_provider.new_client().await;
 
+    // Check if the key rotation has already occurred when connected to the daemon, otherwise
+    // listen for device daemon events until we observe the change. We have to register the event
+    // listener before polling the current key to be sure we don't miss the change.
     log::info!("Verifying that wireguard key has changed");
     let event_listener = mullvad_client
         .events_listen()
