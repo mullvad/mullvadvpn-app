@@ -19,7 +19,8 @@ pub struct Location {
 const RAIDUS_OF_EARTH: f64 = 6372.8;
 
 impl Location {
-    pub fn distance_from(&self, other: &Coordinates) -> f64 {
+    pub fn distance_from(&self, other: impl Into<Coordinates>) -> f64 {
+        let other: Coordinates = other.into();
         haversine_dist_deg(
             self.latitude,
             self.longitude,
@@ -33,7 +34,7 @@ impl Location {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Coordinates {
     pub latitude: f64,
     pub longitude: f64,
