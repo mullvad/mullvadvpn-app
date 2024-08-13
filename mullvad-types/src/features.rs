@@ -39,6 +39,7 @@ pub enum FeatureIndicator {
     CustomMtu,
     CustomMssFix,
     Daita,
+    DaitaUseAnywhere,
 }
 
 impl std::fmt::Display for FeatureIndicator {
@@ -58,6 +59,7 @@ impl std::fmt::Display for FeatureIndicator {
             FeatureIndicator::CustomMtu => "Custom MTU",
             FeatureIndicator::CustomMssFix => "Custom MSS",
             FeatureIndicator::Daita => "DAITA",
+            FeatureIndicator::DaitaUseAnywhere => "Use Anywhere (DAITA)",
         };
         write!(f, "{feature}")
     }
