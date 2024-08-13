@@ -787,12 +787,14 @@ fn test_selecting_wireguard_ignore_extra_ips_override_v4() {
 
     const OVERRIDE_IPV4: Ipv4Addr = Ipv4Addr::new(1, 3, 3, 7);
 
-    let mut config = SelectorConfig::default();
-    config.relay_overrides = vec![RelayOverride {
-        hostname: shadowsocks_extra_relay.get_hostname().unwrap().to_string(),
-        ipv4_addr_in: Some(OVERRIDE_IPV4),
-        ipv6_addr_in: None,
-    }];
+    let config = mullvad_relay_selector::SelectorConfig {
+        relay_overrides: vec![RelayOverride {
+            hostname: shadowsocks_extra_relay.get_hostname().unwrap().to_string(),
+            ipv4_addr_in: Some(OVERRIDE_IPV4),
+            ipv6_addr_in: None,
+        }],
+        ..Default::default()
+    };
 
     let relay_selector = RelaySelector::from_list(config, relay_list);
 
