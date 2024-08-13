@@ -17,6 +17,7 @@ impl From<mullvad_types::features::FeatureIndicator> for proto::FeatureIndicator
             mullvad_types::features::FeatureIndicator::CustomMtu => CustomMtu,
             mullvad_types::features::FeatureIndicator::CustomMssFix => CustomMssFix,
             mullvad_types::features::FeatureIndicator::Daita => Daita,
+            mullvad_types::features::FeatureIndicator::DaitaUseAnywhere => DaitaUseAnywhere,
         }
     }
 }
@@ -37,6 +38,7 @@ impl From<proto::FeatureIndicator> for mullvad_types::features::FeatureIndicator
             proto::FeatureIndicator::CustomMtu => Self::CustomMtu,
             proto::FeatureIndicator::CustomMssFix => Self::CustomMssFix,
             proto::FeatureIndicator::Daita => Self::Daita,
+            proto::FeatureIndicator::DaitaUseAnywhere => Self::DaitaUseAnywhere,
         }
     }
 }
