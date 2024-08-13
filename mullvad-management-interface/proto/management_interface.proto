@@ -261,6 +261,7 @@ enum FeatureIndicator {
   CUSTOM_MTU = 10;
   CUSTOM_MSS_FIX = 11;
   DAITA = 12;
+  DAITA_USE_ANYWHERE = 13;
 }
 
 enum ObfuscationType {
