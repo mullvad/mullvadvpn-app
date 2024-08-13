@@ -267,7 +267,6 @@ impl ServiceClient {
     /// This function will return *after* the app has been stopped, thus
     /// blocking execution until then.
     pub async fn stop_mullvad_daemon(&self) -> Result<(), Error> {
-        // TODO: Increase timeout and log how long it took (?)
         let mut ctx = tarpc::context::current();
         ctx.deadline = SystemTime::now()
             .checked_add(DAEMON_RESTART_TIMEOUT)
