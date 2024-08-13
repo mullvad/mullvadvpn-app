@@ -1152,6 +1152,7 @@ function convertFromProxyEndpoint(proxyEndpoint: grpcTypes.ProxyEndpoint.AsObjec
 function convertFromObfuscationEndpoint(
   obfuscationEndpoint: grpcTypes.ObfuscationEndpoint.AsObject,
 ): IObfuscationEndpoint {
+  // TODO: Handle Shadowsocks (and other implemented protocols)
   if (
     obfuscationEndpoint.obfuscationType !== grpcTypes.ObfuscationEndpoint.ObfuscationType.UDP2TCP
   ) {
