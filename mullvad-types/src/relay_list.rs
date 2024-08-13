@@ -86,7 +86,7 @@ pub struct Relay {
     pub provider: String,
     pub weight: u64,
     pub endpoint_data: RelayEndpointData,
-    pub location: Option<Location>,
+    pub location: Location,
 }
 
 impl PartialEq for Relay {
@@ -116,7 +116,14 @@ impl PartialEq for Relay {
     ///     #   daita: false,
     ///     #   shadowsocks_extra_addr_in: vec![],
     ///     # }),
-    ///     # location: None,
+    ///     # location: mullvad_types::location::Location {
+    ///     #   country: "Sweden".to_string(),
+    ///     #   country_code: "se".to_string(),
+    ///     #   city: "Gothenburg".to_string(),
+    ///     #   city_code: "got".to_string(),
+    ///     #   latitude: 57.71,
+    ///     #   longitude: 11.97,
+    ///     # },
     /// };
     ///
     /// let mut different_relay = relay.clone();
