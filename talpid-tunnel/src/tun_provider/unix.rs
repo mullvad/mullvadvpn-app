@@ -30,7 +30,7 @@ pub struct UnixTunProvider {
 }
 
 impl UnixTunProvider {
-    pub fn new(config: TunConfig) -> Self {
+    pub const fn new(config: TunConfig) -> Self {
         UnixTunProvider { config }
     }
 
