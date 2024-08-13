@@ -5,7 +5,6 @@ use once_cell::sync::OnceCell;
 use std::{ffi::CString, fs, path::PathBuf};
 use std::{
     future::Future,
-    net::IpAddr,
     os::unix::io::{AsRawFd, RawFd},
     path::Path,
     pin::Pin,
@@ -13,7 +12,7 @@ use std::{
 };
 #[cfg(target_os = "android")]
 use talpid_tunnel::tun_provider::Error as TunProviderError;
-use talpid_tunnel::tun_provider::{Tun, TunConfig, TunProvider};
+use talpid_tunnel::tun_provider::{Tun, TunProvider};
 use talpid_types::BoxedError;
 
 use super::{
@@ -108,38 +107,6 @@ impl WgGoTunnel {
         })
     }
 
-    fn create_tunnel_config(
-        config: &Config,
-        routes: impl Iterator<Item = IpNetwork>,
-        #[cfg(target_os = "android")] excluded_apps: Vec<String>,
-    ) -> TunConfig {
-        let mut dns_servers = vec![IpAddr::V4(config.ipv4_gateway)];
-        dns_servers.extend(config.ipv6_gateway.map(IpAddr::V6));
-
-        TunConfig {
-            addresses: config.tunnel.addresses.clone(),
-            dns_servers,
-            routes: routes.collect(),
-            #[cfg(target_os = "android")]
-            required_routes: Self::create_required_routes(config),
-            #[cfg(target_os = "android")]
-            excluded_packages: excluded_apps,
-            mtu: config.mtu,
-        }
-    }
-
-    #[cfg(target_os = "android")]
-    fn create_required_routes(config: &Config) -> Vec<IpNetwork> {
-        let mut required_routes = vec![IpNetwork::new(IpAddr::V4(config.ipv4_gateway), 32)
-            .expect("Invalid IPv4 network prefix")];
-
-        required_routes.extend(config.ipv6_gateway.map(|address| {
-            IpNetwork::new(IpAddr::V6(address), 128).expect("Invalid IPv6 network prefix")
-        }));
-
-        required_routes
-    }
-
     #[cfg(target_os = "android")]
     fn bypass_tunnel_sockets(
         handle: &wireguard_go_rs::Tunnel,
@@ -162,16 +129,16 @@ impl WgGoTunnel {
         let mut last_error = None;
         let mut tun_provider = tun_provider.lock().unwrap();
 
-        let tunnel_config = Self::create_tunnel_config(
-            config,
-            routes,
-            #[cfg(target_os = "android")]
-            tun_provider.get_excluded_apps().collect(),
-        );
+        let tun_config = tun_provider.config_mut();
+        tun_config.addresses = config.tunnel.addresses.clone();
+        tun_config.ipv4_gateway = config.ipv4_gateway;
+        tun_config.ipv6_gateway = config.ipv6_gateway;
+        tun_config.routes = routes.collect();
+        tun_config.mtu = config.mtu;
 
         for _ in 1..=MAX_PREPARE_TUN_ATTEMPTS {
             let tunnel_device = tun_provider
-                .get_tun(tunnel_config.clone())
+                .open_tun()
                 .map_err(TunnelError::SetupTunnelDevice)?;
 
             match nix::unistd::dup(tunnel_device.as_raw_fd()) {

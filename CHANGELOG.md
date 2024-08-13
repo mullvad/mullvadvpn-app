@@ -40,6 +40,9 @@ Line wrap the file at 100 chars.                                              Th
 #### macOS
 - Fix intermittent failures to connect with PQ enabled.
 
+#### Android
+- Fix VPN service being recreated multiple times when toggling certain options.
+
 
 ## [2024.4] - 2024-07-23
 This release is identical to 2024.4-beta1.

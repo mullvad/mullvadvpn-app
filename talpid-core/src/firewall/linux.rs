@@ -12,7 +12,10 @@ use std::{
     fs, io,
     net::{IpAddr, Ipv4Addr},
 };
-use talpid_types::net::{AllowedEndpoint, AllowedTunnelTraffic, Endpoint, TransportProtocol};
+use talpid_types::net::{
+    AllowedEndpoint, AllowedTunnelTraffic, Endpoint, TransportProtocol, ALLOWED_LAN_MULTICAST_NETS,
+    ALLOWED_LAN_NETS,
+};
 
 /// Priority for rules that tag split tunneling packets. Equals NF_IP_PRI_MANGLE.
 const MANGLE_CHAIN_PRIORITY: i32 = libc::NF_IP_PRI_MANGLE;
@@ -840,7 +843,7 @@ impl<'a> PolicyBatch<'a> {
         // Output and forward chains
         for chain in &[&self.out_chain, &self.forward_chain] {
             // LAN -> LAN
-            for net in &*super::ALLOWED_LAN_NETS {
+            for net in &*ALLOWED_LAN_NETS {
                 let mut out_rule = Rule::new(chain);
                 check_net(&mut out_rule, End::Dst, *net);
                 add_verdict(&mut out_rule, &Verdict::Accept);
@@ -848,7 +851,7 @@ impl<'a> PolicyBatch<'a> {
             }
 
             // LAN -> Multicast
-            for net in &*super::ALLOWED_LAN_MULTICAST_NETS {
+            for net in &*ALLOWED_LAN_MULTICAST_NETS {
                 let mut rule = Rule::new(chain);
                 check_net(&mut rule, End::Dst, *net);
                 add_verdict(&mut rule, &Verdict::Accept);
@@ -858,7 +861,7 @@ impl<'a> PolicyBatch<'a> {
 
         // Input chain
         // LAN -> LAN
-        for net in &*super::ALLOWED_LAN_NETS {
+        for net in &*ALLOWED_LAN_NETS {
             let mut in_rule = Rule::new(&self.in_chain);
             check_net(&mut in_rule, End::Src, *net);
             add_verdict(&mut in_rule, &Verdict::Accept);

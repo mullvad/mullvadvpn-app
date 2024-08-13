@@ -25,23 +25,26 @@ pub enum Error {
 }
 
 /// Factory of tunnel devices on Unix systems.
-pub struct UnixTunProvider;
-
-impl Default for UnixTunProvider {
-    fn default() -> Self {
-        Self::new()
-    }
+pub struct UnixTunProvider {
+    config: TunConfig,
 }
 
 impl UnixTunProvider {
-    pub fn new() -> Self {
-        UnixTunProvider
+    pub const fn new(config: TunConfig) -> Self {
+        UnixTunProvider { config }
     }
 
-    pub fn get_tun(&mut self, config: TunConfig) -> Result<UnixTun, Error> {
+    /// Get the current tunnel config. Note that the tunnel must be recreated for any changes to
+    /// take effect.
+    pub fn config_mut(&mut self) -> &mut TunConfig {
+        &mut self.config
+    }
+
+    /// Open a tunnel using the current tunnel config.
+    pub fn open_tun(&mut self) -> Result<UnixTun, Error> {
         let mut tunnel_device = TunnelDevice::new().map_err(Error::CreateTunnelDevice)?;
 
-        for ip in config.addresses.iter() {
+        for ip in self.config.addresses.iter() {
             tunnel_device
                 .set_ip(*ip)
                 .map_err(|cause| Error::SetIpAddr(*ip, cause))?;

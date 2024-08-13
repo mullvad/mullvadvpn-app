@@ -26,10 +26,7 @@ open class TalpidVpnService : LifecycleVpnService() {
             }
         }
 
-    private val tunIsOpen
-        get() = activeTunStatus?.isOpen ?: false
-
-    private var currentTunConfig = defaultTunConfig()
+    private var currentTunConfig: TunConfig? = null
 
     // Used by JNI
     val connectivityListener = ConnectivityListener()
@@ -46,34 +43,31 @@ open class TalpidVpnService : LifecycleVpnService() {
         connectivityListener.unregister()
     }
 
-    fun getTun(config: TunConfig): CreateTunResult {
+    fun openTun(config: TunConfig): CreateTunResult {
         synchronized(this) {
             val tunStatus = activeTunStatus
 
-            if (config == currentTunConfig && tunIsOpen) {
-                return tunStatus!!
+            if (config == currentTunConfig && tunStatus != null && tunStatus.isOpen) {
+                return tunStatus
             } else {
-                val newTunStatus = createTun(config)
-
-                currentTunConfig = config
-                activeTunStatus = newTunStatus
-
-                return newTunStatus
+                return openTunImpl(config)
             }
         }
     }
 
-    fun createTun() {
-        synchronized(this) { activeTunStatus = createTun(currentTunConfig) }
-    }
-
-    fun recreateTunIfOpen(config: TunConfig) {
+    fun openTunForced(config: TunConfig): CreateTunResult {
         synchronized(this) {
-            if (tunIsOpen) {
-                currentTunConfig = config
-                activeTunStatus = createTun(config)
-            }
+            return openTunImpl(config)
         }
+    }
+
+    private fun openTunImpl(config: TunConfig): CreateTunResult {
+        val newTunStatus = createTun(config)
+
+        currentTunConfig = config
+        activeTunStatus = newTunStatus
+
+        return newTunStatus
     }
 
     fun closeTun() {
@@ -150,8 +144,6 @@ open class TalpidVpnService : LifecycleVpnService() {
             else -> throw IllegalArgumentException("Invalid IP address (not IPv4 nor IPv6)")
         }
     }
-
-    private external fun defaultTunConfig(): TunConfig
 
     private external fun waitForTunnelUp(tunFd: Int, isIpv6Enabled: Boolean)
 

@@ -11,6 +11,7 @@ rust-version.workspace = true
 workspace = true
 
 [dependencies]
+once_cell = { workspace = true }
 thiserror = { workspace = true }
 cfg-if = "1.0"
 ipnetwork = { workspace = true }

@@ -3254,6 +3254,7 @@ dependencies = [
  "ipnetwork",
  "jnix",
  "log",
+ "once_cell",
  "serde",
  "thiserror",
  "x25519-dalek",
