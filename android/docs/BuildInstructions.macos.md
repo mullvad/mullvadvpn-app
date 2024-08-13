@@ -61,6 +61,13 @@ export CARGO_TARGET_I686_LINUX_ANDROID_LINKER="$NDK_TOOLCHAIN_DIR/i686-linux-and
 export CARGO_TARGET_X86_64_LINUX_ANDROID_LINKER="$NDK_TOOLCHAIN_DIR/x86_64-linux-android26-clang"
 ```
 
+## 3. Checkout wireguard-go-rs submodule
+wireguard-go submodule need to be downloaded:
+
+```bash
+git submodule update --init --recursive --depth=1 wireguard-go-rs
+```
+
 ## 4. Debug build
 Run the build script in the root of the project to assemble all the native libraries and the app:
 
