@@ -88,4 +88,7 @@ dependencies {
     implementation(libs.mockkWebserver)
 
     androidTestUtil(libs.androidx.test.orchestrator)
+
+    implementation(Dependencies.junit5AndroidTestCompose)
+    implementation(libs.compose.material3)
 }
