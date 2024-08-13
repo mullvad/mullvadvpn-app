@@ -100,8 +100,7 @@
 !macro ExtractWireGuard
 
 	SetOutPath "$PLUGINSDIR"
-	# No AArch64 wintun, so use x64.
-	File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\wintun\wintun.dll"
+	File "${BUILD_RESOURCES_DIR}\binaries\$%TARGET_TRIPLE%\wintun\wintun.dll"
 	File "${BUILD_RESOURCES_DIR}\binaries\$%TARGET_TRIPLE%\wireguard-nt\mullvad-wireguard.dll"
 
 !macroend

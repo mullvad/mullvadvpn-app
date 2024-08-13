@@ -146,10 +146,10 @@ const config = {
         from: root(path.join('windows', 'winfw', 'bin', getWindowsTargetArch() + '-${env.CPP_BUILD_MODE}', 'winfw.dll')),
         to: '.',
       },
-      // OpenVPN, APISocks5 and Wintun do not have ARM64 builds yet.
-      { from: distAssets(path.join('binaries/x86_64-pc-windows-msvc/openvpn.exe')), to: '.' },
-      { from: distAssets(path.join('binaries/x86_64-pc-windows-msvc/apisocks5.exe')), to: '.' },
-      { from: distAssets(path.join('binaries/x86_64-pc-windows-msvc/wintun/wintun.dll')), to: '.' },
+      // TODO: OpenVPN and APISocks5 do not have ARM64 builds yet.
+      { from: distAssets('binaries/x86_64-pc-windows-msvc/openvpn.exe'), to: '.' },
+      { from: distAssets('binaries/x86_64-pc-windows-msvc/apisocks5.exe'), to: '.' },
+      { from: distAssets(path.join('binaries', getWindowsTargetSubdir(), 'wintun/wintun.dll')), to: '.' },
       {
         from: distAssets(path.join('binaries', getWindowsTargetSubdir(), 'split-tunnel/mullvad-split-tunnel.sys')),
         to: '.'
