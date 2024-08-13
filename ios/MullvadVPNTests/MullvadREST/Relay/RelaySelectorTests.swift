@@ -91,7 +91,7 @@ class RelaySelectorTests: XCTestCase {
         )
     }
 
-    func testNoMatchingRelayConstraintError() throws {
+    func testNoMatchingRelayConstraint() throws {
         let constraints = RelayConstraints(
             exitLocations: .only(UserSelectedRelays(locations: [.country("-")]))
         )

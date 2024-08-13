@@ -20,13 +20,13 @@ class AllLocationDataSource: LocationDataSourceProtocol {
     /// Constructs a collection of node trees from relays fetched from the API.
     /// ``RelayLocation.city`` is of special import since we use it to get country
     /// and city names.
-    func reload(_ response: REST.ServerRelaysResponse, relays: [REST.ServerRelay]) {
+    func reload(_ relays: LocationRelays) {
         let rootNode = RootLocationNode()
 
-        for relay in relays {
+        for relay in relays.relays {
             guard case
                 let .city(countryCode, cityCode) = RelayLocation(dashSeparatedString: relay.location),
-                let serverLocation = response.locations[relay.location]
+                let serverLocation = relays.locations[relay.location]
             else { continue }
 
             let relayLocation = RelayLocation.hostname(countryCode, cityCode, relay.hostname)

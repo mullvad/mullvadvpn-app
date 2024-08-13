@@ -54,18 +54,14 @@ final class LocationDataSource:
         defaultRowAnimation = .fade
     }
 
-    func setRelays(_ response: REST.ServerRelaysResponse, selectedRelays: RelaySelection, filter: RelayFilter) {
+    func setRelays(_ cachedRelays: LocationRelays, selectedRelays: RelaySelection) {
         let allLocationsDataSource =
             dataSources.first(where: { $0 is AllLocationDataSource }) as? AllLocationDataSource
 
         let customListsDataSource =
             dataSources.first(where: { $0 is CustomListsDataSource }) as? CustomListsDataSource
 
-        let relays = response.wireguard.relays.filter { relay in
-            RelaySelector.relayMatchesFilter(relay, filter: filter)
-        }
-
-        allLocationsDataSource?.reload(response, relays: relays)
+        allLocationsDataSource?.reload(cachedRelays)
         customListsDataSource?.reload(allLocationNodes: allLocationsDataSource?.nodes ?? [])
 
         setSelectedRelays(selectedRelays)
@@ -235,12 +231,6 @@ final class LocationDataSource:
             animated: animated,
             completion: completion
         )
-    }
-
-    private func nodeMatchesExcludedLocation(_ node: LocationNode) -> Bool {
-        // Compare nodes on name rather than whole node in order to match all items in both .customLists
-        // and .allLocations.
-        node.name == excludedLocation?.node.name
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {

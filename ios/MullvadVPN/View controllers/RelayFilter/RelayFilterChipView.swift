@@ -18,6 +18,16 @@ class RelayFilterChipView: UIView {
         return label
     }()
 
+    let closeButton: IncreasedHitButton = {
+        let button = IncreasedHitButton()
+        button.setImage(
+            UIImage(resource: .iconCloseSml).withTintColor(.white.withAlphaComponent(0.6)),
+            for: .normal
+        )
+        button.accessibilityIdentifier = .relayFilterChipCloseButton
+        return button
+    }()
+
     var didTapButton: (() -> Void)?
 
     init() {
@@ -25,12 +35,6 @@ class RelayFilterChipView: UIView {
 
         self.accessibilityIdentifier = .relayFilterChipView
 
-        let closeButton = IncreasedHitButton()
-        closeButton.setImage(
-            UIImage(named: "IconCloseSml")?.withTintColor(.white.withAlphaComponent(0.6)),
-            for: .normal
-        )
-        closeButton.accessibilityIdentifier = .relayFilterChipCloseButton
         closeButton.addTarget(self, action: #selector(didTapButton(_:)), for: .touchUpInside)
 
         let container = UIStackView(arrangedSubviews: [titleLabel, closeButton])
