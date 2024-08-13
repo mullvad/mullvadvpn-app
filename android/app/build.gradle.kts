@@ -146,10 +146,6 @@ android {
             )
     }
 
-    tasks.withType<MergeSourceSetFolders> { dependsOn(getTasksByName("copyExtraAssets", true)) }
-
-    tasks.withType<LintModelWriterTask> { dependsOn(getTasksByName("copyExtraAssets", true)) }
-
     // Suppressing since we don't seem have much of an option than using this api. The impact should
     // also be limited to tests.
     @Suppress("UnstableApiUsage")
@@ -241,6 +237,7 @@ android {
     }
 
     project.tasks.assemble.dependsOn("ensureJniDirectoryExist")
+    project.tasks.assemble.dependsOn("copyExtraAssets")
     project.tasks.assemble.dependsOn("ensureValidVersionCode")
 }
 
@@ -303,12 +300,6 @@ tasks.create("printVersion") {
     doLast {
         println("versionCode=${project.android.defaultConfig.versionCode}")
         println("versionName=${project.android.defaultConfig.versionName}")
-    }
-}
-
-afterEvaluate {
-    tasks.withType(com.android.build.gradle.internal.lint.AndroidLintAnalysisTask::class.java) {
-        mustRunAfter(tasks.getByName("copyExtraAssets"))
     }
 }
 
