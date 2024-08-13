@@ -287,6 +287,32 @@ function build {
     done
 }
 
+if [[ "$(uname -s)" == "MINGW"* ]]; then
+    for t in "${TARGETS[@]:-"x86_64-pc-windows-msvc"}"; do
+        case $t in
+            x86_64-pc-windows-msvc) CPP_BUILD_TARGET=x64;;
+            aarch64-pc-windows-msvc) CPP_BUILD_TARGET=ARM64;;
+            *)
+                log_error "Unknown Windows target: $t"
+                exit 1
+                ;;
+        esac
+
+        log_header "Building C++ code in $CPP_BUILD_MODE mode for $CPP_BUILD_TARGET"
+        CPP_BUILD_MODES=$CPP_BUILD_MODE CPP_BUILD_TARGETS=$CPP_BUILD_TARGET IS_RELEASE=$IS_RELEASE ./build-windows-modules.sh
+
+        if [[ "$SIGN" == "true" ]]; then
+            CPP_BINARIES=(
+                "windows/winfw/bin/$CPP_BUILD_TARGET-$CPP_BUILD_MODE/winfw.dll"
+                "windows/driverlogic/bin/$CPP_BUILD_TARGET-$CPP_BUILD_MODE/driverlogic.exe"
+                # The nsis plugin is always built in 32 bit release mode
+                windows/nsis-plugins/bin/Win32-Release/*.dll
+            )
+            sign_win "${CPP_BINARIES[@]}"
+        fi
+    done
+fi
+
 for t in "${TARGETS[@]:-""}"; do
     source env.sh "$t"
     build "$t"

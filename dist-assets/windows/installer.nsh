@@ -86,7 +86,7 @@
 !macro ExtractDriverlogic
 
 	SetOutPath "$PLUGINSDIR"
-	File "${BUILD_RESOURCES_DIR}\..\windows\driverlogic\bin\x64-$%CPP_BUILD_MODE%\driverlogic.exe"
+	File "${BUILD_RESOURCES_DIR}\..\windows\driverlogic\bin\$%CPP_BUILD_TARGET%-$%CPP_BUILD_MODE%\driverlogic.exe"
 
 !macroend
 
@@ -100,8 +100,9 @@
 !macro ExtractWireGuard
 
 	SetOutPath "$PLUGINSDIR"
+	# No AArch64 wintun, so use x64.
 	File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\wintun\wintun.dll"
-	File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\wireguard-nt\mullvad-wireguard.dll"
+	File "${BUILD_RESOURCES_DIR}\binaries\$%TARGET_TRIPLE%\wireguard-nt\mullvad-wireguard.dll"
 
 !macroend
 
@@ -115,8 +116,8 @@
 !macro ExtractMullvadSetup
 
 	SetOutPath "$PLUGINSDIR"
-	File "${BUILD_RESOURCES_DIR}\mullvad-setup.exe"
-	File "${BUILD_RESOURCES_DIR}\..\windows\winfw\bin\x64-$%CPP_BUILD_MODE%\winfw.dll"
+	File "${BUILD_RESOURCES_DIR}\$%SETUP_SUBDIR%\mullvad-setup.exe"
+	File "${BUILD_RESOURCES_DIR}\..\windows\winfw\bin\$%CPP_BUILD_TARGET%-$%CPP_BUILD_MODE%\winfw.dll"
 
 !macroend
 

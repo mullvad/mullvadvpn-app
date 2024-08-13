@@ -26,6 +26,9 @@ Line wrap the file at 100 chars.                                              Th
 - Add DAITA (Defence against AI-guided Traffic Analysis) setting for Linux and macOS.
 - Add `--json` flag to `mullvad status` CLI.
 
+#### Windows
+- Add experimental support for Windows ARM64.
+
 ### Changed
 - Ignore obfuscation protocol constraints when the obfuscation mode is set to auto.
 
@@ -52,9 +55,6 @@ This release is identical to 2024.4-beta1.
 
 #### macOS
 - Add support for split tunneling (beta).
-
-#### Windows
-- Add experimental support for Windows ARM64.
 
 ### Changed
 - Update Electron from 28.1.3 to 30.0.4.
