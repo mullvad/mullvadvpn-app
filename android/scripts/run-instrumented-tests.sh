@@ -16,6 +16,7 @@ TEST_SERVICES_URL=https://dl.google.com/android/maven2/androidx/test/services/te
 PARTNER_AUTH="${PARTNER_AUTH:-}"
 VALID_TEST_ACCOUNT_NUMBER="${VALID_TEST_ACCOUNT_NUMBER:-}"
 INVALID_TEST_ACCOUNT_NUMBER="${INVALID_TEST_ACCOUNT_NUMBER:-}"
+ENABLE_HIGHLY_RATE_LIMITED_TESTS="${ENABLE_HIGHLY_RATE_LIMITED_TESTS:-false}"
 REPORT_DIR="${REPORT_DIR:-}"
 
 while [[ "$#" -gt 0 ]]; do
@@ -129,6 +130,9 @@ case "$TEST_TYPE" in
         echo ""
         echo "Error: The variable PARTNER_AUTH or VALID_TEST_ACCOUNT_NUMBER must be set."
         exit 1
+    fi
+    if [[ "${ENABLE_HIGHLY_RATE_LIMITED_TESTS}" == "false" ]]; then
+        OPTIONAL_TEST_ARGUMENTS+=" -e enable_highly_rate_limited_tests false"
     fi
     USE_ORCHESTRATOR="true"
     PACKAGE_NAME="net.mullvad.mullvadvpn"
