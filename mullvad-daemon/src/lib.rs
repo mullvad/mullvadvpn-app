@@ -853,30 +853,8 @@ impl Daemon {
     /// shutdown event is received.
     pub async fn run(mut self) -> Result<(), Error> {
         self.handle_initial_target_state();
-
-        while let Some(event) = self.rx.next().await {
-            if self.handle_event(event).await {
-                break;
-            }
-        }
-
-        // Wait for tunnel state machine to disconnect
-        if !self.tunnel_state.is_disconnected() {
-            self.disconnect_tunnel();
-
-            while let Some(event) = self.rx.next().await {
-                if let InternalDaemonEvent::TunnelStateTransition(transition) = event {
-                    self.handle_tunnel_state_transition(transition).await;
-                } else {
-                    log::trace!("Ignoring event because the daemon is shutting down");
-                }
-
-                if self.tunnel_state.is_disconnected() {
-                    break;
-                }
-            }
-        }
-
+        self.handle_events().await;
+        self.disconnect_tunnel_and_wait().await;
         self.finalize().await;
         Ok(())
     }
@@ -898,6 +876,27 @@ impl Daemon {
     /// Map the secured target state to a tunnel command
     const fn secured_state_to_tunnel_command(_: TargetStateStrict<Secured>) -> TunnelCommand {
         TunnelCommand::Connect
+    }
+
+    /// Begin disconnecting and wait for the tunnel state machine to be disconnected
+    async fn disconnect_tunnel_and_wait(&mut self) {
+        if self.tunnel_state.is_disconnected() {
+            return;
+        }
+
+        self.disconnect_tunnel();
+
+        while let Some(event) = self.rx.next().await {
+            if let InternalDaemonEvent::TunnelStateTransition(transition) = event {
+                self.handle_tunnel_state_transition(transition).await;
+            } else {
+                log::trace!("Ignoring event because the daemon is shutting down");
+            }
+
+            if self.tunnel_state.is_disconnected() {
+                break;
+            }
+        }
     }
 
     /// Destroy daemon safely, by dropping all objects in the correct order, waiting for them to
@@ -925,6 +924,15 @@ impl Daemon {
         management_interface.stop().await;
 
         drop(api_runtime);
+    }
+
+    /// Handle internal daemon events until a shutdown event is received
+    async fn handle_events(&mut self) {
+        while let Some(event) = self.rx.next().await {
+            if self.handle_event(event).await {
+                break;
+            }
+        }
     }
 
     async fn handle_event(&mut self, event: InternalDaemonEvent) -> bool {
