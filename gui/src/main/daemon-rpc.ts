@@ -29,8 +29,9 @@ import {
   DeviceEvent,
   DeviceState,
   DirectMethod,
-  ErrorState,
   ErrorStateCause,
+  ErrorStateDetails,
+  FeatureIndicator,
   FirewallPolicyError,
   FirewallPolicyErrorType,
   IAppVersionInfo,
@@ -980,6 +981,9 @@ function convertFromTunnelState(tunnelState: grpcTypes.TunnelState): TunnelState
         details:
           tunnelStateObject.connecting?.relayInfo &&
           convertFromTunnelStateRelayInfo(tunnelStateObject.connecting.relayInfo),
+        featureIndicators: convertFromFeatureIndicators(
+          tunnelStateObject.connecting?.featureIndicators?.activeFeaturesList,
+        ),
       };
     case grpcTypes.TunnelState.StateCase.CONNECTED: {
       const relayInfo =
@@ -989,13 +993,16 @@ function convertFromTunnelState(tunnelState: grpcTypes.TunnelState): TunnelState
         relayInfo && {
           state: 'connected',
           details: relayInfo,
+          featureIndicators: convertFromFeatureIndicators(
+            tunnelStateObject.connected?.featureIndicators?.activeFeaturesList,
+          ),
         }
       );
     }
   }
 }
 
-function convertFromTunnelStateError(state: grpcTypes.ErrorState.AsObject): ErrorState {
+function convertFromTunnelStateError(state: grpcTypes.ErrorState.AsObject): ErrorStateDetails {
   const baseError = {
     blockingError: state.blockingError && convertFromBlockingError(state.blockingError),
   };
@@ -1125,6 +1132,47 @@ function convertFromTunnelStateRelayInfo(
     };
   }
   return undefined;
+}
+
+function convertFromFeatureIndicators(
+  featureIndicators?: Array<grpcTypes.FeatureIndicator>,
+): Array<FeatureIndicator> | undefined {
+  return featureIndicators?.map(convertFromFeatureIndicator);
+}
+
+function convertFromFeatureIndicator(
+  featureIndicator: grpcTypes.FeatureIndicator,
+): FeatureIndicator {
+  switch (featureIndicator) {
+    case grpcTypes.FeatureIndicator.QUANTUM_RESISTANCE:
+      return FeatureIndicator.quantumResistance;
+    case grpcTypes.FeatureIndicator.MULTIHOP:
+      return FeatureIndicator.multihop;
+    case grpcTypes.FeatureIndicator.BRIDGE_MODE:
+      return FeatureIndicator.bridgeMode;
+    case grpcTypes.FeatureIndicator.SPLIT_TUNNELING:
+      return FeatureIndicator.splitTunneling;
+    case grpcTypes.FeatureIndicator.LOCKDOWN_MODE:
+      return FeatureIndicator.lockdownMode;
+    case grpcTypes.FeatureIndicator.UDP_2_TCP:
+      return FeatureIndicator.udp2tcp;
+    case grpcTypes.FeatureIndicator.LAN_SHARING:
+      return FeatureIndicator.lanSharing;
+    case grpcTypes.FeatureIndicator.DNS_CONTENT_BLOCKERS:
+      return FeatureIndicator.dnsContentBlockers;
+    case grpcTypes.FeatureIndicator.CUSTOM_DNS:
+      return FeatureIndicator.customDns;
+    case grpcTypes.FeatureIndicator.SERVER_IP_OVERRIDE:
+      return FeatureIndicator.serverIpOverride;
+    case grpcTypes.FeatureIndicator.CUSTOM_MTU:
+      return FeatureIndicator.customMtu;
+    case grpcTypes.FeatureIndicator.CUSTOM_MSS_FIX:
+      return FeatureIndicator.customMssFix;
+    case grpcTypes.FeatureIndicator.DAITA:
+      return FeatureIndicator.daita;
+    case grpcTypes.FeatureIndicator.SHADOWSOCKS:
+      return FeatureIndicator.shadowsocks;
+  }
 }
 
 function convertFromTunnelType(tunnelType: grpcTypes.TunnelType): TunnelType {
