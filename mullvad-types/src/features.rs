@@ -66,6 +66,7 @@ pub enum FeatureIndicator {
     CustomMtu,
     CustomMssFix,
     Daita,
+    DaitaUseAnywhere,
 }
 
 impl FeatureIndicator {
@@ -85,6 +86,7 @@ impl FeatureIndicator {
             FeatureIndicator::CustomMtu => "Custom MTU",
             FeatureIndicator::CustomMssFix => "Custom MSS",
             FeatureIndicator::Daita => "DAITA",
+            FeatureIndicator::DaitaUseAnywhere => "Use Anywhere (DAITA)",
         }
     }
 }
