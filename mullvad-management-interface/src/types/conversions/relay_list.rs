@@ -144,13 +144,13 @@ impl From<mullvad_types::relay_list::Relay> for proto::Relay {
                 )),
                 _ => None,
             },
-            location: relay.location.map(|location| proto::Location {
-                country: location.country,
-                country_code: location.country_code,
-                city: location.city,
-                city_code: location.city_code,
-                latitude: location.latitude,
-                longitude: location.longitude,
+            location: Some(proto::Location {
+                country: relay.location.country,
+                country_code: relay.location.country_code,
+                city: relay.location.city,
+                city_code: relay.location.city_code,
+                latitude: relay.location.latitude,
+                longitude: relay.location.longitude,
             }),
         }
     }
@@ -299,14 +299,18 @@ impl TryFrom<proto::Relay> for mullvad_types::relay_list::Relay {
             provider: relay.provider,
             weight: relay.weight,
             endpoint_data,
-            location: relay.location.map(|location| MullvadLocation {
-                country: location.country,
-                country_code: location.country_code,
-                city: location.city,
-                city_code: location.city_code,
-                latitude: location.latitude,
-                longitude: location.longitude,
-            }),
+            location: relay
+                .location
+                .map(|location| MullvadLocation {
+                    country: location.country,
+                    country_code: location.country_code,
+                    city: location.city,
+                    city_code: location.city_code,
+                    latitude: location.latitude,
+                    longitude: location.longitude,
+                })
+                .ok_or("missing relay location")
+                .map_err(FromProtobufTypeError::InvalidArgument)?,
         })
     }
 }
