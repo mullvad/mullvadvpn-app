@@ -994,10 +994,9 @@ impl RelaySelector {
                     Err(Error::NoBridge)
                 }
                 TransportProtocol::Tcp => {
-                    let location = relay.location.as_ref().ok_or(Error::NoRelay)?;
                     Self::get_bridge_for(
                         bridge_query,
-                        location,
+                        &relay.location,
                         // FIXME: This is temporary while talpid-core only supports TCP proxies
                         TransportProtocol::Tcp,
                         parsed_relays,
@@ -1077,7 +1076,7 @@ impl RelaySelector {
         let matching_bridges: Vec<RelayWithDistance> = relays
             .into_iter()
             .map(|relay| RelayWithDistance {
-                distance: relay.location.as_ref().unwrap().distance_from(&location),
+                distance: relay.location.distance_from(&location),
                 relay,
             })
             .sorted_unstable_by_key(|relay| relay.distance as usize)
@@ -1115,7 +1114,7 @@ impl RelaySelector {
         let matching_locations: Vec<Location> =
             filter_matching_relay_list(query, parsed_relays, custom_lists)
                 .into_iter()
-                .filter_map(|relay| relay.location)
+                .map(|relay| relay.location)
                 .unique_by(|location| location.city.clone())
                 .collect();
 

@@ -642,7 +642,7 @@ async fn connect_local_wg_relay(mullvad_client: &mut MullvadProxyClient) -> Resu
         .set_quantum_resistant_tunnel(QuantumResistantState::Off)
         .await?;
     mullvad_client
-        .set_daita_settings(DaitaSettings { enabled: false })
+        .set_daita_settings(DaitaSettings::default())
         .await?;
 
     let peer_addr: SocketAddr = SocketAddr::new(
