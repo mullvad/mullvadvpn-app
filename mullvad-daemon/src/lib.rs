@@ -895,7 +895,7 @@ impl Daemon {
         }
     }
 
-    /// Map the secured target state to an tunnel command
+    /// Map the secured target state to a tunnel command
     const fn secured_state_to_tunnel_command(_: TargetStateStrict<Secured>) -> TunnelCommand {
         TunnelCommand::Connect
     }
