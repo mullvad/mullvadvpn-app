@@ -1,4 +1,5 @@
 use crate::{features::FeatureIndicators, location::GeoIpLocation};
+use either::Either;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 use talpid_types::{
@@ -14,6 +15,44 @@ use talpid_types::{
 pub enum TargetState {
     Unsecured,
     Secured,
+}
+
+impl TargetState {
+    pub const fn to_strict(
+        &self,
+    ) -> Either<TargetStateStrict<Unsecured>, TargetStateStrict<Secured>> {
+        match self {
+            TargetState::Unsecured => Either::Left(TargetStateStrict::<Unsecured>::new()),
+            TargetState::Secured => Either::Right(TargetStateStrict::<Secured>::new()),
+        }
+    }
+}
+
+#[derive(Clone, Copy)]
+pub struct TargetStateStrict<T> {
+    _state: std::marker::PhantomData<T>,
+}
+
+#[derive(Clone, Copy)]
+pub struct Unsecured;
+
+#[derive(Clone, Copy)]
+pub struct Secured;
+
+impl TargetStateStrict<Unsecured> {
+    const fn new() -> Self {
+        Self {
+            _state: std::marker::PhantomData,
+        }
+    }
+}
+
+impl TargetStateStrict<Secured> {
+    const fn new() -> Self {
+        Self {
+            _state: std::marker::PhantomData,
+        }
+    }
 }
 
 impl fmt::Display for TargetState {
