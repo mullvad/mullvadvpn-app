@@ -60,7 +60,7 @@ use mullvad_types::{
     },
     relay_list::RelayList,
     settings::{DnsOptions, DnsState, Settings},
-    states::{TargetState, TunnelState},
+    states::{Secured, TargetState, TargetStateStrict, TunnelState},
     version::{AppVersion, AppVersionInfo},
     wireguard::{PublicKey, QuantumResistantState, RotationInterval},
 };
@@ -852,17 +852,7 @@ impl Daemon {
     /// Consume the `Daemon` and run the main event loop. Blocks until an error happens or a
     /// shutdown event is received.
     pub async fn run(mut self) -> Result<(), Error> {
-        match *self.target_state {
-            TargetState::Secured => {
-                self.connect_tunnel();
-            }
-            TargetState::Unsecured => {
-                // Fetching GeoIpLocation is automatically done when connecting.
-                // If TargetState is Unsecured we will not connect on lauch and
-                // so we have to explicitly fetch this information.
-                self.fetch_am_i_mullvad()
-            }
-        }
+        self.handle_initial_target_state();
 
         while let Some(event) = self.rx.next().await {
             if self.handle_event(event).await {
@@ -889,6 +879,25 @@ impl Daemon {
 
         self.finalize().await;
         Ok(())
+    }
+
+    fn handle_initial_target_state(&mut self) {
+        match self.target_state.to_strict() {
+            either::Either::Right(state) => {
+                self.send_tunnel_command(Self::secured_state_to_tunnel_command(state));
+            }
+            either::Either::Left(_) => {
+                // Fetching GeoIpLocation is automatically done when connecting.
+                // If TargetState is Unsecured we will not connect on lauch and
+                // so we have to explicitly fetch this information.
+                self.fetch_am_i_mullvad()
+            }
+        }
+    }
+
+    /// Map the secured target state to an tunnel command
+    const fn secured_state_to_tunnel_command(_: TargetStateStrict<Secured>) -> TunnelCommand {
+        TunnelCommand::Connect
     }
 
     /// Destroy daemon safely, by dropping all objects in the correct order, waiting for them to
@@ -983,6 +992,11 @@ impl Daemon {
             // Exempt the latter because a reconnect scheduled while connecting should not be
             // aborted.
             self.unschedule_reconnect();
+        }
+
+        if self.tunnel_state.is_disconnected() && !tunnel_state.is_disconnected() {
+            // Enable background API requests when leaving the disconnected state.
+            self.api_handle.availability.resume_background();
         }
 
         log::debug!("New tunnel state: {:?}", tunnel_state);
@@ -2816,7 +2830,6 @@ impl Daemon {
     }
 
     fn connect_tunnel(&mut self) {
-        self.api_runtime.availability_handle().resume_background();
         self.send_tunnel_command(TunnelCommand::Connect);
     }
 

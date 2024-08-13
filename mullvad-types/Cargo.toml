@@ -11,6 +11,7 @@ rust-version.workspace = true
 workspace = true
 
 [dependencies]
+either = "1.11"
 chrono = { workspace = true, features = ["clock", "serde"] }
 thiserror = { workspace = true }
 ipnetwork = { workspace = true }
