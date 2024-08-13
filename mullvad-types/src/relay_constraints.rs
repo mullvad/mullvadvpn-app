@@ -203,21 +203,18 @@ impl GeographicLocationConstraint {
 impl Match<Relay> for GeographicLocationConstraint {
     fn matches(&self, relay: &Relay) -> bool {
         match self {
-            GeographicLocationConstraint::Country(ref country) => relay
-                .location
-                .as_ref()
-                .map_or(false, |loc| loc.country_code == *country),
+            GeographicLocationConstraint::Country(ref country) => {
+                relay.location.country_code == *country
+            }
             GeographicLocationConstraint::City(ref country, ref city) => {
-                relay.location.as_ref().map_or(false, |loc| {
-                    loc.country_code == *country && loc.city_code == *city
-                })
+                let loc = &relay.location;
+                loc.country_code == *country && loc.city_code == *city
             }
             GeographicLocationConstraint::Hostname(ref country, ref city, ref hostname) => {
-                relay.location.as_ref().map_or(false, |loc| {
-                    loc.country_code == *country
-                        && loc.city_code == *city
-                        && relay.hostname == *hostname
-                })
+                let loc = &relay.location;
+                loc.country_code == *country
+                    && loc.city_code == *city
+                    && relay.hostname == *hostname
             }
         }
     }

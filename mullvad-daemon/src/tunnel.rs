@@ -108,7 +108,7 @@ impl ParametersGenerator {
                 hostname = exit.hostname.clone();
                 obfuscator_hostname = take_hostname(obfuscator);
                 bridge_hostname = None;
-                location = exit.location.as_ref().cloned().unwrap();
+                location = exit.location.clone();
             }
             #[cfg(not(target_os = "android"))]
             LastSelectedRelays::OpenVpn { relay, bridge } => {
@@ -116,7 +116,7 @@ impl ParametersGenerator {
                 bridge_hostname = take_hostname(bridge);
                 entry_hostname = None;
                 obfuscator_hostname = None;
-                location = relay.location.as_ref().cloned().unwrap();
+                location = relay.location.clone();
             }
         };
 
