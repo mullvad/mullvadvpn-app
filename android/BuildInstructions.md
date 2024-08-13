@@ -232,3 +232,6 @@ the `ENABLE_IN_APP_VERSION_NOTIFICATIONS` property can be set in `local.properti
 ```
 ENABLE_IN_APP_VERSION_NOTIFICATIONS=false
 ```
+
+### Run tests highly affected by rate limiting
+To avoid being rate limited we avoid running tests sending requests that are highly rate limited too often. If you want to run these tests you can set `enable_highly_rate_limited_tests=true` in `local.properties`. The default value is `false`.
