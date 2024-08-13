@@ -46,7 +46,7 @@ export default class TunnelStateHandler {
     this.setTunnelState(
       state === 'disconnecting'
         ? { state, details: 'nothing' as const, location: this.lastKnownDisconnectedLocation }
-        : { state },
+        : { state, featureIndicators: undefined },
     );
 
     this.tunnelStateFallbackScheduler.schedule(() => {

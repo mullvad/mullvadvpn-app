@@ -65,7 +65,7 @@ export enum TunnelParameterError {
   customTunnelHostResolutionError,
 }
 
-export type ErrorState =
+export type ErrorStateDetails =
   | {
       cause:
         | ErrorStateCause.ipv6Unavailable
@@ -180,12 +180,48 @@ export interface ITunnelStateRelayInfo {
   location?: ILocation;
 }
 
+// The order of the variants match the priority order and can be sorted on.
+export enum FeatureIndicator {
+  daita,
+  quantumResistance,
+  multihop,
+  bridgeMode,
+  splitTunneling,
+  lockdownMode,
+  udp2tcp,
+  shadowsocks,
+  lanSharing,
+  dnsContentBlockers,
+  customDns,
+  serverIpOverride,
+  customMtu,
+  customMssFix,
+}
+
+export type DisconnectedState = { state: 'disconnected'; location?: Partial<ILocation> };
+export type ConnectingState = {
+  state: 'connecting';
+  details?: ITunnelStateRelayInfo;
+  featureIndicators?: Array<FeatureIndicator>;
+};
+export type ConnectedState = {
+  state: 'connected';
+  details: ITunnelStateRelayInfo;
+  featureIndicators?: Array<FeatureIndicator>;
+};
+export type DisconnectingState = {
+  state: 'disconnecting';
+  details: AfterDisconnect;
+  location?: Partial<ILocation>;
+};
+export type ErrorState = { state: 'error'; details: ErrorStateDetails };
+
 export type TunnelState =
-  | { state: 'disconnected'; location?: Partial<ILocation> }
-  | { state: 'connecting'; details?: ITunnelStateRelayInfo }
-  | { state: 'connected'; details: ITunnelStateRelayInfo }
-  | { state: 'disconnecting'; details: AfterDisconnect; location?: Partial<ILocation> }
-  | { state: 'error'; details: ErrorState };
+  | DisconnectedState
+  | ConnectingState
+  | ConnectedState
+  | DisconnectingState
+  | ErrorState;
 
 export interface RelayLocationCountry extends Partial<RelayLocationCustomList> {
   country: string;
