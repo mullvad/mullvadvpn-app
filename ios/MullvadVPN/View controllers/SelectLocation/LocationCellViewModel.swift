@@ -62,17 +62,17 @@ extension [LocationCellViewModel] {
 }
 
 extension LocationCellViewModel {
-    /* Exclusion of other locations in the same node tree as the currently excluded location
+    /* Exclusion of other locations in the same node tree (as the currently excluded location)
      happens when there are no more hosts in that tree that can be selected.
      We check this by doing the following, in order:
 
-     1. Count host names in the tree. More than one means that there are other locations than
+     1. Count hostnames in the tree. More than one means that there are other locations than
      the excluded one for the relay selector to choose from. No exlusion.
 
-     2. Count host names in the excluded node. More than one means that there are multiple
-     locations for the relay selector to choose from. No exlusion.
+     2. Count hostnames in the excluded node. More than one means that there are multiple
+     locations for the relay selector to choose from. No exclusion.
 
-     3. Check existance of a location in the tree that match the currently excluded location.
+     3. Check existance of a location in the tree that matches the currently excluded location.
      No match means no exclusion.
      */
     func shouldExcludeLocation(_ excludedLocation: LocationCellViewModel?) -> Bool {
@@ -86,8 +86,8 @@ extension LocationCellViewModel {
             if case .hostname = location { true } else { false }
         }.count
 
-        // If the there are more than one selectable relay in the current node we don't need
-        // show this in the location tree and can return early.
+        // If the there's more than one selectable relay in the current node we don't need
+        // to show this in the location tree and can return early.
         guard hostCount == 1 else { return false }
 
         let proxyExcludedNode = RootLocationNode(children: [excludedLocation.node])
@@ -96,8 +96,8 @@ extension LocationCellViewModel {
             if case .hostname = location { true } else { false }
         }.count
 
-        // If the there are more than one selectable relay in the excluded node we don't need
-        // show this in the location tree and can return early.
+        // If the there's more than one selectable relay in the excluded node we don't need
+        // to show this in the location tree and can return early.
         guard excludedHostCount == 1 else { return false }
 
         var containsExcludedLocation = false

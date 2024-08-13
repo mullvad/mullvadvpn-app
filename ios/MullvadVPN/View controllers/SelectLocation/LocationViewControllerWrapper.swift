@@ -52,15 +52,20 @@ final class LocationViewControllerWrapper: UIViewController {
     private var selectedExit: UserSelectedRelays?
     private let multihopEnabled: Bool
     private var multihopContext: MultihopContext = .exit
+    private let daitaEnabled: Bool
 
     weak var delegate: LocationViewControllerWrapperDelegate?
 
     init(
         customListRepository: CustomListRepositoryProtocol,
         constraints: RelayConstraints,
-        multihopEnabled: Bool
+        multihopEnabled: Bool,
+        daitaEnabled: Bool,
+        startContext: MultihopContext
     ) {
         self.multihopEnabled = multihopEnabled
+        self.daitaEnabled = daitaEnabled
+        multihopContext = startContext
 
         selectedEntry = constraints.entryLocations.value
         selectedExit = constraints.exitLocations.value
@@ -94,15 +99,31 @@ final class LocationViewControllerWrapper: UIViewController {
         view.accessibilityIdentifier = .selectLocationViewWrapper
         view.backgroundColor = .secondaryColor
 
+        if multihopEnabled {
+            entryLocationViewController.setDaita(daitaEnabled)
+        } else {
+            exitLocationViewController.setDaita(daitaEnabled)
+        }
+
         setUpNavigation()
         setUpSegmentedControl()
         addSubviews()
         swapViewController()
     }
 
-    func setCachedRelays(_ cachedRelays: CachedRelays, filter: RelayFilter) {
-        updateViewControllers {
-            $0.setCachedRelays(cachedRelays, filter: filter)
+    func setCachedRelays(_ cachedRelays: LocationRelays, filter: RelayFilter) {
+        var daitaFilteredRelays = cachedRelays
+        if daitaEnabled {
+            daitaFilteredRelays.relays = cachedRelays.relays.filter { relay in
+                relay.daita == true
+            }
+        }
+
+        if multihopEnabled {
+            entryLocationViewController.setCachedRelays(daitaFilteredRelays, filter: filter)
+            exitLocationViewController.setCachedRelays(cachedRelays, filter: filter)
+        } else {
+            exitLocationViewController.setCachedRelays(daitaFilteredRelays, filter: filter)
         }
     }
 

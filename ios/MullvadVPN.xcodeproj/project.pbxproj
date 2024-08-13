@@ -489,6 +489,8 @@
 		7A516C3C2B712F0B00BBD33D /* IPOverrideWrapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A516C3B2B712F0B00BBD33D /* IPOverrideWrapperTests.swift */; };
 		7A52F96A2C1735AE00B133B9 /* RelaySelectorStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FE25EF2AA77664003D1918 /* RelaySelectorStub.swift */; };
 		7A52F96C2C17450C00B133B9 /* RelaySelectorWrapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A52F96B2C17450C00B133B9 /* RelaySelectorWrapperTests.swift */; };
+		7A5468AC2C6A55B100590086 /* LocationRelays.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5468AB2C6A55B100590086 /* LocationRelays.swift */; };
+		7A5468AD2C6B5E4B00590086 /* LocationRelays.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5468AB2C6A55B100590086 /* LocationRelays.swift */; };
 		7A5869952B32E9C700640D27 /* LinkButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5869942B32E9C700640D27 /* LinkButton.swift */; };
 		7A5869972B32EA4500640D27 /* AppButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5869962B32EA4500640D27 /* AppButton.swift */; };
 		7A58699B2B482FE200640D27 /* UITableViewCell+Disable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A58699A2B482FE200640D27 /* UITableViewCell+Disable.swift */; };
@@ -1806,6 +1808,7 @@
 		7A516C392B7111A700BBD33D /* IPOverrideWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPOverrideWrapper.swift; sourceTree = "<group>"; };
 		7A516C3B2B712F0B00BBD33D /* IPOverrideWrapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPOverrideWrapperTests.swift; sourceTree = "<group>"; };
 		7A52F96B2C17450C00B133B9 /* RelaySelectorWrapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelaySelectorWrapperTests.swift; sourceTree = "<group>"; };
+		7A5468AB2C6A55B100590086 /* LocationRelays.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationRelays.swift; sourceTree = "<group>"; };
 		7A5869942B32E9C700640D27 /* LinkButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinkButton.swift; sourceTree = "<group>"; };
 		7A5869962B32EA4500640D27 /* AppButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppButton.swift; sourceTree = "<group>"; };
 		7A58699A2B482FE200640D27 /* UITableViewCell+Disable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITableViewCell+Disable.swift"; sourceTree = "<group>"; };
@@ -2756,6 +2759,7 @@
 				F050AE5D2B739A73003F4EDB /* LocationDataSourceProtocol.swift */,
 				7A6652B62BB44B120042D848 /* LocationDiffableDataSourceProtocol.swift */,
 				7A6389F72B864CDF008E77E1 /* LocationNode.swift */,
+				7A5468AB2C6A55B100590086 /* LocationRelays.swift */,
 				F050AE512B70DFC0003F4EDB /* LocationSection.swift */,
 				F0BE65362B9F136A005CC385 /* LocationSectionHeaderView.swift */,
 				5888AD86227B17950051EB06 /* LocationViewController.swift */,
@@ -5251,6 +5255,7 @@
 				A9A5FA422ACB05D90083449F /* DeviceStateAccessorProtocol.swift in Sources */,
 				7A5869C32B5820CE00640D27 /* IPOverrideRepositoryTests.swift in Sources */,
 				A9A5FA392ACB05910083449F /* UIColor+Palette.swift in Sources */,
+				7A5468AD2C6B5E4B00590086 /* LocationRelays.swift in Sources */,
 				A9A5FA3A2ACB05910083449F /* UIEdgeInsets+Extensions.swift in Sources */,
 				A9A5FA3B2ACB05910083449F /* UIMetrics.swift in Sources */,
 				58B07C182AEFDD6C00A09625 /* StoreTransactionLog.swift in Sources */,
@@ -5542,6 +5547,7 @@
 				7A9CCCC42A96302800DD6A34 /* TunnelCoordinator.swift in Sources */,
 				5827B0A42B0F38FD00CCBBA1 /* EditAccessMethodInteractorProtocol.swift in Sources */,
 				586C0D852B03D31E00E7CDD7 /* SocksSectionHandler.swift in Sources */,
+				7A5468AC2C6A55B100590086 /* LocationRelays.swift in Sources */,
 				58BFA5CC22A7CE1F00A6173D /* ApplicationConfiguration.swift in Sources */,
 				5891BF5125E66B1E006D6FB0 /* UIBarButtonItem+KeyboardNavigation.swift in Sources */,
 				58E511E628DDDEAC00B0BCDE /* CodingErrors+CustomErrorDescription.swift in Sources */,
