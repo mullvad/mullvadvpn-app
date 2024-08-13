@@ -8,6 +8,7 @@ disabled_rules:
   - opening_brace  # Differs from Google swift guidelines enforced by swiftformat
   - trailing_comma
   - switch_case_alignment # Enables expressions such as [return switch location {}]
+  - orphaned_doc_comment
 opt_in_rules:
   - empty_count
 
