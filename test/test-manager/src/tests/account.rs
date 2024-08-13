@@ -44,30 +44,33 @@ pub async fn test_too_many_devices(
 
     const MAX_ATTEMPTS: usize = 15;
 
-    for _ in 0..MAX_ATTEMPTS {
-        let pubkey = wireguard::PrivateKey::new_from_random().public_key();
+    let fill_devices = || async {
+        for _ in 0..MAX_ATTEMPTS {
+            let pubkey = wireguard::PrivateKey::new_from_random().public_key();
 
-        match device_client
-            .create(TEST_CONFIG.account_number.clone(), pubkey)
-            .await
-        {
-            Ok(_) => (),
-            Err(mullvad_api::rest::Error::ApiError(_status, ref code))
-                if code == mullvad_api::MAX_DEVICES_REACHED =>
+            match device_client
+                .create(TEST_CONFIG.account_number.clone(), pubkey)
+                .await
             {
-                break;
-            }
-            Err(error) => {
-                log::error!(
-                    "Failed to generate device: {error:?}. Retrying after {} seconds",
-                    THROTTLE_RETRY_DELAY.as_secs()
-                );
-                // Sleep for an overly long time.
-                // TODO: Only sleep for this long if the error is caused by throttling.
-                tokio::time::sleep(THROTTLE_RETRY_DELAY).await;
+                Ok(_) => (),
+                Err(mullvad_api::rest::Error::ApiError(_status, ref code))
+                    if code == mullvad_api::MAX_DEVICES_REACHED =>
+                {
+                    break;
+                }
+                Err(error) => {
+                    log::error!(
+                        "Failed to generate device: {error:?}. Retrying after {} seconds",
+                        THROTTLE_RETRY_DELAY.as_secs()
+                    );
+                    // Sleep for an overly long time.
+                    // TODO: Only sleep for this long if the error is caused by throttling.
+                    tokio::time::sleep(THROTTLE_RETRY_DELAY).await;
+                }
             }
         }
-    }
+    };
+    fill_devices().await;
 
     log::info!("Log in with too many devices");
     let login_result = login_with_retries(&mut mullvad_client).await;
@@ -79,6 +82,9 @@ pub async fn test_too_many_devices(
         ),
         "Expected too many devices error, got {login_result:?}"
     );
+
+    mullvad_client.logout_account().await?;
+    fill_devices().await;
 
     // Run UI test
     let ui_result = ui::run_test_env(
@@ -119,8 +125,6 @@ pub async fn test_revoked_device(
         .unwrap()
         .device
         .id;
-
-    helpers::connect_and_wait(&mut mullvad_client).await?;
 
     log::debug!("Removing current device");
 

@@ -120,7 +120,12 @@ pub async fn test_ui_tunnel_settings(
 
 /// Test whether logging in and logging out work in the GUI
 #[test_function(priority = 500)]
-pub async fn test_ui_login(_: TestContext, rpc: ServiceClient) -> Result<(), Error> {
+pub async fn test_ui_login(
+    _: TestContext,
+    rpc: ServiceClient,
+    mut mullvad_client: MullvadProxyClient,
+) -> Result<(), Error> {
+    mullvad_client.logout_account().await?;
     let ui_result = run_test_env(
         &rpc,
         &["login.spec"],
