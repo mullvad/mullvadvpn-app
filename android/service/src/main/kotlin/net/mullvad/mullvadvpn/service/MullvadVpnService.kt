@@ -150,7 +150,7 @@ class MullvadVpnService : TalpidVpnService() {
 
     private fun startDaemon() {
         val apiEndpointConfiguration =
-            if (Build.TYPE == BuildTypes.DEBUG) {
+            if (BuildConfig.DEBUG) {
                 intentProvider.getLatestIntent()?.getApiEndpointConfigurationExtras()
                     ?: apiEndpointConfiguration
             } else {

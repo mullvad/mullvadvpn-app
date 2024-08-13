@@ -142,4 +142,12 @@ dependencies {
     implementation(libs.kotlin.stdlib)
 
     androidTestUtil(libs.androidx.test.orchestrator)
+
+    // Needed or else the app crashes when launched
+    implementation(Dependencies.junit5AndroidTestCompose)
+    implementation(libs.compose.material3)
+
+    // Need these for forcing later versions of dependencies
+    implementation(libs.compose.ui)
+    implementation(libs.androidx.activity.compose)
 }
