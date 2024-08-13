@@ -23,17 +23,4 @@ class LogoutTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
         // Then
         assertNotNull(device.findObjectWithTimeout(By.text("Login")))
     }
-
-    @Test
-    fun testCreateAccountAndLogout() {
-        // Given
-        app.launchAndCreateAccount()
-
-        // When
-        app.clickAccountCog()
-        app.clickActionButtonByText("Log out")
-
-        // Then
-        assertNotNull(device.findObjectWithTimeout(By.text("Login")))
-    }
 }

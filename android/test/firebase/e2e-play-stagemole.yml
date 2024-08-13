@@ -16,3 +16,6 @@ default:
     - {model: blueline, version: 28, locale: en, orientation: portrait} # pixel 3
     - {model: cactus, version: 27, locale: en, orientation: portrait} # redmi 6a
     - {model: starqlteue, version: 26, locale: en, orientation: portrait} # galaxy s9
+  environment-variables:
+    clearPackageData: "true"
+    runnerBuilder: "de.mannodermaus.junit5.AndroidJUnit5Builder"

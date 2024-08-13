@@ -5,8 +5,8 @@ import net.mullvad.mullvadvpn.test.common.constant.LOGIN_FAILURE_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.extension.clickAgreeOnPrivacyDisclaimer
 import net.mullvad.mullvadvpn.test.common.extension.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
+import net.mullvad.mullvadvpn.test.e2e.annotations.HighlyRateLimited
 import net.mullvad.mullvadvpn.test.e2e.misc.AccountTestRule
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 
@@ -27,7 +27,7 @@ class LoginTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
     }
 
     @Test
-    @Disabled("Disabled to avoid getting rate-limited.")
+    @HighlyRateLimited
     fun testLoginWithInvalidCredentials() {
         // Given
         val invalidDummyAccountNumber = accountTestRule.invalidAccountNumber

@@ -46,6 +46,7 @@ android {
                 put("clearPackageData", "true")
                 addOptionalPropertyAsArgument("valid_test_account_number")
                 addOptionalPropertyAsArgument("invalid_test_account_number")
+                addOptionalPropertyAsArgument("enable_highly_rate_limited_tests")
             }
     }
 
@@ -142,4 +143,12 @@ dependencies {
     implementation(libs.kotlin.stdlib)
 
     androidTestUtil(libs.androidx.test.orchestrator)
+
+    // Needed or else the app crashes when launched
+    implementation(Dependencies.junit5AndroidTestCompose)
+    implementation(libs.compose.material3)
+
+    // Need these for forcing later versions of dependencies
+    implementation(libs.compose.ui)
+    implementation(libs.androidx.activity.compose)
 }

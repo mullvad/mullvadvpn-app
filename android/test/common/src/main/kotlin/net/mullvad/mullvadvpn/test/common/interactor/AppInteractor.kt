@@ -52,15 +52,6 @@ class AppInteractor(
         ensureLoggedIn()
     }
 
-    fun launchAndCreateAccount() {
-        launch()
-        device.clickAgreeOnPrivacyDisclaimer()
-        device.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
-        waitForLoginPrompt()
-        attemptCreateAccount()
-        ensureAccountCreated()
-    }
-
     fun attemptLogin(accountNumber: String) {
         val loginObject =
             device.findObjectWithTimeout(By.clazz("android.widget.EditText")).apply {
