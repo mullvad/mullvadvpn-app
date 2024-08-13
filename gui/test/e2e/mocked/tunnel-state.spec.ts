@@ -49,7 +49,7 @@ test('App should show connecting tunnel state', async () => {
   });
   await util.sendMockIpcResponse<TunnelState>({
     channel: 'tunnel-',
-    response: { state: 'connecting' },
+    response: { state: 'connecting', featureIndicators: undefined },
   });
   await expectConnecting(page);
 });
@@ -73,7 +73,7 @@ test('App should show connected tunnel state', async () => {
   };
   await util.sendMockIpcResponse<TunnelState>({
     channel: 'tunnel-',
-    response: { state: 'connected', details: { endpoint, location } },
+    response: { state: 'connected', details: { endpoint, location }, featureIndicators: undefined },
   });
 
   await expectConnected(page);
