@@ -236,9 +236,9 @@ android {
         createDistBundle.dependsOn("bundle$capitalizedVariantName")
     }
 
-    project.tasks.assemble.dependsOn("ensureJniDirectoryExist")
-    project.tasks.assemble.dependsOn("copyExtraAssets")
-    project.tasks.assemble.dependsOn("ensureValidVersionCode")
+    project.tasks.preBuild.dependsOn("ensureJniDirectoryExist")
+    project.tasks.preBuild.dependsOn("copyExtraAssets")
+    project.tasks.preBuild.dependsOn("ensureValidVersionCode")
 }
 
 junitPlatform {
