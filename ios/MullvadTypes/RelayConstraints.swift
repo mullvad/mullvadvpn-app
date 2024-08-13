@@ -8,18 +8,6 @@
 
 import Foundation
 
-public protocol ConstraintsPropagation {
-    var onNewConstraints: ((RelayConstraints) -> Void)? { get set }
-}
-
-public class RelayConstraintsUpdater: ConstraintsPropagation {
-    public var onNewConstraints: ((RelayConstraints) -> Void)?
-
-    public init(onNewConstraints: ((RelayConstraints) -> Void)? = nil) {
-        self.onNewConstraints = onNewConstraints
-    }
-}
-
 public struct RelayConstraints: Codable, Equatable, CustomDebugStringConvertible {
     @available(*, deprecated, renamed: "locations")
     private var location: RelayConstraint<RelayLocation> = .only(.country("se"))

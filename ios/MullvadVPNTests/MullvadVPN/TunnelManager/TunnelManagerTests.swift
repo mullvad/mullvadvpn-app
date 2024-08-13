@@ -59,8 +59,7 @@ class TunnelManagerTests: XCTestCase {
                 shadowsocksLoader: ShadowsocksLoader(
                     cache: ShadowsocksConfigurationCacheStub(),
                     relaySelector: ShadowsocksRelaySelectorStub(relays: .mock()),
-                    constraintsUpdater: RelayConstraintsUpdater(),
-                    multihopUpdater: MultihopUpdater(listener: MultihopStateListener())
+                    settingsUpdater: SettingsUpdater(listener: TunnelSettingsListener())
                 )
             )
         )
@@ -122,8 +121,8 @@ class TunnelManagerTests: XCTestCase {
 
         accountProxy.createAccountResult = .success(REST.NewAccountData.mockValue())
 
-        let relaySelector = RelaySelectorStub { _, _ in
-            try RelaySelectorStub.unsatisfied().selectRelays(with: RelayConstraints(), connectionAttemptCount: 0)
+        let relaySelector = RelaySelectorStub { _ in
+            try RelaySelectorStub.unsatisfied().selectRelays(connectionAttemptCount: 0)
         }
 
         let tunnelManager = TunnelManager(
@@ -148,11 +147,8 @@ class TunnelManagerTests: XCTestCase {
                 switch tunnelStatus.state {
                 case let .error(blockedStateReason) where blockedStateReason == .noRelaysSatisfyingConstraints:
                     blockedExpectation.fulfill()
-                    relaySelector.selectedRelaysResult = { relayConstraints, connectionAttemptCount in
-                        try RelaySelectorStub.nonFallible().selectRelays(
-                            with: relayConstraints,
-                            connectionAttemptCount: connectionAttemptCount
-                        )
+                    relaySelector.selectedRelaysResult = { connectionAttemptCount in
+                        try RelaySelectorStub.nonFallible().selectRelays(connectionAttemptCount: connectionAttemptCount)
                     }
                     tunnelManager.reconnectTunnel(selectNewRelay: true)
 

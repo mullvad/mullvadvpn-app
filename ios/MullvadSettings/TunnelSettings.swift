@@ -9,7 +9,7 @@
 import Foundation
 
 /// Alias to the latest version of the `TunnelSettings`.
-public typealias LatestTunnelSettings = TunnelSettingsV5
+public typealias LatestTunnelSettings = TunnelSettingsV6
 
 /// Protocol all TunnelSettings must adhere to, for upgrade purposes.
 public protocol TunnelSettings: Codable {
@@ -33,6 +33,9 @@ public enum SchemaVersion: Int, Equatable {
     /// V4 format with multi-hop options, stored as `TunnelSettingsV5`.
     case v5 = 5
 
+    /// V5 format with DAITA settings, stored as `TunnelSettingsV6`.
+    case v6 = 6
+
     var settingsType: any TunnelSettings.Type {
         switch self {
         case .v1: return TunnelSettingsV1.self
@@ -40,6 +43,7 @@ public enum SchemaVersion: Int, Equatable {
         case .v3: return TunnelSettingsV3.self
         case .v4: return TunnelSettingsV4.self
         case .v5: return TunnelSettingsV5.self
+        case .v6: return TunnelSettingsV6.self
         }
     }
 
@@ -49,10 +53,11 @@ public enum SchemaVersion: Int, Equatable {
         case .v2: return .v3
         case .v3: return .v4
         case .v4: return .v5
-        case .v5: return .v5
+        case .v5: return .v6
+        case .v6: return .v6
         }
     }
 
     /// Current schema version.
-    public static let current = SchemaVersion.v5
+    public static let current = SchemaVersion.v6
 }

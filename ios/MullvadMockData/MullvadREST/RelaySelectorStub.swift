@@ -12,17 +12,14 @@ import WireGuardKitTypes
 
 /// Relay selector stub that accepts a block that can be used to provide custom implementation.
 public final class RelaySelectorStub: RelaySelectorProtocol {
-    var selectedRelaysResult: (RelayConstraints, UInt) throws -> SelectedRelays
+    var selectedRelaysResult: (UInt) throws -> SelectedRelays
 
-    init(selectedRelaysResult: @escaping (RelayConstraints, UInt) throws -> SelectedRelays) {
+    init(selectedRelaysResult: @escaping (UInt) throws -> SelectedRelays) {
         self.selectedRelaysResult = selectedRelaysResult
     }
 
-    public func selectRelays(
-        with constraints: RelayConstraints,
-        connectionAttemptCount: UInt
-    ) throws -> SelectedRelays {
-        return try selectedRelaysResult(constraints, connectionAttemptCount)
+    public func selectRelays(connectionAttemptCount: UInt) throws -> SelectedRelays {
+        return try selectedRelaysResult(connectionAttemptCount)
     }
 }
 
@@ -31,7 +28,7 @@ extension RelaySelectorStub {
     public static func nonFallible() -> RelaySelectorStub {
         let publicKey = PrivateKey().publicKey.rawValue
 
-        return RelaySelectorStub { _, _ in
+        return RelaySelectorStub { _ in
             let cityRelay = SelectedRelay(
                 endpoint: MullvadEndpoint(
                     ipv4Relay: IPv4Endpoint(ip: .loopback, port: 1300),
@@ -60,7 +57,7 @@ extension RelaySelectorStub {
 
     /// Returns a relay selector that cannot satisfy constraints .
     public static func unsatisfied() -> RelaySelectorStub {
-        return RelaySelectorStub { _, _ in
+        return RelaySelectorStub { _ in
             throw NoRelaysSatisfyingConstraintsError()
         }
     }
