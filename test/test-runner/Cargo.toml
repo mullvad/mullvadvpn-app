@@ -31,7 +31,7 @@ chrono = { workspace = true, features = ["serde"] }
 
 test-rpc = { path = "../test-rpc" }
 mullvad-paths = { path = "../../mullvad-paths" }
-talpid-platform-metadata = { path = "../../talpid-platform-metadata" }
+talpid-platform-metadata = { path = "../../talpid-platform-metadata", default-features = false }
 
 socket2 = { version = "0.5.4", features = ["all"] }
 

@@ -80,8 +80,13 @@ fn parse_lsb_release() -> Option<String> {
 }
 
 pub fn extra_metadata() -> impl Iterator<Item = (String, String)> {
-    [kernel_version, nm_version, wg_version, systemd_version]
-        .iter()
+    #[cfg(not(feature = "network-manager"))]
+    let version_cmds = [kernel_version, wg_version, systemd_version];
+    #[cfg(feature = "network-manager")]
+    let version_cmds = [kernel_version, nm_version, wg_version, systemd_version];
+
+    version_cmds
+        .into_iter()
         .filter_map(|f| f())
 }
 
@@ -94,6 +99,7 @@ fn kernel_version() -> Option<(String, String)> {
 
 /// NetworkManager's version is returned as a numeric version string
 /// > 1.26.0
+#[cfg(feature = "network-manager")]
 fn nm_version() -> Option<(String, String)> {
     let nm = talpid_dbus::network_manager::NetworkManager::new().ok()?;
     Some(("nm".to_string(), nm.version_string().ok()?))

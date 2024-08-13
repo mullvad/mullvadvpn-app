@@ -10,10 +10,13 @@ rust-version.workspace = true
 [lints]
 workspace = true
 
+[features]
+default = ["network-manager"]
+network-manager = ["talpid-dbus"]
 
 [target.'cfg(target_os = "linux")'.dependencies]
 rs-release = "0.1.7"
-talpid-dbus = { path = "../talpid-dbus" }
+talpid-dbus = { path = "../talpid-dbus", optional = true }
 
 [target.'cfg(windows)'.dependencies.windows-sys]
 workspace = true

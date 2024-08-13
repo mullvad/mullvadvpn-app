@@ -691,17 +691,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "dbus"
-version = "0.9.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1bb21987b9fb1613058ba3843121dd18b163b254d8a6e797e144cbac14d96d1b"
-dependencies = [
- "libc",
- "libdbus-sys",
- "winapi",
-]
-
-[[package]]
 name = "der"
 version = "0.7.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1641,15 +1630,6 @@ name = "libc"
 version = "0.2.155"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "97b3888a4aecf77e811145cadf6eef5901f4782c53886191b2f693f24761847c"
-
-[[package]]
-name = "libdbus-sys"
-version = "0.2.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "06085512b750d640299b79be4bad3d2fa90a9c00b1fd9e1b46364f66f0485c72"
-dependencies = [
- "pkg-config",
-]
 
 [[package]]
 name = "libloading"
@@ -3218,23 +3198,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "talpid-dbus"
-version = "0.0.0"
-dependencies = [
- "dbus",
- "libc",
- "log",
- "once_cell",
- "thiserror",
- "tokio",
-]
-
-[[package]]
 name = "talpid-platform-metadata"
 version = "0.0.0"
 dependencies = [
  "rs-release",
- "talpid-dbus",
  "windows-sys 0.52.0",
 ]
 
