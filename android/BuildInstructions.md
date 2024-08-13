@@ -154,6 +154,9 @@ environment variables:
   rustup target add aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android
   ```
 
+#### 6. Download wireguard-go-rs submodule
+Run the following command to download wireguard-go-rs submodule: `git submodule update --init --recursive --depth=1 wireguard-go-rs`
+
 ### Debug build
 Run the following command to build a debug build:
 ```bash
@@ -196,10 +199,13 @@ This lockfile helps ensuring the integrity of the gradle dependencies in the pro
 When adding or updating dependencies, it's necessary to also update the lockfile. This can be done
 in the following way:
 
-1. Run update script (requires `podman`):
+1. Run update script:
    ```bash
    ./scripts/update-lockfile.sh
    ```
+   
+   If you're on macOS make sure GNU sed is installed. Install with `brew install gnu-sed` and add it to your `PATH` so that it is used instead of the `sed` macOS ships with `PATH="$HOMEBREW_PREFIX/opt/gnu-sed/libexec/gnubin:$PATH"`
+   
 2. Check diff before committing.
 
 ### Disable during development
