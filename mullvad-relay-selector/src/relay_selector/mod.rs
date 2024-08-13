@@ -750,16 +750,43 @@ impl RelaySelector {
     /// * An `Err` if no entry/exit relay can be chosen
     /// * `Ok(WireguardInner::Multihop)` otherwise
     fn get_wireguard_auto_multihop_config(
+        // TODO: document or change assumption that `query` is constrained to daita only
         query: &RelayQuery,
         custom_lists: &CustomListsSettings,
         parsed_relays: &ParsedRelays,
     ) -> Result<WireguardConfig, Error> {
-        // Modify the query to enable multihop
-        let mut query = query.clone();
-        query.wireguard_constraints.use_multihop = Constraint::Only(true);
-        query.wireguard_constraints.entry_location = Constraint::Any; // TODO: smarter location selection
+        let mut exit_relay_query = query.clone();
+        exit_relay_query.wireguard_constraints.daita = Constraint::Only(false);
+        let exit_candidates =
+            filter_matching_relay_list(&exit_relay_query, parsed_relays.relays(), custom_lists);
+        let exit = helpers::pick_random_relay(&exit_candidates).ok_or(Error::NoRelay)?;
 
-        Self::get_wireguard_multihop_config(&query, custom_lists, parsed_relays)
+        // generate a list of potential entry relays, disregarding any location constraint
+        let entry_query = RelayQuery {
+            location: Constraint::Any,
+            ..query.clone()
+        };
+        let mut entry_candidates =
+            filter_matching_relay_list(&entry_query, parsed_relays.relays(), custom_lists)
+                .into_iter()
+                .map(|entry| RelayWithDistance::new_with_distance_from(entry, &exit.location))
+                .collect_vec();
+
+        // sort entry relay candidates by distance, and pick one from those that are closest
+        entry_candidates.sort_unstable_by(|a, b| a.distance.total_cmp(&b.distance));
+        let smallest_distance = entry_candidates.first().map(|relay| relay.distance);
+        let smallest_distance = smallest_distance.unwrap_or_default();
+        let entry_candidates = entry_candidates
+            .into_iter()
+            // only consider the relay(s) with the smallest distance. note that the list is sorted.
+            // NOTE: we could relax this requirement, but since so few relays support DAITA we
+            // might end up picking relays that are needlessly far away.
+            .take_while(|relay| relay.distance <= smallest_distance)
+            .map(|relay_with_distance| relay_with_distance.relay)
+            .collect_vec();
+        let entry = helpers::pick_random_relay(&entry_candidates).ok_or(Error::NoRelay)?;
+
+        Ok(WireguardConfig::multihop(exit.clone(), entry.clone()))
     }
 
     /// This function selects a valid entry and exit relay to be used in a multihop configuration.
@@ -1024,19 +1051,10 @@ impl RelaySelector {
         const MIN_BRIDGE_COUNT: usize = 5;
         let location = location.into();
 
-        #[derive(Clone)]
-        struct RelayWithDistance {
-            relay: Relay,
-            distance: f64,
-        }
-
         // Filter out all candidate bridges.
         let matching_bridges: Vec<RelayWithDistance> = relays
             .into_iter()
-            .map(|relay| RelayWithDistance {
-                distance: relay.location.distance_from(&location),
-                relay,
-            })
+            .map(|relay| RelayWithDistance::new_with_distance_from(relay, location))
             .sorted_unstable_by_key(|relay| relay.distance as usize)
             .take(MIN_BRIDGE_COUNT)
             .collect();
@@ -1096,5 +1114,18 @@ impl RelaySelector {
         let candidates = filter_matching_relay_list(query, relays, custom_lists);
         // Pick one of the valid relays.
         helpers::pick_random_relay(&candidates).cloned()
+    }
+}
+
+#[derive(Clone)]
+struct RelayWithDistance {
+    distance: f64,
+    relay: Relay,
+}
+
+impl RelayWithDistance {
+    fn new_with_distance_from(relay: Relay, from: impl Into<Coordinates>) -> Self {
+        let distance = relay.location.distance_from(from);
+        RelayWithDistance { relay, distance }
     }
 }
