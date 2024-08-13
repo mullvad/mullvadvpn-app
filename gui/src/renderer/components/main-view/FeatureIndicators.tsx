@@ -214,6 +214,8 @@ function getFeatureIndicatorLabel(indicator: FeatureIndicator) {
   switch (indicator) {
     case FeatureIndicator.daita:
       return strings.daita;
+    case FeatureIndicator.daitaUseAnywhere:
+      return messages.pgettext('wireguard-settings-view', 'DAITA: Use Anywhere');
     case FeatureIndicator.udp2tcp:
     case FeatureIndicator.shadowsocks:
       return messages.pgettext('wireguard-settings-view', 'Obfuscation');
