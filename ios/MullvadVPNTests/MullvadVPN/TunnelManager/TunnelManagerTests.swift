@@ -27,11 +27,11 @@ class TunnelManagerTests: XCTestCase {
 
     var transportProvider: TransportProvider!
 
-    override class func setUp() {
+    override static func setUp() {
         SettingsManager.unitTestStore = store
     }
 
-    override class func tearDown() {
+    override static func tearDown() {
         SettingsManager.unitTestStore = nil
     }
 

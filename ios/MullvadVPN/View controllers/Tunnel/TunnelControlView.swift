@@ -388,7 +388,7 @@ final class TunnelControlView: UIView {
         )
     }
 
-    private class func makeBoldTextLabel(ofSize fontSize: CGFloat, numberOfLines: Int = 1) -> UILabel {
+    private static func makeBoldTextLabel(ofSize fontSize: CGFloat, numberOfLines: Int = 1) -> UILabel {
         let textLabel = UILabel()
         textLabel.translatesAutoresizingMaskIntoConstraints = false
         textLabel.font = UIFont.boldSystemFont(ofSize: fontSize)

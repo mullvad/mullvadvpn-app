@@ -44,7 +44,7 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver {
     private var paymentToAccountToken = [SKPayment: String]()
 
     /// Returns true if the device is able to make payments.
-    class var canMakePayments: Bool {
+    static var canMakePayments: Bool {
         SKPaymentQueue.canMakePayments()
     }
 
