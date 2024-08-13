@@ -7,9 +7,8 @@
     <issue id="UnusedResources">
         <ignore path="res/values/strings.xml" />
     </issue>
-    <!-- We are currently not using the ellipsis character -->
+    <!-- We are currently not using the ellipsis character. -->
     <issue id="TypographyEllipsis" severity="ignore" />
-    <!-- Temporarily ignore the below checks while migrating to version catalogs. -->
+    <!-- Ignore since we currently treat warnings as errors. -->
     <issue id="GradleDependency" severity="ignore" />
-    <issue id="AndroidGradlePluginVersion" severity="ignore" />
 </lint>
