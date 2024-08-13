@@ -94,11 +94,11 @@ impl PersistentTargetState {
         }
     }
 
-    /// Override the current target state, if there is one
-    pub async fn force(cache_dir: &Path, state: TargetState) -> Self {
+    /// Force the initial target state to be 'secured'
+    pub async fn new_secured(cache_dir: &Path) -> Self {
         let cache_path = cache_dir.join(TARGET_START_STATE_FILE);
         let state = PersistentTargetState {
-            state,
+            state: TargetState::Secured,
             cache_path,
             locked: false,
         };

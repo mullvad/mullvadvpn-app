@@ -705,7 +705,7 @@ impl Daemon {
 
         let target_state = if settings.auto_connect {
             log::info!("Automatically connecting since auto-connect is turned on");
-            PersistentTargetState::force(&cache_dir, TargetState::Secured).await
+            PersistentTargetState::new_secured(&cache_dir).await
         } else {
             PersistentTargetState::new(&cache_dir).await
         };
