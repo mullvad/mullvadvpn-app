@@ -51,6 +51,7 @@ class ConnectivityTests: LoggedOutUITestCase {
     }
 
     /// Get the app into a blocked state by connecting to a relay then applying a filter which don't find this relay, then verify that app can still communicate by logging out and verifying that the device was successfully removed
+    // swiftlint:disable:next function_body_length
     func testAPIReachableWhenBlocked() throws {
         let hasTimeAccountNumber = getAccountWithTime()
         addTeardownBlock {

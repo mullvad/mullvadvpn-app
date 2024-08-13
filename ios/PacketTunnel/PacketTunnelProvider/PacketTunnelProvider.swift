@@ -35,6 +35,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         PostQuantumKeyReceiver(tunnelProvider: self)
     }()
 
+    // swiftlint:disable:next function_body_length
     override init() {
         Self.configureLogging()
         providerLogger = Logger(label: "PacketTunnelProvider")

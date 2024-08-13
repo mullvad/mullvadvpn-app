@@ -120,7 +120,7 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol {
 
         operation.addObserver(
             BackgroundObserver(
-                application: application,
+                backgroundTaskProvider: application,
                 name: "Update relays",
                 cancelUponExpiration: true
             )

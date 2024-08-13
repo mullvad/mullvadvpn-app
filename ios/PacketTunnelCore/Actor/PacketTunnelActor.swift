@@ -289,13 +289,6 @@ extension PacketTunnelActor {
 
         let activeKey = activeKey(from: connectionState, in: settings)
 
-        switch targetState {
-        case .connecting:
-            state = .connecting(connectionState)
-        case .reconnecting:
-            state = .reconnecting(connectionState)
-        }
-
         let entryConfiguration: TunnelAdapterConfiguration? = if connectionState.selectedRelays.entry != nil {
             try ConfigurationBuilder(
                 privateKey: activeKey,
@@ -343,6 +336,13 @@ extension PacketTunnelActor {
 
         // Resume tunnel monitoring and use IPv4 gateway as a probe address.
         tunnelMonitor.start(probeAddress: connectionState.selectedRelays.exit.endpoint.ipv4Gateway)
+
+        switch targetState {
+        case .connecting:
+            state = .connecting(connectionState)
+        case .reconnecting:
+            state = .reconnecting(connectionState)
+        }
     }
 
     /**
@@ -355,6 +355,7 @@ extension PacketTunnelActor {
 
      - Returns: New connection state or `nil` if current state is at or past `.disconnecting` phase.
      */
+    // swiftlint:disable:next function_body_length
     internal func makeConnectionState(
         nextRelays: NextRelays,
         settings: Settings,

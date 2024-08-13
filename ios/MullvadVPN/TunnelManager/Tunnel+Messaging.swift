@@ -29,7 +29,7 @@ extension TunnelProtocol {
     ) -> Cancellable {
         let operation = SendTunnelProviderMessageOperation(
             dispatchQueue: dispatchQueue,
-            application: .shared,
+            backgroundTaskProvider: backgroundTaskProvider,
             tunnel: self,
             message: .reconnectTunnel(nextRelays),
             completionHandler: completionHandler
@@ -46,7 +46,7 @@ extension TunnelProtocol {
     ) -> Cancellable {
         let operation = SendTunnelProviderMessageOperation(
             dispatchQueue: dispatchQueue,
-            application: .shared,
+            backgroundTaskProvider: backgroundTaskProvider,
             tunnel: self,
             message: .getTunnelStatus,
             completionHandler: completionHandler
@@ -64,7 +64,7 @@ extension TunnelProtocol {
     ) -> Cancellable {
         let operation = SendTunnelProviderMessageOperation(
             dispatchQueue: dispatchQueue,
-            application: .shared,
+            backgroundTaskProvider: backgroundTaskProvider,
             tunnel: self,
             message: .sendURLRequest(proxyRequest),
             timeout: proxyRequestTimeout,
@@ -76,7 +76,7 @@ extension TunnelProtocol {
 
             let cancelOperation = SendTunnelProviderMessageOperation(
                 dispatchQueue: dispatchQueue,
-                application: .shared,
+                backgroundTaskProvider: backgroundTaskProvider,
                 tunnel: self,
                 message: .cancelURLRequest(proxyRequest.id),
                 completionHandler: nil
@@ -96,7 +96,7 @@ extension TunnelProtocol {
     ) -> Cancellable {
         let operation = SendTunnelProviderMessageOperation(
             dispatchQueue: dispatchQueue,
-            application: .shared,
+            backgroundTaskProvider: backgroundTaskProvider,
             tunnel: self,
             message: .privateKeyRotation,
             completionHandler: completionHandler

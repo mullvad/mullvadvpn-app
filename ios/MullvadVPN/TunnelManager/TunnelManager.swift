@@ -42,7 +42,7 @@ final class TunnelManager: StorePaymentObserver {
 
     // MARK: - Internal variables
 
-    private let application: BackgroundTaskProvider
+    let application: BackgroundTaskProvider
     fileprivate let tunnelStore: any TunnelStoreProtocol
     private let relayCacheTracker: RelayCacheTrackerProtocol
     private let accountsProxy: RESTAccountHandling
@@ -204,7 +204,7 @@ final class TunnelManager: StorePaymentObserver {
 
         loadTunnelOperation.addObserver(
             BackgroundObserver(
-                application: application,
+                backgroundTaskProvider: application,
                 name: "Load tunnel configuration",
                 cancelUponExpiration: false
             )
@@ -244,7 +244,7 @@ final class TunnelManager: StorePaymentObserver {
         )
 
         operation.addObserver(BackgroundObserver(
-            application: application,
+            backgroundTaskProvider: application,
             name: "Start tunnel",
             cancelUponExpiration: true
         ))
@@ -279,7 +279,7 @@ final class TunnelManager: StorePaymentObserver {
         }
 
         operation.addObserver(BackgroundObserver(
-            application: application,
+            backgroundTaskProvider: application,
             name: "Stop tunnel",
             cancelUponExpiration: true
         ))
@@ -315,7 +315,7 @@ final class TunnelManager: StorePaymentObserver {
 
         operation.addObserver(
             BackgroundObserver(
-                application: application,
+                backgroundTaskProvider: application,
                 name: "Reconnect tunnel",
                 cancelUponExpiration: true
             )
@@ -355,7 +355,7 @@ final class TunnelManager: StorePaymentObserver {
         }
 
         operation.addObserver(BackgroundObserver(
-            application: application,
+            backgroundTaskProvider: application,
             name: action.taskName,
             cancelUponExpiration: true
         ))
@@ -408,7 +408,7 @@ final class TunnelManager: StorePaymentObserver {
 
         operation.addObserver(
             BackgroundObserver(
-                application: application,
+                backgroundTaskProvider: application,
                 name: "Update account data",
                 cancelUponExpiration: true
             )
@@ -437,7 +437,7 @@ final class TunnelManager: StorePaymentObserver {
 
         operation.addObserver(
             BackgroundObserver(
-                application: application,
+                backgroundTaskProvider: application,
                 name: "Redeem voucher",
                 cancelUponExpiration: true
             )
@@ -467,7 +467,7 @@ final class TunnelManager: StorePaymentObserver {
 
         operation.addObserver(
             BackgroundObserver(
-                application: application,
+                backgroundTaskProvider: application,
                 name: "Update device data",
                 cancelUponExpiration: true
             )
@@ -503,7 +503,7 @@ final class TunnelManager: StorePaymentObserver {
 
         operation.addObserver(
             BackgroundObserver(
-                application: application,
+                backgroundTaskProvider: application,
                 name: "Rotate private key",
                 cancelUponExpiration: true
             )
@@ -811,11 +811,11 @@ final class TunnelManager: StorePaymentObserver {
             logger.error(error: error, message: "Failed to reconnect the tunnel.")
         }
 
-        // Refresh tunnel status only when connecting or reasserting to pick up the next relay,
+        // Refresh tunnel status only when connecting,reasserting or error to pick up the next relay,
         // since both states may persist for a long period of time until the tunnel is fully
         // connected.
         switch tunnelStatus.state {
-        case .connecting, .reconnecting:
+        case .connecting, .reconnecting, .error:
             logger.debug("Refresh tunnel status due to reconnect.")
             refreshTunnelStatus()
 
@@ -898,7 +898,7 @@ final class TunnelManager: StorePaymentObserver {
 
         operation.addCondition(MutuallyExclusive(category: OperationCategory.deviceStateUpdate.category))
         operation.addObserver(BackgroundObserver(
-            application: application,
+            backgroundTaskProvider: application,
             name: "Refresh device state",
             cancelUponExpiration: true
         ))
@@ -958,7 +958,7 @@ final class TunnelManager: StorePaymentObserver {
         }
 
         operation.addObserver(BackgroundObserver(
-            application: application,
+            backgroundTaskProvider: application,
             name: taskName,
             cancelUponExpiration: false
         ))
@@ -994,7 +994,7 @@ final class TunnelManager: StorePaymentObserver {
         }
 
         operation.addObserver(BackgroundObserver(
-            application: application,
+            backgroundTaskProvider: application,
             name: taskName,
             cancelUponExpiration: false
         ))
@@ -1202,6 +1202,10 @@ private struct TunnelInteractorProxy: TunnelInteractor {
 
     var tunnel: (any TunnelProtocol)? {
         tunnelManager.tunnel
+    }
+
+    var backgroundTaskProvider: any BackgroundTaskProvider {
+        tunnelManager.application
     }
 
     func getPersistentTunnels() -> [any TunnelProtocol] {
