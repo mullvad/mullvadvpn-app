@@ -24,13 +24,11 @@ fun UiDevice.findObjectWithTimeout(
 
     wait(Until.hasObject(selector), timeout)
 
-    return try {
-        findObject(selector)
-    } catch (e: NullPointerException) {
-        throw IllegalArgumentException(
-            "No matches for selector within timeout ($timeout): $selector"
-        )
-    }
+    val foundObject = findObject(selector)
+
+    require(foundObject != null) { "No matches for selector within timeout ($timeout): $selector" }
+
+    return foundObject
 }
 
 fun UiDevice.clickAgreeOnPrivacyDisclaimer() {

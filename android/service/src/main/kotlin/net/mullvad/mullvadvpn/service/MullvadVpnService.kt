@@ -16,7 +16,6 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import net.mullvad.mullvadvpn.lib.common.constant.BuildTypes
 import net.mullvad.mullvadvpn.lib.common.constant.GRPC_SOCKET_FILE_NAMED_ARGUMENT
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_CONNECT_ACTION
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_DISCONNECT_ACTION
@@ -150,7 +149,7 @@ class MullvadVpnService : TalpidVpnService() {
 
     private fun startDaemon() {
         val apiEndpointConfiguration =
-            if (Build.TYPE == BuildTypes.DEBUG) {
+            if (BuildConfig.DEBUG) {
                 intentProvider.getLatestIntent()?.getApiEndpointConfigurationExtras()
                     ?: apiEndpointConfiguration
             } else {
