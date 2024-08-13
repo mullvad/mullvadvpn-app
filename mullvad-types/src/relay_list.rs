@@ -86,7 +86,7 @@ pub struct Relay {
     pub provider: String,
     pub weight: u64,
     pub endpoint_data: RelayEndpointData,
-    pub location: Option<Location>,
+    pub location: Location,
 }
 
 impl PartialEq for Relay {
