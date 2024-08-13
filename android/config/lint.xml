@@ -9,4 +9,7 @@
     </issue>
     <!-- We are currently not using the ellipsis character -->
     <issue id="TypographyEllipsis" severity="ignore" />
+    <!-- Temporarily ignore the below checks while migrating to version catalogs. -->
+    <issue id="GradleDependency" severity="ignore" />
+    <issue id="AndroidGradlePluginVersion" severity="ignore" />
 </lint>

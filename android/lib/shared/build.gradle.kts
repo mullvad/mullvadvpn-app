@@ -1,15 +1,16 @@
 plugins {
-    id(Dependencies.Plugin.androidLibraryId)
-    id(Dependencies.Plugin.kotlinAndroidId)
-    id(Dependencies.Plugin.kotlinParcelizeId)
-    id(Dependencies.Plugin.junit5) version Versions.Plugin.junit5
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.parcelize)
+
+    id(Dependencies.junit5AndroidPluginId) version Versions.junit5Plugin
 }
 
 android {
     namespace = "net.mullvad.mullvadvpn.lib.shared"
-    compileSdk = Versions.Android.compileSdkVersion
+    compileSdk = Versions.compileSdkVersion
 
-    defaultConfig { minSdk = Versions.Android.minSdkVersion }
+    defaultConfig { minSdk = Versions.minSdkVersion }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -27,22 +28,22 @@ android {
 }
 
 dependencies {
-    implementation(project(Dependencies.Mullvad.commonLib))
-    implementation(project(Dependencies.Mullvad.daemonGrpc))
-    implementation(project(Dependencies.Mullvad.modelLib))
+    implementation(projects.lib.common)
+    implementation(projects.lib.daemonGrpc)
+    implementation(projects.lib.model)
 
-    implementation(Dependencies.Arrow.core)
-    implementation(Dependencies.kermit)
-    implementation(Dependencies.Kotlin.stdlib)
-    implementation(Dependencies.KotlinX.coroutinesAndroid)
-    implementation(Dependencies.jodaTime)
+    implementation(libs.arrow)
+    implementation(libs.kermit)
+    implementation(libs.kotlin.stdlib)
+    implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.jodatime)
 
-    testImplementation(Dependencies.Kotlin.test)
-    testImplementation(Dependencies.KotlinX.coroutinesTest)
-    testImplementation(Dependencies.MockK.core)
-    testImplementation(Dependencies.junitApi)
-    testImplementation(Dependencies.junitParams)
-    testImplementation(Dependencies.turbine)
-    testImplementation(project(Dependencies.Mullvad.commonTestLib))
-    testRuntimeOnly(Dependencies.junitEngine)
+    testImplementation(libs.kotlin.test)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.mockk)
+    testImplementation(Dependencies.junitJupiterApi)
+    testImplementation(Dependencies.junitJupiterParams)
+    testImplementation(libs.turbine)
+    testImplementation(projects.lib.commonTest)
+    testRuntimeOnly(Dependencies.junitJupiterEngine)
 }

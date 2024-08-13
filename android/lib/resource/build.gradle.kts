@@ -1,14 +1,14 @@
 plugins {
-    id(Dependencies.Plugin.androidLibraryId)
-    id(Dependencies.Plugin.kotlinAndroidId)
-    id(Dependencies.Plugin.kotlinParcelizeId)
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.parcelize)
 }
 
 android {
     namespace = "net.mullvad.mullvadvpn.lib.resource"
-    compileSdk = Versions.Android.compileSdkVersion
+    compileSdk = Versions.compileSdkVersion
 
-    defaultConfig { minSdk = Versions.Android.minSdkVersion }
+    defaultConfig { minSdk = Versions.minSdkVersion }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -26,6 +26,6 @@ android {
 }
 
 dependencies {
-    implementation(Dependencies.AndroidX.appcompat)
-    implementation(Dependencies.AndroidX.coreSplashscreen)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.coresplashscreen)
 }

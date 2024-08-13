@@ -1,14 +1,14 @@
 plugins {
-    id(Dependencies.Plugin.androidLibraryId)
-    id(Dependencies.Plugin.kotlinAndroidId)
-    id(Dependencies.Plugin.kotlinParcelizeId)
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.parcelize)
 }
 
 android {
     namespace = "net.mullvad.mullvadvpn.test.common"
-    compileSdk = Versions.Android.compileSdkVersion
+    compileSdk = Versions.compileSdkVersion
 
-    defaultConfig { minSdk = Versions.Android.minSdkVersion }
+    defaultConfig { minSdk = Versions.minSdkVersion }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -41,15 +41,15 @@ androidComponents {
 }
 
 dependencies {
-    implementation(project(Dependencies.Mullvad.endpointLib))
+    implementation(projects.lib.endpoint)
 
-    implementation(Dependencies.AndroidX.testCore)
-    implementation(Dependencies.AndroidX.testRunner)
-    implementation(Dependencies.AndroidX.testRules)
-    implementation(Dependencies.AndroidX.testUiAutomator)
-    implementation(Dependencies.junitEngine)
-    implementation(Dependencies.kermit)
-    implementation(Dependencies.Kotlin.stdlib)
+    implementation(libs.androidx.test.core)
+    implementation(libs.androidx.test.runner)
+    implementation(libs.androidx.test.rules)
+    implementation(libs.androidx.test.uiautomator)
+    implementation(Dependencies.junitJupiterEngine)
+    implementation(libs.kermit)
+    implementation(libs.kotlin.stdlib)
 
-    androidTestUtil(Dependencies.AndroidX.testOrchestrator)
+    androidTestUtil(libs.androidx.test.orchestrator)
 }

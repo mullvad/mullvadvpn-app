@@ -1,0 +1,174 @@
+[versions]
+# Android
+# The android-gradle-aapt plugin version must be in sync with the android plugin version.
+# Required for Gradle metadata verification to work properly, see:
+# https://github.com/gradle/gradle/issues/19228
+android-gradle-plugin = "8.3.0"
+android-gradle-aapt = "10880808"
+android-billingclient = "6.2.0"
+android-volley = "1.2.1"
+
+# AndroidX
+androidx-activitycompose = "1.9.1"
+androidx-appcompat = "1.7.0"
+androidx-ktx = "1.13.1"
+androidx-coresplashscreen = "1.1.0-rc01"
+androidx-espresso = "3.6.1"
+androidx-lifecycle = "2.8.4"
+androidx-test = "1.6.1"
+androidx-testmonitor = "1.7.1"
+androidx-testorchestrator = "1.5.0"
+androidx-testrunner = "1.6.1"
+androidx-uiautomator = "2.4.0-alpha01"
+
+# Arrow
+arrow = "1.2.4"
+
+# Compose
+compose = "1.7.0-beta06"
+compose-destinations = "2.1.0-beta10"
+compose-constraintlayout = "1.0.1"
+compose-material3 = "1.3.0-beta04"
+
+grpc = "1.65.1"
+grpc-kotlin = "1.4.1"
+grpc-kotlin-jar = "1.4.1:jdk8@jar"
+grpc-protobuf = "4.27.2"
+
+# Koin
+koin = "3.5.6"
+koin-compose = "3.5.6"
+
+# Kotlin
+# Bump kotlin and kotlin-ksp together, find matching release here:
+# https://github.com/google/ksp/releases
+kotlin = "2.0.0"
+kotlin-ksp = "2.0.0-1.0.22"
+kotlinx = "1.8.1"
+
+# Protobuf
+protobuf = "0.9.4"
+
+# Misc
+commonsvalidator = "1.9.0"
+dependency-check = "10.0.3"
+dependency-versions = "0.51.0"
+detekt = "1.23.6"
+jodatime = "2.12.7"
+kermit = "2.0.4"
+konsist = "0.15.1"
+ktfmt = "0.17.0"
+leakcanary = "2.13"
+mockk = "1.13.12"
+mockwebserver = "4.12.0"
+play-publisher = "3.9.0"
+turbine = "1.1.0"
+
+[libraries]
+# Android
+android-billingclient = { module = "com.android.billingclient:billing-ktx", version.ref = "android-billingclient" }
+android-gradle-aapt = { module = "com.android.tools.build:aapt2" }
+android-volley = { module = "com.android.volley:volley", version.ref = "android-volley" }
+
+# AndroidX
+androidx-activity-Compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activitycompose" }
+androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "androidx-appcompat" }
+androidx-coresplashscreen = { module = "androidx.core:core-splashscreen", version.ref = "androidx-coresplashscreen" }
+androidx-espresso = { module = "androidx.test.espresso:espresso-core", version.ref = "androidx-espresso" }
+androidx-ktx = { module = "androidx.core:core-ktx", version.ref = "androidx-ktx" }
+androidx-lifecycle-runtime = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "androidx-lifecycle" }
+androidx-lifecycle-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "androidx-lifecycle" }
+androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "androidx-lifecycle" }
+androidx-lifecycle-service = { module = "androidx.lifecycle:lifecycle-service", version.ref = "androidx-lifecycle" }
+androidx-test-core = { module = "androidx.test:core", version.ref = "androidx-test" }
+androidx-test-monitor = { module = "androidx.test:monitor", version.ref = "androidx-testmonitor" }
+androidx-test-runner = { module = "androidx.test:runner", version.ref = "androidx-testrunner" }
+androidx-test-rules = { module = "androidx.test:rules", version.ref = "androidx-test" }
+androidx-test-uiautomator = { module = "androidx.test.uiautomator:uiautomator", version.ref = "androidx-uiautomator" }
+androidx-test-orchestrator = { module = "androidx.test:orchestrator", version.ref = "androidx-testorchestrator" }
+
+# Arrow
+arrow = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
+arrow-optics = { module = "io.arrow-kt:arrow-optics", version.ref = "arrow" }
+arrow-optics-ksp = { module = "io.arrow-kt:arrow-optics-ksp-plugin", version.ref = "arrow" }
+arrow-resilience = { module = "io.arrow-kt:arrow-resilience", version.ref = "arrow" }
+
+# Compose
+compose-constrainlayout = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "compose-constraintlayout" }
+compose-destinations = { module = "io.github.raamcosta.compose-destinations:core", version.ref = "compose-destinations" }
+compose-destinations-ksp = { module = "io.github.raamcosta.compose-destinations:ksp", version.ref = "compose-destinations" }
+compose-foundation = { module = "androidx.compose.foundation:foundation", version.ref = "compose" }
+compose-material3 = { module = "androidx.compose.material3:material3", version.ref = "compose-material3" }
+compose-ui = { module = "androidx.compose.ui:ui", version.ref = "compose" }
+compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "compose" }
+compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose" }
+compose-ui-tooling-android-preview = { module = "androidx.compose.ui:ui-tooling-preview-android", version.ref = "compose" }
+compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose" }
+compose-ui-util = { module = "androidx.compose.ui:ui-util", version.ref = "compose" }
+
+# gRPC
+grpc-okhttp = { module = "io.grpc:grpc-okhttp", version.ref = "grpc" }
+grpc-android = { module = "io.grpc:grpc-android", version.ref = "grpc" }
+grpc-kotlin-stub = { module = "io.grpc:grpc-kotlin-stub", version.ref = "grpc-kotlin" }
+grpc-protobuf-lite = { module = "io.grpc:grpc-protobuf-lite", version.ref = "grpc" }
+grpc-protobuf-kotlin-lite = { module = "com.google.protobuf:protobuf-kotlin-lite", version.ref = "grpc-protobuf" }
+
+# Koin
+koin = { module = "io.insert-koin:koin-core", version.ref = "koin" }
+koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
+koin-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin-compose" }
+koin-test = { module = "io.insert-koin:koin-test", version.ref = "koin" }
+
+# Kotlin
+kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
+kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
+kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
+kotlin-native-prebuilt = { module = "org.jetbrains.kotlin:kotlin-native-prebuilt", version.ref = "kotlin" }
+
+# KotlinX
+kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx" }
+kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinx" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx" }
+
+# MockK
+mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
+mockk-android = { module = "io.mockk:mockk-android", version.ref = "mockk" }
+
+# Misc
+commons-validator = { module = "commons-validator:commons-validator", version.ref = "commonsvalidator" }
+jodatime = { module = "joda-time:joda-time", version.ref = "jodatime" }
+kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
+konsist = { module = "com.lemonappdev:konsist", version.ref = "konsist" }
+leakCanary = { module = "com.squareup.leakcanary:leakcanary-android", version.ref = "leakcanary" }
+mockkWebserver = { module = "com.squareup.okhttp3:mockwebserver", version.ref = "mockwebserver" }
+turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
+
+[plugins]
+# Android
+android-gradle-plugin = { id = "com.android.tools.build:gradle", version.ref = "android-gradle-plugin" }
+android-application = { id = "com.android.application", version.ref = "android-gradle-plugin" }
+android-library = { id = "com.android.library", version.ref = "android-gradle-plugin" }
+android-test = { id = "com.android.test", version.ref = "android-gradle-plugin" }
+
+# Compose
+compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+
+# Kotlin
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
+kotlin-ksp = { id = "com.google.devtools.ksp", version.ref = "kotlin-ksp"}
+
+# Protobuf
+protobuf-core = { id = "com.google.protobuf", version.ref = "protobuf" }
+protobuf-protoc = { id = "com.google.protobuf:protoc", version.ref = "grpc-protobuf" }
+
+# gRPC
+grpc-protoc-gen-grpc-java = { id = "io.grpc:protoc-gen-grpc-java", version.ref = "grpc" }
+grpc-protoc-gen-grpc-kotlin = { id = "io.grpc:protoc-gen-grpc-kotlin", version.ref = "grpc-kotlin-jar" }
+
+# Misc
+dependency-check = { id = "org.owasp.dependencycheck", version.ref = "dependency-check" }
+dependency-versions = { id = "com.github.ben-manes.versions", version.ref = "dependency-versions" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+ktfmt = { id = "com.ncorti.ktfmt.gradle", version.ref = "ktfmt" }
+play-publisher = { id = "com.github.triplet.play", version.ref = "play-publisher" }

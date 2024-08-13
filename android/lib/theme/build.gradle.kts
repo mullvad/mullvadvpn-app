@@ -1,14 +1,14 @@
 plugins {
-    id(Dependencies.Plugin.androidLibraryId)
-    id(Dependencies.Plugin.kotlinAndroidId)
-    id(Dependencies.Plugin.composeCompiler) version Versions.kotlin
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.compose)
 }
 
 android {
     namespace = "net.mullvad.mullvadvpn.lib.theme"
-    compileSdk = Versions.Android.compileSdkVersion
+    compileSdk = Versions.compileSdkVersion
 
-    defaultConfig { minSdk = Versions.Android.minSdkVersion }
+    defaultConfig { minSdk = Versions.minSdkVersion }
 
     buildFeatures { compose = true }
 
@@ -27,7 +27,7 @@ android {
 }
 
 dependencies {
-    implementation(Dependencies.Compose.material3)
-    implementation(Dependencies.Compose.ui)
-    implementation(Dependencies.Kotlin.stdlib)
+    implementation(libs.compose.material3)
+    implementation(libs.compose.ui)
+    implementation(libs.kotlin.stdlib)
 }

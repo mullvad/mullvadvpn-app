@@ -1,13 +1,13 @@
 plugins {
-    id(Dependencies.Plugin.androidLibraryId)
-    id(Dependencies.Plugin.kotlinAndroidId)
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
 }
 
 android {
     namespace = "net.mullvad.mullvadvpn.lib.common.test"
-    compileSdk = Versions.Android.compileSdkVersion
+    compileSdk = Versions.compileSdkVersion
 
-    defaultConfig { minSdk = Versions.Android.minSdkVersion }
+    defaultConfig { minSdk = Versions.minSdkVersion }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -34,7 +34,7 @@ android {
 }
 
 dependencies {
-    implementation(Dependencies.Kotlin.test)
-    implementation(Dependencies.KotlinX.coroutinesTest)
-    implementation(Dependencies.junitApi)
+    implementation(libs.kotlin.test)
+    implementation(libs.kotlinx.coroutines.test)
+    implementation(Dependencies.junitJupiterApi)
 }

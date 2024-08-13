@@ -1,14 +1,14 @@
 plugins {
-    id(Dependencies.Plugin.androidLibraryId)
-    id(Dependencies.Plugin.kotlinAndroidId)
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
 }
 
 android {
     namespace = "net.mullvad.mullvadvpn.lib.payment"
-    compileSdk = Versions.Android.compileSdkVersion
+    compileSdk = Versions.compileSdkVersion
 
     defaultConfig {
-        minSdk = Versions.Android.minSdkVersion
+        minSdk = Versions.minSdkVersion
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -39,7 +39,7 @@ android {
 }
 
 dependencies {
-    implementation(Dependencies.Arrow.core)
-    implementation(Dependencies.Kotlin.stdlib)
-    implementation(Dependencies.KotlinX.coroutinesAndroid)
+    implementation(libs.arrow)
+    implementation(libs.kotlin.stdlib)
+    implementation(libs.kotlinx.coroutines.android)
 }

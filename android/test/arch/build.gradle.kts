@@ -1,14 +1,15 @@
 plugins {
-    id(Dependencies.Plugin.androidLibraryId)
-    id(Dependencies.Plugin.kotlinAndroidId)
-    id(Dependencies.Plugin.junit5) version Versions.Plugin.junit5
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
+
+    id(Dependencies.junit5AndroidPluginId) version Versions.junit5Plugin
 }
 
 android {
     namespace = "net.mullvad.mullvadvpn.test.arch"
-    compileSdk = Versions.Android.compileSdkVersion
+    compileSdk = Versions.compileSdkVersion
 
-    defaultConfig { minSdk = Versions.Android.minSdkVersion }
+    defaultConfig { minSdk = Versions.minSdkVersion }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -29,11 +30,11 @@ androidComponents {
 }
 
 dependencies {
-    testRuntimeOnly(Dependencies.junitEngine)
+    testRuntimeOnly(Dependencies.junitJupiterEngine)
 
-    testImplementation(Dependencies.Compose.uiToolingAndroidPreview)
-    testImplementation(Dependencies.Compose.destinations)
-    testImplementation(Dependencies.AndroidX.appcompat)
-    testImplementation(Dependencies.junitApi)
-    testImplementation(Dependencies.konsist)
+    testImplementation(libs.compose.ui.tooling.android.preview)
+    testImplementation(libs.compose.destinations)
+    testImplementation(libs.androidx.appcompat)
+    testImplementation(Dependencies.junitJupiterApi)
+    testImplementation(libs.konsist)
 }

@@ -1,15 +1,16 @@
 plugins {
-    id(Dependencies.Plugin.androidTestId)
-    id(Dependencies.Plugin.kotlinAndroidId)
-    id(Dependencies.Plugin.junit5) version Versions.Plugin.junit5
+    alias(libs.plugins.android.test)
+    alias(libs.plugins.kotlin.android)
+
+    id(Dependencies.junit5AndroidPluginId) version Versions.junit5Plugin
 }
 
 android {
     namespace = "net.mullvad.mullvadvpn.test.mockapi"
-    compileSdk = Versions.Android.compileSdkVersion
+    compileSdk = Versions.compileSdkVersion
 
     defaultConfig {
-        minSdk = Versions.Android.minSdkVersion
+        minSdk = Versions.minSdkVersion
         testApplicationId = "net.mullvad.mullvadvpn.test.mockapi"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testInstrumentationRunnerArguments["runnerBuilder"] =
@@ -69,23 +70,22 @@ configure<org.owasp.dependencycheck.gradle.extension.DependencyCheckExtension> {
 }
 
 dependencies {
-    implementation(project(Projects.testCommon))
-    implementation(project(Dependencies.Mullvad.endpointLib))
+    implementation(projects.lib.endpoint)
+    implementation(projects.test.common)
 
-    implementation(Dependencies.AndroidX.testCore)
+    implementation(libs.androidx.test.core)
     // Fixes: https://github.com/android/android-test/issues/1589
-    implementation(Dependencies.AndroidX.testMonitor)
-    implementation(Dependencies.AndroidX.testRunner)
-    implementation(Dependencies.AndroidX.testRules)
-    implementation(Dependencies.AndroidX.testUiAutomator)
-    implementation(Dependencies.kermit)
-    implementation(Dependencies.jodaTime)
-    implementation(Dependencies.junitAndroidTestExtensions)
-    implementation(Dependencies.junitApi)
-    implementation(Dependencies.junitAndroidTestCore)
-    implementation(Dependencies.junitAndroidTestRunner)
-    implementation(Dependencies.Kotlin.stdlib)
-    implementation(Dependencies.mockkWebserver)
+    implementation(libs.androidx.test.monitor)
+    implementation(libs.androidx.test.runner)
+    implementation(libs.androidx.test.rules)
+    implementation(libs.androidx.test.uiautomator)
+    implementation(libs.kermit)
+    implementation(libs.jodatime)
+    implementation(Dependencies.junitJupiterApi)
+    implementation(Dependencies.junit5AndroidTestExtensions)
+    implementation(Dependencies.junit5AndroidTestRunner)
+    implementation(libs.kotlin.stdlib)
+    implementation(libs.mockkWebserver)
 
-    androidTestUtil(Dependencies.AndroidX.testOrchestrator)
+    androidTestUtil(libs.androidx.test.orchestrator)
 }
