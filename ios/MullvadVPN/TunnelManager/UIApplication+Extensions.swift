@@ -12,6 +12,7 @@ import Foundation
 import UIKit
 
 public protocol BackgroundTaskProvider {
+    var backgroundTimeRemaining: TimeInterval { get }
     func endBackgroundTask(_ identifier: UIBackgroundTaskIdentifier)
 
     func beginBackgroundTask(

@@ -11,5 +11,5 @@ import Foundation
 @testable import PacketTunnelCore
 
 final class PostQuantumKeyExchangingUpdaterStub: PostQuantumKeyExchangingUpdaterProtocol {
-    var reconfigurationHandler: ConfigUpdater? = nil
+    var reconfigurationHandler: ConfigUpdater?
 }

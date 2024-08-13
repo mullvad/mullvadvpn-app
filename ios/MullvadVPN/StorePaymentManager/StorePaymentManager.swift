@@ -232,7 +232,7 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver {
         }
 
         accountOperation.addObserver(BackgroundObserver(
-            application: backgroundTaskProvider,
+            backgroundTaskProvider: backgroundTaskProvider,
             name: "Validate account number",
             cancelUponExpiration: false
         ))
@@ -267,7 +267,7 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver {
 
         operation.addObserver(
             BackgroundObserver(
-                application: backgroundTaskProvider,
+                backgroundTaskProvider: backgroundTaskProvider,
                 name: "Send AppStore receipt",
                 cancelUponExpiration: true
             )
