@@ -168,14 +168,14 @@ impl ParsedRelays {
             for city in &mut country.cities {
                 for relay in &mut city.relays {
                     // Append location data
-                    relay.location = Some(Location {
+                    relay.location = Location {
                         country: country.name.clone(),
                         country_code: country.code.clone(),
                         city: city.name.clone(),
                         city_code: city.code.clone(),
                         latitude: city.latitude,
                         longitude: city.longitude,
-                    });
+                    };
 
                     // Append overrides
                     if let Some(overrides) = remaining_overrides.remove(&relay.hostname) {
