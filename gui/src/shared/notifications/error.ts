@@ -3,7 +3,7 @@ import { sprintf } from 'sprintf-js';
 import { strings } from '../../config.json';
 import {
   AuthFailedError,
-  ErrorState,
+  ErrorStateDetails,
   ErrorStateCause,
   TunnelParameterError,
   TunnelState,
@@ -87,7 +87,7 @@ export class ErrorNotificationProvider
     }
   }
 
-  private getMessage(errorState: ErrorState): string {
+  private getMessage(errorState: ErrorStateDetails): string {
     if (errorState.blockingError) {
       if (errorState.cause === ErrorStateCause.setFirewallPolicyError) {
         switch (process.platform ?? window.env.platform) {
@@ -229,7 +229,7 @@ export class ErrorNotificationProvider
     }
   }
 
-  private getActions(errorState: ErrorState): InAppNotificationAction | void {
+  private getActions(errorState: ErrorStateDetails): InAppNotificationAction | void {
     const platform = process.platform ?? window.env.platform;
 
     if (errorState.cause === ErrorStateCause.setFirewallPolicyError && platform === 'linux') {

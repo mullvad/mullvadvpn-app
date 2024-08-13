@@ -783,11 +783,11 @@ export default class AppRenderer {
     batch(() => {
       switch (tunnelState.state) {
         case 'connecting':
-          actions.connection.connecting(tunnelState.details);
+          actions.connection.connecting(tunnelState.details, tunnelState.featureIndicators);
           break;
 
         case 'connected':
-          actions.connection.connected(tunnelState.details);
+          actions.connection.connected(tunnelState.details, tunnelState.featureIndicators);
           break;
 
         case 'disconnecting':
