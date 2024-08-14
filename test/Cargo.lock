@@ -1917,6 +1917,7 @@ name = "mullvad-types"
 version = "0.0.0"
 dependencies = [
  "chrono",
+ "either",
  "intersection-derive",
  "ipnetwork",
  "log",
