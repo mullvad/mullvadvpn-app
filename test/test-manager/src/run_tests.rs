@@ -2,7 +2,7 @@ use crate::{
     logging::{Logger, Panic, TestOutput, TestResult},
     mullvad_daemon::{self, MullvadClientArgument, RpcClientProvider},
     summary::SummaryLogger,
-    tests::{self, config::TEST_CONFIG, get_tests, TestContext},
+    tests::{self, config::TEST_CONFIG, TestContext, TestMetadata},
     vm,
 };
 use anyhow::{Context, Result};
@@ -101,15 +101,13 @@ impl TestHandler<'_> {
 }
 
 pub async fn run(
-    config: tests::config::TestConfig,
     instance: &dyn vm::VmInstance,
-    test_filters: &[String],
+    tests: Vec<&TestMetadata>,
     skip_wait: bool,
     print_failed_tests_only: bool,
     summary_logger: Option<SummaryLogger>,
 ) -> Result<TestResult> {
     log::trace!("Setting test constants");
-    TEST_CONFIG.init(config);
 
     let pty_path = instance.get_pty();
 
@@ -140,22 +138,6 @@ pub async fn run(
         print_failed_tests_only,
         logger: Logger::get_or_init(),
     };
-
-    let mut tests = get_tests();
-
-    tests.retain(|test| test.should_run_on_os(TEST_CONFIG.os));
-
-    if !test_filters.is_empty() {
-        tests.retain(|test| {
-            for command in test_filters {
-                let command = command.to_lowercase();
-                if test.command.to_lowercase().contains(&command) {
-                    return true;
-                }
-            }
-            false
-        });
-    }
 
     if TEST_CONFIG.app_package_to_upgrade_from_filename.is_some() {
         test_handler
