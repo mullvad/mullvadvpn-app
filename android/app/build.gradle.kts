@@ -19,6 +19,7 @@ plugins {
 
 val repoRootPath = rootProject.projectDir.absoluteFile.parentFile.absolutePath
 val extraAssetsDirectory = "${project.buildDir}/extraAssets"
+val relayListPath = "$extraAssetsDirectory/relays.json"
 val defaultChangelogAssetsDirectory = "$repoRootPath/android/src/main/play/release-notes/"
 val extraJniDirectory = "${project.buildDir}/extraJni"
 
@@ -236,9 +237,9 @@ android {
         createDistBundle.dependsOn("bundle$capitalizedVariantName")
     }
 
-    project.tasks.preBuild.dependsOn("ensureJniDirectoryExist")
-    project.tasks.preBuild.dependsOn("copyExtraAssets")
     project.tasks.preBuild.dependsOn("ensureValidVersionCode")
+    project.tasks.preBuild.dependsOn("ensureRelayListExist")
+    project.tasks.preBuild.dependsOn("ensureJniDirectoryExist")
 }
 
 junitPlatform {
@@ -271,10 +272,12 @@ configure<org.owasp.dependencycheck.gradle.extension.DependencyCheckExtension> {
     skipConfigurations = listOf("lintClassPath")
 }
 
-tasks.register("copyExtraAssets", Copy::class) {
-    from("$repoRootPath/build")
-    include("relays.json")
-    into(extraAssetsDirectory)
+tasks.register("ensureRelayListExist") {
+    doFirst {
+        if (!file(relayListPath).exists()) {
+            throw GradleException("Missing relay list: $relayListPath")
+        }
+    }
 }
 
 tasks.register("ensureJniDirectoryExist") {
