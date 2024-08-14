@@ -224,6 +224,9 @@ android {
             into("${rootDir.parent}/dist")
             include { it.name.endsWith(".apk") }
             rename { "$artifactName.apk" }
+            dependsOn(tasks.get("ensureRelayListExist"))
+            dependsOn(tasks.get("ensureJniDirectoryExist"))
+            dependsOn(tasks.get("ensureValidVersionCode"))
         }
 
         val createDistBundle =
@@ -232,6 +235,9 @@ android {
                 into("${rootDir.parent}/dist")
                 include { it.name.endsWith(".aab") }
                 rename { "$artifactName.aab" }
+                dependsOn(tasks.get("ensureRelayListExist"))
+                dependsOn(tasks.get("ensureJniDirectoryExist"))
+                dependsOn(tasks.get("ensureValidVersionCode"))
             }
 
         createDistBundle.dependsOn("bundle$capitalizedVariantName")
@@ -303,14 +309,6 @@ tasks.create("printVersion") {
 }
 
 play { serviceAccountCredentials.set(file("play-api-key.json")) }
-
-tasks.whenTaskAdded {
-    if (name.startsWith("assemble")) {
-        dependsOn(tasks.get("ensureRelayListExist"))
-        dependsOn(tasks.get("ensureJniDirectoryExist"))
-        dependsOn(tasks.get("ensureValidVersionCode"))
-    }
-}
 
 dependencies {
     implementation(projects.lib.common)

@@ -16,8 +16,6 @@ GRADLE_TASKS=(
     "compileDebugUnitTestKotlin"
     "assembleAndroidTest"
     "lint"
-    "-x:app:ensureRelayListExist"
-    "-x:app:ensureJniDirectoryExist"
 )
 
 export GRADLE_OPTS
