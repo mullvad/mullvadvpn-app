@@ -11,7 +11,14 @@ GRADLE_OPTS="-Dorg.gradle.daemon=false"
 # We must provide a template for mktemp to work properly on macOS.
 GRADLE_USER_HOME=$(mktemp -d -t gradle-home-XXX)
 TEMP_GRADLE_PROJECT_CACHE_DIR=$(mktemp -d -t gradle-cache-XXX)
-GRADLE_TASKS=("assemble" "compileDebugUnitTestKotlin" "assembleAndroidTest" "lint")
+GRADLE_TASKS=(
+    "assemble"
+    "compileDebugUnitTestKotlin"
+    "assembleAndroidTest"
+    "lint"
+    "-x:app:ensureRelayListExist"
+    "-x:app:ensureJniDirectoryExist"
+)
 
 export GRADLE_OPTS
 export GRADLE_USER_HOME
