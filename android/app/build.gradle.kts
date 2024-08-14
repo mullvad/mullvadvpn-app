@@ -307,6 +307,8 @@ play { serviceAccountCredentials.set(file("play-api-key.json")) }
 tasks.whenTaskAdded {
     if (name.startsWith("assemble")) {
         dependsOn(tasks.get("ensureRelayListExist"))
+        dependsOn(tasks.get("ensureJniDirectoryExist"))
+        dependsOn(tasks.get("ensureValidVersionCode"))
     }
 }
 
