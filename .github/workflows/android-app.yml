@@ -416,10 +416,9 @@ jobs:
           - test-type: app
             path: android/app/build/outputs/apk
             test-repeat: 1
-          # Disabled (test-repeat='0') due to flakiness unless overridden by input.
           - test-type: mockapi
             path: android/test/mockapi/build/outputs/apk
-            test-repeat: ${{ github.event.inputs.mockapi_test_repeat || 0 }}
+            test-repeat: ${{ github.event.inputs.mockapi_test_repeat || 1 }}
     steps:
       - name: Prepare report dir
         if: ${{ matrix.test-repeat != 0 }}
