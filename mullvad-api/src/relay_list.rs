@@ -254,12 +254,13 @@ struct Wireguard {
 impl From<&Wireguard> for relay_list::WireguardEndpointData {
     fn from(wg: &Wireguard) -> Self {
         Self {
-            port_ranges: inclusive_range_from_pair_set(wg.port_ranges.clone()),
+            port_ranges: inclusive_range_from_pair_set(wg.port_ranges.clone()).collect(),
             ipv4_gateway: wg.ipv4_gateway,
             ipv6_gateway: wg.ipv6_gateway,
             shadowsocks_port_ranges: inclusive_range_from_pair_set(
                 wg.shadowsocks_port_ranges.clone(),
-            ),
+            )
+            .collect(),
             udp2tcp_ports: vec![],
         }
     }
@@ -267,8 +268,8 @@ impl From<&Wireguard> for relay_list::WireguardEndpointData {
 
 fn inclusive_range_from_pair_set<T>(
     set: impl IntoIterator<Item = (T, T)>,
-) -> Vec<RangeInclusive<T>> {
-    set.into_iter().map(inclusive_range_from_pair).collect()
+) -> impl Iterator<Item = RangeInclusive<T>> {
+    set.into_iter().map(inclusive_range_from_pair)
 }
 
 fn inclusive_range_from_pair<T>(pair: (T, T)) -> RangeInclusive<T> {
