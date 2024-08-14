@@ -10,6 +10,7 @@ use mullvad_types::{
 };
 use std::time::Duration;
 use talpid_types::net::wireguard;
+use talpid_types::net::wireguard::PublicKey;
 use test_macro::test_function;
 use test_rpc::ServiceClient;
 
@@ -145,8 +146,8 @@ pub async fn test_revoked_device(
         .get_device()
         .await
         .context("failed to get device data")?
-        .into_device()
-        .unwrap()
+        .logged_in()
+        .context("Client is not logged in to a valid account")?
         .device
         .id;
 
@@ -205,6 +206,85 @@ pub async fn test_revoked_device(
     assert!(ui_result.success());
 
     Ok(())
+}
+
+/// Assert that an old Wireguard key is automatically rotated by the daemon.
+#[test_function]
+pub async fn test_automatic_wireguard_rotation(
+    ctx: TestContext,
+    rpc: ServiceClient,
+    mut mullvad_client: MullvadProxyClient,
+) -> anyhow::Result<()> {
+    const ROTATION_TIMEOUT: Duration = Duration::from_secs(120);
+
+    // Make note of current WG key
+    let old_key = get_current_wireguard_key(&mut mullvad_client).await?;
+
+    log::info!("Old wireguard key: {old_key}");
+
+    rpc.stop_mullvad_daemon().await?;
+
+    log::info!("Changing created field of `device.json` to more than 7 days ago");
+    rpc.make_device_json_old()
+        .await
+        .context("Could not change device.json to have an old created timestamp")?;
+
+    rpc.start_mullvad_daemon().await?;
+
+    // NOTE: Need to create a new `mullvad_client` here after the restart otherwise we can't
+    // communicate with the daemon
+    log::info!("Reconnecting to daemon");
+    drop(mullvad_client);
+    let mut mullvad_client = ctx.rpc_provider.new_client().await;
+
+    // Check if the key rotation has already occurred when connected to the daemon, otherwise
+    // listen for device daemon events until we observe the change. We have to register the event
+    // listener before polling the current key to be sure we don't miss the change.
+    log::info!("Verifying that wireguard key has changed");
+    let event_listener = mullvad_client
+        .events_listen()
+        .await
+        .context("Failed to begin listening for state changes")?;
+    let new_key = get_current_wireguard_key(&mut mullvad_client).await?;
+
+    // If key has not yet been updated, listen for changes to it
+    if new_key == old_key {
+        // Verify rotation has happened within `ROTATION_TIMEOUT` - if the key hasn't been rotated after
+        // that, the rotation probably won't happen anytime soon.
+        log::info!("Listening for device daemon event");
+        let device_event = |daemon_event| match daemon_event {
+            DaemonEvent::Device(device_event) => Some(device_event),
+            _ => None,
+        };
+        let device_event_listener = tokio::time::timeout(
+            ROTATION_TIMEOUT,
+            helpers::find_daemon_event(event_listener, device_event),
+        );
+        let _ = device_event_listener.await;
+
+        // Note: The key rotation could possible have happened without us noticing due to
+        // some raceiness in the timeframe between starting the daemon and us starting to
+        // listen for new daemon events. Thus, it is probably a good idea to check manually if the
+        // device key was rotated.
+        let new_key = get_current_wireguard_key(&mut mullvad_client).await?;
+
+        assert_ne!(old_key, new_key);
+    }
+
+    Ok(())
+}
+
+async fn get_current_wireguard_key(
+    mullvad_client: &mut MullvadProxyClient,
+) -> anyhow::Result<PublicKey> {
+    let pubkey = mullvad_client
+        .get_device()
+        .await?
+        .logged_in()
+        .context("Client is not logged in to a valid account")?
+        .device
+        .pubkey;
+    Ok(pubkey)
 }
 
 /// Remove all devices on the current account
@@ -276,87 +356,4 @@ pub async fn retry_if_throttled<
             Err(error) => break Err(error),
         }
     }
-}
-
-#[test_function]
-pub async fn test_automatic_wireguard_rotation(
-    ctx: TestContext,
-    rpc: ServiceClient,
-    mut mullvad_client: MullvadProxyClient,
-) -> Result<(), Error> {
-    // Make note of current WG key
-    let old_key = mullvad_client
-        .get_device()
-        .await
-        .unwrap()
-        .into_device()
-        .expect("Could not get device")
-        .device
-        .pubkey;
-
-    log::info!("Old wireguard key: {old_key}");
-
-    log::info!("Stopping daemon");
-    rpc.stop_mullvad_daemon()
-        .await
-        .expect("Could not stop system service");
-
-    log::info!("Changing created field of `device.json` to more than 7 days ago");
-    rpc.make_device_json_old()
-        .await
-        .expect("Could not change device.json to have an old created timestamp");
-
-    log::info!("Starting daemon");
-    rpc.start_mullvad_daemon()
-        .await
-        .expect("Could not start system service");
-
-    // NOTE: Need to create a new `mullvad_client` here after the restart otherwise we can't
-    // communicate with the daemon
-    log::info!("Reconnecting to daemon");
-    drop(mullvad_client);
-    let mut mullvad_client = ctx.rpc_provider.new_client().await;
-
-    log::info!("Verifying that wireguard key has change");
-
-    // Check if the key rotation has already occurred when connected to the daemon, otherwise
-    // listen for device daemon events until we observe the change. We have to register the event
-    // listener before polling the current key to be sure we don't miss the change.
-    let event_listener = mullvad_client.events_listen().await.unwrap();
-    let new_key = mullvad_client
-        .get_device()
-        .await
-        .unwrap()
-        .into_device()
-        .expect("Could not get device")
-        .device
-        .pubkey;
-
-    // If key has not yet been updated, listen for changes to it
-    if new_key == old_key {
-        log::info!("Listening for device daemon event");
-        // Verify rotation has happened within 100 seconds - if the key hasn't been rotated after
-        // that, the rotation probably won't happen anytime soon.
-        let device_event = tokio::task::spawn(tokio::time::timeout(
-            Duration::from_secs(100),
-            helpers::find_daemon_event(event_listener, |daemon_event| match daemon_event {
-                DaemonEvent::Device(device_event) => Some(device_event),
-                _ => None,
-            }),
-        ))
-        .await
-        .unwrap()
-        .map_err(|_error| Error::Daemon(String::from("Tunnel event listener timed out")))??;
-
-        let new_key = device_event
-            .new_state
-            .into_device()
-            .expect("Could not get device")
-            .device
-            .pubkey;
-
-        assert_ne!(old_key, new_key);
-    }
-
-    Ok(())
 }

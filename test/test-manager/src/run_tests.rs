@@ -92,6 +92,7 @@ pub async fn run(
             logger.store_records(true);
         }
 
+        // TODO: Log how long each test took to run.
         let test_result = run_test(
             client.clone(),
             mullvad_client,
