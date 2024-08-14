@@ -56,6 +56,13 @@ impl<T> Constraint<T> {
         }
     }
 
+    pub fn unwrap_or_else<F: FnOnce() -> T>(self, or_else: F) -> T {
+        match self {
+            Constraint::Only(value) => value,
+            Constraint::Any => or_else(),
+        }
+    }
+
     pub fn or(self, other: Constraint<T>) -> Constraint<T> {
         match self {
             Constraint::Any => other,

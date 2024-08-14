@@ -180,15 +180,8 @@ fn get_port_for_wireguard_relay(
     query: &WireguardRelayQuery,
     data: &WireguardEndpointData,
 ) -> Result<u16, Error> {
-    if let Constraint::Only(port) = query.port {
-        if super::helpers::port_in_range(port, &data.port_ranges) {
-            Ok(port)
-        } else {
-            Err(Error::PortSelectionError)
-        }
-    } else {
-        super::helpers::select_random_port(&data.port_ranges).map_err(|_| Error::PortSelectionError)
-    }
+    super::helpers::desired_or_random_port_from_range(&data.port_ranges, query.port)
+        .map_err(|_err| Error::PortSelectionError)
 }
 
 /// Read the [`PublicKey`] of a relay. This will only succeed if [relay][`Relay`] is a
