@@ -16,7 +16,7 @@ extension REST {
         let networkTimeout: Duration
         let bodyEncoder: JSONEncoder
 
-        class func withDefaultAPICredentials(
+        static func withDefaultAPICredentials(
             pathPrefix: String,
             bodyEncoder: JSONEncoder
         ) -> RequestFactory {

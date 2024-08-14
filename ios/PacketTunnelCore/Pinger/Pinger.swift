@@ -217,7 +217,7 @@ public final class Pinger: PingerProtocol {
         }
     }
 
-    private class func makeIPAddress(from sa: sockaddr) -> IPAddress? {
+    private static func makeIPAddress(from sa: sockaddr) -> IPAddress? {
         if sa.sa_family == AF_INET {
             return withUnsafeBytes(of: sa) { buffer -> IPAddress? in
                 buffer.bindMemory(to: sockaddr_in.self).baseAddress.flatMap { boundPointer in

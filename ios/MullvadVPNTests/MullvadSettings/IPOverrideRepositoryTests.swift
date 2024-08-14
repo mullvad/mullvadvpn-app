@@ -14,11 +14,11 @@ final class IPOverrideRepositoryTests: XCTestCase {
     static let store = InMemorySettingsStore<SettingNotFound>()
     let repository = IPOverrideRepository()
 
-    override class func setUp() {
+    override static func setUp() {
         SettingsManager.unitTestStore = store
     }
 
-    override class func tearDown() {
+    override static func tearDown() {
         SettingsManager.unitTestStore = nil
     }
 

@@ -16,11 +16,11 @@ final class MigrationManagerTests: XCTestCase {
     static let store = InMemorySettingsStore<SettingNotFound>()
 
     var manager: MigrationManager!
-    override class func setUp() {
+    override static func setUp() {
         SettingsManager.unitTestStore = store
     }
 
-    override class func tearDown() {
+    override static func tearDown() {
         SettingsManager.unitTestStore = nil
     }
 
@@ -72,7 +72,7 @@ final class MigrationManagerTests: XCTestCase {
 
     func testFailedMigrationResetsSettings() throws {
         let store = Self.store
-        let data = try XCTUnwrap("Migration test".data(using: .utf8))
+        let data = Data("Migration test".utf8)
         try store.write(data, for: .settings)
         try store.write(data, for: .deviceState)
 

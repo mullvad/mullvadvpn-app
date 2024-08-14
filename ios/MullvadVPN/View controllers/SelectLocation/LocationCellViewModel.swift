@@ -80,7 +80,7 @@ extension LocationCellViewModel {
             return false
         }
 
-        var proxyNode = RootLocationNode(children: [node])
+        let proxyNode = RootLocationNode(children: [node])
         let allLocations = Set(proxyNode.flattened.flatMap { $0.locations })
         let hostCount = allLocations.filter { location in
             if case .hostname = location { true } else { false }
