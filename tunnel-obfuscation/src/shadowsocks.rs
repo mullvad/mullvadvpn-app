@@ -38,6 +38,7 @@ pub enum Error {
 pub struct Shadowsocks {
     udp_client_addr: SocketAddr,
     server: tokio::task::JoinHandle<Result<()>>,
+    // The receiver will implicitly shut down when this is dropped
     _shutdown_tx: oneshot::Sender<()>,
 }
 
