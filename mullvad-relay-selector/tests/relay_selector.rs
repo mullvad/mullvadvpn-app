@@ -829,12 +829,14 @@ fn test_selecting_wireguard_ignore_extra_ips_override_v6() {
 
     const OVERRIDE_IPV6: Ipv6Addr = Ipv6Addr::new(1, 0, 0, 0, 0, 0, 10, 10);
 
-    let mut config = SelectorConfig::default();
-    config.relay_overrides = vec![RelayOverride {
-        hostname: shadowsocks_extra_relay.get_hostname().unwrap().to_string(),
-        ipv4_addr_in: None,
-        ipv6_addr_in: Some(OVERRIDE_IPV6),
-    }];
+    let config = SelectorConfig {
+        relay_overrides: vec![RelayOverride {
+            hostname: shadowsocks_extra_relay.get_hostname().unwrap().to_string(),
+            ipv4_addr_in: None,
+            ipv6_addr_in: Some(OVERRIDE_IPV6),
+        }],
+        ..Default::default()
+    };
 
     let relay_selector = RelaySelector::from_list(config, relay_list);
 
