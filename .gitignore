@@ -1,6 +1,7 @@
 /target/
 /build/
 /dist
+/test/dist
 .idea/
 .DS_Store
 *.log
