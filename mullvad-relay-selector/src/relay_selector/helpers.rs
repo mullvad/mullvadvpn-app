@@ -2,7 +2,7 @@
 
 use std::{
     net::{IpAddr, SocketAddr},
-    ops::RangeInclusive,
+    ops::{RangeBounds, RangeInclusive},
 };
 
 use mullvad_types::{
@@ -136,9 +136,9 @@ pub fn get_shadowsocks_obfuscator(
 /// Return an obfuscation config for the wireguard server at `wg_in_addr` or one of `extra_in_addrs`
 /// (unless empty). `wg_in_addr_port_ranges` contains all valid ports for `wg_in_addr`, and
 /// `SHADOWSOCKS_EXTRA_PORT_RANGES` contains valid ports for `extra_in_addrs`.
-fn get_shadowsocks_obfuscator_inner(
+fn get_shadowsocks_obfuscator_inner<R: RangeBounds<u16> + Iterator<Item = u16> + Clone>(
     wg_in_addr: IpAddr,
-    wg_in_addr_port_ranges: &[RangeInclusive<u16>],
+    wg_in_addr_port_ranges: &[R],
     extra_in_addrs: &[IpAddr],
     desired_port: Constraint<u16>,
 ) -> Result<SocketAddr, Error> {
@@ -155,22 +155,27 @@ fn get_shadowsocks_obfuscator_inner(
         .copied()
         .unwrap_or(wg_in_addr);
 
-    let port_ranges = if extra_in_addrs.is_empty() {
-        wg_in_addr_port_ranges
+    let selected_port = if extra_in_addrs.is_empty() {
+        desired_port_from_range(wg_in_addr_port_ranges, desired_port)
     } else {
-        SHADOWSOCKS_EXTRA_PORT_RANGES
-    };
-
-    let selected_port = match desired_port {
-        // Selected a specific, in-range port
-        Constraint::Only(port) if super::helpers::port_in_range(port, port_ranges) => port,
-        // Selected a specific, out-of-range port
-        Constraint::Only(_port) => return Err(Error::NoMatchingPort),
-        // Selected no specific port
-        Constraint::Any => super::helpers::select_random_port(port_ranges)?,
-    };
+        desired_port_from_range(SHADOWSOCKS_EXTRA_PORT_RANGES, desired_port)
+    }?;
 
     Ok(SocketAddr::from((in_ip, selected_port)))
+}
+
+fn desired_port_from_range<R: RangeBounds<u16> + Iterator<Item = u16> + Clone>(
+    port_ranges: &[R],
+    desired_port: Constraint<u16>,
+) -> Result<u16, Error> {
+    match desired_port {
+        // Selected a specific, in-range port
+        Constraint::Only(port) if port_in_range(port, port_ranges) => Ok(port),
+        // Selected a specific, out-of-range port
+        Constraint::Only(_port) => Err(Error::NoMatchingPort),
+        // Selected no specific port
+        Constraint::Any => select_random_port(port_ranges),
+    }
 }
 
 /// Selects a random port number from a list of provided port ranges.
@@ -186,7 +191,9 @@ fn get_shadowsocks_obfuscator_inner(
 /// # Returns
 /// - A randomly selected port number within the given ranges.
 /// - An error if `port_ranges` is empty.
-pub fn select_random_port(port_ranges: &[RangeInclusive<u16>]) -> Result<u16, Error> {
+pub fn select_random_port<R: RangeBounds<u16> + Iterator<Item = u16> + Clone>(
+    port_ranges: &[R],
+) -> Result<u16, Error> {
     port_ranges
         .iter()
         .flat_map(|range| range.clone())
@@ -194,7 +201,7 @@ pub fn select_random_port(port_ranges: &[RangeInclusive<u16>]) -> Result<u16, Er
         .ok_or(Error::NoMatchingPort)
 }
 
-pub fn port_in_range(port: u16, port_ranges: &[RangeInclusive<u16>]) -> bool {
+pub fn port_in_range<R: RangeBounds<u16>>(port: u16, port_ranges: &[R]) -> bool {
     port_ranges.iter().any(|range| range.contains(&port))
 }
 
