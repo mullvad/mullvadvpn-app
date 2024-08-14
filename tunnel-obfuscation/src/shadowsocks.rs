@@ -32,7 +32,7 @@ pub enum Error {
     CreateUdpStream(#[source] io::Error),
     /// Failed to connect to Shadowsocks endpoint
     #[error("Failed to connect to Shadowsocks endpoint")]
-    ConnectShadowsocks(#[source] ProxySocketError),
+    ConnectShadowsocks(#[from] ProxySocketError),
 }
 
 pub struct Shadowsocks {
@@ -91,8 +91,7 @@ async fn run_obfuscation(
         #[cfg(target_os = "linux")]
         fwmark,
     )
-    .await
-    .map_err(Error::ConnectShadowsocks)?;
+    .await?;
 
     let local_udp = Arc::new(local_udp_socket);
     let shadowsocks = Arc::new(shadowsocks);
