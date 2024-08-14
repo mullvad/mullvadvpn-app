@@ -73,6 +73,7 @@ else
 fi
 
 $GRADLE_CMD --console plain clean
+mkdir -p "app/build/extraAssets"
 mkdir -p "app/build/extraJni"
 popd
 
