@@ -158,10 +158,8 @@ async fn create_local_udp_socket(ipv4: bool) -> Result<(UdpSocket, SocketAddr)> 
 
 /// Wait for a client to connect to `udp_listener` and connect the socket to that address
 async fn wait_for_local_udp_client(udp_listener: &UdpSocket) -> io::Result<()> {
-    let mut client_rx_buffer = vec![0u8; u16::MAX as usize];
-
     log::trace!("Waiting for UDP socket client");
-    let (_bytes_n, client_addr) = udp_listener.peek_from(&mut client_rx_buffer).await?;
+    let client_addr = udp_listener.peek_sender().await?;
 
     log::trace!("UDP connection from {client_addr}");
     udp_listener.connect(client_addr).await
