@@ -15,6 +15,7 @@ public enum TunnelSettingsUpdate {
     case relayConstraints(RelayConstraints)
     case quantumResistance(TunnelQuantumResistance)
     case multihop(MultihopState)
+    case daita(DAITASettings)
 }
 
 extension TunnelSettingsUpdate {
@@ -30,6 +31,8 @@ extension TunnelSettingsUpdate {
             settings.tunnelQuantumResistance = newQuantumResistance
         case let .multihop(newState):
             settings.tunnelMultihopState = newState
+        case let .daita(newDAITASettings):
+            settings.daita = newDAITASettings
         }
     }
 
@@ -40,6 +43,7 @@ extension TunnelSettingsUpdate {
         case .relayConstraints: "relay constraints"
         case .quantumResistance: "quantum resistance"
         case .multihop: "multihop"
+        case .daita: "daita"
         }
     }
 }

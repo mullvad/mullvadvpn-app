@@ -11,40 +11,40 @@ import MullvadTypes
 
 public final class RelaySelectorWrapper: RelaySelectorProtocol {
     let relayCache: RelayCacheProtocol
-    let multihopUpdater: MultihopUpdater
-    private var multihopState: MultihopState = .off
-    private var observer: MultihopObserverBlock!
+
+    let tunnelSettingsUpdater: SettingsUpdater
+    private var tunnelSettings = LatestTunnelSettings()
+    private var observer: SettingsObserverBlock!
 
     deinit {
-        self.multihopUpdater.removeObserver(observer)
+        self.tunnelSettingsUpdater.removeObserver(observer)
     }
 
     public init(
         relayCache: RelayCacheProtocol,
-        multihopUpdater: MultihopUpdater
+        tunnelSettingsUpdater: SettingsUpdater
     ) {
         self.relayCache = relayCache
-        self.multihopUpdater = multihopUpdater
+        self.tunnelSettingsUpdater = tunnelSettingsUpdater
 
         self.addObserver()
     }
 
     public func selectRelays(
-        with constraints: RelayConstraints,
         connectionAttemptCount: UInt
     ) throws -> SelectedRelays {
         let relays = try relayCache.read().relays
 
-        switch multihopState {
+        switch tunnelSettings.tunnelMultihopState {
         case .off:
             return try SinglehopPicker(
-                constraints: constraints,
+                constraints: tunnelSettings.relayConstraints,
                 relays: relays,
                 connectionAttemptCount: connectionAttemptCount
             ).pick()
         case .on:
             return try MultihopPicker(
-                constraints: constraints,
+                constraints: tunnelSettings.relayConstraints,
                 relays: relays,
                 connectionAttemptCount: connectionAttemptCount
             ).pick()
@@ -52,10 +52,10 @@ public final class RelaySelectorWrapper: RelaySelectorProtocol {
     }
 
     private func addObserver() {
-        self.observer = MultihopObserverBlock(didUpdateMultihop: { [weak self] _, multihopState in
-            self?.multihopState = multihopState
+        self.observer = SettingsObserverBlock(didUpdateSettings: { [weak self] latestTunnelSettings in
+            self?.tunnelSettings = latestTunnelSettings
         })
 
-        multihopUpdater.addObserver(observer)
+        tunnelSettingsUpdater.addObserver(observer)
     }
 }

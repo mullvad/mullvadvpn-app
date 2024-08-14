@@ -120,6 +120,28 @@ final class MigrationManagerTests: XCTestCase {
         wait(for: [failedMigrationExpectation], timeout: .UnitTest.timeout)
     }
 
+    func testSuccessfulMigrationFromV5ToLatest() throws {
+        var settingsV5 = TunnelSettingsV5()
+        let relayConstraints = RelayConstraints(
+            exitLocations: .only(UserSelectedRelays(locations: [.city("jp", "osa")]))
+        )
+
+        settingsV5.relayConstraints = relayConstraints
+        settingsV5.tunnelQuantumResistance = .off
+        settingsV5.wireGuardObfuscation = WireGuardObfuscationSettings(state: .off, port: .automatic)
+        settingsV5.tunnelMultihopState = .off
+
+        try migrateToLatest(settingsV5, version: .v5)
+
+        // Once the migration is done, settings should have been updated to the latest available version
+        // Verify that the old settings are still valid
+        let latestSettings = try SettingsManager.readSettings()
+        XCTAssertEqual(settingsV5.relayConstraints, latestSettings.relayConstraints)
+        XCTAssertEqual(settingsV5.tunnelQuantumResistance, latestSettings.tunnelQuantumResistance)
+        XCTAssertEqual(settingsV5.wireGuardObfuscation, latestSettings.wireGuardObfuscation)
+        XCTAssertEqual(settingsV5.tunnelMultihopState, latestSettings.tunnelMultihopState)
+    }
+
     func testSuccessfulMigrationFromV4ToLatest() throws {
         var settingsV4 = TunnelSettingsV4()
         let relayConstraints = RelayConstraints(

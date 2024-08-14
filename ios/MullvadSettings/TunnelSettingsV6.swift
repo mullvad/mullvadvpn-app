@@ -1,15 +1,15 @@
 //
-//  TunnelSettingsV5.swift
+//  TunnelSettingsV6.swift
 //  MullvadSettings
 //
-//  Created by Mojgan on 2024-05-13.
+//  Created by Mojgan on 2024-08-08.
 //  Copyright © 2024 Mullvad VPN AB. All rights reserved.
 //
 
 import Foundation
 import MullvadTypes
 
-public struct TunnelSettingsV5: Codable, Equatable, TunnelSettings {
+public struct TunnelSettingsV6: Codable, Equatable, TunnelSettings {
     /// Relay constraints.
     public var relayConstraints: RelayConstraints
 
@@ -25,29 +25,26 @@ public struct TunnelSettingsV5: Codable, Equatable, TunnelSettings {
     /// Whether Multi-hop is enabled.
     public var tunnelMultihopState: MultihopState
 
+    /// DAITA settings.
+    public var daita: DAITASettings
+
     public init(
         relayConstraints: RelayConstraints = RelayConstraints(),
         dnsSettings: DNSSettings = DNSSettings(),
         wireGuardObfuscation: WireGuardObfuscationSettings = WireGuardObfuscationSettings(),
         tunnelQuantumResistance: TunnelQuantumResistance = .automatic,
-        tunnelMultihopState: MultihopState = .off
-
+        tunnelMultihopState: MultihopState = .off,
+        daita: DAITASettings = DAITASettings()
     ) {
         self.relayConstraints = relayConstraints
         self.dnsSettings = dnsSettings
         self.wireGuardObfuscation = wireGuardObfuscation
         self.tunnelQuantumResistance = tunnelQuantumResistance
         self.tunnelMultihopState = tunnelMultihopState
+        self.daita = daita
     }
 
     public func upgradeToNextVersion() -> any TunnelSettings {
-        TunnelSettingsV6(
-            relayConstraints: relayConstraints,
-            dnsSettings: dnsSettings,
-            wireGuardObfuscation: wireGuardObfuscation,
-            tunnelQuantumResistance: tunnelQuantumResistance,
-            tunnelMultihopState: tunnelMultihopState,
-            daita: DAITASettings()
-        )
+        self
     }
 }

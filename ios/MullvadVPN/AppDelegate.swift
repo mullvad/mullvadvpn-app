@@ -79,9 +79,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             ipOverrideRepository: ipOverrideRepository
         )
 
-        let constraintsUpdater = RelayConstraintsUpdater()
-        let multihopListener = MultihopStateListener()
-        let multihopUpdater = MultihopUpdater(listener: multihopListener)
+        let tunnelSettingsListener = TunnelSettingsListener()
+        let tunnelSettingsUpdater = SettingsUpdater(listener: tunnelSettingsListener)
 
         relayCacheTracker = RelayCacheTracker(
             relayCache: ipOverrideWrapper,
@@ -95,16 +94,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         let relaySelector = RelaySelectorWrapper(
             relayCache: ipOverrideWrapper,
-            multihopUpdater: multihopUpdater
+            tunnelSettingsUpdater: tunnelSettingsUpdater
         )
         tunnelManager = createTunnelManager(application: application, relaySelector: relaySelector)
 
-        settingsObserver = TunnelBlockObserver(didLoadConfiguration: { tunnelManager in
-            multihopListener.onNewMultihop?(tunnelManager.settings.tunnelMultihopState)
-            constraintsUpdater.onNewConstraints?(tunnelManager.settings.relayConstraints)
-        }, didUpdateTunnelSettings: { _, settings in
-            multihopListener.onNewMultihop?(settings.tunnelMultihopState)
-            constraintsUpdater.onNewConstraints?(settings.relayConstraints)
+        settingsObserver = TunnelBlockObserver(didUpdateTunnelSettings: { _, settings in
+            tunnelSettingsListener.onNewSettings?(settings)
         })
         tunnelManager.addObserver(settingsObserver)
 
@@ -124,8 +119,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         shadowsocksLoader = ShadowsocksLoader(
             cache: shadowsocksCache,
             relaySelector: shadowsocksRelaySelector,
-            constraintsUpdater: constraintsUpdater,
-            multihopUpdater: multihopUpdater
+            settingsUpdater: tunnelSettingsUpdater
         )
 
         configuredTransportProvider = ProxyConfigurationTransportProvider(
