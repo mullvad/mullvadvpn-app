@@ -20,7 +20,7 @@ pub enum Error {
     NoBridge,
 
     #[error("No obfuscators matching current constraints")]
-    NoObfuscator,
+    NoObfuscator(#[source] Box<dyn std::error::Error>),
 
     #[error("No endpoint could be constructed due to {} for relay {:?}", .internal, .relay)]
     NoEndpoint {

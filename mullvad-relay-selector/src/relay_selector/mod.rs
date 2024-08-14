@@ -794,6 +794,8 @@ impl RelaySelector {
             WireguardConfig::Singlehop { exit } => exit,
             WireguardConfig::Multihop { entry, .. } => entry,
         };
+        let box_obfsucation_error = |error: helpers::Error| Error::NoObfuscator(Box::new(error));
+
         match &query.wireguard_constraints.obfuscation {
             ObfuscationQuery::Off | ObfuscationQuery::Auto => Ok(None),
             ObfuscationQuery::Udp2tcp(settings) => {
@@ -801,7 +803,7 @@ impl RelaySelector {
 
                 helpers::get_udp2tcp_obfuscator(settings, udp2tcp_ports, obfuscator_relay, endpoint)
                     .map(Some)
-                    .ok_or(Error::NoObfuscator)
+                    .map_err(box_obfsucation_error)
             }
             ObfuscationQuery::Shadowsocks(settings) => {
                 let port_ranges = &parsed_relays
@@ -814,7 +816,7 @@ impl RelaySelector {
                     obfuscator_relay,
                     endpoint,
                 )
-                .ok_or(Error::NoObfuscator)?;
+                .map_err(box_obfsucation_error)?;
 
                 Ok(Some(obfuscation))
             }
