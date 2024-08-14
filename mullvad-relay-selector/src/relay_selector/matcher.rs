@@ -1,5 +1,5 @@
 //! This module is responsible for filtering the whole relay list based on queries.
-use std::collections::HashSet;
+use std::{collections::HashSet, ops::RangeInclusive};
 
 use mullvad_types::{
     constraints::{Constraint, Match},
@@ -155,7 +155,7 @@ fn filter_on_obfuscation(
 
 /// Returns whether `relay` satisfies the Shadowsocks filter posed by `port`.
 fn filter_on_shadowsocks(
-    port_ranges: &[(u16, u16)],
+    port_ranges: &[RangeInclusive<u16>],
     ip_version: &Constraint<IpVersion>,
     settings: &ShadowsocksSettings,
     relay: &Relay,
@@ -177,9 +177,7 @@ fn filter_on_shadowsocks(
                 .find(|&&addr| IpVersion::from(addr) == ip_version);
 
             filtered_extra_addrs.is_some()
-                || port_ranges
-                    .iter()
-                    .any(|(begin, end)| (*begin..=*end).contains(desired_port))
+                || port_ranges.iter().any(|range| range.contains(desired_port))
         }
 
         // Otherwise, any relay works.

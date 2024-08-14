@@ -161,16 +161,16 @@ static RELAYS: Lazy<RelayList> = Lazy::new(|| RelayList {
     },
     wireguard: WireguardEndpointData {
         port_ranges: vec![
-            (53, 53),
-            (443, 443),
-            (4000, 33433),
-            (33565, 51820),
-            (52000, 60000),
+            53..=53,
+            443..=443,
+            4000..=33433,
+            33565..=51820,
+            52000..=60000,
         ],
         ipv4_gateway: "10.64.0.1".parse().unwrap(),
         ipv6_gateway: "fc00:bbbb:bbbb:bb01::1".parse().unwrap(),
         udp2tcp_ports: vec![],
-        shadowsocks_port_ranges: vec![(100, 200), (1000, 2000)],
+        shadowsocks_port_ranges: vec![100..=200, 1000..=2000],
     },
 });
 
@@ -506,16 +506,16 @@ fn test_wireguard_entry() {
         },
         wireguard: WireguardEndpointData {
             port_ranges: vec![
-                (53, 53),
-                (443, 443),
-                (4000, 33433),
-                (33565, 51820),
-                (52000, 60000),
+                53..=53,
+                443..=443,
+                4000..=33433,
+                33565..=51820,
+                52000..=60000,
             ],
             ipv4_gateway: "10.64.0.1".parse().unwrap(),
             ipv6_gateway: "fc00:bbbb:bbbb:bb01::1".parse().unwrap(),
             udp2tcp_ports: vec![],
-            shadowsocks_port_ranges: vec![(100, 200), (1000, 2000)],
+            shadowsocks_port_ranges: vec![100..=200, 1000..=2000],
         },
     };
 
@@ -1175,7 +1175,7 @@ fn test_include_in_country() {
             shadowsocks: vec![],
         },
         wireguard: WireguardEndpointData {
-            port_ranges: vec![(53, 53), (4000, 33433), (33565, 51820), (52000, 60000)],
+            port_ranges: vec![53..=53, 4000..=33433, 33565..=51820, 52000..=60000],
             ipv4_gateway: "10.64.0.1".parse().unwrap(),
             ipv6_gateway: "fc00:bbbb:bbbb:bb01::1".parse().unwrap(),
             udp2tcp_ports: vec![],
@@ -1381,7 +1381,7 @@ fn test_daita() {
             shadowsocks: vec![],
         },
         wireguard: WireguardEndpointData {
-            port_ranges: vec![(53, 53), (4000, 33433), (33565, 51820), (52000, 60000)],
+            port_ranges: vec![53..=53, 4000..=33433, 33565..=51820, 52000..=60000],
             ipv4_gateway: "10.64.0.1".parse().unwrap(),
             ipv6_gateway: "fc00:bbbb:bbbb:bb01::1".parse().unwrap(),
             shadowsocks_port_ranges: vec![],

@@ -1,6 +1,9 @@
 //! This module contains various helper functions for the relay selector implementation.
 
-use std::net::{IpAddr, SocketAddr};
+use std::{
+    net::{IpAddr, SocketAddr},
+    ops::{RangeBounds, RangeInclusive},
+};
 
 use mullvad_types::{
     constraints::Constraint,
@@ -18,12 +21,10 @@ use crate::SelectedObfuscator;
 
 /// Port ranges available for WireGuard relays that have extra IPs for Shadowsocks.
 /// For relays that have no additional IPs, only ports provided by the relay list are available.
-const SHADOWSOCKS_EXTRA_PORT_RANGES: &[(u16, u16)] = &[(1, u16::MAX)];
+const SHADOWSOCKS_EXTRA_PORT_RANGES: &[RangeInclusive<u16>] = &[1..=u16::MAX];
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error("Port selection algorithm is broken")]
-    PortSelectionAlgorithm,
     #[error("Found no valid port matching the selected settings")]
     NoMatchingPort,
 }
@@ -107,7 +108,7 @@ fn get_udp2tcp_obfuscator_port(
 
 pub fn get_shadowsocks_obfuscator(
     settings: &ShadowsocksSettings,
-    non_extra_port_ranges: &[(u16, u16)],
+    non_extra_port_ranges: &[RangeInclusive<u16>],
     relay: Relay,
     endpoint: &MullvadWireguardEndpoint,
 ) -> Result<SelectedObfuscator, Error> {
@@ -135,9 +136,9 @@ pub fn get_shadowsocks_obfuscator(
 /// Return an obfuscation config for the wireguard server at `wg_in_addr` or one of `extra_in_addrs`
 /// (unless empty). `wg_in_addr_port_ranges` contains all valid ports for `wg_in_addr`, and
 /// `SHADOWSOCKS_EXTRA_PORT_RANGES` contains valid ports for `extra_in_addrs`.
-fn get_shadowsocks_obfuscator_inner(
+fn get_shadowsocks_obfuscator_inner<R: RangeBounds<u16> + Iterator<Item = u16> + Clone>(
     wg_in_addr: IpAddr,
-    wg_in_addr_port_ranges: &[(u16, u16)],
+    wg_in_addr_port_ranges: &[R],
     extra_in_addrs: &[IpAddr],
     desired_port: Constraint<u16>,
 ) -> Result<SocketAddr, Error> {
@@ -154,23 +155,27 @@ fn get_shadowsocks_obfuscator_inner(
         .copied()
         .unwrap_or(wg_in_addr);
 
-    let port_ranges = if extra_in_addrs.is_empty() {
-        wg_in_addr_port_ranges
+    let selected_port = if extra_in_addrs.is_empty() {
+        desired_port_from_range(wg_in_addr_port_ranges, desired_port)
     } else {
-        SHADOWSOCKS_EXTRA_PORT_RANGES
-    };
-
-    let selected_port = match desired_port {
-        // Selected a specific, in-range port
-        Constraint::Only(port) if super::helpers::port_in_range(port, port_ranges) => Some(port),
-        // Selected a specific, out-of-range port
-        Constraint::Only(_port) => None,
-        // Selected no specific port
-        Constraint::Any => super::helpers::select_random_port(port_ranges).ok(),
-    }
-    .ok_or(Error::NoMatchingPort)?;
+        desired_port_from_range(SHADOWSOCKS_EXTRA_PORT_RANGES, desired_port)
+    }?;
 
     Ok(SocketAddr::from((in_ip, selected_port)))
+}
+
+fn desired_port_from_range<R: RangeBounds<u16> + Iterator<Item = u16> + Clone>(
+    port_ranges: &[R],
+    desired_port: Constraint<u16>,
+) -> Result<u16, Error> {
+    match desired_port {
+        // Selected a specific, in-range port
+        Constraint::Only(port) if port_in_range(port, port_ranges) => Ok(port),
+        // Selected a specific, out-of-range port
+        Constraint::Only(_port) => Err(Error::NoMatchingPort),
+        // Selected no specific port
+        Constraint::Any => select_random_port(port_ranges),
+    }
 }
 
 /// Selects a random port number from a list of provided port ranges.
@@ -185,45 +190,32 @@ fn get_shadowsocks_obfuscator_inner(
 ///
 /// # Returns
 /// - A randomly selected port number within the given ranges.
-///
-/// # Panic
-/// - If port ranges contains no ports, this function panics.
-pub fn select_random_port(port_ranges: &[(u16, u16)]) -> Result<u16, Error> {
-    let get_port_amount = |range: &(u16, u16)| -> u64 { 1 + range.1 as u64 - range.0 as u64 };
-    let port_amount: u64 = port_ranges.iter().map(get_port_amount).sum();
-
-    if port_amount < 1 {
-        return Err(Error::PortSelectionAlgorithm);
-    }
-
-    let mut port_index = rand::thread_rng().gen_range(0..port_amount);
-
-    for range in port_ranges.iter() {
-        let ports_in_range = get_port_amount(range);
-        if port_index < ports_in_range {
-            return Ok(port_index as u16 + range.0);
-        }
-        port_index -= ports_in_range;
-    }
-    Err(Error::PortSelectionAlgorithm)
-}
-
-pub fn port_in_range(port: u16, port_ranges: &[(u16, u16)]) -> bool {
+/// - An error if `port_ranges` is empty.
+pub fn select_random_port<R: RangeBounds<u16> + Iterator<Item = u16> + Clone>(
+    port_ranges: &[R],
+) -> Result<u16, Error> {
     port_ranges
         .iter()
-        .any(|range| (range.0 <= port && port <= range.1))
+        .cloned()
+        .flatten()
+        .choose(&mut rand::thread_rng())
+        .ok_or(Error::NoMatchingPort)
+}
+
+pub fn port_in_range<R: RangeBounds<u16>>(port: u16, port_ranges: &[R]) -> bool {
+    port_ranges.iter().any(|range| range.contains(&port))
 }
 
 #[cfg(test)]
 mod tests {
     use super::{get_shadowsocks_obfuscator_inner, port_in_range, SHADOWSOCKS_EXTRA_PORT_RANGES};
     use mullvad_types::constraints::Constraint;
-    use std::net::IpAddr;
+    use std::{net::IpAddr, ops::RangeInclusive};
 
     /// Test whether select ports are available when relay has no extra IPs
     #[test]
     fn test_shadowsocks_no_extra_addrs() {
-        const PORT_RANGES: &[(u16, u16)] = &[(100, 200), (1000, 2000)];
+        const PORT_RANGES: &[RangeInclusive<u16>] = &[100..=200, 1000..=2000];
         const WITHIN_RANGE_PORT: u16 = 100;
         const OUT_OF_RANGE_PORT: u16 = 1;
         let wg_in_ip: IpAddr = "1.2.3.4".parse().unwrap();
@@ -267,7 +259,7 @@ mod tests {
     /// All ports should be available when relay has extra IPs, and only extra IPs should be used
     #[test]
     fn test_shadowsocks_extra_addrs() {
-        const PORT_RANGES: &[(u16, u16)] = &[(100, 200), (1000, 2000)];
+        const PORT_RANGES: &[RangeInclusive<u16>] = &[100..=200, 1000..=2000];
         const OUT_OF_RANGE_PORT: u16 = 1;
         let wg_in_ip: IpAddr = "1.2.3.4".parse().unwrap();
 
@@ -312,7 +304,7 @@ mod tests {
     /// Extra addresses that belong to the wrong IP family should be ignored
     #[test]
     fn test_shadowsocks_irrelevant_extra_addrs() {
-        const PORT_RANGES: &[(u16, u16)] = &[(100, 200), (1000, 2000)];
+        const PORT_RANGES: &[RangeInclusive<u16>] = &[100..=200, 1000..=2000];
         const IN_RANGE_PORT: u16 = 100;
         const OUT_OF_RANGE_PORT: u16 = 1;
         let wg_in_ip: IpAddr = "1.2.3.4".parse().unwrap();

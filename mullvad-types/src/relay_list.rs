@@ -1,6 +1,9 @@
 use crate::location::{CityCode, CountryCode, Location};
 use serde::{Deserialize, Serialize};
-use std::net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr};
+use std::{
+    net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
+    ops::RangeInclusive,
+};
 use talpid_types::net::{
     proxy::{CustomProxy, Shadowsocks},
     wireguard, TransportProtocol,
@@ -169,12 +172,12 @@ pub struct OpenVpnEndpoint {
 #[serde(rename_all = "snake_case")]
 pub struct WireguardEndpointData {
     /// Port to connect to
-    pub port_ranges: Vec<(u16, u16)>,
+    pub port_ranges: Vec<RangeInclusive<u16>>,
     /// Gateways to be used with the tunnel
     pub ipv4_gateway: Ipv4Addr,
     pub ipv6_gateway: Ipv6Addr,
     /// Shadowsocks port ranges available on all WireGuard relays
-    pub shadowsocks_port_ranges: Vec<(u16, u16)>,
+    pub shadowsocks_port_ranges: Vec<RangeInclusive<u16>>,
     pub udp2tcp_ports: Vec<u16>,
 }
 
