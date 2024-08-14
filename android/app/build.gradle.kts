@@ -236,10 +236,6 @@ android {
 
         createDistBundle.dependsOn("bundle$capitalizedVariantName")
     }
-
-    project.tasks.preBuild.dependsOn("ensureValidVersionCode")
-    project.tasks.preBuild.dependsOn("ensureRelayListExist")
-    project.tasks.preBuild.dependsOn("ensureJniDirectoryExist")
 }
 
 junitPlatform {
@@ -307,6 +303,12 @@ tasks.create("printVersion") {
 }
 
 play { serviceAccountCredentials.set(file("play-api-key.json")) }
+
+tasks.whenTaskAdded {
+    if (name.startsWith("assemble")) {
+        dependsOn(tasks.get("ensureRelayListExist"))
+    }
+}
 
 dependencies {
     implementation(projects.lib.common)
