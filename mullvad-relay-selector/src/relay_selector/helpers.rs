@@ -24,6 +24,8 @@ const SHADOWSOCKS_EXTRA_PORT_RANGES: &[(u16, u16)] = &[(1, u16::MAX)];
 pub enum Error {
     #[error("Port selection algorithm is broken")]
     PortSelectionAlgorithm,
+    #[error("Found no valid port matching the selected settings")]
+    NoMatchingPort,
 }
 
 /// Picks a relay using [pick_random_relay_weighted], using the `weight` member of each relay
@@ -77,21 +79,21 @@ pub fn get_udp2tcp_obfuscator(
     udp2tcp_ports: &[u16],
     relay: Relay,
     endpoint: &MullvadWireguardEndpoint,
-) -> Option<SelectedObfuscator> {
+) -> Result<SelectedObfuscator, Error> {
     let udp2tcp_endpoint_port =
         get_udp2tcp_obfuscator_port(obfuscation_settings_constraint, udp2tcp_ports)?;
     let config = ObfuscatorConfig::Udp2Tcp {
         endpoint: SocketAddr::new(endpoint.peer.endpoint.ip(), udp2tcp_endpoint_port),
     };
 
-    Some(SelectedObfuscator { config, relay })
+    Ok(SelectedObfuscator { config, relay })
 }
 
-pub fn get_udp2tcp_obfuscator_port(
+fn get_udp2tcp_obfuscator_port(
     obfuscation_settings: &Udp2TcpObfuscationSettings,
     udp2tcp_ports: &[u16],
-) -> Option<u16> {
-    if let Constraint::Only(desired_port) = obfuscation_settings.port {
+) -> Result<u16, Error> {
+    let port = if let Constraint::Only(desired_port) = obfuscation_settings.port {
         udp2tcp_ports
             .iter()
             .find(|&candidate| desired_port == *candidate)
@@ -99,7 +101,8 @@ pub fn get_udp2tcp_obfuscator_port(
     } else {
         // There are no specific obfuscation settings to take into consideration in this case.
         udp2tcp_ports.choose(&mut thread_rng()).copied()
-    }
+    };
+    port.ok_or(Error::NoMatchingPort)
 }
 
 pub fn get_shadowsocks_obfuscator(
@@ -107,7 +110,7 @@ pub fn get_shadowsocks_obfuscator(
     non_extra_port_ranges: &[(u16, u16)],
     relay: Relay,
     endpoint: &MullvadWireguardEndpoint,
-) -> Option<SelectedObfuscator> {
+) -> Result<SelectedObfuscator, Error> {
     let port = settings.port;
     let extra_addrs = match &relay.endpoint_data {
         mullvad_types::relay_list::RelayEndpointData::Wireguard(wg) => {
@@ -123,7 +126,7 @@ pub fn get_shadowsocks_obfuscator(
         port,
     )?;
 
-    Some(SelectedObfuscator {
+    Ok(SelectedObfuscator {
         config: ObfuscatorConfig::Shadowsocks { endpoint },
         relay,
     })
@@ -137,7 +140,7 @@ fn get_shadowsocks_obfuscator_inner(
     wg_in_addr_port_ranges: &[(u16, u16)],
     extra_in_addrs: &[IpAddr],
     desired_port: Constraint<u16>,
-) -> Option<SocketAddr> {
+) -> Result<SocketAddr, Error> {
     // Filter out addresses for the wrong address family
     let extra_in_addrs: Vec<_> = extra_in_addrs
         .iter()
@@ -164,9 +167,10 @@ fn get_shadowsocks_obfuscator_inner(
         Constraint::Only(_port) => None,
         // Selected no specific port
         Constraint::Any => super::helpers::select_random_port(port_ranges).ok(),
-    }?;
+    }
+    .ok_or(Error::NoMatchingPort)?;
 
-    Some(SocketAddr::from((in_ip, selected_port)))
+    Ok(SocketAddr::from((in_ip, selected_port)))
 }
 
 /// Selects a random port number from a list of provided port ranges.
@@ -255,7 +259,7 @@ mod tests {
             Constraint::Only(OUT_OF_RANGE_PORT),
         );
         assert!(
-            selected_addr.is_none(),
+            selected_addr.is_err(),
             "expected no relay for port outside range, found {selected_addr:?}"
         );
     }
@@ -336,7 +340,7 @@ mod tests {
             Constraint::Only(OUT_OF_RANGE_PORT),
         );
         assert!(
-            selected_addr.is_none(),
+            selected_addr.is_err(),
             "expected no match for out-of-range port"
         );
 
@@ -347,7 +351,7 @@ mod tests {
             Constraint::Only(IN_RANGE_PORT),
         );
         assert!(
-            selected_addr.is_some(),
+            selected_addr.is_ok(),
             "expected match for within-range port"
         );
     }
