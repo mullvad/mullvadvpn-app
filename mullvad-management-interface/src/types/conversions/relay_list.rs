@@ -1,5 +1,6 @@
 use std::{
     net::{Ipv4Addr, Ipv6Addr},
+    ops::RangeInclusive,
     str::FromStr,
 };
 
@@ -79,11 +80,11 @@ impl From<mullvad_types::relay_list::WireguardEndpointData> for proto::Wireguard
     }
 }
 
-impl From<(u16, u16)> for proto::PortRange {
-    fn from(range: (u16, u16)) -> Self {
+impl From<RangeInclusive<u16>> for proto::PortRange {
+    fn from(range: RangeInclusive<u16>) -> Self {
         proto::PortRange {
-            first: u32::from(range.0),
-            last: u32::from(range.1),
+            first: u32::from(*range.start()),
+            last: u32::from(*range.end()),
         }
     }
 }
@@ -373,14 +374,8 @@ impl TryFrom<proto::WireguardEndpointData> for mullvad_types::relay_list::Wiregu
         let port_ranges = wireguard
             .port_ranges
             .into_iter()
-            .map(|range| {
-                let first = u16::try_from(range.first)
-                    .map_err(|_| FromProtobufTypeError::InvalidArgument("invalid wg port"))?;
-                let last = u16::try_from(range.last)
-                    .map_err(|_| FromProtobufTypeError::InvalidArgument("invalid wg port"))?;
-                Ok((first, last))
-            })
-            .collect::<Result<Vec<(u16, u16)>, FromProtobufTypeError>>()?;
+            .map(RangeInclusive::try_from)
+            .collect::<Result<Vec<_>, FromProtobufTypeError>>()?;
 
         let ipv4_gateway = Ipv4Addr::from_str(&wireguard.ipv4_gateway)
             .map_err(|_| FromProtobufTypeError::InvalidArgument("Invalid IPv4 gateway"))?;
@@ -390,16 +385,8 @@ impl TryFrom<proto::WireguardEndpointData> for mullvad_types::relay_list::Wiregu
         let shadowsocks_port_ranges = wireguard
             .shadowsocks_port_ranges
             .into_iter()
-            .map(|range| {
-                let first = u16::try_from(range.first).map_err(|_| {
-                    FromProtobufTypeError::InvalidArgument("invalid shadowsocks port")
-                })?;
-                let last = u16::try_from(range.last).map_err(|_| {
-                    FromProtobufTypeError::InvalidArgument("invalid shadowsocks port")
-                })?;
-                Ok((first, last))
-            })
-            .collect::<Result<Vec<(u16, u16)>, FromProtobufTypeError>>()?;
+            .map(RangeInclusive::try_from)
+            .collect::<Result<Vec<_>, FromProtobufTypeError>>()?;
 
         let udp2tcp_ports = wireguard
             .udp2tcp_ports
@@ -417,5 +404,17 @@ impl TryFrom<proto::WireguardEndpointData> for mullvad_types::relay_list::Wiregu
             shadowsocks_port_ranges,
             udp2tcp_ports,
         })
+    }
+}
+
+impl TryFrom<proto::PortRange> for RangeInclusive<u16> {
+    type Error = FromProtobufTypeError;
+
+    fn try_from(range: proto::PortRange) -> Result<Self, Self::Error> {
+        let first = u16::try_from(range.first)
+            .map_err(|_| FromProtobufTypeError::InvalidArgument("invalid port"))?;
+        let last = u16::try_from(range.last)
+            .map_err(|_| FromProtobufTypeError::InvalidArgument("invalid port"))?;
+        Ok(first..=last)
     }
 }

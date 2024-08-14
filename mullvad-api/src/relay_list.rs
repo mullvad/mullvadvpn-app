@@ -10,6 +10,7 @@ use std::{
     collections::BTreeMap,
     future::Future,
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
+    ops::RangeInclusive,
     time::Duration,
 };
 
@@ -253,13 +254,25 @@ struct Wireguard {
 impl From<&Wireguard> for relay_list::WireguardEndpointData {
     fn from(wg: &Wireguard) -> Self {
         Self {
-            port_ranges: wg.port_ranges.clone(),
+            port_ranges: inclusive_range_from_pair_set(wg.port_ranges.clone()),
             ipv4_gateway: wg.ipv4_gateway,
             ipv6_gateway: wg.ipv6_gateway,
-            shadowsocks_port_ranges: wg.shadowsocks_port_ranges.clone(),
+            shadowsocks_port_ranges: inclusive_range_from_pair_set(
+                wg.shadowsocks_port_ranges.clone(),
+            ),
             udp2tcp_ports: vec![],
         }
     }
+}
+
+fn inclusive_range_from_pair_set<T>(
+    set: impl IntoIterator<Item = (T, T)>,
+) -> Vec<RangeInclusive<T>> {
+    set.into_iter().map(inclusive_range_from_pair).collect()
+}
+
+fn inclusive_range_from_pair<T>(pair: (T, T)) -> RangeInclusive<T> {
+    RangeInclusive::new(pair.0, pair.1)
 }
 
 impl Wireguard {
