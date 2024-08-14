@@ -12,7 +12,7 @@ TEST_FRAMEWORK_ROOT="$SCRIPT_DIR/.."
 build_linux() {
     mkdir -p "$TEST_FRAMEWORK_ROOT/dist"
     # Build the test manager
-    "$SCRIPT_DIR/container-run.sh" bash -c "cd $TEST_FRAMEWORK_ROOT; cargo build -p test-manager --release"
+    "$SCRIPT_DIR/container-run.sh" bash -c "cd $TEST_FRAMEWORK_ROOT; TEST_MANAGER_STATIC=1 cargo build -p test-manager --release"
     cp "$TEST_FRAMEWORK_ROOT/target/release/test-manager" "$TEST_FRAMEWORK_ROOT/dist/"
 
     # Build the test runner
