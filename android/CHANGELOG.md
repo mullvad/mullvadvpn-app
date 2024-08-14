@@ -30,6 +30,10 @@ Line wrap the file at 100 chars.                                              Th
 - Migrate underlaying communication wtih daemon to gRPC. This also implies major changes and
   improvements throughout the app.
 
+### Fixed
+- Fix VPN service being recreated multiple times when toggling certain options.
+
+
 ## [android/2024.3] - 2024-06-27
 Identical to `android/2024.3-beta1` except for updated translations.
 
