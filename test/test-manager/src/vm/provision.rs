@@ -16,6 +16,7 @@ pub async fn provision(
     config: &VmConfig,
     instance: &dyn super::VmInstance,
     app_manifest: &package::Manifest,
+    runner_dir: PathBuf,
 ) -> Result<String> {
     match config.provisioner {
         Provisioner::Ssh => {
@@ -25,7 +26,7 @@ pub async fn provision(
             provision_ssh(
                 instance,
                 config.os_type,
-                &config.get_runner_dir(),
+                &runner_dir,
                 app_manifest,
                 user,
                 password,

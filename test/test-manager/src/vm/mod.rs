@@ -1,10 +1,7 @@
 use anyhow::{Context, Result};
 use std::net::IpAddr;
 
-use crate::{
-    config::{Config, ConfigFile, VmConfig, VmType},
-    package,
-};
+use crate::config::{Config, ConfigFile, VmConfig, VmType};
 
 mod logging;
 pub mod network;
@@ -61,17 +58,6 @@ pub async fn run(config: &Config, name: &str) -> Result<Box<dyn VmInstance>> {
     log::info!("Started instance of \"{name}\" vm");
 
     Ok(instance)
-}
-
-/// Returns the directory in the test runner where the test-runner binary is installed.
-pub async fn provision(
-    config: &Config,
-    name: &str,
-    instance: &dyn VmInstance,
-    app_manifest: &package::Manifest,
-) -> Result<String> {
-    let vm_config = get_vm_config(config, name)?;
-    provision::provision(vm_config, instance, app_manifest).await
 }
 
 pub async fn update_packages(

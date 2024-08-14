@@ -13,6 +13,7 @@ use std::{net::SocketAddr, path::PathBuf};
 
 use anyhow::{Context, Result};
 use clap::Parser;
+use vm::provision;
 
 use crate::tests::config::OpenVPNCertificate;
 
@@ -126,6 +127,10 @@ enum Commands {
         /// Path to output test results in a structured format
         #[arg(long, value_name = "PATH")]
         test_report: Option<PathBuf>,
+
+        /// Path to the directory containing the test runner
+        #[arg(long, value_name = "DIR")]
+        runner_dir: Option<PathBuf>,
     },
 
     /// Output an HTML-formatted summary of one or more reports
@@ -238,6 +243,7 @@ async fn main() -> Result<()> {
             test_filters,
             verbose,
             test_report,
+            runner_dir,
         } => {
             let mut config = config.clone();
             config.runtime_opts.display = match (display, vnc.is_some()) {
@@ -282,7 +288,8 @@ async fn main() -> Result<()> {
                 .unwrap_or_default();
 
             let mut instance = vm::run(&config, &vm).await.context("Failed to start VM")?;
-            let artifacts_dir = vm::provision(&config, &vm, &*instance, &manifest)
+            let runner_dir = runner_dir.unwrap_or_else(|| vm_config.get_default_runner_dir());
+            let artifacts_dir = provision::provision(vm_config, &*instance, &manifest, runner_dir)
                 .await
                 .context("Failed to run provisioning for VM")?;
 
