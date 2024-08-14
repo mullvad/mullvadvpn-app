@@ -156,41 +156,48 @@ fn get_shadowsocks_obfuscator_inner<R: RangeBounds<u16> + Iterator<Item = u16> +
         .unwrap_or(wg_in_addr);
 
     let selected_port = if extra_in_addrs.is_empty() {
-        desired_port_from_range(wg_in_addr_port_ranges, desired_port)
+        desired_or_random_port_from_range(wg_in_addr_port_ranges, desired_port)
     } else {
-        desired_port_from_range(SHADOWSOCKS_EXTRA_PORT_RANGES, desired_port)
+        desired_or_random_port_from_range(SHADOWSOCKS_EXTRA_PORT_RANGES, desired_port)
     }?;
 
     Ok(SocketAddr::from((in_ip, selected_port)))
 }
 
-fn desired_port_from_range<R: RangeBounds<u16> + Iterator<Item = u16> + Clone>(
+/// Return `desired_port` if it is specified and included in `port_ranges`.
+/// If `desired_port` isn't specified, a random port from the ranges is returned.
+/// If `desired_port` is specified but not in range, an error is returned.
+pub fn desired_or_random_port_from_range<R: RangeBounds<u16> + Iterator<Item = u16> + Clone>(
     port_ranges: &[R],
     desired_port: Constraint<u16>,
 ) -> Result<u16, Error> {
-    match desired_port {
-        // Selected a specific, in-range port
-        Constraint::Only(port) if port_in_range(port, port_ranges) => Ok(port),
-        // Selected a specific, out-of-range port
-        Constraint::Only(_port) => Err(Error::NoMatchingPort),
-        // Selected no specific port
-        Constraint::Any => select_random_port(port_ranges),
-    }
+    desired_port
+        .map(|port| port_if_in_range(port_ranges, port))
+        .unwrap_or_else(|| select_random_port(port_ranges))
+}
+
+/// Return `Ok(port)`, if and only if `port` is in `port_ranges`. Otherwise, return an error.
+fn port_if_in_range<R: RangeBounds<u16>>(port_ranges: &[R], port: u16) -> Result<u16, Error> {
+    port_ranges
+        .iter()
+        .find_map(|range| {
+            if range.contains(&port) {
+                Some(port)
+            } else {
+                None
+            }
+        })
+        .ok_or(Error::NoMatchingPort)
 }
 
 /// Selects a random port number from a list of provided port ranges.
 ///
-/// This function iterates over a list of port ranges, each represented as a tuple (u16, u16)
-/// where the first element is the start of the range and the second is the end (inclusive),
-/// and selects a random port from the set of all ranges.
-///
 /// # Parameters
-/// - `port`: Constraint to apply to the port selection
-/// - `port_ranges`: A slice of tuples, each representing a range of valid port numbers.
+/// - `port_ranges`: A slice of port numbers.
 ///
 /// # Returns
-/// - A randomly selected port number within the given ranges.
-/// - An error if `port_ranges` is empty.
+/// - On success, a randomly selected port number within the given ranges. Otherwise,
+///   an error is returned.
 pub fn select_random_port<R: RangeBounds<u16> + Iterator<Item = u16> + Clone>(
     port_ranges: &[R],
 ) -> Result<u16, Error> {
@@ -202,13 +209,11 @@ pub fn select_random_port<R: RangeBounds<u16> + Iterator<Item = u16> + Clone>(
         .ok_or(Error::NoMatchingPort)
 }
 
-pub fn port_in_range<R: RangeBounds<u16>>(port: u16, port_ranges: &[R]) -> bool {
-    port_ranges.iter().any(|range| range.contains(&port))
-}
-
 #[cfg(test)]
 mod tests {
-    use super::{get_shadowsocks_obfuscator_inner, port_in_range, SHADOWSOCKS_EXTRA_PORT_RANGES};
+    use super::{
+        get_shadowsocks_obfuscator_inner, port_if_in_range, SHADOWSOCKS_EXTRA_PORT_RANGES,
+    };
     use mullvad_types::constraints::Constraint;
     use std::{net::IpAddr, ops::RangeInclusive};
 
@@ -226,7 +231,7 @@ mod tests {
 
         assert_eq!(selected_addr.ip(), wg_in_ip);
         assert!(
-            port_in_range(selected_addr.port(), PORT_RANGES),
+            port_if_in_range(PORT_RANGES, selected_addr.port()).is_ok(),
             "expected port in port range"
         );
 
@@ -240,7 +245,7 @@ mod tests {
 
         assert_eq!(selected_addr.ip(), wg_in_ip);
         assert!(
-            port_in_range(selected_addr.port(), PORT_RANGES),
+            port_if_in_range(PORT_RANGES, selected_addr.port()).is_ok(),
             "expected port in port range"
         );
 
@@ -278,10 +283,7 @@ mod tests {
             extra_in_addrs.contains(&selected_addr.ip()),
             "expected extra IP to be selected"
         );
-        assert!(port_in_range(
-            selected_addr.port(),
-            SHADOWSOCKS_EXTRA_PORT_RANGES
-        ));
+        assert!(port_if_in_range(SHADOWSOCKS_EXTRA_PORT_RANGES, selected_addr.port(),).is_ok());
 
         let selected_addr = get_shadowsocks_obfuscator_inner(
             wg_in_ip,
