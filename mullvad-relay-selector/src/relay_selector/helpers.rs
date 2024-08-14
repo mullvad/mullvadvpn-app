@@ -203,7 +203,8 @@ pub fn select_random_port<R: RangeBounds<u16> + Iterator<Item = u16> + Clone>(
 ) -> Result<u16, Error> {
     port_ranges
         .iter()
-        .flat_map(|range| range.clone())
+        .cloned()
+        .flatten()
         .choose(&mut rand::thread_rng())
         .ok_or(Error::NoMatchingPort)
 }
