@@ -19,6 +19,7 @@ plugins {
 
 val repoRootPath = rootProject.projectDir.absoluteFile.parentFile.absolutePath
 val extraAssetsDirectory = "${project.buildDir}/extraAssets"
+val relayListPath = "$extraAssetsDirectory/relays.json"
 val defaultChangelogAssetsDirectory = "$repoRootPath/android/src/main/play/release-notes/"
 val extraJniDirectory = "${project.buildDir}/extraJni"
 
@@ -146,10 +147,6 @@ android {
             )
     }
 
-    tasks.withType<MergeSourceSetFolders> { dependsOn(getTasksByName("copyExtraAssets", true)) }
-
-    tasks.withType<LintModelWriterTask> { dependsOn(getTasksByName("copyExtraAssets", true)) }
-
     // Suppressing since we don't seem have much of an option than using this api. The impact should
     // also be limited to tests.
     @Suppress("UnstableApiUsage")
@@ -238,10 +235,14 @@ android {
             }
 
         createDistBundle.dependsOn("bundle$capitalizedVariantName")
-    }
 
-    project.tasks.assemble.dependsOn("ensureJniDirectoryExist")
-    project.tasks.assemble.dependsOn("ensureValidVersionCode")
+        // Ensure all relevant assemble tasks depend on our ensure tasks.
+        tasks.get("assemble$capitalizedVariantName").apply {
+            dependsOn(tasks.get("ensureRelayListExist"))
+            dependsOn(tasks.get("ensureJniDirectoryExist"))
+            dependsOn(tasks.get("ensureValidVersionCode"))
+        }
+    }
 }
 
 junitPlatform {
@@ -274,14 +275,16 @@ configure<org.owasp.dependencycheck.gradle.extension.DependencyCheckExtension> {
     skipConfigurations = listOf("lintClassPath")
 }
 
-tasks.register("copyExtraAssets", Copy::class) {
-    from("$repoRootPath/build")
-    include("relays.json")
-    into(extraAssetsDirectory)
+tasks.register("ensureRelayListExist") {
+    doLast {
+        if (!file(relayListPath).exists()) {
+            throw GradleException("Missing relay list: $relayListPath")
+        }
+    }
 }
 
 tasks.register("ensureJniDirectoryExist") {
-    doFirst {
+    doLast {
         if (!file(extraJniDirectory).exists()) {
             throw GradleException("Missing JNI directory: $extraJniDirectory")
         }
@@ -303,12 +306,6 @@ tasks.create("printVersion") {
     doLast {
         println("versionCode=${project.android.defaultConfig.versionCode}")
         println("versionName=${project.android.defaultConfig.versionName}")
-    }
-}
-
-afterEvaluate {
-    tasks.withType(com.android.build.gradle.internal.lint.AndroidLintAnalysisTask::class.java) {
-        mustRunAfter(tasks.getByName("copyExtraAssets"))
     }
 }
 
