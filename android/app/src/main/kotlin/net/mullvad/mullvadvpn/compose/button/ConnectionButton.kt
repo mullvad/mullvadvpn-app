@@ -54,7 +54,7 @@ fun ConnectionButton(
             MaterialTheme.colorScheme.tertiary
         } else {
             // TODO Should we make this transparent or not?
-            MaterialTheme.colorScheme.error // .copy(alpha = AlphaDisconnectButton)
+            MaterialTheme.colorScheme.error.copy(alpha = AlphaDisconnectButton)
         }
 
     val contentColor =

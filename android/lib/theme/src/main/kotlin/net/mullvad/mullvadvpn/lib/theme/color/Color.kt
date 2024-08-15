@@ -15,7 +15,6 @@ const val AlphaInactive = 0.4f
 const val Alpha40 = 0.4f
 const val AlphaDisconnectButton = 0.6f
 const val AlphaScrollbar = 0.6f
-const val Alpha60 = 0.6f
 const val AlphaInvisible = 0f
 
 // Custom colors, they only link to normal material 3 colors for now
