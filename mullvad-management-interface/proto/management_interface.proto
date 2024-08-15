@@ -254,13 +254,14 @@ enum FeatureIndicator {
   SPLIT_TUNNELING = 3;
   LOCKDOWN_MODE = 4;
   UDP_2_TCP = 5;
-  LAN_SHARING = 6;
-  DNS_CONTENT_BLOCKERS = 7;
-  CUSTOM_DNS = 8;
-  SERVER_IP_OVERRIDE = 9;
-  CUSTOM_MTU = 10;
-  CUSTOM_MSS_FIX = 11;
-  DAITA = 12;
+  SHADOWSOCKS = 6;
+  LAN_SHARING = 7;
+  DNS_CONTENT_BLOCKERS = 8;
+  CUSTOM_DNS = 9;
+  SERVER_IP_OVERRIDE = 10;
+  CUSTOM_MTU = 11;
+  CUSTOM_MSS_FIX = 12;
+  DAITA = 13;
 }
 
 message ObfuscationEndpoint {
@@ -275,17 +276,17 @@ message ObfuscationEndpoint {
   ObfuscationType obfuscation_type = 4;
 }
 
-enum ProxyType {
-  SHADOWSOCKS = 0;
-  CUSTOM = 1;
-}
-
 message Endpoint {
   string address = 1;
   TransportProtocol protocol = 2;
 }
 
 message ProxyEndpoint {
+  enum ProxyType {
+    SHADOWSOCKS = 0;
+    CUSTOM = 1;
+  }
+
   string address = 1;
   TransportProtocol protocol = 2;
   ProxyType proxy_type = 3;
