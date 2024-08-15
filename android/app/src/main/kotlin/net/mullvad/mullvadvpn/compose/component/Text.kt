@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.compose.component
 
 import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -26,7 +27,7 @@ fun AutoResizeText(
     textSizeStep: TextUnit = DEFAULT_TEXT_STEP,
     style: TextStyle = LocalTextStyle.current,
     maxLines: Int = Int.MAX_VALUE,
-    color: Color = Color.Unspecified
+    color: Color = MaterialTheme.colorScheme.onSurface
 ) {
     var adjustedFontSize by remember { mutableFloatStateOf(maxTextSize.value) }
     var isReadyToDraw by remember { mutableStateOf(false) }

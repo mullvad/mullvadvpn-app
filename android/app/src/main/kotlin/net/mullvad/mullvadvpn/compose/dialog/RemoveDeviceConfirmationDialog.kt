@@ -9,7 +9,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -50,7 +49,7 @@ fun RemoveDeviceConfirmation(navigator: ResultBackNavigator<DeviceId>, device: D
                 modifier = Modifier.fillMaxWidth().height(Dimens.dialogIconHeight),
                 painter = painterResource(id = R.drawable.icon_alert),
                 contentDescription = stringResource(id = R.string.remove_button),
-                tint = Color.Unspecified
+                tint = MaterialTheme.colorScheme.error
             )
         },
         text = {
@@ -63,16 +62,16 @@ fun RemoveDeviceConfirmation(navigator: ResultBackNavigator<DeviceId>, device: D
             HtmlText(htmlFormattedString = htmlFormattedDialogText, textSize = 16.sp.value)
         },
         dismissButton = {
-            NegativeButton(
-                onClick = dropUnlessResumed { navigator.navigateBack(result = device.id) },
-                text = stringResource(id = R.string.confirm_removal)
-            )
-        },
-        confirmButton = {
             PrimaryButton(
                 modifier = Modifier.focusRequester(FocusRequester()),
                 onClick = dropUnlessResumed { navigator.navigateBack() },
                 text = stringResource(id = R.string.back)
+            )
+        },
+        confirmButton = {
+            NegativeButton(
+                onClick = dropUnlessResumed { navigator.navigateBack(result = device.id) },
+                text = stringResource(id = R.string.confirm_removal)
             )
         },
         containerColor = MaterialTheme.colorScheme.background

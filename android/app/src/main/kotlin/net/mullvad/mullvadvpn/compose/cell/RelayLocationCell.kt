@@ -95,7 +95,6 @@ fun StatusRelayItemCell(
                             .background(
                                 color =
                                     when {
-                                        isSelected -> Color.Unspecified
                                         item is RelayItem.CustomList && item.locations.isEmpty() ->
                                             disabledColor
                                         item.active -> activeColor

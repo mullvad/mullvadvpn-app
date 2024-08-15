@@ -20,8 +20,8 @@ fun AnimatedIconButton(
     defaultIcon: Painter,
     secondaryIcon: Painter,
     pressEffectDuration: Long = PRESS_EFFECT_TIME_SPAN,
-    defaultIconTint: Color = Color.Unspecified,
-    secondaryIconTint: Color = Color.Unspecified,
+    defaultIconTint: Color,
+    secondaryIconTint: Color,
     contentDescription: String,
     isToggleButton: Boolean = false,
     onClick: () -> Unit

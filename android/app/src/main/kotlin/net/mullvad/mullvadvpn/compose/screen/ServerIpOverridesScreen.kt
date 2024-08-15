@@ -231,16 +231,20 @@ private fun ImportOverridesByBottomSheet(
                 }
             }
     }
+    val backgroundColor: Color = MaterialTheme.colorScheme.surfaceContainer
+    val onBackgroundColor: Color = MaterialTheme.colorScheme.onSurface
 
     MullvadModalBottomSheet(
         sheetState = sheetState,
+        backgroundColor = backgroundColor,
+        onBackgroundColor = onBackgroundColor,
         onDismissRequest = { showBottomSheet(false) },
     ) {
         HeaderCell(
             text = stringResource(id = R.string.server_ip_overrides_import_by),
-            background = Color.Unspecified
+            background = backgroundColor
         )
-        HorizontalDivider(color = MaterialTheme.colorScheme.onBackground)
+        HorizontalDivider(color = onBackgroundColor)
         IconCell(
             iconId = R.drawable.icon_upload_file,
             title = stringResource(id = R.string.server_ip_overrides_import_by_file),
@@ -248,7 +252,7 @@ private fun ImportOverridesByBottomSheet(
                 onImportByFile()
                 onCloseSheet()
             },
-            background = Color.Unspecified,
+            background = backgroundColor,
             modifier = Modifier.testTag(SERVER_IP_OVERRIDES_IMPORT_BY_FILE_TEST_TAG)
         )
         IconCell(
@@ -258,7 +262,7 @@ private fun ImportOverridesByBottomSheet(
                 onImportByText()
                 onCloseSheet()
             },
-            background = Color.Unspecified,
+            background = backgroundColor,
             modifier = Modifier.testTag(SERVER_IP_OVERRIDES_IMPORT_BY_TEXT_TEST_TAG)
         )
         if (overridesActive) {

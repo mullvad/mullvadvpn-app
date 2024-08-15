@@ -553,13 +553,15 @@ private fun BottomSheets(
             onHideBottomSheet()
         }
     }
+    val backgroundColor: Color = MaterialTheme.colorScheme.surfaceContainer
     val onBackgroundColor: Color = MaterialTheme.colorScheme.onSurface
 
     when (bottomSheetState) {
         is ShowCustomListsBottomSheet -> {
             CustomListsBottomSheet(
-                sheetState = sheetState,
+                backgroundColor = backgroundColor,
                 onBackgroundColor = onBackgroundColor,
+                sheetState = sheetState,
                 bottomSheetState = bottomSheetState,
                 onCreateCustomList = { onCreateCustomList(null) },
                 onEditCustomLists = onEditCustomLists,
@@ -568,8 +570,9 @@ private fun BottomSheets(
         }
         is ShowLocationBottomSheet -> {
             LocationBottomSheet(
-                sheetState = sheetState,
+                backgroundColor = backgroundColor,
                 onBackgroundColor = onBackgroundColor,
+                sheetState = sheetState,
                 customLists = bottomSheetState.customLists,
                 item = bottomSheetState.item,
                 onCreateCustomList = onCreateCustomList,
@@ -579,8 +582,9 @@ private fun BottomSheets(
         }
         is ShowEditCustomListBottomSheet -> {
             EditCustomListBottomSheet(
-                sheetState = sheetState,
+                backgroundColor = backgroundColor,
                 onBackgroundColor = onBackgroundColor,
+                sheetState = sheetState,
                 customList = bottomSheetState.customList,
                 onEditName = onEditCustomListName,
                 onEditLocations = onEditLocationsCustomList,
@@ -590,8 +594,9 @@ private fun BottomSheets(
         }
         is ShowCustomListsEntryBottomSheet -> {
             CustomListEntryBottomSheet(
-                sheetState = sheetState,
+                backgroundColor = backgroundColor,
                 onBackgroundColor = onBackgroundColor,
+                sheetState = sheetState,
                 customListId = bottomSheetState.customListId,
                 customListName = bottomSheetState.customListName,
                 item = bottomSheetState.item,
@@ -625,6 +630,7 @@ private fun SelectLocationUiState.indexOfSelectedRelayItem(): Int =
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CustomListsBottomSheet(
+    backgroundColor: Color,
     onBackgroundColor: Color,
     sheetState: SheetState,
     bottomSheetState: ShowCustomListsBottomSheet,
@@ -632,14 +638,17 @@ private fun CustomListsBottomSheet(
     onEditCustomLists: () -> Unit,
     closeBottomSheet: (animate: Boolean) -> Unit
 ) {
+
     MullvadModalBottomSheet(
         sheetState = sheetState,
+        backgroundColor = backgroundColor,
+        onBackgroundColor = onBackgroundColor,
         onDismissRequest = { closeBottomSheet(false) },
         modifier = Modifier.testTag(SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG)
     ) {
         HeaderCell(
             text = stringResource(id = R.string.edit_custom_lists),
-            background = Color.Unspecified
+            background = backgroundColor
         )
         HorizontalDivider(color = onBackgroundColor)
         IconCell(
@@ -650,7 +659,7 @@ private fun CustomListsBottomSheet(
                 onCreateCustomList()
                 closeBottomSheet(true)
             },
-            background = Color.Unspecified
+            background = backgroundColor
         )
         IconCell(
             iconId = R.drawable.icon_edit,
@@ -668,7 +677,7 @@ private fun CustomListsBottomSheet(
                 onEditCustomLists()
                 closeBottomSheet(true)
             },
-            background = Color.Unspecified,
+            background = backgroundColor,
             enabled = bottomSheetState.editListEnabled
         )
     }
@@ -677,6 +686,7 @@ private fun CustomListsBottomSheet(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun LocationBottomSheet(
+    backgroundColor: Color,
     onBackgroundColor: Color,
     sheetState: SheetState,
     customLists: List<RelayItem.CustomList>,
@@ -687,12 +697,14 @@ private fun LocationBottomSheet(
 ) {
     MullvadModalBottomSheet(
         sheetState = sheetState,
+        backgroundColor = backgroundColor,
+        onBackgroundColor = onBackgroundColor,
         onDismissRequest = { closeBottomSheet(false) },
         modifier = Modifier.testTag(SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG)
     ) { ->
         HeaderCell(
             text = stringResource(id = R.string.add_location_to_list, item.name),
-            background = Color.Unspecified
+            background = backgroundColor
         )
         HorizontalDivider(color = onBackgroundColor)
         customLists.forEach {
@@ -715,7 +727,7 @@ private fun LocationBottomSheet(
                     onAddLocationToList(item, it)
                     closeBottomSheet(true)
                 },
-                background = Color.Unspecified,
+                background = backgroundColor,
                 enabled = enabled
             )
         }
@@ -727,7 +739,7 @@ private fun LocationBottomSheet(
                 onCreateCustomList(item)
                 closeBottomSheet(true)
             },
-            background = Color.Unspecified
+            background = backgroundColor
         )
     }
 }
@@ -735,6 +747,7 @@ private fun LocationBottomSheet(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun EditCustomListBottomSheet(
+    backgroundColor: Color,
     onBackgroundColor: Color,
     sheetState: SheetState,
     customList: RelayItem.CustomList,
@@ -744,10 +757,12 @@ private fun EditCustomListBottomSheet(
     closeBottomSheet: (animate: Boolean) -> Unit
 ) {
     MullvadModalBottomSheet(
+        backgroundColor = backgroundColor,
+        onBackgroundColor = onBackgroundColor,
         sheetState = sheetState,
         onDismissRequest = { closeBottomSheet(false) }
     ) {
-        HeaderCell(text = customList.name, background = Color.Unspecified)
+        HeaderCell(text = customList.name, background = backgroundColor)
         HorizontalDivider(color = onBackgroundColor)
         IconCell(
             iconId = R.drawable.icon_edit,
@@ -757,7 +772,7 @@ private fun EditCustomListBottomSheet(
                 onEditName(customList)
                 closeBottomSheet(true)
             },
-            background = Color.Unspecified
+            background = backgroundColor
         )
         IconCell(
             iconId = R.drawable.icon_add,
@@ -767,7 +782,7 @@ private fun EditCustomListBottomSheet(
                 onEditLocations(customList)
                 closeBottomSheet(true)
             },
-            background = Color.Unspecified
+            background = backgroundColor
         )
         IconCell(
             iconId = R.drawable.icon_delete,
@@ -777,7 +792,7 @@ private fun EditCustomListBottomSheet(
                 onDeleteCustomList(customList)
                 closeBottomSheet(true)
             },
-            background = Color.Unspecified
+            background = backgroundColor
         )
     }
 }
@@ -785,6 +800,7 @@ private fun EditCustomListBottomSheet(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CustomListEntryBottomSheet(
+    backgroundColor: Color,
     onBackgroundColor: Color,
     sheetState: SheetState,
     customListId: CustomListId,
@@ -795,13 +811,15 @@ private fun CustomListEntryBottomSheet(
 ) {
     MullvadModalBottomSheet(
         sheetState = sheetState,
+        backgroundColor = backgroundColor,
+        onBackgroundColor = onBackgroundColor,
         onDismissRequest = { closeBottomSheet(false) },
         modifier = Modifier.testTag(SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG)
     ) {
         HeaderCell(
             text =
                 stringResource(id = R.string.remove_location_from_list, item.name, customListName),
-            background = Color.Unspecified
+            background = backgroundColor
         )
         HorizontalDivider(color = onBackgroundColor)
 
@@ -813,7 +831,7 @@ private fun CustomListEntryBottomSheet(
                 onRemoveLocationFromList(item, customListId)
                 closeBottomSheet(true)
             },
-            background = Color.Unspecified
+            background = backgroundColor
         )
     }
 }

@@ -36,7 +36,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -269,7 +268,6 @@ private fun ColumnScope.LoginInput(
         label = {
             Text(
                 text = stringResource(id = R.string.login_description),
-                color = Color.Unspecified,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -404,7 +402,6 @@ private fun AccountDropDownItem(
                 painter = painterResource(id = R.drawable.account_history_remove_pressed),
                 contentDescription = null,
                 modifier = Modifier.size(Dimens.listIconSize),
-                tint = Color.Unspecified
             )
         }
     }

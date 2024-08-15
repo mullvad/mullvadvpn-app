@@ -58,7 +58,7 @@ fun MullvadFilterChip(text: String, onRemoveClick: () -> Unit) {
             Icon(
                 painter = painterResource(id = R.drawable.icon_close),
                 contentDescription = null,
-                tint = Color.Unspecified,
+                tint = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier.size(Dimens.smallIconSize).clickable { onRemoveClick() }
             )
         }

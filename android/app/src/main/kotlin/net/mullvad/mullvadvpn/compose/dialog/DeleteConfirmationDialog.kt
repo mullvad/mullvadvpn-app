@@ -13,7 +13,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -40,7 +39,7 @@ private fun PreviewDeleteConfirmationDialogError() {
     AppTheme {
         DeleteConfirmationDialog(
             message = "Do you want to delete Cookie?",
-            errorMessage = "Cookie can not be deleted"
+            errorMessage = "An error occured"
         )
     }
 }
@@ -59,7 +58,7 @@ fun DeleteConfirmationDialog(
                 modifier = Modifier.fillMaxWidth().height(Dimens.dialogIconHeight),
                 painter = painterResource(id = R.drawable.icon_alert),
                 contentDescription = stringResource(id = R.string.remove_button),
-                tint = Color.Unspecified
+                tint = MaterialTheme.colorScheme.error
             )
         },
         title = {

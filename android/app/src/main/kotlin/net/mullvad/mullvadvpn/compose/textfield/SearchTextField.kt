@@ -101,7 +101,7 @@ fun SearchTextField(
                                         onValueChange.invoke(searchTerm)
                                     },
                                 painter = painterResource(id = R.drawable.icon_close),
-                                tint = Color.Unspecified,
+                                tint = textColor,
                                 contentDescription = null,
                             )
                         }

@@ -30,7 +30,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -61,7 +60,6 @@ import net.mullvad.mullvadvpn.lib.common.util.openLink
 import net.mullvad.mullvadvpn.lib.common.util.openVpnSettings
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
-import net.mullvad.mullvadvpn.lib.theme.color.AlphaDescription
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInvisible
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
 import net.mullvad.mullvadvpn.service.constant.IS_PLAY_BUILD
@@ -230,8 +228,7 @@ private fun CarouselNavigationButton(
         Icon(
             painter = painterResource(id = R.drawable.icon_chevron),
             contentDescription = null,
-            tint = Color.Unspecified,
-            modifier = Modifier.rotate(rotation).alpha(AlphaDescription)
+            modifier = Modifier.rotate(rotation)
         )
     }
 }

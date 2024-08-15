@@ -121,7 +121,7 @@ fun MullvadTopBar(
                         painter = painterResource(id = R.drawable.logo_icon),
                         contentDescription = null, // No meaningful user info or action.
                         modifier = Modifier.size(40.dp),
-                        tint = Color.Unspecified
+                        tint = Color.Unspecified // Logo should not be tinted
                     )
                     // Dynamically show Mullvad VPN Text if it fits, to avoid overlapping icons.
                     BoxWithConstraints {
