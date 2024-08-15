@@ -68,18 +68,16 @@ fun mullvadSwitchColors(): SwitchColors =
     SwitchDefaults.colors(
         checkedThumbColor = MaterialTheme.colorScheme.selected,
         checkedTrackColor = Color.Transparent,
-        checkedBorderColor = MaterialTheme.colorScheme.onSurface,
-        //    checkedIconColor= SwitchTokens.SelectedIconColor.toColor(),
+        checkedBorderColor = MaterialTheme.colorScheme.onPrimary,
         uncheckedThumbColor = MaterialTheme.colorScheme.error,
         uncheckedTrackColor = Color.Transparent,
-        uncheckedBorderColor = MaterialTheme.colorScheme.onSurface,
-        //    uncheckedIconColor= SwitchTokens.UnselectedIconColor.toColor(),
+        uncheckedBorderColor = MaterialTheme.colorScheme.onPrimary,
         disabledCheckedThumbColor = MaterialTheme.colorScheme.selected.copy(alpha = AlphaDisabled),
         disabledCheckedTrackColor = Color.Transparent,
         disabledCheckedBorderColor =
-            MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaDisabled),
+            MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaDisabled),
         disabledUncheckedThumbColor = MaterialTheme.colorScheme.error.copy(alpha = AlphaDisabled),
         disabledUncheckedTrackColor = Color.Transparent,
         disabledUncheckedBorderColor =
-            MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaDisabled)
+            MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaDisabled)
     )
