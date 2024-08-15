@@ -497,6 +497,15 @@ jobs:
           name: e2e-instrumentation-apks
           path: android/test/e2e/build/outputs/apk
 
+      - name: Determine whether highly rate limited tests should run
+        id: determine-run-highly-rate-limited-tests
+        run: |
+          if [ ${{github.event_name}} == 'schedule' ]; then
+            echo "ignore_highly_rate_limited_tests=false" >> $GITHUB_ENV
+          else
+            echo "ignore_highly_rate_limited_tests=true" >> $GITHUB_ENV
+          fi
+
       - name: Run instrumented test script
         shell: bash -ieo pipefail {0}
         env:
@@ -506,6 +515,7 @@ jobs:
           INFRA_FLAVOR: prod
           VALID_TEST_ACCOUNT_NUMBER: ${{ secrets.ANDROID_PROD_TEST_ACCOUNT }}
           INVALID_TEST_ACCOUNT_NUMBER: '0000000000000000'
+          IGNORE_HIGHLY_RATE_LIMITED_TESTS: ${{ env.ignore_highly_rate_limited_tests }}
           REPORT_DIR: ${{ steps.prepare-report-dir.outputs.report_dir }}
         run: ./android/scripts/run-instrumented-tests.sh
 
