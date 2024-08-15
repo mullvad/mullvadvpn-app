@@ -225,7 +225,6 @@ fun ScaffoldWithLargeTopBarAndButton(
         modifier =
             modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
                 .systemBarsPadding()
                 .nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {

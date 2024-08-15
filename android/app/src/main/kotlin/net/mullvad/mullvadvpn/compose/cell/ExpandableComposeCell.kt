@@ -50,8 +50,8 @@ fun ExpandableComposeCell(
     modifier: Modifier = Modifier,
     isEnabled: Boolean = true,
     testTag: String = "",
-    textColor: Color = MaterialTheme.colorScheme.onSurface,
-    background: Color = MaterialTheme.colorScheme.surfaceContainerHighest,
+    textColor: Color = MaterialTheme.colorScheme.onPrimary,
+    background: Color = MaterialTheme.colorScheme.primary,
     onCellClicked: (Boolean) -> Unit = {},
     onInfoClicked: (() -> Unit)? = null
 ) {

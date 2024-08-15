@@ -104,12 +104,12 @@ fun CustomPortCell(
                     .height(Dimens.cellHeight)
                     .wrapContentWidth()
                     .defaultMinSize(minWidth = Dimens.customPortBoxMinWidth)
-                    .background(MaterialTheme.colorScheme.surfaceContainerHighest)
+                    .background(MaterialTheme.colorScheme.primary)
                     .testTag(numberTestTag)
         ) {
             Text(
                 text = port?.value?.toString() ?: stringResource(id = R.string.port),
-                color = MaterialTheme.colorScheme.onSurface,
+                color = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier.align(Alignment.Center)
             )
         }

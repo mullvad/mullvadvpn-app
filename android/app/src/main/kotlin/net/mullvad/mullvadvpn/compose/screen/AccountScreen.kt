@@ -236,6 +236,7 @@ fun AccountScreen(
             NegativeButton(
                 text = stringResource(id = R.string.log_out),
                 onClick = onLogoutClick,
+                isEnabled = false
             )
         }
     }

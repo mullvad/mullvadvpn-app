@@ -72,12 +72,10 @@ fun NegativeButton(
             contentColor = MaterialTheme.colorScheme.onError,
             disabledContentColor =
                 MaterialTheme.colorScheme.onError
-                    .copy(alpha = AlphaInactive)
-                    .compositeOver(MaterialTheme.colorScheme.background),
+                    .copy(alpha = Alpha20),
             disabledContainerColor =
                 MaterialTheme.colorScheme.error
                     .copy(alpha = AlphaInactive)
-                    .compositeOver(MaterialTheme.colorScheme.background),
         ),
     isEnabled: Boolean = true,
     icon: @Composable (() -> Unit)? = null
@@ -104,12 +102,10 @@ fun VariantButton(
             contentColor = MaterialTheme.colorScheme.onTertiary,
             disabledContentColor =
                 MaterialTheme.colorScheme.onTertiary
-                    .copy(alpha = AlphaInactive)
-                    .compositeOver(background),
+                    .copy(alpha = Alpha20),
             disabledContainerColor =
                 MaterialTheme.colorScheme.tertiary
-                    .copy(alpha = AlphaInactive)
-                    .compositeOver(background),
+                    .copy(alpha = AlphaInactive),
         ),
     isEnabled: Boolean = true,
     icon: @Composable (() -> Unit)? = null
@@ -178,7 +174,9 @@ private fun BaseButton(
             } else {
                 ButtonDefaults.ContentPadding
             },
-        modifier = modifier.wrapContentHeight().fillMaxWidth(),
+        modifier = modifier
+            .wrapContentHeight()
+            .fillMaxWidth(),
         shape = MaterialTheme.shapes.small
     ) {
         // Used to center the text
@@ -189,7 +187,9 @@ private fun BaseButton(
                 // Used to center the text
                 Box(
                     modifier =
-                        Modifier.padding(horizontal = Dimens.smallPadding).alpha(AlphaInvisible)
+                    Modifier
+                        .padding(horizontal = Dimens.smallPadding)
+                        .alpha(AlphaInvisible)
                 ) {
                     trailingIcon()
                 }
@@ -211,7 +211,9 @@ private fun BaseButton(
                 // Used to center the text
                 Box(
                     modifier =
-                        Modifier.padding(horizontal = Dimens.smallPadding).alpha(AlphaInvisible)
+                    Modifier
+                        .padding(horizontal = Dimens.smallPadding)
+                        .alpha(AlphaInvisible)
                 ) {
                     leadingIcon()
                 }

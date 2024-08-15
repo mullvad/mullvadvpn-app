@@ -38,7 +38,7 @@ private fun PreviewInformationComposeCell() {
 fun InformationComposeCell(
     title: String,
     isEnabled: Boolean = true,
-    background: Color = MaterialTheme.colorScheme.surfaceContainerHighest,
+    background: Color = MaterialTheme.colorScheme.primary,
     onCellClicked: () -> Unit = {},
     onInfoClicked: (() -> Unit)? = null
 ) {
@@ -51,7 +51,7 @@ fun InformationComposeCell(
             BaseCellTitle(
                 title = title,
                 style = MaterialTheme.typography.titleMedium,
-                textColor = MaterialTheme.colorScheme.onSurface,
+                textColor = MaterialTheme.colorScheme.onPrimary,
                 modifier = titleModifier.weight(1f, true)
             )
         },

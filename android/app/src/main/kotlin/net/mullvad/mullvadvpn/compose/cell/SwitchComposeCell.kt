@@ -91,7 +91,7 @@ fun HeaderSwitchComposeCell(
     modifier: Modifier = Modifier,
     startPadding: Dp = Dimens.cellStartPadding,
     isEnabled: Boolean = true,
-    background: Color = MaterialTheme.colorScheme.surfaceContainerHighest,
+    background: Color = MaterialTheme.colorScheme.primary,
     onBackground: Color = MaterialTheme.colorScheme.onSurface,
     onCellClicked: (Boolean) -> Unit = {},
     onInfoClicked: (() -> Unit)? = null,

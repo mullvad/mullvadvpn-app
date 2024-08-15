@@ -47,7 +47,7 @@ private fun PreviewCheckableRelayLocationCell(
     relayItems: List<RelayItem.Location.Country>
 ) {
     AppTheme {
-        Column(Modifier.background(color = MaterialTheme.colorScheme.background)) {
+        Column(Modifier.background(color = MaterialTheme.colorScheme.surface)) {
             relayItems.map {
                 CheckableRelayLocationCell(
                     item = it,
@@ -74,7 +74,7 @@ fun StatusRelayItemCell(
     depth: Int = 0,
     activeColor: Color = MaterialTheme.colorScheme.selected,
     inactiveColor: Color = MaterialTheme.colorScheme.error,
-    disabledColor: Color = MaterialTheme.colorScheme.onSecondary,
+    disabledColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
 ) {
 
     RelayItemCell(
@@ -138,8 +138,6 @@ fun RelayItemCell(
                 .background(
                     when {
                         isSelected -> MaterialTheme.colorScheme.selected
-                        item is RelayItem.CustomList && !item.active ->
-                            MaterialTheme.colorScheme.surfaceTint
                         else -> depth.toBackgroundColor()
                     }
                 )
@@ -212,7 +210,7 @@ private fun Name(modifier: Modifier = Modifier, relay: RelayItem) {
 @Composable
 private fun RowScope.ExpandButton(isExpanded: Boolean, onClick: (expand: Boolean) -> Unit) {
     VerticalDivider(
-        color = MaterialTheme.colorScheme.background,
+        color = MaterialTheme.colorScheme.surface,
         modifier = Modifier.padding(vertical = Dimens.verticalDividerPadding)
     )
     Chevron(
@@ -229,8 +227,8 @@ private fun RowScope.ExpandButton(isExpanded: Boolean, onClick: (expand: Boolean
 @Composable
 private fun Int.toBackgroundColor(): Color =
     when (this) {
-        0 -> MaterialTheme.colorScheme.surfaceContainerHigh
-        1 -> MaterialTheme.colorScheme.surfaceContainerLow
-        2 -> MaterialTheme.colorScheme.surfaceContainerLowest
+        0 -> MaterialTheme.colorScheme.surfaceContainerHighest
+        1 -> MaterialTheme.colorScheme.surfaceContainerHigh
+        2 -> MaterialTheme.colorScheme.surfaceContainerLow
         else -> MaterialTheme.colorScheme.surfaceContainerLowest
     }

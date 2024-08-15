@@ -92,10 +92,10 @@ internal object ColorDarkTokens {
     val Surface = PaletteTokens.DarkBlue500
     val SurfaceBright = PaletteTokens.DarkBlue700 // Approximated
     val SurfaceContainer = PaletteTokens.AlertBlue500
-    val SurfaceContainerHighest = OpacityTokens.BlueOnDarkBlue100
-    val SurfaceContainerHigh = OpacityTokens.BlueOnDarkBlue60
-    val SurfaceContainerLow = OpacityTokens.BlueOnDarkBlue40
-    val SurfaceContainerLowest = OpacityTokens.BlueOnDarkBlue20
+    val SurfaceContainerHighest = OpacityTokens.BlueOnDarkBlue60
+    val SurfaceContainerHigh = OpacityTokens.BlueOnDarkBlue40
+    val SurfaceContainerLow = OpacityTokens.BlueOnDarkBlue20
+    val SurfaceContainerLowest = OpacityTokens.BlueOnDarkBlue10
     val SurfaceDim = PaletteTokens.Black // Approximated
     val SurfaceTint = Primary
     val SurfaceVariant = Color(0xFFA3ACB5) // Subtext
