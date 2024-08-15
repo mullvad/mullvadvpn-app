@@ -11,7 +11,18 @@ GRADLE_OPTS="-Dorg.gradle.daemon=false"
 # We must provide a template for mktemp to work properly on macOS.
 GRADLE_USER_HOME=$(mktemp -d -t gradle-home-XXX)
 TEMP_GRADLE_PROJECT_CACHE_DIR=$(mktemp -d -t gradle-cache-XXX)
-GRADLE_TASKS=("assemble" "compileDebugUnitTestKotlin" "assembleAndroidTest" "lint")
+# Task list to discover all tasks and their dependencies since
+# just running the suggested 'help' task isn't sufficient.
+GRADLE_TASKS=(
+    "assemble"
+    "compileDebugUnitTestKotlin"
+    "assembleAndroidTest"
+    "lint"
+)
+EXCLUDED_GRADLE_TASKS=(
+    "-xensureRelayListExist"
+    "-xensureJniDirectoryExist"
+)
 
 export GRADLE_OPTS
 export GRADLE_USER_HOME
@@ -30,6 +41,12 @@ echo ""
 
 echo "Removing old components..."
 sed -i '/<components>/,/<\/components>/d' ../gradle/verification-metadata.xml
+echo ""
 
 echo "Generating new components..."
-../gradlew -q -p .. --project-cache-dir "$TEMP_GRADLE_PROJECT_CACHE_DIR" -M sha256 "${GRADLE_TASKS[@]}"
+# Using a loop here since providing all tasks at once result in gradle task dependency issues.
+for GRADLE_TASK in "${GRADLE_TASKS[@]}"; do
+    echo "Gradle task: $GRADLE_TASK"
+    ../gradlew -q -p .. --project-cache-dir "$TEMP_GRADLE_PROJECT_CACHE_DIR" -M sha256 "$GRADLE_TASK" "${EXCLUDED_GRADLE_TASKS[@]}"
+    echo ""
+done
