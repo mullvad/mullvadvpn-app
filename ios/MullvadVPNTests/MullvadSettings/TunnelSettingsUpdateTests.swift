@@ -82,4 +82,17 @@ final class TunnelSettingsUpdateTests: XCTestCase {
         // Then:
         XCTAssertEqual(settings.tunnelMultihopState, .on)
     }
+
+    func testApplyDAITA() {
+        // Given:
+        let daitaSettings = DAITASettings(state: .on)
+        var settings = LatestTunnelSettings()
+
+        // When:
+        let update = TunnelSettingsUpdate.daita(daitaSettings)
+        update.apply(to: &settings)
+
+        // Then:
+        XCTAssertEqual(settings.daita, daitaSettings)
+    }
 }

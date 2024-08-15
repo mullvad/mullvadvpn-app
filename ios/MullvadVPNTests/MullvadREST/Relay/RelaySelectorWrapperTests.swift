@@ -20,36 +20,36 @@ class RelaySelectorWrapperTests: XCTestCase {
     )
 
     var relayCache: RelayCache!
-    var multihopUpdater: MultihopUpdater!
-    var multihopStateListener: MultihopStateListener!
+    var settingsUpdater: SettingsUpdater!
+    var settingsListener: TunnelSettingsListener!
 
     override func setUp() {
         relayCache = RelayCache(fileCache: fileCache)
-        multihopStateListener = MultihopStateListener()
-        multihopUpdater = MultihopUpdater(listener: multihopStateListener)
+        settingsListener = TunnelSettingsListener()
+        settingsUpdater = SettingsUpdater(listener: settingsListener)
     }
 
     func testSelectRelayWithMultihopOff() throws {
         let wrapper = RelaySelectorWrapper(
             relayCache: relayCache,
-            multihopUpdater: multihopUpdater
+            tunnelSettingsUpdater: settingsUpdater
         )
 
-        multihopStateListener.onNewMultihop?(.off)
+        settingsListener.onNewSettings?(LatestTunnelSettings(tunnelMultihopState: .off))
 
-        let selectedRelays = try wrapper.selectRelays(with: RelayConstraints(), connectionAttemptCount: 0)
+        let selectedRelays = try wrapper.selectRelays(connectionAttemptCount: 0)
         XCTAssertNil(selectedRelays.entry)
     }
 
     func testSelectRelayWithMultihopOn() throws {
         let wrapper = RelaySelectorWrapper(
             relayCache: relayCache,
-            multihopUpdater: multihopUpdater
+            tunnelSettingsUpdater: settingsUpdater
         )
 
-        multihopStateListener.onNewMultihop?(.on)
+        settingsListener.onNewSettings?(LatestTunnelSettings(tunnelMultihopState: .on))
 
-        let selectedRelays = try wrapper.selectRelays(with: RelayConstraints(), connectionAttemptCount: 0)
+        let selectedRelays = try wrapper.selectRelays(connectionAttemptCount: 0)
         XCTAssertNotNil(selectedRelays.entry)
     }
 }

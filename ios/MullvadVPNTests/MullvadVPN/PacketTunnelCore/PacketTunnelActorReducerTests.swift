@@ -14,9 +14,7 @@ import XCTest
 
 final class PacketTunnelActorReducerTests: XCTestCase {
     // swiftlint:disable:next force_try
-    let selectedRelays = try! RelaySelectorStub
-        .nonFallible()
-        .selectRelays(with: RelayConstraints(), connectionAttemptCount: 0)
+    let selectedRelays = try! RelaySelectorStub.nonFallible().selectRelays(connectionAttemptCount: 0)
 
     func makeConnectionData(keyPolicy: State.KeyPolicy = .useCurrent) -> State.ConnectionData {
         State.ConnectionData(

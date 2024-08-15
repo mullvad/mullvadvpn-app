@@ -27,11 +27,14 @@ extension SettingsReaderStub {
         let staticSettings = Settings(
             privateKey: PrivateKey(),
             interfaceAddresses: [IPAddressRange(from: "127.0.0.1/32")!],
-            relayConstraints: RelayConstraints(),
-            dnsServers: .gateway,
-            obfuscation: WireGuardObfuscationSettings(state: .off, port: .automatic),
-            quantumResistance: .automatic,
-            multihopState: .off
+            tunnelSettings: LatestTunnelSettings(
+                relayConstraints: RelayConstraints(),
+                dnsSettings: DNSSettings(),
+                wireGuardObfuscation: WireGuardObfuscationSettings(state: .off, port: .automatic),
+                tunnelQuantumResistance: .automatic,
+                tunnelMultihopState: .off,
+                daita: DAITASettings()
+            )
         )
 
         return SettingsReaderStub {
@@ -43,11 +46,14 @@ extension SettingsReaderStub {
         let staticSettings = Settings(
             privateKey: PrivateKey(),
             interfaceAddresses: [IPAddressRange(from: "127.0.0.1/32")!],
-            relayConstraints: RelayConstraints(),
-            dnsServers: .gateway,
-            obfuscation: WireGuardObfuscationSettings(state: .off, port: .automatic),
-            quantumResistance: .on,
-            multihopState: .off
+            tunnelSettings: LatestTunnelSettings(
+                relayConstraints: RelayConstraints(),
+                dnsSettings: DNSSettings(),
+                wireGuardObfuscation: WireGuardObfuscationSettings(state: .off, port: .automatic),
+                tunnelQuantumResistance: .on,
+                tunnelMultihopState: .off,
+                daita: DAITASettings()
+            )
         )
         return SettingsReaderStub {
             return staticSettings

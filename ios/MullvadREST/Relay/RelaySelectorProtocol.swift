@@ -7,11 +7,12 @@
 //
 
 import Foundation
+import MullvadSettings
 import MullvadTypes
 
 /// Protocol describing a type that can select a relay.
 public protocol RelaySelectorProtocol {
-    func selectRelays(with constraints: RelayConstraints, connectionAttemptCount: UInt) throws -> SelectedRelays
+    func selectRelays(connectionAttemptCount: UInt) throws -> SelectedRelays
 }
 
 /// Struct describing the selected relay.

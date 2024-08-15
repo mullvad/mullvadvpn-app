@@ -106,14 +106,10 @@ final class ProtocolObfuscatorTests: XCTestCase {
         Settings(
             privateKey: PrivateKey(),
             interfaceAddresses: [IPAddressRange(from: "127.0.0.1/32")!],
-            relayConstraints: RelayConstraints(),
-            dnsServers: .gateway,
-            obfuscation: WireGuardObfuscationSettings(
+            tunnelSettings: LatestTunnelSettings(wireGuardObfuscation: WireGuardObfuscationSettings(
                 state: obfuscationState,
                 port: obfuscationPort
-            ),
-            quantumResistance: quantumResistance,
-            multihopState: .off
+            ))
         )
     }
 }
