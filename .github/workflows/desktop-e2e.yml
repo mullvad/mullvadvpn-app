@@ -20,6 +20,11 @@ on:
         default: ''
         required: false
         type: string
+      tests:
+        description: "Tests to run (defaults to all if empty)"
+        default: ''
+        required: false
+        type: string
 jobs:
   prepare-matrices:
     name: Prepare virtual machines
@@ -147,6 +152,9 @@ jobs:
           path: ~/.cache/mullvad-test/packages
       - name: Checkout repository
         uses: actions/checkout@v4
+      - name: Export test filters
+        run: |
+          echo "TEST_FILTERS=${{ github.event.inputs.tests }}" >> $GITHUB_ENV
       - name: Run end-to-end tests
         shell: bash -ieo pipefail {0}
         run: |
@@ -222,6 +230,9 @@ jobs:
           path: ~/.cache/mullvad-test/packages
       - name: Checkout repository
         uses: actions/checkout@v4
+      - name: Export test filters
+        run: |
+          echo "TEST_FILTERS=${{ github.event.inputs.tests }}" >> $GITHUB_ENV
       - name: Run end-to-end tests
         shell: bash -ieo pipefail {0}
         run: |
@@ -293,6 +304,9 @@ jobs:
           path: ~/Library/Caches/mullvad-test/packages
       - name: Checkout repository
         uses: actions/checkout@v4
+      - name: Export test filters
+        run: |
+          echo "TEST_FILTERS=${{ github.event.inputs.tests }}" >> $GITHUB_ENV
       - name: Run end-to-end tests
         shell: bash -ieo pipefail {0}
         run: |
