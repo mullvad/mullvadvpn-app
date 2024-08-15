@@ -152,13 +152,11 @@ jobs:
           path: ~/.cache/mullvad-test/packages
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Export test filters
-        run: |
-          echo "TEST_FILTERS=${{ github.event.inputs.tests }}" >> $GITHUB_ENV
       - name: Run end-to-end tests
         shell: bash -ieo pipefail {0}
         run: |
           git fetch --tags --force
+          export TEST_FILTERS="${{ github.event.inputs.tests }}"
           ./test/scripts/ci-runtests.sh ${{ matrix.os }}
       - uses: actions/upload-artifact@v3
         if: '!cancelled()'
@@ -230,13 +228,11 @@ jobs:
           path: ~/.cache/mullvad-test/packages
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Export test filters
-        run: |
-          echo "TEST_FILTERS=${{ github.event.inputs.tests }}" >> $GITHUB_ENV
       - name: Run end-to-end tests
         shell: bash -ieo pipefail {0}
         run: |
           git fetch --tags --force
+          export TEST_FILTERS="${{ github.event.inputs.tests }}"
           ./test/scripts/ci-runtests.sh ${{ matrix.os }}
       - uses: actions/upload-artifact@v3
         if: '!cancelled()'
@@ -304,13 +300,11 @@ jobs:
           path: ~/Library/Caches/mullvad-test/packages
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Export test filters
-        run: |
-          echo "TEST_FILTERS=${{ github.event.inputs.tests }}" >> $GITHUB_ENV
       - name: Run end-to-end tests
         shell: bash -ieo pipefail {0}
         run: |
           git fetch --tags --force
+          export TEST_FILTERS="${{ github.event.inputs.tests }}"
           ./test/scripts/ci-runtests.sh ${{ matrix.os }}
       - uses: actions/upload-artifact@v3
         if: '!cancelled()'
