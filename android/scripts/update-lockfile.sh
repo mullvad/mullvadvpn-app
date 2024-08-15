@@ -19,6 +19,10 @@ GRADLE_TASKS=(
     "assembleAndroidTest"
     "lint"
 )
+EXCLUDED_GRADLE_TASKS=(
+    "-xensureRelayListExist"
+    "-xensureJniDirectoryExist"
+)
 
 export GRADLE_OPTS
 export GRADLE_USER_HOME
@@ -43,6 +47,6 @@ echo "Generating new components..."
 # Using a loop here since providing all tasks at once result in gradle task dependency issues.
 for GRADLE_TASK in "${GRADLE_TASKS[@]}"; do
     echo "Gradle task: $GRADLE_TASK"
-    ../gradlew -q -p .. --project-cache-dir "$TEMP_GRADLE_PROJECT_CACHE_DIR" -M sha256 "$GRADLE_TASK"
+    ../gradlew -q -p .. --project-cache-dir "$TEMP_GRADLE_PROJECT_CACHE_DIR" -M sha256 "$GRADLE_TASK" "${EXCLUDED_GRADLE_TASKS[@]}"
     echo ""
 done
