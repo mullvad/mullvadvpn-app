@@ -23,7 +23,6 @@ import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInvisible
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
-import net.mullvad.mullvadvpn.lib.theme.color.bodyText
 
 @Preview
 @Composable
@@ -44,7 +43,7 @@ private fun PreviewLocationInfo() {
 fun LocationInfo(
     modifier: Modifier = Modifier,
     colorExpanded: Color = MaterialTheme.colorScheme.onSurface,
-    colorCollapsed: Color = MaterialTheme.colorScheme.bodyText,
+    colorCollapsed: Color = MaterialTheme.colorScheme.onSurfaceVariant,
     onToggleTunnelInfo: () -> Unit,
     isVisible: Boolean,
     isExpanded: Boolean,

@@ -38,8 +38,6 @@ import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDisconnectButton
-import net.mullvad.mullvadvpn.lib.theme.color.onVariant
-import net.mullvad.mullvadvpn.lib.theme.color.variant
 
 @Composable
 fun ConnectionButton(
@@ -53,7 +51,7 @@ fun ConnectionButton(
 ) {
     val containerColor =
         if (state is TunnelState.Disconnected) {
-            MaterialTheme.colorScheme.variant
+            MaterialTheme.colorScheme.tertiary
         } else {
             // TODO Should we make this transparent or not?
             MaterialTheme.colorScheme.error // .copy(alpha = AlphaDisconnectButton)
@@ -61,7 +59,7 @@ fun ConnectionButton(
 
     val contentColor =
         if (state is TunnelState.Disconnected) {
-            MaterialTheme.colorScheme.onVariant
+            MaterialTheme.colorScheme.onTertiary
         } else {
             MaterialTheme.colorScheme.onError
         }

@@ -13,12 +13,11 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.lib.theme.color.AlphaChevron
 
 @Composable
 fun Chevron(
     modifier: Modifier = Modifier,
-    color: Color = MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaChevron),
+    color: Color = MaterialTheme.colorScheme.onBackground,
     isExpanded: Boolean
 ) {
 
@@ -41,7 +40,7 @@ fun Chevron(
 @Composable
 fun ChevronButton(
     modifier: Modifier = Modifier,
-    color: Color = MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaChevron),
+    color: Color = MaterialTheme.colorScheme.onBackground,
     onExpand: (Boolean) -> Unit,
     isExpanded: Boolean
 ) {

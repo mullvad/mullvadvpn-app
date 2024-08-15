@@ -15,18 +15,12 @@ const val AlphaInactive = 0.4f
 const val Alpha40 = 0.4f
 const val AlphaDescription = 0.6f
 const val AlphaDisconnectButton = 0.6f
-const val AlphaChevron = 0.6f
 const val AlphaScrollbar = 0.6f
 const val Alpha60 = 0.6f
 const val AlphaTopBar = 0.8f
 const val AlphaInvisible = 0f
 
 // Custom colors, they only link to normal material 3 colors for now
-val ColorScheme.variant: Color
-    @Composable get() = MaterialTheme.colorScheme.tertiary
-val ColorScheme.onVariant: Color
-    @Composable get() = MaterialTheme.colorScheme.onTertiary
-
 val ColorScheme.selected: Color
     @Composable get() = MaterialTheme.colorScheme.tertiary
 
@@ -35,9 +29,6 @@ val ColorScheme.onSelected: Color
 
 val ColorScheme.warning: Color
     @Composable get() = PaletteTokens.Yellow500
-
-val ColorScheme.bodyText: Color
-    @Composable get() = MaterialTheme.colorScheme.onSurfaceVariant
 
 val menuItemColors: MenuItemColors
     @Composable

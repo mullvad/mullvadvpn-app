@@ -24,8 +24,6 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.Alpha20
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInactive
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInvisible
-import net.mullvad.mullvadvpn.lib.theme.color.onVariant
-import net.mullvad.mullvadvpn.lib.theme.color.variant
 
 @Preview
 @Composable
@@ -102,14 +100,14 @@ fun VariantButton(
     background: Color = MaterialTheme.colorScheme.background,
     colors: ButtonColors =
         ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.variant,
-            contentColor = MaterialTheme.colorScheme.onVariant,
+            containerColor = MaterialTheme.colorScheme.tertiary,
+            contentColor = MaterialTheme.colorScheme.onTertiary,
             disabledContentColor =
-                MaterialTheme.colorScheme.onVariant
+                MaterialTheme.colorScheme.onTertiary
                     .copy(alpha = AlphaInactive)
                     .compositeOver(background),
             disabledContainerColor =
-                MaterialTheme.colorScheme.variant
+                MaterialTheme.colorScheme.tertiary
                     .copy(alpha = AlphaInactive)
                     .compositeOver(background),
         ),
