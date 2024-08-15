@@ -72,7 +72,7 @@ class SelectLocationViewModel(
             }
             .stateIn(
                 viewModelScope,
-                SharingStarted.WhileSubscribed(),
+                SharingStarted.Lazily,
                 SelectLocationUiState.Loading,
             )
 
