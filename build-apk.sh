@@ -112,7 +112,7 @@ for ARCHITECTURE in ${ARCHITECTURES:-aarch64 armv7 x86_64 i686}; do
 done
 
 echo "Updating relays.json..."
-cargo run --bin relay_list "${CARGO_ARGS[@]}" > android/build/extraAssets/relays.json
+cargo run --bin relay_list "${CARGO_ARGS[@]}" > android/app/build/extraAssets/relays.json
 
 cd "$SCRIPT_DIR/android"
 $GRADLE_CMD --console plain "${GRADLE_TASKS[@]}"
