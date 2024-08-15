@@ -313,6 +313,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: relay-list
+          path: android/app/build/extraAssets/relays.json
 
       - name: Build app
         uses: burrunan/gradle-cache-action@v1
