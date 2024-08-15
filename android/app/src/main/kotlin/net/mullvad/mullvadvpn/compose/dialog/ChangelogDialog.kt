@@ -75,7 +75,7 @@ fun ChangelogDialog(changeLog: Changelog, onDismiss: () -> Unit) {
             PrimaryButton(text = stringResource(R.string.got_it), onClick = onDismiss)
         },
         containerColor = MaterialTheme.colorScheme.surface,
-        titleContentColor = MaterialTheme.colorScheme.onBackground
+        titleContentColor = MaterialTheme.colorScheme.onSurface
     )
 }
 

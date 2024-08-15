@@ -10,7 +10,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -100,7 +99,7 @@ fun DnsDialog(
                     } else {
                         stringResource(R.string.update_dns_server_dialog_title)
                     },
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onSurface,
             )
         },
         text = {

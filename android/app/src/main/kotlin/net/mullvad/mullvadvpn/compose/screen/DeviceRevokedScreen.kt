@@ -76,7 +76,7 @@ fun DeviceRevokedScreen(
 ) {
     val topColor =
         if (state == DeviceRevokedUiState.SECURED) {
-            MaterialTheme.colorScheme.secondary
+            MaterialTheme.colorScheme.tertiary
         } else {
             MaterialTheme.colorScheme.error
         }

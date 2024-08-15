@@ -13,7 +13,6 @@ const val AlphaDisabled = 0.2f
 const val Alpha20 = 0.2f
 const val AlphaInactive = 0.4f
 const val Alpha40 = 0.4f
-const val AlphaDescription = 0.6f
 const val AlphaDisconnectButton = 0.6f
 const val AlphaScrollbar = 0.6f
 const val Alpha60 = 0.6f

@@ -274,7 +274,7 @@ private fun ImportOverridesByBottomSheet(
                 Icon(
                     modifier = Modifier.padding(Dimens.mediumPadding),
                     painter = painterResource(id = R.drawable.icon_info),
-                    tint = MaterialTheme.colorScheme.errorContainer,
+                    tint = MaterialTheme.colorScheme.error,
                     contentDescription = null
                 )
                 Text(

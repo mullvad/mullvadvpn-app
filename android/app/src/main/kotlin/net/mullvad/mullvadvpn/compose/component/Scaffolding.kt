@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.compose.component
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
@@ -213,7 +212,7 @@ fun ScaffoldWithLargeTopBarAndButton(
     actions: @Composable RowScope.() -> Unit = {},
     onButtonClick: () -> Unit = {}, // Add button
     buttonTitle: String,
-    scrollbarColor: Color = MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaScrollbar),
+    scrollbarColor: Color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
     content: @Composable (modifier: Modifier) -> Unit
 ) {
     val appBarState = rememberTopAppBarState()

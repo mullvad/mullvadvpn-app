@@ -23,7 +23,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -62,7 +61,6 @@ import net.mullvad.mullvadvpn.lib.model.DeviceId
 import net.mullvad.mullvadvpn.lib.model.GetDeviceListError
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
-import net.mullvad.mullvadvpn.lib.theme.color.AlphaDescription
 import net.mullvad.mullvadvpn.lib.theme.color.selected
 import net.mullvad.mullvadvpn.lib.theme.typeface.listItemSubText
 import net.mullvad.mullvadvpn.lib.theme.typeface.listItemText
@@ -344,10 +342,7 @@ private fun DeviceListItem(device: Device, isLoading: Boolean, onDeviceRemovalCl
                     text =
                         stringResource(id = R.string.created_x, device.creationDate.formatDate()),
                     style = MaterialTheme.typography.listItemSubText,
-                    color =
-                        MaterialTheme.colorScheme.onPrimary
-                            .copy(alpha = AlphaDescription)
-                            .compositeOver(MaterialTheme.colorScheme.primary)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         },

@@ -60,8 +60,8 @@ fun NormalSwitchComposeCell(
     isToggled: Boolean,
     startPadding: Dp = Dimens.indentedCellStartPadding,
     isEnabled: Boolean = true,
-    background: Color = MaterialTheme.colorScheme.primaryContainer,
-    onBackground: Color = MaterialTheme.colorScheme.onPrimaryContainer,
+    background: Color = MaterialTheme.colorScheme.surfaceContainerLow,
+    onBackground: Color = MaterialTheme.colorScheme.onSurface,
     onCellClicked: (Boolean) -> Unit = {},
     onInfoClicked: (() -> Unit)? = null
 ) {
@@ -92,7 +92,7 @@ fun HeaderSwitchComposeCell(
     startPadding: Dp = Dimens.cellStartPadding,
     isEnabled: Boolean = true,
     background: Color = MaterialTheme.colorScheme.primary,
-    onBackground: Color = MaterialTheme.colorScheme.onSurface,
+    onBackground: Color = MaterialTheme.colorScheme.onPrimary,
     onCellClicked: (Boolean) -> Unit = {},
     onInfoClicked: (() -> Unit)? = null,
 ) {

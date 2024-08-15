@@ -13,6 +13,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.theme.color.warning
 
 @Preview
 @Composable
@@ -39,12 +40,12 @@ fun DnsCell(
                 Icon(
                     painter = painterResource(id = R.drawable.icon_alert),
                     contentDescription = stringResource(id = R.string.confirm_local_dns),
-                    tint = MaterialTheme.colorScheme.scrim
+                    tint = MaterialTheme.colorScheme.warning
                 )
             }
         },
         onCellClicked = { onClick.invoke() },
-        background = MaterialTheme.colorScheme.primaryContainer,
+        background = MaterialTheme.colorScheme.surfaceContainerLow,
         startPadding = startPadding,
         modifier = modifier
     )

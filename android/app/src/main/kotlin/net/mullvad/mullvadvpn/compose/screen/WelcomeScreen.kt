@@ -190,7 +190,7 @@ fun WelcomeScreen(
                     .verticalScroll(scrollState)
                     .drawVerticalScrollbar(
                         state = scrollState,
-                        color = MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaScrollbar)
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar)
                     )
         ) {
             // Welcome info area

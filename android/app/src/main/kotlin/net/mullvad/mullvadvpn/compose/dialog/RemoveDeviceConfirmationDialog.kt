@@ -74,6 +74,6 @@ fun RemoveDeviceConfirmation(navigator: ResultBackNavigator<DeviceId>, device: D
                 text = stringResource(id = R.string.confirm_removal)
             )
         },
-        containerColor = MaterialTheme.colorScheme.background
+        containerColor = MaterialTheme.colorScheme.surface
     )
 }

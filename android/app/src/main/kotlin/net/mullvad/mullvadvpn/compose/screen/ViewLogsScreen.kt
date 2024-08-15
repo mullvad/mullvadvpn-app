@@ -152,7 +152,11 @@ fun ViewLogsScreen(
                             .padding(horizontal = Dimens.smallPadding)
                 ) {
                     items(state.allLines) { text ->
-                        Text(text = text, style = MaterialTheme.typography.bodySmall)
+                        Text(
+                            text = text,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.primary
+                        )
                     }
                 }
             }

@@ -20,7 +20,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -32,7 +31,6 @@ import net.mullvad.mullvadvpn.compose.component.SpacedColumn
 import net.mullvad.mullvadvpn.compose.util.isBelowMaxBitmapSize
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
-import net.mullvad.mullvadvpn.lib.theme.color.Alpha40
 import net.mullvad.mullvadvpn.lib.theme.typeface.listItemText
 
 @Preview
@@ -66,10 +64,7 @@ fun SplitTunnelingCell(
     isSelected: Boolean,
     enabled: Boolean,
     modifier: Modifier = Modifier,
-    backgroundColor: Color =
-        MaterialTheme.colorScheme.primary
-            .copy(alpha = Alpha40)
-            .compositeOver(MaterialTheme.colorScheme.background),
+    backgroundColor: Color = MaterialTheme.colorScheme.surfaceContainerHigh,
     onResolveIcon: (String) -> Bitmap? = { null },
     onCellClicked: () -> Unit = {}
 ) {
@@ -93,7 +88,7 @@ fun SplitTunnelingCell(
                     Modifier.align(Alignment.CenterVertically).size(size = Dimens.listIconSize),
                 colorFilter =
                     if (icon == null) {
-                        ColorFilter.tint(MaterialTheme.colorScheme.onPrimaryContainer)
+                        ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
                     } else {
                         null
                     }
@@ -103,7 +98,7 @@ fun SplitTunnelingCell(
             Text(
                 text = title,
                 style = MaterialTheme.typography.listItemText,
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                color = MaterialTheme.colorScheme.onSurface,
                 modifier =
                     Modifier.weight(1f)
                         .padding(horizontal = Dimens.mediumPadding)
@@ -122,10 +117,7 @@ fun SplitTunnelingCell(
                             }
                     ),
                 contentDescription = null,
-                tint =
-                    MaterialTheme.colorScheme.onBackground
-                        .copy(alpha = Alpha40)
-                        .compositeOver(backgroundColor),
+                tint = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.size(size = Dimens.addIconSize)
             )
         },

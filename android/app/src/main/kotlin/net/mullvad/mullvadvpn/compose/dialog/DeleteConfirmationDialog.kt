@@ -84,6 +84,6 @@ fun DeleteConfirmationDialog(
         confirmButton = {
             NegativeButton(onClick = onDelete, text = stringResource(id = R.string.delete))
         },
-        containerColor = MaterialTheme.colorScheme.background
+        containerColor = MaterialTheme.colorScheme.surface
     )
 }

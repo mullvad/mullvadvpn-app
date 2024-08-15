@@ -44,7 +44,6 @@ import net.mullvad.mullvadvpn.constant.VOUCHER_LENGTH
 import net.mullvad.mullvadvpn.lib.model.RedeemVoucherError
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
-import net.mullvad.mullvadvpn.lib.theme.color.AlphaDescription
 import net.mullvad.mullvadvpn.viewmodel.VoucherDialogViewModel
 import org.joda.time.DateTimeConstants
 import org.koin.androidx.compose.koinViewModel
@@ -192,8 +191,8 @@ fun RedeemVoucherDialog(
                 }
             }
         },
-        containerColor = MaterialTheme.colorScheme.background,
-        titleContentColor = MaterialTheme.colorScheme.onBackground,
+        containerColor = MaterialTheme.colorScheme.surface,
+        titleContentColor = MaterialTheme.colorScheme.onSurface,
         onDismissRequest = { onDismiss(state.voucherState is VoucherDialogState.Success) },
         properties =
             DialogProperties(
@@ -218,7 +217,7 @@ private fun RedeemSuccessBody(message: String) {
                     top = Dimens.successIconVerticalPadding,
                 )
                 .fillMaxWidth(),
-        color = MaterialTheme.colorScheme.onPrimary,
+        color = MaterialTheme.colorScheme.onSurface,
         style = MaterialTheme.typography.titleMedium
     )
 
@@ -227,7 +226,7 @@ private fun RedeemSuccessBody(message: String) {
         modifier =
             Modifier.padding(start = Dimens.smallPadding, top = Dimens.cellTopPadding)
                 .fillMaxWidth(),
-        color = MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaDescription),
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
         style = MaterialTheme.typography.labelMedium
     )
 }
@@ -264,7 +263,7 @@ private fun EnterVoucherBody(
             Text(
                 text = stringResource(id = R.string.verifying_voucher),
                 modifier = Modifier.padding(start = Dimens.smallPadding),
-                color = MaterialTheme.colorScheme.onPrimary,
+                color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.bodySmall
             )
         } else if (state.voucherState is VoucherDialogState.Error) {

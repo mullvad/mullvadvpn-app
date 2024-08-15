@@ -220,7 +220,7 @@ private fun ColumnScope.SendingContent() {
     Text(
         text = stringResource(id = R.string.sending),
         style = MaterialTheme.typography.headlineLarge,
-        color = MaterialTheme.colorScheme.onBackground
+        color = MaterialTheme.colorScheme.onSurface
     )
 }
 
@@ -238,16 +238,16 @@ private fun ColumnScope.SentContent(sendingState: SendingReportUiState.Success) 
     Text(
         text = stringResource(id = R.string.sent),
         style = MaterialTheme.typography.headlineLarge,
-        color = MaterialTheme.colorScheme.onBackground
+        color = MaterialTheme.colorScheme.onSurface
     )
     Text(
         text =
             buildAnnotatedString {
-                withStyle(SpanStyle(color = MaterialTheme.colorScheme.surface)) {
+                withStyle(SpanStyle(color = MaterialTheme.colorScheme.tertiary)) {
                     append(stringResource(id = R.string.sent_thanks))
                 }
                 append(" ")
-                withStyle(SpanStyle(color = MaterialTheme.colorScheme.onPrimary)) {
+                withStyle(SpanStyle(color = MaterialTheme.colorScheme.onSurface)) {
                     append(stringResource(id = R.string.we_will_look_into_this))
                 }
             },
@@ -273,7 +273,7 @@ private fun ColumnScope.SentContent(sendingState: SendingReportUiState.Success) 
         Text(
             text = annotatedEmailString,
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onBackground,
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.fillMaxWidth()
         )
     }
@@ -291,12 +291,12 @@ private fun ColumnScope.ErrorContent(retry: () -> Unit, onDismiss: () -> Unit) {
     Text(
         text = stringResource(id = R.string.failed_to_send),
         style = MaterialTheme.typography.headlineLarge,
-        color = MaterialTheme.colorScheme.onBackground,
+        color = MaterialTheme.colorScheme.onSurface,
     )
     Text(
         text = stringResource(id = R.string.failed_to_send_details),
         style = MaterialTheme.typography.bodySmall,
-        color = MaterialTheme.colorScheme.onBackground,
+        color = MaterialTheme.colorScheme.onSurface,
         modifier = Modifier.fillMaxWidth()
     )
     Spacer(modifier = Modifier.weight(1f))

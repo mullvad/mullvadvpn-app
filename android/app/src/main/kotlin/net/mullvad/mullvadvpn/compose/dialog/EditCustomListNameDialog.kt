@@ -93,8 +93,8 @@ fun EditCustomListNameDialog(
                 modifier = Modifier.testTag(EDIT_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG)
             )
         },
-        containerColor = MaterialTheme.colorScheme.background,
-        titleContentColor = MaterialTheme.colorScheme.onBackground,
+        containerColor = MaterialTheme.colorScheme.surface,
+        titleContentColor = MaterialTheme.colorScheme.onSurface,
         onDismissRequest = onDismiss,
         confirmButton = {
             PrimaryButton(

@@ -70,12 +70,8 @@ fun NegativeButton(
         ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.error,
             contentColor = MaterialTheme.colorScheme.onError,
-            disabledContentColor =
-                MaterialTheme.colorScheme.onError
-                    .copy(alpha = Alpha20),
-            disabledContainerColor =
-                MaterialTheme.colorScheme.error
-                    .copy(alpha = AlphaInactive)
+            disabledContentColor = MaterialTheme.colorScheme.onError.copy(alpha = Alpha20),
+            disabledContainerColor = MaterialTheme.colorScheme.error.copy(alpha = AlphaInactive)
         ),
     isEnabled: Boolean = true,
     icon: @Composable (() -> Unit)? = null
@@ -95,17 +91,13 @@ fun VariantButton(
     onClick: () -> Unit,
     text: String,
     modifier: Modifier = Modifier,
-    background: Color = MaterialTheme.colorScheme.background,
+    background: Color = MaterialTheme.colorScheme.tertiary,
     colors: ButtonColors =
         ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.tertiary,
+            containerColor = background,
             contentColor = MaterialTheme.colorScheme.onTertiary,
-            disabledContentColor =
-                MaterialTheme.colorScheme.onTertiary
-                    .copy(alpha = Alpha20),
-            disabledContainerColor =
-                MaterialTheme.colorScheme.tertiary
-                    .copy(alpha = AlphaInactive),
+            disabledContentColor = MaterialTheme.colorScheme.onTertiary.copy(alpha = Alpha20),
+            disabledContainerColor = background.copy(alpha = AlphaInactive),
         ),
     isEnabled: Boolean = true,
     icon: @Composable (() -> Unit)? = null
@@ -174,9 +166,7 @@ private fun BaseButton(
             } else {
                 ButtonDefaults.ContentPadding
             },
-        modifier = modifier
-            .wrapContentHeight()
-            .fillMaxWidth(),
+        modifier = modifier.wrapContentHeight().fillMaxWidth(),
         shape = MaterialTheme.shapes.small
     ) {
         // Used to center the text
@@ -187,9 +177,7 @@ private fun BaseButton(
                 // Used to center the text
                 Box(
                     modifier =
-                    Modifier
-                        .padding(horizontal = Dimens.smallPadding)
-                        .alpha(AlphaInvisible)
+                        Modifier.padding(horizontal = Dimens.smallPadding).alpha(AlphaInvisible)
                 ) {
                     trailingIcon()
                 }
@@ -211,9 +199,7 @@ private fun BaseButton(
                 // Used to center the text
                 Box(
                     modifier =
-                    Modifier
-                        .padding(horizontal = Dimens.smallPadding)
-                        .alpha(AlphaInvisible)
+                        Modifier.padding(horizontal = Dimens.smallPadding).alpha(AlphaInvisible)
                 ) {
                     leadingIcon()
                 }

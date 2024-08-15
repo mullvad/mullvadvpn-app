@@ -126,7 +126,7 @@ fun SplitTunnelingScreen(
         navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) },
     ) { modifier, lazyListState ->
         LazyColumn(
-            modifier = modifier.background(MaterialTheme.colorScheme.background),
+            modifier = modifier.background(MaterialTheme.colorScheme.surface),
             horizontalAlignment = Alignment.CenterHorizontally,
             state = lazyListState,
         ) {

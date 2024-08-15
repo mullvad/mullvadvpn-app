@@ -62,7 +62,7 @@ internal object ColorDarkTokens {
     val InverseSurface = PaletteTokens.White
     val OnBackground = PaletteTokens.White
     val OnError = PaletteTokens.White
-    val OnErrorContainer = Color(0xFFFFDAD6) // Replace
+    val OnErrorContainer = PaletteTokens.White
     val OnPrimary = PaletteTokens.White
     val OnPrimaryContainer = PaletteTokens.White
     val OnPrimaryFixed = PaletteTokens.Blue50 // Approximated
@@ -98,7 +98,7 @@ internal object ColorDarkTokens {
     val SurfaceContainerLowest = OpacityTokens.BlueOnDarkBlue10
     val SurfaceDim = PaletteTokens.Black // Approximated
     val SurfaceTint = Primary
-    val SurfaceVariant = Color(0xFFA3ACB5) // Subtext
+    val SurfaceVariant = PaletteTokens.DarkBlue500
     val Tertiary = PaletteTokens.Green500
     val TertiaryContainer = OpacityTokens.WhiteOnDarkBlue10
     val TertiaryFixed = PaletteTokens.Yellow600 // Approximated

@@ -47,7 +47,7 @@ fun ReportProblemNoEmail(resultBackNavigator: ResultBackNavigator<Boolean>) {
                 text = stringResource(id = R.string.confirm_no_email),
                 modifier = Modifier.fillMaxWidth(),
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onBackground
+                color = MaterialTheme.colorScheme.onSurface
             )
         },
         dismissButton = {
@@ -64,6 +64,6 @@ fun ReportProblemNoEmail(resultBackNavigator: ResultBackNavigator<Boolean>) {
                 text = stringResource(id = R.string.send_anyway)
             )
         },
-        containerColor = MaterialTheme.colorScheme.background
+        containerColor = MaterialTheme.colorScheme.surface
     )
 }

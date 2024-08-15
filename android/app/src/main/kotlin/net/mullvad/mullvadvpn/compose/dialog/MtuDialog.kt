@@ -29,7 +29,6 @@ import net.mullvad.mullvadvpn.constant.MTU_MIN_VALUE
 import net.mullvad.mullvadvpn.lib.model.Mtu
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
-import net.mullvad.mullvadvpn.lib.theme.color.AlphaDescription
 import net.mullvad.mullvadvpn.viewmodel.MtuDialogSideEffect
 import net.mullvad.mullvadvpn.viewmodel.MtuDialogUiState
 import net.mullvad.mullvadvpn.viewmodel.MtuDialogViewModel
@@ -77,7 +76,7 @@ fun MtuDialog(
         title = {
             Text(
                 text = stringResource(id = R.string.wireguard_mtu),
-                color = MaterialTheme.colorScheme.onBackground,
+                color = MaterialTheme.colorScheme.onSurface,
             )
         },
         text = {
@@ -101,7 +100,7 @@ fun MtuDialog(
                             MTU_MAX_VALUE
                         ),
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaDescription),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = Dimens.smallPadding)
                 )
             }
@@ -130,7 +129,7 @@ fun MtuDialog(
                 )
             }
         },
-        containerColor = MaterialTheme.colorScheme.background,
-        titleContentColor = MaterialTheme.colorScheme.onBackground,
+        containerColor = MaterialTheme.colorScheme.surface,
+        titleContentColor = MaterialTheme.colorScheme.onSurface,
     )
 }
