@@ -82,8 +82,10 @@ jobs:
         run: git config --global --add safe.directory $(pwd)
 
       # Needed until we improve the build system.
-      - name: Create dummy jni dir
-        run: mkdir -p android/app/build/extraJni
+      - name: Create dummy jni dir and relay list
+        run: |
+          mkdir -p android/app/build/extraJni android/app/build/extraAssets
+          touch android/app/build/extraAssets/relays.json
 
       - name: Re-generate lockfile
         run: android/scripts/update-lockfile.sh
