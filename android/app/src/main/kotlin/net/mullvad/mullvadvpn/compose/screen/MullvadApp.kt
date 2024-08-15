@@ -1,11 +1,15 @@
 package net.mullvad.mullvadvpn.compose.screen
 
+import android.content.Intent
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.navigation.NavHostController
@@ -20,15 +24,18 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.rememberNavHostEngine
 import com.ramcosta.composedestinations.utils.destination
 import com.ramcosta.composedestinations.utils.rememberDestinationsNavigator
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
 import net.mullvad.mullvadvpn.compose.util.RequestVpnPermission
-import net.mullvad.mullvadvpn.viewmodel.ChangelogViewModel
+import net.mullvad.mullvadvpn.lib.common.constant.KEY_REQUEST_VPN_PERMISSION
+import net.mullvad.mullvadvpn.util.getActivity
 import net.mullvad.mullvadvpn.viewmodel.DaemonScreenEvent
+import net.mullvad.mullvadvpn.viewmodel.MullvadAppViewModel
 import net.mullvad.mullvadvpn.viewmodel.NoDaemonViewModel
-import net.mullvad.mullvadvpn.viewmodel.VpnPermissionSideEffect
-import net.mullvad.mullvadvpn.viewmodel.VpnPermissionViewModel
 import org.koin.androidx.compose.koinViewModel
 
 private val changeLogDestinations = listOf(ConnectDestination, OutOfTimeDestination)
@@ -41,11 +48,25 @@ fun MullvadApp() {
     val navigator: DestinationsNavigator = navHostController.rememberDestinationsNavigator()
 
     val serviceVm = koinViewModel<NoDaemonViewModel>()
-    val permissionVm = koinViewModel<VpnPermissionViewModel>()
+    val mullvadAppViewModel = koinViewModel<MullvadAppViewModel>()
 
     DisposableEffect(Unit) {
         navHostController.addOnDestinationChangedListener(serviceVm)
         onDispose { navHostController.removeOnDestinationChangedListener(serviceVm) }
+    }
+
+    // Get intents
+    val launchVpnPermission =
+        rememberLauncherForActivityResult(RequestVpnPermission()) { _ ->
+            mullvadAppViewModel.connect()
+        }
+    val context = LocalContext.current
+    val activity = (context.getActivity() as ComponentActivity)
+    LaunchedEffect(navHostController) {
+        activity
+            .intents()
+            .filter { it.action == KEY_REQUEST_VPN_PERMISSION }
+            .collect { launchVpnPermission.launch(Unit) }
     }
 
     DestinationsNavHost(
@@ -66,8 +87,7 @@ fun MullvadApp() {
     }
 
     // Globally show the changelog
-    val changeLogsViewModel = koinViewModel<ChangelogViewModel>()
-    LaunchedEffectCollect(changeLogsViewModel.uiSideEffect) {
+    LaunchedEffectCollect(mullvadAppViewModel.uiSideEffect) {
 
         // Wait until we are in an acceptable destination
         navHostController.currentBackStackEntryFlow
@@ -76,13 +96,15 @@ fun MullvadApp() {
 
         navigator.navigate(ChangelogDestination(it))
     }
-
-    // Ask for VPN Permission
-    val launchVpnPermission =
-        rememberLauncherForActivityResult(RequestVpnPermission()) { _ -> permissionVm.connect() }
-    LaunchedEffectCollect(permissionVm.uiSideEffect) {
-        if (it is VpnPermissionSideEffect.ShowDialog) {
-            launchVpnPermission.launch(Unit)
-        }
-    }
 }
+
+private fun ComponentActivity.intents() =
+    callbackFlow<Intent> {
+        send(intent)
+
+        val listener: (Intent) -> Unit = { trySend(it) }
+
+        addOnNewIntentListener(listener)
+
+        awaitClose { removeOnNewIntentListener(listener) }
+    }

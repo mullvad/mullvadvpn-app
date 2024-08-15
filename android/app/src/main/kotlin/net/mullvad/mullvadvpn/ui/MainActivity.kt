@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.ui
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -63,11 +62,11 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
         }
         super.onCreate(savedInstanceState)
 
-        // Needs to be before set content since we want to access the intent in compose
+        setContent { AppTheme { MullvadApp() } }
+
         if (savedInstanceState == null) {
             intentProvider.setStartIntent(intent)
         }
-        setContent { AppTheme { MullvadApp() } }
 
         // This is to protect against tapjacking attacks
         window.decorView.filterTouchesWhenObscured = true
@@ -96,11 +95,6 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
             }
             splashCompleteRepository.onSplashCompleted()
         }
-    }
-
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
-        intentProvider.setStartIntent(intent)
     }
 
     fun bindService() {
