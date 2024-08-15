@@ -161,9 +161,6 @@ class AlertViewController: UIViewController {
             viewContainer.centerXAnchor.constraint(equalTo: view.centerXAnchor)
             viewContainer.centerYAnchor.constraint(equalTo: view.centerYAnchor)
 
-            viewContainer.widthAnchor
-                .constraint(lessThanOrEqualToConstant: UIMetrics.preferredFormSheetContentSize.width)
-
             viewContainer.topAnchor
                 .constraint(greaterThanOrEqualTo: view.layoutMarginsGuide.topAnchor)
                 .withPriority(.defaultHigh)
@@ -172,13 +169,20 @@ class AlertViewController: UIViewController {
                 .constraint(greaterThanOrEqualTo: viewContainer.bottomAnchor)
                 .withPriority(.defaultHigh)
 
-            viewContainer.leadingAnchor
+            let leadingConstraint = viewContainer.leadingAnchor
                 .constraint(equalTo: view.layoutMarginsGuide.leadingAnchor)
-                .withPriority(.defaultHigh)
-
-            view.layoutMarginsGuide.trailingAnchor
+            let trailingConstraint = view.layoutMarginsGuide.trailingAnchor
                 .constraint(equalTo: viewContainer.trailingAnchor)
-                .withPriority(.defaultHigh)
+
+            if traitCollection.userInterfaceIdiom == .pad {
+                viewContainer.widthAnchor
+                    .constraint(lessThanOrEqualToConstant: UIMetrics.preferredFormSheetContentSize.width)
+                leadingConstraint.withPriority(.defaultHigh)
+                trailingConstraint.withPriority(.defaultHigh)
+            } else {
+                leadingConstraint
+                trailingConstraint
+            }
         }
     }
 
@@ -195,18 +199,18 @@ class AlertViewController: UIViewController {
     }
 
     private func addHeader(_ title: String) {
-        let header = UILabel()
+        let label = UILabel()
 
-        header.text = title
-        header.font = .preferredFont(forTextStyle: .largeTitle, weight: .bold)
-        header.textColor = .white
-        header.adjustsFontForContentSizeCategory = true
-        header.textAlignment = .center
-        header.numberOfLines = 0
-        header.accessibilityIdentifier = .alertTitle
+        label.text = title
+        label.font = .preferredFont(forTextStyle: .largeTitle, weight: .bold)
+        label.textColor = .white
+        label.adjustsFontForContentSizeCategory = true
+        label.textAlignment = .center
+        label.numberOfLines = 0
+        label.accessibilityIdentifier = .alertTitle
 
-        contentView.addArrangedSubview(header)
-        contentView.setCustomSpacing(16, after: header)
+        contentView.addArrangedSubview(label)
+        contentView.setCustomSpacing(16, after: label)
     }
 
     private func addTitle(_ title: String) {

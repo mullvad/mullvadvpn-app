@@ -20,6 +20,7 @@ enum AccountViewControllerAction {
     case logOut
     case navigateToVoucher
     case navigateToDeleteAccount
+    case restorePurchasesInfo
 }
 
 class AccountViewController: UIViewController {
@@ -81,6 +82,14 @@ class AccountViewController: UIViewController {
             self?.actionHandler?(.deviceInfo)
         }
 
+        contentView.restorePurchasesView.restoreButtonAction = { [weak self] in
+            self?.restorePurchases()
+        }
+
+        contentView.restorePurchasesView.infoButtonAction = { [weak self] in
+            self?.actionHandler?(.restorePurchasesInfo)
+        }
+
         interactor.didReceiveDeviceState = { [weak self] deviceState in
             self?.updateView(from: deviceState)
         }
@@ -126,16 +135,12 @@ class AccountViewController: UIViewController {
             for: .touchUpInside
         )
 
-        contentView.restorePurchasesButton.addTarget(
-            self,
-            action: #selector(restorePurchases),
-            for: .touchUpInside
-        )
         contentView.purchaseButton.addTarget(
             self,
             action: #selector(doPurchase),
             for: .touchUpInside
         )
+
         contentView.logoutButton.addTarget(self, action: #selector(logOut), for: .touchUpInside)
 
         contentView.deleteButton.addTarget(self, action: #selector(deleteAccount), for: .touchUpInside)
@@ -193,7 +198,7 @@ class AccountViewController: UIViewController {
         purchaseButton.isEnabled = productState.isReceived && isInteractionEnabled
         contentView.accountDeviceRow.setButtons(enabled: isInteractionEnabled)
         contentView.accountTokenRowView.setButtons(enabled: isInteractionEnabled)
-        contentView.restorePurchasesButton.isEnabled = isInteractionEnabled
+        contentView.restorePurchasesView.setButtons(enabled: isInteractionEnabled)
         contentView.logoutButton.isEnabled = isInteractionEnabled
         contentView.redeemVoucherButton.isEnabled = isInteractionEnabled
         contentView.deleteButton.isEnabled = isInteractionEnabled
