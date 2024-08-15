@@ -2910,6 +2910,11 @@ impl Daemon {
                     .as_ref()
                     .filter(|obfuscation| obfuscation.obfuscation_type == ObfuscationType::Udp2Tcp)
                     .is_some();
+                let shadowsocks = endpoint
+                    .obfuscation
+                    .as_ref()
+                    .filter(|obfuscation| obfuscation.obfuscation_type == ObfuscationType::Shadowsocks)
+                    .is_some();
 
                 let mtu = settings.tunnel_options.wireguard.mtu.is_some();
 
@@ -2920,6 +2925,7 @@ impl Daemon {
                     (quantum_resistant, FeatureIndicator::QuantumResistance),
                     (multihop, FeatureIndicator::Multihop),
                     (udp_tcp, FeatureIndicator::Udp2Tcp),
+                    (shadowsocks, FeatureIndicator::Shadowsocks),
                     (mtu, FeatureIndicator::CustomMtu),
                     #[cfg(daita)]
                     (daita, FeatureIndicator::Daita),

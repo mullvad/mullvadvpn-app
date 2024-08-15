@@ -1137,9 +1137,9 @@ function convertFromTunnelType(tunnelType: grpcTypes.TunnelType): TunnelType {
 }
 
 function convertFromProxyEndpoint(proxyEndpoint: grpcTypes.ProxyEndpoint.AsObject): IProxyEndpoint {
-  const proxyTypeMap: Record<grpcTypes.ProxyType, ProxyType> = {
-    [grpcTypes.ProxyType.CUSTOM]: 'custom',
-    [grpcTypes.ProxyType.SHADOWSOCKS]: 'shadowsocks',
+  const proxyTypeMap: Record<grpcTypes.ProxyEndpoint.ProxyType, ProxyType> = {
+    [grpcTypes.ProxyEndpoint.ProxyType.CUSTOM]: 'custom',
+    [grpcTypes.ProxyEndpoint.ProxyType.SHADOWSOCKS]: 'shadowsocks',
   };
 
   return {
