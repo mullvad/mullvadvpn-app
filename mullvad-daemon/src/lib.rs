@@ -2913,7 +2913,9 @@ impl Daemon {
                 let shadowsocks = endpoint
                     .obfuscation
                     .as_ref()
-                    .filter(|obfuscation| obfuscation.obfuscation_type == ObfuscationType::Shadowsocks)
+                    .filter(|obfuscation| {
+                        obfuscation.obfuscation_type == ObfuscationType::Shadowsocks
+                    })
                     .is_some();
 
                 let mtu = settings.tunnel_options.wireguard.mtu.is_some();

@@ -17,8 +17,12 @@ impl From<talpid_types::net::TunnelEndpoint> for proto::TunnelEndpoint {
                 address: proxy_ep.endpoint.address.to_string(),
                 protocol: i32::from(proto::TransportProtocol::from(proxy_ep.endpoint.protocol)),
                 proxy_type: match proxy_ep.proxy_type {
-                    net::proxy::ProxyType::Shadowsocks => i32::from(proto::proxy_endpoint::ProxyType::Shadowsocks),
-                    net::proxy::ProxyType::Custom => i32::from(proto::proxy_endpoint::ProxyType::Custom),
+                    net::proxy::ProxyType::Shadowsocks => {
+                        i32::from(proto::proxy_endpoint::ProxyType::Shadowsocks)
+                    }
+                    net::proxy::ProxyType::Custom => {
+                        i32::from(proto::proxy_endpoint::ProxyType::Custom)
+                    }
                 },
             }),
             obfuscation: endpoint.obfuscation.map(|obfuscation_endpoint| {
@@ -77,11 +81,15 @@ impl TryFrom<proto::TunnelEndpoint> for talpid_types::net::TunnelEndpoint {
                             )?,
                             protocol: try_transport_protocol_from_i32(proxy_ep.protocol)?,
                         },
-                        proxy_type: match proto::proxy_endpoint::ProxyType::try_from(proxy_ep.proxy_type) {
+                        proxy_type: match proto::proxy_endpoint::ProxyType::try_from(
+                            proxy_ep.proxy_type,
+                        ) {
                             Ok(proto::proxy_endpoint::ProxyType::Shadowsocks) => {
                                 talpid_net::proxy::ProxyType::Shadowsocks
                             }
-                            Ok(proto::proxy_endpoint::ProxyType::Custom) => talpid_net::proxy::ProxyType::Custom,
+                            Ok(proto::proxy_endpoint::ProxyType::Custom) => {
+                                talpid_net::proxy::ProxyType::Custom
+                            }
                             Err(_) => {
                                 return Err(FromProtobufTypeError::InvalidArgument(
                                     "unknown proxy type",
