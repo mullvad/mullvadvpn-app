@@ -56,7 +56,6 @@ import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
-import net.mullvad.mullvadvpn.lib.theme.color.AlphaTopBar
 import net.mullvad.mullvadvpn.viewmodel.OutOfTimeViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -185,11 +184,10 @@ fun OutOfTimeScreen(
             },
         iconTintColor =
             if (state.tunnelState.isSecured()) {
-                    MaterialTheme.colorScheme.onPrimary
-                } else {
-                    MaterialTheme.colorScheme.onError
-                }
-                .copy(alpha = AlphaTopBar),
+                MaterialTheme.colorScheme.onPrimary
+            } else {
+                MaterialTheme.colorScheme.onError
+            },
         onSettingsClicked = onSettingsClick,
         onAccountClicked = onAccountClick,
         deviceName = state.deviceName,

@@ -32,13 +32,12 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
-import net.mullvad.mullvadvpn.lib.theme.color.AlphaTopBar
 
 @Composable
 fun ScaffoldWithTopBar(
     topBarColor: Color,
     modifier: Modifier = Modifier,
-    iconTintColor: Color = MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaTopBar),
+    iconTintColor: Color = MaterialTheme.colorScheme.onPrimary,
     onSettingsClicked: (() -> Unit)?,
     onAccountClicked: (() -> Unit)?,
     isIconAndLogoVisible: Boolean = true,
@@ -73,7 +72,7 @@ fun ScaffoldWithTopBar(
 fun ScaffoldWithTopBarAndDeviceName(
     topBarColor: Color,
     modifier: Modifier = Modifier,
-    iconTintColor: Color = MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaTopBar),
+    iconTintColor: Color = MaterialTheme.colorScheme.onPrimary,
     onSettingsClicked: (() -> Unit)?,
     onAccountClicked: (() -> Unit)?,
     isIconAndLogoVisible: Boolean = true,

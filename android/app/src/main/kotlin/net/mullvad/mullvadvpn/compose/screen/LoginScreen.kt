@@ -75,7 +75,6 @@ import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.accountNumberVisualTransformation
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
-import net.mullvad.mullvadvpn.lib.theme.color.AlphaTopBar
 import net.mullvad.mullvadvpn.viewmodel.LoginUiSideEffect
 import net.mullvad.mullvadvpn.viewmodel.LoginViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -171,7 +170,7 @@ private fun LoginScreen(
 ) {
     ScaffoldWithTopBar(
         topBarColor = MaterialTheme.colorScheme.primary,
-        iconTintColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaTopBar),
+        iconTintColor = MaterialTheme.colorScheme.onPrimary,
         onSettingsClicked = onSettingsClick,
         enabled = state.loginState is Idle,
         onAccountClicked = null,

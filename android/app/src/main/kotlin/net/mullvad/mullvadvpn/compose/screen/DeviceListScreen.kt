@@ -63,7 +63,6 @@ import net.mullvad.mullvadvpn.lib.model.GetDeviceListError
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDescription
-import net.mullvad.mullvadvpn.lib.theme.color.AlphaTopBar
 import net.mullvad.mullvadvpn.lib.theme.color.selected
 import net.mullvad.mullvadvpn.lib.theme.typeface.listItemSubText
 import net.mullvad.mullvadvpn.lib.theme.typeface.listItemText
@@ -174,7 +173,7 @@ fun DeviceListScreen(
 
     ScaffoldWithTopBar(
         topBarColor = MaterialTheme.colorScheme.primary,
-        iconTintColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaTopBar),
+        iconTintColor = MaterialTheme.colorScheme.onPrimary,
         onSettingsClicked = onSettingsClicked,
         onAccountClicked = null,
         snackbarHostState = snackbarHostState

@@ -99,8 +99,6 @@ fun SettingsScreen(
             modifier = modifier.testTag(LAZY_LIST_TEST_TAG).animateContentSize(),
             state = lazyListState
         ) {
-            item { Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding)) }
-            item { Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding)) }
             if (state.isLoggedIn) {
                 item { Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding)) }
                 item {

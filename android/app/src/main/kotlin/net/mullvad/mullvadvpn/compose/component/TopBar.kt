@@ -46,7 +46,6 @@ import net.mullvad.mullvadvpn.compose.test.TOP_BAR_ACCOUNT_BUTTON
 import net.mullvad.mullvadvpn.compose.test.TOP_BAR_SETTINGS_BUTTON
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
-import net.mullvad.mullvadvpn.lib.theme.color.AlphaTopBar
 
 @Preview
 @Composable
@@ -202,7 +201,7 @@ fun MullvadSmallTopBar(
             TopAppBarDefaults.topAppBarColors(
                 containerColor = MaterialTheme.colorScheme.background,
                 scrolledContainerColor = MaterialTheme.colorScheme.background,
-                actionIconContentColor = MaterialTheme.colorScheme.onPrimary.copy(AlphaTopBar),
+                actionIconContentColor = MaterialTheme.colorScheme.onPrimary,
             ),
         actions = actions
     )
@@ -261,7 +260,7 @@ fun MullvadMediumTopBar(
             TopAppBarDefaults.mediumTopAppBarColors(
                 containerColor = MaterialTheme.colorScheme.background,
                 scrolledContainerColor = MaterialTheme.colorScheme.background,
-                actionIconContentColor = MaterialTheme.colorScheme.onPrimary.copy(AlphaTopBar),
+                actionIconContentColor = MaterialTheme.colorScheme.onPrimary,
             ),
         actions = actions
     )
@@ -283,7 +282,7 @@ fun MullvadLargeTopBar(
             TopAppBarDefaults.mediumTopAppBarColors(
                 containerColor = MaterialTheme.colorScheme.background,
                 scrolledContainerColor = MaterialTheme.colorScheme.background,
-                actionIconContentColor = MaterialTheme.colorScheme.onPrimary.copy(AlphaTopBar),
+                actionIconContentColor = MaterialTheme.colorScheme.onPrimary,
             ),
         actions = actions
     )
