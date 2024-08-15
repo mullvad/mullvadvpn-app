@@ -254,6 +254,7 @@ function run_tests_for_os {
     package_dir=$(get_package_dir)
     local test_dir
     test_dir=$(get_test_utls_dir)/..
+    read -ra test_filters_arg <<<"${TEST_FILTERS:-}" # Split the string by words into an array
     pushd "$test_dir"
         if ! RUST_LOG_STYLE=always cargo run --bin test-manager \
             run-tests \
@@ -263,7 +264,7 @@ function run_tests_for_os {
             "${test_report_arg[@]}" \
             --package-dir "${package_dir}" \
             --vm "$vm" \
-            "${TEST_FILTERS:-}" \
+            "${test_filters_arg[@]}" \
             2>&1 | sed -r "s/${ACCOUNT_TOKEN}/\{ACCOUNT_TOKEN\}/g"; then
             echo "Test run failed"
             exit 1
