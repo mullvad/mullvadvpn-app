@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -55,11 +56,12 @@ class DnsDialogViewModel(
 ) : ViewModel() {
     private val navArgs = DnsDestination.argsFrom(savedStateHandle)
 
+    private val settings = MutableStateFlow<Settings?>(null)
     private val currentIndex = MutableStateFlow(navArgs.index)
     private val _ipAddressInput = MutableStateFlow(navArgs.initialValue ?: EMPTY_STRING)
 
     val uiState: StateFlow<DnsDialogViewState> =
-        combine(_ipAddressInput, currentIndex, repository.settingsUpdates.filterNotNull()) {
+        combine(_ipAddressInput, currentIndex, settings.filterNotNull()) {
                 input,
                 currentIndex,
                 settings ->
@@ -73,6 +75,10 @@ class DnsDialogViewModel(
 
     private val _uiSideEffect = Channel<DnsDialogSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
+
+    init {
+        viewModelScope.launch { settings.emit(repository.settingsUpdates.filterNotNull().first()) }
+    }
 
     private fun createViewState(
         customDnsList: List<InetAddress>,
@@ -116,7 +122,7 @@ class DnsDialogViewModel(
                 if (index != null) {
                     repository.setCustomDns(index = index, address = address)
                 } else {
-                    repository.addCustomDns(address = address).onRight { currentIndex.value = it }
+                    repository.addCustomDns(address = address)
                 }
 
             result.fold(
