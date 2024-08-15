@@ -35,7 +35,6 @@ class ConnectionTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
     }
 
     @Test
-    @Disabled("Disabled since the connection check isn't reliable in the stagemole infrastructure.")
     fun testConnectAndVerifyWithConnectionCheck() {
         // Given
         app.launchAndEnsureLoggedIn(accountTestRule.validAccountNumber)
