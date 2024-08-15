@@ -15,10 +15,18 @@ public protocol BackgroundTaskProvider {
     var backgroundTimeRemaining: TimeInterval { get }
     func endBackgroundTask(_ identifier: UIBackgroundTaskIdentifier)
 
+    #if compiler(>=6)
+    nonisolated
+    func beginBackgroundTask(
+        withName taskName: String?,
+        expirationHandler handler: (@MainActor @Sendable () -> Void)?
+    ) -> UIBackgroundTaskIdentifier
+    #else
     func beginBackgroundTask(
         withName taskName: String?,
         expirationHandler handler: (() -> Void)?
     ) -> UIBackgroundTaskIdentifier
+    #endif
 }
 
 extension UIApplication: BackgroundTaskProvider {}

@@ -16,10 +16,20 @@ struct UIApplicationStub: BackgroundTaskProvider {
 
     func endBackgroundTask(_ identifier: UIBackgroundTaskIdentifier) {}
 
+    #if compiler(>=6)
+    func beginBackgroundTask(
+        withName taskName: String?,
+        expirationHandler handler: (@MainActor @Sendable () -> Void)?
+    )
+        -> UIBackgroundTaskIdentifier {
+        .invalid
+    }
+    #else
     func beginBackgroundTask(
         withName taskName: String?,
         expirationHandler handler: (() -> Void)?
     ) -> UIBackgroundTaskIdentifier {
         .invalid
     }
+    #endif
 }
