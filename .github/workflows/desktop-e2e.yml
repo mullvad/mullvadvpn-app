@@ -20,6 +20,11 @@ on:
         default: ''
         required: false
         type: string
+      tests:
+        description: "Tests to run (defaults to all if empty)"
+        default: ''
+        required: false
+        type: string
 jobs:
   prepare-matrices:
     name: Prepare virtual machines
@@ -151,6 +156,7 @@ jobs:
         shell: bash -ieo pipefail {0}
         run: |
           git fetch --tags --force
+          export TEST_FILTERS="${{ github.event.inputs.tests }}"
           ./test/scripts/ci-runtests.sh ${{ matrix.os }}
       - uses: actions/upload-artifact@v3
         if: '!cancelled()'
@@ -226,6 +232,7 @@ jobs:
         shell: bash -ieo pipefail {0}
         run: |
           git fetch --tags --force
+          export TEST_FILTERS="${{ github.event.inputs.tests }}"
           ./test/scripts/ci-runtests.sh ${{ matrix.os }}
       - uses: actions/upload-artifact@v3
         if: '!cancelled()'
@@ -297,6 +304,7 @@ jobs:
         shell: bash -ieo pipefail {0}
         run: |
           git fetch --tags --force
+          export TEST_FILTERS="${{ github.event.inputs.tests }}"
           ./test/scripts/ci-runtests.sh ${{ matrix.os }}
       - uses: actions/upload-artifact@v3
         if: '!cancelled()'
