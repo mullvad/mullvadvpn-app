@@ -74,7 +74,6 @@
     <string name="allow_lan_footer">Allows access to other devices on the same network for sharing, printing etc.</string>
     <string name="auto_connect">Auto-connect</string>
     <string name="auto_connect_and_lockdown_mode">Auto-connect &amp; Lockdown mode</string>
-    <string name="auto_connect_and_lockdown_mode_two_lines">Auto-connect &amp; \nLockdown mode</string>
     <string name="auto_connect_and_lockdown_mode_footer">Makes sure the device is always on the VPN tunnel.</string>
     <string name="go_to_vpn_settings">Go to VPN settings</string>
     <string name="vpn_settings_not_found">There is no VPN settings on your device</string>
