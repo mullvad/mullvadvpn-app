@@ -5051,6 +5051,7 @@ dependencies = [
 name = "wireguard-go-rs"
 version = "0.0.0"
 dependencies = [
+ "anyhow",
  "log",
  "maybenot-ffi",
  "thiserror",
