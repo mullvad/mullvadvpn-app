@@ -1,13 +1,12 @@
 package net.mullvad.mullvadvpn.compose.component
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.InputChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,33 +32,36 @@ private fun PreviewMullvadFilterChip() {
 }
 
 @Composable
-fun MullvadFilterChip(text: String, onRemoveClick: () -> Unit) {
-    FilterChip(
-        modifier = Modifier.padding(vertical = Dimens.chipVerticalPadding),
+fun MullvadFilterChip(
+    containerColor: Color = MaterialTheme.colorScheme.primary,
+    borderColor: Color = Color.Transparent,
+    labelColor: Color = MaterialTheme.colorScheme.onPrimary,
+    iconColor: Color = MaterialTheme.colorScheme.onPrimary,
+    text: String,
+    onRemoveClick: () -> Unit
+) {
+    InputChip(
         shape = MaterialTheme.shapes.chipShape,
         colors =
-            FilterChipDefaults.filterChipColors(containerColor = MaterialTheme.colorScheme.primary),
+            FilterChipDefaults.filterChipColors(
+                containerColor = containerColor,
+                labelColor = labelColor,
+                iconColor = iconColor
+            ),
         border =
             FilterChipDefaults.filterChipBorder(
-                borderColor = Color.Transparent,
-                disabledBorderColor = Color.Transparent,
+                borderColor = borderColor,
                 enabled = true,
                 selected = false
             ),
         selected = false,
-        onClick = {},
-        label = {
-            Text(
-                text = text,
-                color = MaterialTheme.colorScheme.onPrimary,
-                style = MaterialTheme.typography.labelMedium
-            )
-            Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
+        onClick = onRemoveClick,
+        label = { Text(text = text, style = MaterialTheme.typography.labelMedium) },
+        trailingIcon = {
             Icon(
                 painter = painterResource(id = R.drawable.icon_close),
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onPrimary,
-                modifier = Modifier.size(Dimens.smallIconSize).clickable { onRemoveClick() }
+                modifier = Modifier.size(Dimens.smallIconSize)
             )
         }
     )
