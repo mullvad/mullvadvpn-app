@@ -10,7 +10,7 @@ if [ ! -d "$PACKAGE_DIR" ]; then
   echo "$PACKAGE_DIR does not exist. It is needed to build the test bundle, so please go ahead and create the directory and re-run this script."
 fi
 
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" > /dev/null && pwd )"
 REPO_DIR="$SCRIPT_DIR/../.."
 cd "$SCRIPT_DIR"
 

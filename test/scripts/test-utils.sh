@@ -23,8 +23,13 @@ LATEST_STABLE_RELEASE=$(jq -r '[.[] | select(.prerelease==false)] | .[0].tag_nam
 
 function get_current_version {
     local app_dir
-    app_dir="$(get_test_utls_dir)/../.."
-    cargo run -q --manifest-path="$app_dir/Cargo.toml" --bin mullvad-version
+    test_dir="$(get_test_utls_dir)/.."
+    app_dir="$test_dir/.."
+    if [ -f "$test_dir/dist/mullvad-version" ]; then
+        "$test_dir/dist/mullvad-version"
+    else
+        cargo run -q --manifest-path="$app_dir/Cargo.toml" --bin mullvad-version
+    fi
 }
 
 CURRENT_VERSION=$(get_current_version)
@@ -224,12 +229,16 @@ function run_tests_for_os {
         exit 1
     fi
 
-    echo "**********************************"
-    echo "* Building test runner"
-    echo "**********************************"
-
-    nice_time build_test_runner "$vm"
-
+    if [ -f dist/test-runner ]; then
+        echo "**********************************"
+        echo "* Using test-runner in dist/"
+        echo "**********************************"
+    else
+        echo "**********************************"
+        echo "* Building test runner"
+        echo "**********************************"
+        nice_time build_test_runner "$vm"
+    fi
 
     echo "**********************************"
     echo "* Running tests"
@@ -256,8 +265,15 @@ function run_tests_for_os {
     test_dir=$(get_test_utls_dir)/..
     read -ra test_filters_arg <<<"${TEST_FILTERS:-}" # Split the string by words into an array
     pushd "$test_dir"
-        if ! RUST_LOG_STYLE=always cargo run --bin test-manager \
-            run-tests \
+        if [ -f ./dist/test-manager ]; then
+            test_manager="./dist/test-manager"
+            runner_dir_flag=("--runner-dir" "./dist")
+        else
+            test_manager="cargo run --bin test-manager"
+            runner_dir_flag=()
+        fi
+
+        if ! RUST_LOG_STYLE=always $test_manager run-tests \
             --account "${ACCOUNT_TOKEN:?Error: ACCOUNT_TOKEN not set}" \
             --app-package "${APP_PACKAGE:?Error: APP_PACKAGE not set}" \
             "${upgrade_package_arg[@]}" \
@@ -265,6 +281,7 @@ function run_tests_for_os {
             --package-dir "${package_dir}" \
             --vm "$vm" \
             "${test_filters_arg[@]}" \
+            "${runner_dir_flag[@]}" \
             2>&1 | sed -r "s/${ACCOUNT_TOKEN}/\{ACCOUNT_TOKEN\}/g"; then
             echo "Test run failed"
             exit 1
@@ -279,7 +296,7 @@ function build_current_version {
     app_dir="$(get_test_utls_dir)/../.."
     local app_filename
     # TODO: TEST_OS must be set to local OS manually, should be set automatically
-    app_filename=$(get_app_filename "$CURRENT_VERSION" "${TEST_OS:?Error: TEST_OS not set}") 
+    app_filename=$(get_app_filename "$CURRENT_VERSION" "${TEST_OS:?Error: TEST_OS not set}")
     local package_dir
     package_dir=$(get_package_dir)
     local app_package="$package_dir"/"$app_filename"
