@@ -46,7 +46,7 @@ android {
                 put("clearPackageData", "true")
                 addOptionalPropertyAsArgument("valid_test_account_number")
                 addOptionalPropertyAsArgument("invalid_test_account_number")
-                addOptionalPropertyAsArgument("ignore_highly_rate_limited_tests")
+                addOptionalPropertyAsArgument("enable_highly_rate_limited_tests")
             }
     }
 

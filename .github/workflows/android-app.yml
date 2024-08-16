@@ -506,7 +506,7 @@ jobs:
           INFRA_FLAVOR: prod
           VALID_TEST_ACCOUNT_NUMBER: ${{ secrets.ANDROID_PROD_TEST_ACCOUNT }}
           INVALID_TEST_ACCOUNT_NUMBER: '0000000000000000'
-          IGNORE_HIGHLY_RATE_LIMITED_TESTS: ${{ github.event_name == 'schedule' && 'false' || 'true' }}
+          ENABLE_HIGHLY_RATE_LIMITED_TESTS: ${{ github.event_name == 'schedule' && 'true' || 'false' }}
           REPORT_DIR: ${{ steps.prepare-report-dir.outputs.report_dir }}
         run: ./android/scripts/run-instrumented-tests.sh
 
@@ -521,7 +521,7 @@ jobs:
         clearPackageData=true,\
         runnerBuilder=de.mannodermaus.junit5.AndroidJUnit5Builder,\
         invalid_test_account_number=0000000000000000,\
-        ignore_highly_rate_limited_tests=${{ github.event_name == 'schedule' && 'false' || 'true' }},\
+        enable_highly_rate_limited_tests=${{ github.event_name == 'schedule' && 'true' || 'false' }},\
         partner_auth=${{ secrets.STAGEMOLE_PARTNER_AUTH }}"
     strategy:
       fail-fast: false
