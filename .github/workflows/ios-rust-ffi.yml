@@ -1,5 +1,5 @@
 ---
-name: iOS - compile Rust FFI
+name: iOS - Build and test Rust FFI (mullvad-ios)
 on:
   pull_request:
     paths:
