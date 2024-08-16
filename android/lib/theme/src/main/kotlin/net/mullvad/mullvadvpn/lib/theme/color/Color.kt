@@ -24,8 +24,20 @@ val ColorScheme.selected: Color
 val ColorScheme.onSelected: Color
     @Composable get() = MaterialTheme.colorScheme.onTertiary
 
+// Static defined waring color
 val ColorScheme.warning: Color
     @Composable get() = PaletteTokens.Yellow500
+
+// Disabled colors for buttons
+val ColorScheme.tertiaryDisabled: Color
+    @Composable get() = PaletteTokens.DisabledContainerTiertary
+
+val ColorScheme.primaryDisabled: Color
+    @Composable get() = PaletteTokens.DisabledContainerPrimary
+
+val ColorScheme.errorDisabled: Color
+    @Composable get() = PaletteTokens.DisabledContainerDestructive
+
 
 val menuItemColors: MenuItemColors
     @Composable

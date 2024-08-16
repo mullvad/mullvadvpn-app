@@ -80,4 +80,9 @@ internal object PaletteTokens {
 
     // Black
     val Black = Color(0xFF000000)
+
+    //Disabled container colors
+    val DisabledContainerPrimary = Color(0xFF1F3A57)
+    val DisabledContainerTiertary = Color(0xFF2A6148)
+    val DisabledContainerDestructive = Color(0xFF6A3540)
 }

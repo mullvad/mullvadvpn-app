@@ -14,7 +14,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -22,8 +21,10 @@ import androidx.compose.ui.unit.dp
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.Alpha20
-import net.mullvad.mullvadvpn.lib.theme.color.AlphaInactive
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInvisible
+import net.mullvad.mullvadvpn.lib.theme.color.errorDisabled
+import net.mullvad.mullvadvpn.lib.theme.color.primaryDisabled
+import net.mullvad.mullvadvpn.lib.theme.color.tertiaryDisabled
 
 @Preview
 @Composable
@@ -71,7 +72,7 @@ fun NegativeButton(
             containerColor = MaterialTheme.colorScheme.error,
             contentColor = MaterialTheme.colorScheme.onError,
             disabledContentColor = MaterialTheme.colorScheme.onError.copy(alpha = Alpha20),
-            disabledContainerColor = MaterialTheme.colorScheme.error.copy(alpha = AlphaInactive)
+            disabledContainerColor = MaterialTheme.colorScheme.errorDisabled
         ),
     isEnabled: Boolean = true,
     icon: @Composable (() -> Unit)? = null
@@ -97,7 +98,7 @@ fun VariantButton(
             containerColor = background,
             contentColor = MaterialTheme.colorScheme.onTertiary,
             disabledContentColor = MaterialTheme.colorScheme.onTertiary.copy(alpha = Alpha20),
-            disabledContainerColor = background.copy(alpha = AlphaInactive),
+            disabledContainerColor = MaterialTheme.colorScheme.tertiaryDisabled,
         ),
     isEnabled: Boolean = true,
     icon: @Composable (() -> Unit)? = null
@@ -121,14 +122,8 @@ fun PrimaryButton(
         ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.primary,
             contentColor = MaterialTheme.colorScheme.onPrimary,
-            disabledContentColor =
-                MaterialTheme.colorScheme.onPrimary
-                    .copy(alpha = Alpha20)
-                    .compositeOver(MaterialTheme.colorScheme.background),
-            disabledContainerColor =
-                MaterialTheme.colorScheme.primary
-                    .copy(alpha = AlphaInactive)
-                    .compositeOver(MaterialTheme.colorScheme.background),
+            disabledContentColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = Alpha20),
+            disabledContainerColor = MaterialTheme.colorScheme.primaryDisabled,
         ),
     isEnabled: Boolean = true,
     leadingIcon: @Composable (() -> Unit)? = null,
