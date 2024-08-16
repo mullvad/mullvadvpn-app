@@ -13,6 +13,8 @@ usage() {
     echo "  - APP_PACKAGE_TO_UPGRADE_FROM: The package version to upgrade from (defaults to none)"
     echo "  - TEST_FILTERS: specifies which tests to run (defaults to all)"
     echo "  - TEST_REPORT : path to save the test results in a structured format"
+    echo "Optional environment variables:"
+    echo "  - TEST_DIST_DIR: Relative path to a directory with prebuilt binaries as produced by scripts/build.sh."
 }
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
