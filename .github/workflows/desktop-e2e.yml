@@ -16,7 +16,7 @@ on:
         description: "Space-delimited list of targets to run tests on, e.g. `debian11 debian12`. \
           Available images are:\n
           `debian11 debian12 ubuntu2004 ubuntu2204 ubuntu2404 fedora40 \
-          fedora39 windows10 windows11 macos12 macos13 macos14`."
+          fedora39 windows10 windows11 macos12 macos13 macos14 macos15`."
         default: ''
         required: false
         type: string
@@ -62,7 +62,7 @@ jobs:
       - name: Generate matrix for macOS builds
         shell: bash
         run: |
-          all='["macos12","macos13","macos14"]'
+          all='["macos12","macos13","macos14","macos15"]'
           oses="${{ github.event.inputs.oses }}"
           if [[ -z "$oses" || "$oses" == "null" ]]; then
             selected="$all"
