@@ -10,7 +10,7 @@ import Foundation
 import MullvadREST
 import MullvadTypes
 
-extension REST.Error: DisplayError {
+extension REST.Error: MullvadTypes.DisplayError {
     public var displayErrorDescription: String? {
         switch self {
         case let .network(urlError):

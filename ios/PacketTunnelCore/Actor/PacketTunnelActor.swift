@@ -87,7 +87,7 @@ public actor PacketTunnelActor {
             for await event in channel {
                 guard let self else { return }
 
-                self.logger.debug("Received event: \(event.logFormat())")
+                await self.logger.debug("Received event: \(event.logFormat())")
 
                 let effects = await self.runReducer(event)
 

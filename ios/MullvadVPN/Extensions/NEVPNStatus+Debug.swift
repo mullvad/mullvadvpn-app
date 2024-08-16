@@ -8,7 +8,7 @@
 
 import NetworkExtension
 
-extension NEVPNStatus: CustomStringConvertible {
+extension NEVPNStatus: Swift.CustomStringConvertible {
     public var description: String {
         switch self {
         case .connected:

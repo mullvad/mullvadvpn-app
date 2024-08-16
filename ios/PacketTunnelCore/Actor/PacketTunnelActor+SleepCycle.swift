@@ -15,7 +15,9 @@ extension PacketTunnelActor {
      `NEPacketTunnelProvider` provides the corresponding lifecycle method.
      */
     public nonisolated func onWake() {
-        tunnelMonitor.onWake()
+        Task {
+            await tunnelMonitor.onWake()
+        }
     }
 
     /**
@@ -24,6 +26,8 @@ extension PacketTunnelActor {
      `NEPacketTunnelProvider` provides the corresponding lifecycle method.
      */
     public nonisolated func onSleep() {
-        tunnelMonitor.onSleep()
+        Task {
+            await tunnelMonitor.onSleep()
+        }
     }
 }
