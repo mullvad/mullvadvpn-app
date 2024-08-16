@@ -84,7 +84,7 @@ internal object ColorDarkTokens {
     val PrimaryContainer = Color(0xFF1C344E) // Sub-container
     val PrimaryFixed = PaletteTokens.Blue100 // Approximated
     val PrimaryFixedDim = PaletteTokens.Blue100 // Approximated
-    val Scrim = PaletteTokens.White
+    val Scrim = PaletteTokens.Black
     val Secondary = PaletteTokens.AlertBlue500
     val SecondaryContainer = PaletteTokens.AlertBlue500
     val SecondaryFixed = PaletteTokens.Green100 // Approximated
