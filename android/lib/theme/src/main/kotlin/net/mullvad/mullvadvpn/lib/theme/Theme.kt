@@ -48,6 +48,12 @@ import net.mullvad.mullvadvpn.lib.theme.typeface.TypeScale
 private val MullvadTypography =
     Typography(
         headlineLarge = TextStyle(fontSize = TypeScale.TextHuge, fontWeight = FontWeight.Bold),
+        headlineMedium =
+            TextStyle(
+                fontWeight = FontWeight.Bold,
+                fontSize = TypeScale.TextHeadline,
+                lineHeight = TypeScale.HeadlineMediumLineHeight,
+            ),
         headlineSmall = TextStyle(fontSize = TypeScale.TextBig, fontWeight = FontWeight.Bold),
         bodySmall = TextStyle(fontSize = TypeScale.TextSmall),
         titleSmall = TextStyle(fontSize = TypeScale.TextMedium, fontWeight = FontWeight.SemiBold),
