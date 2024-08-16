@@ -8,9 +8,6 @@ pub struct TestMetadata {
     pub mullvad_client_version: MullvadClientVersion,
     pub func: TestWrapperFunction,
     pub priority: Option<i32>,
-    pub always_run: bool,
-    pub must_succeed: bool,
-    pub cleanup: bool,
 }
 
 impl TestMetadata {

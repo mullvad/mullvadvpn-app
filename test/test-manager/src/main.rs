@@ -13,6 +13,7 @@ use std::{net::SocketAddr, path::PathBuf};
 
 use anyhow::{Context, Result};
 use clap::Parser;
+use tests::{config::TEST_CONFIG, get_filtered_tests};
 use vm::provision;
 
 use crate::tests::config::OpenVPNCertificate;
@@ -92,8 +93,9 @@ enum Commands {
         #[arg(long)]
         app_package: String,
 
-        /// App package to upgrade from when running `test_install_previous_app`, can be left empty
-        /// if this test is not ran. Parsed the same way as `--app-package`.
+        /// Given this argument, the `test_upgrade_app` test will run, which installs the previous
+        /// version then upgrades to the version specified in by `--app-package`. If left empty,
+        /// the test will be skipped. Parsed the same way as `--app-package`.
         ///
         /// # Note
         ///
@@ -117,7 +119,8 @@ enum Commands {
         #[arg(long)]
         openvpn_certificate: Option<PathBuf>,
 
-        /// Only run tests matching substrings
+        /// Names of tests to run. The order given will be respected. If not set, all tests will be
+        /// run.
         test_filters: Vec<String>,
 
         /// Print results live
@@ -293,6 +296,28 @@ async fn main() -> Result<()> {
                 .await
                 .context("Failed to run provisioning for VM")?;
 
+            TEST_CONFIG.init(tests::config::TestConfig::new(
+                account,
+                artifacts_dir,
+                manifest
+                    .app_package_path
+                    .file_name()
+                    .unwrap()
+                    .to_string_lossy()
+                    .into_owned(),
+                manifest
+                    .app_package_to_upgrade_from_path
+                    .map(|path| path.file_name().unwrap().to_string_lossy().into_owned()),
+                manifest
+                    .gui_package_path
+                    .map(|path| path.file_name().unwrap().to_string_lossy().into_owned()),
+                mullvad_host,
+                vm::network::bridge()?,
+                test_rpc::meta::Os::from(vm_config.os_type),
+                openvpn_certificate,
+            ));
+            let tests = get_filtered_tests(&test_filters)?;
+
             // For convenience, spawn a SOCKS5 server that is reachable for tests that need it
             let socks = socks_server::spawn(SocketAddr::new(
                 crate::vm::network::NON_TUN_GATEWAY.into(),
@@ -302,41 +327,16 @@ async fn main() -> Result<()> {
 
             let skip_wait = vm_config.provisioner != config::Provisioner::Noop;
 
-            let result = run_tests::run(
-                tests::config::TestConfig::new(
-                    account,
-                    artifacts_dir,
-                    manifest
-                        .app_package_path
-                        .file_name()
-                        .unwrap()
-                        .to_string_lossy()
-                        .into_owned(),
-                    manifest
-                        .app_package_to_upgrade_from_path
-                        .map(|path| path.file_name().unwrap().to_string_lossy().into_owned()),
-                    manifest
-                        .gui_package_path
-                        .map(|path| path.file_name().unwrap().to_string_lossy().into_owned()),
-                    mullvad_host,
-                    vm::network::bridge()?,
-                    test_rpc::meta::Os::from(vm_config.os_type),
-                    openvpn_certificate,
-                ),
-                &*instance,
-                &test_filters,
-                skip_wait,
-                !verbose,
-                summary_logger,
-            )
-            .await
-            .context("Tests failed");
+            let result = run_tests::run(&*instance, tests, skip_wait, !verbose, summary_logger)
+                .await
+                .context("Tests failed");
 
             if display {
                 instance.wait().await;
             }
             socks.close();
-            result
+            // Propagate any error from the test run if applicable
+            result?.anyhow()
         }
         Commands::FormatTestReports { reports } => {
             summary::print_summary_table(&reports).await;
