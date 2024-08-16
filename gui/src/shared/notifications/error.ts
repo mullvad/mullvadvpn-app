@@ -3,8 +3,8 @@ import { sprintf } from 'sprintf-js';
 import { strings } from '../../config.json';
 import {
   AuthFailedError,
-  ErrorStateDetails,
   ErrorStateCause,
+  ErrorStateDetails,
   TunnelParameterError,
   TunnelState,
 } from '../daemon-rpc-types';
