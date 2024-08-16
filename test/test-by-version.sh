@@ -11,6 +11,7 @@ usage() {
     echo "Optional environment variables:"
     echo "  - APP_VERSION: The version of the app to test (defaults to the latest stable release)"
     echo "  - APP_PACKAGE_TO_UPGRADE_FROM: The package version to upgrade from (defaults to none)"
+    echo "  - TEST_DIST_DIR: Relative path to a directory with prebuilt binaries as produced by scripts/build.sh."
     echo "  - TEST_FILTERS: specifies which tests to run (defaults to all)"
     echo "  - TEST_REPORT : path to save the test results in a structured format"
 }
