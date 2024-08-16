@@ -8,7 +8,6 @@ import { ITransitionSpecification, transitions, useHistory } from '../lib/histor
 import { RoutePath } from '../lib/routes';
 import Account from './Account';
 import ApiAccessMethods from './ApiAccessMethods';
-import Connect from './Connect';
 import Debug from './Debug';
 import { DeviceRevokedView } from './DeviceRevokedView';
 import { EditApiAccessMethod } from './EditApiAccessMethod';
@@ -23,6 +22,7 @@ import ExpiredAccountErrorView from './ExpiredAccountErrorView';
 import Filter from './Filter';
 import Focus, { IFocusHandle } from './Focus';
 import Launch from './Launch';
+import MainView from './main-view/MainView';
 import OpenVpnSettings from './OpenVpnSettings';
 import ProblemReport from './ProblemReport';
 import SelectLanguage from './SelectLanguage';
@@ -71,7 +71,7 @@ export default function AppRouter() {
             <Route exact path={RoutePath.login} component={LoginPage} />
             <Route exact path={RoutePath.tooManyDevices} component={TooManyDevices} />
             <Route exact path={RoutePath.deviceRevoked} component={DeviceRevokedView} />
-            <Route exact path={RoutePath.main} component={Connect} />
+            <Route exact path={RoutePath.main} component={MainView} />
             <Route exact path={RoutePath.expired} component={ExpiredAccountErrorView} />
             <Route exact path={RoutePath.redeemVoucher} component={VoucherInput} />
             <Route exact path={RoutePath.voucherSuccess} component={VoucherVerificationSuccess} />
