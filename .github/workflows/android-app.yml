@@ -469,7 +469,8 @@ jobs:
 
   instrumented-e2e-tests:
     name: Run instrumented e2e tests
-    runs-on: [self-hosted, android-device, android-emulator] # Temporary until we can add secrets
+    # Temporary workaround for targeting the runner android-runner-v1
+    runs-on: [self-hosted, android-device, android-emulator]
     if: github.event_name == 'schedule' || github.event.inputs.run_e2e_tests == 'true'
     timeout-minutes: 30
     needs: [build-app, build-instrumented-tests]
