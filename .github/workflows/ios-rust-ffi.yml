@@ -1,0 +1,57 @@
+---
+name: iOS - compile Rust FFI
+on:
+  pull_request:
+    paths:
+      - .github/workflows/clippy.yml
+      - clippy.toml
+      - '**/*.rs'
+  workflow_dispatch:
+jobs:
+  build-ios:
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        target: [aarch64-apple-ios, aarch64-apple-ios-sim]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1.0.6
+        with:
+          toolchain: stable
+          target: ${{ matrix.target }}
+
+      - name: Build and test crates
+        shell: bash
+        env:
+          RUSTFLAGS: --deny warnings
+        run: |
+          source env.sh
+          time cargo build --locked --verbose --lib -p mullvad-ios
+          time cargo test --locked --verbose --lib -p mullvad-ios
+
+  clippy-check-ios:
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        target: [aarch64-apple-ios, aarch64-apple-ios-sim]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1.0.6
+        with:
+          toolchain: stable
+          target: ${{ matrix.target }}
+
+      - name: Clippy check
+        shell: bash
+        env:
+          RUSTFLAGS: --deny warnings
+        run: |
+          source env.sh
+          time cargo clippy --locked --all-targets --no-default-features -p mullvad-ios
+          time cargo clippy --locked --all-targets --all-features -p mullvad-ios

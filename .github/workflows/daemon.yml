@@ -175,23 +175,3 @@ jobs:
           # doesn't run out of space on the D drive.
           CARGO_TARGET_DIR: "C:/cargo-target"
         run: ./ci/check-rust.sh
-
-  build-ios-ffi:
-    runs-on: macos-latest
-    strategy:
-      matrix:
-        target: [aarch64-apple-ios, aarch64-apple-ios-sim]
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Install Rust
-        uses: actions-rs/toolchain@v1.0.6
-        with:
-          toolchain: stable
-          target: ${{ matrix.target }}
-
-      - name: Build and test crates
-        run: |
-          source env.sh
-          cargo build --locked --verbose --lib -p mullvad-ios
