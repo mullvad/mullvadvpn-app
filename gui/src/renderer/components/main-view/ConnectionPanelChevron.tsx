@@ -25,7 +25,10 @@ interface IProps {
 
 export default function ConnectionPanelChevron(props: IProps) {
   return (
-    <Container className={props.className} onClick={props.onToggle}>
+    <Container
+      data-testid="connection-panel-chevron"
+      className={props.className}
+      onClick={props.onToggle}>
       <Chevron
         source={props.pointsUp ? 'icon-chevron-up' : 'icon-chevron-down'}
         width={24}
