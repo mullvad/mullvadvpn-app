@@ -8,6 +8,7 @@ import { MultiButtonCompatibleProps } from './MultiButton';
 export enum SmallButtonColor {
   blue,
   red,
+  green,
 }
 
 function getButtonColors(color?: SmallButtonColor, disabled?: boolean) {
@@ -16,6 +17,11 @@ function getButtonColors(color?: SmallButtonColor, disabled?: boolean) {
       return {
         background: disabled ? colors.red60 : colors.red,
         backgroundHover: disabled ? colors.red60 : colors.red80,
+      };
+    case SmallButtonColor.green:
+      return {
+        background: disabled ? colors.green40 : colors.green,
+        backgroundHover: disabled ? colors.green40 : colors.green90,
       };
     default:
       return {
