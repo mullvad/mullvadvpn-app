@@ -1,6 +1,6 @@
 use std::{io, net::SocketAddr};
 use tokio::task::JoinHandle;
-use tunnel_obfuscation::{create_obfuscator, Settings as ObfuscationSettings, udp2tcp::Settings};
+use tunnel_obfuscation::{create_obfuscator, udp2tcp::Settings, Settings as ObfuscationSettings};
 
 mod ffi;
 
