@@ -7,6 +7,7 @@ interface IProps {
   children?: React.ReactNode;
   onWillExpand?: (contentHeight: number) => void;
   onTransitionEnd?: () => void;
+  className?: string;
 }
 
 interface IState {
@@ -55,6 +56,7 @@ export default class Accordion extends React.Component<IProps, IState> {
     return (
       <Container
         ref={this.containerRef}
+        className={this.props.className}
         $height={this.state.containerHeight}
         $animationDuration={this.props.animationDuration}
         onTransitionEnd={this.onTransitionEnd}>
