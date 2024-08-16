@@ -7,7 +7,6 @@ plugins {
     alias(libs.plugins.android.library) apply false
     alias(libs.plugins.android.test) apply false
     alias(libs.plugins.dependency.check) apply false
-    alias(libs.plugins.dependency.versions) apply false
     alias(libs.plugins.ktfmt) apply false
     alias(libs.plugins.compose) apply false
     alias(libs.plugins.play.publisher) apply false
@@ -17,6 +16,7 @@ plugins {
     alias(libs.plugins.protobuf.core) apply false
 
     alias(libs.plugins.detekt) apply true
+    alias(libs.plugins.dependency.versions) apply true
 }
 
 buildscript {
