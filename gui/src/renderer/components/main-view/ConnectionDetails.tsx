@@ -2,6 +2,7 @@ import styled from 'styled-components';
 
 import { colors } from '../../../config.json';
 import {
+  EndpointObfuscationType,
   ITunnelEndpoint,
   parseSocketAddress,
   ProxyType,
@@ -23,8 +24,12 @@ interface InAddress extends Endpoint {
   tunnelType: TunnelType;
 }
 
-export interface BridgeData extends Endpoint {
+interface BridgeData extends Endpoint {
   bridgeType: ProxyType;
+}
+
+interface ObfuscationData extends Endpoint {
+  obfuscationType: EndpointObfuscationType;
 }
 
 const StyledConnectionDetailsHeading = styled.h2(tinyText, {
@@ -61,29 +66,29 @@ const StyledConnectionDetailsTitle = styled(StyledConnectionDetailsLabel)({
 
 export default function ConnectionDetails() {
   const connection = useSelector((state) => state.connection);
+  const tunnelState = connection.status;
+  const entry = useEntryPoint();
 
   if (
-    (connection.status.state !== 'connecting' && connection.status.state !== 'connected') ||
-    connection.status.details?.endpoint === undefined
+    (tunnelState.state !== 'connected' && tunnelState.state !== 'connecting') ||
+    entry === undefined
   ) {
     return null;
   }
-
-  const entry = tunnelEndpointToRelayInAddress(connection.status.details.endpoint);
 
   return (
     <StyledConnectionDetailsContainer>
       <StyledConnectionDetailsHeading>
         {messages.pgettext('connect-view', 'Connection details')}
       </StyledConnectionDetailsHeading>
-      <StyledConnectionDetailsLabel>
-        {tunnelTypeToString(entry.tunnelType)}
+      <StyledConnectionDetailsLabel data-testid="tunnel-protocol">
+        {tunnelState.details && tunnelTypeToString(tunnelState.details?.endpoint.tunnelType)}
       </StyledConnectionDetailsLabel>
       <StyledIpTable>
         <StyledConnectionDetailsTitle>
           {messages.pgettext('connection-info', 'In')}
         </StyledConnectionDetailsTitle>
-        <StyledConnectionDetailsLabel>
+        <StyledConnectionDetailsLabel data-testid="in-ip">
           {`${entry.ip}:${entry.port} ${entry.protocol.toUpperCase()}`}
         </StyledConnectionDetailsLabel>
         <StyledConnectionDetailsTitle>
@@ -102,6 +107,33 @@ export default function ConnectionDetails() {
   );
 }
 
+function useEntryPoint(): Endpoint | undefined {
+  const tunnelState = useSelector((state) => state.connection.status);
+
+  if (
+    (tunnelState.state !== 'connected' && tunnelState.state !== 'connecting') ||
+    tunnelState.details === undefined
+  ) {
+    return undefined;
+  }
+
+  const endpoint = tunnelState.details.endpoint;
+  const inAddress = tunnelEndpointToRelayInAddress(endpoint);
+  const entryLocationInAddress = tunnelEndpointToEntryLocationInAddress(endpoint);
+  const bridgeInfo = tunnelEndpointToBridgeData(endpoint);
+  const obfuscationEndpoint = tunnelEndpointToObfuscationEndpoint(endpoint);
+
+  if (obfuscationEndpoint) {
+    return obfuscationEndpoint;
+  } else if (entryLocationInAddress && inAddress) {
+    return entryLocationInAddress;
+  } else if (bridgeInfo && inAddress) {
+    return bridgeInfo;
+  } else {
+    return inAddress;
+  }
+}
+
 function tunnelEndpointToRelayInAddress(tunnelEndpoint: ITunnelEndpoint): InAddress {
   const socketAddr = parseSocketAddress(tunnelEndpoint.address);
   return {
@@ -109,5 +141,50 @@ function tunnelEndpointToRelayInAddress(tunnelEndpoint: ITunnelEndpoint): InAddr
     port: socketAddr.port,
     protocol: tunnelEndpoint.protocol,
     tunnelType: tunnelEndpoint.tunnelType,
+  };
+}
+
+function tunnelEndpointToEntryLocationInAddress(
+  tunnelEndpoint: ITunnelEndpoint,
+): InAddress | undefined {
+  if (!tunnelEndpoint.entryEndpoint) {
+    return undefined;
+  }
+
+  const socketAddr = parseSocketAddress(tunnelEndpoint.entryEndpoint.address);
+  return {
+    ip: socketAddr.host,
+    port: socketAddr.port,
+    protocol: tunnelEndpoint.entryEndpoint.transportProtocol,
+    tunnelType: tunnelEndpoint.tunnelType,
+  };
+}
+
+function tunnelEndpointToBridgeData(endpoint: ITunnelEndpoint): BridgeData | undefined {
+  if (!endpoint.proxy) {
+    return undefined;
+  }
+
+  const socketAddr = parseSocketAddress(endpoint.proxy.address);
+  return {
+    ip: socketAddr.host,
+    port: socketAddr.port,
+    protocol: endpoint.proxy.protocol,
+    bridgeType: endpoint.proxy.proxyType,
+  };
+}
+
+function tunnelEndpointToObfuscationEndpoint(
+  endpoint: ITunnelEndpoint,
+): ObfuscationData | undefined {
+  if (!endpoint.obfuscationEndpoint) {
+    return undefined;
+  }
+
+  return {
+    ip: endpoint.obfuscationEndpoint.address,
+    port: endpoint.obfuscationEndpoint.port,
+    protocol: endpoint.obfuscationEndpoint.protocol,
+    obfuscationType: endpoint.obfuscationEndpoint.obfuscationType,
   };
 }

@@ -27,7 +27,7 @@ export default function Hostname() {
 
   return (
     <StyledAccordion expanded={tunnelState === 'connecting' || tunnelState === 'connected'}>
-      <StyledHostname>
+      <StyledHostname data-testid="hostname-line">
         <Marquee>{text}</Marquee>
       </StyledHostname>
     </StyledAccordion>

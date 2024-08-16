@@ -19,7 +19,11 @@ export default function ConnectionStatus() {
   const color = getConnectionSTatusLabelColor(tunnelState, lockdownMode);
   const text = getConnectionStatusLabelText(tunnelState);
 
-  return <StyledConnectionStatus $color={color}>{text}</StyledConnectionStatus>;
+  return (
+    <StyledConnectionStatus role="status" $color={color}>
+      {text}
+    </StyledConnectionStatus>
+  );
 }
 
 function getConnectionSTatusLabelColor(tunnelState: TunnelState, lockdownMode: boolean) {

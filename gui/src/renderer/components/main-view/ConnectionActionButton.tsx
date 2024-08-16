@@ -14,14 +14,14 @@ const StyledConnectionButton = styled(SmallButton)({
 export default function ConnectionActionButton() {
   const tunnelState = useSelector((state) => state.connection.status.state);
 
-  if (tunnelState === 'disconnected') {
-    return <ConnectButton />;
+  if (tunnelState === 'disconnected' || tunnelState === 'disconnecting') {
+    return <ConnectButton disabled={tunnelState === 'disconnecting'} />;
   } else {
-    return <DisconnectButton disabled={tunnelState === 'disconnecting'} />;
+    return <DisconnectButton />;
   }
 }
 
-function ConnectButton() {
+function ConnectButton(props: Partial<Parameters<typeof SmallButton>[0]>) {
   const { connectTunnel } = useAppContext();
 
   const onConnect = useCallback(async () => {
@@ -34,13 +34,13 @@ function ConnectButton() {
   }, []);
 
   return (
-    <StyledConnectionButton color={SmallButtonColor.green} onClick={onConnect}>
+    <StyledConnectionButton color={SmallButtonColor.green} onClick={onConnect} {...props}>
       {messages.pgettext('tunnel-control', 'Connect')}
     </StyledConnectionButton>
   );
 }
 
-function DisconnectButton(props: Partial<Parameters<typeof SmallButton>[0]>) {
+function DisconnectButton() {
   const { disconnectTunnel } = useAppContext();
   const tunnelState = useSelector((state) => state.connection.status.state);
 
@@ -56,7 +56,7 @@ function DisconnectButton(props: Partial<Parameters<typeof SmallButton>[0]>) {
   const displayAsCancel = tunnelState !== 'connected';
 
   return (
-    <StyledConnectionButton color={SmallButtonColor.red} onClick={onDisconnect} {...props}>
+    <StyledConnectionButton color={SmallButtonColor.red} onClick={onDisconnect}>
       {displayAsCancel ? messages.gettext('Cancel') : messages.gettext('Disconnect')}
     </StyledConnectionButton>
   );
