@@ -21,6 +21,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.Surface
@@ -38,6 +39,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -276,7 +278,14 @@ fun MullvadLargeTopBar(
     scrollBehavior: TopAppBarScrollBehavior? = null
 ) {
     LargeTopAppBar(
-        title = { Text(text = title, maxLines = 2, overflow = TextOverflow.Ellipsis) },
+        title = {
+            Text(
+                text = title,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                style = LocalTextStyle.current.copy(lineBreak = LineBreak.Heading)
+            )
+        },
         navigationIcon = navigationIcon,
         scrollBehavior = scrollBehavior,
         colors =
