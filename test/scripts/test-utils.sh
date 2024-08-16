@@ -50,7 +50,7 @@ function get_package_dir {
     local package_dir
     if [[ -n "${PACKAGE_DIR+x}" ]]; then
         # Resolve the package dir to an absolute path since cargo must be invoked from the test directory
-        package_dir=$(cd "$PACKAGE_DIR" > /dev/null && pwd)
+        package_dir=$(realpath "$PACKAGE_DIR")
     elif [[ ("$(uname -s)" == "Darwin") ]]; then
         package_dir="$HOME/Library/Caches/mullvad-test/packages"
     elif [[ ("$(uname -s)" == "Linux") ]]; then
