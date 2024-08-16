@@ -38,7 +38,6 @@ val ColorScheme.primaryDisabled: Color
 val ColorScheme.errorDisabled: Color
     @Composable get() = PaletteTokens.DisabledContainerDestructive
 
-
 val menuItemColors: MenuItemColors
     @Composable
     get() =
