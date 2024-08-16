@@ -5,7 +5,6 @@ import androidx.test.uiautomator.By
 import androidx.test.uiautomator.BySelector
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiObject2
-import androidx.test.uiautomator.UiObjectNotFoundException
 import androidx.test.uiautomator.Until
 import java.util.regex.Pattern
 import net.mullvad.mullvadvpn.test.common.constant.DEFAULT_INTERACTION_TIMEOUT
@@ -27,9 +26,7 @@ fun UiDevice.findObjectWithTimeout(
 
     val foundObject = findObject(selector)
 
-    require(foundObject != null) {
-        "No matches for selector within timeout ($timeout): $selector"
-    }
+    require(foundObject != null) { "No matches for selector within timeout ($timeout): $selector" }
 
     return foundObject
 }

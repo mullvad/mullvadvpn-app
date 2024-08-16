@@ -26,10 +26,12 @@ annotation class HighlyRateLimited {
 
             if (ignoreHighlyRateLimited) {
                 return ConditionEvaluationResult.disabled(
-                    "Skipping test because this run is configured to skip tests that are highly affected by rate limiting")
+                    "Skipping test highly affected by rate limiting."
+                )
             } else {
                 return ConditionEvaluationResult.enabled(
-                    "Running test highly affected by rate limiting")
+                    "Running test highly affected by rate limiting."
+                )
             }
         }
     }
