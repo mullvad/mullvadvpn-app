@@ -133,7 +133,7 @@ const Collapsible = styled.div<ICollapsibleProps>((props) => {
     display: 'flex',
     flexDirection: 'column',
     justifyContent: props.$alignBottom ? 'flex-end' : 'flex-start',
-    backgroundColor: 'rgba(25, 38, 56, 0.95)',
+    backgroundColor: colors.darkerBlue,
     overflow: 'hidden',
     // Using auto as the initial value prevents transition if a notification is visible on mount.
     height: props.$height === undefined ? 'auto' : `${props.$height}px`,
