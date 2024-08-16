@@ -1,9 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import * as AppButton from './AppButton';
-
-const SIDE_BUTTON_WIDTH = 50;
+const SIDE_BUTTON_WIDTH = 44;
 
 const ButtonRow = styled.div({
   display: 'flex',
@@ -22,19 +20,23 @@ const SideButton = styled.button({
   borderTopLeftRadius: 0,
   borderBottomLeftRadius: 0,
   width: SIDE_BUTTON_WIDTH,
-  alignItems: 'center',
-  marginLeft: 1,
+  marginLeft: '1px !important',
 });
 
+export interface MultiButtonCompatibleProps {
+  className?: string;
+  textOffset?: number;
+}
+
 interface IMultiButtonProps {
-  mainButton: React.ComponentType<AppButton.IProps>;
-  sideButton: React.ComponentType<AppButton.IProps>;
+  mainButton: React.ComponentType<MultiButtonCompatibleProps>;
+  sideButton: React.ComponentType<MultiButtonCompatibleProps>;
 }
 
 export function MultiButton(props: IMultiButtonProps) {
   return (
     <ButtonRow>
-      <MainButton as={props.mainButton} textOffset={SIDE_BUTTON_WIDTH} />
+      <MainButton as={props.mainButton} textOffset={SIDE_BUTTON_WIDTH + 1} />
       <SideButton as={props.sideButton} />
     </ButtonRow>
   );
