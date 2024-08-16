@@ -1,6 +1,9 @@
 use crate::location::{CityCode, CountryCode, Location};
 use serde::{Deserialize, Serialize};
-use std::net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr};
+use std::{
+    net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
+    ops::RangeInclusive,
+};
 use talpid_types::net::{
     proxy::{CustomProxy, Shadowsocks},
     wireguard, TransportProtocol,
@@ -111,6 +114,7 @@ impl PartialEq for Relay {
     ///     #   )
     ///     #   .unwrap(),
     ///     #   daita: false,
+    ///     #   shadowsocks_extra_addr_in: vec![],
     ///     # }),
     ///     # location: None,
     /// };
@@ -168,10 +172,12 @@ pub struct OpenVpnEndpoint {
 #[serde(rename_all = "snake_case")]
 pub struct WireguardEndpointData {
     /// Port to connect to
-    pub port_ranges: Vec<(u16, u16)>,
+    pub port_ranges: Vec<RangeInclusive<u16>>,
     /// Gateways to be used with the tunnel
     pub ipv4_gateway: Ipv4Addr,
     pub ipv6_gateway: Ipv6Addr,
+    /// Shadowsocks port ranges available on all WireGuard relays
+    pub shadowsocks_port_ranges: Vec<RangeInclusive<u16>>,
     pub udp2tcp_ports: Vec<u16>,
 }
 
@@ -181,6 +187,7 @@ impl Default for WireguardEndpointData {
             port_ranges: vec![],
             ipv4_gateway: "0.0.0.0".parse().unwrap(),
             ipv6_gateway: "::".parse().unwrap(),
+            shadowsocks_port_ranges: vec![],
             udp2tcp_ports: vec![],
         }
     }
@@ -194,6 +201,9 @@ pub struct WireguardRelayEndpointData {
     /// Whether the server supports DAITA
     #[serde(default)]
     pub daita: bool,
+    /// Optional IP addresses used by Shadowsocks
+    #[serde(default)]
+    pub shadowsocks_extra_addr_in: Vec<IpAddr>,
 }
 
 #[derive(Debug, Default, Clone, Deserialize, Serialize)]

@@ -704,7 +704,7 @@ impl RelaySelector {
         custom_lists: &CustomListsSettings,
         parsed_relays: &ParsedRelays,
     ) -> Result<WireguardConfig, Error> {
-        let candidates = filter_matching_relay_list(query, parsed_relays.relays(), custom_lists);
+        let candidates = filter_matching_relay_list(query, parsed_relays, custom_lists);
         helpers::pick_random_relay(&candidates)
             .cloned()
             .map(WireguardConfig::singlehop)
@@ -736,9 +736,9 @@ impl RelaySelector {
         // DAITA should only be enabled for the entry relay
         exit_relay_query.wireguard_constraints.daita = Constraint::Only(false);
         let exit_candidates =
-            filter_matching_relay_list(&exit_relay_query, parsed_relays.relays(), custom_lists);
+            filter_matching_relay_list(&exit_relay_query, parsed_relays, custom_lists);
         let entry_candidates =
-            filter_matching_relay_list(&entry_relay_query, parsed_relays.relays(), custom_lists);
+            filter_matching_relay_list(&entry_relay_query, parsed_relays, custom_lists);
 
         fn pick_random_excluding<'a>(list: &'a [Relay], exclude: &'a Relay) -> Option<&'a Relay> {
             list.iter()
@@ -790,18 +790,35 @@ impl RelaySelector {
         endpoint: &MullvadWireguardEndpoint,
         parsed_relays: &ParsedRelays,
     ) -> Result<Option<SelectedObfuscator>, Error> {
+        let obfuscator_relay = match relay {
+            WireguardConfig::Singlehop { exit } => exit,
+            WireguardConfig::Multihop { entry, .. } => entry,
+        };
+        let box_obfsucation_error = |error: helpers::Error| Error::NoObfuscator(Box::new(error));
+
         match &query.wireguard_constraints.obfuscation {
             ObfuscationQuery::Off | ObfuscationQuery::Auto => Ok(None),
-            ObfuscationQuery::Udp2tcp { port } => {
-                let obfuscator_relay = match relay {
-                    WireguardConfig::Singlehop { exit } => exit,
-                    WireguardConfig::Multihop { entry, .. } => entry,
-                };
+            ObfuscationQuery::Udp2tcp(settings) => {
                 let udp2tcp_ports = &parsed_relays.parsed_list().wireguard.udp2tcp_ports;
 
-                helpers::get_udp2tcp_obfuscator(port, udp2tcp_ports, obfuscator_relay, endpoint)
+                helpers::get_udp2tcp_obfuscator(settings, udp2tcp_ports, obfuscator_relay, endpoint)
                     .map(Some)
-                    .ok_or(Error::NoObfuscator)
+                    .map_err(box_obfsucation_error)
+            }
+            ObfuscationQuery::Shadowsocks(settings) => {
+                let port_ranges = &parsed_relays
+                    .parsed_list()
+                    .wireguard
+                    .shadowsocks_port_ranges;
+                let obfuscation = helpers::get_shadowsocks_obfuscator(
+                    settings,
+                    port_ranges,
+                    obfuscator_relay,
+                    endpoint,
+                )
+                .map_err(box_obfsucation_error)?;
+
+                Ok(Some(obfuscation))
             }
         }
     }
@@ -1020,7 +1037,7 @@ impl RelaySelector {
         }
 
         let matching_locations: Vec<Location> =
-            filter_matching_relay_list(query, parsed_relays.relays(), custom_lists)
+            filter_matching_relay_list(query, parsed_relays, custom_lists)
                 .into_iter()
                 .filter_map(|relay| relay.location)
                 .unique_by(|location| location.city.clone())
@@ -1042,8 +1059,7 @@ impl RelaySelector {
         parsed_relays: &ParsedRelays,
     ) -> Option<Relay> {
         // Filter among all valid relays
-        let relays = parsed_relays.relays();
-        let candidates = filter_matching_relay_list(query, relays, custom_lists);
+        let candidates = filter_matching_relay_list(query, parsed_relays, custom_lists);
         // Pick one of the valid relays.
         helpers::pick_random_relay(&candidates).cloned()
     }

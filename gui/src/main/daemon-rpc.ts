@@ -29,7 +29,6 @@ import {
   DeviceEvent,
   DeviceState,
   DirectMethod,
-  EndpointObfuscationType,
   ErrorState,
   ErrorStateCause,
   FirewallPolicyError,
@@ -402,6 +401,8 @@ export class DaemonRpc {
       }
       grpcObfuscationSettings.setUdp2tcp(grpcUdp2tcpSettings);
     }
+
+    grpcObfuscationSettings.setShadowsocks(new grpcTypes.ShadowsocksSettings());
 
     await this.call<grpcTypes.ObfuscationSettings, Empty>(
       this.client.setObfuscationSettings,
@@ -1136,9 +1137,9 @@ function convertFromTunnelType(tunnelType: grpcTypes.TunnelType): TunnelType {
 }
 
 function convertFromProxyEndpoint(proxyEndpoint: grpcTypes.ProxyEndpoint.AsObject): IProxyEndpoint {
-  const proxyTypeMap: Record<grpcTypes.ProxyType, ProxyType> = {
-    [grpcTypes.ProxyType.CUSTOM]: 'custom',
-    [grpcTypes.ProxyType.SHADOWSOCKS]: 'shadowsocks',
+  const proxyTypeMap: Record<grpcTypes.ProxyEndpoint.ProxyType, ProxyType> = {
+    [grpcTypes.ProxyEndpoint.ProxyType.CUSTOM]: 'custom',
+    [grpcTypes.ProxyEndpoint.ProxyType.SHADOWSOCKS]: 'shadowsocks',
   };
 
   return {
@@ -1151,14 +1152,17 @@ function convertFromProxyEndpoint(proxyEndpoint: grpcTypes.ProxyEndpoint.AsObjec
 function convertFromObfuscationEndpoint(
   obfuscationEndpoint: grpcTypes.ObfuscationEndpoint.AsObject,
 ): IObfuscationEndpoint {
-  const obfuscationTypes: Record<grpcTypes.ObfuscationType, EndpointObfuscationType> = {
-    [grpcTypes.ObfuscationType.UDP2TCP]: 'udp2tcp',
-  };
+  // TODO: Handle Shadowsocks (and other implemented protocols)
+  if (
+    obfuscationEndpoint.obfuscationType !== grpcTypes.ObfuscationEndpoint.ObfuscationType.UDP2TCP
+  ) {
+    throw new Error('unsupported obfuscation protocol');
+  }
 
   return {
     ...obfuscationEndpoint,
     protocol: convertFromTransportProtocol(obfuscationEndpoint.protocol),
-    obfuscationType: obfuscationTypes[obfuscationEndpoint.obfuscationType],
+    obfuscationType: 'udp2tcp',
   };
 }
 

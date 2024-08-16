@@ -254,29 +254,26 @@ enum FeatureIndicator {
   SPLIT_TUNNELING = 3;
   LOCKDOWN_MODE = 4;
   UDP_2_TCP = 5;
-  LAN_SHARING = 6;
-  DNS_CONTENT_BLOCKERS = 7;
-  CUSTOM_DNS = 8;
-  SERVER_IP_OVERRIDE = 9;
-  CUSTOM_MTU = 10;
-  CUSTOM_MSS_FIX = 11;
-  DAITA = 12;
-}
-
-enum ObfuscationType {
-  UDP2TCP = 0;
+  SHADOWSOCKS = 6;
+  LAN_SHARING = 7;
+  DNS_CONTENT_BLOCKERS = 8;
+  CUSTOM_DNS = 9;
+  SERVER_IP_OVERRIDE = 10;
+  CUSTOM_MTU = 11;
+  CUSTOM_MSS_FIX = 12;
+  DAITA = 13;
 }
 
 message ObfuscationEndpoint {
+  enum ObfuscationType {
+    UDP2TCP = 0;
+    SHADOWSOCKS = 1;
+  }
+
   string address = 1;
   uint32 port = 2;
   TransportProtocol protocol = 3;
   ObfuscationType obfuscation_type = 4;
-}
-
-enum ProxyType {
-  SHADOWSOCKS = 0;
-  CUSTOM = 1;
 }
 
 message Endpoint {
@@ -285,6 +282,11 @@ message Endpoint {
 }
 
 message ProxyEndpoint {
+  enum ProxyType {
+    SHADOWSOCKS = 0;
+    CUSTOM = 1;
+  }
+
   string address = 1;
   TransportProtocol protocol = 2;
   ProxyType proxy_type = 3;
@@ -352,14 +354,18 @@ message BridgeState {
 
 message Udp2TcpObfuscationSettings { optional uint32 port = 1; }
 
+message ShadowsocksSettings { optional uint32 port = 1; }
+
 message ObfuscationSettings {
   enum SelectedObfuscation {
     AUTO = 0;
     OFF = 1;
     UDP2TCP = 2;
+    SHADOWSOCKS = 3;
   }
   SelectedObfuscation selected_obfuscation = 1;
   Udp2TcpObfuscationSettings udp2tcp = 2;
+  ShadowsocksSettings shadowsocks = 3;
 }
 
 message CustomList {
@@ -631,6 +637,7 @@ message Relay {
 message WireguardRelayEndpointData {
   bytes public_key = 1;
   bool daita = 2;
+  repeated string shadowsocks_extra_addr_in = 3;
 }
 
 message Location {
@@ -686,7 +693,8 @@ message WireguardEndpointData {
   repeated PortRange port_ranges = 1;
   string ipv4_gateway = 2;
   string ipv6_gateway = 3;
-  repeated uint32 udp2tcp_ports = 4;
+  repeated PortRange shadowsocks_port_ranges = 4;
+  repeated uint32 udp2tcp_ports = 5;
 }
 
 message PortRange {

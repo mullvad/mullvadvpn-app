@@ -669,7 +669,7 @@ impl Relay {
                     let is_valid_port = wireguard
                         .port_ranges
                         .into_iter()
-                        .any(|(first, last)| first <= specific_port && specific_port <= last);
+                        .any(|range| range.contains(&specific_port));
                     if !is_valid_port {
                         return Err(anyhow!("The specified port is invalid"));
                     }

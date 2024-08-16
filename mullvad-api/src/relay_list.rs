@@ -9,7 +9,8 @@ use talpid_types::net::wireguard;
 use std::{
     collections::BTreeMap,
     future::Future,
-    net::{Ipv4Addr, Ipv6Addr},
+    net::{IpAddr, Ipv4Addr, Ipv6Addr},
+    ops::RangeInclusive,
     time::Duration,
 };
 
@@ -244,18 +245,35 @@ struct Wireguard {
     port_ranges: Vec<(u16, u16)>,
     ipv4_gateway: Ipv4Addr,
     ipv6_gateway: Ipv6Addr,
+    /// Shadowsocks port ranges available on all WireGuard relays
+    #[serde(default)]
+    shadowsocks_port_ranges: Vec<(u16, u16)>,
     relays: Vec<WireGuardRelay>,
 }
 
 impl From<&Wireguard> for relay_list::WireguardEndpointData {
     fn from(wg: &Wireguard) -> Self {
         Self {
-            port_ranges: wg.port_ranges.clone(),
+            port_ranges: inclusive_range_from_pair_set(wg.port_ranges.clone()).collect(),
             ipv4_gateway: wg.ipv4_gateway,
             ipv6_gateway: wg.ipv6_gateway,
+            shadowsocks_port_ranges: inclusive_range_from_pair_set(
+                wg.shadowsocks_port_ranges.clone(),
+            )
+            .collect(),
             udp2tcp_ports: vec![],
         }
     }
+}
+
+fn inclusive_range_from_pair_set<T>(
+    set: impl IntoIterator<Item = (T, T)>,
+) -> impl Iterator<Item = RangeInclusive<T>> {
+    set.into_iter().map(inclusive_range_from_pair)
+}
+
+fn inclusive_range_from_pair<T>(pair: (T, T)) -> RangeInclusive<T> {
+    RangeInclusive::new(pair.0, pair.1)
 }
 
 impl Wireguard {
@@ -305,6 +323,8 @@ struct WireGuardRelay {
     public_key: wireguard::PublicKey,
     #[serde(default)]
     daita: bool,
+    #[serde(default)]
+    shadowsocks_extra_addr_in: Vec<IpAddr>,
 }
 
 impl WireGuardRelay {
@@ -315,6 +335,7 @@ impl WireGuardRelay {
             relay_list::RelayEndpointData::Wireguard(relay_list::WireguardRelayEndpointData {
                 public_key: self.public_key,
                 daita: self.daita,
+                shadowsocks_extra_addr_in: self.shadowsocks_extra_addr_in,
             }),
         )
     }

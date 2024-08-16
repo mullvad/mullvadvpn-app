@@ -1,26 +1,29 @@
 //! Tests for verifying that the relay selector works as expected.
 
 use once_cell::sync::Lazy;
-use std::collections::HashSet;
+use std::{
+    collections::HashSet,
+    net::{IpAddr, Ipv4Addr, Ipv6Addr},
+};
 use talpid_types::net::{
     obfuscation::ObfuscatorConfig,
     wireguard::PublicKey,
-    Endpoint,
+    Endpoint, IpVersion,
     TransportProtocol::{Tcp, Udp},
     TunnelType,
 };
 
 use mullvad_relay_selector::{
     query::{builder::RelayQueryBuilder, BridgeQuery, ObfuscationQuery, OpenVpnRelayQuery},
-    Error, GetRelay, RelaySelector, RuntimeParameters, SelectorConfig, WireguardConfig,
-    RETRY_ORDER,
+    Error, GetRelay, RelaySelector, RuntimeParameters, SelectedObfuscator, SelectorConfig,
+    WireguardConfig, RETRY_ORDER,
 };
 use mullvad_types::{
     constraints::Constraint,
     endpoint::MullvadEndpoint,
     relay_constraints::{
-        BridgeConstraints, BridgeState, GeographicLocationConstraint, Ownership, Providers,
-        TransportPort,
+        BridgeConstraints, BridgeState, GeographicLocationConstraint, LocationConstraint,
+        Ownership, Providers, RelayOverride, TransportPort,
     },
     relay_list::{
         BridgeEndpointData, OpenVpnEndpoint, OpenVpnEndpointData, Relay, RelayEndpointData,
@@ -55,6 +58,7 @@ static RELAYS: Lazy<RelayList> = Lazy::new(|| RelayList {
                         )
                         .unwrap(),
                         daita: false,
+                        shadowsocks_extra_addr_in: vec![],
                     }),
                     location: None,
                 },
@@ -73,6 +77,7 @@ static RELAYS: Lazy<RelayList> = Lazy::new(|| RelayList {
                         )
                         .unwrap(),
                         daita: false,
+                        shadowsocks_extra_addr_in: vec![],
                     }),
                     location: None,
                 },
@@ -112,6 +117,7 @@ static RELAYS: Lazy<RelayList> = Lazy::new(|| RelayList {
                     endpoint_data: RelayEndpointData::Bridge,
                     location: None,
                 },
+                SHADOWSOCKS_RELAY.clone(),
             ],
         }],
     }],
@@ -155,17 +161,47 @@ static RELAYS: Lazy<RelayList> = Lazy::new(|| RelayList {
     },
     wireguard: WireguardEndpointData {
         port_ranges: vec![
-            (53, 53),
-            (443, 443),
-            (4000, 33433),
-            (33565, 51820),
-            (52000, 60000),
+            53..=53,
+            443..=443,
+            4000..=33433,
+            33565..=51820,
+            52000..=60000,
         ],
         ipv4_gateway: "10.64.0.1".parse().unwrap(),
         ipv6_gateway: "fc00:bbbb:bbbb:bb01::1".parse().unwrap(),
         udp2tcp_ports: vec![],
+        shadowsocks_port_ranges: vec![100..=200, 1000..=2000],
     },
 });
+
+/// A Shadowsocks relay with additional addresses
+static SHADOWSOCKS_RELAY: Lazy<Relay> = Lazy::new(|| Relay {
+    hostname: SHADOWSOCKS_RELAY_LOCATION
+        .get_hostname()
+        .unwrap()
+        .to_owned(),
+    ipv4_addr_in: SHADOWSOCKS_RELAY_IPV4,
+    ipv6_addr_in: Some(SHADOWSOCKS_RELAY_IPV6),
+    include_in_country: true,
+    active: true,
+    owned: true,
+    provider: "provider0".to_string(),
+    weight: 1,
+    endpoint_data: RelayEndpointData::Wireguard(WireguardRelayEndpointData {
+        public_key: PublicKey::from_base64("eaNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=").unwrap(),
+        daita: false,
+        shadowsocks_extra_addr_in: SHADOWSOCKS_RELAY_EXTRA_ADDRS.to_vec(),
+    }),
+    location: None,
+});
+const SHADOWSOCKS_RELAY_IPV4: Ipv4Addr = Ipv4Addr::new(123, 123, 123, 1);
+const SHADOWSOCKS_RELAY_IPV6: Ipv6Addr = Ipv6Addr::new(0x123, 0, 0, 0, 0, 0, 0, 2);
+const SHADOWSOCKS_RELAY_EXTRA_ADDRS: &[IpAddr; 2] = &[
+    IpAddr::V4(Ipv4Addr::new(123, 123, 123, 2)),
+    IpAddr::V6(Ipv6Addr::new(0x123, 0, 0, 0, 0, 0, 0, 2)),
+];
+static SHADOWSOCKS_RELAY_LOCATION: Lazy<GeographicLocationConstraint> =
+    Lazy::new(|| GeographicLocationConstraint::hostname("se", "got", "se1337-wireguard"));
 
 // Helper functions
 fn unwrap_relay(get_result: GetRelay) -> Relay {
@@ -314,7 +350,8 @@ fn test_retry_order() {
                 assert!(match &query.wireguard_constraints.obfuscation {
                     ObfuscationQuery::Auto => true,
                     ObfuscationQuery::Off => obfuscator.is_none(),
-                    ObfuscationQuery::Udp2tcp { .. } => obfuscator.is_some(),
+                    ObfuscationQuery::Udp2tcp(_) | ObfuscationQuery::Shadowsocks(_) =>
+                        obfuscator.is_some(),
                 });
             }
             GetRelay::OpenVpn {
@@ -437,6 +474,7 @@ fn test_wireguard_entry() {
                             )
                             .unwrap(),
                             daita: false,
+                            shadowsocks_extra_addr_in: vec![],
                         }),
                         location: None,
                     },
@@ -455,6 +493,7 @@ fn test_wireguard_entry() {
                             )
                             .unwrap(),
                             daita: false,
+                            shadowsocks_extra_addr_in: vec![],
                         }),
                         location: None,
                     },
@@ -467,15 +506,16 @@ fn test_wireguard_entry() {
         },
         wireguard: WireguardEndpointData {
             port_ranges: vec![
-                (53, 53),
-                (443, 443),
-                (4000, 33433),
-                (33565, 51820),
-                (52000, 60000),
+                53..=53,
+                443..=443,
+                4000..=33433,
+                33565..=51820,
+                52000..=60000,
             ],
             ipv4_gateway: "10.64.0.1".parse().unwrap(),
             ipv6_gateway: "fc00:bbbb:bbbb:bb01::1".parse().unwrap(),
             udp2tcp_ports: vec![],
+            shadowsocks_port_ranges: vec![100..=200, 1000..=2000],
         },
     };
 
@@ -706,6 +746,140 @@ fn test_selecting_any_relay_will_consider_multihop() {
     }
 }
 
+/// Test whether Shadowsocks is always selected as the obfuscation protocol when Shadowsocks is selected.
+#[test]
+fn test_selecting_wireguard_over_shadowsocks() {
+    let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
+
+    let mut query = RelayQueryBuilder::new().wireguard().shadowsocks().build();
+    query.wireguard_constraints.use_multihop = Constraint::Only(false);
+
+    let relay = relay_selector.get_relay_by_query(query).unwrap();
+    match relay {
+        GetRelay::Wireguard {
+            obfuscator,
+            inner: WireguardConfig::Singlehop { .. },
+            ..
+        } => {
+            assert!(obfuscator.is_some_and(|obfuscator| matches!(
+                obfuscator.config,
+                ObfuscatorConfig::Shadowsocks { .. }
+            )))
+        }
+        wrong_relay => panic!(
+            "Relay selector should have picked a Wireguard relay with Shadowsocks, instead chose {wrong_relay:?}"
+        ),
+    }
+}
+
+/// Test whether extra Shadowsocks IPs are selected when available
+#[test]
+fn test_selecting_wireguard_over_shadowsocks_extra_ips() {
+    let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
+
+    let mut query = RelayQueryBuilder::new().wireguard().shadowsocks().build();
+    query.wireguard_constraints.use_multihop = Constraint::Only(false);
+    query.location = Constraint::Only(LocationConstraint::Location(
+        SHADOWSOCKS_RELAY_LOCATION.clone(),
+    ));
+
+    let relay = relay_selector.get_relay_by_query(query).unwrap();
+    match relay {
+        GetRelay::Wireguard {
+            obfuscator: Some(SelectedObfuscator { config: ObfuscatorConfig::Shadowsocks { endpoint }, .. }),
+            inner: WireguardConfig::Singlehop { .. },
+            ..
+        } => {
+            assert!(SHADOWSOCKS_RELAY_EXTRA_ADDRS.contains(&endpoint.ip()), "{} is not an additional IP", endpoint);
+        }
+        wrong_relay => panic!(
+            "Relay selector should have picked a Wireguard relay with Shadowsocks, instead chose {wrong_relay:?}"
+        ),
+    }
+}
+
+/// Ignore extra IPv4 addresses when overrides are set
+#[test]
+fn test_selecting_wireguard_ignore_extra_ips_override_v4() {
+    const OVERRIDE_IPV4: Ipv4Addr = Ipv4Addr::new(1, 3, 3, 7);
+
+    let config = mullvad_relay_selector::SelectorConfig {
+        relay_overrides: vec![RelayOverride {
+            hostname: SHADOWSOCKS_RELAY_LOCATION
+                .get_hostname()
+                .unwrap()
+                .to_string(),
+            ipv4_addr_in: Some(OVERRIDE_IPV4),
+            ipv6_addr_in: None,
+        }],
+        ..Default::default()
+    };
+
+    let relay_selector = RelaySelector::from_list(config, RELAYS.clone());
+
+    let mut query_v4 = RelayQueryBuilder::new().wireguard().shadowsocks().build();
+    query_v4.wireguard_constraints.use_multihop = Constraint::Only(false);
+    query_v4.location = Constraint::Only(LocationConstraint::Location(
+        SHADOWSOCKS_RELAY_LOCATION.clone(),
+    ));
+    query_v4.wireguard_constraints.ip_version = Constraint::Only(IpVersion::V4);
+
+    let relay = relay_selector.get_relay_by_query(query_v4).unwrap();
+    match relay {
+        GetRelay::Wireguard {
+            obfuscator: Some(SelectedObfuscator { config: ObfuscatorConfig::Shadowsocks { endpoint }, .. }),
+            inner: WireguardConfig::Singlehop { .. },
+            ..
+        } => {
+            assert_eq!(endpoint.ip(), IpAddr::from(OVERRIDE_IPV4));
+        }
+        wrong_relay => panic!(
+            "Relay selector should have picked a Wireguard relay with Shadowsocks, instead chose {wrong_relay:?}"
+        ),
+    }
+}
+
+/// Ignore extra IPv6 addresses when overrides are set
+#[test]
+fn test_selecting_wireguard_ignore_extra_ips_override_v6() {
+    const OVERRIDE_IPV6: Ipv6Addr = Ipv6Addr::new(1, 0, 0, 0, 0, 0, 10, 10);
+
+    let config = SelectorConfig {
+        relay_overrides: vec![RelayOverride {
+            hostname: SHADOWSOCKS_RELAY_LOCATION
+                .get_hostname()
+                .unwrap()
+                .to_string(),
+            ipv4_addr_in: None,
+            ipv6_addr_in: Some(OVERRIDE_IPV6),
+        }],
+        ..Default::default()
+    };
+
+    let relay_selector = RelaySelector::from_list(config, RELAYS.clone());
+
+    let mut query_v6 = RelayQueryBuilder::new().wireguard().shadowsocks().build();
+    query_v6.wireguard_constraints.use_multihop = Constraint::Only(false);
+    query_v6.location = Constraint::Only(LocationConstraint::Location(
+        SHADOWSOCKS_RELAY_LOCATION.clone(),
+    ));
+    query_v6.wireguard_constraints.ip_version = Constraint::Only(IpVersion::V6);
+
+    let relay = relay_selector.get_relay_by_query(query_v6).unwrap();
+    match relay {
+        GetRelay::Wireguard {
+            obfuscator: Some(SelectedObfuscator { config: ObfuscatorConfig::Shadowsocks { endpoint }, .. }),
+            inner: WireguardConfig::Singlehop { .. },
+            ..
+        } => {
+            assert_eq!(endpoint.ip(), IpAddr::from(OVERRIDE_IPV6));
+        }
+        wrong_relay => panic!(
+            "Relay selector should have picked a Wireguard relay with Shadowsocks, instead chose {wrong_relay:?}"
+        ),
+    }
+}
+
 /// Construct a query for a Wireguard configuration where UDP2TCP obfuscation is selected and
 /// multihop is explicitly turned off. Assert that the relay selector always return an obfuscator
 /// configuration.
@@ -733,7 +907,7 @@ fn test_selecting_wireguard_endpoint_with_udp2tcp_obfuscation() {
     }
 }
 
-/// Construct a query for a Wireguard configuration where UDP2TCP obfuscation is set to "Auto" and
+/// Construct a query for a Wireguard configuration where obfuscation is set to "Auto" and
 /// multihop is explicitly turned off. Assert that the relay selector does *not* return an
 /// obfuscator config.
 ///
@@ -778,10 +952,10 @@ fn test_selected_wireguard_endpoints_use_correct_port_ranges() {
                 let Some(obfuscator) = obfuscator else {
                     panic!("Relay selector should have picked an obfuscator")
                 };
-                assert!(match obfuscator.config {
-                    ObfuscatorConfig::Udp2Tcp { endpoint } =>
+                assert!(matches!(obfuscator.config,
+                    ObfuscatorConfig::Udp2Tcp { endpoint } if
                         TCP2UDP_PORTS.contains(&endpoint.port()),
-                })
+                ))
             }
             wrong_relay => panic!(
             "Relay selector should have picked a Wireguard relay, instead chose {wrong_relay:?}"
@@ -954,6 +1128,7 @@ fn test_include_in_country() {
                                 "BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=",
                             )
                             .unwrap(),
+                            shadowsocks_extra_addr_in: vec![],
                             daita: false,
                         }),
                         location: None,
@@ -972,6 +1147,7 @@ fn test_include_in_country() {
                                 "BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=",
                             )
                             .unwrap(),
+                            shadowsocks_extra_addr_in: vec![],
                             daita: false,
                         }),
                         location: None,
@@ -999,10 +1175,11 @@ fn test_include_in_country() {
             shadowsocks: vec![],
         },
         wireguard: WireguardEndpointData {
-            port_ranges: vec![(53, 53), (4000, 33433), (33565, 51820), (52000, 60000)],
+            port_ranges: vec![53..=53, 4000..=33433, 33565..=51820, 52000..=60000],
             ipv4_gateway: "10.64.0.1".parse().unwrap(),
             ipv6_gateway: "fc00:bbbb:bbbb:bb01::1".parse().unwrap(),
             udp2tcp_ports: vec![],
+            shadowsocks_port_ranges: vec![],
         },
     };
 
@@ -1172,6 +1349,7 @@ fn test_daita() {
                                 "BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=",
                             )
                             .unwrap(),
+                            shadowsocks_extra_addr_in: vec![],
                             daita: false,
                         }),
                         location: None,
@@ -1190,6 +1368,7 @@ fn test_daita() {
                                 "BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=",
                             )
                             .unwrap(),
+                            shadowsocks_extra_addr_in: vec![],
                             daita: true,
                         }),
                         location: None,
@@ -1202,9 +1381,10 @@ fn test_daita() {
             shadowsocks: vec![],
         },
         wireguard: WireguardEndpointData {
-            port_ranges: vec![(53, 53), (4000, 33433), (33565, 51820), (52000, 60000)],
+            port_ranges: vec![53..=53, 4000..=33433, 33565..=51820, 52000..=60000],
             ipv4_gateway: "10.64.0.1".parse().unwrap(),
             ipv6_gateway: "fc00:bbbb:bbbb:bb01::1".parse().unwrap(),
+            shadowsocks_port_ranges: vec![],
             udp2tcp_ports: vec![],
         },
     };
