@@ -1,6 +1,6 @@
 use std::{io, net::SocketAddr};
 use tokio::task::JoinHandle;
-use tunnel_obfuscation::{create_obfuscator, Settings as ObfuscationSettings, Udp2TcpSettings};
+use tunnel_obfuscation::{create_obfuscator, Settings as ObfuscationSettings, udp2tcp::Settings};
 
 mod ffi;
 
@@ -12,7 +12,7 @@ pub struct TunnelObfuscatorRuntime {
 
 impl TunnelObfuscatorRuntime {
     pub fn new(peer: SocketAddr) -> io::Result<Self> {
-        let settings = ObfuscationSettings::Udp2Tcp(Udp2TcpSettings { peer });
+        let settings = ObfuscationSettings::Udp2Tcp(Settings { peer });
 
         Ok(Self { settings })
     }
