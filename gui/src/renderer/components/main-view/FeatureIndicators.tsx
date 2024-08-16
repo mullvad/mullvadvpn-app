@@ -164,7 +164,10 @@ export default function FeatureIndicators(props: FeatureIndicatorsProps) {
             ref={featureIndicatorsContainerRef}
             $expanded={props.expanded}>
             {featureIndicators.current.sort().map((indicator) => (
-              <StyledFeatureIndicatorLabel key={indicator.toString()} $expanded={props.expanded}>
+              <StyledFeatureIndicatorLabel
+                key={indicator.toString()}
+                data-testid="feature-indicator"
+                $expanded={props.expanded}>
                 {getFeatureIndicatorLabel(indicator)}
               </StyledFeatureIndicatorLabel>
             ))}
