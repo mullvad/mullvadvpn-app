@@ -3,7 +3,7 @@ name: iOS - Build and test Rust FFI (mullvad-ios)
 on:
   pull_request:
     paths:
-      - .github/workflows/clippy.yml
+      - .github/workflows/ios-rust-ffi.yml
       - clippy.toml
       - '**/*.rs'
   workflow_dispatch:
@@ -17,19 +17,27 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v3
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Install Rust
         uses: actions-rs/toolchain@v1.0.6
         with:
           toolchain: stable
           target: ${{ matrix.target }}
+          default: true
 
       - name: Build and test crates
         shell: bash
         env:
           RUSTFLAGS: --deny warnings
+        # NOTE: Tests actually target macOS here. This is because we do not have an iOS runner
+        #       handy.
         run: |
           source env.sh
-          time cargo build --locked --verbose --lib -p mullvad-ios
+          time cargo build --locked --verbose --lib -p mullvad-ios --target ${{ matrix.target }}
           time cargo test --locked --verbose --lib -p mullvad-ios
 
   clippy-check-ios:
@@ -41,11 +49,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v3
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Install Rust
         uses: actions-rs/toolchain@v1.0.6
         with:
           toolchain: stable
           target: ${{ matrix.target }}
+          default: true
 
       - name: Clippy check
         shell: bash
@@ -53,5 +67,5 @@ jobs:
           RUSTFLAGS: --deny warnings
         run: |
           source env.sh
-          time cargo clippy --locked --all-targets --no-default-features -p mullvad-ios
-          time cargo clippy --locked --all-targets --all-features -p mullvad-ios
+          time cargo clippy --locked --all-targets --no-default-features -p mullvad-ios --target ${{ matrix.target }}
+          time cargo clippy --locked --all-targets --all-features -p mullvad-ios --target ${{ matrix.target }}
