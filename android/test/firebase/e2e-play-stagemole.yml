@@ -11,3 +11,6 @@ default:
     - {model: tangorpro, version: 33, locale: en, orientation: portrait} # pixel tablet
     - {model: oriole, version: 32, locale: en, orientation: portrait} # pixel 6
     - {model: oriole, version: 31, locale: en, orientation: portrait} # pixel 6
+  environment-variables:
+    clearPackageData: "true"
+    runnerBuilder: "de.mannodermaus.junit5.AndroidJUnit5Builder"
