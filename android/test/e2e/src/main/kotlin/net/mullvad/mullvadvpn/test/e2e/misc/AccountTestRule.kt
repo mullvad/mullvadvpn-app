@@ -9,35 +9,32 @@ import org.junit.jupiter.api.extension.BeforeEachCallback
 import org.junit.jupiter.api.extension.ExtensionContext
 
 class AccountTestRule : BeforeEachCallback {
-
-    private val partnerAccount: String?
+    private var partnerAccount: String? = null
     private val client =
         SimpleMullvadHttpClient(InstrumentationRegistry.getInstrumentation().targetContext)
+    lateinit var validAccountNumber: String
+    lateinit var invalidAccountNumber: String
 
-    val validAccountNumber: String
-    val invalidAccountNumber: String
-
-    init {
+    override fun beforeEach(context: ExtensionContext) {
         InstrumentationRegistry.getArguments().also { bundle ->
             partnerAccount = bundle.getString(PARTNER_AUTH)
 
-            if (partnerAccount != null) {
+            partnerAccount?.let { partnerAccount ->
                 validAccountNumber = client.createAccount()
                 client.addTimeToAccountUsingPartnerAuth(
                     accountNumber = validAccountNumber,
                     daysToAdd = 1,
                     partnerAuth = partnerAccount
                 )
-            } else {
-                validAccountNumber =
-                    bundle.getRequiredArgument(VALID_TEST_ACCOUNT_NUMBER_ARGUMENT_KEY)
-                client.removeAllDevices(validAccountNumber)
             }
+                ?: run {
+                    validAccountNumber =
+                        bundle.getRequiredArgument(VALID_TEST_ACCOUNT_NUMBER_ARGUMENT_KEY)
+                    client.removeAllDevices(validAccountNumber)
+                }
 
             invalidAccountNumber =
                 bundle.getRequiredArgument(INVALID_TEST_ACCOUNT_NUMBER_ARGUMENT_KEY)
         }
     }
-
-    override fun beforeEach(context: ExtensionContext) {}
 }
