@@ -11,27 +11,12 @@ import UIKit
 class AccountContentView: UIView {
     let purchaseButton: InAppPurchaseButton = {
         let button = InAppPurchaseButton()
-        button.translatesAutoresizingMaskIntoConstraints = false
         button.accessibilityIdentifier = .purchaseButton
-        return button
-    }()
-
-    let restorePurchasesButton: AppButton = {
-        let button = AppButton(style: .default)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.accessibilityIdentifier = .restorePurchasesButton
-        button.setTitle(NSLocalizedString(
-            "RESTORE_PURCHASES_BUTTON_TITLE",
-            tableName: "Account",
-            value: "Restore purchases",
-            comment: ""
-        ), for: .normal)
         return button
     }()
 
     let redeemVoucherButton: AppButton = {
         let button = AppButton(style: .success)
-        button.translatesAutoresizingMaskIntoConstraints = false
         button.accessibilityIdentifier = .redeemVoucherButton
         button.setTitle(NSLocalizedString(
             "REDEEM_VOUCHER_BUTTON_TITLE",
@@ -44,7 +29,6 @@ class AccountContentView: UIView {
 
     let logoutButton: AppButton = {
         let button = AppButton(style: .danger)
-        button.translatesAutoresizingMaskIntoConstraints = false
         button.accessibilityIdentifier = .logoutButton
         button.setTitle(NSLocalizedString(
             "LOGOUT_BUTTON_TITLE",
@@ -57,7 +41,6 @@ class AccountContentView: UIView {
 
     let deleteButton: AppButton = {
         let button = AppButton(style: .danger)
-        button.translatesAutoresizingMaskIntoConstraints = false
         button.accessibilityIdentifier = .deleteButton
         button.setTitle(NSLocalizedString(
             "DELETE_BUTTON_TITLE",
@@ -69,21 +52,19 @@ class AccountContentView: UIView {
     }()
 
     let accountDeviceRow: AccountDeviceRow = {
-        let view = AccountDeviceRow()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
+        AccountDeviceRow()
     }()
 
     let accountTokenRowView: AccountNumberRow = {
-        let view = AccountNumberRow()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
+        AccountNumberRow()
     }()
 
     let accountExpiryRowView: AccountExpiryRow = {
-        let view = AccountExpiryRow()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
+        AccountExpiryRow()
+    }()
+
+    let restorePurchasesView: RestorePurchasesView = {
+        RestorePurchasesView()
     }()
 
     lazy var contentStackView: UIStackView = {
@@ -92,10 +73,11 @@ class AccountContentView: UIView {
                 accountDeviceRow,
                 accountTokenRowView,
                 accountExpiryRowView,
+                restorePurchasesView,
             ])
-        stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
-        stackView.spacing = UIMetrics.padding8
+        stackView.spacing = UIMetrics.padding24
+        stackView.setCustomSpacing(UIMetrics.padding8, after: accountExpiryRowView)
         return stackView
     }()
 
@@ -106,15 +88,12 @@ class AccountContentView: UIView {
         #endif
         arrangedSubviews.append(contentsOf: [
             purchaseButton,
-            restorePurchasesButton,
             logoutButton,
             deleteButton,
         ])
         let stackView = UIStackView(arrangedSubviews: arrangedSubviews)
-        stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
         stackView.spacing = UIMetrics.padding16
-        stackView.setCustomSpacing(UIMetrics.interButtonSpacing, after: restorePurchasesButton)
         return stackView
     }()
 

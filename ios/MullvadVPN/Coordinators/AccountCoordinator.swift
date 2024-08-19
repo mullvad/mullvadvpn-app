@@ -65,6 +65,8 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting {
             navigateToRedeemVoucher()
         case .navigateToDeleteAccount:
             navigateToDeleteAccount()
+        case .restorePurchasesInfo:
+            showRestorePurchasesInfo()
         }
     }
 
@@ -177,6 +179,43 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting {
             buttons: [AlertAction(
                 title: NSLocalizedString(
                     "DEVICE_INFO_DIALOG_OK_ACTION",
+                    tableName: "Account",
+                    value: "Got it!",
+                    comment: ""
+                ),
+                style: .default
+            )]
+        )
+
+        let presenter = AlertPresenter(context: self)
+        presenter.showAlert(presentation: presentation, animated: true)
+    }
+
+    private func showRestorePurchasesInfo() {
+        let message = NSLocalizedString(
+            "RESTORE_PURCHASES_DIALOG_MESSAGE",
+            tableName: "Account",
+            value: """
+            You can use the “restore purchases” function to check for any in-app payments \
+            made via Apple services. If there is a payment that has not been credited, it will \
+            add the time to the currently logged in Mullvad account.
+            """,
+            comment: ""
+        )
+
+        let presentation = AlertPresentation(
+            id: "account-device-info-alert",
+            icon: .info,
+            title: NSLocalizedString(
+                "RESTORE_PURCHASES_DIALOG_TITLE",
+                tableName: "Account",
+                value: "If you haven’t received additional VPN time after purchasing",
+                comment: ""
+            ),
+            message: message,
+            buttons: [AlertAction(
+                title: NSLocalizedString(
+                    "RESTORE_PURCHASES_DIALOG_OK_ACTION",
                     tableName: "Account",
                     value: "Got it!",
                     comment: ""
