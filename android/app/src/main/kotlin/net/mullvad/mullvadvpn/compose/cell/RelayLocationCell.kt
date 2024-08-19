@@ -155,7 +155,11 @@ fun RelayItemCell(
         Name(modifier = Modifier.weight(1f), relay = item)
 
         if (item.hasChildren) {
-            ExpandButton(isExpanded = isExpanded, onClick = { onToggleExpand(!isExpanded) })
+            ExpandButton(
+                color = MaterialTheme.colorScheme.onSurface,
+                isExpanded = isExpanded,
+                onClick = { onToggleExpand(!isExpanded) }
+            )
         }
     }
 }
@@ -208,12 +212,17 @@ private fun Name(modifier: Modifier = Modifier, relay: RelayItem) {
 }
 
 @Composable
-private fun RowScope.ExpandButton(isExpanded: Boolean, onClick: (expand: Boolean) -> Unit) {
+private fun RowScope.ExpandButton(
+    color: Color,
+    isExpanded: Boolean,
+    onClick: (expand: Boolean) -> Unit
+) {
     VerticalDivider(
         color = MaterialTheme.colorScheme.surface,
         modifier = Modifier.padding(vertical = Dimens.verticalDividerPadding)
     )
     Chevron(
+        color = color,
         isExpanded = isExpanded,
         modifier =
             Modifier.fillMaxHeight()

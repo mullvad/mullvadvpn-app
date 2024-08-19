@@ -39,7 +39,7 @@ private fun PreviewTunnelingCell() {
     AppTheme {
         SpacedColumn(
             modifier =
-                Modifier.background(color = MaterialTheme.colorScheme.background).padding(20.dp)
+                Modifier.background(color = MaterialTheme.colorScheme.surface).padding(20.dp)
         ) {
             SplitTunnelingCell(
                 title = "Mullvad VPN",

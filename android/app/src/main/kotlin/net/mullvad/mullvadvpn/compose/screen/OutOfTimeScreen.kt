@@ -178,13 +178,13 @@ fun OutOfTimeScreen(
     ScaffoldWithTopBarAndDeviceName(
         topBarColor =
             if (state.tunnelState.isSecured()) {
-                MaterialTheme.colorScheme.inversePrimary
+                MaterialTheme.colorScheme.tertiary
             } else {
                 MaterialTheme.colorScheme.error
             },
         iconTintColor =
             if (state.tunnelState.isSecured()) {
-                MaterialTheme.colorScheme.onPrimary
+                MaterialTheme.colorScheme.onTertiary
             } else {
                 MaterialTheme.colorScheme.onError
             },
@@ -200,7 +200,7 @@ fun OutOfTimeScreen(
                     .verticalScroll(scrollState)
                     .drawVerticalScrollbar(
                         state = scrollState,
-                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaScrollbar)
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar)
                     )
                     .background(color = MaterialTheme.colorScheme.surface)
         ) {

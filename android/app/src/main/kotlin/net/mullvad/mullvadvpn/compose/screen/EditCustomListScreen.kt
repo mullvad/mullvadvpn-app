@@ -160,7 +160,7 @@ fun EditCustomListScreen(
                         text = stringResource(id = R.string.not_found),
                         modifier = Modifier.padding(Dimens.screenVerticalMargin),
                         style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSecondary
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
                 is EditCustomListState.Content -> {

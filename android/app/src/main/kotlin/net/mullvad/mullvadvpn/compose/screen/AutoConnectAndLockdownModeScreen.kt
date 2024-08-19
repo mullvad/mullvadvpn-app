@@ -178,7 +178,7 @@ private fun ConstraintLayoutScope.AutoConnectCarousel(
                 modifier = Modifier.padding(horizontal = Dimens.largePadding),
                 style =
                     MaterialTheme.typography.titleMedium.copy(
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     ),
                 text = annotatedTopText,
                 onClick = {
@@ -195,7 +195,7 @@ private fun ConstraintLayoutScope.AutoConnectCarousel(
             Text(
                 modifier = Modifier.padding(horizontal = Dimens.largePadding),
                 style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 text =
                     HtmlCompat.fromHtml(
                             stringResource(id = page.bottomText),
@@ -269,7 +269,7 @@ private fun ConstraintLayoutScope.PageIndicator(
 @Composable
 private fun buildTopText(@StringRes id: Int) = buildAnnotatedString {
     withStyle(
-        style = SpanStyle(color = MaterialTheme.colorScheme.onSecondary),
+        style = SpanStyle(color = MaterialTheme.colorScheme.onSurfaceVariant),
     ) {
         append(
             HtmlCompat.fromHtml(stringResource(id = id), HtmlCompat.FROM_HTML_MODE_COMPACT)
@@ -277,7 +277,7 @@ private fun buildTopText(@StringRes id: Int) = buildAnnotatedString {
                     boldSpanStyle =
                         SpanStyle(
                             fontWeight = FontWeight.ExtraBold,
-                            color = MaterialTheme.colorScheme.onPrimary
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                 )
         )
@@ -298,7 +298,7 @@ private fun buildLockdownTopText() = buildAnnotatedString {
         withStyle(
             style =
                 SpanStyle(
-                    color = MaterialTheme.colorScheme.onPrimary,
+                    color = MaterialTheme.colorScheme.onSurface,
                     textDecoration = TextDecoration.Underline
                 ),
         ) {

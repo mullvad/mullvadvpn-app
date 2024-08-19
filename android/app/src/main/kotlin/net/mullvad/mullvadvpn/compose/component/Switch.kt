@@ -25,7 +25,7 @@ import net.mullvad.mullvadvpn.lib.theme.color.selected
 @Composable
 private fun PreviewMullvadSwitch() {
     AppTheme {
-        Surface(color = MaterialTheme.colorScheme.background) {
+        Surface(color = MaterialTheme.colorScheme.surface) {
             Column(
                 verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding),
                 modifier = Modifier.padding(Dimens.sideMargin)

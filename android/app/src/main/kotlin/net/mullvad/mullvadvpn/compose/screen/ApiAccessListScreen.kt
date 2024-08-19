@@ -185,11 +185,11 @@ private fun ApiAccessMethodItem(
                     }
             ),
         titleStyle = MaterialTheme.typography.titleMedium,
-        subtitleColor = MaterialTheme.colorScheme.onSecondary,
+        subtitleColor = MaterialTheme.colorScheme.onSurfaceVariant,
         bodyView = {
             DefaultNavigationView(
                 chevronContentDescription = apiAccessMethodSetting.name.value,
-                tint = MaterialTheme.colorScheme.onSecondary
+                tint = MaterialTheme.colorScheme.onPrimary
             )
         },
         onCellClicked = { onApiAccessMethodClick(apiAccessMethodSetting) }

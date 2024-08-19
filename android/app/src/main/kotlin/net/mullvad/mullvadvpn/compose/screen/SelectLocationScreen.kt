@@ -484,7 +484,7 @@ fun LazyItemScope.CustomListFooter(item: RelayListItem.CustomListFooter) {
             } else {
                 stringResource(R.string.to_create_a_custom_list)
             },
-        modifier = Modifier.background(MaterialTheme.colorScheme.background)
+        modifier = Modifier.background(MaterialTheme.colorScheme.surface)
     )
 }
 
@@ -721,7 +721,7 @@ private fun LocationBottomSheet(
                     if (enabled) {
                         onBackgroundColor
                     } else {
-                        MaterialTheme.colorScheme.onSecondary
+                        MaterialTheme.colorScheme.onSurfaceVariant
                     },
                 onClick = {
                     onAddLocationToList(item, it)

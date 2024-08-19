@@ -174,7 +174,10 @@ private fun ReportProblemScreen(
                         .height(IntrinsicSize.Max),
                 verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
             ) {
-                Text(text = stringResource(id = R.string.problem_report_description))
+                Text(
+                    text = stringResource(id = R.string.problem_report_description),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
 
                 TextField(
                     modifier = Modifier.fillMaxWidth(),

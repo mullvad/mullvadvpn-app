@@ -33,7 +33,7 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 @Composable
 private fun PreviewPlayPaymentPaymentAvailable() {
     AppTheme {
-        Box(modifier = Modifier.background(color = MaterialTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(color = MaterialTheme.colorScheme.surface)) {
             PlayPayment(
                 billingPaymentState =
                     PaymentState.PaymentAvailable(
@@ -58,7 +58,7 @@ private fun PreviewPlayPaymentPaymentAvailable() {
 @Composable
 private fun PreviewPlayPaymentLoading() {
     AppTheme {
-        Box(modifier = Modifier.background(color = MaterialTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(color = MaterialTheme.colorScheme.surface)) {
             PlayPayment(
                 billingPaymentState = PaymentState.Loading,
                 onPurchaseBillingProductClick = {},
@@ -73,7 +73,7 @@ private fun PreviewPlayPaymentLoading() {
 @Composable
 private fun PreviewPlayPaymentPaymentPending() {
     AppTheme {
-        Box(modifier = Modifier.background(color = MaterialTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(color = MaterialTheme.colorScheme.surface)) {
             PlayPayment(
                 billingPaymentState =
                     PaymentState.PaymentAvailable(
@@ -98,7 +98,7 @@ private fun PreviewPlayPaymentPaymentPending() {
 @Composable
 private fun PreviewPlayPaymentVerificationInProgress() {
     AppTheme {
-        Box(modifier = Modifier.background(color = MaterialTheme.colorScheme.background)) {
+        Box(modifier = Modifier.background(color = MaterialTheme.colorScheme.surface)) {
             PlayPayment(
                 billingPaymentState =
                     PaymentState.PaymentAvailable(
@@ -153,7 +153,7 @@ fun PlayPayment(
                         Row(verticalAlignment = Alignment.Bottom) {
                             Text(
                                 style = MaterialTheme.typography.labelLarge,
-                                color = MaterialTheme.colorScheme.onBackground,
+                                color = MaterialTheme.colorScheme.onSurface,
                                 text = statusMessage,
                                 modifier = Modifier.padding(bottom = Dimens.smallPadding)
                             )
@@ -164,7 +164,7 @@ fun PlayPayment(
                                 Icon(
                                     painter = painterResource(id = R.drawable.icon_info),
                                     contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onBackground
+                                    tint = MaterialTheme.colorScheme.onSurface
                                 )
                             }
                         }

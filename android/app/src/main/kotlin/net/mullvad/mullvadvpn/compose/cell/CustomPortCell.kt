@@ -38,7 +38,7 @@ import net.mullvad.mullvadvpn.lib.theme.color.selected
 @Composable
 private fun PreviewCustomPortCell() {
     AppTheme {
-        SpacedColumn(Modifier.background(MaterialTheme.colorScheme.background)) {
+        SpacedColumn(Modifier.background(MaterialTheme.colorScheme.surface)) {
             CustomPortCell(title = "Title", isSelected = true, port = Port(444))
             CustomPortCell(title = "Title", isSelected = false, port = null)
         }

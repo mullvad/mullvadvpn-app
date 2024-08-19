@@ -153,7 +153,7 @@ fun CustomListLocationsScreen(
                     Modifier.drawVerticalScrollbar(
                             state = lazyListState,
                             color =
-                                MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaScrollbar)
+                                MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar)
                         )
                         .fillMaxWidth(),
                 state = lazyListState,

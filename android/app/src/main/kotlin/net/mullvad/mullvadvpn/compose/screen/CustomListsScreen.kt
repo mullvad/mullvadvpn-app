@@ -187,7 +187,7 @@ private fun LazyListScope.empty() {
             text = stringResource(R.string.no_custom_lists_available),
             modifier = Modifier.padding(Dimens.screenVerticalMargin),
             style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSecondary
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }

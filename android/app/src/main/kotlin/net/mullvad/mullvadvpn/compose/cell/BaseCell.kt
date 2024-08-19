@@ -121,7 +121,7 @@ fun BaseSubtitleCell(
     text: String,
     modifier: Modifier = Modifier,
     style: TextStyle = MaterialTheme.typography.labelMedium,
-    color: Color = MaterialTheme.colorScheme.onSecondary
+    color: Color
 ) {
     BaseSubtitleCell(
         text = AnnotatedString(text),
@@ -136,7 +136,7 @@ fun BaseSubtitleCell(
     text: AnnotatedString,
     modifier: Modifier = Modifier,
     style: TextStyle = MaterialTheme.typography.labelMedium,
-    color: Color = MaterialTheme.colorScheme.onSecondary
+    color: Color
 ) {
     Text(
         text = text,

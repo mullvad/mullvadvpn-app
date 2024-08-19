@@ -429,8 +429,7 @@ fun TunnelState.toMarker(location: GeoIpLocation?): Marker? {
         is TunnelState.Connected ->
             Marker(
                 location.toLatLong(),
-                colors =
-                    LocationMarkerColors(centerColor = MaterialTheme.colorScheme.inversePrimary),
+                colors = LocationMarkerColors(centerColor = MaterialTheme.colorScheme.tertiary),
             )
         is TunnelState.Connecting -> null
         is TunnelState.Disconnected ->

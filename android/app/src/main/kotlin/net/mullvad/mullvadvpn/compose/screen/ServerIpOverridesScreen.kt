@@ -267,7 +267,7 @@ private fun ImportOverridesByBottomSheet(
             modifier = Modifier.testTag(SERVER_IP_OVERRIDES_IMPORT_BY_TEXT_TEST_TAG)
         )
         if (overridesActive) {
-            HorizontalDivider(color = MaterialTheme.colorScheme.onBackground)
+            HorizontalDivider(color = MaterialTheme.colorScheme.onSurface)
             Row(
                 verticalAlignment = Alignment.CenterVertically,
             ) {

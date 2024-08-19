@@ -290,7 +290,7 @@ private fun ColumnScope.DeviceListHeader(state: DeviceListUiState) {
                     }
             ),
         style = MaterialTheme.typography.headlineSmall,
-        color = MaterialTheme.colorScheme.onBackground,
+        color = MaterialTheme.colorScheme.onSurface,
         modifier =
             Modifier.padding(
                 start = Dimens.sideMargin,
@@ -311,7 +311,7 @@ private fun ColumnScope.DeviceListHeader(state: DeviceListUiState) {
                         }
                 ),
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onBackground,
+            color = MaterialTheme.colorScheme.onSurface,
             modifier =
                 Modifier.wrapContentHeight()
                     .animateContentSize()

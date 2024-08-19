@@ -30,7 +30,7 @@ private fun PreviewNavigationCell() {
                 NavigationCellBody(
                     contentBodyDescription = "",
                     content = "content body",
-                    contentColor = MaterialTheme.colorScheme.error,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
                 )
             },
             onClick = {},
@@ -49,7 +49,7 @@ private fun PreviewExternalLinkComposeCell() {
                 NavigationCellBody(
                     contentBodyDescription = "content body",
                     content = "content body",
-                    contentColor = MaterialTheme.colorScheme.onSecondary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
                     isExternalLink = true
                 )
             },
