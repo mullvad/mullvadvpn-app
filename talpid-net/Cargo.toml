@@ -1,0 +1,17 @@
+[package]
+name = "talpid-net"
+description = "Networking helpers"
+authors.workspace = true
+repository.workspace = true
+license.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[lints]
+workspace = true
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"
+talpid-types = { path = "../talpid-types" }
+socket2 = { version = "0.5.3", features = ["all"] }
+log = { workspace = true }
