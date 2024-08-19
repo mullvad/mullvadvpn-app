@@ -44,14 +44,6 @@ type_name:
     error: 60
   excluded: iPhone  # excluded via string
   allowed_symbols: ["_"]  # these are allowed in type names
-identifier_name:
-  allowed_symbols: ["_"]  # these are allowed in type names
-  min_length:
-    error: 3
-  excluded:
-    - id
-    - URL
-    - GlobalAPIKey
 reporter: "xcode"
 nesting:
   type_level:

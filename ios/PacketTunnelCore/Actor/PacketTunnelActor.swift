@@ -37,11 +37,11 @@ public actor PacketTunnelActor {
 
     @Published internal(set) public var observedState: ObservedState = .initial
 
-    let logger = Logger(label: "PacketTunnelActor")
+    nonisolated let logger = Logger(label: "PacketTunnelActor")
 
     let timings: PacketTunnelActorTimings
     let tunnelAdapter: TunnelAdapterProtocol
-    let tunnelMonitor: TunnelMonitorProtocol
+    nonisolated let tunnelMonitor: TunnelMonitorProtocol
     let defaultPathObserver: DefaultPathObserverProtocol
     let blockedStateErrorMapper: BlockedStateErrorMapperProtocol
     public let relaySelector: RelaySelectorProtocol

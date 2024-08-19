@@ -8,7 +8,7 @@
 
 import StoreKit
 
-extension SKError: LocalizedError {
+extension SKError: Foundation.LocalizedError {
     public var errorDescription: String? {
         switch code {
         case .unknown:
