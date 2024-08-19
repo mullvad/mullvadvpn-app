@@ -28,6 +28,7 @@ members = [
     "talpid-core",
     "talpid-dbus",
     "talpid-future",
+    "talpid-net",
     "talpid-openvpn",
     "talpid-openvpn-plugin",
     "talpid-platform-metadata",
