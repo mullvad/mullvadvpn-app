@@ -3946,6 +3946,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "talpid-net"
+version = "0.0.0"
+dependencies = [
+ "libc",
+ "log",
+ "socket2",
+ "talpid-types",
+]
+
+[[package]]
 name = "talpid-openvpn"
 version = "0.0.0"
 dependencies = [
@@ -4128,6 +4138,7 @@ dependencies = [
  "socket2",
  "surge-ping",
  "talpid-dbus",
+ "talpid-net",
  "talpid-routing",
  "talpid-tunnel",
  "talpid-tunnel-config-client",

@@ -1,3 +1,5 @@
+#![cfg(any(target_os = "linux", target_os = "macos"))]
+
 use std::{io, os::fd::AsRawFd};
 
 use socket2::Domain;
@@ -27,6 +29,7 @@ pub fn set_mtu(interface_name: &str, mtu: u16) -> Result<(), io::Error> {
         ));
     }
 
+    // SAFETY: `interface_name.len()` is less than `ifr.ifr_name.len()`
     unsafe {
         std::ptr::copy_nonoverlapping(
             interface_name.as_ptr() as *const libc::c_char,
@@ -36,6 +39,7 @@ pub fn set_mtu(interface_name: &str, mtu: u16) -> Result<(), io::Error> {
     };
     ifr.ifr_ifru.ifru_mtu = mtu as i32;
 
+    // SAFETY: SIOCSIFMTU expects an ifreq with an MTU and interface set
     if unsafe { libc::ioctl(sock.as_raw_fd(), SIOCSIFMTU, &ifr) } < 0 {
         let e = std::io::Error::last_os_error();
         log::error!("{}", e.display_chain_with_msg("SIOCSIFMTU failed"));
@@ -59,6 +63,7 @@ pub fn get_mtu(interface_name: &str) -> Result<u16, io::Error> {
         ));
     }
 
+    // SAFETY: `interface_name.len()` is less than `ifr.ifr_name.len()`
     unsafe {
         std::ptr::copy_nonoverlapping(
             interface_name.as_ptr() as *const libc::c_char,
@@ -67,6 +72,7 @@ pub fn get_mtu(interface_name: &str) -> Result<u16, io::Error> {
         )
     };
 
+    // SAFETY: SIOCGIFMTU expects an ifreq with an interface set
     if unsafe { libc::ioctl(sock.as_raw_fd(), SIOCGIFMTU, &ifr) } < 0 {
         let e = std::io::Error::last_os_error();
         log::error!("{}", e.display_chain_with_msg("SIOCGIFMTU failed"));

@@ -45,6 +45,9 @@ tokio-stream = { version = "0.1", features = ["io-util"] }
 [target.'cfg(unix)'.dependencies]
 nix = "0.23"
 
+[target.'cfg(any(target_os = "linux", target_os = "macos"))'.dependencies]
+talpid-net = { path = "../talpid-net" }
+
 [target.'cfg(target_os = "linux")'.dependencies]
 rtnetlink = "0.11"
 netlink-packet-core = "0.4.2"
