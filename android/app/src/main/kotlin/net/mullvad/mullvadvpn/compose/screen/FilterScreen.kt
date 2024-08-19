@@ -234,7 +234,7 @@ private fun TopBar(onBackClick: () -> Unit) {
             Icon(
                 painter = painterResource(id = R.drawable.icon_back),
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onPrimary,
+                tint = MaterialTheme.colorScheme.onSurface,
             )
         }
         Text(
@@ -242,7 +242,7 @@ private fun TopBar(onBackClick: () -> Unit) {
             modifier = Modifier.weight(1f).padding(end = Dimens.titleIconSize),
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.onPrimary
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }

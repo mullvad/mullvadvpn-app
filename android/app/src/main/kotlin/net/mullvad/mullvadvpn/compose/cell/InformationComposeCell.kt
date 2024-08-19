@@ -79,7 +79,7 @@ private fun InformationComposeCellBody(modifier: Modifier, onInfoClicked: (() ->
                 Icon(
                     painter = painterResource(id = R.drawable.icon_info),
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurface
+                    tint = MaterialTheme.colorScheme.onPrimary
                 )
             }
         }

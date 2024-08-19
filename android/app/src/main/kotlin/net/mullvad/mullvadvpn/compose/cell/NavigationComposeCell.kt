@@ -64,7 +64,7 @@ fun NavigationComposeCell(
     title: String,
     modifier: Modifier = Modifier,
     showWarning: Boolean = false,
-    textColor: Color = MaterialTheme.colorScheme.onSurface,
+    textColor: Color = MaterialTheme.colorScheme.onPrimary,
     bodyView: @Composable () -> Unit = {
         DefaultNavigationView(chevronContentDescription = title, tint = textColor)
     },
@@ -104,7 +104,7 @@ internal fun NavigationTitleView(
     Text(
         text = title,
         style = MaterialTheme.typography.titleMedium,
-        color = MaterialTheme.colorScheme.onSurface,
+        color = MaterialTheme.colorScheme.onPrimary,
         modifier = modifier,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis
@@ -134,8 +134,8 @@ internal fun NavigationCellBody(
     content: String,
     contentBodyDescription: String,
     modifier: Modifier = Modifier,
-    contentColor: Color = MaterialTheme.colorScheme.onSurface,
-    textColor: Color = MaterialTheme.colorScheme.onSurface,
+    contentColor: Color = MaterialTheme.colorScheme.onPrimary,
+    textColor: Color = MaterialTheme.colorScheme.onPrimary,
     isExternalLink: Boolean = false
 ) {
     Row(

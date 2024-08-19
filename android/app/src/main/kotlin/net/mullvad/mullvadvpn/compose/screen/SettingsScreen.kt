@@ -211,7 +211,7 @@ private fun FaqAndGuides(context: Context) {
             @Composable {
                 DefaultExternalLinkView(
                     chevronContentDescription = faqGuideLabel,
-                    tint = MaterialTheme.colorScheme.onSurface
+                    tint = MaterialTheme.colorScheme.onPrimary
                 )
             },
         onClick = {
@@ -229,7 +229,7 @@ private fun PrivacyPolicy(context: Context, state: SettingsUiState) {
             @Composable {
                 DefaultExternalLinkView(
                     chevronContentDescription = privacyPolicyLabel,
-                    tint = MaterialTheme.colorScheme.onSurface
+                    tint = MaterialTheme.colorScheme.onPrimary
                 )
             },
         onClick = {

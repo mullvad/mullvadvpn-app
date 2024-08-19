@@ -102,7 +102,7 @@ private fun ExpandableComposeCellBody(
                 Icon(
                     painter = painterResource(id = R.drawable.icon_info),
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurface
+                    tint = MaterialTheme.colorScheme.onPrimary
                 )
             }
         }
@@ -110,7 +110,7 @@ private fun ExpandableComposeCellBody(
         ChevronButton(
             isExpanded = isExpanded,
             onExpand = onExpand,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onPrimary
         )
     }
 }
