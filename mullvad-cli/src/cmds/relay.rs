@@ -542,7 +542,6 @@ impl Relay {
                     allowed_ips: all_of_the_internet(),
                     endpoint: SocketAddr::new(IpAddr::V4(Ipv4Addr::UNSPECIFIED), port),
                     psk: None,
-                    #[cfg(daita)]
                     constant_packet_size: false,
                 },
                 exit_peer: None,
