@@ -38,8 +38,7 @@ import net.mullvad.mullvadvpn.lib.theme.typeface.listItemText
 private fun PreviewTunnelingCell() {
     AppTheme {
         SpacedColumn(
-            modifier =
-                Modifier.background(color = MaterialTheme.colorScheme.surface).padding(20.dp)
+            modifier = Modifier.background(color = MaterialTheme.colorScheme.surface).padding(20.dp)
         ) {
             SplitTunnelingCell(
                 title = "Mullvad VPN",
