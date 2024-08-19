@@ -1,8 +1,6 @@
 use anyhow::Result;
 use clap::Subcommand;
 use mullvad_management_interface::MullvadProxyClient;
-#[cfg(daita)]
-use mullvad_types::wireguard::DaitaSettings;
 use mullvad_types::{
     constraints::Constraint,
     wireguard::{QuantumResistantState, RotationInterval, DEFAULT_ROTATION_INTERVAL},
@@ -44,6 +42,10 @@ pub enum TunnelOptions {
         #[cfg(daita)]
         #[arg(long)]
         daita: Option<BooleanOption>,
+        /// Configure whether to enable DAITA "use anywhere"
+        #[cfg(daita)]
+        #[arg(long)]
+        daita_use_anywhere: Option<BooleanOption>,
         /// The key rotation interval. Number of hours, or 'any'
         #[arg(long)]
         rotation_interval: Option<Constraint<RotationInterval>>,
@@ -140,6 +142,8 @@ impl Tunnel {
                 quantum_resistant,
                 #[cfg(daita)]
                 daita,
+                #[cfg(daita)]
+                daita_use_anywhere,
                 rotation_interval,
                 rotate_key,
             } => {
@@ -148,6 +152,8 @@ impl Tunnel {
                     quantum_resistant,
                     #[cfg(daita)]
                     daita,
+                    #[cfg(daita)]
+                    daita_use_anywhere,
                     rotation_interval,
                     rotate_key,
                 )
@@ -179,6 +185,7 @@ impl Tunnel {
         mtu: Option<Constraint<u16>>,
         quantum_resistant: Option<QuantumResistantState>,
         #[cfg(daita)] daita: Option<BooleanOption>,
+        #[cfg(daita)] daita_use_anywhere: Option<BooleanOption>,
         rotation_interval: Option<Constraint<RotationInterval>>,
         rotate_key: Option<RotateKey>,
     ) -> Result<()> {
@@ -195,12 +202,14 @@ impl Tunnel {
         }
 
         #[cfg(daita)]
-        if let Some(daita) = daita {
-            rpc.set_daita_settings(DaitaSettings {
-                enabled: *daita,
-                use_anywhere: true, /* TODO */
-            })
-            .await?;
+        if let Some(enable_daita) = daita {
+            rpc.set_enable_daita(*enable_daita).await?;
+            println!("DAITA setting has been updated");
+        }
+
+        #[cfg(daita)]
+        if let Some(daita_use_anywhere) = daita_use_anywhere {
+            rpc.set_daita_use_anywhere(*daita_use_anywhere).await?;
             println!("DAITA setting has been updated");
         }
 
