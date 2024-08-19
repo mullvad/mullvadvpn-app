@@ -22,6 +22,8 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+
+## [2024.5 - 2024-08-19]
 ### Added
 - Add multihop, a feature that routes traffic through two
   of our relays before it reaches the internet.
