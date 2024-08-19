@@ -264,6 +264,10 @@ pub enum DaemonCommand {
     SetQuantumResistantTunnel(ResponseTx<(), settings::Error>, QuantumResistantState),
     /// Set DAITA settings for the tunnel
     #[cfg(daita)]
+    SetEnableDaita(ResponseTx<(), settings::Error>, bool),
+    #[cfg(daita)]
+    SetDaitaUseAnywhere(ResponseTx<(), settings::Error>, bool),
+    #[cfg(daita)]
     SetDaitaSettings(ResponseTx<(), settings::Error>, DaitaSettings),
     /// Set DNS options or servers to use
     SetDnsOptions(ResponseTx<(), settings::Error>, DnsOptions),
@@ -1218,6 +1222,10 @@ impl Daemon {
                 self.on_set_quantum_resistant_tunnel(tx, quantum_resistant_state)
                     .await
             }
+            #[cfg(daita)]
+            SetEnableDaita(tx, value) => self.on_set_daita_enabled(tx, value).await,
+            #[cfg(daita)]
+            SetDaitaUseAnywhere(tx, value) => self.on_set_daita_use_anywhere(tx, value).await,
             #[cfg(daita)]
             SetDaitaSettings(tx, daita_settings) => {
                 self.on_set_daita_settings(tx, daita_settings).await
@@ -2287,6 +2295,54 @@ impl Daemon {
             Err(e) => {
                 log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
                 Self::oneshot_send(tx, Err(e), "set_quantum_resistant_tunnel response");
+            }
+        }
+    }
+
+    #[cfg(daita)]
+    async fn on_set_daita_enabled(&mut self, tx: ResponseTx<(), settings::Error>, value: bool) {
+        match self
+            .settings
+            .update(|settings| settings.tunnel_options.wireguard.daita.enabled = value)
+            .await
+        {
+            Ok(settings_changed) => {
+                Self::oneshot_send(tx, Ok(()), "set_daita_enabled response");
+                if settings_changed && self.get_target_tunnel_type() != Some(TunnelType::OpenVpn) {
+                    log::info!("Reconnecting because DAITA settings changed");
+                    self.reconnect_tunnel();
+                }
+            }
+            Err(e) => {
+                log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
+                Self::oneshot_send(tx, Err(e), "set_daita_enabled response");
+            }
+        }
+    }
+
+    #[cfg(daita)]
+    async fn on_set_daita_use_anywhere(
+        &mut self,
+        tx: ResponseTx<(), settings::Error>,
+        value: bool,
+    ) {
+        match self
+            .settings
+            .update(|settings| settings.tunnel_options.wireguard.daita.use_anywhere = value)
+            .await
+        {
+            Ok(settings_changed) => {
+                Self::oneshot_send(tx, Ok(()), "set_daita_use_anywhere response");
+
+                // TODO: don't reconnect if multihop is enabled
+                if settings_changed && self.get_target_tunnel_type() != Some(TunnelType::OpenVpn) {
+                    log::info!("Reconnecting because DAITA settings changed");
+                    self.reconnect_tunnel();
+                }
+            }
+            Err(e) => {
+                log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
+                Self::oneshot_send(tx, Err(e), "set_daita_use_anywhere response");
             }
         }
     }

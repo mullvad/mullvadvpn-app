@@ -36,7 +36,6 @@ import {
   IAppVersionInfo,
   IBridgeConstraints,
   ICustomList,
-  IDaitaSettings,
   IDevice,
   IDeviceRemoval,
   IDnsOptions,
@@ -573,14 +572,12 @@ export class DaemonRpc {
     await this.callBool(this.client.prepareRestartV2, quit);
   }
 
-  public async setDaitaSettings(daitaSettings: IDaitaSettings): Promise<void> {
-    const grpcDaitaSettings = new grpcTypes.DaitaSettings();
-    grpcDaitaSettings.setEnabled(daitaSettings.enabled);
-    grpcDaitaSettings.setUseAnywhere(daitaSettings.useAnywhere);
-    await this.call<grpcTypes.DaitaSettings, Empty>(
-      this.client.setDaitaSettings,
-      grpcDaitaSettings,
-    );
+  public async setEnableDaita(value: boolean): Promise<void> {
+    await this.callBool(this.client.setEnableDaita, value);
+  }
+
+  public async setDaitaUseAnywhere(value: boolean): Promise<void> {
+    await this.callBool(this.client.setDaitaUseAnywhere, value);
   }
 
   public async listDevices(accountToken: AccountToken): Promise<Array<IDevice>> {

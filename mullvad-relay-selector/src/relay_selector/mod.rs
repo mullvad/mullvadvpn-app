@@ -789,7 +789,7 @@ impl RelaySelector {
             .take_while(|relay| relay.distance <= smallest_distance)
             .map(|relay_with_distance| relay_with_distance.relay)
             .collect_vec();
-        let entry = pick_random_excluding(&entry_candidates, &exit).ok_or(Error::NoRelay)?;
+        let entry = pick_random_excluding(&entry_candidates, exit).ok_or(Error::NoRelay)?;
 
         Ok(WireguardConfig::multihop(exit.clone(), entry.clone()))
     }
