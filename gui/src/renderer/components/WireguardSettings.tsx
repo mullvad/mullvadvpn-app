@@ -529,7 +529,7 @@ function MtuSetting() {
 }
 
 function DaitaSettings() {
-  const { setDaitaSettings } = useAppContext();
+  const { setEnableDaita, setDaitaUseAnywhere } = useAppContext();
   const daita = useSelector((state) => state.settings.wireguard.daita?.enabled ?? false);
   const useAnywhere = useSelector((state) => state.settings.wireguard.daita?.useAnywhere ?? false);
 
@@ -539,16 +539,16 @@ function DaitaSettings() {
     if (value) {
       showConfirmationDialog();
     } else {
-      void setDaitaSettings({ enabled: value, useAnywhere: useAnywhere });
+      void setEnableDaita(value);
     }
   }, []);
 
   const setUseAnywhere = useCallback((value: boolean) => {
-    void setDaitaSettings({ enabled: daita, useAnywhere: value });
+    void setDaitaUseAnywhere(value);
   }, []);
 
   const confirmDaita = useCallback(() => {
-    void setDaitaSettings({ enabled: true, useAnywhere: useAnywhere });
+    void setEnableDaita(true);
     hideConfirmationDialog();
   }, []);
 
