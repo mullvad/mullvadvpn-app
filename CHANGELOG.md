@@ -42,6 +42,7 @@ Line wrap the file at 100 chars.                                              Th
 
 #### macOS
 - Fix intermittent failures to connect with PQ enabled.
+- Reduce packet loss when using split tunneling.
 
 
 ## [2024.4] - 2024-07-23
