@@ -811,10 +811,12 @@ fn capture_outbound_packets(
         .open()
         .map_err(Error::CaptureSplitTunnelDevice)?;
 
-    // TODO: This is unsupported on macOS 13 and lower, so we determine the direction using the
-    //       pktap header flags. Once macOS 13 is no longer supported, this can be uncommented.
-    // cap.direction(pcap::Direction::Out)
-    //    .map_err(Error::SetDirection)?;
+    // TODO: `Capture::direction` is unsupported on macOS 13 and lower, so we determine the
+    //       direction using the pktap header as well. Once macOS 13 is no longer supported,
+    //       this can be assumed to work. Filtering here appears to be a lot faster.
+    if let Err(error) = cap.direction(pcap::Direction::Out) {
+        log::debug!("Failed to set capture direction. Might be on macOS 13: {error}");
+    }
 
     let cap = cap.setnonblock().map_err(Error::EnableNonblock)?;
     let stream = cap
