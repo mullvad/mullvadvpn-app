@@ -107,8 +107,11 @@ export default class Settings implements Readonly<ISettings> {
       const settings = await fs.readFile(path);
       return this.daemonRpc.applyJsonSettings(settings.toString());
     });
-    IpcMainEventChannel.settings.handleSetDaitaSettings((daitaSettings) => {
-      return this.daemonRpc.setDaitaSettings(daitaSettings);
+    IpcMainEventChannel.settings.handleSetEnableDaita((value) => {
+      return this.daemonRpc.setEnableDaita(value);
+    });
+    IpcMainEventChannel.settings.handleSetDaitaUseAnywhere((value) => {
+      return this.daemonRpc.setDaitaUseAnywhere(value);
     });
 
     IpcMainEventChannel.guiSettings.handleSetEnableSystemNotifications((flag: boolean) => {
