@@ -53,13 +53,13 @@ use mullvad_types::{
     auth_failed::AuthFailed,
     custom_list::CustomList,
     device::{Device, DeviceEvent, DeviceEventCause, DeviceId, DeviceState, RemoveDeviceEvent},
-    features::{FeatureIndicator, FeatureIndicators},
+    features::{compute_feature_indicators, FeatureIndicators},
     location::{GeoIpLocation, LocationEventData},
     relay_constraints::{
         BridgeSettings, BridgeState, BridgeType, ObfuscationSettings, RelayOverride, RelaySettings,
     },
     relay_list::RelayList,
-    settings::{DnsOptions, DnsState, Settings},
+    settings::{DnsOptions, Settings},
     states::{Secured, TargetState, TargetStateStrict, TunnelState},
     version::{AppVersion, AppVersionInfo},
     wireguard::{PublicKey, QuantumResistantState, RotationInterval},
@@ -87,7 +87,7 @@ use talpid_types::android::AndroidContext;
 #[cfg(target_os = "windows")]
 use talpid_types::split_tunnel::ExcludedProcess;
 use talpid_types::{
-    net::{IpVersion, ObfuscationType, TunnelType},
+    net::{IpVersion, TunnelType},
     tunnel::{ErrorStateCause, TunnelStateTransition},
     ErrorExt,
 };
@@ -958,7 +958,7 @@ impl Daemon {
             DeviceMigrationEvent(event) => self.handle_device_migration_event(event),
             LocationEvent(location_data) => self.handle_location_event(location_data),
             SettingsChanged => {
-                self.handle_feature_indicator_event();
+                self.update_feature_indicators_on_settings_changed();
             }
             #[cfg(any(windows, target_os = "android", target_os = "macos"))]
             ExcludedPathsEvent(update, tx) => self.handle_new_excluded_paths(update, tx).await,
@@ -979,16 +979,24 @@ impl Daemon {
                 location: None,
                 locked_down,
             },
-            TunnelStateTransition::Connecting(endpoint) => TunnelState::Connecting {
-                endpoint,
-                location: self.parameters_generator.get_last_location().await,
-                feature_indicators: self.get_feature_indicators(),
-            },
-            TunnelStateTransition::Connected(endpoint) => TunnelState::Connected {
-                endpoint,
-                location: self.parameters_generator.get_last_location().await,
-                feature_indicators: self.get_feature_indicators(),
-            },
+            TunnelStateTransition::Connecting(endpoint) => {
+                let feature_indicators =
+                    compute_feature_indicators(&self.settings.to_settings(), &endpoint);
+                TunnelState::Connecting {
+                    endpoint,
+                    location: self.parameters_generator.get_last_location().await,
+                    feature_indicators,
+                }
+            }
+            TunnelStateTransition::Connected(endpoint) => {
+                let feature_indicators =
+                    compute_feature_indicators(&self.settings.to_settings(), &endpoint);
+                TunnelState::Connected {
+                    endpoint,
+                    location: self.parameters_generator.get_last_location().await,
+                    feature_indicators,
+                }
+            }
             TunnelStateTransition::Disconnecting(after_disconnect) => {
                 TunnelState::Disconnecting(after_disconnect)
             }
@@ -1120,22 +1128,37 @@ impl Daemon {
             .notify_new_state(self.tunnel_state.clone());
     }
 
-    /// Update the set of feature indicators.
-    fn handle_feature_indicator_event(&mut self) {
-        // Note: If the current tunnel state carries information about active feature indicators,
-        // we should care to update the known set of feature indicators (i.e. in the connecting /
-        // connected state). Otherwise, we can just skip broadcasting a new tunnel state.
-        if let Some(current_feature_indicators) = self.tunnel_state.get_feature_indicators() {
-            let new_feature_indicators = self.get_feature_indicators();
-            if *current_feature_indicators != new_feature_indicators {
-                // Make sure to update the daemon's actual tunnel state. Otherwise feature indicator changes won't be persisted.
-                self.tunnel_state
-                    .set_feature_indicators(new_feature_indicators);
-                self.management_interface
-                    .notifier()
-                    .notify_new_state(self.tunnel_state.clone());
+    /// Update the set of feature indicators based on the new settings.
+    fn update_feature_indicators_on_settings_changed(&mut self) {
+        // Updated settings may affect the feature indicators, even if they don't change the tunnel
+        // state (e.g. activating lockdown mode). Note that only the connected and connecting states
+        // have feature indicators.
+        match &mut self.tunnel_state {
+            TunnelState::Connecting {
+                feature_indicators,
+                endpoint,
+                ..
             }
-        }
+            | TunnelState::Connected {
+                feature_indicators,
+                endpoint,
+                ..
+            } => {
+                let new_feature_indicators =
+                    compute_feature_indicators(&self.settings.to_settings(), endpoint);
+                // Update and broadcast the new feature indicators if they have changed
+                if *feature_indicators != new_feature_indicators {
+                    // Make sure to update the daemon's actual tunnel state. Otherwise, feature
+                    // indicator changes won't be persisted.
+                    *feature_indicators = new_feature_indicators;
+
+                    self.management_interface
+                        .notifier()
+                        .notify_new_state(self.tunnel_state.clone());
+                }
+            }
+            _ => {}
+        };
     }
 
     fn reset_rpc_sockets_on_tunnel_state_transition(
@@ -2811,16 +2834,21 @@ impl Daemon {
     }
 
     fn on_get_feature_indicators(&self, tx: oneshot::Sender<FeatureIndicators>) {
-        Self::oneshot_send(
-            tx,
-            self.get_feature_indicators(),
-            "get_feature_indicators response",
-        );
+        let feature_indicators = match &self.tunnel_state {
+            TunnelState::Connecting {
+                feature_indicators, ..
+            } => feature_indicators.to_owned(),
+            TunnelState::Connected {
+                feature_indicators, ..
+            } => feature_indicators.to_owned(),
+            _ => FeatureIndicators::default(),
+        };
+        Self::oneshot_send(tx, feature_indicators, "get_feature_indicators response");
     }
 
     /// Set the target state of the client. If it changed trigger the operations needed to
     /// progress towards that state.
-    /// Returns a bool representing whether or not a state change was initiated.
+    /// Returns a bool representing whether a state change was initiated.
     async fn set_target_state(&mut self, new_state: TargetState) -> bool {
         if new_state != *self.target_state || self.tunnel_state.is_in_error_state() {
             log::debug!("Target state {:?} => {:?}", *self.target_state, new_state);
@@ -2873,95 +2901,6 @@ impl Daemon {
         DaemonShutdownHandle {
             tx: self.tx.clone(),
         }
-    }
-
-    /// Source all active [`FeatureIndicators`].
-    ///
-    /// Note that [`FeatureIndicators`] only affect an active connection, which means that when the
-    /// daemon is disconnected while calling this function the caller will see an empty set of
-    /// [`FeatureIndicators`].
-    fn get_feature_indicators(&self) -> FeatureIndicators {
-        // Check if there is an active tunnel.
-        let Some(endpoint) = self.tunnel_state.endpoint() else {
-            // If there is not, no features are actually active and thus should not be displayed.
-            return Default::default();
-        };
-        let settings = self.settings.to_settings();
-
-        #[cfg(any(windows, target_os = "android", target_os = "macos"))]
-        let split_tunneling = self.settings.split_tunnel.enable_exclusions;
-        #[cfg(not(any(windows, target_os = "android", target_os = "macos")))]
-        let split_tunneling = false;
-
-        let lockdown_mode = settings.block_when_disconnected;
-        let lan_sharing = settings.allow_lan;
-        let dns_content_blockers = settings
-            .tunnel_options
-            .dns_options
-            .default_options
-            .any_blockers_enabled();
-        let custom_dns = settings.tunnel_options.dns_options.state == DnsState::Custom;
-        let server_ip_override = !settings.relay_overrides.is_empty();
-
-        let generic_features = [
-            (split_tunneling, FeatureIndicator::SplitTunneling),
-            (lockdown_mode, FeatureIndicator::LockdownMode),
-            (lan_sharing, FeatureIndicator::LanSharing),
-            (dns_content_blockers, FeatureIndicator::DnsContentBlockers),
-            (custom_dns, FeatureIndicator::CustomDns),
-            (server_ip_override, FeatureIndicator::ServerIpOverride),
-        ];
-
-        // Pick protocol-specific features and whether they are currently enabled.
-        let protocol_features = match endpoint.tunnel_type {
-            TunnelType::OpenVpn => {
-                let bridge_mode = endpoint.proxy.is_some();
-                let mss_fix = settings.tunnel_options.openvpn.mssfix.is_some();
-
-                vec![
-                    (bridge_mode, FeatureIndicator::BridgeMode),
-                    (mss_fix, FeatureIndicator::CustomMssFix),
-                ]
-            }
-            TunnelType::Wireguard => {
-                let quantum_resistant = endpoint.quantum_resistant;
-                let multihop = endpoint.entry_endpoint.is_some();
-                let udp_tcp = endpoint
-                    .obfuscation
-                    .as_ref()
-                    .filter(|obfuscation| obfuscation.obfuscation_type == ObfuscationType::Udp2Tcp)
-                    .is_some();
-                let shadowsocks = endpoint
-                    .obfuscation
-                    .as_ref()
-                    .filter(|obfuscation| {
-                        obfuscation.obfuscation_type == ObfuscationType::Shadowsocks
-                    })
-                    .is_some();
-
-                let mtu = settings.tunnel_options.wireguard.mtu.is_some();
-
-                #[cfg(daita)]
-                let daita = endpoint.daita;
-
-                vec![
-                    (quantum_resistant, FeatureIndicator::QuantumResistance),
-                    (multihop, FeatureIndicator::Multihop),
-                    (udp_tcp, FeatureIndicator::Udp2Tcp),
-                    (shadowsocks, FeatureIndicator::Shadowsocks),
-                    (mtu, FeatureIndicator::CustomMtu),
-                    #[cfg(daita)]
-                    (daita, FeatureIndicator::Daita),
-                ]
-            }
-        };
-
-        // use the booleans to filter into a list of only the active features
-        generic_features
-            .into_iter()
-            .chain(protocol_features)
-            .filter_map(|(active, feature)| active.then_some(feature))
-            .collect()
     }
 }
 
