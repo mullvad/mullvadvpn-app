@@ -571,7 +571,10 @@ fn classify_and_send(
                     };
                     fix_ipv4_checksums(&mut ip, Some(addr), None);
                     if let Err(error) = vpn_write.write(packet.frame.payload()) {
-                        log::error!("Failed to forward to tun device: {error}");
+                        log::trace!(
+                            "Failed to forward to VPN tunnel: {error}, size: {}",
+                            packet.frame.payload().len()
+                        );
                     }
                 }
                 EtherTypes::Ipv6 => {
@@ -585,7 +588,10 @@ fn classify_and_send(
                     };
                     fix_ipv6_checksums(&mut ip, Some(addr), None);
                     if let Err(error) = vpn_write.write(packet.frame.payload()) {
-                        log::error!("Failed to forward to tun device: {error}");
+                        log::trace!(
+                            "Failed to forward to VPN tunnel: {error}, size: {}",
+                            packet.frame.payload().len()
+                        );
                     }
                 }
                 other => log::error!("unknown ethertype: {other}"),
