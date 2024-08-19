@@ -118,8 +118,16 @@ pub(crate) enum RouteManagerCommand {
     RefreshRoutes,
     NewDefaultRouteListener(oneshot::Sender<mpsc::UnboundedReceiver<DefaultRouteEvent>>),
     GetDefaultRoutes(oneshot::Sender<(Option<DefaultRoute>, Option<DefaultRoute>)>),
+    NewInterfaceChangeListener(oneshot::Sender<mpsc::UnboundedReceiver<InterfaceEvent>>),
     /// Return gateway for V4 and V6
     GetDefaultGateway(oneshot::Sender<(Option<Gateway>, Option<Gateway>)>),
+}
+
+/// Event that is sent when interface details may have changed for some interface.
+#[cfg(target_os = "macos")]
+pub struct InterfaceEvent {
+    pub interface_index: u16,
+    pub mtu: u16,
 }
 
 /// Event that is sent when a preferred non-tunnel default route is
@@ -223,6 +231,18 @@ impl RouteManagerHandle {
         let (response_tx, response_rx) = oneshot::channel();
         self.tx
             .unbounded_send(RouteManagerCommand::GetDefaultRoutes(response_tx))
+            .map_err(|_| Error::RouteManagerDown)?;
+        response_rx.await.map_err(|_| Error::ManagerChannelDown)
+    }
+
+    /// Listen for interface changes.
+    #[cfg(target_os = "macos")]
+    pub async fn interface_change_listener(
+        &self,
+    ) -> Result<impl Stream<Item = InterfaceEvent>, Error> {
+        let (response_tx, response_rx) = oneshot::channel();
+        self.tx
+            .unbounded_send(RouteManagerCommand::NewInterfaceChangeListener(response_tx))
             .map_err(|_| Error::RouteManagerDown)?;
         response_rx.await.map_err(|_| Error::ManagerChannelDown)
     }
