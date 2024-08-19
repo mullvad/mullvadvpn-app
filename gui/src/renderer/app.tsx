@@ -19,7 +19,6 @@ import {
   IAccountData,
   IAppVersionInfo,
   ICustomList,
-  IDaitaSettings,
   IDevice,
   IDeviceRemoval,
   IDnsOptions,
@@ -345,8 +344,10 @@ export default class AppRenderer {
     IpcRendererEventChannel.splitTunneling.forgetManuallyAddedApplication(application);
   public setObfuscationSettings = (obfuscationSettings: ObfuscationSettings) =>
     IpcRendererEventChannel.settings.setObfuscationSettings(obfuscationSettings);
-  public setDaitaSettings = (daitaSettings: IDaitaSettings) =>
-    IpcRendererEventChannel.settings.setDaitaSettings(daitaSettings);
+  public setEnableDaita = (value: boolean) =>
+    IpcRendererEventChannel.settings.setEnableDaita(value);
+  public setDaitaUseAnywhere = (value: boolean) =>
+    IpcRendererEventChannel.settings.setDaitaUseAnywhere(value);
   public collectProblemReport = (toRedact: string | undefined) =>
     IpcRendererEventChannel.problemReport.collectLogs(toRedact);
   public viewLog = (path: string) => IpcRendererEventChannel.problemReport.viewLog(path);
