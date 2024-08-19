@@ -42,6 +42,7 @@ Line wrap the file at 100 chars.                                              Th
 
 #### macOS
 - Fix intermittent failures to connect with PQ enabled.
+- Exclude programs when executed using a relative path from a shell.
 
 
 ## [2024.4] - 2024-07-23
