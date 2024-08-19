@@ -71,7 +71,7 @@ android-gradle-aapt = { module = "com.android.tools.build:aapt2" }
 android-volley = { module = "com.android.volley:volley", version.ref = "android-volley" }
 
 # AndroidX
-androidx-activity-Compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activitycompose" }
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activitycompose" }
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "androidx-appcompat" }
 androidx-coresplashscreen = { module = "androidx.core:core-splashscreen", version.ref = "androidx-coresplashscreen" }
 androidx-espresso = { module = "androidx.test.espresso:espresso-core", version.ref = "androidx-espresso" }

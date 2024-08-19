@@ -313,7 +313,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: relay-list
-          path: android/app/build/extraAssets/relays.json
+          path: android/app/build/extraAssets
 
       - name: Build app
         uses: burrunan/gradle-cache-action@v1
@@ -416,10 +416,9 @@ jobs:
           - test-type: app
             path: android/app/build/outputs/apk
             test-repeat: 1
-          # Disabled (test-repeat='0') due to flakiness unless overridden by input.
           - test-type: mockapi
             path: android/test/mockapi/build/outputs/apk
-            test-repeat: ${{ github.event.inputs.mockapi_test_repeat || 0 }}
+            test-repeat: ${{ github.event.inputs.mockapi_test_repeat || 1 }}
     steps:
       - name: Prepare report dir
         if: ${{ matrix.test-repeat != 0 }}
@@ -470,7 +469,8 @@ jobs:
 
   instrumented-e2e-tests:
     name: Run instrumented e2e tests
-    runs-on: [self-hosted, android-device]
+    # Temporary workaround for targeting the runner android-runner-v1
+    runs-on: [self-hosted, android-device, android-emulator]
     if: github.event_name == 'schedule' || github.event.inputs.run_e2e_tests == 'true'
     timeout-minutes: 30
     needs: [build-app, build-instrumented-tests]
@@ -507,6 +507,7 @@ jobs:
           INFRA_FLAVOR: prod
           VALID_TEST_ACCOUNT_NUMBER: ${{ secrets.ANDROID_PROD_TEST_ACCOUNT }}
           INVALID_TEST_ACCOUNT_NUMBER: '0000000000000000'
+          ENABLE_HIGHLY_RATE_LIMITED_TESTS: ${{ github.event_name == 'schedule' && 'true' || 'false' }}
           REPORT_DIR: ${{ steps.prepare-report-dir.outputs.report_dir }}
         run: ./android/scripts/run-instrumented-tests.sh
 
@@ -521,6 +522,7 @@ jobs:
         clearPackageData=true,\
         runnerBuilder=de.mannodermaus.junit5.AndroidJUnit5Builder,\
         invalid_test_account_number=0000000000000000,\
+        enable_highly_rate_limited_tests=${{ github.event_name == 'schedule' && 'true' || 'false' }},\
         partner_auth=${{ secrets.STAGEMOLE_PARTNER_AUTH }}"
     strategy:
       fail-fast: false
