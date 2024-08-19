@@ -90,6 +90,7 @@ pub struct RouteManagerImpl {
     v6_default_route: Option<interface::DefaultRoute>,
     update_trigger: BurstGuard,
     default_route_listeners: Vec<mpsc::UnboundedSender<DefaultRouteEvent>>,
+    interface_change_listeners: Vec<mpsc::UnboundedSender<super::InterfaceEvent>>,
     check_default_routes_restored: Pin<Box<dyn FusedStream<Item = ()> + Send>>,
     unhandled_default_route_changes: bool,
     primary_interface_monitor: interface::PrimaryInterfaceMonitor,
@@ -127,6 +128,7 @@ impl RouteManagerImpl {
             v6_default_route: None,
             update_trigger,
             default_route_listeners: vec![],
+            interface_change_listeners: vec![],
             check_default_routes_restored: Box::pin(futures::stream::pending()),
             unhandled_default_route_changes: false,
             primary_interface_monitor,
@@ -227,6 +229,13 @@ impl RouteManagerImpl {
                                 log::error!("Failed to clean up rotues: {err}");
                             }
                         },
+
+                        Some(RouteManagerCommand::NewInterfaceChangeListener(tx)) => {
+                            let (events_tx, events_rx) = mpsc::unbounded();
+                            self.interface_change_listeners.push(events_tx);
+                            let _ = tx.send(events_rx);
+                        }
+
                         Some(RouteManagerCommand::RefreshRoutes) => {
                             if let Err(error) = self.refresh_routes().await {
                                 log::error!("Failed to refresh routes: {error}");
@@ -376,6 +385,20 @@ impl RouteManagerImpl {
             }
             Ok(RouteSocketMessage::AddAddress(_) | RouteSocketMessage::DeleteAddress(_)) => {
                 self.update_trigger.trigger();
+            }
+            Ok(RouteSocketMessage::Interface(iface)) => {
+                let Ok(mtu) = u16::try_from(iface.mtu()) else {
+                    log::warn!("Invalid mtu for interface: {}", iface.index());
+                    return;
+                };
+
+                self.interface_change_listeners.retain(|tx| {
+                    tx.unbounded_send(super::InterfaceEvent {
+                        interface_index: iface.index(),
+                        mtu,
+                    })
+                    .is_ok()
+                });
             }
             // ignore all other message types
             Ok(_) => {}
