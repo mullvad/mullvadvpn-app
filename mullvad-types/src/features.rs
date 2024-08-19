@@ -141,6 +141,18 @@ pub fn compute_feature_indicators(
             #[cfg(daita)]
             let daita = endpoint.daita;
 
+            #[cfg(daita)]
+            let daita_use_anywhere =
+                if let crate::relay_constraints::RelaySettings::Normal(constraints) =
+                    &settings.relay_settings
+                {
+                    // Detect whether we're using "use_anywhere" by checking if multihop is
+                    // in use but not explicitly enabled.
+                    daita && multihop && !constraints.wireguard_constraints.use_multihop
+                } else {
+                    false
+                };
+
             vec![
                 (quantum_resistant, FeatureIndicator::QuantumResistance),
                 (multihop, FeatureIndicator::Multihop),
@@ -149,6 +161,8 @@ pub fn compute_feature_indicators(
                 (mtu, FeatureIndicator::CustomMtu),
                 #[cfg(daita)]
                 (daita, FeatureIndicator::Daita),
+                #[cfg(daita)]
+                (daita_use_anywhere, FeatureIndicator::DaitaUseAnywhere),
             ]
         }
     };
@@ -169,6 +183,8 @@ mod tests {
         proxy::{ProxyEndpoint, ProxyType},
         Endpoint, ObfuscationEndpoint, TransportProtocol,
     };
+
+    use crate::relay_constraints::RelaySettings;
 
     use super::*;
 
@@ -282,6 +298,9 @@ mod tests {
             address: SocketAddr::from(([1, 2, 3, 4], 443)),
             protocol: TransportProtocol::Tcp,
         });
+        if let RelaySettings::Normal(constraints) = &mut settings.relay_settings {
+            constraints.wireguard_constraints.use_multihop = true;
+        };
         expected_indicators.0.insert(FeatureIndicator::Multihop);
         assert_eq!(
             compute_feature_indicators(&settings, &endpoint, false),
@@ -323,6 +342,18 @@ mod tests {
                 compute_feature_indicators(&settings, &endpoint, false),
                 expected_indicators
             );
+
+            if let RelaySettings::Normal(constraints) = &mut settings.relay_settings {
+                constraints.wireguard_constraints.use_multihop = false;
+            };
+            expected_indicators
+                .0
+                .insert(FeatureIndicator::DaitaUseAnywhere);
+            assert_eq!(
+                compute_feature_indicators(&settings, &endpoint, false),
+                expected_indicators,
+                "DaitaUseAnywhere should be enable"
+            );
         }
 
         // NOTE: If this match statement fails to compile, it means that a new feature indicator has
@@ -342,6 +373,7 @@ mod tests {
             FeatureIndicator::CustomMtu => {}
             FeatureIndicator::CustomMssFix => {}
             FeatureIndicator::Daita => {}
+            FeatureIndicator::DaitaUseAnywhere => {}
         }
     }
 }
