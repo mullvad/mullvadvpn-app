@@ -342,6 +342,26 @@ impl ManagementService for ManagementServiceImpl {
     }
 
     #[cfg(daita)]
+    async fn set_enable_daita(&self, request: Request<bool>) -> ServiceResult<()> {
+        let value = request.into_inner();
+        log::debug!("set_enable_daita({value})");
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::SetEnableDaita(tx, value))?;
+        self.wait_for_result(rx).await?.map(Response::new)?;
+        Ok(Response::new(()))
+    }
+
+    #[cfg(daita)]
+    async fn set_daita_use_anywhere(&self, request: Request<bool>) -> ServiceResult<()> {
+        let value = request.into_inner();
+        log::debug!("set_daita_use_anywhere({value})");
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::SetDaitaUseAnywhere(tx, value))?;
+        self.wait_for_result(rx).await?.map(Response::new)?;
+        Ok(Response::new(()))
+    }
+
+    #[cfg(daita)]
     async fn set_daita_settings(
         &self,
         request: Request<types::DaitaSettings>,
@@ -352,6 +372,16 @@ impl ManagementService for ManagementServiceImpl {
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::SetDaitaSettings(tx, state))?;
         self.wait_for_result(rx).await?.map(Response::new)?;
+        Ok(Response::new(()))
+    }
+
+    #[cfg(not(daita))]
+    async fn set_enable_daita(&self, _: Request<bool>) -> ServiceResult<()> {
+        Ok(Response::new(()))
+    }
+
+    #[cfg(not(daita))]
+    async fn set_daita_use_anywhere(&self, _: Request<bool>) -> ServiceResult<()> {
         Ok(Response::new(()))
     }
 
