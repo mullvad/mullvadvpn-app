@@ -529,6 +529,16 @@ fn classify_and_send(
                     log::error!("dropping invalid IPv4 packet");
                     return;
                 };
+                if let Some(vpn_v4) = vpn_interface.and_then(|iface| iface.0.v4_address) {
+                    let src_ip = ip.get_source();
+                    if src_ip != vpn_v4 && src_ip != addrs.source_ip {
+                        // Drop packet from invalid source
+                        return;
+                    }
+                } else if ip.get_source() != addrs.source_ip {
+                    // Drop packet from invalid source
+                    return;
+                }
                 fix_ipv4_checksums(&mut ip, Some(addrs.source_ip), None);
                 if let Err(error) = default_write.write(packet.frame.packet()) {
                     log::error!("Failed to forward to default device: {error}");
@@ -546,6 +556,16 @@ fn classify_and_send(
                     log::error!("dropping invalid IPv6 packet");
                     return;
                 };
+                if let Some(vpn_v6) = vpn_interface.and_then(|iface| iface.0.v6_address) {
+                    let src_ip = ip.get_source();
+                    if src_ip != vpn_v6 && src_ip != addrs.source_ip {
+                        // Drop packet from invalid source
+                        return;
+                    }
+                } else if ip.get_source() != addrs.source_ip {
+                    // Drop packet from invalid source
+                    return;
+                }
                 fix_ipv6_checksums(&mut ip, Some(addrs.source_ip), None);
                 if let Err(error) = default_write.write(packet.frame.packet()) {
                     log::error!("Failed to forward to default device: {error}");
@@ -569,6 +589,10 @@ fn classify_and_send(
                         log::error!("dropping invalid IPv4 packet");
                         return;
                     };
+                    if ip.get_source() != addr {
+                        // Drop packet from invalid source
+                        return;
+                    }
                     fix_ipv4_checksums(&mut ip, Some(addr), None);
                     if let Err(error) = vpn_write.write(packet.frame.payload()) {
                         log::trace!(
@@ -586,6 +610,10 @@ fn classify_and_send(
                         log::error!("dropping invalid IPv6 packet");
                         return;
                     };
+                    if ip.get_source() != addr {
+                        // Drop packet from invalid source
+                        return;
+                    }
                     fix_ipv6_checksums(&mut ip, Some(addr), None);
                     if let Err(error) = vpn_write.write(packet.frame.payload()) {
                         log::trace!(
