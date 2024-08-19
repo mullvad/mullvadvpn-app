@@ -3903,6 +3903,7 @@ dependencies = [
  "subslice",
  "system-configuration",
  "talpid-dbus",
+ "talpid-net",
  "talpid-openvpn",
  "talpid-platform-metadata",
  "talpid-routing",
