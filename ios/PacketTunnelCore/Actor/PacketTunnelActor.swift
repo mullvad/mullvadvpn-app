@@ -37,11 +37,11 @@ public actor PacketTunnelActor {
 
     @Published internal(set) public var observedState: ObservedState = .initial
 
-    let logger = Logger(label: "PacketTunnelActor")
+    nonisolated let logger = Logger(label: "PacketTunnelActor")
 
     let timings: PacketTunnelActorTimings
     let tunnelAdapter: TunnelAdapterProtocol
-    let tunnelMonitor: TunnelMonitorProtocol
+    nonisolated let tunnelMonitor: TunnelMonitorProtocol
     let defaultPathObserver: DefaultPathObserverProtocol
     let blockedStateErrorMapper: BlockedStateErrorMapperProtocol
     public let relaySelector: RelaySelectorProtocol
@@ -87,7 +87,7 @@ public actor PacketTunnelActor {
             for await event in channel {
                 guard let self else { return }
 
-                await self.logger.debug("Received event: \(event.logFormat())")
+                self.logger.debug("Received event: \(event.logFormat())")
 
                 let effects = await self.runReducer(event)
 
