@@ -10,15 +10,15 @@ import org.junit.jupiter.api.extension.ExtensionContext
 
 class AccountTestRule : BeforeEachCallback {
 
-    private val partnerAccount: String?
+    private var partnerAccount = ""
     private val client =
         SimpleMullvadHttpClient(InstrumentationRegistry.getInstrumentation().targetContext)
 
-    val validAccountNumber: String
-    val invalidAccountNumber: String
+    var validAccountNumber = ""
+    var invalidAccountNumber = ""
 
     init {
-        InstrumentationRegistry.getArguments().also { bundle ->
+        /*InstrumentationRegistry.getArguments().also { bundle ->
             partnerAccount = bundle.getString(PARTNER_AUTH)
 
             if (partnerAccount != null) {
@@ -36,8 +36,28 @@ class AccountTestRule : BeforeEachCallback {
 
             invalidAccountNumber =
                 bundle.getRequiredArgument(INVALID_TEST_ACCOUNT_NUMBER_ARGUMENT_KEY)
-        }
+        }*/
     }
 
-    override fun beforeEach(context: ExtensionContext) {}
+    override fun beforeEach(context: ExtensionContext) {
+        InstrumentationRegistry.getArguments().also { bundle ->
+            partnerAccount = bundle.getString(PARTNER_AUTH).toString()
+
+            if (partnerAccount != null && partnerAccount != "null") {
+                validAccountNumber = client.createAccount()
+                client.addTimeToAccountUsingPartnerAuth(
+                    accountNumber = validAccountNumber,
+                    daysToAdd = 1,
+                    partnerAuth = partnerAccount
+                )
+            } else {
+                validAccountNumber =
+                    bundle.getRequiredArgument(VALID_TEST_ACCOUNT_NUMBER_ARGUMENT_KEY)
+                client.removeAllDevices(validAccountNumber)
+            }
+
+            invalidAccountNumber =
+                bundle.getRequiredArgument(INVALID_TEST_ACCOUNT_NUMBER_ARGUMENT_KEY)
+        }
+    }
 }
