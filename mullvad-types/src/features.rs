@@ -129,6 +129,18 @@ pub fn compute_feature_indicators(
             #[cfg(daita)]
             let daita = endpoint.daita;
 
+            #[cfg(daita)]
+            let daita_use_anywhere =
+                if let crate::relay_constraints::RelaySettings::Normal(constraints) =
+                    &settings.relay_settings
+                {
+                    // Detect whether we're using "use_anywhere" by checking if multihop is
+                    // in use but not explicitly enabled.
+                    daita && multihop && !constraints.wireguard_constraints.use_multihop
+                } else {
+                    false
+                };
+
             vec![
                 (quantum_resistant, FeatureIndicator::QuantumResistance),
                 (multihop, FeatureIndicator::Multihop),
@@ -137,6 +149,8 @@ pub fn compute_feature_indicators(
                 (mtu, FeatureIndicator::CustomMtu),
                 #[cfg(daita)]
                 (daita, FeatureIndicator::Daita),
+                #[cfg(daita)]
+                (daita_use_anywhere, FeatureIndicator::DaitaUseAnywhere),
             ]
         }
     };
