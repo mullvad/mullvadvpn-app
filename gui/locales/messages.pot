@@ -2192,9 +2192,6 @@ msgstr ""
 msgid "Auto-connect & Lockdown mode"
 msgstr ""
 
-msgid "Auto-connect & \\nLockdown mode"
-msgstr ""
-
 msgid "Auto-connect (legacy)"
 msgstr ""
 

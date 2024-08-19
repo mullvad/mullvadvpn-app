@@ -12,9 +12,12 @@ import androidx.compose.ui.unit.sp
  */
 internal object TypeScale {
     val TextHuge = 30.sp
+    val TextHeadline = 28.sp
     val TextBig = 24.sp
     val TextMediumPlus = 18.sp
     val TextMedium = 16.sp
     val TextSmall = 13.sp
     val TitleLarge = 22.sp
+
+    val HeadlineMediumLineHeight = 36.0.sp
 }
