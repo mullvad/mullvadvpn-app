@@ -333,8 +333,13 @@ impl InnerProcessStates {
             log::error!("exec received for unknown pid {pid}");
             return;
         };
+        if msg.target.executable.path_truncated {
+            log::error!("Ignoring process {pid} with truncated path: {}", msg.target.executable.path);
+            return;
+        }
 
-        info.exec_path = PathBuf::from(msg.dyld_exec_path);
+        info.exec_path = PathBuf::from(msg.target.executable.path);
+
 
         // If the path is already excluded, no need to add it again
         if info.excluded_by_paths.contains(&info.exec_path) {
@@ -430,7 +435,22 @@ struct ESForkEvent {
 /// `exec` event returned by `eslogger`
 #[derive(Debug, Deserialize)]
 struct ESExecEvent {
-    dyld_exec_path: String,
+    target: EsExecTarget,
+}
+
+/// `target` field of the `exec` event returned by `eslogger`
+/// See `eslogger exec` output.
+#[derive(Debug, Deserialize)]
+struct EsExecTarget {
+    executable: EsExecTargetExecutable,
+}
+
+/// `executable` field of the `exec` `target` information
+/// See `eslogger exec` output.
+#[derive(Debug, Deserialize)]
+struct EsExecTargetExecutable {
+    path: String,
+    path_truncated: bool,
 }
 
 /// Event that triggered the message returned by `eslogger`.
