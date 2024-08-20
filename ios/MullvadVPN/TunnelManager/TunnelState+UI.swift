@@ -11,7 +11,7 @@ import UIKit
 extension TunnelState {
     var textColorForSecureLabel: UIColor {
         switch self {
-        case .connecting, .reconnecting, .waitingForConnectivity(.noConnection), .negotiatingPostQuantumKey:
+        case .connecting, .reconnecting, .waitingForConnectivity(.noConnection), .negotiatingEphemeralPeer:
             .white
 
         case .connected:
@@ -49,7 +49,8 @@ extension TunnelState {
                 )
             }
 
-        case .negotiatingPostQuantumKey:
+        // TODO: How to Handle Daita here ?
+        case .negotiatingEphemeralPeer:
             NSLocalizedString(
                 "TUNNEL_STATE_NEGOTIATING_KEY",
                 tableName: "Main",
@@ -141,7 +142,7 @@ extension TunnelState {
                 comment: ""
             )
 
-        case .negotiatingPostQuantumKey:
+        case .negotiatingEphemeralPeer:
             NSLocalizedString(
                 "SWITCH_LOCATION_BUTTON_TITLE",
                 tableName: "Main",
@@ -170,7 +171,7 @@ extension TunnelState {
                 )
             }
 
-        case .negotiatingPostQuantumKey:
+        case .negotiatingEphemeralPeer:
             NSLocalizedString(
                 "TUNNEL_STATE_CONNECTING_ACCESSIBILITY_LABEL",
                 tableName: "Main",

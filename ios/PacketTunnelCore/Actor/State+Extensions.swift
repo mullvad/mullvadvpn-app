@@ -23,7 +23,7 @@ extension State {
         case .initial:
             return .connecting
 
-        case .connecting, .negotiatingPostQuantumKey:
+        case .connecting, .negotiatingEphemeralPeer:
             return .connecting
 
         case .connected, .reconnecting:
@@ -58,15 +58,24 @@ extension State {
         case let .error(blockedState):
             "\(name): \(blockedState.reason)"
 
-        case .initial, .disconnecting, .disconnected, .negotiatingPostQuantumKey:
+        case .initial, .disconnecting, .disconnected, .negotiatingEphemeralPeer:
             name
         }
     }
 
     var name: String {
         switch self {
-        case .negotiatingPostQuantumKey:
-            "Negotiating Post Quantum Key"
+        case let .negotiatingEphemeralPeer(connectionData, _):
+            switch (connectionData.isPostQuantum, connectionData.isDaitaEnabled) {
+            case (true, true):
+                "Negotiating Post Quantum Key with Daita"
+            case (true, false):
+                "Negotiating Post Quantum Key"
+            case (false, true):
+                "Negotiating Daita peer without Post Quantum Key"
+            case (false, false):
+                "Negotiating ephemeral peer without Post Quantum Key or Daita -- Multihop exit relay probably"
+            }
         case .connected:
             "Connected"
         case .connecting:
@@ -90,7 +99,7 @@ extension State {
             let .connecting(connState),
             let .connected(connState),
             let .reconnecting(connState),
-            let .negotiatingPostQuantumKey(connState, _),
+            let .negotiatingEphemeralPeer(connState, _),
             let .disconnecting(connState): connState
         default: nil
         }
@@ -120,7 +129,7 @@ extension State {
         case .connected: .connected(newValue)
         case .reconnecting: .reconnecting(newValue)
         case .disconnecting: .disconnecting(newValue)
-        case let .negotiatingPostQuantumKey(_, privateKey): .negotiatingPostQuantumKey(newValue, privateKey)
+        case let .negotiatingEphemeralPeer(_, privateKey): .negotiatingEphemeralPeer(newValue, privateKey)
         default: self
         }
     }
@@ -133,7 +142,7 @@ extension State {
         case let .connecting(connState),
              let .connected(connState),
              let .reconnecting(connState),
-             let .negotiatingPostQuantumKey(connState, _),
+             let .negotiatingEphemeralPeer(connState, _),
              let .disconnecting(connState):
             var associatedData: StateAssociatedData = connState
             modifier(&associatedData)

@@ -152,7 +152,7 @@ class TunnelViewController: UIViewController, RootContainment {
             contentView.setAnimatingActivity(true)
             mapViewController.setCenter(tunnelRelays?.exit.location.geoCoordinate, animated: animated)
 
-        case let .reconnecting(tunnelRelays, _), let .negotiatingPostQuantumKey(tunnelRelays, _):
+        case let .reconnecting(tunnelRelays, _), let .negotiatingEphemeralPeer(tunnelRelays, _):
             mapViewController.removeLocationMarker()
             contentView.setAnimatingActivity(true)
             mapViewController.setCenter(tunnelRelays.exit.location.geoCoordinate, animated: animated)

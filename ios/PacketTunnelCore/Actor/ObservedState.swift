@@ -18,7 +18,7 @@ public enum ObservedState: Equatable, Codable {
     case initial
     case connecting(ObservedConnectionState)
     case reconnecting(ObservedConnectionState)
-    case negotiatingPostQuantumKey(ObservedConnectionState, PrivateKey)
+    case negotiatingEphemeralPeer(ObservedConnectionState, PrivateKey)
     case connected(ObservedConnectionState)
     case disconnecting(ObservedConnectionState)
     case disconnected
@@ -35,6 +35,7 @@ public struct ObservedConnectionState: Equatable, Codable {
     public var remotePort: UInt16
     public var lastKeyRotation: Date?
     public let isPostQuantum: Bool
+    public let isDaitaEnabled: Bool
 
     public var isNetworkReachable: Bool {
         networkReachability != .unreachable
@@ -48,7 +49,8 @@ public struct ObservedConnectionState: Equatable, Codable {
         transportLayer: TransportLayer,
         remotePort: UInt16,
         lastKeyRotation: Date? = nil,
-        isPostQuantum: Bool
+        isPostQuantum: Bool,
+        isDaitaEnabled: Bool
     ) {
         self.selectedRelays = selectedRelays
         self.relayConstraints = relayConstraints
@@ -58,6 +60,7 @@ public struct ObservedConnectionState: Equatable, Codable {
         self.remotePort = remotePort
         self.lastKeyRotation = lastKeyRotation
         self.isPostQuantum = isPostQuantum
+        self.isDaitaEnabled = isDaitaEnabled
     }
 }
 
@@ -86,8 +89,8 @@ extension State {
             return .reconnecting(connState.observedConnectionState)
         case let .disconnecting(connState):
             return .disconnecting(connState.observedConnectionState)
-        case let .negotiatingPostQuantumKey(connState, privateKey):
-            return .negotiatingPostQuantumKey(connState.observedConnectionState, privateKey)
+        case let .negotiatingEphemeralPeer(connState, privateKey):
+            return .negotiatingEphemeralPeer(connState.observedConnectionState, privateKey)
         case .disconnected:
             return .disconnected
         case let .error(blockedState):
@@ -107,7 +110,8 @@ extension State.ConnectionData {
             transportLayer: transportLayer,
             remotePort: remotePort,
             lastKeyRotation: lastKeyRotation,
-            isPostQuantum: isPostQuantum
+            isPostQuantum: isPostQuantum,
+            isDaitaEnabled: isDaitaEnabled
         )
     }
 }
