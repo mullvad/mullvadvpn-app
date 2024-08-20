@@ -188,14 +188,15 @@ extension BlockedStateReason {
      - Keychain and filesystem are locked on boot until user unlocks device in the very first time.
      - App update that requires settings schema migration. Packet tunnel will be automatically restarted after update but it would not be able to read settings until
        user opens the app which performs migration.
+     - Packet tunnel will be automatically restarted when there is tunnel adapter error.
      */
     var shouldRestartAutomatically: Bool {
         switch self {
-        case .deviceLocked:
+        case .deviceLocked, .tunnelAdapter:
             return true
 
         case .noRelaysSatisfyingConstraints, .readSettings, .invalidAccount, .accountExpired, .deviceRevoked,
-             .tunnelAdapter, .unknown, .deviceLoggedOut, .outdatedSchema, .invalidRelayPublicKey:
+             .unknown, .deviceLoggedOut, .outdatedSchema, .invalidRelayPublicKey:
             return false
         }
     }

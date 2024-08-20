@@ -104,6 +104,7 @@ extension PacketTunnelActor {
             currentKey: connState.currentKey,
             keyPolicy: connState.keyPolicy,
             networkReachability: connState.networkReachability,
+            recoveryTask: startRecoveryTaskIfNeeded(reason: reason),
             priorState: priorState
         )
     }
@@ -151,7 +152,7 @@ extension PacketTunnelActor {
                 try await Task.sleepUsingContinuousClock(for: timings.bootRecoveryPeriodicity)
 
                 // Schedule task to reconnect.
-                eventChannel.send(.reconnect(.random))
+                eventChannel.send(.reconnect(.current))
             }
         }
 
