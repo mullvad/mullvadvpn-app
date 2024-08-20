@@ -2,58 +2,6 @@ package net.mullvad.mullvadvpn.lib.theme.color
 
 import androidx.compose.ui.graphics.Color
 
-// This is experimental and currently not used
-internal object ColorLightTokens {
-    val Background = PaletteTokens.DarkBlue100
-    val Error = PaletteTokens.Red600
-    val ErrorContainer = PaletteTokens.Red100
-    val InverseOnSurface = PaletteTokens.DarkBlue100
-    val InversePrimary = PaletteTokens.Blue200
-    val InverseSurface = PaletteTokens.DarkBlue800
-    val OnBackground = PaletteTokens.DarkBlue900
-    val OnError = PaletteTokens.Red900
-    val OnErrorContainer = PaletteTokens.Red900
-    val OnPrimary = PaletteTokens.Blue900
-    val OnPrimaryContainer = PaletteTokens.Blue900
-    val OnPrimaryFixed = PaletteTokens.Blue900
-    val OnPrimaryFixedVariant = PaletteTokens.Blue700
-    val OnSecondary = PaletteTokens.Green900
-    val OnSecondaryContainer = PaletteTokens.Green900
-    val OnSecondaryFixed = PaletteTokens.Green900
-    val OnSecondaryFixedVariant = PaletteTokens.Green700
-    val OnSurface = PaletteTokens.DarkBlue900
-    val OnSurfaceVariant = PaletteTokens.DarkBlue700
-    val OnTertiary = PaletteTokens.Yellow900
-    val OnTertiaryContainer = PaletteTokens.Yellow900
-    val OnTertiaryFixed = PaletteTokens.Yellow900
-    val OnTertiaryFixedVariant = PaletteTokens.Yellow700
-    val Outline = PaletteTokens.DarkBlue500
-    val OutlineVariant = PaletteTokens.DarkBlue200
-    val Primary = PaletteTokens.Blue600
-    val PrimaryContainer = PaletteTokens.Blue100
-    val PrimaryFixed = PaletteTokens.Blue100
-    val PrimaryFixedDim = PaletteTokens.Blue200
-    val Scrim = PaletteTokens.DarkBlue900
-    val Secondary = PaletteTokens.Green600
-    val SecondaryContainer = PaletteTokens.Green100
-    val SecondaryFixed = PaletteTokens.Green100
-    val SecondaryFixedDim = PaletteTokens.Green200
-    val Surface = PaletteTokens.DarkBlue100
-    val SurfaceBright = PaletteTokens.DarkBlue100
-    val SurfaceContainer = PaletteTokens.DarkBlue900
-    val SurfaceContainerHighest = OpacityTokens.WhiteOnBlue20
-    val SurfaceContainerHigh = OpacityTokens.WhiteOnBlue40
-    val SurfaceContainerLow = OpacityTokens.WhiteOnBlue50
-    val SurfaceContainerLowest = OpacityTokens.WhiteOnBlue60
-    val SurfaceDim = PaletteTokens.DarkBlue200
-    val SurfaceTint = Primary
-    val SurfaceVariant = PaletteTokens.DarkBlue100
-    val Tertiary = PaletteTokens.Yellow600
-    val TertiaryContainer = PaletteTokens.Yellow100
-    val TertiaryFixed = PaletteTokens.Yellow100
-    val TertiaryFixedDim = PaletteTokens.Yellow200
-}
-
 internal object ColorDarkTokens {
     val Background = PaletteTokens.DarkBlue500 // Used by login screen and text fields
     val Error = PaletteTokens.Red500 // General error color
