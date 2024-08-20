@@ -5,6 +5,7 @@ default:
   test: android/test/e2e/build/outputs/apk/playStagemole/debug/e2e-play-stagemole-debug.apk
   timeout: 10m
   use-orchestrator: true
+  num-flaky-test-attempts: 1
   device:
     - {model: shiba, version: 34, locale: en, orientation: portrait} # pixel 8
     - {model: felix, version: 34, locale: en, orientation: portrait} # pixel fold
