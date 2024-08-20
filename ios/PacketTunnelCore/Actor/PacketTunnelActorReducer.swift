@@ -25,7 +25,7 @@ extension PacketTunnelActor {
         case stopTunnelAdapter
         case configureForErrorState(BlockedStateReason)
         case cacheActiveKey(Date?)
-        case reconfigureForPostQuantum(PostQuantumNegotiationState)
+        case reconfigureForEphemeralPeer(EphemeralPeerNegotiationState)
         case postQuantumConnect
 
         // acknowledge that the disconnection process has concluded, go to .disconnected.
@@ -45,7 +45,7 @@ extension PacketTunnelActor {
             case (.stopTunnelAdapter, .stopTunnelAdapter): true
             case let (.configureForErrorState(r0), .configureForErrorState(r1)): r0 == r1
             case let (.cacheActiveKey(d0), .cacheActiveKey(d1)): d0 == d1
-            case let (.reconfigureForPostQuantum(pqns0), .reconfigureForPostQuantum(pqns1)): pqns0 == pqns1
+            case let (.reconfigureForEphemeralPeer(eph0), .reconfigureForEphemeralPeer(eph1)): eph0 == eph1
             case (.postQuantumConnect, .postQuantumConnect): true
             case (.setDisconnectedState, .setDisconnectedState): true
             default: false
@@ -89,8 +89,8 @@ extension PacketTunnelActor {
                 state.mutateAssociatedData { $0.networkReachability = newReachability }
                 return [.updateTunnelMonitorPath(defaultPath)]
 
-            case let .postQuantumNegotiationStateChanged(configuration):
-                return [.reconfigureForPostQuantum(configuration)]
+            case let .ephemeralPeerNegotiationStateChanged(configuration):
+                return [.reconfigureForEphemeralPeer(configuration)]
 
             case .notifyPostQuantumKeyExchanged:
                 return [.postQuantumConnect]
@@ -103,7 +103,7 @@ extension PacketTunnelActor {
             //  a call of the reducer produces one state transition and a sequence of effects. In the app, a stop transitions to .disconnecting, shuts down various processes, and finally transitions to .disconnected. We currently do this by having an effect which acknowledges the completion of disconnection and just sets the state. This is a bit messy, and could possibly do with some rethinking.
             switch state {
             case let .connected(connState), let .connecting(connState), let .reconnecting(connState),
-                 let .negotiatingPostQuantumKey(connState, _):
+                 let .negotiatingEphemeralPeer(connState, _):
                 state = .disconnecting(connState)
                 return [
                     .stopTunnelMonitor,
@@ -137,7 +137,7 @@ extension PacketTunnelActor {
                 // There is no connection monitoring going on when exchanging keys.
                 // The procedure starts from scratch for each reconnection attempts.
                 return []
-            case .connecting, .connected, .reconnecting, .error, .negotiatingPostQuantumKey:
+            case .connecting, .connected, .reconnecting, .error, .negotiatingEphemeralPeer:
                 if reason == .userInitiated {
                     return [.stopTunnelMonitor, .restartConnection(nextRelays, reason)]
                 } else {
@@ -169,7 +169,7 @@ extension PacketTunnelActor {
                     connState.connectionAttemptCount = 0
                     state = .connected(connState)
 
-                case .initial, .connected, .disconnecting, .disconnected, .error, .negotiatingPostQuantumKey:
+                case .initial, .connected, .disconnecting, .disconnected, .error, .negotiatingEphemeralPeer:
                     break
                 }
                 return []
@@ -177,7 +177,7 @@ extension PacketTunnelActor {
                 switch state {
                 case .connecting, .reconnecting, .connected:
                     return [.restartConnection(.random, .connectionLoss)]
-                case .initial, .disconnected, .disconnecting, .error, .negotiatingPostQuantumKey:
+                case .initial, .disconnected, .disconnecting, .error, .negotiatingEphemeralPeer:
                     return []
                 }
             }

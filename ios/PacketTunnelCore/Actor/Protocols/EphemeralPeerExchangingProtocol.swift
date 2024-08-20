@@ -8,7 +8,8 @@
 
 import WireGuardKitTypes
 
-public protocol PostQuantumKeyExchangingProtocol {
+public protocol EphemeralPeerExchangingProtocol {
     func start()
     func receivePostQuantumKey(_ preSharedKey: PreSharedKey, ephemeralKey: PrivateKey)
+    func receiveEphemeralPeerPrivateKey(_: PrivateKey)
 }

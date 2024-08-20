@@ -1,8 +1,8 @@
 //
-//  SingleHopPostQuantumKeyExchangingTests.swift
+//  MultiHopEphemeralPeerExchangerTests.swift
 //  MullvadPostQuantumTests
 //
-//  Created by Mojgan on 2024-07-17.
+//  Created by Mojgan on 2024-07-18.
 //  Copyright © 2024 Mullvad VPN AB. All rights reserved.
 //
 
@@ -13,29 +13,50 @@
 @testable import WireGuardKitTypes
 import XCTest
 
-final class SingleHopPostQuantumKeyExchangingTests: XCTestCase {
+final class MultiHopEphemeralPeerExchangerTests: XCTestCase {
     var exitRelay: SelectedRelay!
+    var entryRelay: SelectedRelay!
 
     override func setUpWithError() throws {
         let relayConstraints = RelayConstraints(
-            exitLocations: .only(UserSelectedRelays(locations: [.hostname("se", "sto", "se6-wireguard")]))
+            entryLocations: .only(UserSelectedRelays(locations: [.country("se")])),
+            exitLocations: .only(UserSelectedRelays(locations: [.country("us")]))
         )
 
-        let candidates = try RelaySelector.WireGuard.findCandidates(
-            by: relayConstraints.exitLocations,
-            in: ServerRelaysResponseStubs.sampleRelays,
-            filterConstraint: relayConstraints.filter,
-            daitaEnabled: false
-        )
-
-        let match = try RelaySelector.WireGuard.pickCandidate(
-            from: candidates,
+        let exitMatch = try RelaySelector.WireGuard.pickCandidate(
+            from: try RelaySelector.WireGuard.findCandidates(
+                by: relayConstraints.exitLocations,
+                in: ServerRelaysResponseStubs.sampleRelays,
+                filterConstraint: relayConstraints.filter,
+                daitaEnabled: false
+            ),
             relays: ServerRelaysResponseStubs.sampleRelays,
             portConstraint: relayConstraints.port,
             numberOfFailedAttempts: 0
         )
 
-        exitRelay = SelectedRelay(endpoint: match.endpoint, hostname: match.relay.hostname, location: match.location)
+        let entryMatch = try RelaySelector.WireGuard.pickCandidate(
+            from: try RelaySelector.WireGuard.findCandidates(
+                by: relayConstraints.entryLocations,
+                in: ServerRelaysResponseStubs.sampleRelays,
+                filterConstraint: relayConstraints.filter,
+                daitaEnabled: false
+            ),
+            relays: ServerRelaysResponseStubs.sampleRelays,
+            portConstraint: relayConstraints.port,
+            numberOfFailedAttempts: 0
+        )
+
+        entryRelay = SelectedRelay(
+            endpoint: entryMatch.endpoint,
+            hostname: entryMatch.relay.hostname,
+            location: entryMatch.location
+        )
+        exitRelay = SelectedRelay(
+            endpoint: exitMatch.endpoint,
+            hostname: exitMatch.relay.hostname,
+            location: exitMatch.location
+        )
     }
 
     func testKeyExchangeFailsWhenNegotiationCannotStart() {
@@ -47,13 +68,16 @@ final class SingleHopPostQuantumKeyExchangingTests: XCTestCase {
         let negotiationSuccessful = expectation(description: "Negotiation succeeded.")
         negotiationSuccessful.isInverted = true
 
-        let keyExchangeActor = PostQuantumKeyExchangeActorStub()
-        keyExchangeActor.result = .failure(PostQuantumKeyExchangeErrorStub.canceled)
+        let keyExchangeActor = EphemeralPeerExchangeActorStub()
+        keyExchangeActor.result = .failure(EphemeralPeerExchangeErrorStub.canceled)
 
-        let singleHopPostQuantumKeyExchanging = SingleHopPostQuantumKeyExchanging(
+        let multiHopPostQuantumKeyExchanging = MultiHopEphemeralPeerExchanger(
+            entry: entryRelay,
             exit: exitRelay,
             devicePrivateKey: PrivateKey(),
-            keyExchanger: keyExchangeActor
+            keyExchanger: keyExchangeActor,
+            enablePostQuantum: true,
+            enableDaita: false
         ) { _ in
             reconfigurationExpectation.fulfill()
         } onFinish: {
@@ -64,7 +88,7 @@ final class SingleHopPostQuantumKeyExchangingTests: XCTestCase {
             expectedNegotiationFailure.fulfill()
         }
 
-        singleHopPostQuantumKeyExchanging.start()
+        multiHopPostQuantumKeyExchanging.start()
 
         wait(
             for: [expectedNegotiationFailure, reconfigurationExpectation, negotiationSuccessful],
@@ -77,19 +101,22 @@ final class SingleHopPostQuantumKeyExchangingTests: XCTestCase {
         unexpectedNegotiationFailure.isInverted = true
 
         let reconfigurationExpectation = expectation(description: "Tunnel reconfiguration took place")
-        reconfigurationExpectation.expectedFulfillmentCount = 2
+        reconfigurationExpectation.expectedFulfillmentCount = 3
 
         let negotiationSuccessful = expectation(description: "Negotiation succeeded.")
         negotiationSuccessful.expectedFulfillmentCount = 1
 
-        let keyExchangeActor = PostQuantumKeyExchangeActorStub()
+        let keyExchangeActor = EphemeralPeerExchangeActorStub()
         let preSharedKey = try XCTUnwrap(PreSharedKey(hexKey: PrivateKey().hexKey))
         keyExchangeActor.result = .success((preSharedKey, PrivateKey()))
 
-        let singleHopPostQuantumKeyExchanging = SingleHopPostQuantumKeyExchanging(
+        let multiHopPostQuantumKeyExchanging = MultiHopEphemeralPeerExchanger(
+            entry: entryRelay,
             exit: exitRelay,
             devicePrivateKey: PrivateKey(),
-            keyExchanger: keyExchangeActor
+            keyExchanger: keyExchangeActor,
+            enablePostQuantum: true,
+            enableDaita: false
         ) { _ in
             reconfigurationExpectation.fulfill()
         } onFinish: {
@@ -97,9 +124,9 @@ final class SingleHopPostQuantumKeyExchangingTests: XCTestCase {
         }
 
         keyExchangeActor.delegate = KeyExchangingResultStub(onReceivePostQuantumKey: { preSharedKey, ephemeralKey in
-            singleHopPostQuantumKeyExchanging.receivePostQuantumKey(preSharedKey, ephemeralKey: ephemeralKey)
+            multiHopPostQuantumKeyExchanging.receivePostQuantumKey(preSharedKey, ephemeralKey: ephemeralKey)
         })
-        singleHopPostQuantumKeyExchanging.start()
+        multiHopPostQuantumKeyExchanging.start()
 
         wait(
             for: [unexpectedNegotiationFailure, reconfigurationExpectation, negotiationSuccessful],

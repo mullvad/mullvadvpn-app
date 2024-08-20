@@ -29,13 +29,13 @@ struct WgAdapter: TunnelAdapterProtocol {
         )
     }
 
-    func start(configuration: TunnelAdapterConfiguration) async throws {
+    func start(configuration: TunnelAdapterConfiguration, daita: DaitaConfiguration?) async throws {
         let wgConfig = configuration.asWgConfig
         do {
             try await adapter.stop()
-            try await adapter.start(tunnelConfiguration: wgConfig)
+            try await adapter.start(tunnelConfiguration: wgConfig, daita: daita)
         } catch WireGuardAdapterError.invalidState {
-            try await adapter.start(tunnelConfiguration: wgConfig)
+            try await adapter.start(tunnelConfiguration: wgConfig, daita: daita)
         }
 
         let tunAddresses = wgConfig.interface.addresses.map { $0.address }
@@ -47,7 +47,8 @@ struct WgAdapter: TunnelAdapterProtocol {
 
     func startMultihop(
         entryConfiguration: TunnelAdapterConfiguration? = nil,
-        exitConfiguration: TunnelAdapterConfiguration
+        exitConfiguration: TunnelAdapterConfiguration,
+        daita: DaitaConfiguration?
     ) async throws {
         let exitConfiguration = exitConfiguration.asWgConfig
         let entryConfiguration = entryConfiguration?.asWgConfig
@@ -62,12 +63,14 @@ struct WgAdapter: TunnelAdapterProtocol {
             try await adapter.stop()
             try await adapter.startMultihop(
                 entryConfiguration: entryConfiguration,
-                exitConfiguration: exitConfiguration
+                exitConfiguration: exitConfiguration,
+                daita: daita
             )
         } catch WireGuardAdapterError.invalidState {
             try await adapter.startMultihop(
                 entryConfiguration: entryConfiguration,
-                exitConfiguration: exitConfiguration
+                exitConfiguration: exitConfiguration,
+                daita: daita
             )
         }
 

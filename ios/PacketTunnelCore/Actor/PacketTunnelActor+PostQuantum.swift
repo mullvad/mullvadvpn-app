@@ -14,14 +14,14 @@ extension PacketTunnelActor {
      Attempt to start the process of negotiating a post-quantum secure key, setting up an initial
      connection restricted to the negotiation host and entering the negotiating state.
      */
-    internal func tryStartPostQuantumNegotiation(
+    internal func tryStartEphemeralPeerNegotiation(
         withSettings settings: Settings,
         nextRelays: NextRelays,
         reason: ActorReconnectReason
     ) async throws {
         if let connectionState = try obfuscateConnection(nextRelays: nextRelays, settings: settings, reason: reason) {
             let activeKey = activeKey(from: connectionState, in: settings)
-            state = .negotiatingPostQuantumKey(connectionState, activeKey)
+            state = .negotiatingEphemeralPeer(connectionState, activeKey)
         }
     }
 
@@ -49,7 +49,7 @@ extension PacketTunnelActor {
     /**
      Called to reconfigure the tunnel after each key negotiation.
      */
-    internal func updatePostQuantumNegotiationState(configuration: PostQuantumNegotiationState) async throws {
+    internal func updateEphemeralPeerNegotiationState(configuration: EphemeralPeerNegotiationState) async throws {
         /**
          The obfuscater needs to be restarted every time a new tunnel configuration is being used,
          because the obfuscation may be tied to a specific UDP session, as is the case for udp2tcp.
@@ -64,6 +64,16 @@ extension PacketTunnelActor {
             return
         }
 
+        var daitaConfiguration: DaitaConfiguration?
+        if settings.daita.state.isEnabled {
+            let maybeNot = Maybenot()
+            daitaConfiguration = DaitaConfiguration(
+                machines: maybeNot.machines,
+                maxEvents: maybeNot.maximumEvents,
+                maxActions: maybeNot.maximumActions
+            )
+        }
+
         switch configuration {
         case let .single(hop):
             let exitConfiguration = try ConfigurationBuilder(
@@ -75,7 +85,7 @@ extension PacketTunnelActor {
                 preSharedKey: hop.configuration.preSharedKey
             ).makeConfiguration()
 
-            try await tunnelAdapter.start(configuration: exitConfiguration)
+            try await tunnelAdapter.start(configuration: exitConfiguration, daita: daitaConfiguration)
 
         case let .multi(firstHop, secondHop):
             let entryConfiguration = try ConfigurationBuilder(
@@ -87,6 +97,8 @@ extension PacketTunnelActor {
                 preSharedKey: firstHop.configuration.preSharedKey
             ).makeConfiguration()
 
+            // wireguard-go will only turn on daita for the entry peer,
+            // so pass the daita configuration to the exit peer for consistency
             let exitConfiguration = try ConfigurationBuilder(
                 privateKey: secondHop.configuration.privateKey,
                 interfaceAddresses: settings.interfaceAddresses,
@@ -97,7 +109,7 @@ extension PacketTunnelActor {
             ).makeConfiguration()
 
             try await tunnelAdapter.startMultihop(
-                entryConfiguration: entryConfiguration, exitConfiguration: exitConfiguration
+                entryConfiguration: entryConfiguration, exitConfiguration: exitConfiguration, daita: daitaConfiguration
             )
         }
     }

@@ -10,9 +10,9 @@ import Foundation
 import WireGuardKit
 
 extension WireGuardAdapter {
-    func start(tunnelConfiguration: TunnelConfiguration) async throws {
+    func start(tunnelConfiguration: TunnelConfiguration, daita: DaitaConfiguration?) async throws {
         return try await withCheckedThrowingContinuation { continuation in
-            start(tunnelConfiguration: tunnelConfiguration) { error in
+            start(tunnelConfiguration: tunnelConfiguration, daita: daita) { error in
                 if let error {
                     continuation.resume(throwing: error)
                 } else {
@@ -22,9 +22,17 @@ extension WireGuardAdapter {
         }
     }
 
-    func startMultihop(entryConfiguration: TunnelConfiguration?, exitConfiguration: TunnelConfiguration) async throws {
+    func startMultihop(
+        entryConfiguration: TunnelConfiguration?,
+        exitConfiguration: TunnelConfiguration,
+        daita: DaitaConfiguration?
+    ) async throws {
         return try await withCheckedThrowingContinuation { continuation in
-            startMultihop(exitConfiguration: exitConfiguration, entryConfiguration: entryConfiguration) { error in
+            startMultihop(
+                exitConfiguration: exitConfiguration,
+                entryConfiguration: entryConfiguration,
+                daita: daita
+            ) { error in
                 if let error {
                     continuation.resume(throwing: error)
                 } else {

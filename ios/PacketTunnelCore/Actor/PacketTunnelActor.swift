@@ -138,9 +138,9 @@ public actor PacketTunnelActor {
 
         case let .cacheActiveKey(lastKeyRotation):
             cacheActiveKey(lastKeyRotation: lastKeyRotation)
-        case let .reconfigureForPostQuantum(configuration):
+        case let .reconfigureForEphemeralPeer(configuration):
             do {
-                try await updatePostQuantumNegotiationState(configuration: configuration)
+                try await updateEphemeralPeerNegotiationState(configuration: configuration)
             } catch {
                 logger.error(error: error, message: "Failed to reconfigure tunnel after each hop negotiation.")
                 await setErrorStateInternal(with: error)
@@ -187,7 +187,7 @@ extension PacketTunnelActor {
     private func stop() async {
         switch state {
         case let .connected(connState), let .connecting(connState), let .reconnecting(connState),
-             let .negotiatingPostQuantumKey(connState, _):
+             let .negotiatingEphemeralPeer(connState, _):
             state = .disconnecting(connState)
             tunnelMonitor.stop()
 
@@ -224,7 +224,7 @@ extension PacketTunnelActor {
             switch state {
             // There is no connection monitoring going on when exchanging keys.
             // The procedure starts from scratch for each reconnection attempts.
-            case .connecting, .connected, .reconnecting, .error, .negotiatingPostQuantumKey:
+            case .connecting, .connected, .reconnecting, .error, .negotiatingEphemeralPeer:
                 switch reason {
                 case .connectionLoss:
                     // Tunnel monitor is already paused at this point. Avoid calling stop() to prevent the reset of
@@ -258,8 +258,8 @@ extension PacketTunnelActor {
     ) async throws {
         let settings: Settings = try settingsReader.read()
 
-        if settings.quantumResistance.isEnabled {
-            try await tryStartPostQuantumNegotiation(withSettings: settings, nextRelays: nextRelays, reason: reason)
+        if settings.quantumResistance.isEnabled || settings.daita.state.isEnabled {
+            try await tryStartEphemeralPeerNegotiation(withSettings: settings, nextRelays: nextRelays, reason: reason)
         } else {
             try await tryStartConnection(withSettings: settings, nextRelays: nextRelays, reason: reason)
         }
@@ -329,9 +329,20 @@ extension PacketTunnelActor {
             startDefaultPathObserver(notifyObserverWithCurrentPath: true)
         }
 
+        var daitaConfiguration: DaitaConfiguration?
+        if settings.daita.state.isEnabled {
+            let maybeNot = Maybenot()
+            daitaConfiguration = DaitaConfiguration(
+                machines: maybeNot.machines,
+                maxEvents: maybeNot.maximumEvents,
+                maxActions: maybeNot.maximumActions
+            )
+        }
+
         try await tunnelAdapter.startMultihop(
             entryConfiguration: entryConfiguration,
-            exitConfiguration: exitConfiguration
+            exitConfiguration: exitConfiguration,
+            daita: daitaConfiguration
         )
 
         // Resume tunnel monitoring and use IPv4 gateway as a probe address.
@@ -375,8 +386,8 @@ extension PacketTunnelActor {
         }
 
         switch state {
-        // Handle PQ PSK separately as it doesn't interfere with either the `.connecting` or `.reconnecting` states.
-        case var .negotiatingPostQuantumKey(connectionState, _):
+        // Handle ephemeral peers separately as they don't interfere with either the `.connecting` or `.reconnecting` states.
+        case var .negotiatingEphemeralPeer(connectionState, _):
             if reason == .connectionLoss {
                 connectionState.incrementAttemptCount()
             }
@@ -427,7 +438,8 @@ extension PacketTunnelActor {
                 connectedEndpoint: connectedRelay.endpoint,
                 transportLayer: .udp,
                 remotePort: connectedRelay.endpoint.ipv4Relay.port,
-                isPostQuantum: settings.quantumResistance.isEnabled
+                isPostQuantum: settings.quantumResistance.isEnabled,
+                isDaitaEnabled: settings.daita.state.isEnabled
             )
         case .disconnecting, .disconnected:
             return nil
@@ -469,7 +481,8 @@ extension PacketTunnelActor {
             connectedEndpoint: obfuscatedEndpoint,
             transportLayer: transportLayer,
             remotePort: protocolObfuscator.remotePort,
-            isPostQuantum: settings.quantumResistance.isEnabled
+            isPostQuantum: settings.quantumResistance.isEnabled,
+            isDaitaEnabled: settings.daita.state.isEnabled
         )
     }
 

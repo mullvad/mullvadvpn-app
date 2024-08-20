@@ -26,7 +26,8 @@ final class PacketTunnelActorReducerTests: XCTestCase {
             connectedEndpoint: selectedRelays.entry?.endpoint ?? selectedRelays.exit.endpoint,
             transportLayer: .udp,
             remotePort: 12345,
-            isPostQuantum: false
+            isPostQuantum: false,
+            isDaitaEnabled: false
         )
     }
 
@@ -187,7 +188,7 @@ final class PacketTunnelActorReducerTests: XCTestCase {
 
     func testHandleConnectionLossReconnectFromPQKeyNegotiation() {
         // Given
-        var state = State.negotiatingPostQuantumKey(makeConnectionData(), PrivateKey())
+        var state = State.negotiatingEphemeralPeer(makeConnectionData(), PrivateKey())
 
         // When
         let effects = PacketTunnelActor.Reducer.reduce(&state, .reconnect(.random, reason: .connectionLoss))
@@ -198,7 +199,7 @@ final class PacketTunnelActorReducerTests: XCTestCase {
 
     func testHandleUserReconnectFromPQKeyNegotiation() {
         // Given
-        var state = State.negotiatingPostQuantumKey(makeConnectionData(), PrivateKey())
+        var state = State.negotiatingEphemeralPeer(makeConnectionData(), PrivateKey())
 
         // When
         let effects = PacketTunnelActor.Reducer.reduce(&state, .reconnect(.random, reason: .userInitiated))
