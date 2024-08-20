@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.test.services.events.TestEventException
 import co.touchlab.kermit.Logger
 import com.android.volley.Request
+import com.android.volley.VolleyError
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.RequestFuture
@@ -106,8 +107,9 @@ class SimpleMullvadHttpClient(context: Context) {
         authorizationHeader: String? = null
     ): JSONObject? {
         val future = RequestFuture.newFuture<JSONObject>()
+
         val request =
-            object : JsonObjectRequest(method, url, body, future, future) {
+            object : JsonObjectRequest(method, url, body, future, onErrorResponse) {
                 override fun getHeaders(): MutableMap<String, String> {
                     val headers = HashMap<String, String>()
                     if (body != null) {
@@ -136,7 +138,7 @@ class SimpleMullvadHttpClient(context: Context) {
     ): String? {
         val future = RequestFuture.newFuture<String>()
         val request =
-            object : StringRequest(method, url, future, future) {
+            object : StringRequest(method, url, future, onErrorResponse) {
                 override fun getHeaders(): MutableMap<String, String> {
                     val headers = HashMap<String, String>()
                     if (body != null) {
@@ -165,7 +167,7 @@ class SimpleMullvadHttpClient(context: Context) {
     ): JSONArray? {
         val future = RequestFuture.newFuture<JSONArray>()
         val request =
-            object : JsonArrayRequest(method, url, null, future, future) {
+            object : JsonArrayRequest(method, url, null, future, onErrorResponse) {
                 override fun getHeaders(): MutableMap<String, String> {
                     val headers = HashMap<String, String>()
                     headers.put("Content-Type", "application/json")
@@ -190,5 +192,9 @@ class SimpleMullvadHttpClient(context: Context) {
     companion object {
         private const val REQUEST_ERROR_MESSAGE =
             "Unable to verify account due to invalid account or connectivity issues."
+
+        private val onErrorResponse = { error: VolleyError ->
+            Logger.e("Response returned error status code: ${error.networkResponse.statusCode}")
+        }
     }
 }
