@@ -423,7 +423,6 @@ jobs:
       - name: Prepare report dir
         if: ${{ matrix.test-repeat != 0 }}
         id: prepare-report-dir
-        timeout-minutes: 5
         env:
           INNER_REPORT_DIR: /tmp/${{ matrix.test-type }}-${{ github.run_id }}-${{ github.run_attempt }}
         run: |
@@ -448,8 +447,14 @@ jobs:
           name: ${{ matrix.test-type }}-instrumentation-apks
           path: ${{ matrix.path }}
 
+      - name: Calculate timeout
+        id: calculate-timeout
+        run: echo "timeout=$(( ${{ matrix.test-repeat }} * 10 ))" >> $GITHUB_OUTPUT
+        shell: bash
+
       - name: Run instrumented test script
         if: ${{ matrix.test-repeat != 0 }}
+        timeout-minutes: ${{ fromJSON(steps.calculate-timeout.outputs.timeout) }}
         shell: bash -ieo pipefail {0}
         env:
           AUTO_FETCH_TEST_HELPER_APKS: true
@@ -506,8 +511,14 @@ jobs:
           name: e2e-instrumentation-apks
           path: android/test/e2e/build/outputs/apk
 
+      - name: Calculate timeout
+        id: calculate-timeout
+        run: echo "timeout=$(( ${{ matrix.test-repeat }} * 10 ))" >> $GITHUB_OUTPUT
+        shell: bash
+
       - name: Run instrumented test script
         if: ${{ matrix.test-repeat != 0 }}
+        timeout-minutes: ${{ fromJSON(steps.calculate-timeout.outputs.timeout) }}
         shell: bash -ieo pipefail {0}
         env:
           AUTO_FETCH_TEST_HELPER_APKS: true
