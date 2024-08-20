@@ -66,7 +66,6 @@ export function RelayListContextProvider(props: RelayListContextProviderProps) {
 
   const fullRelayList = useSelector((state) => state.settings.relayLocations);
   const relaySettings = useNormalRelaySettings();
-  const multihop = relaySettings?.wireguard.useMultihop ?? false;
 
   // Filters the relays to only keep the ones of the desired endpoint type, e.g. "wireguard",
   // "openvpn" or "bridge"
@@ -79,7 +78,8 @@ export function RelayListContextProvider(props: RelayListContextProviderProps) {
   const relayListForDaita = useMemo(() => {
     return filterLocationsByDaita(
       relayListForEndpointType,
-      daita && (!useAnywhere || multihop),
+      daita,
+      useAnywhere,
       locationType,
       relaySettings?.tunnelProtocol ?? 'any',
       relaySettings?.wireguard.useMultihop ?? false,
