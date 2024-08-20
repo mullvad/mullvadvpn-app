@@ -43,7 +43,7 @@ class TunnelProviderStub: TunnelProvider {
     }
 }
 
-class FailedNegotiatorStub: PostQuantumKeyNegotiating {
+class FailedNegotiatorStub: EphemeralPeerNegotiating {
     var onCancelKeyNegotiation: (() -> Void)?
 
     required init() {
@@ -60,7 +60,9 @@ class FailedNegotiatorStub: PostQuantumKeyNegotiating {
         presharedKey: WireGuardKitTypes.PrivateKey,
         postQuantumKeyReceiver packetTunnel: any MullvadTypes.TunnelProvider,
         tcpConnection: NWTCPConnection,
-        postQuantumKeyExchangeTimeout: MullvadTypes.Duration
+        postQuantumKeyExchangeTimeout: MullvadTypes.Duration,
+        enablePostQuantum: Bool,
+        enableDaita: Bool
     ) -> Bool { false }
 
     func cancelKeyNegotiation() {
@@ -68,7 +70,7 @@ class FailedNegotiatorStub: PostQuantumKeyNegotiating {
     }
 }
 
-class SuccessfulNegotiatorStub: PostQuantumKeyNegotiating {
+class SuccessfulNegotiatorStub: EphemeralPeerNegotiating {
     var onCancelKeyNegotiation: (() -> Void)?
     required init() {
         onCancelKeyNegotiation = nil
@@ -84,7 +86,9 @@ class SuccessfulNegotiatorStub: PostQuantumKeyNegotiating {
         presharedKey: WireGuardKitTypes.PrivateKey,
         postQuantumKeyReceiver packetTunnel: any MullvadTypes.TunnelProvider,
         tcpConnection: NWTCPConnection,
-        postQuantumKeyExchangeTimeout: MullvadTypes.Duration
+        postQuantumKeyExchangeTimeout: MullvadTypes.Duration,
+        enablePostQuantum: Bool,
+        enableDaita: Bool
     ) -> Bool { true }
 
     func cancelKeyNegotiation() {

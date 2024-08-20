@@ -10,15 +10,20 @@
 @testable import MullvadTypes
 @testable import WireGuardKitTypes
 
-struct KeyExchangingResultStub: PostQuantumKeyReceiving {
+struct KeyExchangingResultStub: EphemeralPeerReceiving {
     var onFailure: (() -> Void)?
     var onReceivePostQuantumKey: ((PreSharedKey, PrivateKey) -> Void)?
+    var onReceiveEphemeralPeerPrivateKey: ((PrivateKey) -> Void)?
 
     func receivePostQuantumKey(_ key: PreSharedKey, ephemeralKey: PrivateKey) {
         onReceivePostQuantumKey?(key, ephemeralKey)
     }
 
-    func keyExchangeFailed() {
+    public func receiveEphemeralPeerPrivateKey(_ ephemeralPeerPrivateKey: PrivateKey) {
+        onReceiveEphemeralPeerPrivateKey?(ephemeralPeerPrivateKey)
+    }
+
+    func ephemeralPeerExchangeFailed() {
         onFailure?()
     }
 }

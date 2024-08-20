@@ -8,15 +8,17 @@
 
 import Foundation
 import PacketTunnelCore
+@testable import WireGuardKitTypes
 
 /// Dummy tunnel adapter that does nothing and reports no errors.
 class TunnelAdapterDummy: TunnelAdapterProtocol {
     func startMultihop(
         entryConfiguration: TunnelAdapterConfiguration?,
-        exitConfiguration: TunnelAdapterConfiguration
+        exitConfiguration: TunnelAdapterConfiguration,
+        daita: DaitaConfiguration?
     ) async throws {}
 
-    func start(configuration: TunnelAdapterConfiguration) async throws {}
+    func start(configuration: TunnelAdapterConfiguration, daita: DaitaConfiguration?) async throws {}
 
     func stop() async throws {}
 
