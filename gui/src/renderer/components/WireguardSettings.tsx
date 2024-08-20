@@ -585,10 +585,23 @@ function DaitaSettings() {
         </Cell.Container>
       </AriaInputGroup>
       <AriaInputGroup>
-        <Cell.Container>
+        <Cell.Container disabled={!daita}>
           <AriaLabel>
-            <Cell.InputLabel>The "Just make it work" Button</Cell.InputLabel>
+            <Cell.InputLabel>{messages.gettext('Use anywhere')}</Cell.InputLabel>
           </AriaLabel>
+          <InfoButton>
+            <ModalMessage>
+              {sprintf(
+                messages.pgettext(
+                  'wireguard-settings-view',
+                  '¯\\_(ツ)_/¯', // TODO
+                ),
+                {
+                  daita: strings.daita,
+                },
+              )}
+            </ModalMessage>
+          </InfoButton>
           <AriaInput>
             <Cell.Switch isOn={useAnywhere} onChange={setUseAnywhere} />
           </AriaInput>
