@@ -8,7 +8,8 @@ import arrow.core.raise.ensure
 value class VoucherCode private constructor(val value: String) {
 
     companion object {
-        // Parsing reference: docs/adr/0018-distinguish-voucher-codes-from-account-numbers.md
+        // Parsing reference:
+        // <services-repository>/services/docs/adr/0018-distinguish-voucher-codes-from-account-numbers.md
         fun fromString(value: String): Either<ParseVoucherCodeError, VoucherCode> = either {
             val trimmedValue = value.trim()
             ensure(trimmedValue.length >= MIN_VOUCHER_LENGTH) {
