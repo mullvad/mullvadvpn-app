@@ -22,6 +22,9 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+
+
+## [2024.5-beta1] - 2024-08-20
 ### Added
 - Add DAITA (Defence against AI-guided Traffic Analysis) setting for Linux and macOS.
 - Add `--json` flag to `mullvad status` CLI.
@@ -56,6 +59,7 @@ This release is identical to 2024.4-beta1.
 ### Changed
 - Update Electron from 28.1.3 to 30.0.4.
 
+### Fixed
 #### Windows
 - Fix race condition that could result in crashes when DAITA was enabled during disconnects.
 
