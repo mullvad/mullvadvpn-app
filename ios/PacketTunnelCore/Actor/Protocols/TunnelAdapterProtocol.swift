@@ -15,12 +15,13 @@ import WireGuardKitTypes
 /// Protocol describing interface for any kind of adapter implementing a VPN tunnel.
 public protocol TunnelAdapterProtocol {
     /// Start tunnel adapter or update active configuration.
-    func start(configuration: TunnelAdapterConfiguration) async throws
+    func start(configuration: TunnelAdapterConfiguration, daita: DaitaConfiguration?) async throws
 
     /// Start tunnel adapter or update active configuration.
     func startMultihop(
         entryConfiguration: TunnelAdapterConfiguration?,
-        exitConfiguration: TunnelAdapterConfiguration
+        exitConfiguration: TunnelAdapterConfiguration,
+        daita: DaitaConfiguration?
     ) async throws
 
     /// Stop tunnel adapter with the given configuration.

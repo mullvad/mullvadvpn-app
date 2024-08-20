@@ -394,7 +394,7 @@ private extension TunnelState {
              .waitingForConnectivity(.noConnection):
             [.selectLocation, .cancel]
 
-        case .negotiatingPostQuantumKey:
+        case .negotiatingEphemeralPeer:
             [.selectLocation, .cancel]
 
         case .connected, .reconnecting, .error:

@@ -759,7 +759,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
 
         switch tunnelManager.tunnelStatus.state {
         case .connected, .connecting, .reconnecting, .waitingForConnectivity(.noConnection), .error,
-             .negotiatingPostQuantumKey:
+             .negotiatingEphemeralPeer:
             tunnelManager.reconnectTunnel(selectNewRelay: true)
 
         case .disconnecting, .disconnected:

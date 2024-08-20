@@ -11,12 +11,12 @@ use std::sync::Once;
 static INIT_LOGGING: Once = Once::new();
 
 #[repr(C)]
-pub struct PostQuantumCancelToken {
+pub struct EphemeralPeerCancelToken {
     // Must keep a pointer to a valid std::sync::Arc<tokio::mpsc::UnboundedSender>
     pub context: *mut c_void,
 }
 
-impl PostQuantumCancelToken {
+impl EphemeralPeerCancelToken {
     /// # Safety
     /// This function can only be called when the context pointer is valid.
     unsafe fn cancel(&self) {
@@ -34,13 +34,13 @@ impl PostQuantumCancelToken {
     }
 }
 
-impl Drop for PostQuantumCancelToken {
+impl Drop for EphemeralPeerCancelToken {
     fn drop(&mut self) {
         let _: Arc<Mutex<ConnectionContext>> = unsafe { Arc::from_raw(self.context as _) };
     }
 }
 
-unsafe impl Send for PostQuantumCancelToken {}
+unsafe impl Send for EphemeralPeerCancelToken {}
 
 /// Called by the Swift side to signal that the quantum-secure key exchange should be cancelled.
 /// After this call, the cancel token is no longer valid.
@@ -49,7 +49,7 @@ unsafe impl Send for PostQuantumCancelToken {}
 /// `sender` must be pointing to a valid instance of a `PostQuantumCancelToken` created by the
 /// `PacketTunnelProvider`.
 #[no_mangle]
-pub unsafe extern "C" fn cancel_post_quantum_key_exchange(sender: *const PostQuantumCancelToken) {
+pub unsafe extern "C" fn cancel_post_quantum_key_exchange(sender: *const EphemeralPeerCancelToken) {
     let sender = unsafe { &*sender };
     sender.cancel();
 }
@@ -62,7 +62,7 @@ pub unsafe extern "C" fn cancel_post_quantum_key_exchange(sender: *const PostQua
 /// `PacketTunnelProvider`.
 #[no_mangle]
 pub unsafe extern "C" fn drop_post_quantum_key_exchange_token(
-    sender: *const PostQuantumCancelToken,
+    sender: *const EphemeralPeerCancelToken,
 ) {
     let _sender = unsafe { std::ptr::read(sender) };
 }
@@ -118,13 +118,15 @@ pub unsafe extern "C" fn handle_recv(data: *const u8, mut data_len: usize, sende
 /// connection instances.
 /// `cancel_token` should be owned by the caller of this function.
 #[no_mangle]
-pub unsafe extern "C" fn negotiate_post_quantum_key(
+pub unsafe extern "C" fn request_ephemeral_peer(
     public_key: *const u8,
     ephemeral_key: *const u8,
     packet_tunnel: *const c_void,
     tcp_connection: *const c_void,
-    cancel_token: *mut PostQuantumCancelToken,
+    cancel_token: *mut EphemeralPeerCancelToken,
     post_quantum_key_exchange_timeout: u64,
+    enable_post_quantum: bool,
+    enable_daita: bool,
 ) -> i32 {
     INIT_LOGGING.call_once(|| {
         let _ = oslog::OsLogger::new("net.mullvad.MullvadVPN.TTCC")
@@ -152,6 +154,8 @@ pub unsafe extern "C" fn negotiate_post_quantum_key(
             tcp_connection,
             post_quantum_key_exchange_timeout,
             handle,
+            enable_post_quantum,
+            enable_daita,
         )
     } {
         Ok(token) => {

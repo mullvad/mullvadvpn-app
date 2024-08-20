@@ -1,5 +1,5 @@
 //
-//  PostQuantumKey.swift
+//  EphemeralPeerKey.swift
 //  PacketTunnelCore
 //
 //  Created by Mojgan on 2024-07-15.
@@ -8,11 +8,12 @@
 
 import WireGuardKitTypes
 
-public struct PostQuantumKey: Equatable {
-    public let preSharedKey: PreSharedKey
+/// The private key used by ephemeral peers
+public struct EphemeralPeerKey: Equatable {
+    public let preSharedKey: PreSharedKey?
     public let ephemeralKey: PrivateKey
 
-    public init(preSharedKey: PreSharedKey, ephemeralKey: PrivateKey) {
+    public init(preSharedKey: PreSharedKey? = nil, ephemeralKey: PrivateKey) {
         self.preSharedKey = preSharedKey
         self.ephemeralKey = ephemeralKey
     }
