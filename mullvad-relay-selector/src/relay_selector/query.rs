@@ -493,6 +493,15 @@ pub mod builder {
         }
     }
 
+    // impl-block for after DAITA is set
+    impl<Multihop, Obfuscation> RelayQueryBuilder<Wireguard<Multihop, Obfuscation, bool>> {
+        /// Enable DAITA use_anywhere.
+        pub fn daita_use_anywhere(mut self, constraint: impl Into<Constraint<bool>>) -> Self {
+            self.query.wireguard_constraints.daita_use_anywhere = constraint.into();
+            self
+        }
+    }
+
     impl<Obfuscation, Daita> RelayQueryBuilder<Wireguard<Any, Obfuscation, Daita>> {
         /// Enable multihop.
         ///
