@@ -60,7 +60,7 @@ enum State: Equatable {
     case initial
 
     /// Establish a connection to the gateway, and exchange a post quantum key with the GRPC service that resides there.
-    case negotiatingPostQuantumKey(ConnectionData, PrivateKey)
+    case negotiatingEphemeralPeer(ConnectionData, PrivateKey)
 
     /// Tunnel is attempting to connect.
     /// The actor should remain in this state until the very first connection is established, i.e determined by tunnel monitor.
@@ -150,6 +150,9 @@ extension State {
 
         /// True if post-quantum key exchange is enabled
         public let isPostQuantum: Bool
+
+        /// True if Daita is enabled
+        public let isDaitaEnabled: Bool
     }
 
     /// Data associated with error state.

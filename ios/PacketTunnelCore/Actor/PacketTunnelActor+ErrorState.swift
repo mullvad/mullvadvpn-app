@@ -84,8 +84,8 @@ extension PacketTunnelActor {
                 return nil
             }
 
-        // Post quantum key exchange cannot enter the blocked state
-        case .disconnecting, .disconnected, .negotiatingPostQuantumKey:
+        // Ephemeral peer exchange cannot enter the blocked state
+        case .disconnecting, .disconnected, .negotiatingEphemeralPeer:
             return nil
         }
     }
@@ -126,7 +126,7 @@ extension PacketTunnelActor {
                 publicKey: PrivateKey().publicKey
             )
             try? await tunnelAdapter.stop()
-            try await tunnelAdapter.start(configuration: config)
+            try await tunnelAdapter.start(configuration: config, daita: nil)
         } catch {
             logger.error(error: error, message: "Unable to configure the tunnel for error state.")
         }

@@ -1,5 +1,5 @@
 //
-//  PostQuantumConfiguration.swift
+//  EphemeralPeerNegotiationState.swift
 //  PacketTunnelCore
 //
 //  Created by Mojgan on 2024-07-16.
@@ -9,11 +9,11 @@
 import MullvadREST
 import WireGuardKitTypes
 
-public enum PostQuantumNegotiationState: Equatable {
-    case single(PostQuantumConfigurationRelay)
-    case multi(entry: PostQuantumConfigurationRelay, exit: PostQuantumConfigurationRelay)
+public enum EphemeralPeerNegotiationState: Equatable {
+    case single(EphemeralPeerRelayConfiguration)
+    case multi(entry: EphemeralPeerRelayConfiguration, exit: EphemeralPeerRelayConfiguration)
 
-    public static func == (lhs: PostQuantumNegotiationState, rhs: PostQuantumNegotiationState) -> Bool {
+    public static func == (lhs: EphemeralPeerNegotiationState, rhs: EphemeralPeerNegotiationState) -> Bool {
         return switch (lhs, rhs) {
         case let (.single(hop1), .single(hop2)):
             hop1 == hop2
@@ -25,11 +25,11 @@ public enum PostQuantumNegotiationState: Equatable {
     }
 }
 
-public struct PostQuantumConfigurationRelay: Equatable, CustomDebugStringConvertible {
+public struct EphemeralPeerRelayConfiguration: Equatable, CustomDebugStringConvertible {
     public let relay: SelectedRelay
-    public let configuration: PostQuantumConfiguration
+    public let configuration: EphemeralPeerConfiguration
 
-    public init(relay: SelectedRelay, configuration: PostQuantumConfiguration) {
+    public init(relay: SelectedRelay, configuration: EphemeralPeerConfiguration) {
         self.relay = relay
         self.configuration = configuration
     }
@@ -39,7 +39,7 @@ public struct PostQuantumConfigurationRelay: Equatable, CustomDebugStringConvert
     }
 }
 
-public struct PostQuantumConfiguration: Equatable, CustomDebugStringConvertible {
+public struct EphemeralPeerConfiguration: Equatable, CustomDebugStringConvertible {
     public let privateKey: PrivateKey
     public let preSharedKey: PreSharedKey?
     public let allowedIPs: [IPAddressRange]

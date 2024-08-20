@@ -139,7 +139,7 @@ final class PacketTunnelActorTests: XCTestCase {
                 switch newState {
                 case .initial:
                     break
-                case let .negotiatingPostQuantumKey(connState, _):
+                case let .negotiatingEphemeralPeer(connState, _):
                     XCTAssertEqual(connState.connectionAttemptCount, nextAttemptCount)
                     nextAttemptCount += 1
                     negotiatingPostQuantumKeyStateExpectation.fulfill()
