@@ -13,16 +13,18 @@ import MullvadTypes
 import PacketTunnelCore
 import WireGuardKitTypes
 
-final class MultiHopPostQuantumKeyExchanging: PostQuantumKeyExchangingProtocol {
+final class MultiHopEphemeralPeerExchanger: EphemeralPeerExchangingProtocol {
     let entry: SelectedRelay
     let exit: SelectedRelay
-    let keyExchanger: PostQuantumKeyExchangeActorProtocol
+    let keyExchanger: EphemeralPeerExchangeActorProtocol
     let devicePrivateKey: PrivateKey
     let onFinish: () -> Void
-    let onUpdateConfiguration: (PostQuantumNegotiationState) -> Void
+    let onUpdateConfiguration: (EphemeralPeerNegotiationState) -> Void
+    let enablePostQuantum: Bool
+    let enableDaita: Bool
 
-    private var entryPostQuantumKey: PostQuantumKey!
-    private var exitPostQuantumKey: PostQuantumKey!
+    private var entryPeerKey: EphemeralPeerKey!
+    private var exitPeerKey: EphemeralPeerKey!
 
     private let defaultGatewayAddressRange = [IPAddressRange(from: "\(LocalNetworkIPs.gatewayAddress.rawValue)/32")!]
     private let allTrafficRange = [
@@ -43,14 +45,18 @@ final class MultiHopPostQuantumKeyExchanging: PostQuantumKeyExchangingProtocol {
         entry: SelectedRelay,
         exit: SelectedRelay,
         devicePrivateKey: PrivateKey,
-        keyExchanger: PostQuantumKeyExchangeActorProtocol,
-        onUpdateConfiguration: @escaping (PostQuantumNegotiationState) -> Void,
+        keyExchanger: EphemeralPeerExchangeActorProtocol,
+        enablePostQuantum: Bool,
+        enableDaita: Bool,
+        onUpdateConfiguration: @escaping (EphemeralPeerNegotiationState) -> Void,
         onFinish: @escaping () -> Void
     ) {
         self.entry = entry
         self.exit = exit
         self.devicePrivateKey = devicePrivateKey
         self.keyExchanger = keyExchanger
+        self.enablePostQuantum = enablePostQuantum
+        self.enableDaita = enableDaita
         self.onUpdateConfiguration = onUpdateConfiguration
         self.onFinish = onFinish
     }
@@ -60,69 +66,88 @@ final class MultiHopPostQuantumKeyExchanging: PostQuantumKeyExchangingProtocol {
         negotiateWithEntry()
     }
 
+    public func receiveEphemeralPeerPrivateKey(_ ephemeralPeerPrivateKey: PrivateKey) {
+        if state == .negotiatingWithEntry {
+            entryPeerKey = EphemeralPeerKey(ephemeralKey: ephemeralPeerPrivateKey)
+            negotiateBetweenEntryAndExit()
+        } else if state == .negotiatingBetweenEntryAndExit {
+            exitPeerKey = EphemeralPeerKey(ephemeralKey: ephemeralPeerPrivateKey)
+            makeConnection()
+        }
+    }
+
     func receivePostQuantumKey(
         _ preSharedKey: PreSharedKey,
         ephemeralKey: PrivateKey
     ) {
         if state == .negotiatingWithEntry {
-            entryPostQuantumKey = PostQuantumKey(preSharedKey: preSharedKey, ephemeralKey: ephemeralKey)
+            entryPeerKey = EphemeralPeerKey(preSharedKey: preSharedKey, ephemeralKey: ephemeralKey)
             negotiateBetweenEntryAndExit()
         } else if state == .negotiatingBetweenEntryAndExit {
-            exitPostQuantumKey = PostQuantumKey(preSharedKey: preSharedKey, ephemeralKey: ephemeralKey)
+            exitPeerKey = EphemeralPeerKey(preSharedKey: preSharedKey, ephemeralKey: ephemeralKey)
             makeConnection()
         }
     }
 
     private func negotiateWithEntry() {
         state = .negotiatingWithEntry
-        onUpdateConfiguration(.single(PostQuantumConfigurationRelay(
+        onUpdateConfiguration(.single(EphemeralPeerRelayConfiguration(
             relay: entry,
-            configuration: PostQuantumConfiguration(
+            configuration: EphemeralPeerConfiguration(
                 privateKey: devicePrivateKey,
                 allowedIPs: defaultGatewayAddressRange
             )
         )))
-        keyExchanger.startNegotiation(with: devicePrivateKey)
+        keyExchanger.startNegotiation(
+            with: devicePrivateKey,
+            enablePostQuantum: enablePostQuantum,
+            enableDaita: enableDaita
+        )
     }
 
     private func negotiateBetweenEntryAndExit() {
         state = .negotiatingBetweenEntryAndExit
         onUpdateConfiguration(.multi(
-            entry: PostQuantumConfigurationRelay(
+            entry: EphemeralPeerRelayConfiguration(
                 relay: entry,
-                configuration: PostQuantumConfiguration(
-                    privateKey: entryPostQuantumKey.ephemeralKey,
-                    preSharedKey: entryPostQuantumKey.preSharedKey,
+                configuration: EphemeralPeerConfiguration(
+                    privateKey: entryPeerKey.ephemeralKey,
+                    preSharedKey: entryPeerKey.preSharedKey,
                     allowedIPs: [IPAddressRange(from: "\(exit.endpoint.ipv4Relay.ip)/32")!]
                 )
             ),
-            exit: PostQuantumConfigurationRelay(
+            exit: EphemeralPeerRelayConfiguration(
                 relay: exit,
-                configuration: PostQuantumConfiguration(
+                configuration: EphemeralPeerConfiguration(
                     privateKey: devicePrivateKey,
                     allowedIPs: defaultGatewayAddressRange
                 )
             )
         ))
-        keyExchanger.startNegotiation(with: devicePrivateKey)
+        // Daita is always disabled when negotiating with the exit peer in the multihop scenarios
+        keyExchanger.startNegotiation(
+            with: devicePrivateKey,
+            enablePostQuantum: enablePostQuantum,
+            enableDaita: false
+        )
     }
 
     private func makeConnection() {
         state = .makeConnection
         onUpdateConfiguration(.multi(
-            entry: PostQuantumConfigurationRelay(
+            entry: EphemeralPeerRelayConfiguration(
                 relay: entry,
-                configuration: PostQuantumConfiguration(
-                    privateKey: entryPostQuantumKey.ephemeralKey,
-                    preSharedKey: entryPostQuantumKey.preSharedKey,
+                configuration: EphemeralPeerConfiguration(
+                    privateKey: entryPeerKey.ephemeralKey,
+                    preSharedKey: entryPeerKey.preSharedKey,
                     allowedIPs: [IPAddressRange(from: "\(exit.endpoint.ipv4Relay.ip)/32")!]
                 )
             ),
-            exit: PostQuantumConfigurationRelay(
+            exit: EphemeralPeerRelayConfiguration(
                 relay: exit,
-                configuration: PostQuantumConfiguration(
-                    privateKey: exitPostQuantumKey.ephemeralKey,
-                    preSharedKey: exitPostQuantumKey.preSharedKey,
+                configuration: EphemeralPeerConfiguration(
+                    privateKey: exitPeerKey.ephemeralKey,
+                    preSharedKey: exitPeerKey.preSharedKey,
                     allowedIPs: allTrafficRange
                 )
             )

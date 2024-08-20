@@ -10,7 +10,7 @@ import Foundation
 import NetworkExtension
 import WireGuardKitTypes
 
-public class PostQuantumKeyReceiver: PostQuantumKeyReceiving, TunnelProvider {
+public class PostQuantumKeyReceiver: EphemeralPeerReceiving, TunnelProvider {
     unowned let tunnelProvider: NEPacketTunnelProvider
 
     public init(tunnelProvider: NEPacketTunnelProvider) {
@@ -20,13 +20,18 @@ public class PostQuantumKeyReceiver: PostQuantumKeyReceiving, TunnelProvider {
     // MARK: - PostQuantumKeyReceiving
 
     public func receivePostQuantumKey(_ key: PreSharedKey, ephemeralKey: PrivateKey) {
-        guard let receiver = tunnelProvider as? PostQuantumKeyReceiving else { return }
+        guard let receiver = tunnelProvider as? EphemeralPeerReceiving else { return }
         receiver.receivePostQuantumKey(key, ephemeralKey: ephemeralKey)
     }
 
-    public func keyExchangeFailed() {
-        guard let receiver = tunnelProvider as? PostQuantumKeyReceiving else { return }
-        receiver.keyExchangeFailed()
+    public func receiveEphemeralPeerPrivateKey(_ ephemeralPeerPrivateKey: PrivateKey) {
+        guard let receiver = tunnelProvider as? EphemeralPeerReceiving else { return }
+        receiver.receiveEphemeralPeerPrivateKey(ephemeralPeerPrivateKey)
+    }
+
+    public func ephemeralPeerExchangeFailed() {
+        guard let receiver = tunnelProvider as? EphemeralPeerReceiving else { return }
+        receiver.ephemeralPeerExchangeFailed()
     }
 
     // MARK: - TunnelProvider

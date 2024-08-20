@@ -11,16 +11,16 @@ import MullvadSettings
 import PacketTunnelCore
 import WireGuardKitTypes
 
-final public class PostQuantumKeyExchangingPipeline {
-    let keyExchanger: PostQuantumKeyExchangeActorProtocol
-    let onUpdateConfiguration: (PostQuantumNegotiationState) -> Void
+final public class EphemeralPeerExchangingPipeline {
+    let keyExchanger: EphemeralPeerExchangeActorProtocol
+    let onUpdateConfiguration: (EphemeralPeerNegotiationState) -> Void
     let onFinish: () -> Void
 
-    private var postQuantumKeyExchanging: PostQuantumKeyExchangingProtocol!
+    private var ephemeralPeerExchanger: EphemeralPeerExchangingProtocol!
 
     public init(
-        _ keyExchanger: PostQuantumKeyExchangeActorProtocol,
-        onUpdateConfiguration: @escaping (PostQuantumNegotiationState) -> Void,
+        _ keyExchanger: EphemeralPeerExchangeActorProtocol,
+        onUpdateConfiguration: @escaping (EphemeralPeerNegotiationState) -> Void,
         onFinish: @escaping () -> Void
     ) {
         self.keyExchanger = keyExchanger
@@ -32,28 +32,38 @@ final public class PostQuantumKeyExchangingPipeline {
         keyExchanger.reset()
         let entryPeer = connectionState.selectedRelays.entry
         let exitPeer = connectionState.selectedRelays.exit
+        let enablePostQuantum = connectionState.isPostQuantum
+        let enableDaita = connectionState.isDaitaEnabled
         if let entryPeer {
-            postQuantumKeyExchanging = MultiHopPostQuantumKeyExchanging(
+            ephemeralPeerExchanger = MultiHopEphemeralPeerExchanger(
                 entry: entryPeer,
                 exit: exitPeer,
                 devicePrivateKey: privateKey,
                 keyExchanger: keyExchanger,
+                enablePostQuantum: enablePostQuantum,
+                enableDaita: enableDaita,
                 onUpdateConfiguration: self.onUpdateConfiguration,
                 onFinish: onFinish
             )
         } else {
-            postQuantumKeyExchanging = SingleHopPostQuantumKeyExchanging(
+            ephemeralPeerExchanger = SingleHopEphemeralPeerExchanger(
                 exit: exitPeer,
                 devicePrivateKey: privateKey,
                 keyExchanger: keyExchanger,
+                enablePostQuantum: enablePostQuantum,
+                enableDaita: enableDaita,
                 onUpdateConfiguration: self.onUpdateConfiguration,
                 onFinish: onFinish
             )
         }
-        postQuantumKeyExchanging.start()
+        ephemeralPeerExchanger.start()
     }
 
     public func receivePostQuantumKey(_ key: PreSharedKey, ephemeralKey: PrivateKey) {
-        postQuantumKeyExchanging.receivePostQuantumKey(key, ephemeralKey: ephemeralKey)
+        ephemeralPeerExchanger.receivePostQuantumKey(key, ephemeralKey: ephemeralKey)
+    }
+
+    public func receiveEphemeralPeerPrivateKey(_ ephemeralPeerPrivateKey: PrivateKey) {
+        ephemeralPeerExchanger.receiveEphemeralPeerPrivateKey(ephemeralPeerPrivateKey)
     }
 }

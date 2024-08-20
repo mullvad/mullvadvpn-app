@@ -12,14 +12,16 @@ import NetworkExtension
 import WireGuardKitTypes
 
 // swiftlint:disable function_parameter_count
-public protocol PostQuantumKeyNegotiating {
+public protocol EphemeralPeerNegotiating {
     func startNegotiation(
         gatewayIP: IPv4Address,
         devicePublicKey: PublicKey,
         presharedKey: PrivateKey,
         postQuantumKeyReceiver: any TunnelProvider,
         tcpConnection: NWTCPConnection,
-        postQuantumKeyExchangeTimeout: Duration
+        postQuantumKeyExchangeTimeout: Duration,
+        enablePostQuantum: Bool,
+        enableDaita: Bool
     ) -> Bool
 
     func cancelKeyNegotiation()
@@ -30,10 +32,10 @@ public protocol PostQuantumKeyNegotiating {
 /**
  Attempt to start the asynchronous process of key negotiation. Returns true if successfully started, false if failed.
  */
-public class PostQuantumKeyNegotiator: PostQuantumKeyNegotiating {
+public class EphemeralPeerNegotiator: EphemeralPeerNegotiating {
     required public init() {}
 
-    var cancelToken: PostQuantumCancelToken?
+    var cancelToken: EphemeralPeerCancelToken?
 
     public func startNegotiation(
         gatewayIP: IPv4Address,
@@ -41,21 +43,25 @@ public class PostQuantumKeyNegotiator: PostQuantumKeyNegotiating {
         presharedKey: PrivateKey,
         postQuantumKeyReceiver: any TunnelProvider,
         tcpConnection: NWTCPConnection,
-        postQuantumKeyExchangeTimeout: Duration
+        postQuantumKeyExchangeTimeout: Duration,
+        enablePostQuantum: Bool,
+        enableDaita: Bool
     ) -> Bool {
         // swiftlint:disable:next force_cast
         let postQuantumKeyReceiver = Unmanaged.passUnretained(postQuantumKeyReceiver as! PostQuantumKeyReceiver)
             .toOpaque()
         let opaqueConnection = Unmanaged.passUnretained(tcpConnection).toOpaque()
-        var cancelToken = PostQuantumCancelToken()
+        var cancelToken = EphemeralPeerCancelToken()
 
-        let result = negotiate_post_quantum_key(
+        let result = request_ephemeral_peer(
             devicePublicKey.rawValue.map { $0 },
             presharedKey.rawValue.map { $0 },
             postQuantumKeyReceiver,
             opaqueConnection,
             &cancelToken,
-            UInt64(postQuantumKeyExchangeTimeout.timeInterval)
+            UInt64(postQuantumKeyExchangeTimeout.timeInterval),
+            enablePostQuantum,
+            enableDaita
         )
         guard result == 0 else {
             return false

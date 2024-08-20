@@ -12,18 +12,18 @@ import NetworkExtension
 @testable import PacketTunnelCore
 @testable import WireGuardKitTypes
 
-final class PostQuantumKeyExchangeActorStub: PostQuantumKeyExchangeActorProtocol {
-    typealias KeyNegotiationResult = Result<(PreSharedKey, PrivateKey), PostQuantumKeyExchangeErrorStub>
+final class EphemeralPeerExchangeActorStub: EphemeralPeerExchangeActorProtocol {
+    typealias KeyNegotiationResult = Result<(PreSharedKey, PrivateKey), EphemeralPeerExchangeErrorStub>
     var result: KeyNegotiationResult = .failure(.unknown)
 
-    var delegate: PostQuantumKeyReceiving?
+    var delegate: EphemeralPeerReceiving?
 
-    func startNegotiation(with privateKey: PrivateKey) {
+    func startNegotiation(with privateKey: PrivateKey, enablePostQuantum: Bool, enableDaita: Bool) {
         switch result {
         case let .success((preSharedKey, ephemeralKey)):
             delegate?.receivePostQuantumKey(preSharedKey, ephemeralKey: ephemeralKey)
         case .failure:
-            delegate?.keyExchangeFailed()
+            delegate?.ephemeralPeerExchangeFailed()
         }
     }
 
@@ -32,7 +32,7 @@ final class PostQuantumKeyExchangeActorStub: PostQuantumKeyExchangeActorProtocol
     func reset() {}
 }
 
-enum PostQuantumKeyExchangeErrorStub: Error {
+enum EphemeralPeerExchangeErrorStub: Error {
     case unknown
     case canceled
 }

@@ -98,15 +98,19 @@ func receivePostQuantumKey(
     let postQuantumKeyReceiver = Unmanaged<PostQuantumKeyReceiver>.fromOpaque(rawPostQuantumKeyReceiver)
         .takeUnretainedValue()
 
-    guard
-        let rawPresharedKey,
-        let rawEphemeralKey,
-        let ephemeralKey = PrivateKey(rawValue: Data(bytes: rawEphemeralKey, count: 32)),
-        let key = PreSharedKey(rawValue: Data(bytes: rawPresharedKey, count: 32))
-    else {
-        postQuantumKeyReceiver.keyExchangeFailed()
+    // If there are no private keys for the ephemeral peer, then the negotiation either failed, or timed out.
+    guard let rawEphemeralKey,
+          let ephemeralKey = PrivateKey(rawValue: Data(bytes: rawEphemeralKey, count: 32)) else {
+        postQuantumKeyReceiver.ephemeralPeerExchangeFailed()
         return
     }
 
-    postQuantumKeyReceiver.receivePostQuantumKey(key, ephemeralKey: ephemeralKey)
+    // If there is a pre-shared key, an ephemeral peer was negotiated with Post Quantum options
+    // Otherwise, a Daita enabled ephemeral peer was requested
+    if let rawPresharedKey, let key = PreSharedKey(rawValue: Data(bytes: rawPresharedKey, count: 32)) {
+        postQuantumKeyReceiver.receivePostQuantumKey(key, ephemeralKey: ephemeralKey)
+    } else {
+        postQuantumKeyReceiver.receiveEphemeralPeerPrivateKey(ephemeralKey)
+    }
+    return
 }
