@@ -47,7 +47,7 @@ private fun PreviewCheckableRelayLocationCell(
     relayItems: List<RelayItem.Location.Country>
 ) {
     AppTheme {
-        Column(Modifier.background(color = MaterialTheme.colorScheme.background)) {
+        Column(Modifier.background(color = MaterialTheme.colorScheme.surface)) {
             relayItems.map {
                 CheckableRelayLocationCell(
                     item = it,
@@ -74,7 +74,7 @@ fun StatusRelayItemCell(
     depth: Int = 0,
     activeColor: Color = MaterialTheme.colorScheme.selected,
     inactiveColor: Color = MaterialTheme.colorScheme.error,
-    disabledColor: Color = MaterialTheme.colorScheme.onSecondary,
+    disabledColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
 ) {
 
     RelayItemCell(
@@ -95,7 +95,6 @@ fun StatusRelayItemCell(
                             .background(
                                 color =
                                     when {
-                                        isSelected -> Color.Unspecified
                                         item is RelayItem.CustomList && item.locations.isEmpty() ->
                                             disabledColor
                                         item.active -> activeColor
@@ -139,8 +138,6 @@ fun RelayItemCell(
                 .background(
                     when {
                         isSelected -> MaterialTheme.colorScheme.selected
-                        item is RelayItem.CustomList && !item.active ->
-                            MaterialTheme.colorScheme.surfaceTint
                         else -> depth.toBackgroundColor()
                     }
                 )
@@ -158,7 +155,11 @@ fun RelayItemCell(
         Name(modifier = Modifier.weight(1f), relay = item)
 
         if (item.hasChildren) {
-            ExpandButton(isExpanded = isExpanded, onClick = { onToggleExpand(!isExpanded) })
+            ExpandButton(
+                color = MaterialTheme.colorScheme.onSurface,
+                isExpanded = isExpanded,
+                onClick = { onToggleExpand(!isExpanded) }
+            )
         }
     }
 }
@@ -194,7 +195,7 @@ fun CheckableRelayLocationCell(
 private fun Name(modifier: Modifier = Modifier, relay: RelayItem) {
     Text(
         text = relay.name,
-        color = MaterialTheme.colorScheme.onPrimary,
+        color = MaterialTheme.colorScheme.onSurface,
         modifier =
             modifier
                 .alpha(
@@ -211,12 +212,17 @@ private fun Name(modifier: Modifier = Modifier, relay: RelayItem) {
 }
 
 @Composable
-private fun RowScope.ExpandButton(isExpanded: Boolean, onClick: (expand: Boolean) -> Unit) {
+private fun RowScope.ExpandButton(
+    color: Color,
+    isExpanded: Boolean,
+    onClick: (expand: Boolean) -> Unit
+) {
     VerticalDivider(
-        color = MaterialTheme.colorScheme.background,
+        color = MaterialTheme.colorScheme.surface,
         modifier = Modifier.padding(vertical = Dimens.verticalDividerPadding)
     )
     Chevron(
+        color = color,
         isExpanded = isExpanded,
         modifier =
             Modifier.fillMaxHeight()

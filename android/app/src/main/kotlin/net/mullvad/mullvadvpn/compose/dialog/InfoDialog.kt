@@ -50,7 +50,7 @@ fun InfoDialog(message: String, additionalInfo: String? = null, onDismiss: () ->
                 modifier = Modifier.fillMaxWidth().height(Dimens.dialogIconHeight),
                 painter = painterResource(id = R.drawable.icon_info),
                 contentDescription = "",
-                tint = MaterialTheme.colorScheme.onBackground
+                tint = MaterialTheme.colorScheme.onSurface
             )
         },
         text = {
@@ -65,7 +65,7 @@ fun InfoDialog(message: String, additionalInfo: String? = null, onDismiss: () ->
             ) {
                 Text(
                     text = message,
-                    color = MaterialTheme.colorScheme.onBackground,
+                    color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -78,7 +78,7 @@ fun InfoDialog(message: String, additionalInfo: String? = null, onDismiss: () ->
                     val trimmed = annotated.substring(0, annotated.trimEnd().length)
                     Text(
                         text = trimmed,
-                        color = MaterialTheme.colorScheme.onBackground,
+                        color = MaterialTheme.colorScheme.onSurface,
                         style = MaterialTheme.typography.bodySmall,
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -97,6 +97,6 @@ fun InfoDialog(message: String, additionalInfo: String? = null, onDismiss: () ->
                 dismissOnClickOutside = true,
                 dismissOnBackPress = true,
             ),
-        containerColor = MaterialTheme.colorScheme.background
+        containerColor = MaterialTheme.colorScheme.surface
     )
 }

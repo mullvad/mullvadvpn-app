@@ -19,7 +19,7 @@ fun HeaderCell(
             BaseCellTitle(
                 title = text,
                 style = textStyle,
-                color = textColor,
+                textColor = textColor,
             )
         },
         modifier = modifier,

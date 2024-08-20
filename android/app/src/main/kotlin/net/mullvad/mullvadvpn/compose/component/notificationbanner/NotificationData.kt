@@ -58,7 +58,7 @@ fun InAppNotification.toNotificationData(
                         .toAnnotatedString(
                             boldSpanStyle =
                                 SpanStyle(
-                                    color = MaterialTheme.colorScheme.onBackground,
+                                    color = MaterialTheme.colorScheme.onSurface,
                                     fontWeight = FontWeight.ExtraBold
                                 ),
                         ),
@@ -109,7 +109,7 @@ private fun errorMessageBannerData(error: ErrorState) =
                     .toAnnotatedString(
                         boldSpanStyle =
                             SpanStyle(
-                                color = MaterialTheme.colorScheme.onBackground,
+                                color = MaterialTheme.colorScheme.onSurface,
                                 fontWeight = FontWeight.ExtraBold
                             )
                     ),

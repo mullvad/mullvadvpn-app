@@ -3,8 +3,8 @@ package net.mullvad.mullvadvpn.compose.screen
 import android.content.Context
 import android.net.Uri
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -55,7 +55,7 @@ private fun PreviewSettings() {
                     appVersion = "2222.22",
                     isLoggedIn = true,
                     isSupportedVersion = true,
-                    isPlayBuild = false
+                    isPlayBuild = false,
                 ),
         )
     }
@@ -99,8 +99,8 @@ fun SettingsScreen(
             modifier = modifier.testTag(LAZY_LIST_TEST_TAG).animateContentSize(),
             state = lazyListState
         ) {
-            item { Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding)) }
             if (state.isLoggedIn) {
+                item { Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding)) }
                 item {
                     NavigationComposeCell(
                         title = stringResource(id = R.string.settings_vpn),
@@ -162,13 +162,14 @@ private fun AppVersion(context: Context, state: SettingsUiState) {
                     NavigationCellBody(
                         content = state.appVersion,
                         contentBodyDescription = stringResource(id = R.string.app_version),
+                        textColor = MaterialTheme.colorScheme.onSurfaceVariant,
                         isExternalLink = true,
                     )
                 } else {
                     Text(
                         text = state.appVersion,
                         style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSecondary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             },
@@ -180,9 +181,9 @@ private fun AppVersion(context: Context, state: SettingsUiState) {
         Text(
             text = stringResource(id = R.string.unsupported_version_description),
             style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSecondary,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier =
-                Modifier.background(MaterialTheme.colorScheme.secondary)
+                Modifier.fillMaxWidth()
                     .padding(
                         start = Dimens.cellStartPadding,
                         top = Dimens.cellTopPadding,
@@ -206,7 +207,13 @@ private fun FaqAndGuides(context: Context) {
     val faqGuideLabel = stringResource(id = R.string.faqs_and_guides)
     NavigationComposeCell(
         title = faqGuideLabel,
-        bodyView = @Composable { DefaultExternalLinkView(faqGuideLabel) },
+        bodyView =
+            @Composable {
+                DefaultExternalLinkView(
+                    chevronContentDescription = faqGuideLabel,
+                    tint = MaterialTheme.colorScheme.onPrimary
+                )
+            },
         onClick = {
             context.openLink(Uri.parse(context.resources.getString(R.string.faqs_and_guides_url)))
         }
@@ -218,7 +225,13 @@ private fun PrivacyPolicy(context: Context, state: SettingsUiState) {
     val privacyPolicyLabel = stringResource(id = R.string.privacy_policy_label)
     NavigationComposeCell(
         title = privacyPolicyLabel,
-        bodyView = @Composable { DefaultExternalLinkView(privacyPolicyLabel) },
+        bodyView =
+            @Composable {
+                DefaultExternalLinkView(
+                    chevronContentDescription = privacyPolicyLabel,
+                    tint = MaterialTheme.colorScheme.onPrimary
+                )
+            },
         onClick = {
             context.openLink(
                 Uri.parse(

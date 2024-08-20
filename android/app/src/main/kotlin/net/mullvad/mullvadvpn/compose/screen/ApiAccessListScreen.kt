@@ -105,7 +105,7 @@ private fun LazyListScope.description() {
         Text(
             text = stringResource(id = R.string.api_access_description),
             style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSecondary,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier =
                 Modifier.padding(start = Dimens.cellStartPadding, end = Dimens.cellEndPadding)
                     .fillMaxWidth()
@@ -129,7 +129,7 @@ private fun LazyListScope.currentAccessMethod(
         ) {
             Text(
                 style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onBackground,
+                color = MaterialTheme.colorScheme.onSurface,
                 text =
                     stringResource(
                         id = R.string.current_method,
@@ -145,7 +145,7 @@ private fun LazyListScope.currentAccessMethod(
                 Icon(
                     painter = painterResource(id = R.drawable.icon_info),
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onBackground
+                    tint = MaterialTheme.colorScheme.onSurface
                 )
             }
         }
@@ -185,8 +185,13 @@ private fun ApiAccessMethodItem(
                     }
             ),
         titleStyle = MaterialTheme.typography.titleMedium,
-        subtitleColor = MaterialTheme.colorScheme.onSecondary,
-        bodyView = { DefaultNavigationView(apiAccessMethodSetting.name.value) },
+        subtitleColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        bodyView = {
+            DefaultNavigationView(
+                chevronContentDescription = apiAccessMethodSetting.name.value,
+                tint = MaterialTheme.colorScheme.onPrimary
+            )
+        },
         onCellClicked = { onApiAccessMethodClick(apiAccessMethodSetting) }
     )
 }

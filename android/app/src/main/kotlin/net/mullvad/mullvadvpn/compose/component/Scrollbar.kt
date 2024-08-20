@@ -68,6 +68,8 @@ import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
+import net.mullvad.mullvadvpn.lib.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 
 fun Modifier.drawHorizontalScrollbar(
     state: ScrollState,
@@ -297,17 +299,19 @@ private val FadeOutAnimationSpec =
 @Preview(widthDp = 400, heightDp = 400, showBackground = true)
 @Composable
 private fun PreviewScrollbar() {
-    val state = rememberScrollState()
-    Column(
-        modifier =
-            Modifier.drawVerticalScrollbar(
-                    state = state,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
-                )
-                .verticalScroll(state),
-    ) {
-        repeat(50) {
-            Text(text = "Item ${it + 1}", modifier = Modifier.fillMaxWidth().padding(16.dp))
+    AppTheme {
+        val state = rememberScrollState()
+        Column(
+            modifier =
+                Modifier.drawVerticalScrollbar(
+                        state = state,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar)
+                    )
+                    .verticalScroll(state),
+        ) {
+            repeat(50) {
+                Text(text = "Item ${it + 1}", modifier = Modifier.fillMaxWidth().padding(16.dp))
+            }
         }
     }
 }
@@ -320,7 +324,7 @@ private fun PreviewLazyListScrollbar() {
         modifier =
             Modifier.drawVerticalScrollbar(
                 state = state,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar)
             ),
         state = state
     ) {
@@ -338,7 +342,7 @@ private fun PreviewHorizontalScrollbar() {
         modifier =
             Modifier.drawHorizontalScrollbar(
                     state = state,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar)
                 )
                 .horizontalScroll(state)
     ) {
@@ -359,7 +363,7 @@ private fun PreviewLazyListHorizontalScrollbar() {
         modifier =
             Modifier.drawHorizontalScrollbar(
                 state = state,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar)
             ),
         state = state
     ) {

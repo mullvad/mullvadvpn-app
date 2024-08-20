@@ -35,6 +35,6 @@ fun DiscardChanges(resultBackNavigator: ResultBackNavigator<Boolean>) {
                 text = stringResource(id = R.string.discard)
             )
         },
-        containerColor = MaterialTheme.colorScheme.background
+        containerColor = MaterialTheme.colorScheme.surface
     )
 }

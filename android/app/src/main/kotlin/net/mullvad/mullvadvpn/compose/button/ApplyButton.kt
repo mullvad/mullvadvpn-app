@@ -24,7 +24,7 @@ private fun PreviewApplyButton() {
 @Composable
 fun ApplyButton(
     modifier: Modifier = Modifier,
-    background: Color = MaterialTheme.colorScheme.background,
+    background: Color = MaterialTheme.colorScheme.tertiary,
     onClick: () -> Unit,
     isEnabled: Boolean
 ) {

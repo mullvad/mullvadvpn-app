@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.compose.screen
 
 import android.content.Context
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -45,6 +46,7 @@ import net.mullvad.mullvadvpn.compose.component.MullvadSnackbar
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.compose.util.CopyToClipboardHandle
 import net.mullvad.mullvadvpn.compose.util.createCopyToClipboardHandle
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -74,16 +76,12 @@ fun ViewLogs(navigator: DestinationsNavigator) {
     ViewLogsScreen(state = state, onBackClick = dropUnlessResumed { navigator.navigateUp() })
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun ViewLogsScreen(
     state: ViewLogsUiState,
     onBackClick: () -> Unit = {},
 ) {
-    val context = LocalContext.current
-
     val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
     val clipboardHandle = createCopyToClipboardHandle(snackbarHostState = snackbarHostState)
     Scaffold(
         snackbarHost = {
@@ -92,68 +90,87 @@ fun ViewLogsScreen(
                 snackbar = { snackbarData -> MullvadSnackbar(snackbarData = snackbarData) }
             )
         },
-        topBar = {
-            MullvadMediumTopBar(
-                title = stringResource(id = R.string.view_logs),
-                navigationIcon = {
-                    NavigateBackIconButton(
-                        onNavigateBack = onBackClick,
-                        modifier = Modifier.focusProperties { down = FocusRequester.Cancel }
-                    )
-                },
-                actions = {
-                    val clipboardToastMessage = stringResource(R.string.copied_logs_to_clipboard)
-                    IconButton(
-                        onClick = { clipboardHandle(state.text(), clipboardToastMessage) },
-                        modifier = Modifier.focusProperties { down = FocusRequester.Cancel }
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.icon_copy),
-                            contentDescription = null
-                        )
-                    }
-                    IconButton(
-                        onClick = { scope.launch { shareText(context, state.text()) } },
-                        modifier = Modifier.focusProperties { down = FocusRequester.Cancel }
-                    ) {
-                        Icon(imageVector = Icons.Default.Share, contentDescription = null)
-                    }
-                }
-            )
-        }
+        topBar = { TopBar(state, clipboardHandle, onBackClick) },
     ) {
-        Card(
-            modifier =
-                Modifier.fillMaxSize()
-                    .padding(it)
-                    .padding(
-                        start = Dimens.sideMargin,
-                        end = Dimens.sideMargin,
-                        bottom = Dimens.screenVerticalMargin
-                    ),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary)
-        ) {
-            if (state.isLoading) {
-                MullvadCircularProgressIndicatorMedium(
-                    modifier =
-                        Modifier.padding(Dimens.mediumPadding).align(Alignment.CenterHorizontally),
-                    color = MaterialTheme.colorScheme.primary
+        Content(state, it)
+    }
+}
+
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
+@Composable
+private fun TopBar(
+    state: ViewLogsUiState,
+    clipboardHandle: CopyToClipboardHandle,
+    onBackClick: () -> Unit
+) {
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    MullvadMediumTopBar(
+        title = stringResource(id = R.string.view_logs),
+        navigationIcon = {
+            NavigateBackIconButton(
+                onNavigateBack = onBackClick,
+                modifier = Modifier.focusProperties { down = FocusRequester.Cancel }
+            )
+        },
+        actions = {
+            val clipboardToastMessage = stringResource(R.string.copied_logs_to_clipboard)
+            IconButton(
+                onClick = { clipboardHandle(state.text(), clipboardToastMessage) },
+                modifier = Modifier.focusProperties { down = FocusRequester.Cancel }
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.icon_copy),
+                    contentDescription = null
                 )
-            } else {
-                val listState = rememberLazyListState()
-                LazyColumn(
-                    state = listState,
-                    modifier =
-                        Modifier.fillMaxWidth()
-                            .drawVerticalScrollbar(
-                                listState,
-                                MaterialTheme.colorScheme.primary.copy(alpha = AlphaScrollbar)
-                            )
-                            .padding(horizontal = Dimens.smallPadding)
-                ) {
-                    items(state.allLines) { text ->
-                        Text(text = text, style = MaterialTheme.typography.bodySmall)
-                    }
+            }
+            IconButton(
+                onClick = { scope.launch { shareText(context, state.text()) } },
+                modifier = Modifier.focusProperties { down = FocusRequester.Cancel }
+            ) {
+                Icon(imageVector = Icons.Default.Share, contentDescription = null)
+            }
+        }
+    )
+}
+
+@Composable
+private fun Content(state: ViewLogsUiState, paddingValues: PaddingValues) {
+    Card(
+        modifier =
+            Modifier.fillMaxSize()
+                .padding(paddingValues)
+                .padding(
+                    start = Dimens.sideMargin,
+                    end = Dimens.sideMargin,
+                    bottom = Dimens.screenVerticalMargin
+                ),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary)
+    ) {
+        if (state.isLoading) {
+            MullvadCircularProgressIndicatorMedium(
+                modifier =
+                    Modifier.padding(Dimens.mediumPadding).align(Alignment.CenterHorizontally),
+                color = MaterialTheme.colorScheme.primary
+            )
+        } else {
+            val listState = rememberLazyListState()
+            LazyColumn(
+                state = listState,
+                modifier =
+                    Modifier.fillMaxWidth()
+                        .drawVerticalScrollbar(
+                            listState,
+                            MaterialTheme.colorScheme.primary.copy(alpha = AlphaScrollbar)
+                        )
+                        .padding(horizontal = Dimens.smallPadding)
+            ) {
+                items(state.allLines) { text ->
+                    Text(
+                        text = text,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
                 }
             }
         }

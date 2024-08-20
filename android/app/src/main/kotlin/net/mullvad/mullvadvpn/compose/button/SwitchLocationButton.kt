@@ -34,8 +34,8 @@ fun SwitchLocationButton(
         onClick = onClick,
         colors =
             ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.inverseSurface.copy(alpha = Alpha20),
-                contentColor = MaterialTheme.colorScheme.inverseSurface
+                containerColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = Alpha20),
+                contentColor = MaterialTheme.colorScheme.onPrimary
             ),
         modifier = modifier,
         text = text,

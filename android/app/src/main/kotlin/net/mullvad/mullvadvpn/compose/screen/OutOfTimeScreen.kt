@@ -56,7 +56,6 @@ import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
-import net.mullvad.mullvadvpn.lib.theme.color.AlphaTopBar
 import net.mullvad.mullvadvpn.viewmodel.OutOfTimeViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -179,17 +178,16 @@ fun OutOfTimeScreen(
     ScaffoldWithTopBarAndDeviceName(
         topBarColor =
             if (state.tunnelState.isSecured()) {
-                MaterialTheme.colorScheme.inversePrimary
+                MaterialTheme.colorScheme.tertiary
             } else {
                 MaterialTheme.colorScheme.error
             },
         iconTintColor =
             if (state.tunnelState.isSecured()) {
-                    MaterialTheme.colorScheme.onPrimary
-                } else {
-                    MaterialTheme.colorScheme.onError
-                }
-                .copy(alpha = AlphaTopBar),
+                MaterialTheme.colorScheme.onTertiary
+            } else {
+                MaterialTheme.colorScheme.onError
+            },
         onSettingsClicked = onSettingsClick,
         onAccountClicked = onAccountClick,
         deviceName = state.deviceName,
@@ -202,9 +200,9 @@ fun OutOfTimeScreen(
                     .verticalScroll(scrollState)
                     .drawVerticalScrollbar(
                         state = scrollState,
-                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaScrollbar)
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar)
                     )
-                    .background(color = MaterialTheme.colorScheme.background)
+                    .background(color = MaterialTheme.colorScheme.surface)
         ) {
             Image(
                 painter = painterResource(id = R.drawable.icon_fail),
@@ -217,7 +215,7 @@ fun OutOfTimeScreen(
             Text(
                 text = stringResource(id = R.string.out_of_time),
                 style = MaterialTheme.typography.headlineLarge,
-                color = MaterialTheme.colorScheme.onPrimary,
+                color = MaterialTheme.colorScheme.onSurface,
                 modifier =
                     Modifier.padding(horizontal = Dimens.sideMargin)
                         .testTag(OUT_OF_TIME_SCREEN_TITLE_TEST_TAG)
@@ -232,7 +230,7 @@ fun OutOfTimeScreen(
                         }
                     },
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onPrimary,
+                color = MaterialTheme.colorScheme.onSurface,
                 modifier =
                     Modifier.padding(
                         top = Dimens.mediumPadding,

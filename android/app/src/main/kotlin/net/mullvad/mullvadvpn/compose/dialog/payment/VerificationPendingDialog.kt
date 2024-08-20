@@ -4,7 +4,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.dropUnlessResumed
@@ -15,7 +14,6 @@ import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
-import net.mullvad.mullvadvpn.lib.theme.color.AlphaDescription
 
 @Preview
 @Composable
@@ -45,12 +43,9 @@ fun VerificationPendingDialog(onClose: () -> Unit) {
                 style = MaterialTheme.typography.bodySmall
             )
         },
-        containerColor = MaterialTheme.colorScheme.background,
-        titleContentColor = MaterialTheme.colorScheme.onBackground,
-        textContentColor =
-            MaterialTheme.colorScheme.onBackground
-                .copy(alpha = AlphaDescription)
-                .compositeOver(MaterialTheme.colorScheme.background),
+        containerColor = MaterialTheme.colorScheme.surface,
+        titleContentColor = MaterialTheme.colorScheme.onSurface,
+        textContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
         onDismissRequest = onClose,
         confirmButton = {
             PrimaryButton(text = stringResource(id = R.string.got_it), onClick = onClose)

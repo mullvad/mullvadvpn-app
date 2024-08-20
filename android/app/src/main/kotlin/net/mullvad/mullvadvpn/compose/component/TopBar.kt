@@ -48,15 +48,14 @@ import net.mullvad.mullvadvpn.compose.test.TOP_BAR_ACCOUNT_BUTTON
 import net.mullvad.mullvadvpn.compose.test.TOP_BAR_SETTINGS_BUTTON
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
-import net.mullvad.mullvadvpn.lib.theme.color.AlphaTopBar
 
 @Preview
 @Composable
 private fun PreviewTopBar() {
     AppTheme {
         MullvadTopBar(
-            containerColor = MaterialTheme.colorScheme.inversePrimary,
-            iconTintColor = MaterialTheme.colorScheme.onPrimary,
+            containerColor = MaterialTheme.colorScheme.tertiary,
+            iconTintColor = MaterialTheme.colorScheme.onTertiary,
             onSettingsClicked = null,
             onAccountClicked = {}
         )
@@ -68,8 +67,8 @@ private fun PreviewTopBar() {
 private fun PreviewSlimTopBar() {
     AppTheme {
         MullvadTopBar(
-            containerColor = MaterialTheme.colorScheme.inversePrimary,
-            iconTintColor = MaterialTheme.colorScheme.onPrimary,
+            containerColor = MaterialTheme.colorScheme.tertiary,
+            iconTintColor = MaterialTheme.colorScheme.onTertiary,
             onSettingsClicked = null,
             onAccountClicked = {}
         )
@@ -81,8 +80,8 @@ private fun PreviewSlimTopBar() {
 private fun PreviewNoIconAndLogoTopBar() {
     AppTheme {
         MullvadTopBar(
-            containerColor = MaterialTheme.colorScheme.inversePrimary,
-            iconTintColor = MaterialTheme.colorScheme.onPrimary,
+            containerColor = MaterialTheme.colorScheme.tertiary,
+            iconTintColor = MaterialTheme.colorScheme.onTertiary,
             isIconAndLogoVisible = false,
             onSettingsClicked = {},
             onAccountClicked = null,
@@ -95,8 +94,8 @@ private fun PreviewNoIconAndLogoTopBar() {
 private fun PreviewNothingTopBar() {
     AppTheme {
         MullvadTopBar(
-            containerColor = MaterialTheme.colorScheme.inversePrimary,
-            iconTintColor = MaterialTheme.colorScheme.onPrimary,
+            containerColor = MaterialTheme.colorScheme.tertiary,
+            iconTintColor = MaterialTheme.colorScheme.onTertiary,
             isIconAndLogoVisible = false,
             onSettingsClicked = null,
             onAccountClicked = null
@@ -123,7 +122,7 @@ fun MullvadTopBar(
                         painter = painterResource(id = R.drawable.logo_icon),
                         contentDescription = null, // No meaningful user info or action.
                         modifier = Modifier.size(40.dp),
-                        tint = Color.Unspecified
+                        tint = Color.Unspecified // Logo should not be tinted
                     )
                     // Dynamically show Mullvad VPN Text if it fits, to avoid overlapping icons.
                     BoxWithConstraints {
@@ -202,9 +201,9 @@ fun MullvadSmallTopBar(
         navigationIcon = navigationIcon,
         colors =
             TopAppBarDefaults.topAppBarColors(
-                containerColor = MaterialTheme.colorScheme.background,
-                scrolledContainerColor = MaterialTheme.colorScheme.background,
-                actionIconContentColor = MaterialTheme.colorScheme.onPrimary.copy(AlphaTopBar),
+                containerColor = MaterialTheme.colorScheme.surface,
+                scrolledContainerColor = MaterialTheme.colorScheme.surface,
+                actionIconContentColor = MaterialTheme.colorScheme.onSurface,
             ),
         actions = actions
     )
@@ -261,9 +260,9 @@ fun MullvadMediumTopBar(
         scrollBehavior = scrollBehavior,
         colors =
             TopAppBarDefaults.mediumTopAppBarColors(
-                containerColor = MaterialTheme.colorScheme.background,
-                scrolledContainerColor = MaterialTheme.colorScheme.background,
-                actionIconContentColor = MaterialTheme.colorScheme.onPrimary.copy(AlphaTopBar),
+                containerColor = MaterialTheme.colorScheme.surface,
+                scrolledContainerColor = MaterialTheme.colorScheme.surface,
+                actionIconContentColor = MaterialTheme.colorScheme.onSurface,
             ),
         actions = actions
     )
@@ -290,9 +289,9 @@ fun MullvadLargeTopBar(
         scrollBehavior = scrollBehavior,
         colors =
             TopAppBarDefaults.mediumTopAppBarColors(
-                containerColor = MaterialTheme.colorScheme.background,
-                scrolledContainerColor = MaterialTheme.colorScheme.background,
-                actionIconContentColor = MaterialTheme.colorScheme.onPrimary.copy(AlphaTopBar),
+                containerColor = MaterialTheme.colorScheme.surface,
+                scrolledContainerColor = MaterialTheme.colorScheme.surface,
+                actionIconContentColor = MaterialTheme.colorScheme.onSurface,
             ),
         actions = actions
     )
@@ -381,7 +380,7 @@ fun MullvadTopBarWithDeviceName(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaTopBar)
+                color = iconTintColor
             )
             if (daysLeftUntilExpiry != null) {
                 Text(
@@ -399,7 +398,7 @@ fun MullvadTopBarWithDeviceName(
                             }
                         ),
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaTopBar)
+                    color = iconTintColor
                 )
             } else {
                 Spacer(Modifier)

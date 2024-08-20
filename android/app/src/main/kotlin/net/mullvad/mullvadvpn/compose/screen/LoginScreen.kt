@@ -36,7 +36,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -76,7 +75,6 @@ import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.accountNumberVisualTransformation
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
-import net.mullvad.mullvadvpn.lib.theme.color.AlphaTopBar
 import net.mullvad.mullvadvpn.viewmodel.LoginUiSideEffect
 import net.mullvad.mullvadvpn.viewmodel.LoginViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -172,7 +170,7 @@ private fun LoginScreen(
 ) {
     ScaffoldWithTopBar(
         topBarColor = MaterialTheme.colorScheme.primary,
-        iconTintColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaTopBar),
+        iconTintColor = MaterialTheme.colorScheme.onPrimary,
         onSettingsClicked = onSettingsClick,
         enabled = state.loginState is Idle,
         onAccountClicked = null,
@@ -269,7 +267,6 @@ private fun ColumnScope.LoginInput(
         label = {
             Text(
                 text = stringResource(id = R.string.login_description),
-                color = Color.Unspecified,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -404,7 +401,6 @@ private fun AccountDropDownItem(
                 painter = painterResource(id = R.drawable.account_history_remove_pressed),
                 contentDescription = null,
                 modifier = Modifier.size(Dimens.listIconSize),
-                tint = Color.Unspecified
             )
         }
     }
@@ -420,7 +416,7 @@ private fun CreateAccountPanel(onCreateAccountClick: () -> Unit, isEnabled: Bool
         Text(
             modifier = Modifier.padding(bottom = Dimens.smallPadding),
             text = stringResource(id = R.string.dont_have_an_account),
-            color = MaterialTheme.colorScheme.onPrimary,
+            color = MaterialTheme.colorScheme.onBackground,
         )
         PrimaryButton(
             modifier = Modifier.fillMaxWidth(),

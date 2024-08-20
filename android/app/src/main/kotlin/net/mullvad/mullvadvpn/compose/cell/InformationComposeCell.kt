@@ -51,6 +51,7 @@ fun InformationComposeCell(
             BaseCellTitle(
                 title = title,
                 style = MaterialTheme.typography.titleMedium,
+                textColor = MaterialTheme.colorScheme.onPrimary,
                 modifier = titleModifier.weight(1f, true)
             )
         },
