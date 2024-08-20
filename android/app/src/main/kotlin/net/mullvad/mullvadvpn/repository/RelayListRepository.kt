@@ -25,7 +25,7 @@ import net.mullvad.mullvadvpn.lib.model.cities
 import net.mullvad.mullvadvpn.lib.model.name
 import net.mullvad.mullvadvpn.lib.shared.RelayLocationTranslationRepository
 import net.mullvad.mullvadvpn.relaylist.findByGeoLocationId
-import net.mullvad.mullvadvpn.util.sortedByName
+import net.mullvad.mullvadvpn.relaylist.sortedByName
 
 class RelayListRepository(
     private val managementService: ManagementService,
@@ -36,11 +36,11 @@ class RelayListRepository(
         combine(managementService.relayCountries, translationRepository.translations) {
                 countries,
                 translations ->
-                countries.translateRelay(translations)
+                countries.translateRelays(translations)
             }
             .stateIn(CoroutineScope(dispatcher), SharingStarted.WhileSubscribed(), emptyList())
 
-    private fun List<RelayItem.Location.Country>.translateRelay(
+    private fun List<RelayItem.Location.Country>.translateRelays(
         translations: Map<String, String>
     ): List<RelayItem.Location.Country> {
         if (translations.isEmpty()) {
@@ -49,19 +49,16 @@ class RelayListRepository(
 
         return Every.list<RelayItem.Location.Country>()
             .modify(this) {
-                it.copy<RelayItem.Location.Country> {
+                it.copy {
                     RelayItem.Location.Country.name set translations.getOrDefault(it.name, it.name)
                     RelayItem.Location.Country.cities.every(Every.list()).name transform
                         { cityName ->
                             translations.getOrDefault(cityName, cityName)
                         }
-                    RelayItem.Location.Country.cities transform
-                        { cities ->
-                            cities.sortedByName { it.name }
-                        }
+                    RelayItem.Location.Country.cities transform { cities -> cities.sortedByName() }
                 }
             }
-            .sortedByName { it.name }
+            .sortedByName()
     }
 
     val wireguardEndpointData: StateFlow<WireguardEndpointData> =

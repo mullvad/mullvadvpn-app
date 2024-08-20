@@ -55,3 +55,6 @@ fun List<RelayItem.Location.Country>.getRelayItemsByCodes(
 ): List<RelayItem.Location> =
     this.filter { codes.contains(it.id) } +
         this.flatMap { it.descendants() }.filter { codes.contains(it.id) }
+
+fun <T : RelayItem> List<T>.sortedByName() =
+    this.sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.name })

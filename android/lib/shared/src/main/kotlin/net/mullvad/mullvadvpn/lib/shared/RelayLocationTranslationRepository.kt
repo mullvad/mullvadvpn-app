@@ -12,6 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.withContext
@@ -26,29 +27,30 @@ class RelayLocationTranslationRepository(
 ) {
     val translations: StateFlow<Translations> =
         localeRepository.currentLocale
+            .filterNotNull()
             .map { loadTranslations(it) }
             .stateIn(externalScope, SharingStarted.Eagerly, emptyMap())
 
-    private suspend fun loadTranslations(locale: Locale?): Translations =
+    private suspend fun loadTranslations(locale: Locale): Translations =
         withContext(dispatcher) {
-            Logger.d("Updating translations based $locale")
-            if (locale == null || locale.language == DEFAULT_LANGUAGE) emptyMap()
+            Logger.d("Updating translations based on $locale")
+            if (locale.language == DEFAULT_LANGUAGE) emptyMap()
             else {
                 // Load current translations
                 val xml = context.resources.getXml(R.xml.relay_locations)
-                loadRelayTranslation(xml)
+                xml.loadRelayTranslation()
             }
         }
 
-    private fun loadRelayTranslation(xml: XmlResourceParser): Map<String, String> {
+    private fun XmlResourceParser.loadRelayTranslation(): Map<String, String> {
         val translation = mutableMapOf<String, String>()
-        while (xml.eventType != XmlResourceParser.END_DOCUMENT) {
-            if (xml.eventType == XmlResourceParser.START_TAG && xml.name == "string") {
-                val key = xml.getAttributeValue(null, "name")
-                val value = xml.nextText()
+        while (this.eventType != XmlResourceParser.END_DOCUMENT) {
+            if (this.eventType == XmlResourceParser.START_TAG && this.name == "string") {
+                val key = this.getAttributeValue(null, "name")
+                val value = this.nextText()
                 translation[key] = value
             }
-            xml.next()
+            this.next()
         }
         return translation.toMap()
     }

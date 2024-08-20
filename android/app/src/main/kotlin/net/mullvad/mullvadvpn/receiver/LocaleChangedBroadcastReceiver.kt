@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.broadcastreceiver
+package net.mullvad.mullvadvpn.receiver
 
 import android.content.BroadcastReceiver
 import android.content.Context
