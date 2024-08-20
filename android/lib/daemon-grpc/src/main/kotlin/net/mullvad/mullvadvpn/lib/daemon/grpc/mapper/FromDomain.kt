@@ -80,6 +80,7 @@ internal fun ObfuscationSettings.fromDomain(): ManagementInterface.ObfuscationSe
     ManagementInterface.ObfuscationSettings.newBuilder()
         .setSelectedObfuscation(selectedObfuscation.fromDomain())
         .setUdp2Tcp(udp2tcp.fromDomain())
+        .setShadowsocks(ManagementInterface.ShadowsocksSettings.newBuilder())
         .build()
 
 internal fun SelectedObfuscation.fromDomain():
