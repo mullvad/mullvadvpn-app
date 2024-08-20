@@ -96,7 +96,6 @@ import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInvisible
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
-import net.mullvad.mullvadvpn.lib.theme.color.AlphaTopBar
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
 import net.mullvad.mullvadvpn.util.appendHideNavOnPlayBuild
 import net.mullvad.mullvadvpn.util.removeHtmlTags
@@ -235,7 +234,7 @@ fun ConnectScreen(
         ) {
             Spacer(modifier = Modifier.defaultMinSize(minHeight = Dimens.mediumPadding).weight(1f))
             MullvadCircularProgressIndicatorLarge(
-                color = MaterialTheme.colorScheme.onPrimary,
+                color = MaterialTheme.colorScheme.onSurface,
                 modifier =
                     Modifier.animateContentSize()
                         .padding(
@@ -313,7 +312,7 @@ private fun MapColumn(
         globeColors =
             GlobeColors(
                 landColor = MaterialTheme.colorScheme.primary,
-                oceanColor = MaterialTheme.colorScheme.secondary,
+                oceanColor = MaterialTheme.colorScheme.surface,
             )
     )
 
@@ -347,7 +346,7 @@ private fun ConnectionInfo(state: ConnectUiState) {
     Text(
         text = state.location?.country ?: "",
         style = MaterialTheme.typography.headlineLarge,
-        color = MaterialTheme.colorScheme.onPrimary,
+        color = MaterialTheme.colorScheme.onSurface,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
         modifier = Modifier.padding(horizontal = Dimens.sideMargin)
@@ -355,7 +354,7 @@ private fun ConnectionInfo(state: ConnectUiState) {
     Text(
         text = state.location?.city ?: "",
         style = MaterialTheme.typography.headlineLarge,
-        color = MaterialTheme.colorScheme.onPrimary,
+        color = MaterialTheme.colorScheme.onSurface,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
         modifier = Modifier.padding(horizontal = Dimens.sideMargin)
@@ -430,8 +429,7 @@ fun TunnelState.toMarker(location: GeoIpLocation?): Marker? {
         is TunnelState.Connected ->
             Marker(
                 location.toLatLong(),
-                colors =
-                    LocationMarkerColors(centerColor = MaterialTheme.colorScheme.inversePrimary),
+                colors = LocationMarkerColors(centerColor = MaterialTheme.colorScheme.tertiary),
             )
         is TunnelState.Connecting -> null
         is TunnelState.Disconnected ->
@@ -446,16 +444,15 @@ fun TunnelState.toMarker(location: GeoIpLocation?): Marker? {
 
 @Composable
 fun TunnelState.topBarColor(): Color =
-    if (isSecured()) MaterialTheme.colorScheme.inversePrimary else MaterialTheme.colorScheme.error
+    if (isSecured()) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.error
 
 @Composable
 fun TunnelState.iconTintColor(): Color =
     if (isSecured()) {
-            MaterialTheme.colorScheme.onPrimary
-        } else {
-            MaterialTheme.colorScheme.onError
-        }
-        .copy(alpha = AlphaTopBar)
+        MaterialTheme.colorScheme.onTertiary
+    } else {
+        MaterialTheme.colorScheme.onError
+    }
 
 fun GeoIpLocation.toLatLong() =
     LatLong(Latitude(latitude.toFloat()), Longitude(longitude.toFloat()))

@@ -129,8 +129,8 @@ fun SaveApiAccessMethodDialog(
                 )
             }
         },
-        containerColor = MaterialTheme.colorScheme.background,
-        titleContentColor = MaterialTheme.colorScheme.onBackground,
+        containerColor = MaterialTheme.colorScheme.surface,
+        titleContentColor = MaterialTheme.colorScheme.onSurface,
         iconContentColor = Color.Unspecified,
     )
 }

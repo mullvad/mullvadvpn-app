@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.compose.component
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
@@ -32,13 +31,12 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
-import net.mullvad.mullvadvpn.lib.theme.color.AlphaTopBar
 
 @Composable
 fun ScaffoldWithTopBar(
     topBarColor: Color,
     modifier: Modifier = Modifier,
-    iconTintColor: Color = MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaTopBar),
+    iconTintColor: Color = MaterialTheme.colorScheme.onPrimary,
     onSettingsClicked: (() -> Unit)?,
     onAccountClicked: (() -> Unit)?,
     isIconAndLogoVisible: Boolean = true,
@@ -73,7 +71,7 @@ fun ScaffoldWithTopBar(
 fun ScaffoldWithTopBarAndDeviceName(
     topBarColor: Color,
     modifier: Modifier = Modifier,
-    iconTintColor: Color = MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaTopBar),
+    iconTintColor: Color = MaterialTheme.colorScheme.onPrimary,
     onSettingsClicked: (() -> Unit)?,
     onAccountClicked: (() -> Unit)?,
     isIconAndLogoVisible: Boolean = true,
@@ -126,7 +124,7 @@ fun ScaffoldWithMediumTopBar(
     navigationIcon: @Composable () -> Unit = {},
     actions: @Composable RowScope.() -> Unit = {},
     lazyListState: LazyListState = rememberLazyListState(),
-    scrollbarColor: Color = MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaScrollbar),
+    scrollbarColor: Color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     content: @Composable (modifier: Modifier, lazyListState: LazyListState) -> Unit
 ) {
@@ -169,7 +167,7 @@ fun ScaffoldWithMediumTopBar(
     modifier: Modifier = Modifier,
     navigationIcon: @Composable () -> Unit = {},
     actions: @Composable RowScope.() -> Unit = {},
-    scrollbarColor: Color = MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaScrollbar),
+    scrollbarColor: Color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     content: @Composable (modifier: Modifier) -> Unit
 ) {
@@ -214,7 +212,7 @@ fun ScaffoldWithLargeTopBarAndButton(
     actions: @Composable RowScope.() -> Unit = {},
     onButtonClick: () -> Unit = {}, // Add button
     buttonTitle: String,
-    scrollbarColor: Color = MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaScrollbar),
+    scrollbarColor: Color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
     content: @Composable (modifier: Modifier) -> Unit
 ) {
     val appBarState = rememberTopAppBarState()
@@ -226,7 +224,6 @@ fun ScaffoldWithLargeTopBarAndButton(
         modifier =
             modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
                 .systemBarsPadding()
                 .nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {

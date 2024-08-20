@@ -17,7 +17,7 @@ private fun PreviewSitePaymentButton() {
     AppTheme {
         SpacedColumn(
             spacing = Dimens.cellVerticalSpacing,
-            modifier = Modifier.background(color = MaterialTheme.colorScheme.background)
+            modifier = Modifier.background(color = MaterialTheme.colorScheme.surface)
         ) {
             SitePaymentButton(onClick = {}, isEnabled = true)
             SitePaymentButton(onClick = {}, isEnabled = false)

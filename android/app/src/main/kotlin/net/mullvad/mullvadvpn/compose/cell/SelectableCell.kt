@@ -20,13 +20,14 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDisabled
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInvisible
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
+import net.mullvad.mullvadvpn.lib.theme.color.onSelected
 import net.mullvad.mullvadvpn.lib.theme.color.selected
 
 @Preview
 @Composable
 private fun PreviewSelectableCell() {
     AppTheme {
-        SpacedColumn(Modifier.background(MaterialTheme.colorScheme.background)) {
+        SpacedColumn(Modifier.background(MaterialTheme.colorScheme.surface)) {
             SelectableCell(title = "Selected", isSelected = true)
             SelectableCell(title = "Not Selected", isSelected = false)
         }
@@ -44,7 +45,7 @@ fun SelectableCell(
         Icon(
             painter = painterResource(id = R.drawable.icon_tick),
             contentDescription = iconContentDescription,
-            tint = MaterialTheme.colorScheme.onPrimary,
+            tint = MaterialTheme.colorScheme.onSelected,
             modifier =
                 Modifier.padding(end = Dimens.selectableCellTextMargin)
                     .alpha(
@@ -56,7 +57,9 @@ fun SelectableCell(
     titleStyle: TextStyle = MaterialTheme.typography.labelLarge,
     startPadding: Dp = Dimens.cellStartPadding,
     selectedColor: Color = MaterialTheme.colorScheme.selected,
-    backgroundColor: Color = MaterialTheme.colorScheme.secondaryContainer,
+    backgroundColor: Color = MaterialTheme.colorScheme.surfaceContainerLow,
+    onSelectedColor: Color = MaterialTheme.colorScheme.onSelected,
+    onBackgroundColor: Color = MaterialTheme.colorScheme.onSurface,
     onCellClicked: () -> Unit = {},
     testTag: String = ""
 ) {
@@ -68,9 +71,20 @@ fun SelectableCell(
             BaseCellTitle(
                 title = title,
                 style = titleStyle,
-                color =
-                    if (isEnabled) MaterialTheme.colorScheme.onPrimary
-                    else MaterialTheme.colorScheme.onPrimary.copy(AlphaDisabled)
+                textColor =
+                    if (isSelected) {
+                            onSelectedColor
+                        } else {
+                            onBackgroundColor
+                        }
+                        .copy(
+                            alpha =
+                                if (isEnabled) {
+                                    AlphaVisible
+                                } else {
+                                    AlphaDisabled
+                                }
+                        )
             )
         },
         background =

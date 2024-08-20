@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
@@ -20,7 +21,6 @@ import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
 import net.mullvad.mullvadvpn.lib.model.TransportProtocol
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
-import net.mullvad.mullvadvpn.lib.theme.color.AlphaInactive
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInvisible
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
 
@@ -42,8 +42,8 @@ private fun PreviewLocationInfo() {
 @Composable
 fun LocationInfo(
     modifier: Modifier = Modifier,
-    colorExpanded: Color = MaterialTheme.colorScheme.onPrimary,
-    colorCollapsed: Color = MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaInactive),
+    colorExpanded: Color = MaterialTheme.colorScheme.onSurface,
+    colorCollapsed: Color = MaterialTheme.colorScheme.onSurfaceVariant,
     onToggleTunnelInfo: () -> Unit,
     isVisible: Boolean,
     isExpanded: Boolean,
@@ -60,7 +60,7 @@ fun LocationInfo(
                 }
                 .then(modifier)
     ) {
-        Row {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
                 text = location?.hostname ?: "",
                 color =

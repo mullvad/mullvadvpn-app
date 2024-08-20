@@ -31,7 +31,6 @@ import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.PortRange
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
-import net.mullvad.mullvadvpn.lib.theme.color.AlphaDescription
 import net.mullvad.mullvadvpn.util.asString
 import net.mullvad.mullvadvpn.util.inAnyOf
 
@@ -123,13 +122,13 @@ fun WireguardCustomPortDialog(
                             id = R.string.custom_port_dialog_valid_ranges,
                             allowedPortRanges.asString()
                         ),
-                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaDescription),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.bodySmall
                 )
             }
         },
-        containerColor = MaterialTheme.colorScheme.background,
-        titleContentColor = MaterialTheme.colorScheme.onBackground,
+        containerColor = MaterialTheme.colorScheme.surface,
+        titleContentColor = MaterialTheme.colorScheme.onSurface,
         onDismissRequest = onDismiss
     )
 }

@@ -22,7 +22,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -128,7 +127,7 @@ fun PrivacyDisclaimerScreen(
         Column(
             Modifier.padding(it)
                 .fillMaxSize()
-                .background(color = MaterialTheme.colorScheme.background)
+                .background(color = MaterialTheme.colorScheme.surface)
                 .verticalScroll(scrollState)
                 .padding(horizontal = Dimens.sideMargin, vertical = Dimens.screenVerticalMargin)
                 .drawVerticalScrollbar(
@@ -150,7 +149,7 @@ private fun Content(onPrivacyPolicyLinkClicked: () -> Unit) {
         Text(
             text = stringResource(id = R.string.privacy_disclaimer_title),
             style = MaterialTheme.typography.headlineSmall,
-            color = MaterialTheme.colorScheme.onBackground,
+            color = MaterialTheme.colorScheme.onSurface,
             fontWeight = FontWeight.Bold
         )
 
@@ -158,7 +157,7 @@ private fun Content(onPrivacyPolicyLinkClicked: () -> Unit) {
         Text(
             text = stringResource(id = R.string.privacy_disclaimer_body_first_paragraph),
             fontSize = fontSize,
-            color = MaterialTheme.colorScheme.onBackground,
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.padding(top = 10.dp)
         )
 
@@ -167,7 +166,7 @@ private fun Content(onPrivacyPolicyLinkClicked: () -> Unit) {
         Text(
             text = stringResource(id = R.string.privacy_disclaimer_body_second_paragraph),
             fontSize = fontSize,
-            color = MaterialTheme.colorScheme.onBackground,
+            color = MaterialTheme.colorScheme.onSurface,
         )
 
         Row(modifier = Modifier.padding(top = 10.dp)) {
@@ -177,7 +176,7 @@ private fun Content(onPrivacyPolicyLinkClicked: () -> Unit) {
                 style =
                     TextStyle(
                         fontSize = 12.sp,
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.onSurface,
                         textDecoration = TextDecoration.Underline
                     )
             )
@@ -190,7 +189,7 @@ private fun Content(onPrivacyPolicyLinkClicked: () -> Unit) {
                         .padding(start = 2.dp, top = 2.dp)
                         .width(10.dp)
                         .height(10.dp),
-                tint = Color.Unspecified
+                tint = MaterialTheme.colorScheme.onSurface
             )
         }
     }

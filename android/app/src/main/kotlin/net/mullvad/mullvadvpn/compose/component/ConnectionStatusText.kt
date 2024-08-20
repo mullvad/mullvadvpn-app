@@ -1,15 +1,20 @@
 package net.mullvad.mullvadvpn.compose.component
 
+import androidx.compose.foundation.background
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import java.net.InetSocketAddress
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.lib.model.ActionAfterDisconnect
+import net.mullvad.mullvadvpn.lib.model.Endpoint
 import net.mullvad.mullvadvpn.lib.model.ErrorState
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
+import net.mullvad.mullvadvpn.lib.model.TransportProtocol
+import net.mullvad.mullvadvpn.lib.model.TunnelEndpoint
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.typeface.connectionStatus
@@ -18,11 +23,43 @@ import net.mullvad.mullvadvpn.lib.theme.typeface.connectionStatus
 @Composable
 private fun PreviewConnectionStatusText() {
     AppTheme {
-        SpacedColumn {
+        SpacedColumn(modifier = Modifier.background(MaterialTheme.colorScheme.surface)) {
             ConnectionStatusText(TunnelState.Disconnected())
             ConnectionStatusText(TunnelState.Connecting(null, null))
             ConnectionStatusText(
                 state = TunnelState.Error(ErrorState(ErrorStateCause.Ipv6Unavailable, true))
+            )
+            ConnectionStatusText(
+                state =
+                    TunnelState.Connected(
+                        endpoint =
+                            TunnelEndpoint(
+                                endpoint =
+                                    Endpoint(
+                                        address = InetSocketAddress(10),
+                                        protocol = TransportProtocol.Tcp
+                                    ),
+                                quantumResistant = false,
+                                obfuscation = null
+                            ),
+                        location = null
+                    )
+            )
+            ConnectionStatusText(
+                state =
+                    TunnelState.Connected(
+                        endpoint =
+                            TunnelEndpoint(
+                                endpoint =
+                                    Endpoint(
+                                        address = InetSocketAddress(10),
+                                        protocol = TransportProtocol.Tcp
+                                    ),
+                                quantumResistant = true,
+                                obfuscation = null
+                            ),
+                        location = null
+                    )
             )
         }
     }
@@ -74,7 +111,7 @@ private fun ConnectingText(isQuantumResistant: Boolean, modifier: Modifier) {
                     if (isQuantumResistant) R.string.quantum_creating_secure_connection
                     else R.string.creating_secure_connection
             ),
-        color = MaterialTheme.colorScheme.onPrimary,
+        color = MaterialTheme.colorScheme.onSurface,
         style = MaterialTheme.typography.connectionStatus,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
@@ -91,7 +128,7 @@ private fun ConnectedText(isQuantumResistant: Boolean, modifier: Modifier) {
                     if (isQuantumResistant) R.string.quantum_secure_connection
                     else R.string.secure_connection
             ),
-        color = MaterialTheme.colorScheme.surface,
+        color = MaterialTheme.colorScheme.tertiary,
         style = MaterialTheme.typography.connectionStatus,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
@@ -107,11 +144,11 @@ private fun ErrorText(isBlocking: Boolean, modifier: Modifier) {
                 id = if (isBlocking) R.string.blocked_connection else R.string.error_state
             ),
         color =
-            if (isBlocking) MaterialTheme.colorScheme.onPrimary
+            if (isBlocking) MaterialTheme.colorScheme.onSurface
             else MaterialTheme.colorScheme.error,
         style = MaterialTheme.typography.connectionStatus,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
-        modifier = modifier
+        modifier = modifier,
     )
 }

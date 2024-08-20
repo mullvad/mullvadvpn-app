@@ -18,7 +18,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -34,7 +33,7 @@ import net.mullvad.mullvadvpn.lib.model.ErrorState
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
-import net.mullvad.mullvadvpn.lib.theme.color.AlphaDescription
+import net.mullvad.mullvadvpn.lib.theme.color.warning
 import net.mullvad.mullvadvpn.repository.InAppNotification
 import net.mullvad.mullvadvpn.ui.VersionInfo
 import net.mullvad.mullvadvpn.ui.notification.StatusLevel
@@ -111,7 +110,7 @@ private fun Notification(notificationBannerData: NotificationData) {
     ConstraintLayout(
         modifier =
             Modifier.fillMaxWidth()
-                .background(color = MaterialTheme.colorScheme.background)
+                .background(color = MaterialTheme.colorScheme.surfaceContainer)
                 .padding(
                     start = Dimens.notificationBannerStartPadding,
                     end = Dimens.notificationBannerEndPadding,
@@ -128,8 +127,8 @@ private fun Notification(notificationBannerData: NotificationData) {
                         color =
                             when (statusLevel) {
                                 StatusLevel.Error -> MaterialTheme.colorScheme.error
-                                StatusLevel.Warning -> MaterialTheme.colorScheme.errorContainer
-                                StatusLevel.Info -> MaterialTheme.colorScheme.surface
+                                StatusLevel.Warning -> MaterialTheme.colorScheme.warning
+                                StatusLevel.Info -> MaterialTheme.colorScheme.surfaceContainer
                             },
                         shape = CircleShape
                     )
@@ -152,7 +151,7 @@ private fun Notification(notificationBannerData: NotificationData) {
                     }
                     .padding(start = Dimens.smallPadding),
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onBackground,
+            color = MaterialTheme.colorScheme.onSurface,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
@@ -172,7 +171,7 @@ private fun Notification(notificationBannerData: NotificationData) {
                             width = Dimension.fillToConstraints
                         }
                         .padding(start = Dimens.smallPadding),
-                color = MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaDescription),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.labelMedium
             )
         }
@@ -191,7 +190,7 @@ private fun Notification(notificationBannerData: NotificationData) {
                 Icon(
                     painter = painterResource(id = it.icon),
                     contentDescription = null,
-                    tint = Color.Unspecified
+                    tint = MaterialTheme.colorScheme.onSurface
                 )
             }
         }

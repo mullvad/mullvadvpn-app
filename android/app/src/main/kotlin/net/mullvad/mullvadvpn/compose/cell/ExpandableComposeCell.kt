@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -49,6 +50,8 @@ fun ExpandableComposeCell(
     modifier: Modifier = Modifier,
     isEnabled: Boolean = true,
     testTag: String = "",
+    textColor: Color = MaterialTheme.colorScheme.onPrimary,
+    background: Color = MaterialTheme.colorScheme.primary,
     onCellClicked: (Boolean) -> Unit = {},
     onInfoClicked: (() -> Unit)? = null
 ) {
@@ -61,6 +64,7 @@ fun ExpandableComposeCell(
             BaseCellTitle(
                 title = title,
                 style = MaterialTheme.typography.titleMedium,
+                textColor = textColor,
                 modifier = titleModifier.weight(1f, fill = true)
             )
         },
@@ -72,6 +76,7 @@ fun ExpandableComposeCell(
                 onInfoClicked = onInfoClicked
             )
         },
+        background = background,
         onCellClicked = { onCellClicked(!isExpanded) }
     )
 }
@@ -105,6 +110,7 @@ private fun ExpandableComposeCellBody(
         ChevronButton(
             isExpanded = isExpanded,
             onExpand = onExpand,
+            color = MaterialTheme.colorScheme.onPrimary
         )
     }
 }
@@ -122,7 +128,7 @@ fun ContentBlockersDisableModeCellSubtitle(modifier: Modifier) {
     Text(
         text = spanned.toAnnotatedString(boldFontWeight = FontWeight.ExtraBold),
         style = MaterialTheme.typography.labelMedium,
-        color = MaterialTheme.colorScheme.onSecondary,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = modifier
     )
 }

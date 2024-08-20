@@ -14,7 +14,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -32,7 +31,6 @@ import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
-import net.mullvad.mullvadvpn.lib.theme.color.AlphaDescription
 import net.mullvad.mullvadvpn.viewmodel.SplashUiSideEffect
 import net.mullvad.mullvadvpn.viewmodel.SplashViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -118,10 +116,7 @@ fun SplashScreen() {
                     Text(
                         text = stringResource(id = R.string.connecting_to_daemon),
                         style = MaterialTheme.typography.bodySmall,
-                        color =
-                            MaterialTheme.colorScheme.onPrimary
-                                .copy(alpha = AlphaDescription)
-                                .compositeOver(backgroundColor),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(top = Dimens.mediumPadding)
                     )
                 }

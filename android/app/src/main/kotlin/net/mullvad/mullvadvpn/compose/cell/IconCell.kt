@@ -45,7 +45,7 @@ fun IconCell(
                     )
                     Spacer(modifier = Modifier.width(Dimens.mediumPadding))
                 }
-                BaseCellTitle(title = title, style = titleStyle, color = titleColor)
+                BaseCellTitle(title = title, style = titleStyle, textColor = titleColor)
             }
         },
         onCellClicked = onClick,
