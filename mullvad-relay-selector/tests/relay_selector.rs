@@ -1407,7 +1407,11 @@ fn test_daita() {
     let relay_selector = RelaySelector::from_list(SelectorConfig::default(), relay_list);
 
     // Only pick relays that support DAITA
-    let query = RelayQueryBuilder::new().wireguard().daita().build();
+    let query = RelayQueryBuilder::new()
+        .wireguard()
+        .daita()
+        .daita_use_anywhere(false)
+        .build();
     let relay = unwrap_entry_relay(relay_selector.get_relay_by_query(query).unwrap());
     assert!(
         supports_daita(&relay),
@@ -1418,11 +1422,35 @@ fn test_daita() {
     let query = RelayQueryBuilder::new()
         .wireguard()
         .daita()
+        .daita_use_anywhere(false)
         .location(nondaita_supporting_relay.clone())
         .build();
     relay_selector
         .get_relay_by_query(query)
         .expect_err("Expected to find no matching relay");
+
+    // Should be able to connect to non-DAITA relay with use_anywhere
+    let query = RelayQueryBuilder::new()
+        .wireguard()
+        .daita()
+        .daita_use_anywhere(true)
+        .location(nondaita_supporting_relay.clone())
+        .build();
+    let relay = relay_selector
+        .get_relay_by_query(query)
+        .expect("Expected to find a relay with daita_use_anywhere");
+    match relay {
+        GetRelay::Wireguard {
+            inner: WireguardConfig::Multihop { exit, entry },
+            ..
+        } => {
+            assert!(supports_daita(&entry), "entry relay must support DAITA");
+            assert!(!supports_daita(&exit), "exit relay must not support DAITA");
+        }
+        wrong_relay => panic!(
+            "Relay selector should have picked a Wireguard relay, instead chose {wrong_relay:?}"
+        ),
+    }
 
     // DAITA-supporting relays can be picked even when it is disabled
     let query = RelayQueryBuilder::new()
@@ -1446,6 +1474,7 @@ fn test_daita() {
     let query = RelayQueryBuilder::new()
         .wireguard()
         .daita()
+        .daita_use_anywhere(false)
         .multihop()
         .build();
     let relay = relay_selector.get_relay_by_query(query).unwrap();
@@ -1465,6 +1494,7 @@ fn test_daita() {
     let query = RelayQueryBuilder::new()
         .wireguard()
         .daita()
+        .daita_use_anywhere(false)
         .multihop()
         .location(nondaita_supporting_relay)
         .build();
