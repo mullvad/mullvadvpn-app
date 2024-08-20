@@ -634,6 +634,10 @@ impl Interface {
         self.header.ifm_index
     }
 
+    pub fn mtu(&self) -> u32 {
+        self.header.ifm_data.ifi_mtu
+    }
+
     fn from_byte_buffer(buffer: &[u8]) -> Result<Self> {
         const INTERFACE_MESSAGE_HEADER_SIZE: usize = std::mem::size_of::<libc::if_msghdr>();
         if INTERFACE_MESSAGE_HEADER_SIZE > buffer.len() {

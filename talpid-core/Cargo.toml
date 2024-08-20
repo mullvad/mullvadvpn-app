@@ -60,6 +60,7 @@ tun = { version = "0.5.5", features = ["async"] }
 nix = { version = "0.28", features = ["socket"] }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
+talpid-net = { path = "../talpid-net" }
 
 [target.'cfg(windows)'.dependencies]
 bitflags = "1.2"

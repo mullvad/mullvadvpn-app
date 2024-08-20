@@ -3903,6 +3903,7 @@ dependencies = [
  "subslice",
  "system-configuration",
  "talpid-dbus",
+ "talpid-net",
  "talpid-openvpn",
  "talpid-platform-metadata",
  "talpid-routing",
@@ -3943,6 +3944,16 @@ dependencies = [
  "rand 0.8.5",
  "talpid-time",
  "tokio",
+]
+
+[[package]]
+name = "talpid-net"
+version = "0.0.0"
+dependencies = [
+ "libc",
+ "log",
+ "socket2",
+ "talpid-types",
 ]
 
 [[package]]
@@ -4128,6 +4139,7 @@ dependencies = [
  "socket2",
  "surge-ping",
  "talpid-dbus",
+ "talpid-net",
  "talpid-routing",
  "talpid-tunnel",
  "talpid-tunnel-config-client",
