@@ -32,17 +32,18 @@ on:
         description: Override container image
         type: string
         required: false
-      run_e2e_tests:
-        description: Run e2e tests
-        type: boolean
-        required: false
       run_firebase_tests:
         description: Run firebase tests
         type: boolean
         required: false
       mockapi_test_repeat:
-        description: Mockapi test repeat
+        description: Mockapi test repeat(self hosted)
         default: '1'
+        required: true
+        type: string
+      e2e_test_repeat:
+        description: e2e test repeat(self hosted)
+        default: '0'
         required: true
         type: string
   # Build if main is updated to ensure up-to-date caches are available
@@ -407,7 +408,6 @@ jobs:
   instrumented-tests:
     name: Run instrumented tests
     runs-on: [self-hosted, android-device]
-    timeout-minutes: 30
     needs: [build-app, build-instrumented-tests]
     strategy:
       fail-fast: false
@@ -423,6 +423,7 @@ jobs:
       - name: Prepare report dir
         if: ${{ matrix.test-repeat != 0 }}
         id: prepare-report-dir
+        timeout-minutes: 5
         env:
           INNER_REPORT_DIR: /tmp/${{ matrix.test-type }}-${{ github.run_id }}-${{ github.run_attempt }}
         run: |
@@ -471,11 +472,15 @@ jobs:
     name: Run instrumented e2e tests
     # Temporary workaround for targeting the runner android-runner-v1
     runs-on: [self-hosted, android-device, android-emulator]
-    if: github.event_name == 'schedule' || github.event.inputs.run_e2e_tests == 'true'
-    timeout-minutes: 30
+    if: github.event_name == 'schedule' || ${{ github.event.inputs.e2e_test_repeat }} != '0'
     needs: [build-app, build-instrumented-tests]
+    strategy:
+      matrix:
+        include:
+          - test-repeat: ${{ github.event.inputs.e2e_test_repeat || 1 }}
     steps:
       - name: Prepare report dir
+        if: ${{ matrix.test-repeat != 0 }}
         id: prepare-report-dir
         env:
           INNER_REPORT_DIR: /tmp/${{ github.run_id }}-${{ github.run_attempt }}
@@ -484,21 +489,25 @@ jobs:
           echo "report_dir=$INNER_REPORT_DIR" >> $GITHUB_OUTPUT
 
       - name: Checkout repository
+        if: ${{ matrix.test-repeat != 0 }}
         uses: actions/checkout@v4
 
       # Using v3 due to v4 being very slow for this artifact.
       - uses: actions/download-artifact@v3
+        if: ${{ matrix.test-repeat != 0 }}
         with:
           name: apks
           path: android/app/build/outputs/apk
 
       # Using v3 due to v4 being very slow for this artifact.
       - uses: actions/download-artifact@v3
+        if: ${{ matrix.test-repeat != 0 }}
         with:
           name: e2e-instrumentation-apks
           path: android/test/e2e/build/outputs/apk
 
       - name: Run instrumented test script
+        if: ${{ matrix.test-repeat != 0 }}
         shell: bash -ieo pipefail {0}
         env:
           AUTO_FETCH_TEST_HELPER_APKS: true
@@ -509,7 +518,7 @@ jobs:
           INVALID_TEST_ACCOUNT_NUMBER: '0000000000000000'
           ENABLE_HIGHLY_RATE_LIMITED_TESTS: ${{ github.event_name == 'schedule' && 'true' || 'false' }}
           REPORT_DIR: ${{ steps.prepare-report-dir.outputs.report_dir }}
-        run: ./android/scripts/run-instrumented-tests.sh
+        run: ./android/scripts/run-instrumented-tests-repeat.sh ${{ matrix.test-repeat }}
 
   firebase-tests:
     name: Run firebase tests
