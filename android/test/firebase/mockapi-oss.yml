@@ -5,6 +5,7 @@ default:
   test: android/test/mockapi/build/outputs/apk/oss/debug/mockapi-oss-debug.apk
   timeout: 10m
   use-orchestrator: true
+  num-flaky-test-attempts: 1
   device:
     - {model: shiba, version: 34, locale: en, orientation: portrait}
     - {model: tangorpro, version: 33, locale: en, orientation: portrait}
