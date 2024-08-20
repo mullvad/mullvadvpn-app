@@ -260,15 +260,13 @@ fn redirect_packets_for_pktap_stream(
     route_manager: RouteManagerHandle,
     classify: ClassifyFn,
 ) -> Result<SplitTunnelHandle, Error> {
-    let mtu_listener = if let Some(vpn_interface) = &vpn_interface {
-        Some(tokio::spawn(mtu_updater(
+    let mtu_listener = vpn_interface.as_ref().map(|vpn_interface| {
+        tokio::spawn(mtu_updater(
             st_tun_device.get_ref().name().to_owned(),
             vpn_interface.name.clone(),
             route_manager.clone(),
-        )))
-    } else {
-        None
-    };
+        ))
+    });
 
     let (default_stream, default_write, read_buffer_size) = open_default_bpf(&default_interface)?;
 
