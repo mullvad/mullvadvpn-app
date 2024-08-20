@@ -1407,7 +1407,8 @@ fn test_daita() {
     let relay_selector = RelaySelector::from_list(SelectorConfig::default(), relay_list);
 
     // Only pick relays that support DAITA
-    let query = RelayQueryBuilder::new().wireguard().daita().build();
+    let mut query = RelayQueryBuilder::new().wireguard().daita().build();
+    query.wireguard_constraints.daita_use_anywhere = Constraint::Only(false);
     let relay = unwrap_entry_relay(relay_selector.get_relay_by_query(query).unwrap());
     assert!(
         supports_daita(&relay),
@@ -1415,39 +1416,66 @@ fn test_daita() {
     );
 
     // Fail when only non-DAITA relays match constraints
-    let query = RelayQueryBuilder::new()
+    let mut query = RelayQueryBuilder::new()
         .wireguard()
         .daita()
         .location(nondaita_supporting_relay.clone())
         .build();
+    query.wireguard_constraints.daita_use_anywhere = Constraint::Only(false);
     relay_selector
         .get_relay_by_query(query)
         .expect_err("Expected to find no matching relay");
 
+    // Should be able to connect to non-DAITA relay with use_anywhere
+    let mut query = RelayQueryBuilder::new()
+        .wireguard()
+        .daita()
+        .location(nondaita_supporting_relay.clone())
+        .build();
+    query.wireguard_constraints.daita_use_anywhere = Constraint::Only(true);
+    let relay = relay_selector
+        .get_relay_by_query(query)
+        .expect("Expected to find a relay with daita_use_anywhere");
+    match relay {
+        GetRelay::Wireguard {
+            inner: WireguardConfig::Multihop { exit, entry },
+            ..
+        } => {
+            assert!(supports_daita(&entry), "entry relay must support DAITA");
+            assert!(!supports_daita(&exit), "exit relay must not support DAITA");
+        }
+        wrong_relay => panic!(
+            "Relay selector should have picked a Wireguard relay, instead chose {wrong_relay:?}"
+        ),
+    }
+
     // DAITA-supporting relays can be picked even when it is disabled
-    let query = RelayQueryBuilder::new()
+    let mut query = RelayQueryBuilder::new()
         .wireguard()
         .location(daita_supporting_relay.clone())
         .build();
+    query.wireguard_constraints.daita_use_anywhere = Constraint::Only(false);
     relay_selector
         .get_relay_by_query(query)
         .expect("Expected DAITA-supporting relay to work without DAITA");
 
     // Non DAITA-supporting relays can be picked when it is disabled
-    let query = RelayQueryBuilder::new()
+    let mut query = RelayQueryBuilder::new()
         .wireguard()
         .location(nondaita_supporting_relay.clone())
         .build();
+    query.wireguard_constraints.daita_use_anywhere = Constraint::Only(false);
     relay_selector
         .get_relay_by_query(query)
         .expect("Expected DAITA-supporting relay to work without DAITA");
 
     // Entry relay must support daita
-    let query = RelayQueryBuilder::new()
+    let mut query = RelayQueryBuilder::new()
         .wireguard()
         .daita()
         .multihop()
         .build();
+    query.wireguard_constraints.daita_use_anywhere = Constraint::Only(false);
     let relay = relay_selector.get_relay_by_query(query).unwrap();
     match relay {
         GetRelay::Wireguard {
@@ -1462,12 +1490,13 @@ fn test_daita() {
     }
 
     // Exit relay does not have to support daita
-    let query = RelayQueryBuilder::new()
+    let mut query = RelayQueryBuilder::new()
         .wireguard()
         .daita()
         .multihop()
         .location(nondaita_supporting_relay)
         .build();
+    query.wireguard_constraints.daita_use_anywhere = Constraint::Only(false);
     let relay = relay_selector.get_relay_by_query(query).unwrap();
     match relay {
         GetRelay::Wireguard {
