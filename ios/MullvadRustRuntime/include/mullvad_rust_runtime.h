@@ -5,9 +5,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-typedef struct PostQuantumCancelToken {
+typedef struct EphemeralPeerCancelToken {
   void *context;
-} PostQuantumCancelToken;
+} EphemeralPeerCancelToken;
 
 typedef struct ProxyHandle {
   void *context;
@@ -24,7 +24,7 @@ extern const uint16_t CONFIG_SERVICE_PORT;
  * `sender` must be pointing to a valid instance of a `PostQuantumCancelToken` created by the
  * `PacketTunnelProvider`.
  */
-void cancel_post_quantum_key_exchange(const struct PostQuantumCancelToken *sender);
+void cancel_post_quantum_key_exchange(const struct EphemeralPeerCancelToken *sender);
 
 /**
  * Called by the Swift side to signal that the Rust `PostQuantumCancelToken` can be safely dropped
@@ -34,7 +34,7 @@ void cancel_post_quantum_key_exchange(const struct PostQuantumCancelToken *sende
  * `sender` must be pointing to a valid instance of a `PostQuantumCancelToken` created by the
  * `PacketTunnelProvider`.
  */
-void drop_post_quantum_key_exchange_token(const struct PostQuantumCancelToken *sender);
+void drop_post_quantum_key_exchange_token(const struct EphemeralPeerCancelToken *sender);
 
 /**
  * Called by Swift whenever data has been written to the in-tunnel TCP connection when exchanging
@@ -72,12 +72,14 @@ void handle_recv(const uint8_t *data, uintptr_t data_len, const void *sender);
  * connection instances.
  * `cancel_token` should be owned by the caller of this function.
  */
-int32_t negotiate_post_quantum_key(const uint8_t *public_key,
-                                   const uint8_t *ephemeral_key,
-                                   const void *packet_tunnel,
-                                   const void *tcp_connection,
-                                   struct PostQuantumCancelToken *cancel_token,
-                                   uint64_t post_quantum_key_exchange_timeout);
+int32_t request_ephemeral_peer(const uint8_t *public_key,
+                               const uint8_t *ephemeral_key,
+                               const void *packet_tunnel,
+                               const void *tcp_connection,
+                               struct EphemeralPeerCancelToken *cancel_token,
+                               uint64_t post_quantum_key_exchange_timeout,
+                               bool enable_post_quantum,
+                               bool enable_daita);
 
 /**
  * Called when there is data to send on the TCP connection.
@@ -95,12 +97,16 @@ extern void swift_nw_tcp_connection_send(const void *connection,
 extern void swift_nw_tcp_connection_read(const void *connection, const void *sender);
 
 /**
- * Called when the preshared post quantum key is ready.
- * `raw_preshared_key` might be NULL if the key negotiation failed.
+ * Called when the preshared post quantum key is ready,
+ * or when a Daita peer has been successfully requested.
+ * `raw_preshared_key` will be NULL if:
+ * - The post qunatum key negotiation failed
+ * - A Daita peer has been requested without enabling post quantum keys.
  */
 extern void swift_post_quantum_key_ready(const void *raw_packet_tunnel,
                                          const uint8_t *raw_preshared_key,
-                                         const uint8_t *raw_ephemeral_private_key);
+                                         const uint8_t *raw_ephemeral_private_key,
+                                         bool daita_enabled);
 
 /**
  * # Safety

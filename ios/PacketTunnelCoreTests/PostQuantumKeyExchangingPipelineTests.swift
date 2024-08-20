@@ -67,11 +67,11 @@ final class PostQuantumKeyExchangingPipelineTests: XCTestCase {
         let negotiationSuccessful = expectation(description: "Negotiation succeeded.")
         negotiationSuccessful.expectedFulfillmentCount = 1
 
-        let keyExchangeActor = PostQuantumKeyExchangeActorStub()
+        let keyExchangeActor = EphemeralPeerExchangeActorStub()
         let preSharedKey = try XCTUnwrap(PreSharedKey(hexKey: PrivateKey().hexKey))
         keyExchangeActor.result = .success((preSharedKey, PrivateKey()))
 
-        let postQuantumKeyExchangingPipeline = PostQuantumKeyExchangingPipeline(keyExchangeActor) { _ in
+        let postQuantumKeyExchangingPipeline = EphemeralPeerExchangingPipeline(keyExchangeActor) { _ in
             reconfigurationExpectation.fulfill()
         } onFinish: {
             negotiationSuccessful.fulfill()
@@ -88,7 +88,8 @@ final class PostQuantumKeyExchangingPipelineTests: XCTestCase {
             connectionAttemptCount: 0,
             transportLayer: .udp,
             remotePort: 1234,
-            isPostQuantum: true
+            isPostQuantum: true,
+            isDaitaEnabled: false
         )
 
         postQuantumKeyExchangingPipeline.startNegotiation(connectionState, privateKey: PrivateKey())
@@ -106,11 +107,11 @@ final class PostQuantumKeyExchangingPipelineTests: XCTestCase {
         let negotiationSuccessful = expectation(description: "Negotiation succeeded.")
         negotiationSuccessful.expectedFulfillmentCount = 1
 
-        let keyExchangeActor = PostQuantumKeyExchangeActorStub()
+        let keyExchangeActor = EphemeralPeerExchangeActorStub()
         let preSharedKey = try XCTUnwrap(PreSharedKey(hexKey: PrivateKey().hexKey))
         keyExchangeActor.result = .success((preSharedKey, PrivateKey()))
 
-        let postQuantumKeyExchangingPipeline = PostQuantumKeyExchangingPipeline(keyExchangeActor) { _ in
+        let postQuantumKeyExchangingPipeline = EphemeralPeerExchangingPipeline(keyExchangeActor) { _ in
             reconfigurationExpectation.fulfill()
         } onFinish: {
             negotiationSuccessful.fulfill()
@@ -127,7 +128,8 @@ final class PostQuantumKeyExchangingPipelineTests: XCTestCase {
             connectionAttemptCount: 0,
             transportLayer: .udp,
             remotePort: 1234,
-            isPostQuantum: true
+            isPostQuantum: true,
+            isDaitaEnabled: false
         )
 
         postQuantumKeyExchangingPipeline.startNegotiation(connectionState, privateKey: PrivateKey())

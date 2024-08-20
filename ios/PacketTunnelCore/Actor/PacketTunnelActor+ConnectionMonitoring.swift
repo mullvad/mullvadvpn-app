@@ -42,7 +42,7 @@ extension PacketTunnelActor {
             connState.connectionAttemptCount = 0
             state = .connected(connState)
 
-        case .initial, .connected, .disconnecting, .disconnected, .error, .negotiatingPostQuantumKey:
+        case .initial, .connected, .disconnecting, .disconnected, .error, .negotiatingEphemeralPeer:
             break
         }
     }
@@ -53,7 +53,7 @@ extension PacketTunnelActor {
         case .connecting, .reconnecting, .connected:
             eventChannel.send(.reconnect(.random, reason: .connectionLoss))
 
-        case .initial, .disconnected, .disconnecting, .error, .negotiatingPostQuantumKey:
+        case .initial, .disconnected, .disconnecting, .error, .negotiatingEphemeralPeer:
             break
         }
     }

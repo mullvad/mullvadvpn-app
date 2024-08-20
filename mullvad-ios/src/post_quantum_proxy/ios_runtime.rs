@@ -1,4 +1,4 @@
-use super::{ios_tcp_connection::*, PostQuantumCancelToken};
+use super::{ios_tcp_connection::*, EphemeralPeerCancelToken};
 use libc::c_void;
 use std::{
     future::Future,
@@ -23,7 +23,9 @@ pub unsafe fn run_post_quantum_psk_exchange(
     tcp_connection: *const c_void,
     post_quantum_key_exchange_timeout: u64,
     tokio_handle: TokioHandle,
-) -> Result<PostQuantumCancelToken, Error> {
+    enable_post_quantum: bool,
+    enable_daita: bool,
+) -> Result<EphemeralPeerCancelToken, Error> {
     match unsafe {
         IOSRuntime::new(
             pub_key,
@@ -31,13 +33,15 @@ pub unsafe fn run_post_quantum_psk_exchange(
             packet_tunnel,
             tcp_connection,
             post_quantum_key_exchange_timeout,
+            enable_post_quantum,
+            enable_daita,
         )
     } {
         Ok(runtime) => {
             let token = runtime.packet_tunnel.tcp_connection.clone();
 
             runtime.run(tokio_handle);
-            Ok(PostQuantumCancelToken {
+            Ok(EphemeralPeerCancelToken {
                 context: Arc::into_raw(token) as *mut _,
             })
         }
@@ -62,6 +66,8 @@ struct IOSRuntime {
     ephemeral_key: [u8; 32],
     packet_tunnel: SwiftContext,
     post_quantum_key_exchange_timeout: u64,
+    enable_post_quantum: bool,
+    enable_daita: bool,
 }
 
 impl IOSRuntime {
@@ -71,6 +77,8 @@ impl IOSRuntime {
         packet_tunnel: *const libc::c_void,
         tcp_connection: *const c_void,
         post_quantum_key_exchange_timeout: u64,
+        enable_post_quantum: bool,
+        enable_daita: bool,
     ) -> io::Result<Self> {
         let context = SwiftContext {
             packet_tunnel,
@@ -82,6 +90,8 @@ impl IOSRuntime {
             ephemeral_key,
             packet_tunnel: context,
             post_quantum_key_exchange_timeout,
+            enable_post_quantum,
+            enable_daita,
         })
     }
 
@@ -128,11 +138,13 @@ impl IOSRuntime {
                         self.packet_tunnel.packet_tunnel,
                         ptr::null(),
                         ptr::null(),
+                        self.enable_daita,
                     );
                     return;
                 }
             }
         };
+        // Use `self.ephemeral_key` as the new private key when no PQ but yes DAITA
         let ephemeral_pub_key = PrivateKey::from(self.ephemeral_key).public_key();
 
         tokio::select! {
@@ -140,40 +152,41 @@ impl IOSRuntime {
                 async_provider,
                 PublicKey::from(self.pub_key),
                 ephemeral_pub_key,
-                true,
-                false,
+                self.enable_post_quantum,
+                self.enable_daita,
             ) =>  {
                 shutdown_handle.shutdown();
+                if let Ok(mut connection) = self.packet_tunnel.tcp_connection.lock() {
+                    connection.shutdown();
+                }
                 match ephemeral_peer {
                     Ok(peer) => {
                         match peer.psk {
                             Some(preshared_key) => unsafe {
-                                if let Ok(mut connection) = self.packet_tunnel.tcp_connection.lock() {
-                                    connection.shutdown();
-                                };
                                 let preshared_key_bytes = preshared_key.as_bytes();
-                                swift_post_quantum_key_ready(self.packet_tunnel.packet_tunnel, preshared_key_bytes.as_ptr(), self.ephemeral_key.as_ptr());
+                                swift_post_quantum_key_ready(self.packet_tunnel.packet_tunnel,
+                                    preshared_key_bytes.as_ptr(),
+                                    self.ephemeral_key.as_ptr(),
+                                    self.enable_daita);
                             },
                             None => {
-                                log::error!("No suitable peer was found");
-
-                                if let Ok(mut connection) = self.packet_tunnel.tcp_connection.lock() {
-                                    connection.shutdown();
-                                };
+                                // Daita peer was requested, but without enabling post quantum keys
                                 unsafe {
-                                    swift_post_quantum_key_ready(self.packet_tunnel.packet_tunnel, ptr::null(), ptr::null());
+                                    swift_post_quantum_key_ready(self.packet_tunnel.packet_tunnel,
+                                        ptr::null(),
+                                        self.ephemeral_key.as_ptr(),
+                                    self.enable_daita);
                                 }
                             }
-
                         }
                     },
                     Err(error) => {
                         log::error!("Key exchange failed {}", error);
-                        if let Ok(mut connection) = self.packet_tunnel.tcp_connection.lock() {
-                            connection.shutdown();
-                        };
                         unsafe {
-                            swift_post_quantum_key_ready(self.packet_tunnel.packet_tunnel, ptr::null(), ptr::null());
+                            swift_post_quantum_key_ready(self.packet_tunnel.packet_tunnel,
+                                ptr::null(),
+                                ptr::null(),
+                                self.enable_daita);
                         }
                     }
                 }
@@ -184,7 +197,10 @@ impl IOSRuntime {
                             connection.shutdown();
                         };
                         shutdown_handle.shutdown();
-                        unsafe { swift_post_quantum_key_ready(self.packet_tunnel.packet_tunnel, ptr::null(), ptr::null()); }
+                        unsafe { swift_post_quantum_key_ready(self.packet_tunnel.packet_tunnel,
+                            ptr::null(),
+                            ptr::null(),
+                            self.enable_daita); }
             }
         }
     }

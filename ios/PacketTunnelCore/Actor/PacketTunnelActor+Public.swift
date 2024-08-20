@@ -64,8 +64,8 @@ extension PacketTunnelActor {
      - Parameter key: the new key
      */
 
-    nonisolated public func replaceKeyWithPQ(configuration: PostQuantumNegotiationState) {
-        eventChannel.send(.postQuantumNegotiationStateChanged(configuration))
+    nonisolated public func changeEphemeralPeerNegotiationState(configuration: EphemeralPeerNegotiationState) {
+        eventChannel.send(.ephemeralPeerNegotiationStateChanged(configuration))
     }
 
     /**

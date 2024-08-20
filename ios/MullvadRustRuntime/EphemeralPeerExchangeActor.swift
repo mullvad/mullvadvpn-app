@@ -12,15 +12,15 @@ import MullvadTypes
 import NetworkExtension
 import WireGuardKitTypes
 
-public protocol PostQuantumKeyExchangeActorProtocol {
-    func startNegotiation(with privateKey: PrivateKey)
+public protocol EphemeralPeerExchangeActorProtocol {
+    func startNegotiation(with privateKey: PrivateKey, enablePostQuantum: Bool, enableDaita: Bool)
     func endCurrentNegotiation()
     func reset()
 }
 
-public class PostQuantumKeyExchangeActor: PostQuantumKeyExchangeActorProtocol {
+public class EphemeralPeerExchangeActor: EphemeralPeerExchangeActorProtocol {
     struct Negotiation {
-        var negotiator: PostQuantumKeyNegotiating
+        var negotiator: EphemeralPeerNegotiating
         var inTunnelTCPConnection: NWTCPConnection
         var tcpConnectionObserver: NSKeyValueObservation
 
@@ -36,7 +36,7 @@ public class PostQuantumKeyExchangeActor: PostQuantumKeyExchangeActorProtocol {
     private var timer: DispatchSourceTimer?
     private var keyExchangeRetriesIterator: AnyIterator<Duration>!
     private let iteratorProvider: () -> AnyIterator<Duration>
-    private let negotiationProvider: PostQuantumKeyNegotiating.Type
+    private let negotiationProvider: EphemeralPeerNegotiating.Type
 
     // Callback in the event of the negotiation failing on startup
     var onFailure: () -> Void
@@ -44,7 +44,7 @@ public class PostQuantumKeyExchangeActor: PostQuantumKeyExchangeActorProtocol {
     public init(
         packetTunnel: any TunnelProvider,
         onFailure: @escaping (() -> Void),
-        negotiationProvider: PostQuantumKeyNegotiating.Type = PostQuantumKeyNegotiator.self,
+        negotiationProvider: EphemeralPeerNegotiating.Type = EphemeralPeerNegotiator.self,
         iteratorProvider: @escaping () -> AnyIterator<Duration>
     ) {
         self.packetTunnel = packetTunnel
@@ -71,7 +71,7 @@ public class PostQuantumKeyExchangeActor: PostQuantumKeyExchangeActorProtocol {
     /// It is reset after every successful key exchange.
     ///
     /// - Parameter privateKey: The device's current private key
-    public func startNegotiation(with privateKey: PrivateKey) {
+    public func startNegotiation(with privateKey: PrivateKey, enablePostQuantum: Bool, enableDaita: Bool) {
         endCurrentNegotiation()
         let negotiator = negotiationProvider.init()
 
@@ -101,7 +101,9 @@ public class PostQuantumKeyExchangeActor: PostQuantumKeyExchangeActorProtocol {
                 presharedKey: ephemeralSharedKey,
                 postQuantumKeyReceiver: packetTunnel,
                 tcpConnection: inTunnelTCPConnection,
-                postQuantumKeyExchangeTimeout: tcpConnectionTimeout
+                postQuantumKeyExchangeTimeout: tcpConnectionTimeout,
+                enablePostQuantum: enablePostQuantum,
+                enableDaita: enableDaita
             ) {
                 // Cancel the negotiation to shut down any remaining use of the TCP connection on the Rust side
                 self.negotiation?.cancel()
