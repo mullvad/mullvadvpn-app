@@ -216,9 +216,10 @@ impl Tunnel for WgGoTunnel {
             let path = self.resource_dir.join("maybenot_machines");
             log::debug!("Reading maybenot machines from {}", path.display());
 
-            // TODO: errors
-            let machines = fs::read_to_string(path).unwrap();
-            let machines = CString::new(machines).unwrap();
+            let machines =
+                fs::read_to_string(path).map_err(|e| TunnelError::StartDaita(Box::new(e)))?;
+            let machines =
+                CString::new(machines).map_err(|e| TunnelError::StartDaita(Box::new(e)))?;
             Ok(machines)
         })?;
 
