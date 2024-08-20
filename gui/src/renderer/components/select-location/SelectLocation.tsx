@@ -68,8 +68,10 @@ export default function SelectLocation() {
   const providers = relaySettings?.providers ?? [];
   const filteredProviders = useFilteredProviders(providers, ownership);
   const daita = useSelector((state) => state.settings.wireguard.daita?.enabled ?? false);
+  const useAnywhere = useSelector((state) => state.settings.wireguard.daita?.useAnywhere ?? false);
   const showDaitaFilter = daitaFilterActive(
     daita,
+    useAnywhere,
     locationType,
     relaySettings?.tunnelProtocol ?? 'any',
     relaySettings?.wireguard.useMultihop ?? false,
