@@ -29,6 +29,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Changed
 - Migrate underlaying communication wtih daemon to gRPC. This also implies major changes and
   improvements throughout the app.
+- Update colors in the app to be more in line with material design.  
 
 ### Fixed
 - Fix VPN service being recreated multiple times when toggling certain options.
