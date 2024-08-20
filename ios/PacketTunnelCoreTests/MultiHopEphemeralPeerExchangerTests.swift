@@ -1,5 +1,5 @@
 //
-//  MultiHopPostQuantumKeyExchangingTests.swift
+//  MultiHopEphemeralPeerExchangerTests.swift
 //  MullvadPostQuantumTests
 //
 //  Created by Mojgan on 2024-07-18.
@@ -13,7 +13,7 @@
 @testable import WireGuardKitTypes
 import XCTest
 
-final class MultiHopPostQuantumKeyExchangingTests: XCTestCase {
+final class MultiHopEphemeralPeerExchangerTests: XCTestCase {
     var exitRelay: SelectedRelay!
     var entryRelay: SelectedRelay!
 
@@ -59,7 +59,7 @@ final class MultiHopPostQuantumKeyExchangingTests: XCTestCase {
         )
     }
 
-    func testKeyExchangeFailsWhenNegotiationCannotStart() {
+    func testEphemeralPeerExchangeFailsWhenNegotiationCannotStart() {
         let expectedNegotiationFailure = expectation(description: "Negotiation failed.")
 
         let reconfigurationExpectation = expectation(description: "Tunnel reconfiguration took place")
@@ -68,25 +68,27 @@ final class MultiHopPostQuantumKeyExchangingTests: XCTestCase {
         let negotiationSuccessful = expectation(description: "Negotiation succeeded.")
         negotiationSuccessful.isInverted = true
 
-        let keyExchangeActor = PostQuantumKeyExchangeActorStub()
-        keyExchangeActor.result = .failure(PostQuantumKeyExchangeErrorStub.canceled)
+        let peerExchangeActor = EphemeralPeerExchangeActorStub()
+        peerExchangeActor.result = .failure(EphemeralPeerExchangeErrorStub.canceled)
 
-        let multiHopPostQuantumKeyExchanging = MultiHopPostQuantumKeyExchanging(
+        let multiHopExchanger = MultiHopEphemeralPeerExchanger(
             entry: entryRelay,
             exit: exitRelay,
             devicePrivateKey: PrivateKey(),
-            keyExchanger: keyExchangeActor
+            keyExchanger: peerExchangeActor,
+            enablePostQuantum: true,
+            enableDaita: false
         ) { _ in
             reconfigurationExpectation.fulfill()
         } onFinish: {
             negotiationSuccessful.fulfill()
         }
 
-        keyExchangeActor.delegate = KeyExchangingResultStub {
+        peerExchangeActor.delegate = KeyExchangingResultStub {
             expectedNegotiationFailure.fulfill()
         }
 
-        multiHopPostQuantumKeyExchanging.start()
+        multiHopExchanger.start()
 
         wait(
             for: [expectedNegotiationFailure, reconfigurationExpectation, negotiationSuccessful],
@@ -94,7 +96,7 @@ final class MultiHopPostQuantumKeyExchangingTests: XCTestCase {
         )
     }
 
-    func testKeyExchangeSuccessWhenNegotiationStart() throws {
+    func testEphemeralPeerExchangeSuccessWhenPostQuantumNegotiationStarts() throws {
         let unexpectedNegotiationFailure = expectation(description: "Negotiation failed.")
         unexpectedNegotiationFailure.isInverted = true
 
@@ -104,25 +106,65 @@ final class MultiHopPostQuantumKeyExchangingTests: XCTestCase {
         let negotiationSuccessful = expectation(description: "Negotiation succeeded.")
         negotiationSuccessful.expectedFulfillmentCount = 1
 
-        let keyExchangeActor = PostQuantumKeyExchangeActorStub()
+        let peerExchangeActor = EphemeralPeerExchangeActorStub()
         let preSharedKey = try XCTUnwrap(PreSharedKey(hexKey: PrivateKey().hexKey))
-        keyExchangeActor.result = .success((preSharedKey, PrivateKey()))
+        peerExchangeActor.result = .success((preSharedKey, PrivateKey()))
 
-        let multiHopPostQuantumKeyExchanging = MultiHopPostQuantumKeyExchanging(
+        let multiHopPeerExchanger = MultiHopEphemeralPeerExchanger(
             entry: entryRelay,
             exit: exitRelay,
             devicePrivateKey: PrivateKey(),
-            keyExchanger: keyExchangeActor
+            keyExchanger: peerExchangeActor,
+            enablePostQuantum: true,
+            enableDaita: false
         ) { _ in
             reconfigurationExpectation.fulfill()
         } onFinish: {
             negotiationSuccessful.fulfill()
         }
 
-        keyExchangeActor.delegate = KeyExchangingResultStub(onReceivePostQuantumKey: { preSharedKey, ephemeralKey in
-            multiHopPostQuantumKeyExchanging.receivePostQuantumKey(preSharedKey, ephemeralKey: ephemeralKey)
+        peerExchangeActor.delegate = KeyExchangingResultStub(onReceivePostQuantumKey: { preSharedKey, ephemeralKey in
+            multiHopPeerExchanger.receivePostQuantumKey(preSharedKey, ephemeralKey: ephemeralKey)
         })
-        multiHopPostQuantumKeyExchanging.start()
+        multiHopPeerExchanger.start()
+
+        wait(
+            for: [unexpectedNegotiationFailure, reconfigurationExpectation, negotiationSuccessful],
+            timeout: .UnitTest.invertedTimeout
+        )
+    }
+
+    func testEphemeralPeerExchangeSuccessWhenDaitaNegotiationStarts() throws {
+        let unexpectedNegotiationFailure = expectation(description: "Negotiation failed.")
+        unexpectedNegotiationFailure.isInverted = true
+
+        let reconfigurationExpectation = expectation(description: "Tunnel reconfiguration took place")
+        reconfigurationExpectation.expectedFulfillmentCount = 3
+
+        let negotiationSuccessful = expectation(description: "Negotiation succeeded.")
+        negotiationSuccessful.expectedFulfillmentCount = 1
+
+        let peerExchangeActor = EphemeralPeerExchangeActorStub()
+        let preSharedKey = try XCTUnwrap(PreSharedKey(hexKey: PrivateKey().hexKey))
+        peerExchangeActor.result = .success((preSharedKey, PrivateKey()))
+
+        let multiHopPeerExchanger = MultiHopEphemeralPeerExchanger(
+            entry: entryRelay,
+            exit: exitRelay,
+            devicePrivateKey: PrivateKey(),
+            keyExchanger: peerExchangeActor,
+            enablePostQuantum: false,
+            enableDaita: true
+        ) { _ in
+            reconfigurationExpectation.fulfill()
+        } onFinish: {
+            negotiationSuccessful.fulfill()
+        }
+
+        peerExchangeActor.delegate = KeyExchangingResultStub(onReceiveEphemeralPeerPrivateKey: { ephemeralKey in
+            multiHopPeerExchanger.receiveEphemeralPeerPrivateKey(ephemeralKey)
+        })
+        multiHopPeerExchanger.start()
 
         wait(
             for: [unexpectedNegotiationFailure, reconfigurationExpectation, negotiationSuccessful],

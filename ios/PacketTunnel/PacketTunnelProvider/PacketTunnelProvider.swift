@@ -26,12 +26,12 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     private var deviceChecker: DeviceChecker!
     private var adapter: WgAdapter!
     private var relaySelector: RelaySelectorWrapper!
-    private var postQuantumKeyExchangingPipeline: PostQuantumKeyExchangingPipeline!
+    private var ephemeralPeerExchangingPipeline: EphemeralPeerExchangingPipeline!
     private let tunnelSettingsUpdater: SettingsUpdater!
 
     private let tunnelSettingsListener = TunnelSettingsListener()
-    private lazy var postQuantumReceiver = {
-        PostQuantumKeyReceiver(tunnelProvider: self)
+    private lazy var ephemeralPeerReceiver = {
+        EphemeralPeerReceiver(tunnelProvider: self)
     }()
 
     // swiftlint:disable:next function_body_length
@@ -95,16 +95,16 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         let urlRequestProxy = URLRequestProxy(dispatchQueue: internalQueue, transportProvider: transportProvider)
         appMessageHandler = AppMessageHandler(packetTunnelActor: actor, urlRequestProxy: urlRequestProxy)
 
-        postQuantumKeyExchangingPipeline = PostQuantumKeyExchangingPipeline(
-            PostQuantumKeyExchangeActor(
-                packetTunnel: postQuantumReceiver,
-                onFailure: self.keyExchangeFailed,
+        ephemeralPeerExchangingPipeline = EphemeralPeerExchangingPipeline(
+            EphemeralPeerExchangeActor(
+                packetTunnel: ephemeralPeerReceiver,
+                onFailure: self.ephemeralPeerExchangeFailed,
                 iteratorProvider: { REST.RetryStrategy.postQuantumKeyExchange.makeDelayIterator() }
             ),
             onUpdateConfiguration: { [unowned self] configuration in
-                actor.replaceKeyWithPQ(configuration: configuration)
+                actor.changeEphemeralPeerNegotiationState(configuration: configuration)
             }, onFinish: { [unowned self] in
-                actor.notifyPostQuantumKeyExchanged()
+                actor.notifyEphemeralPeerNegotiated()
             }
         )
     }
@@ -131,10 +131,10 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
                 if connectionState.connectionAttemptCount > 1 {
                     return
                 }
-            case .negotiatingPostQuantumKey:
-                // When negotiating post quantum keys, allow the connection to go through immediately.
+            case .negotiatingEphemeralPeer:
+                // When negotiating ephemeral peers, allow the connection to go through immediately.
                 // Otherwise, the in-tunnel TCP connection will never become ready as the OS doesn't let
-                // any traffic through until this function returns, which would prevent negotiating keys
+                // any traffic through until this function returns, which would prevent negotiating ephemeral peers
                 // from an unconnected state.
                 return
             default:
@@ -267,8 +267,8 @@ extension PacketTunnelProvider {
                     // Cache last connection attempt to filter out repeating calls.
                     lastConnectionAttempt = connectionAttempt
 
-                case let .negotiatingPostQuantumKey(observedConnectionState, privateKey):
-                    postQuantumKeyExchangingPipeline.startNegotiation(observedConnectionState, privateKey: privateKey)
+                case let .negotiatingEphemeralPeer(observedConnectionState, privateKey):
+                    ephemeralPeerExchangingPipeline.startNegotiation(observedConnectionState, privateKey: privateKey)
                 case .initial, .connected, .disconnecting, .disconnected, .error:
                     break
                 }
@@ -311,12 +311,16 @@ extension PacketTunnelProvider {
     }
 }
 
-extension PacketTunnelProvider: PostQuantumKeyReceiving {
+extension PacketTunnelProvider: EphemeralPeerReceiving {
     func receivePostQuantumKey(_ key: PreSharedKey, ephemeralKey: PrivateKey) {
-        postQuantumKeyExchangingPipeline.receivePostQuantumKey(key, ephemeralKey: ephemeralKey)
+        ephemeralPeerExchangingPipeline.receivePostQuantumKey(key, ephemeralKey: ephemeralKey)
     }
 
-    func keyExchangeFailed() {
+    public func receiveEphemeralPeerPrivateKey(_ ephemeralPeerPrivateKey: PrivateKey) {
+        ephemeralPeerExchangingPipeline.receiveEphemeralPeerPrivateKey(ephemeralPeerPrivateKey)
+    }
+
+    func ephemeralPeerExchangeFailed() {
         // Do not try reconnecting to the `.current` relay, else the actor's `State` equality check will fail
         // and it will not try to reconnect
         actor.reconnect(to: .random, reconnectReason: .connectionLoss)

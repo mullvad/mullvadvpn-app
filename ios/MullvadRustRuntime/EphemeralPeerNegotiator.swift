@@ -12,14 +12,16 @@ import NetworkExtension
 import WireGuardKitTypes
 
 // swiftlint:disable function_parameter_count
-public protocol PostQuantumKeyNegotiating {
+public protocol EphemeralPeerNegotiating {
     func startNegotiation(
         gatewayIP: IPv4Address,
         devicePublicKey: PublicKey,
         presharedKey: PrivateKey,
-        postQuantumKeyReceiver: any TunnelProvider,
+        peerReceiver: any TunnelProvider,
         tcpConnection: NWTCPConnection,
-        postQuantumKeyExchangeTimeout: Duration
+        peerExchangeTimeout: Duration,
+        enablePostQuantum: Bool,
+        enableDaita: Bool
     ) -> Bool
 
     func cancelKeyNegotiation()
@@ -27,35 +29,37 @@ public protocol PostQuantumKeyNegotiating {
     init()
 }
 
-/**
- Attempt to start the asynchronous process of key negotiation. Returns true if successfully started, false if failed.
- */
-public class PostQuantumKeyNegotiator: PostQuantumKeyNegotiating {
+/// Requests an ephemeral peer asynchronously.
+public class EphemeralPeerNegotiator: EphemeralPeerNegotiating {
     required public init() {}
 
-    var cancelToken: PostQuantumCancelToken?
+    var cancelToken: EphemeralPeerCancelToken?
 
     public func startNegotiation(
         gatewayIP: IPv4Address,
         devicePublicKey: PublicKey,
         presharedKey: PrivateKey,
-        postQuantumKeyReceiver: any TunnelProvider,
+        peerReceiver: any TunnelProvider,
         tcpConnection: NWTCPConnection,
-        postQuantumKeyExchangeTimeout: Duration
+        peerExchangeTimeout: Duration,
+        enablePostQuantum: Bool,
+        enableDaita: Bool
     ) -> Bool {
         // swiftlint:disable:next force_cast
-        let postQuantumKeyReceiver = Unmanaged.passUnretained(postQuantumKeyReceiver as! PostQuantumKeyReceiver)
+        let ephemeralPeerReceiver = Unmanaged.passUnretained(peerReceiver as! EphemeralPeerReceiver)
             .toOpaque()
         let opaqueConnection = Unmanaged.passUnretained(tcpConnection).toOpaque()
-        var cancelToken = PostQuantumCancelToken()
+        var cancelToken = EphemeralPeerCancelToken()
 
-        let result = negotiate_post_quantum_key(
+        let result = request_ephemeral_peer(
             devicePublicKey.rawValue.map { $0 },
             presharedKey.rawValue.map { $0 },
-            postQuantumKeyReceiver,
+            ephemeralPeerReceiver,
             opaqueConnection,
             &cancelToken,
-            UInt64(postQuantumKeyExchangeTimeout.timeInterval)
+            UInt64(peerExchangeTimeout.timeInterval),
+            enablePostQuantum,
+            enableDaita
         )
         guard result == 0 else {
             return false
@@ -66,12 +70,12 @@ public class PostQuantumKeyNegotiator: PostQuantumKeyNegotiating {
 
     public func cancelKeyNegotiation() {
         guard var cancelToken else { return }
-        cancel_post_quantum_key_exchange(&cancelToken)
+        cancel_ephemeral_peer_exchange(&cancelToken)
     }
 
     deinit {
         guard var cancelToken else { return }
-        drop_post_quantum_key_exchange_token(&cancelToken)
+        drop_ephemeral_peer_exchange_token(&cancelToken)
     }
 }
 

@@ -52,8 +52,8 @@ enum TunnelState: Equatable, CustomStringConvertible {
     /// Connecting the tunnel.
     case connecting(SelectedRelays?, isPostQuantum: Bool)
 
-    /// Negotiating a key for post-quantum resistance
-    case negotiatingPostQuantumKey(SelectedRelays, PrivateKey)
+    /// Negotiating an ephemeral peer either for post-quantum resistance or Daita
+    case negotiatingEphemeralPeer(SelectedRelays, PrivateKey)
 
     /// Connected the tunnel
     case connected(SelectedRelays, isPostQuantum: Bool)
@@ -111,7 +111,8 @@ enum TunnelState: Equatable, CustomStringConvertible {
             "waiting for connectivity"
         case let .error(blockedStateReason):
             "error state: \(blockedStateReason)"
-        case let .negotiatingPostQuantumKey(tunnelRelays, _):
+        case let .negotiatingEphemeralPeer(tunnelRelays, _):
+            // TODO: Handle Daita and PQ here in an upcoming PR for the UI
             """
             negotiating key with exit relay: \(tunnelRelays.exit.hostname)\
             \(tunnelRelays.entry.flatMap { " via \($0.hostname)" } ?? "")
@@ -122,7 +123,7 @@ enum TunnelState: Equatable, CustomStringConvertible {
     var isSecured: Bool {
         switch self {
         case .reconnecting, .connecting, .connected, .waitingForConnectivity(.noConnection), .error(.accountExpired),
-             .error(.deviceRevoked), .negotiatingPostQuantumKey:
+             .error(.deviceRevoked), .negotiatingEphemeralPeer:
             true
         case .pendingReconnect, .disconnecting, .disconnected, .waitingForConnectivity(.noNetwork), .error:
             false
@@ -131,7 +132,7 @@ enum TunnelState: Equatable, CustomStringConvertible {
 
     var relays: SelectedRelays? {
         switch self {
-        case let .connected(relays, _), let .reconnecting(relays, _), let .negotiatingPostQuantumKey(relays, _):
+        case let .connected(relays, _), let .reconnecting(relays, _), let .negotiatingEphemeralPeer(relays, _):
             relays
         case let .connecting(relays, _):
             relays

@@ -1,6 +1,6 @@
 //
 //  MullvadPostQuantum+Stubs.swift
-//  MullvadPostQuantumTests
+//  MullvadRustRuntimeTests
 //
 //  Created by Marco Nikic on 2024-06-12.
 //  Copyright © 2024 Mullvad VPN AB. All rights reserved.
@@ -43,7 +43,7 @@ class TunnelProviderStub: TunnelProvider {
     }
 }
 
-class FailedNegotiatorStub: PostQuantumKeyNegotiating {
+class FailedNegotiatorStub: EphemeralPeerNegotiating {
     var onCancelKeyNegotiation: (() -> Void)?
 
     required init() {
@@ -58,9 +58,11 @@ class FailedNegotiatorStub: PostQuantumKeyNegotiating {
         gatewayIP: IPv4Address,
         devicePublicKey: WireGuardKitTypes.PublicKey,
         presharedKey: WireGuardKitTypes.PrivateKey,
-        postQuantumKeyReceiver packetTunnel: any MullvadTypes.TunnelProvider,
+        peerReceiver packetTunnel: any MullvadTypes.TunnelProvider,
         tcpConnection: NWTCPConnection,
-        postQuantumKeyExchangeTimeout: MullvadTypes.Duration
+        peerExchangeTimeout: MullvadTypes.Duration,
+        enablePostQuantum: Bool,
+        enableDaita: Bool
     ) -> Bool { false }
 
     func cancelKeyNegotiation() {
@@ -68,7 +70,7 @@ class FailedNegotiatorStub: PostQuantumKeyNegotiating {
     }
 }
 
-class SuccessfulNegotiatorStub: PostQuantumKeyNegotiating {
+class SuccessfulNegotiatorStub: EphemeralPeerNegotiating {
     var onCancelKeyNegotiation: (() -> Void)?
     required init() {
         onCancelKeyNegotiation = nil
@@ -82,9 +84,11 @@ class SuccessfulNegotiatorStub: PostQuantumKeyNegotiating {
         gatewayIP: IPv4Address,
         devicePublicKey: WireGuardKitTypes.PublicKey,
         presharedKey: WireGuardKitTypes.PrivateKey,
-        postQuantumKeyReceiver packetTunnel: any MullvadTypes.TunnelProvider,
+        peerReceiver packetTunnel: any MullvadTypes.TunnelProvider,
         tcpConnection: NWTCPConnection,
-        postQuantumKeyExchangeTimeout: MullvadTypes.Duration
+        peerExchangeTimeout: MullvadTypes.Duration,
+        enablePostQuantum: Bool,
+        enableDaita: Bool
     ) -> Bool { true }
 
     func cancelKeyNegotiation() {

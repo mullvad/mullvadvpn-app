@@ -1,5 +1,5 @@
 //
-//  PostQuantumKeyExchangingPipelineTests.swift
+//  EphemeralPeerExchangingPipelineTests.swift
 //  MullvadPostQuantumTests
 //
 //  Created by Mojgan on 2024-07-19.
@@ -13,7 +13,7 @@
 @testable import WireGuardKitTypes
 import XCTest
 
-final class PostQuantumKeyExchangingPipelineTests: XCTestCase {
+final class EphemeralPeerExchangingPipelineTests: XCTestCase {
     var entryRelay: SelectedRelay!
     var exitRelay: SelectedRelay!
     var relayConstraints: RelayConstraints!
@@ -60,18 +60,18 @@ final class PostQuantumKeyExchangingPipelineTests: XCTestCase {
         )
     }
 
-    func testSingleHopKeyExchange() throws {
+    func testSingleHopPostQuantumKeyExchange() throws {
         let reconfigurationExpectation = expectation(description: "Tunnel reconfiguration took place")
         reconfigurationExpectation.expectedFulfillmentCount = 2
 
         let negotiationSuccessful = expectation(description: "Negotiation succeeded.")
         negotiationSuccessful.expectedFulfillmentCount = 1
 
-        let keyExchangeActor = PostQuantumKeyExchangeActorStub()
+        let keyExchangeActor = EphemeralPeerExchangeActorStub()
         let preSharedKey = try XCTUnwrap(PreSharedKey(hexKey: PrivateKey().hexKey))
         keyExchangeActor.result = .success((preSharedKey, PrivateKey()))
 
-        let postQuantumKeyExchangingPipeline = PostQuantumKeyExchangingPipeline(keyExchangeActor) { _ in
+        let postQuantumKeyExchangingPipeline = EphemeralPeerExchangingPipeline(keyExchangeActor) { _ in
             reconfigurationExpectation.fulfill()
         } onFinish: {
             negotiationSuccessful.fulfill()
@@ -81,16 +81,7 @@ final class PostQuantumKeyExchangingPipelineTests: XCTestCase {
             postQuantumKeyExchangingPipeline.receivePostQuantumKey(preSharedKey, ephemeralKey: privateKey)
         })
 
-        let connectionState = ObservedConnectionState(
-            selectedRelays: SelectedRelays(entry: nil, exit: exitRelay, retryAttempt: 0),
-            relayConstraints: relayConstraints,
-            networkReachability: NetworkReachability.reachable,
-            connectionAttemptCount: 0,
-            transportLayer: .udp,
-            remotePort: 1234,
-            isPostQuantum: true
-        )
-
+        let connectionState = stubConnectionState(enableMultiHop: false, enablePostQuantum: true, enableDaita: false)
         postQuantumKeyExchangingPipeline.startNegotiation(connectionState, privateKey: PrivateKey())
 
         wait(
@@ -99,18 +90,48 @@ final class PostQuantumKeyExchangingPipelineTests: XCTestCase {
         )
     }
 
-    func testMultiHopKeyExchange() throws {
+    func testSingleHopDaitaPeerExchange() throws {
+        let reconfigurationExpectation = expectation(description: "Tunnel reconfiguration took place")
+        reconfigurationExpectation.expectedFulfillmentCount = 2
+
+        let negotiationSuccessful = expectation(description: "Negotiation succeeded.")
+        negotiationSuccessful.expectedFulfillmentCount = 1
+
+        let keyExchangeActor = EphemeralPeerExchangeActorStub()
+        let preSharedKey = try XCTUnwrap(PreSharedKey(hexKey: PrivateKey().hexKey))
+        keyExchangeActor.result = .success((preSharedKey, PrivateKey()))
+
+        let postQuantumKeyExchangingPipeline = EphemeralPeerExchangingPipeline(keyExchangeActor) { _ in
+            reconfigurationExpectation.fulfill()
+        } onFinish: {
+            negotiationSuccessful.fulfill()
+        }
+
+        keyExchangeActor.delegate = KeyExchangingResultStub(onReceiveEphemeralPeerPrivateKey: { privateKey in
+            postQuantumKeyExchangingPipeline.receiveEphemeralPeerPrivateKey(privateKey)
+        })
+
+        let connectionState = stubConnectionState(enableMultiHop: false, enablePostQuantum: false, enableDaita: true)
+        postQuantumKeyExchangingPipeline.startNegotiation(connectionState, privateKey: PrivateKey())
+
+        wait(
+            for: [reconfigurationExpectation, negotiationSuccessful],
+            timeout: .UnitTest.invertedTimeout
+        )
+    }
+
+    func testMultiHopPostQuantumKeyExchange() throws {
         let reconfigurationExpectation = expectation(description: "Tunnel reconfiguration took place")
         reconfigurationExpectation.expectedFulfillmentCount = 3
 
         let negotiationSuccessful = expectation(description: "Negotiation succeeded.")
         negotiationSuccessful.expectedFulfillmentCount = 1
 
-        let keyExchangeActor = PostQuantumKeyExchangeActorStub()
+        let keyExchangeActor = EphemeralPeerExchangeActorStub()
         let preSharedKey = try XCTUnwrap(PreSharedKey(hexKey: PrivateKey().hexKey))
         keyExchangeActor.result = .success((preSharedKey, PrivateKey()))
 
-        let postQuantumKeyExchangingPipeline = PostQuantumKeyExchangingPipeline(keyExchangeActor) { _ in
+        let postQuantumKeyExchangingPipeline = EphemeralPeerExchangingPipeline(keyExchangeActor) { _ in
             reconfigurationExpectation.fulfill()
         } onFinish: {
             negotiationSuccessful.fulfill()
@@ -120,21 +141,59 @@ final class PostQuantumKeyExchangingPipelineTests: XCTestCase {
             postQuantumKeyExchangingPipeline.receivePostQuantumKey(preSharedKey, ephemeralKey: privateKey)
         })
 
-        let connectionState = ObservedConnectionState(
-            selectedRelays: SelectedRelays(entry: entryRelay, exit: exitRelay, retryAttempt: 0),
-            relayConstraints: relayConstraints,
-            networkReachability: NetworkReachability.reachable,
-            connectionAttemptCount: 0,
-            transportLayer: .udp,
-            remotePort: 1234,
-            isPostQuantum: true
-        )
-
+        let connectionState = stubConnectionState(enableMultiHop: true, enablePostQuantum: true, enableDaita: false)
         postQuantumKeyExchangingPipeline.startNegotiation(connectionState, privateKey: PrivateKey())
 
         wait(
             for: [reconfigurationExpectation, negotiationSuccessful],
             timeout: .UnitTest.invertedTimeout
+        )
+    }
+
+    func testMultiHopDaitaExchange() throws {
+        let reconfigurationExpectation = expectation(description: "Tunnel reconfiguration took place")
+        reconfigurationExpectation.expectedFulfillmentCount = 3
+
+        let negotiationSuccessful = expectation(description: "Negotiation succeeded.")
+        negotiationSuccessful.expectedFulfillmentCount = 1
+
+        let keyExchangeActor = EphemeralPeerExchangeActorStub()
+        let preSharedKey = try XCTUnwrap(PreSharedKey(hexKey: PrivateKey().hexKey))
+        keyExchangeActor.result = .success((preSharedKey, PrivateKey()))
+
+        let postQuantumKeyExchangingPipeline = EphemeralPeerExchangingPipeline(keyExchangeActor) { _ in
+            reconfigurationExpectation.fulfill()
+        } onFinish: {
+            negotiationSuccessful.fulfill()
+        }
+
+        keyExchangeActor.delegate = KeyExchangingResultStub(onReceiveEphemeralPeerPrivateKey: { privateKey in
+            postQuantumKeyExchangingPipeline.receiveEphemeralPeerPrivateKey(privateKey)
+        })
+
+        let connectionState = stubConnectionState(enableMultiHop: true, enablePostQuantum: false, enableDaita: true)
+        postQuantumKeyExchangingPipeline.startNegotiation(connectionState, privateKey: PrivateKey())
+
+        wait(
+            for: [reconfigurationExpectation, negotiationSuccessful],
+            timeout: .UnitTest.invertedTimeout
+        )
+    }
+
+    func stubConnectionState(
+        enableMultiHop: Bool,
+        enablePostQuantum: Bool,
+        enableDaita: Bool
+    ) -> ObservedConnectionState {
+        ObservedConnectionState(
+            selectedRelays: SelectedRelays(entry: enableMultiHop ? entryRelay : nil, exit: exitRelay, retryAttempt: 0),
+            relayConstraints: relayConstraints,
+            networkReachability: NetworkReachability.reachable,
+            connectionAttemptCount: 0,
+            transportLayer: .udp,
+            remotePort: 1234,
+            isPostQuantum: enablePostQuantum,
+            isDaitaEnabled: enableDaita
         )
     }
 }

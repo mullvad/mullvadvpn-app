@@ -1,7 +1,7 @@
 pub mod ios_runtime;
 pub mod ios_tcp_connection;
 
-use ios_runtime::run_post_quantum_psk_exchange;
+use ios_runtime::run_ephemeral_peer_exchange;
 use ios_tcp_connection::ConnectionContext;
 use libc::c_void;
 use std::sync::{Arc, Mutex, Weak};
@@ -11,12 +11,23 @@ use std::sync::Once;
 static INIT_LOGGING: Once = Once::new();
 
 #[repr(C)]
-pub struct PostQuantumCancelToken {
+pub struct EphemeralPeerCancelToken {
     // Must keep a pointer to a valid std::sync::Arc<tokio::mpsc::UnboundedSender>
     pub context: *mut c_void,
 }
 
-impl PostQuantumCancelToken {
+pub struct PacketTunnelBridge {
+    pub packet_tunnel: *const c_void,
+    pub tcp_connection: *const c_void,
+}
+
+pub struct EphemeralPeerParameters {
+    pub peer_exchange_timeout: u64,
+    pub enable_post_quantum: bool,
+    pub enable_daita: bool,
+}
+
+impl EphemeralPeerCancelToken {
     /// # Safety
     /// This function can only be called when the context pointer is valid.
     unsafe fn cancel(&self) {
@@ -34,41 +45,41 @@ impl PostQuantumCancelToken {
     }
 }
 
-impl Drop for PostQuantumCancelToken {
+impl Drop for EphemeralPeerCancelToken {
     fn drop(&mut self) {
         let _: Arc<Mutex<ConnectionContext>> = unsafe { Arc::from_raw(self.context as _) };
     }
 }
 
-unsafe impl Send for PostQuantumCancelToken {}
+unsafe impl Send for EphemeralPeerCancelToken {}
 
-/// Called by the Swift side to signal that the quantum-secure key exchange should be cancelled.
+/// Called by the Swift side to signal that the ephemeral peer exchange should be cancelled.
 /// After this call, the cancel token is no longer valid.
 ///
 /// # Safety
-/// `sender` must be pointing to a valid instance of a `PostQuantumCancelToken` created by the
+/// `sender` must be pointing to a valid instance of a `EphemeralPeerCancelToken` created by the
 /// `PacketTunnelProvider`.
 #[no_mangle]
-pub unsafe extern "C" fn cancel_post_quantum_key_exchange(sender: *const PostQuantumCancelToken) {
+pub unsafe extern "C" fn cancel_ephemeral_peer_exchange(sender: *const EphemeralPeerCancelToken) {
     let sender = unsafe { &*sender };
     sender.cancel();
 }
 
-/// Called by the Swift side to signal that the Rust `PostQuantumCancelToken` can be safely dropped
+/// Called by the Swift side to signal that the Rust `EphemeralPeerCancelToken` can be safely dropped
 /// from memory.
 ///
 /// # Safety
-/// `sender` must be pointing to a valid instance of a `PostQuantumCancelToken` created by the
+/// `sender` must be pointing to a valid instance of a `EphemeralPeerCancelToken` created by the
 /// `PacketTunnelProvider`.
 #[no_mangle]
-pub unsafe extern "C" fn drop_post_quantum_key_exchange_token(
-    sender: *const PostQuantumCancelToken,
+pub unsafe extern "C" fn drop_ephemeral_peer_exchange_token(
+    sender: *const EphemeralPeerCancelToken,
 ) {
     let _sender = unsafe { std::ptr::read(sender) };
 }
 
 /// Called by Swift whenever data has been written to the in-tunnel TCP connection when exchanging
-/// quantum-resistant pre shared keys.
+/// quantum-resistant pre shared keys, or ephemeral peers.
 ///
 /// If `bytes_sent` is 0, this indicates that the connection was closed or that an error occurred.
 ///
@@ -84,7 +95,7 @@ pub unsafe extern "C" fn handle_sent(bytes_sent: usize, sender: *const c_void) {
 }
 
 /// Called by Swift whenever data has been read from the in-tunnel TCP connection when exchanging
-/// quantum-resistant pre shared keys.
+/// quantum-resistant pre shared keys, or ephemeral peers.
 ///
 /// If `data` is null or empty, this indicates that the connection was closed or that an error
 /// occurred. An empty buffer is sent to the underlying reader to signal EOF.
@@ -109,7 +120,7 @@ pub unsafe extern "C" fn handle_recv(data: *const u8, mut data_len: usize, sende
     }
 }
 
-/// Entry point for exchanging post quantum keys on iOS.
+/// Entry point for requesting ephemeral peers on iOS.
 /// The TCP connection must be created to go through the tunnel.
 /// # Safety
 /// `public_key` and `ephemeral_key` must be valid respective `PublicKey` and `PrivateKey` types.
@@ -118,13 +129,15 @@ pub unsafe extern "C" fn handle_recv(data: *const u8, mut data_len: usize, sende
 /// connection instances.
 /// `cancel_token` should be owned by the caller of this function.
 #[no_mangle]
-pub unsafe extern "C" fn negotiate_post_quantum_key(
+pub unsafe extern "C" fn request_ephemeral_peer(
     public_key: *const u8,
     ephemeral_key: *const u8,
     packet_tunnel: *const c_void,
     tcp_connection: *const c_void,
-    cancel_token: *mut PostQuantumCancelToken,
-    post_quantum_key_exchange_timeout: u64,
+    cancel_token: *mut EphemeralPeerCancelToken,
+    peer_exchange_timeout: u64,
+    enable_post_quantum: bool,
+    enable_daita: bool,
 ) -> i32 {
     INIT_LOGGING.call_once(|| {
         let _ = oslog::OsLogger::new("net.mullvad.MullvadVPN.TTCC")
@@ -144,13 +157,22 @@ pub unsafe extern "C" fn negotiate_post_quantum_key(
         }
     };
 
+    let packet_tunnel_bridge = PacketTunnelBridge {
+        packet_tunnel,
+        tcp_connection,
+    };
+    let peer_parameters = EphemeralPeerParameters {
+        peer_exchange_timeout,
+        enable_post_quantum,
+        enable_daita,
+    };
+
     match unsafe {
-        run_post_quantum_psk_exchange(
+        run_ephemeral_peer_exchange(
             pub_key,
             eph_key,
-            packet_tunnel,
-            tcp_connection,
-            post_quantum_key_exchange_timeout,
+            packet_tunnel_bridge,
+            peer_parameters,
             handle,
         )
     } {

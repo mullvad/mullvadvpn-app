@@ -52,20 +52,20 @@ extension PacketTunnelActor {
     }
 
     /**
-     Tell actor that post quantum key exchanging took place.
+     Tell actor that the ephemeral peer exchanging took place.
      */
 
-    nonisolated public func notifyPostQuantumKeyExchanged() {
-        eventChannel.send(.notifyPostQuantumKeyExchanged)
+    nonisolated public func notifyEphemeralPeerNegotiated() {
+        eventChannel.send(.notifyEphemeralPeerNegotiated)
     }
 
     /**
-     Issue a new preshared key to the Actor.
+     Tell actor that the ephemeral peer negotiation state changed.
      - Parameter key: the new key
      */
 
-    nonisolated public func replaceKeyWithPQ(configuration: PostQuantumNegotiationState) {
-        eventChannel.send(.postQuantumNegotiationStateChanged(configuration))
+    nonisolated public func changeEphemeralPeerNegotiationState(configuration: EphemeralPeerNegotiationState) {
+        eventChannel.send(.ephemeralPeerNegotiationStateChanged(configuration))
     }
 
     /**
