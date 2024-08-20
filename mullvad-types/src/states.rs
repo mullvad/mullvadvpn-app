@@ -123,32 +123,4 @@ impl TunnelState {
             None => None,
         }
     }
-
-    /// Returns the current feature indicators for an active connection.
-    /// This value exists in the connecting and connected states.
-    pub const fn get_feature_indicators(&self) -> Option<&FeatureIndicators> {
-        match self {
-            TunnelState::Connecting {
-                feature_indicators, ..
-            }
-            | TunnelState::Connected {
-                feature_indicators, ..
-            } => Some(feature_indicators),
-            _ => None,
-        }
-    }
-
-    /// Update the set of feature indicators for this [`TunnelState`]. This is only applicable in
-    /// the connecting and connected states.
-    pub fn set_feature_indicators(&mut self, new_feature_indicators: FeatureIndicators) {
-        if let TunnelState::Connecting {
-            feature_indicators, ..
-        }
-        | TunnelState::Connected {
-            feature_indicators, ..
-        } = self
-        {
-            *feature_indicators = new_feature_indicators;
-        }
-    }
 }
