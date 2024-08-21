@@ -7,6 +7,7 @@ import net.mullvad.mullvadvpn.test.common.extension.clickAllowOnNotificationPerm
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
 import net.mullvad.mullvadvpn.test.e2e.annotations.HighlyRateLimited
 import net.mullvad.mullvadvpn.test.e2e.misc.AccountTestRule
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 
@@ -27,7 +28,7 @@ class LoginTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
     }
 
     @Test
-    @HighlyRateLimited
+    @Disabled("Failed login attempts are highly rate limited and cause test flakiness")
     fun testLoginWithInvalidCredentials() {
         // Given
         val invalidDummyAccountNumber = accountTestRule.invalidAccountNumber
