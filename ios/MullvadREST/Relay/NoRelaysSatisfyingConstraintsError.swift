@@ -8,10 +8,39 @@
 
 import Foundation
 
+public enum NoRelaysSatisfyingConstraintsReason {
+    case filterConstraintNotMatching
+    case invalidPort
+    case entryEqualsExit
+    case multihopInvalidFlow
+    case noActiveRelaysFound
+    case noDaitaRelaysFound
+    case relayConstraintNotMatching
+}
+
 public struct NoRelaysSatisfyingConstraintsError: LocalizedError {
-    public init() {}
+    public let reason: NoRelaysSatisfyingConstraintsReason
 
     public var errorDescription: String? {
-        "No relays satisfying constraints."
+        switch reason {
+        case .filterConstraintNotMatching:
+            "Filter yields no matching relays"
+        case .invalidPort:
+            "Invalid port selected by RelaySelector"
+        case .entryEqualsExit:
+            "Entry and exit relays are the same"
+        case .multihopInvalidFlow:
+            "Invalid multihop decision flow"
+        case .noActiveRelaysFound:
+            "No active relays found"
+        case .noDaitaRelaysFound:
+            "No DAITA relays found"
+        case .relayConstraintNotMatching:
+            "Invalid constraint created to pick a relay"
+        }
+    }
+
+    public init(_ reason: NoRelaysSatisfyingConstraintsReason) {
+        self.reason = reason
     }
 }

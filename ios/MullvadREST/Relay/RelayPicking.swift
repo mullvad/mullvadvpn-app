@@ -37,24 +37,44 @@ extension RelayPicking {
 
 struct SinglehopPicker: RelayPicking {
     let constraints: RelayConstraints
+    let daitaSettings: DAITASettings
     let relays: REST.ServerRelaysResponse
     let connectionAttemptCount: UInt
 
     func pick() throws -> SelectedRelays {
-        let candidates = try RelaySelector.WireGuard.findCandidates(
-            by: constraints.exitLocations,
-            in: relays,
-            filterConstraint: constraints.filter
-        )
+        var exitCandidates = [RelayWithLocation<REST.ServerRelay>]()
 
-        let match = try findBestMatch(from: candidates)
+        do {
+            exitCandidates = try RelaySelector.WireGuard.findCandidates(
+                by: constraints.exitLocations,
+                in: relays,
+                filterConstraint: constraints.filter,
+                daitaEnabled: daitaSettings.state.isEnabled
+            )
+        } catch let error as NoRelaysSatisfyingConstraintsError where error.reason == .noDaitaRelaysFound {
+            #if DEBUG
+            // If DAITA is enabled and no supported relays are found, we should try to find the nearest
+            // available relay that supports DAITA and use it as entry in a multihop selection.
+            var constraints = constraints
+            constraints.entryLocations = .any
 
+            return try MultihopPicker(
+                constraints: constraints,
+                daitaSettings: daitaSettings,
+                relays: relays,
+                connectionAttemptCount: connectionAttemptCount
+            ).pick()
+            #endif
+        }
+
+        let match = try findBestMatch(from: exitCandidates)
         return SelectedRelays(entry: nil, exit: match, retryAttempt: connectionAttemptCount)
     }
 }
 
 struct MultihopPicker: RelayPicking {
     let constraints: RelayConstraints
+    let daitaSettings: DAITASettings
     let relays: REST.ServerRelaysResponse
     let connectionAttemptCount: UInt
 
@@ -62,13 +82,15 @@ struct MultihopPicker: RelayPicking {
         let entryCandidates = try RelaySelector.WireGuard.findCandidates(
             by: constraints.entryLocations,
             in: relays,
-            filterConstraint: constraints.filter
+            filterConstraint: constraints.filter,
+            daitaEnabled: daitaSettings.state.isEnabled
         )
 
         let exitCandidates = try RelaySelector.WireGuard.findCandidates(
             by: constraints.exitLocations,
             in: relays,
-            filterConstraint: constraints.filter
+            filterConstraint: constraints.filter,
+            daitaEnabled: false
         )
 
         /*

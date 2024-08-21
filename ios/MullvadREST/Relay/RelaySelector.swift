@@ -6,7 +6,7 @@
 //  Copyright © 2019 Mullvad VPN AB. All rights reserved.
 //
 
-import Foundation
+import MullvadSettings
 import MullvadTypes
 
 private let defaultPort: UInt16 = 53
@@ -135,55 +135,15 @@ public enum RelaySelector {
     static func applyConstraints<T: AnyRelay>(
         _ relayConstraint: RelayConstraint<UserSelectedRelays>,
         filterConstraint: RelayConstraint<RelayFilter>,
+        daitaEnabled: Bool,
         relays: [RelayWithLocation<T>]
-    ) -> [RelayWithLocation<T>] {
-        // Filter on active status, filter, and location.
-        let filteredRelays = relays.filter { relayWithLocation -> Bool in
-            guard relayWithLocation.relay.active else {
-                return false
-            }
-
-            switch filterConstraint {
-            case .any:
-                break
-            case let .only(filter):
-                if !relayMatchesFilter(relayWithLocation.relay, filter: filter) {
-                    return false
-                }
-            }
-
-            return switch relayConstraint {
-            case .any:
-                true
-            case let .only(relayConstraint):
-                // At least one location must match the relay under test.
-                relayConstraint.locations.contains { location in
-                    relayWithLocation.matches(location: location)
-                }
-            }
-        }
-
-        // Filter on country inclusion.
-        let includeInCountryFilteredRelays = filteredRelays.filter { relayWithLocation in
-            return switch relayConstraint {
-            case .any:
-                true
-            case let .only(relayConstraint):
-                relayConstraint.locations.contains { location in
-                    if case .country = location {
-                        return relayWithLocation.relay.includeInCountry
-                    }
-                    return false
-                }
-            }
-        }
-
-        // If no relays should be included in the matched country, instead accept all.
-        if includeInCountryFilteredRelays.isEmpty {
-            return filteredRelays
-        } else {
-            return includeInCountryFilteredRelays
-        }
+    ) throws -> [RelayWithLocation<T>] {
+        // Filter on active status, daita support, filter constraint and relay constraint.
+        var filteredRelays = try filterByActive(relays: relays)
+        filteredRelays = try filterByFilterConstraint(relays: filteredRelays, constraint: filterConstraint)
+        filteredRelays = try filterByLocationConstraint(relays: filteredRelays, constraint: relayConstraint)
+        filteredRelays = try filterByDaita(relays: filteredRelays, daitaEnabled: daitaEnabled)
+        return filterByCountryInclusion(relays: filteredRelays, constraint: relayConstraint)
     }
 
     /// Produce a port that is either user provided or randomly selected, satisfying the given constraints.
@@ -203,6 +163,107 @@ public enum RelaySelector {
             let useDefaultPort = (numberOfFailedAttempts % 4 == 2) || (numberOfFailedAttempts % 4 == 3)
 
             return useDefaultPort ? defaultPort : pickRandomPort(rawPortRanges: rawPortRanges)
+        }
+    }
+
+    private static func filterByActive<T: AnyRelay>(
+        relays: [RelayWithLocation<T>]
+    ) throws -> [RelayWithLocation<T>] {
+        let filteredRelays = relays.filter { relayWithLocation in
+            relayWithLocation.relay.active
+        }
+
+        return if filteredRelays.isEmpty {
+            throw NoRelaysSatisfyingConstraintsError(.noActiveRelaysFound)
+        } else {
+            filteredRelays
+        }
+    }
+
+    private static func filterByDaita<T: AnyRelay>(
+        relays: [RelayWithLocation<T>],
+        daitaEnabled: Bool
+    ) throws -> [RelayWithLocation<T>] {
+        guard daitaEnabled else { return relays }
+
+        let filteredRelays = relays.filter { relayWithLocation in
+            relayWithLocation.relay.daita == true
+        }
+
+        return if filteredRelays.isEmpty {
+            throw NoRelaysSatisfyingConstraintsError(.noDaitaRelaysFound)
+        } else {
+            filteredRelays
+        }
+    }
+
+    private static func filterByFilterConstraint<T: AnyRelay>(
+        relays: [RelayWithLocation<T>],
+        constraint: RelayConstraint<RelayFilter>
+    ) throws -> [RelayWithLocation<T>] {
+        let filteredRelays = relays.filter { relayWithLocation in
+            switch constraint {
+            case .any:
+                true
+            case let .only(filter):
+                relayMatchesFilter(relayWithLocation.relay, filter: filter)
+            }
+        }
+
+        return if filteredRelays.isEmpty {
+            throw NoRelaysSatisfyingConstraintsError(.filterConstraintNotMatching)
+        } else {
+            filteredRelays
+        }
+    }
+
+    private static func filterByLocationConstraint<T: AnyRelay>(
+        relays: [RelayWithLocation<T>],
+        constraint: RelayConstraint<UserSelectedRelays>
+    ) throws -> [RelayWithLocation<T>] {
+        let filteredRelays = relays.filter { relayWithLocation in
+            switch constraint {
+            case .any:
+                true
+            case let .only(constraint):
+                // At least one location must match the relay under test.
+                constraint.locations.contains { location in
+                    relayWithLocation.matches(location: location)
+                }
+            }
+        }
+
+        return if filteredRelays.isEmpty {
+            throw NoRelaysSatisfyingConstraintsError(.relayConstraintNotMatching)
+        } else {
+            filteredRelays
+        }
+    }
+
+    private static func filterByCountryInclusion<T: AnyRelay>(
+        relays: [RelayWithLocation<T>],
+        constraint: RelayConstraint<UserSelectedRelays>
+    ) -> [RelayWithLocation<T>] {
+        let filteredRelays = relays.filter { relayWithLocation in
+            return switch constraint {
+            case .any:
+                true
+            case let .only(relayConstraint):
+                relayConstraint.locations.contains { location in
+                    if case .country = location {
+                        relayWithLocation.relay.includeInCountry
+                    } else {
+                        false
+                    }
+                }
+            }
+        }
+
+        // If no relays should be included in the matched country, instead accept all.
+        return if filteredRelays.isEmpty {
+            relays
+        } else {
+            filteredRelays
         }
     }
 }

@@ -83,7 +83,8 @@ extension IPOverrideWrapperTests {
             ipv4AddrIn: .any,
             ipv6AddrIn: .any,
             publicKey: Data(),
-            includeInCountry: true
+            includeInCountry: true,
+            daita: false
         )
     }
 

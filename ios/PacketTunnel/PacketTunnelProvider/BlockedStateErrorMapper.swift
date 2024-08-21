@@ -47,9 +47,18 @@ public struct BlockedStateErrorMapper: BlockedStateErrorMapperProtocol {
                 return .readSettings
             }
 
-        case is NoRelaysSatisfyingConstraintsError:
-            // Returned by relay selector when there are no relays satisfying the given constraint.
-            return .noRelaysSatisfyingConstraints
+        case let error as NoRelaysSatisfyingConstraintsError:
+            // Returned by relay selector when there are no relays satisfying the given constraints.
+            return switch error.reason {
+            case .filterConstraintNotMatching:
+                .noRelaysSatisfyingFilterConstraints
+            case .entryEqualsExit:
+                .multihopEntryEqualsExit
+            case .noDaitaRelaysFound:
+                .noRelaysSatisfyingDaitaConstraints
+            default:
+                .noRelaysSatisfyingConstraints
+            }
 
         case is WireGuardAdapterError:
             // Any errors that originate from wireguard adapter including failure to set tunnel settings using

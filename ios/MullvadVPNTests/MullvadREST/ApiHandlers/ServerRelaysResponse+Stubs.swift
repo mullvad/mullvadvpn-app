@@ -85,7 +85,8 @@ enum ServerRelaysResponseStubs {
                     ipv4AddrIn: .loopback,
                     ipv6AddrIn: .loopback,
                     publicKey: PrivateKey().publicKey.rawValue,
-                    includeInCountry: true
+                    includeInCountry: true,
+                    daita: true
                 ),
                 REST.ServerRelay(
                     hostname: "se10-wireguard",
@@ -97,7 +98,8 @@ enum ServerRelaysResponseStubs {
                     ipv4AddrIn: .loopback,
                     ipv6AddrIn: .loopback,
                     publicKey: PrivateKey().publicKey.rawValue,
-                    includeInCountry: true
+                    includeInCountry: true,
+                    daita: false
                 ),
                 REST.ServerRelay(
                     hostname: "se2-wireguard",
@@ -109,7 +111,8 @@ enum ServerRelaysResponseStubs {
                     ipv4AddrIn: .loopback,
                     ipv6AddrIn: .loopback,
                     publicKey: PrivateKey().publicKey.rawValue,
-                    includeInCountry: true
+                    includeInCountry: true,
+                    daita: false
                 ),
                 REST.ServerRelay(
                     hostname: "se6-wireguard",
@@ -121,7 +124,8 @@ enum ServerRelaysResponseStubs {
                     ipv4AddrIn: .loopback,
                     ipv6AddrIn: .loopback,
                     publicKey: PrivateKey().publicKey.rawValue,
-                    includeInCountry: true
+                    includeInCountry: true,
+                    daita: false
                 ),
                 REST.ServerRelay(
                     hostname: "us-dal-wg-001",
@@ -133,7 +137,8 @@ enum ServerRelaysResponseStubs {
                     ipv4AddrIn: .loopback,
                     ipv6AddrIn: .loopback,
                     publicKey: PrivateKey().publicKey.rawValue,
-                    includeInCountry: true
+                    includeInCountry: true,
+                    daita: true
                 ),
                 REST.ServerRelay(
                     hostname: "us-nyc-wg-301",
@@ -145,7 +150,21 @@ enum ServerRelaysResponseStubs {
                     ipv4AddrIn: .loopback,
                     ipv6AddrIn: .loopback,
                     publicKey: PrivateKey().publicKey.rawValue,
-                    includeInCountry: true
+                    includeInCountry: true,
+                    daita: true
+                ),
+                REST.ServerRelay(
+                    hostname: "us-nyc-wg-302",
+                    active: false,
+                    owned: true,
+                    location: "us-nyc",
+                    provider: "",
+                    weight: 100,
+                    ipv4AddrIn: .loopback,
+                    ipv6AddrIn: .loopback,
+                    publicKey: PrivateKey().publicKey.rawValue,
+                    includeInCountry: true,
+                    daita: true
                 ),
             ]
         ),

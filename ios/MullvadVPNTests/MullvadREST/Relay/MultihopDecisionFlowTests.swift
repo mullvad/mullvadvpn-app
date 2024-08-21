@@ -7,6 +7,7 @@
 //
 
 @testable import MullvadREST
+@testable import MullvadSettings
 @testable import MullvadTypes
 import XCTest
 
@@ -119,6 +120,7 @@ extension MultihopDecisionFlowTests {
 
         return MultihopPicker(
             constraints: constraints,
+            daitaSettings: DAITASettings(state: .off),
             relays: sampleRelays,
             connectionAttemptCount: 0
         )

@@ -236,6 +236,12 @@ final class TunnelStatusNotificationProvider: NotificationProvider, InAppNotific
         switch error {
         case .outdatedSchema:
             errorString = "Unable to start tunnel connection after update. Please disconnect and reconnect."
+        case .noRelaysSatisfyingFilterConstraints:
+            errorString = "No servers match your location filter. Try changing filter settings."
+        case .multihopEntryEqualsExit:
+            errorString = "The entry and exit servers cannot be the same. Try changing one to a new server or location."
+        case .noRelaysSatisfyingDaitaConstraints:
+            errorString = "No DAITA compatible servers match your location settings. Try changing location."
         case .noRelaysSatisfyingConstraints:
             errorString = "No servers match your settings, try changing server or other settings."
         case .invalidAccount:
