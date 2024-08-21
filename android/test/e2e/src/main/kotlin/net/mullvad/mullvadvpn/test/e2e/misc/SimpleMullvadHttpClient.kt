@@ -194,7 +194,11 @@ class SimpleMullvadHttpClient(context: Context) {
             "Unable to verify account due to invalid account or connectivity issues."
 
         private val onErrorResponse = { error: VolleyError ->
-            Logger.e("Response returned error status code: ${error.networkResponse.statusCode}")
+            if (error.networkResponse != null) {
+                Logger.e("Response returned error message: ${error.message}, status code: ${error.networkResponse.statusCode}")
+            } else {
+                Logger.e("Response returned error: ${error.message}")
+            }
         }
     }
 }
