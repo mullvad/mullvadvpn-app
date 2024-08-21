@@ -11,8 +11,9 @@ import MullvadSettings
 import UserNotifications
 
 final class AccountExpirySystemNotificationProvider: NotificationProvider, SystemNotificationProvider {
-    private var accountExpiry: Date?
+    private var accountExpiry = AccountExpiry()
     private var tunnelObserver: TunnelBlockObserver?
+    private var accountHasRecentlyExpired = false
 
     init(tunnelManager: TunnelManager) {
         super.init()
@@ -21,8 +22,16 @@ final class AccountExpirySystemNotificationProvider: NotificationProvider, Syste
             didLoadConfiguration: { [weak self] tunnelManager in
                 self?.invalidate(deviceState: tunnelManager.deviceState)
             },
-            didUpdateDeviceState: { [weak self] _, deviceState, _ in
-                self?.invalidate(deviceState: deviceState)
+            didUpdateDeviceState: { [weak self] tunnelManager, deviceState, previousDeviceState in
+                guard let self else { return }
+
+                checkAccountExpiry(
+                    tunnelStatus: tunnelManager.tunnelStatus,
+                    deviceState: deviceState,
+                    previousDeviceState: previousDeviceState
+                )
+
+                invalidate(deviceState: tunnelManager.deviceState)
             }
         )
 
@@ -38,21 +47,21 @@ final class AccountExpirySystemNotificationProvider: NotificationProvider, Syste
     // MARK: - SystemNotificationProvider
 
     var notificationRequest: UNNotificationRequest? {
-        guard let trigger else { return nil }
+        let trigger = accountHasRecentlyExpired ? triggerExpiry : triggerCloseToExpiry
+
+        guard let trigger, let durationText = formattedRemainingDuration else {
+            return nil
+        }
 
         let content = UNMutableNotificationContent()
         content.title = NSLocalizedString(
             "ACCOUNT_EXPIRY_SYSTEM_NOTIFICATION_TITLE",
             tableName: "AccountExpiry",
             value: "Account credit expires soon",
-            comment: "Title for system account expiry notification, fired 3 days prior to account expiry."
+            comment: "Title for system account expiry notification, fired X days prior to account expiry."
         )
-        content.body = NSLocalizedString(
-            "ACCOUNT_EXPIRY_SYSTEM_NOTIFICATION_BODY",
-            tableName: "AccountExpiry",
-            value: "Account credit expires in 3 days. Buy more credit.",
-            comment: "Message for system account expiry notification, fired 3 days prior to account expiry."
-        )
+
+        content.body = durationText
         content.sound = UNNotificationSound.default
 
         return UNNotificationRequest(
@@ -74,19 +83,9 @@ final class AccountExpirySystemNotificationProvider: NotificationProvider, Syste
 
     // MARK: - Private
 
-    private var trigger: UNNotificationTrigger? {
-        guard let accountExpiry else { return nil }
+    private var triggerCloseToExpiry: UNNotificationTrigger? {
+        guard let triggerDate = accountExpiry.nextTriggerDate(for: .system) else { return nil }
 
-        guard let triggerDate = Calendar.current.date(
-            byAdding: .day,
-            value: -NotificationConfiguration.closeToExpiryTriggerInterval,
-            to: accountExpiry
-        ) else { return nil }
-
-        // Do not produce notification if less than 3 days left till expiry
-        guard triggerDate > Date() else { return nil }
-
-        // Create date components for calendar trigger
         let dateComponents = Calendar.current.dateComponents(
             [.second, .minute, .hour, .day, .month, .year],
             from: triggerDate
@@ -95,12 +94,94 @@ final class AccountExpirySystemNotificationProvider: NotificationProvider, Syste
         return UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: false)
     }
 
+    private var triggerExpiry: UNNotificationTrigger {
+        let dateComponents = Calendar.current.dateComponents(
+            [.second, .minute, .hour, .day, .month, .year],
+            from: Date().addingTimeInterval(1) // Giving some leeway.
+        )
+
+        return UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: false)
+    }
+
     private var shouldRemovePendingOrDeliveredRequests: Bool {
-        accountExpiry == nil
+        return accountExpiry.expiryDate == nil
+    }
+
+    private func checkAccountExpiry(
+        tunnelStatus: TunnelStatus,
+        deviceState: DeviceState,
+        previousDeviceState: DeviceState
+    ) {
+        var blockedStateByExpiredAccount = false
+        if case .accountExpired = tunnelStatus.observedState.blockedState?.reason {
+            blockedStateByExpiredAccount = true
+        }
+
+        let accountHasExpired = deviceState.accountData?.isExpired == true
+        let accountHasRecentlyExpired = deviceState.accountData?.isExpired != previousDeviceState.accountData?.isExpired
+
+        self.accountHasRecentlyExpired = blockedStateByExpiredAccount && accountHasExpired && accountHasRecentlyExpired
     }
 
     private func invalidate(deviceState: DeviceState) {
-        accountExpiry = deviceState.accountData?.expiry
+        accountExpiry.expiryDate = deviceState.accountData?.expiry
         invalidate()
+    }
+}
+
+extension AccountExpirySystemNotificationProvider {
+    private var formattedRemainingDuration: String? {
+        if accountHasRecentlyExpired {
+            return expiredText
+        }
+
+        switch accountExpiry.daysRemaining(for: .system)?.day {
+        case .none:
+            return nil
+        case 1:
+            return singleDayText
+        default:
+            return multipleDaysText
+        }
+    }
+
+    private var expiredText: String {
+        NSLocalizedString(
+            "ACCOUNT_EXPIRY_SYSTEM_NOTIFICATION_BODY",
+            tableName: "AccountExpiry",
+            value: """
+            Blocking internet: Your time on this account has expired. To continue using the internet, \
+            please add more time or disconnect the VPN.
+            """,
+            comment: "Message for in-app notification, displayed on account expiry while connected to VPN."
+        )
+    }
+
+    private var singleDayText: String {
+        NSLocalizedString(
+            "ACCOUNT_EXPIRY_SYSTEM_NOTIFICATION_BODY",
+            tableName: "AccountExpiry",
+            value: "You have one day left on this account. Please add more time to continue using the VPN.",
+            comment: "Message for in-app notification, displayed within the last 1 day until account expiry."
+        )
+    }
+
+    private var multipleDaysText: String? {
+        guard
+            let expiryDate = accountExpiry.expiryDate,
+            let nextTriggerDate = accountExpiry.nextTriggerDate(for: .system),
+            let duration = CustomDateComponentsFormatting.localizedString(
+                from: nextTriggerDate,
+                to: expiryDate,
+                unitsStyle: .full
+            )
+        else { return nil }
+
+        return String(format: NSLocalizedString(
+            "ACCOUNT_EXPIRY_SYSTEM_NOTIFICATION_BODY",
+            tableName: "AccountExpiry",
+            value: "You have %@ left on this account.",
+            comment: "Message for in-app notification, displayed within the last X days until account expiry."
+        ), duration.lowercased())
     }
 }
