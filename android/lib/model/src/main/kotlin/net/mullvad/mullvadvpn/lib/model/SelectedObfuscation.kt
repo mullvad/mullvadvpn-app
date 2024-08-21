@@ -4,4 +4,5 @@ enum class SelectedObfuscation {
     Auto,
     Off,
     Udp2Tcp,
+    Shadowsocks,
 }

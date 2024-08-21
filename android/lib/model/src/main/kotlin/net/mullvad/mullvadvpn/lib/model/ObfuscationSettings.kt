@@ -6,6 +6,7 @@ import arrow.optics.optics
 data class ObfuscationSettings(
     val selectedObfuscation: SelectedObfuscation,
     val udp2tcp: Udp2TcpObfuscationSettings,
+    val shadowsocks: ShadowsocksSettings,
 ) {
     companion object
 }

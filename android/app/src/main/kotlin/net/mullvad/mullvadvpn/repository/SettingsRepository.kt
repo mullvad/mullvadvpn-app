@@ -52,8 +52,11 @@ class SettingsRepository(
 
     suspend fun addCustomDns(address: InetAddress) = managementService.addCustomDns(address)
 
-    suspend fun setCustomObfuscationPort(constraint: Constraint<Port>) =
-        managementService.setObfuscationPort(constraint)
+    suspend fun setCustomUdp2TcpObfuscationPort(constraint: Constraint<Port>) =
+        managementService.setUdp2TcpObfuscationPort(constraint)
+
+    suspend fun setCustomShadowsocksObfuscationPort(constraint: Constraint<Port>) =
+        managementService.setShadowsocksObfuscationPort(constraint)
 
     suspend fun setWireguardMtu(mtu: Mtu) = managementService.setWireguardMtu(mtu.value)
 
