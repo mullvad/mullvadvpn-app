@@ -52,10 +52,7 @@ impl From<InnerError> for Error {
 }
 
 #[cfg(target_os = "windows")]
-pub fn as_unprivileged_user<T>(
-    unpriv_user: &str,
-    func: impl FnOnce() -> T,
-) -> Result<T, nix::Error> {
+pub fn as_unprivileged_user<T>(unpriv_user: &str, func: impl FnOnce() -> T) -> Result<T, Error> {
     // NOTE: no-op
     let _ = unpriv_user;
     Ok(func())
