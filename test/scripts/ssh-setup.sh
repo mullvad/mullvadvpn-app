@@ -9,6 +9,7 @@ RUNNER_DIR="$1"
 APP_PACKAGE="$2"
 PREVIOUS_APP="$3"
 UI_RUNNER="$4"
+UNPRIVILEGED_USER="$5"
 
 # Copy over test runner to correct place
 
@@ -20,6 +21,9 @@ for file in test-runner connection-checker $APP_PACKAGE $PREVIOUS_APP $UI_RUNNER
     echo "Moving $SCRIPT_DIR/$file to $RUNNER_DIR"
     cp -f "$SCRIPT_DIR/$file" "$RUNNER_DIR"
 done
+
+# Unprivileged users need execute rights for connection checker
+chmod 551 "${RUNNER_DIR}/connection-checker"
 
 chown -R root "$RUNNER_DIR/"
 
@@ -69,9 +73,16 @@ function setup_macos {
 </plist>
 EOF
 
+    create_test_user_macos
+
     echo "Starting test runner service"
 
     launchctl load -w $RUNNER_PLIST_PATH
+}
+
+function create_test_user_macos {
+    echo "Adding test user account"
+    sysadminctl -addUser "$UNPRIVILEGED_USER" -fullName "$UNPRIVILEGED_USER" -password "$UNPRIVILEGED_USER"
 }
 
 function setup_systemd {
@@ -94,8 +105,16 @@ EOF
 
     semanage fcontext -a -t bin_t "$RUNNER_DIR/.*" &> /dev/null || true
 
+    create_test_user_linux
+
     systemctl enable testrunner.service
     systemctl start testrunner.service
+}
+
+function create_test_user_linux {
+    echo "Adding test user account"
+    useradd -m "$UNPRIVILEGED_USER"
+    echo "$UNPRIVILEGED_USER:$UNPRIVILEGED_USER" | chpasswd
 }
 
 if [[ "$(uname -s)" == "Darwin" ]]; then

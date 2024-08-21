@@ -10,6 +10,7 @@ use std::{
     net::{IpAddr, SocketAddr, TcpStream},
     path::{Path, PathBuf},
 };
+use test_rpc::UNPRIVILEGED_USER;
 
 /// Returns the directory in the test runner where the test-runner binary is installed.
 pub async fn provision(
@@ -156,7 +157,7 @@ fn blocking_ssh(
 
     // Run the setup script in the test runner
     let cmd = format!(
-        r#"sudo {} {remote_dir} "{app_package_path}" "{app_package_to_upgrade_from_path}" "{gui_package_path}""#,
+        r#"sudo {} {remote_dir} "{app_package_path}" "{app_package_to_upgrade_from_path}" "{gui_package_path}" "{UNPRIVILEGED_USER}""#,
         bootstrap_script_dest.display(),
     );
     log::debug!("Running setup script on remote, cmd: {cmd}");

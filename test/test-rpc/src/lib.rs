@@ -13,6 +13,10 @@ pub mod net;
 pub mod package;
 pub mod transport;
 
+/// Unprivileged user. This is used for things like spawning processes.
+/// This is also used as the password for the same user, as is common practice.
+pub const UNPRIVILEGED_USER: &str = "mole";
+
 #[derive(thiserror::Error, Debug, Serialize, Deserialize, PartialEq, Eq)]
 pub enum Error {
     #[error("Test runner RPC failed")]
