@@ -225,11 +225,11 @@ mod tests {
             expected_indicators
         );
 
-        // Setting mssfix without having an openVPN endpoint should not result in an indicator
         settings.tunnel_options.openvpn.mssfix = Some(1300);
         assert_eq!(
             compute_feature_indicators(&settings, &endpoint),
-            expected_indicators
+            expected_indicators,
+            "Setting mssfix without having an openVPN endpoint should not result in an indicator"
         );
 
         endpoint.tunnel_type = TunnelType::OpenVpn;
@@ -318,6 +318,25 @@ mod tests {
                 compute_feature_indicators(&settings, &endpoint),
                 expected_indicators
             );
+        }
+
+        // NOTE: If this match statement fails to compile, it means that a new feature indicator has
+        // been added. Please update this test to include the new feature indicator.
+        match FeatureIndicator::QuantumResistance {
+            FeatureIndicator::QuantumResistance => {}
+            FeatureIndicator::Multihop => {}
+            FeatureIndicator::BridgeMode => {}
+            FeatureIndicator::SplitTunneling => {}
+            FeatureIndicator::LockdownMode => {}
+            FeatureIndicator::Udp2Tcp => {}
+            FeatureIndicator::Shadowsocks => {}
+            FeatureIndicator::LanSharing => {}
+            FeatureIndicator::DnsContentBlockers => {}
+            FeatureIndicator::CustomDns => {}
+            FeatureIndicator::ServerIpOverride => {}
+            FeatureIndicator::CustomMtu => {}
+            FeatureIndicator::CustomMssFix => {}
+            FeatureIndicator::Daita => {}
         }
     }
 }
