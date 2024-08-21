@@ -1112,7 +1112,7 @@ final class TunnelManager: StorePaymentObserver {
 
 extension TunnelManager {
     enum AccountExpirySimulationOption {
-        case closeToExpiry
+        case closeToExpiry(days: Int)
         case expired
         case active
 
@@ -1124,9 +1124,9 @@ extension TunnelManager {
             case .active:
                 return calendar.date(byAdding: .year, value: 1, to: now)
 
-            case .closeToExpiry:
+            case let .closeToExpiry(days):
                 return calendar.date(
-                    byAdding: DateComponents(day: NotificationConfiguration.closeToExpiryTriggerInterval, second: 5),
+                    byAdding: DateComponents(day: days, second: 5),
                     to: now
                 )
 

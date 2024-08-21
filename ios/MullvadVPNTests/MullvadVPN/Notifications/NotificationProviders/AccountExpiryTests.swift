@@ -9,40 +9,62 @@
 import XCTest
 
 class AccountExpiryTests: XCTestCase {
-    func testNoDateReturnsNoDuration() {
+    private let calendar = Calendar.current
+
+    func testNoDateDuration() {
         let accountExpiry = AccountExpiry()
-        XCTAssertNil(accountExpiry.formattedDuration)
+        XCTAssertNil(accountExpiry.nextTriggerDate(for: .system))
+        XCTAssertNil(accountExpiry.nextTriggerDate(for: .inApp))
     }
 
-    func testDateNowReturnsNoDuration() {
+    func testDateNowDuration() {
         let accountExpiry = AccountExpiry(expiryDate: Date())
-        XCTAssertNil(accountExpiry.formattedDuration)
+        XCTAssertNil(accountExpiry.nextTriggerDate(for: .system))
+        XCTAssertNotNil(accountExpiry.nextTriggerDate(for: .inApp)) // In-app expiry triggers on same date as well.
     }
 
-    func testDateInPastReturnsNoDuration() {
+    func testDateInPastDuration() {
         let accountExpiry = AccountExpiry(expiryDate: Date().addingTimeInterval(-10))
-        XCTAssertNil(accountExpiry.formattedDuration)
+        XCTAssertNil(accountExpiry.nextTriggerDate(for: .system))
+        XCTAssertNil(accountExpiry.nextTriggerDate(for: .inApp))
     }
 
-    func testDateWithinTriggerIntervalReturnsDuration() {
-        let date = Calendar.current.date(
-            byAdding: .day,
-            value: NotificationConfiguration.closeToExpiryTriggerInterval - 1,
-            to: Date()
-        )
+    func testDateInFutureDuration() {
+        let accountExpiry = AccountExpiry(expiryDate: calendar.date(byAdding: .day, value: 1, to: Date()))
 
-        let accountExpiry = AccountExpiry(expiryDate: date)
-        XCTAssertNotNil(accountExpiry.formattedDuration)
+        XCTAssertNotNil(accountExpiry.nextTriggerDate(for: .system))
+        XCTAssertNotNil(accountExpiry.nextTriggerDate(for: .inApp))
     }
 
-    func testDateNotWithinTriggerIntervalReturnsNoDuration() {
-        let date = Calendar.current.date(
-            byAdding: .day,
-            value: NotificationConfiguration.closeToExpiryTriggerInterval + 1,
-            to: Date()
+    func testNumberOfTriggerDates() {
+        var accountExpiry = AccountExpiry(
+            expiryDate: calendar.date(
+                byAdding: .day,
+                value: AccountExpiry.Trigger.system.dateIntervals.max()!,
+                to: Date()
+            )
         )
+        XCTAssertEqual(accountExpiry.triggerDates(for: .system).count, AccountExpiry.Trigger.system.dateIntervals.count)
 
-        let accountExpiry = AccountExpiry(expiryDate: date)
-        XCTAssertNil(accountExpiry.formattedDuration)
+        accountExpiry = AccountExpiry(
+            expiryDate: calendar.date(
+                byAdding: .day,
+                value: AccountExpiry.Trigger.inApp.dateIntervals.max()!,
+                to: Date()
+            )
+        )
+        XCTAssertEqual(accountExpiry.triggerDates(for: .inApp).count, AccountExpiry.Trigger.inApp.dateIntervals.count)
+    }
+
+    func testDaysRemaining() {
+        AccountExpiry.Trigger.system.dateIntervals.forEach { interval in
+            let accountExpiry = AccountExpiry(expiryDate: calendar.date(byAdding: .day, value: interval, to: Date()))
+            XCTAssertEqual(accountExpiry.daysRemaining(for: .system)?.day, interval)
+        }
+
+        AccountExpiry.Trigger.inApp.dateIntervals.forEach { interval in
+            let accountExpiry = AccountExpiry(expiryDate: calendar.date(byAdding: .day, value: interval, to: Date()))
+            XCTAssertEqual(accountExpiry.daysRemaining(for: .inApp)?.day, interval)
+        }
     }
 }
