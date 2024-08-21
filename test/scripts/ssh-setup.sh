@@ -21,6 +21,9 @@ for file in test-runner connection-checker $APP_PACKAGE $PREVIOUS_APP $UI_RUNNER
     cp -f "$SCRIPT_DIR/$file" "$RUNNER_DIR"
 done
 
+# Unprivileged users need execute rights for connection checker
+chmod 551 "${RUNNER_DIR}/connection-checker"
+
 chown -R root "$RUNNER_DIR/"
 
 # Create service
@@ -69,9 +72,16 @@ function setup_macos {
 </plist>
 EOF
 
+    create_test_user_macos
+
     echo "Starting test runner service"
 
     launchctl load -w $RUNNER_PLIST_PATH
+}
+
+function create_test_user_macos {
+    echo "Adding test user account"
+    sysadminctl -addUser mole -fullName "Mole Molesson" -password mole
 }
 
 function setup_systemd {
@@ -94,8 +104,16 @@ EOF
 
     semanage fcontext -a -t bin_t "$RUNNER_DIR/.*" &> /dev/null || true
 
+    create_test_user_linux
+
     systemctl enable testrunner.service
     systemctl start testrunner.service
+}
+
+function create_test_user_linux {
+    echo "Adding test user account"
+    useradd -m mole
+    echo "mole" | passwd mole --stdin
 }
 
 if [[ "$(uname -s)" == "Darwin" ]]; then

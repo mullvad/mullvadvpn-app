@@ -58,7 +58,7 @@ features = ["codec"]
 default-features = false
 
 [target.'cfg(unix)'.dependencies]
-nix = { workspace = true }
+nix = { workspace = true, features = ["user"] }
 
 [target.'cfg(target_os = "linux")'.dependencies]
 rs-release = "0.1.7"

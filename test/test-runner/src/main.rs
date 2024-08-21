@@ -386,11 +386,18 @@ impl Service for TestServer {
         }
 
         cmd.stderr(Stdio::piped());
+        cmd.kill_on_drop(true);
 
-        let mut child = cmd.kill_on_drop(true).spawn().map_err(|error| {
-            log::error!("Failed to spawn {}: {error}", opts.path);
-            test_rpc::Error::Syscall
-        })?;
+        // TODO: do not hardcode
+        let mut child = util::as_unprivileged("mole", || cmd.spawn())
+            .map_err(|error| {
+                log::error!("Failed to drop privileges: {error}");
+                test_rpc::Error::Syscall
+            })?
+            .map_err(|error| {
+                log::error!("Failed to spawn {}: {error}", opts.path);
+                test_rpc::Error::Syscall
+            })?;
 
         let pid = child
             .id()
