@@ -78,9 +78,13 @@ impl std::fmt::Display for FeatureIndicator {
 ///
 /// Note that [`FeatureIndicators`] are only applicable for the connected and connecting states, and
 /// this function should not be called with arguments from different tunnel states.
+///
+/// Server ip override cannot be determined from the settings and endpoint, and has to be fetched
+/// from the relay selector parameter generator.
 pub fn compute_feature_indicators(
     settings: &Settings,
     endpoint: &TunnelEndpoint,
+    server_ip_override: bool,
 ) -> FeatureIndicators {
     #[cfg(any(windows, target_os = "android", target_os = "macos"))]
     let split_tunneling = settings.split_tunnel.enable_exclusions;
@@ -95,7 +99,6 @@ pub fn compute_feature_indicators(
         .default_options
         .any_blockers_enabled();
     let custom_dns = settings.tunnel_options.dns_options.state == DnsState::Custom;
-    let server_ip_override = !settings.relay_overrides.is_empty(); // TODO: Should check if actually used
 
     let generic_features = [
         (split_tunneling, FeatureIndicator::SplitTunneling),
@@ -187,7 +190,7 @@ mod tests {
         let mut expected_indicators: FeatureIndicators = [].into_iter().collect();
 
         assert_eq!(
-            compute_feature_indicators(&settings, &endpoint),
+            compute_feature_indicators(&settings, &endpoint, false),
             expected_indicators,
             "The default settings and TunnelEndpoint should not have any feature indicators. \
             If this is not true anymore, please update this test."
@@ -197,7 +200,7 @@ mod tests {
         expected_indicators.0.insert(FeatureIndicator::LockdownMode);
 
         assert_eq!(
-            compute_feature_indicators(&settings, &endpoint),
+            compute_feature_indicators(&settings, &endpoint, false),
             expected_indicators
         );
 
@@ -212,7 +215,7 @@ mod tests {
             .insert(FeatureIndicator::DnsContentBlockers);
 
         assert_eq!(
-            compute_feature_indicators(&settings, &endpoint),
+            compute_feature_indicators(&settings, &endpoint, false),
             expected_indicators
         );
 
@@ -221,13 +224,13 @@ mod tests {
         expected_indicators.0.insert(FeatureIndicator::LanSharing);
 
         assert_eq!(
-            compute_feature_indicators(&settings, &endpoint),
+            compute_feature_indicators(&settings, &endpoint, false),
             expected_indicators
         );
 
         settings.tunnel_options.openvpn.mssfix = Some(1300);
         assert_eq!(
-            compute_feature_indicators(&settings, &endpoint),
+            compute_feature_indicators(&settings, &endpoint, false),
             expected_indicators,
             "Setting mssfix without having an openVPN endpoint should not result in an indicator"
         );
@@ -236,7 +239,7 @@ mod tests {
         expected_indicators.0.insert(FeatureIndicator::CustomMssFix);
 
         assert_eq!(
-            compute_feature_indicators(&settings, &endpoint),
+            compute_feature_indicators(&settings, &endpoint, false),
             expected_indicators
         );
 
@@ -250,7 +253,7 @@ mod tests {
 
         expected_indicators.0.insert(FeatureIndicator::BridgeMode);
         assert_eq!(
-            compute_feature_indicators(&settings, &endpoint),
+            compute_feature_indicators(&settings, &endpoint, false),
             expected_indicators
         );
 
@@ -260,7 +263,7 @@ mod tests {
             .remove(&FeatureIndicator::CustomMssFix);
         expected_indicators.0.remove(&FeatureIndicator::BridgeMode);
         assert_eq!(
-            compute_feature_indicators(&settings, &endpoint),
+            compute_feature_indicators(&settings, &endpoint, false),
             expected_indicators
         );
 
@@ -269,7 +272,7 @@ mod tests {
             .0
             .insert(FeatureIndicator::QuantumResistance);
         assert_eq!(
-            compute_feature_indicators(&settings, &endpoint),
+            compute_feature_indicators(&settings, &endpoint, false),
             expected_indicators
         );
 
@@ -279,7 +282,7 @@ mod tests {
         });
         expected_indicators.0.insert(FeatureIndicator::Multihop);
         assert_eq!(
-            compute_feature_indicators(&settings, &endpoint),
+            compute_feature_indicators(&settings, &endpoint, false),
             expected_indicators
         );
 
@@ -292,21 +295,21 @@ mod tests {
         });
         expected_indicators.0.insert(FeatureIndicator::Udp2Tcp);
         assert_eq!(
-            compute_feature_indicators(&settings, &endpoint),
+            compute_feature_indicators(&settings, &endpoint, false),
             expected_indicators
         );
         endpoint.obfuscation.as_mut().unwrap().obfuscation_type = ObfuscationType::Shadowsocks;
         expected_indicators.0.remove(&FeatureIndicator::Udp2Tcp);
         expected_indicators.0.insert(FeatureIndicator::Shadowsocks);
         assert_eq!(
-            compute_feature_indicators(&settings, &endpoint),
+            compute_feature_indicators(&settings, &endpoint, false),
             expected_indicators
         );
 
         settings.tunnel_options.wireguard.mtu = Some(1300);
         expected_indicators.0.insert(FeatureIndicator::CustomMtu);
         assert_eq!(
-            compute_feature_indicators(&settings, &endpoint),
+            compute_feature_indicators(&settings, &endpoint, false),
             expected_indicators
         );
 
@@ -315,7 +318,7 @@ mod tests {
             endpoint.daita = true;
             expected_indicators.0.insert(FeatureIndicator::Daita);
             assert_eq!(
-                compute_feature_indicators(&settings, &endpoint),
+                compute_feature_indicators(&settings, &endpoint, false),
                 expected_indicators
             );
         }
