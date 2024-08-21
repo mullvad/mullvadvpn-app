@@ -17,7 +17,7 @@ use test_rpc::{
     net::SockHandleId,
     package::Package,
     transport::GrpcForwarder,
-    AppTrace, Service, SpawnOpts,
+    AppTrace, Service, SpawnOpts, UNPRIVILEGED_USER,
 };
 use tokio::{
     io::{AsyncBufReadExt, AsyncReadExt, AsyncWriteExt, BufReader},
@@ -388,7 +388,7 @@ impl Service for TestServer {
         cmd.stderr(Stdio::piped());
         cmd.kill_on_drop(true);
 
-        let mut child = util::as_unprivileged_user("mole", || cmd.spawn())
+        let mut child = util::as_unprivileged_user(UNPRIVILEGED_USER, || cmd.spawn())
             .map_err(|error| {
                 log::error!("Failed to drop privileges: {error}");
                 test_rpc::Error::Syscall

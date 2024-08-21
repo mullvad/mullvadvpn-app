@@ -9,6 +9,7 @@ RUNNER_DIR="$1"
 APP_PACKAGE="$2"
 PREVIOUS_APP="$3"
 UI_RUNNER="$4"
+UNPRIVILEGED_USER="$5"
 
 # Copy over test runner to correct place
 
@@ -81,7 +82,7 @@ EOF
 
 function create_test_user_macos {
     echo "Adding test user account"
-    sysadminctl -addUser mole -fullName "Mole Molesson" -password mole
+    sysadminctl -addUser $UNPRIVILEGED_USER -fullName "$UNPRIVILEGED_USER" -password $UNPRIVILEGED_USER
 }
 
 function setup_systemd {
@@ -112,8 +113,8 @@ EOF
 
 function create_test_user_linux {
     echo "Adding test user account"
-    useradd -m mole
-    echo "mole" | passwd mole --stdin
+    useradd -m $UNPRIVILEGED_USER
+    echo "$UNPRIVILEGED_USER" | passwd $UNPRIVILEGED_USER --stdin
 }
 
 if [[ "$(uname -s)" == "Darwin" ]]; then
