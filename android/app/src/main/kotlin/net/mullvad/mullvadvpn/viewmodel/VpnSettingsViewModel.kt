@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.VpnSettingsUiState
+import net.mullvad.mullvadvpn.constant.WIREGUARD_PRESET_PORTS
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.lib.model.DnsState
@@ -70,8 +71,10 @@ class VpnSettingsViewModel(
                         settings?.contentBlockersSettings() ?: DefaultDnsOptions(),
                     selectedObfuscation =
                         settings?.selectedObfuscationSettings() ?: SelectedObfuscation.Off,
-                    selectedObfuscationPort =
+                    selectedUdp2TcpObfuscationPort =
                         settings?.obfuscationSettings?.udp2tcp?.port ?: Constraint.Any,
+                    selectedShadowsocksObfuscationPort =
+                        settings?.obfuscationSettings?.shadowsocks?.port ?: Constraint.Any,
                     quantumResistant = settings?.quantumResistant() ?: QuantumResistantState.Off,
                     selectedWireguardPort = settings?.getWireguardPort() ?: Constraint.Any,
                     customWireguardPort = customWgPort,
@@ -99,7 +102,7 @@ class VpnSettingsViewModel(
             val initialSettings = repository.settingsUpdates.filterNotNull().first()
             customPort.update {
                 val initialPort = initialSettings.getWireguardPort()
-                if (initialPort.isCustom()) {
+                if (initialPort.isCustom(WIREGUARD_PRESET_PORTS)) {
                     initialPort
                 } else {
                     null
@@ -210,7 +213,7 @@ class VpnSettingsViewModel(
     }
 
     fun onObfuscationPortSelected(port: Constraint<Port>) {
-        viewModelScope.launch { repository.setCustomObfuscationPort(port) }
+        viewModelScope.launch { repository.setCustomUdp2TcpObfuscationPort(port) }
     }
 
     fun onSelectQuantumResistanceSetting(quantumResistant: QuantumResistantState) {
@@ -222,7 +225,7 @@ class VpnSettingsViewModel(
     }
 
     fun onWireguardPortSelected(port: Constraint<Port>) {
-        if (port.isCustom()) {
+        if (port.isCustom(WIREGUARD_PRESET_PORTS)) {
             customPort.update { port }
         }
         viewModelScope.launch {
@@ -235,7 +238,7 @@ class VpnSettingsViewModel(
     fun resetCustomPort() {
         customPort.update { null }
         // If custom port was selected, update selection to be any.
-        if (vmState.value.selectedWireguardPort.isCustom()) {
+        if (vmState.value.selectedWireguardPort.isCustom(WIREGUARD_PRESET_PORTS)) {
             viewModelScope.launch {
                 relayListRepository.updateSelectedWireguardConstraints(
                     WireguardConstraints(port = Constraint.Any)

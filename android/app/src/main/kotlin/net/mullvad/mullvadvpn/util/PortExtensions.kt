@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.util
 
-import net.mullvad.mullvadvpn.constant.WIREGUARD_PRESET_PORTS
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.PortRange
@@ -11,10 +10,10 @@ fun Constraint<Port>.hasValue(value: Int) =
         is Constraint.Only -> this.value.value == value
     }
 
-fun Constraint<Port>.isCustom() =
+fun Constraint<Port>.isCustom(presetPorts: List<Int>) =
     when (this) {
         is Constraint.Any -> false
-        is Constraint.Only -> !WIREGUARD_PRESET_PORTS.contains(this.value.value)
+        is Constraint.Only -> !presetPorts.contains(this.value.value)
     }
 
 fun Constraint<Port>.toPortOrNull() =

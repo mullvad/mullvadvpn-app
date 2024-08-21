@@ -38,8 +38,9 @@ import net.mullvad.mullvadvpn.util.inAnyOf
 @Composable
 private fun PreviewWireguardCustomPortDialog() {
     AppTheme {
-        WireguardCustomPort(
-            WireguardCustomPortNavArgs(
+        CustomPort(
+            CustomPortNavArgs(
+                title = "Custom port",
                 customPort = null,
                 allowedPortRanges = listOf(PortRange(10..10), PortRange(40..50)),
             ),
@@ -49,18 +50,20 @@ private fun PreviewWireguardCustomPortDialog() {
 }
 
 @Parcelize
-data class WireguardCustomPortNavArgs(
+data class CustomPortNavArgs(
+    val title: String,
     val customPort: Port?,
     val allowedPortRanges: List<PortRange>,
 ) : Parcelable
 
 @Destination<RootGraph>(style = DestinationStyle.Dialog::class)
 @Composable
-fun WireguardCustomPort(
-    navArg: WireguardCustomPortNavArgs,
+fun CustomPort(
+    navArg: CustomPortNavArgs,
     backNavigator: ResultBackNavigator<Port?>,
 ) {
-    WireguardCustomPortDialog(
+    CustomPortDialog(
+        title = navArg.title,
         initialPort = navArg.customPort,
         allowedPortRanges = navArg.allowedPortRanges,
         onSave = { port -> backNavigator.navigateBack(port) },
@@ -69,7 +72,8 @@ fun WireguardCustomPort(
 }
 
 @Composable
-fun WireguardCustomPortDialog(
+fun CustomPortDialog(
+    title: String,
     initialPort: Port?,
     allowedPortRanges: List<PortRange>,
     onSave: (Port?) -> Unit,
@@ -82,7 +86,7 @@ fun WireguardCustomPortDialog(
     AlertDialog(
         title = {
             Text(
-                text = stringResource(id = R.string.custom_port_dialog_title),
+                text = title,
             )
         },
         confirmButton = {

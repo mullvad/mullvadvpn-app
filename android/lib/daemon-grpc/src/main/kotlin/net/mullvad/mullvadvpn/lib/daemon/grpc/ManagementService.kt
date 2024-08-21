@@ -129,6 +129,7 @@ import net.mullvad.mullvadvpn.lib.model.ownership
 import net.mullvad.mullvadvpn.lib.model.providers
 import net.mullvad.mullvadvpn.lib.model.relayConstraints
 import net.mullvad.mullvadvpn.lib.model.selectedObfuscation
+import net.mullvad.mullvadvpn.lib.model.shadowsocks
 import net.mullvad.mullvadvpn.lib.model.state
 import net.mullvad.mullvadvpn.lib.model.udp2tcp
 import net.mullvad.mullvadvpn.lib.model.wireguardConstraints
@@ -475,7 +476,7 @@ class ManagementService(
             .mapLeft(SetObfuscationOptionsError::Unknown)
             .mapEmpty()
 
-    suspend fun setObfuscationPort(
+    suspend fun setUdp2TcpObfuscationPort(
         portConstraint: Constraint<Port>
     ): Either<SetObfuscationOptionsError, Unit> =
         Either.catch {
@@ -486,6 +487,19 @@ class ManagementService(
                 grpc.setObfuscationSettings(updatedSettings.fromDomain())
             }
             .onLeft { Logger.e("Set obfuscation port error") }
+            .mapLeft(SetObfuscationOptionsError::Unknown)
+            .mapEmpty()
+
+    suspend fun setShadowsocksObfuscationPort(
+        portConstraint: Constraint<Port>
+    ): Either<SetObfuscationOptionsError, Unit> =
+        Either.catch {
+                val updatedSettings =
+                    ObfuscationSettings.shadowsocks.modify(getSettings().obfuscationSettings) {
+                        it.copy(port = portConstraint)
+                    }
+                grpc.setObfuscationSettings(updatedSettings.fromDomain())
+            }
             .mapLeft(SetObfuscationOptionsError::Unknown)
             .mapEmpty()
 

@@ -1,0 +1,136 @@
+package net.mullvad.mullvadvpn.compose.screen
+
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.dropUnlessResumed
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.generated.destinations.CustomPortDestination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.result.ResultRecipient
+import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.compose.cell.CustomPortCell
+import net.mullvad.mullvadvpn.compose.cell.InformationComposeCell
+import net.mullvad.mullvadvpn.compose.cell.SelectableCell
+import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
+import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
+import net.mullvad.mullvadvpn.compose.dialog.CustomPortNavArgs
+import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
+import net.mullvad.mullvadvpn.compose.state.ShadowsocksSettingsState
+import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_UDP_OVER_TCP_PORT_ITEM_AUTOMATIC_TEST_TAG
+import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_UDP_OVER_TCP_PORT_ITEM_X_TEST_TAG
+import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
+import net.mullvad.mullvadvpn.constant.SHADOWSOCKS_PRESET_PORTS
+import net.mullvad.mullvadvpn.lib.model.Constraint
+import net.mullvad.mullvadvpn.lib.model.Port
+import net.mullvad.mullvadvpn.lib.theme.AppTheme
+import net.mullvad.mullvadvpn.util.hasValue
+import net.mullvad.mullvadvpn.util.isCustom
+import net.mullvad.mullvadvpn.viewmodel.ShadowsocksSettingsViewModel
+import org.koin.androidx.compose.koinViewModel
+
+@Preview
+@Composable
+private fun PreviewShadowsocksSettingsScreen() {
+    AppTheme {
+        ShadowsocksSettingsScreen(
+            state = ShadowsocksSettingsState(port = Constraint.Any, validPortRanges = emptyList())
+        )
+    }
+}
+
+@Destination<RootGraph>(style = SlideInFromRightTransition::class)
+@Composable
+fun ShadowsocksSettings(
+    navigator: DestinationsNavigator,
+    customPortResult: ResultRecipient<CustomPortDestination, Port?>,
+) {
+    val viewModel = koinViewModel<ShadowsocksSettingsViewModel>()
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+
+    customPortResult.OnNavResultValue { port ->
+        if (port != null) {
+            viewModel.onObfuscationPortSelected(Constraint.Only(port))
+        } else {
+            viewModel.resetCustomPort()
+        }
+    }
+
+    ShadowsocksSettingsScreen(
+        state = state,
+        navigateToCustomPortDialog =
+            dropUnlessResumed {
+                val args =
+                    CustomPortNavArgs(
+                        title =
+                            context.getString(
+                                R.string.custom_port_dialog_title,
+                                context.getString(R.string.shadowsocks)
+                            ),
+                        customPort = state.customPort,
+                        allowedPortRanges = state.validPortRanges,
+                    )
+                navigator.navigate(CustomPortDestination(args))
+            },
+        onObfuscationPortSelected = viewModel::onObfuscationPortSelected,
+        onBackClick = dropUnlessResumed { navigator.navigateUp() },
+    )
+}
+
+@Composable
+fun ShadowsocksSettingsScreen(
+    state: ShadowsocksSettingsState,
+    navigateToCustomPortDialog: () -> Unit = {},
+    onObfuscationPortSelected: (Constraint<Port>) -> Unit = {},
+    onBackClick: () -> Unit = {}
+) {
+    ScaffoldWithMediumTopBar(
+        appBarTitle = stringResource(id = R.string.shadowsocks),
+        navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) }
+    ) { modifier, lazyListState ->
+        LazyColumn(modifier = modifier, state = lazyListState) {
+            itemWithDivider { InformationComposeCell(title = stringResource(R.string.port)) }
+            itemWithDivider {
+                SelectableCell(
+                    title = stringResource(id = R.string.automatic),
+                    isSelected = state.port is Constraint.Any,
+                    onCellClicked = { onObfuscationPortSelected(Constraint.Any) },
+                    testTag = LAZY_LIST_UDP_OVER_TCP_PORT_ITEM_AUTOMATIC_TEST_TAG,
+                )
+            }
+            itemWithDivider {
+                SHADOWSOCKS_PRESET_PORTS.forEach { port ->
+                    SelectableCell(
+                        title = port.toString(),
+                        isSelected = state.port.hasValue(port),
+                        onCellClicked = { onObfuscationPortSelected(Constraint.Only(Port(port))) },
+                        testTag =
+                            String.format(null, LAZY_LIST_UDP_OVER_TCP_PORT_ITEM_X_TEST_TAG, port)
+                    )
+                }
+            }
+            itemWithDivider {
+                CustomPortCell(
+                    title = stringResource(id = R.string.wireguard_custon_port_title),
+                    isSelected = state.port.isCustom(SHADOWSOCKS_PRESET_PORTS),
+                    port = state.customPort,
+                    onMainCellClicked = {
+                        if (state.customPort != null) {
+                            onObfuscationPortSelected(Constraint.Only(state.customPort))
+                        } else {
+                            navigateToCustomPortDialog()
+                        }
+                    },
+                    onPortCellClicked = navigateToCustomPortDialog,
+                )
+            }
+        }
+    }
+}
