@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import styled from 'styled-components';
 
 import { useBoolean } from '../../lib/utilityHooks';
@@ -66,10 +66,17 @@ const StyledConnectionStatusContainer = styled.div<{ $expanded: boolean; $showMa
 );
 
 export default function ConnectionPanel() {
-  const [expanded, expand, collapse, toggleExpanded] = useBoolean();
+  const [expanded, expandImpl, collapse, toggleExpanded] = useBoolean();
   const tunnelState = useSelector((state) => state.connection.status);
 
   const allowExpand = tunnelState.state === 'connected' || tunnelState.state === 'connecting';
+
+  const expand = useCallback(() => {
+    if (allowExpand) {
+      expandImpl();
+    }
+  }, [allowExpand, expandImpl]);
+
   const hasFeatureIndicators =
     allowExpand &&
     tunnelState.featureIndicators !== undefined &&
