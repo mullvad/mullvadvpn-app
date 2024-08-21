@@ -17,9 +17,11 @@ const StyledAccordion = styled(ConnectionPanelAccordion)({
   flexShrink: 0,
 });
 
-const StyledFeatureIndicatorsContainer = styled.div({
+const StyledFeatureIndicatorsContainer = styled.div<{ $expanded: boolean }>((props) => ({
   marginTop: '0px',
-});
+  marginBottom: props.$expanded ? '8px' : 0,
+  transition: 'margin-bottom 300ms ease-out',
+}));
 
 const StyledTitle = styled.h2(tinyText, {
   margin: '0 0 2px',
@@ -155,7 +157,7 @@ export default function FeatureIndicators(props: FeatureIndicatorsProps) {
 
   return (
     <StyledAccordion expanded={featureIndicatorsVisible && featureIndicators.length > 0}>
-      <StyledFeatureIndicatorsContainer onClick={props.expandIsland}>
+      <StyledFeatureIndicatorsContainer onClick={props.expandIsland} $expanded={props.expanded}>
         <StyledAccordion expanded={props.expanded}>
           <StyledTitle>{messages.pgettext('connect-view', 'Active features')}</StyledTitle>
         </StyledAccordion>

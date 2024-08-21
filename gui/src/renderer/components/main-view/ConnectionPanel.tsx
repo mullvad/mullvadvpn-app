@@ -35,13 +35,13 @@ const StyledConnectionPanel = styled.div<{ $expanded: boolean }>((props) => ({
   transition: 'background-color 300ms ease-out',
 }));
 
-const StyledConnectionButtonContainer = styled.div<{ $showMargin: boolean }>((props) => ({
+const StyledConnectionButtonContainer = styled.div({
   transition: 'margin-top 300ms ease-out',
   display: 'flex',
   flexDirection: 'column',
   gap: '16px',
-  marginTop: props.$showMargin ? '16px' : 0,
-}));
+  marginTop: '16px',
+});
 
 const StyledCustomScrollbars = styled(CustomScrollbars)({
   flexShrink: 1,
@@ -54,16 +54,17 @@ const StyledConnectionPanelChevron = styled(ConnectionPanelChevron)({
   width: 'fit-content',
 });
 
-const StyledConnectionStatusContainer = styled.div<{ $expanded: boolean; $showMargin: boolean }>(
-  (props) => ({
-    paddingBottom: '16px',
-    marginBottom: props.$expanded && props.$showMargin ? '16px' : 0,
-    borderBottom: props.$expanded ? '1px rgba(255, 255, 255, 0.2) solid' : 'none',
-    transitionProperty: 'margin-bottom, padding-bottom',
-    transitionDuration: '300ms',
-    transitionTimingFunction: 'ease-out',
-  }),
-);
+const StyledConnectionStatusContainer = styled.div<{
+  $expanded: boolean;
+  $hasFeatureIndicators: boolean;
+}>((props) => ({
+  paddingBottom: props.$hasFeatureIndicators || props.$expanded ? '16px' : 0,
+  marginBottom: props.$expanded && props.$hasFeatureIndicators ? '16px' : 0,
+  borderBottom: props.$expanded ? '1px rgba(255, 255, 255, 0.2) solid' : 'none',
+  transitionProperty: 'margin-bottom, padding-bottom',
+  transitionDuration: '300ms',
+  transitionTimingFunction: 'ease-out',
+}));
 
 export default function ConnectionPanel() {
   const [expanded, expandImpl, collapse, toggleExpanded] = useBoolean();
@@ -91,7 +92,7 @@ export default function ConnectionPanel() {
       )}
       <StyledConnectionStatusContainer
         $expanded={expanded}
-        $showMargin={hasFeatureIndicators}
+        $hasFeatureIndicators={hasFeatureIndicators}
         onClick={toggleExpanded}>
         <ConnectionStatus />
         <Location />
@@ -103,7 +104,7 @@ export default function ConnectionPanel() {
           <ConnectionDetails />
         </StyledAccordion>
       </StyledCustomScrollbars>
-      <StyledConnectionButtonContainer $showMargin={hasFeatureIndicators}>
+      <StyledConnectionButtonContainer>
         <SelectLocationButton />
         <ConnectionActionButton />
       </StyledConnectionButtonContainer>

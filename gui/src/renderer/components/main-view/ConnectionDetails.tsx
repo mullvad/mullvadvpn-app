@@ -42,8 +42,8 @@ const StyledConnectionDetailsHeading = styled.h2(tinyText, {
 });
 
 const StyledConnectionDetailsContainer = styled.div({
-  marginTop: '24px',
-  marginBottom: '18px',
+  marginTop: '16px',
+  marginBottom: '16px',
 });
 
 const StyledIpTable = styled.div({
