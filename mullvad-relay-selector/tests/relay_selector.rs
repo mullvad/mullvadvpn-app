@@ -804,9 +804,11 @@ fn test_selecting_wireguard_over_shadowsocks_extra_ips() {
     match relay {
         GetRelay::Wireguard {
             obfuscator: Some(SelectedObfuscator { config: ObfuscatorConfig::Shadowsocks { endpoint }, .. }),
-            inner: WireguardConfig::Singlehop { .. },
+            inner: WireguardConfig::Singlehop { exit },
             ..
         } => {
+            assert!(!exit.overridden_ipv4);
+            assert!(!exit.overridden_ipv6);
             assert!(SHADOWSOCKS_RELAY_EXTRA_ADDRS.contains(&endpoint.ip()), "{} is not an additional IP", endpoint);
         }
         wrong_relay => panic!(
@@ -849,6 +851,7 @@ fn test_selecting_wireguard_ignore_extra_ips_override_v4() {
             ..
         } => {
             assert!(exit.overridden_ipv4);
+            assert!(!exit.overridden_ipv6);
             assert_eq!(endpoint.ip(), IpAddr::from(OVERRIDE_IPV4));
         }
         wrong_relay => panic!(
@@ -887,9 +890,11 @@ fn test_selecting_wireguard_ignore_extra_ips_override_v6() {
     match relay {
         GetRelay::Wireguard {
             obfuscator: Some(SelectedObfuscator { config: ObfuscatorConfig::Shadowsocks { endpoint }, .. }),
-            inner: WireguardConfig::Singlehop { .. },
+            inner: WireguardConfig::Singlehop { exit },
             ..
         } => {
+            assert!(exit.overridden_ipv6);
+            assert!(!exit.overridden_ipv4);
             assert_eq!(endpoint.ip(), IpAddr::from(OVERRIDE_IPV6));
         }
         wrong_relay => panic!(
