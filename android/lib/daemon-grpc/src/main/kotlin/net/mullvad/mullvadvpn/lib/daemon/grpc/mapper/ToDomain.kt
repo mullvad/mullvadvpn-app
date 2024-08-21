@@ -7,6 +7,7 @@ import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.util.UUID
 import mullvad_daemon.management_interface.ManagementInterface
+import mullvad_daemon.management_interface.shadowsocks
 import net.mullvad.mullvadvpn.lib.daemon.grpc.GrpcConnectivityState
 import net.mullvad.mullvadvpn.lib.daemon.grpc.RelayNameComparator
 import net.mullvad.mullvadvpn.lib.model.AccountData
@@ -59,6 +60,7 @@ import net.mullvad.mullvadvpn.lib.model.RelayOverride
 import net.mullvad.mullvadvpn.lib.model.RelaySettings
 import net.mullvad.mullvadvpn.lib.model.SelectedObfuscation
 import net.mullvad.mullvadvpn.lib.model.Settings
+import net.mullvad.mullvadvpn.lib.model.ShadowsocksSettings
 import net.mullvad.mullvadvpn.lib.model.SocksAuth
 import net.mullvad.mullvadvpn.lib.model.SplitTunnelSettings
 import net.mullvad.mullvadvpn.lib.model.TransportProtocol
@@ -170,10 +172,10 @@ internal fun ManagementInterface.ObfuscationEndpoint.toDomain(): ObfuscationEndp
 internal fun ManagementInterface.ObfuscationEndpoint.ObfuscationType.toDomain(): ObfuscationType =
     when (this) {
         ManagementInterface.ObfuscationEndpoint.ObfuscationType.UDP2TCP -> ObfuscationType.Udp2Tcp
+        ManagementInterface.ObfuscationEndpoint.ObfuscationType.SHADOWSOCKS ->
+            ObfuscationType.Shadowsocks
         ManagementInterface.ObfuscationEndpoint.ObfuscationType.UNRECOGNIZED ->
             throw IllegalArgumentException("Unrecognized obfuscation type")
-        ManagementInterface.ObfuscationEndpoint.ObfuscationType.SHADOWSOCKS ->
-            throw IllegalArgumentException("Shadowsocks is unsupported")
     }
 
 internal fun ManagementInterface.TransportProtocol.toDomain(): TransportProtocol =
@@ -334,6 +336,7 @@ internal fun ManagementInterface.ObfuscationSettings.toDomain(): ObfuscationSett
     ObfuscationSettings(
         selectedObfuscation = selectedObfuscation.toDomain(),
         udp2tcp = udp2Tcp.toDomain(),
+        shadowsocks = shadowsocks.toDomain(),
     )
 
 internal fun ManagementInterface.ObfuscationSettings.SelectedObfuscation.toDomain():
@@ -344,7 +347,7 @@ internal fun ManagementInterface.ObfuscationSettings.SelectedObfuscation.toDomai
         ManagementInterface.ObfuscationSettings.SelectedObfuscation.UDP2TCP ->
             SelectedObfuscation.Udp2Tcp
         ManagementInterface.ObfuscationSettings.SelectedObfuscation.SHADOWSOCKS ->
-            throw IllegalArgumentException("Shadowsocks is unsupported")
+            SelectedObfuscation.Shadowsocks
         ManagementInterface.ObfuscationSettings.SelectedObfuscation.UNRECOGNIZED ->
             throw IllegalArgumentException("Unrecognized selected obfuscation")
     }
@@ -354,6 +357,13 @@ internal fun ManagementInterface.Udp2TcpObfuscationSettings.toDomain(): Udp2TcpO
         Udp2TcpObfuscationSettings(Constraint.Only(Port(port)))
     } else {
         Udp2TcpObfuscationSettings(Constraint.Any)
+    }
+
+internal fun ManagementInterface.ShadowsocksSettings.toDomain(): ShadowsocksSettings =
+    if (hasPort()) {
+        ShadowsocksSettings(Constraint.Only(Port(port)))
+    } else {
+        ShadowsocksSettings(Constraint.Any)
     }
 
 internal fun ManagementInterface.CustomList.toDomain(): CustomList =
@@ -440,7 +450,10 @@ internal fun ManagementInterface.RelayList.toDomain(): RelayList =
     RelayList(countriesList.toDomain(), wireguard.toDomain())
 
 internal fun ManagementInterface.WireguardEndpointData.toDomain(): WireguardEndpointData =
-    WireguardEndpointData(portRangesList.map { it.toDomain() })
+    WireguardEndpointData(
+        portRangesList.map { it.toDomain() },
+        shadowsocksPortRangesList.map { it.toDomain() },
+    )
 
 internal fun ManagementInterface.PortRange.toDomain(): PortRange = PortRange(first..last)
 
@@ -596,8 +609,8 @@ internal fun ManagementInterface.FeatureIndicator.toDomain() =
         ManagementInterface.FeatureIndicator.SERVER_IP_OVERRIDE ->
             FeatureIndicator.SERVER_IP_OVERRIDE
         ManagementInterface.FeatureIndicator.CUSTOM_MTU -> FeatureIndicator.CUSTOM_MTU
+        ManagementInterface.FeatureIndicator.SHADOWSOCKS -> FeatureIndicator.SHADOWSOCKS
         ManagementInterface.FeatureIndicator.LOCKDOWN_MODE,
-        ManagementInterface.FeatureIndicator.SHADOWSOCKS,
         ManagementInterface.FeatureIndicator.MULTIHOP,
         ManagementInterface.FeatureIndicator.BRIDGE_MODE,
         ManagementInterface.FeatureIndicator.CUSTOM_MSS_FIX,

@@ -18,6 +18,9 @@ const val LAZY_LIST_UDP_OVER_TCP_PORT_TEST_TAG = "lazy_list_udp_over_tcp_port_te
 const val LAZY_LIST_UDP_OVER_TCP_PORT_ITEM_AUTOMATIC_TEST_TAG =
     "lazy_list_udp_over_tcp_item_automatic_test_tag"
 const val LAZY_LIST_UDP_OVER_TCP_PORT_ITEM_X_TEST_TAG = "lazy_list_udp_over_tcp_item_%d_test_tag"
+const val LAZY_LIST_SHADOWSOCKS_PORT_ITEM_AUTOMATIC_TEST_TAG =
+    "lazy_list_shadowsocks_item_automatic_test_tag"
+const val LAZY_LIST_SHADOWSOCKS_PORT_ITEM_X_TEST_TAG = "lazy_list_shadowsocks_item_%d_test_tag"
 const val CUSTOM_PORT_DIALOG_INPUT_TEST_TAG = "custom_port_dialog_input_test_tag"
 
 // SelectLocationScreen, ConnectScreen, CustomListLocationsScreen

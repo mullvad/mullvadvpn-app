@@ -43,7 +43,7 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.button.VariantButton
-import net.mullvad.mullvadvpn.compose.cell.BaseCell
+import net.mullvad.mullvadvpn.compose.cell.TwoRowCell
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorMedium
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
@@ -322,25 +322,13 @@ private fun ColumnScope.DeviceListHeader(state: DeviceListUiState) {
 
 @Composable
 private fun DeviceListItem(device: Device, isLoading: Boolean, onDeviceRemovalClicked: () -> Unit) {
-    BaseCell(
-        isRowEnabled = false,
-        headlineContent = {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = device.displayName(),
-                    style = MaterialTheme.typography.listItemText,
-                    color = MaterialTheme.colorScheme.onPrimary,
-                )
-                Text(
-                    modifier = Modifier.fillMaxWidth(),
-                    text =
-                        stringResource(id = R.string.created_x, device.creationDate.formatDate()),
-                    style = MaterialTheme.typography.listItemSubText,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-        },
+    TwoRowCell(
+        titleStyle = MaterialTheme.typography.listItemText,
+        titleColor = MaterialTheme.colorScheme.onPrimary,
+        subtitleStyle = MaterialTheme.typography.listItemSubText,
+        subtitleColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        titleText = device.displayName(),
+        subtitleText = stringResource(id = R.string.created_x, device.creationDate.formatDate()),
         bodyView = {
             if (isLoading) {
                 MullvadCircularProgressIndicatorMedium(
@@ -357,7 +345,9 @@ private fun DeviceListItem(device: Device, isLoading: Boolean, onDeviceRemovalCl
                 }
             }
         },
+        isRowEnabled = false,
         endPadding = Dimens.smallPadding,
+        minHeight = Dimens.cellHeight,
     )
 }
 

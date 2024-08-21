@@ -76,8 +76,10 @@ import net.mullvad.mullvadvpn.viewmodel.SaveApiAccessMethodViewModel
 import net.mullvad.mullvadvpn.viewmodel.SelectLocationViewModel
 import net.mullvad.mullvadvpn.viewmodel.ServerIpOverridesViewModel
 import net.mullvad.mullvadvpn.viewmodel.SettingsViewModel
+import net.mullvad.mullvadvpn.viewmodel.ShadowsocksSettingsViewModel
 import net.mullvad.mullvadvpn.viewmodel.SplashViewModel
 import net.mullvad.mullvadvpn.viewmodel.SplitTunnelingViewModel
+import net.mullvad.mullvadvpn.viewmodel.Udp2TcpSettingsViewModel
 import net.mullvad.mullvadvpn.viewmodel.ViewLogsViewModel
 import net.mullvad.mullvadvpn.viewmodel.VoucherDialogViewModel
 import net.mullvad.mullvadvpn.viewmodel.VpnPermissionViewModel
@@ -209,6 +211,8 @@ val uiModule = module {
     viewModel { SaveApiAccessMethodViewModel(get(), get()) }
     viewModel { ApiAccessMethodDetailsViewModel(get(), get()) }
     viewModel { DeleteApiAccessMethodConfirmationViewModel(get(), get()) }
+    viewModel { Udp2TcpSettingsViewModel(get()) }
+    viewModel { ShadowsocksSettingsViewModel(get(), get()) }
 
     // This view model must be single so we correctly attach lifecycle and share it with activity
     single { NoDaemonViewModel(get()) }

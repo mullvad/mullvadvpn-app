@@ -76,6 +76,9 @@ class RelayListRepository(
     val portRanges: Flow<List<PortRange>> =
         wireguardEndpointData.map { it.portRanges }.distinctUntilChanged()
 
+    val shadowsocksPortRanges: Flow<List<PortRange>> =
+        wireguardEndpointData.map { it.shadowsocksPortRanges }.distinctUntilChanged()
+
     suspend fun updateSelectedRelayLocation(value: RelayItemId) =
         managementService.setRelayLocation(value)
 
@@ -84,5 +87,5 @@ class RelayListRepository(
 
     fun find(geoLocationId: GeoLocationId) = relayList.value.findByGeoLocationId(geoLocationId)
 
-    private fun defaultWireguardEndpointData() = WireguardEndpointData(emptyList())
+    private fun defaultWireguardEndpointData() = WireguardEndpointData(emptyList(), emptyList())
 }
