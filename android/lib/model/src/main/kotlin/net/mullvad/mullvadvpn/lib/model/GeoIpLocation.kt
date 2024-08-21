@@ -1,7 +1,9 @@
 package net.mullvad.mullvadvpn.lib.model
 
+import arrow.optics.optics
 import java.net.InetAddress
 
+@optics
 data class GeoIpLocation(
     val ipv4: InetAddress?,
     val ipv6: InetAddress?,
@@ -10,4 +12,6 @@ data class GeoIpLocation(
     val latitude: Double,
     val longitude: Double,
     val hostname: String?,
-)
+) {
+    companion object
+}
