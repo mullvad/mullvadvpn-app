@@ -2,6 +2,9 @@ msgid ""
 msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 
+msgid "%(amount)d more..."
+msgstr ""
+
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr ""
 
@@ -86,7 +89,13 @@ msgstr ""
 msgid "Connected"
 msgstr ""
 
+msgid "CONNECTED"
+msgstr ""
+
 msgid "Connecting"
+msgstr ""
+
+msgid "CONNECTING..."
 msgstr ""
 
 #. Creating a secure connection that isn't breakable by quantum computers.
@@ -97,6 +106,11 @@ msgid "CREATING SECURE CONNECTION"
 msgstr ""
 
 msgid "Custom"
+msgstr ""
+
+#. This refers to the Custom DNS setting in the VPN settings view. This is
+#. displayed when the feature is on.
+msgid "Custom DNS"
 msgstr ""
 
 msgid "Default"
@@ -120,10 +134,13 @@ msgstr ""
 msgid "Disconnected"
 msgstr ""
 
+msgid "DISCONNECTED"
+msgstr ""
+
 msgid "Disconnecting"
 msgstr ""
 
-msgid "Dismiss"
+msgid "DISCONNECTING..."
 msgstr ""
 
 msgid "Edit"
@@ -166,6 +183,11 @@ msgstr ""
 msgid "less than a day left"
 msgstr ""
 
+#. This refers to the multihop setting in the VPN settings view. This is
+#. displayed when the feature is on.
+msgid "Multihop"
+msgstr ""
+
 msgid "Name"
 msgstr ""
 
@@ -191,6 +213,11 @@ msgid "Password"
 msgstr ""
 
 msgid "Port"
+msgstr ""
+
+#. This refers to the quantum resistance setting in the WireGuard settings view.
+#. This is displayed when the feature is on.
+msgid "Quantum resistance"
 msgstr ""
 
 #. The connection is secure and isn't breakable by quantum computers.
@@ -560,7 +587,15 @@ msgid "%(city)s (%(hostname)s)"
 msgstr ""
 
 msgctxt "connect-view"
+msgid "Active features"
+msgstr ""
+
+msgctxt "connect-view"
 msgid "Congrats!"
+msgstr ""
+
+msgctxt "connect-view"
+msgid "Connection details"
 msgstr ""
 
 msgctxt "connect-view"
@@ -635,12 +670,6 @@ msgctxt "connect-view"
 msgid "You’re all set!"
 msgstr ""
 
-#. %(hostname)s - The current server the app is connected to, e.g. "se-got-wg-001 using DAITA"
-#. %(daita)s - Will be replaced with "DAITA"
-msgctxt "connection-info"
-msgid "%(hostname)s using %(daita)s"
-msgstr ""
-
 #. The hostname line displayed below the country on the main screen
 #. Available placeholders:
 #. %(relay)s - the relay hostname
@@ -651,14 +680,6 @@ msgstr ""
 
 msgctxt "connection-info"
 msgid "%(relay)s via Custom bridge"
-msgstr ""
-
-#. The tunnel type line displayed below the hostname line on the main screen
-#. Available placeholders:
-#. %(tunnelType)s - the tunnel type, i.e OpenVPN
-#. %(bridgeType)s - the bridge type, i.e Shadowsocks
-msgctxt "connection-info"
-msgid "%(tunnelType)s via %(bridgeType)s"
 msgstr ""
 
 msgctxt "connection-info"
@@ -1751,7 +1772,7 @@ msgid "Update your kernel."
 msgstr ""
 
 msgctxt "tunnel-control"
-msgid "Secure my connection"
+msgid "Connect"
 msgstr ""
 
 msgctxt "tunnel-control"
@@ -2255,6 +2276,9 @@ msgstr ""
 msgid "Discard changes?"
 msgstr ""
 
+msgid "Dismiss"
+msgstr ""
+
 msgid "Edit custom lists"
 msgstr ""
 
@@ -2421,6 +2445,9 @@ msgid "Reset overrides"
 msgstr ""
 
 msgid "Reset to default"
+msgstr ""
+
+msgid "Secure my connection"
 msgstr ""
 
 msgid "Secured"

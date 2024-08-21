@@ -1,6 +1,7 @@
 import {
   AfterDisconnect,
-  ErrorState,
+  ErrorStateDetails,
+  FeatureIndicator,
   ILocation,
   ITunnelStateRelayInfo,
 } from '../../../shared/daemon-rpc-types';
@@ -8,11 +9,13 @@ import {
 interface IConnectingAction {
   type: 'CONNECTING';
   details?: ITunnelStateRelayInfo;
+  featureIndicators?: Array<FeatureIndicator>;
 }
 
 interface IConnectedAction {
   type: 'CONNECTED';
   details: ITunnelStateRelayInfo;
+  featureIndicators?: Array<FeatureIndicator>;
 }
 
 interface IDisconnectedAction {
@@ -26,7 +29,7 @@ interface IDisconnectingAction {
 
 interface IBlockedAction {
   type: 'TUNNEL_ERROR';
-  errorState: ErrorState;
+  errorState: ErrorStateDetails;
 }
 
 interface INewLocationAction {
@@ -48,17 +51,25 @@ export type ConnectionAction =
   | IBlockedAction
   | IUpdateBlockStateAction;
 
-function connecting(details?: ITunnelStateRelayInfo): IConnectingAction {
+function connecting(
+  details?: ITunnelStateRelayInfo,
+  featureIndicators?: Array<FeatureIndicator>,
+): IConnectingAction {
   return {
     type: 'CONNECTING',
     details,
+    featureIndicators,
   };
 }
 
-function connected(details: ITunnelStateRelayInfo): IConnectedAction {
+function connected(
+  details: ITunnelStateRelayInfo,
+  featureIndicators?: Array<FeatureIndicator>,
+): IConnectedAction {
   return {
     type: 'CONNECTED',
     details,
+    featureIndicators,
   };
 }
 
@@ -75,7 +86,7 @@ function disconnecting(afterDisconnect: AfterDisconnect): IDisconnectingAction {
   };
 }
 
-function blocked(errorState: ErrorState): IBlockedAction {
+function blocked(errorState: ErrorStateDetails): IBlockedAction {
   return {
     type: 'TUNNEL_ERROR',
     errorState,

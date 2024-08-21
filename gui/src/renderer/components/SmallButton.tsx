@@ -3,10 +3,12 @@ import styled from 'styled-components';
 
 import { colors } from '../../config.json';
 import { smallText } from './common-styles';
+import { MultiButtonCompatibleProps } from './MultiButton';
 
 export enum SmallButtonColor {
   blue,
   red,
+  green,
 }
 
 function getButtonColors(color?: SmallButtonColor, disabled?: boolean) {
@@ -15,6 +17,11 @@ function getButtonColors(color?: SmallButtonColor, disabled?: boolean) {
       return {
         background: disabled ? colors.red60 : colors.red,
         backgroundHover: disabled ? colors.red60 : colors.red80,
+      };
+    case SmallButtonColor.green:
+      return {
+        background: disabled ? colors.green40 : colors.green,
+        backgroundHover: disabled ? colors.green40 : colors.green90,
       };
     default:
       return {
@@ -26,48 +33,70 @@ function getButtonColors(color?: SmallButtonColor, disabled?: boolean) {
 
 const BUTTON_GROUP_GAP = 12;
 
-const StyledSmallButton = styled.button<{ $color?: SmallButtonColor; disabled?: boolean }>(
-  smallText,
-  (props) => {
-    const buttonColors = getButtonColors(props.$color, props.disabled);
-    return {
-      minHeight: '32px',
-      padding: '5px 16px',
-      border: 'none',
-      background: buttonColors.background,
-      color: props.disabled ? colors.white50 : colors.white,
-      borderRadius: '4px',
-      marginLeft: `${BUTTON_GROUP_GAP}px`,
+interface StyledSmallButtonProps {
+  $color?: SmallButtonColor;
+  disabled?: boolean;
+}
 
-      [`${SmallButtonGroupStart} &&`]: {
-        marginLeft: 0,
-        marginRight: `${BUTTON_GROUP_GAP}px`,
-      },
+const StyledSmallButton = styled.button<StyledSmallButtonProps>(smallText, (props) => {
+  const buttonColors = getButtonColors(props.$color, props.disabled);
 
-      [`${SmallButtonGrid} &&`]: {
-        flex: '1 0 auto',
-        marginLeft: 0,
-        minWidth: `calc(50% - ${BUTTON_GROUP_GAP / 2}px)`,
-        maxWidth: '100%',
-      },
+  return {
+    display: 'flex',
+    minHeight: '32px',
+    padding: '5px 16px',
+    border: 'none',
+    background: buttonColors.background,
+    color: props.disabled ? colors.white50 : colors.white,
+    borderRadius: '4px',
+    marginLeft: `${BUTTON_GROUP_GAP}px`,
+    alignItems: 'center',
+    justifyContent: 'center',
 
-      '&&:hover': {
-        background: buttonColors.backgroundHover,
-      },
-    };
-  },
-);
+    [`${SmallButtonGroupStart} &&`]: {
+      marginLeft: 0,
+      marginRight: `${BUTTON_GROUP_GAP}px`,
+    },
+
+    [`${SmallButtonGrid} &&`]: {
+      flex: '1 0 auto',
+      marginLeft: 0,
+      minWidth: `calc(50% - ${BUTTON_GROUP_GAP / 2}px)`,
+      maxWidth: '100%',
+    },
+
+    '&&:hover': {
+      background: buttonColors.backgroundHover,
+    },
+  };
+});
+
+const StyledContent = styled.span({
+  flex: '1 0 fit-content',
+});
+
+const StyledTextOffset = styled.span<{ $width: number }>((props) => ({
+  display: 'flex',
+  flex: `0 1 ${props.$width}px`,
+}));
 
 interface SmallButtonProps
-  extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'onClick' | 'color'> {
+  extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'onClick' | 'color'>,
+    MultiButtonCompatibleProps {
   onClick: () => void;
-  children: string;
+  children: React.ReactNode;
   color?: SmallButtonColor;
 }
 
 export function SmallButton(props: SmallButtonProps) {
-  const { color, ...otherProps } = props;
-  return <StyledSmallButton $color={props.color} {...otherProps} />;
+  const { color, textOffset, children, ...otherProps } = props;
+  return (
+    <StyledSmallButton $color={props.color} {...otherProps}>
+      {textOffset && textOffset > 0 ? <StyledTextOffset $width={Math.abs(textOffset)} /> : null}
+      <StyledContent>{children}</StyledContent>
+      {textOffset && textOffset < 0 ? <StyledTextOffset $width={Math.abs(textOffset)} /> : null}
+    </StyledSmallButton>
+  );
 }
 
 export const SmallButtonGroup = styled.div<{ $noMarginTop?: boolean }>((props) => ({

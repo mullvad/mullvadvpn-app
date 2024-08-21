@@ -107,7 +107,7 @@ describe('System notifications', () => {
     const controller = createController();
 
     const disconnectedState: TunnelState = { state: 'disconnected' };
-    const connectingState: TunnelState = { state: 'connecting' };
+    const connectingState: TunnelState = { state: 'connecting', featureIndicators: undefined };
     const result1 = controller.notifyTunnelState(disconnectedState, false, false, false, true);
     const result2 = controller.notifyTunnelState(disconnectedState, false, false, false, false);
     const result3 = controller.notifyTunnelState(connectingState, false, false, false, true);

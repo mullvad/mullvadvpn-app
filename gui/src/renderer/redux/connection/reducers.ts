@@ -54,13 +54,21 @@ export default function (
     case 'CONNECTING':
       return {
         ...state,
-        status: { state: 'connecting', details: action.details },
+        status: {
+          state: 'connecting',
+          details: action.details,
+          featureIndicators: action.featureIndicators,
+        },
       };
 
     case 'CONNECTED':
       return {
         ...state,
-        status: { state: 'connected', details: action.details },
+        status: {
+          state: 'connected',
+          details: action.details,
+          featureIndicators: action.featureIndicators,
+        },
       };
 
     case 'DISCONNECTED':
