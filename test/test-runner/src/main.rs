@@ -388,8 +388,7 @@ impl Service for TestServer {
         cmd.stderr(Stdio::piped());
         cmd.kill_on_drop(true);
 
-        // TODO: do not hardcode
-        let mut child = util::as_unprivileged("mole", || cmd.spawn())
+        let mut child = util::as_unprivileged_user("mole", || cmd.spawn())
             .map_err(|error| {
                 log::error!("Failed to drop privileges: {error}");
                 test_rpc::Error::Syscall
