@@ -53,7 +53,7 @@ use mullvad_types::{
     auth_failed::AuthFailed,
     custom_list::CustomList,
     device::{Device, DeviceEvent, DeviceEventCause, DeviceId, DeviceState, RemoveDeviceEvent},
-    features::{compute_feature_indicators, FeatureIndicators},
+    features::{compute_feature_indicators, FeatureIndicator, FeatureIndicators},
     location::{GeoIpLocation, LocationEventData},
     relay_constraints::{
         BridgeSettings, BridgeState, BridgeType, ObfuscationSettings, RelayOverride, RelaySettings,
@@ -958,7 +958,7 @@ impl Daemon {
             DeviceMigrationEvent(event) => self.handle_device_migration_event(event),
             LocationEvent(location_data) => self.handle_location_event(location_data),
             SettingsChanged => {
-                self.update_feature_indicators_on_settings_changed().await;
+                self.update_feature_indicators_on_settings_changed();
             }
             #[cfg(any(windows, target_os = "android", target_os = "macos"))]
             ExcludedPathsEvent(update, tx) => self.handle_new_excluded_paths(update, tx).await,
@@ -1135,7 +1135,7 @@ impl Daemon {
     }
 
     /// Update the set of feature indicators based on the new settings.
-    async fn update_feature_indicators_on_settings_changed(&mut self) {
+    fn update_feature_indicators_on_settings_changed(&mut self) {
         // Updated settings may affect the feature indicators, even if they don't change the tunnel
         // state (e.g. activating lockdown mode). Note that only the connected and connecting states
         // have feature indicators.
@@ -1150,7 +1150,13 @@ impl Daemon {
                 endpoint,
                 ..
             } => {
-                let ip_override = self.parameters_generator.last_relay_was_overridden().await;
+                // The server IP override feature indicator can only be changed when the tunnels
+                // state changes and it is updated in `handle_tunnel_state_transition`. We must rely
+                // on this value being up to date as we need the relay to know if
+                // the IP override is active.
+                let ip_override = feature_indicators
+                    .active_features()
+                    .any(|f| matches!(&f, FeatureIndicator::ServerIpOverride));
                 let new_feature_indicators =
                     compute_feature_indicators(&self.settings.to_settings(), endpoint, ip_override);
                 // Update and broadcast the new feature indicators if they have changed
