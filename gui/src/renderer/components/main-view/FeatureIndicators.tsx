@@ -7,13 +7,13 @@ import { FeatureIndicator } from '../../../shared/daemon-rpc-types';
 import { messages } from '../../../shared/gettext';
 import { useStyledRef } from '../../lib/utilityHooks';
 import { useSelector } from '../../redux/store';
-import Accordion from '../Accordion';
 import { tinyText } from '../common-styles';
+import { ConnectionPanelAccordion } from './styles';
 
 const LINE_HEIGHT = 22;
 const GAP = 8;
 
-const StyledAccordion = styled(Accordion)({
+const StyledAccordion = styled(ConnectionPanelAccordion)({
   flexShrink: 0,
 });
 

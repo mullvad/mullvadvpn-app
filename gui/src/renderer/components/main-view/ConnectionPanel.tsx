@@ -3,7 +3,6 @@ import styled from 'styled-components';
 
 import { useBoolean } from '../../lib/utilityHooks';
 import { useSelector } from '../../redux/store';
-import Accordion from '../Accordion';
 import CustomScrollbars from '../CustomScrollbars';
 import ConnectionActionButton from './ConnectionActionButton';
 import ConnectionDetails from './ConnectionDetails';
@@ -13,10 +12,11 @@ import FeatureIndicators from './FeatureIndicators';
 import Hostname from './Hostname';
 import Location from './Location';
 import SelectLocationButton from './SelectLocationButton';
+import { ConnectionPanelAccordion } from './styles';
 
 const PANEL_MARGIN = '16px';
 
-const StyledAccordion = styled(Accordion)({
+const StyledAccordion = styled(ConnectionPanelAccordion)({
   flexShrink: 0,
 });
 
@@ -32,11 +32,11 @@ const StyledConnectionPanel = styled.div<{ $expanded: boolean }>((props) => ({
   backgroundColor: `rgba(16, 24, 35, ${props.$expanded ? 0.8 : 0.4})`,
   backdropFilter: 'blur(6px)',
 
-  transition: 'background-color 250ms ease-out',
+  transition: 'background-color 300ms ease-out',
 }));
 
 const StyledConnectionButtonContainer = styled.div<{ $showMargin: boolean }>((props) => ({
-  transition: 'margin-top 250ms ease-out',
+  transition: 'margin-top 300ms ease-out',
   display: 'flex',
   flexDirection: 'column',
   gap: '16px',
@@ -60,7 +60,7 @@ const StyledConnectionStatusContainer = styled.div<{ $expanded: boolean; $showMa
     marginBottom: props.$expanded && props.$showMargin ? '16px' : 0,
     borderBottom: props.$expanded ? '1px rgba(255, 255, 255, 0.2) solid' : 'none',
     transitionProperty: 'margin-bottom, padding-bottom',
-    transitionDuration: '250ms',
+    transitionDuration: '300ms',
     transitionTimingFunction: 'ease-out',
   }),
 );

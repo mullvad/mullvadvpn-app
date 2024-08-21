@@ -5,11 +5,11 @@ import { colors } from '../../../config.json';
 import { messages } from '../../../shared/gettext';
 import { IConnectionReduxState } from '../../redux/connection/reducers';
 import { useSelector } from '../../redux/store';
-import Accordion from '../Accordion';
 import { smallText } from '../common-styles';
 import Marquee from '../Marquee';
+import { ConnectionPanelAccordion } from './styles';
 
-const StyledAccordion = styled(Accordion)({
+const StyledAccordion = styled(ConnectionPanelAccordion)({
   flexShrink: 0,
 });
 

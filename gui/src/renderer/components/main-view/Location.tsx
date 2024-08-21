@@ -3,9 +3,9 @@ import styled from 'styled-components';
 import { colors } from '../../../config.json';
 import { TunnelState } from '../../../shared/daemon-rpc-types';
 import { useSelector } from '../../redux/store';
-import Accordion from '../Accordion';
 import { largeText } from '../common-styles';
 import Marquee from '../Marquee';
+import { ConnectionPanelAccordion } from './styles';
 
 const StyledLocation = styled.span(largeText, {
   color: colors.white,
@@ -17,11 +17,11 @@ export default function Location() {
   const text = getLocationText(connection.status, connection.country, connection.city);
 
   return (
-    <Accordion expanded={connection.status.state !== 'error'}>
+    <ConnectionPanelAccordion expanded={connection.status.state !== 'error'}>
       <StyledLocation>
         <Marquee>{text}</Marquee>
       </StyledLocation>
-    </Accordion>
+    </ConnectionPanelAccordion>
   );
 }
 
