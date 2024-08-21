@@ -19,8 +19,8 @@ use mullvad_types::{
     constraints::Constraint,
     location::Location,
     relay_constraints::{
-        BridgeSettings, GeographicLocationConstraint, LocationConstraint, RelayConstraints,
-        RelaySettings,
+        BridgeSettings, GeographicLocationConstraint, LocationConstraint, OpenVpnConstraints,
+        RelayConstraints, RelaySettings, WireguardConstraints,
     },
     relay_list::Relay,
     states::TunnelState,
@@ -688,6 +688,7 @@ pub async fn constrain_to_relay(
 ) -> anyhow::Result<Relay> {
     /// Convert the result of invoking the relay selector to a relay constraint.
     fn convert_to_relay_constraints(
+        query: RelayQuery,
         selected_relay: GetRelay,
     ) -> anyhow::Result<(Relay, RelayConstraints)> {
         match selected_relay {
@@ -699,6 +700,8 @@ pub async fn constrain_to_relay(
                 let location = into_constraint(&exit)?;
                 let relay_constraints = RelayConstraints {
                     location,
+                    wireguard_constraints: WireguardConstraints::from(query.wireguard_constraints),
+                    openvpn_constraints: OpenVpnConstraints::from(query.openvpn_constraints),
                     ..Default::default()
                 };
                 Ok((exit, relay_constraints))
@@ -712,8 +715,8 @@ pub async fn constrain_to_relay(
     let relay_selector = RelaySelector::from_list(SelectorConfig::default(), relay_list);
     // Select an(y) appropriate relay for the given query and constrain the daemon to only connect
     // to that specific relay (when connecting).
-    let relay = relay_selector.get_relay_by_query(query)?;
-    let (exit, relay_constraints) = convert_to_relay_constraints(relay)?;
+    let relay = relay_selector.get_relay_by_query(query.clone())?;
+    let (exit, relay_constraints) = convert_to_relay_constraints(query, relay)?;
     set_relay_settings(mullvad_client, RelaySettings::Normal(relay_constraints)).await?;
 
     Ok(exit)
