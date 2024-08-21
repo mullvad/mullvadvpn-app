@@ -1448,7 +1448,29 @@ fn test_daita() {
             assert!(!supports_daita(&exit), "exit relay must not support DAITA");
         }
         wrong_relay => panic!(
-            "Relay selector should have picked a Wireguard relay, instead chose {wrong_relay:?}"
+            "Relay selector should have picked two Wireguard relays, instead chose {wrong_relay:?}"
+        ),
+    }
+
+    // Should be able to connect to DAITA relay with use_anywhere
+    let query = RelayQueryBuilder::new()
+        .wireguard()
+        .daita()
+        .daita_use_anywhere(true)
+        .location(daita_supporting_relay.clone())
+        .build();
+    let relay = relay_selector
+        .get_relay_by_query(query)
+        .expect("Expected to find a relay with daita_use_anywhere");
+    match relay {
+        GetRelay::Wireguard {
+            inner: WireguardConfig::Singlehop { exit },
+            ..
+        } => {
+            assert!(supports_daita(&exit), "entry relay must support DAITA");
+        }
+        wrong_relay => panic!(
+            "Relay selector should have picked a single Wireguard relay, instead chose {wrong_relay:?}"
         ),
     }
 
