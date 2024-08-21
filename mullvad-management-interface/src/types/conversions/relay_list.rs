@@ -291,6 +291,8 @@ impl TryFrom<proto::Relay> for mullvad_types::relay_list::Relay {
                 FromProtobufTypeError::InvalidArgument("invalid relay IPv4 address")
             })?,
             ipv6_addr_in,
+            overridden_ipv4: false,
+            overridden_ipv6: false,
             include_in_country: relay.include_in_country,
             active: relay.active,
             owned: relay.owned,
