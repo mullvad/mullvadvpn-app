@@ -73,18 +73,23 @@ pub fn as_unprivileged_user<T>(unpriv_user: &str, func: impl FnOnce() -> T) -> R
     let gid = user.gid;
 
     nix::unistd::setegid(gid).map_err(InnerError::SetGid)?;
-    OnDrop::new(|| {
+    let restore_gid = OnDrop::new(|| {
         if let Err(error) = nix::unistd::setegid(original_gid) {
             log::error!("Failed to restore gid: {error}");
         }
     });
 
     nix::unistd::seteuid(uid).map_err(InnerError::SetUid)?;
-    OnDrop::new(|| {
+    let restore_uid = OnDrop::new(|| {
         if let Err(error) = nix::unistd::seteuid(original_uid) {
             log::error!("Failed to restore uid: {error}");
         }
     });
 
-    Ok(func())
+    let result = Ok(func());
+
+    drop(restore_uid);
+    drop(restore_gid);
+
+    result
 }
