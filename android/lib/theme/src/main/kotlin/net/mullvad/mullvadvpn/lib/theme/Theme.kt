@@ -9,37 +9,18 @@ import androidx.compose.material3.RippleConfiguration
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import net.mullvad.mullvadvpn.lib.theme.color.MullvadDarkBlue
-import net.mullvad.mullvadvpn.lib.theme.color.MullvadGreen
-import net.mullvad.mullvadvpn.lib.theme.color.MullvadRed
-import net.mullvad.mullvadvpn.lib.theme.color.MullvadWhite
-import net.mullvad.mullvadvpn.lib.theme.color.MullvadWhite60
-import net.mullvad.mullvadvpn.lib.theme.color.MullvadYellow
-import net.mullvad.mullvadvpn.lib.theme.color.md_theme_dark_error
-import net.mullvad.mullvadvpn.lib.theme.color.md_theme_dark_onError
-import net.mullvad.mullvadvpn.lib.theme.color.md_theme_dark_onPrimary
-import net.mullvad.mullvadvpn.lib.theme.color.md_theme_dark_onSurfaceVariant
-import net.mullvad.mullvadvpn.lib.theme.color.md_theme_dark_onTertiaryContainer
-import net.mullvad.mullvadvpn.lib.theme.color.md_theme_dark_primary
-import net.mullvad.mullvadvpn.lib.theme.color.md_theme_dark_secondaryContainer
-import net.mullvad.mullvadvpn.lib.theme.color.md_theme_dark_surfaceContainer
-import net.mullvad.mullvadvpn.lib.theme.color.md_theme_dark_surfaceContainerHigh
-import net.mullvad.mullvadvpn.lib.theme.color.md_theme_dark_surfaceContainerHighest
-import net.mullvad.mullvadvpn.lib.theme.color.md_theme_dark_surfaceContainerLow
-import net.mullvad.mullvadvpn.lib.theme.color.md_theme_dark_surfaceContainerLowest
-import net.mullvad.mullvadvpn.lib.theme.color.md_theme_dark_surfaceTint
-import net.mullvad.mullvadvpn.lib.theme.color.md_theme_dark_surfaceVariant
-import net.mullvad.mullvadvpn.lib.theme.color.md_theme_dark_tertiaryContainer
+import net.mullvad.mullvadvpn.lib.theme.color.ColorDarkTokens
+import net.mullvad.mullvadvpn.lib.theme.color.ColorLightTokens
 import net.mullvad.mullvadvpn.lib.theme.dimensions.Dimensions
 import net.mullvad.mullvadvpn.lib.theme.dimensions.defaultDimensions
 import net.mullvad.mullvadvpn.lib.theme.typeface.TypeScale
@@ -70,42 +51,84 @@ private val MullvadTypography =
             )
     )
 
+private val lightColorScheme =
+    lightColorScheme(
+        primary = ColorLightTokens.Primary,
+        onPrimary = ColorLightTokens.OnPrimary,
+        primaryContainer = ColorLightTokens.PrimaryContainer,
+        onPrimaryContainer = ColorLightTokens.OnPrimaryContainer,
+        inversePrimary = ColorLightTokens.InversePrimary,
+        secondary = ColorLightTokens.Secondary,
+        onSecondary = ColorLightTokens.OnSecondary,
+        secondaryContainer = ColorLightTokens.SecondaryContainer,
+        onSecondaryContainer = ColorLightTokens.OnSecondaryContainer,
+        tertiary = ColorLightTokens.Tertiary,
+        onTertiary = ColorLightTokens.OnTertiary,
+        tertiaryContainer = ColorLightTokens.TertiaryContainer,
+        onTertiaryContainer = ColorLightTokens.OnTertiaryContainer,
+        background = ColorLightTokens.Background,
+        onBackground = ColorLightTokens.OnBackground,
+        surface = ColorLightTokens.Surface,
+        onSurface = ColorLightTokens.OnSurface,
+        surfaceVariant = ColorLightTokens.SurfaceVariant,
+        onSurfaceVariant = ColorLightTokens.OnSurfaceVariant,
+        surfaceTint = ColorLightTokens.SurfaceTint,
+        inverseSurface = ColorLightTokens.InverseSurface,
+        inverseOnSurface = ColorLightTokens.InverseOnSurface,
+        error = ColorLightTokens.Error,
+        onError = ColorLightTokens.OnError,
+        errorContainer = ColorLightTokens.ErrorContainer,
+        onErrorContainer = ColorLightTokens.OnErrorContainer,
+        outline = ColorLightTokens.Outline,
+        outlineVariant = ColorLightTokens.OutlineVariant,
+        scrim = ColorLightTokens.Scrim,
+        surfaceBright = ColorLightTokens.SurfaceBright,
+        surfaceContainer = ColorLightTokens.SurfaceContainer,
+        surfaceContainerHigh = ColorLightTokens.SurfaceContainerHigh,
+        surfaceContainerHighest = ColorLightTokens.SurfaceContainerHighest,
+        surfaceContainerLow = ColorLightTokens.SurfaceContainerLow,
+        surfaceContainerLowest = ColorLightTokens.SurfaceContainerLowest,
+        surfaceDim = ColorLightTokens.SurfaceDim,
+    )
+
 private val darkColorScheme =
     darkColorScheme(
-        primary = md_theme_dark_primary,
-        onPrimary = md_theme_dark_onPrimary,
-        // primaryContainer = md_theme_dark_primaryContainer,
-        // onPrimaryContainer = md_theme_dark_onPrimaryContainer,
-        secondary = MullvadDarkBlue,
-        onSecondary = MullvadWhite60,
-        secondaryContainer = md_theme_dark_secondaryContainer,
-        tertiary = MullvadRed,
-        // onTertiary = md_theme_dark_onTertiary,
-        tertiaryContainer = md_theme_dark_tertiaryContainer,
-        onTertiaryContainer = md_theme_dark_onTertiaryContainer,
-        error = md_theme_dark_error,
-        errorContainer = MullvadYellow,
-        onError = md_theme_dark_onError,
-        // onErrorContainer = md_theme_dark_onErrorContainer,
-        background = MullvadDarkBlue,
-        onBackground = MullvadWhite,
-        surface = MullvadGreen,
-        onSurface = MullvadWhite,
-        surfaceVariant = md_theme_dark_surfaceVariant,
-        onSurfaceVariant = md_theme_dark_onSurfaceVariant,
-        // outline = md_theme_dark_outline,
-        // inverseOnSurface = md_theme_dark_inverseOnSurface,
-        inverseSurface = MullvadWhite,
-        inversePrimary = MullvadGreen,
-        // surfaceTint = md_theme_dark_surfaceTint,
-        outlineVariant = Color.Transparent, // Used by divider,
-        // scrim = md_theme_dark_scrim,
-        surfaceContainerHighest = md_theme_dark_surfaceContainerHighest,
-        surfaceContainerHigh = md_theme_dark_surfaceContainerHigh,
-        surfaceContainerLow = md_theme_dark_surfaceContainerLow,
-        surfaceContainerLowest = md_theme_dark_surfaceContainerLowest,
-        surfaceContainer = md_theme_dark_surfaceContainer,
-        surfaceTint = md_theme_dark_surfaceTint
+        primary = ColorDarkTokens.Primary,
+        onPrimary = ColorDarkTokens.OnPrimary,
+        primaryContainer = ColorDarkTokens.PrimaryContainer,
+        onPrimaryContainer = ColorDarkTokens.OnPrimaryContainer,
+        inversePrimary = ColorDarkTokens.InversePrimary,
+        secondary = ColorDarkTokens.Secondary,
+        onSecondary = ColorDarkTokens.OnSecondary,
+        secondaryContainer = ColorDarkTokens.SecondaryContainer,
+        onSecondaryContainer = ColorDarkTokens.OnSecondaryContainer,
+        tertiary = ColorDarkTokens.Tertiary,
+        onTertiary = ColorDarkTokens.OnTertiary,
+        tertiaryContainer = ColorDarkTokens.TertiaryContainer,
+        onTertiaryContainer = ColorDarkTokens.OnTertiaryContainer,
+        background = ColorDarkTokens.Background,
+        onBackground = ColorDarkTokens.OnBackground,
+        surface = ColorDarkTokens.Surface,
+        onSurface = ColorDarkTokens.OnSurface,
+        surfaceVariant = ColorDarkTokens.SurfaceVariant,
+        onSurfaceVariant = ColorDarkTokens.OnSurfaceVariant,
+        surfaceTint = ColorDarkTokens.SurfaceTint,
+        inverseSurface = ColorDarkTokens.InverseSurface,
+        inverseOnSurface = ColorDarkTokens.InverseOnSurface,
+        error = ColorDarkTokens.Error,
+        onError = ColorDarkTokens.OnError,
+        errorContainer = ColorDarkTokens.ErrorContainer,
+        onErrorContainer = ColorDarkTokens.OnErrorContainer,
+        outline = ColorDarkTokens.Outline,
+        outlineVariant = ColorDarkTokens.OutlineVariant,
+        scrim = ColorDarkTokens.Scrim,
+        surfaceBright = ColorDarkTokens.SurfaceBright,
+        surfaceContainer = ColorDarkTokens.SurfaceContainer,
+        surfaceContainerHigh = ColorDarkTokens.SurfaceContainerHigh,
+        surfaceContainerHighest = ColorDarkTokens.SurfaceContainerHighest,
+        surfaceContainerLow = ColorDarkTokens.SurfaceContainerLow,
+        surfaceContainerLowest = ColorDarkTokens.SurfaceContainerLowest,
+        surfaceDim = ColorDarkTokens.SurfaceDim,
     )
 
 val Shapes =
@@ -145,14 +168,13 @@ private val LocalAppDimens = staticCompositionLocalOf { defaultDimensions }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppTheme(content: @Composable () -> Unit) {
-    val colors = darkColorScheme
     val typography = MullvadTypography
     // Set dimensions and type scale based on configurations here
     val dimensions = defaultDimensions
 
     ProvideDimens(dimensions = dimensions) {
         MaterialTheme(
-            colorScheme = colors,
+            colorScheme = darkColorScheme,
             shapes = Shapes,
             typography = typography,
             content = {

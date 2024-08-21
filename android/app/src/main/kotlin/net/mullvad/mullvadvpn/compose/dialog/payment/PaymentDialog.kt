@@ -8,7 +8,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -24,7 +23,6 @@ import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicator
 import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
-import net.mullvad.mullvadvpn.lib.theme.color.AlphaDescription
 import net.mullvad.mullvadvpn.util.getActivity
 import net.mullvad.mullvadvpn.viewmodel.PaymentUiSideEffect
 import net.mullvad.mullvadvpn.viewmodel.PaymentViewModel
@@ -192,13 +190,10 @@ fun PaymentDialog(
                     )
                 }
             },
-        containerColor = MaterialTheme.colorScheme.background,
-        titleContentColor = MaterialTheme.colorScheme.onBackground,
+        containerColor = MaterialTheme.colorScheme.surface,
+        titleContentColor = MaterialTheme.colorScheme.onSurface,
         iconContentColor = Color.Unspecified,
-        textContentColor =
-            MaterialTheme.colorScheme.onBackground
-                .copy(alpha = AlphaDescription)
-                .compositeOver(MaterialTheme.colorScheme.background),
+        textContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
         onDismissRequest = {
             if (paymentDialogData.closeOnDismiss) {
                 onCloseDialog(paymentDialogData.successfulPayment)

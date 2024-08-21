@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.compose.screen
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -64,7 +65,6 @@ import net.mullvad.mullvadvpn.lib.payment.model.ProductPrice
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
-import net.mullvad.mullvadvpn.lib.theme.color.AlphaTopBar
 import net.mullvad.mullvadvpn.viewmodel.WelcomeViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -177,7 +177,7 @@ fun WelcomeScreen(
 
     ScaffoldWithTopBar(
         topBarColor = MaterialTheme.colorScheme.primary,
-        iconTintColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaTopBar),
+        iconTintColor = MaterialTheme.colorScheme.onPrimary,
         onSettingsClicked = onSettingsClick,
         onAccountClicked = onAccountClick,
         snackbarHostState = snackbarHostState,
@@ -185,11 +185,12 @@ fun WelcomeScreen(
         Column(
             modifier =
                 Modifier.fillMaxSize()
+                    .background(color = MaterialTheme.colorScheme.surface)
                     .padding(it)
                     .verticalScroll(scrollState)
                     .drawVerticalScrollbar(
                         state = scrollState,
-                        color = MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaScrollbar)
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar)
                     )
         ) {
             // Welcome info area
@@ -229,7 +230,7 @@ private fun WelcomeInfo(
                         end = Dimens.sideMargin
                     ),
             style = MaterialTheme.typography.headlineLarge,
-            color = MaterialTheme.colorScheme.onPrimary,
+            color = MaterialTheme.colorScheme.onSurface,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
@@ -242,7 +243,7 @@ private fun WelcomeInfo(
                         vertical = Dimens.smallPadding,
                     ),
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onPrimary
+            color = MaterialTheme.colorScheme.onSurface
         )
 
         AccountNumberRow(snackbarHostState, state)
@@ -266,7 +267,7 @@ private fun WelcomeInfo(
                     end = Dimens.sideMargin
                 ),
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onPrimary
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }
@@ -291,7 +292,7 @@ private fun AccountNumberRow(snackbarHostState: SnackbarHostState, state: Welcom
             text = state.accountNumber?.value?.groupWithSpaces() ?: "",
             modifier = Modifier.weight(1f).padding(vertical = Dimens.smallPadding),
             style = MaterialTheme.typography.headlineSmall,
-            color = MaterialTheme.colorScheme.onPrimary
+            color = MaterialTheme.colorScheme.onSurface
         )
 
         CopyAnimatedIconButton(onCopyToClipboard)
@@ -315,7 +316,7 @@ fun DeviceNameRow(deviceName: String?, navigateToDeviceInfoDialog: () -> Unit) {
             style = MaterialTheme.typography.bodySmall,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            color = MaterialTheme.colorScheme.onPrimary
+            color = MaterialTheme.colorScheme.onSurface
         )
 
         IconButton(
@@ -325,7 +326,7 @@ fun DeviceNameRow(deviceName: String?, navigateToDeviceInfoDialog: () -> Unit) {
             Icon(
                 painter = painterResource(id = R.drawable.icon_info),
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onPrimary
+                tint = MaterialTheme.colorScheme.onSurface
             )
         }
     }

@@ -30,7 +30,7 @@ private fun PreviewNavigationCell() {
                 NavigationCellBody(
                     contentBodyDescription = "",
                     content = "content body",
-                    contentColor = MaterialTheme.colorScheme.error,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
                 )
             },
             onClick = {},
@@ -49,7 +49,7 @@ private fun PreviewExternalLinkComposeCell() {
                 NavigationCellBody(
                     contentBodyDescription = "content body",
                     content = "content body",
-                    contentColor = MaterialTheme.colorScheme.onSecondary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
                     isExternalLink = true
                 )
             },
@@ -64,7 +64,10 @@ fun NavigationComposeCell(
     title: String,
     modifier: Modifier = Modifier,
     showWarning: Boolean = false,
-    bodyView: @Composable () -> Unit = { DefaultNavigationView(chevronContentDescription = title) },
+    textColor: Color = MaterialTheme.colorScheme.onPrimary,
+    bodyView: @Composable () -> Unit = {
+        DefaultNavigationView(chevronContentDescription = title, tint = textColor)
+    },
     isRowEnabled: Boolean = true,
     onClick: () -> Unit,
     testTag: String = ""
@@ -109,20 +112,20 @@ internal fun NavigationTitleView(
 }
 
 @Composable
-internal fun DefaultNavigationView(chevronContentDescription: String) {
+internal fun DefaultNavigationView(chevronContentDescription: String, tint: Color) {
     Icon(
         painter = painterResource(id = R.drawable.icon_chevron),
         contentDescription = chevronContentDescription,
-        tint = Color.Unspecified
+        tint = tint
     )
 }
 
 @Composable
-internal fun DefaultExternalLinkView(chevronContentDescription: String) {
+internal fun DefaultExternalLinkView(chevronContentDescription: String, tint: Color) {
     Icon(
         painter = painterResource(id = R.drawable.icon_extlink),
         contentDescription = chevronContentDescription,
-        tint = Color.Unspecified
+        tint = tint
     )
 }
 
@@ -131,19 +134,23 @@ internal fun NavigationCellBody(
     content: String,
     contentBodyDescription: String,
     modifier: Modifier = Modifier,
-    contentColor: Color = MaterialTheme.colorScheme.onSecondary,
+    contentColor: Color = MaterialTheme.colorScheme.onPrimary,
+    textColor: Color = MaterialTheme.colorScheme.onPrimary,
     isExternalLink: Boolean = false
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier.wrapContentWidth().wrapContentHeight()
     ) {
-        Text(text = content, style = MaterialTheme.typography.labelMedium, color = contentColor)
+        Text(text = content, style = MaterialTheme.typography.labelMedium, color = textColor)
         Spacer(modifier = Modifier.width(Dimens.sideMargin))
         if (isExternalLink) {
-            DefaultExternalLinkView(content)
+            DefaultExternalLinkView(content, tint = contentColor)
         } else {
-            DefaultNavigationView(chevronContentDescription = contentBodyDescription)
+            DefaultNavigationView(
+                chevronContentDescription = contentBodyDescription,
+                tint = contentColor
+            )
         }
     }
 }

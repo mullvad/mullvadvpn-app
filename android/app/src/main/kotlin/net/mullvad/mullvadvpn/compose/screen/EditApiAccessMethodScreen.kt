@@ -221,7 +221,7 @@ fun EditApiAccessMethodScreen(
                 modifier
                     .drawVerticalScrollbar(
                         state = scrollState,
-                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaScrollbar)
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar)
                     )
                     .verticalScroll(scrollState)
                     .padding(horizontal = Dimens.sideMargin, vertical = Dimens.screenVerticalMargin)

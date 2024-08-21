@@ -34,7 +34,7 @@ private fun PreviewMullvadProgressIndicator() {
 @Composable
 fun MullvadCircularProgressIndicatorLarge(
     modifier: Modifier = Modifier,
-    color: Color = MaterialTheme.colorScheme.onBackground,
+    color: Color = MaterialTheme.colorScheme.onSurface,
     trackColor: Color = color.copy(alpha = Alpha20),
 ) {
     CircularProgressIndicator(
@@ -49,7 +49,7 @@ fun MullvadCircularProgressIndicatorLarge(
 @Composable
 fun MullvadCircularProgressIndicatorMedium(
     modifier: Modifier = Modifier,
-    color: Color = MaterialTheme.colorScheme.onBackground,
+    color: Color = MaterialTheme.colorScheme.onSurface,
     trackColor: Color = color.copy(alpha = Alpha20),
 ) {
     CircularProgressIndicator(
@@ -64,7 +64,7 @@ fun MullvadCircularProgressIndicatorMedium(
 @Composable
 fun MullvadCircularProgressIndicatorSmall(
     modifier: Modifier = Modifier,
-    color: Color = MaterialTheme.colorScheme.onBackground,
+    color: Color = MaterialTheme.colorScheme.onSurface,
     trackColor: Color = color.copy(alpha = Alpha20),
 ) {
     CircularProgressIndicator(

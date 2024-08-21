@@ -55,7 +55,7 @@ fun ResetServerIpOverridesConfirmationDialog(
     onNavigateBack: () -> Unit
 ) {
     AlertDialog(
-        containerColor = MaterialTheme.colorScheme.background,
+        containerColor = MaterialTheme.colorScheme.surface,
         confirmButton = {
             NegativeButton(
                 modifier = Modifier.fillMaxWidth().testTag(RESET_SERVER_IP_OVERRIDE_RESET_TEST_TAG),
@@ -74,13 +74,13 @@ fun ResetServerIpOverridesConfirmationDialog(
         title = {
             Text(
                 text = stringResource(id = R.string.server_ip_overrides_reset_title),
-                color = MaterialTheme.colorScheme.onBackground
+                color = MaterialTheme.colorScheme.onSurface
             )
         },
         text = {
             Text(
                 text = stringResource(id = R.string.server_ip_overrides_reset_body),
-                color = MaterialTheme.colorScheme.onBackground,
+                color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.bodySmall,
             )
         },

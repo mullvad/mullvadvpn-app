@@ -247,6 +247,7 @@ private fun DeviceNameRow(deviceName: String, onInfoClick: () -> Unit) {
         Text(
             style = MaterialTheme.typography.labelMedium,
             text = stringResource(id = R.string.device_name),
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -255,7 +256,7 @@ private fun DeviceNameRow(deviceName: String, onInfoClick: () -> Unit) {
                 Icon(
                     painter = painterResource(id = R.drawable.icon_info),
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.inverseSurface
+                    tint = MaterialTheme.colorScheme.onSurface
                 )
             }
         }
@@ -268,6 +269,7 @@ private fun AccountNumberRow(accountNumber: String, onCopyAccountNumber: (String
         Text(
             style = MaterialTheme.typography.labelMedium,
             text = stringResource(id = R.string.account_number),
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         CopyableObfuscationView(
             content = accountNumber,
@@ -283,6 +285,7 @@ private fun PaidUntilRow(accountExpiry: DateTime?) {
         Text(
             style = MaterialTheme.typography.labelMedium,
             text = stringResource(id = R.string.paid_until),
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
         Row(

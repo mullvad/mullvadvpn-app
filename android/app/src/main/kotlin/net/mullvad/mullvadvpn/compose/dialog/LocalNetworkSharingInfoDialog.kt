@@ -11,11 +11,12 @@ import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.textResource
+import net.mullvad.mullvadvpn.lib.theme.AppTheme
 
 @Preview
 @Composable
 private fun PreviewLocalNetworkSharingInfoDialog() {
-    LocalNetworkSharingInfo(EmptyDestinationsNavigator)
+    AppTheme { LocalNetworkSharingInfo(EmptyDestinationsNavigator) }
 }
 
 @Destination<RootGraph>(style = DestinationStyle.Dialog::class)

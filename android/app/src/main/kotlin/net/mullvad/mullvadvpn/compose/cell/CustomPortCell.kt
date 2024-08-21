@@ -31,13 +31,14 @@ import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInvisible
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
+import net.mullvad.mullvadvpn.lib.theme.color.onSelected
 import net.mullvad.mullvadvpn.lib.theme.color.selected
 
 @Preview
 @Composable
 private fun PreviewCustomPortCell() {
     AppTheme {
-        SpacedColumn(Modifier.background(MaterialTheme.colorScheme.background)) {
+        SpacedColumn(Modifier.background(MaterialTheme.colorScheme.surface)) {
             CustomPortCell(title = "Title", isSelected = true, port = Port(444))
             CustomPortCell(title = "Title", isSelected = false, port = null)
         }
@@ -70,7 +71,7 @@ fun CustomPortCell(
                         if (isSelected) {
                             MaterialTheme.colorScheme.selected
                         } else {
-                            MaterialTheme.colorScheme.secondaryContainer
+                            MaterialTheme.colorScheme.surfaceContainerLow
                         }
                     )
                     .padding(start = Dimens.cellStartPadding)
@@ -79,7 +80,7 @@ fun CustomPortCell(
             Icon(
                 painter = painterResource(id = R.drawable.icon_tick),
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onPrimary,
+                tint = MaterialTheme.colorScheme.onSelected,
                 modifier =
                     Modifier.padding(end = Dimens.selectableCellTextMargin)
                         .alpha(if (isSelected) AlphaVisible else AlphaInvisible)
@@ -87,7 +88,13 @@ fun CustomPortCell(
             BaseCellTitle(
                 title = title,
                 style = MaterialTheme.typography.labelLarge,
-                textAlign = TextAlign.Start
+                textAlign = TextAlign.Start,
+                textColor =
+                    if (isSelected) {
+                        MaterialTheme.colorScheme.onSelected
+                    } else {
+                        MaterialTheme.colorScheme.onSurface
+                    }
             )
         }
         Spacer(modifier = Modifier.width(Dimens.verticalSpacer))
