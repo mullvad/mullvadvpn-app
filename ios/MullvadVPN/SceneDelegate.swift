@@ -74,7 +74,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, SettingsMigrationUIHand
             accountsProxy: appDelegate.accountsProxy,
             outgoingConnectionService: OutgoingConnectionService(
                 outgoingConnectionProxy: OutgoingConnectionProxy(
-                    urlSession: URLSession(configuration: .ephemeral),
+                    urlSession: REST.makeURLSession(),
                     hostname: ApplicationConfiguration.hostName
                 )
             ),
