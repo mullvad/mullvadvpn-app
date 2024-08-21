@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import { colors } from '../../../config.json';
@@ -56,8 +57,10 @@ const StyledIpLabelContainer = styled.div({
 });
 
 const StyledConnectionDetailsLabel = styled.span(tinyText, {
+  display: 'block',
   color: colors.white,
   fontWeight: '400',
+  minHeight: '1em',
 });
 
 const StyledConnectionDetailsTitle = styled(StyledConnectionDetailsLabel)({
@@ -66,16 +69,24 @@ const StyledConnectionDetailsTitle = styled(StyledConnectionDetailsLabel)({
 });
 
 export default function ConnectionDetails() {
-  const connection = useSelector((state) => state.connection);
+  const reduxConnection = useSelector((state) => state.connection);
+  const [connection, setConnection] = useState(reduxConnection);
+
   const tunnelState = connection.status;
+
+  useEffect(() => {
+    if (
+      reduxConnection.status.state === 'connected' ||
+      reduxConnection.status.state === 'connecting'
+    ) {
+      setConnection(reduxConnection);
+    }
+  }, [reduxConnection, tunnelState.state]);
+
   const entry = getEntryPoint(tunnelState);
 
-  if (
-    (tunnelState.state !== 'connected' && tunnelState.state !== 'connecting') ||
-    entry === undefined
-  ) {
-    return null;
-  }
+  const showDetails = tunnelState.state === 'connected' || tunnelState.state === 'connecting';
+  const hasEntry = showDetails && entry !== undefined;
 
   return (
     <StyledConnectionDetailsContainer>
@@ -83,14 +94,16 @@ export default function ConnectionDetails() {
         {messages.pgettext('connect-view', 'Connection details')}
       </StyledConnectionDetailsHeading>
       <StyledConnectionDetailsLabel data-testid="tunnel-protocol">
-        {tunnelState.details && tunnelTypeToString(tunnelState.details?.endpoint.tunnelType)}
+        {showDetails &&
+          tunnelState.details !== undefined &&
+          tunnelTypeToString(tunnelState.details.endpoint.tunnelType)}
       </StyledConnectionDetailsLabel>
       <StyledIpTable>
         <StyledConnectionDetailsTitle>
           {messages.pgettext('connection-info', 'In')}
         </StyledConnectionDetailsTitle>
         <StyledConnectionDetailsLabel data-testid="in-ip">
-          {`${entry.ip}:${entry.port} ${entry.protocol.toUpperCase()}`}
+          {hasEntry ? `${entry.ip}:${entry.port} ${entry.protocol.toUpperCase()}` : ''}
         </StyledConnectionDetailsLabel>
         <StyledConnectionDetailsTitle>
           {messages.pgettext('connection-info', 'Out')}

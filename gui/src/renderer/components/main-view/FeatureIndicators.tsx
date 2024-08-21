@@ -1,4 +1,4 @@
-import { useLayoutEffect } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
@@ -90,6 +90,18 @@ export default function FeatureIndicators(props: FeatureIndicatorsProps) {
   const ellipsisSpacerRef = useStyledRef<HTMLSpanElement>();
   const featureIndicatorsContainerRef = useStyledRef<HTMLDivElement>();
 
+  const featureIndicatorsVisible =
+    tunnelState.state === 'connected' || tunnelState.state === 'connecting';
+  const [featureIndicators, setFeatureIndicators] = useState(
+    featureIndicatorsVisible ? tunnelState.featureIndicators ?? [] : [],
+  );
+
+  useEffect(() => {
+    if (featureIndicatorsVisible && tunnelState.featureIndicators) {
+      setFeatureIndicators(tunnelState.featureIndicators);
+    }
+  }, [tunnelState, featureIndicatorsVisible]);
+
   const ellipsis = messages.gettext('%(amount)d more...');
 
   useLayoutEffect(() => {
@@ -141,16 +153,8 @@ export default function FeatureIndicators(props: FeatureIndicatorsProps) {
     }
   });
 
-  // Feature indicators should only be visible in the ocnnecting and connected states.
-  if (tunnelState.state !== 'connected' && tunnelState.state !== 'connecting') {
-    return null;
-  }
-
-  const showFeatureIndicators =
-    tunnelState.featureIndicators !== undefined && tunnelState.featureIndicators.length > 0;
-
   return (
-    <StyledAccordion expanded={showFeatureIndicators}>
+    <StyledAccordion expanded={featureIndicatorsVisible && featureIndicators.length > 0}>
       <StyledFeatureIndicatorsContainer onClick={props.expandIsland}>
         <StyledAccordion expanded={props.expanded}>
           <StyledTitle>{messages.pgettext('connect-view', 'Active features')}</StyledTitle>
@@ -159,7 +163,7 @@ export default function FeatureIndicators(props: FeatureIndicatorsProps) {
           <StyledFeatureIndicatorsWrapper
             ref={featureIndicatorsContainerRef}
             $expanded={props.expanded}>
-            {tunnelState.featureIndicators?.sort().map((indicator) => (
+            {featureIndicators.sort().map((indicator) => (
               <StyledFeatureIndicatorLabel
                 key={indicator.toString()}
                 data-testid="feature-indicator"
