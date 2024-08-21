@@ -27,6 +27,8 @@ Line wrap the file at 100 chars.                                              Th
 - Add experimental support for Windows ARM64.
 
 ### Fixed
+- macOS and Linux: Fix potential crash when disconnecting with DAITA enabled.
+
 #### macOS
 - Exclude programs when executed using a relative path from a shell.
 - Reduce packet loss when using split tunneling.
