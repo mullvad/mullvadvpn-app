@@ -252,7 +252,7 @@
     <string name="wireguard_port_info_port_range">The custom port can be any value inside the valid ranges: %s.</string>
     <string name="wireguard_custon_port_title">Custom</string>
     <string name="port">Port</string>
-    <string name="custom_port_dialog_title">WireGuard custom port</string>
+    <string name="custom_port_dialog_title">%s custom port</string>
     <string name="custom_port_dialog_submit">Set port</string>
     <string name="custom_port_dialog_remove">Remove custom port</string>
     <string name="custom_port_dialog_valid_ranges">Valid ranges: %s</string>
@@ -391,4 +391,6 @@
     <string name="setting_chip">Setting: %s</string>
     <string name="enable_anyway">Enable anyway</string>
     <string name="daita_relay_subset_warning">This feature isn’t available on all servers. You might need to change location after enabling.</string>
+    <string name="upd_over_tcp">UDP-over-TCP</string>
+    <string name="port_x">Port: %s</string>
 </resources>

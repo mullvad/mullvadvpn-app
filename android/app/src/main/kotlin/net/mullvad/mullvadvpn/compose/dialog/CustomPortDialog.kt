@@ -33,8 +33,9 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 private fun PreviewWireguardCustomPortDialog() {
     AppTheme {
-        WireguardCustomPort(
-            WireguardCustomPortNavArgs(
+        CustomPort(
+            CustomPortNavArgs(
+                title = "Custom port",
                 customPort = null,
                 allowedPortRanges = listOf(PortRange(10..10), PortRange(40..50)),
             ),
@@ -44,15 +45,16 @@ private fun PreviewWireguardCustomPortDialog() {
 }
 
 @Parcelize
-data class WireguardCustomPortNavArgs(
+data class CustomPortNavArgs(
+    val title: String,
     val customPort: Port?,
     val allowedPortRanges: List<PortRange>,
 ) : Parcelable
 
 @Destination<RootGraph>(style = DestinationStyle.Dialog::class)
 @Composable
-fun WireguardCustomPort(
-    @Suppress("UNUSED_PARAMETER") navArg: WireguardCustomPortNavArgs,
+fun CustomPort(
+    @Suppress("UNUSED_PARAMETER") navArg: CustomPortNavArgs,
     backNavigator: ResultBackNavigator<Port?>,
 ) {
     val viewModel = koinViewModel<WireguardCustomPortDialogViewModel>()
@@ -67,6 +69,7 @@ fun WireguardCustomPort(
 
     WireguardCustomPortDialog(
         uiState,
+        title = navArg.title,
         onInputChanged = viewModel::onInputChanged,
         onSavePort = viewModel::onSaveClick,
         onResetPort = viewModel::onResetClick,
@@ -77,13 +80,14 @@ fun WireguardCustomPort(
 @Composable
 fun WireguardCustomPortDialog(
     state: WireguardCustomPortDialogUiState,
+    title: String,
     onInputChanged: (String) -> Unit,
     onSavePort: (String) -> Unit,
     onResetPort: () -> Unit,
     onDismiss: () -> Unit,
 ) {
     InputDialog(
-        title = stringResource(id = R.string.custom_port_dialog_title),
+        title = title,
         input = {
             CustomPortTextField(
                 value = state.portInput,
