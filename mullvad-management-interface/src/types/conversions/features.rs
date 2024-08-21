@@ -57,7 +57,7 @@ impl From<mullvad_types::features::FeatureIndicators> for proto::FeatureIndicato
         let mut proto_features = Self::default();
 
         features
-            .active_features()
+            .into_iter()
             .map(proto::FeatureIndicator::from)
             .for_each(|feature| proto_features.push_active_features(feature));
 

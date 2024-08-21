@@ -11,6 +11,15 @@ use talpid_types::net::{ObfuscationType, TunnelEndpoint, TunnelType};
 #[derive(Default, Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct FeatureIndicators(HashSet<FeatureIndicator>);
 
+impl IntoIterator for FeatureIndicators {
+    type Item = FeatureIndicator;
+    type IntoIter = std::collections::hash_set::IntoIter<Self::Item>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.0.into_iter()
+    }
+}
+
 impl FeatureIndicators {
     pub fn active_features(&self) -> impl Iterator<Item = FeatureIndicator> {
         self.0.clone().into_iter()
@@ -86,7 +95,7 @@ pub fn compute_feature_indicators(
         .default_options
         .any_blockers_enabled();
     let custom_dns = settings.tunnel_options.dns_options.state == DnsState::Custom;
-    let server_ip_override = !settings.relay_overrides.is_empty();
+    let server_ip_override = !settings.relay_overrides.is_empty(); // TODO: Should check if actually used
 
     let generic_features = [
         (split_tunneling, FeatureIndicator::SplitTunneling),
@@ -145,4 +154,189 @@ pub fn compute_feature_indicators(
         .chain(protocol_features)
         .filter_map(|(active, feature)| active.then_some(feature))
         .collect()
+}
+
+#[cfg(test)]
+mod tests {
+    use std::net::{IpAddr, Ipv4Addr, SocketAddr};
+
+    use talpid_types::net::{
+        proxy::{ProxyEndpoint, ProxyType},
+        Endpoint, ObfuscationEndpoint, TransportProtocol,
+    };
+
+    use super::*;
+
+    #[test]
+    fn test_one_indicator_at_a_time() {
+        let mut settings = Settings::default();
+        let mut endpoint = TunnelEndpoint {
+            endpoint: Endpoint {
+                address: SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 8080),
+                protocol: TransportProtocol::Udp,
+            },
+            tunnel_type: TunnelType::Wireguard,
+            quantum_resistant: Default::default(),
+            proxy: Default::default(),
+            obfuscation: Default::default(),
+            entry_endpoint: Default::default(),
+            tunnel_interface: Default::default(),
+            daita: Default::default(),
+        };
+
+        let mut expected_indicators: FeatureIndicators = [].into_iter().collect();
+
+        assert_eq!(
+            compute_feature_indicators(&settings, &endpoint),
+            expected_indicators,
+            "The default settings and TunnelEndpoint should not have any feature indicators. \
+            If this is not true anymore, please update this test."
+        );
+
+        settings.block_when_disconnected = true;
+        expected_indicators.0.insert(FeatureIndicator::LockdownMode);
+
+        assert_eq!(
+            compute_feature_indicators(&settings, &endpoint),
+            expected_indicators
+        );
+
+        settings
+            .tunnel_options
+            .dns_options
+            .default_options
+            .block_ads = true;
+
+        expected_indicators
+            .0
+            .insert(FeatureIndicator::DnsContentBlockers);
+
+        assert_eq!(
+            compute_feature_indicators(&settings, &endpoint),
+            expected_indicators
+        );
+
+        settings.allow_lan = true;
+
+        expected_indicators.0.insert(FeatureIndicator::LanSharing);
+
+        assert_eq!(
+            compute_feature_indicators(&settings, &endpoint),
+            expected_indicators
+        );
+
+        settings.tunnel_options.openvpn.mssfix = Some(1300);
+        assert_eq!(
+            compute_feature_indicators(&settings, &endpoint),
+            expected_indicators,
+            "Setting mssfix without having an openVPN endpoint should not result in an indicator"
+        );
+
+        endpoint.tunnel_type = TunnelType::OpenVpn;
+        expected_indicators.0.insert(FeatureIndicator::CustomMssFix);
+
+        assert_eq!(
+            compute_feature_indicators(&settings, &endpoint),
+            expected_indicators
+        );
+
+        endpoint.proxy = Some(ProxyEndpoint {
+            endpoint: Endpoint {
+                address: SocketAddr::from(([1, 2, 3, 4], 443)),
+                protocol: TransportProtocol::Tcp,
+            },
+            proxy_type: ProxyType::Shadowsocks,
+        });
+
+        expected_indicators.0.insert(FeatureIndicator::BridgeMode);
+        assert_eq!(
+            compute_feature_indicators(&settings, &endpoint),
+            expected_indicators
+        );
+
+        endpoint.tunnel_type = TunnelType::Wireguard;
+        expected_indicators
+            .0
+            .remove(&FeatureIndicator::CustomMssFix);
+        expected_indicators.0.remove(&FeatureIndicator::BridgeMode);
+        assert_eq!(
+            compute_feature_indicators(&settings, &endpoint),
+            expected_indicators
+        );
+
+        endpoint.quantum_resistant = true;
+        expected_indicators
+            .0
+            .insert(FeatureIndicator::QuantumResistance);
+        assert_eq!(
+            compute_feature_indicators(&settings, &endpoint),
+            expected_indicators
+        );
+
+        endpoint.entry_endpoint = Some(Endpoint {
+            address: SocketAddr::from(([1, 2, 3, 4], 443)),
+            protocol: TransportProtocol::Tcp,
+        });
+        expected_indicators.0.insert(FeatureIndicator::Multihop);
+        assert_eq!(
+            compute_feature_indicators(&settings, &endpoint),
+            expected_indicators
+        );
+
+        endpoint.obfuscation = Some(ObfuscationEndpoint {
+            endpoint: Endpoint {
+                address: SocketAddr::from(([1, 2, 3, 4], 443)),
+                protocol: TransportProtocol::Tcp,
+            },
+            obfuscation_type: ObfuscationType::Udp2Tcp,
+        });
+        expected_indicators.0.insert(FeatureIndicator::Udp2Tcp);
+        assert_eq!(
+            compute_feature_indicators(&settings, &endpoint),
+            expected_indicators
+        );
+        endpoint.obfuscation.as_mut().unwrap().obfuscation_type = ObfuscationType::Shadowsocks;
+        expected_indicators.0.remove(&FeatureIndicator::Udp2Tcp);
+        expected_indicators.0.insert(FeatureIndicator::Shadowsocks);
+        assert_eq!(
+            compute_feature_indicators(&settings, &endpoint),
+            expected_indicators
+        );
+
+        settings.tunnel_options.wireguard.mtu = Some(1300);
+        expected_indicators.0.insert(FeatureIndicator::CustomMtu);
+        assert_eq!(
+            compute_feature_indicators(&settings, &endpoint),
+            expected_indicators
+        );
+
+        #[cfg(daita)]
+        {
+            endpoint.daita = true;
+            expected_indicators.0.insert(FeatureIndicator::Daita);
+            assert_eq!(
+                compute_feature_indicators(&settings, &endpoint),
+                expected_indicators
+            );
+        }
+
+        // NOTE: If this match statement fails to compile, it means that a new feature indicator has
+        // been added. Please update this test to include the new feature indicator.
+        match FeatureIndicator::QuantumResistance {
+            FeatureIndicator::QuantumResistance => {}
+            FeatureIndicator::Multihop => {}
+            FeatureIndicator::BridgeMode => {}
+            FeatureIndicator::SplitTunneling => {}
+            FeatureIndicator::LockdownMode => {}
+            FeatureIndicator::Udp2Tcp => {}
+            FeatureIndicator::Shadowsocks => {}
+            FeatureIndicator::LanSharing => {}
+            FeatureIndicator::DnsContentBlockers => {}
+            FeatureIndicator::CustomDns => {}
+            FeatureIndicator::ServerIpOverride => {}
+            FeatureIndicator::CustomMtu => {}
+            FeatureIndicator::CustomMssFix => {}
+            FeatureIndicator::Daita => {}
+        }
+    }
 }
