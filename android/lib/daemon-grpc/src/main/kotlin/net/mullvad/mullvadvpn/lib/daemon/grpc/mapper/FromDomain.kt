@@ -22,6 +22,7 @@ import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelaySettings
 import net.mullvad.mullvadvpn.lib.model.SelectedObfuscation
+import net.mullvad.mullvadvpn.lib.model.ShadowsocksSettings
 import net.mullvad.mullvadvpn.lib.model.SocksAuth
 import net.mullvad.mullvadvpn.lib.model.TransportProtocol
 import net.mullvad.mullvadvpn.lib.model.Udp2TcpObfuscationSettings
@@ -80,7 +81,7 @@ internal fun ObfuscationSettings.fromDomain(): ManagementInterface.ObfuscationSe
     ManagementInterface.ObfuscationSettings.newBuilder()
         .setSelectedObfuscation(selectedObfuscation.fromDomain())
         .setUdp2Tcp(udp2tcp.fromDomain())
-        .setShadowsocks(ManagementInterface.ShadowsocksSettings.newBuilder())
+        .setShadowsocks(shadowsocks.fromDomain())
         .build()
 
 internal fun SelectedObfuscation.fromDomain():
@@ -88,6 +89,8 @@ internal fun SelectedObfuscation.fromDomain():
     when (this) {
         SelectedObfuscation.Udp2Tcp ->
             ManagementInterface.ObfuscationSettings.SelectedObfuscation.UDP2TCP
+        SelectedObfuscation.Shadowsocks ->
+            ManagementInterface.ObfuscationSettings.SelectedObfuscation.SHADOWSOCKS
         SelectedObfuscation.Auto -> ManagementInterface.ObfuscationSettings.SelectedObfuscation.AUTO
         SelectedObfuscation.Off -> ManagementInterface.ObfuscationSettings.SelectedObfuscation.OFF
     }
@@ -236,3 +239,11 @@ internal fun ApiAccessMethodSetting.fromDomain(): ManagementInterface.AccessMeth
         .setEnabled(enabled)
         .setAccessMethod(apiAccessMethod.fromDomain())
         .build()
+
+internal fun ShadowsocksSettings.fromDomain(): ManagementInterface.ShadowsocksSettings =
+    when (val port = port) {
+        is Constraint.Any ->
+            ManagementInterface.ShadowsocksSettings.newBuilder().clearPort().build()
+        is Constraint.Only ->
+            ManagementInterface.ShadowsocksSettings.newBuilder().setPort(port.value.value).build()
+    }

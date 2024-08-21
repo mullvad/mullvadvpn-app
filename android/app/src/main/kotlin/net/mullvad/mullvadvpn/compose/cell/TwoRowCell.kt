@@ -1,7 +1,9 @@
 package net.mullvad.mullvadvpn.compose.cell
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -11,6 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 
@@ -23,16 +26,22 @@ private fun PreviewTwoRowCell() {
 @Composable
 fun TwoRowCell(
     titleText: String,
-    subtitleText: String,
+    subtitleText: String?,
+    modifier: Modifier = Modifier,
     bodyView: @Composable ColumnScope.() -> Unit = {},
+    iconView: @Composable RowScope.() -> Unit = {},
     onCellClicked: () -> Unit = {},
     titleColor: Color = MaterialTheme.colorScheme.onPrimary,
     subtitleColor: Color = MaterialTheme.colorScheme.onPrimary,
     titleStyle: TextStyle = MaterialTheme.typography.labelLarge,
     subtitleStyle: TextStyle = MaterialTheme.typography.labelLarge,
     background: Color = MaterialTheme.colorScheme.primary,
+    isRowEnabled: Boolean = true,
+    endPadding: Dp = Dimens.cellEndPadding,
+    minHeight: Dp = Dimens.cellHeightTwoRows,
 ) {
     BaseCell(
+        modifier = modifier,
         headlineContent = {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
@@ -43,19 +52,24 @@ fun TwoRowCell(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
-                Text(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = subtitleText,
-                    style = subtitleStyle,
-                    color = subtitleColor,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
+                subtitleText?.let {
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = subtitleText,
+                        style = subtitleStyle,
+                        color = subtitleColor,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
             }
         },
         bodyView = bodyView,
+        iconView = iconView,
         onCellClicked = onCellClicked,
         background = background,
-        minHeight = Dimens.cellHeightTwoRows,
+        isRowEnabled = isRowEnabled,
+        minHeight = minHeight,
+        endPadding = endPadding,
     )
 }
