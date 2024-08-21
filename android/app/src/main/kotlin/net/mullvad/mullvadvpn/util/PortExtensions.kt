@@ -11,10 +11,10 @@ fun Constraint<Port>.hasValue(value: Int) =
         is Constraint.Only -> this.value.value == value
     }
 
-fun Constraint<Port>.isCustom() =
+fun Constraint<Port>.isCustom(presetPorts: List<Int>) =
     when (this) {
         is Constraint.Any -> false
-        is Constraint.Only -> !WIREGUARD_PRESET_PORTS.contains(this.value.value)
+        is Constraint.Only -> !presetPorts.contains(this.value.value)
     }
 
 fun Constraint<Port>.toPortOrNull() =
