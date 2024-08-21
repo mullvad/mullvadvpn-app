@@ -22,6 +22,8 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Fixed
+- macOS and Linux: Fix potential crash when disconnecting with DAITA enabled.
 
 
 ## [2024.5-beta1] - 2024-08-20
