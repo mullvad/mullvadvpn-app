@@ -658,14 +658,14 @@ impl RelayOverride {
                 "Overriding ipv4_addr_in for {}: {ipv4_addr_in}",
                 relay.hostname
             );
-            relay.ipv4_addr_in = ipv4_addr_in;
+            relay.override_ipv4(ipv4_addr_in);
         }
         if let Some(ipv6_addr_in) = self.ipv6_addr_in {
             log::debug!(
                 "Overriding ipv6_addr_in for {}: {ipv6_addr_in}",
                 relay.hostname
             );
-            relay.ipv6_addr_in = Some(ipv6_addr_in);
+            relay.override_ipv6(ipv6_addr_in);
         }
 
         // Additional IPs should be ignored when overrides are present

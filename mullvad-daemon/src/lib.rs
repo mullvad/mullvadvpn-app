@@ -958,7 +958,7 @@ impl Daemon {
             DeviceMigrationEvent(event) => self.handle_device_migration_event(event),
             LocationEvent(location_data) => self.handle_location_event(location_data),
             SettingsChanged => {
-                self.update_feature_indicators_on_settings_changed();
+                self.update_feature_indicators_on_settings_changed().await;
             }
             #[cfg(any(windows, target_os = "android", target_os = "macos"))]
             ExcludedPathsEvent(update, tx) => self.handle_new_excluded_paths(update, tx).await,
@@ -980,8 +980,11 @@ impl Daemon {
                 locked_down,
             },
             TunnelStateTransition::Connecting(endpoint) => {
-                let feature_indicators =
-                    compute_feature_indicators(&self.settings.to_settings(), &endpoint);
+                let feature_indicators = compute_feature_indicators(
+                    &self.settings.to_settings(),
+                    &endpoint,
+                    self.parameters_generator.last_relay_was_overridden().await,
+                );
                 TunnelState::Connecting {
                     endpoint,
                     location: self.parameters_generator.get_last_location().await,
@@ -989,8 +992,11 @@ impl Daemon {
                 }
             }
             TunnelStateTransition::Connected(endpoint) => {
-                let feature_indicators =
-                    compute_feature_indicators(&self.settings.to_settings(), &endpoint);
+                let feature_indicators = compute_feature_indicators(
+                    &self.settings.to_settings(),
+                    &endpoint,
+                    self.parameters_generator.last_relay_was_overridden().await,
+                );
                 TunnelState::Connected {
                     endpoint,
                     location: self.parameters_generator.get_last_location().await,
@@ -1129,7 +1135,7 @@ impl Daemon {
     }
 
     /// Update the set of feature indicators based on the new settings.
-    fn update_feature_indicators_on_settings_changed(&mut self) {
+    async fn update_feature_indicators_on_settings_changed(&mut self) {
         // Updated settings may affect the feature indicators, even if they don't change the tunnel
         // state (e.g. activating lockdown mode). Note that only the connected and connecting states
         // have feature indicators.
@@ -1144,8 +1150,9 @@ impl Daemon {
                 endpoint,
                 ..
             } => {
+                let ip_override = self.parameters_generator.last_relay_was_overridden().await;
                 let new_feature_indicators =
-                    compute_feature_indicators(&self.settings.to_settings(), endpoint);
+                    compute_feature_indicators(&self.settings.to_settings(), endpoint, ip_override);
                 // Update and broadcast the new feature indicators if they have changed
                 if *feature_indicators != new_feature_indicators {
                     // Make sure to update the daemon's actual tunnel state. Otherwise, feature

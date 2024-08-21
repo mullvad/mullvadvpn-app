@@ -87,6 +87,22 @@ impl ParametersGenerator {
         self.0.lock().await.tunnel_options = tunnel_options.clone();
     }
 
+    pub async fn last_relay_was_overridden(&self) -> bool {
+        let inner = self.0.lock().await;
+        let Some(relays) = inner.last_generated_relays.as_ref() else {
+            return false;
+        };
+        match relays {
+            LastSelectedRelays::WireGuard {
+                server_override, ..
+            } => *server_override,
+            #[cfg(not(target_os = "android"))]
+            LastSelectedRelays::OpenVpn {
+                server_override, ..
+            } => *server_override,
+        }
+    }
+
     /// Gets the location associated with the last generated tunnel parameters.
     pub async fn get_last_location(&self) -> Option<GeoIpLocation> {
         let inner = self.0.lock().await;
@@ -106,6 +122,7 @@ impl ParametersGenerator {
                 wg_entry: entry,
                 wg_exit: exit,
                 obfuscator,
+                ..
             } => {
                 entry_hostname = take_hostname(entry);
                 hostname = exit.hostname.clone();
@@ -114,7 +131,7 @@ impl ParametersGenerator {
                 location = exit.location.as_ref().cloned().unwrap();
             }
             #[cfg(not(target_os = "android"))]
-            LastSelectedRelays::OpenVpn { relay, bridge } => {
+            LastSelectedRelays::OpenVpn { relay, bridge, .. } => {
                 hostname = relay.hostname.clone();
                 bridge_hostname = take_hostname(bridge);
                 entry_hostname = None;
@@ -158,9 +175,15 @@ impl InnerParametersGenerator {
                 bridge,
             } => {
                 let bridge_relay = bridge.as_ref().and_then(|bridge| bridge.relay());
+                let server_override = {
+                    let first_relay = bridge_relay.unwrap_or(&exit);
+                    (first_relay.overridden_ipv4 && endpoint.address.is_ipv4())
+                        || (first_relay.overridden_ipv6 && endpoint.address.is_ipv6())
+                };
                 self.last_generated_relays = Some(LastSelectedRelays::OpenVpn {
                     relay: exit.clone(),
                     bridge: bridge_relay.cloned(),
+                    server_override,
                 });
                 let bridge_settings = bridge.as_ref().map(|bridge| bridge.settings());
                 Ok(self.create_openvpn_tunnel_parameters(endpoint, data, bridge_settings.cloned()))
@@ -179,10 +202,17 @@ impl InnerParametersGenerator {
                     WireguardConfig::Singlehop { exit } => (None, exit),
                     WireguardConfig::Multihop { exit, entry } => (Some(entry), exit),
                 };
+                let server_override = {
+                    let first_relay = wg_entry.as_ref().unwrap_or(&wg_exit);
+                    (first_relay.overridden_ipv4 && endpoint.peer.endpoint.is_ipv4())
+                        || (first_relay.overridden_ipv6 && endpoint.peer.endpoint.is_ipv6())
+                };
+
                 self.last_generated_relays = Some(LastSelectedRelays::WireGuard {
                     wg_entry,
                     wg_exit,
                     obfuscator: obfuscator_relay,
+                    server_override,
                 });
 
                 Ok(self.create_wireguard_tunnel_parameters(endpoint, data, obfuscator_config))
@@ -315,10 +345,15 @@ enum LastSelectedRelays {
         wg_entry: Option<Relay>,
         wg_exit: Relay,
         obfuscator: Option<Relay>,
+        server_override: bool,
     },
     /// Represents all relays generated for an OpenVPN tunnel.
     /// The traffic flows like this:
     ///     client -> bridge -> relay -> internet
     #[cfg(not(target_os = "android"))]
-    OpenVpn { relay: Relay, bridge: Option<Relay> },
+    OpenVpn {
+        relay: Relay,
+        bridge: Option<Relay>,
+        server_override: bool,
+    },
 }

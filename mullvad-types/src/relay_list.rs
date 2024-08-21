@@ -80,6 +80,10 @@ pub struct Relay {
     pub hostname: String,
     pub ipv4_addr_in: Ipv4Addr,
     pub ipv6_addr_in: Option<Ipv6Addr>,
+    // NOTE: Probably a better design choice would be to store the overridden IP addresses
+    // instead of a boolean override flags. This would allow us to access the original IPs.
+    pub overridden_ipv4: bool,
+    pub overridden_ipv6: bool,
     pub include_in_country: bool,
     pub active: bool,
     pub owned: bool,
@@ -87,6 +91,18 @@ pub struct Relay {
     pub weight: u64,
     pub endpoint_data: RelayEndpointData,
     pub location: Option<Location>,
+}
+
+impl Relay {
+    pub fn override_ipv4(&mut self, new_ipv4: Ipv4Addr) {
+        self.ipv4_addr_in = new_ipv4;
+        self.overridden_ipv4 = true;
+    }
+
+    pub fn override_ipv6(&mut self, new_ipv6: Ipv6Addr) {
+        self.ipv6_addr_in = Some(new_ipv6);
+        self.overridden_ipv6 = true;
+    }
 }
 
 impl PartialEq for Relay {
@@ -103,6 +119,8 @@ impl PartialEq for Relay {
     ///     hostname: "se9-wireguard".to_string(),
     ///     ipv4_addr_in: "185.213.154.68".parse().unwrap(),
     ///     # ipv6_addr_in: None,
+    ///     # overridden_ipv4: false,
+    ///     # overridden_ipv6: false,
     ///     # include_in_country: true,
     ///     # active: true,
     ///     # owned: true,
