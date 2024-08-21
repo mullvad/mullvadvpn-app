@@ -114,7 +114,7 @@ EOF
 function create_test_user_linux {
     echo "Adding test user account"
     useradd -m $UNPRIVILEGED_USER
-    echo "$UNPRIVILEGED_USER" | passwd $UNPRIVILEGED_USER --stdin
+    echo "$UNPRIVILEGED_USER:$UNPRIVILEGED_USER" | chpasswd
 }
 
 if [[ "$(uname -s)" == "Darwin" ]]; then
