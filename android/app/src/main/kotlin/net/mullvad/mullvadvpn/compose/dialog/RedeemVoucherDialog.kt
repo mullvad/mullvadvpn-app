@@ -274,10 +274,23 @@ private fun EnterVoucherBody(
             )
         }
     }
+    if (
+        state.voucherState is VoucherDialogState.Error &&
+            state.voucherState.error is RedeemVoucherError.EnteredAccountNumber
+    ) {
+        Text(
+            modifier = Modifier.padding(top = Dimens.smallPadding),
+            text = stringResource(id = R.string.voucher_is_account_number),
+            color = MaterialTheme.colorScheme.onPrimary,
+            style = MaterialTheme.typography.bodySmall
+        )
+    }
 }
 
 private fun RedeemVoucherError.message(): Int =
     when (this) {
+        RedeemVoucherError.TooShortVoucher,
+        RedeemVoucherError.EnteredAccountNumber,
         RedeemVoucherError.InvalidVoucher -> R.string.invalid_voucher
         RedeemVoucherError.VoucherAlreadyUsed -> R.string.voucher_already_used
         RedeemVoucherError.RpcError,
