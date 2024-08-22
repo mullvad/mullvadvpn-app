@@ -9,6 +9,9 @@ on:
       - ios/Gemfile
       - ios/Gemfile.lock
   workflow_dispatch:
+
+permissions: {}
+
 jobs:
   test:
     name: Take screenshots

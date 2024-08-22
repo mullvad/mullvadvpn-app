@@ -12,6 +12,9 @@ on:
       - ios/**/*.swift
       - ios/**/*.xctestplan
   workflow_dispatch:
+
+permissions: {}
+
 jobs:
   test:
     if: github.event.pull_request.merged || github.event_name == 'workflow_dispatch'

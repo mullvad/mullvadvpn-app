@@ -25,6 +25,9 @@ on:
         default: ''
         required: false
         type: string
+
+permissions: {}
+
 jobs:
   prepare-matrices:
     name: Prepare virtual machines

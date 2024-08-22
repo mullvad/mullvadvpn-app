@@ -8,6 +8,9 @@ on:
       - .github/workflows/rustfmt-test.yml
       - rustfmt.toml
   workflow_dispatch:
+
+permissions: {}
+
 jobs:
   check-formatting-test:
     runs-on: ubuntu-latest

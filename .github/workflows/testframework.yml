@@ -26,6 +26,9 @@ on:
       - '!.yamllint'
       - '!**/osv-scanner.toml'
   workflow_dispatch:
+
+permissions: {}
+
 jobs:
   prepare-build-test-framework-linux:
     runs-on: ubuntu-latest

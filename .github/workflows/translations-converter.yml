@@ -6,6 +6,9 @@ on:
       - .github/workflows/translations-converter.yml
       - android/translations-converter/**
   workflow_dispatch:
+
+permissions: {}
+
 jobs:
   check-translations:
     runs-on: ubuntu-latest

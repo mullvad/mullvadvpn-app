@@ -6,6 +6,9 @@ on:
       - .github/workflows/android-xml-format-check.yml
       - android/**/*.xml
   workflow_dispatch:
+
+permissions: {}
+
 jobs:
   prepare:
     name: Prepare

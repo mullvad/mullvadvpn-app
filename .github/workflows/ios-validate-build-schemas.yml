@@ -14,6 +14,9 @@ on:
       - ios/**/*.xctestplan
       - Cargo.toml
   workflow_dispatch:
+
+permissions: {}
+
 jobs:
   test:
     if: github.event.pull_request.merged == true

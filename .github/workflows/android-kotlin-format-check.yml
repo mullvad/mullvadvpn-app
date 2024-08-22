@@ -9,6 +9,9 @@ on:
         description: Override container image
         type: string
         required: false
+
+permissions: {}
+
 jobs:
   prepare:
     name: Prepare

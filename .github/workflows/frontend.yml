@@ -8,6 +8,8 @@ on:
       - mullvad-management-interface/proto/**
   workflow_dispatch:
 
+permissions: {}
+
 jobs:
   check-frontend:
     strategy:

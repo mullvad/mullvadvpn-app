@@ -13,6 +13,9 @@ on:
     # Github Actions enabled, so these don't go unnoticed.
     # https://docs.github.com/en/actions/monitoring-and-troubleshooting-workflows/notifications-for-workflow-runs
     - cron: '20 6 * * *'
+
+permissions: {}
+
 jobs:
   mobsfscan:
     name: Code scanning using mobsfscan

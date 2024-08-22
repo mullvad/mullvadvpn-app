@@ -9,6 +9,9 @@ on:
       - Cargo.lock
       - '**/*.rs'
   workflow_dispatch:
+
+permissions: {}
+
 jobs:
   check-supply-chain:
     runs-on: ubuntu-latest
