@@ -39,8 +39,8 @@ extension PacketTunnelActor {
         /// Update the device private key, as per post-quantum protocols
         case ephemeralPeerNegotiationStateChanged(EphemeralPeerNegotiationState)
 
-        /// Notify that post quantum key exchanging took place
-        case notifyPostQuantumKeyExchanged
+        /// Notify that an ephemeral peer exchanging took place
+        case notifyEphemeralPeerNegotiated
 
         /// Format command for log output.
         func logFormat() -> String {
@@ -76,7 +76,7 @@ extension PacketTunnelActor {
             // TODO: Handle Daita here ???
             case .ephemeralPeerNegotiationStateChanged:
                 return "postQuantumNegotiationStateChanged"
-            case .notifyPostQuantumKeyExchanged:
+            case .notifyEphemeralPeerNegotiated:
                 return "notifyPostQuantumKeyExchanged"
             }
         }

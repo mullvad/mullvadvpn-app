@@ -38,7 +38,7 @@ final class SingleHopEphemeralPeerExchangerTests: XCTestCase {
         exitRelay = SelectedRelay(endpoint: match.endpoint, hostname: match.relay.hostname, location: match.location)
     }
 
-    func testKeyExchangeFailsWhenNegotiationCannotStart() {
+    func testEphemeralPeerExchangeFailsWhenNegotiationCannotStart() {
         let expectedNegotiationFailure = expectation(description: "Negotiation failed.")
 
         let reconfigurationExpectation = expectation(description: "Tunnel reconfiguration took place")
@@ -74,7 +74,7 @@ final class SingleHopEphemeralPeerExchangerTests: XCTestCase {
         )
     }
 
-    func testKeyExchangeSuccessWhenNegotiationStart() throws {
+    func testEphemeralPeerExchangeSuccessWhenPostQuantumNegotiationStarts() throws {
         let unexpectedNegotiationFailure = expectation(description: "Negotiation failed.")
         unexpectedNegotiationFailure.isInverted = true
 
@@ -104,6 +104,43 @@ final class SingleHopEphemeralPeerExchangerTests: XCTestCase {
             singleHopPostQuantumKeyExchanging.receivePostQuantumKey(preSharedKey, ephemeralKey: ephemeralKey)
         })
         singleHopPostQuantumKeyExchanging.start()
+
+        wait(
+            for: [unexpectedNegotiationFailure, reconfigurationExpectation, negotiationSuccessful],
+            timeout: .UnitTest.invertedTimeout
+        )
+    }
+
+    func testEphemeralPeerExchangeSuccessWhenDaitaNegotiationStarts() throws {
+        let unexpectedNegotiationFailure = expectation(description: "Negotiation failed.")
+        unexpectedNegotiationFailure.isInverted = true
+
+        let reconfigurationExpectation = expectation(description: "Tunnel reconfiguration took place")
+        reconfigurationExpectation.expectedFulfillmentCount = 2
+
+        let negotiationSuccessful = expectation(description: "Negotiation succeeded.")
+        negotiationSuccessful.expectedFulfillmentCount = 1
+
+        let peerExchangeActor = EphemeralPeerExchangeActorStub()
+        let preSharedKey = try XCTUnwrap(PreSharedKey(hexKey: PrivateKey().hexKey))
+        peerExchangeActor.result = .success((preSharedKey, PrivateKey()))
+
+        let multiHopPeerExchanger = SingleHopEphemeralPeerExchanger(
+            exit: exitRelay,
+            devicePrivateKey: PrivateKey(),
+            keyExchanger: peerExchangeActor,
+            enablePostQuantum: false,
+            enableDaita: true
+        ) { _ in
+            reconfigurationExpectation.fulfill()
+        } onFinish: {
+            negotiationSuccessful.fulfill()
+        }
+
+        peerExchangeActor.delegate = KeyExchangingResultStub(onReceiveEphemeralPeerPrivateKey: { ephemeralKey in
+            multiHopPeerExchanger.receiveEphemeralPeerPrivateKey(ephemeralKey)
+        })
+        multiHopPeerExchanger.start()
 
         wait(
             for: [unexpectedNegotiationFailure, reconfigurationExpectation, negotiationSuccessful],
