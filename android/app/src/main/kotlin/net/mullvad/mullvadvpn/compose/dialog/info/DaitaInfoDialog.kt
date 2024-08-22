@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.dialog
+package net.mullvad.mullvadvpn.compose.dialog.info
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
@@ -10,19 +10,26 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.lib.theme.AppTheme
 
 @Preview
 @Composable
-private fun PreviewQuantumResistanceInfoDialog() {
-    QuantumResistanceInfo(EmptyDestinationsNavigator)
+private fun PreviewDaitaInfoDialog() {
+    AppTheme { DaitaInfo(EmptyDestinationsNavigator) }
 }
 
 @Destination<RootGraph>(style = DestinationStyle.Dialog::class)
 @Composable
-fun QuantumResistanceInfo(navigator: DestinationsNavigator) {
+fun DaitaInfo(navigator: DestinationsNavigator) {
     InfoDialog(
-        message = stringResource(id = R.string.quantum_resistant_info_first_paragaph),
-        additionalInfo = stringResource(id = R.string.quantum_resistant_info_second_paragaph),
+        message =
+            stringResource(
+                id = R.string.daita_info,
+                stringResource(id = R.string.daita),
+                stringResource(id = R.string.daita_full),
+            ),
+        additionalInfo =
+            stringResource(id = R.string.daita_warning, stringResource(id = R.string.daita)),
         onDismiss = dropUnlessResumed { navigator.navigateUp() },
     )
 }

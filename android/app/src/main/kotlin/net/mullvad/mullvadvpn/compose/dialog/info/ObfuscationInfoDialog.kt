@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.dialog
+package net.mullvad.mullvadvpn.compose.dialog.info
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
