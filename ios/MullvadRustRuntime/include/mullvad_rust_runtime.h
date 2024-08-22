@@ -17,28 +17,28 @@ typedef struct ProxyHandle {
 extern const uint16_t CONFIG_SERVICE_PORT;
 
 /**
- * Called by the Swift side to signal that the quantum-secure key exchange should be cancelled.
+ * Called by the Swift side to signal that the ephemeral peer exchange should be cancelled.
  * After this call, the cancel token is no longer valid.
  *
  * # Safety
- * `sender` must be pointing to a valid instance of a `PostQuantumCancelToken` created by the
+ * `sender` must be pointing to a valid instance of a `EphemeralPeerCancelToken` created by the
  * `PacketTunnelProvider`.
  */
-void cancel_post_quantum_key_exchange(const struct EphemeralPeerCancelToken *sender);
+void cancel_ephemeral_peer_exchange(const struct EphemeralPeerCancelToken *sender);
 
 /**
- * Called by the Swift side to signal that the Rust `PostQuantumCancelToken` can be safely dropped
+ * Called by the Swift side to signal that the Rust `EphemeralPeerCancelToken` can be safely dropped
  * from memory.
  *
  * # Safety
- * `sender` must be pointing to a valid instance of a `PostQuantumCancelToken` created by the
+ * `sender` must be pointing to a valid instance of a `EphemeralPeerCancelToken` created by the
  * `PacketTunnelProvider`.
  */
-void drop_post_quantum_key_exchange_token(const struct EphemeralPeerCancelToken *sender);
+void drop_ephemeral_peer_exchange_token(const struct EphemeralPeerCancelToken *sender);
 
 /**
  * Called by Swift whenever data has been written to the in-tunnel TCP connection when exchanging
- * quantum-resistant pre shared keys.
+ * quantum-resistant pre shared keys, or ephemeral peers.
  *
  * If `bytes_sent` is 0, this indicates that the connection was closed or that an error occurred.
  *
@@ -50,7 +50,7 @@ void handle_sent(uintptr_t bytes_sent, const void *sender);
 
 /**
  * Called by Swift whenever data has been read from the in-tunnel TCP connection when exchanging
- * quantum-resistant pre shared keys.
+ * quantum-resistant pre shared keys, or ephemeral peers.
  *
  * If `data` is null or empty, this indicates that the connection was closed or that an error
  * occurred. An empty buffer is sent to the underlying reader to signal EOF.
@@ -63,7 +63,7 @@ void handle_sent(uintptr_t bytes_sent, const void *sender);
 void handle_recv(const uint8_t *data, uintptr_t data_len, const void *sender);
 
 /**
- * Entry point for exchanging post quantum keys on iOS.
+ * Entry point for requesting ephemeral peers on iOS.
  * The TCP connection must be created to go through the tunnel.
  * # Safety
  * `public_key` and `ephemeral_key` must be valid respective `PublicKey` and `PrivateKey` types.
@@ -77,7 +77,7 @@ int32_t request_ephemeral_peer(const uint8_t *public_key,
                                const void *packet_tunnel,
                                const void *tcp_connection,
                                struct EphemeralPeerCancelToken *cancel_token,
-                               uint64_t post_quantum_key_exchange_timeout,
+                               uint64_t peer_exchange_timeout,
                                bool enable_post_quantum,
                                bool enable_daita);
 
@@ -100,13 +100,12 @@ extern void swift_nw_tcp_connection_read(const void *connection, const void *sen
  * Called when the preshared post quantum key is ready,
  * or when a Daita peer has been successfully requested.
  * `raw_preshared_key` will be NULL if:
- * - The post qunatum key negotiation failed
+ * - The post quantum key negotiation failed
  * - A Daita peer has been requested without enabling post quantum keys.
  */
-extern void swift_post_quantum_key_ready(const void *raw_packet_tunnel,
-                                         const uint8_t *raw_preshared_key,
-                                         const uint8_t *raw_ephemeral_private_key,
-                                         bool daita_enabled);
+extern void swift_ephemeral_peer_ready(const void *raw_packet_tunnel,
+                                       const uint8_t *raw_preshared_key,
+                                       const uint8_t *raw_ephemeral_private_key);
 
 /**
  * # Safety

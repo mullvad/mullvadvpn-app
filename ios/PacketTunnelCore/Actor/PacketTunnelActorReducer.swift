@@ -26,7 +26,7 @@ extension PacketTunnelActor {
         case configureForErrorState(BlockedStateReason)
         case cacheActiveKey(Date?)
         case reconfigureForEphemeralPeer(EphemeralPeerNegotiationState)
-        case postQuantumConnect
+        case connectWithEphemeralPeer
 
         // acknowledge that the disconnection process has concluded, go to .disconnected.
         case setDisconnectedState
@@ -46,7 +46,7 @@ extension PacketTunnelActor {
             case let (.configureForErrorState(r0), .configureForErrorState(r1)): r0 == r1
             case let (.cacheActiveKey(d0), .cacheActiveKey(d1)): d0 == d1
             case let (.reconfigureForEphemeralPeer(eph0), .reconfigureForEphemeralPeer(eph1)): eph0 == eph1
-            case (.postQuantumConnect, .postQuantumConnect): true
+            case (.connectWithEphemeralPeer, .connectWithEphemeralPeer): true
             case (.setDisconnectedState, .setDisconnectedState): true
             default: false
             }
@@ -92,8 +92,8 @@ extension PacketTunnelActor {
             case let .ephemeralPeerNegotiationStateChanged(configuration):
                 return [.reconfigureForEphemeralPeer(configuration)]
 
-            case .notifyPostQuantumKeyExchanged:
-                return [.postQuantumConnect]
+            case .notifyEphemeralPeerNegotiated:
+                return [.connectWithEphemeralPeer]
             }
         }
 
