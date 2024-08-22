@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -15,6 +16,8 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.NegativeButton
@@ -26,7 +29,7 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 @Composable
 private fun PreviewDeleteConfirmationDialog() {
     AppTheme {
-        DeleteConfirmationDialog(message = "Do you want to delete Cookie?", errorMessage = null)
+        NegativeConfirmationDialog(message = "Do you want to delete Cookie?", errorMessage = null)
     }
 }
 
@@ -34,7 +37,7 @@ private fun PreviewDeleteConfirmationDialog() {
 @Composable
 private fun PreviewDeleteConfirmationDialogError() {
     AppTheme {
-        DeleteConfirmationDialog(
+        NegativeConfirmationDialog(
             message = "Do you want to delete Cookie?",
             errorMessage = "An error occured",
         )
@@ -42,10 +45,34 @@ private fun PreviewDeleteConfirmationDialogError() {
 }
 
 @Composable
-fun DeleteConfirmationDialog(
+fun NegativeConfirmationDialog(
     message: String,
+    messageStyle: TextStyle? = null,
     errorMessage: String?,
-    onDelete: () -> Unit = {},
+    confirmationText: String = stringResource(id = R.string.delete),
+    cancelText: String = stringResource(id = R.string.cancel),
+    onConfirm: () -> Unit = {},
+    onBack: () -> Unit = {},
+) {
+    NegativeConfirmationDialog(
+        message = AnnotatedString(message),
+        messageStyle = messageStyle,
+        errorMessage = errorMessage,
+        confirmationText = confirmationText,
+        cancelText = cancelText,
+        onConfirm = onConfirm,
+        onBack = onBack,
+    )
+}
+
+@Composable
+fun NegativeConfirmationDialog(
+    message: AnnotatedString,
+    messageStyle: TextStyle? = null,
+    errorMessage: String?,
+    confirmationText: String = stringResource(id = R.string.delete),
+    cancelText: String = stringResource(id = R.string.cancel),
+    onConfirm: () -> Unit = {},
     onBack: () -> Unit = {},
 ) {
     AlertDialog(
@@ -60,7 +87,7 @@ fun DeleteConfirmationDialog(
         },
         title = {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(text = message)
+                Text(text = message, style = messageStyle ?: LocalTextStyle.current)
                 if (errorMessage != null) {
                     Text(
                         text = errorMessage,
@@ -75,12 +102,10 @@ fun DeleteConfirmationDialog(
             PrimaryButton(
                 modifier = Modifier.focusRequester(FocusRequester()),
                 onClick = onBack,
-                text = stringResource(id = R.string.cancel),
+                text = cancelText,
             )
         },
-        confirmButton = {
-            NegativeButton(onClick = onDelete, text = stringResource(id = R.string.delete))
-        },
+        confirmButton = { NegativeButton(onClick = onConfirm, text = confirmationText) },
         containerColor = MaterialTheme.colorScheme.surface,
     )
 }
