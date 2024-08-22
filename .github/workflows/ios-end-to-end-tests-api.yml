@@ -2,12 +2,14 @@
 name: iOS end-to-end API tests
 on:
   workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
 jobs:
   reuse-e2e-workflow:
-    permissions:
-      contents: read
-      issues: write
-      pull-requests: write
     uses: ./.github/workflows/ios-end-to-end-tests.yml
     with:
       arg_tests_json_key: "api-tests"

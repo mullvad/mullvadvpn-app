@@ -10,6 +10,9 @@ on:
       - gui/**
       - '!**/osv-scanner.toml'
   workflow_dispatch:
+
+permissions: {}
+
 jobs:
   check-translations:
     runs-on: ubuntu-latest

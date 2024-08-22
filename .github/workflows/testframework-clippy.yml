@@ -8,6 +8,9 @@ on:
       - .github/workflows/clippy-test.yml
       - clippy.toml
   workflow_dispatch:
+
+permissions: {}
+
 jobs:
   clippy-check-test:
     name: Clippy linting of test workspace

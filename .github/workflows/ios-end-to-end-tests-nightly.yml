@@ -9,6 +9,9 @@ on:
     # Github Actions enabled, so these don't go unnoticed.
     # https://docs.github.com/en/actions/monitoring-and-troubleshooting-workflows/notifications-for-workflow-runs
     - cron: '0 0 * * *'
+
+permissions: {}
+
 jobs:
   reuse-e2e-workflow:
     permissions:

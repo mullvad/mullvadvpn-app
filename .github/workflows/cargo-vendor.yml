@@ -11,6 +11,9 @@ on:
       - Cargo.lock
       - '**/Cargo.toml'
   workflow_dispatch:
+
+permissions: {}
+
 jobs:
   cargo-vendor:
     runs-on: ubuntu-latest

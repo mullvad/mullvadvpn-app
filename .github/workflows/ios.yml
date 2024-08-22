@@ -9,6 +9,9 @@ on:
       - ios/**/*.swift
       - ios/**/*.xctestplan
   workflow_dispatch:
+
+permissions: {}
+
 jobs:
   check-formatting:
     name: Check formatting

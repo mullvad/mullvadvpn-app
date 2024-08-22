@@ -9,6 +9,9 @@ on:
       - 'test/**/Cargo.lock'
       - 'test/**/*.rs'
   workflow_dispatch:
+
+permissions: {}
+
 jobs:
   check-test-framework-supply-chain:
     runs-on: ubuntu-latest
