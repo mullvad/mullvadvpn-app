@@ -34,6 +34,7 @@ class RelayFilterView: UIView {
 
     private let ownershipView = RelayFilterChipView()
     private let providersView = RelayFilterChipView()
+    private let daitaView = RelayFilterChipView()
     private var filter: RelayFilter?
 
     var didUpdateFilter: ((RelayFilter) -> Void)?
@@ -71,7 +72,16 @@ class RelayFilterView: UIView {
         }
     }
 
+    func setDaita(_ enabled: Bool) {
+        daitaView.isHidden = !enabled
+    }
+
     private func setUpViews() {
+        daitaView.setTitle(localizedDaitaText())
+        daitaView.isHidden = true
+        daitaView.closeButton.isHidden = true
+
+        ownershipView.isHidden = true
         ownershipView.didTapButton = { [weak self] in
             guard var filter = self?.filter else { return }
 
@@ -79,6 +89,7 @@ class RelayFilterView: UIView {
             self?.didUpdateFilter?(filter)
         }
 
+        providersView.isHidden = true
         providersView.didTapButton = { [weak self] in
             guard var filter = self?.filter else { return }
 
@@ -87,7 +98,7 @@ class RelayFilterView: UIView {
         }
 
         // Add a dummy view at the end to push content to the left.
-        let filterContainer = UIStackView(arrangedSubviews: [ownershipView, providersView, UIView()])
+        let filterContainer = UIStackView(arrangedSubviews: [daitaView, ownershipView, providersView, UIView()])
         filterContainer.spacing = UIMetrics.FilterView.interChipViewSpacing
 
         let contentContainer = UIStackView(arrangedSubviews: [titleLabel, filterContainer])
@@ -97,6 +108,15 @@ class RelayFilterView: UIView {
             contentContainer.pinEdges(.init([.top(7), .bottom(0)]), to: self)
             contentContainer.pinEdges(.init([.leading(4), .trailing(4)]), to: layoutMarginsGuide)
         }
+    }
+
+    private func localizedDaitaText() -> String {
+        return NSLocalizedString(
+            "RELAY_FILTER_APPLIED_DAITA",
+            tableName: "RelayFilter",
+            value: "Setting: DAITA",
+            comment: ""
+        )
     }
 
     private func localizedOwnershipText(for string: String) -> String {

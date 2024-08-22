@@ -16,7 +16,7 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
     private let tunnelManager: TunnelManager
     private let relayCacheTracker: RelayCacheTracker
     private let customListRepository: CustomListRepositoryProtocol
-    private var cachedRelays: CachedRelays?
+    private var cachedRelays: LocationRelays?
 
     let navigationController: UINavigationController
 
@@ -54,10 +54,16 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
     }
 
     func start() {
+        let startContext: LocationViewControllerWrapper.MultihopContext =
+            if case .noRelaysSatisfyingDaitaConstraints = tunnelManager.tunnelStatus.observedState
+                .blockedState?.reason { .entry } else { .exit }
+
         let locationViewControllerWrapper = LocationViewControllerWrapper(
             customListRepository: customListRepository,
             constraints: tunnelManager.settings.relayConstraints,
-            multihopEnabled: tunnelManager.settings.tunnelMultihopState.isEnabled
+            multihopEnabled: tunnelManager.settings.tunnelMultihopState.isEnabled,
+            daitaEnabled: tunnelManager.settings.daita.state.isEnabled,
+            startContext: startContext
         )
         locationViewControllerWrapper.delegate = self
 
@@ -69,8 +75,13 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
         relayCacheTracker.addObserver(self)
 
         if let cachedRelays = try? relayCacheTracker.getCachedRelays() {
-            self.cachedRelays = cachedRelays
-            locationViewControllerWrapper.setCachedRelays(cachedRelays, filter: relayFilter)
+            let locationRelays = LocationRelays(
+                relays: cachedRelays.relays.wireguard.relays,
+                locations: cachedRelays.relays.locations
+            )
+            self.cachedRelays = locationRelays
+
+            locationViewControllerWrapper.setCachedRelays(locationRelays, filter: relayFilter)
         }
 
         navigationController.pushViewController(locationViewControllerWrapper, animated: false)
@@ -87,8 +98,14 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
         )
 
         relayFilterCoordinator.didFinish = { [weak self] coordinator, filter in
-            if let cachedRelays = self?.cachedRelays, let filter {
-                self?.locationViewControllerWrapper?.setCachedRelays(cachedRelays, filter: filter)
+            guard let self else { return }
+
+            if var cachedRelays, let filter {
+                cachedRelays.relays = cachedRelays.relays.filter { relay in
+                    RelaySelector.relayMatchesFilter(relay, filter: filter)
+                }
+
+                locationViewControllerWrapper?.setCachedRelays(cachedRelays, filter: filter)
             }
 
             coordinator.dismiss(animated: true)
@@ -148,9 +165,13 @@ extension LocationCoordinator: RelayCacheTrackerObserver {
         _ tracker: RelayCacheTracker,
         didUpdateCachedRelays cachedRelays: CachedRelays
     ) {
-        self.cachedRelays = cachedRelays
+        let locationRelays = LocationRelays(
+            relays: cachedRelays.relays.wireguard.relays,
+            locations: cachedRelays.relays.locations
+        )
+        self.cachedRelays = locationRelays
 
-        locationViewControllerWrapper?.setCachedRelays(cachedRelays, filter: relayFilter)
+        locationViewControllerWrapper?.setCachedRelays(locationRelays, filter: relayFilter)
     }
 }
 
@@ -178,6 +199,10 @@ extension LocationCoordinator: LocationViewControllerWrapperDelegate {
         relayConstraints.filter = .only(filter)
 
         tunnelManager.updateSettings([.relayConstraints(relayConstraints)])
+
+        if let cachedRelays {
+            locationViewControllerWrapper?.setCachedRelays(cachedRelays, filter: filter)
+        }
     }
 
     func navigateToFilter() {

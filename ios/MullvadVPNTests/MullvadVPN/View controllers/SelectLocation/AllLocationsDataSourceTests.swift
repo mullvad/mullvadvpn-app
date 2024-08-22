@@ -58,9 +58,9 @@ class AllLocationsDataSourceTests: XCTestCase {
 extension AllLocationsDataSourceTests {
     private func setUpDataSource() {
         let response = ServerRelaysResponseStubs.sampleRelays
-        let relays = response.wireguard.relays
+        let relays = LocationRelays(relays: response.wireguard.relays, locations: response.locations)
 
         dataSource = AllLocationDataSource()
-        dataSource.reload(response, relays: relays)
+        dataSource.reload(relays)
     }
 }

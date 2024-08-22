@@ -23,9 +23,10 @@ final class LocationViewController: UIViewController {
     private let topContentView = UIStackView()
     private let filterView = RelayFilterView()
     private var dataSource: LocationDataSource?
-    private var cachedRelays: CachedRelays?
+    private var cachedRelays: LocationRelays?
     private var filter = RelayFilter()
     private var selectedRelays: RelaySelection
+    private var daitaEnabled: Bool
     weak var delegate: LocationViewControllerDelegate?
     var customListRepository: CustomListRepositoryProtocol
 
@@ -34,12 +35,17 @@ final class LocationViewController: UIViewController {
     }
 
     var filterViewShouldBeHidden: Bool {
-        return (filter.ownership == .any) && (filter.providers == .any)
+        !daitaEnabled && (filter.ownership == .any) && (filter.providers == .any)
     }
 
-    init(customListRepository: CustomListRepositoryProtocol, selectedRelays: RelaySelection) {
+    init(
+        customListRepository: CustomListRepositoryProtocol,
+        selectedRelays: RelaySelection,
+        daitaEnabled: Bool = false
+    ) {
         self.customListRepository = customListRepository
         self.selectedRelays = selectedRelays
+        self.daitaEnabled = daitaEnabled
 
         super.init(nibName: nil, bundle: nil)
     }
@@ -80,7 +86,7 @@ final class LocationViewController: UIViewController {
 
     // MARK: - Public
 
-    func setCachedRelays(_ cachedRelays: CachedRelays, filter: RelayFilter) {
+    func setCachedRelays(_ cachedRelays: LocationRelays, filter: RelayFilter) {
         self.cachedRelays = cachedRelays
         self.filter = filter
 
@@ -91,7 +97,7 @@ final class LocationViewController: UIViewController {
             filterView.setFilter(filter)
         }
 
-        dataSource?.setRelays(cachedRelays.relays, selectedRelays: selectedRelays, filter: filter)
+        dataSource?.setRelays(cachedRelays, selectedRelays: selectedRelays)
     }
 
     func refreshCustomLists() {
@@ -121,13 +127,13 @@ final class LocationViewController: UIViewController {
 
             if let cachedRelays {
                 let allLocationDataSource = AllLocationDataSource()
-                allLocationDataSource.reload(cachedRelays.relays, relays: cachedRelays.relays.wireguard.relays)
+                allLocationDataSource.reload(cachedRelays)
                 delegate?.navigateToCustomLists(nodes: allLocationDataSource.nodes)
             }
         }
 
         if let cachedRelays {
-            dataSource?.setRelays(cachedRelays.relays, selectedRelays: selectedRelays, filter: filter)
+            dataSource?.setRelays(cachedRelays, selectedRelays: selectedRelays)
         }
     }
 
@@ -148,16 +154,10 @@ final class LocationViewController: UIViewController {
         topContentView.addArrangedSubview(searchBar)
 
         filterView.isHidden = filterViewShouldBeHidden
+        filterView.setDaita(daitaEnabled)
 
         filterView.didUpdateFilter = { [weak self] in
-            guard let self else { return }
-
-            filter = $0
-            delegate?.didUpdateFilter(filter: $0)
-
-            if let cachedRelays {
-                setCachedRelays(cachedRelays, filter: filter)
-            }
+            self?.delegate?.didUpdateFilter(filter: $0)
         }
 
         setUpSearchBar()

@@ -80,10 +80,10 @@ extension CustomListsDataSourceTests {
 
     private func createAllLocationNodes() {
         let response = ServerRelaysResponseStubs.sampleRelays
-        let relays = response.wireguard.relays
+        let relays = LocationRelays(relays: response.wireguard.relays, locations: response.locations)
 
         let dataSource = AllLocationDataSource()
-        dataSource.reload(response, relays: relays)
+        dataSource.reload(relays)
 
         allLocationNodes = dataSource.nodes
     }
