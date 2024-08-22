@@ -83,7 +83,7 @@ export default function ConnectionPanel() {
     tunnelState.featureIndicators !== undefined &&
     tunnelState.featureIndicators.length > 0;
 
-  useEffect(collapse, [tunnelState, collapse]);
+  useEffect(collapse, [tunnelState.state, collapse]);
 
   return (
     <StyledConnectionPanel $expanded={expanded}>
