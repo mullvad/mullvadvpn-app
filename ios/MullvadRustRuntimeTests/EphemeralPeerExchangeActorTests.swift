@@ -1,6 +1,6 @@
 //
-//  MullvadPostQuantumTests.swift
-//  MullvadPostQuantumTests
+//  EphemeralPeerExchangeActorTests.swift
+//  MullvadRustRuntimeTests
 //
 //  Created by Marco Nikic on 2024-06-12.
 //  Copyright © 2024 Mullvad VPN AB. All rights reserved.
@@ -14,7 +14,7 @@ import NetworkExtension
 @testable import WireGuardKitTypes
 import XCTest
 
-class MullvadPostQuantumTests: XCTestCase {
+class EphemeralPeerExchangeActorTests: XCTestCase {
     var tcpConnection: NWTCPConnectionStub!
     var tunnelProvider: TunnelProviderStub!
 
