@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.dialog
+package net.mullvad.mullvadvpn.compose.dialog.info
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
@@ -14,15 +14,15 @@ import net.mullvad.mullvadvpn.lib.theme.AppTheme
 
 @Preview
 @Composable
-private fun PreviewMalwareInfoDialog() {
-    AppTheme { MalwareInfo(EmptyDestinationsNavigator) }
+private fun PreviewUdpOverTcpPortInfoDialog() {
+    AppTheme { UdpOverTcpPortInfo(EmptyDestinationsNavigator) }
 }
 
 @Destination<RootGraph>(style = DestinationStyle.Dialog::class)
 @Composable
-fun MalwareInfo(navigator: DestinationsNavigator) {
+fun UdpOverTcpPortInfo(navigator: DestinationsNavigator) {
     InfoDialog(
-        message = stringResource(id = R.string.malware_info),
+        message = stringResource(id = R.string.udp_over_tcp_port_info),
         onDismiss = dropUnlessResumed { navigator.navigateUp() },
     )
 }
