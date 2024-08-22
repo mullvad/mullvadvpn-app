@@ -9,7 +9,6 @@ import androidx.test.uiautomator.Until
 import net.mullvad.mullvadvpn.lib.endpoint.CustomApiEndpointConfiguration
 import net.mullvad.mullvadvpn.lib.endpoint.putApiEndpointConfigurationExtra
 import net.mullvad.mullvadvpn.test.common.constant.APP_LAUNCH_TIMEOUT
-import net.mullvad.mullvadvpn.test.common.constant.CONNECTION_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.constant.DEFAULT_INTERACTION_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.constant.LOGIN_FAILURE_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.constant.LOGIN_PROMPT_TIMEOUT
@@ -91,8 +90,7 @@ class AppInteractor(
         device.findObjectWithTimeout(By.res("location_info_test_tag")).click()
         return device
             .findObjectWithTimeout(
-                By.res("location_info_connection_out_test_tag"),
-                CONNECTION_TIMEOUT
+                By.res("location_info_connection_out_test_tag").textStartsWith("Out")
             )
             .text
             .extractIpAddress()
