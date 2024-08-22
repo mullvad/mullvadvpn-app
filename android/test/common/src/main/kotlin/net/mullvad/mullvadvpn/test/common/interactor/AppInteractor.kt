@@ -91,7 +91,8 @@ class AppInteractor(
         device.findObjectWithTimeout(By.res("location_info_test_tag")).click()
         return device
             .findObjectWithTimeout(
-                By.res("location_info_connection_out_test_tag"),
+                // Text exist and contains IP address
+                By.res("location_info_connection_out_test_tag").textContains("."),
                 CONNECTION_TIMEOUT
             )
             .text
