@@ -69,7 +69,7 @@ import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.component.textResource
 import net.mullvad.mullvadvpn.compose.dialog.WireguardCustomPortNavArgs
-import net.mullvad.mullvadvpn.compose.dialog.WireguardPortInfoDialogArgument
+import net.mullvad.mullvadvpn.compose.dialog.info.WireguardPortInfoDialogArgument
 import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
 import net.mullvad.mullvadvpn.compose.extensions.itemsIndexedWithDivider

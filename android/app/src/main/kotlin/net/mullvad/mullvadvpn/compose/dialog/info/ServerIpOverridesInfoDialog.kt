@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.dialog
+package net.mullvad.mullvadvpn.compose.dialog.info
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
@@ -13,15 +13,22 @@ import net.mullvad.mullvadvpn.R
 
 @Preview
 @Composable
-private fun PreviewCustomDnsInfoDialog() {
-    CustomDnsInfo(EmptyDestinationsNavigator)
+private fun PreviewServerIpOverridesInfoDialog() {
+    ServerIpOverridesInfo(EmptyDestinationsNavigator)
 }
 
 @Destination<RootGraph>(style = DestinationStyle.Dialog::class)
 @Composable
-fun CustomDnsInfo(navigator: DestinationsNavigator) {
+fun ServerIpOverridesInfo(navigator: DestinationsNavigator) {
     InfoDialog(
-        message = stringResource(id = R.string.settings_changes_effect_warning_content_blocker),
+        message =
+            buildString {
+                appendLine(stringResource(id = R.string.server_ip_overrides_info_first_paragraph))
+                appendLine()
+                appendLine(stringResource(id = R.string.server_ip_overrides_info_second_paragraph))
+                appendLine()
+                append(stringResource(id = R.string.server_ip_overrides_info_third_paragraph))
+            },
         onDismiss = dropUnlessResumed { navigator.navigateUp() },
     )
 }
