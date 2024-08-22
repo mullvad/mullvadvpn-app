@@ -1,8 +1,5 @@
 package net.mullvad.mullvadvpn.compose.dialog
 
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -16,7 +13,6 @@ import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.compose.state.EditCustomListNameUiState
 import net.mullvad.mullvadvpn.compose.test.EDIT_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG
@@ -77,9 +73,11 @@ fun EditCustomListNameDialog(
     onInputChanged: (String) -> Unit = {},
     onDismiss: () -> Unit = {},
 ) {
-    AlertDialog(
-        title = { Text(text = stringResource(id = R.string.update_list_name)) },
-        text = {
+    InputDialog(
+        title = stringResource(id = R.string.update_list_name),
+        confirmButtonText = stringResource(id = R.string.save),
+        confirmButtonEnabled = state.isValidName,
+        input = {
             CustomListNameTextField(
                 name = state.name,
                 isValidName = state.isValidName,
@@ -89,19 +87,8 @@ fun EditCustomListNameDialog(
                 modifier = Modifier.testTag(EDIT_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG),
             )
         },
-        containerColor = MaterialTheme.colorScheme.surface,
-        titleContentColor = MaterialTheme.colorScheme.onSurface,
-        onDismissRequest = onDismiss,
-        confirmButton = {
-            PrimaryButton(
-                text = stringResource(id = R.string.save),
-                onClick = { updateName(state.name) },
-                isEnabled = state.isValidName,
-            )
-        },
-        dismissButton = {
-            PrimaryButton(text = stringResource(id = R.string.cancel), onClick = onDismiss)
-        },
+        onBack = onDismiss,
+        onConfirm = { updateName(state.name) },
     )
 }
 
