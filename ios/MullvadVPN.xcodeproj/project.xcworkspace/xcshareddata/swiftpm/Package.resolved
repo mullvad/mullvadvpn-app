@@ -14,8 +14,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/mullvad/wireguard-apple.git",
       "state" : {
-        "branch" : "add-daita-interface-to-wireguard",
-        "revision" : "204b12d8a36758156278e42706079e5534c12ba9"
+        "revision" : "fb9a34f15e47b167866af3257a8dcc9901d9e7c1"
       }
     }
   ],
