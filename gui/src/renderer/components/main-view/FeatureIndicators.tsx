@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
@@ -94,6 +94,7 @@ export default function FeatureIndicators(props: FeatureIndicatorsProps) {
 
   const featureIndicatorsVisible =
     tunnelState.state === 'connected' || tunnelState.state === 'connecting';
+
   const featureIndicators = useRef(
     featureIndicatorsVisible ? tunnelState.featureIndicators ?? [] : [],
   );
@@ -104,53 +105,57 @@ export default function FeatureIndicators(props: FeatureIndicatorsProps) {
 
   const ellipsis = messages.gettext('%(amount)d more...');
 
-  useLayoutEffect(() => {
-    if (
-      !props.expanded &&
-      featureIndicatorsContainerRef.current &&
-      ellipsisSpacerRef.current &&
-      ellipsisRef.current
-    ) {
-      // Get all feature indicator elements.
-      const indicatorElements = Array.from(
-        featureIndicatorsContainerRef.current.getElementsByTagName('span'),
-      );
-      let lastVisibleIndex = 0;
-      let hasHidden = false;
-      indicatorElements.forEach((indicatorElement, i) => {
-        if (
-          !indicatorShouldBeHidden(
-            featureIndicatorsContainerRef.current!,
-            indicatorElement,
-            ellipsisSpacerRef.current!,
-          )
-        ) {
-          // If an indicator should be visible we set its visibility and increment the variable
-          // containing the last visible index.
-          indicatorElement.style.visibility = 'visible';
-          lastVisibleIndex = i;
-        } else {
-          // If it should be visible we store that there exists hidden indicators.
-          hasHidden = true;
-        }
-      });
-
-      if (hasHidden) {
-        const lastVisibleIndicatorRect =
-          indicatorElements[lastVisibleIndex].getBoundingClientRect();
-        const containerRect = featureIndicatorsContainerRef.current.getBoundingClientRect();
-
-        // Place the ellipsis at the end of the last visible indicator.
-        const left = lastVisibleIndicatorRect.right - containerRect.left;
-        ellipsisRef.current.style.left = `${left}px`;
-        ellipsisRef.current.style.visibility = 'visible';
-
-        // Add the ellipsis text to the ellipsis.
-        ellipsisRef.current.textContent = sprintf(ellipsis, {
-          amount: indicatorElements.length - (lastVisibleIndex + 1),
+  useEffect(() => {
+    // We need to defer the visibility logic one painting cycle to make sure the elements are
+    // rendered and available.
+    setTimeout(() => {
+      if (
+        !props.expanded &&
+        featureIndicatorsContainerRef.current &&
+        ellipsisSpacerRef.current &&
+        ellipsisRef.current
+      ) {
+        // Get all feature indicator elements.
+        const indicatorElements = Array.from(
+          featureIndicatorsContainerRef.current.getElementsByTagName('span'),
+        );
+        let lastVisibleIndex = 0;
+        let hasHidden = false;
+        indicatorElements.forEach((indicatorElement, i) => {
+          if (
+            !indicatorShouldBeHidden(
+              featureIndicatorsContainerRef.current!,
+              indicatorElement,
+              ellipsisSpacerRef.current!,
+            )
+          ) {
+            // If an indicator should be visible we set its visibility and increment the variable
+            // containing the last visible index.
+            indicatorElement.style.visibility = 'visible';
+            lastVisibleIndex = i;
+          } else {
+            // If it should be visible we store that there exists hidden indicators.
+            hasHidden = true;
+          }
         });
+
+        if (hasHidden) {
+          const lastVisibleIndicatorRect =
+            indicatorElements[lastVisibleIndex].getBoundingClientRect();
+          const containerRect = featureIndicatorsContainerRef.current.getBoundingClientRect();
+
+          // Place the ellipsis at the end of the last visible indicator.
+          const left = lastVisibleIndicatorRect.right - containerRect.left;
+          ellipsisRef.current.style.left = `${left}px`;
+          ellipsisRef.current.style.visibility = 'visible';
+
+          // Add the ellipsis text to the ellipsis.
+          ellipsisRef.current.textContent = sprintf(ellipsis, {
+            amount: indicatorElements.length - (lastVisibleIndex + 1),
+          });
+        }
       }
-    }
+    }, 0);
   });
 
   return (
