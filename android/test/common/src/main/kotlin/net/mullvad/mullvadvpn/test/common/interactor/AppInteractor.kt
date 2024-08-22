@@ -89,11 +89,11 @@ class AppInteractor(
 
     fun extractIpAddress(): String {
         device.findObjectWithTimeout(By.res("location_info_test_tag")).click()
+
+        // Wait for out IP address information to show up
+        device.wait(Until.hasObject(By.textStartsWith("Out")), CONNECTION_TIMEOUT)
         return device
-            .findObjectWithTimeout(
-                By.res("location_info_connection_out_test_tag"),
-                CONNECTION_TIMEOUT
-            )
+            .findObjectWithTimeout(By.res("location_info_connection_out_test_tag"))
             .text
             .extractIpAddress()
     }
