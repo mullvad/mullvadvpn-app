@@ -47,6 +47,8 @@ static RELAYS: Lazy<RelayList> = Lazy::new(|| RelayList {
                     hostname: "se9-wireguard".to_string(),
                     ipv4_addr_in: "185.213.154.68".parse().unwrap(),
                     ipv6_addr_in: Some("2a03:1b20:5:f011::a09f".parse().unwrap()),
+                    overridden_ipv4: false,
+                    overridden_ipv6: false,
                     include_in_country: true,
                     active: true,
                     owned: true,
@@ -66,6 +68,8 @@ static RELAYS: Lazy<RelayList> = Lazy::new(|| RelayList {
                     hostname: "se10-wireguard".to_string(),
                     ipv4_addr_in: "185.213.154.69".parse().unwrap(),
                     ipv6_addr_in: Some("2a03:1b20:5:f011::a10f".parse().unwrap()),
+                    overridden_ipv4: false,
+                    overridden_ipv6: false,
                     include_in_country: true,
                     active: true,
                     owned: false,
@@ -85,6 +89,8 @@ static RELAYS: Lazy<RelayList> = Lazy::new(|| RelayList {
                     hostname: "se-got-001".to_string(),
                     ipv4_addr_in: "185.213.154.131".parse().unwrap(),
                     ipv6_addr_in: None,
+                    overridden_ipv4: false,
+                    overridden_ipv6: false,
                     include_in_country: true,
                     active: true,
                     owned: true,
@@ -97,6 +103,8 @@ static RELAYS: Lazy<RelayList> = Lazy::new(|| RelayList {
                     hostname: "se-got-002".to_string(),
                     ipv4_addr_in: "1.2.3.4".parse().unwrap(),
                     ipv6_addr_in: None,
+                    overridden_ipv4: false,
+                    overridden_ipv6: false,
                     include_in_country: true,
                     active: true,
                     owned: true,
@@ -109,6 +117,8 @@ static RELAYS: Lazy<RelayList> = Lazy::new(|| RelayList {
                     hostname: "se-got-br-001".to_string(),
                     ipv4_addr_in: "1.3.3.7".parse().unwrap(),
                     ipv6_addr_in: None,
+                    overridden_ipv4: false,
+                    overridden_ipv6: false,
                     include_in_country: true,
                     active: true,
                     owned: true,
@@ -182,6 +192,8 @@ static SHADOWSOCKS_RELAY: Lazy<Relay> = Lazy::new(|| Relay {
         .to_owned(),
     ipv4_addr_in: SHADOWSOCKS_RELAY_IPV4,
     ipv6_addr_in: Some(SHADOWSOCKS_RELAY_IPV6),
+    overridden_ipv4: false,
+    overridden_ipv6: false,
     include_in_country: true,
     active: true,
     owned: true,
@@ -463,6 +475,8 @@ fn test_wireguard_entry() {
                         hostname: "se9-wireguard".to_string(),
                         ipv4_addr_in: "185.213.154.68".parse().unwrap(),
                         ipv6_addr_in: Some("2a03:1b20:5:f011::a09f".parse().unwrap()),
+                        overridden_ipv4: false,
+                        overridden_ipv6: false,
                         include_in_country: true,
                         active: true,
                         owned: true,
@@ -482,6 +496,8 @@ fn test_wireguard_entry() {
                         hostname: "se10-wireguard".to_string(),
                         ipv4_addr_in: "185.213.154.69".parse().unwrap(),
                         ipv6_addr_in: Some("2a03:1b20:5:f011::a10f".parse().unwrap()),
+                        overridden_ipv4: false,
+                        overridden_ipv6: false,
                         include_in_country: true,
                         active: true,
                         owned: false,
@@ -746,7 +762,8 @@ fn test_selecting_any_relay_will_consider_multihop() {
     }
 }
 
-/// Test whether Shadowsocks is always selected as the obfuscation protocol when Shadowsocks is selected.
+/// Test whether Shadowsocks is always selected as the obfuscation protocol when Shadowsocks is
+/// selected.
 #[test]
 fn test_selecting_wireguard_over_shadowsocks() {
     let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
@@ -787,9 +804,11 @@ fn test_selecting_wireguard_over_shadowsocks_extra_ips() {
     match relay {
         GetRelay::Wireguard {
             obfuscator: Some(SelectedObfuscator { config: ObfuscatorConfig::Shadowsocks { endpoint }, .. }),
-            inner: WireguardConfig::Singlehop { .. },
+            inner: WireguardConfig::Singlehop { exit },
             ..
         } => {
+            assert!(!exit.overridden_ipv4);
+            assert!(!exit.overridden_ipv6);
             assert!(SHADOWSOCKS_RELAY_EXTRA_ADDRS.contains(&endpoint.ip()), "{} is not an additional IP", endpoint);
         }
         wrong_relay => panic!(
@@ -828,9 +847,11 @@ fn test_selecting_wireguard_ignore_extra_ips_override_v4() {
     match relay {
         GetRelay::Wireguard {
             obfuscator: Some(SelectedObfuscator { config: ObfuscatorConfig::Shadowsocks { endpoint }, .. }),
-            inner: WireguardConfig::Singlehop { .. },
+            inner: WireguardConfig::Singlehop { exit },
             ..
         } => {
+            assert!(exit.overridden_ipv4);
+            assert!(!exit.overridden_ipv6);
             assert_eq!(endpoint.ip(), IpAddr::from(OVERRIDE_IPV4));
         }
         wrong_relay => panic!(
@@ -869,9 +890,11 @@ fn test_selecting_wireguard_ignore_extra_ips_override_v6() {
     match relay {
         GetRelay::Wireguard {
             obfuscator: Some(SelectedObfuscator { config: ObfuscatorConfig::Shadowsocks { endpoint }, .. }),
-            inner: WireguardConfig::Singlehop { .. },
+            inner: WireguardConfig::Singlehop { exit },
             ..
         } => {
+            assert!(exit.overridden_ipv6);
+            assert!(!exit.overridden_ipv4);
             assert_eq!(endpoint.ip(), IpAddr::from(OVERRIDE_IPV6));
         }
         wrong_relay => panic!(
@@ -1118,6 +1141,8 @@ fn test_include_in_country() {
                         hostname: "se9-wireguard".to_string(),
                         ipv4_addr_in: "185.213.154.68".parse().unwrap(),
                         ipv6_addr_in: Some("2a03:1b20:5:f011::a09f".parse().unwrap()),
+                        overridden_ipv4: false,
+                        overridden_ipv6: false,
                         include_in_country: false,
                         active: true,
                         owned: true,
@@ -1137,6 +1162,8 @@ fn test_include_in_country() {
                         hostname: "se10-wireguard".to_string(),
                         ipv4_addr_in: "185.213.154.69".parse().unwrap(),
                         ipv6_addr_in: Some("2a03:1b20:5:f011::a10f".parse().unwrap()),
+                        overridden_ipv4: false,
+                        overridden_ipv6: false,
                         include_in_country: false,
                         active: true,
                         owned: false,
@@ -1339,6 +1366,8 @@ fn test_daita() {
                         hostname: "se9-wireguard".to_string(),
                         ipv4_addr_in: "185.213.154.68".parse().unwrap(),
                         ipv6_addr_in: Some("2a03:1b20:5:f011::a09f".parse().unwrap()),
+                        overridden_ipv4: false,
+                        overridden_ipv6: false,
                         include_in_country: true,
                         active: true,
                         owned: true,
@@ -1358,6 +1387,8 @@ fn test_daita() {
                         hostname: "se10-wireguard".to_string(),
                         ipv4_addr_in: "185.213.154.69".parse().unwrap(),
                         ipv6_addr_in: Some("2a03:1b20:5:f011::a10f".parse().unwrap()),
+                        overridden_ipv4: false,
+                        overridden_ipv6: false,
                         include_in_country: true,
                         active: true,
                         owned: false,

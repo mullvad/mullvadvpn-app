@@ -154,6 +154,8 @@ fn into_mullvad_relay(
         hostname: relay.hostname,
         ipv4_addr_in: relay.ipv4_addr_in,
         ipv6_addr_in: relay.ipv6_addr_in,
+        overridden_ipv4: false,
+        overridden_ipv6: false,
         include_in_country: relay.include_in_country,
         active: relay.active,
         owned: relay.owned,

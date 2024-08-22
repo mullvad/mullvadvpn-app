@@ -53,7 +53,7 @@ use mullvad_types::{
     auth_failed::AuthFailed,
     custom_list::CustomList,
     device::{Device, DeviceEvent, DeviceEventCause, DeviceId, DeviceState, RemoveDeviceEvent},
-    features::{compute_feature_indicators, FeatureIndicators},
+    features::{compute_feature_indicators, FeatureIndicator, FeatureIndicators},
     location::{GeoIpLocation, LocationEventData},
     relay_constraints::{
         BridgeSettings, BridgeState, BridgeType, ObfuscationSettings, RelayOverride, RelaySettings,
@@ -980,8 +980,11 @@ impl Daemon {
                 locked_down,
             },
             TunnelStateTransition::Connecting(endpoint) => {
-                let feature_indicators =
-                    compute_feature_indicators(&self.settings.to_settings(), &endpoint);
+                let feature_indicators = compute_feature_indicators(
+                    &self.settings.to_settings(),
+                    &endpoint,
+                    self.parameters_generator.last_relay_was_overridden().await,
+                );
                 TunnelState::Connecting {
                     endpoint,
                     location: self.parameters_generator.get_last_location().await,
@@ -989,8 +992,11 @@ impl Daemon {
                 }
             }
             TunnelStateTransition::Connected(endpoint) => {
-                let feature_indicators =
-                    compute_feature_indicators(&self.settings.to_settings(), &endpoint);
+                let feature_indicators = compute_feature_indicators(
+                    &self.settings.to_settings(),
+                    &endpoint,
+                    self.parameters_generator.last_relay_was_overridden().await,
+                );
                 TunnelState::Connected {
                     endpoint,
                     location: self.parameters_generator.get_last_location().await,
@@ -1144,8 +1150,15 @@ impl Daemon {
                 endpoint,
                 ..
             } => {
+                // The server IP override feature indicator can only be changed when the tunnels
+                // state changes and it is updated in `handle_tunnel_state_transition`. We must rely
+                // on this value being up to date as we need the relay to know if
+                // the IP override is active.
+                let ip_override = feature_indicators
+                    .active_features()
+                    .any(|f| matches!(&f, FeatureIndicator::ServerIpOverride));
                 let new_feature_indicators =
-                    compute_feature_indicators(&self.settings.to_settings(), endpoint);
+                    compute_feature_indicators(&self.settings.to_settings(), endpoint, ip_override);
                 // Update and broadcast the new feature indicators if they have changed
                 if *feature_indicators != new_feature_indicators {
                     // Make sure to update the daemon's actual tunnel state. Otherwise, feature
