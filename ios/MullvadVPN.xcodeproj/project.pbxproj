@@ -9195,8 +9195,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/mullvad/wireguard-apple.git";
 			requirement = {
-				branch = "add-daita-interface-to-wireguard";
-				kind = branch;
+				kind = revision;
+				revision = fb9a34f15e47b167866af3257a8dcc9901d9e7c1;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
