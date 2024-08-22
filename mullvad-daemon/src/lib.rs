@@ -2337,6 +2337,8 @@ impl Daemon {
 
     #[cfg(daita)]
     async fn on_set_daita_enabled(&mut self, tx: ResponseTx<(), settings::Error>, value: bool) {
+        use mullvad_types::{constraints::Constraint, Intersection};
+
         match self
             .settings
             .update(|settings| settings.tunnel_options.wireguard.daita.enabled = value)
@@ -2344,7 +2346,16 @@ impl Daemon {
         {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set_daita_enabled response");
-                if settings_changed && self.get_target_tunnel_type() != Some(TunnelType::OpenVpn) {
+                let RelaySettings::Normal(constraints) = &self.settings.relay_settings else {
+                    return; // DAITA is not supported for custom relays
+                };
+
+                let wireguard_enabled = constraints
+                    .tunnel_protocol
+                    .intersection(Constraint::Only(TunnelType::Wireguard))
+                    .is_some();
+
+                if settings_changed && wireguard_enabled {
                     log::info!("Reconnecting because DAITA settings changed");
                     self.reconnect_tunnel();
                 }
@@ -2362,6 +2373,8 @@ impl Daemon {
         tx: ResponseTx<(), settings::Error>,
         value: bool,
     ) {
+        use mullvad_types::{constraints::Constraint, Intersection};
+
         match self
             .settings
             .update(|settings| settings.tunnel_options.wireguard.daita.use_anywhere = value)
@@ -2370,8 +2383,19 @@ impl Daemon {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set_daita_use_anywhere response");
 
-                // TODO: don't reconnect if multihop is enabled
-                if settings_changed && self.get_target_tunnel_type() != Some(TunnelType::OpenVpn) {
+                let RelaySettings::Normal(constraints) = &self.settings.relay_settings else {
+                    return; // DAITA is not supported for custom relays
+                };
+
+                let wireguard_enabled = constraints
+                    .tunnel_protocol
+                    .intersection(Constraint::Only(TunnelType::Wireguard))
+                    .is_some();
+
+                let multihop_enabled = constraints.wireguard_constraints.use_multihop;
+                let daita_enabled = self.settings.tunnel_options.wireguard.daita.enabled;
+
+                if settings_changed && wireguard_enabled && daita_enabled && !multihop_enabled {
                     log::info!("Reconnecting because DAITA settings changed");
                     self.reconnect_tunnel();
                 }
