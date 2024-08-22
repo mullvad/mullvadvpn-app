@@ -22,15 +22,20 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Added
+#### Windows
+- Add experimental support for Windows ARM64.
+
+### Fixed
+#### macOS
+- Exclude programs when executed using a relative path from a shell.
+- Reduce packet loss when using split tunneling.
 
 
 ## [2024.5-beta1] - 2024-08-20
 ### Added
 - Add DAITA (Defence against AI-guided Traffic Analysis) setting for Linux and macOS.
 - Add `--json` flag to `mullvad status` CLI.
-
-#### Windows
-- Add experimental support for Windows ARM64.
 
 ### Changed
 - Ignore obfuscation protocol constraints when the obfuscation mode is set to auto.
@@ -45,8 +50,6 @@ Line wrap the file at 100 chars.                                              Th
 
 #### macOS
 - Fix intermittent failures to connect with PQ enabled.
-- Exclude programs when executed using a relative path from a shell.
-- Reduce packet loss when using split tunneling.
 
 
 ## [2024.4] - 2024-07-23
