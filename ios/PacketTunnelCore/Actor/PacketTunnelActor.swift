@@ -146,8 +146,8 @@ public actor PacketTunnelActor {
                 logger.error(error: error, message: "Failed to reconfigure tunnel after each hop negotiation.")
                 await setErrorStateInternal(with: error)
             }
-        case .postQuantumConnect:
-            await postQuantumConnect()
+        case .connectWithEphemeralPeer:
+            await connectWithEphemeralPeer()
         case .setDisconnectedState:
             self.state = .disconnected
         }

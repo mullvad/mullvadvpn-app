@@ -1,6 +1,6 @@
 //
 //  MullvadPostQuantum+Stubs.swift
-//  MullvadPostQuantumTests
+//  MullvadRustRuntimeTests
 //
 //  Created by Marco Nikic on 2024-06-12.
 //  Copyright © 2024 Mullvad VPN AB. All rights reserved.
@@ -58,9 +58,9 @@ class FailedNegotiatorStub: EphemeralPeerNegotiating {
         gatewayIP: IPv4Address,
         devicePublicKey: WireGuardKitTypes.PublicKey,
         presharedKey: WireGuardKitTypes.PrivateKey,
-        postQuantumKeyReceiver packetTunnel: any MullvadTypes.TunnelProvider,
+        peerReceiver packetTunnel: any MullvadTypes.TunnelProvider,
         tcpConnection: NWTCPConnection,
-        postQuantumKeyExchangeTimeout: MullvadTypes.Duration,
+        peerExchangeTimeout: MullvadTypes.Duration,
         enablePostQuantum: Bool,
         enableDaita: Bool
     ) -> Bool { false }
@@ -84,9 +84,9 @@ class SuccessfulNegotiatorStub: EphemeralPeerNegotiating {
         gatewayIP: IPv4Address,
         devicePublicKey: WireGuardKitTypes.PublicKey,
         presharedKey: WireGuardKitTypes.PrivateKey,
-        postQuantumKeyReceiver packetTunnel: any MullvadTypes.TunnelProvider,
+        peerReceiver packetTunnel: any MullvadTypes.TunnelProvider,
         tcpConnection: NWTCPConnection,
-        postQuantumKeyExchangeTimeout: MullvadTypes.Duration,
+        peerExchangeTimeout: MullvadTypes.Duration,
         enablePostQuantum: Bool,
         enableDaita: Bool
     ) -> Bool { true }

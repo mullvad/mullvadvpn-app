@@ -10,14 +10,14 @@ import Foundation
 import NetworkExtension
 import WireGuardKitTypes
 
-public class PostQuantumKeyReceiver: EphemeralPeerReceiving, TunnelProvider {
+public class EphemeralPeerReceiver: EphemeralPeerReceiving, TunnelProvider {
     unowned let tunnelProvider: NEPacketTunnelProvider
 
     public init(tunnelProvider: NEPacketTunnelProvider) {
         self.tunnelProvider = tunnelProvider
     }
 
-    // MARK: - PostQuantumKeyReceiving
+    // MARK: - EphemeralPeerReceiving
 
     public func receivePostQuantumKey(_ key: PreSharedKey, ephemeralKey: PrivateKey) {
         guard let receiver = tunnelProvider as? EphemeralPeerReceiving else { return }

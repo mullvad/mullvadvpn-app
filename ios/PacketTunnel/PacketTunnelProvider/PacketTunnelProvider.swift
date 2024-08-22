@@ -30,8 +30,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     private let tunnelSettingsUpdater: SettingsUpdater!
 
     private let tunnelSettingsListener = TunnelSettingsListener()
-    private lazy var postQuantumReceiver = {
-        PostQuantumKeyReceiver(tunnelProvider: self)
+    private lazy var ephemeralPeerReceiver = {
+        EphemeralPeerReceiver(tunnelProvider: self)
     }()
 
     // swiftlint:disable:next function_body_length
@@ -97,14 +97,14 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
 
         ephemeralPeerExchangingPipeline = EphemeralPeerExchangingPipeline(
             EphemeralPeerExchangeActor(
-                packetTunnel: postQuantumReceiver,
+                packetTunnel: ephemeralPeerReceiver,
                 onFailure: self.ephemeralPeerExchangeFailed,
                 iteratorProvider: { REST.RetryStrategy.postQuantumKeyExchange.makeDelayIterator() }
             ),
             onUpdateConfiguration: { [unowned self] configuration in
                 actor.changeEphemeralPeerNegotiationState(configuration: configuration)
             }, onFinish: { [unowned self] in
-                actor.notifyPostQuantumKeyExchanged()
+                actor.notifyEphemeralPeerNegotiated()
             }
         )
     }
@@ -132,9 +132,9 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
                     return
                 }
             case .negotiatingEphemeralPeer:
-                // When negotiating post quantum keys, allow the connection to go through immediately.
+                // When negotiating ephemeral peers, allow the connection to go through immediately.
                 // Otherwise, the in-tunnel TCP connection will never become ready as the OS doesn't let
-                // any traffic through until this function returns, which would prevent negotiating keys
+                // any traffic through until this function returns, which would prevent negotiating ephemeral peers
                 // from an unconnected state.
                 return
             default:
