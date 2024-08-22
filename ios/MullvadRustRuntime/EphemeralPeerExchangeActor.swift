@@ -99,9 +99,9 @@ public class EphemeralPeerExchangeActor: EphemeralPeerExchangeActorProtocol {
                 gatewayIP: IPv4Gateway,
                 devicePublicKey: privateKey.publicKey,
                 presharedKey: ephemeralSharedKey,
-                postQuantumKeyReceiver: packetTunnel,
+                peerReceiver: packetTunnel,
                 tcpConnection: inTunnelTCPConnection,
-                postQuantumKeyExchangeTimeout: tcpConnectionTimeout,
+                peerExchangeTimeout: tcpConnectionTimeout,
                 enablePostQuantum: enablePostQuantum,
                 enableDaita: enableDaita
             ) {

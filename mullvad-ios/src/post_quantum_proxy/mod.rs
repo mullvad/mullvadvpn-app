@@ -42,33 +42,33 @@ impl Drop for EphemeralPeerCancelToken {
 
 unsafe impl Send for EphemeralPeerCancelToken {}
 
-/// Called by the Swift side to signal that the quantum-secure key exchange should be cancelled.
+/// Called by the Swift side to signal that the ephemeral peer exchange should be cancelled.
 /// After this call, the cancel token is no longer valid.
 ///
 /// # Safety
-/// `sender` must be pointing to a valid instance of a `PostQuantumCancelToken` created by the
+/// `sender` must be pointing to a valid instance of a `EphemeralPeerCancelToken` created by the
 /// `PacketTunnelProvider`.
 #[no_mangle]
-pub unsafe extern "C" fn cancel_post_quantum_key_exchange(sender: *const EphemeralPeerCancelToken) {
+pub unsafe extern "C" fn cancel_ephemeral_peer_exchange(sender: *const EphemeralPeerCancelToken) {
     let sender = unsafe { &*sender };
     sender.cancel();
 }
 
-/// Called by the Swift side to signal that the Rust `PostQuantumCancelToken` can be safely dropped
+/// Called by the Swift side to signal that the Rust `EphemeralPeerCancelToken` can be safely dropped
 /// from memory.
 ///
 /// # Safety
-/// `sender` must be pointing to a valid instance of a `PostQuantumCancelToken` created by the
+/// `sender` must be pointing to a valid instance of a `EphemeralPeerCancelToken` created by the
 /// `PacketTunnelProvider`.
 #[no_mangle]
-pub unsafe extern "C" fn drop_post_quantum_key_exchange_token(
+pub unsafe extern "C" fn drop_ephemeral_peer_exchange_token(
     sender: *const EphemeralPeerCancelToken,
 ) {
     let _sender = unsafe { std::ptr::read(sender) };
 }
 
 /// Called by Swift whenever data has been written to the in-tunnel TCP connection when exchanging
-/// quantum-resistant pre shared keys.
+/// quantum-resistant pre shared keys, or ephemeral peers.
 ///
 /// If `bytes_sent` is 0, this indicates that the connection was closed or that an error occurred.
 ///
@@ -84,7 +84,7 @@ pub unsafe extern "C" fn handle_sent(bytes_sent: usize, sender: *const c_void) {
 }
 
 /// Called by Swift whenever data has been read from the in-tunnel TCP connection when exchanging
-/// quantum-resistant pre shared keys.
+/// quantum-resistant pre shared keys, or ephemeral peers.
 ///
 /// If `data` is null or empty, this indicates that the connection was closed or that an error
 /// occurred. An empty buffer is sent to the underlying reader to signal EOF.
@@ -109,7 +109,7 @@ pub unsafe extern "C" fn handle_recv(data: *const u8, mut data_len: usize, sende
     }
 }
 
-/// Entry point for exchanging post quantum keys on iOS.
+/// Entry point for requesting ephemeral peers on iOS.
 /// The TCP connection must be created to go through the tunnel.
 /// # Safety
 /// `public_key` and `ephemeral_key` must be valid respective `PublicKey` and `PrivateKey` types.
@@ -124,7 +124,7 @@ pub unsafe extern "C" fn request_ephemeral_peer(
     packet_tunnel: *const c_void,
     tcp_connection: *const c_void,
     cancel_token: *mut EphemeralPeerCancelToken,
-    post_quantum_key_exchange_timeout: u64,
+    peer_exchange_timeout: u64,
     enable_post_quantum: bool,
     enable_daita: bool,
 ) -> i32 {
@@ -152,7 +152,7 @@ pub unsafe extern "C" fn request_ephemeral_peer(
             eph_key,
             packet_tunnel,
             tcp_connection,
-            post_quantum_key_exchange_timeout,
+            peer_exchange_timeout,
             handle,
             enable_post_quantum,
             enable_daita,

@@ -28,7 +28,7 @@ extension PacketTunnelActor {
     /**
      Called on receipt of the new PQ-negotiated key, to reconnect to the relay, in PQ-secure mode.
      */
-    internal func postQuantumConnect() async {
+    internal func connectWithEphemeralPeer() async {
         guard let connectionData = state.connectionData else {
             logger.error("Could not create connection state in PostQuantumConnect")
             eventChannel.send(.reconnect(.current))
@@ -47,7 +47,7 @@ extension PacketTunnelActor {
     }
 
     /**
-     Called to reconfigure the tunnel after each key negotiation.
+     Called to reconfigure the tunnel after each ephemeral peer negotiation.
      */
     internal func updateEphemeralPeerNegotiationState(configuration: EphemeralPeerNegotiationState) async throws {
         /**
@@ -60,7 +60,7 @@ extension PacketTunnelActor {
             settings: settings,
             reason: .userInitiated
         ) else {
-            logger.error("Tried to replace post quantum configuration in invalid state: \(state.name)")
+            logger.error("Tried to update ephemeral peer negotiation in invalid state: \(state.name)")
             return
         }
 

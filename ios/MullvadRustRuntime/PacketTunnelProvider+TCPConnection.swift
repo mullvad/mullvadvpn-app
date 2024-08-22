@@ -80,22 +80,24 @@ func tcpConnectionReceive(
 
 /// End sequence of a quantum-secure pre shared key exchange.
 ///
-/// This FFI function is called by Rust when the quantum-secure pre shared key exchange has either failed, or succeeded.
+/// This FFI function is called by Rust when an ephemeral peer negotiation succeeded or failed.
 /// When both the `rawPresharedKey` and the `rawEphemeralKey` are raw pointers to 32 bytes data arrays,
-/// the quantum-secure key exchange is considered successful. In any other case, the exchange is considered failed.
+/// the quantum-secure key exchange is considered successful.
+/// If the `rawPresharedKey` is nil, but there is a valid `rawEphemeralKey`, it means a Daita peer has been negotiated with.
+/// If `rawEphemeralKey` is nil, the negotiation is considered failed.
 ///
 /// - Parameters:
 ///   - rawPacketTunnel: A raw pointer to the running instance of `NEPacketTunnelProvider`
 ///   - rawPresharedKey: A raw pointer to the quantum-secure pre shared key
 ///   - rawEphemeralKey: A raw pointer to the ephemeral private key of the device
-@_cdecl("swift_post_quantum_key_ready")
+@_cdecl("swift_ephemeral_peer_ready")
 func receivePostQuantumKey(
     rawPostQuantumKeyReceiver: UnsafeMutableRawPointer?,
     rawPresharedKey: UnsafeMutableRawPointer?,
     rawEphemeralKey: UnsafeMutableRawPointer?
 ) {
     guard let rawPostQuantumKeyReceiver else { return }
-    let postQuantumKeyReceiver = Unmanaged<PostQuantumKeyReceiver>.fromOpaque(rawPostQuantumKeyReceiver)
+    let postQuantumKeyReceiver = Unmanaged<EphemeralPeerReceiver>.fromOpaque(rawPostQuantumKeyReceiver)
         .takeUnretainedValue()
 
     // If there are no private keys for the ephemeral peer, then the negotiation either failed, or timed out.
