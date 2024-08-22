@@ -4047,8 +4047,8 @@
 		F059197A2C45404500C301F3 /* PostQuantum */ = {
 			isa = PBXGroup;
 			children = (
-				F059197C2C454C9200C301F3 /* MultiHopEphemeralPeerExchanger.swift */,
 				F05919762C453FAF00C301F3 /* EphemeralPeerExchangingPipeline.swift */,
+				F059197C2C454C9200C301F3 /* MultiHopEphemeralPeerExchanger.swift */,
 				F05919782C45402E00C301F3 /* SingleHopEphemeralPeerExchanger.swift */,
 			);
 			path = PostQuantum;
