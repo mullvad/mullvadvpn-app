@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.dialog
+package net.mullvad.mullvadvpn.compose.dialog.info
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
@@ -13,16 +13,15 @@ import net.mullvad.mullvadvpn.R
 
 @Preview
 @Composable
-private fun PreviewQuantumResistanceInfoDialog() {
-    QuantumResistanceInfo(EmptyDestinationsNavigator)
+private fun PreviewCustomDnsInfoDialog() {
+    CustomDnsInfo(EmptyDestinationsNavigator)
 }
 
 @Destination<RootGraph>(style = DestinationStyle.Dialog::class)
 @Composable
-fun QuantumResistanceInfo(navigator: DestinationsNavigator) {
+fun CustomDnsInfo(navigator: DestinationsNavigator) {
     InfoDialog(
-        message = stringResource(id = R.string.quantum_resistant_info_first_paragaph),
-        additionalInfo = stringResource(id = R.string.quantum_resistant_info_second_paragaph),
+        message = stringResource(id = R.string.settings_changes_effect_warning_content_blocker),
         onDismiss = dropUnlessResumed { navigator.navigateUp() },
     )
 }
