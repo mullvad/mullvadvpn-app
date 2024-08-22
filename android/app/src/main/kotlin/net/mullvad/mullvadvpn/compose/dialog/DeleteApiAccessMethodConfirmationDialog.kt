@@ -56,8 +56,8 @@ fun DeleteApiAccessMethodConfirmationDialog(
     onDelete: () -> Unit = {},
     onBack: () -> Unit = {}
 ) {
-    DeleteConfirmationDialog(
-        onDelete = onDelete,
+    NegativeConfirmationDialog(
+        onConfirm = onDelete,
         onBack = onBack,
         message =
             stringResource(
