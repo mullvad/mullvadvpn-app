@@ -21,8 +21,7 @@ pub unsafe fn run_post_quantum_psk_exchange(
     ephemeral_key: [u8; 32],
     packet_tunnel: *const c_void,
     tcp_connection: *const c_void,
-    post_quantum_key_exchange_timeout: u64,
-    tokio_handle: TokioHandle,
+    peer_exchange_timeout: u64,
     enable_post_quantum: bool,
     enable_daita: bool,
 ) -> Result<EphemeralPeerCancelToken, Error> {
@@ -32,13 +31,21 @@ pub unsafe fn run_post_quantum_psk_exchange(
             ephemeral_key,
             packet_tunnel,
             tcp_connection,
-            post_quantum_key_exchange_timeout,
+            peer_exchange_timeout,
             enable_post_quantum,
             enable_daita,
         )
     } {
         Ok(runtime) => {
             let token = runtime.packet_tunnel.tcp_connection.clone();
+
+            let tokio_handle = match crate::mullvad_ios_runtime() {
+                Ok(handle) => handle,
+                Err(err) => {
+                    log::error!("Failed to obtain a handle to a tokio runtime: {err}");
+                    return Err(Error::UnableToCreateRuntime);
+                }
+            };
 
             runtime.run(tokio_handle);
             Ok(EphemeralPeerCancelToken {
@@ -65,7 +72,7 @@ struct IOSRuntime {
     pub_key: [u8; 32],
     ephemeral_key: [u8; 32],
     packet_tunnel: SwiftContext,
-    post_quantum_key_exchange_timeout: u64,
+    peer_exchange_timeout: u64,
     enable_post_quantum: bool,
     enable_daita: bool,
 }
@@ -89,7 +96,7 @@ impl IOSRuntime {
             pub_key,
             ephemeral_key,
             packet_tunnel: context,
-            post_quantum_key_exchange_timeout,
+            peer_exchange_timeout: post_quantum_key_exchange_timeout,
             enable_post_quantum,
             enable_daita,
         })
@@ -132,13 +139,13 @@ impl IOSRuntime {
         let (async_provider, shutdown_handle) = unsafe {
             match Self::ios_tcp_client(self.packet_tunnel.clone()).await {
                 Ok(result) => result,
+
                 Err(error) => {
                     log::error!("Failed to create iOS TCP client: {error}");
-                    swift_post_quantum_key_ready(
+                    swift_ephemeral_peer_ready(
                         self.packet_tunnel.packet_tunnel,
                         ptr::null(),
                         ptr::null(),
-                        self.enable_daita,
                     );
                     return;
                 }
@@ -164,18 +171,16 @@ impl IOSRuntime {
                         match peer.psk {
                             Some(preshared_key) => unsafe {
                                 let preshared_key_bytes = preshared_key.as_bytes();
-                                swift_post_quantum_key_ready(self.packet_tunnel.packet_tunnel,
+                                swift_ephemeral_peer_ready(self.packet_tunnel.packet_tunnel,
                                     preshared_key_bytes.as_ptr(),
-                                    self.ephemeral_key.as_ptr(),
-                                    self.enable_daita);
+                                    self.ephemeral_key.as_ptr());
                             },
                             None => {
                                 // Daita peer was requested, but without enabling post quantum keys
                                 unsafe {
-                                    swift_post_quantum_key_ready(self.packet_tunnel.packet_tunnel,
+                                    swift_ephemeral_peer_ready(self.packet_tunnel.packet_tunnel,
                                         ptr::null(),
-                                        self.ephemeral_key.as_ptr(),
-                                    self.enable_daita);
+                                        self.ephemeral_key.as_ptr());
                                 }
                             }
                         }
@@ -183,24 +188,22 @@ impl IOSRuntime {
                     Err(error) => {
                         log::error!("Key exchange failed {}", error);
                         unsafe {
-                            swift_post_quantum_key_ready(self.packet_tunnel.packet_tunnel,
+                            swift_ephemeral_peer_ready(self.packet_tunnel.packet_tunnel,
                                 ptr::null(),
-                                ptr::null(),
-                                self.enable_daita);
+                                ptr::null());
                         }
                     }
                 }
             }
 
-            _ = tokio::time::sleep(std::time::Duration::from_secs(self.post_quantum_key_exchange_timeout)) => {
+            _ = tokio::time::sleep(std::time::Duration::from_secs(self.peer_exchange_timeout)) => {
                         if let Ok(mut connection) = self.packet_tunnel.tcp_connection.lock() {
                             connection.shutdown();
                         };
                         shutdown_handle.shutdown();
-                        unsafe { swift_post_quantum_key_ready(self.packet_tunnel.packet_tunnel,
+                        unsafe { swift_ephemeral_peer_ready(self.packet_tunnel.packet_tunnel,
                             ptr::null(),
-                            ptr::null(),
-                            self.enable_daita); }
+                            ptr::null()); }
             }
         }
     }
