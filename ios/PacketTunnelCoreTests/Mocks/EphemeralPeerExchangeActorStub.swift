@@ -1,5 +1,5 @@
 //
-//  PostQuantumKeyExchangeActorStub.swift
+//  EphemeralPeerExchangeActorStub.swift
 //  MullvadPostQuantumTests
 //
 //  Created by Mojgan on 2024-07-18.
@@ -21,7 +21,11 @@ final class EphemeralPeerExchangeActorStub: EphemeralPeerExchangeActorProtocol {
     func startNegotiation(with privateKey: PrivateKey, enablePostQuantum: Bool, enableDaita: Bool) {
         switch result {
         case let .success((preSharedKey, ephemeralKey)):
-            delegate?.receivePostQuantumKey(preSharedKey, ephemeralKey: ephemeralKey)
+            if enablePostQuantum {
+                delegate?.receivePostQuantumKey(preSharedKey, ephemeralKey: ephemeralKey)
+            } else {
+                delegate?.receiveEphemeralPeerPrivateKey(ephemeralKey)
+            }
         case .failure:
             delegate?.ephemeralPeerExchangeFailed()
         }

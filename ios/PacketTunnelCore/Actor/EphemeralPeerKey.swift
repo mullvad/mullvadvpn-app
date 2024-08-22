@@ -8,7 +8,7 @@
 
 import WireGuardKitTypes
 
-/// The private key used by ephemeral peers
+/// The preshared / private key  used by ephemeral peers
 public struct EphemeralPeerKey: Equatable {
     public let preSharedKey: PreSharedKey?
     public let ephemeralKey: PrivateKey

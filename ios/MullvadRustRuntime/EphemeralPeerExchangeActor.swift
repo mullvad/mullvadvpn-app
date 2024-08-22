@@ -1,5 +1,5 @@
 //
-//  PostQuantumKeyExchangeActor.swift
+//  EphemeralPeerExchangeActor.swift
 //  PacketTunnel
 //
 //  Created by Marco Nikic on 2024-04-12.
@@ -99,9 +99,9 @@ public class EphemeralPeerExchangeActor: EphemeralPeerExchangeActorProtocol {
                 gatewayIP: IPv4Gateway,
                 devicePublicKey: privateKey.publicKey,
                 presharedKey: ephemeralSharedKey,
-                postQuantumKeyReceiver: packetTunnel,
+                peerReceiver: packetTunnel,
                 tcpConnection: inTunnelTCPConnection,
-                postQuantumKeyExchangeTimeout: tcpConnectionTimeout,
+                peerExchangeTimeout: tcpConnectionTimeout,
                 enablePostQuantum: enablePostQuantum,
                 enableDaita: enableDaita
             ) {
