@@ -57,7 +57,7 @@ const StyledFeatureIndicatorLabel = styled.span<{ $expanded: boolean }>(tinyText
 
 const StyledBaseEllipsis = styled.span(tinyText, {
   position: 'absolute',
-  bottom: 0,
+  top: `${LINE_HEIGHT + GAP}px`,
   color: colors.white,
   padding: '2px 8px 2px 16px',
 });
@@ -197,19 +197,14 @@ function indicatorShouldBeHidden(
 ): boolean {
   const indicatorRect = indicator.getBoundingClientRect();
   const ellipsisSpacerRect = ellipsisSpacer.getBoundingClientRect();
+  const containerRect = container.getBoundingClientRect();
 
-  // If 2 or less lines are required to display the indicators all should be visible. This is
-  // calculated based on the scroll height.
-  if (container.scrollHeight <= 2 * LINE_HEIGHT + GAP) {
-    return false;
-  }
+  // Calculate which line the indicator is positioned on.
+  const lineIndex = Math.round((indicatorRect.top - containerRect.top) / (LINE_HEIGHT + GAP));
 
-  // An indicator should be hidden if it's placed farther down than the spacer ellipsis, or if it
-  // overlaps it.
-  return (
-    indicatorRect.top >= ellipsisSpacerRect.bottom ||
-    (indicatorRect.top === ellipsisSpacerRect.top && indicatorRect.right >= ellipsisSpacerRect.left)
-  );
+  // an indicator should remain hidden if it's on the third line or later, or if it is on the
+  // second line and overlap with the ellipsis.
+  return lineIndex > 1 || (lineIndex === 1 && indicatorRect.right >= ellipsisSpacerRect.left);
 }
 
 function getFeatureIndicatorLabel(indicator: FeatureIndicator) {
