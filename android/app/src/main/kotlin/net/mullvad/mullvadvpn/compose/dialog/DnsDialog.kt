@@ -1,12 +1,7 @@
 package net.mullvad.mullvadvpn.compose.dialog
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -19,13 +14,10 @@ import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.button.NegativeButton
-import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.communication.DnsDialogResult
 import net.mullvad.mullvadvpn.compose.textfield.DnsTextField
 import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
-import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.viewmodel.DnsDialogSideEffect
 import net.mullvad.mullvadvpn.viewmodel.DnsDialogViewModel
 import net.mullvad.mullvadvpn.viewmodel.DnsDialogViewState
@@ -90,79 +82,41 @@ fun DnsDialog(
     onRemoveDnsClick: (Int) -> Unit,
     onDismiss: () -> Unit
 ) {
-    AlertDialog(
-        title = {
-            Text(
-                text =
-                    if (state.isNewEntry) {
-                        stringResource(R.string.add_dns_server_dialog_title)
-                    } else {
-                        stringResource(R.string.update_dns_server_dialog_title)
-                    },
-                color = MaterialTheme.colorScheme.onSurface,
+    InputDialog(
+        title =
+            if (state.isNewEntry) {
+                stringResource(R.string.add_dns_server_dialog_title)
+            } else {
+                stringResource(R.string.update_dns_server_dialog_title)
+            },
+        input = {
+            DnsTextField(
+                value = state.input,
+                isValidValue = state.isValid(),
+                onValueChanged = { newDnsValue -> onDnsInputChange(newDnsValue) },
+                onSubmit = onSaveDnsClick,
+                isEnabled = true,
+                placeholderText = stringResource(R.string.custom_dns_hint),
+                modifier = Modifier.fillMaxWidth()
             )
         },
-        text = {
-            Column {
-                DnsTextField(
-                    value = state.input,
-                    isValidValue = state.isValid(),
-                    onValueChanged = { newDnsValue -> onDnsInputChange(newDnsValue) },
-                    onSubmit = onSaveDnsClick,
-                    isEnabled = true,
-                    placeholderText = stringResource(R.string.custom_dns_hint),
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                val errorMessage =
-                    when {
-                        state.validationError is ValidationError.DuplicateAddress -> {
-                            stringResource(R.string.duplicate_address_warning)
-                        }
-                        state.isLocal && !state.isAllowLanEnabled -> {
-                            stringResource(id = R.string.confirm_local_dns)
-                        }
-                        else -> {
-                            null
-                        }
-                    }
-
-                if (errorMessage != null) {
-                    Text(
-                        text = errorMessage,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.padding(top = Dimens.smallPadding)
-                    )
+        message =
+            when {
+                state.validationError is ValidationError.DuplicateAddress -> {
+                    stringResource(R.string.duplicate_address_warning)
                 }
-            }
-        },
-        confirmButton = {
-            Column(verticalArrangement = Arrangement.spacedBy(Dimens.buttonSpacing)) {
-                PrimaryButton(
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = onSaveDnsClick,
-                    isEnabled = state.isValid(),
-                    text = stringResource(id = R.string.submit_button),
-                )
-
-                if (state.index != null) {
-                    NegativeButton(
-                        modifier = Modifier.fillMaxWidth(),
-                        onClick = { onRemoveDnsClick(state.index) },
-                        text = stringResource(id = R.string.remove_button)
-                    )
+                state.isLocal && !state.isAllowLanEnabled -> {
+                    stringResource(id = R.string.confirm_local_dns)
                 }
-
-                PrimaryButton(
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = onDismiss,
-                    text = stringResource(id = R.string.cancel)
-                )
-            }
-        },
-        onDismissRequest = onDismiss,
-        containerColor = MaterialTheme.colorScheme.surface,
-        titleContentColor = MaterialTheme.colorScheme.onSurface,
+                else -> {
+                    null
+                }
+            },
+        onResetButtonText = stringResource(id = R.string.remove_button),
+        confirmButtonEnabled = state.isValid(),
+        messageTextColor = MaterialTheme.colorScheme.error,
+        onReset = state.index?.let { { onRemoveDnsClick(state.index) } },
+        onBack = onDismiss,
+        onConfirm = onSaveDnsClick
     )
 }
