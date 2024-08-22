@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.dialog
+package net.mullvad.mullvadvpn.compose.dialog.info
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
@@ -10,19 +10,19 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.lib.theme.AppTheme
 
 @Preview
 @Composable
-private fun PreviewMalwareInfoDialog() {
-    AppTheme { MalwareInfo(EmptyDestinationsNavigator) }
+private fun PreviewQuantumResistanceInfoDialog() {
+    QuantumResistanceInfo(EmptyDestinationsNavigator)
 }
 
 @Destination<RootGraph>(style = DestinationStyle.Dialog::class)
 @Composable
-fun MalwareInfo(navigator: DestinationsNavigator) {
+fun QuantumResistanceInfo(navigator: DestinationsNavigator) {
     InfoDialog(
-        message = stringResource(id = R.string.malware_info),
+        message = stringResource(id = R.string.quantum_resistant_info_first_paragaph),
+        additionalInfo = stringResource(id = R.string.quantum_resistant_info_second_paragaph),
         onDismiss = dropUnlessResumed { navigator.navigateUp() }
     )
 }
