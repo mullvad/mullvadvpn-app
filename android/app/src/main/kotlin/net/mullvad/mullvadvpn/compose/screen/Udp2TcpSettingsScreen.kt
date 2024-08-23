@@ -18,8 +18,8 @@ import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
 import net.mullvad.mullvadvpn.compose.state.Udp2TcpSettingsState
-import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_UDP_OVER_TCP_PORT_ITEM_AUTOMATIC_TEST_TAG
-import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_UDP_OVER_TCP_PORT_ITEM_X_TEST_TAG
+import net.mullvad.mullvadvpn.compose.test.UDP_OVER_TCP_PORT_ITEM_AUTOMATIC_TEST_TAG
+import net.mullvad.mullvadvpn.compose.test.UDP_OVER_TCP_PORT_ITEM_X_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.constant.UDP2TCP_PRESET_PORTS
 import net.mullvad.mullvadvpn.lib.model.Constraint
@@ -72,7 +72,7 @@ fun Udp2TcpSettingsScreen(
                     title = stringResource(id = R.string.automatic),
                     isSelected = state.port is Constraint.Any,
                     onCellClicked = { onObfuscationPortSelected(Constraint.Any) },
-                    testTag = LAZY_LIST_UDP_OVER_TCP_PORT_ITEM_AUTOMATIC_TEST_TAG,
+                    testTag = UDP_OVER_TCP_PORT_ITEM_AUTOMATIC_TEST_TAG,
                 )
             }
             itemWithDivider {
@@ -81,8 +81,7 @@ fun Udp2TcpSettingsScreen(
                         title = port.toString(),
                         isSelected = state.port.hasValue(port),
                         onCellClicked = { onObfuscationPortSelected(Constraint.Only(Port(port))) },
-                        testTag =
-                            String.format(null, LAZY_LIST_UDP_OVER_TCP_PORT_ITEM_X_TEST_TAG, port)
+                        testTag = String.format(null, UDP_OVER_TCP_PORT_ITEM_X_TEST_TAG, port)
                     )
                 }
             }

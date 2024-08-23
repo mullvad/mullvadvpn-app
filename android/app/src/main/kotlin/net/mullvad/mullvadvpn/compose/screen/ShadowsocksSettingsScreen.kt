@@ -22,8 +22,9 @@ import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.dialog.CustomPortNavArgs
 import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
 import net.mullvad.mullvadvpn.compose.state.ShadowsocksSettingsState
-import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_UDP_OVER_TCP_PORT_ITEM_AUTOMATIC_TEST_TAG
-import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_UDP_OVER_TCP_PORT_ITEM_X_TEST_TAG
+import net.mullvad.mullvadvpn.compose.test.SHADOWSOCKS_CUSTOM_PORT_TEXT_TEST_TAG
+import net.mullvad.mullvadvpn.compose.test.SHADOWSOCKS_PORT_ITEM_AUTOMATIC_TEST_TAG
+import net.mullvad.mullvadvpn.compose.test.SHADOWSOCKS_PORT_ITEM_X_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
 import net.mullvad.mullvadvpn.constant.SHADOWSOCKS_PRESET_PORTS
@@ -102,7 +103,7 @@ fun ShadowsocksSettingsScreen(
                     title = stringResource(id = R.string.automatic),
                     isSelected = state.port is Constraint.Any,
                     onCellClicked = { onObfuscationPortSelected(Constraint.Any) },
-                    testTag = LAZY_LIST_UDP_OVER_TCP_PORT_ITEM_AUTOMATIC_TEST_TAG,
+                    testTag = SHADOWSOCKS_PORT_ITEM_AUTOMATIC_TEST_TAG,
                 )
             }
             itemWithDivider {
@@ -111,8 +112,7 @@ fun ShadowsocksSettingsScreen(
                         title = port.toString(),
                         isSelected = state.port.hasValue(port),
                         onCellClicked = { onObfuscationPortSelected(Constraint.Only(Port(port))) },
-                        testTag =
-                            String.format(null, LAZY_LIST_UDP_OVER_TCP_PORT_ITEM_X_TEST_TAG, port)
+                        testTag = String.format(null, SHADOWSOCKS_PORT_ITEM_X_TEST_TAG, port)
                     )
                 }
             }
@@ -129,6 +129,7 @@ fun ShadowsocksSettingsScreen(
                         }
                     },
                     onPortCellClicked = navigateToCustomPortDialog,
+                    mainTestTag = SHADOWSOCKS_CUSTOM_PORT_TEXT_TEST_TAG
                 )
             }
         }

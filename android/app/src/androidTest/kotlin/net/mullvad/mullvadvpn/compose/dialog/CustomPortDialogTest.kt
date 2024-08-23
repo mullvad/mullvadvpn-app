@@ -30,13 +30,15 @@ class CustomPortDialogTest {
     @SuppressLint("ComposableNaming")
     @Composable
     private fun testWireguardCustomPortDialog(
+        title: String = "",
         initialPort: Port? = null,
         allowedPortRanges: List<PortRange> = emptyList(),
         onSave: (Port?) -> Unit = { _ -> },
         onDismiss: () -> Unit = {},
     ) {
 
-        WireguardCustomPortDialog(
+        CustomPortDialog(
+            title = title,
             initialPort = initialPort,
             allowedPortRanges = allowedPortRanges,
             onSave = onSave,
