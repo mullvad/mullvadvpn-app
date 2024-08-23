@@ -490,7 +490,7 @@ struct SharedTunnelStateValues {
 }
 
 impl SharedTunnelStateValues {
-    /// Return whether an split tunnel interface was created
+    /// Return whether a split tunnel interface was added or removed
     #[cfg(target_os = "macos")]
     pub fn set_exclude_paths(&mut self, paths: Vec<OsString>) -> Result<bool, split_tunnel::Error> {
         self.runtime.block_on(async {
@@ -506,7 +506,7 @@ impl SharedTunnelStateValues {
                     error
                 })?;
             let has_interface = self.split_tunnel.interface().await.is_some();
-            Ok(!had_interface && has_interface)
+            Ok(had_interface != has_interface)
         })
     }
 
@@ -537,7 +537,7 @@ impl SharedTunnelStateValues {
             v6_address,
         };
         self.runtime
-            .block_on(self.split_tunnel.set_tunnel(Some(vpn_interface)))
+            .block_on(self.split_tunnel.set_tunnel(vpn_interface))
             .inspect_err(|error| {
                 log::error!(
                     "{}",

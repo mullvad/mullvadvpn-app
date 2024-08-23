@@ -359,10 +359,10 @@ impl ConnectedState {
             #[cfg(target_os = "macos")]
             Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
                 match shared_values.set_exclude_paths(paths) {
-                    Ok(added_device) => {
+                    Ok(interface_changed) => {
                         let _ = result_tx.send(Ok(()));
 
-                        if added_device {
+                        if interface_changed {
                             if let Err(error) = self.set_firewall_policy(shared_values) {
                                 return self.disconnect(
                                     shared_values,
