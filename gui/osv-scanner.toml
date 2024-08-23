@@ -42,3 +42,9 @@ reason = "We don't utilize the signing features in browserify"
 id = "CVE-2024-42459" # GHSA-f7q4-pwc6-w24p
 ignoreUntil = 2024-10-15
 reason = "We don't utilize the signing features in browserify"
+
+# micromatch (dev): Regular Expression Denial of Service (ReDoS) in micromatch
+[[IgnoredVulns]]
+id = "CVE-2024-4067" # GHSA-952p-6rrq-rcjv
+ignoreUntil = 2024-11-23
+reason = "This is just a dev dependency, and we don't have untrusted input to micromatch there"
