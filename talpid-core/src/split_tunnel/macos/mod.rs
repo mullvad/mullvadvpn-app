@@ -428,12 +428,14 @@ impl State {
             // interface from the user's system.
             State::Active {
                 route_manager,
-                process,
+                mut process,
                 tun_handle,
                 vpn_interface,
             } if paths.is_empty() => {
-                drop(tun_handle);
-                drop(process);
+                if let Err(error) = tun_handle.shutdown().await {
+                    log::error!("Failed to stop split tunnel: {error}");
+                }
+                process.shutdown().await;
                 Ok(State::StandBy {
                     route_manager,
                     vpn_interface,
