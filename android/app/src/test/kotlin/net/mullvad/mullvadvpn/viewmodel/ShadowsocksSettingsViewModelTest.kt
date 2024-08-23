@@ -41,7 +41,7 @@ class ShadowsocksSettingsViewModelTest {
         viewModel =
             ShadowsocksSettingsViewModel(
                 settingsRepository = mockSettingsRepository,
-                relayListRepository = mockRelayListRepository
+                relayListRepository = mockRelayListRepository,
             )
     }
 
