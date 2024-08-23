@@ -89,7 +89,7 @@ as intended.
   export CSC_LINK=/path/to/macos_signing_application.p12
   export CSC_INSTALLER_LINK=/path/to/macos_signing_installer.p12
   ```
-* The passprase for the `.p12` files must be assigned to `CSC_KEY_PASSWORD` and
+* The passphrase for the `.p12` files must be assigned to `CSC_KEY_PASSWORD` and
   `CSC_INSTALLER_KEY_PASSWORD` respectively. But our `buildserver-build.sh` script will
   automatically ask for those, so no need to export them manually.
 
