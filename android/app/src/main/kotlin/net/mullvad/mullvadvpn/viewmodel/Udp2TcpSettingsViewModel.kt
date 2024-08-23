@@ -28,8 +28,10 @@ class Udp2TcpSettingsViewModel(private val repository: SettingsRepository) : Vie
             )
 
     fun onObfuscationPortSelected(port: Constraint<Port>) {
-        viewModelScope.launch { repository.setCustomUdp2TcpObfuscationPort(port).onLeft {
-            Logger.e("Select udp to tcp port error $it")
-        } }
+        viewModelScope.launch {
+            repository.setCustomUdp2TcpObfuscationPort(port).onLeft {
+                Logger.e("Select udp to tcp port error $it")
+            }
+        }
     }
 }
