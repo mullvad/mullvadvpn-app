@@ -139,7 +139,6 @@ impl IOSRuntime {
                         self.packet_tunnel.packet_tunnel,
                         ptr::null(),
                         ptr::null(),
-                        self.enable_daita,
                     );
                     return;
                 }
@@ -167,16 +166,14 @@ impl IOSRuntime {
                                 let preshared_key_bytes = preshared_key.as_bytes();
                                 swift_ephemeral_peer_ready(self.packet_tunnel.packet_tunnel,
                                     preshared_key_bytes.as_ptr(),
-                                    self.ephemeral_key.as_ptr(),
-                                    self.enable_daita);
+                                    self.ephemeral_key.as_ptr());
                             },
                             None => {
                                 // Daita peer was requested, but without enabling post quantum keys
                                 unsafe {
                                     swift_ephemeral_peer_ready(self.packet_tunnel.packet_tunnel,
                                         ptr::null(),
-                                        self.ephemeral_key.as_ptr(),
-                                    self.enable_daita);
+                                        self.ephemeral_key.as_ptr());
                                 }
                             }
                         }
@@ -186,8 +183,7 @@ impl IOSRuntime {
                         unsafe {
                             swift_ephemeral_peer_ready(self.packet_tunnel.packet_tunnel,
                                 ptr::null(),
-                                ptr::null(),
-                                self.enable_daita);
+                                ptr::null());
                         }
                     }
                 }
@@ -200,8 +196,7 @@ impl IOSRuntime {
                         shutdown_handle.shutdown();
                         unsafe { swift_ephemeral_peer_ready(self.packet_tunnel.packet_tunnel,
                             ptr::null(),
-                            ptr::null(),
-                            self.enable_daita); }
+                            ptr::null()); }
             }
         }
     }

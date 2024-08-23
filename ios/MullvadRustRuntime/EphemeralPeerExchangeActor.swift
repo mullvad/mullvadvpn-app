@@ -1,5 +1,5 @@
 //
-//  PostQuantumKeyExchangeActor.swift
+//  EphemeralPeerExchangeActor.swift
 //  PacketTunnel
 //
 //  Created by Marco Nikic on 2024-04-12.

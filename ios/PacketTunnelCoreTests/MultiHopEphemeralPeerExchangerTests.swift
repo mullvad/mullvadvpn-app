@@ -134,7 +134,7 @@ final class MultiHopEphemeralPeerExchangerTests: XCTestCase {
         )
     }
 
-    //TODO: Write more tests
+    // TODO: Write more tests
     func testEphemeralPeerExchangeSuccessWhenDaitaNegotiationStarts() throws {
         let unexpectedNegotiationFailure = expectation(description: "Negotiation failed.")
         unexpectedNegotiationFailure.isInverted = true
