@@ -57,7 +57,9 @@ class AppInteractor(
             device.findObjectWithTimeout(By.clazz("android.widget.EditText")).apply {
                 text = accountNumber
             }
-        loginObject.parent.findObject(By.clazz(Button::class.java)).click()
+        val loginButton = loginObject.parent.findObject(By.clazz(Button::class.java))
+        loginButton.wait(Until.enabled(true), DEFAULT_INTERACTION_TIMEOUT)
+        loginButton.click()
     }
 
     fun attemptCreateAccount() {
