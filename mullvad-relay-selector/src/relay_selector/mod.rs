@@ -28,6 +28,7 @@ use mullvad_types::{
     },
     relay_list::{Relay, RelayEndpointData, RelayList},
     settings::Settings,
+    wireguard::QuantumResistantState,
     CustomTunnelEndpoint, Intersection,
 };
 use talpid_types::{
@@ -123,6 +124,8 @@ pub struct AdditionalWireguardConstraints {
     /// If true, select WireGuard relays that support DAITA. If false, select any
     /// server.
     pub daita: bool,
+    /// If enabled, select relays that support PQ.
+    pub quantum_resistant: QuantumResistantState,
 }
 
 /// Values which affect the choice of relay but are only known at runtime.
@@ -338,7 +341,10 @@ impl<'a> From<NormalSelectorConfig<'a>> for RelayQuery {
                 use_multihop,
                 entry_location,
             } = wireguard_constraints;
-            let AdditionalWireguardConstraints { daita } = additional_constraints;
+            let AdditionalWireguardConstraints {
+                daita,
+                quantum_resistant,
+            } = additional_constraints;
             WireguardRelayQuery {
                 port,
                 ip_version,
@@ -346,6 +352,7 @@ impl<'a> From<NormalSelectorConfig<'a>> for RelayQuery {
                 entry_location,
                 obfuscation: ObfuscationQuery::from(obfuscation_settings),
                 daita: Constraint::Only(daita),
+                quantum_resistant,
             }
         }
 

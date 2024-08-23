@@ -9,6 +9,7 @@ use mullvad_types::{
         Providers, ShadowsocksSettings,
     },
     relay_list::{Relay, RelayEndpointData, WireguardRelayEndpointData},
+    wireguard::QuantumResistantState,
 };
 use talpid_types::net::{IpVersion, TunnelType};
 
@@ -38,10 +39,10 @@ pub fn filter_matching_relay_list(
             .filter(|relay| filter_on_ownership(&query.ownership, relay))
             // Filter by providers
             .filter(|relay| filter_on_providers(&query.providers, relay))
-            // Filter by DAITA support
-            .filter(|relay| filter_on_daita(&query.wireguard_constraints.daita, relay))
             // Filter by obfuscation support
-            .filter(|relay| filter_on_obfuscation(&query.wireguard_constraints, relay_list, relay));
+            .filter(|relay| filter_on_obfuscation(&query.wireguard_constraints, relay_list, relay))
+            // Filter on core privacy features
+            .filter(|relay| filter_on_core_privacy_features(&query.wireguard_constraints, relay));
 
     // The last filtering to be done is on the `include_in_country` attribute found on each
     // relay. When the location constraint is based on country, a relay which has
@@ -117,19 +118,6 @@ pub fn filter_on_providers(filter: &Constraint<Providers>, relay: &Relay) -> boo
     filter.matches(relay)
 }
 
-/// Returns whether `relay` satisfy the daita constraint posed by `filter`.
-pub fn filter_on_daita(filter: &Constraint<bool>, relay: &Relay) -> bool {
-    match (filter, &relay.endpoint_data) {
-        // Only a subset of relays support DAITA, so filter out ones that don't.
-        (
-            Constraint::Only(true),
-            RelayEndpointData::Wireguard(WireguardRelayEndpointData { daita, .. }),
-        ) => *daita,
-        // If we don't require DAITA, any relay works.
-        _ => true,
-    }
-}
-
 /// Returns whether `relay` satisfies the obfuscation settings.
 fn filter_on_obfuscation(
     query: &WireguardRelayQuery,
@@ -149,6 +137,44 @@ fn filter_on_obfuscation(
         }
 
         // If Shadowsocks is not a requirement, then there are no relay-specific constraints
+        _ => true,
+    }
+}
+
+// When core privacy features are enabled, only a subset of WireGuard relays will be included
+fn filter_on_core_privacy_features(query: &WireguardRelayQuery, relay: &Relay) -> bool {
+    filter_on_daita(&query.daita, relay)
+        && filter_on_multihop(query.multihop(), relay)
+        && filter_on_quantum_resistance(query.quantum_resistant, relay)
+}
+
+/// Filter out relays that do not support WireGuard multihop.
+fn filter_on_multihop(enabled: bool, relay: &Relay) -> bool {
+    // When multihop is enabled, discard all non-wireguard relays
+    !enabled || matches!(relay.endpoint_data, RelayEndpointData::Wireguard(_))
+}
+
+/// Filter out relays that do not support quantum resistance.
+fn filter_on_quantum_resistance(state: QuantumResistantState, relay: &Relay) -> bool {
+    // When PQ is enabled, discard all non-wireguard relays
+    if state == QuantumResistantState::On {
+        matches!(relay.endpoint_data, RelayEndpointData::Wireguard(_))
+    } else {
+        true
+    }
+}
+
+/// Returns whether `relay` satisfy the daita constraint posed by `filter`.
+pub fn filter_on_daita(filter: &Constraint<bool>, relay: &Relay) -> bool {
+    match (filter, &relay.endpoint_data) {
+        // Only a subset of relays support DAITA, so filter out ones that don't.
+        (
+            Constraint::Only(true),
+            RelayEndpointData::Wireguard(WireguardRelayEndpointData { daita, .. }),
+        ) => *daita,
+        // Filter out all non-WireGuard relays
+        (Constraint::Only(true), _) => false,
+        // Keep all relays when DAITA isn't requested.
         _ => true,
     }
 }
