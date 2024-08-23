@@ -256,17 +256,6 @@ class LoginViewController: UIViewController, RootContainment {
 
     private func updateStatusIcon() {
         contentView.statusActivityView.state = loginState.statusActivityState
-
-        switch loginState {
-        case .authenticating:
-            contentView.statusActivityView.accessibilityIdentifier = .loginStatusIconAuthenticating
-        case .failure:
-            contentView.statusActivityView.accessibilityIdentifier = .loginStatusIconFailure
-        case .success:
-            contentView.statusActivityView.accessibilityIdentifier = .loginStatusIconSuccess
-        default:
-            break
-        }
     }
 
     private func beginLogin(_ action: LoginAction) {

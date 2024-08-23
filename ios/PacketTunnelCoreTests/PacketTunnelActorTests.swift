@@ -446,6 +446,8 @@ final class PacketTunnelActorTests: XCTestCase {
         actor.reconnect(to: .random, reconnectReason: .userInitiated)
         await fulfillment(of: [stopMonitorExpectation], timeout: .UnitTest.timeout)
     }
+
+    func testRecoveringConnectionAfterTunnelAdaptorError() {}
 }
 
 extension PacketTunnelActorTests {

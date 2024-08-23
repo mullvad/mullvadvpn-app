@@ -104,6 +104,7 @@ extension PacketTunnelActor {
             currentKey: connState.currentKey,
             keyPolicy: connState.keyPolicy,
             networkReachability: connState.networkReachability,
+            recoveryTask: startRecoveryTaskIfNeeded(reason: reason),
             priorState: priorState
         )
     }
