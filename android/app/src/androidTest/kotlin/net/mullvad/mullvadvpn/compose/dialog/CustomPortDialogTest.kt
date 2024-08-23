@@ -40,6 +40,7 @@ class CustomPortDialogTest {
     @SuppressLint("ComposableNaming")
     @Composable
     private fun testWireguardCustomPortDialog(
+        title: String = "",
         portInput: String = "",
         isValidInput: Boolean = false,
         showResetToDefault: Boolean = false,
@@ -57,8 +58,9 @@ class CustomPortDialogTest {
                 showResetToDefault = showResetToDefault,
             )
 
-        WireguardCustomPortDialog(
+        CustomPortDialog(
             state,
+            title = title,
             onInputChanged = onInputChanged,
             onSavePort = onSavePort,
             onDismiss = onDismiss,

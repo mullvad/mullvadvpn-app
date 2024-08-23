@@ -67,7 +67,7 @@ fun CustomPort(
         }
     }
 
-    WireguardCustomPortDialog(
+    CustomPortDialog(
         uiState,
         title = navArg.title,
         onInputChanged = viewModel::onInputChanged,
@@ -78,7 +78,7 @@ fun CustomPort(
 }
 
 @Composable
-fun WireguardCustomPortDialog(
+fun CustomPortDialog(
     state: WireguardCustomPortDialogUiState,
     title: String,
     onInputChanged: (String) -> Unit,
