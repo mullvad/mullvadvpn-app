@@ -18,77 +18,207 @@ macro_rules! print_option {
     }};
 }
 
-pub fn print_state(state: &TunnelState, verbose: bool) {
+pub fn print_state(state: &TunnelState, previous_state: Option<&TunnelState>, verbose: bool) {
     use TunnelState::*;
 
-    match state {
-        Error(error) => print_error_state(error),
-        Connected {
-            endpoint,
-            location,
-            feature_indicators,
-        } => {
-            println!(
-                "Connected to {}",
-                format_relay_connection(endpoint, location.as_ref(), verbose)
-            );
-            if verbose {
+    // When we enter the connected or disconnected state, am.i.mullvad.net will
+    // be polled to get exit location. When it arrives, we will get another
+    // tunnel state of the same enum type, but with the location filled in. This
+    // match statement checks if the new state is an updated version of the old
+    // one and if so skips the print to avoid spamming the user. Note that for
+    // graphical frontends updating the drawn state with an identical one is
+    // invisible, so this is only an issue for the CLI.
+    match (&previous_state, &state) {
+        (_, TunnelState::Error(e)) => print_error_state(e),
+        (
+            Some(TunnelState::Disconnected {
+                location: old_location,
+                locked_down: was_locked_down,
+            }),
+            TunnelState::Disconnected {
+                location,
+                locked_down,
+            },
+            // Do print an updated state if the lockdown setting was changed
+        ) => {
+            if *locked_down && !was_locked_down {
+                println!("  Internet access is blocked due to lockdown mode");
+            } else if !*locked_down && *was_locked_down {
+                println!("  Internet access is no longer blocked due to lockdown mode");
+            }
+
+            if location != old_location {
+                if let Some(location) = location {
+                    print!("  ");
+                    print_location(location); // TODO: look over
+                }
+            }
+        }
+        (
+            _,
+            TunnelState::Disconnected {
+                location,
+                locked_down,
+            },
+            // Do print an updated state if the lockdown setting was changed
+        ) => {
+            println!("Disconnected");
+            if *locked_down {
+                println!("Internet access is blocked due to lockdown mode");
+            }
+            if let Some(location) = location {
+                print!("  ");
+                print_location(location);
+            }
+        }
+        (
+            old @ Some(TunnelState::Connecting {
+                feature_indicators: old_feature_indicators,
+                endpoint: _,
+                location: old_location,
+            })
+            | old @ Some(TunnelState::Connected {
+                feature_indicators: old_feature_indicators,
+                location: old_location,
+                endpoint: _,
+            }),
+            TunnelState::Connected {
+                feature_indicators,
+                location,
+                endpoint,
+            },
+        ) => {
+            match old {
+                None | Some(&Connecting { .. }) => {
+                    println!("Connected");
+                }
+                _ => {}
+            }
+            if feature_indicators != old_feature_indicators {
+                print!("  ");
                 println!(
-                    "Active features: {}",
+                    "Updated features: {}",
                     format_feature_indicators(feature_indicators)
                 );
+            }
+
+            if location != old_location {
+                if let Some(location) = location {
+                    print!("  ");
+                    print_location(location);
+                }
+            }
+            if verbose {
                 if let Some(tunnel_interface) = &endpoint.tunnel_interface {
+                    print!("  ");
                     println!("Tunnel interface: {tunnel_interface}")
                 }
             }
         }
-        Connecting {
-            endpoint,
-            location,
-            feature_indicators: _,
-        } => {
-            let ellipsis = if !verbose { "..." } else { "" };
+        (_, Disconnecting { .. }) => {
+            println!("Disconnecting")
+        }
+        (
+            None,
+            TunnelState::Connected {
+                endpoint,
+                location,
+                feature_indicators,
+            },
+            // Do print an updated state if the feature indicators changed
+        ) => {
             println!(
-                "Connecting to {}{ellipsis}",
+                "Connected to {}",
                 format_relay_connection(endpoint, location.as_ref(), verbose)
             );
-        }
-        Disconnected {
-            location: _,
-            locked_down,
-        } => {
-            if *locked_down {
-                println!("Disconnected (Internet access is blocked due to lockdown mode)");
-            } else {
-                println!("Disconnected");
+            let features = format_feature_indicators(feature_indicators);
+            if !features.is_empty() {
+                print!("  ");
+                println!("Active features: {}", features);
+            }
+
+            if verbose {
+                if let Some(tunnel_interface) = &endpoint.tunnel_interface {
+                    print!("  ");
+                    println!("Tunnel interface: {tunnel_interface}")
+                }
             }
         }
-        Disconnecting(_) => println!("Disconnecting..."),
+        (
+            Some(TunnelState::Connecting {
+                feature_indicators: old_feature_indicators,
+                endpoint: old_endpoint,
+                location: old_location,
+            }),
+            TunnelState::Connecting {
+                feature_indicators,
+                endpoint,
+                location,
+            },
+            // Do print an updated state if the feature indicators changed
+        ) => {
+            if endpoint != old_endpoint || location != old_location {
+                println!(
+                    "New connection attempt to {}...",
+                    format_relay_connection(state.endpoint().unwrap(), location.as_ref(), verbose)
+                );
+            }
+
+            if feature_indicators != old_feature_indicators {
+                print!("  ");
+                println!(
+                    "Features: {}",
+                    format_feature_indicators(feature_indicators)
+                );
+            }
+            if verbose {
+                print!("  ");
+                if let Some(tunnel_interface) = &state.endpoint().unwrap().tunnel_interface {
+                    println!("Tunnel interface: {tunnel_interface}")
+                }
+            }
+        }
+        (
+            _,
+            Connecting {
+                endpoint,
+                location,
+                feature_indicators,
+            },
+            // Do print an updated state if the feature indicators changed
+        ) => {
+            println!(
+                "Connecting to {}...",
+                format_relay_connection(endpoint, location.as_ref(), verbose)
+            );
+            let features = format_feature_indicators(feature_indicators);
+            if !features.is_empty() {
+                print!("  ");
+                println!("Features: {}", features);
+            }
+            if verbose {
+                if let Some(tunnel_interface) = &endpoint.tunnel_interface {
+                    print!("  ");
+                    println!("Tunnel interface: {tunnel_interface}")
+                }
+            }
+        }
+        (old, new) => unreachable!("Transition from {old:?} to {new:?} not expected"),
     }
 }
 
-pub fn print_location(state: &TunnelState) {
-    let location = match state {
-        TunnelState::Disconnected {
-            location,
-            locked_down: _,
-        } => location,
-        TunnelState::Connected { location, .. } => location,
-        _ => return,
-    };
-    if let Some(location) = location {
-        print!("Your connection appears to be from: {}", location.country);
-        if let Some(city) = &location.city {
-            print!(", {}", city);
-        }
-        if let Some(ipv4) = location.ipv4 {
-            print!(". IPv4: {ipv4}");
-        }
-        if let Some(ipv6) = location.ipv6 {
-            print!(", IPv6: {ipv6}");
-        }
-        println!();
+pub fn print_location(location: &GeoIpLocation) {
+    print!("Your connection appears to be from: {}", location.country);
+    if let Some(city) = &location.city {
+        print!(", {}", city);
     }
+    if let Some(ipv4) = location.ipv4 {
+        print!(". IPv4: {ipv4}");
+    }
+    if let Some(ipv6) = location.ipv6 {
+        print!(", IPv6: {ipv6}");
+    }
+    println!();
 }
 
 fn format_relay_connection(
