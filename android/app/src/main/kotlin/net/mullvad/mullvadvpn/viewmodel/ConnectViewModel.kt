@@ -123,11 +123,19 @@ class ConnectViewModel(
     }
 
     fun onDisconnectClick() {
-        viewModelScope.launch { connectionProxy.disconnect() }
+        viewModelScope.launch {
+            connectionProxy.disconnect().onLeft {
+                _uiSideEffect.send(UiSideEffect.ConnectError.Generic)
+            }
+        }
     }
 
     fun onReconnectClick() {
-        viewModelScope.launch { connectionProxy.reconnect() }
+        viewModelScope.launch {
+            connectionProxy.reconnect().onLeft {
+                _uiSideEffect.send(UiSideEffect.ConnectError.Generic)
+            }
+        }
     }
 
     fun onConnectClick() {
@@ -156,7 +164,11 @@ class ConnectViewModel(
     }
 
     fun onCancelClick() {
-        viewModelScope.launch { connectionProxy.disconnect() }
+        viewModelScope.launch {
+            connectionProxy.disconnect().onLeft {
+                _uiSideEffect.send(UiSideEffect.ConnectError.Generic)
+            }
+        }
     }
 
     fun onManageAccountClick() {
