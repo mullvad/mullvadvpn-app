@@ -487,7 +487,7 @@ impl State {
                 route_manager,
                 mut process,
                 tun_handle,
-                vpn_interface,
+                vpn_interface: _,
             } => {
                 // Try to update the default interface first
                 // If this fails, remain in the current state and just fail
