@@ -26,6 +26,10 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Add experimental support for Windows ARM64.
 
+### Changed
+- OpenVPN is never used as a fallback protocol when any of the following features is enabled:
+  multihop, quantum-resistant tunnels, or DAITA.
+
 ### Fixed
 - macOS and Linux: Fix potential crash when disconnecting with DAITA enabled.
 
