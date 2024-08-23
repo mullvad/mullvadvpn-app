@@ -12,9 +12,10 @@ import Combine
 @testable import MullvadSettings
 import MullvadTypes
 import Network
-@testable import PacketTunnelCore
 import WireGuardKitTypes
 import XCTest
+
+@testable import PacketTunnelCore
 
 final class PacketTunnelActorTests: XCTestCase {
     private var stateSink: Combine.Cancellable?
@@ -446,6 +447,48 @@ final class PacketTunnelActorTests: XCTestCase {
         actor.reconnect(to: .random, reconnectReason: .userInitiated)
         await fulfillment(of: [stopMonitorExpectation], timeout: .UnitTest.timeout)
     }
+
+    func testRecoveringConnectionAfterTunnelAdaptorError() async throws {
+        let errorStateExpectation = expectation(description: "Expect error state")
+        let connectingStateExpectation = expectation(description: "Expect connecting state")
+        connectingStateExpectation.expectedFulfillmentCount = 2
+        let connectedStateExpectation = expectation(description: "Expect connected state")
+
+        let blockedStateMapper = BlockedStateErrorMapperStub { error in
+            if error is TunnelAdapterErrorStub {
+                return .tunnelAdapter
+            } else {
+                return .unknown
+            }
+        }
+
+        let actor = PacketTunnelActor.mock(blockedStateErrorMapper: blockedStateMapper)
+
+        actor.start(options: launchOptions)
+
+        stateSink = await actor.$observedState
+            .receive(on: DispatchQueue.main)
+            .sink { newState in
+                switch newState {
+                case .error:
+                    errorStateExpectation.fulfill()
+                case .connecting:
+                    connectingStateExpectation.fulfill()
+                case .connected:
+                    connectedStateExpectation.fulfill()
+                default:
+                    break
+                }
+            }
+
+        actor.setErrorState(reason: .tunnelAdapter)
+
+        await fulfillment(
+            of: [errorStateExpectation, connectingStateExpectation, connectedStateExpectation],
+            timeout: .UnitTest.timeout,
+            enforceOrder: true
+        )
+    }
 }
 
 extension PacketTunnelActorTests {
@@ -469,5 +512,7 @@ extension PacketTunnelActorTests {
         }
     }
 }
+
+struct TunnelAdapterErrorStub: Error {}
 
 // swiftlint:disable:this file_length
