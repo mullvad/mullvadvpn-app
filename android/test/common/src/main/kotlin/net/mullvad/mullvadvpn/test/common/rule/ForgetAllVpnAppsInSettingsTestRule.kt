@@ -23,14 +23,22 @@ class ForgetAllVpnAppsInSettingsTestRule : BeforeTestExecutionCallback {
             device.findObjects(By.res(SETTINGS_PACKAGE, VPN_SETTINGS_BUTTON_ID))
         vpnSettingsButtons.forEach { button ->
             button.click()
-            device.findObjectWithTimeout(By.text(FORGET_VPN_VPN_BUTTON_TEXT)).click()
-            device.findObjectByCaseInsensitiveText(FORGET_VPN_VPN_CONFIRM_BUTTON_TEXT).click()
+
+            try {
+                device.findObjectWithTimeout(By.text(FORGET_VPN_VPN_BUTTON_TEXT)).click()
+                device.findObjectByCaseInsensitiveText(FORGET_VPN_VPN_CONFIRM_BUTTON_TEXT).click()
+            } catch (_: Exception) {
+                device.findObjectWithTimeout(By.text(DELETE_VPN_PROFILE_TEXT)).click()
+                device.findObjectWithTimeout(By.text(DELETE_VPN_CONFIRM_BUTTON_TEXT)).click()
+            }
         }
     }
 
     companion object {
         private const val FORGET_VPN_VPN_BUTTON_TEXT = "Forget VPN"
+        private const val DELETE_VPN_PROFILE_TEXT = "Delete VPN profile"
         private const val FORGET_VPN_VPN_CONFIRM_BUTTON_TEXT = "Forget"
+        private const val DELETE_VPN_CONFIRM_BUTTON_TEXT = "DELETE"
         private const val SETTINGS_PACKAGE = "com.android.settings"
         private const val VPN_SETTINGS_BUTTON_ID = "settings_button"
     }
