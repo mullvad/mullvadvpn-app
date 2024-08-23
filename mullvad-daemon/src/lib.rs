@@ -2937,6 +2937,7 @@ fn new_selector_config(settings: &Settings) -> SelectorConfig {
             daita: settings.tunnel_options.wireguard.daita.enabled,
             #[cfg(not(daita))]
             daita: false,
+            quantum_resistant: settings.tunnel_options.wireguard.quantum_resistant,
         },
     };
 

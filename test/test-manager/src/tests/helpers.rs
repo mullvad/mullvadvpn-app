@@ -700,8 +700,12 @@ pub async fn constrain_to_relay(
                 let location = into_constraint(&exit)?;
                 let relay_constraints = RelayConstraints {
                     location,
-                    wireguard_constraints: WireguardConstraints::from(query.wireguard_constraints),
-                    openvpn_constraints: OpenVpnConstraints::from(query.openvpn_constraints),
+                    wireguard_constraints: WireguardConstraints::from(
+                        query.wireguard_constraints().clone(),
+                    ),
+                    openvpn_constraints: OpenVpnConstraints::from(
+                        query.openvpn_constraints().clone(),
+                    ),
                     ..Default::default()
                 };
                 Ok((exit, relay_constraints))

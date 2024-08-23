@@ -13,6 +13,9 @@ pub enum Error {
     #[error("Failed to write relay cache file to disk")]
     WriteRelayCache(#[source] std::io::Error),
 
+    #[error("The combination of relay constraints is invalid")]
+    InvalidConstraints,
+
     #[error("No relays matching current constraints")]
     NoRelay,
 
