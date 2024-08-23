@@ -4,6 +4,8 @@ use serde::{Deserialize, Deserializer, Serialize};
 use std::{fmt, str::FromStr, time::Duration};
 use talpid_types::net::wireguard;
 
+use crate::Intersection;
+
 pub const MIN_ROTATION_INTERVAL: Duration = Duration::from_secs(1 * 24 * 60 * 60);
 pub const MAX_ROTATION_INTERVAL: Duration = Duration::from_secs(30 * 24 * 60 * 60);
 pub const DEFAULT_ROTATION_INTERVAL: Duration = MAX_ROTATION_INTERVAL;
@@ -13,13 +15,36 @@ pub const DEFAULT_ROTATION_INTERVAL: Duration = MAX_ROTATION_INTERVAL;
 /// but disabled on all other platforms.
 const QUANTUM_RESISTANT_AUTO_STATE: bool = cfg!(any(target_os = "linux", target_os = "macos"));
 
-#[derive(Serialize, Deserialize, Copy, Clone, Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Default, Copy, Clone, Debug, PartialEq, Eq)]
 #[serde(rename_all = "lowercase")]
 #[cfg_attr(feature = "clap", derive(clap::ValueEnum))]
 pub enum QuantumResistantState {
+    #[default]
     Auto,
     On,
     Off,
+}
+
+impl QuantumResistantState {
+    pub fn enabled(&self) -> bool {
+        match self {
+            QuantumResistantState::Auto => QUANTUM_RESISTANT_AUTO_STATE,
+            QuantumResistantState::Off => false,
+            QuantumResistantState::On => true,
+        }
+    }
+}
+
+impl Intersection for QuantumResistantState {
+    fn intersection(self, other: Self) -> Option<Self> {
+        match (self, other) {
+            (QuantumResistantState::Auto, other) | (other, QuantumResistantState::Auto) => {
+                Some(other)
+            }
+            (val0, val1) if val0 == val1 => Some(val0),
+            _ => None,
+        }
+    }
 }
 
 impl fmt::Display for QuantumResistantState {
@@ -218,11 +243,7 @@ impl TunnelOptions {
     pub fn into_talpid_tunnel_options(self) -> wireguard::TunnelOptions {
         wireguard::TunnelOptions {
             mtu: self.mtu,
-            quantum_resistant: match self.quantum_resistant {
-                QuantumResistantState::Auto => QUANTUM_RESISTANT_AUTO_STATE,
-                QuantumResistantState::On => true,
-                QuantumResistantState::Off => false,
-            },
+            quantum_resistant: self.quantum_resistant.enabled(),
             #[cfg(daita)]
             daita: self.daita.enabled,
         }

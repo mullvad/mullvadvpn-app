@@ -59,7 +59,7 @@ static RELAYS: Lazy<RelayList> = Lazy::new(|| RelayList {
                             "BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=",
                         )
                         .unwrap(),
-                        daita: false,
+                        daita: true,
                         shadowsocks_extra_addr_in: vec![],
                     }),
                     location: None,
@@ -183,6 +183,11 @@ static RELAYS: Lazy<RelayList> = Lazy::new(|| RelayList {
         shadowsocks_port_ranges: vec![100..=200, 1000..=2000],
     },
 });
+
+static DAITA_RELAY_LOCATION: Lazy<GeographicLocationConstraint> =
+    Lazy::new(|| GeographicLocationConstraint::hostname("se", "got", "se9-wireguard"));
+static NON_DAITA_RELAY_LOCATION: Lazy<GeographicLocationConstraint> =
+    Lazy::new(|| GeographicLocationConstraint::hostname("se", "got", "se10-wireguard"));
 
 /// A Shadowsocks relay with additional addresses
 static SHADOWSOCKS_RELAY: Lazy<Relay> = Lazy::new(|| Relay {
@@ -1346,86 +1351,102 @@ fn openvpn_bridge_with_automatic_transport_protocol() {
     }
 }
 
+/// All OpenVPN relays should be filtered out when using DAITA
+/// DAITA is a core privacy feature.
+#[test]
+fn test_daita_openvpn() {
+    let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
+    let mut query = RelayQueryBuilder::new().wireguard().daita().build();
+    query.tunnel_protocol = Constraint::Only(TunnelType::OpenVpn);
+    relay_selector
+        .get_relay_by_query(query)
+        .expect_err("expected no match");
+}
+
+/// All OpenVPN relays should be filtered out when using multihop
+/// Multihop is a core privacy feature
+#[test]
+fn test_multihop_openvpn() {
+    let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
+    let mut query = RelayQueryBuilder::new().wireguard().multihop().build();
+    query.tunnel_protocol = Constraint::Only(TunnelType::OpenVpn);
+    relay_selector
+        .get_relay_by_query(query)
+        .expect_err("expected no match");
+}
+
+/// All OpenVPN relays should be filtered out when quantum resistance is enabled
+/// PQ is a core privacy feature
+#[test]
+fn test_quantum_resistant_openvpn() {
+    let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
+    let mut query = RelayQueryBuilder::new()
+        .wireguard()
+        .quantum_resistant()
+        .build();
+    query.tunnel_protocol = Constraint::Only(TunnelType::OpenVpn);
+    relay_selector
+        .get_relay_by_query(query)
+        .expect_err("expected no match");
+}
+
+/// Always select a WireGuard relay when DAITA is enabled
+/// DAITA is a core privacy feature
+#[test]
+fn test_daita_any_tunnel_protocol() {
+    let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
+    let mut query = RelayQueryBuilder::new().wireguard().daita().build();
+    query.tunnel_protocol = Constraint::Any;
+
+    let relay = relay_selector.get_relay_by_query(query);
+
+    assert!(
+        matches!(relay, Ok(GetRelay::Wireguard { .. })),
+        "expected wg relay, got {relay:?}"
+    );
+}
+
+/// Always select a WireGuard relay when multihop is enabled
+/// Multihop is a core privacy feature
+#[test]
+fn test_multihop_any_tunnel_protocol() {
+    let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
+    let mut query = RelayQueryBuilder::new().wireguard().multihop().build();
+    query.tunnel_protocol = Constraint::Any;
+
+    let relay = relay_selector.get_relay_by_query(query);
+
+    assert!(
+        matches!(relay, Ok(GetRelay::Wireguard { .. })),
+        "expected wg relay, got {relay:?}"
+    );
+}
+
+/// Always select a WireGuard relay when quantum resistance is enabled
+/// PQ is a core privacy feature
+#[test]
+fn test_quantum_resistant_any_tunnel_protocol() {
+    let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
+    let mut query = RelayQueryBuilder::new()
+        .wireguard()
+        .quantum_resistant()
+        .build();
+    query.tunnel_protocol = Constraint::Any;
+
+    let relay = relay_selector.get_relay_by_query(query);
+
+    assert!(
+        matches!(relay, Ok(GetRelay::Wireguard { .. })),
+        "expected wg relay, got {relay:?}"
+    );
+}
+
 /// Return only entry relays that support DAITA when DAITA filtering is enabled. All relays that
 /// support DAITA also support NOT DAITA. Thus, disabling it should not cause any WireGuard relays
 /// to be filtered out.
 #[test]
 fn test_daita() {
-    let relay_list = RelayList {
-        etag: None,
-        countries: vec![RelayListCountry {
-            name: "Sweden".to_string(),
-            code: "se".to_string(),
-            cities: vec![RelayListCity {
-                name: "Gothenburg".to_string(),
-                code: "got".to_string(),
-                latitude: 57.70887,
-                longitude: 11.97456,
-                relays: vec![
-                    Relay {
-                        hostname: "se9-wireguard".to_string(),
-                        ipv4_addr_in: "185.213.154.68".parse().unwrap(),
-                        ipv6_addr_in: Some("2a03:1b20:5:f011::a09f".parse().unwrap()),
-                        overridden_ipv4: false,
-                        overridden_ipv6: false,
-                        include_in_country: true,
-                        active: true,
-                        owned: true,
-                        provider: "31173".to_string(),
-                        weight: 1,
-                        endpoint_data: RelayEndpointData::Wireguard(WireguardRelayEndpointData {
-                            public_key: PublicKey::from_base64(
-                                "BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=",
-                            )
-                            .unwrap(),
-                            shadowsocks_extra_addr_in: vec![],
-                            daita: false,
-                        }),
-                        location: None,
-                    },
-                    Relay {
-                        hostname: "se10-wireguard".to_string(),
-                        ipv4_addr_in: "185.213.154.69".parse().unwrap(),
-                        ipv6_addr_in: Some("2a03:1b20:5:f011::a10f".parse().unwrap()),
-                        overridden_ipv4: false,
-                        overridden_ipv6: false,
-                        include_in_country: true,
-                        active: true,
-                        owned: false,
-                        provider: "31173".to_string(),
-                        weight: 1,
-                        endpoint_data: RelayEndpointData::Wireguard(WireguardRelayEndpointData {
-                            public_key: PublicKey::from_base64(
-                                "BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=",
-                            )
-                            .unwrap(),
-                            shadowsocks_extra_addr_in: vec![],
-                            daita: true,
-                        }),
-                        location: None,
-                    },
-                ],
-            }],
-        }],
-        openvpn: OpenVpnEndpointData { ports: vec![] },
-        bridge: BridgeEndpointData {
-            shadowsocks: vec![],
-        },
-        wireguard: WireguardEndpointData {
-            port_ranges: vec![53..=53, 4000..=33433, 33565..=51820, 52000..=60000],
-            ipv4_gateway: "10.64.0.1".parse().unwrap(),
-            ipv6_gateway: "fc00:bbbb:bbbb:bb01::1".parse().unwrap(),
-            shadowsocks_port_ranges: vec![],
-            udp2tcp_ports: vec![],
-        },
-    };
-
-    let daita_supporting_relay =
-        GeographicLocationConstraint::hostname("se", "got", "se10-wireguard");
-    let nondaita_supporting_relay =
-        GeographicLocationConstraint::hostname("se", "got", "se9-wireguard");
-
-    let relay_selector = RelaySelector::from_list(SelectorConfig::default(), relay_list);
+    let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
 
     // Only pick relays that support DAITA
     let query = RelayQueryBuilder::new().wireguard().daita().build();
@@ -1439,7 +1460,7 @@ fn test_daita() {
     let query = RelayQueryBuilder::new()
         .wireguard()
         .daita()
-        .location(nondaita_supporting_relay.clone())
+        .location(NON_DAITA_RELAY_LOCATION.clone())
         .build();
     relay_selector
         .get_relay_by_query(query)
@@ -1448,7 +1469,7 @@ fn test_daita() {
     // DAITA-supporting relays can be picked even when it is disabled
     let query = RelayQueryBuilder::new()
         .wireguard()
-        .location(daita_supporting_relay.clone())
+        .location(DAITA_RELAY_LOCATION.clone())
         .build();
     relay_selector
         .get_relay_by_query(query)
@@ -1457,7 +1478,7 @@ fn test_daita() {
     // Non DAITA-supporting relays can be picked when it is disabled
     let query = RelayQueryBuilder::new()
         .wireguard()
-        .location(nondaita_supporting_relay.clone())
+        .location(NON_DAITA_RELAY_LOCATION.clone())
         .build();
     relay_selector
         .get_relay_by_query(query)
@@ -1487,7 +1508,7 @@ fn test_daita() {
         .wireguard()
         .daita()
         .multihop()
-        .location(nondaita_supporting_relay)
+        .location(NON_DAITA_RELAY_LOCATION.clone())
         .build();
     let relay = relay_selector.get_relay_by_query(query).unwrap();
     match relay {
