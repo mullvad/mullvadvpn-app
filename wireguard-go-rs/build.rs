@@ -146,6 +146,9 @@ fn build_android_dynamic_lib() -> anyhow::Result<()> {
     println!("cargo::rustc-link-search={}", lib_dir.display());
     println!("cargo::rustc-link-lib=dylib=wg");
 
+    // Enable daita
+    println!(r#"cargo::rustc-cfg=daita"#);
+
     Ok(())
 }
 
