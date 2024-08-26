@@ -97,7 +97,6 @@
     <string name="custom_port_dialog_placeholder">Введите порт</string>
     <string name="custom_port_dialog_remove">Удалить пользовательский порт</string>
     <string name="custom_port_dialog_submit">Установить порт</string>
-    <string name="custom_port_dialog_title">Пользовательский порт WireGuard</string>
     <string name="custom_port_dialog_valid_ranges">Допустимые диапазоны: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Не удалось преобразовать имя узла пользовательского туннеля. Попробуйте изменить настройки.</string>
     <string name="delete">Удалить</string>

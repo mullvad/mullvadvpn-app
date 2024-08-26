@@ -97,7 +97,6 @@
     <string name="custom_port_dialog_placeholder">ป้อนพอร์ต</string>
     <string name="custom_port_dialog_remove">นำพอร์ตแบบกำหนดเองออก</string>
     <string name="custom_port_dialog_submit">ตั้งค่าพอร์ต</string>
-    <string name="custom_port_dialog_title">พอร์ต WireGuard แบบกำหนดเอง</string>
     <string name="custom_port_dialog_valid_ranges">ช่วงที่ใช้ได้: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">ไม่พบโฮสต์ของช่องทางแบบกำหนดเอง กรุณาลองเปลี่ยนการตั้งค่าของคุณ</string>
     <string name="delete">ลบ</string>

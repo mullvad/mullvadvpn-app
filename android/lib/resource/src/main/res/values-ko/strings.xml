@@ -97,7 +97,6 @@
     <string name="custom_port_dialog_placeholder">포트 입력</string>
     <string name="custom_port_dialog_remove">사용자 지정 포트 제거</string>
     <string name="custom_port_dialog_submit">포트 설정</string>
-    <string name="custom_port_dialog_title">WireGuard 사용자 지정 포트</string>
     <string name="custom_port_dialog_valid_ranges">유효한 범위: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">사용자 지정 터널의 호스트를 확인할 수 없습니다. 설정을 변경해 보세요.</string>
     <string name="delete">삭제</string>

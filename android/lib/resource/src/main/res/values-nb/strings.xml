@@ -97,7 +97,6 @@
     <string name="custom_port_dialog_placeholder">Skriv inn port</string>
     <string name="custom_port_dialog_remove">Fjern tilpasset port</string>
     <string name="custom_port_dialog_submit">Konfigurer port</string>
-    <string name="custom_port_dialog_title">Tilpasset WireGuard-port</string>
     <string name="custom_port_dialog_valid_ranges">Gyldige verdiområder: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Kunne ikke løse vert for egendefinert tunnel. Forsøk å endre innstillingene dine.</string>
     <string name="delete">Slett</string>
