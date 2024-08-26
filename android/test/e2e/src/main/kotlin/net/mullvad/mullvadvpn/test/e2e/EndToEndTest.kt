@@ -8,8 +8,10 @@ import androidx.test.uiautomator.UiDevice
 import co.touchlab.kermit.Logger
 import de.mannodermaus.junit5.extensions.GrantPermissionExtension
 import net.mullvad.mullvadvpn.test.common.interactor.AppInteractor
+import net.mullvad.mullvadvpn.test.common.misc.Attachment
 import net.mullvad.mullvadvpn.test.common.rule.CaptureScreenshotOnFailedTestRule
 import net.mullvad.mullvadvpn.test.e2e.constant.LOG_TAG
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.extension.RegisterExtension
 
@@ -33,10 +35,7 @@ abstract class EndToEndTest(private val infra: String) {
     lateinit var targetContext: Context
     lateinit var app: AppInteractor
 
-    @BeforeEach
-    fun setup() {
-        Logger.setTag(LOG_TAG)
-
+    init {
         device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         targetContext = InstrumentationRegistry.getInstrumentation().targetContext
 
@@ -48,5 +47,22 @@ abstract class EndToEndTest(private val infra: String) {
             }
 
         app = AppInteractor(device, targetContext, "net.mullvad.mullvadvpn$targetPackageNameSuffix")
+    }
+
+    @BeforeEach
+    fun setup() {
+        Logger.setTag(LOG_TAG)
+    }
+
+    companion object {
+        val defaultCountry = "Sweden"
+        val defaultCity = "Gothenburg"
+        val defaultRelay = "se-got-wg-001"
+
+        @JvmStatic
+        @BeforeAll
+        fun setupOnce(): Unit {
+            Attachment.clearAttachmentsDirectory()
+        }
     }
 }
