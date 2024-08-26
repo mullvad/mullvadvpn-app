@@ -15,5 +15,7 @@ data class Settings(
     val splitTunnelSettings: SplitTunnelSettings,
     val apiAccessMethodSettings: List<ApiAccessMethodSetting>,
 ) {
+    fun isDaitaEnabled() = tunnelOptions.wireguard.daita
+
     companion object
 }
