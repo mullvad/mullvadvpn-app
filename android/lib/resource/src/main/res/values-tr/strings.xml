@@ -97,7 +97,6 @@
     <string name="custom_port_dialog_placeholder">Portu girin</string>
     <string name="custom_port_dialog_remove">Özel portu kaldır</string>
     <string name="custom_port_dialog_submit">Portu ayarla</string>
-    <string name="custom_port_dialog_title">WireGuard özel portu</string>
     <string name="custom_port_dialog_valid_ranges">Geçerli aralıklar: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Özel tünel ana bilgisayarı çözülemedi. Ayarlarınızı değiştirmeyi deneyin.</string>
     <string name="delete">Sil</string>

@@ -97,7 +97,6 @@
     <string name="custom_port_dialog_placeholder">Anna portti</string>
     <string name="custom_port_dialog_remove">Poista mukautettu portti</string>
     <string name="custom_port_dialog_submit">Määritä portti</string>
-    <string name="custom_port_dialog_title">Mukautettu WireGuard-portti</string>
     <string name="custom_port_dialog_valid_ranges">Kelvolliset portit: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Muokatun tunnelin isännän selvittäminen ei onnistu. Kokeile muuttaa asetuksiasi.</string>
     <string name="delete">Poista</string>

@@ -97,7 +97,6 @@
     <string name="custom_port_dialog_placeholder">输入端口</string>
     <string name="custom_port_dialog_remove">移除自定义端口</string>
     <string name="custom_port_dialog_submit">设置端口</string>
-    <string name="custom_port_dialog_title">WireGuard 自定义端口</string>
     <string name="custom_port_dialog_valid_ranges">有效范围：%1$s</string>
     <string name="custom_tunnel_host_resolution_error">无法解析自定义隧道的主机。请尝试更改您的设置。</string>
     <string name="delete">删除</string>
