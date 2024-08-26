@@ -84,6 +84,7 @@ import net.mullvad.mullvadvpn.compose.screen.BottomSheetState.ShowLocationBottom
 import net.mullvad.mullvadvpn.compose.state.RelayListItem
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
+import net.mullvad.mullvadvpn.compose.test.LOCATION_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_CUSTOM_LIST_HEADER_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG
@@ -434,7 +435,8 @@ fun LazyItemScope.RelayLocationItem(
         onLongClick = { onLongClick() },
         onToggleExpand = { onExpand(it) },
         isExpanded = relayItem.expanded,
-        depth = relayItem.depth
+        depth = relayItem.depth,
+        modifier = Modifier.testTag(LOCATION_CELL_TEST_TAG),
     )
 }
 

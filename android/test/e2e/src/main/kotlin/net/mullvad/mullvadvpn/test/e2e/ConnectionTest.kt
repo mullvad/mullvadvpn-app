@@ -44,7 +44,7 @@ class ConnectionTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
         device.findObjectWithTimeout(By.text("Secure my connection")).click()
         device.findObjectWithTimeout(By.text("OK")).click()
         device.findObjectWithTimeout(By.text("SECURE CONNECTION"))
-        val expected = ConnCheckState(true, app.extractIpAddress())
+        val expected = ConnCheckState(true, app.extractOutIpAddress())
 
         // Then
         val result = SimpleMullvadHttpClient(targetContext).runConnectionCheck()

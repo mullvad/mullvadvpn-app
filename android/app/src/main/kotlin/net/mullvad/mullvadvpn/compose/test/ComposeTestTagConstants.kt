@@ -19,16 +19,22 @@ const val LAZY_LIST_UDP_OVER_TCP_PORT_ITEM_AUTOMATIC_TEST_TAG =
     "lazy_list_udp_over_tcp_item_automatic_test_tag"
 const val LAZY_LIST_UDP_OVER_TCP_PORT_ITEM_X_TEST_TAG = "lazy_list_udp_over_tcp_item_%d_test_tag"
 const val CUSTOM_PORT_DIALOG_INPUT_TEST_TAG = "custom_port_dialog_input_test_tag"
+const val SWITCH_TEST_TAG = "switch_test_tag"
 
 // SelectLocationScreen, ConnectScreen, CustomListLocationsScreen
 const val CIRCULAR_PROGRESS_INDICATOR = "circular_progress_indicator"
+const val EXPAND_BUTTON_TEST_TAG = "expand_button_test_tag"
+const val LOCATION_CELL_TEST_TAG = "location_cell_test_tag"
 
 // ConnectScreen
+const val UNSECURED_CONNECTION_TEST_TAG = "UNSECURED CONNECTION"
+const val SECURE_CONNECTION_TEST_TAG = "SECURE CONNECTION"
 const val SCROLLABLE_COLUMN_TEST_TAG = "scrollable_column_test_tag"
 const val SELECT_LOCATION_BUTTON_TEST_TAG = "select_location_button_test_tag"
 const val CONNECT_BUTTON_TEST_TAG = "connect_button_test_tag"
 const val RECONNECT_BUTTON_TEST_TAG = "reconnect_button_test_tag"
 const val LOCATION_INFO_TEST_TAG = "location_info_test_tag"
+const val LOCATION_INFO_CONNECTION_IN_TEST_TAG = "location_info_connection_in_test_tag"
 const val LOCATION_INFO_CONNECTION_OUT_TEST_TAG = "location_info_connection_out_test_tag"
 
 // ConnectScreen - Notification banner
