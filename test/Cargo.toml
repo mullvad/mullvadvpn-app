@@ -68,10 +68,10 @@ log = "0.4"
 colored = "2.0.0"
 
 # Proxy protocols
-shadowsocks = { version = "1.16" }
-shadowsocks-service = { version = "1.16" }
+shadowsocks = { rev = "bf17d5a19f969910b8fdda1342857b9dd0267908", git = "https://github.com/mullvad/shadowsocks-rust" }
+shadowsocks-service = { rev = "bf17d5a19f969910b8fdda1342857b9dd0267908", git = "https://github.com/mullvad/shadowsocks-rust" }
 
-windows-sys = "0.52.0"
+windows-sys = "0.59.0"
 chrono = { version = "0.4.26", default-features = false }
 clap = { version = "4.2.7", features = ["cargo", "derive"] }
 once_cell = "1.16.0"
