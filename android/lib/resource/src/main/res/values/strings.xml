@@ -385,4 +385,10 @@
     <string name="failed_to_set_current_unknown_error">Failed to set to current - Unknown reason</string>
     <string name="location_was_removed_from_list">%s was removed from \"%s\"</string>
     <string name="create_custom_list_message">\"%s\" was created</string>
+    <string name="daita_info">%s (%s) hides patterns in your encrypted VPN traffic. If anyone is monitoring your connection, this makes it significantly harder for them to identify what websites you are visiting. It does this by carefully adding network noise and making all network packets the same size.</string>
+    <string name="daita_warning">Attention: Since this increases your total network traffic, be cautious if you have a limited data plan. It can also negatively impact your network speed. Please consider this if you want to enable %s.</string>
+    <string name="connected_using_daita">%s using %s</string>
+    <string name="setting_chip">Setting: %s</string>
+    <string name="enable_anyway">Enable anyway</string>
+    <string name="daita_relay_subset_warning">This feature isn’t available on all servers. You might need to change location after enabling.</string>
 </resources>
