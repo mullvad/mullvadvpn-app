@@ -304,7 +304,6 @@
     <string name="show_account_number">Mostra numero di account</string>
     <string name="show_system_apps">Mostra app di sistema</string>
     <string name="split_tunneling_description">Ti consente di selezionare le app che devono accedere direttamente a Internet senza passare attraverso il tunnel VPN.</string>
-    <string name="split_tunneling_description_warning">Attenzione: lo split tunneling rappresenta un rischio per la privacy.</string>
     <string name="start_tunnel_error">Impossibile avviare la connessione tunnel. Invia una segnalazione del problema.</string>
     <string name="submit_button">Invia</string>
     <string name="switch_location">Cambia posizione</string>

@@ -304,7 +304,6 @@
     <string name="show_account_number">Mostrar número de cuenta</string>
     <string name="show_system_apps">Mostrar aplicaciones del sistema</string>
     <string name="split_tunneling_description">Le permite seleccionar aplicaciones que deberían acceder a Internet directamente sin pasar por el túnel VPN.</string>
-    <string name="split_tunneling_description_warning">Atención: La utilización dividida es un riesgo para la privacidad.</string>
     <string name="start_tunnel_error">No se puede iniciar la conexión del túnel. Envíe un informe de problemas.</string>
     <string name="submit_button">Enviar</string>
     <string name="switch_location">Cambiar ubicación</string>

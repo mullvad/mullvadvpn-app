@@ -2204,7 +2204,7 @@ msgstr ""
 msgid "At least one method needs to be enabled"
 msgstr ""
 
-msgid "Attention: Split tunneling is a privacy risk."
+msgid "Attention: If \"Block connections without VPN\" is enabled, split apps will not have Internet. Always keep in mind that split tunneling is a privacy risk."
 msgstr ""
 
 msgid "Attention: this setting cannot be used in combination with <b>Use custom DNS server</b>."
