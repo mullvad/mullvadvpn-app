@@ -98,7 +98,6 @@
     <string name="custom_port_dialog_placeholder">Введите порт</string>
     <string name="custom_port_dialog_remove">Удалить пользовательский порт</string>
     <string name="custom_port_dialog_submit">Установить порт</string>
-    <string name="custom_port_dialog_title">Пользовательский порт WireGuard</string>
     <string name="custom_port_dialog_valid_ranges">Допустимые диапазоны: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Не удалось преобразовать имя узла пользовательского туннеля. Попробуйте изменить настройки.</string>
     <string name="daita_info">%1$s (%2$s) маскирует особенности зашифрованного VPN-трафика. Если кто-то следит за вашим подключением, ему будет значительно сложнее определить, какие сайты вы посещаете. Для этого добавляется сетевой шум, а все сетевые пакеты делаются одинаковыми по размеру.</string>

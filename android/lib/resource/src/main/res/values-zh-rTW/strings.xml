@@ -98,7 +98,6 @@
     <string name="custom_port_dialog_placeholder">輸入連接埠</string>
     <string name="custom_port_dialog_remove">移除自訂連接埠</string>
     <string name="custom_port_dialog_submit">設定連接埠</string>
-    <string name="custom_port_dialog_title">WireGuard 自訂連接埠</string>
     <string name="custom_port_dialog_valid_ranges">有效範圍：%1$s</string>
     <string name="custom_tunnel_host_resolution_error">無法解析自訂通道的主機。請嘗試變更您的設定。</string>
     <string name="daita_info">%1$s (%2$s) 會在您的加密 VPN 流量中隱藏模式。如果有人正在監視您的連線，這能讓他們難以識別出您正在存取的網站。此實現方式係謹慎加入網路噪音，並使所有網路資料包大小皆相同。</string>

@@ -98,7 +98,6 @@
     <string name="custom_port_dialog_placeholder">Ange port</string>
     <string name="custom_port_dialog_remove">Ta bort anpassad port</string>
     <string name="custom_port_dialog_submit">Ställ in port</string>
-    <string name="custom_port_dialog_title">Anpassad WireGuard-port</string>
     <string name="custom_port_dialog_valid_ranges">Giltiga intervall: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Det går inte att lösa värd för anpassad tunnel. Försök att ändra inställningarna.</string>
     <string name="daita_info">%1$s (%2$s) döljer mönster i din krypterade VPN-trafik. Om någon övervakar din anslutning blir det mycket svårare för hen att identifiera vilka webbplatser du besöker. Den gör det genom att noggrant lägga till nätverksbrus och se till så att alla nätverkspaket har samma storlek.</string>

@@ -98,7 +98,6 @@
     <string name="custom_port_dialog_placeholder">Port eingeben</string>
     <string name="custom_port_dialog_remove">Eigenen Port entfernen</string>
     <string name="custom_port_dialog_submit">Port festlegen</string>
-    <string name="custom_port_dialog_title">Eigener WireGuard-Port</string>
     <string name="custom_port_dialog_valid_ranges">Gültige Bereiche: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Der Host des benutzerdefinierten Tunnels konnte nicht aufgelöst werden. Versuchen Sie, Ihre Einstellungen zu ändern.</string>
     <string name="daita_info">%1$s (%2$s) verbirgt Muster in Ihrem verschlüsselten VPN-Traffic. Wenn jemand Ihre Verbindung überwacht, ist es für ihn wesentlich schwieriger zu erkennen, welche Websites Sie besuchen. Dazu fügt es vorsichtig Netzwerkrauschen hinzu und sorgt dafür, dass alle Netzwerkpakete die gleiche Größe haben.</string>
