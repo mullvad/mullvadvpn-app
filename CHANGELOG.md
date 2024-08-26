@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
+- Add WireGuard over Shadowsocks obfuscation to the CLI. It can be enabled with
+  `mullvad obfuscation set mode shadowsocks`.
+
 #### Windows
 - Add experimental support for Windows ARM64.
 
