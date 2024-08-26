@@ -3,11 +3,17 @@ package net.mullvad.mullvadvpn.lib.model
 sealed class TunnelState {
     data class Disconnected(val location: GeoIpLocation? = null) : TunnelState()
 
-    data class Connecting(val endpoint: TunnelEndpoint?, val location: GeoIpLocation?) :
-        TunnelState()
+    data class Connecting(
+        val endpoint: TunnelEndpoint?,
+        val location: GeoIpLocation?,
+        val featureIndicators: List<FeatureIndicator>
+    ) : TunnelState()
 
-    data class Connected(val endpoint: TunnelEndpoint, val location: GeoIpLocation?) :
-        TunnelState()
+    data class Connected(
+        val endpoint: TunnelEndpoint,
+        val location: GeoIpLocation?,
+        val featureIndicators: List<FeatureIndicator>
+    ) : TunnelState()
 
     data class Disconnecting(val actionAfterDisconnect: ActionAfterDisconnect) : TunnelState()
 
