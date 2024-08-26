@@ -24,6 +24,7 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 ### Added
 - Add support for predictive back.
+- Add wireguard over shadowsocks.
 
 ### Changed
 - Update colors in the app to be more in line with material design.
