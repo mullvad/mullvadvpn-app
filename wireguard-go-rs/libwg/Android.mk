@@ -27,11 +27,15 @@ GOBUILDVERSION := 1.21.3
 GOBUILDTARBALL := https://go.dev/dl/go$(GOBUILDVERSION).$(GOBUILDOS)-$(GOBUILDARCH).tar.gz
 GOBUILDVERSION_NEEDED := go version go$(GOBUILDVERSION) $(GOBUILDOS)/$(GOBUILDARCH)
 
+
 $(DESTDIR)/libwg.so:
 	mkdir -p $(DESTDIR)
-	go get -tags "linux android"
+	# Build libmaybenot
+	CARGO_TARGET_DIR="$(DESTDIR)/../tmp/" make --directory wireguard-go libmaybenot.a LIBDEST="$(DESTDIR)" TARGET="$(RUST_TARGET_TRIPLE)"
+	# Build wireguard-go
+	go get -tags "linux android daita"
 	chmod -fR +w "$(GOPATH)/pkg/mod"
-	go build -tags "linux android" -ldflags="-X main.socketDirectory=/data/data/$(ANDROID_PACKAGE_NAME)/cache/wireguard" -v -o "$@" -buildmode c-shared
+	go build -tags "linux android daita" -ldflags="-X main.socketDirectory=/data/data/$(ANDROID_PACKAGE_NAME)/cache/wireguard" -v -o "$@" -buildmode c-shared
 	rm -f $(DESTDIR)/libwg.h
 
 
