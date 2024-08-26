@@ -49,4 +49,10 @@ abstract class EndToEndTest(private val infra: String) {
 
         app = AppInteractor(device, targetContext, "net.mullvad.mullvadvpn$targetPackageNameSuffix")
     }
+
+    companion object {
+        const val DEFAULT_COUNTRY = "Sweden"
+        const val DEFAULT_CITY = "Gothenburg"
+        const val DEFAULT_RELAY = "se-got-wg-001"
+    }
 }

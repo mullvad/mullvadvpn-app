@@ -40,12 +40,16 @@ grpc-protobuf = "4.28.1"
 koin = "4.0.0"
 koin-compose = "4.0.0"
 
+# Ktor
+ktor = "3.0.0-beta-2"
+
 # Kotlin
 # Bump kotlin and kotlin-ksp together, find matching release here:
 # https://github.com/google/ksp/releases
 kotlin = "2.0.20"
 kotlin-ksp = "2.0.20-1.0.25"
 kotlinx = "1.9.0"
+kotlinx-serialization = "2.0.20"
 
 # Protobuf
 protobuf = "0.9.4"
@@ -131,6 +135,13 @@ kotlin-native-prebuilt = { module = "org.jetbrains.kotlin:kotlin-native-prebuilt
 kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinx" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
+
+# Ktor
+ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
+ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
+ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
+ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
 
 # MockK
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
@@ -159,6 +170,9 @@ compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
 kotlin-ksp = { id = "com.google.devtools.ksp", version.ref = "kotlin-ksp" }
+
+# Kotlinx
+kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinx-serialization" }
 
 # Protobuf
 protobuf-core = { id = "com.google.protobuf", version.ref = "protobuf" }
