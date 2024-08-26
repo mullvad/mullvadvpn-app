@@ -2186,6 +2186,9 @@ msgstr ""
 msgid "%s (added)"
 msgstr ""
 
+msgid "%s custom port"
+msgstr ""
+
 msgid "%s using %s"
 msgstr ""
 
@@ -2661,9 +2664,6 @@ msgid "While connected, your real location is masked with a private and secure l
 msgstr ""
 
 msgid "WireGuard MTU"
-msgstr ""
-
-msgid "WireGuard custom port"
 msgstr ""
 
 msgid "WireGuard obfuscation"

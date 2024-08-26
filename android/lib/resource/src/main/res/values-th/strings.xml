@@ -98,7 +98,6 @@
     <string name="custom_port_dialog_placeholder">ป้อนพอร์ต</string>
     <string name="custom_port_dialog_remove">นำพอร์ตแบบกำหนดเองออก</string>
     <string name="custom_port_dialog_submit">ตั้งค่าพอร์ต</string>
-    <string name="custom_port_dialog_title">พอร์ต WireGuard แบบกำหนดเอง</string>
     <string name="custom_port_dialog_valid_ranges">ช่วงที่ใช้ได้: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">ไม่พบโฮสต์ของช่องทางแบบกำหนดเอง กรุณาลองเปลี่ยนการตั้งค่าของคุณ</string>
     <string name="daita_info">%1$s (%2$s) ซ่อนรูปแบบในการรับส่งข้อมูล VPN ที่เข้ารหัสของคุณ หากมีใครกำลังเฝ้าดูการเชื่อมต่อของคุณอยู่ สิ่งนี้จะทำให้การระบุเว็บไซต์ที่คุณกำลังเยี่ยมชมยากขึ้นอย่างมาก ซึ่งทำได้โดยการเพิ่มสัญญาณรบกวนเครือข่ายอย่างระมัดระวัง และทำให้แพ็กเก็ตเครือข่ายทั้งหมดมีขนาดเท่ากันหมด</string>
