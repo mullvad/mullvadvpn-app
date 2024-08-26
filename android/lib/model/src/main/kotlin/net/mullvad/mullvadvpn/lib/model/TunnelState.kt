@@ -38,4 +38,12 @@ sealed class TunnelState {
             is Error -> this.errorState.isBlocking
         }
     }
+
+    fun isUsingDaita(): Boolean {
+        return when (this) {
+            is Connected -> endpoint.daita
+            is Connecting -> endpoint?.daita ?: false
+            else -> false
+        }
+    }
 }

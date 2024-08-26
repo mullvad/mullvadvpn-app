@@ -113,7 +113,11 @@ class VpnSettingsViewModelTest {
             val mockTunnelOptions: TunnelOptions = mockk(relaxed = true)
             // Can not use a mock here since mocking a value class val leads to class cast exception
             val mockWireguardTunnelOptions =
-                WireguardTunnelOptions(mtu = Mtu(0), quantumResistant = expectedResistantState)
+                WireguardTunnelOptions(
+                    mtu = Mtu(0),
+                    quantumResistant = expectedResistantState,
+                    daita = false,
+                )
 
             every { mockSettings.tunnelOptions } returns mockTunnelOptions
             every { mockTunnelOptions.wireguard } returns mockWireguardTunnelOptions
@@ -146,6 +150,7 @@ class VpnSettingsViewModelTest {
                         WireguardTunnelOptions(
                             mtu = null,
                             quantumResistant = QuantumResistantState.Off,
+                            daita = false,
                         ),
                     dnsOptions = mockk(relaxed = true),
                 )
