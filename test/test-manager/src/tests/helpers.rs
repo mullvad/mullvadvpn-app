@@ -44,15 +44,15 @@ pub const THROTTLE_RETRY_DELAY: Duration = Duration::from_secs(120);
 const CHECKER_FILENAME_WINDOWS: &str = "connection-checker.exe";
 const CHECKER_FILENAME_UNIX: &str = "connection-checker";
 
-const AM_I_MULLVAD_TIMEOUT_MS: u64 = 10000;
-const LEAK_TIMEOUT_MS: u64 = 500;
+const AM_I_MULLVAD_TIMEOUT_S: u64 = 10;
+const LEAK_TIMEOUT_S: u64 = 1;
 
 /// Timeout of [ConnCheckerHandle::check_connection].
-const CONN_CHECKER_TIMEOUT: Duration = Duration::from_millis(
-    AM_I_MULLVAD_TIMEOUT_MS // https://am.i.mullvad.net timeout
-    + LEAK_TIMEOUT_MS // leak-tcp timeout
-    + LEAK_TIMEOUT_MS // leak-icmp timeout
-    + 1000, // plus some extra grace time
+const CONN_CHECKER_TIMEOUT: Duration = Duration::from_secs(
+    AM_I_MULLVAD_TIMEOUT_S // https://am.i.mullvad.net timeout
+    + LEAK_TIMEOUT_S // leak-tcp timeout
+    + LEAK_TIMEOUT_S // leak-icmp timeout
+    + 1, // plus some extra grace time
 );
 
 #[macro_export]
@@ -957,12 +957,12 @@ impl ConnChecker {
             let mut args = [
                 "--interactive",
                 "--timeout",
-                &AM_I_MULLVAD_TIMEOUT_MS.to_string(),
+                &AM_I_MULLVAD_TIMEOUT_S.to_string(),
                 // try to leak traffic to LEAK_DESTINATION
                 "--leak",
                 &self.leak_destination.to_string(),
                 "--leak-timeout",
-                &LEAK_TIMEOUT_MS.to_string(),
+                &LEAK_TIMEOUT_S.to_string(),
                 "--leak-tcp",
                 "--leak-udp",
                 "--leak-icmp",
