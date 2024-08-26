@@ -97,7 +97,6 @@
     <string name="custom_port_dialog_placeholder">Introduzir porta</string>
     <string name="custom_port_dialog_remove">Remover porta personalizada</string>
     <string name="custom_port_dialog_submit">Definir porta</string>
-    <string name="custom_port_dialog_title">Porta personalizada WireGuard</string>
     <string name="custom_port_dialog_valid_ranges">Intervalos válidos: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Não foi possível resolver o anfitrião do túnel personalizado. Experimente alterar as suas definições.</string>
     <string name="delete">Eliminar</string>

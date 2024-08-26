@@ -2129,6 +2129,9 @@ msgstr ""
 msgid "%s (added)"
 msgstr ""
 
+msgid "%s custom port"
+msgstr ""
+
 msgid "%s was added to \"%s\""
 msgstr ""
 
@@ -2414,6 +2417,9 @@ msgstr ""
 msgid "Please use the <b>Always-on</b> system setting instead by following the guide in <b>%s</b> above."
 msgstr ""
 
+msgid "Port: %s"
+msgstr ""
+
 msgid "Preferences"
 msgstr ""
 
@@ -2516,6 +2522,9 @@ msgstr ""
 msgid "Toggle VPN"
 msgstr ""
 
+msgid "UDP-over-TCP"
+msgstr ""
+
 msgid "Unable to apply firewall rules. Please troubleshoot or send a problem report."
 msgstr ""
 
@@ -2592,9 +2601,6 @@ msgid "While connected, your real location is masked with a private and secure l
 msgstr ""
 
 msgid "WireGuard MTU"
-msgstr ""
-
-msgid "WireGuard custom port"
 msgstr ""
 
 msgid "WireGuard obfuscation"

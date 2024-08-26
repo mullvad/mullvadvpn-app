@@ -97,7 +97,6 @@
     <string name="custom_port_dialog_placeholder">輸入連接埠</string>
     <string name="custom_port_dialog_remove">移除自訂連接埠</string>
     <string name="custom_port_dialog_submit">設定連接埠</string>
-    <string name="custom_port_dialog_title">WireGuard 自訂連接埠</string>
     <string name="custom_port_dialog_valid_ranges">有效範圍：%1$s</string>
     <string name="custom_tunnel_host_resolution_error">無法解析自訂通道的主機。請嘗試變更您的設定。</string>
     <string name="delete">刪除</string>
