@@ -141,6 +141,9 @@ dependencies {
     implementation(Dependencies.junit5AndroidTestExtensions)
     implementation(Dependencies.junit5AndroidTestRunner)
     implementation(libs.kotlin.stdlib)
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.cio)
+    implementation(libs.ktor.serialization.kotlinx.json)
 
     androidTestUtil(libs.androidx.test.orchestrator)
 
