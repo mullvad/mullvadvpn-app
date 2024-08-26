@@ -97,7 +97,6 @@
     <string name="custom_port_dialog_placeholder">Voer poort in</string>
     <string name="custom_port_dialog_remove">Aangepaste poort verwijderen</string>
     <string name="custom_port_dialog_submit">Poort instellen</string>
-    <string name="custom_port_dialog_title">Aangepaste WireGuard-poort</string>
     <string name="custom_port_dialog_valid_ranges">Geldige bereiken: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Kan host van aangepaste tunnel niet omzetten. Probeer uw instellingen te wijzigen.</string>
     <string name="delete">Verwijderen</string>
