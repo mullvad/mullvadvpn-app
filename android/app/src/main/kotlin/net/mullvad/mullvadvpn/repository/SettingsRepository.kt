@@ -68,4 +68,6 @@ class SettingsRepository(
 
     suspend fun setLocalNetworkSharing(isEnabled: Boolean) =
         managementService.setAllowLan(isEnabled)
+
+    suspend fun setDaitaEnabled(enabled: Boolean) = managementService.setDaitaEnabled(enabled)
 }

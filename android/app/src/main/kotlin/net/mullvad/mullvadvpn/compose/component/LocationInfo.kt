@@ -33,6 +33,7 @@ private fun PreviewLocationInfo() {
             isVisible = true,
             isExpanded = true,
             location = null,
+            isUsingDaita = false,
             inAddress = null,
             outAddress = "",
         )
@@ -48,6 +49,7 @@ fun LocationInfo(
     isVisible: Boolean,
     isExpanded: Boolean,
     location: GeoIpLocation?,
+    isUsingDaita: Boolean,
     inAddress: Triple<String, Int, TransportProtocol>?,
     outAddress: String,
 ) {
@@ -61,15 +63,12 @@ fun LocationInfo(
                 .then(modifier)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                text = location?.hostname ?: "",
-                color =
-                    if (isExpanded) {
-                        colorExpanded
-                    } else {
-                        colorCollapsed
-                    },
-                style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
+            RelayHostname(
+                hostname = location?.hostname,
+                isUsingDaita = isUsingDaita,
+                isExpanded = isExpanded,
+                colorExpanded = colorExpanded,
+                colorCollapsed = colorCollapsed,
             )
             Chevron(
                 isExpanded = isExpanded,
@@ -118,4 +117,37 @@ fun LocationInfo(
                     ),
         )
     }
+}
+
+@Composable
+private fun RelayHostname(
+    hostname: String?,
+    isUsingDaita: Boolean,
+    isExpanded: Boolean,
+    colorExpanded: Color,
+    colorCollapsed: Color,
+) {
+    val hostnameTitle =
+        when {
+            hostname != null && isUsingDaita -> {
+                stringResource(
+                    id = R.string.connected_using_daita,
+                    hostname,
+                    stringResource(id = R.string.daita),
+                )
+            }
+            hostname != null -> hostname
+            else -> ""
+        }
+
+    Text(
+        text = hostnameTitle,
+        color =
+            if (isExpanded) {
+                colorExpanded
+            } else {
+                colorCollapsed
+            },
+        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
+    )
 }
