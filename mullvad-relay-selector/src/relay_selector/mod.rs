@@ -359,14 +359,14 @@ impl<'a> From<NormalSelectorConfig<'a>> for RelayQuery {
                 bridge_settings: match bridge_state {
                     BridgeState::On => match bridge_settings.bridge_type {
                         mullvad_types::relay_constraints::BridgeType::Normal => {
-                            Constraint::Only(BridgeQuery::Normal(bridge_settings.normal.clone()))
+                            BridgeQuery::Normal(bridge_settings.normal.clone())
                         }
                         mullvad_types::relay_constraints::BridgeType::Custom => {
-                            Constraint::Only(BridgeQuery::Custom(bridge_settings.custom.clone()))
+                            BridgeQuery::Custom(bridge_settings.custom.clone())
                         }
                     },
-                    BridgeState::Auto => Constraint::Only(BridgeQuery::Auto),
-                    BridgeState::Off => Constraint::Only(BridgeQuery::Off),
+                    BridgeState::Auto => BridgeQuery::Auto,
+                    BridgeState::Off => BridgeQuery::Off,
                 },
             }
         }
@@ -910,7 +910,7 @@ impl RelaySelector {
         if !BridgeQuery::should_use_bridge(&query.openvpn_constraints.bridge_settings) {
             Ok(None)
         } else {
-            let bridge_query = &query.openvpn_constraints.bridge_settings.clone().unwrap();
+            let bridge_query = &query.openvpn_constraints.bridge_settings;
             let custom_lists = &custom_lists;
             match protocol {
                 TransportProtocol::Udp => {

@@ -32,9 +32,10 @@ use crate::AdditionalWireguardConstraints;
 use mullvad_types::{
     constraints::Constraint,
     relay_constraints::{
-        BridgeConstraints, LocationConstraint, ObfuscationSettings, OpenVpnConstraints, Ownership,
-        Providers, RelayConstraints, SelectedObfuscation, ShadowsocksSettings, TransportPort,
-        Udp2TcpObfuscationSettings, WireguardConstraints,
+        BridgeConstraints, BridgeSettings, BridgeState, BridgeType, LocationConstraint,
+        ObfuscationSettings, OpenVpnConstraints, Ownership, Providers, RelayConstraints,
+        SelectedObfuscation, ShadowsocksSettings, TransportPort, Udp2TcpObfuscationSettings,
+        WireguardConstraints,
     },
     Intersection,
 };
@@ -108,41 +109,35 @@ impl RelayQuery {
         }
     }
 
-    /// The mapping from [`RelayQuery`] to [`RelayConstraints`]. Note that this does not contain
-    /// obfuscation or bridge settings.
-    pub fn into_relay_constraints(self) -> RelayConstraints {
-        RelayConstraints {
+    /// The mapping from [`RelayQuery`] to all underlying settings types.
+    pub fn into_settings(
+        self,
+    ) -> (
+        RelayConstraints,
+        BridgeState,
+        BridgeSettings,
+        ObfuscationSettings,
+    ) {
+        let (bridge_state, bridge_settings) = self
+            .openvpn_constraints
+            .bridge_settings
+            .clone()
+            .into_settings();
+        let obfuscation = self
+            .wireguard_constraints
+            .obfuscation
+            .clone()
+            .into_settings();
+        let constraints = RelayConstraints {
             location: self.location,
             providers: self.providers,
             ownership: self.ownership,
             tunnel_protocol: self.tunnel_protocol,
-            wireguard_constraints: WireguardConstraints::from(self.wireguard_constraints),
-            openvpn_constraints: OpenVpnConstraints::from(self.openvpn_constraints),
-        }
-    }
+            wireguard_constraints: self.wireguard_constraints.into_constraints(),
+            openvpn_constraints: self.openvpn_constraints.into_constraints(),
+        };
 
-    /// The mapping from [`RelayQuery`] to [`ObfuscationSettings`]
-    pub fn into_obfuscation_settings(self) -> ObfuscationSettings {
-        match self.wireguard_constraints.obfuscation {
-            ObfuscationQuery::Auto => ObfuscationSettings {
-                selected_obfuscation: SelectedObfuscation::Auto,
-                ..Default::default()
-            },
-            ObfuscationQuery::Off => ObfuscationSettings {
-                selected_obfuscation: SelectedObfuscation::Off,
-                ..Default::default()
-            },
-            ObfuscationQuery::Udp2tcp(settings) => ObfuscationSettings {
-                selected_obfuscation: SelectedObfuscation::Udp2Tcp,
-                udp2tcp: settings,
-                ..Default::default()
-            },
-            ObfuscationQuery::Shadowsocks(settings) => ObfuscationSettings {
-                selected_obfuscation: SelectedObfuscation::Shadowsocks,
-                shadowsocks: settings,
-                ..Default::default()
-            },
-        }
+        (constraints, bridge_state, bridge_settings, obfuscation)
     }
 }
 
@@ -178,6 +173,31 @@ pub enum ObfuscationQuery {
     Auto,
     Udp2tcp(Udp2TcpObfuscationSettings),
     Shadowsocks(ShadowsocksSettings),
+}
+
+impl ObfuscationQuery {
+    fn into_settings(self) -> ObfuscationSettings {
+        match self {
+            ObfuscationQuery::Auto => ObfuscationSettings {
+                selected_obfuscation: SelectedObfuscation::Auto,
+                ..Default::default()
+            },
+            ObfuscationQuery::Off => ObfuscationSettings {
+                selected_obfuscation: SelectedObfuscation::Off,
+                ..Default::default()
+            },
+            ObfuscationQuery::Udp2tcp(settings) => ObfuscationSettings {
+                selected_obfuscation: SelectedObfuscation::Udp2Tcp,
+                udp2tcp: settings,
+                ..Default::default()
+            },
+            ObfuscationQuery::Shadowsocks(settings) => ObfuscationSettings {
+                selected_obfuscation: SelectedObfuscation::Shadowsocks,
+                shadowsocks: settings,
+                ..Default::default()
+            },
+        }
+    }
 }
 
 impl From<ObfuscationSettings> for ObfuscationQuery {
@@ -230,23 +250,21 @@ impl WireguardRelayQuery {
             daita: Constraint::Any,
         }
     }
+
+    /// The mapping from [`WireguardRelayQuery`] to [`WireguardConstraints`].
+    fn into_constraints(self) -> WireguardConstraints {
+        WireguardConstraints {
+            port: self.port,
+            ip_version: self.ip_version,
+            entry_location: self.entry_location,
+            use_multihop: self.use_multihop.unwrap_or(false),
+        }
+    }
 }
 
 impl Default for WireguardRelayQuery {
     fn default() -> Self {
         Self::new()
-    }
-}
-
-impl From<WireguardRelayQuery> for WireguardConstraints {
-    /// The mapping from [`WireguardRelayQuery`] to [`WireguardConstraints`].
-    fn from(value: WireguardRelayQuery) -> Self {
-        WireguardConstraints {
-            port: value.port,
-            ip_version: value.ip_version,
-            entry_location: value.entry_location,
-            use_multihop: value.use_multihop.unwrap_or(false),
-        }
     }
 }
 
@@ -270,15 +288,20 @@ impl From<WireguardRelayQuery> for AdditionalWireguardConstraints {
 #[derive(Debug, Clone, Eq, PartialEq, Intersection)]
 pub struct OpenVpnRelayQuery {
     pub port: Constraint<TransportPort>,
-    pub bridge_settings: Constraint<BridgeQuery>,
+    pub bridge_settings: BridgeQuery,
 }
 
 impl OpenVpnRelayQuery {
     pub const fn new() -> OpenVpnRelayQuery {
         OpenVpnRelayQuery {
             port: Constraint::Any,
-            bridge_settings: Constraint::Any,
+            bridge_settings: BridgeQuery::Auto,
         }
+    }
+
+    /// The mapping from [`OpenVpnRelayQuery`] to [`OpenVpnConstraints`].
+    fn into_constraints(self) -> OpenVpnConstraints {
+        OpenVpnConstraints { port: self.port }
     }
 }
 
@@ -293,7 +316,7 @@ impl Default for OpenVpnRelayQuery {
 ///
 /// [`BridgeState`]: mullvad_types::relay_constraints::BridgeState
 /// [`BridgeSettings`]: mullvad_types::relay_constraints::BridgeSettings
-#[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Debug, Default, Clone, Eq, PartialEq)]
 pub enum BridgeQuery {
     /// Bridges should not be used.
     Off,
@@ -301,6 +324,7 @@ pub enum BridgeQuery {
     ///
     /// If this variant is intersected with another [`BridgeQuery`] `bq`,
     /// `bq` is always preferred.
+    #[default]
     Auto,
     /// Bridges should be used.
     Normal(BridgeConstraints),
@@ -309,22 +333,38 @@ pub enum BridgeQuery {
 }
 
 impl BridgeQuery {
-    /// If `bridge_constraints` is `Any`, bridges should not be used due to
-    /// latency concerns.
-    ///
-    /// If `bridge_constraints` is `Only(settings)`, then `settings` will be
-    /// used to decide if bridges should be used. See [`BridgeQuery`] for more
-    /// details, but the algorithm beaks down to this:
+    /// `settings` will be used to decide if bridges should be used. See [`BridgeQuery`]
+    /// for more details, but the algorithm beaks down to this:
     ///
     /// * `BridgeQuery::Off`: bridges will not be used
     /// * otherwise: bridges should be used
-    pub const fn should_use_bridge(bridge_constraints: &Constraint<BridgeQuery>) -> bool {
-        match bridge_constraints {
-            Constraint::Only(settings) => match settings {
-                BridgeQuery::Normal(_) | BridgeQuery::Custom(_) => true,
-                BridgeQuery::Off | BridgeQuery::Auto => false,
-            },
-            Constraint::Any => false,
+    pub const fn should_use_bridge(settings: &BridgeQuery) -> bool {
+        match settings {
+            BridgeQuery::Normal(_) | BridgeQuery::Custom(_) => true,
+            BridgeQuery::Off | BridgeQuery::Auto => false,
+        }
+    }
+
+    fn into_settings(self) -> (BridgeState, BridgeSettings) {
+        match self {
+            BridgeQuery::Off => (BridgeState::Off, Default::default()),
+            BridgeQuery::Auto => (BridgeState::Auto, Default::default()),
+            BridgeQuery::Normal(constraints) => (
+                BridgeState::On,
+                BridgeSettings {
+                    bridge_type: BridgeType::Normal,
+                    normal: constraints,
+                    custom: None,
+                },
+            ),
+            BridgeQuery::Custom(custom) => (
+                BridgeState::On,
+                BridgeSettings {
+                    bridge_type: BridgeType::Normal,
+                    normal: Default::default(),
+                    custom,
+                },
+            ),
         }
     }
 }
@@ -344,13 +384,6 @@ impl Intersection for BridgeQuery {
             (left, right) if left == right => Some(left),
             _ => None,
         }
-    }
-}
-
-impl From<OpenVpnRelayQuery> for OpenVpnConstraints {
-    /// The mapping from [`OpenVpnRelayQuery`] to [`OpenVpnConstraints`].
-    fn from(value: OpenVpnRelayQuery) -> Self {
-        OpenVpnConstraints { port: value.port }
     }
 }
 
@@ -674,8 +707,7 @@ pub mod builder {
                 bridge_settings: bridge_settings.clone(),
             };
 
-            self.query.openvpn_constraints.bridge_settings =
-                Constraint::Only(BridgeQuery::Normal(bridge_settings));
+            self.query.openvpn_constraints.bridge_settings = BridgeQuery::Normal(bridge_settings);
 
             let builder = RelayQueryBuilder {
                 query: self.query,
@@ -692,14 +724,14 @@ pub mod builder {
             self.protocol.bridge_settings.location =
                 Constraint::Only(LocationConstraint::from(location));
             self.query.openvpn_constraints.bridge_settings =
-                Constraint::Only(BridgeQuery::Normal(self.protocol.bridge_settings.clone()));
+                BridgeQuery::Normal(self.protocol.bridge_settings.clone());
             self
         }
         /// Constrain the [`Providers`] of the selected bridge.
         pub fn bridge_providers(mut self, providers: Providers) -> Self {
             self.protocol.bridge_settings.providers = Constraint::Only(providers);
             self.query.openvpn_constraints.bridge_settings =
-                Constraint::Only(BridgeQuery::Normal(self.protocol.bridge_settings.clone()));
+                BridgeQuery::Normal(self.protocol.bridge_settings.clone());
             self
         }
         /// Constrain the [`Ownership`] of the selected bridge.
