@@ -51,6 +51,7 @@ private fun generateRelayItemRelay(
     cityCode: GeoLocationId.City,
     hostName: String,
     active: Boolean = true,
+    daita: Boolean = true,
 ) =
     RelayItem.Location.Relay(
         id =
@@ -60,6 +61,7 @@ private fun generateRelayItemRelay(
             ),
         active = active,
         provider = Provider(ProviderId("Provider"), Ownership.MullvadOwned),
+        daita = daita
     )
 
 private fun String.generateCountryCode() =

@@ -64,6 +64,7 @@ class VpnSettingsViewModel(
                     mtuValue = settings?.tunnelOptions?.wireguard?.mtu,
                     isAutoConnectEnabled = settings?.autoConnect ?: false,
                     isLocalNetworkSharingEnabled = settings?.allowLan ?: false,
+                    isDaitaEnabled = settings?.isDaitaEnabled() ?: false,
                     isCustomDnsEnabled = settings?.isCustomDnsEnabled() ?: false,
                     customDnsList = settings?.addresses()?.asStringAddressList() ?: listOf(),
                     contentBlockersOptions =
@@ -119,6 +120,14 @@ class VpnSettingsViewModel(
     fun onToggleLocalNetworkSharing(isEnabled: Boolean) {
         viewModelScope.launch(dispatcher) {
             repository.setLocalNetworkSharing(isEnabled).onLeft {
+                _uiSideEffect.send(VpnSettingsSideEffect.ShowToast.GenericError)
+            }
+        }
+    }
+
+    fun onToggleDaita(enable: Boolean) {
+        viewModelScope.launch(dispatcher) {
+            repository.setDaitaEnabled(enable).onLeft {
                 _uiSideEffect.send(VpnSettingsSideEffect.ShowToast.GenericError)
             }
         }

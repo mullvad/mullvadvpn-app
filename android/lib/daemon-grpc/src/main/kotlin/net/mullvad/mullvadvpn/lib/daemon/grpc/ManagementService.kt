@@ -104,6 +104,7 @@ import net.mullvad.mullvadvpn.lib.model.SelectedObfuscation
 import net.mullvad.mullvadvpn.lib.model.SetAllowLanError
 import net.mullvad.mullvadvpn.lib.model.SetApiAccessMethodError
 import net.mullvad.mullvadvpn.lib.model.SetAutoConnectError
+import net.mullvad.mullvadvpn.lib.model.SetDaitaSettingsError
 import net.mullvad.mullvadvpn.lib.model.SetDnsOptionsError
 import net.mullvad.mullvadvpn.lib.model.SetObfuscationOptionsError
 import net.mullvad.mullvadvpn.lib.model.SetRelayLocationError
@@ -499,6 +500,15 @@ class ManagementService(
         Either.catch { grpc.setAllowLan(BoolValue.of(allow)) }
             .onLeft { Logger.e("Set allow lan error") }
             .mapLeft(SetAllowLanError::Unknown)
+            .mapEmpty()
+
+    suspend fun setDaitaEnabled(enabled: Boolean): Either<SetDaitaSettingsError, Unit> =
+        Either.catch {
+                val daitaSettings =
+                    ManagementInterface.DaitaSettings.newBuilder().setEnabled(enabled).build()
+                grpc.setDaitaSettings(daitaSettings)
+            }
+            .mapLeft(SetDaitaSettingsError::Unknown)
             .mapEmpty()
 
     suspend fun setRelayLocation(location: ModelRelayItemId): Either<SetRelayLocationError, Unit> =

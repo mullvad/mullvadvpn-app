@@ -32,10 +32,12 @@ import net.mullvad.mullvadvpn.lib.model.Provider
 import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
+import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.relaylist.descendants
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.repository.RelayListRepository
+import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.usecase.AvailableProvidersUseCase
 import net.mullvad.mullvadvpn.usecase.FilteredRelayListUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
@@ -58,6 +60,9 @@ class SelectLocationViewModelTest {
     private val mockCustomListsRepository: CustomListsRepository = mockk()
     private val mockCustomListsRelayItemUseCase: CustomListsRelayItemUseCase = mockk()
 
+    private val mockSettingsRepository: SettingsRepository = mockk()
+    private val settingsFlow = MutableStateFlow(mockk<Settings>(relaxed = true))
+
     private lateinit var viewModel: SelectLocationViewModel
 
     private val allProviders = MutableStateFlow<List<Provider>>(emptyList())
@@ -79,6 +84,7 @@ class SelectLocationViewModelTest {
         every { mockFilteredRelayListUseCase() } returns filteredRelayList
         every { mockFilteredCustomListRelayItemsUseCase() } returns filteredCustomRelayListItems
         every { mockCustomListsRelayItemUseCase() } returns customListsRelayItem
+        every { mockSettingsRepository.settingsUpdates } returns settingsFlow
 
         mockkStatic(RELAY_LIST_EXTENSIONS)
         mockkStatic(RELAY_ITEM_EXTENSIONS)
@@ -93,6 +99,7 @@ class SelectLocationViewModelTest {
                 relayListRepository = mockRelayListRepository,
                 customListsRepository = mockCustomListsRepository,
                 customListsRelayItemUseCase = mockCustomListsRelayItemUseCase,
+                settingsRepository = mockSettingsRepository,
             )
     }
 
