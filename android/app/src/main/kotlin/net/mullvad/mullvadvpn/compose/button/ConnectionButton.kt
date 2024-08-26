@@ -29,14 +29,32 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.compose.preview.TunnelStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDisconnectButton
+
+@Composable
+@Preview
+private fun PreviewConnectionButton(
+    @PreviewParameter(TunnelStatePreviewParameterProvider::class) tunnelState: TunnelState
+) {
+    AppTheme {
+        ConnectionButton(
+            state = tunnelState,
+            disconnectClick = {},
+            reconnectClick = {},
+            cancelClick = {},
+            connectClick = {}
+        )
+    }
+}
 
 @Composable
 fun ConnectionButton(
@@ -104,21 +122,6 @@ fun ConnectionButton(
         reconnectButtonTestTag = reconnectButtonTestTag,
         isReconnectButtonEnabled = (state is TunnelState.Disconnected).not()
     )
-}
-
-@Preview
-@Composable
-private fun PreviewConnectionButton() {
-    AppTheme {
-        ConnectionButton(
-            text = "Disconnect",
-            mainClick = {},
-            containerColor = MaterialTheme.colorScheme.error.copy(alpha = AlphaDisconnectButton),
-            contentColor = MaterialTheme.colorScheme.onError,
-            reconnectClick = {},
-            isReconnectButtonEnabled = true
-        )
-    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

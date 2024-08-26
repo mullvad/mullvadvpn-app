@@ -129,7 +129,7 @@ class OutOfTimeScreenTest {
                 OutOfTimeScreen(
                     state =
                         OutOfTimeUiState(
-                            tunnelState = TunnelState.Connecting(null, null),
+                            tunnelState = TunnelState.Connecting(null, null, emptyList()),
                             deviceName = "",
                             showSitePayment = true
                         ),

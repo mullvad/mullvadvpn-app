@@ -147,7 +147,8 @@ class ConnectViewModelTest {
 
     @Test
     fun `given change in tunnelRealState uiState should emit new tunnelRealState`() = runTest {
-        val tunnelRealStateTestItem = TunnelState.Connected(mockk(relaxed = true), null)
+        val tunnelRealStateTestItem =
+            TunnelState.Connected(mockk(relaxed = true), null, emptyList())
 
         viewModel.uiState.test {
             assertEquals(ConnectUiState.INITIAL, awaitItem())
@@ -162,7 +163,7 @@ class ConnectViewModelTest {
         // Arrange
         val tunnelEndpoint: TunnelEndpoint = mockk()
         val location: GeoIpLocation = mockk()
-        val tunnelStateTestItem = TunnelState.Connected(tunnelEndpoint, location)
+        val tunnelStateTestItem = TunnelState.Connected(tunnelEndpoint, location, emptyList())
         every { tunnelEndpoint.toInAddress() } returns mockk(relaxed = true)
         every { location.toOutAddress() } returns "1.1.1.1"
         every { location.hostname } returns "hostname"

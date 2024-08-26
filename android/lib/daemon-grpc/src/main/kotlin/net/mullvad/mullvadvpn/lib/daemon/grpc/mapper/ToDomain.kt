@@ -34,6 +34,7 @@ import net.mullvad.mullvadvpn.lib.model.DnsState
 import net.mullvad.mullvadvpn.lib.model.Endpoint
 import net.mullvad.mullvadvpn.lib.model.ErrorState
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
+import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.Mtu
@@ -89,7 +90,8 @@ internal fun ManagementInterface.TunnelState.toDomain(): TunnelState =
                         if (hasLocation()) {
                             location.toDomain()
                         } else null
-                    }
+                    },
+                featureIndicators = connected.featureIndicators.toDomain()
             )
         ManagementInterface.TunnelState.StateCase.CONNECTED ->
             TunnelState.Connected(
@@ -101,7 +103,8 @@ internal fun ManagementInterface.TunnelState.toDomain(): TunnelState =
                         } else {
                             null
                         }
-                    }
+                    },
+                featureIndicators = connected.featureIndicators.toDomain()
             )
         ManagementInterface.TunnelState.StateCase.DISCONNECTING ->
             TunnelState.Disconnecting(
@@ -578,3 +581,28 @@ internal fun ManagementInterface.Socks5Remote.toDomain(): ApiAccessMethod.Custom
 
 internal fun ManagementInterface.SocksAuth.toDomain(): SocksAuth =
     SocksAuth(username = username, password = password)
+
+internal fun ManagementInterface.FeatureIndicators.toDomain(): List<FeatureIndicator> =
+    this.activeFeaturesList.map { it.toDomain() }
+
+internal fun ManagementInterface.FeatureIndicator.toDomain() =
+    when (this) {
+        ManagementInterface.FeatureIndicator.QUANTUM_RESISTANCE ->
+            FeatureIndicator.QUANTUM_RESISTANCE
+        ManagementInterface.FeatureIndicator.SPLIT_TUNNELING -> FeatureIndicator.SPLIT_TUNNELING
+        ManagementInterface.FeatureIndicator.UDP_2_TCP -> FeatureIndicator.UDP_2_TCP
+        ManagementInterface.FeatureIndicator.LAN_SHARING -> FeatureIndicator.LAN_SHARING
+        ManagementInterface.FeatureIndicator.DNS_CONTENT_BLOCKERS ->
+            FeatureIndicator.DNS_CONTENT_BLOCKERS
+        ManagementInterface.FeatureIndicator.CUSTOM_DNS -> FeatureIndicator.CUSTOM_DNS
+        ManagementInterface.FeatureIndicator.SERVER_IP_OVERRIDE ->
+            FeatureIndicator.SERVER_IP_OVERRIDE
+        ManagementInterface.FeatureIndicator.CUSTOM_MTU -> FeatureIndicator.CUSTOM_MTU
+        ManagementInterface.FeatureIndicator.LOCKDOWN_MODE,
+        ManagementInterface.FeatureIndicator.SHADOWSOCKS,
+        ManagementInterface.FeatureIndicator.MULTIHOP,
+        ManagementInterface.FeatureIndicator.BRIDGE_MODE,
+        ManagementInterface.FeatureIndicator.CUSTOM_MSS_FIX,
+        ManagementInterface.FeatureIndicator.DAITA,
+        ManagementInterface.FeatureIndicator.UNRECOGNIZED -> error("Feature not supported")
+    }
