@@ -5,6 +5,7 @@ import org.gradle.configurationcache.extensions.capitalized
 plugins {
     alias(libs.plugins.android.test)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlinx.serialization)
 
     id(Dependencies.junit5AndroidPluginId) version Versions.junit5Plugin
 }
@@ -141,6 +142,11 @@ dependencies {
     implementation(Dependencies.junit5AndroidTestExtensions)
     implementation(Dependencies.junit5AndroidTestRunner)
     implementation(libs.kotlin.stdlib)
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.cio)
+    implementation(libs.ktor.serialization.kotlinx.json)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.jodatime)
 
     androidTestUtil(libs.androidx.test.orchestrator)
 

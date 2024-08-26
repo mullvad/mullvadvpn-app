@@ -89,16 +89,32 @@ class AppInteractor(
         device.findObjectWithTimeout(By.text("Account"))
     }
 
-    fun extractIpAddress(): String {
+    fun extractOutIpAddress(): String {
         device.findObjectWithTimeout(By.res("location_info_test_tag")).click()
-        return device
-            .findObjectWithTimeout(
-                // Text exist and contains IP address
-                By.res("location_info_connection_out_test_tag").textContains("."),
-                CONNECTION_TIMEOUT,
-            )
-            .text
-            .extractIpAddress()
+        val outString =
+            device
+                .findObjectWithTimeout(
+                    By.res("location_info_connection_out_test_tag"),
+                    CONNECTION_TIMEOUT,
+                )
+                .text
+
+        val extractedIpAddress = outString.split(" ")[1]
+        return extractedIpAddress
+    }
+
+    fun extractInIpAddress(): String {
+        device.findObjectWithTimeout(By.res("location_info_test_tag")).click()
+        val inString =
+            device
+                .findObjectWithTimeout(
+                    By.res("location_info_connection_in_test_tag"),
+                    CONNECTION_TIMEOUT,
+                )
+                .text
+
+        val extractedIpAddress = inString.split(" ")[1].split(":")[0]
+        return extractedIpAddress
     }
 
     fun clickSettingsCog() {
@@ -124,9 +140,5 @@ class AppInteractor(
     fun attemptToRemoveDevice() {
         device.findObjectWithTimeout(By.desc("Remove")).click()
         clickActionButtonByText("Yes, log out device")
-    }
-
-    private fun String.extractIpAddress(): String {
-        return split(" ")[1].split(" ")[0]
     }
 }
