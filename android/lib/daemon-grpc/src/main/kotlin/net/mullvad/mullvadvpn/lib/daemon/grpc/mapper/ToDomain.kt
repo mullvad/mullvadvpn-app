@@ -25,6 +25,7 @@ import net.mullvad.mullvadvpn.lib.model.CustomDnsOptions
 import net.mullvad.mullvadvpn.lib.model.CustomList
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
+import net.mullvad.mullvadvpn.lib.model.DaitaSettings
 import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.lib.model.Device
 import net.mullvad.mullvadvpn.lib.model.DeviceId
@@ -68,6 +69,7 @@ import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.model.Udp2TcpObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 import net.mullvad.mullvadvpn.lib.model.WireguardEndpointData
+import net.mullvad.mullvadvpn.lib.model.WireguardRelayEndpointData
 import net.mullvad.mullvadvpn.lib.model.WireguardTunnelOptions
 import org.joda.time.Instant
 
@@ -159,7 +161,8 @@ internal fun ManagementInterface.TunnelEndpoint.toDomain(): TunnelEndpoint =
                 obfuscation.toDomain()
             } else {
                 null
-            }
+            },
+        daita = daita
     )
 
 internal fun ManagementInterface.ObfuscationEndpoint.toDomain(): ObfuscationEndpoint =
@@ -372,6 +375,7 @@ internal fun ManagementInterface.TunnelOptions.WireguardOptions.toDomain(): Wire
     WireguardTunnelOptions(
         mtu = if (hasMtu()) Mtu(mtu) else null,
         quantumResistant = quantumResistant.toDomain(),
+        daita = daita.enabled
     )
 
 internal fun ManagementInterface.QuantumResistantState.toDomain(): QuantumResistantState =
@@ -423,6 +427,16 @@ internal fun QuantumResistantState.toDomain(): ManagementInterface.QuantumResist
         )
         .build()
 
+internal fun DaitaSettings.toDomain(): ManagementInterface.DaitaSettings =
+    ManagementInterface.DaitaSettings.newBuilder()
+        .setEnabled(
+            when (this) {
+                DaitaSettings.On -> true
+                DaitaSettings.Off -> false
+            }
+        )
+        .build()
+
 internal fun ManagementInterface.AppVersionInfo.toDomain(): AppVersionInfo =
     AppVersionInfo(
         supported = supported,
@@ -442,7 +456,12 @@ internal fun ManagementInterface.RelayList.toDomain(): RelayList =
     RelayList(countriesList.toDomain(), wireguard.toDomain())
 
 internal fun ManagementInterface.WireguardEndpointData.toDomain(): WireguardEndpointData =
-    WireguardEndpointData(portRangesList.map { it.toDomain() })
+    WireguardEndpointData(
+        portRangesList.map { it.toDomain() },
+    )
+
+internal fun ManagementInterface.WireguardRelayEndpointData.toDomain(): WireguardRelayEndpointData =
+    WireguardRelayEndpointData(daita)
 
 internal fun ManagementInterface.PortRange.toDomain(): PortRange = PortRange(first..last)
 
@@ -494,7 +513,13 @@ internal fun ManagementInterface.Relay.toDomain(
             Provider(
                 ProviderId(provider),
                 ownership = if (owned) Ownership.MullvadOwned else Ownership.Rented
-            )
+            ),
+        daita =
+            if (
+                hasEndpointData() && endpointType == ManagementInterface.Relay.RelayType.WIREGUARD
+            ) {
+                ManagementInterface.WireguardRelayEndpointData.parseFrom(endpointData.value).daita
+            } else false
     )
 
 internal fun ManagementInterface.Device.toDomain(): Device =
@@ -598,11 +623,11 @@ internal fun ManagementInterface.FeatureIndicator.toDomain() =
         ManagementInterface.FeatureIndicator.SERVER_IP_OVERRIDE ->
             FeatureIndicator.SERVER_IP_OVERRIDE
         ManagementInterface.FeatureIndicator.CUSTOM_MTU -> FeatureIndicator.CUSTOM_MTU
+        ManagementInterface.FeatureIndicator.DAITA -> FeatureIndicator.DAITA
         ManagementInterface.FeatureIndicator.LOCKDOWN_MODE,
         ManagementInterface.FeatureIndicator.SHADOWSOCKS,
         ManagementInterface.FeatureIndicator.MULTIHOP,
         ManagementInterface.FeatureIndicator.BRIDGE_MODE,
         ManagementInterface.FeatureIndicator.CUSTOM_MSS_FIX,
-        ManagementInterface.FeatureIndicator.DAITA,
         ManagementInterface.FeatureIndicator.UNRECOGNIZED -> error("Feature not supported")
     }

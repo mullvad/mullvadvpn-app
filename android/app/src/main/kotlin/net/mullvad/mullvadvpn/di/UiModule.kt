@@ -138,7 +138,7 @@ val uiModule = module {
     single { FilterCustomListsRelayItemUseCase(get(), get()) }
     single { CustomListsRelayItemUseCase(get(), get()) }
     single { CustomListRelayItemsUseCase(get(), get()) }
-    single { FilteredRelayListUseCase(get(), get()) }
+    single { FilteredRelayListUseCase(get(), get(), get()) }
     single { LastKnownLocationUseCase(get()) }
 
     single { InAppNotificationController(get(), get(), get(), get(), MainScope()) }

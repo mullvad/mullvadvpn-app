@@ -6,7 +6,7 @@ import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.RelayItem
-import net.mullvad.mullvadvpn.relaylist.filterOnOwnershipAndProvider
+import net.mullvad.mullvadvpn.relaylist.applyFilters
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 
 class FilterCustomListsRelayItemUseCase(
@@ -26,5 +26,5 @@ class FilterCustomListsRelayItemUseCase(
     private fun List<RelayItem.CustomList>.filterOnOwnershipAndProvider(
         ownership: Constraint<Ownership>,
         providers: Constraint<Providers>
-    ) = mapNotNull { it.filterOnOwnershipAndProvider(ownership, providers) }
+    ) = mapNotNull { it.applyFilters(ownership, providers, isDaitaEnabled = false) }
 }

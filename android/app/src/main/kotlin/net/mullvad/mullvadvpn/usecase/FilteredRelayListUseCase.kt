@@ -5,28 +5,33 @@ import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.RelayItem
-import net.mullvad.mullvadvpn.relaylist.filterOnOwnershipAndProvider
+import net.mullvad.mullvadvpn.relaylist.applyFilters
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.repository.RelayListRepository
+import net.mullvad.mullvadvpn.repository.SettingsRepository
 
 class FilteredRelayListUseCase(
     private val relayListRepository: RelayListRepository,
-    private val relayListFilterRepository: RelayListFilterRepository
+    private val relayListFilterRepository: RelayListFilterRepository,
+    private val settingsRepository: SettingsRepository
 ) {
     operator fun invoke() =
         combine(
             relayListRepository.relayList,
             relayListFilterRepository.selectedOwnership,
             relayListFilterRepository.selectedProviders,
-        ) { relayList, selectedOwnership, selectedProviders ->
-            relayList.filterOnOwnershipAndProvider(
+            settingsRepository.settingsUpdates
+        ) { relayList, selectedOwnership, selectedProviders, settings ->
+            relayList.applyFilters(
                 selectedOwnership,
                 selectedProviders,
+                isDaitaEnabled = settings?.tunnelOptions?.wireguard?.daita ?: false
             )
         }
 
-    private fun List<RelayItem.Location.Country>.filterOnOwnershipAndProvider(
+    private fun List<RelayItem.Location.Country>.applyFilters(
         ownership: Constraint<Ownership>,
-        providers: Constraint<Providers>
-    ) = mapNotNull { it.filterOnOwnershipAndProvider(ownership, providers) }
+        providers: Constraint<Providers>,
+        isDaitaEnabled: Boolean
+    ) = mapNotNull { it.applyFilters(ownership, providers, isDaitaEnabled) }
 }

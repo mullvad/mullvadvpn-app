@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.CustomDnsOptions
+import net.mullvad.mullvadvpn.lib.model.DaitaSettings
 import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.lib.model.DnsOptions
 import net.mullvad.mullvadvpn.lib.model.DnsState
@@ -70,4 +71,7 @@ class SettingsRepository(
 
     suspend fun setLocalNetworkSharing(isEnabled: Boolean) =
         managementService.setAllowLan(isEnabled)
+
+    suspend fun setDaitaSettings(daitaSettings: DaitaSettings) =
+        managementService.setDaitaSettings(daitaSettings)
 }

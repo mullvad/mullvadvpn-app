@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.VpnSettingsUiState
 import net.mullvad.mullvadvpn.lib.model.Constraint
+import net.mullvad.mullvadvpn.lib.model.DaitaSettings
 import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.lib.model.DnsState
 import net.mullvad.mullvadvpn.lib.model.Port
@@ -64,6 +65,7 @@ class VpnSettingsViewModel(
                     mtuValue = settings?.tunnelOptions?.wireguard?.mtu,
                     isAutoConnectEnabled = settings?.autoConnect ?: false,
                     isLocalNetworkSharingEnabled = settings?.allowLan ?: false,
+                    isDaitaEnabled = settings?.tunnelOptions?.wireguard?.daita ?: false,
                     isCustomDnsEnabled = settings?.isCustomDnsEnabled() ?: false,
                     customDnsList = settings?.addresses()?.asStringAddressList() ?: listOf(),
                     contentBlockersOptions =
@@ -121,6 +123,14 @@ class VpnSettingsViewModel(
             repository.setLocalNetworkSharing(isEnabled).onLeft {
                 _uiSideEffect.send(VpnSettingsSideEffect.ShowToast.GenericError)
             }
+        }
+    }
+
+    fun onToggleDaita(isEnabled: Boolean) {
+        viewModelScope.launch(dispatcher) {
+            repository
+                .setDaitaSettings(if (isEnabled) DaitaSettings.On else DaitaSettings.Off)
+                .onLeft { _uiSideEffect.send(VpnSettingsSideEffect.ShowToast.GenericError) }
         }
     }
 

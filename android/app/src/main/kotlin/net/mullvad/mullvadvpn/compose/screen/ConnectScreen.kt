@@ -365,6 +365,7 @@ private fun ConnectionInfo(state: ConnectUiState) {
         isVisible = state.showLocationInfo,
         isExpanded = expanded,
         location = state.location,
+        isUsingDaita = state.tunnelState.isUsingDaita(),
         inAddress = state.inAddress,
         outAddress = state.outAddress,
         modifier =

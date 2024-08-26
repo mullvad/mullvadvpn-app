@@ -53,27 +53,29 @@ private fun RelayItem.Location.hasProvider(providersConstraint: Constraint<Provi
         true
     }
 
-fun RelayItem.CustomList.filterOnOwnershipAndProvider(
+fun RelayItem.CustomList.applyFilters(
     ownership: Constraint<Ownership>,
-    providers: Constraint<Providers>
+    providers: Constraint<Providers>,
+    isDaitaEnabled: Boolean
 ): RelayItem.CustomList {
     val newLocations =
         locations.mapNotNull {
             when (it) {
                 is RelayItem.Location.Country ->
-                    it.filterOnOwnershipAndProvider(ownership, providers)
-                is RelayItem.Location.City -> it.filterOnOwnershipAndProvider(ownership, providers)
-                is RelayItem.Location.Relay -> it.filterOnOwnershipAndProvider(ownership, providers)
+                    it.applyFilters(ownership, providers, isDaitaEnabled)
+                is RelayItem.Location.City -> it.applyFilters(ownership, providers, isDaitaEnabled)
+                is RelayItem.Location.Relay -> it.applyFilters(ownership, providers, isDaitaEnabled)
             }
         }
     return copy(locations = newLocations)
 }
 
-fun RelayItem.Location.Country.filterOnOwnershipAndProvider(
+fun RelayItem.Location.Country.applyFilters(
     ownership: Constraint<Ownership>,
-    providers: Constraint<Providers>
+    providers: Constraint<Providers>,
+    isDaitaEnabled: Boolean
 ): RelayItem.Location.Country? {
-    val cities = cities.mapNotNull { it.filterOnOwnershipAndProvider(ownership, providers) }
+    val cities = cities.mapNotNull { it.applyFilters(ownership, providers, isDaitaEnabled) }
     return if (cities.isNotEmpty()) {
         this.copy(cities = cities)
     } else {
@@ -81,11 +83,12 @@ fun RelayItem.Location.Country.filterOnOwnershipAndProvider(
     }
 }
 
-private fun RelayItem.Location.City.filterOnOwnershipAndProvider(
+private fun RelayItem.Location.City.applyFilters(
     ownership: Constraint<Ownership>,
-    providers: Constraint<Providers>
+    providers: Constraint<Providers>,
+    isDaitaEnabled: Boolean
 ): RelayItem.Location.City? {
-    val relays = relays.mapNotNull { it.filterOnOwnershipAndProvider(ownership, providers) }
+    val relays = relays.mapNotNull { it.applyFilters(ownership, providers, isDaitaEnabled) }
     return if (relays.isNotEmpty()) {
         this.copy(relays = relays)
     } else {
@@ -93,11 +96,18 @@ private fun RelayItem.Location.City.filterOnOwnershipAndProvider(
     }
 }
 
-private fun RelayItem.Location.Relay.filterOnOwnershipAndProvider(
+private fun RelayItem.Location.Relay.hasMatchingDaitaSetting(isDaitaEnabled: Boolean): Boolean {
+    return if (isDaitaEnabled) daita else true
+}
+
+private fun RelayItem.Location.Relay.applyFilters(
     ownership: Constraint<Ownership>,
-    providers: Constraint<Providers>
+    providers: Constraint<Providers>,
+    isDaitaEnabled: Boolean
 ): RelayItem.Location.Relay? {
-    return if (hasOwnership(ownership) && hasProvider(providers)) {
+    return if (
+        hasMatchingDaitaSetting(isDaitaEnabled) && hasOwnership(ownership) && hasProvider(providers)
+    ) {
         this
     } else {
         null

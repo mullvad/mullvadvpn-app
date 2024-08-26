@@ -36,6 +36,7 @@ import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.AutoConnectAndLockdownModeDestination
 import com.ramcosta.composedestinations.generated.destinations.ContentBlockersInfoDestination
 import com.ramcosta.composedestinations.generated.destinations.CustomDnsInfoDestination
+import com.ramcosta.composedestinations.generated.destinations.DaitaInfoDestination
 import com.ramcosta.composedestinations.generated.destinations.DnsDestination
 import com.ramcosta.composedestinations.generated.destinations.LocalNetworkSharingInfoDestination
 import com.ramcosta.composedestinations.generated.destinations.MalwareInfoDestination
@@ -224,6 +225,7 @@ fun VpnSettings(
             },
         navigateToLocalNetworkSharingInfo =
             dropUnlessResumed { navigator.navigate(LocalNetworkSharingInfoDestination) },
+        navigateToDaitaInfo = dropUnlessResumed { navigator.navigate(DaitaInfoDestination) },
         navigateToServerIpOverrides =
             dropUnlessResumed { navigator.navigate(ServerIpOverridesDestination) },
         onToggleBlockTrackers = vm::onToggleBlockTrackers,
@@ -231,6 +233,7 @@ fun VpnSettings(
         onToggleBlockMalware = vm::onToggleBlockMalware,
         onToggleAutoConnect = vm::onToggleAutoConnect,
         onToggleLocalNetworkSharing = vm::onToggleLocalNetworkSharing,
+        onToggleDaita = vm::onToggleDaita,
         onToggleBlockAdultContent = vm::onToggleBlockAdultContent,
         onToggleBlockGambling = vm::onToggleBlockGambling,
         onToggleBlockSocialMedia = vm::onToggleBlockSocialMedia,
@@ -273,6 +276,7 @@ fun VpnSettingsScreen(
     navigateUdp2TcpInfo: () -> Unit = {},
     navigateToWireguardPortInfo: (availablePortRanges: List<PortRange>) -> Unit = {},
     navigateToLocalNetworkSharingInfo: () -> Unit = {},
+    navigateToDaitaInfo: () -> Unit = {},
     navigateToWireguardPortDialog: () -> Unit = {},
     navigateToServerIpOverrides: () -> Unit = {},
     onToggleBlockTrackers: (Boolean) -> Unit = {},
@@ -280,6 +284,7 @@ fun VpnSettingsScreen(
     onToggleBlockMalware: (Boolean) -> Unit = {},
     onToggleAutoConnect: (Boolean) -> Unit = {},
     onToggleLocalNetworkSharing: (Boolean) -> Unit = {},
+    onToggleDaita: (Boolean) -> Unit = {},
     onToggleBlockAdultContent: (Boolean) -> Unit = {},
     onToggleBlockGambling: (Boolean) -> Unit = {},
     onToggleBlockSocialMedia: (Boolean) -> Unit = {},
@@ -497,8 +502,19 @@ fun VpnSettingsScreen(
                 )
             }
 
-            itemWithDivider {
+            item {
                 Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
+                HeaderSwitchComposeCell(
+                    title = "DAITA",
+                    isToggled = state.isDaitaEnabled,
+                    isEnabled = true,
+                    onCellClicked = { newValue -> onToggleDaita(newValue) },
+                    onInfoClicked = navigateToDaitaInfo
+                )
+                Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
+            }
+
+            itemWithDivider {
                 InformationComposeCell(
                     title = stringResource(id = R.string.wireguard_port_title),
                     onInfoClicked = { navigateToWireguardPortInfo(state.availablePortRanges) },
