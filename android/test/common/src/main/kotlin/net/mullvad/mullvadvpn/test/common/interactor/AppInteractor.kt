@@ -95,6 +95,20 @@ class AppInteractor(
             .text
     }
 
+    fun extractInIpv4Address(): String {
+        device.findObjectWithTimeout(By.res("location_info_test_tag")).click()
+        val inString =
+            device
+                .findObjectWithTimeout(
+                    By.res("location_info_connection_in_test_tag"),
+                    VERY_LONG_TIMEOUT,
+                )
+                .text
+
+        val extractedIpAddress = inString.split(" ")[1].split(":")[0]
+        return extractedIpAddress
+    }
+
     fun clickSettingsCog() {
         device.findObjectWithTimeout(By.res("top_bar_settings_button")).click()
     }
