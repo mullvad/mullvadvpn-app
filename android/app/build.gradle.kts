@@ -20,6 +20,7 @@ plugins {
 val repoRootPath = rootProject.projectDir.absoluteFile.parentFile.absolutePath
 val extraAssetsDirectory = "${project.buildDir}/extraAssets"
 val relayListPath = "$extraAssetsDirectory/relays.json"
+val maybenotMachinesDirectory = "$extraAssetsDirectory/maybenot_machines"
 val defaultChangelogAssetsDirectory = "$repoRootPath/android/src/main/play/release-notes/"
 val extraJniDirectory = "${project.buildDir}/extraJni"
 
@@ -239,6 +240,7 @@ android {
         // Ensure all relevant assemble tasks depend on our ensure tasks.
         tasks.get("assemble$capitalizedVariantName").apply {
             dependsOn(tasks.get("ensureRelayListExist"))
+            dependsOn(tasks.get("ensureMaybenotMachinesExist"))
             dependsOn(tasks.get("ensureJniDirectoryExist"))
             dependsOn(tasks.get("ensureValidVersionCode"))
         }
@@ -279,6 +281,14 @@ tasks.register("ensureRelayListExist") {
     doLast {
         if (!file(relayListPath).exists()) {
             throw GradleException("Missing relay list: $relayListPath")
+        }
+    }
+}
+
+tasks.register("ensureMaybenotMachinesExist") {
+    doLast {
+        if (!file(maybenotMachinesDirectory).exists()) {
+            throw GradleException("Missing maybenot machines: $maybenotMachinesDirectory")
         }
     }
 }

@@ -22,6 +22,7 @@ private val DUMMY_RELAY_1 =
         active = true,
         provider =
             Provider(providerId = ProviderId("PROVIDER RENTED"), ownership = Ownership.Rented),
+        daita = false,
     )
 private val DUMMY_RELAY_2 =
     RelayItem.Location.Relay(
@@ -33,6 +34,7 @@ private val DUMMY_RELAY_2 =
         active = true,
         provider =
             Provider(providerId = ProviderId("PROVIDER OWNED"), ownership = Ownership.MullvadOwned),
+        daita = false,
     )
 private val DUMMY_RELAY_CITY_1 =
     RelayItem.Location.City(
