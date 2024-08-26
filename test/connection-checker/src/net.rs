@@ -60,8 +60,9 @@ pub fn send_udp(opt: &Opt, destination: SocketAddr) -> Result<(), eyre::Error> {
     Ok(())
 }
 
+#[cfg(target_os = "windows")]
 pub fn send_ping(opt: &Opt, destination: IpAddr) -> eyre::Result<()> {
-    eprintln!("Leaking IMCP packets to {destination}");
+    eprintln!("Leaking ICMP packets to {destination}");
 
     ping::ping(
         destination,
@@ -71,6 +72,44 @@ pub fn send_ping(opt: &Opt, destination: IpAddr) -> eyre::Result<()> {
         None,
         None,
     )?;
+
+    Ok(())
+}
+
+#[cfg(target_os = "macos")]
+pub fn send_ping(opt: &Opt, destination: IpAddr) -> eyre::Result<()> {
+    eprintln!("Leaking ICMP packets to {destination}");
+
+    ping::dgramsock::ping(
+        destination,
+        Some(Duration::from_millis(opt.leak_timeout)),
+        None,
+        None,
+        None,
+        None,
+    )?;
+
+    Ok(())
+}
+
+// Some Linux distributions don't allow unprivileged users to send ICMP packets.
+// We use the ping command (which has capabilities/setuid set) to get around that.
+#[cfg(target_os = "linux")]
+pub fn send_ping(opt: &Opt, destination: IpAddr) -> eyre::Result<()> {
+    eprintln!("Leaking ICMP packets to {destination}");
+
+    let mut cmd = std::process::Command::new("ping");
+
+    let timeout_sec = ((opt.leak_timeout as f32) / 1000f32).to_string();
+    cmd.args(["-c", "1", "-W", &timeout_sec, &destination.to_string()]);
+
+    let output = cmd.output().wrap_err(eyre!(
+        "Failed to execute ping for destination {destination}"
+    ))?;
+
+    if !output.status.success() {
+        return Err(eyre!("ping for destination {destination} failed"));
+    }
 
     Ok(())
 }
