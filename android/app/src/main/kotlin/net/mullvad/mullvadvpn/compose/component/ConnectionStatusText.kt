@@ -1,66 +1,29 @@
 package net.mullvad.mullvadvpn.compose.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import java.net.InetSocketAddress
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.compose.preview.TunnelStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.lib.model.ActionAfterDisconnect
-import net.mullvad.mullvadvpn.lib.model.Endpoint
-import net.mullvad.mullvadvpn.lib.model.ErrorState
-import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
-import net.mullvad.mullvadvpn.lib.model.TransportProtocol
-import net.mullvad.mullvadvpn.lib.model.TunnelEndpoint
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.typeface.connectionStatus
 
 @Preview
 @Composable
-private fun PreviewConnectionStatusText() {
+private fun PreviewConnectionStatusText(
+    @PreviewParameter(TunnelStatePreviewParameterProvider::class) tunnelState: TunnelState
+) {
     AppTheme {
-        SpacedColumn(modifier = Modifier.background(MaterialTheme.colorScheme.surface)) {
-            ConnectionStatusText(TunnelState.Disconnected())
-            ConnectionStatusText(TunnelState.Connecting(null, null))
-            ConnectionStatusText(
-                state = TunnelState.Error(ErrorState(ErrorStateCause.Ipv6Unavailable, true))
-            )
-            ConnectionStatusText(
-                state =
-                    TunnelState.Connected(
-                        endpoint =
-                            TunnelEndpoint(
-                                endpoint =
-                                    Endpoint(
-                                        address = InetSocketAddress(10),
-                                        protocol = TransportProtocol.Tcp
-                                    ),
-                                quantumResistant = false,
-                                obfuscation = null
-                            ),
-                        location = null
-                    )
-            )
-            ConnectionStatusText(
-                state =
-                    TunnelState.Connected(
-                        endpoint =
-                            TunnelEndpoint(
-                                endpoint =
-                                    Endpoint(
-                                        address = InetSocketAddress(10),
-                                        protocol = TransportProtocol.Tcp
-                                    ),
-                                quantumResistant = true,
-                                obfuscation = null
-                            ),
-                        location = null
-                    )
-            )
+        Column(modifier = Modifier.background(MaterialTheme.colorScheme.surface)) {
+            ConnectionStatusText(state = tunnelState)
         }
     }
 }

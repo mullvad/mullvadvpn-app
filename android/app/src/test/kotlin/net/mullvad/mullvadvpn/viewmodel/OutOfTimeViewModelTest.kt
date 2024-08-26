@@ -117,7 +117,7 @@ class OutOfTimeViewModelTest {
     @Test
     fun `when tunnel state changes then ui should be updated`() = runTest {
         // Arrange
-        val tunnelRealStateTestItem = TunnelState.Connected(mockk(), mockk())
+        val tunnelRealStateTestItem = TunnelState.Connected(mockk(), mockk(), emptyList())
 
         // Act, Assert
         viewModel.uiState.test {

@@ -90,8 +90,8 @@ class OutOfTimeUseCaseTest {
             val tunnelStateChanges =
                 listOf(
                     TunnelState.Disconnected(),
-                    TunnelState.Connected(mockk(), null),
-                    TunnelState.Connecting(null, null),
+                    TunnelState.Connected(mockk(), null, emptyList()),
+                    TunnelState.Connecting(null, null, emptyList()),
                     TunnelState.Disconnecting(mockk()),
                     TunnelState.Error(ErrorState(ErrorStateCause.StartTunnelError, false)),
                 )
