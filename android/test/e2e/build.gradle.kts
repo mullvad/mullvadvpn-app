@@ -5,6 +5,7 @@ import org.gradle.configurationcache.extensions.capitalized
 plugins {
     alias(libs.plugins.android.test)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlinx.serialization)
 
     id(Dependencies.junit5AndroidPluginId) version Versions.junit5Plugin
 }
@@ -30,6 +31,10 @@ android {
         Properties().apply {
             load(project.file("e2e.properties").inputStream())
             addRequiredPropertyAsBuildConfigField("API_VERSION")
+            addRequiredPropertyAsBuildConfigField("ENABLE_HIGHLY_RATE_LIMITED_TESTS")
+            addRequiredPropertyAsBuildConfigField("ENABLE_ACCESS_TO_LOCAL_API_TESTS")
+            addRequiredPropertyAsBuildConfigField("TRAFFIC_GENERATION_IP_ADDRESS")
+            addRequiredPropertyAsBuildConfigField("PACKET_CAPTURE_API_HOST")
         }
 
         fun MutableMap<String, String>.addOptionalPropertyAsArgument(name: String) {
@@ -47,7 +52,6 @@ android {
                 put("clearPackageData", "true")
                 addOptionalPropertyAsArgument("valid_test_account_number")
                 addOptionalPropertyAsArgument("invalid_test_account_number")
-                addOptionalPropertyAsArgument("enable_highly_rate_limited_tests")
             }
     }
 
@@ -103,6 +107,13 @@ android {
     buildFeatures { buildConfig = true }
 }
 
+junitPlatform {
+    instrumentationTests {
+        version.set(Versions.junit5Android)
+        includeExtensions.set(true)
+    }
+}
+
 androidComponents {
     beforeVariants { variantBuilder ->
         variantBuilder.enable =
@@ -140,6 +151,11 @@ dependencies {
     implementation(Dependencies.junit5AndroidTestExtensions)
     implementation(Dependencies.junit5AndroidTestRunner)
     implementation(libs.kotlin.stdlib)
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.cio)
+    implementation(libs.ktor.serialization.kotlinx.json)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.jodatime)
 
     androidTestUtil(libs.androidx.test.orchestrator)
 
