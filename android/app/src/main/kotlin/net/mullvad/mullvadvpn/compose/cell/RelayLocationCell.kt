@@ -24,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -33,6 +34,8 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.Chevron
 import net.mullvad.mullvadvpn.compose.component.MullvadCheckbox
 import net.mullvad.mullvadvpn.compose.preview.RelayItemCheckableCellPreviewParameterProvider
+import net.mullvad.mullvadvpn.compose.test.EXPAND_BUTTON_TEST_TAG
+import net.mullvad.mullvadvpn.compose.test.LOCATION_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -55,6 +58,7 @@ private fun PreviewCheckableRelayLocationCell(
                     expanded = false,
                     depth = 0,
                     onExpand = {},
+                    modifier = Modifier.testTag(LOCATION_CELL_TEST_TAG),
                 )
             }
         }
@@ -166,6 +170,7 @@ fun RelayItemCell(
                 color = MaterialTheme.colorScheme.onSurface,
                 isExpanded = isExpanded,
                 onClick = { onToggleExpand(!isExpanded) },
+                modifier = Modifier.testTag(EXPAND_BUTTON_TEST_TAG),
             )
         }
     }
@@ -220,6 +225,7 @@ private fun Name(modifier: Modifier = Modifier, relay: RelayItem) {
 
 @Composable
 private fun RowScope.ExpandButton(
+    modifier: Modifier,
     color: Color,
     isExpanded: Boolean,
     onClick: (expand: Boolean) -> Unit,
@@ -232,7 +238,8 @@ private fun RowScope.ExpandButton(
         color = color,
         isExpanded = isExpanded,
         modifier =
-            Modifier.fillMaxHeight()
+            modifier
+                .fillMaxHeight()
                 .clickable { onClick(!isExpanded) }
                 .padding(horizontal = Dimens.largePadding)
                 .align(Alignment.CenterVertically),

@@ -152,12 +152,14 @@ INSTRUMENTATION_LOG_FILE_PATH="$REPORT_DIR/instrumentation-log.txt"
 LOGCAT_FILE_PATH="$REPORT_DIR/logcat.txt"
 LOCAL_SCREENSHOT_PATH="$REPORT_DIR/screenshots"
 DEVICE_SCREENSHOT_PATH="/sdcard/Pictures/mullvad-$TEST_TYPE"
+DEVICE_TEST_ATTACHMENTS_PATH="/sdcard/Download/test-attachments"
 
 echo ""
 echo "### Ensure clean report structure ###"
 rm -rf "${REPORT_DIR:?}/*"
 adb logcat --clear
 adb shell rm -rf "$DEVICE_SCREENSHOT_PATH"
+adb shell rm -rf "$DEVICE_TEST_ATTACHMENTS_PATH"
 echo ""
 
 if [[ "${USE_ORCHESTRATOR-}" == "true" ]]; then
