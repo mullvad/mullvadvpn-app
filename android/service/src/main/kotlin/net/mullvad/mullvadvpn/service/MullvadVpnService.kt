@@ -37,6 +37,7 @@ import org.koin.core.context.loadKoinModules
 import org.koin.core.qualifier.named
 
 private const val RELAYS_FILE = "relays.json"
+private const val MAYBENOT_MACHINES_FILE = "maybenot_machines"
 
 class MullvadVpnService : TalpidVpnService() {
 
@@ -82,7 +83,7 @@ class MullvadVpnService : TalpidVpnService() {
         // TODO We should avoid lifecycleScope.launch (current needed due to InetSocketAddress
         // with intent from API)
         lifecycleScope.launch(context = Dispatchers.IO) {
-            prepareFiles(this@MullvadVpnService)
+            prepareFiles()
             migrateSplitTunneling.migrate()
 
             Logger.i("Start daemon")
@@ -228,15 +229,27 @@ class MullvadVpnService : TalpidVpnService() {
         return this?.action == SERVICE_INTERFACE
     }
 
-    private fun prepareFiles(context: Context) {
-        val shouldOverwriteRelayList =
-            lastUpdatedTime(context) > File(context.filesDir, RELAYS_FILE).lastModified()
-
-        FileResourceExtractor(context).apply { extract(RELAYS_FILE, shouldOverwriteRelayList) }
+    private fun Context.prepareFiles() {
+        prepareRelayList()
+        prepareMaybenotMachines()
     }
 
-    private fun lastUpdatedTime(context: Context): Long =
-        context.packageManager.getPackageInfo(context.packageName, 0).lastUpdateTime
+    private fun Context.prepareRelayList() {
+        val shouldOverwriteRelayList =
+            lastUpdatedTime() > File(filesDir, RELAYS_FILE).lastModified()
+        FileResourceExtractor(this).apply { extract(RELAYS_FILE, shouldOverwriteRelayList) }
+    }
+
+    private fun Context.prepareMaybenotMachines() {
+        val shouldOverwriteMaybenotMachines =
+            lastUpdatedTime() > File(filesDir, RELAYS_FILE).lastModified()
+        FileResourceExtractor(this).apply {
+            extract(MAYBENOT_MACHINES_FILE, shouldOverwriteMaybenotMachines)
+        }
+    }
+
+    private fun Context.lastUpdatedTime(): Long =
+        packageManager.getPackageInfo(packageName, 0).lastUpdateTime
 
     companion object {
         init {
