@@ -134,10 +134,10 @@ val uiModule = module {
     single { CustomListActionUseCase(get(), get()) }
     single { SelectedLocationTitleUseCase(get(), get()) }
     single { AvailableProvidersUseCase(get()) }
-    single { FilterCustomListsRelayItemUseCase(get(), get()) }
+    single { FilterCustomListsRelayItemUseCase(get(), get(), get()) }
     single { CustomListsRelayItemUseCase(get(), get()) }
     single { CustomListRelayItemsUseCase(get(), get()) }
-    single { FilteredRelayListUseCase(get(), get()) }
+    single { FilteredRelayListUseCase(get(), get(), get()) }
     single { LastKnownLocationUseCase(get()) }
 
     single { InAppNotificationController(get(), get(), get(), get(), MainScope()) }
@@ -184,7 +184,9 @@ val uiModule = module {
     viewModel { DnsDialogViewModel(get(), get(), get()) }
     viewModel { LoginViewModel(get(), get(), get()) }
     viewModel { PrivacyDisclaimerViewModel(get(), IS_PLAY_BUILD) }
-    viewModel { SelectLocationViewModel(get(), get(), get(), get(), get(), get(), get(), get()) }
+    viewModel {
+        SelectLocationViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get())
+    }
     viewModel { SettingsViewModel(get(), get(), IS_PLAY_BUILD) }
     viewModel { SplashViewModel(get(), get(), get(), get()) }
     viewModel { VoucherDialogViewModel(get()) }
