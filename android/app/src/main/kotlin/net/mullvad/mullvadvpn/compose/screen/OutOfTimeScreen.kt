@@ -24,6 +24,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
@@ -48,12 +49,12 @@ import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBarAndDeviceName
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.extensions.createOpenAccountPageHook
 import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
+import net.mullvad.mullvadvpn.compose.preview.OutOfTimeScreenPreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.OutOfTimeUiState
 import net.mullvad.mullvadvpn.compose.test.OUT_OF_TIME_SCREEN_TITLE_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.HomeTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
-import net.mullvad.mullvadvpn.lib.model.ErrorState
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
@@ -65,48 +66,12 @@ import org.koin.androidx.compose.koinViewModel
 
 @Preview
 @Composable
-private fun PreviewOutOfTimeScreenDisconnected() {
+private fun PreviewOutOfTimeScreen(
+    @PreviewParameter(OutOfTimeScreenPreviewParameterProvider::class) state: OutOfTimeUiState
+) {
     AppTheme {
         OutOfTimeScreen(
-            state =
-                OutOfTimeUiState(
-                    tunnelState = TunnelState.Disconnected(),
-                    "Heroic Frog",
-                    showSitePayment = true
-                ),
-        )
-    }
-}
-
-@Preview
-@Composable
-private fun PreviewOutOfTimeScreenConnecting() {
-    AppTheme {
-        OutOfTimeScreen(
-            state =
-                OutOfTimeUiState(
-                    tunnelState = TunnelState.Connecting(null, null),
-                    "Strong Rabbit",
-                    showSitePayment = true
-                ),
-        )
-    }
-}
-
-@Preview
-@Composable
-private fun PreviewOutOfTimeScreenError() {
-    AppTheme {
-        OutOfTimeScreen(
-            state =
-                OutOfTimeUiState(
-                    tunnelState =
-                        TunnelState.Error(
-                            ErrorState(cause = ErrorStateCause.IsOffline, isBlocking = true)
-                        ),
-                    deviceName = "Stable Horse",
-                    showSitePayment = true
-                ),
+            state = state,
         )
     }
 }
