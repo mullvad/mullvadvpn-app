@@ -31,12 +31,14 @@ import net.mullvad.mullvadvpn.service.migration.MigrateSplitTunneling
 import net.mullvad.mullvadvpn.service.notifications.ForegroundNotificationManager
 import net.mullvad.mullvadvpn.service.notifications.NotificationChannelFactory
 import net.mullvad.mullvadvpn.service.notifications.NotificationManager
+import net.mullvad.mullvadvpn.service.util.extractAndOverwriteIfAssetMoreRecent
 import net.mullvad.talpid.TalpidVpnService
 import org.koin.android.ext.android.getKoin
 import org.koin.core.context.loadKoinModules
 import org.koin.core.qualifier.named
 
-private const val RELAYS_FILE = "relays.json"
+private const val RELAY_LIST_ASSET_NAME = "relays.json"
+private const val MAYBENOT_MACHINES_ASSET_NAME = "maybenot_machines"
 
 class MullvadVpnService : TalpidVpnService() {
 
@@ -82,7 +84,7 @@ class MullvadVpnService : TalpidVpnService() {
         // TODO We should avoid lifecycleScope.launch (current needed due to InetSocketAddress
         // with intent from API)
         lifecycleScope.launch(context = Dispatchers.IO) {
-            prepareFiles(this@MullvadVpnService)
+            prepareFiles()
             migrateSplitTunneling.migrate()
 
             Logger.i("Start daemon")
@@ -228,15 +230,10 @@ class MullvadVpnService : TalpidVpnService() {
         return this?.action == SERVICE_INTERFACE
     }
 
-    private fun prepareFiles(context: Context) {
-        val shouldOverwriteRelayList =
-            lastUpdatedTime(context) > File(context.filesDir, RELAYS_FILE).lastModified()
-
-        FileResourceExtractor(context).apply { extract(RELAYS_FILE, shouldOverwriteRelayList) }
+    private fun Context.prepareFiles() {
+        extractAndOverwriteIfAssetMoreRecent(RELAY_LIST_ASSET_NAME)
+        extractAndOverwriteIfAssetMoreRecent(MAYBENOT_MACHINES_ASSET_NAME)
     }
-
-    private fun lastUpdatedTime(context: Context): Long =
-        context.packageManager.getPackageInfo(context.packageName, 0).lastUpdateTime
 
     companion object {
         init {

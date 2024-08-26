@@ -24,6 +24,7 @@ private fun PreviewMullvadFilterChip() {
         MullvadFilterChip(
             text = stringResource(id = R.string.number_of_providers),
             onRemoveClick = {},
+            showIcon = true,
         )
     }
 }
@@ -36,6 +37,7 @@ fun MullvadFilterChip(
     iconColor: Color = MaterialTheme.colorScheme.onPrimary,
     text: String,
     onRemoveClick: () -> Unit,
+    showIcon: Boolean,
 ) {
     InputChip(
         shape = MaterialTheme.shapes.chipShape,
@@ -55,11 +57,13 @@ fun MullvadFilterChip(
         onClick = onRemoveClick,
         label = { Text(text = text, style = MaterialTheme.typography.labelMedium) },
         trailingIcon = {
-            Icon(
-                painter = painterResource(id = R.drawable.icon_close),
-                contentDescription = null,
-                modifier = Modifier.size(Dimens.smallIconSize),
-            )
+            if (showIcon) {
+                Icon(
+                    painter = painterResource(id = R.drawable.icon_close),
+                    contentDescription = null,
+                    modifier = Modifier.size(Dimens.smallIconSize),
+                )
+            }
         },
     )
 }

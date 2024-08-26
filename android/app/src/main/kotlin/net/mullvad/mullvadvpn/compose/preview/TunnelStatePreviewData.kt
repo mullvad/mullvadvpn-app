@@ -18,14 +18,14 @@ object TunnelStatePreviewData {
 
     fun generateConnectingState(featureIndicators: Int, quantumResistant: Boolean) =
         TunnelState.Connecting(
-            endpoint = generateTunnelEndpoint(quantumResistant = quantumResistant),
+            endpoint = generateTunnelEndpoint(quantumResistant = quantumResistant, daita = false),
             location = generateLocation(),
             featureIndicators = generateFeatureIndicators(featureIndicators),
         )
 
     fun generateConnectedState(featureIndicators: Int, quantumResistant: Boolean) =
         TunnelState.Connected(
-            endpoint = generateTunnelEndpoint(quantumResistant = quantumResistant),
+            endpoint = generateTunnelEndpoint(quantumResistant = quantumResistant, daita = true),
             location = generateLocation(),
             featureIndicators = generateFeatureIndicators(featureIndicators),
         )
@@ -39,7 +39,7 @@ object TunnelStatePreviewData {
         )
 }
 
-private fun generateTunnelEndpoint(quantumResistant: Boolean): TunnelEndpoint =
+private fun generateTunnelEndpoint(quantumResistant: Boolean, daita: Boolean): TunnelEndpoint =
     TunnelEndpoint(
         endpoint = generateEndpoint(TransportProtocol.Udp),
         quantumResistant = quantumResistant,
@@ -48,6 +48,7 @@ private fun generateTunnelEndpoint(quantumResistant: Boolean): TunnelEndpoint =
                 endpoint = generateEndpoint(TransportProtocol.Tcp),
                 ObfuscationType.Udp2Tcp,
             ),
+        daita = daita,
     )
 
 private fun generateEndpoint(transportProtocol: TransportProtocol) =
