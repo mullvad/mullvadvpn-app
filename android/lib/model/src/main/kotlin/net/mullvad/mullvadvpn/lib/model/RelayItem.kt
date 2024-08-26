@@ -58,6 +58,7 @@ sealed interface RelayItem {
             override val id: GeoLocationId.Hostname,
             val provider: Provider,
             override val active: Boolean,
+            val daita: Boolean,
         ) : Location {
             override val name: String = id.code
             override val hasChildren: Boolean = false

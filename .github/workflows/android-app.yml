@@ -324,6 +324,9 @@ jobs:
           name: relay-list
           path: android/app/build/extraAssets
 
+      - name: Copy maybenot machines to asset directory
+        run: cp dist-assets/maybenot_machines android/app/build/extraAssets/maybenot_machines
+
       - name: Build app
         uses: burrunan/gradle-cache-action@v1
         with:

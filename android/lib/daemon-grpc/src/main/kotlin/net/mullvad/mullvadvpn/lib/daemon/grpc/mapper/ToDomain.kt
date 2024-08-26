@@ -68,6 +68,7 @@ import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.model.Udp2TcpObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 import net.mullvad.mullvadvpn.lib.model.WireguardEndpointData
+import net.mullvad.mullvadvpn.lib.model.WireguardRelayEndpointData
 import net.mullvad.mullvadvpn.lib.model.WireguardTunnelOptions
 import org.joda.time.Instant
 
@@ -158,6 +159,7 @@ internal fun ManagementInterface.TunnelEndpoint.toDomain(): TunnelEndpoint =
             } else {
                 null
             },
+        daita = daita,
     )
 
 internal fun ManagementInterface.ObfuscationEndpoint.toDomain(): ObfuscationEndpoint =
@@ -370,6 +372,7 @@ internal fun ManagementInterface.TunnelOptions.WireguardOptions.toDomain(): Wire
     WireguardTunnelOptions(
         mtu = if (hasMtu()) Mtu(mtu) else null,
         quantumResistant = quantumResistant.toDomain(),
+        daita = daita.enabled,
     )
 
 internal fun ManagementInterface.QuantumResistantState.toDomain(): QuantumResistantState =
@@ -442,6 +445,9 @@ internal fun ManagementInterface.RelayList.toDomain(): RelayList =
 internal fun ManagementInterface.WireguardEndpointData.toDomain(): WireguardEndpointData =
     WireguardEndpointData(portRangesList.map { it.toDomain() })
 
+internal fun ManagementInterface.WireguardRelayEndpointData.toDomain(): WireguardRelayEndpointData =
+    WireguardRelayEndpointData(daita)
+
 internal fun ManagementInterface.PortRange.toDomain(): PortRange = PortRange(first..last)
 
 /**
@@ -493,6 +499,12 @@ internal fun ManagementInterface.Relay.toDomain(
                 ProviderId(provider),
                 ownership = if (owned) Ownership.MullvadOwned else Ownership.Rented,
             ),
+        daita =
+            if (
+                hasEndpointData() && endpointType == ManagementInterface.Relay.RelayType.WIREGUARD
+            ) {
+                ManagementInterface.WireguardRelayEndpointData.parseFrom(endpointData.value).daita
+            } else false,
     )
 
 internal fun ManagementInterface.Device.toDomain(): Device =
@@ -596,11 +608,11 @@ internal fun ManagementInterface.FeatureIndicator.toDomain() =
         ManagementInterface.FeatureIndicator.SERVER_IP_OVERRIDE ->
             FeatureIndicator.SERVER_IP_OVERRIDE
         ManagementInterface.FeatureIndicator.CUSTOM_MTU -> FeatureIndicator.CUSTOM_MTU
+        ManagementInterface.FeatureIndicator.DAITA -> FeatureIndicator.DAITA
         ManagementInterface.FeatureIndicator.LOCKDOWN_MODE,
         ManagementInterface.FeatureIndicator.SHADOWSOCKS,
         ManagementInterface.FeatureIndicator.MULTIHOP,
         ManagementInterface.FeatureIndicator.BRIDGE_MODE,
         ManagementInterface.FeatureIndicator.CUSTOM_MSS_FIX,
-        ManagementInterface.FeatureIndicator.DAITA,
         ManagementInterface.FeatureIndicator.UNRECOGNIZED -> error("Feature not supported")
     }

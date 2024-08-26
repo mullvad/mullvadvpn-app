@@ -22,6 +22,8 @@ sealed interface FilterChip {
     data class Ownership(val ownership: ModelOwnership) : FilterChip
 
     data class Provider(val count: Int) : FilterChip
+
+    data object Daita : FilterChip
 }
 
 enum class RelayListItemContentType {

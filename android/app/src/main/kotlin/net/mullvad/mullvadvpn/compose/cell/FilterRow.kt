@@ -57,6 +57,7 @@ fun FilterRow(
                 is FilterChip.Ownership ->
                     OwnershipFilterChip(it.ownership, onRemoveOwnershipFilter)
                 is FilterChip.Provider -> ProviderFilterChip(it.count, onRemoveProviderFilter)
+                is FilterChip.Daita -> DaitaFilterChip()
             }
         }
     }
@@ -67,6 +68,7 @@ fun ProviderFilterChip(providers: Int, onRemoveClick: () -> Unit) {
     MullvadFilterChip(
         text = stringResource(id = R.string.number_of_providers, providers),
         onRemoveClick = onRemoveClick,
+        enabled = true,
     )
 }
 
@@ -75,6 +77,16 @@ fun OwnershipFilterChip(ownership: Ownership, onRemoveClick: () -> Unit) {
     MullvadFilterChip(
         text = stringResource(ownership.stringResources()),
         onRemoveClick = onRemoveClick,
+        enabled = true,
+    )
+}
+
+@Composable
+fun DaitaFilterChip() {
+    MullvadFilterChip(
+        text = stringResource(id = R.string.setting_chip, stringResource(id = R.string.daita)),
+        onRemoveClick = {},
+        enabled = false,
     )
 }
 
