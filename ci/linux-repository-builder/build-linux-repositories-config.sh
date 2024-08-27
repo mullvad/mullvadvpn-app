@@ -7,7 +7,7 @@
 export CODE_SIGNING_KEY_FINGERPRINT="A1198702FC3E0A09A9AE5B75D5A1D4F266DE8DDF"
 
 # Debian codenames we support.
-SUPPORTED_DEB_CODENAMES=("sid" "testing" "bookworm" "bullseye")
+SUPPORTED_DEB_CODENAMES=("sid" "testing" "trixie" "bookworm" "bullseye")
 # Ubuntu codenames we support. Latest two LTS. But when adding a new
 # don't immediately remove the oldest one. Allow for some transition period
 # with the last three.
