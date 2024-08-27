@@ -106,8 +106,11 @@ fun RowScope.SelectableIcon(
         modifier =
             Modifier.padding(end = Dimens.selectableCellTextMargin)
                 .alpha(
-                    if (isSelected && !isEnabled) AlphaDisabled
-                    else if (isSelected) AlphaVisible else AlphaInvisible
+                    when {
+                        isSelected && !isEnabled -> AlphaDisabled
+                        isSelected -> AlphaVisible
+                        else -> AlphaInvisible
+                    }
                 ),
     )
 }

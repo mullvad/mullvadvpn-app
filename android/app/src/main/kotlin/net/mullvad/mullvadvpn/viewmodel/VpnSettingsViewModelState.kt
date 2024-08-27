@@ -21,10 +21,14 @@ data class VpnSettingsViewModelState(
     val selectedShadowsocksObfuscationPort: Constraint<Port>,
     val quantumResistant: QuantumResistantState,
     val selectedWireguardPort: Constraint<Port>,
-    val customWireguardPort: Constraint<Port>?,
+    val customWireguardPort: Port?,
     val availablePortRanges: List<PortRange>,
     val systemVpnSettingsAvailable: Boolean,
 ) {
+    val isCustomWireguardPort =
+        selectedWireguardPort is Constraint.Only &&
+            selectedWireguardPort.value == customWireguardPort
+
     fun toUiState(): VpnSettingsUiState =
         VpnSettingsUiState(
             mtuValue,
