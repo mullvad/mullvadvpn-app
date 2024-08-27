@@ -92,7 +92,7 @@ internal fun ManagementInterface.TunnelState.toDomain(): TunnelState =
                             location.toDomain()
                         } else null
                     },
-                featureIndicators = connected.featureIndicators.toDomain(),
+                featureIndicators = connecting.featureIndicators.toDomain(),
             )
         ManagementInterface.TunnelState.StateCase.CONNECTED ->
             TunnelState.Connected(
@@ -135,7 +135,7 @@ internal fun ManagementInterface.GeoIpLocation.toDomain(): GeoIpLocation =
         city = city,
         latitude = latitude,
         longitude = longitude,
-        hostname = hostname,
+        hostname = if (hasHostname()) hostname else null,
     )
 
 internal fun ManagementInterface.TunnelEndpoint.toDomain(): TunnelEndpoint =
@@ -593,7 +593,7 @@ internal fun ManagementInterface.SocksAuth.toDomain(): SocksAuth =
     SocksAuth(username = username, password = password)
 
 internal fun ManagementInterface.FeatureIndicators.toDomain(): List<FeatureIndicator> =
-    this.activeFeaturesList.map { it.toDomain() }
+    this.activeFeaturesList.map { it.toDomain() }.sorted()
 
 internal fun ManagementInterface.FeatureIndicator.toDomain() =
     when (this) {
@@ -614,5 +614,6 @@ internal fun ManagementInterface.FeatureIndicator.toDomain() =
         ManagementInterface.FeatureIndicator.MULTIHOP,
         ManagementInterface.FeatureIndicator.BRIDGE_MODE,
         ManagementInterface.FeatureIndicator.CUSTOM_MSS_FIX,
-        ManagementInterface.FeatureIndicator.UNRECOGNIZED -> error("Feature not supported")
+        ManagementInterface.FeatureIndicator.UNRECOGNIZED ->
+            error("Feature not supported ${this.name}")
     }

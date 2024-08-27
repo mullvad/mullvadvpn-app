@@ -14,11 +14,9 @@ import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.test.CONNECT_BUTTON_TEST_TAG
-import net.mullvad.mullvadvpn.compose.test.LOCATION_INFO_TEST_TAG
+import net.mullvad.mullvadvpn.compose.test.CONNECT_CARD_HEADER_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.NOTIFICATION_BANNER_ACTION
 import net.mullvad.mullvadvpn.compose.test.RECONNECT_BUTTON_TEST_TAG
-import net.mullvad.mullvadvpn.compose.test.SCROLLABLE_COLUMN_TEST_TAG
-import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.TOP_BAR_ACCOUNT_BUTTON
 import net.mullvad.mullvadvpn.lib.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.lib.model.ErrorState
@@ -59,9 +57,8 @@ class ConnectScreenTest {
             setContentWithTheme { ConnectScreen(state = ConnectUiState.INITIAL) }
 
             // Assert
-            onNodeWithTag(SCROLLABLE_COLUMN_TEST_TAG).assertExists()
-            onNodeWithText("UNSECURED CONNECTION").assertExists()
-            onNodeWithText("Secure my connection").assertExists()
+            onNodeWithText("DISCONNECTED").assertExists()
+            onNodeWithText("Connect").assertExists()
         }
     }
 
@@ -76,8 +73,6 @@ class ConnectScreenTest {
                             location = null,
                             selectedRelayItemTitle = null,
                             tunnelState = TunnelState.Connecting(null, null, emptyList()),
-                            inAddress = null,
-                            outAddress = "",
                             showLocation = false,
                             deviceName = "",
                             daysLeftUntilExpiry = null,
@@ -89,45 +84,7 @@ class ConnectScreenTest {
 
             // Assert
             onNodeWithTag(CIRCULAR_PROGRESS_INDICATOR).assertExists()
-            onNodeWithText("CREATING SECURE CONNECTION").assertExists()
-            onNodeWithText("Switch location").assertExists()
-            onNodeWithText("Cancel").assertExists()
-            onNodeWithText("BLOCKING INTERNET").assertExists()
-        }
-    }
-
-    @Test
-    fun testConnectingStateQuantumSecured() {
-        composeExtension.use {
-            // Arrange
-            val mockTunnelEndpoint: TunnelEndpoint = mockk(relaxed = true)
-            every { mockTunnelEndpoint.quantumResistant } returns true
-            setContentWithTheme {
-                ConnectScreen(
-                    state =
-                        ConnectUiState(
-                            location = null,
-                            selectedRelayItemTitle = null,
-                            tunnelState =
-                                TunnelState.Connecting(
-                                    endpoint = mockTunnelEndpoint,
-                                    null,
-                                    emptyList(),
-                                ),
-                            inAddress = null,
-                            outAddress = "",
-                            showLocation = false,
-                            deviceName = "",
-                            daysLeftUntilExpiry = null,
-                            inAppNotification = InAppNotification.TunnelStateBlocked,
-                            isPlayBuild = false,
-                        )
-                )
-            }
-
-            // Assert
-            onNodeWithTag(CIRCULAR_PROGRESS_INDICATOR).assertExists()
-            onNodeWithText("CREATING QUANTUM SECURE CONNECTION").assertExists()
+            onNodeWithText("CONNECTING...").assertExists()
             onNodeWithText("Switch location").assertExists()
             onNodeWithText("Cancel").assertExists()
             onNodeWithText("BLOCKING INTERNET").assertExists()
@@ -147,8 +104,6 @@ class ConnectScreenTest {
                             selectedRelayItemTitle = null,
                             tunnelState =
                                 TunnelState.Connected(mockTunnelEndpoint, null, emptyList()),
-                            inAddress = null,
-                            outAddress = "",
                             showLocation = false,
                             deviceName = "",
                             daysLeftUntilExpiry = null,
@@ -159,39 +114,7 @@ class ConnectScreenTest {
             }
 
             // Assert
-            onNodeWithText("SECURE CONNECTION").assertExists()
-            onNodeWithText("Switch location").assertExists()
-            onNodeWithText("Disconnect").assertExists()
-        }
-    }
-
-    @Test
-    fun testConnectedStateQuantumSecured() {
-        composeExtension.use {
-            // Arrange
-            val mockTunnelEndpoint: TunnelEndpoint = mockk(relaxed = true)
-            every { mockTunnelEndpoint.quantumResistant } returns true
-            setContentWithTheme {
-                ConnectScreen(
-                    state =
-                        ConnectUiState(
-                            location = null,
-                            selectedRelayItemTitle = null,
-                            tunnelState =
-                                TunnelState.Connected(mockTunnelEndpoint, null, emptyList()),
-                            inAddress = null,
-                            outAddress = "",
-                            showLocation = false,
-                            deviceName = "",
-                            daysLeftUntilExpiry = null,
-                            inAppNotification = null,
-                            isPlayBuild = false,
-                        )
-                )
-            }
-
-            // Assert
-            onNodeWithText("QUANTUM SECURE CONNECTION").assertExists()
+            onNodeWithText("CONNECTED").assertExists()
             onNodeWithText("Switch location").assertExists()
             onNodeWithText("Disconnect").assertExists()
         }
@@ -209,8 +132,6 @@ class ConnectScreenTest {
                             location = null,
                             selectedRelayItemTitle = mockLocationName,
                             tunnelState = TunnelState.Disconnecting(ActionAfterDisconnect.Nothing),
-                            inAddress = null,
-                            outAddress = "",
                             showLocation = true,
                             deviceName = "",
                             daysLeftUntilExpiry = null,
@@ -221,7 +142,7 @@ class ConnectScreenTest {
             }
 
             // Assert
-            onNodeWithText("UNSECURED CONNECTION").assertExists()
+            onNodeWithText("DISCONNECTED").assertExists()
             onNodeWithText(mockLocationName).assertExists()
             onNodeWithText("Disconnect").assertExists()
         }
@@ -239,8 +160,6 @@ class ConnectScreenTest {
                             location = null,
                             selectedRelayItemTitle = mockLocationName,
                             tunnelState = TunnelState.Disconnected(),
-                            inAddress = null,
-                            outAddress = "",
                             showLocation = true,
                             deviceName = "",
                             daysLeftUntilExpiry = null,
@@ -251,9 +170,9 @@ class ConnectScreenTest {
             }
 
             // Assert
-            onNodeWithText("UNSECURED CONNECTION").assertExists()
+            onNodeWithText("DISCONNECTED").assertExists()
             onNodeWithText(mockLocationName).assertExists()
-            onNodeWithText("Secure my connection").assertExists()
+            onNodeWithText("Connect").assertExists()
         }
     }
 
@@ -272,8 +191,6 @@ class ConnectScreenTest {
                                 TunnelState.Error(
                                     ErrorState(ErrorStateCause.StartTunnelError, true)
                                 ),
-                            inAddress = null,
-                            outAddress = "",
                             showLocation = true,
                             deviceName = "",
                             daysLeftUntilExpiry = null,
@@ -309,8 +226,6 @@ class ConnectScreenTest {
                                 TunnelState.Error(
                                     ErrorState(ErrorStateCause.StartTunnelError, false)
                                 ),
-                            inAddress = null,
-                            outAddress = "",
                             showLocation = true,
                             deviceName = "",
                             daysLeftUntilExpiry = null,
@@ -344,8 +259,6 @@ class ConnectScreenTest {
                             selectedRelayItemTitle = null,
                             tunnelState =
                                 TunnelState.Disconnecting(ActionAfterDisconnect.Reconnect),
-                            inAddress = null,
-                            outAddress = "",
                             showLocation = false,
                             deviceName = "",
                             daysLeftUntilExpiry = null,
@@ -357,7 +270,7 @@ class ConnectScreenTest {
 
             // Assert
             onNodeWithTag(CIRCULAR_PROGRESS_INDICATOR).assertExists()
-            onNodeWithText("CREATING SECURE CONNECTION").assertExists()
+            onNodeWithText("CONNECTING...").assertExists()
             onNodeWithText("Switch location").assertExists()
             onNodeWithText("Disconnect").assertExists()
             onNodeWithText("BLOCKING INTERNET").assertExists()
@@ -376,8 +289,6 @@ class ConnectScreenTest {
                             location = null,
                             selectedRelayItemTitle = mockLocationName,
                             tunnelState = TunnelState.Disconnecting(ActionAfterDisconnect.Block),
-                            inAddress = null,
-                            outAddress = "",
                             showLocation = true,
                             deviceName = "",
                             daysLeftUntilExpiry = null,
@@ -388,7 +299,7 @@ class ConnectScreenTest {
             }
 
             // Assert
-            onNodeWithText("SECURE CONNECTION").assertExists()
+            onNodeWithText("CONNECTED").assertExists()
             onNodeWithText(mockLocationName).assertExists()
             onNodeWithText("Disconnect").assertExists()
             onNodeWithText("BLOCKING INTERNET").assertExists()
@@ -408,8 +319,6 @@ class ConnectScreenTest {
                             location = null,
                             selectedRelayItemTitle = mockLocationName,
                             tunnelState = TunnelState.Disconnected(),
-                            inAddress = null,
-                            outAddress = "",
                             showLocation = false,
                             deviceName = "",
                             daysLeftUntilExpiry = null,
@@ -421,7 +330,7 @@ class ConnectScreenTest {
             }
 
             // Act
-            onNodeWithTag(SELECT_LOCATION_BUTTON_TEST_TAG).performClick()
+            onNodeWithTag(CONNECT_CARD_HEADER_TEST_TAG).performClick()
 
             // Assert
             verify { mockedClickHandler.invoke() }
@@ -442,8 +351,6 @@ class ConnectScreenTest {
                             selectedRelayItemTitle = null,
                             tunnelState =
                                 TunnelState.Connected(mockTunnelEndpoint, null, emptyList()),
-                            inAddress = null,
-                            outAddress = "",
                             showLocation = false,
                             deviceName = "",
                             daysLeftUntilExpiry = null,
@@ -476,8 +383,6 @@ class ConnectScreenTest {
                             selectedRelayItemTitle = null,
                             tunnelState =
                                 TunnelState.Connected(mockTunnelEndpoint, null, emptyList()),
-                            inAddress = null,
-                            outAddress = "",
                             showLocation = false,
                             deviceName = "",
                             daysLeftUntilExpiry = null,
@@ -508,8 +413,6 @@ class ConnectScreenTest {
                             location = null,
                             selectedRelayItemTitle = null,
                             tunnelState = TunnelState.Disconnected(),
-                            inAddress = null,
-                            outAddress = "",
                             showLocation = false,
                             deviceName = "",
                             daysLeftUntilExpiry = null,
@@ -540,8 +443,6 @@ class ConnectScreenTest {
                             location = null,
                             selectedRelayItemTitle = null,
                             tunnelState = TunnelState.Connecting(null, null, emptyList()),
-                            inAddress = null,
-                            outAddress = "",
                             showLocation = false,
                             deviceName = "",
                             daysLeftUntilExpiry = null,
@@ -561,18 +462,31 @@ class ConnectScreenTest {
     }
 
     @Test
-    fun showLocationInfo() {
+    fun showConnectionDetails() {
         composeExtension.use {
             // Arrange
             val mockLocation: GeoIpLocation = mockk(relaxed = true)
             val mockTunnelEndpoint: TunnelEndpoint = mockk(relaxed = true)
             val mockHostName = "Host-Name"
-            val mockPort = 99
-            val mockHost = "Host"
-            val mockProtocol = TransportProtocol.Udp
-            val mockInAddress = Triple(mockHost, mockPort, mockProtocol)
-            val mockOutAddress = "HostAddressV4 / HostAddressV4"
+            val inHost = "Host"
+            val inPort = 99
+            val inProtocol = TransportProtocol.Udp
             every { mockLocation.hostname } returns mockHostName
+
+            // In
+            every { mockTunnelEndpoint.obfuscation } returns null
+            every { mockTunnelEndpoint.endpoint.address.address.hostAddress } returns inHost
+            every { mockTunnelEndpoint.endpoint.address.port } returns inPort
+            every { mockTunnelEndpoint.endpoint.protocol } returns inProtocol
+
+            // Out Ipv4
+            val outIpv4 = "ipv4address"
+            every { mockLocation.ipv4?.hostAddress } returns outIpv4
+
+            // Out Ipv6
+            val outIpv6 = "ipv6address"
+            every { mockLocation.ipv6?.hostAddress } returns outIpv6
+
             setContentWithTheme {
                 ConnectScreen(
                     state =
@@ -580,9 +494,11 @@ class ConnectScreenTest {
                             location = mockLocation,
                             selectedRelayItemTitle = null,
                             tunnelState =
-                                TunnelState.Connected(mockTunnelEndpoint, null, emptyList()),
-                            inAddress = mockInAddress,
-                            outAddress = mockOutAddress,
+                                TunnelState.Connected(
+                                    mockTunnelEndpoint,
+                                    mockLocation,
+                                    emptyList(),
+                                ),
                             showLocation = false,
                             deviceName = "",
                             daysLeftUntilExpiry = null,
@@ -593,13 +509,18 @@ class ConnectScreenTest {
             }
 
             // Act
-            onNodeWithTag(LOCATION_INFO_TEST_TAG).performClick()
+            onNodeWithTag(CONNECT_CARD_HEADER_TEST_TAG).performClick()
 
             // Assert
             onNodeWithText(mockHostName).assertExists()
-            onNodeWithText("WireGuard").assertExists()
-            onNodeWithText("In $mockHost:$mockPort UDP").assertExists()
-            onNodeWithText("Out $mockOutAddress").assertExists()
+            onNodeWithText("In").assertExists()
+            onNodeWithText("$inHost:$inPort UDP").assertExists()
+
+            onNodeWithText("Out Ipv4").assertExists()
+            onNodeWithText(outIpv4).assertExists()
+
+            onNodeWithText("Out Ipv6").assertExists()
+            onNodeWithText(outIpv6).assertExists()
         }
     }
 
@@ -615,8 +536,6 @@ class ConnectScreenTest {
                             location = null,
                             selectedRelayItemTitle = null,
                             tunnelState = TunnelState.Connecting(null, null, emptyList()),
-                            inAddress = null,
-                            outAddress = "",
                             showLocation = false,
                             deviceName = "",
                             daysLeftUntilExpiry = null,
@@ -647,8 +566,6 @@ class ConnectScreenTest {
                             location = null,
                             selectedRelayItemTitle = null,
                             tunnelState = TunnelState.Connecting(null, null, emptyList()),
-                            inAddress = null,
-                            outAddress = "",
                             showLocation = false,
                             deviceName = "",
                             daysLeftUntilExpiry = null,
@@ -678,8 +595,6 @@ class ConnectScreenTest {
                             location = null,
                             selectedRelayItemTitle = null,
                             tunnelState = TunnelState.Connecting(null, null, emptyList()),
-                            inAddress = null,
-                            outAddress = "",
                             showLocation = false,
                             deviceName = "",
                             daysLeftUntilExpiry = null,
@@ -711,8 +626,6 @@ class ConnectScreenTest {
                             location = null,
                             selectedRelayItemTitle = null,
                             tunnelState = TunnelState.Connecting(null, null, emptyList()),
-                            inAddress = null,
-                            outAddress = "",
                             showLocation = false,
                             deviceName = "",
                             daysLeftUntilExpiry = null,

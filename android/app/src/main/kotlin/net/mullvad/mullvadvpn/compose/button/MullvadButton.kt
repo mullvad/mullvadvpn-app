@@ -17,7 +17,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.Alpha20
@@ -157,7 +156,7 @@ private fun BaseButton(
         enabled = isEnabled,
         contentPadding =
             if (hasIcon) {
-                PaddingValues(horizontal = 0.dp, vertical = Dimens.buttonVerticalPadding)
+                PaddingValues(vertical = Dimens.buttonVerticalPadding)
             } else {
                 ButtonDefaults.ContentPadding
             },

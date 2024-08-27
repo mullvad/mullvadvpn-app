@@ -168,6 +168,7 @@ class MullvadTileService : TileService() {
                         Tile.STATE_INACTIVE
                     }
                 }
+
                 is TunnelState.Error -> {
                     if (tunnelState.errorState.isBlocking) {
                         Tile.STATE_ACTIVE
@@ -186,11 +187,11 @@ class MullvadTileService : TileService() {
             if (newState == Tile.STATE_ACTIVE) {
                 state = Tile.STATE_ACTIVE
                 icon = securedIcon
-                setSubtitleIfSupported(resources.getText(R.string.secured))
+                setSubtitleIfSupported(resources.getText(R.string.connected))
             } else {
                 state = Tile.STATE_INACTIVE
                 icon = unsecuredIcon
-                setSubtitleIfSupported(resources.getText(R.string.unsecured))
+                setSubtitleIfSupported(resources.getText(R.string.disconnected))
             }
             updateTile()
         }

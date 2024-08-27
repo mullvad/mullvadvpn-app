@@ -73,10 +73,11 @@
     <string name="confirm_no_email">Za chwilę wyślesz zgłoszenie problemu, nie umożliwiając nam skontaktowania się z Tobą. Aby uzyskać odpowiedź na zgłoszenie, musisz podać adres e-mail.</string>
     <string name="confirm_removal">Tak, wyloguj urządzenie</string>
     <string name="congrats">Gratulacje!</string>
-    <string name="connect">Zabezpiecz moje połączenie</string>
+    <string name="connected">Połączono</string>
     <string name="connected_using_daita">%1$s przy użyciu %2$s</string>
     <string name="connecting">Łączenie</string>
     <string name="connecting_to_daemon">Łączenie z usługą systemową Mullvad...</string>
+    <string name="connection_details_in">Wejście</string>
     <string name="continue_login">Kontynuuj logowanie</string>
     <string name="copied_logs_to_clipboard">Skopiowano dzienniki do schowka</string>
     <string name="copied_mullvad_account_number">Skopiowano numer konta Mullvad do schowka</string>
@@ -87,7 +88,6 @@
     <string name="create_new_list">Utwórz nową listę</string>
     <string name="created_x">Utworzono: %1$s</string>
     <string name="creating_new_account">Tworzenie konta...</string>
-    <string name="creating_secure_connection">TWORZENIE BEZPIECZNEGO POŁĄCZENIA</string>
     <string name="critical_error">Błąd krytyczny (wymagana uwaga)</string>
     <string name="current_method">Bieżąca: %1$s</string>
     <string name="custom_dns_disable_mode_subtitle">Aby aktywować to ustawienie, wyłącz powyżej wszystkie &lt;b&gt;%1$s&lt;/b&gt;.</string>
@@ -118,6 +118,7 @@
     <string name="discard">Odrzuć</string>
     <string name="discard_changes">Odrzucić zmiany?</string>
     <string name="disconnect">Rozłącz</string>
+    <string name="disconnected">Rozłączono</string>
     <string name="disconnecting">Rozłączanie</string>
     <string name="dismiss">Odrzuć</string>
     <string name="dns_content_blockers_custom_dns_warning">Uwaga: tego ustawienia nie można używać w połączeniu z opcją &lt;b&gt;Użyj niestandardowego serwera DNS&lt;/b&gt;.</string>
@@ -152,6 +153,8 @@
     <string name="failed_to_set_current_test_error">Nie udało się ustawić jako bieżącą — interfejs API nieosiągalny</string>
     <string name="failed_to_set_current_unknown_error">Nie udało się ustawić jako bieżącą — przyczyna nieznana</string>
     <string name="faqs_and_guides">Często zadawane pytania i poradniki</string>
+    <string name="feature_custom_mtu">MTU</string>
+    <string name="feature_udp_2_tcp">Zaciemnianie</string>
     <string name="filter">Filtruj</string>
     <string name="filtered">Odfiltrowane:</string>
     <string name="foreground_notification_channel_description">Pokazuje bieżący status tunelu VPN</string>
@@ -166,7 +169,6 @@
     <string name="import_overrides_bottom_sheet_override_warning">Wskutek importu nowych zastąpień zastąpione mogą zostać niektóre wcześniej zaimportowane zastąpienia.</string>
     <string name="import_overrides_import">Importuj</string>
     <string name="import_overrides_text_title">Import tekstowy</string>
-    <string name="in_address">Wejście</string>
     <string name="invalid_dns_servers">Niestandardowe adresy serwerów DNS %1$s są nieprawidłowe</string>
     <string name="invalid_voucher">Nieprawidłowy kod kuponu.</string>
     <string name="ipv6_unavailable">Nie można skonfigurować protokołu IPv6. Wyłącz go w aplikacji lub włącz na urządzeniu.</string>
@@ -248,11 +250,9 @@
     <string name="privacy_policy_label">Polityka prywatności</string>
     <string name="problem_report_description">Aby można było pomóc Ci skuteczniej, do tej wiadomości dołączony zostanie plik dziennika aplikacji. Twoje dane pozostaną bezpieczne i prywatne, ponieważ przed wysłaniem zaszyfrowanym kanałem zostają one zanonimizowane.</string>
     <string name="providers">Dostawcy</string>
-    <string name="quantum_creating_secure_connection">TWORZENIE KWANTOWO BEZPIECZNEGO POŁĄCZENIA</string>
     <string name="quantum_resistant_info_first_paragaph">Ta funkcja sprawia, że tunel WireGuard jest odporny na potencjalne ataki ze strony komputerów kwantowych.</string>
     <string name="quantum_resistant_info_second_paragaph">Jest to wykonywane poprzez dodatkową wymianę kluczy przy użyciu algorytmu odpornego na ataki z użyciem komputerów kwantowych i zmieszanie wyniku ze zwykłym szyfrowaniem WireGuard. Ten dodatkowy krok zużywa około 500 kB ruchu za każdym razem, gdy ustanawiany jest nowy tunel.</string>
     <string name="quantum_resistant_title">Tunel odporny na ataki z użyciem komputerów kwantowych</string>
-    <string name="quantum_secure_connection">KWANTOWO BEZPIECZNE POŁĄCZENIE</string>
     <string name="reconnecting">Ponowne łączenie</string>
     <string name="redeem">Zrealizuj</string>
     <string name="redeem_voucher">Zrealizuj kupon</string>
@@ -263,8 +263,6 @@
     <string name="reset_to_default_button">Przywróć domyślne</string>
     <string name="save">Zapisz</string>
     <string name="search_placeholder">Wyszukaj...</string>
-    <string name="secure_connection">BEZPIECZNE POŁĄCZENIE</string>
-    <string name="secured">Zabezpieczone</string>
     <string name="select_location">Wybierz lokalizację</string>
     <string name="select_location_description">Podczas połączenia Twoja prawdziwa lokalizacja jest maskowana prywatną, bezpieczną lokalizacją w wybranym regionie.</string>
     <string name="select_location_empty_text_first_row">Brak wyników dla &lt;b&gt;%1$s&lt;/b&gt;.</string>
@@ -329,9 +327,6 @@
     <string name="udp_over_tcp_port_info">Port TCP, z którym powinien łączyć się protokół zaciemniania UDP-przez-TCP na serwerze VPN.</string>
     <string name="udp_over_tcp_port_title">Port UDP-przez-TCP</string>
     <string name="undo">Cofnij</string>
-    <string name="unsecured">Niezabezpieczone</string>
-    <string name="unsecured_connection">NIEZABEZPIECZONE POŁĄCZENIE</string>
-    <string name="unsecured_vpn_permission_error">Niezabezpieczony (brak uprawnienia VPN)</string>
     <string name="unsupported_version">WERSJA NIEOBSŁUGIWANA</string>
     <string name="unsupported_version_description">W tej nieobsługiwanej wersji aplikacji prywatność może być zagrożona. Zaktualizuj już teraz.</string>
     <string name="unsupported_version_without_upgrade">Używasz nieobsługiwanej wersji aplikacji.</string>

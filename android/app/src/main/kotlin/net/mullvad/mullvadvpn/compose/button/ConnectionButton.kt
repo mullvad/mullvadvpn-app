@@ -1,43 +1,16 @@
 package net.mullvad.mullvadvpn.compose.button
 
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.CornerSize
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.FilledIconButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
-import androidx.compose.ui.unit.dp
-import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.constraintlayout.compose.Dimension
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.preview.TunnelStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
-import net.mullvad.mullvadvpn.lib.theme.Dimens
-import net.mullvad.mullvadvpn.lib.theme.color.AlphaDisconnectButton
 
 @Composable
 @Preview
@@ -48,7 +21,6 @@ private fun PreviewConnectionButton(
         ConnectionButton(
             state = tunnelState,
             disconnectClick = {},
-            reconnectClick = {},
             cancelClick = {},
             connectClick = {},
         )
@@ -58,18 +30,17 @@ private fun PreviewConnectionButton(
 @Composable
 fun ConnectionButton(
     modifier: Modifier = Modifier,
-    reconnectButtonTestTag: String = "",
     state: TunnelState,
-    disconnectClick: () -> Unit,
-    reconnectClick: () -> Unit,
-    cancelClick: () -> Unit,
-    connectClick: () -> Unit,
+    disconnectClick: () -> Unit = {},
+    cancelClick: () -> Unit = {},
+    connectClick: () -> Unit = {},
 ) {
+
     val containerColor =
         if (state is TunnelState.Disconnected) {
             MaterialTheme.colorScheme.tertiary
         } else {
-            MaterialTheme.colorScheme.error.copy(alpha = AlphaDisconnectButton)
+            MaterialTheme.colorScheme.error
         }
 
     val contentColor =
@@ -97,7 +68,7 @@ fun ConnectionButton(
                 }
         )
 
-    val onMainClick =
+    val onClick =
         when (state) {
             is TunnelState.Disconnected -> connectClick
             is TunnelState.Connecting -> cancelClick
@@ -108,126 +79,18 @@ fun ConnectionButton(
                     cancelClick
                 }
             }
+
             else -> disconnectClick
         }
 
-    ConnectionButton(
+    PrimaryButton(
+        onClick = onClick,
+        colors =
+            ButtonDefaults.buttonColors(
+                containerColor = containerColor,
+                contentColor = contentColor,
+            ),
         modifier = modifier,
         text = buttonText,
-        containerColor = containerColor,
-        contentColor = contentColor,
-        mainClick = onMainClick,
-        reconnectClick = reconnectClick,
-        reconnectButtonTestTag = reconnectButtonTestTag,
-        isReconnectButtonEnabled = (state is TunnelState.Disconnected).not(),
     )
-}
-
-@Composable
-@Suppress("LongMethod")
-private fun ConnectionButton(
-    text: String,
-    mainClick: () -> Unit,
-    reconnectClick: () -> Unit,
-    isReconnectButtonEnabled: Boolean,
-    containerColor: Color,
-    contentColor: Color,
-    modifier: Modifier = Modifier,
-    reconnectButtonTestTag: String = "",
-) {
-    ConstraintLayout(
-        modifier = modifier.padding(vertical = Dimens.connectButtonExtraPadding).fillMaxWidth()
-    ) {
-        // initial height set at 0.dp
-        var componentHeight by remember { mutableStateOf(0.dp) }
-
-        // get local density from composable
-        val density = LocalDensity.current
-
-        val (connectionButton, reconnectButton) = createRefs()
-        CompositionLocalProvider(
-            LocalMinimumInteractiveComponentSize provides
-                Dimens.reconnectButtonMinInteractiveComponentSize
-        ) {
-            val dividerSize = Dimens.listItemDivider
-
-            Button(
-                onClick = mainClick,
-                shape =
-                    if (isReconnectButtonEnabled) {
-                        MaterialTheme.shapes.small.copy(
-                            topEnd = CornerSize(percent = 0),
-                            bottomEnd = CornerSize(percent = 0),
-                        )
-                    } else {
-                        MaterialTheme.shapes.small
-                    },
-                colors =
-                    ButtonDefaults.buttonColors(
-                        containerColor = containerColor,
-                        contentColor = contentColor,
-                    ),
-                modifier =
-                    Modifier.constrainAs(connectionButton) {
-                            start.linkTo(parent.start)
-                            if (isReconnectButtonEnabled) {
-                                end.linkTo(reconnectButton.start)
-                            } else {
-                                end.linkTo(parent.end)
-                            }
-                            width = Dimension.fillToConstraints
-                            height = Dimension.wrapContent
-                        }
-                        .onGloballyPositioned {
-                            componentHeight = with(density) { it.size.height.toDp() }
-                        },
-            ) {
-                // Offset to compensate for the reconnect button.
-                Text(
-                    text = text,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier =
-                        if (isReconnectButtonEnabled) {
-                            Modifier.padding(start = componentHeight + Dimens.listItemDivider)
-                        } else {
-                            Modifier
-                        },
-                )
-            }
-
-            if (isReconnectButtonEnabled) {
-                FilledIconButton(
-                    shape =
-                        MaterialTheme.shapes.small.copy(
-                            topStart = CornerSize(percent = 0),
-                            bottomStart = CornerSize(percent = 0),
-                        ),
-                    colors =
-                        IconButtonDefaults.filledIconButtonColors(
-                            containerColor = containerColor,
-                            contentColor = contentColor,
-                        ),
-                    onClick = reconnectClick,
-                    modifier =
-                        Modifier.testTag(reconnectButtonTestTag)
-                            .constrainAs(reconnectButton) {
-                                start.linkTo(connectionButton.end, margin = dividerSize)
-                                top.linkTo(connectionButton.top)
-                                bottom.linkTo(connectionButton.bottom)
-                                end.linkTo(parent.end)
-                                height = Dimension.fillToConstraints
-                            }
-                            .aspectRatio(1f, true),
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.icon_reload),
-                        contentDescription = null,
-                    )
-                }
-            }
-        }
-    }
 }

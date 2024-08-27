@@ -74,7 +74,7 @@ private fun PreviewNotificationBanner() {
 
 @Composable
 fun NotificationBanner(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     notification: InAppNotification?,
     isPlayBuild: Boolean,
     onClickUpdateVersion: () -> Unit,
