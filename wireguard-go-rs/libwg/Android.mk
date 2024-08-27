@@ -2,7 +2,9 @@
 #
 # Copyright © 2017-2019 WireGuard LLC. All Rights Reserved.
 
-DESTDIR ?= $(CURDIR)/../../build/lib/$(RUST_TARGET_TRIPLE)
+DESTDIR ?= $(OUT_DIR)
+CARGO_TARGET_DIR ?=
+TARGET ?=
 
 NDK_GO_ARCH_MAP_x86 := 386
 NDK_GO_ARCH_MAP_x86_64 := amd64
