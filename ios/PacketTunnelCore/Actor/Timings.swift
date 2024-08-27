@@ -11,7 +11,7 @@ import MullvadTypes
 
 /// Struct holding all timings used by tunnel actor.
 public struct PacketTunnelActorTimings {
-    /// Periodicity at which actor will attempt to restart when an error occurred on system boot when filesystem is locked until device is unlocked.
+    /// Periodicity at which actor will attempt to restart when an error occurred on system boot when filesystem is locked until device is unlocked or tunnel adapter error.
     public var bootRecoveryPeriodicity: Duration
 
     /// Time that takes for new WireGuard key to propagate across relays.
@@ -19,7 +19,7 @@ public struct PacketTunnelActorTimings {
 
     /// Designated initializer.
     public init(
-        bootRecoveryPeriodicity: Duration = .seconds(10),
+        bootRecoveryPeriodicity: Duration = .seconds(5),
         wgKeyPropagationDelay: Duration = .seconds(120)
     ) {
         self.bootRecoveryPeriodicity = bootRecoveryPeriodicity
