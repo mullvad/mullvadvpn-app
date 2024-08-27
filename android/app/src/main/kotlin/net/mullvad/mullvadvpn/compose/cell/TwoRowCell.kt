@@ -26,17 +26,16 @@ private fun PreviewTwoRowCell() {
 @Composable
 fun TwoRowCell(
     titleText: String,
-    subtitleText: String?,
+    subtitleText: String,
     modifier: Modifier = Modifier,
     bodyView: @Composable ColumnScope.() -> Unit = {},
     iconView: @Composable RowScope.() -> Unit = {},
-    onCellClicked: () -> Unit = {},
+    onCellClicked: (() -> Unit)? = null,
     titleColor: Color = MaterialTheme.colorScheme.onPrimary,
     subtitleColor: Color = MaterialTheme.colorScheme.onPrimary,
     titleStyle: TextStyle = MaterialTheme.typography.labelLarge,
     subtitleStyle: TextStyle = MaterialTheme.typography.labelLarge,
     background: Color = MaterialTheme.colorScheme.primary,
-    isRowEnabled: Boolean = true,
     endPadding: Dp = Dimens.cellEndPadding,
     minHeight: Dp = Dimens.cellHeightTwoRows,
 ) {
@@ -52,23 +51,21 @@ fun TwoRowCell(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
-                subtitleText?.let {
-                    Text(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = subtitleText,
-                        style = subtitleStyle,
-                        color = subtitleColor,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = subtitleText,
+                    style = subtitleStyle,
+                    color = subtitleColor,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
             }
         },
         bodyView = bodyView,
         iconView = iconView,
-        onCellClicked = onCellClicked,
+        onCellClicked = onCellClicked ?: {},
         background = background,
-        isRowEnabled = isRowEnabled,
+        isRowEnabled = onCellClicked != null,
         minHeight = minHeight,
         endPadding = endPadding,
     )
