@@ -74,6 +74,7 @@
     <string name="confirm_removal">はい。デバイスをログアウトさせます</string>
     <string name="congrats">おめでとうございます！</string>
     <string name="connect">接続を保護する</string>
+    <string name="connected_using_daita">%1$s を使用した %2$s</string>
     <string name="connecting">接続中</string>
     <string name="connecting_to_daemon">Mullvad システムサービスに接続中...</string>
     <string name="continue_login">ログインを続ける</string>
@@ -100,6 +101,8 @@
     <string name="custom_port_dialog_title">WireGuardカスタムポート</string>
     <string name="custom_port_dialog_valid_ranges">有効な範囲: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">カスタムトンネルのホストを解決できません。設定を変更してみてください。</string>
+    <string name="daita_info">%1$s (%2$s) を使用すると、暗号化された VPN トラフィックのパターンを隠すことができるようになります。何者かがあなたの接続を監視している場合に、アクセスしているウェブサイトの特定が大幅に難しくなります。ネットワークノイズを慎重に追加し、ネットワークパケットのサイズをすべて同一に揃えることによって実現しています。</string>
+    <string name="daita_warning">注意: これにより、ネットワークトラフィックの総数が増加します。上限のあるデータプランをご利用の場合にはご注意ください。また、ネットワーク　の速度にも悪影響を及ぼす可能性があります。%1$s を有効にする場合は、この点を考慮に入れてください。</string>
     <string name="delete">削除</string>
     <string name="delete_custom_list_confirmation_description">\"%1$s\" を削除しますか？</string>
     <string name="delete_custom_list_message">\"%1$s\" は削除されました</string>
