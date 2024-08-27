@@ -27,6 +27,7 @@ import net.mullvad.mullvadvpn.compose.test.SHADOWSOCKS_PORT_ITEM_AUTOMATIC_TEST_
 import net.mullvad.mullvadvpn.compose.test.SHADOWSOCKS_PORT_ITEM_X_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
+import net.mullvad.mullvadvpn.constant.SHADOWSOCKS_AVAILABLE_PORTS
 import net.mullvad.mullvadvpn.constant.SHADOWSOCKS_PRESET_PORTS
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Port
@@ -75,7 +76,7 @@ fun ShadowsocksSettings(
                                     context.getString(R.string.shadowsocks)
                                 ),
                             customPort = state.customPort,
-                            allowedPortRanges = state.validPortRanges,
+                            allowedPortRanges = SHADOWSOCKS_AVAILABLE_PORTS,
                         )
                     )
                 )
