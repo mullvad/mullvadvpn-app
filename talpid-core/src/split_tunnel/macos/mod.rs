@@ -111,7 +111,7 @@ enum Message {
     /// Update VPN tunnel interface
     SetTunnel {
         result_tx: oneshot::Sender<Result<(), Error>>,
-        new_vpn_interface: Option<VpnInterface>,
+        vpn_interface: VpnInterface,
     },
 }
 
@@ -149,11 +149,11 @@ impl Handle {
     }
 
     /// Set VPN tunnel interface
-    pub async fn set_tunnel(&self, new_vpn_interface: Option<VpnInterface>) -> Result<(), Error> {
+    pub async fn set_tunnel(&self, vpn_interface: VpnInterface) -> Result<(), Error> {
         let (result_tx, result_rx) = oneshot::channel();
         let _ = self.tx.send(Message::SetTunnel {
             result_tx,
-            new_vpn_interface,
+            vpn_interface,
         });
         result_rx.await.map_err(|_| Error::unavailable())?
     }
@@ -167,10 +167,7 @@ impl SplitTunnel {
     ) -> Handle {
         let (tx, rx) = mpsc::unbounded_channel();
         let split_tunnel = Self {
-            state: State::NoExclusions {
-                route_manager,
-                vpn_interface: None,
-            },
+            state: State::NoExclusions { route_manager },
             tunnel_tx,
             rx,
             shutdown_tx: None,
@@ -258,9 +255,9 @@ impl SplitTunnel {
             }
             Message::SetTunnel {
                 result_tx,
-                new_vpn_interface,
+                vpn_interface,
             } => {
-                let _ = result_tx.send(self.state.set_tunnel(new_vpn_interface).await);
+                let _ = result_tx.send(self.state.set_tunnel(vpn_interface).await);
             }
         }
         true
@@ -272,7 +269,7 @@ impl SplitTunnel {
             State::ProcessMonitorOnly { mut process, .. } => {
                 process.shutdown().await;
             }
-            State::Initialized {
+            State::Active {
                 mut process,
                 tun_handle,
                 ..
@@ -282,14 +279,14 @@ impl SplitTunnel {
                 }
                 process.shutdown().await;
             }
-            State::Failed { .. } | State::NoExclusions { .. } => (),
+            State::Failed { .. } | State::NoExclusions { .. } | State::StandBy { .. } => (),
         }
     }
 
     /// Return name of split tunnel interface
     fn interface(&self) -> Option<&str> {
         match &self.state {
-            State::Initialized { tun_handle, .. } => Some(tun_handle.name()),
+            State::Active { tun_handle, .. } => Some(tun_handle.name()),
             _ => None,
         }
     }
@@ -297,9 +294,11 @@ impl SplitTunnel {
 
 enum State {
     /// The initial state: no paths have been provided
-    NoExclusions {
+    NoExclusions { route_manager: RouteManagerHandle },
+    /// There is an active VPN connection but no split tunnel utun
+    StandBy {
         route_manager: RouteManagerHandle,
-        vpn_interface: Option<VpnInterface>,
+        vpn_interface: VpnInterface,
     },
     /// There is a process monitor (and paths) but no split tunnel utun yet
     ProcessMonitorOnly {
@@ -307,11 +306,11 @@ enum State {
         process: process::ProcessMonitorHandle,
     },
     /// There is a split tunnel utun as well as paths to exclude
-    Initialized {
+    Active {
         route_manager: RouteManagerHandle,
         process: process::ProcessMonitorHandle,
         tun_handle: tun::SplitTunnelHandle,
-        vpn_interface: Option<VpnInterface>,
+        vpn_interface: VpnInterface,
     },
     /// State entered when anything at all fails. Users can force a transition out of this state
     /// by disabling/clearing the paths to use.
@@ -325,32 +324,34 @@ enum State {
 impl State {
     fn process_monitor(&mut self) -> Option<&mut process::ProcessMonitorHandle> {
         match self {
-            State::ProcessMonitorOnly { process, .. } | State::Initialized { process, .. } => {
+            State::ProcessMonitorOnly { process, .. } | State::Active { process, .. } => {
                 Some(process)
             }
-            _ => None,
+            State::NoExclusions { .. } | State::StandBy { .. } | State::Failed { .. } => None,
         }
     }
 
-    fn route_manager(&self) -> &RouteManagerHandle {
+    const fn route_manager(&self) -> &RouteManagerHandle {
         match self {
             State::NoExclusions { route_manager, .. }
+            | State::StandBy { route_manager, .. }
             | State::ProcessMonitorOnly { route_manager, .. }
-            | State::Initialized { route_manager, .. }
+            | State::Active { route_manager, .. }
             | State::Failed { route_manager, .. } => route_manager,
         }
     }
 
-    fn vpn_interface(&self) -> Option<&VpnInterface> {
+    const fn vpn_interface(&self) -> Option<&VpnInterface> {
         match self {
-            State::NoExclusions { vpn_interface, .. }
-            | State::Initialized { vpn_interface, .. }
-            | State::Failed { vpn_interface, .. } => vpn_interface.as_ref(),
-            State::ProcessMonitorOnly { .. } => None,
+            State::Failed { vpn_interface, .. } => vpn_interface.as_ref(),
+            State::Active { vpn_interface, .. } | State::StandBy { vpn_interface, .. } => {
+                Some(vpn_interface)
+            }
+            State::NoExclusions { .. } | State::ProcessMonitorOnly { .. } => None,
         }
     }
 
-    fn fail_cause(&self) -> Option<&Error> {
+    const fn fail_cause(&self) -> Option<&Error> {
         match self {
             State::Failed { cause, .. } => cause.as_ref(),
             _ => None,
@@ -373,8 +374,8 @@ impl State {
 
     /// Return whether split tunneling is currently engaged. That is, there's both a process monitor
     /// and a VPN tunnel present
-    fn active(&self) -> bool {
-        matches!(self, State::Initialized { vpn_interface, .. } if vpn_interface.is_some())
+    const fn active(&self) -> bool {
+        matches!(self, State::Active { .. })
     }
 
     /// Set paths to exclude. For a non-empty path, this will initialize split tunneling if a tunnel
@@ -390,7 +391,19 @@ impl State {
     ) -> Result<Self, ErrorWithTransition> {
         match self {
             // If there are currently no paths and no process monitor, initialize it
-            State::NoExclusions {
+            State::NoExclusions { route_manager } if !paths.is_empty() => {
+                log::debug!("Initializing process monitor");
+
+                let process = process::ProcessMonitor::spawn().await?;
+                process.states().exclude_paths(paths);
+
+                Ok(State::ProcessMonitorOnly {
+                    route_manager,
+                    process,
+                })
+            }
+            // If there are currently no paths and no process monitor, initialize it
+            State::StandBy {
                 route_manager,
                 vpn_interface,
             } if !paths.is_empty() => {
@@ -407,10 +420,30 @@ impl State {
                 .await
             }
             // If 'paths' is empty, do nothing
-            State::NoExclusions { .. } => Ok(self),
+            State::NoExclusions { .. } | State::StandBy { .. } => Ok(self),
+            // If 'paths' is empty but split tunneling was enabled for an active VPN connection,
+            // disable split tunneling while caching the VPN interface.
+            //
+            // Note that the point is to drop the split tunnel handle to clean up the split tunnel
+            // interface from the user's system.
+            State::Active {
+                route_manager,
+                mut process,
+                tun_handle,
+                vpn_interface,
+            } if paths.is_empty() => {
+                if let Err(error) = tun_handle.shutdown().await {
+                    log::error!("Failed to stop split tunnel: {error}");
+                }
+                process.shutdown().await;
+                Ok(State::StandBy {
+                    route_manager,
+                    vpn_interface,
+                })
+            }
             // If split tunneling is already initialized, or only the process monitor is, update the
             // paths only
-            State::Initialized {
+            State::Active {
                 ref mut process, ..
             }
             | State::ProcessMonitorOnly {
@@ -427,10 +460,13 @@ impl State {
             } if paths.is_empty() => {
                 log::debug!("Transitioning out of split tunnel error state");
 
-                Ok(State::NoExclusions {
-                    route_manager: route_manager.clone(),
-                    vpn_interface: vpn_interface.clone(),
-                })
+                match vpn_interface {
+                    Some(vpn_interface) => Ok(State::StandBy {
+                        route_manager,
+                        vpn_interface,
+                    }),
+                    None => Ok(State::NoExclusions { route_manager }),
+                }
             }
             // Otherwise, remain in the failed state
             State::Failed { cause, .. } => Err(cause.unwrap_or(Error::unavailable()).into()),
@@ -438,22 +474,22 @@ impl State {
     }
 
     /// Update VPN tunnel interface that non-excluded packets are sent on
-    async fn set_tunnel(&mut self, new_vpn_interface: Option<VpnInterface>) -> Result<(), Error> {
-        self.transition(move |self_| self_.set_tunnel_inner(new_vpn_interface))
+    async fn set_tunnel(&mut self, vpn_interface: VpnInterface) -> Result<(), Error> {
+        self.transition(move |self_| self_.set_tunnel_inner(vpn_interface))
             .await
     }
 
     async fn set_tunnel_inner(
         mut self,
-        new_vpn_interface: Option<VpnInterface>,
+        vpn_interface: VpnInterface,
     ) -> Result<Self, ErrorWithTransition> {
         match self {
             // If split tunneling is already initialized, just update the interfaces
-            State::Initialized {
+            State::Active {
                 route_manager,
                 mut process,
                 tun_handle,
-                vpn_interface,
+                vpn_interface: old_vpn_interface,
             } => {
                 // Try to update the default interface first
                 // If this fails, remain in the current state and just fail
@@ -462,11 +498,11 @@ impl State {
                     Err(error) => {
                         return Err(ErrorWithTransition {
                             error: error.into(),
-                            next_state: Some(State::Initialized {
+                            next_state: Some(State::Active {
                                 route_manager,
                                 process,
                                 tun_handle,
-                                vpn_interface,
+                                vpn_interface: old_vpn_interface,
                             }),
                         });
                     }
@@ -475,14 +511,14 @@ impl State {
                 log::debug!("Updating split tunnel device");
 
                 match tun_handle
-                    .set_interfaces(default_interface, new_vpn_interface.clone())
+                    .set_interfaces(default_interface, Some(vpn_interface.clone()))
                     .await
                 {
-                    Ok(tun_handle) => Ok(State::Initialized {
+                    Ok(tun_handle) => Ok(State::Active {
                         route_manager,
                         process,
                         tun_handle,
-                        vpn_interface: new_vpn_interface,
+                        vpn_interface,
                     }),
                     Err(error) => {
                         process.shutdown().await;
@@ -494,7 +530,7 @@ impl State {
             State::ProcessMonitorOnly {
                 route_manager,
                 mut process,
-            } if new_vpn_interface.is_some() => {
+            } => {
                 // Try to update the default interface first
                 // If this fails, remain in the current state and just fail
                 let default_interface = match default::get_default_interface(&route_manager).await {
@@ -515,7 +551,7 @@ impl State {
                 let states = process.states().clone();
                 let result = tun::create_split_tunnel(
                     default_interface,
-                    new_vpn_interface.clone(),
+                    Some(vpn_interface.clone()),
                     route_manager.clone(),
                     Box::new(move |packet| {
                         match states.get_process_status(packet.header.pth_pid as u32) {
@@ -531,11 +567,11 @@ impl State {
                 .await;
 
                 match result {
-                    Ok(tun_handle) => Ok(State::Initialized {
+                    Ok(tun_handle) => Ok(State::Active {
                         route_manager,
                         process,
                         tun_handle,
-                        vpn_interface: new_vpn_interface,
+                        vpn_interface,
                     }),
                     Err(error) => {
                         process.shutdown().await;
@@ -543,32 +579,27 @@ impl State {
                     }
                 }
             }
-            // No-op there's a process monitor but we didn't get a VPN interface
-            State::ProcessMonitorOnly { .. } => Ok(self),
+            // Even if there are no paths to exclude, remember the new tunnel interface
+            State::NoExclusions { route_manager } => Ok(State::StandBy {
+                route_manager,
+                vpn_interface,
+            }),
             // If there are no paths to exclude, remain in the current state
-            State::NoExclusions {
-                ref mut vpn_interface,
+            State::StandBy {
+                vpn_interface: ref mut old_vpn_interface,
                 ..
             } => {
-                *vpn_interface = new_vpn_interface;
+                *old_vpn_interface = vpn_interface;
                 Ok(self)
             }
             // Remain in the failed state and return error if VPN is up
             State::Failed {
-                ref mut vpn_interface,
+                vpn_interface: ref mut old_vpn_interface,
                 cause,
                 ..
-            } if new_vpn_interface.is_some() => {
-                *vpn_interface = new_vpn_interface;
-                Err(cause.unwrap_or(Error::unavailable()).into())
-            }
-            // Remain in the failed state without failing otherwise
-            State::Failed {
-                ref mut vpn_interface,
-                ..
             } => {
-                *vpn_interface = None;
-                Ok(self)
+                *old_vpn_interface = Some(vpn_interface);
+                Err(cause.unwrap_or(Error::unavailable()).into())
             }
         }
     }
