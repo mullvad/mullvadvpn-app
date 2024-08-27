@@ -13,9 +13,5 @@ curl https://opensource.apple.com/source/libpcap/libpcap-67/libpcap/pcap/pcap.h 
 curl https://opensource.apple.com/source/xnu/xnu-3789.41.3/bsd/net/bpf.h -o include/bpf.h
 
 bindgen "include/bindings.h" -o ./bindings.rs \
-    --allowlist-item "^pcap_create" \
-    --allowlist-item "^pcap_set_want_pktap" \
     --allowlist-item "^pktap_header" \
-    --allowlist-item "PCAP_ERRBUF_SIZE" \
-    --allowlist-item "^BIOCSWANTPKTAP" \
     --allowlist-item "^PTH_FLAG_DIR_OUT"
