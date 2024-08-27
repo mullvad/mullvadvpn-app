@@ -660,12 +660,12 @@ impl RelaySelector {
         parsed_relays: &ParsedRelays,
         custom_lists: &CustomListsSettings,
     ) -> Result<GetRelay, Error> {
-        // FIXME: A bit of defensive programming - calling `get_wiregurad_relay` with a query that
+        // FIXME: A bit of defensive programming - calling `get_wireguard_relay` with a query that
         // doesn't specify Wireguard as the desired tunnel type is not valid and will lead
         // to unwanted behavior. This should be seen as a workaround, and it would be nicer
         // to lift this invariant to be checked by the type system instead.
         let mut query = query.clone();
-        query.tunnel_protocol = Constraint::Only(TunnelType::Wireguard);
+        query.set_tunnel_protocol(Constraint::Only(TunnelType::Wireguard))?;
         Self::get_wireguard_relay(&query, custom_lists, parsed_relays)
     }
 
