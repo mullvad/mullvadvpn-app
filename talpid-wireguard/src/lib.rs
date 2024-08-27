@@ -6,12 +6,8 @@ use self::config::Config;
 #[cfg(windows)]
 use futures::channel::mpsc;
 use futures::future::{BoxFuture, Future};
-#[cfg(target_os = "linux")]
-use once_cell::sync::Lazy;
 #[cfg(target_os = "android")]
 use std::borrow::Cow;
-#[cfg(target_os = "linux")]
-use std::env;
 #[cfg(windows)]
 use std::io;
 use std::{
@@ -22,6 +18,8 @@ use std::{
     sync::{mpsc as sync_mpsc, Arc, Mutex},
     time::Duration,
 };
+#[cfg(target_os = "linux")]
+use std::{env, sync::LazyLock};
 use talpid_routing as routing;
 use talpid_routing::{self, RequiredRoute};
 #[cfg(not(windows))]
@@ -192,7 +190,7 @@ impl Drop for ObfuscatorHandle {
 
 #[cfg(target_os = "linux")]
 /// Overrides the preference for the kernel module for WireGuard.
-static FORCE_USERSPACE_WIREGUARD: Lazy<bool> = Lazy::new(|| {
+static FORCE_USERSPACE_WIREGUARD: LazyLock<bool> = LazyLock::new(|| {
     env::var("TALPID_FORCE_USERSPACE_WIREGUARD")
         .map(|v| v != "0")
         .unwrap_or(false)

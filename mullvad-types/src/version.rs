@@ -1,16 +1,17 @@
-use once_cell::sync::Lazy;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::{
     cmp::Ordering,
     fmt::{self, Formatter},
     str::FromStr,
+    sync::LazyLock,
 };
 
-static STABLE_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r"^(\d{4})\.(\d+)$").unwrap());
-static BETA_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r"^(\d{4})\.(\d+)-beta(\d+)$").unwrap());
-static DEV_REGEX: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r"^(\d{4})\.(\d+)(\.\d+)?(-beta(\d+))?-dev-(\w+)$").unwrap());
+static STABLE_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^(\d{4})\.(\d+)$").unwrap());
+static BETA_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"^(\d{4})\.(\d+)-beta(\d+)$").unwrap());
+static DEV_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"^(\d{4})\.(\d+)(\.\d+)?(-beta(\d+))?-dev-(\w+)$").unwrap());
 
 /// AppVersionInfo represents the current stable and the current latest release versions of the
 /// Mullvad VPN app.

@@ -16,7 +16,6 @@ thiserror = { workspace = true }
 ipnetwork = { workspace = true }
 itertools = "0.12"
 log = { workspace = true }
-once_cell = { workspace = true }
 rand = "0.8.5"
 serde_json = { workspace = true }
 

@@ -20,7 +20,6 @@ thiserror = { workspace = true }
 either = "1.11"
 fern = { version = "0.6", features = ["colored"] }
 futures = "0.3"
-once_cell = { workspace = true }
 libc = "0.2"
 log = { workspace = true }
 regex = "1.0"
