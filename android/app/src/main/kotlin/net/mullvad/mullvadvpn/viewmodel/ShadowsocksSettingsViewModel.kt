@@ -19,7 +19,6 @@ import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
-import net.mullvad.mullvadvpn.util.isCustom
 
 class ShadowsocksSettingsViewModel(
     private val settingsRepository: SettingsRepository,
@@ -51,7 +50,7 @@ class ShadowsocksSettingsViewModel(
             val initialSettings = settingsRepository.settingsUpdates.filterNotNull().first()
             customPort.update {
                 val initialPort = initialSettings.getShadowSocksPort()
-                if (initialPort.isCustom(SHADOWSOCKS_PRESET_PORTS)) {
+                if (SHADOWSOCKS_PRESET_PORTS.contains(initialPort.getOrNull()).not()) {
                     initialPort.getOrNull()
                 } else {
                     null
@@ -62,19 +61,25 @@ class ShadowsocksSettingsViewModel(
 
     fun onObfuscationPortSelected(port: Constraint<Port>) {
         viewModelScope.launch {
-            if (port.isCustom(SHADOWSOCKS_PRESET_PORTS)) {
-                customPort.update { port.getOrNull() }
-            }
-            settingsRepository.setCustomShadowsocksObfuscationPort(port).onLeft {
-                Logger.e("Select shadowsocks port error $it")
-            }
+            settingsRepository
+                .setCustomShadowsocksObfuscationPort(port)
+                .onLeft { Logger.e("Select shadowsocks port error $it") }
+                .onRight {
+                    if (
+                        port is Constraint.Only &&
+                            SHADOWSOCKS_PRESET_PORTS.contains(port.value).not()
+                    ) {
+                        customPort.update { port.getOrNull() }
+                    }
+                }
         }
     }
 
     fun resetCustomPort() {
+        val isCustom = uiState.value.isCustom
         customPort.update { null }
         // If custom port was selected, update selection to be any.
-        if (uiState.value.port.isCustom(SHADOWSOCKS_PRESET_PORTS)) {
+        if (isCustom) {
             viewModelScope.launch {
                 settingsRepository.setCustomShadowsocksObfuscationPort(Constraint.Any)
             }

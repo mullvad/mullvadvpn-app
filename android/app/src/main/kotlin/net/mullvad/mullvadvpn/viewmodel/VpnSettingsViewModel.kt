@@ -31,7 +31,6 @@ import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.usecase.SystemVpnSettingsAvailableUseCase
-import net.mullvad.mullvadvpn.util.isCustom
 
 sealed interface VpnSettingsSideEffect {
     sealed interface ShowToast : VpnSettingsSideEffect {
@@ -53,7 +52,7 @@ class VpnSettingsViewModel(
     private val _uiSideEffect = Channel<VpnSettingsSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
-    private val customPort = MutableStateFlow<Constraint<Port>?>(null)
+    private val customPort = MutableStateFlow<Port?>(null)
 
     private val vmState =
         combine(
@@ -102,8 +101,8 @@ class VpnSettingsViewModel(
             val initialSettings = repository.settingsUpdates.filterNotNull().first()
             customPort.update {
                 val initialPort = initialSettings.getWireguardPort()
-                if (initialPort.isCustom(WIREGUARD_PRESET_PORTS)) {
-                    initialPort
+                if (WIREGUARD_PRESET_PORTS.contains(initialPort.getOrNull()).not()) {
+                    initialPort.getOrNull()
                 } else {
                     null
                 }
@@ -225,8 +224,8 @@ class VpnSettingsViewModel(
     }
 
     fun onWireguardPortSelected(port: Constraint<Port>) {
-        if (port.isCustom(WIREGUARD_PRESET_PORTS)) {
-            customPort.update { port }
+        if (port is Constraint.Only && WIREGUARD_PRESET_PORTS.contains(port.value).not()) {
+            customPort.update { port.value }
         }
         viewModelScope.launch {
             relayListRepository.updateSelectedWireguardConstraints(
@@ -236,9 +235,10 @@ class VpnSettingsViewModel(
     }
 
     fun resetCustomPort() {
+        val isCustom = vmState.value.isCustomWireguardPort
         customPort.update { null }
         // If custom port was selected, update selection to be any.
-        if (vmState.value.selectedWireguardPort.isCustom(WIREGUARD_PRESET_PORTS)) {
+        if (isCustom) {
             viewModelScope.launch {
                 relayListRepository.updateSelectedWireguardConstraints(
                     WireguardConstraints(port = Constraint.Any)

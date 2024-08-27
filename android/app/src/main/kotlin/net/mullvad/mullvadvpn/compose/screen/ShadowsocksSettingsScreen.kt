@@ -31,8 +31,6 @@ import net.mullvad.mullvadvpn.constant.SHADOWSOCKS_PRESET_PORTS
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
-import net.mullvad.mullvadvpn.util.hasValue
-import net.mullvad.mullvadvpn.util.isCustom
 import net.mullvad.mullvadvpn.viewmodel.ShadowsocksSettingsViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -68,17 +66,19 @@ fun ShadowsocksSettings(
         state = state,
         navigateToCustomPortDialog =
             dropUnlessResumed {
-                val args =
-                    CustomPortNavArgs(
-                        title =
-                            context.getString(
-                                R.string.custom_port_dialog_title,
-                                context.getString(R.string.shadowsocks)
-                            ),
-                        customPort = state.customPort,
-                        allowedPortRanges = state.validPortRanges,
+                navigator.navigate(
+                    CustomPortDestination(
+                        CustomPortNavArgs(
+                            title =
+                                context.getString(
+                                    R.string.custom_port_dialog_title,
+                                    context.getString(R.string.shadowsocks)
+                                ),
+                            customPort = state.customPort,
+                            allowedPortRanges = state.validPortRanges,
+                        )
                     )
-                navigator.navigate(CustomPortDestination(args))
+                )
             },
         onObfuscationPortSelected = viewModel::onObfuscationPortSelected,
         onBackClick = dropUnlessResumed { navigator.navigateUp() },
@@ -110,16 +110,16 @@ fun ShadowsocksSettingsScreen(
                 SHADOWSOCKS_PRESET_PORTS.forEach { port ->
                     SelectableCell(
                         title = port.toString(),
-                        isSelected = state.port.hasValue(port),
-                        onCellClicked = { onObfuscationPortSelected(Constraint.Only(Port(port))) },
-                        testTag = String.format(null, SHADOWSOCKS_PORT_ITEM_X_TEST_TAG, port)
+                        isSelected = state.port.getOrNull() == port,
+                        onCellClicked = { onObfuscationPortSelected(Constraint.Only(port)) },
+                        testTag = String.format(null, SHADOWSOCKS_PORT_ITEM_X_TEST_TAG, port.value),
                     )
                 }
             }
             itemWithDivider {
                 CustomPortCell(
                     title = stringResource(id = R.string.wireguard_custon_port_title),
-                    isSelected = state.port.isCustom(SHADOWSOCKS_PRESET_PORTS),
+                    isSelected = state.isCustom,
                     port = state.customPort,
                     onMainCellClicked = {
                         if (state.customPort != null) {

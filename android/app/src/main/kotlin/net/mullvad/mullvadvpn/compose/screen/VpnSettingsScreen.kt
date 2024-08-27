@@ -97,9 +97,6 @@ import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
 import net.mullvad.mullvadvpn.lib.model.SelectedObfuscation
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
-import net.mullvad.mullvadvpn.util.hasValue
-import net.mullvad.mullvadvpn.util.isCustom
-import net.mullvad.mullvadvpn.util.toPortOrNull
 import net.mullvad.mullvadvpn.viewmodel.CustomDnsItem
 import net.mullvad.mullvadvpn.viewmodel.VpnSettingsSideEffect
 import net.mullvad.mullvadvpn.viewmodel.VpnSettingsViewModel
@@ -238,17 +235,19 @@ fun VpnSettings(
             },
         navigateToWireguardPortDialog =
             dropUnlessResumed {
-                val args =
-                    CustomPortNavArgs(
-                        title =
-                            context.getString(
-                                R.string.custom_port_dialog_title,
-                                context.getString(R.string.wireguard)
-                            ),
-                        customPort = state.customWireguardPort?.toPortOrNull(),
-                        allowedPortRanges = state.availablePortRanges,
+                navigator.navigate(
+                    CustomPortDestination(
+                        CustomPortNavArgs(
+                            title =
+                                context.getString(
+                                    R.string.custom_port_dialog_title,
+                                    context.getString(R.string.wireguard)
+                                ),
+                            customPort = state.customWireguardPort,
+                            allowedPortRanges = state.availablePortRanges,
+                        )
                     )
-                navigator.navigate(CustomPortDestination(args))
+                )
             },
         onToggleDnsClick = vm::onToggleCustomDns,
         onBackClick = dropUnlessResumed { navigator.navigateUp() },
@@ -522,9 +521,13 @@ fun VpnSettingsScreen(
                     SelectableCell(
                         title = port.toString(),
                         testTag =
-                            String.format(null, LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG, port),
-                        isSelected = state.selectedWireguardPort.hasValue(port),
-                        onCellClicked = { onWireguardPortSelected(Constraint.Only(Port(port))) }
+                            String.format(
+                                null,
+                                LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG,
+                                port.value
+                            ),
+                        isSelected = state.selectedWireguardPort.getOrNull() == port,
+                        onCellClicked = { onWireguardPortSelected(Constraint.Only(port)) }
                     )
                 }
             }
@@ -532,11 +535,11 @@ fun VpnSettingsScreen(
             itemWithDivider {
                 CustomPortCell(
                     title = stringResource(id = R.string.wireguard_custon_port_title),
-                    isSelected = state.selectedWireguardPort.isCustom(WIREGUARD_PRESET_PORTS),
-                    port = state.customWireguardPort?.toPortOrNull(),
+                    isSelected = state.isCustomWireguardPort,
+                    port = state.customWireguardPort,
                     onMainCellClicked = {
                         if (state.customWireguardPort != null) {
-                            onWireguardPortSelected(state.customWireguardPort)
+                            onWireguardPortSelected(Constraint.Only(state.customWireguardPort))
                         } else {
                             navigateToWireguardPortDialog()
                         }
@@ -556,10 +559,10 @@ fun VpnSettingsScreen(
                 )
             }
             itemWithDivider {
-                SelectObfuscationCell(
-                    selectedObfuscation = SelectedObfuscation.Auto,
+                SelectableCell(
+                    title = stringResource(id = R.string.automatic),
                     isSelected = state.selectedObfuscation == SelectedObfuscation.Auto,
-                    onSelected = onSelectObfuscationSetting
+                    onCellClicked = { onSelectObfuscationSetting(SelectedObfuscation.Auto) },
                 )
             }
             itemWithDivider {
@@ -581,10 +584,10 @@ fun VpnSettingsScreen(
                 )
             }
             itemWithDivider {
-                SelectObfuscationCell(
-                    selectedObfuscation = SelectedObfuscation.Off,
+                SelectableCell(
+                    title = stringResource(id = R.string.off),
                     isSelected = state.selectedObfuscation == SelectedObfuscation.Off,
-                    onSelected = onSelectObfuscationSetting,
+                    onCellClicked = { onSelectObfuscationSetting(SelectedObfuscation.Off) },
                 )
             }
 

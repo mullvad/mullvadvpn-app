@@ -21,11 +21,13 @@ data class VpnSettingsUiState(
     val selectedShadowsSocksObfuscationPort: Constraint<Port>,
     val quantumResistant: QuantumResistantState,
     val selectedWireguardPort: Constraint<Port>,
-    val customWireguardPort: Constraint<Port>?,
+    val customWireguardPort: Port?,
     val availablePortRanges: List<PortRange>,
     val systemVpnSettingsAvailable: Boolean,
 ) {
-    val selectObfuscationPortEnabled = selectedObfuscation != SelectedObfuscation.Off
+    val isCustomWireguardPort =
+        selectedWireguardPort is Constraint.Only &&
+            selectedWireguardPort.value == customWireguardPort
 
     companion object {
         fun createDefault(
@@ -40,7 +42,7 @@ data class VpnSettingsUiState(
             selectedShadowsSocksObfuscationPort: Constraint<Port> = Constraint.Any,
             quantumResistant: QuantumResistantState = QuantumResistantState.Off,
             selectedWireguardPort: Constraint<Port> = Constraint.Any,
-            customWireguardPort: Constraint.Only<Port>? = null,
+            customWireguardPort: Port? = null,
             availablePortRanges: List<PortRange> = emptyList(),
             systemVpnSettingsAvailable: Boolean = false,
         ) =

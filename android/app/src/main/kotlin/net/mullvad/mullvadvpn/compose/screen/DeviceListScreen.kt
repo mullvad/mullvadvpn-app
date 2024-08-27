@@ -350,7 +350,7 @@ private fun DeviceListItem(device: Device, isLoading: Boolean, onDeviceRemovalCl
                 }
             }
         },
-        isRowEnabled = false,
+        onCellClicked = null,
         endPadding = Dimens.smallPadding,
         minHeight = Dimens.cellHeight
     )
