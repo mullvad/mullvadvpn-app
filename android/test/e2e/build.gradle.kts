@@ -5,6 +5,7 @@ import org.gradle.configurationcache.extensions.capitalized
 plugins {
     alias(libs.plugins.android.test)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlinx.serialization)
 
     id(Dependencies.junit5AndroidPluginId) version Versions.junit5Plugin
 }

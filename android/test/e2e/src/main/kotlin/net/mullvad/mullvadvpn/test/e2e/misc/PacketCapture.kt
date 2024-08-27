@@ -32,7 +32,7 @@ class PacketCapture {
     suspend fun stopCapture(session: PacketCaptureSession) {
         client.sendStopCaptureRequest(session)
         val parsedPacketsResponse = client.sendGetCapturedPacketsRequest(session)
-        Logger.v("Parsed packet capture objects: ${parsedPacketsResponse.body<StreamArray>()}")
+        Logger.v("Parsed packet capture objects: ${parsedPacketsResponse.body<List<Stream>>()}")
     }
 }
 
@@ -75,14 +75,10 @@ class PacketCaptureClient {
 }
 
 @Serializable
-data class StreamArray(val streams: List<Stream>) {
+data class Stream(val peer_addr: String, val other_addr: String, val flow_id: String?, val transport_protocol: String, val packets: List<Packet>) {
 }
 
 @Serializable
-data class Stream(val peer_addr: String, val other_addr: String, val flow_id: String, val transport_protocol: String, val packets: List<Packet>) {
-}
-
-@Serializable
-data class Packet(val from_peer: String, val timestamp: Timestamp) {
+data class Packet(val from_peer: String, val timestamp: String) {
 }
 
