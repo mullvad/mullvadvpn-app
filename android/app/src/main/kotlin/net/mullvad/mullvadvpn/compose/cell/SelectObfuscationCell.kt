@@ -33,7 +33,7 @@ import net.mullvad.mullvadvpn.lib.theme.typeface.listItemText
 @Composable
 private fun PreviewSelectObfuscationCellCell(
     @PreviewParameter(SelectObfuscationCellPreviewParameterProvider::class)
-    selectedObfuscationCellData: Triple<SelectedObfuscation, Constraint<Port>?, Boolean>
+    selectedObfuscationCellData: Triple<SelectedObfuscation, Constraint<Port>, Boolean>
 ) {
     AppTheme {
         SelectObfuscationCell(
@@ -49,7 +49,7 @@ private fun PreviewSelectObfuscationCellCell(
 @Composable
 fun SelectObfuscationCell(
     selectedObfuscation: SelectedObfuscation,
-    port: Constraint<Port>? = null,
+    port: Constraint<Port>,
     isSelected: Boolean,
     onSelected: (SelectedObfuscation) -> Unit,
     onNavigate: () -> Unit = {},
@@ -67,7 +67,7 @@ fun SelectObfuscationCell(
             subtitleStyle = MaterialTheme.typography.listItemSubText,
             subtitleColor = MaterialTheme.colorScheme.onSurface,
             titleText = selectedObfuscation.toTitle(),
-            subtitleText = port.toSubTitle()?.let { stringResource(id = R.string.port_x, it) },
+            subtitleText = stringResource(id = R.string.port_x, port.toSubTitle()),
             onCellClicked = { onSelected(selectedObfuscation) },
             minHeight = Dimens.cellHeight,
             background =
@@ -84,22 +84,19 @@ fun SelectObfuscationCell(
                 )
             },
         )
-        if (port != null) {
-            VerticalDivider(
-                color = Color.Transparent,
-                modifier =
-                    Modifier.fillMaxHeight().padding(vertical = Dimens.verticalDividerPadding),
-            )
-            Icon(
-                painterResource(id = R.drawable.icon_chevron),
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onPrimary,
-                modifier =
-                    Modifier.fillMaxHeight()
-                        .clickable { onNavigate() }
-                        .padding(horizontal = Dimens.obfuscationNavigationPadding),
-            )
-        }
+        VerticalDivider(
+            color = MaterialTheme.colorScheme.surface,
+            modifier = Modifier.fillMaxHeight().padding(vertical = Dimens.verticalDividerPadding),
+        )
+        Icon(
+            painterResource(id = R.drawable.icon_chevron),
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onPrimary,
+            modifier =
+                Modifier.fillMaxHeight()
+                    .clickable { onNavigate() }
+                    .padding(horizontal = Dimens.obfuscationNavigationPadding),
+        )
     }
 }
 
@@ -113,9 +110,8 @@ private fun SelectedObfuscation.toTitle() =
     }
 
 @Composable
-private fun Constraint<Port>?.toSubTitle() =
+private fun Constraint<Port>.toSubTitle() =
     when (this) {
         Constraint.Any -> stringResource(id = R.string.automatic)
         is Constraint.Only -> this.value.toString()
-        null -> null
     }
