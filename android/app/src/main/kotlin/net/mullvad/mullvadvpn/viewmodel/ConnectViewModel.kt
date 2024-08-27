@@ -33,8 +33,6 @@ import net.mullvad.mullvadvpn.usecase.SelectedLocationTitleUseCase
 import net.mullvad.mullvadvpn.util.combine
 import net.mullvad.mullvadvpn.util.daysFromNow
 import net.mullvad.mullvadvpn.util.isSuccess
-import net.mullvad.mullvadvpn.util.toInAddress
-import net.mullvad.mullvadvpn.util.toOutAddress
 
 @Suppress("LongParameterList")
 class ConnectViewModel(
@@ -83,13 +81,6 @@ class ConnectViewModel(
                         },
                     selectedRelayItemTitle = selectedRelayItemTitle,
                     tunnelState = tunnelState,
-                    inAddress =
-                        when (tunnelState) {
-                            is TunnelState.Connected -> tunnelState.endpoint.toInAddress()
-                            is TunnelState.Connecting -> tunnelState.endpoint?.toInAddress()
-                            else -> null
-                        },
-                    outAddress = tunnelState.location()?.toOutAddress() ?: "",
                     showLocation =
                         when (tunnelState) {
                             is TunnelState.Disconnected -> true

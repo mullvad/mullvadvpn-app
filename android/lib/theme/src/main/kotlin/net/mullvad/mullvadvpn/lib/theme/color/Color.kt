@@ -16,6 +16,7 @@ const val Alpha40 = 0.4f
 const val AlphaDisconnectButton = 0.6f
 const val AlphaScrollbar = 0.6f
 const val AlphaInvisible = 0f
+const val Alpha80 = 0.8f
 
 // Custom colors, they only link to normal material 3 colors for now
 val ColorScheme.selected: Color

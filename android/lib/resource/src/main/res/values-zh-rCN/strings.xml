@@ -73,10 +73,11 @@
     <string name="confirm_no_email">您即将发送问题报告，但没有提供让我们可以联系到您的方式。如果您希望获得回复，必须输入您的电子邮件地址。</string>
     <string name="confirm_removal">是，退出设备</string>
     <string name="congrats">恭喜！</string>
-    <string name="connect">保护我的连接</string>
+    <string name="connected">已连接</string>
     <string name="connected_using_daita">%1$s，使用 %2$s</string>
     <string name="connecting">正在连接</string>
     <string name="connecting_to_daemon">正在连接到 Mullvad 系统服务…</string>
+    <string name="connection_details_in">内部</string>
     <string name="continue_login">继续登录</string>
     <string name="copied_logs_to_clipboard">已将日志复制到剪贴板</string>
     <string name="copied_mullvad_account_number">已将 Mullvad 帐号复制到剪贴板</string>
@@ -87,7 +88,6 @@
     <string name="create_new_list">创建新列表</string>
     <string name="created_x">创建日期：%1$s</string>
     <string name="creating_new_account">正在创建帐户…</string>
-    <string name="creating_secure_connection">正在创建安全连接</string>
     <string name="critical_error">严重错误（需要注意）</string>
     <string name="current_method">当前：%1$s</string>
     <string name="custom_dns_disable_mode_subtitle">禁用上方的所有 &lt;b&gt;%1$s&lt;/b&gt;以激活此设置。</string>
@@ -118,6 +118,7 @@
     <string name="discard">舍弃</string>
     <string name="discard_changes">舍弃更改？</string>
     <string name="disconnect">断开连接</string>
+    <string name="disconnected">已断开连接</string>
     <string name="disconnecting">正在断开连接</string>
     <string name="dismiss">关闭</string>
     <string name="dns_content_blockers_custom_dns_warning">注意：此设置不能与&lt;b&gt;使用自定义 DNS 服务器&lt;/b&gt;结合使用。</string>
@@ -152,6 +153,8 @@
     <string name="failed_to_set_current_test_error">无法设置为当前方法 – 无法通过 API 访问</string>
     <string name="failed_to_set_current_unknown_error">无法设置为当前方法 – 未知原因</string>
     <string name="faqs_and_guides">常见问题解答与指南</string>
+    <string name="feature_custom_mtu">MTU</string>
+    <string name="feature_udp_2_tcp">混淆</string>
     <string name="filter">筛选</string>
     <string name="filtered">已筛选：</string>
     <string name="foreground_notification_channel_description">显示当前的 VPN 隧道状态</string>
@@ -166,7 +169,6 @@
     <string name="import_overrides_bottom_sheet_override_warning">导入新覆盖设置可能会替换一些先前导入的覆盖设置。</string>
     <string name="import_overrides_import">导入</string>
     <string name="import_overrides_text_title">通过文本导入</string>
-    <string name="in_address">内部</string>
     <string name="invalid_dns_servers">自定义 DNS 服务器地址 %1$s 无效</string>
     <string name="invalid_voucher">该优惠券码无效。</string>
     <string name="ipv6_unavailable">无法配置 IPv6。请在应用中将其禁用或在您的设备上将其启用。</string>
@@ -248,11 +250,9 @@
     <string name="privacy_policy_label">隐私政策</string>
     <string name="problem_report_description">为了更有效地帮助您，您应用的日志文件将被附加到此消息。您的数据将保持安全和私密，因为所有数据在发送之前都将通过加密通道进行匿名处理。</string>
     <string name="providers">提供商</string>
-    <string name="quantum_creating_secure_connection">正在创建量子安全连接</string>
     <string name="quantum_resistant_info_first_paragaph">借助此功能，WireGuard 隧道能够抵抗可能通过量子计算机发起的攻击。</string>
     <string name="quantum_resistant_info_second_paragaph">实现方法是使用量子安全算法执行额外的密钥交换，并将结果混合到 WireGuard 的常规加密中。每次建立新隧道时，这一额外步骤都会使用约 500 kiB 的流量。</string>
     <string name="quantum_resistant_title">抗量子隧道</string>
-    <string name="quantum_secure_connection">量子安全连接</string>
     <string name="reconnecting">正在重新连接</string>
     <string name="redeem">兑换</string>
     <string name="redeem_voucher">兑换优惠券</string>
@@ -263,8 +263,6 @@
     <string name="reset_to_default_button">重置为默认值</string>
     <string name="save">保存</string>
     <string name="search_placeholder">搜索…</string>
-    <string name="secure_connection">安全连接</string>
-    <string name="secured">已受保护</string>
     <string name="select_location">选择位置</string>
     <string name="select_location_description">连接时，将使用所选区域中一个私密且安全的位置隐藏您的真实位置。</string>
     <string name="select_location_empty_text_first_row">没有关于&lt;b&gt;%1$s&lt;/b&gt;的结果。</string>
@@ -329,9 +327,6 @@
     <string name="udp_over_tcp_port_info">UDP-over-TCP 混淆协议应连接到 VPN 服务器上的哪个 TCP 端口。</string>
     <string name="udp_over_tcp_port_title">UDP-over-TCP 端口</string>
     <string name="undo">撤消</string>
-    <string name="unsecured">未受保护</string>
-    <string name="unsecured_connection">未受保护的连接</string>
-    <string name="unsecured_vpn_permission_error">不安全（无 VPN 权限）</string>
     <string name="unsupported_version">不受支持的版本</string>
     <string name="unsupported_version_description">此应用版本不受支持，因此您的隐私可能存在风险。请立即更新。</string>
     <string name="unsupported_version_without_upgrade">您正在运行不受支持的应用版本。</string>

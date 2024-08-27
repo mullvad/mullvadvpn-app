@@ -73,10 +73,11 @@
     <string name="confirm_no_email">Vous êtes sur le point d\'envoyer un signalement de problème sans nous fournir un moyen de vous contacter. Si vous désirez une réponse à votre signalement, vous devez saisir une adresse e-mail.</string>
     <string name="confirm_removal">Oui, déconnecter l\'appareil</string>
     <string name="congrats">Félicitations !</string>
-    <string name="connect">Sécuriser ma connexion</string>
+    <string name="connected">Connecté</string>
     <string name="connected_using_daita">%1$s utilisant %2$s</string>
     <string name="connecting">Connexion</string>
     <string name="connecting_to_daemon">Connexion au service système Mullvad...</string>
+    <string name="connection_details_in">Entrante</string>
     <string name="continue_login">Continuer avec la connexion</string>
     <string name="copied_logs_to_clipboard">Journaux copiés dans le presse-papiers</string>
     <string name="copied_mullvad_account_number">Numéro de compte Mullvad copié dans le presse-papiers</string>
@@ -87,7 +88,6 @@
     <string name="create_new_list">Créer une nouvelle liste</string>
     <string name="created_x">Création : %1$s</string>
     <string name="creating_new_account">Création du compte…</string>
-    <string name="creating_secure_connection">CRÉATION D\'UNE CONNEXION SÉCURISÉE</string>
     <string name="critical_error">Erreur critique (votre attention est requise)</string>
     <string name="current_method">Actuel : %1$s</string>
     <string name="custom_dns_disable_mode_subtitle">Désactivez tous les &lt;b&gt;%1$s&lt;/b&gt; ci-dessus pour activer ce paramètre.</string>
@@ -118,6 +118,7 @@
     <string name="discard">Annuler</string>
     <string name="discard_changes">Annuler les modifications ?</string>
     <string name="disconnect">Déconnexion</string>
+    <string name="disconnected">Déconnecté</string>
     <string name="disconnecting">Déconnexion en cours</string>
     <string name="dismiss">Ignorer</string>
     <string name="dns_content_blockers_custom_dns_warning">Attention : ce paramètre ne peut pas être utilisé en combinaison avec &lt;b&gt;Utiliser un serveur DNS personnalisé&lt;/b&gt;.</string>
@@ -152,6 +153,8 @@
     <string name="failed_to_set_current_test_error">Impossible de définir sur la méthode actuelle - API injoignable</string>
     <string name="failed_to_set_current_unknown_error">Impossible de définir sur la méthode actuelle - Raison inconnue</string>
     <string name="faqs_and_guides">FAQ et guides</string>
+    <string name="feature_custom_mtu">MTU</string>
+    <string name="feature_udp_2_tcp">Dissimulation</string>
     <string name="filter">Filtrer</string>
     <string name="filtered">Filtré :</string>
     <string name="foreground_notification_channel_description">Affiche l\'état actuel du tunnel VPN</string>
@@ -166,7 +169,6 @@
     <string name="import_overrides_bottom_sheet_override_warning">L\'importation de nouvelles substitutions peut remplacer certaines substitutions importées précédemment.</string>
     <string name="import_overrides_import">Importer</string>
     <string name="import_overrides_text_title">Importer par texte</string>
-    <string name="in_address">Entrante</string>
     <string name="invalid_dns_servers">Les adresses de serveur DNS personnalisées %1$s ne sont pas valides</string>
     <string name="invalid_voucher">Le code du bon n\'est pas valide.</string>
     <string name="ipv6_unavailable">Impossible de configurer IPv6. Désactivez le protocole dans l\'application ou activez-le dans votre appareil.</string>
@@ -248,11 +250,9 @@
     <string name="privacy_policy_label">Politique de confidentialité</string>
     <string name="problem_report_description">Pour mieux vous aider, le fichier journal de l\'application est joint à ce message. Vos données restent privées et en sécurité dans la mesure où elles sont rendues anonymes avant d\'être envoyées via un canal chiffré.</string>
     <string name="providers">Fournisseurs</string>
-    <string name="quantum_creating_secure_connection">CRÉATION D\'UNE CONNEXION QUANTIQUE SÉCURISÉE</string>
     <string name="quantum_resistant_info_first_paragaph">Cette fonctionnalité rend le tunnel WireGuard résistant aux attaques potentielles des ordinateurs quantiques.</string>
     <string name="quantum_resistant_info_second_paragaph">Pour ce faire, il effectue un échange de clés supplémentaire à l\'aide d\'un algorithme à sécurité quantique et mélange le résultat au chiffrement habituel de WireGuard. Cette étape supplémentaire utilise environ 500 kiB de trafic chaque fois qu\'un nouveau tunnel est établi.</string>
     <string name="quantum_resistant_title">Tunnel résistant aux attaques quantiques</string>
-    <string name="quantum_secure_connection">CONNEXION QUANTIQUE SÉCURISÉE</string>
     <string name="reconnecting">Reconnexion</string>
     <string name="redeem">Échanger</string>
     <string name="redeem_voucher">Échanger un bon</string>
@@ -263,8 +263,6 @@
     <string name="reset_to_default_button">Réinitialiser à la valeur par défaut</string>
     <string name="save">Enregistrer</string>
     <string name="search_placeholder">Rechercher...</string>
-    <string name="secure_connection">CONNEXION SÉCURISÉE</string>
-    <string name="secured">Sécurisé</string>
     <string name="select_location">Sélectionner une localisation</string>
     <string name="select_location_description">Quand vous êtes connecté, votre vraie localisation est masquée par une localisation privée et sécurisée de la région sélectionnée.</string>
     <string name="select_location_empty_text_first_row">Aucun résultat pour &lt;b&gt;%1$s&lt;/b&gt;.</string>
@@ -329,9 +327,6 @@
     <string name="udp_over_tcp_port_info">Le port TCP auquel le protocole de dissimulation UDP sur TCP doit se connecter sur le serveur VPN.</string>
     <string name="udp_over_tcp_port_title">Port UDP sur TCP</string>
     <string name="undo">Annuler</string>
-    <string name="unsecured">Non sécurisé</string>
-    <string name="unsecured_connection">CONNEXION NON SÉCURISÉE</string>
-    <string name="unsecured_vpn_permission_error">Non sécurisé (aucune autorisation VPN)</string>
     <string name="unsupported_version">VERSION NON PRISE EN CHARGE</string>
     <string name="unsupported_version_description">Votre confidentialité peut être en danger avec cette version non prise en charge de l\'application. Veuillez la mettre à jour maintenant.</string>
     <string name="unsupported_version_without_upgrade">Vous utilisez une version de l\'application non prise en charge.</string>

@@ -37,13 +37,13 @@ private fun Notification.Tunnel.contentIntent(context: Context): PendingIntent {
 
 private fun NotificationTunnelState.contentTitleResourceId(): Int =
     when (this) {
-        NotificationTunnelState.Connected -> R.string.secured
+        NotificationTunnelState.Connected -> R.string.connected
         NotificationTunnelState.Connecting -> R.string.connecting
         is NotificationTunnelState.Disconnected -> {
             if (this.hasVpnPermission) {
-                R.string.unsecured
+                R.string.disconnected
             } else {
-                R.string.unsecured_vpn_permission_error
+                R.string.disconnected_vpn_permission_error
             }
         }
         NotificationTunnelState.Disconnecting -> R.string.disconnecting

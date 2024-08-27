@@ -1,9 +1,7 @@
 <resources>
-    <string name="connecting">Connecting</string>
-    <string name="reconnecting">Reconnecting</string>
-    <string name="disconnecting">Disconnecting</string>
-    <string name="secured">Secured</string>
-    <string name="unsecured">Unsecured</string>
+    <string name="connecting">Connecting...</string>
+    <string name="reconnecting">Reconnecting...</string>
+    <string name="disconnecting">Disconnecting...</string>
     <string name="critical_error">Critical error (your attention is required)</string>
     <string name="foreground_notification_channel_name">VPN tunnel status</string>
     <string name="foreground_notification_channel_description">Shows current VPN tunnel status</string>
@@ -114,14 +112,12 @@
     <string name="failed_to_send_details">If you exit the form and try again later, the information you already entered will still be here.</string>
     <string name="edit_message">Edit message</string>
     <string name="try_again">Try again</string>
-    <string name="unsecured_connection">UNSECURED CONNECTION</string>
-    <string name="creating_secure_connection">CREATING SECURE CONNECTION</string>
-    <string name="secure_connection">SECURE CONNECTION</string>
     <string name="blocked_connection">BLOCKED CONNECTION</string>
     <string name="error_state">FAILED TO SECURE CONNECTION</string>
-    <string name="connect">Secure my connection</string>
+    <string name="connected">Connected</string>
     <string name="cancel">Cancel</string>
     <string name="disconnect">Disconnect</string>
+    <string name="disconnected">Disconnected</string>
     <string name="dismiss">Dismiss</string>
     <string name="switch_location">Switch location</string>
     <string name="tcp">TCP</string>
@@ -240,8 +236,6 @@
     <string name="quantum_resistant_info_first_paragaph">This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers.</string>
     <string name="quantum_resistant_info_second_paragaph">It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established.</string>
     <string name="on">On</string>
-    <string name="quantum_creating_secure_connection">CREATING QUANTUM SECURE CONNECTION</string>
-    <string name="quantum_secure_connection">QUANTUM SECURE CONNECTION</string>
     <string name="wireguard_port_title">WireGuard port</string>
     <string name="wireguard_port_info_description">The automatic setting will randomly choose from the valid port ranges shown below.</string>
     <string name="search_placeholder">Search for...</string>
@@ -343,7 +337,7 @@
     <string name="settings_patch_error_recursion_limit">Recursion limit</string>
     <string name="settings_patch_success">Import successful, overrides active</string>
     <string name="overrides_cleared">Overrides cleared</string>
-    <string name="unsecured_vpn_permission_error">Unsecured (No VPN permission)</string>
+    <string name="disconnected_vpn_permission_error">Disconnected (No VPN permission)</string>
     <string name="settings_api_access">API access</string>
     <string name="add">Add</string>
     <string name="api_access_description">Manage and add custom methods to access the Mullvad API.</string>
@@ -391,4 +385,20 @@
     <string name="setting_chip">Setting: %s</string>
     <string name="enable_anyway">Enable anyway</string>
     <string name="daita_relay_subset_warning">This feature isn’t available on all servers. You might need to change location after enabling.</string>
+    <string name="connect_panel_active_features">Active features</string>
+    <string name="connect_panel_connection_details">Connection details</string>
+    <string name="feature_quantum_resistant">Quantum Resistance</string>
+    <string name="feature_split_tunneling">Split Tunneling</string>
+    <string name="feature_udp_2_tcp">Obfuscation</string>
+    <string name="feature_lan_sharing">Local Network Sharing</string>
+    <string name="feature_custom_dns">Custom DNS</string>
+    <string name="feature_server_ip_override">Server IP Overrides</string>
+    <string name="feature_custom_mtu">MTU</string>
+    <string name="feature_daita">DAITA</string>
+    <string name="feature_dns_content_blockers">Content Blockers</string>
+    <string name="connection_details_out_ipv4">Out Ipv4</string>
+    <string name="connection_details_out_ipv6">Out Ipv6</string>
+    <string name="connection_details_in">In</string>
+    <string name="feature_indicators_show_more">%1$s more...</string>
+    <string name="connect">Connect</string>
 </resources>

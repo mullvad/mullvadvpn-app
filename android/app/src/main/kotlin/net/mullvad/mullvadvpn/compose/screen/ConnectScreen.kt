@@ -4,28 +4,31 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.defaultMinSize
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,14 +38,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.layout.layout
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
@@ -60,19 +64,20 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.ConnectionButton
 import net.mullvad.mullvadvpn.compose.button.SwitchLocationButton
+import net.mullvad.mullvadvpn.compose.component.Chevron
 import net.mullvad.mullvadvpn.compose.component.ConnectionStatusText
-import net.mullvad.mullvadvpn.compose.component.LocationInfo
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBarAndDeviceName
+import net.mullvad.mullvadvpn.compose.component.connectioninfo.ConnectionDetailPanel
+import net.mullvad.mullvadvpn.compose.component.connectioninfo.FeatureIndicatorsPanel
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.component.notificationbanner.NotificationBanner
 import net.mullvad.mullvadvpn.compose.extensions.createOpenAccountPageHook
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.test.CONNECT_BUTTON_TEST_TAG
-import net.mullvad.mullvadvpn.compose.test.LOCATION_INFO_TEST_TAG
+import net.mullvad.mullvadvpn.compose.test.CONNECT_CARD_HEADER_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.RECONNECT_BUTTON_TEST_TAG
-import net.mullvad.mullvadvpn.compose.test.SCROLLABLE_COLUMN_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.HomeTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
@@ -94,15 +99,22 @@ import net.mullvad.mullvadvpn.lib.model.Longitude
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.theme.Shapes
+import net.mullvad.mullvadvpn.lib.theme.color.Alpha20
+import net.mullvad.mullvadvpn.lib.theme.color.Alpha80
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInvisible
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
+import net.mullvad.mullvadvpn.lib.theme.typeface.connectionStatus
+import net.mullvad.mullvadvpn.lib.theme.typeface.hostname
 import net.mullvad.mullvadvpn.util.appendHideNavOnPlayBuild
 import net.mullvad.mullvadvpn.util.removeHtmlTags
 import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
 import org.koin.androidx.compose.koinViewModel
 
 private const val CONNECT_BUTTON_THROTTLE_MILLIS = 1000
+private const val INDICATOR_PERCENT_OFFSET_UNDER_700_DP = 0.2f
+private const val INDICATOR_PERCENT_OFFSET_OVER_700_DP = 0.3f
 
 @Preview
 @Composable
@@ -139,16 +151,19 @@ fun Connect(
             is ConnectViewModel.UiSideEffect.OpenAccountManagementPageInBrowser -> {
                 openAccountPage(sideEffect.token)
             }
+
             is ConnectViewModel.UiSideEffect.OutOfTime ->
                 navigator.navigate(OutOfTimeDestination) {
                     launchSingleTop = true
                     popUpTo(NavGraphs.root) { inclusive = true }
                 }
+
             ConnectViewModel.UiSideEffect.RevokedDevice ->
                 navigator.navigate(DeviceRevokedDestination) {
                     launchSingleTop = true
                     popUpTo(NavGraphs.root) { inclusive = true }
                 }
+
             is ConnectViewModel.UiSideEffect.NoVpnPermission -> launchVpnPermission.launch(Unit)
             is ConnectViewModel.UiSideEffect.ConnectError ->
                 launch {
@@ -209,8 +224,6 @@ fun ConnectScreen(
     onDismissNewDeviceClick: () -> Unit = {},
 ) {
 
-    val scrollState = rememberScrollState()
-
     ScaffoldWithTopBarAndDeviceName(
         topBarColor = state.tunnelState.topBarColor(),
         iconTintColor = state.tunnelState.iconTintColor(),
@@ -220,41 +233,44 @@ fun ConnectScreen(
         timeLeft = state.daysLeftUntilExpiry,
         snackbarHostState = snackbarHostState,
     ) {
-        var progressIndicatorBias by remember { mutableFloatStateOf(0f) }
+        val configuration = LocalConfiguration.current
+        val screenHeight = configuration.screenHeightDp.dp
+        val indicatorPercentOffset =
+            if (screenHeight < 700.dp) INDICATOR_PERCENT_OFFSET_UNDER_700_DP
+            else INDICATOR_PERCENT_OFFSET_OVER_700_DP
 
-        MapColumn(state, it, progressIndicatorBias, scrollState) {
-            Spacer(modifier = Modifier.defaultMinSize(minHeight = Dimens.mediumPadding).weight(1f))
+        Box(Modifier.padding(it).fillMaxSize()) {
+            MullvadMap(state, indicatorPercentOffset)
+
             MullvadCircularProgressIndicatorLarge(
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier =
-                    Modifier.animateContentSize()
-                        .padding(
-                            start = Dimens.sideMargin,
-                            end = Dimens.sideMargin,
-                            top = Dimens.mediumPadding,
-                        )
-                        .alpha(if (state.showLoading) AlphaVisible else AlphaInvisible)
-                        .align(Alignment.CenterHorizontally)
-                        .testTag(CIRCULAR_PROGRESS_INDICATOR)
-                        .onGloballyPositioned {
-                            val offsetY = it.positionInParent().y + it.size.height / 2
-                            it.parentLayoutCoordinates?.let {
-                                val parentHeight = it.size.height
-                                val verticalBias = offsetY / parentHeight
-                                if (verticalBias.isFinite()) {
-                                    progressIndicatorBias = verticalBias
-                                }
+                    Modifier.layout { measurable, constraints ->
+                            val placeable = measurable.measure(constraints)
+                            layout(placeable.width, placeable.height) {
+                                placeable.placeRelative(
+                                    x = (constraints.maxWidth * 0.5f - placeable.width / 2).toInt(),
+                                    y =
+                                        (constraints.maxHeight * indicatorPercentOffset -
+                                                placeable.height / 2)
+                                            .toInt(),
+                                )
                             }
-                        },
+                        }
+                        .alpha(if (state.showLoading) AlphaVisible else AlphaInvisible)
+                        .testTag(CIRCULAR_PROGRESS_INDICATOR),
             )
-            Spacer(modifier = Modifier.defaultMinSize(minHeight = Dimens.mediumPadding).weight(1f))
 
-            ConnectionInfo(state = state)
-
-            Spacer(modifier = Modifier.height(Dimens.buttonSpacing))
-
-            ButtonPanel(
-                state,
+            NotificationBanner(
+                notification = state.inAppNotification,
+                isPlayBuild = state.isPlayBuild,
+                onClickUpdateVersion = onUpdateVersionClick,
+                onClickShowAccount = onManageAccountClick,
+                onClickDismissNewDevice = onDismissNewDeviceClick,
+            )
+            ConnectionCard(
+                state = state,
+                modifier = Modifier.align(Alignment.BottomCenter),
                 onSwitchLocationClick,
                 onDisconnectClick,
                 onReconnectClick,
@@ -262,26 +278,11 @@ fun ConnectScreen(
                 onConnectClick,
             )
         }
-
-        NotificationBanner(
-            modifier = Modifier.padding(top = it.calculateTopPadding()),
-            notification = state.inAppNotification,
-            isPlayBuild = state.isPlayBuild,
-            onClickUpdateVersion = onUpdateVersionClick,
-            onClickShowAccount = onManageAccountClick,
-            onClickDismissNewDevice = onDismissNewDeviceClick,
-        )
     }
 }
 
 @Composable
-private fun MapColumn(
-    state: ConnectUiState,
-    it: PaddingValues,
-    progressIndicatorBias: Float,
-    scrollState: ScrollState,
-    content: @Composable ColumnScope.() -> Unit,
-) {
+private fun MullvadMap(state: ConnectUiState, progressIndicatorBias: Float) {
 
     // Distance to marker when secure/unsecure
     val baseZoom =
@@ -295,7 +296,7 @@ private fun MapColumn(
     val markers = state.tunnelState.toMarker(state.location)?.let { listOf(it) } ?: emptyList()
 
     AnimatedMap(
-        modifier = Modifier.padding(top = it.calculateTopPadding()),
+        modifier = Modifier,
         cameraLocation = state.location?.toLatLong() ?: fallbackLatLong,
         cameraBaseZoom = baseZoom.value,
         cameraVerticalBias = progressIndicatorBias,
@@ -306,64 +307,167 @@ private fun MapColumn(
                 oceanColor = MaterialTheme.colorScheme.surface,
             ),
     )
+}
 
-    Column(
-        verticalArrangement = Arrangement.Bottom,
-        horizontalAlignment = Alignment.Start,
+@Composable
+private fun ConnectionCard(
+    state: ConnectUiState,
+    modifier: Modifier = Modifier,
+    onSwitchLocationClick: () -> Unit,
+    onDisconnectClick: () -> Unit,
+    onReconnectClick: () -> Unit,
+    onCancelClick: () -> Unit,
+    onConnectClick: () -> Unit,
+) {
+    var expanded by rememberSaveable(state.tunnelState::class) { mutableStateOf(false) }
+    val containerColor =
+        animateColorAsState(
+            if (expanded) MaterialTheme.colorScheme.surfaceContainer
+            else MaterialTheme.colorScheme.surfaceContainer.copy(alpha = Alpha80),
+            label = "connection_card_color",
+        )
+
+    Card(
         modifier =
-            Modifier.animateContentSize()
-                .padding(top = it.calculateTopPadding())
-                .fillMaxHeight()
-                .drawVerticalScrollbar(
-                    scrollState,
-                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaScrollbar),
-                )
-                .verticalScroll(scrollState)
-                .testTag(SCROLLABLE_COLUMN_TEST_TAG),
+            modifier.widthIn(max = Dimens.connectionCardMaxWidth).padding(Dimens.mediumPadding),
+        Shapes.large,
+        colors = CardDefaults.cardColors(containerColor = containerColor.value),
     ) {
-        content()
-        // We need to manually add this padding so we align size with the map
-        // component and marker with the progress indicator.
-        Spacer(modifier = Modifier.height(it.calculateBottomPadding()))
+        Column(
+            modifier =
+                Modifier.padding(
+                    top = Dimens.mediumPadding,
+                    start = Dimens.mediumPadding,
+                    end = Dimens.mediumPadding,
+                    bottom = Dimens.smallPadding,
+                )
+        ) {
+            ConnectionCardHeader(state, state.location, expanded) { expanded = !expanded }
+
+            AnimatedContent(
+                state.tunnelState as? TunnelState.Connected to expanded,
+                modifier = Modifier.weight(1f, fill = false),
+                label = "connection_card_connection_details",
+            ) { (connectedState, isExpanded) ->
+                if (connectedState != null) {
+                    ConnectionInfo(
+                        connectedState,
+                        isExpanded,
+                        onToggleExpand = { expanded = !expanded },
+                    )
+                } else {
+                    Spacer(Modifier.height(Dimens.smallSpacer))
+                }
+            }
+
+            Spacer(Modifier.height(Dimens.mediumPadding))
+
+            ButtonPanel(
+                state,
+                onSwitchLocationClick,
+                onDisconnectClick,
+                onReconnectClick,
+                onCancelClick,
+                onConnectClick,
+            )
+        }
     }
 }
 
 @Composable
-private fun ConnectionInfo(state: ConnectUiState) {
-    ConnectionStatusText(
-        state = state.tunnelState,
-        modifier = Modifier.padding(horizontal = Dimens.sideMargin),
-    )
-    Text(
-        text = state.location?.country ?: "",
-        style = MaterialTheme.typography.headlineLarge,
-        color = MaterialTheme.colorScheme.onSurface,
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis,
-        modifier = Modifier.padding(horizontal = Dimens.sideMargin),
-    )
-    Text(
-        text = state.location?.city ?: "",
-        style = MaterialTheme.typography.headlineLarge,
-        color = MaterialTheme.colorScheme.onSurface,
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis,
-        modifier = Modifier.padding(horizontal = Dimens.sideMargin),
-    )
-    var expanded by rememberSaveable { mutableStateOf(false) }
-    LocationInfo(
-        onToggleTunnelInfo = { expanded = !expanded },
-        isVisible = state.showLocationInfo,
-        isExpanded = expanded,
-        location = state.location,
-        isUsingDaita = state.tunnelState.isUsingDaita(),
-        inAddress = state.inAddress,
-        outAddress = state.outAddress,
+private fun ConnectionCardHeader(
+    state: ConnectUiState,
+    location: GeoIpLocation?,
+    expanded: Boolean,
+    onToggleExpand: () -> Unit,
+) {
+    Column(
         modifier =
             Modifier.fillMaxWidth()
-                .padding(horizontal = Dimens.sideMargin)
-                .testTag(LOCATION_INFO_TEST_TAG),
-    )
+                .clickable(
+                    enabled = state.tunnelState is TunnelState.Connected,
+                    onClick = onToggleExpand,
+                )
+                .testTag(CONNECT_CARD_HEADER_TEST_TAG)
+    ) {
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            ConnectionStatusText(state = state.tunnelState)
+            if (state.tunnelState is TunnelState.Connected) {
+                Chevron(isExpanded = !expanded, color = MaterialTheme.colorScheme.onSurface)
+            }
+        }
+
+        location.asString().let { locationText ->
+            Text(
+                modifier = Modifier.fillMaxWidth().padding(top = Dimens.tinyPadding),
+                text = locationText,
+                style = MaterialTheme.typography.connectionStatus,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
+
+        val hostname = location?.hostname
+        AnimatedContent(hostname, label = "hostname") {
+            if (it != null) {
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = it,
+                    style = MaterialTheme.typography.hostname,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        }
+    }
+}
+
+private fun GeoIpLocation?.asString(): String {
+    return if (this == null) ""
+    else {
+        buildString {
+                append(country)
+                city?.let {
+                    append(", ")
+                    append(it)
+                }
+            }
+            .toString()
+    }
+}
+
+@Composable
+private fun ConnectionInfo(
+    tunnelState: TunnelState.Connected,
+    expanded: Boolean,
+    onToggleExpand: () -> Unit,
+) {
+    val scrollState = rememberScrollState()
+    Column {
+        if (expanded) {
+            HorizontalDivider(
+                Modifier.padding(vertical = Dimens.smallPadding),
+                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(Alpha20),
+            )
+        }
+        Column(
+            modifier =
+                Modifier.fillMaxWidth()
+                    .drawVerticalScrollbar(
+                        scrollState,
+                        color = MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaScrollbar),
+                    )
+                    .verticalScroll(scrollState)
+        ) {
+            FeatureIndicatorsPanel(tunnelState.featureIndicators, expanded, onToggleExpand)
+
+            if (expanded) {
+                ConnectionDetailPanel(tunnelState)
+            }
+        }
+    }
 }
 
 @Composable
@@ -384,34 +488,32 @@ private fun ButtonPanel(
             action.invoke()
         }
     }
+    Column(modifier = Modifier.padding(vertical = Dimens.tinyPadding)) {
+        SwitchLocationButton(
+            text =
+                if (state.showLocation && state.selectedRelayItemTitle != null) {
+                    state.selectedRelayItemTitle
+                } else {
+                    stringResource(id = R.string.switch_location)
+                },
+            onSwitchLocation = onSwitchLocationClick,
+            reconnectClick = { handleThrottledAction(onReconnectClick) },
+            isReconnectButtonEnabled =
+                state.tunnelState is TunnelState.Connected ||
+                    state.tunnelState is TunnelState.Connecting,
+            modifier = Modifier.testTag(SELECT_LOCATION_BUTTON_TEST_TAG),
+            reconnectButtonTestTag = RECONNECT_BUTTON_TEST_TAG,
+        )
+        Spacer(Modifier.height(Dimens.buttonVerticalPadding))
 
-    SwitchLocationButton(
-        modifier =
-            Modifier.fillMaxWidth()
-                .padding(horizontal = Dimens.sideMargin)
-                .testTag(SELECT_LOCATION_BUTTON_TEST_TAG),
-        onClick = onSwitchLocationClick,
-        showChevron = state.showLocation,
-        text =
-            if (state.showLocation && state.selectedRelayItemTitle != null) {
-                state.selectedRelayItemTitle
-            } else {
-                stringResource(id = R.string.switch_location)
-            },
-    )
-    Spacer(modifier = Modifier.height(Dimens.buttonSpacing))
-    ConnectionButton(
-        state = state.tunnelState,
-        modifier =
-            Modifier.padding(horizontal = Dimens.sideMargin)
-                .padding(bottom = Dimens.screenVerticalMargin)
-                .testTag(CONNECT_BUTTON_TEST_TAG),
-        disconnectClick = onDisconnectClick,
-        reconnectClick = { handleThrottledAction(onReconnectClick) },
-        cancelClick = onCancelClick,
-        connectClick = { handleThrottledAction(onConnectClick) },
-        reconnectButtonTestTag = RECONNECT_BUTTON_TEST_TAG,
-    )
+        ConnectionButton(
+            modifier = Modifier.fillMaxWidth().testTag(CONNECT_BUTTON_TEST_TAG),
+            state = state.tunnelState,
+            disconnectClick = onDisconnectClick,
+            cancelClick = onCancelClick,
+            connectClick = { handleThrottledAction(onConnectClick) },
+        )
+    }
 }
 
 @Composable
@@ -423,12 +525,14 @@ fun TunnelState.toMarker(location: GeoIpLocation?): Marker? {
                 location.toLatLong(),
                 colors = LocationMarkerColors(centerColor = MaterialTheme.colorScheme.tertiary),
             )
+
         is TunnelState.Connecting -> null
         is TunnelState.Disconnected ->
             Marker(
                 location.toLatLong(),
                 colors = LocationMarkerColors(centerColor = MaterialTheme.colorScheme.error),
             )
+
         is TunnelState.Disconnecting -> null
         is TunnelState.Error -> null
     }
@@ -453,11 +557,13 @@ private fun ConnectViewModel.UiSideEffect.ConnectError.toMessage(context: Contex
     when (this) {
         ConnectViewModel.UiSideEffect.ConnectError.NoVpnPermission ->
             context.getString(R.string.vpn_permission_denied_error)
+
         is ConnectViewModel.UiSideEffect.ConnectError.AlwaysOnVpn ->
             // Snackbar currently do not support annotated string
             context
                 .getString(R.string.always_on_vpn_error_notification_content, appName)
                 .removeHtmlTags()
+
         ConnectViewModel.UiSideEffect.ConnectError.Generic ->
             context.getString(R.string.error_occurred)
     }

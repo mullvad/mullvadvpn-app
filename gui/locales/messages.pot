@@ -2163,6 +2163,9 @@ msgstr ""
 msgid "%s (added)"
 msgstr ""
 
+msgid "%s more..."
+msgstr ""
+
 msgid "%s using %s"
 msgstr ""
 
@@ -2271,6 +2274,9 @@ msgstr ""
 msgid "Connecting..."
 msgstr ""
 
+msgid "Content blockers"
+msgstr ""
+
 msgid "Copied Mullvad account number to clipboard"
 msgstr ""
 
@@ -2295,6 +2301,9 @@ msgstr ""
 msgid "Custom DNS server addresses %s are invalid"
 msgstr ""
 
+msgid "DAITA"
+msgstr ""
+
 msgid "DNS settings might not go into effect immediately"
 msgstr ""
 
@@ -2314,6 +2323,9 @@ msgid "Discard"
 msgstr ""
 
 msgid "Discard changes?"
+msgstr ""
+
+msgid "Disconnected (No VPN permission)"
 msgstr ""
 
 msgid "Dismiss"
@@ -2391,6 +2403,9 @@ msgstr ""
 msgid "List name"
 msgstr ""
 
+msgid "Local Network Sharing"
+msgstr ""
+
 msgid "Locations"
 msgstr ""
 
@@ -2430,6 +2445,12 @@ msgstr ""
 msgid "On (UDP-over-TCP)"
 msgstr ""
 
+msgid "Out Ipv4"
+msgstr ""
+
+msgid "Out Ipv6"
+msgstr ""
+
 msgid "Overrides active"
 msgstr ""
 
@@ -2466,6 +2487,9 @@ msgstr ""
 msgid "Privacy policy"
 msgstr ""
 
+msgid "Quantum Resistance"
+msgstr ""
+
 msgid "Recursion limit"
 msgstr ""
 
@@ -2493,7 +2517,7 @@ msgstr ""
 msgid "Secure my connection"
 msgstr ""
 
-msgid "Secured"
+msgid "Server IP Overrides"
 msgstr ""
 
 msgid "Set WireGuard MTU value. Valid range: %d - %d."
@@ -2509,6 +2533,9 @@ msgid "Shows current VPN tunnel status"
 msgstr ""
 
 msgid "Shows reminders when the account time is about to expire"
+msgstr ""
+
+msgid "Split Tunneling"
 msgstr ""
 
 msgid "Submit"
@@ -2572,12 +2599,6 @@ msgid "Undo"
 msgstr ""
 
 msgid "Unknown or prohibited key \"%s\""
-msgstr ""
-
-msgid "Unsecured"
-msgstr ""
-
-msgid "Unsecured (No VPN permission)"
 msgstr ""
 
 msgid "Update DNS server"

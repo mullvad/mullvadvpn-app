@@ -73,10 +73,11 @@
     <string name="confirm_no_email">Sie wollen einen Problembericht senden, ohne uns die Möglichkeit zu geben, Sie zu erreichen. Wenn Sie sich eine Antwort zu Ihrem Problem wünschen, müssen Sie eine E-Mail-Adresse eingeben.</string>
     <string name="confirm_removal">Ja, von Gerät abmelden</string>
     <string name="congrats">Glückwunsch!</string>
-    <string name="connect">Meine Verbindung sichern</string>
+    <string name="connected">Verbunden</string>
     <string name="connected_using_daita">%1$s verwendet %2$s</string>
     <string name="connecting">Verbinden</string>
     <string name="connecting_to_daemon">Verbindung zum Mullvad-Systemdienst wird hergestellt...</string>
+    <string name="connection_details_in">Eingehend</string>
     <string name="continue_login">Weiter mit Anmeldung</string>
     <string name="copied_logs_to_clipboard">Protokolle in Zwischenablage kopiert</string>
     <string name="copied_mullvad_account_number">Mullvad-Kontonummer wurde in die Zwischenablage kopiert</string>
@@ -87,7 +88,6 @@
     <string name="create_new_list">Neue Liste erstellen</string>
     <string name="created_x">Erstellt: %1$s</string>
     <string name="creating_new_account">Konto wird erstellt ...</string>
-    <string name="creating_secure_connection">SICHERE VERBINDUNG WIRD ERSTELLT</string>
     <string name="critical_error">Kritischer Fehler (Ihre Aufmerksamkeit ist erforderlich)</string>
     <string name="current_method">Aktuell: %1$s</string>
     <string name="custom_dns_disable_mode_subtitle">Deaktivieren Sie oben alle &lt;b&gt;%1$s&lt;/b&gt;, um diese Einstellung zu aktivieren.</string>
@@ -118,6 +118,7 @@
     <string name="discard">Verwerfen</string>
     <string name="discard_changes">Änderungen verwerfen?</string>
     <string name="disconnect">Verbindung trennen</string>
+    <string name="disconnected">Verbindung getrennt</string>
     <string name="disconnecting">Verbindung wird getrennt</string>
     <string name="dismiss">Ausblenden</string>
     <string name="dns_content_blockers_custom_dns_warning">Achtung: Diese Einstellung kann nicht in Kombination mit der Option &lt;b&gt;Benutzerdefinierten DNS-Server verwenden&lt;/b&gt; verwendet werden.</string>
@@ -152,6 +153,8 @@
     <string name="failed_to_set_current_test_error">Konnte nicht als aktuelle gesetzt werden – API nicht erreichbar</string>
     <string name="failed_to_set_current_unknown_error">Konnte nicht als aktuelle gesetzt werden – Unbekannter Grund</string>
     <string name="faqs_and_guides">Häufig gestellte Fragen &amp; Anleitungen</string>
+    <string name="feature_custom_mtu">MTU</string>
+    <string name="feature_udp_2_tcp">Verschleierung</string>
     <string name="filter">Filter</string>
     <string name="filtered">Gefiltert:</string>
     <string name="foreground_notification_channel_description">Zeigt den aktuellen Status des VPN-Tunnels an</string>
@@ -166,7 +169,6 @@
     <string name="import_overrides_bottom_sheet_override_warning">Der Import neuer Überschreibungen kann einige zuvor importierte Überschreibungen ersetzen.</string>
     <string name="import_overrides_import">Importieren</string>
     <string name="import_overrides_text_title">Import via Text</string>
-    <string name="in_address">Eingehend</string>
     <string name="invalid_dns_servers">Eigene DNS-Server Adressen %1$s sind ungültig</string>
     <string name="invalid_voucher">Der Gutscheincode ist ungültig.</string>
     <string name="ipv6_unavailable">IPv6 konnte nicht konfiguriert werden. Deaktivieren Sie es in der App oder aktivieren Sie es auf Ihrem Gerät.</string>
@@ -248,11 +250,9 @@
     <string name="privacy_policy_label">Datenschutzrichtlinie</string>
     <string name="problem_report_description">Damit wir Ihnen besser helfen können, wird die Protokolldatei Ihrer App an diese Nachricht angehängt. Ihre Daten bleiben sicher und privat, da sie vor dem Senden über einen verschlüsselten Kanal anonymisiert werden.</string>
     <string name="providers">Anbieter</string>
-    <string name="quantum_creating_secure_connection">QUANTENSICHERE VERBINDUNG WIRD ERSTELLT</string>
     <string name="quantum_resistant_info_first_paragaph">Diese Funktion macht den WireGuard-Tunnel resistent gegen mögliche Angriffe von Quantencomputern.</string>
     <string name="quantum_resistant_info_second_paragaph">Dazu wird ein zusätzlicher Schlüsselaustausch mit einem quantensicheren Algorithmus durchgeführt und das Ergebnis mit der regulären Verschlüsselung von WireGuard vermischt. Dieser zusätzliche Schritt verbraucht jedes Mal, wenn ein neuer Tunnel aufgebaut wird, etwa 500 KiB an Datenverkehr.</string>
     <string name="quantum_resistant_title">Quantenresistenter Tunnel</string>
-    <string name="quantum_secure_connection">QUANTENSICHERE VERBINDUNG</string>
     <string name="reconnecting">Wiederherstellen der Verbindung</string>
     <string name="redeem">Einlösen</string>
     <string name="redeem_voucher">Gutschein einlösen</string>
@@ -263,8 +263,6 @@
     <string name="reset_to_default_button">Auf Standard zurücksetzen</string>
     <string name="save">Speichern</string>
     <string name="search_placeholder">Suchen nach …</string>
-    <string name="secure_connection">SICHERE VERBINDUNG</string>
-    <string name="secured">Gesichert</string>
     <string name="select_location">Ort auswählen</string>
     <string name="select_location_description">Wenn Sie verbunden sind, wird Ihr tatsächlicher Standort durch einem privaten und sicheren Standort in der ausgewählten Region maskiert.</string>
     <string name="select_location_empty_text_first_row">Keine Ergebnisse für &lt;b&gt;%1$s&lt;/b&gt;.</string>
@@ -329,9 +327,6 @@
     <string name="udp_over_tcp_port_info">Mit welchem TCP-Port sich das UDP-über-TCP-Verschleierungsprotokoll auf dem VPN-Server verbinden soll.</string>
     <string name="udp_over_tcp_port_title">Port für UDP über TCP</string>
     <string name="undo">Rückgängig</string>
-    <string name="unsecured">Ungesichert</string>
-    <string name="unsecured_connection">UNGESICHERTE VERBINDUNG</string>
-    <string name="unsecured_vpn_permission_error">Ungesichert (keine VPN-Berechtigung)</string>
     <string name="unsupported_version">NICHT UNTERSTÜTZTE VERSION</string>
     <string name="unsupported_version_description">Ihre Privatsphäre könnte mit dieser nicht unterstützen Version der App gefährdet sein. Bitte aktualisieren Sie sie.</string>
     <string name="unsupported_version_without_upgrade">Sie verwenden eine nicht unterstützte Version der App. </string>

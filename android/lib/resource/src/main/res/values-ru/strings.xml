@@ -73,10 +73,11 @@
     <string name="confirm_no_email">Вы собираетесь отправить отчет о проблеме, не оставив контакты. Если вы хотите получить ответ, введите свой адрес электронной почты.</string>
     <string name="confirm_removal">Выйти из профиля на устройстве</string>
     <string name="congrats">Поздравляем!</string>
-    <string name="connect">Защитить мое подключение</string>
+    <string name="connected">Подключено</string>
     <string name="connected_using_daita">%1$s через %2$s</string>
     <string name="connecting">Идет подключение</string>
     <string name="connecting_to_daemon">Подключение к системному сервису Mullvad...</string>
+    <string name="connection_details_in">Вход</string>
     <string name="continue_login">Войти</string>
     <string name="copied_logs_to_clipboard">Журналы скопированы в буфер обмена</string>
     <string name="copied_mullvad_account_number">Номер учетной записи Mullvad скопирован в буфер обмена</string>
@@ -87,7 +88,6 @@
     <string name="create_new_list">Создание нового списка</string>
     <string name="created_x">Создано: %1$s</string>
     <string name="creating_new_account">Создание учетной записи...</string>
-    <string name="creating_secure_connection">СОЗДАНИЕ ЗАЩИЩЕННОГО ПОДКЛЮЧЕНИЯ</string>
     <string name="critical_error">Критическая ошибка (требуется ваше участие)</string>
     <string name="current_method">Текущий: %1$s</string>
     <string name="custom_dns_disable_mode_subtitle">Чтобы включить эту настройку, отключите все &lt;b&gt;%1$s&lt;/b&gt; выше.</string>
@@ -118,6 +118,7 @@
     <string name="discard">Сбросить</string>
     <string name="discard_changes">Сбросить изменения?</string>
     <string name="disconnect">Отключить</string>
+    <string name="disconnected">Разъединено</string>
     <string name="disconnecting">Отключение</string>
     <string name="dismiss">Закрыть</string>
     <string name="dns_content_blockers_custom_dns_warning">Внимание: этот параметр нельзя использовать вместе с параметром &lt;b&gt;Пользовательский DNS-сервер&lt;/b&gt;.</string>
@@ -152,6 +153,8 @@
     <string name="failed_to_set_current_test_error">Не удалось установить текущий метод: API недоступен</string>
     <string name="failed_to_set_current_unknown_error">Не удалось установить текущий метод: причина неизвестна</string>
     <string name="faqs_and_guides">Ответы на вопросы и руководства</string>
+    <string name="feature_custom_mtu">MTU</string>
+    <string name="feature_udp_2_tcp">Обфускация</string>
     <string name="filter">Фильтр</string>
     <string name="filtered">Фильтр:</string>
     <string name="foreground_notification_channel_description">Показывает текущее состояние VPN-туннеля</string>
@@ -166,7 +169,6 @@
     <string name="import_overrides_bottom_sheet_override_warning">Импорт новых переопределений может заменить некоторые ранее импортированные переопределения.</string>
     <string name="import_overrides_import">Импортировать</string>
     <string name="import_overrides_text_title">Импортировать через текст</string>
-    <string name="in_address">Вход</string>
     <string name="invalid_dns_servers">Пользовательские адреса DNS-серверов %1$s недопустимы</string>
     <string name="invalid_voucher">Код ваучера недействителен.</string>
     <string name="ipv6_unavailable">Не удается сконфигурировать IPv6. Отключите этот протокол в приложении или включите на устройстве.</string>
@@ -248,11 +250,9 @@
     <string name="privacy_policy_label">Политика конфиденциальности</string>
     <string name="problem_report_description">Чтобы помощь была эффективнее, к этому сообщению будет прикреплен файл журнала из приложения. Ваши данные останутся защищенными и конфиденциальными: они обезличиваются и отправляются по зашифрованному каналу.</string>
     <string name="providers">Провайдеры</string>
-    <string name="quantum_creating_secure_connection">СОЗДАНИЕ ПОДКЛЮЧЕНИЯ С ЗАЩИТОЙ ОТ КВАНТОВЫХ АТАК</string>
     <string name="quantum_resistant_info_first_paragaph">Эта функция делает туннель WireGuard устойчивым к потенциальным атакам с использованием квантовых компьютеров.</string>
     <string name="quantum_resistant_info_second_paragaph">Для этого функция выполняет дополнительный обмен ключами с использованием квантово-устойчивого алгоритма и добавляет результат к обычному шифрованию WireGuard. Эта дополнительная мера использует примерно 500 КиБ трафика при каждом создании нового туннеля.</string>
     <string name="quantum_resistant_title">Квантово-устойчивый туннель</string>
-    <string name="quantum_secure_connection">ПОДКЛЮЧЕНИЕ С ЗАЩИТОЙ ОТ КВАНТОВЫХ АТАК</string>
     <string name="reconnecting">Идет переподключение</string>
     <string name="redeem">Погасить</string>
     <string name="redeem_voucher">Погасить ваучер</string>
@@ -263,8 +263,6 @@
     <string name="reset_to_default_button">Восстановить значение по умолчанию</string>
     <string name="save">Сохранить</string>
     <string name="search_placeholder">Поиск...</string>
-    <string name="secure_connection">ЗАЩИЩЕННОЕ ПОДКЛЮЧЕНИЕ</string>
-    <string name="secured">Подключение защищено</string>
     <string name="select_location">Выбор местоположения</string>
     <string name="select_location_description">При подключении реальное местоположение маскируется защищенным конфиденциальным местоположением в выбранном регионе.</string>
     <string name="select_location_empty_text_first_row">По запросу &lt;b&gt;%1$s&lt;/b&gt; ничего не найдено.</string>
@@ -329,9 +327,6 @@
     <string name="udp_over_tcp_port_info">TCP-порт, к которому должен подключаться протокол обфускации UDP через TCP на VPN-сервере.</string>
     <string name="udp_over_tcp_port_title">Порт для UDP через TCP</string>
     <string name="undo">Отменить</string>
-    <string name="unsecured">Подключение не защищено</string>
-    <string name="unsecured_connection">НЕЗАЩИЩЕННОЕ ПОДКЛЮЧЕНИЕ</string>
-    <string name="unsecured_vpn_permission_error">Незащищенное (нет разрешения для VPN)</string>
     <string name="unsupported_version">НЕПОДДЕРЖИВАЕМАЯ ВЕРСИЯ</string>
     <string name="unsupported_version_description">Эта версия приложения не поддерживается, что может угрожать неприкосновенности ваших данных. Обновите приложение.</string>
     <string name="unsupported_version_without_upgrade">Версия приложения, с которой вы работаете, не поддерживается.</string>

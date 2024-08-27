@@ -73,10 +73,11 @@
     <string name="confirm_no_email">Olet aikeissa lähettää ongelmaraportin ilman yhteystietojasi. Mikäli haluat vastauksen raporttiisi, anna sähköpostosoite.</string>
     <string name="confirm_removal">Kyllä, kirjaa laite ulos</string>
     <string name="congrats">Onnittelut!</string>
-    <string name="connect">Suojaa yhteyteni</string>
+    <string name="connected">Yhdistetty</string>
     <string name="connected_using_daita">%1$s – %2$s käytössä</string>
     <string name="connecting">Yhdistetään</string>
     <string name="connecting_to_daemon">Yhdistetään Mullvad-järjestelmäpalveluun...</string>
+    <string name="connection_details_in">Saapuva</string>
     <string name="continue_login">Jatka kirjautumista</string>
     <string name="copied_logs_to_clipboard">Lokit kopioitu leikepöydälle</string>
     <string name="copied_mullvad_account_number">Mullvad-tilin numero kopioitu leikepöydälle</string>
@@ -87,7 +88,6 @@
     <string name="create_new_list">Luo uusi luettelo</string>
     <string name="created_x">Luotu: %1$s</string>
     <string name="creating_new_account">Luodaan tiliä...</string>
-    <string name="creating_secure_connection">LUODAAN SUOJATTU YHTEYS</string>
     <string name="critical_error">Vakava virhe (vaatii huomiotasi)</string>
     <string name="current_method">Nykyinen: %1$s</string>
     <string name="custom_dns_disable_mode_subtitle">Ota tämä asetus käyttöön poistamalla kaikki &lt;b&gt;%1$s&lt;/b&gt; käytöstä yllä.</string>
@@ -118,6 +118,7 @@
     <string name="discard">Hylkää</string>
     <string name="discard_changes">Hylätäänkö muokkaukset?</string>
     <string name="disconnect">Katkaise yhteys</string>
+    <string name="disconnected">Yhteys katkaistu</string>
     <string name="disconnecting">Katkaistaan yhteyttä</string>
     <string name="dismiss">Jätä huomiotta</string>
     <string name="dns_content_blockers_custom_dns_warning">Huomio: asetusta ei voi käyttää yhdessä \"&lt;b&gt;Käytä mukautettua DNS-palvelinta&lt;/b&gt;\" -asetuksen kanssa.</string>
@@ -152,6 +153,8 @@
     <string name="failed_to_set_current_test_error">Nykyisen asetus epäonnistui – APIa ei tavoiteta</string>
     <string name="failed_to_set_current_unknown_error">Nykyisen asetus epäonnistui – Tuntematon syy</string>
     <string name="faqs_and_guides">Usein kysytyt kysymykset ja oppaat</string>
+    <string name="feature_custom_mtu">MTU</string>
+    <string name="feature_udp_2_tcp">Hämäysteknologia</string>
     <string name="filter">Suodatin</string>
     <string name="filtered">Suodatettu:</string>
     <string name="foreground_notification_channel_description">Näyttää VPN-tunnelin nykyisen tilan</string>
@@ -166,7 +169,6 @@
     <string name="import_overrides_bottom_sheet_override_warning">Uusien ohitusten tuonti saattaa korvata joitain aiemmin tuotuja ohituksia.</string>
     <string name="import_overrides_import">Tuo</string>
     <string name="import_overrides_text_title">Tuo tekstinä</string>
-    <string name="in_address">Saapuva</string>
     <string name="invalid_dns_servers">Mukautetut DNS-palvelimen osoitteet %1$s ovat virheellisiä</string>
     <string name="invalid_voucher">Kuponkikoodi ei kelpaa.</string>
     <string name="ipv6_unavailable">IPv6:n määritys ei onnistunut. Poista se käytöstä sovelluksessa tai ota käyttöön laitteellasi.</string>
@@ -248,11 +250,9 @@
     <string name="privacy_policy_label">Tietosuojakäytäntö</string>
     <string name="problem_report_description">Jotta voimme olla avuksi parhaamme mukaan, sovelluksesi lokitiedosto liitetään tähän viestiin. Tietosi pysyvät suojattuina ja yksityisinä, ja ne anonymisoidaan salatun kanavan kautta ennen lähetystä.</string>
     <string name="providers">Tarjoajat</string>
-    <string name="quantum_creating_secure_connection">LUODAAN KVANTTISUOJATTU YHTEYS</string>
     <string name="quantum_resistant_info_first_paragaph">Tämä ominaisuus tekee WireGuard-tunnelista kestävän kvanttitietokoneiden mahdollisia hyökkäyksiä vastaan.</string>
     <string name="quantum_resistant_info_second_paragaph">Tunneli torjuu hyökkäykset suorittamalla ylimääräisen avaimenvaihdon käyttämällä ensin kvanttiturvallista algoritmia, jonka tuloksen se sekoittaa WireGuardin tavalliseen salaukseen. Tämä ylimääräinen vaihe käyttää noin 500 kiB liikennettä joka kerta, kun uusi tunneli luodaan.</string>
     <string name="quantum_resistant_title">Kvanttihyökkäyksiä kestävä tunneli</string>
-    <string name="quantum_secure_connection">KVANTTISUOJATTU YHTEYS</string>
     <string name="reconnecting">Yhdistetään uudelleen</string>
     <string name="redeem">Lunasta</string>
     <string name="redeem_voucher">Lunasta kuponki</string>
@@ -263,8 +263,6 @@
     <string name="reset_to_default_button">Palauta oletusarvo</string>
     <string name="save">Tallenna</string>
     <string name="search_placeholder">Hae...</string>
-    <string name="secure_connection">SUOJATTU YHTEYS</string>
-    <string name="secured">Suojattu</string>
     <string name="select_location">Valitse sijainti</string>
     <string name="select_location_description">Kun yhteys on muodostettu, yksityinen ja suojattu sijainti valitulta alueelta naamioi todellisen sijaintisi.</string>
     <string name="select_location_empty_text_first_row">Ei tuloksia haulle &lt;b&gt;%1$s&lt;/b&gt;.</string>
@@ -329,9 +327,6 @@
     <string name="udp_over_tcp_port_info">Määrittää, mihin VPN-palvelimen TCP-porttiin \"UDP TCP:n kautta\" -hämäysteknologia-protokollan tulee muodostaa yhteys.</string>
     <string name="udp_over_tcp_port_title">Portti: UDP TPC:n kautta</string>
     <string name="undo">Kumoa</string>
-    <string name="unsecured">Suojaamaton</string>
-    <string name="unsecured_connection">SUOJAAMATON YHTEYS</string>
-    <string name="unsecured_vpn_permission_error">Suojaamaton (ei VPN-käyttöoikeutta)</string>
     <string name="unsupported_version">EI-TUETTU VERSIO</string>
     <string name="unsupported_version_description">Yksityisyytesi saattaa olla vaarassa tämän sovellusversion, jota ei tueta, vuoksi. Päivitä versio heti.</string>
     <string name="unsupported_version_without_upgrade">Sovellusversiotasi ei tueta.</string>

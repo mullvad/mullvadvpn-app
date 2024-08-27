@@ -73,10 +73,11 @@
     <string name="confirm_no_email">Du er ved at sende rapporten om problemet, men har ikke angivet hvordan vi kan kontakte dig. Hvis du ønsker et svar på din rapport, skal du indtaste en e-mail-adresse.</string>
     <string name="confirm_removal">Ja, log enhed af</string>
     <string name="congrats">Tillykke!</string>
-    <string name="connect">Gør min forbindelse sikker</string>
+    <string name="connected">Tilsluttet</string>
     <string name="connected_using_daita">%1$s via %2$s</string>
     <string name="connecting">Tilslutter</string>
     <string name="connecting_to_daemon">Opretter forbindelse til Mullvad-systemtjeneste...</string>
+    <string name="connection_details_in">Ind</string>
     <string name="continue_login">Fortsæt med login</string>
     <string name="copied_logs_to_clipboard">Kopierede logfiler til udklipsholder</string>
     <string name="copied_mullvad_account_number">Kopierede Mullvad-kontonummer til udklipsholder</string>
@@ -87,7 +88,6 @@
     <string name="create_new_list">Opret ny liste</string>
     <string name="created_x">Oprettet: %1$s</string>
     <string name="creating_new_account">Opretter konto...</string>
-    <string name="creating_secure_connection">OPRETTER SIKKER FORBINDELSE</string>
     <string name="critical_error">Kritisk fejl (som kræver din opmærksomhed)</string>
     <string name="current_method">Aktuel: %1$s</string>
     <string name="custom_dns_disable_mode_subtitle">Deaktiver alle &lt;b&gt;%1$s&lt;/b&gt; ovenfor for at aktivere denne indstilling.</string>
@@ -118,6 +118,7 @@
     <string name="discard">Kassér</string>
     <string name="discard_changes">Vil du kassere ændringer?</string>
     <string name="disconnect">Afbryd forbindelse</string>
+    <string name="disconnected">Afbrudt</string>
     <string name="disconnecting">Afbryder</string>
     <string name="dismiss">Afvis</string>
     <string name="dns_content_blockers_custom_dns_warning">Bemærk: Denne indstilling kan ikke bruges i kombination med &lt;b&gt;Brug tilpasset DNS-server&lt;/b&gt;.</string>
@@ -152,6 +153,8 @@
     <string name="failed_to_set_current_test_error">Kunne ikke indstilles til aktuel - API ikke tilgængelig</string>
     <string name="failed_to_set_current_unknown_error">Kunne ikke indstilles til aktuel - Ukendt årsag</string>
     <string name="faqs_and_guides">Ofte stillede spørgsmål og vejledninger</string>
+    <string name="feature_custom_mtu">MTU</string>
+    <string name="feature_udp_2_tcp">Tilsløring</string>
     <string name="filter">Filter</string>
     <string name="filtered">Filtreret:</string>
     <string name="foreground_notification_channel_description">Viser den aktuelle VPN-tunnelstatus</string>
@@ -166,7 +169,6 @@
     <string name="import_overrides_bottom_sheet_override_warning">Import af nye tilsidesættelser vil muligvis erstatte nogle tidligere importerede tilsidesættelser.</string>
     <string name="import_overrides_import">Importer</string>
     <string name="import_overrides_text_title">Importer via tekst</string>
-    <string name="in_address">Ind</string>
     <string name="invalid_dns_servers">Tilpassede DNS-serveradresser %1$s er ugyldige</string>
     <string name="invalid_voucher">Kuponkode er ugyldig.</string>
     <string name="ipv6_unavailable">Kunne ikke konfigurere IPv6. Deaktiver det i appen, eller aktiver det på din enhed.</string>
@@ -248,11 +250,9 @@
     <string name="privacy_policy_label">Fortrolighedspolitik</string>
     <string name="problem_report_description">For at vi bedre kan hjælpe dig, bedes du vedhæfte din apps logfil til denne meddelelse. Dine data vil forblive sikre og private, da de anonymiseres, før de sendes via en krypteret kanal.</string>
     <string name="providers">Udbydere</string>
-    <string name="quantum_creating_secure_connection">OPRETTER KVANTESIKKER FORBINDELSE</string>
     <string name="quantum_resistant_info_first_paragaph">Denne funktion gør WireGuard-tunnelen modstandsdygtig over for potentielle angreb fra kvantecomputere.</string>
     <string name="quantum_resistant_info_second_paragaph">Det gør den ved at udføre en ekstra nøgleudveksling ved hjælp af en kvantesikker algoritme og blande resultatet med WireGuards almindelige kryptering. Dette ekstra trin bruger cirka 500 kB trafik, hver gang en ny tunnel etableres.</string>
     <string name="quantum_resistant_title">Kvante-modstandsdygtig tunnel</string>
-    <string name="quantum_secure_connection">KVANTESIKKER FORBINDELSE</string>
     <string name="reconnecting">Genopretter forbindelse</string>
     <string name="redeem">Indløs</string>
     <string name="redeem_voucher">Indløs kupon</string>
@@ -263,8 +263,6 @@
     <string name="reset_to_default_button">Nulstil til standard</string>
     <string name="save">Gem</string>
     <string name="search_placeholder">Søg efter...</string>
-    <string name="secure_connection">SIKKER TILSLUTNING</string>
-    <string name="secured">Sikret</string>
     <string name="select_location">Vælg placering</string>
     <string name="select_location_description">Når du er tilsluttet, maskeres din virkelige placering med en privat og sikker placering i den valgte region.</string>
     <string name="select_location_empty_text_first_row">Intet resultat for &lt;b&gt;%1$s&lt;/b&gt;.</string>
@@ -329,9 +327,6 @@
     <string name="udp_over_tcp_port_info">Hvilken TCP-port UDP-over-TCP tilsløringsprotokollen skal forbinde til på VPN-serveren.</string>
     <string name="udp_over_tcp_port_title">UDP-over-TCP-port</string>
     <string name="undo">Fortryd</string>
-    <string name="unsecured">Ikke sikret</string>
-    <string name="unsecured_connection">IKKE-SIKRET FORBINDELSE</string>
-    <string name="unsecured_vpn_permission_error">Usikret (ingen VPN-tilladelse)</string>
     <string name="unsupported_version">IKKE-UNDERSTØTTET VERSION</string>
     <string name="unsupported_version_description">Dit privatliv kan være i fare med denne ikke-understøttede appversion. Opdater den straks.</string>
     <string name="unsupported_version_without_upgrade">Du kører en ikke-understøttet appversion.</string>
