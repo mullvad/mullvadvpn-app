@@ -74,6 +74,7 @@
     <string name="confirm_removal">Oui, déconnecter l\'appareil</string>
     <string name="congrats">Félicitations !</string>
     <string name="connect">Sécuriser ma connexion</string>
+    <string name="connected_using_daita">%1$s utilisant %2$s</string>
     <string name="connecting">Connexion</string>
     <string name="connecting_to_daemon">Connexion au service système Mullvad...</string>
     <string name="continue_login">Continuer avec la connexion</string>
@@ -100,6 +101,8 @@
     <string name="custom_port_dialog_title">Port WireGuard personnalisé</string>
     <string name="custom_port_dialog_valid_ranges">Plages valides : %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Échec de la résolution de l\'hôte du tunnel personnalisé. Essayez de modifier vos paramètres.</string>
+    <string name="daita_info">%1$s (%2$s) dissimule des motifs dans votre trafic VPN chiffré. Si quelqu\'un surveille votre connexion, il lui sera beaucoup plus difficile d\'identifier les sites Web que vous visitez. Pour ce faire, il ajoute soigneusement du bruit réseau et fait en sorte que tous les paquets de réseau aient la même taille.</string>
+    <string name="daita_warning">Attention : étant donné que cette opération augmente le trafic total de votre réseau, faites attention si vous disposez d\'un forfait à données limitées. Cela peut également avoir un impact négatif sur la vitesse de votre réseau. Veuillez en tenir compte si vous souhaitez activer %1$s.</string>
     <string name="delete">Supprimer</string>
     <string name="delete_custom_list_confirmation_description">Supprimer « %1$s » ?</string>
     <string name="delete_custom_list_message">« %1$s » a été supprimé</string>
@@ -133,6 +136,7 @@
     <string name="edit_method">Modifier le mode</string>
     <string name="edit_name">Modifier le nom</string>
     <string name="enable">Activer</string>
+    <string name="enable_anyway">Activer quand même</string>
     <string name="enable_custom_dns">Utiliser un serveur DNS personnalisé</string>
     <string name="enable_method">Activer la méthode</string>
     <string name="enter_value_placeholder">Saisir le MTU</string>
@@ -288,6 +292,7 @@
     <string name="server_ip_overrides_reset_title">Réinitialiser toutes les substitutions</string>
     <string name="set_dns_error">Impossible de définir le serveur DNS système. Veuillez envoyer un rapport de problème.</string>
     <string name="set_firewall_policy_error">Impossible d\'appliquer les règles du pare-feu. Merci de résoudre le problème ou d\'envoyer un rapport de problème.</string>
+    <string name="setting_chip">Paramètre : %1$s</string>
     <string name="settings">Paramètres</string>
     <string name="settings_account">Compte</string>
     <string name="settings_api_access">Accès à l\'API</string>

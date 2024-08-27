@@ -74,6 +74,7 @@
     <string name="confirm_removal">ใช่ นำอุปกรณ์ออกจากระบบ</string>
     <string name="congrats">ยินดีด้วย!</string>
     <string name="connect">รักษาความปลอดภัยในการเชื่อมต่อ</string>
+    <string name="connected_using_daita">%1$s กำลังใช้ %2$s</string>
     <string name="connecting">กำลังเชื่อมต่อ</string>
     <string name="connecting_to_daemon">กำลังเชื่อมต่อบริการของระบบ Mullvad...</string>
     <string name="continue_login">เข้าสู่ระบบต่อ</string>
@@ -100,6 +101,8 @@
     <string name="custom_port_dialog_title">พอร์ต WireGuard แบบกำหนดเอง</string>
     <string name="custom_port_dialog_valid_ranges">ช่วงที่ใช้ได้: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">ไม่พบโฮสต์ของช่องทางแบบกำหนดเอง กรุณาลองเปลี่ยนการตั้งค่าของคุณ</string>
+    <string name="daita_info">%1$s (%2$s) ซ่อนรูปแบบในการรับส่งข้อมูล VPN ที่เข้ารหัสของคุณ หากมีใครกำลังเฝ้าดูการเชื่อมต่อของคุณอยู่ สิ่งนี้จะทำให้การระบุเว็บไซต์ที่คุณกำลังเยี่ยมชมยากขึ้นอย่างมาก ซึ่งทำได้โดยการเพิ่มสัญญาณรบกวนเครือข่ายอย่างระมัดระวัง และทำให้แพ็กเก็ตเครือข่ายทั้งหมดมีขนาดเท่ากันหมด</string>
+    <string name="daita_warning">โปรดทราบ: เนื่องจากการดำเนินการนี้จะเพิ่มการรับส่งข้อมูลโดยรวมของคุณขึ้น โปรดใช้ความระมัดระวัง หากคุณมีแผนข้อมูลที่มีปริมาณจำกัด การดำเนินการนี้อาจส่งผลเชิงลบต่อความเร็วเครือข่ายของคุณได้ โปรดพิจารณาข้อมูลเหล่านี้ หากคุณต้องการเปิดใช้งาน %1$s</string>
     <string name="delete">ลบ</string>
     <string name="delete_custom_list_confirmation_description">ลบ \"%1$s\" หรือไม่</string>
     <string name="delete_custom_list_message">\"%1$s\" ถูกลบแล้ว</string>
@@ -133,6 +136,7 @@
     <string name="edit_method">แก้ไขวิธี</string>
     <string name="edit_name">แก้ไขชื่อ</string>
     <string name="enable">เปิดใช้งาน</string>
+    <string name="enable_anyway">เปิดใช้งานต่อไป</string>
     <string name="enable_custom_dns">ใช้เซิร์ฟเวอร์ DNS แบบกำหนดเอง</string>
     <string name="enable_method">เปิดใช้งานวิธีการ</string>
     <string name="enter_value_placeholder">ป้อน MTU</string>
@@ -288,6 +292,7 @@
     <string name="server_ip_overrides_reset_title">รีเซ็ตโอเวอร์ไรด์ทั้งหมด</string>
     <string name="set_dns_error">ไม่สามารถตั้งค่าเซิร์ฟเวอร์ DNS ของระบบได้ โปรดส่งรายงานปัญหา</string>
     <string name="set_firewall_policy_error">ไม่สามารถใช้กฎไฟร์วอลล์ได้ โปรดแก้ไขปัญหา หรือส่งรายงานปัญหา</string>
+    <string name="setting_chip">การตั้งค่า: %1$s</string>
     <string name="settings">การตั้งค่า</string>
     <string name="settings_account">บัญชี</string>
     <string name="settings_api_access">การเข้าถึง API</string>

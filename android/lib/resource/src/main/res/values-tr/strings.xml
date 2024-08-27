@@ -74,6 +74,7 @@
     <string name="confirm_removal">Evet, cihazdan çıkış yap</string>
     <string name="congrats">Tebrikler!</string>
     <string name="connect">Bağlantımı güvenceye al</string>
+    <string name="connected_using_daita">%1$s, %2$s kullanıyor</string>
     <string name="connecting">Bağlanılıyor</string>
     <string name="connecting_to_daemon">Mullvad sistem hizmetlerine bağlanılıyor...</string>
     <string name="continue_login">Giriş yapmak için devam et</string>
@@ -100,6 +101,8 @@
     <string name="custom_port_dialog_title">WireGuard özel portu</string>
     <string name="custom_port_dialog_valid_ranges">Geçerli aralıklar: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Özel tünel ana bilgisayarı çözülemedi. Ayarlarınızı değiştirmeyi deneyin.</string>
+    <string name="daita_info">%1$s (%2$s), şifrelenmiş VPN trafiğinizdeki kalıpları gizler. Bu sayede, başka biri bağlantınızı izliyorsa ziyaret ettiğiniz web sitelerini tespit etmesi çok daha zor olacaktır. Özellik, dikkatli bir şekilde ağ paraziti ekleyerek ve tüm ağ paketlerini aynı boyuta getirerek sizi izlenmekten korur.</string>
+    <string name="daita_warning">Dikkat: Bu özellik, toplam ağ trafiğinizi artıracağından dolayı sınırlı bir veri planınız varsa dikkatli olun. Bu, ağ hızınızı da olumsuz etkileyebilir. %1$s özelliğini etkinleştirmek istiyorsanız lütfen bu durumu göz önünde bulundurun.</string>
     <string name="delete">Sil</string>
     <string name="delete_custom_list_confirmation_description">\"%1$s\" silinsin mi\"?</string>
     <string name="delete_custom_list_message">\"%1$s\" silindi</string>
@@ -133,6 +136,7 @@
     <string name="edit_method">Yöntemi düzenle</string>
     <string name="edit_name">Adı düzenle</string>
     <string name="enable">Etkinleştir</string>
+    <string name="enable_anyway">Yine de etkinleştir</string>
     <string name="enable_custom_dns">Özel DNS sunucusu kullanın</string>
     <string name="enable_method">Yöntemi etkinleştir</string>
     <string name="enter_value_placeholder">MTU\'yu girin</string>
@@ -288,6 +292,7 @@
     <string name="server_ip_overrides_reset_title">Tüm geçersiz kılmaları sıfırla</string>
     <string name="set_dns_error">Sistem DNS sunucusu ayarlanamıyor. Lütfen bir hata raporu gönderin.</string>
     <string name="set_firewall_policy_error">Güvenlik duvarı kuralları uygulanamıyor. Lütfen sorunu çözmeye çalışın veya bir hata raporu gönderin.</string>
+    <string name="setting_chip">Ayar: %1$s</string>
     <string name="settings">Ayarlar</string>
     <string name="settings_account">Hesap</string>
     <string name="settings_api_access">API erişimi</string>

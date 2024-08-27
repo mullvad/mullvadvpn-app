@@ -74,6 +74,7 @@
     <string name="confirm_removal">はい。デバイスをログアウトさせます</string>
     <string name="congrats">おめでとうございます！</string>
     <string name="connect">接続を保護する</string>
+    <string name="connected_using_daita">%1$s を使用した %2$s</string>
     <string name="connecting">接続中</string>
     <string name="connecting_to_daemon">Mullvad システムサービスに接続中...</string>
     <string name="continue_login">ログインを続ける</string>
@@ -100,6 +101,8 @@
     <string name="custom_port_dialog_title">WireGuardカスタムポート</string>
     <string name="custom_port_dialog_valid_ranges">有効な範囲: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">カスタムトンネルのホストを解決できません。設定を変更してみてください。</string>
+    <string name="daita_info">%1$s (%2$s) を使用すると、暗号化された VPN トラフィックのパターンを隠すことができるようになります。何者かがあなたの接続を監視している場合に、アクセスしているウェブサイトの特定が大幅に難しくなります。ネットワークノイズを慎重に追加し、ネットワークパケットのサイズをすべて同一に揃えることによって実現しています。</string>
+    <string name="daita_warning">注意: これにより、ネットワークトラフィックの総数が増加します。上限のあるデータプランをご利用の場合にはご注意ください。また、ネットワーク　の速度にも悪影響を及ぼす可能性があります。%1$s を有効にする場合は、この点を考慮に入れてください。</string>
     <string name="delete">削除</string>
     <string name="delete_custom_list_confirmation_description">\"%1$s\" を削除しますか？</string>
     <string name="delete_custom_list_message">\"%1$s\" は削除されました</string>
@@ -133,6 +136,7 @@
     <string name="edit_method">方法の編集</string>
     <string name="edit_name">名前を編集</string>
     <string name="enable">有効にする</string>
+    <string name="enable_anyway">それでも有効化する</string>
     <string name="enable_custom_dns">カスタムDNSサーバーを使う</string>
     <string name="enable_method">方法を有効化する</string>
     <string name="enter_value_placeholder">MTU を入力</string>
@@ -288,6 +292,7 @@
     <string name="server_ip_overrides_reset_title">すべてのオーバーライドをリセット</string>
     <string name="set_dns_error">システムのDNSサーバーを設定できません。問題の報告を送信してください。</string>
     <string name="set_firewall_policy_error">ファイアウォールのルールを適用できません。問題に対処するか、問題の報告を送信してください。</string>
+    <string name="setting_chip">設定: %1$s</string>
     <string name="settings">設定</string>
     <string name="settings_account">アカウント</string>
     <string name="settings_api_access">APIアクセス</string>

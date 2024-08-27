@@ -74,6 +74,7 @@
     <string name="confirm_removal">Ja, log enhed af</string>
     <string name="congrats">Tillykke!</string>
     <string name="connect">Gør min forbindelse sikker</string>
+    <string name="connected_using_daita">%1$s via %2$s</string>
     <string name="connecting">Tilslutter</string>
     <string name="connecting_to_daemon">Opretter forbindelse til Mullvad-systemtjeneste...</string>
     <string name="continue_login">Fortsæt med login</string>
@@ -100,6 +101,8 @@
     <string name="custom_port_dialog_title">Brugerdefineret WireGuard-port</string>
     <string name="custom_port_dialog_valid_ranges">Gyldige områder: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Kunne ikke fortolke værten for den tilpassede tunnel. Prøv at ændre dine indstillinger.</string>
+    <string name="daita_info">%1$s (%2$s) skjuler mønstre i din krypterede VPN-trafik. Hvis nogen overvåger din forbindelse, gør dette det betydeligt sværere for dem at identificere, hvilke websteder du besøger. Mønstrene skjules ved omhyggeligt at tilføje netværksstøj og gøre alle netværkspakker lige store.</string>
+    <string name="daita_warning">Bemærk: Da dette øger din samlede netværkstrafik, skal du være forsigtig, hvis du har et abonnement med begrænset datamængde. Det kan også påvirke din netværkshastighed negativt. Overvej dette, hvis du vil aktivere %1$s.</string>
     <string name="delete">Slet</string>
     <string name="delete_custom_list_confirmation_description">Vil du slette \"%1$s\"?</string>
     <string name="delete_custom_list_message">\"%1$s\" blev slettet</string>
@@ -133,6 +136,7 @@
     <string name="edit_method">Rediger metode</string>
     <string name="edit_name">Rediger navn</string>
     <string name="enable">Aktiver</string>
+    <string name="enable_anyway">Aktivér alligevel</string>
     <string name="enable_custom_dns">Brug brugerdefineret DNS-server</string>
     <string name="enable_method">Aktiver metode</string>
     <string name="enter_value_placeholder">Indtast MTU</string>
@@ -288,6 +292,7 @@
     <string name="server_ip_overrides_reset_title">Nulstil alle tilsidesættelser</string>
     <string name="set_dns_error">Kan ikke indstille systemets DNS-server. Indsend en problemrapport.</string>
     <string name="set_firewall_policy_error">Kan ikke anvende firewallregler. Fejlfind eller send en problemrapport.</string>
+    <string name="setting_chip">Indstilling: %1$s</string>
     <string name="settings">Indstillinger</string>
     <string name="settings_account">Konto</string>
     <string name="settings_api_access">API-adgang</string>

@@ -74,6 +74,7 @@
     <string name="confirm_removal">是，將裝置登出</string>
     <string name="congrats">恭喜！</string>
     <string name="connect">保護我的連線</string>
+    <string name="connected_using_daita">%1$s，使用 %2$s</string>
     <string name="connecting">正在連線</string>
     <string name="connecting_to_daemon">連線 Mullvad 系統服務中...</string>
     <string name="continue_login">繼續登入</string>
@@ -100,6 +101,8 @@
     <string name="custom_port_dialog_title">WireGuard 自訂連接埠</string>
     <string name="custom_port_dialog_valid_ranges">有效範圍：%1$s</string>
     <string name="custom_tunnel_host_resolution_error">無法解析自訂通道的主機。請嘗試變更您的設定。</string>
+    <string name="daita_info">%1$s (%2$s) 會在您的加密 VPN 流量中隱藏模式。如果有人正在監視您的連線，這能讓他們難以識別出您正在存取的網站。此實現方式係謹慎加入網路噪音，並使所有網路資料包大小皆相同。</string>
+    <string name="daita_warning">注意：這會增加您的網路總流量。如果您方案中的流量有限，請謹慎使用。這還會對您的網路速度產生負面影響。如果要啟用 %1$s，請考慮到這一點。</string>
     <string name="delete">刪除</string>
     <string name="delete_custom_list_confirmation_description">要刪除「%1$s」嗎？</string>
     <string name="delete_custom_list_message">「%1$s」已刪除</string>
@@ -133,6 +136,7 @@
     <string name="edit_method">編輯方式</string>
     <string name="edit_name">編輯名稱</string>
     <string name="enable">啟用</string>
+    <string name="enable_anyway">仍然啟用</string>
     <string name="enable_custom_dns">使用自訂 DNS 伺服器</string>
     <string name="enable_method">啟用方式</string>
     <string name="enter_value_placeholder">輸入 MTU</string>
@@ -288,6 +292,7 @@
     <string name="server_ip_overrides_reset_title">重設所有覆寫設定</string>
     <string name="set_dns_error">無法設定系統 DNS 伺服器。請傳送問題回報。</string>
     <string name="set_firewall_policy_error">無法套用防火牆規則。請排除故障或傳送問題回報。</string>
+    <string name="setting_chip">設定：%1$s</string>
     <string name="settings">設定</string>
     <string name="settings_account">帳戶</string>
     <string name="settings_api_access">API 存取</string>

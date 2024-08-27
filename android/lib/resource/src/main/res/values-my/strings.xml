@@ -74,6 +74,7 @@
     <string name="confirm_removal">စက်မှ ထွက်မည်</string>
     <string name="congrats">ဝမ်းသာပါတယ်။</string>
     <string name="connect">ကျွန်ုပ်၏ ချိတ်ဆက်မှုကို ကာကွယ်ရန်</string>
+    <string name="connected_using_daita">%1$s သည် %2$s ကို သုံးနေပါသည်</string>
     <string name="connecting">ချိတ်ဆက်နေဆဲ</string>
     <string name="connecting_to_daemon">Mullvad စနစ် ဝန်ဆောင်မှုနှင့် ချိတ်ဆက်နေဆဲ...</string>
     <string name="continue_login">ဆက်လက် ဝင်ရောက်ရန်</string>
@@ -100,6 +101,8 @@
     <string name="custom_port_dialog_title">စိတ်ကြိုက် WireGuard ပေါ့တ်</string>
     <string name="custom_port_dialog_valid_ranges">အကျုံးဝင်သည့် အပိုင်းအခြား- %1$s</string>
     <string name="custom_tunnel_host_resolution_error">စိတ်ကြိုက်ပြုလုပ်ထားသည့် Tunnel ၏ Host ကို ဖြေရှင်း၍ မရနိုင်ပါ။ သင့်ဆက်တင်ကို ပြောင်းကြည့်ပါ။</string>
+    <string name="daita_info">%1$s (%2$s) သည် သင်၏ ကုဒ်ပြောင်းဝှက်ထားသော VPN ကူးလူးမှုတွင် ပက်တန်များကို ဝှက်ထားပါသည်။ သင့်ချိတ်ဆက်မှုကို တစ်စုံတစ်ယောက်က စောင့်ကြည့်နေပါက မည်သည့်ဝက်ဘ်ဆိုက်များ သင်ဝင်ရောက်နေသည်ကို ၎င်းတို့က ခွဲခြားဖော်ထုတ်ဖို့ရာ ပို၍ သိသိသာသာ ခက်ခဲသွားအောင် ၎င်းက ပြုလုပ်ပေးပါသည်။ ကွန်ရက် အနှောင့်အယှက်လျှပ်လိုင်းကို ဂရုတစိုက် ထည့်ပြီး ကွန်ရက် ပက်ကက်အားလုံးကို အရွယ်အစားတူညီအောင် ပြုလုပ်ခြင်းဖြင့် ပို၍ခက်ခဲသွားအောင် ဆောင်ရွက်ပါသည်။</string>
+    <string name="daita_warning">သတိပြုရန်- ဤသည်က သင့်ကွန်ရန်ကူးလူးမှု စုစုပေါင်းပမာဏကို တိုးစေသောကြောင့် ဒေတာပလန်သည် အကန့်အသတ်ရှိပါက သတိထားဆောင်ရွက်ပါ။ သင့်ကွန်ရက်အမြန်နှုန်းကိုလည်း အပျက်သဘောထိခိုက်စေနိုင်ပါသည်။ %1$s ကို ဖွင့်လိုပါက ဤသည်ကို ထည့်သွင်းစဉ်းစားပေးပါ။</string>
     <string name="delete">ဖျက်ရန်</string>
     <string name="delete_custom_list_confirmation_description">\"%1$s\" ကို ဖျက်မည်လား။</string>
     <string name="delete_custom_list_message">\"%1$s\" ကို ဖျက်ပြီးပါပြီ</string>
@@ -133,6 +136,7 @@
     <string name="edit_method">နည်းလမ်းကို တည်းဖြတ်ပါ</string>
     <string name="edit_name">အမည် တည်းဖြတ်ရန်</string>
     <string name="enable">ဖွင့်ရန်</string>
+    <string name="enable_anyway">မည်သို့ပင်ဖြစ်စေ ဖွင့်ရန်</string>
     <string name="enable_custom_dns">စိတ်ကြိုက် DNS ဆာဗာကို သုံးရန်</string>
     <string name="enable_method">နည်းလမ်းကို ဖွင့်ရန်</string>
     <string name="enter_value_placeholder">MTU ကို ရိုက်ထည့်ရန်</string>
@@ -288,6 +292,7 @@
     <string name="server_ip_overrides_reset_title">ကျော်လွန် ပယ်ဖျက်မှု အားလုံးကို ပြန်လည်သတ်မှတ်ရန်</string>
     <string name="set_dns_error">စနစ် DNS ဆာဗာကို သတ်မှတ်၍ မရနိုင်ပါ။ ပြဿနာ ရီပို့တ်တစ်ခု ပေးပို့ပေးပါ။</string>
     <string name="set_firewall_policy_error">Firewall စည်းမျဉ်းများကို အသုံးချ၍ မရနိုင်ပါ။ ပြစ်ချက် ရှာဖွေဖယ်ရှာပေးပါ သို့မဟုတ် ပြဿနာ ရီပို့တ် ပေးပို့ပေးပါ။</string>
+    <string name="setting_chip">ဆက်တင်- %1$s</string>
     <string name="settings">ဆက်တင်</string>
     <string name="settings_account">အကောင့်</string>
     <string name="settings_api_access">API ရယူသုံးစွဲခွင့်</string>

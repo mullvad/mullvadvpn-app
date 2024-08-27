@@ -74,6 +74,7 @@
     <string name="confirm_removal">Ja, von Gerät abmelden</string>
     <string name="congrats">Glückwunsch!</string>
     <string name="connect">Meine Verbindung sichern</string>
+    <string name="connected_using_daita">%1$s verwendet %2$s</string>
     <string name="connecting">Verbinden</string>
     <string name="connecting_to_daemon">Verbindung zum Mullvad-Systemdienst wird hergestellt...</string>
     <string name="continue_login">Weiter mit Anmeldung</string>
@@ -100,6 +101,8 @@
     <string name="custom_port_dialog_title">Eigener WireGuard-Port</string>
     <string name="custom_port_dialog_valid_ranges">Gültige Bereiche: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Der Host des benutzerdefinierten Tunnels konnte nicht aufgelöst werden. Versuchen Sie, Ihre Einstellungen zu ändern.</string>
+    <string name="daita_info">%1$s (%2$s) verbirgt Muster in Ihrem verschlüsselten VPN-Traffic. Wenn jemand Ihre Verbindung überwacht, ist es für ihn wesentlich schwieriger zu erkennen, welche Websites Sie besuchen. Dazu fügt es vorsichtig Netzwerkrauschen hinzu und sorgt dafür, dass alle Netzwerkpakete die gleiche Größe haben.</string>
+    <string name="daita_warning">Achtung! Da dies Ihren gesamten Netzwerktraffic erhöht, sollten Sie vorsichtig sein, wenn Sie einen begrenzten Datentarif haben. Außerdem kann sich dies negativ auf Ihre Netzwerkgeschwindigkeit auswirken. Bitte beachten Sie dies, wenn Sie %1$s aktivieren möchten.</string>
     <string name="delete">Löschen</string>
     <string name="delete_custom_list_confirmation_description">„%1$s“ löschen?</string>
     <string name="delete_custom_list_message">„%1$s“ wurde gelöscht</string>
@@ -133,6 +136,7 @@
     <string name="edit_method">Methode bearbeiten</string>
     <string name="edit_name">Name bearbeiten</string>
     <string name="enable">Aktivieren</string>
+    <string name="enable_anyway">Trotzdem aktivieren</string>
     <string name="enable_custom_dns">Benutzerdefinierten DNS-Server verwenden</string>
     <string name="enable_method">Methode aktivieren</string>
     <string name="enter_value_placeholder">MTU eingeben</string>
@@ -288,6 +292,7 @@
     <string name="server_ip_overrides_reset_title">Alle Überschreibungen zurücksetzen</string>
     <string name="set_dns_error">Der DNS-Server des Systems konnte nicht eingestellt werden. Bitte senden Sie einen Problembericht.</string>
     <string name="set_firewall_policy_error">Firewall-Regeln können nicht angewendet werden. Bitte beheben Sie das Problem oder senden Sie einen Problembericht.</string>
+    <string name="setting_chip">Einstellung: %1$s</string>
     <string name="settings">Einstellungen</string>
     <string name="settings_account">Konto</string>
     <string name="settings_api_access">API-Zugriff</string>
