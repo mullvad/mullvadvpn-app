@@ -14,10 +14,7 @@ use talpid_types::net::{
 };
 
 use mullvad_relay_selector::{
-    query::{
-        builder::RelayQueryBuilder, BridgeQuery, ObfuscationQuery, OpenVpnRelayQuery,
-        WireguardRelayQuery,
-    },
+    query::{builder::RelayQueryBuilder, BridgeQuery, ObfuscationQuery, OpenVpnRelayQuery},
     Error, GetRelay, RelaySelector, RuntimeParameters, SelectedObfuscator, SelectorConfig,
     WireguardConfig, RETRY_ORDER,
 };
@@ -25,8 +22,8 @@ use mullvad_types::{
     constraints::Constraint,
     endpoint::MullvadEndpoint,
     relay_constraints::{
-        BridgeConstraints, BridgeState, GeographicLocationConstraint, LocationConstraint,
-        Ownership, Providers, RelayOverride, TransportPort,
+        BridgeConstraints, BridgeState, GeographicLocationConstraint, Ownership, Providers,
+        RelayOverride, TransportPort,
     },
     relay_list::{
         BridgeEndpointData, OpenVpnEndpoint, OpenVpnEndpointData, Relay, RelayEndpointData,
@@ -778,13 +775,8 @@ fn test_selecting_any_relay_will_consider_multihop() {
 fn test_selecting_wireguard_over_shadowsocks() {
     let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
 
-    let mut query = RelayQueryBuilder::new().wireguard().shadowsocks().build();
-    query
-        .set_wireguard_constraints(WireguardRelayQuery {
-            use_multihop: Constraint::Only(false),
-            ..query.wireguard_constraints().clone()
-        })
-        .unwrap();
+    let query = RelayQueryBuilder::new().wireguard().shadowsocks().build();
+    assert!(!query.wireguard_constraints().multihop());
 
     let relay = relay_selector.get_relay_by_query(query).unwrap();
     match relay {
@@ -809,18 +801,12 @@ fn test_selecting_wireguard_over_shadowsocks() {
 fn test_selecting_wireguard_over_shadowsocks_extra_ips() {
     let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
 
-    let mut query = RelayQueryBuilder::new().wireguard().shadowsocks().build();
-    query
-        .set_wireguard_constraints(WireguardRelayQuery {
-            use_multihop: Constraint::Only(false),
-            ..query.wireguard_constraints().clone()
-        })
-        .unwrap();
-    query
-        .set_location(Constraint::Only(LocationConstraint::Location(
-            SHADOWSOCKS_RELAY_LOCATION.clone(),
-        )))
-        .unwrap();
+    let query = RelayQueryBuilder::new()
+        .location(SHADOWSOCKS_RELAY_LOCATION.clone())
+        .wireguard()
+        .shadowsocks()
+        .build();
+    assert!(!query.wireguard_constraints().multihop());
 
     let relay = relay_selector.get_relay_by_query(query).unwrap();
     match relay {
@@ -858,19 +844,13 @@ fn test_selecting_wireguard_ignore_extra_ips_override_v4() {
 
     let relay_selector = RelaySelector::from_list(config, RELAYS.clone());
 
-    let mut query_v4 = RelayQueryBuilder::new().wireguard().shadowsocks().build();
-    query_v4
-        .set_location(Constraint::Only(LocationConstraint::Location(
-            SHADOWSOCKS_RELAY_LOCATION.clone(),
-        )))
-        .unwrap();
-    query_v4
-        .set_wireguard_constraints(WireguardRelayQuery {
-            use_multihop: Constraint::Only(false),
-            ip_version: Constraint::Only(IpVersion::V4),
-            ..query_v4.wireguard_constraints().clone()
-        })
-        .unwrap();
+    let query_v4 = RelayQueryBuilder::new()
+        .location(SHADOWSOCKS_RELAY_LOCATION.clone())
+        .wireguard()
+        .ip_version(IpVersion::V4)
+        .shadowsocks()
+        .build();
+    assert!(!query_v4.wireguard_constraints().multihop());
 
     let relay = relay_selector.get_relay_by_query(query_v4).unwrap();
     match relay {
@@ -908,19 +888,13 @@ fn test_selecting_wireguard_ignore_extra_ips_override_v6() {
 
     let relay_selector = RelaySelector::from_list(config, RELAYS.clone());
 
-    let mut query_v6 = RelayQueryBuilder::new().wireguard().shadowsocks().build();
-    query_v6
-        .set_location(Constraint::Only(LocationConstraint::Location(
-            SHADOWSOCKS_RELAY_LOCATION.clone(),
-        )))
-        .unwrap();
-    query_v6
-        .set_wireguard_constraints(WireguardRelayQuery {
-            use_multihop: Constraint::Only(false),
-            ip_version: Constraint::Only(IpVersion::V6),
-            ..query_v6.wireguard_constraints().clone()
-        })
-        .unwrap();
+    let query_v6 = RelayQueryBuilder::new()
+        .location(SHADOWSOCKS_RELAY_LOCATION.clone())
+        .wireguard()
+        .ip_version(IpVersion::V6)
+        .shadowsocks()
+        .build();
+    assert!(!query_v6.wireguard_constraints().multihop());
 
     let relay = relay_selector.get_relay_by_query(query_v6).unwrap();
     match relay {
@@ -945,13 +919,8 @@ fn test_selecting_wireguard_ignore_extra_ips_override_v6() {
 #[test]
 fn test_selecting_wireguard_endpoint_with_udp2tcp_obfuscation() {
     let relay_selector = default_relay_selector();
-    let mut query = RelayQueryBuilder::new().wireguard().udp2tcp().build();
-    query
-        .set_wireguard_constraints(WireguardRelayQuery {
-            use_multihop: Constraint::Only(false),
-            ..query.wireguard_constraints().clone()
-        })
-        .unwrap();
+    let query = RelayQueryBuilder::new().wireguard().udp2tcp().build();
+    assert!(!query.wireguard_constraints().multihop());
 
     let relay = relay_selector.get_relay_by_query(query).unwrap();
     match relay {
@@ -980,13 +949,11 @@ fn test_selecting_wireguard_endpoint_with_udp2tcp_obfuscation() {
 fn test_selecting_wireguard_endpoint_with_auto_obfuscation() {
     let relay_selector = default_relay_selector();
 
-    let mut query = RelayQueryBuilder::new().wireguard().build();
-    query
-        .set_wireguard_constraints(WireguardRelayQuery {
-            obfuscation: ObfuscationQuery::Auto,
-            ..query.wireguard_constraints().clone()
-        })
-        .unwrap();
+    let query = RelayQueryBuilder::new().wireguard().build();
+    assert_eq!(
+        query.wireguard_constraints().obfuscation,
+        ObfuscationQuery::Auto
+    );
 
     for _ in 0..100 {
         let relay = relay_selector.get_relay_by_query(query.clone()).unwrap();
