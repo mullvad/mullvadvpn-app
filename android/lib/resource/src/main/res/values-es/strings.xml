@@ -74,6 +74,7 @@
     <string name="confirm_removal">Sí, cerrar sesión</string>
     <string name="congrats">¡Enhorabuena!</string>
     <string name="connect">Proteger mi conexión</string>
+    <string name="connected_using_daita">%1$s utilizando %2$s</string>
     <string name="connecting">Conectando</string>
     <string name="connecting_to_daemon">Conectando al servicio del sistema Mullvad…</string>
     <string name="continue_login">Iniciar sesión</string>
@@ -100,6 +101,8 @@
     <string name="custom_port_dialog_title">Puerto personalizado de WireGuard</string>
     <string name="custom_port_dialog_valid_ranges">Intervalos válidos: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">No se puede resolver el host del túnel personalizado. Pruebe a cambiar la configuración.</string>
+    <string name="daita_info">%1$s (%2$s) oculta los patrones en su tráfico VPN cifrado. Si alguien supervisa su conexión, esto les dificulta notablemente identificar qué sitios web está visitando. Lo realiza añadiendo con cuidado ruido de red y haciendo que todos los paquetes de red tengan el mismo tamaño.</string>
+    <string name="daita_warning">Atención: Como esto aumenta su tráfico de red total, tenga cuidado si dispone de un plan de datos limitados. Además, puede afectar negativamente a su velocidad de red. Considere todo esto si quiere habilitar %1$s.</string>
     <string name="delete">Eliminar</string>
     <string name="delete_custom_list_confirmation_description">¿Eliminar «%1$s»?</string>
     <string name="delete_custom_list_message">Se ha eliminado «%1$s»</string>
@@ -133,6 +136,7 @@
     <string name="edit_method">Editar método</string>
     <string name="edit_name">Editar nombre</string>
     <string name="enable">Habilitar</string>
+    <string name="enable_anyway">Habilitar de todos modos</string>
     <string name="enable_custom_dns">Usar servidor DNS personalizado</string>
     <string name="enable_method">Habilitar método</string>
     <string name="enter_value_placeholder">Introducir MTU</string>
@@ -288,6 +292,7 @@
     <string name="server_ip_overrides_reset_title">Restablecer todas las anulaciones</string>
     <string name="set_dns_error">No se puede configurar el servidor DNS del sistema. Envíe un informe de problemas.</string>
     <string name="set_firewall_policy_error">No se pueden aplicar las reglas del firewall. Intente solucionar el problema o envíe un informe de problemas.</string>
+    <string name="setting_chip">Ajuste: %1$s</string>
     <string name="settings">Configuración</string>
     <string name="settings_account">Cuenta</string>
     <string name="settings_api_access">Acceso a API</string>
