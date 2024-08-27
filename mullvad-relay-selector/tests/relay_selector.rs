@@ -187,10 +187,10 @@ static RELAYS: LazyLock<RelayList> = LazyLock::new(|| RelayList {
     },
 });
 
-static DAITA_RELAY_LOCATION: Lazy<GeographicLocationConstraint> =
-    Lazy::new(|| GeographicLocationConstraint::hostname("se", "got", "se9-wireguard"));
-static NON_DAITA_RELAY_LOCATION: Lazy<GeographicLocationConstraint> =
-    Lazy::new(|| GeographicLocationConstraint::hostname("se", "got", "se10-wireguard"));
+static DAITA_RELAY_LOCATION: LazyLock<GeographicLocationConstraint> =
+    LazyLock::new(|| GeographicLocationConstraint::hostname("se", "got", "se9-wireguard"));
+static NON_DAITA_RELAY_LOCATION: LazyLock<GeographicLocationConstraint> =
+    LazyLock::new(|| GeographicLocationConstraint::hostname("se", "got", "se10-wireguard"));
 
 /// A Shadowsocks relay with additional addresses
 static SHADOWSOCKS_RELAY: LazyLock<Relay> = LazyLock::new(|| Relay {
