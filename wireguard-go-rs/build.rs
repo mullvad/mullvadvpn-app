@@ -1,4 +1,10 @@
-use std::{borrow::BorrowMut, env, path::PathBuf, process::Command, str};
+use std::{
+    borrow::BorrowMut,
+    env,
+    path::{Path, PathBuf},
+    process::Command,
+    str,
+};
 
 use anyhow::{anyhow, bail, Context};
 
@@ -14,7 +20,7 @@ fn main() -> anyhow::Result<()> {
     match target_os.as_str() {
         "linux" => build_static_lib(Os::Linux, true)?,
         "macos" => build_static_lib(Os::MacOs, true)?,
-        "android" => build_android_dynamic_lib()?,
+        "android" => build_android_dynamic_lib(false)?,
         // building wireguard-go-rs for windows is not implemented
         _ => {}
     }
@@ -32,6 +38,27 @@ enum Os {
 enum Arch {
     Amd64,
     Arm64,
+}
+
+#[derive(PartialEq, Eq, Clone, Copy)]
+enum AndroidTarget {
+    Aarch64, // "aarch64"
+    X86,     // "x86_64"
+    Armv7,   // "armv7"
+    I686,    // "i686"
+}
+
+impl AndroidTarget {
+    fn from_str(input: &str) -> anyhow::Result<Self> {
+        use AndroidTarget::*;
+        match input {
+            "aarch64-linux-android" => Ok(Aarch64),
+            "x86_64-linux-android" => Ok(X86),
+            "armv7-linux-androideabi" => Ok(Armv7),
+            "i686-linux-android" => Ok(I686),
+            _ => bail!("{input} is not a support android target!"),
+        }
+    }
 }
 
 fn host_os() -> anyhow::Result<Os> {
@@ -134,26 +161,119 @@ fn build_static_lib(target_os: Os, daita: bool) -> anyhow::Result<()> {
     Ok(())
 }
 
-/// Compile libwg as a dynamic library for android and place it in `../build/lib/$TARGET`.
+/// Compile libwg as a dynamic library for android and place it in `OUT_DIR`.
 // NOTE: We use dynamic linking as Go cannot produce static binaries specifically for Android.
-fn build_android_dynamic_lib() -> anyhow::Result<()> {
-    let target_triplet = env::var("TARGET").context("TARGET is not set")?;
+fn build_android_dynamic_lib(daita: bool) -> anyhow::Result<()> {
+    let out_dir = env::var("OUT_DIR").context("Missing OUT_DIR")?;
+    let target_triple = env::var("TARGET").context("Missing 'TARGET'")?;
+    let target = AndroidTarget::from_str(&target_triple)?;
 
-    exec(Command::new("./libwg/build-android.sh"))?;
+    // TODO: Since `libwg.so` is always copied to `android_output_path`, this rerun-directive will
+    // always trigger cargo to rebuild this crate. Some mechanism to detected changes to `android_output_path`
+    // is needed, because some external program may clean it at any time (e.g. gradle).
+    println!(
+        "cargo::rerun-if-changed={}",
+        android_output_path(target)?.display()
+    );
 
-    // Tell linker to check `base`/$TARGET for the dynamic library.
-    let lib_dir = manifest_dir()?.join("../build/lib").join(target_triplet);
-    println!("cargo::rustc-link-search={}", lib_dir.display());
+    // Before calling `canonicalize`, the directory we're referring to actually has to exist.
+    std::fs::create_dir_all("../build")?;
+    let tmp_build_dir = Path::new("../build").canonicalize()?;
+    let go_path = tmp_build_dir.join("android-go-path");
+    // Invoke the Makefile in wireguard-go-rs/libwg
+    let mut build_command = Command::new("make");
+    build_command
+        .args(["-C", "./libwg"])
+        .args(["-f", "Android.mk"]);
+    // Set up the correct Android toolchain for building libwg
+    build_command
+        .env("ANDROID_C_COMPILER", android_c_compiler(target)?)
+        .env("ANDROID_ABI", android_abi(target))
+        .env("ANDROID_ARCH_NAME", android_arch_name(target))
+        .env("GOPATH", &go_path)
+        // Note: -w -s results in a stripped binary
+        .env("LDFLAGS", format!("-L{out_dir} -w -s"));
+
+    exec(build_command)?;
+
+    // Move the resulting binary to the path where the Android project expects it to be
+    let binary = Path::new(&out_dir).join("libwg.so");
+    let android_output_path = android_output_path(target)?;
+    let output = android_output_path.join("libwg.so");
+    android_move_binary(&binary, &output)?;
+
+    // Tell linker to check android_output_path for the dynamic library.
+    println!("cargo::rustc-link-search={}", android_output_path.display());
     println!("cargo::rustc-link-lib=dylib=wg");
+
+    // If daita is enabled, also enable the corresponding rust feature flag
+    if daita {
+        println!(r#"cargo::rustc-cfg=daita"#);
+    }
 
     Ok(())
 }
 
-/// Get the directory containing `Cargo.toml`
-fn manifest_dir() -> anyhow::Result<PathBuf> {
-    env::var("CARGO_MANIFEST_DIR")
-        .map(PathBuf::from)
-        .context("CARGO_MANIFEST_DIR env var not set")
+/// Copy `binary` to `output`.
+///
+/// Note: This function will create the parent directory/directories to `output` if necessary.
+fn android_move_binary(binary: &Path, output: &Path) -> anyhow::Result<()> {
+    // Create the directory with RWX permissions for all users so that the build server can clean
+    // the directories afterwards.
+    let parent_of_output = output.parent().context(format!(
+        "Could not find parent directory of {}",
+        output.display()
+    ))?;
+    std::fs::create_dir_all(parent_of_output)?;
+
+    let mut move_command = Command::new("mv");
+    move_command
+        .arg(binary.to_str().unwrap())
+        .arg(output.to_str().unwrap());
+
+    exec(&mut move_command)?;
+
+    Ok(())
+}
+
+fn android_c_compiler(target: AndroidTarget) -> anyhow::Result<PathBuf> {
+    let toolchain = env::var("NDK_TOOLCHAIN_DIR").context("Missing 'NDK_TOOLCHAIN_DIR")?;
+    let ccompiler = match target {
+        AndroidTarget::Aarch64 => "aarch64-linux-android26-clang",
+        AndroidTarget::X86 => "x86_64-linux-android26-clang",
+        AndroidTarget::Armv7 => "armv7a-linux-androideabi26-clang",
+        AndroidTarget::I686 => "i686-linux-android26-clang",
+    };
+    let compiler = Path::new(&toolchain).join(ccompiler);
+    Ok(compiler)
+}
+
+fn android_abi(target: AndroidTarget) -> String {
+    match target {
+        AndroidTarget::Aarch64 => "arm64-v8a",
+        AndroidTarget::X86 => "x86_64",
+        AndroidTarget::Armv7 => "armeabi-v7a",
+        AndroidTarget::I686 => "x86",
+    }
+    .to_string()
+}
+
+fn android_arch_name(target: AndroidTarget) -> String {
+    match target {
+        AndroidTarget::Aarch64 => "arm64",
+        AndroidTarget::X86 => "x86_64",
+        AndroidTarget::Armv7 => "arm",
+        AndroidTarget::I686 => "x86",
+    }
+    .to_string()
+}
+
+// Returns the path where the Android project expects Rust binaries to be
+fn android_output_path(target: AndroidTarget) -> anyhow::Result<PathBuf> {
+    let relative_output_path = Path::new("../android/app/build/extraJni").join(android_abi(target));
+    std::fs::create_dir_all(relative_output_path.clone())?;
+    let output_path = relative_output_path.canonicalize()?;
+    Ok(output_path)
 }
 
 /// Execute a command, assert that it succeeds, and return stdout as a string.
