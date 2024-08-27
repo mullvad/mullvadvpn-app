@@ -74,6 +74,7 @@
     <string name="confirm_removal">Ja, logga ut enheten</string>
     <string name="congrats">Grattis!</string>
     <string name="connect">Skydda min anslutning</string>
+    <string name="connected_using_daita">%1$s använder %2$s</string>
     <string name="connecting">Ansluter</string>
     <string name="connecting_to_daemon">Ansluter till Mullvads systemtjänst...</string>
     <string name="continue_login">Fortsätt med inloggning</string>
@@ -100,6 +101,8 @@
     <string name="custom_port_dialog_title">Anpassad WireGuard-port</string>
     <string name="custom_port_dialog_valid_ranges">Giltiga intervall: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Det går inte att lösa värd för anpassad tunnel. Försök att ändra inställningarna.</string>
+    <string name="daita_info">%1$s (%2$s) döljer mönster i din krypterade VPN-trafik. Om någon övervakar din anslutning blir det mycket svårare för hen att identifiera vilka webbplatser du besöker. Den gör det genom att noggrant lägga till nätverksbrus och se till så att alla nätverkspaket har samma storlek.</string>
+    <string name="daita_warning">Obs! Detta ger dig högre total nätverkstrafik så var försiktig på om du har ett abonnemang med begränsad mängd data. Det kan även ha en negativ påverkan på din nätverkshastighet. Tänk på det när du aktiverar %1$s.</string>
     <string name="delete">Ta bort</string>
     <string name="delete_custom_list_confirmation_description">Ta bort \"%1$s\"?</string>
     <string name="delete_custom_list_message">\"%1$s\" har tagits bort</string>
@@ -133,6 +136,7 @@
     <string name="edit_method">Redigera metod</string>
     <string name="edit_name">Redigera namn</string>
     <string name="enable">Aktivera</string>
+    <string name="enable_anyway">Aktivera ändå</string>
     <string name="enable_custom_dns">Använd anpassad DNS-server</string>
     <string name="enable_method">Aktivera metod</string>
     <string name="enter_value_placeholder">Ange MTU</string>
@@ -288,6 +292,7 @@
     <string name="server_ip_overrides_reset_title">Återställ alla åsidosättningar</string>
     <string name="set_dns_error">Det går inte att konfigurera DNS-server. Skicka en problemrapport.</string>
     <string name="set_firewall_policy_error">Det går inte att tillämpa brandväggsregler. Felsök eller skicka en problemrapport.</string>
+    <string name="setting_chip">Inställning: %1$s</string>
     <string name="settings">Inställningar</string>
     <string name="settings_account">Konto</string>
     <string name="settings_api_access">API-åtkomst</string>
