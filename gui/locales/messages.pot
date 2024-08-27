@@ -2163,6 +2163,9 @@ msgstr ""
 msgid "%s (added)"
 msgstr ""
 
+msgid "%s using %s"
+msgstr ""
+
 msgid "%s was added to \"%s\""
 msgstr ""
 
