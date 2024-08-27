@@ -76,13 +76,20 @@ class PacketCaptureClient {
 }
 
 @Serializable
+enum class NetworkTransportProtocol(val value: String) {
+    @SerialName("tcp") TCP("tcp"),
+    @SerialName("udp") UDP("udp"),
+    @SerialName("icmp") ICMP("icmp")
+}
+
+@Serializable
 data class Stream(
     @SerialName("peer_addr") val sourceAddress: String,
     @SerialName("other_addr") val destinationAddress: String,
     @SerialName("flow_id") val flowId: String?,
-    @SerialName("transport_protocol") val transport_protocol: String,
+    @SerialName("transport_protocol") val transportProtocol: NetworkTransportProtocol,
     val packets: List<Packet>
 ) {}
 
 @Serializable
-data class Packet(@SerialName("from_peer") val from_peer: String, val timestamp: String) {}
+data class Packet(@SerialName("from_peer") val fromPeer: String, val timestamp: String) {}
