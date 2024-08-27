@@ -31,7 +31,7 @@ Line wrap the file at 100 chars.                                              Th
 - Add experimental support for Windows ARM64.
 
 ### Changed
-- OpenVPN is never used as a fallback protocol when any of the following features is enabled:
+- Never use OpenVPN as a fallback protocol when any of the following features is enabled:
   multihop, quantum-resistant tunnels, or DAITA.
 
 ### Fixed
