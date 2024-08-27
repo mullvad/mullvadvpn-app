@@ -16,6 +16,8 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
+import java.util.Date
+import kotlinx.serialization.Contextual
 
 data class PacketCaptureSession(val identifier: String = UUID.randomUUID().toString())
 
@@ -88,8 +90,36 @@ data class Stream(
     @SerialName("other_addr") val destinationAddress: String,
     @SerialName("flow_id") val flowId: String?,
     @SerialName("transport_protocol") val transportProtocol: NetworkTransportProtocol,
-    val packets: List<Packet>
-) {}
+    val packets: List<Packet> = emptyList()
+) {
+    @Contextual lateinit var startDate: Date
+    @Contextual lateinit var endDate: Date
+
+    @Contextual var txStartDate: Date? = null
+    @Contextual var txEndDate: Date? = null
+
+    @Contextual var rxStartDate: Date? = null
+    @Contextual var rxEndDate: Date? = null
+
+    init {
+            startDate = packets.first().date
+            endDate = packets.last().date
+
+            val txPackets = packets.filter { it.fromPeer == true }
+            if (txPackets.isNotEmpty()) {
+                txStartDate = txPackets.first().date
+                txEndDate = txPackets.last().date
+            }
+
+            val rxPackets = packets.filter { it.fromPeer == false }
+            if (rxPackets.isNotEmpty()) {
+                rxStartDate = rxPackets.first().date
+                rxEndDate = rxPackets.last().date
+            }
+    }
+}
 
 @Serializable
-data class Packet(@SerialName("from_peer") val fromPeer: String, val timestamp: String) {}
+data class Packet(@SerialName("from_peer") val fromPeer: Boolean, val timestamp: String) {
+    @Contextual val date = Date(timestamp.toLong())
+}
