@@ -1381,7 +1381,7 @@ fn test_daita_any_tunnel_protocol() {
     let mut query = RelayQueryBuilder::new().wireguard().daita().build();
     query
         .set_tunnel_protocol(Constraint::Any)
-        .expect("expected query to be invalid for any tunnel protocol");
+        .expect("expected query to be valid for any tunnel protocol");
 
     let relay = relay_selector.get_relay_by_query(query);
 
@@ -1399,7 +1399,7 @@ fn test_multihop_any_tunnel_protocol() {
     let mut query = RelayQueryBuilder::new().wireguard().multihop().build();
     query
         .set_tunnel_protocol(Constraint::Any)
-        .expect("expected query to be invalid for any tunnel protocol");
+        .expect("expected query to be valid for any tunnel protocol");
 
     let relay = relay_selector.get_relay_by_query(query);
 
@@ -1420,7 +1420,7 @@ fn test_quantum_resistant_any_tunnel_protocol() {
         .build();
     query
         .set_tunnel_protocol(Constraint::Any)
-        .expect("expected query to be invalid for any tunnel protocol");
+        .expect("expected query to be valid for any tunnel protocol");
 
     let relay = relay_selector.get_relay_by_query(query);
 
