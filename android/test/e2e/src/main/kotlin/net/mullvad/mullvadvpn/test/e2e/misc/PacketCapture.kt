@@ -90,10 +90,10 @@ data class Stream(
     @SerialName("other_addr") val destinationAddress: String,
     @SerialName("flow_id") val flowId: String?,
     @SerialName("transport_protocol") val transportProtocol: NetworkTransportProtocol,
-    val packets: List<Packet> = emptyList()
+    val packets: List<Packet>
 ) {
-    @Contextual lateinit var startDate: Date
-    @Contextual lateinit var endDate: Date
+    @Contextual var startDate: Date = packets.first().date
+    @Contextual var endDate: Date = packets.last().date
 
     @Contextual var txStartDate: Date? = null
     @Contextual var txEndDate: Date? = null
@@ -102,9 +102,6 @@ data class Stream(
     @Contextual var rxEndDate: Date? = null
 
     init {
-            startDate = packets.first().date
-            endDate = packets.last().date
-
             val txPackets = packets.filter { it.fromPeer == true }
             if (txPackets.isNotEmpty()) {
                 txStartDate = txPackets.first().date
