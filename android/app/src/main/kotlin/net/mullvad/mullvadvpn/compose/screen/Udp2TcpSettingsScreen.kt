@@ -25,7 +25,6 @@ import net.mullvad.mullvadvpn.constant.UDP2TCP_PRESET_PORTS
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
-import net.mullvad.mullvadvpn.util.hasValue
 import net.mullvad.mullvadvpn.viewmodel.Udp2TcpSettingsViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -79,9 +78,9 @@ fun Udp2TcpSettingsScreen(
                 UDP2TCP_PRESET_PORTS.forEach { port ->
                     SelectableCell(
                         title = port.toString(),
-                        isSelected = state.port.hasValue(port),
-                        onCellClicked = { onObfuscationPortSelected(Constraint.Only(Port(port))) },
-                        testTag = String.format(null, UDP_OVER_TCP_PORT_ITEM_X_TEST_TAG, port),
+                        isSelected = state.port.getOrNull() == port,
+                        onCellClicked = { onObfuscationPortSelected(Constraint.Only(port)) },
+                        testTag = String.format(null, UDP_OVER_TCP_PORT_ITEM_X_TEST_TAG, port.value),
                     )
                 }
             }

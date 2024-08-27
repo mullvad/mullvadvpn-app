@@ -8,4 +8,6 @@ data class ShadowsocksSettingsState(
     val port: Constraint<Port> = Constraint.Any,
     val customPort: Port? = null,
     val validPortRanges: List<PortRange> = emptyList(),
-)
+) {
+    val isCustom = port is Constraint.Only && port.value == customPort
+}
