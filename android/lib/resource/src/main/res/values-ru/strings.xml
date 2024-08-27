@@ -74,6 +74,7 @@
     <string name="confirm_removal">Выйти из профиля на устройстве</string>
     <string name="congrats">Поздравляем!</string>
     <string name="connect">Защитить мое подключение</string>
+    <string name="connected_using_daita">%1$s через %2$s</string>
     <string name="connecting">Идет подключение</string>
     <string name="connecting_to_daemon">Подключение к системному сервису Mullvad...</string>
     <string name="continue_login">Войти</string>
@@ -100,6 +101,8 @@
     <string name="custom_port_dialog_title">Пользовательский порт WireGuard</string>
     <string name="custom_port_dialog_valid_ranges">Допустимые диапазоны: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Не удалось преобразовать имя узла пользовательского туннеля. Попробуйте изменить настройки.</string>
+    <string name="daita_info">%1$s (%2$s) маскирует особенности зашифрованного VPN-трафика. Если кто-то следит за вашим подключением, ему будет значительно сложнее определить, какие сайты вы посещаете. Для этого добавляется сетевой шум, а все сетевые пакеты делаются одинаковыми по размеру.</string>
+    <string name="daita_warning">Внимание: использование этой функции увеличит общий сетевой трафик — учтите это при ограниченном тарифном плане. Это также может негативно повлиять на скорость работы сети. Помните об этих факторах при включении %1$s.</string>
     <string name="delete">Удалить</string>
     <string name="delete_custom_list_confirmation_description">Удалить список «%1$s»?</string>
     <string name="delete_custom_list_message">Список «%1$s» удален</string>
@@ -133,6 +136,7 @@
     <string name="edit_method">Изменение метода</string>
     <string name="edit_name">Изменить имя</string>
     <string name="enable">Включить</string>
+    <string name="enable_anyway">Всё равно включить</string>
     <string name="enable_custom_dns">Пользовательский DNS-сервер</string>
     <string name="enable_method">Включить метод</string>
     <string name="enter_value_placeholder">Введите MTU</string>
@@ -288,6 +292,7 @@
     <string name="server_ip_overrides_reset_title">Сброс всех переопределений</string>
     <string name="set_dns_error">Не удалось установить системный DNS-сервер. Отправьте сообщение о проблеме.</string>
     <string name="set_firewall_policy_error">Невозможно применить правила брандмауэра. Устраните неполадки или отправьте сообщение о проблеме.</string>
+    <string name="setting_chip">Параметр: %1$s</string>
     <string name="settings">Настройки</string>
     <string name="settings_account">Учетная запись</string>
     <string name="settings_api_access">Доступ к API</string>

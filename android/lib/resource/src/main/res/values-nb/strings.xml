@@ -74,6 +74,7 @@
     <string name="confirm_removal">Ja, logg av enhet</string>
     <string name="congrats">Gratulerer!</string>
     <string name="connect">Gjør tilkoblingen sikker</string>
+    <string name="connected_using_daita">%1$s bruker %2$s</string>
     <string name="connecting">Kobler til</string>
     <string name="connecting_to_daemon">Kobler til Mullvads systemtjeneste ...</string>
     <string name="continue_login">Fortsett med pålogging</string>
@@ -100,6 +101,8 @@
     <string name="custom_port_dialog_title">Tilpasset WireGuard-port</string>
     <string name="custom_port_dialog_valid_ranges">Gyldige verdiområder: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Kunne ikke løse vert for egendefinert tunnel. Forsøk å endre innstillingene dine.</string>
+    <string name="daita_info">%1$s (%2$s) skjuler mønstre i den krypterte VPN-trafikken. Hvis noen overvåker tilkoblingen din, gjør dette det betydelig vanskeligere for dem å identifisere hvilke nettsteder du besøker. Dette gjøres ved varsomt å legge til nettverksstøy og gjøre alle nettverkspakker like store.</string>
+    <string name="daita_warning">Obs: Siden dette øker den totale nettverkstrafikken, bør du være forsiktig hvis du har et abonnement med begrenset data. Det kan også påvirke nettverkshastigheten i negativ retning. Vær oppmerksom på dette hvis du ønsker å aktivere %1$s.</string>
     <string name="delete">Slett</string>
     <string name="delete_custom_list_confirmation_description">Slette «%1$s»?</string>
     <string name="delete_custom_list_message">«%1$s» ble slettet</string>
@@ -133,6 +136,7 @@
     <string name="edit_method">Endre metode</string>
     <string name="edit_name">Endre navn</string>
     <string name="enable">Aktiver</string>
+    <string name="enable_anyway">Aktiver uansett</string>
     <string name="enable_custom_dns">Bruk egendefinert DNS-server</string>
     <string name="enable_method">Aktiver metoden</string>
     <string name="enter_value_placeholder">Angi MTU</string>
@@ -288,6 +292,7 @@
     <string name="server_ip_overrides_reset_title">Tilbakestill alle overstyringer</string>
     <string name="set_dns_error">Kunne ikke angi DNS-server for systemet. Send inn en problemrapport.</string>
     <string name="set_firewall_policy_error">Kunne ikke bruke brannmur-regler. Feilsøk eller send inn en problemrapport.</string>
+    <string name="setting_chip">Innstilling: %1$s</string>
     <string name="settings">Innstillinger</string>
     <string name="settings_account">Konto</string>
     <string name="settings_api_access">API-tilgang</string>
