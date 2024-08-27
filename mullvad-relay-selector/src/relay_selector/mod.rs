@@ -818,14 +818,9 @@ impl RelaySelector {
             ObfuscationQuery::Udp2tcp(settings) => {
                 let udp2tcp_ports = &parsed_relays.parsed_list().wireguard.udp2tcp_ports;
 
-                helpers::get_udp2tcp_obfuscator(
-                    settings,
-                    udp2tcp_ports,
-                    obfuscator_relay,
-                    endpoint,
-                )
-                .map(Some)
-                .map_err(box_obfsucation_error)
+                helpers::get_udp2tcp_obfuscator(settings, udp2tcp_ports, obfuscator_relay, endpoint)
+                    .map(Some)
+                    .map_err(box_obfsucation_error)
             }
             ObfuscationQuery::Shadowsocks(settings) => {
                 let port_ranges = &parsed_relays
