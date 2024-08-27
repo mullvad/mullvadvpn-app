@@ -2,9 +2,7 @@
 //! either the default interface or a VPN tunnel interface.
 
 use super::{
-    bindings::{
-        pcap_create, pcap_set_want_pktap, pktap_header, PCAP_ERRBUF_SIZE, PTH_FLAG_DIR_OUT,
-    },
+    bindings::{pktap_header, PTH_FLAG_DIR_OUT},
     bpf,
     default::DefaultInterface,
 };
@@ -25,7 +23,6 @@ use std::{
     ffi::{c_uint, CStr},
     io::{self, IoSlice, Write},
     net::{Ipv4Addr, Ipv6Addr},
-    ptr::NonNull,
 };
 use talpid_routing::RouteManagerHandle;
 use tokio::{
@@ -57,7 +54,7 @@ pub enum Error {
     EnableNonblock(#[source] pcap::Error),
     /// pcap_create failed
     #[error("pcap_create failed: {}", _0)]
-    CreatePcap(String),
+    CreatePcap(#[source] pcap::Error),
     /// Failed to create packet stream
     #[error("Failed to create packet stream")]
     CreateStream(#[source] pcap::Error),
@@ -806,8 +803,15 @@ fn fix_ipv6_checksums(
 fn capture_outbound_packets(
     utun_iface: &str,
 ) -> Result<impl Stream<Item = Result<PktapPacket, Error>> + Send, Error> {
-    let cap = pktap_capture()?
+    // We want to create a pktap "pseudo-device" and capture data on it using a bpf device.
+    // This provides packet data plus a pktap header including process information.
+    // libpcap will do the heavy lifting for us if we simply request a "pktap" device.
+    //
+    // TODO: upstream exposure of a raw handle to pcap_t on Capture<Inactive>
+    let cap = pcap::Capture::from_device("pktap")
+        .map_err(Error::CreatePcap)?
         .immediate_mode(true)
+        .want_pktap(true)
         .open()
         .map_err(Error::CaptureSplitTunnelDevice)?;
 
@@ -893,32 +897,4 @@ impl PacketCodec for PktapCodec {
             frame,
         })
     }
-}
-
-/// Create a pktap interface using `libpcap`
-fn pktap_capture() -> Result<pcap::Capture<pcap::Inactive>, Error> {
-    // We want to create a pktap "pseudo-device" and capture data on it using a bpf device.
-    // This provides packet data plus a pktap header including process information.
-    // libpcap will do the heavy lifting for us if we simply request a "pktap" device.
-
-    let mut errbuf = [0u8; PCAP_ERRBUF_SIZE as usize];
-
-    let pcap = unsafe { pcap_create(c"pktap".as_ptr(), errbuf.as_mut_ptr() as _) };
-    if pcap.is_null() {
-        let errstr = CStr::from_bytes_until_nul(&errbuf)
-            .unwrap()
-            .to_string_lossy()
-            .into_owned();
-        return Err(Error::CreatePcap(errstr));
-    }
-    unsafe { pcap_set_want_pktap(pcap, 1) };
-
-    // TODO: Upstream setting "want pktap" directly on Capture
-    //       If we had that, we could have simply used pcap::Capture::from_device("pktap")
-    // TODO: Also upstream exposure of a raw handle to pcap_t on Capture<Inactive>
-
-    // just casting a pointer to a private type using _. that's fine, apparently
-    Ok(pcap::Capture::from(unsafe {
-        NonNull::new_unchecked(pcap as *mut _)
-    }))
 }
