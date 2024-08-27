@@ -8,6 +8,7 @@ import net.mullvad.mullvadvpn.test.common.constant.CONNECTION_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
 import net.mullvad.mullvadvpn.test.common.rule.ForgetAllVpnAppsInSettingsTestRule
 import net.mullvad.mullvadvpn.test.e2e.misc.AccountTestRule
+import net.mullvad.mullvadvpn.test.e2e.misc.PacketCapture
 import net.mullvad.mullvadvpn.test.e2e.misc.PacketCaptureClient
 import net.mullvad.mullvadvpn.test.e2e.misc.PacketCaptureSession
 import org.junit.jupiter.api.Test
@@ -25,9 +26,9 @@ class LeakTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
 
     @Test
     fun testNegativeLeak() = runBlocking<Unit> {
-        val packetCaptureClient = PacketCaptureClient()
+        val packetCapture = PacketCapture()
 
-        val session = PacketCaptureSession()
+        val session = packetCapture.startCapture()
         packetCaptureClient.sendStartCaptureRequest(session)
         // Given
         app.launchAndEnsureLoggedIn(accountTestRule.validAccountNumber)
@@ -43,7 +44,7 @@ class LeakTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
         Thread.sleep(2000)
 
         packetCaptureClient.sendStopCaptureRequest(session)
-        val parsedObjects = packetCaptureClient.sendGetCapturedPacketsRequest(session)
-        Logger.v("Parsed packet capture objects: $parsedObjects")
+        val parsedObjects = packetCapture.stopCapture(session)
+        //Logger.v("Parsed packet capture objects: $parsedObjects")
     }
 }
