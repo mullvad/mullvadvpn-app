@@ -74,6 +74,7 @@
     <string name="confirm_removal">Tak, wyloguj urządzenie</string>
     <string name="congrats">Gratulacje!</string>
     <string name="connect">Zabezpiecz moje połączenie</string>
+    <string name="connected_using_daita">%1$s przy użyciu %2$s</string>
     <string name="connecting">Łączenie</string>
     <string name="connecting_to_daemon">Łączenie z usługą systemową Mullvad...</string>
     <string name="continue_login">Kontynuuj logowanie</string>
@@ -100,6 +101,8 @@
     <string name="custom_port_dialog_title">Niestandardowy port WireGuard</string>
     <string name="custom_port_dialog_valid_ranges">Prawidłowe zakresy: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Nie można rozpoznać hosta tunelu niestandardowego. Spróbuj zmienić ustawienia.</string>
+    <string name="daita_info">%1$s (%2$s) ukrywa wzorce w zaszyfrowanym ruchu VPN. Jeśli ktoś monitoruje Twoje połączenie, znacznie utrudni to identyfikację odwiedzanych witryn. Odbywa się to poprzez ostrożne dodawanie szumów sieciowych i ustawianie tego samego rozmiaru wszystkich pakietów sieciowych.</string>
+    <string name="daita_warning">Uwaga: zwiększa to łączny ruch sieciowy, zachowaj więc ostrożność, jeśli masz ograniczony pakiet danych. Może to również negatywnie wpłynąć na szybkość sieci. Weź to pod uwagę, jeśli chcesz włączyć %1$s.</string>
     <string name="delete">Usuń</string>
     <string name="delete_custom_list_confirmation_description">Usunąć „%1$s”?</string>
     <string name="delete_custom_list_message">Usunięto „%1$s”</string>
@@ -133,6 +136,7 @@
     <string name="edit_method">Edytuj metodę</string>
     <string name="edit_name">Edytuj nazwę</string>
     <string name="enable">Włącz</string>
+    <string name="enable_anyway">Mimo to włącz</string>
     <string name="enable_custom_dns">Użyj niestandardowego serwera DNS</string>
     <string name="enable_method">Włącz metodę</string>
     <string name="enter_value_placeholder">Wprowadź MTU</string>
@@ -288,6 +292,7 @@
     <string name="server_ip_overrides_reset_title">Resetuj wszystkie zastąpienia</string>
     <string name="set_dns_error">Nie można ustawić systemowego serwera DNS. Wyślij zgłoszenie problemu.</string>
     <string name="set_firewall_policy_error">Nie można zastosować reguł zapory. Rozwiąż problem lub wyślij zgłoszenie problemu.</string>
+    <string name="setting_chip">Ustawienie: %1$s</string>
     <string name="settings">Ustawienia</string>
     <string name="settings_account">Konto</string>
     <string name="settings_api_access">Dostęp do API</string>

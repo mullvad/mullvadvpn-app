@@ -74,6 +74,7 @@
     <string name="confirm_removal">Kyllä, kirjaa laite ulos</string>
     <string name="congrats">Onnittelut!</string>
     <string name="connect">Suojaa yhteyteni</string>
+    <string name="connected_using_daita">%1$s – %2$s käytössä</string>
     <string name="connecting">Yhdistetään</string>
     <string name="connecting_to_daemon">Yhdistetään Mullvad-järjestelmäpalveluun...</string>
     <string name="continue_login">Jatka kirjautumista</string>
@@ -100,6 +101,8 @@
     <string name="custom_port_dialog_title">Mukautettu WireGuard-portti</string>
     <string name="custom_port_dialog_valid_ranges">Kelvolliset portit: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Muokatun tunnelin isännän selvittäminen ei onnistu. Kokeile muuttaa asetuksiasi.</string>
+    <string name="daita_info">%1$s (%2$s) piilottaa salatussa VPN-liikenteessäsi toistuvat maneerit luomalla tarkoin räätälöityjä häiriöitä verkkoliikenteeseen ja tekemällä kaikista verkkopaketeista samankokoisia. Jos joku siis yrittää tarkkailla yhteyttäsi, hänen on huomattavasti vaikeampi tunnistaa, millä verkkosivustoilla oikein vierailet.</string>
+    <string name="daita_warning">Huomioithan, että %1$s:n käyttöönotto kasvattaa verkkoliikennettäsi kokonaisuudessaan ja voi myös vaikuttaa negatiivisesti verkon nopeuteen. DAITA:n käyttämistä kannattaa harkita tarkkaan, mikäli datapakettisi tiedonsiirtomäärä on rajoitettu.</string>
     <string name="delete">Poista</string>
     <string name="delete_custom_list_confirmation_description">Poistetaanko \"%1$s\"?</string>
     <string name="delete_custom_list_message">\"%1$s\" poistettiin</string>
@@ -133,6 +136,7 @@
     <string name="edit_method">Muokkaa menetelmää</string>
     <string name="edit_name">Muokkaa nimeä</string>
     <string name="enable">Ota käyttöön</string>
+    <string name="enable_anyway">Ota silti käyttöön</string>
     <string name="enable_custom_dns">Käytä mukautettua DNS-palvelinta</string>
     <string name="enable_method">Ota menetelmä käyttöön</string>
     <string name="enter_value_placeholder">Syötä MTU</string>
@@ -288,6 +292,7 @@
     <string name="server_ip_overrides_reset_title">Nollaa kaikki ohitukset</string>
     <string name="set_dns_error">Järjestelmän DNS-palvelimen asettaminen ei onnistu. Lähetä ongelmaraportti.</string>
     <string name="set_firewall_policy_error">Palomuurisääntöjä ei voida käyttää. Suorita vianetsintä tai lähetä ongelmaraportti.</string>
+    <string name="setting_chip">Asetus: %1$s</string>
     <string name="settings">Asetukset</string>
     <string name="settings_account">Tili</string>
     <string name="settings_api_access">Ohjelmointirajapinnan käyttö</string>
