@@ -388,4 +388,5 @@
     <string name="daita_info">%s (%s) hides patterns in your encrypted VPN traffic. If anyone is monitoring your connection, this makes it significantly harder for them to identify what websites you are visiting. It does this by carefully adding network noise and making all network packets the same size.</string>
     <string name="daita_warning">Attention: Since this increases your total network traffic, be cautious if you have a limited data plan. It can also negatively impact your network speed. Please consider this if you want to enable %s.</string>
     <string name="connected_using_daita">%s using %s</string>
+    <string name="setting_chip">Setting: %s</string>
 </resources>
