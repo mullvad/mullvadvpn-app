@@ -4,6 +4,7 @@ import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointConfiguration
 import net.mullvad.mullvadvpn.lib.endpoint.CUSTOM_ENDPOINT_HTTPS_PORT
 import net.mullvad.mullvadvpn.lib.endpoint.CustomApiEndpointConfiguration
 import net.mullvad.mullvadvpn.lib.endpoint.DefaultApiEndpointConfiguration
+import net.mullvad.mullvadvpn.service.ApiEndpointResolver
 import net.mullvad.mullvadvpn.service.BuildConfig
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -16,4 +17,5 @@ val apiEndpointModule = module {
             DefaultApiEndpointConfiguration()
         }
     } bind ApiEndpointConfiguration::class
+    single { ApiEndpointResolver() }
 }
