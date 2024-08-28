@@ -22,8 +22,6 @@ use std::{
 };
 use tokio::io::{unix::AsyncFd, AsyncRead, Interest, ReadBuf};
 
-use super::bindings::BIOCSWANTPKTAP;
-
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
     /// Failed to open BPF device
@@ -165,12 +163,6 @@ impl Bpf {
         let enable: c_int = if enable { 1 } else { 0 };
         // SAFETY: The fd is valid for the lifetime of `self`
         unsafe { ioctl!(self.file.as_raw_fd(), BIOCSHDRCMPLT, &enable) }
-    }
-
-    pub fn set_want_pktap(&self, enable: bool) -> Result<(), Error> {
-        let enable: c_int = if enable { 1 } else { 0 };
-        // SAFETY: The fd is valid for the lifetime of `self`
-        unsafe { ioctl!(self.file.as_raw_fd(), BIOCSWANTPKTAP, &enable) }
     }
 
     pub fn set_buffer_size(&self, mut buffer_size: c_uint) -> Result<usize, Error> {
