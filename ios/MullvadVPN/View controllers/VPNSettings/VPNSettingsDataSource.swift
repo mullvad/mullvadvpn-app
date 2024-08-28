@@ -24,6 +24,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         case wireGuardObfuscationPort
         case quantumResistance
         case multihop
+        case daita
         var reusableViewClass: AnyClass {
             switch self {
             case .dnsSettings:
@@ -42,12 +43,14 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
                 return SelectableSettingsCell.self
             case .multihop:
                 return SettingsSwitchCell.self
+            case .daita:
+                return SettingsSwitchCell.self
             }
         }
     }
 
     private enum HeaderFooterReuseIdentifiers: String, CaseIterable {
-        case wireGuardPortHeader
+        case settingsHeaderView
 
         var reusableViewClass: AnyClass {
             return SettingsHeaderView.self
@@ -61,7 +64,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         case wireGuardObfuscation
         case wireGuardObfuscationPort
         case quantumResistance
-        case multiHop
+        case privacyAndSecurity
     }
 
     enum Item: Hashable {
@@ -76,7 +79,8 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         case quantumResistanceAutomatic
         case quantumResistanceOn
         case quantumResistanceOff
-        case multihop
+        case multihopSwitch
+        case daitaSwitch
 
         static var wireGuardPorts: [Item] {
             let defaultPorts = VPNSettingsViewModel.defaultWireGuardPorts.map {
@@ -121,7 +125,9 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
                 return .quantumResistanceOn
             case .quantumResistanceOff:
                 return .quantumResistanceOff
-            case .multihop:
+            case .daitaSwitch:
+                return .daitaSwitch
+            case .multihopSwitch:
                 return .multihopSwitch
             }
         }
@@ -142,8 +148,10 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
                 return .wireGuardObfuscationPort
             case .quantumResistanceAutomatic, .quantumResistanceOn, .quantumResistanceOff:
                 return .quantumResistance
-            case .multihop:
+            case .multihopSwitch:
                 return .multihop
+            case .daitaSwitch:
+                return .daita
             }
         }
     }
@@ -319,8 +327,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
 
         guard let view = tableView
             .dequeueReusableHeaderFooterView(
-                withIdentifier: HeaderFooterReuseIdentifiers.wireGuardPortHeader
-                    .rawValue
+                withIdentifier: HeaderFooterReuseIdentifiers.settingsHeaderView.rawValue
             ) as? SettingsHeaderView else { return nil }
 
         switch sectionIdentifier {
@@ -353,8 +360,8 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         let sectionIdentifier = snapshot().sectionIdentifiers[section]
 
         switch sectionIdentifier {
-        case .dnsSettings, .ipOverrides, .multiHop:
-            return 0
+        case .dnsSettings, .ipOverrides, .privacyAndSecurity:
+            return .leastNonzeroMagnitude
         default:
             return tableView.estimatedRowHeight
         }
@@ -375,7 +382,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         let sectionIdentifier = snapshot().sectionIdentifiers[indexPath.section]
 
         return switch sectionIdentifier {
-        case .multiHop: false
+        case .privacyAndSecurity: false
         default: true
         }
     }
@@ -392,7 +399,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
 
         tableView?.register(
             SettingsHeaderView.self,
-            forHeaderFooterViewReuseIdentifier: HeaderFooterReuseIdentifiers.wireGuardPortHeader.rawValue
+            forHeaderFooterViewReuseIdentifier: HeaderFooterReuseIdentifiers.settingsHeaderView.rawValue
         )
     }
 
@@ -412,7 +419,11 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         snapshot.appendItems([.dnsSettings], toSection: .dnsSettings)
         snapshot.appendItems([.ipOverrides], toSection: .ipOverrides)
 
-        snapshot.appendItems([.multihop], toSection: .multiHop)
+        #if DEBUG
+        snapshot.appendItems([.daitaSwitch, .multihopSwitch], toSection: .privacyAndSecurity)
+        #else
+        snapshot.appendItems([.multihopSwitch], toSection: .privacyAndSecurity)
+        #endif
 
         applySnapshot(snapshot, animated: animated, completion: completion)
     }
@@ -619,6 +630,22 @@ extension VPNSettingsDataSource: VPNSettingsCellEventHandler {
     func switchMultihop(_ state: MultihopState) {
         viewModel.setMultihop(state)
         delegate?.didChangeViewModel(viewModel)
+    }
+
+    func switchDaitaState(_ settings: DAITASettings) {
+        if settings.state.isEnabled {
+            delegate?.showPrompt(for: .daita) { [weak self] in
+                guard let self else { return }
+                viewModel.setDAITASettings(settings)
+                delegate?.didChangeViewModel(viewModel)
+            } onDiscard: { [weak self] in
+                guard let self else { return }
+                tableView?.reloadData()
+            }
+        } else {
+            viewModel.setDAITASettings(settings)
+            delegate?.didChangeViewModel(viewModel)
+        }
     }
 }
 

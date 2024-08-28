@@ -43,6 +43,7 @@ class LoginContentView: UIView {
     let statusActivityView: StatusActivityView = {
         let statusActivityView = StatusActivityView(state: .hidden)
         statusActivityView.translatesAutoresizingMaskIntoConstraints = false
+        statusActivityView.clipsToBounds = true
         return statusActivityView
     }()
 
@@ -151,6 +152,8 @@ class LoginContentView: UIView {
             createAccountButton.pinEdges(.all().excluding(.top), to: footerContainer.layoutMarginsGuide)
 
             statusActivityView.centerXAnchor.constraint(equalTo: contentContainer.centerXAnchor)
+            statusActivityView.widthAnchor.constraint(equalToConstant: 60.0)
+            statusActivityView.heightAnchor.constraint(equalTo: statusActivityView.widthAnchor, multiplier: 1.0)
 
             formContainer.topAnchor.constraint(equalTo: statusActivityView.bottomAnchor, constant: 30)
             formContainer.centerYAnchor.constraint(equalTo: contentContainer.centerYAnchor, constant: -20)

@@ -20,4 +20,5 @@ protocol VPNSettingsDataSourceDelegate: AnyObject {
     func showDNSSettings()
     func showIPOverrides()
     func didSelectWireGuardPort(_ port: UInt16?)
+    func showPrompt(for: VPNSettingsPromptAlertItem, onSave: @escaping () -> Void, onDiscard: @escaping () -> Void)
 }
