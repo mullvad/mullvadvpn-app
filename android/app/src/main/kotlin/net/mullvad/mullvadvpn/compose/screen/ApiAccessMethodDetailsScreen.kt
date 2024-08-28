@@ -82,6 +82,7 @@ data class ApiAccessMethodDetailsNavArgs(val accessMethodId: ApiAccessMethodId)
     navArgs = ApiAccessMethodDetailsNavArgs::class,
 )
 @Composable
+@Suppress("LongMethod")
 fun ApiAccessMethodDetails(
     navigator: DestinationsNavigator,
     confirmDeleteListResultRecipient:

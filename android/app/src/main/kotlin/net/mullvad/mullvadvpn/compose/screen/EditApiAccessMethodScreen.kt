@@ -89,6 +89,7 @@ data class EditApiAccessMethodNavArgs(val accessMethodId: ApiAccessMethodId?)
     navArgs = EditApiAccessMethodNavArgs::class,
 )
 @Composable
+@Suppress("LongMethod")
 fun EditApiAccessMethod(
     navigator: DestinationsNavigator,
     backNavigator: ResultBackNavigator<Boolean>,
