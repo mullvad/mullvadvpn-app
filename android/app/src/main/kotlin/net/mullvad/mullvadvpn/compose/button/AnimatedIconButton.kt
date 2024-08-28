@@ -24,7 +24,7 @@ fun AnimatedIconButton(
     secondaryIconTint: Color,
     contentDescription: String,
     isToggleButton: Boolean = false,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     var state by remember { mutableStateOf(ButtonState.IDLE) }
     if (state == ButtonState.PRESSED) {
@@ -75,5 +75,5 @@ fun AnimatedIconButton(
 enum class ButtonState {
     IDLE,
     TOGGLED,
-    PRESSED
+    PRESSED,
 }

@@ -83,7 +83,7 @@ class MockApiDispatcher : Dispatcher() {
                 .setBody(
                     accessTokenJsonResponse(
                             accessToken = DUMMY_ACCESS_TOKEN,
-                            expiry = currentUtcTimeWithOffsetZero().plusDays(1)
+                            expiry = currentUtcTimeWithOffsetZero().plusDays(1),
                         )
                         .toString()
                 )
@@ -114,7 +114,7 @@ class MockApiDispatcher : Dispatcher() {
                             id = deviceId,
                             name = devices!![deviceId]!!, // Should always exist
                             publicKey = cachedKey,
-                            creationDate = currentUtcTimeWithOffsetZero().minusDays(1)
+                            creationDate = currentUtcTimeWithOffsetZero().minusDays(1),
                         )
                         .toString()
                 )
@@ -135,7 +135,7 @@ class MockApiDispatcher : Dispatcher() {
                                     id = devicePendingToGetCreated!!.first,
                                     name = devicePendingToGetCreated!!.second,
                                     publicKey = newKey,
-                                    creationDate = currentUtcTimeWithOffsetZero().minusDays(1)
+                                    creationDate = currentUtcTimeWithOffsetZero().minusDays(1),
                                 )
                                 .toString()
                         )
@@ -157,7 +157,7 @@ class MockApiDispatcher : Dispatcher() {
                         id = entry.key,
                         name = entry.value,
                         publicKey = cachedKey,
-                        creationDate = currentUtcTimeWithOffsetZero().minusDays(index + 1)
+                        creationDate = currentUtcTimeWithOffsetZero().minusDays(index + 1),
                     )
                 )
             }
@@ -174,7 +174,7 @@ class MockApiDispatcher : Dispatcher() {
                     accountCreationJson(
                             id = DUMMY_ID_1,
                             expiry = DateTime(),
-                            accountNumber = expectedAccountNumber
+                            accountNumber = expectedAccountNumber,
                         )
                         .toString()
                 )

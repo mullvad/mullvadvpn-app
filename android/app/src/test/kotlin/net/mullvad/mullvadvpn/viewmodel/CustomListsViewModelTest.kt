@@ -49,6 +49,6 @@ class CustomListsViewModelTest {
     private fun createViewModel() =
         CustomListsViewModel(
             customListsRepository = mockCustomListsRepository,
-            customListActionUseCase = mockCustomListsActionUseCase
+            customListActionUseCase = mockCustomListsActionUseCase,
         )
 }

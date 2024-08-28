@@ -28,7 +28,7 @@ class ServiceConnectionManager(private val context: Context) {
                 context.bindService(
                     intent,
                     serviceConnection,
-                    ServiceInfo.FOREGROUND_SERVICE_TYPE_SYSTEM_EXEMPTED or BIND_AUTO_CREATE
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_SYSTEM_EXEMPTED or BIND_AUTO_CREATE,
                 )
             } else {
                 context.bindService(intent, serviceConnection, BIND_AUTO_CREATE)

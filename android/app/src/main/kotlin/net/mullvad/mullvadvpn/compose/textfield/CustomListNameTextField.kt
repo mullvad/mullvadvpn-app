@@ -21,7 +21,7 @@ fun CustomListNameTextField(
     isValidName: Boolean,
     error: String?,
     onValueChanged: (String) -> Unit,
-    onSubmit: (String) -> Unit
+    onSubmit: (String) -> Unit,
 ) {
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -46,7 +46,7 @@ fun CustomListNameTextField(
                     Text(
                         text = it,
                         color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall
+                        style = MaterialTheme.typography.bodySmall,
                     )
                 }
             },
@@ -56,7 +56,7 @@ fun CustomListNameTextField(
                 if (focusState.hasFocus) {
                     keyboardController?.show()
                 }
-            }
+            },
     )
 
     LaunchedEffect(Unit) { focusRequester.requestFocus() }

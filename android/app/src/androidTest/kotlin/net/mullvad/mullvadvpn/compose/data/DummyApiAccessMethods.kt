@@ -15,7 +15,7 @@ val DIRECT_ACCESS_METHOD =
         id = ApiAccessMethodId.fromString(UUID1),
         name = ApiAccessMethodName.fromString("Direct"),
         enabled = true,
-        apiAccessMethod = ApiAccessMethod.Direct
+        apiAccessMethod = ApiAccessMethod.Direct,
     )
 
 val CUSTOM_ACCESS_METHOD =
@@ -28,6 +28,6 @@ val CUSTOM_ACCESS_METHOD =
                 ip = "1.1.1.1",
                 port = Port(123),
                 password = "Password",
-                cipher = Cipher.RC4
-            )
+                cipher = Cipher.RC4,
+            ),
     )

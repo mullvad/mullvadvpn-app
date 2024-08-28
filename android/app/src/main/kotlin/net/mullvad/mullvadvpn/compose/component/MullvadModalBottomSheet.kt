@@ -28,16 +28,11 @@ private fun PreviewMullvadModalBottomSheet() {
     AppTheme {
         MullvadModalBottomSheet(
             sheetContent = {
-                HeaderCell(
-                    text = "Title",
-                )
+                HeaderCell(text = "Title")
                 HorizontalDivider()
-                IconCell(
-                    iconId = null,
-                    title = "Select",
-                )
+                IconCell(iconId = null, title = "Select")
             },
-            onDismissRequest = {}
+            onDismissRequest = {},
         )
     }
 }
@@ -50,7 +45,7 @@ fun MullvadModalBottomSheet(
     backgroundColor: Color = MaterialTheme.colorScheme.surfaceContainer,
     onBackgroundColor: Color = MaterialTheme.colorScheme.onSurface,
     onDismissRequest: () -> Unit,
-    sheetContent: @Composable ColumnScope.() -> Unit
+    sheetContent: @Composable ColumnScope.() -> Unit,
 ) {
     // This is to avoid weird colors in the status bar and the navigation bar
     val paddingValues = BottomSheetDefaults.windowInsets.asPaddingValues()
@@ -60,7 +55,7 @@ fun MullvadModalBottomSheet(
         containerColor = backgroundColor,
         modifier = modifier,
         contentWindowInsets = { WindowInsets(0, 0, 0, 0) }, // No insets
-        dragHandle = { BottomSheetDefaults.DragHandle(color = onBackgroundColor) }
+        dragHandle = { BottomSheetDefaults.DragHandle(color = onBackgroundColor) },
     ) {
         sheetContent()
         Spacer(modifier = Modifier.height(Dimens.smallPadding))

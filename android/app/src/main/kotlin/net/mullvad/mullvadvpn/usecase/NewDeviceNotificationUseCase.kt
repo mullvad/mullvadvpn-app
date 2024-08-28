@@ -9,12 +9,12 @@ import net.mullvad.mullvadvpn.repository.NewDeviceRepository
 
 class NewDeviceNotificationUseCase(
     private val newDeviceRepository: NewDeviceRepository,
-    private val deviceRepository: DeviceRepository
+    private val deviceRepository: DeviceRepository,
 ) {
     operator fun invoke() =
         combine(
                 deviceRepository.deviceState.map { it?.displayName() },
-                newDeviceRepository.isNewDevice
+                newDeviceRepository.isNewDevice,
             ) { deviceName, newDeviceCreated ->
                 if (newDeviceCreated && deviceName != null) {
                     InAppNotification.NewDevice(deviceName)

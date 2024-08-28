@@ -47,8 +47,8 @@ private val MullvadTypography =
             TextStyle(
                 fontWeight = FontWeight.Normal,
                 letterSpacing = TextUnit.Unspecified,
-                fontSize = TypeScale.TextMedium
-            )
+                fontSize = TypeScale.TextMedium,
+            ),
     )
 
 private val lightColorScheme =
@@ -136,7 +136,7 @@ val Shapes =
         small = RoundedCornerShape(4.dp),
         medium = RoundedCornerShape(4.dp),
         large = RoundedCornerShape(0.dp),
-        extraLarge = RoundedCornerShape(11.dp)
+        extraLarge = RoundedCornerShape(11.dp),
     )
 
 val Dimens: Dimensions
@@ -154,7 +154,7 @@ private val rippleAlpha =
         pressedAlpha = StateTokens.PressedStateLayerOpacity,
         focusedAlpha = StateTokens.FocusStateLayerOpacity,
         draggedAlpha = StateTokens.DraggedStateLayerOpacity,
-        hoveredAlpha = StateTokens.HoverStateLayerOpacity
+        hoveredAlpha = StateTokens.HoverStateLayerOpacity,
     )
 
 @Composable
@@ -183,7 +183,7 @@ fun AppTheme(content: @Composable () -> Unit) {
                 ) {
                     content()
                 }
-            }
+            },
         )
     }
 }

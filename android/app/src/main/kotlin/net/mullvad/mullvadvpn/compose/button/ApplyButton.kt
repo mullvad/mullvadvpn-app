@@ -26,7 +26,7 @@ fun ApplyButton(
     modifier: Modifier = Modifier,
     background: Color = MaterialTheme.colorScheme.tertiary,
     onClick: () -> Unit,
-    isEnabled: Boolean
+    isEnabled: Boolean,
 ) {
     VariantButton(
         background = background,

@@ -40,10 +40,7 @@ fun Context.getLogsShareIntent(logContent: String): Intent {
     return Intent.createChooser(sendIntent, null)
 }
 
-fun Context.createCacheFile(
-    directory: ProviderCacheDirectory,
-    fileName: String,
-): File {
+fun Context.createCacheFile(directory: ProviderCacheDirectory, fileName: String): File {
     // Path to log file
     val logsPath = File(cacheDir, directory.directoryName)
 

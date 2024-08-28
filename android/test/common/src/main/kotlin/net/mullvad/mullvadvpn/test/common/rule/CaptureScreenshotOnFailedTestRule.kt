@@ -38,14 +38,14 @@ class CaptureScreenshotOnFailedTestRule(private val testTag: String) : TestWatch
                     contentValues = contentValues,
                     contentResolver = contentResolver,
                     baseDir = baseDir,
-                    filename = filename
+                    filename = filename,
                 )
             } else {
                 writeToExternalStorage(
                     contentValues = contentValues,
                     contentResolver = contentResolver,
                     baseDir = baseDir,
-                    filename = filename
+                    filename = filename,
                 )
             }
         }
@@ -56,7 +56,7 @@ class CaptureScreenshotOnFailedTestRule(private val testTag: String) : TestWatch
         contentValues: ContentValues,
         contentResolver: ContentResolver,
         baseDir: String,
-        filename: String
+        filename: String,
     ) {
         contentValues.apply {
             put(MediaStore.MediaColumns.DISPLAY_NAME, filename)
@@ -84,7 +84,7 @@ class CaptureScreenshotOnFailedTestRule(private val testTag: String) : TestWatch
         contentValues: ContentValues,
         contentResolver: ContentResolver,
         baseDir: String,
-        filename: String
+        filename: String,
     ) {
         val screenshotBaseDirectory =
             Paths.get(

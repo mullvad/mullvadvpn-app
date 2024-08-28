@@ -20,7 +20,7 @@ import net.mullvad.mullvadvpn.repository.SettingsRepository
 class MtuDialogViewModel(
     private val repository: SettingsRepository,
     savedStateHandle: SavedStateHandle,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : ViewModel() {
     private val navArgs = MtuDestination.argsFrom(savedStateHandle)
 
@@ -32,7 +32,7 @@ class MtuDialogViewModel(
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(),
-                createState(_mtuInput.value, _isValidMtu.value)
+                createState(_mtuInput.value, _isValidMtu.value),
             )
 
     private val _uiSideEffect = Channel<MtuDialogSideEffect>()
@@ -42,7 +42,7 @@ class MtuDialogViewModel(
         MtuDialogUiState(
             mtuInput = mtuInput,
             isValidInput = isValidMtuInput,
-            showResetToDefault = navArgs.initialMtu != null
+            showResetToDefault = navArgs.initialMtu != null,
         )
 
     fun onInputChanged(value: String) {
@@ -57,7 +57,7 @@ class MtuDialogViewModel(
                 .setWireguardMtu(mtu)
                 .fold(
                     { _uiSideEffect.send(MtuDialogSideEffect.Error) },
-                    { _uiSideEffect.send(MtuDialogSideEffect.Complete) }
+                    { _uiSideEffect.send(MtuDialogSideEffect.Complete) },
                 )
         }
 
@@ -67,7 +67,7 @@ class MtuDialogViewModel(
                 .resetWireguardMtu()
                 .fold(
                     { _uiSideEffect.send(MtuDialogSideEffect.Error) },
-                    { _uiSideEffect.send(MtuDialogSideEffect.Complete) }
+                    { _uiSideEffect.send(MtuDialogSideEffect.Complete) },
                 )
         }
 }
@@ -81,5 +81,5 @@ sealed interface MtuDialogSideEffect {
 data class MtuDialogUiState(
     val mtuInput: String,
     val isValidInput: Boolean,
-    val showResetToDefault: Boolean
+    val showResetToDefault: Boolean,
 )

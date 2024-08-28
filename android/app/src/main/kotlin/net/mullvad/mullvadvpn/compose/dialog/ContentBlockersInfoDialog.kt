@@ -26,6 +26,6 @@ fun ContentBlockersInfo(navigator: DestinationsNavigator) {
                     stringResource(id = R.string.settings_changes_effect_warning_content_blocker)
                 )
             },
-        onDismiss = dropUnlessResumed { navigator.navigateUp() }
+        onDismiss = dropUnlessResumed { navigator.navigateUp() },
     )
 }

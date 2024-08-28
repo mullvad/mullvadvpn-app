@@ -12,7 +12,7 @@ private const val LAST_SHOWED_CHANGELOG_VERSION_CODE = "last_showed_changelog_ve
 
 class ChangelogRepository(
     private val preferences: SharedPreferences,
-    private val dataProvider: IChangelogDataProvider
+    private val dataProvider: IChangelogDataProvider,
 ) {
     fun getVersionCodeOfMostRecentChangelogShowed(): Int {
         return preferences.getInt(LAST_SHOWED_CHANGELOG_VERSION_CODE, MISSING_VERSION_CODE)

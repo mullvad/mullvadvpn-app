@@ -69,11 +69,7 @@ import org.koin.androidx.compose.koinViewModel
 private fun PreviewOutOfTimeScreen(
     @PreviewParameter(OutOfTimeScreenPreviewParameterProvider::class) state: OutOfTimeUiState
 ) {
-    AppTheme {
-        OutOfTimeScreen(
-            state = state,
-        )
-    }
+    AppTheme { OutOfTimeScreen(state = state) }
 }
 
 @Destination<RootGraph>(style = HomeTransition::class)
@@ -81,7 +77,7 @@ private fun PreviewOutOfTimeScreen(
 fun OutOfTime(
     navigator: DestinationsNavigator,
     redeemVoucherResultRecipient: ResultRecipient<RedeemVoucherDestination, Boolean>,
-    playPaymentResultRecipient: ResultRecipient<PaymentDestination, Boolean>
+    playPaymentResultRecipient: ResultRecipient<PaymentDestination, Boolean>,
 ) {
     val vm = koinViewModel<OutOfTimeViewModel>()
     val state by vm.uiState.collectAsStateWithLifecycle()
@@ -134,7 +130,7 @@ fun OutOfTime(
         onPurchaseBillingProductClick =
             dropUnlessResumed { productId -> navigator.navigate(PaymentDestination(productId)) },
         navigateToVerificationPendingDialog =
-            dropUnlessResumed { navigator.navigate(VerificationPendingDestination) }
+            dropUnlessResumed { navigator.navigate(VerificationPendingDestination) },
     )
 }
 
@@ -148,7 +144,7 @@ fun OutOfTimeScreen(
     onSettingsClick: () -> Unit = {},
     onAccountClick: () -> Unit = {},
     onPurchaseBillingProductClick: (ProductId) -> Unit = { _ -> },
-    navigateToVerificationPendingDialog: () -> Unit = {}
+    navigateToVerificationPendingDialog: () -> Unit = {},
 ) {
 
     val scrollState = rememberScrollState()
@@ -169,7 +165,7 @@ fun OutOfTimeScreen(
         onSettingsClicked = onSettingsClick,
         onAccountClicked = onAccountClick,
         deviceName = state.deviceName,
-        timeLeft = null
+        timeLeft = null,
     ) {
         Column(
             modifier =
@@ -178,7 +174,7 @@ fun OutOfTimeScreen(
                     .verticalScroll(scrollState)
                     .drawVerticalScrollbar(
                         state = scrollState,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar)
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
                     )
                     .background(color = MaterialTheme.colorScheme.surface)
         ) {
@@ -188,7 +184,7 @@ fun OutOfTimeScreen(
                 modifier =
                     Modifier.align(Alignment.CenterHorizontally)
                         .padding(vertical = Dimens.screenVerticalMargin)
-                        .size(Dimens.bigIconSize)
+                        .size(Dimens.bigIconSize),
             )
             Text(
                 text = stringResource(id = R.string.out_of_time),
@@ -196,7 +192,7 @@ fun OutOfTimeScreen(
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier =
                     Modifier.padding(horizontal = Dimens.sideMargin)
-                        .testTag(OUT_OF_TIME_SCREEN_TITLE_TEST_TAG)
+                        .testTag(OUT_OF_TIME_SCREEN_TITLE_TEST_TAG),
             )
             Text(
                 text =
@@ -213,8 +209,8 @@ fun OutOfTimeScreen(
                     Modifier.padding(
                         top = Dimens.mediumPadding,
                         start = Dimens.sideMargin,
-                        end = Dimens.sideMargin
-                    )
+                        end = Dimens.sideMargin,
+                    ),
             )
             Spacer(modifier = Modifier.weight(1f).defaultMinSize(minHeight = Dimens.verticalSpace))
             // Button area
@@ -225,7 +221,7 @@ fun OutOfTimeScreen(
                 onPurchaseBillingProductClick = onPurchaseBillingProductClick,
                 onRedeemVoucherClick = onRedeemVoucherClick,
                 onSitePaymentClick = onSitePaymentClick,
-                navigateToVerificationPendingDialog = navigateToVerificationPendingDialog
+                navigateToVerificationPendingDialog = navigateToVerificationPendingDialog,
             )
         }
     }
@@ -238,7 +234,7 @@ private fun ButtonPanel(
     onPurchaseBillingProductClick: (ProductId) -> Unit,
     onRedeemVoucherClick: () -> Unit,
     onSitePaymentClick: () -> Unit,
-    navigateToVerificationPendingDialog: () -> Unit
+    navigateToVerificationPendingDialog: () -> Unit,
 ) {
 
     Column {
@@ -250,8 +246,8 @@ private fun ButtonPanel(
                     Modifier.padding(
                         start = Dimens.sideMargin,
                         end = Dimens.sideMargin,
-                        bottom = Dimens.buttonSpacing
-                    )
+                        bottom = Dimens.buttonSpacing,
+                    ),
             )
         }
         state.billingPaymentState?.let {
@@ -265,9 +261,9 @@ private fun ButtonPanel(
                     Modifier.padding(
                             start = Dimens.sideMargin,
                             end = Dimens.sideMargin,
-                            bottom = Dimens.buttonSpacing
+                            bottom = Dimens.buttonSpacing,
                         )
-                        .align(Alignment.CenterHorizontally)
+                        .align(Alignment.CenterHorizontally),
             )
         }
         if (state.showSitePayment) {
@@ -278,8 +274,8 @@ private fun ButtonPanel(
                     Modifier.padding(
                         start = Dimens.sideMargin,
                         end = Dimens.sideMargin,
-                        bottom = Dimens.buttonSpacing
-                    )
+                        bottom = Dimens.buttonSpacing,
+                    ),
             )
         }
         RedeemVoucherButton(
@@ -288,9 +284,9 @@ private fun ButtonPanel(
                 Modifier.padding(
                     start = Dimens.sideMargin,
                     end = Dimens.sideMargin,
-                    bottom = Dimens.screenVerticalMargin
+                    bottom = Dimens.screenVerticalMargin,
                 ),
-            isEnabled = state.tunnelState.enableRedeemButton()
+            isEnabled = state.tunnelState.enableRedeemButton(),
         )
     }
 }

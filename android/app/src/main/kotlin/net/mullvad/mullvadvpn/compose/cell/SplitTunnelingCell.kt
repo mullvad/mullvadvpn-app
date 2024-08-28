@@ -44,13 +44,13 @@ private fun PreviewTunnelingCell() {
                 title = "Mullvad VPN",
                 packageName = "",
                 isSelected = false,
-                enabled = true
+                enabled = true,
             )
             SplitTunnelingCell(
                 title = "Mullvad VPN",
                 packageName = "",
                 isSelected = true,
-                enabled = true
+                enabled = true,
             )
         }
     }
@@ -65,7 +65,7 @@ fun SplitTunnelingCell(
     modifier: Modifier = Modifier,
     backgroundColor: Color = MaterialTheme.colorScheme.surfaceContainerHigh,
     onResolveIcon: (String) -> Bitmap? = { null },
-    onCellClicked: () -> Unit = {}
+    onCellClicked: () -> Unit = {},
 ) {
     var icon by remember(packageName) { mutableStateOf<ImageBitmap?>(null) }
     LaunchedEffect(packageName) {
@@ -90,7 +90,7 @@ fun SplitTunnelingCell(
                         ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
                     } else {
                         null
-                    }
+                    },
             )
         },
         headlineContent = {
@@ -101,7 +101,7 @@ fun SplitTunnelingCell(
                 modifier =
                     Modifier.weight(1f)
                         .padding(horizontal = Dimens.mediumPadding)
-                        .align(Alignment.CenterVertically)
+                        .align(Alignment.CenterVertically),
             )
         },
         bodyView = {
@@ -117,12 +117,12 @@ fun SplitTunnelingCell(
                     ),
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.size(size = Dimens.addIconSize)
+                modifier = Modifier.size(size = Dimens.addIconSize),
             )
         },
         onCellClicked = onCellClicked,
         background = backgroundColor,
         modifier = modifier,
-        isRowEnabled = enabled
+        isRowEnabled = enabled,
     )
 }

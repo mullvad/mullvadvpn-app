@@ -117,7 +117,7 @@ private fun PreviewLoginSuccess() {
 fun Login(
     navigator: DestinationsNavigator,
     accountNumber: String? = null,
-    vm: LoginViewModel = koinViewModel()
+    vm: LoginViewModel = koinViewModel(),
 ) {
     val state by vm.uiState.collectAsStateWithLifecycle()
 
@@ -154,7 +154,7 @@ fun Login(
                 }
             LoginUiSideEffect.GenericError ->
                 snackbarHostState.showSnackbarImmediately(
-                    message = context.getString(R.string.error_occurred),
+                    message = context.getString(R.string.error_occurred)
                 )
         }
     }
@@ -165,7 +165,7 @@ fun Login(
         onCreateAccountClick = vm::createAccount,
         onDeleteHistoryClick = vm::clearAccountHistory,
         onAccountNumberChange = vm::onAccountNumberChange,
-        onSettingsClick = dropUnlessResumed { navigator.navigate(SettingsDestination) }
+        onSettingsClick = dropUnlessResumed { navigator.navigate(SettingsDestination) },
     )
 }
 
@@ -200,7 +200,7 @@ private fun LoginScreen(
                 state.loginState,
                 modifier =
                     Modifier.align(Alignment.CenterHorizontally)
-                        .padding(bottom = Dimens.largePadding)
+                        .padding(bottom = Dimens.largePadding),
             )
             LoginContent(state, onAccountNumberChange, onLoginClick, onDeleteHistoryClick)
             Spacer(modifier = Modifier.weight(3f))
@@ -214,7 +214,7 @@ private fun LoginContent(
     state: LoginUiState,
     onAccountNumberChange: (String) -> Unit,
     onLoginClick: (String) -> Unit,
-    onDeleteHistoryClick: () -> Unit
+    onDeleteHistoryClick: () -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxWidth().padding(horizontal = Dimens.sideMargin)) {
         Text(
@@ -224,7 +224,7 @@ private fun LoginContent(
             modifier =
                 Modifier.testTag(LOGIN_TITLE_TEST_TAG)
                     .fillMaxWidth()
-                    .padding(bottom = Dimens.smallPadding)
+                    .padding(bottom = Dimens.smallPadding),
         )
 
         LoginInput(state, onLoginClick, onAccountNumberChange, onDeleteHistoryClick)
@@ -234,7 +234,7 @@ private fun LoginContent(
             isEnabled = state.loginButtonEnabled,
             onClick = { onLoginClick(state.accountNumberInput) },
             text = stringResource(id = R.string.login_title),
-            modifier = Modifier.padding(bottom = Dimens.mediumPadding)
+            modifier = Modifier.padding(bottom = Dimens.mediumPadding),
         )
     }
 }
@@ -245,7 +245,7 @@ private fun ColumnScope.LoginInput(
     state: LoginUiState,
     onLoginClick: (String) -> Unit,
     onAccountNumberChange: (String) -> Unit,
-    onDeleteHistoryClick: () -> Unit
+    onDeleteHistoryClick: () -> Unit,
 ) {
     Text(
         modifier = Modifier.padding(bottom = Dimens.smallPadding),
@@ -280,14 +280,14 @@ private fun ColumnScope.LoginInput(
             Text(
                 text = stringResource(id = R.string.login_description),
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
             )
         },
         keyboardActions = KeyboardActions(onDone = { onLoginClick(state.accountNumberInput) }),
         keyboardOptions =
             KeyboardOptions(
                 imeAction = if (state.loginButtonEnabled) ImeAction.Done else ImeAction.None,
-                keyboardType = KeyboardType.NumberPassword
+                keyboardType = KeyboardType.NumberPassword,
             ),
         onValueChange = onAccountNumberChange,
         singleLine = true,
@@ -313,7 +313,7 @@ private fun ColumnScope.LoginInput(
                 }
             },
             enabled = state.loginState is Idle,
-            onDeleteClick = onDeleteHistoryClick
+            onDeleteClick = onDeleteHistoryClick,
         )
     }
 }
@@ -327,7 +327,7 @@ private fun LoginIcon(loginState: LoginState, modifier: Modifier = Modifier) {
                     Image(
                         painter = painterResource(id = R.drawable.icon_fail),
                         contentDescription = stringResource(id = R.string.login_fail_title),
-                        contentScale = ContentScale.Inside
+                        contentScale = ContentScale.Inside,
                     )
                 } else {
                     // If view is Idle, we display empty box to keep the same size as other states
@@ -383,7 +383,7 @@ private fun AccountDropDownItem(
     accountNumber: String,
     enabled: Boolean,
     onClick: () -> Unit,
-    onDeleteClick: () -> Unit
+    onDeleteClick: () -> Unit,
 ) {
     Row(
         modifier =
@@ -391,12 +391,12 @@ private fun AccountDropDownItem(
                 .clip(
                     MaterialTheme.shapes.medium.copy(
                         topStart = CornerSize(0f),
-                        topEnd = CornerSize(0f)
+                        topEnd = CornerSize(0f),
                     )
                 )
                 .background(MaterialTheme.colorScheme.background)
                 .height(IntrinsicSize.Min),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(
             modifier =
@@ -404,7 +404,7 @@ private fun AccountDropDownItem(
                     .fillMaxHeight()
                     .weight(1f)
                     .padding(horizontal = Dimens.mediumPadding, vertical = Dimens.smallPadding),
-            contentAlignment = Alignment.CenterStart
+            contentAlignment = Alignment.CenterStart,
         ) {
             Text(text = accountNumber, overflow = TextOverflow.Clip)
         }
@@ -423,7 +423,7 @@ private fun CreateAccountPanel(onCreateAccountClick: () -> Unit, isEnabled: Bool
     Column(
         Modifier.fillMaxWidth()
             .background(MaterialTheme.colorScheme.background)
-            .padding(horizontal = Dimens.sideMargin, vertical = Dimens.screenVerticalMargin),
+            .padding(horizontal = Dimens.sideMargin, vertical = Dimens.screenVerticalMargin)
     ) {
         Text(
             modifier = Modifier.padding(bottom = Dimens.smallPadding),
@@ -434,7 +434,7 @@ private fun CreateAccountPanel(onCreateAccountClick: () -> Unit, isEnabled: Bool
             modifier = Modifier.fillMaxWidth(),
             text = stringResource(id = R.string.create_account),
             isEnabled = isEnabled,
-            onClick = onCreateAccountClick
+            onClick = onCreateAccountClick,
         )
     }
 }

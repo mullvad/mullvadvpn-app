@@ -89,15 +89,15 @@ private fun PreviewAccountScreen() {
                                 PaymentProduct(
                                     ProductId("productId"),
                                     price = ProductPrice("34 SEK"),
-                                    status = null
+                                    status = null,
                                 ),
                                 PaymentProduct(
                                     ProductId("productId_pending"),
                                     price = ProductPrice("34 SEK"),
-                                    status = PaymentStatus.PENDING
-                                )
-                            ),
-                        )
+                                    status = PaymentStatus.PENDING,
+                                ),
+                            )
+                        ),
                 ),
             uiSideEffect = MutableSharedFlow<AccountViewModel.UiSideEffect>().asSharedFlow(),
         )
@@ -109,7 +109,7 @@ private fun PreviewAccountScreen() {
 @Composable
 fun Account(
     navigator: DestinationsNavigator,
-    playPaymentResultRecipient: ResultRecipient<PaymentDestination, Boolean>
+    playPaymentResultRecipient: ResultRecipient<PaymentDestination, Boolean>,
 ) {
     val vm = koinViewModel<AccountViewModel>()
     val state by vm.uiState.collectAsStateWithLifecycle()
@@ -141,7 +141,7 @@ fun Account(
         onPurchaseBillingProductClick =
             dropUnlessResumed { productId -> navigator.navigate(PaymentDestination(productId)) },
         navigateToVerificationPendingDialog =
-            dropUnlessResumed { navigator.navigate(VerificationPendingDestination) }
+            dropUnlessResumed { navigator.navigate(VerificationPendingDestination) },
     )
 }
 
@@ -158,7 +158,7 @@ fun AccountScreen(
     navigateToLogin: () -> Unit = {},
     navigateToDeviceInfo: () -> Unit = {},
     navigateToVerificationPendingDialog: () -> Unit = {},
-    onBackClick: () -> Unit = {}
+    onBackClick: () -> Unit = {},
 ) {
     // This will enable SECURE_FLAG while this screen is visible to preview screenshot
     SecureScreenWhileInView()
@@ -183,7 +183,7 @@ fun AccountScreen(
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.settings_account),
         navigationIcon = { NavigateBackDownIconButton(onBackClick) },
-        snackbarHostState = snackbarHostState
+        snackbarHostState = snackbarHostState,
     ) { modifier ->
         Column(
             horizontalAlignment = Alignment.Start,
@@ -191,20 +191,20 @@ fun AccountScreen(
                 modifier
                     .animateContentSize()
                     .padding(horizontal = Dimens.sideMargin)
-                    .padding(bottom = Dimens.screenVerticalMargin)
+                    .padding(bottom = Dimens.screenVerticalMargin),
         ) {
             Column(
                 verticalArrangement = Arrangement.spacedBy(Dimens.accountRowSpacing),
-                modifier = Modifier.padding(bottom = Dimens.smallPadding).animateContentSize()
+                modifier = Modifier.padding(bottom = Dimens.smallPadding).animateContentSize(),
             ) {
                 DeviceNameRow(
                     deviceName = state.deviceName ?: "",
-                    onInfoClick = navigateToDeviceInfo
+                    onInfoClick = navigateToDeviceInfo,
                 )
 
                 AccountNumberRow(
                     accountNumber = state.accountNumber?.value ?: "",
-                    onCopyAccountNumber
+                    onCopyAccountNumber,
                 )
 
                 PaidUntilRow(accountExpiry = state.accountExpiry)
@@ -219,7 +219,7 @@ fun AccountScreen(
                         onPurchaseBillingProductClick(productId)
                     },
                     onInfoClick = navigateToVerificationPendingDialog,
-                    modifier = Modifier.padding(bottom = Dimens.buttonSpacing)
+                    modifier = Modifier.padding(bottom = Dimens.buttonSpacing),
                 )
             }
 
@@ -227,20 +227,17 @@ fun AccountScreen(
                 ExternalButton(
                     text = stringResource(id = R.string.manage_account),
                     onClick = onManageAccountClick,
-                    modifier = Modifier.padding(bottom = Dimens.buttonSpacing)
+                    modifier = Modifier.padding(bottom = Dimens.buttonSpacing),
                 )
             }
 
             RedeemVoucherButton(
                 onClick = onRedeemVoucherClick,
                 modifier = Modifier.padding(bottom = Dimens.buttonSpacing),
-                isEnabled = true
+                isEnabled = true,
             )
 
-            NegativeButton(
-                text = stringResource(id = R.string.log_out),
-                onClick = onLogoutClick,
-            )
+            NegativeButton(text = stringResource(id = R.string.log_out), onClick = onLogoutClick)
         }
     }
 }
@@ -251,7 +248,7 @@ private fun DeviceNameRow(deviceName: String, onInfoClick: () -> Unit) {
         Text(
             style = MaterialTheme.typography.labelMedium,
             text = stringResource(id = R.string.device_name),
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
 
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -260,7 +257,7 @@ private fun DeviceNameRow(deviceName: String, onInfoClick: () -> Unit) {
                 Icon(
                     painter = painterResource(id = R.drawable.icon_info),
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurface
+                    tint = MaterialTheme.colorScheme.onSurface,
                 )
             }
         }
@@ -273,12 +270,12 @@ private fun AccountNumberRow(accountNumber: String, onCopyAccountNumber: (String
         Text(
             style = MaterialTheme.typography.labelMedium,
             text = stringResource(id = R.string.account_number),
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         CopyableObfuscationView(
             content = accountNumber,
             onCopyClicked = { onCopyAccountNumber(accountNumber) },
-            modifier = Modifier.heightIn(min = Dimens.accountRowMinHeight).fillMaxWidth()
+            modifier = Modifier.heightIn(min = Dimens.accountRowMinHeight).fillMaxWidth(),
         )
     }
 }
@@ -289,16 +286,16 @@ private fun PaidUntilRow(accountExpiry: DateTime?) {
         Text(
             style = MaterialTheme.typography.labelMedium,
             text = stringResource(id = R.string.paid_until),
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
 
         Row(
             modifier = Modifier.heightIn(min = Dimens.accountRowMinHeight),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             InformationView(
                 content = accountExpiry?.toExpiryDateString() ?: "",
-                whenMissing = MissingPolicy.SHOW_SPINNER
+                whenMissing = MissingPolicy.SHOW_SPINNER,
             )
         }
     }

@@ -12,7 +12,7 @@ suspend fun SnackbarHostState.showSnackbarImmediately(
     withDismissAction: Boolean = false,
     onDismiss: (() -> Unit) = {},
     duration: SnackbarDuration =
-        if (actionLabel == null) SnackbarDuration.Short else SnackbarDuration.Indefinite
+        if (actionLabel == null) SnackbarDuration.Short else SnackbarDuration.Indefinite,
 ) {
     currentSnackbarData?.dismiss()
     when (showSnackbar(message, actionLabel, withDismissAction, duration)) {

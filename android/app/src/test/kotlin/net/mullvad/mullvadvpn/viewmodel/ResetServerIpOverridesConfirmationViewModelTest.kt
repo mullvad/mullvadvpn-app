@@ -32,7 +32,7 @@ class ResetServerIpOverridesConfirmationViewModelTest {
 
         viewModel =
             ResetServerIpOverridesConfirmationViewModel(
-                relayOverridesRepository = mockRelayOverridesRepository,
+                relayOverridesRepository = mockRelayOverridesRepository
             )
     }
 
@@ -49,7 +49,7 @@ class ResetServerIpOverridesConfirmationViewModelTest {
             viewModel.clearAllOverrides()
             assertEquals(
                 ResetServerIpOverridesConfirmationUiSideEffect.OverridesCleared,
-                awaitItem()
+                awaitItem(),
             )
         }
     }

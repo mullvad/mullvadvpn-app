@@ -14,11 +14,11 @@ fun SpacedColumn(
     modifier: Modifier = Modifier,
     spacing: Dp = Dimens.listItemDivider,
     alignment: Alignment.Vertical = Alignment.Bottom,
-    content: @Composable ColumnScope.() -> Unit
+    content: @Composable ColumnScope.() -> Unit,
 ) {
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(spacing, alignment),
-        content = content
+        content = content,
     )
 }

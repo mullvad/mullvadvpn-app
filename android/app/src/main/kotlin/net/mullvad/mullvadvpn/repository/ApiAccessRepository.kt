@@ -18,7 +18,7 @@ import net.mullvad.mullvadvpn.lib.model.NewAccessMethodSetting
 
 class ApiAccessRepository(
     private val managementService: ManagementService,
-    dispatcher: CoroutineDispatcher = Dispatchers.IO
+    dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) {
     val accessMethods =
         managementService.settings
@@ -29,7 +29,7 @@ class ApiAccessRepository(
         managementService.currentAccessMethod.stateIn(
             CoroutineScope(dispatcher),
             SharingStarted.Eagerly,
-            null
+            null,
         )
 
     suspend fun addApiAccessMethod(newAccessMethodSetting: NewAccessMethodSetting) =
@@ -47,14 +47,14 @@ class ApiAccessRepository(
     suspend fun updateApiAccessMethod(
         apiAccessMethodId: ApiAccessMethodId,
         apiAccessMethodName: ApiAccessMethodName,
-        apiAccessMethod: ApiAccessMethod
+        apiAccessMethod: ApiAccessMethod,
     ) = either {
         val apiAccessMethodSetting = getApiAccessMethodSettingById(apiAccessMethodId).bind()
         updateApiAccessMethod(
                 apiAccessMethodSetting.copy(
                     id = apiAccessMethodId,
                     name = apiAccessMethodName,
-                    apiAccessMethod = apiAccessMethod
+                    apiAccessMethod = apiAccessMethod,
                 )
             )
             .bind()

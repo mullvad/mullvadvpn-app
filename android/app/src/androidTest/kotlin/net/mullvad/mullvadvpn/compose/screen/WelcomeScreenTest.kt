@@ -46,7 +46,7 @@ class WelcomeScreenTest {
                     onPurchaseBillingProductClick = { _ -> },
                     navigateToDeviceInfoDialog = {},
                     navigateToVerificationPendingDialog = {},
-                    onDisconnectClick = {}
+                    onDisconnectClick = {},
                 )
             }
 
@@ -69,14 +69,14 @@ class WelcomeScreenTest {
                     onPurchaseBillingProductClick = { _ -> },
                     navigateToDeviceInfoDialog = {},
                     navigateToVerificationPendingDialog = {},
-                    onDisconnectClick = {}
+                    onDisconnectClick = {},
                 )
             }
 
             // Assert
             onNodeWithText(
                     "Either buy credit on our website or redeem a voucher.",
-                    substring = true
+                    substring = true,
                 )
                 .assertDoesNotExist()
             onNodeWithText("Buy credit").assertDoesNotExist()
@@ -98,7 +98,7 @@ class WelcomeScreenTest {
                     onPurchaseBillingProductClick = { _ -> },
                     navigateToDeviceInfoDialog = {},
                     navigateToVerificationPendingDialog = {},
-                    onDisconnectClick = {}
+                    onDisconnectClick = {},
                 )
             }
 
@@ -121,7 +121,7 @@ class WelcomeScreenTest {
                     onPurchaseBillingProductClick = { _ -> },
                     navigateToDeviceInfoDialog = {},
                     navigateToVerificationPendingDialog = {},
-                    onDisconnectClick = {}
+                    onDisconnectClick = {},
                 )
             }
 
@@ -147,7 +147,7 @@ class WelcomeScreenTest {
                     onPurchaseBillingProductClick = { _ -> },
                     navigateToDeviceInfoDialog = {},
                     navigateToVerificationPendingDialog = {},
-                    onDisconnectClick = {}
+                    onDisconnectClick = {},
                 )
             }
 
@@ -172,7 +172,7 @@ class WelcomeScreenTest {
                     onPurchaseBillingProductClick = { _ -> },
                     navigateToDeviceInfoDialog = {},
                     navigateToVerificationPendingDialog = {},
-                    onDisconnectClick = {}
+                    onDisconnectClick = {},
                 )
             }
 
@@ -201,7 +201,7 @@ class WelcomeScreenTest {
                     onPurchaseBillingProductClick = { _ -> },
                     navigateToDeviceInfoDialog = {},
                     navigateToVerificationPendingDialog = {},
-                    onDisconnectClick = {}
+                    onDisconnectClick = {},
                 )
             }
 
@@ -231,7 +231,7 @@ class WelcomeScreenTest {
                     onPurchaseBillingProductClick = { _ -> },
                     navigateToDeviceInfoDialog = {},
                     navigateToVerificationPendingDialog = {},
-                    onDisconnectClick = {}
+                    onDisconnectClick = {},
                 )
             }
 
@@ -262,7 +262,7 @@ class WelcomeScreenTest {
                     onPurchaseBillingProductClick = { _ -> },
                     navigateToVerificationPendingDialog = mockShowPendingInfo,
                     navigateToDeviceInfoDialog = {},
-                    onDisconnectClick = {}
+                    onDisconnectClick = {},
                 )
             }
 
@@ -295,7 +295,7 @@ class WelcomeScreenTest {
                     onPurchaseBillingProductClick = { _ -> },
                     navigateToDeviceInfoDialog = {},
                     navigateToVerificationPendingDialog = {},
-                    onDisconnectClick = {}
+                    onDisconnectClick = {},
                 )
             }
 
@@ -326,7 +326,7 @@ class WelcomeScreenTest {
                     onPurchaseBillingProductClick = clickHandler,
                     navigateToDeviceInfoDialog = {},
                     navigateToVerificationPendingDialog = {},
-                    onDisconnectClick = {}
+                    onDisconnectClick = {},
                 )
             }
 
@@ -354,7 +354,7 @@ class WelcomeScreenTest {
                     onPurchaseBillingProductClick = {},
                     navigateToDeviceInfoDialog = {},
                     navigateToVerificationPendingDialog = {},
-                    onDisconnectClick = clickHandler
+                    onDisconnectClick = clickHandler,
                 )
             }
 

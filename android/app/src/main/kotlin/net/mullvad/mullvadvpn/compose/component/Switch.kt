@@ -28,7 +28,7 @@ private fun PreviewMullvadSwitch() {
         Surface(color = MaterialTheme.colorScheme.surface) {
             Column(
                 verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding),
-                modifier = Modifier.padding(Dimens.sideMargin)
+                modifier = Modifier.padding(Dimens.sideMargin),
             ) {
                 MullvadSwitch(checked = true, onCheckedChange = null)
                 MullvadSwitch(checked = false, onCheckedChange = null)
@@ -59,7 +59,7 @@ fun MullvadSwitch(
         thumbContent = thumbContent,
         enabled = enabled,
         colors = colors,
-        interactionSource = interactionSource
+        interactionSource = interactionSource,
     )
 }
 
@@ -79,5 +79,5 @@ fun mullvadSwitchColors(): SwitchColors =
         disabledUncheckedThumbColor = MaterialTheme.colorScheme.error.copy(alpha = AlphaDisabled),
         disabledUncheckedTrackColor = Color.Transparent,
         disabledUncheckedBorderColor =
-            MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaDisabled)
+            MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaDisabled),
     )

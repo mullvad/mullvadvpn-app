@@ -52,7 +52,7 @@ class ForegroundNotificationManager(
             vpnService.startForeground(
                 tunnelStateNotificationProvider.notificationId.value,
                 androidNotification,
-                ServiceInfo.FOREGROUND_SERVICE_TYPE_SYSTEM_EXEMPTED
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_SYSTEM_EXEMPTED,
             )
         } else {
             vpnService.startForeground(
@@ -67,6 +67,6 @@ class ForegroundNotificationManager(
             NotificationChannel.TunnelUpdates.id,
             NotificationTunnelState.Disconnected(true),
             emptyList(),
-            false
+            false,
         )
 }

@@ -25,7 +25,7 @@ class WebLinkTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
         // Then
         device.findObjectWithTimeout(
             selector = By.text("Mullvad help center"),
-            timeout = WEB_TIMEOUT
+            timeout = WEB_TIMEOUT,
         )
     }
 }

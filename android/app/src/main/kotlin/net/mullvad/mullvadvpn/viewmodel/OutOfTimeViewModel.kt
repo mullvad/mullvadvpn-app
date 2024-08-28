@@ -31,7 +31,7 @@ class OutOfTimeViewModel(
     private val outOfTimeUseCase: OutOfTimeUseCase,
     private val connectionProxy: ConnectionProxy,
     private val pollAccountExpiry: Boolean = true,
-    private val isPlayBuild: Boolean
+    private val isPlayBuild: Boolean,
 ) : ViewModel() {
 
     private val _uiSideEffect = Channel<UiSideEffect>()

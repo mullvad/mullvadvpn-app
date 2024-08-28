@@ -35,7 +35,7 @@ fun SwitchLocationButton(
         colors =
             ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = Alpha20),
-                contentColor = MaterialTheme.colorScheme.onPrimary
+                contentColor = MaterialTheme.colorScheme.onPrimary,
             ),
         modifier = modifier,
         text = text,
@@ -44,9 +44,9 @@ fun SwitchLocationButton(
                 {
                     Icon(
                         painter = painterResource(id = R.drawable.icon_chevron),
-                        contentDescription = null
+                        contentDescription = null,
                     )
                 }
-            } else null
+            } else null,
     )
 }

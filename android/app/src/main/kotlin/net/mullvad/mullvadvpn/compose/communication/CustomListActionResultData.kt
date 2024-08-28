@@ -13,39 +13,39 @@ sealed interface CustomListActionResultData : Parcelable {
         data class CreatedWithLocations(
             val customListName: CustomListName,
             val locationNames: List<String>,
-            override val undo: CustomListAction
+            override val undo: CustomListAction,
         ) : Success
 
         @Parcelize
         data class Deleted(
             val customListName: CustomListName,
-            override val undo: CustomListAction.Create
+            override val undo: CustomListAction.Create,
         ) : Success
 
         @Parcelize
         data class Renamed(
             val newName: CustomListName,
-            override val undo: CustomListAction.Rename
+            override val undo: CustomListAction.Rename,
         ) : Success
 
         @Parcelize
         data class LocationAdded(
             val customListName: CustomListName,
             val locationName: String,
-            override val undo: CustomListAction
+            override val undo: CustomListAction,
         ) : Success
 
         @Parcelize
         data class LocationRemoved(
             val customListName: CustomListName,
             val locationName: String,
-            override val undo: CustomListAction
+            override val undo: CustomListAction,
         ) : Success
 
         @Parcelize
         data class LocationChanged(
             val customListName: CustomListName,
-            override val undo: CustomListAction
+            override val undo: CustomListAction,
         ) : Success
     }
 

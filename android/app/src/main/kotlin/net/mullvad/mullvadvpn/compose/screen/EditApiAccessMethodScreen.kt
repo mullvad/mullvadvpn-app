@@ -86,7 +86,7 @@ data class EditApiAccessMethodNavArgs(val accessMethodId: ApiAccessMethodId?)
 
 @Destination<RootGraph>(
     style = SlideInFromRightTransition::class,
-    navArgs = EditApiAccessMethodNavArgs::class
+    navArgs = EditApiAccessMethodNavArgs::class,
 )
 @Composable
 fun EditApiAccessMethod(
@@ -108,7 +108,7 @@ fun EditApiAccessMethod(
                     SaveApiAccessMethodDestination(
                         id = it.id,
                         name = it.name,
-                        customProxy = it.customProxy
+                        customProxy = it.customProxy,
                     )
                 ) {
                     launchSingleTop = true
@@ -158,7 +158,7 @@ fun EditApiAccessMethod(
                     message = context.getString(R.string.testing),
                     duration = SnackbarDuration.Indefinite,
                     actionLabel = context.getString(R.string.cancel),
-                    onAction = viewModel::cancelTestMethod
+                    onAction = viewModel::cancelTestMethod,
                 )
             }
         }
@@ -183,7 +183,7 @@ fun EditApiAccessMethod(
             } else {
                 navigator.navigateUp()
             }
-        }
+        },
     )
 }
 
@@ -201,7 +201,7 @@ fun EditApiAccessMethodScreen(
     onUsernameChanged: (String) -> Unit = {},
     onTestMethod: () -> Unit = {},
     onAddMethod: () -> Unit = {},
-    onNavigateBack: () -> Unit = {}
+    onNavigateBack: () -> Unit = {},
 ) {
     ScaffoldWithSmallTopBar(
         snackbarHostState = snackbarHostState,
@@ -221,7 +221,7 @@ fun EditApiAccessMethodScreen(
                 modifier
                     .drawVerticalScrollbar(
                         state = scrollState,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar)
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
                     )
                     .verticalScroll(scrollState)
                     .padding(horizontal = Dimens.sideMargin, vertical = Dimens.screenVerticalMargin)
@@ -232,7 +232,7 @@ fun EditApiAccessMethodScreen(
                     NameInputField(
                         name = state.formData.name,
                         nameError = state.formData.nameError,
-                        onNameChanged = onNameChanged
+                        onNameChanged = onNameChanged,
                     )
                     Spacer(modifier = Modifier.height(Dimens.verticalSpace))
                     ApiAccessMethodTypeSelection(state.formData, onTypeSelected)
@@ -244,7 +244,7 @@ fun EditApiAccessMethodScreen(
                                 onIpChanged = onIpChanged,
                                 onPortChanged = onPortChanged,
                                 onPasswordChanged = onPasswordChanged,
-                                onCipherChange = onCipherChange
+                                onCipherChange = onCipherChange,
                             )
                         ApiAccessMethodTypes.SOCKS5_REMOTE ->
                             Socks5RemoteForm(
@@ -253,7 +253,7 @@ fun EditApiAccessMethodScreen(
                                 onPortChanged = onPortChanged,
                                 onToggleAuthenticationEnabled = onToggleAuthenticationEnabled,
                                 onUsernameChanged = onUsernameChanged,
-                                onPasswordChanged = onPasswordChanged
+                                onPasswordChanged = onPasswordChanged,
                             )
                     }
                     Spacer(modifier = Modifier.weight(1f))
@@ -261,10 +261,10 @@ fun EditApiAccessMethodScreen(
                         modifier =
                             Modifier.padding(
                                 bottom = Dimens.verticalSpace,
-                                top = Dimens.largePadding
+                                top = Dimens.largePadding,
                             ),
                         isTesting = state.isTestingApiAccessMethod,
-                        onTestMethod = onTestMethod
+                        onTestMethod = onTestMethod,
                     )
                     AddMethodButton(isNew = !state.editMode, onAddMethod = onAddMethod)
                 }
@@ -282,7 +282,7 @@ private fun ColumnScope.Loading() {
 private fun NameInputField(
     name: String,
     nameError: InvalidDataError.NameError?,
-    onNameChanged: (String) -> Unit
+    onNameChanged: (String) -> Unit,
 ) {
     ApiAccessMethodTextField(
         value = name,
@@ -294,20 +294,20 @@ private fun NameInputField(
         maxCharLength = ApiAccessMethodName.MAX_LENGTH,
         errorText = nameError?.let { textResource(id = R.string.this_field_is_required) },
         capitalization = KeyboardCapitalization.Words,
-        modifier = Modifier.animateContentSize().testTag(EDIT_API_ACCESS_NAME_INPUT)
+        modifier = Modifier.animateContentSize().testTag(EDIT_API_ACCESS_NAME_INPUT),
     )
 }
 
 @Composable
 private fun ApiAccessMethodTypeSelection(
     formData: EditApiAccessFormData,
-    onTypeSelected: (ApiAccessMethodTypes) -> Unit
+    onTypeSelected: (ApiAccessMethodTypes) -> Unit,
 ) {
     MullvadExposedDropdownMenuBox(
         modifier = Modifier.padding(vertical = Dimens.miniPadding),
         label = stringResource(id = R.string.type),
         title = formData.apiAccessMethodTypes.text(),
-        colors = apiAccessTextFieldColors()
+        colors = apiAccessTextFieldColors(),
     ) { close ->
         ApiAccessMethodTypes.entries.forEach {
             MullvadDropdownMenuItem(
@@ -325,9 +325,9 @@ private fun ApiAccessMethodTypeSelection(
                                 .alpha(
                                     if (it == formData.apiAccessMethodTypes) AlphaVisible
                                     else AlphaInvisible
-                                )
+                                ),
                     )
-                }
+                },
             )
         }
     }
@@ -339,19 +339,19 @@ private fun ShadowsocksForm(
     onIpChanged: (String) -> Unit,
     onPortChanged: (String) -> Unit,
     onPasswordChanged: (String) -> Unit,
-    onCipherChange: (Cipher) -> Unit
+    onCipherChange: (Cipher) -> Unit,
 ) {
     ServerIpInput(
         serverIp = formData.serverIp,
         serverIpError = formData.serverIpError,
-        onIpChanged = onIpChanged
+        onIpChanged = onIpChanged,
     )
     PortInput(port = formData.port, formData.portError, onPortChanged = onPortChanged)
     PasswordInput(
         password = formData.password,
         passwordError = formData.passwordError,
         optional = true,
-        onPasswordChanged = onPasswordChanged
+        onPasswordChanged = onPasswordChanged,
     )
     CipherSelection(cipher = formData.cipher, onCipherChange = onCipherChange)
 }
@@ -363,12 +363,12 @@ private fun Socks5RemoteForm(
     onPortChanged: (String) -> Unit,
     onToggleAuthenticationEnabled: (Boolean) -> Unit,
     onUsernameChanged: (String) -> Unit,
-    onPasswordChanged: (String) -> Unit
+    onPasswordChanged: (String) -> Unit,
 ) {
     ServerIpInput(
         serverIp = formData.serverIp,
         serverIpError = formData.serverIpError,
-        onIpChanged = onIpChanged
+        onIpChanged = onIpChanged,
     )
     PortInput(port = formData.port, portError = formData.portError, onPortChanged = onPortChanged)
     EnableAuthentication(formData.enableAuthentication, onToggleAuthenticationEnabled)
@@ -382,7 +382,7 @@ private fun Socks5RemoteForm(
             password = formData.password,
             passwordError = formData.passwordError,
             optional = false,
-            onPasswordChanged = onPasswordChanged
+            onPasswordChanged = onPasswordChanged,
         )
     }
 }
@@ -391,7 +391,7 @@ private fun Socks5RemoteForm(
 private fun ServerIpInput(
     serverIp: String,
     serverIpError: InvalidDataError.ServerIpError?,
-    onIpChanged: (String) -> Unit
+    onIpChanged: (String) -> Unit,
 ) {
     ApiAccessMethodTextField(
         value = serverIp,
@@ -412,7 +412,7 @@ private fun ServerIpInput(
                         }
                 )
             },
-        modifier = Modifier.animateContentSize()
+        modifier = Modifier.animateContentSize(),
     )
 }
 
@@ -420,7 +420,7 @@ private fun ServerIpInput(
 private fun PortInput(
     port: String,
     portError: InvalidDataError.PortError?,
-    onPortChanged: (String) -> Unit
+    onPortChanged: (String) -> Unit,
 ) {
     ApiAccessMethodTextField(
         value = port,
@@ -440,7 +440,7 @@ private fun PortInput(
                         }
                 )
             },
-        modifier = Modifier.animateContentSize()
+        modifier = Modifier.animateContentSize(),
     )
 }
 
@@ -449,7 +449,7 @@ private fun PasswordInput(
     password: String,
     passwordError: InvalidDataError.PasswordError?,
     optional: Boolean,
-    onPasswordChanged: (String) -> Unit
+    onPasswordChanged: (String) -> Unit,
 ) {
     ApiAccessMethodTextField(
         value = password,
@@ -474,7 +474,7 @@ private fun PasswordInput(
                 ImeAction.Done
             },
         errorText = passwordError?.let { textResource(id = R.string.this_field_is_required) },
-        modifier = Modifier.animateContentSize()
+        modifier = Modifier.animateContentSize(),
     )
 }
 
@@ -484,7 +484,7 @@ private fun CipherSelection(cipher: Cipher, onCipherChange: (Cipher) -> Unit) {
         modifier = Modifier.padding(vertical = Dimens.miniPadding),
         label = stringResource(id = R.string.cipher),
         title = cipher.label,
-        colors = apiAccessTextFieldColors()
+        colors = apiAccessTextFieldColors(),
     ) { close ->
         Cipher.listAll().forEach {
             MullvadDropdownMenuItem(
@@ -499,9 +499,9 @@ private fun CipherSelection(cipher: Cipher, onCipherChange: (Cipher) -> Unit) {
                         contentDescription = null,
                         modifier =
                             Modifier.padding(end = Dimens.selectableCellTextMargin)
-                                .alpha(if (it == cipher) AlphaVisible else AlphaInvisible)
+                                .alpha(if (it == cipher) AlphaVisible else AlphaInvisible),
                     )
-                }
+                },
             )
         }
     }
@@ -510,7 +510,7 @@ private fun CipherSelection(cipher: Cipher, onCipherChange: (Cipher) -> Unit) {
 @Composable
 private fun EnableAuthentication(
     authenticationEnabled: Boolean,
-    onToggleAuthenticationEnabled: (Boolean) -> Unit
+    onToggleAuthenticationEnabled: (Boolean) -> Unit,
 ) {
     MullvadExposedDropdownMenuBox(
         modifier = Modifier.padding(vertical = Dimens.miniPadding),
@@ -524,7 +524,7 @@ private fun EnableAuthentication(
                         R.string.off
                     }
             ),
-        colors = apiAccessTextFieldColors()
+        colors = apiAccessTextFieldColors(),
     ) { close ->
         MullvadDropdownMenuItem(
             text = stringResource(id = R.string.on),
@@ -538,9 +538,9 @@ private fun EnableAuthentication(
                     contentDescription = null,
                     modifier =
                         Modifier.padding(end = Dimens.selectableCellTextMargin)
-                            .alpha(if (authenticationEnabled) AlphaVisible else AlphaInvisible)
+                            .alpha(if (authenticationEnabled) AlphaVisible else AlphaInvisible),
                 )
-            }
+            },
         )
         MullvadDropdownMenuItem(
             text = stringResource(id = R.string.off),
@@ -556,9 +556,9 @@ private fun EnableAuthentication(
                         Modifier.padding(end = Dimens.selectableCellTextMargin)
                             .alpha(
                                 if (authenticationEnabled.not()) AlphaVisible else AlphaInvisible
-                            )
+                            ),
                 )
-            }
+            },
         )
     }
 }
@@ -567,7 +567,7 @@ private fun EnableAuthentication(
 private fun UsernameInput(
     username: String,
     usernameError: InvalidDataError.UserNameError?,
-    onUsernameChanged: (String) -> Unit
+    onUsernameChanged: (String) -> Unit,
 ) {
     ApiAccessMethodTextField(
         value = username,
@@ -577,7 +577,7 @@ private fun UsernameInput(
         isValidValue = usernameError == null,
         isDigitsOnlyAllowed = false,
         errorText = usernameError?.let { textResource(id = R.string.this_field_is_required) },
-        modifier = Modifier.animateContentSize()
+        modifier = Modifier.animateContentSize(),
     )
 }
 
@@ -593,7 +593,7 @@ private fun AddMethodButton(isNew: Boolean, onAddMethod: () -> Unit) {
                     } else {
                         R.string.save
                     }
-            )
+            ),
     )
 }
 
@@ -604,5 +604,5 @@ private fun ApiAccessMethodTypes.text(): String =
             when (this) {
                 ApiAccessMethodTypes.SHADOWSOCKS -> R.string.shadowsocks
                 ApiAccessMethodTypes.SOCKS5_REMOTE -> R.string.socks5_remote
-            },
+            }
     )

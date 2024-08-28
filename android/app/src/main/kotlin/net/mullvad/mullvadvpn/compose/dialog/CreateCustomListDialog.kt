@@ -59,7 +59,7 @@ data class CreateCustomListNavArgs(val locationCode: GeoLocationId?)
 @Composable
 @Destination<RootGraph>(
     style = DestinationStyle.Dialog::class,
-    navArgs = CreateCustomListNavArgs::class
+    navArgs = CreateCustomListNavArgs::class,
 )
 fun CreateCustomList(
     navigator: DestinationsNavigator,
@@ -73,7 +73,7 @@ fun CreateCustomList(
                     navigator.navigate(
                         CustomListLocationsDestination(
                             customListId = sideEffect.customListId,
-                            newList = true
+                            newList = true,
                         )
                     ) {
                         launchSingleTop = true
@@ -90,7 +90,7 @@ fun CreateCustomList(
         state = state,
         createCustomList = vm::createCustomList,
         onInputChanged = vm::clearError,
-        onDismiss = dropUnlessResumed { backNavigator.navigateBack() }
+        onDismiss = dropUnlessResumed { backNavigator.navigateBack() },
     )
 }
 
@@ -99,18 +99,14 @@ fun CreateCustomListDialog(
     state: CreateCustomListUiState,
     createCustomList: (String) -> Unit = {},
     onInputChanged: () -> Unit = {},
-    onDismiss: () -> Unit = {}
+    onDismiss: () -> Unit = {},
 ) {
 
     val name = remember { mutableStateOf("") }
     val isValidName by remember { derivedStateOf { name.value.isNotBlank() } }
 
     AlertDialog(
-        title = {
-            Text(
-                text = stringResource(id = R.string.create_new_list),
-            )
-        },
+        title = { Text(text = stringResource(id = R.string.create_new_list)) },
         text = {
             CustomListNameTextField(
                 name = name.value,
@@ -121,7 +117,7 @@ fun CreateCustomListDialog(
                     name.value = it
                     onInputChanged()
                 },
-                modifier = Modifier.testTag(CREATE_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG)
+                modifier = Modifier.testTag(CREATE_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG),
             )
         },
         containerColor = MaterialTheme.colorScheme.surface,
@@ -131,12 +127,12 @@ fun CreateCustomListDialog(
             PrimaryButton(
                 text = stringResource(id = R.string.create),
                 onClick = { createCustomList(name.value) },
-                isEnabled = isValidName
+                isEnabled = isValidName,
             )
         },
         dismissButton = {
             PrimaryButton(text = stringResource(id = R.string.cancel), onClick = onDismiss)
-        }
+        },
     )
 }
 

@@ -56,7 +56,7 @@ private fun PreviewSettings() {
                     isLoggedIn = true,
                     isSupportedVersion = true,
                     isPlayBuild = false,
-                ),
+                )
         )
     }
 }
@@ -75,7 +75,7 @@ fun Settings(navigator: DestinationsNavigator) {
         onApiAccessClick = dropUnlessResumed { navigator.navigate(ApiAccessListDestination) },
         onReportProblemCellClick =
             dropUnlessResumed { navigator.navigate(ReportProblemDestination) },
-        onBackClick = dropUnlessResumed { navigator.navigateUp() }
+        onBackClick = dropUnlessResumed { navigator.navigateUp() },
     )
 }
 
@@ -87,7 +87,7 @@ fun SettingsScreen(
     onSplitTunnelingCellClick: () -> Unit = {},
     onReportProblemCellClick: () -> Unit = {},
     onApiAccessClick: () -> Unit = {},
-    onBackClick: () -> Unit = {}
+    onBackClick: () -> Unit = {},
 ) {
     val context = LocalContext.current
 
@@ -97,14 +97,14 @@ fun SettingsScreen(
     ) { modifier, lazyListState ->
         LazyColumn(
             modifier = modifier.testTag(LAZY_LIST_TEST_TAG).animateContentSize(),
-            state = lazyListState
+            state = lazyListState,
         ) {
             if (state.isLoggedIn) {
                 item { Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding)) }
                 item {
                     NavigationComposeCell(
                         title = stringResource(id = R.string.settings_vpn),
-                        onClick = onVpnSettingCellClick
+                        onClick = onVpnSettingCellClick,
                     )
                 }
                 item { Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing)) }
@@ -115,7 +115,7 @@ fun SettingsScreen(
             item {
                 NavigationComposeCell(
                     title = stringResource(id = R.string.settings_api_access),
-                    onClick = onApiAccessClick
+                    onClick = onApiAccessClick,
                 )
             }
             item { Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing)) }
@@ -139,7 +139,7 @@ fun SettingsScreen(
 private fun SplitTunneling(onSplitTunnelingCellClick: () -> Unit) {
     NavigationComposeCell(
         title = stringResource(id = R.string.split_tunneling),
-        onClick = onSplitTunnelingCellClick
+        onClick = onSplitTunnelingCellClick,
     )
 }
 
@@ -169,12 +169,12 @@ private fun AppVersion(context: Context, state: SettingsUiState) {
                     Text(
                         text = state.appVersion,
                         style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             },
         showWarning = !state.isSupportedVersion,
-        isRowEnabled = !state.isPlayBuild
+        isRowEnabled = !state.isPlayBuild,
     )
 
     if (!state.isSupportedVersion) {
@@ -189,7 +189,7 @@ private fun AppVersion(context: Context, state: SettingsUiState) {
                         top = Dimens.cellTopPadding,
                         end = Dimens.cellStartPadding,
                         bottom = Dimens.cellLabelVerticalPadding,
-                    )
+                    ),
         )
     }
 }
@@ -198,7 +198,7 @@ private fun AppVersion(context: Context, state: SettingsUiState) {
 private fun ReportProblem(onReportProblemCellClick: () -> Unit) {
     NavigationComposeCell(
         title = stringResource(id = R.string.report_a_problem),
-        onClick = { onReportProblemCellClick() }
+        onClick = { onReportProblemCellClick() },
     )
 }
 
@@ -211,12 +211,12 @@ private fun FaqAndGuides(context: Context) {
             @Composable {
                 DefaultExternalLinkView(
                     chevronContentDescription = faqGuideLabel,
-                    tint = MaterialTheme.colorScheme.onPrimary
+                    tint = MaterialTheme.colorScheme.onPrimary,
                 )
             },
         onClick = {
             context.openLink(Uri.parse(context.resources.getString(R.string.faqs_and_guides_url)))
-        }
+        },
     )
 }
 
@@ -229,7 +229,7 @@ private fun PrivacyPolicy(context: Context, state: SettingsUiState) {
             @Composable {
                 DefaultExternalLinkView(
                     chevronContentDescription = privacyPolicyLabel,
-                    tint = MaterialTheme.colorScheme.onPrimary
+                    tint = MaterialTheme.colorScheme.onPrimary,
                 )
             },
         onClick = {
@@ -240,6 +240,6 @@ private fun PrivacyPolicy(context: Context, state: SettingsUiState) {
                         .appendHideNavOnPlayBuild(state.isPlayBuild)
                 )
             )
-        }
+        },
     )
 }

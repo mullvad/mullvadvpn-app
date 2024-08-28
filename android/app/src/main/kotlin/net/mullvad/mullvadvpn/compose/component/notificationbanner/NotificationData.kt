@@ -21,27 +21,24 @@ data class NotificationData(
     val title: String,
     val message: AnnotatedString? = null,
     val statusLevel: StatusLevel,
-    val action: NotificationAction? = null
+    val action: NotificationAction? = null,
 ) {
     constructor(
         title: String,
         message: String?,
         statusLevel: StatusLevel,
-        action: NotificationAction?
+        action: NotificationAction?,
     ) : this(title, message?.let { AnnotatedString(it) }, statusLevel, action)
 }
 
-data class NotificationAction(
-    @DrawableRes val icon: Int,
-    val onClick: (() -> Unit),
-)
+data class NotificationAction(@DrawableRes val icon: Int, val onClick: (() -> Unit))
 
 @Composable
 fun InAppNotification.toNotificationData(
     isPlayBuild: Boolean,
     onClickUpdateVersion: () -> Unit,
     onClickShowAccount: () -> Unit,
-    onDismissNewDevice: () -> Unit
+    onDismissNewDevice: () -> Unit,
 ) =
     when (this) {
         is InAppNotification.NewDevice ->
@@ -51,19 +48,19 @@ fun InAppNotification.toNotificationData(
                     HtmlCompat.fromHtml(
                             stringResource(
                                 id = R.string.new_device_notification_message,
-                                deviceName
+                                deviceName,
                             ),
-                            HtmlCompat.FROM_HTML_MODE_COMPACT
+                            HtmlCompat.FROM_HTML_MODE_COMPACT,
                         )
                         .toAnnotatedString(
                             boldSpanStyle =
                                 SpanStyle(
                                     color = MaterialTheme.colorScheme.onSurface,
-                                    fontWeight = FontWeight.ExtraBold
-                                ),
+                                    fontWeight = FontWeight.ExtraBold,
+                                )
                         ),
                 statusLevel = StatusLevel.Info,
-                action = NotificationAction(R.drawable.icon_close, onDismissNewDevice)
+                action = NotificationAction(R.drawable.icon_close, onDismissNewDevice),
             )
         is InAppNotification.AccountExpiry ->
             NotificationData(
@@ -72,16 +69,12 @@ fun InAppNotification.toNotificationData(
                 statusLevel = StatusLevel.Error,
                 action =
                     if (isPlayBuild) null
-                    else
-                        NotificationAction(
-                            R.drawable.icon_extlink,
-                            onClickShowAccount,
-                        ),
+                    else NotificationAction(R.drawable.icon_extlink, onClickShowAccount),
             )
         InAppNotification.TunnelStateBlocked ->
             NotificationData(
                 title = stringResource(id = R.string.blocking_internet),
-                statusLevel = StatusLevel.Error
+                statusLevel = StatusLevel.Error,
             )
         is InAppNotification.TunnelStateError -> errorMessageBannerData(error)
         is InAppNotification.UnsupportedVersion ->
@@ -91,7 +84,7 @@ fun InAppNotification.toNotificationData(
                 statusLevel = StatusLevel.Error,
                 action =
                     if (isPlayBuild) null
-                    else NotificationAction(R.drawable.icon_extlink, onClickUpdateVersion)
+                    else NotificationAction(R.drawable.icon_extlink, onClickUpdateVersion),
             )
     }
 
@@ -104,16 +97,16 @@ private fun errorMessageBannerData(error: ErrorState) =
                 HtmlCompat.fromHtml(
                         optionalMessageArgument?.let { stringResource(id = messageResourceId, it) }
                             ?: stringResource(id = messageResourceId),
-                        HtmlCompat.FROM_HTML_MODE_COMPACT
+                        HtmlCompat.FROM_HTML_MODE_COMPACT,
                     )
                     .toAnnotatedString(
                         boldSpanStyle =
                             SpanStyle(
                                 color = MaterialTheme.colorScheme.onSurface,
-                                fontWeight = FontWeight.ExtraBold
+                                fontWeight = FontWeight.ExtraBold,
                             )
                     ),
             statusLevel = StatusLevel.Error,
-            action = null
+            action = null,
         )
     }

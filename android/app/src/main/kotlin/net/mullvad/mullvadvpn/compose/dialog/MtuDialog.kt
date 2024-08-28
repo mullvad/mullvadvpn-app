@@ -59,7 +59,7 @@ fun Mtu(navigator: ResultBackNavigator<Boolean>) {
         onInputChanged = viewModel::onInputChanged,
         onSaveMtu = viewModel::onSaveClick,
         onResetMtu = viewModel::onRestoreClick,
-        onDismiss = dropUnlessResumed { navigator.navigateBack() }
+        onDismiss = dropUnlessResumed { navigator.navigateBack() },
     )
 }
 
@@ -89,7 +89,7 @@ fun MtuDialog(
                     placeholderText = stringResource(R.string.enter_value_placeholder),
                     maxCharLength = 4,
                     isValidValue = state.isValidInput,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 )
 
                 Text(
@@ -97,11 +97,11 @@ fun MtuDialog(
                         stringResource(
                             id = R.string.wireguard_mtu_footer,
                             MTU_MIN_VALUE,
-                            MTU_MAX_VALUE
+                            MTU_MAX_VALUE,
                         ),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(top = Dimens.smallPadding)
+                    modifier = Modifier.padding(top = Dimens.smallPadding),
                 )
             }
         },
@@ -111,21 +111,21 @@ fun MtuDialog(
                     modifier = Modifier.fillMaxWidth(),
                     isEnabled = state.isValidInput,
                     text = stringResource(R.string.submit_button),
-                    onClick = { onSaveMtu(state.mtuInput) }
+                    onClick = { onSaveMtu(state.mtuInput) },
                 )
 
                 if (state.showResetToDefault) {
                     NegativeButton(
                         modifier = Modifier.fillMaxWidth(),
                         text = stringResource(R.string.reset_to_default_button),
-                        onClick = onResetMtu
+                        onClick = onResetMtu,
                     )
                 }
 
                 PrimaryButton(
                     modifier = Modifier.fillMaxWidth(),
                     text = stringResource(R.string.cancel),
-                    onClick = onDismiss
+                    onClick = onDismiss,
                 )
             }
         },

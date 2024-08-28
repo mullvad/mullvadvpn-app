@@ -34,7 +34,7 @@ class TooManyDevicesMockApiTest : MockApiTest() {
                     DUMMY_ID_2 to DUMMY_DEVICE_NAME_2,
                     DUMMY_ID_3 to DUMMY_DEVICE_NAME_3,
                     DUMMY_ID_4 to DUMMY_DEVICE_NAME_4,
-                    DUMMY_ID_5 to DUMMY_DEVICE_NAME_5
+                    DUMMY_ID_5 to DUMMY_DEVICE_NAME_5,
                 )
             devicePendingToGetCreated = DUMMY_ID_6 to DUMMY_DEVICE_NAME_6
         }

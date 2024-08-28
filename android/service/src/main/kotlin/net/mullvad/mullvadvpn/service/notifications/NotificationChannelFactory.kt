@@ -11,7 +11,7 @@ import net.mullvad.mullvadvpn.lib.model.NotificationChannelId
 class NotificationChannelFactory(
     private val notificationManagerCompat: NotificationManagerCompat,
     private val resources: Resources,
-    channels: List<NotificationChannel>
+    channels: List<NotificationChannel>,
 ) {
     init {
         channels.forEach { create(it) }
@@ -30,10 +30,7 @@ class NotificationChannelFactory(
         }
 
     private fun NotificationChannel.TunnelUpdates.toChannel(): NotificationChannelCompat =
-        NotificationChannelCompat.Builder(
-                id.value,
-                NotificationManager.IMPORTANCE_LOW,
-            )
+        NotificationChannelCompat.Builder(id.value, NotificationManager.IMPORTANCE_LOW)
             .setName(resources.getString(R.string.foreground_notification_channel_name))
             .setDescription(
                 resources.getString(R.string.foreground_notification_channel_description)
@@ -43,10 +40,7 @@ class NotificationChannelFactory(
             .build()
 
     private fun NotificationChannel.AccountUpdates.toChannel(): NotificationChannelCompat =
-        NotificationChannelCompat.Builder(
-                id.value,
-                NotificationManager.IMPORTANCE_HIGH,
-            )
+        NotificationChannelCompat.Builder(id.value, NotificationManager.IMPORTANCE_HIGH)
             .setName(resources.getString(R.string.account_time_notification_channel_name))
             .setDescription(
                 resources.getString(R.string.account_time_notification_channel_description)

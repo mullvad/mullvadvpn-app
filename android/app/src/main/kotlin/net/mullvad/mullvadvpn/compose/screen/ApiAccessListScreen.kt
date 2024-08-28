@@ -69,7 +69,7 @@ fun ApiAccessList(navigator: DestinationsNavigator) {
         onApiAccessInfoClick = {
             navigator.navigate(ApiAccessMethodInfoDestination) { launchSingleTop = true }
         },
-        onBackClick = navigator::navigateUp
+        onBackClick = navigator::navigateUp,
     )
 }
 
@@ -79,7 +79,7 @@ fun ApiAccessListScreen(
     onAddMethodClick: () -> Unit = {},
     onApiAccessMethodClick: (apiAccessMethodSetting: ApiAccessMethodSetting) -> Unit = {},
     onApiAccessInfoClick: () -> Unit = {},
-    onBackClick: () -> Unit = {}
+    onBackClick: () -> Unit = {},
 ) {
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.settings_api_access),
@@ -89,11 +89,11 @@ fun ApiAccessListScreen(
             description()
             currentAccessMethod(
                 currentApiAccessMethodName = state.currentApiAccessMethodSetting?.name,
-                onInfoClicked = onApiAccessInfoClick
+                onInfoClicked = onApiAccessInfoClick,
             )
             apiAccessMethodItems(
                 state.apiAccessMethodSettings,
-                onApiAccessMethodClick = onApiAccessMethodClick
+                onApiAccessMethodClick = onApiAccessMethodClick,
             )
             buttonPanel(onAddMethodClick = onAddMethodClick)
         }
@@ -108,14 +108,14 @@ private fun LazyListScope.description() {
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier =
                 Modifier.padding(start = Dimens.cellStartPadding, end = Dimens.cellEndPadding)
-                    .fillMaxWidth()
+                    .fillMaxWidth(),
         )
     }
 }
 
 private fun LazyListScope.currentAccessMethod(
     currentApiAccessMethodName: ApiAccessMethodName?,
-    onInfoClicked: () -> Unit
+    onInfoClicked: () -> Unit,
 ) {
     item {
         Row(
@@ -123,9 +123,9 @@ private fun LazyListScope.currentAccessMethod(
                 Modifier.padding(
                     start = Dimens.sideMargin,
                     end = Dimens.sideMargin,
-                    bottom = Dimens.mediumPadding
+                    bottom = Dimens.mediumPadding,
                 ),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
                 style = MaterialTheme.typography.titleMedium,
@@ -145,7 +145,7 @@ private fun LazyListScope.currentAccessMethod(
                 Icon(
                     painter = painterResource(id = R.drawable.icon_info),
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurface
+                    tint = MaterialTheme.colorScheme.onSurface,
                 )
             }
         }
@@ -154,7 +154,7 @@ private fun LazyListScope.currentAccessMethod(
 
 private fun LazyListScope.apiAccessMethodItems(
     apiAccessMethodSettings: List<ApiAccessMethodSetting>,
-    onApiAccessMethodClick: (apiAccessMethodSetting: ApiAccessMethodSetting) -> Unit
+    onApiAccessMethodClick: (apiAccessMethodSetting: ApiAccessMethodSetting) -> Unit,
 ) {
     itemsWithDivider(
         items = apiAccessMethodSettings,
@@ -163,7 +163,7 @@ private fun LazyListScope.apiAccessMethodItems(
     ) {
         ApiAccessMethodItem(
             apiAccessMethodSetting = it,
-            onApiAccessMethodClick = onApiAccessMethodClick
+            onApiAccessMethodClick = onApiAccessMethodClick,
         )
     }
 }
@@ -171,7 +171,7 @@ private fun LazyListScope.apiAccessMethodItems(
 @Composable
 private fun ApiAccessMethodItem(
     apiAccessMethodSetting: ApiAccessMethodSetting,
-    onApiAccessMethodClick: (apiAccessMethodSetting: ApiAccessMethodSetting) -> Unit
+    onApiAccessMethodClick: (apiAccessMethodSetting: ApiAccessMethodSetting) -> Unit,
 ) {
     TwoRowCell(
         titleText = apiAccessMethodSetting.name.value,
@@ -189,10 +189,10 @@ private fun ApiAccessMethodItem(
         bodyView = {
             DefaultNavigationView(
                 chevronContentDescription = apiAccessMethodSetting.name.value,
-                tint = MaterialTheme.colorScheme.onPrimary
+                tint = MaterialTheme.colorScheme.onPrimary,
             )
         },
-        onCellClicked = { onApiAccessMethodClick(apiAccessMethodSetting) }
+        onCellClicked = { onApiAccessMethodClick(apiAccessMethodSetting) },
     )
 }
 
@@ -202,7 +202,7 @@ private fun LazyListScope.buttonPanel(onAddMethodClick: () -> Unit) {
             modifier =
                 Modifier.padding(horizontal = Dimens.sideMargin, vertical = Dimens.largePadding),
             onClick = onAddMethodClick,
-            text = stringResource(id = R.string.add)
+            text = stringResource(id = R.string.add),
         )
     }
 }

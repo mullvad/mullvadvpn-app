@@ -11,7 +11,7 @@ import net.mullvad.mullvadvpn.lib.model.AppId
 
 class SplitTunnelingRepository(
     private val managementService: ManagementService,
-    dispatcher: CoroutineDispatcher = Dispatchers.IO
+    dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) {
     val splitTunnelingEnabled =
         managementService.settings

@@ -21,6 +21,6 @@ fun accountNumberVisualTransformation() = VisualTransformation {
 
             override fun transformedToOriginal(offset: Int): Int =
                 offset - (offset - 1) / (ACCOUNT_NUMBER_CHUNK_SIZE + 1)
-        }
+        },
     )
 }

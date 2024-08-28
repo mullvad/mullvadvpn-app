@@ -12,7 +12,7 @@ fun DnsTextField(
     onSubmit: () -> Unit = {},
     placeholderText: String?,
     isEnabled: Boolean = true,
-    isValidValue: Boolean = true
+    isValidValue: Boolean = true,
 ) {
     CustomTextField(
         value = value,
@@ -24,6 +24,6 @@ fun DnsTextField(
         placeholderText = placeholderText,
         maxCharLength = Int.MAX_VALUE,
         isDigitsOnlyAllowed = false,
-        isValidValue = isValidValue
+        isValidValue = isValidValue,
     )
 }

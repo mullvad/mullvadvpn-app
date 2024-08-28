@@ -70,7 +70,7 @@ class DnsDialogViewModel(
             .stateIn(
                 viewModelScope,
                 SharingStarted.Lazily,
-                createViewState(emptyList(), null, false, _ipAddressInput.value)
+                createViewState(emptyList(), null, false, _ipAddressInput.value),
             )
 
     private val _uiSideEffect = Channel<DnsDialogSideEffect>()
@@ -84,19 +84,19 @@ class DnsDialogViewModel(
         customDnsList: List<InetAddress>,
         currentIndex: Int?,
         isAllowLanEnabled: Boolean,
-        input: String
+        input: String,
     ): DnsDialogViewState =
         DnsDialogViewState(
             input,
             input.validateDnsEntry(currentIndex, customDnsList).leftOrNull(),
             input.isLocalAddress(),
             isAllowLanEnabled = isAllowLanEnabled,
-            currentIndex
+            currentIndex,
         )
 
     private fun String.validateDnsEntry(
         index: Int?,
-        dnsList: List<InetAddress>
+        dnsList: List<InetAddress>,
     ): Either<ValidationError, InetAddress> = either {
         ensure(isNotBlank()) { ValidationError.InvalidAddress }
         ensure(isValidIp()) { ValidationError.InvalidAddress }
@@ -127,7 +127,7 @@ class DnsDialogViewModel(
 
             result.fold(
                 { _uiSideEffect.send(DnsDialogSideEffect.Error) },
-                { _uiSideEffect.send(DnsDialogSideEffect.Complete) }
+                { _uiSideEffect.send(DnsDialogSideEffect.Complete) },
             )
         }
 
@@ -137,7 +137,7 @@ class DnsDialogViewModel(
                 .deleteCustomDns(index)
                 .fold(
                     { _uiSideEffect.send(DnsDialogSideEffect.Error) },
-                    { _uiSideEffect.send(DnsDialogSideEffect.Complete) }
+                    { _uiSideEffect.send(DnsDialogSideEffect.Complete) },
                 )
         }
 
@@ -155,7 +155,7 @@ class DnsDialogViewModel(
 
     private fun InetAddress.isDuplicateDnsEntry(
         currentIndex: Int? = null,
-        dnsList: List<InetAddress>
+        dnsList: List<InetAddress>,
     ): Boolean =
         dnsList.withIndex().any { (index, entry) ->
             if (index == currentIndex) {

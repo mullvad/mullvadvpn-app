@@ -38,7 +38,7 @@ data class VpnSettingsViewModelState(
             selectedWireguardPort,
             customWireguardPort,
             availablePortRanges,
-            systemVpnSettingsAvailable
+            systemVpnSettingsAvailable,
         )
 
     companion object {
@@ -56,7 +56,7 @@ data class VpnSettingsViewModelState(
                 selectedWireguardPort = Constraint.Any,
                 customWireguardPort = null,
                 availablePortRanges = emptyList(),
-                systemVpnSettingsAvailable = false
+                systemVpnSettingsAvailable = false,
             )
     }
 }

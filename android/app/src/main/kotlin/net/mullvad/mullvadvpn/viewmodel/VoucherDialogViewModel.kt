@@ -48,7 +48,7 @@ class VoucherDialogViewModel(private val voucherRepository: VoucherRepository) :
                 }
                 .fold(
                     { error -> setError(error) },
-                    { success -> handleAddedTime(success.timeAdded) }
+                    { success -> handleAddedTime(success.timeAdded) },
                 )
         }
     }

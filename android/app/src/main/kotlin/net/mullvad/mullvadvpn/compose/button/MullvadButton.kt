@@ -72,10 +72,10 @@ fun NegativeButton(
             containerColor = MaterialTheme.colorScheme.error,
             contentColor = MaterialTheme.colorScheme.onError,
             disabledContentColor = MaterialTheme.colorScheme.onError.copy(alpha = Alpha20),
-            disabledContainerColor = MaterialTheme.colorScheme.errorDisabled
+            disabledContainerColor = MaterialTheme.colorScheme.errorDisabled,
         ),
     isEnabled: Boolean = true,
-    icon: @Composable (() -> Unit)? = null
+    icon: @Composable (() -> Unit)? = null,
 ) {
     BaseButton(
         onClick = onClick,
@@ -83,7 +83,7 @@ fun NegativeButton(
         text = text,
         modifier = modifier,
         isEnabled = isEnabled,
-        trailingIcon = icon
+        trailingIcon = icon,
     )
 }
 
@@ -101,7 +101,7 @@ fun VariantButton(
             disabledContainerColor = MaterialTheme.colorScheme.tertiaryDisabled,
         ),
     isEnabled: Boolean = true,
-    icon: @Composable (() -> Unit)? = null
+    icon: @Composable (() -> Unit)? = null,
 ) {
     BaseButton(
         onClick = onClick,
@@ -109,7 +109,7 @@ fun VariantButton(
         text = text,
         modifier = modifier,
         isEnabled = isEnabled,
-        trailingIcon = icon
+        trailingIcon = icon,
     )
 }
 
@@ -127,7 +127,7 @@ fun PrimaryButton(
         ),
     isEnabled: Boolean = true,
     leadingIcon: @Composable (() -> Unit)? = null,
-    trailingIcon: @Composable (() -> Unit)? = null
+    trailingIcon: @Composable (() -> Unit)? = null,
 ) {
     BaseButton(
         onClick = onClick,
@@ -136,7 +136,7 @@ fun PrimaryButton(
         modifier = modifier,
         isEnabled = isEnabled,
         leadingIcon = leadingIcon,
-        trailingIcon = trailingIcon
+        trailingIcon = trailingIcon,
     )
 }
 
@@ -148,7 +148,7 @@ private fun BaseButton(
     modifier: Modifier = Modifier,
     isEnabled: Boolean = true,
     leadingIcon: @Composable (() -> Unit)? = null,
-    trailingIcon: @Composable (() -> Unit)? = null
+    trailingIcon: @Composable (() -> Unit)? = null,
 ) {
     val hasIcon = leadingIcon != null || trailingIcon != null
     Button(
@@ -162,7 +162,7 @@ private fun BaseButton(
                 ButtonDefaults.ContentPadding
             },
         modifier = modifier.wrapContentHeight().fillMaxWidth(),
-        shape = MaterialTheme.shapes.small
+        shape = MaterialTheme.shapes.small,
     ) {
         // Used to center the text
         when {
@@ -183,7 +183,7 @@ private fun BaseButton(
             style = MaterialTheme.typography.bodyMedium,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
         )
         when {
             trailingIcon != null ->

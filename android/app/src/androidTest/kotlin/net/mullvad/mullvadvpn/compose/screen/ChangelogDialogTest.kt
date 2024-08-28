@@ -38,11 +38,8 @@ class ChangelogDialogTest {
 
             setContentWithTheme {
                 ChangelogDialog(
-                    Changelog(
-                        changes = listOf(CHANGELOG_ITEM),
-                        version = CHANGELOG_VERSION,
-                    ),
-                    onDismiss = { mockedViewModel.markChangelogAsRead() }
+                    Changelog(changes = listOf(CHANGELOG_ITEM), version = CHANGELOG_VERSION),
+                    onDismiss = { mockedViewModel.markChangelogAsRead() },
                 )
             }
 

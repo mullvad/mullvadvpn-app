@@ -56,7 +56,7 @@ private fun PreviewRedeemVoucherDialog() {
             state = VoucherDialogUiState.INITIAL,
             onVoucherInputChange = {},
             onRedeem = {},
-            onDismiss = {}
+            onDismiss = {},
         )
     }
 }
@@ -69,7 +69,7 @@ private fun PreviewRedeemVoucherDialogVerifying() {
             state = VoucherDialogUiState("", VoucherDialogState.Verifying),
             onVoucherInputChange = {},
             onRedeem = {},
-            onDismiss = {}
+            onDismiss = {},
         )
     }
 }
@@ -82,11 +82,11 @@ private fun PreviewRedeemVoucherDialogError() {
             state =
                 VoucherDialogUiState(
                     "",
-                    VoucherDialogState.Error(RedeemVoucherError.InvalidVoucher)
+                    VoucherDialogState.Error(RedeemVoucherError.InvalidVoucher),
                 ),
             onVoucherInputChange = {},
             onRedeem = {},
-            onDismiss = {}
+            onDismiss = {},
         )
     }
 }
@@ -99,7 +99,7 @@ private fun PreviewRedeemVoucherDialogSuccess() {
             state = VoucherDialogUiState("", VoucherDialogState.Success(3600)),
             onVoucherInputChange = {},
             onRedeem = {},
-            onDismiss = {}
+            onDismiss = {},
         )
     }
 }
@@ -113,7 +113,7 @@ fun RedeemVoucher(resultBackNavigator: ResultBackNavigator<Boolean>) {
         state = state,
         onVoucherInputChange = vm::onVoucherInputChange,
         onRedeem = vm::onRedeem,
-        onDismiss = { resultBackNavigator.navigateBack(result = it) }
+        onDismiss = { resultBackNavigator.navigateBack(result = it) },
     )
 }
 
@@ -122,14 +122,12 @@ fun RedeemVoucherDialog(
     state: VoucherDialogUiState,
     onVoucherInputChange: (String) -> Unit = {},
     onRedeem: (voucherCode: String) -> Unit,
-    onDismiss: (isTimeAdded: Boolean) -> Unit
+    onDismiss: (isTimeAdded: Boolean) -> Unit,
 ) {
     AlertDialog(
         title = {
             if (state.voucherState !is VoucherDialogState.Success)
-                Text(
-                    text = stringResource(id = R.string.enter_voucher_code),
-                )
+                Text(text = stringResource(id = R.string.enter_voucher_code))
         },
         confirmButton = {
             Column {
@@ -138,7 +136,7 @@ fun RedeemVoucherDialog(
                         text = stringResource(id = R.string.redeem),
                         onClick = { onRedeem(state.voucherInput) },
                         modifier = Modifier.padding(bottom = Dimens.buttonSpacing),
-                        isEnabled = state.voucherInput.length == VOUCHER_LENGTH
+                        isEnabled = state.voucherInput.length == VOUCHER_LENGTH,
                     )
                 }
                 PrimaryButton(
@@ -149,14 +147,14 @@ fun RedeemVoucherDialog(
                                     R.string.got_it
                                 else R.string.cancel
                         ),
-                    onClick = { onDismiss(state.voucherState is VoucherDialogState.Success) }
+                    onClick = { onDismiss(state.voucherState is VoucherDialogState.Success) },
                 )
             }
         },
         text = {
             Column(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 if (state.voucherState is VoucherDialogState.Success) {
                     val days: Int =
@@ -175,10 +173,10 @@ fun RedeemVoucherDialog(
                                     pluralStringResource(
                                         id = R.plurals.months,
                                         count = days / 30,
-                                        days / 30
+                                        days / 30,
                                     )
                                 }
-                            }
+                            },
                         )
                     RedeemSuccessBody(message = message)
                 } else {
@@ -186,7 +184,7 @@ fun RedeemVoucherDialog(
                     EnterVoucherBody(
                         state = state,
                         onVoucherInputChange = onVoucherInputChange,
-                        onRedeem = onRedeem
+                        onRedeem = onRedeem,
                     )
                 }
             }
@@ -198,7 +196,7 @@ fun RedeemVoucherDialog(
             DialogProperties(
                 securePolicy =
                     if (BuildConfig.DEBUG) SecureFlagPolicy.Inherit else SecureFlagPolicy.SecureOn
-            )
+            ),
     )
 }
 
@@ -207,18 +205,15 @@ private fun RedeemSuccessBody(message: String) {
     Image(
         painter = painterResource(R.drawable.icon_success),
         contentDescription = null,
-        modifier = Modifier.fillMaxWidth().height(Dimens.buttonHeight)
+        modifier = Modifier.fillMaxWidth().height(Dimens.buttonHeight),
     )
     Text(
         text = stringResource(id = R.string.voucher_success_title),
         modifier =
-            Modifier.padding(
-                    start = Dimens.smallPadding,
-                    top = Dimens.successIconVerticalPadding,
-                )
+            Modifier.padding(start = Dimens.smallPadding, top = Dimens.successIconVerticalPadding)
                 .fillMaxWidth(),
         color = MaterialTheme.colorScheme.onSurface,
-        style = MaterialTheme.typography.titleMedium
+        style = MaterialTheme.typography.titleMedium,
     )
 
     Text(
@@ -227,7 +222,7 @@ private fun RedeemSuccessBody(message: String) {
             Modifier.padding(start = Dimens.smallPadding, top = Dimens.cellTopPadding)
                 .fillMaxWidth(),
         color = MaterialTheme.colorScheme.onSurfaceVariant,
-        style = MaterialTheme.typography.labelMedium
+        style = MaterialTheme.typography.labelMedium,
     )
 }
 
@@ -235,7 +230,7 @@ private fun RedeemSuccessBody(message: String) {
 private fun EnterVoucherBody(
     state: VoucherDialogUiState,
     onVoucherInputChange: (String) -> Unit = {},
-    onRedeem: (voucherCode: String) -> Unit
+    onRedeem: (voucherCode: String) -> Unit,
 ) {
     CustomTextField(
         value = state.voucherInput,
@@ -251,12 +246,12 @@ private fun EnterVoucherBody(
         placeholderText = stringResource(id = R.string.voucher_hint),
         visualTransformation = vouchersVisualTransformation(),
         isDigitsOnlyAllowed = false,
-        modifier = Modifier.testTag(VOUCHER_INPUT_TEST_TAG)
+        modifier = Modifier.testTag(VOUCHER_INPUT_TEST_TAG),
     )
     Spacer(modifier = Modifier.height(Dimens.smallPadding))
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.height(Dimens.listIconSize).fillMaxWidth()
+        modifier = Modifier.height(Dimens.listIconSize).fillMaxWidth(),
     ) {
         if (state.voucherState is VoucherDialogState.Verifying) {
             MullvadCircularProgressIndicatorSmall()
@@ -264,13 +259,13 @@ private fun EnterVoucherBody(
                 text = stringResource(id = R.string.verifying_voucher),
                 modifier = Modifier.padding(start = Dimens.smallPadding),
                 color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.bodySmall
+                style = MaterialTheme.typography.bodySmall,
             )
         } else if (state.voucherState is VoucherDialogState.Error) {
             Text(
                 text = stringResource(id = state.voucherState.error.message()),
                 color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodySmall
+                style = MaterialTheme.typography.bodySmall,
             )
         }
     }
@@ -282,7 +277,7 @@ private fun EnterVoucherBody(
             modifier = Modifier.padding(top = Dimens.smallPadding),
             text = stringResource(id = R.string.voucher_is_account_number),
             color = MaterialTheme.colorScheme.onPrimary,
-            style = MaterialTheme.typography.bodySmall
+            style = MaterialTheme.typography.bodySmall,
         )
     }
 }

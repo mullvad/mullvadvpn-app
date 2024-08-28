@@ -12,13 +12,13 @@ class RelayItemStatusCellPreviewParameterProvider :
                 generateRelayItemCountry(
                     name = "Relay country Active",
                     cityNames = listOf("Relay city 1", "Relay city 2"),
-                    relaysPerCity = 2
+                    relaysPerCity = 2,
                 ),
                 generateRelayItemCountry(
                     name = "Not Enabled Relay country",
                     cityNames = listOf("Not Enabled city"),
                     relaysPerCity = 1,
-                    active = false
+                    active = false,
                 ),
                 generateRelayItemCountry(
                     name = "Relay country Expanded",
@@ -29,7 +29,7 @@ class RelayItemStatusCellPreviewParameterProvider :
                     name = "Country and city Expanded",
                     cityNames = listOf("Expanded city A", "Expanded city B"),
                     relaysPerCity = 2,
-                )
+                ),
             )
         )
 }

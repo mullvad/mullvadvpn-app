@@ -23,7 +23,7 @@ class AccountTestRule : BeforeEachCallback {
                 client.addTimeToAccountUsingPartnerAuth(
                     accountNumber = validAccountNumber,
                     daysToAdd = 1,
-                    partnerAuth = partnerAuth
+                    partnerAuth = partnerAuth,
                 )
             } else {
                 validAccountNumber =

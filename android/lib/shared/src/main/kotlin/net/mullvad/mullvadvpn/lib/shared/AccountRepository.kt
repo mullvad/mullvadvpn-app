@@ -25,7 +25,7 @@ import org.joda.time.DateTime
 class AccountRepository(
     private val managementService: ManagementService,
     private val deviceRepository: DeviceRepository,
-    val scope: CoroutineScope
+    val scope: CoroutineScope,
 ) {
 
     private val _mutableAccountDataCache: MutableSharedFlow<AccountData> = MutableSharedFlow()
@@ -43,7 +43,7 @@ class AccountRepository(
                         DeviceState.Revoked -> null
                     }
                 },
-                _mutableAccountDataCache
+                _mutableAccountDataCache,
             )
             .distinctUntilChanged()
             .stateIn(scope = scope, SharingStarted.Eagerly, null)

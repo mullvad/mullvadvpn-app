@@ -11,7 +11,7 @@ import net.mullvad.mullvadvpn.repository.RelayListRepository
 
 class FilteredRelayListUseCase(
     private val relayListRepository: RelayListRepository,
-    private val relayListFilterRepository: RelayListFilterRepository
+    private val relayListFilterRepository: RelayListFilterRepository,
 ) {
     operator fun invoke() =
         combine(
@@ -19,14 +19,11 @@ class FilteredRelayListUseCase(
             relayListFilterRepository.selectedOwnership,
             relayListFilterRepository.selectedProviders,
         ) { relayList, selectedOwnership, selectedProviders ->
-            relayList.filterOnOwnershipAndProvider(
-                selectedOwnership,
-                selectedProviders,
-            )
+            relayList.filterOnOwnershipAndProvider(selectedOwnership, selectedProviders)
         }
 
     private fun List<RelayItem.Location.Country>.filterOnOwnershipAndProvider(
         ownership: Constraint<Ownership>,
-        providers: Constraint<Providers>
+        providers: Constraint<Providers>,
     ) = mapNotNull { it.filterOnOwnershipAndProvider(ownership, providers) }
 }

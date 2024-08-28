@@ -61,7 +61,7 @@ internal class Globe(resources: Resources) {
             UniformLocation(
                 color = GLES20.glGetUniformLocation(shaderProgram, "uColor"),
                 projectionMatrix = GLES20.glGetUniformLocation(shaderProgram, "uProjectionMatrix"),
-                modelViewMatrix = GLES20.glGetUniformLocation(shaderProgram, "uModelViewMatrix")
+                modelViewMatrix = GLES20.glGetUniformLocation(shaderProgram, "uModelViewMatrix"),
             )
     }
 
@@ -69,7 +69,7 @@ internal class Globe(resources: Resources) {
         projectionMatrix: FloatArray,
         viewMatrix: FloatArray,
         colors: GlobeColors,
-        contourWidth: Float = 3f
+        contourWidth: Float = 3f,
     ) {
         val globeViewMatrix = viewMatrix.copyOf()
 
@@ -84,7 +84,7 @@ internal class Globe(resources: Resources) {
             landVertexBuffer,
             landContour,
             colors.contourColorArray,
-            GLES20.GL_LINE_STRIP
+            GLES20.GL_LINE_STRIP,
         )
 
         // Scale the globe to avoid z-fighting
@@ -93,7 +93,7 @@ internal class Globe(resources: Resources) {
             0,
             LAND_OCEAN_SCALE_FACTOR,
             LAND_OCEAN_SCALE_FACTOR,
-            LAND_OCEAN_SCALE_FACTOR
+            LAND_OCEAN_SCALE_FACTOR,
         )
 
         // Draw land
@@ -113,7 +113,7 @@ internal class Globe(resources: Resources) {
             oceanVertexBuffer,
             oceanIndices,
             colors.oceanColorArray,
-            GLES20.GL_TRIANGLES
+            GLES20.GL_TRIANGLES,
         )
     }
 
@@ -149,7 +149,7 @@ internal class Globe(resources: Resources) {
     private data class UniformLocation(
         val color: Int,
         val projectionMatrix: Int,
-        val modelViewMatrix: Int
+        val modelViewMatrix: Int,
     )
 
     companion object {

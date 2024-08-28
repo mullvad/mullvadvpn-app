@@ -21,31 +21,29 @@ import net.mullvad.mullvadvpn.lib.model.Settings
 
 class SettingsRepository(
     private val managementService: ManagementService,
-    dispatcher: CoroutineDispatcher = Dispatchers.IO
+    dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) {
     val settingsUpdates: StateFlow<Settings?> =
         managementService.settings.stateIn(
             CoroutineScope(dispatcher),
             SharingStarted.WhileSubscribed(),
-            null
+            null,
         )
 
     suspend fun setDnsOptions(
         isCustomDnsEnabled: Boolean,
         dnsList: List<InetAddress>,
-        contentBlockersOptions: DefaultDnsOptions
+        contentBlockersOptions: DefaultDnsOptions,
     ) =
         managementService.setDnsOptions(
             DnsOptions(
                 state = if (isCustomDnsEnabled) DnsState.Custom else DnsState.Default,
                 customOptions = CustomDnsOptions(ArrayList(dnsList)),
-                defaultOptions = contentBlockersOptions
+                defaultOptions = contentBlockersOptions,
             )
         )
 
-    suspend fun setDnsState(
-        state: DnsState,
-    ) = managementService.setDnsState(state)
+    suspend fun setDnsState(state: DnsState) = managementService.setDnsState(state)
 
     suspend fun deleteCustomDns(index: Int) = managementService.deleteCustomDns(index)
 

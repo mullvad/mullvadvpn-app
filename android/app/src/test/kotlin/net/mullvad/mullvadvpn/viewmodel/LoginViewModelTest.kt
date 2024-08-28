@@ -54,7 +54,7 @@ class LoginViewModelTest {
                 accountRepository = mockedAccountRepository,
                 newDeviceRepository = mockk(relaxUnitFun = true),
                 internetAvailableUseCase = connectivityUseCase,
-                UnconfinedTestDispatcher()
+                UnconfinedTestDispatcher(),
             )
     }
 
@@ -74,7 +74,7 @@ class LoginViewModelTest {
             // Assert
             assertEquals(
                 Idle(loginError = LoginError.NoInternetConnection),
-                uiStates.awaitItem().loginState
+                uiStates.awaitItem().loginState,
             )
         }
     }
@@ -151,7 +151,7 @@ class LoginViewModelTest {
                 assertEquals(Idle(null), uiStates.awaitItem().loginState)
                 assertEquals(
                     LoginUiSideEffect.TooManyDevices(DUMMY_ACCOUNT_NUMBER),
-                    sideEffects.awaitItem()
+                    sideEffects.awaitItem(),
                 )
             }
         }
@@ -169,7 +169,7 @@ class LoginViewModelTest {
             assertEquals(Loading.LoggingIn, awaitItem().loginState)
             assertEquals(
                 Idle(LoginError.Unknown(EXPECTED_RPC_ERROR_MESSAGE)),
-                awaitItem().loginState
+                awaitItem().loginState,
             )
         }
     }
@@ -201,7 +201,7 @@ class LoginViewModelTest {
             loginViewModel.uiState.test {
                 assertEquals(
                     LoginUiState.INITIAL.copy(lastUsedAccount = DUMMY_ACCOUNT_NUMBER),
-                    awaitItem()
+                    awaitItem(),
                 )
             }
         }

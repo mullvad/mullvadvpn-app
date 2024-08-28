@@ -27,7 +27,7 @@ fun AutoResizeText(
     textSizeStep: TextUnit = DEFAULT_TEXT_STEP,
     style: TextStyle = LocalTextStyle.current,
     maxLines: Int = Int.MAX_VALUE,
-    color: Color = MaterialTheme.colorScheme.onSurface
+    color: Color = MaterialTheme.colorScheme.onSurface,
 ) {
     var adjustedFontSize by remember { mutableFloatStateOf(maxTextSize.value) }
     var isReadyToDraw by remember { mutableStateOf(false) }

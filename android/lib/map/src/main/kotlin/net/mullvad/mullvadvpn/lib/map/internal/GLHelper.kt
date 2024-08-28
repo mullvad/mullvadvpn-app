@@ -76,7 +76,7 @@ private fun initArrayBuffer(dataBuffer: Buffer, unitSizeInBytes: Int = 1): Int {
         GLES20.GL_ARRAY_BUFFER,
         dataBuffer.capacity() * unitSizeInBytes,
         dataBuffer,
-        GLES20.GL_STATIC_DRAW
+        GLES20.GL_STATIC_DRAW,
     )
     return buffer[0]
 }
@@ -90,11 +90,11 @@ internal fun initIndexBuffer(dataBuffer: Buffer): IndexBufferWithLength {
         GLES20.GL_ELEMENT_ARRAY_BUFFER,
         dataBuffer.capacity(),
         dataBuffer,
-        GLES20.GL_STATIC_DRAW
+        GLES20.GL_STATIC_DRAW,
     )
     return IndexBufferWithLength(
         indexBuffer = buffer[0],
-        length = dataBuffer.capacity() / Float.SIZE_BYTES
+        length = dataBuffer.capacity() / Float.SIZE_BYTES,
     )
 }
 

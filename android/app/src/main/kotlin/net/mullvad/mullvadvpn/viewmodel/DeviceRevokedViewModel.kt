@@ -18,7 +18,7 @@ import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
 class DeviceRevokedViewModel(
     private val accountRepository: AccountRepository,
     private val connectionProxy: ConnectionProxy,
-    dispatcher: CoroutineDispatcher = Dispatchers.IO
+    dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : ViewModel() {
 
     val uiState =
@@ -33,7 +33,7 @@ class DeviceRevokedViewModel(
             .stateIn(
                 scope = CoroutineScope(dispatcher),
                 started = SharingStarted.WhileSubscribed(),
-                initialValue = DeviceRevokedUiState.UNKNOWN
+                initialValue = DeviceRevokedUiState.UNKNOWN,
             )
 
     private val _uiSideEffect = Channel<DeviceRevokedSideEffect>()

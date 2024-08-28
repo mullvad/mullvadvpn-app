@@ -32,7 +32,7 @@ class ServerIpOverridesViewModel(
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(),
-                ServerIpOverridesViewState.Loading
+                ServerIpOverridesViewState.Loading,
             )
 
     fun importFile(uri: Uri) =
@@ -56,7 +56,7 @@ class ServerIpOverridesViewModel(
                     { error ->
                         _uiSideEffect.send(ServerIpOverridesUiSideEffect.ImportResult(error))
                     },
-                    { _uiSideEffect.send(ServerIpOverridesUiSideEffect.ImportResult(null)) }
+                    { _uiSideEffect.send(ServerIpOverridesUiSideEffect.ImportResult(null)) },
                 )
         }
     }

@@ -145,7 +145,7 @@ class ManagementService(
     private val channel =
         UdsChannelBuilder.forPath(
                 rpcSocketFile.absolutePath,
-                LocalSocketAddress.Namespace.FILESYSTEM
+                LocalSocketAddress.Namespace.FILESYSTEM,
             )
             // We need to provide a DummyNameResolver to avoid default NameResolver making incorrect
             // InetSocketAddress look ups. For more info see:
@@ -264,14 +264,14 @@ class ManagementService(
 
     suspend fun removeDevice(
         token: AccountNumber,
-        deviceId: DeviceId
+        deviceId: DeviceId,
     ): Either<DeleteDeviceError, Unit> =
         Either.catch {
                 grpc.removeDevice(
                     ManagementInterface.DeviceRemoval.newBuilder()
                         .setAccountToken(token.value)
                         .setDeviceId(deviceId.value.toString())
-                        .build(),
+                        .build()
                 )
             }
             .mapEmpty()
@@ -363,7 +363,7 @@ class ManagementService(
                 async { _mutableSettings.update { getSettings() } },
                 async { _mutableVersionInfo.update { getVersionInfo().getOrNull() } },
                 async { _mutableRelayList.update { getRelayList() } },
-                async { _mutableCurrentAccessMethod.update { getCurrentApiAccessMethod() } }
+                async { _mutableCurrentAccessMethod.update { getCurrentApiAccessMethod() } },
             )
         }
     }
@@ -584,7 +584,7 @@ class ManagementService(
 
     suspend fun setOwnershipAndProviders(
         ownershipConstraint: Constraint<ModelOwnership>,
-        providersConstraint: Constraint<Providers>
+        providersConstraint: Constraint<Providers>,
     ): Either<SetWireguardConstraintsError, Unit> =
         Either.catch {
                 val relaySettings = getSettings().relaySettings

@@ -41,7 +41,7 @@ class SettingsViewModelTest {
             SettingsViewModel(
                 deviceRepository = mockDeviceRepository,
                 appVersionInfoRepository = mockAppVersionInfoRepository,
-                isPlayBuild = false
+                isPlayBuild = false,
             )
     }
 

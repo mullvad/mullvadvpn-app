@@ -43,7 +43,7 @@ class DeviceRevokedViewModelTest {
             DeviceRevokedViewModel(
                 accountRepository = mockedAccountRepository,
                 connectionProxy = mockConnectionProxy,
-                dispatcher = UnconfinedTestDispatcher()
+                dispatcher = UnconfinedTestDispatcher(),
             )
     }
 

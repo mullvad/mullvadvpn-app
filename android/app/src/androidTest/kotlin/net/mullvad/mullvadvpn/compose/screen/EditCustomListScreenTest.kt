@@ -60,7 +60,7 @@ class EditCustomListScreenTest {
                         EditCustomListState.Content(
                             id = customList.id,
                             name = customList.name,
-                            locations = customList.locations
+                            locations = customList.locations,
                         )
                 )
             }
@@ -80,7 +80,7 @@ class EditCustomListScreenTest {
                         EditCustomListState.Content(
                             id = customList.id,
                             name = customList.name,
-                            locations = customList.locations
+                            locations = customList.locations,
                         )
                 )
             }
@@ -101,9 +101,9 @@ class EditCustomListScreenTest {
                         EditCustomListState.Content(
                             id = customList.id,
                             name = customList.name,
-                            locations = customList.locations
+                            locations = customList.locations,
                         ),
-                    onDeleteList = mockedOnDelete
+                    onDeleteList = mockedOnDelete,
                 )
             }
 
@@ -127,9 +127,9 @@ class EditCustomListScreenTest {
                         EditCustomListState.Content(
                             id = customList.id,
                             name = customList.name,
-                            locations = customList.locations
+                            locations = customList.locations,
                         ),
-                    onNameClicked = mockedOnNameClicked
+                    onNameClicked = mockedOnNameClicked,
                 )
             }
 
@@ -152,9 +152,9 @@ class EditCustomListScreenTest {
                         EditCustomListState.Content(
                             id = customList.id,
                             name = customList.name,
-                            locations = customList.locations
+                            locations = customList.locations,
                         ),
-                    onLocationsClicked = mockedOnLocationsClicked
+                    onLocationsClicked = mockedOnLocationsClicked,
                 )
             }
 

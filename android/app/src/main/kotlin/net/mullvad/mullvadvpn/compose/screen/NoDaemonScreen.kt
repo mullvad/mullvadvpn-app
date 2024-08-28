@@ -67,16 +67,16 @@ fun NoDaemonScreen(onNavigateToSettings: () -> Unit) {
                     Modifier.background(backgroundColor)
                         .padding(it)
                         .padding(bottom = it.calculateTopPadding())
-                        .fillMaxSize()
+                        .fillMaxSize(),
             ) {
                 Column(
                     verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Image(
                         painter = painterResource(id = R.drawable.launch_logo),
                         contentDescription = "",
-                        modifier = Modifier.size(Dimens.splashLogoSize)
+                        modifier = Modifier.size(Dimens.splashLogoSize),
                     )
                     Image(
                         painter = painterResource(id = R.drawable.logo_text),
@@ -85,7 +85,7 @@ fun NoDaemonScreen(onNavigateToSettings: () -> Unit) {
                         colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onPrimary),
                         modifier =
                             Modifier.padding(top = Dimens.mediumPadding)
-                                .height(Dimens.splashLogoTextHeight)
+                                .height(Dimens.splashLogoTextHeight),
                     )
                     Text(
                         text = stringResource(id = R.string.connecting_to_daemon),
@@ -94,10 +94,10 @@ fun NoDaemonScreen(onNavigateToSettings: () -> Unit) {
                         modifier =
                             Modifier.padding(top = Dimens.mediumPadding)
                                 .padding(horizontal = Dimens.sideMargin),
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
                     )
                 }
             }
-        }
+        },
     )
 }

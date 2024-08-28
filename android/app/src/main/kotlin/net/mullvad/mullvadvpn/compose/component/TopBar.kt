@@ -57,7 +57,7 @@ private fun PreviewTopBar() {
             containerColor = MaterialTheme.colorScheme.tertiary,
             iconTintColor = MaterialTheme.colorScheme.onTertiary,
             onSettingsClicked = null,
-            onAccountClicked = {}
+            onAccountClicked = {},
         )
     }
 }
@@ -70,7 +70,7 @@ private fun PreviewSlimTopBar() {
             containerColor = MaterialTheme.colorScheme.tertiary,
             iconTintColor = MaterialTheme.colorScheme.onTertiary,
             onSettingsClicked = null,
-            onAccountClicked = {}
+            onAccountClicked = {},
         )
     }
 }
@@ -98,7 +98,7 @@ private fun PreviewNothingTopBar() {
             iconTintColor = MaterialTheme.colorScheme.onTertiary,
             isIconAndLogoVisible = false,
             onSettingsClicked = null,
-            onAccountClicked = null
+            onAccountClicked = null,
         )
     }
 }
@@ -111,7 +111,7 @@ fun MullvadTopBar(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     iconTintColor: Color,
-    isIconAndLogoVisible: Boolean = true
+    isIconAndLogoVisible: Boolean = true,
 ) {
     TopAppBar(
         modifier = modifier,
@@ -122,7 +122,7 @@ fun MullvadTopBar(
                         painter = painterResource(id = R.drawable.logo_icon),
                         contentDescription = null, // No meaningful user info or action.
                         modifier = Modifier.size(40.dp),
-                        tint = Color.Unspecified // Logo should not be tinted
+                        tint = Color.Unspecified, // Logo should not be tinted
                     )
                     // Dynamically show Mullvad VPN Text if it fits, to avoid overlapping icons.
                     BoxWithConstraints {
@@ -146,7 +146,7 @@ fun MullvadTopBar(
                                 contentDescription = null, // No meaningful user info or action.
                                 modifier =
                                     Modifier.padding(horizontal = Dimens.mediumPadding)
-                                        .height(logoHeight)
+                                        .height(logoHeight),
                             )
                         }
                     }
@@ -158,7 +158,7 @@ fun MullvadTopBar(
                 IconButton(
                     modifier = Modifier.testTag(TOP_BAR_ACCOUNT_BUTTON),
                     enabled = enabled,
-                    onClick = onAccountClicked
+                    onClick = onAccountClicked,
                 ) {
                     Icon(
                         painter = painterResource(R.drawable.icon_account),
@@ -172,7 +172,7 @@ fun MullvadTopBar(
                 IconButton(
                     modifier = Modifier.testTag(TOP_BAR_SETTINGS_BUTTON),
                     enabled = enabled,
-                    onClick = onSettingsClicked
+                    onClick = onSettingsClicked,
                 ) {
                     Icon(
                         painter = painterResource(R.drawable.icon_settings),
@@ -194,7 +194,7 @@ fun MullvadTopBar(
 fun MullvadSmallTopBar(
     title: String,
     navigationIcon: @Composable () -> Unit = {},
-    actions: @Composable RowScope.() -> Unit = {}
+    actions: @Composable RowScope.() -> Unit = {},
 ) {
     TopAppBar(
         title = { Text(text = title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
@@ -205,28 +205,20 @@ fun MullvadSmallTopBar(
                 scrolledContainerColor = MaterialTheme.colorScheme.surface,
                 actionIconContentColor = MaterialTheme.colorScheme.onSurface,
             ),
-        actions = actions
+        actions = actions,
     )
 }
 
 @Preview
 @Composable
 private fun PreviewMediumTopBar() {
-    AppTheme {
-        MullvadMediumTopBar(
-            title = "Title",
-        )
-    }
+    AppTheme { MullvadMediumTopBar(title = "Title") }
 }
 
 @Preview
 @Composable
 private fun PreviewLargeTopBar() {
-    AppTheme {
-        MullvadLargeTopBar(
-            title = "Title",
-        )
-    }
+    AppTheme { MullvadLargeTopBar(title = "Title") }
 }
 
 @Preview(widthDp = 260)
@@ -239,10 +231,10 @@ private fun PreviewSlimMediumTopBar() {
                 IconButton(onClick = {}) {
                     Icon(
                         painter = painterResource(id = R.drawable.icon_settings),
-                        contentDescription = null
+                        contentDescription = null,
                     )
                 }
-            }
+            },
         )
     }
 }
@@ -252,7 +244,7 @@ fun MullvadMediumTopBar(
     title: String,
     navigationIcon: @Composable () -> Unit = {},
     actions: @Composable RowScope.() -> Unit = {},
-    scrollBehavior: TopAppBarScrollBehavior? = null
+    scrollBehavior: TopAppBarScrollBehavior? = null,
 ) {
     MediumTopAppBar(
         title = { Text(text = title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
@@ -264,7 +256,7 @@ fun MullvadMediumTopBar(
                 scrolledContainerColor = MaterialTheme.colorScheme.surface,
                 actionIconContentColor = MaterialTheme.colorScheme.onSurface,
             ),
-        actions = actions
+        actions = actions,
     )
 }
 
@@ -274,7 +266,7 @@ fun MullvadLargeTopBar(
     title: String,
     navigationIcon: @Composable () -> Unit = {},
     actions: @Composable RowScope.() -> Unit = {},
-    scrollBehavior: TopAppBarScrollBehavior? = null
+    scrollBehavior: TopAppBarScrollBehavior? = null,
 ) {
     LargeTopAppBar(
         title = {
@@ -282,7 +274,7 @@ fun MullvadLargeTopBar(
                 text = title,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
-                style = LocalTextStyle.current.copy(lineBreak = LineBreak.Heading)
+                style = LocalTextStyle.current.copy(lineBreak = LineBreak.Heading),
             )
         },
         navigationIcon = navigationIcon,
@@ -293,7 +285,7 @@ fun MullvadLargeTopBar(
                 scrolledContainerColor = MaterialTheme.colorScheme.surface,
                 actionIconContentColor = MaterialTheme.colorScheme.onSurface,
             ),
-        actions = actions
+        actions = actions,
     )
 }
 
@@ -308,7 +300,7 @@ private fun PreviewMullvadTopBarWithLongDeviceName() {
                 onSettingsClicked = null,
                 onAccountClicked = null,
                 deviceName = "Superstitious Hippopotamus with extra weight",
-                daysLeftUntilExpiry = 1
+                daysLeftUntilExpiry = 1,
             )
         }
     }
@@ -325,7 +317,7 @@ private fun PreviewMullvadTopBarWithShortDeviceName() {
                 onSettingsClicked = null,
                 onAccountClicked = null,
                 deviceName = "Fit Ant",
-                daysLeftUntilExpiry = 1
+                daysLeftUntilExpiry = 1,
             )
         }
     }
@@ -339,7 +331,7 @@ fun MullvadTopBarWithDeviceName(
     iconTintColor: Color,
     isIconAndLogoVisible: Boolean = true,
     deviceName: String?,
-    daysLeftUntilExpiry: Int?
+    daysLeftUntilExpiry: Int?,
 ) {
     Column {
         MullvadTopBar(
@@ -357,7 +349,7 @@ fun MullvadTopBarWithDeviceName(
             animateColorAsState(
                 targetValue = containerColor,
                 animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
-                label = "ColorAnimation"
+                label = "ColorAnimation",
             )
         Row(
             modifier =
@@ -365,11 +357,11 @@ fun MullvadTopBarWithDeviceName(
                     .padding(
                         bottom = Dimens.smallPadding,
                         start = Dimens.mediumPadding,
-                        end = Dimens.mediumPadding
+                        end = Dimens.mediumPadding,
                     )
                     .fillMaxWidth()
                     .animateContentSize(),
-            horizontalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
+            horizontalArrangement = Arrangement.spacedBy(Dimens.mediumPadding),
         ) {
             Text(
                 modifier = Modifier.weight(1f, fill = false),
@@ -380,7 +372,7 @@ fun MullvadTopBarWithDeviceName(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.bodySmall,
-                color = iconTintColor
+                color = iconTintColor,
             )
             if (daysLeftUntilExpiry != null) {
                 Text(
@@ -391,14 +383,14 @@ fun MullvadTopBarWithDeviceName(
                                 pluralStringResource(
                                     id = R.plurals.days,
                                     daysLeftUntilExpiry,
-                                    daysLeftUntilExpiry
+                                    daysLeftUntilExpiry,
                                 )
                             } else {
                                 stringResource(id = R.string.out_of_time)
-                            }
+                            },
                         ),
                     style = MaterialTheme.typography.bodySmall,
-                    color = iconTintColor
+                    color = iconTintColor,
                 )
             } else {
                 Spacer(Modifier)

@@ -15,7 +15,7 @@ import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
 
 class VpnPermissionViewModel(
     intentProvider: IntentProvider,
-    private val connectionProxy: ConnectionProxy
+    private val connectionProxy: ConnectionProxy,
 ) : ViewModel() {
     val uiSideEffect: Flow<VpnPermissionSideEffect> =
         intentProvider.intents

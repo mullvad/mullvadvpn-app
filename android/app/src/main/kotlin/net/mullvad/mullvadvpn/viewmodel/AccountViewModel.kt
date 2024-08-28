@@ -41,14 +41,14 @@ class AccountViewModel(
         combine(
                 deviceRepository.deviceState.filterIsInstance<DeviceState.LoggedIn>(),
                 accountData(),
-                paymentUseCase.paymentAvailability
+                paymentUseCase.paymentAvailability,
             ) { deviceState, accountData, paymentAvailability ->
                 AccountUiState(
                     deviceName = deviceState.device.displayName(),
                     accountNumber = deviceState.accountNumber,
                     accountExpiry = accountData?.expiryDate,
                     showSitePayment = !isPlayBuild,
-                    billingPaymentState = paymentAvailability?.toPaymentState()
+                    billingPaymentState = paymentAvailability?.toPaymentState(),
                 )
             }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), AccountUiState.default())
@@ -79,7 +79,7 @@ class AccountViewModel(
                 .logout()
                 .fold(
                     { _uiSideEffect.send(UiSideEffect.GenericError) },
-                    { _uiSideEffect.send(UiSideEffect.NavigateToLogin) }
+                    { _uiSideEffect.send(UiSideEffect.NavigateToLogin) },
                 )
         }
     }

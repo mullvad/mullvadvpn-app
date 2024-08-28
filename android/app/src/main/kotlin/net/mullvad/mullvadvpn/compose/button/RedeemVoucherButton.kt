@@ -25,6 +25,6 @@ fun RedeemVoucherButton(modifier: Modifier = Modifier, onClick: () -> Unit, isEn
         text = stringResource(id = R.string.redeem_voucher),
         onClick = onClick,
         modifier = modifier,
-        isEnabled = isEnabled
+        isEnabled = isEnabled,
     )
 }

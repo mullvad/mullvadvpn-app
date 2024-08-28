@@ -44,7 +44,7 @@ fun ConnectionStatusText(state: TunnelState, modifier: Modifier = Modifier) {
         is TunnelState.Connecting ->
             ConnectingText(
                 isQuantumResistant = state.endpoint?.quantumResistant == true,
-                modifier = modifier
+                modifier = modifier,
             )
         is TunnelState.Connected ->
             ConnectedText(isQuantumResistant = state.endpoint.quantumResistant, modifier = modifier)
@@ -61,7 +61,7 @@ private fun DisconnectedText(modifier: Modifier) {
         style = MaterialTheme.typography.connectionStatus,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -78,7 +78,7 @@ private fun ConnectingText(isQuantumResistant: Boolean, modifier: Modifier) {
         style = MaterialTheme.typography.connectionStatus,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -95,7 +95,7 @@ private fun ConnectedText(isQuantumResistant: Boolean, modifier: Modifier) {
         style = MaterialTheme.typography.connectionStatus,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
-        modifier = modifier
+        modifier = modifier,
     )
 }
 

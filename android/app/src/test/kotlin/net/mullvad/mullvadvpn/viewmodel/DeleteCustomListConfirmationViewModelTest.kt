@@ -53,8 +53,8 @@ class DeleteCustomListConfirmationViewModelTest {
             savedStateHandle =
                 DeleteCustomListNavArgs(
                         customListId = CustomListId("1"),
-                        name = CustomListName.fromString("asdf")
+                        name = CustomListName.fromString("asdf"),
                     )
-                    .toSavedStateHandle()
+                    .toSavedStateHandle(),
         )
 }

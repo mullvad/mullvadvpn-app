@@ -58,7 +58,7 @@ class CustomListLocationsViewModelTest {
             CustomList(
                 id = CustomListId("id"),
                 name = CustomListName.fromString("name"),
-                locations = emptyList()
+                locations = emptyList(),
             )
         val viewModel = createViewModel(customListId = customList.id, newList = newList)
 
@@ -76,7 +76,7 @@ class CustomListLocationsViewModelTest {
                         item = it,
                         depth = it.toDepth(),
                         checked = false,
-                        expanded = false
+                        expanded = false,
                     )
                 }
             val customListId = CustomListId("id")
@@ -250,7 +250,7 @@ class CustomListLocationsViewModelTest {
             val expectedResult =
                 CustomListActionResultData.Success.LocationChanged(
                     customListName = customListName,
-                    undo = mockUndo
+                    undo = mockUndo,
                 )
             coEvery { mockCustomListUseCase(any<CustomListAction.UpdateLocations>()) } returns
                 locationsChangedMock.right()
@@ -272,18 +272,15 @@ class CustomListLocationsViewModelTest {
 
     private fun createViewModel(
         customListId: CustomListId,
-        newList: Boolean
+        newList: Boolean,
     ): CustomListLocationsViewModel {
         return CustomListLocationsViewModel(
             relayListRepository = mockRelayListRepository,
             customListRelayItemsUseCase = mockCustomListRelayItemsUseCase,
             customListActionUseCase = mockCustomListUseCase,
             savedStateHandle =
-                CustomListLocationsNavArgs(
-                        customListId = customListId,
-                        newList = newList,
-                    )
-                    .toSavedStateHandle()
+                CustomListLocationsNavArgs(customListId = customListId, newList = newList)
+                    .toSavedStateHandle(),
         )
     }
 
@@ -315,20 +312,20 @@ class CustomListLocationsViewModelTest {
                                                 GeoLocationId.Hostname(
                                                     GeoLocationId.City(
                                                         GeoLocationId.Country("SE"),
-                                                        "GBG"
+                                                        "GBG",
                                                     ),
-                                                    "gbg-1"
+                                                    "gbg-1",
                                                 ),
                                             active = true,
                                             provider =
                                                 Provider(
                                                     ProviderId("Provider"),
-                                                    ownership = Ownership.MullvadOwned
-                                                )
+                                                    ownership = Ownership.MullvadOwned,
+                                                ),
                                         )
-                                    )
+                                    ),
                             )
-                        )
+                        ),
                 )
             )
     }

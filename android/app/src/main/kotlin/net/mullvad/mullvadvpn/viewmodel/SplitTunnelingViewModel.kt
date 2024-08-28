@@ -19,7 +19,7 @@ import net.mullvad.mullvadvpn.repository.SplitTunnelingRepository
 class SplitTunnelingViewModel(
     private val appsProvider: ApplicationsProvider,
     private val splitTunnelingRepository: SplitTunnelingRepository,
-    private val dispatcher: CoroutineDispatcher
+    private val dispatcher: CoroutineDispatcher,
 ) : ViewModel() {
 
     private val allApps = MutableStateFlow<List<AppData>?>(null)

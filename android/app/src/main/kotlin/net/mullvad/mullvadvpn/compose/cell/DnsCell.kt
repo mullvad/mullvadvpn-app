@@ -28,7 +28,7 @@ fun DnsCell(
     address: String,
     isUnreachableLocalDnsWarningVisible: Boolean,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val titleModifier = Modifier
     val startPadding = 54.dp
@@ -40,14 +40,14 @@ fun DnsCell(
                 Icon(
                     painter = painterResource(id = R.drawable.icon_alert),
                     contentDescription = stringResource(id = R.string.confirm_local_dns),
-                    tint = MaterialTheme.colorScheme.warning
+                    tint = MaterialTheme.colorScheme.warning,
                 )
             }
         },
         onCellClicked = { onClick.invoke() },
         background = MaterialTheme.colorScheme.surfaceContainerLow,
         startPadding = startPadding,
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -58,6 +58,6 @@ private fun RowScope.DnsTitle(address: String, modifier: Modifier = Modifier) {
         color = MaterialTheme.colorScheme.onSurface,
         style = MaterialTheme.typography.labelLarge,
         textAlign = TextAlign.Start,
-        modifier = modifier.weight(1f)
+        modifier = modifier.weight(1f),
     )
 }

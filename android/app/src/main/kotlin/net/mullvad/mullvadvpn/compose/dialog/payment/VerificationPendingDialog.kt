@@ -34,13 +34,13 @@ fun VerificationPendingDialog(onClose: () -> Unit) {
         title = {
             Text(
                 text = stringResource(id = R.string.payment_pending_dialog_title),
-                style = MaterialTheme.typography.headlineSmall
+                style = MaterialTheme.typography.headlineSmall,
             )
         },
         text = {
             Text(
                 text = stringResource(id = R.string.payment_pending_dialog_message),
-                style = MaterialTheme.typography.bodySmall
+                style = MaterialTheme.typography.bodySmall,
             )
         },
         containerColor = MaterialTheme.colorScheme.surface,
@@ -49,6 +49,6 @@ fun VerificationPendingDialog(onClose: () -> Unit) {
         onDismissRequest = onClose,
         confirmButton = {
             PrimaryButton(text = stringResource(id = R.string.got_it), onClick = onClose)
-        }
+        },
     )
 }

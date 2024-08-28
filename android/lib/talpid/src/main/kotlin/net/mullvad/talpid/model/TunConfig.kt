@@ -7,5 +7,5 @@ data class TunConfig(
     val dnsServers: ArrayList<InetAddress>,
     val routes: ArrayList<InetNetwork>,
     val excludedPackages: ArrayList<String>,
-    val mtu: Int
+    val mtu: Int,
 )

@@ -54,13 +54,13 @@ class SplitTunnelingScreenTest {
                 AppData(
                     packageName = EXCLUDED_APP_PACKAGE_NAME,
                     iconRes = 0,
-                    name = EXCLUDED_APP_NAME
+                    name = EXCLUDED_APP_NAME,
                 )
             val includedApp =
                 AppData(
                     packageName = INCLUDED_APP_PACKAGE_NAME,
                     iconRes = 0,
-                    name = INCLUDED_APP_NAME
+                    name = INCLUDED_APP_NAME,
                 )
             setContentWithTheme {
                 SplitTunnelingScreen(
@@ -69,7 +69,7 @@ class SplitTunnelingScreenTest {
                             enabled = true,
                             excludedApps = listOf(excludedApp),
                             includedApps = listOf(includedApp),
-                            showSystemApps = false
+                            showSystemApps = false,
                         )
                 )
             }
@@ -92,7 +92,7 @@ class SplitTunnelingScreenTest {
                 AppData(
                     packageName = INCLUDED_APP_PACKAGE_NAME,
                     iconRes = 0,
-                    name = INCLUDED_APP_NAME
+                    name = INCLUDED_APP_NAME,
                 )
             setContentWithTheme {
                 SplitTunnelingScreen(
@@ -101,7 +101,7 @@ class SplitTunnelingScreenTest {
                             enabled = true,
                             excludedApps = emptyList(),
                             includedApps = listOf(includedApp),
-                            showSystemApps = false
+                            showSystemApps = false,
                         )
                 )
             }
@@ -124,13 +124,13 @@ class SplitTunnelingScreenTest {
                 AppData(
                     packageName = EXCLUDED_APP_PACKAGE_NAME,
                     iconRes = 0,
-                    name = EXCLUDED_APP_NAME
+                    name = EXCLUDED_APP_NAME,
                 )
             val includedApp =
                 AppData(
                     packageName = INCLUDED_APP_PACKAGE_NAME,
                     iconRes = 0,
-                    name = INCLUDED_APP_NAME
+                    name = INCLUDED_APP_NAME,
                 )
             val mockedClickHandler: (String) -> Unit = mockk(relaxed = true)
             setContentWithTheme {
@@ -140,9 +140,9 @@ class SplitTunnelingScreenTest {
                             enabled = true,
                             excludedApps = listOf(excludedApp),
                             includedApps = listOf(includedApp),
-                            showSystemApps = false
+                            showSystemApps = false,
                         ),
-                    onExcludeAppClick = mockedClickHandler
+                    onExcludeAppClick = mockedClickHandler,
                 )
             }
 
@@ -161,13 +161,13 @@ class SplitTunnelingScreenTest {
                 AppData(
                     packageName = EXCLUDED_APP_PACKAGE_NAME,
                     iconRes = 0,
-                    name = EXCLUDED_APP_NAME
+                    name = EXCLUDED_APP_NAME,
                 )
             val includedApp =
                 AppData(
                     packageName = INCLUDED_APP_PACKAGE_NAME,
                     iconRes = 0,
-                    name = INCLUDED_APP_NAME
+                    name = INCLUDED_APP_NAME,
                 )
             val mockedClickHandler: (String) -> Unit = mockk(relaxed = true)
             setContentWithTheme {
@@ -177,9 +177,9 @@ class SplitTunnelingScreenTest {
                             enabled = true,
                             excludedApps = listOf(excludedApp),
                             includedApps = listOf(includedApp),
-                            showSystemApps = false
+                            showSystemApps = false,
                         ),
-                    onIncludeAppClick = mockedClickHandler
+                    onIncludeAppClick = mockedClickHandler,
                 )
             }
 
@@ -198,13 +198,13 @@ class SplitTunnelingScreenTest {
                 AppData(
                     packageName = EXCLUDED_APP_PACKAGE_NAME,
                     iconRes = 0,
-                    name = EXCLUDED_APP_NAME
+                    name = EXCLUDED_APP_NAME,
                 )
             val includedApp =
                 AppData(
                     packageName = INCLUDED_APP_PACKAGE_NAME,
                     iconRes = 0,
-                    name = INCLUDED_APP_NAME
+                    name = INCLUDED_APP_NAME,
                 )
             val mockedClickHandler: (Boolean) -> Unit = mockk(relaxed = true)
             setContentWithTheme {
@@ -214,9 +214,9 @@ class SplitTunnelingScreenTest {
                             enabled = true,
                             excludedApps = listOf(excludedApp),
                             includedApps = listOf(includedApp),
-                            showSystemApps = false
+                            showSystemApps = false,
                         ),
-                    onShowSystemAppsClick = mockedClickHandler
+                    onShowSystemAppsClick = mockedClickHandler,
                 )
             }
 

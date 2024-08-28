@@ -38,7 +38,7 @@ private fun PreviewExpandedEnabledExpandableComposeCell() {
             isExpanded = true,
             isEnabled = true,
             onCellClicked = {},
-            onInfoClicked = {}
+            onInfoClicked = {},
         )
     }
 }
@@ -53,7 +53,7 @@ fun ExpandableComposeCell(
     textColor: Color = MaterialTheme.colorScheme.onPrimary,
     background: Color = MaterialTheme.colorScheme.primary,
     onCellClicked: (Boolean) -> Unit = {},
-    onInfoClicked: (() -> Unit)? = null
+    onInfoClicked: (() -> Unit)? = null,
 ) {
     val titleModifier = Modifier.alpha(if (isEnabled) AlphaVisible else AlphaInactive)
     val bodyViewModifier = Modifier
@@ -65,7 +65,7 @@ fun ExpandableComposeCell(
                 title = title,
                 style = MaterialTheme.typography.titleMedium,
                 textColor = textColor,
-                modifier = titleModifier.weight(1f, fill = true)
+                modifier = titleModifier.weight(1f, fill = true),
             )
         },
         bodyView = {
@@ -73,11 +73,11 @@ fun ExpandableComposeCell(
                 isExpanded = isExpanded,
                 modifier = bodyViewModifier,
                 onExpand = onCellClicked,
-                onInfoClicked = onInfoClicked
+                onInfoClicked = onInfoClicked,
             )
         },
         background = background,
-        onCellClicked = { onCellClicked(!isExpanded) }
+        onCellClicked = { onCellClicked(!isExpanded) },
     )
 }
 
@@ -86,23 +86,23 @@ private fun ExpandableComposeCellBody(
     isExpanded: Boolean,
     modifier: Modifier,
     onExpand: ((Boolean) -> Unit),
-    onInfoClicked: (() -> Unit)? = null
+    onInfoClicked: (() -> Unit)? = null,
 ) {
     Row(
         modifier = modifier.wrapContentWidth().wrapContentHeight(),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         if (onInfoClicked != null) {
             IconButton(
                 modifier =
                     Modifier.padding(horizontal = Dimens.miniPadding)
                         .align(Alignment.CenterVertically),
-                onClick = onInfoClicked
+                onClick = onInfoClicked,
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.icon_info),
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onPrimary
+                    tint = MaterialTheme.colorScheme.onPrimary,
                 )
             }
         }
@@ -110,7 +110,7 @@ private fun ExpandableComposeCellBody(
         ChevronButton(
             isExpanded = isExpanded,
             onExpand = onExpand,
-            color = MaterialTheme.colorScheme.onPrimary
+            color = MaterialTheme.colorScheme.onPrimary,
         )
     }
 }
@@ -121,14 +121,14 @@ fun ContentBlockersDisableModeCellSubtitle(modifier: Modifier) {
         HtmlCompat.fromHtml(
             textResource(
                 id = R.string.dns_content_blockers_subtitle,
-                stringResource(id = R.string.enable_custom_dns)
+                stringResource(id = R.string.enable_custom_dns),
             ),
-            HtmlCompat.FROM_HTML_MODE_COMPACT
+            HtmlCompat.FROM_HTML_MODE_COMPACT,
         )
     Text(
         text = spanned.toAnnotatedString(boldFontWeight = FontWeight.ExtraBold),
         style = MaterialTheme.typography.labelMedium,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = modifier
+        modifier = modifier,
     )
 }

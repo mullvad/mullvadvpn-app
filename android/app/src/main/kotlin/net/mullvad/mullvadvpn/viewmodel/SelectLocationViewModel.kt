@@ -50,7 +50,7 @@ class SelectLocationViewModel(
     private val customListsRepository: CustomListsRepository,
     private val customListActionUseCase: CustomListActionUseCase,
     private val filteredRelayListUseCase: FilteredRelayListUseCase,
-    private val relayListRepository: RelayListRepository
+    private val relayListRepository: RelayListRepository,
 ) : ViewModel() {
     private val _searchTerm = MutableStateFlow(EMPTY_SEARCH_TERM)
 
@@ -67,14 +67,10 @@ class SelectLocationViewModel(
                     searchTerm = searchTerm,
                     filterChips = filterChips,
                     relayListItems = relayListItems,
-                    customLists = customLists
+                    customLists = customLists,
                 )
             }
-            .stateIn(
-                viewModelScope,
-                SharingStarted.Lazily,
-                SelectLocationUiState.Loading,
-            )
+            .stateIn(viewModelScope, SharingStarted.Lazily, SelectLocationUiState.Loading)
 
     private val _uiSideEffect = Channel<SelectLocationSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
@@ -97,10 +93,7 @@ class SelectLocationViewModel(
     }
 
     private fun searchRelayListLocations() =
-        combine(
-                _searchTerm,
-                filteredRelayListUseCase(),
-            ) { searchTerm, relayCountries ->
+        combine(_searchTerm, filteredRelayListUseCase()) { searchTerm, relayCountries ->
                 val isSearching = searchTerm.length >= MIN_SEARCH_LENGTH
                 if (isSearching) {
                     val (exp, filteredRelayCountries) = relayCountries.newFilterOnSearch(searchTerm)
@@ -117,8 +110,7 @@ class SelectLocationViewModel(
             relayListFilterRepository.selectedOwnership,
             relayListFilterRepository.selectedProviders,
             availableProvidersUseCase(),
-        ) { selectedOwnership, selectedConstraintProviders, allProviders,
-            ->
+        ) { selectedOwnership, selectedConstraintProviders, allProviders ->
             val ownershipFilter = selectedOwnership.getOrNull()
             val providerCountFilter =
                 when (selectedConstraintProviders) {
@@ -157,7 +149,7 @@ class SelectLocationViewModel(
                         searchTerm.length >= MIN_SEARCH_LENGTH,
                         selectedItem.getOrNull(),
                         filteredCustomLists,
-                        relayCountries
+                        relayCountries,
                     ) {
                         it in expandedItems
                     }
@@ -174,7 +166,7 @@ class SelectLocationViewModel(
         selectedItem: RelayItemId?,
         customLists: List<RelayItem.CustomList>,
         countries: List<RelayItem.Location.Country>,
-        isExpanded: (String) -> Boolean
+        isExpanded: (String) -> Boolean,
     ): List<RelayListItem> =
         createCustomListSection(isSearching, selectedItem, customLists, isExpanded) +
             createLocationSection(isSearching, selectedItem, countries, isExpanded)
@@ -183,7 +175,7 @@ class SelectLocationViewModel(
         isSearching: Boolean,
         selectedItem: RelayItemId?,
         customLists: List<RelayItem.CustomList>,
-        isExpanded: (String) -> Boolean
+        isExpanded: (String) -> Boolean,
     ): List<RelayListItem> = buildList {
         if (isSearching && customLists.isEmpty()) {
             // If we are searching and no results are found don't show header or footer
@@ -198,7 +190,7 @@ class SelectLocationViewModel(
     private fun createCustomListRelayItems(
         customLists: List<RelayItem.CustomList>,
         selectedItem: RelayItemId?,
-        isExpanded: (String) -> Boolean
+        isExpanded: (String) -> Boolean,
     ): List<RelayListItem> =
         customLists.flatMap { customList ->
             val expanded = isExpanded(customList.id.expandKey())
@@ -207,7 +199,7 @@ class SelectLocationViewModel(
                     RelayListItem.CustomListItem(
                         customList,
                         isSelected = selectedItem == customList.id,
-                        expanded
+                        expanded,
                     )
                 )
 
@@ -225,7 +217,7 @@ class SelectLocationViewModel(
         isSearching: Boolean,
         selectedItem: RelayItemId?,
         countries: List<RelayItem.Location.Country>,
-        isExpanded: (String) -> Boolean
+        isExpanded: (String) -> Boolean,
     ): List<RelayListItem> = buildList {
         if (isSearching && countries.isEmpty()) {
             // If we are searching and no results are found don't show header or footer
@@ -252,7 +244,7 @@ class SelectLocationViewModel(
                 parentName = parent.customList.name,
                 item = item,
                 expanded = expanded,
-                depth
+                depth,
             )
         )
 
@@ -279,7 +271,7 @@ class SelectLocationViewModel(
         item: RelayItem.Location,
         selectedItem: RelayItemId?,
         depth: Int = 0,
-        isExpanded: (String) -> Boolean
+        isExpanded: (String) -> Boolean,
     ): List<RelayListItem.GeoLocationItem> = buildList {
         val expanded = isExpanded(item.id.expandKey())
 
@@ -347,7 +339,7 @@ class SelectLocationViewModel(
 
     private fun filterSelectedProvidersByOwnership(
         selectedProviders: List<Provider>,
-        selectedOwnership: Ownership?
+        selectedOwnership: Ownership?,
     ): List<Provider> =
         if (selectedOwnership == null) selectedProviders
         else selectedProviders.filter { it.ownership == selectedOwnership }
@@ -375,12 +367,12 @@ class SelectLocationViewModel(
                                 CustomListActionResultData.Success.LocationAdded(
                                     customListName = it.name,
                                     locationName = item.name,
-                                    undo = it.undo
+                                    undo = it.undo,
                                 )
                             } else {
                                 CustomListActionResultData.Success.LocationChanged(
                                     customListName = it.name,
-                                    undo = it.undo
+                                    undo = it.undo,
                                 )
                             }
                         },
@@ -409,12 +401,12 @@ class SelectLocationViewModel(
                             CustomListActionResultData.Success.LocationRemoved(
                                 customListName = success.name,
                                 locationName = item.name,
-                                undo = success.undo
+                                undo = success.undo,
                             )
                         } else {
                             CustomListActionResultData.Success.LocationChanged(
                                 customListName = success.name,
-                                undo = success.undo
+                                undo = success.undo,
                             )
                         }
                     }

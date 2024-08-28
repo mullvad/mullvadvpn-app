@@ -22,7 +22,7 @@ private fun PreviewMullvadProgressIndicator() {
     AppTheme {
         Column(
             modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             MullvadCircularProgressIndicatorLarge()
             MullvadCircularProgressIndicatorMedium()
@@ -42,7 +42,7 @@ fun MullvadCircularProgressIndicatorLarge(
         color,
         Dimens.circularProgressBarLargeStrokeWidth,
         trackColor,
-        StrokeCap.Round
+        StrokeCap.Round,
     )
 }
 
@@ -57,7 +57,7 @@ fun MullvadCircularProgressIndicatorMedium(
         color,
         Dimens.circularProgressBarMediumStrokeWidth,
         trackColor,
-        StrokeCap.Round
+        StrokeCap.Round,
     )
 }
 
@@ -72,6 +72,6 @@ fun MullvadCircularProgressIndicatorSmall(
         color,
         Dimens.circularProgressBarSmallStrokeWidth,
         trackColor,
-        StrokeCap.Round
+        StrokeCap.Round,
     )
 }

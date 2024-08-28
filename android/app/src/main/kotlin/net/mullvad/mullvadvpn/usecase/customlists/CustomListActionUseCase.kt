@@ -20,7 +20,7 @@ import net.mullvad.mullvadvpn.repository.RelayListRepository
 
 class CustomListActionUseCase(
     private val customListsRepository: CustomListsRepository,
-    private val relayListRepository: RelayListRepository
+    private val relayListRepository: RelayListRepository,
 ) {
     suspend operator fun invoke(
         action: CustomListAction
@@ -75,7 +75,7 @@ class CustomListActionUseCase(
             id = customListId,
             name = action.name,
             locationNames = locationNames,
-            undo = action.not(customListId)
+            undo = action.not(customListId),
         )
     }
 

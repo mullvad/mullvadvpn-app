@@ -6,5 +6,5 @@ import androidx.compose.runtime.Immutable
 class MapViewState(
     val cameraPosition: CameraPosition,
     val locationMarker: List<Marker>,
-    val globeColors: GlobeColors
+    val globeColors: GlobeColors,
 )

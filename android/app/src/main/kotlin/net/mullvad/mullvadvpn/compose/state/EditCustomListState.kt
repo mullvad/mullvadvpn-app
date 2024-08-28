@@ -12,6 +12,6 @@ sealed interface EditCustomListState {
     data class Content(
         val id: CustomListId,
         val name: CustomListName,
-        val locations: List<GeoLocationId>
+        val locations: List<GeoLocationId>,
     ) : EditCustomListState
 }

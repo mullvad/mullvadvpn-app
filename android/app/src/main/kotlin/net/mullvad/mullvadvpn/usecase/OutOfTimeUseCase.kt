@@ -22,7 +22,7 @@ import org.joda.time.DateTime
 class OutOfTimeUseCase(
     private val connectionProxy: ConnectionProxy,
     private val repository: AccountRepository,
-    scope: CoroutineScope
+    scope: CoroutineScope,
 ) {
 
     val isOutOfTime: StateFlow<Boolean?> =

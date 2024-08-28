@@ -21,7 +21,7 @@ fun Chevron(modifier: Modifier = Modifier, color: Color, isExpanded: Boolean) {
         animateFloatAsState(
             targetValue = degree,
             label = "",
-            animationSpec = TweenSpec(100, easing = LinearEasing)
+            animationSpec = TweenSpec(100, easing = LinearEasing),
         )
 
     Icon(
@@ -37,7 +37,7 @@ fun ChevronButton(
     modifier: Modifier = Modifier,
     color: Color,
     onExpand: (Boolean) -> Unit,
-    isExpanded: Boolean
+    isExpanded: Boolean,
 ) {
     IconButton(modifier = modifier, onClick = { onExpand(!isExpanded) }) {
         Chevron(isExpanded = isExpanded, color = color)

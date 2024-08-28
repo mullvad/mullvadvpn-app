@@ -48,13 +48,13 @@ class SimpleMullvadHttpClient(context: Context) {
     fun addTimeToAccountUsingPartnerAuth(
         accountNumber: String,
         daysToAdd: Int,
-        partnerAuth: String
+        partnerAuth: String,
     ) {
         sendSimpleSynchronousRequest(
             method = Request.Method.POST,
             url = "$PARTNER_ACCOUNT_URL/$accountNumber/extend",
             body = JSONObject().apply { put("days", "$daysToAdd") },
-            authorizationHeader = "Basic $partnerAuth"
+            authorizationHeader = "Basic $partnerAuth",
         )
     }
 
@@ -65,7 +65,7 @@ class SimpleMullvadHttpClient(context: Context) {
             sendSimpleSynchronousRequestArray(
                 Request.Method.GET,
                 DEVICE_LIST_URL,
-                token = accessToken
+                token = accessToken,
             )
 
         return response!!
@@ -85,7 +85,7 @@ class SimpleMullvadHttpClient(context: Context) {
         sendSimpleSynchronousRequestString(
             method = Request.Method.DELETE,
             url = "$DEVICE_LIST_URL/$deviceId",
-            authorizationHeader = "Bearer $token"
+            authorizationHeader = "Bearer $token",
         )
     }
 
@@ -95,7 +95,7 @@ class SimpleMullvadHttpClient(context: Context) {
             ?.let { json ->
                 ConnCheckState(
                     isConnected = json.getBoolean("mullvad_exit_ip"),
-                    ipAddress = json.getString("ip")
+                    ipAddress = json.getString("ip"),
                 )
             }
     }
@@ -104,7 +104,7 @@ class SimpleMullvadHttpClient(context: Context) {
         method: Int,
         url: String,
         body: JSONObject? = null,
-        authorizationHeader: String? = null
+        authorizationHeader: String? = null,
     ): JSONObject? {
         val future = RequestFuture.newFuture<JSONObject>()
 
@@ -134,7 +134,7 @@ class SimpleMullvadHttpClient(context: Context) {
         method: Int,
         url: String,
         body: String? = null,
-        authorizationHeader: String? = null
+        authorizationHeader: String? = null,
     ): String? {
         val future = RequestFuture.newFuture<String>()
         val request =
@@ -163,7 +163,7 @@ class SimpleMullvadHttpClient(context: Context) {
         method: Int,
         url: String,
         body: JSONArray? = null,
-        token: String? = null
+        token: String? = null,
     ): JSONArray? {
         val future = RequestFuture.newFuture<JSONArray>()
         val request =

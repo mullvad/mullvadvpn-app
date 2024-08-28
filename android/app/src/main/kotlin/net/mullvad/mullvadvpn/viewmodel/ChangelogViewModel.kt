@@ -13,7 +13,7 @@ import net.mullvad.mullvadvpn.repository.ChangelogRepository
 class ChangelogViewModel(
     private val changelogRepository: ChangelogRepository,
     private val buildVersion: BuildVersion,
-    private val alwaysShowChangelog: Boolean
+    private val alwaysShowChangelog: Boolean,
 ) : ViewModel() {
 
     private val _uiSideEffect = MutableSharedFlow<Changelog>(replay = 1, extraBufferCapacity = 1)

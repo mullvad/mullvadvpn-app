@@ -2,7 +2,7 @@ package net.mullvad.mullvadvpn.compose.state
 
 data class SaveApiAccessMethodUiState(
     val testingState: TestApiAccessMethodState = TestApiAccessMethodState.Testing,
-    val isSaving: Boolean = false
+    val isSaving: Boolean = false,
 )
 
 sealed interface TestApiAccessMethodState {

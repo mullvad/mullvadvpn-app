@@ -89,7 +89,7 @@ private fun PreviewServerIpOverridesScreen() {
             onResetOverridesClick = {},
             onImportByFile = {},
             onImportByText = {},
-            SnackbarHostState()
+            SnackbarHostState(),
         )
     }
 }
@@ -112,7 +112,7 @@ fun ServerIpOverrides(
                 launch {
                     snackbarHostState.showSnackbarImmediately(
                         message = sideEffect.error.toString(context),
-                        actionLabel = null
+                        actionLabel = null,
                     )
                 }
         }
@@ -131,7 +131,7 @@ fun ServerIpOverrides(
                     } else {
                         context.getString(R.string.error_occurred)
                     },
-                actionLabel = null
+                actionLabel = null,
             )
         }
     }
@@ -151,7 +151,7 @@ fun ServerIpOverrides(
             dropUnlessResumed { navigator.navigate(ResetServerIpOverridesConfirmationDestination) },
         onImportByFile = dropUnlessResumed { openFileLauncher.launch("application/json") },
         onImportByText = dropUnlessResumed { navigator.navigate(ImportOverridesByTextDestination) },
-        snackbarHostState
+        snackbarHostState,
     )
 }
 
@@ -164,7 +164,7 @@ fun ServerIpOverridesScreen(
     onResetOverridesClick: () -> Unit,
     onImportByFile: () -> Unit,
     onImportByText: () -> Unit,
-    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -177,9 +177,9 @@ fun ServerIpOverridesScreen(
             TopBarActions(
                 overridesActive = state.overridesActive,
                 onInfoClick = onInfoClick,
-                onResetOverridesClick = onResetOverridesClick
+                onResetOverridesClick = onResetOverridesClick,
             )
-        }
+        },
     ) { modifier ->
         if (showBottomSheet && state.overridesActive != null) {
             ImportOverridesByBottomSheet(
@@ -187,13 +187,11 @@ fun ServerIpOverridesScreen(
                 { showBottomSheet = it },
                 state.overridesActive!!,
                 onImportByFile,
-                onImportByText
+                onImportByText,
             )
         }
 
-        Column(
-            modifier = modifier.animateContentSize(),
-        ) {
+        Column(modifier = modifier.animateContentSize()) {
             ServerIpOverridesCell(active = state.overridesActive)
 
             Spacer(modifier = Modifier.weight(1f))
@@ -219,7 +217,7 @@ private fun ImportOverridesByBottomSheet(
     showBottomSheet: (Boolean) -> Unit,
     overridesActive: Boolean,
     onImportByFile: () -> Unit,
-    onImportByText: () -> Unit
+    onImportByText: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
     val onCloseSheet = {
@@ -242,7 +240,7 @@ private fun ImportOverridesByBottomSheet(
     ) {
         HeaderCell(
             text = stringResource(id = R.string.server_ip_overrides_import_by),
-            background = backgroundColor
+            background = backgroundColor,
         )
         HorizontalDivider(color = onBackgroundColor)
         IconCell(
@@ -253,7 +251,7 @@ private fun ImportOverridesByBottomSheet(
                 onCloseSheet()
             },
             background = backgroundColor,
-            modifier = Modifier.testTag(SERVER_IP_OVERRIDES_IMPORT_BY_FILE_TEST_TAG)
+            modifier = Modifier.testTag(SERVER_IP_OVERRIDES_IMPORT_BY_FILE_TEST_TAG),
         )
         IconCell(
             iconId = R.drawable.icon_text_fields,
@@ -263,25 +261,23 @@ private fun ImportOverridesByBottomSheet(
                 onCloseSheet()
             },
             background = backgroundColor,
-            modifier = Modifier.testTag(SERVER_IP_OVERRIDES_IMPORT_BY_TEXT_TEST_TAG)
+            modifier = Modifier.testTag(SERVER_IP_OVERRIDES_IMPORT_BY_TEXT_TEST_TAG),
         )
         if (overridesActive) {
             HorizontalDivider(color = onBackgroundColor)
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     modifier = Modifier.padding(Dimens.mediumPadding),
                     painter = painterResource(id = R.drawable.icon_info),
                     tint = MaterialTheme.colorScheme.error,
-                    contentDescription = null
+                    contentDescription = null,
                 )
                 Text(
                     modifier =
                         Modifier.padding(
                             top = Dimens.smallPadding,
                             end = Dimens.mediumPadding,
-                            bottom = Dimens.smallPadding
+                            bottom = Dimens.smallPadding,
                         ),
                     text = stringResource(R.string.import_overrides_bottom_sheet_override_warning),
                     maxLines = 2,
@@ -297,23 +293,23 @@ private fun ImportOverridesByBottomSheet(
 private fun TopBarActions(
     overridesActive: Boolean?,
     onInfoClick: () -> Unit,
-    onResetOverridesClick: () -> Unit
+    onResetOverridesClick: () -> Unit,
 ) {
     var showMenu by remember { mutableStateOf(false) }
     InfoIconButton(
         onClick = onInfoClick,
-        modifier = Modifier.testTag(SERVER_IP_OVERRIDE_INFO_TEST_TAG)
+        modifier = Modifier.testTag(SERVER_IP_OVERRIDE_INFO_TEST_TAG),
     )
     IconButton(
         onClick = { showMenu = !showMenu },
-        modifier = Modifier.testTag(SERVER_IP_OVERRIDE_MORE_VERT_TEST_TAG)
+        modifier = Modifier.testTag(SERVER_IP_OVERRIDE_MORE_VERT_TEST_TAG),
     ) {
         Icon(painterResource(id = R.drawable.icon_more_vert), contentDescription = null)
     }
     DropdownMenu(
         modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainer),
         expanded = showMenu,
-        onDismissRequest = { showMenu = false }
+        onDismissRequest = { showMenu = false },
     ) {
         DropdownMenuItem(
             text = { Text(text = stringResource(R.string.server_ip_overrides_reset)) },
@@ -326,15 +322,10 @@ private fun TopBarActions(
                 MenuDefaults.itemColors(
                     leadingIconColor = MaterialTheme.colorScheme.onPrimary,
                     disabledLeadingIconColor =
-                        MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaDisabled)
+                        MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaDisabled),
                 ),
-            leadingIcon = {
-                Icon(
-                    Icons.Filled.Delete,
-                    contentDescription = null,
-                )
-            },
-            modifier = Modifier.testTag(SERVER_IP_OVERRIDE_RESET_OVERRIDES_TEST_TAG)
+            leadingIcon = { Icon(Icons.Filled.Delete, contentDescription = null) },
+            modifier = Modifier.testTag(SERVER_IP_OVERRIDE_RESET_OVERRIDES_TEST_TAG),
         )
     }
 }

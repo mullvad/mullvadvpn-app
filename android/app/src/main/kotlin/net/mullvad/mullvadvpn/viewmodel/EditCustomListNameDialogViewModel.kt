@@ -21,7 +21,7 @@ import net.mullvad.mullvadvpn.usecase.customlists.RenameError
 
 class EditCustomListNameDialogViewModel(
     private val customListActionUseCase: CustomListActionUseCase,
-    savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
     private val navArgs = EditCustomListNameDestination.argsFrom(savedStateHandle)
@@ -38,7 +38,7 @@ class EditCustomListNameDialogViewModel(
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(),
-                EditCustomListNameUiState(name = navArgs.initialName.value)
+                EditCustomListNameUiState(name = navArgs.initialName.value),
             )
 
     fun updateCustomListName(name: String) {
@@ -47,7 +47,7 @@ class EditCustomListNameDialogViewModel(
                     CustomListAction.Rename(
                         id = navArgs.customListId,
                         name = navArgs.initialName,
-                        newName = CustomListName.fromString(name)
+                        newName = CustomListName.fromString(name),
                     )
                 )
                 .fold(
@@ -57,11 +57,11 @@ class EditCustomListNameDialogViewModel(
                             EditCustomListNameDialogSideEffect.ReturnWithResult(
                                 CustomListActionResultData.Success.Renamed(
                                     newName = it.name,
-                                    undo = it.undo
+                                    undo = it.undo,
                                 )
                             )
                         )
-                    }
+                    },
                 )
         }
     }

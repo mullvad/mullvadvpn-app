@@ -11,6 +11,6 @@ sealed interface SplitTunnelingUiState {
         override val enabled: Boolean = false,
         val excludedApps: List<AppData> = emptyList(),
         val includedApps: List<AppData> = emptyList(),
-        val showSystemApps: Boolean = false
+        val showSystemApps: Boolean = false,
     ) : SplitTunnelingUiState
 }

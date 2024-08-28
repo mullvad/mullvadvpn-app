@@ -77,7 +77,7 @@ internal fun NotificationAction.Tunnel.toCompatAction(context: Context): Notific
     return NotificationCompat.Action(
         toIconResource(),
         context.getString(titleResource()),
-        pendingIntent
+        pendingIntent,
     )
 }
 

@@ -36,7 +36,7 @@ class CustomListsRepositoryTest {
         customListsRepository =
             CustomListsRepository(
                 managementService = mockManagementService,
-                dispatcher = UnconfinedTestDispatcher()
+                dispatcher = UnconfinedTestDispatcher(),
             )
     }
 
@@ -49,7 +49,7 @@ class CustomListsRepositoryTest {
                 CustomList(
                     id = customListId,
                     name = mockk(relaxed = true),
-                    locations = mockk(relaxed = true)
+                    locations = mockk(relaxed = true),
                 )
             val mockSettings: Settings = mockk()
             every { mockSettings.customLists } returns listOf(mockCustomList)
@@ -71,7 +71,7 @@ class CustomListsRepositoryTest {
                 CustomList(
                     id = customListId,
                     name = mockk(relaxed = true),
-                    locations = mockk(relaxed = true)
+                    locations = mockk(relaxed = true),
                 )
             val mockSettings: Settings = mockk()
             val otherCustomListId = CustomListId("2")
@@ -126,7 +126,7 @@ class CustomListsRepositoryTest {
                 CustomList(
                     id = customListId,
                     name = mockk(relaxed = true),
-                    locations = mockk(relaxed = true)
+                    locations = mockk(relaxed = true),
                 )
             every { mockSettings.customLists } returns listOf(mockCustomList)
             settingsFlow.value = mockSettings
@@ -152,7 +152,7 @@ class CustomListsRepositoryTest {
                 CustomList(
                     id = customListId,
                     name = CustomListName.fromString("OLD CUSTOM"),
-                    locations = emptyList()
+                    locations = emptyList(),
                 )
             val updatedCustomList =
                 CustomList(id = customListId, name = customListName, locations = emptyList())
@@ -220,7 +220,7 @@ class CustomListsRepositoryTest {
                 CustomList(
                     id = customListId,
                     name = CustomListName.fromString("name"),
-                    locations = emptyList()
+                    locations = emptyList(),
                 )
             val locationId = GeoLocationId.Country("se")
             every { mockSettings.customLists } returns listOf(mockCustomList)
@@ -230,7 +230,7 @@ class CustomListsRepositoryTest {
             val result =
                 customListsRepository.updateCustomListLocations(
                     otherCustomListId,
-                    listOf(locationId)
+                    listOf(locationId),
                 )
 
             // Assert

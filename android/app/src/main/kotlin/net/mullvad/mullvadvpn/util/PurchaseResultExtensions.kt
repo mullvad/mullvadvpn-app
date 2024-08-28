@@ -22,14 +22,14 @@ fun PurchaseResult.toPaymentDialogData(): PaymentDialogData? =
             PaymentDialogData(
                 title = R.string.loading_connecting,
                 icon = PaymentDialogIcon.LOADING,
-                closeOnDismiss = false
+                closeOnDismiss = false,
             )
         // Verifying loading states
         PurchaseResult.VerificationStarted ->
             PaymentDialogData(
                 title = R.string.loading_verifying,
                 icon = PaymentDialogIcon.LOADING,
-                closeOnDismiss = false
+                closeOnDismiss = false,
             )
         // Pending state
         PurchaseResult.Completed.Pending,
@@ -37,7 +37,7 @@ fun PurchaseResult.toPaymentDialogData(): PaymentDialogData? =
             PaymentDialogData(
                 title = R.string.payment_pending_dialog_title,
                 message = R.string.payment_pending_dialog_message,
-                confirmAction = PaymentDialogAction.Close
+                confirmAction = PaymentDialogAction.Close,
             )
         // Success state
         PurchaseResult.Completed.Success ->
@@ -46,7 +46,7 @@ fun PurchaseResult.toPaymentDialogData(): PaymentDialogData? =
                 message = R.string.payment_completed_dialog_message,
                 icon = PaymentDialogIcon.SUCCESS,
                 confirmAction = PaymentDialogAction.Close,
-                successfulPayment = true
+                successfulPayment = true,
             )
         // Error states
         is PurchaseResult.Error.TransactionIdError ->

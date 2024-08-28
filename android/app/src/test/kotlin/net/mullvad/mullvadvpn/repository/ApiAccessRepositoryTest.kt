@@ -42,7 +42,7 @@ class ApiAccessRepositoryTest {
         apiAccessRepository =
             ApiAccessRepository(
                 managementService = mockManagementService,
-                dispatcher = UnconfinedTestDispatcher()
+                dispatcher = UnconfinedTestDispatcher(),
             )
     }
 
@@ -180,7 +180,7 @@ class ApiAccessRepositoryTest {
                     name = ApiAccessMethodName.fromString("Name"),
                     apiAccessMethod = ApiAccessMethod.Direct,
                     enabled = true,
-                    id = apiAccessMethodId
+                    id = apiAccessMethodId,
                 )
             val mockSettings: Settings = mockk()
             every { mockSettings.apiAccessMethodSettings } returns listOf(expectedResult)
@@ -220,7 +220,7 @@ class ApiAccessRepositoryTest {
                     name = ApiAccessMethodName.fromString("Name"),
                     apiAccessMethod = ApiAccessMethod.Direct,
                     enabled = true,
-                    id = apiAccessMethodId
+                    id = apiAccessMethodId,
                 )
             val mockSettings: Settings = mockk()
             every { mockSettings.apiAccessMethodSettings } returns listOf(apiAccessMethodSetting)
@@ -263,7 +263,7 @@ class ApiAccessRepositoryTest {
                     name = ApiAccessMethodName.fromString("Name"),
                     apiAccessMethod = ApiAccessMethod.Direct,
                     enabled = true,
-                    id = apiAccessMethodId
+                    id = apiAccessMethodId,
                 )
             val mockSettings: Settings = mockk()
             every { mockSettings.apiAccessMethodSettings } returns listOf(apiAccessMethodSetting)

@@ -22,7 +22,7 @@ private fun PreviewWireguardPortInfoDialog() {
     AppTheme {
         WireguardPortInfo(
             EmptyDestinationsNavigator,
-            argument = WireguardPortInfoDialogArgument(listOf(PortRange(1..2)))
+            argument = WireguardPortInfoDialogArgument(listOf(PortRange(1..2))),
         )
     }
 }
@@ -37,8 +37,8 @@ fun WireguardPortInfo(navigator: DestinationsNavigator, argument: WireguardPortI
         additionalInfo =
             stringResource(
                 id = R.string.wireguard_port_info_port_range,
-                argument.portRanges.asString()
+                argument.portRanges.asString(),
             ),
-        onDismiss = dropUnlessResumed { navigator.navigateUp() }
+        onDismiss = dropUnlessResumed { navigator.navigateUp() },
     )
 }

@@ -30,7 +30,7 @@ class TunnelStateNotificationProvider(
     vpnPermissionRepository: VpnPermissionRepository,
     deviceRepository: DeviceRepository,
     channelId: NotificationChannelId,
-    scope: CoroutineScope
+    scope: CoroutineScope,
 ) : NotificationProvider<Notification.Tunnel> {
     internal val notificationId = NotificationId(2)
 
@@ -38,7 +38,7 @@ class TunnelStateNotificationProvider(
         combine(
                 connectionProxy.tunnelState,
                 connectionProxy.tunnelState.actionAfterDisconnect().distinctUntilChanged(),
-                deviceRepository.deviceState
+                deviceRepository.deviceState,
             ) { tunnelState: TunnelState, actionAfterDisconnect: ActionAfterDisconnect?, deviceState
                 ->
                 if (
@@ -51,7 +51,7 @@ class TunnelStateNotificationProvider(
                         tunnelState,
                         actionAfterDisconnect,
                         vpnPermissionRepository.hasVpnPermission(),
-                        vpnPermissionRepository.getAlwaysOnVpnAppName()
+                        vpnPermissionRepository.getAlwaysOnVpnAppName(),
                     )
 
                 return@combine NotificationUpdate.Notify(
@@ -60,8 +60,8 @@ class TunnelStateNotificationProvider(
                         channelId = channelId,
                         state = notificationTunnelState,
                         actions = listOfNotNull(notificationTunnelState.toAction()),
-                        ongoing = notificationTunnelState is NotificationTunnelState.Connected
-                    )
+                        ongoing = notificationTunnelState is NotificationTunnelState.Connected,
+                    ),
                 )
             }
             .stateIn(scope, SharingStarted.Eagerly, NotificationUpdate.Cancel(notificationId))
@@ -70,12 +70,12 @@ class TunnelStateNotificationProvider(
         tunnelState: TunnelState,
         actionAfterDisconnect: ActionAfterDisconnect?,
         hasVpnPermission: Boolean,
-        alwaysOnVpnPermissionName: String?
+        alwaysOnVpnPermissionName: String?,
     ): NotificationTunnelState =
         tunnelState.toNotificationTunnelState(
             actionAfterDisconnect,
             hasVpnPermission,
-            alwaysOnVpnPermissionName
+            alwaysOnVpnPermissionName,
         )
 
     private fun Flow<TunnelState>.actionAfterDisconnect(): Flow<ActionAfterDisconnect?> =
@@ -86,7 +86,7 @@ class TunnelStateNotificationProvider(
     private fun TunnelState.toNotificationTunnelState(
         actionAfterDisconnect: ActionAfterDisconnect?,
         hasVpnPermission: Boolean,
-        alwaysOnVpnPermissionName: String?
+        alwaysOnVpnPermissionName: String?,
     ) =
         when (this) {
             is TunnelState.Disconnected -> NotificationTunnelState.Disconnected(hasVpnPermission)

@@ -29,25 +29,21 @@ val vpnServiceModule = module {
             get(),
             get(),
             get<NotificationChannel.TunnelUpdates>().id,
-            MainScope()
+            MainScope(),
         )
     } bind NotificationProvider::class
     single {
         AccountExpiryNotificationProvider(
             get<NotificationChannel.AccountUpdates>().id,
             get(),
-            get()
+            get(),
         )
     } bind NotificationProvider::class
 
-    single {
-        NotificationManager(
-            get(),
-            getAll(),
-            get(),
-            MainScope(),
-        )
-    } withOptions { createdAtStart() }
+    single { NotificationManager(get(), getAll(), get(), MainScope()) } withOptions
+        {
+            createdAtStart()
+        }
 
     single { MigrateSplitTunneling(androidContext()) }
 }

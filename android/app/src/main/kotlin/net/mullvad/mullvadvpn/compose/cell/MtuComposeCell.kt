@@ -20,16 +20,13 @@ private fun PreviewMtuComposeCell() {
 }
 
 @Composable
-fun MtuComposeCell(
-    mtuValue: Mtu?,
-    onEditMtu: () -> Unit,
-) {
+fun MtuComposeCell(mtuValue: Mtu?, onEditMtu: () -> Unit) {
     val titleModifier = Modifier
 
     BaseCell(
         headlineContent = { MtuTitle(modifier = titleModifier.weight(1f, true)) },
         bodyView = { MtuBodyView(mtuValue = mtuValue, modifier = titleModifier) },
-        onCellClicked = { onEditMtu.invoke() }
+        onCellClicked = { onEditMtu.invoke() },
     )
 }
 
@@ -39,7 +36,7 @@ private fun MtuTitle(modifier: Modifier) {
         text = stringResource(R.string.wireguard_mtu),
         style = MaterialTheme.typography.titleMedium,
         color = MaterialTheme.colorScheme.onPrimary,
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -48,7 +45,7 @@ private fun MtuBodyView(mtuValue: Mtu?, modifier: Modifier) {
     Row(modifier = modifier) {
         Text(
             text = mtuValue?.value?.toString() ?: stringResource(id = R.string.hint_default),
-            color = MaterialTheme.colorScheme.onPrimary
+            color = MaterialTheme.colorScheme.onPrimary,
         )
     }
 }
@@ -59,6 +56,6 @@ fun MtuSubtitle(modifier: Modifier = Modifier) {
         text = stringResource(R.string.wireguard_mtu_footer, MTU_MIN_VALUE, MTU_MAX_VALUE),
         style = MaterialTheme.typography.labelMedium,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = modifier
+        modifier = modifier,
     )
 }

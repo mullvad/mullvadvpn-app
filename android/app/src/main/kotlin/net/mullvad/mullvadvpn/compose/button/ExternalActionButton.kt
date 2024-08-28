@@ -27,7 +27,7 @@ private fun PreviewExternalButtonLongText() {
         ExternalButton(
             onClick = {},
             text = "Button text is long and is trying to take up space that is large",
-            isEnabled = true
+            isEnabled = true,
         )
     }
 }

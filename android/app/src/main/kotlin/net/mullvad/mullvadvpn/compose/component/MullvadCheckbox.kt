@@ -28,7 +28,7 @@ fun MullvadCheckbox(
     uncheckedColor: Color = MaterialTheme.colorScheme.onPrimary,
     checkmarkColor: Color = MaterialTheme.colorScheme.selected,
     checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit
+    onCheckedChange: (Boolean) -> Unit,
 ) {
     Checkbox(
         checked = checked,
@@ -37,7 +37,7 @@ fun MullvadCheckbox(
             CheckboxDefaults.colors(
                 checkedColor = checkedColor,
                 uncheckedColor = uncheckedColor,
-                checkmarkColor = checkmarkColor
-            )
+                checkmarkColor = checkmarkColor,
+            ),
     )
 }

@@ -46,7 +46,7 @@ class DeviceListViewModel(
                 loadingDevices,
                 deviceList.map { it.sortedBy { it.creationDate } },
                 loading,
-                error
+                error,
             ) { loadingDevices, devices, loading, error ->
                 when {
                     loading -> DeviceListUiState.Loading
@@ -81,7 +81,7 @@ class DeviceListViewModel(
                         setLoadingState(deviceIdToRemove, false)
                         deviceRepository.deviceList(accountNumber).onRight { deviceList.value = it }
                     },
-                    { removeDeviceFromState(deviceIdToRemove) }
+                    { removeDeviceFromState(deviceIdToRemove) },
                 )
         }
 

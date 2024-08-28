@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 inline fun <T> LaunchedEffectCollect(
     sideEffect: Flow<T>,
     key: Any = Unit,
-    crossinline collector: suspend CoroutineScope.(T) -> Unit
+    crossinline collector: suspend CoroutineScope.(T) -> Unit,
 ) {
     LaunchedEffect(key) { sideEffect.collect { collector(it) } }
 }
@@ -27,7 +27,7 @@ inline fun <T> CollectSideEffectWithLifecycle(
     sideEffect: Flow<T>,
     minActiveState: Lifecycle.State = Lifecycle.State.STARTED,
     key: Any? = Unit,
-    crossinline collector: suspend CoroutineScope.(T) -> Unit
+    crossinline collector: suspend CoroutineScope.(T) -> Unit,
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
 

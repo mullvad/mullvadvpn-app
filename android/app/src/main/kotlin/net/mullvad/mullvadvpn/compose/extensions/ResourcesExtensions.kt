@@ -15,7 +15,7 @@ fun Resources.getExpiryQuantityString(accountExpiry: DateTime): String {
 private fun getExpiryQuantityString(
     resources: Resources,
     accountExpiry: DateTime,
-    remainingTime: Duration
+    remainingTime: Duration,
 ): String {
     if (remainingTime.isShorterThan(Duration.ZERO)) {
         return resources.getString(R.string.out_of_time)

@@ -13,7 +13,7 @@ import net.mullvad.mullvadvpn.repository.CustomListsRepository
 
 class EditCustomListViewModel(
     customListsRepository: CustomListsRepository,
-    savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     private val customListId: CustomListId =
         EditCustomListDestination.argsFrom(savedStateHandle).customListId
@@ -27,7 +27,7 @@ class EditCustomListViewModel(
                         EditCustomListState.Content(
                             id = it.id,
                             name = it.name,
-                            locations = it.locations
+                            locations = it.locations,
                         )
                     } ?: EditCustomListState.NotFound
             }

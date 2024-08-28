@@ -23,6 +23,6 @@ private fun PreviewUdpOverTcpPortInfoDialog() {
 fun UdpOverTcpPortInfo(navigator: DestinationsNavigator) {
     InfoDialog(
         message = stringResource(id = R.string.udp_over_tcp_port_info),
-        onDismiss = dropUnlessResumed { navigator.navigateUp() }
+        onDismiss = dropUnlessResumed { navigator.navigateUp() },
     )
 }

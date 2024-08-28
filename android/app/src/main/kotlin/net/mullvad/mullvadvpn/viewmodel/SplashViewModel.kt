@@ -24,7 +24,7 @@ class SplashViewModel(
     private val privacyDisclaimerRepository: PrivacyDisclaimerRepository,
     private val accountRepository: AccountRepository,
     private val deviceRepository: DeviceRepository,
-    private val splashCompleteRepository: SplashCompleteRepository
+    private val splashCompleteRepository: SplashCompleteRepository,
 ) : ViewModel() {
 
     val uiSideEffect = flow {

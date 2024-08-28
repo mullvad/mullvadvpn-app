@@ -13,9 +13,7 @@ import kotlinx.coroutines.launch
 typealias CopyToClipboardHandle = (content: String, toastMessage: String?) -> Unit
 
 @Composable
-fun createCopyToClipboardHandle(
-    snackbarHostState: SnackbarHostState,
-): CopyToClipboardHandle {
+fun createCopyToClipboardHandle(snackbarHostState: SnackbarHostState): CopyToClipboardHandle {
     val scope = rememberCoroutineScope()
     val clipboardManager: ClipboardManager = LocalClipboardManager.current
 
@@ -24,7 +22,7 @@ fun createCopyToClipboardHandle(
             scope.launch {
                 snackbarHostState.showSnackbarImmediately(
                     message = toastMessage,
-                    duration = SnackbarDuration.Short
+                    duration = SnackbarDuration.Short,
                 )
             }
         }

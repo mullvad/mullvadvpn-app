@@ -64,7 +64,7 @@ fun DeviceRevoked(navigator: DestinationsNavigator) {
     DeviceRevokedScreen(
         state = state,
         onSettingsClicked = dropUnlessResumed { navigator.navigate(SettingsDestination) },
-        onGoToLoginClicked = viewModel::onGoToLoginClicked
+        onGoToLoginClicked = viewModel::onGoToLoginClicked,
     )
 }
 
@@ -72,7 +72,7 @@ fun DeviceRevoked(navigator: DestinationsNavigator) {
 fun DeviceRevokedScreen(
     state: DeviceRevokedUiState,
     onSettingsClicked: () -> Unit = {},
-    onGoToLoginClicked: () -> Unit = {}
+    onGoToLoginClicked: () -> Unit = {},
 ) {
     val topColor =
         if (state == DeviceRevokedUiState.SECURED) {
@@ -84,7 +84,7 @@ fun DeviceRevokedScreen(
     ScaffoldWithTopBar(
         topBarColor = topColor,
         onSettingsClicked = onSettingsClicked,
-        onAccountClicked = null
+        onAccountClicked = null,
     ) {
         ConstraintLayout(
             modifier =
@@ -104,7 +104,7 @@ fun DeviceRevokedScreen(
                             end.linkTo(parent.end)
                         }
                         .padding(horizontal = 12.dp)
-                        .size(Dimens.bigIconSize)
+                        .size(Dimens.bigIconSize),
             )
 
             Column(
@@ -114,20 +114,20 @@ fun DeviceRevokedScreen(
                         start.linkTo(parent.start, margin = 22.dp)
                         end.linkTo(parent.end, margin = 22.dp)
                         width = Dimension.fillToConstraints
-                    },
+                    }
             ) {
                 Text(
                     text = stringResource(id = R.string.device_inactive_title),
                     fontSize = 24.sp,
                     color = MaterialTheme.colorScheme.onSurface,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
                 )
 
                 Text(
                     text = stringResource(id = R.string.device_inactive_description),
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.padding(top = 10.dp)
+                    modifier = Modifier.padding(top = 10.dp),
                 )
 
                 if (state == DeviceRevokedUiState.SECURED) {
@@ -135,7 +135,7 @@ fun DeviceRevokedScreen(
                         text = stringResource(id = R.string.device_inactive_unblock_warning),
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.padding(top = 10.dp)
+                        modifier = Modifier.padding(top = 10.dp),
                     )
                 }
             }

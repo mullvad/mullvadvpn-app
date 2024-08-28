@@ -108,18 +108,14 @@ private const val CONNECT_BUTTON_THROTTLE_MILLIS = 1000
 @Composable
 private fun PreviewConnectScreen() {
     val state = ConnectUiState.INITIAL
-    AppTheme {
-        ConnectScreen(
-            state = state,
-        )
-    }
+    AppTheme { ConnectScreen(state = state) }
 }
 
 @Destination<RootGraph>(style = HomeTransition::class)
 @Composable
 fun Connect(
     navigator: DestinationsNavigator,
-    selectLocationResultRecipient: ResultRecipient<SelectLocationDestination, Boolean>
+    selectLocationResultRecipient: ResultRecipient<SelectLocationDestination, Boolean>,
 ) {
     val connectViewModel: ConnectViewModel = koinViewModel()
 
@@ -137,7 +133,7 @@ fun Connect(
     val openAccountPage = LocalUriHandler.current.createOpenAccountPageHook()
     CollectSideEffectWithLifecycle(
         connectViewModel.uiSideEffect,
-        minActiveState = Lifecycle.State.RESUMED
+        minActiveState = Lifecycle.State.RESUMED,
     ) { sideEffect ->
         when (sideEffect) {
             is ConnectViewModel.UiSideEffect.OpenAccountManagementPageInBrowser -> {
@@ -157,7 +153,7 @@ fun Connect(
             is ConnectViewModel.UiSideEffect.ConnectError ->
                 launch {
                     snackbarHostState.showSnackbarImmediately(
-                        message = sideEffect.toMessage(context),
+                        message = sideEffect.toMessage(context)
                     )
                 }
         }
@@ -185,7 +181,7 @@ fun Connect(
                             context
                                 .getString(R.string.download_url)
                                 .appendHideNavOnPlayBuild(state.isPlayBuild)
-                        )
+                        ),
                     )
                     .apply { flags = Intent.FLAG_ACTIVITY_NEW_TASK }
             context.startActivity(intent)
@@ -210,7 +206,7 @@ fun ConnectScreen(
     onManageAccountClick: () -> Unit = {},
     onSettingsClick: () -> Unit = {},
     onAccountClick: () -> Unit = {},
-    onDismissNewDeviceClick: () -> Unit = {}
+    onDismissNewDeviceClick: () -> Unit = {},
 ) {
 
     val scrollState = rememberScrollState()
@@ -222,16 +218,11 @@ fun ConnectScreen(
         onAccountClicked = onAccountClick,
         deviceName = state.deviceName,
         timeLeft = state.daysLeftUntilExpiry,
-        snackbarHostState = snackbarHostState
+        snackbarHostState = snackbarHostState,
     ) {
         var progressIndicatorBias by remember { mutableFloatStateOf(0f) }
 
-        MapColumn(
-            state,
-            it,
-            progressIndicatorBias,
-            scrollState,
-        ) {
+        MapColumn(state, it, progressIndicatorBias, scrollState) {
             Spacer(modifier = Modifier.defaultMinSize(minHeight = Dimens.mediumPadding).weight(1f))
             MullvadCircularProgressIndicatorLarge(
                 color = MaterialTheme.colorScheme.onSurface,
@@ -240,7 +231,7 @@ fun ConnectScreen(
                         .padding(
                             start = Dimens.sideMargin,
                             end = Dimens.sideMargin,
-                            top = Dimens.mediumPadding
+                            top = Dimens.mediumPadding,
                         )
                         .alpha(if (state.showLoading) AlphaVisible else AlphaInvisible)
                         .align(Alignment.CenterHorizontally)
@@ -254,7 +245,7 @@ fun ConnectScreen(
                                     progressIndicatorBias = verticalBias
                                 }
                             }
-                        }
+                        },
             )
             Spacer(modifier = Modifier.defaultMinSize(minHeight = Dimens.mediumPadding).weight(1f))
 
@@ -289,7 +280,7 @@ private fun MapColumn(
     it: PaddingValues,
     progressIndicatorBias: Float,
     scrollState: ScrollState,
-    content: @Composable ColumnScope.() -> Unit
+    content: @Composable ColumnScope.() -> Unit,
 ) {
 
     // Distance to marker when secure/unsecure
@@ -298,7 +289,7 @@ private fun MapColumn(
             targetValue =
                 if (state.tunnelState is TunnelState.Connected) SECURE_ZOOM else UNSECURE_ZOOM,
             animationSpec = tween(SECURE_ZOOM_ANIMATION_MILLIS),
-            label = "baseZoom"
+            label = "baseZoom",
         )
 
     val markers = state.tunnelState.toMarker(state.location)?.let { listOf(it) } ?: emptyList()
@@ -313,7 +304,7 @@ private fun MapColumn(
             GlobeColors(
                 landColor = MaterialTheme.colorScheme.primary,
                 oceanColor = MaterialTheme.colorScheme.surface,
-            )
+            ),
     )
 
     Column(
@@ -325,10 +316,10 @@ private fun MapColumn(
                 .fillMaxHeight()
                 .drawVerticalScrollbar(
                     scrollState,
-                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaScrollbar)
+                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaScrollbar),
                 )
                 .verticalScroll(scrollState)
-                .testTag(SCROLLABLE_COLUMN_TEST_TAG)
+                .testTag(SCROLLABLE_COLUMN_TEST_TAG),
     ) {
         content()
         // We need to manually add this padding so we align size with the map
@@ -341,7 +332,7 @@ private fun MapColumn(
 private fun ConnectionInfo(state: ConnectUiState) {
     ConnectionStatusText(
         state = state.tunnelState,
-        modifier = Modifier.padding(horizontal = Dimens.sideMargin)
+        modifier = Modifier.padding(horizontal = Dimens.sideMargin),
     )
     Text(
         text = state.location?.country ?: "",
@@ -349,7 +340,7 @@ private fun ConnectionInfo(state: ConnectUiState) {
         color = MaterialTheme.colorScheme.onSurface,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
-        modifier = Modifier.padding(horizontal = Dimens.sideMargin)
+        modifier = Modifier.padding(horizontal = Dimens.sideMargin),
     )
     Text(
         text = state.location?.city ?: "",
@@ -357,7 +348,7 @@ private fun ConnectionInfo(state: ConnectUiState) {
         color = MaterialTheme.colorScheme.onSurface,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
-        modifier = Modifier.padding(horizontal = Dimens.sideMargin)
+        modifier = Modifier.padding(horizontal = Dimens.sideMargin),
     )
     var expanded by rememberSaveable { mutableStateOf(false) }
     LocationInfo(
@@ -370,7 +361,7 @@ private fun ConnectionInfo(state: ConnectUiState) {
         modifier =
             Modifier.fillMaxWidth()
                 .padding(horizontal = Dimens.sideMargin)
-                .testTag(LOCATION_INFO_TEST_TAG)
+                .testTag(LOCATION_INFO_TEST_TAG),
     )
 }
 
@@ -405,7 +396,7 @@ private fun ButtonPanel(
                 state.selectedRelayItemTitle
             } else {
                 stringResource(id = R.string.switch_location)
-            }
+            },
     )
     Spacer(modifier = Modifier.height(Dimens.buttonSpacing))
     ConnectionButton(
@@ -418,7 +409,7 @@ private fun ButtonPanel(
         reconnectClick = { handleThrottledAction(onReconnectClick) },
         cancelClick = onCancelClick,
         connectClick = { handleThrottledAction(onConnectClick) },
-        reconnectButtonTestTag = RECONNECT_BUTTON_TEST_TAG
+        reconnectButtonTestTag = RECONNECT_BUTTON_TEST_TAG,
     )
 }
 
@@ -435,7 +426,7 @@ fun TunnelState.toMarker(location: GeoIpLocation?): Marker? {
         is TunnelState.Disconnected ->
             Marker(
                 location.toLatLong(),
-                colors = LocationMarkerColors(centerColor = MaterialTheme.colorScheme.error)
+                colors = LocationMarkerColors(centerColor = MaterialTheme.colorScheme.error),
             )
         is TunnelState.Disconnecting -> null
         is TunnelState.Error -> null

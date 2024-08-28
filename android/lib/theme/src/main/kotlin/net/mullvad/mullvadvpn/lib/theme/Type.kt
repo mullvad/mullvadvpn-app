@@ -25,9 +25,9 @@ internal val MullvadMaterial3Typography =
                 fontFamily = FontFamily.SansSerif,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 18.sp,
-                lineHeight = 23.sp
+                lineHeight = 23.sp,
             ),
         labelMedium =
             TextStyle(fontFamily = FontFamily.SansSerif, fontWeight = FontWeight.SemiBold),
-        labelSmall = TextStyle(fontFamily = FontFamily.SansSerif, fontWeight = FontWeight.SemiBold)
+        labelSmall = TextStyle(fontFamily = FontFamily.SansSerif, fontWeight = FontWeight.SemiBold),
     )

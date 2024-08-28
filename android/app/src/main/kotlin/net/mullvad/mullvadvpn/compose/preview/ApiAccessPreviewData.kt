@@ -19,14 +19,14 @@ internal val defaultAccessMethods =
             id = ApiAccessMethodId.fromString(UUID1),
             name = ApiAccessMethodName.fromString("Direct"),
             enabled = true,
-            apiAccessMethod = ApiAccessMethod.Direct
+            apiAccessMethod = ApiAccessMethod.Direct,
         ),
         ApiAccessMethodSetting(
             id = ApiAccessMethodId.fromString(UUID2),
             name = ApiAccessMethodName.fromString("Bridges"),
             enabled = false,
-            apiAccessMethod = ApiAccessMethod.Bridges
-        )
+            apiAccessMethod = ApiAccessMethod.Bridges,
+        ),
     )
 
 internal val socks5Remote =
@@ -38,8 +38,8 @@ internal val socks5Remote =
             ApiAccessMethod.CustomProxy.Socks5Remote(
                 ip = "192.167.1.1",
                 port = Port(80),
-                auth = SocksAuth(username = "hej", password = "password")
-            )
+                auth = SocksAuth(username = "hej", password = "password"),
+            ),
     )
 
 internal val shadowsocks =
@@ -51,6 +51,6 @@ internal val shadowsocks =
             ip = "192.168.1.1",
             port = Port(123),
             password = "Password",
-            cipher = Cipher.fromString("aes-128-cfb")
-        )
+            cipher = Cipher.fromString("aes-128-cfb"),
+        ),
     )

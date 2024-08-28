@@ -19,7 +19,7 @@ fun UiObject2.findObjectByCaseInsensitiveText(text: String): UiObject2 {
 
 fun UiDevice.findObjectWithTimeout(
     selector: BySelector,
-    timeout: Long = DEFAULT_INTERACTION_TIMEOUT
+    timeout: Long = DEFAULT_INTERACTION_TIMEOUT,
 ): UiObject2 {
 
     wait(Until.hasObject(selector), timeout)
@@ -67,7 +67,7 @@ fun UiDevice.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove(
 
 fun UiObject2.findObjectWithTimeout(
     selector: BySelector,
-    timeout: Long = DEFAULT_INTERACTION_TIMEOUT
+    timeout: Long = DEFAULT_INTERACTION_TIMEOUT,
 ): UiObject2 {
 
     wait(Until.hasObject(selector), timeout)

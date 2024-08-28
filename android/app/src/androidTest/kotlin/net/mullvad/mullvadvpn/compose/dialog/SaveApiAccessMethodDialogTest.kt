@@ -29,7 +29,7 @@ class SaveApiAccessMethodDialogTest {
                     state =
                         SaveApiAccessMethodUiState(
                             testingState = TestApiAccessMethodState.Testing,
-                            isSaving = false
+                            isSaving = false,
                         )
                 )
             }
@@ -48,7 +48,7 @@ class SaveApiAccessMethodDialogTest {
                     state =
                         SaveApiAccessMethodUiState(
                             testingState = TestApiAccessMethodState.Result.Failure,
-                            isSaving = false
+                            isSaving = false,
                         )
                 )
             }
@@ -67,7 +67,7 @@ class SaveApiAccessMethodDialogTest {
                     state =
                         SaveApiAccessMethodUiState(
                             testingState = TestApiAccessMethodState.Result.Successful,
-                            isSaving = true
+                            isSaving = true,
                         )
                 )
             }
@@ -87,9 +87,9 @@ class SaveApiAccessMethodDialogTest {
                     state =
                         SaveApiAccessMethodUiState(
                             testingState = TestApiAccessMethodState.Testing,
-                            isSaving = false
+                            isSaving = false,
                         ),
-                    onCancel = onCancelClick
+                    onCancel = onCancelClick,
                 )
             }
 
@@ -110,9 +110,9 @@ class SaveApiAccessMethodDialogTest {
                     state =
                         SaveApiAccessMethodUiState(
                             testingState = TestApiAccessMethodState.Result.Failure,
-                            isSaving = false
+                            isSaving = false,
                         ),
-                    onSave = onSaveClick
+                    onSave = onSaveClick,
                 )
             }
 

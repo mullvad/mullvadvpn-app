@@ -34,7 +34,7 @@ class ResetServerIPOverridesConfirmationDialogTest {
             setContentWithTheme {
                 ResetServerIpOverridesConfirmationDialog(
                     onNavigateBack = clickHandler,
-                    onClearAllOverrides = {}
+                    onClearAllOverrides = {},
                 )
             }
 
@@ -54,7 +54,7 @@ class ResetServerIPOverridesConfirmationDialogTest {
             setContentWithTheme {
                 ResetServerIpOverridesConfirmationDialog(
                     onNavigateBack = {},
-                    onClearAllOverrides = clickHandler
+                    onClearAllOverrides = clickHandler,
                 )
             }
 

@@ -55,7 +55,7 @@ private fun RelayItem.Location.hasProvider(providersConstraint: Constraint<Provi
 
 fun RelayItem.CustomList.filterOnOwnershipAndProvider(
     ownership: Constraint<Ownership>,
-    providers: Constraint<Providers>
+    providers: Constraint<Providers>,
 ): RelayItem.CustomList {
     val newLocations =
         locations.mapNotNull {
@@ -71,7 +71,7 @@ fun RelayItem.CustomList.filterOnOwnershipAndProvider(
 
 fun RelayItem.Location.Country.filterOnOwnershipAndProvider(
     ownership: Constraint<Ownership>,
-    providers: Constraint<Providers>
+    providers: Constraint<Providers>,
 ): RelayItem.Location.Country? {
     val cities = cities.mapNotNull { it.filterOnOwnershipAndProvider(ownership, providers) }
     return if (cities.isNotEmpty()) {
@@ -83,7 +83,7 @@ fun RelayItem.Location.Country.filterOnOwnershipAndProvider(
 
 private fun RelayItem.Location.City.filterOnOwnershipAndProvider(
     ownership: Constraint<Ownership>,
-    providers: Constraint<Providers>
+    providers: Constraint<Providers>,
 ): RelayItem.Location.City? {
     val relays = relays.mapNotNull { it.filterOnOwnershipAndProvider(ownership, providers) }
     return if (relays.isNotEmpty()) {
@@ -95,7 +95,7 @@ private fun RelayItem.Location.City.filterOnOwnershipAndProvider(
 
 private fun RelayItem.Location.Relay.filterOnOwnershipAndProvider(
     ownership: Constraint<Ownership>,
-    providers: Constraint<Providers>
+    providers: Constraint<Providers>,
 ): RelayItem.Location.Relay? {
     return if (hasOwnership(ownership) && hasProvider(providers)) {
         this

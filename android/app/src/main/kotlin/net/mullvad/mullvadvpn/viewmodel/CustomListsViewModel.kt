@@ -14,7 +14,7 @@ import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 
 class CustomListsViewModel(
     customListsRepository: CustomListsRepository,
-    private val customListActionUseCase: CustomListActionUseCase
+    private val customListActionUseCase: CustomListActionUseCase,
 ) : ViewModel() {
 
     val uiState =
@@ -24,7 +24,7 @@ class CustomListsViewModel(
             .stateIn(
                 viewModelScope,
                 started = SharingStarted.WhileSubscribed(),
-                CustomListsUiState.Loading
+                CustomListsUiState.Loading,
             )
 
     fun undoDeleteCustomList(action: CustomListAction.Create) {

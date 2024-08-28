@@ -53,12 +53,12 @@ fun CustomPortCell(
     mainTestTag: String = "",
     numberTestTag: String = "",
     onMainCellClicked: () -> Unit = {},
-    onPortCellClicked: () -> Unit = {}
+    onPortCellClicked: () -> Unit = {},
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start,
-        modifier = Modifier.height(Dimens.cellHeight).fillMaxWidth()
+        modifier = Modifier.height(Dimens.cellHeight).fillMaxWidth(),
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -75,7 +75,7 @@ fun CustomPortCell(
                         }
                     )
                     .padding(start = Dimens.cellStartPadding)
-                    .testTag(mainTestTag)
+                    .testTag(mainTestTag),
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.icon_tick),
@@ -83,7 +83,7 @@ fun CustomPortCell(
                 tint = MaterialTheme.colorScheme.onSelected,
                 modifier =
                     Modifier.padding(end = Dimens.selectableCellTextMargin)
-                        .alpha(if (isSelected) AlphaVisible else AlphaInvisible)
+                        .alpha(if (isSelected) AlphaVisible else AlphaInvisible),
             )
             BaseCellTitle(
                 title = title,
@@ -94,7 +94,7 @@ fun CustomPortCell(
                         MaterialTheme.colorScheme.onSelected
                     } else {
                         MaterialTheme.colorScheme.onSurface
-                    }
+                    },
             )
         }
         Spacer(modifier = Modifier.width(Dimens.verticalSpacer))
@@ -110,7 +110,7 @@ fun CustomPortCell(
             Text(
                 text = port?.value?.toString() ?: stringResource(id = R.string.port),
                 color = MaterialTheme.colorScheme.onPrimary,
-                modifier = Modifier.align(Alignment.Center)
+                modifier = Modifier.align(Alignment.Center),
             )
         }
     }

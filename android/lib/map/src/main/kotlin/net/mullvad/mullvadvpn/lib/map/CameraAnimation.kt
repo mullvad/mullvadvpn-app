@@ -81,7 +81,7 @@ fun animatedCameraPosition(
                                 EaseInOut
                             1f at duration using EaseInOut
                         }
-                    }
+                    },
             )
         }
     }
@@ -91,9 +91,9 @@ fun animatedCameraPosition(
         latLong =
             LatLong(
                 Latitude(latitudeAnimation.value),
-                Longitude.fromFloat(longitudeAnimation.value)
+                Longitude.fromFloat(longitudeAnimation.value),
             ),
-        verticalBias = cameraVerticalBias
+        verticalBias = cameraVerticalBias,
     )
 }
 

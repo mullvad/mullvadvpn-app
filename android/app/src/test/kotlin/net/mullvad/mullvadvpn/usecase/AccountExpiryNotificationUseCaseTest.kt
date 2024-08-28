@@ -56,7 +56,7 @@ class AccountExpiryNotificationUseCaseTest {
 
             assertEquals(
                 listOf(InAppNotification.AccountExpiry(closeToExpiry.expiryDate)),
-                awaitItem()
+                awaitItem(),
             )
         }
     }

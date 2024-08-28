@@ -27,7 +27,7 @@ private fun PreviewCopyableObfuscationView() {
 fun CopyableObfuscationView(
     content: String,
     onCopyClicked: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     var obfuscationEnabled by remember { mutableStateOf(true) }
 
@@ -35,7 +35,7 @@ fun CopyableObfuscationView(
         AccountNumberView(
             accountNumber = content,
             obfuscateWithPasswordDots = obfuscationEnabled,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
         )
         AnimatedIconButton(
             defaultIcon = painterResource(id = R.drawable.icon_hide),
@@ -44,7 +44,7 @@ fun CopyableObfuscationView(
             secondaryIconTint = MaterialTheme.colorScheme.onSurface,
             isToggleButton = true,
             contentDescription = stringResource(id = R.string.hide_account_number),
-            onClick = { obfuscationEnabled = !obfuscationEnabled }
+            onClick = { obfuscationEnabled = !obfuscationEnabled },
         )
 
         CopyAnimatedIconButton(onClick = { onCopyClicked(content) })
@@ -60,6 +60,6 @@ fun CopyAnimatedIconButton(onClick: () -> Unit) {
         secondaryIconTint = MaterialTheme.colorScheme.tertiary,
         isToggleButton = false,
         contentDescription = stringResource(id = R.string.copy_account_number),
-        onClick = onClick
+        onClick = onClick,
     )
 }

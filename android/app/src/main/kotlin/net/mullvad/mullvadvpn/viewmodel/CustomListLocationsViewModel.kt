@@ -37,7 +37,7 @@ class CustomListLocationsViewModel(
     private val relayListRepository: RelayListRepository,
     private val customListRelayItemsUseCase: CustomListRelayItemsUseCase,
     private val customListActionUseCase: CustomListActionUseCase,
-    savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     private val navArgs =
         CustomListLocationsDestination.argsFrom(savedStateHandle = savedStateHandle)
@@ -62,7 +62,7 @@ class CustomListLocationsViewModel(
                     relayCountries.isEmpty() ->
                         CustomListLocationsUiState.Content.Empty(
                             newList = navArgs.newList,
-                            searchTerm = searchTerm
+                            searchTerm = searchTerm,
                         )
                     else ->
                         CustomListLocationsUiState.Content.Data(
@@ -76,14 +76,14 @@ class CustomListLocationsViewModel(
                             saveEnabled =
                                 selectedLocations.isNotEmpty() &&
                                     selectedLocations != _initialLocations.value,
-                            hasUnsavedChanges = selectedLocations != _initialLocations.value
+                            hasUnsavedChanges = selectedLocations != _initialLocations.value,
                         )
                 }
             }
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(),
-                CustomListLocationsUiState.Loading(newList = navArgs.newList)
+                CustomListLocationsUiState.Loading(newList = navArgs.newList),
             )
 
     init {
@@ -91,10 +91,7 @@ class CustomListLocationsViewModel(
     }
 
     private fun searchRelayListLocations() =
-        combine(
-                _searchTerm,
-                relayListRepository.relayList,
-            ) { searchTerm, relayCountries ->
+        combine(_searchTerm, relayListRepository.relayList) { searchTerm, relayCountries ->
                 val isSearching = searchTerm.length >= MIN_SEARCH_LENGTH
                 if (isSearching) {
                     val (exp, filteredRelayCountries) = relayCountries.newFilterOnSearch(searchTerm)
@@ -118,7 +115,7 @@ class CustomListLocationsViewModel(
                                 customListActionUseCase(
                                         CustomListAction.UpdateLocations(
                                             navArgs.customListId,
-                                            locationsToSave.map { it.id }
+                                            locationsToSave.map { it.id },
                                         )
                                     )
                                     .bind()
@@ -248,7 +245,7 @@ class CustomListLocationsViewModel(
                     item = relayItem,
                     depth = depth,
                     checked = isSelected(relayItem),
-                    expanded = expanded
+                    expanded = expanded,
                 )
             )
             if (expanded) {
@@ -258,7 +255,7 @@ class CustomListLocationsViewModel(
                             relayItem.relays.toRelayItems(
                                 isSelected = isSelected,
                                 isExpanded = isExpanded,
-                                depth = depth + 1
+                                depth = depth + 1,
                             )
                         )
                     is RelayItem.Location.Country ->
@@ -266,7 +263,7 @@ class CustomListLocationsViewModel(
                             relayItem.cities.toRelayItems(
                                 isSelected = isSelected,
                                 isExpanded = isExpanded,
-                                depth = depth + 1
+                                depth = depth + 1,
                             )
                         )
                     is RelayItem.Location.Relay -> {
@@ -279,13 +276,13 @@ class CustomListLocationsViewModel(
 
     private fun calculateResultData(
         success: LocationsChanged,
-        locationsToSave: List<RelayItem.Location>
+        locationsToSave: List<RelayItem.Location>,
     ) =
         if (navArgs.newList) {
             CustomListActionResultData.Success.CreatedWithLocations(
                 customListName = success.name,
                 locationNames = locationsToSave.map { it.name },
-                undo = CustomListAction.Delete(id = success.id)
+                undo = CustomListAction.Delete(id = success.id),
             )
         } else {
             when {
@@ -293,19 +290,19 @@ class CustomListLocationsViewModel(
                     CustomListActionResultData.Success.LocationAdded(
                         customListName = success.name,
                         relayListRepository.find(success.removedLocations.first())!!.name,
-                        undo = success.undo
+                        undo = success.undo,
                     )
                 success.removedLocations.size == 1 && success.addedLocations.isEmpty() ->
                     CustomListActionResultData.Success.LocationRemoved(
                         customListName = success.name,
                         locationName =
                             relayListRepository.find(success.removedLocations.first())!!.name,
-                        undo = success.undo
+                        undo = success.undo,
                     )
                 else ->
                     CustomListActionResultData.Success.LocationChanged(
                         customListName = success.name,
-                        undo = success.undo
+                        undo = success.undo,
                     )
             }
         }

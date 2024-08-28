@@ -8,5 +8,5 @@ import kotlinx.parcelize.Parcelize
 data class ApiEndpoint(
     val address: InetSocketAddress,
     val disableAddressCache: Boolean,
-    val disableTls: Boolean
+    val disableTls: Boolean,
 ) : Parcelable

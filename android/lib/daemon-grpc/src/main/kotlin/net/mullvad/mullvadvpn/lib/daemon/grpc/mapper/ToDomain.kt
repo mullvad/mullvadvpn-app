@@ -80,7 +80,7 @@ internal fun ManagementInterface.TunnelState.toDomain(): TunnelState =
                         if (hasDisconnectedLocation()) {
                             disconnectedLocation.toDomain()
                         } else null
-                    },
+                    }
             )
         ManagementInterface.TunnelState.StateCase.CONNECTING ->
             TunnelState.Connecting(
@@ -91,7 +91,7 @@ internal fun ManagementInterface.TunnelState.toDomain(): TunnelState =
                             location.toDomain()
                         } else null
                     },
-                featureIndicators = connected.featureIndicators.toDomain()
+                featureIndicators = connected.featureIndicators.toDomain(),
             )
         ManagementInterface.TunnelState.StateCase.CONNECTED ->
             TunnelState.Connected(
@@ -104,18 +104,16 @@ internal fun ManagementInterface.TunnelState.toDomain(): TunnelState =
                             null
                         }
                     },
-                featureIndicators = connected.featureIndicators.toDomain()
+                featureIndicators = connected.featureIndicators.toDomain(),
             )
         ManagementInterface.TunnelState.StateCase.DISCONNECTING ->
             TunnelState.Disconnecting(
-                actionAfterDisconnect = disconnecting.afterDisconnect.toDomain(),
+                actionAfterDisconnect = disconnecting.afterDisconnect.toDomain()
             )
         ManagementInterface.TunnelState.StateCase.ERROR ->
             TunnelState.Error(errorState = error.errorState.toDomain())
         ManagementInterface.TunnelState.StateCase.STATE_NOT_SET ->
-            TunnelState.Disconnected(
-                location = disconnected.disconnectedLocation.toDomain(),
-            )
+            TunnelState.Disconnected(location = disconnected.disconnectedLocation.toDomain())
     }
 
 internal fun ManagementInterface.GeoIpLocation.toDomain(): GeoIpLocation =
@@ -136,7 +134,7 @@ internal fun ManagementInterface.GeoIpLocation.toDomain(): GeoIpLocation =
         city = city,
         latitude = latitude,
         longitude = longitude,
-        hostname = hostname
+        hostname = hostname,
     )
 
 internal fun ManagementInterface.TunnelEndpoint.toDomain(): TunnelEndpoint =
@@ -150,7 +148,7 @@ internal fun ManagementInterface.TunnelEndpoint.toDomain(): TunnelEndpoint =
 
                 Endpoint(
                     address = InetSocketAddress(InetAddress.getByName(ipPart), portPart.toInt()),
-                    protocol = protocol.toDomain()
+                    protocol = protocol.toDomain(),
                 )
             },
         quantumResistant = quantumResistant,
@@ -159,14 +157,14 @@ internal fun ManagementInterface.TunnelEndpoint.toDomain(): TunnelEndpoint =
                 obfuscation.toDomain()
             } else {
                 null
-            }
+            },
     )
 
 internal fun ManagementInterface.ObfuscationEndpoint.toDomain(): ObfuscationEndpoint =
     ObfuscationEndpoint(
         endpoint =
             Endpoint(address = InetSocketAddress(address, port), protocol = protocol.toDomain()),
-        obfuscationType = obfuscationType.toDomain()
+        obfuscationType = obfuscationType.toDomain(),
     )
 
 internal fun ManagementInterface.ObfuscationEndpoint.ObfuscationType.toDomain(): ObfuscationType =
@@ -220,7 +218,7 @@ internal fun ManagementInterface.ErrorState.toDomain(): ErrorState =
                 ManagementInterface.ErrorState.Cause.CREATE_TUNNEL_DEVICE ->
                     throw IllegalArgumentException("Unrecognized error state cause")
             },
-        isBlocking = !hasBlockingError()
+        isBlocking = !hasBlockingError(),
     )
 
 internal fun ManagementInterface.ErrorState.FirewallPolicyError.toDomain():
@@ -258,14 +256,14 @@ internal fun ManagementInterface.Settings.toDomain(): Settings =
         relayOverrides = relayOverridesList.map { it.toDomain() },
         showBetaReleases = showBetaReleases,
         splitTunnelSettings = splitTunnel.toDomain(),
-        apiAccessMethodSettings = apiAccessMethods.toDomain()
+        apiAccessMethodSettings = apiAccessMethods.toDomain(),
     )
 
 internal fun ManagementInterface.RelayOverride.toDomain(): RelayOverride =
     RelayOverride(
         hostname = hostname,
         ipv4AddressIn = if (hasIpv4AddrIn()) InetAddress.getByName(ipv4AddrIn) else null,
-        ipv6AddressIn = if (hasIpv6AddrIn()) InetAddress.getByName(ipv6AddrIn) else null
+        ipv6AddressIn = if (hasIpv6AddrIn()) InetAddress.getByName(ipv6AddrIn) else null,
     )
 
 internal fun ManagementInterface.RelaySettings.toDomain(): RelaySettings =
@@ -283,7 +281,7 @@ internal fun ManagementInterface.NormalRelaySettings.toDomain(): RelayConstraint
         location = location.toDomain(),
         providers = providersList.toDomain(),
         ownership = ownership.toDomain(),
-        wireguardConstraints = wireguardConstraints.toDomain()
+        wireguardConstraints = wireguardConstraints.toDomain(),
     )
 
 internal fun ManagementInterface.LocationConstraint.toDomain(): Constraint<RelayItemId> =
@@ -320,7 +318,7 @@ internal fun ManagementInterface.WireguardConstraints.toDomain(): WireguardConst
                 Constraint.Only(Port(port))
             } else {
                 Constraint.Any
-            },
+            }
     )
 
 internal fun ManagementInterface.Ownership.toDomain(): Constraint<Ownership> =
@@ -335,7 +333,7 @@ internal fun ManagementInterface.Ownership.toDomain(): Constraint<Ownership> =
 internal fun ManagementInterface.ObfuscationSettings.toDomain(): ObfuscationSettings =
     ObfuscationSettings(
         selectedObfuscation = selectedObfuscation.toDomain(),
-        udp2tcp = udp2Tcp.toDomain()
+        udp2tcp = udp2Tcp.toDomain(),
     )
 
 internal fun ManagementInterface.ObfuscationSettings.SelectedObfuscation.toDomain():
@@ -362,7 +360,7 @@ internal fun ManagementInterface.CustomList.toDomain(): CustomList =
     CustomList(
         id = CustomListId(id),
         name = CustomListName.fromString(name),
-        locations = locationsList.map { it.toDomain() }
+        locations = locationsList.map { it.toDomain() },
     )
 
 internal fun ManagementInterface.TunnelOptions.toDomain(): TunnelOptions =
@@ -388,7 +386,7 @@ internal fun ManagementInterface.DnsOptions.toDomain(): DnsOptions =
     DnsOptions(
         state = state.toDomain(),
         defaultOptions = defaultOptions.toDomain(),
-        customOptions = customOptions.toDomain()
+        customOptions = customOptions.toDomain(),
     )
 
 internal fun ManagementInterface.DnsOptions.DnsState.toDomain(): DnsState =
@@ -406,7 +404,7 @@ internal fun ManagementInterface.DefaultDnsOptions.toDomain() =
         blockAdultContent = blockAdultContent,
         blockGambling = blockGambling,
         blockSocialMedia = blockSocialMedia,
-        blockTrackers = blockTrackers
+        blockTrackers = blockTrackers,
     )
 
 internal fun ManagementInterface.CustomDnsOptions.toDomain() =
@@ -426,7 +424,7 @@ internal fun QuantumResistantState.toDomain(): ManagementInterface.QuantumResist
 internal fun ManagementInterface.AppVersionInfo.toDomain(): AppVersionInfo =
     AppVersionInfo(
         supported = supported,
-        suggestedUpgrade = if (hasSuggestedUpgrade()) suggestedUpgrade else null
+        suggestedUpgrade = if (hasSuggestedUpgrade()) suggestedUpgrade else null,
     )
 
 internal fun ConnectivityState.toDomain(): GrpcConnectivityState =
@@ -465,7 +463,7 @@ internal fun ManagementInterface.RelayListCountry.toDomain(): RelayItem.Location
         citiesList
             .map { city -> city.toDomain(countryCode) }
             .filter { it.relays.isNotEmpty() }
-            .sortedBy { it.name }
+            .sortedBy { it.name },
     )
 }
 
@@ -480,7 +478,7 @@ internal fun ManagementInterface.RelayListCity.toDomain(
             relaysList
                 .filter { it.endpointType == ManagementInterface.Relay.RelayType.WIREGUARD }
                 .map { it.toDomain(cityCode) }
-                .sortedWith(RelayNameComparator)
+                .sortedWith(RelayNameComparator),
     )
 }
 
@@ -493,8 +491,8 @@ internal fun ManagementInterface.Relay.toDomain(
         provider =
             Provider(
                 ProviderId(provider),
-                ownership = if (owned) Ownership.MullvadOwned else Ownership.Rented
-            )
+                ownership = if (owned) Ownership.MullvadOwned else Ownership.Rented,
+            ),
     )
 
 internal fun ManagementInterface.Device.toDomain(): Device =
@@ -514,19 +512,19 @@ internal fun ManagementInterface.DeviceState.toDomain(): DeviceState =
 internal fun ManagementInterface.AccountData.toDomain(): AccountData =
     AccountData(
         AccountId(UUID.fromString(id)),
-        expiryDate = Instant.ofEpochSecond(expiry.seconds).toDateTime()
+        expiryDate = Instant.ofEpochSecond(expiry.seconds).toDateTime(),
     )
 
 internal fun ManagementInterface.VoucherSubmission.toDomain(): RedeemVoucherSuccess =
     RedeemVoucherSuccess(
         timeAdded = secondsAdded,
-        newExpiryDate = Instant.ofEpochSecond(newExpiry.seconds).toDateTime()
+        newExpiryDate = Instant.ofEpochSecond(newExpiry.seconds).toDateTime(),
     )
 
 internal fun ManagementInterface.SplitTunnelSettings.toDomain(): SplitTunnelSettings =
     SplitTunnelSettings(
         enabled = enableExclusions,
-        excludedApps = appsList.map { AppId(it) }.toSet()
+        excludedApps = appsList.map { AppId(it) }.toSet(),
     )
 
 internal fun ManagementInterface.PlayPurchasePaymentToken.toDomain(): PlayPurchasePaymentToken =
@@ -540,7 +538,7 @@ internal fun ManagementInterface.AccessMethodSetting.toDomain(): ApiAccessMethod
         id = ApiAccessMethodId.fromString(id.value),
         name = ApiAccessMethodName.fromString(name),
         enabled = enabled,
-        apiAccessMethod = accessMethod.toDomain()
+        apiAccessMethod = accessMethod.toDomain(),
     )
 
 internal fun ManagementInterface.AccessMethod.toDomain(): ApiAccessMethod =
@@ -564,7 +562,7 @@ internal fun ManagementInterface.Shadowsocks.toDomain(): ApiAccessMethod.CustomP
         ip = ip,
         port = Port(port),
         password = password,
-        cipher = Cipher.fromString(cipher)
+        cipher = Cipher.fromString(cipher),
     )
 
 internal fun ManagementInterface.Socks5Remote.toDomain(): ApiAccessMethod.CustomProxy.Socks5Remote =
@@ -576,7 +574,7 @@ internal fun ManagementInterface.Socks5Remote.toDomain(): ApiAccessMethod.Custom
                 auth.toDomain()
             } else {
                 null
-            }
+            },
     )
 
 internal fun ManagementInterface.SocksAuth.toDomain(): SocksAuth =

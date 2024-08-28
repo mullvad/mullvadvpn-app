@@ -54,7 +54,7 @@ private fun PreviewCheckableRelayLocationCell(
                     checked = false,
                     expanded = false,
                     depth = 0,
-                    onExpand = {}
+                    onExpand = {},
                 )
             }
         }
@@ -85,7 +85,7 @@ fun StatusRelayItemCell(
             if (isSelected) {
                 Icon(
                     painter = painterResource(id = R.drawable.icon_tick),
-                    contentDescription = null
+                    contentDescription = null,
                 )
             } else {
                 Box(
@@ -100,7 +100,7 @@ fun StatusRelayItemCell(
                                         item.active -> activeColor
                                         else -> inactiveColor
                                     },
-                                shape = CircleShape
+                                shape = CircleShape,
                             )
                 )
             }
@@ -147,7 +147,7 @@ fun RelayItemCell(
                     onLongClick = onLongClick,
                 )
                 .padding(start = startPadding),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         if (leadingContent != null) {
             leadingContent()
@@ -158,7 +158,7 @@ fun RelayItemCell(
             ExpandButton(
                 color = MaterialTheme.colorScheme.onSurface,
                 isExpanded = isExpanded,
-                onClick = { onToggleExpand(!isExpanded) }
+                onClick = { onToggleExpand(!isExpanded) },
             )
         }
     }
@@ -172,7 +172,7 @@ fun CheckableRelayLocationCell(
     onRelayCheckedChange: (isChecked: Boolean) -> Unit = { _ -> },
     expanded: Boolean,
     onExpand: (Boolean) -> Unit,
-    depth: Int
+    depth: Int,
 ) {
     RelayItemCell(
         modifier = modifier,
@@ -181,13 +181,13 @@ fun CheckableRelayLocationCell(
         leadingContent = {
             MullvadCheckbox(
                 checked = checked,
-                onCheckedChange = { isChecked -> onRelayCheckedChange(isChecked) }
+                onCheckedChange = { isChecked -> onRelayCheckedChange(isChecked) },
             )
         },
         onClick = { onRelayCheckedChange(!checked) },
         onToggleExpand = onExpand,
         isExpanded = expanded,
-        depth = depth
+        depth = depth,
     )
 }
 
@@ -207,7 +207,7 @@ private fun Name(modifier: Modifier = Modifier, relay: RelayItem) {
                 )
                 .padding(horizontal = Dimens.smallPadding, vertical = Dimens.mediumPadding),
         maxLines = 1,
-        overflow = TextOverflow.Ellipsis
+        overflow = TextOverflow.Ellipsis,
     )
 }
 
@@ -215,11 +215,11 @@ private fun Name(modifier: Modifier = Modifier, relay: RelayItem) {
 private fun RowScope.ExpandButton(
     color: Color,
     isExpanded: Boolean,
-    onClick: (expand: Boolean) -> Unit
+    onClick: (expand: Boolean) -> Unit,
 ) {
     VerticalDivider(
         color = MaterialTheme.colorScheme.surface,
-        modifier = Modifier.padding(vertical = Dimens.verticalDividerPadding)
+        modifier = Modifier.padding(vertical = Dimens.verticalDividerPadding),
     )
     Chevron(
         color = color,
@@ -228,7 +228,7 @@ private fun RowScope.ExpandButton(
             Modifier.fillMaxHeight()
                 .clickable { onClick(!isExpanded) }
                 .padding(horizontal = Dimens.largePadding)
-                .align(Alignment.CenterVertically)
+                .align(Alignment.CenterVertically),
     )
 }
 

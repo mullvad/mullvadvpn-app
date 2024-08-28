@@ -13,7 +13,7 @@ fun MtuTextField(
     onSubmit: (String) -> Unit = {},
     isEnabled: Boolean = true,
     placeholderText: String = "",
-    maxCharLength: Int
+    maxCharLength: Int,
 ) {
     CustomTextField(
         value = value,
@@ -25,6 +25,6 @@ fun MtuTextField(
         placeholderText = placeholderText,
         maxCharLength = maxCharLength,
         isValidValue = isValidValue,
-        isDigitsOnlyAllowed = true
+        isDigitsOnlyAllowed = true,
     )
 }

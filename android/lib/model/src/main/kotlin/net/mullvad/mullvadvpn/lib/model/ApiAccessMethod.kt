@@ -17,7 +17,7 @@ sealed interface ApiAccessMethod : Parcelable {
             val ip: String,
             val port: Port,
             val password: String?,
-            val cipher: Cipher
+            val cipher: Cipher,
         ) : CustomProxy
     }
 }

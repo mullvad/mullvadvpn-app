@@ -50,7 +50,7 @@ class LoginViewModel(
     private val accountRepository: AccountRepository,
     private val newDeviceRepository: NewDeviceRepository,
     private val internetAvailableUseCase: InternetAvailableUseCase,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : ViewModel() {
     private val _loginState = MutableStateFlow(LoginUiState.INITIAL.loginState)
     private val _loginInput = MutableStateFlow(LoginUiState.INITIAL.accountNumberInput)
@@ -61,11 +61,10 @@ class LoginViewModel(
     private val _mutableAccountHistory: MutableStateFlow<AccountNumber?> = MutableStateFlow(null)
 
     private val _uiState =
-        combine(
-            _loginInput,
-            _mutableAccountHistory,
-            _loginState,
-        ) { loginInput, historyAccountNumber, loginState ->
+        combine(_loginInput, _mutableAccountHistory, _loginState) {
+            loginInput,
+            historyAccountNumber,
+            loginState ->
             LoginUiState(loginInput, historyAccountNumber, loginState)
         }
 
@@ -87,7 +86,7 @@ class LoginViewModel(
                     {
                         _mutableAccountHistory.update { null }
                         _mutableAccountHistory.update { accountRepository.fetchAccountHistory() }
-                    }
+                    },
                 )
         }
 
@@ -98,7 +97,7 @@ class LoginViewModel(
                 .createAccount()
                 .fold(
                     { _loginState.value = Idle(LoginError.UnableToCreateAccount) },
-                    { _uiSideEffect.send(LoginUiSideEffect.NavigateToWelcome) }
+                    { _uiSideEffect.send(LoginUiSideEffect.NavigateToWelcome) },
                 )
         }
     }
@@ -121,7 +120,7 @@ class LoginViewModel(
                         {
                             onSuccessfulLogin()
                             Success
-                        }
+                        },
                     )
 
             _loginState.update { uiState }

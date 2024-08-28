@@ -49,7 +49,7 @@ private fun PreviewDarkTextField() {
     AppTheme {
         Column(
             modifier = Modifier.background(MaterialTheme.colorScheme.background).padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             // Normal
             TextField(
@@ -58,7 +58,7 @@ private fun PreviewDarkTextField() {
                 placeholder = { Text(text = "Placeholder") },
                 label = { Text(text = "Label") },
                 colors = mullvadDarkTextFieldColors(),
-                shape = MaterialTheme.shapes.small
+                shape = MaterialTheme.shapes.small,
             )
 
             // Normal empty
@@ -68,7 +68,7 @@ private fun PreviewDarkTextField() {
                 placeholder = { Text(text = "Placeholder") },
                 label = { Text(text = "Label") },
                 colors = mullvadDarkTextFieldColors(),
-                shape = MaterialTheme.shapes.small
+                shape = MaterialTheme.shapes.small,
             )
 
             // Error
@@ -79,7 +79,7 @@ private fun PreviewDarkTextField() {
                 label = { Text(text = "Label") },
                 isError = true,
                 colors = mullvadDarkTextFieldColors(),
-                shape = MaterialTheme.shapes.small
+                shape = MaterialTheme.shapes.small,
             )
         }
     }
@@ -138,5 +138,5 @@ fun apiAccessTextFieldColors(): TextFieldColors =
         unfocusedIndicatorColor = Color.Transparent,
         focusedTrailingIconColor = MaterialTheme.colorScheme.onSurface,
         disabledTrailingIconColor = MaterialTheme.colorScheme.onSurface,
-        unfocusedTrailingIconColor = MaterialTheme.colorScheme.onSurface
+        unfocusedTrailingIconColor = MaterialTheme.colorScheme.onSurface,
     )

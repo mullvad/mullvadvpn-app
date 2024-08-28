@@ -12,7 +12,7 @@ inline fun <T1, T2, T3, T4, T5, T6, R> combine(
     flow4: Flow<T4>,
     flow5: Flow<T5>,
     flow6: Flow<T6>,
-    crossinline transform: suspend (T1, T2, T3, T4, T5, T6) -> R
+    crossinline transform: suspend (T1, T2, T3, T4, T5, T6) -> R,
 ): Flow<R> {
     return kotlinx.coroutines.flow.combine(flow, flow2, flow3, flow4, flow5, flow6) { args: Array<*>
         ->

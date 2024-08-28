@@ -45,14 +45,14 @@ fun ResetServerIpOverridesConfirmation(resultBackNavigator: ResultBackNavigator<
     }
     ResetServerIpOverridesConfirmationDialog(
         onClearAllOverrides = vm::clearAllOverrides,
-        dropUnlessResumed { resultBackNavigator.navigateBack() }
+        dropUnlessResumed { resultBackNavigator.navigateBack() },
     )
 }
 
 @Composable
 fun ResetServerIpOverridesConfirmationDialog(
     onClearAllOverrides: () -> Unit,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
 ) {
     AlertDialog(
         containerColor = MaterialTheme.colorScheme.surface,
@@ -60,7 +60,7 @@ fun ResetServerIpOverridesConfirmationDialog(
             NegativeButton(
                 modifier = Modifier.fillMaxWidth().testTag(RESET_SERVER_IP_OVERRIDE_RESET_TEST_TAG),
                 text = stringResource(id = R.string.server_ip_overrides_reset_reset_button),
-                onClick = onClearAllOverrides
+                onClick = onClearAllOverrides,
             )
         },
         dismissButton = {
@@ -68,13 +68,13 @@ fun ResetServerIpOverridesConfirmationDialog(
                 modifier =
                     Modifier.fillMaxWidth().testTag(RESET_SERVER_IP_OVERRIDE_CANCEL_TEST_TAG),
                 text = stringResource(R.string.cancel),
-                onClick = onNavigateBack
+                onClick = onNavigateBack,
             )
         },
         title = {
             Text(
                 text = stringResource(id = R.string.server_ip_overrides_reset_title),
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onSurface,
             )
         },
         text = {
@@ -84,6 +84,6 @@ fun ResetServerIpOverridesConfirmationDialog(
                 style = MaterialTheme.typography.bodySmall,
             )
         },
-        onDismissRequest = onNavigateBack
+        onDismissRequest = onNavigateBack,
     )
 }

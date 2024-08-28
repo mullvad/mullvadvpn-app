@@ -12,15 +12,11 @@ internal object DevicePreviewData {
                 DeviceItemUiState(device = device, isLoading = index == 0)
             }
 
-    fun generateDevice(
-        index: Int = 0,
-        id: String = UUID,
-        name: String? = null,
-    ) =
+    fun generateDevice(index: Int = 0, id: String = UUID, name: String? = null) =
         Device(
             id = DeviceId.fromString(id),
             name = name ?: "Device $index-${id.take(DEVICE_SUFFIX_LENGTH)}",
-            creationDate = DEVICE_CREATION_DATE.plusMonths(index)
+            creationDate = DEVICE_CREATION_DATE.plusMonths(index),
         )
 }
 

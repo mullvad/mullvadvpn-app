@@ -51,7 +51,7 @@ fun SelectableCell(
                     .alpha(
                         if (isSelected && !isEnabled) AlphaDisabled
                         else if (isSelected) AlphaVisible else AlphaInvisible
-                    )
+                    ),
         )
     },
     titleStyle: TextStyle = MaterialTheme.typography.labelLarge,
@@ -61,7 +61,7 @@ fun SelectableCell(
     onSelectedColor: Color = MaterialTheme.colorScheme.onSelected,
     onBackgroundColor: Color = MaterialTheme.colorScheme.onSurface,
     onCellClicked: () -> Unit = {},
-    testTag: String = ""
+    testTag: String = "",
 ) {
     BaseCell(
         modifier = modifier,
@@ -84,7 +84,7 @@ fun SelectableCell(
                                 } else {
                                     AlphaDisabled
                                 }
-                        )
+                        ),
             )
         },
         background =
@@ -95,6 +95,6 @@ fun SelectableCell(
             },
         startPadding = startPadding,
         iconView = selectedIcon,
-        testTag = testTag
+        testTag = testTag,
     )
 }

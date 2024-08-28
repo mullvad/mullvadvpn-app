@@ -31,7 +31,7 @@ enum class RelayListItemContentType {
     CUSTOM_LIST_FOOTER,
     LOCATION_HEADER,
     LOCATION_ITEM,
-    LOCATIONS_EMPTY_TEXT
+    LOCATIONS_EMPTY_TEXT,
 }
 
 sealed interface RelayListItem {
@@ -64,7 +64,7 @@ sealed interface RelayListItem {
         val parentName: CustomListName,
         val item: RelayItem.Location,
         override val expanded: Boolean,
-        override val depth: Int = 0
+        override val depth: Int = 0,
     ) : SelectableItem {
         override val key = parentId to item.id
 

@@ -20,7 +20,7 @@ class SelectedLocationTitleUseCase(
         combine(
             customListsRepository.customLists,
             relayListRepository.relayList,
-            relayListRepository.selectedLocation
+            relayListRepository.selectedLocation,
         ) { customLists, relayList, selectedLocation ->
             if (selectedLocation is Constraint.Only) {
                 createRelayItemTitle(selectedLocation.value, relayList, customLists ?: emptyList())
@@ -32,7 +32,7 @@ class SelectedLocationTitleUseCase(
     private fun createRelayItemTitle(
         relayItemId: RelayItemId,
         relayCountries: List<RelayItem.Location.Country>,
-        customLists: List<CustomList>
+        customLists: List<CustomList>,
     ): String? =
         when (relayItemId) {
             is CustomListId -> customLists.firstOrNull { it.id == relayItemId }?.name?.value
@@ -43,7 +43,7 @@ class SelectedLocationTitleUseCase(
 
     private fun createRelayTitle(
         relayCountries: List<RelayItem.Location.Country>,
-        relayItemId: GeoLocationId.Hostname
+        relayItemId: GeoLocationId.Hostname,
     ): String? = nullable {
         val city = relayCountries.findByGeoLocationId(relayItemId.city).bind()
         val relay = city.relays.firstOrNull { it.id == relayItemId }.bind()

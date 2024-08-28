@@ -42,14 +42,14 @@ class OutOfTimeScreenTest {
                     onRedeemVoucherClick = {},
                     onSettingsClick = {},
                     onAccountClick = {},
-                    onDisconnectClick = {}
+                    onDisconnectClick = {},
                 )
             }
 
             // Assert
             onNodeWithText(
                     "Either buy credit on our website or redeem a voucher.",
-                    substring = true
+                    substring = true,
                 )
                 .assertDoesNotExist()
             onNodeWithText("Buy credit").assertDoesNotExist()
@@ -66,7 +66,7 @@ class OutOfTimeScreenTest {
                     onRedeemVoucherClick = {},
                     onSettingsClick = {},
                     onAccountClick = {},
-                    onDisconnectClick = {}
+                    onDisconnectClick = {},
                 )
             }
 
@@ -86,7 +86,7 @@ class OutOfTimeScreenTest {
                     onRedeemVoucherClick = {},
                     onSettingsClick = {},
                     onAccountClick = {},
-                    onDisconnectClick = {}
+                    onDisconnectClick = {},
                 )
             }
 
@@ -109,7 +109,7 @@ class OutOfTimeScreenTest {
                     onRedeemVoucherClick = mockClickListener,
                     onSettingsClick = {},
                     onAccountClick = {},
-                    onDisconnectClick = {}
+                    onDisconnectClick = {},
                 )
             }
 
@@ -131,13 +131,13 @@ class OutOfTimeScreenTest {
                         OutOfTimeUiState(
                             tunnelState = TunnelState.Connecting(null, null, emptyList()),
                             deviceName = "",
-                            showSitePayment = true
+                            showSitePayment = true,
                         ),
                     onSitePaymentClick = {},
                     onRedeemVoucherClick = {},
                     onSettingsClick = {},
                     onAccountClick = {},
-                    onDisconnectClick = mockClickListener
+                    onDisconnectClick = mockClickListener,
                 )
             }
 
@@ -157,13 +157,13 @@ class OutOfTimeScreenTest {
                     state =
                         OutOfTimeUiState(
                             showSitePayment = true,
-                            billingPaymentState = PaymentState.Error.Billing
+                            billingPaymentState = PaymentState.Error.Billing,
                         ),
                     onSitePaymentClick = {},
                     onRedeemVoucherClick = {},
                     onSettingsClick = {},
                     onAccountClick = {},
-                    onPurchaseBillingProductClick = { _ -> }
+                    onPurchaseBillingProductClick = { _ -> },
                 )
             }
 
@@ -184,13 +184,13 @@ class OutOfTimeScreenTest {
                         OutOfTimeUiState(
                             showSitePayment = true,
                             billingPaymentState =
-                                PaymentState.PaymentAvailable(listOf(mockPaymentProduct))
+                                PaymentState.PaymentAvailable(listOf(mockPaymentProduct)),
                         ),
                     onSitePaymentClick = {},
                     onRedeemVoucherClick = {},
                     onSettingsClick = {},
                     onAccountClick = {},
-                    onPurchaseBillingProductClick = { _ -> }
+                    onPurchaseBillingProductClick = { _ -> },
                 )
             }
 
@@ -211,8 +211,8 @@ class OutOfTimeScreenTest {
                         OutOfTimeUiState(
                             showSitePayment = true,
                             billingPaymentState =
-                                PaymentState.PaymentAvailable(listOf(mockPaymentProduct))
-                        ),
+                                PaymentState.PaymentAvailable(listOf(mockPaymentProduct)),
+                        )
                 )
             }
 
@@ -234,9 +234,9 @@ class OutOfTimeScreenTest {
                         OutOfTimeUiState(
                             showSitePayment = true,
                             billingPaymentState =
-                                PaymentState.PaymentAvailable(listOf(mockPaymentProduct))
+                                PaymentState.PaymentAvailable(listOf(mockPaymentProduct)),
                         ),
-                    navigateToVerificationPendingDialog = mockNavigateToVerificationPending
+                    navigateToVerificationPendingDialog = mockNavigateToVerificationPending,
                 )
             }
 
@@ -291,7 +291,7 @@ class OutOfTimeScreenTest {
                     onRedeemVoucherClick = {},
                     onSettingsClick = {},
                     onAccountClick = {},
-                    onPurchaseBillingProductClick = clickHandler
+                    onPurchaseBillingProductClick = clickHandler,
                 )
             }
 

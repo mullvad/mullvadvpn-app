@@ -43,10 +43,7 @@ class AccountViewModelTest {
 
     private val dummyDevice =
         Device(id = DeviceId.fromString(UUID), name = "fake_name", creationDate = DateTime.now())
-    private val dummyAccountNumber: AccountNumber =
-        AccountNumber(
-            DUMMY_DEVICE_NAME,
-        )
+    private val dummyAccountNumber: AccountNumber = AccountNumber(DUMMY_DEVICE_NAME)
 
     private val deviceState: MutableStateFlow<DeviceState?> =
         MutableStateFlow(
@@ -72,7 +69,7 @@ class AccountViewModelTest {
                 accountRepository = mockAccountRepository,
                 deviceRepository = mockDeviceRepository,
                 paymentUseCase = mockPaymentUseCase,
-                isPlayBuild = false
+                isPlayBuild = false,
             )
     }
 

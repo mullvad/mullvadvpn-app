@@ -17,7 +17,7 @@ private fun PreviewSitePaymentButton() {
     AppTheme {
         SpacedColumn(
             spacing = Dimens.cellVerticalSpacing,
-            modifier = Modifier.background(color = MaterialTheme.colorScheme.surface)
+            modifier = Modifier.background(color = MaterialTheme.colorScheme.surface),
         ) {
             SitePaymentButton(onClick = {}, isEnabled = true)
             SitePaymentButton(onClick = {}, isEnabled = false)
@@ -26,15 +26,11 @@ private fun PreviewSitePaymentButton() {
 }
 
 @Composable
-fun SitePaymentButton(
-    onClick: () -> Unit,
-    isEnabled: Boolean,
-    modifier: Modifier = Modifier,
-) {
+fun SitePaymentButton(onClick: () -> Unit, isEnabled: Boolean, modifier: Modifier = Modifier) {
     ExternalButton(
         onClick = onClick,
         modifier = modifier,
         isEnabled = isEnabled,
-        text = stringResource(id = R.string.buy_credit)
+        text = stringResource(id = R.string.buy_credit),
     )
 }

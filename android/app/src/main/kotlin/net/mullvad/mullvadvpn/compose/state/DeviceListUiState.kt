@@ -8,9 +8,7 @@ sealed interface DeviceListUiState {
 
     data class Error(val error: GetDeviceListError) : DeviceListUiState
 
-    data class Content(
-        val devices: List<DeviceItemUiState>,
-    ) : DeviceListUiState {
+    data class Content(val devices: List<DeviceItemUiState>) : DeviceListUiState {
         val hasTooManyDevices = devices.size >= MAXIMUM_DEVICES
     }
 

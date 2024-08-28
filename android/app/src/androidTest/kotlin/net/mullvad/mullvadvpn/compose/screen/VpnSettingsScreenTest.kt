@@ -48,11 +48,7 @@ class VpnSettingsScreenTest {
     fun testDefaultState() =
         composeExtension.use {
             // Arrange
-            setContentWithTheme {
-                VpnSettingsScreen(
-                    state = VpnSettingsUiState.createDefault(),
-                )
-            }
+            setContentWithTheme { VpnSettingsScreen(state = VpnSettingsUiState.createDefault()) }
 
             onNodeWithText("Auto-connect (legacy)").assertExists()
 
@@ -75,7 +71,7 @@ class VpnSettingsScreenTest {
                     state =
                         VpnSettingsUiState.createDefault(
                             mtu = Mtu.fromString(VALID_DUMMY_MTU_VALUE).getOrNull()!!
-                        ),
+                        )
                 )
             }
 
@@ -99,9 +95,9 @@ class VpnSettingsScreenTest {
                                 listOf(
                                     CustomDnsItem(address = DUMMY_DNS_ADDRESS, false),
                                     CustomDnsItem(address = DUMMY_DNS_ADDRESS_2, false),
-                                    CustomDnsItem(address = DUMMY_DNS_ADDRESS_3, false)
-                                )
-                        ),
+                                    CustomDnsItem(address = DUMMY_DNS_ADDRESS_3, false),
+                                ),
+                        )
                 )
             }
 
@@ -122,8 +118,8 @@ class VpnSettingsScreenTest {
                         VpnSettingsUiState.createDefault(
                             isCustomDnsEnabled = false,
                             customDnsItems =
-                                listOf(CustomDnsItem(address = DUMMY_DNS_ADDRESS, false))
-                        ),
+                                listOf(CustomDnsItem(address = DUMMY_DNS_ADDRESS, false)),
+                        )
                 )
             }
             onNodeWithTag(LAZY_LIST_TEST_TAG)
@@ -144,8 +140,8 @@ class VpnSettingsScreenTest {
                             isCustomDnsEnabled = true,
                             isLocalNetworkSharingEnabled = true,
                             customDnsItems =
-                                listOf(CustomDnsItem(address = DUMMY_DNS_ADDRESS, isLocal = true))
-                        ),
+                                listOf(CustomDnsItem(address = DUMMY_DNS_ADDRESS, isLocal = true)),
+                        )
                 )
             }
 
@@ -163,8 +159,8 @@ class VpnSettingsScreenTest {
                         VpnSettingsUiState.createDefault(
                             isCustomDnsEnabled = true,
                             customDnsItems =
-                                listOf(CustomDnsItem(address = DUMMY_DNS_ADDRESS, isLocal = false))
-                        ),
+                                listOf(CustomDnsItem(address = DUMMY_DNS_ADDRESS, isLocal = false)),
+                        )
                 )
             }
 
@@ -182,8 +178,8 @@ class VpnSettingsScreenTest {
                         VpnSettingsUiState.createDefault(
                             isCustomDnsEnabled = true,
                             customDnsItems =
-                                listOf(CustomDnsItem(address = DUMMY_DNS_ADDRESS, isLocal = false))
-                        ),
+                                listOf(CustomDnsItem(address = DUMMY_DNS_ADDRESS, isLocal = false)),
+                        )
                 )
             }
 
@@ -201,8 +197,8 @@ class VpnSettingsScreenTest {
                         VpnSettingsUiState.createDefault(
                             isCustomDnsEnabled = true,
                             customDnsItems =
-                                listOf(CustomDnsItem(address = DUMMY_DNS_ADDRESS, isLocal = true))
-                        ),
+                                listOf(CustomDnsItem(address = DUMMY_DNS_ADDRESS, isLocal = true)),
+                        )
                 )
             }
 
@@ -220,9 +216,9 @@ class VpnSettingsScreenTest {
                     state =
                         VpnSettingsUiState.createDefault(
                             selectedObfuscation = SelectedObfuscation.Udp2Tcp,
-                            selectedObfuscationPort = Constraint.Only(Port(5001))
+                            selectedObfuscationPort = Constraint.Only(Port(5001)),
                         ),
-                    onObfuscationPortSelected = onObfuscationPortSelected
+                    onObfuscationPortSelected = onObfuscationPortSelected,
                 )
             }
 
@@ -238,7 +234,7 @@ class VpnSettingsScreenTest {
             // Assert
             onNodeWithTagAndText(
                     testTag = String.format(LAZY_LIST_UDP_OVER_TCP_PORT_ITEM_X_TEST_TAG, 5001),
-                    text = "5001"
+                    text = "5001",
                 )
                 .assertExists()
                 .performClick()
@@ -255,9 +251,9 @@ class VpnSettingsScreenTest {
                 VpnSettingsScreen(
                     state =
                         VpnSettingsUiState.createDefault(
-                            selectedObfuscation = SelectedObfuscation.Off,
+                            selectedObfuscation = SelectedObfuscation.Off
                         ),
-                    onObfuscationPortSelected = onObfuscationPortSelected
+                    onObfuscationPortSelected = onObfuscationPortSelected,
                 )
             }
 
@@ -287,7 +283,7 @@ class VpnSettingsScreenTest {
                     state =
                         VpnSettingsUiState.createDefault(
                             quantumResistant = QuantumResistantState.On
-                        ),
+                        )
                 )
             }
             onNodeWithTag(LAZY_LIST_TEST_TAG)
@@ -308,7 +304,7 @@ class VpnSettingsScreenTest {
                 VpnSettingsScreen(
                     state =
                         VpnSettingsUiState.createDefault(
-                            quantumResistant = QuantumResistantState.Auto,
+                            quantumResistant = QuantumResistantState.Auto
                         ),
                     onSelectQuantumResistanceSetting = mockSelectQuantumResistantSettingListener,
                 )
@@ -333,7 +329,7 @@ class VpnSettingsScreenTest {
                     state =
                         VpnSettingsUiState.createDefault(
                             selectedWireguardPort = Constraint.Only(Port(53))
-                        ),
+                        )
                 )
             }
 
@@ -346,7 +342,7 @@ class VpnSettingsScreenTest {
             // Assert
             onNodeWithTagAndText(
                     testTag = String.format(LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG, 51820),
-                    text = "51820"
+                    text = "51820",
                 )
                 .assertExists()
         }
@@ -374,7 +370,7 @@ class VpnSettingsScreenTest {
                 )
             onNodeWithTagAndText(
                     testTag = String.format(LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG, 51820),
-                    text = "51820"
+                    text = "51820",
                 )
                 .performClick()
 
@@ -393,7 +389,7 @@ class VpnSettingsScreenTest {
                     state =
                         VpnSettingsUiState.createDefault(
                             customWireguardPort = Constraint.Only(Port(4000))
-                        ),
+                        )
                 )
             }
 
@@ -415,9 +411,9 @@ class VpnSettingsScreenTest {
                     state =
                         VpnSettingsUiState.createDefault(
                             selectedWireguardPort = Constraint.Only(Port(4000)),
-                            customWireguardPort = Constraint.Only(Port(4000))
+                            customWireguardPort = Constraint.Only(Port(4000)),
                         ),
-                    onWireguardPortSelected = onWireguardPortSelected
+                    onWireguardPortSelected = onWireguardPortSelected,
                 )
             }
 
@@ -440,7 +436,7 @@ class VpnSettingsScreenTest {
             setContentWithTheme {
                 VpnSettingsScreen(
                     state = VpnSettingsUiState.createDefault(),
-                    navigateToMtuDialog = mockedClickHandler
+                    navigateToMtuDialog = mockedClickHandler,
                 )
             }
 
@@ -462,7 +458,7 @@ class VpnSettingsScreenTest {
             setContentWithTheme {
                 VpnSettingsScreen(
                     state = VpnSettingsUiState.createDefault(isCustomDnsEnabled = true),
-                    navigateToDns = mockedClickHandler
+                    navigateToDns = mockedClickHandler,
                 )
             }
 
@@ -482,7 +478,7 @@ class VpnSettingsScreenTest {
             setContentWithTheme {
                 VpnSettingsScreen(
                     state = VpnSettingsUiState.createDefault(),
-                    navigateToObfuscationInfo = mockedNavigateToObfuscationInfo
+                    navigateToObfuscationInfo = mockedNavigateToObfuscationInfo,
                 )
             }
 
@@ -505,7 +501,7 @@ class VpnSettingsScreenTest {
             setContentWithTheme {
                 VpnSettingsScreen(
                     state = VpnSettingsUiState.createDefault(),
-                    navigateToQuantumResistanceInfo = mockedShowTunnelQuantumInfoClick
+                    navigateToQuantumResistanceInfo = mockedShowTunnelQuantumInfoClick,
                 )
             }
 
@@ -528,7 +524,7 @@ class VpnSettingsScreenTest {
             setContentWithTheme {
                 VpnSettingsScreen(
                     state = VpnSettingsUiState.createDefault(),
-                    navigateToWireguardPortInfo = mockedClickHandler
+                    navigateToWireguardPortInfo = mockedClickHandler,
                 )
             }
 
@@ -546,7 +542,7 @@ class VpnSettingsScreenTest {
             setContentWithTheme {
                 VpnSettingsScreen(
                     state = VpnSettingsUiState.createDefault(),
-                    navigateToWireguardPortDialog = mockedClickHandler
+                    navigateToWireguardPortDialog = mockedClickHandler,
                 )
             }
 
@@ -566,7 +562,7 @@ class VpnSettingsScreenTest {
             setContentWithTheme {
                 VpnSettingsScreen(
                     state = VpnSettingsUiState.createDefault(),
-                    navigateToWireguardPortDialog = mockOnShowCustomPortDialog
+                    navigateToWireguardPortDialog = mockOnShowCustomPortDialog,
                 )
             }
 
@@ -590,7 +586,7 @@ class VpnSettingsScreenTest {
                         VpnSettingsUiState.createDefault(
                             selectedWireguardPort = Constraint.Only(Port(4000))
                         ),
-                    navigateToWireguardPortDialog = mockOnShowCustomPortDialog
+                    navigateToWireguardPortDialog = mockOnShowCustomPortDialog,
                 )
             }
 

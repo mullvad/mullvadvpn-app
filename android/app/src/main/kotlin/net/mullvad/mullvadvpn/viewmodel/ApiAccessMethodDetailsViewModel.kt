@@ -25,7 +25,7 @@ import net.mullvad.mullvadvpn.util.delayAtLeast
 
 class ApiAccessMethodDetailsViewModel(
     private val apiAccessRepository: ApiAccessRepository,
-    savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     private var testingJob: Job? = null
 
@@ -40,7 +40,7 @@ class ApiAccessMethodDetailsViewModel(
                 apiAccessRepository.apiAccessMethodSettingById(apiAccessMethodId),
                 apiAccessRepository.enabledApiAccessMethods(),
                 apiAccessRepository.currentAccessMethod,
-                isTestingApiAccessMethodState
+                isTestingApiAccessMethodState,
             ) {
                 apiAccessMethod,
                 enabledApiAccessMethods,
@@ -53,13 +53,13 @@ class ApiAccessMethodDetailsViewModel(
                     isEditable = apiAccessMethod.apiAccessMethod is ApiAccessMethod.CustomProxy,
                     isDisableable = enabledApiAccessMethods.any { it.id != apiAccessMethodId },
                     isCurrentMethod = currentAccessMethod?.id == apiAccessMethodId,
-                    isTestingAccessMethod = isTestingApiAccessMethod
+                    isTestingAccessMethod = isTestingApiAccessMethod,
                 )
             }
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(),
-                ApiAccessMethodDetailsUiState.Loading(apiAccessMethodId = apiAccessMethodId)
+                ApiAccessMethodDetailsUiState.Loading(apiAccessMethodId = apiAccessMethodId),
             )
 
     fun setCurrentMethod() {

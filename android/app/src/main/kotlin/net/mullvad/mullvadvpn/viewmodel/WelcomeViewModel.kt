@@ -30,7 +30,7 @@ class WelcomeViewModel(
     private val paymentUseCase: PaymentUseCase,
     private val connectionProxy: ConnectionProxy,
     private val pollAccountExpiry: Boolean = true,
-    private val isPlayBuild: Boolean
+    private val isPlayBuild: Boolean,
 ) : ViewModel() {
     private val _uiSideEffect = Channel<UiSideEffect>()
     val uiSideEffect = merge(_uiSideEffect.receiveAsFlow(), hasAddedTimeEffect())

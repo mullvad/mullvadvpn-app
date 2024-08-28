@@ -6,7 +6,7 @@ import android.content.pm.PackageManager
 
 class ApplicationsProvider(
     private val packageManager: PackageManager,
-    private val thisPackageName: String
+    private val thisPackageName: String,
 ) {
     private val applicationFilterPredicate: (ApplicationInfo) -> Boolean = { appInfo ->
         hasInternetPermission(appInfo.packageName) && !isSelfApplication(appInfo.packageName)
@@ -22,7 +22,7 @@ class ApplicationsProvider(
                     info.packageName,
                     info.icon,
                     info.loadLabel(packageManager).toString(),
-                    !isLaunchable(info.packageName)
+                    !isLaunchable(info.packageName),
                 )
             }
             .toList()

@@ -29,6 +29,6 @@ fun LocalNetworkSharingInfo(navigator: DestinationsNavigator) {
                 appendLine(stringResource(id = R.string.local_network_sharing_additional_info))
                 appendLine(textResource(id = R.string.local_network_sharing_ip_ranges))
             },
-        onDismiss = dropUnlessResumed { navigator.navigateUp() }
+        onDismiss = dropUnlessResumed { navigator.navigateUp() },
     )
 }

@@ -34,7 +34,7 @@ class DeleteApiAccessMethodConfirmationViewModelTest {
                 apiAccessRepository = mockApiAccessRepository,
                 savedStateHandle =
                     DeleteApiAccessMethodNavArgs(apiAccessMethodId = apiAccessMethodId)
-                        .toSavedStateHandle()
+                        .toSavedStateHandle(),
             )
     }
 

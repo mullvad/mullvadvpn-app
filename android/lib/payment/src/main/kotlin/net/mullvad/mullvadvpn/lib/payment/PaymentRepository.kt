@@ -13,7 +13,7 @@ interface PaymentRepository {
 
     fun purchaseProduct(
         productId: ProductId,
-        activityProvider: () -> Activity
+        activityProvider: () -> Activity,
     ): Flow<PurchaseResult>
 
     suspend fun verifyPurchases(): Either<VerificationError, VerificationResult>

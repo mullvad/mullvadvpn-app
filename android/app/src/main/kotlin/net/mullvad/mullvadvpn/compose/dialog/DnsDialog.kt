@@ -50,16 +50,11 @@ private fun PreviewDnsDialogEditAllowLanDisabled() {
     AppTheme { DnsDialog(DnsDialogViewState("192.168.1.1", null, true, false, 0), {}, {}, {}, {}) }
 }
 
-data class DnsDialogNavArgs(
-    val index: Int? = null,
-    val initialValue: String? = null,
-)
+data class DnsDialogNavArgs(val index: Int? = null, val initialValue: String? = null)
 
 @Destination<RootGraph>(style = DestinationStyle.Dialog::class, navArgs = DnsDialogNavArgs::class)
 @Composable
-fun Dns(
-    resultNavigator: ResultBackNavigator<DnsDialogResult>,
-) {
+fun Dns(resultNavigator: ResultBackNavigator<DnsDialogResult>) {
     val viewModel = koinViewModel<DnsDialogViewModel>()
 
     LaunchedEffectCollect(viewModel.uiSideEffect) {
@@ -78,7 +73,7 @@ fun Dns(
         onSaveDnsClick = viewModel::onSaveDnsClick,
         onRemoveDnsClick = viewModel::onRemoveDnsClick,
         onDismiss =
-            dropUnlessResumed { resultNavigator.navigateBack(result = DnsDialogResult.Cancel) }
+            dropUnlessResumed { resultNavigator.navigateBack(result = DnsDialogResult.Cancel) },
     )
 }
 
@@ -88,7 +83,7 @@ fun DnsDialog(
     onDnsInputChange: (String) -> Unit,
     onSaveDnsClick: () -> Unit,
     onRemoveDnsClick: (Int) -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
 ) {
     AlertDialog(
         title = {
@@ -111,7 +106,7 @@ fun DnsDialog(
                     onSubmit = onSaveDnsClick,
                     isEnabled = true,
                     placeholderText = stringResource(R.string.custom_dns_hint),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 )
 
                 val errorMessage =
@@ -132,7 +127,7 @@ fun DnsDialog(
                         text = errorMessage,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.padding(top = Dimens.smallPadding)
+                        modifier = Modifier.padding(top = Dimens.smallPadding),
                     )
                 }
             }
@@ -150,14 +145,14 @@ fun DnsDialog(
                     NegativeButton(
                         modifier = Modifier.fillMaxWidth(),
                         onClick = { onRemoveDnsClick(state.index) },
-                        text = stringResource(id = R.string.remove_button)
+                        text = stringResource(id = R.string.remove_button),
                     )
                 }
 
                 PrimaryButton(
                     modifier = Modifier.fillMaxWidth(),
                     onClick = onDismiss,
-                    text = stringResource(id = R.string.cancel)
+                    text = stringResource(id = R.string.cancel),
                 )
             }
         },

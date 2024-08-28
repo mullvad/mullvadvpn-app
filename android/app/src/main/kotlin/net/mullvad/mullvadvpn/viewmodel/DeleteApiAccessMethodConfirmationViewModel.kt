@@ -18,7 +18,7 @@ import net.mullvad.mullvadvpn.repository.ApiAccessRepository
 
 class DeleteApiAccessMethodConfirmationViewModel(
     private val apiAccessRepository: ApiAccessRepository,
-    savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     private val apiAccessMethodId: ApiAccessMethodId =
         DeleteApiAccessMethodConfirmationDestination.argsFrom(savedStateHandle).apiAccessMethodId
@@ -35,7 +35,7 @@ class DeleteApiAccessMethodConfirmationViewModel(
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(),
-                DeleteApiAccessMethodUiState(null)
+                DeleteApiAccessMethodUiState(null),
             )
 
     fun deleteApiAccessMethod() {
@@ -45,7 +45,7 @@ class DeleteApiAccessMethodConfirmationViewModel(
                 .removeApiAccessMethod(apiAccessMethodId)
                 .fold(
                     { _error.tryEmit(it) },
-                    { _uiSideEffect.send(DeleteApiAccessMethodConfirmationSideEffect.Deleted) }
+                    { _uiSideEffect.send(DeleteApiAccessMethodConfirmationSideEffect.Deleted) },
                 )
         }
     }

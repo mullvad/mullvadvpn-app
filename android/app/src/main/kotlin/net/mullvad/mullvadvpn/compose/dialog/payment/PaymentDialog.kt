@@ -39,10 +39,10 @@ private fun PreviewPaymentDialogPurchaseCompleted() {
                     message = R.string.payment_completed_dialog_message,
                     icon = PaymentDialogIcon.SUCCESS,
                     confirmAction = PaymentDialogAction.Close,
-                    successfulPayment = true
+                    successfulPayment = true,
                 ),
             retryPurchase = {},
-            onCloseDialog = {}
+            onCloseDialog = {},
         )
     }
 }
@@ -57,10 +57,10 @@ private fun PreviewPaymentDialogPurchasePending() {
                     title = R.string.payment_pending_dialog_title,
                     message = R.string.payment_pending_dialog_message,
                     confirmAction = PaymentDialogAction.Close,
-                    closeOnDismiss = true
+                    closeOnDismiss = true,
                 ),
             retryPurchase = {},
-            onCloseDialog = {}
+            onCloseDialog = {},
         )
     }
 }
@@ -75,10 +75,10 @@ private fun PreviewPaymentDialogGenericError() {
                     title = R.string.error_occurred,
                     message = R.string.try_again,
                     icon = PaymentDialogIcon.FAIL,
-                    confirmAction = PaymentDialogAction.Close
+                    confirmAction = PaymentDialogAction.Close,
                 ),
             retryPurchase = {},
-            onCloseDialog = {}
+            onCloseDialog = {},
         )
     }
 }
@@ -92,10 +92,10 @@ private fun PreviewPaymentDialogLoading() {
                 PaymentDialogData(
                     title = R.string.loading_connecting,
                     icon = PaymentDialogIcon.LOADING,
-                    closeOnDismiss = false
+                    closeOnDismiss = false,
                 ),
             retryPurchase = {},
-            onCloseDialog = {}
+            onCloseDialog = {},
         )
     }
 }
@@ -111,10 +111,10 @@ private fun PreviewPaymentDialogPaymentAvailabilityError() {
                     message = R.string.payment_billing_error_dialog_message,
                     icon = PaymentDialogIcon.FAIL,
                     confirmAction = PaymentDialogAction.Close,
-                    dismissAction = PaymentDialogAction.RetryPurchase(productId = ProductId("test"))
+                    dismissAction = PaymentDialogAction.RetryPurchase(productId = ProductId("test")),
                 ),
             retryPurchase = {},
-            onCloseDialog = {}
+            onCloseDialog = {},
         )
     }
 }
@@ -139,7 +139,7 @@ fun Payment(productId: ProductId, resultBackNavigator: ResultBackNavigator<Boole
         PaymentDialog(
             paymentDialogData = dialogData,
             retryPurchase = { vm.startBillingPayment(it) { context.getActivity()!! } },
-            onCloseDialog = { resultBackNavigator.navigateBack(result = it) }
+            onCloseDialog = { resultBackNavigator.navigateBack(result = it) },
         )
     }
 }
@@ -148,7 +148,7 @@ fun Payment(productId: ProductId, resultBackNavigator: ResultBackNavigator<Boole
 fun PaymentDialog(
     paymentDialogData: PaymentDialogData,
     retryPurchase: (ProductId) -> Unit = {},
-    onCloseDialog: (isPaymentSuccessful: Boolean) -> Unit = {}
+    onCloseDialog: (isPaymentSuccessful: Boolean) -> Unit = {},
 ) {
     val clickResolver: (action: PaymentDialogAction) -> Unit = {
         when (it) {
@@ -162,12 +162,12 @@ fun PaymentDialog(
                 PaymentDialogIcon.SUCCESS ->
                     Icon(
                         painter = painterResource(id = R.drawable.icon_success),
-                        contentDescription = null
+                        contentDescription = null,
                     )
                 PaymentDialogIcon.FAIL ->
                     Icon(
                         painter = painterResource(id = R.drawable.icon_fail),
-                        contentDescription = null
+                        contentDescription = null,
                     )
                 PaymentDialogIcon.LOADING -> MullvadCircularProgressIndicatorMedium()
                 else -> {}
@@ -177,7 +177,7 @@ fun PaymentDialog(
             paymentDialogData.title?.let {
                 Text(
                     text = stringResource(id = paymentDialogData.title),
-                    style = MaterialTheme.typography.headlineSmall
+                    style = MaterialTheme.typography.headlineSmall,
                 )
             }
         },
@@ -186,7 +186,7 @@ fun PaymentDialog(
                 {
                     Text(
                         text = stringResource(id = paymentDialogData.message),
-                        style = MaterialTheme.typography.bodySmall
+                        style = MaterialTheme.typography.bodySmall,
                     )
                 }
             },
@@ -203,7 +203,7 @@ fun PaymentDialog(
             paymentDialogData.dismissAction?.let {
                 PrimaryButton(
                     text = stringResource(id = it.message),
-                    onClick = { clickResolver(it) }
+                    onClick = { clickResolver(it) },
                 )
             }
         },
@@ -211,9 +211,9 @@ fun PaymentDialog(
             paymentDialogData.confirmAction?.let {
                 PrimaryButton(
                     text = stringResource(id = it.message),
-                    onClick = { clickResolver(it) }
+                    onClick = { clickResolver(it) },
                 )
             }
-        }
+        },
     )
 }

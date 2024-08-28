@@ -51,7 +51,7 @@ class MullvadProblemReport(context: Context, val dispatcher: CoroutineDispatcher
                     userReport.email ?: "",
                     userReport.description,
                     logsPath.absolutePath,
-                    cacheDirectory.absolutePath
+                    cacheDirectory.absolutePath,
                 )
             }
 
@@ -88,6 +88,6 @@ class MullvadProblemReport(context: Context, val dispatcher: CoroutineDispatcher
         userEmail: String,
         userMessage: String,
         reportPath: String,
-        cacheDirectory: String
+        cacheDirectory: String,
     ): Boolean
 }

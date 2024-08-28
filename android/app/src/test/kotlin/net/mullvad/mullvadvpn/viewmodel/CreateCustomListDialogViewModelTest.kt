@@ -42,7 +42,7 @@ class CreateCustomListDialogViewModelTest {
                 CustomListActionResultData.Success.CreatedWithLocations(
                     customListName = customListName,
                     locationNames = locationNames,
-                    undo = mockUndo
+                    undo = mockUndo,
                 )
             val viewModel = createViewModelWithLocationCode(GeoLocationId.Country("AB"))
             coEvery { mockCustomListActionUseCase(any<CustomListAction.Create>()) } returns
@@ -72,7 +72,7 @@ class CreateCustomListDialogViewModelTest {
                     id = createdId,
                     name = customListName,
                     locationNames = emptyList(),
-                    undo = CustomListAction.Delete(createdId)
+                    undo = CustomListAction.Delete(createdId),
                 )
             val viewModel = createViewModelWithLocationCode(GeoLocationId.Country("AB"))
             coEvery { mockCustomListActionUseCase(any<CustomListAction.Create>()) } returns
@@ -130,9 +130,6 @@ class CreateCustomListDialogViewModelTest {
         CreateCustomListDialogViewModel(
             customListActionUseCase = mockCustomListActionUseCase,
             savedStateHandle =
-                CreateCustomListNavArgs(
-                        locationCode = locationCode,
-                    )
-                    .toSavedStateHandle()
+                CreateCustomListNavArgs(locationCode = locationCode).toSavedStateHandle(),
         )
 }

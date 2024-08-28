@@ -45,13 +45,13 @@ private fun Resources.contentTitle(remainingTime: Duration): String =
         remainingTime.standardDays >= 1 -> {
             getRemainingText(
                 R.plurals.account_credit_expires_in_days,
-                remainingTime.standardDays.toInt()
+                remainingTime.standardDays.toInt(),
             )
         }
         remainingTime.standardHours >= 1 -> {
             getRemainingText(
                 R.plurals.account_credit_expires_in_hours,
-                remainingTime.standardHours.toInt()
+                remainingTime.standardHours.toInt(),
             )
         }
         else -> getString(R.string.account_credit_expires_in_a_few_minutes)

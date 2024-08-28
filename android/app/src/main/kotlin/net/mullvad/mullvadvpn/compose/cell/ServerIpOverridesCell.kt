@@ -49,7 +49,7 @@ fun ServerIpOverridesCell(
                                         active -> activeColor
                                         else -> inactiveColor
                                     },
-                                shape = CircleShape
+                                shape = CircleShape,
                             )
                 )
             }
@@ -72,11 +72,11 @@ fun ServerIpOverridesCell(
                             )
                             .padding(
                                 horizontal = Dimens.smallPadding,
-                                vertical = Dimens.mediumPadding
-                            )
+                                vertical = Dimens.mediumPadding,
+                            ),
                 )
             }
         },
-        isRowEnabled = false
+        isRowEnabled = false,
     )
 }

@@ -25,7 +25,7 @@ sealed interface CustomListLocationsUiState {
             val locations: List<RelayLocationListItem>,
             override val searchTerm: String = "",
             override val saveEnabled: Boolean = false,
-            override val hasUnsavedChanges: Boolean = false
+            override val hasUnsavedChanges: Boolean = false,
         ) : Content
     }
 }
@@ -34,5 +34,5 @@ data class RelayLocationListItem(
     val item: RelayItem.Location,
     val depth: Int = 0,
     val checked: Boolean = false,
-    val expanded: Boolean = false
+    val expanded: Boolean = false,
 )

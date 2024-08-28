@@ -26,10 +26,7 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 @Composable
 private fun PreviewDeleteConfirmationDialog() {
     AppTheme {
-        DeleteConfirmationDialog(
-            message = "Do you want to delete Cookie?",
-            errorMessage = null,
-        )
+        DeleteConfirmationDialog(message = "Do you want to delete Cookie?", errorMessage = null)
     }
 }
 
@@ -39,7 +36,7 @@ private fun PreviewDeleteConfirmationDialogError() {
     AppTheme {
         DeleteConfirmationDialog(
             message = "Do you want to delete Cookie?",
-            errorMessage = "An error occured"
+            errorMessage = "An error occured",
         )
     }
 }
@@ -49,7 +46,7 @@ fun DeleteConfirmationDialog(
     message: String,
     errorMessage: String?,
     onDelete: () -> Unit = {},
-    onBack: () -> Unit = {}
+    onBack: () -> Unit = {},
 ) {
     AlertDialog(
         onDismissRequest = onBack,
@@ -58,7 +55,7 @@ fun DeleteConfirmationDialog(
                 modifier = Modifier.fillMaxWidth().height(Dimens.dialogIconHeight),
                 painter = painterResource(id = R.drawable.icon_alert),
                 contentDescription = stringResource(id = R.string.remove_button),
-                tint = MaterialTheme.colorScheme.error
+                tint = MaterialTheme.colorScheme.error,
             )
         },
         title = {
@@ -69,7 +66,7 @@ fun DeleteConfirmationDialog(
                         text = errorMessage,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.padding(top = Dimens.smallPadding)
+                        modifier = Modifier.padding(top = Dimens.smallPadding),
                     )
                 }
             }
@@ -78,12 +75,12 @@ fun DeleteConfirmationDialog(
             PrimaryButton(
                 modifier = Modifier.focusRequester(FocusRequester()),
                 onClick = onBack,
-                text = stringResource(id = R.string.cancel)
+                text = stringResource(id = R.string.cancel),
             )
         },
         confirmButton = {
             NegativeButton(onClick = onDelete, text = stringResource(id = R.string.delete))
         },
-        containerColor = MaterialTheme.colorScheme.surface
+        containerColor = MaterialTheme.colorScheme.surface,
     )
 }

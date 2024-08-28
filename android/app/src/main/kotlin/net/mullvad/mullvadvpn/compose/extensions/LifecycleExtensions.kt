@@ -25,7 +25,7 @@ fun <T> dropUnlessResumed(lifecycleOwner: LifecycleOwner, block: (T) -> Unit): (
 
 fun <T> LifecycleOwner.runOnAtLeast(
     expectedState: Lifecycle.State,
-    block: (T) -> Unit
+    block: (T) -> Unit,
 ): (T) -> Unit {
     return {
         if (lifecycle.currentState.isAtLeast(expectedState)) {
@@ -42,12 +42,12 @@ fun <T, T2> dropUnlessResumed(block: (T, T2) -> Unit): (T, T2) -> Unit {
 
 fun <T, T2> dropUnlessResumed(
     lifecycleOwner: LifecycleOwner,
-    block: (T, T2) -> Unit
+    block: (T, T2) -> Unit,
 ): (T, T2) -> Unit = lifecycleOwner.runOnAtLeast(Lifecycle.State.RESUMED, block)
 
 fun <T, T2> LifecycleOwner.runOnAtLeast(
     expectedState: Lifecycle.State,
-    block: (T, T2) -> Unit
+    block: (T, T2) -> Unit,
 ): (T, T2) -> Unit {
     return { t, t1 ->
         if (lifecycle.currentState.isAtLeast(expectedState)) {
