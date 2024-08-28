@@ -3,6 +3,12 @@ package net.mullvad.mullvadvpn.test.e2e.misc
 import java.util.Date
 import org.junit.jupiter.api.fail
 
+enum class LeakStatus {
+    UNKNOWN,
+    LEAK,
+    NOLEAK
+}
+
 class StreamCollection {
     private var streams: List<Stream> = emptyList()
 
@@ -56,6 +62,50 @@ class StreamCollection {
             fail("Unexpectedly found no start and/or end date for UDP communication")
         } else {
             return Pair(startDate, endDate)
+        }
+    }
+
+    fun extractStreamCollection(from: Date, to: Date): StreamCollection {
+        val streamsWithinInterval = streams.map { stream ->
+            val packetsWithinInterval = stream.packets.filter {
+                it.date in from..to
+            }
+
+            Stream(
+                stream.sourceAddress,
+                stream.destinationAddress,
+                stream.flowId,
+                stream.transportProtocol,
+                packetsWithinInterval
+            )
+        }
+
+        return StreamCollection(streamsWithinInterval)
+    }
+
+    fun dontAllowTrafficFromTestDevice(toHost: String) {
+        streams.forEach { stream ->
+            stream.packets.forEach { packet ->
+                if (packet.fromPeer && stream.destinationAddress == toHost) {
+                    packet.leakStatus = LeakStatus.LEAK
+                }
+            }
+        }
+    }
+
+    fun verifyDontHaveLeaks(): Boolean {
+        return streams.all { stream ->
+            stream.packets.all { packet ->
+                packet.leakStatus != LeakStatus.LEAK
+            }
+        }
+    }
+
+    fun getLeakCount(): Number {
+        return streams.sumOf { stream->
+            stream.packets.count { packet ->
+                packet.leakStatus == LeakStatus.LEAK
+            }
         }
     }
 }

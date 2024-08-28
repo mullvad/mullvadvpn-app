@@ -56,5 +56,7 @@ class LeakTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
 
             // Verify that all traffic to target IP address went through relay while VPN connection
             // was active
+            streamCollection.dontAllowTrafficFromTestDevice(targetIpAddress)
+            streamCollection.verifyDontHaveLeaks()
         }
 }
