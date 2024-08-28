@@ -146,7 +146,6 @@ dependencies {
     implementation(libs.ktor.client.cio)
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.ktor.client.content.negotiation)
-    //implementation(libs.kotlinx.serialization.json)
 
     androidTestUtil(libs.androidx.test.orchestrator)
 
