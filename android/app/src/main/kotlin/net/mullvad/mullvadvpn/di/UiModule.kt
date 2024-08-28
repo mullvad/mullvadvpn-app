@@ -103,7 +103,6 @@ val uiModule = module {
     single { ApplicationsProvider(get(), get(named(SELF_PACKAGE_NAME))) }
     scope<MainActivity> { scoped { ServiceConnectionManager(androidContext()) } }
     single { InetAddressValidator.getInstance() }
-    single { androidContext().resources }
     single { androidContext().assets }
     single { androidContext().contentResolver }
 
