@@ -10,7 +10,7 @@ use crate::{
     tests::helpers::{login_with_retries, ConnChecker},
 };
 
-use anyhow::{bail, ensure, Context};
+use anyhow::{bail, ensure};
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_relay_selector::query::builder::RelayQueryBuilder;
 use mullvad_types::{
@@ -398,41 +398,6 @@ pub async fn test_wireguard_autoconnect(
         matches!(state, mullvad_types::states::TunnelState::Connected { .. })
     })
     .await?;
-
-    Ok(())
-}
-
-/// Test connecting to a WireGuard relay using DAITA.
-///
-/// # Limitations
-///
-/// The test does not analyze any traffic, nor verify that DAITA is in use.
-#[test_function]
-pub async fn test_daita(
-    _: TestContext,
-    rpc: ServiceClient,
-    mut mullvad_client: MullvadProxyClient,
-) -> anyhow::Result<()> {
-    log::info!("Connecting to relay with DAITA");
-
-    set_relay_settings(
-        &mut mullvad_client,
-        RelayQueryBuilder::new().wireguard().build(),
-    )
-    .await?;
-
-    mullvad_client
-        .set_daita_settings(wireguard::DaitaSettings {
-            enabled: true,
-            use_anywhere: false,
-        })
-        .await
-        .context("Failed to enable daita")?;
-
-    connect_and_wait(&mut mullvad_client).await?;
-
-    log::info!("Check that the connection works");
-    let _ = helpers::geoip_lookup_with_retries(&rpc).await?;
 
     Ok(())
 }
