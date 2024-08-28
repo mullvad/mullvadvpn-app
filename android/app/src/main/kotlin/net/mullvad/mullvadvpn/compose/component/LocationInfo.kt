@@ -16,6 +16,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.compose.test.LOCATION_INFO_CONNECTION_IN_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LOCATION_INFO_CONNECTION_OUT_TEST_TAG
 import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
 import net.mullvad.mullvadvpn.lib.model.TransportProtocol
@@ -105,7 +106,10 @@ fun LocationInfo(
             text = "${stringResource(id = R.string.in_address)} $textInAddress",
             color = colorExpanded,
             style = MaterialTheme.typography.labelMedium,
-            modifier = Modifier.alpha(if (isExpanded) AlphaVisible else AlphaInvisible)
+            modifier = Modifier.testTag(LOCATION_INFO_CONNECTION_IN_TEST_TAG)
+                .alpha(
+                    if (isExpanded) AlphaVisible else AlphaInvisible
+                )
         )
         Text(
             text = "${stringResource(id = R.string.out_address)} $outAddress",

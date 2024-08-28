@@ -10,6 +10,6 @@ class StreamCollection {
     }
 
     fun exportStreamCollectionFrom(startDate: Date, endDate: Date): List<Stream> {
-        return streams.filter { it.startDate in startDate..endDate }
+        return streams.filter { it.startDate in startDate..endDate && it.endDate in startDate..endDate }
     }
 }

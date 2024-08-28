@@ -26,8 +26,9 @@ class LeakTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
     @Test
     fun testNegativeLeak() =
         runBlocking<Unit> {
+            val targetIpAddress = "45.83.223.209"
             val packetCapture = PacketCapture()
-            val trafficGenerator = TrafficGenerator("45.83.223.209", 80)
+            val trafficGenerator = TrafficGenerator(targetIpAddress, 80)
 
             val session = packetCapture.startCapture()
             packetCaptureClient.sendStartCaptureRequest(session)
@@ -42,6 +43,7 @@ class LeakTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
 
             // Then
             device.findObjectWithTimeout(By.text("SECURE CONNECTION"), CONNECTION_TIMEOUT)
+            val relayIpAddress = app.extractInIpAddress()
 
             device.findObjectWithTimeout(By.text("Disconnect")).click()
             Thread.sleep(2000)
@@ -49,6 +51,7 @@ class LeakTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
             trafficGenerator.stopGeneratingUDPTraffic()
             packetCaptureClient.sendStopCaptureRequest(session)
             val parsedObjects = packetCapture.stopCapture(session)
-            // Logger.v("Parsed packet capture objects: $parsedObjects")
+
+            // Verify that all traffic to target IP address went through relay while VPN connection was active
         }
 }
