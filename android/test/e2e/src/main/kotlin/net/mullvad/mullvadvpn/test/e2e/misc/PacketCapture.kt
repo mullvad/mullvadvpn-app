@@ -95,28 +95,14 @@ data class Stream(
     @SerialName("transport_protocol") val transportProtocol: NetworkTransportProtocol,
     val packets: List<Packet>
 ) {
-    @Contextual var startDate: DateTime = packets.first().date
-    @Contextual var endDate: DateTime = packets.last().date
+    @Contextual val startDate: DateTime = packets.first().date
+    @Contextual val endDate: DateTime = packets.last().date
 
-    @Contextual var txStartDate: DateTime? = null
-    @Contextual var txEndDate: DateTime? = null
+    @Contextual val txStartDate: DateTime? = packets.firstOrNull { it.fromPeer }?.date
+    @Contextual val txEndDate: DateTime? = packets.lastOrNull { it.fromPeer }?.date
 
-    @Contextual var rxStartDate: DateTime? = null
-    @Contextual var rxEndDate: DateTime? = null
-
-    init {
-        val txPackets = packets.filter { it.fromPeer == true }
-        if (txPackets.isNotEmpty()) {
-            txStartDate = txPackets.first().date
-            txEndDate = txPackets.last().date
-        }
-
-        val rxPackets = packets.filter { it.fromPeer == false }
-        if (rxPackets.isNotEmpty()) {
-            rxStartDate = rxPackets.first().date
-            rxEndDate = rxPackets.last().date
-        }
-    }
+    @Contextual val rxStartDate: DateTime? = packets.firstOrNull { !it.fromPeer }?.date
+    @Contextual val rxEndDate: DateTime? = packets.lastOrNull { !it.fromPeer }?.date
 }
 
 @Serializable
