@@ -20,12 +20,12 @@ on:
       - '!**/**.md'
       - '!**/osv-scanner.toml'
   schedule:
-    # At 06:20 UTC every day.
+    # At 00:00 UTC every day.
     # Notifications for scheduled workflows are sent to the user who last modified the cron
     # syntax in the workflow file. If you update this you must have notifications for
     # Github Actions enabled, so these don't go unnoticed.
     # https://docs.github.com/en/actions/monitoring-and-troubleshooting-workflows/notifications-for-workflow-runs
-    - cron: '20 6 * * *'
+    - cron: '0 0 * * *'
   workflow_dispatch:
     inputs:
       override_container_image:
