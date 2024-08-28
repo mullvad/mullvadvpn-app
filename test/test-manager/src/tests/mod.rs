@@ -2,6 +2,7 @@ mod access_methods;
 mod account;
 pub mod config;
 mod cve_2019_14899;
+mod daita;
 mod dns;
 mod helpers;
 mod install;
@@ -57,7 +58,7 @@ pub enum Error {
     #[error("The daemon returned an error: {0}")]
     Daemon(String),
 
-    #[error("The daemon ended up in the error state")]
+    #[error("The daemon ended up in the error state: {0:?}")]
     UnexpectedErrorState(talpid_types::tunnel::ErrorState),
 
     #[error("The gRPC client ran into an error: {0}")]
