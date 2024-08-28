@@ -5,7 +5,7 @@ use mullvad_types::{
 };
 use talpid_types::{
     net::{Endpoint, TunnelEndpoint},
-    tunnel::ErrorState,
+    tunnel::{ActionAfterDisconnect, ErrorState},
 };
 
 #[macro_export]
@@ -115,7 +115,8 @@ pub fn print_state(state: &TunnelState, previous_state: Option<&TunnelState>, ve
                 }
             }
         }
-        (_, Disconnecting { .. }) => {
+        (_, Disconnecting(ActionAfterDisconnect::Reconnect)) => {}
+        (_, Disconnecting(_)) => {
             println!("Disconnecting")
         }
         (
