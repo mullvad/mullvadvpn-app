@@ -100,7 +100,10 @@ pub fn send_ping(opt: &Opt, destination: IpAddr) -> eyre::Result<()> {
 
     let mut cmd = std::process::Command::new("ping");
 
-    let timeout_sec = ((opt.leak_timeout as f32) / 1000f32).to_string();
+    // NOTE: Rounding up to nearest second, since some versions don't support fractional
+    //       seconds
+    let timeout_sec = ((opt.leak_timeout + 1000 - 1) / 1000).to_string();
+
     cmd.args(["-c", "1", "-W", &timeout_sec, &destination.to_string()]);
 
     let output = cmd.output().wrap_err(eyre!(
@@ -108,6 +111,15 @@ pub fn send_ping(opt: &Opt, destination: IpAddr) -> eyre::Result<()> {
     ))?;
 
     if !output.status.success() {
+        eprintln!(
+            "ping stdout:\n\n{}",
+            std::str::from_utf8(&output.stdout).unwrap_or("invalid utf8")
+        );
+        eprintln!(
+            "ping stderr:\n\n{}",
+            std::str::from_utf8(&output.stderr).unwrap_or("invalid utf8")
+        );
+
         return Err(eyre!("ping for destination {destination} failed"));
     }
 
