@@ -100,9 +100,9 @@ fn find_app(
     app.make_ascii_lowercase();
 
     let current_dir = std::env::current_dir().expect("Unable to get current directory");
-    let packages_dir = package_dir.unwrap_or(&current_dir);
-    std::fs::create_dir_all(packages_dir)?;
-    let dir = std::fs::read_dir(packages_dir.clone()).context("Failed to list packages")?;
+    let package_dir = package_dir.unwrap_or(&current_dir);
+    std::fs::create_dir_all(package_dir)?;
+    let dir = std::fs::read_dir(package_dir.clone()).context("Failed to list packages")?;
 
     dir
         .filter_map(|entry| entry.ok())
@@ -129,12 +129,14 @@ fn find_app(
         }) // Skip file if it doesn't match the architecture
         .sorted_unstable_by_key(|(_path, u8_path)| u8_path.len())
         .find(|(_path, u8_path)| u8_path.contains(&app)) //  Find match
-        .map(|(path, _)| path).context(if e2e_bin {
+        .map(|(path, _)| path)
+        .with_context(|| format!("Directory searched: {}", package_dir.display()))
+        .with_context(|| if e2e_bin {
             format!(
                 "Could not find UI/e2e test for package: {app}.\n\
                 Expecting a binary named like `app-e2e-tests-{app}_ARCH` to exist in {package_dir}/\n\
                 Example ARCH: `amd64-unknown-linux-gnu`, `x86_64-unknown-linux-gnu`",
-                package_dir = packages_dir.display()
+                package_dir = package_dir.display()
             )
         } else {
             format!("Could not find package for app: {app}")
