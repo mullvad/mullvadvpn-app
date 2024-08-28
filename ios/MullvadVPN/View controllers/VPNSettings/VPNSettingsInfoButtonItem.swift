@@ -14,4 +14,9 @@ enum VPNSettingsInfoButtonItem {
     case wireGuardObfuscationPort
     case quantumResistance
     case multihop
+    case daita
+}
+
+enum VPNSettingsPromptAlertItem {
+    case daita
 }

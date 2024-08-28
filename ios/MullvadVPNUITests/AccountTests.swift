@@ -72,12 +72,12 @@ class AccountTests: LoggedOutUITestCase {
         var retryCount = 0
         let maxRetryCount = 3
 
-        LoginPage(app)
+        let loginPage = LoginPage(app)
             .tapAccountNumberTextField()
             .enterText(hasTimeAccountNumber)
 
         repeat {
-            successIconShown = LoginPage(app)
+            successIconShown = loginPage
                 .tapAccountNumberSubmitButton()
                 .getSuccessIconShown()
 

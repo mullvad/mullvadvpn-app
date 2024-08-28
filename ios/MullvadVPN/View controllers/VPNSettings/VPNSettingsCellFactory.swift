@@ -15,6 +15,7 @@ protocol VPNSettingsCellEventHandler {
     func selectCustomPortEntry(_ port: UInt16) -> Bool
     func selectObfuscationState(_ state: WireGuardObfuscationState)
     func switchMultihop(_ state: MultihopState)
+    func switchDaitaState(_ settings: DAITASettings)
 }
 
 final class VPNSettingsCellFactory: CellFactoryProtocol {
@@ -170,7 +171,6 @@ final class VPNSettingsCellFactory: CellFactoryProtocol {
             )
             cell.accessibilityIdentifier = "\(item.accessibilityIdentifier.rawValue)\(portString)"
             cell.applySubCellStyling()
-
         case .quantumResistanceAutomatic:
             guard let cell = cell as? SelectableSettingsCell else { return }
 
@@ -206,13 +206,34 @@ final class VPNSettingsCellFactory: CellFactoryProtocol {
             cell.accessibilityIdentifier = item.accessibilityIdentifier
             cell.applySubCellStyling()
 
-        case .multihop:
+        case .daitaSwitch:
+            guard let cell = cell as? SettingsSwitchCell else { return }
+
+            cell.titleLabel.text = NSLocalizedString(
+                "DAITA_LABEL",
+                tableName: "VPNSettings",
+                value: "DAITA",
+                comment: ""
+            )
+            cell.accessibilityIdentifier = item.accessibilityIdentifier
+            cell.setOn(viewModel.daitaSettings.state.isEnabled, animated: false)
+
+            cell.infoButtonHandler = { [weak self] in
+                self?.delegate?.showInfo(for: .daita)
+            }
+
+            cell.action = { [weak self] isEnabled in
+                let state: DAITAState = isEnabled ? .on : .off
+                self?.delegate?.switchDaitaState(DAITASettings(state: state))
+            }
+
+        case .multihopSwitch:
             guard let cell = cell as? SettingsSwitchCell else { return }
 
             cell.titleLabel.text = NSLocalizedString(
                 "MULTIHOP_LABEL",
                 tableName: "VPNSettings",
-                value: "Enable multihop",
+                value: "Multihop",
                 comment: ""
             )
             cell.accessibilityIdentifier = item.accessibilityIdentifier
