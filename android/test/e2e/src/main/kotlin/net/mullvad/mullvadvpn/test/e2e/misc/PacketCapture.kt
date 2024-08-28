@@ -10,14 +10,14 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
+import java.util.Date
 import java.util.UUID
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
-import java.util.Date
-import kotlinx.serialization.Contextual
 
 data class PacketCaptureSession(val identifier: String = UUID.randomUUID().toString())
 
@@ -104,17 +104,17 @@ data class Stream(
     @Contextual var rxEndDate: Date? = null
 
     init {
-            val txPackets = packets.filter { it.fromPeer == true }
-            if (txPackets.isNotEmpty()) {
-                txStartDate = txPackets.first().date
-                txEndDate = txPackets.last().date
-            }
+        val txPackets = packets.filter { it.fromPeer == true }
+        if (txPackets.isNotEmpty()) {
+            txStartDate = txPackets.first().date
+            txEndDate = txPackets.last().date
+        }
 
-            val rxPackets = packets.filter { it.fromPeer == false }
-            if (rxPackets.isNotEmpty()) {
-                rxStartDate = rxPackets.first().date
-                rxEndDate = rxPackets.last().date
-            }
+        val rxPackets = packets.filter { it.fromPeer == false }
+        if (rxPackets.isNotEmpty()) {
+            rxStartDate = rxPackets.first().date
+            rxEndDate = rxPackets.last().date
+        }
     }
 }
 

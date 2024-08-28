@@ -51,8 +51,10 @@ class LeakTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
             trafficGenerator.stopGeneratingUDPTraffic()
             packetCaptureClient.sendStopCaptureRequest(session)
             val streamCollection = packetCapture.stopCapture(session)
-            val connectedThroughRelayStartEndDatePair = streamCollection.getConnectedThroughRelayStartEndDate(relayIpAddress)
+            val connectedThroughRelayStartEndDatePair =
+                streamCollection.getConnectedThroughRelayStartEndDate(relayIpAddress)
 
-            // Verify that all traffic to target IP address went through relay while VPN connection was active
+            // Verify that all traffic to target IP address went through relay while VPN connection
+            // was active
         }
 }

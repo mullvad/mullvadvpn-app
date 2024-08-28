@@ -106,10 +106,9 @@ fun LocationInfo(
             text = "${stringResource(id = R.string.in_address)} $textInAddress",
             color = colorExpanded,
             style = MaterialTheme.typography.labelMedium,
-            modifier = Modifier.testTag(LOCATION_INFO_CONNECTION_IN_TEST_TAG)
-                .alpha(
-                    if (isExpanded) AlphaVisible else AlphaInvisible
-                )
+            modifier =
+                Modifier.testTag(LOCATION_INFO_CONNECTION_IN_TEST_TAG)
+                    .alpha(if (isExpanded) AlphaVisible else AlphaInvisible)
         )
         Text(
             text = "${stringResource(id = R.string.out_address)} $outAddress",

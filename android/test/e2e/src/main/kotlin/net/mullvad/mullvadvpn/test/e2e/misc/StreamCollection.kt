@@ -11,11 +11,17 @@ class StreamCollection {
     }
 
     fun exportStreamCollectionFrom(startDate: Date, endDate: Date): List<Stream> {
-        return streams.filter { it.startDate in startDate..endDate && it.endDate in startDate..endDate }
+        return streams.filter {
+            it.startDate in startDate..endDate && it.endDate in startDate..endDate
+        }
     }
 
     fun getConnectedThroughRelayStartEndDate(relayIpAddress: String): Pair<Date, Date> {
-        val matchingStreams = streams.filter { it.destinationAddress == relayIpAddress && it.transportProtocol == NetworkTransportProtocol.UDP }
+        val matchingStreams =
+            streams.filter {
+                it.destinationAddress == relayIpAddress &&
+                    it.transportProtocol == NetworkTransportProtocol.UDP
+            }
         var startDate: Date? = null
         var endDate: Date? = null
 
@@ -31,8 +37,7 @@ class StreamCollection {
 
             if (startDate == null) {
                 startDate = firstMatchingPacket.date
-            }
-            else {
+            } else {
                 if (firstMatchingPacket.date < startDate) {
                     startDate = firstMatchingPacket.date
                 }
@@ -40,8 +45,7 @@ class StreamCollection {
 
             if (endDate == null) {
                 endDate = lastMatchingPacket.date
-            }
-            else {
+            } else {
                 if (lastMatchingPacket.date > endDate) {
                     endDate = lastMatchingPacket.date
                 }

@@ -1,11 +1,11 @@
 package net.mullvad.mullvadvpn.test.e2e.misc
 
+import co.touchlab.kermit.Logger
+import java.net.DatagramPacket
 import java.net.DatagramSocket
 import java.net.InetAddress
-import java.net.DatagramPacket
 import java.util.Timer
 import java.util.TimerTask
-import co.touchlab.kermit.Logger
 
 class TrafficGenerator {
     var destinationHost: String
@@ -25,12 +25,15 @@ class TrafficGenerator {
         val packet = DatagramPacket(data, data.size, address, destinationPort)
 
         timer = Timer()
-        timerTask = object : TimerTask() {
-            override fun run() {
-                socket.send(packet)
-                Logger.v("Traffic generator sending UDP packet to $destinationHost:$destinationPort")
+        timerTask =
+            object : TimerTask() {
+                override fun run() {
+                    socket.send(packet)
+                    Logger.v(
+                        "Traffic generator sending UDP packet to $destinationHost:$destinationPort"
+                    )
+                }
             }
-        }
 
         timer?.schedule(timerTask, 0, interval)
     }

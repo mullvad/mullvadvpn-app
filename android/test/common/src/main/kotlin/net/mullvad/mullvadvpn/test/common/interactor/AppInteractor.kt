@@ -89,12 +89,13 @@ class AppInteractor(
 
     fun extractOutIpAddress(): String {
         device.findObjectWithTimeout(By.res("location_info_test_tag")).click()
-        val outString = device
-            .findObjectWithTimeout(
-                By.res("location_info_connection_out_test_tag"),
-                CONNECTION_TIMEOUT
-            )
-            .text
+        val outString =
+            device
+                .findObjectWithTimeout(
+                    By.res("location_info_connection_out_test_tag"),
+                    CONNECTION_TIMEOUT
+                )
+                .text
 
         val extractedIpAddress = outString.split(" ")[1].split(" ")[0]
         return extractedIpAddress
@@ -102,12 +103,13 @@ class AppInteractor(
 
     fun extractInIpAddress(): String {
         device.findObjectWithTimeout(By.res("location_info_test_tag")).click()
-        val inString = device
-            .findObjectWithTimeout(
-                By.res("location_info_connection_in_test_tag"),
-                CONNECTION_TIMEOUT
-            )
-            .text
+        val inString =
+            device
+                .findObjectWithTimeout(
+                    By.res("location_info_connection_in_test_tag"),
+                    CONNECTION_TIMEOUT
+                )
+                .text
 
         val extractedIpAddress = inString.split(" ")[1].split(":")[0]
         return extractedIpAddress
