@@ -70,7 +70,7 @@ class PacketCaptureClient {
     }
 
     suspend fun sendGetCapturedPacketsRequest(session: PacketCaptureSession): HttpResponse {
-        val testDeviceIpAddress = Networking.getIPAddress()
+        val testDeviceIpAddress = Networking.getTestDeviceIpAddress()
         return client.put("$baseUrl/parse-capture/${session.identifier}") {
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)

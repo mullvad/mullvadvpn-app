@@ -6,13 +6,15 @@ import junit.framework.TestCase.fail
 
 class Networking {
     companion object {
-        fun getIPAddress(): String {
+        fun getTestDeviceIpAddress(): String {
             NetworkInterface.getNetworkInterfaces()?.toList()?.map { networkInterface ->
                 networkInterface.inetAddresses
                     ?.toList()
                     ?.find { !it.isLoopbackAddress && it is Inet4Address }
                     ?.let {
-                        return it.hostAddress
+                        it.hostAddress?.let {
+                            return it
+                        }
                     }
             }
 
