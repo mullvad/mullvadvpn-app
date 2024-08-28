@@ -2111,7 +2111,7 @@ msgstr ""
 
 #. Warning text in a dialog that is displayed after a setting is toggled.
 msgctxt "wireguard-settings-view"
-msgid "This feature isn't available on all servers. You might need to change location after enabling."
+msgid "This feature isn’t available on all servers. You might need to change location after enabling."
 msgstr ""
 
 msgctxt "wireguard-settings-view"
