@@ -16,4 +16,25 @@ extension XCUIElement {
         _ = XCTWaiter().wait(for: [expectation], timeout: timeout)
         return !exists
     }
+
+    func scrollUpToElement(element: XCUIElement, maxScrolls: UInt = 5) {
+        var count = 0
+        while !element.isVisible && count < maxScrolls {
+            swipeUp()
+            count += 1
+        }
+    }
+
+    func scrollDownToElement(element: XCUIElement, maxScrolls: UInt = 5) {
+        var count = 0
+        while !element.isVisible && count < maxScrolls {
+            swipeDown()
+            count += 1
+        }
+    }
+
+    var isVisible: Bool {
+        guard self.exists && !self.frame.isEmpty else { return false }
+        return XCUIApplication().windows.element(boundBy: 0).frame.contains(self.frame)
+    }
 }
