@@ -7,16 +7,12 @@ import java.net.InetAddress
 import java.util.Timer
 import java.util.TimerTask
 
-class TrafficGenerator {
-    var destinationHost: String
-    var destinationPort: Int
+class TrafficGenerator(
+    val destinationHost: String,
+    val destinationPort: Int
+) {
     private var timer: Timer? = null
     private var timerTask: TimerTask? = null
-
-    constructor(destinationHost: String, destinationPort: Int) {
-        this.destinationHost = destinationHost
-        this.destinationPort = destinationPort
-    }
 
     fun startGeneratingUDPTraffic(interval: Long) {
         val socket = DatagramSocket()

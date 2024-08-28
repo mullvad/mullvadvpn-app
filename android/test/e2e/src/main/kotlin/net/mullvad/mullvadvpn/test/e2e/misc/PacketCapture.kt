@@ -108,5 +108,5 @@ data class Stream(
 @Serializable
 data class Packet(@SerialName("from_peer") val fromPeer: Boolean, val timestamp: String) {
     @Contextual val date = DateTime(timestamp.toLong())
-    @Contextual var leakStatus = LeakStatus.UNKNOWN
+    @Contextual val leakStatus = LeakStatus.UNKNOWN
 }
