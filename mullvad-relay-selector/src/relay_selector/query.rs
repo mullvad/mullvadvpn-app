@@ -34,8 +34,8 @@ use mullvad_types::{
     relay_constraints::{
         BridgeConstraints, BridgeSettings, BridgeState, BridgeType, LocationConstraint,
         ObfuscationSettings, OpenVpnConstraints, Ownership, Providers, RelayConstraints,
-        SelectedObfuscation, ShadowsocksSettings, TransportPort, Udp2TcpObfuscationSettings,
-        WireguardConstraints,
+        RelaySettings, SelectedObfuscation, ShadowsocksSettings, TransportPort,
+        Udp2TcpObfuscationSettings, WireguardConstraints,
     },
     wireguard::QuantumResistantState,
     Intersection,
@@ -241,6 +241,13 @@ impl Default for RelayQuery {
             wireguard_constraints: WireguardRelayQuery::new(),
             openvpn_constraints: OpenVpnRelayQuery::new(),
         }
+    }
+}
+
+impl From<RelayQuery> for RelaySettings {
+    fn from(query: RelayQuery) -> Self {
+        let (relay_constraints, ..) = query.into_settings();
+        RelaySettings::from(relay_constraints)
     }
 }
 
