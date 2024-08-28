@@ -622,7 +622,7 @@ function DaitaSettings() {
             // TRANSLATORS: Warning text in a dialog that is displayed after a setting is toggled.
             messages.pgettext(
               'wireguard-settings-view',
-              "This feature isn't available on all servers. You might need to change location after enabling.",
+              'This feature isn’t available on all servers. You might need to change location after enabling.',
             )
           }
         </ModalMessage>
