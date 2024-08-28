@@ -291,6 +291,7 @@
     <string name="server_ip_overrides_reset_title">Сброс всех переопределений</string>
     <string name="set_dns_error">Не удалось установить системный DNS-сервер. Отправьте сообщение о проблеме.</string>
     <string name="set_firewall_policy_error">Невозможно применить правила брандмауэра. Устраните неполадки или отправьте сообщение о проблеме.</string>
+    <string name="setting_chip">Параметр: %1$s</string>
     <string name="settings">Настройки</string>
     <string name="settings_account">Учетная запись</string>
     <string name="settings_api_access">Доступ к API</string>

@@ -291,6 +291,7 @@
     <string name="server_ip_overrides_reset_title">Alle overschrijvingen resetten</string>
     <string name="set_dns_error">Kan DNS-server van systeem niet instellen. Stuur een probleemrapport.</string>
     <string name="set_firewall_policy_error">Kan firewallregels niet toepassen. Los problemen op of stuur een probleemmelding.</string>
+    <string name="setting_chip">Instelling: %1$s</string>
     <string name="settings">Instellingen</string>
     <string name="settings_account">Account</string>
     <string name="settings_api_access">API-toegang</string>

@@ -291,6 +291,7 @@
     <string name="server_ip_overrides_reset_title">Réinitialiser toutes les substitutions</string>
     <string name="set_dns_error">Impossible de définir le serveur DNS système. Veuillez envoyer un rapport de problème.</string>
     <string name="set_firewall_policy_error">Impossible d\'appliquer les règles du pare-feu. Merci de résoudre le problème ou d\'envoyer un rapport de problème.</string>
+    <string name="setting_chip">Paramètre : %1$s</string>
     <string name="settings">Paramètres</string>
     <string name="settings_account">Compte</string>
     <string name="settings_api_access">Accès à l\'API</string>

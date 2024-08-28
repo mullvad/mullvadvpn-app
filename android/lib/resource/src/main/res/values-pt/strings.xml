@@ -291,6 +291,7 @@
     <string name="server_ip_overrides_reset_title">Repor todas as substituições</string>
     <string name="set_dns_error">Não foi possível definir o servidor DNS do sistema. Envie um relatório do problema.</string>
     <string name="set_firewall_policy_error">Não foi possível aplicar as regras de firewall. Experimente a resolução de problemas ou envie um relatório do problema.</string>
+    <string name="setting_chip">Definição: %1$s</string>
     <string name="settings">Definições</string>
     <string name="settings_account">Conta</string>
     <string name="settings_api_access">Acesso à API</string>

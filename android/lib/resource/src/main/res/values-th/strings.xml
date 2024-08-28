@@ -291,6 +291,7 @@
     <string name="server_ip_overrides_reset_title">รีเซ็ตโอเวอร์ไรด์ทั้งหมด</string>
     <string name="set_dns_error">ไม่สามารถตั้งค่าเซิร์ฟเวอร์ DNS ของระบบได้ โปรดส่งรายงานปัญหา</string>
     <string name="set_firewall_policy_error">ไม่สามารถใช้กฎไฟร์วอลล์ได้ โปรดแก้ไขปัญหา หรือส่งรายงานปัญหา</string>
+    <string name="setting_chip">การตั้งค่า: %1$s</string>
     <string name="settings">การตั้งค่า</string>
     <string name="settings_account">บัญชี</string>
     <string name="settings_api_access">การเข้าถึง API</string>

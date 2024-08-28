@@ -291,6 +291,7 @@
     <string name="server_ip_overrides_reset_title">Tüm geçersiz kılmaları sıfırla</string>
     <string name="set_dns_error">Sistem DNS sunucusu ayarlanamıyor. Lütfen bir hata raporu gönderin.</string>
     <string name="set_firewall_policy_error">Güvenlik duvarı kuralları uygulanamıyor. Lütfen sorunu çözmeye çalışın veya bir hata raporu gönderin.</string>
+    <string name="setting_chip">Ayar: %1$s</string>
     <string name="settings">Ayarlar</string>
     <string name="settings_account">Hesap</string>
     <string name="settings_api_access">API erişimi</string>

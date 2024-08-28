@@ -291,6 +291,7 @@
     <string name="server_ip_overrides_reset_title">Nulstil alle tilsidesættelser</string>
     <string name="set_dns_error">Kan ikke indstille systemets DNS-server. Indsend en problemrapport.</string>
     <string name="set_firewall_policy_error">Kan ikke anvende firewallregler. Fejlfind eller send en problemrapport.</string>
+    <string name="setting_chip">Indstilling: %1$s</string>
     <string name="settings">Indstillinger</string>
     <string name="settings_account">Konto</string>
     <string name="settings_api_access">API-adgang</string>

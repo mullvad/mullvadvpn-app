@@ -291,6 +291,7 @@
     <string name="server_ip_overrides_reset_title">Tilbakestill alle overstyringer</string>
     <string name="set_dns_error">Kunne ikke angi DNS-server for systemet. Send inn en problemrapport.</string>
     <string name="set_firewall_policy_error">Kunne ikke bruke brannmur-regler. Feilsøk eller send inn en problemrapport.</string>
+    <string name="setting_chip">Innstilling: %1$s</string>
     <string name="settings">Innstillinger</string>
     <string name="settings_account">Konto</string>
     <string name="settings_api_access">API-tilgang</string>

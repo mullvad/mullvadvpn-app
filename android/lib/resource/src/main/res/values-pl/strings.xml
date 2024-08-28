@@ -291,6 +291,7 @@
     <string name="server_ip_overrides_reset_title">Resetuj wszystkie zastąpienia</string>
     <string name="set_dns_error">Nie można ustawić systemowego serwera DNS. Wyślij zgłoszenie problemu.</string>
     <string name="set_firewall_policy_error">Nie można zastosować reguł zapory. Rozwiąż problem lub wyślij zgłoszenie problemu.</string>
+    <string name="setting_chip">Ustawienie: %1$s</string>
     <string name="settings">Ustawienia</string>
     <string name="settings_account">Konto</string>
     <string name="settings_api_access">Dostęp do API</string>

@@ -291,6 +291,7 @@
     <string name="server_ip_overrides_reset_title">Restablecer todas las anulaciones</string>
     <string name="set_dns_error">No se puede configurar el servidor DNS del sistema. Envíe un informe de problemas.</string>
     <string name="set_firewall_policy_error">No se pueden aplicar las reglas del firewall. Intente solucionar el problema o envíe un informe de problemas.</string>
+    <string name="setting_chip">Ajuste: %1$s</string>
     <string name="settings">Configuración</string>
     <string name="settings_account">Cuenta</string>
     <string name="settings_api_access">Acceso a API</string>

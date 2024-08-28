@@ -291,6 +291,7 @@
     <string name="server_ip_overrides_reset_title">Alle Überschreibungen zurücksetzen</string>
     <string name="set_dns_error">Der DNS-Server des Systems konnte nicht eingestellt werden. Bitte senden Sie einen Problembericht.</string>
     <string name="set_firewall_policy_error">Firewall-Regeln können nicht angewendet werden. Bitte beheben Sie das Problem oder senden Sie einen Problembericht.</string>
+    <string name="setting_chip">Einstellung: %1$s</string>
     <string name="settings">Einstellungen</string>
     <string name="settings_account">Konto</string>
     <string name="settings_api_access">API-Zugriff</string>

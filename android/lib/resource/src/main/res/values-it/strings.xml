@@ -291,6 +291,7 @@
     <string name="server_ip_overrides_reset_title">Reimposta tutte le sovrascritture</string>
     <string name="set_dns_error">Impossibile impostare il server DNS di sistema. Invia una segnalazione del problema.</string>
     <string name="set_firewall_policy_error">Impossibile applicare le regole del firewall. Consulta la risoluzione dei problemi o invia una segnalazione del problema.</string>
+    <string name="setting_chip">Impostazione: %1$s</string>
     <string name="settings">Impostazioni</string>
     <string name="settings_account">Account</string>
     <string name="settings_api_access">Accesso API</string>

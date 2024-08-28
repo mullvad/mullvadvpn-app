@@ -291,6 +291,7 @@
     <string name="server_ip_overrides_reset_title">ကျော်လွန် ပယ်ဖျက်မှု အားလုံးကို ပြန်လည်သတ်မှတ်ရန်</string>
     <string name="set_dns_error">စနစ် DNS ဆာဗာကို သတ်မှတ်၍ မရနိုင်ပါ။ ပြဿနာ ရီပို့တ်တစ်ခု ပေးပို့ပေးပါ။</string>
     <string name="set_firewall_policy_error">Firewall စည်းမျဉ်းများကို အသုံးချ၍ မရနိုင်ပါ။ ပြစ်ချက် ရှာဖွေဖယ်ရှာပေးပါ သို့မဟုတ် ပြဿနာ ရီပို့တ် ပေးပို့ပေးပါ။</string>
+    <string name="setting_chip">ဆက်တင်- %1$s</string>
     <string name="settings">ဆက်တင်</string>
     <string name="settings_account">အကောင့်</string>
     <string name="settings_api_access">API ရယူသုံးစွဲခွင့်</string>

@@ -291,6 +291,7 @@
     <string name="server_ip_overrides_reset_title">Återställ alla åsidosättningar</string>
     <string name="set_dns_error">Det går inte att konfigurera DNS-server. Skicka en problemrapport.</string>
     <string name="set_firewall_policy_error">Det går inte att tillämpa brandväggsregler. Felsök eller skicka en problemrapport.</string>
+    <string name="setting_chip">Inställning: %1$s</string>
     <string name="settings">Inställningar</string>
     <string name="settings_account">Konto</string>
     <string name="settings_api_access">API-åtkomst</string>

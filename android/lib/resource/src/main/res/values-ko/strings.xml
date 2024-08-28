@@ -291,6 +291,7 @@
     <string name="server_ip_overrides_reset_title">모든 재정의 초기화</string>
     <string name="set_dns_error">시스템 DNS 서버를 설정할 수 없습니다. 문제 보고서를 보내주세요.</string>
     <string name="set_firewall_policy_error">방화벽 규칙을 적용할 수 없습니다. 문제를 해결하거나 문제 보고서를 보내주세요.</string>
+    <string name="setting_chip">설정: %1$s</string>
     <string name="settings">설정</string>
     <string name="settings_account">계정</string>
     <string name="settings_api_access">API 액세스</string>

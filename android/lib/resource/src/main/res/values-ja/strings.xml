@@ -291,6 +291,7 @@
     <string name="server_ip_overrides_reset_title">すべてのオーバーライドをリセット</string>
     <string name="set_dns_error">システムのDNSサーバーを設定できません。問題の報告を送信してください。</string>
     <string name="set_firewall_policy_error">ファイアウォールのルールを適用できません。問題に対処するか、問題の報告を送信してください。</string>
+    <string name="setting_chip">設定: %1$s</string>
     <string name="settings">設定</string>
     <string name="settings_account">アカウント</string>
     <string name="settings_api_access">APIアクセス</string>

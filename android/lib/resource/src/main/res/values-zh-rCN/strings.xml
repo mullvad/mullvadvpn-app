@@ -291,6 +291,7 @@
     <string name="server_ip_overrides_reset_title">重置所有覆盖设置</string>
     <string name="set_dns_error">无法设置系统 DNS 服务器。请发送问题报告。</string>
     <string name="set_firewall_policy_error">无法应用防火墙规则。请排查问题或发送问题报告。</string>
+    <string name="setting_chip">设置：%1$s</string>
     <string name="settings">设置</string>
     <string name="settings_account">帐户</string>
     <string name="settings_api_access">API 访问</string>
