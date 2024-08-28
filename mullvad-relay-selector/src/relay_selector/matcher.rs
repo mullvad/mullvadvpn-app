@@ -26,22 +26,22 @@ pub fn filter_matching_relay_list(
 ) -> Vec<Relay> {
     let relays = relay_list.relays();
 
-    let locations = ResolvedLocationConstraint::from_constraint(&query.location, custom_lists);
+    let locations = ResolvedLocationConstraint::from_constraint(query.location(), custom_lists);
     let shortlist = relays
             // Filter on tunnel type
-            .filter(|relay| filter_tunnel_type(&query.tunnel_protocol, relay))
+            .filter(|relay| filter_tunnel_type(&query.tunnel_protocol(), relay))
             // Filter on active relays
             .filter(|relay| filter_on_active(relay))
             // Filter by location
             .filter(|relay| filter_on_location(&locations, relay))
             // Filter by ownership
-            .filter(|relay| filter_on_ownership(&query.ownership, relay))
+            .filter(|relay| filter_on_ownership(&query.ownership(), relay))
             // Filter by providers
-            .filter(|relay| filter_on_providers(&query.providers, relay))
+            .filter(|relay| filter_on_providers(query.providers(), relay))
             // Filter by DAITA support
-            .filter(|relay| filter_on_daita(&query.wireguard_constraints.daita, relay))
+            .filter(|relay| filter_on_daita(&query.wireguard_constraints().daita, relay))
             // Filter by obfuscation support
-            .filter(|relay| filter_on_obfuscation(&query.wireguard_constraints, relay_list, relay));
+            .filter(|relay| filter_on_obfuscation(query.wireguard_constraints(), relay_list, relay));
 
     // The last filtering to be done is on the `include_in_country` attribute found on each
     // relay. When the location constraint is based on country, a relay which has
