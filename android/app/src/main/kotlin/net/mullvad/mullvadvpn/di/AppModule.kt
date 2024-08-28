@@ -37,4 +37,5 @@ val appModule = module {
     single { ConnectionProxy(get(), get(), get()) }
     single { LocaleRepository(get()) }
     single { RelayLocationTranslationRepository(get(), get(), MainScope()) }
+    single { androidContext().resources }
 }
