@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.test.e2e.misc
 
 import java.util.Date
+import org.joda.time.DateTime
 import org.junit.jupiter.api.fail
 
 enum class LeakStatus {
@@ -16,20 +17,20 @@ class StreamCollection {
         this.streams = streams
     }
 
-    fun exportStreamCollectionFrom(startDate: Date, endDate: Date): List<Stream> {
+    fun exportStreamCollectionFrom(startDate: DateTime, endDate: DateTime): List<Stream> {
         return streams.filter {
             it.startDate in startDate..endDate && it.endDate in startDate..endDate
         }
     }
 
-    fun getConnectedThroughRelayStartEndDate(relayIpAddress: String): Pair<Date, Date> {
+    fun getConnectedThroughRelayStartEndDate(relayIpAddress: String): Pair<DateTime, DateTime> {
         val matchingStreams =
             streams.filter {
                 it.destinationAddress == relayIpAddress &&
                     it.transportProtocol == NetworkTransportProtocol.UDP
             }
-        var startDate: Date? = null
-        var endDate: Date? = null
+        var startDate: DateTime? = null
+        var endDate: DateTime? = null
 
         if (matchingStreams.isEmpty()) {
             fail("Unexpectedly found no matching streams")
@@ -65,7 +66,7 @@ class StreamCollection {
         }
     }
 
-    fun extractStreamCollection(from: Date, to: Date): StreamCollection {
+    fun extractStreamCollection(from: DateTime, to: DateTime): StreamCollection {
         val streamsWithinInterval = streams.map { stream ->
             val packetsWithinInterval = stream.packets.filter {
                 it.date in from..to

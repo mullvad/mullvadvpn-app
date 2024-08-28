@@ -18,6 +18,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
+import org.joda.time.DateTime
 
 data class PacketCaptureSession(val identifier: String = UUID.randomUUID().toString())
 
@@ -94,14 +95,14 @@ data class Stream(
     @SerialName("transport_protocol") val transportProtocol: NetworkTransportProtocol,
     val packets: List<Packet>
 ) {
-    @Contextual var startDate: Date = packets.first().date
-    @Contextual var endDate: Date = packets.last().date
+    @Contextual var startDate: DateTime = packets.first().date
+    @Contextual var endDate: DateTime = packets.last().date
 
-    @Contextual var txStartDate: Date? = null
-    @Contextual var txEndDate: Date? = null
+    @Contextual var txStartDate: DateTime? = null
+    @Contextual var txEndDate: DateTime? = null
 
-    @Contextual var rxStartDate: Date? = null
-    @Contextual var rxEndDate: Date? = null
+    @Contextual var rxStartDate: DateTime? = null
+    @Contextual var rxEndDate: DateTime? = null
 
     init {
         val txPackets = packets.filter { it.fromPeer == true }
@@ -120,6 +121,6 @@ data class Stream(
 
 @Serializable
 data class Packet(@SerialName("from_peer") val fromPeer: Boolean, val timestamp: String) {
-    @Contextual val date = Date(timestamp.toLong())
+    @Contextual val date = DateTime(timestamp.toLong())
     @Contextual var leakStatus = LeakStatus.UNKNOWN
 }
