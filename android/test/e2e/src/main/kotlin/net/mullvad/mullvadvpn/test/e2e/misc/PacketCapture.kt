@@ -30,10 +30,12 @@ class PacketCapture {
         return session
     }
 
-    suspend fun stopCapture(session: PacketCaptureSession) {
+    suspend fun stopCapture(session: PacketCaptureSession): StreamCollection {
         client.sendStopCaptureRequest(session)
         val parsedPacketsResponse = client.sendGetCapturedPacketsRequest(session)
-        Logger.v("Parsed packet capture objects: ${parsedPacketsResponse.body<List<Stream>>()}")
+        val capturedStreams = parsedPacketsResponse.body<List<Stream>>()
+        val streamCollection = StreamCollection(capturedStreams)
+        return streamCollection
     }
 }
 
