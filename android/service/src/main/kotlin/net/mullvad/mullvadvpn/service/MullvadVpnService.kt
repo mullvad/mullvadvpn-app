@@ -11,7 +11,6 @@ import androidx.lifecycle.lifecycleScope
 import arrow.atomic.AtomicInt
 import co.touchlab.kermit.Logger
 import java.io.File
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -43,6 +42,7 @@ class MullvadVpnService : TalpidVpnService() {
     private lateinit var keyguardManager: KeyguardManager
 
     private lateinit var apiEndpointConfiguration: ApiEndpointConfiguration
+    private lateinit var apiEndpointResolver: ApiEndpointResolver
     private lateinit var managementService: ManagementService
     private lateinit var migrateSplitTunneling: MigrateSplitTunneling
     private lateinit var intentProvider: IntentProvider
@@ -71,6 +71,7 @@ class MullvadVpnService : TalpidVpnService() {
             get<NotificationManager>()
 
             apiEndpointConfiguration = get()
+            apiEndpointResolver = get()
             migrateSplitTunneling = get()
             intentProvider = get()
             connectionProxy = get()
@@ -79,18 +80,14 @@ class MullvadVpnService : TalpidVpnService() {
 
         keyguardManager = getSystemService<KeyguardManager>()!!
 
-        // TODO We should avoid lifecycleScope.launch (current needed due to InetSocketAddress
-        // with intent from API)
-        lifecycleScope.launch(context = Dispatchers.IO) {
-            prepareFiles(this@MullvadVpnService)
-            migrateSplitTunneling.migrate()
+        prepareFiles(this@MullvadVpnService)
+        migrateSplitTunneling.migrate()
 
-            Logger.i("Start daemon")
-            startDaemon()
+        Logger.i("Start daemon")
+        startDaemon()
 
-            Logger.i("Start management service")
-            managementService.start()
-        }
+        Logger.i("Start management service")
+        managementService.start()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -161,7 +158,7 @@ class MullvadVpnService : TalpidVpnService() {
             rpcSocketPath = rpcSocketFile.absolutePath,
             filesDirectory = filesDir.absolutePath,
             cacheDirectory = cacheDir.absolutePath,
-            apiEndpoint = apiEndpointConfiguration.apiEndpoint()
+            apiEndpoint = apiEndpointResolver.resolve(apiEndpointConfiguration)
         )
         Logger.i("MullvadVpnService: Daemon initialized")
     }
