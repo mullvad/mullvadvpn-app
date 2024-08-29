@@ -15,7 +15,7 @@ fun ErrorState.getErrorNotificationResources(context: Context): ErrorNotificatio
                 cause.errorMessageId(),
                 (cause as ErrorStateCause.InvalidDnsServers).addresses.joinToString { address ->
                     address.addressString()
-                }
+                },
             )
         }
         cause is ErrorStateCause.VpnPermissionDenied -> {
@@ -33,12 +33,12 @@ private fun resolveAlwaysOnVpnErrorNotificationMessage(
         ErrorNotificationMessage(
             R.string.always_on_vpn_error_notification_title,
             R.string.always_on_vpn_error_notification_content,
-            alwaysOnVpnAppName
+            alwaysOnVpnAppName,
         )
     } else {
         ErrorNotificationMessage(
             R.string.vpn_permission_error_notification_title,
-            R.string.vpn_permission_error_notification_message
+            R.string.vpn_permission_error_notification_message,
         )
     }
 }

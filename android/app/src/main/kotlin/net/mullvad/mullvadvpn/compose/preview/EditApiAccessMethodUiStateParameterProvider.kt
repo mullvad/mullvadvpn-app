@@ -17,7 +17,7 @@ class EditApiAccessMethodUiStateParameterProvider :
                 editMode = false,
                 formData = EditApiAccessFormData.empty(),
                 hasChanges = false,
-                isTestingApiAccessMethod = false
+                isTestingApiAccessMethod = false,
             ),
             // Shadowsocks, no errors
             EditApiAccessMethodUiState.Content(
@@ -32,10 +32,10 @@ class EditApiAccessMethodUiStateParameterProvider :
                             port = data.port.toString(),
                             password = data.password ?: "",
                             cipher = data.cipher,
-                            username = ""
+                            username = "",
                         )
                     },
-                isTestingApiAccessMethod = false
+                isTestingApiAccessMethod = false,
             ),
             // Socks5 Remote, no errors, testing method
             EditApiAccessMethodUiState.Content(
@@ -50,10 +50,10 @@ class EditApiAccessMethodUiStateParameterProvider :
                             port = data.port.toString(),
                             enableAuthentication = data.auth != null,
                             username = data.auth?.username ?: "",
-                            password = data.auth?.password ?: ""
+                            password = data.auth?.password ?: "",
                         )
                     },
-                isTestingApiAccessMethod = true
+                isTestingApiAccessMethod = true,
             ),
             // Socks 5 remote, required errors
             EditApiAccessMethodUiState.Content(
@@ -68,10 +68,10 @@ class EditApiAccessMethodUiStateParameterProvider :
                                 InvalidDataError.PortError.Required,
                                 InvalidDataError.ServerIpError.Required,
                                 InvalidDataError.UserNameError.Required,
-                                InvalidDataError.PasswordError.Required
+                                InvalidDataError.PasswordError.Required,
                             )
                         ),
-                isTestingApiAccessMethod = false
-            )
+                isTestingApiAccessMethod = false,
+            ),
         )
 }

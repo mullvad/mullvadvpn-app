@@ -29,7 +29,7 @@ private fun PreviewInformationComposeCell() {
             title = "Information row title",
             isEnabled = true,
             onCellClicked = {},
-            onInfoClicked = {}
+            onInfoClicked = {},
         )
     }
 }
@@ -40,7 +40,7 @@ fun InformationComposeCell(
     isEnabled: Boolean = true,
     background: Color = MaterialTheme.colorScheme.primary,
     onCellClicked: () -> Unit = {},
-    onInfoClicked: (() -> Unit)? = null
+    onInfoClicked: (() -> Unit)? = null,
 ) {
     val titleModifier = Modifier.alpha(if (isEnabled) AlphaVisible else AlphaInactive)
     val bodyViewModifier = Modifier
@@ -52,14 +52,14 @@ fun InformationComposeCell(
                 title = title,
                 style = MaterialTheme.typography.titleMedium,
                 textColor = MaterialTheme.colorScheme.onPrimary,
-                modifier = titleModifier.weight(1f, true)
+                modifier = titleModifier.weight(1f, true),
             )
         },
         background = background,
         bodyView = {
             InformationComposeCellBody(modifier = bodyViewModifier, onInfoClicked = onInfoClicked)
         },
-        onCellClicked = onCellClicked
+        onCellClicked = onCellClicked,
     )
 }
 
@@ -67,7 +67,7 @@ fun InformationComposeCell(
 private fun InformationComposeCellBody(modifier: Modifier, onInfoClicked: (() -> Unit)? = null) {
     Row(
         modifier = modifier.wrapContentWidth().wrapContentHeight(),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         if (onInfoClicked != null) {
             IconButton(
@@ -79,7 +79,7 @@ private fun InformationComposeCellBody(modifier: Modifier, onInfoClicked: (() ->
                 Icon(
                     painter = painterResource(id = R.drawable.icon_info),
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onPrimary
+                    tint = MaterialTheme.colorScheme.onPrimary,
                 )
             }
         }

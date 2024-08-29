@@ -6,7 +6,7 @@ import arrow.optics.optics
 data class DnsOptions(
     val state: DnsState,
     val defaultOptions: DefaultDnsOptions,
-    val customOptions: CustomDnsOptions
+    val customOptions: CustomDnsOptions,
 ) {
     companion object
 }

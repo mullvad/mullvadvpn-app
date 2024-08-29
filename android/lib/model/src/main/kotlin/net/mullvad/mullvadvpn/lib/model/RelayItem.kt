@@ -13,10 +13,8 @@ sealed interface RelayItem {
     val hasChildren: Boolean
 
     @optics
-    data class CustomList(
-        val customList: DomainCustomList,
-        val locations: List<Location>,
-    ) : RelayItem {
+    data class CustomList(val customList: DomainCustomList, val locations: List<Location>) :
+        RelayItem {
         override val name: String = customList.name.value
         override val id = customList.id
 
@@ -34,7 +32,7 @@ sealed interface RelayItem {
         data class Country(
             override val id: GeoLocationId.Country,
             override val name: String,
-            val cities: List<City>
+            val cities: List<City>,
         ) : Location {
             val relays = cities.flatMap { city -> city.relays }
             override val active = cities.any { it.active }
@@ -47,7 +45,7 @@ sealed interface RelayItem {
         data class City(
             override val id: GeoLocationId.City,
             override val name: String,
-            val relays: List<Relay>
+            val relays: List<Relay>,
         ) : Location {
             override val active = relays.any { it.active }
             override val hasChildren: Boolean = relays.isNotEmpty()

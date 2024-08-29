@@ -20,7 +20,7 @@ import net.mullvad.mullvadvpn.repository.ApiAccessRepository
 
 class SaveApiAccessMethodViewModel(
     private val apiAccessRepository: ApiAccessRepository,
-    savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     private val navArgs = SaveApiAccessMethodDestination.argsFrom(savedStateHandle)
     private val apiAccessMethodId: ApiAccessMethodId? = navArgs.id
@@ -47,7 +47,7 @@ class SaveApiAccessMethodViewModel(
                             it.copy(testingState = TestApiAccessMethodState.Result.Successful)
                         }
                         save()
-                    }
+                    },
                 )
         }
     }
@@ -59,14 +59,14 @@ class SaveApiAccessMethodViewModel(
                 updateAccessMethod(
                     id = apiAccessMethodId,
                     name = apiAccessMethodName,
-                    apiAccessMethod = customProxy
+                    apiAccessMethod = customProxy,
                 )
             } else {
                 addNewAccessMethod(
                     NewAccessMethodSetting(
                         name = apiAccessMethodName,
                         enabled = true,
-                        apiAccessMethod = customProxy
+                        apiAccessMethod = customProxy,
                     )
                 )
             }
@@ -78,24 +78,24 @@ class SaveApiAccessMethodViewModel(
             .addApiAccessMethod(newAccessMethodSetting)
             .fold(
                 { _uiSideEffect.send(SaveApiAccessMethodSideEffect.CouldNotSaveApiAccessMethod) },
-                { _uiSideEffect.send(SaveApiAccessMethodSideEffect.SuccessfullyCreatedApiMethod) }
+                { _uiSideEffect.send(SaveApiAccessMethodSideEffect.SuccessfullyCreatedApiMethod) },
             )
     }
 
     private suspend fun updateAccessMethod(
         id: ApiAccessMethodId,
         name: ApiAccessMethodName,
-        apiAccessMethod: ApiAccessMethod.CustomProxy
+        apiAccessMethod: ApiAccessMethod.CustomProxy,
     ) {
         apiAccessRepository
             .updateApiAccessMethod(
                 apiAccessMethodId = id,
                 apiAccessMethodName = name,
-                apiAccessMethod = apiAccessMethod
+                apiAccessMethod = apiAccessMethod,
             )
             .fold(
                 { _uiSideEffect.send(SaveApiAccessMethodSideEffect.CouldNotSaveApiAccessMethod) },
-                { _uiSideEffect.send(SaveApiAccessMethodSideEffect.SuccessfullyCreatedApiMethod) }
+                { _uiSideEffect.send(SaveApiAccessMethodSideEffect.SuccessfullyCreatedApiMethod) },
             )
     }
 }

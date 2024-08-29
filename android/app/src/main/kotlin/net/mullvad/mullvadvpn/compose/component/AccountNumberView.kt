@@ -9,13 +9,13 @@ import net.mullvad.mullvadvpn.lib.common.util.groupWithSpaces
 fun AccountNumberView(
     accountNumber: String,
     obfuscateWithPasswordDots: Boolean,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     InformationView(
         content =
             if (obfuscateWithPasswordDots) accountNumber.groupPasswordModeWithSpaces()
             else accountNumber.groupWithSpaces(),
         modifier = modifier,
-        whenMissing = MissingPolicy.SHOW_SPINNER
+        whenMissing = MissingPolicy.SHOW_SPINNER,
     )
 }

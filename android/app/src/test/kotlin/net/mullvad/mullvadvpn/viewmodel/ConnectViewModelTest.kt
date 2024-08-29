@@ -130,7 +130,7 @@ class ConnectViewModelTest {
                 connectionProxy = mockConnectionProxy,
                 lastKnownLocationUseCase = mockLastKnownLocationUseCase,
                 vpnPermissionRepository = mockVpnPermissionRepository,
-                isPlayBuild = false
+                isPlayBuild = false,
             )
     }
 
@@ -200,7 +200,7 @@ class ConnectViewModelTest {
                 city = "Gothenburg",
                 hostname = "Host",
                 latitude = 57.7065,
-                longitude = 11.967
+                longitude = 11.967,
             )
 
         // Act, Assert

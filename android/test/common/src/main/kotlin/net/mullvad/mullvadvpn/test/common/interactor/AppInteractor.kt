@@ -21,14 +21,14 @@ import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
 class AppInteractor(
     private val device: UiDevice,
     private val targetContext: Context,
-    private val targetPackageName: String
+    private val targetPackageName: String,
 ) {
     fun launch(customApiEndpointConfiguration: CustomApiEndpointConfiguration? = null) {
         device.pressHome()
         // Wait for launcher
         device.wait(
             Until.hasObject(By.pkg(device.launcherPackageName).depth(0)),
-            APP_LAUNCH_TIMEOUT
+            APP_LAUNCH_TIMEOUT,
         )
 
         val intent =
@@ -95,7 +95,7 @@ class AppInteractor(
             .findObjectWithTimeout(
                 // Text exist and contains IP address
                 By.res("location_info_connection_out_test_tag").textContains("."),
-                CONNECTION_TIMEOUT
+                CONNECTION_TIMEOUT,
             )
             .text
             .extractIpAddress()

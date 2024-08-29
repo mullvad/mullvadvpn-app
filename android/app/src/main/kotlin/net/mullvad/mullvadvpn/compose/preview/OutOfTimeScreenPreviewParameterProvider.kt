@@ -12,18 +12,18 @@ class OutOfTimeScreenPreviewParameterProvider : PreviewParameterProvider<OutOfTi
             OutOfTimeUiState(
                 tunnelState = generateDisconnectedState(),
                 "Heroic Frog",
-                showSitePayment = true
+                showSitePayment = true,
             ),
             OutOfTimeUiState(
                 tunnelState =
                     generateConnectingState(featureIndicators = 0, quantumResistant = false),
                 "Strong Rabbit",
-                showSitePayment = true
+                showSitePayment = true,
             ),
             OutOfTimeUiState(
                 tunnelState = generateErrorState(isBlocking = true),
                 deviceName = "Stable Horse",
-                showSitePayment = true
-            )
+                showSitePayment = true,
+            ),
         )
 }

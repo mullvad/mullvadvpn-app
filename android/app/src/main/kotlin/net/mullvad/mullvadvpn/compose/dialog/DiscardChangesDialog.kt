@@ -26,15 +26,15 @@ fun DiscardChanges(resultBackNavigator: ResultBackNavigator<Boolean>) {
             PrimaryButton(
                 modifier = Modifier.focusRequester(FocusRequester()),
                 onClick = dropUnlessResumed { resultBackNavigator.navigateBack() },
-                text = stringResource(id = R.string.cancel)
+                text = stringResource(id = R.string.cancel),
             )
         },
         confirmButton = {
             PrimaryButton(
                 onClick = dropUnlessResumed { resultBackNavigator.navigateBack(result = true) },
-                text = stringResource(id = R.string.discard)
+                text = stringResource(id = R.string.discard),
             )
         },
-        containerColor = MaterialTheme.colorScheme.surface
+        containerColor = MaterialTheme.colorScheme.surface,
     )
 }

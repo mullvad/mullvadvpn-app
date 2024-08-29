@@ -31,19 +31,19 @@ fun MullvadExposedDropdownMenuBox(
     label: String,
     title: String,
     colors: TextFieldColors,
-    content: @Composable ColumnScope.(onClick: () -> Unit) -> Unit
+    content: @Composable ColumnScope.(onClick: () -> Unit) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
     ExposedDropdownMenuBox(
         expanded = expanded,
         onExpandedChange = { expanded = it },
-        modifier = modifier.clickable { expanded = !expanded }
+        modifier = modifier.clickable { expanded = !expanded },
     ) {
         TextField(
             modifier = Modifier.fillMaxWidth().menuAnchor(),
             readOnly = true,
             value = title,
-            onValueChange = { /* Do nothing */},
+            onValueChange = { /* Do nothing */ },
             label = { Text(text = label) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             colors = colors,
@@ -51,7 +51,7 @@ fun MullvadExposedDropdownMenuBox(
         ExposedDropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
-            modifier = Modifier.background(MaterialTheme.colorScheme.primary)
+            modifier = Modifier.background(MaterialTheme.colorScheme.primary),
         ) {
             content { expanded = false }
         }
@@ -62,7 +62,7 @@ fun MullvadExposedDropdownMenuBox(
 fun MullvadDropdownMenuItem(
     leadingIcon: @Composable (() -> Unit)? = null,
     text: String,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     DropdownMenuItem(
         leadingIcon = leadingIcon,

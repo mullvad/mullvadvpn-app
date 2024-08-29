@@ -13,7 +13,7 @@ data class PrivacyDisclaimerViewState(val isStartingService: Boolean, val isPlay
 
 class PrivacyDisclaimerViewModel(
     private val privacyDisclaimerRepository: PrivacyDisclaimerRepository,
-    isPlayBuild: Boolean
+    isPlayBuild: Boolean,
 ) : ViewModel() {
 
     private val _uiState =

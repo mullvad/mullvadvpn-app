@@ -43,13 +43,13 @@ class SaveApiAccessMethodViewModelTest {
                 mockApiAccessRepository.updateApiAccessMethod(
                     apiAccessMethodId,
                     apiAccessMethodName,
-                    customProxy
+                    customProxy,
                 )
             } returns Unit.right()
             createSaveApiAccessMethodViewModel(
                 apiAccessMethodId = apiAccessMethodId,
                 apiAccessMethodName = apiAccessMethodName,
-                customProxy = customProxy
+                customProxy = customProxy,
             )
 
             // Act, Assert
@@ -58,16 +58,16 @@ class SaveApiAccessMethodViewModelTest {
                 assertEquals(
                     SaveApiAccessMethodUiState(
                         testingState = TestApiAccessMethodState.Result.Successful,
-                        isSaving = true
+                        isSaving = true,
                     ),
-                    awaitItem()
+                    awaitItem(),
                 )
             }
             saveApiAccessMethodViewModel.uiSideEffect.test {
                 // Check for successful creation
                 assertEquals(
                     SaveApiAccessMethodSideEffect.SuccessfullyCreatedApiMethod,
-                    awaitItem()
+                    awaitItem(),
                 )
             }
         }
@@ -83,7 +83,7 @@ class SaveApiAccessMethodViewModelTest {
         createSaveApiAccessMethodViewModel(
             apiAccessMethodId = apiAccessMethodId,
             apiAccessMethodName = apiAccessMethodName,
-            customProxy = customProxy
+            customProxy = customProxy,
         )
 
         // Act, Assert
@@ -91,9 +91,9 @@ class SaveApiAccessMethodViewModelTest {
             assertEquals(
                 SaveApiAccessMethodUiState(
                     testingState = TestApiAccessMethodState.Result.Failure,
-                    isSaving = false
+                    isSaving = false,
                 ),
-                awaitItem()
+                awaitItem(),
             )
         }
     }
@@ -110,13 +110,13 @@ class SaveApiAccessMethodViewModelTest {
             mockApiAccessRepository.updateApiAccessMethod(
                 apiAccessMethodId,
                 apiAccessMethodName,
-                customProxy
+                customProxy,
             )
         } returns Unit.right()
         createSaveApiAccessMethodViewModel(
             apiAccessMethodId = apiAccessMethodId,
             apiAccessMethodName = apiAccessMethodName,
-            customProxy = customProxy
+            customProxy = customProxy,
         )
 
         // Act, Assert
@@ -125,18 +125,18 @@ class SaveApiAccessMethodViewModelTest {
             assertEquals(
                 SaveApiAccessMethodUiState(
                     testingState = TestApiAccessMethodState.Result.Failure,
-                    isSaving = false
+                    isSaving = false,
                 ),
-                awaitItem()
+                awaitItem(),
             )
             saveApiAccessMethodViewModel.save()
             // Saving
             assertEquals(
                 SaveApiAccessMethodUiState(
                     testingState = TestApiAccessMethodState.Result.Failure,
-                    isSaving = true
+                    isSaving = true,
                 ),
-                awaitItem()
+                awaitItem(),
             )
         }
         saveApiAccessMethodViewModel.uiSideEffect.test {
@@ -157,13 +157,13 @@ class SaveApiAccessMethodViewModelTest {
             mockApiAccessRepository.updateApiAccessMethod(
                 apiAccessMethodId,
                 apiAccessMethodName,
-                customProxy
+                customProxy,
             )
         } returns UnknownApiAccessMethodError(Throwable()).left()
         createSaveApiAccessMethodViewModel(
             apiAccessMethodId = apiAccessMethodId,
             apiAccessMethodName = apiAccessMethodName,
-            customProxy = customProxy
+            customProxy = customProxy,
         )
 
         // Act, Assert
@@ -185,14 +185,14 @@ class SaveApiAccessMethodViewModelTest {
                 NewAccessMethodSetting(
                     name = apiAccessMethodName,
                     enabled = true,
-                    apiAccessMethod = customProxy
+                    apiAccessMethod = customProxy,
                 )
             )
         } returns ApiAccessMethodId.fromString(UUID).right()
         createSaveApiAccessMethodViewModel(
             apiAccessMethodId = apiAccessMethodId,
             apiAccessMethodName = apiAccessMethodName,
-            customProxy = customProxy
+            customProxy = customProxy,
         )
 
         // Assert
@@ -201,7 +201,7 @@ class SaveApiAccessMethodViewModelTest {
                 NewAccessMethodSetting(
                     name = apiAccessMethodName,
                     enabled = true,
-                    apiAccessMethod = customProxy
+                    apiAccessMethod = customProxy,
                 )
             )
         }
@@ -210,7 +210,7 @@ class SaveApiAccessMethodViewModelTest {
     private fun createSaveApiAccessMethodViewModel(
         apiAccessMethodId: ApiAccessMethodId?,
         apiAccessMethodName: ApiAccessMethodName,
-        customProxy: ApiAccessMethod.CustomProxy
+        customProxy: ApiAccessMethod.CustomProxy,
     ) {
         saveApiAccessMethodViewModel =
             SaveApiAccessMethodViewModel(
@@ -221,7 +221,7 @@ class SaveApiAccessMethodViewModelTest {
                             name = apiAccessMethodName,
                             customProxy = customProxy,
                         )
-                        .toSavedStateHandle()
+                        .toSavedStateHandle(),
             )
     }
 }

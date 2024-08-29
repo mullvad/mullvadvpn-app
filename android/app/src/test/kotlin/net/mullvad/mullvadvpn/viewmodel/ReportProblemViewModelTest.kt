@@ -59,7 +59,7 @@ class ReportProblemViewModelTest {
                 assertEquals(SendingReportUiState.Sending, awaitItem().sendingState)
                 assertEquals(
                     SendingReportUiState.Error(SendProblemReportResult.Error.CollectLog),
-                    awaitItem().sendingState
+                    awaitItem().sendingState,
                 )
             }
         }
@@ -79,7 +79,7 @@ class ReportProblemViewModelTest {
                 assertEquals(SendingReportUiState.Sending, awaitItem().sendingState)
                 assertEquals(
                     SendingReportUiState.Error(SendProblemReportResult.Error.SendReport),
-                    awaitItem().sendingState
+                    awaitItem().sendingState,
                 )
             }
         }
@@ -107,15 +107,11 @@ class ReportProblemViewModelTest {
                 viewModel.sendReport(email, description, true)
                 assertEquals(
                     ReportProblemUiState(SendingReportUiState.Sending, email, description),
-                    awaitItem()
+                    awaitItem(),
                 )
                 assertEquals(
-                    ReportProblemUiState(
-                        SendingReportUiState.Success(null),
-                        "",
-                        "",
-                    ),
-                    awaitItem()
+                    ReportProblemUiState(SendingReportUiState.Success(null), "", ""),
+                    awaitItem(),
                 )
             }
         }
@@ -154,20 +150,12 @@ class ReportProblemViewModelTest {
                 viewModel.sendReport(email, description)
 
                 assertEquals(
-                    ReportProblemUiState(
-                        SendingReportUiState.Sending,
-                        email,
-                        description,
-                    ),
-                    awaitItem()
+                    ReportProblemUiState(SendingReportUiState.Sending, email, description),
+                    awaitItem(),
                 )
                 assertEquals(
-                    ReportProblemUiState(
-                        SendingReportUiState.Success(email),
-                        "",
-                        "",
-                    ),
-                    awaitItem()
+                    ReportProblemUiState(SendingReportUiState.Success(email), "", ""),
+                    awaitItem(),
                 )
             }
         }

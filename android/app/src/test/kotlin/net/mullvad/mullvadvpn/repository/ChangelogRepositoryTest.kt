@@ -25,7 +25,7 @@ class ChangelogRepositoryTest {
         val expectedResult =
             listOf(
                 "Added very nice new feature with a very long descriptive message about how it works...",
-                "Fixed super bad leak."
+                "Fixed super bad leak.",
             )
         every { mockDataProvider.getChangelog() } returns testChangelog
 

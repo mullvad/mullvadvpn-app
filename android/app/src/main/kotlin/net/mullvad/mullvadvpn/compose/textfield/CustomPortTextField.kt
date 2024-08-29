@@ -13,7 +13,7 @@ fun CustomPortTextField(
     onSubmit: (String) -> Unit,
     onValueChanged: (String) -> Unit,
     isValidValue: Boolean,
-    maxCharLength: Int
+    maxCharLength: Int,
 ) {
     CustomTextField(
         value = value,
@@ -25,6 +25,6 @@ fun CustomPortTextField(
         isDigitsOnlyAllowed = true,
         isEnabled = true,
         isValidValue = isValidValue,
-        maxCharLength = maxCharLength
+        maxCharLength = maxCharLength,
     )
 }

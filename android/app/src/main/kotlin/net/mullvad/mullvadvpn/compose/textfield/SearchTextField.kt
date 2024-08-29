@@ -55,7 +55,7 @@ fun SearchTextField(
     singleLine: Boolean = true,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     visualTransformation: VisualTransformation = VisualTransformation.None,
-    onValueChange: (String) -> Unit
+    onValueChange: (String) -> Unit,
 ) {
     var searchTerm by rememberSaveable { mutableStateOf("") }
 
@@ -117,11 +117,11 @@ fun SearchTextField(
                             unfocusedIndicatorColor = Color.Transparent,
                             cursorColor = textColor,
                             focusedPlaceholderColor = textColor,
-                            unfocusedPlaceholderColor = textColor
+                            unfocusedPlaceholderColor = textColor,
                         ),
                     contentPadding = PaddingValues(),
                 )
             },
-        modifier = modifier
+        modifier = modifier,
     )
 }

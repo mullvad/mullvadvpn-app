@@ -51,7 +51,7 @@ class MullvadTileService : TileService() {
         // Workaround for the reported bug: https://issuetracker.google.com/issues/236862865
         suspend fun isUnlockStatusPropagatedWithinTimeout(
             unlockTimeoutMillis: Long,
-            unlockCheckDelayMillis: Long
+            unlockCheckDelayMillis: Long,
         ): Boolean {
             return withTimeoutOrNull(unlockTimeoutMillis) {
                 while (isLocked) {
@@ -66,7 +66,7 @@ class MullvadTileService : TileService() {
                 val isUnlockStatusPropagated =
                     isUnlockStatusPropagatedWithinTimeout(
                         unlockTimeoutMillis = 1000L,
-                        unlockCheckDelayMillis = 100L
+                        unlockCheckDelayMillis = 100L,
                     )
 
                 if (isUnlockStatusPropagated) {
@@ -130,7 +130,7 @@ class MullvadTileService : TileService() {
                     applicationContext,
                     0,
                     intent,
-                    SdkUtils.getSupportedPendingIntentFlags()
+                    SdkUtils.getSupportedPendingIntentFlags(),
                 )
             startActivityAndCollapse(pendingIntent)
         } else {
@@ -142,7 +142,7 @@ class MullvadTileService : TileService() {
     private suspend fun launchListenToTunnelState() {
         combine(
                 connectionProxy.tunnelState.onStart { emit(TunnelState.Disconnected(null)) },
-                managementService.connectionState
+                managementService.connectionState,
             ) { tunnelState, connectionState ->
                 tunnelState to connectionState
             }
@@ -153,7 +153,7 @@ class MullvadTileService : TileService() {
 
     private fun mapToTileState(
         tunnelState: TunnelState,
-        connectionState: GrpcConnectivityState
+        connectionState: GrpcConnectivityState,
     ): Int {
         return if (connectionState == GrpcConnectivityState.Ready) {
             when (tunnelState) {

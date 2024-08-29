@@ -34,7 +34,7 @@ class VoucherRegexHelperParameterizedTest {
                 arrayOf(IS_ACCEPTED_FORMAT, "AAAA-AAAA-1111-2222\n"),
                 arrayOf(IS_UNACCEPTED_FORMAT, "@"),
                 arrayOf(IS_UNACCEPTED_FORMAT, "AAAABBBBCCCCDDDD\t"),
-                arrayOf(IS_UNACCEPTED_FORMAT, "AAAA_BBBB_CCCC_DDDD")
+                arrayOf(IS_UNACCEPTED_FORMAT, "AAAA_BBBB_CCCC_DDDD"),
             )
     }
 }

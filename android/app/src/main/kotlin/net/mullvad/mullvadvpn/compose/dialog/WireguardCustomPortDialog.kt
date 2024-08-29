@@ -43,7 +43,7 @@ private fun PreviewWireguardCustomPortDialog() {
                 customPort = null,
                 allowedPortRanges = listOf(PortRange(10..10), PortRange(40..50)),
             ),
-            EmptyResultBackNavigator()
+            EmptyResultBackNavigator(),
         )
     }
 }
@@ -64,7 +64,7 @@ fun WireguardCustomPort(
         initialPort = navArg.customPort,
         allowedPortRanges = navArg.allowedPortRanges,
         onSave = { port -> backNavigator.navigateBack(port) },
-        onDismiss = backNavigator::navigateBack
+        onDismiss = backNavigator::navigateBack,
     )
 }
 
@@ -73,29 +73,25 @@ fun WireguardCustomPortDialog(
     initialPort: Port?,
     allowedPortRanges: List<PortRange>,
     onSave: (Port?) -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
 ) {
     val port = remember { mutableStateOf(initialPort?.value?.toString() ?: "") }
 
     val isValidPort = port.value.toPortOrNull()?.inAnyOf(allowedPortRanges) ?: false
 
     AlertDialog(
-        title = {
-            Text(
-                text = stringResource(id = R.string.custom_port_dialog_title),
-            )
-        },
+        title = { Text(text = stringResource(id = R.string.custom_port_dialog_title)) },
         confirmButton = {
             Column(verticalArrangement = Arrangement.spacedBy(Dimens.buttonSpacing)) {
                 PrimaryButton(
                     text = stringResource(id = R.string.custom_port_dialog_submit),
                     onClick = { onSave(port.value.toPortOrNull()) },
-                    isEnabled = isValidPort
+                    isEnabled = isValidPort,
                 )
                 if (initialPort != null) {
                     NegativeButton(
                         text = stringResource(R.string.custom_port_dialog_remove),
-                        onClick = { onSave(null) }
+                        onClick = { onSave(null) },
                     )
                 }
                 PrimaryButton(text = stringResource(id = R.string.cancel), onClick = onDismiss)
@@ -113,23 +109,23 @@ fun WireguardCustomPortDialog(
                     onValueChanged = { input -> port.value = input },
                     isValidValue = isValidPort,
                     maxCharLength = 5,
-                    modifier = Modifier.testTag(CUSTOM_PORT_DIALOG_INPUT_TEST_TAG).fillMaxWidth()
+                    modifier = Modifier.testTag(CUSTOM_PORT_DIALOG_INPUT_TEST_TAG).fillMaxWidth(),
                 )
                 Spacer(modifier = Modifier.height(Dimens.smallPadding))
                 Text(
                     text =
                         stringResource(
                             id = R.string.custom_port_dialog_valid_ranges,
-                            allowedPortRanges.asString()
+                            allowedPortRanges.asString(),
                         ),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.bodySmall
+                    style = MaterialTheme.typography.bodySmall,
                 )
             }
         },
         containerColor = MaterialTheme.colorScheme.surface,
         titleContentColor = MaterialTheme.colorScheme.onSurface,
-        onDismissRequest = onDismiss
+        onDismissRequest = onDismiss,
     )
 }
 

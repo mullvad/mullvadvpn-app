@@ -96,6 +96,6 @@ class EditCustomListNameDialogViewModelTest {
                         customListId = customListId,
                         initialName = CustomListName.fromString(initialName),
                     )
-                    .toSavedStateHandle()
+                    .toSavedStateHandle(),
         )
 }

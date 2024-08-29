@@ -26,7 +26,7 @@ class AccountExpiryNotificationProvider(
         combine(
                 deviceRepository.deviceState,
                 accountRepository.accountData.filterNotNull(),
-                accountRepository.isNewAccount
+                accountRepository.isNewAccount,
             ) { deviceState, accountData, isNewAccount ->
                 if (deviceState !is DeviceState.LoggedIn) {
                     return@combine NotificationUpdate.Cancel(notificationId)

@@ -11,7 +11,7 @@ import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 
 class FilterCustomListsRelayItemUseCase(
     private val customListsRelayItemUseCase: CustomListsRelayItemUseCase,
-    private val relayListFilterRepository: RelayListFilterRepository
+    private val relayListFilterRepository: RelayListFilterRepository,
 ) {
 
     operator fun invoke() =
@@ -25,6 +25,6 @@ class FilterCustomListsRelayItemUseCase(
 
     private fun List<RelayItem.CustomList>.filterOnOwnershipAndProvider(
         ownership: Constraint<Ownership>,
-        providers: Constraint<Providers>
+        providers: Constraint<Providers>,
     ) = mapNotNull { it.filterOnOwnershipAndProvider(ownership, providers) }
 }

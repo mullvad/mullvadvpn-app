@@ -11,15 +11,15 @@ class SaveApiAccessMethodUiStatePreviewParameterProvider :
             SaveApiAccessMethodUiState(testingState = TestApiAccessMethodState.Testing),
             SaveApiAccessMethodUiState(
                 testingState = TestApiAccessMethodState.Result.Successful,
-                isSaving = true
+                isSaving = true,
             ),
             SaveApiAccessMethodUiState(
                 testingState = TestApiAccessMethodState.Result.Failure,
-                isSaving = false
+                isSaving = false,
             ),
             SaveApiAccessMethodUiState(
                 testingState = TestApiAccessMethodState.Result.Failure,
-                isSaving = true
-            )
+                isSaving = true,
+            ),
         )
 }

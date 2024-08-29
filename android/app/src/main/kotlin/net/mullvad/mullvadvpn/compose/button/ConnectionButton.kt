@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
@@ -51,7 +50,7 @@ private fun PreviewConnectionButton(
             disconnectClick = {},
             reconnectClick = {},
             cancelClick = {},
-            connectClick = {}
+            connectClick = {},
         )
     }
 }
@@ -64,7 +63,7 @@ fun ConnectionButton(
     disconnectClick: () -> Unit,
     reconnectClick: () -> Unit,
     cancelClick: () -> Unit,
-    connectClick: () -> Unit
+    connectClick: () -> Unit,
 ) {
     val containerColor =
         if (state is TunnelState.Disconnected) {
@@ -120,12 +119,12 @@ fun ConnectionButton(
         mainClick = onMainClick,
         reconnectClick = reconnectClick,
         reconnectButtonTestTag = reconnectButtonTestTag,
-        isReconnectButtonEnabled = (state is TunnelState.Disconnected).not()
+        isReconnectButtonEnabled = (state is TunnelState.Disconnected).not(),
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
+@Suppress("LongMethod")
 private fun ConnectionButton(
     text: String,
     mainClick: () -> Unit,
@@ -134,7 +133,7 @@ private fun ConnectionButton(
     containerColor: Color,
     contentColor: Color,
     modifier: Modifier = Modifier,
-    reconnectButtonTestTag: String = ""
+    reconnectButtonTestTag: String = "",
 ) {
     ConstraintLayout(
         modifier = modifier.padding(vertical = Dimens.connectButtonExtraPadding).fillMaxWidth()
@@ -148,7 +147,7 @@ private fun ConnectionButton(
         val (connectionButton, reconnectButton) = createRefs()
         CompositionLocalProvider(
             LocalMinimumInteractiveComponentSize provides
-                Dimens.reconnectButtonMinInteractiveComponentSize,
+                Dimens.reconnectButtonMinInteractiveComponentSize
         ) {
             val dividerSize = Dimens.listItemDivider
 
@@ -158,7 +157,7 @@ private fun ConnectionButton(
                     if (isReconnectButtonEnabled) {
                         MaterialTheme.shapes.small.copy(
                             topEnd = CornerSize(percent = 0),
-                            bottomEnd = CornerSize(percent = 0)
+                            bottomEnd = CornerSize(percent = 0),
                         )
                     } else {
                         MaterialTheme.shapes.small
@@ -166,7 +165,7 @@ private fun ConnectionButton(
                 colors =
                     ButtonDefaults.buttonColors(
                         containerColor = containerColor,
-                        contentColor = contentColor
+                        contentColor = contentColor,
                     ),
                 modifier =
                     Modifier.constrainAs(connectionButton) {
@@ -181,7 +180,7 @@ private fun ConnectionButton(
                         }
                         .onGloballyPositioned {
                             componentHeight = with(density) { it.size.height.toDp() }
-                        }
+                        },
             ) {
                 // Offset to compensate for the reconnect button.
                 Text(
@@ -195,7 +194,7 @@ private fun ConnectionButton(
                             Modifier.padding(start = componentHeight + Dimens.listItemDivider)
                         } else {
                             Modifier
-                        }
+                        },
                 )
             }
 
@@ -204,12 +203,12 @@ private fun ConnectionButton(
                     shape =
                         MaterialTheme.shapes.small.copy(
                             topStart = CornerSize(percent = 0),
-                            bottomStart = CornerSize(percent = 0)
+                            bottomStart = CornerSize(percent = 0),
                         ),
                     colors =
                         IconButtonDefaults.filledIconButtonColors(
                             containerColor = containerColor,
-                            contentColor = contentColor
+                            contentColor = contentColor,
                         ),
                     onClick = reconnectClick,
                     modifier =
@@ -221,11 +220,11 @@ private fun ConnectionButton(
                                 end.linkTo(parent.end)
                                 height = Dimension.fillToConstraints
                             }
-                            .aspectRatio(1f, true)
+                            .aspectRatio(1f, true),
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.icon_reload),
-                        contentDescription = null
+                        contentDescription = null,
                     )
                 }
             }

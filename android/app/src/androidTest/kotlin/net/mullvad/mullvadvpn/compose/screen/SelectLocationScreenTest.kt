@@ -37,11 +37,7 @@ class SelectLocationScreenTest {
     fun testDefaultState() =
         composeExtension.use {
             // Arrange
-            setContentWithTheme {
-                SelectLocationScreen(
-                    state = SelectLocationUiState.Loading,
-                )
-            }
+            setContentWithTheme { SelectLocationScreen(state = SelectLocationUiState.Loading) }
 
             // Assert
             onNodeWithTag(CIRCULAR_PROGRESS_INDICATOR).assertExists()
@@ -62,7 +58,7 @@ class SelectLocationScreenTest {
                                     RelayListItem.GeoLocationItem(item = it)
                                 },
                             customLists = emptyList(),
-                        ),
+                        )
                 )
             }
 
@@ -87,9 +83,9 @@ class SelectLocationScreenTest {
                             searchTerm = "",
                             filterChips = emptyList(),
                             relayListItems = emptyList(),
-                            customLists = emptyList()
+                            customLists = emptyList(),
                         ),
-                    onSearchTermInput = mockedSearchTermInput
+                    onSearchTermInput = mockedSearchTermInput,
                 )
             }
             val mockSearchString = "SEARCH"
@@ -117,7 +113,7 @@ class SelectLocationScreenTest {
                                 listOf(RelayListItem.LocationsEmptyText(mockSearchString)),
                             customLists = emptyList(),
                         ),
-                    onSearchTermInput = mockedSearchTermInput
+                    onSearchTermInput = mockedSearchTermInput,
                 )
             }
 
@@ -139,7 +135,7 @@ class SelectLocationScreenTest {
                             filterChips = emptyList(),
                             relayListItems = listOf(RelayListItem.CustomListFooter(false)),
                             customLists = emptyList(),
-                        ),
+                        )
                 )
             }
 
@@ -160,7 +156,7 @@ class SelectLocationScreenTest {
                             filterChips = emptyList(),
                             relayListItems = emptyList(),
                             customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
-                        ),
+                        )
                 )
             }
 
@@ -182,9 +178,9 @@ class SelectLocationScreenTest {
                             searchTerm = "",
                             filterChips = emptyList(),
                             relayListItems = listOf(RelayListItem.CustomListItem(customList)),
-                            customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS
+                            customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
                         ),
-                    onSelectRelay = mockedOnSelectRelay
+                    onSelectRelay = mockedOnSelectRelay,
                 )
             }
 
@@ -209,9 +205,9 @@ class SelectLocationScreenTest {
                             filterChips = emptyList(),
                             relayListItems =
                                 listOf(RelayListItem.CustomListItem(item = customList)),
-                            customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS
+                            customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
                         ),
-                    onSelectRelay = mockedOnSelectRelay
+                    onSelectRelay = mockedOnSelectRelay,
                 )
             }
 
@@ -237,7 +233,7 @@ class SelectLocationScreenTest {
                             relayListItems = listOf(RelayListItem.GeoLocationItem(relayItem)),
                             customLists = emptyList(),
                         ),
-                    onSelectRelay = mockedOnSelectRelay
+                    onSelectRelay = mockedOnSelectRelay,
                 )
             }
 

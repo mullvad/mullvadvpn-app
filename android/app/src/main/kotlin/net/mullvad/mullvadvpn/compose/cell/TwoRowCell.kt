@@ -30,7 +30,7 @@ fun TwoRowCell(
     subtitleColor: Color = MaterialTheme.colorScheme.onPrimary,
     titleStyle: TextStyle = MaterialTheme.typography.labelLarge,
     subtitleStyle: TextStyle = MaterialTheme.typography.labelLarge,
-    background: Color = MaterialTheme.colorScheme.primary
+    background: Color = MaterialTheme.colorScheme.primary,
 ) {
     BaseCell(
         headlineContent = {
@@ -41,7 +41,7 @@ fun TwoRowCell(
                     style = titleStyle,
                     color = titleColor,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
                 )
                 Text(
                     modifier = Modifier.fillMaxWidth(),
@@ -49,13 +49,13 @@ fun TwoRowCell(
                     style = subtitleStyle,
                     color = subtitleColor,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
         },
         bodyView = bodyView,
         onCellClicked = onCellClicked,
         background = background,
-        minHeight = Dimens.cellHeightTwoRows
+        minHeight = Dimens.cellHeightTwoRows,
     )
 }

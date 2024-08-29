@@ -55,7 +55,7 @@ data class VpnSettingsUiState(
                 selectedWireguardPort,
                 customWireguardPort,
                 availablePortRanges,
-                systemVpnSettingsAvailable
+                systemVpnSettingsAvailable,
             )
     }
 }

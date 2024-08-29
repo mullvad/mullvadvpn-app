@@ -14,19 +14,18 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoRepository
 class SettingsViewModel(
     deviceRepository: DeviceRepository,
     appVersionInfoRepository: AppVersionInfoRepository,
-    isPlayBuild: Boolean
+    isPlayBuild: Boolean,
 ) : ViewModel() {
 
     val uiState: StateFlow<SettingsUiState> =
-        combine(
-                deviceRepository.deviceState,
-                appVersionInfoRepository.versionInfo(),
-            ) { deviceState, versionInfo ->
+        combine(deviceRepository.deviceState, appVersionInfoRepository.versionInfo()) {
+                deviceState,
+                versionInfo ->
                 SettingsUiState(
                     isLoggedIn = deviceState is DeviceState.LoggedIn,
                     appVersion = versionInfo.currentVersion,
                     isSupportedVersion = versionInfo.isSupported,
-                    isPlayBuild = isPlayBuild
+                    isPlayBuild = isPlayBuild,
                 )
             }
             .stateIn(
@@ -37,6 +36,6 @@ class SettingsViewModel(
                     isLoggedIn = false,
                     isSupportedVersion = true,
                     isPlayBuild = isPlayBuild,
-                )
+                ),
             )
 }

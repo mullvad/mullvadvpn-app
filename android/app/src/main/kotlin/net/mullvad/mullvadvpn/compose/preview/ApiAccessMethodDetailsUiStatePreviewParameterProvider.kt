@@ -17,7 +17,7 @@ class ApiAccessMethodDetailsUiStatePreviewParameterProvider :
                     isEditable = false,
                     isCurrentMethod = false,
                     isDisableable = true,
-                    isTestingAccessMethod = false
+                    isTestingAccessMethod = false,
                 )
             },
             // Editable api access type, current method, can not be disabled
@@ -29,8 +29,8 @@ class ApiAccessMethodDetailsUiStatePreviewParameterProvider :
                     isEditable = true,
                     isCurrentMethod = true,
                     isDisableable = false,
-                    isTestingAccessMethod = false
+                    isTestingAccessMethod = false,
                 )
-            }
+            },
         )
 }

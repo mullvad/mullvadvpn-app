@@ -35,7 +35,7 @@ class CustomListsScreenTest {
             setContentWithTheme {
                 CustomListsScreen(
                     state = CustomListsUiState.Loading,
-                    snackbarHostState = SnackbarHostState()
+                    snackbarHostState = SnackbarHostState(),
                 )
             }
 
@@ -51,7 +51,7 @@ class CustomListsScreenTest {
             setContentWithTheme {
                 CustomListsScreen(
                     state = CustomListsUiState.Content(customLists = customLists),
-                    snackbarHostState = SnackbarHostState()
+                    snackbarHostState = SnackbarHostState(),
                 )
             }
 
@@ -70,7 +70,7 @@ class CustomListsScreenTest {
                 CustomListsScreen(
                     state = CustomListsUiState.Content(customLists = customLists),
                     snackbarHostState = SnackbarHostState(),
-                    addCustomList = mockedAddCustomList
+                    addCustomList = mockedAddCustomList,
                 )
             }
 
@@ -92,7 +92,7 @@ class CustomListsScreenTest {
                 CustomListsScreen(
                     state = CustomListsUiState.Content(customLists = customLists),
                     snackbarHostState = SnackbarHostState(),
-                    openCustomList = mockedOpenCustomList
+                    openCustomList = mockedOpenCustomList,
                 )
             }
 

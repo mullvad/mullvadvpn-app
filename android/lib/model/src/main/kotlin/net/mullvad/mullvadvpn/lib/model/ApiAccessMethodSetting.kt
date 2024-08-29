@@ -4,5 +4,5 @@ data class ApiAccessMethodSetting(
     val id: ApiAccessMethodId,
     val name: ApiAccessMethodName,
     val enabled: Boolean,
-    val apiAccessMethod: ApiAccessMethod
+    val apiAccessMethod: ApiAccessMethod,
 )

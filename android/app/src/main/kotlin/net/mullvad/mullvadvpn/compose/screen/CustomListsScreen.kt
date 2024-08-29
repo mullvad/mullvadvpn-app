@@ -63,7 +63,7 @@ private fun PreviewCustomListsScreen() {
 fun CustomLists(
     navigator: DestinationsNavigator,
     editCustomListResultRecipient:
-        ResultRecipient<EditCustomListDestination, CustomListActionResultData.Success.Deleted>
+        ResultRecipient<EditCustomListDestination, CustomListActionResultData.Success.Deleted>,
 ) {
     val viewModel = koinViewModel<CustomListsViewModel>()
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -82,11 +82,11 @@ fun CustomLists(
                         message =
                             context.getString(
                                 R.string.delete_custom_list_message,
-                                result.value.customListName
+                                result.value.customListName,
                             ),
                         actionLabel = context.getString(R.string.undo),
                         duration = SnackbarDuration.Long,
-                        onAction = { viewModel.undoDeleteCustomList(result.value.undo) }
+                        onAction = { viewModel.undoDeleteCustomList(result.value.undo) },
                     )
                 }
         }
@@ -95,19 +95,12 @@ fun CustomLists(
     CustomListsScreen(
         state = state,
         snackbarHostState = snackbarHostState,
-        addCustomList =
-            dropUnlessResumed {
-                navigator.navigate(
-                    CreateCustomListDestination(null),
-                )
-            },
+        addCustomList = dropUnlessResumed { navigator.navigate(CreateCustomListDestination(null)) },
         openCustomList =
             dropUnlessResumed { customList ->
-                navigator.navigate(
-                    EditCustomListDestination(customListId = customList.id),
-                )
+                navigator.navigate(EditCustomListDestination(customListId = customList.id))
             },
-        onBackClick = dropUnlessResumed { navigator.navigateUp() }
+        onBackClick = dropUnlessResumed { navigator.navigateUp() },
     )
 }
 
@@ -117,7 +110,7 @@ fun CustomListsScreen(
     snackbarHostState: SnackbarHostState,
     addCustomList: () -> Unit = {},
     openCustomList: (CustomList) -> Unit = {},
-    onBackClick: () -> Unit = {}
+    onBackClick: () -> Unit = {},
 ) {
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.edit_custom_lists),
@@ -125,16 +118,16 @@ fun CustomListsScreen(
         actions = {
             IconButton(
                 onClick = addCustomList,
-                modifier = Modifier.testTag(NEW_LIST_BUTTON_TEST_TAG)
+                modifier = Modifier.testTag(NEW_LIST_BUTTON_TEST_TAG),
             ) {
                 Icon(
                     painterResource(id = R.drawable.ic_icons_add),
                     tint = MaterialTheme.colorScheme.onSurface,
-                    contentDescription = stringResource(id = R.string.new_list)
+                    contentDescription = stringResource(id = R.string.new_list),
                 )
             }
         },
-        snackbarHostState = snackbarHostState
+        snackbarHostState = snackbarHostState,
     ) { modifier: Modifier, lazyListState: LazyListState ->
         LazyColumn(
             modifier = modifier,
@@ -167,16 +160,16 @@ private fun LazyListScope.loading() {
 
 private fun LazyListScope.content(
     customLists: List<CustomList>,
-    openCustomList: (CustomList) -> Unit
+    openCustomList: (CustomList) -> Unit,
 ) {
     itemsWithDivider(
         items = customLists,
         key = { item: CustomList -> item.id },
-        contentType = { ContentType.ITEM }
+        contentType = { ContentType.ITEM },
     ) { customList ->
         NavigationComposeCell(
             title = customList.name.value,
-            onClick = { openCustomList(customList) }
+            onClick = { openCustomList(customList) },
         )
     }
 }
@@ -187,7 +180,7 @@ private fun LazyListScope.empty() {
             text = stringResource(R.string.no_custom_lists_available),
             modifier = Modifier.padding(Dimens.screenVerticalMargin),
             style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
 }

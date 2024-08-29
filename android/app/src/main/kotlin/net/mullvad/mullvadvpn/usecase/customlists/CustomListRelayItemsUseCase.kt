@@ -12,12 +12,12 @@ import net.mullvad.mullvadvpn.repository.RelayListRepository
 
 class CustomListRelayItemsUseCase(
     private val customListsRepository: CustomListsRepository,
-    private val relayListRepository: RelayListRepository
+    private val relayListRepository: RelayListRepository,
 ) {
     operator fun invoke(customListId: CustomListId): Flow<List<RelayItem.Location>> =
         combine(
             customListsRepository.customLists.mapNotNull { it?.getById(customListId) },
-            relayListRepository.relayList
+            relayListRepository.relayList,
         ) { customList, countries ->
             countries.getRelayItemsByCodes(customList.locations)
         }

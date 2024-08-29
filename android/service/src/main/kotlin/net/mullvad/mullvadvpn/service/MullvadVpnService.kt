@@ -161,7 +161,7 @@ class MullvadVpnService : TalpidVpnService() {
             rpcSocketPath = rpcSocketFile.absolutePath,
             filesDirectory = filesDir.absolutePath,
             cacheDirectory = cacheDir.absolutePath,
-            apiEndpoint = apiEndpointConfiguration.apiEndpoint()
+            apiEndpoint = apiEndpointConfiguration.apiEndpoint(),
         )
         Logger.i("MullvadVpnService: Daemon initialized")
     }

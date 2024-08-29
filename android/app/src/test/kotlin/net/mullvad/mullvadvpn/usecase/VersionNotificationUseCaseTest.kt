@@ -34,7 +34,7 @@ class VersionNotificationUseCaseTest {
         versionNotificationUseCase =
             VersionNotificationUseCase(
                 appVersionInfoRepository = mockAppVersionInfoRepository,
-                isVersionInfoNotificationEnabled = true
+                isVersionInfoNotificationEnabled = true,
             )
     }
 
@@ -54,18 +54,14 @@ class VersionNotificationUseCaseTest {
         runTest {
             versionNotificationUseCase().test {
                 // Arrange, Act
-                val upgradeVersionInfo =
-                    VersionInfo(
-                        currentVersion = "1.0",
-                        isSupported = false,
-                    )
+                val upgradeVersionInfo = VersionInfo(currentVersion = "1.0", isSupported = false)
                 awaitItem()
                 versionInfo.value = upgradeVersionInfo
 
                 // Assert
                 assertEquals(
                     awaitItem(),
-                    listOf(InAppNotification.UnsupportedVersion(upgradeVersionInfo))
+                    listOf(InAppNotification.UnsupportedVersion(upgradeVersionInfo)),
                 )
             }
         }

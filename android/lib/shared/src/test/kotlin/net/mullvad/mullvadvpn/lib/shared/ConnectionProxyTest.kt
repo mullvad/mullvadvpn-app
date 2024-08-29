@@ -20,7 +20,7 @@ class ConnectionProxyTest {
         ConnectionProxy(
             managementService = mockManagementService,
             vpnPermissionRepository = mockVpnPermissionRepository,
-            translationRepository = mockTranslationRepository
+            translationRepository = mockTranslationRepository,
         )
 
     @Test

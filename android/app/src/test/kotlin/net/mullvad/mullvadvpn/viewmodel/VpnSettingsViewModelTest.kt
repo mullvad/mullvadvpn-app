@@ -57,7 +57,7 @@ class VpnSettingsViewModelTest {
                 repository = mockSettingsRepository,
                 systemVpnSettingsUseCase = mockSystemVpnSettingsUseCase,
                 relayListRepository = mockRelayListRepository,
-                dispatcher = UnconfinedTestDispatcher()
+                dispatcher = UnconfinedTestDispatcher(),
             )
     }
 
@@ -145,9 +145,9 @@ class VpnSettingsViewModelTest {
                     wireguard =
                         WireguardTunnelOptions(
                             mtu = null,
-                            quantumResistant = QuantumResistantState.Off
+                            quantumResistant = QuantumResistantState.Off,
                         ),
-                    dnsOptions = mockk(relaxed = true)
+                    dnsOptions = mockk(relaxed = true),
                 )
 
             // Act, Assert

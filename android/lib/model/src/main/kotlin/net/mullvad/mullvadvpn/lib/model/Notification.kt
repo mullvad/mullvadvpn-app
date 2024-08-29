@@ -18,7 +18,7 @@ sealed interface Notification {
         override val channelId: NotificationChannelId,
         override val actions: List<NotificationAction.AccountExpiry>,
         val websiteAuthToken: WebsiteAuthToken?,
-        val durationUntilExpiry: Duration
+        val durationUntilExpiry: Duration,
     ) : Notification {
         override val ongoing: Boolean = false
     }

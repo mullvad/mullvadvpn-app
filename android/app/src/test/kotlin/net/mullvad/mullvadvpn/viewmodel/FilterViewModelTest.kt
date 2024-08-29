@@ -54,13 +54,13 @@ class FilterViewModelTest {
             Provider(ProviderId("Quadranet"), Ownership.Rented),
             Provider(ProviderId("techfutures"), Ownership.Rented),
             Provider(ProviderId("Tzulo"), Ownership.Rented),
-            Provider(ProviderId("xtom"), Ownership.Rented)
+            Provider(ProviderId("xtom"), Ownership.Rented),
         )
     private val mockSelectedProviders: List<Provider> =
         listOf(
             Provider(ProviderId("31173"), Ownership.MullvadOwned),
             Provider(ProviderId("Blix"), Ownership.MullvadOwned),
-            Provider(ProviderId("Creanova"), Ownership.MullvadOwned)
+            Provider(ProviderId("Creanova"), Ownership.MullvadOwned),
         )
 
     @BeforeEach
@@ -74,7 +74,7 @@ class FilterViewModelTest {
         viewModel =
             FilterViewModel(
                 availableProvidersUseCase = mockAvailableProvidersUseCase,
-                relayListFilterRepository = mockRelayListFilterRepository
+                relayListFilterRepository = mockRelayListFilterRepository,
             )
     }
 
@@ -108,7 +108,7 @@ class FilterViewModelTest {
                 viewModel.setSelectedProvider(true, mockSelectedProvidersList)
                 assertLists(
                     listOf(mockSelectedProvidersList) + mockSelectedProviders,
-                    awaitItem().selectedProviders
+                    awaitItem().selectedProviders,
                 )
             }
         }
@@ -137,7 +137,7 @@ class FilterViewModelTest {
             coEvery {
                 mockRelayListFilterRepository.updateSelectedOwnershipAndProviderFilter(
                     mockOwnership,
-                    mockSelectedProviders
+                    mockSelectedProviders,
                 )
             } returns Unit.right()
 
@@ -148,7 +148,7 @@ class FilterViewModelTest {
             coVerify {
                 mockRelayListFilterRepository.updateSelectedOwnershipAndProviderFilter(
                     mockOwnership,
-                    mockSelectedProviders
+                    mockSelectedProviders,
                 )
             }
         }

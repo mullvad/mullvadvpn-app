@@ -56,7 +56,7 @@ class InAppNotificationControllerTest {
                 newDeviceNotificationUseCase,
                 versionNotificationUseCase,
                 tunnelStateNotificationUseCase,
-                CoroutineScope(job + UnconfinedTestDispatcher())
+                CoroutineScope(job + UnconfinedTestDispatcher()),
             )
     }
 
@@ -93,7 +93,7 @@ class InAppNotificationControllerTest {
                     accountExpiry,
                     newDevice,
                 ),
-                notifications
+                notifications,
             )
         }
     }

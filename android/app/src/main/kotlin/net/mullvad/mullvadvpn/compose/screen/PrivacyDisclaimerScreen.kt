@@ -68,16 +68,14 @@ private fun PreviewPrivacyDisclaimerScreen() {
         PrivacyDisclaimerScreen(
             PrivacyDisclaimerViewState(isStartingService = false, isPlayBuild = false),
             {},
-            {}
+            {},
         )
     }
 }
 
 @Destination<RootGraph>
 @Composable
-fun PrivacyDisclaimer(
-    navigator: DestinationsNavigator,
-) {
+fun PrivacyDisclaimer(navigator: DestinationsNavigator) {
     val viewModel: PrivacyDisclaimerViewModel = koinViewModel()
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -111,7 +109,7 @@ fun PrivacyDisclaimer(
     PrivacyDisclaimerScreen(
         state,
         { openPrivacyPolicy(context, state.isPlayBuild) },
-        viewModel::setPrivacyDisclosureAccepted
+        viewModel::setPrivacyDisclosureAccepted,
     )
 }
 
@@ -132,9 +130,9 @@ fun PrivacyDisclaimerScreen(
                 .padding(horizontal = Dimens.sideMargin, vertical = Dimens.screenVerticalMargin)
                 .drawVerticalScrollbar(
                     state = scrollState,
-                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaScrollbar)
+                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaScrollbar),
                 ),
-            verticalArrangement = Arrangement.SpaceBetween
+            verticalArrangement = Arrangement.SpaceBetween,
         ) {
             Content(onPrivacyPolicyLinkClicked)
 
@@ -150,7 +148,7 @@ private fun Content(onPrivacyPolicyLinkClicked: () -> Unit) {
             text = stringResource(id = R.string.privacy_disclaimer_title),
             style = MaterialTheme.typography.headlineSmall,
             color = MaterialTheme.colorScheme.onSurface,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
         )
 
         val fontSize = 14.sp
@@ -158,7 +156,7 @@ private fun Content(onPrivacyPolicyLinkClicked: () -> Unit) {
             text = stringResource(id = R.string.privacy_disclaimer_body_first_paragraph),
             fontSize = fontSize,
             color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.padding(top = 10.dp)
+            modifier = Modifier.padding(top = 10.dp),
         )
 
         Spacer(modifier = Modifier.height(fontSize.toDp() + Dimens.smallPadding))
@@ -177,8 +175,8 @@ private fun Content(onPrivacyPolicyLinkClicked: () -> Unit) {
                     TextStyle(
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.onSurface,
-                        textDecoration = TextDecoration.Underline
-                    )
+                        textDecoration = TextDecoration.Underline,
+                    ),
             )
 
             Icon(
@@ -189,7 +187,7 @@ private fun Content(onPrivacyPolicyLinkClicked: () -> Unit) {
                         .padding(start = 2.dp, top = 2.dp)
                         .width(10.dp)
                         .height(10.dp),
-                tint = MaterialTheme.colorScheme.onSurface
+                tint = MaterialTheme.colorScheme.onSurface,
             )
         }
     }
@@ -203,7 +201,7 @@ private fun ButtonPanel(isStartingService: Boolean, onAcceptClicked: () -> Unit)
         } else {
             PrimaryButton(
                 text = stringResource(id = R.string.agree_and_continue),
-                onClick = onAcceptClicked::invoke
+                onClick = onAcceptClicked::invoke,
             )
         }
     }

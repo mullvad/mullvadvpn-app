@@ -59,8 +59,8 @@ fun ApiAccessMethodTextField(
                 capitalization = capitalization,
                 autoCorrect = false,
                 keyboardType = keyboardType,
-                imeAction = imeAction
-            )
+                imeAction = imeAction,
+            ),
     )
 }
 
@@ -68,19 +68,19 @@ fun ApiAccessMethodTextField(
 private fun ErrorSupportingText(text: String) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.padding(top = Dimens.miniPadding)
+        modifier = Modifier.padding(top = Dimens.miniPadding),
     ) {
         Icon(
             painter = painterResource(id = R.drawable.icon_alert),
             contentDescription = null,
             modifier = Modifier.size(Dimens.smallIconSize),
-            tint = MaterialTheme.colorScheme.error
+            tint = MaterialTheme.colorScheme.error,
         )
         Text(
             text = text,
             color = MaterialTheme.colorScheme.onSecondary,
             style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier.padding(horizontal = Dimens.smallPadding)
+            modifier = Modifier.padding(horizontal = Dimens.smallPadding),
         )
     }
 }

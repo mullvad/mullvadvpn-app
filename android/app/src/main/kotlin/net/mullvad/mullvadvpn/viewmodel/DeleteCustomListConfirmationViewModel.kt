@@ -21,7 +21,7 @@ import net.mullvad.mullvadvpn.usecase.customlists.DeleteWithUndoError
 
 class DeleteCustomListConfirmationViewModel(
     private val customListActionUseCase: CustomListActionUseCase,
-    savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     private val navArgs = DeleteCustomListDestination.argsFrom(savedStateHandle)
     private val name: CustomListName = navArgs.name
@@ -38,7 +38,7 @@ class DeleteCustomListConfirmationViewModel(
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(),
-                DeleteCustomListUiState(name, null)
+                DeleteCustomListUiState(name, null),
             )
 
     fun deleteCustomList() {
@@ -52,11 +52,11 @@ class DeleteCustomListConfirmationViewModel(
                             DeleteCustomListConfirmationSideEffect.ReturnWithResult(
                                 CustomListActionResultData.Success.Deleted(
                                     customListName = it.name,
-                                    undo = it.undo
+                                    undo = it.undo,
                                 )
                             )
                         )
-                    }
+                    },
                 )
         }
     }

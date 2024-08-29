@@ -14,7 +14,7 @@ import net.mullvad.mullvadvpn.lib.model.Providers
 
 class RelayListFilterRepository(
     private val managementService: ManagementService,
-    dispatcher: CoroutineDispatcher = Dispatchers.IO
+    dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) {
     val selectedOwnership: StateFlow<Constraint<Ownership>> =
         managementService.settings
@@ -28,7 +28,7 @@ class RelayListFilterRepository(
 
     suspend fun updateSelectedOwnershipAndProviderFilter(
         ownership: Constraint<Ownership>,
-        providers: Constraint<Providers>
+        providers: Constraint<Providers>,
     ) = managementService.setOwnershipAndProviders(ownership, providers)
 
     suspend fun updateSelectedOwnership(value: Constraint<Ownership>) =

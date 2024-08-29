@@ -33,7 +33,7 @@ class EditApiAccessMethodScreenTest {
                             editMode = true,
                             formData = EditApiAccessFormData.empty(),
                             hasChanges = false,
-                            isTestingApiAccessMethod = false
+                            isTestingApiAccessMethod = false,
                         )
                 )
             }
@@ -53,7 +53,7 @@ class EditApiAccessMethodScreenTest {
                             editMode = false,
                             formData = EditApiAccessFormData.empty(),
                             hasChanges = false,
-                            isTestingApiAccessMethod = false
+                            isTestingApiAccessMethod = false,
                         )
                 )
             }
@@ -78,10 +78,10 @@ class EditApiAccessMethodScreenTest {
                                     serverIp = "",
                                     username = "",
                                     password = "",
-                                    port = ""
+                                    port = "",
                                 ),
                             hasChanges = false,
-                            isTestingApiAccessMethod = false
+                            isTestingApiAccessMethod = false,
                         )
                 )
             }
@@ -106,10 +106,10 @@ class EditApiAccessMethodScreenTest {
                                     serverIpError = InvalidDataError.ServerIpError.Invalid,
                                     username = "",
                                     password = "",
-                                    port = ""
+                                    port = "",
                                 ),
                             hasChanges = false,
-                            isTestingApiAccessMethod = false
+                            isTestingApiAccessMethod = false,
                         )
                 )
             }
@@ -137,10 +137,10 @@ class EditApiAccessMethodScreenTest {
                                     portError =
                                         InvalidDataError.PortError.Invalid(
                                             ParsePortError.OutOfRange(1111111111)
-                                        )
+                                        ),
                                 ),
                             hasChanges = false,
-                            isTestingApiAccessMethod = false
+                            isTestingApiAccessMethod = false,
                         )
                 )
             }
@@ -162,9 +162,9 @@ class EditApiAccessMethodScreenTest {
                             editMode = false,
                             formData = EditApiAccessFormData.empty(),
                             hasChanges = false,
-                            isTestingApiAccessMethod = false
+                            isTestingApiAccessMethod = false,
                         ),
-                    onNameChanged = onNameChanged
+                    onNameChanged = onNameChanged,
                 )
             }
 
@@ -192,10 +192,10 @@ class EditApiAccessMethodScreenTest {
                                     password = "",
                                     port = "",
                                     enableAuthentication = true,
-                                    apiAccessMethodTypes = ApiAccessMethodTypes.SOCKS5_REMOTE
+                                    apiAccessMethodTypes = ApiAccessMethodTypes.SOCKS5_REMOTE,
                                 ),
                             hasChanges = false,
-                            isTestingApiAccessMethod = false
+                            isTestingApiAccessMethod = false,
                         )
                 )
             }
@@ -217,9 +217,9 @@ class EditApiAccessMethodScreenTest {
                             editMode = false,
                             formData = EditApiAccessFormData.empty(),
                             hasChanges = false,
-                            isTestingApiAccessMethod = false
+                            isTestingApiAccessMethod = false,
                         ),
-                    onTestMethod = onTestMethod
+                    onTestMethod = onTestMethod,
                 )
             }
 
@@ -242,9 +242,9 @@ class EditApiAccessMethodScreenTest {
                             editMode = false,
                             formData = EditApiAccessFormData.empty(),
                             hasChanges = false,
-                            isTestingApiAccessMethod = false
+                            isTestingApiAccessMethod = false,
                         ),
-                    onAddMethod = onAddMethod
+                    onAddMethod = onAddMethod,
                 )
             }
 

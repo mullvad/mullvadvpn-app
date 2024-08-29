@@ -4,7 +4,7 @@ import net.mullvad.mullvadvpn.test.e2e.misc.SimpleMullvadHttpClient
 
 class MullvadAccountInteractor(
     private val httpClient: SimpleMullvadHttpClient,
-    private val testAccountNumber: String
+    private val testAccountNumber: String,
 ) {
     fun cleanupAccount() {
         httpClient.removeAllDevices(testAccountNumber)

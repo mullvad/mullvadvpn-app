@@ -77,17 +77,14 @@ fun ViewLogs(navigator: DestinationsNavigator) {
 }
 
 @Composable
-fun ViewLogsScreen(
-    state: ViewLogsUiState,
-    onBackClick: () -> Unit = {},
-) {
+fun ViewLogsScreen(state: ViewLogsUiState, onBackClick: () -> Unit = {}) {
     val snackbarHostState = remember { SnackbarHostState() }
     val clipboardHandle = createCopyToClipboardHandle(snackbarHostState = snackbarHostState)
     Scaffold(
         snackbarHost = {
             SnackbarHost(
                 snackbarHostState,
-                snackbar = { snackbarData -> MullvadSnackbar(snackbarData = snackbarData) }
+                snackbar = { snackbarData -> MullvadSnackbar(snackbarData = snackbarData) },
             )
         },
         topBar = { TopBar(state, clipboardHandle, onBackClick) },
@@ -101,7 +98,7 @@ fun ViewLogsScreen(
 private fun TopBar(
     state: ViewLogsUiState,
     clipboardHandle: CopyToClipboardHandle,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -110,27 +107,27 @@ private fun TopBar(
         navigationIcon = {
             NavigateBackIconButton(
                 onNavigateBack = onBackClick,
-                modifier = Modifier.focusProperties { down = FocusRequester.Cancel }
+                modifier = Modifier.focusProperties { down = FocusRequester.Cancel },
             )
         },
         actions = {
             val clipboardToastMessage = stringResource(R.string.copied_logs_to_clipboard)
             IconButton(
                 onClick = { clipboardHandle(state.text(), clipboardToastMessage) },
-                modifier = Modifier.focusProperties { down = FocusRequester.Cancel }
+                modifier = Modifier.focusProperties { down = FocusRequester.Cancel },
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.icon_copy),
-                    contentDescription = null
+                    contentDescription = null,
                 )
             }
             IconButton(
                 onClick = { scope.launch { shareText(context, state.text()) } },
-                modifier = Modifier.focusProperties { down = FocusRequester.Cancel }
+                modifier = Modifier.focusProperties { down = FocusRequester.Cancel },
             ) {
                 Icon(imageVector = Icons.Default.Share, contentDescription = null)
             }
-        }
+        },
     )
 }
 
@@ -143,15 +140,15 @@ private fun Content(state: ViewLogsUiState, paddingValues: PaddingValues) {
                 .padding(
                     start = Dimens.sideMargin,
                     end = Dimens.sideMargin,
-                    bottom = Dimens.screenVerticalMargin
+                    bottom = Dimens.screenVerticalMargin,
                 ),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary),
     ) {
         if (state.isLoading) {
             MullvadCircularProgressIndicatorMedium(
                 modifier =
                     Modifier.padding(Dimens.mediumPadding).align(Alignment.CenterHorizontally),
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.primary,
             )
         } else {
             val listState = rememberLazyListState()
@@ -161,15 +158,15 @@ private fun Content(state: ViewLogsUiState, paddingValues: PaddingValues) {
                     Modifier.fillMaxWidth()
                         .drawVerticalScrollbar(
                             listState,
-                            MaterialTheme.colorScheme.primary.copy(alpha = AlphaScrollbar)
+                            MaterialTheme.colorScheme.primary.copy(alpha = AlphaScrollbar),
                         )
-                        .padding(horizontal = Dimens.smallPadding)
+                        .padding(horizontal = Dimens.smallPadding),
             ) {
                 items(state.allLines) { text ->
                     Text(
                         text = text,
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.primary
+                        color = MaterialTheme.colorScheme.primary,
                     )
                 }
             }

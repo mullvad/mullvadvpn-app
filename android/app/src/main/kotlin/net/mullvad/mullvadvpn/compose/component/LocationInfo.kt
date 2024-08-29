@@ -34,7 +34,7 @@ private fun PreviewLocationInfo() {
             isExpanded = true,
             location = null,
             inAddress = null,
-            outAddress = ""
+            outAddress = "",
         )
     }
 }
@@ -49,7 +49,7 @@ fun LocationInfo(
     isExpanded: Boolean,
     location: GeoIpLocation?,
     inAddress: Triple<String, Int, TransportProtocol>?,
-    outAddress: String
+    outAddress: String,
 ) {
     Column(
         modifier =
@@ -69,7 +69,7 @@ fun LocationInfo(
                     } else {
                         colorCollapsed
                     },
-                style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold)
+                style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
             )
             Chevron(
                 isExpanded = isExpanded,
@@ -79,7 +79,7 @@ fun LocationInfo(
                     } else {
                         colorCollapsed
                     },
-                modifier = Modifier.padding(horizontal = Dimens.chevronMargin)
+                modifier = Modifier.padding(horizontal = Dimens.chevronMargin),
             )
         }
         Text(
@@ -90,7 +90,7 @@ fun LocationInfo(
                     ""
                 },
             color = colorExpanded,
-            style = MaterialTheme.typography.labelMedium
+            style = MaterialTheme.typography.labelMedium,
         )
         val textInAddress =
             inAddress?.let {
@@ -105,7 +105,7 @@ fun LocationInfo(
             text = "${stringResource(id = R.string.in_address)} $textInAddress",
             color = colorExpanded,
             style = MaterialTheme.typography.labelMedium,
-            modifier = Modifier.alpha(if (isExpanded) AlphaVisible else AlphaInvisible)
+            modifier = Modifier.alpha(if (isExpanded) AlphaVisible else AlphaInvisible),
         )
         Text(
             text = "${stringResource(id = R.string.out_address)} $outAddress",
@@ -115,7 +115,7 @@ fun LocationInfo(
                 Modifier.testTag(LOCATION_INFO_CONNECTION_OUT_TEST_TAG)
                     .alpha(
                         if (isExpanded && outAddress.isNotEmpty()) AlphaVisible else AlphaInvisible
-                    )
+                    ),
         )
     }
 }

@@ -11,7 +11,7 @@ internal class LogInterceptor : ClientInterceptor {
     override fun <ReqT : Any?, RespT : Any?> interceptCall(
         method: MethodDescriptor<ReqT, RespT>?,
         callOptions: CallOptions?,
-        next: Channel?
+        next: Channel?,
     ): ClientCall<ReqT, RespT> {
         Logger.v("Intercepted call: ${method?.fullMethodName}")
         return next!!.newCall(method, callOptions)

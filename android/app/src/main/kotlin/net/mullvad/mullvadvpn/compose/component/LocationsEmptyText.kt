@@ -22,10 +22,7 @@ fun LocationsEmptyText(searchTerm: String) {
     if (searchTerm.length >= MIN_SEARCH_LENGTH) {
         val firstRow =
             HtmlCompat.fromHtml(
-                    textResource(
-                        id = R.string.select_location_empty_text_first_row,
-                        searchTerm,
-                    ),
+                    textResource(id = R.string.select_location_empty_text_first_row, searchTerm),
                     HtmlCompat.FROM_HTML_MODE_COMPACT,
                 )
                 .toAnnotatedString(boldFontWeight = FontWeight.ExtraBold)
@@ -54,7 +51,7 @@ fun LocationsEmptyText(searchTerm: String) {
             text = stringResource(R.string.no_locations_found),
             modifier = Modifier.padding(Dimens.screenVerticalMargin),
             style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
 }

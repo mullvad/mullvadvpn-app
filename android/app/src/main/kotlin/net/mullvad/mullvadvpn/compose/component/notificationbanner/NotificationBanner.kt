@@ -43,20 +43,18 @@ import org.joda.time.DateTime
 @Composable
 private fun PreviewNotificationBanner() {
     AppTheme {
-        Column(
-            Modifier.background(color = MaterialTheme.colorScheme.surface),
-        ) {
+        Column(Modifier.background(color = MaterialTheme.colorScheme.surface)) {
             val bannerDataList =
                 listOf(
                         InAppNotification.UnsupportedVersion(
-                            versionInfo = VersionInfo(currentVersion = "1.0", isSupported = false),
+                            versionInfo = VersionInfo(currentVersion = "1.0", isSupported = false)
                         ),
                         InAppNotification.AccountExpiry(expiry = DateTime.now()),
                         InAppNotification.TunnelStateBlocked,
                         InAppNotification.NewDevice("Courageous Turtle"),
                         InAppNotification.TunnelStateError(
                             error = ErrorState(ErrorStateCause.FirewallPolicyError.Generic, true)
-                        )
+                        ),
                     )
                     .map { it.toNotificationData(false, {}, {}, {}) }
 
@@ -65,7 +63,7 @@ private fun PreviewNotificationBanner() {
                     containerColor = MaterialTheme.colorScheme.primary,
                     onSettingsClicked = {},
                     onAccountClicked = {},
-                    iconTintColor = MaterialTheme.colorScheme.primary
+                    iconTintColor = MaterialTheme.colorScheme.primary,
                 )
                 Notification(it)
                 Spacer(modifier = Modifier.size(16.dp))
@@ -81,7 +79,7 @@ fun NotificationBanner(
     isPlayBuild: Boolean,
     onClickUpdateVersion: () -> Unit,
     onClickShowAccount: () -> Unit,
-    onClickDismissNewDevice: () -> Unit
+    onClickDismissNewDevice: () -> Unit,
 ) {
     // Fix for animating to invisible state
     val previous = rememberPrevious(current = notification, shouldUpdate = { _, _ -> true })
@@ -89,7 +87,7 @@ fun NotificationBanner(
         visible = notification != null,
         enter = slideInVertically(initialOffsetY = { -it }),
         exit = slideOutVertically(targetOffsetY = { -it }),
-        modifier = modifier
+        modifier = modifier,
     ) {
         val visibleNotification = notification ?: previous
         if (visibleNotification != null)
@@ -98,7 +96,7 @@ fun NotificationBanner(
                     isPlayBuild = isPlayBuild,
                     onClickUpdateVersion,
                     onClickShowAccount,
-                    onClickDismissNewDevice
+                    onClickDismissNewDevice,
                 )
             )
     }
@@ -115,7 +113,7 @@ private fun Notification(notificationBannerData: NotificationData) {
                     start = Dimens.notificationBannerStartPadding,
                     end = Dimens.notificationBannerEndPadding,
                     top = Dimens.smallPadding,
-                    bottom = Dimens.smallPadding
+                    bottom = Dimens.smallPadding,
                 )
                 .animateContentSize()
                 .testTag(NOTIFICATION_BANNER)
@@ -130,7 +128,7 @@ private fun Notification(notificationBannerData: NotificationData) {
                                 StatusLevel.Warning -> MaterialTheme.colorScheme.warning
                                 StatusLevel.Info -> MaterialTheme.colorScheme.surfaceContainer
                             },
-                        shape = CircleShape
+                        shape = CircleShape,
                     )
                     .size(Dimens.notificationStatusIconSize)
                     .constrainAs(status) {
@@ -153,7 +151,7 @@ private fun Notification(notificationBannerData: NotificationData) {
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurface,
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis
+            overflow = TextOverflow.Ellipsis,
         )
         message?.let {
             Text(
@@ -172,7 +170,7 @@ private fun Notification(notificationBannerData: NotificationData) {
                         }
                         .padding(start = Dimens.smallPadding),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.labelMedium
+                style = MaterialTheme.typography.labelMedium,
             )
         }
         action?.let {
@@ -185,12 +183,12 @@ private fun Notification(notificationBannerData: NotificationData) {
                         }
                         .testTag(NOTIFICATION_BANNER_ACTION)
                         .padding(all = Dimens.notificationEndIconPadding),
-                onClick = it.onClick
+                onClick = it.onClick,
             ) {
                 Icon(
                     painter = painterResource(id = it.icon),
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurface
+                    tint = MaterialTheme.colorScheme.onSurface,
                 )
             }
         }

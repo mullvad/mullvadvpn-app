@@ -54,7 +54,7 @@ class ApiAccessMethodDetailsViewModelTest {
                 apiAccessRepository = mockApiAccessRepository,
                 savedStateHandle =
                     ApiAccessMethodDetailsNavArgs(accessMethodId = apiAccessMethodId)
-                        .toSavedStateHandle()
+                        .toSavedStateHandle(),
             )
     }
 
@@ -183,7 +183,7 @@ class ApiAccessMethodDetailsViewModelTest {
             apiAccessMethodDetailsViewModel.openEditPage()
             assertEquals(
                 ApiAccessMethodDetailsSideEffect.OpenEditPage(apiAccessMethodId),
-                awaitItem()
+                awaitItem(),
             )
         }
     }

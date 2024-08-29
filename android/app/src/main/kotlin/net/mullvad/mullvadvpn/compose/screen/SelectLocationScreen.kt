@@ -117,11 +117,7 @@ private fun PreviewSelectLocationScreen() {
             relayListItems = emptyList(),
             customLists = emptyList(),
         )
-    AppTheme {
-        SelectLocationScreen(
-            state = state,
-        )
-    }
+    AppTheme { SelectLocationScreen(state = state) }
 }
 
 @Destination<RootGraph>(style = SelectLocationTransition::class)
@@ -133,14 +129,14 @@ fun SelectLocation(
     createCustomListDialogResultRecipient:
         ResultRecipient<
             CreateCustomListDestination,
-            CustomListActionResultData.Success.CreatedWithLocations
+            CustomListActionResultData.Success.CreatedWithLocations,
         >,
     editCustomListNameDialogResultRecipient:
         ResultRecipient<EditCustomListNameDestination, CustomListActionResultData.Success.Renamed>,
     deleteCustomListDialogResultRecipient:
         ResultRecipient<DeleteCustomListDestination, CustomListActionResultData.Success.Deleted>,
     updateCustomListResultRecipient:
-        ResultRecipient<CustomListLocationsDestination, CustomListActionResultData>
+        ResultRecipient<CustomListLocationsDestination, CustomListActionResultData>,
 ) {
     val vm = koinViewModel<SelectLocationViewModel>()
     val state = vm.uiState.collectAsStateWithLifecycle()
@@ -156,14 +152,14 @@ fun SelectLocation(
                     snackbarHostState.showResultSnackbar(
                         context = context,
                         result = it.resultData,
-                        onUndo = vm::performAction
+                        onUndo = vm::performAction,
                     )
                 }
             SelectLocationSideEffect.GenericError ->
                 launch {
                     snackbarHostState.showSnackbarImmediately(
                         message = context.getString(R.string.error_occurred),
-                        duration = SnackbarDuration.Short
+                        duration = SnackbarDuration.Short,
                     )
                 }
         }
@@ -180,17 +176,17 @@ fun SelectLocation(
 
     createCustomListDialogResultRecipient.OnCustomListNavResult(
         snackbarHostState,
-        vm::performAction
+        vm::performAction,
     )
 
     editCustomListNameDialogResultRecipient.OnCustomListNavResult(
         snackbarHostState,
-        vm::performAction
+        vm::performAction,
     )
 
     deleteCustomListDialogResultRecipient.OnCustomListNavResult(
         snackbarHostState,
-        vm::performAction
+        vm::performAction,
     )
 
     updateCustomListResultRecipient.OnCustomListNavResult(snackbarHostState, vm::performAction)
@@ -205,9 +201,7 @@ fun SelectLocation(
         onFilterClick = dropUnlessResumed { navigator.navigate(FilterDestination) },
         onCreateCustomList =
             dropUnlessResumed { relayItem ->
-                navigator.navigate(
-                    CreateCustomListDestination(locationCode = relayItem?.id),
-                )
+                navigator.navigate(CreateCustomListDestination(locationCode = relayItem?.id))
             },
         onToggleExpand = vm::onToggleExpand,
         onEditCustomLists = dropUnlessResumed { navigator.navigate(CustomListsDestination()) },
@@ -220,14 +214,14 @@ fun SelectLocation(
                 navigator.navigate(
                     EditCustomListNameDestination(
                         customListId = customList.id,
-                        initialName = customList.customList.name
-                    ),
+                        initialName = customList.customList.name,
+                    )
                 )
             },
         onEditLocationsCustomList =
             dropUnlessResumed { customList: RelayItem.CustomList ->
                 navigator.navigate(
-                    CustomListLocationsDestination(customListId = customList.id, newList = false),
+                    CustomListLocationsDestination(customListId = customList.id, newList = false)
                 )
             },
         onDeleteCustomList =
@@ -235,10 +229,10 @@ fun SelectLocation(
                 navigator.navigate(
                     DeleteCustomListDestination(
                         customListId = customList.id,
-                        name = customList.customList.name
-                    ),
+                        name = customList.customList.name,
+                    )
                 )
-            }
+            },
     )
 }
 
@@ -274,7 +268,7 @@ fun SelectLocationScreen(
         snackbarHost = {
             SnackbarHost(
                 snackbarHostState,
-                snackbar = { snackbarData -> MullvadSnackbar(snackbarData = snackbarData) }
+                snackbar = { snackbarData -> MullvadSnackbar(snackbarData = snackbarData) },
             )
         }
     ) {
@@ -288,7 +282,7 @@ fun SelectLocationScreen(
             onEditCustomListName = onEditCustomListName,
             onEditLocationsCustomList = onEditLocationsCustomList,
             onDeleteCustomList = onDeleteCustomList,
-            onHideBottomSheet = { bottomSheetState = null }
+            onHideBottomSheet = { bottomSheetState = null },
         )
 
         Column(modifier = Modifier.padding(it).background(backgroundColor).fillMaxSize()) {
@@ -304,7 +298,7 @@ fun SelectLocationScreen(
                         .height(Dimens.searchFieldHeight)
                         .padding(horizontal = Dimens.searchFieldHorizontalPadding),
                 textColor = MaterialTheme.colorScheme.onTertiaryContainer,
-                backgroundColor = MaterialTheme.colorScheme.tertiaryContainer
+                backgroundColor = MaterialTheme.colorScheme.tertiaryContainer,
             ) { searchString ->
                 onSearchTermInput.invoke(searchString)
             }
@@ -356,7 +350,7 @@ fun SelectLocationScreen(
                                                 },
                                                 { customListId, expand ->
                                                     onToggleExpand(customListId, null, expand)
-                                                }
+                                                },
                                             )
                                         is RelayListItem.CustomListEntryItem ->
                                             CustomListEntryItem(
@@ -368,7 +362,7 @@ fun SelectLocationScreen(
                                                             ShowCustomListsEntryBottomSheet(
                                                                 listItem.parentId,
                                                                 listItem.parentName,
-                                                                listItem.item
+                                                                listItem.item,
                                                             )
                                                     }
                                                 } else {
@@ -378,9 +372,9 @@ fun SelectLocationScreen(
                                                     onToggleExpand(
                                                         listItem.item.id,
                                                         listItem.parentId,
-                                                        expand
+                                                        expand,
                                                     )
-                                                }
+                                                },
                                             )
                                         is RelayListItem.CustomListFooter ->
                                             CustomListFooter(listItem)
@@ -394,18 +388,18 @@ fun SelectLocationScreen(
                                                     bottomSheetState =
                                                         ShowLocationBottomSheet(
                                                             state.customLists,
-                                                            listItem.item
+                                                            listItem.item,
                                                         )
                                                 },
                                                 { expand ->
                                                     onToggleExpand(listItem.item.id, null, expand)
-                                                }
+                                                },
                                             )
                                         is RelayListItem.LocationsEmptyText ->
                                             LocationsEmptyText(listItem.searchTerm)
                                     }
                                 }
-                            }
+                            },
                         )
                     }
                 }
@@ -434,7 +428,7 @@ fun LazyItemScope.RelayLocationItem(
         onLongClick = { onLongClick() },
         onToggleExpand = { onExpand(it) },
         isExpanded = relayItem.expanded,
-        depth = relayItem.depth
+        depth = relayItem.depth,
     )
 }
 
@@ -452,7 +446,7 @@ fun LazyItemScope.CustomListItem(
         onClick = { onSelectRelay(customListItem) },
         onLongClick = { onShowEditBottomSheet(customListItem) },
         onToggleExpand = { onExpand(customListItem.id, it) },
-        isExpanded = itemState.expanded
+        isExpanded = itemState.expanded,
     )
 }
 
@@ -471,7 +465,7 @@ fun LazyItemScope.CustomListEntryItem(
         onLongClick = onShowEditCustomListEntryBottomSheet,
         onToggleExpand = onToggleExpand,
         isExpanded = itemState.expanded,
-        depth = itemState.depth
+        depth = itemState.depth,
     )
 }
 
@@ -484,7 +478,7 @@ fun LazyItemScope.CustomListFooter(item: RelayListItem.CustomListFooter) {
             } else {
                 stringResource(R.string.to_create_a_custom_list)
             },
-        modifier = Modifier.background(MaterialTheme.colorScheme.surface)
+        modifier = Modifier.background(MaterialTheme.colorScheme.surface),
     )
 }
 
@@ -527,7 +521,7 @@ private fun LazyItemScope.CustomListHeader(onShowCustomListBottomSheet: () -> Un
     ThreeDotCell(
         text = stringResource(R.string.custom_lists),
         onClickDots = onShowCustomListBottomSheet,
-        modifier = Modifier.testTag(SELECT_LOCATION_CUSTOM_LIST_HEADER_TEST_TAG)
+        modifier = Modifier.testTag(SELECT_LOCATION_CUSTOM_LIST_HEADER_TEST_TAG),
     )
 }
 
@@ -542,7 +536,7 @@ private fun BottomSheets(
     onEditCustomListName: (RelayItem.CustomList) -> Unit,
     onEditLocationsCustomList: (RelayItem.CustomList) -> Unit,
     onDeleteCustomList: (RelayItem.CustomList) -> Unit,
-    onHideBottomSheet: () -> Unit
+    onHideBottomSheet: () -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
@@ -565,7 +559,7 @@ private fun BottomSheets(
                 bottomSheetState = bottomSheetState,
                 onCreateCustomList = { onCreateCustomList(null) },
                 onEditCustomLists = onEditCustomLists,
-                closeBottomSheet = onCloseBottomSheet
+                closeBottomSheet = onCloseBottomSheet,
             )
         }
         is ShowLocationBottomSheet -> {
@@ -577,7 +571,7 @@ private fun BottomSheets(
                 item = bottomSheetState.item,
                 onCreateCustomList = onCreateCustomList,
                 onAddLocationToList = onAddLocationToList,
-                closeBottomSheet = onCloseBottomSheet
+                closeBottomSheet = onCloseBottomSheet,
             )
         }
         is ShowEditCustomListBottomSheet -> {
@@ -589,7 +583,7 @@ private fun BottomSheets(
                 onEditName = onEditCustomListName,
                 onEditLocations = onEditLocationsCustomList,
                 onDeleteCustomList = onDeleteCustomList,
-                closeBottomSheet = onCloseBottomSheet
+                closeBottomSheet = onCloseBottomSheet,
             )
         }
         is ShowCustomListsEntryBottomSheet -> {
@@ -601,7 +595,7 @@ private fun BottomSheets(
                 customListName = bottomSheetState.customListName,
                 item = bottomSheetState.item,
                 onRemoveLocationFromList = onRemoveLocationFromList,
-                closeBottomSheet = onCloseBottomSheet
+                closeBottomSheet = onCloseBottomSheet,
             )
         }
         null -> {
@@ -636,7 +630,7 @@ private fun CustomListsBottomSheet(
     bottomSheetState: ShowCustomListsBottomSheet,
     onCreateCustomList: () -> Unit,
     onEditCustomLists: () -> Unit,
-    closeBottomSheet: (animate: Boolean) -> Unit
+    closeBottomSheet: (animate: Boolean) -> Unit,
 ) {
 
     MullvadModalBottomSheet(
@@ -644,11 +638,11 @@ private fun CustomListsBottomSheet(
         backgroundColor = backgroundColor,
         onBackgroundColor = onBackgroundColor,
         onDismissRequest = { closeBottomSheet(false) },
-        modifier = Modifier.testTag(SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG)
+        modifier = Modifier.testTag(SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG),
     ) {
         HeaderCell(
             text = stringResource(id = R.string.edit_custom_lists),
-            background = backgroundColor
+            background = backgroundColor,
         )
         HorizontalDivider(color = onBackgroundColor)
         IconCell(
@@ -659,7 +653,7 @@ private fun CustomListsBottomSheet(
                 onCreateCustomList()
                 closeBottomSheet(true)
             },
-            background = backgroundColor
+            background = backgroundColor,
         )
         IconCell(
             iconId = R.drawable.icon_edit,
@@ -678,7 +672,7 @@ private fun CustomListsBottomSheet(
                 closeBottomSheet(true)
             },
             background = backgroundColor,
-            enabled = bottomSheetState.editListEnabled
+            enabled = bottomSheetState.editListEnabled,
         )
     }
 }
@@ -693,18 +687,18 @@ private fun LocationBottomSheet(
     item: RelayItem.Location,
     onCreateCustomList: (relayItem: RelayItem.Location) -> Unit,
     onAddLocationToList: (location: RelayItem.Location, customList: RelayItem.CustomList) -> Unit,
-    closeBottomSheet: (animate: Boolean) -> Unit
+    closeBottomSheet: (animate: Boolean) -> Unit,
 ) {
     MullvadModalBottomSheet(
         sheetState = sheetState,
         backgroundColor = backgroundColor,
         onBackgroundColor = onBackgroundColor,
         onDismissRequest = { closeBottomSheet(false) },
-        modifier = Modifier.testTag(SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG)
+        modifier = Modifier.testTag(SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG),
     ) { ->
         HeaderCell(
             text = stringResource(id = R.string.add_location_to_list, item.name),
-            background = backgroundColor
+            background = backgroundColor,
         )
         HorizontalDivider(color = onBackgroundColor)
         customLists.forEach {
@@ -728,7 +722,7 @@ private fun LocationBottomSheet(
                     closeBottomSheet(true)
                 },
                 background = backgroundColor,
-                enabled = enabled
+                enabled = enabled,
             )
         }
         IconCell(
@@ -739,7 +733,7 @@ private fun LocationBottomSheet(
                 onCreateCustomList(item)
                 closeBottomSheet(true)
             },
-            background = backgroundColor
+            background = backgroundColor,
         )
     }
 }
@@ -754,13 +748,13 @@ private fun EditCustomListBottomSheet(
     onEditName: (item: RelayItem.CustomList) -> Unit,
     onEditLocations: (item: RelayItem.CustomList) -> Unit,
     onDeleteCustomList: (item: RelayItem.CustomList) -> Unit,
-    closeBottomSheet: (animate: Boolean) -> Unit
+    closeBottomSheet: (animate: Boolean) -> Unit,
 ) {
     MullvadModalBottomSheet(
         backgroundColor = backgroundColor,
         onBackgroundColor = onBackgroundColor,
         sheetState = sheetState,
-        onDismissRequest = { closeBottomSheet(false) }
+        onDismissRequest = { closeBottomSheet(false) },
     ) {
         HeaderCell(text = customList.name, background = backgroundColor)
         HorizontalDivider(color = onBackgroundColor)
@@ -772,7 +766,7 @@ private fun EditCustomListBottomSheet(
                 onEditName(customList)
                 closeBottomSheet(true)
             },
-            background = backgroundColor
+            background = backgroundColor,
         )
         IconCell(
             iconId = R.drawable.icon_add,
@@ -782,7 +776,7 @@ private fun EditCustomListBottomSheet(
                 onEditLocations(customList)
                 closeBottomSheet(true)
             },
-            background = backgroundColor
+            background = backgroundColor,
         )
         IconCell(
             iconId = R.drawable.icon_delete,
@@ -792,7 +786,7 @@ private fun EditCustomListBottomSheet(
                 onDeleteCustomList(customList)
                 closeBottomSheet(true)
             },
-            background = backgroundColor
+            background = backgroundColor,
         )
     }
 }
@@ -807,19 +801,19 @@ private fun CustomListEntryBottomSheet(
     customListName: CustomListName,
     item: RelayItem.Location,
     onRemoveLocationFromList: (location: RelayItem.Location, customListId: CustomListId) -> Unit,
-    closeBottomSheet: (animate: Boolean) -> Unit
+    closeBottomSheet: (animate: Boolean) -> Unit,
 ) {
     MullvadModalBottomSheet(
         sheetState = sheetState,
         backgroundColor = backgroundColor,
         onBackgroundColor = onBackgroundColor,
         onDismissRequest = { closeBottomSheet(false) },
-        modifier = Modifier.testTag(SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG)
+        modifier = Modifier.testTag(SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG),
     ) {
         HeaderCell(
             text =
                 stringResource(id = R.string.remove_location_from_list, item.name, customListName),
-            background = backgroundColor
+            background = backgroundColor,
         )
         HorizontalDivider(color = onBackgroundColor)
 
@@ -831,7 +825,7 @@ private fun CustomListEntryBottomSheet(
                 onRemoveLocationFromList(item, customListId)
                 closeBottomSheet(true)
             },
-            background = backgroundColor
+            background = backgroundColor,
         )
     }
 }
@@ -850,7 +844,7 @@ private suspend fun LazyListState.animateScrollAndCentralizeItem(index: Int) {
 private suspend fun SnackbarHostState.showResultSnackbar(
     context: Context,
     result: CustomListActionResultData,
-    onUndo: (CustomListAction) -> Unit
+    onUndo: (CustomListAction) -> Unit,
 ) {
 
     showSnackbarImmediately(
@@ -865,7 +859,7 @@ private suspend fun SnackbarHostState.showResultSnackbar(
             if (result is CustomListActionResultData.Success) {
                 onUndo(result.undo)
             }
-        }
+        },
     )
 }
 
@@ -876,7 +870,7 @@ private fun CustomListActionResultData.message(context: Context): String =
                 context.getString(
                     R.string.location_was_added_to_list,
                     locationNames.first(),
-                    customListName
+                    customListName,
                 )
             } else {
                 context.getString(R.string.create_custom_list_message, customListName)
@@ -898,7 +892,7 @@ private fun CustomListActionResultData.message(context: Context): String =
 private fun <D : DestinationSpec, R : CustomListActionResultData> ResultRecipient<D, R>
     .OnCustomListNavResult(
     snackbarHostState: SnackbarHostState,
-    performAction: (action: CustomListAction) -> Unit
+    performAction: (action: CustomListAction) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -913,7 +907,7 @@ private fun <D : DestinationSpec, R : CustomListActionResultData> ResultRecipien
                     snackbarHostState.showResultSnackbar(
                         context = context,
                         result = result.value,
-                        onUndo = performAction
+                        onUndo = performAction,
                     )
                 }
             }
@@ -928,12 +922,12 @@ sealed interface BottomSheetState {
     data class ShowCustomListsEntryBottomSheet(
         val customListId: CustomListId,
         val customListName: CustomListName,
-        val item: RelayItem.Location
+        val item: RelayItem.Location,
     ) : BottomSheetState
 
     data class ShowLocationBottomSheet(
         val customLists: List<RelayItem.CustomList>,
-        val item: RelayItem.Location
+        val item: RelayItem.Location,
     ) : BottomSheetState
 
     data class ShowEditCustomListBottomSheet(val customList: RelayItem.CustomList) :

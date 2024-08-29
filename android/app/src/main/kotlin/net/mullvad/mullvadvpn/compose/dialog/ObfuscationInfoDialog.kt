@@ -22,6 +22,6 @@ private fun PreviewObfuscationInfoDialog() {
 fun ObfuscationInfo(navigator: DestinationsNavigator) {
     InfoDialog(
         message = stringResource(id = R.string.obfuscation_info),
-        onDismiss = dropUnlessResumed { navigator.navigateUp() }
+        onDismiss = dropUnlessResumed { navigator.navigateUp() },
     )
 }

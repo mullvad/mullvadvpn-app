@@ -38,7 +38,7 @@ class ApiAccessMethodDetailsScreenTest {
                             isEditable = false,
                             isDisableable = true,
                             isCurrentMethod = true,
-                            isTestingAccessMethod = false
+                            isTestingAccessMethod = false,
                         )
                 )
             }
@@ -64,9 +64,9 @@ class ApiAccessMethodDetailsScreenTest {
                             isEditable = false,
                             isDisableable = false,
                             isCurrentMethod = true,
-                            isTestingAccessMethod = false
+                            isTestingAccessMethod = false,
                         ),
-                    onEnableClicked = onEnableClicked
+                    onEnableClicked = onEnableClicked,
                 )
             }
 
@@ -94,9 +94,9 @@ class ApiAccessMethodDetailsScreenTest {
                             isEditable = true,
                             isDisableable = false,
                             isCurrentMethod = true,
-                            isTestingAccessMethod = false
+                            isTestingAccessMethod = false,
                         ),
-                    onDeleteApiAccessMethodClicked = onDeleteApiAccessMethodClicked
+                    onDeleteApiAccessMethodClicked = onDeleteApiAccessMethodClicked,
                 )
             }
 
@@ -124,9 +124,9 @@ class ApiAccessMethodDetailsScreenTest {
                             isEditable = true,
                             isDisableable = false,
                             isCurrentMethod = true,
-                            isTestingAccessMethod = false
+                            isTestingAccessMethod = false,
                         ),
-                    onEditMethodClicked = onEditMethodClicked
+                    onEditMethodClicked = onEditMethodClicked,
                 )
             }
 
@@ -153,9 +153,9 @@ class ApiAccessMethodDetailsScreenTest {
                             isEditable = false,
                             isDisableable = true,
                             isCurrentMethod = true,
-                            isTestingAccessMethod = false
+                            isTestingAccessMethod = false,
                         ),
-                    onEnableClicked = onEnableClicked
+                    onEnableClicked = onEnableClicked,
                 )
             }
 
@@ -182,9 +182,9 @@ class ApiAccessMethodDetailsScreenTest {
                             isEditable = false,
                             isDisableable = true,
                             isCurrentMethod = true,
-                            isTestingAccessMethod = false
+                            isTestingAccessMethod = false,
                         ),
-                    onTestMethodClicked = onTestMethodClicked
+                    onTestMethodClicked = onTestMethodClicked,
                 )
             }
 
@@ -211,9 +211,9 @@ class ApiAccessMethodDetailsScreenTest {
                             isEditable = false,
                             isDisableable = true,
                             isCurrentMethod = false,
-                            isTestingAccessMethod = false
+                            isTestingAccessMethod = false,
                         ),
-                    onUseMethodClicked = onUseMethodClicked
+                    onUseMethodClicked = onUseMethodClicked,
                 )
             }
 

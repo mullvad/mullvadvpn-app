@@ -39,7 +39,7 @@ fun ReportProblemNoEmail(resultBackNavigator: ResultBackNavigator<Boolean>) {
                 painter = painterResource(id = R.drawable.icon_alert),
                 contentDescription = null,
                 modifier = Modifier.size(Dimens.dialogIconHeight),
-                tint = MaterialTheme.colorScheme.error
+                tint = MaterialTheme.colorScheme.error,
             )
         },
         text = {
@@ -47,23 +47,23 @@ fun ReportProblemNoEmail(resultBackNavigator: ResultBackNavigator<Boolean>) {
                 text = stringResource(id = R.string.confirm_no_email),
                 modifier = Modifier.fillMaxWidth(),
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onSurface,
             )
         },
         dismissButton = {
             PrimaryButton(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = dropUnlessResumed { resultBackNavigator.navigateBack() },
-                text = stringResource(id = R.string.back)
+                text = stringResource(id = R.string.back),
             )
         },
         confirmButton = {
             NegativeButton(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = dropUnlessResumed { resultBackNavigator.navigateBack(result = true) },
-                text = stringResource(id = R.string.send_anyway)
+                text = stringResource(id = R.string.send_anyway),
             )
         },
-        containerColor = MaterialTheme.colorScheme.surface
+        containerColor = MaterialTheme.colorScheme.surface,
     )
 }

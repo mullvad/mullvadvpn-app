@@ -41,7 +41,7 @@ import org.apache.commons.validator.routines.InetAddressValidator
 class EditApiAccessMethodViewModel(
     private val apiAccessRepository: ApiAccessRepository,
     private val inetAddressValidator: InetAddressValidator,
-    savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     private var testingJob: Job? = null
     private val apiAccessMethodId =
@@ -60,13 +60,13 @@ class EditApiAccessMethodViewModel(
                     editMode = apiAccessMethodId != null,
                     formData = formData,
                     hasChanges = initialData != formData,
-                    isTestingApiAccessMethod = isTestingApiAccessMethod
+                    isTestingApiAccessMethod = isTestingApiAccessMethod,
                 )
             }
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(),
-                EditApiAccessMethodUiState.Loading(editMode = apiAccessMethodId != null)
+                EditApiAccessMethodUiState.Loading(editMode = apiAccessMethodId != null),
             )
 
     fun setAccessMethodType(accessMethodType: ApiAccessMethodTypes) {
@@ -118,7 +118,7 @@ class EditApiAccessMethodViewModel(
                                 EditApiAccessSideEffect.TestApiAccessMethodResult(result.isRight())
                             )
                             isTestingApiAccessMethod.value = false
-                        }
+                        },
                     )
             }
     }
@@ -134,10 +134,10 @@ class EditApiAccessMethodViewModel(
                             EditApiAccessSideEffect.OpenSaveDialog(
                                 id = apiAccessMethodId,
                                 name = name,
-                                customProxy = customProxy
+                                customProxy = customProxy,
                             )
                         )
-                    }
+                    },
                 )
         }
     }
@@ -161,7 +161,7 @@ class EditApiAccessMethodViewModel(
                         accessMethod.apiAccessMethod as? ApiAccessMethod.CustomProxy
                             ?: error(
                                 "${accessMethod.apiAccessMethod} api access type can not be edited"
-                            )
+                            ),
                     )
                 }
                 .getOrElse { error("Access method with id $apiAccessMethodId not found") }
@@ -191,7 +191,7 @@ class EditApiAccessMethodViewModel(
                 ip = ip,
                 port = port,
                 password = formData.password.ifBlank { null },
-                cipher = formData.cipher
+                cipher = formData.cipher,
             )
         }
 
@@ -223,24 +223,19 @@ class EditApiAccessMethodViewModel(
             parseAuth(
                 authEnabled = formData.enableAuthentication,
                 inputUsername = formData.username,
-                inputPassword = formData.password
-            )
+                inputPassword = formData.password,
+            ),
         ) { (ip, port), auth ->
             ApiAccessMethod.CustomProxy.Socks5Remote(ip = ip, port = port, auth = auth)
         }
 
     private fun parseIpAndPort(ipInput: String, portInput: String) =
-        zipOrAccumulate(
-            parseIpAddress(ipInput),
-            parsePort(portInput),
-        ) { ip, port ->
-            ip to port
-        }
+        zipOrAccumulate(parseIpAddress(ipInput), parsePort(portInput)) { ip, port -> ip to port }
 
     private fun parseAuth(
         authEnabled: Boolean,
         inputUsername: String,
-        inputPassword: String
+        inputPassword: String,
     ): EitherNel<InvalidDataError, SocksAuth?> =
         if (!authEnabled) {
             Either.Right(null)
@@ -276,7 +271,7 @@ sealed interface EditApiAccessSideEffect {
     data class OpenSaveDialog(
         val id: ApiAccessMethodId?,
         val name: ApiAccessMethodName,
-        val customProxy: ApiAccessMethod.CustomProxy
+        val customProxy: ApiAccessMethod.CustomProxy,
     ) : EditApiAccessSideEffect
 
     data class TestApiAccessMethodResult(val successful: Boolean) : EditApiAccessSideEffect

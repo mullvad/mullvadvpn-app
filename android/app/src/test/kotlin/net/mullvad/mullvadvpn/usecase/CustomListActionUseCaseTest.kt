@@ -35,7 +35,7 @@ class CustomListActionUseCaseTest {
     private val customListActionUseCase =
         CustomListActionUseCase(
             customListsRepository = mockCustomListsRepository,
-            relayListRepository = mockRelayListRepository
+            relayListRepository = mockRelayListRepository,
         )
 
     private val relayListFlow = MutableStateFlow(emptyList<RelayItem.Location.Country>())
@@ -59,7 +59,7 @@ class CustomListActionUseCaseTest {
                     id = createdId,
                     name = name,
                     locationNames = listOf(locationName),
-                    undo = action.not(createdId)
+                    undo = action.not(createdId),
                 )
                 .right()
         coEvery { mockCustomListsRepository.createCustomList(name) } returns createdId.right()
@@ -71,7 +71,7 @@ class CustomListActionUseCaseTest {
                 RelayItem.Location.Country(
                     id = locationId,
                     name = locationName,
-                    cities = emptyList()
+                    cities = emptyList(),
                 )
             )
 

@@ -13,7 +13,7 @@ val Typography.listItemText: TextStyle
         return TextStyle(
             fontWeight = FontWeight.Normal,
             letterSpacing = TextUnit.Unspecified,
-            fontSize = TypeScale.TextMediumPlus
+            fontSize = TypeScale.TextMediumPlus,
         )
     }
 
@@ -23,7 +23,7 @@ val Typography.listItemSubText: TextStyle
         return TextStyle(
             fontWeight = FontWeight.SemiBold,
             letterSpacing = TextUnit.Unspecified,
-            fontSize = TypeScale.TextSmall
+            fontSize = TypeScale.TextSmall,
         )
     }
 
@@ -33,6 +33,6 @@ val Typography.connectionStatus: TextStyle
         return TextStyle(
             fontWeight = FontWeight.Bold,
             letterSpacing = TextUnit.Unspecified,
-            fontSize = TypeScale.TextMedium
+            fontSize = TypeScale.TextMedium,
         )
     }

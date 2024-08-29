@@ -120,7 +120,7 @@ class SelectLocationViewModelTest {
             assertIs<SelectLocationUiState.Content>(actualState)
             assertLists(
                 testCountries.map { it.id },
-                actualState.relayListItems.mapNotNull { it.relayItemId() }
+                actualState.relayListItems.mapNotNull { it.relayItemId() },
             )
             assertTrue(
                 actualState.relayListItems
@@ -143,7 +143,7 @@ class SelectLocationViewModelTest {
             assertIs<SelectLocationUiState.Content>(actualState)
             assertLists(
                 testCountries.map { it.id },
-                actualState.relayListItems.mapNotNull { it.relayItemId() }
+                actualState.relayListItems.mapNotNull { it.relayItemId() },
             )
             assertTrue(
                 actualState.relayListItems.filterIsInstance<RelayListItem.SelectableItem>().all {
@@ -224,7 +224,7 @@ class SelectLocationViewModelTest {
             assertIs<SelectLocationUiState.Content>(actualState)
             assertEquals(
                 listOf(RelayListItem.LocationsEmptyText(mockSearchString)),
-                actualState.relayListItems
+                actualState.relayListItems,
             )
         }
     }
@@ -288,7 +288,7 @@ class SelectLocationViewModelTest {
                     CustomList(
                         id = CustomListId("1"),
                         name = customListName,
-                        locations = emptyList()
+                        locations = emptyList(),
                     ),
                 locations = emptyList(),
             )
@@ -296,7 +296,7 @@ class SelectLocationViewModelTest {
             CustomListActionResultData.Success.LocationAdded(
                 customListName = customListName,
                 locationName = location.name,
-                undo = CustomListAction.UpdateLocations(id = customListId, locations = emptyList())
+                undo = CustomListAction.UpdateLocations(id = customListId, locations = emptyList()),
             )
 
         coEvery { mockCustomListActionUseCase(any<CustomListAction.UpdateLocations>()) } returns
@@ -304,7 +304,7 @@ class SelectLocationViewModelTest {
                     id = customListId,
                     name = customListName,
                     locations = listOf(addedLocationsId),
-                    oldLocations = emptyList()
+                    oldLocations = emptyList(),
                 )
                 .right()
 
@@ -337,8 +337,8 @@ class SelectLocationViewModelTest {
                     undo =
                         CustomListAction.UpdateLocations(
                             id = customListId,
-                            locations = listOf(location.id)
-                        )
+                            locations = listOf(location.id),
+                        ),
                 )
             coEvery { mockCustomListActionUseCase(any<CustomListAction.UpdateLocations>()) } returns
                 LocationsChanged(
@@ -352,7 +352,7 @@ class SelectLocationViewModelTest {
                 CustomList(
                         id = customListId,
                         name = customListName,
-                        locations = listOf(removedLocationsId)
+                        locations = listOf(removedLocationsId),
                     )
                     .right()
 
@@ -393,11 +393,11 @@ class SelectLocationViewModelTest {
                         RelayItem.Location.City(
                             id = GeoLocationId.City(GeoLocationId.Country("se"), "got"),
                             "Gothenburg",
-                            emptyList()
+                            emptyList(),
                         )
-                    )
+                    ),
                 ),
-                RelayItem.Location.Country(id = GeoLocationId.Country("no"), "Norway", emptyList())
+                RelayItem.Location.Country(id = GeoLocationId.Country("no"), "Norway", emptyList()),
             )
     }
 }

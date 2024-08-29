@@ -23,7 +23,7 @@ class RelayLocationTranslationRepository(
     val context: Context,
     val localeRepository: LocaleRepository,
     externalScope: CoroutineScope = MainScope(),
-    val dispatcher: CoroutineDispatcher = Dispatchers.IO
+    val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) {
     val translations: StateFlow<Translations> =
         localeRepository.currentLocale

@@ -15,15 +15,9 @@ fun HeaderCell(
     background: Color = MaterialTheme.colorScheme.primary,
 ) {
     BaseCell(
-        headlineContent = {
-            BaseCellTitle(
-                title = text,
-                style = textStyle,
-                textColor = textColor,
-            )
-        },
+        headlineContent = { BaseCellTitle(title = text, style = textStyle, textColor = textColor) },
         modifier = modifier,
         background = background,
-        isRowEnabled = false
+        isRowEnabled = false,
     )
 }

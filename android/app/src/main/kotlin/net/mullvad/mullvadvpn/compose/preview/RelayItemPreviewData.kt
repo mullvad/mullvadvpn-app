@@ -42,7 +42,7 @@ private fun generateRelayItemCity(
                 generateRelayItemRelay(
                     name.generateCityCode(countryCode),
                     generateHostname(name.generateCityCode(countryCode), index),
-                    active
+                    active,
                 )
             },
     )
@@ -53,11 +53,7 @@ private fun generateRelayItemRelay(
     active: Boolean = true,
 ) =
     RelayItem.Location.Relay(
-        id =
-            GeoLocationId.Hostname(
-                city = cityCode,
-                code = hostName,
-            ),
+        id = GeoLocationId.Hostname(city = cityCode, code = hostName),
         active = active,
         provider = Provider(ProviderId("Provider"), Ownership.MullvadOwned),
     )

@@ -14,13 +14,13 @@ fun InfoIconButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     contentDescription: String? = null,
-    iconTint: Color = MaterialTheme.colorScheme.onPrimary
+    iconTint: Color = MaterialTheme.colorScheme.onPrimary,
 ) {
     IconButton(modifier = modifier, onClick = onClick) {
         Icon(
             painter = painterResource(id = R.drawable.icon_info),
             contentDescription = contentDescription,
-            tint = iconTint
+            tint = iconTint,
         )
     }
 }

@@ -32,7 +32,7 @@ fun IconCell(
     titleColor: Color = MaterialTheme.colorScheme.onPrimary,
     onClick: () -> Unit = {},
     background: Color = MaterialTheme.colorScheme.primary,
-    enabled: Boolean = true
+    enabled: Boolean = true,
 ) {
     BaseCell(
         headlineContent = {
@@ -41,7 +41,7 @@ fun IconCell(
                     Icon(
                         painter = painterResource(id = iconId),
                         contentDescription = contentDescription,
-                        tint = titleColor
+                        tint = titleColor,
                     )
                     Spacer(modifier = Modifier.width(Dimens.mediumPadding))
                 }
@@ -51,6 +51,6 @@ fun IconCell(
         onCellClicked = onClick,
         background = background,
         isRowEnabled = enabled,
-        modifier = modifier
+        modifier = modifier,
     )
 }

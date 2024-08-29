@@ -16,7 +16,7 @@ class ApiAccessListViewModel(apiAccessRepository: ApiAccessRepository) : ViewMod
                 currentAccessMethod ->
                 ApiAccessListUiState(
                     currentApiAccessMethodSetting = currentAccessMethod,
-                    apiAccessMethodSettings = apiAccessMethods ?: emptyList()
+                    apiAccessMethodSettings = apiAccessMethods ?: emptyList(),
                 )
             }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), ApiAccessListUiState())

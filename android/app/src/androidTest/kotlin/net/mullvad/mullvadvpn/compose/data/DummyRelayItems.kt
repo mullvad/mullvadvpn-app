@@ -17,25 +17,22 @@ private val DUMMY_RELAY_1 =
         id =
             GeoLocationId.Hostname(
                 city = GeoLocationId.City(GeoLocationId.Country("RCo1"), "Relay City 1"),
-                "Relay host 1"
+                "Relay host 1",
             ),
         active = true,
         provider =
-            Provider(
-                providerId = ProviderId("PROVIDER RENTED"),
-                ownership = Ownership.Rented,
-            )
+            Provider(providerId = ProviderId("PROVIDER RENTED"), ownership = Ownership.Rented),
     )
 private val DUMMY_RELAY_2 =
     RelayItem.Location.Relay(
         id =
             GeoLocationId.Hostname(
                 city = GeoLocationId.City(GeoLocationId.Country("RCo2"), "Relay City 2"),
-                "Relay host 2"
+                "Relay host 2",
             ),
         active = true,
         provider =
-            Provider(providerId = ProviderId("PROVIDER OWNED"), ownership = Ownership.MullvadOwned)
+            Provider(providerId = ProviderId("PROVIDER OWNED"), ownership = Ownership.MullvadOwned),
     )
 private val DUMMY_RELAY_CITY_1 =
     RelayItem.Location.City(
@@ -53,13 +50,13 @@ private val DUMMY_RELAY_COUNTRY_1 =
     RelayItem.Location.Country(
         name = "Relay Country 1",
         id = GeoLocationId.Country("RCo1"),
-        cities = listOf(DUMMY_RELAY_CITY_1)
+        cities = listOf(DUMMY_RELAY_CITY_1),
     )
 private val DUMMY_RELAY_COUNTRY_2 =
     RelayItem.Location.Country(
         name = "Relay Country 2",
         id = GeoLocationId.Country("RCo2"),
-        cities = listOf(DUMMY_RELAY_CITY_2)
+        cities = listOf(DUMMY_RELAY_CITY_2),
     )
 
 private val DUMMY_WIREGUARD_PORT_RANGES = ArrayList<PortRange>()
@@ -67,11 +64,7 @@ private val DUMMY_WIREGUARD_ENDPOINT_DATA = WireguardEndpointData(DUMMY_WIREGUAR
 
 val DUMMY_RELAY_COUNTRIES = listOf(DUMMY_RELAY_COUNTRY_1, DUMMY_RELAY_COUNTRY_2)
 
-val DUMMY_RELAY_LIST =
-    RelayList(
-        DUMMY_RELAY_COUNTRIES,
-        DUMMY_WIREGUARD_ENDPOINT_DATA,
-    )
+val DUMMY_RELAY_LIST = RelayList(DUMMY_RELAY_COUNTRIES, DUMMY_WIREGUARD_ENDPOINT_DATA)
 
 val DUMMY_RELAY_ITEM_CUSTOM_LISTS =
     listOf(
@@ -80,19 +73,19 @@ val DUMMY_RELAY_ITEM_CUSTOM_LISTS =
                 CustomList(
                     name = CustomListName.fromString("First list"),
                     id = CustomListId("1"),
-                    locations = emptyList()
+                    locations = emptyList(),
                 ),
-            locations = DUMMY_RELAY_COUNTRIES
+            locations = DUMMY_RELAY_COUNTRIES,
         ),
         RelayItem.CustomList(
             customList =
                 CustomList(
                     name = CustomListName.fromString("Empty list"),
                     id = CustomListId("2"),
-                    locations = emptyList()
+                    locations = emptyList(),
                 ),
-            locations = emptyList()
-        )
+            locations = emptyList(),
+        ),
     )
 
 val DUMMY_CUSTOM_LISTS =
@@ -100,11 +93,11 @@ val DUMMY_CUSTOM_LISTS =
         CustomList(
             name = CustomListName.fromString("First list"),
             id = CustomListId("1"),
-            locations = DUMMY_RELAY_COUNTRIES.map { it.id }
+            locations = DUMMY_RELAY_COUNTRIES.map { it.id },
         ),
         CustomList(
             name = CustomListName.fromString("Empty list"),
             id = CustomListId("2"),
-            locations = emptyList()
-        )
+            locations = emptyList(),
+        ),
     )

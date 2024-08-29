@@ -16,9 +16,7 @@ import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.util.toPaymentDialogData
 
-class PaymentViewModel(
-    private val paymentUseCase: PaymentUseCase,
-) : ViewModel() {
+class PaymentViewModel(private val paymentUseCase: PaymentUseCase) : ViewModel() {
     val uiState: StateFlow<PaymentUiState> =
         paymentUseCase.purchaseResult
             .filterNot {

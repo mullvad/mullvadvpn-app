@@ -60,15 +60,12 @@ private fun PreviewCustomListLocationScreen() {
     //    AppTheme { CustomListLocationsScreen(state = CustomListLocationsUiState.Content.Data()) }
 }
 
-data class CustomListLocationsNavArgs(
-    val customListId: CustomListId,
-    val newList: Boolean,
-)
+data class CustomListLocationsNavArgs(val customListId: CustomListId, val newList: Boolean)
 
 @Composable
 @Destination<RootGraph>(
     style = SlideInFromRightTransition::class,
-    navArgs = CustomListLocationsNavArgs::class
+    navArgs = CustomListLocationsNavArgs::class,
 )
 fun CustomListLocations(
     navigator: DestinationsNavigator,
@@ -109,7 +106,7 @@ fun CustomListLocations(
                 } else {
                     backNavigator.navigateBack()
                 }
-            }
+            },
     )
 }
 
@@ -120,7 +117,7 @@ fun CustomListLocationsScreen(
     onSaveClick: () -> Unit = {},
     onRelaySelectionClick: (RelayItem.Location, selected: Boolean) -> Unit = { _, _ -> },
     onExpand: (RelayItem.Location, selected: Boolean) -> Unit = { _, _ -> },
-    onBackClick: () -> Unit = {}
+    onBackClick: () -> Unit = {},
 ) {
     ScaffoldWithSmallTopBar(
         appBarTitle =
@@ -132,7 +129,7 @@ fun CustomListLocationsScreen(
                 }
             ),
         navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) },
-        actions = { Actions(isSaveEnabled = state.saveEnabled, onSaveClick = onSaveClick) }
+        actions = { Actions(isSaveEnabled = state.saveEnabled, onSaveClick = onSaveClick) },
     ) { modifier ->
         Column(modifier = modifier) {
             SearchTextField(
@@ -152,7 +149,7 @@ fun CustomListLocationsScreen(
                 modifier =
                     Modifier.drawVerticalScrollbar(
                             state = lazyListState,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar)
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
                         )
                         .fillMaxWidth(),
                 state = lazyListState,
@@ -168,7 +165,7 @@ fun CustomListLocationsScreen(
                         content(
                             uiState = state,
                             onRelaySelectedChanged = onRelaySelectionClick,
-                            onExpand = onExpand
+                            onExpand = onExpand,
                         )
                     }
                 }
@@ -185,11 +182,9 @@ private fun Actions(isSaveEnabled: Boolean, onSaveClick: () -> Unit) {
         colors =
             ButtonDefaults.textButtonColors()
                 .copy(contentColor = MaterialTheme.colorScheme.onPrimary),
-        modifier = Modifier.testTag(SAVE_BUTTON_TEST_TAG)
+        modifier = Modifier.testTag(SAVE_BUTTON_TEST_TAG),
     ) {
-        Text(
-            text = stringResource(R.string.save),
-        )
+        Text(text = stringResource(R.string.save))
     }
 }
 
@@ -212,10 +207,8 @@ private fun LazyListScope.content(
     onExpand: (RelayItem.Location, expand: Boolean) -> Unit,
     onRelaySelectedChanged: (RelayItem.Location, selected: Boolean) -> Unit,
 ) {
-    itemsIndexed(
-        uiState.locations,
-        key = { index, listItem -> listItem.item.id },
-    ) { index, listItem ->
+    itemsIndexed(uiState.locations, key = { index, listItem -> listItem.item.id }) { index, listItem
+        ->
         Column(modifier = Modifier.animateItem()) {
             if (index != 0) {
                 HorizontalDivider()

@@ -79,13 +79,14 @@ data class ApiAccessMethodDetailsNavArgs(val accessMethodId: ApiAccessMethodId)
 
 @Destination<RootGraph>(
     style = SlideInFromRightTransition::class,
-    navArgs = ApiAccessMethodDetailsNavArgs::class
+    navArgs = ApiAccessMethodDetailsNavArgs::class,
 )
 @Composable
+@Suppress("LongMethod")
 fun ApiAccessMethodDetails(
     navigator: DestinationsNavigator,
     confirmDeleteListResultRecipient:
-        ResultRecipient<DeleteApiAccessMethodConfirmationDestination, Boolean>
+        ResultRecipient<DeleteApiAccessMethodConfirmationDestination, Boolean>,
 ) {
     val viewModel = koinViewModel<ApiAccessMethodDetailsViewModel>()
 
@@ -144,7 +145,7 @@ fun ApiAccessMethodDetails(
                     message = context.getString(R.string.testing_name, state.name()),
                     duration = SnackbarDuration.Indefinite,
                     actionLabel = context.getString(R.string.cancel),
-                    onAction = viewModel::cancelTestMethod
+                    onAction = viewModel::cancelTestMethod,
                 )
             }
         }
@@ -185,7 +186,7 @@ fun ApiAccessMethodDetailsScreen(
     onTestMethodClicked: () -> Unit = {},
     onUseMethodClicked: () -> Unit = {},
     onDeleteApiAccessMethodClicked: (ApiAccessMethodId) -> Unit = {},
-    onBackClicked: () -> Unit = {}
+    onBackClicked: () -> Unit = {},
 ) {
     ScaffoldWithMediumTopBar(
         appBarTitle = state.name(),
@@ -199,7 +200,7 @@ fun ApiAccessMethodDetailsScreen(
                     }
                 )
             }
-        }
+        },
     ) { modifier: Modifier ->
         Column(modifier = modifier) {
             when (state) {
@@ -210,7 +211,7 @@ fun ApiAccessMethodDetailsScreen(
                         onEditMethodClicked = onEditMethodClicked,
                         onEnableClicked = onEnableClicked,
                         onTestMethodClicked = onTestMethodClicked,
-                        onUseMethodClicked = onUseMethodClicked
+                        onUseMethodClicked = onUseMethodClicked,
                     )
             }
         }
@@ -228,13 +229,13 @@ private fun Content(
     onEditMethodClicked: () -> Unit,
     onEnableClicked: (Boolean) -> Unit,
     onTestMethodClicked: () -> Unit,
-    onUseMethodClicked: () -> Unit
+    onUseMethodClicked: () -> Unit,
 ) {
     if (state.isEditable) {
         NavigationComposeCell(
             title = stringResource(id = R.string.edit_method),
             onClick = onEditMethodClicked,
-            testTag = API_ACCESS_DETAILS_EDIT_BUTTON
+            testTag = API_ACCESS_DETAILS_EDIT_BUTTON,
         )
         HorizontalDivider()
     }
@@ -242,11 +243,11 @@ private fun Content(
         isEnabled = state.isDisableable,
         title = stringResource(id = R.string.enable_method),
         isToggled = state.enabled,
-        onCellClicked = onEnableClicked
+        onCellClicked = onEnableClicked,
     )
     if (!state.isDisableable) {
         SwitchComposeSubtitleCell(
-            text = stringResource(id = R.string.at_least_on_method_needs_to_enabled),
+            text = stringResource(id = R.string.at_least_on_method_needs_to_enabled)
         )
     }
     Spacer(modifier = Modifier.height(Dimens.verticalSpace))
@@ -254,7 +255,7 @@ private fun Content(
         modifier =
             Modifier.padding(horizontal = Dimens.sideMargin).testTag(API_ACCESS_TEST_METHOD_BUTTON),
         isTesting = state.isTestingAccessMethod,
-        onTestMethod = onTestMethodClicked
+        onTestMethod = onTestMethodClicked,
     )
     Spacer(modifier = Modifier.height(Dimens.verticalSpace))
     PrimaryButton(
@@ -262,7 +263,7 @@ private fun Content(
         modifier =
             Modifier.padding(horizontal = Dimens.sideMargin).testTag(API_ACCESS_USE_METHOD_BUTTON),
         onClick = onUseMethodClicked,
-        text = stringResource(id = R.string.use_method)
+        text = stringResource(id = R.string.use_method),
     )
 }
 
@@ -271,14 +272,14 @@ private fun Actions(onDeleteAccessMethod: () -> Unit) {
     var showMenu by remember { mutableStateOf(false) }
     IconButton(
         onClick = { showMenu = true },
-        modifier = Modifier.testTag(API_ACCESS_DETAILS_TOP_BAR_DROPDOWN_BUTTON_TEST_TAG)
+        modifier = Modifier.testTag(API_ACCESS_DETAILS_TOP_BAR_DROPDOWN_BUTTON_TEST_TAG),
     ) {
         Icon(painter = painterResource(id = R.drawable.icon_more_vert), contentDescription = null)
         if (showMenu) {
             DropdownMenu(
                 expanded = true,
                 onDismissRequest = { showMenu = false },
-                modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainer)
+                modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainer),
             ) {
                 DropdownMenuItem(
                     text = { Text(text = stringResource(id = R.string.delete_method)) },
@@ -293,7 +294,7 @@ private fun Actions(onDeleteAccessMethod: () -> Unit) {
                         onDeleteAccessMethod()
                         showMenu = false
                     },
-                    modifier = Modifier.testTag(DELETE_DROPDOWN_MENU_ITEM_TEST_TAG)
+                    modifier = Modifier.testTag(DELETE_DROPDOWN_MENU_ITEM_TEST_TAG),
                 )
             }
         }

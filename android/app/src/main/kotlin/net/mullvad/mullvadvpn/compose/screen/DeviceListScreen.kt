@@ -106,7 +106,7 @@ data class DeviceListNavArgs(val accountNumber: AccountNumber)
 @Composable
 fun DeviceList(
     navigator: DestinationsNavigator,
-    confirmRemoveResultRecipient: ResultRecipient<RemoveDeviceConfirmationDestination, DeviceId>
+    confirmRemoveResultRecipient: ResultRecipient<RemoveDeviceConfirmationDestination, DeviceId>,
 ) {
     val viewModel = koinViewModel<DeviceListViewModel>()
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -126,7 +126,7 @@ fun DeviceList(
     val context = LocalContext.current
     CollectSideEffectWithLifecycle(
         viewModel.uiSideEffect,
-        minActiveState = Lifecycle.State.RESUMED
+        minActiveState = Lifecycle.State.RESUMED,
     ) { sideEffect ->
         when (sideEffect) {
             DeviceListSideEffect.FailedToRemoveDevice -> {
@@ -154,7 +154,7 @@ fun DeviceList(
         navigateToRemoveDeviceConfirmationDialog =
             dropUnlessResumed<Device> {
                 navigator.navigate(RemoveDeviceConfirmationDestination(it))
-            }
+            },
     )
 }
 
@@ -166,7 +166,7 @@ fun DeviceListScreen(
     onContinueWithLogin: () -> Unit = {},
     onSettingsClicked: () -> Unit = {},
     onTryAgainClicked: () -> Unit = {},
-    navigateToRemoveDeviceConfirmationDialog: (device: Device) -> Unit = {}
+    navigateToRemoveDeviceConfirmationDialog: (device: Device) -> Unit = {},
 ) {
 
     ScaffoldWithTopBar(
@@ -174,18 +174,16 @@ fun DeviceListScreen(
         iconTintColor = MaterialTheme.colorScheme.onPrimary,
         onSettingsClicked = onSettingsClicked,
         onAccountClicked = null,
-        snackbarHostState = snackbarHostState
+        snackbarHostState = snackbarHostState,
     ) {
-        Column(
-            modifier = Modifier.fillMaxSize().padding(it),
-        ) {
+        Column(modifier = Modifier.fillMaxSize().padding(it)) {
             val scrollState = rememberScrollState()
             Column(
                 modifier =
                     Modifier.drawVerticalScrollbar(scrollState, MaterialTheme.colorScheme.onSurface)
                         .verticalScroll(scrollState)
                         .weight(1f)
-                        .fillMaxWidth(),
+                        .fillMaxWidth()
             ) {
                 DeviceListHeader(state)
                 when (state) {
@@ -193,7 +191,7 @@ fun DeviceListScreen(
                         DeviceListContent(
                             state,
                             navigateToRemoveDeviceConfirmationDialog =
-                                navigateToRemoveDeviceConfirmationDialog
+                                navigateToRemoveDeviceConfirmationDialog,
                         )
                     is DeviceListUiState.Error -> DeviceListError(onTryAgainClicked)
                     DeviceListUiState.Loading -> {}
@@ -209,7 +207,7 @@ private fun ColumnScope.DeviceListError(tryAgain: () -> Unit) {
     Column(Modifier.weight(1f), verticalArrangement = Arrangement.Center) {
         Text(
             text = stringResource(id = R.string.failed_to_fetch_devices),
-            modifier = Modifier.padding(Dimens.smallPadding).align(Alignment.CenterHorizontally)
+            modifier = Modifier.padding(Dimens.smallPadding).align(Alignment.CenterHorizontally),
         )
         PrimaryButton(
             onClick = tryAgain,
@@ -218,8 +216,8 @@ private fun ColumnScope.DeviceListError(tryAgain: () -> Unit) {
                 Modifier.padding(
                     top = Dimens.buttonSpacing,
                     start = Dimens.sideMargin,
-                    end = Dimens.sideMargin
-                )
+                    end = Dimens.sideMargin,
+                ),
         )
     }
 }
@@ -227,13 +225,10 @@ private fun ColumnScope.DeviceListError(tryAgain: () -> Unit) {
 @Composable
 private fun ColumnScope.DeviceListContent(
     state: DeviceListUiState.Content,
-    navigateToRemoveDeviceConfirmationDialog: (Device) -> Unit
+    navigateToRemoveDeviceConfirmationDialog: (Device) -> Unit,
 ) {
     state.devices.forEachIndexed { index, (device, loading) ->
-        DeviceListItem(
-            device = device,
-            isLoading = loading,
-        ) {
+        DeviceListItem(device = device, isLoading = loading) {
             navigateToRemoveDeviceConfirmationDialog(device)
         }
         if (state.devices.lastIndex != index) {
@@ -260,7 +255,7 @@ private fun ColumnScope.DeviceListHeader(state: DeviceListUiState) {
                 modifier =
                     Modifier.align(Alignment.CenterHorizontally)
                         .padding(top = Dimens.iconFailSuccessTopMargin)
-                        .size(Dimens.bigIconSize)
+                        .size(Dimens.bigIconSize),
             )
         is DeviceListUiState.Error ->
             Image(
@@ -269,7 +264,7 @@ private fun ColumnScope.DeviceListHeader(state: DeviceListUiState) {
                 modifier =
                     Modifier.align(Alignment.CenterHorizontally)
                         .padding(top = Dimens.iconFailSuccessTopMargin)
-                        .size(Dimens.bigIconSize)
+                        .size(Dimens.bigIconSize),
             )
         DeviceListUiState.Loading ->
             MullvadCircularProgressIndicatorLarge(
@@ -295,7 +290,7 @@ private fun ColumnScope.DeviceListHeader(state: DeviceListUiState) {
             Modifier.padding(
                 start = Dimens.sideMargin,
                 end = Dimens.sideMargin,
-                top = Dimens.screenVerticalMargin
+                top = Dimens.screenVerticalMargin,
             ),
     )
 
@@ -319,8 +314,8 @@ private fun ColumnScope.DeviceListHeader(state: DeviceListUiState) {
                         top = Dimens.smallPadding,
                         start = Dimens.sideMargin,
                         end = Dimens.sideMargin,
-                        bottom = Dimens.spacingAboveButton
-                    )
+                        bottom = Dimens.spacingAboveButton,
+                    ),
         )
     }
 }
@@ -335,14 +330,14 @@ private fun DeviceListItem(device: Device, isLoading: Boolean, onDeviceRemovalCl
                     modifier = Modifier.fillMaxWidth(),
                     text = device.displayName(),
                     style = MaterialTheme.typography.listItemText,
-                    color = MaterialTheme.colorScheme.onPrimary
+                    color = MaterialTheme.colorScheme.onPrimary,
                 )
                 Text(
                     modifier = Modifier.fillMaxWidth(),
                     text =
                         stringResource(id = R.string.created_x, device.creationDate.formatDate()),
                     style = MaterialTheme.typography.listItemSubText,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         },
@@ -357,7 +352,7 @@ private fun DeviceListItem(device: Device, isLoading: Boolean, onDeviceRemovalCl
                         painter = painterResource(id = R.drawable.icon_close),
                         contentDescription = stringResource(id = R.string.remove_button),
                         tint = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.size(size = Dimens.deleteIconSize)
+                        modifier = Modifier.size(size = Dimens.deleteIconSize),
                     )
                 }
             }
@@ -370,7 +365,7 @@ private fun DeviceListItem(device: Device, isLoading: Boolean, onDeviceRemovalCl
 private fun DeviceListButtonPanel(
     state: DeviceListUiState,
     onContinueWithLogin: () -> Unit,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
 ) {
     Column(
         modifier =
@@ -378,20 +373,20 @@ private fun DeviceListButtonPanel(
                 start = Dimens.sideMargin,
                 end = Dimens.sideMargin,
                 top = Dimens.spacingAboveButton,
-                bottom = Dimens.screenVerticalMargin
+                bottom = Dimens.screenVerticalMargin,
             )
     ) {
         VariantButton(
             text = stringResource(id = R.string.continue_login),
             onClick = onContinueWithLogin,
             isEnabled = state is DeviceListUiState.Content && !state.hasTooManyDevices,
-            background = MaterialTheme.colorScheme.selected
+            background = MaterialTheme.colorScheme.selected,
         )
 
         PrimaryButton(
             text = stringResource(id = R.string.back),
             onClick = onBackClick,
-            modifier = Modifier.padding(top = Dimens.buttonSpacing)
+            modifier = Modifier.padding(top = Dimens.buttonSpacing),
         )
     }
 }

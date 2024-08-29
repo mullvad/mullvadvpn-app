@@ -38,20 +38,15 @@ private fun PreviewImportOverridesByText() {
 
 @Destination<RootGraph>(style = DefaultTransition::class)
 @Composable
-fun ImportOverridesByText(
-    resultNavigator: ResultBackNavigator<String>,
-) {
+fun ImportOverridesByText(resultNavigator: ResultBackNavigator<String>) {
     ImportOverridesByTextScreen(
         onNavigateBack = dropUnlessResumed { resultNavigator.navigateBack() },
-        onImportClicked = { resultNavigator.navigateBack(result = it) }
+        onImportClicked = { resultNavigator.navigateBack(result = it) },
     )
 }
 
 @Composable
-fun ImportOverridesByTextScreen(
-    onNavigateBack: () -> Unit,
-    onImportClicked: (String) -> Unit,
-) {
+fun ImportOverridesByTextScreen(onNavigateBack: () -> Unit, onImportClicked: (String) -> Unit) {
     var text by remember { mutableStateOf("") }
 
     Scaffold(
@@ -69,15 +64,13 @@ fun ImportOverridesByTextScreen(
                         colors =
                             ButtonDefaults.textButtonColors()
                                 .copy(contentColor = MaterialTheme.colorScheme.onPrimary),
-                        onClick = dropUnlessResumed { onImportClicked(text) }
+                        onClick = dropUnlessResumed { onImportClicked(text) },
                     ) {
-                        Text(
-                            text = stringResource(R.string.import_overrides_import),
-                        )
+                        Text(text = stringResource(R.string.import_overrides_import))
                     }
-                }
+                },
             )
-        },
+        }
     ) {
         Column(modifier = Modifier.padding(it)) {
             TextField(
@@ -87,7 +80,7 @@ fun ImportOverridesByTextScreen(
                 placeholder = {
                     Text(text = stringResource(R.string.import_override_textfield_placeholder))
                 },
-                colors = mullvadWhiteTextFieldColors()
+                colors = mullvadWhiteTextFieldColors(),
             )
         }
     }

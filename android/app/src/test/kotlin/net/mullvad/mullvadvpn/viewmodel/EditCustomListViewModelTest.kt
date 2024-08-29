@@ -62,6 +62,6 @@ class EditCustomListViewModelTest {
             customListsRepository = mockCustomListsRepository,
             savedStateHandle =
                 EditCustomListNameNavArgs(customListId = customListId, initialName = initialName)
-                    .toSavedStateHandle()
+                    .toSavedStateHandle(),
         )
 }

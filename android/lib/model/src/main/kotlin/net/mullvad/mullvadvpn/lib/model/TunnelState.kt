@@ -6,13 +6,13 @@ sealed class TunnelState {
     data class Connecting(
         val endpoint: TunnelEndpoint?,
         val location: GeoIpLocation?,
-        val featureIndicators: List<FeatureIndicator>
+        val featureIndicators: List<FeatureIndicator>,
     ) : TunnelState()
 
     data class Connected(
         val endpoint: TunnelEndpoint,
         val location: GeoIpLocation?,
-        val featureIndicators: List<FeatureIndicator>
+        val featureIndicators: List<FeatureIndicator>,
     ) : TunnelState()
 
     data class Disconnecting(val actionAfterDisconnect: ActionAfterDisconnect) : TunnelState()
@@ -33,7 +33,7 @@ sealed class TunnelState {
         return when (this) {
             is Connected,
             is Connecting,
-            is Disconnecting, -> true
+            is Disconnecting -> true
             is Disconnected -> false
             is Error -> this.errorState.isBlocking
         }

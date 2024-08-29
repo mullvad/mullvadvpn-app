@@ -94,16 +94,16 @@ fun SplashScreen() {
                     Modifier.background(backgroundColor)
                         .padding(it)
                         .padding(bottom = it.calculateTopPadding())
-                        .fillMaxSize()
+                        .fillMaxSize(),
             ) {
                 Column(
                     verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Image(
                         painter = painterResource(id = R.drawable.launch_logo),
                         contentDescription = "",
-                        modifier = Modifier.size(Dimens.splashLogoSize)
+                        modifier = Modifier.size(Dimens.splashLogoSize),
                     )
                     Image(
                         painter = painterResource(id = R.drawable.logo_text),
@@ -111,16 +111,16 @@ fun SplashScreen() {
                         alpha = 0.6f,
                         modifier =
                             Modifier.padding(top = Dimens.mediumPadding)
-                                .height(Dimens.splashLogoTextHeight)
+                                .height(Dimens.splashLogoTextHeight),
                     )
                     Text(
                         text = stringResource(id = R.string.connecting_to_daemon),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(top = Dimens.mediumPadding)
+                        modifier = Modifier.padding(top = Dimens.mediumPadding),
                     )
                 }
             }
-        }
+        },
     )
 }

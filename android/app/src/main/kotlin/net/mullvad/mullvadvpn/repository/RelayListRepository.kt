@@ -30,7 +30,7 @@ import net.mullvad.mullvadvpn.relaylist.sortedByName
 class RelayListRepository(
     private val managementService: ManagementService,
     private val translationRepository: RelayLocationTranslationRepository,
-    dispatcher: CoroutineDispatcher = Dispatchers.IO
+    dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) {
     val relayList: StateFlow<List<RelayItem.Location.Country>> =
         combine(managementService.relayCountries, translationRepository.translations) {
@@ -65,7 +65,7 @@ class RelayListRepository(
         managementService.wireguardEndpointData.stateIn(
             CoroutineScope(dispatcher),
             SharingStarted.WhileSubscribed(),
-            defaultWireguardEndpointData()
+            defaultWireguardEndpointData(),
         )
 
     val selectedLocation: StateFlow<Constraint<RelayItemId>> =

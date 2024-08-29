@@ -27,7 +27,7 @@ internal class MapGLRenderer(private val resources: Resources) : GLSurfaceView.R
                 evicted: Boolean,
                 key: LocationMarkerColors,
                 oldValue: LocationMarker,
-                newValue: LocationMarker?
+                newValue: LocationMarker?,
             ) {
                 oldValue.onRemove()
             }
@@ -114,7 +114,7 @@ internal class MapGLRenderer(private val resources: Resources) : GLSurfaceView.R
                 FIELD_OF_VIEW,
                 ratio,
                 PERSPECTIVE_Z_NEAR,
-                PERSPECTIVE_Z_FAR
+                PERSPECTIVE_Z_FAR,
             )
         }
     }

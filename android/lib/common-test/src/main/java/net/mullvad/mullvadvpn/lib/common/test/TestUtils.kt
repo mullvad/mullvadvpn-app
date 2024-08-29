@@ -12,5 +12,5 @@ fun <T> assertLists(expected: List<T>, actual: List<T>, message: String? = null)
         | Expected(${expected.size}): $expected
         | Actual(${actual.size})  : $actual
     """
-                .trimMargin()
+                .trimMargin(),
     )

@@ -44,7 +44,7 @@ class MtuDialogTest {
             onInputChanged = onInputChanged,
             onSaveMtu = onSaveMtu,
             onResetMtu = onResetMtu,
-            onDismiss = onDismiss
+            onDismiss = onDismiss,
         )
     }
 
@@ -62,11 +62,7 @@ class MtuDialogTest {
     fun testMtuDialogWithEditValue() =
         composeExtension.use {
             // Arrange
-            setContentWithTheme {
-                testMtuDialog(
-                    mtuInput = VALID_DUMMY_MTU_VALUE,
-                )
-            }
+            setContentWithTheme { testMtuDialog(mtuInput = VALID_DUMMY_MTU_VALUE) }
 
             // Assert
             onNodeWithText(VALID_DUMMY_MTU_VALUE).assertExists()
@@ -78,10 +74,7 @@ class MtuDialogTest {
             // Arrange
             val mockedSubmitHandler: (String) -> Unit = mockk(relaxed = true)
             setContentWithTheme {
-                testMtuDialog(
-                    VALID_DUMMY_MTU_VALUE,
-                    onSaveMtu = mockedSubmitHandler,
-                )
+                testMtuDialog(VALID_DUMMY_MTU_VALUE, onSaveMtu = mockedSubmitHandler)
             }
 
             // Act
@@ -107,10 +100,7 @@ class MtuDialogTest {
             // Arrange
             val mockedClickHandler: () -> Unit = mockk(relaxed = true)
             setContentWithTheme {
-                testMtuDialog(
-                    mtuInput = VALID_DUMMY_MTU_VALUE,
-                    onResetMtu = mockedClickHandler,
-                )
+                testMtuDialog(mtuInput = VALID_DUMMY_MTU_VALUE, onResetMtu = mockedClickHandler)
             }
 
             // Act
@@ -125,11 +115,7 @@ class MtuDialogTest {
         composeExtension.use {
             // Arrange
             val mockedClickHandler: () -> Unit = mockk(relaxed = true)
-            setContentWithTheme {
-                testMtuDialog(
-                    onDismiss = mockedClickHandler,
-                )
-            }
+            setContentWithTheme { testMtuDialog(onDismiss = mockedClickHandler) }
 
             // Assert
             onNodeWithText("Cancel").performClick()

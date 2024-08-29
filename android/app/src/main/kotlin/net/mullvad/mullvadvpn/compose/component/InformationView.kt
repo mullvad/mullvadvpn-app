@@ -26,7 +26,7 @@ fun InformationView(
     content: String,
     modifier: Modifier = Modifier,
     whenMissing: MissingPolicy = MissingPolicy.SHOW_VIEW,
-    maxLines: Int = 1
+    maxLines: Int = 1,
 ) {
     return if (content.isNotEmpty()) {
         AutoResizeText(
@@ -35,7 +35,7 @@ fun InformationView(
             minTextSize = MaterialTheme.typography.labelMedium.fontSize,
             maxTextSize = MaterialTheme.typography.titleSmall.fontSize,
             maxLines = maxLines,
-            modifier = modifier.padding(vertical = Dimens.smallPadding)
+            modifier = modifier.padding(vertical = Dimens.smallPadding),
         )
     } else {
         when (whenMissing) {
@@ -46,14 +46,14 @@ fun InformationView(
                     minTextSize = MaterialTheme.typography.labelMedium.fontSize,
                     maxTextSize = MaterialTheme.typography.titleSmall.fontSize,
                     maxLines = maxLines,
-                    modifier = modifier.padding(vertical = Dimens.smallPadding)
+                    modifier = modifier.padding(vertical = Dimens.smallPadding),
                 )
             }
             MissingPolicy.HIDE_VIEW -> {}
             MissingPolicy.SHOW_SPINNER -> {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = modifier.padding(Dimens.smallPadding)
+                    modifier = modifier.padding(Dimens.smallPadding),
                 ) {
                     MullvadCircularProgressIndicatorSmall()
                 }
@@ -65,5 +65,5 @@ fun InformationView(
 enum class MissingPolicy {
     SHOW_VIEW,
     HIDE_VIEW,
-    SHOW_SPINNER
+    SHOW_SPINNER,
 }

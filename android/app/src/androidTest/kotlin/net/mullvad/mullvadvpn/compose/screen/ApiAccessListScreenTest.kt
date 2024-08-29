@@ -59,7 +59,7 @@ class ApiAccessListScreenTest {
             setContentWithTheme {
                 ApiAccessListScreen(
                     state = ApiAccessListUiState(),
-                    onAddMethodClick = onAddMethodClick
+                    onAddMethodClick = onAddMethodClick,
                 )
             }
 
@@ -78,7 +78,7 @@ class ApiAccessListScreenTest {
             setContentWithTheme {
                 ApiAccessListScreen(
                     state = ApiAccessListUiState(),
-                    onApiAccessInfoClick = onApiAccessInfoClick
+                    onApiAccessInfoClick = onApiAccessInfoClick,
                 )
             }
 
@@ -98,7 +98,7 @@ class ApiAccessListScreenTest {
             setContentWithTheme {
                 ApiAccessListScreen(
                     state = ApiAccessListUiState(apiAccessMethodSettings = listOf(apiAccessMethod)),
-                    onApiAccessMethodClick = onApiAccessMethodClick
+                    onApiAccessMethodClick = onApiAccessMethodClick,
                 )
             }
 

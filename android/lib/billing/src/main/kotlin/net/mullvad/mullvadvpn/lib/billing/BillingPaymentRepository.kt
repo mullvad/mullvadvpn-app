@@ -30,7 +30,7 @@ import net.mullvad.mullvadvpn.lib.payment.model.VerificationResult
 
 class BillingPaymentRepository(
     private val billingRepository: BillingRepository,
-    private val playPurchaseRepository: PlayPurchaseRepository
+    private val playPurchaseRepository: PlayPurchaseRepository,
 ) : PaymentRepository {
 
     override fun queryPaymentAvailability(): Flow<PaymentAvailability> = flow {
@@ -49,7 +49,7 @@ class BillingPaymentRepository(
 
     override fun purchaseProduct(
         productId: ProductId,
-        activityProvider: () -> Activity
+        activityProvider: () -> Activity,
     ): Flow<PurchaseResult> = flow {
         emit(PurchaseResult.FetchingProducts)
 
@@ -68,7 +68,7 @@ class BillingPaymentRepository(
                     emit(
                         PurchaseResult.Error.FetchProductsError(
                             productId,
-                            productDetailsResult.toBillingException()
+                            productDetailsResult.toBillingException(),
                         )
                     )
                     return@flow
@@ -84,14 +84,14 @@ class BillingPaymentRepository(
                         emit(PurchaseResult.Error.TransactionIdError(productId, null))
                         return@flow
                     },
-                    { it }
+                    { it },
                 )
 
         val result =
             billingRepository.startPurchaseFlow(
                 productDetails = productDetails,
                 obfuscatedId = obfuscatedId.value,
-                activityProvider = activityProvider
+                activityProvider = activityProvider,
             )
 
         if (result.responseCode == BillingResponseCode.OK) {
@@ -123,7 +123,7 @@ class BillingPaymentRepository(
                         verifyPurchase(event.purchases.first())
                             .fold(
                                 { PurchaseResult.Error.VerificationError(null) },
-                                { PurchaseResult.Completed.Success }
+                                { PurchaseResult.Completed.Success },
                             )
                     )
                 }

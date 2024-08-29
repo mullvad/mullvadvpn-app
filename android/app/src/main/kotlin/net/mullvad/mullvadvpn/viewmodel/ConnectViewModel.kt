@@ -48,7 +48,7 @@ class ConnectViewModel(
     private val connectionProxy: ConnectionProxy,
     lastKnownLocationUseCase: LastKnownLocationUseCase,
     private val vpnPermissionRepository: VpnPermissionRepository,
-    private val isPlayBuild: Boolean
+    private val isPlayBuild: Boolean,
 ) : ViewModel() {
     private val _uiSideEffect = Channel<UiSideEffect>()
 
@@ -63,7 +63,7 @@ class ConnectViewModel(
                 connectionProxy.tunnelState,
                 lastKnownLocationUseCase.lastKnownDisconnectedLocation,
                 accountRepository.accountData,
-                deviceRepository.deviceState.map { it?.displayName() }
+                deviceRepository.deviceState.map { it?.displayName() },
             ) {
                 selectedRelayItemTitle,
                 notifications,

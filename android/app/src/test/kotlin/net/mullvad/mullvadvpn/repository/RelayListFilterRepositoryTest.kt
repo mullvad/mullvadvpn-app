@@ -34,7 +34,7 @@ class RelayListFilterRepositoryTest {
         relayListFilterRepository =
             RelayListFilterRepository(
                 managementService = mockManagementService,
-                dispatcher = UnconfinedTestDispatcher()
+                dispatcher = UnconfinedTestDispatcher(),
             )
     }
 
@@ -82,7 +82,7 @@ class RelayListFilterRepositoryTest {
             val result =
                 relayListFilterRepository.updateSelectedOwnershipAndProviderFilter(
                     ownership,
-                    providers
+                    providers,
                 )
 
             // Assert
@@ -104,7 +104,7 @@ class RelayListFilterRepositoryTest {
             val result =
                 relayListFilterRepository.updateSelectedOwnershipAndProviderFilter(
                     ownership,
-                    providers
+                    providers,
                 )
 
             // Assert

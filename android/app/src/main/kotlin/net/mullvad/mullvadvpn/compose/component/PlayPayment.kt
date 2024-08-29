@@ -42,13 +42,13 @@ private fun PreviewPlayPaymentPaymentAvailable() {
                                 PaymentProduct(
                                     productId = ProductId("test"),
                                     price = ProductPrice("$10"),
-                                    status = null
+                                    status = null,
                                 )
                             )
                     ),
                 onPurchaseBillingProductClick = {},
                 onInfoClick = {},
-                modifier = Modifier.padding(Dimens.screenVerticalMargin)
+                modifier = Modifier.padding(Dimens.screenVerticalMargin),
             )
         }
     }
@@ -63,7 +63,7 @@ private fun PreviewPlayPaymentLoading() {
                 billingPaymentState = PaymentState.Loading,
                 onPurchaseBillingProductClick = {},
                 onInfoClick = {},
-                modifier = Modifier.padding(Dimens.screenVerticalMargin)
+                modifier = Modifier.padding(Dimens.screenVerticalMargin),
             )
         }
     }
@@ -82,13 +82,13 @@ private fun PreviewPlayPaymentPaymentPending() {
                                 PaymentProduct(
                                     productId = ProductId("test"),
                                     price = ProductPrice("$10"),
-                                    status = PaymentStatus.PENDING
+                                    status = PaymentStatus.PENDING,
                                 )
                             )
                     ),
                 onPurchaseBillingProductClick = {},
                 onInfoClick = {},
-                modifier = Modifier.padding(Dimens.screenVerticalMargin)
+                modifier = Modifier.padding(Dimens.screenVerticalMargin),
             )
         }
     }
@@ -107,13 +107,13 @@ private fun PreviewPlayPaymentVerificationInProgress() {
                                 PaymentProduct(
                                     productId = ProductId("test"),
                                     price = ProductPrice("$10"),
-                                    status = PaymentStatus.VERIFICATION_IN_PROGRESS
+                                    status = PaymentStatus.VERIFICATION_IN_PROGRESS,
                                 )
                             )
                     ),
                 onPurchaseBillingProductClick = {},
                 onInfoClick = {},
-                modifier = Modifier.padding(Dimens.screenVerticalMargin)
+                modifier = Modifier.padding(Dimens.screenVerticalMargin),
             )
         }
     }
@@ -124,7 +124,7 @@ fun PlayPayment(
     billingPaymentState: PaymentState,
     onPurchaseBillingProductClick: (ProductId) -> Unit,
     onInfoClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     when (billingPaymentState) {
         PaymentState.Loading -> {
@@ -155,16 +155,16 @@ fun PlayPayment(
                                 style = MaterialTheme.typography.labelLarge,
                                 color = MaterialTheme.colorScheme.onSurface,
                                 text = statusMessage,
-                                modifier = Modifier.padding(bottom = Dimens.smallPadding)
+                                modifier = Modifier.padding(bottom = Dimens.smallPadding),
                             )
                             IconButton(
                                 onClick = onInfoClick,
-                                modifier = Modifier.testTag(PLAY_PAYMENT_INFO_ICON_TEST_TAG)
+                                modifier = Modifier.testTag(PLAY_PAYMENT_INFO_ICON_TEST_TAG),
                             ) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.icon_info),
                                     contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onSurface
+                                    tint = MaterialTheme.colorScheme.onSurface,
                                 )
                             }
                         }
@@ -173,7 +173,7 @@ fun PlayPayment(
                         text =
                             stringResource(id = R.string.add_30_days_time_x, product.price.value),
                         onClick = { onPurchaseBillingProductClick(product.productId) },
-                        isEnabled = product.status == null
+                        isEnabled = product.status == null,
                     )
                 }
             }
@@ -183,7 +183,7 @@ fun PlayPayment(
             Column(modifier = modifier) {
                 VariantButton(
                     text = stringResource(id = R.string.add_30_days_time),
-                    onClick = { onPurchaseBillingProductClick(ProductId(ProductIds.OneMonth)) }
+                    onClick = { onPurchaseBillingProductClick(ProductId(ProductIds.OneMonth)) },
                 )
             }
         }

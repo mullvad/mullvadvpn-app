@@ -12,7 +12,7 @@ object MullvadDaemon {
         rpcSocketPath: String,
         filesDirectory: String,
         cacheDirectory: String,
-        apiEndpoint: ApiEndpoint?
+        apiEndpoint: ApiEndpoint?,
     )
 
     external fun shutdown()

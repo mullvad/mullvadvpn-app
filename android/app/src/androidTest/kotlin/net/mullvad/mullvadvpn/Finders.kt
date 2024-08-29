@@ -10,6 +10,6 @@ fun SemanticsNodeInteractionsProvider.onNodeWithTagAndText(
     text: String,
     substring: Boolean = false,
     ignoreCase: Boolean = false,
-    useUnmergedTree: Boolean = false
+    useUnmergedTree: Boolean = false,
 ): SemanticsNodeInteraction =
     onNode(hasTestTag(testTag).and(hasText(text, substring, ignoreCase)), useUnmergedTree)

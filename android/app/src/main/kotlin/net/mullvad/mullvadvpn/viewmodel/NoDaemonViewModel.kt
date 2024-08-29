@@ -67,7 +67,7 @@ class NoDaemonViewModel(managementService: ManagementService) :
     private fun toDaemonState(
         lifecycleEvent: Lifecycle.Event,
         serviceState: GrpcConnectivityState,
-        currentDestination: DestinationSpec
+        currentDestination: DestinationSpec,
     ): DaemonState {
         // In these destinations we don't care about showing the NoDaemonScreen
         if (currentDestination in noServiceDestinations) {
@@ -92,7 +92,7 @@ class NoDaemonViewModel(managementService: ManagementService) :
     override fun onDestinationChanged(
         controller: NavController,
         destination: NavDestination,
-        arguments: Bundle?
+        arguments: Bundle?,
     ) {
         viewModelScope.launch {
             controller.currentBackStackEntry?.destination()?.let { destinationFlow.emit(it) }

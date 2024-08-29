@@ -12,7 +12,7 @@ class RelayItemCheckableCellPreviewParameterProvider :
                 generateRelayItemCountry(
                     name = "Relay country Active",
                     cityNames = listOf("Relay city 1", "Relay city 2"),
-                    relaysPerCity = 2
+                    relaysPerCity = 2,
                 ),
                 generateRelayItemCountry(
                     name = "Relay country Expanded",
@@ -23,7 +23,7 @@ class RelayItemCheckableCellPreviewParameterProvider :
                     name = "Country and city Expanded",
                     cityNames = listOf("Expanded city A", "Expanded city B"),
                     relaysPerCity = 2,
-                )
+                ),
             )
         )
 }

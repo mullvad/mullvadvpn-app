@@ -90,9 +90,7 @@ fun AutoConnectAndLockdownModeScreen(onBackClick: () -> Unit = {}) {
             Column(modifier = modifier, verticalArrangement = Arrangement.Center) {
                 val pagerState = rememberPagerState(pageCount = { PAGES.entries.size })
                 val scope = rememberCoroutineScope()
-                ConstraintLayout(
-                    modifier = Modifier.fillMaxSize(),
-                ) {
+                ConstraintLayout(modifier = Modifier.fillMaxSize()) {
                     val (pager, backButtonRef, nextButtonRef, pageIndicatorRef) = createRefs()
 
                     AutoConnectCarousel(
@@ -100,7 +98,7 @@ fun AutoConnectAndLockdownModeScreen(onBackClick: () -> Unit = {}) {
                         backButtonRef = backButtonRef,
                         nextButtonRef = nextButtonRef,
                         pager = pager,
-                        onOpenUrl = { url -> context.openLink(Uri.parse(url)) }
+                        onOpenUrl = { url -> context.openLink(Uri.parse(url)) },
                     )
 
                     // Go to previous page
@@ -117,7 +115,7 @@ fun AutoConnectAndLockdownModeScreen(onBackClick: () -> Unit = {}) {
                             }
                         },
                         isEnabled = { pagerState.currentPage != 0 },
-                        rotation = 180f
+                        rotation = 180f,
                     )
 
                     // Go to next page
@@ -134,13 +132,13 @@ fun AutoConnectAndLockdownModeScreen(onBackClick: () -> Unit = {}) {
                             }
                         },
                         isEnabled = { pagerState.currentPage != pagerState.pageCount - 1 },
-                        rotation = 0f
+                        rotation = 0f,
                     )
 
                     PageIndicator(
                         pagerState = pagerState,
                         pageIndicatorRef = pageIndicatorRef,
-                        pager = pager
+                        pager = pager,
                     )
                 }
             }
@@ -155,7 +153,7 @@ private fun ConstraintLayoutScope.AutoConnectCarousel(
     backButtonRef: ConstrainedLayoutReference,
     nextButtonRef: ConstrainedLayoutReference,
     pager: ConstrainedLayoutReference,
-    onOpenUrl: (String) -> Unit
+    onOpenUrl: (String) -> Unit,
 ) {
     HorizontalPager(
         state = pagerState,
@@ -171,7 +169,7 @@ private fun ConstraintLayoutScope.AutoConnectCarousel(
         val page = PAGES.entries[pageIndex]
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         ) {
             val annotatedTopText = page.annotatedTopText()
             ClickableText(
@@ -199,15 +197,15 @@ private fun ConstraintLayoutScope.AutoConnectCarousel(
                 text =
                     HtmlCompat.fromHtml(
                             stringResource(id = page.bottomText),
-                            HtmlCompat.FROM_HTML_MODE_COMPACT
+                            HtmlCompat.FROM_HTML_MODE_COMPACT,
                         )
                         .toAnnotatedString(
                             boldSpanStyle =
                                 SpanStyle(
                                     fontWeight = FontWeight.ExtraBold,
-                                    color = MaterialTheme.colorScheme.onSurface
+                                    color = MaterialTheme.colorScheme.onSurface,
                                 )
-                        )
+                        ),
             )
         }
     }
@@ -223,12 +221,12 @@ private fun CarouselNavigationButton(
     IconButton(
         modifier = modifier.alpha(if (isEnabled.invoke()) AlphaVisible else AlphaInvisible),
         onClick = onClick,
-        enabled = isEnabled.invoke()
+        enabled = isEnabled.invoke(),
     ) {
         Icon(
             painter = painterResource(id = R.drawable.icon_chevron),
             contentDescription = null,
-            modifier = Modifier.rotate(rotation)
+            modifier = Modifier.rotate(rotation),
         )
     }
 }
@@ -238,7 +236,7 @@ private fun CarouselNavigationButton(
 private fun ConstraintLayoutScope.PageIndicator(
     pagerState: PagerState,
     pageIndicatorRef: ConstrainedLayoutReference,
-    pager: ConstrainedLayoutReference
+    pager: ConstrainedLayoutReference,
 ) {
     Row(
         Modifier.wrapContentHeight().fillMaxWidth().padding(top = Dimens.topPadding).constrainAs(
@@ -249,7 +247,7 @@ private fun ConstraintLayoutScope.PageIndicator(
             start.linkTo(parent.start)
         },
         horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.Bottom
+        verticalAlignment = Alignment.Bottom,
     ) {
         repeat(pagerState.pageCount) { iteration ->
             val color =
@@ -268,16 +266,14 @@ private fun ConstraintLayoutScope.PageIndicator(
 
 @Composable
 private fun buildTopText(@StringRes id: Int) = buildAnnotatedString {
-    withStyle(
-        style = SpanStyle(color = MaterialTheme.colorScheme.onSurfaceVariant),
-    ) {
+    withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.onSurfaceVariant)) {
         append(
             HtmlCompat.fromHtml(stringResource(id = id), HtmlCompat.FROM_HTML_MODE_COMPACT)
                 .toAnnotatedString(
                     boldSpanStyle =
                         SpanStyle(
                             fontWeight = FontWeight.ExtraBold,
-                            color = MaterialTheme.colorScheme.onSurface
+                            color = MaterialTheme.colorScheme.onSurface,
                         )
                 )
         )
@@ -299,8 +295,8 @@ private fun buildLockdownTopText() = buildAnnotatedString {
             style =
                 SpanStyle(
                     color = MaterialTheme.colorScheme.onSurface,
-                    textDecoration = TextDecoration.Underline
-                ),
+                    textDecoration = TextDecoration.Underline,
+                )
         ) {
             append(
                 stringResource(
@@ -316,7 +312,7 @@ private fun buildLockdownTopText() = buildAnnotatedString {
 @OptIn(ExperimentalTextApi::class)
 inline fun <R : Any> AnnotatedString.Builder.withLink(
     annotation: UrlAnnotation,
-    block: AnnotatedString.Builder.() -> R
+    block: AnnotatedString.Builder.() -> R,
 ): R {
     val index = pushUrlAnnotation(annotation)
     return try {
@@ -329,7 +325,7 @@ inline fun <R : Any> AnnotatedString.Builder.withLink(
 private enum class PAGES(
     val annotatedTopText: @Composable () -> AnnotatedString,
     val image: Int,
-    val bottomText: Int
+    val bottomText: Int,
 ) {
     FIRST(
         annotatedTopText =
@@ -341,11 +337,11 @@ private enum class PAGES(
         annotatedTopText =
             @Composable { buildTopText(id = R.string.auto_connect_carousel_second_slide_top_text) },
         R.drawable.carousel_slide_2_always_on,
-        R.string.auto_connect_carousel_second_slide_bottom_text
+        R.string.auto_connect_carousel_second_slide_bottom_text,
     ),
     THIRD(
         annotatedTopText = @Composable { buildLockdownTopText() },
         R.drawable.carousel_slide_3_block_connections,
         R.string.auto_connect_carousel_third_slide_bottom_text,
-    )
+    ),
 }

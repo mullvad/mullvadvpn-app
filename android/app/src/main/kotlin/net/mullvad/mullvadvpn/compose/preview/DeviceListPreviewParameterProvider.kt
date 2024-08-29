@@ -8,7 +8,7 @@ class DeviceListPreviewParameterProvider : PreviewParameterProvider<List<DeviceI
     override val values =
         sequenceOf(
             generateDevices(NUMBER_OF_DEVICES_NORMAL),
-            generateDevices(NUMBER_OF_DEVICES_TOO_MANY)
+            generateDevices(NUMBER_OF_DEVICES_TOO_MANY),
         )
 }
 

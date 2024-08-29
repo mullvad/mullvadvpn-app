@@ -38,7 +38,7 @@ fun Changelog(navController: NavController, changeLog: Changelog) {
         onDismiss = {
             viewModel.markChangelogAsRead()
             navController.navigateUp()
-        }
+        },
     )
 }
 
@@ -52,7 +52,7 @@ fun ChangelogDialog(changeLog: Changelog, onDismiss: () -> Unit) {
                 style = MaterialTheme.typography.headlineLarge,
                 color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             )
         },
         text = {
@@ -65,7 +65,7 @@ fun ChangelogDialog(changeLog: Changelog, onDismiss: () -> Unit) {
                     text = stringResource(R.string.changes_dialog_subtitle),
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 )
 
                 changeLog.changes.forEach { changeItem -> ChangeListItem(text = changeItem) }
@@ -75,7 +75,7 @@ fun ChangelogDialog(changeLog: Changelog, onDismiss: () -> Unit) {
             PrimaryButton(text = stringResource(R.string.got_it), onClick = onDismiss)
         },
         containerColor = MaterialTheme.colorScheme.surface,
-        titleContentColor = MaterialTheme.colorScheme.onSurface
+        titleContentColor = MaterialTheme.colorScheme.onSurface,
     )
 }
 
@@ -88,12 +88,12 @@ private fun ChangeListItem(text: String) {
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.width(Dimens.buttonSpacing),
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
             )
             Text(
                 text = text,
                 style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onSurface,
             )
         }
     }
@@ -118,7 +118,7 @@ private fun PreviewChangelogDialogWithTwoLongItems() {
     AppTheme {
         ChangelogDialog(
             Changelog(changes = listOf(longPreviewText, longPreviewText), version = "1111.1"),
-            onDismiss = {}
+            onDismiss = {},
         )
     }
 }
@@ -140,11 +140,11 @@ private fun PreviewChangelogDialogWithTenShortItems() {
                         "Item 7",
                         "Item 8",
                         "Item 9",
-                        "Item 10"
+                        "Item 10",
                     ),
-                version = "1111.1"
+                version = "1111.1",
             ),
-            onDismiss = {}
+            onDismiss = {},
         )
     }
 }

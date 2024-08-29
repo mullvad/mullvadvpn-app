@@ -18,18 +18,18 @@ import net.mullvad.mullvadvpn.lib.model.GetDeviceListError
 
 class DeviceRepository(
     private val managementService: ManagementService,
-    dispatcher: CoroutineDispatcher = Dispatchers.IO
+    dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) {
     val deviceState: StateFlow<DeviceState?> =
         managementService.deviceState.stateIn(
             CoroutineScope(dispatcher),
             SharingStarted.Eagerly,
-            null
+            null,
         )
 
     suspend fun removeDevice(
         accountNumber: AccountNumber,
-        deviceId: DeviceId
+        deviceId: DeviceId,
     ): Either<DeleteDeviceError, Unit> = managementService.removeDevice(accountNumber, deviceId)
 
     suspend fun deviceList(accountNumber: AccountNumber): Either<GetDeviceListError, List<Device>> =

@@ -69,7 +69,7 @@ private fun PreviewEditCustomListScreen() {
                                 GeoLocationId.City(GeoLocationId.Country("country"), code = "city"),
                                 "hostname",
                             )
-                        )
+                        ),
                 )
         )
     }
@@ -80,13 +80,13 @@ data class EditCustomListNavArgs(val customListId: CustomListId)
 @Composable
 @Destination<RootGraph>(
     style = SlideInFromRightTransition::class,
-    navArgs = EditCustomListNavArgs::class
+    navArgs = EditCustomListNavArgs::class,
 )
 fun EditCustomList(
     navigator: DestinationsNavigator,
     backNavigator: ResultBackNavigator<CustomListActionResultData.Success.Deleted>,
     confirmDeleteListResultRecipient:
-        ResultRecipient<DeleteCustomListDestination, CustomListActionResultData.Success.Deleted>
+        ResultRecipient<DeleteCustomListDestination, CustomListActionResultData.Success.Deleted>,
 ) {
     val viewModel = koinViewModel<EditCustomListViewModel>()
 
@@ -105,23 +105,21 @@ fun EditCustomList(
         state = state,
         onDeleteList =
             dropUnlessResumed { id, name ->
-                navigator.navigate(
-                    DeleteCustomListDestination(customListId = id, name = name),
-                )
+                navigator.navigate(DeleteCustomListDestination(customListId = id, name = name))
             },
         onNameClicked =
             dropUnlessResumed { id, name ->
                 navigator.navigate(
-                    EditCustomListNameDestination(customListId = id, initialName = name),
+                    EditCustomListNameDestination(customListId = id, initialName = name)
                 )
             },
         onLocationsClicked =
             dropUnlessResumed { id ->
                 navigator.navigate(
-                    CustomListLocationsDestination(customListId = id, newList = false),
+                    CustomListLocationsDestination(customListId = id, newList = false)
                 )
             },
-        onBackClick = dropUnlessResumed { backNavigator.navigateBack() }
+        onBackClick = dropUnlessResumed { backNavigator.navigateBack() },
     )
 }
 
@@ -131,7 +129,7 @@ fun EditCustomListScreen(
     onDeleteList: (id: CustomListId, name: CustomListName) -> Unit = { _, _ -> },
     onNameClicked: (id: CustomListId, name: CustomListName) -> Unit = { _, _ -> },
     onLocationsClicked: (CustomListId) -> Unit = {},
-    onBackClick: () -> Unit = {}
+    onBackClick: () -> Unit = {},
 ) {
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.edit_list),
@@ -144,7 +142,7 @@ fun EditCustomListScreen(
                     if (content is EditCustomListState.Content) {
                         onDeleteList(content.id, content.name)
                     }
-                }
+                },
             )
         },
     ) { modifier: Modifier ->
@@ -160,7 +158,7 @@ fun EditCustomListScreen(
                         text = stringResource(id = R.string.not_found),
                         modifier = Modifier.padding(Dimens.screenVerticalMargin),
                         style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
                 }
                 is EditCustomListState.Content -> {
@@ -168,7 +166,7 @@ fun EditCustomListScreen(
                     TwoRowCell(
                         titleText = stringResource(id = R.string.list_name),
                         subtitleText = state.name.value,
-                        onCellClicked = { onNameClicked(state.id, state.name) }
+                        onCellClicked = { onNameClicked(state.id, state.name) },
                     )
                     // Locations cell
                     TwoRowCell(
@@ -177,9 +175,9 @@ fun EditCustomListScreen(
                             pluralStringResource(
                                 id = R.plurals.number_of_locations,
                                 state.locations.size,
-                                state.locations.size
+                                state.locations.size,
                             ),
-                        onCellClicked = { onLocationsClicked(state.id) }
+                        onCellClicked = { onLocationsClicked(state.id) },
                     )
                 }
             }
@@ -192,14 +190,14 @@ private fun Actions(enabled: Boolean, onDeleteList: () -> Unit) {
     var showMenu by remember { mutableStateOf(false) }
     IconButton(
         onClick = { showMenu = true },
-        modifier = Modifier.testTag(TOP_BAR_DROPDOWN_BUTTON_TEST_TAG)
+        modifier = Modifier.testTag(TOP_BAR_DROPDOWN_BUTTON_TEST_TAG),
     ) {
         Icon(painter = painterResource(id = R.drawable.icon_more_vert), contentDescription = null)
         if (showMenu) {
             DropdownMenu(
                 expanded = true,
                 onDismissRequest = { showMenu = false },
-                modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainer)
+                modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainer),
             ) {
                 DropdownMenuItem(
                     text = { Text(text = stringResource(id = R.string.delete_list)) },
@@ -215,7 +213,7 @@ private fun Actions(enabled: Boolean, onDeleteList: () -> Unit) {
                         showMenu = false
                     },
                     enabled = enabled,
-                    modifier = Modifier.testTag(DELETE_DROPDOWN_MENU_ITEM_TEST_TAG)
+                    modifier = Modifier.testTag(DELETE_DROPDOWN_MENU_ITEM_TEST_TAG),
                 )
             }
         }

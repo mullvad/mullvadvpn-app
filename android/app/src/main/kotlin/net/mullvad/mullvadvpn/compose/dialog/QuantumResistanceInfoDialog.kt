@@ -23,6 +23,6 @@ fun QuantumResistanceInfo(navigator: DestinationsNavigator) {
     InfoDialog(
         message = stringResource(id = R.string.quantum_resistant_info_first_paragaph),
         additionalInfo = stringResource(id = R.string.quantum_resistant_info_second_paragaph),
-        onDismiss = dropUnlessResumed { navigator.navigateUp() }
+        onDismiss = dropUnlessResumed { navigator.navigateUp() },
     )
 }

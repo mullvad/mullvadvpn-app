@@ -8,7 +8,7 @@ data class SplitTunnelingViewModelState(
     val enabled: Boolean = false,
     val excludedApps: Set<AppId> = emptySet(),
     val allApps: List<AppData>? = null,
-    val showSystemApps: Boolean = false
+    val showSystemApps: Boolean = false,
 ) {
     fun toUiState(): SplitTunnelingUiState {
         return allApps
@@ -30,7 +30,7 @@ data class SplitTunnelingViewModelState(
                                 included.filter { appData -> !appData.isSystemApp }
                             }
                             .sort(),
-                    showSystemApps = showSystemApps
+                    showSystemApps = showSystemApps,
                 )
             } ?: SplitTunnelingUiState.Loading(enabled = enabled)
     }

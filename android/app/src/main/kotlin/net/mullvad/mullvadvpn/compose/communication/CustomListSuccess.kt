@@ -16,7 +16,7 @@ data class Created(
     val id: CustomListId,
     val name: CustomListName,
     val locationNames: List<String>,
-    override val undo: CustomListAction.Delete
+    override val undo: CustomListAction.Delete,
 ) : CustomListSuccess
 
 @Parcelize

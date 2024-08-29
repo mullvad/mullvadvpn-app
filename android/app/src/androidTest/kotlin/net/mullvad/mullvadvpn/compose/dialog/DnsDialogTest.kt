@@ -24,7 +24,7 @@ class DnsDialogTest {
             validationError = null,
             isLocal = false,
             isAllowLanEnabled = false,
-            index = null
+            index = null,
         )
 
     @SuppressLint("ComposableNaming")
@@ -34,7 +34,7 @@ class DnsDialogTest {
         onDnsInputChange: (String) -> Unit = { _ -> },
         onSaveDnsClick: () -> Unit = {},
         onRemoveDnsClick: (Int) -> Unit = {},
-        onDismiss: () -> Unit = {}
+        onDismiss: () -> Unit = {},
     ) {
         DnsDialog(state, onDnsInputChange, onSaveDnsClick, onRemoveDnsClick, onDismiss)
     }

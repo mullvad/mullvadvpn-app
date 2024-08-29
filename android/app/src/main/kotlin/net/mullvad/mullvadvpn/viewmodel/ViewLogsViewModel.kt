@@ -11,7 +11,7 @@ import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
 
 data class ViewLogsUiState(
     val allLines: List<String> = emptyList(),
-    val isLoading: Boolean = true
+    val isLoading: Boolean = true,
 ) {
     fun text() = allLines.joinToString(NEWLINE_STRING)
 }

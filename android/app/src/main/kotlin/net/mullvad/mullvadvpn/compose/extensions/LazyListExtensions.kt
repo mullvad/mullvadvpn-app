@@ -11,7 +11,7 @@ import androidx.compose.ui.graphics.Color
 inline fun LazyListScope.itemWithDivider(
     key: Any? = null,
     contentType: Any? = null,
-    crossinline itemContent: @Composable LazyItemScope.() -> Unit
+    crossinline itemContent: @Composable LazyItemScope.() -> Unit,
 ) =
     item(key = key, contentType = contentType) {
         itemContent()
@@ -22,7 +22,7 @@ inline fun <T> LazyListScope.itemsWithDivider(
     items: List<T>,
     noinline key: ((item: T) -> Any)? = null,
     noinline contentType: (item: T) -> Any? = { null },
-    crossinline itemContent: @Composable LazyItemScope.(item: T) -> Unit
+    crossinline itemContent: @Composable LazyItemScope.(item: T) -> Unit,
 ) =
     items(items = items, key = key, contentType = contentType) { item ->
         itemContent(item)
@@ -33,7 +33,7 @@ inline fun <T> LazyListScope.itemsIndexedWithDivider(
     items: List<T>,
     noinline key: ((index: Int, item: T) -> Any)? = null,
     crossinline contentType: (index: Int, item: T) -> Any? = { _, _ -> null },
-    crossinline itemContent: @Composable LazyItemScope.(index: Int, item: T) -> Unit
+    crossinline itemContent: @Composable LazyItemScope.(index: Int, item: T) -> Unit,
 ) =
     itemsIndexed(items = items, key = key, contentType = contentType) { index, item ->
         itemContent(index, item)

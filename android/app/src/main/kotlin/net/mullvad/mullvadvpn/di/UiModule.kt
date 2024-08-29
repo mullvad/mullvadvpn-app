@@ -109,7 +109,7 @@ val uiModule = module {
     single { ChangelogRepository(get(named(APP_PREFERENCES_NAME)), get()) }
     single {
         PrivacyDisclaimerRepository(
-            androidContext().getSharedPreferences(APP_PREFERENCES_NAME, Context.MODE_PRIVATE),
+            androidContext().getSharedPreferences(APP_PREFERENCES_NAME, Context.MODE_PRIVATE)
         )
     }
     single { SettingsRepository(get()) }
@@ -175,7 +175,7 @@ val uiModule = module {
             get(),
             get(),
             get(),
-            IS_PLAY_BUILD
+            IS_PLAY_BUILD,
         )
     }
     viewModel { DeviceListViewModel(get(), get()) }

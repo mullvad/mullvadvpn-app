@@ -41,12 +41,12 @@ internal class LocationMarker(val colors: LocationMarkerColors) {
         attribLocations =
             AttribLocations(
                 vertexPosition = GLES20.glGetAttribLocation(shaderProgram, "aVertexPosition"),
-                vertexColor = GLES20.glGetAttribLocation(shaderProgram, "aVertexColor")
+                vertexColor = GLES20.glGetAttribLocation(shaderProgram, "aVertexColor"),
             )
         uniformLocation =
             UniformLocation(
                 projectionMatrix = GLES20.glGetUniformLocation(shaderProgram, "uProjectionMatrix"),
-                modelViewMatrix = GLES20.glGetUniformLocation(shaderProgram, "uModelViewMatrix")
+                modelViewMatrix = GLES20.glGetUniformLocation(shaderProgram, "uModelViewMatrix"),
             )
     }
 
@@ -177,7 +177,7 @@ internal class LocationMarker(val colors: LocationMarkerColors) {
                 floatArrayOf(0.0f, 0.0f, 0.00003f),
                 colors.centerColor,
                 colors.centerColor,
-            ) // Center colored circle
+            ), // Center colored circle
         )
 
     fun onRemove() {

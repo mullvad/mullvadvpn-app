@@ -85,7 +85,7 @@ private fun PreviewWelcomeScreen() {
                                 listOf(
                                     PaymentProduct(ProductId("product"), ProductPrice("$44"), null)
                                 )
-                        )
+                        ),
                 ),
             onSitePaymentClick = {},
             onRedeemVoucherClick = {},
@@ -94,7 +94,7 @@ private fun PreviewWelcomeScreen() {
             onPurchaseBillingProductClick = { _ -> },
             navigateToDeviceInfoDialog = {},
             navigateToVerificationPendingDialog = {},
-            onDisconnectClick = {}
+            onDisconnectClick = {},
         )
     }
 }
@@ -104,7 +104,7 @@ private fun PreviewWelcomeScreen() {
 fun Welcome(
     navigator: DestinationsNavigator,
     voucherRedeemResultRecipient: ResultRecipient<RedeemVoucherDestination, Boolean>,
-    playPaymentResultRecipient: ResultRecipient<PaymentDestination, Boolean>
+    playPaymentResultRecipient: ResultRecipient<PaymentDestination, Boolean>,
 ) {
     val vm = koinViewModel<WelcomeViewModel>()
     val state by vm.uiState.collectAsStateWithLifecycle()
@@ -165,7 +165,7 @@ fun Welcome(
             dropUnlessResumed { productId -> navigator.navigate(PaymentDestination(productId)) },
         onDisconnectClick = vm::onDisconnectClick,
         navigateToVerificationPendingDialog =
-            dropUnlessResumed { navigator.navigate(VerificationPendingDestination) }
+            dropUnlessResumed { navigator.navigate(VerificationPendingDestination) },
     )
 }
 
@@ -180,7 +180,7 @@ fun WelcomeScreen(
     onPurchaseBillingProductClick: (productId: ProductId) -> Unit,
     onDisconnectClick: () -> Unit,
     navigateToDeviceInfoDialog: () -> Unit,
-    navigateToVerificationPendingDialog: () -> Unit
+    navigateToVerificationPendingDialog: () -> Unit,
 ) {
     val scrollState = rememberScrollState()
 
@@ -199,7 +199,7 @@ fun WelcomeScreen(
                     .verticalScroll(scrollState)
                     .drawVerticalScrollbar(
                         state = scrollState,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar)
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
                     )
         ) {
             // Welcome info area
@@ -216,7 +216,7 @@ fun WelcomeScreen(
                 onRedeemVoucherClick = onRedeemVoucherClick,
                 onPurchaseBillingProductClick = onPurchaseBillingProductClick,
                 onPaymentInfoClick = navigateToVerificationPendingDialog,
-                onDisconnectClick = onDisconnectClick
+                onDisconnectClick = onDisconnectClick,
             )
         }
     }
@@ -226,7 +226,7 @@ fun WelcomeScreen(
 private fun WelcomeInfo(
     snackbarHostState: SnackbarHostState,
     state: WelcomeUiState,
-    navigateToDeviceInfoDialog: () -> Unit
+    navigateToDeviceInfoDialog: () -> Unit,
 ) {
     Column {
         Text(
@@ -236,23 +236,20 @@ private fun WelcomeInfo(
                     .padding(
                         top = Dimens.screenVerticalMargin,
                         start = Dimens.sideMargin,
-                        end = Dimens.sideMargin
+                        end = Dimens.sideMargin,
                     ),
             style = MaterialTheme.typography.headlineLarge,
             color = MaterialTheme.colorScheme.onSurface,
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis
+            overflow = TextOverflow.Ellipsis,
         )
         Text(
             text = stringResource(id = R.string.here_is_your_account_number),
             modifier =
                 Modifier.fillMaxWidth()
-                    .padding(
-                        horizontal = Dimens.sideMargin,
-                        vertical = Dimens.smallPadding,
-                    ),
+                    .padding(horizontal = Dimens.sideMargin, vertical = Dimens.smallPadding),
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface,
         )
 
         AccountNumberRow(snackbarHostState, state)
@@ -273,10 +270,10 @@ private fun WelcomeInfo(
                     top = Dimens.smallPadding,
                     bottom = Dimens.verticalSpace,
                     start = Dimens.sideMargin,
-                    end = Dimens.sideMargin
+                    end = Dimens.sideMargin,
                 ),
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface,
         )
     }
 }
@@ -295,13 +292,13 @@ private fun AccountNumberRow(snackbarHostState: SnackbarHostState, state: Welcom
         modifier =
             Modifier.fillMaxWidth()
                 .clickable(onClick = onCopyToClipboard)
-                .padding(horizontal = Dimens.sideMargin)
+                .padding(horizontal = Dimens.sideMargin),
     ) {
         Text(
             text = state.accountNumber?.value?.groupWithSpaces() ?: "",
             modifier = Modifier.weight(1f).padding(vertical = Dimens.smallPadding),
             style = MaterialTheme.typography.headlineSmall,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface,
         )
 
         CopyAnimatedIconButton(onCopyToClipboard)
@@ -325,17 +322,17 @@ fun DeviceNameRow(deviceName: String?, navigateToDeviceInfoDialog: () -> Unit) {
             style = MaterialTheme.typography.bodySmall,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface,
         )
 
         IconButton(
             modifier = Modifier.align(Alignment.CenterVertically),
-            onClick = navigateToDeviceInfoDialog
+            onClick = navigateToDeviceInfoDialog,
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.icon_info),
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurface
+                tint = MaterialTheme.colorScheme.onSurface,
             )
         }
     }
@@ -350,7 +347,7 @@ private fun ButtonPanel(
     onRedeemVoucherClick: () -> Unit,
     onPurchaseBillingProductClick: (productId: ProductId) -> Unit,
     onPaymentInfoClick: () -> Unit,
-    onDisconnectClick: () -> Unit
+    onDisconnectClick: () -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxWidth().padding(top = Dimens.mediumPadding)) {
         Spacer(modifier = Modifier.padding(top = Dimens.screenVerticalMargin))
@@ -362,8 +359,8 @@ private fun ButtonPanel(
                     Modifier.padding(
                         start = Dimens.sideMargin,
                         end = Dimens.sideMargin,
-                        bottom = Dimens.buttonSpacing
-                    )
+                        bottom = Dimens.buttonSpacing,
+                    ),
             )
         }
         billingPaymentState?.let {
@@ -377,9 +374,9 @@ private fun ButtonPanel(
                     Modifier.padding(
                             start = Dimens.sideMargin,
                             end = Dimens.sideMargin,
-                            bottom = Dimens.buttonSpacing
+                            bottom = Dimens.buttonSpacing,
                         )
-                        .align(Alignment.CenterHorizontally)
+                        .align(Alignment.CenterHorizontally),
             )
         }
         if (showSitePayment) {
@@ -390,8 +387,8 @@ private fun ButtonPanel(
                     Modifier.padding(
                         start = Dimens.sideMargin,
                         end = Dimens.sideMargin,
-                        bottom = Dimens.buttonSpacing
-                    )
+                        bottom = Dimens.buttonSpacing,
+                    ),
             )
         }
         RedeemVoucherButton(
@@ -401,8 +398,8 @@ private fun ButtonPanel(
                 Modifier.padding(
                     start = Dimens.sideMargin,
                     end = Dimens.sideMargin,
-                    bottom = Dimens.screenVerticalMargin
-                )
+                    bottom = Dimens.screenVerticalMargin,
+                ),
         )
     }
 }

@@ -37,16 +37,13 @@ sealed interface ReportProblemSideEffect {
 
 class ReportProblemViewModel(
     private val mullvadProblemReporter: MullvadProblemReport,
-    private val problemReportRepository: ProblemReportRepository
+    private val problemReportRepository: ProblemReportRepository,
 ) : ViewModel() {
 
     private val sendingState: MutableStateFlow<SendingReportUiState?> = MutableStateFlow(null)
 
     val uiState =
-        combine(
-                sendingState,
-                problemReportRepository.problemReport,
-            ) { pendingState, userReport ->
+        combine(sendingState, problemReportRepository.problemReport) { pendingState, userReport ->
                 ReportProblemUiState(
                     sendingState = pendingState,
                     email = userReport.email ?: "",

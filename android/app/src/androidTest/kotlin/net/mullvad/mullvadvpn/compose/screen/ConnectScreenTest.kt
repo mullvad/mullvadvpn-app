@@ -56,11 +56,7 @@ class ConnectScreenTest {
     fun testDefaultState() {
         composeExtension.use {
             // Arrange
-            setContentWithTheme {
-                ConnectScreen(
-                    state = ConnectUiState.INITIAL,
-                )
-            }
+            setContentWithTheme { ConnectScreen(state = ConnectUiState.INITIAL) }
 
             // Assert
             onNodeWithTag(SCROLLABLE_COLUMN_TEST_TAG).assertExists()
@@ -86,8 +82,8 @@ class ConnectScreenTest {
                             deviceName = "",
                             daysLeftUntilExpiry = null,
                             inAppNotification = InAppNotification.TunnelStateBlocked,
-                            isPlayBuild = false
-                        ),
+                            isPlayBuild = false,
+                        )
                 )
             }
 
@@ -116,7 +112,7 @@ class ConnectScreenTest {
                                 TunnelState.Connecting(
                                     endpoint = mockTunnelEndpoint,
                                     null,
-                                    emptyList()
+                                    emptyList(),
                                 ),
                             inAddress = null,
                             outAddress = "",
@@ -124,8 +120,8 @@ class ConnectScreenTest {
                             deviceName = "",
                             daysLeftUntilExpiry = null,
                             inAppNotification = InAppNotification.TunnelStateBlocked,
-                            isPlayBuild = false
-                        ),
+                            isPlayBuild = false,
+                        )
                 )
             }
 
@@ -157,8 +153,8 @@ class ConnectScreenTest {
                             deviceName = "",
                             daysLeftUntilExpiry = null,
                             inAppNotification = null,
-                            isPlayBuild = false
-                        ),
+                            isPlayBuild = false,
+                        )
                 )
             }
 
@@ -189,8 +185,8 @@ class ConnectScreenTest {
                             deviceName = "",
                             daysLeftUntilExpiry = null,
                             inAppNotification = null,
-                            isPlayBuild = false
-                        ),
+                            isPlayBuild = false,
+                        )
                 )
             }
 
@@ -219,8 +215,8 @@ class ConnectScreenTest {
                             deviceName = "",
                             daysLeftUntilExpiry = null,
                             inAppNotification = null,
-                            isPlayBuild = false
-                        ),
+                            isPlayBuild = false,
+                        )
                 )
             }
 
@@ -249,8 +245,8 @@ class ConnectScreenTest {
                             deviceName = "",
                             daysLeftUntilExpiry = null,
                             inAppNotification = null,
-                            isPlayBuild = false
-                        ),
+                            isPlayBuild = false,
+                        )
                 )
             }
 
@@ -285,8 +281,8 @@ class ConnectScreenTest {
                                 InAppNotification.TunnelStateError(
                                     ErrorState(ErrorStateCause.StartTunnelError, true)
                                 ),
-                            isPlayBuild = false
-                        ),
+                            isPlayBuild = false,
+                        )
                 )
             }
 
@@ -322,8 +318,8 @@ class ConnectScreenTest {
                                 InAppNotification.TunnelStateError(
                                     ErrorState(ErrorStateCause.StartTunnelError, false)
                                 ),
-                            isPlayBuild = false
-                        ),
+                            isPlayBuild = false,
+                        )
                 )
             }
 
@@ -354,8 +350,8 @@ class ConnectScreenTest {
                             deviceName = "",
                             daysLeftUntilExpiry = null,
                             inAppNotification = InAppNotification.TunnelStateBlocked,
-                            isPlayBuild = false
-                        ),
+                            isPlayBuild = false,
+                        )
                 )
             }
 
@@ -386,8 +382,8 @@ class ConnectScreenTest {
                             deviceName = "",
                             daysLeftUntilExpiry = null,
                             inAppNotification = InAppNotification.TunnelStateBlocked,
-                            isPlayBuild = false
-                        ),
+                            isPlayBuild = false,
+                        )
                 )
             }
 
@@ -418,9 +414,9 @@ class ConnectScreenTest {
                             deviceName = "",
                             daysLeftUntilExpiry = null,
                             inAppNotification = null,
-                            isPlayBuild = false
+                            isPlayBuild = false,
                         ),
-                    onSwitchLocationClick = mockedClickHandler
+                    onSwitchLocationClick = mockedClickHandler,
                 )
             }
 
@@ -452,9 +448,9 @@ class ConnectScreenTest {
                             deviceName = "",
                             daysLeftUntilExpiry = null,
                             inAppNotification = null,
-                            isPlayBuild = false
+                            isPlayBuild = false,
                         ),
-                    onDisconnectClick = mockedClickHandler
+                    onDisconnectClick = mockedClickHandler,
                 )
             }
 
@@ -486,9 +482,9 @@ class ConnectScreenTest {
                             deviceName = "",
                             daysLeftUntilExpiry = null,
                             inAppNotification = null,
-                            isPlayBuild = false
+                            isPlayBuild = false,
                         ),
-                    onReconnectClick = mockedClickHandler
+                    onReconnectClick = mockedClickHandler,
                 )
             }
 
@@ -518,9 +514,9 @@ class ConnectScreenTest {
                             deviceName = "",
                             daysLeftUntilExpiry = null,
                             inAppNotification = null,
-                            isPlayBuild = false
+                            isPlayBuild = false,
                         ),
-                    onConnectClick = mockedClickHandler
+                    onConnectClick = mockedClickHandler,
                 )
             }
 
@@ -550,9 +546,9 @@ class ConnectScreenTest {
                             deviceName = "",
                             daysLeftUntilExpiry = null,
                             inAppNotification = null,
-                            isPlayBuild = false
+                            isPlayBuild = false,
                         ),
-                    onCancelClick = mockedClickHandler
+                    onCancelClick = mockedClickHandler,
                 )
             }
 
@@ -591,8 +587,8 @@ class ConnectScreenTest {
                             deviceName = "",
                             daysLeftUntilExpiry = null,
                             inAppNotification = null,
-                            isPlayBuild = false
-                        ),
+                            isPlayBuild = false,
+                        )
                 )
             }
 
@@ -625,8 +621,8 @@ class ConnectScreenTest {
                             deviceName = "",
                             daysLeftUntilExpiry = null,
                             inAppNotification = InAppNotification.UnsupportedVersion(versionInfo),
-                            isPlayBuild = false
-                        ),
+                            isPlayBuild = false,
+                        )
                 )
             }
 
@@ -657,8 +653,8 @@ class ConnectScreenTest {
                             deviceName = "",
                             daysLeftUntilExpiry = null,
                             inAppNotification = InAppNotification.AccountExpiry(expiryDate),
-                            isPlayBuild = false
-                        ),
+                            isPlayBuild = false,
+                        )
                 )
             }
 
@@ -688,7 +684,7 @@ class ConnectScreenTest {
                             deviceName = "",
                             daysLeftUntilExpiry = null,
                             inAppNotification = InAppNotification.UnsupportedVersion(versionInfo),
-                            isPlayBuild = false
+                            isPlayBuild = false,
                         ),
                 )
             }
@@ -721,7 +717,7 @@ class ConnectScreenTest {
                             deviceName = "",
                             daysLeftUntilExpiry = null,
                             inAppNotification = InAppNotification.AccountExpiry(expiryDate),
-                            isPlayBuild = false
+                            isPlayBuild = false,
                         ),
                 )
             }

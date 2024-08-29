@@ -158,7 +158,7 @@ class BillingRepositoryTest {
             billingRepository.startPurchaseFlow(
                 mockProductDetails,
                 transactionId,
-                mockActivityProvider
+                mockActivityProvider,
             )
 
         // Assert
@@ -184,7 +184,7 @@ class BillingRepositoryTest {
             billingRepository.startPurchaseFlow(
                 mockProductDetails,
                 transactionId,
-                mockActivityProvider
+                mockActivityProvider,
             )
 
         // Assert
@@ -252,7 +252,7 @@ class BillingRepositoryTest {
         // Assert
         assertEquals(
             expectedError.toBillingResult().responseCode,
-            result.billingResult.responseCode
+            result.billingResult.responseCode,
         )
         assertEquals(expectedError.message, result.billingResult.debugMessage)
     }
@@ -269,7 +269,7 @@ class BillingRepositoryTest {
         billingRepository.purchaseEvents.test {
             purchaseUpdatedListenerSlot.captured.onPurchasesUpdated(
                 mockBillingResult,
-                mockPurchaseList
+                mockPurchaseList,
             )
             val result = awaitItem()
             assertIs<PurchaseEvent.Completed>(result)

@@ -50,7 +50,7 @@ fun InfoDialog(message: String, additionalInfo: String? = null, onDismiss: () ->
                 modifier = Modifier.fillMaxWidth().height(Dimens.dialogIconHeight),
                 painter = painterResource(id = R.drawable.icon_info),
                 contentDescription = "",
-                tint = MaterialTheme.colorScheme.onSurface
+                tint = MaterialTheme.colorScheme.onSurface,
             )
         },
         text = {
@@ -58,7 +58,7 @@ fun InfoDialog(message: String, additionalInfo: String? = null, onDismiss: () ->
             Column(
                 Modifier.drawVerticalScrollbar(
                         scrollState,
-                        MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaScrollbar)
+                        MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaScrollbar),
                     )
                     .verticalScroll(scrollState),
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -67,7 +67,7 @@ fun InfoDialog(message: String, additionalInfo: String? = null, onDismiss: () ->
                     text = message,
                     color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 )
                 if (additionalInfo != null) {
                     Spacer(modifier = Modifier.height(Dimens.verticalSpace))
@@ -80,7 +80,7 @@ fun InfoDialog(message: String, additionalInfo: String? = null, onDismiss: () ->
                         text = trimmed,
                         color = MaterialTheme.colorScheme.onSurface,
                         style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
                     )
                 }
             }
@@ -92,11 +92,7 @@ fun InfoDialog(message: String, additionalInfo: String? = null, onDismiss: () ->
                 onClick = onDismiss,
             )
         },
-        properties =
-            DialogProperties(
-                dismissOnClickOutside = true,
-                dismissOnBackPress = true,
-            ),
-        containerColor = MaterialTheme.colorScheme.surface
+        properties = DialogProperties(dismissOnClickOutside = true, dismissOnBackPress = true),
+        containerColor = MaterialTheme.colorScheme.surface,
     )
 }

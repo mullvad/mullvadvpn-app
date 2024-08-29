@@ -21,6 +21,6 @@ class TunnelStatePreviewParameterProvider : PreviewParameterProvider<TunnelState
             generateDisconnectingState(actionAfterDisconnect = ActionAfterDisconnect.Nothing),
             generateDisconnectingState(actionAfterDisconnect = ActionAfterDisconnect.Reconnect),
             generateErrorState(isBlocking = true),
-            generateErrorState(isBlocking = false)
+            generateErrorState(isBlocking = false),
         )
 }

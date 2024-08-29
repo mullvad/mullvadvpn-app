@@ -70,7 +70,7 @@ class SplitTunnelingViewModelTest {
                 enabled = true,
                 excludedApps = emptyList(),
                 includedApps = emptyList(),
-                showSystemApps = false
+                showSystemApps = false,
             )
         testSubject.uiState.test { assertEquals(expectedState, awaitItem()) }
     }
@@ -88,7 +88,7 @@ class SplitTunnelingViewModelTest {
                 enabled = true,
                 excludedApps = listOf(appExcluded),
                 includedApps = listOf(appNotExcluded),
-                showSystemApps = false
+                showSystemApps = false,
             )
 
         testSubject.uiState.test {
@@ -109,14 +109,14 @@ class SplitTunnelingViewModelTest {
                 enabled = true,
                 excludedApps = listOf(app),
                 includedApps = emptyList(),
-                showSystemApps = false
+                showSystemApps = false,
             )
         val expectedStateAfterAction =
             SplitTunnelingUiState.ShowAppList(
                 enabled = true,
                 excludedApps = emptyList(),
                 includedApps = listOf(app),
-                showSystemApps = false
+                showSystemApps = false,
             )
         coEvery { mockedSplitTunnelingRepository.includeApp(AppId(app.packageName)) } returns
             Unit.right()
@@ -142,7 +142,7 @@ class SplitTunnelingViewModelTest {
                 enabled = true,
                 excludedApps = emptyList(),
                 includedApps = listOf(app),
-                showSystemApps = false
+                showSystemApps = false,
             )
 
         val expectedStateAfterAction =
@@ -150,7 +150,7 @@ class SplitTunnelingViewModelTest {
                 enabled = true,
                 excludedApps = listOf(app),
                 includedApps = emptyList(),
-                showSystemApps = false
+                showSystemApps = false,
             )
 
         coEvery { mockedSplitTunnelingRepository.excludeApp(AppId(app.packageName)) } returns
@@ -185,7 +185,7 @@ class SplitTunnelingViewModelTest {
             SplitTunnelingViewModel(
                 mockedApplicationsProvider,
                 mockedSplitTunnelingRepository,
-                UnconfinedTestDispatcher()
+                UnconfinedTestDispatcher(),
             )
     }
 }

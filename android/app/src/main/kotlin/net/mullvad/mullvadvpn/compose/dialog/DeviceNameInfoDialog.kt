@@ -21,6 +21,6 @@ fun DeviceNameInfo(navigator: DestinationsNavigator) {
                 appendLine()
                 append(stringResource(id = R.string.device_name_info_third_paragraph))
             },
-        onDismiss = dropUnlessResumed { navigator.navigateUp() }
+        onDismiss = dropUnlessResumed { navigator.navigateUp() },
     )
 }

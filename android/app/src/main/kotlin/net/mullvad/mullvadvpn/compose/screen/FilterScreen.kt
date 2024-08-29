@@ -86,7 +86,7 @@ fun Filter(navigator: DestinationsNavigator) {
         onApplyClick = viewModel::onApplyButtonClicked,
         onSelectedOwnership = viewModel::setSelectedOwnership,
         onAllProviderCheckChange = viewModel::setAllProviders,
-        onSelectedProvider = viewModel::setSelectedProvider
+        onSelectedProvider = viewModel::setSelectedProvider,
     )
 }
 
@@ -97,7 +97,7 @@ fun FilterScreen(
     onApplyClick: () -> Unit = {},
     onSelectedOwnership: (ownership: Ownership?) -> Unit = {},
     onAllProviderCheckChange: (isChecked: Boolean) -> Unit = {},
-    onSelectedProvider: (checked: Boolean, provider: Provider) -> Unit = { _, _ -> }
+    onSelectedProvider: (checked: Boolean, provider: Provider) -> Unit = { _, _ -> },
 ) {
     var providerExpanded by rememberSaveable { mutableStateOf(false) }
     var ownershipExpanded by rememberSaveable { mutableStateOf(false) }
@@ -110,7 +110,7 @@ fun FilterScreen(
             BottomBar(
                 isApplyButtonEnabled = state.isApplyButtonEnabled,
                 backgroundColor = backgroundColor,
-                onApplyClick = onApplyClick
+                onApplyClick = onApplyClick,
             )
         },
     ) { contentPadding ->
@@ -125,7 +125,7 @@ fun FilterScreen(
                 itemsWithDivider(
                     key = { it.name },
                     contentType = { ContentType.ITEM },
-                    items = state.filteredOwnershipByProviders
+                    items = state.filteredOwnershipByProviders,
                 ) { ownership ->
                     Ownership(ownership, state, onSelectedOwnership)
                 }
@@ -140,7 +140,7 @@ fun FilterScreen(
                 itemsWithDivider(
                     key = { it.providerId.value },
                     contentType = { ContentType.ITEM },
-                    items = state.filteredProvidersByOwnership
+                    items = state.filteredProvidersByOwnership,
                 ) { provider ->
                     Provider(provider, state, onSelectedProvider)
                 }
@@ -157,20 +157,20 @@ private fun LazyItemScope.OwnershipHeader(expanded: Boolean, onToggleExpanded: (
         isEnabled = true,
         onInfoClicked = null,
         onCellClicked = { onToggleExpanded(!expanded) },
-        modifier = Modifier.animateItem()
+        modifier = Modifier.animateItem(),
     )
 }
 
 @Composable
 private fun LazyItemScope.AnyOwnership(
     state: RelayFilterState,
-    onSelectedOwnership: (ownership: Ownership?) -> Unit
+    onSelectedOwnership: (ownership: Ownership?) -> Unit,
 ) {
     SelectableCell(
         title = stringResource(id = R.string.any),
         isSelected = state.selectedOwnership == null,
         onCellClicked = { onSelectedOwnership(null) },
-        modifier = Modifier.animateItem()
+        modifier = Modifier.animateItem(),
     )
 }
 
@@ -178,13 +178,13 @@ private fun LazyItemScope.AnyOwnership(
 private fun LazyItemScope.Ownership(
     ownership: Ownership,
     state: RelayFilterState,
-    onSelectedOwnership: (ownership: Ownership?) -> Unit
+    onSelectedOwnership: (ownership: Ownership?) -> Unit,
 ) {
     SelectableCell(
         title = stringResource(id = ownership.stringResource()),
         isSelected = ownership == state.selectedOwnership,
         onCellClicked = { onSelectedOwnership(ownership) },
-        modifier = Modifier.animateItem()
+        modifier = Modifier.animateItem(),
     )
 }
 
@@ -196,20 +196,20 @@ private fun LazyItemScope.ProvidersHeader(expanded: Boolean, onToggleExpanded: (
         isEnabled = true,
         onInfoClicked = null,
         onCellClicked = { onToggleExpanded(!expanded) },
-        modifier = Modifier.animateItem()
+        modifier = Modifier.animateItem(),
     )
 }
 
 @Composable
 private fun LazyItemScope.AllProviders(
     state: RelayFilterState,
-    onAllProviderCheckChange: (isChecked: Boolean) -> Unit
+    onAllProviderCheckChange: (isChecked: Boolean) -> Unit,
 ) {
     CheckboxCell(
         title = stringResource(R.string.all_providers),
         checked = state.isAllProvidersChecked,
         onCheckedChange = { isChecked -> onAllProviderCheckChange(isChecked) },
-        modifier = Modifier.animateItem()
+        modifier = Modifier.animateItem(),
     )
 }
 
@@ -217,13 +217,13 @@ private fun LazyItemScope.AllProviders(
 private fun LazyItemScope.Provider(
     provider: Provider,
     state: RelayFilterState,
-    onSelectedProvider: (checked: Boolean, provider: Provider) -> Unit
+    onSelectedProvider: (checked: Boolean, provider: Provider) -> Unit,
 ) {
     CheckboxCell(
         title = provider.providerId.value,
         checked = provider in state.selectedProviders,
         onCheckedChange = { checked -> onSelectedProvider(checked, provider) },
-        modifier = Modifier.animateItem()
+        modifier = Modifier.animateItem(),
     )
 }
 
@@ -242,7 +242,7 @@ private fun TopBar(onBackClick: () -> Unit) {
             modifier = Modifier.weight(1f).padding(end = Dimens.titleIconSize),
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface,
         )
     }
 }
@@ -251,14 +251,14 @@ private fun TopBar(onBackClick: () -> Unit) {
 private fun BottomBar(
     isApplyButtonEnabled: Boolean,
     backgroundColor: Color,
-    onApplyClick: () -> Unit
+    onApplyClick: () -> Unit,
 ) {
     Box(
         modifier =
             Modifier.fillMaxWidth()
                 .background(color = backgroundColor)
                 .padding(top = Dimens.screenVerticalMargin),
-        contentAlignment = Alignment.BottomCenter
+        contentAlignment = Alignment.BottomCenter,
     ) {
         ApplyButton(
             onClick = onApplyClick,
@@ -267,7 +267,7 @@ private fun BottomBar(
                 Modifier.padding(
                     start = Dimens.sideMargin,
                     end = Dimens.sideMargin,
-                    bottom = Dimens.screenVerticalMargin
+                    bottom = Dimens.screenVerticalMargin,
                 ),
         )
     }

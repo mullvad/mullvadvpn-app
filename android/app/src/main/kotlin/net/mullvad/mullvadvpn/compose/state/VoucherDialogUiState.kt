@@ -4,7 +4,7 @@ import net.mullvad.mullvadvpn.lib.model.RedeemVoucherError
 
 data class VoucherDialogUiState(
     val voucherInput: String = "",
-    val voucherState: VoucherDialogState = VoucherDialogState.Default
+    val voucherState: VoucherDialogState = VoucherDialogState.Default,
 ) {
     companion object {
         val INITIAL = VoucherDialogUiState()

@@ -50,7 +50,7 @@ fun CustomTextField(
             keyboardType = keyboardType,
             imeAction = ImeAction.Done,
             autoCorrect = false,
-            capitalization = capitalization
+            capitalization = capitalization,
         ),
 ) {
 

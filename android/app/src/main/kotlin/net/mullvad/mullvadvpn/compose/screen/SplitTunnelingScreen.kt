@@ -79,10 +79,10 @@ private fun PreviewSplitTunnelingScreen() {
                                 packageName = "my.package.c",
                                 name = "TitleC",
                                 iconRes = R.drawable.icon_alert,
-                            ),
+                            )
                         ),
                     showSystemApps = true,
-                ),
+                )
         )
     }
 }
@@ -116,7 +116,7 @@ fun SplitTunnelingScreen(
     onExcludeAppClick: (packageName: String) -> Unit = {},
     onIncludeAppClick: (packageName: String) -> Unit = {},
     onBackClick: () -> Unit = {},
-    onResolveIcon: (String) -> Bitmap? = { null }
+    onResolveIcon: (String) -> Bitmap? = { null },
 ) {
     val focusManager = LocalFocusManager.current
 
@@ -154,7 +154,7 @@ fun SplitTunnelingScreen(
 
 private fun LazyListScope.enabledToggle(
     enabled: Boolean,
-    onEnableSplitTunneling: (Boolean) -> Unit
+    onEnableSplitTunneling: (Boolean) -> Unit,
 ) {
     item {
         HeaderSwitchComposeCell(
@@ -172,7 +172,7 @@ private fun LazyListScope.description() {
                 buildString {
                     appendLine(stringResource(id = R.string.split_tunneling_description))
                     append(stringResource(id = R.string.split_tunneling_description_warning))
-                },
+                }
         )
     }
 }
@@ -189,7 +189,7 @@ private fun LazyListScope.appList(
     onShowSystemAppsClick: (show: Boolean) -> Unit,
     onExcludeAppClick: (packageName: String) -> Unit,
     onIncludeAppClick: (packageName: String) -> Unit,
-    onResolveIcon: (String) -> Bitmap?
+    onResolveIcon: (String) -> Bitmap?,
 ) {
     if (state.excludedApps.isNotEmpty()) {
         headerItem(
@@ -234,7 +234,7 @@ private fun LazyListScope.appItems(
     onAppClick: (String) -> Unit,
     onResolveIcon: (String) -> Bitmap?,
     enabled: Boolean,
-    excluded: Boolean
+    excluded: Boolean,
 ) {
     itemsIndexedWithDivider(
         items = apps,
@@ -254,7 +254,7 @@ private fun LazyListScope.appItems(
                             AlphaVisible
                         } else {
                             AlphaDisabled
-                        },
+                        }
                     ),
             onResolveIcon = onResolveIcon,
         ) {
@@ -282,7 +282,7 @@ private fun LazyListScope.headerItem(key: String, textId: Int, enabled: Boolean)
                             AlphaVisible
                         } else {
                             AlphaDisabled
-                        },
+                        }
                     ),
             text = stringResource(id = textId),
             background = MaterialTheme.colorScheme.primary,
@@ -294,7 +294,7 @@ private fun LazyListScope.headerItem(key: String, textId: Int, enabled: Boolean)
 private fun LazyListScope.systemAppsToggle(
     showSystemApps: Boolean,
     onShowSystemAppsClick: (show: Boolean) -> Unit,
-    enabled: Boolean
+    enabled: Boolean,
 ) {
     itemWithDivider(
         key = SplitTunnelingContentKey.SHOW_SYSTEM_APPLICATIONS,
@@ -312,7 +312,7 @@ private fun LazyListScope.systemAppsToggle(
                             AlphaVisible
                         } else {
                             AlphaDisabled
-                        },
+                        }
                     ),
         )
     }

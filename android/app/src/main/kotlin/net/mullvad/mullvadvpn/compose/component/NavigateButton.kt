@@ -21,7 +21,7 @@ fun NavigateBackDownIconButton(onNavigateBack: () -> Unit) {
         Icon(
             modifier = Modifier.rotate(-90f),
             painter = painterResource(id = R.drawable.icon_back),
-            contentDescription = null
+            contentDescription = null,
         )
     }
 }

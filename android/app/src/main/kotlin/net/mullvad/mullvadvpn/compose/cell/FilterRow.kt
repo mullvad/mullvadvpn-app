@@ -27,7 +27,7 @@ private fun PreviewFilterCell() {
         FilterRow(
             listOf(FilterChip.Ownership(Ownership.MullvadOwned), FilterChip.Provider(2)),
             {},
-            {}
+            {},
         )
     }
 }
@@ -36,23 +36,21 @@ private fun PreviewFilterCell() {
 fun FilterRow(
     filters: List<FilterChip>,
     onRemoveOwnershipFilter: () -> Unit,
-    onRemoveProviderFilter: () -> Unit
+    onRemoveProviderFilter: () -> Unit,
 ) {
     val scrollState = rememberScrollState()
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier =
             Modifier.horizontalScroll(scrollState)
-                .padding(
-                    horizontal = Dimens.searchFieldHorizontalPadding,
-                )
+                .padding(horizontal = Dimens.searchFieldHorizontalPadding)
                 .fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(Dimens.chipSpace)
+        horizontalArrangement = Arrangement.spacedBy(Dimens.chipSpace),
     ) {
         Text(
             text = stringResource(id = R.string.filtered),
             color = MaterialTheme.colorScheme.onPrimary,
-            style = MaterialTheme.typography.labelMedium
+            style = MaterialTheme.typography.labelMedium,
         )
         filters.forEach {
             when (it) {
@@ -68,7 +66,7 @@ fun FilterRow(
 fun ProviderFilterChip(providers: Int, onRemoveClick: () -> Unit) {
     MullvadFilterChip(
         text = stringResource(id = R.string.number_of_providers, providers),
-        onRemoveClick = onRemoveClick
+        onRemoveClick = onRemoveClick,
     )
 }
 
@@ -76,7 +74,7 @@ fun ProviderFilterChip(providers: Int, onRemoveClick: () -> Unit) {
 fun OwnershipFilterChip(ownership: Ownership, onRemoveClick: () -> Unit) {
     MullvadFilterChip(
         text = stringResource(ownership.stringResources()),
-        onRemoveClick = onRemoveClick
+        onRemoveClick = onRemoveClick,
     )
 }
 

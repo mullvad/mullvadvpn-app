@@ -48,7 +48,7 @@ class BillingRepository(context: Context) {
                             exception =
                                 BillingException(
                                     responseCode = result.responseCode,
-                                    message = result.debugMessage
+                                    message = result.debugMessage,
                                 )
                         )
                     )
@@ -110,7 +110,7 @@ class BillingRepository(context: Context) {
     suspend fun startPurchaseFlow(
         productDetails: ProductDetails,
         obfuscatedId: String,
-        activityProvider: () -> Activity
+        activityProvider: () -> Activity,
     ): BillingResult {
         return try {
             ensureConnected()
@@ -172,7 +172,7 @@ class BillingRepository(context: Context) {
         } catch (t: Throwable) {
             ProductDetailsResult(
                 BillingResult.newBuilder().setResponseCode(BillingResponseCode.ERROR).build(),
-                null
+                null,
             )
         }
     }

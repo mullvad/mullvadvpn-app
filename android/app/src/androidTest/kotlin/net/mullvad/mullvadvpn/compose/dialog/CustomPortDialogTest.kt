@@ -40,7 +40,7 @@ class CustomPortDialogTest {
             initialPort = initialPort,
             allowedPortRanges = allowedPortRanges,
             onSave = onSave,
-            onDismiss = onDismiss
+            onDismiss = onDismiss,
         )
     }
 

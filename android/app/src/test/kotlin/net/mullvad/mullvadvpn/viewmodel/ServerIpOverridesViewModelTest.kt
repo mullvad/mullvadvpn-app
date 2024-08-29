@@ -45,7 +45,7 @@ class ServerIpOverridesViewModelTest {
         viewModel =
             ServerIpOverridesViewModel(
                 relayOverridesRepository = mockRelayOverridesRepository,
-                contentResolver = mockContentResolver
+                contentResolver = mockContentResolver,
             )
     }
 

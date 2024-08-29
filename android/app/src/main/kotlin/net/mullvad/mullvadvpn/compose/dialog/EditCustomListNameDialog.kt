@@ -41,16 +41,16 @@ private fun PreviewEditCustomListNameDialog() {
 
 data class EditCustomListNameNavArgs(
     val customListId: CustomListId,
-    val initialName: CustomListName
+    val initialName: CustomListName,
 )
 
 @Composable
 @Destination<RootGraph>(
     style = DestinationStyle.Dialog::class,
-    navArgs = EditCustomListNameNavArgs::class
+    navArgs = EditCustomListNameNavArgs::class,
 )
 fun EditCustomListName(
-    backNavigator: ResultBackNavigator<CustomListActionResultData.Success.Renamed>,
+    backNavigator: ResultBackNavigator<CustomListActionResultData.Success.Renamed>
 ) {
     val vm: EditCustomListNameDialogViewModel = koinViewModel()
     LaunchedEffectCollect(vm.uiSideEffect) { sideEffect ->
@@ -66,7 +66,7 @@ fun EditCustomListName(
         state = state,
         updateName = vm::updateCustomListName,
         onInputChanged = vm::onNameChanged,
-        onDismiss = dropUnlessResumed { backNavigator.navigateBack() }
+        onDismiss = dropUnlessResumed { backNavigator.navigateBack() },
     )
 }
 
@@ -75,14 +75,10 @@ fun EditCustomListNameDialog(
     state: EditCustomListNameUiState,
     updateName: (String) -> Unit = {},
     onInputChanged: (String) -> Unit = {},
-    onDismiss: () -> Unit = {}
+    onDismiss: () -> Unit = {},
 ) {
     AlertDialog(
-        title = {
-            Text(
-                text = stringResource(id = R.string.update_list_name),
-            )
-        },
+        title = { Text(text = stringResource(id = R.string.update_list_name)) },
         text = {
             CustomListNameTextField(
                 name = state.name,
@@ -90,7 +86,7 @@ fun EditCustomListNameDialog(
                 error = state.error?.errorString(),
                 onSubmit = updateName,
                 onValueChanged = onInputChanged,
-                modifier = Modifier.testTag(EDIT_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG)
+                modifier = Modifier.testTag(EDIT_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG),
             )
         },
         containerColor = MaterialTheme.colorScheme.surface,
@@ -100,12 +96,12 @@ fun EditCustomListNameDialog(
             PrimaryButton(
                 text = stringResource(id = R.string.save),
                 onClick = { updateName(state.name) },
-                isEnabled = state.isValidName
+                isEnabled = state.isValidName,
             )
         },
         dismissButton = {
             PrimaryButton(text = stringResource(id = R.string.cancel), onClick = onDismiss)
-        }
+        },
     )
 }
 

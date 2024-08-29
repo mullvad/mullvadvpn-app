@@ -67,7 +67,7 @@ class PlayPaymentUseCase(private val paymentRepository: PaymentRepository) : Pay
     override suspend fun verifyPurchases() =
         Schedule.exponential<VerificationError>(
                 VERIFICATION_INITIAL_BACK_OFF_DURATION,
-                VERIFICATION_BACK_OFF_FACTOR
+                VERIFICATION_BACK_OFF_FACTOR,
             )
             .and(Schedule.recurs(VERIFICATION_MAX_ATTEMPTS.toLong()))
             .retryEither { paymentRepository.verifyPurchases() }

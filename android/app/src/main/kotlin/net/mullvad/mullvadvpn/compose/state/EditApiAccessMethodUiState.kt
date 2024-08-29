@@ -37,7 +37,7 @@ data class EditApiAccessFormData(
     val usernameError: InvalidDataError.UserNameError? = null,
     val password: String,
     val passwordError: InvalidDataError.PasswordError? = null,
-    val cipher: Cipher = Cipher.first()
+    val cipher: Cipher = Cipher.first(),
 ) {
     fun updateWithErrors(errors: NonEmptyList<InvalidDataError>): EditApiAccessFormData =
         copy(
@@ -45,7 +45,7 @@ data class EditApiAccessFormData(
             serverIpError = errors.getFirstInstanceOrNull(),
             portError = errors.getFirstInstanceOrNull(),
             usernameError = errors.getFirstInstanceOrNull(),
-            passwordError = errors.getFirstInstanceOrNull()
+            passwordError = errors.getFirstInstanceOrNull(),
         )
 
     companion object {
@@ -71,7 +71,7 @@ data class EditApiAccessFormData(
                         port = customProxy.port.toString(),
                         enableAuthentication = customProxy.auth != null,
                         username = customProxy.auth?.username ?: "",
-                        password = customProxy.auth?.password ?: ""
+                        password = customProxy.auth?.password ?: "",
                     )
             }
     }

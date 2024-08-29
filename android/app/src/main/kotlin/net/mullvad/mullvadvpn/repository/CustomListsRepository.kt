@@ -37,7 +37,7 @@ class CustomListsRepository(
 
     suspend fun updateCustomListName(
         id: CustomListId,
-        name: CustomListName
+        name: CustomListName,
     ): Either<UpdateCustomListNameError, Unit> = either {
         val customList = getCustomListById(id).bind()
         updateCustomList(customList.copy(name = name))
@@ -47,7 +47,7 @@ class CustomListsRepository(
 
     suspend fun updateCustomListLocations(
         id: CustomListId,
-        locations: List<GeoLocationId>
+        locations: List<GeoLocationId>,
     ): Either<UpdateCustomListLocationsError, Unit> = either {
         val customList = getCustomListById(id).bind()
         updateCustomList(customList.copy(locations = locations))

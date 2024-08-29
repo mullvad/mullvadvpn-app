@@ -5,7 +5,7 @@ import net.mullvad.mullvadvpn.lib.model.VoucherCode
 
 class VoucherRepository(
     private val managementService: ManagementService,
-    private val accountRepository: AccountRepository
+    private val accountRepository: AccountRepository,
 ) {
     suspend fun submitVoucher(voucher: VoucherCode) =
         managementService.submitVoucher(voucher).onRight {

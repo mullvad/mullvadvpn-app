@@ -7,7 +7,8 @@ import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.performTouchInput
 
 fun SemanticsNodeInteraction.performLongClick(): SemanticsNodeInteraction {
-    @OptIn(ExperimentalTestApi::class) return this.invokeGlobalAssertions().performLongClickImpl()
+    @OptIn(ExperimentalTestApi::class)
+    return this.invokeGlobalAssertions().performLongClickImpl()
 }
 
 private fun SemanticsNodeInteraction.performLongClickImpl(): SemanticsNodeInteraction {

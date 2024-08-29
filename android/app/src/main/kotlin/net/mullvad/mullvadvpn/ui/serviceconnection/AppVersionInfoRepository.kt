@@ -14,20 +14,20 @@ import net.mullvad.mullvadvpn.ui.VersionInfo
 class AppVersionInfoRepository(
     private val buildVersion: BuildVersion,
     private val managementService: ManagementService,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) {
     fun versionInfo(): StateFlow<VersionInfo> =
         managementService.versionInfo
             .map { appVersionInfo ->
                 VersionInfo(
                     currentVersion = buildVersion.name,
-                    isSupported = appVersionInfo.supported
+                    isSupported = appVersionInfo.supported,
                 )
             }
             .stateIn(
                 CoroutineScope(dispatcher),
                 WhileSubscribed(),
                 // By default we assume we are supported
-                VersionInfo(currentVersion = buildVersion.name, isSupported = true)
+                VersionInfo(currentVersion = buildVersion.name, isSupported = true),
             )
 }

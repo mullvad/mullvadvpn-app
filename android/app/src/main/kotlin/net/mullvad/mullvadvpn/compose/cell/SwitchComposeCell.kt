@@ -41,14 +41,14 @@ private fun PreviewSwitchComposeCell() {
                 isEnabled = true,
                 isToggled = true,
                 onCellClicked = {},
-                onInfoClicked = {}
+                onInfoClicked = {},
             )
             NormalSwitchComposeCell(
                 title = "Checkbox Item",
                 isEnabled = true,
                 isToggled = true,
                 onCellClicked = {},
-                onInfoClicked = {}
+                onInfoClicked = {},
             )
         }
     }
@@ -63,7 +63,7 @@ fun NormalSwitchComposeCell(
     background: Color = MaterialTheme.colorScheme.surfaceContainerLow,
     onBackground: Color = MaterialTheme.colorScheme.onSurface,
     onCellClicked: (Boolean) -> Unit = {},
-    onInfoClicked: (() -> Unit)? = null
+    onInfoClicked: (() -> Unit)? = null,
 ) {
     SwitchComposeCell(
         titleView = {
@@ -71,7 +71,7 @@ fun NormalSwitchComposeCell(
                 title = title,
                 style = MaterialTheme.typography.labelLarge,
                 modifier = Modifier.weight(1f, true),
-                textColor = if (isEnabled) onBackground else onBackground.copy(AlphaDisabled)
+                textColor = if (isEnabled) onBackground else onBackground.copy(AlphaDisabled),
             )
         },
         isToggled = isToggled,
@@ -80,7 +80,7 @@ fun NormalSwitchComposeCell(
         background = background,
         onBackground = onBackground,
         onCellClicked = onCellClicked,
-        onInfoClicked = onInfoClicked
+        onInfoClicked = onInfoClicked,
     )
 }
 
@@ -102,7 +102,7 @@ fun HeaderSwitchComposeCell(
                 title = title,
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.weight(1f, fill = true),
-                textColor = onBackground
+                textColor = onBackground,
             )
         },
         isToggled = isToggled,
@@ -138,12 +138,12 @@ private fun SwitchComposeCell(
                 isEnabled = isEnabled,
                 isToggled = isToggled,
                 iconColor = onBackground,
-                onInfoClicked = onInfoClicked
+                onInfoClicked = onInfoClicked,
             )
         },
         background = background,
         onCellClicked = { onCellClicked(!isToggled) },
-        startPadding = startPadding
+        startPadding = startPadding,
     )
 }
 
@@ -154,23 +154,23 @@ fun SwitchCellView(
     iconColor: Color,
     modifier: Modifier = Modifier,
     onSwitchClicked: ((Boolean) -> Unit)? = null,
-    onInfoClicked: (() -> Unit)? = null
+    onInfoClicked: (() -> Unit)? = null,
 ) {
     Row(
         modifier = modifier.wrapContentWidth().wrapContentHeight(),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         if (onInfoClicked != null) {
             IconButton(
                 modifier =
                     Modifier.align(Alignment.CenterVertically)
                         .padding(horizontal = Dimens.miniPadding),
-                onClick = onInfoClicked
+                onClick = onInfoClicked,
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.icon_info),
                     contentDescription = null,
-                    tint = iconColor
+                    tint = iconColor,
                 )
             }
         }
@@ -188,16 +188,16 @@ fun CustomDnsCellSubtitle(isCellClickable: Boolean, modifier: Modifier) {
             } else {
                 textResource(
                     id = R.string.custom_dns_disable_mode_subtitle,
-                    textResource(id = R.string.dns_content_blockers_title)
+                    textResource(id = R.string.dns_content_blockers_title),
                 )
             },
-            FROM_HTML_MODE_COMPACT
+            FROM_HTML_MODE_COMPACT,
         )
     Text(
         text = spanned.toAnnotatedString(boldFontWeight = FontWeight.ExtraBold),
         style = MaterialTheme.typography.labelMedium,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -205,7 +205,7 @@ fun CustomDnsCellSubtitle(isCellClickable: Boolean, modifier: Modifier) {
 fun SwitchComposeSubtitleCell(
     text: String,
     modifier: Modifier = Modifier,
-    color: Color = MaterialTheme.colorScheme.onSurfaceVariant
+    color: Color = MaterialTheme.colorScheme.onSurfaceVariant,
 ) {
     BaseSubtitleCell(text = text, modifier = modifier, color = color)
 }
@@ -214,7 +214,7 @@ fun SwitchComposeSubtitleCell(
 fun SwitchComposeSubtitleCell(
     text: AnnotatedString,
     modifier: Modifier = Modifier,
-    color: Color = MaterialTheme.colorScheme.onSurfaceVariant
+    color: Color = MaterialTheme.colorScheme.onSurfaceVariant,
 ) {
     BaseSubtitleCell(text = text, modifier = modifier, color = color)
 }

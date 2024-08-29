@@ -35,8 +35,8 @@ class NewDeviceNotificationUseCaseTest {
                 Device(
                     id = DeviceId.fromString(UUID),
                     name = deviceName,
-                    creationDate = DateTime.now()
-                )
+                    creationDate = DateTime.now(),
+                ),
             )
         )
     private val isNewDeviceState = MutableStateFlow(false)
@@ -57,7 +57,7 @@ class NewDeviceNotificationUseCaseTest {
         newDeviceNotificationUseCase =
             NewDeviceNotificationUseCase(
                 newDeviceRepository = mockNewDeviceRepository,
-                deviceRepository = mockDeviceRepository
+                deviceRepository = mockDeviceRepository,
             )
     }
 

@@ -39,7 +39,7 @@ class RedeemVoucherDialogTest {
                     state = VoucherDialogUiState.INITIAL,
                     onVoucherInputChange = {},
                     onRedeem = {},
-                    onDismiss = mockedClickHandler
+                    onDismiss = mockedClickHandler,
                 )
             }
 
@@ -60,7 +60,7 @@ class RedeemVoucherDialogTest {
                     state = VoucherDialogUiState(voucherState = VoucherDialogState.Success(0)),
                     onVoucherInputChange = {},
                     onRedeem = {},
-                    onDismiss = mockedClickHandler
+                    onDismiss = mockedClickHandler,
                 )
             }
 
@@ -81,7 +81,7 @@ class RedeemVoucherDialogTest {
                     state = VoucherDialogUiState(),
                     onVoucherInputChange = mockedClickHandler,
                     onRedeem = {},
-                    onDismiss = {}
+                    onDismiss = {},
                 )
             }
 
@@ -101,7 +101,7 @@ class RedeemVoucherDialogTest {
                     state = VoucherDialogUiState(voucherState = VoucherDialogState.Verifying),
                     onVoucherInputChange = {},
                     onRedeem = {},
-                    onDismiss = {}
+                    onDismiss = {},
                 )
             }
 
@@ -118,7 +118,7 @@ class RedeemVoucherDialogTest {
                     state = VoucherDialogUiState(voucherState = VoucherDialogState.Success(0)),
                     onVoucherInputChange = {},
                     onRedeem = {},
-                    onDismiss = {}
+                    onDismiss = {},
                 )
             }
 
@@ -139,7 +139,7 @@ class RedeemVoucherDialogTest {
                         ),
                     onVoucherInputChange = {},
                     onRedeem = {},
-                    onDismiss = {}
+                    onDismiss = {},
                 )
             }
 

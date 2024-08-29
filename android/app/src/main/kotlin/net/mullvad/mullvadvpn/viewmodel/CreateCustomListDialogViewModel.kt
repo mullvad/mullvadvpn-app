@@ -23,7 +23,7 @@ import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 
 class CreateCustomListDialogViewModel(
     private val customListActionUseCase: CustomListActionUseCase,
-    savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
     private val locationCode: GeoLocationId? =
@@ -45,7 +45,7 @@ class CreateCustomListDialogViewModel(
             customListActionUseCase(
                     CustomListAction.Create(
                         CustomListName.fromString(name),
-                        listOfNotNull(locationCode)
+                        listOfNotNull(locationCode),
                     )
                 )
                 .fold(
@@ -62,12 +62,12 @@ class CreateCustomListDialogViewModel(
                                     CustomListActionResultData.Success.CreatedWithLocations(
                                         customListName = it.name,
                                         locationNames = it.locationNames,
-                                        undo = it.undo
+                                        undo = it.undo,
                                     )
                                 )
                             )
                         }
-                    }
+                    },
                 )
         }
     }

@@ -32,6 +32,6 @@ fun ApiAccessMethodInfo(navigator: DestinationsNavigator) {
                 appendLine()
                 appendLine(textResource(id = R.string.api_access_method_info_fourth_line))
             },
-        onDismiss = navigator::navigateUp
+        onDismiss = navigator::navigateUp,
     )
 }

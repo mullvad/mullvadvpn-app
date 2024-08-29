@@ -12,7 +12,7 @@ import net.mullvad.mullvadvpn.lib.model.TunnelState
 class ConnectionProxy(
     private val managementService: ManagementService,
     translationRepository: RelayLocationTranslationRepository,
-    private val vpnPermissionRepository: VpnPermissionRepository
+    private val vpnPermissionRepository: VpnPermissionRepository,
 ) {
     val tunnelState =
         combine(managementService.tunnelState, translationRepository.translations) {

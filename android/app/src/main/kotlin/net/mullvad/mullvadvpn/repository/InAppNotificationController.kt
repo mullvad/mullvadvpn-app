@@ -70,7 +70,7 @@ class InAppNotificationController(
                 it.sortedWith(
                     compareBy(
                         { notification -> notification.statusLevel.ordinal },
-                        { notification -> -notification.priority }
+                        { notification -> -notification.priority },
                     )
                 )
             }

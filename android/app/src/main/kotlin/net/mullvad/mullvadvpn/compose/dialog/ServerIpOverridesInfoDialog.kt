@@ -29,6 +29,6 @@ fun ServerIpOverridesInfo(navigator: DestinationsNavigator) {
                 appendLine()
                 append(stringResource(id = R.string.server_ip_overrides_info_third_paragraph))
             },
-        onDismiss = dropUnlessResumed { navigator.navigateUp() }
+        onDismiss = dropUnlessResumed { navigator.navigateUp() },
     )
 }

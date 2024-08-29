@@ -13,7 +13,7 @@ data class Settings(
     val relayOverrides: List<RelayOverride>,
     val showBetaReleases: Boolean,
     val splitTunnelSettings: SplitTunnelSettings,
-    val apiAccessMethodSettings: List<ApiAccessMethodSetting>
+    val apiAccessMethodSettings: List<ApiAccessMethodSetting>,
 ) {
     companion object
 }

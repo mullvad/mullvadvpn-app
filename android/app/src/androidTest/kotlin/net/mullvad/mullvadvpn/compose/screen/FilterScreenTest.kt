@@ -34,7 +34,7 @@ class FilterScreenTest {
                             selectedOwnership = null,
                             selectedProviders = DUMMY_SELECTED_PROVIDERS,
                         ),
-                    onSelectedProvider = { _, _ -> }
+                    onSelectedProvider = { _, _ -> },
                 )
             }
             onNodeWithText("Ownership").assertExists()
@@ -50,9 +50,9 @@ class FilterScreenTest {
                         RelayFilterState(
                             allProviders = DUMMY_RELAY_ALL_PROVIDERS,
                             selectedOwnership = null,
-                            selectedProviders = DUMMY_SELECTED_PROVIDERS
+                            selectedProviders = DUMMY_SELECTED_PROVIDERS,
                         ),
-                    onSelectedProvider = { _, _ -> }
+                    onSelectedProvider = { _, _ -> },
                 )
             }
             onNodeWithText("Ownership").performClick()
@@ -68,9 +68,9 @@ class FilterScreenTest {
                         RelayFilterState(
                             allProviders = DUMMY_RELAY_ALL_PROVIDERS,
                             selectedOwnership = Ownership.MullvadOwned,
-                            selectedProviders = DUMMY_SELECTED_PROVIDERS
+                            selectedProviders = DUMMY_SELECTED_PROVIDERS,
                         ),
-                    onSelectedProvider = { _, _ -> }
+                    onSelectedProvider = { _, _ -> },
                 )
             }
             onNodeWithText("Ownership").performClick()
@@ -86,9 +86,9 @@ class FilterScreenTest {
                         RelayFilterState(
                             allProviders = DUMMY_RELAY_ALL_PROVIDERS,
                             selectedOwnership = Ownership.Rented,
-                            selectedProviders = DUMMY_SELECTED_PROVIDERS
+                            selectedProviders = DUMMY_SELECTED_PROVIDERS,
                         ),
-                    onSelectedProvider = { _, _ -> }
+                    onSelectedProvider = { _, _ -> },
                 )
             }
             onNodeWithText("Ownership").performClick()
@@ -104,9 +104,9 @@ class FilterScreenTest {
                         RelayFilterState(
                             allProviders = DUMMY_RELAY_ALL_PROVIDERS,
                             selectedOwnership = null,
-                            selectedProviders = DUMMY_SELECTED_PROVIDERS
+                            selectedProviders = DUMMY_SELECTED_PROVIDERS,
                         ),
-                    onSelectedProvider = { _, _ -> }
+                    onSelectedProvider = { _, _ -> },
                 )
             }
 
@@ -126,10 +126,10 @@ class FilterScreenTest {
                             allProviders = listOf(),
                             selectedOwnership = null,
                             selectedProviders =
-                                listOf(Provider(ProviderId("31173"), Ownership.MullvadOwned))
+                                listOf(Provider(ProviderId("31173"), Ownership.MullvadOwned)),
                         ),
                     onSelectedProvider = { _, _ -> },
-                    onApplyClick = mockClickListener
+                    onApplyClick = mockClickListener,
                 )
             }
             onNodeWithText("Apply").performClick()
@@ -155,7 +155,7 @@ class FilterScreenTest {
                 Provider(ProviderId("Quadranet"), Ownership.Rented),
                 Provider(ProviderId("techfutures"), Ownership.Rented),
                 Provider(ProviderId("Tzulo"), Ownership.Rented),
-                Provider(ProviderId("xtom"), Ownership.Rented)
+                Provider(ProviderId("xtom"), Ownership.Rented),
             )
 
         private val DUMMY_SELECTED_PROVIDERS =
@@ -176,7 +176,7 @@ class FilterScreenTest {
                 Provider(ProviderId("Quadranet"), Ownership.Rented),
                 Provider(ProviderId("techfutures"), Ownership.Rented),
                 Provider(ProviderId("Tzulo"), Ownership.Rented),
-                Provider(ProviderId("xtom"), Ownership.Rented)
+                Provider(ProviderId("xtom"), Ownership.Rented),
             )
     }
 }

@@ -49,14 +49,14 @@ fun RemoveDeviceConfirmation(navigator: ResultBackNavigator<DeviceId>, device: D
                 modifier = Modifier.fillMaxWidth().height(Dimens.dialogIconHeight),
                 painter = painterResource(id = R.drawable.icon_alert),
                 contentDescription = stringResource(id = R.string.remove_button),
-                tint = MaterialTheme.colorScheme.error
+                tint = MaterialTheme.colorScheme.error,
             )
         },
         text = {
             val htmlFormattedDialogText =
                 textResource(
                     id = R.string.max_devices_confirm_removal_description,
-                    device.displayName()
+                    device.displayName(),
                 )
 
             HtmlText(htmlFormattedString = htmlFormattedDialogText, textSize = 16.sp.value)
@@ -65,15 +65,15 @@ fun RemoveDeviceConfirmation(navigator: ResultBackNavigator<DeviceId>, device: D
             PrimaryButton(
                 modifier = Modifier.focusRequester(FocusRequester()),
                 onClick = dropUnlessResumed { navigator.navigateBack() },
-                text = stringResource(id = R.string.back)
+                text = stringResource(id = R.string.back),
             )
         },
         confirmButton = {
             NegativeButton(
                 onClick = dropUnlessResumed { navigator.navigateBack(result = device.id) },
-                text = stringResource(id = R.string.confirm_removal)
+                text = stringResource(id = R.string.confirm_removal),
             )
         },
-        containerColor = MaterialTheme.colorScheme.surface
+        containerColor = MaterialTheme.colorScheme.surface,
     )
 }

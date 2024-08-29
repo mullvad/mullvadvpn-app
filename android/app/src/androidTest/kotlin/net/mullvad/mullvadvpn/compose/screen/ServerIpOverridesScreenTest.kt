@@ -46,7 +46,7 @@ class ServerIpOverridesScreenTest {
             onInfoClick = onInfoClick,
             onResetOverridesClick = onResetOverridesClick,
             onImportByFile = onImportByFile,
-            onImportByText = onImportByText
+            onImportByText = onImportByText,
         )
     }
 
@@ -100,7 +100,7 @@ class ServerIpOverridesScreenTest {
             setContentWithTheme {
                 ScreenWithDefault(
                     state = ServerIpOverridesViewState.Loaded(false),
-                    onInfoClick = clickHandler
+                    onInfoClick = clickHandler,
                 )
             }
 
@@ -119,7 +119,7 @@ class ServerIpOverridesScreenTest {
             setContentWithTheme {
                 ScreenWithDefault(
                     state = ServerIpOverridesViewState.Loaded(true),
-                    onResetOverridesClick = clickHandler
+                    onResetOverridesClick = clickHandler,
                 )
             }
 
@@ -139,7 +139,7 @@ class ServerIpOverridesScreenTest {
             setContentWithTheme {
                 ScreenWithDefault(
                     state = ServerIpOverridesViewState.Loaded(false),
-                    onImportByFile = clickHandler
+                    onImportByFile = clickHandler,
                 )
             }
 
@@ -159,7 +159,7 @@ class ServerIpOverridesScreenTest {
             setContentWithTheme {
                 ScreenWithDefault(
                     state = ServerIpOverridesViewState.Loaded(false),
-                    onImportByText = clickHandler
+                    onImportByText = clickHandler,
                 )
             }
 

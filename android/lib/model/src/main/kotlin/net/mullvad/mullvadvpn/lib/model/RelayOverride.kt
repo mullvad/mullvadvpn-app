@@ -7,7 +7,7 @@ import java.net.InetAddress
 data class RelayOverride(
     val hostname: String,
     val ipv4AddressIn: InetAddress?,
-    val ipv6AddressIn: InetAddress?
+    val ipv6AddressIn: InetAddress?,
 ) {
     companion object
 }

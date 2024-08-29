@@ -37,12 +37,12 @@ class NotificationManager(
                             if (
                                 ActivityCompat.checkSelfPermission(
                                     context,
-                                    Manifest.permission.POST_NOTIFICATIONS
+                                    Manifest.permission.POST_NOTIFICATIONS,
                                 ) == PackageManager.PERMISSION_GRANTED
                             ) {
                                 notificationManagerCompat.notify(
                                     notificationUpdate.notificationId.value,
-                                    androidNotification
+                                    androidNotification,
                                 )
                             }
                         }

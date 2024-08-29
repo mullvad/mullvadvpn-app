@@ -84,13 +84,10 @@ class CustomListLocationsScreenTest {
                             locations =
                                 listOf(
                                     RelayLocationListItem(DUMMY_RELAY_COUNTRIES[0], checked = true),
-                                    RelayLocationListItem(
-                                        DUMMY_RELAY_COUNTRIES[1],
-                                        checked = false
-                                    ),
+                                    RelayLocationListItem(DUMMY_RELAY_COUNTRIES[1], checked = false),
                                 ),
-                            searchTerm = ""
-                        ),
+                            searchTerm = "",
+                        )
                 )
             }
 
@@ -111,9 +108,9 @@ class CustomListLocationsScreenTest {
                         CustomListLocationsUiState.Content.Data(
                             newList = false,
                             locations =
-                                listOf(RelayLocationListItem(selectedCountry, checked = true))
+                                listOf(RelayLocationListItem(selectedCountry, checked = true)),
                         ),
-                    onRelaySelectionClick = mockedOnRelaySelectionClicked
+                    onRelaySelectionClick = mockedOnRelaySelectionClicked,
                 )
             }
 
@@ -136,7 +133,7 @@ class CustomListLocationsScreenTest {
                             newList = false,
                             locations = emptyList(),
                         ),
-                    onSearchTermInput = mockedSearchTermInput
+                    onSearchTermInput = mockedSearchTermInput,
                 )
             }
             val mockSearchString = "SEARCH"
@@ -159,9 +156,9 @@ class CustomListLocationsScreenTest {
                     state =
                         CustomListLocationsUiState.Content.Empty(
                             newList = false,
-                            searchTerm = mockSearchString
+                            searchTerm = mockSearchString,
                         ),
-                    onSearchTermInput = mockedSearchTermInput
+                    onSearchTermInput = mockedSearchTermInput,
                 )
             }
 
@@ -181,7 +178,7 @@ class CustomListLocationsScreenTest {
                     state =
                         CustomListLocationsUiState.Content.Empty(
                             newList = false,
-                            searchTerm = emptySearchString
+                            searchTerm = emptySearchString,
                         )
                 )
             }
@@ -203,7 +200,7 @@ class CustomListLocationsScreenTest {
                             locations = emptyList(),
                             saveEnabled = true,
                         ),
-                    onSaveClick = mockOnSaveClick
+                    onSaveClick = mockOnSaveClick,
                 )
             }
 
@@ -227,7 +224,7 @@ class CustomListLocationsScreenTest {
                             locations = emptyList(),
                             saveEnabled = false,
                         ),
-                    onSaveClick = mockOnSaveClick
+                    onSaveClick = mockOnSaveClick,
                 )
             }
 

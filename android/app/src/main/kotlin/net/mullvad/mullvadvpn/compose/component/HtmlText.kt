@@ -26,6 +26,6 @@ fun HtmlText(
         },
         update = {
             it.text = HtmlCompat.fromHtml(htmlFormattedString, HtmlCompat.FROM_HTML_MODE_COMPACT)
-        }
+        },
     )
 }

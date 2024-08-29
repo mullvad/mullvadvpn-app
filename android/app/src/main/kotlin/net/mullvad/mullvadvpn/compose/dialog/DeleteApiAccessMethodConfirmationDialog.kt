@@ -28,11 +28,9 @@ data class DeleteApiAccessMethodNavArgs(val apiAccessMethodId: ApiAccessMethodId
 @Composable
 @Destination<RootGraph>(
     style = DestinationStyle.Dialog::class,
-    navArgs = DeleteApiAccessMethodNavArgs::class
+    navArgs = DeleteApiAccessMethodNavArgs::class,
 )
-fun DeleteApiAccessMethodConfirmation(
-    navigator: ResultBackNavigator<Boolean>,
-) {
+fun DeleteApiAccessMethodConfirmation(navigator: ResultBackNavigator<Boolean>) {
     val viewModel = koinViewModel<DeleteApiAccessMethodConfirmationViewModel>()
     val state = viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -46,7 +44,7 @@ fun DeleteApiAccessMethodConfirmation(
     DeleteApiAccessMethodConfirmationDialog(
         state = state.value,
         onDelete = viewModel::deleteApiAccessMethod,
-        onBack = navigator::navigateBack
+        onBack = navigator::navigateBack,
     )
 }
 
@@ -54,20 +52,17 @@ fun DeleteApiAccessMethodConfirmation(
 fun DeleteApiAccessMethodConfirmationDialog(
     state: DeleteApiAccessMethodUiState,
     onDelete: () -> Unit = {},
-    onBack: () -> Unit = {}
+    onBack: () -> Unit = {},
 ) {
     DeleteConfirmationDialog(
         onDelete = onDelete,
         onBack = onBack,
-        message =
-            stringResource(
-                id = R.string.delete_method_question,
-            ),
+        message = stringResource(id = R.string.delete_method_question),
         errorMessage =
             if (state.deleteError != null) {
                 stringResource(id = R.string.error_occurred)
             } else {
                 null
-            }
+            },
     )
 }

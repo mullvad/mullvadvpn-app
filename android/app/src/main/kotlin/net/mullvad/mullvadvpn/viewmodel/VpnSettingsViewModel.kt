@@ -46,7 +46,7 @@ class VpnSettingsViewModel(
     private val repository: SettingsRepository,
     private val relayListRepository: RelayListRepository,
     private val systemVpnSettingsUseCase: SystemVpnSettingsAvailableUseCase,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : ViewModel() {
 
     private val _uiSideEffect = Channel<VpnSettingsSideEffect>()
@@ -55,11 +55,10 @@ class VpnSettingsViewModel(
     private val customPort = MutableStateFlow<Constraint<Port>?>(null)
 
     private val vmState =
-        combine(
-                repository.settingsUpdates,
-                relayListRepository.portRanges,
-                customPort,
-            ) { settings, portRanges, customWgPort ->
+        combine(repository.settingsUpdates, relayListRepository.portRanges, customPort) {
+                settings,
+                portRanges,
+                customWgPort ->
                 VpnSettingsViewModelState(
                     mtuValue = settings?.tunnelOptions?.wireguard?.mtu,
                     isAutoConnectEnabled = settings?.autoConnect ?: false,
@@ -76,13 +75,13 @@ class VpnSettingsViewModel(
                     selectedWireguardPort = settings?.getWireguardPort() ?: Constraint.Any,
                     customWireguardPort = customWgPort,
                     availablePortRanges = portRanges,
-                    systemVpnSettingsAvailable = systemVpnSettingsUseCase()
+                    systemVpnSettingsAvailable = systemVpnSettingsUseCase(),
                 )
             }
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(),
-                VpnSettingsViewModelState.default()
+                VpnSettingsViewModelState.default(),
             )
 
     val uiState =
@@ -91,7 +90,7 @@ class VpnSettingsViewModel(
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(),
-                VpnSettingsUiState.createDefault()
+                VpnSettingsUiState.createDefault(),
             )
 
     init {
@@ -144,7 +143,7 @@ class VpnSettingsViewModel(
                         } else if (vmState.value.customDnsList.isNotEmpty()) {
                             showApplySettingChangesWarningToast()
                         }
-                    }
+                    },
                 )
         }
     }
@@ -250,7 +249,7 @@ class VpnSettingsViewModel(
                 .setDnsOptions(
                     isCustomDnsEnabled = vmState.value.isCustomDnsEnabled,
                     dnsList = vmState.value.customDnsList.map { it.address }.asInetAddressList(),
-                    contentBlockersOptions = contentBlockersOption
+                    contentBlockersOptions = contentBlockersOption,
                 )
                 .onLeft { _uiSideEffect.send(VpnSettingsSideEffect.ShowToast.GenericError) }
         }

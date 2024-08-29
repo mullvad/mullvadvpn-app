@@ -36,11 +36,9 @@ data class DeleteCustomListNavArgs(val customListId: CustomListId, val name: Cus
 @Composable
 @Destination<RootGraph>(
     style = DestinationStyle.Dialog::class,
-    navArgs = DeleteCustomListNavArgs::class
+    navArgs = DeleteCustomListNavArgs::class,
 )
-fun DeleteCustomList(
-    navigator: ResultBackNavigator<CustomListActionResultData.Success.Deleted>,
-) {
+fun DeleteCustomList(navigator: ResultBackNavigator<CustomListActionResultData.Success.Deleted>) {
     val viewModel: DeleteCustomListConfirmationViewModel = koinViewModel()
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -54,7 +52,7 @@ fun DeleteCustomList(
     DeleteCustomListConfirmationDialog(
         state = state,
         onDelete = viewModel::deleteCustomList,
-        onBack = dropUnlessResumed { navigator.navigateBack() }
+        onBack = dropUnlessResumed { navigator.navigateBack() },
     )
 }
 
@@ -62,7 +60,7 @@ fun DeleteCustomList(
 fun DeleteCustomListConfirmationDialog(
     state: DeleteCustomListUiState,
     onDelete: () -> Unit = {},
-    onBack: () -> Unit = {}
+    onBack: () -> Unit = {},
 ) {
     DeleteConfirmationDialog(
         onDelete = onDelete,
@@ -70,13 +68,13 @@ fun DeleteCustomListConfirmationDialog(
         message =
             stringResource(
                 id = R.string.delete_custom_list_confirmation_description,
-                state.name.value
+                state.name.value,
             ),
         errorMessage =
             if (state.deleteError != null) {
                 stringResource(id = R.string.error_occurred)
             } else {
                 null
-            }
+            },
     )
 }

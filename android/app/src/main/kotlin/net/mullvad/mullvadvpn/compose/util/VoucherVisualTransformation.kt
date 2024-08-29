@@ -27,12 +27,12 @@ fun vouchersVisualTransformation() = VisualTransformation { text ->
                 // Limit max input to 19 characters (16 voucher - 3 dividers)
                 return min(
                     res,
-                    MAX_VOUCHER_LENGTH + MAX_VOUCHER_LENGTH / ACCOUNT_NUMBER_CHUNK_SIZE - 1
+                    MAX_VOUCHER_LENGTH + MAX_VOUCHER_LENGTH / ACCOUNT_NUMBER_CHUNK_SIZE - 1,
                 )
             }
 
             override fun transformedToOriginal(offset: Int): Int =
                 offset - offset / (ACCOUNT_NUMBER_CHUNK_SIZE + 1)
-        }
+        },
     )
 }

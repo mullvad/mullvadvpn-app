@@ -22,7 +22,7 @@ import net.mullvad.mullvadvpn.usecase.AvailableProvidersUseCase
 
 class FilterViewModel(
     private val availableProvidersUseCase: AvailableProvidersUseCase,
-    private val relayListFilterRepository: RelayListFilterRepository
+    private val relayListFilterRepository: RelayListFilterRepository,
 ) : ViewModel() {
     private val _uiSideEffect = Channel<FilterScreenSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
@@ -33,10 +33,9 @@ class FilterViewModel(
     init {
         viewModelScope.launch {
             selectedProviders.value =
-                combine(
-                        availableProvidersUseCase(),
-                        relayListFilterRepository.selectedProviders,
-                    ) { allProviders, selectedConstraintProviders ->
+                combine(availableProvidersUseCase(), relayListFilterRepository.selectedProviders) {
+                        allProviders,
+                        selectedConstraintProviders ->
                         selectedConstraintProviders.toSelectedProviders(allProviders)
                     }
                     .first()
@@ -47,15 +46,14 @@ class FilterViewModel(
     }
 
     val uiState: StateFlow<RelayFilterState> =
-        combine(
+        combine(selectedOwnership, availableProvidersUseCase(), selectedProviders) {
                 selectedOwnership,
-                availableProvidersUseCase(),
-                selectedProviders,
-            ) { selectedOwnership, allProviders, selectedProviders ->
+                allProviders,
+                selectedProviders ->
                 RelayFilterState(
                     selectedOwnership = selectedOwnership,
                     allProviders = allProviders,
-                    selectedProviders = selectedProviders
+                    selectedProviders = selectedProviders,
                 )
             }
             .stateIn(
@@ -64,7 +62,7 @@ class FilterViewModel(
                 RelayFilterState(
                     allProviders = emptyList(),
                     selectedOwnership = null,
-                    selectedProviders = emptyList()
+                    selectedProviders = emptyList(),
                 ),
             )
 
@@ -100,7 +98,7 @@ class FilterViewModel(
         viewModelScope.launch {
             relayListFilterRepository.updateSelectedOwnershipAndProviderFilter(
                 newSelectedOwnership,
-                newSelectedProviders
+                newSelectedProviders,
             )
             _uiSideEffect.send(FilterScreenSideEffect.CloseScreen)
         }

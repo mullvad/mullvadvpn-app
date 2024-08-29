@@ -10,12 +10,12 @@ data class CustomApiEndpointConfiguration(
     val hostname: String,
     val port: Int,
     val disableAddressCache: Boolean = true,
-    val disableTls: Boolean = false
+    val disableTls: Boolean = false,
 ) : ApiEndpointConfiguration {
     override fun apiEndpoint() =
         ApiEndpoint(
             address = InetSocketAddress(hostname, port),
             disableAddressCache = disableAddressCache,
-            disableTls = disableTls
+            disableTls = disableTls,
         )
 }

@@ -10,7 +10,7 @@ data class PaymentDialogData(
     val confirmAction: PaymentDialogAction? = null,
     val dismissAction: PaymentDialogAction? = null,
     val closeOnDismiss: Boolean = true,
-    val successfulPayment: Boolean = false
+    val successfulPayment: Boolean = false,
 )
 
 sealed class PaymentDialogAction(val message: Int) {
@@ -22,5 +22,5 @@ sealed class PaymentDialogAction(val message: Int) {
 enum class PaymentDialogIcon {
     SUCCESS,
     FAIL,
-    LOADING
+    LOADING,
 }
