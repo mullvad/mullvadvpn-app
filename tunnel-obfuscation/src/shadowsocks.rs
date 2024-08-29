@@ -182,10 +182,11 @@ async fn handle_outgoing(
         };
 
         if let Err(error) = ss_write.send(&wg_addr, &rx_buffer[0..read_n]).await {
-            log::error!("Failed to write to Shadowsocks client: {error}");
             if is_fatal_socket_error(&error) {
+                log::error!("Failed to write to Shadowsocks client: {error}");
                 break;
             }
+            log::trace!("Failed to write to Shadowsocks client: {error}");
         }
     }
 }
