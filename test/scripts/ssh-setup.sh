@@ -124,12 +124,20 @@ fi
 
 setup_systemd
 
+# Run apt with some arguments
+robust_apt () {
+    # We don't want to fail due to the global apt lock being
+    # held, which happens sporadically. It is fine to wait for
+    # some time if it means that the test run can continue.
+    apt -o DPkg::Lock::Timeout=60 "$@"
+}
+
 function install_packages_apt {
     echo "Installing required apt packages"
-    apt update
-    apt install -yf xvfb wireguard-tools curl
+    robust_apt update
+    robust_apt install -yf xvfb wireguard-tools curl
     if ! which ping &>/dev/null; then
-        apt install -yf iputils-ping
+        robust_apt install -yf iputils-ping
     fi
     curl -fsSL https://get.docker.com | sh
 }
