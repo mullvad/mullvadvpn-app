@@ -38,6 +38,7 @@ interface CommonSelectorProps<T, U> {
   thinTitle?: boolean;
   automaticLabel?: string;
   automaticValue?: U;
+  automaticTestId?: string;
   children?: React.ReactNode | Array<React.ReactNode>;
 }
 
@@ -73,6 +74,7 @@ export default function Selector<T, U>(props: SelectorProps<T, U>) {
     items.unshift(
       <SelectorCell
         key={'automatic'}
+        data-testid={props.automaticTestId}
         value={props.automaticValue}
         isSelected={selected}
         disabled={props.disabled}

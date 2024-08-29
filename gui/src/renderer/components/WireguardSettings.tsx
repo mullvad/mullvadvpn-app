@@ -276,6 +276,7 @@ function ObfuscationSettings() {
           value={obfuscationType}
           onSelect={selectObfuscationType}
           automaticValue={ObfuscationType.auto}
+          automaticTestId="automatic-obfuscation"
         />
       </StyledSelectorContainer>
     </AriaInputGroup>
