@@ -1,0 +1,15 @@
+name: "Validate gradle wrapper"
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/android-validate-gradle-wrapper.yml
+      - android/gradle/wrapper/gradle-wrapper.jar
+
+permissions: {}
+
+jobs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: gradle/actions/wrapper-validation@16bf8bc8fe830fa669c3c9f914d3eb147c629707 #v4.0.1
