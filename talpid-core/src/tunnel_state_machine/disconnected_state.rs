@@ -21,6 +21,16 @@ impl DisconnectedState {
         should_reset_firewall: bool,
     ) -> (Box<dyn TunnelState>, TunnelStateTransition) {
         #[cfg(target_os = "macos")]
+        if let Err(err) = shared_values
+            .runtime
+            .block_on(shared_values.split_tunnel.reset_tunnel())
+        {
+            log::error!(
+                "{}",
+                err.display_chain_with_msg("Failed to disable split tunneling")
+            );
+        }
+        #[cfg(target_os = "macos")]
         if shared_values.block_when_disconnected {
             if let Err(err) = Self::setup_local_dns_config(shared_values) {
                 log::error!(
