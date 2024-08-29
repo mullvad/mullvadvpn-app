@@ -8,7 +8,7 @@ import androidx.test.uiautomator.UiDevice
 import co.touchlab.kermit.Logger
 import de.mannodermaus.junit5.extensions.GrantPermissionExtension
 import java.net.InetAddress
-import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpoint
+import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointOverride
 import net.mullvad.mullvadvpn.test.common.interactor.AppInteractor
 import net.mullvad.mullvadvpn.test.common.rule.CaptureScreenshotOnFailedTestRule
 import net.mullvad.mullvadvpn.test.mockapi.constant.LOG_TAG
@@ -33,7 +33,7 @@ abstract class MockApiTest {
     lateinit var device: UiDevice
     lateinit var targetContext: Context
     lateinit var app: AppInteractor
-    lateinit var endpoint: ApiEndpoint.Custom
+    lateinit var endpoint: ApiEndpointOverride
 
     @BeforeEach
     open fun setup() {
@@ -54,8 +54,8 @@ abstract class MockApiTest {
         mockWebServer.shutdown()
     }
 
-    private fun createEndpoint(port: Int): ApiEndpoint.Custom {
-        return ApiEndpoint.Custom(
+    private fun createEndpoint(port: Int): ApiEndpointOverride {
+        return ApiEndpointOverride(
             InetAddress.getLocalHost().hostName,
             port,
             disableAddressCache = true,
