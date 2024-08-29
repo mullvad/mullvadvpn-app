@@ -6,6 +6,7 @@ import { messages } from '../../../shared/gettext';
 import { useHistory } from '../../lib/history';
 import { RoutePath } from '../../lib/routes';
 import { useSelector } from '../../redux/store';
+import * as Cell from '../cell';
 import ImageView from '../ImageView';
 import InfoButton from '../InfoButton';
 import { SpecialLocationIndicator } from '../RelayStatusIndicator';
@@ -14,7 +15,6 @@ import {
   StyledHoverInfoButton,
   StyledLocationRowButton,
   StyledLocationRowContainerWithMargin,
-  StyledLocationRowIcon,
   StyledLocationRowLabel,
 } from './LocationRowStyles';
 import { SpecialBridgeLocationType, SpecialLocation } from './select-location-types';
@@ -74,7 +74,7 @@ export function AutomaticLocationRow(
         <SpecialLocationIndicator />
         <StyledLocationRowLabel>{props.source.label}</StyledLocationRowLabel>
       </StyledLocationRowButton>
-      <StyledLocationRowIcon
+      <Cell.SideButton
         as={StyledSpecialLocationInfoButton}
         title={messages.gettext('Automatic')}
         message={messages.pgettext(
@@ -136,7 +136,7 @@ export function CustomBridgeLocationRow(
           'A custom bridge server can be used to circumvent censorship when regular Mullvad bridge servers don’t work.',
         )}
       />
-      <StyledLocationRowIcon
+      <Cell.SideButton
         {...background}
         aria-label={
           bridgeConfigured
@@ -150,7 +150,7 @@ export function CustomBridgeLocationRow(
           tintColor={colors.white}
           tintHoverColor={colors.white80}
         />
-      </StyledLocationRowIcon>
+      </Cell.SideButton>
     </StyledLocationRowContainerWithMargin>
   );
 }
