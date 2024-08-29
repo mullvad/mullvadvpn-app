@@ -128,6 +128,9 @@ function install_packages_apt {
     echo "Installing required apt packages"
     apt update
     apt install -yf xvfb wireguard-tools curl
+    if ! which ping &>/dev/null; then
+        apt install -yf iputils-ping
+    fi
     curl -fsSL https://get.docker.com | sh
 }
 

@@ -54,7 +54,7 @@ fn am_i_mullvad(opt: &Opt) -> eyre::Result<bool> {
     let client = Client::new();
     let response: Response = client
         .get(url)
-        .timeout(Duration::from_millis(opt.timeout))
+        .timeout(Duration::from_secs(opt.timeout))
         .send()
         .and_then(|r| r.json())
         .wrap_err_with(|| eyre!("Failed to GET {url}"))?;

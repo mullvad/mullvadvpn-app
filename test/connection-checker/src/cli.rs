@@ -10,8 +10,8 @@ pub struct Opt {
     #[clap(short, long)]
     pub interactive: bool,
 
-    /// Timeout for network connection to am.i.mullvad (in millis).
-    #[clap(short, long, default_value = "3000")]
+    /// Timeout for network connection to am.i.mullvad (in seconds).
+    #[clap(short, long, default_value = "3")]
     pub timeout: u64,
 
     /// Try to send some junk data over TCP to <leak>.
@@ -30,8 +30,8 @@ pub struct Opt {
     #[clap(long)]
     pub leak: Option<SocketAddr>,
 
-    /// Timeout for leak check network connections (in millis).
-    #[clap(long, default_value = "1000")]
+    /// Timeout for leak check network connections (in seconds).
+    #[clap(long, default_value = "1")]
     pub leak_timeout: u64,
 
     /// Junk data for each UDP and TCP packet
