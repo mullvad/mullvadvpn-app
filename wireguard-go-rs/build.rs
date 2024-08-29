@@ -20,7 +20,7 @@ fn main() -> anyhow::Result<()> {
     match target_os.as_str() {
         "linux" => build_static_lib(Os::Linux, true)?,
         "macos" => build_static_lib(Os::MacOs, true)?,
-        "android" => build_android_dynamic_lib(false)?,
+        "android" => build_android_dynamic_lib(true)?,
         // building wireguard-go-rs for windows is not implemented
         _ => {}
     }
@@ -192,7 +192,12 @@ fn build_android_dynamic_lib(daita: bool) -> anyhow::Result<()> {
         .env("ANDROID_ARCH_NAME", android_arch_name(target))
         .env("GOPATH", &go_path)
         // Note: -w -s results in a stripped binary
-        .env("LDFLAGS", format!("-L{out_dir} -w -s"));
+        .env("LDFLAGS", format!("-L{out_dir} -w -s"))
+        // Note: the build container overrides CARGO_TARGET_DIR, which will cause problems
+        // since we will spawn another cargo process as part of building maybenot (which we
+        // link into libwg). A work around is to simply override the overridden value, and we
+        // do this by pointing to a target folder in our temporary build folder.
+        .env("CARGO_TARGET_DIR", tmp_build_dir.join("target"));
 
     exec(build_command)?;
 
