@@ -19,7 +19,7 @@ import net.mullvad.mullvadvpn.lib.common.constant.GRPC_SOCKET_FILE_NAMED_ARGUMEN
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_CONNECT_ACTION
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_DISCONNECT_ACTION
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
-import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointConfiguration
+import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpoint
 import net.mullvad.mullvadvpn.lib.endpoint.getApiEndpointConfigurationExtras
 import net.mullvad.mullvadvpn.lib.intent.IntentProvider
 import net.mullvad.mullvadvpn.lib.model.TunnelState
@@ -41,8 +41,7 @@ class MullvadVpnService : TalpidVpnService() {
 
     private lateinit var keyguardManager: KeyguardManager
 
-    private lateinit var apiEndpointConfiguration: ApiEndpointConfiguration
-    private lateinit var apiEndpointResolver: ApiEndpointResolver
+    private lateinit var apiEndpointConfiguration: ApiEndpoint
     private lateinit var managementService: ManagementService
     private lateinit var migrateSplitTunneling: MigrateSplitTunneling
     private lateinit var intentProvider: IntentProvider
@@ -71,7 +70,6 @@ class MullvadVpnService : TalpidVpnService() {
             get<NotificationManager>()
 
             apiEndpointConfiguration = get()
-            apiEndpointResolver = get()
             migrateSplitTunneling = get()
             intentProvider = get()
             connectionProxy = get()
@@ -158,7 +156,7 @@ class MullvadVpnService : TalpidVpnService() {
             rpcSocketPath = rpcSocketFile.absolutePath,
             filesDirectory = filesDir.absolutePath,
             cacheDirectory = cacheDir.absolutePath,
-            apiEndpoint = apiEndpointResolver.resolve(apiEndpointConfiguration)
+            apiEndpoint = apiEndpointConfiguration
         )
         Logger.i("MullvadVpnService: Daemon initialized")
     }
