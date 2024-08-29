@@ -66,7 +66,7 @@ val vpnServiceModule = module {
                     ApiEndpointOverride(BuildConfig.API_ENDPOINT)
                 } else {
                     null
-                }
+                },
         )
     }
 }
