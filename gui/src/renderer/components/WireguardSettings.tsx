@@ -219,6 +219,17 @@ function ObfuscationSettings() {
   const obfuscationTypeItems: SelectorItem<ObfuscationType>[] = useMemo(
     () => [
       {
+        label: messages.pgettext('wireguard-settings-view', 'Shadowsocks'),
+        subLabel: sprintf(subLabelTemplate, {
+          port: formatPortForSubLabel(obfuscationSettings.shadowsocksSettings.port),
+        }),
+        value: ObfuscationType.shadowsocks,
+        details: {
+          path: RoutePath.shadowsocks,
+          ariaLabel: messages.pgettext('accessibility', 'Shadowsocks settings'),
+        },
+      },
+      {
         label: messages.pgettext('wireguard-settings-view', 'UDP-over-TCP'),
         subLabel: sprintf(subLabelTemplate, {
           port: formatPortForSubLabel(obfuscationSettings.udp2tcpSettings.port),
