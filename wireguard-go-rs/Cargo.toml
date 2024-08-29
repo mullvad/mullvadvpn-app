@@ -12,7 +12,7 @@ thiserror.workspace = true
 log.workspace = true
 zeroize = "1.8.1"
 
-[target.'cfg(any(target_os = "linux", target_os = "macos"))'.dependencies]
+[target.'cfg(not(target_os = "windows"))'.dependencies]
 # The app does not depend on maybenot-ffi itself, but adds it as a dependency to expose FFI symbols to wireguard-go.
 # This is done, instead of using the makefile in wireguard-go to build maybenot-ffi into its archive, to prevent
 # name clashes induced by link-time optimization.
