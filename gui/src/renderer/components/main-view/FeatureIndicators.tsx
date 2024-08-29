@@ -55,12 +55,13 @@ const StyledFeatureIndicatorLabel = styled.span<{ $expanded: boolean }>(tinyText
   visibility: props.$expanded ? 'visible' : 'hidden',
 }));
 
-const StyledBaseEllipsis = styled.span(tinyText, {
+const StyledBaseEllipsis = styled.span<{ $display: boolean }>(tinyText, (props) => ({
   position: 'absolute',
   top: `${LINE_HEIGHT + GAP}px`,
   color: colors.white,
   padding: '2px 8px 2px 16px',
-});
+  display: props.$display ? 'inline' : 'none',
+}));
 
 const StyledEllipsisSpacer = styled(StyledBaseEllipsis)({
   right: 0,
@@ -119,6 +120,7 @@ export default function FeatureIndicators(props: FeatureIndicatorsProps) {
         const indicatorElements = Array.from(
           featureIndicatorsContainerRef.current.getElementsByTagName('span'),
         );
+
         let lastVisibleIndex = 0;
         let hasHidden = false;
         indicatorElements.forEach((indicatorElement, i) => {
@@ -177,18 +179,14 @@ export default function FeatureIndicators(props: FeatureIndicatorsProps) {
               </StyledFeatureIndicatorLabel>
             ))}
           </StyledFeatureIndicatorsWrapper>
-          {!props.expanded && (
-            <>
-              <StyledEllipsis ref={ellipsisRef} />
-              <StyledEllipsisSpacer ref={ellipsisSpacerRef}>
-                {
-                  // Mock amount for the spacer ellipsis. This needs to be wider than the real
-                  // ellipsis will ever be.
-                  sprintf(ellipsis, { amount: 222 })
-                }
-              </StyledEllipsisSpacer>
-            </>
-          )}
+          <StyledEllipsis $display={!props.expanded} ref={ellipsisRef} />
+          <StyledEllipsisSpacer $display={!props.expanded} ref={ellipsisSpacerRef}>
+            {
+              // Mock amount for the spacer ellipsis. This needs to be wider than the real
+              // ellipsis will ever be.
+              sprintf(ellipsis, { amount: 222 })
+            }
+          </StyledEllipsisSpacer>
         </StyledFeatureIndicators>
       </StyledFeatureIndicatorsContainer>
     </StyledAccordion>
