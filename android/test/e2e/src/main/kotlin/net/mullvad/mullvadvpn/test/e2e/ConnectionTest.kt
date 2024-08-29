@@ -41,7 +41,7 @@ class ConnectionTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
         // When
         device.findObjectWithTimeout(By.text("Secure my connection")).click()
         device.findObjectWithTimeout(By.text("OK")).click()
-        device.findObjectWithTimeout(By.text("SECURE CONNECTION"))
+        device.findObjectWithTimeout(By.text("SECURE CONNECTION"), CONNECTION_TIMEOUT)
         val expected = ConnCheckState(true, app.extractIpAddress())
 
         // Then
