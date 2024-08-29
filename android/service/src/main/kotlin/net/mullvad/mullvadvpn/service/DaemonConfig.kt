@@ -7,5 +7,5 @@ data class DaemonConfig(
     val rpcSocket: File,
     val filesDir: File,
     val cacheDir: File,
-    val apiEndpointOverride: ApiEndpointOverride?
+    val apiEndpointOverride: ApiEndpointOverride?,
 )
