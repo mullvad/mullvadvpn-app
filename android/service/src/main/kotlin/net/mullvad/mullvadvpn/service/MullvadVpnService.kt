@@ -75,15 +75,18 @@ class MullvadVpnService : TalpidVpnService() {
         prepareFiles(this@MullvadVpnService)
         migrateSplitTunneling.migrate()
 
-        Logger.i("Start daemon")
-        val apiEndpointConfiguration =
-            if (BuildConfig.DEBUG) {
-                intentProvider.getLatestIntent()?.getApiEndpointConfigurationExtras()
-                    ?: daemonConfig.apiEndpointOverride
+        // If it is a debug build and we have an api override in the intent, use it
+        // This is for injecting hostname and port for our mock api tests
+        val intentApiOverride =
+            intentProvider.getLatestIntent()?.getApiEndpointConfigurationExtras()
+        val updatedConfig =
+            if (BuildConfig.DEBUG && intentApiOverride != null) {
+                daemonConfig.copy(apiEndpointOverride = intentApiOverride)
             } else {
-                daemonConfig.apiEndpointOverride
+                daemonConfig
             }
-        startDaemon(daemonConfig.copy(apiEndpointOverride = apiEndpointConfiguration))
+        Logger.i("Start daemon")
+        startDaemon(updatedConfig)
 
         Logger.i("Start management service")
         managementService.start()
