@@ -1,6 +1,6 @@
 package net.mullvad.mullvadvpn.service
 
-import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpoint
+import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointOverride
 
 object MullvadDaemon {
     init {
@@ -12,7 +12,7 @@ object MullvadDaemon {
         rpcSocketPath: String,
         filesDirectory: String,
         cacheDirectory: String,
-        apiEndpoint: ApiEndpoint?
+        apiEndpointOverride: ApiEndpointOverride?
     )
 
     external fun shutdown()
