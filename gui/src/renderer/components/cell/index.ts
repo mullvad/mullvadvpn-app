@@ -6,3 +6,4 @@ export * from './Label';
 export * from './Section';
 export * from './Group';
 export * from './Row';
+export * from './SideButton';

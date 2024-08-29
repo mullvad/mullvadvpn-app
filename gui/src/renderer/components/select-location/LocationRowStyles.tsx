@@ -3,23 +3,10 @@ import { Styles } from 'styled-components/dist/types';
 
 import { colors } from '../../../config.json';
 import * as Cell from '../cell';
+import { buttonColor, ButtonColors } from '../cell/styles';
 import { measurements, normalText } from '../common-styles';
 import ImageView from '../ImageView';
 import InfoButton from '../InfoButton';
-
-interface ButtonColorProps {
-  $backgroundColor: string;
-  $backgroundColorHover: string;
-}
-
-export const buttonColor = (props: ButtonColorProps) => {
-  return {
-    backgroundColor: props.$backgroundColor,
-    '&&:not(:disabled):hover': {
-      backgroundColor: props.$backgroundColorHover,
-    },
-  };
-};
 
 export const StyledLocationRowContainer = styled(Cell.Container)({
   display: 'flex',
@@ -41,7 +28,7 @@ export const StyledLocationRowLabel = styled(Cell.Label)(normalText, {
   whiteSpace: 'nowrap',
 });
 
-export const StyledLocationRowButton = styled(Cell.Row)<ButtonColorProps & { $level: number }>(
+export const StyledLocationRowButton = styled(Cell.Row)<ButtonColors & { $level: number }>(
   buttonColor,
   (props) => {
     const paddingLeft = (props.$level + 1) * 16 + 2;
@@ -57,32 +44,12 @@ export const StyledLocationRowButton = styled(Cell.Row)<ButtonColorProps & { $le
   },
 );
 
-export const StyledLocationRowIcon = styled.button<ButtonColorProps>(buttonColor, {
-  position: 'relative',
-  alignSelf: 'stretch',
-  paddingLeft: measurements.viewMargin,
-  paddingRight: measurements.viewMargin,
-  border: 0,
-
-  '&&::before': {
-    content: '""',
-    position: 'absolute',
-    margin: 'auto',
-    top: 0,
-    left: 0,
-    bottom: 0,
-    height: '50%',
-    width: '1px',
-    backgroundColor: colors.darkBlue,
-  },
-});
-
 interface HoverButtonProps {
   $isLast?: boolean;
 }
 
 const hoverButton = (
-  props: ButtonColorProps & HoverButtonProps,
+  props: ButtonColors & HoverButtonProps,
 ): Styles<
   React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>
 > => ({
@@ -110,7 +77,7 @@ const hoverButton = (
   },
 });
 
-export const StyledHoverIconButton = styled.button<ButtonColorProps & HoverButtonProps>(
+export const StyledHoverIconButton = styled.button<ButtonColors & HoverButtonProps>(
   buttonColor,
   hoverButton,
 );
@@ -126,7 +93,7 @@ export const StyledHoverIcon = styled(ImageView).attrs({
   },
 });
 
-export const StyledHoverInfoButton = styled(InfoButton)<ButtonColorProps & HoverButtonProps>(
+export const StyledHoverInfoButton = styled(InfoButton)<ButtonColors & HoverButtonProps>(
   buttonColor,
   hoverButton,
 );
