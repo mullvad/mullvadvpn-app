@@ -58,6 +58,7 @@ test('App should show no feature indicators', async () => {
   await expect(ellipsis).not.toBeVisible();
 
   await expectFeatureIndicators(page, []);
+  await page.getByTestId('connection-panel-chevron').click();
 });
 
 test('App should show feature indicators', async () => {
@@ -85,12 +86,13 @@ test('App should show feature indicators', async () => {
     },
   });
 
+  // Make sure panel is collapsed before checking indicator visibility.
+  const ellipsis = page.getByText(/^\d more.../);
+  await expect(ellipsis).toBeVisible();
+
   await expectConnected(page);
   await expectFeatureIndicators(page, ["DAITA", "Quantum resistance"], false);
   await expectHiddenFeatureIndicator(page, "Mssfix");
-
-  const ellipsis = page.getByText(/^\d more.../);
-  await expect(ellipsis).toBeVisible();
 
   await page.getByTestId('connection-panel-chevron').click();
   await expect(ellipsis).not.toBeVisible();
@@ -112,6 +114,10 @@ test('App should show feature indicators', async () => {
 async function expectHiddenFeatureIndicator(page: Page, hiddenIndicator: string) {
   const indicators = page.getByTestId('feature-indicator');
   const indicator = indicators.getByText(hiddenIndicator, { exact: true });
+
+  // Make sure at least one is visible to not run the "not visible" check before they become
+  // visible.
+  await expect(indicators.first()).toBeVisible();
 
   await expect(indicator).toHaveCount(1);
   await expect(indicator).not.toBeVisible();
