@@ -1,4 +1,4 @@
-name: "Validate gradle wrapper"
+name: "Android - Validate gradle wrapper"
 
 on:
   workflow_dispatch:
@@ -10,7 +10,9 @@ on:
 permissions: {}
 
 jobs:
-  runs-on: ubuntu-latest
-  steps:
-    - uses: actions/checkout@v4
-    - uses: gradle/actions/wrapper-validation@16bf8bc8fe830fa669c3c9f914d3eb147c629707 #v4.0.1
+  validate-gradle-wrapper:
+    name: Validate gradle wrapper
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: gradle/actions/wrapper-validation@16bf8bc8fe830fa669c3c9f914d3eb147c629707 #v4.0.1
