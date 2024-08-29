@@ -8,14 +8,16 @@ on:
     branches: [main]
   workflow_dispatch:
 
-permissions:
-  # Require writing security events to upload SARIF file to security tab
-  security-events: write
-  # Only need to read contents
-  contents: read
-  actions: read
+permissions: {}
 
 jobs:
   scan-scheduled:
+    permissions:
+      # Require writing security events to upload SARIF file to security tab
+      security-events: write
+      # Only need to read contents
+      contents: read
+      actions: read
+
     # yamllint disable rule:line-length
     uses: "google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@dfa8609a7da62968d73f63f279418e504c1f523f"  # v1.8.1
