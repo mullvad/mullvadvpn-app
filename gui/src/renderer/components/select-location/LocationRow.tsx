@@ -22,7 +22,6 @@ import {
   StyledHoverIconButton,
   StyledLocationRowButton,
   StyledLocationRowContainer,
-  StyledLocationRowIcon,
   StyledLocationRowLabel,
 } from './LocationRowStyles';
 import {
@@ -183,7 +182,7 @@ function LocationRow<C extends LocationSpecification>(props: IProps<C>) {
 
         {hasChildren ||
         ('customList' in props.source.location && !('country' in props.source.location)) ? (
-          <StyledLocationRowIcon
+          <Cell.SideButton
             as={ChevronButton}
             onClick={toggleCollapse}
             disabled={!hasChildren}
