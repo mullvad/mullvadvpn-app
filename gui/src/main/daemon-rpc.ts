@@ -388,6 +388,11 @@ export class DaemonRpc {
           grpcTypes.ObfuscationSettings.SelectedObfuscation.OFF,
         );
         break;
+      case ObfuscationType.shadowsocks:
+        grpcObfuscationSettings.setSelectedObfuscation(
+          grpcTypes.ObfuscationSettings.SelectedObfuscation.SHADOWSOCKS,
+        );
+        break;
       case ObfuscationType.udp2tcp:
         grpcObfuscationSettings.setSelectedObfuscation(
           grpcTypes.ObfuscationSettings.SelectedObfuscation.UDP2TCP,
@@ -403,7 +408,13 @@ export class DaemonRpc {
       grpcObfuscationSettings.setUdp2tcp(grpcUdp2tcpSettings);
     }
 
-    grpcObfuscationSettings.setShadowsocks(new grpcTypes.ShadowsocksSettings());
+    if (obfuscationSettings.shadowsocksSettings) {
+      const shadowsocksSettings = new grpcTypes.ShadowsocksSettings();
+      if (obfuscationSettings.shadowsocksSettings.port !== 'any') {
+        shadowsocksSettings.setPort(obfuscationSettings.shadowsocksSettings.port.only);
+      }
+      grpcObfuscationSettings.setShadowsocks(shadowsocksSettings);
+    }
 
     await this.call<grpcTypes.ObfuscationSettings, Empty>(
       this.client.setObfuscationSettings,
@@ -1470,12 +1481,18 @@ function convertFromObfuscationSettings(
     case grpcTypes.ObfuscationSettings.SelectedObfuscation.UDP2TCP:
       selectedObfuscationType = ObfuscationType.udp2tcp;
       break;
+    case grpcTypes.ObfuscationSettings.SelectedObfuscation.SHADOWSOCKS:
+      selectedObfuscationType = ObfuscationType.shadowsocks;
+      break;
   }
 
   return {
     selectedObfuscation: selectedObfuscationType,
     udp2tcpSettings: obfuscationSettings?.udp2tcp
       ? { port: convertFromConstraint(obfuscationSettings.udp2tcp.port) }
+      : { port: 'any' },
+    shadowsocksSettings: obfuscationSettings?.shadowsocks
+      ? { port: convertFromConstraint(obfuscationSettings.shadowsocks.port) }
       : { port: 'any' },
   };
 }
