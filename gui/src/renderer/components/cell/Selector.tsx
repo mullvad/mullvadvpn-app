@@ -3,8 +3,11 @@ import styled from 'styled-components';
 
 import { colors } from '../../../config.json';
 import { messages } from '../../../shared/gettext';
+import { useHistory } from '../../lib/history';
+import { RoutePath } from '../../lib/routes';
 import { useStyledRef } from '../../lib/utilityHooks';
 import { AriaDetails, AriaInput, AriaLabel } from '../AriaGroup';
+import ImageView from '../ImageView';
 import InfoButton from '../InfoButton';
 import * as Cell from '.';
 
@@ -17,6 +20,8 @@ export interface SelectorItem<T> {
   value: T;
   disabled?: boolean;
   'data-testid'?: string;
+  details?: { path: RoutePath; ariaLabel: string };
+  subLabel?: string;
 }
 
 // T represents the available values and U represent the value of "Automatic"/"Any" if there is one.
@@ -53,6 +58,8 @@ export default function Selector<T, U>(props: SelectorProps<T, U>) {
         disabled={props.disabled || item.disabled}
         forwardedRef={ref}
         onSelect={props.onSelect}
+        subLabel={item.subLabel}
+        details={item.details}
         data-testid={item['data-testid']}>
         {item.label}
       </SelectorCell>
@@ -133,37 +140,93 @@ interface SelectorCellProps<T> {
   isSelected: boolean;
   disabled?: boolean;
   onSelect: (value: T) => void;
-  children: React.ReactNode | Array<React.ReactNode>;
+  children: string;
+  subLabel?: string;
   forwardedRef?: React.Ref<HTMLButtonElement>;
   'data-testid'?: string;
+  details?: SelectorItem<unknown>['details'];
 }
 
+const StyledSelectorCell = styled.div({
+  display: 'flex',
+});
+
+const StyledSideButtonImage = styled(ImageView)({
+  padding: '0 3px',
+});
+
+const StyledSideButton = styled(Cell.SideButton)({
+  marginBottom: '1px',
+});
+
 function SelectorCell<T>(props: SelectorCellProps<T>) {
+  const history = useHistory();
+
   const handleClick = useCallback(() => {
     if (!props.isSelected) {
       props.onSelect(props.value);
     }
   }, [props.isSelected, props.onSelect, props.value]);
 
+  const navigate = useCallback(() => {
+    if (props.details) {
+      history.push(props.details.path);
+    }
+  }, [history.push, props.details?.path]);
+
   return (
-    <Cell.CellButton
-      ref={props.forwardedRef}
-      onClick={handleClick}
-      selected={props.isSelected}
-      disabled={props.disabled}
-      role="option"
-      aria-selected={props.isSelected}
-      aria-disabled={props.disabled}
-      data-testid={props['data-testid']}>
-      <StyledCellIcon
-        $visible={props.isSelected}
-        source="icon-tick"
-        width={18}
-        tintColor={colors.white}
-      />
-      <Cell.ValueLabel>{props.children}</Cell.ValueLabel>
-    </Cell.CellButton>
+    <StyledSelectorCell>
+      <Cell.CellButton
+        ref={props.forwardedRef}
+        onClick={handleClick}
+        selected={props.isSelected}
+        disabled={props.disabled}
+        role="option"
+        aria-selected={props.isSelected}
+        aria-disabled={props.disabled}
+        data-testid={props['data-testid']}>
+        <StyledCellIcon
+          $visible={props.isSelected}
+          source="icon-tick"
+          width={18}
+          tintColor={colors.white}
+        />
+        <SelectorCellLabel subLabel={props.subLabel}>{props.children}</SelectorCellLabel>
+      </Cell.CellButton>
+      {props.details && (
+        <StyledSideButton
+          $backgroundColor={colors.blue40}
+          $backgroundColorHover={colors.blue80}
+          aria-label={props.details.ariaLabel}
+          onClick={navigate}>
+          <StyledSideButtonImage
+            source="icon-chevron"
+            width={7}
+            tintColor={colors.white}
+            tintHoverColor={colors.white80}
+          />
+        </StyledSideButton>
+      )}
+    </StyledSelectorCell>
   );
+}
+
+interface SelectorCellLabelProps {
+  children: string;
+  subLabel?: string;
+}
+
+function SelectorCellLabel(props: SelectorCellLabelProps) {
+  if (props.subLabel) {
+    return (
+      <Cell.LabelContainer>
+        <Cell.ValueLabel>{props.children}</Cell.ValueLabel>
+        {props.subLabel && <Cell.SubLabel>{props.subLabel}</Cell.SubLabel>}
+      </Cell.LabelContainer>
+    );
+  } else {
+    return <Cell.ValueLabel>{props.children}</Cell.ValueLabel>;
+  }
 }
 
 interface StyledCustomContainerProps {
