@@ -129,6 +129,10 @@ pub async fn install_package(package: Package) -> Result<()> {
 #[cfg(target_os = "linux")]
 async fn install_dpkg(path: &Path) -> Result<()> {
     let mut cmd = Command::new("/usr/bin/dpkg");
+    // We don't want to fail due to the global apt lock being
+    // held, which happens sporadically. Wait to acquire the lock
+    // instead.
+    cmd.args(["-o", "DPkg::Lock::Timeout=60"]);
     cmd.arg("-i");
     cmd.arg(path.as_os_str());
     cmd.kill_on_drop(true);
