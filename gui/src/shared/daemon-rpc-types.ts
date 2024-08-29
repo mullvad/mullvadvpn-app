@@ -451,15 +451,21 @@ export type Udp2TcpObfuscationSettings = {
   port: Constraint<number>;
 };
 
+export type ShadowsocksSettings = {
+  port: Constraint<number>;
+};
+
 export enum ObfuscationType {
   auto,
   off,
   udp2tcp,
+  shadowsocks,
 }
 
 export type ObfuscationSettings = {
   selectedObfuscation: ObfuscationType;
   udp2tcpSettings: Udp2TcpObfuscationSettings;
+  shadowsocksSettings: ShadowsocksSettings;
 };
 
 export interface IBridgeConstraints {
