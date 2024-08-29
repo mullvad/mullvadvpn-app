@@ -4,9 +4,8 @@ import styled from 'styled-components';
 
 import { strings } from '../../config.json';
 import {
+  Constraint,
   IpVersion,
-  liftConstraint,
-  LiftedConstraint,
   ObfuscationType,
   wrapConstraint,
 } from '../../shared/daemon-rpc-types';
@@ -16,6 +15,7 @@ import { removeNonNumericCharacters } from '../../shared/string-helpers';
 import { useAppContext } from '../context';
 import { useRelaySettingsUpdater } from '../lib/constraint-updater';
 import { useHistory } from '../lib/history';
+import { RoutePath } from '../lib/routes';
 import { useBoolean } from '../lib/utilityHooks';
 import { useSelector } from '../redux/store';
 import * as AppButton from './AppButton';
@@ -38,7 +38,6 @@ import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 const MIN_WIREGUARD_MTU_VALUE = 1280;
 const MAX_WIREGUARD_MTU_VALUE = 1420;
 const WIREUGARD_UDP_PORTS = [51820, 53];
-const UDP2TCP_PORTS = [80, 5001];
 
 function mapPortToSelectorItem(value: number): SelectorItem<number> {
   return { label: value.toString(), value };
@@ -96,7 +95,6 @@ export default function WireguardSettings() {
 
                 <Cell.Group>
                   <ObfuscationSettings />
-                  <Udp2tcpPortSetting />
                 </Cell.Group>
 
                 <Cell.Group>
@@ -212,12 +210,24 @@ function ObfuscationSettings() {
   const { setObfuscationSettings } = useAppContext();
   const obfuscationSettings = useSelector((state) => state.settings.obfuscationSettings);
 
+  // TRANSLATORS: Text showing currently selected port.
+  // TRANSLATORS: Available placeholders:
+  // TRANSLATORS: %(port)s - Can be either a number between 1 and 65000 or the text "Automatic".
+  const subLabelTemplate = messages.pgettext('wireguard-settings-view', 'Port: %(port)s');
+
   const obfuscationType = obfuscationSettings.selectedObfuscation;
   const obfuscationTypeItems: SelectorItem<ObfuscationType>[] = useMemo(
     () => [
       {
-        label: messages.pgettext('wireguard-settings-view', 'On (UDP-over-TCP)'),
+        label: messages.pgettext('wireguard-settings-view', 'UDP-over-TCP'),
+        subLabel: sprintf(subLabelTemplate, {
+          port: formatPortForSubLabel(obfuscationSettings.udp2tcpSettings.port),
+        }),
         value: ObfuscationType.udp2tcp,
+        details: {
+          path: RoutePath.udpOverTcp,
+          ariaLabel: messages.pgettext('accessibility', 'UDP-over-TCP settings'),
+        },
       },
       {
         label: messages.gettext('Off'),
@@ -261,56 +271,8 @@ function ObfuscationSettings() {
   );
 }
 
-function Udp2tcpPortSetting() {
-  const { setObfuscationSettings } = useAppContext();
-  const obfuscationSettings = useSelector((state) => state.settings.obfuscationSettings);
-
-  const port = liftConstraint(obfuscationSettings.udp2tcpSettings.port);
-  const portItems: SelectorItem<number>[] = useMemo(
-    () => UDP2TCP_PORTS.map(mapPortToSelectorItem),
-    [],
-  );
-
-  const expandableProps = useMemo(() => ({ expandable: true, id: 'udp2tcp-port' }), []);
-
-  const selectPort = useCallback(
-    async (port: LiftedConstraint<number>) => {
-      await setObfuscationSettings({
-        ...obfuscationSettings,
-        udp2tcpSettings: {
-          ...obfuscationSettings.udp2tcpSettings,
-          port: wrapConstraint(port),
-        },
-      });
-    },
-    [setObfuscationSettings, obfuscationSettings],
-  );
-
-  return (
-    <AriaInputGroup>
-      <StyledSelectorContainer>
-        <Selector
-          // TRANSLATORS: The title for the UDP-over-TCP port selector.
-          title={messages.pgettext('wireguard-settings-view', 'UDP-over-TCP port')}
-          details={
-            <ModalMessage>
-              {messages.pgettext(
-                'wireguard-settings-view',
-                'Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server.',
-              )}
-            </ModalMessage>
-          }
-          items={portItems}
-          value={port}
-          onSelect={selectPort}
-          disabled={obfuscationSettings.selectedObfuscation === ObfuscationType.off}
-          expandable={expandableProps}
-          thinTitle
-          automaticValue={'any' as const}
-        />
-      </StyledSelectorContainer>
-    </AriaInputGroup>
-  );
+function formatPortForSubLabel(port: Constraint<number>): string {
+  return port === 'any' ? messages.gettext('Automatic') : `${port.only}`;
 }
 
 function MultihopSetting() {
