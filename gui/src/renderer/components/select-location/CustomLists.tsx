@@ -12,7 +12,6 @@ import * as Cell from '../cell';
 import { measurements } from '../common-styles';
 import { BackAction } from '../KeyboardNavigation';
 import SimpleInput from '../SimpleInput';
-import { StyledLocationRowIcon } from './LocationRowStyles';
 import { useRelayListContext } from './RelayListContext';
 import RelayLocationList from './RelayLocationList';
 import { useScrollPositionContext } from './ScrollPositionContext';
@@ -42,7 +41,7 @@ const StyledHeaderLabel = styled(Cell.Label)({
   lineHeight: measurements.rowMinHeight,
 });
 
-const StyledCellButton = styled(StyledLocationRowIcon)({
+const StyledCellButton = styled(Cell.SideButton)({
   border: 'none',
 });
 
