@@ -20,7 +20,7 @@ fn main() -> anyhow::Result<()> {
     match target_os.as_str() {
         "linux" => build_static_lib(Os::Linux, true)?,
         "macos" => build_static_lib(Os::MacOs, true)?,
-        "android" => build_android_dynamic_lib(false)?,
+        "android" => build_android_dynamic_lib(true)?,
         // building wireguard-go-rs for windows is not implemented
         _ => {}
     }
