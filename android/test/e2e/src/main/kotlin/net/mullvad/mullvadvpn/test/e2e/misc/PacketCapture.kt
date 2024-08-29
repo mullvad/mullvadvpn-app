@@ -10,14 +10,19 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
+import java.io.Serial
 import java.util.Date
 import java.util.UUID
+import junit.framework.TestCase.fail
 import kotlinx.serialization.Contextual
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.put
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.json.*
 import org.joda.time.DateTime
 
 data class PacketCaptureSession(val identifier: String = UUID.randomUUID().toString())
@@ -35,6 +40,7 @@ class PacketCapture {
         client.sendStopCaptureRequest(session)
         val parsedPacketsResponse = client.sendGetCapturedPacketsRequest(session)
         val capturedStreams = parsedPacketsResponse.body<List<Stream>>()
+        Logger.v("Captured streams: $capturedStreams")
         val streamCollection = StreamCollection(capturedStreams)
         return streamCollection
     }
@@ -87,13 +93,37 @@ enum class NetworkTransportProtocol(val value: String) {
     @SerialName("icmp") ICMP("icmp")
 }
 
+object PacketSerializer : KSerializer<List<Packet>> {
+    override val descriptor: SerialDescriptor = ListSerializer(Packet.serializer()).descriptor
+
+    override fun deserialize(decoder: Decoder): List<Packet> {
+        val jsonDecoder = decoder as? JsonDecoder ?: error("Can only be deserialized from JSON")
+        val elements = jsonDecoder.decodeJsonElement().jsonArray
+
+        return elements.map { element: JsonElement ->
+            val jsonObject = element.jsonObject
+            val fromPeer = jsonObject["from_peer"]?.jsonPrimitive?.booleanOrNull ?: error("Missing from_peer field")
+
+            if (fromPeer) {
+                jsonDecoder.json.decodeFromJsonElement(TxPacket.serializer(), element)
+            } else {
+                jsonDecoder.json.decodeFromJsonElement(RxPacket.serializer(), element)
+            }
+        }
+    }
+
+    override fun serialize(encoder: Encoder, value: List<Packet>) {
+        throw NotImplementedError("Only interested in deserialization")
+    }
+}
+
 @Serializable
 data class Stream(
     @SerialName("peer_addr") val sourceAddress: String,
     @SerialName("other_addr") val destinationAddress: String,
     @SerialName("flow_id") val flowId: String?,
     @SerialName("transport_protocol") val transportProtocol: NetworkTransportProtocol,
-    val packets: List<Packet>
+    @Serializable(with = PacketSerializer::class) val packets: List<Packet>
 ) {
     @Contextual val startDate: DateTime = packets.first().date
     @Contextual val endDate: DateTime = packets.last().date
@@ -105,8 +135,36 @@ data class Stream(
     @Contextual val rxEndDate: DateTime? = packets.lastOrNull { !it.fromPeer }?.date
 }
 
-@Serializable
-data class Packet(@SerialName("from_peer") val fromPeer: Boolean, val timestamp: String) {
+/*@Serializable
+sealed class Packet(@SerialName("from_peer") val fromPeer: Boolean, val timestamp: String) {
     @Contextual val date = DateTime(timestamp.toLong())
     @Contextual val leakStatus = LeakStatus.UNKNOWN
+}*/
+
+@Serializable
+sealed class Packet {
+    abstract val timestamp: String
+    abstract val fromPeer: Boolean
+    abstract val date: DateTime
+    abstract var leakStatus: LeakStatus
+}
+
+@Serializable
+@SerialName("RxPacket")
+data class RxPacket(
+    @SerialName("timestamp") override val timestamp: String,
+    @SerialName("from_peer") override val fromPeer: Boolean
+) : Packet() {
+    @Contextual override val date = DateTime(timestamp.toLong())
+    @Contextual override var leakStatus = LeakStatus.UNKNOWN
+}
+
+@Serializable
+@SerialName("TxPacket")
+data class TxPacket(
+    @SerialName("timestamp") override val timestamp: String,
+    @SerialName("from_peer") override val fromPeer: Boolean
+) : Packet() {
+    @Contextual override val date = DateTime(timestamp.toLong())
+    @Contextual override var leakStatus = LeakStatus.UNKNOWN
 }

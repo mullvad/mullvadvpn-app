@@ -45,8 +45,11 @@ class LeakTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
             device.findObjectWithTimeout(By.text("SECURE CONNECTION"), CONNECTION_TIMEOUT)
             val relayIpAddress = app.extractInIpAddress()
 
+            // Give it some time for generating traffic
+            Thread.sleep(3000) // TODO: check if there's better way to wait
+
             device.findObjectWithTimeout(By.text("Disconnect")).click()
-            Thread.sleep(2000)
+            Thread.sleep(2000) // TODO: check if there's better way to wait
 
             trafficGenerator.stopGeneratingUDPTraffic()
             packetCaptureClient.sendStopCaptureRequest(session)
