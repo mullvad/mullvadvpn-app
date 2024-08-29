@@ -113,6 +113,11 @@ enum Message {
         result_tx: oneshot::Sender<Result<(), Error>>,
         vpn_interface: VpnInterface,
     },
+    /// Remove VPN tunnel interface. It is sufficient to call this when entering the disconnecting
+    /// state, to avoid pointless cleanup during reconnects.
+    ResetTunnel {
+        result_tx: oneshot::Sender<Result<(), Error>>,
+    },
 }
 
 /// Handle for interacting with the split tunnel module
@@ -155,6 +160,14 @@ impl Handle {
             result_tx,
             vpn_interface,
         });
+        result_rx.await.map_err(|_| Error::unavailable())?
+    }
+
+    /// Forget the VPN tunnel interface. This destroys the split tunneling interface when it is
+    /// active.
+    pub async fn reset_tunnel(&self) -> Result<(), Error> {
+        let (result_tx, result_rx) = oneshot::channel();
+        let _ = self.tx.send(Message::ResetTunnel { result_tx });
         result_rx.await.map_err(|_| Error::unavailable())?
     }
 }
@@ -258,6 +271,9 @@ impl SplitTunnel {
                 vpn_interface,
             } => {
                 let _ = result_tx.send(self.state.set_tunnel(vpn_interface).await);
+            }
+            Message::ResetTunnel { result_tx } => {
+                let _ = result_tx.send(self.state.reset_tunnel().await);
             }
         }
         true
@@ -470,6 +486,50 @@ impl State {
             }
             // Otherwise, remain in the failed state
             State::Failed { cause, .. } => Err(cause.unwrap_or(Error::unavailable()).into()),
+        }
+    }
+
+    /// Forget the VPN tunnel interface. This destroys the split tunneling interface when it is
+    /// active.
+    pub async fn reset_tunnel(&mut self) -> Result<(), Error> {
+        self.transition(|state| state.reset_tunnel_inner()).await
+    }
+
+    async fn reset_tunnel_inner(self) -> Result<Self, ErrorWithTransition> {
+        match self {
+            // If split tunneling is currently active, that means that there are paths to exclude,
+            // so shut down the ST utun but keep the process monitor.
+            State::Active {
+                route_manager,
+                process,
+                tun_handle,
+                vpn_interface: _,
+            } => {
+                if let Err(error) = tun_handle.shutdown().await {
+                    log::error!("Failed to stop split tunnel: {error}");
+                }
+                Ok(State::ProcessMonitorOnly {
+                    route_manager,
+                    process,
+                })
+            }
+            // If we're in standby mode, simply forget the VPN interface.
+            State::StandBy {
+                route_manager,
+                vpn_interface: _,
+            } => Ok(State::NoExclusions { route_manager }),
+            // If we're in `Failed`, just forget the VPN interface.
+            State::Failed {
+                route_manager,
+                vpn_interface: _,
+                cause,
+            } => Ok(State::Failed {
+                route_manager,
+                vpn_interface: None,
+                cause,
+            }),
+            // For any other state, do nothing.
+            _ => Ok(self),
         }
     }
 
