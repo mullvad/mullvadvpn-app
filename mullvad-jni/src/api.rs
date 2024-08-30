@@ -1,94 +1,86 @@
-use jnix::{
-    jni::{
-        objects::JObject,
-        signature::JavaType,
-    },
-    FromJava, JnixEnv,
-};
+use jnix::{jni::objects::JObject, FromJava, JnixEnv};
 use std::net::{SocketAddr, ToSocketAddrs};
 
+#[cfg(feature = "api-override")]
 pub fn api_endpoint_from_java(
     env: &JnixEnv<'_>,
-    object: JObject<'_>,
+    endpoint_override: JObject<'_>,
 ) -> Option<mullvad_api::ApiEndpoint> {
-    if object.is_null() {
+    if endpoint_override.is_null() {
         return None;
     }
 
-    let mut endpoint = mullvad_api::ApiEndpoint::from_env_vars();
+    let hostname = hostname_from_java(env, endpoint_override);
+    let port = port_from_java(env, endpoint_override);
+    let address = Some(create_socket_addr(hostname.clone(), port));
 
-    endpoint.address = Some(
-       try_socketaddr_from_java(env, object).expect("received unresolved InetSocketAddress"),
-    );
+    Some(mullvad_api::ApiEndpoint {
+        host: Some(hostname),
+        address,
+        disable_address_cache: disable_address_cache_from_java(env, endpoint_override),
+        disable_tls: disable_tls_from_java(env, endpoint_override),
+        force_direct: force_direct_from_java(env, endpoint_override),
+    })
+}
 
-    endpoint.host = try_hostname_from_java(env, object);
-    #[cfg(feature = "api-override")]
-    {
-        endpoint.disable_address_cache = env
-            .call_method(object, "component3", "()Z", &[])
-            .expect("missing ApiEndpointOverride.disableAddressCache")
-            .z()
-            .expect("ApiEndpointOverride.disableAddressCache is not a bool");
-        endpoint.disable_tls = env
-            .call_method(object, "component4", "()Z", &[])
-            .expect("missing ApiEndpointOverride.disableTls")
-            .z()
-            .expect("ApiEndpointOverride.disableTls is not a bool");
+#[cfg(not(feature = "api-override"))]
+pub fn api_endpoint_from_java(
+    env: &JnixEnv<'_>,
+    endpoint_override: JObject<'_>,
+) -> Option<mullvad_api::ApiEndpoint> {
+    if (endpoint_override.is_null()) {
+        return None;
     }
-
-    Some(endpoint)
+    panic!("Trying to set api override when feature is disabled")
 }
 
 /// Resolves the hostname and port to SocketAddr
-fn try_socketaddr_from_java(env: &JnixEnv<'_>, endpoint: JObject<'_>) -> Option<SocketAddr> {
-    let class = env.get_class("net/mullvad/mullvadvpn/lib/endpoint/ApiEndpointOverride");
-
-    let method_id = env
-        .get_method_id(&class, "component1", "()Ljava/lang/String;")
-        .expect("Failed to get method ID for ApiEndpointOverride.hostname()");
-    let return_type = JavaType::Object("java/lang/String".to_owned());
-
-    let hostname = env
-        .call_method_unchecked(endpoint, method_id, return_type, &[])
-        .expect("Failed to call ApiEndpointOverride.hostname()")
-        .l()
-        .expect("Call to ApiEndpointOverride.hostname( did not return an object");
-
-    if hostname.is_null() {
-        return None;
-    }
-
-    let port = env
-            .call_method(endpoint, "component2", "()I", &[])
-            .expect("missing ApiEndpointOverride.port")
-            .i()
-            .expect("ApiEndpointOverride.port is not a int");
-
+fn create_socket_addr(hostname: String, port: u16) -> SocketAddr {
     //Resolve ip address from hostname
-    let socket_ip_addr = format!("{}:{}", String::from_java(env, hostname), u16::try_from(port).expect("invalid port"))
-                    .to_socket_addrs().unwrap().next();
-
-    socket_ip_addr
+    (hostname, port)
+        .to_socket_addrs()
+        .expect("could not resolve address")
+        .next()
+        .expect("no ip address received")
 }
 
-/// Returns the hostname for an ApiEndpoint
-fn try_hostname_from_java(env: &JnixEnv<'_>, endpoint: JObject<'_>) -> Option<String> {
-    let class = env.get_class("net/mullvad/mullvadvpn/lib/endpoint/ApiEndpointOverride");
-
-    let method_id = env
-        .get_method_id(&class, "component1", "()Ljava/lang/String;")
-        .expect("Failed to get method ID for ApiEndpointOverride.hostname()");
-    let return_type = JavaType::Object("java/lang/String".to_owned());
-
+fn hostname_from_java(env: &JnixEnv<'_>, endpoint_override: JObject<'_>) -> String {
     let hostname = env
-        .call_method_unchecked(endpoint, method_id, return_type, &[])
-        .expect("Failed to call ApiEndpointOverride.hostname()")
+        .call_method(endpoint_override, "component1", "()Ljava/lang/String;", &[])
+        .expect("missing ApiEndpointOverride.hostname")
         .l()
-        .expect("Call to ApiEndpointOverride.hostname( did not return an object");
+        .expect("ApiEndpointOverride.hostname is not a string");
 
-    if hostname.is_null() {
-        return None;
-    }
+    String::from_java(env, hostname)
+}
 
-    Some(String::from_java(env, hostname))
+fn port_from_java(env: &JnixEnv<'_>, endpoint_override: JObject<'_>) -> u16 {
+    let port = env
+        .call_method(endpoint_override, "component2", "()I", &[])
+        .expect("missing ApiEndpointOverride.port")
+        .i()
+        .expect("ApiEndpointOverride.port is not a int");
+
+    u16::try_from(port).expect("invalid port")
+}
+
+fn disable_address_cache_from_java(env: &JnixEnv<'_>, endpoint_override: JObject<'_>) -> bool {
+    env.call_method(endpoint_override, "component3", "()Z", &[])
+        .expect("missing ApiEndpointOverride.disableAddressCache")
+        .z()
+        .expect("ApiEndpointOverride.disableAddressCache is not a bool")
+}
+
+fn disable_tls_from_java(env: &JnixEnv<'_>, endpoint_override: JObject<'_>) -> bool {
+    env.call_method(endpoint_override, "component4", "()Z", &[])
+        .expect("missing ApiEndpointOverride.disableTls")
+        .z()
+        .expect("ApiEndpointOverride.disableTls is not a bool")
+}
+
+fn force_direct_from_java(env: &JnixEnv<'_>, endpoint_override: JObject<'_>) -> bool {
+    env.call_method(endpoint_override, "component5", "()Z", &[])
+        .expect("missing ApiEndpointOverride.forceDirectConnection")
+        .z()
+        .expect("ApiEndpointOverride.forceDirectConnection is not a bool")
 }
