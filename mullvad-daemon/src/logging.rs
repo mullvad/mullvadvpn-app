@@ -100,11 +100,17 @@ pub fn init_logger(
         .with_ansi(true)
         .with_span_events(FmtSpan::NEW | FmtSpan::CLOSE);
 
+    let (user_filter, handle) = tracing_subscriber::reload::Layer::new(env_filter);
+
     let reg = tracing_subscriber::registry()
-        .with(env_filter)
+        .with(user_filter)
         .with(default_filter);
 
-    if let Some(log_dir) = dbg!(log_dir) {
+    // This is how you would hot reload the log level, give the handle to the proto server
+    // handle
+    //     .modify(|filter| *filter = EnvFilter::new(LevelFilter::ERROR.to_string()))
+    //     .unwrap();
+    if let Some(log_dir) = log_dir {
         rotate_log(&log_dir.join(DAEMON_LOG_FILENAME)).map_err(Error::RotateLog)?;
     }
 
