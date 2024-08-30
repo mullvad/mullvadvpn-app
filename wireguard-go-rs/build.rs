@@ -1,3 +1,6 @@
+// TODO: Include `wireguard-go-rs` as soon as a release of `maybenot` with
+// https://github.com/maybenot-io/maybenot/pull/29 has been cut
+#![allow(clippy::lint_groups_priority)]
 use std::{
     borrow::BorrowMut,
     env,
