@@ -59,10 +59,10 @@ async fn run() -> Result<(), String> {
             // uniqueness check must happen before logging initializaton,
             // as initializing logs will rotate any existing log file.
             assert_unique().await?;
-            let log_dir = init_daemon_logging(config)?;
+            let (log_dir, reload_handle) = init_daemon_logging(config)?;
             log::trace!("Using configuration: {:?}", config);
 
-            run_standalone(log_dir).await
+            run_standalone(log_dir, reload_handle).await
         }
 
         #[cfg(target_os = "linux")]
@@ -108,15 +108,17 @@ async fn assert_unique() -> Result<(), &'static str> {
 }
 
 /// Initialize logging to stderr and to file (if configured).
-fn init_daemon_logging(config: &cli::Config) -> Result<Option<PathBuf>, String> {
+fn init_daemon_logging(
+    config: &cli::Config,
+) -> Result<(Option<PathBuf>, logging::ReloadHandle), String> {
     let log_dir = get_log_dir(config)?;
 
-    init_logger(config, log_dir.clone())?;
+    let reload_handle = init_logger(config, log_dir.clone())?;
 
     if let Some(ref log_dir) = log_dir {
         log::info!("Logging to {}", log_dir.display());
     }
-    Ok(log_dir)
+    Ok((log_dir, reload_handle))
 }
 
 /// Initialize logging to stder and to the [`EARLY_BOOT_LOG_FILENAME`]
@@ -136,7 +138,10 @@ fn init_early_boot_logging(config: &cli::Config) {
 /// Initialize logging to stderr and to file (if provided).
 ///
 /// Also install the [exception_logging] signal handler to log faults.
-fn init_logger(config: &cli::Config, log_file: Option<PathBuf>) -> Result<(), String> {
+fn init_logger(
+    config: &cli::Config,
+    log_file: Option<PathBuf>,
+) -> Result<logging::ReloadHandle, String> {
     #[cfg(unix)]
     if let Some(log_file) = &log_file {
         use std::os::unix::ffi::OsStrExt;
@@ -149,7 +154,7 @@ fn init_logger(config: &cli::Config, log_file: Option<PathBuf>) -> Result<(), St
 
     exception_logging::enable();
 
-    logging::init_logger(
+    let reload_handle = logging::init_logger(
         config.log_level,
         log_file.as_ref(),
         config.log_stdout_timestamps,
@@ -157,7 +162,7 @@ fn init_logger(config: &cli::Config, log_file: Option<PathBuf>) -> Result<(), St
     .map_err(|e| e.display_chain_with_msg("Unable to initialize logger"))?;
     log_panics::init();
     version::log_version();
-    Ok(())
+    Ok(reload_handle)
 }
 
 fn get_log_dir(config: &cli::Config) -> Result<Option<PathBuf>, String> {
@@ -170,7 +175,10 @@ fn get_log_dir(config: &cli::Config) -> Result<Option<PathBuf>, String> {
     }
 }
 
-async fn run_standalone(log_dir: Option<PathBuf>) -> Result<(), String> {
+async fn run_standalone(
+    log_dir: Option<PathBuf>,
+    log_reload_handle: logging::ReloadHandle,
+) -> Result<(), String> {
     #[cfg(not(windows))]
     cleanup_old_rpc_socket(mullvad_paths::get_rpc_socket_path()).await;
 
@@ -178,7 +186,7 @@ async fn run_standalone(log_dir: Option<PathBuf>) -> Result<(), String> {
         log::warn!("Running daemon as a non-administrator user, clients might refuse to connect");
     }
 
-    let daemon = create_daemon(log_dir).await?;
+    let daemon = create_daemon(log_dir, log_reload_handle).await?;
 
     let shutdown_handle = daemon.shutdown_handle();
     #[cfg(any(target_os = "linux", target_os = "macos"))]
@@ -201,7 +209,10 @@ async fn run_standalone(log_dir: Option<PathBuf>) -> Result<(), String> {
     Ok(())
 }
 
-async fn create_daemon(log_dir: Option<PathBuf>) -> Result<Daemon, String> {
+async fn create_daemon(
+    log_dir: Option<PathBuf>,
+    log_reload_handle: logging::ReloadHandle,
+) -> Result<Daemon, String> {
     let rpc_socket_path = mullvad_paths::get_rpc_socket_path();
     let resource_dir = mullvad_paths::get_resource_dir();
     let settings_dir = mullvad_paths::settings_dir()
@@ -217,6 +228,7 @@ async fn create_daemon(log_dir: Option<PathBuf>) -> Result<Daemon, String> {
             cache_dir,
             rpc_socket_path,
             endpoint: mullvad_api::ApiEndpoint::from_env_vars(),
+            log_reload_handle,
         },
         DaemonCommandChannel::new(),
     )
