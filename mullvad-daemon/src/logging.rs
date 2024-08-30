@@ -103,6 +103,10 @@ impl LogHandle {
         self.level_filter
             .modify(|filter| *filter = tracing_subscriber::EnvFilter::new(level_filter))
     }
+
+    pub fn get_log_stream(&self) -> tokio::sync::broadcast::Receiver<String> {
+        self.log_stream.tx.subscribe()
+    }
 }
 
 pub fn init_logger(

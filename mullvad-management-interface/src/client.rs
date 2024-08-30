@@ -658,6 +658,17 @@ impl MullvadProxyClient {
             .map_err(Error::Rpc)?;
         Ok(())
     }
+
+    pub async fn log_listen(&mut self) -> Result<impl Stream<Item = Result<String>>> {
+        let listener = self
+            .0
+            .log_listen(())
+            .await
+            .map_err(Error::Rpc)?
+            .into_inner();
+
+        Ok(listener.map(|item| Ok(item.map_err(Error::Rpc)?.message)))
+    }
 }
 
 #[cfg(not(target_os = "android"))]

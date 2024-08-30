@@ -65,6 +65,7 @@ impl ManagementService for ManagementServiceImpl {
     type GetSplitTunnelProcessesStream = UnboundedReceiverStream<Result<i32, Status>>;
     type EventsListenStream = EventsListenerReceiver;
     type AppUpgradeEventsListenStream = AppUpgradeEventListenerReceiver;
+    type LogListenStream = UnboundedReceiverStream<Result<types::LogMessage, Status>>;
 
     // Control and get the tunnel state
     //
@@ -1266,6 +1267,29 @@ impl ManagementService for ManagementServiceImpl {
             .set_log_filter(request.into_inner().log_filter)
             .map_err(|error| Status::invalid_argument(error.to_string()))?;
         Ok(Response::new(()))
+    }
+
+    async fn log_listen(&self, _request: Request<()>) -> ServiceResult<Self::LogListenStream> {
+        let mut log_stream = self.log_reload_handle.get_log_stream();
+
+        let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
+        tokio::spawn(async move {
+            loop {
+                match log_stream.recv().await {
+                    Ok(log) => {
+                        let _ = tx.send(Ok(types::LogMessage { message: log }));
+                    }
+                    Err(tokio::sync::broadcast::error::RecvError::Lagged(n)) => {
+                        let _ = tx.send(Err(Status::internal(format!("{} lagged messages", n))));
+                    }
+                    Err(tokio::sync::broadcast::error::RecvError::Closed) => {
+                        break;
+                    }
+                }
+            }
+        });
+
+        Ok(Response::new(UnboundedReceiverStream::new(rx)))
     }
 }
 

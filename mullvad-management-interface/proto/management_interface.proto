@@ -145,6 +145,7 @@ service ManagementService {
   rpc GetAppUpgradeCacheDir(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
 
   rpc SetLogFilter(LogFilter) returns (google.protobuf.Empty) {}
+  rpc LogListen(google.protobuf.Empty) returns (stream LogMessage) {}
 }
 
 message AppUpgradeEvent {
@@ -849,4 +850,8 @@ message AllowedIpsList { repeated string values = 1; }
 
 message LogFilter {
   string log_filter = 1;
+}
+
+message LogMessage {
+  string message = 1;
 }
