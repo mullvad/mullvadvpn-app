@@ -285,7 +285,7 @@ fn exec(mut command: impl BorrowMut<Command>) -> anyhow::Result<String> {
     let stdout = str::from_utf8(&output.stdout).unwrap_or("Invalid UTF-8");
 
     if !output.status.success() {
-        let stderr = str::from_utf8(&output.stdout).unwrap_or("Invalid UTF-8");
+        let stderr = str::from_utf8(&output.stderr).unwrap_or("Invalid UTF-8");
 
         eprintln!("Error from {command:?}");
         eprintln!();
