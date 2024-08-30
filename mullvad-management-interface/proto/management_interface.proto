@@ -143,6 +143,8 @@ service ManagementService {
   rpc AppUpgradeAbort(google.protobuf.Empty) returns (google.protobuf.Empty) {}
   rpc AppUpgradeEventsListen(google.protobuf.Empty) returns (stream AppUpgradeEvent) {}
   rpc GetAppUpgradeCacheDir(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
+
+  rpc SetLogFilter(LogFilter) returns (google.protobuf.Empty) {}
 }
 
 message AppUpgradeEvent {
@@ -844,3 +846,7 @@ message PlayPurchase {
 message PlayPurchasePaymentToken { string token = 1; }
 
 message AllowedIpsList { repeated string values = 1; }
+
+message LogFilter {
+  string log_filter = 1;
+}
