@@ -42,7 +42,8 @@ impl UnixTunProvider {
 
     /// Open a tunnel using the current tunnel config.
     pub fn open_tun(&mut self) -> Result<UnixTun, Error> {
-        let mut tunnel_device = TunnelDevice::new().map_err(Error::CreateTunnelDevice)?;
+        let mut tunnel_device =
+            TunnelDevice::new(self.config.name.as_deref()).map_err(Error::CreateTunnelDevice)?;
 
         for ip in self.config.addresses.iter() {
             tunnel_device
@@ -126,9 +127,14 @@ pub struct TunnelDevice {
 
 impl TunnelDevice {
     /// Creates a new Tunnel device
-    #[allow(unused_mut)]
-    pub fn new() -> Result<Self, NetworkInterfaceError> {
+    #[allow(unused_mut, unused_variables)]
+    pub fn new(name: Option<&str>) -> Result<Self, NetworkInterfaceError> {
         let mut config = Configuration::default();
+
+        #[cfg(target_os = "linux")]
+        if let Some(name) = name {
+            config.name(name);
+        }
 
         #[cfg(target_os = "linux")]
         config.platform(|config| {

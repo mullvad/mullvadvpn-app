@@ -36,6 +36,9 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 - macOS and Linux: Fix potential crash when disconnecting with DAITA enabled.
 
+#### Linux
+- Set tunnel name to `wg0-mullvad` for userspace WireGuard.
+
 #### macOS
 - Exclude programs when executed using a relative path from a shell.
 - Reduce packet loss when using split tunneling.
