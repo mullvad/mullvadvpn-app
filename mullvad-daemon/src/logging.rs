@@ -6,8 +6,8 @@ use std::{
 use talpid_core::logging::rotate_log;
 use tracing_appender::non_blocking;
 use tracing_subscriber::{
-    self, filter::LevelFilter, fmt::format::FmtSpan, layer::SubscriberExt, util::SubscriberInitExt,
-    EnvFilter,
+    EnvFilter, Registry, filter::LevelFilter, fmt::format::FmtSpan, layer::SubscriberExt,
+    reload::Handle, util::SubscriberInitExt,
 };
 
 #[derive(thiserror::Error, Debug)]
@@ -69,6 +69,8 @@ pub fn is_enabled() -> bool {
 }
 
 pub struct LogHandle {
+    env_filter: Handle<EnvFilter, Registry>,
+    log_stream: LogStreamer,
     _file_appender_guard: non_blocking::WorkerGuard,
 }
 
@@ -126,7 +128,7 @@ pub fn init_logger(
     log_level: log::LevelFilter,
     log_dir: Option<&PathBuf>,
     output_timestamp: bool,
-) -> Result<(), Error> {
+) -> Result<ReloadHandle, Error> {
     let level_filter = match log_level {
         log::LevelFilter::Off => LevelFilter::OFF,
         log::LevelFilter::Error => LevelFilter::ERROR,
@@ -137,9 +139,9 @@ pub fn init_logger(
     };
 
     let env_filter = EnvFilter::try_from_default_env()
-        .unwrap_or_else(|_| EnvFilter::from_default_env().add_directive(level_filter.into()));
+        .unwrap_or_else(|_| EnvFilter::new(level_filter.to_string()));
 
-    let default_filter = get_default_filter(level_filter);
+    let default_filter = silence_crates(env_filter);
 
     // TODO: Switch this to a rolling appender, likely daily or hourly
     let file_appender = tracing_appender::rolling::never(log_dir.unwrap(), DAEMON_LOG_FILENAME);
@@ -160,11 +162,11 @@ pub fn init_logger(
         .with_ansi(true)
         .with_span_events(FmtSpan::NEW | FmtSpan::CLOSE);
 
-    let reg = tracing_subscriber::registry()
-        .with(env_filter)
-        .with(default_filter);
-
-    if let Some(log_dir) = dbg!(log_dir) {
+    // This is how you would hot reload the log level, give the handle to the proto server
+    // handle
+    //     .modify(|filter| *filter = EnvFilter::new(LevelFilter::ERROR.to_string()))
+    //     .unwrap();
+    if let Some(log_dir) = log_dir {
         rotate_log(&log_dir.join(DAEMON_LOG_FILENAME)).map_err(Error::RotateLog)?;
     }
 
@@ -200,11 +202,10 @@ pub fn init_logger(
 
     LOG_ENABLED.store(true, Ordering::SeqCst);
 
-    Ok(())
+    Ok(reload_handle)
 }
 
-fn get_default_filter(level_filter: LevelFilter) -> EnvFilter {
-    let mut env_filter = EnvFilter::builder().parse("trace").unwrap();
+fn silence_crates(mut env_filter: EnvFilter) -> EnvFilter {
     for silenced_crate in WARNING_SILENCED_CRATES {
         env_filter = env_filter.add_directive(format!("{silenced_crate}=error").parse().unwrap());
     }
@@ -215,6 +216,7 @@ fn get_default_filter(level_filter: LevelFilter) -> EnvFilter {
     // NOTE: the levels set here will never be overwritten, since the default filter cannot be
     // reloaded
     for silenced_crate in SLIGHTLY_SILENCED_CRATES {
+        let level_filter = env_filter.max_level_hint().unwrap();
         env_filter = env_filter.add_directive(
             format!("{silenced_crate}={}", one_level_quieter(level_filter))
                 .parse()
