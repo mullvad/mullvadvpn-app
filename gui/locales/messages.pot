@@ -357,10 +357,18 @@ msgctxt "accessibility"
 msgid "Select location. Current location is %(location)s"
 msgstr ""
 
+msgctxt "accessibility"
+msgid "Shadowsocks settings"
+msgstr ""
+
 #. Provided to accessibility tools such as screenreaders to describe
 #. the button which unobscures the account number.
 msgctxt "accessibility"
 msgid "Show account number"
+msgstr ""
+
+msgctxt "accessibility"
+msgid "UDP-over-TCP settings"
 msgstr ""
 
 #. Title label in navigation bar
@@ -2036,6 +2044,16 @@ msgctxt "wireguard-settings-nav"
 msgid "%(wireguard)s settings"
 msgstr ""
 
+#. Title label in navigation bar
+msgctxt "wireguard-settings-nav"
+msgid "Shadowsocks"
+msgstr ""
+
+#. Title label in navigation bar
+msgctxt "wireguard-settings-nav"
+msgid "UDP-over-TCP"
+msgstr ""
+
 msgctxt "wireguard-settings-view"
 msgid "%(daita)s (%(daitaFull)s) hides patterns in your encrypted VPN traffic. If anyone is monitoring your connection, this makes it significantly harder for them to identify what websites you are visiting. It does this by carefully adding network noise and making all network packets the same size."
 msgstr ""
@@ -2071,11 +2089,14 @@ msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can b
 msgstr ""
 
 msgctxt "wireguard-settings-view"
-msgid "On (UDP-over-TCP)"
+msgid "Port"
 msgstr ""
 
+#. Text showing currently selected port.
+#. Available placeholders:
+#. %(port)s - Can be either a number between 1 and 65000 or the text "Automatic".
 msgctxt "wireguard-settings-view"
-msgid "Port"
+msgid "Port: %(port)s"
 msgstr ""
 
 #. The title for the WireGuard quantum resistance selector. This setting
@@ -2092,6 +2113,10 @@ msgstr ""
 #. %(min)d - the minimum possible wireguard mtu value
 msgctxt "wireguard-settings-view"
 msgid "Set %(wireguard)s MTU value. Valid range: %(min)d - %(max)d."
+msgstr ""
+
+msgctxt "wireguard-settings-view"
+msgid "Shadowsocks"
 msgstr ""
 
 msgctxt "wireguard-settings-view"
@@ -2119,7 +2144,16 @@ msgid "This feature makes the WireGuard tunnel resistant to potential attacks fr
 msgstr ""
 
 msgctxt "wireguard-settings-view"
+msgid "UDP-over-TCP"
+msgstr ""
+
+msgctxt "wireguard-settings-view"
 msgid "UDP-over-TCP port"
+msgstr ""
+
+#. Text describing the valid port range for a port selector.
+msgctxt "wireguard-settings-view"
+msgid "Valid range: %(min)s - %(max)s"
 msgstr ""
 
 msgctxt "wireguard-settings-view"
@@ -2385,6 +2419,9 @@ msgid "No locations found"
 msgstr ""
 
 msgid "Not found"
+msgstr ""
+
+msgid "On (UDP-over-TCP)"
 msgstr ""
 
 msgid "Overrides active"
