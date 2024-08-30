@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+ip netns exec mullvad-ns-exclude sudo -u david $*
