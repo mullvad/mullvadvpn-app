@@ -30,7 +30,7 @@ class TunnelStateNotificationProvider(
     vpnPermissionRepository: VpnPermissionRepository,
     deviceRepository: DeviceRepository,
     channelId: NotificationChannelId,
-    scope: CoroutineScope
+    scope: CoroutineScope,
 ) : NotificationProvider<Notification.Tunnel> {
     internal val notificationId = NotificationId(2)
 
@@ -38,9 +38,8 @@ class TunnelStateNotificationProvider(
         combine(
                 connectionProxy.tunnelState,
                 connectionProxy.tunnelState.actionAfterDisconnect().distinctUntilChanged(),
-                deviceRepository.deviceState
-            ) { tunnelState: TunnelState, actionAfterDisconnect: ActionAfterDisconnect?, deviceState
-                ->
+                deviceRepository.deviceState,
+            ) { tunnelState, actionAfterDisconnect, deviceState ->
                 if (
                     deviceState is DeviceState.LoggedOut && tunnelState is TunnelState.Disconnected
                 ) {
@@ -113,7 +112,8 @@ class TunnelStateNotificationProvider(
     ): NotificationTunnelState.Error {
         val cause = errorState.cause
         return when {
-            cause is ErrorStateCause.IsOffline -> NotificationTunnelState.Error.DeviceOffline
+            cause is ErrorStateCause.IsOffline && errorState.isBlocking ->
+                NotificationTunnelState.Error.DeviceOffline
             cause is ErrorStateCause.InvalidDnsServers -> NotificationTunnelState.Error.Blocking
             cause is ErrorStateCause.VpnPermissionDenied ->
                 alwaysOnVpnPermissionName?.let { NotificationTunnelState.Error.AlwaysOnVpn }
