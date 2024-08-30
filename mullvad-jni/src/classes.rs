@@ -13,4 +13,5 @@ pub const CLASSES: &[&str] = &[
     "net/mullvad/talpid/model/CreateTunResult$TunnelDeviceError",
     "net/mullvad/talpid/ConnectivityListener",
     "net/mullvad/talpid/TalpidVpnService",
+    "net/mullvad/mullvadvpn/lib/endpoint/ApiEndpointOverride",
 ];

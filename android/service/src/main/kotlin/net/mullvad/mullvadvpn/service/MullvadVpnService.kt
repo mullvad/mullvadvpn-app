@@ -11,22 +11,17 @@ import androidx.lifecycle.lifecycleScope
 import arrow.atomic.AtomicInt
 import co.touchlab.kermit.Logger
 import java.io.File
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import net.mullvad.mullvadvpn.lib.common.constant.BuildTypes
-import net.mullvad.mullvadvpn.lib.common.constant.GRPC_SOCKET_FILE_NAMED_ARGUMENT
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_CONNECT_ACTION
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_DISCONNECT_ACTION
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
-import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointConfiguration
 import net.mullvad.mullvadvpn.lib.endpoint.getApiEndpointConfigurationExtras
 import net.mullvad.mullvadvpn.lib.intent.IntentProvider
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
-import net.mullvad.mullvadvpn.service.di.apiEndpointModule
 import net.mullvad.mullvadvpn.service.di.vpnServiceModule
 import net.mullvad.mullvadvpn.service.migration.MigrateSplitTunneling
 import net.mullvad.mullvadvpn.service.notifications.ForegroundNotificationManager
@@ -35,7 +30,6 @@ import net.mullvad.mullvadvpn.service.notifications.NotificationManager
 import net.mullvad.talpid.TalpidVpnService
 import org.koin.android.ext.android.getKoin
 import org.koin.core.context.loadKoinModules
-import org.koin.core.qualifier.named
 
 private const val RELAYS_FILE = "relays.json"
 
@@ -43,12 +37,11 @@ class MullvadVpnService : TalpidVpnService() {
 
     private lateinit var keyguardManager: KeyguardManager
 
-    private lateinit var apiEndpointConfiguration: ApiEndpointConfiguration
     private lateinit var managementService: ManagementService
     private lateinit var migrateSplitTunneling: MigrateSplitTunneling
     private lateinit var intentProvider: IntentProvider
     private lateinit var connectionProxy: ConnectionProxy
-    private lateinit var rpcSocketFile: File
+    private lateinit var daemonConfig: DaemonConfig
 
     private lateinit var foregroundNotificationHandler: ForegroundNotificationManager
 
@@ -60,7 +53,7 @@ class MullvadVpnService : TalpidVpnService() {
         super.onCreate()
         Logger.i("MullvadVpnService: onCreate")
 
-        loadKoinModules(listOf(vpnServiceModule, apiEndpointModule))
+        loadKoinModules(listOf(vpnServiceModule))
         with(getKoin()) {
             // Needed to create all the notification channels
             get<NotificationChannelFactory>()
@@ -71,27 +64,32 @@ class MullvadVpnService : TalpidVpnService() {
                 ForegroundNotificationManager(this@MullvadVpnService, get())
             get<NotificationManager>()
 
-            apiEndpointConfiguration = get()
+            daemonConfig = get()
             migrateSplitTunneling = get()
             intentProvider = get()
             connectionProxy = get()
-            rpcSocketFile = get(named(GRPC_SOCKET_FILE_NAMED_ARGUMENT))
         }
 
         keyguardManager = getSystemService<KeyguardManager>()!!
 
-        // TODO We should avoid lifecycleScope.launch (current needed due to InetSocketAddress
-        // with intent from API)
-        lifecycleScope.launch(context = Dispatchers.IO) {
-            prepareFiles(this@MullvadVpnService)
-            migrateSplitTunneling.migrate()
+        prepareFiles(this@MullvadVpnService)
+        migrateSplitTunneling.migrate()
 
-            Logger.i("Start daemon")
-            startDaemon()
+        // If it is a debug build and we have an api override in the intent, use it
+        // This is for injecting hostname and port for our mock api tests
+        val intentApiOverride =
+            intentProvider.getLatestIntent()?.getApiEndpointConfigurationExtras()
+        val updatedConfig =
+            if (BuildConfig.DEBUG && intentApiOverride != null) {
+                daemonConfig.copy(apiEndpointOverride = intentApiOverride)
+            } else {
+                daemonConfig
+            }
+        Logger.i("Start daemon")
+        startDaemon(updatedConfig)
 
-            Logger.i("Start management service")
-            managementService.start()
-        }
+        Logger.i("Start management service")
+        managementService.start()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -148,24 +146,17 @@ class MullvadVpnService : TalpidVpnService() {
         }
     }
 
-    private fun startDaemon() {
-        val apiEndpointConfiguration =
-            if (Build.TYPE == BuildTypes.DEBUG) {
-                intentProvider.getLatestIntent()?.getApiEndpointConfigurationExtras()
-                    ?: apiEndpointConfiguration
-            } else {
-                apiEndpointConfiguration
-            }
-
-        MullvadDaemon.initialize(
-            vpnService = this@MullvadVpnService,
-            rpcSocketPath = rpcSocketFile.absolutePath,
-            filesDirectory = filesDir.absolutePath,
-            cacheDirectory = cacheDir.absolutePath,
-            apiEndpoint = apiEndpointConfiguration.apiEndpoint()
-        )
-        Logger.i("MullvadVpnService: Daemon initialized")
-    }
+    private fun startDaemon(daemonConfig: DaemonConfig) =
+        with(daemonConfig) {
+            MullvadDaemon.initialize(
+                vpnService = this@MullvadVpnService,
+                rpcSocketPath = rpcSocket.absolutePath,
+                filesDirectory = filesDir.absolutePath,
+                cacheDirectory = cacheDir.absolutePath,
+                apiEndpointOverride = apiEndpointOverride,
+            )
+            Logger.i("MullvadVpnService: Daemon initialized")
+        }
 
     private fun emptyBinder() =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
