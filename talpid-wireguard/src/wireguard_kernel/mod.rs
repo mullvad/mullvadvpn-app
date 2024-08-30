@@ -84,8 +84,6 @@ pub enum Error {
     NetworkManager(#[source] nm_tunnel::Error),
 }
 
-pub(crate) const MULLVAD_INTERFACE_NAME: &str = "wg0-mullvad";
-
 #[derive(Debug)]
 pub struct Handle {
     pub wg_handle: WireguardConnection,
