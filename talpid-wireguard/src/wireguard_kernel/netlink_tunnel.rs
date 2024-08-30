@@ -2,10 +2,12 @@ use std::pin::Pin;
 
 use futures::Future;
 
+use crate::config::MULLVAD_INTERFACE_NAME;
+
 use super::{
     super::stats::{Stats, StatsMap},
     wg_message::DeviceNla,
-    Config, Error, Handle, Tunnel, TunnelError, MULLVAD_INTERFACE_NAME,
+    Config, Error, Handle, Tunnel, TunnelError,
 };
 
 pub struct NetlinkTunnel {
