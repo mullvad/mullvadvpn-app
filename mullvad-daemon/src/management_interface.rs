@@ -1261,7 +1261,7 @@ impl ManagementService for ManagementServiceImpl {
         Ok(Response::new(()))
     }
 
-    async fn set_log_settings(&self, request: Request<types::LogSettings>) -> ServiceResult<()> {
+    async fn set_log_filter(&self, request: Request<types::LogFilter>) -> ServiceResult<()> {
         self.log_reload_handle
             .set_log_filter(request.into_inner().log_filter)
             .map_err(|error| Status::invalid_argument(error.to_string()))?;
