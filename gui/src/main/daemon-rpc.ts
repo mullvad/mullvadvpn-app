@@ -29,6 +29,7 @@ import {
   DeviceEvent,
   DeviceState,
   DirectMethod,
+  EndpointObfuscationType,
   ErrorStateCause,
   ErrorStateDetails,
   FeatureIndicator,
@@ -388,6 +389,11 @@ export class DaemonRpc {
           grpcTypes.ObfuscationSettings.SelectedObfuscation.OFF,
         );
         break;
+      case ObfuscationType.shadowsocks:
+        grpcObfuscationSettings.setSelectedObfuscation(
+          grpcTypes.ObfuscationSettings.SelectedObfuscation.SHADOWSOCKS,
+        );
+        break;
       case ObfuscationType.udp2tcp:
         grpcObfuscationSettings.setSelectedObfuscation(
           grpcTypes.ObfuscationSettings.SelectedObfuscation.UDP2TCP,
@@ -403,7 +409,13 @@ export class DaemonRpc {
       grpcObfuscationSettings.setUdp2tcp(grpcUdp2tcpSettings);
     }
 
-    grpcObfuscationSettings.setShadowsocks(new grpcTypes.ShadowsocksSettings());
+    if (obfuscationSettings.shadowsocksSettings) {
+      const shadowsocksSettings = new grpcTypes.ShadowsocksSettings();
+      if (obfuscationSettings.shadowsocksSettings.port !== 'any') {
+        shadowsocksSettings.setPort(obfuscationSettings.shadowsocksSettings.port.only);
+      }
+      grpcObfuscationSettings.setShadowsocks(shadowsocksSettings);
+    }
 
     await this.call<grpcTypes.ObfuscationSettings, Empty>(
       this.client.setObfuscationSettings,
@@ -1200,17 +1212,22 @@ function convertFromProxyEndpoint(proxyEndpoint: grpcTypes.ProxyEndpoint.AsObjec
 function convertFromObfuscationEndpoint(
   obfuscationEndpoint: grpcTypes.ObfuscationEndpoint.AsObject,
 ): IObfuscationEndpoint {
-  // TODO: Handle Shadowsocks (and other implemented protocols)
-  if (
-    obfuscationEndpoint.obfuscationType !== grpcTypes.ObfuscationEndpoint.ObfuscationType.UDP2TCP
-  ) {
-    throw new Error('unsupported obfuscation protocol');
+  let obfuscationType: EndpointObfuscationType;
+  switch (obfuscationEndpoint.obfuscationType) {
+    case grpcTypes.ObfuscationEndpoint.ObfuscationType.UDP2TCP:
+      obfuscationType = 'udp2tcp';
+      break;
+    case grpcTypes.ObfuscationEndpoint.ObfuscationType.SHADOWSOCKS:
+      obfuscationType = 'shadowsocks';
+      break;
+    default:
+      throw new Error('unsupported obfuscation protocol');
   }
 
   return {
     ...obfuscationEndpoint,
     protocol: convertFromTransportProtocol(obfuscationEndpoint.protocol),
-    obfuscationType: 'udp2tcp',
+    obfuscationType: obfuscationType,
   };
 }
 
@@ -1470,12 +1487,18 @@ function convertFromObfuscationSettings(
     case grpcTypes.ObfuscationSettings.SelectedObfuscation.UDP2TCP:
       selectedObfuscationType = ObfuscationType.udp2tcp;
       break;
+    case grpcTypes.ObfuscationSettings.SelectedObfuscation.SHADOWSOCKS:
+      selectedObfuscationType = ObfuscationType.shadowsocks;
+      break;
   }
 
   return {
     selectedObfuscation: selectedObfuscationType,
     udp2tcpSettings: obfuscationSettings?.udp2tcp
       ? { port: convertFromConstraint(obfuscationSettings.udp2tcp.port) }
+      : { port: 'any' },
+    shadowsocksSettings: obfuscationSettings?.shadowsocks
+      ? { port: convertFromConstraint(obfuscationSettings.shadowsocks.port) }
       : { port: 'any' },
   };
 }

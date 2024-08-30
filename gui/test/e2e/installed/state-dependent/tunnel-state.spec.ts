@@ -90,6 +90,13 @@ test('App should show correct WireGuard transport protocol', async () => {
   await expect(inData).toContainText(new RegExp('UDP$'));
 });
 
+test('App should connect with Shadowsocks', async () => {
+  await exec('mullvad obfuscation set mode shadowsocks');
+  await expectConnected(page);
+  await exec('mullvad obfuscation set mode off');
+  await expectConnected(page);
+});
+
 test('App should show correct tunnel protocol', async () => {
   const tunnelProtocol = page.getByTestId('tunnel-protocol');
   await expect(tunnelProtocol).toHaveText('WireGuard');
