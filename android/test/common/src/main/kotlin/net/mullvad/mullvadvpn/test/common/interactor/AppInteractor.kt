@@ -6,7 +6,7 @@ import android.widget.Button
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
-import net.mullvad.mullvadvpn.lib.endpoint.CustomApiEndpointConfiguration
+import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointOverride
 import net.mullvad.mullvadvpn.lib.endpoint.putApiEndpointConfigurationExtra
 import net.mullvad.mullvadvpn.test.common.constant.APP_LAUNCH_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.constant.CONNECTION_TIMEOUT
@@ -23,7 +23,7 @@ class AppInteractor(
     private val targetContext: Context,
     private val targetPackageName: String,
 ) {
-    fun launch(customApiEndpointConfiguration: CustomApiEndpointConfiguration? = null) {
+    fun launch(customApiEndpointConfiguration: ApiEndpointOverride? = null) {
         device.pressHome()
         // Wait for launcher
         device.wait(
