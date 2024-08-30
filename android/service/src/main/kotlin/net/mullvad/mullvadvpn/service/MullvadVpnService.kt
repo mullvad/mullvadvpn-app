@@ -12,7 +12,7 @@ import arrow.atomic.AtomicInt
 import co.touchlab.kermit.Logger
 import java.io.File
 import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_CONNECT_ACTION
@@ -90,6 +90,17 @@ class MullvadVpnService : TalpidVpnService() {
 
         Logger.i("Start management service")
         managementService.start()
+
+        lifecycleScope.launch {
+            managementService.tunnelState
+                .filterIsInstance<TunnelState.Error>()
+                .filter { !it.errorState.isBlocking }
+                .collect {
+                    if (bindCount.get() == 0) {
+                        foregroundNotificationHandler.stopForeground()
+                    }
+                }
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -105,15 +116,23 @@ class MullvadVpnService : TalpidVpnService() {
             keyguardManager.isKeyguardLocked -> {
                 Logger.i("Keyguard is locked, ignoring command")
             }
+
             intent.isFromSystem() || intent?.action == KEY_CONNECT_ACTION -> {
-                // Only show on foreground if we have permission
-                if (prepare(this) == null) {
-                    foregroundNotificationHandler.startForeground()
-                }
+                foregroundNotificationHandler.startForeground()
                 lifecycleScope.launch { connectionProxy.connectWithoutPermissionCheck() }
             }
+
             intent?.action == KEY_DISCONNECT_ACTION -> {
+                // Tile might of launched the service with the expectancy to be in foreground, thus
+                // must quickly go into foreground to please the android system requirements.
+                foregroundNotificationHandler.startForeground()
                 lifecycleScope.launch { connectionProxy.disconnect() }
+
+                // If disconnect intent is received and no one is using this service, simply stop
+                // foreground.
+                if (bindCount.get() == 0) {
+                    foregroundNotificationHandler.stopForeground()
+                }
             }
         }
 
@@ -180,25 +199,6 @@ class MullvadVpnService : TalpidVpnService() {
             foregroundNotificationHandler.stopForeground()
         }
 
-        if (count == 0) {
-            Logger.i("No one bound to the service, stopSelf()")
-            lifecycleScope.launch {
-                Logger.i("Waiting for disconnected state")
-                // TODO This needs reworking, we should not wait for the disconnected state, what we
-                // want is the notification of disconnected to go out before we start shutting down
-                connectionProxy.tunnelState
-                    .filter {
-                        it is TunnelState.Disconnected ||
-                            (it is TunnelState.Error && !it.errorState.isBlocking)
-                    }
-                    .first()
-
-                if (bindCount.get() == 0) {
-                    Logger.i("Stopping service")
-                    stopSelf()
-                }
-            }
-        }
         return true
     }
 
@@ -209,8 +209,10 @@ class MullvadVpnService : TalpidVpnService() {
 
         Logger.i("Shutdown MullvadDaemon")
         MullvadDaemon.shutdown()
+
         Logger.i("Enter Idle")
         managementService.enterIdle()
+
         Logger.i("Shutdown complete")
         super.onDestroy()
     }
