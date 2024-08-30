@@ -19,6 +19,8 @@ use super::{
     stats::{Stats, StatsMap},
     Config, Tunnel, TunnelError,
 };
+#[cfg(target_os = "linux")]
+use crate::config::MULLVAD_INTERFACE_NAME;
 use crate::logging::{clean_up_logging, initialize_logging};
 
 const MAX_PREPARE_TUN_ATTEMPTS: usize = 4;
@@ -130,6 +132,10 @@ impl WgGoTunnel {
         let mut tun_provider = tun_provider.lock().unwrap();
 
         let tun_config = tun_provider.config_mut();
+        #[cfg(target_os = "linux")]
+        {
+            tun_config.name = Some(MULLVAD_INTERFACE_NAME.to_string());
+        }
         tun_config.addresses = config.tunnel.addresses.clone();
         tun_config.ipv4_gateway = config.ipv4_gateway;
         tun_config.ipv6_gateway = config.ipv6_gateway;

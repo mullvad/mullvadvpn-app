@@ -1,6 +1,8 @@
+use crate::config::MULLVAD_INTERFACE_NAME;
+
 use super::{
     super::stats::{Stats, StatsMap},
-    Config, Error as WgKernelError, Handle, Tunnel, TunnelError, MULLVAD_INTERFACE_NAME,
+    Config, Error as WgKernelError, Handle, Tunnel, TunnelError,
 };
 use futures::Future;
 use std::{collections::HashMap, pin::Pin};

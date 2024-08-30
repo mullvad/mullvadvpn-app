@@ -34,6 +34,9 @@ cfg_if! {
 /// Configuration for creating a tunnel device.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct TunConfig {
+    /// Interface name to use.
+    pub name: Option<String>,
+
     /// IP addresses for the tunnel interface.
     pub addresses: Vec<IpAddr>,
 
@@ -77,6 +80,7 @@ impl TunConfig {
 /// Android to route all traffic inside the tunnel.
 pub fn blocking_config() -> TunConfig {
     TunConfig {
+        name: None,
         addresses: vec![IpAddr::V4(Ipv4Addr::new(10, 0, 0, 1))],
         mtu: 1380,
         ipv4_gateway: Ipv4Addr::new(10, 64, 0, 1),
