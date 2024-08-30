@@ -326,14 +326,14 @@ impl WireguardMonitor {
         };
 
         let gateway = config.ipv4_gateway;
-        let mut connectivity_monitor = connectivity_check::ConnectivityMonitor::new(
+        /*let mut connectivity_monitor = connectivity_check::ConnectivityMonitor::new(
             gateway,
             #[cfg(any(target_os = "macos", target_os = "linux"))]
             iface_name.clone(),
             Arc::downgrade(&monitor.tunnel),
             pinger_rx,
         )
-        .map_err(Error::ConnectivityMonitorError)?;
+        .map_err(Error::ConnectivityMonitorError)?;*/
 
         let moved_tunnel = monitor.tunnel.clone();
         let moved_close_obfs_sender = close_obfs_sender.clone();
@@ -420,7 +420,7 @@ impl WireguardMonitor {
                     };
                 });
             }
-            let mut connectivity_monitor = tokio::task::spawn_blocking(move || {
+            /*let mut connectivity_monitor = tokio::task::spawn_blocking(move || {
                 match connectivity_monitor.establish_connectivity(args.retry_attempt) {
                     Ok(true) => Ok(connectivity_monitor),
                     Ok(false) => {
@@ -437,7 +437,7 @@ impl WireguardMonitor {
                 }
             })
             .await
-            .unwrap()?;
+            .unwrap()?;*/
 
             // Add any default route(s) that may exist.
             args.route_manager
@@ -450,12 +450,13 @@ impl WireguardMonitor {
             (on_event)(TunnelEvent::Up(metadata)).await;
 
             tokio::task::spawn_blocking(move || {
-                if let Err(error) = connectivity_monitor.run() {
+                /*if let Err(error) = connectivity_monitor.run() {
                     log::error!(
                         "{}",
                         error.display_chain_with_msg("Connectivity monitor failed")
                     );
-                }
+                }*/
+                pinger_rx.recv();
             })
             .await
             .unwrap();
