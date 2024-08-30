@@ -25,12 +25,10 @@ export default function KeyboardNavigation(props: IKeyboardNavigationProps) {
     (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         const path = location.pathname as RoutePath;
-        if (!disableDismissForRoutes.includes(path)) {
-          if (event.shiftKey) {
-            history.pop(true);
-          } else {
-            backAction?.();
-          }
+        if (event.shiftKey && !disableDismissForRoutes.includes(path)) {
+          history.pop(true);
+        } else {
+          backAction?.();
         }
       }
     },
