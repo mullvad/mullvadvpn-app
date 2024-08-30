@@ -848,14 +848,5 @@ message PlayPurchasePaymentToken { string token = 1; }
 message AllowedIpsList { repeated string values = 1; }
 
 message LogSettings {
-  enum LogLevel {
-    OFF = 0;
-    TRACE = 1;
-    DEBUG = 2;
-    INFO = 3;
-    WARN = 4;
-    ERROR = 5;
-  }
-
-  LogLevel level = 1;
+  string log_filter = 1;
 }
