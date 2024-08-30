@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { useBoolean } from '../../lib/utilityHooks';
 import { useSelector } from '../../redux/store';
 import CustomScrollbars from '../CustomScrollbars';
+import { BackAction } from '../KeyboardNavigation';
 import ConnectionActionButton from './ConnectionActionButton';
 import ConnectionDetails from './ConnectionDetails';
 import ConnectionPanelChevron from './ConnectionPanelChevron';
@@ -86,28 +87,30 @@ export default function ConnectionPanel() {
   useEffect(collapse, [tunnelState.state, collapse]);
 
   return (
-    <StyledConnectionPanel $expanded={expanded}>
-      {allowExpand && (
-        <StyledConnectionPanelChevron pointsUp={!expanded} onToggle={toggleExpanded} />
-      )}
-      <StyledConnectionStatusContainer
-        $expanded={expanded}
-        $hasFeatureIndicators={hasFeatureIndicators}
-        onClick={toggleExpanded}>
-        <ConnectionStatus />
-        <Location />
-        <Hostname />
-      </StyledConnectionStatusContainer>
-      <StyledCustomScrollbars>
-        <FeatureIndicators expanded={expanded} expandIsland={expand} />
-        <StyledAccordion expanded={expanded}>
-          <ConnectionDetails />
-        </StyledAccordion>
-      </StyledCustomScrollbars>
-      <StyledConnectionButtonContainer>
-        <SelectLocationButton />
-        <ConnectionActionButton />
-      </StyledConnectionButtonContainer>
-    </StyledConnectionPanel>
+    <BackAction disabled={!expanded} action={collapse}>
+      <StyledConnectionPanel $expanded={expanded}>
+        {allowExpand && (
+          <StyledConnectionPanelChevron pointsUp={!expanded} onToggle={toggleExpanded} />
+        )}
+        <StyledConnectionStatusContainer
+          $expanded={expanded}
+          $hasFeatureIndicators={hasFeatureIndicators}
+          onClick={toggleExpanded}>
+          <ConnectionStatus />
+          <Location />
+          <Hostname />
+        </StyledConnectionStatusContainer>
+        <StyledCustomScrollbars>
+          <FeatureIndicators expanded={expanded} expandIsland={expand} />
+          <StyledAccordion expanded={expanded}>
+            <ConnectionDetails />
+          </StyledAccordion>
+        </StyledCustomScrollbars>
+        <StyledConnectionButtonContainer>
+          <SelectLocationButton />
+          <ConnectionActionButton />
+        </StyledConnectionButtonContainer>
+      </StyledConnectionPanel>
+    </BackAction>
   );
 }
