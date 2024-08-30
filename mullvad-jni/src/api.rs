@@ -25,10 +25,10 @@ pub fn api_endpoint_from_java(
 
 #[cfg(not(feature = "api-override"))]
 pub fn api_endpoint_from_java(
-    env: &JnixEnv<'_>,
+    _env: &JnixEnv<'_>,
     endpoint_override: JObject<'_>,
 ) -> Option<mullvad_api::ApiEndpoint> {
-    if (endpoint_override.is_null()) {
+    if endpoint_override.is_null() {
         return None;
     }
     panic!("Trying to set api override when feature is disabled")
