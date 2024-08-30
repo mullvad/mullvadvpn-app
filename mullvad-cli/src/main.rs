@@ -150,6 +150,10 @@ enum Cli {
         /// File to write to. If this is "-", write to standard output
         file: String,
     },
+
+    /// Manage logging and tracing
+    #[clap(subcommand)]
+    Logging(logging::Logging),
 }
 
 #[tokio::main]
@@ -183,6 +187,7 @@ async fn main() -> Result<()> {
         Cli::CustomList(cmd) => cmd.handle().await,
         Cli::ImportSettings { file } => patch::import(file).await,
         Cli::ExportSettings { file } => patch::export(file).await,
+        Cli::Logging(cmd) => cmd.handle().await,
 
         #[cfg(all(unix, not(target_os = "android")))]
         Cli::ShellCompletions { shell, dir } => {

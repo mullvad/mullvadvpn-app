@@ -7,6 +7,7 @@ mod custom_tunnel;
 mod device;
 mod features;
 mod location;
+mod logging;
 mod net;
 pub mod relay_constraints;
 mod relay_list;
