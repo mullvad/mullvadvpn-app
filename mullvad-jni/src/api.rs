@@ -1,4 +1,7 @@
-use jnix::{jni::objects::JObject, FromJava, JnixEnv};
+#[cfg(feature = "api-override")]
+use jnix::FromJava;
+use jnix::{jni::objects::JObject, JnixEnv};
+#[cfg(feature = "api-override")]
 use std::net::{SocketAddr, ToSocketAddrs};
 
 #[cfg(feature = "api-override")]
@@ -35,6 +38,7 @@ pub fn api_endpoint_from_java(
 }
 
 /// Resolves the hostname and port to SocketAddr
+#[cfg(feature = "api-override")]
 fn create_socket_addr(hostname: String, port: u16) -> SocketAddr {
     //Resolve ip address from hostname
     (hostname, port)
@@ -44,6 +48,7 @@ fn create_socket_addr(hostname: String, port: u16) -> SocketAddr {
         .expect("no ip address received")
 }
 
+#[cfg(feature = "api-override")]
 fn hostname_from_java(env: &JnixEnv<'_>, endpoint_override: JObject<'_>) -> String {
     let hostname = env
         .call_method(endpoint_override, "component1", "()Ljava/lang/String;", &[])
@@ -54,6 +59,7 @@ fn hostname_from_java(env: &JnixEnv<'_>, endpoint_override: JObject<'_>) -> Stri
     String::from_java(env, hostname)
 }
 
+#[cfg(feature = "api-override")]
 fn port_from_java(env: &JnixEnv<'_>, endpoint_override: JObject<'_>) -> u16 {
     let port = env
         .call_method(endpoint_override, "component2", "()I", &[])
@@ -64,6 +70,7 @@ fn port_from_java(env: &JnixEnv<'_>, endpoint_override: JObject<'_>) -> u16 {
     u16::try_from(port).expect("invalid port")
 }
 
+#[cfg(feature = "api-override")]
 fn disable_address_cache_from_java(env: &JnixEnv<'_>, endpoint_override: JObject<'_>) -> bool {
     env.call_method(endpoint_override, "component3", "()Z", &[])
         .expect("missing ApiEndpointOverride.disableAddressCache")
@@ -71,6 +78,7 @@ fn disable_address_cache_from_java(env: &JnixEnv<'_>, endpoint_override: JObject
         .expect("ApiEndpointOverride.disableAddressCache is not a bool")
 }
 
+#[cfg(feature = "api-override")]
 fn disable_tls_from_java(env: &JnixEnv<'_>, endpoint_override: JObject<'_>) -> bool {
     env.call_method(endpoint_override, "component4", "()Z", &[])
         .expect("missing ApiEndpointOverride.disableTls")
@@ -78,6 +86,7 @@ fn disable_tls_from_java(env: &JnixEnv<'_>, endpoint_override: JObject<'_>) -> b
         .expect("ApiEndpointOverride.disableTls is not a bool")
 }
 
+#[cfg(feature = "api-override")]
 fn force_direct_from_java(env: &JnixEnv<'_>, endpoint_override: JObject<'_>) -> bool {
     env.call_method(endpoint_override, "component5", "()Z", &[])
         .expect("missing ApiEndpointOverride.forceDirectConnection")
