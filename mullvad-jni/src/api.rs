@@ -1,103 +1,95 @@
-use jnix::{
-    jni::{
-        objects::JObject,
-        signature::{JavaType, Primitive},
-    },
-    FromJava, JnixEnv,
-};
-use std::net::{IpAddr, SocketAddr};
+#[cfg(feature = "api-override")]
+use jnix::FromJava;
+use jnix::{jni::objects::JObject, JnixEnv};
+#[cfg(feature = "api-override")]
+use std::net::{SocketAddr, ToSocketAddrs};
 
+#[cfg(feature = "api-override")]
 pub fn api_endpoint_from_java(
     env: &JnixEnv<'_>,
-    object: JObject<'_>,
+    endpoint_override: JObject<'_>,
 ) -> Option<mullvad_api::ApiEndpoint> {
-    if object.is_null() {
+    if endpoint_override.is_null() {
         return None;
     }
 
-    let mut endpoint = mullvad_api::ApiEndpoint::from_env_vars();
+    let hostname = hostname_from_java(env, endpoint_override);
+    let port = port_from_java(env, endpoint_override);
+    let address = Some(create_socket_addr(hostname.clone(), port));
 
-    let address = env
-        .call_method(object, "component1", "()Ljava/net/InetSocketAddress;", &[])
-        .expect("missing ApiEndpoint.address")
-        .l()
-        .expect("ApiEndpoint.address is not an InetSocketAddress");
-
-    endpoint.address = Some(
-        try_socketaddr_from_java(env, address).expect("received unresolved InetSocketAddress"),
-    );
-    endpoint.host = try_hostname_from_java(env, address);
-    #[cfg(feature = "api-override")]
-    {
-        endpoint.disable_address_cache = env
-            .call_method(object, "component2", "()Z", &[])
-            .expect("missing ApiEndpoint.disableAddressCache")
-            .z()
-            .expect("ApiEndpoint.disableAddressCache is not a bool");
-        endpoint.disable_tls = env
-            .call_method(object, "component3", "()Z", &[])
-            .expect("missing ApiEndpoint.disableTls")
-            .z()
-            .expect("ApiEndpoint.disableTls is not a bool");
-    }
-
-    Some(endpoint)
+    Some(mullvad_api::ApiEndpoint {
+        host: Some(hostname),
+        address,
+        disable_address_cache: disable_address_cache_from_java(env, endpoint_override),
+        disable_tls: disable_tls_from_java(env, endpoint_override),
+        force_direct: force_direct_from_java(env, endpoint_override),
+    })
 }
 
-/// Converts InetSocketAddress to a SocketAddr. Return `None` if the hostname is unresolved.
-fn try_socketaddr_from_java(env: &JnixEnv<'_>, address: JObject<'_>) -> Option<SocketAddr> {
-    let class = env.get_class("java/net/InetSocketAddress");
-
-    let method_id = env
-        .get_method_id(&class, "getAddress", "()Ljava/net/InetAddress;")
-        .expect("Failed to get method ID for InetSocketAddress.getAddress()");
-    let return_type = JavaType::Object("java/net/InetAddress".to_owned());
-
-    let ip_addr = env
-        .call_method_unchecked(address, method_id, return_type, &[])
-        .expect("Failed to call InetSocketAddress.getAddress()")
-        .l()
-        .expect("Call to InetSocketAddress.getAddress() did not return an object");
-
-    if ip_addr.is_null() {
+#[cfg(not(feature = "api-override"))]
+pub fn api_endpoint_from_java(
+    _env: &JnixEnv<'_>,
+    endpoint_override: JObject<'_>,
+) -> Option<mullvad_api::ApiEndpoint> {
+    if endpoint_override.is_null() {
         return None;
     }
-
-    let method_id = env
-        .get_method_id(&class, "getPort", "()I")
-        .expect("Failed to get method ID for InetSocketAddress.getPort()");
-    let return_type = JavaType::Primitive(Primitive::Int);
-
-    let port = env
-        .call_method_unchecked(address, method_id, return_type, &[])
-        .expect("Failed to call InetSocketAddress.getPort()")
-        .i()
-        .expect("Call to InetSocketAddress.getPort() did not return an int");
-
-    Some(SocketAddr::new(
-        IpAddr::from_java(env, ip_addr),
-        u16::try_from(port).expect("invalid port"),
-    ))
+    panic!("Trying to set api override when feature is disabled")
 }
 
-/// Returns the hostname for an InetSocketAddress. This may be an IP address converted to a string.
-fn try_hostname_from_java(env: &JnixEnv<'_>, address: JObject<'_>) -> Option<String> {
-    let class = env.get_class("java/net/InetSocketAddress");
+/// Resolves the hostname and port to SocketAddr
+#[cfg(feature = "api-override")]
+fn create_socket_addr(hostname: String, port: u16) -> SocketAddr {
+    //Resolve ip address from hostname
+    (hostname, port)
+        .to_socket_addrs()
+        .expect("could not resolve address")
+        .next()
+        .expect("no ip address received")
+}
 
-    let method_id = env
-        .get_method_id(&class, "getHostString", "()Ljava/lang/String;")
-        .expect("Failed to get method ID for InetSocketAddress.getHostString()");
-    let return_type = JavaType::Object("java/lang/String".to_owned());
-
+#[cfg(feature = "api-override")]
+fn hostname_from_java(env: &JnixEnv<'_>, endpoint_override: JObject<'_>) -> String {
     let hostname = env
-        .call_method_unchecked(address, method_id, return_type, &[])
-        .expect("Failed to call InetSocketAddress.getHostString()")
+        .call_method(endpoint_override, "component1", "()Ljava/lang/String;", &[])
+        .expect("missing ApiEndpointOverride.hostname")
         .l()
-        .expect("Call to InetSocketAddress.getHostString() did not return an object");
+        .expect("ApiEndpointOverride.hostname is not a string");
 
-    if hostname.is_null() {
-        return None;
-    }
+    String::from_java(env, hostname)
+}
 
-    Some(String::from_java(env, hostname))
+#[cfg(feature = "api-override")]
+fn port_from_java(env: &JnixEnv<'_>, endpoint_override: JObject<'_>) -> u16 {
+    let port = env
+        .call_method(endpoint_override, "component2", "()I", &[])
+        .expect("missing ApiEndpointOverride.port")
+        .i()
+        .expect("ApiEndpointOverride.port is not a int");
+
+    u16::try_from(port).expect("invalid port")
+}
+
+#[cfg(feature = "api-override")]
+fn disable_address_cache_from_java(env: &JnixEnv<'_>, endpoint_override: JObject<'_>) -> bool {
+    env.call_method(endpoint_override, "component3", "()Z", &[])
+        .expect("missing ApiEndpointOverride.disableAddressCache")
+        .z()
+        .expect("ApiEndpointOverride.disableAddressCache is not a bool")
+}
+
+#[cfg(feature = "api-override")]
+fn disable_tls_from_java(env: &JnixEnv<'_>, endpoint_override: JObject<'_>) -> bool {
+    env.call_method(endpoint_override, "component4", "()Z", &[])
+        .expect("missing ApiEndpointOverride.disableTls")
+        .z()
+        .expect("ApiEndpointOverride.disableTls is not a bool")
+}
+
+#[cfg(feature = "api-override")]
+fn force_direct_from_java(env: &JnixEnv<'_>, endpoint_override: JObject<'_>) -> bool {
+    env.call_method(endpoint_override, "component5", "()Z", &[])
+        .expect("missing ApiEndpointOverride.forceDirectConnection")
+        .z()
+        .expect("ApiEndpointOverride.forceDirectConnection is not a bool")
 }
