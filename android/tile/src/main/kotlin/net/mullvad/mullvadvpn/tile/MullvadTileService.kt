@@ -118,7 +118,8 @@ class MullvadTileService : TileService() {
                     }
             }
 
-        // Always start as foreground in case tile is out-of-sync.
+        // Always start as foreground, e.g if app is dead we won't be allowed to start if not
+        // in foreground.
         startForegroundService(intent)
     }
 
