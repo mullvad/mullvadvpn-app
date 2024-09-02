@@ -21,8 +21,8 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.preview.SelectObfuscationCellPreviewParameterProvider
 import net.mullvad.mullvadvpn.lib.model.Constraint
+import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.Port
-import net.mullvad.mullvadvpn.lib.model.SelectedObfuscation
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.selected
@@ -31,13 +31,13 @@ import net.mullvad.mullvadvpn.lib.theme.typeface.listItemText
 
 @Preview
 @Composable
-private fun PreviewSelectObfuscationCellCell(
+private fun PreviewObfuscationCell(
     @PreviewParameter(SelectObfuscationCellPreviewParameterProvider::class)
-    selectedObfuscationCellData: Triple<SelectedObfuscation, Constraint<Port>, Boolean>
+    selectedObfuscationCellData: Triple<ObfuscationMode, Constraint<Port>, Boolean>
 ) {
     AppTheme {
-        SelectObfuscationCell(
-            selectedObfuscation = selectedObfuscationCellData.first,
+        ObfuscationModeCell(
+            obfuscationMode = selectedObfuscationCellData.first,
             port = selectedObfuscationCellData.second,
             isSelected = selectedObfuscationCellData.third,
             onSelected = {},
@@ -47,11 +47,11 @@ private fun PreviewSelectObfuscationCellCell(
 }
 
 @Composable
-fun SelectObfuscationCell(
-    selectedObfuscation: SelectedObfuscation,
+fun ObfuscationModeCell(
+    obfuscationMode: ObfuscationMode,
     port: Constraint<Port>,
     isSelected: Boolean,
-    onSelected: (SelectedObfuscation) -> Unit,
+    onSelected: (ObfuscationMode) -> Unit,
     onNavigate: () -> Unit = {},
 ) {
     Row(
@@ -66,9 +66,9 @@ fun SelectObfuscationCell(
             titleColor = MaterialTheme.colorScheme.onSurface,
             subtitleStyle = MaterialTheme.typography.listItemSubText,
             subtitleColor = MaterialTheme.colorScheme.onSurface,
-            titleText = selectedObfuscation.toTitle(),
+            titleText = obfuscationMode.toTitle(),
             subtitleText = stringResource(id = R.string.port_x, port.toSubTitle()),
-            onCellClicked = { onSelected(selectedObfuscation) },
+            onCellClicked = { onSelected(obfuscationMode) },
             minHeight = Dimens.cellHeight,
             background =
                 if (isSelected) {
@@ -101,12 +101,12 @@ fun SelectObfuscationCell(
 }
 
 @Composable
-private fun SelectedObfuscation.toTitle() =
+private fun ObfuscationMode.toTitle() =
     when (this) {
-        SelectedObfuscation.Auto -> stringResource(id = R.string.automatic)
-        SelectedObfuscation.Off -> stringResource(id = R.string.off)
-        SelectedObfuscation.Udp2Tcp -> stringResource(id = R.string.upd_over_tcp)
-        SelectedObfuscation.Shadowsocks -> stringResource(id = R.string.shadowsocks)
+        ObfuscationMode.Auto -> stringResource(id = R.string.automatic)
+        ObfuscationMode.Off -> stringResource(id = R.string.off)
+        ObfuscationMode.Udp2Tcp -> stringResource(id = R.string.upd_over_tcp)
+        ObfuscationMode.Shadowsocks -> stringResource(id = R.string.shadowsocks)
     }
 
 @Composable

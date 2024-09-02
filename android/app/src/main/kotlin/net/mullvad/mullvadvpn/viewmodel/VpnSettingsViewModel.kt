@@ -23,9 +23,9 @@ import net.mullvad.mullvadvpn.constant.WIREGUARD_PRESET_PORTS
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.lib.model.DnsState
+import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
-import net.mullvad.mullvadvpn.lib.model.SelectedObfuscation
 import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 import net.mullvad.mullvadvpn.repository.RelayListRepository
@@ -68,8 +68,7 @@ class VpnSettingsViewModel(
                     customDnsList = settings?.addresses()?.asStringAddressList() ?: listOf(),
                     contentBlockersOptions =
                         settings?.contentBlockersSettings() ?: DefaultDnsOptions(),
-                    selectedObfuscation =
-                        settings?.selectedObfuscationSettings() ?: SelectedObfuscation.Off,
+                    obfuscationMode = settings?.selectedObfuscationMode() ?: ObfuscationMode.Off,
                     selectedUdp2TcpObfuscationPort =
                         settings?.obfuscationSettings?.udp2tcp?.port ?: Constraint.Any,
                     selectedShadowsocksObfuscationPort =
@@ -211,9 +210,9 @@ class VpnSettingsViewModel(
         }
     }
 
-    fun onSelectObfuscationSetting(selectedObfuscation: SelectedObfuscation) {
+    fun onSelectObfuscationMode(obfuscationMode: ObfuscationMode) {
         viewModelScope.launch(dispatcher) {
-            repository.setObfuscation(selectedObfuscation).onLeft {
+            repository.setObfuscation(obfuscationMode).onLeft {
                 _uiSideEffect.send(VpnSettingsSideEffect.ShowToast.GenericError)
             }
         }
@@ -289,7 +288,7 @@ class VpnSettingsViewModel(
 
     private fun Settings.contentBlockersSettings() = tunnelOptions.dnsOptions.defaultOptions
 
-    private fun Settings.selectedObfuscationSettings() = obfuscationSettings.selectedObfuscation
+    private fun Settings.selectedObfuscationMode() = obfuscationSettings.selectedObfuscationMode
 
     private fun Settings.getWireguardPort() =
         relaySettings.relayConstraints.wireguardConstraints.port
