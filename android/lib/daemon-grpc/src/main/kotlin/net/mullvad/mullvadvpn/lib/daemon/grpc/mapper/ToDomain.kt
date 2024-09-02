@@ -7,7 +7,6 @@ import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.util.UUID
 import mullvad_daemon.management_interface.ManagementInterface
-import mullvad_daemon.management_interface.shadowsocks
 import net.mullvad.mullvadvpn.lib.daemon.grpc.GrpcConnectivityState
 import net.mullvad.mullvadvpn.lib.daemon.grpc.RelayNameComparator
 import net.mullvad.mullvadvpn.lib.model.AccountData
@@ -40,6 +39,7 @@ import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.Mtu
 import net.mullvad.mullvadvpn.lib.model.ObfuscationEndpoint
+import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.ObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.ObfuscationType
 import net.mullvad.mullvadvpn.lib.model.Ownership
@@ -58,7 +58,6 @@ import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelayList
 import net.mullvad.mullvadvpn.lib.model.RelayOverride
 import net.mullvad.mullvadvpn.lib.model.RelaySettings
-import net.mullvad.mullvadvpn.lib.model.SelectedObfuscation
 import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.lib.model.ShadowsocksSettings
 import net.mullvad.mullvadvpn.lib.model.SocksAuth
@@ -334,20 +333,20 @@ internal fun ManagementInterface.Ownership.toDomain(): Constraint<Ownership> =
 
 internal fun ManagementInterface.ObfuscationSettings.toDomain(): ObfuscationSettings =
     ObfuscationSettings(
-        selectedObfuscation = selectedObfuscation.toDomain(),
+        selectedObfuscationMode = selectedObfuscation.toDomain(),
         udp2tcp = udp2Tcp.toDomain(),
         shadowsocks = shadowsocks.toDomain(),
     )
 
 internal fun ManagementInterface.ObfuscationSettings.SelectedObfuscation.toDomain():
-    SelectedObfuscation =
+    ObfuscationMode =
     when (this) {
-        ManagementInterface.ObfuscationSettings.SelectedObfuscation.AUTO -> SelectedObfuscation.Auto
-        ManagementInterface.ObfuscationSettings.SelectedObfuscation.OFF -> SelectedObfuscation.Off
+        ManagementInterface.ObfuscationSettings.SelectedObfuscation.AUTO -> ObfuscationMode.Auto
+        ManagementInterface.ObfuscationSettings.SelectedObfuscation.OFF -> ObfuscationMode.Off
         ManagementInterface.ObfuscationSettings.SelectedObfuscation.UDP2TCP ->
-            SelectedObfuscation.Udp2Tcp
+            ObfuscationMode.Udp2Tcp
         ManagementInterface.ObfuscationSettings.SelectedObfuscation.SHADOWSOCKS ->
-            SelectedObfuscation.Shadowsocks
+            ObfuscationMode.Shadowsocks
         ManagementInterface.ObfuscationSettings.SelectedObfuscation.UNRECOGNIZED ->
             throw IllegalArgumentException("Unrecognized selected obfuscation")
     }

@@ -13,6 +13,7 @@ import net.mullvad.mullvadvpn.lib.model.DnsOptions
 import net.mullvad.mullvadvpn.lib.model.DnsState
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.NewAccessMethodSetting
+import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.ObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.PlayPurchase
@@ -21,7 +22,6 @@ import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelaySettings
-import net.mullvad.mullvadvpn.lib.model.SelectedObfuscation
 import net.mullvad.mullvadvpn.lib.model.ShadowsocksSettings
 import net.mullvad.mullvadvpn.lib.model.SocksAuth
 import net.mullvad.mullvadvpn.lib.model.TransportProtocol
@@ -79,20 +79,20 @@ internal fun DefaultDnsOptions.fromDomain(): ManagementInterface.DefaultDnsOptio
 
 internal fun ObfuscationSettings.fromDomain(): ManagementInterface.ObfuscationSettings =
     ManagementInterface.ObfuscationSettings.newBuilder()
-        .setSelectedObfuscation(selectedObfuscation.fromDomain())
+        .setSelectedObfuscation(selectedObfuscationMode.fromDomain())
         .setUdp2Tcp(udp2tcp.fromDomain())
         .setShadowsocks(shadowsocks.fromDomain())
         .build()
 
-internal fun SelectedObfuscation.fromDomain():
+internal fun ObfuscationMode.fromDomain():
     ManagementInterface.ObfuscationSettings.SelectedObfuscation =
     when (this) {
-        SelectedObfuscation.Udp2Tcp ->
+        ObfuscationMode.Udp2Tcp ->
             ManagementInterface.ObfuscationSettings.SelectedObfuscation.UDP2TCP
-        SelectedObfuscation.Shadowsocks ->
+        ObfuscationMode.Shadowsocks ->
             ManagementInterface.ObfuscationSettings.SelectedObfuscation.SHADOWSOCKS
-        SelectedObfuscation.Auto -> ManagementInterface.ObfuscationSettings.SelectedObfuscation.AUTO
-        SelectedObfuscation.Off -> ManagementInterface.ObfuscationSettings.SelectedObfuscation.OFF
+        ObfuscationMode.Auto -> ManagementInterface.ObfuscationSettings.SelectedObfuscation.AUTO
+        ObfuscationMode.Off -> ManagementInterface.ObfuscationSettings.SelectedObfuscation.OFF
     }
 
 internal fun Udp2TcpObfuscationSettings.fromDomain():

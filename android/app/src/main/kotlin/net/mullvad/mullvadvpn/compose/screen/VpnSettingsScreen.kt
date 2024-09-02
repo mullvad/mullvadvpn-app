@@ -63,7 +63,7 @@ import net.mullvad.mullvadvpn.compose.cell.MtuComposeCell
 import net.mullvad.mullvadvpn.compose.cell.MtuSubtitle
 import net.mullvad.mullvadvpn.compose.cell.NavigationComposeCell
 import net.mullvad.mullvadvpn.compose.cell.NormalSwitchComposeCell
-import net.mullvad.mullvadvpn.compose.cell.SelectObfuscationCell
+import net.mullvad.mullvadvpn.compose.cell.ObfuscationModeCell
 import net.mullvad.mullvadvpn.compose.cell.SelectableCell
 import net.mullvad.mullvadvpn.compose.cell.SwitchComposeSubtitleCell
 import net.mullvad.mullvadvpn.compose.communication.DnsDialogResult
@@ -91,10 +91,10 @@ import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.constant.WIREGUARD_PRESET_PORTS
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Mtu
+import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.PortRange
 import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
-import net.mullvad.mullvadvpn.lib.model.SelectedObfuscation
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.viewmodel.CustomDnsItem
@@ -127,7 +127,7 @@ private fun PreviewVpnSettings() {
             navigateToDns = { _, _ -> },
             onToggleDnsClick = {},
             onBackClick = {},
-            onSelectObfuscationSetting = {},
+            onSelectObfuscationMode = {},
             onSelectQuantumResistanceSetting = {},
             onWireguardPortSelected = {},
         )
@@ -251,7 +251,7 @@ fun VpnSettings(
             },
         onToggleDnsClick = vm::onToggleCustomDns,
         onBackClick = dropUnlessResumed { navigator.navigateUp() },
-        onSelectObfuscationSetting = vm::onSelectObfuscationSetting,
+        onSelectObfuscationMode = vm::onSelectObfuscationMode,
         onSelectQuantumResistanceSetting = vm::onSelectQuantumResistanceSetting,
         onWireguardPortSelected = vm::onWireguardPortSelected,
         navigateToShadowSocksSettings =
@@ -289,7 +289,7 @@ fun VpnSettingsScreen(
     navigateToDns: (index: Int?, address: String?) -> Unit = { _, _ -> },
     onToggleDnsClick: (Boolean) -> Unit = {},
     onBackClick: () -> Unit = {},
-    onSelectObfuscationSetting: (selectedObfuscation: SelectedObfuscation) -> Unit = {},
+    onSelectObfuscationMode: (obfuscationMode: ObfuscationMode) -> Unit = {},
     onSelectQuantumResistanceSetting: (quantumResistant: QuantumResistantState) -> Unit = {},
     onWireguardPortSelected: (port: Constraint<Port>) -> Unit = {},
     navigateToShadowSocksSettings: () -> Unit = {},
@@ -561,33 +561,33 @@ fun VpnSettingsScreen(
             itemWithDivider {
                 SelectableCell(
                     title = stringResource(id = R.string.automatic),
-                    isSelected = state.selectedObfuscation == SelectedObfuscation.Auto,
-                    onCellClicked = { onSelectObfuscationSetting(SelectedObfuscation.Auto) },
+                    isSelected = state.obfuscationMode == ObfuscationMode.Auto,
+                    onCellClicked = { onSelectObfuscationMode(ObfuscationMode.Auto) },
                 )
             }
             itemWithDivider {
-                SelectObfuscationCell(
-                    selectedObfuscation = SelectedObfuscation.Shadowsocks,
-                    isSelected = state.selectedObfuscation == SelectedObfuscation.Shadowsocks,
+                ObfuscationModeCell(
+                    obfuscationMode = ObfuscationMode.Shadowsocks,
+                    isSelected = state.obfuscationMode == ObfuscationMode.Shadowsocks,
                     port = state.selectedShadowsSocksObfuscationPort,
-                    onSelected = onSelectObfuscationSetting,
+                    onSelected = onSelectObfuscationMode,
                     onNavigate = navigateToShadowSocksSettings,
                 )
             }
             itemWithDivider {
-                SelectObfuscationCell(
-                    selectedObfuscation = SelectedObfuscation.Udp2Tcp,
-                    isSelected = state.selectedObfuscation == SelectedObfuscation.Udp2Tcp,
+                ObfuscationModeCell(
+                    obfuscationMode = ObfuscationMode.Udp2Tcp,
+                    isSelected = state.obfuscationMode == ObfuscationMode.Udp2Tcp,
                     port = state.selectedUdp2TcpObfuscationPort,
-                    onSelected = onSelectObfuscationSetting,
+                    onSelected = onSelectObfuscationMode,
                     onNavigate = navigateToUdp2TcpSettings,
                 )
             }
             itemWithDivider {
                 SelectableCell(
                     title = stringResource(id = R.string.off),
-                    isSelected = state.selectedObfuscation == SelectedObfuscation.Off,
-                    onCellClicked = { onSelectObfuscationSetting(SelectedObfuscation.Off) },
+                    isSelected = state.obfuscationMode == ObfuscationMode.Off,
+                    onCellClicked = { onSelectObfuscationMode(ObfuscationMode.Off) },
                 )
             }
 

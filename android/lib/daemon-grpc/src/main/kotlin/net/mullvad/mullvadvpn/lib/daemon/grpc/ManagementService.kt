@@ -81,6 +81,7 @@ import net.mullvad.mullvadvpn.lib.model.LoginAccountError
 import net.mullvad.mullvadvpn.lib.model.LogoutAccountError
 import net.mullvad.mullvadvpn.lib.model.NameAlreadyExists
 import net.mullvad.mullvadvpn.lib.model.NewAccessMethodSetting
+import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.ObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.Ownership as ModelOwnership
 import net.mullvad.mullvadvpn.lib.model.PlayPurchase
@@ -100,7 +101,6 @@ import net.mullvad.mullvadvpn.lib.model.RelayList
 import net.mullvad.mullvadvpn.lib.model.RelaySettings
 import net.mullvad.mullvadvpn.lib.model.RemoveApiAccessMethodError
 import net.mullvad.mullvadvpn.lib.model.RemoveSplitTunnelingAppError
-import net.mullvad.mullvadvpn.lib.model.SelectedObfuscation
 import net.mullvad.mullvadvpn.lib.model.SetAllowLanError
 import net.mullvad.mullvadvpn.lib.model.SetApiAccessMethodError
 import net.mullvad.mullvadvpn.lib.model.SetAutoConnectError
@@ -128,7 +128,7 @@ import net.mullvad.mullvadvpn.lib.model.location
 import net.mullvad.mullvadvpn.lib.model.ownership
 import net.mullvad.mullvadvpn.lib.model.providers
 import net.mullvad.mullvadvpn.lib.model.relayConstraints
-import net.mullvad.mullvadvpn.lib.model.selectedObfuscation
+import net.mullvad.mullvadvpn.lib.model.selectedObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.shadowsocks
 import net.mullvad.mullvadvpn.lib.model.state
 import net.mullvad.mullvadvpn.lib.model.udp2tcp
@@ -460,12 +460,10 @@ class ManagementService(
             .mapLeft(SetWireguardQuantumResistantError::Unknown)
             .mapEmpty()
 
-    suspend fun setObfuscation(
-        value: SelectedObfuscation
-    ): Either<SetObfuscationOptionsError, Unit> =
+    suspend fun setObfuscation(value: ObfuscationMode): Either<SetObfuscationOptionsError, Unit> =
         Either.catch {
                 val updatedObfuscationSettings =
-                    ObfuscationSettings.selectedObfuscation.modify(
+                    ObfuscationSettings.selectedObfuscationMode.modify(
                         getSettings().obfuscationSettings
                     ) {
                         value

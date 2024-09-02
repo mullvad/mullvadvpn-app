@@ -316,7 +316,7 @@ class VpnSettingsScreenTest {
                 VpnSettingsScreen(
                     state =
                         VpnSettingsUiState.createDefault(
-                            customWireguardPort = Constraint.Only(Port(4000))
+                            customWireguardPort = Port(4000)
                         )
                 )
             }
@@ -339,7 +339,7 @@ class VpnSettingsScreenTest {
                     state =
                         VpnSettingsUiState.createDefault(
                             selectedWireguardPort = Constraint.Only(Port(4000)),
-                            customWireguardPort = Constraint.Only(Port(4000)),
+                            customWireguardPort = Port(4000),
                         ),
                     onWireguardPortSelected = onWireguardPortSelected,
                 )
