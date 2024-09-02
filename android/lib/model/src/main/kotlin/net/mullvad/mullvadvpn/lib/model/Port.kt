@@ -19,8 +19,8 @@ value class Port(val value: Int) : Parcelable {
             Port(number)
         }
 
-        private const val MIN_VALUE = 0
-        private const val MAX_VALUE = 65535
+        const val MIN_VALUE = 0
+        const val MAX_VALUE = 65535
     }
 }
 
