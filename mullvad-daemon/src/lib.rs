@@ -1796,18 +1796,16 @@ impl Daemon {
 
     #[cfg(target_os = "linux")]
     fn on_get_split_tunnel_processes(&mut self, tx: ResponseTx<Vec<i32>, split_tunnel::Error>) {
-        let result = self.exclude_pids.list().map_err(|error| {
+        let result = self.exclude_pids.list().inspect_err(|error| {
             log::error!("{}", error.display_chain_with_msg("Unable to obtain PIDs"));
-            error
         });
         Self::oneshot_send(tx, result, "get_split_tunnel_processes response");
     }
 
     #[cfg(target_os = "linux")]
     fn on_add_split_tunnel_process(&mut self, tx: ResponseTx<(), split_tunnel::Error>, pid: i32) {
-        let result = self.exclude_pids.add(pid).map_err(|error| {
+        let result = self.exclude_pids.add(pid).inspect_err(|error| {
             log::error!("{}", error.display_chain_with_msg("Unable to add PID"));
-            error
         });
         Self::oneshot_send(tx, result, "add_split_tunnel_process response");
     }
@@ -1818,18 +1816,16 @@ impl Daemon {
         tx: ResponseTx<(), split_tunnel::Error>,
         pid: i32,
     ) {
-        let result = self.exclude_pids.remove(pid).map_err(|error| {
+        let result = self.exclude_pids.remove(pid).inspect_err(|error| {
             log::error!("{}", error.display_chain_with_msg("Unable to remove PID"));
-            error
         });
         Self::oneshot_send(tx, result, "remove_split_tunnel_process response");
     }
 
     #[cfg(target_os = "linux")]
     fn on_clear_split_tunnel_processes(&mut self, tx: ResponseTx<(), split_tunnel::Error>) {
-        let result = self.exclude_pids.clear().map_err(|error| {
+        let result = self.exclude_pids.clear().inspect_err(|error| {
             log::error!("{}", error.display_chain_with_msg("Unable to clear PIDs"));
-            error
         });
         Self::oneshot_send(tx, result, "clear_split_tunnel_processes response");
     }
@@ -2960,9 +2956,8 @@ fn oneshot_map<T1: Send + 'static, T2: Send + 'static>(
 ) -> oneshot::Sender<T2> {
     let (new_tx, new_rx) = oneshot::channel();
     tokio::spawn(async move {
-        match new_rx.await {
-            Ok(result) => forwarder(tx, result),
-            Err(oneshot::Canceled) => (),
+        if let Ok(result) = new_rx.await {
+            forwarder(tx, result)
         }
     });
     new_tx

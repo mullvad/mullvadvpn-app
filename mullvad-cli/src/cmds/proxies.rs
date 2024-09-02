@@ -194,12 +194,9 @@ pub mod pp {
                 CustomProxy::Socks5Remote(remote) => {
                     print_option!("Protocol", "Socks5");
                     print_option!("Peer", remote.endpoint);
-                    match &remote.auth {
-                        Some(credentials) => {
-                            print_option!("Username", credentials.username());
-                            print_option!("Password", credentials.password());
-                        }
-                        None => (),
+                    if let Some(credentials) = &remote.auth {
+                        print_option!("Username", credentials.username());
+                        print_option!("Password", credentials.password());
                     }
                     Ok(())
                 }
