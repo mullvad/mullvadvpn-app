@@ -1,8 +1,4 @@
-use itertools::Itertools;
-use mullvad_types::{
-    auth_failed::AuthFailed, features::FeatureIndicators, location::GeoIpLocation,
-    states::TunnelState,
-};
+use mullvad_types::{auth_failed::AuthFailed, location::GeoIpLocation, states::TunnelState};
 use talpid_types::{
     net::{Endpoint, TunnelEndpoint},
     tunnel::{ActionAfterDisconnect, ErrorState},
@@ -93,10 +89,7 @@ pub fn print_state(state: &TunnelState, previous_state: Option<&TunnelState>, ve
             }
             if feature_indicators != old_feature_indicators {
                 print!("  ");
-                println!(
-                    "Updated features: {}",
-                    format_feature_indicators(feature_indicators)
-                );
+                println!("Updated features: {feature_indicators}");
             }
 
             if location != old_location {
@@ -129,7 +122,7 @@ pub fn print_state(state: &TunnelState, previous_state: Option<&TunnelState>, ve
                 "Connected to {}",
                 format_relay_connection(endpoint, location.as_ref(), verbose)
             );
-            let features = format_feature_indicators(feature_indicators);
+            let features = feature_indicators.to_string();
             if !features.is_empty() {
                 print!("  ");
                 println!("Active features: {}", features);
@@ -164,10 +157,7 @@ pub fn print_state(state: &TunnelState, previous_state: Option<&TunnelState>, ve
 
             if feature_indicators != old_feature_indicators {
                 print!("  ");
-                println!(
-                    "Features: {}",
-                    format_feature_indicators(feature_indicators)
-                );
+                println!("Features: {feature_indicators}");
             }
             if verbose {
                 print!("  ");
@@ -189,7 +179,7 @@ pub fn print_state(state: &TunnelState, previous_state: Option<&TunnelState>, ve
                 "Connecting to {}...",
                 format_relay_connection(endpoint, location.as_ref(), verbose)
             );
-            let features = format_feature_indicators(feature_indicators);
+            let features = feature_indicators.to_string();
             if !features.is_empty() {
                 print!("  ");
                 println!("Features: {}", features);
@@ -324,14 +314,6 @@ fn format_relay_connection(
         bridge = bridge.unwrap_or_default(),
         obfuscator = obfuscator.unwrap_or_default(),
     )
-}
-
-fn format_feature_indicators(feature_indicators: &FeatureIndicators) -> String {
-    feature_indicators
-        .active_features()
-        // Sort the features alphabetically (Just to have some order, arbitrarily chosen)
-        .sorted_by_key(|feature| feature.to_string())
-        .join(", ")
 }
 
 fn format_endpoint(hostname: Option<&str>, endpoint: &Endpoint, verbose: bool) -> String {
