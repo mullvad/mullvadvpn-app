@@ -153,43 +153,38 @@ impl AccessModeSelectorHandle {
     }
 
     pub async fn get_current(&self) -> Result<ResolvedConnectionMode> {
-        self.send_command(Message::Get).await.map_err(|err| {
+        self.send_command(Message::Get).await.inspect_err(|_| {
             log::debug!("Failed to get current access method!");
-            err
         })
     }
 
     pub async fn use_access_method(&self, value: Id) -> Result<()> {
         self.send_command(|tx| Message::Use(tx, value))
             .await
-            .map_err(|err| {
+            .inspect_err(|_| {
                 log::debug!("Failed to set new access method!");
-                err
             })
     }
 
     pub async fn update_access_methods(&self, access_methods: Settings) -> Result<()> {
         self.send_command(|tx| Message::Update(tx, access_methods))
             .await
-            .map_err(|err| {
+            .inspect_err(|_| {
                 log::debug!("Failed to switch to a new set of access methods");
-                err
             })
     }
 
     pub async fn resolve(&self, setting: AccessMethodSetting) -> Result<ResolvedConnectionMode> {
         self.send_command(|tx| Message::Resolve(tx, setting))
             .await
-            .map_err(|err| {
+            .inspect_err(|_| {
                 log::error!("Failed to update new access methods!");
-                err
             })
     }
 
     pub async fn rotate(&self) -> Result<ApiConnectionMode> {
-        self.send_command(Message::Rotate).await.map_err(|err| {
+        self.send_command(Message::Rotate).await.inspect_err(|_| {
             log::debug!("Failed while getting the next access method");
-            err
         })
     }
 }

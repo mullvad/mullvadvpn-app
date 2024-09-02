@@ -72,6 +72,7 @@ impl TunConfig {
 }
 
 /// Return a tunnel configuration that routes all traffic inside the tunnel.
+///
 /// Most values except the routes are nonsensical. This is mostly used as a reasonable default on
 /// Android to route all traffic inside the tunnel.
 pub fn blocking_config() -> TunConfig {

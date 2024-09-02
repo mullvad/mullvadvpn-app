@@ -69,12 +69,11 @@ async fn cache_from_wireguard_key(
         log::error!("Failed to enumerate devices for account: timed out");
         device::Error::Cancelled
     })?
-    .map_err(|error| {
+    .inspect_err(|error| {
         log::error!(
             "{}",
             error.display_chain_with_msg("Failed to enumerate devices for account")
         );
-        error
     })?;
 
     for device in devices.into_iter() {
@@ -102,11 +101,10 @@ async fn cache_from_account(
         log::error!("Failed to generate new device for account: timed out");
         device::Error::Cancelled
     })?
-    .map_err(|error| {
+    .inspect_err(|error| {
         log::error!(
             "{}",
             error.display_chain_with_msg("Failed to generate new device for account")
         );
-        error
     })
 }

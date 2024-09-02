@@ -996,9 +996,8 @@ mod event_server {
             &self,
             request: Request<EventDetails>,
         ) -> std::result::Result<Response<()>, tonic::Status> {
-            self.up_inner(request).await.map_err(|error| {
+            self.up_inner(request).await.inspect_err(|_| {
                 self.abort_server_tx.trigger();
-                error
             })
         }
 
@@ -1006,9 +1005,8 @@ mod event_server {
             &self,
             request: Request<EventDetails>,
         ) -> std::result::Result<Response<()>, tonic::Status> {
-            self.route_up_inner(request).await.map_err(|error| {
+            self.route_up_inner(request).await.inspect_err(|_| {
                 self.abort_server_tx.trigger();
-                error
             })
         }
 
