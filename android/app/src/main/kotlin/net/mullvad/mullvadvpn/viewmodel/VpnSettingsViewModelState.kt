@@ -11,7 +11,6 @@ import net.mullvad.mullvadvpn.lib.model.SelectedObfuscation
 
 data class VpnSettingsViewModelState(
     val mtuValue: Mtu?,
-    val isAutoConnectEnabled: Boolean,
     val isLocalNetworkSharingEnabled: Boolean,
     val isCustomDnsEnabled: Boolean,
     val customDnsList: List<CustomDnsItem>,
@@ -28,7 +27,6 @@ data class VpnSettingsViewModelState(
     fun toUiState(): VpnSettingsUiState =
         VpnSettingsUiState(
             mtuValue,
-            isAutoConnectEnabled,
             isLocalNetworkSharingEnabled,
             isCustomDnsEnabled,
             customDnsList,
@@ -47,7 +45,6 @@ data class VpnSettingsViewModelState(
         fun default() =
             VpnSettingsViewModelState(
                 mtuValue = null,
-                isAutoConnectEnabled = false,
                 isLocalNetworkSharingEnabled = false,
                 isCustomDnsEnabled = false,
                 customDnsList = listOf(),
