@@ -118,7 +118,6 @@ private fun PreviewVpnSettings(
             onToggleBlockTrackers = {},
             onToggleBlockAds = {},
             onToggleBlockMalware = {},
-            onToggleAutoConnect = {},
             onToggleLocalNetworkSharing = {},
             onToggleBlockAdultContent = {},
             onToggleBlockGambling = {},
@@ -232,7 +231,6 @@ fun VpnSettings(
         onToggleBlockTrackers = vm::onToggleBlockTrackers,
         onToggleBlockAds = vm::onToggleBlockAds,
         onToggleBlockMalware = vm::onToggleBlockMalware,
-        onToggleAutoConnect = vm::onToggleAutoConnect,
         onToggleLocalNetworkSharing = vm::onToggleLocalNetworkSharing,
         onDisableDaita = { vm.onToggleDaita(false) },
         onToggleBlockAdultContent = vm::onToggleBlockAdultContent,
@@ -289,7 +287,6 @@ fun VpnSettingsScreen(
     onToggleBlockTrackers: (Boolean) -> Unit = {},
     onToggleBlockAds: (Boolean) -> Unit = {},
     onToggleBlockMalware: (Boolean) -> Unit = {},
-    onToggleAutoConnect: (Boolean) -> Unit = {},
     onToggleLocalNetworkSharing: (Boolean) -> Unit = {},
     onDisableDaita: () -> Unit = {},
     onToggleBlockAdultContent: (Boolean) -> Unit = {},
@@ -330,28 +327,6 @@ fun VpnSettingsScreen(
                 item {
                     SwitchComposeSubtitleCell(
                         text = stringResource(id = R.string.auto_connect_and_lockdown_mode_footer)
-                    )
-                }
-                item {
-                    Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
-                    HeaderSwitchComposeCell(
-                        title = stringResource(R.string.auto_connect_legacy),
-                        isToggled = state.isAutoConnectEnabled,
-                        isEnabled = true,
-                        onCellClicked = { newValue -> onToggleAutoConnect(newValue) },
-                    )
-                }
-                item {
-                    SwitchComposeSubtitleCell(
-                        text =
-                            HtmlCompat.fromHtml(
-                                    textResource(
-                                        R.string.auto_connect_footer_legacy,
-                                        textResource(R.string.auto_connect_and_lockdown_mode),
-                                    ),
-                                    HtmlCompat.FROM_HTML_MODE_COMPACT,
-                                )
-                                .toAnnotatedString(boldFontWeight = FontWeight.ExtraBold)
                     )
                 }
             } else {
