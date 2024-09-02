@@ -88,20 +88,6 @@ pub async fn handle(cmd: Option<Status>, args: StatusArgs) -> Result<()> {
         println!("{json}");
     } else {
         format::print_state(&state, None, args.verbose);
-        match &state {
-            TunnelState::Disconnected {
-                location: Some(location),
-                locked_down: _,
-            }
-            | TunnelState::Connected {
-                location: Some(location),
-                ..
-            } => {
-                print!("  ");
-                format::print_location(location);
-            }
-            _ => {}
-        }
     }
 
     if cmd == Some(Status::Listen) {
