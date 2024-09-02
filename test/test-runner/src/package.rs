@@ -11,7 +11,7 @@ use tokio::process::Command;
 pub async fn uninstall_app(env: HashMap<String, String>) -> Result<()> {
     match get_distribution()? {
         Distribution::Debian | Distribution::Ubuntu => {
-            uninstall_dpkg("mullvad-vpn", env, true).await
+            uninstall_apt("mullvad-vpn", env, true).await
         }
         Distribution::Fedora => uninstall_rpm("mullvad-vpn", env).await,
     }
@@ -103,7 +103,7 @@ pub async fn install_package(package: Package) -> Result<()> {
 #[cfg(target_os = "linux")]
 pub async fn install_package(package: Package) -> Result<()> {
     match get_distribution()? {
-        Distribution::Debian | Distribution::Ubuntu => install_dpkg(&package.path).await,
+        Distribution::Debian | Distribution::Ubuntu => install_apt(&package.path).await,
         Distribution::Fedora => install_rpm(&package.path).await,
     }
 }
@@ -127,9 +127,13 @@ pub async fn install_package(package: Package) -> Result<()> {
 }
 
 #[cfg(target_os = "linux")]
-async fn install_dpkg(path: &Path) -> Result<()> {
-    let mut cmd = Command::new("/usr/bin/dpkg");
-    cmd.arg("-i");
+async fn install_apt(path: &Path) -> Result<()> {
+    let mut cmd = Command::new("/usr/bin/apt");
+    // We don't want to fail due to the global apt lock being
+    // held, which happens sporadically. Wait to acquire the lock
+    // instead.
+    cmd.args(["-o", "DPkg::Lock::Timeout=60"]);
+    cmd.arg("install");
     cmd.arg(path.as_os_str());
     cmd.kill_on_drop(true);
     cmd.stdout(Stdio::piped());
@@ -139,19 +143,23 @@ async fn install_dpkg(path: &Path) -> Result<()> {
         .wait_with_output()
         .await
         .map_err(|e| strip_error(Error::RunApp, e))
-        .and_then(|output| result_from_output("dpkg -i", output))
+        .and_then(|output| result_from_output("apt install", output))
 }
 
 #[cfg(target_os = "linux")]
-async fn uninstall_dpkg(name: &str, env: HashMap<String, String>, purge: bool) -> Result<()> {
+async fn uninstall_apt(name: &str, env: HashMap<String, String>, purge: bool) -> Result<()> {
     let action;
-    let mut cmd = Command::new("/usr/bin/dpkg");
+    let mut cmd = Command::new("/usr/bin/apt");
+    // We don't want to fail due to the global apt lock being
+    // held, which happens sporadically. Wait to acquire the lock
+    // instead.
+    cmd.args(["-o", "DPkg::Lock::Timeout=60"]);
     if purge {
-        action = "dpkg --purge";
-        cmd.args(["--purge", name]);
+        action = "apt purge";
+        cmd.args(["purge", name]);
     } else {
-        action = "dpkg -r";
-        cmd.args(["-r", name]);
+        action = "apt remove";
+        cmd.args(["remove", name]);
     }
     cmd.envs(env);
     cmd.kill_on_drop(true);
