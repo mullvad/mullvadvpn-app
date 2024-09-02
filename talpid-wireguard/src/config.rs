@@ -5,6 +5,10 @@ use std::{
 };
 use talpid_types::net::{obfuscation::ObfuscatorConfig, wireguard, GenericTunnelOptions};
 
+/// Name to use for the tunnel device
+#[cfg(target_os = "linux")]
+pub(crate) const MULLVAD_INTERFACE_NAME: &str = "wg0-mullvad";
+
 /// Config required to set up a single WireGuard tunnel
 #[derive(Debug, Clone)]
 pub struct Config {

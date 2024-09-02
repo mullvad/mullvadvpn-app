@@ -11,17 +11,25 @@ use tun::{platform, Configuration, Device};
 /// Errors that can occur while setting up a tunnel device.
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
-    /// Failure to create a tunnel device.
-    #[error("Failed to create a tunnel device")]
-    CreateTunnelDevice(#[source] NetworkInterfaceError),
+    /// Failed to set IP address
+    #[error("Failed to set IPv4 address")]
+    SetIpv4(#[source] tun::Error),
 
-    /// Failure to set a tunnel device IP address.
-    #[error("Failed to set tunnel IP address: {0}")]
-    SetIpAddr(IpAddr, #[source] NetworkInterfaceError),
+    /// Failed to set IP address
+    #[error("Failed to set IPv6 address")]
+    SetIpv6(#[source] io::Error),
 
-    /// Failure to set the tunnel device as up.
-    #[error("Failed to set the tunnel device as up")]
-    SetUp(#[source] NetworkInterfaceError),
+    /// Unable to open a tunnel device
+    #[error("Unable to open a tunnel device")]
+    CreateDevice(#[source] tun::Error),
+
+    /// Failed to apply async flags to tunnel device
+    #[error("Failed to apply async flags to tunnel device")]
+    SetDeviceAsync(#[source] nix::Error),
+
+    /// Failed to enable/disable link device
+    #[error("Failed to enable/disable link device")]
+    ToggleDevice(#[source] tun::Error),
 }
 
 /// Factory of tunnel devices on Unix systems.
@@ -42,15 +50,23 @@ impl UnixTunProvider {
 
     /// Open a tunnel using the current tunnel config.
     pub fn open_tun(&mut self) -> Result<UnixTun, Error> {
-        let mut tunnel_device = TunnelDevice::new().map_err(Error::CreateTunnelDevice)?;
+        let mut tunnel_device = {
+            #[allow(unused_mut)]
+            let mut builder = TunnelDeviceBuilder::default();
+            #[cfg(target_os = "linux")]
+            builder.enable_packet_information();
+            #[cfg(target_os = "linux")]
+            if let Some(ref name) = self.config.name {
+                builder.name(name);
+            }
+            builder.create()?
+        };
 
         for ip in self.config.addresses.iter() {
-            tunnel_device
-                .set_ip(*ip)
-                .map_err(|cause| Error::SetIpAddr(*ip, cause))?;
+            tunnel_device.set_ip(*ip)?;
         }
 
-        tunnel_device.set_up(true).map_err(Error::SetUp)?;
+        tunnel_device.set_up(true)?;
 
         Ok(UnixTun(tunnel_device))
     }
@@ -76,67 +92,55 @@ impl Deref for UnixTun {
     }
 }
 
-/// Errors that can happen when working with *nix tunnel interfaces.
-#[derive(thiserror::Error, Debug)]
-pub enum NetworkInterfaceError {
-    /// Failed to set IP address
-    #[error("Failed to set IPv4 address")]
-    SetIpv4(#[source] tun::Error),
-
-    /// Failed to set IP address
-    #[error("Failed to set IPv6 address")]
-    SetIpv6(#[source] io::Error),
-
-    /// Unable to open a tunnel device
-    #[error("Unable to open a tunnel device")]
-    CreateDevice(#[source] tun::Error),
-
-    /// Failed to apply async flags to tunnel device
-    #[error("Failed to apply async flags to tunnel device")]
-    SetDeviceAsync(#[source] nix::Error),
-
-    /// Failed to enable/disable link device
-    #[error("Failed to enable/disable link device")]
-    ToggleDevice(#[source] tun::Error),
-}
-
-/// A trait for managing link devices
-pub trait NetworkInterface: Sized {
-    /// Bring a given interface up or down
-    fn set_up(&mut self, up: bool) -> Result<(), NetworkInterfaceError>;
-
-    /// Set host IPs for interface
-    fn set_ip(&mut self, ip: IpAddr) -> Result<(), NetworkInterfaceError>;
-
-    /// Get name of interface
-    fn get_name(&self) -> &str;
-}
-
-fn apply_async_flags(fd: RawFd) -> Result<(), nix::Error> {
-    fcntl::fcntl(fd, fcntl::FcntlArg::F_GETFL)?;
-    let arg = fcntl::FcntlArg::F_SETFL(fcntl::OFlag::O_RDWR | fcntl::OFlag::O_NONBLOCK);
-    fcntl::fcntl(fd, arg)?;
-    Ok(())
-}
-
 /// A tunnel device
 pub struct TunnelDevice {
     dev: platform::Device,
 }
 
-impl TunnelDevice {
-    /// Creates a new Tunnel device
-    #[allow(unused_mut)]
-    pub fn new() -> Result<Self, NetworkInterfaceError> {
-        let mut config = Configuration::default();
+/// A tunnel device builder.
+///
+/// Call [`Self::create`] to create [`TunnelDevice`] from the config.
+pub struct TunnelDeviceBuilder {
+    config: Configuration,
+}
 
-        #[cfg(target_os = "linux")]
-        config.platform(|config| {
-            config.packet_information(true);
+impl TunnelDeviceBuilder {
+    /// Create a [`TunnelDevice`] from this builder.
+    pub fn create(self) -> Result<TunnelDevice, Error> {
+        fn apply_async_flags(fd: RawFd) -> Result<(), nix::Error> {
+            fcntl::fcntl(fd, fcntl::FcntlArg::F_GETFL)?;
+            let arg = fcntl::FcntlArg::F_SETFL(fcntl::OFlag::O_RDWR | fcntl::OFlag::O_NONBLOCK);
+            fcntl::fcntl(fd, arg)?;
+            Ok(())
+        }
+
+        let dev = platform::create(&self.config).map_err(Error::CreateDevice)?;
+        apply_async_flags(dev.as_raw_fd()).map_err(Error::SetDeviceAsync)?;
+        Ok(TunnelDevice { dev })
+    }
+
+    /// Set a custom name for this tunnel device.
+    #[cfg(target_os = "linux")]
+    pub fn name(&mut self, name: &str) -> &mut Self {
+        self.config.name(name);
+        self
+    }
+
+    /// Enable packet information.
+    /// When enabled the first 4 bytes of each packet is a header with flags and protocol type.
+    #[cfg(target_os = "linux")]
+    pub fn enable_packet_information(&mut self) -> &mut Self {
+        self.config.platform(|platform_config| {
+            platform_config.packet_information(true);
         });
-        let mut dev = platform::create(&config).map_err(NetworkInterfaceError::CreateDevice)?;
-        apply_async_flags(dev.as_raw_fd()).map_err(NetworkInterfaceError::SetDeviceAsync)?;
-        Ok(Self { dev })
+        self
+    }
+}
+
+impl Default for TunnelDeviceBuilder {
+    fn default() -> Self {
+        let config = Configuration::default();
+        Self { config }
     }
 }
 
@@ -152,13 +156,10 @@ impl IntoRawFd for TunnelDevice {
     }
 }
 
-impl NetworkInterface for TunnelDevice {
-    fn set_ip(&mut self, ip: IpAddr) -> Result<(), NetworkInterfaceError> {
+impl TunnelDevice {
+    fn set_ip(&mut self, ip: IpAddr) -> Result<(), Error> {
         match ip {
-            IpAddr::V4(ipv4) => self
-                .dev
-                .set_address(ipv4)
-                .map_err(NetworkInterfaceError::SetIpv4),
+            IpAddr::V4(ipv4) => self.dev.set_address(ipv4).map_err(Error::SetIpv4),
             IpAddr::V6(ipv6) => {
                 #[cfg(target_os = "linux")]
                 {
@@ -173,7 +174,7 @@ impl NetworkInterface for TunnelDevice {
                     )
                     .run()
                     .map(|_| ())
-                    .map_err(NetworkInterfaceError::SetIpv6)
+                    .map_err(Error::SetIpv6)
                 }
                 #[cfg(target_os = "macos")]
                 {
@@ -186,16 +187,14 @@ impl NetworkInterface for TunnelDevice {
                     )
                     .run()
                     .map(|_| ())
-                    .map_err(NetworkInterfaceError::SetIpv6)
+                    .map_err(Error::SetIpv6)
                 }
             }
         }
     }
 
-    fn set_up(&mut self, up: bool) -> Result<(), NetworkInterfaceError> {
-        self.dev
-            .enabled(up)
-            .map_err(NetworkInterfaceError::ToggleDevice)
+    fn set_up(&mut self, up: bool) -> Result<(), Error> {
+        self.dev.enabled(up).map_err(Error::ToggleDevice)
     }
 
     fn get_name(&self) -> &str {
