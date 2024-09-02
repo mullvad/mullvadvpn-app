@@ -7,11 +7,13 @@ mod volume_monitor;
 mod windows;
 
 use crate::{tunnel::TunnelMetadata, tunnel_state_machine::TunnelCommand};
+use driver::DeviceHandle;
 use futures::channel::{mpsc, oneshot};
+use path_monitor::PathMonitor;
 use request::{Request, RequestDetails};
 use std::{
     collections::HashMap,
-    ffi::OsStr,
+    ffi::{OsStr, OsString},
     io,
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
     path::PathBuf,
@@ -27,6 +29,7 @@ use talpid_windows::{
     net::{get_ip_address_for_interface, AddressFamily},
     sync::Event,
 };
+use volume_monitor::VolumeMonitor;
 
 const RESERVED_IP_V4: Ipv4Addr = Ipv4Addr::new(192, 0, 2, 123);
 
@@ -138,12 +141,34 @@ impl SplitTunnel {
     ) -> Result<Self, Error> {
         let excluded_processes = Arc::new(RwLock::new(HashMap::new()));
 
+        let (refresh_paths_tx, refresh_paths_rx) = sync_mpsc::channel();
+
+        let path_monitor =
+            PathMonitor::spawn(refresh_paths_tx.clone()).map_err(Error::StartPathMonitor)?;
+
+        let monitored_paths = Arc::new(Mutex::new(vec![]));
+        let volume_monitor = VolumeMonitor::spawn(
+            path_monitor.clone(),
+            refresh_paths_tx,
+            monitored_paths.clone(),
+            volume_update_rx,
+        );
+
         let (request_tx, handle) = request::spawn_request_thread(
             resource_dir,
             daemon_tx,
-            volume_update_rx,
+            path_monitor,
+            volume_monitor,
+            monitored_paths.clone(),
             excluded_processes.clone(),
         )?;
+
+        let handle_copy = handle.clone();
+        std::thread::spawn(move || {
+            while let Ok(()) = refresh_paths_rx.recv() {
+                Self::handle_volume_monitor_update(&handle_copy, &monitored_paths);
+            }
+        });
 
         let (event_thread, quit_event) = event::spawn_listener(handle, excluded_processes.clone())
             .map_err(Error::EventThreadError)?;
@@ -158,6 +183,24 @@ impl SplitTunnel {
             excluded_processes,
             route_manager,
         })
+    }
+
+    fn handle_volume_monitor_update(
+        handle: &DeviceHandle,
+        monitored_paths: &Arc<Mutex<Vec<OsString>>>,
+    ) {
+        let paths = monitored_paths.lock().unwrap();
+        if paths.len() == 0 {
+            return;
+        }
+
+        log::debug!("Re-resolving excluded paths");
+        if let Err(error) = handle.set_config(&paths) {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to update excluded paths")
+            );
+        }
     }
 
     fn send_request(&self, request: RequestDetails) -> Result<(), Error> {

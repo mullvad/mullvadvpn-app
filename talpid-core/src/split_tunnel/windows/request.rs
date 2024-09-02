@@ -18,11 +18,8 @@ use std::{
 use talpid_types::{split_tunnel::ExcludedProcess, tunnel::ErrorStateCause, ErrorExt};
 
 use super::{
-    driver::DeviceHandle,
-    path_monitor::{PathMonitor, PathMonitorHandle},
-    service,
-    volume_monitor::VolumeMonitor,
-    Error, InterfaceAddresses,
+    driver::DeviceHandle, path_monitor::PathMonitorHandle, service,
+    volume_monitor::VolumeMonitorHandle, Error, InterfaceAddresses,
 };
 
 const INIT_TIMEOUT: Duration = Duration::from_secs(5);
@@ -79,24 +76,13 @@ impl Request {
 pub fn spawn_request_thread(
     resource_dir: PathBuf,
     daemon_tx: Weak<mpsc::UnboundedSender<TunnelCommand>>,
-    volume_update_rx: mpsc::UnboundedReceiver<()>,
+    path_monitor: PathMonitorHandle,
+    volume_monitor: VolumeMonitorHandle,
+    monitored_paths: Arc<Mutex<Vec<OsString>>>,
     excluded_processes: Arc<RwLock<HashMap<usize, ExcludedProcess>>>,
 ) -> Result<(sync_mpsc::Sender<Request>, Arc<DeviceHandle>), Error> {
     let (tx, rx): (sync_mpsc::Sender<Request>, _) = sync_mpsc::channel();
     let (init_tx, init_rx) = sync_mpsc::channel();
-
-    let monitored_paths = Arc::new(Mutex::new(vec![]));
-    let monitored_paths_copy = monitored_paths.clone();
-
-    let (monitor_tx, monitor_rx) = sync_mpsc::channel();
-
-    let path_monitor = PathMonitor::spawn(monitor_tx.clone()).map_err(Error::StartPathMonitor)?;
-    let volume_monitor = VolumeMonitor::spawn(
-        path_monitor.clone(),
-        monitor_tx,
-        monitored_paths.clone(),
-        volume_update_rx,
-    );
 
     std::thread::spawn(move || {
         // Ensure that the device driver service is running and that we have a handle to it
@@ -145,26 +131,6 @@ pub fn spawn_request_thread(
     let handle = init_rx
         .recv_timeout(INIT_TIMEOUT)
         .map_err(|_| Error::RequestThreadStuck)??;
-
-    let handle_copy = handle.clone();
-
-    std::thread::spawn(move || {
-        while let Ok(()) = monitor_rx.recv() {
-            let paths = monitored_paths_copy.lock().unwrap();
-            let result = if paths.len() > 0 {
-                log::debug!("Re-resolving excluded paths");
-                handle_copy.set_config(&paths)
-            } else {
-                continue;
-            };
-            if let Err(error) = result {
-                log::error!(
-                    "{}",
-                    error.display_chain_with_msg("Failed to update excluded paths")
-                );
-            }
-        }
-    });
 
     Ok((tx, handle))
 }
