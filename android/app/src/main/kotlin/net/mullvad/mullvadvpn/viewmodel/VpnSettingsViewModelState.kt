@@ -11,7 +11,6 @@ import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
 
 data class VpnSettingsViewModelState(
     val mtuValue: Mtu?,
-    val isAutoConnectEnabled: Boolean,
     val isLocalNetworkSharingEnabled: Boolean,
     val isDaitaEnabled: Boolean,
     val isCustomDnsEnabled: Boolean,
@@ -34,7 +33,6 @@ data class VpnSettingsViewModelState(
     fun toUiState(): VpnSettingsUiState =
         VpnSettingsUiState(
             mtuValue,
-            isAutoConnectEnabled,
             isLocalNetworkSharingEnabled,
             isDaitaEnabled,
             isCustomDnsEnabled,
@@ -55,7 +53,6 @@ data class VpnSettingsViewModelState(
         fun default() =
             VpnSettingsViewModelState(
                 mtuValue = null,
-                isAutoConnectEnabled = false,
                 isLocalNetworkSharingEnabled = false,
                 isDaitaEnabled = false,
                 isCustomDnsEnabled = false,

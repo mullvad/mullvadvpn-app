@@ -254,7 +254,6 @@ internal fun ManagementInterface.Settings.toDomain(): Settings =
         obfuscationSettings = obfuscationSettings.toDomain(),
         customLists = customLists.customListsList.map { it.toDomain() },
         allowLan = allowLan,
-        autoConnect = autoConnect,
         tunnelOptions = tunnelOptions.toDomain(),
         relayOverrides = relayOverridesList.map { it.toDomain() },
         showBetaReleases = showBetaReleases,
