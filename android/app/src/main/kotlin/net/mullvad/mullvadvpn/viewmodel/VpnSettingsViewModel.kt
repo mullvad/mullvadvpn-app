@@ -65,7 +65,6 @@ class VpnSettingsViewModel(
             ) { settings, portRanges, customWgPort, autoStartAndConnectOnBoot ->
                 VpnSettingsViewModelState(
                     mtuValue = settings?.tunnelOptions?.wireguard?.mtu,
-                    isAutoConnectEnabled = settings?.autoConnect ?: false,
                     isLocalNetworkSharingEnabled = settings?.allowLan ?: false,
                     isDaitaEnabled = settings?.isDaitaEnabled() ?: false,
                     isCustomDnsEnabled = settings?.isCustomDnsEnabled() ?: false,
@@ -110,14 +109,6 @@ class VpnSettingsViewModel(
                 } else {
                     null
                 }
-            }
-        }
-    }
-
-    fun onToggleAutoConnect(isEnabled: Boolean) {
-        viewModelScope.launch(dispatcher) {
-            repository.setAutoConnect(isEnabled).onLeft {
-                _uiSideEffect.send(VpnSettingsSideEffect.ShowToast.GenericError)
             }
         }
     }
