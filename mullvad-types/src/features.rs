@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::{collections::HashSet, fmt::Display};
 
 use crate::settings::{DnsState, Settings};
 use serde::{Deserialize, Serialize};
@@ -10,6 +10,16 @@ use talpid_types::net::{ObfuscationType, TunnelEndpoint, TunnelType};
 /// Note that the feature indicators are not ordered.
 #[derive(Default, Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct FeatureIndicators(HashSet<FeatureIndicator>);
+
+impl Display for FeatureIndicators {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let mut indicators: Vec<&str> = self.0.iter().map(|feature| feature.to_str()).collect();
+        // Sort the features alphabetically (Just to have some order, arbitrarily chosen)
+        indicators.sort();
+
+        write!(f, "{}", indicators.join(", "))
+    }
+}
 
 impl IntoIterator for FeatureIndicators {
     type Item = FeatureIndicator;
@@ -52,9 +62,9 @@ pub enum FeatureIndicator {
     Daita,
 }
 
-impl std::fmt::Display for FeatureIndicator {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let feature = match self {
+impl FeatureIndicator {
+    const fn to_str(&self) -> &str {
+        match self {
             FeatureIndicator::QuantumResistance => "Quantum Resistance",
             FeatureIndicator::Multihop => "Multihop",
             FeatureIndicator::BridgeMode => "Bridge Mode",
@@ -69,7 +79,13 @@ impl std::fmt::Display for FeatureIndicator {
             FeatureIndicator::CustomMtu => "Custom MTU",
             FeatureIndicator::CustomMssFix => "Custom MSS",
             FeatureIndicator::Daita => "DAITA",
-        };
+        }
+    }
+}
+
+impl std::fmt::Display for FeatureIndicator {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let feature = self.to_str();
         write!(f, "{feature}")
     }
 }
