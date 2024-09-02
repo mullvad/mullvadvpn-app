@@ -443,7 +443,7 @@ impl NetworkManager {
         Proxy::new(NM_BUS, NM_DNS_MANAGER_PATH, RPC_TIMEOUT, &*self.connection)
     }
 
-    fn as_path<'a>(&'a self, device: &'a dbus::Path<'a>) -> Proxy<'a, &SyncConnection> {
+    fn as_path<'a>(&'a self, device: &'a dbus::Path<'a>) -> Proxy<'a, &'a SyncConnection> {
         Proxy::new(NM_BUS, device, RPC_TIMEOUT, &*self.connection)
     }
 
@@ -686,11 +686,11 @@ pub struct WireguardTunnel {
 }
 
 impl WireguardTunnel {
-    fn device_proxy<'a>(&'a self, connection: &'a SyncConnection) -> Proxy<'a, &SyncConnection> {
+    fn device_proxy<'a>(&'a self, connection: &'a SyncConnection) -> Proxy<'a, &'a SyncConnection> {
         Proxy::new(NM_BUS, &self.device_path, RPC_TIMEOUT, connection)
     }
 
-    fn config_proxy<'a>(&'a self, connection: &'a SyncConnection) -> Proxy<'a, &SyncConnection> {
+    fn config_proxy<'a>(&'a self, connection: &'a SyncConnection) -> Proxy<'a, &'a SyncConnection> {
         Proxy::new(NM_BUS, &self.config_path, RPC_TIMEOUT, connection)
     }
 }
