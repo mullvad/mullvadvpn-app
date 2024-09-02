@@ -114,7 +114,6 @@ private fun PreviewVpnSettings() {
         VpnSettingsScreen(
             state =
                 VpnSettingsUiState.createDefault(
-                    isAutoConnectEnabled = true,
                     mtu = Mtu(1337),
                     isCustomDnsEnabled = true,
                     customDnsItems = listOf(CustomDnsItem("0.0.0.0", false)),
@@ -229,7 +228,6 @@ fun VpnSettings(
         onToggleBlockTrackers = vm::onToggleBlockTrackers,
         onToggleBlockAds = vm::onToggleBlockAds,
         onToggleBlockMalware = vm::onToggleBlockMalware,
-        onToggleAutoConnect = vm::onToggleAutoConnect,
         onToggleLocalNetworkSharing = vm::onToggleLocalNetworkSharing,
         onToggleBlockAdultContent = vm::onToggleBlockAdultContent,
         onToggleBlockGambling = vm::onToggleBlockGambling,
@@ -319,28 +317,6 @@ fun VpnSettingsScreen(
                 item {
                     SwitchComposeSubtitleCell(
                         text = stringResource(id = R.string.auto_connect_and_lockdown_mode_footer)
-                    )
-                }
-                item {
-                    Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
-                    HeaderSwitchComposeCell(
-                        title = stringResource(R.string.auto_connect_legacy),
-                        isToggled = state.isAutoConnectEnabled,
-                        isEnabled = true,
-                        onCellClicked = { newValue -> onToggleAutoConnect(newValue) }
-                    )
-                }
-                item {
-                    SwitchComposeSubtitleCell(
-                        text =
-                            HtmlCompat.fromHtml(
-                                    textResource(
-                                        R.string.auto_connect_footer_legacy,
-                                        textResource(R.string.auto_connect_and_lockdown_mode)
-                                    ),
-                                    HtmlCompat.FROM_HTML_MODE_COMPACT
-                                )
-                                .toAnnotatedString(boldFontWeight = FontWeight.ExtraBold)
                     )
                 }
             } else {

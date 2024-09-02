@@ -11,7 +11,6 @@ import net.mullvad.mullvadvpn.viewmodel.CustomDnsItem
 
 data class VpnSettingsUiState(
     val mtu: Mtu?,
-    val isAutoConnectEnabled: Boolean,
     val isLocalNetworkSharingEnabled: Boolean,
     val isCustomDnsEnabled: Boolean,
     val customDnsItems: List<CustomDnsItem>,
@@ -30,7 +29,6 @@ data class VpnSettingsUiState(
     companion object {
         fun createDefault(
             mtu: Mtu? = null,
-            isAutoConnectEnabled: Boolean = false,
             isLocalNetworkSharingEnabled: Boolean = false,
             isCustomDnsEnabled: Boolean = false,
             customDnsItems: List<CustomDnsItem> = emptyList(),
@@ -46,7 +44,6 @@ data class VpnSettingsUiState(
         ) =
             VpnSettingsUiState(
                 mtu,
-                isAutoConnectEnabled,
                 isLocalNetworkSharingEnabled,
                 isCustomDnsEnabled,
                 customDnsItems,

@@ -103,7 +103,6 @@ import net.mullvad.mullvadvpn.lib.model.RemoveSplitTunnelingAppError
 import net.mullvad.mullvadvpn.lib.model.SelectedObfuscation
 import net.mullvad.mullvadvpn.lib.model.SetAllowLanError
 import net.mullvad.mullvadvpn.lib.model.SetApiAccessMethodError
-import net.mullvad.mullvadvpn.lib.model.SetAutoConnectError
 import net.mullvad.mullvadvpn.lib.model.SetDnsOptionsError
 import net.mullvad.mullvadvpn.lib.model.SetObfuscationOptionsError
 import net.mullvad.mullvadvpn.lib.model.SetRelayLocationError
@@ -487,12 +486,6 @@ class ManagementService(
             }
             .onLeft { Logger.e("Set obfuscation port error") }
             .mapLeft(SetObfuscationOptionsError::Unknown)
-            .mapEmpty()
-
-    suspend fun setAutoConnect(isEnabled: Boolean): Either<SetAutoConnectError, Unit> =
-        Either.catch { grpc.setAutoConnect(BoolValue.of(isEnabled)) }
-            .onLeft { Logger.e("Set auto connect error") }
-            .mapLeft(SetAutoConnectError::Unknown)
             .mapEmpty()
 
     suspend fun setAllowLan(allow: Boolean): Either<SetAllowLanError, Unit> =

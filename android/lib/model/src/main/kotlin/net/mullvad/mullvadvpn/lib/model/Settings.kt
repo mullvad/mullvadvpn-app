@@ -8,7 +8,6 @@ data class Settings(
     val obfuscationSettings: ObfuscationSettings,
     val customLists: List<CustomList>,
     val allowLan: Boolean,
-    val autoConnect: Boolean,
     val tunnelOptions: TunnelOptions,
     val relayOverrides: List<RelayOverride>,
     val showBetaReleases: Boolean,
