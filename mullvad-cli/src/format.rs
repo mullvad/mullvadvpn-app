@@ -1,4 +1,9 @@
-use mullvad_types::{auth_failed::AuthFailed, location::GeoIpLocation, states::TunnelState};
+use std::collections::HashMap;
+
+use mullvad_types::{
+    auth_failed::AuthFailed, features::FeatureIndicators, location::GeoIpLocation,
+    states::TunnelState,
+};
 use talpid_types::{
     net::{Endpoint, TunnelEndpoint},
     tunnel::{ActionAfterDisconnect, ErrorState},
@@ -28,114 +33,97 @@ pub fn print_state(state: &TunnelState, previous_state: Option<&TunnelState>, ve
         Disconnected {
             location,
             locked_down,
-        } => match previous_state {
-            Some(Disconnected {
-                location: old_location,
-                locked_down: was_locked_down,
-            }) => {
-                let location_fmt = location.as_ref().map(format_location).unwrap_or_default();
-                let old_location_fmt = old_location
-                    .as_ref()
-                    .map(format_location)
-                    .unwrap_or_default();
-                if location_fmt != old_location_fmt {
-                    println!("  {}", location_fmt);
+        } => {
+            let old_location = match previous_state {
+                Some(Disconnected {
+                    location,
+                    locked_down: was_locked_down,
+                }) => {
+                    if *locked_down && !was_locked_down {
+                        print_option!("Internet access is blocked due to lockdown mode");
+                    } else if !*locked_down && *was_locked_down {
+                        print_option!("Internet access is no longer blocked due to lockdown mode");
+                    }
+                    location
                 }
-                if *locked_down && !was_locked_down {
-                    println!("  Internet access is blocked due to lockdown mode");
-                } else if !*locked_down && *was_locked_down {
-                    println!("  Internet access is no longer blocked due to lockdown mode");
+                _ => {
+                    println!("Disconnected");
+                    if *locked_down {
+                        print_option!("Internet access is blocked due to lockdown mode");
+                    }
+                    &None
                 }
+            };
+            let location_fmt = location.as_ref().map(format_location).unwrap_or_default();
+            let old_location_fmt = old_location
+                .as_ref()
+                .map(format_location)
+                .unwrap_or_default();
+            if location_fmt != old_location_fmt {
+                print_option!("Visible location", location_fmt);
             }
-            _ => {
-                println!("Disconnected");
-                if *locked_down {
-                    println!("Internet access is blocked due to lockdown mode");
-                }
-                if let Some(location) = location {
-                    println!("  {}", format_location(location));
-                }
-            }
-        },
+        }
         Connecting {
             endpoint,
             location,
             feature_indicators,
         } => {
-            match previous_state {
+            let (old_endpoint, old_location, old_feature_indicators) = match previous_state {
                 Some(Connecting {
-                    endpoint: old_endpoint,
-                    location: old_location,
-                    feature_indicators: old_feature_indicators,
-                }) => {
-                    let location_fmt =
-                        format_relay_connection(endpoint, location.as_ref(), verbose);
-                    let old_location_fmt =
-                        format_relay_connection(old_endpoint, old_location.as_ref(), verbose);
-                    if location_fmt != old_location_fmt {
-                        println!("New connection attempt to {}...", location_fmt);
-                    }
-
-                    if feature_indicators != old_feature_indicators {
-                        println!("  Features: {feature_indicators}");
-                    }
-                }
+                    endpoint,
+                    location,
+                    feature_indicators,
+                }) => (Some(endpoint), location, Some(feature_indicators)),
                 _ => {
-                    println!(
-                        "Connecting to {}...",
-                        format_relay_connection(endpoint, location.as_ref(), verbose)
-                    );
-                    if !feature_indicators.is_empty() {
-                        println!("  Features: {}", feature_indicators);
-                    }
+                    println!("Connecting");
+                    (None, &None, None)
                 }
             };
-            if verbose {
-                if let Some(tunnel_interface) = &endpoint.tunnel_interface {
-                    println!("  Tunnel interface: {tunnel_interface}")
-                }
-            };
+
+            print_relay_info(
+                endpoint,
+                old_endpoint,
+                location.as_ref(),
+                old_location.as_ref(),
+                feature_indicators,
+                old_feature_indicators,
+                verbose,
+            );
         }
         Connected {
             endpoint,
             location,
             feature_indicators,
         } => {
-            match previous_state {
+            let (old_endpoint, old_location, old_feature_indicators) = match previous_state {
                 Some(Connected {
-                    endpoint: _,
-                    location: old_location,
-                    feature_indicators: old_feature_indicators,
+                    endpoint,
+                    location,
+                    feature_indicators,
+                }) => (Some(endpoint), location, Some(feature_indicators)),
+                Some(Connecting {
+                    endpoint,
+                    location,
+                    feature_indicators,
                 }) => {
-                    if feature_indicators != old_feature_indicators {
-                        println!("  Updated features: {feature_indicators}");
-                    }
-
-                    let location_fmt = location.as_ref().map(format_location).unwrap_or_default();
-                    let old_location_fmt = old_location
-                        .as_ref()
-                        .map(format_location)
-                        .unwrap_or_default();
-                    if location_fmt != old_location_fmt {
-                        println!("  {}", location_fmt);
-                    }
+                    println!("Connected");
+                    (Some(endpoint), location, Some(feature_indicators))
                 }
                 _ => {
                     println!("Connected");
+                    (None, &None, None)
+                }
+            };
 
-                    if !feature_indicators.is_empty() {
-                        println!("  Active features: {}", feature_indicators);
-                    }
-                    if let Some(location) = location {
-                        println!("  {}", format_location(location));
-                    }
-                }
-            };
-            if verbose {
-                if let Some(tunnel_interface) = &endpoint.tunnel_interface {
-                    println!("  Tunnel interface: {tunnel_interface}")
-                }
-            };
+            print_relay_info(
+                endpoint,
+                old_endpoint,
+                location.as_ref(),
+                old_location.as_ref(),
+                feature_indicators,
+                old_feature_indicators,
+                verbose,
+            );
         }
         Disconnecting(ActionAfterDisconnect::Reconnect) => {}
         Disconnecting(_) => println!("Disconnecting"),
@@ -143,8 +131,67 @@ pub fn print_state(state: &TunnelState, previous_state: Option<&TunnelState>, ve
     }
 }
 
+fn connection_information(
+    endpoint: Option<&TunnelEndpoint>,
+    location: Option<&GeoIpLocation>,
+    feature_indicators: Option<&FeatureIndicators>,
+    verbose: bool,
+) -> HashMap<&'static str, String> {
+    let mut info = HashMap::new();
+    if let Some(endpoint) = endpoint {
+        info.insert(
+            "Relay",
+            format_relay_connection(endpoint, location, verbose),
+        );
+        if verbose {
+            if let Some(tunnel_interface) = endpoint.tunnel_interface.clone() {
+                info.insert("Tunnel interface", tunnel_interface);
+            }
+            if let Some(bridge) = &endpoint.proxy {
+                info.insert("Bridge type", bridge.proxy_type.to_string());
+            }
+            info.insert("Tunnel type:", endpoint.tunnel_type.to_string());
+        }
+    }
+    if let Some(location) = location {
+        info.insert("Visible location", format_location(location));
+    }
+    if let Some(feature_indicators) = feature_indicators {
+        if !feature_indicators.is_empty() {
+            info.insert("Features", feature_indicators.to_string());
+        }
+    }
+    info
+}
+
+fn print_relay_info(
+    endpoint: &TunnelEndpoint,
+    old_endpoint: Option<&TunnelEndpoint>,
+    location: Option<&GeoIpLocation>,
+    old_location: Option<&GeoIpLocation>,
+    feature_indicators: &FeatureIndicators,
+    old_feature_indicators: Option<&FeatureIndicators>,
+    verbose: bool,
+) {
+    let current_info =
+        connection_information(Some(endpoint), location, Some(feature_indicators), verbose);
+    let previous_info =
+        connection_information(old_endpoint, old_location, old_feature_indicators, verbose);
+    for (name, value) in current_info {
+        let previous_value = previous_info.get(name);
+        match (value, previous_value) {
+            (value, Some(previous_value)) if &value == previous_value => {}
+            (value, Some(_previous_value)) => {
+                // TODO: use print_option
+                println!("{:<4}{:<24}{}", "", format!("{name} (updated):"), value);
+            }
+            (value, None) => println!("{:<4}{:<24}{}", "", format!("{name}:"), value),
+        }
+    }
+}
+
 pub fn format_location(location: &GeoIpLocation) -> String {
-    let mut formatted_location = format!("Geographic IP location: {}", location.country);
+    let mut formatted_location = location.country.to_string();
     if let Some(city) = &location.city {
         formatted_location.push_str(&format!(", {}", city));
     }
@@ -162,76 +209,19 @@ fn format_relay_connection(
     location: Option<&GeoIpLocation>,
     verbose: bool,
 ) -> String {
-    let prefix_separator = if verbose { "\n\t" } else { " " };
-    let mut obfuscator_overlaps = false;
-
-    let exit_endpoint = {
-        let mut exit_endpoint = &endpoint.endpoint;
-        if let Some(obfuscator) = &endpoint.obfuscation {
-            if location
-                .map(|l| l.hostname == l.obfuscator_hostname)
-                .unwrap_or(false)
-            {
-                obfuscator_overlaps = true;
-                exit_endpoint = &obfuscator.endpoint;
-            }
-        };
-
-        let exit = format_endpoint(
-            location.and_then(|l| l.hostname.as_deref()),
-            exit_endpoint,
-            verbose,
-        );
-        match location {
-            Some(GeoIpLocation {
-                country,
-                city: Some(city),
-                ..
-            }) => {
-                format!("{exit} in {city}, {country}")
-            }
-            Some(GeoIpLocation {
-                country,
-                city: None,
-                ..
-            }) => {
-                format!("{exit} in {country}")
-            }
-            None => exit,
-        }
-    };
+    let exit_endpoint = format_endpoint(
+        location.and_then(|l| l.hostname.as_deref()),
+        &endpoint.endpoint,
+        verbose,
+    );
 
     let first_hop = endpoint.entry_endpoint.as_ref().map(|entry| {
-        let mut entry_endpoint = entry;
-        if let Some(obfuscator) = &endpoint.obfuscation {
-            if location
-                .map(|l| l.entry_hostname == l.obfuscator_hostname)
-                .unwrap_or(false)
-            {
-                obfuscator_overlaps = true;
-                entry_endpoint = &obfuscator.endpoint;
-            }
-        };
-
         let endpoint = format_endpoint(
             location.and_then(|l| l.entry_hostname.as_deref()),
-            entry_endpoint,
+            entry,
             verbose,
         );
-        format!("{prefix_separator}via {endpoint}")
-    });
-
-    let obfuscator = endpoint.obfuscation.as_ref().map(|obfuscator| {
-        if !obfuscator_overlaps {
-            let endpoint_str = format_endpoint(
-                location.and_then(|l| l.obfuscator_hostname.as_deref()),
-                &obfuscator.endpoint,
-                verbose,
-            );
-            format!("{prefix_separator}obfuscated via {endpoint_str}")
-        } else {
-            String::new()
-        }
+        format!(" via {endpoint}")
     });
 
     let bridge = endpoint.proxy.as_ref().map(|proxy| {
@@ -241,26 +231,13 @@ fn format_relay_connection(
             verbose,
         );
 
-        format!("{prefix_separator}via {proxy_endpoint}")
+        format!(" via {proxy_endpoint}")
     });
-    let tunnel_type = if verbose {
-        format!("\nTunnel type: {}", endpoint.tunnel_type)
-    } else {
-        String::new()
-    };
-
-    let mut bridge_type = String::new();
-    if verbose {
-        if let Some(bridge) = &endpoint.proxy {
-            bridge_type = format!("\nBridge type: {}", bridge.proxy_type);
-        }
-    }
 
     format!(
-        "{exit_endpoint}{first_hop}{bridge}{obfuscator}{tunnel_type}{bridge_type}",
+        "{exit_endpoint}{first_hop}{bridge}",
         first_hop = first_hop.unwrap_or_default(),
         bridge = bridge.unwrap_or_default(),
-        obfuscator = obfuscator.unwrap_or_default(),
     )
 }
 
