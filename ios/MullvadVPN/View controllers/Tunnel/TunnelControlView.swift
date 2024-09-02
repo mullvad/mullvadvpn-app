@@ -144,11 +144,7 @@ final class TunnelControlView: UIView {
 
         updateSecureLabel(tunnelState: tunnelState)
         updateActionButtons(tunnelState: tunnelState)
-        if tunnelState.isSecured {
-            updateTunnelRelays(tunnelRelays: tunnelState.relays)
-        } else {
-            updateTunnelRelays(tunnelRelays: nil)
-        }
+        updateTunnelRelays(tunnelStatus: model.tunnelStatus)
     }
 
     func setAnimatingActivity(_ isAnimating: Bool) {
@@ -224,8 +220,11 @@ final class TunnelControlView: UIView {
         connectButtonBlurView.isEnabled = shouldEnableButtons
     }
 
-    private func updateTunnelRelays(tunnelRelays: SelectedRelays?) {
-        if let tunnelRelays {
+    private func updateTunnelRelays(tunnelStatus: TunnelStatus) {
+        let tunnelState = tunnelStatus.state
+        let observedState = tunnelStatus.observedState
+
+        if tunnelState.isSecured, let tunnelRelays = tunnelState.relays {
             cityLabel.attributedText = attributedStringForLocation(
                 string: tunnelRelays.exit.location.city
             )
@@ -233,9 +232,33 @@ final class TunnelControlView: UIView {
                 string: tunnelRelays.exit.location.country
             )
 
+            let exitName = tunnelRelays.exit.hostname
+            let entryName = tunnelRelays.entry?.hostname
+            let usingDaita = observedState.connectionState?.isDaitaEnabled == true
+
+            let connectedRelayName = if let entryName {
+                String(format: NSLocalizedString(
+                    "CONNECT_PANEL_TITLE",
+                    tableName: "Main",
+                    value: "%@ via %@ \(usingDaita ? "using DAITA" : "")",
+                    comment: ""
+                ), exitName, entryName)
+            } else {
+                String(format: NSLocalizedString(
+                    "CONNECT_PANEL_TITLE",
+                    tableName: "Main",
+                    value: "%@ \(usingDaita ? "using DAITA" : "")",
+                    comment: ""
+                ), exitName)
+            }
+
             connectionPanel.isHidden = false
-            connectionPanel.connectedRelayName = tunnelRelays.exit
-                .hostname + "\(tunnelRelays.entry.flatMap { " via \($0.hostname)" } ?? "")"
+            connectionPanel.connectedRelayName = NSLocalizedString(
+                "CONNECT_PANEL_TITLE",
+                tableName: "Main",
+                value: connectedRelayName,
+                comment: ""
+            )
         } else {
             countryLabel.attributedText = attributedStringForLocation(string: " ")
             cityLabel.attributedText = attributedStringForLocation(string: " ")
