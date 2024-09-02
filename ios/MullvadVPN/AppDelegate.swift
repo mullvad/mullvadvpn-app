@@ -93,8 +93,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         tunnelStore = TunnelStore(application: application)
 
         let relaySelector = RelaySelectorWrapper(
-            relayCache: ipOverrideWrapper,
-            tunnelSettingsUpdater: tunnelSettingsUpdater
+            relayCache: ipOverrideWrapper
         )
         tunnelManager = createTunnelManager(application: application, relaySelector: relaySelector)
 

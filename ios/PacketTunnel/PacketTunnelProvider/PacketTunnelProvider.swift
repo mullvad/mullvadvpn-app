@@ -75,8 +75,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
 
         deviceChecker = DeviceChecker(accountsProxy: accountsProxy, devicesProxy: devicesProxy)
         relaySelector = RelaySelectorWrapper(
-            relayCache: ipOverrideWrapper,
-            tunnelSettingsUpdater: tunnelSettingsUpdater
+            relayCache: ipOverrideWrapper
         )
 
         actor = PacketTunnelActor(

@@ -18,124 +18,100 @@ class RelaySelectorWrapperTests: XCTestCase {
             updatedAt: .distantPast
         ))
     )
+    let multihopWithDaitaConstraints = RelayConstraints(
+        entryLocations: .only(UserSelectedRelays(locations: [.country("es")])), // Relay with DAITA.
+        exitLocations: .only(UserSelectedRelays(locations: [.country("us")]))
+    )
+
+    let multihopWithoutDaitaConstraints = RelayConstraints(
+        entryLocations: .only(UserSelectedRelays(locations: [.country("se")])), // Relay without DAITA.
+        exitLocations: .only(UserSelectedRelays(locations: [.country("us")]))
+    )
+
+    let singlehopConstraints = RelayConstraints(
+        exitLocations: .only(UserSelectedRelays(locations: [.country("se")])) // Relay without DAITA.
+    )
 
     var relayCache: RelayCache!
-    var settingsUpdater: SettingsUpdater!
-    var settingsListener: TunnelSettingsListener!
-
     override func setUp() {
         relayCache = RelayCache(fileCache: fileCache)
-        settingsListener = TunnelSettingsListener()
-        settingsUpdater = SettingsUpdater(listener: settingsListener)
     }
 
     func testSelectRelayWithMultihopOff() throws {
-        let wrapper = RelaySelectorWrapper(
-            relayCache: relayCache,
-            tunnelSettingsUpdater: settingsUpdater
+        let wrapper = RelaySelectorWrapper(relayCache: relayCache)
+
+        let settings = LatestTunnelSettings(
+            relayConstraints: singlehopConstraints,
+            tunnelMultihopState: .off,
+            daita: DAITASettings(state: .off)
         )
 
-        settingsListener.onNewSettings?(LatestTunnelSettings(tunnelMultihopState: .off))
-
-        let selectedRelays = try wrapper.selectRelays(connectionAttemptCount: 0)
+        let selectedRelays = try wrapper.selectRelays(tunnelSettings: settings, connectionAttemptCount: 0)
         XCTAssertNil(selectedRelays.entry)
     }
 
     func testSelectRelayWithMultihopOn() throws {
-        let wrapper = RelaySelectorWrapper(
-            relayCache: relayCache,
-            tunnelSettingsUpdater: settingsUpdater
+        let wrapper = RelaySelectorWrapper(relayCache: relayCache)
+
+        let settings = LatestTunnelSettings(
+            relayConstraints: multihopWithDaitaConstraints,
+            tunnelMultihopState: .on,
+            daita: DAITASettings(state: .off)
         )
 
-        settingsListener.onNewSettings?(LatestTunnelSettings(tunnelMultihopState: .on))
-
-        let selectedRelays = try wrapper.selectRelays(connectionAttemptCount: 0)
+        let selectedRelays = try wrapper.selectRelays(tunnelSettings: settings, connectionAttemptCount: 0)
         XCTAssertNotNil(selectedRelays.entry)
     }
 
     func testCanSelectRelayWithMultihopOnAndDaitaOn() throws {
-        let wrapper = RelaySelectorWrapper(
-            relayCache: relayCache,
-            tunnelSettingsUpdater: settingsUpdater
-        )
-
-        let constraints = RelayConstraints(
-            entryLocations: .only(UserSelectedRelays(locations: [.country("es")])), // Relay with DAITA.
-            exitLocations: .only(UserSelectedRelays(locations: [.country("us")]))
-        )
+        let wrapper = RelaySelectorWrapper(relayCache: relayCache)
 
         let settings = LatestTunnelSettings(
-            relayConstraints: constraints,
+            relayConstraints: multihopWithDaitaConstraints,
             tunnelMultihopState: .on,
             daita: DAITASettings(state: .on)
         )
-        settingsListener.onNewSettings?(settings)
 
-        XCTAssertNoThrow(try wrapper.selectRelays(connectionAttemptCount: 0))
+        XCTAssertNoThrow(try wrapper.selectRelays(tunnelSettings: settings, connectionAttemptCount: 0))
     }
 
     func testCannotSelectRelayWithMultihopOnAndDaitaOn() throws {
-        let wrapper = RelaySelectorWrapper(
-            relayCache: relayCache,
-            tunnelSettingsUpdater: settingsUpdater
-        )
-
-        let constraints = RelayConstraints(
-            entryLocations: .only(UserSelectedRelays(locations: [.country("se")])), // Relay without DAITA.
-            exitLocations: .only(UserSelectedRelays(locations: [.country("us")]))
-        )
+        let wrapper = RelaySelectorWrapper(relayCache: relayCache)
 
         let settings = LatestTunnelSettings(
-            relayConstraints: constraints,
+            relayConstraints: multihopWithoutDaitaConstraints,
             tunnelMultihopState: .on,
             daita: DAITASettings(state: .on)
         )
-        settingsListener.onNewSettings?(settings)
 
-        XCTAssertThrowsError(try wrapper.selectRelays(connectionAttemptCount: 0))
+        XCTAssertThrowsError(try wrapper.selectRelays(tunnelSettings: settings, connectionAttemptCount: 0))
     }
 
     func testCanSelectRelayWithMultihopOffAndDaitaOn() throws {
-        let wrapper = RelaySelectorWrapper(
-            relayCache: relayCache,
-            tunnelSettingsUpdater: settingsUpdater
-        )
-
-        let constraints = RelayConstraints(
-            exitLocations: .only(UserSelectedRelays(locations: [.country("es")])) // Relay with DAITA.
-        )
+        let wrapper = RelaySelectorWrapper(relayCache: relayCache)
 
         let settings = LatestTunnelSettings(
-            relayConstraints: constraints,
+            relayConstraints: multihopWithoutDaitaConstraints,
             tunnelMultihopState: .off,
             daita: DAITASettings(state: .on)
         )
-        settingsListener.onNewSettings?(settings)
 
-        let selectedRelays = try wrapper.selectRelays(connectionAttemptCount: 0)
+        let selectedRelays = try wrapper.selectRelays(tunnelSettings: settings, connectionAttemptCount: 0)
         XCTAssertNil(selectedRelays.entry)
     }
 
     // If DAITA is enabled and no supported relays are found, we should try to find the nearest
     // available relay that supports DAITA and use it as entry in a multihop selection.
     func testCanSelectRelayWithMultihopOffAndDaitaOnThroughMultihop() throws {
-        let wrapper = RelaySelectorWrapper(
-            relayCache: relayCache,
-            tunnelSettingsUpdater: settingsUpdater
-        )
-
-        let constraints = RelayConstraints(
-            exitLocations: .only(UserSelectedRelays(locations: [.country("se")])) // Relay without DAITA.
-        )
+        let wrapper = RelaySelectorWrapper(relayCache: relayCache)
 
         let settings = LatestTunnelSettings(
-            relayConstraints: constraints,
+            relayConstraints: singlehopConstraints,
             tunnelMultihopState: .off,
             daita: DAITASettings(state: .on)
         )
-        settingsListener.onNewSettings?(settings)
 
-        let selectedRelays = try wrapper.selectRelays(connectionAttemptCount: 0)
+        let selectedRelays = try wrapper.selectRelays(tunnelSettings: settings, connectionAttemptCount: 0)
         XCTAssertNotNil(selectedRelays.entry)
     }
 }

@@ -7,14 +7,23 @@
 //
 
 import MullvadMockData
+@testable import MullvadREST
+@testable import MullvadSettings
 import MullvadTypes
 @testable import PacketTunnelCore
 import WireGuardKitTypes
 import XCTest
 
 final class PacketTunnelActorReducerTests: XCTestCase {
-    // swiftlint:disable:next force_try
-    let selectedRelays = try! RelaySelectorStub.nonFallible().selectRelays(connectionAttemptCount: 0)
+    var selectedRelays: SelectedRelays!
+
+    override func setUpWithError() throws {
+        let settings = LatestTunnelSettings()
+        selectedRelays = try RelaySelectorStub.nonFallible().selectRelays(
+            tunnelSettings: settings,
+            connectionAttemptCount: 0
+        )
+    }
 
     func makeConnectionData(keyPolicy: State.KeyPolicy = .useCurrent) -> State.ConnectionData {
         State.ConnectionData(
