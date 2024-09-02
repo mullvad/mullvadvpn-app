@@ -45,7 +45,7 @@ import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.test.SAVE_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.textfield.SearchTextField
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
-import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
+import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -85,7 +85,7 @@ fun CustomListLocations(
         }
     }
 
-    LaunchedEffectCollect(customListsViewModel.uiSideEffect) { sideEffect ->
+    CollectSideEffectWithLifecycle(customListsViewModel.uiSideEffect) { sideEffect ->
         when (sideEffect) {
             is CustomListLocationsSideEffect.ReturnWithResultData ->
                 backNavigator.navigateBack(result = sideEffect.result)

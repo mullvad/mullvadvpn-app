@@ -66,7 +66,7 @@ import net.mullvad.mullvadvpn.compose.test.SERVER_IP_OVERRIDE_INFO_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.SERVER_IP_OVERRIDE_MORE_VERT_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.SERVER_IP_OVERRIDE_RESET_OVERRIDES_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightLeafTransition
-import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
+import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.model.SettingsPatchError
@@ -106,7 +106,7 @@ fun ServerIpOverrides(
     val snackbarHostState = remember { SnackbarHostState() }
 
     val context = LocalContext.current
-    LaunchedEffectCollect(vm.uiSideEffect) { sideEffect ->
+    CollectSideEffectWithLifecycle(vm.uiSideEffect) { sideEffect ->
         when (sideEffect) {
             is ServerIpOverridesUiSideEffect.ImportResult ->
                 launch {

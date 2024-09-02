@@ -41,7 +41,7 @@ import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
 import net.mullvad.mullvadvpn.compose.extensions.itemsWithDivider
 import net.mullvad.mullvadvpn.compose.state.RelayFilterState
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
-import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
+import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.Provider
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -75,7 +75,7 @@ fun Filter(navigator: DestinationsNavigator) {
     val viewModel = koinViewModel<FilterViewModel>()
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
-    LaunchedEffectCollect(viewModel.uiSideEffect) {
+    CollectSideEffectWithLifecycle(viewModel.uiSideEffect) {
         when (it) {
             FilterScreenSideEffect.CloseScreen -> navigator.navigateUp()
         }

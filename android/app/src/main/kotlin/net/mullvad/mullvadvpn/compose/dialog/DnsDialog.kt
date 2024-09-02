@@ -23,7 +23,7 @@ import net.mullvad.mullvadvpn.compose.button.NegativeButton
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.communication.DnsDialogResult
 import net.mullvad.mullvadvpn.compose.textfield.DnsTextField
-import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
+import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.viewmodel.DnsDialogSideEffect
@@ -57,7 +57,7 @@ data class DnsDialogNavArgs(val index: Int? = null, val initialValue: String? = 
 fun Dns(resultNavigator: ResultBackNavigator<DnsDialogResult>) {
     val viewModel = koinViewModel<DnsDialogViewModel>()
 
-    LaunchedEffectCollect(viewModel.uiSideEffect) {
+    CollectSideEffectWithLifecycle(viewModel.uiSideEffect) {
         when (it) {
             DnsDialogSideEffect.Complete ->
                 resultNavigator.navigateBack(result = DnsDialogResult.Success)

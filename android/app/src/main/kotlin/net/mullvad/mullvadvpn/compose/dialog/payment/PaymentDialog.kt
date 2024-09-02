@@ -20,7 +20,7 @@ import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorMedium
-import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
+import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.util.getActivity
@@ -125,7 +125,7 @@ fun Payment(productId: ProductId, resultBackNavigator: ResultBackNavigator<Boole
     val vm = koinViewModel<PaymentViewModel>()
     val state by vm.uiState.collectAsStateWithLifecycle()
 
-    LaunchedEffectCollect(vm.uiSideEffect) { sideEffect ->
+    CollectSideEffectWithLifecycle(vm.uiSideEffect) { sideEffect ->
         when (sideEffect) {
             PaymentUiSideEffect.PaymentCancelled -> resultBackNavigator.navigateBack(result = false)
         }

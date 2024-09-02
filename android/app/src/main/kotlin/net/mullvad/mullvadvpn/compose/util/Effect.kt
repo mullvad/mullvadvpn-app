@@ -11,15 +11,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
-@Composable
-inline fun <T> LaunchedEffectCollect(
-    sideEffect: Flow<T>,
-    key: Any = Unit,
-    crossinline collector: suspend CoroutineScope.(T) -> Unit,
-) {
-    LaunchedEffect(key) { sideEffect.collect { collector(it) } }
-}
-
 // This function will restart collection on Start/Stop events, e.g if the user navigates to home
 // screen collection will stop, and then be restarted when the user opens the app again
 @Composable

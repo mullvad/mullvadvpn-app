@@ -36,9 +36,6 @@ import com.ramcosta.composedestinations.generated.destinations.VerificationPendi
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.ExternalButton
@@ -54,7 +51,7 @@ import net.mullvad.mullvadvpn.compose.extensions.createOpenAccountPageHook
 import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromBottomTransition
-import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
+import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.SecureScreenWhileInView
 import net.mullvad.mullvadvpn.compose.util.createCopyToClipboardHandle
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
@@ -98,8 +95,7 @@ private fun PreviewAccountScreen() {
                                 ),
                             )
                         ),
-                ),
-            uiSideEffect = MutableSharedFlow<AccountViewModel.UiSideEffect>().asSharedFlow(),
+                )
         )
     }
 }
@@ -114,6 +110,29 @@ fun Account(
     val vm = koinViewModel<AccountViewModel>()
     val state by vm.uiState.collectAsStateWithLifecycle()
 
+    val snackbarHostState = remember { SnackbarHostState() }
+    val copyTextString = stringResource(id = R.string.copied_mullvad_account_number)
+    val errorString = stringResource(id = R.string.error_occurred)
+    val copyToClipboard = createCopyToClipboardHandle(snackbarHostState = snackbarHostState)
+    val openAccountPage = LocalUriHandler.current.createOpenAccountPageHook()
+
+    CollectSideEffectWithLifecycle(vm.uiSideEffect) { sideEffect ->
+        when (sideEffect) {
+            AccountViewModel.UiSideEffect.NavigateToLogin -> {
+                navigator.navigate(LoginDestination(null)) {
+                    launchSingleTop = true
+                    popUpTo(NavGraphs.root) { inclusive = true }
+                }
+            }
+            is AccountViewModel.UiSideEffect.OpenAccountManagementPageInBrowser ->
+                openAccountPage(sideEffect.token)
+            is AccountViewModel.UiSideEffect.CopyAccountNumber ->
+                launch { copyToClipboard(sideEffect.accountNumber, copyTextString) }
+            AccountViewModel.UiSideEffect.GenericError ->
+                snackbarHostState.showSnackbarImmediately(message = errorString)
+        }
+    }
+
     playPaymentResultRecipient.onNavResult {
         when (it) {
             NavResult.Canceled -> {
@@ -125,16 +144,10 @@ fun Account(
 
     AccountScreen(
         state = state,
-        uiSideEffect = vm.uiSideEffect,
+        snackbarHostState = snackbarHostState,
         onRedeemVoucherClick = dropUnlessResumed { navigator.navigate(RedeemVoucherDestination) },
         onManageAccountClick = vm::onManageAccountClick,
         onLogoutClick = vm::onLogoutClick,
-        navigateToLogin = {
-            navigator.navigate(LoginDestination(null)) {
-                launchSingleTop = true
-                popUpTo(NavGraphs.root) { inclusive = true }
-            }
-        },
         onCopyAccountNumber = vm::onCopyAccountNumber,
         onBackClick = dropUnlessResumed { navigator.navigateUp() },
         navigateToDeviceInfo = dropUnlessResumed { navigator.navigate(DeviceNameInfoDestination) },
@@ -149,36 +162,18 @@ fun Account(
 @Composable
 fun AccountScreen(
     state: AccountUiState,
-    uiSideEffect: Flow<AccountViewModel.UiSideEffect>,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onCopyAccountNumber: (String) -> Unit = {},
     onRedeemVoucherClick: () -> Unit = {},
     onManageAccountClick: () -> Unit = {},
     onLogoutClick: () -> Unit = {},
     onPurchaseBillingProductClick: (productId: ProductId) -> Unit = { _ -> },
-    navigateToLogin: () -> Unit = {},
     navigateToDeviceInfo: () -> Unit = {},
     navigateToVerificationPendingDialog: () -> Unit = {},
     onBackClick: () -> Unit = {},
 ) {
     // This will enable SECURE_FLAG while this screen is visible to preview screenshot
     SecureScreenWhileInView()
-
-    val snackbarHostState = remember { SnackbarHostState() }
-    val copyTextString = stringResource(id = R.string.copied_mullvad_account_number)
-    val errorString = stringResource(id = R.string.error_occurred)
-    val copyToClipboard = createCopyToClipboardHandle(snackbarHostState = snackbarHostState)
-    val openAccountPage = LocalUriHandler.current.createOpenAccountPageHook()
-    LaunchedEffectCollect(uiSideEffect) { sideEffect ->
-        when (sideEffect) {
-            AccountViewModel.UiSideEffect.NavigateToLogin -> navigateToLogin()
-            is AccountViewModel.UiSideEffect.OpenAccountManagementPageInBrowser ->
-                openAccountPage(sideEffect.token)
-            is AccountViewModel.UiSideEffect.CopyAccountNumber ->
-                launch { copyToClipboard(sideEffect.accountNumber, copyTextString) }
-            AccountViewModel.UiSideEffect.GenericError ->
-                snackbarHostState.showSnackbarImmediately(message = errorString)
-        }
-    }
 
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.settings_account),
