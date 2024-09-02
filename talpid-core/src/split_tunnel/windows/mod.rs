@@ -5,7 +5,9 @@ mod volume_monitor;
 mod windows;
 
 use crate::{tunnel::TunnelMetadata, tunnel_state_machine::TunnelCommand};
+use driver::DeviceHandle;
 use futures::channel::{mpsc, oneshot};
+use path_monitor::PathMonitorHandle;
 use std::{
     collections::HashMap,
     ffi::{OsStr, OsString},
@@ -422,14 +424,8 @@ impl SplitTunnel {
         );
 
         std::thread::spawn(move || {
-            let init_fn = || {
-                service::install_driver_if_required(&resource_dir).map_err(Error::ServiceError)?;
-                driver::DeviceHandle::new()
-                    .map(Arc::new)
-                    .map_err(Error::InitializationError)
-            };
-
-            let handle = match init_fn() {
+            // Ensure that the device driver service is running and that we have a handle to it
+            let handle = match Self::setup_and_create_device(&resource_dir) {
                 Ok(handle) => {
                     let _ = init_tx.send(Ok(handle.clone()));
                     handle
@@ -440,120 +436,16 @@ impl SplitTunnel {
                 }
             };
 
-            let mut previous_addresses = InterfaceAddresses::default();
+            Self::request_loop(
+                handle.clone(),
+                rx,
+                daemon_tx,
+                monitored_paths,
+                path_monitor.clone(),
+                excluded_processes,
+            );
 
-            while let Ok((request, response_tx)) = rx.recv() {
-                let request_name = request.request_name();
-                let response = match request {
-                    Request::SetPaths(paths) => {
-                        let mut monitored_paths_guard = monitored_paths.lock().unwrap();
-
-                        let result = if !paths.is_empty() {
-                            handle.set_config(&paths).map_err(Error::SetConfiguration)
-                        } else {
-                            handle.clear_config().map_err(Error::SetConfiguration)
-                        };
-
-                        if result.is_ok() {
-                            if let Err(error) = path_monitor.set_paths(&paths) {
-                                log::error!(
-                                    "{}",
-                                    error.display_chain_with_msg("Failed to update path monitor")
-                                );
-                            }
-                            *monitored_paths_guard = paths.to_vec();
-                        }
-
-                        result
-                    }
-                    Request::RegisterIps(mut ips) => {
-                        if ips.internet_ipv4.is_none() && ips.internet_ipv6.is_none() {
-                            ips.tunnel_ipv4 = None;
-                            ips.tunnel_ipv6 = None;
-                        }
-                        if previous_addresses == ips {
-                            Ok(())
-                        } else {
-                            let result = handle
-                                .register_ips(
-                                    ips.tunnel_ipv4,
-                                    ips.tunnel_ipv6,
-                                    ips.internet_ipv4,
-                                    ips.internet_ipv6,
-                                )
-                                .map_err(Error::RegisterIps);
-                            if result.is_ok() {
-                                previous_addresses = ips;
-                            }
-                            result
-                        }
-                    }
-                    Request::Stop => {
-                        if let Err(error) = handle.reset().map_err(Error::ResetError) {
-                            if let Some(response_tx) = response_tx {
-                                let _ = response_tx.send(Err(error));
-                            } else {
-                                log::error!(
-                                    "{}",
-                                    error.display_chain_with_msg(
-                                        "Failed to deinitialize split tunneling"
-                                    )
-                                );
-                            }
-                            continue;
-                        }
-
-                        monitored_paths.lock().unwrap().clear();
-                        excluded_processes.write().unwrap().clear();
-
-                        if let Some(response_tx) = response_tx {
-                            let _ = response_tx.send(Ok(()));
-                        }
-
-                        // Stop listening to commands
-                        break;
-                    }
-                };
-
-                // Handle IOCTL result
-
-                let log_response = if let Some(response_tx) = response_tx {
-                    if let Err(error) = response_tx.send(response) {
-                        log::error!(
-                            "A response could not be sent for completed request/ioctl: {}",
-                            request_name
-                        );
-                        Some(error.0)
-                    } else {
-                        None
-                    }
-                } else {
-                    if response.is_err() {
-                        if let Some(daemon_tx) = daemon_tx.upgrade() {
-                            log::debug!(
-                                "Entering error state due to failed request/ioctl: {}",
-                                request_name
-                            );
-                            let _ = daemon_tx.unbounded_send(TunnelCommand::Block(
-                                ErrorStateCause::SplitTunnelError,
-                            ));
-                        } else {
-                            log::error!(
-                                "Cannot handle failed request since tunnel state machine is down"
-                            );
-                        }
-                    }
-                    Some(response)
-                };
-                if let Some(Err(error)) = log_response {
-                    log::error!(
-                        "Request/ioctl failed: {}\n{}",
-                        request_name,
-                        error.display_chain()
-                    );
-                }
-            }
-
+            // Shut components down in a sane order
             drop(volume_monitor);
             if let Err(error) = path_monitor.shutdown() {
                 log::error!(
@@ -562,6 +454,8 @@ impl SplitTunnel {
                 );
             }
 
+            // The device handle must be dropped before stopping the service
+            debug_assert_eq!(Arc::strong_count(&handle), 1);
             drop(handle);
 
             log::debug!("Stopping ST service");
@@ -598,6 +492,150 @@ impl SplitTunnel {
         });
 
         Ok((tx, handle))
+    }
+
+    /// Install the driver and create a device for it
+    fn setup_and_create_device(resource_dir: &Path) -> Result<Arc<DeviceHandle>, Error> {
+        service::install_driver_if_required(resource_dir).map_err(Error::ServiceError)?;
+        driver::DeviceHandle::new()
+            .map(Arc::new)
+            .map_err(Error::InitializationError)
+    }
+
+    fn request_loop(
+        handle: Arc<driver::DeviceHandle>,
+        cmd_rx: sync_mpsc::Receiver<(Request, Option<RequestResponseTx>)>,
+        daemon_tx: Weak<mpsc::UnboundedSender<TunnelCommand>>,
+        monitored_paths: Arc<Mutex<Vec<OsString>>>,
+        path_monitor: PathMonitorHandle,
+        excluded_processes: Arc<RwLock<HashMap<usize, ExcludedProcess>>>,
+    ) {
+        let mut previous_addresses = InterfaceAddresses::default();
+
+        while let Ok((request, response_tx)) = cmd_rx.recv() {
+            let request_name = request.request_name();
+            let (should_stop, response) = Self::handle_request(
+                request,
+                &handle,
+                &path_monitor,
+                &monitored_paths,
+                &excluded_processes,
+                &mut previous_addresses,
+            );
+
+            // Handle request result
+            let log_response = if let Some(response_tx) = response_tx {
+                if let Err(error) = response_tx.send(response) {
+                    log::error!(
+                        "A response could not be sent for completed request/ioctl: {}",
+                        request_name
+                    );
+                    Some(error.0)
+                } else {
+                    None
+                }
+            } else {
+                if response.is_err() {
+                    if let Some(daemon_tx) = daemon_tx.upgrade() {
+                        log::debug!(
+                            "Entering error state due to failed request/ioctl: {}",
+                            request_name
+                        );
+                        let _ = daemon_tx.unbounded_send(TunnelCommand::Block(
+                            ErrorStateCause::SplitTunnelError,
+                        ));
+                    } else {
+                        log::error!(
+                            "Cannot handle failed request since tunnel state machine is down"
+                        );
+                    }
+                }
+                Some(response)
+            };
+            if let Some(Err(error)) = log_response {
+                log::error!(
+                    "Request/ioctl failed: {}\n{}",
+                    request_name,
+                    error.display_chain()
+                );
+            }
+
+            // Stop request loop
+            if should_stop {
+                break;
+            }
+        }
+    }
+
+    /// Handle a request to the split tunnel device
+    fn handle_request(
+        request: Request,
+        handle: &DeviceHandle,
+        path_monitor: &path_monitor::PathMonitorHandle,
+        monitored_paths: &Arc<Mutex<Vec<OsString>>>,
+        excluded_processes: &Arc<RwLock<HashMap<usize, ExcludedProcess>>>,
+        previous_addresses: &mut InterfaceAddresses,
+    ) -> (bool, Result<(), Error>) {
+        let (should_stop, result) = match request {
+            Request::SetPaths(paths) => {
+                let mut monitored_paths_guard = monitored_paths.lock().unwrap();
+
+                let result = if !paths.is_empty() {
+                    handle.set_config(&paths).map_err(Error::SetConfiguration)
+                } else {
+                    handle.clear_config().map_err(Error::SetConfiguration)
+                };
+
+                if result.is_ok() {
+                    if let Err(error) = path_monitor.set_paths(&paths) {
+                        log::error!(
+                            "{}",
+                            error.display_chain_with_msg("Failed to update path monitor")
+                        );
+                    }
+                    *monitored_paths_guard = paths.to_vec();
+                }
+
+                (false, result)
+            }
+            Request::RegisterIps(mut ips) => {
+                if ips.internet_ipv4.is_none() && ips.internet_ipv6.is_none() {
+                    ips.tunnel_ipv4 = None;
+                    ips.tunnel_ipv6 = None;
+                }
+                if previous_addresses == &ips {
+                    (false, Ok(()))
+                } else {
+                    let result = handle
+                        .register_ips(
+                            ips.tunnel_ipv4,
+                            ips.tunnel_ipv6,
+                            ips.internet_ipv4,
+                            ips.internet_ipv6,
+                        )
+                        .map_err(Error::RegisterIps);
+                    if result.is_ok() {
+                        *previous_addresses = ips;
+                    }
+                    (false, result)
+                }
+            }
+            Request::Stop => {
+                if let Err(error) = handle.reset().map_err(Error::ResetError) {
+                    // Shut down failed, so continue to live
+                    return (false, Err(error));
+                }
+
+                // Clean up
+                monitored_paths.lock().unwrap().clear();
+                excluded_processes.write().unwrap().clear();
+
+                // Stop listening to commands
+                (true, Ok(()))
+            }
+        };
+
+        (should_stop, result)
     }
 
     fn send_request(&self, request: Request) -> Result<(), Error> {
