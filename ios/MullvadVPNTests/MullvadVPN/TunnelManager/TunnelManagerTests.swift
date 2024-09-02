@@ -122,7 +122,10 @@ class TunnelManagerTests: XCTestCase {
         accountProxy.createAccountResult = .success(REST.NewAccountData.mockValue())
 
         let relaySelector = RelaySelectorStub { _ in
-            try RelaySelectorStub.unsatisfied().selectRelays(connectionAttemptCount: 0)
+            try RelaySelectorStub.unsatisfied().selectRelays(
+                tunnelSettings: LatestTunnelSettings(),
+                connectionAttemptCount: 0
+            )
         }
 
         let tunnelManager = TunnelManager(
@@ -148,7 +151,10 @@ class TunnelManagerTests: XCTestCase {
                 case let .error(blockedStateReason) where blockedStateReason == .noRelaysSatisfyingConstraints:
                     blockedExpectation.fulfill()
                     relaySelector.selectedRelaysResult = { connectionAttemptCount in
-                        try RelaySelectorStub.nonFallible().selectRelays(connectionAttemptCount: connectionAttemptCount)
+                        try RelaySelectorStub.nonFallible().selectRelays(
+                            tunnelSettings: LatestTunnelSettings(),
+                            connectionAttemptCount: connectionAttemptCount
+                        )
                     }
                     tunnelManager.reconnectTunnel(selectNewRelay: true)
 
