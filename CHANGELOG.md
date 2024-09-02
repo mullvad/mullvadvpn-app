@@ -33,6 +33,10 @@ Line wrap the file at 100 chars.                                              Th
 - Never use OpenVPN as a fallback protocol when any of the following features is enabled:
   multihop, quantum-resistant tunnels, or DAITA.
 
+#### macOS
+- Disable split tunnel interface when disconnected. This prevents traffic from being sent through
+  the daemon when the VPN is disconnected.
+
 ### Fixed
 - macOS and Linux: Fix potential crash when disconnecting with DAITA enabled.
 
