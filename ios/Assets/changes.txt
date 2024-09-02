@@ -1,1 +1,1 @@
-Added multihop - now the app can relay traffic through one extra server for extra privacy.
+Fix multihop for some users by not using DNS64 resolved addresses for the exit hop.
