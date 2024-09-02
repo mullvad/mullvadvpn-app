@@ -3,10 +3,10 @@ package net.mullvad.mullvadvpn.compose.state
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.lib.model.Mtu
+import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.PortRange
 import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
-import net.mullvad.mullvadvpn.lib.model.SelectedObfuscation
 import net.mullvad.mullvadvpn.viewmodel.CustomDnsItem
 
 data class VpnSettingsUiState(
@@ -17,7 +17,7 @@ data class VpnSettingsUiState(
     val isCustomDnsEnabled: Boolean,
     val customDnsItems: List<CustomDnsItem>,
     val contentBlockersOptions: DefaultDnsOptions,
-    val selectedObfuscation: SelectedObfuscation,
+    val obfuscationMode: ObfuscationMode,
     val selectedUdp2TcpObfuscationPort: Constraint<Port>,
     val selectedShadowsSocksObfuscationPort: Constraint<Port>,
     val quantumResistant: QuantumResistantState,
@@ -39,7 +39,7 @@ data class VpnSettingsUiState(
             isCustomDnsEnabled: Boolean = false,
             customDnsItems: List<CustomDnsItem> = emptyList(),
             contentBlockersOptions: DefaultDnsOptions = DefaultDnsOptions(),
-            selectedObfuscation: SelectedObfuscation = SelectedObfuscation.Off,
+            obfuscationMode: ObfuscationMode = ObfuscationMode.Off,
             selectedUdp2TcpObfuscationPort: Constraint<Port> = Constraint.Any,
             selectedShadowsSocksObfuscationPort: Constraint<Port> = Constraint.Any,
             quantumResistant: QuantumResistantState = QuantumResistantState.Off,
@@ -56,7 +56,7 @@ data class VpnSettingsUiState(
                 isCustomDnsEnabled,
                 customDnsItems,
                 contentBlockersOptions,
-                selectedObfuscation,
+                obfuscationMode,
                 selectedUdp2TcpObfuscationPort,
                 selectedShadowsSocksObfuscationPort,
                 quantumResistant,

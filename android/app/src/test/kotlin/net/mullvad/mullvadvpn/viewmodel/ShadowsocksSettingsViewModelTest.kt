@@ -65,10 +65,13 @@ class ShadowsocksSettingsViewModelTest {
     @Test
     fun `uiState should reflect latest port range value from relay list`() = runTest {
         // Arrange
+        val mockSettings: Settings = mockk()
+        val port = Port(123)
+        every { mockSettings.obfuscationSettings.shadowsocks.port } returns Constraint.Only(port)
         val mockPortRange: List<PortRange> = listOf(mockk())
 
         portRangesFlow.update { mockPortRange }
-        settingsFlow.update { mockk(relaxed = true) }
+        settingsFlow.update { mockSettings }
 
         // Act, Assert
         viewModel.uiState.test {
