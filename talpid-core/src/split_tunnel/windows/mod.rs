@@ -107,7 +107,7 @@ pub enum Error {
 /// Manages applications whose traffic to exclude from the tunnel.
 pub struct SplitTunnel {
     runtime: tokio::runtime::Handle,
-    request_tx: RequestTx,
+    request_tx: sync_mpsc::Sender<Request>,
     event_thread: Option<std::thread::JoinHandle<()>>,
     quit_event: Arc<Event>,
     excluded_processes: Arc<RwLock<HashMap<usize, ExcludedProcess>>>,
@@ -116,25 +116,54 @@ pub struct SplitTunnel {
     route_manager: RouteManagerHandle,
 }
 
-enum Request {
+/// A request to the split tunnel monitor
+struct Request {
+    /// Request details
+    details: RequestDetails,
+    /// Whether to block if the request fails
+    must_succeed: bool,
+    /// Response channel
+    response_tx: Option<sync_mpsc::Sender<Result<(), Error>>>,
+}
+
+enum RequestDetails {
+    /// Update paths to exclude
     SetPaths(Vec<OsString>),
+    /// Update default and VPN tunnel addresses
     RegisterIps(InterfaceAddresses),
+    /// Stop the split tunnel monitor
     Stop,
 }
-type RequestResponseTx = sync_mpsc::Sender<Result<(), Error>>;
-type RequestTx = sync_mpsc::Sender<(Request, Option<RequestResponseTx>)>;
-
-const REQUEST_TIMEOUT: Duration = Duration::from_secs(5);
 
 impl Request {
+    fn new(details: RequestDetails) -> Self {
+        Request {
+            details,
+            must_succeed: false,
+            response_tx: None,
+        }
+    }
+
+    fn response_tx(mut self, response_tx: sync_mpsc::Sender<Result<(), Error>>) -> Self {
+        self.response_tx = Some(response_tx);
+        self
+    }
+
+    fn must_succeed(mut self) -> Self {
+        self.must_succeed = true;
+        self
+    }
+
     fn request_name(&self) -> &'static str {
-        match self {
-            Request::SetPaths(_) => "SetPaths",
-            Request::RegisterIps(_) => "RegisterIps",
-            Request::Stop => "Stop",
+        match self.details {
+            RequestDetails::SetPaths(_) => "SetPaths",
+            RequestDetails::RegisterIps(_) => "RegisterIps",
+            RequestDetails::Stop => "Stop",
         }
     }
 }
+
+const REQUEST_TIMEOUT: Duration = Duration::from_secs(5);
 
 #[derive(Default, PartialEq, Clone)]
 struct InterfaceAddresses {
@@ -405,8 +434,8 @@ impl SplitTunnel {
         daemon_tx: Weak<mpsc::UnboundedSender<TunnelCommand>>,
         volume_update_rx: mpsc::UnboundedReceiver<()>,
         excluded_processes: Arc<RwLock<HashMap<usize, ExcludedProcess>>>,
-    ) -> Result<(RequestTx, Arc<driver::DeviceHandle>), Error> {
-        let (tx, rx): (RequestTx, _) = sync_mpsc::channel();
+    ) -> Result<(sync_mpsc::Sender<Request>, Arc<driver::DeviceHandle>), Error> {
+        let (tx, rx): (sync_mpsc::Sender<Request>, _) = sync_mpsc::channel();
         let (init_tx, init_rx) = sync_mpsc::channel();
 
         let monitored_paths = Arc::new(Mutex::new(vec![]));
@@ -502,9 +531,10 @@ impl SplitTunnel {
             .map_err(Error::InitializationError)
     }
 
+    /// Service requests to the device driver
     fn request_loop(
         handle: Arc<driver::DeviceHandle>,
-        cmd_rx: sync_mpsc::Receiver<(Request, Option<RequestResponseTx>)>,
+        cmd_rx: sync_mpsc::Receiver<Request>,
         daemon_tx: Weak<mpsc::UnboundedSender<TunnelCommand>>,
         monitored_paths: Arc<Mutex<Vec<OsString>>>,
         path_monitor: PathMonitorHandle,
@@ -512,10 +542,11 @@ impl SplitTunnel {
     ) {
         let mut previous_addresses = InterfaceAddresses::default();
 
-        while let Ok((request, response_tx)) = cmd_rx.recv() {
+        while let Ok(request) = cmd_rx.recv() {
             let request_name = request.request_name();
+
             let (should_stop, response) = Self::handle_request(
-                request,
+                request.details,
                 &handle,
                 &path_monitor,
                 &monitored_paths,
@@ -523,42 +554,13 @@ impl SplitTunnel {
                 &mut previous_addresses,
             );
 
-            // Handle request result
-            let log_response = if let Some(response_tx) = response_tx {
-                if let Err(error) = response_tx.send(response) {
-                    log::error!(
-                        "A response could not be sent for completed request/ioctl: {}",
-                        request_name
-                    );
-                    Some(error.0)
-                } else {
-                    None
-                }
-            } else {
-                if response.is_err() {
-                    if let Some(daemon_tx) = daemon_tx.upgrade() {
-                        log::debug!(
-                            "Entering error state due to failed request/ioctl: {}",
-                            request_name
-                        );
-                        let _ = daemon_tx.unbounded_send(TunnelCommand::Block(
-                            ErrorStateCause::SplitTunnelError,
-                        ));
-                    } else {
-                        log::error!(
-                            "Cannot handle failed request since tunnel state machine is down"
-                        );
-                    }
-                }
-                Some(response)
-            };
-            if let Some(Err(error)) = log_response {
-                log::error!(
-                    "Request/ioctl failed: {}\n{}",
-                    request_name,
-                    error.display_chain()
-                );
-            }
+            Self::handle_request_result(
+                &daemon_tx,
+                response,
+                request.must_succeed,
+                request_name,
+                request.response_tx,
+            );
 
             // Stop request loop
             if should_stop {
@@ -569,7 +571,7 @@ impl SplitTunnel {
 
     /// Handle a request to the split tunnel device
     fn handle_request(
-        request: Request,
+        request: RequestDetails,
         handle: &DeviceHandle,
         path_monitor: &path_monitor::PathMonitorHandle,
         monitored_paths: &Arc<Mutex<Vec<OsString>>>,
@@ -577,7 +579,7 @@ impl SplitTunnel {
         previous_addresses: &mut InterfaceAddresses,
     ) -> (bool, Result<(), Error>) {
         let (should_stop, result) = match request {
-            Request::SetPaths(paths) => {
+            RequestDetails::SetPaths(paths) => {
                 let mut monitored_paths_guard = monitored_paths.lock().unwrap();
 
                 let result = if !paths.is_empty() {
@@ -598,7 +600,7 @@ impl SplitTunnel {
 
                 (false, result)
             }
-            Request::RegisterIps(mut ips) => {
+            RequestDetails::RegisterIps(mut ips) => {
                 if ips.internet_ipv4.is_none() && ips.internet_ipv6.is_none() {
                     ips.tunnel_ipv4 = None;
                     ips.tunnel_ipv6 = None;
@@ -620,7 +622,7 @@ impl SplitTunnel {
                     (false, result)
                 }
             }
-            Request::Stop => {
+            RequestDetails::Stop => {
                 if let Err(error) = handle.reset().map_err(Error::ResetError) {
                     // Shut down failed, so continue to live
                     return (false, Err(error));
@@ -638,15 +640,65 @@ impl SplitTunnel {
         (should_stop, result)
     }
 
-    fn send_request(&self, request: Request) -> Result<(), Error> {
+    /// Handle the result of a request
+    fn handle_request_result(
+        daemon_tx: &Weak<mpsc::UnboundedSender<TunnelCommand>>,
+        result: Result<(), Error>,
+        must_succeed: bool,
+        request_name: &str,
+        response_tx: Option<sync_mpsc::Sender<Result<(), Error>>>,
+    ) {
+        let log_request_failure = |response: &Result<(), Error>| {
+            if let Err(error) = response {
+                log::error!(
+                    "Request/ioctl failed: {}\n{}",
+                    request_name,
+                    error.display_chain()
+                );
+            }
+        };
+
+        let request_failed = result.is_err();
+
+        if let Some(response_tx) = response_tx {
+            if let Err(error) = response_tx.send(result) {
+                log::error!(
+                    "A response could not be sent for completed request/ioctl: {}",
+                    request_name
+                );
+                log_request_failure(&error.0);
+            }
+        } else {
+            log_request_failure(&result);
+        }
+
+        // Move to error state if the request failed but must succeed
+        if request_failed && must_succeed {
+            if let Some(daemon_tx) = daemon_tx.upgrade() {
+                log::debug!(
+                    "Entering error state due to failed request/ioctl: {}",
+                    request_name
+                );
+                let _ = daemon_tx
+                    .unbounded_send(TunnelCommand::Block(ErrorStateCause::SplitTunnelError));
+            } else {
+                log::error!("Cannot handle failed request since tunnel state machine is down");
+            }
+        }
+    }
+
+    fn send_request(&self, request: RequestDetails) -> Result<(), Error> {
         Self::send_request_inner(&self.request_tx, request)
     }
 
-    fn send_request_inner(request_tx: &RequestTx, request: Request) -> Result<(), Error> {
+    fn send_request_inner(
+        request_tx: &sync_mpsc::Sender<Request>,
+        request: RequestDetails,
+    ) -> Result<(), Error> {
         let (response_tx, response_rx) = sync_mpsc::channel();
 
         request_tx
-            .send((request, Some(response_tx)))
+            .send(Request::new(request).response_tx(response_tx))
             .map_err(|_| Error::SplitTunnelDown)?;
 
         response_rx
@@ -656,7 +708,7 @@ impl SplitTunnel {
 
     /// Set a list of applications to exclude from the tunnel.
     pub fn set_paths_sync<T: AsRef<OsStr>>(&self, paths: &[T]) -> Result<(), Error> {
-        self.send_request(Request::SetPaths(
+        self.send_request(RequestDetails::SetPaths(
             paths
                 .iter()
                 .map(|path| path.as_ref().to_os_string())
@@ -678,7 +730,7 @@ impl SplitTunnel {
             return;
         }
         let (response_tx, response_rx) = sync_mpsc::channel();
-        let request = Request::SetPaths(
+        let request = RequestDetails::SetPaths(
             paths
                 .iter()
                 .map(|path| path.as_ref().to_os_string())
@@ -688,7 +740,7 @@ impl SplitTunnel {
 
         let wait_task = move || {
             request_tx
-                .send((request, Some(response_tx)))
+                .send(Request::new(request).response_tx(response_tx))
                 .map_err(|_| Error::SplitTunnelDown)?;
             response_rx.recv().map_err(|_| Error::SplitTunnelDown)?
         };
@@ -751,7 +803,7 @@ impl SplitTunnel {
 
     fn init_context(
         mut context: MutexGuard<'_, SplitTunnelDefaultRouteChangeHandlerContext>,
-        request_tx: &RequestTx,
+        request_tx: &sync_mpsc::Sender<Request>,
     ) -> Result<(), Error> {
         // NOTE: This should remain a separate function. Dropping the context after `callback`
         // causes a deadlock if `split_tunnel_default_route_change_handler` is called at the same
@@ -760,13 +812,16 @@ impl SplitTunnel {
         // to complete.
 
         context.initialize_internet_addresses()?;
-        SplitTunnel::send_request_inner(request_tx, Request::RegisterIps(context.addresses.clone()))
+        SplitTunnel::send_request_inner(
+            request_tx,
+            RequestDetails::RegisterIps(context.addresses.clone()),
+        )
     }
 
     /// Instructs the driver to stop redirecting connections.
     pub fn clear_tunnel_addresses(&mut self) -> Result<(), Error> {
         self._route_change_callback = None;
-        self.send_request(Request::RegisterIps(InterfaceAddresses::default()))
+        self.send_request(RequestDetails::RegisterIps(InterfaceAddresses::default()))
     }
 
     /// Returns a handle used for interacting with the split tunnel module.
@@ -789,7 +844,7 @@ impl Drop for SplitTunnel {
             // Not joining `event_thread`: It may be unresponsive.
         }
 
-        if let Err(error) = self.send_request(Request::Stop) {
+        if let Err(error) = self.send_request(RequestDetails::Stop) {
             log::error!(
                 "{}",
                 error.display_chain_with_msg("Failed to stop ST driver service")
@@ -799,13 +854,13 @@ impl Drop for SplitTunnel {
 }
 
 struct SplitTunnelDefaultRouteChangeHandlerContext {
-    request_tx: RequestTx,
+    request_tx: sync_mpsc::Sender<Request>,
     pub addresses: InterfaceAddresses,
 }
 
 impl SplitTunnelDefaultRouteChangeHandlerContext {
     pub fn new(
-        request_tx: RequestTx,
+        request_tx: sync_mpsc::Sender<Request>,
         tunnel_ipv4: Option<Ipv4Addr>,
         tunnel_ipv6: Option<Ipv6Addr>,
     ) -> Self {
@@ -917,7 +972,7 @@ fn split_tunnel_default_route_change_handler(
 
     if ctx
         .request_tx
-        .send((Request::RegisterIps(ctx.addresses.clone()), None))
+        .send(Request::new(RequestDetails::RegisterIps(ctx.addresses.clone())).must_succeed())
         .is_err()
     {
         log::error!("Split tunnel request thread is down");
