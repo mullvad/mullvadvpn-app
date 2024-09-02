@@ -88,11 +88,8 @@ pub fn print_state(state: &TunnelState, previous_state: Option<&TunnelState>, ve
                 endpoint,
             },
         ) => {
-            match old {
-                None | Some(&Connecting { .. }) => {
-                    println!("Connected");
-                }
-                _ => {}
+            if let None | Some(&Connecting { .. }) = old {
+                println!("Connected");
             }
             if feature_indicators != old_feature_indicators {
                 print!("  ");
