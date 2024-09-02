@@ -9,8 +9,6 @@ import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.PaymentState
@@ -21,7 +19,6 @@ import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.payment.model.ProductPrice
 import net.mullvad.mullvadvpn.viewmodel.AccountUiState
-import net.mullvad.mullvadvpn.viewmodel.AccountViewModel
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
@@ -48,8 +45,7 @@ class AccountScreenTest {
                             accountNumber = DUMMY_ACCOUNT_NUMBER,
                             accountExpiry = null,
                             showSitePayment = false,
-                        ),
-                    uiSideEffect = MutableSharedFlow<AccountViewModel.UiSideEffect>().asSharedFlow(),
+                        )
                 )
             }
 
@@ -72,8 +68,6 @@ class AccountScreenTest {
                             accountNumber = DUMMY_ACCOUNT_NUMBER,
                             accountExpiry = null,
                         ),
-                    uiSideEffect =
-                        MutableSharedFlow<AccountViewModel.UiSideEffect>().asSharedFlow(),
                     onManageAccountClick = mockedClickHandler,
                 )
             }
@@ -99,8 +93,6 @@ class AccountScreenTest {
                             accountExpiry = null,
                             showSitePayment = false,
                         ),
-                    uiSideEffect =
-                        MutableSharedFlow<AccountViewModel.UiSideEffect>().asSharedFlow(),
                     onRedeemVoucherClick = mockedClickHandler,
                 )
             }
@@ -126,8 +118,6 @@ class AccountScreenTest {
                             accountExpiry = null,
                             showSitePayment = false,
                         ),
-                    uiSideEffect =
-                        MutableSharedFlow<AccountViewModel.UiSideEffect>().asSharedFlow(),
                     onLogoutClick = mockedClickHandler,
                 )
             }
@@ -147,8 +137,7 @@ class AccountScreenTest {
                 AccountScreen(
                     state =
                         AccountUiState.default()
-                            .copy(billingPaymentState = PaymentState.Error.Billing),
-                    uiSideEffect = MutableSharedFlow<AccountViewModel.UiSideEffect>().asSharedFlow(),
+                            .copy(billingPaymentState = PaymentState.Error.Billing)
                 )
             }
 
@@ -170,8 +159,7 @@ class AccountScreenTest {
                             .copy(
                                 billingPaymentState =
                                     PaymentState.PaymentAvailable(listOf(mockPaymentProduct))
-                            ),
-                    uiSideEffect = MutableSharedFlow<AccountViewModel.UiSideEffect>().asSharedFlow(),
+                            )
                 )
             }
 
@@ -193,8 +181,7 @@ class AccountScreenTest {
                             .copy(
                                 billingPaymentState =
                                     PaymentState.PaymentAvailable(listOf(mockPaymentProduct))
-                            ),
-                    uiSideEffect = MutableSharedFlow<AccountViewModel.UiSideEffect>().asSharedFlow(),
+                            )
                 )
             }
 
@@ -218,8 +205,6 @@ class AccountScreenTest {
                                 billingPaymentState =
                                     PaymentState.PaymentAvailable(listOf(mockPaymentProduct))
                             ),
-                    uiSideEffect =
-                        MutableSharedFlow<AccountViewModel.UiSideEffect>().asSharedFlow(),
                     navigateToVerificationPendingDialog = mockNavigateToVerificationPending,
                 )
             }
@@ -245,8 +230,7 @@ class AccountScreenTest {
                             .copy(
                                 billingPaymentState =
                                     PaymentState.PaymentAvailable(listOf(mockPaymentProduct))
-                            ),
-                    uiSideEffect = MutableSharedFlow<AccountViewModel.UiSideEffect>().asSharedFlow(),
+                            )
                 )
             }
 
@@ -272,7 +256,6 @@ class AccountScreenTest {
                                     PaymentState.PaymentAvailable(listOf(mockPaymentProduct))
                             ),
                     onPurchaseBillingProductClick = clickHandler,
-                    uiSideEffect = MutableSharedFlow<AccountViewModel.UiSideEffect>().asSharedFlow(),
                 )
             }
 
