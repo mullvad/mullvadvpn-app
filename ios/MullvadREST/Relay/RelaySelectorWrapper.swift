@@ -12,25 +12,12 @@ import MullvadTypes
 public final class RelaySelectorWrapper: RelaySelectorProtocol {
     let relayCache: RelayCacheProtocol
 
-    let tunnelSettingsUpdater: SettingsUpdater
-    private var tunnelSettings = LatestTunnelSettings()
-    private var observer: SettingsObserverBlock!
-
-    deinit {
-        self.tunnelSettingsUpdater.removeObserver(observer)
-    }
-
-    public init(
-        relayCache: RelayCacheProtocol,
-        tunnelSettingsUpdater: SettingsUpdater
-    ) {
+    public init(relayCache: RelayCacheProtocol) {
         self.relayCache = relayCache
-        self.tunnelSettingsUpdater = tunnelSettingsUpdater
-
-        self.addObserver()
     }
 
     public func selectRelays(
+        tunnelSettings: LatestTunnelSettings,
         connectionAttemptCount: UInt
     ) throws -> SelectedRelays {
         let relays = try relayCache.read().relays
@@ -51,13 +38,5 @@ public final class RelaySelectorWrapper: RelaySelectorProtocol {
                 connectionAttemptCount: connectionAttemptCount
             ).pick()
         }
-    }
-
-    private func addObserver() {
-        self.observer = SettingsObserverBlock(didUpdateSettings: { [weak self] latestTunnelSettings in
-            self?.tunnelSettings = latestTunnelSettings
-        })
-
-        tunnelSettingsUpdater.addObserver(observer)
     }
 }
