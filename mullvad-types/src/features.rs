@@ -11,6 +11,12 @@ use talpid_types::net::{ObfuscationType, TunnelEndpoint, TunnelType};
 #[derive(Default, Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct FeatureIndicators(HashSet<FeatureIndicator>);
 
+impl FeatureIndicators {
+    pub fn is_empty(&self) -> bool {
+        self.0.is_empty()
+    }
+}
+
 impl Display for FeatureIndicators {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut indicators: Vec<&str> = self.0.iter().map(|feature| feature.to_str()).collect();
