@@ -101,7 +101,7 @@ class VpnSettingsViewModel(
             val initialSettings = repository.settingsUpdates.filterNotNull().first()
             customPort.update {
                 val initialPort = initialSettings.getWireguardPort()
-                if (WIREGUARD_PRESET_PORTS.contains(initialPort.getOrNull()).not()) {
+                if (initialPort.getOrNull() !in WIREGUARD_PRESET_PORTS) {
                     initialPort.getOrNull()
                 } else {
                     null
@@ -232,7 +232,7 @@ class VpnSettingsViewModel(
     }
 
     fun onWireguardPortSelected(port: Constraint<Port>) {
-        if (port is Constraint.Only && WIREGUARD_PRESET_PORTS.contains(port.value).not()) {
+        if (port is Constraint.Only && port.value !in WIREGUARD_PRESET_PORTS) {
             customPort.update { port.value }
         }
         viewModelScope.launch {

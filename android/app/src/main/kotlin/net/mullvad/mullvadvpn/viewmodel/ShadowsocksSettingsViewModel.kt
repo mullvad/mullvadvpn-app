@@ -50,7 +50,7 @@ class ShadowsocksSettingsViewModel(
             val initialSettings = settingsRepository.settingsUpdates.filterNotNull().first()
             customPort.update {
                 val initialPort = initialSettings.getShadowSocksPort()
-                if (SHADOWSOCKS_PRESET_PORTS.contains(initialPort.getOrNull()).not()) {
+                if (initialPort.getOrNull() !in SHADOWSOCKS_PRESET_PORTS) {
                     initialPort.getOrNull()
                 } else {
                     null
@@ -65,10 +65,7 @@ class ShadowsocksSettingsViewModel(
                 .setCustomShadowsocksObfuscationPort(port)
                 .onLeft { Logger.e("Select shadowsocks port error $it") }
                 .onRight {
-                    if (
-                        port is Constraint.Only &&
-                            SHADOWSOCKS_PRESET_PORTS.contains(port.value).not()
-                    ) {
+                    if (port is Constraint.Only && port.value !in SHADOWSOCKS_PRESET_PORTS) {
                         customPort.update { port.getOrNull() }
                     }
                 }
