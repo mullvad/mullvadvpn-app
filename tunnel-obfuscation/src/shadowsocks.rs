@@ -115,9 +115,7 @@ async fn run_obfuscation(
     }
 
     client.abort();
-    let _ = client.await;
     server.abort();
-    let _ = server.await;
 
     Ok(())
 }
@@ -228,10 +226,11 @@ impl Obfuscator for Shadowsocks {
     }
 
     async fn run(self: Box<Self>) -> crate::Result<()> {
-        self.server
-            .await
-            .expect("server handle panicked")
-            .map_err(crate::Error::RunShadowsocksObfuscator)
+        match self.server.await {
+            Ok(result) => result.map_err(crate::Error::RunShadowsocksObfuscator),
+            Err(_err) if _err.is_cancelled() => Ok(()),
+            Err(_err) => panic!("server handle panicked"),
+        }
     }
 
     #[cfg(target_os = "android")]
