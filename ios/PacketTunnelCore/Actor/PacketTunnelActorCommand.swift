@@ -74,9 +74,9 @@ extension PacketTunnelActor {
             case .switchKey:
                 return "switchKey"
             case .ephemeralPeerNegotiationStateChanged:
-                return "postQuantumNegotiationStateChanged"
+                return "ephemeralPeerNegotiationStateChanged"
             case .notifyEphemeralPeerNegotiated:
-                return "notifyPostQuantumKeyExchanged"
+                return "notifyEphemeralPeerNegotiated"
             }
         }
     }
