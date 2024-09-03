@@ -69,7 +69,7 @@ pub enum FeatureIndicator {
 }
 
 impl FeatureIndicator {
-    const fn to_str(&self) -> &str {
+    const fn to_str(&self) -> &'static str {
         match self {
             FeatureIndicator::QuantumResistance => "Quantum Resistance",
             FeatureIndicator::Multihop => "Multihop",
