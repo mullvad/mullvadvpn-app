@@ -139,7 +139,6 @@ impl IOSRuntime {
         let (async_provider, shutdown_handle) = unsafe {
             match Self::ios_tcp_client(self.packet_tunnel.clone()).await {
                 Ok(result) => result,
-
                 Err(error) => {
                     log::error!("Failed to create iOS TCP client: {error}");
                     swift_ephemeral_peer_ready(
