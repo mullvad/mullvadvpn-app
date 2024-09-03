@@ -78,7 +78,7 @@ func tcpConnectionReceive(
     }
 }
 
-/// End sequence of a quantum-secure pre shared key exchange.
+/// End sequence of an ephemeral peer exchange.
 ///
 /// This FFI function is called by Rust when an ephemeral peer negotiation succeeded or failed.
 /// When both the `rawPresharedKey` and the `rawEphemeralKey` are raw pointers to 32 bytes data arrays,
