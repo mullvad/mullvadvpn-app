@@ -77,7 +77,7 @@ mkdir -p "app/build/extraAssets"
 mkdir -p "app/build/extraJni"
 popd
 
-for ARCHITECTURE in ${ARCHITECTURES:-aarch64 armv7 x86_64 i686}; do
+for ARCHITECTURE in ${ARCHITECTURES:-x86_64}; do
     case "$ARCHITECTURE" in
         "x86_64")
             TARGET="x86_64-linux-android"
@@ -110,6 +110,8 @@ for ARCHITECTURE in ${ARCHITECTURES:-aarch64 armv7 x86_64 i686}; do
         $STRIP_TOOL --strip-debug --strip-unneeded -o "$TARGET_LIB_PATH" "$UNSTRIPPED_LIB_PATH"
     fi
 done
+
+exit 0
 
 echo "Updating relays.json..."
 cargo run --bin relay_list "${CARGO_ARGS[@]}" > android/app/build/extraAssets/relays.json

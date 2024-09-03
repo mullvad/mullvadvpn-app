@@ -1,0 +1,32 @@
+---
+name: Android - Wrapper build
+on:
+  workflow_dispatch:
+  pull_request:
+
+permissions: {}
+
+jobs:
+  build-app:
+    name: Build app (using wrapper)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Checkout wireguard-go-rs recursively
+        run: |
+          git config --global --add safe.directory '*'
+          git submodule update --init --recursive --depth=1 wireguard-go-rs
+
+      - name: Install podman
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install podman
+
+      - name: Run build script
+        shell: bash
+        run: ./building/containerized-build.sh android --dev-build
