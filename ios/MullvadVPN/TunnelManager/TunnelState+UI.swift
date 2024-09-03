@@ -49,7 +49,7 @@ extension TunnelState {
                 )
             }
 
-        // TODO: How to Handle Daita here ?
+        // TODO: Handle Daita here in an upcoming PR for the UI
         case .negotiatingEphemeralPeer:
             NSLocalizedString(
                 "TUNNEL_STATE_NEGOTIATING_KEY",
