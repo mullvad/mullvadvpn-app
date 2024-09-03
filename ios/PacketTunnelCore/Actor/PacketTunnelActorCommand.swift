@@ -73,7 +73,6 @@ extension PacketTunnelActor {
                 return "networkReachability"
             case .switchKey:
                 return "switchKey"
-            // TODO: Handle Daita here ???
             case .ephemeralPeerNegotiationStateChanged:
                 return "postQuantumNegotiationStateChanged"
             case .notifyEphemeralPeerNegotiated:

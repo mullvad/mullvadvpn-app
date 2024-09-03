@@ -16,7 +16,6 @@ extension ObservedState {
             "Connected"
         case .connecting:
             "Connecting"
-        // TODO: Handle Daita here ?
         case .negotiatingEphemeralPeer:
             "Negotiating Post Quantum Secure Key"
         case .reconnecting:
