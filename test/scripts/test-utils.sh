@@ -294,6 +294,7 @@ function run_tests_for_os {
             "${test_report_arg[@]}" \
             --package-dir "${package_dir}" \
             --vm "$vm" \
+            --openvpn-certificate "${OPENVPN_CERTIFICATE:-"assets/openvpn.ca.crt"}" \
             "${test_filters_arg[@]}" \
             "${runner_dir_flag[@]}" \
             2>&1 | sed -r "s/${ACCOUNT_TOKEN}/\{ACCOUNT_TOKEN\}/g"; then
