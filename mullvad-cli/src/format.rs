@@ -73,14 +73,19 @@ pub fn print_state(state: &TunnelState, previous_state: Option<&TunnelState>, ve
                     endpoint,
                     location,
                     feature_indicators,
-                }) => (Some(endpoint), location, Some(feature_indicators)),
+                }) => {
+                    if verbose {
+                        println!("Connecting")
+                    }
+                    (Some(endpoint), location, Some(feature_indicators))
+                }
                 _ => {
                     println!("Connecting");
                     (None, &None, None)
                 }
             };
 
-            print_relay_info(
+            print_connection_info(
                 endpoint,
                 old_endpoint,
                 location.as_ref(),
@@ -100,7 +105,12 @@ pub fn print_state(state: &TunnelState, previous_state: Option<&TunnelState>, ve
                     endpoint,
                     location,
                     feature_indicators,
-                }) => (Some(endpoint), location, Some(feature_indicators)),
+                }) => {
+                    if verbose {
+                        println!("Connected")
+                    }
+                    (Some(endpoint), location, Some(feature_indicators))
+                }
                 Some(Connecting {
                     endpoint,
                     location,
@@ -115,7 +125,7 @@ pub fn print_state(state: &TunnelState, previous_state: Option<&TunnelState>, ve
                 }
             };
 
-            print_relay_info(
+            print_connection_info(
                 endpoint,
                 old_endpoint,
                 location.as_ref(),
@@ -136,35 +146,35 @@ fn connection_information(
     location: Option<&GeoIpLocation>,
     feature_indicators: Option<&FeatureIndicators>,
     verbose: bool,
-) -> HashMap<&'static str, String> {
-    let mut info = HashMap::new();
-    if let Some(endpoint) = endpoint {
-        info.insert(
-            "Relay",
-            format_relay_connection(endpoint, location, verbose),
-        );
-        if verbose {
-            if let Some(tunnel_interface) = endpoint.tunnel_interface.clone() {
-                info.insert("Tunnel interface", tunnel_interface);
-            }
-            if let Some(bridge) = &endpoint.proxy {
-                info.insert("Bridge type", bridge.proxy_type.to_string());
-            }
-            info.insert("Tunnel type:", endpoint.tunnel_type.to_string());
-        }
-    }
-    if let Some(location) = location {
-        info.insert("Visible location", format_location(location));
-    }
-    if let Some(feature_indicators) = feature_indicators {
-        if !feature_indicators.is_empty() {
-            info.insert("Features", feature_indicators.to_string());
-        }
-    }
+) -> HashMap<&'static str, Option<String>> {
+    let mut info: HashMap<&'static str, Option<String>> = HashMap::new();
+    let endpoint_fmt =
+        endpoint.map(|endpoint| format_relay_connection(endpoint, location, verbose));
+    info.insert("Relay", endpoint_fmt);
+    let tunnel_interface_fmt = endpoint
+        .filter(|_| verbose)
+        .and_then(|endpoint| endpoint.tunnel_interface.clone());
+    info.insert("Tunnel interface", tunnel_interface_fmt);
+
+    let bridge_type_fmt = endpoint
+        .filter(|_| verbose)
+        .and_then(|endpoint| endpoint.proxy)
+        .map(|bridge| bridge.proxy_type.to_string());
+    info.insert("Bridge type", bridge_type_fmt);
+    let tunnel_type_fmt = endpoint
+        .filter(|_| verbose)
+        .map(|endpoint| endpoint.tunnel_type.to_string());
+    info.insert("Tunnel type", tunnel_type_fmt);
+
+    info.insert("Visible location", location.map(format_location));
+    let features_fmt = feature_indicators
+        .filter(|f| !f.is_empty())
+        .map(ToString::to_string);
+    info.insert("Features", features_fmt);
     info
 }
 
-fn print_relay_info(
+fn print_connection_info(
     endpoint: &TunnelEndpoint,
     old_endpoint: Option<&TunnelEndpoint>,
     location: Option<&GeoIpLocation>,
@@ -178,14 +188,19 @@ fn print_relay_info(
     let previous_info =
         connection_information(old_endpoint, old_location, old_feature_indicators, verbose);
     for (name, value) in current_info {
-        let previous_value = previous_info.get(name);
+        let previous_value = previous_info.get(name).and_then(|i| i.clone());
         match (value, previous_value) {
-            (value, Some(previous_value)) if &value == previous_value => {}
-            (value, Some(_previous_value)) => {
+            (Some(value), None) => println!("{:<4}{:<24}{}", "", format!("{name}:"), value),
+            (Some(value), Some(previous_value)) if (value != previous_value) => {
                 // TODO: use print_option
                 println!("{:<4}{:<24}{}", "", format!("{name} (updated):"), value);
             }
-            (value, None) => println!("{:<4}{:<24}{}", "", format!("{name}:"), value),
+            (Some(value), Some(_)) if verbose => {
+                println!("{:<4}{:<24}{}", "", format!("{name}:"), value);
+            }
+            (None, None) if verbose => println!("{:<4}{:<24}None", "", format!("{name}:")),
+            (None, Some(_)) => println!("{:<4}{:<24}None", "", format!("{name} (updated):")),
+            _ => {}
         }
     }
 }
