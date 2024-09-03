@@ -457,6 +457,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         header.accessibilityIdentifier = .wireGuardPortsCell
         header.titleLabel.text = title
         header.accessibilityCustomActionName = title
+        header.isExpanded = isExpanded(.wireGuardPorts)
         header.infoButtonHandler = { [weak self] in
             if let self {
                 self.delegate?.showInfo(for: .wireGuardPorts)
@@ -500,6 +501,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         header.accessibilityIdentifier = .wireGuardObfuscationCell
         header.titleLabel.text = title
         header.accessibilityCustomActionName = title
+        header.isExpanded = isExpanded(.wireGuardObfuscation)
         header.didCollapseHandler = { [weak self] header in
             guard let self else { return }
 
@@ -529,6 +531,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         header.accessibilityIdentifier = .udpOverTCPPortCell
         header.titleLabel.text = title
         header.accessibilityCustomActionName = title
+        header.isExpanded = isExpanded(.wireGuardObfuscationPort)
         header.didCollapseHandler = { [weak self] header in
             guard let self else { return }
 
@@ -558,6 +561,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         header.accessibilityIdentifier = .quantumResistantTunnelCell
         header.titleLabel.text = title
         header.accessibilityCustomActionName = title
+        header.isExpanded = isExpanded(.quantumResistance)
         header.didCollapseHandler = { [weak self] header in
             guard let self else { return }
 
@@ -592,6 +596,11 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         }
 
         return nil
+    }
+
+    private func isExpanded(_ section: Section) -> Bool {
+        let snapshot = snapshot()
+        return snapshot.numberOfItems(inSection: section) != 0
     }
 }
 
