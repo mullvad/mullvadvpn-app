@@ -24,6 +24,13 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 
 
+## [android/2024.4] - 2024-09-03
+### Fixed
+- Fix potential crash when toggling quick settings tile.
+- Fix crash when starting and stopping service too fast.
+- Fix crashes on TV.
+
+
 ## [android/2024.4-beta2] - 2024-08-07
 ### Fixed
 - Fix and improve the gRPC communication.
