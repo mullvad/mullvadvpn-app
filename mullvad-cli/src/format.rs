@@ -195,11 +195,11 @@ fn print_connection_info(
         match (value, previous_value) {
             (Some(value), None) => print_option!(name, value),
             (Some(value), Some(previous_value)) if (value != previous_value) => {
-                print_option!(format!("{name} (updated)"), value)
+                print_option!(format!("{name} (new)"), value)
             }
             (Some(value), Some(_)) if verbose => print_option!(name, value),
             (None, None) if verbose => print_option!(name, "None"),
-            (None, Some(_)) => print_option!(format!("{name} (updated)"), "None"),
+            (None, Some(_)) => print_option!(format!("{name} (new)"), "None"),
             _ => {}
         }
     }
