@@ -154,9 +154,17 @@ impl Firewall {
         new_filter_rules.push(drop_all_rule);
 
         let mut anchor_change = pfctl::AnchorChange::new();
+        anchor_change.set_scrub_rules(Self::get_scrub_rules()?);
         anchor_change.set_filter_rules(new_filter_rules);
         anchor_change.set_redirect_rules(self.get_dns_redirect_rules(policy)?);
         self.pf.set_rules(ANCHOR_NAME, anchor_change)
+    }
+
+    fn get_scrub_rules() -> Result<Vec<pfctl::ScrubRule>> {
+        let scrub_rule = pfctl::ScrubRuleBuilder::default()
+            .action(pfctl::ScrubRuleAction::Scrub)
+            .build()?;
+        Ok(vec![scrub_rule])
     }
 
     fn get_dns_redirect_rules(
@@ -773,14 +781,18 @@ impl Firewall {
             .try_add_anchor(ANCHOR_NAME, pfctl::AnchorKind::Filter)?;
         self.pf
             .try_add_anchor(ANCHOR_NAME, pfctl::AnchorKind::Redirect)?;
+        self.pf
+            .try_add_anchor(ANCHOR_NAME, pfctl::AnchorKind::Scrub)?;
         Ok(())
     }
 
     fn remove_anchor(&mut self) -> Result<()> {
         self.pf
-            .try_remove_anchor(ANCHOR_NAME, pfctl::AnchorKind::Filter)?;
+            .try_remove_anchor(ANCHOR_NAME, pfctl::AnchorKind::Scrub)?;
         self.pf
             .try_remove_anchor(ANCHOR_NAME, pfctl::AnchorKind::Redirect)?;
+        self.pf
+            .try_remove_anchor(ANCHOR_NAME, pfctl::AnchorKind::Filter)?;
         Ok(())
     }
 }
