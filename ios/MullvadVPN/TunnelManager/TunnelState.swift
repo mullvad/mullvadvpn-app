@@ -52,7 +52,6 @@ enum TunnelState: Equatable, CustomStringConvertible {
     /// Connecting the tunnel.
     case connecting(SelectedRelays?, isPostQuantum: Bool)
 
-    // TODO: Add information here to support Daita ???
     /// Negotiating an ephemeral peer either for post-quantum resistance or Daita
     case negotiatingEphemeralPeer(SelectedRelays, PrivateKey)
 
@@ -113,7 +112,7 @@ enum TunnelState: Equatable, CustomStringConvertible {
         case let .error(blockedStateReason):
             "error state: \(blockedStateReason)"
         case let .negotiatingEphemeralPeer(tunnelRelays, _):
-            // TODO: Handle Daita and PQ here
+            // TODO: Handle Daita and PQ here in an upcoming PR for the UI
             """
             negotiating key with exit relay: \(tunnelRelays.exit.hostname)\
             \(tunnelRelays.entry.flatMap { " via \($0.hostname)" } ?? "")
