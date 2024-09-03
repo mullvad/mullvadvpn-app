@@ -83,7 +83,12 @@ const waitForNoTransition = async (page: Page) => {
       await new Promise((resolve) => setTimeout(resolve, 5));
     }
 
-    transitionContentsCount = await page.getByTestId('transition-content').count();
+    try {
+      transitionContentsCount = await page.getByTestId('transition-content').count();
+    } catch {
+      console.log('Transition content count failed');
+      break;
+    }
   } while (transitionContentsCount !== 1);
 };
 
