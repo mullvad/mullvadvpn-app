@@ -14,8 +14,11 @@ macro_rules! print_option {
     ($value:expr $(,)?) => {{
         println!("{:<4}{:<24}{}", "", "", $value,)
     }};
-    ($option:expr, $value:expr $(,)?) => {{
+    ($option:literal, $value:expr $(,)?) => {{
         println!("{:<4}{:<24}{}", "", concat!($option, ":"), $value,)
+    }};
+    ($option:expr, $value:expr $(,)?) => {{
+        println!("{:<4}{:<24}{}", "", format!("{}:", $option), $value,)
     }};
 }
 
@@ -190,16 +193,13 @@ fn print_connection_info(
     for (name, value) in current_info {
         let previous_value = previous_info.get(name).and_then(|i| i.clone());
         match (value, previous_value) {
-            (Some(value), None) => println!("{:<4}{:<24}{}", "", format!("{name}:"), value),
+            (Some(value), None) => print_option!(name, value),
             (Some(value), Some(previous_value)) if (value != previous_value) => {
-                // TODO: use print_option
-                println!("{:<4}{:<24}{}", "", format!("{name} (updated):"), value);
+                print_option!(format!("{name} (updated):"), value)
             }
-            (Some(value), Some(_)) if verbose => {
-                println!("{:<4}{:<24}{}", "", format!("{name}:"), value);
-            }
-            (None, None) if verbose => println!("{:<4}{:<24}None", "", format!("{name}:")),
-            (None, Some(_)) => println!("{:<4}{:<24}None", "", format!("{name} (updated):")),
+            (Some(value), Some(_)) if verbose => print_option!(name, value),
+            (None, None) if verbose => print_option!(name, "None"),
+            (None, Some(_)) => print_option!(format!("{name} (updated):"), "None"),
             _ => {}
         }
     }
