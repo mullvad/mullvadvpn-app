@@ -1,2 +1,3 @@
 [macOS, linux] You can now use DAITA to combat traffic analysis.
 [macOS] Quantum resistant tunnels will be used if setting is set to auto.
+Obfuscation specific settings are now ignored if obfuscation mode is set to auto.
