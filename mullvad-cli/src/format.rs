@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use itertools::Itertools;
 use mullvad_types::{
     auth_failed::AuthFailed, features::FeatureIndicators, location::GeoIpLocation,
     states::TunnelState,
@@ -190,7 +191,11 @@ fn print_connection_info(
         connection_information(Some(endpoint), location, Some(feature_indicators), verbose);
     let previous_info =
         connection_information(old_endpoint, old_location, old_feature_indicators, verbose);
-    for (name, value) in current_info {
+    for (name, value) in current_info
+        .into_iter()
+        // Hack that puts important items first, e.g. "Relay"
+        .sorted_by_key(|(name, _)| name.len())
+    {
         let previous_value = previous_info.get(name).and_then(|i| i.clone());
         match (value, previous_value) {
             (Some(value), None) => print_option!(name, value),
