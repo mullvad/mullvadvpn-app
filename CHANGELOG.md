@@ -44,6 +44,8 @@ Line wrap the file at 100 chars.                                              Th
 #### macOS
 - Exclude programs when executed using a relative path from a shell.
 - Reduce packet loss when using split tunneling.
+- Don't block fragmented packets in the PF firewall. Fixes various issues relating to connecting
+  (and general instability) when IP fragmentation is present.
 
 
 ## [2024.5] - 2024-09-03
