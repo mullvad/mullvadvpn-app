@@ -19,12 +19,24 @@ import net.mullvad.mullvadvpn.lib.theme.shape.chipShape
 
 @Preview
 @Composable
-private fun PreviewMullvadFilterChip() {
+private fun PreviewEnabledMullvadFilterChip() {
     AppTheme {
         MullvadFilterChip(
             text = stringResource(id = R.string.number_of_providers),
             onRemoveClick = {},
-            showIcon = true,
+            enabled = true,
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun PreviewDisabledMullvadFilterChip() {
+    AppTheme {
+        MullvadFilterChip(
+            text = stringResource(id = R.string.number_of_providers),
+            onRemoveClick = {},
+            enabled = false,
         )
     }
 }
@@ -37,14 +49,17 @@ fun MullvadFilterChip(
     iconColor: Color = MaterialTheme.colorScheme.onPrimary,
     text: String,
     onRemoveClick: () -> Unit,
-    showIcon: Boolean,
+    enabled: Boolean,
 ) {
     InputChip(
+        enabled = enabled,
         shape = MaterialTheme.shapes.chipShape,
         colors =
             FilterChipDefaults.filterChipColors(
                 containerColor = containerColor,
+                disabledContainerColor = containerColor,
                 labelColor = labelColor,
+                disabledLabelColor = labelColor,
                 iconColor = iconColor,
             ),
         border =
@@ -57,7 +72,7 @@ fun MullvadFilterChip(
         onClick = onRemoveClick,
         label = { Text(text = text, style = MaterialTheme.typography.labelMedium) },
         trailingIcon = {
-            if (showIcon) {
+            if (enabled) {
                 Icon(
                     painter = painterResource(id = R.drawable.icon_close),
                     contentDescription = null,

@@ -23,7 +23,7 @@ sealed interface FilterChip {
 
     data class Provider(val count: Int) : FilterChip
 
-    object Daita : FilterChip
+    data object Daita : FilterChip
 }
 
 enum class RelayListItemContentType {

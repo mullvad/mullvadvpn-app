@@ -68,7 +68,7 @@ fun ProviderFilterChip(providers: Int, onRemoveClick: () -> Unit) {
     MullvadFilterChip(
         text = stringResource(id = R.string.number_of_providers, providers),
         onRemoveClick = onRemoveClick,
-        showIcon = true,
+        enabled = true,
     )
 }
 
@@ -77,7 +77,7 @@ fun OwnershipFilterChip(ownership: Ownership, onRemoveClick: () -> Unit) {
     MullvadFilterChip(
         text = stringResource(ownership.stringResources()),
         onRemoveClick = onRemoveClick,
-        showIcon = true,
+        enabled = true,
     )
 }
 
@@ -86,7 +86,7 @@ fun DaitaFilterChip() {
     MullvadFilterChip(
         text = stringResource(id = R.string.setting_chip, stringResource(id = R.string.daita)),
         onRemoveClick = {},
-        showIcon = false,
+        enabled = false,
     )
 }
 
