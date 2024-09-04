@@ -28,8 +28,12 @@ class RelaySelectorWrapperTests: XCTestCase {
         exitLocations: .only(UserSelectedRelays(locations: [.country("us")]))
     )
 
-    let singlehopConstraints = RelayConstraints(
+    let singlehopWithoutDaitaConstraints = RelayConstraints(
         exitLocations: .only(UserSelectedRelays(locations: [.country("se")])) // Relay without DAITA.
+    )
+
+    let singlehopWithDaitaConstraints = RelayConstraints(
+        exitLocations: .only(UserSelectedRelays(locations: [.country("es")])) // Relay with DAITA.
     )
 
     var relayCache: RelayCache!
@@ -41,7 +45,7 @@ class RelaySelectorWrapperTests: XCTestCase {
         let wrapper = RelaySelectorWrapper(relayCache: relayCache)
 
         let settings = LatestTunnelSettings(
-            relayConstraints: singlehopConstraints,
+            relayConstraints: singlehopWithoutDaitaConstraints,
             tunnelMultihopState: .off,
             daita: DAITASettings(state: .off)
         )
@@ -91,13 +95,13 @@ class RelaySelectorWrapperTests: XCTestCase {
         let wrapper = RelaySelectorWrapper(relayCache: relayCache)
 
         let settings = LatestTunnelSettings(
-            relayConstraints: multihopWithoutDaitaConstraints,
+            relayConstraints: singlehopWithDaitaConstraints,
             tunnelMultihopState: .off,
             daita: DAITASettings(state: .on)
         )
 
         let selectedRelays = try wrapper.selectRelays(tunnelSettings: settings, connectionAttemptCount: 0)
-        XCTAssertNil(selectedRelays.entry)
+        XCTAssertNotNil(selectedRelays.exit)
     }
 
     // If DAITA is enabled and no supported relays are found, we should try to find the nearest
@@ -106,7 +110,7 @@ class RelaySelectorWrapperTests: XCTestCase {
         let wrapper = RelaySelectorWrapper(relayCache: relayCache)
 
         let settings = LatestTunnelSettings(
-            relayConstraints: singlehopConstraints,
+            relayConstraints: singlehopWithoutDaitaConstraints,
             tunnelMultihopState: .off,
             daita: DAITASettings(state: .on)
         )
