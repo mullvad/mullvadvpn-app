@@ -41,11 +41,13 @@ final class TunnelControlView: UIView {
         return activityIndicator
     }()
 
-    private let locationContainerView: UIView = {
-        let view = UIView()
+    private let locationContainerView: UIStackView = {
+        let view = UIStackView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.isAccessibilityElement = true
         view.accessibilityTraits = .summaryElement
+        view.axis = .vertical
+        view.spacing = 8
         return view
     }()
 
@@ -249,16 +251,11 @@ final class TunnelControlView: UIView {
     // MARK: - Private
 
     private func addSubviews() {
-        for subview in [secureLabel, countryLabel, cityLabel] {
-            locationContainerView.addSubview(subview)
+        for subview in [secureLabel, countryLabel, cityLabel, connectionPanel] {
+            locationContainerView.addArrangedSubview(subview)
         }
 
-        for subview in [
-            activityIndicator,
-            locationContainerView,
-            connectionPanel,
-            buttonsStackView,
-        ] {
+        for subview in [activityIndicator, buttonsStackView, locationContainerView] {
             containerView.addSubview(subview)
         }
 
@@ -268,6 +265,7 @@ final class TunnelControlView: UIView {
             containerView.topAnchor.constraint(equalTo: layoutMarginsGuide.topAnchor),
             containerView.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor),
             containerView.bottomAnchor.constraint(equalTo: layoutMarginsGuide.bottomAnchor),
+            containerView.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor),
 
             locationContainerView.topAnchor.constraint(greaterThanOrEqualTo: containerView.topAnchor),
             locationContainerView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
@@ -279,36 +277,14 @@ final class TunnelControlView: UIView {
                 constant: 22
             ),
 
-            secureLabel.topAnchor.constraint(equalTo: locationContainerView.topAnchor),
-            secureLabel.leadingAnchor.constraint(equalTo: locationContainerView.leadingAnchor),
-            secureLabel.trailingAnchor.constraint(equalTo: locationContainerView.trailingAnchor),
-
-            countryLabel.topAnchor.constraint(equalTo: secureLabel.bottomAnchor, constant: 8),
-            countryLabel.leadingAnchor.constraint(equalTo: locationContainerView.leadingAnchor),
-            countryLabel.trailingAnchor.constraint(equalTo: locationContainerView.trailingAnchor),
-
-            cityLabel.topAnchor.constraint(equalTo: countryLabel.bottomAnchor, constant: 8),
-            cityLabel.leadingAnchor.constraint(equalTo: locationContainerView.leadingAnchor),
-            cityLabel.trailingAnchor.constraint(equalTo: locationContainerView.trailingAnchor),
-            cityLabel.bottomAnchor.constraint(equalTo: locationContainerView.bottomAnchor),
-
-            connectionPanel.topAnchor.constraint(
-                equalTo: locationContainerView.bottomAnchor,
-                constant: 8
-            ),
-            connectionPanel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
-            connectionPanel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
-
             buttonsStackView.topAnchor.constraint(
-                equalTo: connectionPanel.bottomAnchor,
+                equalTo: locationContainerView.bottomAnchor,
                 constant: 24
             ),
             buttonsStackView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
             buttonsStackView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
             buttonsStackView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor),
         ])
-
-        updateTraitConstraints()
     }
 
     private func addButtonHandlers() {
@@ -337,18 +313,6 @@ final class TunnelControlView: UIView {
             action: #selector(handleSelectLocation),
             for: .touchUpInside
         )
-    }
-
-    private func updateTraitConstraints() {
-        var layoutConstraints = [NSLayoutConstraint]()
-
-        layoutConstraints.append(
-            containerView.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor)
-        )
-
-        removeConstraints(traitConstraints)
-        traitConstraints = layoutConstraints
-        NSLayoutConstraint.activate(layoutConstraints)
     }
 
     private func setArrangedButtons(_ newButtons: [UIView]) {
@@ -380,7 +344,7 @@ final class TunnelControlView: UIView {
     private func attributedStringForLocation(string: String) -> NSAttributedString {
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineSpacing = 0
-        paragraphStyle.lineHeightMultiple = 0.80
+        paragraphStyle.lineHeightMultiple = 0.8
 
         return NSAttributedString(
             string: string,
