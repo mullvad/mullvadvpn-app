@@ -37,7 +37,7 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol {
     private let application: UIApplication
 
     /// Lock used for synchronization.
-    private let nslock = NSLock()
+    private let relayCacheLock = NSLock()
 
     /// Internal operation queue.
     private let operationQueue = AsyncOperationQueue.makeSerial()
@@ -64,6 +64,7 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol {
 
         do {
             cachedRelays = try cache.read()
+            try hotfixRelaysThatDoNotHaveDaita()
         } catch {
             logger.error(
                 error: error,
@@ -74,9 +75,54 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol {
         }
     }
 
+    /// This method updates the cached relay to include daita information
+    ///
+    /// This is a hotfix meant to upgrade clients shipped with 2024.5 or before that did not have
+    /// daita information in their representation of `ServerRelay`.
+    /// If a version <= 2024.5 is installed less than an hour before a new upgrade,
+    /// no servers will be shown in locations when filtering for daita relays.
+    ///
+    /// > Info: `relayCacheLock` does not need to be accessed here, this method should be ran from `init` only.
+    private func hotfixRelaysThatDoNotHaveDaita() throws {
+        guard let cachedRelays else { return }
+        let daitaPropertyMissing = cachedRelays.relays.wireguard.relays.first { $0.daita ?? false } == nil
+        guard daitaPropertyMissing else { return }
+
+        let preBundledRelays = try cache.readPrebundledRelays()
+        let preBundledDaitaRelays = preBundledRelays.relays.wireguard.relays.filter { $0.daita == true }
+        var cachedRelaysWithFixedDaita = cachedRelays.relays.wireguard.relays
+
+        for index in 0 ..< cachedRelaysWithFixedDaita.endIndex {
+            let relay = cachedRelaysWithFixedDaita[index]
+            preBundledDaitaRelays.forEach {
+                if $0.hostname == relay.hostname {
+                    cachedRelaysWithFixedDaita[index] = relay.override(daita: true)
+                }
+            }
+        }
+
+        let wireguard = REST.ServerWireguardTunnels(
+            ipv4Gateway:
+            cachedRelays.relays.wireguard.ipv4Gateway,
+            ipv6Gateway: cachedRelays.relays.wireguard.ipv6Gateway,
+            portRanges: cachedRelays.relays.wireguard.portRanges,
+            relays: cachedRelaysWithFixedDaita
+        )
+
+        let updatedRelays = REST.ServerRelaysResponse(
+            locations: cachedRelays.relays.locations,
+            wireguard: wireguard,
+            bridge: cachedRelays.relays.bridge
+        )
+
+        let updatedCachedRelays = CachedRelays(relays: updatedRelays, updatedAt: Date())
+        try cache.write(record: updatedCachedRelays)
+        self.cachedRelays = updatedCachedRelays
+    }
+
     func startPeriodicUpdates() {
-        nslock.lock()
-        defer { nslock.unlock() }
+        relayCacheLock.lock()
+        defer { relayCacheLock.unlock() }
 
         guard !isPeriodicUpdatesEnabled else { return }
 
@@ -90,8 +136,8 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol {
     }
 
     func stopPeriodicUpdates() {
-        nslock.lock()
-        defer { nslock.unlock() }
+        relayCacheLock.lock()
+        defer { relayCacheLock.unlock() }
 
         guard isPeriodicUpdatesEnabled else { return }
 
@@ -135,8 +181,8 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol {
     }
 
     func getCachedRelays() throws -> CachedRelays {
-        nslock.lock()
-        defer { nslock.unlock() }
+        relayCacheLock.lock()
+        defer { relayCacheLock.unlock() }
 
         if let cachedRelays {
             return cachedRelays
@@ -148,9 +194,9 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol {
     func refreshCachedRelays() throws {
         let newCachedRelays = try cache.read()
 
-        nslock.lock()
+        relayCacheLock.lock()
         cachedRelays = newCachedRelays
-        nslock.unlock()
+        relayCacheLock.unlock()
 
         DispatchQueue.main.async {
             self.observerList.notify { observer in
@@ -160,8 +206,8 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol {
     }
 
     func getNextUpdateDate() -> Date {
-        nslock.lock()
-        defer { nslock.unlock() }
+        relayCacheLock.lock()
+        defer { relayCacheLock.unlock() }
 
         return _getNextUpdateDate()
     }

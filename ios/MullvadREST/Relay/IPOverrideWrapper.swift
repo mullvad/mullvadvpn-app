@@ -25,6 +25,13 @@ public class IPOverrideWrapper: RelayCacheProtocol {
         return CachedRelays(relays: relayResponse, updatedAt: cache.updatedAt)
     }
 
+    public func readPrebundledRelays() throws -> CachedRelays {
+        let prebundledRelays = try relayCache.readPrebundledRelays()
+        let relayResponse = apply(overrides: ipOverrideRepository.fetchAll(), to: prebundledRelays.relays)
+
+        return CachedRelays(relays: relayResponse, updatedAt: prebundledRelays.updatedAt)
+    }
+
     public func write(record: CachedRelays) throws {
         try relayCache.write(record: record)
     }

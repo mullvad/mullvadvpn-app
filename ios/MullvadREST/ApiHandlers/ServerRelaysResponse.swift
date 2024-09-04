@@ -78,6 +78,22 @@ extension REST {
                 daita: daita
             )
         }
+
+        public func override(daita: Bool) -> Self {
+            return ServerRelay(
+                hostname: hostname,
+                active: active,
+                owned: owned,
+                location: location,
+                provider: provider,
+                weight: weight,
+                ipv4AddrIn: ipv4AddrIn,
+                ipv6AddrIn: ipv6AddrIn,
+                publicKey: publicKey,
+                includeInCountry: includeInCountry,
+                daita: daita
+            )
+        }
     }
 
     public struct ServerWireguardTunnels: Codable, Equatable {
@@ -85,6 +101,13 @@ extension REST {
         public let ipv6Gateway: IPv6Address
         public let portRanges: [[UInt16]]
         public let relays: [ServerRelay]
+
+        public init(ipv4Gateway: IPv4Address, ipv6Gateway: IPv6Address, portRanges: [[UInt16]], relays: [ServerRelay]) {
+            self.ipv4Gateway = ipv4Gateway
+            self.ipv6Gateway = ipv6Gateway
+            self.portRanges = portRanges
+            self.relays = relays
+        }
     }
 
     public struct ServerShadowsocks: Codable, Equatable {
@@ -103,5 +126,11 @@ extension REST {
         public let locations: [String: ServerLocation]
         public let wireguard: ServerWireguardTunnels
         public let bridge: ServerBridges
+
+        public init(locations: [String: ServerLocation], wireguard: ServerWireguardTunnels, bridge: ServerBridges) {
+            self.locations = locations
+            self.wireguard = wireguard
+            self.bridge = bridge
+        }
     }
 }
