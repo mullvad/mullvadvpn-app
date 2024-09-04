@@ -107,15 +107,28 @@ function notify_repository_service {
     mv "$tmp_notify_file" "$notify_file"
 }
 
-stable_or_beta="stable"
-if [[ $version == *"-beta"* ]]; then
-    stable_or_beta="beta"
+function publish_app_to_repo {
+    # source files
+    local artifact_dir=$1
+    local version=$2
+    # destination repository
+    local environment=$3
+    local stable_or_beta=$4
+
+    echo "[#] Publishing $version to $environment/$stable_or_beta"
+
+    local repository_inbox_dir="$LINUX_REPOSITORY_INBOX_DIR_BASE/$environment/$stable_or_beta"
+    local repository_tmp_store_dir
+    repository_tmp_store_dir="$(mktemp -qdt "mullvadvpn-app-$version-tmp-XXXXXXX")"
+
+    echo "Copying app artifacts for $version from $artifact_dir to $repository_tmp_store_dir"
+    copy_linux_artifacts_to_dir "$artifact_dir" "$version" "$repository_tmp_store_dir"
+
+    echo "Notifying repository building service in $repository_inbox_dir"
+    notify_repository_service "$repository_tmp_store_dir" "$version" "$repository_inbox_dir"
+}
+
+publish_app_to_repo "$artifact_dir" "$version" "$environment" "beta"
+if [[ $version != *"-beta"* ]]; then
+    publish_app_to_repo "$artifact_dir" "$version" "$environment" "stable"
 fi
-repository_inbox_dir="$LINUX_REPOSITORY_INBOX_DIR_BASE/$environment/$stable_or_beta"
-repository_tmp_store_dir="$(mktemp -qdt "mullvadvpn-app-$version-tmp-XXXXXXX")"
-
-echo "Copying app artifacts for $version from $artifact_dir to $repository_tmp_store_dir"
-copy_linux_artifacts_to_dir "$artifact_dir" "$version" "$repository_tmp_store_dir"
-
-echo "Notifying repository building service in $repository_inbox_dir"
-notify_repository_service "$repository_tmp_store_dir" "$version" "$repository_inbox_dir"
