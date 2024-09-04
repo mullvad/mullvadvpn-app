@@ -50,17 +50,17 @@ reason = "Apache http client is used by lint and not the app directly."
 
 [[IgnoredVulns]]
 id = "CVE-2023-51775" # GHSA-6qvw-249j-h44c
-ignoreUntil = 2024-09-02
+ignoreUntil = 2024-10-02
 reason = "Used by the gradle bundler, will be fixed by upgrading the android gradle plugin."
 
 [[IgnoredVulns]]
 id = "CVE-2023-31582" # GHSA-7g24-qg88-p43q
-ignoreUntil = 2024-09-02
+ignoreUntil = 2024-10-02
 reason = "Used by the gradle bundler, will be fixed by upgrading the android gradle plugin."
 
 [[IgnoredVulns]]
 id = "GHSA-jgvc-jfgh-rjvv"
-ignoreUntil = 2024-09-02
+ignoreUntil = 2024-10-02
 reason = "Used by the gradle bundler, will be fixed by upgrading the android gradle plugin."
 
 [[IgnoredVulns]]
