@@ -129,15 +129,15 @@ robust_apt () {
     # We don't want to fail due to the global apt lock being
     # held, which happens sporadically. It is fine to wait for
     # some time if it means that the test run can continue.
-    apt -o DPkg::Lock::Timeout=60 "$@"
+    DEBIAN_FRONTEND=noninteractive apt-get -qy -o DPkg::Lock::Timeout=60 "$@"
 }
 
 function install_packages_apt {
     echo "Installing required apt packages"
     robust_apt update
-    robust_apt install -yf xvfb wireguard-tools curl
+    robust_apt install xvfb wireguard-tools curl
     if ! which ping &>/dev/null; then
-        robust_apt install -yf iputils-ping
+        robust_apt install iputils-ping
     fi
     curl -fsSL https://get.docker.com | sh
 }
