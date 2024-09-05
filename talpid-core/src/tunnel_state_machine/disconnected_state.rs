@@ -133,9 +133,10 @@ impl DisconnectedState {
     fn setup_local_dns_config(
         shared_values: &mut SharedTunnelStateValues,
     ) -> Result<(), dns::Error> {
-        shared_values
-            .dns_monitor
-            .set("lo", &[Ipv4Addr::LOCALHOST.into()])
+        shared_values.dns_monitor.set(
+            "lo",
+            dns::DnsConfig::default().resolve(&[Ipv4Addr::LOCALHOST.into()]),
+        )
     }
 }
 
@@ -166,7 +167,7 @@ impl TunnelState for DisconnectedState {
             }
             Some(TunnelCommand::Dns(servers, complete_tx)) => {
                 // Same situation as allow LAN above.
-                shared_values.set_dns_servers(servers);
+                shared_values.set_dns_config(servers);
                 let _ = complete_tx.send(());
                 SameState(self)
             }
