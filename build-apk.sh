@@ -98,7 +98,7 @@ for ARCHITECTURE in ${ARCHITECTURES:-x86_64}; do
     esac
 
     echo "Building mullvad-daemon for $TARGET"
-    cargo build "${CARGO_ARGS[@]}" --target "$TARGET" --package mullvad-jni
+    cargo build "${CARGO_ARGS[@]}" --target "$TARGET" --package mullvad-jni -j 1
 
     STRIP_TOOL="${NDK_TOOLCHAIN_DIR}/llvm-strip"
     TARGET_LIB_PATH="$SCRIPT_DIR/android/app/build/extraJni/$ABI/libmullvad_jni.so"
