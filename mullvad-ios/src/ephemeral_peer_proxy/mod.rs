@@ -1,7 +1,7 @@
 pub mod ios_runtime;
 pub mod ios_tcp_connection;
 
-use ios_runtime::run_post_quantum_psk_exchange;
+use ios_runtime::run_ephemeral_peer_exchange;
 use ios_tcp_connection::ConnectionContext;
 use libc::c_void;
 use std::sync::{Arc, Mutex, Weak};
@@ -14,6 +14,17 @@ static INIT_LOGGING: Once = Once::new();
 pub struct EphemeralPeerCancelToken {
     // Must keep a pointer to a valid std::sync::Arc<tokio::mpsc::UnboundedSender>
     pub context: *mut c_void,
+}
+
+pub struct PacketTunnelBridge {
+    pub packet_tunnel: *const c_void,
+    pub tcp_connection: *const c_void,
+}
+
+pub struct EphemeralPeerParameters {
+    pub peer_exchange_timeout: u64,
+    pub enable_post_quantum: bool,
+    pub enable_daita: bool,
 }
 
 impl EphemeralPeerCancelToken {
@@ -137,15 +148,32 @@ pub unsafe extern "C" fn request_ephemeral_peer(
     let pub_key: [u8; 32] = unsafe { std::ptr::read(public_key as *const [u8; 32]) };
     let eph_key: [u8; 32] = unsafe { std::ptr::read(ephemeral_key as *const [u8; 32]) };
 
+    let handle = match crate::mullvad_ios_runtime() {
+        Ok(handle) => handle,
+        Err(err) => {
+            log::error!("Failed to obtain a handle to a tokio runtime: {err}");
+
+            return -1;
+        }
+    };
+
+    let packet_tunnel_bridge = PacketTunnelBridge {
+        packet_tunnel,
+        tcp_connection,
+    };
+    let peer_parameters = EphemeralPeerParameters {
+        peer_exchange_timeout,
+        enable_post_quantum,
+        enable_daita,
+    };
+
     match unsafe {
-        run_post_quantum_psk_exchange(
+        run_ephemeral_peer_exchange(
             pub_key,
             eph_key,
-            packet_tunnel,
-            tcp_connection,
-            peer_exchange_timeout,
-            enable_post_quantum,
-            enable_daita,
+            packet_tunnel_bridge,
+            peer_parameters,
+            handle,
         )
     } {
         Ok(token) => {

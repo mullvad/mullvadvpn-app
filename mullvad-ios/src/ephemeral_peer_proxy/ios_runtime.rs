@@ -1,4 +1,6 @@
-use super::{ios_tcp_connection::*, EphemeralPeerCancelToken};
+use super::{
+    ios_tcp_connection::*, EphemeralPeerCancelToken, EphemeralPeerParameters, PacketTunnelBridge,
+};
 use libc::c_void;
 use std::{
     future::Future,
@@ -16,37 +18,23 @@ use tower::util::service_fn;
 /// # Safety
 /// packet_tunnel and tcp_connection must be valid pointers to a packet tunnel and a TCP connection
 /// instances.
-pub unsafe fn run_post_quantum_psk_exchange(
+pub unsafe fn run_ephemeral_peer_exchange(
     pub_key: [u8; 32],
     ephemeral_key: [u8; 32],
-    packet_tunnel: *const c_void,
-    tcp_connection: *const c_void,
-    peer_exchange_timeout: u64,
-    enable_post_quantum: bool,
-    enable_daita: bool,
+    packet_tunnel_bridge: PacketTunnelBridge,
+    peer_parameters: EphemeralPeerParameters,
+    tokio_handle: TokioHandle,
 ) -> Result<EphemeralPeerCancelToken, Error> {
     match unsafe {
         IOSRuntime::new(
             pub_key,
             ephemeral_key,
-            packet_tunnel,
-            tcp_connection,
-            peer_exchange_timeout,
-            enable_post_quantum,
-            enable_daita,
+            packet_tunnel_bridge,
+            peer_parameters,
         )
     } {
         Ok(runtime) => {
             let token = runtime.packet_tunnel.tcp_connection.clone();
-
-            let tokio_handle = match crate::mullvad_ios_runtime() {
-                Ok(handle) => handle,
-                Err(err) => {
-                    log::error!("Failed to obtain a handle to a tokio runtime: {err}");
-                    return Err(Error::UnableToCreateRuntime);
-                }
-            };
-
             runtime.run(tokio_handle);
             Ok(EphemeralPeerCancelToken {
                 context: Arc::into_raw(token) as *mut _,
@@ -72,33 +60,28 @@ struct IOSRuntime {
     pub_key: [u8; 32],
     ephemeral_key: [u8; 32],
     packet_tunnel: SwiftContext,
-    peer_exchange_timeout: u64,
-    enable_post_quantum: bool,
-    enable_daita: bool,
+    peer_parameters: EphemeralPeerParameters,
 }
 
 impl IOSRuntime {
     pub unsafe fn new(
         pub_key: [u8; 32],
         ephemeral_key: [u8; 32],
-        packet_tunnel: *const libc::c_void,
-        tcp_connection: *const c_void,
-        post_quantum_key_exchange_timeout: u64,
-        enable_post_quantum: bool,
-        enable_daita: bool,
+        packet_tunnel_bridge: PacketTunnelBridge,
+        peer_parameters: EphemeralPeerParameters,
     ) -> io::Result<Self> {
         let context = SwiftContext {
-            packet_tunnel,
-            tcp_connection: Arc::new(Mutex::new(ConnectionContext::new(tcp_connection))),
+            packet_tunnel: packet_tunnel_bridge.packet_tunnel,
+            tcp_connection: Arc::new(Mutex::new(ConnectionContext::new(
+                packet_tunnel_bridge.tcp_connection,
+            ))),
         };
 
         Ok(Self {
             pub_key,
             ephemeral_key,
             packet_tunnel: context,
-            peer_exchange_timeout: post_quantum_key_exchange_timeout,
-            enable_post_quantum,
-            enable_daita,
+            peer_parameters,
         })
     }
 
@@ -158,8 +141,8 @@ impl IOSRuntime {
                 async_provider,
                 PublicKey::from(self.pub_key),
                 ephemeral_pub_key,
-                self.enable_post_quantum,
-                self.enable_daita,
+                self.peer_parameters.enable_post_quantum,
+                self.peer_parameters.enable_daita,
             ) =>  {
                 shutdown_handle.shutdown();
                 if let Ok(mut connection) = self.packet_tunnel.tcp_connection.lock() {
@@ -195,7 +178,7 @@ impl IOSRuntime {
                 }
             }
 
-            _ = tokio::time::sleep(std::time::Duration::from_secs(self.peer_exchange_timeout)) => {
+            _ = tokio::time::sleep(std::time::Duration::from_secs(self.peer_parameters.peer_exchange_timeout)) => {
                         if let Ok(mut connection) = self.packet_tunnel.tcp_connection.lock() {
                             connection.shutdown();
                         };

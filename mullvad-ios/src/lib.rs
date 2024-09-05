@@ -1,5 +1,5 @@
 #![cfg(target_os = "ios")]
-mod post_quantum_proxy;
+mod ephemeral_peer_proxy;
 mod shadowsocks_proxy;
 mod tunnel_obfuscator_proxy;
 
