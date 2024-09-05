@@ -51,6 +51,22 @@ final class VPNSettingsInteractor {
 
         tunnelManager.updateSettings([.relayConstraints(relayConstraints)], completionHandler: completion)
     }
+
+    func evaluateDaitaSettingsCompatibility(_ settings: DAITASettings) -> DAITASettingsCompatibilityError? {
+        guard settings.state.isEnabled else { return nil }
+
+        var tunnelSettings = tunnelSettings
+        tunnelSettings.daita = settings
+
+        let selectedRelays = try? tunnelManager.selectRelays(tunnelSettings: tunnelSettings)
+        let multihopEnabled = tunnelSettings.tunnelMultihopState.isEnabled
+
+        return if multihopEnabled {
+            selectedRelays?.entry == nil ? .multihop : nil
+        } else {
+            selectedRelays?.exit == nil ? .singlehop : nil
+        }
+    }
 }
 
 extension VPNSettingsInteractor: RelayCacheTrackerObserver {

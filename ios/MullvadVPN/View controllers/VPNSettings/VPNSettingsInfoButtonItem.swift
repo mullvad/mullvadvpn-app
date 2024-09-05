@@ -18,5 +18,6 @@ enum VPNSettingsInfoButtonItem {
 }
 
 enum VPNSettingsPromptAlertItem {
-    case daita
+    case daitaSettingIncompatibleWithSinglehop
+    case daitaSettingIncompatibleWithMultihop
 }
