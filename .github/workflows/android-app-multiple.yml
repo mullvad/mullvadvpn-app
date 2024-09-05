@@ -38,6 +38,7 @@ jobs:
     container:
       image: ${{ needs.prepare.outputs.container_image }}
     strategy:
+      fail-fast: false
       matrix:
         attempt: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     steps:
