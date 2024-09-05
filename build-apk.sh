@@ -77,6 +77,14 @@ mkdir -p "app/build/extraAssets"
 mkdir -p "app/build/extraJni"
 popd
 
+# Temporary fix to address maybenot.h (checked in) sometimes needing to be
+# re-generated due to how `make` looks at last-modifications while git neither
+# stores nor consistently sets modification metadata on file checkout.
+#
+# NOTE: The version should match the one used in the checked in
+# maybenot.h file.
+cargo install --force cbindgen --version "0.26.0"
+
 for ARCHITECTURE in ${ARCHITECTURES:-aarch64 armv7 x86_64 i686}; do
     case "$ARCHITECTURE" in
         "x86_64")
