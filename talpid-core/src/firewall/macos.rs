@@ -244,13 +244,20 @@ impl Firewall {
                 peer_endpoint,
                 tunnel,
                 allow_lan,
-                dns_servers,
+                dns_config,
                 redirect_interface,
             } => {
                 let mut rules = vec![];
 
-                for server in dns_servers.iter() {
-                    rules.append(&mut self.get_allow_dns_rules_when_connected(tunnel, *server)?);
+                for server in &dns_config.tunnel_config {
+                    rules.append(
+                        &mut self.get_allow_tunnel_dns_rules_when_connected(tunnel, *server)?,
+                    );
+                }
+                for server in &dns_config.non_tunnel_config {
+                    rules.append(
+                        &mut self.get_allow_local_dns_rules_when_connected(tunnel, *server)?,
+                    );
                 }
 
                 rules.push(self.get_allow_relay_rule(peer_endpoint)?);
@@ -299,86 +306,87 @@ impl Firewall {
         }
     }
 
-    fn get_allow_dns_rules_when_connected(
+    fn get_allow_local_dns_rules_when_connected(
         &self,
         tunnel: &crate::tunnel::TunnelMetadata,
         server: IpAddr,
     ) -> Result<Vec<pfctl::FilterRule>> {
         let mut rules = Vec::with_capacity(4);
 
-        let is_local = super::is_local_address(&server)
-            && server != tunnel.ipv4_gateway
-            && !tunnel
-                .ipv6_gateway
-                .map(|ref gateway| &server == gateway)
-                .unwrap_or(false);
+        // Block requests on the tunnel interface
+        let block_tunnel_tcp = self
+            .create_rule_builder(FilterRuleAction::Drop(DropAction::Return))
+            .direction(pfctl::Direction::Out)
+            .quick(true)
+            .interface(&tunnel.interface)
+            .proto(pfctl::Proto::Tcp)
+            .keep_state(pfctl::StatePolicy::None)
+            .to(pfctl::Endpoint::new(server, 53))
+            .build()?;
+        rules.push(block_tunnel_tcp);
+        let block_tunnel_udp = self
+            .create_rule_builder(FilterRuleAction::Drop(DropAction::Return))
+            .direction(pfctl::Direction::Out)
+            .quick(true)
+            .interface(&tunnel.interface)
+            .proto(pfctl::Proto::Udp)
+            .keep_state(pfctl::StatePolicy::None)
+            .to(pfctl::Endpoint::new(server, 53))
+            .build()?;
+        rules.push(block_tunnel_udp);
 
-        if is_local {
-            // Block requests on the tunnel interface
-            let block_tunnel_tcp = self
-                .create_rule_builder(FilterRuleAction::Drop(DropAction::Return))
-                .direction(pfctl::Direction::Out)
-                .quick(true)
-                .interface(&tunnel.interface)
-                .proto(pfctl::Proto::Tcp)
-                .keep_state(pfctl::StatePolicy::None)
-                .to(pfctl::Endpoint::new(server, 53))
-                .build()?;
-            rules.push(block_tunnel_tcp);
-            let block_tunnel_udp = self
-                .create_rule_builder(FilterRuleAction::Drop(DropAction::Return))
-                .direction(pfctl::Direction::Out)
-                .quick(true)
-                .interface(&tunnel.interface)
-                .proto(pfctl::Proto::Udp)
-                .keep_state(pfctl::StatePolicy::None)
-                .to(pfctl::Endpoint::new(server, 53))
-                .build()?;
-            rules.push(block_tunnel_udp);
+        // Allow requests on other interfaces
+        let allow_nontunnel_tcp = self
+            .create_rule_builder(FilterRuleAction::Pass)
+            .direction(pfctl::Direction::Out)
+            .quick(true)
+            .proto(pfctl::Proto::Tcp)
+            .keep_state(pfctl::StatePolicy::Keep)
+            .tcp_flags(Self::get_tcp_flags())
+            .to(pfctl::Endpoint::new(server, 53))
+            .build()?;
+        rules.push(allow_nontunnel_tcp);
+        let allow_nontunnel_udp = self
+            .create_rule_builder(FilterRuleAction::Pass)
+            .direction(pfctl::Direction::Out)
+            .quick(true)
+            .proto(pfctl::Proto::Udp)
+            .keep_state(pfctl::StatePolicy::Keep)
+            .to(pfctl::Endpoint::new(server, 53))
+            .build()?;
+        rules.push(allow_nontunnel_udp);
 
-            // Allow requests on other interfaces
-            let allow_nontunnel_tcp = self
-                .create_rule_builder(FilterRuleAction::Pass)
-                .direction(pfctl::Direction::Out)
-                .quick(true)
-                .proto(pfctl::Proto::Tcp)
-                .keep_state(pfctl::StatePolicy::Keep)
-                .tcp_flags(Self::get_tcp_flags())
-                .to(pfctl::Endpoint::new(server, 53))
-                .build()?;
-            rules.push(allow_nontunnel_tcp);
-            let allow_nontunnel_udp = self
-                .create_rule_builder(FilterRuleAction::Pass)
-                .direction(pfctl::Direction::Out)
-                .quick(true)
-                .proto(pfctl::Proto::Udp)
-                .keep_state(pfctl::StatePolicy::Keep)
-                .to(pfctl::Endpoint::new(server, 53))
-                .build()?;
-            rules.push(allow_nontunnel_udp);
-        } else {
-            // Allow outgoing requests on the tunnel interface only
-            let allow_tunnel_tcp = self
-                .create_rule_builder(FilterRuleAction::Pass)
-                .direction(pfctl::Direction::Out)
-                .quick(true)
-                .interface(&tunnel.interface)
-                .proto(pfctl::Proto::Tcp)
-                .keep_state(pfctl::StatePolicy::Keep)
-                .tcp_flags(Self::get_tcp_flags())
-                .to(pfctl::Endpoint::new(server, 53))
-                .build()?;
-            rules.push(allow_tunnel_tcp);
-            let allow_tunnel_udp = self
-                .create_rule_builder(FilterRuleAction::Pass)
-                .direction(pfctl::Direction::Out)
-                .quick(true)
-                .interface(&tunnel.interface)
-                .proto(pfctl::Proto::Udp)
-                .to(pfctl::Endpoint::new(server, 53))
-                .build()?;
-            rules.push(allow_tunnel_udp);
-        };
+        Ok(rules)
+    }
+
+    fn get_allow_tunnel_dns_rules_when_connected(
+        &self,
+        tunnel: &crate::tunnel::TunnelMetadata,
+        server: IpAddr,
+    ) -> Result<Vec<pfctl::FilterRule>> {
+        let mut rules = Vec::with_capacity(4);
+
+        // Allow outgoing requests on the tunnel interface only
+        let allow_tunnel_tcp = self
+            .create_rule_builder(FilterRuleAction::Pass)
+            .direction(pfctl::Direction::Out)
+            .quick(true)
+            .interface(&tunnel.interface)
+            .proto(pfctl::Proto::Tcp)
+            .keep_state(pfctl::StatePolicy::Keep)
+            .tcp_flags(Self::get_tcp_flags())
+            .to(pfctl::Endpoint::new(server, 53))
+            .build()?;
+        rules.push(allow_tunnel_tcp);
+        let allow_tunnel_udp = self
+            .create_rule_builder(FilterRuleAction::Pass)
+            .direction(pfctl::Direction::Out)
+            .quick(true)
+            .interface(&tunnel.interface)
+            .proto(pfctl::Proto::Udp)
+            .to(pfctl::Endpoint::new(server, 53))
+            .build()?;
+        rules.push(allow_tunnel_udp);
 
         Ok(rules)
     }

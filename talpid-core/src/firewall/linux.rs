@@ -293,15 +293,10 @@ impl<'a> PolicyBatch<'a> {
     fn add_split_tunneling_rules(&mut self, policy: &FirewallPolicy, fwmark: u32) -> Result<()> {
         // Send select DNS requests in the tunnel
         if let FirewallPolicy::Connected {
-            tunnel,
-            dns_servers,
-            ..
+            tunnel, dns_config, ..
         } = policy
         {
-            for server in dns_servers
-                .iter()
-                .filter(|server| !is_local_dns_address(tunnel, server))
-            {
+            for server in &dns_config.tunnel_config {
                 let allow_rule = allow_tunnel_dns_rule(
                     &self.mangle_chain,
                     &tunnel.interface,
@@ -559,11 +554,34 @@ impl<'a> PolicyBatch<'a> {
                 peer_endpoint,
                 tunnel,
                 allow_lan,
-                dns_servers,
+                dns_config,
             } => {
                 self.add_allow_tunnel_endpoint_rules(peer_endpoint, fwmark);
-                self.add_allow_dns_rules(tunnel, dns_servers, TransportProtocol::Udp)?;
-                self.add_allow_dns_rules(tunnel, dns_servers, TransportProtocol::Tcp)?;
+
+                for server in &dns_config.tunnel_config {
+                    self.add_allow_tunnel_dns_rule(
+                        &tunnel.interface,
+                        TransportProtocol::Udp,
+                        *server,
+                    )?;
+                    self.add_allow_tunnel_dns_rule(
+                        &tunnel.interface,
+                        TransportProtocol::Tcp,
+                        *server,
+                    )?;
+                }
+                for server in &dns_config.non_tunnel_config {
+                    self.add_allow_local_dns_rule(
+                        &tunnel.interface,
+                        TransportProtocol::Udp,
+                        *server,
+                    )?;
+                    self.add_allow_local_dns_rule(
+                        &tunnel.interface,
+                        TransportProtocol::Tcp,
+                        *server,
+                    )?;
+                }
 
                 // Important to block DNS *before* we allow the tunnel and allow LAN. So DNS
                 // can't leak to the wrong IPs in the tunnel or on the LAN.
@@ -683,27 +701,6 @@ impl<'a> PolicyBatch<'a> {
         add_verdict(&mut out_rule, &Verdict::Accept);
 
         self.batch.add(&out_rule, nftnl::MsgType::Add);
-    }
-
-    fn add_allow_dns_rules(
-        &mut self,
-        tunnel: &tunnel::TunnelMetadata,
-        dns_servers: &[IpAddr],
-        protocol: TransportProtocol,
-    ) -> Result<()> {
-        let (local_resolvers, remote_resolvers): (Vec<IpAddr>, Vec<IpAddr>) = dns_servers
-            .iter()
-            .partition(|server| is_local_dns_address(tunnel, server));
-
-        for resolver in &local_resolvers {
-            self.add_allow_local_dns_rule(&tunnel.interface, protocol, *resolver)?;
-        }
-
-        for resolver in &remote_resolvers {
-            self.add_allow_tunnel_dns_rule(&tunnel.interface, protocol, *resolver)?;
-        }
-
-        Ok(())
     }
 
     fn add_allow_tunnel_dns_rule(
@@ -893,12 +890,6 @@ impl<'a> PolicyBatch<'a> {
             self.batch.add(&in_v4, nftnl::MsgType::Add);
         }
     }
-}
-
-fn is_local_dns_address(tunnel: &tunnel::TunnelMetadata, server: &IpAddr) -> bool {
-    super::is_local_address(server)
-        && server != &tunnel.ipv4_gateway
-        && Some(server) != tunnel.ipv6_gateway.map(IpAddr::from).as_ref()
 }
 
 fn allow_tunnel_dns_rule<'a>(

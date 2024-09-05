@@ -3,7 +3,7 @@
 //! it requires at least Windows 10, build 19041. For that reason, use run-time linking and fall
 //! back on other methods if it is not available.
 
-use crate::dns::DnsMonitorT;
+use crate::dns::{DnsMonitorT, ResolvedDnsConfig};
 use once_cell::sync::OnceCell;
 use std::{
     ffi::OsString,
@@ -122,14 +122,15 @@ impl DnsMonitorT for DnsMonitor {
         Ok(DnsMonitor { current_guid: None })
     }
 
-    fn set(&mut self, interface: &str, servers: &[IpAddr]) -> Result<(), Error> {
+    fn set(&mut self, interface: &str, config: ResolvedDnsConfig) -> Result<(), Error> {
+        let servers = config.tunnel_config;
         let guid = guid_from_luid(&luid_from_alias(interface).map_err(Error::ObtainInterfaceLuid)?)
             .map_err(Error::ObtainInterfaceGuid)?;
 
         let mut v4_servers = vec![];
         let mut v6_servers = vec![];
 
-        for server in servers {
+        for server in &servers {
             match server {
                 IpAddr::V4(addr) => v4_servers.push(addr),
                 IpAddr::V6(addr) => v6_servers.push(addr),

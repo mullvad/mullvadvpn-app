@@ -1,4 +1,4 @@
-use crate::tunnel::TunnelMetadata;
+use crate::{dns::ResolvedDnsConfig, tunnel::TunnelMetadata};
 
 use std::{ffi::CStr, io, net::IpAddr, ptr};
 
@@ -113,10 +113,10 @@ impl Firewall {
                 peer_endpoint,
                 tunnel,
                 allow_lan,
-                dns_servers,
+                dns_config,
             } => {
                 let cfg = &WinFwSettings::new(allow_lan);
-                self.set_connected_state(&peer_endpoint, cfg, &tunnel, &dns_servers)
+                self.set_connected_state(&peer_endpoint, cfg, &tunnel, &dns_config)
             }
             FirewallPolicy::Blocked {
                 allow_lan,
@@ -250,14 +250,10 @@ impl Firewall {
         endpoint: &AllowedEndpoint,
         winfw_settings: &WinFwSettings,
         tunnel_metadata: &TunnelMetadata,
-        dns_servers: &[IpAddr],
+        dns_config: &ResolvedDnsConfig,
     ) -> Result<(), Error> {
         log::trace!("Applying 'connected' firewall policy");
         let ip_str = widestring_ip(endpoint.endpoint.address.ip());
-        let v4_gateway = widestring_ip(tunnel_metadata.ipv4_gateway.into());
-        let v6_gateway = tunnel_metadata
-            .ipv6_gateway
-            .map(|v6_ip| widestring_ip(v6_ip.into()));
 
         let tunnel_alias = WideCString::from_str_truncate(&tunnel_metadata.interface);
 
@@ -266,11 +262,6 @@ impl Firewall {
             ip: ip_str.as_ptr(),
             port: endpoint.endpoint.address.port(),
             protocol: WinFwProt::from(endpoint.endpoint.protocol),
-        };
-
-        let v6_gateway_ptr = match &v6_gateway {
-            Some(v6_ip) => v6_ip.as_ptr(),
-            None => ptr::null(),
         };
 
         // SAFETY: `relay_client_wstrs` must not be dropped until `WinFw_ApplyPolicyConnected` has
@@ -286,9 +277,24 @@ impl Firewall {
             .collect();
         let relay_client_wstr_ptrs_len = relay_client_wstr_ptrs.len();
 
-        let dns_servers: Vec<WideCString> =
-            dns_servers.iter().cloned().map(widestring_ip).collect();
-        let dns_servers: Vec<*const u16> = dns_servers.iter().map(|ip| ip.as_ptr()).collect();
+        let tunnel_dns_servers: Vec<WideCString> = dns_config
+            .tunnel_config
+            .iter()
+            .cloned()
+            .map(widestring_ip)
+            .collect();
+        let tunnel_dns_servers: Vec<*const u16> =
+            tunnel_dns_servers.iter().map(|ip| ip.as_ptr()).collect();
+        let non_tunnel_dns_servers: Vec<WideCString> = dns_config
+            .non_tunnel_config
+            .iter()
+            .cloned()
+            .map(widestring_ip)
+            .collect();
+        let non_tunnel_dns_servers: Vec<*const u16> = non_tunnel_dns_servers
+            .iter()
+            .map(|ip| ip.as_ptr())
+            .collect();
 
         let result = unsafe {
             WinFw_ApplyPolicyConnected(
@@ -297,10 +303,10 @@ impl Firewall {
                 relay_client_wstr_ptrs.as_ptr(),
                 relay_client_wstr_ptrs_len,
                 tunnel_alias.as_ptr(),
-                v4_gateway.as_ptr(),
-                v6_gateway_ptr,
-                dns_servers.as_ptr(),
-                dns_servers.len(),
+                tunnel_dns_servers.as_ptr(),
+                tunnel_dns_servers.len(),
+                non_tunnel_dns_servers.as_ptr(),
+                non_tunnel_dns_servers.len(),
             )
             .into_result()
             .map_err(Error::ApplyingConnectedPolicy)
@@ -635,10 +641,10 @@ mod winfw {
             relayClient: *const *const libc::wchar_t,
             relayClientLen: usize,
             tunnelIfaceAlias: *const libc::wchar_t,
-            v4Gateway: *const libc::wchar_t,
-            v6Gateway: *const libc::wchar_t,
-            dnsServers: *const *const libc::wchar_t,
-            numDnsServers: usize,
+            tunnelDnsServers: *const *const libc::wchar_t,
+            numTunnelDnsServers: usize,
+            nonTunnelDnsServers: *const *const libc::wchar_t,
+            numNonTunnelDnsServers: usize,
         ) -> WinFwPolicyStatus;
 
         #[link_name = "WinFw_ApplyPolicyBlocked"]

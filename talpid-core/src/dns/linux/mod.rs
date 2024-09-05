@@ -10,6 +10,8 @@ use self::{
 use std::{env, fmt, net::IpAddr};
 use talpid_routing::RouteManagerHandle;
 
+use super::ResolvedDnsConfig;
+
 pub type Result<T> = std::result::Result<T, Error>;
 
 /// Errors that can happen in the Linux DNS monitor
@@ -53,12 +55,13 @@ impl super::DnsMonitorT for DnsMonitor {
         })
     }
 
-    fn set(&mut self, interface: &str, servers: &[IpAddr]) -> Result<()> {
+    fn set(&mut self, interface: &str, config: ResolvedDnsConfig) -> Result<()> {
+        let servers = config.tunnel_config;
         self.reset()?;
         // Creating a new DNS monitor for each set, in case the system changed how it manages DNS.
         let mut inner = DnsMonitorHolder::new()?;
         if !servers.is_empty() {
-            inner.set(&self.handle, &self.route_manager, interface, servers)?;
+            inner.set(&self.handle, &self.route_manager, interface, &servers)?;
             self.inner = Some(inner);
         }
         Ok(())

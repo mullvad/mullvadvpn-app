@@ -2,6 +2,8 @@ use super::{
     ConnectingState, DisconnectedState, EventConsequence, SharedTunnelStateValues, TunnelCommand,
     TunnelCommandReceiver, TunnelState, TunnelStateTransition,
 };
+#[cfg(target_os = "macos")]
+use crate::dns::ResolvedDnsConfig;
 use crate::firewall::FirewallPolicy;
 use futures::StreamExt;
 #[cfg(target_os = "macos")]
@@ -33,10 +35,13 @@ impl ErrorState {
 
         #[cfg(target_os = "macos")]
         if !block_reason.prevents_filtering_resolver() {
-            if let Err(err) = shared_values
-                .dns_monitor
-                .set("lo", &[Ipv4Addr::LOCALHOST.into()])
-            {
+            if let Err(err) = shared_values.dns_monitor.set(
+                "lo",
+                ResolvedDnsConfig {
+                    non_tunnel_config: vec![Ipv4Addr::LOCALHOST.into()],
+                    tunnel_config: vec![],
+                },
+            ) {
                 log::error!(
                     "{}",
                     err.display_chain_with_msg(
@@ -158,7 +163,7 @@ impl TunnelState for ErrorState {
                 SameState(self)
             }
             Some(TunnelCommand::Dns(servers, complete_tx)) => {
-                let consequence = if shared_values.set_dns_servers(servers) {
+                let consequence = if shared_values.set_dns_config(servers) {
                     #[cfg(target_os = "android")]
                     {
                         // DNS is blocked in the error state, so only update tun config

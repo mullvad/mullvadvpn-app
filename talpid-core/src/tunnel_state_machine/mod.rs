@@ -14,7 +14,7 @@ use self::{
 #[cfg(any(windows, target_os = "android", target_os = "macos"))]
 use crate::split_tunnel;
 use crate::{
-    dns::DnsMonitor,
+    dns::{DnsConfig, DnsMonitor},
     firewall::{Firewall, FirewallArguments, InitialFirewallState},
     mpsc::Sender,
     offline,
@@ -37,7 +37,6 @@ use std::os::unix::io::RawFd;
 use std::{
     future::Future,
     io,
-    net::IpAddr,
     path::PathBuf,
     pin::Pin,
     sync::{Arc, Mutex},
@@ -92,8 +91,8 @@ pub struct InitialTunnelState {
     pub allow_lan: bool,
     /// Block traffic unless connected to the VPN.
     pub block_when_disconnected: bool,
-    /// DNS servers to use. If `None`, the tunnel gateway is used.
-    pub dns_servers: Option<Vec<IpAddr>>,
+    /// DNS configuration to use
+    pub dns_config: DnsConfig,
     /// A single endpoint that is allowed to communicate outside the tunnel, i.e.
     /// in any of the blocking states.
     pub allowed_endpoint: AllowedEndpoint,
@@ -188,8 +187,8 @@ pub enum TunnelCommand {
     /// channel after attempting to set the firewall policy, regardless
     /// of whether it succeeded.
     AllowEndpoint(AllowedEndpoint, oneshot::Sender<()>),
-    /// Set DNS servers to use.
-    Dns(Option<Vec<IpAddr>>, oneshot::Sender<()>),
+    /// Set DNS configuration to use.
+    Dns(crate::dns::DnsConfig, oneshot::Sender<()>),
     /// Enable or disable the block_when_disconnected feature.
     BlockWhenDisconnected(bool, oneshot::Sender<()>),
     /// Notify the state machine of the connectivity of the device.
@@ -374,7 +373,7 @@ impl TunnelStateMachine {
             allow_lan: args.settings.allow_lan,
             block_when_disconnected: args.settings.block_when_disconnected,
             connectivity,
-            dns_servers: args.settings.dns_servers,
+            dns_config: args.settings.dns_config,
             allowed_endpoint: args.settings.allowed_endpoint,
             tunnel_parameters_generator: Box::new(args.tunnel_parameters_generator),
             tun_provider: Arc::new(Mutex::new(args.tun_provider)),
@@ -467,8 +466,8 @@ struct SharedTunnelStateValues {
     block_when_disconnected: bool,
     /// True when the computer is known to be offline.
     connectivity: Connectivity,
-    /// DNS servers to use (overriding default).
-    dns_servers: Option<Vec<IpAddr>>,
+    /// DNS configuration to use.
+    dns_config: crate::dns::DnsConfig,
     /// Endpoint that should not be blocked by the firewall.
     allowed_endpoint: AllowedEndpoint,
     /// The generator of new `TunnelParameter`s
@@ -514,6 +513,8 @@ impl SharedTunnelStateValues {
         &mut self,
         metadata: &TunnelMetadata,
     ) -> Result<(), ErrorStateCause> {
+        use std::net::IpAddr;
+
         let v4_address = metadata
             .ips
             .iter()
@@ -555,9 +556,9 @@ impl SharedTunnelStateValues {
         }
     }
 
-    pub fn set_dns_servers(&mut self, dns_servers: Option<Vec<IpAddr>>) -> bool {
-        if self.dns_servers != dns_servers {
-            self.dns_servers = dns_servers;
+    pub fn set_dns_config(&mut self, dns_config: DnsConfig) -> bool {
+        if self.dns_config != dns_config {
+            self.dns_config = dns_config;
             true
         } else {
             false
@@ -627,7 +628,17 @@ impl SharedTunnelStateValues {
         if blocking {
             config.dns_servers = Some(vec![]);
         } else {
-            config.dns_servers = self.dns_servers.clone();
+            config.dns_servers = match self.dns_config.clone() {
+                DnsConfig::Default => None,
+                // TODO: Solve more uniformly
+                DnsConfig::Override {
+                    mut tunnel_config,
+                    non_tunnel_config,
+                } => {
+                    tunnel_config.extend(non_tunnel_config);
+                    Some(tunnel_config)
+                }
+            };
         }
         config.allow_lan = self.allow_lan;
         config.excluded_packages = self.excluded_packages.clone();

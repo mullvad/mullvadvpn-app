@@ -21,6 +21,8 @@ use system_configuration::{
 };
 use talpid_routing::debounce::BurstGuard;
 
+use super::ResolvedDnsConfig;
+
 pub type Result<T> = std::result::Result<T, Error>;
 
 /// Errors that can happen when setting/monitoring DNS on macOS.
@@ -357,9 +359,11 @@ impl super::DnsMonitorT for DnsMonitor {
         })
     }
 
-    fn set(&mut self, interface: &str, servers: &[IpAddr]) -> Result<()> {
+    fn set(&mut self, interface: &str, config: ResolvedDnsConfig) -> Result<()> {
+        let servers = config.addresses().to_owned();
+
         let mut state = self.state.lock();
-        state.apply_new_config(&self.store, interface, servers)
+        state.apply_new_config(&self.store, interface, &servers)
     }
 
     fn reset(&mut self) -> Result<()> {

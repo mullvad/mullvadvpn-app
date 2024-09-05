@@ -754,7 +754,7 @@ impl Daemon {
             tunnel_state_machine::InitialTunnelState {
                 allow_lan: settings.allow_lan,
                 block_when_disconnected: settings.block_when_disconnected,
-                dns_servers: dns::addresses_from_options(&settings.tunnel_options.dns_options),
+                dns_config: dns::addresses_from_options(&settings.tunnel_options.dns_options),
                 allowed_endpoint: access_mode_handler
                     .get_current()
                     .await
