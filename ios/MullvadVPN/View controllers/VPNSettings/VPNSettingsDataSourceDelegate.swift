@@ -15,7 +15,8 @@ protocol DNSSettingsDataSourceDelegate: AnyObject {
 }
 
 protocol VPNSettingsDataSourceDelegate: AnyObject {
-    func didChangeViewModel(_ viewModel: VPNSettingsViewModel)
+    func didUpdateTunnelSettings(_ update: TunnelSettingsUpdate)
+    func didAttemptToChangeDaitaSettings(_ settings: DAITASettings) -> DAITASettingsCompatibilityError?
     func showInfo(for: VPNSettingsInfoButtonItem)
     func showDNSSettings()
     func showIPOverrides()

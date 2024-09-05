@@ -106,18 +106,8 @@ class VPNSettingsViewController: UITableViewController {
 }
 
 extension VPNSettingsViewController: VPNSettingsDataSourceDelegate {
-    func didChangeViewModel(_ viewModel: VPNSettingsViewModel) {
-        interactor.updateSettings(
-            [
-                .obfuscation(WireGuardObfuscationSettings(
-                    state: viewModel.obfuscationState,
-                    port: viewModel.obfuscationPort
-                )),
-                .quantumResistance(viewModel.quantumResistance),
-                .multihop(viewModel.multihopState),
-                .daita(viewModel.daitaSettings),
-            ]
-        )
+    func didUpdateTunnelSettings(_ update: TunnelSettingsUpdate) {
+        interactor.updateSettings([update])
     }
 
     // swiftlint:disable:next function_body_length
@@ -217,58 +207,63 @@ extension VPNSettingsViewController: VPNSettingsDataSourceDelegate {
         interactor.setPort(port)
     }
 
+    func didAttemptToChangeDaitaSettings(_ settings: DAITASettings) -> DAITASettingsCompatibilityError? {
+        interactor.evaluateDaitaSettingsCompatibility(settings)
+    }
+
     func showPrompt(
         for item: VPNSettingsPromptAlertItem,
         onSave: @escaping () -> Void,
         onDiscard: @escaping () -> Void
     ) {
-        switch item {
-        case .daita:
-            let presentation = AlertPresentation(
-                id: "vpn-settings-content-blockers-alert",
-                accessibilityIdentifier: .daitaPromptAlert,
-                icon: .info,
-                message: NSLocalizedString(
-                    "DAITA_INFORMATION_TEXT",
-                    tableName: "DAITA",
-                    value: """
-                    This feature isn't available on all servers. \
-                    You might need to change location after enabling.
-                    Attention: Since this increases your total network traffic,\
-                    be cautious if you have a limited data plan. It can also \
-                    negatively impact your network speed. Please consider \
-                    this if you want to enable DAITA.
-                    """,
-                    comment: ""
-                ),
-                buttons: [
-                    AlertAction(
-                        title: NSLocalizedString(
-                            "VPN_SETTINGS_VPN_DAITA_OK_ACTION",
-                            tableName: "DAITA",
-                            value: "Enable anyway",
-                            comment: ""
-                        ),
-                        style: .default,
-                        accessibilityId: .daitaConfirmAlertEnableButton,
-                        handler: {
-                            onSave()
-                        }
-                    ),
-                    AlertAction(
-                        title: NSLocalizedString(
-                            "VPN_SETTINGS_VPN_DAITA_CANCEL_ACTION",
-                            tableName: "DAITA",
-                            value: "Back",
-                            comment: ""
-                        ),
-                        style: .default, handler: {
-                            onDiscard()
-                        }
-                    ),
-                ]
-            )
-            alertPresenter.showAlert(presentation: presentation, animated: true)
+        let messageString = switch item {
+        case .daitaSettingIncompatibleWithSinglehop:
+            """
+            DAITA isn’t available on the current server. After enabling, please go to \
+            the Switch location view and select a location that supports DAITA.
+            """
+        case .daitaSettingIncompatibleWithMultihop:
+            """
+            DAITA isn’t available on the current entry server. After enabling, please go to \
+            the Switch location view and select an entry location that supports DAITA.
+            """
         }
+
+        let presentation = AlertPresentation(
+            id: "vpn-settings-content-blockers-alert",
+            accessibilityIdentifier: .daitaPromptAlert,
+            icon: .info,
+            message: NSLocalizedString(
+                "DAITA_INFORMATION_TEXT",
+                tableName: "DAITA",
+                value: messageString,
+                comment: ""
+            ),
+            buttons: [
+                AlertAction(
+                    title: NSLocalizedString(
+                        "VPN_SETTINGS_VPN_DAITA_OK_ACTION",
+                        tableName: "DAITA",
+                        value: "Enable anyway",
+                        comment: ""
+                    ),
+                    style: .default,
+                    accessibilityId: .daitaConfirmAlertEnableButton,
+                    handler: { onSave() }
+                ),
+                AlertAction(
+                    title: NSLocalizedString(
+                        "VPN_SETTINGS_VPN_DAITA_CANCEL_ACTION",
+                        tableName: "DAITA",
+                        value: "Back",
+                        comment: ""
+                    ),
+                    style: .default,
+                    handler: { onDiscard() }
+                ),
+            ]
+        )
+
+        alertPresenter.showAlert(presentation: presentation, animated: true)
     }
 }
