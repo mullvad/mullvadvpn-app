@@ -128,11 +128,7 @@ pub async fn install_package(package: Package) -> Result<()> {
 
 #[cfg(target_os = "linux")]
 async fn install_apt(path: &Path) -> Result<()> {
-    let mut cmd = Command::new("/usr/bin/apt");
-    // We don't want to fail due to the global apt lock being
-    // held, which happens sporadically. Wait to acquire the lock
-    // instead.
-    cmd.args(["-o", "DPkg::Lock::Timeout=60"]);
+    let mut cmd = apt_command();
     cmd.arg("install");
     cmd.arg(path.as_os_str());
     cmd.kill_on_drop(true);
@@ -149,11 +145,7 @@ async fn install_apt(path: &Path) -> Result<()> {
 #[cfg(target_os = "linux")]
 async fn uninstall_apt(name: &str, env: HashMap<String, String>, purge: bool) -> Result<()> {
     let action;
-    let mut cmd = Command::new("/usr/bin/apt");
-    // We don't want to fail due to the global apt lock being
-    // held, which happens sporadically. Wait to acquire the lock
-    // instead.
-    cmd.args(["-o", "DPkg::Lock::Timeout=60"]);
+    let mut cmd = apt_command();
     if purge {
         action = "apt purge";
         cmd.args(["purge", name]);
@@ -171,6 +163,20 @@ async fn uninstall_apt(name: &str, env: HashMap<String, String>, purge: bool) ->
         .await
         .map_err(|e| strip_error(Error::RunApp, e))
         .and_then(|output| result_from_output(action, output))
+}
+
+#[cfg(target_os = "linux")]
+fn apt_command() -> Command {
+    let mut cmd = Command::new("/usr/bin/apt-get");
+    // We don't want to fail due to the global apt lock being
+    // held, which happens sporadically. Wait to acquire the lock
+    // instead.
+    cmd.args(["-o", "DPkg::Lock::Timeout=60"]);
+    cmd.arg("-qy");
+
+    cmd.env("DEBIAN_FRONTEND", "noninteractive");
+
+    cmd
 }
 
 #[cfg(target_os = "linux")]
