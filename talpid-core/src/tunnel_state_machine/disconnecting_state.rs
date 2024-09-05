@@ -51,7 +51,7 @@ impl DisconnectingState {
                     AfterDisconnect::Nothing
                 }
                 Some(TunnelCommand::Dns(servers, complete_tx)) => {
-                    let _ = shared_values.set_dns_servers(servers);
+                    let _ = shared_values.set_dns_config(servers);
                     let _ = complete_tx.send(());
                     AfterDisconnect::Nothing
                 }
@@ -105,7 +105,7 @@ impl DisconnectingState {
                     AfterDisconnect::Block(reason)
                 }
                 Some(TunnelCommand::Dns(servers, complete_tx)) => {
-                    let _ = shared_values.set_dns_servers(servers);
+                    let _ = shared_values.set_dns_config(servers);
                     let _ = complete_tx.send(());
                     AfterDisconnect::Block(reason)
                 }
@@ -163,7 +163,7 @@ impl DisconnectingState {
                     AfterDisconnect::Reconnect(retry_attempt)
                 }
                 Some(TunnelCommand::Dns(servers, complete_tx)) => {
-                    let _ = shared_values.set_dns_servers(servers);
+                    let _ = shared_values.set_dns_config(servers);
                     let _ = complete_tx.send(());
                     AfterDisconnect::Reconnect(retry_attempt)
                 }

@@ -1,5 +1,5 @@
 use super::{iphlpapi, netsh, tcpip};
-use crate::dns::DnsMonitorT;
+use crate::dns::{DnsMonitorT, ResolvedDnsConfig};
 use windows_sys::Win32::System::Rpc::RPC_S_SERVER_UNAVAILABLE;
 
 pub struct DnsMonitor {
@@ -12,11 +12,11 @@ enum InnerMonitor {
 }
 
 impl InnerMonitor {
-    fn set(&mut self, interface: &str, servers: &[std::net::IpAddr]) -> Result<(), super::Error> {
+    fn set(&mut self, interface: &str, config: ResolvedDnsConfig) -> Result<(), super::Error> {
         match self {
-            InnerMonitor::Iphlpapi(monitor) => monitor.set(interface, servers)?,
-            InnerMonitor::Netsh(monitor) => monitor.set(interface, servers)?,
-            InnerMonitor::Tcpip(monitor) => monitor.set(interface, servers)?,
+            InnerMonitor::Iphlpapi(monitor) => monitor.set(interface, config)?,
+            InnerMonitor::Netsh(monitor) => monitor.set(interface, config)?,
+            InnerMonitor::Tcpip(monitor) => monitor.set(interface, config)?,
         }
         Ok(())
     }
@@ -53,10 +53,10 @@ impl DnsMonitorT for DnsMonitor {
         Ok(Self { current_monitor })
     }
 
-    fn set(&mut self, interface: &str, servers: &[std::net::IpAddr]) -> Result<(), Self::Error> {
-        let result = self.current_monitor.set(interface, servers);
+    fn set(&mut self, interface: &str, config: ResolvedDnsConfig) -> Result<(), Self::Error> {
+        let result = self.current_monitor.set(interface, config.clone());
         if self.fallback_due_to_dnscache(&result) {
-            return self.set(interface, servers);
+            return self.set(interface, config);
         }
         result
     }

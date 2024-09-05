@@ -47,23 +47,6 @@ std::optional<T> MakeOptional(T* object)
 	return std::make_optional(*object);
 }
 
-//
-// Networks for which DNS requests can be made on all network adapters.
-//
-// This should be synchronized with `ALLOWED_LAN_NETS` in talpid-types,
-// but it also includes loopback addresses.
-//
-wfp::IpNetwork g_privateIpRanges[] = {
-	wfp::IpNetwork(wfp::IpAddress::Literal{127, 0, 0, 0}, 8),
-	wfp::IpNetwork(wfp::IpAddress::Literal{10, 0, 0, 0}, 8),
-	wfp::IpNetwork(wfp::IpAddress::Literal{172, 16, 0, 0}, 12),
-	wfp::IpNetwork(wfp::IpAddress::Literal{192, 168, 0, 0}, 16),
-	wfp::IpNetwork(wfp::IpAddress::Literal{169, 254, 0, 0}, 16),
-	wfp::IpNetwork(wfp::IpAddress::Literal6{0, 0, 0, 0, 0, 0, 0, 1}, 128),
-	wfp::IpNetwork(wfp::IpAddress::Literal6{0xfe80, 0, 0, 0, 0, 0, 0, 0}, 10),
-	wfp::IpNetwork(wfp::IpAddress::Literal6{0xfc80, 0, 0, 0, 0, 0, 0, 0}, 7)
-};
-
 } // anonymous namespace
 
 WINFW_LINKAGE
@@ -303,10 +286,10 @@ WinFw_ApplyPolicyConnected(
 	const wchar_t **relayClients,
 	size_t relayClientsLen,
 	const wchar_t *tunnelInterfaceAlias,
-	const wchar_t *v4Gateway,
-	const wchar_t *v6Gateway,
-	const wchar_t * const *dnsServers,
-	size_t numDnsServers
+	const wchar_t * const *tunnelDnsServers,
+	size_t numTunnelDnsServers,
+	const wchar_t * const *nonTunnelDnsServers,
+	size_t numNonTunnelDnsServers
 )
 {
 	if (nullptr == g_fwContext)
@@ -331,76 +314,51 @@ WinFw_ApplyPolicyConnected(
 			THROW_ERROR("Invalid argument: tunnelInterfaceAlias");
 		}
 
-		if (nullptr == v4Gateway)
+		if (nullptr == tunnelDnsServers)
 		{
-			THROW_ERROR("Invalid argument: v4Gateway");
+			THROW_ERROR("Invalid argument: tunnelDnsServers");
 		}
 
-		if (nullptr == dnsServers)
+		if (nullptr == nonTunnelDnsServers)
 		{
-			THROW_ERROR("Invalid argument: dnsServers");
+			THROW_ERROR("Invalid argument: nonTunnelDnsServers");
 		}
 
-		std::vector<wfp::IpAddress> tunnelDnsServers;
-		std::vector<wfp::IpAddress> nonTunnelDnsServers;
+		std::vector<wfp::IpAddress> convertedTunnelDnsServers;
+		std::vector<wfp::IpAddress> convertedNonTunnelDnsServers;
 
-		const auto v4GatewayIp = wfp::IpAddress(v4Gateway);
-		const auto v6GatewayIp = (nullptr != v6Gateway)
-			? std::make_optional(wfp::IpAddress(v6Gateway))
-			: std::nullopt;
-
-		const auto addToDnsCollection = [&](const std::optional<wfp::IpAddress> &gatewayIp, wfp::IpAddress &&ip)
+		for (size_t i = 0; i < numTunnelDnsServers; i++)
 		{
-			if (gatewayIp.has_value() && *gatewayIp == ip)
-			{
-				// Requests to the gateway IP of the tunnel are only allowed on the tunnel interface.
-				tunnelDnsServers.emplace_back(ip);
-				return;
-			}
-
-			for (const auto &network : g_privateIpRanges)
-			{
-				if (network.includes(ip))
-				{
-					//
-					// Resolvers on the LAN must be accessible outside the tunnel.
-					//
-
-					nonTunnelDnsServers.emplace_back(ip);
-					return;
-				}
-			}
-
-			tunnelDnsServers.emplace_back(ip);
-		};
-
-		for (size_t i = 0; i < numDnsServers; i++)
+			auto ip = wfp::IpAddress(tunnelDnsServers[i]);
+			convertedTunnelDnsServers.push_back(ip);
+		}
+		for (size_t i = 0; i < numNonTunnelDnsServers; i++)
 		{
-			auto ip = wfp::IpAddress(dnsServers[i]);
-			addToDnsCollection(ip.type() == wfp::IpAddress::Type::Ipv4 ? v4GatewayIp : v6GatewayIp, std::move(ip));
+			auto ip = wfp::IpAddress(nonTunnelDnsServers[i]);
+			convertedNonTunnelDnsServers.push_back(ip);
 		}
 
 		if (nullptr != g_logSink)
 		{
 			std::stringstream ss;
 			ss << "Non-tunnel DNS servers: ";
-			for (size_t i = 0; i < nonTunnelDnsServers.size(); i++) {
+			for (size_t i = 0; i < convertedNonTunnelDnsServers.size(); i++) {
 				if (i > 0)
 				{
 					ss << ", ";
 				}
-				ss << common::string::ToAnsi(nonTunnelDnsServers[i].toString());
+				ss << common::string::ToAnsi(convertedNonTunnelDnsServers[i].toString());
 			}
 			g_logSink(MULLVAD_LOG_LEVEL_DEBUG, ss.str().c_str(), g_logSinkContext);
 
 			ss.str(std::string());
 			ss << "Tunnel DNS servers: ";
-			for (size_t i = 0; i < tunnelDnsServers.size(); i++) {
+			for (size_t i = 0; i < convertedTunnelDnsServers.size(); i++) {
 				if (i > 0)
 				{
 					ss << ", ";
 				}
-				ss << common::string::ToAnsi(tunnelDnsServers[i].toString());
+				ss << common::string::ToAnsi(convertedTunnelDnsServers[i].toString());
 			}
 			g_logSink(MULLVAD_LOG_LEVEL_DEBUG, ss.str().c_str(), g_logSinkContext);
 		}
@@ -416,8 +374,8 @@ WinFw_ApplyPolicyConnected(
 			*relay,
 			relayClientWstrings,
 			tunnelInterfaceAlias,
-			tunnelDnsServers,
-			nonTunnelDnsServers
+			convertedTunnelDnsServers,
+			convertedNonTunnelDnsServers
 		) ? WINFW_POLICY_STATUS_SUCCESS : WINFW_POLICY_STATUS_GENERAL_FAILURE;
 	}
 	catch (common::error::WindowsException &err)
