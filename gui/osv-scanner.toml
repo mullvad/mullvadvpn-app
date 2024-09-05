@@ -4,25 +4,25 @@
 # excess of the grpc.max_receive_message_length channel option
 [[IgnoredVulns]]
 id = "CVE-2024-37168" # GHSA-7v5v-9h63-cj86
-ignoreUntil = 2024-09-05
+ignoreUntil = 2024-12-05
 reason = "This component only receives gRPC messages from the trusted mullvad-daemon"
 
 # yargs-parser Vulnerable to Prototype Pollution
 [[IgnoredVulns]]
 id = "CVE-2020-7608" # GHSA-p9pc-299p-vxgp
-ignoreUntil = 2024-09-05
+ignoreUntil = 2024-12-05
 reason = "This package is only used to parse commands run by either us or trusted libraries"
 
 # PostCSS line return parsing error
 [[IgnoredVulns]]
 id = "CVE-2023-44270" # GHSA-7fh5-64p2-3v2j
-ignoreUntil = 2024-09-05
+ignoreUntil = 2024-12-05
 reason = "This project does not use PostCSS to parse untrusted CSS"
 
 # braces: Uncontrolled resource consumption
 [[IgnoredVulns]]
 id = "CVE-2024-4068" # GHSA-grv7-fg5c-xmjg
-ignoreUntil = 2024-09-05
+ignoreUntil = 2024-12-05
 reason = "This package is only used to match paths from either us or trusted libraries"
 
 # elliptic: Elliptic allows BER-encoded signatures
