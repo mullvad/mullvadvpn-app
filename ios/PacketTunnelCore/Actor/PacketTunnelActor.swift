@@ -10,6 +10,7 @@ import Foundation
 import MullvadLogging
 import MullvadREST
 import MullvadRustRuntime
+import MullvadSettings
 import MullvadTypes
 import NetworkExtension
 import WireGuardKitTypes
@@ -370,6 +371,7 @@ extension PacketTunnelActor {
                 nextRelays: nextRelays,
                 relayConstraints: settings.relayConstraints,
                 currentRelays: maybeCurrentRelays,
+                tunnelSettings: settings.tunnelSettings,
                 connectionAttemptCount: connectionCount
             )
         }
@@ -488,6 +490,7 @@ extension PacketTunnelActor {
         nextRelays: NextRelays,
         relayConstraints: RelayConstraints,
         currentRelays: SelectedRelays?,
+        tunnelSettings: LatestTunnelSettings,
         connectionAttemptCount: UInt
     ) throws -> SelectedRelays {
         switch nextRelays {
@@ -500,7 +503,10 @@ extension PacketTunnelActor {
             }
 
         case .random:
-            return try relaySelector.selectRelays(connectionAttemptCount: connectionAttemptCount)
+            return try relaySelector.selectRelays(
+                tunnelSettings: tunnelSettings,
+                connectionAttemptCount: connectionAttemptCount
+            )
 
         case let .preSelected(selectedRelays):
             return selectedRelays

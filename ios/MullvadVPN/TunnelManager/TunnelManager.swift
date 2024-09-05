@@ -785,7 +785,10 @@ final class TunnelManager: StorePaymentObserver {
     fileprivate func selectRelays() throws -> SelectedRelays {
         let retryAttempts = tunnelStatus.observedState.connectionState?.connectionAttemptCount ?? 0
 
-        return try relaySelector.selectRelays(connectionAttemptCount: retryAttempts)
+        return try relaySelector.selectRelays(
+            tunnelSettings: settings,
+            connectionAttemptCount: retryAttempts
+        )
     }
 
     fileprivate func prepareForVPNConfigurationDeletion() {

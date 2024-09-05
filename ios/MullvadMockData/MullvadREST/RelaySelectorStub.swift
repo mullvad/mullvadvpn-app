@@ -7,6 +7,7 @@
 //
 
 import MullvadREST
+import MullvadSettings
 import MullvadTypes
 import WireGuardKitTypes
 
@@ -18,7 +19,10 @@ public final class RelaySelectorStub: RelaySelectorProtocol {
         self.selectedRelaysResult = selectedRelaysResult
     }
 
-    public func selectRelays(connectionAttemptCount: UInt) throws -> SelectedRelays {
+    public func selectRelays(
+        tunnelSettings: LatestTunnelSettings,
+        connectionAttemptCount: UInt
+    ) throws -> SelectedRelays {
         return try selectedRelaysResult(connectionAttemptCount)
     }
 }
