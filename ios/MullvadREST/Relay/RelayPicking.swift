@@ -52,19 +52,19 @@ struct SinglehopPicker: RelayPicking {
                 daitaEnabled: daitaSettings.state.isEnabled
             )
         } catch let error as NoRelaysSatisfyingConstraintsError where error.reason == .noDaitaRelaysFound {
-            #if DEBUG
-            // If DAITA is enabled and no supported relays are found, we should try to find the nearest
-            // available relay that supports DAITA and use it as entry in a multihop selection.
-            var constraints = constraints
-            constraints.entryLocations = .any
-
-            return try MultihopPicker(
-                constraints: constraints,
-                daitaSettings: daitaSettings,
-                relays: relays,
-                connectionAttemptCount: connectionAttemptCount
-            ).pick()
-            #endif
+//            #if DEBUG
+//            // If DAITA is enabled and no supported relays are found, we should try to find the nearest
+//            // available relay that supports DAITA and use it as entry in a multihop selection.
+//            var constraints = constraints
+//            constraints.entryLocations = .any
+//
+//            return try MultihopPicker(
+//                constraints: constraints,
+//                daitaSettings: daitaSettings,
+//                relays: relays,
+//                connectionAttemptCount: connectionAttemptCount
+//            ).pick()
+//            #endif
         }
 
         let match = try findBestMatch(from: exitCandidates)
