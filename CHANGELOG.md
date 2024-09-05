@@ -41,6 +41,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 #### Linux
 - Set tunnel name to `wg0-mullvad` for userspace WireGuard.
+- Fix missing AppArmor profile when upgrading to Ubuntu 24.04.
 
 #### macOS
 - Exclude programs when executed using a relative path from a shell.
