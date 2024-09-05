@@ -77,6 +77,8 @@ mkdir -p "app/build/extraAssets"
 mkdir -p "app/build/extraJni"
 popd
 
+cargo install --force cbindgen
+
 for ARCHITECTURE in ${ARCHITECTURES:-x86_64}; do
     case "$ARCHITECTURE" in
         "x86_64")
@@ -98,7 +100,7 @@ for ARCHITECTURE in ${ARCHITECTURES:-x86_64}; do
     esac
 
     echo "Building mullvad-daemon for $TARGET"
-    cargo build "${CARGO_ARGS[@]}" --target "$TARGET" --package mullvad-jni -j 1
+    cargo build "${CARGO_ARGS[@]}" --target "$TARGET" --package mullvad-jni
 
     STRIP_TOOL="${NDK_TOOLCHAIN_DIR}/llvm-strip"
     TARGET_LIB_PATH="$SCRIPT_DIR/android/app/build/extraJni/$ABI/libmullvad_jni.so"
