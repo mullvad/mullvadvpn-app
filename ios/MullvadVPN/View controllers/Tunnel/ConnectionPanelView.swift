@@ -29,15 +29,15 @@ class ConnectionPanelView: UIView {
 
     var connectedRelayName = "" {
         didSet {
-            collapseButton.accessibilityIdentifier = .relayStatusCollapseButton
-            collapseButton.setTitle(connectedRelayName, for: .normal)
-            collapseButton.accessibilityLabel = NSLocalizedString(
+            collapseView.accessibilityIdentifier = .relayStatusCollapseButton
+            collapseView.title.text = connectedRelayName
+            collapseView.accessibilityLabel = NSLocalizedString(
                 "RELAY_ACCESSIBILITY_LABEL",
                 tableName: "ConnectionPanel",
                 value: "Connected relay",
                 comment: ""
             )
-            collapseButton.accessibilityAttributedValue = NSAttributedString(
+            collapseView.accessibilityAttributedValue = NSAttributedString(
                 string: connectedRelayName.replacingOccurrences(
                     of: "-wireguard",
                     with: " WireGuard"
@@ -47,8 +47,8 @@ class ConnectionPanelView: UIView {
         }
     }
 
-    private let collapseButton: ConnectionPanelCollapseButton = {
-        let button = ConnectionPanelCollapseButton(type: .custom)
+    private let collapseView: ConnectionPanelCollapseView = {
+        let button = ConnectionPanelCollapseView()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.tintColor = .white
         return button
@@ -92,16 +92,16 @@ class ConnectionPanelView: UIView {
             comment: ""
         )
 
-        addSubview(collapseButton)
+        addSubview(collapseView)
         addSubview(stackView)
         addLayoutGuide(textLabelLayoutGuide)
 
         NSLayoutConstraint.activate([
-            collapseButton.topAnchor.constraint(equalTo: topAnchor),
-            collapseButton.leadingAnchor.constraint(equalTo: leadingAnchor),
-            collapseButton.trailingAnchor.constraint(equalTo: trailingAnchor),
+            collapseView.topAnchor.constraint(equalTo: topAnchor),
+            collapseView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            collapseView.trailingAnchor.constraint(equalTo: trailingAnchor),
 
-            stackView.topAnchor.constraint(equalTo: collapseButton.bottomAnchor, constant: 4),
+            stackView.topAnchor.constraint(equalTo: collapseView.bottomAnchor, constant: 4),
             stackView.leadingAnchor.constraint(equalTo: leadingAnchor),
             stackView.trailingAnchor.constraint(equalTo: trailingAnchor),
             stackView.bottomAnchor.constraint(equalTo: bottomAnchor),
@@ -119,7 +119,12 @@ class ConnectionPanelView: UIView {
         updateConnectionInfoVisibility()
         updateCollapseButtonAccessibilityHint()
 
-        collapseButton.addTarget(self, action: #selector(toggleCollapse(_:)), for: .touchUpInside)
+        let longPressGestureRecognizer = UILongPressGestureRecognizer(
+            target: self,
+            action: #selector(toggleCollapse(_:))
+        )
+        longPressGestureRecognizer.minimumPressDuration = 0
+        collapseView.addGestureRecognizer(longPressGestureRecognizer)
     }
 
     required init?(coder: NSCoder) {
@@ -138,15 +143,25 @@ class ConnectionPanelView: UIView {
         showsConnectionInfo = !showsConnectionInfo
     }
 
-    @objc private func toggleCollapse(_ sender: Any) {
-        toggleConnectionInfoVisibility()
+    @objc private func toggleCollapse(_ sender: UILongPressGestureRecognizer) {
+        switch sender.state {
+        case .began:
+            collapseView.title.textColor = .lightGray
+            collapseView.imageView.tintColor = .lightGray
+        case .ended:
+            collapseView.title.textColor = .white
+            collapseView.imageView.tintColor = .white
+            toggleConnectionInfoVisibility()
+        default:
+            break
+        }
     }
 
     private func updateConnectionInfoVisibility() {
         stackView.isHidden = !showsConnectionInfo
-        collapseButton.style = showsConnectionInfo ? .up : .down
+        collapseView.style = showsConnectionInfo ? .up : .down
 
-        if collapseButton.accessibilityElementIsFocused(), showsConnectionInfo {
+        if collapseView.accessibilityElementIsFocused(), showsConnectionInfo {
             UIAccessibility.post(
                 notification: .layoutChanged,
                 argument: stackView.arrangedSubviews.first
@@ -157,14 +172,14 @@ class ConnectionPanelView: UIView {
 
     private func updateCollapseButtonAccessibilityHint() {
         if showsConnectionInfo {
-            collapseButton.accessibilityHint = NSLocalizedString(
+            collapseView.accessibilityHint = NSLocalizedString(
                 "COLLAPSE_BUTTON_ACCESSIBILITY_HINT",
                 tableName: "ConnectionPanel",
                 value: "Double tap to collapse the connection info panel.",
                 comment: ""
             )
         } else {
-            collapseButton.accessibilityHint = NSLocalizedString(
+            collapseView.accessibilityHint = NSLocalizedString(
                 "EXPAND_BUTTON_ACCESSIBILITY_HINT",
                 tableName: "ConnectionPanel",
                 value: "Double tap to expand the connection info panel.",
@@ -251,7 +266,7 @@ class ConnectionPanelAddressRow: UIView {
     }
 }
 
-class ConnectionPanelCollapseButton: CustomButton {
+class ConnectionPanelCollapseView: UIStackView {
     enum Style {
         case up, down
 
@@ -267,35 +282,43 @@ class ConnectionPanelCollapseButton: CustomButton {
 
     var style = Style.up {
         didSet {
-            updateButtonImage()
+            updateImage()
         }
     }
 
+    private(set) var title: UILabel = {
+        let button = UILabel()
+        button.textColor = .white
+        button.numberOfLines = 0
+        return button
+    }()
+
+    private(set) var imageView: UIImageView = {
+        return UIImageView()
+    }()
+
     override init(frame: CGRect) {
         super.init(frame: frame)
-        commonInit()
-    }
 
-    required init?(coder: NSCoder) {
-        super.init(coder: coder)
-        commonInit()
-    }
+        let imageContainer = UIStackView()
+        imageContainer.axis = .vertical
+        imageContainer.addArrangedSubview(imageView)
+        imageContainer.addArrangedSubview(UIView()) // Pushes content up.
 
-    private func commonInit() {
-        setTitleColor(UIColor.white, for: .normal)
-        setTitleColor(UIColor.lightGray, for: .highlighted)
-        setTitleColor(UIColor.lightGray, for: .disabled)
+        addArrangedSubview(title)
+        addArrangedSubview(imageContainer)
+        addArrangedSubview(UIView()) // Pushes content left.
 
-        contentHorizontalAlignment = .leading
-        imageAlignment = .trailing
-        inlineImageSpacing = 0
+        updateImage()
 
         accessibilityIdentifier = .connectionPanelButton
-
-        updateButtonImage()
     }
 
-    private func updateButtonImage() {
-        setImage(style.image, for: .normal)
+    required init(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    private func updateImage() {
+        imageView.image = style.image
     }
 }
