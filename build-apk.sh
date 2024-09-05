@@ -111,6 +111,8 @@ for ARCHITECTURE in ${ARCHITECTURES:-x86_64}; do
     fi
 done
 
+echo "DAEMON BUILT!"
+
 exit 0
 
 echo "Updating relays.json..."

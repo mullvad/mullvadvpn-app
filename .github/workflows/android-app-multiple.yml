@@ -1,0 +1,61 @@
+---
+name: Android - Multibuild
+on:
+  workflow_dispatch:
+    inputs:
+      override_container_image:
+        description: Override container image
+        type: string
+        required: false
+  pull_request:
+
+permissions: {}
+
+jobs:
+  prepare:
+    name: Prepare
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Use custom container image if specified
+        if: ${{ github.event.inputs.override_container_image != '' }}
+        run: echo "inner_container_image=${{ github.event.inputs.override_container_image }}"
+          >> $GITHUB_ENV
+
+      - name: Use default container image and resolve digest
+        if: ${{ github.event.inputs.override_container_image == '' }}
+        run: |
+          echo "inner_container_image=$(cat ./building/android-container-image.txt)" >> $GITHUB_ENV
+    outputs:
+      container_image: ${{ env.inner_container_image }}
+
+  build-app:
+    name: Build app (multiple)
+    needs: prepare
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ needs.prepare.outputs.container_image }}
+    strategy:
+      matrix:
+        attempt: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    steps:
+      # Fix for HOME path overridden by GH runners when building in containers, see:
+      # https://github.com/actions/runner/issues/863
+      - name: Fix HOME path
+        run: echo "HOME=/root" >> $GITHUB_ENV
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Checkout wireguard-go-rs recursively
+        run: |
+          git config --global --add safe.directory '*'
+          git submodule update --init --recursive --depth=1 wireguard-go-rs
+
+      - name: Run build script
+        shell: bash
+        run: ./build-apk.sh --dev-build
