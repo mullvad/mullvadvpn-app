@@ -10,7 +10,14 @@ import Foundation
 import MullvadTypes
 
 public protocol RelayCacheProtocol {
+    /// Reads from a cached list,
+    /// which falls back to reading from prebundled relays if there was no cache hit
     func read() throws -> CachedRelays
+    /// Reads the relays file that were prebundled with the app installation.
+    ///
+    /// > Warning: Prefer `read()` over this unless there is an explicit need to read
+    /// relays from the bundle, because those might contain stale data.
+    func readPrebundledRelays() throws -> CachedRelays
     func write(record: CachedRelays) throws
 }
 
@@ -49,7 +56,7 @@ public final class RelayCache: RelayCacheProtocol {
     }
 
     /// Read pre-bundled relays file from disk.
-    private func readPrebundledRelays() throws -> CachedRelays {
+    public func readPrebundledRelays() throws -> CachedRelays {
         guard let prebundledRelaysFileURL = Bundle(for: Self.self).url(forResource: "relays", withExtension: "json")
         else { throw CocoaError(.fileNoSuchFile) }
 
