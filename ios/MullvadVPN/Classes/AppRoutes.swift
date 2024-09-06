@@ -57,8 +57,10 @@ enum AppRouteGroup: AppRouteGroupProtocol {
         switch self {
         case .primary:
             return 0
-        case .settings, .account, .selectLocation, .changelog:
+        case .account, .selectLocation, .changelog:
             return 1
+        case .settings:
+            return 2
         case .alert:
             // Alerts should always be topmost.
             return .max
@@ -103,7 +105,7 @@ enum AppRoute: AppRouteProtocol {
 
     var isExclusive: Bool {
         switch self {
-        case .selectLocation, .account, .settings, .changelog, .alert:
+        case .account, .settings, .changelog, .alert:
             return true
         default:
             return false

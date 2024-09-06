@@ -44,6 +44,10 @@ public struct DAITASettings: Codable, Equatable {
         daitaState.isEnabled && !directOnlyState.isEnabled
     }
 
+    public var shouldDoDirectOnly: Bool {
+        daitaState.isEnabled && directOnlyState.isEnabled
+    }
+
     public init(daitaState: DAITAState = .off, directOnlyState: DirectOnlyState = .off) {
         self.daitaState = daitaState
         self.directOnlyState = directOnlyState
