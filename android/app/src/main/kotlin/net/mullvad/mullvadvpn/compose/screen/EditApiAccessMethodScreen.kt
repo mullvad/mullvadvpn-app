@@ -12,7 +12,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -49,7 +48,7 @@ import net.mullvad.mullvadvpn.compose.component.NavigateCloseIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.component.textResource
-import net.mullvad.mullvadvpn.compose.preview.EditApiAccessMethodUiStateParameterProvider
+import net.mullvad.mullvadvpn.compose.preview.EditApiAccessMethodUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.ApiAccessMethodTypes
 import net.mullvad.mullvadvpn.compose.state.EditApiAccessFormData
 import net.mullvad.mullvadvpn.compose.state.EditApiAccessMethodUiState
@@ -76,7 +75,7 @@ import org.koin.androidx.compose.koinViewModel
 @Preview
 @Composable
 private fun PreviewEditApiAccessMethodScreen(
-    @PreviewParameter(EditApiAccessMethodUiStateParameterProvider::class)
+    @PreviewParameter(EditApiAccessMethodUiStatePreviewParameterProvider::class)
     state: EditApiAccessMethodUiState
 ) {
     AppTheme { EditApiAccessMethodScreen(state = state) }

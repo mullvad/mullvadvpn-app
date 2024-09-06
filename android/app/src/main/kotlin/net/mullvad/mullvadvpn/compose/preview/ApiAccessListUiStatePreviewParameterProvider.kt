@@ -3,7 +3,8 @@ package net.mullvad.mullvadvpn.compose.preview
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.ApiAccessListUiState
 
-class ApiAccessListUiStateParameterProvider : PreviewParameterProvider<ApiAccessListUiState> {
+class ApiAccessListUiStatePreviewParameterProvider :
+    PreviewParameterProvider<ApiAccessListUiState> {
 
     override val values: Sequence<ApiAccessListUiState> =
         sequenceOf(

@@ -49,8 +49,7 @@ import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicator
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
-import net.mullvad.mullvadvpn.compose.preview.DeviceListPreviewParameterProvider
-import net.mullvad.mullvadvpn.compose.state.DeviceItemUiState
+import net.mullvad.mullvadvpn.compose.preview.DeviceListUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.DeviceListUiState
 import net.mullvad.mullvadvpn.compose.transitions.DefaultTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
@@ -58,7 +57,6 @@ import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.Device
 import net.mullvad.mullvadvpn.lib.model.DeviceId
-import net.mullvad.mullvadvpn.lib.model.GetDeviceListError
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.selected
@@ -72,32 +70,9 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 @Preview
 private fun PreviewDeviceListScreenContent(
-    @PreviewParameter(DeviceListPreviewParameterProvider::class) devices: List<DeviceItemUiState>
+    @PreviewParameter(DeviceListUiStatePreviewParameterProvider::class) state: DeviceListUiState
 ) {
-    AppTheme { DeviceListScreen(state = DeviceListUiState.Content(devices = devices)) }
-}
-
-@Composable
-@Preview
-private fun PreviewDeviceListScreenEmpty() {
-    AppTheme { DeviceListScreen(state = DeviceListUiState.Content(devices = emptyList())) }
-}
-
-@Composable
-@Preview
-private fun PreviewDeviceListLoading() {
-    AppTheme { DeviceListScreen(state = DeviceListUiState.Loading) }
-}
-
-@Composable
-@Preview
-private fun PreviewDeviceListError() {
-    AppTheme {
-        DeviceListScreen(
-            state =
-                DeviceListUiState.Error(GetDeviceListError.Unknown(IllegalStateException("Error")))
-        )
-    }
+    AppTheme { DeviceListScreen(state = state) }
 }
 
 data class DeviceListNavArgs(val accountNumber: AccountNumber)
