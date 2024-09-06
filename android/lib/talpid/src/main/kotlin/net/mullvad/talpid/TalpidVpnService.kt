@@ -85,7 +85,7 @@ open class TalpidVpnService : LifecycleVpnService() {
         val builder =
             Builder().apply {
                 for (address in config.addresses) {
-                    addAddress(address, prefixForAddress(address))
+                    addAddress(address, address.prefixLength())
                 }
 
                 for (dnsServer in config.dnsServers) {
@@ -117,12 +117,23 @@ open class TalpidVpnService : LifecycleVpnService() {
                 setMeteredIfSupported(false)
             }
 
-        val vpnInterface = builder.establish()
-        val tunFd = vpnInterface?.detachFd()
+        val vpnInterfaceFd =
+            try {
+                builder.establish()
+            } catch (e: IllegalStateException) {
+                Logger.e("Failed to establish, a parameter could not be applied", e)
+                return CreateTunResult.TunnelDeviceError
+            } catch (e: IllegalArgumentException) {
+                Logger.e("Failed to establish a parameter was not accepted", e)
+                return CreateTunResult.TunnelDeviceError
+            }
 
-        if (tunFd == null) {
+        if (vpnInterfaceFd == null) {
+            Logger.e("VpnInterface returned null")
             return CreateTunResult.TunnelDeviceError
         }
+
+        val tunFd = vpnInterfaceFd.detachFd()
 
         waitForTunnelUp(tunFd, config.routes.any { route -> route.isIpv6 })
 
@@ -137,17 +148,19 @@ open class TalpidVpnService : LifecycleVpnService() {
         return protect(socket)
     }
 
-    private fun prefixForAddress(address: InetAddress): Int {
-        return when (address) {
-            is Inet4Address -> 32
-            is Inet6Address -> 128
+    private fun InetAddress.prefixLength(): Int =
+        when (this) {
+            is Inet4Address -> IPV4_PREFIX_LENGTH
+            is Inet6Address -> IPV6_PREFIX_LENGTH
             else -> throw IllegalArgumentException("Invalid IP address (not IPv4 nor IPv6)")
         }
-    }
 
     private external fun waitForTunnelUp(tunFd: Int, isIpv6Enabled: Boolean)
 
     companion object {
         private const val FALLBACK_DUMMY_DNS_SERVER = "192.0.2.1"
+
+        private const val IPV4_PREFIX_LENGTH = 32
+        private const val IPV6_PREFIX_LENGTH = 128
     }
 }
