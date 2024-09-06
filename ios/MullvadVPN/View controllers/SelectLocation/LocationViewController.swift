@@ -26,7 +26,7 @@ final class LocationViewController: UIViewController {
     private var relaysWithLocation: LocationRelays?
     private var filter = RelayFilter()
     private var selectedRelays: RelaySelection
-    private var daitaEnabled: Bool
+    private var shouldFilterDaita: Bool
     weak var delegate: LocationViewControllerDelegate?
     var customListRepository: CustomListRepositoryProtocol
 
@@ -35,17 +35,17 @@ final class LocationViewController: UIViewController {
     }
 
     var filterViewShouldBeHidden: Bool {
-        !daitaEnabled && (filter.ownership == .any) && (filter.providers == .any)
+        !shouldFilterDaita && (filter.ownership == .any) && (filter.providers == .any)
     }
 
     init(
         customListRepository: CustomListRepositoryProtocol,
         selectedRelays: RelaySelection,
-        daitaEnabled: Bool = false
+        shouldFilterDaita: Bool
     ) {
         self.customListRepository = customListRepository
         self.selectedRelays = selectedRelays
-        self.daitaEnabled = daitaEnabled
+        self.shouldFilterDaita = shouldFilterDaita
 
         super.init(nibName: nil, bundle: nil)
     }
@@ -154,7 +154,7 @@ final class LocationViewController: UIViewController {
         topContentView.addArrangedSubview(searchBar)
 
         filterView.isHidden = filterViewShouldBeHidden
-        filterView.setDaita(daitaEnabled)
+        filterView.setDaita(shouldFilterDaita)
 
         filterView.didUpdateFilter = { [weak self] in
             self?.delegate?.didUpdateFilter(filter: $0)
