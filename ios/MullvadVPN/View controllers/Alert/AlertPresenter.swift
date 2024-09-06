@@ -9,9 +9,11 @@
 import Routing
 
 struct AlertPresenter {
-    let context: any Presenting
+    weak var context: (any Presenting)?
 
     func showAlert(presentation: AlertPresentation, animated: Bool) {
+        guard let context else { return }
+
         context.applicationRouter?.presentAlert(
             route: .alert(presentation.id),
             animated: animated,
@@ -20,7 +22,7 @@ struct AlertPresenter {
     }
 
     func dismissAlert(presentation: AlertPresentation, animated: Bool) {
-        context.applicationRouter?.dismiss(.alert(presentation.id), animated: animated)
+        context?.applicationRouter?.dismiss(.alert(presentation.id), animated: animated)
     }
 }
 
