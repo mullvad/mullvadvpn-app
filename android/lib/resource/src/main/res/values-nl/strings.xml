@@ -74,6 +74,7 @@
     <string name="confirm_removal">Ja, apparaat afmelden</string>
     <string name="congrats">Gefeliciteerd!</string>
     <string name="connect">Mijn verbinding beveiligen</string>
+    <string name="connected_using_daita">%1$s via %2$s</string>
     <string name="connecting">Bezig met verbinden</string>
     <string name="connecting_to_daemon">Verbinden met Mullvad-systeemdienst...</string>
     <string name="continue_login">Doorgaan met aanmelden</string>
@@ -100,6 +101,8 @@
     <string name="custom_port_dialog_title">Aangepaste WireGuard-poort</string>
     <string name="custom_port_dialog_valid_ranges">Geldige bereiken: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Kan host van aangepaste tunnel niet omzetten. Probeer uw instellingen te wijzigen.</string>
+    <string name="daita_info">%1$s (%2$s) verbergt patronen in het versleutelde VPN-verkeer. Als iemand de verbinding in de gaten houdt, maakt dit het aanzienlijk moeilijker voor diegene om te zien welke websites u bezoekt. Dit wordt gedaan door zorgvuldig netwerkruis toe te voegen en alle netwerkpakketten even groot te maken.</string>
+    <string name="daita_warning">Let op: omdat dit het totale netwerkverkeer verhoogt, moet u voorzichtig zijn als u een beperkt data-abonnement hebt. Ook kan het uw netwerksnelheid negatief beïnvloeden. Houd hier rekening mee als u %1$s wilt inschakelen.</string>
     <string name="delete">Verwijderen</string>
     <string name="delete_custom_list_confirmation_description">\"%1$s\" verwijderen?</string>
     <string name="delete_custom_list_message">\"%1$s\" is verwijderd</string>
@@ -133,6 +136,7 @@
     <string name="edit_method">Methode bewerken</string>
     <string name="edit_name">Naam bewerken</string>
     <string name="enable">Inschakelen</string>
+    <string name="enable_anyway">Toch inschakelen</string>
     <string name="enable_custom_dns">Aangepaste DNS-server gebruiken</string>
     <string name="enable_method">Methode inschakelen</string>
     <string name="enter_value_placeholder">Voer MTU in</string>
@@ -288,6 +292,7 @@
     <string name="server_ip_overrides_reset_title">Alle overschrijvingen resetten</string>
     <string name="set_dns_error">Kan DNS-server van systeem niet instellen. Stuur een probleemrapport.</string>
     <string name="set_firewall_policy_error">Kan firewallregels niet toepassen. Los problemen op of stuur een probleemmelding.</string>
+    <string name="setting_chip">Instelling: %1$s</string>
     <string name="settings">Instellingen</string>
     <string name="settings_account">Account</string>
     <string name="settings_api_access">API-toegang</string>

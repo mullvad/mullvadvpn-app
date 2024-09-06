@@ -3,7 +3,7 @@
 use crate::types;
 #[cfg(not(target_os = "android"))]
 use futures::{Stream, StreamExt};
-#[cfg(daita)]
+#[cfg(all(daita, not(target_os = "android")))]
 use mullvad_types::wireguard::DaitaSettings;
 use mullvad_types::{
     access_method::AccessMethodSetting,

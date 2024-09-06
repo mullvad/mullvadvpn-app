@@ -9,12 +9,12 @@ enum class FeatureIndicator {
     CUSTOM_DNS,
     SERVER_IP_OVERRIDE,
     CUSTOM_MTU,
+    DAITA,
     // Currently not supported
     // LOCKDOWN_MODE,
     // SHADOWSOCKS,
     // MULTIHOP,
     // BRIDGE_MODE,
     // CUSTOM_MSS_FIX,
-    // DAITA,
     // UNRECOGNIZED,
 }

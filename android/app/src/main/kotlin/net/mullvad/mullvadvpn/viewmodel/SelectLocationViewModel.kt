@@ -36,6 +36,7 @@ import net.mullvad.mullvadvpn.relaylist.newFilterOnSearch
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.repository.RelayListRepository
+import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.usecase.AvailableProvidersUseCase
 import net.mullvad.mullvadvpn.usecase.FilteredRelayListUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
@@ -51,6 +52,7 @@ class SelectLocationViewModel(
     private val customListActionUseCase: CustomListActionUseCase,
     private val filteredRelayListUseCase: FilteredRelayListUseCase,
     private val relayListRepository: RelayListRepository,
+    private val settingsRepository: SettingsRepository,
 ) : ViewModel() {
     private val _searchTerm = MutableStateFlow(EMPTY_SEARCH_TERM)
 
@@ -110,7 +112,8 @@ class SelectLocationViewModel(
             relayListFilterRepository.selectedOwnership,
             relayListFilterRepository.selectedProviders,
             availableProvidersUseCase(),
-        ) { selectedOwnership, selectedConstraintProviders, allProviders ->
+            settingsRepository.settingsUpdates,
+        ) { selectedOwnership, selectedConstraintProviders, allProviders, settings ->
             val ownershipFilter = selectedOwnership.getOrNull()
             val providerCountFilter =
                 when (selectedConstraintProviders) {
@@ -122,13 +125,15 @@ class SelectLocationViewModel(
                             )
                             .size
                 }
-
             buildList {
                 if (ownershipFilter != null) {
                     add(FilterChip.Ownership(ownershipFilter))
                 }
                 if (providerCountFilter != null) {
                     add(FilterChip.Provider(providerCountFilter))
+                }
+                if (settings?.isDaitaEnabled() == true) {
+                    add(FilterChip.Daita)
                 }
             }
         }
