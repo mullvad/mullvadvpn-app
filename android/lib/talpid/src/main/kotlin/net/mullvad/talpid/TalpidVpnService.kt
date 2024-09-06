@@ -85,7 +85,7 @@ open class TalpidVpnService : LifecycleVpnService() {
         val builder =
             Builder().apply {
                 for (address in config.addresses) {
-                    addAddress(address, prefixForAddress(address))
+                    addAddress(address, address.prefixLength())
                 }
 
                 for (dnsServer in config.dnsServers) {
@@ -137,17 +137,19 @@ open class TalpidVpnService : LifecycleVpnService() {
         return protect(socket)
     }
 
-    private fun prefixForAddress(address: InetAddress): Int {
-        return when (address) {
-            is Inet4Address -> 32
-            is Inet6Address -> 128
+    private fun InetAddress.prefixLength(): Int =
+        when (this) {
+            is Inet4Address -> IPV4_PREFIX_LENGTH
+            is Inet6Address -> IPV6_PREFIX_LENGTH
             else -> throw IllegalArgumentException("Invalid IP address (not IPv4 nor IPv6)")
         }
-    }
 
     private external fun waitForTunnelUp(tunFd: Int, isIpv6Enabled: Boolean)
 
     companion object {
         private const val FALLBACK_DUMMY_DNS_SERVER = "192.0.2.1"
+
+        private const val IPV4_PREFIX_LENGTH = 32
+        private const val IPV6_PREFIX_LENGTH = 128
     }
 }
