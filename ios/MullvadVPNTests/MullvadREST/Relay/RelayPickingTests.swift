@@ -23,10 +23,10 @@ class RelayPickingTests: XCTestCase {
         )
 
         let picker = SinglehopPicker(
-            constraints: constraints,
-            daitaSettings: DAITASettings(daitaState: .off),
             relays: sampleRelays,
-            connectionAttemptCount: 0
+            constraints: constraints,
+            connectionAttemptCount: 0,
+            daitaSettings: DAITASettings()
         )
 
         let selectedRelays = try picker.pick()
@@ -42,10 +42,11 @@ class RelayPickingTests: XCTestCase {
         )
 
         let picker = MultihopPicker(
-            constraints: constraints,
-            daitaSettings: DAITASettings(daitaState: .off),
             relays: sampleRelays,
-            connectionAttemptCount: 0
+            constraints: constraints,
+            connectionAttemptCount: 0,
+            daitaSettings: DAITASettings(),
+            automaticDaitaRouting: false
         )
 
         let selectedRelays = try picker.pick()
@@ -61,10 +62,11 @@ class RelayPickingTests: XCTestCase {
         )
 
         let picker = MultihopPicker(
-            constraints: constraints,
-            daitaSettings: DAITASettings(daitaState: .off),
             relays: sampleRelays,
-            connectionAttemptCount: 0
+            constraints: constraints,
+            connectionAttemptCount: 0,
+            daitaSettings: DAITASettings(),
+            automaticDaitaRouting: false
         )
 
         XCTAssertThrowsError(
@@ -73,5 +75,128 @@ class RelayPickingTests: XCTestCase {
             let error = error as? NoRelaysSatisfyingConstraintsError
             XCTAssertEqual(error?.reason, .entryEqualsExit)
         }
+    }
+
+    func testDirectOnlyOffDaitaOnForSinglehopWithoutDaitaRelay() throws {
+        let constraints = RelayConstraints(
+            exitLocations: .only(UserSelectedRelays(locations: [.hostname("se", "got", "se10-wireguard")]))
+        )
+
+        let picker = SinglehopPicker(
+            relays: sampleRelays,
+            constraints: constraints,
+            connectionAttemptCount: 0,
+            daitaSettings: DAITASettings(daitaState: .on, directOnlyState: .off)
+        )
+
+        let selectedRelays = try picker.pick()
+
+        XCTAssertEqual(selectedRelays.entry?.hostname, "es1-wireguard") // Madrid relay is closest to exit relay.
+        XCTAssertEqual(selectedRelays.exit.hostname, "se10-wireguard")
+    }
+
+    func testDirectOnlyOnDaitaOnForSinglehopWithoutDaitaRelay() throws {
+        let constraints = RelayConstraints(
+            exitLocations: .only(UserSelectedRelays(locations: [.hostname("se", "got", "se10-wireguard")]))
+        )
+
+        let picker = SinglehopPicker(
+            relays: sampleRelays,
+            constraints: constraints,
+            connectionAttemptCount: 0,
+            daitaSettings: DAITASettings(daitaState: .on, directOnlyState: .on)
+        )
+
+        XCTAssertThrowsError(try picker.pick())
+    }
+
+    func testDirectOnlyOffDaitaOnForSinglehopWithDaitaRelay() throws {
+        let constraints = RelayConstraints(
+            exitLocations: .only(UserSelectedRelays(locations: [.hostname("es", "mad", "es1-wireguard")]))
+        )
+
+        let picker = SinglehopPicker(
+            relays: sampleRelays,
+            constraints: constraints,
+            connectionAttemptCount: 0,
+            daitaSettings: DAITASettings(daitaState: .on, directOnlyState: .off)
+        )
+
+        let selectedRelays = try picker.pick()
+
+        XCTAssertNil(selectedRelays.entry?.hostname)
+        XCTAssertEqual(selectedRelays.exit.hostname, "es1-wireguard")
+    }
+
+    func testDirectOnlyOnDaitaOnForSinglehopWithDaitaRelay() throws {
+        let constraints = RelayConstraints(
+            exitLocations: .only(UserSelectedRelays(locations: [.hostname("es", "mad", "es1-wireguard")]))
+        )
+
+        let picker = SinglehopPicker(
+            relays: sampleRelays,
+            constraints: constraints,
+            connectionAttemptCount: 0,
+            daitaSettings: DAITASettings(daitaState: .on, directOnlyState: .on)
+        )
+
+        let selectedRelays = try picker.pick()
+
+        XCTAssertNil(selectedRelays.entry?.hostname)
+        XCTAssertEqual(selectedRelays.exit.hostname, "es1-wireguard")
+    }
+
+    func testDirectOnlyOffDaitaOnForMultihopWithDaitaRelay() throws {
+        let constraints = RelayConstraints(
+            entryLocations: .only(UserSelectedRelays(locations: [.hostname("us", "nyc", "us-nyc-wg-301")])),
+            exitLocations: .only(UserSelectedRelays(locations: [.hostname("se", "got", "se10-wireguard")]))
+        )
+
+        let picker = SinglehopPicker(
+            relays: sampleRelays,
+            constraints: constraints,
+            connectionAttemptCount: 0,
+            daitaSettings: DAITASettings(daitaState: .on, directOnlyState: .off)
+        )
+
+        let selectedRelays = try picker.pick()
+
+        XCTAssertEqual(selectedRelays.entry?.hostname, "es1-wireguard") // Madrid relay is closest to exit relay.
+        XCTAssertEqual(selectedRelays.exit.hostname, "se10-wireguard")
+    }
+
+    func testDirectOnlyOffDaitaOnForMultihopWithoutDaitaRelay() throws {
+        let constraints = RelayConstraints(
+            entryLocations: .only(UserSelectedRelays(locations: [.hostname("se", "got", "se10-wireguard")])),
+            exitLocations: .only(UserSelectedRelays(locations: [.hostname("se", "got", "se10-wireguard")]))
+        )
+
+        let picker = SinglehopPicker(
+            relays: sampleRelays,
+            constraints: constraints,
+            connectionAttemptCount: 0,
+            daitaSettings: DAITASettings(daitaState: .on, directOnlyState: .off)
+        )
+
+        let selectedRelays = try picker.pick()
+
+        XCTAssertEqual(selectedRelays.entry?.hostname, "es1-wireguard") // Madrid relay is closest to exit relay.
+        XCTAssertEqual(selectedRelays.exit.hostname, "se10-wireguard")
+    }
+
+    func testDirectOnlyOnDaitaOnForMultihopWithoutDaitaRelay() throws {
+        let constraints = RelayConstraints(
+            entryLocations: .only(UserSelectedRelays(locations: [.hostname("se", "got", "se10-wireguard")])),
+            exitLocations: .only(UserSelectedRelays(locations: [.hostname("se", "got", "se10-wireguard")]))
+        )
+
+        let picker = SinglehopPicker(
+            relays: sampleRelays,
+            constraints: constraints,
+            connectionAttemptCount: 0,
+            daitaSettings: DAITASettings(daitaState: .on, directOnlyState: .on)
+        )
+
+        XCTAssertThrowsError(try picker.pick())
     }
 }

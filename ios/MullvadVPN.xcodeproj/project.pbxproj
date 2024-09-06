@@ -574,6 +574,7 @@
 		7A9F29392CABFAFC005F2089 /* InfoHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9F29382CABFAEC005F2089 /* InfoHeaderView.swift */; };
 		7A9F293B2CAC4443005F2089 /* InfoHeaderConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9F293A2CAC4420005F2089 /* InfoHeaderConfig.swift */; };
 		7A9F293D2CAD2FD5005F2089 /* InfoModalConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9F293C2CAD2FCF005F2089 /* InfoModalConfig.swift */; };
+		7A9F28FC2CA69D0C005F2089 /* DAITASettingsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9F28FB2CA69D04005F2089 /* DAITASettingsTests.swift */; };
 		7A9FA1422A2E3306000B728D /* CheckboxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9FA1412A2E3306000B728D /* CheckboxView.swift */; };
 		7A9FA1442A2E3FE5000B728D /* CheckableSettingsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9FA1432A2E3FE5000B728D /* CheckableSettingsCell.swift */; };
 		7AA513862BC91C6B00D081A4 /* LogRotationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA513852BC91C6B00D081A4 /* LogRotationTests.swift */; };
@@ -1891,6 +1892,7 @@
 		7A9F29382CABFAEC005F2089 /* InfoHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoHeaderView.swift; sourceTree = "<group>"; };
 		7A9F293A2CAC4420005F2089 /* InfoHeaderConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoHeaderConfig.swift; sourceTree = "<group>"; };
 		7A9F293C2CAD2FCF005F2089 /* InfoModalConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoModalConfig.swift; sourceTree = "<group>"; };
+		7A9F28FB2CA69D04005F2089 /* DAITASettingsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DAITASettingsTests.swift; sourceTree = "<group>"; };
 		7A9FA1412A2E3306000B728D /* CheckboxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckboxView.swift; sourceTree = "<group>"; };
 		7A9FA1432A2E3FE5000B728D /* CheckableSettingsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckableSettingsCell.swift; sourceTree = "<group>"; };
 		7AA513852BC91C6B00D081A4 /* LogRotationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogRotationTests.swift; sourceTree = "<group>"; };
@@ -2573,6 +2575,7 @@
 			children = (
 				7A83A0C52B29A750008B5CE7 /* APIAccessMethodsTests.swift */,
 				7A9BE5A82B90806800E2A7D0 /* CustomListsRepositoryStub.swift */,
+				7A9F28FB2CA69D04005F2089 /* DAITASettingsTests.swift */,
 				A9B6AC192ADE8FBB00F7802A /* InMemorySettingsStore.swift */,
 				7ADCB2D92B6A730400C88F89 /* IPOverrideRepositoryStub.swift */,
 				7A5869C22B5820CE00640D27 /* IPOverrideRepositoryTests.swift */,
@@ -5413,6 +5416,7 @@
 				A9A5FA2C2ACB05160083449F /* DeviceCheckOperationTests.swift in Sources */,
 				A9A5FA2D2ACB05160083449F /* DurationTests.swift in Sources */,
 				A9A5FA2E2ACB05160083449F /* FileCacheTests.swift in Sources */,
+				7A9F28FC2CA69D0C005F2089 /* DAITASettingsTests.swift in Sources */,
 				A9A5FA2F2ACB05160083449F /* FixedWidthIntegerArithmeticsTests.swift in Sources */,
 				7AA513862BC91C6B00D081A4 /* LogRotationTests.swift in Sources */,
 				F04413622BA45CE30018A6EE /* CustomListLocationNodeBuilder.swift in Sources */,
