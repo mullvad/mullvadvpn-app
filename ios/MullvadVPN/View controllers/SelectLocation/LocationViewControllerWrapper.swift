@@ -14,6 +14,7 @@ import UIKit
 protocol LocationViewControllerWrapperDelegate: AnyObject {
     func navigateToCustomLists(nodes: [LocationNode])
     func navigateToFilter()
+    func navigateToDaitaSettings()
     func didSelectEntryRelays(_ relays: UserSelectedRelays)
     func didSelectExitRelays(_ relays: UserSelectedRelays)
     func didUpdateFilter(_ filter: RelayFilter)
@@ -43,7 +44,7 @@ final class LocationViewControllerWrapper: UIViewController {
         }
     }
 
-    private let entryLocationViewController: LocationViewController
+    private var entryLocationViewController: LocationViewController
     private let exitLocationViewController: LocationViewController
     private let segmentedControl = UISegmentedControl()
     private let locationViewContainer = UIStackView()
@@ -52,7 +53,7 @@ final class LocationViewControllerWrapper: UIViewController {
     private var selectedExit: UserSelectedRelays?
     private let multihopEnabled: Bool
     private var multihopContext: MultihopContext = .exit
-    private let daitaSettings: DAITASettings
+    private var daitaSettings: DAITASettings
 
     weak var delegate: LocationViewControllerWrapperDelegate?
 
@@ -73,16 +74,17 @@ final class LocationViewControllerWrapper: UIViewController {
         entryLocationViewController = LocationViewController(
             customListRepository: customListRepository,
             selectedRelays: RelaySelection(),
-            shouldFilterDaita: daitaSettings.daitaState.isEnabled
-                && daitaSettings.directOnlyState.isEnabled
+            shouldFilterDaita: daitaSettings.shouldDoDirectOnly
         )
+
+        if daitaSettings.shouldDoAutomaticRouting {
+            entryLocationViewController.addDaitaInfoView()
+        }
 
         exitLocationViewController = LocationViewController(
             customListRepository: customListRepository,
             selectedRelays: RelaySelection(),
-            shouldFilterDaita: !multihopEnabled
-                && daitaSettings.daitaState.isEnabled
-                && daitaSettings.directOnlyState.isEnabled
+            shouldFilterDaita: daitaSettings.shouldDoDirectOnly && !multihopEnabled
         )
 
         super.init(nibName: nil, bundle: nil)
@@ -129,6 +131,20 @@ final class LocationViewControllerWrapper: UIViewController {
     func refreshCustomLists() {
         updateViewControllers {
             $0.refreshCustomLists()
+        }
+    }
+
+    func onDaitaSettingsUpdate(_ settings: DAITASettings, relaysWithLocation: LocationRelays, filter: RelayFilter) {
+        daitaSettings = settings
+        guard multihopEnabled else { return }
+
+        setRelaysWithLocation(relaysWithLocation, filter: filter)
+        entryLocationViewController.setShouldFilterDaita(settings.shouldDoDirectOnly)
+
+        if daitaSettings.shouldDoAutomaticRouting {
+            entryLocationViewController.addDaitaInfoView()
+        } else if daitaSettings.shouldDoDirectOnly {
+            entryLocationViewController.removeDaitaInfoView()
         }
     }
 
@@ -254,6 +270,10 @@ final class LocationViewControllerWrapper: UIViewController {
 extension LocationViewControllerWrapper: LocationViewControllerDelegate {
     func navigateToCustomLists(nodes: [LocationNode]) {
         delegate?.navigateToCustomLists(nodes: nodes)
+    }
+
+    func navigateToDaitaSettings() {
+        delegate?.navigateToDaitaSettings()
     }
 
     func didSelectRelays(relays: UserSelectedRelays) {
