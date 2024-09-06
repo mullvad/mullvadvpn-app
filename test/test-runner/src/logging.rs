@@ -69,12 +69,12 @@ pub fn init_logger() -> Result<(), SetLoggerError> {
 
 pub async fn get_mullvad_app_logs() -> LogOutput {
     LogOutput {
-        settings_json: read_settings_file().await,
+        settings_json: read_settings_file().await.map(|log| log.content),
         log_files: read_log_files().await,
     }
 }
 
-async fn read_settings_file() -> Result<String, Error> {
+async fn read_settings_file() -> Result<LogFile, Error> {
     let mut settings_path = mullvad_paths::get_default_settings_dir()
         .map_err(|error| Error::Logs(format!("{}", error)))?;
     settings_path.push("settings.json");
@@ -85,22 +85,53 @@ async fn read_settings_file() -> Result<String, Error> {
 
 async fn read_log_files() -> Result<Vec<Result<LogFile, Error>>, Error> {
     let log_dir =
-        mullvad_paths::get_default_log_dir().map_err(|error| Error::Logs(format!("{}", error)))?;
-    let paths = list_logs(log_dir)
+        mullvad_paths::get_default_log_dir().map_err(|error| Error::Logs(format!("{error}")))?;
+    let gui_log_dirs = get_gui_log_dirs()
         .await
-        .map_err(|error| Error::Logs(format!("{}", error)))?;
-    let mut log_files = Vec::new();
-    for path in paths {
-        let log_file = read_truncated(&path)
-            .await
-            .map_err(|error| Error::Logs(format!("{}: {}", path.display(), error)))
-            .map(|content| LogFile {
-                content,
-                name: path,
-            });
-        log_files.push(log_file);
+        .map_err(|error| Error::Logs(format!("{error}")))?;
+
+    // Get paths of individual log files
+    let mut log_files = list_logs(log_dir).await?;
+    for gui_log_dirs in gui_log_dirs {
+        log_files.extend(list_logs(gui_log_dirs).await?);
     }
-    Ok(log_files)
+
+    // Read contents of logs
+    let mut logs = vec![];
+    for log_file in log_files {
+        let log_file = read_truncated(&log_file)
+            .await
+            .map_err(|error| Error::Logs(format!("{}: {}", log_file.display(), error)));
+        logs.push(log_file);
+    }
+
+    Ok(logs)
+}
+
+#[cfg(not(target_os = "macos"))]
+async fn get_gui_log_dirs() -> Result<Vec<PathBuf>, Error> {
+    // TODO: Linux
+    // TODO: Windows
+    Ok(vec![])
+}
+
+#[cfg(target_os = "macos")]
+async fn get_gui_log_dirs() -> Result<Vec<PathBuf>, io::Error> {
+    let mut log_dirs = vec![];
+    let mut user_dirs = tokio::fs::read_dir("/Users/").await?;
+
+    while let Ok(Some(dir)) = user_dirs.next_entry().await {
+        if !dir.file_type().await?.is_dir() {
+            continue;
+        }
+
+        let log_dir = dir.path().join("Library").join("Logs").join("Mullvad VPN");
+        if log_dir.exists() {
+            log_dirs.push(log_dir);
+        }
+    }
+
+    Ok(log_dirs)
 }
 
 async fn list_logs<T: AsRef<Path>>(log_dir: T) -> Result<Vec<PathBuf>, Error> {
@@ -108,7 +139,7 @@ async fn list_logs<T: AsRef<Path>>(log_dir: T) -> Result<Vec<PathBuf>, Error> {
         .await
         .map_err(|e| Error::Logs(format!("{}: {}", log_dir.as_ref().display(), e)))?;
 
-    let mut paths = Vec::new();
+    let mut paths = vec![];
     while let Ok(Some(entry)) = dir_entries.next_entry().await {
         let path = entry.path();
         if let Some(u8_path) = path.to_str() {
@@ -123,9 +154,9 @@ async fn list_logs<T: AsRef<Path>>(log_dir: T) -> Result<Vec<PathBuf>, Error> {
     Ok(paths)
 }
 
-async fn read_truncated<T: AsRef<Path>>(path: T) -> io::Result<String> {
+async fn read_truncated<T: AsRef<Path>>(path: T) -> io::Result<LogFile> {
     let mut output = vec![];
-    let reader = BufReader::new(File::open(path).await?);
+    let reader = BufReader::new(File::open(&path).await?);
     let mut lines = reader.lines();
     while let Some(line) = lines.next_line().await? {
         output.push(line);
@@ -135,5 +166,8 @@ async fn read_truncated<T: AsRef<Path>>(path: T) -> io::Result<String> {
         // not the most efficient
         output.drain(0..drop_count);
     }
-    Ok(output.join("\n"))
+    Ok(LogFile {
+        name: path.as_ref().to_path_buf(),
+        content: output.join("\n"),
+    })
 }
