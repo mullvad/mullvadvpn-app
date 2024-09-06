@@ -27,7 +27,10 @@ ignore = [
     # Ignored audit issues. This list should be kept short, and effort should be
     # put into removing items from the list.
     # RUSTSEC-2023-0079 - KyberSlash in `pqc_kyber`.
-    "RUSTSEC-2023-0079"
+    "RUSTSEC-2023-0079",
+    # RUSTSEC-2024-0370 - `proc-macro-error` is unmaintained.
+    # `nftnl 0.6.2` uses `proc-macro-error`.
+    "RUSTSEC-2024-0370",
 ]
 
 
