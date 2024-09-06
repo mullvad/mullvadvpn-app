@@ -5,7 +5,8 @@ import net.mullvad.mullvadvpn.dataproxy.SendProblemReportResult
 import net.mullvad.mullvadvpn.viewmodel.ReportProblemUiState
 import net.mullvad.mullvadvpn.viewmodel.SendingReportUiState
 
-class ReportProblemUiStateParameterProvider : PreviewParameterProvider<ReportProblemUiState> {
+class ReportProblemUiStatePreviewParameterProvider :
+    PreviewParameterProvider<ReportProblemUiState> {
     override val values: Sequence<ReportProblemUiState>
         get() =
             sequenceOf(

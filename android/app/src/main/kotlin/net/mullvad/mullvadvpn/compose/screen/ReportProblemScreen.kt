@@ -42,7 +42,7 @@ import net.mullvad.mullvadvpn.compose.button.VariantButton
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
-import net.mullvad.mullvadvpn.compose.preview.ReportProblemUiStateParameterProvider
+import net.mullvad.mullvadvpn.compose.preview.ReportProblemUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.textfield.mullvadWhiteTextFieldColors
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
@@ -58,7 +58,8 @@ import org.koin.androidx.compose.koinViewModel
 @Preview
 @Composable
 private fun PreviewReportProblemScreen(
-    @PreviewParameter(ReportProblemUiStateParameterProvider::class) state: ReportProblemUiState
+    @PreviewParameter(ReportProblemUiStatePreviewParameterProvider::class)
+    state: ReportProblemUiState
 ) {
     AppTheme { ReportProblemScreen(state = state) }
 }

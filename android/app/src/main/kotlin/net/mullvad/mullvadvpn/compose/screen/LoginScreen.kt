@@ -64,7 +64,7 @@ import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.button.VariantButton
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
-import net.mullvad.mullvadvpn.compose.preview.LoginUiStateParameterProvider
+import net.mullvad.mullvadvpn.compose.preview.LoginUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.LoginError
 import net.mullvad.mullvadvpn.compose.state.LoginState
 import net.mullvad.mullvadvpn.compose.state.LoginState.Idle
@@ -86,8 +86,8 @@ import org.koin.androidx.compose.koinViewModel
 
 @Preview
 @Composable
-private fun PreviewBase(
-    @PreviewParameter(LoginUiStateParameterProvider::class) state: LoginUiState
+private fun PreviewLoginScreen(
+    @PreviewParameter(LoginUiStatePreviewParameterProvider::class) state: LoginUiState
 ) {
     AppTheme { LoginScreen(state = state) }
 }

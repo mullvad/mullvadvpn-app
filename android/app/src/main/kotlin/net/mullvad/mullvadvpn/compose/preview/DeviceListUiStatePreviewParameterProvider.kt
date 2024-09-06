@@ -5,7 +5,7 @@ import net.mullvad.mullvadvpn.compose.preview.DevicePreviewData.generateDevices
 import net.mullvad.mullvadvpn.compose.state.DeviceListUiState
 import net.mullvad.mullvadvpn.lib.model.GetDeviceListError
 
-class DeviceListUiStateParameterProvider : PreviewParameterProvider<DeviceListUiState> {
+class DeviceListUiStatePreviewParameterProvider : PreviewParameterProvider<DeviceListUiState> {
     override val values =
         sequenceOf(
             DeviceListUiState.Content(devices = generateDevices(NUMBER_OF_DEVICES_NORMAL)),

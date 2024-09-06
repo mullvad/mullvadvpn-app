@@ -49,7 +49,7 @@ import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicator
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
-import net.mullvad.mullvadvpn.compose.preview.DeviceListUiStateParameterProvider
+import net.mullvad.mullvadvpn.compose.preview.DeviceListUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.DeviceListUiState
 import net.mullvad.mullvadvpn.compose.transitions.DefaultTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
@@ -70,7 +70,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 @Preview
 private fun PreviewDeviceListScreenContent(
-    @PreviewParameter(DeviceListUiStateParameterProvider::class) state: DeviceListUiState
+    @PreviewParameter(DeviceListUiStatePreviewParameterProvider::class) state: DeviceListUiState
 ) {
     AppTheme { DeviceListScreen(state = state) }
 }

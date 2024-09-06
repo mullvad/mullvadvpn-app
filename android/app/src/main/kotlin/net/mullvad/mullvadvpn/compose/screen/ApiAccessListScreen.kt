@@ -33,7 +33,7 @@ import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.constant.ContentType
 import net.mullvad.mullvadvpn.compose.extensions.itemsWithDivider
-import net.mullvad.mullvadvpn.compose.preview.ApiAccessListUiStateParameterProvider
+import net.mullvad.mullvadvpn.compose.preview.ApiAccessListUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.ApiAccessListUiState
 import net.mullvad.mullvadvpn.compose.test.API_ACCESS_LIST_INFO_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
@@ -47,7 +47,8 @@ import org.koin.androidx.compose.koinViewModel
 @Preview
 @Composable
 private fun PreviewApiAccessList(
-    @PreviewParameter(ApiAccessListUiStateParameterProvider::class) state: ApiAccessListUiState
+    @PreviewParameter(ApiAccessListUiStatePreviewParameterProvider::class)
+    state: ApiAccessListUiState
 ) {
     AppTheme { ApiAccessListScreen(state = state) }
 }

@@ -5,7 +5,7 @@ import net.mullvad.mullvadvpn.compose.state.LoginError
 import net.mullvad.mullvadvpn.compose.state.LoginState
 import net.mullvad.mullvadvpn.compose.state.LoginUiState
 
-class LoginUiStateParameterProvider : PreviewParameterProvider<LoginUiState> {
+class LoginUiStatePreviewParameterProvider : PreviewParameterProvider<LoginUiState> {
     override val values: Sequence<LoginUiState>
         get() =
             sequenceOf(
