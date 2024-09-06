@@ -22,20 +22,21 @@ public final class RelaySelectorWrapper: RelaySelectorProtocol {
     ) throws -> SelectedRelays {
         let relays = try relayCache.read().relays
 
-        switch tunnelSettings.tunnelMultihopState {
+        return switch tunnelSettings.tunnelMultihopState {
         case .off:
-            return try SinglehopPicker(
-                constraints: tunnelSettings.relayConstraints,
-                daitaSettings: tunnelSettings.daita,
+            try SinglehopPicker(
                 relays: relays,
-                connectionAttemptCount: connectionAttemptCount
+                constraints: tunnelSettings.relayConstraints,
+                connectionAttemptCount: connectionAttemptCount,
+                daitaSettings: tunnelSettings.daita
             ).pick()
         case .on:
-            return try MultihopPicker(
-                constraints: tunnelSettings.relayConstraints,
-                daitaSettings: tunnelSettings.daita,
+            try MultihopPicker(
                 relays: relays,
-                connectionAttemptCount: connectionAttemptCount
+                constraints: tunnelSettings.relayConstraints,
+                connectionAttemptCount: connectionAttemptCount,
+                daitaSettings: tunnelSettings.daita,
+                automaticDaitaRouting: false
             ).pick()
         }
     }

@@ -80,13 +80,13 @@ class RelaySelectorWrapperTests: XCTestCase {
         XCTAssertNoThrow(try wrapper.selectRelays(tunnelSettings: settings, connectionAttemptCount: 0))
     }
 
-    func testCannotSelectRelayWithMultihopOnAndDaitaOn() throws {
+    func testCannotSelectRelayWithMultihopOnDaitaOnDirectOnlyOn() throws {
         let wrapper = RelaySelectorWrapper(relayCache: relayCache)
 
         let settings = LatestTunnelSettings(
             relayConstraints: multihopWithoutDaitaConstraints,
             tunnelMultihopState: .on,
-            daita: DAITASettings(daitaState: .on)
+            daita: DAITASettings(daitaState: .on, directOnlyState: .on)
         )
 
         XCTAssertThrowsError(try wrapper.selectRelays(tunnelSettings: settings, connectionAttemptCount: 0))
@@ -107,7 +107,7 @@ class RelaySelectorWrapperTests: XCTestCase {
 
     // If DAITA is enabled and no supported relays are found, we should try to find the nearest
     // available relay that supports DAITA and use it as entry in a multihop selection.
-    func testCanSelectRelayWithMultihopOffAndDaitaOnThroughMultihop() throws {
+    func testCanSelectRelayWithMultihopOffDaitaOnThroughMultihop() throws {
         let wrapper = RelaySelectorWrapper(relayCache: relayCache)
 
         let settings = LatestTunnelSettings(
