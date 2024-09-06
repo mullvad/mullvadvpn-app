@@ -50,3 +50,11 @@ KyberSlash is not exploitable in our usage of it:
 https://mullvad.net/en/blog/mullvads-usage-of-kyber-is-not-affected-by-kyberslash
 And no patched version is available.
 """
+
+[[IgnoredVulns]]
+id = "RUSTSEC-2024-0370"
+ignoreUntil = 2024-12-06
+reason = """
+proc-macro-error is unmaintained, but it does not necessarily contain any vulns.
+Will be fixed by bumping `nftnl`.
+"""
