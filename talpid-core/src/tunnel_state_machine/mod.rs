@@ -498,12 +498,11 @@ impl SharedTunnelStateValues {
             self.split_tunnel
                 .set_exclude_paths(paths.into_iter().map(PathBuf::from).collect())
                 .await
-                .map_err(|error| {
+                .inspect_err(|error| {
                     log::error!(
                         "{}",
                         error.display_chain_with_msg("Failed to set split tunnel paths")
                     );
-                    error
                 })?;
             let has_interface = self.split_tunnel.interface().await.is_some();
             Ok(had_interface != has_interface)
