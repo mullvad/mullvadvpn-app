@@ -2811,6 +2811,7 @@
 				7A42DEC82A05164100B209BE /* SettingsInputCell.swift */,
 				58677711290976FB006F721F /* SettingsInteractor.swift */,
 				5867770F290975E8006F721F /* SettingsInteractorFactory.swift */,
+				F041BE4E2C983C2B0083EC28 /* SettingsPromptAlertItem.swift */,
 				58ACF64A26553C3F00ACE4B7 /* SettingsSwitchCell.swift */,
 				58CCA01122424D11004F3011 /* SettingsViewController.swift */,
 				7A27E3CA2CAE86170088BCFF /* SettingsViewModel.swift */,
