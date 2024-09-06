@@ -40,7 +40,7 @@ func wgTurnOn(mtu int, cSettings *C.char, fd int, logSink LogSink, logContext Lo
 		logger.Errorf("cSettings is null\n")
 		return ERROR_INVALID_ARGUMENT
 	}
-	settings := C.GoString(cSettings)
+	settings := goStringFixed(cSettings)
 
 	file := os.NewFile(uintptr(fd), "")
 	tunDevice, err := tun.CreateTUNFromFile(file, mtu)

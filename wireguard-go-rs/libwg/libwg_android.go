@@ -37,7 +37,8 @@ func wgTurnOn(cSettings *C.char, fd int, logSink LogSink, logContext LogContext)
 		logger.Errorf("cSettings is null\n")
 		return ERROR_INVALID_ARGUMENT
 	}
-	settings := C.GoString(cSettings)
+
+	settings := goStringFixed(cSettings)
 
 	tunDevice, _, err := tun.CreateUnmonitoredTUNFromFD(fd)
 	if err != nil {

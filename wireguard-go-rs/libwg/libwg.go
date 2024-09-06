@@ -97,7 +97,7 @@ func wgSetConfig(tunnelHandle int32, cSettings *C.char) C.int32_t {
 		tunnel.Logger.Errorf("cSettings is null\n")
 		return ERROR_INVALID_ARGUMENT
 	}
-	settings := C.GoString(cSettings)
+	settings := goStringFixed(cSettings)
 
 	setError := tunnel.Device.IpcSetOperation(bufio.NewReader(strings.NewReader(settings)))
 	if setError != nil {
@@ -114,3 +114,24 @@ func wgFreePtr(ptr unsafe.Pointer) {
 }
 
 func main() {}
+
+//Instead of using the normal version of C.GoString we need to use the version that takes
+//a length argument (C.GoStringN). That is because the normal C.GoString reads a whole
+//page of memory to determine the length of the string. This causes a crash if
+//mte is turned on. So instead we determine the length of the c string by reading
+//each character until we reach the end of the string.
+func goStringFixed(cString *C.char) string {
+	ptr := unsafe.Pointer(cString)
+	i := 0
+	for {
+		byte := (*C.char)(unsafe.Pointer(uintptr(ptr) + uintptr(i)))
+
+		if *byte == 0 {
+			break
+		}
+
+		i += 1
+	}
+
+	return C.GoStringN(cString, C.int(i))
+}

@@ -38,7 +38,7 @@ func wgActivateDaita(tunnelHandle C.int32_t, peerPubkey *C.uint8_t, machines *C.
 		return ERROR_UNKNOWN_PEER
 	}
 
-	if !peer.EnableDaita(C.GoString((*C.char)(machines)), uint(eventsCapacity), uint(actionsCapacity), maxPaddingBytes, maxBlockingBytes) {
+	if !peer.EnableDaita(goStringFixed((*C.char)(machines)), uint(eventsCapacity), uint(actionsCapacity), maxPaddingBytes, maxBlockingBytes) {
 		return ERROR_ENABLE_DAITA
 	}
 
