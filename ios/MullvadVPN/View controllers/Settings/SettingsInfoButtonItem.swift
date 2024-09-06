@@ -35,9 +35,9 @@ enum SettingsInfoButtonItem: CustomStringConvertible {
                 "DIRECT_ONLY_INFORMATION_TEXT",
                 tableName: "DAITA",
                 value: """
-                By enabling “Direct only” you will have to manually select a server that is DAITA-enabled. \
+                By enabling "Direct only" you will have to manually select a server that is DAITA-enabled. \
                 This can cause you to end up in a blocked state until you have selected a compatible server \
-                in the “Select location” view.
+                in the "Select location" view.
                 """,
                 comment: ""
             )

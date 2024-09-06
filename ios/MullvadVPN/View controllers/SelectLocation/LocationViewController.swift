@@ -13,6 +13,7 @@ import UIKit
 
 protocol LocationViewControllerDelegate: AnyObject {
     func navigateToCustomLists(nodes: [LocationNode])
+    func navigateToDaitaSettings()
     func didSelectRelays(relays: UserSelectedRelays)
     func didUpdateFilter(filter: RelayFilter)
 }
@@ -22,6 +23,7 @@ final class LocationViewController: UIViewController {
     private let tableView = UITableView(frame: .zero, style: .grouped)
     private let topContentView = UIStackView()
     private let filterView = RelayFilterView()
+    private var daitaInfoView: UIView?
     private var dataSource: LocationDataSource?
     private var relaysWithLocation: LocationRelays?
     private var filter = RelayFilter()
@@ -100,6 +102,13 @@ final class LocationViewController: UIViewController {
         dataSource?.setRelays(relaysWithLocation, selectedRelays: selectedRelays)
     }
 
+    func setShouldFilterDaita(_ shouldFilterDaita: Bool) {
+        self.shouldFilterDaita = shouldFilterDaita
+
+        filterView.isHidden = filterViewShouldBeHidden
+        filterView.setDaita(shouldFilterDaita)
+    }
+
     func refreshCustomLists() {
         dataSource?.refreshCustomLists(selectedRelays: selectedRelays)
     }
@@ -107,6 +116,27 @@ final class LocationViewController: UIViewController {
     func setSelectedRelays(_ selectedRelays: RelaySelection) {
         self.selectedRelays = selectedRelays
         dataSource?.setSelectedRelays(selectedRelays)
+    }
+
+    func addDaitaInfoView() {
+        guard daitaInfoView == nil else { return }
+
+        let daitaInfoView = DAITAInfoView()
+        self.daitaInfoView = daitaInfoView
+
+        daitaInfoView.didPressDaitaSettingsButton = { [weak self] in
+            self?.delegate?.navigateToDaitaSettings()
+        }
+
+        view.addConstrainedSubviews([daitaInfoView]) {
+            daitaInfoView.pinEdgesToSuperview(.all().excluding(.top))
+            daitaInfoView.topAnchor.constraint(equalTo: tableView.topAnchor)
+        }
+    }
+
+    func removeDaitaInfoView() {
+        daitaInfoView?.removeFromSuperview()
+        daitaInfoView = nil
     }
 
     // MARK: - Private
