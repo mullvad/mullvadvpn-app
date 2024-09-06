@@ -7,7 +7,7 @@ import net.mullvad.mullvadvpn.compose.state.EditApiAccessMethodUiState
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod
 import net.mullvad.mullvadvpn.lib.model.InvalidDataError
 
-class EditApiAccessMethodUiStateParameterProvider :
+class EditApiAccessMethodUiStatePreviewParameterProvider :
     PreviewParameterProvider<EditApiAccessMethodUiState> {
     override val values =
         sequenceOf(
