@@ -32,6 +32,44 @@ public enum RelaySelector {
 
     // MARK: - private
 
+    /// Computes the midpoint location from all the filtered relays.
+    ///
+    /// Take *either* the first five relays, OR the relays below maximum relay distance,
+    /// sort all of them by Haversine distance from the computed midpoint location,
+    /// then use the roulette selection to pick a bridge.
+    static func closestRelay<T: AnyRelay>(from relayWithLocations: [RelayWithLocation<T>]) -> T? {
+        let midpointDistance = Midpoint.location(in: relayWithLocations.map { $0.serverLocation.geoCoordinate })
+        let maximumRelayDistance = 1500.0
+        let relaysWithDistance = relayWithLocations.map {
+            RelayWithDistance(
+                relay: $0.relay,
+                distance: Haversine.distance(
+                    midpointDistance.latitude,
+                    midpointDistance.longitude,
+                    $0.serverLocation.latitude,
+                    $0.serverLocation.longitude
+                )
+            )
+        }.sorted {
+            $0.distance < $1.distance
+        }.filter {
+            $0.distance <= maximumRelayDistance
+        }.prefix(5)
+
+        var greatestDistance = 0.0
+        relaysWithDistance.forEach {
+            if $0.distance > greatestDistance {
+                greatestDistance = $0.distance
+            }
+        }
+
+        let closestRelay = rouletteSelection(relays: Array(relaysWithDistance), weightFunction: { relay in
+            UInt64(1 + greatestDistance - relay.distance)
+        })
+
+        return closestRelay?.relay
+    }
+
     static func pickRandomRelayByWeight<T: AnyRelay>(relays: [RelayWithLocation<T>])
         -> RelayWithLocation<T>? {
         rouletteSelection(relays: relays, weightFunction: { relayWithLocation in relayWithLocation.relay.weight })

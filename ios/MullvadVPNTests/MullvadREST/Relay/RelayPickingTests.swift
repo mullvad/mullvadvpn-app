@@ -74,4 +74,22 @@ class RelayPickingTests: XCTestCase {
             XCTAssertEqual(error?.reason, .entryEqualsExit)
         }
     }
+
+    func testPickingClosestRelay() throws {
+        let constraints = RelayConstraints(
+            exitLocations: .only(UserSelectedRelays(locations: [.country("se")]))
+        )
+
+        let picker = SinglehopPicker(
+            constraints: constraints,
+            daitaSettings: DAITASettings(state: .off),
+            relays: sampleRelays,
+            connectionAttemptCount: 0,
+            preferClosest: true
+        )
+
+        let selectedRelays = try picker.pick()
+print(selectedRelays.exit.hostname)
+        XCTAssertTrue(["se6-wireguard", "se10-wireguard"].contains(selectedRelays.exit.hostname))
+    }
 }

@@ -33,7 +33,7 @@ final public class ShadowsocksRelaySelector: ShadowsocksRelaySelectorProtocol {
         case .off: settings.relayConstraints.exitLocations
         }
 
-        return RelaySelector.Shadowsocks.closestRelay(
+        return RelaySelector.Shadowsocks.closestBridge(
             location: locationConstraint,
             port: settings.relayConstraints.port,
             filter: settings.relayConstraints.filter,

@@ -33,38 +33,69 @@ extension RelaySelector {
             from relayWithLocations: [RelayWithLocation<REST.ServerRelay>],
             relays: REST.ServerRelaysResponse,
             portConstraint: RelayConstraint<UInt16>,
-            numberOfFailedAttempts: UInt
+            numberOfFailedAttempts: UInt,
+            preferClosest: Bool = false
         ) throws -> RelaySelectorMatch {
-            let port = applyPortConstraint(
-                portConstraint,
-                rawPortRanges: relays.wireguard.portRanges,
+            let port = try evaluatePort(
+                relays: relays,
+                portConstraint: portConstraint,
                 numberOfFailedAttempts: numberOfFailedAttempts
             )
 
-            guard let port else {
-                throw NoRelaysSatisfyingConstraintsError(.invalidPort)
+            var relayWithLocation: RelayWithLocation<REST.ServerRelay>?
+            if preferClosest {
+                let relay = closestRelay(from: relayWithLocations)
+                relayWithLocation = relayWithLocations.first(where: { $0.relay == relay })
             }
 
-            guard let relayWithLocation = pickRandomRelayByWeight(relays: relayWithLocations) else {
+            guard
+                let relayWithLocation = relayWithLocation ?? pickRandomRelayByWeight(relays: relayWithLocations)
+            else {
                 throw NoRelaysSatisfyingConstraintsError(.relayConstraintNotMatching)
             }
 
-            let endpoint = MullvadEndpoint(
-                ipv4Relay: IPv4Endpoint(
-                    ip: relayWithLocation.relay.ipv4AddrIn,
-                    port: port
-                ),
-                ipv6Relay: nil,
-                ipv4Gateway: relays.wireguard.ipv4Gateway,
-                ipv6Gateway: relays.wireguard.ipv6Gateway,
-                publicKey: relayWithLocation.relay.publicKey
-            )
-
-            return RelaySelectorMatch(
-                endpoint: endpoint,
-                relay: relayWithLocation.relay,
-                location: relayWithLocation.serverLocation
-            )
+            return createMatch(for: relayWithLocation, port: port, relays: relays)
         }
+    }
+
+    private static func evaluatePort(
+        relays: REST.ServerRelaysResponse,
+        portConstraint: RelayConstraint<UInt16>,
+        numberOfFailedAttempts: UInt
+    ) throws -> UInt16 {
+        let port = applyPortConstraint(
+            portConstraint,
+            rawPortRanges: relays.wireguard.portRanges,
+            numberOfFailedAttempts: numberOfFailedAttempts
+        )
+
+        guard let port else {
+            throw NoRelaysSatisfyingConstraintsError(.invalidPort)
+        }
+
+        return port
+    }
+
+    private static func createMatch(
+        for relayWithLocation: RelayWithLocation<REST.ServerRelay>,
+        port: UInt16,
+        relays: REST.ServerRelaysResponse
+    ) -> RelaySelectorMatch {
+        let endpoint = MullvadEndpoint(
+            ipv4Relay: IPv4Endpoint(
+                ip: relayWithLocation.relay.ipv4AddrIn,
+                port: port
+            ),
+            ipv6Relay: nil,
+            ipv4Gateway: relays.wireguard.ipv4Gateway,
+            ipv6Gateway: relays.wireguard.ipv6Gateway,
+            publicKey: relayWithLocation.relay.publicKey
+        )
+
+        return RelaySelectorMatch(
+            endpoint: endpoint,
+            relay: relayWithLocation.relay,
+            location: relayWithLocation.serverLocation
+        )
     }
 }

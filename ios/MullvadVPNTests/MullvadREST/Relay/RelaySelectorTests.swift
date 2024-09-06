@@ -136,12 +136,12 @@ class RelaySelectorTests: XCTestCase {
         XCTAssertTrue(allPorts.contains(result.endpoint.ipv4Relay.port))
     }
 
-    func testClosestShadowsocksRelay() throws {
+    func testClosestRelay() throws {
         let constraints = RelayConstraints(
             exitLocations: .only(UserSelectedRelays(locations: [.city("se", "sto")]))
         )
 
-        let selectedRelay = RelaySelector.Shadowsocks.closestRelay(
+        let selectedRelay = RelaySelector.Shadowsocks.closestBridge(
             location: constraints.exitLocations,
             port: constraints.port,
             filter: constraints.filter,
@@ -156,7 +156,7 @@ class RelaySelectorTests: XCTestCase {
             exitLocations: .only(UserSelectedRelays(locations: [.country("INVALID COUNTRY")]))
         )
 
-        let selectedRelay = try XCTUnwrap(RelaySelector.Shadowsocks.closestRelay(
+        let selectedRelay = try XCTUnwrap(RelaySelector.Shadowsocks.closestBridge(
             location: constraints.exitLocations,
             port: constraints.port,
             filter: constraints.filter,

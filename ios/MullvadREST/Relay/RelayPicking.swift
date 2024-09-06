@@ -13,18 +13,18 @@ protocol RelayPicking {
     var relays: REST.ServerRelaysResponse { get }
     var constraints: RelayConstraints { get }
     var connectionAttemptCount: UInt { get }
+    var preferClosest: Bool { get }
     func pick() throws -> SelectedRelays
 }
 
 extension RelayPicking {
-    func findBestMatch(
-        from candidates: [RelayWithLocation<REST.ServerRelay>]
-    ) throws -> SelectedRelay {
+    func findBestMatch(from candidates: [RelayWithLocation<REST.ServerRelay>]) throws -> SelectedRelay {
         let match = try RelaySelector.WireGuard.pickCandidate(
             from: candidates,
             relays: relays,
             portConstraint: constraints.port,
-            numberOfFailedAttempts: connectionAttemptCount
+            numberOfFailedAttempts: connectionAttemptCount,
+            preferClosest: preferClosest
         )
 
         return SelectedRelay(
@@ -40,6 +40,21 @@ struct SinglehopPicker: RelayPicking {
     let daitaSettings: DAITASettings
     let relays: REST.ServerRelaysResponse
     let connectionAttemptCount: UInt
+    let preferClosest: Bool
+
+    init(
+        constraints: RelayConstraints,
+        daitaSettings: DAITASettings,
+        relays: REST.ServerRelaysResponse,
+        connectionAttemptCount: UInt,
+        preferClosest: Bool = false
+    ) {
+        self.constraints = constraints
+        self.daitaSettings = daitaSettings
+        self.relays = relays
+        self.connectionAttemptCount = connectionAttemptCount
+        self.preferClosest = preferClosest
+    }
 
     func pick() throws -> SelectedRelays {
         var exitCandidates = [RelayWithLocation<REST.ServerRelay>]()
@@ -62,7 +77,8 @@ struct SinglehopPicker: RelayPicking {
                 constraints: constraints,
                 daitaSettings: daitaSettings,
                 relays: relays,
-                connectionAttemptCount: connectionAttemptCount
+                connectionAttemptCount: connectionAttemptCount,
+                preferClosest: true
             ).pick()
             #endif
         }
@@ -77,6 +93,21 @@ struct MultihopPicker: RelayPicking {
     let daitaSettings: DAITASettings
     let relays: REST.ServerRelaysResponse
     let connectionAttemptCount: UInt
+    let preferClosest: Bool
+
+    init(
+        constraints: RelayConstraints,
+        daitaSettings: DAITASettings,
+        relays: REST.ServerRelaysResponse,
+        connectionAttemptCount: UInt,
+        preferClosest: Bool = false
+    ) {
+        self.constraints = constraints
+        self.daitaSettings = daitaSettings
+        self.relays = relays
+        self.connectionAttemptCount = connectionAttemptCount
+        self.preferClosest = preferClosest
+    }
 
     func pick() throws -> SelectedRelays {
         let entryCandidates = try RelaySelector.WireGuard.findCandidates(

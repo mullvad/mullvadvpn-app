@@ -82,7 +82,7 @@ class ShadowsocksLoaderTests: XCTestCase {
         filter: RelayConstraint<RelayFilter>,
         in: REST.ServerRelaysResponse
     ) -> REST.BridgeRelay? {
-        RelaySelector.Shadowsocks.closestRelay(
+        RelaySelector.Shadowsocks.closestBridge(
             location: location,
             port: port,
             filter: filter,
