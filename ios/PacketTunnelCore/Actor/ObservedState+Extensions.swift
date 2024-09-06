@@ -16,7 +16,7 @@ extension ObservedState {
             "Connected"
         case .connecting:
             "Connecting"
-        case .negotiatingPostQuantumKey:
+        case .negotiatingEphemeralPeer:
             "Negotiating Post Quantum Secure Key"
         case .reconnecting:
             "Reconnecting"
@@ -37,7 +37,7 @@ extension ObservedState {
             let .connecting(connectionState),
             let .reconnecting(connectionState),
             let .connected(connectionState),
-            let .negotiatingPostQuantumKey(connectionState, _),
+            let .negotiatingEphemeralPeer(connectionState, _),
             let .disconnecting(connectionState):
             connectionState
         default:

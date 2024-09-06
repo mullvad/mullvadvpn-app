@@ -1,5 +1,5 @@
 //
-//  SingleHopPostQuantumKeyExchangingTests.swift
+//  SingleHopEphemeralPeerExchangerTests.swift
 //  MullvadPostQuantumTests
 //
 //  Created by Mojgan on 2024-07-17.
@@ -13,7 +13,7 @@
 @testable import WireGuardKitTypes
 import XCTest
 
-final class SingleHopPostQuantumKeyExchangingTests: XCTestCase {
+final class SingleHopEphemeralPeerExchangerTests: XCTestCase {
     var exitRelay: SelectedRelay!
 
     override func setUpWithError() throws {
@@ -38,7 +38,7 @@ final class SingleHopPostQuantumKeyExchangingTests: XCTestCase {
         exitRelay = SelectedRelay(endpoint: match.endpoint, hostname: match.relay.hostname, location: match.location)
     }
 
-    func testKeyExchangeFailsWhenNegotiationCannotStart() {
+    func testEphemeralPeerExchangeFailsWhenNegotiationCannotStart() {
         let expectedNegotiationFailure = expectation(description: "Negotiation failed.")
 
         let reconfigurationExpectation = expectation(description: "Tunnel reconfiguration took place")
@@ -47,13 +47,15 @@ final class SingleHopPostQuantumKeyExchangingTests: XCTestCase {
         let negotiationSuccessful = expectation(description: "Negotiation succeeded.")
         negotiationSuccessful.isInverted = true
 
-        let keyExchangeActor = PostQuantumKeyExchangeActorStub()
-        keyExchangeActor.result = .failure(PostQuantumKeyExchangeErrorStub.canceled)
+        let keyExchangeActor = EphemeralPeerExchangeActorStub()
+        keyExchangeActor.result = .failure(EphemeralPeerExchangeErrorStub.canceled)
 
-        let singleHopPostQuantumKeyExchanging = SingleHopPostQuantumKeyExchanging(
+        let singleHopPostQuantumKeyExchanging = SingleHopEphemeralPeerExchanger(
             exit: exitRelay,
             devicePrivateKey: PrivateKey(),
-            keyExchanger: keyExchangeActor
+            keyExchanger: keyExchangeActor,
+            enablePostQuantum: true,
+            enableDaita: false
         ) { _ in
             reconfigurationExpectation.fulfill()
         } onFinish: {
@@ -72,7 +74,7 @@ final class SingleHopPostQuantumKeyExchangingTests: XCTestCase {
         )
     }
 
-    func testKeyExchangeSuccessWhenNegotiationStart() throws {
+    func testEphemeralPeerExchangeSuccessWhenPostQuantumNegotiationStarts() throws {
         let unexpectedNegotiationFailure = expectation(description: "Negotiation failed.")
         unexpectedNegotiationFailure.isInverted = true
 
@@ -82,14 +84,16 @@ final class SingleHopPostQuantumKeyExchangingTests: XCTestCase {
         let negotiationSuccessful = expectation(description: "Negotiation succeeded.")
         negotiationSuccessful.expectedFulfillmentCount = 1
 
-        let keyExchangeActor = PostQuantumKeyExchangeActorStub()
+        let keyExchangeActor = EphemeralPeerExchangeActorStub()
         let preSharedKey = try XCTUnwrap(PreSharedKey(hexKey: PrivateKey().hexKey))
         keyExchangeActor.result = .success((preSharedKey, PrivateKey()))
 
-        let singleHopPostQuantumKeyExchanging = SingleHopPostQuantumKeyExchanging(
+        let singleHopPostQuantumKeyExchanging = SingleHopEphemeralPeerExchanger(
             exit: exitRelay,
             devicePrivateKey: PrivateKey(),
-            keyExchanger: keyExchangeActor
+            keyExchanger: keyExchangeActor,
+            enablePostQuantum: true,
+            enableDaita: false
         ) { _ in
             reconfigurationExpectation.fulfill()
         } onFinish: {
@@ -100,6 +104,43 @@ final class SingleHopPostQuantumKeyExchangingTests: XCTestCase {
             singleHopPostQuantumKeyExchanging.receivePostQuantumKey(preSharedKey, ephemeralKey: ephemeralKey)
         })
         singleHopPostQuantumKeyExchanging.start()
+
+        wait(
+            for: [unexpectedNegotiationFailure, reconfigurationExpectation, negotiationSuccessful],
+            timeout: .UnitTest.invertedTimeout
+        )
+    }
+
+    func testEphemeralPeerExchangeSuccessWhenDaitaNegotiationStarts() throws {
+        let unexpectedNegotiationFailure = expectation(description: "Negotiation failed.")
+        unexpectedNegotiationFailure.isInverted = true
+
+        let reconfigurationExpectation = expectation(description: "Tunnel reconfiguration took place")
+        reconfigurationExpectation.expectedFulfillmentCount = 2
+
+        let negotiationSuccessful = expectation(description: "Negotiation succeeded.")
+        negotiationSuccessful.expectedFulfillmentCount = 1
+
+        let peerExchangeActor = EphemeralPeerExchangeActorStub()
+        let preSharedKey = try XCTUnwrap(PreSharedKey(hexKey: PrivateKey().hexKey))
+        peerExchangeActor.result = .success((preSharedKey, PrivateKey()))
+
+        let multiHopPeerExchanger = SingleHopEphemeralPeerExchanger(
+            exit: exitRelay,
+            devicePrivateKey: PrivateKey(),
+            keyExchanger: peerExchangeActor,
+            enablePostQuantum: false,
+            enableDaita: true
+        ) { _ in
+            reconfigurationExpectation.fulfill()
+        } onFinish: {
+            negotiationSuccessful.fulfill()
+        }
+
+        peerExchangeActor.delegate = KeyExchangingResultStub(onReceiveEphemeralPeerPrivateKey: { ephemeralKey in
+            multiHopPeerExchanger.receiveEphemeralPeerPrivateKey(ephemeralKey)
+        })
+        multiHopPeerExchanger.start()
 
         wait(
             for: [unexpectedNegotiationFailure, reconfigurationExpectation, negotiationSuccessful],

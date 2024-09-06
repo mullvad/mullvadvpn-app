@@ -673,7 +673,7 @@ final class TunnelManager: StorePaymentObserver {
             refreshDeviceState()
         }
         switch newTunnelStatus.state {
-        case .connecting, .reconnecting, .negotiatingPostQuantumKey:
+        case .connecting, .reconnecting, .negotiatingEphemeralPeer:
             // Start polling tunnel status to keep the relay information up to date
             // while the tunnel process is trying to connect.
             startPollingTunnelStatus(interval: establishingTunnelStatusPollInterval)

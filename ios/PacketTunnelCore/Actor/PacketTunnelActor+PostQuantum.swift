@@ -14,21 +14,21 @@ extension PacketTunnelActor {
      Attempt to start the process of negotiating a post-quantum secure key, setting up an initial
      connection restricted to the negotiation host and entering the negotiating state.
      */
-    internal func tryStartPostQuantumNegotiation(
+    internal func tryStartEphemeralPeerNegotiation(
         withSettings settings: Settings,
         nextRelays: NextRelays,
         reason: ActorReconnectReason
     ) async throws {
         if let connectionState = try obfuscateConnection(nextRelays: nextRelays, settings: settings, reason: reason) {
             let activeKey = activeKey(from: connectionState, in: settings)
-            state = .negotiatingPostQuantumKey(connectionState, activeKey)
+            state = .negotiatingEphemeralPeer(connectionState, activeKey)
         }
     }
 
     /**
      Called on receipt of the new PQ-negotiated key, to reconnect to the relay, in PQ-secure mode.
      */
-    internal func postQuantumConnect() async {
+    internal func connectWithEphemeralPeer() async {
         guard let connectionData = state.connectionData else {
             logger.error("Could not create connection state in PostQuantumConnect")
             eventChannel.send(.reconnect(.current))
@@ -47,9 +47,9 @@ extension PacketTunnelActor {
     }
 
     /**
-     Called to reconfigure the tunnel after each key negotiation.
+     Called to reconfigure the tunnel after each ephemeral peer negotiation.
      */
-    internal func updatePostQuantumNegotiationState(configuration: PostQuantumNegotiationState) async throws {
+    internal func updateEphemeralPeerNegotiationState(configuration: EphemeralPeerNegotiationState) async throws {
         /**
          The obfuscater needs to be restarted every time a new tunnel configuration is being used,
          because the obfuscation may be tied to a specific UDP session, as is the case for udp2tcp.
@@ -60,8 +60,18 @@ extension PacketTunnelActor {
             settings: settings,
             reason: .userInitiated
         ) else {
-            logger.error("Tried to replace post quantum configuration in invalid state: \(state.name)")
+            logger.error("Tried to update ephemeral peer negotiation in invalid state: \(state.name)")
             return
+        }
+
+        var daitaConfiguration: DaitaConfiguration?
+        if settings.daita.state.isEnabled {
+            let maybeNot = Maybenot()
+            daitaConfiguration = DaitaConfiguration(
+                machines: maybeNot.machines,
+                maxEvents: maybeNot.maximumEvents,
+                maxActions: maybeNot.maximumActions
+            )
         }
 
         switch configuration {
@@ -75,7 +85,7 @@ extension PacketTunnelActor {
                 preSharedKey: hop.configuration.preSharedKey
             ).makeConfiguration()
 
-            try await tunnelAdapter.start(configuration: exitConfiguration)
+            try await tunnelAdapter.start(configuration: exitConfiguration, daita: daitaConfiguration)
 
         case let .multi(firstHop, secondHop):
             let entryConfiguration = try ConfigurationBuilder(
@@ -97,7 +107,7 @@ extension PacketTunnelActor {
             ).makeConfiguration()
 
             try await tunnelAdapter.startMultihop(
-                entryConfiguration: entryConfiguration, exitConfiguration: exitConfiguration
+                entryConfiguration: entryConfiguration, exitConfiguration: exitConfiguration, daita: daitaConfiguration
             )
         }
     }

@@ -59,8 +59,8 @@ enum State: Equatable {
     /// Initial state at the time when actor is initialized but before the first connection attempt.
     case initial
 
-    /// Establish a connection to the gateway, and exchange a post quantum key with the GRPC service that resides there.
-    case negotiatingPostQuantumKey(ConnectionData, PrivateKey)
+    /// Establish a connection to the gateway, and exchange an ephemeral wireguard peer with the GRPC service that resides there.
+    case negotiatingEphemeralPeer(ConnectionData, PrivateKey)
 
     /// Tunnel is attempting to connect.
     /// The actor should remain in this state until the very first connection is established, i.e determined by tunnel monitor.
@@ -150,6 +150,9 @@ extension State {
 
         /// True if post-quantum key exchange is enabled
         public let isPostQuantum: Bool
+
+        /// True if Daita is enabled
+        public let isDaitaEnabled: Bool
     }
 
     /// Data associated with error state.
@@ -254,7 +257,7 @@ public enum ActorReconnectReason: Equatable {
     /// Initiated by user.
     case userInitiated
 
-    /// Initiated by tunnel monitor due to loss of connectivity, or if post quantum key negotiation times out.
+    /// Initiated by tunnel monitor due to loss of connectivity, or if ephemeral peer negotiation times out.
     /// Actor will increment the connection attempt counter before picking next relay.
     case connectionLoss
 }

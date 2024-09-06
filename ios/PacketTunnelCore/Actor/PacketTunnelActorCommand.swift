@@ -37,10 +37,10 @@ extension PacketTunnelActor {
         case networkReachability(NetworkPath)
 
         /// Update the device private key, as per post-quantum protocols
-        case postQuantumNegotiationStateChanged(PostQuantumNegotiationState)
+        case ephemeralPeerNegotiationStateChanged(EphemeralPeerNegotiationState)
 
-        /// Notify that post quantum key exchanging took place
-        case notifyPostQuantumKeyExchanged
+        /// Notify that an ephemeral peer exchanging took place
+        case notifyEphemeralPeerNegotiated
 
         /// Format command for log output.
         func logFormat() -> String {
@@ -73,10 +73,10 @@ extension PacketTunnelActor {
                 return "networkReachability"
             case .switchKey:
                 return "switchKey"
-            case .postQuantumNegotiationStateChanged:
-                return "postQuantumNegotiationStateChanged"
-            case .notifyPostQuantumKeyExchanged:
-                return "notifyPostQuantumKeyExchanged"
+            case .ephemeralPeerNegotiationStateChanged:
+                return "ephemeralPeerNegotiationStateChanged"
+            case .notifyEphemeralPeerNegotiated:
+                return "notifyEphemeralPeerNegotiated"
             }
         }
     }
