@@ -260,12 +260,11 @@ impl SplitTunnel {
                 overlapped.as_mut_ptr(),
             )
         }
-        .map_err(|error| {
+        .inspect_err(|error| {
             log::error!(
                 "{}",
                 error.display_chain_with_msg("DeviceIoControl failed to deque event")
             );
-            error
         })?;
 
         let event_objects = [
@@ -274,13 +273,12 @@ impl SplitTunnel {
         ];
 
         let signaled_object =
-            unsafe { driver::wait_for_multiple_objects(&event_objects[..], false) }.map_err(
+            unsafe { driver::wait_for_multiple_objects(&event_objects[..], false) }.inspect_err(
                 |error| {
                     log::error!(
                         "{}",
                         error.display_chain_with_msg("wait_for_multiple_objects failed")
                     );
-                    error
                 },
             )?;
 
@@ -290,7 +288,7 @@ impl SplitTunnel {
         }
 
         let returned_bytes =
-            driver::get_overlapped_result(device, overlapped).map_err(|error| {
+            driver::get_overlapped_result(device, overlapped).inspect_err(|error| {
                 if error.raw_os_error() != Some(ERROR_OPERATION_ABORTED as i32) {
                     log::error!(
                         "{}",
@@ -299,7 +297,6 @@ impl SplitTunnel {
                         ),
                     );
                 }
-                error
             })?;
 
         data_buffer
