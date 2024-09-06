@@ -47,6 +47,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
@@ -63,6 +64,7 @@ import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.button.VariantButton
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
+import net.mullvad.mullvadvpn.compose.preview.LoginUiStateParameterProvider
 import net.mullvad.mullvadvpn.compose.state.LoginError
 import net.mullvad.mullvadvpn.compose.state.LoginState
 import net.mullvad.mullvadvpn.compose.state.LoginState.Idle
@@ -84,32 +86,10 @@ import org.koin.androidx.compose.koinViewModel
 
 @Preview
 @Composable
-private fun PreviewIdle() {
-    AppTheme { LoginScreen(state = LoginUiState()) }
-}
-
-@Preview
-@Composable
-private fun PreviewLoggingIn() {
-    AppTheme { LoginScreen(state = LoginUiState(loginState = Loading.LoggingIn)) }
-}
-
-@Preview
-@Composable
-private fun PreviewCreatingAccount() {
-    AppTheme { LoginScreen(state = LoginUiState(loginState = Loading.CreatingAccount)) }
-}
-
-@Preview
-@Composable
-private fun PreviewLoginError() {
-    AppTheme { LoginScreen(state = LoginUiState(loginState = Idle(LoginError.InvalidCredentials))) }
-}
-
-@Preview
-@Composable
-private fun PreviewLoginSuccess() {
-    AppTheme { LoginScreen(state = LoginUiState(loginState = Success)) }
+private fun PreviewBase(
+    @PreviewParameter(LoginUiStateParameterProvider::class) state: LoginUiState
+) {
+    AppTheme { LoginScreen(state = state) }
 }
 
 @Destination<RootGraph>(style = LoginTransition::class)

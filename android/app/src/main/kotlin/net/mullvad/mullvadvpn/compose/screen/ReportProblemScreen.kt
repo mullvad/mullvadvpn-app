@@ -26,6 +26,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
@@ -41,11 +42,11 @@ import net.mullvad.mullvadvpn.compose.button.VariantButton
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
+import net.mullvad.mullvadvpn.compose.preview.ReportProblemUiStateParameterProvider
 import net.mullvad.mullvadvpn.compose.textfield.mullvadWhiteTextFieldColors
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.SecureScreenWhileInView
-import net.mullvad.mullvadvpn.dataproxy.SendProblemReportResult
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.viewmodel.ReportProblemSideEffect
@@ -56,43 +57,10 @@ import org.koin.androidx.compose.koinViewModel
 
 @Preview
 @Composable
-private fun PreviewReportProblemScreen() {
-    AppTheme { ReportProblemScreen(state = ReportProblemUiState()) }
-}
-
-@Preview
-@Composable
-private fun PreviewReportProblemSendingScreen() {
-    AppTheme {
-        ReportProblemScreen(
-            state = ReportProblemUiState(sendingState = SendingReportUiState.Sending)
-        )
-    }
-}
-
-@Preview
-@Composable
-private fun PreviewReportProblemSuccessScreen() {
-    AppTheme {
-        ReportProblemScreen(
-            state =
-                ReportProblemUiState(sendingState = SendingReportUiState.Success("email@mail.com"))
-        )
-    }
-}
-
-@Preview
-@Composable
-private fun PreviewReportProblemErrorScreen() {
-    AppTheme {
-        ReportProblemScreen(
-            state =
-                ReportProblemUiState(
-                    sendingState =
-                        SendingReportUiState.Error(SendProblemReportResult.Error.CollectLog)
-                )
-        )
-    }
+private fun PreviewReportProblemScreen(
+    @PreviewParameter(ReportProblemUiStateParameterProvider::class) state: ReportProblemUiState
+) {
+    AppTheme { ReportProblemScreen(state = state) }
 }
 
 @Destination<RootGraph>(style = SlideInFromRightTransition::class)
