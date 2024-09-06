@@ -117,12 +117,23 @@ open class TalpidVpnService : LifecycleVpnService() {
                 setMeteredIfSupported(false)
             }
 
-        val vpnInterface = builder.establish()
-        val tunFd = vpnInterface?.detachFd()
+        val vpnInterfaceFd =
+            try {
+                builder.establish()
+            } catch (e: IllegalStateException) {
+                Logger.e("Failed to establish, a parameter could not be applied", e)
+                return CreateTunResult.TunnelDeviceError
+            } catch (e: IllegalArgumentException) {
+                Logger.e("Failed to establish a parameter was not accepted", e)
+                return CreateTunResult.TunnelDeviceError
+            }
 
-        if (tunFd == null) {
+        if (vpnInterfaceFd == null) {
+            Logger.e("VpnInterface returned null")
             return CreateTunResult.TunnelDeviceError
         }
+
+        val tunFd = vpnInterfaceFd.detachFd()
 
         waitForTunnelUp(tunFd, config.routes.any { route -> route.isIpv6 })
 
