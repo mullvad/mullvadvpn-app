@@ -276,3 +276,11 @@ pub async fn test_import_settings_ui(_: TestContext, rpc: ServiceClient) -> Resu
     assert!(ui_result.success());
     Ok(())
 }
+
+/// Test obufscation settings in the GUI
+#[test_function]
+pub async fn test_obfuscation_settings_ui(_: TestContext, rpc: ServiceClient) -> Result<(), Error> {
+    let ui_result = run_test(&rpc, &["obfuscation.spec"]).await?;
+    assert!(ui_result.success());
+    Ok(())
+}
