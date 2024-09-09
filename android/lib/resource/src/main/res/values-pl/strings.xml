@@ -102,7 +102,6 @@
     <string name="custom_port_dialog_valid_ranges">Prawidłowe zakresy: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Nie można rozpoznać hosta tunelu niestandardowego. Spróbuj zmienić ustawienia.</string>
     <string name="daita_info">%1$s (%2$s) ukrywa wzorce w zaszyfrowanym ruchu VPN. Jeśli ktoś monitoruje Twoje połączenie, znacznie utrudni to identyfikację odwiedzanych witryn. Odbywa się to poprzez ostrożne dodawanie szumów sieciowych i ustawianie tego samego rozmiaru wszystkich pakietów sieciowych.</string>
-    <string name="daita_warning">Uwaga: zwiększa to łączny ruch sieciowy, zachowaj więc ostrożność, jeśli masz ograniczony pakiet danych. Może to również negatywnie wpłynąć na szybkość sieci. Weź to pod uwagę, jeśli chcesz włączyć %1$s.</string>
     <string name="delete">Usuń</string>
     <string name="delete_custom_list_confirmation_description">Usunąć „%1$s”?</string>
     <string name="delete_custom_list_message">Usunięto „%1$s”</string>

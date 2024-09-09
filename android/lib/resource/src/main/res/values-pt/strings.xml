@@ -102,7 +102,6 @@
     <string name="custom_port_dialog_valid_ranges">Intervalos válidos: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Não foi possível resolver o anfitrião do túnel personalizado. Experimente alterar as suas definições.</string>
     <string name="daita_info">%1$s (%2$s) oculta padrões no seu tráfego VPN encriptado. Se alguém estiver a monitorizar a sua ligação, isto dificulta significativamente a identificação dos sites que visita. Para tal, adiciona cuidadosamente ruído de rede e torna todos os pacotes de rede do mesmo tamanho.</string>
-    <string name="daita_warning">Atenção: visto que isto aumenta o tráfego total da sua rede, tenha cuidado se tiver um plano de dados limitado. Também pode afetar negativamente a velocidade da sua rede. Tenha isto em consideração se pretender ativar %1$s.</string>
     <string name="delete">Eliminar</string>
     <string name="delete_custom_list_confirmation_description">Eliminar \"%1$s\"?</string>
     <string name="delete_custom_list_message">\"%1$s\" foi eliminada</string>
