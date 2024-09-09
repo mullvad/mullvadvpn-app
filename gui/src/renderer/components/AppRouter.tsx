@@ -8,6 +8,7 @@ import { ITransitionSpecification, transitions, useHistory } from '../lib/histor
 import { RoutePath } from '../lib/routes';
 import Account from './Account';
 import ApiAccessMethods from './ApiAccessMethods';
+import DaitaSettings from './DaitaSettings';
 import Debug from './Debug';
 import { DeviceRevokedView } from './DeviceRevokedView';
 import { EditApiAccessMethod } from './EditApiAccessMethod';
@@ -85,6 +86,7 @@ export default function AppRouter() {
             <Route exact path={RoutePath.userInterfaceSettings} component={UserInterfaceSettings} />
             <Route exact path={RoutePath.vpnSettings} component={VpnSettings} />
             <Route exact path={RoutePath.wireguardSettings} component={WireguardSettings} />
+            <Route exact path={RoutePath.daitaSettings} component={DaitaSettings} />
             <Route exact path={RoutePath.udpOverTcp} component={UdpOverTcp} />
             <Route exact path={RoutePath.shadowsocks} component={Shadowsocks} />
             <Route exact path={RoutePath.openVpnSettings} component={OpenVpnSettings} />

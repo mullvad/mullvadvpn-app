@@ -266,7 +266,7 @@ pub enum DaemonCommand {
     #[cfg(daita)]
     SetEnableDaita(ResponseTx<(), settings::Error>, bool),
     #[cfg(daita)]
-    SetDaitaUseAnywhere(ResponseTx<(), settings::Error>, bool),
+    SetDaitaSmartRouting(ResponseTx<(), settings::Error>, bool),
     #[cfg(daita)]
     SetDaitaSettings(ResponseTx<(), settings::Error>, DaitaSettings),
     /// Set DNS options or servers to use
@@ -1261,7 +1261,7 @@ impl Daemon {
             #[cfg(daita)]
             SetEnableDaita(tx, value) => self.on_set_daita_enabled(tx, value).await,
             #[cfg(daita)]
-            SetDaitaUseAnywhere(tx, value) => self.on_set_daita_use_anywhere(tx, value).await,
+            SetDaitaSmartRouting(tx, value) => self.on_set_daita_smart_routing(tx, value).await,
             #[cfg(daita)]
             SetDaitaSettings(tx, daita_settings) => {
                 self.on_set_daita_settings(tx, daita_settings).await
@@ -2364,7 +2364,7 @@ impl Daemon {
     }
 
     #[cfg(daita)]
-    async fn on_set_daita_use_anywhere(
+    async fn on_set_daita_smart_routing(
         &mut self,
         tx: ResponseTx<(), settings::Error>,
         value: bool,
@@ -2373,11 +2373,11 @@ impl Daemon {
 
         match self
             .settings
-            .update(|settings| settings.tunnel_options.wireguard.daita.use_anywhere = value)
+            .update(|settings| settings.tunnel_options.wireguard.daita.smart_routing = value)
             .await
         {
             Ok(settings_changed) => {
-                Self::oneshot_send(tx, Ok(()), "set_daita_use_anywhere response");
+                Self::oneshot_send(tx, Ok(()), "set_daita_smart_routing response");
 
                 let RelaySettings::Normal(constraints) = &self.settings.relay_settings else {
                     return; // DAITA is not supported for custom relays
@@ -2398,7 +2398,7 @@ impl Daemon {
             }
             Err(e) => {
                 log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
-                Self::oneshot_send(tx, Err(e), "set_daita_use_anywhere response");
+                Self::oneshot_send(tx, Err(e), "set_daita_smart_routing response");
             }
         }
     }
@@ -3012,12 +3012,12 @@ fn new_selector_config(settings: &Settings) -> SelectorConfig {
             #[cfg(daita)]
             daita: settings.tunnel_options.wireguard.daita.enabled,
             #[cfg(daita)]
-            daita_use_anywhere: settings.tunnel_options.wireguard.daita.use_anywhere,
+            daita_smart_routing: settings.tunnel_options.wireguard.daita.smart_routing,
 
             #[cfg(not(daita))]
             daita: false,
             #[cfg(not(daita))]
-            daita_use_anywhere: false,
+            daita_smart_routing: false,
 
             quantum_resistant: settings.tunnel_options.wireguard.quantum_resistant,
         },

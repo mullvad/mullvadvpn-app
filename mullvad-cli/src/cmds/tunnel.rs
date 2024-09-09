@@ -41,9 +41,9 @@ pub enum TunnelOptions {
         /// Configure whether to enable DAITA
         #[arg(long)]
         daita: Option<BooleanOption>,
-        /// Configure whether to enable DAITA "use anywhere"
+        /// Configure whether to enable DAITA smart routing
         #[arg(long)]
-        daita_use_anywhere: Option<BooleanOption>,
+        daita_smart_routing: Option<BooleanOption>,
         /// The key rotation interval. Number of hours, or 'any'
         #[arg(long)]
         rotation_interval: Option<Constraint<RotationInterval>>,
@@ -138,7 +138,7 @@ impl Tunnel {
                 mtu,
                 quantum_resistant,
                 daita,
-                daita_use_anywhere,
+                daita_smart_routing,
                 rotation_interval,
                 rotate_key,
             } => {
@@ -146,7 +146,7 @@ impl Tunnel {
                     mtu,
                     quantum_resistant,
                     daita,
-                    daita_use_anywhere,
+                    daita_smart_routing,
                     rotation_interval,
                     rotate_key,
                 )
@@ -178,7 +178,7 @@ impl Tunnel {
         mtu: Option<Constraint<u16>>,
         quantum_resistant: Option<QuantumResistantState>,
         daita: Option<BooleanOption>,
-        daita_use_anywhere: Option<BooleanOption>,
+        daita_smart_routing: Option<BooleanOption>,
         rotation_interval: Option<Constraint<RotationInterval>>,
         rotate_key: Option<RotateKey>,
     ) -> Result<()> {
@@ -199,9 +199,9 @@ impl Tunnel {
             println!("DAITA setting has been updated");
         }
 
-        if let Some(daita_use_anywhere) = daita_use_anywhere {
-            rpc.set_daita_use_anywhere(*daita_use_anywhere).await?;
-            println!("DAITA setting has been updated");
+        if let Some(daita_smart_routing) = daita_smart_routing {
+            rpc.set_daita_smart_routing(*daita_smart_routing).await?;
+            println!("Smart routing setting has been updated");
         }
 
         if let Some(interval) = rotation_interval {

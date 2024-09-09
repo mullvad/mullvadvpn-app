@@ -385,9 +385,9 @@ impl MullvadProxyClient {
     }
 
     #[cfg(daita)]
-    pub async fn set_daita_use_anywhere(&mut self, value: bool) -> Result<()> {
+    pub async fn set_daita_smart_routing(&mut self, value: bool) -> Result<()> {
         self.0
-            .set_daita_use_anywhere(value)
+            .set_daita_smart_routing(value)
             .await
             .map_err(Error::Rpc)?;
         Ok(())
