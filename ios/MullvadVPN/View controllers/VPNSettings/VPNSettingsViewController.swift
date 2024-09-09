@@ -180,12 +180,11 @@ extension VPNSettingsViewController: VPNSettingsDataSourceDelegate {
             tableName: "DAITA",
             value: """
             DAITA (Defence against AI-guided Traffic Analysis) hides patterns in your encrypted VPN traffic. \
-            If anyone is monitoring your connection, this makes it significantly harder for them to identify\
-            what websites you are visiting.
-            It does this by carefully adding network noise and making all network packets the same size.
-            Attention: Since this increases your total network traffic,\
-            be cautious if you have a limited data plan.\
-            It can also negatively impact your network speed.
+            If anyone is monitoring your connection, this makes it significantly harder for them to identify \
+            what websites you are visiting. It does this by carefully adding network noise and making all \
+            network packets the same size.
+            Attention: Since this increases your total network traffic, be cautious if you have a limited data plan. \
+            It can also negatively impact your network speed and battery usage.
             """,
             comment: ""
         ))
@@ -219,13 +218,17 @@ extension VPNSettingsViewController: VPNSettingsDataSourceDelegate {
         let messageString = switch item {
         case .daitaSettingIncompatibleWithSinglehop:
             """
-            DAITA isn’t available on the current server. After enabling, please go to \
-            the Switch location view and select a location that supports DAITA.
+            DAITA isn’t available on the current server. After enabling, please go to the Switch \
+            location view and select a location that supports DAITA.
+            Attention: Since this increases your total network traffic, be cautious if you have a \
+            limited data plan. It can also negatively impact your network speed and battery usage.
             """
         case .daitaSettingIncompatibleWithMultihop:
             """
-            DAITA isn’t available on the current entry server. After enabling, please go to \
-            the Switch location view and select an entry location that supports DAITA.
+            DAITA isn’t available on the current entry server. After enabling, please go to the Switch \
+            location view and select an entry location that supports DAITA.
+            Attention: Since this increases your total network traffic, be cautious if you have a \
+            limited data plan. It can also negatively impact your network speed and battery usage.
             """
         }
 
@@ -234,7 +237,7 @@ extension VPNSettingsViewController: VPNSettingsDataSourceDelegate {
             accessibilityIdentifier: .daitaPromptAlert,
             icon: .info,
             message: NSLocalizedString(
-                "DAITA_INFORMATION_TEXT",
+                "VPN_SETTINGS_VPN_DAITA_ENABLE_TEXT",
                 tableName: "DAITA",
                 value: messageString,
                 comment: ""
