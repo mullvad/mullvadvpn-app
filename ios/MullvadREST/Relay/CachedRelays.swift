@@ -8,7 +8,7 @@
 
 import Foundation
 
-/// A struct that represents the relay cache on disk
+/// A struct that represents the relay cache in memory
 public struct CachedRelays: Codable, Equatable {
     /// E-tag returned by server
     public let etag: String?
