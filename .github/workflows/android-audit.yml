@@ -92,5 +92,8 @@ jobs:
       - name: Re-generate lockfile
         run: android/scripts/update-lockfile.sh
 
+      - name: Re-generate lockfile keys
+        run: android/scripts/update-lockfile-keys.sh   
+
       - name: Ensure no changes
         run: git diff --exit-code
