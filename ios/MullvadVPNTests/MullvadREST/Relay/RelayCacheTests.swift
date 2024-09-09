@@ -12,7 +12,7 @@ import XCTest
 final class RelayCacheTests: XCTestCase {
     func testReadCache() throws {
         let fileCache = MockFileCache(
-            initialState: .exists(CachedRelays(relays: .mock(), updatedAt: .distantPast))
+            initialState: .exists(try StoredRelays(rawData: try .mock(), updatedAt: .distantPast))
         )
         let cache = RelayCache(fileCache: fileCache)
         let relays = try XCTUnwrap(cache.read())
@@ -22,17 +22,17 @@ final class RelayCacheTests: XCTestCase {
 
     func testWriteCache() throws {
         let fileCache = MockFileCache(
-            initialState: .exists(CachedRelays(relays: .mock(), updatedAt: .distantPast))
+            initialState: .exists(try StoredRelays(rawData: try .mock(), updatedAt: .distantPast))
         )
         let cache = RelayCache(fileCache: fileCache)
-        let newCachedRelays = CachedRelays(relays: .mock(), updatedAt: Date())
+        let newCachedRelays = try StoredRelays(rawData: try .mock(), updatedAt: Date())
 
         try cache.write(record: newCachedRelays)
         XCTAssertEqual(fileCache.getState(), .exists(newCachedRelays))
     }
 
     func testReadPrebundledRelaysWhenNoCacheIsStored() throws {
-        let fileCache = MockFileCache<CachedRelays>(initialState: .fileNotFound)
+        let fileCache = MockFileCache<StoredRelays>(initialState: .fileNotFound)
         let cache = RelayCache(fileCache: fileCache)
 
         XCTAssertNoThrow(try cache.read())
@@ -42,7 +42,7 @@ final class RelayCacheTests: XCTestCase {
 extension REST.ServerRelaysResponse {
     static func mock(
         serverRelays: [REST.ServerRelay] = [],
-        brideRelays: [REST.BridgeRelay] = []
+        bridgeRelays: [REST.BridgeRelay] = []
     ) -> Self {
         REST.ServerRelaysResponse(
             locations: [:],
@@ -52,7 +52,17 @@ extension REST.ServerRelaysResponse {
                 portRanges: [],
                 relays: serverRelays
             ),
-            bridge: REST.ServerBridges(shadowsocks: [], relays: brideRelays)
+            bridge: REST.ServerBridges(shadowsocks: [], relays: bridgeRelays)
         )
+    }
+}
+
+extension Data {
+    static func mock(
+        serverRelays: [REST.ServerRelay] = [],
+        bridgeRelays: [REST.BridgeRelay] = []
+    ) throws -> Data {
+        let relays = REST.ServerRelaysResponse.mock(serverRelays: serverRelays, bridgeRelays: bridgeRelays)
+        return try REST.Coding.makeJSONEncoder().encode(relays)
     }
 }
