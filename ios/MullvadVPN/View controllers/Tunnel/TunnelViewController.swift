@@ -147,17 +147,17 @@ class TunnelViewController: UIViewController, RootContainment {
 
     private func updateMap(animated: Bool) {
         switch tunnelState {
-        case let .connecting(tunnelRelays, _):
+        case let .connecting(tunnelRelays, _, _):
             mapViewController.removeLocationMarker()
             contentView.setAnimatingActivity(true)
             mapViewController.setCenter(tunnelRelays?.exit.location.geoCoordinate, animated: animated)
 
-        case let .reconnecting(tunnelRelays, _), let .negotiatingEphemeralPeer(tunnelRelays, _):
+        case let .reconnecting(tunnelRelays, _, _), let .negotiatingEphemeralPeer(tunnelRelays, _, _, _):
             mapViewController.removeLocationMarker()
             contentView.setAnimatingActivity(true)
             mapViewController.setCenter(tunnelRelays.exit.location.geoCoordinate, animated: animated)
 
-        case let .connected(tunnelRelays, _):
+        case let .connected(tunnelRelays, _, _):
             let center = tunnelRelays.exit.location.geoCoordinate
             mapViewController.setCenter(center, animated: animated) {
                 self.contentView.setAnimatingActivity(false)

@@ -35,6 +35,7 @@ class MapConnectionStatusOperation: AsyncOperation {
         super.init(dispatchQueue: queue)
     }
 
+    // swiftlint:disable:next function_body_length
     override func main() {
         guard let tunnel = interactor.tunnel else {
             setTunnelDisconnectedStatus()
@@ -51,19 +52,36 @@ class MapConnectionStatusOperation: AsyncOperation {
                 switch observedState {
                 case let .connected(connectionState):
                     return connectionState.isNetworkReachable
-                        ? .connected(connectionState.selectedRelays, isPostQuantum: connectionState.isPostQuantum)
+                        ? .connected(
+                            connectionState.selectedRelays,
+                            isPostQuantum: connectionState.isPostQuantum,
+                            isDaita: connectionState.isDaitaEnabled
+                        )
                         : .waitingForConnectivity(.noConnection)
                 case let .connecting(connectionState):
                     return connectionState.isNetworkReachable
-                        ? .connecting(connectionState.selectedRelays, isPostQuantum: connectionState.isPostQuantum)
+                        ? .connecting(
+                            connectionState.selectedRelays,
+                            isPostQuantum: connectionState.isPostQuantum,
+                            isDaita: connectionState.isDaitaEnabled
+                        )
                         : .waitingForConnectivity(.noConnection)
                 case let .negotiatingEphemeralPeer(connectionState, privateKey):
                     return connectionState.isNetworkReachable
-                        ? .negotiatingEphemeralPeer(connectionState.selectedRelays, privateKey)
+                        ? .negotiatingEphemeralPeer(
+                            connectionState.selectedRelays,
+                            privateKey,
+                            isPostQuantum: connectionState.isPostQuantum,
+                            isDaita: connectionState.isDaitaEnabled
+                        )
                         : .waitingForConnectivity(.noConnection)
                 case let .reconnecting(connectionState):
                     return connectionState.isNetworkReachable
-                        ? .reconnecting(connectionState.selectedRelays, isPostQuantum: connectionState.isPostQuantum)
+                        ? .reconnecting(
+                            connectionState.selectedRelays,
+                            isPostQuantum: connectionState.isPostQuantum,
+                            isDaita: connectionState.isDaitaEnabled
+                        )
                         : .waitingForConnectivity(.noConnection)
                 case let .error(blockedState):
                     return .error(blockedState.reason)
