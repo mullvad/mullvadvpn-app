@@ -1,12 +1,5 @@
 # See repository root `osv-scanner.toml` for instructions and rules for this file.
 
-# @grpc/grpc-js: There are two separate code paths in which memory can be allocated per message in
-# excess of the grpc.max_receive_message_length channel option
-[[IgnoredVulns]]
-id = "CVE-2024-37168" # GHSA-7v5v-9h63-cj86
-ignoreUntil = 2024-12-05
-reason = "This component only receives gRPC messages from the trusted mullvad-daemon"
-
 # yargs-parser Vulnerable to Prototype Pollution
 [[IgnoredVulns]]
 id = "CVE-2020-7608" # GHSA-p9pc-299p-vxgp
@@ -24,24 +17,6 @@ reason = "This project does not use PostCSS to parse untrusted CSS"
 id = "CVE-2024-4068" # GHSA-grv7-fg5c-xmjg
 ignoreUntil = 2024-12-05
 reason = "This package is only used to match paths from either us or trusted libraries"
-
-# elliptic: Elliptic allows BER-encoded signatures
-[[IgnoredVulns]]
-id = "CVE-2024-42461" # GHSA-49q7-c7j4-3p7m
-ignoreUntil = 2024-10-15
-reason = "We don't utilize the signing features in browserify"
-
-# elliptic: Elliptic's ECDSA missing check for whether leading bit of r and s is zero
-[[IgnoredVulns]]
-id = "CVE-2024-42460" # GHSA-977x-g7h5-7qgw
-ignoreUntil = 2024-10-15
-reason = "We don't utilize the signing features in browserify"
-
-# elliptic: Elliptic's EDDSA missing signature length check
-[[IgnoredVulns]]
-id = "CVE-2024-42459" # GHSA-f7q4-pwc6-w24p
-ignoreUntil = 2024-10-15
-reason = "We don't utilize the signing features in browserify"
 
 # micromatch (dev): Regular Expression Denial of Service (ReDoS) in micromatch
 [[IgnoredVulns]]
