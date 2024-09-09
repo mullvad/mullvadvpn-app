@@ -63,7 +63,7 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol {
         cache = relayCache
 
         do {
-            cachedRelays = try cache.read()
+            cachedRelays = try cache.read().toCachedRelays
             try hotfixRelaysThatDoNotHaveDaita()
         } catch {
             logger.error(
@@ -89,8 +89,8 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol {
         // If the cached relays already have daita information, this fix is not necessary
         guard daitaPropertyMissing else { return }
 
-        let preBundledRelays = try cache.readPrebundledRelays()
-        let preBundledDaitaRelays = preBundledRelays.relays.wireguard.relays.filter { $0.daita == true }
+        let preBundledRelays = try cache.readPrebundledRelays().relays
+        let preBundledDaitaRelays = preBundledRelays.wireguard.relays.filter { $0.daita == true }
         var cachedRelaysWithFixedDaita = cachedRelays.relays.wireguard.relays
 
         // For each daita enabled relay in the prebundled relays
@@ -119,9 +119,11 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol {
             bridge: cachedRelays.relays.bridge
         )
 
-        let updatedCachedRelays = CachedRelays(relays: updatedRelays, updatedAt: Date())
+        let updatedRawRelayData = try REST.Coding.makeJSONEncoder().encode(updatedRelays)
+        let updatedCachedRelays = StoredRelays(etag: cachedRelays.etag, rawData: updatedRawRelayData, updatedAt: cachedRelays.updatedAt)
+
         try cache.write(record: updatedCachedRelays)
-        self.cachedRelays = updatedCachedRelays
+        self.cachedRelays = CachedRelays(etag: cachedRelays.etag, relays: updatedRelays, updatedAt: cachedRelays.updatedAt)
     }
 
     func startPeriodicUpdates() {
@@ -196,7 +198,7 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol {
     }
 
     func refreshCachedRelays() throws {
-        let newCachedRelays = try cache.read()
+        let newCachedRelays = try cache.read().toCachedRelays
 
         relayCacheLock.lock()
         cachedRelays = newCachedRelays
@@ -244,8 +246,8 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol {
         -> Result<RelaysFetchResult, Error> {
         result.tryMap { response -> RelaysFetchResult in
             switch response {
-            case let .newContent(etag, relays):
-                try self.storeResponse(etag: etag, relays: relays)
+            case let .newContent(etag, rawData):
+                try self.storeResponse(etag: etag, rawData: rawData)
 
                 return .newContent
 
@@ -262,18 +264,14 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol {
         }
     }
 
-    private func storeResponse(etag: String?, relays: REST.ServerRelaysResponse) throws {
-        let numRelays = relays.wireguard.relays.count
-
-        logger.info("Downloaded \(numRelays) relays.")
-
-        let newCachedRelays = CachedRelays(
+    private func storeResponse(etag: String?, rawData: Data) throws {
+        let newCachedData = StoredRelays(
             etag: etag,
-            relays: relays,
+            rawData: rawData,
             updatedAt: Date()
         )
 
-        try cache.write(record: newCachedRelays)
+        try cache.write(record: newCachedData)
         try refreshCachedRelays()
     }
 

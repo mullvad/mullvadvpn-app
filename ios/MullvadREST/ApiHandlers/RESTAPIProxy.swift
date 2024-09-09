@@ -107,13 +107,14 @@ extension REST {
                     switch httpStatus {
                     case let httpStatus where httpStatus.isSuccess:
                         return .decoding {
-                            let serverRelays = try self.responseDecoder.decode(
+                            // Discarding result since we're only interested in knowing that it's parseable.
+                            _ = try self.responseDecoder.decode(
                                 ServerRelaysResponse.self,
                                 from: data
                             )
                             let newEtag = response.value(forHTTPHeaderField: HTTPHeader.etag)
 
-                            return .newContent(newEtag, serverRelays)
+                            return .newContent(newEtag, data)
                         }
 
                     case .notModified where etag != nil:
@@ -284,7 +285,7 @@ extension REST {
 
     public enum ServerRelaysCacheResponse {
         case notModified
-        case newContent(_ etag: String?, _ value: ServerRelaysResponse)
+        case newContent(_ etag: String?, _ rawData: Data)
     }
 
     private struct CreateApplePaymentRequest: Encodable {
