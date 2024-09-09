@@ -1,4 +1,5 @@
-import { _electron as electron, ElectronApplication, Locator, Page } from 'playwright';
+import fs from 'fs';
+import { Locator, Page, _electron as electron, ElectronApplication } from 'playwright';
 
 export interface StartAppResponse {
   app: ElectronApplication;
@@ -121,4 +122,14 @@ export function anyOf(...values: string[]): RegExp {
 
 export function escapeRegExp(regexp: string): string {
   return regexp.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+}
+
+
+export function fileExists(filePath: string): boolean {
+  try {
+    fs.accessSync(filePath);
+    return true;
+  } catch (e) {
+    return false;
+  }
 }
