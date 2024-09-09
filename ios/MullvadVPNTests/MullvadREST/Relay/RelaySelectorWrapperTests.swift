@@ -12,12 +12,6 @@
 import XCTest
 
 class RelaySelectorWrapperTests: XCTestCase {
-    let fileCache = MockFileCache(
-        initialState: .exists(CachedRelays(
-            relays: ServerRelaysResponseStubs.sampleRelays,
-            updatedAt: .distantPast
-        ))
-    )
     let multihopWithDaitaConstraints = RelayConstraints(
         entryLocations: .only(UserSelectedRelays(locations: [.country("es")])), // Relay with DAITA.
         exitLocations: .only(UserSelectedRelays(locations: [.country("us")]))
@@ -37,7 +31,14 @@ class RelaySelectorWrapperTests: XCTestCase {
     )
 
     var relayCache: RelayCache!
-    override func setUp() {
+    override func setUpWithError() throws {
+        let fileCache = MockFileCache(
+            initialState: .exists(try StoredRelays(
+                rawData: try REST.Coding.makeJSONEncoder().encode(ServerRelaysResponseStubs.sampleRelays),
+                updatedAt: .distantPast
+            ))
+        )
+
         relayCache = RelayCache(fileCache: fileCache)
     }
 

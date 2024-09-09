@@ -115,6 +115,7 @@ class TunnelManagerTests: XCTestCase {
     }
 
     /// This test verifies tunnel gets out of `blockedState` after constraints are satisfied.
+    // swiftlint:disable:next function_body_length
     func testExitBlockedStateAfterSatisfyingConstraints() async throws {
         let blockedExpectation = expectation(description: "Relay constraints aren't satisfied!")
         let connectedExpectation = expectation(description: "Connected!")
