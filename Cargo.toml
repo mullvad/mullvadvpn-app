@@ -18,6 +18,7 @@ members = [
     "mullvad-jni",
     "mullvad-management-interface",
     "mullvad-nsis",
+    "mullvad-encrypted-dns-proxy",
     "mullvad-paths",
     "mullvad-problem-report",
     "mullvad-relay-selector",
