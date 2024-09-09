@@ -261,7 +261,7 @@ pub struct WireguardRelayQuery {
     pub entry_location: Constraint<LocationConstraint>,
     pub obfuscation: ObfuscationQuery,
     pub daita: Constraint<bool>,
-    pub daita_use_anywhere: Constraint<bool>,
+    pub daita_smart_routing: Constraint<bool>,
     pub quantum_resistant: QuantumResistantState,
 }
 
@@ -347,7 +347,7 @@ impl WireguardRelayQuery {
             entry_location: Constraint::Any,
             obfuscation: ObfuscationQuery::Auto,
             daita: Constraint::Any,
-            daita_use_anywhere: Constraint::Any,
+            daita_smart_routing: Constraint::Any,
             quantum_resistant: QuantumResistantState::Auto,
         }
     }
@@ -663,14 +663,15 @@ pub mod builder {
     }
 
     // impl-block for after DAITA is set
-    impl<Multihop, Obfuscation, QuantumResistant> RelayQueryBuilder<Wireguard<Multihop, Obfuscation, bool, QuantumResistant>> {
-        /// Enable DAITA use_anywhere.
-        pub fn daita_use_anywhere(mut self, constraint: impl Into<Constraint<bool>>) -> Self {
-            self.query.wireguard_constraints.daita_use_anywhere = constraint.into();
+    impl<Multihop, Obfuscation, QuantumResistant>
+        RelayQueryBuilder<Wireguard<Multihop, Obfuscation, bool, QuantumResistant>>
+    {
+        /// Enable DAITA smart routing.
+        pub fn daita_smart_routing(mut self, constraint: impl Into<Constraint<bool>>) -> Self {
+            self.query.wireguard_constraints.daita_smart_routing = constraint.into();
             self
         }
     }
-
 
     impl<Multihop, Obfuscation, Daita> RelayQueryBuilder<Wireguard<Multihop, Obfuscation, Daita, Any>> {
         /// Enable PQ support.

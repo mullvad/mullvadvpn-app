@@ -1451,7 +1451,7 @@ fn test_daita() {
     let query = RelayQueryBuilder::new()
         .wireguard()
         .daita()
-        .daita_use_anywhere(false)
+        .daita_smart_routing(false)
         .build();
     let relay = unwrap_entry_relay(relay_selector.get_relay_by_query(query).unwrap());
     assert!(
@@ -1463,23 +1463,23 @@ fn test_daita() {
     let query = RelayQueryBuilder::new()
         .wireguard()
         .daita()
-        .daita_use_anywhere(false)
+        .daita_smart_routing(false)
         .location(NON_DAITA_RELAY_LOCATION.clone())
         .build();
     relay_selector
         .get_relay_by_query(query)
         .expect_err("Expected to find no matching relay");
 
-    // Should be able to connect to non-DAITA relay with use_anywhere
+    // Should be able to connect to non-DAITA relay with smart_routing
     let query = RelayQueryBuilder::new()
         .wireguard()
         .daita()
-        .daita_use_anywhere(true)
+        .daita_smart_routing(true)
         .location(NON_DAITA_RELAY_LOCATION.clone())
         .build();
     let relay = relay_selector
         .get_relay_by_query(query)
-        .expect("Expected to find a relay with daita_use_anywhere");
+        .expect("Expected to find a relay with daita_smart_routing");
     match relay {
         GetRelay::Wireguard {
             inner: WireguardConfig::Multihop { exit, entry },
@@ -1493,16 +1493,16 @@ fn test_daita() {
         ),
     }
 
-    // Should be able to connect to DAITA relay with use_anywhere
+    // Should be able to connect to DAITA relay with smart_routing
     let query = RelayQueryBuilder::new()
         .wireguard()
         .daita()
-        .daita_use_anywhere(true)
+        .daita_smart_routing(true)
         .location(DAITA_RELAY_LOCATION.clone())
         .build();
     let relay = relay_selector
         .get_relay_by_query(query)
-        .expect("Expected to find a relay with daita_use_anywhere");
+        .expect("Expected to find a relay with daita_smart_routing");
     match relay {
         GetRelay::Wireguard {
             inner: WireguardConfig::Singlehop { exit },
@@ -1537,7 +1537,7 @@ fn test_daita() {
     let query = RelayQueryBuilder::new()
         .wireguard()
         .daita()
-        .daita_use_anywhere(false)
+        .daita_smart_routing(false)
         .multihop()
         .build();
     let relay = relay_selector.get_relay_by_query(query).unwrap();
@@ -1557,7 +1557,7 @@ fn test_daita() {
     let query = RelayQueryBuilder::new()
         .wireguard()
         .daita()
-        .daita_use_anywhere(false)
+        .daita_smart_routing(false)
         .multihop()
         .location(NON_DAITA_RELAY_LOCATION.clone())
         .build();

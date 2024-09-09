@@ -127,7 +127,7 @@ pub struct AdditionalWireguardConstraints {
 
     /// If true and multihop is disabled, will set up multihop with an automatic entry relay if
     /// DAITA is enabled.
-    pub daita_use_anywhere: bool,
+    pub daita_smart_routing: bool,
 
     /// If enabled, select relays that support PQ.
     pub quantum_resistant: QuantumResistantState,
@@ -350,7 +350,7 @@ impl<'a> TryFrom<NormalSelectorConfig<'a>> for RelayQuery {
             } = wireguard_constraints;
             let AdditionalWireguardConstraints {
                 daita,
-                daita_use_anywhere,
+                daita_smart_routing,
                 quantum_resistant,
             } = additional_constraints;
             WireguardRelayQuery {
@@ -360,7 +360,7 @@ impl<'a> TryFrom<NormalSelectorConfig<'a>> for RelayQuery {
                 entry_location,
                 obfuscation: ObfuscationQuery::from(obfuscation_settings),
                 daita: Constraint::Only(daita),
-                daita_use_anywhere: Constraint::Only(daita_use_anywhere),
+                daita_smart_routing: Constraint::Only(daita_smart_routing),
                 quantum_resistant,
             }
         }
@@ -739,18 +739,18 @@ impl RelaySelector {
             Result::<_, Error>::Ok(!candidates.is_empty())
         };
 
-        // is `use_anywhere` enabled?
-        let use_anywhere = || {
+        // is `smart_routing` enabled?
+        let smart_routing = || {
             query
                 .wireguard_constraints()
-                .daita_use_anywhere
+                .daita_smart_routing
                 .intersection(Constraint::Only(true))
                 .is_some()
         };
 
-        // if we found no matching relays because DAITA was enabled, and `use_anywhere` is enabled,
+        // if we found no matching relays because DAITA was enabled, and `smart_routing` is enabled,
         // try enabling multihop and connecting using an automatically selected entry relay.
-        if candidates.is_empty() && using_daita() && no_relay_because_daita()? && use_anywhere() {
+        if candidates.is_empty() && using_daita() && no_relay_because_daita()? && smart_routing() {
             return Self::get_wireguard_auto_multihop_config(query, custom_lists, parsed_relays);
         }
 
