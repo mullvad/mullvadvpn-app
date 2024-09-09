@@ -424,11 +424,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         snapshot.appendItems([.dnsSettings], toSection: .dnsSettings)
         snapshot.appendItems([.ipOverrides], toSection: .ipOverrides)
 
-        #if DEBUG
         snapshot.appendItems([.daitaSwitch, .multihopSwitch], toSection: .privacyAndSecurity)
-        #else
-        snapshot.appendItems([.multihopSwitch], toSection: .privacyAndSecurity)
-        #endif
 
         applySnapshot(snapshot, animated: animated, completion: completion)
     }
