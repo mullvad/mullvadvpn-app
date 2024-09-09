@@ -8,6 +8,8 @@ use shadowsocks::{
     relay::{udprelay::proxy_socket::ProxySocketError, Address},
     ProxySocket,
 };
+#[cfg(target_os = "android")]
+use std::os::unix::io::AsRawFd;
 use std::{io, net::SocketAddr, sync::Arc};
 use tokio::{net::UdpSocket, sync::oneshot};
 
@@ -33,6 +35,9 @@ pub enum Error {
     /// Failed to connect to Shadowsocks endpoint
     #[error("Failed to connect to Shadowsocks endpoint")]
     ConnectShadowsocks(#[from] ProxySocketError),
+    /// Failed to receive remote socket descriptor
+    #[error("Failed to receive remote socket descriptor")]
+    ReceiveRemoteFd,
 }
 
 pub struct Shadowsocks {
@@ -40,6 +45,8 @@ pub struct Shadowsocks {
     server: tokio::task::JoinHandle<Result<()>>,
     // The receiver will implicitly shut down when this is dropped
     _shutdown_tx: oneshot::Sender<()>,
+    #[cfg(target_os = "android")]
+    outbound_fd: i32,
 }
 
 #[derive(Debug)]
@@ -59,40 +66,42 @@ impl Shadowsocks {
 
         let (shutdown_tx, shutdown_rx) = oneshot::channel();
 
-        let server = tokio::spawn(run_obfuscation(
-            local_udp_socket,
+        let shadowsocks = connect_shadowsocks_client(
             settings.shadowsocks_endpoint,
-            settings.wireguard_endpoint,
-            shutdown_rx,
             #[cfg(target_os = "linux")]
             settings.fwmark,
+        )
+        .await?;
+
+        #[cfg(target_os = "android")]
+        let outbound_fd = shadowsocks.as_raw_fd();
+
+        let server = tokio::spawn(run_forwarding(
+            shadowsocks,
+            local_udp_socket,
+            settings.wireguard_endpoint,
+            shutdown_rx,
         ));
 
         Ok(Shadowsocks {
             udp_client_addr,
             server,
             _shutdown_tx: shutdown_tx,
+            #[cfg(target_os = "android")]
+            outbound_fd,
         })
     }
 }
 
-async fn run_obfuscation(
+async fn run_forwarding(
+    shadowsocks: ProxySocket,
     local_udp_socket: UdpSocket,
-    shadowsocks_endpoint: SocketAddr,
     wireguard_endpoint: SocketAddr,
     shutdown_rx: oneshot::Receiver<()>,
-    #[cfg(target_os = "linux")] fwmark: Option<u32>,
 ) -> Result<()> {
     wait_for_local_udp_client(&local_udp_socket)
         .await
         .map_err(Error::WaitForUdpClient)?;
-
-    let shadowsocks = create_shadowsocks_client(
-        shadowsocks_endpoint,
-        #[cfg(target_os = "linux")]
-        fwmark,
-    )
-    .await?;
 
     let local_udp = Arc::new(local_udp_socket);
     let shadowsocks = Arc::new(shadowsocks);
@@ -120,7 +129,7 @@ async fn run_obfuscation(
     Ok(())
 }
 
-async fn create_shadowsocks_client(
+async fn connect_shadowsocks_client(
     shadowsocks_endpoint: SocketAddr,
     #[cfg(target_os = "linux")] fwmark: Option<u32>,
 ) -> std::result::Result<ProxySocket, ProxySocketError> {
@@ -235,7 +244,7 @@ impl Obfuscator for Shadowsocks {
 
     #[cfg(target_os = "android")]
     fn remote_socket_fd(&self) -> std::os::unix::io::RawFd {
-        todo!("return remote socket fd")
+        self.outbound_fd
     }
 }
 
