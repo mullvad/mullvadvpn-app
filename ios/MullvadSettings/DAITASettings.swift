@@ -18,6 +18,11 @@ public enum DAITAState: Codable {
     }
 }
 
+/// Selected relay is incompatible with Daita, either through singlehop or multihop.
+public enum DAITASettingsCompatibilityError {
+    case singlehop, multihop
+}
+
 public struct DAITASettings: Codable, Equatable {
     public let state: DAITAState
 

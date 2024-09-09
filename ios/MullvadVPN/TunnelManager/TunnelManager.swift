@@ -535,6 +535,15 @@ final class TunnelManager: StorePaymentObserver {
         try relayCacheTracker.refreshCachedRelays()
     }
 
+    func selectRelays(tunnelSettings: LatestTunnelSettings) throws -> SelectedRelays {
+        let retryAttempts = tunnelStatus.observedState.connectionState?.connectionAttemptCount ?? 0
+
+        return try relaySelector.selectRelays(
+            tunnelSettings: tunnelSettings,
+            connectionAttemptCount: retryAttempts
+        )
+    }
+
     // MARK: - Tunnel observeration
 
     /// Add tunnel observer.
@@ -780,15 +789,6 @@ final class TunnelManager: StorePaymentObserver {
 
     private func didUpdateNetworkPath(_ path: Network.NWPath) {
         updateTunnelStatus(tunnel?.status ?? .disconnected)
-    }
-
-    fileprivate func selectRelays() throws -> SelectedRelays {
-        let retryAttempts = tunnelStatus.observedState.connectionState?.connectionAttemptCount ?? 0
-
-        return try relaySelector.selectRelays(
-            tunnelSettings: settings,
-            connectionAttemptCount: retryAttempts
-        )
     }
 
     fileprivate func prepareForVPNConfigurationDeletion() {
@@ -1265,7 +1265,7 @@ private struct TunnelInteractorProxy: TunnelInteractor {
     }
 
     func selectRelays() throws -> SelectedRelays {
-        try tunnelManager.selectRelays()
+        try tunnelManager.selectRelays(tunnelSettings: tunnelManager.settings)
     }
 
     func handleRestError(_ error: Error) {

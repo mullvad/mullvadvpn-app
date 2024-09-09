@@ -261,6 +261,12 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
 
         deselectAllRowsInSectionExceptRowAt(indexPath)
 
+        let obfuscationSettingsUpdate = TunnelSettingsUpdate.obfuscation(WireGuardObfuscationSettings(
+            state: viewModel.obfuscationState,
+            port: viewModel.obfuscationPort
+        ))
+        let quantumResistanceUpdate = TunnelSettingsUpdate.quantumResistance(viewModel.quantumResistance)
+
         switch item {
         case .dnsSettings:
             tableView.deselectRow(at: indexPath, animated: false)
@@ -285,26 +291,25 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
 
         case .wireGuardObfuscationAutomatic:
             selectObfuscationState(.automatic)
-            delegate?.didChangeViewModel(viewModel)
+            delegate?.didUpdateTunnelSettings(obfuscationSettingsUpdate)
         case .wireGuardObfuscationOn:
             selectObfuscationState(.on)
-            delegate?.didChangeViewModel(viewModel)
+            delegate?.didUpdateTunnelSettings(obfuscationSettingsUpdate)
         case .wireGuardObfuscationOff:
             selectObfuscationState(.off)
-            delegate?.didChangeViewModel(viewModel)
+            delegate?.didUpdateTunnelSettings(obfuscationSettingsUpdate)
         case let .wireGuardObfuscationPort(port):
             selectObfuscationPort(port)
-            delegate?.didChangeViewModel(viewModel)
-
+            delegate?.didUpdateTunnelSettings(obfuscationSettingsUpdate)
         case .quantumResistanceAutomatic:
             selectQuantumResistance(.automatic)
-            delegate?.didChangeViewModel(viewModel)
+            delegate?.didUpdateTunnelSettings(quantumResistanceUpdate)
         case .quantumResistanceOn:
             selectQuantumResistance(.on)
-            delegate?.didChangeViewModel(viewModel)
+            delegate?.didUpdateTunnelSettings(quantumResistanceUpdate)
         case .quantumResistanceOff:
             selectQuantumResistance(.off)
-            delegate?.didChangeViewModel(viewModel)
+            delegate?.didUpdateTunnelSettings(quantumResistanceUpdate)
         default:
             break
         }
@@ -642,22 +647,32 @@ extension VPNSettingsDataSource: VPNSettingsCellEventHandler {
 
     func switchMultihop(_ state: MultihopState) {
         viewModel.setMultihop(state)
-        delegate?.didChangeViewModel(viewModel)
+        delegate?.didUpdateTunnelSettings(.multihop(viewModel.multihopState))
     }
 
     func switchDaitaState(_ settings: DAITASettings) {
-        if settings.state.isEnabled {
-            delegate?.showPrompt(for: .daita) { [weak self] in
-                guard let self else { return }
-                viewModel.setDAITASettings(settings)
-                delegate?.didChangeViewModel(viewModel)
-            } onDiscard: { [weak self] in
-                guard let self else { return }
-                tableView?.reloadData()
+        let updateSettings = { [weak self] in
+            self?.viewModel.setDAITASettings(settings)
+            self?.delegate?.didUpdateTunnelSettings(.daita(settings))
+        }
+
+        if let error = delegate?.didAttemptToChangeDaitaSettings(settings) {
+            switch error {
+            case .singlehop:
+                delegate?.showPrompt(for: .daitaSettingIncompatibleWithSinglehop) {
+                    updateSettings()
+                } onDiscard: { [weak self] in
+                    self?.tableView?.reloadData()
+                }
+            case .multihop:
+                delegate?.showPrompt(for: .daitaSettingIncompatibleWithMultihop) {
+                    updateSettings()
+                } onDiscard: { [weak self] in
+                    self?.tableView?.reloadData()
+                }
             }
         } else {
-            viewModel.setDAITASettings(settings)
-            delegate?.didChangeViewModel(viewModel)
+            updateSettings()
         }
     }
 }
