@@ -7,7 +7,7 @@ import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.Until
 import java.util.regex.Pattern
-import net.mullvad.mullvadvpn.test.common.constant.DEFAULT_INTERACTION_TIMEOUT
+import net.mullvad.mullvadvpn.test.common.constant.DEFAULT_TIMEOUT
 
 fun UiDevice.findObjectByCaseInsensitiveText(text: String): UiObject2 {
     return findObjectWithTimeout(By.text(Pattern.compile(text, Pattern.CASE_INSENSITIVE)))
@@ -19,7 +19,7 @@ fun UiObject2.findObjectByCaseInsensitiveText(text: String): UiObject2 {
 
 fun UiDevice.findObjectWithTimeout(
     selector: BySelector,
-    timeout: Long = DEFAULT_INTERACTION_TIMEOUT,
+    timeout: Long = DEFAULT_TIMEOUT,
 ): UiObject2 {
 
     wait(Until.hasObject(selector), timeout)
@@ -45,7 +45,7 @@ fun UiDevice.dismissChangelogDialogIfShown() {
 }
 
 fun UiDevice.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove(
-    timeout: Long = DEFAULT_INTERACTION_TIMEOUT
+    timeout: Long = DEFAULT_TIMEOUT
 ) {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
         // Skipping as notification permissions are not shown.
@@ -67,7 +67,7 @@ fun UiDevice.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove(
 
 fun UiObject2.findObjectWithTimeout(
     selector: BySelector,
-    timeout: Long = DEFAULT_INTERACTION_TIMEOUT,
+    timeout: Long = DEFAULT_TIMEOUT,
 ): UiObject2 {
 
     wait(Until.hasObject(selector), timeout)

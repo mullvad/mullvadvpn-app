@@ -8,12 +8,12 @@ import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointOverride
 import net.mullvad.mullvadvpn.lib.endpoint.putApiEndpointConfigurationExtra
-import net.mullvad.mullvadvpn.test.common.constant.APP_LAUNCH_TIMEOUT
-import net.mullvad.mullvadvpn.test.common.constant.CONNECTION_TIMEOUT
-import net.mullvad.mullvadvpn.test.common.constant.DEFAULT_INTERACTION_TIMEOUT
-import net.mullvad.mullvadvpn.test.common.constant.LOGIN_FAILURE_TIMEOUT
-import net.mullvad.mullvadvpn.test.common.constant.LOGIN_PROMPT_TIMEOUT
-import net.mullvad.mullvadvpn.test.common.constant.LOGIN_TIMEOUT
+import net.mullvad.mullvadvpn.test.common.constant.LONG_TIMEOUT
+import net.mullvad.mullvadvpn.test.common.constant.VERY_LONG_TIMEOUT
+import net.mullvad.mullvadvpn.test.common.constant.DEFAULT_TIMEOUT
+import net.mullvad.mullvadvpn.test.common.constant.EXTREMELY_LONG_TIMEOUT
+import net.mullvad.mullvadvpn.test.common.constant.VERY_LONG_TIMEOUT
+import net.mullvad.mullvadvpn.test.common.constant.VERY_LONG_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.extension.clickAgreeOnPrivacyDisclaimer
 import net.mullvad.mullvadvpn.test.common.extension.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
@@ -28,7 +28,7 @@ class AppInteractor(
         // Wait for launcher
         device.wait(
             Until.hasObject(By.pkg(device.launcherPackageName).depth(0)),
-            APP_LAUNCH_TIMEOUT,
+            LONG_TIMEOUT,
         )
 
         val intent =
@@ -40,7 +40,7 @@ class AppInteractor(
                 }
             }
         targetContext.startActivity(intent)
-        device.wait(Until.hasObject(By.pkg(targetPackageName).depth(0)), APP_LAUNCH_TIMEOUT)
+        device.wait(Until.hasObject(By.pkg(targetPackageName).depth(0)), LONG_TIMEOUT)
     }
 
     fun launchAndEnsureLoggedIn(accountNumber: String) {
@@ -58,7 +58,7 @@ class AppInteractor(
                 text = accountNumber
             }
         val loginButton = loginObject.parent.findObject(By.clazz(Button::class.java))
-        loginButton.wait(Until.enabled(true), DEFAULT_INTERACTION_TIMEOUT)
+        loginButton.wait(Until.enabled(true), DEFAULT_TIMEOUT)
         loginButton.click()
     }
 
@@ -67,18 +67,18 @@ class AppInteractor(
     }
 
     fun ensureAccountCreated(accountNumber: String? = null) {
-        device.findObjectWithTimeout(By.text("Congrats!"), LOGIN_TIMEOUT)
+        device.findObjectWithTimeout(By.text("Congrats!"), VERY_LONG_TIMEOUT)
         accountNumber?.let {
-            device.findObjectWithTimeout(By.text(accountNumber), DEFAULT_INTERACTION_TIMEOUT)
+            device.findObjectWithTimeout(By.text(accountNumber), DEFAULT_TIMEOUT)
         }
     }
 
     fun ensureAccountCreationFailed() {
-        device.findObjectWithTimeout(By.text("Failed to create account"), LOGIN_FAILURE_TIMEOUT)
+        device.findObjectWithTimeout(By.text("Failed to create account"), EXTREMELY_LONG_TIMEOUT)
     }
 
     fun ensureLoggedIn() {
-        device.findObjectWithTimeout(By.text("UNSECURED CONNECTION"), LOGIN_TIMEOUT)
+        device.findObjectWithTimeout(By.text("UNSECURED CONNECTION"), VERY_LONG_TIMEOUT)
     }
 
     fun ensureOutOfTime() {
@@ -95,7 +95,7 @@ class AppInteractor(
             .findObjectWithTimeout(
                 // Text exist and contains IP address
                 By.res("location_info_connection_out_test_tag").textContains("."),
-                CONNECTION_TIMEOUT,
+                VERY_LONG_TIMEOUT,
             )
             .text
             .extractIpAddress()
@@ -117,7 +117,7 @@ class AppInteractor(
         device.findObjectWithTimeout(By.text(text)).click()
     }
 
-    fun waitForLoginPrompt(timeout: Long = LOGIN_PROMPT_TIMEOUT) {
+    fun waitForLoginPrompt(timeout: Long = VERY_LONG_TIMEOUT) {
         device.findObjectWithTimeout(By.text("Login"), timeout)
     }
 

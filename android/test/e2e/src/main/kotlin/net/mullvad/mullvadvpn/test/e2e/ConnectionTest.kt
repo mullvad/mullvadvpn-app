@@ -2,7 +2,7 @@ package net.mullvad.mullvadvpn.test.e2e
 
 import androidx.test.uiautomator.By
 import net.mullvad.mullvadvpn.BuildConfig
-import net.mullvad.mullvadvpn.test.common.constant.CONNECTION_TIMEOUT
+import net.mullvad.mullvadvpn.test.common.constant.VERY_LONG_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
 import net.mullvad.mullvadvpn.test.common.rule.ForgetAllVpnAppsInSettingsTestRule
 import net.mullvad.mullvadvpn.test.e2e.misc.AccountTestRule
@@ -30,7 +30,7 @@ class ConnectionTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
         device.findObjectWithTimeout(By.text("OK")).click()
 
         // Then
-        device.findObjectWithTimeout(By.text("SECURE CONNECTION"), CONNECTION_TIMEOUT)
+        device.findObjectWithTimeout(By.text("SECURE CONNECTION"), VERY_LONG_TIMEOUT)
     }
 
     @Test
@@ -41,7 +41,7 @@ class ConnectionTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
         // When
         device.findObjectWithTimeout(By.text("Secure my connection")).click()
         device.findObjectWithTimeout(By.text("OK")).click()
-        device.findObjectWithTimeout(By.text("SECURE CONNECTION"), CONNECTION_TIMEOUT)
+        device.findObjectWithTimeout(By.text("SECURE CONNECTION"), VERY_LONG_TIMEOUT)
         val expected = ConnCheckState(true, app.extractIpAddress())
 
         // Then
