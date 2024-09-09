@@ -78,7 +78,7 @@ impl From<mullvad_types::wireguard::DaitaSettings> for proto::DaitaSettings {
     fn from(settings: mullvad_types::wireguard::DaitaSettings) -> Self {
         proto::DaitaSettings {
             enabled: settings.enabled,
-            use_anywhere: settings.use_anywhere,
+            smart_routing: settings.smart_routing,
         }
     }
 }
@@ -88,7 +88,7 @@ impl From<proto::DaitaSettings> for mullvad_types::wireguard::DaitaSettings {
     fn from(settings: proto::DaitaSettings) -> Self {
         mullvad_types::wireguard::DaitaSettings {
             enabled: settings.enabled,
-            use_anywhere: settings.use_anywhere,
+            smart_routing: settings.smart_routing,
         }
     }
 }

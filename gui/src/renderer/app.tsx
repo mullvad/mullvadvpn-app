@@ -346,8 +346,8 @@ export default class AppRenderer {
     IpcRendererEventChannel.settings.setObfuscationSettings(obfuscationSettings);
   public setEnableDaita = (value: boolean) =>
     IpcRendererEventChannel.settings.setEnableDaita(value);
-  public setDaitaUseAnywhere = (value: boolean) =>
-    IpcRendererEventChannel.settings.setDaitaUseAnywhere(value);
+  public setDaitaSmartRouting = (value: boolean) =>
+    IpcRendererEventChannel.settings.setDaitaSmartRouting(value);
   public collectProblemReport = (toRedact: string | undefined) =>
     IpcRendererEventChannel.problemReport.collectLogs(toRedact);
   public viewLog = (path: string) => IpcRendererEventChannel.problemReport.viewLog(path);

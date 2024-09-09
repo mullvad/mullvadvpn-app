@@ -352,11 +352,11 @@ impl ManagementService for ManagementServiceImpl {
     }
 
     #[cfg(daita)]
-    async fn set_daita_use_anywhere(&self, request: Request<bool>) -> ServiceResult<()> {
+    async fn set_daita_smart_routing(&self, request: Request<bool>) -> ServiceResult<()> {
         let value = request.into_inner();
-        log::debug!("set_daita_use_anywhere({value})");
+        log::debug!("set_daita_smart_routing({value})");
         let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetDaitaUseAnywhere(tx, value))?;
+        self.send_command_to_daemon(DaemonCommand::SetDaitaSmartRouting(tx, value))?;
         self.wait_for_result(rx).await?.map(Response::new)?;
         Ok(Response::new(()))
     }
@@ -381,7 +381,7 @@ impl ManagementService for ManagementServiceImpl {
     }
 
     #[cfg(not(daita))]
-    async fn set_daita_use_anywhere(&self, _: Request<bool>) -> ServiceResult<()> {
+    async fn set_daita_smart_routing(&self, _: Request<bool>) -> ServiceResult<()> {
         Ok(Response::new(()))
     }
 

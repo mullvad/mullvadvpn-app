@@ -49,8 +49,14 @@ pub enum FeatureIndicator {
     ServerIpOverride,
     CustomMtu,
     CustomMssFix,
+
+    /// Whether DAITA (without smart routing) is in use.
+    /// Mutually exclusive with [FeatureIndicator::DaitaSmartRouting].
     Daita,
-    DaitaUseAnywhere,
+
+    /// Whether DAITA (with smart routing) is in use.
+    /// Mutually exclusive with [FeatureIndicator::Daita].
+    DaitaSmartRouting,
 }
 
 impl std::fmt::Display for FeatureIndicator {
@@ -70,7 +76,7 @@ impl std::fmt::Display for FeatureIndicator {
             FeatureIndicator::CustomMtu => "Custom MTU",
             FeatureIndicator::CustomMssFix => "Custom MSS",
             FeatureIndicator::Daita => "DAITA",
-            FeatureIndicator::DaitaUseAnywhere => "Use Anywhere (DAITA)",
+            FeatureIndicator::DaitaSmartRouting => "DAITA: Smart Routing",
         };
         write!(f, "{feature}")
     }
@@ -124,7 +130,6 @@ pub fn compute_feature_indicators(
         }
         TunnelType::Wireguard => {
             let quantum_resistant = endpoint.quantum_resistant;
-            let multihop = endpoint.entry_endpoint.is_some();
             let udp_tcp = endpoint
                 .obfuscation
                 .as_ref()
@@ -138,20 +143,28 @@ pub fn compute_feature_indicators(
 
             let mtu = settings.tunnel_options.wireguard.mtu.is_some();
 
-            #[cfg(daita)]
-            let daita = endpoint.daita;
+            let mut daita_smart_routing = false;
+            let mut multihop = false;
 
-            #[cfg(daita)]
-            let daita_use_anywhere =
-                if let crate::relay_constraints::RelaySettings::Normal(constraints) =
-                    &settings.relay_settings
+            if let crate::relay_constraints::RelaySettings::Normal(constraints) =
+                &settings.relay_settings
+            {
+                multihop = endpoint.entry_endpoint.is_some()
+                    && constraints.wireguard_constraints.use_multihop;
+
+                #[cfg(daita)]
                 {
-                    // Detect whether we're using "use_anywhere" by checking if multihop is
+                    // Detect whether we're using "smart_routing" by checking if multihop is
                     // in use but not explicitly enabled.
-                    daita && multihop && !constraints.wireguard_constraints.use_multihop
-                } else {
-                    false
-                };
+                    daita_smart_routing = endpoint.daita
+                        && endpoint.entry_endpoint.is_some()
+                        && !constraints.wireguard_constraints.use_multihop
+                }
+            };
+
+            // Daita is mutually exclusive with DaitaSmartRouting
+            #[cfg(daita)]
+            let daita = endpoint.daita && !daita_smart_routing;
 
             vec![
                 (quantum_resistant, FeatureIndicator::QuantumResistance),
@@ -161,8 +174,7 @@ pub fn compute_feature_indicators(
                 (mtu, FeatureIndicator::CustomMtu),
                 #[cfg(daita)]
                 (daita, FeatureIndicator::Daita),
-                #[cfg(daita)]
-                (daita_use_anywhere, FeatureIndicator::DaitaUseAnywhere),
+                (daita_smart_routing, FeatureIndicator::DaitaSmartRouting),
             ]
         }
     };
@@ -348,11 +360,11 @@ mod tests {
             };
             expected_indicators
                 .0
-                .insert(FeatureIndicator::DaitaUseAnywhere);
+                .insert(FeatureIndicator::DaitaSmartRouting);
             assert_eq!(
                 compute_feature_indicators(&settings, &endpoint, false),
                 expected_indicators,
-                "DaitaUseAnywhere should be enable"
+                "DaitaSmartRouting should be enable"
             );
         }
 
@@ -373,7 +385,7 @@ mod tests {
             FeatureIndicator::CustomMtu => {}
             FeatureIndicator::CustomMssFix => {}
             FeatureIndicator::Daita => {}
-            FeatureIndicator::DaitaUseAnywhere => {}
+            FeatureIndicator::DaitaSmartRouting => {}
         }
     }
 }

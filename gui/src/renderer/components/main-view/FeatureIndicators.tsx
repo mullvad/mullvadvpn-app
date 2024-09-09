@@ -5,9 +5,13 @@ import styled from 'styled-components';
 import { colors, strings } from '../../../config.json';
 import { FeatureIndicator } from '../../../shared/daemon-rpc-types';
 import { messages } from '../../../shared/gettext';
-import { useStyledRef } from '../../lib/utilityHooks';
+import { useBoolean, useStyledRef } from '../../lib/utilityHooks';
 import { useSelector } from '../../redux/store';
 import { tinyText } from '../common-styles';
+import { SmartRoutingModalMessage } from '../DaitaSettings';
+import { InfoIcon } from '../InfoButton';
+import { ModalAlert, ModalAlertType } from '../Modal';
+import { SmallButton, SmallButtonColor } from '../SmallButton';
 import { ConnectionPanelAccordion } from './styles';
 
 const LINE_HEIGHT = 22;
@@ -43,8 +47,9 @@ const StyledFeatureIndicatorsWrapper = styled.div<{ $expanded: boolean }>((props
 }));
 
 const StyledFeatureIndicatorLabel = styled.span<{ $expanded: boolean }>(tinyText, (props) => ({
-  display: 'inline',
-  padding: '2px 8px',
+  display: 'flex',
+  gap: '4px',
+  padding: '1px 7px',
   justifyContent: 'center',
   alignItems: 'center',
   borderRadius: '4px',
@@ -53,6 +58,15 @@ const StyledFeatureIndicatorLabel = styled.span<{ $expanded: boolean }>(tinyText
   fontWeight: 400,
   whiteSpace: 'nowrap',
   visibility: props.$expanded ? 'visible' : 'hidden',
+
+  // Style clickable feature indicators with a border and on-hover effect
+  boxSizing: 'border-box', // make border act as padding rather than margin
+  border: 'solid 1px',
+  borderColor: props.onClick ? colors.blue : colors.darkerBlue,
+  transition: 'background ease-in-out 300ms',
+  '&&:hover': {
+    background: props.onClick ? colors.blue60 : undefined,
+  },
 }));
 
 const StyledBaseEllipsis = styled.span<{ $display: boolean }>(tinyText, (props) => ({
@@ -88,6 +102,11 @@ interface FeatureIndicatorsProps {
 // we can count those and add another ellipsis element which is visible and place it after the last
 // visible indicator.
 export default function FeatureIndicators(props: FeatureIndicatorsProps) {
+  const [
+    daitaSmartRoutingDialogueVisible,
+    showDaitaSmartRoutingDialogue,
+    hideDaitaSmartRoutingDialogue,
+  ] = useBoolean();
   const tunnelState = useSelector((state) => state.connection.status);
   const ellipsisRef = useStyledRef<HTMLSpanElement>();
   const ellipsisSpacerRef = useStyledRef<HTMLSpanElement>();
@@ -105,6 +124,16 @@ export default function FeatureIndicators(props: FeatureIndicatorsProps) {
   }
 
   const ellipsis = messages.gettext('%(amount)d more...');
+
+  // Returns an optional callback for clickable feature indicators, or undefined.
+  const getFeatureIndicatorOnClick = (indicator: FeatureIndicator) => {
+    switch (indicator) {
+      case FeatureIndicator.daitaSmartRouting:
+        return showDaitaSmartRoutingDialogue;
+      default:
+        return undefined;
+    }
+  };
 
   useEffect(() => {
     // We need to defer the visibility logic one painting cycle to make sure the elements are
@@ -162,7 +191,7 @@ export default function FeatureIndicators(props: FeatureIndicatorsProps) {
 
   return (
     <StyledAccordion expanded={featureIndicatorsVisible && featureIndicators.current.length > 0}>
-      <StyledFeatureIndicatorsContainer onClick={props.expandIsland} $expanded={props.expanded}>
+      <StyledFeatureIndicatorsContainer $expanded={props.expanded}>
         <StyledAccordion expanded={props.expanded}>
           <StyledTitle>{messages.pgettext('connect-view', 'Active features')}</StyledTitle>
         </StyledAccordion>
@@ -170,16 +199,20 @@ export default function FeatureIndicators(props: FeatureIndicatorsProps) {
           <StyledFeatureIndicatorsWrapper
             ref={featureIndicatorsContainerRef}
             $expanded={props.expanded}>
-            {featureIndicators.current.sort().map((indicator) => (
-              <StyledFeatureIndicatorLabel
-                key={indicator.toString()}
-                data-testid="feature-indicator"
-                $expanded={props.expanded}>
-                {getFeatureIndicatorLabel(indicator)}
-              </StyledFeatureIndicatorLabel>
-            ))}
+            {featureIndicators.current.sort().map((indicator) => {
+              const onClick = getFeatureIndicatorOnClick(indicator);
+              return (
+                <StyledFeatureIndicatorLabel
+                  key={indicator.toString()}
+                  data-testid="feature-indicator"
+                  onClick={onClick}
+                  $expanded={props.expanded}>
+                  {getFeatureIndicatorLabel(indicator)}
+                  {onClick ? <InfoIcon size={10} /> : null}
+                </StyledFeatureIndicatorLabel>
+              );
+            })}
           </StyledFeatureIndicatorsWrapper>
-          <StyledEllipsis $display={!props.expanded} ref={ellipsisRef} />
           <StyledEllipsisSpacer $display={!props.expanded} ref={ellipsisSpacerRef}>
             {
               // Mock amount for the spacer ellipsis. This needs to be wider than the real
@@ -187,8 +220,28 @@ export default function FeatureIndicators(props: FeatureIndicatorsProps) {
               sprintf(ellipsis, { amount: 222 })
             }
           </StyledEllipsisSpacer>
+          <StyledEllipsis
+            onClick={props.expandIsland}
+            $display={!props.expanded}
+            ref={ellipsisRef}
+          />
         </StyledFeatureIndicators>
       </StyledFeatureIndicatorsContainer>
+
+      <ModalAlert
+        isOpen={daitaSmartRoutingDialogueVisible}
+        type={ModalAlertType.info}
+        gridButtons={[
+          <SmallButton
+            key="dismiss"
+            onClick={hideDaitaSmartRoutingDialogue}
+            color={SmallButtonColor.blue}>
+            {messages.gettext('Got it!')}
+          </SmallButton>,
+        ]}
+        close={hideDaitaSmartRoutingDialogue}>
+        <SmartRoutingModalMessage />
+      </ModalAlert>
     </StyledAccordion>
   );
 }
@@ -214,8 +267,13 @@ function getFeatureIndicatorLabel(indicator: FeatureIndicator) {
   switch (indicator) {
     case FeatureIndicator.daita:
       return strings.daita;
-    case FeatureIndicator.daitaUseAnywhere:
-      return messages.pgettext('wireguard-settings-view', 'DAITA: Use Anywhere');
+    case FeatureIndicator.daitaSmartRouting:
+      return sprintf(
+        // TRANSLATORS: This refers to the Smart Routing setting in the VPN settings view.
+        // TRANSLATORS: This is displayed when both Smart Routing and DAITA features are on.
+        messages.gettext('%(daita)s: Smart routing'),
+        { daita: strings.daita },
+      );
     case FeatureIndicator.udp2tcp:
     case FeatureIndicator.shadowsocks:
       return messages.pgettext('wireguard-settings-view', 'Obfuscation');
