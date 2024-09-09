@@ -22,6 +22,8 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Added
+- Add DAITA (Defence against AI-guided Traffic Analysis) setting
 
 ## [2024.5 - 2024-08-19]
 ### Added
