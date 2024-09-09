@@ -102,7 +102,6 @@
     <string name="custom_port_dialog_valid_ranges">Geldige bereiken: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Kan host van aangepaste tunnel niet omzetten. Probeer uw instellingen te wijzigen.</string>
     <string name="daita_info">%1$s (%2$s) verbergt patronen in het versleutelde VPN-verkeer. Als iemand de verbinding in de gaten houdt, maakt dit het aanzienlijk moeilijker voor diegene om te zien welke websites u bezoekt. Dit wordt gedaan door zorgvuldig netwerkruis toe te voegen en alle netwerkpakketten even groot te maken.</string>
-    <string name="daita_warning">Let op: omdat dit het totale netwerkverkeer verhoogt, moet u voorzichtig zijn als u een beperkt data-abonnement hebt. Ook kan het uw netwerksnelheid negatief beïnvloeden. Houd hier rekening mee als u %1$s wilt inschakelen.</string>
     <string name="delete">Verwijderen</string>
     <string name="delete_custom_list_confirmation_description">\"%1$s\" verwijderen?</string>
     <string name="delete_custom_list_message">\"%1$s\" is verwijderd</string>

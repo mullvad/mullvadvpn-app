@@ -102,7 +102,6 @@
     <string name="custom_port_dialog_valid_ranges">Gyldige områder: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Kunne ikke fortolke værten for den tilpassede tunnel. Prøv at ændre dine indstillinger.</string>
     <string name="daita_info">%1$s (%2$s) skjuler mønstre i din krypterede VPN-trafik. Hvis nogen overvåger din forbindelse, gør dette det betydeligt sværere for dem at identificere, hvilke websteder du besøger. Mønstrene skjules ved omhyggeligt at tilføje netværksstøj og gøre alle netværkspakker lige store.</string>
-    <string name="daita_warning">Bemærk: Da dette øger din samlede netværkstrafik, skal du være forsigtig, hvis du har et abonnement med begrænset datamængde. Det kan også påvirke din netværkshastighed negativt. Overvej dette, hvis du vil aktivere %1$s.</string>
     <string name="delete">Slet</string>
     <string name="delete_custom_list_confirmation_description">Vil du slette \"%1$s\"?</string>
     <string name="delete_custom_list_message">\"%1$s\" blev slettet</string>

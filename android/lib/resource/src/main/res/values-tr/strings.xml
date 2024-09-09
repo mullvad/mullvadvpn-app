@@ -102,7 +102,6 @@
     <string name="custom_port_dialog_valid_ranges">Geçerli aralıklar: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Özel tünel ana bilgisayarı çözülemedi. Ayarlarınızı değiştirmeyi deneyin.</string>
     <string name="daita_info">%1$s (%2$s), şifrelenmiş VPN trafiğinizdeki kalıpları gizler. Bu sayede, başka biri bağlantınızı izliyorsa ziyaret ettiğiniz web sitelerini tespit etmesi çok daha zor olacaktır. Özellik, dikkatli bir şekilde ağ paraziti ekleyerek ve tüm ağ paketlerini aynı boyuta getirerek sizi izlenmekten korur.</string>
-    <string name="daita_warning">Dikkat: Bu özellik, toplam ağ trafiğinizi artıracağından dolayı sınırlı bir veri planınız varsa dikkatli olun. Bu, ağ hızınızı da olumsuz etkileyebilir. %1$s özelliğini etkinleştirmek istiyorsanız lütfen bu durumu göz önünde bulundurun.</string>
     <string name="delete">Sil</string>
     <string name="delete_custom_list_confirmation_description">\"%1$s\" silinsin mi\"?</string>
     <string name="delete_custom_list_message">\"%1$s\" silindi</string>

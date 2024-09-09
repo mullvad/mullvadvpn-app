@@ -102,7 +102,6 @@
     <string name="custom_port_dialog_valid_ranges">有效范围：%1$s</string>
     <string name="custom_tunnel_host_resolution_error">无法解析自定义隧道的主机。请尝试更改您的设置。</string>
     <string name="daita_info">%1$s（%2$s）会在您的加密 VPN 流量中隐藏模式。如果有人在监视您的连接，这可以让他们很难识别您正在访问的网站。它的实现方法是小心地添加网络噪声并使所有网络数据包的大小都相同。</string>
-    <string name="daita_warning">注意：这会增加您的总网络流量，因此如果您的流量套餐有限，请谨慎使用。它还会对您的网速产生负面影响。如果要启用 %1$s，请考虑到这一点。</string>
     <string name="delete">删除</string>
     <string name="delete_custom_list_confirmation_description">删除“%1$s”？</string>
     <string name="delete_custom_list_message">“%1$s”已被删除</string>
