@@ -162,6 +162,13 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
     private let vpnSettingsCellFactory: VPNSettingsCellFactory
     private weak var tableView: UITableView?
 
+    private var obfuscationSettings: WireGuardObfuscationSettings {
+        WireGuardObfuscationSettings(
+            state: viewModel.obfuscationState,
+            port: viewModel.obfuscationPort
+        )
+    }
+
     weak var delegate: VPNSettingsDataSourceDelegate?
 
     var selectedIndexPaths: [IndexPath] {
@@ -261,12 +268,6 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
 
         deselectAllRowsInSectionExceptRowAt(indexPath)
 
-        let obfuscationSettingsUpdate = TunnelSettingsUpdate.obfuscation(WireGuardObfuscationSettings(
-            state: viewModel.obfuscationState,
-            port: viewModel.obfuscationPort
-        ))
-        let quantumResistanceUpdate = TunnelSettingsUpdate.quantumResistance(viewModel.quantumResistance)
-
         switch item {
         case .dnsSettings:
             tableView.deselectRow(at: indexPath, animated: false)
@@ -291,25 +292,25 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
 
         case .wireGuardObfuscationAutomatic:
             selectObfuscationState(.automatic)
-            delegate?.didUpdateTunnelSettings(obfuscationSettingsUpdate)
+            delegate?.didUpdateTunnelSettings(TunnelSettingsUpdate.obfuscation(obfuscationSettings))
         case .wireGuardObfuscationOn:
             selectObfuscationState(.on)
-            delegate?.didUpdateTunnelSettings(obfuscationSettingsUpdate)
+            delegate?.didUpdateTunnelSettings(TunnelSettingsUpdate.obfuscation(obfuscationSettings))
         case .wireGuardObfuscationOff:
             selectObfuscationState(.off)
-            delegate?.didUpdateTunnelSettings(obfuscationSettingsUpdate)
+            delegate?.didUpdateTunnelSettings(TunnelSettingsUpdate.obfuscation(obfuscationSettings))
         case let .wireGuardObfuscationPort(port):
             selectObfuscationPort(port)
-            delegate?.didUpdateTunnelSettings(obfuscationSettingsUpdate)
+            delegate?.didUpdateTunnelSettings(TunnelSettingsUpdate.obfuscation(obfuscationSettings))
         case .quantumResistanceAutomatic:
             selectQuantumResistance(.automatic)
-            delegate?.didUpdateTunnelSettings(quantumResistanceUpdate)
+            delegate?.didUpdateTunnelSettings(TunnelSettingsUpdate.quantumResistance(viewModel.quantumResistance))
         case .quantumResistanceOn:
             selectQuantumResistance(.on)
-            delegate?.didUpdateTunnelSettings(quantumResistanceUpdate)
+            delegate?.didUpdateTunnelSettings(TunnelSettingsUpdate.quantumResistance(viewModel.quantumResistance))
         case .quantumResistanceOff:
             selectQuantumResistance(.off)
-            delegate?.didUpdateTunnelSettings(quantumResistanceUpdate)
+            delegate?.didUpdateTunnelSettings(TunnelSettingsUpdate.quantumResistance(viewModel.quantumResistance))
         default:
             break
         }
