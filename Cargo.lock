@@ -1337,20 +1337,26 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "07698b8420e2f0d6447a436ba999ec85d8fbf2a398bbd737b82cac4a2e96e512"
 dependencies = [
  "async-trait",
+ "bytes",
  "cfg-if",
  "data-encoding",
  "enum-as-inner",
  "futures-channel",
  "futures-io",
  "futures-util",
+ "h2 0.3.26",
+ "http 0.2.12",
  "idna 0.4.0",
  "ipnet",
  "once_cell",
  "rand 0.8.5",
+ "rustls",
+ "rustls-pemfile",
  "serde",
  "thiserror",
  "tinyvec",
  "tokio",
+ "tokio-rustls",
  "tracing",
  "url",
 ]
@@ -1370,10 +1376,12 @@ dependencies = [
  "parking_lot",
  "rand 0.8.5",
  "resolv-conf",
+ "rustls",
  "serde",
  "smallvec",
  "thiserror",
  "tokio",
+ "tokio-rustls",
  "tracing",
 ]
 
@@ -2312,6 +2320,17 @@ dependencies = [
  "cbindgen",
  "mullvad-paths",
  "talpid-platform-metadata",
+]
+
+[[package]]
+name = "mullvad-obfuscated-dns-proxy"
+version = "0.0.0"
+dependencies = [
+ "byteorder",
+ "hickory-resolver",
+ "rustls",
+ "tokio",
+ "webpki-roots",
 ]
 
 [[package]]
@@ -4702,6 +4721,12 @@ name = "wasm-bindgen-shared"
 version = "0.2.92"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "af190c94f2773fdb3729c55b007a722abb5384da03bc0986df4c289bf5567e96"
+
+[[package]]
+name = "webpki-roots"
+version = "0.25.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5f20c57d8d7db6d3b86154206ae5d8fba62dd39573114de97c2cb0578251f8e1"
 
 [[package]]
 name = "which"

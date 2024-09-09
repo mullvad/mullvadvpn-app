@@ -17,7 +17,7 @@ members = [
     "mullvad-ios",
     "mullvad-jni",
     "mullvad-management-interface",
-    "mullvad-nsis",
+    "mullvad-nsis", "mullvad-obfuscated-dns-proxy",
     "mullvad-paths",
     "mullvad-problem-report",
     "mullvad-relay-selector",
