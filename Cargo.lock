@@ -4689,6 +4689,7 @@ version = "0.0.0"
 dependencies = [
  "async-trait",
  "log",
+ "nix 0.23.2",
  "shadowsocks",
  "thiserror",
  "tokio",

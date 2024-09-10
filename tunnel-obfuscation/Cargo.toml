@@ -17,3 +17,6 @@ thiserror = { workspace = true }
 tokio = { workspace = true, features = ["rt-multi-thread", "macros", "net", "io-util"] }
 udp-over-tcp = { git = "https://github.com/mullvad/udp-over-tcp", rev = "87936ac29b68b902565955f138ab02294bcc8593" }
 shadowsocks = { workspace = true }
+
+[target.'cfg(target_os="linux")'.dependencies]
+nix = "0.23"
