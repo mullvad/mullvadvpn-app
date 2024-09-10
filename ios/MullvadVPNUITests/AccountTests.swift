@@ -9,13 +9,6 @@
 import XCTest
 
 class AccountTests: LoggedOutUITestCase {
-    lazy var mullvadAPIWrapper: MullvadAPIWrapper = {
-        do {
-            // swiftlint:disable:next force_try
-            return try! MullvadAPIWrapper()
-        }
-    }()
-
     override func setUpWithError() throws {
         continueAfterFailure = false
 
@@ -33,7 +26,7 @@ class AccountTests: LoggedOutUITestCase {
     }
 
     func testDeleteAccount() throws {
-        let accountNumber = mullvadAPIWrapper.createAccount()
+        let accountNumber = createTemporaryAccountWithoutTime()
 
         LoginPage(app)
             .tapAccountNumberTextField()
@@ -99,7 +92,7 @@ class AccountTests: LoggedOutUITestCase {
 
     func testLoginToAccountWithTooManyDevices() throws {
         // Setup
-        let temporaryAccountNumber = mullvadAPIWrapper.createAccount()
+        let temporaryAccountNumber = createTemporaryAccountWithoutTime()
         mullvadAPIWrapper.addDevices(5, account: temporaryAccountNumber)
 
         // Teardown
@@ -133,7 +126,7 @@ class AccountTests: LoggedOutUITestCase {
     }
 
     func testLogOut() throws {
-        let newAccountNumber = mullvadAPIWrapper.createAccount()
+        let newAccountNumber = createTemporaryAccountWithoutTime()
         login(accountNumber: newAccountNumber)
         XCTAssertEqual(try mullvadAPIWrapper.getDevices(newAccountNumber).count, 1, "Account has one device")
 
