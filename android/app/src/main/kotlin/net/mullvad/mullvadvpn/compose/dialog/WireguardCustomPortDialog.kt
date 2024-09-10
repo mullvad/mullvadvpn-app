@@ -61,7 +61,7 @@ fun WireguardCustomPort(
 
     CollectSideEffectWithLifecycle(viewModel.uiSideEffect) {
         when (it) {
-            is WireguardCustomPortDialogSideEffect.Complete -> backNavigator.navigateBack(it.port)
+            is WireguardCustomPortDialogSideEffect.Success -> backNavigator.navigateBack(it.port)
         }
     }
 

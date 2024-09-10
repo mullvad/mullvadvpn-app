@@ -25,8 +25,7 @@ class WireguardCustomPortDialogViewModel(
     private val navArgs = WireguardCustomPortDestination.argsFrom(savedStateHandle).navArg
 
     private val _portInput = MutableStateFlow(navArgs.customPort?.value?.toString() ?: "")
-    private val _isValidPort =
-        MutableStateFlow(_portInput.value.isValidPort(navArgs.allowedPortRanges))
+    private val _isValidPort = MutableStateFlow(_portInput.value.isValidPort())
 
     val uiState: StateFlow<WireguardCustomPortDialogUiState> =
         combine(_portInput, _isValidPort, ::createState)
@@ -49,24 +48,31 @@ class WireguardCustomPortDialogViewModel(
 
     fun onInputChanged(value: String) {
         _portInput.value = value
-        _isValidPort.value = value.isValidPort(navArgs.allowedPortRanges)
+        _isValidPort.value = value.isValidPort()
     }
 
     fun onSaveClick(portValue: String) =
         viewModelScope.launch(dispatcher) {
-            val port = Port.fromString(portValue).getOrNull() ?: return@launch
-            _uiSideEffect.send(WireguardCustomPortDialogSideEffect.Complete(port))
+            val port = portValue.parseValidPort() ?: return@launch
+            _uiSideEffect.send(WireguardCustomPortDialogSideEffect.Success(port))
         }
 
     fun onResetClick() {
         viewModelScope.launch(dispatcher) {
-            _uiSideEffect.send(WireguardCustomPortDialogSideEffect.Complete(null))
+            _uiSideEffect.send(WireguardCustomPortDialogSideEffect.Success(null))
         }
     }
+
+    private fun String.isValidPort(): Boolean = parseValidPort() != null
+
+    private fun String.parseValidPort(): Port? =
+        Port.fromString(this).getOrNull()?.takeIf { port ->
+            port.inAnyOf(navArgs.allowedPortRanges)
+        }
 }
 
 sealed interface WireguardCustomPortDialogSideEffect {
-    data class Complete(val port: Port?) : WireguardCustomPortDialogSideEffect
+    data class Success(val port: Port?) : WireguardCustomPortDialogSideEffect
 }
 
 data class WireguardCustomPortDialogUiState(
@@ -75,6 +81,3 @@ data class WireguardCustomPortDialogUiState(
     val allowedPortRanges: List<PortRange>,
     val showResetToDefault: Boolean,
 )
-
-fun String.isValidPort(allowedPortRanges: List<PortRange>): Boolean =
-    Port.fromString(this).getOrNull()?.inAnyOf(allowedPortRanges) ?: false
