@@ -17,6 +17,7 @@ import net.mullvad.mullvadvpn.compose.test.CONNECT_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.CONNECT_CARD_HEADER_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.NOTIFICATION_BANNER_ACTION
 import net.mullvad.mullvadvpn.compose.test.RECONNECT_BUTTON_TEST_TAG
+import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.TOP_BAR_ACCOUNT_BUTTON
 import net.mullvad.mullvadvpn.lib.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.lib.model.ErrorState
@@ -330,7 +331,7 @@ class ConnectScreenTest {
             }
 
             // Act
-            onNodeWithTag(CONNECT_CARD_HEADER_TEST_TAG).performClick()
+            onNodeWithTag(SELECT_LOCATION_BUTTON_TEST_TAG).performClick()
 
             // Assert
             verify { mockedClickHandler.invoke() }

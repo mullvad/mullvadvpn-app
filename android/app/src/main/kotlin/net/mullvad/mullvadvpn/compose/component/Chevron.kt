@@ -18,7 +18,7 @@ import net.mullvad.mullvadvpn.R
 
 @Composable
 @Preview
-fun PreviewChevron() {
+private fun PreviewChevron() {
     Column {
         Chevron(color = MaterialTheme.colorScheme.onPrimary, isExpanded = false)
         Chevron(color = MaterialTheme.colorScheme.onPrimary, isExpanded = true)
