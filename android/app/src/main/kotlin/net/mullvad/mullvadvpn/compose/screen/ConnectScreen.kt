@@ -113,8 +113,9 @@ import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
 import org.koin.androidx.compose.koinViewModel
 
 private const val CONNECT_BUTTON_THROTTLE_MILLIS = 1000
-private const val INDICATOR_PERCENT_OFFSET_UNDER_700_DP = 0.2f
-private const val INDICATOR_PERCENT_OFFSET_OVER_700_DP = 0.3f
+private val SCREEN_HEIGHT_THRESHOLD = 700.dp
+private const val SHORT_SCREEN_INDICATOR_BIAS = 0.2f
+private const val TALL_SCREEN_INDICATOR_BIAS = 0.3f
 
 @Preview
 @Composable
@@ -236,8 +237,8 @@ fun ConnectScreen(
         val configuration = LocalConfiguration.current
         val screenHeight = configuration.screenHeightDp.dp
         val indicatorPercentOffset =
-            if (screenHeight < 700.dp) INDICATOR_PERCENT_OFFSET_UNDER_700_DP
-            else INDICATOR_PERCENT_OFFSET_OVER_700_DP
+            if (screenHeight < SCREEN_HEIGHT_THRESHOLD) SHORT_SCREEN_INDICATOR_BIAS
+            else TALL_SCREEN_INDICATOR_BIAS
 
         Box(Modifier.padding(it).fillMaxSize()) {
             MullvadMap(state, indicatorPercentOffset)
