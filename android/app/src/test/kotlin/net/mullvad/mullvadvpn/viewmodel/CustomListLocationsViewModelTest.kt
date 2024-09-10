@@ -270,6 +270,46 @@ class CustomListLocationsViewModelTest {
             }
         }
 
+    @Test
+    fun `given not new list and adding exactly one location and removing zero locations should emit location added`() =
+        runTest {
+            // Arrange
+            val customListId = CustomListId("1")
+            val customListName = CustomListName.fromString("name")
+            val undo =
+                CustomListAction.UpdateLocations(
+                    id = customListId,
+                    locations = listOf(DUMMY_COUNTRIES[0].id),
+                )
+            val expectedResult =
+                CustomListActionResultData.Success.LocationAdded(
+                    customListName = customListName,
+                    locationName = DUMMY_RELAY.name,
+                    undo = undo,
+                )
+            selectedLocationsFlow.value = DUMMY_COUNTRIES
+            coEvery { mockCustomListUseCase(any<CustomListAction.UpdateLocations>()) } returns
+                LocationsChanged(
+                        id = customListId,
+                        name = customListName,
+                        locations = listOf(DUMMY_COUNTRIES[0].id, DUMMY_RELAY.id),
+                        oldLocations = listOf(DUMMY_COUNTRIES[0].id),
+                    )
+                    .right()
+            coEvery { mockRelayListRepository.find(DUMMY_RELAY.id) } returns DUMMY_RELAY
+
+            val viewModel = createViewModel(customListId = customListId, newList = false)
+
+            // Act, Assert
+            viewModel.uiSideEffect.test {
+                viewModel.onRelaySelectionClick(DUMMY_RELAY, true)
+                viewModel.save()
+                val sideEffect = awaitItem()
+                assertIs<CustomListLocationsSideEffect.ReturnWithResultData>(sideEffect)
+                assertEquals(expectedResult, sideEffect.result)
+            }
+        }
+
     private fun createViewModel(
         customListId: CustomListId,
         newList: Boolean,
@@ -328,6 +368,17 @@ class CustomListLocationsViewModelTest {
                             )
                         ),
                 )
+            )
+        private val DUMMY_RELAY =
+            RelayItem.Location.Relay(
+                id =
+                    GeoLocationId.Hostname(
+                        GeoLocationId.City(GeoLocationId.Country("DK"), "CPH"),
+                        "cph-1",
+                    ),
+                active = true,
+                provider = Provider(ProviderId("Provider"), ownership = Ownership.MullvadOwned),
+                daita = false,
             )
     }
 }
