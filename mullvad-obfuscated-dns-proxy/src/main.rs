@@ -12,6 +12,7 @@ async fn main() {
         config_resolver::resolve_configs(config_resolver::default_resolvers(), "frakta.eu")
             .await
             .expect("Failed to resolve configs");
+
     let bind_addr = args().nth(1).expect("No bind addr supplied");
     let obfuscator = configs.xor.pop().expect("No XOR config");
     println!("Obfuscator in use - {:?}", obfuscator);

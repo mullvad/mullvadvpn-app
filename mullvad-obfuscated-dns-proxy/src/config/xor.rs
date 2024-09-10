@@ -125,18 +125,20 @@ fn test_xor_parsing() {
 #[test]
 fn test_obfuscation() {
     let input = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-    let mut obfuscated = input.to_vec();
+    let mut payload = input.to_vec();
     let mut xor = Xor {
         addr: "192.168.1.1:443".parse::<SocketAddrV4>().unwrap(),
         xor_key: vec![0xff, 0x04, 0x02, 0x04],
         key_index: 0,
     };
     let mut dexor = xor.clone();
-    xor.obfuscate(&mut obfuscated);
-    dexor.obfuscate(&mut obfuscated);
-    assert_eq!(input, obfuscated.as_slice());
+    xor.obfuscate(&mut payload);
+    dexor.obfuscate(&mut payload);
+    assert_eq!(input, payload.as_slice());
 }
 
+// Before XOR-v2 there was XOR-v1, which is now deprecated. This test verifies that the old Xor
+// config does not deserialize.
 #[test]
 fn test_old_xor_addr() {
     let _ = Xor::try_from(
