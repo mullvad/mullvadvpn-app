@@ -2274,7 +2274,7 @@ msgstr ""
 msgid "Connecting..."
 msgstr ""
 
-msgid "Content blockers"
+msgid "Content Blockers"
 msgstr ""
 
 msgid "Copied Mullvad account number to clipboard"
@@ -2326,6 +2326,9 @@ msgid "Discard changes?"
 msgstr ""
 
 msgid "Disconnected (No VPN permission)"
+msgstr ""
+
+msgid "Disconnecting..."
 msgstr ""
 
 msgid "Dismiss"
@@ -2490,6 +2493,9 @@ msgstr ""
 msgid "Quantum Resistance"
 msgstr ""
 
+msgid "Reconnecting..."
+msgstr ""
+
 msgid "Recursion limit"
 msgstr ""
 
@@ -2512,9 +2518,6 @@ msgid "Reset overrides"
 msgstr ""
 
 msgid "Reset to default"
-msgstr ""
-
-msgid "Secure my connection"
 msgstr ""
 
 msgid "Server IP Overrides"

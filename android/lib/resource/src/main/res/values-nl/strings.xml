@@ -73,9 +73,9 @@
     <string name="confirm_no_email">U staat op het punt om het probleemrapport te verzenden zonder een contactmethode op te geven. Voer een e-mailadres in als u een antwoord wenst op het rapport.</string>
     <string name="confirm_removal">Ja, apparaat afmelden</string>
     <string name="congrats">Gefeliciteerd!</string>
+    <string name="connect">Verbinden</string>
     <string name="connected">Verbonden</string>
     <string name="connected_using_daita">%1$s via %2$s</string>
-    <string name="connecting">Bezig met verbinden</string>
     <string name="connecting_to_daemon">Verbinden met Mullvad-systeemdienst...</string>
     <string name="connection_details_in">In</string>
     <string name="continue_login">Doorgaan met aanmelden</string>
@@ -119,7 +119,6 @@
     <string name="discard_changes">Wijzigingen verwerpen?</string>
     <string name="disconnect">Verbinding verbreken</string>
     <string name="disconnected">Verbinding verbroken</string>
-    <string name="disconnecting">Verbinding wordt verbroken</string>
     <string name="dismiss">Negeren</string>
     <string name="dns_content_blockers_custom_dns_warning">Let op: deze instelling kan niet worden gebruikt in combinatie met &lt;b&gt;Aangepaste DNS-server gebruiken&lt;/b&gt;.</string>
     <string name="dns_content_blockers_info">Als deze functie is ingeschakeld, maakt het apparaat geen contact meer met bepaalde domeinen of websites waarvan bekend is dat ze advertenties, malware, trackers en meer verspreiden.</string>
@@ -253,7 +252,6 @@
     <string name="quantum_resistant_info_first_paragaph">Deze eigenschap maakt de WireGuard-tunnel bestand tegen mogelijke aanvallen met kwantumcomputers.</string>
     <string name="quantum_resistant_info_second_paragaph">Het doet dit door een extra sleuteluitwisseling uit te voeren met een kwantumveilig algoritme en het resultaat te mengen met de reguliere versleuteling van WireGuard. Deze extra stap gebruikt ongeveer 500 kiB aan verkeer elke keer dat een nieuwe tunnel wordt opgezet.</string>
     <string name="quantum_resistant_title">Kwantumbestendige tunnel</string>
-    <string name="reconnecting">Opnieuw verbinden</string>
     <string name="redeem">Inwisselen</string>
     <string name="redeem_voucher">Voucher inwisselen</string>
     <string name="remove_button">Verwijderen</string>

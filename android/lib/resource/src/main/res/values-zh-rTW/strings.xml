@@ -73,9 +73,9 @@
     <string name="confirm_no_email">您即將傳送的問題報告未包含回覆方式資訊。如果想收到您這份報告的回覆，請輸入您的電子郵件位址。</string>
     <string name="confirm_removal">是，將裝置登出</string>
     <string name="congrats">恭喜！</string>
+    <string name="connect">連線</string>
     <string name="connected">已連線</string>
     <string name="connected_using_daita">%1$s，使用 %2$s</string>
-    <string name="connecting">正在連線</string>
     <string name="connecting_to_daemon">連線 Mullvad 系統服務中...</string>
     <string name="connection_details_in">入境</string>
     <string name="continue_login">繼續登入</string>
@@ -119,7 +119,6 @@
     <string name="discard_changes">要捨棄變更嗎？</string>
     <string name="disconnect">中斷連線</string>
     <string name="disconnected">已中斷連線</string>
-    <string name="disconnecting">正在中斷連線</string>
     <string name="dismiss">取消</string>
     <string name="dns_content_blockers_custom_dns_warning">注意：此設定不能與&lt;b&gt;使用自訂 DNS 伺服器&lt;/b&gt;結合使用。</string>
     <string name="dns_content_blockers_info">此功能啟用後，便會禁止裝置聯繫某些已知會傳播廣告、惡意軟體、追蹤程式等內容的網域或網站。</string>
@@ -253,7 +252,6 @@
     <string name="quantum_resistant_info_first_paragaph">借助此功能，WireGuard 通道便能夠抵抗可能從量子電腦發起的攻擊。</string>
     <string name="quantum_resistant_info_second_paragaph">實現方法是使用量子安全演算法執行額外的金鑰交換，並將結果混合至 WireGuard 的常規加密。每次建立新通道時，這一額外步驟都會使用約 500 kiB 流量。</string>
     <string name="quantum_resistant_title">抗量子通道</string>
-    <string name="reconnecting">正在重新連線</string>
     <string name="redeem">兌換</string>
     <string name="redeem_voucher">兌換憑證</string>
     <string name="remove_button">移除</string>

@@ -73,9 +73,9 @@
     <string name="confirm_no_email">Du er ved at sende rapporten om problemet, men har ikke angivet hvordan vi kan kontakte dig. Hvis du ønsker et svar på din rapport, skal du indtaste en e-mail-adresse.</string>
     <string name="confirm_removal">Ja, log enhed af</string>
     <string name="congrats">Tillykke!</string>
+    <string name="connect">Tilslut</string>
     <string name="connected">Tilsluttet</string>
     <string name="connected_using_daita">%1$s via %2$s</string>
-    <string name="connecting">Tilslutter</string>
     <string name="connecting_to_daemon">Opretter forbindelse til Mullvad-systemtjeneste...</string>
     <string name="connection_details_in">Ind</string>
     <string name="continue_login">Fortsæt med login</string>
@@ -119,7 +119,6 @@
     <string name="discard_changes">Vil du kassere ændringer?</string>
     <string name="disconnect">Afbryd forbindelse</string>
     <string name="disconnected">Afbrudt</string>
-    <string name="disconnecting">Afbryder</string>
     <string name="dismiss">Afvis</string>
     <string name="dns_content_blockers_custom_dns_warning">Bemærk: Denne indstilling kan ikke bruges i kombination med &lt;b&gt;Brug tilpasset DNS-server&lt;/b&gt;.</string>
     <string name="dns_content_blockers_info">Når denne funktion er aktiveret, forhindrer den enheden i at kontakte bestemte domæner eller websteder, der er kendt for at distribuere annoncer, malware, trackere og lignende.</string>
@@ -253,7 +252,6 @@
     <string name="quantum_resistant_info_first_paragaph">Denne funktion gør WireGuard-tunnelen modstandsdygtig over for potentielle angreb fra kvantecomputere.</string>
     <string name="quantum_resistant_info_second_paragaph">Det gør den ved at udføre en ekstra nøgleudveksling ved hjælp af en kvantesikker algoritme og blande resultatet med WireGuards almindelige kryptering. Dette ekstra trin bruger cirka 500 kB trafik, hver gang en ny tunnel etableres.</string>
     <string name="quantum_resistant_title">Kvante-modstandsdygtig tunnel</string>
-    <string name="reconnecting">Genopretter forbindelse</string>
     <string name="redeem">Indløs</string>
     <string name="redeem_voucher">Indløs kupon</string>
     <string name="remove_button">Fjern</string>

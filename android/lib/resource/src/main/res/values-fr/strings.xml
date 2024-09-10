@@ -73,9 +73,9 @@
     <string name="confirm_no_email">Vous êtes sur le point d\'envoyer un signalement de problème sans nous fournir un moyen de vous contacter. Si vous désirez une réponse à votre signalement, vous devez saisir une adresse e-mail.</string>
     <string name="confirm_removal">Oui, déconnecter l\'appareil</string>
     <string name="congrats">Félicitations !</string>
+    <string name="connect">Connexion</string>
     <string name="connected">Connecté</string>
     <string name="connected_using_daita">%1$s utilisant %2$s</string>
-    <string name="connecting">Connexion</string>
     <string name="connecting_to_daemon">Connexion au service système Mullvad...</string>
     <string name="connection_details_in">Entrante</string>
     <string name="continue_login">Continuer avec la connexion</string>
@@ -119,7 +119,6 @@
     <string name="discard_changes">Annuler les modifications ?</string>
     <string name="disconnect">Déconnexion</string>
     <string name="disconnected">Déconnecté</string>
-    <string name="disconnecting">Déconnexion en cours</string>
     <string name="dismiss">Ignorer</string>
     <string name="dns_content_blockers_custom_dns_warning">Attention : ce paramètre ne peut pas être utilisé en combinaison avec &lt;b&gt;Utiliser un serveur DNS personnalisé&lt;/b&gt;.</string>
     <string name="dns_content_blockers_info">Lorsque cette fonctionnalité est activée, elle empêche l\'appareil de contacter certains domaines ou sites Web connus pour distribuer des publicités, des logiciels malveillants, des trackers et plus.</string>
@@ -253,7 +252,6 @@
     <string name="quantum_resistant_info_first_paragaph">Cette fonctionnalité rend le tunnel WireGuard résistant aux attaques potentielles des ordinateurs quantiques.</string>
     <string name="quantum_resistant_info_second_paragaph">Pour ce faire, il effectue un échange de clés supplémentaire à l\'aide d\'un algorithme à sécurité quantique et mélange le résultat au chiffrement habituel de WireGuard. Cette étape supplémentaire utilise environ 500 kiB de trafic chaque fois qu\'un nouveau tunnel est établi.</string>
     <string name="quantum_resistant_title">Tunnel résistant aux attaques quantiques</string>
-    <string name="reconnecting">Reconnexion</string>
     <string name="redeem">Échanger</string>
     <string name="redeem_voucher">Échanger un bon</string>
     <string name="remove_button">Supprimer</string>

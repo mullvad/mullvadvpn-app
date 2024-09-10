@@ -73,9 +73,9 @@
     <string name="confirm_no_email">คุณกำลังจะส่งรายงานปัญหา โดยไม่มีการระบุวิธีการติดต่อกลับให้กับเรา และคุณจำเป็นต้องป้อนที่อยู่อีเมลของคุณ หากคุณอยากให้เราตอบกลับการรายงานของคุณ</string>
     <string name="confirm_removal">ใช่ นำอุปกรณ์ออกจากระบบ</string>
     <string name="congrats">ยินดีด้วย!</string>
+    <string name="connect">เชื่อมต่อ</string>
     <string name="connected">เชื่อมต่อแล้ว</string>
     <string name="connected_using_daita">%1$s กำลังใช้ %2$s</string>
-    <string name="connecting">กำลังเชื่อมต่อ</string>
     <string name="connecting_to_daemon">กำลังเชื่อมต่อบริการของระบบ Mullvad...</string>
     <string name="connection_details_in">เข้า</string>
     <string name="continue_login">เข้าสู่ระบบต่อ</string>
@@ -119,7 +119,6 @@
     <string name="discard_changes">ละทิ้งการเปลี่ยนแปลงหรือไม่</string>
     <string name="disconnect">ตัดการเชื่อมต่อ</string>
     <string name="disconnected">ตัดการเชื่อมต่อแล้ว</string>
-    <string name="disconnecting">กำลังตัดการเชื่อมต่อ</string>
     <string name="dismiss">ละทิ้ง</string>
     <string name="dns_content_blockers_custom_dns_warning">โปรดทราบ: การตั้งค่านี้ไม่สามารถใช้ร่วมกับ&lt;b&gt;การใช้เซิร์ฟเวอร์ DNS แบบกำหนดเอง&lt;/b&gt;ได้</string>
     <string name="dns_content_blockers_info">ในขณะที่เปิดใช้งานคุณลักษณะนี้ คุณลักษณะนี้จะหยุดไม่ให้อุปกรณ์ติดต่อโดเมน หรือเว็บไซต์ใดๆ ที่เป็นที่ทราบกันว่า ใช้ในการเผยแพร่โฆษณา มัลแวร์ ตัวติดตาม และอื่นๆ</string>
@@ -253,7 +252,6 @@
     <string name="quantum_resistant_info_first_paragaph">คุณลักษณะนี้จะช่วยให้ช่องทาง WireGuard สามารถสกัดกั้นการโจมตีที่อาจมาจากคอมพิวเตอร์ควอนตัมได้</string>
     <string name="quantum_resistant_info_second_paragaph">ระบบจะดำเนินการสิ่งนี้ผ่านการแลกเปลี่ยนคีย์เพิ่มเติม โดยการใช้อัลกอริทึมแบบควอนตัมที่ปลอดภัย และผสมผลลัพธ์เข้ากับการเข้ารหัสตามปกติของ WireGuard และขั้นตอนพิเศษนี้ใช้การรับส่งข้อมูลประมาณ 500 kiB ในทุกครั้งที่สร้างช่องทางใหม่</string>
     <string name="quantum_resistant_title">ช่องทางการสกัดกั้นควอนตัม</string>
-    <string name="reconnecting">กำลังเชื่อมต่อใหม่</string>
     <string name="redeem">แลกรับ</string>
     <string name="redeem_voucher">แลกบัตรกำนัล</string>
     <string name="remove_button">ลบ</string>

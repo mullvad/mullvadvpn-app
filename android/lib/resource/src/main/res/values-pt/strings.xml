@@ -73,9 +73,9 @@
     <string name="confirm_no_email">Está prestes a enviar o relatório de problema sem que tenhamos uma forma de lhe responder. Se pretender uma resposta ao seu relatório, tem de introduzir um endereço de email.</string>
     <string name="confirm_removal">Sim, desligar o dispositivo</string>
     <string name="congrats">Parabéns!</string>
+    <string name="connect">Ligar</string>
     <string name="connected">Ligado</string>
     <string name="connected_using_daita">%1$s a usar %2$s</string>
-    <string name="connecting">A ligar</string>
     <string name="connecting_to_daemon">A ligar-se ao serviço de sistema Mulvad...</string>
     <string name="connection_details_in">Entrada</string>
     <string name="continue_login">Continuar com a ligação</string>
@@ -119,7 +119,6 @@
     <string name="discard_changes">Descartar alterações?</string>
     <string name="disconnect">Desligar</string>
     <string name="disconnected">Desligado</string>
-    <string name="disconnecting">A desligar</string>
     <string name="dismiss">Dispensar</string>
     <string name="dns_content_blockers_custom_dns_warning">Atenção: esta definição não pode ser usada em combinação com &lt;b&gt;Usar servidor DNS personalizado&lt;/b&gt;.</string>
     <string name="dns_content_blockers_info">Quando esta funcionalidade é ativada, impede que o dispositivo contacte certos domínios ou sites conhecidos por distribuir anúncios, malware, trackers e muito mais.</string>
@@ -253,7 +252,6 @@
     <string name="quantum_resistant_info_first_paragaph">Esta funcionalidade torna o túnel do WireGuard resistente a potenciais ataques de computadores quânticos.</string>
     <string name="quantum_resistant_info_second_paragaph">Fá-lo ao realizar uma troca de chaves adicional utilizando um algoritmo de segurança quântica e misturando o resultado na encriptação regular do WireGuard. Este passo adicional utiliza aproximadamente 500 kiB de tráfego sempre que um novo túnel é estabelecido.</string>
     <string name="quantum_resistant_title">Túnel com resistência quântica</string>
-    <string name="reconnecting">A religar</string>
     <string name="redeem">Reclamar</string>
     <string name="redeem_voucher">Reclamar voucher</string>
     <string name="remove_button">Remover</string>

@@ -73,9 +73,9 @@
     <string name="confirm_no_email">您即将发送问题报告，但没有提供让我们可以联系到您的方式。如果您希望获得回复，必须输入您的电子邮件地址。</string>
     <string name="confirm_removal">是，退出设备</string>
     <string name="congrats">恭喜！</string>
+    <string name="connect">连接</string>
     <string name="connected">已连接</string>
     <string name="connected_using_daita">%1$s，使用 %2$s</string>
-    <string name="connecting">正在连接</string>
     <string name="connecting_to_daemon">正在连接到 Mullvad 系统服务…</string>
     <string name="connection_details_in">内部</string>
     <string name="continue_login">继续登录</string>
@@ -119,7 +119,6 @@
     <string name="discard_changes">舍弃更改？</string>
     <string name="disconnect">断开连接</string>
     <string name="disconnected">已断开连接</string>
-    <string name="disconnecting">正在断开连接</string>
     <string name="dismiss">关闭</string>
     <string name="dns_content_blockers_custom_dns_warning">注意：此设置不能与&lt;b&gt;使用自定义 DNS 服务器&lt;/b&gt;结合使用。</string>
     <string name="dns_content_blockers_info">启用此功能后，它将阻止设备与已知的分发广告、恶意软件、跟踪器等内容的特定域或网站联系。</string>
@@ -253,7 +252,6 @@
     <string name="quantum_resistant_info_first_paragaph">借助此功能，WireGuard 隧道能够抵抗可能通过量子计算机发起的攻击。</string>
     <string name="quantum_resistant_info_second_paragaph">实现方法是使用量子安全算法执行额外的密钥交换，并将结果混合到 WireGuard 的常规加密中。每次建立新隧道时，这一额外步骤都会使用约 500 kiB 的流量。</string>
     <string name="quantum_resistant_title">抗量子隧道</string>
-    <string name="reconnecting">正在重新连接</string>
     <string name="redeem">兑换</string>
     <string name="redeem_voucher">兑换优惠券</string>
     <string name="remove_button">移除</string>
