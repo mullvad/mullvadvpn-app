@@ -10,12 +10,13 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.result.EmptyResultBackNavigator
@@ -27,12 +28,16 @@ import net.mullvad.mullvadvpn.compose.button.NegativeButton
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.test.CUSTOM_PORT_DIALOG_INPUT_TEST_TAG
 import net.mullvad.mullvadvpn.compose.textfield.CustomPortTextField
+import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.PortRange
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.util.asString
-import net.mullvad.mullvadvpn.util.inAnyOf
+import net.mullvad.mullvadvpn.viewmodel.WireguardCustomPortDialogSideEffect
+import net.mullvad.mullvadvpn.viewmodel.WireguardCustomPortDialogUiState
+import net.mullvad.mullvadvpn.viewmodel.WireguardCustomPortDialogViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @Preview
 @Composable
@@ -56,58 +61,44 @@ data class WireguardCustomPortNavArgs(
 
 @Destination<RootGraph>(style = DestinationStyle.Dialog::class)
 @Composable
-fun WireguardCustomPort(
-    navArg: WireguardCustomPortNavArgs,
-    backNavigator: ResultBackNavigator<Port?>,
-) {
+fun WireguardCustomPort(navArg: WireguardCustomPortNavArgs, navigator: ResultBackNavigator<Port?>) {
+    val viewModel = koinViewModel<WireguardCustomPortDialogViewModel>()
+
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    CollectSideEffectWithLifecycle(viewModel.uiSideEffect) {
+        when (it) {
+            is WireguardCustomPortDialogSideEffect.Complete -> navigator.navigateBack(it.port)
+        }
+    }
+
     WireguardCustomPortDialog(
-        initialPort = navArg.customPort,
-        allowedPortRanges = navArg.allowedPortRanges,
-        onSave = { port -> backNavigator.navigateBack(port) },
-        onDismiss = backNavigator::navigateBack,
+        uiState,
+        onInputChanged = viewModel::onInputChanged,
+        onSavePort = viewModel::onSaveClick,
+        onResetPort = viewModel::onResetClick,
+        onDismiss = dropUnlessResumed { navigator.navigateBack() },
     )
 }
 
 @Composable
 fun WireguardCustomPortDialog(
-    initialPort: Port?,
-    allowedPortRanges: List<PortRange>,
-    onSave: (Port?) -> Unit,
+    state: WireguardCustomPortDialogUiState,
+    onInputChanged: (String) -> Unit,
+    onSavePort: (String) -> Unit,
+    onResetPort: () -> Unit,
     onDismiss: () -> Unit,
 ) {
-    val port = remember { mutableStateOf(initialPort?.value?.toString() ?: "") }
-
-    val isValidPort = port.value.toPortOrNull()?.inAnyOf(allowedPortRanges) ?: false
-
     AlertDialog(
+        onDismissRequest = onDismiss,
         title = { Text(text = stringResource(id = R.string.custom_port_dialog_title)) },
-        confirmButton = {
-            Column(verticalArrangement = Arrangement.spacedBy(Dimens.buttonSpacing)) {
-                PrimaryButton(
-                    text = stringResource(id = R.string.custom_port_dialog_submit),
-                    onClick = { onSave(port.value.toPortOrNull()) },
-                    isEnabled = isValidPort,
-                )
-                if (initialPort != null) {
-                    NegativeButton(
-                        text = stringResource(R.string.custom_port_dialog_remove),
-                        onClick = { onSave(null) },
-                    )
-                }
-                PrimaryButton(text = stringResource(id = R.string.cancel), onClick = onDismiss)
-            }
-        },
         text = {
             Column {
                 CustomPortTextField(
-                    value = port.value,
-                    onSubmit = { input ->
-                        if (isValidPort) {
-                            onSave(input.toPortOrNull())
-                        }
-                    },
-                    onValueChanged = { input -> port.value = input },
-                    isValidValue = isValidPort,
+                    value = state.portInput,
+                    onValueChanged = onInputChanged,
+                    onSubmit = onSavePort,
+                    isValidValue = state.isValidInput,
                     maxCharLength = 5,
                     modifier = Modifier.testTag(CUSTOM_PORT_DIALOG_INPUT_TEST_TAG).fillMaxWidth(),
                 )
@@ -116,17 +107,30 @@ fun WireguardCustomPortDialog(
                     text =
                         stringResource(
                             id = R.string.custom_port_dialog_valid_ranges,
-                            allowedPortRanges.asString(),
+                            state.allowedPortRanges.asString(),
                         ),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.bodySmall,
                 )
             }
         },
+        confirmButton = {
+            Column(verticalArrangement = Arrangement.spacedBy(Dimens.buttonSpacing)) {
+                PrimaryButton(
+                    isEnabled = state.isValidInput,
+                    text = stringResource(id = R.string.custom_port_dialog_submit),
+                    onClick = { onSavePort(state.portInput) },
+                )
+                if (state.showResetToDefault) {
+                    NegativeButton(
+                        text = stringResource(R.string.custom_port_dialog_remove),
+                        onClick = onResetPort,
+                    )
+                }
+                PrimaryButton(text = stringResource(id = R.string.cancel), onClick = onDismiss)
+            }
+        },
         containerColor = MaterialTheme.colorScheme.surface,
         titleContentColor = MaterialTheme.colorScheme.onSurface,
-        onDismissRequest = onDismiss,
     )
 }
-
-private fun String.toPortOrNull() = toIntOrNull()?.let { Port(it) }
