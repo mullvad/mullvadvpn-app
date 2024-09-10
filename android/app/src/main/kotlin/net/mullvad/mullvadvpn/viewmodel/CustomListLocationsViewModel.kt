@@ -289,7 +289,7 @@ class CustomListLocationsViewModel(
                 success.addedLocations.size == 1 && success.removedLocations.isEmpty() ->
                     CustomListActionResultData.Success.LocationAdded(
                         customListName = success.name,
-                        relayListRepository.find(success.removedLocations.first())!!.name,
+                        relayListRepository.find(success.addedLocations.first())!!.name,
                         undo = success.undo,
                     )
                 success.removedLocations.size == 1 && success.addedLocations.isEmpty() ->
