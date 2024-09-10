@@ -43,6 +43,6 @@ final public class ShadowsocksRelaySelector: ShadowsocksRelaySelectorProtocol {
 
     public func getBridges() throws -> REST.ServerShadowsocks? {
         let cachedRelays = try relayCache.read()
-        return RelaySelector.Shadowsocks.tcpBridge(from: cachedRelays.relays)
+        return RelaySelector.Shadowsocks.tcpBridge(from: try cachedRelays.relays)
     }
 }
