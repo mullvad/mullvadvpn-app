@@ -61,7 +61,10 @@ data class WireguardCustomPortNavArgs(
 
 @Destination<RootGraph>(style = DestinationStyle.Dialog::class)
 @Composable
-fun WireguardCustomPort(navArg: WireguardCustomPortNavArgs, navigator: ResultBackNavigator<Port?>) {
+fun WireguardCustomPort(
+    @Suppress("UNUSED_PARAMETER") navArg: WireguardCustomPortNavArgs,
+    navigator: ResultBackNavigator<Port?>,
+) {
     val viewModel = koinViewModel<WireguardCustomPortDialogViewModel>()
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
