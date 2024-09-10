@@ -73,9 +73,9 @@
     <string name="confirm_no_email">Olet aikeissa lähettää ongelmaraportin ilman yhteystietojasi. Mikäli haluat vastauksen raporttiisi, anna sähköpostosoite.</string>
     <string name="confirm_removal">Kyllä, kirjaa laite ulos</string>
     <string name="congrats">Onnittelut!</string>
+    <string name="connect">Yhdistä</string>
     <string name="connected">Yhdistetty</string>
     <string name="connected_using_daita">%1$s – %2$s käytössä</string>
-    <string name="connecting">Yhdistetään</string>
     <string name="connecting_to_daemon">Yhdistetään Mullvad-järjestelmäpalveluun...</string>
     <string name="connection_details_in">Saapuva</string>
     <string name="continue_login">Jatka kirjautumista</string>
@@ -119,7 +119,6 @@
     <string name="discard_changes">Hylätäänkö muokkaukset?</string>
     <string name="disconnect">Katkaise yhteys</string>
     <string name="disconnected">Yhteys katkaistu</string>
-    <string name="disconnecting">Katkaistaan yhteyttä</string>
     <string name="dismiss">Jätä huomiotta</string>
     <string name="dns_content_blockers_custom_dns_warning">Huomio: asetusta ei voi käyttää yhdessä \"&lt;b&gt;Käytä mukautettua DNS-palvelinta&lt;/b&gt;\" -asetuksen kanssa.</string>
     <string name="dns_content_blockers_info">Kun tämä ominaisuus on käytössä, se estää laitetta ottamasta yhteyttä tiettyihin verkkotunnuksiin tai -sivustoihin, jotka tunnetaan mainosten, haittaohjelmien, seurantaohjelmien tai muiden vastaavien jakelijoina.</string>
@@ -253,7 +252,6 @@
     <string name="quantum_resistant_info_first_paragaph">Tämä ominaisuus tekee WireGuard-tunnelista kestävän kvanttitietokoneiden mahdollisia hyökkäyksiä vastaan.</string>
     <string name="quantum_resistant_info_second_paragaph">Tunneli torjuu hyökkäykset suorittamalla ylimääräisen avaimenvaihdon käyttämällä ensin kvanttiturvallista algoritmia, jonka tuloksen se sekoittaa WireGuardin tavalliseen salaukseen. Tämä ylimääräinen vaihe käyttää noin 500 kiB liikennettä joka kerta, kun uusi tunneli luodaan.</string>
     <string name="quantum_resistant_title">Kvanttihyökkäyksiä kestävä tunneli</string>
-    <string name="reconnecting">Yhdistetään uudelleen</string>
     <string name="redeem">Lunasta</string>
     <string name="redeem_voucher">Lunasta kuponki</string>
     <string name="remove_button">Poista</string>

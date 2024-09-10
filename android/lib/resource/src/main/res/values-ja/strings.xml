@@ -73,9 +73,9 @@
     <string name="confirm_no_email">お客様への返信先を入力せずに問題の報告を送信しようとしています。ご報告に対する返信が必要な場合は、返信先のメールアドレスを入力する必要があります。</string>
     <string name="confirm_removal">はい。デバイスをログアウトさせます</string>
     <string name="congrats">おめでとうございます！</string>
+    <string name="connect">接続</string>
     <string name="connected">接続済み</string>
     <string name="connected_using_daita">%1$s を使用した %2$s</string>
-    <string name="connecting">接続中</string>
     <string name="connecting_to_daemon">Mullvad システムサービスに接続中...</string>
     <string name="connection_details_in">内側</string>
     <string name="continue_login">ログインを続ける</string>
@@ -119,7 +119,6 @@
     <string name="discard_changes">変更内容を破棄しますか？</string>
     <string name="disconnect">接続解除</string>
     <string name="disconnected">未接続</string>
-    <string name="disconnecting">接続解除中</string>
     <string name="dismiss">閉じる</string>
     <string name="dns_content_blockers_custom_dns_warning">注意: この設定を「&lt;b&gt;カスタムDNSサーバーを使う&lt;/b&gt;」と一緒に使用することはできません。</string>
     <string name="dns_content_blockers_info">この機能を有効にすると、広告、マルウェア、トラッカーなどの配信が確認されている特定のドメインまたはWebサイトへのデバイスの接続が阻止されます。</string>
@@ -253,7 +252,6 @@
     <string name="quantum_resistant_info_first_paragaph">この機能は、WireGuardトンネルに量子コンピューターからの潜在的な攻撃に対する耐性を与えます。</string>
     <string name="quantum_resistant_info_second_paragaph">耐量子アルゴリズムで追加の鍵の交換を実行し、結果をWireGuardの通常の暗号化に混合させることで行われます。この追加ステップでは、新しいトンネルが確立されるたびに約500kiBのトラフィックが使用されます。</string>
     <string name="quantum_resistant_title">耐量子トンネル</string>
-    <string name="reconnecting">再接続中</string>
     <string name="redeem">使用する</string>
     <string name="redeem_voucher">バウチャーを使用する</string>
     <string name="remove_button">削除</string>

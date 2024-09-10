@@ -73,9 +73,9 @@
     <string name="confirm_no_email">Stai inviando la segnalazione di un problema senza averci indicato un modo per ricontattarti. Se desideri ricevere risposta, inserisci un indirizzo e-mail.</string>
     <string name="confirm_removal">Sì, disconnetti dal dispositivo</string>
     <string name="congrats">Complimenti!</string>
+    <string name="connect">Connetti</string>
     <string name="connected">Connesso</string>
     <string name="connected_using_daita">%1$s usa %2$s</string>
-    <string name="connecting">Connessione</string>
     <string name="connecting_to_daemon">Connessione al servizio del sistema Mullvad...</string>
     <string name="connection_details_in">Ricezione</string>
     <string name="continue_login">Continua con il login</string>
@@ -119,7 +119,6 @@
     <string name="discard_changes">Ignorare le modifiche?</string>
     <string name="disconnect">Disconnetti</string>
     <string name="disconnected">Disconnesso</string>
-    <string name="disconnecting">Disconnessione</string>
     <string name="dismiss">Ignora</string>
     <string name="dns_content_blockers_custom_dns_warning">Attenzione: questa impostazione non può essere utilizzata in combinazione con &lt;b&gt;Usa un server DNS personalizzato&lt;/b&gt;.</string>
     <string name="dns_content_blockers_info">Quando è abilitata, questa funzionalità impedisce al dispositivo di contattare determinati domini o siti Web noti per la distribuzione di annunci, malware, tracker e altro.</string>
@@ -253,7 +252,6 @@
     <string name="quantum_resistant_info_first_paragaph">Questa funzionalità rende il tunnel WireGuard resistente ai potenziali attacchi dei computer quantistici.</string>
     <string name="quantum_resistant_info_second_paragaph">L\'operazione viene effettuata eseguendo uno scambio di chiavi aggiuntivo con un algoritmo di sicurezza quantistica e mescolando il risultato nella normale crittografia di WireGuard. Questo passaggio aggiuntivo utilizza circa 500 kiB di traffico ogni volta che viene stabilito un nuovo tunnel.</string>
     <string name="quantum_resistant_title">Tunnel resistente agli attacchi quantistici</string>
-    <string name="reconnecting">Riconnessione</string>
     <string name="redeem">Riscatta</string>
     <string name="redeem_voucher">Riscatta voucher</string>
     <string name="remove_button">Rimuovi</string>

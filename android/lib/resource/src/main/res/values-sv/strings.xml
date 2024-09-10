@@ -73,9 +73,9 @@
     <string name="confirm_no_email">Du är på väg att skicka problemrapporten utan att vi har möjlighet att besvara dig. Om du vill ha svar på din rapport måste du ange en e-postadress.</string>
     <string name="confirm_removal">Ja, logga ut enheten</string>
     <string name="congrats">Grattis!</string>
+    <string name="connect">Anslut</string>
     <string name="connected">Ansluten</string>
     <string name="connected_using_daita">%1$s använder %2$s</string>
-    <string name="connecting">Ansluter</string>
     <string name="connecting_to_daemon">Ansluter till Mullvads systemtjänst...</string>
     <string name="connection_details_in">In</string>
     <string name="continue_login">Fortsätt med inloggning</string>
@@ -119,7 +119,6 @@
     <string name="discard_changes">Ignorera ändringarna?</string>
     <string name="disconnect">Koppla från</string>
     <string name="disconnected">Frånkopplad</string>
-    <string name="disconnecting">Kopplar från</string>
     <string name="dismiss">Ignorera</string>
     <string name="dns_content_blockers_custom_dns_warning">Obs! Den här inställningen kan inte användas tillsammans med &lt;b&gt;Använd anpassad DNS-server&lt;/b&gt;.</string>
     <string name="dns_content_blockers_info">När den här funktionen är aktiverad stoppas enheten från att kontakta vissa domäner eller webbplatser som är kända för att sprida annonser, skadlig kod, spårare med mera.</string>
@@ -253,7 +252,6 @@
     <string name="quantum_resistant_info_first_paragaph">Den här funktionen gör WireGuard-tunneln resistent mot potentiella attacker från kvantdatorer.</string>
     <string name="quantum_resistant_info_second_paragaph">Den gör det genom att göra ett extra nyckelutbyte med en kvantsäker algoritm och kombinera resultatet med WireGuards vanliga kryptering. Det här extra steget använder ungefär 500 KiB i trafik varje gång en ny tunnel upprättas.</string>
     <string name="quantum_resistant_title">Kvantresistent tunnel</string>
-    <string name="reconnecting">Återansluter</string>
     <string name="redeem">Lös in</string>
     <string name="redeem_voucher">Lös in kupong</string>
     <string name="remove_button">Ta bort</string>

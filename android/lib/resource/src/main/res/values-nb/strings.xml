@@ -73,9 +73,9 @@
     <string name="confirm_no_email">Problemrapporten blir nå sendt uten en måte for oss å kontakte deg på. Hvis du ønsker svar på rapporten, må du oppgi en e-postadresse.</string>
     <string name="confirm_removal">Ja, logg av enhet</string>
     <string name="congrats">Gratulerer!</string>
+    <string name="connect">Koble til</string>
     <string name="connected">Tilkoblet</string>
     <string name="connected_using_daita">%1$s bruker %2$s</string>
-    <string name="connecting">Kobler til</string>
     <string name="connecting_to_daemon">Kobler til Mullvads systemtjeneste ...</string>
     <string name="connection_details_in">Inngående</string>
     <string name="continue_login">Fortsett med pålogging</string>
@@ -119,7 +119,6 @@
     <string name="discard_changes">Forkaste endringer?</string>
     <string name="disconnect">Koble fra</string>
     <string name="disconnected">Frakoblet</string>
-    <string name="disconnecting">Kobler fra</string>
     <string name="dismiss">Ignorer</string>
     <string name="dns_content_blockers_custom_dns_warning">OBS: Denne innstillingen kan ikke brukes sammen med &lt;b&gt;Bruk egendefinert DNS-server&lt;/b&gt;.</string>
     <string name="dns_content_blockers_info">Når denne funksjonen er aktivert, forhindrer den enheten fra å kontakte bestemte domener og nettsteder som er kjent for å spre annonser, skadelig programvare, sporingsenheter og mer.</string>
@@ -253,7 +252,6 @@
     <string name="quantum_resistant_info_first_paragaph">Denne funksjonen gjør WireGuard-tunnelen motstandsdyktig mot potensielle angrep fra kvantemaskiner.</string>
     <string name="quantum_resistant_info_second_paragaph">Det gjøres ved at å utføre en ekstra nøkkelutveksling med en kvantesikker algoritme og kombinere resultatet med WireGuard sin vanlige kryptering. Dette ekstratrinnet bruker omtrent 500 kiB trafikk hver gang det opprettes en ny tunnel.</string>
     <string name="quantum_resistant_title">Kvantebestandig tunnel</string>
-    <string name="reconnecting">Kobler til på nytt</string>
     <string name="redeem">Løs inn</string>
     <string name="redeem_voucher">Løs inn kupong</string>
     <string name="remove_button">Fjern</string>

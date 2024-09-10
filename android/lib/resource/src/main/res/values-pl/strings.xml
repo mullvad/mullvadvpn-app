@@ -73,9 +73,9 @@
     <string name="confirm_no_email">Za chwilę wyślesz zgłoszenie problemu, nie umożliwiając nam skontaktowania się z Tobą. Aby uzyskać odpowiedź na zgłoszenie, musisz podać adres e-mail.</string>
     <string name="confirm_removal">Tak, wyloguj urządzenie</string>
     <string name="congrats">Gratulacje!</string>
+    <string name="connect">Połącz</string>
     <string name="connected">Połączono</string>
     <string name="connected_using_daita">%1$s przy użyciu %2$s</string>
-    <string name="connecting">Łączenie</string>
     <string name="connecting_to_daemon">Łączenie z usługą systemową Mullvad...</string>
     <string name="connection_details_in">Wejście</string>
     <string name="continue_login">Kontynuuj logowanie</string>
@@ -119,7 +119,6 @@
     <string name="discard_changes">Odrzucić zmiany?</string>
     <string name="disconnect">Rozłącz</string>
     <string name="disconnected">Rozłączono</string>
-    <string name="disconnecting">Rozłączanie</string>
     <string name="dismiss">Odrzuć</string>
     <string name="dns_content_blockers_custom_dns_warning">Uwaga: tego ustawienia nie można używać w połączeniu z opcją &lt;b&gt;Użyj niestandardowego serwera DNS&lt;/b&gt;.</string>
     <string name="dns_content_blockers_info">Po włączeniu funkcja ta uniemożliwia urządzeniu kontakt z określonymi domenami lub witrynami internetowymi, które rozpowszechniają reklamy, złośliwe oprogramowanie itd.</string>
@@ -253,7 +252,6 @@
     <string name="quantum_resistant_info_first_paragaph">Ta funkcja sprawia, że tunel WireGuard jest odporny na potencjalne ataki ze strony komputerów kwantowych.</string>
     <string name="quantum_resistant_info_second_paragaph">Jest to wykonywane poprzez dodatkową wymianę kluczy przy użyciu algorytmu odpornego na ataki z użyciem komputerów kwantowych i zmieszanie wyniku ze zwykłym szyfrowaniem WireGuard. Ten dodatkowy krok zużywa około 500 kB ruchu za każdym razem, gdy ustanawiany jest nowy tunel.</string>
     <string name="quantum_resistant_title">Tunel odporny na ataki z użyciem komputerów kwantowych</string>
-    <string name="reconnecting">Ponowne łączenie</string>
     <string name="redeem">Zrealizuj</string>
     <string name="redeem_voucher">Zrealizuj kupon</string>
     <string name="remove_button">Usuń</string>

@@ -73,9 +73,9 @@
     <string name="confirm_no_email">Sorun raporunu, size geri dönüş yapmamıza imkan vermeyen bir şekilde göndermek üzeresiniz. Sorununuz için yanıt almak istiyorsanız bir e-posta adresi girmelisiniz.</string>
     <string name="confirm_removal">Evet, cihazdan çıkış yap</string>
     <string name="congrats">Tebrikler!</string>
+    <string name="connect">Bağlan</string>
     <string name="connected">Bağlandı</string>
     <string name="connected_using_daita">%1$s, %2$s kullanıyor</string>
-    <string name="connecting">Bağlanılıyor</string>
     <string name="connecting_to_daemon">Mullvad sistem hizmetlerine bağlanılıyor...</string>
     <string name="connection_details_in">Giriş</string>
     <string name="continue_login">Giriş yapmak için devam et</string>
@@ -119,7 +119,6 @@
     <string name="discard_changes">Değişiklikler iptal edilsin mi?</string>
     <string name="disconnect">Bağlantıyı Kes</string>
     <string name="disconnected">Bağlantı kesildi</string>
-    <string name="disconnecting">Bağlantı kesiliyor</string>
     <string name="dismiss">Reddet</string>
     <string name="dns_content_blockers_custom_dns_warning">Dikkat: Bu ayar &lt;b&gt;Özel DNS sunucusu kullan&lt;/b&gt; seçeneği ile birlikte kullanılamaz.</string>
     <string name="dns_content_blockers_info">Bu özellik etkinleştirildiğinde, cihazınızın reklamlar, kötü amaçlı yazılımlar, izleyiciler ve daha fazlasını dağıttığı bilinen belirli alan adlarıyla veya web siteleriyle iletişim kurmasını durdurur.</string>
@@ -253,7 +252,6 @@
     <string name="quantum_resistant_info_first_paragaph">Bu özellik, WireGuard tünelini kuantum bilgisayarlardan gelebilecek potansiyel saldırılara karşı dayanıklı hale getirir.</string>
     <string name="quantum_resistant_info_second_paragaph">Bu işlemi, bir kuantum güvenlik algoritmasıyla ekstra bir anahtar değişimi gerçekleştirdikten sonra sonucu WireGuard\'ın normal şifrelemesiyle karıştırarak yapar. Bu ekstra adım, her yeni tünel kurulduğunda yaklaşık 500 kiB trafik kullanır.</string>
     <string name="quantum_resistant_title">Kuantuma dayanıklı tünel</string>
-    <string name="reconnecting">Yeniden Bağlanılıyor</string>
     <string name="redeem">Kullan</string>
     <string name="redeem_voucher">Kuponu kullan</string>
     <string name="remove_button">Kaldır</string>

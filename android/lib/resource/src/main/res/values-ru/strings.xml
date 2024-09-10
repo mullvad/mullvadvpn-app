@@ -73,9 +73,9 @@
     <string name="confirm_no_email">Вы собираетесь отправить отчет о проблеме, не оставив контакты. Если вы хотите получить ответ, введите свой адрес электронной почты.</string>
     <string name="confirm_removal">Выйти из профиля на устройстве</string>
     <string name="congrats">Поздравляем!</string>
+    <string name="connect">Подключить</string>
     <string name="connected">Подключено</string>
     <string name="connected_using_daita">%1$s через %2$s</string>
-    <string name="connecting">Идет подключение</string>
     <string name="connecting_to_daemon">Подключение к системному сервису Mullvad...</string>
     <string name="connection_details_in">Вход</string>
     <string name="continue_login">Войти</string>
@@ -119,7 +119,6 @@
     <string name="discard_changes">Сбросить изменения?</string>
     <string name="disconnect">Отключить</string>
     <string name="disconnected">Разъединено</string>
-    <string name="disconnecting">Отключение</string>
     <string name="dismiss">Закрыть</string>
     <string name="dns_content_blockers_custom_dns_warning">Внимание: этот параметр нельзя использовать вместе с параметром &lt;b&gt;Пользовательский DNS-сервер&lt;/b&gt;.</string>
     <string name="dns_content_blockers_info">При включенной опции устройство не будет устанавливать соединение с определенными доменами и сайтами, известными распространением рекламы, вредоносного ПО, трекеров и т. д.</string>
@@ -253,7 +252,6 @@
     <string name="quantum_resistant_info_first_paragaph">Эта функция делает туннель WireGuard устойчивым к потенциальным атакам с использованием квантовых компьютеров.</string>
     <string name="quantum_resistant_info_second_paragaph">Для этого функция выполняет дополнительный обмен ключами с использованием квантово-устойчивого алгоритма и добавляет результат к обычному шифрованию WireGuard. Эта дополнительная мера использует примерно 500 КиБ трафика при каждом создании нового туннеля.</string>
     <string name="quantum_resistant_title">Квантово-устойчивый туннель</string>
-    <string name="reconnecting">Идет переподключение</string>
     <string name="redeem">Погасить</string>
     <string name="redeem_voucher">Погасить ваучер</string>
     <string name="remove_button">Удалить</string>
