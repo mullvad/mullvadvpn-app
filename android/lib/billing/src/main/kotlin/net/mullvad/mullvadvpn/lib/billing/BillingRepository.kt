@@ -16,12 +16,12 @@ import com.android.billingclient.api.QueryProductDetailsParams.Product
 import com.android.billingclient.api.QueryPurchasesParams
 import com.android.billingclient.api.queryProductDetails
 import com.android.billingclient.api.queryPurchasesAsync
-import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
-import kotlin.coroutines.suspendCoroutine
+import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import net.mullvad.mullvadvpn.lib.billing.model.BillingException
@@ -71,19 +71,21 @@ class BillingRepository(context: Context) {
 
     private suspend fun ensureConnected() =
         ensureConnectedMutex.withLock {
-            suspendCoroutine {
+            suspendCancellableCoroutine {
                 if (
                     billingClient.isReady &&
                         billingClient.connectionState == BillingClient.ConnectionState.CONNECTED
                 ) {
-                    it.resume(Unit)
+                    if (it.isActive) {
+                        it.resume(Unit)
+                    }
                 } else {
                     startConnection(it)
                 }
             }
         }
 
-    private fun startConnection(continuation: Continuation<Unit>) {
+    private fun startConnection(continuation: CancellableContinuation<Unit>) {
         billingClient.startConnection(
             object : BillingClientStateListener {
                 override fun onBillingServiceDisconnected() {
@@ -92,11 +94,15 @@ class BillingRepository(context: Context) {
 
                 override fun onBillingSetupFinished(result: BillingResult) {
                     if (result.responseCode == BillingResponseCode.OK) {
-                        continuation.resume(Unit)
+                        if (continuation.isActive) {
+                            continuation.resume(Unit)
+                        }
                     } else {
-                        continuation.resumeWithException(
-                            BillingException(result.responseCode, result.debugMessage)
-                        )
+                        if (continuation.isActive) {
+                            continuation.resumeWithException(
+                                BillingException(result.responseCode, result.debugMessage)
+                            )
+                        }
                     }
                 }
             }
