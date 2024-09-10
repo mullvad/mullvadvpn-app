@@ -42,7 +42,15 @@ class BaseUITestCase: XCTestCase {
         .infoDictionary?["IOSDevicePinCode"] as! String
     let attachAppLogsOnFailure = Bundle(for: BaseUITestCase.self)
         .infoDictionary?["AttachAppLogsOnFailure"] as! String == "1"
+    let partnerApiToken = Bundle(for: BaseUITestCase.self).infoDictionary?["PartnerApiToken"] as? String
     // swiftlint:enable force_cast
+
+    lazy var mullvadAPIWrapper: MullvadAPIWrapper = {
+        do {
+            // swiftlint:disable:next force_try
+            return try! MullvadAPIWrapper()
+        }
+    }()
 
     static func testDeviceIsIPad() -> Bool {
         if let testDeviceIsIPad = Bundle(for: BaseUITestCase.self).infoDictionary?["TestDeviceIsIPad"] as? String {
@@ -77,6 +85,16 @@ class BaseUITestCase: XCTestCase {
     func deleteTemporaryAccountWithTime(accountNumber: String) {
         if bundleHasTimeAccountNumber?.isEmpty == true {
             PartnerAPIClient().deleteAccount(accountNumber: accountNumber)
+        }
+    }
+
+    /// Create temporary account without time. Will be created using partner API if token is configured, else falling back to app API
+    func createTemporaryAccountWithoutTime() -> String {
+        if let partnerApiToken {
+            let partnerAPIClient = PartnerAPIClient()
+            return partnerAPIClient.createAccount()
+        } else {
+            return mullvadAPIWrapper.createAccount()
         }
     }
 
