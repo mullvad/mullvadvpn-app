@@ -86,14 +86,13 @@ class MullvadAPIWrapper {
 
     func createAccount() -> String {
         var accountNumber = String()
-        var requestError: Error?
         let requestCompletedExpectation = XCTestExpectation(description: "Create account request completed")
 
         throttle {
             do {
                 accountNumber = try self.mullvadAPI.createAccount()
             } catch {
-                requestError = MullvadAPIError.requestError
+                XCTFail("Failed to create account with error: \(error.localizedDescription)")
             }
 
             requestCompletedExpectation.fulfill()
@@ -101,20 +100,18 @@ class MullvadAPIWrapper {
 
         let waitResult = XCTWaiter().wait(for: [requestCompletedExpectation], timeout: throttleWaitTimeout)
         XCTAssertEqual(waitResult, .completed, "Create account request completed")
-        XCTAssertNil(requestError, "Create account error is nil")
 
         return accountNumber
     }
 
     func deleteAccount(_ accountNumber: String) {
-        var requestError: Error?
         let requestCompletedExpectation = XCTestExpectation(description: "Delete account request completed")
 
         throttle {
             do {
                 try self.mullvadAPI.delete(account: accountNumber)
             } catch {
-                requestError = MullvadAPIError.requestError
+                XCTFail("Failed to delete account with error: \(error.localizedDescription)")
             }
 
             requestCompletedExpectation.fulfill()
@@ -122,12 +119,10 @@ class MullvadAPIWrapper {
 
         let waitResult = XCTWaiter().wait(for: [requestCompletedExpectation], timeout: throttleWaitTimeout)
         XCTAssertEqual(waitResult, .completed, "Delete account request completed")
-        XCTAssertNil(requestError, "Delete account error is nil")
     }
 
     /// Add another device to specified account. A dummy WireGuard key will be generated.
     func addDevice(_ account: String) {
-        var addDeviceError: Error?
         let requestCompletedExpectation = XCTestExpectation(description: "Add device request completed")
 
         throttle {
@@ -136,7 +131,7 @@ class MullvadAPIWrapper {
             do {
                 try self.mullvadAPI.addDevice(forAccount: account, publicKey: devicePublicKey)
             } catch {
-                addDeviceError = MullvadAPIError.requestError
+                XCTFail("Failed to add device with error: \(error.localizedDescription)")
             }
 
             requestCompletedExpectation.fulfill()
@@ -144,7 +139,6 @@ class MullvadAPIWrapper {
 
         let waitResult = XCTWaiter().wait(for: [requestCompletedExpectation], timeout: throttleWaitTimeout)
         XCTAssertEqual(waitResult, .completed, "Add device request completed")
-        XCTAssertNil(addDeviceError, "Add device error is nil")
     }
 
     /// Add multiple devices to specified account. Dummy WireGuard keys will be generated.
@@ -157,7 +151,6 @@ class MullvadAPIWrapper {
 
     func getAccountExpiry(_ account: String) throws -> Date {
         var accountExpiryDate: Date = .distantPast
-        var requestError: Error?
         let requestCompletedExpectation = XCTestExpectation(description: "Get account expiry request completed")
 
         throttle {
@@ -165,7 +158,7 @@ class MullvadAPIWrapper {
                 let accountExpiryTimestamp = Double(try self.mullvadAPI.getExpiry(forAccount: account))
                 accountExpiryDate = Date(timeIntervalSince1970: accountExpiryTimestamp)
             } catch {
-                requestError = MullvadAPIError.requestError
+                XCTFail("Failed to get account expiry with error: \(error.localizedDescription)")
             }
 
             requestCompletedExpectation.fulfill()
@@ -173,21 +166,19 @@ class MullvadAPIWrapper {
 
         let waitResult = XCTWaiter().wait(for: [requestCompletedExpectation], timeout: throttleWaitTimeout)
         XCTAssertEqual(waitResult, .completed, "Get account expiry request completed")
-        XCTAssertNil(requestError, "Get account expiry error is nil")
 
         return accountExpiryDate
     }
 
     func getDevices(_ account: String) throws -> [Device] {
         var devices: [Device] = []
-        var requestError: Error?
         let requestCompletedExpectation = XCTestExpectation(description: "Get devices request completed")
 
         throttle {
             do {
                 devices = try self.mullvadAPI.listDevices(forAccount: account)
             } catch {
-                requestError = MullvadAPIError.requestError
+                XCTFail("Failed to get devices with error: \(error.localizedDescription)")
             }
 
             requestCompletedExpectation.fulfill()
@@ -195,7 +186,6 @@ class MullvadAPIWrapper {
 
         let waitResult = XCTWaiter.wait(for: [requestCompletedExpectation], timeout: throttleWaitTimeout)
         XCTAssertEqual(waitResult, .completed, "Get devices request completed")
-        XCTAssertNil(requestError, "Get devices error is nil")
 
         return devices
     }
