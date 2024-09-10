@@ -71,7 +71,7 @@ class AppInteractor(
     }
 
     fun ensureLoggedIn() {
-        device.findObjectWithTimeout(By.text("UNSECURED CONNECTION"), VERY_LONG_TIMEOUT)
+        device.findObjectWithTimeout(By.text("DISCONNECTED"), VERY_LONG_TIMEOUT)
     }
 
     fun ensureOutOfTime() {
