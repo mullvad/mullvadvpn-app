@@ -17,10 +17,12 @@ pub enum Error {
     InvalidPlain(plain::Error),
 }
 
+#[derive(PartialEq)]
+#[repr(u16)]
 enum ProxyType {
-    Plain,
-    XorV1,
-    XorV2,
+    Plain = 0x01,
+    XorV1 = 0x02,
+    XorV2 = 0x03,
 }
 
 impl TryFrom<Ipv6Addr> for ProxyType {

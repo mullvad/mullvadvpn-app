@@ -36,7 +36,7 @@ impl TryFrom<Ipv6Addr> for Plain {
         // IPv6 address.
         let _ = cursor.read_u16::<LittleEndian>().unwrap();
         let proxy_type = cursor.read_u16::<LittleEndian>().unwrap();
-        if proxy_type != 0x01 {
+        if proxy_type != super::ProxyType::Plain as u16 {
             return Err(Error::UnexpectedType(proxy_type));
         }
 
