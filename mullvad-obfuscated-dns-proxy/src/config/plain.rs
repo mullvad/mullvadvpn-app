@@ -1,24 +1,12 @@
 use byteorder::{LittleEndian, ReadBytesExt};
 use std::{
-    io::{self, Cursor, Read},
+    io::{Cursor, Read},
     net::{Ipv4Addr, Ipv6Addr, SocketAddrV4},
 };
-use tokio::io::{AsyncRead, AsyncWrite};
 
 #[derive(PartialEq, Debug, Clone)]
 pub struct Plain {
     pub addr: SocketAddrV4,
-}
-
-impl Plain {
-    pub async fn forward(
-        &self,
-        mut source: impl AsyncRead + Unpin,
-        mut sink: impl AsyncWrite + Unpin,
-    ) -> io::Result<()> {
-        let _ = tokio::io::copy(&mut source, &mut sink).await?;
-        Ok(())
-    }
 }
 
 #[derive(Debug)]
@@ -34,7 +22,7 @@ impl TryFrom<Ipv6Addr> for Plain {
 
         // skip the first 2 bytes since it's just padding to make the IP look more like a legit
         // IPv6 address.
-        let _ = cursor.read_u16::<LittleEndian>().unwrap();
+        cursor.set_position(2);
         let proxy_type = cursor.read_u16::<LittleEndian>().unwrap();
         if proxy_type != super::ProxyType::Plain as u16 {
             return Err(Error::UnexpectedType(proxy_type));

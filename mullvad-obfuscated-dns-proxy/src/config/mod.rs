@@ -32,10 +32,8 @@ impl TryFrom<Ipv6Addr> for ProxyType {
         let mut data = Cursor::new(value.octets());
         // skip the first 2 bytes since it's just padding to make the IP look more like a legit
         // IPv6 address.
-        let _ = data
-            .read_u16::<LittleEndian>()
-            .expect("IPv6 must have at least 16 bytes");
 
+        data.set_position(2);
         match data
             .read_u16::<LittleEndian>()
             .expect("IPv6 must have at least 16 bytes")

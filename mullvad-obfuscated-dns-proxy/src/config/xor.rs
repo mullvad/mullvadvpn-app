@@ -26,7 +26,7 @@ impl TryFrom<Ipv6Addr> for Xor {
     fn try_from(ip: Ipv6Addr) -> Result<Self, Self::Error> {
         let mut cursor = Cursor::new(ip.octets());
 
-        let _ = cursor.read_u16::<LittleEndian>().unwrap();
+        cursor.set_position(2);
         let proxy_type = cursor.read_u16::<LittleEndian>().unwrap();
         if proxy_type != super::ProxyType::XorV2 as u16 {
             return Err(Error::UnexpectedType(proxy_type));
