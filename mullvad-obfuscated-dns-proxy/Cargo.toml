@@ -10,8 +10,11 @@ rust-version.workspace = true
 workspace = true
 
 [dependencies]
-tokio = { version = "1", features = [ "full" ]}
+tokio = { workspace = true }
 byteorder = "1"
 hickory-resolver = { version = "0.24.1", features = [ "dns-over-https-rustls" ]}
 webpki-roots = "0.25.0"
 rustls = "0.21"
+
+[dev-dependencies]
+tokio = { workspace = true, features = [ "full" ]}

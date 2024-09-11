@@ -13,13 +13,17 @@ async fn main() {
             .await
             .expect("Failed to resolve configs");
 
-    let bind_addr = args().nth(1).expect("No bind addr supplied");
+    let bind_addr = args().nth(1).unwrap_or("127.0.0.1:0".to_string());
     let obfuscator = configs.xor.pop().expect("No XOR config");
     println!("Obfuscator in use - {:?}", obfuscator);
     let obfuscator: Box<dyn Obfuscator> = Box::new(obfuscator);
     let listener = TcpListener::bind(bind_addr)
         .await
         .expect("Failed to bind listener socket");
+    let listen_addr = listener
+        .local_addr()
+        .expect("failed to obtain listen address");
+    println!("Listening on {listen_addr}");
     while let Ok((client_conn, _client_addr)) = listener.accept().await {
         let connected = crate::forwarder::Forwarder::connect(obfuscator.clone())
             .await

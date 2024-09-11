@@ -92,6 +92,7 @@ fn client_config_tls12() -> ClientConfig {
         .with_no_client_auth()
 }
 
+#[cfg(test)]
 #[tokio::test]
 async fn test_resolution() {
     let nameservers = vec![Nameserver {
@@ -102,6 +103,7 @@ async fn test_resolution() {
     let _ = resolve_configs(nameservers, "frakta.eu").await.unwrap();
 }
 
+#[cfg(test)]
 #[test]
 fn default_resolvers_dont_panic() {
     let _ = default_resolvers();
