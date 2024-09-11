@@ -1,4 +1,4 @@
-use std::{io, task::Poll};
+use std::{io, task::{ready, Poll}};
 
 use tokio::{
     io::{AsyncRead, AsyncWrite},
@@ -44,15 +44,14 @@ impl tokio::io::AsyncRead for Forwarder {
         let new_read_start = buf.remaining();
 
         let socket = std::pin::pin!(&mut self.server_connection);
-        match socket.poll_read(cx, buf) {
+        match ready!(socket.poll_read(cx, buf)) {
             // in this case, we can read and deobfuscate.
-            Poll::Ready(Ok(())) => {
+            Ok(()) => {
                 let newly_read_bytes = &mut buf.filled_mut()[new_read_start..];
                 self.read_obfuscator.obfuscate(newly_read_bytes);
                 Poll::Ready(Ok(()))
             }
-            Poll::Pending => Poll::Pending,
-            Poll::Ready(Err(err)) => Poll::Ready(Err(err)),
+            Err(err) => Poll::Ready(Err(err)),
         }
     }
 }
@@ -64,14 +63,8 @@ impl tokio::io::AsyncWrite for Forwarder {
         buf: &[u8],
     ) -> Poll<Result<usize, io::Error>> {
         let socket = std::pin::pin!(&mut self.server_connection);
-        match socket.poll_write_ready(cx) {
-            Poll::Ready(Ok(())) => {}
-            Poll::Ready(Err(err)) => {
+        if let Err(err) =  ready!(socket.poll_write_ready(cx)) {
                 return Poll::Ready(Err(err));
-            }
-            Poll::Pending => {
-                return Poll::Pending;
-            }
         };
 
         let mut owned_buf = buf.to_vec();
