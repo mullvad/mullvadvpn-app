@@ -27,11 +27,10 @@ impl Forwarder {
     pub async fn forward(self, client_stream: TcpStream) {
         let (server_read, server_write) = self.server_connection.into_split();
         let (client_read, client_write) = client_stream.into_split();
-        let handle = tokio::spawn(async move {
-            tokio::spawn(forward(self.read_obfuscator, client_read, server_write));
-        });
-        let _ = forward(self.write_obfuscator, server_read, client_write).await;
-        let _ = handle.await;
+        let _ = tokio::join!(
+            forward(self.read_obfuscator, client_read, server_write),
+            forward(self.write_obfuscator, server_read, client_write)
+        );
     }
 }
 
