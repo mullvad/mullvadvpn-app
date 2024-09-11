@@ -82,7 +82,12 @@ pub struct AvailableProxies {
 }
 
 pub trait Obfuscator: Send {
+    /// Provides the endpoint for the proxy. This address must be connected and all traffic to it
+    /// should first be obfuscated with `Obfuscator::obfuscate`.
     fn addr(&self) -> SocketAddrV4;
+    /// Applies obfuscation to a given buffer of bytes.
     fn obfuscate(&mut self, buffer: &mut [u8]);
+    /// Constructs a new obfuscator of the same type and configuration, with it's internal state
+    /// reset.
     fn clone(&self) -> Box<dyn Obfuscator>;
 }
