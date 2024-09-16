@@ -41,7 +41,7 @@ class ConnectionTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
         // When
         device.findObjectWithTimeout(By.text("Connect")).click()
         device.findObjectWithTimeout(By.text("OK")).click()
-        device.findObjectWithTimeout(By.text("Connected"), VERY_LONG_TIMEOUT)
+        device.findObjectWithTimeout(By.text("CONNECTED"), VERY_LONG_TIMEOUT)
         val expected = ConnCheckState(true, app.extractOutIpv4Address())
 
         // Then
