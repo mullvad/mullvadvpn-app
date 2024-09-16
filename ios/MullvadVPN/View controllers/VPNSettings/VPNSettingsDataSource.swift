@@ -461,8 +461,8 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         header.accessibilityCustomActionName = title
         header.isExpanded = isExpanded(.wireGuardPorts)
         header.infoButtonHandler = { [weak self] in
-            if let self {
-                self.delegate?.showInfo(for: .wireGuardPorts)
+            if let self, let humanReadablePortRepresentation = delegate?.humanReadablePortRepresentation() {
+                self.delegate?.showInfo(for: .wireGuardPorts(humanReadablePortRepresentation))
             }
         }
 

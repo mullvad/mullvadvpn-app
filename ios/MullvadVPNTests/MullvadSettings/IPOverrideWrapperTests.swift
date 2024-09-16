@@ -32,12 +32,12 @@ final class IPOverrideWrapperTests: XCTestCase {
         let storedCache = try overrideWrapper.read()
 
         // Assert that relay was overridden.
-        let host1 = try storedCache.relays.wireguard.relays.first
+        let host1 = storedCache.relays.wireguard.relays.first
         XCTAssertEqual(host1?.ipv4AddrIn, .loopback)
         XCTAssertEqual(host1?.ipv6AddrIn, .broadcast)
 
         // Assert that relay was NOT overridden.
-        let host2 = try storedCache.relays.wireguard.relays.last
+        let host2 = storedCache.relays.wireguard.relays.last
         XCTAssertEqual(host2?.ipv4AddrIn, .any)
         XCTAssertEqual(host2?.ipv6AddrIn, .any)
     }
@@ -62,11 +62,11 @@ final class IPOverrideWrapperTests: XCTestCase {
         let storedCache = try overrideWrapper.read()
 
         // Assert that relay was overridden.
-        let host1 = try storedCache.relays.bridge.relays.first
+        let host1 = storedCache.relays.bridge.relays.first
         XCTAssertEqual(host1?.ipv4AddrIn, .loopback)
 
         // Assert that relay was NOT overridden.
-        let host2 = try storedCache.relays.bridge.relays.last
+        let host2 = storedCache.relays.bridge.relays.last
         XCTAssertEqual(host2?.ipv4AddrIn, .any)
     }
 }

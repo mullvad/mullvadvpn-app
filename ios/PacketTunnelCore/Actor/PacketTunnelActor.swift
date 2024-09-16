@@ -287,35 +287,11 @@ extension PacketTunnelActor {
     ) async throws {
         guard let connectionState = try obfuscateConnection(nextRelays: nextRelays, settings: settings, reason: reason),
               let targetState = state.targetStateForReconnect else { return }
-
-        let activeKey = activeKey(from: connectionState, in: settings)
-
-        let entryConfiguration: TunnelAdapterConfiguration? = if connectionState.selectedRelays.entry != nil {
-            try ConfigurationBuilder(
-                privateKey: activeKey,
-                interfaceAddresses: settings.interfaceAddresses,
-                dns: settings.dnsServers,
-                endpoint: connectionState.connectedEndpoint,
-                allowedIPs: [
-                    IPAddressRange(from: "\(connectionState.selectedRelays.exit.endpoint.ipv4Relay.ip)/32")!,
-                ]
-            ).makeConfiguration()
-        } else {
-            nil
-        }
-
-        let exitConfiguration = try ConfigurationBuilder(
-            privateKey: activeKey,
-            interfaceAddresses: settings.interfaceAddresses,
-            dns: settings.dnsServers,
-            endpoint: (entryConfiguration != nil)
-                ? connectionState.selectedRelays.exit.endpoint
-                : connectionState.connectedEndpoint,
-            allowedIPs: [
-                IPAddressRange(from: "0.0.0.0/0")!,
-                IPAddressRange(from: "::/0")!,
-            ]
-        ).makeConfiguration()
+        let configuration = try ConnectionConfigurationBuilder(
+            type: .normal,
+            settings: settings,
+            connectionData: connectionState
+        ).make()
 
         /*
          Stop default path observer while updating WireGuard configuration since it will call the system method
@@ -341,8 +317,8 @@ extension PacketTunnelActor {
         }
 
         try await tunnelAdapter.startMultihop(
-            entryConfiguration: entryConfiguration,
-            exitConfiguration: exitConfiguration,
+            entryConfiguration: configuration.entryConfiguration,
+            exitConfiguration: configuration.exitConfiguration,
             daita: daitaConfiguration
         )
 
@@ -528,4 +504,5 @@ extension PacketTunnelActor {
 }
 
 extension PacketTunnelActor: PacketTunnelActorProtocol {}
+
 // swiftlint:disable:this file_length
