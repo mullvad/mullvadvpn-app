@@ -160,6 +160,8 @@ export default function FeatureIndicators(props: FeatureIndicatorsProps) {
     }, 0);
   });
 
+  const sortedIndicators = [...featureIndicators.current].sort((a, b) => a - b);
+
   return (
     <StyledAccordion expanded={featureIndicatorsVisible && featureIndicators.current.length > 0}>
       <StyledFeatureIndicatorsContainer onClick={props.expandIsland} $expanded={props.expanded}>
@@ -170,7 +172,7 @@ export default function FeatureIndicators(props: FeatureIndicatorsProps) {
           <StyledFeatureIndicatorsWrapper
             ref={featureIndicatorsContainerRef}
             $expanded={props.expanded}>
-            {featureIndicators.current.sort().map((indicator) => (
+            {sortedIndicators.map((indicator) => (
               <StyledFeatureIndicatorLabel
                 key={indicator.toString()}
                 data-testid="feature-indicator"
