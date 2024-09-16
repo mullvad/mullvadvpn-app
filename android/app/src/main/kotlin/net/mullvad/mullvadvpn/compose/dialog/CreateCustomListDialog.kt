@@ -1,8 +1,5 @@
 package net.mullvad.mullvadvpn.compose.dialog
 
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -22,7 +19,6 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.compose.state.CreateCustomListUiState
 import net.mullvad.mullvadvpn.compose.test.CREATE_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG
@@ -101,13 +97,14 @@ fun CreateCustomListDialog(
     onInputChanged: () -> Unit = {},
     onDismiss: () -> Unit = {},
 ) {
-
     val name = remember { mutableStateOf("") }
     val isValidName by remember { derivedStateOf { name.value.isNotBlank() } }
 
-    AlertDialog(
-        title = { Text(text = stringResource(id = R.string.create_new_list)) },
-        text = {
+    InputDialog(
+        title = stringResource(id = R.string.create_new_list),
+        confirmButtonText = stringResource(id = R.string.create),
+        confirmButtonEnabled = isValidName,
+        input = {
             CustomListNameTextField(
                 name = name.value,
                 isValidName = isValidName,
@@ -120,19 +117,8 @@ fun CreateCustomListDialog(
                 modifier = Modifier.testTag(CREATE_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG),
             )
         },
-        containerColor = MaterialTheme.colorScheme.surface,
-        titleContentColor = MaterialTheme.colorScheme.onSurface,
-        onDismissRequest = onDismiss,
-        confirmButton = {
-            PrimaryButton(
-                text = stringResource(id = R.string.create),
-                onClick = { createCustomList(name.value) },
-                isEnabled = isValidName,
-            )
-        },
-        dismissButton = {
-            PrimaryButton(text = stringResource(id = R.string.cancel), onClick = onDismiss)
-        },
+        onBack = onDismiss,
+        onConfirm = { createCustomList(name.value) },
     )
 }
 

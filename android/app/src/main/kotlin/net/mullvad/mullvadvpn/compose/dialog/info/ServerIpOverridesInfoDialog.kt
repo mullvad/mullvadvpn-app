@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.dialog
+package net.mullvad.mullvadvpn.compose.dialog.info
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
@@ -10,26 +10,25 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.lib.theme.AppTheme
 
 @Preview
 @Composable
-private fun PreviewDaitaInfoDialog() {
-    AppTheme { DaitaInfo(EmptyDestinationsNavigator) }
+private fun PreviewServerIpOverridesInfoDialog() {
+    ServerIpOverridesInfo(EmptyDestinationsNavigator)
 }
 
 @Destination<RootGraph>(style = DestinationStyle.Dialog::class)
 @Composable
-fun DaitaInfo(navigator: DestinationsNavigator) {
+fun ServerIpOverridesInfo(navigator: DestinationsNavigator) {
     InfoDialog(
         message =
-            stringResource(
-                id = R.string.daita_info,
-                stringResource(id = R.string.daita),
-                stringResource(id = R.string.daita_full),
-            ),
-        additionalInfo =
-            stringResource(id = R.string.daita_warning, stringResource(id = R.string.daita)),
+            buildString {
+                appendLine(stringResource(id = R.string.server_ip_overrides_info_first_paragraph))
+                appendLine()
+                appendLine(stringResource(id = R.string.server_ip_overrides_info_second_paragraph))
+                appendLine()
+                append(stringResource(id = R.string.server_ip_overrides_info_third_paragraph))
+            },
         onDismiss = dropUnlessResumed { navigator.navigateUp() },
     )
 }
