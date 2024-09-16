@@ -2,21 +2,18 @@ use std::{env, path::PathBuf};
 
 fn main() {
     let target_os = env::var("CARGO_CFG_TARGET_OS").expect("CARGO_CFG_TARGET_OS not set");
-
-    declare_libs_dir("../dist-assets/binaries");
-
-    add_wireguard_go_cfg(&target_os);
-}
-
-fn add_wireguard_go_cfg(target_os: &str) {
+    // Keep track if `binaries/wireguard-nt` changes
+    if target_os == "windows" {
+        declare_libs_dir("../dist-assets/binaries");
+    }
+    // Wireguard-Go can be used on all platforms except Windows
     println!("cargo::rustc-check-cfg=cfg(wireguard_go)");
-    if matches!(target_os, "linux" | "macos" | "android") {
+    if matches!(target_os.as_str(), "linux" | "macos" | "android") {
         println!("cargo::rustc-cfg=wireguard_go");
     }
-
     // Enable DAITA by default on desktop and android
     println!("cargo::rustc-check-cfg=cfg(daita)");
-    println!(r#"cargo::rustc-cfg=daita"#);
+    println!("cargo::rustc-cfg=daita");
 }
 
 fn declare_libs_dir(base: &str) {
