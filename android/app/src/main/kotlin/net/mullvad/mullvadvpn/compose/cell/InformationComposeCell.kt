@@ -41,6 +41,7 @@ fun InformationComposeCell(
     background: Color = MaterialTheme.colorScheme.primary,
     onCellClicked: () -> Unit = {},
     onInfoClicked: (() -> Unit)? = null,
+    testTag: String = "",
 ) {
     val titleModifier = Modifier.alpha(if (isEnabled) AlphaVisible else AlphaInactive)
     val bodyViewModifier = Modifier
@@ -60,6 +61,7 @@ fun InformationComposeCell(
             InformationComposeCellBody(modifier = bodyViewModifier, onInfoClicked = onInfoClicked)
         },
         onCellClicked = onCellClicked,
+        testTag = testTag,
     )
 }
 

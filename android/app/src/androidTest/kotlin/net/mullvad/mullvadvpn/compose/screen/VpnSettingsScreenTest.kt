@@ -19,6 +19,7 @@ import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_QUANTUM_ITEM_ON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_CUSTOM_PORT_NUMBER_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG
+import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_OBFUSCATION_TITLE_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Mtu
@@ -408,6 +409,8 @@ class VpnSettingsScreenTest {
             }
 
             // Act
+            onNodeWithTag(LAZY_LIST_TEST_TAG)
+                .performScrollToNode(hasTestTag(LAZY_LIST_WIREGUARD_OBFUSCATION_TITLE_TEST_TAG))
             onNodeWithText("WireGuard obfuscation").performClick()
 
             // Assert
