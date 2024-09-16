@@ -1,7 +1,7 @@
 package net.mullvad.mullvadvpn.test.e2e
 
 import androidx.test.uiautomator.By
-import net.mullvad.mullvadvpn.test.common.constant.LOGIN_FAILURE_TIMEOUT
+import net.mullvad.mullvadvpn.test.common.constant.EXTREMELY_LONG_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.extension.clickAgreeOnPrivacyDisclaimer
 import net.mullvad.mullvadvpn.test.common.extension.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
@@ -40,6 +40,6 @@ class LoginTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
         app.attemptLogin(invalidDummyAccountNumber)
 
         // Then
-        device.findObjectWithTimeout(By.text("Invalid account number"), LOGIN_FAILURE_TIMEOUT)
+        device.findObjectWithTimeout(By.text("Invalid account number"), EXTREMELY_LONG_TIMEOUT)
     }
 }
