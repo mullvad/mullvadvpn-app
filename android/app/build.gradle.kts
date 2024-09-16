@@ -18,11 +18,11 @@ plugins {
 }
 
 val repoRootPath = rootProject.projectDir.absoluteFile.parentFile.absolutePath
-val extraAssetsDirectory = "${project.buildDir}/extraAssets"
-val relayListPath = "$extraAssetsDirectory/relays.json"
-val maybenotMachinesDirectory = "$extraAssetsDirectory/maybenot_machines"
+val extraAssetsDirectory = layout.buildDirectory.dir("extraAssets").get()
+val relayListPath = extraAssetsDirectory.file("relays.json").asFile
+val maybenotMachinesFile = extraAssetsDirectory.file("maybenot_machines").asFile
 val defaultChangelogAssetsDirectory = "$repoRootPath/android/src/main/play/release-notes/"
-val extraJniDirectory = "${project.buildDir}/extraJni"
+val extraJniDirectory = layout.buildDirectory.dir("extraJni").get()
 
 val credentialsPath = "${rootProject.projectDir}/credentials"
 val keystorePropertiesFile = file("$credentialsPath/keystore.properties")
@@ -229,7 +229,7 @@ android {
 
         val createDistBundle =
             tasks.register<Copy>("create${capitalizedVariantName}DistBundle") {
-                from("$buildDir/outputs/bundle/$variantName")
+                from("${layout.buildDirectory}/outputs/bundle/$variantName")
                 into("${rootDir.parent}/dist")
                 include { it.name.endsWith(".aab") }
                 rename { "$artifactName.aab" }
@@ -279,7 +279,7 @@ configure<org.owasp.dependencycheck.gradle.extension.DependencyCheckExtension> {
 
 tasks.register("ensureRelayListExist") {
     doLast {
-        if (!file(relayListPath).exists()) {
+        if (!relayListPath.exists()) {
             throw GradleException("Missing relay list: $relayListPath")
         }
     }
@@ -287,15 +287,15 @@ tasks.register("ensureRelayListExist") {
 
 tasks.register("ensureMaybenotMachinesExist") {
     doLast {
-        if (!file(maybenotMachinesDirectory).exists()) {
-            throw GradleException("Missing maybenot machines: $maybenotMachinesDirectory")
+        if (!maybenotMachinesFile.exists()) {
+            throw GradleException("Missing maybenot machines: $maybenotMachinesFile")
         }
     }
 }
 
 tasks.register("ensureJniDirectoryExist") {
     doLast {
-        if (!file(extraJniDirectory).exists()) {
+        if (!extraJniDirectory.asFile.exists()) {
             throw GradleException("Missing JNI directory: $extraJniDirectory")
         }
     }
