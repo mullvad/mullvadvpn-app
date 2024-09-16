@@ -84,6 +84,11 @@ jobs:
       - name: Fix git dir
         run: git config --global --add safe.directory $(pwd)
 
+      - name: Satisfy maybenot check
+        run: |
+          mkdir -p android/app/build/extraAssets
+          cp dist-assets/maybenot_machines android/app/build/extraAssets/maybenot_machines
+
       - name: Re-generate lockfile
         run: android/scripts/update-lockfile.sh
 
