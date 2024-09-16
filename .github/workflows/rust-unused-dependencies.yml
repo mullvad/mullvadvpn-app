@@ -81,6 +81,12 @@ jobs:
           git config --global --add safe.directory '*'
           git submodule update --init --recursive --depth=1 wireguard-go-rs
 
+      - name: Install cbindgen
+        run: |
+          # Temporary fix to address maybenot.h build issues.
+          # Remove this step when cbindgen has been added to the build container.
+          cargo install --force cbindgen --version "0.26.0"
+
       - name: Install nightly Rust toolchain
         run: |
           rustup default $RUST_NIGHTLY_TOOLCHAIN
