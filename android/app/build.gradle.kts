@@ -254,8 +254,6 @@ junitPlatform {
     }
 }
 
-composeCompiler { enableStrongSkippingMode = true }
-
 androidComponents {
     beforeVariants { variantBuilder ->
         variantBuilder.enable =
