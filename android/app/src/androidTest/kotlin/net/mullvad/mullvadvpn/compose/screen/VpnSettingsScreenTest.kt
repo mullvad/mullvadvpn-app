@@ -314,10 +314,7 @@ class VpnSettingsScreenTest {
             // Arrange
             setContentWithTheme {
                 VpnSettingsScreen(
-                    state =
-                        VpnSettingsUiState.createDefault(
-                            customWireguardPort = Port(4000)
-                        )
+                    state = VpnSettingsUiState.createDefault(customWireguardPort = Port(4000))
                 )
             }
 

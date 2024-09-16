@@ -3,14 +3,13 @@ package net.mullvad.mullvadvpn.compose.screen
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
-import com.ramcosta.composedestinations.generated.destinations.CustomPortDestination
+import com.ramcosta.composedestinations.generated.destinations.ShadowsocksCustomPortDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import net.mullvad.mullvadvpn.R
@@ -49,11 +48,10 @@ private fun PreviewShadowsocksSettingsScreen() {
 @Composable
 fun ShadowsocksSettings(
     navigator: DestinationsNavigator,
-    customPortResult: ResultRecipient<CustomPortDestination, Port?>,
+    customPortResult: ResultRecipient<ShadowsocksCustomPortDestination, Port?>,
 ) {
     val viewModel = koinViewModel<ShadowsocksSettingsViewModel>()
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    val context = LocalContext.current
 
     customPortResult.OnNavResultValue { port ->
         if (port != null) {
@@ -68,13 +66,8 @@ fun ShadowsocksSettings(
         navigateToCustomPortDialog =
             dropUnlessResumed {
                 navigator.navigate(
-                    CustomPortDestination(
+                    ShadowsocksCustomPortDestination(
                         CustomPortNavArgs(
-                            title =
-                                context.getString(
-                                    R.string.custom_port_dialog_title,
-                                    context.getString(R.string.shadowsocks),
-                                ),
                             customPort = state.customPort,
                             allowedPortRanges = SHADOWSOCKS_AVAILABLE_PORTS,
                         )

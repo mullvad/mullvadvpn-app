@@ -36,7 +36,6 @@ import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.AutoConnectAndLockdownModeDestination
 import com.ramcosta.composedestinations.generated.destinations.ContentBlockersInfoDestination
 import com.ramcosta.composedestinations.generated.destinations.CustomDnsInfoDestination
-import com.ramcosta.composedestinations.generated.destinations.CustomPortDestination
 import com.ramcosta.composedestinations.generated.destinations.DaitaConfirmationDestination
 import com.ramcosta.composedestinations.generated.destinations.DaitaInfoDestination
 import com.ramcosta.composedestinations.generated.destinations.DnsDestination
@@ -48,6 +47,7 @@ import com.ramcosta.composedestinations.generated.destinations.QuantumResistance
 import com.ramcosta.composedestinations.generated.destinations.ServerIpOverridesDestination
 import com.ramcosta.composedestinations.generated.destinations.ShadowsocksSettingsDestination
 import com.ramcosta.composedestinations.generated.destinations.Udp2TcpSettingsDestination
+import com.ramcosta.composedestinations.generated.destinations.WireguardCustomPortDestination
 import com.ramcosta.composedestinations.generated.destinations.WireguardPortInfoDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
@@ -142,7 +142,7 @@ private fun PreviewVpnSettings() {
 fun VpnSettings(
     navigator: DestinationsNavigator,
     dnsDialogResult: ResultRecipient<DnsDestination, DnsDialogResult>,
-    customWgPortResult: ResultRecipient<CustomPortDestination, Port?>,
+    customWgPortResult: ResultRecipient<WireguardCustomPortDestination, Port?>,
     mtuDialogResult: ResultRecipient<MtuDestination, Boolean>,
     daitaConfirmationDialogResult: ResultRecipient<DaitaConfirmationDestination, Boolean>,
 ) {
@@ -249,13 +249,8 @@ fun VpnSettings(
         navigateToWireguardPortDialog =
             dropUnlessResumed {
                 navigator.navigate(
-                    CustomPortDestination(
+                    WireguardCustomPortDestination(
                         CustomPortNavArgs(
-                            title =
-                                context.getString(
-                                    R.string.custom_port_dialog_title,
-                                    context.getString(R.string.wireguard),
-                                ),
                             customPort = state.customWireguardPort,
                             allowedPortRanges = state.availablePortRanges,
                         )
