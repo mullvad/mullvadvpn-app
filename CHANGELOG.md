@@ -33,6 +33,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Changed
 - Never use OpenVPN as a fallback protocol when any of the following features is enabled:
   multihop, quantum-resistant tunnels, or DAITA.
+- Improved output format of `mullvad status` command, which now also prints feature indicators.
 
 #### macOS
 - Disable split tunnel interface when disconnected. This prevents traffic from being sent through
