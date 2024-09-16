@@ -14,7 +14,8 @@ class JUnitTest {
             .functions()
             .filter {
                 it.annotations.any { annotation ->
-                    annotation.fullyQualifiedName.matches(Regex("org.junit((?!jupiter).)*\$"))
+                    annotation.fullyQualifiedName?.matches(Regex("org.junit((?!jupiter).)*\$"))
+                        ?: false
                 }
             }
             .assertEmpty()
@@ -25,7 +26,8 @@ class JUnitTest {
             .classes()
             .filter {
                 it.annotations.any { annotation ->
-                    annotation.fullyQualifiedName.matches(Regex("org.junit((?!jupiter).)*\$"))
+                    annotation.fullyQualifiedName?.matches(Regex("org.junit((?!jupiter).)*\$"))
+                        ?: false
                 }
             }
             .assertEmpty()
@@ -47,18 +49,7 @@ class JUnitTest {
     }
 
     private fun allNonAndroidTests() =
-        Konsist.scopeFromTest()
-            .functions()
-            .withAnnotationOf(Test::class)
-            .filter { it.sourceSetName != "androidTest" }
-            .filter { function ->
-                ignoredTestPackages.none { function.packagee!!.fullyQualifiedName.startsWith(it) }
-            }
-
-    companion object {
-        // The following packages are not following the naming convention since they are android
-        // test that does not support spaces in function names.
-        private val ignoredTestPackages =
-            listOf("net.mullvad.mullvadvpn.test.e2e", "net.mullvad.mullvadvpn.test.mockapi")
-    }
+        Konsist.scopeFromTest().functions().withAnnotationOf(Test::class).filter {
+            it.sourceSetName != "androidTest"
+        }
 }
