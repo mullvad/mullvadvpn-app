@@ -27,7 +27,8 @@ buildscript {
         gradlePluginPortal()
     }
     dependencies {
-        // Dependency class paths are required for Gradle metadata verification to work properly, see:
+        // Dependency class paths are required for Gradle metadata verification to work properly,
+        // see:
         // https://github.com/gradle/gradle/issues/19228s
         //noinspection UseTomlInstead
         val aapt = libs.android.gradle.aapt.get().toString()
@@ -74,11 +75,7 @@ val baselineFile = file("$rootDir/config/baseline.xml")
 val configFile = files("$rootDir/config/detekt.yml")
 
 val projectSource = file(projectDir)
-val detektExcludedPaths =
-    listOf(
-        "**/build/**",
-        "**/mullvad_daemon/management_interface/**",
-    )
+val detektExcludedPaths = listOf("**/build/**", "**/mullvad_daemon/management_interface/**")
 
 detekt {
     buildUponDefaultConfig = true

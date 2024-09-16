@@ -61,7 +61,7 @@ android {
             buildConfigField(
                 type = "String",
                 name = "INFRASTRUCTURE_BASE_DOMAIN",
-                value = "\"mullvad.net\""
+                value = "\"mullvad.net\"",
             )
         }
         create(Flavors.STAGEMOLE) {
@@ -69,7 +69,7 @@ android {
             buildConfigField(
                 type = "String",
                 name = "INFRASTRUCTURE_BASE_DOMAIN",
-                value = "\"stagemole.eu\""
+                value = "\"stagemole.eu\"",
             )
         }
     }
@@ -95,13 +95,11 @@ android {
                 setOf(
                     // Fixes packaging error caused by: jetified-junit-*
                     "META-INF/LICENSE.md",
-                    "META-INF/LICENSE-notice.md"
+                    "META-INF/LICENSE-notice.md",
                 )
         }
     }
-    buildFeatures {
-        buildConfig = true
-    }
+    buildFeatures { buildConfig = true }
 }
 
 androidComponents {

@@ -19,9 +19,7 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = Versions.jvmTarget
-    }
+    kotlinOptions { jvmTarget = Versions.jvmTarget }
 
     lint {
         lintConfig = file("${rootProject.projectDir}/config/lint.xml")
@@ -31,11 +29,12 @@ android {
 
     packaging {
         resources {
-            pickFirsts += setOf(
-                // Fixes packaging error caused by: jetified-junit-*
-                "META-INF/LICENSE.md",
-                "META-INF/LICENSE-notice.md"
-            )
+            pickFirsts +=
+                setOf(
+                    // Fixes packaging error caused by: jetified-junit-*
+                    "META-INF/LICENSE.md",
+                    "META-INF/LICENSE-notice.md",
+                )
         }
     }
 }
@@ -44,16 +43,16 @@ dependencies {
     implementation(libs.kotlin.stdlib)
     implementation(libs.kotlinx.coroutines.android)
 
-    //Billing library
+    // Billing library
     implementation(libs.android.billingclient)
 
-    //Model
+    // Model
     implementation(projects.lib.model)
 
-    //Payment library
+    // Payment library
     implementation(projects.lib.payment)
 
-    //Either
+    // Either
     implementation(libs.arrow)
 
     // Management service
