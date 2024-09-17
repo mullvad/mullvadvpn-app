@@ -35,6 +35,9 @@ Line wrap the file at 100 chars.                                              Th
   multihop, quantum-resistant tunnels, or DAITA.
 - Improved output format of `mullvad status` command, which now also prints feature indicators.
 
+#### Windows
+- Enable quantum resistant tunnels by default (when set to `auto`).
+
 #### macOS
 - Disable split tunnel interface when disconnected. This prevents traffic from being sent through
   the daemon when the VPN is disconnected.
