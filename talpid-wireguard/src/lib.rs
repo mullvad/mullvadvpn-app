@@ -264,7 +264,6 @@ async fn maybe_create_obfuscator(
 
 impl WireguardMonitor {
     /// Starts a WireGuard tunnel with the given config
-    /// TODO: Remove any android-specific parts.
     #[cfg(not(target_os = "android"))]
     pub fn start<
         F: (Fn(TunnelEvent) -> Pin<Box<dyn std::future::Future<Output = ()> + Send>>)
@@ -296,23 +295,12 @@ impl WireguardMonitor {
             log_path,
             args.resource_dir,
             args.tun_provider.clone(),
-            #[cfg(target_os = "android")]
-            config.quantum_resistant,
             #[cfg(target_os = "windows")]
             args.route_manager.clone(),
             #[cfg(target_os = "windows")]
             setup_done_tx,
         )?;
         let iface_name = tunnel.get_interface_name();
-
-        #[cfg(target_os = "android")]
-        if let Some(remote_socket_fd) = obfuscator.as_ref().map(|obfs| obfs.remote_socket_fd()) {
-            // Exclude remote obfuscation socket or bridge
-            log::debug!("Excluding remote socket fd from the tunnel");
-            if let Err(error) = args.tun_provider.lock().unwrap().bypass(remote_socket_fd) {
-                log::error!("Failed to exclude remote socket fd: {error}");
-            }
-        }
 
         let obfuscator = Arc::new(AsyncMutex::new(obfuscator));
 
@@ -378,8 +366,6 @@ impl WireguardMonitor {
                     args.retry_attempt,
                     obfuscator.clone(),
                     ephemeral_obfs_sender,
-                    #[cfg(target_os = "android")]
-                    args.tun_provider,
                 )
                 .await?;
 
@@ -391,7 +377,6 @@ impl WireguardMonitor {
                 .await;
             }
 
-            #[cfg(not(target_os = "android"))]
             if detect_mtu {
                 let config = config.clone();
                 let iface_name = iface_name.clone();
@@ -422,6 +407,7 @@ impl WireguardMonitor {
                     };
                 });
             }
+
             let mut connectivity_monitor = tokio::task::spawn_blocking(move || {
                 match connectivity_monitor.establish_connectivity(args.retry_attempt) {
                     Ok(true) => Ok(connectivity_monitor),
