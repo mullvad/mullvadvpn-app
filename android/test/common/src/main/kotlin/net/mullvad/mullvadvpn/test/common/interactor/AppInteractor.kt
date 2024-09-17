@@ -71,7 +71,7 @@ class AppInteractor(
     }
 
     fun ensureLoggedIn() {
-        device.findObjectWithTimeout(By.text("UNSECURED CONNECTION"), VERY_LONG_TIMEOUT)
+        device.findObjectWithTimeout(By.text("DISCONNECTED"), VERY_LONG_TIMEOUT)
     }
 
     fun ensureOutOfTime() {
@@ -82,8 +82,8 @@ class AppInteractor(
         device.findObjectWithTimeout(By.text("Account"))
     }
 
-    fun extractIpAddress(): String {
-        device.findObjectWithTimeout(By.res("location_info_test_tag")).click()
+    fun extractOutIpv4Address(): String {
+        device.findObjectWithTimeout(By.res("connect_card_header_test_tag")).click()
         return device
             .findObjectWithTimeout(
                 // Text exist and contains IP address
@@ -91,7 +91,6 @@ class AppInteractor(
                 VERY_LONG_TIMEOUT,
             )
             .text
-            .extractIpAddress()
     }
 
     fun clickSettingsCog() {
@@ -117,9 +116,5 @@ class AppInteractor(
     fun attemptToRemoveDevice() {
         device.findObjectWithTimeout(By.desc("Remove")).click()
         clickActionButtonByText("Yes, log out device")
-    }
-
-    private fun String.extractIpAddress(): String {
-        return split(" ")[1].split(" ")[0]
     }
 }

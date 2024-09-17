@@ -9,7 +9,6 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
-import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -41,8 +40,6 @@ import net.mullvad.mullvadvpn.usecase.LastKnownLocationUseCase
 import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationTitleUseCase
-import net.mullvad.mullvadvpn.util.toInAddress
-import net.mullvad.mullvadvpn.util.toOutAddress
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -95,9 +92,6 @@ class ConnectViewModelTest {
 
     @BeforeEach
     fun setup() {
-        mockkStatic(TUNNEL_ENDPOINT_EXTENSIONS)
-        mockkStatic(GEO_IP_LOCATIONS_EXTENSIONS)
-
         every { mockServiceConnectionManager.connectionState } returns serviceConnectionState
 
         every { mockAccountRepository.accountData } returns accountExpiryState
@@ -164,8 +158,7 @@ class ConnectViewModelTest {
         val tunnelEndpoint: TunnelEndpoint = mockk()
         val location: GeoIpLocation = mockk()
         val tunnelStateTestItem = TunnelState.Connected(tunnelEndpoint, location, emptyList())
-        every { tunnelEndpoint.toInAddress() } returns mockk(relaxed = true)
-        every { location.toOutAddress() } returns "1.1.1.1"
+        every { location.ipv4?.hostAddress } returns "1.1.1.1"
         every { location.hostname } returns "hostname"
 
         // Act, Assert
@@ -329,12 +322,5 @@ class ConnectViewModelTest {
 
         // Assert
         assertIs<ConnectViewModel.UiSideEffect.OutOfTime>(deferred.await())
-    }
-
-    companion object {
-        private const val TUNNEL_ENDPOINT_EXTENSIONS =
-            "net.mullvad.mullvadvpn.util.TunnelEndpointExtensionsKt"
-        private const val GEO_IP_LOCATIONS_EXTENSIONS =
-            "net.mullvad.mullvadvpn.util.GeoIpLocationExtensionsKt"
     }
 }
