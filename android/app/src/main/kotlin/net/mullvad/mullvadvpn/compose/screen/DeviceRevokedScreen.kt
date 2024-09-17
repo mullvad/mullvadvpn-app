@@ -15,6 +15,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -30,6 +31,7 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.DeviceRevokedLoginButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
+import net.mullvad.mullvadvpn.compose.preview.DeviceRevokedUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.DeviceRevokedUiState
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -38,10 +40,13 @@ import net.mullvad.mullvadvpn.viewmodel.DeviceRevokedSideEffect
 import net.mullvad.mullvadvpn.viewmodel.DeviceRevokedViewModel
 import org.koin.androidx.compose.koinViewModel
 
-@Preview
+@Preview("Secured|Unsecured|Unknown")
 @Composable
-private fun PreviewDeviceRevokedScreen() {
-    AppTheme { DeviceRevokedScreen(state = DeviceRevokedUiState.SECURED) }
+private fun PreviewDeviceRevokedScreen(
+    @PreviewParameter(DeviceRevokedUiStatePreviewParameterProvider::class)
+    state: DeviceRevokedUiState
+) {
+    AppTheme { DeviceRevokedScreen(state = state) }
 }
 
 @Destination<RootGraph>

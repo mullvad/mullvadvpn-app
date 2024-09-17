@@ -26,6 +26,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
@@ -39,7 +40,8 @@ import net.mullvad.mullvadvpn.compose.cell.SelectableCell
 import net.mullvad.mullvadvpn.compose.constant.ContentType
 import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
 import net.mullvad.mullvadvpn.compose.extensions.itemsWithDivider
-import net.mullvad.mullvadvpn.compose.state.RelayFilterState
+import net.mullvad.mullvadvpn.compose.preview.FilterUiStatePreviewParameterProvider
+import net.mullvad.mullvadvpn.compose.state.RelayFilterUiState
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.model.Ownership
@@ -52,13 +54,9 @@ import org.koin.androidx.compose.koinViewModel
 
 @Preview
 @Composable
-private fun PreviewFilterScreen() {
-    val state =
-        RelayFilterState(
-            selectedOwnership = null,
-            allProviders = listOf(),
-            selectedProviders = listOf(),
-        )
+private fun PreviewFilterScreen(
+    @PreviewParameter(FilterUiStatePreviewParameterProvider::class) state: RelayFilterUiState
+) {
     AppTheme {
         FilterScreen(
             state = state,
@@ -92,7 +90,7 @@ fun Filter(navigator: DestinationsNavigator) {
 
 @Composable
 fun FilterScreen(
-    state: RelayFilterState,
+    state: RelayFilterUiState,
     onBackClick: () -> Unit = {},
     onApplyClick: () -> Unit = {},
     onSelectedOwnership: (ownership: Ownership?) -> Unit = {},
@@ -163,7 +161,7 @@ private fun LazyItemScope.OwnershipHeader(expanded: Boolean, onToggleExpanded: (
 
 @Composable
 private fun LazyItemScope.AnyOwnership(
-    state: RelayFilterState,
+    state: RelayFilterUiState,
     onSelectedOwnership: (ownership: Ownership?) -> Unit,
 ) {
     SelectableCell(
@@ -177,7 +175,7 @@ private fun LazyItemScope.AnyOwnership(
 @Composable
 private fun LazyItemScope.Ownership(
     ownership: Ownership,
-    state: RelayFilterState,
+    state: RelayFilterUiState,
     onSelectedOwnership: (ownership: Ownership?) -> Unit,
 ) {
     SelectableCell(
@@ -202,7 +200,7 @@ private fun LazyItemScope.ProvidersHeader(expanded: Boolean, onToggleExpanded: (
 
 @Composable
 private fun LazyItemScope.AllProviders(
-    state: RelayFilterState,
+    state: RelayFilterUiState,
     onAllProviderCheckChange: (isChecked: Boolean) -> Unit,
 ) {
     CheckboxCell(
@@ -216,7 +214,7 @@ private fun LazyItemScope.AllProviders(
 @Composable
 private fun LazyItemScope.Provider(
     provider: Provider,
-    state: RelayFilterState,
+    state: RelayFilterUiState,
     onSelectedProvider: (checked: Boolean, provider: Provider) -> Unit,
 ) {
     CheckboxCell(

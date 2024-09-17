@@ -72,7 +72,7 @@ import net.mullvad.mullvadvpn.viewmodel.EditApiAccessMethodViewModel
 import net.mullvad.mullvadvpn.viewmodel.EditApiAccessSideEffect
 import org.koin.androidx.compose.koinViewModel
 
-@Preview
+@Preview("Loading|Default|Shadowsocks|Socks5|Socks5Errors")
 @Composable
 private fun PreviewEditApiAccessMethodScreen(
     @PreviewParameter(EditApiAccessMethodUiStatePreviewParameterProvider::class)

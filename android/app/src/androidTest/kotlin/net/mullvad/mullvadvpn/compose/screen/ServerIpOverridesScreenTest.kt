@@ -16,7 +16,7 @@ import net.mullvad.mullvadvpn.compose.test.SERVER_IP_OVERRIDE_IMPORT_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.SERVER_IP_OVERRIDE_INFO_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.SERVER_IP_OVERRIDE_MORE_VERT_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.SERVER_IP_OVERRIDE_RESET_OVERRIDES_TEST_TAG
-import net.mullvad.mullvadvpn.viewmodel.ServerIpOverridesViewState
+import net.mullvad.mullvadvpn.viewmodel.ServerIpOverridesUiState
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
@@ -33,7 +33,7 @@ class ServerIpOverridesScreenTest {
     @Suppress("TestFunctionName")
     @Composable
     private fun ScreenWithDefault(
-        state: ServerIpOverridesViewState,
+        state: ServerIpOverridesUiState,
         onBackClick: () -> Unit = {},
         onInfoClick: () -> Unit = {},
         onResetOverridesClick: () -> Unit = {},
@@ -55,7 +55,7 @@ class ServerIpOverridesScreenTest {
         composeExtension.use {
             // Arrange
             setContentWithTheme {
-                ScreenWithDefault(state = ServerIpOverridesViewState.Loaded(false))
+                ScreenWithDefault(state = ServerIpOverridesUiState.Loaded(false))
             }
 
             // Assert
@@ -66,9 +66,7 @@ class ServerIpOverridesScreenTest {
     fun ensure_overrides_active_is_displayed() =
         composeExtension.use {
             // Arrange
-            setContentWithTheme {
-                ScreenWithDefault(state = ServerIpOverridesViewState.Loaded(true))
-            }
+            setContentWithTheme { ScreenWithDefault(state = ServerIpOverridesUiState.Loaded(true)) }
 
             // Assert
             onNodeWithText("Overrides active").assertExists()
@@ -78,9 +76,7 @@ class ServerIpOverridesScreenTest {
     fun ensure_overrides_active_shows_warning_on_import() =
         composeExtension.use {
             // Arrange
-            setContentWithTheme {
-                ScreenWithDefault(state = ServerIpOverridesViewState.Loaded(true))
-            }
+            setContentWithTheme { ScreenWithDefault(state = ServerIpOverridesUiState.Loaded(true)) }
 
             // Act
             onNodeWithTag(testTag = SERVER_IP_OVERRIDE_IMPORT_TEST_TAG).performClick()
@@ -99,7 +95,7 @@ class ServerIpOverridesScreenTest {
             val clickHandler: () -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 ScreenWithDefault(
-                    state = ServerIpOverridesViewState.Loaded(false),
+                    state = ServerIpOverridesUiState.Loaded(false),
                     onInfoClick = clickHandler,
                 )
             }
@@ -118,7 +114,7 @@ class ServerIpOverridesScreenTest {
             val clickHandler: () -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 ScreenWithDefault(
-                    state = ServerIpOverridesViewState.Loaded(true),
+                    state = ServerIpOverridesUiState.Loaded(true),
                     onResetOverridesClick = clickHandler,
                 )
             }
@@ -138,7 +134,7 @@ class ServerIpOverridesScreenTest {
             val clickHandler: () -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 ScreenWithDefault(
-                    state = ServerIpOverridesViewState.Loaded(false),
+                    state = ServerIpOverridesUiState.Loaded(false),
                     onImportByFile = clickHandler,
                 )
             }
@@ -158,7 +154,7 @@ class ServerIpOverridesScreenTest {
             val clickHandler: () -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 ScreenWithDefault(
-                    state = ServerIpOverridesViewState.Loaded(false),
+                    state = ServerIpOverridesUiState.Loaded(false),
                     onImportByText = clickHandler,
                 )
             }

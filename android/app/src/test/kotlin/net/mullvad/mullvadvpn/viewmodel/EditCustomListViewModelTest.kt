@@ -8,7 +8,7 @@ import kotlin.test.assertIs
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.dialog.EditCustomListNameNavArgs
-import net.mullvad.mullvadvpn.compose.state.EditCustomListState
+import net.mullvad.mullvadvpn.compose.state.EditCustomListUiState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.CustomList
 import net.mullvad.mullvadvpn.lib.model.CustomListId
@@ -34,7 +34,7 @@ class EditCustomListViewModelTest {
         // Act, Assert
         viewModel.uiState.test {
             val item = awaitItem()
-            assertIs<EditCustomListState.NotFound>(item)
+            assertIs<EditCustomListUiState.NotFound>(item)
         }
     }
 
@@ -50,7 +50,7 @@ class EditCustomListViewModelTest {
         // Act, Assert
         viewModel.uiState.test {
             val item = awaitItem()
-            assertIs<EditCustomListState.Content>(item)
+            assertIs<EditCustomListUiState.Content>(item)
             assertEquals(item.id, customList.id)
             assertEquals(item.name, customList.name)
             assertEquals(item.locations, customList.locations)

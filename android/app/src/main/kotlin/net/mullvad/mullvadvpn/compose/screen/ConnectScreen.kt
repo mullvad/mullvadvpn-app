@@ -46,6 +46,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -73,6 +74,7 @@ import net.mullvad.mullvadvpn.compose.component.connectioninfo.FeatureIndicators
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.component.notificationbanner.NotificationBanner
 import net.mullvad.mullvadvpn.compose.extensions.createOpenAccountPageHook
+import net.mullvad.mullvadvpn.compose.preview.ConnectUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.test.CONNECT_BUTTON_TEST_TAG
@@ -117,10 +119,11 @@ private val SCREEN_HEIGHT_THRESHOLD = 700.dp
 private const val SHORT_SCREEN_INDICATOR_BIAS = 0.2f
 private const val TALL_SCREEN_INDICATOR_BIAS = 0.3f
 
-@Preview
+@Preview("Initial|Connected|Disconnected|Connecting|Error.VpnPermissionDenied")
 @Composable
-private fun PreviewConnectScreen() {
-    val state = ConnectUiState.INITIAL
+private fun PreviewAccountScreen(
+    @PreviewParameter(ConnectUiStatePreviewParameterProvider::class) state: ConnectUiState
+) {
     AppTheme { ConnectScreen(state = state) }
 }
 
