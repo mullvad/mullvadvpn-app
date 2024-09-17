@@ -68,7 +68,7 @@ const StyledConnectionStatusContainer = styled.div<{
 }));
 
 export default function ConnectionPanel() {
-  const [expanded, expandImpl, collapse, toggleExpanded] = useBoolean();
+  const [expanded, expandImpl, collapse, toggleExpandedImpl] = useBoolean();
   const tunnelState = useSelector((state) => state.connection.status);
 
   const allowExpand = tunnelState.state === 'connected' || tunnelState.state === 'connecting';
@@ -78,6 +78,12 @@ export default function ConnectionPanel() {
       expandImpl();
     }
   }, [allowExpand, expandImpl]);
+
+  const toggleExpanded = useCallback(() => {
+    if (allowExpand) {
+      toggleExpandedImpl();
+    }
+  }, [allowExpand, toggleExpandedImpl]);
 
   const hasFeatureIndicators =
     allowExpand &&
