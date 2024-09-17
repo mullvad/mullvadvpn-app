@@ -14,11 +14,12 @@ import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.lib.model.DnsOptions
 import net.mullvad.mullvadvpn.lib.model.DnsState
 import net.mullvad.mullvadvpn.lib.model.Mtu
+import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
-import net.mullvad.mullvadvpn.lib.model.SelectedObfuscation
 import net.mullvad.mullvadvpn.lib.model.Settings
 
+@Suppress("TooManyFunctions")
 class SettingsRepository(
     private val managementService: ManagementService,
     dispatcher: CoroutineDispatcher = Dispatchers.IO,
@@ -52,8 +53,11 @@ class SettingsRepository(
 
     suspend fun addCustomDns(address: InetAddress) = managementService.addCustomDns(address)
 
-    suspend fun setCustomObfuscationPort(constraint: Constraint<Port>) =
-        managementService.setObfuscationPort(constraint)
+    suspend fun setCustomUdp2TcpObfuscationPort(constraint: Constraint<Port>) =
+        managementService.setUdp2TcpObfuscationPort(constraint)
+
+    suspend fun setCustomShadowsocksObfuscationPort(constraint: Constraint<Port>) =
+        managementService.setShadowsocksObfuscationPort(constraint)
 
     suspend fun setWireguardMtu(mtu: Mtu) = managementService.setWireguardMtu(mtu.value)
 
@@ -62,7 +66,7 @@ class SettingsRepository(
     suspend fun setWireguardQuantumResistant(value: QuantumResistantState) =
         managementService.setWireguardQuantumResistant(value)
 
-    suspend fun setObfuscation(value: SelectedObfuscation) = managementService.setObfuscation(value)
+    suspend fun setObfuscation(value: ObfuscationMode) = managementService.setObfuscation(value)
 
     suspend fun setAutoConnect(isEnabled: Boolean) = managementService.setAutoConnect(isEnabled)
 

@@ -4,10 +4,10 @@ import net.mullvad.mullvadvpn.compose.state.VpnSettingsUiState
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.lib.model.Mtu
+import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.PortRange
 import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
-import net.mullvad.mullvadvpn.lib.model.SelectedObfuscation
 
 data class VpnSettingsViewModelState(
     val mtuValue: Mtu?,
@@ -17,14 +17,19 @@ data class VpnSettingsViewModelState(
     val isCustomDnsEnabled: Boolean,
     val customDnsList: List<CustomDnsItem>,
     val contentBlockersOptions: DefaultDnsOptions,
-    val selectedObfuscation: SelectedObfuscation,
-    val selectedObfuscationPort: Constraint<Port>,
+    val obfuscationMode: ObfuscationMode,
+    val selectedUdp2TcpObfuscationPort: Constraint<Port>,
+    val selectedShadowsocksObfuscationPort: Constraint<Port>,
     val quantumResistant: QuantumResistantState,
     val selectedWireguardPort: Constraint<Port>,
-    val customWireguardPort: Constraint<Port>?,
+    val customWireguardPort: Port?,
     val availablePortRanges: List<PortRange>,
     val systemVpnSettingsAvailable: Boolean,
 ) {
+    val isCustomWireguardPort =
+        selectedWireguardPort is Constraint.Only &&
+            selectedWireguardPort.value == customWireguardPort
+
     fun toUiState(): VpnSettingsUiState =
         VpnSettingsUiState(
             mtuValue,
@@ -34,8 +39,9 @@ data class VpnSettingsViewModelState(
             isCustomDnsEnabled,
             customDnsList,
             contentBlockersOptions,
-            selectedObfuscation,
-            selectedObfuscationPort,
+            obfuscationMode,
+            selectedUdp2TcpObfuscationPort,
+            selectedShadowsocksObfuscationPort,
             quantumResistant,
             selectedWireguardPort,
             customWireguardPort,
@@ -53,8 +59,9 @@ data class VpnSettingsViewModelState(
                 isCustomDnsEnabled = false,
                 customDnsList = listOf(),
                 contentBlockersOptions = DefaultDnsOptions(),
-                selectedObfuscation = SelectedObfuscation.Auto,
-                selectedObfuscationPort = Constraint.Any,
+                obfuscationMode = ObfuscationMode.Auto,
+                selectedUdp2TcpObfuscationPort = Constraint.Any,
+                selectedShadowsocksObfuscationPort = Constraint.Any,
                 quantumResistant = QuantumResistantState.Off,
                 selectedWireguardPort = Constraint.Any,
                 customWireguardPort = null,

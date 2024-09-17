@@ -98,7 +98,6 @@
     <string name="custom_port_dialog_placeholder">ပေါ့တ် ရိုက်ထည့်ရန်</string>
     <string name="custom_port_dialog_remove">စိတ်ကြိုက် ပေါ့တ်ကို ဖယ်ရှားရန်</string>
     <string name="custom_port_dialog_submit">ပေါ့တ် သတ်မှတ်ရန်</string>
-    <string name="custom_port_dialog_title">စိတ်ကြိုက် WireGuard ပေါ့တ်</string>
     <string name="custom_port_dialog_valid_ranges">အကျုံးဝင်သည့် အပိုင်းအခြား- %1$s</string>
     <string name="custom_tunnel_host_resolution_error">စိတ်ကြိုက်ပြုလုပ်ထားသည့် Tunnel ၏ Host ကို ဖြေရှင်း၍ မရနိုင်ပါ။ သင့်ဆက်တင်ကို ပြောင်းကြည့်ပါ။</string>
     <string name="daita_info">%1$s (%2$s) သည် သင်၏ ကုဒ်ပြောင်းဝှက်ထားသော VPN ကူးလူးမှုတွင် ပက်တန်များကို ဝှက်ထားပါသည်။ သင့်ချိတ်ဆက်မှုကို တစ်စုံတစ်ယောက်က စောင့်ကြည့်နေပါက မည်သည့်ဝက်ဘ်ဆိုက်များ သင်ဝင်ရောက်နေသည်ကို ၎င်းတို့က ခွဲခြားဖော်ထုတ်ဖို့ရာ ပို၍ သိသိသာသာ ခက်ခဲသွားအောင် ၎င်းက ပြုလုပ်ပေးပါသည်။ ကွန်ရက် အနှောင့်အယှက်လျှပ်လိုင်းကို ဂရုတစိုက် ထည့်ပြီး ကွန်ရက် ပက်ကက်အားလုံးကို အရွယ်အစားတူညီအောင် ပြုလုပ်ခြင်းဖြင့် ပို၍ခက်ခဲသွားအောင် ဆောင်ရွက်ပါသည်။</string>

@@ -10,9 +10,10 @@ enum class FeatureIndicator {
     SERVER_IP_OVERRIDE,
     CUSTOM_MTU,
     DAITA,
+    SHADOWSOCKS,
     // Currently not supported
+    // DAITA_SMART_ROUTING
     // LOCKDOWN_MODE,
-    // SHADOWSOCKS,
     // MULTIHOP,
     // BRIDGE_MODE,
     // CUSTOM_MSS_FIX,

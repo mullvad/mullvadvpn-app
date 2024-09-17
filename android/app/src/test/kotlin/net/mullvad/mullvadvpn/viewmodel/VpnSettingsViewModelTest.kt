@@ -72,11 +72,11 @@ class VpnSettingsViewModelTest {
         runTest {
             val customPort = Port(5001)
             coEvery {
-                mockSettingsRepository.setCustomObfuscationPort(Constraint.Only(customPort))
+                mockSettingsRepository.setCustomUdp2TcpObfuscationPort(Constraint.Only(customPort))
             } returns Unit.right()
             viewModel.onObfuscationPortSelected(Constraint.Only(customPort))
             coVerify(exactly = 1) {
-                mockSettingsRepository.setCustomObfuscationPort(Constraint.Only(customPort))
+                mockSettingsRepository.setCustomUdp2TcpObfuscationPort(Constraint.Only(customPort))
             }
         }
 
@@ -122,6 +122,8 @@ class VpnSettingsViewModelTest {
             every { mockSettings.tunnelOptions } returns mockTunnelOptions
             every { mockTunnelOptions.wireguard } returns mockWireguardTunnelOptions
             every { mockSettings.relaySettings } returns mockk<RelaySettings>(relaxed = true)
+            every { mockSettings.relaySettings.relayConstraints.wireguardConstraints.port } returns
+                Constraint.Any
 
             viewModel.uiState.test {
                 assertEquals(defaultResistantState, awaitItem().quantumResistant)
@@ -134,7 +136,7 @@ class VpnSettingsViewModelTest {
     fun `when SettingsRepository emits Constraint Only then uiState should emit custom and selectedWireguardPort with port of Constraint`() =
         runTest {
             // Arrange
-            val expectedPort: Constraint<Port> = Constraint.Only(Port(99))
+            val expectedPort = Constraint.Only(Port(99))
             val mockSettings: Settings = mockk(relaxed = true)
             val mockRelaySettings: RelaySettings = mockk()
             val mockRelayConstraints: RelayConstraints = mockk()
@@ -159,7 +161,7 @@ class VpnSettingsViewModelTest {
             viewModel.uiState.test {
                 assertIs<Constraint.Any>(awaitItem().selectedWireguardPort)
                 mockSettingsUpdate.value = mockSettings
-                assertEquals(expectedPort, awaitItem().customWireguardPort)
+                assertEquals(expectedPort.value, awaitItem().customWireguardPort)
                 assertEquals(expectedPort, awaitItem().selectedWireguardPort)
             }
         }

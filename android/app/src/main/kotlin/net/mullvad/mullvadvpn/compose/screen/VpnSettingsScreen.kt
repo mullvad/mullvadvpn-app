@@ -45,7 +45,8 @@ import com.ramcosta.composedestinations.generated.destinations.MtuDestination
 import com.ramcosta.composedestinations.generated.destinations.ObfuscationInfoDestination
 import com.ramcosta.composedestinations.generated.destinations.QuantumResistanceInfoDestination
 import com.ramcosta.composedestinations.generated.destinations.ServerIpOverridesDestination
-import com.ramcosta.composedestinations.generated.destinations.UdpOverTcpPortInfoDestination
+import com.ramcosta.composedestinations.generated.destinations.ShadowsocksSettingsDestination
+import com.ramcosta.composedestinations.generated.destinations.Udp2TcpSettingsDestination
 import com.ramcosta.composedestinations.generated.destinations.WireguardCustomPortDestination
 import com.ramcosta.composedestinations.generated.destinations.WireguardPortInfoDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -64,13 +65,14 @@ import net.mullvad.mullvadvpn.compose.cell.MtuComposeCell
 import net.mullvad.mullvadvpn.compose.cell.MtuSubtitle
 import net.mullvad.mullvadvpn.compose.cell.NavigationComposeCell
 import net.mullvad.mullvadvpn.compose.cell.NormalSwitchComposeCell
+import net.mullvad.mullvadvpn.compose.cell.ObfuscationModeCell
 import net.mullvad.mullvadvpn.compose.cell.SelectableCell
 import net.mullvad.mullvadvpn.compose.cell.SwitchComposeSubtitleCell
 import net.mullvad.mullvadvpn.compose.communication.DnsDialogResult
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.component.textResource
-import net.mullvad.mullvadvpn.compose.dialog.WireguardCustomPortNavArgs
+import net.mullvad.mullvadvpn.compose.dialog.CustomPortNavArgs
 import net.mullvad.mullvadvpn.compose.dialog.info.WireguardPortInfoDialogArgument
 import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
@@ -81,29 +83,23 @@ import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_LAST_ITEM_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_QUANTUM_ITEM_OFF_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_QUANTUM_ITEM_ON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_TEST_TAG
-import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_UDP_OVER_TCP_PORT_ITEM_AUTOMATIC_TEST_TAG
-import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_UDP_OVER_TCP_PORT_ITEM_X_TEST_TAG
-import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_UDP_OVER_TCP_PORT_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_CUSTOM_PORT_NUMBER_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG
+import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_OBFUSCATION_TITLE_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
-import net.mullvad.mullvadvpn.constant.UDP2TCP_PRESET_PORTS
 import net.mullvad.mullvadvpn.constant.WIREGUARD_PRESET_PORTS
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Mtu
+import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.PortRange
 import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
-import net.mullvad.mullvadvpn.lib.model.SelectedObfuscation
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
-import net.mullvad.mullvadvpn.util.hasValue
-import net.mullvad.mullvadvpn.util.isCustom
-import net.mullvad.mullvadvpn.util.toPortOrNull
 import net.mullvad.mullvadvpn.viewmodel.CustomDnsItem
 import net.mullvad.mullvadvpn.viewmodel.VpnSettingsSideEffect
 import net.mullvad.mullvadvpn.viewmodel.VpnSettingsViewModel
@@ -134,7 +130,7 @@ private fun PreviewVpnSettings() {
             navigateToDns = { _, _ -> },
             onToggleDnsClick = {},
             onBackClick = {},
-            onSelectObfuscationSetting = {},
+            onSelectObfuscationMode = {},
             onSelectQuantumResistanceSetting = {},
             onWireguardPortSelected = {},
         )
@@ -221,8 +217,6 @@ fun VpnSettings(
             dropUnlessResumed { navigator.navigate(ObfuscationInfoDestination) },
         navigateToQuantumResistanceInfo =
             dropUnlessResumed { navigator.navigate(QuantumResistanceInfoDestination) },
-        navigateUdp2TcpInfo =
-            dropUnlessResumed { navigator.navigate(UdpOverTcpPortInfoDestination) },
         navigateToWireguardPortInfo =
             dropUnlessResumed { availablePortRanges: List<PortRange> ->
                 navigator.navigate(
@@ -255,19 +249,24 @@ fun VpnSettings(
             },
         navigateToWireguardPortDialog =
             dropUnlessResumed {
-                val args =
-                    WireguardCustomPortNavArgs(
-                        state.customWireguardPort?.toPortOrNull(),
-                        state.availablePortRanges,
+                navigator.navigate(
+                    WireguardCustomPortDestination(
+                        CustomPortNavArgs(
+                            customPort = state.customWireguardPort,
+                            allowedPortRanges = state.availablePortRanges,
+                        )
                     )
-                navigator.navigate(WireguardCustomPortDestination(args))
+                )
             },
         onToggleDnsClick = vm::onToggleCustomDns,
         onBackClick = dropUnlessResumed { navigator.navigateUp() },
-        onSelectObfuscationSetting = vm::onSelectObfuscationSetting,
+        onSelectObfuscationMode = vm::onSelectObfuscationMode,
         onSelectQuantumResistanceSetting = vm::onSelectQuantumResistanceSetting,
         onWireguardPortSelected = vm::onWireguardPortSelected,
-        onObfuscationPortSelected = vm::onObfuscationPortSelected,
+        navigateToShadowSocksSettings =
+            dropUnlessResumed { navigator.navigate(ShadowsocksSettingsDestination) },
+        navigateToUdp2TcpSettings =
+            dropUnlessResumed { navigator.navigate(Udp2TcpSettingsDestination) },
     )
 }
 
@@ -283,7 +282,6 @@ fun VpnSettingsScreen(
     navigateToMalwareInfo: () -> Unit = {},
     navigateToObfuscationInfo: () -> Unit = {},
     navigateToQuantumResistanceInfo: () -> Unit = {},
-    navigateUdp2TcpInfo: () -> Unit = {},
     navigateToWireguardPortInfo: (availablePortRanges: List<PortRange>) -> Unit = {},
     navigateToLocalNetworkSharingInfo: () -> Unit = {},
     navigateToDaitaInfo: () -> Unit = {},
@@ -303,13 +301,13 @@ fun VpnSettingsScreen(
     navigateToDns: (index: Int?, address: String?) -> Unit = { _, _ -> },
     onToggleDnsClick: (Boolean) -> Unit = {},
     onBackClick: () -> Unit = {},
-    onSelectObfuscationSetting: (selectedObfuscation: SelectedObfuscation) -> Unit = {},
+    onSelectObfuscationMode: (obfuscationMode: ObfuscationMode) -> Unit = {},
     onSelectQuantumResistanceSetting: (quantumResistant: QuantumResistantState) -> Unit = {},
     onWireguardPortSelected: (port: Constraint<Port>) -> Unit = {},
-    onObfuscationPortSelected: (port: Constraint<Port>) -> Unit = {},
+    navigateToShadowSocksSettings: () -> Unit = {},
+    navigateToUdp2TcpSettings: () -> Unit = {},
 ) {
     var expandContentBlockersState by rememberSaveable { mutableStateOf(false) }
-    var expandUdp2TcpPortSettings by rememberSaveable { mutableStateOf(false) }
     val biggerPadding = 54.dp
     val topPadding = 6.dp
 
@@ -551,9 +549,13 @@ fun VpnSettingsScreen(
                     SelectableCell(
                         title = port.toString(),
                         testTag =
-                            String.format(null, LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG, port),
-                        isSelected = state.selectedWireguardPort.hasValue(port),
-                        onCellClicked = { onWireguardPortSelected(Constraint.Only(Port(port))) },
+                            String.format(
+                                null,
+                                LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG,
+                                port.value,
+                            ),
+                        isSelected = state.selectedWireguardPort.getOrNull() == port,
+                        onCellClicked = { onWireguardPortSelected(Constraint.Only(port)) },
                     )
                 }
             }
@@ -561,11 +563,11 @@ fun VpnSettingsScreen(
             itemWithDivider {
                 CustomPortCell(
                     title = stringResource(id = R.string.wireguard_custon_port_title),
-                    isSelected = state.selectedWireguardPort.isCustom(),
-                    port = state.customWireguardPort?.toPortOrNull(),
+                    isSelected = state.isCustomWireguardPort,
+                    port = state.customWireguardPort,
                     onMainCellClicked = {
                         if (state.customWireguardPort != null) {
-                            onWireguardPortSelected(state.customWireguardPort)
+                            onWireguardPortSelected(Constraint.Only(state.customWireguardPort))
                         } else {
                             navigateToWireguardPortDialog()
                         }
@@ -582,70 +584,40 @@ fun VpnSettingsScreen(
                     title = stringResource(R.string.obfuscation_title),
                     onInfoClicked = navigateToObfuscationInfo,
                     onCellClicked = navigateToObfuscationInfo,
+                    testTag = LAZY_LIST_WIREGUARD_OBFUSCATION_TITLE_TEST_TAG,
                 )
             }
             itemWithDivider {
                 SelectableCell(
                     title = stringResource(id = R.string.automatic),
-                    isSelected = state.selectedObfuscation == SelectedObfuscation.Auto,
-                    onCellClicked = { onSelectObfuscationSetting(SelectedObfuscation.Auto) },
+                    isSelected = state.obfuscationMode == ObfuscationMode.Auto,
+                    onCellClicked = { onSelectObfuscationMode(ObfuscationMode.Auto) },
                 )
             }
             itemWithDivider {
-                SelectableCell(
-                    title = stringResource(id = R.string.obfuscation_on_udp_over_tcp),
-                    isSelected = state.selectedObfuscation == SelectedObfuscation.Udp2Tcp,
-                    onCellClicked = { onSelectObfuscationSetting(SelectedObfuscation.Udp2Tcp) },
+                ObfuscationModeCell(
+                    obfuscationMode = ObfuscationMode.Shadowsocks,
+                    isSelected = state.obfuscationMode == ObfuscationMode.Shadowsocks,
+                    port = state.selectedShadowsSocksObfuscationPort,
+                    onSelected = onSelectObfuscationMode,
+                    onNavigate = navigateToShadowSocksSettings,
+                )
+            }
+            itemWithDivider {
+                ObfuscationModeCell(
+                    obfuscationMode = ObfuscationMode.Udp2Tcp,
+                    isSelected = state.obfuscationMode == ObfuscationMode.Udp2Tcp,
+                    port = state.selectedUdp2TcpObfuscationPort,
+                    onSelected = onSelectObfuscationMode,
+                    onNavigate = navigateToUdp2TcpSettings,
                 )
             }
             itemWithDivider {
                 SelectableCell(
                     title = stringResource(id = R.string.off),
-                    isSelected = state.selectedObfuscation == SelectedObfuscation.Off,
-                    onCellClicked = { onSelectObfuscationSetting(SelectedObfuscation.Off) },
+                    isSelected = state.obfuscationMode == ObfuscationMode.Off,
+                    onCellClicked = { onSelectObfuscationMode(ObfuscationMode.Off) },
                 )
-            }
-
-            itemWithDivider {
-                ExpandableComposeCell(
-                    title = stringResource(R.string.udp_over_tcp_port_title),
-                    isExpanded = expandUdp2TcpPortSettings,
-                    isEnabled = state.selectedObfuscation != SelectedObfuscation.Off,
-                    onInfoClicked = navigateUdp2TcpInfo,
-                    onCellClicked = { expandUdp2TcpPortSettings = !expandUdp2TcpPortSettings },
-                    testTag = LAZY_LIST_UDP_OVER_TCP_PORT_TEST_TAG,
-                )
-            }
-
-            if (expandUdp2TcpPortSettings) {
-                itemWithDivider {
-                    SelectableCell(
-                        title = stringResource(id = R.string.automatic),
-                        isSelected = state.selectedObfuscationPort is Constraint.Any,
-                        isEnabled = state.selectObfuscationPortEnabled,
-                        onCellClicked = { onObfuscationPortSelected(Constraint.Any) },
-                        testTag = LAZY_LIST_UDP_OVER_TCP_PORT_ITEM_AUTOMATIC_TEST_TAG,
-                    )
-                }
-
-                UDP2TCP_PRESET_PORTS.forEach { port ->
-                    itemWithDivider {
-                        SelectableCell(
-                            title = port.toString(),
-                            isSelected = state.selectedObfuscationPort.hasValue(port),
-                            isEnabled = state.selectObfuscationPortEnabled,
-                            onCellClicked = {
-                                onObfuscationPortSelected(Constraint.Only(Port(port)))
-                            },
-                            testTag =
-                                String.format(
-                                    null,
-                                    LAZY_LIST_UDP_OVER_TCP_PORT_ITEM_X_TEST_TAG,
-                                    port,
-                                ),
-                        )
-                    }
-                }
             }
 
             itemWithDivider {
