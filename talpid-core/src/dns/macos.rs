@@ -360,7 +360,7 @@ impl super::DnsMonitorT for DnsMonitor {
     }
 
     fn set(&mut self, interface: &str, config: ResolvedDnsConfig) -> Result<()> {
-        let servers = config.addresses().to_owned();
+        let servers: Vec<_> = config.addresses().collect();
 
         let mut state = self.state.lock();
         state.apply_new_config(&self.store, interface, &servers)

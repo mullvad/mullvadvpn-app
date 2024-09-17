@@ -130,10 +130,8 @@ impl ResolvedDnsConfig {
     }
 
     /// Consume `self` and return a vector of all addresses
-    pub fn addresses(self) -> Vec<IpAddr> {
-        let mut v = self.tunnel_config;
-        v.extend(self.non_tunnel_config);
-        v
+    pub fn addresses(self) -> impl Iterator<Item = IpAddr> {
+        self.non_tunnel_config.into_iter().chain(self.tunnel_config)
     }
 }
 
