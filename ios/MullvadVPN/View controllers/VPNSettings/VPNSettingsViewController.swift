@@ -210,6 +210,7 @@ extension VPNSettingsViewController: VPNSettingsDataSourceDelegate {
         interactor.evaluateDaitaSettingsCompatibility(settings)
     }
 
+    // swiftlint:disable:next function_body_length
     func showPrompt(
         for item: VPNSettingsPromptAlertItem,
         onSave: @escaping () -> Void,
