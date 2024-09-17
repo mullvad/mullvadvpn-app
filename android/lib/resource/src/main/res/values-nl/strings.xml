@@ -73,10 +73,11 @@
     <string name="confirm_no_email">U staat op het punt om het probleemrapport te verzenden zonder een contactmethode op te geven. Voer een e-mailadres in als u een antwoord wenst op het rapport.</string>
     <string name="confirm_removal">Ja, apparaat afmelden</string>
     <string name="congrats">Gefeliciteerd!</string>
-    <string name="connect">Mijn verbinding beveiligen</string>
+    <string name="connect">Verbinden</string>
+    <string name="connected">Verbonden</string>
     <string name="connected_using_daita">%1$s via %2$s</string>
-    <string name="connecting">Bezig met verbinden</string>
     <string name="connecting_to_daemon">Verbinden met Mullvad-systeemdienst...</string>
+    <string name="connection_details_in">In</string>
     <string name="continue_login">Doorgaan met aanmelden</string>
     <string name="copied_logs_to_clipboard">Logs gekopieerd naar klembord</string>
     <string name="copied_mullvad_account_number">Mullvad-accountnummer gekopieerd naar klembord</string>
@@ -87,7 +88,6 @@
     <string name="create_new_list">Nieuwe lijst maken</string>
     <string name="created_x">Gemaakt: %1$s</string>
     <string name="creating_new_account">Account aanmaken...</string>
-    <string name="creating_secure_connection">BEVEILIGDE VERBINDING AANMAKEN</string>
     <string name="critical_error">Kritieke fout (uw aandacht is vereist)</string>
     <string name="current_method">Huidig: %1$s</string>
     <string name="custom_dns_disable_mode_subtitle">Schakel alle &lt;b&gt;%1$s&lt;/b&gt; hierboven uit om deze instelling te activeren.</string>
@@ -117,12 +117,11 @@
     <string name="discard">Verwerpen</string>
     <string name="discard_changes">Wijzigingen verwerpen?</string>
     <string name="disconnect">Verbinding verbreken</string>
-    <string name="disconnecting">Verbinding wordt verbroken</string>
+    <string name="disconnected">Verbinding verbroken</string>
     <string name="dismiss">Negeren</string>
     <string name="dns_content_blockers_custom_dns_warning">Let op: deze instelling kan niet worden gebruikt in combinatie met &lt;b&gt;Aangepaste DNS-server gebruiken&lt;/b&gt;.</string>
     <string name="dns_content_blockers_info">Als deze functie is ingeschakeld, maakt het apparaat geen contact meer met bepaalde domeinen of websites waarvan bekend is dat ze advertenties, malware, trackers en meer verspreiden.</string>
     <string name="dns_content_blockers_subtitle">Schakel &lt;b&gt;%1$s&lt;/b&gt; hieronder uit om deze instellingen te activeren.</string>
-    <string name="dns_content_blockers_title">DNS-contentblokkeringen</string>
     <string name="dns_content_blockers_warning">Dit kan problemen veroorzaken met bepaalde websites, diensten en apps.</string>
     <string name="dont_have_an_account">Hebt u geen accountnummer?</string>
     <string name="duplicate_address_warning">Dit adres is al ingevoerd.</string>
@@ -151,6 +150,11 @@
     <string name="failed_to_set_current_test_error">Instellen als huidige mislukt. API niet bereikbaar</string>
     <string name="failed_to_set_current_unknown_error">Instellen als huidige mislukt. Reden onbekend</string>
     <string name="faqs_and_guides">Veelgestelde vragen en gidsen</string>
+    <string name="feature_custom_mtu">MTU</string>
+    <string name="feature_dns_content_blockers">DNS-contentblokkeringen</string>
+    <string name="feature_lan_sharing">Delen op lokaal netwerk</string>
+    <string name="feature_server_ip_override">Overschrijving van server-IP-adressen</string>
+    <string name="feature_udp_2_tcp">Obfuscatie</string>
     <string name="filter">Filter</string>
     <string name="filtered">Gefilterd:</string>
     <string name="foreground_notification_channel_description">Toont de huidige status van de VPN-tunnel</string>
@@ -165,7 +169,6 @@
     <string name="import_overrides_bottom_sheet_override_warning">Het importeren van nieuwe overschrijvingen kan sommige eerder geïmporteerde overschrijvingen vervangen.</string>
     <string name="import_overrides_import">Importeren</string>
     <string name="import_overrides_text_title">Importeren via tekst</string>
-    <string name="in_address">In</string>
     <string name="invalid_dns_servers">Aangepaste DNS-serveradressen %1$s zijn ongeldig</string>
     <string name="invalid_voucher">Vouchercode is ongeldig.</string>
     <string name="ipv6_unavailable">Kon IPv6 niet configureren. Schakel het uit in de app of schakel het in op uw apparaat.</string>
@@ -176,7 +179,6 @@
     <string name="list_name">Lijstnaam</string>
     <string name="loading_connecting">Verbinden ...</string>
     <string name="loading_verifying">Aankoop controleren ...</string>
-    <string name="local_network_sharing">Delen op lokaal netwerk</string>
     <string name="local_network_sharing_additional_info">De functie doet dit door netwerkcommunicatie buiten de tunnel naar lokale multicast- en broadcastbereiken toe te staan, alsmede van en naar deze private IP-adresbereiken:</string>
     <string name="local_network_sharing_info">Deze functie geeft toegang tot andere apparaten op het lokale netwerk, bijvoorbeeld voor delen, afdrukken, streamen en dergelijke</string>
     <string name="location_added">%1$s (toegevoegd)</string>
@@ -247,12 +249,9 @@
     <string name="privacy_policy_label">Privacybeleid</string>
     <string name="problem_report_description">Het logboekbestand van uw app wordt aan dit bericht gekoppeld zodat we u beter kunnen helpen. Uw gegevens blijven veilig en privé, omdat ze worden geanonimiseerd voordat ze over een versleuteld kanaal worden verzonden.</string>
     <string name="providers">Aanbieders</string>
-    <string name="quantum_creating_secure_connection">BEVEILIGDE QUANTUMVERBINDING AANMAKEN</string>
     <string name="quantum_resistant_info_first_paragaph">Deze eigenschap maakt de WireGuard-tunnel bestand tegen mogelijke aanvallen met kwantumcomputers.</string>
     <string name="quantum_resistant_info_second_paragaph">Het doet dit door een extra sleuteluitwisseling uit te voeren met een kwantumveilig algoritme en het resultaat te mengen met de reguliere versleuteling van WireGuard. Deze extra stap gebruikt ongeveer 500 kiB aan verkeer elke keer dat een nieuwe tunnel wordt opgezet.</string>
     <string name="quantum_resistant_title">Kwantumbestendige tunnel</string>
-    <string name="quantum_secure_connection">QUANTUMVEILIGE VERBINDING</string>
-    <string name="reconnecting">Opnieuw verbinden</string>
     <string name="redeem">Inwisselen</string>
     <string name="redeem_voucher">Voucher inwisselen</string>
     <string name="remove_button">Verwijderen</string>
@@ -262,8 +261,6 @@
     <string name="reset_to_default_button">Standaardwaarde herstellen</string>
     <string name="save">Opslaan</string>
     <string name="search_placeholder">Zoeken naar...</string>
-    <string name="secure_connection">BEVEILIGDE VERBINDING</string>
-    <string name="secured">Beveiligd</string>
     <string name="select_location">Locatie selecteren</string>
     <string name="select_location_description">Wanneer u verbonden bent, wordt uw daadwerkelijke locatie gemaskeerd met een privé en veilige locatie in de geselecteerde regio.</string>
     <string name="select_location_empty_text_first_row">Geen resultaten voor &lt;b&gt;%1$s&lt;/b&gt;.</string>
@@ -275,7 +272,6 @@
     <string name="sent_contact">Indien nodig nemen we u contact op via %1$s</string>
     <string name="sent_thanks">Bedankt!</string>
     <string name="server">Server</string>
-    <string name="server_ip_overrides">Overschrijving van server-IP-adressen</string>
     <string name="server_ip_overrides_active">Overschrijvingen actief</string>
     <string name="server_ip_overrides_import_by">Nieuwe overschrijvingen importeren vanuit</string>
     <string name="server_ip_overrides_import_by_file">Bestand</string>
@@ -328,9 +324,6 @@
     <string name="udp_over_tcp_port_info">Met welke TCP-poort moet het UDP-over-TCP-obfuscatieprotocol verbinding maken op de VPN-server.</string>
     <string name="udp_over_tcp_port_title">UDP-over-TCP-poort</string>
     <string name="undo">Ongedaan maken</string>
-    <string name="unsecured">Niet beveiligd</string>
-    <string name="unsecured_connection">NIET-BEVEILIGDE VERBINDING</string>
-    <string name="unsecured_vpn_permission_error">Onbeveiligd (geen VPN-toestemming)</string>
     <string name="unsupported_version">NIET-ONDERSTEUNDE VERSIE</string>
     <string name="unsupported_version_description">Uw privacy kan risico lopen met deze niet-ondersteunde appversie. Werk de app nu bij.</string>
     <string name="unsupported_version_without_upgrade">U gebruikt een niet-ondersteunde versie van de app.</string>

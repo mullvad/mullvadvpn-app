@@ -73,10 +73,11 @@
     <string name="confirm_no_email">คุณกำลังจะส่งรายงานปัญหา โดยไม่มีการระบุวิธีการติดต่อกลับให้กับเรา และคุณจำเป็นต้องป้อนที่อยู่อีเมลของคุณ หากคุณอยากให้เราตอบกลับการรายงานของคุณ</string>
     <string name="confirm_removal">ใช่ นำอุปกรณ์ออกจากระบบ</string>
     <string name="congrats">ยินดีด้วย!</string>
-    <string name="connect">รักษาความปลอดภัยในการเชื่อมต่อ</string>
+    <string name="connect">เชื่อมต่อ</string>
+    <string name="connected">เชื่อมต่อแล้ว</string>
     <string name="connected_using_daita">%1$s กำลังใช้ %2$s</string>
-    <string name="connecting">กำลังเชื่อมต่อ</string>
     <string name="connecting_to_daemon">กำลังเชื่อมต่อบริการของระบบ Mullvad...</string>
+    <string name="connection_details_in">เข้า</string>
     <string name="continue_login">เข้าสู่ระบบต่อ</string>
     <string name="copied_logs_to_clipboard">คัดลอกบันทึกล็อกไปยังคลิปบอร์ดแล้ว</string>
     <string name="copied_mullvad_account_number">คัดลอกหมายเลขบัญชี Mullvad ไปยังคลิปบอร์ดแล้ว</string>
@@ -87,7 +88,6 @@
     <string name="create_new_list">สร้างรายการใหม่</string>
     <string name="created_x">วันที่สร้าง: %1$s</string>
     <string name="creating_new_account">กำลังสร้างบัญชี...</string>
-    <string name="creating_secure_connection">กำลังสร้างการเชื่อมต่อที่ปลอดภัย</string>
     <string name="critical_error">ข้อผิดพลาดร้ายแรง (คุณจำเป็นต้องตรวจสอบ)</string>
     <string name="current_method">ปัจจุบัน: %1$s</string>
     <string name="custom_dns_disable_mode_subtitle">ปิดใช้งาน &lt;b&gt;%1$s&lt;/b&gt; ด้านบนทั้งหมด เพื่อเปิดใช้การตั้งค่านี้</string>
@@ -117,12 +117,11 @@
     <string name="discard">ละทิ้ง</string>
     <string name="discard_changes">ละทิ้งการเปลี่ยนแปลงหรือไม่</string>
     <string name="disconnect">ตัดการเชื่อมต่อ</string>
-    <string name="disconnecting">กำลังตัดการเชื่อมต่อ</string>
+    <string name="disconnected">ตัดการเชื่อมต่อแล้ว</string>
     <string name="dismiss">ละทิ้ง</string>
     <string name="dns_content_blockers_custom_dns_warning">โปรดทราบ: การตั้งค่านี้ไม่สามารถใช้ร่วมกับ&lt;b&gt;การใช้เซิร์ฟเวอร์ DNS แบบกำหนดเอง&lt;/b&gt;ได้</string>
     <string name="dns_content_blockers_info">ในขณะที่เปิดใช้งานคุณลักษณะนี้ คุณลักษณะนี้จะหยุดไม่ให้อุปกรณ์ติดต่อโดเมน หรือเว็บไซต์ใดๆ ที่เป็นที่ทราบกันว่า ใช้ในการเผยแพร่โฆษณา มัลแวร์ ตัวติดตาม และอื่นๆ</string>
     <string name="dns_content_blockers_subtitle">ปิดใช้งาน &lt;b&gt;%1$s&lt;/b&gt; ด้านล่าง เพื่อเปิดใช้การตั้งค่าเหล่านี้</string>
-    <string name="dns_content_blockers_title">ตัวบล็อกเนื้อหา DNS</string>
     <string name="dns_content_blockers_warning">นี่อาจก่อให้เกิดปัญหากับบางเว็บไซต์ บริการ และแอปได้</string>
     <string name="dont_have_an_account">ยังไม่มีหมายเลขบัญชีใช่ไหม</string>
     <string name="duplicate_address_warning">ที่อยู่นี้ได้รับการป้อนไปแล้ว</string>
@@ -151,6 +150,11 @@
     <string name="failed_to_set_current_test_error">ไม่สามารถตั้งค่าเป็นปัจจุบันได้ - ไม่สามารถเข้าถึง API ได้</string>
     <string name="failed_to_set_current_unknown_error">ไม่สามารถตั้งค่าเป็นปัจจุบันได้ - ไม่ทราบสาเหตุ</string>
     <string name="faqs_and_guides">คำถามที่พบบ่อยและคำแนะนำ</string>
+    <string name="feature_custom_mtu">MTU</string>
+    <string name="feature_dns_content_blockers">ตัวบล็อกเนื้อหา DNS</string>
+    <string name="feature_lan_sharing">การแชร์ในเครือข่ายท้องถิ่น</string>
+    <string name="feature_server_ip_override">โอเวอร์ไรด์ IP เซิร์ฟเวอร์</string>
+    <string name="feature_udp_2_tcp">การทำให้ข้อมูลยุ่งเหยิง</string>
     <string name="filter">ตัวกรอง</string>
     <string name="filtered">กรอง:</string>
     <string name="foreground_notification_channel_description">แสดงสถานะอุโมงค์ VPN ในปัจจุบัน</string>
@@ -165,7 +169,6 @@
     <string name="import_overrides_bottom_sheet_override_warning">การนำเข้าโอเวอร์ไรด์ใหม่ อาจแทนที่โอเวอร์ไรด์ที่นำเข้าก่อนหน้านี้</string>
     <string name="import_overrides_import">นำเข้า</string>
     <string name="import_overrides_text_title">นำเข้าผ่านข้อความ</string>
-    <string name="in_address">เข้า</string>
     <string name="invalid_dns_servers">ที่อยู่เซิร์ฟเวอร์ DNS %1$s ที่กำหนดเองไม่ถูกต้อง</string>
     <string name="invalid_voucher">รหัสบัตรกำนัลไม่ถูกต้อง</string>
     <string name="ipv6_unavailable">ไม่สามารถกำหนดค่า IPv6 ได้ โปรดปิดใช้งานรายการนี้ในแอป หรือเปิดใช้งานบนอุปกรณ์ของคุณ</string>
@@ -176,7 +179,6 @@
     <string name="list_name">ชื่อรายการ</string>
     <string name="loading_connecting">กำลังเชื่อมต่อ...</string>
     <string name="loading_verifying">กำลังตรวจสอบยืนยันการซื้อ...</string>
-    <string name="local_network_sharing">การแชร์ในเครือข่ายท้องถิ่น</string>
     <string name="local_network_sharing_additional_info">ทำเช่นนี้ได้โดยการอนุญาตให้มีการสื่อสารเครือข่ายนอกอุโมงค์ ไปยังมัลติคาสต์และช่วงการเผยแพร่ในท้องถิ่น รวมถึงการสื่อสารไปมาในช่วง IP ส่วนตัวเหล่านี้:</string>
     <string name="local_network_sharing_info">คุณลักษณะนี้จะช่วยให้สามารถเข้าถึงอุปกรณ์อื่นๆ บนเครือข่ายท้องถิ่น เช่น การแชร์ การพิมพ์ การสตรีม ฯลฯ</string>
     <string name="location_added">%1$s (เพิ่มแล้ว)</string>
@@ -247,12 +249,9 @@
     <string name="privacy_policy_label">นโยบายความเป็นส่วนตัว</string>
     <string name="problem_report_description">ไฟล์บันทึกล็อกของแอปของคุณจะถูกแนบไปกับข้อความนี้ เพื่อที่เราจะช่วยเหลือคุณได้อย่างมีประสิทธิภาพมากขึ้น ข้อมูลของคุณจะยังคงมีความปลอดภัยและเป็นส่วนตัว เนื่องจากจะไม่มีการระบุตัวตนก่อนส่งข้อมูลผ่านช่องทางที่มีการเข้ารหัส</string>
     <string name="providers">ผู้ให้บริการ</string>
-    <string name="quantum_creating_secure_connection">กำลังสร้างการเชื่อมต่อควอนตัมที่ปลอดภัย</string>
     <string name="quantum_resistant_info_first_paragaph">คุณลักษณะนี้จะช่วยให้ช่องทาง WireGuard สามารถสกัดกั้นการโจมตีที่อาจมาจากคอมพิวเตอร์ควอนตัมได้</string>
     <string name="quantum_resistant_info_second_paragaph">ระบบจะดำเนินการสิ่งนี้ผ่านการแลกเปลี่ยนคีย์เพิ่มเติม โดยการใช้อัลกอริทึมแบบควอนตัมที่ปลอดภัย และผสมผลลัพธ์เข้ากับการเข้ารหัสตามปกติของ WireGuard และขั้นตอนพิเศษนี้ใช้การรับส่งข้อมูลประมาณ 500 kiB ในทุกครั้งที่สร้างช่องทางใหม่</string>
     <string name="quantum_resistant_title">ช่องทางการสกัดกั้นควอนตัม</string>
-    <string name="quantum_secure_connection">การเชื่อมต่อควอนตัมที่ปลอดภัย</string>
-    <string name="reconnecting">กำลังเชื่อมต่อใหม่</string>
     <string name="redeem">แลกรับ</string>
     <string name="redeem_voucher">แลกบัตรกำนัล</string>
     <string name="remove_button">ลบ</string>
@@ -262,8 +261,6 @@
     <string name="reset_to_default_button">รีเซ็ตเป็นค่าเริ่มต้น</string>
     <string name="save">บันทึก</string>
     <string name="search_placeholder">ค้นหา…</string>
-    <string name="secure_connection">การเชื่อมต่อที่ปลอดภัย</string>
-    <string name="secured">ปลอดภัย</string>
     <string name="select_location">เลือกตำแหน่งที่ตั้ง</string>
     <string name="select_location_description">ในขณะที่เชื่อมต่อ ตำแหน่งที่ตั้งจริงของคุณจะถูกปิดบัง ด้วยตำแหน่งที่ตั้งที่เป็นส่วนตัวและปลอดภัย ในภูมิภาคที่เลือก</string>
     <string name="select_location_empty_text_first_row">ไม่มีผลลัพธ์สำหรับ &lt;b&gt;%1$s&lt;/b&gt;</string>
@@ -275,7 +272,6 @@
     <string name="sent_contact">เราจะติดต่อคุณไปทาง %1$s ในกรณีจำเป็น</string>
     <string name="sent_thanks">ขอบคุณ!</string>
     <string name="server">เซิร์ฟเวอร์</string>
-    <string name="server_ip_overrides">โอเวอร์ไรด์ IP เซิร์ฟเวอร์</string>
     <string name="server_ip_overrides_active">เปิดใช้โอเวอร์ไรด์อยู่</string>
     <string name="server_ip_overrides_import_by">นำเข้าโอเวอร์ไรด์ใหม่โดยใช้</string>
     <string name="server_ip_overrides_import_by_file">ไฟล์</string>
@@ -328,9 +324,6 @@
     <string name="udp_over_tcp_port_info">พอร์ต TCP ใดที่โพรโทคอลการทำให้ข้อมูลยุ่งเหยิง UDP-ผ่าน-TCP ควรเชื่อมต่อบนเซิร์ฟเวอร์ VPN</string>
     <string name="udp_over_tcp_port_title">พอร์ต UDP-ผ่าน-TCP</string>
     <string name="undo">เลิกทำ</string>
-    <string name="unsecured">ไม่ปลอดภัย</string>
-    <string name="unsecured_connection">การเชื่อมต่อที่ไม่ปลอดภัย</string>
-    <string name="unsecured_vpn_permission_error">ไม่ปลอดภัย (ไม่มีสิทธิ์ VPN)</string>
     <string name="unsupported_version">เวอร์ชันที่ไม่รองรับ</string>
     <string name="unsupported_version_description">ความเป็นส่วนตัวของคุณอาจมีความเสี่ยง ในขณะที่ใช้งานเวอร์ชันแอปที่ไม่ได้รับการสนับสนุนนี้ โปรดอัปเดตตอนนี้เลย</string>
     <string name="unsupported_version_without_upgrade">คุณกำลังใช้งานเวอร์ชันแอปที่ไม่ได้รับการสนับสนุน</string>

@@ -2189,6 +2189,9 @@ msgstr ""
 msgid "%s custom port"
 msgstr ""
 
+msgid "%s more..."
+msgstr ""
+
 msgid "%s using %s"
 msgstr ""
 
@@ -2321,6 +2324,9 @@ msgstr ""
 msgid "Custom DNS server addresses %s are invalid"
 msgstr ""
 
+msgid "DAITA"
+msgstr ""
+
 msgid "DNS settings might not go into effect immediately"
 msgstr ""
 
@@ -2340,6 +2346,12 @@ msgid "Discard"
 msgstr ""
 
 msgid "Discard changes?"
+msgstr ""
+
+msgid "Disconnected (No VPN permission)"
+msgstr ""
+
+msgid "Disconnecting..."
 msgstr ""
 
 msgid "Dismiss"
@@ -2456,6 +2468,12 @@ msgstr ""
 msgid "On (UDP-over-TCP)"
 msgstr ""
 
+msgid "Out Ipv4"
+msgstr ""
+
+msgid "Out Ipv6"
+msgstr ""
+
 msgid "Overrides active"
 msgstr ""
 
@@ -2492,6 +2510,9 @@ msgstr ""
 msgid "Privacy policy"
 msgstr ""
 
+msgid "Reconnecting..."
+msgstr ""
+
 msgid "Recursion limit"
 msgstr ""
 
@@ -2516,12 +2537,6 @@ msgstr ""
 msgid "Reset to default"
 msgstr ""
 
-msgid "Secure my connection"
-msgstr ""
-
-msgid "Secured"
-msgstr ""
-
 msgid "Set WireGuard MTU value. Valid range: %d - %d."
 msgstr ""
 
@@ -2535,6 +2550,9 @@ msgid "Shows current VPN tunnel status"
 msgstr ""
 
 msgid "Shows reminders when the account time is about to expire"
+msgstr ""
+
+msgid "Split tunneling"
 msgstr ""
 
 msgid "Submit"
@@ -2601,12 +2619,6 @@ msgid "Undo"
 msgstr ""
 
 msgid "Unknown or prohibited key \"%s\""
-msgstr ""
-
-msgid "Unsecured"
-msgstr ""
-
-msgid "Unsecured (No VPN permission)"
 msgstr ""
 
 msgid "Update DNS server"
