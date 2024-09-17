@@ -23,3 +23,9 @@ reason = "This package is only used to match paths from either us or trusted lib
 id = "CVE-2024-4067" # GHSA-952p-6rrq-rcjv
 ignoreUntil = 2024-11-23
 reason = "This is just a dev dependency, and we don't have untrusted input to micromatch there"
+
+# node-gettext: Prototype Pullution via the addTranslations function
+[[IgnoredVulns]]
+id = "CVE-2024-4067" # GHSA-g974-hxvm-x689
+ignoreUntil = 2024-10-17
+reason = "There is no fix yet, in the meantime we'll have to verify translations thoroughly"
