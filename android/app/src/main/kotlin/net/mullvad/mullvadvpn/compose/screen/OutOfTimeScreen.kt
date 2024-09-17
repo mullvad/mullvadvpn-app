@@ -64,7 +64,7 @@ import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.viewmodel.OutOfTimeViewModel
 import org.koin.androidx.compose.koinViewModel
 
-@Preview
+@Preview("Disconnected|Connecting|Error")
 @Composable
 private fun PreviewOutOfTimeScreen(
     @PreviewParameter(OutOfTimeScreenPreviewParameterProvider::class) state: OutOfTimeUiState

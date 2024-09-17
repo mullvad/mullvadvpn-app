@@ -27,6 +27,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
@@ -53,6 +54,7 @@ import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.extensions.createOpenAccountPageHook
 import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
+import net.mullvad.mullvadvpn.compose.preview.WelcomeScreenUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.compose.state.WelcomeUiState
 import net.mullvad.mullvadvpn.compose.transitions.HomeTransition
@@ -60,10 +62,7 @@ import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.createCopyToClipboardHandle
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.common.util.groupWithSpaces
-import net.mullvad.mullvadvpn.lib.model.AccountNumber
-import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
-import net.mullvad.mullvadvpn.lib.payment.model.ProductPrice
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
@@ -72,21 +71,12 @@ import org.koin.androidx.compose.koinViewModel
 
 @Preview
 @Composable
-private fun PreviewWelcomeScreen() {
+private fun PreviewWelcomeScreen(
+    @PreviewParameter(WelcomeScreenUiStatePreviewParameterProvider::class) state: WelcomeUiState
+) {
     AppTheme {
         WelcomeScreen(
-            state =
-                WelcomeUiState(
-                    accountNumber = AccountNumber("4444555566667777"),
-                    deviceName = "Happy Mole",
-                    billingPaymentState =
-                        PaymentState.PaymentAvailable(
-                            products =
-                                listOf(
-                                    PaymentProduct(ProductId("product"), ProductPrice("$44"), null)
-                                )
-                        ),
-                ),
+            state = state,
             onSitePaymentClick = {},
             onRedeemVoucherClick = {},
             onSettingsClick = {},

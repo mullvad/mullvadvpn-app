@@ -7,7 +7,7 @@ import com.ramcosta.composedestinations.generated.destinations.EditCustomListDes
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import net.mullvad.mullvadvpn.compose.state.EditCustomListState
+import net.mullvad.mullvadvpn.compose.state.EditCustomListUiState
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 
@@ -24,12 +24,16 @@ class EditCustomListViewModel(
                 customLists
                     ?.find { it.id == customListId }
                     ?.let {
-                        EditCustomListState.Content(
+                        EditCustomListUiState.Content(
                             id = it.id,
                             name = it.name,
                             locations = it.locations,
                         )
-                    } ?: EditCustomListState.NotFound
+                    } ?: EditCustomListUiState.NotFound
             }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), EditCustomListState.Loading)
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(),
+                EditCustomListUiState.Loading,
+            )
 }

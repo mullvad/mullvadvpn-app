@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
@@ -40,6 +41,7 @@ import net.mullvad.mullvadvpn.compose.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.constant.CommonContentKey
 import net.mullvad.mullvadvpn.compose.constant.ContentType
+import net.mullvad.mullvadvpn.compose.preview.CustomListLocationUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.test.SAVE_BUTTON_TEST_TAG
@@ -48,16 +50,20 @@ import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
+import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.viewmodel.CustomListLocationsSideEffect
 import net.mullvad.mullvadvpn.viewmodel.CustomListLocationsViewModel
 import org.koin.androidx.compose.koinViewModel
 
+@Preview("Content|Empty|Loading")
 @Composable
-@Preview
-private fun PreviewCustomListLocationScreen() {
-    //    AppTheme { CustomListLocationsScreen(state = CustomListLocationsUiState.Content.Data()) }
+private fun PreviewCustomListLocationScreen(
+    @PreviewParameter(CustomListLocationUiStatePreviewParameterProvider::class)
+    state: CustomListLocationsUiState
+) {
+    AppTheme { CustomListLocationsScreen(state = state) }
 }
 
 data class CustomListLocationsNavArgs(val customListId: CustomListId, val newList: Boolean)

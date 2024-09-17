@@ -10,7 +10,7 @@ import io.mockk.verify
 import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.data.DUMMY_CUSTOM_LISTS
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
-import net.mullvad.mullvadvpn.compose.state.EditCustomListState
+import net.mullvad.mullvadvpn.compose.state.EditCustomListUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.test.DELETE_DROPDOWN_MENU_ITEM_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.TOP_BAR_DROPDOWN_BUTTON_TEST_TAG
@@ -33,7 +33,7 @@ class EditCustomListScreenTest {
     fun givenLoadingStateShouldShowLoadingSpinner() =
         composeExtension.use {
             // Arrange
-            setContentWithTheme { EditCustomListScreen(state = EditCustomListState.Loading) }
+            setContentWithTheme { EditCustomListScreen(state = EditCustomListUiState.Loading) }
 
             // Assert
             onNodeWithTag(CIRCULAR_PROGRESS_INDICATOR).assertExists()
@@ -43,7 +43,7 @@ class EditCustomListScreenTest {
     fun givenNotFoundStateShouldShowNotFound() =
         composeExtension.use {
             // Arrange
-            setContentWithTheme { EditCustomListScreen(state = EditCustomListState.NotFound) }
+            setContentWithTheme { EditCustomListScreen(state = EditCustomListUiState.NotFound) }
 
             // Assert
             onNodeWithText(NOT_FOUND_TEXT).assertExists()
@@ -57,7 +57,7 @@ class EditCustomListScreenTest {
             setContentWithTheme {
                 EditCustomListScreen(
                     state =
-                        EditCustomListState.Content(
+                        EditCustomListUiState.Content(
                             id = customList.id,
                             name = customList.name,
                             locations = customList.locations,
@@ -77,7 +77,7 @@ class EditCustomListScreenTest {
             setContentWithTheme {
                 EditCustomListScreen(
                     state =
-                        EditCustomListState.Content(
+                        EditCustomListUiState.Content(
                             id = customList.id,
                             name = customList.name,
                             locations = customList.locations,
@@ -98,7 +98,7 @@ class EditCustomListScreenTest {
             setContentWithTheme {
                 EditCustomListScreen(
                     state =
-                        EditCustomListState.Content(
+                        EditCustomListUiState.Content(
                             id = customList.id,
                             name = customList.name,
                             locations = customList.locations,
@@ -124,7 +124,7 @@ class EditCustomListScreenTest {
             setContentWithTheme {
                 EditCustomListScreen(
                     state =
-                        EditCustomListState.Content(
+                        EditCustomListUiState.Content(
                             id = customList.id,
                             name = customList.name,
                             locations = customList.locations,
@@ -149,7 +149,7 @@ class EditCustomListScreenTest {
             setContentWithTheme {
                 EditCustomListScreen(
                     state =
-                        EditCustomListState.Content(
+                        EditCustomListUiState.Content(
                             id = customList.id,
                             name = customList.name,
                             locations = customList.locations,

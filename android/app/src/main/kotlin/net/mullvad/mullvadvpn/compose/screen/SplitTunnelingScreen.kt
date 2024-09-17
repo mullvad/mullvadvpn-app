@@ -22,6 +22,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
@@ -42,6 +43,7 @@ import net.mullvad.mullvadvpn.compose.constant.ContentType
 import net.mullvad.mullvadvpn.compose.constant.SplitTunnelingContentKey
 import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
 import net.mullvad.mullvadvpn.compose.extensions.itemsIndexedWithDivider
+import net.mullvad.mullvadvpn.compose.preview.SplitTunnelingUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.SplitTunnelingUiState
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -52,39 +54,13 @@ import net.mullvad.mullvadvpn.util.getApplicationIconBitmapOrNull
 import net.mullvad.mullvadvpn.viewmodel.SplitTunnelingViewModel
 import org.koin.androidx.compose.koinViewModel
 
-@Preview
+@Preview("ShowAppList|Loading")
 @Composable
-private fun PreviewSplitTunnelingScreen() {
-    AppTheme {
-        SplitTunnelingScreen(
-            state =
-                SplitTunnelingUiState.ShowAppList(
-                    enabled = true,
-                    excludedApps =
-                        listOf(
-                            AppData(
-                                packageName = "my.package.a",
-                                name = "TitleA",
-                                iconRes = R.drawable.icon_alert,
-                            ),
-                            AppData(
-                                packageName = "my.package.b",
-                                name = "TitleB",
-                                iconRes = R.drawable.icon_chevron,
-                            ),
-                        ),
-                    includedApps =
-                        listOf(
-                            AppData(
-                                packageName = "my.package.c",
-                                name = "TitleC",
-                                iconRes = R.drawable.icon_alert,
-                            )
-                        ),
-                    showSystemApps = true,
-                )
-        )
-    }
+private fun PreviewSplitTunnelingScreen(
+    @PreviewParameter(SplitTunnelingUiStatePreviewParameterProvider::class)
+    state: SplitTunnelingUiState
+) {
+    AppTheme { SplitTunnelingScreen(state = state) }
 }
 
 @Destination<RootGraph>(style = SlideInFromRightTransition::class)

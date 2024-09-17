@@ -3,7 +3,7 @@ package net.mullvad.mullvadvpn.compose.state
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.Provider
 
-data class RelayFilterState(
+data class RelayFilterUiState(
     val selectedOwnership: Ownership? = null,
     val allProviders: List<Provider> = emptyList(),
     val selectedProviders: List<Provider> = allProviders,

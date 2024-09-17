@@ -39,6 +39,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
@@ -59,6 +60,7 @@ import net.mullvad.mullvadvpn.compose.component.MullvadModalBottomSheet
 import net.mullvad.mullvadvpn.compose.component.MullvadSnackbar
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
+import net.mullvad.mullvadvpn.compose.preview.ServerIpOverridesUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.test.SERVER_IP_OVERRIDES_IMPORT_BY_FILE_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.SERVER_IP_OVERRIDES_IMPORT_BY_TEXT_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.SERVER_IP_OVERRIDE_IMPORT_TEST_TAG
@@ -74,16 +76,19 @@ import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDisabled
 import net.mullvad.mullvadvpn.viewmodel.ServerIpOverridesUiSideEffect
+import net.mullvad.mullvadvpn.viewmodel.ServerIpOverridesUiState
 import net.mullvad.mullvadvpn.viewmodel.ServerIpOverridesViewModel
-import net.mullvad.mullvadvpn.viewmodel.ServerIpOverridesViewState
 import org.koin.androidx.compose.koinViewModel
 
-@Preview
+@Preview("Loaded.Active|Loaded.Inactive|Loading")
 @Composable
-private fun PreviewServerIpOverridesScreen() {
+private fun PreviewServerIpOverridesScreen(
+    @PreviewParameter(ServerIpOverridesUiStatePreviewParameterProvider::class)
+    state: ServerIpOverridesUiState
+) {
     AppTheme {
         ServerIpOverridesScreen(
-            ServerIpOverridesViewState.Loaded(false),
+            state = state,
             onBackClick = {},
             onInfoClick = {},
             onResetOverridesClick = {},
@@ -158,7 +163,7 @@ fun ServerIpOverrides(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ServerIpOverridesScreen(
-    state: ServerIpOverridesViewState,
+    state: ServerIpOverridesUiState,
     onBackClick: () -> Unit,
     onInfoClick: () -> Unit,
     onResetOverridesClick: () -> Unit,

@@ -57,15 +57,15 @@ class ServerIpOverridesViewModelTest {
 
     @Test
     fun `ensure state is loading by default`() = runTest {
-        viewModel.uiState.test { assertEquals(ServerIpOverridesViewState.Loading, awaitItem()) }
+        viewModel.uiState.test { assertEquals(ServerIpOverridesUiState.Loading, awaitItem()) }
     }
 
     @Test
     fun `when server ip overrides are empty ui state overrides should be inactive`() = runTest {
         viewModel.uiState.test {
-            assertEquals(ServerIpOverridesViewState.Loading, awaitItem())
+            assertEquals(ServerIpOverridesUiState.Loading, awaitItem())
             relayOverrides.emit(emptyList())
-            assertEquals(ServerIpOverridesViewState.Loaded(false), awaitItem())
+            assertEquals(ServerIpOverridesUiState.Loaded(false), awaitItem())
         }
     }
 

@@ -25,14 +25,14 @@ class ServerIpOverridesViewModel(
     private val _uiSideEffect = Channel<ServerIpOverridesUiSideEffect>()
     val uiSideEffect = merge(_uiSideEffect.receiveAsFlow())
 
-    val uiState: StateFlow<ServerIpOverridesViewState> =
+    val uiState: StateFlow<ServerIpOverridesUiState> =
         relayOverridesRepository.relayOverrides
             .filterNotNull()
-            .map { ServerIpOverridesViewState.Loaded(overridesActive = it.isNotEmpty()) }
+            .map { ServerIpOverridesUiState.Loaded(overridesActive = it.isNotEmpty()) }
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(),
-                ServerIpOverridesViewState.Loading,
+                ServerIpOverridesUiState.Loading,
             )
 
     fun importFile(uri: Uri) =
@@ -66,11 +66,11 @@ sealed interface ServerIpOverridesUiSideEffect {
     data class ImportResult(val error: SettingsPatchError?) : ServerIpOverridesUiSideEffect
 }
 
-sealed interface ServerIpOverridesViewState {
+sealed interface ServerIpOverridesUiState {
     val overridesActive: Boolean?
         get() = (this as? Loaded)?.overridesActive
 
-    data object Loading : ServerIpOverridesViewState
+    data object Loading : ServerIpOverridesUiState
 
-    data class Loaded(override val overridesActive: Boolean) : ServerIpOverridesViewState
+    data class Loaded(override val overridesActive: Boolean) : ServerIpOverridesUiState
 }

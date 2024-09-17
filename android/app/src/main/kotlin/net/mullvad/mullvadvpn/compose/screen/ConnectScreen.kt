@@ -43,6 +43,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
@@ -67,6 +68,7 @@ import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBarAndDeviceName
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.component.notificationbanner.NotificationBanner
 import net.mullvad.mullvadvpn.compose.extensions.createOpenAccountPageHook
+import net.mullvad.mullvadvpn.compose.preview.ConnectUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.test.CONNECT_BUTTON_TEST_TAG
@@ -104,10 +106,11 @@ import org.koin.androidx.compose.koinViewModel
 
 private const val CONNECT_BUTTON_THROTTLE_MILLIS = 1000
 
-@Preview
+@Preview("Initial|Connected|Disconnected|Connecting|Error.VpnPermissionDenied")
 @Composable
-private fun PreviewConnectScreen() {
-    val state = ConnectUiState.INITIAL
+private fun PreviewAccountScreen(
+    @PreviewParameter(ConnectUiStatePreviewParameterProvider::class) state: ConnectUiState
+) {
     AppTheme { ConnectScreen(state = state) }
 }
 
