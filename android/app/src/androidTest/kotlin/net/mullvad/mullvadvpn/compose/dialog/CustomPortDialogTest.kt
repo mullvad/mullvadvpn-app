@@ -21,7 +21,6 @@ import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.test.CUSTOM_PORT_DIALOG_INPUT_TEST_TAG
 import net.mullvad.mullvadvpn.lib.model.PortRange
 import net.mullvad.mullvadvpn.onNodeWithTagAndText
-import net.mullvad.mullvadvpn.viewmodel.WireguardCustomPortDialogUiState
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
@@ -40,6 +39,7 @@ class CustomPortDialogTest {
     @SuppressLint("ComposableNaming")
     @Composable
     private fun testWireguardCustomPortDialog(
+        title: String = "",
         portInput: String = "",
         isValidInput: Boolean = false,
         showResetToDefault: Boolean = false,
@@ -49,16 +49,12 @@ class CustomPortDialogTest {
         onResetPort: () -> Unit = {},
         onDismiss: () -> Unit = {},
     ) {
-        val state =
-            WireguardCustomPortDialogUiState(
-                portInput = portInput,
-                isValidInput = isValidInput,
-                allowedPortRanges = allowedPortRanges,
-                showResetToDefault = showResetToDefault,
-            )
-
-        WireguardCustomPortDialog(
-            state,
+        CustomPortDialog(
+            title = title,
+            portInput = portInput,
+            isValidInput = isValidInput,
+            showResetToDefault = showResetToDefault,
+            allowedPortRanges = allowedPortRanges,
             onInputChanged = onInputChanged,
             onSavePort = onSavePort,
             onDismiss = onDismiss,
