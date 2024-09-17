@@ -24,6 +24,7 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 ### Added
 - Add support for predictive back.
+- Add DAITA (Defence against AI-guided Traffic Analysis) setting.
 - Add WireGuard over Shadowsocks.
 
 ### Changed
