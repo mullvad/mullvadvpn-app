@@ -131,14 +131,9 @@ impl DisconnectedState {
     fn setup_local_dns_config(
         shared_values: &mut SharedTunnelStateValues,
     ) -> Result<(), dns::Error> {
-        use crate::dns::ResolvedDnsConfig;
-
         shared_values.dns_monitor.set(
             "lo",
-            ResolvedDnsConfig {
-                non_tunnel_config: vec![Ipv4Addr::LOCALHOST.into()],
-                tunnel_config: vec![],
-            },
+            dns::DnsConfig::default().resolve(&[Ipv4Addr::LOCALHOST.into()]),
         )
     }
 }

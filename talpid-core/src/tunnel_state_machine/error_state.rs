@@ -3,7 +3,7 @@ use super::{
     TunnelCommandReceiver, TunnelState, TunnelStateTransition,
 };
 #[cfg(target_os = "macos")]
-use crate::dns::ResolvedDnsConfig;
+use crate::dns::DnsConfig;
 use crate::firewall::FirewallPolicy;
 use futures::StreamExt;
 #[cfg(target_os = "macos")]
@@ -37,10 +37,7 @@ impl ErrorState {
         if !block_reason.prevents_filtering_resolver() {
             if let Err(err) = shared_values.dns_monitor.set(
                 "lo",
-                ResolvedDnsConfig {
-                    non_tunnel_config: vec![Ipv4Addr::LOCALHOST.into()],
-                    tunnel_config: vec![],
-                },
+                DnsConfig::default().resolve(&[Ipv4Addr::LOCALHOST.into()]),
             ) {
                 log::error!(
                     "{}",

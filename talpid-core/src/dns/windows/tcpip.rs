@@ -45,11 +45,11 @@ impl DnsMonitorT for DnsMonitor {
     }
 
     fn set(&mut self, interface: &str, config: ResolvedDnsConfig) -> Result<(), Error> {
-        let servers = config.tunnel_config;
+        let servers = config.tunnel_config();
 
         let guid = guid_from_luid(&luid_from_alias(interface).map_err(Error::ObtainInterfaceLuid)?)
             .map_err(Error::ObtainInterfaceGuid)?;
-        set_dns(&guid, &servers)?;
+        set_dns(&guid, servers)?;
         self.current_guid = Some(guid);
         if self.should_flush {
             flush_dns_cache()?;

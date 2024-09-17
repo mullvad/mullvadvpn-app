@@ -70,7 +70,7 @@ impl DnsMonitorT for DnsMonitor {
     }
 
     fn set(&mut self, interface: &str, config: ResolvedDnsConfig) -> Result<(), Error> {
-        let servers = config.tunnel_config;
+        let servers = config.tunnel_config();
         let interface_luid = luid_from_alias(interface).map_err(Error::ObtainInterfaceLuid)?;
         let interface_index =
             index_from_luid(&interface_luid).map_err(Error::ObtainInterfaceIndex)?;
@@ -82,7 +82,7 @@ impl DnsMonitorT for DnsMonitor {
 
         let mut netsh_input = String::new();
 
-        for server in &servers {
+        for server in servers {
             let is_additional_server;
 
             if server.is_ipv4() {

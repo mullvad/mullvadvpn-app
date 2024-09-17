@@ -296,7 +296,7 @@ impl<'a> PolicyBatch<'a> {
             tunnel, dns_config, ..
         } = policy
         {
-            for server in &dns_config.tunnel_config {
+            for server in dns_config.tunnel_config() {
                 let allow_rule = allow_tunnel_dns_rule(
                     &self.mangle_chain,
                     &tunnel.interface,
@@ -558,7 +558,7 @@ impl<'a> PolicyBatch<'a> {
             } => {
                 self.add_allow_tunnel_endpoint_rules(peer_endpoint, fwmark);
 
-                for server in &dns_config.tunnel_config {
+                for server in dns_config.tunnel_config() {
                     self.add_allow_tunnel_dns_rule(
                         &tunnel.interface,
                         TransportProtocol::Udp,
@@ -570,7 +570,7 @@ impl<'a> PolicyBatch<'a> {
                         *server,
                     )?;
                 }
-                for server in &dns_config.non_tunnel_config {
+                for server in dns_config.non_tunnel_config() {
                     self.add_allow_local_dns_rule(
                         &tunnel.interface,
                         TransportProtocol::Udp,

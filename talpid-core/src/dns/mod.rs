@@ -26,8 +26,33 @@ mod imp;
 pub use self::imp::Error;
 
 /// DNS configuration
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum DnsConfig {
+#[derive(Debug, Clone, PartialEq)]
+pub struct DnsConfig {
+    config: InnerDnsConfig,
+}
+
+impl Default for DnsConfig {
+    fn default() -> Self {
+        Self {
+            config: InnerDnsConfig::Default,
+        }
+    }
+}
+
+impl DnsConfig {
+    /// Use the specified addresses for DNS resolution
+    pub fn from_addresses(tunnel_config: &[IpAddr], non_tunnel_config: &[IpAddr]) -> Self {
+        DnsConfig {
+            config: InnerDnsConfig::Override {
+                tunnel_config: tunnel_config.to_owned(),
+                non_tunnel_config: non_tunnel_config.to_owned(),
+            },
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+enum InnerDnsConfig {
     /// Use gateway addresses from the tunnel config
     Default,
     /// Use the specified addresses for DNS resolution
@@ -42,13 +67,13 @@ pub enum DnsConfig {
 }
 
 impl DnsConfig {
-    pub(crate) fn resolve(&self, gateways: &[IpAddr]) -> ResolvedDnsConfig {
-        match self {
-            DnsConfig::Default => ResolvedDnsConfig {
-                tunnel_config: gateways.to_owned(),
+    pub(crate) fn resolve(&self, default_tun_config: &[IpAddr]) -> ResolvedDnsConfig {
+        match &self.config {
+            InnerDnsConfig::Default => ResolvedDnsConfig {
+                tunnel_config: default_tun_config.to_owned(),
                 non_tunnel_config: vec![],
             },
-            DnsConfig::Override {
+            InnerDnsConfig::Override {
                 tunnel_config,
                 non_tunnel_config,
             } => ResolvedDnsConfig {
@@ -63,11 +88,11 @@ impl DnsConfig {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ResolvedDnsConfig {
     /// Addresses to configure on the tunnel interface
-    pub tunnel_config: Vec<IpAddr>,
+    tunnel_config: Vec<IpAddr>,
     /// Addresses to allow on non-tunnel interface.
     /// For the most part, the tunnel state machine will not handle any of this configuration
     /// on non-tunnel interface, only allow them in the firewall.
-    pub non_tunnel_config: Vec<IpAddr>,
+    non_tunnel_config: Vec<IpAddr>,
 }
 
 impl fmt::Display for ResolvedDnsConfig {
@@ -90,6 +115,18 @@ impl ResolvedDnsConfig {
             write!(f, "{}", addr)?;
         }
         f.write_str("}")
+    }
+
+    /// Addresses to configure on the tunnel interface
+    pub fn tunnel_config(&self) -> &[IpAddr] {
+        &self.tunnel_config
+    }
+
+    /// Addresses to allow on non-tunnel interface.
+    /// For the most part, the tunnel state machine will not handle any of this configuration
+    /// on non-tunnel interface, only allow them in the firewall.
+    pub fn non_tunnel_config(&self) -> &[IpAddr] {
+        &self.non_tunnel_config
     }
 
     /// Consume `self` and return a vector of all addresses

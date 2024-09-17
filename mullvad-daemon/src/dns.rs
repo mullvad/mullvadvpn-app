@@ -44,26 +44,20 @@ pub fn addresses_from_options(options: &DnsOptions) -> DnsConfig {
             if last_byte != 0 {
                 let mut dns_ip = DNS_BLOCKING_IP_BASE.octets();
                 dns_ip[dns_ip.len() - 1] |= last_byte;
-                DnsConfig::Override {
-                    tunnel_config: vec![IpAddr::V4(Ipv4Addr::from(dns_ip))],
-                    non_tunnel_config: vec![],
-                }
+                DnsConfig::from_addresses(&[IpAddr::V4(Ipv4Addr::from(dns_ip))], &[])
             } else {
-                DnsConfig::Default
+                DnsConfig::default()
             }
         }
-        DnsState::Custom if options.custom_options.addresses.is_empty() => DnsConfig::Default,
+        DnsState::Custom if options.custom_options.addresses.is_empty() => DnsConfig::default(),
         DnsState::Custom => {
-            let (non_tunnel_config, tunnel_config) = options
+            let (non_tunnel_config, tunnel_config): (Vec<_>, Vec<_>) = options
                 .custom_options
                 .addresses
                 .iter()
                 // Private IP ranges should not be tunneled
                 .partition(|&addr| is_local_address(addr));
-            DnsConfig::Override {
-                tunnel_config,
-                non_tunnel_config,
-            }
+            DnsConfig::from_addresses(&tunnel_config, &non_tunnel_config)
         }
     }
 }
@@ -82,7 +76,7 @@ mod test {
             default_options: DefaultDnsOptions::default(),
         };
 
-        assert_eq!(addresses_from_options(&public_cfg), DnsConfig::Default);
+        assert_eq!(addresses_from_options(&public_cfg), DnsConfig::default());
     }
 
     #[test]
@@ -98,10 +92,7 @@ mod test {
 
         assert_eq!(
             addresses_from_options(&public_cfg),
-            DnsConfig::Override {
-                tunnel_config: vec!["100.64.0.1".parse().unwrap()],
-                non_tunnel_config: vec![],
-            }
+            DnsConfig::from_addresses(&["100.64.0.1".parse().unwrap()], &[],)
         );
     }
 
@@ -120,10 +111,7 @@ mod test {
 
         assert_eq!(
             addresses_from_options(&public_cfg),
-            DnsConfig::Override {
-                tunnel_config: vec![public_ip],
-                non_tunnel_config: vec![private_ip],
-            }
+            DnsConfig::from_addresses(&[public_ip], &[private_ip],)
         );
     }
 }

@@ -249,12 +249,12 @@ impl Firewall {
             } => {
                 let mut rules = vec![];
 
-                for server in &dns_config.tunnel_config {
+                for server in dns_config.tunnel_config() {
                     rules.append(
                         &mut self.get_allow_tunnel_dns_rules_when_connected(tunnel, *server)?,
                     );
                 }
-                for server in &dns_config.non_tunnel_config {
+                for server in dns_config.non_tunnel_config() {
                     rules.append(
                         &mut self.get_allow_local_dns_rules_when_connected(tunnel, *server)?,
                     );

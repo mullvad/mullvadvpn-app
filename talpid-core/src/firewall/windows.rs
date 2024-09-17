@@ -278,7 +278,7 @@ impl Firewall {
         let relay_client_wstr_ptrs_len = relay_client_wstr_ptrs.len();
 
         let tunnel_dns_servers: Vec<WideCString> = dns_config
-            .tunnel_config
+            .tunnel_config()
             .iter()
             .cloned()
             .map(widestring_ip)
@@ -286,7 +286,7 @@ impl Firewall {
         let tunnel_dns_servers: Vec<*const u16> =
             tunnel_dns_servers.iter().map(|ip| ip.as_ptr()).collect();
         let non_tunnel_dns_servers: Vec<WideCString> = dns_config
-            .non_tunnel_config
+            .non_tunnel_config()
             .iter()
             .cloned()
             .map(widestring_ip)
