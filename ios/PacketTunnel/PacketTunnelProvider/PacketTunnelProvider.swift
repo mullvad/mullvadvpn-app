@@ -287,26 +287,40 @@ extension PacketTunnelProvider {
 extension PacketTunnelProvider {
     private func startDeviceCheck(rotateKeyOnMismatch: Bool = false) {
         Task {
-            do {
-                try await startDeviceCheckInner(rotateKeyOnMismatch: rotateKeyOnMismatch)
-            } catch {
-                providerLogger.error(error: error, message: "Failed to perform device check.")
-            }
+            await startDeviceCheckInner(rotateKeyOnMismatch: rotateKeyOnMismatch)
         }
     }
 
-    private func startDeviceCheckInner(rotateKeyOnMismatch: Bool) async throws {
-        let result = try await deviceChecker.start(rotateKeyOnMismatch: rotateKeyOnMismatch)
+    private func startDeviceCheckInner(rotateKeyOnMismatch: Bool) async {
+        let result = await deviceChecker.start(rotateKeyOnMismatch: rotateKeyOnMismatch)
 
-        if let blockedStateReason = result.blockedStateReason {
-            actor.setErrorState(reason: blockedStateReason)
-        }
+        switch result {
+        case let .failure(error):
+            switch error {
+            case is DeviceCheckError:
+                providerLogger.error("\(error.localizedDescription) Forcing a log out")
+                actor.setErrorState(reason: .deviceLoggedOut)
+            default:
+                providerLogger
+                    .error(
+                        "Entering blocked state because device check encountered a generic error: \(error.localizedDescription)"
+                    )
+                actor.setErrorState(reason: .unknown)
+            }
 
-        switch result.keyRotationStatus {
-        case let .attempted(date), let .succeeded(date):
-            actor.notifyKeyRotation(date: date)
-        case .noAction:
-            break
+        case let .success(keyRotationResult):
+            if let blockedStateReason = keyRotationResult.blockedStateReason {
+                providerLogger.error("Entering blocked state after unsuccessful device check: \(blockedStateReason)")
+                actor.setErrorState(reason: blockedStateReason)
+                return
+            }
+
+            switch keyRotationResult.keyRotationStatus {
+            case let .attempted(date), let .succeeded(date):
+                actor.notifyKeyRotation(date: date)
+            case .noAction:
+                break
+            }
         }
     }
 }

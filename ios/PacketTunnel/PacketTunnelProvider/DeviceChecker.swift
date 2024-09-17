@@ -35,7 +35,7 @@ final class DeviceChecker {
         key.
      4. Rotate WireGuard key on key mismatch.
      */
-    func start(rotateKeyOnMismatch: Bool) async throws -> DeviceCheck {
+    func start(rotateKeyOnMismatch: Bool) async -> Result<DeviceCheck, Error> {
         let checkOperation = DeviceCheckOperation(
             dispatchQueue: dispatchQueue,
             remoteSevice: DeviceCheckRemoteService(accountsProxy: accountsProxy, devicesProxy: devicesProxy),
@@ -43,10 +43,10 @@ final class DeviceChecker {
             rotateImmediatelyOnKeyMismatch: rotateKeyOnMismatch
         )
 
-        return try await withTaskCancellationHandler {
-            return try await withCheckedThrowingContinuation { continuation in
+        return await withTaskCancellationHandler {
+            return await withCheckedContinuation { continuation in
                 checkOperation.completionHandler = { result in
-                    continuation.resume(with: result)
+                    continuation.resume(with: .success(result))
                 }
                 operationQueue.addOperation(checkOperation)
             }

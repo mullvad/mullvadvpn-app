@@ -241,7 +241,7 @@ class DeviceCheckOperationTests: XCTestCase {
         waitForExpectations(timeout: .UnitTest.timeout)
     }
 
-    func testShouldReportFailedKeyRotataionAttempt() {
+    func testShouldReportFailedKeyRotationAttempt() {
         let expect = expectation(description: "Wait for operation to complete")
 
         let currentKey = PrivateKey()
