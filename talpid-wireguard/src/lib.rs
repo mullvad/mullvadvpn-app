@@ -264,6 +264,8 @@ async fn maybe_create_obfuscator(
 
 impl WireguardMonitor {
     /// Starts a WireGuard tunnel with the given config
+    /// TODO: Remove any android-specific parts.
+    #[cfg(not(target_os = "android"))]
     pub fn start<
         F: (Fn(TunnelEvent) -> Pin<Box<dyn std::future::Future<Output = ()> + Send>>)
             + Send
@@ -272,7 +274,7 @@ impl WireguardMonitor {
             + 'static,
     >(
         mut config: Config,
-        #[cfg(not(target_os = "android"))] detect_mtu: bool,
+        detect_mtu: bool,
         log_path: Option<&Path>,
         args: TunnelArgs<'_, F>,
     ) -> Result<WireguardMonitor> {
@@ -448,6 +450,178 @@ impl WireguardMonitor {
 
             let metadata = Self::tunnel_metadata(&iface_name, &config);
             (on_event)(TunnelEvent::Up(metadata)).await;
+
+            tokio::task::spawn_blocking(move || {
+                if let Err(error) = connectivity_monitor.run() {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg("Connectivity monitor failed")
+                    );
+                }
+            })
+            .await
+            .unwrap();
+
+            Err::<Infallible, CloseMsg>(CloseMsg::PingErr)
+        };
+
+        let close_sender = close_obfs_sender.clone();
+        let monitor_handle = tokio::spawn(async move {
+            // This is safe to unwrap because the future resolves to `Result<Infallible, E>`.
+            let close_msg = tunnel_fut.await.unwrap_err();
+            let _ = close_sender.send(close_msg);
+        });
+
+        tokio::spawn(async move {
+            if args.tunnel_close_rx.await.is_ok() {
+                monitor_handle.abort();
+                let _ = close_obfs_sender.send(CloseMsg::Stop);
+            }
+        });
+
+        Ok(monitor)
+    }
+
+    /// Starts a WireGuard tunnel with the given config
+    ///
+    /// This differs from [`start`] on other platforms in multiple ways. Here is a list of some
+    /// notable differences:
+    /// - A ping is sent between the Wireguard-GO tunnel is started and an ephemeral peer is
+    ///   negotiated. There seems to be a race condition between starting the tunnel and the tunnel
+    ///   being ready to serve traffic.
+    /// - No routes are configured on android.
+    #[cfg(target_os = "android")]
+    pub fn start<
+        F: (Fn(TunnelEvent) -> Pin<Box<dyn std::future::Future<Output = ()> + Send>>)
+            + Send
+            + Sync
+            + Clone
+            + 'static,
+    >(
+        mut config: Config,
+        log_path: Option<&Path>,
+        args: TunnelArgs<'_, F>,
+    ) -> Result<WireguardMonitor> {
+        let (close_obfs_sender, close_obfs_listener) = sync_mpsc::channel();
+        // TODO: Move obfuscator creation down to after `open_tunnel`?
+        let obfuscator = args.runtime.block_on(maybe_create_obfuscator(
+            &mut config,
+            close_obfs_sender.clone(),
+        ))?;
+
+        let tunnel = Self::open_tunnel(
+            args.runtime.clone(),
+            &config,
+            log_path,
+            args.resource_dir,
+            args.tun_provider.clone(),
+            // TODO: This seems like a bug! Should `config.quantum_resistant` really be the
+            // argument for `gateway_only` parameter?
+            config.quantum_resistant,
+        )?;
+
+        let iface_name = tunnel.get_interface_name();
+        if let Some(remote_socket_fd) = obfuscator.as_ref().map(|obfs| obfs.remote_socket_fd()) {
+            // Exclude remote obfuscation socket or bridge
+            log::debug!("Excluding remote socket fd from the tunnel");
+            if let Err(error) = args.tun_provider.lock().unwrap().bypass(remote_socket_fd) {
+                log::error!("Failed to exclude remote socket fd: {error}");
+            }
+        }
+
+        let (pinger_tx, pinger_rx) = sync_mpsc::channel();
+        let monitor = WireguardMonitor {
+            runtime: args.runtime.clone(),
+            tunnel: Arc::new(AsyncMutex::new(Some(tunnel))),
+            event_callback: Box::new(args.on_event.clone()),
+            close_msg_receiver: close_obfs_listener,
+            pinger_stop_sender: pinger_tx,
+            obfuscator: Arc::new(AsyncMutex::new(obfuscator)),
+        };
+
+        let gateway = config.ipv4_gateway;
+        let mut connectivity_monitor = connectivity_check::ConnectivityMonitor::new(
+            gateway,
+            Arc::downgrade(&monitor.tunnel),
+            pinger_rx,
+        )
+        .map_err(Error::ConnectivityMonitorError)?;
+
+        let moved_tunnel = monitor.tunnel.clone();
+        let moved_close_obfs_sender = close_obfs_sender.clone();
+        let moved_obfuscator = monitor.obfuscator.clone();
+        let tunnel_fut = async move {
+            let tunnel = moved_tunnel;
+            let close_obfs_sender: sync_mpsc::Sender<CloseMsg> = moved_close_obfs_sender;
+            let obfuscator = moved_obfuscator;
+
+            let metadata = Self::tunnel_metadata(&iface_name, &config);
+            let allowed_traffic = Self::allowed_traffic_during_tunnel_config(&config);
+            (args.on_event.clone())(TunnelEvent::InterfaceUp(metadata.clone(), allowed_traffic))
+                .await;
+
+            // TODO: De-duplicate this!
+            let mut connectivity_monitor = tokio::task::spawn_blocking(move || {
+                match connectivity_monitor.establish_connectivity(args.retry_attempt) {
+                    Ok(true) => Ok(connectivity_monitor),
+                    Ok(false) => {
+                        log::warn!("Timeout while checking tunnel connection");
+                        Err(CloseMsg::PingErr)
+                    }
+                    Err(error) => {
+                        log::error!(
+                            "{}",
+                            error.display_chain_with_msg("Failed to check tunnel connection")
+                        );
+                        Err(CloseMsg::PingErr)
+                    }
+                }
+            })
+            .await
+            .unwrap()?;
+
+            let ephemeral_obfs_sender = close_obfs_sender.clone();
+            if config.quantum_resistant || config.daita {
+                Self::config_ephemeral_peers(
+                    &tunnel,
+                    &mut config,
+                    args.retry_attempt,
+                    obfuscator.clone(),
+                    ephemeral_obfs_sender,
+                    args.tun_provider,
+                )
+                .await?;
+
+                let metadata = Self::tunnel_metadata(&iface_name, &config);
+                (args.on_event.clone())(TunnelEvent::InterfaceUp(
+                    metadata,
+                    Self::allowed_traffic_after_tunnel_config(),
+                ))
+                .await;
+            }
+
+            // TODO: De-duplicate this
+            let mut connectivity_monitor = tokio::task::spawn_blocking(move || {
+                match connectivity_monitor.establish_connectivity(args.retry_attempt) {
+                    Ok(true) => Ok(connectivity_monitor),
+                    Ok(false) => {
+                        log::warn!("Timeout while checking tunnel connection");
+                        Err(CloseMsg::PingErr)
+                    }
+                    Err(error) => {
+                        log::error!(
+                            "{}",
+                            error.display_chain_with_msg("Failed to check tunnel connection")
+                        );
+                        Err(CloseMsg::PingErr)
+                    }
+                }
+            })
+            .await
+            .unwrap()?;
+
+            let metadata = Self::tunnel_metadata(&iface_name, &config);
+            (args.on_event.clone())(TunnelEvent::Up(metadata)).await;
 
             tokio::task::spawn_blocking(move || {
                 if let Err(error) = connectivity_monitor.run() {
