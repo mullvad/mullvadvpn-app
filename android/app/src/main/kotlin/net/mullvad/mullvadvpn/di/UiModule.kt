@@ -83,6 +83,7 @@ import net.mullvad.mullvadvpn.viewmodel.VoucherDialogViewModel
 import net.mullvad.mullvadvpn.viewmodel.VpnPermissionViewModel
 import net.mullvad.mullvadvpn.viewmodel.VpnSettingsViewModel
 import net.mullvad.mullvadvpn.viewmodel.WelcomeViewModel
+import net.mullvad.mullvadvpn.viewmodel.WireguardCustomPortDialogViewModel
 import org.apache.commons.validator.routines.InetAddressValidator
 import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
@@ -182,6 +183,7 @@ val uiModule = module {
     viewModel { DeviceRevokedViewModel(get(), get()) }
     viewModel { MtuDialogViewModel(get(), get()) }
     viewModel { DnsDialogViewModel(get(), get(), get()) }
+    viewModel { WireguardCustomPortDialogViewModel(get()) }
     viewModel { LoginViewModel(get(), get(), get()) }
     viewModel { PrivacyDisclaimerViewModel(get(), IS_PLAY_BUILD) }
     viewModel {
