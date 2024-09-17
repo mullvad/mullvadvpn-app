@@ -17,14 +17,6 @@
         <packageUrl regex="true">^pkg:maven/com\.google\.devtools\.ksp/symbol\-processing.*@.*$</packageUrl>
         <cve>CVE-2018-1000840</cve>
     </suppress>
-    <suppress until="2024-09-01Z">
-        <notes><![CDATA[
-            False-positive related to Drupal rather than Android development.
-            https://nvd.nist.gov/vuln/detail/CVE-2014-9152
-        ]]></notes>
-        <packageUrl regex="true">^pkg:maven/androidx\.test\.services/storage@.*$</packageUrl>
-        <cve>CVE-2014-9152</cve>
-    </suppress>
     <suppress until="2024-12-01Z">
         <notes><![CDATA[
             False-positive only affecting javascript gRPC packages.
