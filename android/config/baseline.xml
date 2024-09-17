@@ -3,24 +3,18 @@
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
     <ID>CyclomaticComplexMethod:MockApiDispatcher.kt$MockApiDispatcher$override fun dispatch(request: RecordedRequest): MockResponse</ID>
-    <ID>EmptyFunctionBlock:AccountTestRule.kt$AccountTestRule${}</ID>
     <ID>EmptyKtFile:build.gradle.kts$.build.gradle.kts</ID>
-    <ID>LongMethod:ApiAccessMethodDetailsScreen.kt$@Destination&lt;RootGraph&gt;( style = SlideInFromRightTransition::class, navArgs = ApiAccessMethodDetailsNavArgs::class ) @Composable fun ApiAccessMethodDetails( navigator: DestinationsNavigator, confirmDeleteListResultRecipient: ResultRecipient&lt;DeleteApiAccessMethodConfirmationDestination, Boolean&gt; )</ID>
-    <ID>LongMethod:ConnectionButton.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable private fun ConnectionButton( text: String, mainClick: () -&gt; Unit, reconnectClick: () -&gt; Unit, isReconnectButtonEnabled: Boolean, containerColor: Color, contentColor: Color, modifier: Modifier = Modifier, reconnectButtonTestTag: String = "" )</ID>
-    <ID>LongMethod:EditApiAccessMethodScreen.kt$@Destination&lt;RootGraph&gt;( style = SlideInFromRightTransition::class, navArgs = EditApiAccessMethodNavArgs::class ) @Composable fun EditApiAccessMethod( navigator: DestinationsNavigator, backNavigator: ResultBackNavigator&lt;Boolean&gt;, saveApiAccessMethodResultRecipient: ResultRecipient&lt;SaveApiAccessMethodDestination, Boolean&gt;, discardChangesResultRecipient: ResultRecipient&lt;DiscardChangesDestination, Boolean&gt;, )</ID>
     <ID>LongMethod:NotificationBanner.kt$@Composable private fun Notification(notificationBannerData: NotificationData)</ID>
     <ID>MagicNumber:Chevron.kt$100</ID>
-    <ID>MagicNumber:Chevron.kt$270f</ID>
-    <ID>MagicNumber:Chevron.kt$90f</ID>
+    <ID>MagicNumber:Chevron.kt$180f</ID>
     <ID>MagicNumber:CustomTextField.kt$100</ID>
     <ID>MagicNumber:LoginScreen.kt$3f</ID>
     <ID>MagicNumber:NavigateButton.kt$90f</ID>
+    <ID>MagicNumber:NavigationComposeCell.kt$90f</ID>
     <ID>MagicNumber:RedeemVoucherDialog.kt$30</ID>
     <ID>MagicNumber:RedeemVoucherDialog.kt$59</ID>
     <ID>MagicNumber:ResourcesExtensions.kt$3</ID>
     <ID>MagicNumber:SelectLocationScreen.kt$270f</ID>
-    <ID>MagicNumber:TalpidVpnService.kt$TalpidVpnService$128</ID>
-    <ID>MagicNumber:TalpidVpnService.kt$TalpidVpnService$32</ID>
     <ID>NestedBlockDepth:MockApiDispatcher.kt$MockApiDispatcher$override fun dispatch(request: RecordedRequest): MockResponse</ID>
     <ID>PrintStackTrace:Extensions.kt$ex</ID>
     <ID>ReturnCount:RelayNameComparator.kt$RelayNameComparator$private infix fun List&lt;String&gt;.compareWith(other: List&lt;String&gt;): Int</ID>
