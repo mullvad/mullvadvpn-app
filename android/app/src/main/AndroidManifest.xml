@@ -37,7 +37,6 @@
             since after that it has been patched on a OS level.
         -->
         <activity android:name="net.mullvad.mullvadvpn.ui.MainActivity"
-                  android:configChanges="orientation|screenSize|screenLayout"
                   android:exported="true"
                   android:launchMode="singleInstance"
                   android:screenOrientation="fullUser"
