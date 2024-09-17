@@ -25,6 +25,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.core.text.HtmlCompat
 import androidx.lifecycle.Lifecycle
@@ -78,6 +79,7 @@ import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
 import net.mullvad.mullvadvpn.compose.extensions.itemsIndexedWithDivider
 import net.mullvad.mullvadvpn.compose.extensions.toAnnotatedString
+import net.mullvad.mullvadvpn.compose.preview.VpnSettingsUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.VpnSettingsUiState
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_LAST_ITEM_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_QUANTUM_ITEM_OFF_TEST_TAG
@@ -100,23 +102,18 @@ import net.mullvad.mullvadvpn.lib.model.PortRange
 import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
-import net.mullvad.mullvadvpn.viewmodel.CustomDnsItem
 import net.mullvad.mullvadvpn.viewmodel.VpnSettingsSideEffect
 import net.mullvad.mullvadvpn.viewmodel.VpnSettingsViewModel
 import org.koin.androidx.compose.koinViewModel
 
-@Preview
+@Preview("Default|NonDefault")
 @Composable
-private fun PreviewVpnSettings() {
+private fun PreviewVpnSettings(
+    @PreviewParameter(VpnSettingsUiStatePreviewParameterProvider::class) state: VpnSettingsUiState
+) {
     AppTheme {
         VpnSettingsScreen(
-            state =
-                VpnSettingsUiState.createDefault(
-                    isAutoConnectEnabled = true,
-                    mtu = Mtu(1337),
-                    isCustomDnsEnabled = true,
-                    customDnsItems = listOf(CustomDnsItem("0.0.0.0", false)),
-                ),
+            state = state,
             snackbarHostState = SnackbarHostState(),
             onToggleBlockTrackers = {},
             onToggleBlockAds = {},

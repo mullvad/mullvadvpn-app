@@ -84,7 +84,7 @@ import net.mullvad.mullvadvpn.viewmodel.LoginUiSideEffect
 import net.mullvad.mullvadvpn.viewmodel.LoginViewModel
 import org.koin.androidx.compose.koinViewModel
 
-@Preview
+@Preview("Default|Loading.LogginIn|Loading.CreatingAccount|LoginError|Success")
 @Composable
 private fun PreviewLoginScreen(
     @PreviewParameter(LoginUiStatePreviewParameterProvider::class) state: LoginUiState

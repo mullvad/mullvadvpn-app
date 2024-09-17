@@ -44,7 +44,7 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.viewmodel.ApiAccessListViewModel
 import org.koin.androidx.compose.koinViewModel
 
-@Preview
+@Preview("Default|WithoutCustomApi|WithCustomApi")
 @Composable
 private fun PreviewApiAccessList(
     @PreviewParameter(ApiAccessListUiStatePreviewParameterProvider::class)

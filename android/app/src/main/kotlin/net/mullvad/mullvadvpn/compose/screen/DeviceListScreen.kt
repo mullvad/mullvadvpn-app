@@ -68,7 +68,7 @@ import net.mullvad.mullvadvpn.viewmodel.DeviceListViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
-@Preview
+@Preview("Normal|TooMany|Empty|Loading|Error")
 private fun PreviewDeviceListScreenContent(
     @PreviewParameter(DeviceListUiStatePreviewParameterProvider::class) state: DeviceListUiState
 ) {

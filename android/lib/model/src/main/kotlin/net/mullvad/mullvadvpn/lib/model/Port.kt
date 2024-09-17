@@ -12,6 +12,8 @@ value class Port(val value: Int) : Parcelable {
 
     override fun toString(): String = value.toString()
 
+    operator fun rangeTo(other: Port): PortRange = PortRange(value..other.value)
+
     companion object {
         fun fromString(value: String): Either<ParsePortError, Port> = either {
             val number = value.toIntOrNull() ?: raise(ParsePortError.NotANumber(value))

@@ -21,6 +21,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
@@ -41,6 +42,7 @@ import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.constant.ContentType
 import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.extensions.itemsWithDivider
+import net.mullvad.mullvadvpn.compose.preview.CustomListsUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.CustomListsUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.test.NEW_LIST_BUTTON_TEST_TAG
@@ -52,10 +54,12 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.viewmodel.CustomListsViewModel
 import org.koin.androidx.compose.koinViewModel
 
-@Preview
+@Preview("Content|Empty|Loading")
 @Composable
-private fun PreviewCustomListsScreen() {
-    AppTheme { CustomListsScreen(CustomListsUiState.Content(), SnackbarHostState()) }
+private fun PreviewAccountScreen(
+    @PreviewParameter(CustomListsUiStatePreviewParameterProvider::class) state: CustomListsUiState
+) {
+    AppTheme { CustomListsScreen(state = state, SnackbarHostState()) }
 }
 
 @Composable

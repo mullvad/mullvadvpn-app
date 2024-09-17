@@ -18,6 +18,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
@@ -34,6 +35,7 @@ import net.mullvad.mullvadvpn.compose.cell.NavigationComposeCell
 import net.mullvad.mullvadvpn.compose.component.NavigateBackDownIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
+import net.mullvad.mullvadvpn.compose.preview.SettingsUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.SettingsUiState
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.SettingsTransition
@@ -45,20 +47,12 @@ import net.mullvad.mullvadvpn.viewmodel.SettingsViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview
+@Preview("Supported|Unsupported")
 @Composable
-private fun PreviewSettings() {
-    AppTheme {
-        SettingsScreen(
-            state =
-                SettingsUiState(
-                    appVersion = "2222.22",
-                    isLoggedIn = true,
-                    isSupportedVersion = true,
-                    isPlayBuild = false,
-                )
-        )
-    }
+private fun PreviewSettingsScreen(
+    @PreviewParameter(SettingsUiStatePreviewParameterProvider::class) state: SettingsUiState
+) {
+    AppTheme { SettingsScreen(state = state) }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
