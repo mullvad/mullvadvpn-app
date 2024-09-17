@@ -488,13 +488,6 @@ impl WireguardMonitor {
         log_path: Option<&Path>,
         args: TunnelArgs<'_, F>,
     ) -> Result<WireguardMonitor> {
-        let (close_obfs_sender, close_obfs_listener) = sync_mpsc::channel();
-        // TODO: Move obfuscator creation down to after `open_tunnel`?
-        let obfuscator = args.runtime.block_on(maybe_create_obfuscator(
-            &mut config,
-            close_obfs_sender.clone(),
-        ))?;
-
         let tunnel = Self::open_tunnel(
             args.runtime.clone(),
             &config,
@@ -506,7 +499,12 @@ impl WireguardMonitor {
             config.quantum_resistant,
         )?;
 
-        let iface_name = tunnel.get_interface_name();
+        let (close_obfs_sender, close_obfs_listener) = sync_mpsc::channel();
+        let obfuscator = args.runtime.block_on(maybe_create_obfuscator(
+            &mut config,
+            close_obfs_sender.clone(),
+        ))?;
+
         if let Some(remote_socket_fd) = obfuscator.as_ref().map(|obfs| obfs.remote_socket_fd()) {
             // Exclude remote obfuscation socket or bridge
             log::debug!("Excluding remote socket fd from the tunnel");
@@ -514,6 +512,8 @@ impl WireguardMonitor {
                 log::error!("Failed to exclude remote socket fd: {error}");
             }
         }
+
+        let iface_name = tunnel.get_interface_name();
 
         let (pinger_tx, pinger_rx) = sync_mpsc::channel();
         let monitor = WireguardMonitor {
@@ -526,7 +526,7 @@ impl WireguardMonitor {
         };
 
         let gateway = config.ipv4_gateway;
-        let mut connectivity_monitor = connectivity_check::ConnectivityMonitor::new(
+        let connectivity_monitor = connectivity_check::ConnectivityMonitor::new(
             gateway,
             Arc::downgrade(&monitor.tunnel),
             pinger_rx,
@@ -540,34 +540,48 @@ impl WireguardMonitor {
             let tunnel = moved_tunnel;
             let close_obfs_sender: sync_mpsc::Sender<CloseMsg> = moved_close_obfs_sender;
             let obfuscator = moved_obfuscator;
+            let connectivity_monitor = Arc::new(Mutex::new(connectivity_monitor));
 
             let metadata = Self::tunnel_metadata(&iface_name, &config);
             let allowed_traffic = Self::allowed_traffic_during_tunnel_config(&config);
             (args.on_event.clone())(TunnelEvent::InterfaceUp(metadata.clone(), allowed_traffic))
                 .await;
 
-            // TODO: De-duplicate this!
-            let mut connectivity_monitor = tokio::task::spawn_blocking(move || {
-                match connectivity_monitor.establish_connectivity(args.retry_attempt) {
-                    Ok(true) => Ok(connectivity_monitor),
-                    Ok(false) => {
-                        log::warn!("Timeout while checking tunnel connection");
-                        Err(CloseMsg::PingErr)
-                    }
-                    Err(error) => {
-                        log::error!(
-                            "{}",
-                            error.display_chain_with_msg("Failed to check tunnel connection")
-                        );
-                        Err(CloseMsg::PingErr)
-                    }
+            let handle_ping = |ping_result: std::result::Result<
+                bool,
+                connectivity_check::Error,
+            >| match ping_result {
+                Ok(true) => Ok(()),
+                Ok(false) => {
+                    log::warn!("Timeout while checking tunnel connection");
+                    Err(CloseMsg::PingErr)
                 }
-            })
-            .await
-            .unwrap()?;
+                Err(error) => {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg("Failed to check tunnel connection")
+                    );
+                    Err(CloseMsg::PingErr)
+                }
+            };
 
-            let ephemeral_obfs_sender = close_obfs_sender.clone();
+            // Prepare a closure which pings inside the tunnel when executed.
+            let ping = || {
+                let connectivity_monitor_arc = connectivity_monitor.clone();
+                let retry_attempt = args.retry_attempt;
+                move || {
+                    let ping_result = connectivity_monitor_arc
+                        .lock()
+                        .unwrap()
+                        .establish_connectivity(retry_attempt);
+                    handle_ping(ping_result)
+                }
+            };
+
             if config.quantum_resistant || config.daita {
+                // Ping before negotiating the ephemeral peer to make sure that the tunnel works.
+                tokio::task::spawn_blocking(ping()).await.unwrap()?;
+                let ephemeral_obfs_sender = close_obfs_sender.clone();
                 Self::config_ephemeral_peers(
                     &tunnel,
                     &mut config,
@@ -586,31 +600,14 @@ impl WireguardMonitor {
                 .await;
             }
 
-            // TODO: De-duplicate this
-            let mut connectivity_monitor = tokio::task::spawn_blocking(move || {
-                match connectivity_monitor.establish_connectivity(args.retry_attempt) {
-                    Ok(true) => Ok(connectivity_monitor),
-                    Ok(false) => {
-                        log::warn!("Timeout while checking tunnel connection");
-                        Err(CloseMsg::PingErr)
-                    }
-                    Err(error) => {
-                        log::error!(
-                            "{}",
-                            error.display_chain_with_msg("Failed to check tunnel connection")
-                        );
-                        Err(CloseMsg::PingErr)
-                    }
-                }
-            })
-            .await
-            .unwrap()?;
+            // Make sure the tunnel works (after potentially having negotiated an ephemeral peer).
+            tokio::task::spawn_blocking(ping()).await.unwrap()?;
 
             let metadata = Self::tunnel_metadata(&iface_name, &config);
             (args.on_event.clone())(TunnelEvent::Up(metadata)).await;
 
             tokio::task::spawn_blocking(move || {
-                if let Err(error) = connectivity_monitor.run() {
+                if let Err(error) = connectivity_monitor.lock().unwrap().run() {
                     log::error!(
                         "{}",
                         error.display_chain_with_msg("Connectivity monitor failed")
