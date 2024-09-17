@@ -37,17 +37,19 @@ export function filterLocationsByEndPointType(
 export function filterLocationsByDaita(
   locations: IRelayLocationCountryRedux[],
   daita: boolean,
+  smartRouting: boolean,
   locationType: LocationType,
   tunnelProtocol: LiftedConstraint<TunnelProtocol>,
   multihop: boolean,
 ): IRelayLocationCountryRedux[] {
-  return daitaFilterActive(daita, locationType, tunnelProtocol, multihop)
+  return daitaFilterActive(daita, smartRouting, locationType, tunnelProtocol, multihop)
     ? filterLocationsImpl(locations, (relay: IRelayLocationRelayRedux) => relay.daita)
     : locations;
 }
 
 export function daitaFilterActive(
   daita: boolean,
+  smartRouting: boolean,
   locationType: LocationType,
   tunnelProtocol: LiftedConstraint<TunnelProtocol>,
   multihop: boolean,
@@ -55,7 +57,7 @@ export function daitaFilterActive(
   const isEntry = multihop
     ? locationType === LocationType.entry
     : locationType === LocationType.exit;
-  return daita && isEntry && tunnelProtocol !== 'openvpn';
+  return daita && (!smartRouting || multihop) && isEntry && tunnelProtocol !== 'openvpn';
 }
 
 export function filterLocations(

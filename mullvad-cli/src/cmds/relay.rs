@@ -4,7 +4,7 @@ use itertools::Itertools;
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{
     constraints::{Constraint, Match},
-    location::{CountryCode, Location},
+    location::CountryCode,
     relay_constraints::{
         GeographicLocationConstraint, LocationConstraint, LocationConstraintFormatter,
         OpenVpnConstraints, Ownership, Provider, Providers, RelayConstraints, RelayOverride,
@@ -542,7 +542,6 @@ impl Relay {
                     allowed_ips: all_of_the_internet(),
                     endpoint: SocketAddr::new(IpAddr::V4(Ipv4Addr::UNSPECIFIED), port),
                     psk: None,
-                    #[cfg(daita)]
                     constant_packet_size: false,
                 },
                 exit_peer: None,
@@ -921,15 +920,11 @@ fn parse_transport_port(
 
 fn relay_to_geographical_constraint(
     relay: mullvad_types::relay_list::Relay,
-) -> Option<GeographicLocationConstraint> {
-    relay.location.map(
-        |Location {
-             country_code,
-             city_code,
-             ..
-         }| {
-            GeographicLocationConstraint::Hostname(country_code, city_code, relay.hostname)
-        },
+) -> GeographicLocationConstraint {
+    GeographicLocationConstraint::Hostname(
+        relay.location.country_code,
+        relay.location.city_code,
+        relay.hostname,
     )
 }
 
@@ -952,10 +947,9 @@ pub async fn resolve_location_constraint(
         .find(|relay| relay.hostname.to_lowercase() == location_constraint_args.country)
     {
         if relay_filter(&matching_relay) {
-            Ok(Constraint::Only(
-                relay_to_geographical_constraint(matching_relay)
-                    .context("Selected relay did not contain a valid location")?,
-            ))
+            Ok(Constraint::Only(relay_to_geographical_constraint(
+                matching_relay,
+            )))
         } else {
             bail!(
                 "The relay `{}` is not valid for this operation",

@@ -38,7 +38,6 @@ import {
   IAppVersionInfo,
   IBridgeConstraints,
   ICustomList,
-  IDaitaSettings,
   IDevice,
   IDeviceRemoval,
   IDnsOptions,
@@ -586,13 +585,12 @@ export class DaemonRpc {
     await this.callBool(this.client.prepareRestartV2, quit);
   }
 
-  public async setDaitaSettings(daitaSettings: IDaitaSettings): Promise<void> {
-    const grpcDaitaSettings = new grpcTypes.DaitaSettings();
-    grpcDaitaSettings.setEnabled(daitaSettings.enabled);
-    await this.call<grpcTypes.DaitaSettings, Empty>(
-      this.client.setDaitaSettings,
-      grpcDaitaSettings,
-    );
+  public async setEnableDaita(value: boolean): Promise<void> {
+    await this.callBool(this.client.setEnableDaita, value);
+  }
+
+  public async setDaitaSmartRouting(value: boolean): Promise<void> {
+    await this.callBool(this.client.setDaitaSmartRouting, value);
   }
 
   public async listDevices(accountToken: AccountToken): Promise<Array<IDevice>> {
@@ -1182,6 +1180,8 @@ function convertFromFeatureIndicator(
       return FeatureIndicator.customMssFix;
     case grpcTypes.FeatureIndicator.DAITA:
       return FeatureIndicator.daita;
+    case grpcTypes.FeatureIndicator.DAITA_SMART_ROUTING:
+      return FeatureIndicator.daitaSmartRouting;
     case grpcTypes.FeatureIndicator.SHADOWSOCKS:
       return FeatureIndicator.shadowsocks;
   }

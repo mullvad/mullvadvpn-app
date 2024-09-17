@@ -21,6 +21,7 @@ use mullvad_relay_selector::{
 use mullvad_types::{
     constraints::Constraint,
     endpoint::MullvadEndpoint,
+    location::Location,
     relay_constraints::{
         BridgeConstraints, BridgeState, GeographicLocationConstraint, Ownership, Providers,
         RelayOverride, TransportPort,
@@ -31,6 +32,15 @@ use mullvad_types::{
         WireguardRelayEndpointData,
     },
 };
+
+static DUMMY_LOCATION: LazyLock<Location> = LazyLock::new(|| Location {
+    country: "Sweden".to_string(),
+    country_code: "se".to_string(),
+    city: "Gothenburg".to_string(),
+    city_code: "got".to_string(),
+    latitude: 57.71,
+    longitude: 11.97,
+});
 
 static RELAYS: LazyLock<RelayList> = LazyLock::new(|| RelayList {
     etag: None,
@@ -62,7 +72,7 @@ static RELAYS: LazyLock<RelayList> = LazyLock::new(|| RelayList {
                         daita: true,
                         shadowsocks_extra_addr_in: vec![],
                     }),
-                    location: None,
+                    location: DUMMY_LOCATION.clone(),
                 },
                 Relay {
                     hostname: "se10-wireguard".to_string(),
@@ -83,7 +93,7 @@ static RELAYS: LazyLock<RelayList> = LazyLock::new(|| RelayList {
                         daita: false,
                         shadowsocks_extra_addr_in: vec![],
                     }),
-                    location: None,
+                    location: DUMMY_LOCATION.clone(),
                 },
                 Relay {
                     hostname: "se-got-001".to_string(),
@@ -97,7 +107,7 @@ static RELAYS: LazyLock<RelayList> = LazyLock::new(|| RelayList {
                     provider: "provider2".to_string(),
                     weight: 1,
                     endpoint_data: RelayEndpointData::Openvpn,
-                    location: None,
+                    location: DUMMY_LOCATION.clone(),
                 },
                 Relay {
                     hostname: "se-got-002".to_string(),
@@ -111,7 +121,7 @@ static RELAYS: LazyLock<RelayList> = LazyLock::new(|| RelayList {
                     provider: "provider0".to_string(),
                     weight: 1,
                     endpoint_data: RelayEndpointData::Openvpn,
-                    location: None,
+                    location: DUMMY_LOCATION.clone(),
                 },
                 Relay {
                     hostname: "se-got-br-001".to_string(),
@@ -125,7 +135,7 @@ static RELAYS: LazyLock<RelayList> = LazyLock::new(|| RelayList {
                     provider: "provider3".to_string(),
                     weight: 1,
                     endpoint_data: RelayEndpointData::Bridge,
-                    location: None,
+                    location: DUMMY_LOCATION.clone(),
                 },
                 SHADOWSOCKS_RELAY.clone(),
             ],
@@ -209,7 +219,7 @@ static SHADOWSOCKS_RELAY: LazyLock<Relay> = LazyLock::new(|| Relay {
         daita: false,
         shadowsocks_extra_addr_in: SHADOWSOCKS_RELAY_EXTRA_ADDRS.to_vec(),
     }),
-    location: None,
+    location: DUMMY_LOCATION.clone(),
 });
 const SHADOWSOCKS_RELAY_IPV4: Ipv4Addr = Ipv4Addr::new(123, 123, 123, 1);
 const SHADOWSOCKS_RELAY_IPV6: Ipv6Addr = Ipv6Addr::new(0x123, 0, 0, 0, 0, 0, 0, 2);
@@ -497,7 +507,7 @@ fn test_wireguard_entry() {
                             daita: false,
                             shadowsocks_extra_addr_in: vec![],
                         }),
-                        location: None,
+                        location: DUMMY_LOCATION.clone(),
                     },
                     Relay {
                         hostname: "se10-wireguard".to_string(),
@@ -518,7 +528,7 @@ fn test_wireguard_entry() {
                             daita: false,
                             shadowsocks_extra_addr_in: vec![],
                         }),
-                        location: None,
+                        location: DUMMY_LOCATION.clone(),
                     },
                 ],
             }],
@@ -1169,7 +1179,7 @@ fn test_include_in_country() {
                             shadowsocks_extra_addr_in: vec![],
                             daita: false,
                         }),
-                        location: None,
+                        location: DUMMY_LOCATION.clone(),
                     },
                     Relay {
                         hostname: "se10-wireguard".to_string(),
@@ -1190,7 +1200,7 @@ fn test_include_in_country() {
                             shadowsocks_extra_addr_in: vec![],
                             daita: false,
                         }),
-                        location: None,
+                        location: DUMMY_LOCATION.clone(),
                     },
                 ],
             }],
@@ -1438,7 +1448,11 @@ fn test_daita() {
     let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
 
     // Only pick relays that support DAITA
-    let query = RelayQueryBuilder::new().wireguard().daita().build();
+    let query = RelayQueryBuilder::new()
+        .wireguard()
+        .daita()
+        .daita_smart_routing(false)
+        .build();
     let relay = unwrap_entry_relay(relay_selector.get_relay_by_query(query).unwrap());
     assert!(
         supports_daita(&relay),
@@ -1449,11 +1463,57 @@ fn test_daita() {
     let query = RelayQueryBuilder::new()
         .wireguard()
         .daita()
+        .daita_smart_routing(false)
         .location(NON_DAITA_RELAY_LOCATION.clone())
         .build();
     relay_selector
         .get_relay_by_query(query)
         .expect_err("Expected to find no matching relay");
+
+    // Should be able to connect to non-DAITA relay with smart_routing
+    let query = RelayQueryBuilder::new()
+        .wireguard()
+        .daita()
+        .daita_smart_routing(true)
+        .location(NON_DAITA_RELAY_LOCATION.clone())
+        .build();
+    let relay = relay_selector
+        .get_relay_by_query(query)
+        .expect("Expected to find a relay with daita_smart_routing");
+    match relay {
+        GetRelay::Wireguard {
+            inner: WireguardConfig::Multihop { exit, entry },
+            ..
+        } => {
+            assert!(supports_daita(&entry), "entry relay must support DAITA");
+            assert!(!supports_daita(&exit), "exit relay must not support DAITA");
+        }
+        wrong_relay => panic!(
+            "Relay selector should have picked two Wireguard relays, instead chose {wrong_relay:?}"
+        ),
+    }
+
+    // Should be able to connect to DAITA relay with smart_routing
+    let query = RelayQueryBuilder::new()
+        .wireguard()
+        .daita()
+        .daita_smart_routing(true)
+        .location(DAITA_RELAY_LOCATION.clone())
+        .build();
+    let relay = relay_selector
+        .get_relay_by_query(query)
+        .expect("Expected to find a relay with daita_smart_routing");
+    match relay {
+        GetRelay::Wireguard {
+            inner: WireguardConfig::Singlehop { exit },
+            ..
+        } => {
+            assert!(supports_daita(&exit), "entry relay must support DAITA");
+        }
+        wrong_relay => panic!(
+            "Relay selector should have picked a single Wireguard relay, instead chose {wrong_relay:?}"
+        ),
+    }
 
     // DAITA-supporting relays can be picked even when it is disabled
     let query = RelayQueryBuilder::new()
@@ -1477,6 +1537,7 @@ fn test_daita() {
     let query = RelayQueryBuilder::new()
         .wireguard()
         .daita()
+        .daita_smart_routing(false)
         .multihop()
         .build();
     let relay = relay_selector.get_relay_by_query(query).unwrap();
@@ -1496,6 +1557,7 @@ fn test_daita() {
     let query = RelayQueryBuilder::new()
         .wireguard()
         .daita()
+        .daita_smart_routing(false)
         .multihop()
         .location(NON_DAITA_RELAY_LOCATION.clone())
         .build();

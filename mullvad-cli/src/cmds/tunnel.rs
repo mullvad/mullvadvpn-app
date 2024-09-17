@@ -1,8 +1,6 @@
 use anyhow::Result;
 use clap::Subcommand;
 use mullvad_management_interface::MullvadProxyClient;
-#[cfg(daita)]
-use mullvad_types::wireguard::DaitaSettings;
 use mullvad_types::{
     constraints::Constraint,
     wireguard::{QuantumResistantState, RotationInterval, DEFAULT_ROTATION_INTERVAL},
@@ -41,9 +39,11 @@ pub enum TunnelOptions {
         #[arg(long)]
         quantum_resistant: Option<QuantumResistantState>,
         /// Configure whether to enable DAITA
-        #[cfg(daita)]
         #[arg(long)]
         daita: Option<BooleanOption>,
+        /// Configure whether to enable DAITA smart routing
+        #[arg(long)]
+        daita_smart_routing: Option<BooleanOption>,
         /// The key rotation interval. Number of hours, or 'any'
         #[arg(long)]
         rotation_interval: Option<Constraint<RotationInterval>>,
@@ -101,7 +101,6 @@ impl Tunnel {
             tunnel_options.wireguard.quantum_resistant,
         );
 
-        #[cfg(daita)]
         print_option!("DAITA", tunnel_options.wireguard.daita.enabled);
 
         let key = rpc.get_wireguard_key().await?;
@@ -138,16 +137,16 @@ impl Tunnel {
             TunnelOptions::Wireguard {
                 mtu,
                 quantum_resistant,
-                #[cfg(daita)]
                 daita,
+                daita_smart_routing,
                 rotation_interval,
                 rotate_key,
             } => {
                 Self::handle_wireguard(
                     mtu,
                     quantum_resistant,
-                    #[cfg(daita)]
                     daita,
+                    daita_smart_routing,
                     rotation_interval,
                     rotate_key,
                 )
@@ -178,7 +177,8 @@ impl Tunnel {
     async fn handle_wireguard(
         mtu: Option<Constraint<u16>>,
         quantum_resistant: Option<QuantumResistantState>,
-        #[cfg(daita)] daita: Option<BooleanOption>,
+        daita: Option<BooleanOption>,
+        daita_smart_routing: Option<BooleanOption>,
         rotation_interval: Option<Constraint<RotationInterval>>,
         rotate_key: Option<RotateKey>,
     ) -> Result<()> {
@@ -194,11 +194,15 @@ impl Tunnel {
             println!("Quantum resistant setting has been updated");
         }
 
-        #[cfg(daita)]
-        if let Some(daita) = daita {
-            rpc.set_daita_settings(DaitaSettings { enabled: *daita })
-                .await?;
+        if let Some(enable_daita) = daita {
+            rpc.set_enable_daita(*enable_daita).await?;
             println!("DAITA setting has been updated");
+            println!("Smart routing setting has been updated");
+        }
+
+        if let Some(daita_smart_routing) = daita_smart_routing {
+            rpc.set_daita_smart_routing(*daita_smart_routing).await?;
+            println!("Smart routing setting has been updated");
         }
 
         if let Some(interval) = rotation_interval {

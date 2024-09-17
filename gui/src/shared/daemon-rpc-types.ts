@@ -183,6 +183,7 @@ export interface ITunnelStateRelayInfo {
 // The order of the variants match the priority order and can be sorted on.
 export enum FeatureIndicator {
   daita,
+  daitaSmartRouting,
   quantumResistance,
   multihop,
   bridgeMode,
@@ -551,6 +552,7 @@ export interface RelayOverride {
 
 export interface IDaitaSettings {
   enabled: boolean;
+  smartRouting: boolean;
 }
 
 export function parseSocketAddress(socketAddrStr: string): ISocketAddress {

@@ -80,6 +80,9 @@ pub struct QuantumResistantStateParseError;
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 pub struct DaitaSettings {
     pub enabled: bool,
+
+    #[serde(default)]
+    pub smart_routing: bool,
 }
 
 /// Contains account specific wireguard data

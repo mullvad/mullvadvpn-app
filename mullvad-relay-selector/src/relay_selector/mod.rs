@@ -124,6 +124,11 @@ pub struct AdditionalWireguardConstraints {
     /// If true, select WireGuard relays that support DAITA. If false, select any
     /// server.
     pub daita: bool,
+
+    /// If true and multihop is disabled, will set up multihop with an automatic entry relay if
+    /// DAITA is enabled.
+    pub daita_smart_routing: bool,
+
     /// If enabled, select relays that support PQ.
     pub quantum_resistant: QuantumResistantState,
 }
@@ -345,6 +350,7 @@ impl<'a> TryFrom<NormalSelectorConfig<'a>> for RelayQuery {
             } = wireguard_constraints;
             let AdditionalWireguardConstraints {
                 daita,
+                daita_smart_routing,
                 quantum_resistant,
             } = additional_constraints;
             WireguardRelayQuery {
@@ -354,6 +360,7 @@ impl<'a> TryFrom<NormalSelectorConfig<'a>> for RelayQuery {
                 entry_location,
                 obfuscation: ObfuscationQuery::from(obfuscation_settings),
                 daita: Constraint::Only(daita),
+                daita_smart_routing: Constraint::Only(daita_smart_routing),
                 quantum_resistant,
             }
         }
@@ -718,10 +725,87 @@ impl RelaySelector {
         parsed_relays: &ParsedRelays,
     ) -> Result<WireguardConfig, Error> {
         let candidates = filter_matching_relay_list(query, parsed_relays, custom_lists);
+
+        // are we using daita?
+        let using_daita = || query.wireguard_constraints().daita == Constraint::Only(true);
+
+        // is the `candidates` list empty because DAITA is enabled?
+        let no_relay_because_daita = || {
+            let mut query = query.clone();
+            let mut wireguard_constraints = query.wireguard_constraints().clone();
+            wireguard_constraints.daita = Constraint::Any;
+            query.set_wireguard_constraints(wireguard_constraints)?;
+            let candidates = filter_matching_relay_list(&query, parsed_relays, custom_lists);
+            Result::<_, Error>::Ok(!candidates.is_empty())
+        };
+
+        // is `smart_routing` enabled?
+        let smart_routing = || {
+            query
+                .wireguard_constraints()
+                .daita_smart_routing
+                .intersection(Constraint::Only(true))
+                .is_some()
+        };
+
+        // if we found no matching relays because DAITA was enabled, and `smart_routing` is enabled,
+        // try enabling multihop and connecting using an automatically selected entry relay.
+        if candidates.is_empty() && using_daita() && no_relay_because_daita()? && smart_routing() {
+            return Self::get_wireguard_auto_multihop_config(query, custom_lists, parsed_relays);
+        }
+
         helpers::pick_random_relay(&candidates)
             .cloned()
             .map(WireguardConfig::singlehop)
             .ok_or(Error::NoRelay)
+    }
+
+    /// Select a valid Wireguard exit relay, together with with an automatically chosen entry relay.
+    ///
+    /// # Returns
+    /// * An `Err` if no entry/exit relay can be chosen
+    /// * `Ok(WireguardInner::Multihop)` otherwise
+    fn get_wireguard_auto_multihop_config(
+        query: &RelayQuery,
+        custom_lists: &CustomListsSettings,
+        parsed_relays: &ParsedRelays,
+    ) -> Result<WireguardConfig, Error> {
+        let mut exit_relay_query = query.clone();
+
+        // DAITA should only be enabled for the entry relay
+        let mut wireguard_constraints = exit_relay_query.wireguard_constraints().clone();
+        wireguard_constraints.daita = Constraint::Only(false);
+        exit_relay_query.set_wireguard_constraints(wireguard_constraints)?;
+
+        let exit_candidates =
+            filter_matching_relay_list(&exit_relay_query, parsed_relays, custom_lists);
+        let exit = helpers::pick_random_relay(&exit_candidates).ok_or(Error::NoRelay)?;
+
+        // generate a list of potential entry relays, disregarding any location constraint
+        let mut entry_query = query.clone();
+        entry_query.set_location(Constraint::Any)?;
+        let mut entry_candidates =
+            filter_matching_relay_list(&entry_query, parsed_relays, custom_lists)
+                .into_iter()
+                .map(|entry| RelayWithDistance::new_with_distance_from(entry, &exit.location))
+                .collect_vec();
+
+        // sort entry relay candidates by distance, and pick one from those that are closest
+        entry_candidates.sort_unstable_by(|a, b| a.distance.total_cmp(&b.distance));
+        let smallest_distance = entry_candidates.first().map(|relay| relay.distance);
+        let smallest_distance = smallest_distance.unwrap_or_default();
+        let entry_candidates = entry_candidates
+            .into_iter()
+            // only consider the relay(s) with the smallest distance. note that the list is sorted.
+            // NOTE: we could relax this requirement, but since so few relays support DAITA
+            // (and this function is only used for daita) we might end up picking relays that are
+            // needlessly far away. Consider making this closure  configurable if needed.
+            .take_while(|relay| relay.distance <= smallest_distance)
+            .map(|relay_with_distance| relay_with_distance.relay)
+            .collect_vec();
+        let entry = pick_random_excluding(&entry_candidates, exit).ok_or(Error::NoRelay)?;
+
+        Ok(WireguardConfig::multihop(exit.clone(), entry.clone()))
     }
 
     /// This function selects a valid entry and exit relay to be used in a multihop configuration.
@@ -757,11 +841,6 @@ impl RelaySelector {
         let entry_candidates =
             filter_matching_relay_list(&entry_relay_query, parsed_relays, custom_lists);
 
-        fn pick_random_excluding<'a>(list: &'a [Relay], exclude: &'a Relay) -> Option<&'a Relay> {
-            list.iter()
-                .filter(|&a| a != exclude)
-                .choose(&mut thread_rng())
-        }
         // We avoid picking the same relay for entry and exit by choosing one and excluding it when
         // choosing the other.
         let (exit, entry) = match (exit_candidates.as_slice(), entry_candidates.as_slice()) {
@@ -938,10 +1017,9 @@ impl RelaySelector {
                     Err(Error::NoBridge)
                 }
                 TransportProtocol::Tcp => {
-                    let location = relay.location.as_ref().ok_or(Error::NoRelay)?;
                     Self::get_bridge_for(
                         bridge_query,
-                        location,
+                        &relay.location,
                         // FIXME: This is temporary while talpid-core only supports TCP proxies
                         TransportProtocol::Tcp,
                         parsed_relays,
@@ -1011,19 +1089,10 @@ impl RelaySelector {
         const MIN_BRIDGE_COUNT: usize = 5;
         let location = location.into();
 
-        #[derive(Clone)]
-        struct RelayWithDistance {
-            relay: Relay,
-            distance: f64,
-        }
-
         // Filter out all candidate bridges.
         let matching_bridges: Vec<RelayWithDistance> = relays
             .into_iter()
-            .map(|relay| RelayWithDistance {
-                distance: relay.location.as_ref().unwrap().distance_from(&location),
-                relay,
-            })
+            .map(|relay| RelayWithDistance::new_with_distance_from(relay, location))
             .sorted_unstable_by_key(|relay| relay.distance as usize)
             .take(MIN_BRIDGE_COUNT)
             .collect();
@@ -1059,7 +1128,7 @@ impl RelaySelector {
         let matching_locations: Vec<Location> =
             filter_matching_relay_list(query, parsed_relays, custom_lists)
                 .into_iter()
-                .filter_map(|relay| relay.location)
+                .map(|relay| relay.location)
                 .unique_by(|location| location.city.clone())
                 .collect();
 
@@ -1082,5 +1151,24 @@ impl RelaySelector {
         let candidates = filter_matching_relay_list(query, parsed_relays, custom_lists);
         // Pick one of the valid relays.
         helpers::pick_random_relay(&candidates).cloned()
+    }
+}
+
+fn pick_random_excluding<'a>(list: &'a [Relay], exclude: &'a Relay) -> Option<&'a Relay> {
+    list.iter()
+        .filter(|&a| a != exclude)
+        .choose(&mut thread_rng())
+}
+
+#[derive(Clone)]
+struct RelayWithDistance {
+    distance: f64,
+    relay: Relay,
+}
+
+impl RelayWithDistance {
+    fn new_with_distance_from(relay: Relay, from: impl Into<Coordinates>) -> Self {
+        let distance = relay.location.distance_from(from);
+        RelayWithDistance { relay, distance }
     }
 }

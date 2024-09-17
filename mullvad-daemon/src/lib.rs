@@ -264,6 +264,10 @@ pub enum DaemonCommand {
     SetQuantumResistantTunnel(ResponseTx<(), settings::Error>, QuantumResistantState),
     /// Set DAITA settings for the tunnel
     #[cfg(daita)]
+    SetEnableDaita(ResponseTx<(), settings::Error>, bool),
+    #[cfg(daita)]
+    SetDaitaSmartRouting(ResponseTx<(), settings::Error>, bool),
+    #[cfg(daita)]
     SetDaitaSettings(ResponseTx<(), settings::Error>, DaitaSettings),
     /// Set DNS options or servers to use
     SetDnsOptions(ResponseTx<(), settings::Error>, DnsOptions),
@@ -1254,6 +1258,10 @@ impl Daemon {
                 self.on_set_quantum_resistant_tunnel(tx, quantum_resistant_state)
                     .await
             }
+            #[cfg(daita)]
+            SetEnableDaita(tx, value) => self.on_set_daita_enabled(tx, value).await,
+            #[cfg(daita)]
+            SetDaitaSmartRouting(tx, value) => self.on_set_daita_smart_routing(tx, value).await,
             #[cfg(daita)]
             SetDaitaSettings(tx, daita_settings) => {
                 self.on_set_daita_settings(tx, daita_settings).await
@@ -2324,6 +2332,86 @@ impl Daemon {
     }
 
     #[cfg(daita)]
+    async fn on_set_daita_enabled(&mut self, tx: ResponseTx<(), settings::Error>, value: bool) {
+        use mullvad_types::{constraints::Constraint, Intersection};
+
+        let result = self
+            .settings
+            .update(|settings| {
+                settings.tunnel_options.wireguard.daita.enabled = value;
+
+                // enable smart-routing automatically with daita
+                if cfg!(not(target_os = "android")) {
+                    settings.tunnel_options.wireguard.daita.smart_routing = value
+                }
+            })
+            .await;
+
+        match result {
+            Ok(settings_changed) => {
+                Self::oneshot_send(tx, Ok(()), "set_daita_enabled response");
+                let RelaySettings::Normal(constraints) = &self.settings.relay_settings else {
+                    return; // DAITA is not supported for custom relays
+                };
+
+                let wireguard_enabled = constraints
+                    .tunnel_protocol
+                    .intersection(Constraint::Only(TunnelType::Wireguard))
+                    .is_some();
+
+                if settings_changed && wireguard_enabled {
+                    log::info!("Reconnecting because DAITA settings changed");
+                    self.reconnect_tunnel();
+                }
+            }
+            Err(e) => {
+                log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
+                Self::oneshot_send(tx, Err(e), "set_daita_enabled response");
+            }
+        }
+    }
+
+    #[cfg(daita)]
+    async fn on_set_daita_smart_routing(
+        &mut self,
+        tx: ResponseTx<(), settings::Error>,
+        value: bool,
+    ) {
+        use mullvad_types::{constraints::Constraint, Intersection};
+
+        match self
+            .settings
+            .update(|settings| settings.tunnel_options.wireguard.daita.smart_routing = value)
+            .await
+        {
+            Ok(settings_changed) => {
+                Self::oneshot_send(tx, Ok(()), "set_daita_smart_routing response");
+
+                let RelaySettings::Normal(constraints) = &self.settings.relay_settings else {
+                    return; // DAITA is not supported for custom relays
+                };
+
+                let wireguard_enabled = constraints
+                    .tunnel_protocol
+                    .intersection(Constraint::Only(TunnelType::Wireguard))
+                    .is_some();
+
+                let multihop_enabled = constraints.wireguard_constraints.use_multihop;
+                let daita_enabled = self.settings.tunnel_options.wireguard.daita.enabled;
+
+                if settings_changed && wireguard_enabled && daita_enabled && !multihop_enabled {
+                    log::info!("Reconnecting because DAITA settings changed");
+                    self.reconnect_tunnel();
+                }
+            }
+            Err(e) => {
+                log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
+                Self::oneshot_send(tx, Err(e), "set_daita_smart_routing response");
+            }
+        }
+    }
+
+    #[cfg(daita)]
     async fn on_set_daita_settings(
         &mut self,
         tx: ResponseTx<(), settings::Error>,
@@ -2931,8 +3019,14 @@ fn new_selector_config(settings: &Settings) -> SelectorConfig {
         wireguard: AdditionalWireguardConstraints {
             #[cfg(daita)]
             daita: settings.tunnel_options.wireguard.daita.enabled,
+            #[cfg(daita)]
+            daita_smart_routing: settings.tunnel_options.wireguard.daita.smart_routing,
+
             #[cfg(not(daita))]
             daita: false,
+            #[cfg(not(daita))]
+            daita_smart_routing: false,
+
             quantum_resistant: settings.tunnel_options.wireguard.quantum_resistant,
         },
     };

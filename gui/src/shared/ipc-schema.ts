@@ -14,7 +14,6 @@ import {
   IAccountData,
   IAppVersionInfo,
   ICustomList,
-  IDaitaSettings,
   IDevice,
   IDeviceRemoval,
   IDnsOptions,
@@ -195,7 +194,8 @@ export const ipcSchema = {
     testApiAccessMethodById: invoke<string, boolean>(),
     testCustomApiAccessMethod: invoke<CustomProxy, boolean>(),
     clearAllRelayOverrides: invoke<void, void>(),
-    setDaitaSettings: invoke<IDaitaSettings, void>(),
+    setEnableDaita: invoke<boolean, void>(),
+    setDaitaSmartRouting: invoke<boolean, void>(),
   },
   guiSettings: {
     '': notifyRenderer<IGuiSettingsState>(),

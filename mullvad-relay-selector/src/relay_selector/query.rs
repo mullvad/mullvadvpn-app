@@ -28,14 +28,14 @@
 //! queries and ensure that queries are built in a type-safe manner, reducing the risk
 //! of runtime errors and improving code readability.
 
-use crate::{AdditionalWireguardConstraints, Error};
+use crate::Error;
 use mullvad_types::{
     constraints::Constraint,
     relay_constraints::{
         BridgeConstraints, BridgeSettings, BridgeState, BridgeType, LocationConstraint,
         ObfuscationSettings, OpenVpnConstraints, Ownership, Providers, RelayConstraints,
-        SelectedObfuscation, ShadowsocksSettings, TransportPort, Udp2TcpObfuscationSettings,
-        WireguardConstraints,
+        RelaySettings, SelectedObfuscation, ShadowsocksSettings, TransportPort,
+        Udp2TcpObfuscationSettings, WireguardConstraints,
     },
     wireguard::QuantumResistantState,
     Intersection,
@@ -244,6 +244,13 @@ impl Default for RelayQuery {
     }
 }
 
+impl From<RelayQuery> for RelaySettings {
+    fn from(query: RelayQuery) -> Self {
+        let (relay_constraints, ..) = query.into_settings();
+        RelaySettings::from(relay_constraints)
+    }
+}
+
 /// A query for a relay with Wireguard-specific properties, such as `multihop` and [wireguard
 /// obfuscation][`SelectedObfuscation`].
 ///
@@ -261,6 +268,7 @@ pub struct WireguardRelayQuery {
     pub entry_location: Constraint<LocationConstraint>,
     pub obfuscation: ObfuscationQuery,
     pub daita: Constraint<bool>,
+    pub daita_smart_routing: Constraint<bool>,
     pub quantum_resistant: QuantumResistantState,
 }
 
@@ -346,6 +354,7 @@ impl WireguardRelayQuery {
             entry_location: Constraint::Any,
             obfuscation: ObfuscationQuery::Auto,
             daita: Constraint::Any,
+            daita_smart_routing: Constraint::Any,
             quantum_resistant: QuantumResistantState::Auto,
         }
     }
@@ -367,14 +376,14 @@ impl Default for WireguardRelayQuery {
     }
 }
 
-impl From<WireguardRelayQuery> for AdditionalWireguardConstraints {
-    /// The mapping from [`WireguardRelayQuery`] to [`AdditionalWireguardConstraints`].
+impl From<WireguardRelayQuery> for WireguardConstraints {
+    /// The mapping from [`WireguardRelayQuery`] to [`WireguardConstraints`].
     fn from(value: WireguardRelayQuery) -> Self {
-        AdditionalWireguardConstraints {
-            daita: value
-                .daita
-                .unwrap_or(AdditionalWireguardConstraints::default().daita),
-            quantum_resistant: value.quantum_resistant,
+        WireguardConstraints {
+            port: value.port,
+            ip_version: value.ip_version,
+            entry_location: value.entry_location,
+            use_multihop: value.use_multihop.unwrap_or(false),
         }
     }
 }
@@ -657,6 +666,17 @@ pub mod builder {
                     quantum_resistant: self.protocol.quantum_resistant,
                 },
             }
+        }
+    }
+
+    // impl-block for after DAITA is set
+    impl<Multihop, Obfuscation, QuantumResistant>
+        RelayQueryBuilder<Wireguard<Multihop, Obfuscation, bool, QuantumResistant>>
+    {
+        /// Enable DAITA smart routing.
+        pub fn daita_smart_routing(mut self, constraint: impl Into<Constraint<bool>>) -> Self {
+            self.query.wireguard_constraints.daita_smart_routing = constraint.into();
+            self
         }
     }
 
