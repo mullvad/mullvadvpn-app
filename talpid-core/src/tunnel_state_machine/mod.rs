@@ -628,17 +628,12 @@ impl SharedTunnelStateValues {
         if blocking {
             config.dns_servers = Some(vec![]);
         } else {
-            config.dns_servers = match self.dns_config.clone() {
-                DnsConfig::Default => None,
-                // TODO: Solve more uniformly
-                DnsConfig::Override {
-                    mut tunnel_config,
-                    non_tunnel_config,
-                } => {
-                    tunnel_config.extend(non_tunnel_config);
-                    Some(tunnel_config)
-                }
-            };
+            let addrs: Vec<_> = self
+                .dns_config
+                .resolve(vec![], vec![])
+                .addresses()
+                .collect();
+            config.dns_servers = if addrs.is_empty() { None } else { Some(addrs) };
         }
         config.allow_lan = self.allow_lan;
         config.excluded_packages = self.excluded_packages.clone();
