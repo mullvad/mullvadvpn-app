@@ -488,15 +488,17 @@ impl WireguardMonitor {
         log_path: Option<&Path>,
         args: TunnelArgs<'_, F>,
     ) -> Result<WireguardMonitor> {
+        let should_negotiate_ephemeral_peer = config.quantum_resistant || config.daita;
         let tunnel = Self::open_tunnel(
             args.runtime.clone(),
             &config,
             log_path,
             args.resource_dir,
             args.tun_provider.clone(),
-            // TODO: This seems like a bug! Should `config.quantum_resistant` really be the
-            // argument for `gateway_only` parameter?
-            config.quantum_resistant,
+            // In case we should negotiate an ephemeral peer, we should specify via AllowedIPs
+            // that we only allows traffic to/from the gateway. This is only needed on Android
+            // since we lack a firewall there.
+            should_negotiate_ephemeral_peer,
         )?;
 
         let (close_obfs_sender, close_obfs_listener) = sync_mpsc::channel();
@@ -578,7 +580,7 @@ impl WireguardMonitor {
                 }
             };
 
-            if config.quantum_resistant || config.daita {
+            if should_negotiate_ephemeral_peer {
                 // Ping before negotiating the ephemeral peer to make sure that the tunnel works.
                 tokio::task::spawn_blocking(ping()).await.unwrap()?;
                 let ephemeral_obfs_sender = close_obfs_sender.clone();
