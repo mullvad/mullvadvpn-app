@@ -11,7 +11,7 @@ import Foundation
 /// Custom implementation of iOS native `Duration` (available from iOS16). Meant as a
 /// drop-in replacement until the app supports iOS16. Ideally this whole file can
 /// then be deleted without affecting the rest of the code base.
-@available(iOS, introduced: 14.0, obsoleted: 16.0, message: "Replace with native Duration type.")
+@available(iOS, introduced: 15.0, obsoleted: 16.0, message: "Replace with native Duration type.")
 public struct Duration {
     private(set) var components: (seconds: Int64, attoseconds: Int64)
 

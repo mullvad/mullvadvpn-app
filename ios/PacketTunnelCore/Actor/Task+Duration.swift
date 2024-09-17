@@ -19,7 +19,7 @@ extension Task where Success == Never, Failure == Never {
 
      - Parameter duration: duration that determines how long the task should be suspended.
      */
-    @available(iOS, introduced: 14.0, obsoleted: 16.0, message: "Replace with Task.sleep(for:tolerance:clock:).")
+    @available(iOS, introduced: 15.0, obsoleted: 16.0, message: "Replace with Task.sleep(for:tolerance:clock:).")
     static func sleep(duration: Duration) async throws {
         let millis = UInt64(max(0, duration.milliseconds))
         let nanos = millis.saturatingMultiplication(1_000_000)
@@ -34,7 +34,7 @@ extension Task where Success == Never, Failure == Never {
 
      - Parameter duration: duration that determines how long the task should be suspended.
      */
-    @available(iOS, introduced: 14.0, obsoleted: 16.0, message: "Replace with Task.sleep(for:tolerance:clock:).")
+    @available(iOS, introduced: 15.0, obsoleted: 16.0, message: "Replace with Task.sleep(for:tolerance:clock:).")
     static func sleepUsingContinuousClock(for duration: Duration) async throws {
         let timer = DispatchSource.makeTimerSource()
 

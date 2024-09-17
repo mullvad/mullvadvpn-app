@@ -282,7 +282,7 @@ class EditAccessMethodViewController: UITableViewController {
 
         // Reconfigure the test button on status changes.
         if let previousValue, previousValue.testingStatus != newValue.testingStatus {
-            snapshot.reconfigureOrReloadItems([.testMethod])
+            snapshot.reconfigureItems([.testMethod])
         }
 
         snapshot.appendSections([.testingStatus])
@@ -293,7 +293,7 @@ class EditAccessMethodViewController: UITableViewController {
             snapshot.appendItems([.testingStatus], toSection: .testingStatus)
 
             if let previousValue, previousValue.testingStatus != newValue.testingStatus {
-                snapshot.reconfigureOrReloadItems([.testingStatus])
+                snapshot.reconfigureItems([.testingStatus])
             }
 
             // Show cancel test button below test status.

@@ -77,7 +77,7 @@ extension LocationDiffableDataSourceProtocol {
             snapshot.appendItems(items, toSection: section)
 
             if reloadExisting {
-                snapshot.reconfigureOrReloadItems(items)
+                snapshot.reconfigureItems(items)
             }
         }
 
