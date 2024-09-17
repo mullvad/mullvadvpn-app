@@ -31,8 +31,18 @@ val Typography.connectionStatus: TextStyle
     @Composable
     get() {
         return TextStyle(
-            fontWeight = FontWeight.Bold,
+            fontWeight = FontWeight.SemiBold,
             letterSpacing = TextUnit.Unspecified,
-            fontSize = TypeScale.TextMedium,
+            fontSize = TypeScale.TitleLarge,
+        )
+    }
+
+val Typography.hostname: TextStyle
+    @Composable
+    get() {
+        return TextStyle(
+            fontWeight = FontWeight.Normal,
+            letterSpacing = TextUnit.Unspecified,
+            fontSize = TypeScale.TextMediumPlus,
         )
     }
