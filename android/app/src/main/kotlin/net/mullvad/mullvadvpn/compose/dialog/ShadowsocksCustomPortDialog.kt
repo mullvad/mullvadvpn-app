@@ -12,29 +12,28 @@ import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.model.Port
-import net.mullvad.mullvadvpn.viewmodel.WireguardCustomPortDialogSideEffect
-import net.mullvad.mullvadvpn.viewmodel.WireguardCustomPortDialogViewModel
+import net.mullvad.mullvadvpn.viewmodel.ShadowsocksCustomPortDialogSideEffect
+import net.mullvad.mullvadvpn.viewmodel.ShadowsocksCustomPortDialogViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Destination<RootGraph>(style = DestinationStyle.Dialog::class)
 @Composable
-fun WireguardCustomPort(
+fun ShadowsocksCustomPort(
     @Suppress("UNUSED_PARAMETER") navArg: CustomPortNavArgs,
     backNavigator: ResultBackNavigator<Port?>,
 ) {
-    val viewModel = koinViewModel<WireguardCustomPortDialogViewModel>()
+    val viewModel = koinViewModel<ShadowsocksCustomPortDialogViewModel>()
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     CollectSideEffectWithLifecycle(viewModel.uiSideEffect) {
         when (it) {
-            is WireguardCustomPortDialogSideEffect.Success -> backNavigator.navigateBack(it.port)
+            is ShadowsocksCustomPortDialogSideEffect.Success -> backNavigator.navigateBack(it.port)
         }
     }
-
     CustomPortDialog(
         title =
-            stringResource(R.string.custom_port_dialog_title, stringResource(R.string.wireguard)),
+            stringResource(R.string.custom_port_dialog_title, stringResource(R.string.shadowsocks)),
         portInput = uiState.portInput,
         isValidInput = uiState.isValidInput,
         showResetToDefault = uiState.showResetToDefault,

@@ -98,7 +98,6 @@
     <string name="custom_port_dialog_placeholder">Indtast port</string>
     <string name="custom_port_dialog_remove">Fjern brugerdefineret port</string>
     <string name="custom_port_dialog_submit">Indstil port</string>
-    <string name="custom_port_dialog_title">Brugerdefineret WireGuard-port</string>
     <string name="custom_port_dialog_valid_ranges">Gyldige områder: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Kunne ikke fortolke værten for den tilpassede tunnel. Prøv at ændre dine indstillinger.</string>
     <string name="daita_info">%1$s (%2$s) skjuler mønstre i din krypterede VPN-trafik. Hvis nogen overvåger din forbindelse, gør dette det betydeligt sværere for dem at identificere, hvilke websteder du besøger. Mønstrene skjules ved omhyggeligt at tilføje netværksstøj og gøre alle netværkspakker lige store.</string>

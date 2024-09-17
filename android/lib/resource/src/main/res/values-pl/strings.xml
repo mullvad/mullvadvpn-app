@@ -98,7 +98,6 @@
     <string name="custom_port_dialog_placeholder">Wprowadź port</string>
     <string name="custom_port_dialog_remove">Usuń port niestandardowy</string>
     <string name="custom_port_dialog_submit">Ustaw port</string>
-    <string name="custom_port_dialog_title">Niestandardowy port WireGuard</string>
     <string name="custom_port_dialog_valid_ranges">Prawidłowe zakresy: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Nie można rozpoznać hosta tunelu niestandardowego. Spróbuj zmienić ustawienia.</string>
     <string name="daita_info">%1$s (%2$s) ukrywa wzorce w zaszyfrowanym ruchu VPN. Jeśli ktoś monitoruje Twoje połączenie, znacznie utrudni to identyfikację odwiedzanych witryn. Odbywa się to poprzez ostrożne dodawanie szumów sieciowych i ustawianie tego samego rozmiaru wszystkich pakietów sieciowych.</string>

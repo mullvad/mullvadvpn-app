@@ -42,16 +42,10 @@ fun SelectableCell(
     isEnabled: Boolean = true,
     iconContentDescription: String? = null,
     selectedIcon: @Composable RowScope.() -> Unit = {
-        Icon(
-            painter = painterResource(id = R.drawable.icon_tick),
-            contentDescription = iconContentDescription,
-            tint = MaterialTheme.colorScheme.onSelected,
-            modifier =
-                Modifier.padding(end = Dimens.selectableCellTextMargin)
-                    .alpha(
-                        if (isSelected && !isEnabled) AlphaDisabled
-                        else if (isSelected) AlphaVisible else AlphaInvisible
-                    ),
+        SelectableIcon(
+            iconContentDescription = iconContentDescription,
+            isSelected = isSelected,
+            isEnabled = isEnabled,
         )
     },
     titleStyle: TextStyle = MaterialTheme.typography.labelLarge,
@@ -96,5 +90,27 @@ fun SelectableCell(
         startPadding = startPadding,
         iconView = selectedIcon,
         testTag = testTag,
+    )
+}
+
+@Composable
+fun RowScope.SelectableIcon(
+    iconContentDescription: String?,
+    isSelected: Boolean,
+    isEnabled: Boolean,
+) {
+    Icon(
+        painter = painterResource(id = R.drawable.icon_tick),
+        contentDescription = iconContentDescription,
+        tint = MaterialTheme.colorScheme.onSelected,
+        modifier =
+            Modifier.padding(end = Dimens.selectableCellTextMargin)
+                .alpha(
+                    when {
+                        isSelected && !isEnabled -> AlphaDisabled
+                        isSelected -> AlphaVisible
+                        else -> AlphaInvisible
+                    }
+                ),
     )
 }
