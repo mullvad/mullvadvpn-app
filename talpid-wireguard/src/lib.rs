@@ -20,7 +20,7 @@ use std::{
 };
 #[cfg(target_os = "linux")]
 use std::{env, sync::LazyLock};
-use talpid_routing as routing;
+#[cfg(not(target_os = "android"))]
 use talpid_routing::{self, RequiredRoute};
 #[cfg(not(windows))]
 use talpid_tunnel::tun_provider;
@@ -928,7 +928,7 @@ impl WireguardMonitor {
         resource_dir: &Path,
         tun_provider: Arc<Mutex<TunProvider>>,
         #[cfg(target_os = "android")] gateway_only: bool,
-        #[cfg(windows)] route_manager: crate::routing::RouteManagerHandle,
+        #[cfg(windows)] route_manager: talpid_routing::RouteManagerHandle,
         #[cfg(windows)] setup_done_tx: mpsc::Sender<std::result::Result<(), BoxedError>>,
     ) -> Result<Box<dyn Tunnel>> {
         log::debug!("Tunnel MTU: {}", config.mtu);
@@ -1068,6 +1068,7 @@ impl WireguardMonitor {
 
     /// Returns routes to the peer endpoints (through the physical interface).
     #[cfg_attr(target_os = "linux", allow(unused_variables))]
+    #[cfg(not(target_os = "android"))]
     fn get_endpoint_routes(endpoints: &[IpAddr]) -> impl Iterator<Item = RequiredRoute> + '_ {
         #[cfg(target_os = "linux")]
         {
@@ -1078,37 +1079,42 @@ impl WireguardMonitor {
         endpoints.iter().map(|ip| {
             RequiredRoute::new(
                 ipnetwork::IpNetwork::from(*ip),
-                routing::NetNode::DefaultNode,
+                talpid_routing::NetNode::DefaultNode,
             )
         })
     }
 
     #[cfg_attr(not(target_os = "windows"), allow(unused_variables))]
-    fn get_tunnel_nodes(iface_name: &str, config: &Config) -> (routing::Node, routing::Node) {
+    #[cfg(not(target_os = "android"))]
+    fn get_tunnel_nodes(
+        iface_name: &str,
+        config: &Config,
+    ) -> (talpid_routing::Node, talpid_routing::Node) {
         #[cfg(windows)]
         {
-            let v4 = routing::Node::new(config.ipv4_gateway.into(), iface_name.to_string());
+            let v4 = talpid_routing::Node::new(config.ipv4_gateway.into(), iface_name.to_string());
             let v6 = if let Some(ipv6_gateway) = config.ipv6_gateway.as_ref() {
-                routing::Node::new((*ipv6_gateway).into(), iface_name.to_string())
+                talpid_routing::Node::new((*ipv6_gateway).into(), iface_name.to_string())
             } else {
-                routing::Node::device(iface_name.to_string())
+                talpid_routing::Node::device(iface_name.to_string())
             };
             (v4, v6)
         }
 
         #[cfg(not(windows))]
         {
-            let node = routing::Node::device(iface_name.to_string());
+            let node = talpid_routing::Node::device(iface_name.to_string());
             (node.clone(), node)
         }
     }
 
     /// Return routes for all allowed IPs, as well as the gateway, except 0.0.0.0/0.
+    #[cfg(not(target_os = "android"))]
     fn get_pre_tunnel_routes<'a>(
         iface_name: &str,
         config: &'a Config,
     ) -> impl Iterator<Item = RequiredRoute> + 'a {
-        let gateway_node = routing::Node::device(iface_name.to_string());
+        let gateway_node = talpid_routing::Node::device(iface_name.to_string());
         let gateway_routes = std::iter::once(RequiredRoute::new(
             ipnetwork::Ipv4Network::from(config.ipv4_gateway).into(),
             gateway_node.clone(),
@@ -1139,6 +1145,7 @@ impl WireguardMonitor {
     }
 
     /// Return any 0.0.0.0/0 routes specified by the allowed IPs.
+    #[cfg(not(target_os = "android"))]
     fn get_post_tunnel_routes<'a>(
         iface_name: &str,
         config: &'a Config,
