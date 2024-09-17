@@ -29,6 +29,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Changed
 - Update colors in the app to be more in line with material design.
+- Connect screen has been redesigned and now includes feature indicators.
 
 ### Fixed
 - Fix VPN service being recreated multiple times when toggling certain options.
