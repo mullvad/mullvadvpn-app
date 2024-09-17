@@ -68,7 +68,7 @@ class ListCustomListViewController: UIViewController {
 
         if reloadExisting {
             for item in fetchedItems {
-                snapshot.reconfigureOrReloadItems([ItemIdentifier(id: item.id)])
+                snapshot.reconfigureItems([ItemIdentifier(id: item.id)])
             }
         }
 
