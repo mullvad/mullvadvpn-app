@@ -17,9 +17,7 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = Versions.jvmTarget
-    }
+    kotlinOptions { jvmTarget = Versions.jvmTarget }
 
     lint {
         lintConfig = file("${rootProject.projectDir}/config/lint.xml")
@@ -29,11 +27,12 @@ android {
 
     packaging {
         resources {
-            pickFirsts += setOf(
-                // Fixes packaging error caused by: jetified-junit-*
-                "META-INF/LICENSE.md",
-                "META-INF/LICENSE-notice.md"
-            )
+            pickFirsts +=
+                setOf(
+                    // Fixes packaging error caused by: jetified-junit-*
+                    "META-INF/LICENSE.md",
+                    "META-INF/LICENSE-notice.md",
+                )
         }
     }
 }

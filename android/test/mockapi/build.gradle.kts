@@ -20,11 +20,7 @@ android {
         missingDimensionStrategy(FlavorDimensions.BILLING, Flavors.OSS)
         missingDimensionStrategy(FlavorDimensions.INFRASTRUCTURE, Flavors.PROD)
 
-        testInstrumentationRunnerArguments.putAll(
-            mapOf(
-                "clearPackageData" to "true",
-            )
-        )
+        testInstrumentationRunnerArguments.putAll(mapOf("clearPackageData" to "true"))
     }
 
     flavorDimensions += FlavorDimensions.BILLING
@@ -51,11 +47,12 @@ android {
 
     packaging {
         resources {
-            pickFirsts += setOf(
-                // Fixes packaging error caused by: jetified-junit-*
-                "META-INF/LICENSE.md",
-                "META-INF/LICENSE-notice.md"
-            )
+            pickFirsts +=
+                setOf(
+                    // Fixes packaging error caused by: jetified-junit-*
+                    "META-INF/LICENSE.md",
+                    "META-INF/LICENSE-notice.md",
+                )
         }
     }
 }

@@ -22,9 +22,7 @@ android {
         abortOnError = true
         warningsAsErrors = true
     }
-    buildFeatures {
-        buildConfig = true
-    }
+    buildFeatures { buildConfig = true }
 }
 
 dependencies { implementation(libs.kotlin.stdlib) }

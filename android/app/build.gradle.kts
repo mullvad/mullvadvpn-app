@@ -1,7 +1,5 @@
 import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
-import com.android.build.gradle.internal.lint.LintModelWriterTask
 import com.android.build.gradle.internal.tasks.factory.dependsOn
-import com.android.build.gradle.tasks.MergeSourceSetFolders
 import java.io.FileInputStream
 import java.util.Properties
 import org.gradle.configurationcache.extensions.capitalized
@@ -18,11 +16,11 @@ plugins {
 }
 
 val repoRootPath = rootProject.projectDir.absoluteFile.parentFile.absolutePath
-val extraAssetsDirectory = "${project.buildDir}/extraAssets"
-val relayListPath = "$extraAssetsDirectory/relays.json"
-val maybenotMachinesDirectory = "$extraAssetsDirectory/maybenot_machines"
+val extraAssetsDirectory = layout.buildDirectory.dir("extraAssets").get()
+val relayListPath = extraAssetsDirectory.file("relays.json").asFile
+val maybenotMachinesFile = extraAssetsDirectory.file("maybenot_machines").asFile
 val defaultChangelogAssetsDirectory = "$repoRootPath/android/src/main/play/release-notes/"
-val extraJniDirectory = "${project.buildDir}/extraJni"
+val extraJniDirectory = layout.buildDirectory.dir("extraJni").get()
 
 val credentialsPath = "${rootProject.projectDir}/credentials"
 val keystorePropertiesFile = file("$credentialsPath/keystore.properties")
@@ -77,7 +75,7 @@ android {
             isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
         }
         create(BuildTypes.FDROID) {
@@ -144,7 +142,7 @@ android {
                 "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
                 "-opt-in=kotlinx.coroutines.ObsoleteCoroutinesApi",
                 // Opt-in option for Koin annotation of KoinComponent.
-                "-opt-in=kotlin.RequiresOptIn"
+                "-opt-in=kotlin.RequiresOptIn",
             )
     }
 
@@ -174,7 +172,7 @@ android {
                     "META-INF/LICENSE.md",
                     "META-INF/LICENSE-notice.md",
                     "META-INF/io.netty.versions.properties",
-                    "META-INF/INDEX.LIST"
+                    "META-INF/INDEX.LIST",
                 )
         }
     }
@@ -193,7 +191,7 @@ android {
         buildConfigField(
             "boolean",
             "ENABLE_IN_APP_VERSION_NOTIFICATIONS",
-            enableInAppVersionNotifications
+            enableInAppVersionNotifications,
         )
     }
 
@@ -229,7 +227,7 @@ android {
 
         val createDistBundle =
             tasks.register<Copy>("create${capitalizedVariantName}DistBundle") {
-                from("$buildDir/outputs/bundle/$variantName")
+                from("${layout.buildDirectory}/outputs/bundle/$variantName")
                 into("${rootDir.parent}/dist")
                 include { it.name.endsWith(".aab") }
                 rename { "$artifactName.aab" }
@@ -254,8 +252,6 @@ junitPlatform {
     }
 }
 
-composeCompiler { enableStrongSkippingMode = true }
-
 androidComponents {
     beforeVariants { variantBuilder ->
         variantBuilder.enable =
@@ -279,7 +275,7 @@ configure<org.owasp.dependencycheck.gradle.extension.DependencyCheckExtension> {
 
 tasks.register("ensureRelayListExist") {
     doLast {
-        if (!file(relayListPath).exists()) {
+        if (!relayListPath.exists()) {
             throw GradleException("Missing relay list: $relayListPath")
         }
     }
@@ -287,15 +283,15 @@ tasks.register("ensureRelayListExist") {
 
 tasks.register("ensureMaybenotMachinesExist") {
     doLast {
-        if (!file(maybenotMachinesDirectory).exists()) {
-            throw GradleException("Missing maybenot machines: $maybenotMachinesDirectory")
+        if (!maybenotMachinesFile.exists()) {
+            throw GradleException("Missing maybenot machines: $maybenotMachinesFile")
         }
     }
 }
 
 tasks.register("ensureJniDirectoryExist") {
     doLast {
-        if (!file(extraJniDirectory).exists()) {
+        if (!extraJniDirectory.asFile.exists()) {
             throw GradleException("Missing JNI directory: $extraJniDirectory")
         }
     }
