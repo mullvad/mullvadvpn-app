@@ -179,6 +179,7 @@ public enum AccessibilityIdentifier: String {
     case wireGuardPort
 
     // Custom DNS
+    case blockAll
     case blockAdvertising
     case blockTracking
     case blockMalware
