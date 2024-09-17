@@ -48,6 +48,7 @@ import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicator
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.compose.util.singleClick
 import net.mullvad.mullvadvpn.compose.util.toDp
 import net.mullvad.mullvadvpn.constant.DAEMON_READY_TIMEOUT_MS
 import net.mullvad.mullvadvpn.lib.common.util.openLink
@@ -201,7 +202,7 @@ private fun ButtonPanel(isStartingService: Boolean, onAcceptClicked: () -> Unit)
         } else {
             PrimaryButton(
                 text = stringResource(id = R.string.agree_and_continue),
-                onClick = onAcceptClicked::invoke,
+                onClick = singleClick(onAcceptClicked),
             )
         }
     }
