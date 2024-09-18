@@ -14,7 +14,7 @@ import net.mullvad.mullvadvpn.lib.model.Provider
 import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 
-val RELAY =
+private val RELAY =
     RelayItem.Location.Relay(
         id =
             GeoLocationId.Hostname(

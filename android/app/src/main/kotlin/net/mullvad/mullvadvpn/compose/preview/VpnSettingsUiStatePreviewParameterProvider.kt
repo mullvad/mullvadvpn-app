@@ -6,12 +6,12 @@ import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.lib.model.Mtu
 import net.mullvad.mullvadvpn.lib.model.Port
-import net.mullvad.mullvadvpn.lib.model.PortRange
 import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
 import net.mullvad.mullvadvpn.viewmodel.CustomDnsItem
 
 private const val MTU = 1337
-private const val PORT = 9001
+@Suppress("MagicNumber") private val PORT1 = Port(9001)
+@Suppress("MagicNumber") private val PORT2 = Port(12433)
 
 class VpnSettingsUiStatePreviewParameterProvider : PreviewParameterProvider<VpnSettingsUiState> {
     override val values =
@@ -35,8 +35,8 @@ class VpnSettingsUiStatePreviewParameterProvider : PreviewParameterProvider<VpnS
                     ),
                 quantumResistant = QuantumResistantState.On,
                 selectedWireguardPort = Constraint.Any,
-                customWireguardPort = Port(PORT),
-                availablePortRanges = listOf(PortRange(IntRange(PORT, PORT + PORT))),
+                customWireguardPort = PORT1,
+                availablePortRanges = listOf(PORT1..PORT2),
                 systemVpnSettingsAvailable = true,
             ),
         )

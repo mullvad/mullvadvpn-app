@@ -6,7 +6,8 @@ import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.Provider
 import net.mullvad.mullvadvpn.lib.model.ProviderId
 
-val PROVIDER = Provider(providerId = ProviderId("provider1"), ownership = Ownership.MullvadOwned)
+private val PROVIDER =
+    Provider(providerId = ProviderId("provider1"), ownership = Ownership.MullvadOwned)
 
 class FilterUiStatePreviewParameterProvider : PreviewParameterProvider<RelayFilterUiState> {
     override val values =
