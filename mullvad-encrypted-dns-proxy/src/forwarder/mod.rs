@@ -1,3 +1,4 @@
+//! Forward TCP traffic over various proxy configurations.
 use std::{
     io,
     task::{ready, Poll},

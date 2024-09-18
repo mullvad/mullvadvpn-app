@@ -1,3 +1,5 @@
+//! Parse and use various proxy configurations as they are retrieved via AAAA records, hopefully
+//! served by DoH resolvers.
 use std::{
     io::Cursor,
     net::{Ipv6Addr, SocketAddrV4},

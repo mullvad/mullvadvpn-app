@@ -1,3 +1,5 @@
+//! Resolve valid proxy configurations via DoH.
+//!
 use crate::config;
 use hickory_resolver::{config::*, error::ResolveError, TokioAsyncResolver};
 use rustls::ClientConfig;
