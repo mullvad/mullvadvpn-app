@@ -2236,6 +2236,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "mullvad-encrypted-dns-proxy"
+version = "0.0.0"
+dependencies = [
+ "byteorder",
+ "hickory-resolver",
+ "rustls",
+ "tokio",
+ "webpki-roots",
+]
+
+[[package]]
 name = "mullvad-exclude"
 version = "0.0.0"
 dependencies = [
@@ -2261,6 +2272,7 @@ dependencies = [
  "cbindgen",
  "libc",
  "log",
+ "mullvad-encrypted-dns-proxy",
  "oslog",
  "shadowsocks-service",
  "talpid-tunnel-config-client",
@@ -2320,17 +2332,6 @@ dependencies = [
  "cbindgen",
  "mullvad-paths",
  "talpid-platform-metadata",
-]
-
-[[package]]
-name = "mullvad-obfuscated-dns-proxy"
-version = "0.0.0"
-dependencies = [
- "byteorder",
- "hickory-resolver",
- "rustls",
- "tokio",
- "webpki-roots",
 ]
 
 [[package]]

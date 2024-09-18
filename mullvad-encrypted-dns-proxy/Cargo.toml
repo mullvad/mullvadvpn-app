@@ -1,5 +1,5 @@
 [package]
-name = "mullvad-obfuscated-dns-proxy"
+name = "mullvad-encrypted-dns-proxy"
 description = "A port forwarding proxy that retrieves its configuration from a AAAA record over DoH"
 authors.workspace = true
 repository.workspace = true
