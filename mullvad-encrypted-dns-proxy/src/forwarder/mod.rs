@@ -47,7 +47,7 @@ impl tokio::io::AsyncRead for Forwarder {
         match ready!(socket.poll_read(cx, buf)) {
             // in this case, we can read and deobfuscate.
             Ok(()) => {
-                let newly_read_bytes = &mut buf.filled_mut()[new_read_start..];
+                let newly_read_bytes = &mut buf.initialized_mut()[new_read_start..];
                 self.read_obfuscator.obfuscate(newly_read_bytes);
                 Poll::Ready(Ok(()))
             }
@@ -105,4 +105,57 @@ async fn forward(
         sink.write_all(bytes_received).await?;
     }
     Ok(())
+}
+
+// Constructs a server and a client, uses the Xor obfuscator to forward some bytes between to see
+// the obfuscation works.
+#[tokio::test]
+async fn test_async_methods() {
+    use std::net::Ipv6Addr;
+    use tokio::io::{AsyncReadExt, AsyncWriteExt};
+    let server_listener =
+        tokio::net::TcpListener::bind("127.0.0.1:0".parse::<std::net::SocketAddr>().unwrap())
+            .await
+            .unwrap();
+    let listener_addr = server_listener.local_addr().unwrap();
+    let xor_key: &[u8] = &[0x01, 0x02, 0x03, 0x04, 0x00, 0x00];
+    let address_bytes: &[u8] = &[127, 0, 0, 1];
+    let port: &[u8] = &listener_addr.port().to_ne_bytes();
+
+    // 0x2001 - bogus IPv6 bytes
+    // 0x0300 - XOR proxy type
+    let mut ipv6_bytes = vec![0x20, 0x01, 0x03, 0x00];
+    ipv6_bytes.extend_from_slice(address_bytes);
+    ipv6_bytes.extend_from_slice(port);
+    ipv6_bytes.extend_from_slice(xor_key);
+    let mut ipv6_buf = [0u8; 16];
+    ipv6_buf.copy_from_slice(&ipv6_bytes);
+
+    let ipv6 = Ipv6Addr::from(ipv6_buf);
+
+    let xor = crate::config::Xor::try_from(ipv6).unwrap();
+    let server_xor = Obfuscator::clone(&xor);
+
+    tokio::spawn(async move {
+        let (client_conn, _) = server_listener.accept().await.unwrap();
+        let mut forwarder = Forwarder {
+            read_obfuscator: server_xor.clone(),
+            write_obfuscator: server_xor.clone(),
+            server_connection: client_conn,
+        };
+        let mut buf = vec![0u8; 1024];
+        while let Ok(bytes_read) = forwarder.read(&mut buf).await {
+            forwarder.write_all(&buf[..bytes_read]).await.unwrap();
+        }
+    });
+
+    let mut client = Forwarder::connect(Box::new(xor)).await.unwrap();
+
+    for _ in 0..5 {
+        let payload = (1..127).collect::<Vec<u8>>();
+        client.write_all(&payload).await.unwrap();
+        let mut read_buf = vec![0u8; payload.len()];
+        client.read_exact(&mut read_buf).await.unwrap();
+        assert_eq!(payload, read_buf);
+    }
 }
