@@ -40,7 +40,7 @@ class MethodSettingsDataSourceConfiguration {
         snapshot.appendItems([.protocol], toSection: .protocol)
         // Reconfigure protocol cell on change.
         if let previousValue, previousValue.method != newValue.method {
-            snapshot.reconfigureOrReloadItems([.protocol])
+            snapshot.reconfigureItems([.protocol])
         }
 
         // Add proxy configuration section if the access method is configurable.
@@ -56,12 +56,12 @@ class MethodSettingsDataSourceConfiguration {
             snapshot.appendItems(MethodSettingsItemIdentifier.allShadowsocksItems, toSection: .proxyConfiguration)
             // Reconfigure cipher cell on change.
             if let previousValue, previousValue.shadowsocks.cipher != newValue.shadowsocks.cipher {
-                snapshot.reconfigureOrReloadItems([.proxyConfiguration(.shadowsocks(.cipher))])
+                snapshot.reconfigureItems([.proxyConfiguration(.shadowsocks(.cipher))])
             }
 
             // Reconfigure the proxy configuration cell if validation error changed.
             if previousValidationError != newValidationError {
-                snapshot.reconfigureOrReloadItems(MethodSettingsItemIdentifier.allShadowsocksItems)
+                snapshot.reconfigureItems(MethodSettingsItemIdentifier.allShadowsocksItems)
             }
         case .socks5:
             snapshot.appendItems(
@@ -71,7 +71,7 @@ class MethodSettingsDataSourceConfiguration {
 
             // Reconfigure the proxy configuration cell if validation error changed.
             if previousValidationError != newValidationError {
-                snapshot.reconfigureOrReloadItems(
+                snapshot.reconfigureItems(
                     MethodSettingsItemIdentifier.allSocksItems(authenticate: newValue.socks.authenticate)
                 )
             }
@@ -94,7 +94,7 @@ class MethodSettingsDataSourceConfiguration {
         }
 
         if let previousValue, previousValue.testingStatus != newValue.testingStatus {
-            snapshot.reconfigureOrReloadItems(snapshot.itemIdentifiers)
+            snapshot.reconfigureItems(snapshot.itemIdentifiers)
         }
 
         dataSource?.apply(snapshot, animatingDifferences: animated, completion: completion)
@@ -114,7 +114,7 @@ class MethodSettingsDataSourceConfiguration {
             MethodSettingsItemIdentifier.allSocksItems(authenticate: viewModel.socks.authenticate)
         }
 
-        snapshot.reconfigureOrReloadItems(itemsToReload + [.validationError])
+        snapshot.reconfigureItems(itemsToReload + [.validationError])
         dataSource?.apply(snapshot, animatingDifferences: false)
     }
 }
