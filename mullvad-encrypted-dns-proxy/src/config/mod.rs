@@ -10,12 +10,21 @@ mod xor;
 pub use plain::Plain;
 pub use xor::Xor;
 
+/// An error that happens when parsing IPv6 addresses into proxy configurations.
 #[derive(Debug)]
 pub enum Error {
-    UnknownType(u16),
+    /// IP address representing a Xor proxy was not valid
     InvalidXor(xor::Error),
+    /// IP address representing the plain proxy was not valid
     InvalidPlain(plain::Error),
+    /// IP addresses did not contain any valid proxy configuration
+    NoProxies,
 }
+
+/// If a given IPv6 address does not contain a valid value for the proxy version, this error type
+/// will contain the unrecognized value.
+#[derive(Debug)]
+pub struct ErrorUnknownType(u16);
 
 /// Type of a proxy configuration. Derived from the 2nd hextet of an IPv6 address in network byte
 /// order. E.g. an IPv6 address such as `7f7f:2323::`  would have a proxy type value of `0x2323`.
@@ -28,7 +37,7 @@ enum ProxyType {
 }
 
 impl TryFrom<Ipv6Addr> for ProxyType {
-    type Error = Error;
+    type Error = ErrorUnknownType;
 
     fn try_from(value: Ipv6Addr) -> Result<Self, Self::Error> {
         let mut data = Cursor::new(value.octets());
@@ -43,10 +52,19 @@ impl TryFrom<Ipv6Addr> for ProxyType {
             0x01 => Ok(Self::Plain),
             0x02 => Ok(Self::XorV1),
             0x03 => Ok(Self::XorV2),
-            unknown => Err(Error::UnknownType(unknown)),
+            unknown => Err(ErrorUnknownType(unknown)),
         }
     }
 }
+
+/// Contains valid proxy configurations as derived from a set of IPv6 addresses.
+pub struct AvailableProxies {
+    /// Plain proxies just forward traffic without any obfuscation.
+    pub plain: Vec<Plain>,
+    /// Xor proxies xor a pre-shared key with all the traffic.
+    pub xor: Vec<Xor>,
+}
+
 
 impl TryFrom<Vec<Ipv6Addr>> for AvailableProxies {
     type Error = Error;
@@ -58,29 +76,27 @@ impl TryFrom<Vec<Ipv6Addr>> for AvailableProxies {
         };
 
         for ip in ips {
-            match ProxyType::try_from(ip)? {
-                ProxyType::Plain => {
+            match ProxyType::try_from(ip) {
+                Ok(ProxyType::Plain) => {
                     proxies
                         .plain
                         .push(Plain::try_from(ip).map_err(Error::InvalidPlain)?);
                 }
-                ProxyType::XorV2 => {
+                Ok(ProxyType::XorV2) => {
                     proxies
                         .xor
                         .push(Xor::try_from(ip).map_err(Error::InvalidXor)?);
                 }
-                // this type is ignored.
-                ProxyType::XorV1 => continue,
+                // V1 types are ignored and so are errors
+                Ok(ProxyType::XorV1) | Err(_) => continue,
             }
+        }
+        if proxies.plain.is_empty() && proxies.xor.is_empty() {
+            return Err(Error::NoProxies);
         }
 
         Ok(proxies)
     }
-}
-
-pub struct AvailableProxies {
-    pub plain: Vec<Plain>,
-    pub xor: Vec<Xor>,
 }
 
 /// A trait that can be used by a forwarder to forward traffic.
@@ -99,7 +115,7 @@ pub trait Obfuscator: Send {
 fn wrong_proxy_type() {
     let addr: Ipv6Addr = "ffff:2345::".parse().unwrap();
     match ProxyType::try_from(addr) {
-        Err(Error::UnknownType(0x4523)) => (),
+        Err(ErrorUnknownType(0x4523)) => (),
         anything_else => panic!("Expected unknown type 0x33, got {anything_else:x?}"),
     }
 }
