@@ -40,15 +40,11 @@ impl tokio::io::AsyncRead for Forwarder {
         cx: &mut std::task::Context<'_>,
         buf: &mut tokio::io::ReadBuf<'_>,
     ) -> std::task::Poll<std::io::Result<()>> {
-        // Need to keep track of how many bytes in the buffer have already been deobfuscated.
-        let new_read_start = buf.remaining();
-
         let socket = std::pin::pin!(&mut self.server_connection);
         match ready!(socket.poll_read(cx, buf)) {
             // in this case, we can read and deobfuscate.
             Ok(()) => {
-                let newly_read_bytes = &mut buf.initialized_mut()[new_read_start..];
-                self.read_obfuscator.obfuscate(newly_read_bytes);
+                self.read_obfuscator.obfuscate(buf.filled_mut());
                 Poll::Ready(Ok(()))
             }
             Err(err) => Poll::Ready(Err(err)),
@@ -63,8 +59,8 @@ impl tokio::io::AsyncWrite for Forwarder {
         buf: &[u8],
     ) -> Poll<Result<usize, io::Error>> {
         let socket = std::pin::pin!(&mut self.server_connection);
-        if let Err(err) =  ready!(socket.poll_write_ready(cx)) {
-                return Poll::Ready(Err(err));
+        if let Err(err) = ready!(socket.poll_write_ready(cx)) {
+            return Poll::Ready(Err(err));
         };
 
         let mut owned_buf = buf.to_vec();
@@ -136,11 +132,13 @@ async fn test_async_methods() {
     let xor = crate::config::Xor::try_from(ipv6).unwrap();
     let server_xor = Obfuscator::clone(&xor);
 
+    // Server future - receives one TCP connection, then echos everything it reads from it back to
+    // the client, using obfuscation via the forwarder in both cases.
     tokio::spawn(async move {
         let (client_conn, _) = server_listener.accept().await.unwrap();
         let mut forwarder = Forwarder {
             read_obfuscator: server_xor.clone(),
-            write_obfuscator: server_xor.clone(),
+            write_obfuscator: server_xor,
             server_connection: client_conn,
         };
         let mut buf = vec![0u8; 1024];
