@@ -12,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -114,6 +115,7 @@ internal fun NavigationTitleView(
 @Composable
 internal fun DefaultNavigationView(chevronContentDescription: String, tint: Color) {
     Icon(
+        modifier = Modifier.rotate(-90f),
         painter = painterResource(id = R.drawable.icon_chevron),
         contentDescription = chevronContentDescription,
         tint = tint,

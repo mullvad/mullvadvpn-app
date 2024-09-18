@@ -73,10 +73,11 @@
     <string name="confirm_no_email">您即將傳送的問題報告未包含回覆方式資訊。如果想收到您這份報告的回覆，請輸入您的電子郵件位址。</string>
     <string name="confirm_removal">是，將裝置登出</string>
     <string name="congrats">恭喜！</string>
-    <string name="connect">保護我的連線</string>
+    <string name="connect">連線</string>
+    <string name="connected">已連線</string>
     <string name="connected_using_daita">%1$s，使用 %2$s</string>
-    <string name="connecting">正在連線</string>
     <string name="connecting_to_daemon">連線 Mullvad 系統服務中...</string>
+    <string name="connection_details_in">入境</string>
     <string name="continue_login">繼續登入</string>
     <string name="copied_logs_to_clipboard">已將記錄複製到剪貼簿</string>
     <string name="copied_mullvad_account_number">已將 Mullvad 帳號複製到剪貼簿</string>
@@ -87,7 +88,6 @@
     <string name="create_new_list">建立新清單</string>
     <string name="created_x">建立日期：%1$s</string>
     <string name="creating_new_account">正在建立帳戶…</string>
-    <string name="creating_secure_connection">建立安全連線</string>
     <string name="critical_error">嚴重錯誤 (需注意)</string>
     <string name="current_method">目前：%1$s</string>
     <string name="custom_dns_disable_mode_subtitle">停用上方所有 &lt;b&gt;%1$s&lt;/b&gt;以啟動此設定。</string>
@@ -117,12 +117,11 @@
     <string name="discard">捨棄</string>
     <string name="discard_changes">要捨棄變更嗎？</string>
     <string name="disconnect">中斷連線</string>
-    <string name="disconnecting">正在中斷連線</string>
+    <string name="disconnected">已中斷連線</string>
     <string name="dismiss">取消</string>
     <string name="dns_content_blockers_custom_dns_warning">注意：此設定不能與&lt;b&gt;使用自訂 DNS 伺服器&lt;/b&gt;結合使用。</string>
     <string name="dns_content_blockers_info">此功能啟用後，便會禁止裝置聯繫某些已知會傳播廣告、惡意軟體、追蹤程式等內容的網域或網站。</string>
     <string name="dns_content_blockers_subtitle">停用下方的 &lt;b&gt;%1$s&lt;/b&gt; 以啟動這些設定。</string>
-    <string name="dns_content_blockers_title">DNS 內容封鎖程式</string>
     <string name="dns_content_blockers_warning">這可能會導致某些網站、服務和應用程式出現問題。</string>
     <string name="dont_have_an_account">沒有帳號？</string>
     <string name="duplicate_address_warning">此地址已輸入過。</string>
@@ -151,6 +150,11 @@
     <string name="failed_to_set_current_test_error">無法設定為目前方式 - 無法透過 API 存取</string>
     <string name="failed_to_set_current_unknown_error">無法設定為目前方式 - 不明原因</string>
     <string name="faqs_and_guides">常見問題集與指南</string>
+    <string name="feature_custom_mtu">MTU</string>
+    <string name="feature_dns_content_blockers">DNS 內容封鎖程式</string>
+    <string name="feature_lan_sharing">本機網路分享</string>
+    <string name="feature_server_ip_override">伺服器 IP 覆寫</string>
+    <string name="feature_udp_2_tcp">混淆</string>
     <string name="filter">篩選</string>
     <string name="filtered">已篩選：</string>
     <string name="foreground_notification_channel_description">顯示目前的 VPN 通道狀態</string>
@@ -165,7 +169,6 @@
     <string name="import_overrides_bottom_sheet_override_warning">匯入新的覆寫設定，可能會取代一部分先前已匯入的覆寫設定。</string>
     <string name="import_overrides_import">匯入</string>
     <string name="import_overrides_text_title">透過文字匯入</string>
-    <string name="in_address">入境</string>
     <string name="invalid_dns_servers">自訂 DNS 伺服器位址 %1$s 無效</string>
     <string name="invalid_voucher">憑證兌換碼無效。</string>
     <string name="ipv6_unavailable">無法配置 IPv6。請在應用程式中將其停用，或是在您的裝置上啟用它。</string>
@@ -176,7 +179,6 @@
     <string name="list_name">清單名稱</string>
     <string name="loading_connecting">正在連線…</string>
     <string name="loading_verifying">正在驗證購買…</string>
-    <string name="local_network_sharing">本機網路分享</string>
     <string name="local_network_sharing_additional_info">其原理是允許通道外的網路與本機網路進行通訊，包括以下私人 IP 範圍內的多點傳送和廣播：</string>
     <string name="local_network_sharing_info">此功能可允許存取本機網路上的其他裝置，以便用於分享、列印、串流等。</string>
     <string name="location_added">%1$s (已新增)</string>
@@ -247,12 +249,9 @@
     <string name="privacy_policy_label">隱私權政策</string>
     <string name="problem_report_description">為了更有效協助您，會將應用程式的日誌檔將附加到此郵件。您的資料會保持安全和私密性，因為這些資料會先經過匿名處理，再透過加密通道傳送。</string>
     <string name="providers">供應商</string>
-    <string name="quantum_creating_secure_connection">正在建立量子安全連線</string>
     <string name="quantum_resistant_info_first_paragaph">借助此功能，WireGuard 通道便能夠抵抗可能從量子電腦發起的攻擊。</string>
     <string name="quantum_resistant_info_second_paragaph">實現方法是使用量子安全演算法執行額外的金鑰交換，並將結果混合至 WireGuard 的常規加密。每次建立新通道時，這一額外步驟都會使用約 500 kiB 流量。</string>
     <string name="quantum_resistant_title">抗量子通道</string>
-    <string name="quantum_secure_connection">量子安全連線</string>
-    <string name="reconnecting">正在重新連線</string>
     <string name="redeem">兌換</string>
     <string name="redeem_voucher">兌換憑證</string>
     <string name="remove_button">移除</string>
@@ -262,8 +261,6 @@
     <string name="reset_to_default_button">重設為預設值</string>
     <string name="save">儲存</string>
     <string name="search_placeholder">搜尋…</string>
-    <string name="secure_connection">安全連線</string>
-    <string name="secured">安全</string>
     <string name="select_location">選擇位置</string>
     <string name="select_location_description">連線時，會使用所選區域的一個私密安全位置，將您的真實位置遮住。</string>
     <string name="select_location_empty_text_first_row">&lt;b&gt;%1$s&lt;/b&gt; 沒有任何結果。</string>
@@ -275,7 +272,6 @@
     <string name="sent_contact">如有需要，我們將透過 %1$s 與您聯絡</string>
     <string name="sent_thanks">謝謝！</string>
     <string name="server">伺服器</string>
-    <string name="server_ip_overrides">伺服器 IP 覆寫</string>
     <string name="server_ip_overrides_active">覆寫設定已啟用</string>
     <string name="server_ip_overrides_import_by">匯入新覆寫設定的方式</string>
     <string name="server_ip_overrides_import_by_file">檔案</string>
@@ -328,9 +324,6 @@
     <string name="udp_over_tcp_port_info">UDP-over-TCP 混淆通訊協定應連線到 VPN 伺服器上的哪個 TCP 連接埠。</string>
     <string name="udp_over_tcp_port_title">UDP-over-TCP 連接埠</string>
     <string name="undo">復原</string>
-    <string name="unsecured">不安全</string>
-    <string name="unsecured_connection">不安全的連線</string>
-    <string name="unsecured_vpn_permission_error">不安全 (無 VPN 權限)</string>
     <string name="unsupported_version">不支援的版本</string>
     <string name="unsupported_version_description">此應用程式版本不受支援，因此您的隱私可能存在風險。請立即更新。</string>
     <string name="unsupported_version_without_upgrade">您所執行的應用程式版本不受支援。</string>

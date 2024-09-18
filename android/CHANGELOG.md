@@ -26,6 +26,7 @@ Line wrap the file at 100 chars.                                              Th
 - Add support for predictive back.
 - Add DAITA (Defence against AI-guided Traffic Analysis) setting.
 - Add WireGuard over Shadowsocks.
+- Add feature indicators to the main view along with redesigning the connection details.
 
 ### Changed
 - Update colors in the app to be more in line with material design.

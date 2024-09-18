@@ -115,7 +115,7 @@ fun AutoConnectAndLockdownModeScreen(onBackClick: () -> Unit = {}) {
                             }
                         },
                         isEnabled = { pagerState.currentPage != 0 },
-                        rotation = 180f,
+                        rotation = 90f,
                     )
 
                     // Go to next page
@@ -132,7 +132,7 @@ fun AutoConnectAndLockdownModeScreen(onBackClick: () -> Unit = {}) {
                             }
                         },
                         isEnabled = { pagerState.currentPage != pagerState.pageCount - 1 },
-                        rotation = 0f,
+                        rotation = -90f,
                     )
 
                     PageIndicator(

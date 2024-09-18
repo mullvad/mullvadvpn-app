@@ -73,10 +73,11 @@
     <string name="confirm_no_email">သင်သည် သင့်ထံ ကျွန်ုပ်တို့ ပြန်ဆက်သွယ်နိုင်မည့် နည်းလမ်း မပါဘဲ ပြဿနာ ရီပို့တ်ကို ပေးပို့တော့မည် ဖြစ်ပါသည်။ သင့်ရီပို့တ်အတွက် အဖြေ ရရှိလိုပါက အီမေးလိပ်စာ ဖြည့်သွင်းပေးရပါမည်။</string>
     <string name="confirm_removal">စက်မှ ထွက်မည်</string>
     <string name="congrats">ဝမ်းသာပါတယ်။</string>
-    <string name="connect">ကျွန်ုပ်၏ ချိတ်ဆက်မှုကို ကာကွယ်ရန်</string>
+    <string name="connect">ချိတ်ဆက်ရန်</string>
+    <string name="connected">ချိတ်ဆက်ပြီး</string>
     <string name="connected_using_daita">%1$s သည် %2$s ကို သုံးနေပါသည်</string>
-    <string name="connecting">ချိတ်ဆက်နေဆဲ</string>
     <string name="connecting_to_daemon">Mullvad စနစ် ဝန်ဆောင်မှုနှင့် ချိတ်ဆက်နေဆဲ...</string>
+    <string name="connection_details_in">အဝင်</string>
     <string name="continue_login">ဆက်လက် ဝင်ရောက်ရန်</string>
     <string name="copied_logs_to_clipboard">ကလစ်ဘုတ်တွင် မှတ်တမ်းများ ကူးယူပြီး</string>
     <string name="copied_mullvad_account_number">Mullvad အကောင့်နံပါတ်ကို ကလစ်ဘုတ်တွင် ကူးထားပါသည်</string>
@@ -87,7 +88,6 @@
     <string name="create_new_list">စာရင်းသစ် ဖန်တီးမည်</string>
     <string name="created_x">ဖန်တီးသည့် အချိန်- %1$s</string>
     <string name="creating_new_account">အကောင့် ဖန်တီးနေဆဲ...</string>
-    <string name="creating_secure_connection">လုံခြုံသည့် ချိတ်ဆက်မှုကို ဖန်တီးနေပါသည်</string>
     <string name="critical_error">အလွန်အရေးပါသည့် ချို့ယွင်းချက် (သင့်အာရုံစိုက်မှု လိုအပ်ပါသည်)</string>
     <string name="current_method">လက်ရှိ- %1$s</string>
     <string name="custom_dns_disable_mode_subtitle">ဤဆက်တင်ကို သက်ဝင်လုပ်ဆောင်ရန် အထက်ရှိ &lt;b&gt;%1$s&lt;/b&gt; အားလုံးကို ပိတ်ပါ။</string>
@@ -117,12 +117,11 @@
     <string name="discard">ပယ်ဖျက်မည်</string>
     <string name="discard_changes">အပြောင်းအလဲများကို ပယ်ဖျက်မည်လား။</string>
     <string name="disconnect">ချိတ်ဆက်မှုဖြုတ်ရန်</string>
-    <string name="disconnecting">ချိတ်ဆက်မှုဖြုတ်နေပါသည်</string>
+    <string name="disconnected">ချိတ်ဆက်မှု ဖြုတ်ထားပြီး</string>
     <string name="dismiss">ဖယ်ပစ်ရန်</string>
     <string name="dns_content_blockers_custom_dns_warning">သတိပြုရန်- ဤဆက်တင်ကို &lt;b&gt;စိတ်ကြိုက် DNS ဆာဗာကို သုံးရန်&lt;/b&gt;နှင့်အတူ ပေါင်းစပ်၍ မသုံးစွဲနိုင်ပါ။</string>
     <string name="dns_content_blockers_info">ဤလုပ်ဆောင်ချက်ကို ဖွင့်ထားသည့်အခါ အနှောင့်အယှက်ဖြစ်စေသည့် ကြော်ငြာများ၊ မဲလ်ဝဲရ်၊ ခြေရာခံများနှင့် အစရှိသည်တို့နှင့်စပ်လျဉ်း၍ သိရှိထားသော အချို့သော Domain များ သို့မဟုတ် ဝဘ်ဆိုက်များနှင့် ဆက်သွယ်ခြင်းမှ စက်ကို ရပ်တန့်ပေးပါသည်။</string>
     <string name="dns_content_blockers_subtitle">ဤဆက်တင်တို့ကို သက်ဝင်လုပ်ဆောင်ရန် အောက်ပါ &lt;b&gt;%1$s&lt;/b&gt; ကို ပိတ်ပါ။</string>
-    <string name="dns_content_blockers_title">DNS အကြောင်းအရာ ပိတ်ဆို့မှုများ</string>
     <string name="dns_content_blockers_warning">၎င်းသည် အချို့သော ဝဘ်ဆိုက်များ၊ ဝန်ဆောင်မှုများနှင့် အက်ပ်များတွင် ပြဿနာများကို ဖြစ်စေနိုင်သည်။</string>
     <string name="dont_have_an_account">အကောင့်နံပါတ် မရှိ ဖြစ်နေပါသလား။</string>
     <string name="duplicate_address_warning">ဤလိပ်စာကို ရိုက်ထည့်ထားပြီး ဖြစ်ပါသည်။</string>
@@ -151,6 +150,11 @@
     <string name="failed_to_set_current_test_error">လက်ရှိသို့ သတ်မှတ်၍ မရခဲ့ပါ - API နှင့် ချိတ်၍မရပါ</string>
     <string name="failed_to_set_current_unknown_error">လက်ရှိသို့ သတ်မှတ်၍ မရခဲ့ပါ - အကြောင်းအရင်း မသိပါ</string>
     <string name="faqs_and_guides">မေးလေ့ရှိသည့် မေးခွန်းများနှင့် လမ်းညွှန်များ</string>
+    <string name="feature_custom_mtu">MTU</string>
+    <string name="feature_dns_content_blockers">DNS အကြောင်းအရာ ပိတ်ဆို့မှုများ</string>
+    <string name="feature_lan_sharing">လိုကယ် ကွန်ရက် ဝေမျှမှု</string>
+    <string name="feature_server_ip_override">ဆာဗာ IP ကျော်လွန် ပယ်ဖျက်မှု</string>
+    <string name="feature_udp_2_tcp">Obfuscation</string>
     <string name="filter">စစ်ထုတ်မှု</string>
     <string name="filtered">စစ်ထုတ်ထားသော-</string>
     <string name="foreground_notification_channel_description">လက်ရှိ VPN Tunnel အခြေအနေကို ပြသပေးပါသည်</string>
@@ -165,7 +169,6 @@
     <string name="import_overrides_bottom_sheet_override_warning">ကျော်လွန် ပယ်ဖျက်မှု အသစ်များကို ထည့်သွင်းခြင်းသည် ယခင်ထည့်သွင်းထားသော ကျော်လွန် ပယ်ဖျက်မှု အချို့ကို အစားထိုးနိုင်ပါသည်။</string>
     <string name="import_overrides_import">ထည့်ရန်</string>
     <string name="import_overrides_text_title">စာသားမှတစ်ဆင့် ထည့်သွင်းရန်</string>
-    <string name="in_address">အဝင်</string>
     <string name="invalid_dns_servers">စိတ်ကြိုက် DNS ဆာဗာလိပ်စာများ %1$s မှားနေပါသည်</string>
     <string name="invalid_voucher">ဘောက်ချာကုဒ် မှားနေပါသည်။</string>
     <string name="ipv6_unavailable">IPv6 ကို သတ်မှတ်ချိန်ညှိ၍ မရနိုင်ပါ။ အက်ပ်တွင် ၎င်းကို ပိတ်ပါ သို့မဟုတ် သင့်စက်တွင် ၎င်းကို ဖွင့်ပါ။</string>
@@ -176,7 +179,6 @@
     <string name="list_name">စာရင်း အမည်</string>
     <string name="loading_connecting">ချိတ်ဆက်နေဆဲ...</string>
     <string name="loading_verifying">ဝယ်ယူမှုကို စစ်ဆေးနေဆဲ...</string>
-    <string name="local_network_sharing">လိုကယ် ကွန်ရက် ဝေမျှမှု</string>
     <string name="local_network_sharing_additional_info">ဒေသတွင်း Multicast နှင့် Broadcast အပိုင်းအခြားများဆီသို့ သာမက ဤသီးသန့် IP အပိုင်းအခြားများထံမှနှင့် ၎င်းတို့ဆီသို့ Tunnel ပြင်ပ ကွန်ရက် ဆက်သွယ်မှုကို ခွင့်ပြုခြင်းဖြင့် ဤသည်ကို လုပ်ဆောင်ပါသည်။</string>
     <string name="local_network_sharing_info">ဤလုပ်ဆောင်ချက်သည် မျှဝေခြင်း၊ ပရင့်ထုတ်ခြင်း၊ တိုက်ရိုက်ကြည့်ရှုနားဆင်ခြင်းအစရှိသည်တို့အတွက် ဒေသတွင်း ကွန်ရက်ရှိ အခြားစက်များကို ရယူသုံးစွဲခွင့်ပေးပါသည်။</string>
     <string name="location_added">%1$s (ထည့်ပြီး)</string>
@@ -247,12 +249,9 @@
     <string name="privacy_policy_label">ကိုယ်ပိုင်အချက်အလက် မူဝါဒ</string>
     <string name="problem_report_description">သင့်အား ပိုမိုထိရောက်စွာ ကူညီနိုင်ရန် သင့်အက်ပ်၏ မှတ်တမ်းဖိုင်ကို ဤမက်ဆေ့ချ်နှင့်အတူ တွဲပေးသွားပါမည်။ ကုဒ်ပြောင်းဝှက်ထားသည့် ချန်နယ်မှတစ်ဆင့် မပေးပို့မီ သင့်ဒေတာများကို အမည်မဖော်ဘဲ ထားမည်ဖြစ်သောကြောင့် လျှို့ဝှက်လုံခြုံလျက် ရှိနေပါမည်။</string>
     <string name="providers">ပံ့ပိုးသူများ</string>
-    <string name="quantum_creating_secure_connection">QUANTUM လုံခြုံသည့် ချိတ်ဆက်မှုကို ဖန်တီးခြင်း</string>
     <string name="quantum_resistant_info_first_paragaph">ဤလုပ်ဆောင်ချက်သည် Quantum ကွန်ပျူတာများမှ ဖြစ်လာနိုင်ခြေရှိသော တိုက်ခိုက်မှုများကို ခုခံနိုင်သည့် WireGuard Tunnel ကို ပြုလုပ်သည်။</string>
     <string name="quantum_resistant_info_second_paragaph">Quantum Safe အယ်လဂိုရီသမ်တစ်ခုကို သုံး၍ ထပ်ဆောင်း ကီးဖလှယ်မှုတစ်ခုကို ဆောင်ရွက်ပြီး WireGuard ၏ ပုံမှန် ကုဒ်ပြောင်းဝှက်မှုအတွင်း ရလဒ်ကို ရောနှောခြင်းအားဖြင့် ဤသည်ကို လုပ်ဆောင်ပါသည်။ ဤထပ်ဆောင်းအဆင့်သည် Tunnel အသစ်တစ်ခု တည်ဆောက်တိုင်း ဒေတာ 500 kiB ခန့်ကို သုံးပါသည်။</string>
     <string name="quantum_resistant_title">Quantum-resistant Tunnel</string>
-    <string name="quantum_secure_connection">QUANTUM လုံခြုံသည့် ချိတ်ဆက်မှု</string>
-    <string name="reconnecting">ပြန်ချိတ်ဆက်နေပါသည်</string>
     <string name="redeem">လဲယူရန်</string>
     <string name="redeem_voucher">ဘောက်ချာဖြင့် လဲယူရန်</string>
     <string name="remove_button">ဖယ်ရှားရန်</string>
@@ -262,8 +261,6 @@
     <string name="reset_to_default_button">ပုံသေသို့ ပြန်လည်သတ်မှတ်ရန်</string>
     <string name="save">သိမ်းမည်</string>
     <string name="search_placeholder">ရှာရန်...</string>
-    <string name="secure_connection">လုံခြုံသည့် ချိတ်ဆက်မှု</string>
-    <string name="secured">လုံခြုံပါသည်</string>
     <string name="select_location">တည်နေရာ ရွေးရန်</string>
     <string name="select_location_description">ချိတ်ဆက်ထားချိန်တွင် သင့်တည်နေရာအမှန်ကို ရွေးချယ်ထားသည့် ဒေသရှိ လျှို့ဝှက်လုံခြုံသည့် တည်နေရာဖြင့် ဖုံးကွယ်ထားပါသည်။</string>
     <string name="select_location_empty_text_first_row">&lt;b&gt;%1$s&lt;/b&gt; အတွက် ရလဒ် မရှိပါ။</string>
@@ -275,7 +272,6 @@
     <string name="sent_contact">လိုအပ်ပါက %1$s မှတစ်ဆင့် ကျွန်ုပ်တို့ထံ ဆက်သွယ်ပါ</string>
     <string name="sent_thanks">ကျေးဇူးတင်ပါသည်။</string>
     <string name="server">ဆာဗာ</string>
-    <string name="server_ip_overrides">ဆာဗာ IP ကျော်လွန် ပယ်ဖျက်မှု</string>
     <string name="server_ip_overrides_active">ကျော်လွန် ပယ်ဖျက်မှုများ သက်ဝင်နေသည်</string>
     <string name="server_ip_overrides_import_by">ဖော်ပြပါဖြင့် ကျော်လွန် ပယ်ဖျက်မှုအသစ်များကို ထည့်သွင်းရန်</string>
     <string name="server_ip_overrides_import_by_file">ဖိုင်</string>
@@ -328,9 +324,6 @@
     <string name="udp_over_tcp_port_info">VPN ဆာဗာကို ဖွင့်ရန် ၎င်း TCP ပေါ့တ် UDP-over-TCP Obfuscation ပရိုတိုကောလ်နှင့် ချိတ်ဆက်ထားသင့်ပါသည်။</string>
     <string name="udp_over_tcp_port_title">UDP-over-TCP ပေါ့တ်</string>
     <string name="undo">မလုပ်တော့ပါ</string>
-    <string name="unsecured">မလုံခြုံပါ</string>
-    <string name="unsecured_connection">မလုံခြုံသည့် ချိတ်ဆက်မှု</string>
-    <string name="unsecured_vpn_permission_error">မလုံခြုံပါ (VPN ခွင့်ပြုချက် မရှိပါ)</string>
     <string name="unsupported_version">တွဲဖက်မလုပ်ဆောင်နိုင်သည့် ဗားရှင်း</string>
     <string name="unsupported_version_description">တွဲဖက်မလုပ်ဆောင်နိုင်သည့် ဤအက်ပ်ဗားရှင်းကြောင့် သင့်ကိုယ်ရေးအချက်အလက်များ အန္တရာယ် ရှိနိုင်ပါသည်။ ယခုပင် အပ်ဒိတ်လုပ်ပေးပါ။</string>
     <string name="unsupported_version_without_upgrade">တွဲဖက်မလုပ်ဆောင်နိုင်သည့် အက်ပ်ဗားရှင်းဖြင့် လုပ်ဆောင်နေပါသည်။</string>

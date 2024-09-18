@@ -26,11 +26,11 @@ class ConnectionTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
         app.launchAndEnsureLoggedIn(accountTestRule.validAccountNumber)
 
         // When
-        device.findObjectWithTimeout(By.text("Secure my connection")).click()
+        device.findObjectWithTimeout(By.text("Connect")).click()
         device.findObjectWithTimeout(By.text("OK")).click()
 
         // Then
-        device.findObjectWithTimeout(By.text("SECURE CONNECTION"), VERY_LONG_TIMEOUT)
+        device.findObjectWithTimeout(By.text("CONNECTED"), VERY_LONG_TIMEOUT)
     }
 
     @Test
@@ -39,10 +39,10 @@ class ConnectionTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
         app.launchAndEnsureLoggedIn(accountTestRule.validAccountNumber)
 
         // When
-        device.findObjectWithTimeout(By.text("Secure my connection")).click()
+        device.findObjectWithTimeout(By.text("Connect")).click()
         device.findObjectWithTimeout(By.text("OK")).click()
-        device.findObjectWithTimeout(By.text("SECURE CONNECTION"), VERY_LONG_TIMEOUT)
-        val expected = ConnCheckState(true, app.extractIpAddress())
+        device.findObjectWithTimeout(By.text("CONNECTED"), VERY_LONG_TIMEOUT)
+        val expected = ConnCheckState(true, app.extractOutIpv4Address())
 
         // Then
         val result = SimpleMullvadHttpClient(targetContext).runConnectionCheck()

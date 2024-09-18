@@ -5,6 +5,7 @@ import android.provider.Settings
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
+import java.util.regex.Pattern
 import net.mullvad.mullvadvpn.test.common.extension.findObjectByCaseInsensitiveText
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
 import org.junit.jupiter.api.extension.BeforeTestExecutionCallback
@@ -29,7 +30,7 @@ class ForgetAllVpnAppsInSettingsTestRule : BeforeTestExecutionCallback {
                 device.findObjectByCaseInsensitiveText(FORGET_VPN_VPN_CONFIRM_BUTTON_TEXT).click()
             } catch (_: Exception) {
                 device.findObjectWithTimeout(By.text(DELETE_VPN_PROFILE_TEXT)).click()
-                device.findObjectWithTimeout(By.text(DELETE_VPN_CONFIRM_BUTTON_TEXT)).click()
+                device.findObjectWithTimeout(By.text(DELETE_VPN_CONFIRM_BUTTON_TEXT_REGEXP)).click()
             }
         }
     }
@@ -38,7 +39,9 @@ class ForgetAllVpnAppsInSettingsTestRule : BeforeTestExecutionCallback {
         private const val FORGET_VPN_VPN_BUTTON_TEXT = "Forget VPN"
         private const val DELETE_VPN_PROFILE_TEXT = "Delete VPN profile"
         private const val FORGET_VPN_VPN_CONFIRM_BUTTON_TEXT = "Forget"
-        private const val DELETE_VPN_CONFIRM_BUTTON_TEXT = "DELETE"
+        // Samsung S22 shows "Delete"
+        // Stock Android shows "DELETE"
+        private val DELETE_VPN_CONFIRM_BUTTON_TEXT_REGEXP = Pattern.compile("DELETE|Delete")
         private const val SETTINGS_PACKAGE = "com.android.settings"
         private const val VPN_SETTINGS_BUTTON_ID = "settings_button"
     }

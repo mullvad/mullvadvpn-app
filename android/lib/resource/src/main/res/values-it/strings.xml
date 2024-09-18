@@ -73,10 +73,11 @@
     <string name="confirm_no_email">Stai inviando la segnalazione di un problema senza averci indicato un modo per ricontattarti. Se desideri ricevere risposta, inserisci un indirizzo e-mail.</string>
     <string name="confirm_removal">Sì, disconnetti dal dispositivo</string>
     <string name="congrats">Complimenti!</string>
-    <string name="connect">Proteggi mia connessione</string>
+    <string name="connect">Connetti</string>
+    <string name="connected">Connesso</string>
     <string name="connected_using_daita">%1$s usa %2$s</string>
-    <string name="connecting">Connessione</string>
     <string name="connecting_to_daemon">Connessione al servizio del sistema Mullvad...</string>
+    <string name="connection_details_in">Ricezione</string>
     <string name="continue_login">Continua con il login</string>
     <string name="copied_logs_to_clipboard">Log copiati negli appunti</string>
     <string name="copied_mullvad_account_number">Numero account di Mullvad copiato negli appunti</string>
@@ -87,7 +88,6 @@
     <string name="create_new_list">Crea nuovo elenco</string>
     <string name="created_x">Creazione: %1$s</string>
     <string name="creating_new_account">Creazione account...</string>
-    <string name="creating_secure_connection">CREAZIONE CONNESSIONE PROTETTA</string>
     <string name="critical_error">Errore critico (è necessario intervenire)</string>
     <string name="current_method">Attuale: %1$s</string>
     <string name="custom_dns_disable_mode_subtitle">Disabilita tutti i &lt;b&gt;%1$s&lt;/b&gt; sopra per attivare questa impostazione.</string>
@@ -117,12 +117,11 @@
     <string name="discard">Ignora modifiche</string>
     <string name="discard_changes">Ignorare le modifiche?</string>
     <string name="disconnect">Disconnetti</string>
-    <string name="disconnecting">Disconnessione</string>
+    <string name="disconnected">Disconnesso</string>
     <string name="dismiss">Ignora</string>
     <string name="dns_content_blockers_custom_dns_warning">Attenzione: questa impostazione non può essere utilizzata in combinazione con &lt;b&gt;Usa un server DNS personalizzato&lt;/b&gt;.</string>
     <string name="dns_content_blockers_info">Quando è abilitata, questa funzionalità impedisce al dispositivo di contattare determinati domini o siti Web noti per la distribuzione di annunci, malware, tracker e altro.</string>
     <string name="dns_content_blockers_subtitle">Disabilita &lt;b&gt;%1$s&lt;/b&gt; di seguito per attivare queste impostazioni.</string>
-    <string name="dns_content_blockers_title">Blocchi dei contenuti DNS</string>
     <string name="dns_content_blockers_warning">Ciò potrebbe causare problemi su determinati siti web, servizi e app.</string>
     <string name="dont_have_an_account">Non hai un numero di account?</string>
     <string name="duplicate_address_warning">Questo indirizzo è già stato inserito.</string>
@@ -151,6 +150,11 @@
     <string name="failed_to_set_current_test_error">Impossibile impostare il valore attuale: API non raggiungibile</string>
     <string name="failed_to_set_current_unknown_error">Impossibile impostare il valore attuale: motivo sconosciuto</string>
     <string name="faqs_and_guides">FAQ e guide</string>
+    <string name="feature_custom_mtu">MTU</string>
+    <string name="feature_dns_content_blockers">Blocchi dei contenuti DNS</string>
+    <string name="feature_lan_sharing">Condivisione rete locale</string>
+    <string name="feature_server_ip_override">Sovrascritture IP server</string>
+    <string name="feature_udp_2_tcp">Offuscamento</string>
     <string name="filter">Filtra</string>
     <string name="filtered">Filtrato:</string>
     <string name="foreground_notification_channel_description">Mostra lo stato attuale del tunnel VPN</string>
@@ -165,7 +169,6 @@
     <string name="import_overrides_bottom_sheet_override_warning">L\'importazione di nuove sovrascritture potrebbe sostituire alcune sovrascritture precedentemente importate.</string>
     <string name="import_overrides_import">Importa</string>
     <string name="import_overrides_text_title">Importa tramite testo</string>
-    <string name="in_address">Ricezione</string>
     <string name="invalid_dns_servers">Gli indirizzi del server DNS personalizzato %1$s non sono validi</string>
     <string name="invalid_voucher">Il codice voucher non è valido.</string>
     <string name="ipv6_unavailable">Impossibile configurare IPv6. Disabilitalo nell\'app o abilitalo sul tuo dispositivo.</string>
@@ -176,7 +179,6 @@
     <string name="list_name">Nome dell\'elenco</string>
     <string name="loading_connecting">Connessione...</string>
     <string name="loading_verifying">Verifica dell\'acquisto...</string>
-    <string name="local_network_sharing">Condivisione rete locale</string>
     <string name="local_network_sharing_additional_info">Lo fa consentendo la comunicazione di rete al di fuori del tunnel verso intervalli multicast e broadcast locali, nonché da e verso questi intervalli IP privati:</string>
     <string name="local_network_sharing_info">Questa funzione consente l\'accesso ad altri dispositivi sulla rete locale, ad esempio per la condivisione, la stampa, lo streaming, ecc.</string>
     <string name="location_added">%1$s (aggiunto)</string>
@@ -247,12 +249,9 @@
     <string name="privacy_policy_label">Informativa sulla privacy</string>
     <string name="problem_report_description">Per aiutarti in modo più efficace, il file di registro della tua app sarà allegato a questo messaggio. I tuoi dati rimarranno protetti e privati, e saranno anonimizzati prima di essere inviati tramite un canale crittografato.</string>
     <string name="providers">Fornitori</string>
-    <string name="quantum_creating_secure_connection">CREAZIONE CONNESSIONE QUANTISTICA PROTETTA</string>
     <string name="quantum_resistant_info_first_paragaph">Questa funzionalità rende il tunnel WireGuard resistente ai potenziali attacchi dei computer quantistici.</string>
     <string name="quantum_resistant_info_second_paragaph">L\'operazione viene effettuata eseguendo uno scambio di chiavi aggiuntivo con un algoritmo di sicurezza quantistica e mescolando il risultato nella normale crittografia di WireGuard. Questo passaggio aggiuntivo utilizza circa 500 kiB di traffico ogni volta che viene stabilito un nuovo tunnel.</string>
     <string name="quantum_resistant_title">Tunnel resistente agli attacchi quantistici</string>
-    <string name="quantum_secure_connection">CONNESSIONE QUANTISTICA PROTETTA</string>
-    <string name="reconnecting">Riconnessione</string>
     <string name="redeem">Riscatta</string>
     <string name="redeem_voucher">Riscatta voucher</string>
     <string name="remove_button">Rimuovi</string>
@@ -262,8 +261,6 @@
     <string name="reset_to_default_button">Ripristina predefiniti</string>
     <string name="save">Salva</string>
     <string name="search_placeholder">Cerca...</string>
-    <string name="secure_connection">CONNESSIONE PROTETTA</string>
-    <string name="secured">Protetto</string>
     <string name="select_location">Seleziona posizione</string>
     <string name="select_location_description">Durante la connessione, la tua posizione reale è nascosta da una posizione privata e protetta nell\'area selezionata.</string>
     <string name="select_location_empty_text_first_row">Nessun risultato per &lt;b&gt;%1$s&lt;/b&gt;.</string>
@@ -275,7 +272,6 @@
     <string name="sent_contact">Se necessario, ti contatteremo all\'indirizzo %1$s</string>
     <string name="sent_thanks">Grazie!</string>
     <string name="server">Server</string>
-    <string name="server_ip_overrides">Sovrascritture IP server</string>
     <string name="server_ip_overrides_active">Sovrascritture attive</string>
     <string name="server_ip_overrides_import_by">Importa nuove sovrascritture tramite</string>
     <string name="server_ip_overrides_import_by_file">File</string>
@@ -328,9 +324,6 @@
     <string name="udp_over_tcp_port_info">A quale porta TCP deve connettersi il protocollo di offuscamento UDP-over-TCP sul server VPN.</string>
     <string name="udp_over_tcp_port_title">Porta UDP-over-TCP</string>
     <string name="undo">Annulla</string>
-    <string name="unsecured">Non protetto</string>
-    <string name="unsecured_connection">CONNESSIONE NON PROTETTA</string>
-    <string name="unsecured_vpn_permission_error">Non protetto (nessuna autorizzazione VPN)</string>
     <string name="unsupported_version">VERSIONE NON SUPPORTATA</string>
     <string name="unsupported_version_description">La tua privacy potrebbe essere a rischio con questa versione dell\'app non supportata. Aggiornala subito.</string>
     <string name="unsupported_version_without_upgrade">Stai eseguendo una versione dell\'app non supportata.</string>
