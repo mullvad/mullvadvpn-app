@@ -19,13 +19,12 @@ pub struct Forwarder {
 
 impl Forwarder {
     /// Create a forwarder that will connect to a given proxy endpoint.
-    pub async fn connect(read_obfuscator: Box<dyn Obfuscator>) -> io::Result<Self> {
-        let server_connection = TcpStream::connect(read_obfuscator.addr()).await?;
-        let write_obfuscator = read_obfuscator.clone();
+    pub async fn connect(obfuscator: Box<dyn Obfuscator>) -> io::Result<Self> {
+        let server_connection = TcpStream::connect(obfuscator.addr()).await?;
 
         Ok(Self {
-            read_obfuscator,
-            write_obfuscator,
+            read_obfuscator: obfuscator.clone(),
+            write_obfuscator: obfuscator,
             server_connection,
         })
     }
@@ -116,7 +115,10 @@ async fn forward(
 #[tokio::test]
 async fn test_async_methods() {
     use std::net::Ipv6Addr;
-    use tokio::io::{AsyncReadExt, AsyncWriteExt};
+    use tokio::{
+        io::{AsyncReadExt, AsyncWriteExt},
+        net::TcpStream,
+    };
     let server_listener =
         tokio::net::TcpListener::bind("127.0.0.1:0".parse::<std::net::SocketAddr>().unwrap())
             .await
@@ -138,6 +140,8 @@ async fn test_async_methods() {
     let ipv6 = Ipv6Addr::from(ipv6_buf);
 
     let xor = crate::config::Xor::try_from(ipv6).unwrap();
+    let mut client_read_xor = Obfuscator::clone(&xor);
+    let mut client_write_xor = Obfuscator::clone(&xor);
     let server_xor = Obfuscator::clone(&xor);
 
     // Server future - receives one TCP connection, then echos everything it reads from it back to
@@ -155,13 +159,16 @@ async fn test_async_methods() {
         }
     });
 
-    let mut client = Forwarder::connect(Box::new(xor)).await.unwrap();
+    let mut client_connection = TcpStream::connect(listener_addr).await.unwrap();
 
     for _ in 0..5 {
-        let payload = (1..127).collect::<Vec<u8>>();
-        client.write_all(&payload).await.unwrap();
+        let original_payload = (1..127).collect::<Vec<u8>>();
+        let mut payload = original_payload.clone();
+        client_write_xor.obfuscate(payload.as_mut_slice());
+        client_connection.write_all(&payload).await.unwrap();
         let mut read_buf = vec![0u8; payload.len()];
-        client.read_exact(&mut read_buf).await.unwrap();
-        assert_eq!(payload, read_buf);
+        client_connection.read_exact(&mut read_buf).await.unwrap();
+        client_read_xor.obfuscate(&mut read_buf);
+        assert_eq!(original_payload, read_buf);
     }
 }
