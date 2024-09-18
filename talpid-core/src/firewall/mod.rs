@@ -1,3 +1,5 @@
+#[cfg(not(target_os = "android"))]
+use crate::dns::ResolvedDnsConfig;
 use ipnetwork::{IpNetwork, Ipv4Network, Ipv6Network};
 use std::{
     fmt,
@@ -104,7 +106,7 @@ pub enum FirewallPolicy {
         allow_lan: bool,
         /// Servers that are allowed to respond to DNS requests.
         #[cfg(not(target_os = "android"))]
-        dns_servers: Vec<IpAddr>,
+        dns_config: ResolvedDnsConfig,
         /// Interface to redirect (VPN tunnel) traffic to
         #[cfg(target_os = "macos")]
         redirect_interface: Option<String>,

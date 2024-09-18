@@ -4,6 +4,7 @@ use super::{
     TunnelStateTransition,
 };
 use crate::{
+    dns::ResolvedDnsConfig,
     firewall::FirewallPolicy,
     tunnel::{TunnelEvent, TunnelMetadata},
 };
@@ -12,7 +13,6 @@ use futures::{
     stream::Fuse,
     StreamExt,
 };
-use std::net::IpAddr;
 use talpid_types::{
     net::{AllowedClients, AllowedEndpoint, TunnelParameters},
     tunnel::{ErrorStateCause, FirewallPolicyError},
@@ -106,13 +106,6 @@ impl ConnectedState {
             })
     }
 
-    fn get_dns_servers(&self, shared_values: &SharedTunnelStateValues) -> Vec<IpAddr> {
-        shared_values
-            .dns_servers
-            .clone()
-            .unwrap_or_else(|| self.metadata.gateways())
-    }
-
     fn get_firewall_policy(&self, shared_values: &SharedTunnelStateValues) -> FirewallPolicy {
         let endpoint = self.tunnel_parameters.get_next_hop_endpoint();
 
@@ -146,28 +139,25 @@ impl ConnectedState {
             tunnel: self.metadata.clone(),
             allow_lan: shared_values.allow_lan,
             #[cfg(not(target_os = "android"))]
-            dns_servers: self.get_dns_servers(shared_values),
+            dns_config: Self::resolve_dns(&self.metadata, shared_values),
             #[cfg(target_os = "macos")]
             redirect_interface,
         }
     }
 
-    fn set_dns(&self, shared_values: &mut SharedTunnelStateValues) -> Result<(), BoxedError> {
-        let dns_ips = self.get_dns_servers(shared_values);
+    fn resolve_dns(
+        metadata: &TunnelMetadata,
+        shared_values: &SharedTunnelStateValues,
+    ) -> ResolvedDnsConfig {
+        shared_values.dns_config.resolve(&metadata.gateways())
+    }
 
-        #[cfg(any(target_os = "linux", target_os = "windows"))]
-        let dns_ips = dns_ips
-            .into_iter()
-            .filter(|ip| {
-                !crate::firewall::is_local_address(ip)
-                    || IpAddr::V4(self.metadata.ipv4_gateway) == *ip
-                    || self.metadata.ipv6_gateway.map(IpAddr::V6) == Some(*ip)
-            })
-            .collect::<Vec<_>>();
+    fn set_dns(&self, shared_values: &mut SharedTunnelStateValues) -> Result<(), BoxedError> {
+        let dns_config = Self::resolve_dns(&self.metadata, shared_values);
 
         shared_values
             .dns_monitor
-            .set(&self.metadata.interface, &dns_ips)
+            .set(&self.metadata.interface, dns_config)
             .map_err(BoxedError::new)?;
 
         Ok(())
@@ -259,7 +249,7 @@ impl ConnectedState {
                 SameState(self)
             }
             Some(TunnelCommand::Dns(servers, complete_tx)) => {
-                let consequence = if shared_values.set_dns_servers(servers) {
+                let consequence = if shared_values.set_dns_config(servers) {
                     #[cfg(target_os = "android")]
                     {
                         if let Err(_err) = shared_values.restart_tunnel(false) {

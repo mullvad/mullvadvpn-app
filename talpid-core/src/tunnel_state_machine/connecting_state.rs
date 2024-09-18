@@ -439,7 +439,7 @@ impl ConnectingState {
                 SameState(self)
             }
             Some(TunnelCommand::Dns(servers, complete_tx)) => {
-                let consequence = if shared_values.set_dns_servers(servers) {
+                let consequence = if shared_values.set_dns_config(servers) {
                     #[cfg(target_os = "android")]
                     {
                         if let Err(_err) = shared_values.restart_tunnel(false) {
