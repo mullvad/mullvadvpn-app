@@ -9,11 +9,23 @@ cd "$SCRIPT_DIR"
 # regardless if stopped.
 GRADLE_OPTS="-Dorg.gradle.daemon=false"
 # We must provide a template for mktemp to work properly on macOS.
+GRADLE_USER_HOME=$(mktemp -d -t gradle-home-XXX)
 TEMP_GRADLE_PROJECT_CACHE_DIR=$(mktemp -d -t gradle-cache-XXX)
+# Task list to discover all tasks and their dependencies since
+# just running the suggested 'help' task isn't sufficient.
+GRADLE_TASKS=(
+    "assemble"
+    "compileDebugUnitTestKotlin"
+    "assembleAndroidTest"
+    "lint"
+)
 EXCLUDED_GRADLE_TASKS=(
     "-xensureRelayListExist"
     "-xensureJniDirectoryExist"
 )
+
+export GRADLE_OPTS
+export GRADLE_USER_HOME
 
 function cleanup {
     echo "Cleaning up temp dirs..."
@@ -28,8 +40,12 @@ echo ""
 # Generate keys
 
 echo "Generating new trusted keys..."
-../gradlew -q -p .. --project-cache-dir "$TEMP_GRADLE_PROJECT_CACHE_DIR" -M pgp,sha256 help --dry-run "${EXCLUDED_GRADLE_TASKS[@]}"
-echo ""
+# Using a loop here since providing all tasks at once result in gradle task dependency issues.
+for GRADLE_TASK in "${GRADLE_TASKS[@]}"; do
+    echo "Gradle task: $GRADLE_TASK"
+    ../gradlew -q -p .. --project-cache-dir "$TEMP_GRADLE_PROJECT_CACHE_DIR" -M pgp,sha256 "$GRADLE_TASK" --dry-run "${EXCLUDED_GRADLE_TASKS[@]}"
+    echo ""
+done
 
 # Move keys from dry run file to existing file (This part is taken from: https://gitlab.com/fdroid/fdroidclient/-/blob/master/gradle/update-verification-metadata.sh)
 # extract the middle of the new file, https://github.com/gradle/gradle/issues/18569
