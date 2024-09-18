@@ -20,6 +20,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
@@ -34,45 +35,32 @@ import com.ramcosta.composedestinations.result.ResultRecipient
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.TwoRowCell
 import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
-import net.mullvad.mullvadvpn.compose.communication.Deleted
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.component.SpacedColumn
 import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
-import net.mullvad.mullvadvpn.compose.state.EditCustomListState
+import net.mullvad.mullvadvpn.compose.preview.EditCustomListUiStatePreviewParameterProvider
+import net.mullvad.mullvadvpn.compose.state.EditCustomListUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.test.DELETE_DROPDOWN_MENU_ITEM_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.TOP_BAR_DROPDOWN_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
-import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.menuItemColors
 import net.mullvad.mullvadvpn.viewmodel.EditCustomListViewModel
 import org.koin.androidx.compose.koinViewModel
 
-@Preview
+@Preview("Content|Loading|NotFound")
 @Composable
-private fun PreviewEditCustomListScreen() {
-    AppTheme {
-        EditCustomListScreen(
-            state =
-                EditCustomListState.Content(
-                    id = CustomListId("id"),
-                    name = CustomListName.fromString("Custom list"),
-                    locations =
-                        listOf(
-                            GeoLocationId.Hostname(
-                                GeoLocationId.City(GeoLocationId.Country("country"), code = "city"),
-                                "hostname",
-                            )
-                        ),
-                )
-        )
-    }
+private fun PreviewEditCustomListScreen(
+    @PreviewParameter(EditCustomListUiStatePreviewParameterProvider::class)
+    state: EditCustomListUiState
+) {
+    AppTheme { EditCustomListScreen(state = state) }
 }
 
 data class EditCustomListNavArgs(val customListId: CustomListId)
@@ -125,7 +113,7 @@ fun EditCustomList(
 
 @Composable
 fun EditCustomListScreen(
-    state: EditCustomListState,
+    state: EditCustomListUiState,
     onDeleteList: (id: CustomListId, name: CustomListName) -> Unit = { _, _ -> },
     onNameClicked: (id: CustomListId, name: CustomListName) -> Unit = { _, _ -> },
     onLocationsClicked: (CustomListId) -> Unit = {},
@@ -135,11 +123,11 @@ fun EditCustomListScreen(
         appBarTitle = stringResource(id = R.string.edit_list),
         navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) },
         actions = {
-            val content = state as? EditCustomListState.Content
+            val content = state as? EditCustomListUiState.Content
             Actions(
                 enabled = content?.name != null,
                 onDeleteList = {
-                    if (content is EditCustomListState.Content) {
+                    if (content is EditCustomListUiState.Content) {
                         onDeleteList(content.id, content.name)
                     }
                 },
@@ -148,12 +136,12 @@ fun EditCustomListScreen(
     ) { modifier: Modifier ->
         SpacedColumn(modifier = modifier, alignment = Alignment.Top) {
             when (state) {
-                EditCustomListState.Loading -> {
+                EditCustomListUiState.Loading -> {
                     MullvadCircularProgressIndicatorLarge(
                         modifier = Modifier.testTag(CIRCULAR_PROGRESS_INDICATOR)
                     )
                 }
-                EditCustomListState.NotFound -> {
+                EditCustomListUiState.NotFound -> {
                     Text(
                         text = stringResource(id = R.string.not_found),
                         modifier = Modifier.padding(Dimens.screenVerticalMargin),
@@ -161,7 +149,7 @@ fun EditCustomListScreen(
                         color = MaterialTheme.colorScheme.onSurface,
                     )
                 }
-                is EditCustomListState.Content -> {
+                is EditCustomListUiState.Content -> {
                     // Name cell
                     TwoRowCell(
                         titleText = stringResource(id = R.string.list_name),

@@ -33,6 +33,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
@@ -45,6 +46,7 @@ import net.mullvad.mullvadvpn.compose.component.MullvadMediumTopBar
 import net.mullvad.mullvadvpn.compose.component.MullvadSnackbar
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
+import net.mullvad.mullvadvpn.compose.preview.ViewLogsUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.CopyToClipboardHandle
 import net.mullvad.mullvadvpn.compose.util.createCopyToClipboardHandle
@@ -56,16 +58,12 @@ import net.mullvad.mullvadvpn.viewmodel.ViewLogsUiState
 import net.mullvad.mullvadvpn.viewmodel.ViewLogsViewModel
 import org.koin.androidx.compose.koinViewModel
 
-@Preview
+@Preview("Content|Loading")
 @Composable
-private fun PreviewViewLogsScreen() {
-    AppTheme { ViewLogsScreen(state = ViewLogsUiState(listOf("Lorem ipsum"))) }
-}
-
-@Preview
-@Composable
-private fun PreviewViewLogsLoadingScreen() {
-    AppTheme { ViewLogsScreen(state = ViewLogsUiState()) }
+private fun PreviewViewLogsScreen(
+    @PreviewParameter(ViewLogsUiStatePreviewParameterProvider::class) state: ViewLogsUiState
+) {
+    AppTheme { ViewLogsScreen(state = state) }
 }
 
 @Destination<RootGraph>(style = SlideInFromRightTransition::class)

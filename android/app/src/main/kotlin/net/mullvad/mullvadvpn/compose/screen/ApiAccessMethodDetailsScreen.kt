@@ -66,7 +66,7 @@ import net.mullvad.mullvadvpn.viewmodel.ApiAccessMethodDetailsSideEffect
 import net.mullvad.mullvadvpn.viewmodel.ApiAccessMethodDetailsViewModel
 import org.koin.androidx.compose.koinViewModel
 
-@Preview
+@Preview("Loading|NonEditable|Editable")
 @Composable
 private fun PreviewApiAccessMethodDetailsScreen(
     @PreviewParameter(ApiAccessMethodDetailsUiStatePreviewParameterProvider::class)

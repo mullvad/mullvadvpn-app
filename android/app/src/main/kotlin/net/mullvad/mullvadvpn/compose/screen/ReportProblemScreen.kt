@@ -66,7 +66,7 @@ import net.mullvad.mullvadvpn.viewmodel.ReportProblemViewModel
 import net.mullvad.mullvadvpn.viewmodel.SendingReportUiState
 import org.koin.androidx.compose.koinViewModel
 
-@Preview
+@Preview("Default|Sending|Success|Error")
 @Composable
 private fun PreviewReportProblemScreen(
     @PreviewParameter(ReportProblemUiStatePreviewParameterProvider::class)

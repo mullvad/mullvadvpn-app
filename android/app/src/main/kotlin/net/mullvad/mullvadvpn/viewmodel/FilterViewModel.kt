@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.compose.state.RelayFilterState
+import net.mullvad.mullvadvpn.compose.state.RelayFilterUiState
 import net.mullvad.mullvadvpn.compose.state.toConstraintProviders
 import net.mullvad.mullvadvpn.compose.state.toOwnershipConstraint
 import net.mullvad.mullvadvpn.compose.state.toSelectedProviders
@@ -45,12 +45,12 @@ class FilterViewModel(
         }
     }
 
-    val uiState: StateFlow<RelayFilterState> =
+    val uiState: StateFlow<RelayFilterUiState> =
         combine(selectedOwnership, availableProvidersUseCase(), selectedProviders) {
                 selectedOwnership,
                 allProviders,
                 selectedProviders ->
-                RelayFilterState(
+                RelayFilterUiState(
                     selectedOwnership = selectedOwnership,
                     allProviders = allProviders,
                     selectedProviders = selectedProviders,
@@ -59,7 +59,7 @@ class FilterViewModel(
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(),
-                RelayFilterState(
+                RelayFilterUiState(
                     allProviders = emptyList(),
                     selectedOwnership = null,
                     selectedProviders = emptyList(),

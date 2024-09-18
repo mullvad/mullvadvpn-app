@@ -23,6 +23,7 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
@@ -49,17 +50,13 @@ import net.mullvad.mullvadvpn.compose.component.PlayPayment
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.extensions.createOpenAccountPageHook
 import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
-import net.mullvad.mullvadvpn.compose.state.PaymentState
+import net.mullvad.mullvadvpn.compose.preview.AccountUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromBottomTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.SecureScreenWhileInView
 import net.mullvad.mullvadvpn.compose.util.createCopyToClipboardHandle
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
-import net.mullvad.mullvadvpn.lib.model.AccountNumber
-import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
-import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
-import net.mullvad.mullvadvpn.lib.payment.model.ProductPrice
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.util.toExpiryDateString
@@ -69,35 +66,12 @@ import org.joda.time.DateTime
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview
+@Preview("PaymentAvailable|Loading|NoPayment|NoProductsFound|Error.Billing")
 @Composable
-private fun PreviewAccountScreen() {
-    AppTheme {
-        AccountScreen(
-            state =
-                AccountUiState(
-                    deviceName = "Test Name",
-                    accountNumber = AccountNumber("1234123412341234"),
-                    accountExpiry = null,
-                    showSitePayment = true,
-                    billingPaymentState =
-                        PaymentState.PaymentAvailable(
-                            listOf(
-                                PaymentProduct(
-                                    ProductId("productId"),
-                                    price = ProductPrice("34 SEK"),
-                                    status = null,
-                                ),
-                                PaymentProduct(
-                                    ProductId("productId_pending"),
-                                    price = ProductPrice("34 SEK"),
-                                    status = PaymentStatus.PENDING,
-                                ),
-                            )
-                        ),
-                )
-        )
-    }
+private fun PreviewAccountScreen(
+    @PreviewParameter(AccountUiStatePreviewParameterProvider::class) state: AccountUiState
+) {
+    AppTheme { AccountScreen(state = state) }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

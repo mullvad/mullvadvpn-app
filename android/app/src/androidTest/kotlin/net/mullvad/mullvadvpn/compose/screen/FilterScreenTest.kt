@@ -8,7 +8,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
-import net.mullvad.mullvadvpn.compose.state.RelayFilterState
+import net.mullvad.mullvadvpn.compose.state.RelayFilterUiState
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.Provider
 import net.mullvad.mullvadvpn.lib.model.ProviderId
@@ -29,7 +29,7 @@ class FilterScreenTest {
             setContentWithTheme {
                 FilterScreen(
                     state =
-                        RelayFilterState(
+                        RelayFilterUiState(
                             allProviders = DUMMY_RELAY_ALL_PROVIDERS,
                             selectedOwnership = null,
                             selectedProviders = DUMMY_SELECTED_PROVIDERS,
@@ -47,7 +47,7 @@ class FilterScreenTest {
             setContentWithTheme {
                 FilterScreen(
                     state =
-                        RelayFilterState(
+                        RelayFilterUiState(
                             allProviders = DUMMY_RELAY_ALL_PROVIDERS,
                             selectedOwnership = null,
                             selectedProviders = DUMMY_SELECTED_PROVIDERS,
@@ -65,7 +65,7 @@ class FilterScreenTest {
             setContentWithTheme {
                 FilterScreen(
                     state =
-                        RelayFilterState(
+                        RelayFilterUiState(
                             allProviders = DUMMY_RELAY_ALL_PROVIDERS,
                             selectedOwnership = Ownership.MullvadOwned,
                             selectedProviders = DUMMY_SELECTED_PROVIDERS,
@@ -83,7 +83,7 @@ class FilterScreenTest {
             setContentWithTheme {
                 FilterScreen(
                     state =
-                        RelayFilterState(
+                        RelayFilterUiState(
                             allProviders = DUMMY_RELAY_ALL_PROVIDERS,
                             selectedOwnership = Ownership.Rented,
                             selectedProviders = DUMMY_SELECTED_PROVIDERS,
@@ -101,7 +101,7 @@ class FilterScreenTest {
             setContentWithTheme {
                 FilterScreen(
                     state =
-                        RelayFilterState(
+                        RelayFilterUiState(
                             allProviders = DUMMY_RELAY_ALL_PROVIDERS,
                             selectedOwnership = null,
                             selectedProviders = DUMMY_SELECTED_PROVIDERS,
@@ -122,7 +122,7 @@ class FilterScreenTest {
             setContentWithTheme {
                 FilterScreen(
                     state =
-                        RelayFilterState(
+                        RelayFilterUiState(
                             allProviders = listOf(),
                             selectedOwnership = null,
                             selectedProviders =

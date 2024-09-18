@@ -45,6 +45,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
@@ -77,6 +78,7 @@ import net.mullvad.mullvadvpn.compose.component.MullvadSnackbar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.constant.ContentType
 import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
+import net.mullvad.mullvadvpn.compose.preview.SelectLocationsUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.screen.BottomSheetState.ShowCustomListsBottomSheet
 import net.mullvad.mullvadvpn.compose.screen.BottomSheetState.ShowCustomListsEntryBottomSheet
 import net.mullvad.mullvadvpn.compose.screen.BottomSheetState.ShowEditCustomListBottomSheet
@@ -107,16 +109,12 @@ import net.mullvad.mullvadvpn.viewmodel.SelectLocationSideEffect
 import net.mullvad.mullvadvpn.viewmodel.SelectLocationViewModel
 import org.koin.androidx.compose.koinViewModel
 
-@Preview
+@Preview("Content|Loading")
 @Composable
-private fun PreviewSelectLocationScreen() {
-    val state =
-        SelectLocationUiState.Content(
-            searchTerm = "",
-            emptyList(),
-            relayListItems = emptyList(),
-            customLists = emptyList(),
-        )
+private fun PreviewSelectLocationScreen(
+    @PreviewParameter(SelectLocationsUiStatePreviewParameterProvider::class)
+    state: SelectLocationUiState
+) {
     AppTheme { SelectLocationScreen(state = state) }
 }
 
