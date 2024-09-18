@@ -5,8 +5,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
@@ -15,10 +18,14 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
@@ -27,6 +34,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.max
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
@@ -47,6 +57,7 @@ import net.mullvad.mullvadvpn.compose.textfield.mullvadWhiteTextFieldColors
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.SecureScreenWhileInView
+import net.mullvad.mullvadvpn.compose.util.toDp
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.viewmodel.ReportProblemSideEffect
@@ -134,7 +145,9 @@ private fun ReportProblemScreen(
         } else {
             Column(
                 modifier =
-                    modifier
+                    Modifier
+                        .imePadding() // imePadding needs to be applied before the parent modifier.
+                        .then(modifier)
                         .padding(
                             start = Dimens.sideMargin,
                             end = Dimens.sideMargin,
@@ -158,12 +171,10 @@ private fun ReportProblemScreen(
                     colors = mullvadWhiteTextFieldColors(),
                 )
 
-                TextField(
-                    modifier = Modifier.fillMaxWidth().weight(1f),
+                ProblemMessageTextField(
+                    modifier = Modifier.weight(1f),
                     value = state.description,
-                    onValueChange = onDescriptionChanged,
-                    placeholder = { Text(stringResource(R.string.user_message_hint)) },
-                    colors = mullvadWhiteTextFieldColors(),
+                    onDescriptionChanged = onDescriptionChanged,
                 )
 
                 Column {
@@ -181,6 +192,36 @@ private fun ReportProblemScreen(
             }
         }
     }
+}
+
+@Composable
+fun ProblemMessageTextField(
+    modifier: Modifier = Modifier,
+    value: String,
+    onDescriptionChanged: (String) -> Unit,
+) {
+    // Stores the height of the text field after the initial onSizeChanged callback is called.
+    // This size will be calculated as a weight set from the parent composable.
+    var textFieldHeight by remember { mutableStateOf(0.dp) }
+
+    val localDensity = LocalDensity.current
+
+    TextField(
+        modifier =
+            modifier
+                .fillMaxWidth()
+                // Prevents the text field from shrinking when the IME is shown.
+                .defaultMinSize(minHeight = if (textFieldHeight > 0.dp) textFieldHeight else 180.dp)
+                // Prevents the text field from growing to large when the message is long.
+                .heightIn(max = if (textFieldHeight > 0.dp) textFieldHeight else Dp.Unspecified)
+                .onSizeChanged { size ->
+                    textFieldHeight = with(localDensity) { size.height.toDp() }
+                },
+        value = value,
+        onValueChange = onDescriptionChanged,
+        placeholder = { Text(stringResource(R.string.user_message_hint)) },
+        colors = mullvadWhiteTextFieldColors(),
+    )
 }
 
 @Composable
