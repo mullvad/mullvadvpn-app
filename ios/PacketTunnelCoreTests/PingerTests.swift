@@ -25,8 +25,8 @@ final class PingerTests: XCTestCase {
             }
         }
 
-        try pinger.openSocket(bindTo: "lo0")
-        sendResult = try pinger.send(to: .loopback)
+        try pinger.openSocket(bindTo: "lo0", destAddress: .loopback)
+        sendResult = try pinger.send()
 
         waitForExpectations(timeout: .UnitTest.timeout)
     }

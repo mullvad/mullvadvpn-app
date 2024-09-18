@@ -59,9 +59,11 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
 
         adapter = WgAdapter(packetTunnelProvider: self)
 
+        let pinger = TunnelPinger(pingProvider: adapter.icmpPingProvider, replyQueue: internalQueue)
+
         let tunnelMonitor = TunnelMonitor(
             eventQueue: internalQueue,
-            pinger: Pinger(replyQueue: internalQueue),
+            pinger: pinger,
             tunnelDeviceInfo: adapter,
             timings: TunnelMonitorTimings()
         )

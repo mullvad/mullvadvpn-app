@@ -178,7 +178,7 @@ public final class TunnelMonitor: TunnelMonitorProtocol {
         nslock.lock()
         defer { nslock.unlock() }
 
-        guard let probeAddress, let newStats = getStats(),
+        guard let newStats = getStats(),
               state.connectionState == .connecting || state.connectionState == .connected
         else { return }
 
@@ -222,7 +222,7 @@ public final class TunnelMonitor: TunnelMonitorProtocol {
                 state.isHeartbeatSuspended = false
                 state.timeoutReference = now
             }
-            sendPing(to: probeAddress, now: now)
+            sendPing(now: now)
         }
     }
 
@@ -252,9 +252,9 @@ public final class TunnelMonitor: TunnelMonitorProtocol {
         sendConnectionLostEvent()
     }
 
-    private func sendPing(to receiver: IPv4Address, now: Date) {
+    private func sendPing(now: Date) {
         do {
-            let sendResult = try pinger.send(to: receiver)
+            let sendResult = try pinger.send()
             state.updatePingStats(sendResult: sendResult, now: now)
 
             logger.trace("Send ping icmp_seq=\(sendResult.sequenceNumber).")
@@ -298,12 +298,12 @@ public final class TunnelMonitor: TunnelMonitorProtocol {
 
     private func startMonitoring() {
         do {
-            guard let interfaceName = tunnelDeviceInfo.interfaceName else {
-                logger.debug("Failed to obtain utun interface name.")
+            guard let interfaceName = tunnelDeviceInfo.interfaceName, let probeAddress else {
+                logger.debug("Failed to obtain utun interface name or probe address.")
                 return
             }
 
-            try pinger.openSocket(bindTo: interfaceName)
+            try pinger.openSocket(bindTo: interfaceName, destAddress: probeAddress)
 
             state.connectionState = .connecting
             startConnectivityCheckTimer()

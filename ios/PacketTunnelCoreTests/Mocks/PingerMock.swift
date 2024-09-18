@@ -34,8 +34,9 @@ class PingerMock: PingerProtocol {
         self.decideOutcome = decideOutcome
     }
 
-    func openSocket(bindTo interfaceName: String?) throws {
+    func openSocket(bindTo interfaceName: String?, destAddress: IPv4Address) throws {
         stateLock.withLock {
+            state.destAddress = destAddress
             state.isSocketOpen = true
         }
     }
@@ -46,10 +47,14 @@ class PingerMock: PingerProtocol {
         }
     }
 
-    func send(to address: IPv4Address) throws -> PingerSendResult {
+    func send() throws -> PingerSendResult {
         // Used for simulation. In reality can be any number.
         // But for realism it is: IPv4 header (20 bytes) + ICMP header (8 bytes)
         let icmpPacketSize: UInt = 28
+
+        guard let address = state.destAddress else {
+            fatalError("Address somehow not set when sending ping")
+        }
 
         let nextSequenceId = try stateLock.withLock {
             guard state.isSocketOpen else { throw POSIXError(.ENOTCONN) }
@@ -81,7 +86,7 @@ class PingerMock: PingerProtocol {
 
         networkStatsReporting.reportBytesSent(UInt64(icmpPacketSize))
 
-        return PingerSendResult(sequenceNumber: nextSequenceId, bytesSent: icmpPacketSize)
+        return PingerSendResult(sequenceNumber: nextSequenceId)
     }
 
     // MARK: - Types
@@ -91,6 +96,7 @@ class PingerMock: PingerProtocol {
         var sequenceId: UInt16 = 0
         var isSocketOpen = false
         var onReply: ((PingerReply) -> Void)?
+        var destAddress: IPv4Address?
 
         mutating func incrementSequenceId() -> UInt16 {
             sequenceId += 1
