@@ -44,7 +44,7 @@ public final class TunnelPinger: PingerProtocol {
         self.pingQueue = DispatchQueue(label: "PacketTunnel.icmp")
         self.logger = Logger(label: "TunnelPinger")
     }
-    
+
     deinit {
         pingProvider.closeICMP()
     }
