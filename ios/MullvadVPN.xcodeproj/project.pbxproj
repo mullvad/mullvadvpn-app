@@ -862,6 +862,8 @@
 		F03580252A13842C00E5DAFD /* IncreasedHitButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = F03580242A13842C00E5DAFD /* IncreasedHitButton.swift */; };
 		F03A69F72C2AD2D6000E2E7E /* TimeInterval+Timeout.swift in Sources */ = {isa = PBXBuildFile; fileRef = F03A69F62C2AD2D5000E2E7E /* TimeInterval+Timeout.swift */; };
 		F03A69F92C2AD414000E2E7E /* FormsheetPresentationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F03A69F82C2AD413000E2E7E /* FormsheetPresentationController.swift */; };
+		F041BE4F2C983C2B0083EC28 /* VPNSettingsPromptAlertItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = F041BE4E2C983C2B0083EC28 /* VPNSettingsPromptAlertItem.swift */; };
+		F041BE532C9878B60083EC28 /* ConnectionConfigurationBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = F041BE522C9878B60083EC28 /* ConnectionConfigurationBuilder.swift */; };
 		F04413612BA45CD70018A6EE /* CustomListLocationNodeBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04413602BA45CD70018A6EE /* CustomListLocationNodeBuilder.swift */; };
 		F04413622BA45CE30018A6EE /* CustomListLocationNodeBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04413602BA45CD70018A6EE /* CustomListLocationNodeBuilder.swift */; };
 		F04AF92D2C466013004A8314 /* EphemeralPeerNegotiationState.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04AF92C2C466013004A8314 /* EphemeralPeerNegotiationState.swift */; };
@@ -2077,6 +2079,8 @@
 		F03580242A13842C00E5DAFD /* IncreasedHitButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncreasedHitButton.swift; sourceTree = "<group>"; };
 		F03A69F62C2AD2D5000E2E7E /* TimeInterval+Timeout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "TimeInterval+Timeout.swift"; sourceTree = "<group>"; };
 		F03A69F82C2AD413000E2E7E /* FormsheetPresentationController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FormsheetPresentationController.swift; sourceTree = "<group>"; };
+		F041BE4E2C983C2B0083EC28 /* VPNSettingsPromptAlertItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNSettingsPromptAlertItem.swift; sourceTree = "<group>"; };
+		F041BE522C9878B60083EC28 /* ConnectionConfigurationBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionConfigurationBuilder.swift; sourceTree = "<group>"; };
 		F04413602BA45CD70018A6EE /* CustomListLocationNodeBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomListLocationNodeBuilder.swift; sourceTree = "<group>"; };
 		F04AF92C2C466013004A8314 /* EphemeralPeerNegotiationState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EphemeralPeerNegotiationState.swift; sourceTree = "<group>"; };
 		F04DD3D72C130DF600E03E28 /* TunnelSettingsManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TunnelSettingsManager.swift; sourceTree = "<group>"; };
@@ -2819,6 +2823,7 @@
 				587EB6732714520600123C75 /* VPNSettingsDataSourceDelegate.swift */,
 				7A6F2FAE2AFE36E7006D0856 /* VPNSettingsInfoButtonItem.swift */,
 				5871167E2910035700D41AAC /* VPNSettingsInteractor.swift */,
+				F041BE4E2C983C2B0083EC28 /* VPNSettingsPromptAlertItem.swift */,
 				58ACF6482655365700ACE4B7 /* VPNSettingsViewController.swift */,
 				587EB671271451E300123C75 /* VPNSettingsViewModel.swift */,
 			);
@@ -3084,6 +3089,9 @@
 				58BDEBA02A9CA14B00F578F2 /* AnyTask.swift */,
 				58F3F3652AA086A400D3B0A4 /* AutoCancellingTask.swift */,
 				583E60952A9F6D0800DC61EF /* ConfigurationBuilder.swift */,
+				F041BE522C9878B60083EC28 /* ConnectionConfigurationBuilder.swift */,
+				F05919742C45194B00C301F3 /* EphemeralPeerKey.swift */,
+				F04AF92C2C466013004A8314 /* EphemeralPeerNegotiationState.swift */,
 				5838322A2AC3EF9600EA2071 /* EventChannel.swift */,
 				580D6B892AB31AB400B2D6E0 /* NetworkPath+NetworkReachability.swift */,
 				58CF95A12AD6F35800B59F5D /* ObservedState.swift */,
@@ -3100,8 +3108,6 @@
 				583832282AC3DF1300EA2071 /* PacketTunnelActorCommand.swift */,
 				7AD0AA192AD69B6E00119E10 /* PacketTunnelActorProtocol.swift */,
 				44B3C4392BFE2C800079782C /* PacketTunnelActorReducer.swift */,
-				F05919742C45194B00C301F3 /* EphemeralPeerKey.swift */,
-				F04AF92C2C466013004A8314 /* EphemeralPeerNegotiationState.swift */,
 				A97D25AD2B0BB18100946B2D /* ProtocolObfuscator.swift */,
 				58E7A0312AA0715100C57861 /* Protocols */,
 				58ED3A132A7C199C0085CE65 /* StartOptions.swift */,
@@ -5495,6 +5501,7 @@
 				5838322B2AC3EF9600EA2071 /* EventChannel.swift in Sources */,
 				586C145A2AC4735F00245C01 /* PacketTunnelActor+Public.swift in Sources */,
 				F0DAC8AD2C16EFE400F80144 /* TunnelSettingsManager.swift in Sources */,
+				F041BE532C9878B60083EC28 /* ConnectionConfigurationBuilder.swift in Sources */,
 				58342C042AAB61FB003BA12D /* State+Extensions.swift in Sources */,
 				A95EEE382B722DFC00A8A39B /* PingStats.swift in Sources */,
 				583832272AC3193600EA2071 /* PacketTunnelActor+SleepCycle.swift in Sources */,
@@ -5573,6 +5580,7 @@
 				7AC8A3AF2ABC71D600DC4939 /* TermsOfServiceCoordinator.swift in Sources */,
 				58FF9FE22B075BA600E4C97D /* EditAccessMethodSectionIdentifier.swift in Sources */,
 				F0C2AEFD2A0BB5CC00986207 /* NotificationProviderIdentifier.swift in Sources */,
+				F041BE4F2C983C2B0083EC28 /* VPNSettingsPromptAlertItem.swift in Sources */,
 				7A58699B2B482FE200640D27 /* UITableViewCell+Disable.swift in Sources */,
 				7AB2B6702BA1EB8C00B03E3B /* ListCustomListViewController.swift in Sources */,
 				7A9CCCB72A96302800DD6A34 /* RevokedCoordinator.swift in Sources */,

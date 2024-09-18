@@ -76,38 +76,23 @@ extension PacketTunnelActor {
 
         switch configuration {
         case let .single(hop):
-            let exitConfiguration = try ConfigurationBuilder(
-                privateKey: hop.configuration.privateKey,
-                interfaceAddresses: settings.interfaceAddresses,
-                dns: settings.dnsServers,
-                endpoint: connectionData.connectedEndpoint,
-                allowedIPs: hop.configuration.allowedIPs,
-                preSharedKey: hop.configuration.preSharedKey
-            ).makeConfiguration()
-
+            let exitConfiguration = try ConnectionConfigurationBuilder(
+                type: .ephemeral(.single(hop)),
+                settings: settings,
+                connectionData: connectionData
+            ).make().exitConfiguration
             try await tunnelAdapter.start(configuration: exitConfiguration, daita: daitaConfiguration)
 
         case let .multi(firstHop, secondHop):
-            let entryConfiguration = try ConfigurationBuilder(
-                privateKey: firstHop.configuration.privateKey,
-                interfaceAddresses: settings.interfaceAddresses,
-                dns: settings.dnsServers,
-                endpoint: connectionData.connectedEndpoint,
-                allowedIPs: firstHop.configuration.allowedIPs,
-                preSharedKey: firstHop.configuration.preSharedKey
-            ).makeConfiguration()
-
-            let exitConfiguration = try ConfigurationBuilder(
-                privateKey: secondHop.configuration.privateKey,
-                interfaceAddresses: settings.interfaceAddresses,
-                dns: settings.dnsServers,
-                endpoint: secondHop.relay.endpoint,
-                allowedIPs: secondHop.configuration.allowedIPs,
-                preSharedKey: secondHop.configuration.preSharedKey
-            ).makeConfiguration()
+            let connectionConfiguration = try ConnectionConfigurationBuilder(
+                type: .ephemeral(.multi(entry: firstHop, exit: secondHop)),
+                settings: settings,
+                connectionData: connectionData
+            ).make()
 
             try await tunnelAdapter.startMultihop(
-                entryConfiguration: entryConfiguration, exitConfiguration: exitConfiguration, daita: daitaConfiguration
+                entryConfiguration: connectionConfiguration.entryConfiguration,
+                exitConfiguration: connectionConfiguration.exitConfiguration, daita: daitaConfiguration
             )
         }
     }
