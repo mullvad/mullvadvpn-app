@@ -14,7 +14,7 @@ import NetworkExtension
 import Operations
 import PacketTunnelCore
 
-class MapConnectionStatusOperation: AsyncOperation {
+class MapConnectionStatusOperation: AsyncOperation, @unchecked Sendable {
     private let interactor: TunnelInteractor
     private let connectionStatus: NEVPNStatus
     private var request: Cancellable?

@@ -37,7 +37,7 @@ enum SetAccountAction {
     }
 }
 
-class SetAccountOperation: ResultOperation<StoredAccountData?> {
+class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Sendable {
     private let interactor: TunnelInteractor
     private let accountsProxy: RESTAccountHandling
     private let devicesProxy: DeviceHandling

@@ -9,7 +9,7 @@
 import Foundation
 import protocol MullvadTypes.Cancellable
 
-public final class ResultBlockOperation<Success>: ResultOperation<Success> {
+public final class ResultBlockOperation<Success>: ResultOperation<Success>, @unchecked Sendable {
     private var executor: ((@escaping (Result<Success, Error>) -> Void) -> Cancellable?)?
     private var cancellableTask: Cancellable?
 

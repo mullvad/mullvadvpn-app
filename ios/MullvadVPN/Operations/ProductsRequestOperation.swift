@@ -11,7 +11,7 @@ import Operations
 import StoreKit
 
 final class ProductsRequestOperation: ResultOperation<SKProductsResponse>,
-    SKProductsRequestDelegate {
+    SKProductsRequestDelegate, @unchecked Sendable {
     private let productIdentifiers: Set<String>
 
     private let maxRetryCount = 10

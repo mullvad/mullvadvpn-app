@@ -26,11 +26,11 @@ public final class BackgroundObserver: OperationObserver {
     }
 
     public func didAttach(to operation: Operation) {
-        let expirationHandler = cancelUponExpiration ? { operation.cancel() } : nil
+        let expirationHandler: (@MainActor @Sendable () -> Void)? = { operation.cancel() }
 
         taskIdentifier = backgroundTaskProvider.beginBackgroundTask(
             withName: name,
-            expirationHandler: expirationHandler
+            expirationHandler: cancelUponExpiration ? expirationHandler : nil
         )
     }
 

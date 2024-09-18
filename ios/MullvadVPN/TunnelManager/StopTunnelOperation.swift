@@ -9,7 +9,7 @@
 import Foundation
 import Operations
 
-class StopTunnelOperation: ResultOperation<Void> {
+class StopTunnelOperation: ResultOperation<Void>, @unchecked Sendable {
     private let interactor: TunnelInteractor
 
     init(
