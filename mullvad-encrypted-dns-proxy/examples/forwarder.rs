@@ -1,6 +1,6 @@
 use std::env::args;
 
-use mullvad_obfuscated_dns_proxy::{config::Obfuscator, config_resolver, forwarder};
+use mullvad_encrypted_dns_proxy::{config::Obfuscator, config_resolver, forwarder};
 use tokio::net::TcpListener;
 
 /// This can be tested out by using curl:
