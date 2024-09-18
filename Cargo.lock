@@ -2241,6 +2241,7 @@ version = "0.0.0"
 dependencies = [
  "byteorder",
  "hickory-resolver",
+ "log",
  "rustls",
  "tokio",
  "webpki-roots",

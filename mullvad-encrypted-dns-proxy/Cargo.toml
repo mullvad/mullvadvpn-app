@@ -12,6 +12,7 @@ workspace = true
 
 [dependencies]
 tokio = { workspace = true, features = [ "macros" ] }
+log = { workspace = true }
 byteorder = "1"
 hickory-resolver = { version = "0.24.1", features = [ "dns-over-https-rustls" ]}
 webpki-roots = "0.25.0"

@@ -65,7 +65,6 @@ pub struct AvailableProxies {
     pub xor: Vec<Xor>,
 }
 
-
 impl TryFrom<Vec<Ipv6Addr>> for AvailableProxies {
     type Error = Error;
 
@@ -87,8 +86,13 @@ impl TryFrom<Vec<Ipv6Addr>> for AvailableProxies {
                         .xor
                         .push(Xor::try_from(ip).map_err(Error::InvalidXor)?);
                 }
+
                 // V1 types are ignored and so are errors
-                Ok(ProxyType::XorV1) | Err(_) => continue,
+                Ok(ProxyType::XorV1) => continue,
+
+                Err(ErrorUnknownType(unknown_proxy_type)) => {
+                    log::error!("Unknown proxy type {unknown_proxy_type}");
+                }
             }
         }
         if proxies.plain.is_empty() && proxies.xor.is_empty() {
