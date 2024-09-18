@@ -13,11 +13,11 @@ use crate::config::Obfuscator;
 /// bytes 4-8 - u16le - proxy type - must be 0x0003
 /// bytes 8-16 - [u8; 4] - v4 proxy address bytes
 /// bytes 16-18 - u16le - port for the proxy socket address
-/// bytes 18-24 - [u8; 6] - xor key bytes. If all of these are 0, this is an invalid configuration.
-/// Given the above, `2001:300:b9d5:9a75:3a04:eafd:11be:ad9e` will have the second hexlet (0x0300)
+/// bytes 18-24 - [u8; 6] - xor key bytes. 0x00 marks a premature end of the key
+/// Given the above, `2001:300:b9d5:9a75:3a04:eafd:1100:ad9e` will have the second hexlet (0x0300)
 /// represent the proxy type, the next 2 hexlets (0xb9d5,0x9a75) represent the IPv4 address for the
 /// proxy endpoint, the next hexlet`3a04` represents the port for the proxy endpoint, and
-/// the final 3 hexlets `eafd:11be:ad9e` represent the xor key.
+/// the final 3 hexlets `eafd:1100:ad9e` represent the xor key (0xEA, 0xFD, 0x11).
 #[derive(PartialEq, Debug)]
 pub struct Xor {
     addr: SocketAddrV4,
@@ -54,7 +54,7 @@ impl TryFrom<Ipv6Addr> for Xor {
         cursor.read_exact(&mut key_bytes).unwrap();
         let xor_key = key_bytes
             .into_iter()
-            .filter(|byte| *byte != 0x00)
+            .take_while(|byte| *byte != 0x00)
             .collect::<Vec<_>>();
         if xor_key.is_empty() {
             return Err(Error::EmptyXorKey);
@@ -112,7 +112,7 @@ fn test_xor_parsing() {
                 .unwrap(),
             expected: Xor {
                 addr: "127.0.0.1:1337".parse::<SocketAddrV4>().unwrap(),
-                xor_key: vec![0x01, 0x03, 0x04, 0x05, 0x06],
+                xor_key: vec![0x01],
                 key_index: 0,
             },
         },
