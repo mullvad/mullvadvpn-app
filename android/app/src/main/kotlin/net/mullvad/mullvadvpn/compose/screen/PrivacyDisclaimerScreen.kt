@@ -201,7 +201,7 @@ private fun ButtonPanel(isStartingService: Boolean, onAcceptClicked: () -> Unit)
         } else {
             PrimaryButton(
                 text = stringResource(id = R.string.agree_and_continue),
-                onClick = onAcceptClicked::invoke,
+                onClick = onAcceptClicked,
             )
         }
     }
