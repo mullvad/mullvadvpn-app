@@ -5,7 +5,6 @@ import java.net.InetAddress
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
 import net.mullvad.mullvadvpn.lib.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
-import net.mullvad.mullvadvpn.lib.model.TransportProtocol
 
 private const val PORT = 23451
 
@@ -43,8 +42,6 @@ private fun generateOtherStates(): Sequence<ConnectUiState> =
                     ),
                 selectedRelayItemTitle = "Relay Title",
                 tunnelState = state,
-                inAddress = Triple("inaddress", PORT, TransportProtocol.Tcp),
-                outAddress = "192.168.1.1",
                 showLocation = true,
                 inAppNotification = null,
                 deviceName = "Cool Beans",
