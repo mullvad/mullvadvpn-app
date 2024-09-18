@@ -99,6 +99,10 @@ jobs:
           git config --global --add safe.directory '*'
           git submodule update --init --recursive --depth=1 wireguard-go-rs
 
+      # Temporary fix to address maybenot.h build issues.
+      - name: Install cbindgen
+        run: cargo install --force cbindgen --version "0.26.0"
+
       - name: Clippy check
         env:
           RUSTFLAGS: --deny warnings
