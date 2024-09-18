@@ -41,6 +41,8 @@ enum ProxyType {
 impl TryFrom<Ipv6Addr> for ProxyType {
     type Error = ErrorUnknownType;
 
+    /// A proxy type is represented by the second hexlet in an IPv6 address, and it is to be
+    /// interpreted as little endian. All other data is disregarded.
     fn try_from(value: Ipv6Addr) -> Result<Self, Self::Error> {
         let mut data = Cursor::new(value.octets());
         // skip the first 2 bytes since it's just padding to make the IP look more like a legit

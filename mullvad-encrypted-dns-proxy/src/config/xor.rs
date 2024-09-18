@@ -7,6 +7,17 @@ use std::{
 use crate::config::Obfuscator;
 
 /// An obfuscator that XORs all traffic with the given key.
+///
+/// A Xor configuration is represented by the proxy type ProxyType::XorV2 (0x03). There used to be a XorV1 (0x02), but it shouldn't be used.
+/// The following bytes of an IPv6 address are interpreted to derive a Xor configuration:
+/// bytes 4-8 - u16le - proxy type - must be 0x0003
+/// bytes 8-16 - [u8; 4] - v4 proxy address bytes
+/// bytes 16-18 - u16le - port for the proxy socket address
+/// bytes 18-24 - [u8; 6] - xor key bytes. If all of these are 0, this is an invalid configuration.
+/// Given the above, `2001:300:b9d5:9a75:3a04:eafd:11be:ad9e` will have the second hexlet (0x0300)
+/// represent the proxy type, the next 2 hexlets (0xb9d5,0x9a75) represent the IPv4 address for the
+/// proxy endpoint, the next hexlet`3a04` represents the port for the proxy endpoint, and
+/// the final 3 hexlets `eafd:11be:ad9e` represent the xor key.
 #[derive(PartialEq, Debug)]
 pub struct Xor {
     addr: SocketAddrV4,

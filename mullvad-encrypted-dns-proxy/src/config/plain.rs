@@ -6,6 +6,17 @@ use std::{
 
 /// Obfuscator that does not obfuscate. It still can circumvent censorship since it is reaching our
 /// API through a different IP address.
+///
+/// A plain configuration is represented by proxy type ProxyType::Plain (0x01). A plain
+/// configuration interprets the following bytes from a given IPv6 address:
+/// bytes 4-8 - u16le - proxy type - must be 0x0001
+/// bytes 8-16 - [u8; 4] - 4 bytes representing the proxy IPv4 address
+/// bytes 16-18 - u16le - port on which the proxy is listening
+///
+/// Given the above, an IPv6 address `2001:100:b9d5:9a75:3804::` will have the second hexlet
+/// (0x0100) represent the proxy type, the following 2 hexlets (0xb9d5, 0x9a75) - the IPv4 address
+/// of the proxy endpoint, and the final hexlet represents the port for the proxy endpoint - the
+/// remaining bytes can be ignored.
 #[derive(PartialEq, Debug, Clone)]
 pub struct Plain {
     pub addr: SocketAddrV4,
