@@ -6,6 +6,7 @@ use std::{
 
 use crate::config::Obfuscator;
 
+/// An obfuscator that XORs all traffic with the given key.
 #[derive(PartialEq, Debug)]
 pub struct Xor {
     addr: SocketAddrV4,

@@ -17,7 +17,9 @@ pub enum Error {
     InvalidPlain(plain::Error),
 }
 
-#[derive(PartialEq)]
+/// Type of a proxy configuration. Derived from the 2nd hextet of an IPv6 address in network byte
+/// order. E.g. an IPv6 address such as `7f7f:2323::`  would have a proxy type value of `0x2323`.
+#[derive(PartialEq, Debug)]
 #[repr(u16)]
 enum ProxyType {
     Plain = 0x01,
@@ -81,6 +83,7 @@ pub struct AvailableProxies {
     pub xor: Vec<Xor>,
 }
 
+/// A trait that can be used by a forwarder to forward traffic.
 pub trait Obfuscator: Send {
     /// Provides the endpoint for the proxy. This address must be connected and all traffic to it
     /// should first be obfuscated with `Obfuscator::obfuscate`.
@@ -90,4 +93,13 @@ pub trait Obfuscator: Send {
     /// Constructs a new obfuscator of the same type and configuration, with it's internal state
     /// reset.
     fn clone(&self) -> Box<dyn Obfuscator>;
+}
+
+#[test]
+fn wrong_proxy_type() {
+    let addr: Ipv6Addr = "ffff:2345::".parse().unwrap();
+    match ProxyType::try_from(addr) {
+        Err(Error::UnknownType(0x4523)) => (),
+        anything_else => panic!("Expected unknown type 0x33, got {anything_else:x?}"),
+    }
 }

@@ -4,6 +4,8 @@ use std::{
     net::{Ipv4Addr, Ipv6Addr, SocketAddrV4},
 };
 
+/// Obfuscator that does not obfuscate. It still can circumvent censorship since it is reaching our
+/// API through a different IP address.
 #[derive(PartialEq, Debug, Clone)]
 pub struct Plain {
     pub addr: SocketAddrV4,

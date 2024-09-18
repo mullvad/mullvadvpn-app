@@ -1,4 +1,7 @@
-use std::{io, task::{ready, Poll}};
+use std::{
+    io,
+    task::{ready, Poll},
+};
 
 use tokio::{
     io::{AsyncRead, AsyncWrite},
@@ -7,6 +10,7 @@ use tokio::{
 
 use crate::config::Obfuscator;
 
+/// Forwards local traffic to a proxy endpoint, obfuscating it.
 pub struct Forwarder {
     read_obfuscator: Box<dyn Obfuscator>,
     write_obfuscator: Box<dyn Obfuscator>,
@@ -14,6 +18,7 @@ pub struct Forwarder {
 }
 
 impl Forwarder {
+    /// Create a forwarder that will connect to a given proxy endpoint.
     pub async fn connect(read_obfuscator: Box<dyn Obfuscator>) -> io::Result<Self> {
         let server_connection = TcpStream::connect(read_obfuscator.addr()).await?;
         let write_obfuscator = read_obfuscator.clone();
@@ -24,6 +29,9 @@ impl Forwarder {
             server_connection,
         })
     }
+
+    /// Forwards traffic from the client stream to the remote proxy, obfuscating and deobfuscating
+    /// it in the process.
     pub async fn forward(self, client_stream: TcpStream) {
         let (server_read, server_write) = self.server_connection.into_split();
         let (client_read, client_write) = client_stream.into_split();
