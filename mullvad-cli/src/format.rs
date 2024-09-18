@@ -229,16 +229,14 @@ fn format_relay_connection(
     location: Option<&GeoIpLocation>,
     verbose: bool,
 ) -> String {
-    let exit_endpoint = format_endpoint(
-        location.and_then(|l| l.hostname.as_deref()),
-        &endpoint.endpoint,
-        verbose,
-    );
-
     let first_hop = endpoint.entry_endpoint.as_ref().map(|entry| {
         let endpoint = format_endpoint(
             location.and_then(|l| l.entry_hostname.as_deref()),
-            entry,
+            // Check if we *actually* want to print an obfuscator endpoint ..
+            match endpoint.obfuscation {
+                Some(ref obfuscation) => &obfuscation.endpoint,
+                _ => entry,
+            },
             verbose,
         );
         format!(" via {endpoint}")
@@ -253,6 +251,17 @@ fn format_relay_connection(
 
         format!(" via {proxy_endpoint}")
     });
+
+    let exit_endpoint = format_endpoint(
+        location.and_then(|l| l.hostname.as_deref()),
+        // Check if we *actually* want to print an obfuscator endpoint ..
+        // The obfuscator information should be printed for the entry relay only.
+        match (endpoint.obfuscation, &first_hop) {
+            (Some(ref obfuscation), None) => &obfuscation.endpoint,
+            _ => &endpoint.endpoint,
+        },
+        verbose,
+    );
 
     format!(
         "{exit_endpoint}{first_hop}{bridge}",
