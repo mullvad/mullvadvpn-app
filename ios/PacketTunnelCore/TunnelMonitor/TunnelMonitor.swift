@@ -178,7 +178,7 @@ public final class TunnelMonitor: TunnelMonitorProtocol {
         nslock.lock()
         defer { nslock.unlock() }
 
-        guard let probeAddress, let newStats = getStats(),
+        guard let newStats = getStats(),
               state.connectionState == .connecting || state.connectionState == .connected
         else { return }
 
