@@ -32,9 +32,7 @@ public final class TunnelPinger: PingerProtocol {
         }
     }
 
-    var socketHandle: Int32?
-
-    var pingProvider: ICMPPingProvider
+    private var pingProvider: ICMPPingProvider
 
     private let logger: Logger
 
@@ -44,7 +42,7 @@ public final class TunnelPinger: PingerProtocol {
         self.pingQueue = DispatchQueue(label: "PacketTunnel.icmp")
         self.logger = Logger(label: "TunnelPinger")
     }
-    
+
     deinit {
         pingProvider.closeICMP()
     }
@@ -68,6 +66,7 @@ public final class TunnelPinger: PingerProtocol {
             let reply: PingerReply
             do {
                 try pingProvider.sendICMPPing(seqNumber: sequenceNumber)
+                // NOTE: we cheat here by returning the destination address we were passed, rather than parsing it from the packet on the other side of the FFI boundary.
                 reply = .success(destAddress, sequenceNumber)
             } catch {
                 reply = .parseError(error)
@@ -76,7 +75,6 @@ public final class TunnelPinger: PingerProtocol {
 
             replyQueue.async { [weak self] in
                 guard let self else { return }
-                // NOTE: we cheat here by returning the destination address we were passed, rather than parsing it from the packet on the other side of the FFI boundary.
                 self.onReply?(reply)
             }
         }

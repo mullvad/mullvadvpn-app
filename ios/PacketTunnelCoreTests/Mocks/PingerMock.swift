@@ -86,7 +86,7 @@ class PingerMock: PingerProtocol {
 
         networkStatsReporting.reportBytesSent(UInt64(icmpPacketSize))
 
-        return PingerSendResult(sequenceNumber: nextSequenceId, bytesSent: icmpPacketSize)
+        return PingerSendResult(sequenceNumber: nextSequenceId)
     }
 
     // MARK: - Types
@@ -96,7 +96,7 @@ class PingerMock: PingerProtocol {
         var sequenceId: UInt16 = 0
         var isSocketOpen = false
         var onReply: ((PingerReply) -> Void)?
-        var destAddress: IPv4Address? = nil
+        var destAddress: IPv4Address?
 
         mutating func incrementSequenceId() -> UInt16 {
             sequenceId += 1
