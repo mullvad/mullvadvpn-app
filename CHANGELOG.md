@@ -26,6 +26,7 @@ Line wrap the file at 100 chars.                                              Th
 - Add WireGuard over Shadowsocks obfuscation. It can be enabled in "WireGuard settings". This will
   also be used automatically when connecting fails with other methods.
 - Add feature indicators to the main view along with redesigning the connection details.
+- Add "Smart Routing" feature which simplifies connecting to DAITA-enabled relays.
 
 #### Windows
 - Add experimental support for Windows ARM64.
