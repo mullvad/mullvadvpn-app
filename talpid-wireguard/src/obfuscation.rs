@@ -6,8 +6,7 @@ use std::{
     net::{Ipv4Addr, Ipv6Addr, SocketAddr},
     sync::mpsc as sync_mpsc,
 };
-use talpid_types::net::obfuscation::ObfuscatorConfig;
-use talpid_types::ErrorExt;
+use talpid_types::{net::obfuscation::ObfuscatorConfig, ErrorExt};
 
 use tunnel_obfuscation::{
     create_obfuscator, shadowsocks, udp2tcp, Settings as ObfuscationSettings,
@@ -18,6 +17,7 @@ use tunnel_obfuscation::{
 pub async fn apply_obfuscation_config(
     config: &mut Config,
     close_msg_sender: sync_mpsc::Sender<CloseMsg>,
+    #[cfg(target_os = "android")] tun_provider: Arc<Mutex<TunProvider>>,
 ) -> Result<Option<ObfuscatorHandle>> {
     if let Some(ref obfuscator_config) = config.obfuscator_config {
         let settings = settings_from_config(
@@ -25,9 +25,15 @@ pub async fn apply_obfuscation_config(
             #[cfg(target_os = "linux")]
             config.fwmark,
         );
-        apply_obfuscation_config_inner(config, settings, close_msg_sender)
-            .await
-            .map(Some)
+        apply_obfuscation_config_inner(
+            config,
+            settings,
+            close_msg_sender,
+            #[cfg(target_os = "android")]
+            tun_provider,
+        )
+        .await
+        .map(Some)
     } else {
         Ok(None)
     }
@@ -37,6 +43,7 @@ async fn apply_obfuscation_config_inner(
     config: &mut Config,
     settings: ObfuscationSettings,
     close_msg_sender: sync_mpsc::Sender<CloseMsg>,
+    #[cfg(target_os = "android")] tun_provider: Arc<Mutex<TunProvider>>,
 ) -> Result<ObfuscatorHandle> {
     log::trace!("Obfuscation settings: {settings:?}");
 
@@ -45,7 +52,7 @@ async fn apply_obfuscation_config_inner(
         .map_err(Error::ObfuscationError)?;
 
     #[cfg(target_os = "android")]
-    let remote_socket_fd = obfuscator.remote_socket_fd();
+    bypass_vpn(tun_provider, obfuscator.remote_socket_fd).await;
 
     patch_endpoint(config, obfuscator.endpoint());
 
@@ -65,11 +72,7 @@ async fn apply_obfuscation_config_inner(
         }
     });
 
-    Ok(ObfuscatorHandle::new(
-        obfuscation_task,
-        #[cfg(target_os = "android")]
-        remote_socket_fd,
-    ))
+    Ok(ObfuscatorHandle::new(obfuscation_task))
 }
 
 /// Patch the first peer in the WireGuard configuration to use the local proxy endpoint
@@ -103,28 +106,30 @@ fn settings_from_config(
     }
 }
 
+/// Route socket outside of the VPN on Android
+#[cfg(target_os = "android")]
+async fn bypass_vpn(
+    tun_provider: Arc<Mutex<TunProvider>>,
+    remote_socket_fd: std::os::unix::io::RawFd,
+) -> Result<()> {
+    // Exclude remote obfuscation socket or bridge
+    log::debug!("Excluding remote socket fd from the tunnel");
+    tokio::task::spawn_blocking(move || {
+        if let Err(error) = args.tun_provider.lock().unwrap().bypass(remote_socket_fd) {
+            log::error!("Failed to exclude remote socket fd: {error}");
+        }
+    })
+    .await;
+}
+
 /// Simple wrapper that automatically cancels the future which runs an obfuscator.
 pub struct ObfuscatorHandle {
     obfuscation_task: tokio::task::JoinHandle<()>,
-    #[cfg(target_os = "android")]
-    remote_socket_fd: std::os::unix::io::RawFd,
 }
 
 impl ObfuscatorHandle {
-    pub fn new(
-        obfuscation_task: tokio::task::JoinHandle<()>,
-        #[cfg(target_os = "android")] remote_socket_fd: std::os::unix::io::RawFd,
-    ) -> Self {
-        Self {
-            obfuscation_task,
-            #[cfg(target_os = "android")]
-            remote_socket_fd,
-        }
-    }
-
-    #[cfg(target_os = "android")]
-    pub fn remote_socket_fd(&self) -> std::os::unix::io::RawFd {
-        self.remote_socket_fd
+    pub fn new(obfuscation_task: tokio::task::JoinHandle<()>) -> Self {
+        Self { obfuscation_task }
     }
 
     pub fn abort(&self) {

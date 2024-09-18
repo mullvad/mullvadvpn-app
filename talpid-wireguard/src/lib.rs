@@ -400,15 +400,8 @@ impl WireguardMonitor {
             .block_on(obfuscation::apply_obfuscation_config(
                 &mut config,
                 close_obfs_sender.clone(),
+                args.tun_provider.clone(),
             ))?;
-
-        if let Some(remote_socket_fd) = obfuscator.as_ref().map(|obfs| obfs.remote_socket_fd()) {
-            // Exclude remote obfuscation socket or bridge
-            log::debug!("Excluding remote socket fd from the tunnel");
-            if let Err(error) = args.tun_provider.lock().unwrap().bypass(remote_socket_fd) {
-                log::error!("Failed to exclude remote socket fd: {error}");
-            }
-        }
 
         let iface_name = tunnel.get_interface_name();
 
@@ -568,7 +561,7 @@ impl WireguardMonitor {
         tunnel: &Arc<AsyncMutex<Option<Box<dyn Tunnel>>>>,
         config: &mut Config,
         retry_attempt: u32,
-        obfuscator: Arc<AsyncMutex<Option<obfuscation::ObfuscatorHandle>>>,
+        obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
         close_obfs_sender: sync_mpsc::Sender<CloseMsg>,
         #[cfg(target_os = "android")] tun_provider: Arc<Mutex<TunProvider>>,
     ) -> std::result::Result<(), CloseMsg> {
@@ -664,19 +657,14 @@ impl WireguardMonitor {
         let mut obfs_guard = obfuscator.lock().await;
         if let Some(obfuscator_handle) = obfs_guard.take() {
             obfuscator_handle.abort();
-            *obfs_guard = obfuscation::apply_obfuscation_config(&mut config, close_obfs_sender)
-                .await
-                .map_err(CloseMsg::ObfuscatorFailed)?;
-
-            // Exclude new remote obfuscation socket or bridge
-            #[cfg(target_os = "android")]
-            if let Some(obfuscator_handle) = &*obfs_guard {
-                let remote_socket_fd = obfuscator_handle.remote_socket_fd();
-                log::debug!("Excluding remote socket fd from the tunnel");
-                if let Err(error) = tun_provider.lock().unwrap().bypass(remote_socket_fd) {
-                    log::error!("Failed to exclude remote socket fd: {error}");
-                }
-            }
+            *obfs_guard = obfuscation::apply_obfuscation_config(
+                &mut config,
+                close_obfs_sender,
+                #[cfg(target_os = "android")]
+                tun_provider.clone(),
+            )
+            .await
+            .map_err(CloseMsg::ObfuscatorFailed)?;
         }
 
         let mut tunnel = tunnel.lock().await;
