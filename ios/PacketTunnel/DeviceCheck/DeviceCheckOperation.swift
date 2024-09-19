@@ -278,14 +278,14 @@ final class DeviceCheckOperation: ResultOperation<DeviceCheck> {
 }
 
 /// An error used internally by `DeviceCheckOperation`.
-private enum DeviceCheckError: LocalizedError, Equatable {
+public enum DeviceCheckError: LocalizedError, Equatable {
     /// Device is no longer logged in.
     case invalidDeviceState
 
     /// Main process has likely performed key rotation at the same time when packet tunnel was doing so.
     case keyRotationRace
 
-    var errorDescription: String? {
+    public var errorDescription: String? {
         switch self {
         case .invalidDeviceState:
             return "Cannot complete device check because device is no longer logged in."
