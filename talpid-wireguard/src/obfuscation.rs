@@ -1,4 +1,4 @@
-//! Glue between talpid-obfuscation and WireGuard configurations
+//! Glue between tunnel-obfuscation and WireGuard configurations
 
 use super::{Error, Result};
 use crate::{config::Config, CloseMsg};
@@ -118,7 +118,7 @@ async fn bypass_vpn(
 ) {
     // Exclude remote obfuscation socket or bridge
     log::debug!("Excluding remote socket fd from the tunnel");
-    tokio::task::spawn_blocking(move || {
+    let _ = tokio::task::spawn_blocking(move || {
         if let Err(error) = tun_provider.lock().unwrap().bypass(remote_socket_fd) {
             log::error!("Failed to exclude remote socket fd: {error}");
         }
