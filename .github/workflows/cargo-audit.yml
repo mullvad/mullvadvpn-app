@@ -29,9 +29,7 @@ jobs:
           # Ignored audit issues. This list should be kept short, and effort should be
           # put into removing items from the list.
           # RUSTSEC-2023-0079 - KyberSlash in `pqc_kyber`.
-          # RUSTSEC-2024-0370 - `proc-macro-error` is unmaintained.
-          # `nftnl 0.6.2` uses `proc-macro-error`.
-          ignore: RUSTSEC-2023-0079,RUSTSEC-2024-0370
+          ignore: RUSTSEC-2023-0079
 
       - uses: actions-rust-lang/audit@v1.1.11
         name: Audit testrunner Rust Dependencies
@@ -41,6 +39,4 @@ jobs:
           # Ignored audit issues. This list should be kept short, and effort should be
           # put into removing items from the list.
           # RUSTSEC-2023-0079 - KyberSlash in `pqc_kyber`.
-          # RUSTSEC-2024-0370 - `proc-macro-error` is unmaintained.
-          # `nftnl 0.6.2` uses `proc-macro-error`.
-          ignore: RUSTSEC-2023-0079,RUSTSEC-2024-0370
+          ignore: RUSTSEC-2023-0079
