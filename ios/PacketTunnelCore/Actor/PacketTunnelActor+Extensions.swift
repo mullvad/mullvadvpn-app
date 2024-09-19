@@ -7,6 +7,7 @@
 //
 
 import Foundation
+@preconcurrency import Combine
 
 extension PacketTunnelActor {
     /// Returns a stream yielding `ObservedState`.

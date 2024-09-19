@@ -9,7 +9,7 @@
 import Foundation
 import Network
 
-public struct IPv4Endpoint: Hashable, Equatable, Codable, CustomStringConvertible {
+public struct IPv4Endpoint: Hashable, Equatable, Codable, CustomStringConvertible, Sendable {
     public let ip: IPv4Address
     public let port: UInt16
 
