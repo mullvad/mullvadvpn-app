@@ -39,7 +39,7 @@ pub fn default_resolvers() -> Vec<Nameserver> {
 pub async fn resolve_configs(
     resolvers: Vec<Nameserver>,
     domain: &str,
-) -> Result<config::AvailableProxies, Error> {
+) -> Result<Vec<config::ProxyConfig>, Error> {
     let mut resolver_config = ResolverConfig::new();
     for resolver in resolvers.into_iter() {
         let ns_config_group =
@@ -59,19 +59,27 @@ pub async fn resolve_config_with_resolverconfig(
     resolver_config: ResolverConfig,
     options: ResolverOpts,
     domain: &str,
-) -> Result<config::AvailableProxies, Error> {
+) -> Result<Vec<config::ProxyConfig>, Error> {
     let resolver = TokioAsyncResolver::tokio(resolver_config, options);
     let lookup = resolver
         .ipv6_lookup(domain)
         .await
         .map_err(Error::ResolutionError)?;
 
-    let addrs = lookup
-        .into_iter()
-        .map(|aaaa_record| aaaa_record.0)
-        .collect::<Vec<_>>();
+    let addrs = lookup.into_iter().map(|aaaa_record| aaaa_record.0);
 
-    config::AvailableProxies::try_from(addrs).map_err(Error::ParsingError)
+    let mut proxy_configs = Vec::new();
+    for addr in addrs {
+        match config::ProxyConfig::try_from(addr) {
+            Ok(proxy_config) => {
+                log::trace!("IPv6 {addr} parsed into proxy config: {proxy_config:?}");
+                proxy_configs.push(proxy_config);
+            }
+            Err(e) => log::error!("IPv6 {addr} fails to parse to a proxy config: {e}"),
+        }
+    }
+
+    Ok(proxy_configs)
 }
 
 fn client_config_tls12() -> ClientConfig {

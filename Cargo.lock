@@ -2390,7 +2390,6 @@ dependencies = [
 name = "mullvad-encrypted-dns-proxy"
 version = "0.0.0"
 dependencies = [
- "byteorder",
  "hickory-resolver",
  "log",
  "rustls",
