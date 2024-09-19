@@ -12,12 +12,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.compose.component.ChevronRight
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 
@@ -67,7 +67,7 @@ fun NavigationComposeCell(
     showWarning: Boolean = false,
     textColor: Color = MaterialTheme.colorScheme.onPrimary,
     bodyView: @Composable () -> Unit = {
-        DefaultNavigationView(chevronContentDescription = title, tint = textColor)
+        ChevronRight(contentDescription = title, tint = textColor)
     },
     isRowEnabled: Boolean = true,
     onClick: () -> Unit,
@@ -113,16 +113,6 @@ internal fun NavigationTitleView(
 }
 
 @Composable
-internal fun DefaultNavigationView(chevronContentDescription: String, tint: Color) {
-    Icon(
-        modifier = Modifier.rotate(-90f),
-        painter = painterResource(id = R.drawable.icon_chevron),
-        contentDescription = chevronContentDescription,
-        tint = tint,
-    )
-}
-
-@Composable
 internal fun DefaultExternalLinkView(chevronContentDescription: String, tint: Color) {
     Icon(
         painter = painterResource(id = R.drawable.icon_extlink),
@@ -149,10 +139,7 @@ internal fun NavigationCellBody(
         if (isExternalLink) {
             DefaultExternalLinkView(content, tint = contentColor)
         } else {
-            DefaultNavigationView(
-                chevronContentDescription = contentBodyDescription,
-                tint = contentColor,
-            )
+            ChevronRight(tint = contentColor, contentDescription = contentBodyDescription)
         }
     }
 }
