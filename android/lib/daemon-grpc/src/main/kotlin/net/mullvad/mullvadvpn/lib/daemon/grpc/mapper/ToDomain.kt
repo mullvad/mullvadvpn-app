@@ -605,7 +605,7 @@ internal fun ManagementInterface.SocksAuth.toDomain(): SocksAuth =
     SocksAuth(username = username, password = password)
 
 internal fun ManagementInterface.FeatureIndicators.toDomain(): List<FeatureIndicator> =
-    this.activeFeaturesList.map { it.toDomain() }.sorted()
+    activeFeaturesList.map { it.toDomain() }.sorted()
 
 internal fun ManagementInterface.FeatureIndicator.toDomain() =
     when (this) {
