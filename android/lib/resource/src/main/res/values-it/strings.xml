@@ -43,14 +43,9 @@
     <string name="auto_connect">Connessione automatica</string>
     <string name="auto_connect_and_lockdown_mode">Modalità di connessione automatica e blocco</string>
     <string name="auto_connect_and_lockdown_mode_footer">Assicurati che il dispositivo sia sempre collegato al tunnel VPN.</string>
-    <string name="auto_connect_carousel_first_slide_bottom_text">1. Dopo aver cliccato sul pulsante &lt;b&gt;Vai alle impostazioni VPN&lt;/b&gt; in basso, clicca sulla rotella accanto al nome &lt;b&gt;Mullvad VPN&lt;/b&gt;.</string>
     <string name="auto_connect_carousel_first_slide_top_text">Le impostazioni della modalità di Connessione automatica e di Blocco si trovano nelle impostazioni del sistema Android. Segui questa guida per abilitare una o entrambe.</string>
-    <string name="auto_connect_carousel_second_slide_bottom_text">2. Per abilitare la connessione automatica, clicca sull\'interruttore accanto a &lt;b&gt;VPN sempre attiva&lt;/b&gt;.</string>
     <string name="auto_connect_carousel_second_slide_top_text">La connessione automatica è denominata VPN sempre attiva nelle impostazioni del sistema Android e garantisce di essere costantemente connessi al tunnel VPN e di connettersi automaticamente dopo il riavvio.</string>
-    <string name="auto_connect_carousel_third_slide_bottom_text">3. Per abilitare la Modalità Blocco, fai clic sull\'interruttore accanto a &lt;b&gt;Blocca connessioni senza VPN&lt;/b&gt;.&lt;br /&gt;&lt;br /&gt;&lt;b&gt;Avviso: questa impostazione blocca le app divise e la funzione di condivisione della rete locale.&lt;/b&gt;</string>
-    <string name="auto_connect_carousel_third_slide_top_text">La Modalità Blocco si chiama &lt;b&gt;Blocca connessioni senza VPN&lt;/b&gt; nelle impostazioni del sistema Android. Aiuta a ridurre al minimo le perdite, tuttavia presenta alcune limitazioni su cui consigliamo di approfondire</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">qui</string>
-    <string name="auto_connect_footer_legacy">Utilizza piuttosto l\'impostazione di sistema &lt;b&gt;Sempre attivo&lt;/b&gt; seguendo la guida in &lt;b&gt;%1$s&lt;/b&gt; sopra.</string>
     <string name="auto_connect_footer_legacy_tv">Connettiti automaticamente all\'avvio dell\'app. Questa impostazione verrà sostituita con una nuova funzionalità di connessione all\'avvio del dispositivo in un aggiornamento futuro.</string>
     <string name="auto_connect_legacy">Connessione automatica (precedente)</string>
     <string name="automatic">Automatico</string>
@@ -90,7 +85,6 @@
     <string name="creating_new_account">Creazione account...</string>
     <string name="critical_error">Errore critico (è necessario intervenire)</string>
     <string name="current_method">Attuale: %1$s</string>
-    <string name="custom_dns_disable_mode_subtitle">Disabilita tutti i &lt;b&gt;%1$s&lt;/b&gt; sopra per attivare questa impostazione.</string>
     <string name="custom_dns_footer">Abilita per aggiungere almeno un server DNS.</string>
     <string name="custom_dns_hint">Inserisci IP</string>
     <string name="custom_list_error_list_exists">Il nome è già preso.</string>
@@ -119,9 +113,7 @@
     <string name="disconnect">Disconnetti</string>
     <string name="disconnected">Disconnesso</string>
     <string name="dismiss">Ignora</string>
-    <string name="dns_content_blockers_custom_dns_warning">Attenzione: questa impostazione non può essere utilizzata in combinazione con &lt;b&gt;Usa un server DNS personalizzato&lt;/b&gt;.</string>
     <string name="dns_content_blockers_info">Quando è abilitata, questa funzionalità impedisce al dispositivo di contattare determinati domini o siti Web noti per la distribuzione di annunci, malware, tracker e altro.</string>
-    <string name="dns_content_blockers_subtitle">Disabilita &lt;b&gt;%1$s&lt;/b&gt; di seguito per attivare queste impostazioni.</string>
     <string name="dns_content_blockers_warning">Ciò potrebbe causare problemi su determinati siti web, servizi e app.</string>
     <string name="dont_have_an_account">Non hai un numero di account?</string>
     <string name="duplicate_address_warning">Questo indirizzo è già stato inserito.</string>
