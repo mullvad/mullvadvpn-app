@@ -51,4 +51,4 @@ final class PacketTunnelPathObserver: DefaultPathObserverProtocol {
     }
 }
 
-extension NetworkExtension.NWPath: NetworkPath {}
+extension NetworkExtension.NWPath: @retroactive NetworkPath, @unchecked Sendable {}

@@ -13,7 +13,7 @@ import Network
 import NetworkExtension
 
 /// Tunnel monitor.
-public final class TunnelMonitor: TunnelMonitorProtocol {
+public final class TunnelMonitor: TunnelMonitorProtocol, @unchecked Sendable {
     private let tunnelDeviceInfo: TunnelDeviceInfoProtocol
 
     private let nslock = NSLock()

@@ -29,7 +29,7 @@ public struct PingerSendResult {
 }
 
 /// A type capable of sending and receving ICMP traffic.
-public protocol PingerProtocol {
+public protocol PingerProtocol: Sendable {
     var onReply: ((PingerReply) -> Void)? { get set }
 
     func openSocket(bindTo interfaceName: String?, destAddress: IPv4Address) throws
