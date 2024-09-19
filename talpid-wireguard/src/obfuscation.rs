@@ -2,10 +2,14 @@
 
 use super::{Error, Result};
 use crate::{config::Config, CloseMsg};
+#[cfg(target_os = "android")]
+use std::sync::{Arc, Mutex};
 use std::{
     net::{Ipv4Addr, Ipv6Addr, SocketAddr},
     sync::mpsc as sync_mpsc,
 };
+#[cfg(target_os = "android")]
+use talpid_tunnel::tun_provider::TunProvider;
 use talpid_types::{net::obfuscation::ObfuscatorConfig, ErrorExt};
 
 use tunnel_obfuscation::{
@@ -52,7 +56,7 @@ async fn apply_obfuscation_config_inner(
         .map_err(Error::ObfuscationError)?;
 
     #[cfg(target_os = "android")]
-    bypass_vpn(tun_provider, obfuscator.remote_socket_fd).await;
+    bypass_vpn(tun_provider, obfuscator.remote_socket_fd()).await;
 
     patch_endpoint(config, obfuscator.endpoint());
 
@@ -111,11 +115,11 @@ fn settings_from_config(
 async fn bypass_vpn(
     tun_provider: Arc<Mutex<TunProvider>>,
     remote_socket_fd: std::os::unix::io::RawFd,
-) -> Result<()> {
+) {
     // Exclude remote obfuscation socket or bridge
     log::debug!("Excluding remote socket fd from the tunnel");
     tokio::task::spawn_blocking(move || {
-        if let Err(error) = args.tun_provider.lock().unwrap().bypass(remote_socket_fd) {
+        if let Err(error) = tun_provider.lock().unwrap().bypass(remote_socket_fd) {
             log::error!("Failed to exclude remote socket fd: {error}");
         }
     })
