@@ -59,6 +59,6 @@ class AccountExpiryNotificationProvider(
     }
 
     companion object {
-        private val REMAINING_TIME_FOR_REMINDERS = Duration.standardDays(2)
+        private val REMAINING_TIME_FOR_REMINDERS = Duration.standardDays(3)
     }
 }
