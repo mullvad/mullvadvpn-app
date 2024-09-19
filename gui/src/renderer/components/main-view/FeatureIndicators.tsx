@@ -46,7 +46,7 @@ const StyledFeatureIndicatorsWrapper = styled.div<{ $expanded: boolean }>((props
   overflow: 'hidden',
 }));
 
-const StyledFeatureIndicatorLabel = styled.span<{ $expanded: boolean }>(tinyText, (props) => ({
+const StyledFeatureIndicatorLabel = styled.span(tinyText, (props) => ({
   display: 'flex',
   gap: '4px',
   padding: '1px 7px',
@@ -57,7 +57,7 @@ const StyledFeatureIndicatorLabel = styled.span<{ $expanded: boolean }>(tinyText
   color: colors.white,
   fontWeight: 400,
   whiteSpace: 'nowrap',
-  visibility: props.$expanded ? 'visible' : 'hidden',
+  visibility: 'hidden',
 
   // Style clickable feature indicators with a border and on-hover effect
   boxSizing: 'border-box', // make border act as padding rather than margin
@@ -140,7 +140,6 @@ export default function FeatureIndicators(props: FeatureIndicatorsProps) {
     // rendered and available.
     setTimeout(() => {
       if (
-        !props.expanded &&
         featureIndicatorsContainerRef.current &&
         ellipsisSpacerRef.current &&
         ellipsisRef.current
@@ -154,7 +153,8 @@ export default function FeatureIndicators(props: FeatureIndicatorsProps) {
         let hasHidden = false;
         indicatorElements.forEach((indicatorElement, i) => {
           if (
-            !indicatorShouldBeHidden(
+            indicatorShouldBeVisible(
+              props.expanded,
               featureIndicatorsContainerRef.current!,
               indicatorElement,
               ellipsisSpacerRef.current!,
@@ -165,6 +165,7 @@ export default function FeatureIndicators(props: FeatureIndicatorsProps) {
             indicatorElement.style.visibility = 'visible';
             lastVisibleIndex = i;
           } else {
+            indicatorElement.style.visibility = 'hidden';
             // If it should be visible we store that there exists hidden indicators.
             hasHidden = true;
           }
@@ -184,6 +185,8 @@ export default function FeatureIndicators(props: FeatureIndicatorsProps) {
           ellipsisRef.current.textContent = sprintf(ellipsis, {
             amount: indicatorElements.length - (lastVisibleIndex + 1),
           });
+        } else {
+          ellipsisRef.current.style.visibility = 'hidden';
         }
       }
     }, 0);
@@ -207,8 +210,7 @@ export default function FeatureIndicators(props: FeatureIndicatorsProps) {
                 <StyledFeatureIndicatorLabel
                   key={indicator.toString()}
                   data-testid="feature-indicator"
-                  onClick={onClick}
-                  $expanded={props.expanded}>
+                  onClick={onClick}>
                   {getFeatureIndicatorLabel(indicator)}
                   {onClick ? <InfoIcon size={10} /> : null}
                 </StyledFeatureIndicatorLabel>
@@ -248,11 +250,16 @@ export default function FeatureIndicators(props: FeatureIndicatorsProps) {
   );
 }
 
-function indicatorShouldBeHidden(
+function indicatorShouldBeVisible(
+  expanded: boolean,
   container: HTMLElement,
   indicator: HTMLElement,
   ellipsisSpacer: HTMLElement,
 ): boolean {
+  if (expanded) {
+    return true;
+  }
+
   const indicatorRect = indicator.getBoundingClientRect();
   const ellipsisSpacerRect = ellipsisSpacer.getBoundingClientRect();
   const containerRect = container.getBoundingClientRect();
@@ -262,7 +269,7 @@ function indicatorShouldBeHidden(
 
   // an indicator should remain hidden if it's on the third line or later, or if it is on the
   // second line and overlap with the ellipsis.
-  return lineIndex > 1 || (lineIndex === 1 && indicatorRect.right >= ellipsisSpacerRect.left);
+  return lineIndex === 0 || (lineIndex === 1 && indicatorRect.right < ellipsisSpacerRect.left);
 }
 
 function getFeatureIndicatorLabel(indicator: FeatureIndicator) {
