@@ -28,16 +28,16 @@ LABEL org.opencontainers.image.licenses=GPL-3.0
 
 # === Define toolchain versions and paths ===
 
-ARG SDK_VERSION=platforms;android-33 \
-    BUILD_TOOLS_VERSION=build-tools;30.0.3
+ARG SDK_VERSION=platforms;android-35 \
+    BUILD_TOOLS_VERSION=build-tools;35.0.0
 
-# Command line tools and checksum from: https://developer.android.com/studio#command-tools
-ARG COMMAND_LINE_TOOLS_VERSION=9123335 \
-    COMMAND_LINE_TOOLS_SHA256_CHECKSUM=0bebf59339eaa534f4217f8aa0972d14dc49e7207be225511073c661ae01da0a
+# Command line tools and checksum from: https://developer.android.com/studio#command-line-tools-only
+ARG COMMAND_LINE_TOOLS_VERSION=11076708 \
+    COMMAND_LINE_TOOLS_SHA256_CHECKSUM=2d2d50857e4eb553af5a6dc3ad507a17adf43d115264b1afc116f95c92e5e258
 
 # NDK and checksum from: https://github.com/android/ndk/wiki#supported-downloads
-ARG NDK_VERSION=r25c \
-    NDK_SHA1_CHECKSUM=53af80a1cce9144025b81c78c8cd556bff42bd0e \
+ARG NDK_VERSION=r27b \
+    NDK_SHA1_CHECKSUM=6fc476b2e57d7c01ac0c95817746b927035b9749 \
     MIN_SDK_VERSION=26
 
 ENV ANDROID_SDK_ROOT=/opt/android
