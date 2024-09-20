@@ -35,7 +35,7 @@ pub fn parse_xor(data: [u8; 12]) -> Result<super::ProxyConfig, super::Error> {
     })
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Eq, PartialEq, Hash)]
 pub struct XorKey {
     data: [u8; 6],
     len: usize,
@@ -56,18 +56,10 @@ impl fmt::Debug for XorKey {
     }
 }
 
-impl PartialEq for XorKey {
-    fn eq(&self, other: &Self) -> bool {
-        self.key_data() == other.key_data()
-    }
-}
-
-impl Eq for XorKey {}
-
 impl TryFrom<[u8; 6]> for XorKey {
     type Error = super::Error;
 
-    fn try_from(key_bytes: [u8; 6]) -> Result<Self, Self::Error> {
+    fn try_from(mut key_bytes: [u8; 6]) -> Result<Self, Self::Error> {
         let key_len = key_bytes
             .iter()
             .position(|b| *b == 0x00)
@@ -75,6 +67,11 @@ impl TryFrom<[u8; 6]> for XorKey {
         if key_len == 0 {
             return Err(super::Error::EmptyXorKey);
         }
+
+        // Reset bytes after terminating null to zeros.
+        // Allows simpler implementations of Eq and Hash
+        key_bytes[key_len..].fill(0);
+
         Ok(Self {
             data: key_bytes,
             len: key_len,
