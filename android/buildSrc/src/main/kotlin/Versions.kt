@@ -1,6 +1,7 @@
 object Versions {
     const val jvmTarget = "17"
     const val compileSdkVersion = 35
+    const val buildToolsVersion = "35.0.0"
     const val minSdkVersion = 26
     const val targetSdkVersion = 35
 
