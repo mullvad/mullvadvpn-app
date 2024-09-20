@@ -8,6 +8,7 @@ plugins {
 android {
     namespace = "net.mullvad.mullvadvpn.lib.billing"
     compileSdk = Versions.compileSdkVersion
+    buildToolsVersion = Versions.buildToolsVersion
 
     defaultConfig {
         minSdk = Versions.minSdkVersion

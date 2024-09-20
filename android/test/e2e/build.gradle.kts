@@ -12,6 +12,7 @@ plugins {
 android {
     namespace = "net.mullvad.mullvadvpn.test.e2e"
     compileSdk = Versions.compileSdkVersion
+    buildToolsVersion = Versions.buildToolsVersion
 
     defaultConfig {
         minSdk = Versions.minSdkVersion
