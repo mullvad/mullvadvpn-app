@@ -18,4 +18,4 @@ webpki-roots = "0.25.0"
 rustls = "0.21"
 
 [dev-dependencies]
-tokio = { workspace = true, features = [ "full" ]}
+tokio = { workspace = true }
