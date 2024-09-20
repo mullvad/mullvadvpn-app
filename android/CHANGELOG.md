@@ -22,10 +22,13 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+
+
+## [android/2024.5-beta1] - 2024-09-20
 ### Added
 - Add support for predictive back.
 - Add DAITA (Defence against AI-guided Traffic Analysis) setting.
-- Add WireGuard over Shadowsocks.
+- Add WireGuard-over-Shadowsocks.
 
 ### Changed
 - Update colors in the app to be more in line with material design.
