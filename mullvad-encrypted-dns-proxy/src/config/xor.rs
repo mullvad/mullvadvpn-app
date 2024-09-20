@@ -49,8 +49,9 @@ impl XorKey {
 
 impl fmt::Debug for XorKey {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "0x")?;
         for byte in self.key_data() {
-            write!(f, "{byte:x}")?;
+            write!(f, "{byte:0>2x}")?;
         }
         Ok(())
     }
@@ -189,5 +190,12 @@ mod tests {
             Err(Error::XorV1Unsupported) => (),
             anything_else => panic!("Unexpected proxy config parse result: {anything_else:?}"),
         }
+    }
+
+    #[test]
+    fn xor_key_debug_fmt() {
+        let key = XorKey::try_from([0x01, 0xff, 0x31, 0x00, 0x00, 0x00]).unwrap();
+        let key_str = format!("{key:?}");
+        assert_eq!(key_str, "0x01ff31");
     }
 }
