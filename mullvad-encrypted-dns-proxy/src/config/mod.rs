@@ -61,13 +61,13 @@ pub trait Obfuscator: Send {
     fn obfuscate(&mut self, buffer: &mut [u8]);
 }
 
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct ProxyConfig {
     pub addr: SocketAddrV4,
     pub obfuscation: Option<ObfuscationConfig>,
 }
 
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub enum ObfuscationConfig {
     XorV2(xor::XorKey),
 }
