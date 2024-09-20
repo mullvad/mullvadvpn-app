@@ -43,12 +43,7 @@ sed -Ei 's,key-servers enabled="[^"]+",key-servers enabled="true",' ../gradle/ve
 # Generate keys
 
 echo "Generating new trusted keys..."
-# Using a loop here since providing all tasks at once result in gradle task dependency issues.
-for GRADLE_TASK in "${GRADLE_TASKS[@]}"; do
-    echo "Gradle task: $GRADLE_TASK"
-    ../gradlew -q -p .. --project-cache-dir "$TEMP_GRADLE_PROJECT_CACHE_DIR" -M pgp,sha256 "$GRADLE_TASK" --export-keys --dry-run "${EXCLUDED_GRADLE_TASKS[@]}"
-    echo ""
-done
+../gradlew -q -p .. --project-cache-dir "$TEMP_GRADLE_PROJECT_CACHE_DIR" -M pgp,sha256 "${GRADLE_TASKS[@]}" --export-keys --dry-run "${EXCLUDED_GRADLE_TASKS[@]}"
 
 # Move keys from dry run file to existing file (This part is taken from: https://gitlab.com/fdroid/fdroidclient/-/blob/master/gradle/update-verification-metadata.sh)
 # extract the middle of the new file, https://github.com/gradle/gradle/issues/18569
