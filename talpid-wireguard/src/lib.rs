@@ -6,13 +6,14 @@ use self::config::Config;
 #[cfg(windows)]
 use futures::channel::mpsc;
 use futures::future::{BoxFuture, Future};
+use obfuscation::ObfuscatorHandle;
 #[cfg(target_os = "android")]
 use std::borrow::Cow;
 #[cfg(windows)]
 use std::io;
 use std::{
     convert::Infallible,
-    net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
+    net::IpAddr,
     path::Path,
     pin::Pin,
     sync::{mpsc as sync_mpsc, Arc, Mutex},
@@ -29,22 +30,18 @@ use talpid_tunnel::{tun_provider::TunProvider, TunnelArgs, TunnelEvent, TunnelMe
 use ipnetwork::IpNetwork;
 use talpid_types::{
     net::{
-        obfuscation::ObfuscatorConfig,
         wireguard::{PresharedKey, PrivateKey, PublicKey},
         AllowedTunnelTraffic, Endpoint, TransportProtocol,
     },
     BoxedError, ErrorExt,
 };
 use tokio::sync::Mutex as AsyncMutex;
-use tunnel_obfuscation::{
-    create_obfuscator, shadowsocks, udp2tcp, Error as ObfuscationError,
-    Settings as ObfuscationSettings,
-};
 
 /// WireGuard config data-types
 pub mod config;
 mod connectivity_check;
 mod logging;
+mod obfuscation;
 mod ping_monitor;
 mod stats;
 #[cfg(wireguard_go)]
@@ -78,13 +75,9 @@ pub enum Error {
     #[error("Tunnel failed")]
     TunnelError(#[source] TunnelError),
 
-    /// Failed to create tunnel obfuscator
-    #[error("Failed to create tunnel obfuscator")]
-    CreateObfuscatorError(#[source] ObfuscationError),
-
-    /// Failed to run tunnel obfuscator
-    #[error("Tunnel obfuscator failed")]
-    ObfuscatorError(#[source] ObfuscationError),
+    /// Failed to run tunnel obfuscation
+    #[error("Tunnel obfuscation failed")]
+    ObfuscationError(#[source] tunnel_obfuscation::Error),
 
     /// Failed to set up connectivity monitor
     #[error("Connectivity monitor failed")]
@@ -109,8 +102,7 @@ impl Error {
     /// Return whether retrying the operation that caused this error is likely to succeed.
     pub fn is_recoverable(&self) -> bool {
         match self {
-            Error::CreateObfuscatorError(_) => true,
-            Error::ObfuscatorError(_) => true,
+            Error::ObfuscationError(_) => true,
             Error::PskNegotiationError(_) => true,
             Error::TunnelError(TunnelError::RecoverableStartWireguardError(..)) => true,
 
@@ -153,41 +145,6 @@ const INITIAL_PSK_EXCHANGE_TIMEOUT: Duration = Duration::from_secs(8);
 const MAX_PSK_EXCHANGE_TIMEOUT: Duration = Duration::from_secs(48);
 const PSK_EXCHANGE_TIMEOUT_MULTIPLIER: u32 = 2;
 
-/// Simple wrapper that automatically cancels the future which runs an obfuscator.
-struct ObfuscatorHandle {
-    obfuscation_task: tokio::task::JoinHandle<()>,
-    #[cfg(target_os = "android")]
-    remote_socket_fd: std::os::unix::io::RawFd,
-}
-
-impl ObfuscatorHandle {
-    pub fn new(
-        obfuscation_task: tokio::task::JoinHandle<()>,
-        #[cfg(target_os = "android")] remote_socket_fd: std::os::unix::io::RawFd,
-    ) -> Self {
-        Self {
-            obfuscation_task,
-            #[cfg(target_os = "android")]
-            remote_socket_fd,
-        }
-    }
-
-    #[cfg(target_os = "android")]
-    pub fn remote_socket_fd(&self) -> std::os::unix::io::RawFd {
-        self.remote_socket_fd
-    }
-
-    pub fn abort(&self) {
-        self.obfuscation_task.abort();
-    }
-}
-
-impl Drop for ObfuscatorHandle {
-    fn drop(&mut self) {
-        self.obfuscation_task.abort();
-    }
-}
-
 #[cfg(target_os = "linux")]
 /// Overrides the preference for the kernel module for WireGuard.
 static FORCE_USERSPACE_WIREGUARD: LazyLock<bool> = LazyLock::new(|| {
@@ -195,72 +152,6 @@ static FORCE_USERSPACE_WIREGUARD: LazyLock<bool> = LazyLock::new(|| {
         .map(|v| v != "0")
         .unwrap_or(false)
 });
-
-async fn maybe_create_obfuscator(
-    config: &mut Config,
-    close_msg_sender: sync_mpsc::Sender<CloseMsg>,
-) -> Result<Option<ObfuscatorHandle>> {
-    if let Some(ref obfuscator_config) = config.obfuscator_config {
-        let settings = match obfuscator_config {
-            ObfuscatorConfig::Udp2Tcp { endpoint } => {
-                ObfuscationSettings::Udp2Tcp(udp2tcp::Settings {
-                    peer: *endpoint,
-                    #[cfg(target_os = "linux")]
-                    fwmark: config.fwmark,
-                })
-            }
-            ObfuscatorConfig::Shadowsocks { endpoint } => {
-                ObfuscationSettings::Shadowsocks(shadowsocks::Settings {
-                    shadowsocks_endpoint: *endpoint,
-                    // TODO: Temporary since we may different entry IPs later?
-                    wireguard_endpoint: if config.entry_peer.endpoint.is_ipv4() {
-                        SocketAddr::from((Ipv4Addr::LOCALHOST, 51820))
-                    } else {
-                        SocketAddr::from((Ipv6Addr::LOCALHOST, 51820))
-                    },
-                    //wireguard_endpoint: config.entry_peer.endpoint,
-                    #[cfg(target_os = "linux")]
-                    fwmark: config.fwmark,
-                })
-            }
-        };
-
-        log::trace!("Obfuscation settings: {settings:?}");
-
-        let obfuscator = create_obfuscator(&settings)
-            .await
-            .map_err(Error::CreateObfuscatorError)?;
-        let endpoint = obfuscator.endpoint();
-
-        log::trace!("Patching first WireGuard peer to become {endpoint}");
-        config.entry_peer.endpoint = endpoint;
-
-        #[cfg(target_os = "android")]
-        let remote_socket_fd = obfuscator.remote_socket_fd();
-
-        let obfuscation_task = tokio::spawn(async move {
-            match obfuscator.run().await {
-                Ok(_) => {
-                    let _ = close_msg_sender.send(CloseMsg::ObfuscatorExpired);
-                }
-                Err(error) => {
-                    log::error!(
-                        "{}",
-                        error.display_chain_with_msg("Obfuscation controller failed")
-                    );
-                    let _ = close_msg_sender
-                        .send(CloseMsg::ObfuscatorFailed(Error::ObfuscatorError(error)));
-                }
-            }
-        });
-        return Ok(Some(ObfuscatorHandle::new(
-            obfuscation_task,
-            #[cfg(target_os = "android")]
-            remote_socket_fd,
-        )));
-    }
-    Ok(None)
-}
 
 impl WireguardMonitor {
     /// Starts a WireGuard tunnel with the given config
@@ -282,10 +173,12 @@ impl WireguardMonitor {
         let endpoint_addrs: Vec<IpAddr> = config.peers().map(|peer| peer.endpoint.ip()).collect();
 
         let (close_obfs_sender, close_obfs_listener) = sync_mpsc::channel();
-        let obfuscator = args.runtime.block_on(maybe_create_obfuscator(
-            &mut config,
-            close_obfs_sender.clone(),
-        ))?;
+        let obfuscator = args
+            .runtime
+            .block_on(obfuscation::apply_obfuscation_config(
+                &mut config,
+                close_obfs_sender.clone(),
+            ))?;
 
         #[cfg(target_os = "windows")]
         let (setup_done_tx, setup_done_rx) = mpsc::channel(0);
@@ -502,18 +395,13 @@ impl WireguardMonitor {
         )?;
 
         let (close_obfs_sender, close_obfs_listener) = sync_mpsc::channel();
-        let obfuscator = args.runtime.block_on(maybe_create_obfuscator(
-            &mut config,
-            close_obfs_sender.clone(),
-        ))?;
-
-        if let Some(remote_socket_fd) = obfuscator.as_ref().map(|obfs| obfs.remote_socket_fd()) {
-            // Exclude remote obfuscation socket or bridge
-            log::debug!("Excluding remote socket fd from the tunnel");
-            if let Err(error) = args.tun_provider.lock().unwrap().bypass(remote_socket_fd) {
-                log::error!("Failed to exclude remote socket fd: {error}");
-            }
-        }
+        let obfuscator = args
+            .runtime
+            .block_on(obfuscation::apply_obfuscation_config(
+                &mut config,
+                close_obfs_sender.clone(),
+                args.tun_provider.clone(),
+            ))?;
 
         let iface_name = tunnel.get_interface_name();
 
@@ -769,19 +657,14 @@ impl WireguardMonitor {
         let mut obfs_guard = obfuscator.lock().await;
         if let Some(obfuscator_handle) = obfs_guard.take() {
             obfuscator_handle.abort();
-            *obfs_guard = maybe_create_obfuscator(&mut config, close_obfs_sender)
-                .await
-                .map_err(CloseMsg::ObfuscatorFailed)?;
-
-            // Exclude new remote obfuscation socket or bridge
-            #[cfg(target_os = "android")]
-            if let Some(obfuscator_handle) = &*obfs_guard {
-                let remote_socket_fd = obfuscator_handle.remote_socket_fd();
-                log::debug!("Excluding remote socket fd from the tunnel");
-                if let Err(error) = tun_provider.lock().unwrap().bypass(remote_socket_fd) {
-                    log::error!("Failed to exclude remote socket fd: {error}");
-                }
-            }
+            *obfs_guard = obfuscation::apply_obfuscation_config(
+                &mut config,
+                close_obfs_sender,
+                #[cfg(target_os = "android")]
+                tun_provider.clone(),
+            )
+            .await
+            .map_err(CloseMsg::ObfuscatorFailed)?;
         }
 
         let mut tunnel = tunnel.lock().await;
