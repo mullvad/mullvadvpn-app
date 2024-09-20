@@ -56,8 +56,6 @@ class SettingsDNSTextCell: SettingsCell, UITextFieldDelegate {
         backgroundView?.backgroundColor = UIColor.TextField.backgroundColor
         contentView.addSubview(textField)
 
-        overrideUserInterfaceStyle = .light
-
         contentView.addConstrainedSubviews([textField]) {
             textField.pinEdgesToSuperview()
         }
