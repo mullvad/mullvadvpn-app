@@ -14,6 +14,7 @@ import net.mullvad.mullvadvpn.test.common.constant.LONG_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.constant.VERY_LONG_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.extension.clickAgreeOnPrivacyDisclaimer
 import net.mullvad.mullvadvpn.test.common.extension.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove
+import net.mullvad.mullvadvpn.test.common.extension.dismissChangelogDialogIfShown
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
 
 class AppInteractor(
@@ -44,6 +45,7 @@ class AppInteractor(
         device.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
         waitForLoginPrompt()
         attemptLogin(accountNumber)
+        device.dismissChangelogDialogIfShown()
         ensureLoggedIn()
     }
 
