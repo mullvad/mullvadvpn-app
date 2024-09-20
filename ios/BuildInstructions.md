@@ -1,9 +1,9 @@
 ## Dependencies
 
-One needs Go v1.19 and the latest stable rust to build the app.
+One needs Go v1.20 and the latest stable rust to build the app.
 Go can be installed via
 ```bash
-brew install go@1.19
+brew install go@1.20
 ```
 
 Rust should be installed via [rustup](https://rustup.rs). Once rust is
