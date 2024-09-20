@@ -1,6 +1,6 @@
 use std::env::args;
 
-use mullvad_encrypted_dns_proxy::{config_resolver, forwarder};
+use mullvad_encrypted_dns_proxy::{config_resolver, Forwarder};
 use tokio::net::TcpListener;
 
 /// This can be tested out by using curl:
@@ -12,10 +12,10 @@ async fn main() {
 
     let bind_addr = args().nth(1).unwrap_or("127.0.0.1:0".to_owned());
 
-    let configs =
-        config_resolver::resolve_configs(&config_resolver::default_resolvers(), "frakta.eu")
-            .await
-            .expect("Failed to resolve configs");
+    let resolvers = config_resolver::default_resolvers();
+    let configs = config_resolver::resolve_configs(&resolvers, "frakta.eu")
+        .await
+        .expect("Failed to resolve configs");
 
     let proxy_config = configs
         .into_iter()
@@ -34,7 +34,7 @@ async fn main() {
 
     while let Ok((client_conn, client_addr)) = listener.accept().await {
         println!("Incoming connection from {client_addr}");
-        let connected = crate::forwarder::Forwarder::connect(&proxy_config)
+        let connected = Forwarder::connect(&proxy_config)
             .await
             .expect("failed to connect to obfuscator");
         let _ = connected.forward(client_conn).await;
