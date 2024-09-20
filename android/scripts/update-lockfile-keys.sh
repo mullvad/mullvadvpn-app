@@ -29,7 +29,7 @@ export GRADLE_USER_HOME
 
 function cleanup {
     echo "Cleaning up temp dirs..."
-    rm -rf -- "$TEMP_GRADLE_PROJECT_CACHE_DIR" ../gradle/verification-metadata.dryrun.xml
+    rm -rf -- "$TEMP_GRADLE_PROJECT_CACHE_DIR" ../gradle/verification-metadata.dryrun.xml ../gradle/verification-keyring.dryrun.keys ../gradle/verification-keyring.dryrun.gpg
 }
 
 trap cleanup EXIT
@@ -37,13 +37,16 @@ trap cleanup EXIT
 echo "### Updating dependency lockfile verification keys ###"
 echo ""
 
+echo "Set key servers true temporarily"
+sed -Ei 's,key-servers enabled="[^"]+",key-servers enabled="true",' ../gradle/verification-metadata.xml
+
 # Generate keys
 
 echo "Generating new trusted keys..."
 # Using a loop here since providing all tasks at once result in gradle task dependency issues.
 for GRADLE_TASK in "${GRADLE_TASKS[@]}"; do
     echo "Gradle task: $GRADLE_TASK"
-    ../gradlew -q -p .. --project-cache-dir "$TEMP_GRADLE_PROJECT_CACHE_DIR" -M pgp,sha256 "$GRADLE_TASK" --dry-run "${EXCLUDED_GRADLE_TASKS[@]}"
+    ../gradlew -q -p .. --project-cache-dir "$TEMP_GRADLE_PROJECT_CACHE_DIR" -M pgp,sha256 "$GRADLE_TASK" --export-keys --dry-run "${EXCLUDED_GRADLE_TASKS[@]}"
     echo ""
 done
 
@@ -65,4 +68,26 @@ grep -A 10000 "</trusted-keys>" ../gradle/verification-metadata.xml > "$TEMP_GRA
 
 # update verification metadata file
 cat "$TEMP_GRADLE_PROJECT_CACHE_DIR/old.head" "$TEMP_GRADLE_PROJECT_CACHE_DIR/new.middle" "$TEMP_GRADLE_PROJECT_CACHE_DIR/old.tail" > ../gradle/verification-metadata.xml
+
+echo "sorting keyring and removing duplicates"
+  # sort and unique the keyring
+  # https://github.com/gradle/gradle/issues/20140
+  # `sed 's/$/NEWLINE/g'` adds the word NEWLINE at the end of each line
+  # `tr -d '\n'` deletes the actual newlines
+  # `sed` again adds a newline at the end of each key, so each key is one line
+  # `sort` orders the keys deterministically
+  # `uniq` removes identical keys
+  # `sed 's/NEWLINE/\n/g'` puts the newlines back
+cat ../gradle/verification-keyring.dryrun.keys \
+    | sed 's/$/NEWLINE/g' \
+    | tr -d '\n' \
+    | sed 's/\(-----END PGP PUBLIC KEY BLOCK-----\)/\1\n/g' \
+    | grep "END PGP PUBLIC KEY BLOCK" \
+    | sort \
+    | uniq \
+    | sed 's/NEWLINE/\n/g' \
+    > ../gradle/verification-keyring.keys
+
+echo "Disable key servers again"
+sed -Ei 's,key-servers enabled="[^"]+",key-servers enabled="false",' ../gradle/verification-metadata.xml
 
