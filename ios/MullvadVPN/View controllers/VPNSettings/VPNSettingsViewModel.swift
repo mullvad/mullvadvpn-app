@@ -84,6 +84,7 @@ struct DNSServerEntry: Equatable, Hashable {
 }
 
 struct VPNSettingsViewModel: Equatable {
+    private(set) var blockAll: Bool
     private(set) var blockAdvertising: Bool
     private(set) var blockTracking: Bool
     private(set) var blockMalware: Bool
@@ -104,39 +105,69 @@ struct VPNSettingsViewModel: Equatable {
 
     static let defaultWireGuardPorts: [UInt16] = [51820, 53]
 
+    var enabledBlockersCount: Int {
+        [
+            blockAdvertising,
+            blockTracking,
+            blockMalware,
+            blockAdultContent,
+            blockGambling,
+            blockSocialMedia,
+        ].filter { $0 }.count
+    }
+
+    var allBlockersEnabled: Bool {
+        enabledBlockersCount == CustomDNSDataSource.Item.contentBlockers.filter { $0 != .blockAll }.count
+    }
+
+    mutating func setBlockAll(_ newValue: Bool) {
+        blockAll = newValue
+        blockAdvertising = newValue
+        blockTracking = newValue
+        blockMalware = newValue
+        blockAdultContent = newValue
+        blockGambling = newValue
+        blockSocialMedia = newValue
+        enableCustomDNS = false
+    }
+
     mutating func setBlockAdvertising(_ newValue: Bool) {
         blockAdvertising = newValue
+        blockAll = allBlockersEnabled
         enableCustomDNS = false
     }
 
     mutating func setBlockTracking(_ newValue: Bool) {
         blockTracking = newValue
+        blockAll = allBlockersEnabled
         enableCustomDNS = false
     }
 
     mutating func setBlockMalware(_ newValue: Bool) {
         blockMalware = newValue
+        blockAll = allBlockersEnabled
         enableCustomDNS = false
     }
 
     mutating func setBlockAdultContent(_ newValue: Bool) {
         blockAdultContent = newValue
+        blockAll = allBlockersEnabled
         enableCustomDNS = false
     }
 
     mutating func setBlockGambling(_ newValue: Bool) {
         blockGambling = newValue
+        blockAll = allBlockersEnabled
         enableCustomDNS = false
     }
 
     mutating func setBlockSocialMedia(_ newValue: Bool) {
         blockSocialMedia = newValue
+        blockAll = allBlockersEnabled
         enableCustomDNS = false
     }
 
     mutating func setEnableCustomDNS(_ newValue: Bool) {
-        blockTracking = false
-        blockAdvertising = false
         enableCustomDNS = newValue
     }
 
@@ -195,12 +226,20 @@ struct VPNSettingsViewModel: Equatable {
 
     init(from tunnelSettings: LatestTunnelSettings = LatestTunnelSettings()) {
         let dnsSettings = tunnelSettings.dnsSettings
+
         blockAdvertising = dnsSettings.blockingOptions.contains(.blockAdvertising)
         blockTracking = dnsSettings.blockingOptions.contains(.blockTracking)
         blockMalware = dnsSettings.blockingOptions.contains(.blockMalware)
         blockAdultContent = dnsSettings.blockingOptions.contains(.blockAdultContent)
         blockGambling = dnsSettings.blockingOptions.contains(.blockGambling)
         blockSocialMedia = dnsSettings.blockingOptions.contains(.blockSocialMedia)
+        blockAll = blockAdvertising
+            && blockTracking
+            && blockMalware
+            && blockAdultContent
+            && blockGambling
+            && blockSocialMedia
+
         enableCustomDNS = dnsSettings.enableCustomDNS
         customDNSDomains = dnsSettings.customDNSDomains.map { ipAddress in
             DNSServerEntry(identifier: UUID(), address: "\(ipAddress)")

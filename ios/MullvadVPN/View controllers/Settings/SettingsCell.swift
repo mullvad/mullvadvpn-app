@@ -59,6 +59,7 @@ class SettingsCell: UITableViewCell, CustomCellDisclosureHandling {
         }
     }
 
+    private var subCellLeadingIndentation: CGFloat = 0
     private let buttonWidth: CGFloat = 24
     private let infoButton: UIButton = {
         let button = UIButton(type: .custom)
@@ -84,6 +85,8 @@ class SettingsCell: UITableViewCell, CustomCellDisclosureHandling {
 
         infoButton.isHidden = true
         infoButton.addTarget(self, action: #selector(handleInfoButton(_:)), for: .touchUpInside)
+
+        subCellLeadingIndentation = contentView.layoutMargins.left + UIMetrics.TableView.cellIndentationWidth
 
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.font = UIFont.systemFont(ofSize: 17)
@@ -149,7 +152,7 @@ class SettingsCell: UITableViewCell, CustomCellDisclosureHandling {
     }
 
     func applySubCellStyling() {
-        contentView.layoutMargins.left += UIMetrics.TableView.cellIndentationWidth
+        contentView.layoutMargins.left = subCellLeadingIndentation
         backgroundView?.backgroundColor = UIColor.Cell.Background.indentationLevelOne
     }
 

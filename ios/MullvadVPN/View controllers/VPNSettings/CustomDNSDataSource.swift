@@ -49,6 +49,7 @@ final class CustomDNSDataSource: UITableViewDiffableDataSource<
     }
 
     enum Item: Hashable {
+        case blockAll
         case blockAdvertising
         case blockTracking
         case blockMalware
@@ -61,11 +62,21 @@ final class CustomDNSDataSource: UITableViewDiffableDataSource<
         case dnsServerInfo
 
         static var contentBlockers: [Item] {
-            [.blockAdvertising, .blockTracking, .blockMalware, .blockGambling, .blockAdultContent, .blockSocialMedia]
+            [
+                .blockAll,
+                .blockAdvertising,
+                .blockTracking,
+                .blockMalware,
+                .blockGambling,
+                .blockAdultContent,
+                .blockSocialMedia,
+            ]
         }
 
         var accessibilityIdentifier: AccessibilityIdentifier {
             switch self {
+            case .blockAll:
+                return .blockAll
             case .blockAdvertising:
                 return .blockAdvertising
             case .blockTracking:
@@ -403,83 +414,72 @@ final class CustomDNSDataSource: UITableViewDiffableDataSource<
         }
     }
 
+    private func setBlockAll(_ isEnabled: Bool) {
+        let oldViewModel = viewModel
+        viewModel.setBlockAll(isEnabled)
+        reloadBlockerData(isEnabled, oldViewModel: oldViewModel)
+
+        [
+            .blockAdvertising,
+            .blockTracking,
+            .blockMalware,
+            .blockAdultContent,
+            .blockGambling,
+            .blockSocialMedia,
+        ].forEach { item in
+            reload(item: item)
+        }
+    }
+
     private func setBlockAdvertising(_ isEnabled: Bool) {
         let oldViewModel = viewModel
-
         viewModel.setBlockAdvertising(isEnabled)
-
-        if oldViewModel.customDNSPrecondition != viewModel.customDNSPrecondition {
-            reloadDnsServerInfo()
-        }
-
-        if !isEditing {
-            delegate?.didChangeViewModel(viewModel)
-        }
+        reloadBlockerData(isEnabled, oldViewModel: oldViewModel)
     }
 
     private func setBlockTracking(_ isEnabled: Bool) {
         let oldViewModel = viewModel
-
         viewModel.setBlockTracking(isEnabled)
-
-        if oldViewModel.customDNSPrecondition != viewModel.customDNSPrecondition {
-            reloadDnsServerInfo()
-        }
-
-        if !isEditing {
-            delegate?.didChangeViewModel(viewModel)
-        }
+        reloadBlockerData(isEnabled, oldViewModel: oldViewModel)
     }
 
     private func setBlockMalware(_ isEnabled: Bool) {
         let oldViewModel = viewModel
-
         viewModel.setBlockMalware(isEnabled)
-
-        if oldViewModel.customDNSPrecondition != viewModel.customDNSPrecondition {
-            reloadDnsServerInfo()
-        }
-
-        if !isEditing {
-            delegate?.didChangeViewModel(viewModel)
-        }
+        reloadBlockerData(isEnabled, oldViewModel: oldViewModel)
     }
 
     private func setBlockAdultContent(_ isEnabled: Bool) {
         let oldViewModel = viewModel
-
         viewModel.setBlockAdultContent(isEnabled)
-
-        if oldViewModel.customDNSPrecondition != viewModel.customDNSPrecondition {
-            reloadDnsServerInfo()
-        }
-
-        if !isEditing {
-            delegate?.didChangeViewModel(viewModel)
-        }
+        reloadBlockerData(isEnabled, oldViewModel: oldViewModel)
     }
 
     private func setBlockGambling(_ isEnabled: Bool) {
         let oldViewModel = viewModel
-
         viewModel.setBlockGambling(isEnabled)
-
-        if oldViewModel.customDNSPrecondition != viewModel.customDNSPrecondition {
-            reloadDnsServerInfo()
-        }
-
-        if !isEditing {
-            delegate?.didChangeViewModel(viewModel)
-        }
+        reloadBlockerData(isEnabled, oldViewModel: oldViewModel)
     }
 
     private func setBlockSocialMedia(_ isEnabled: Bool) {
         let oldViewModel = viewModel
-
         viewModel.setBlockSocialMedia(isEnabled)
+        reloadBlockerData(isEnabled, oldViewModel: oldViewModel)
+    }
 
+    private func reloadBlockerData(_ isEnabled: Bool, oldViewModel: VPNSettingsViewModel) {
         if oldViewModel.customDNSPrecondition != viewModel.customDNSPrecondition {
             reloadDnsServerInfo()
+        }
+
+        if !isEnabled || viewModel.allBlockersEnabled {
+            reload(item: .blockAll)
+        }
+
+        if
+            let index = snapshot().sectionIdentifiers.firstIndex(of: .contentBlockers),
+            let headerView = tableView?.headerView(forSection: index) as? SettingsHeaderView {
+            configureContentBlockersHeader(headerView)
         }
 
         if !isEditing {
@@ -588,8 +588,23 @@ final class CustomDNSDataSource: UITableViewDiffableDataSource<
             comment: ""
         )
 
-        header.titleLabel.text = title
+        let enabledBlockersCount = viewModel.enabledBlockersCount
+        let attributedTitle = NSMutableAttributedString(string: title)
+        let blockerCountText = NSAttributedString(string: " (\(enabledBlockersCount))", attributes: [
+            .foregroundColor: UIColor.primaryTextColor.withAlphaComponent(0.6),
+        ])
+
+        if enabledBlockersCount > 0 {
+            attributedTitle.append(blockerCountText)
+        }
+
+        UIView.transition(with: header.titleLabel, duration: 0.2, options: .transitionCrossDissolve) {
+            header.titleLabel.attributedText = attributedTitle
+        }
+        header.titleLabel.sizeToFit()
+
         header.accessibilityCustomActionName = title
+        header.accessibilityValue = "\(enabledBlockersCount)"
         header.accessibilityIdentifier = .dnsContentBlockersHeaderView
 
         header.infoButtonHandler = { [weak self] in
@@ -618,6 +633,9 @@ final class CustomDNSDataSource: UITableViewDiffableDataSource<
 extension CustomDNSDataSource: CustomDNSCellEventHandler {
     func didChangeState(for preference: Item, isOn: Bool) {
         switch preference {
+        case .blockAll:
+            setBlockAll(isOn)
+
         case .blockAdvertising:
             setBlockAdvertising(isOn)
 

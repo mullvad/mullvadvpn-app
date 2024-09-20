@@ -46,7 +46,7 @@ final class CustomDNSCellFactory: CellFactoryProtocol {
         cell.titleLabel.text = title
         cell.accessibilityIdentifier = preference.accessibilityIdentifier
         cell.applySubCellStyling()
-        cell.setOn(toggleSetting, animated: false)
+        cell.setOn(toggleSetting, animated: true)
         cell.action = { [weak self] isOn in
             self?.delegate?.didChangeState(
                 for: preference,
@@ -58,6 +58,21 @@ final class CustomDNSCellFactory: CellFactoryProtocol {
     // swiftlint:disable:next function_body_length
     func configureCell(_ cell: UITableViewCell, item: CustomDNSDataSource.Item, indexPath: IndexPath) {
         switch item {
+        case .blockAll:
+            let localizedString = NSLocalizedString(
+                "BLOCK_ALL_CELL_LABEL",
+                tableName: "VPNSettings",
+                value: "All",
+                comment: ""
+            )
+
+            configure(
+                cell,
+                toggleSetting: viewModel.blockAll,
+                title: localizedString,
+                for: .blockAll
+            )
+
         case .blockAdvertising:
             let localizedString = NSLocalizedString(
                 "BLOCK_ADS_CELL_LABEL",
