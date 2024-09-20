@@ -62,7 +62,7 @@ export default function ClipboardLabel(props: IProps) {
   return (
     <StyledLabelContainer>
       <StyledLabel aria-hidden={obscured} {...otherProps}>
-        {obscured ? '●●●● ●●●● ●●●● ●●●●' : displayValue ?? value}
+        {obscured ? '●●●● ●●●● ●●●● ●●●●' : (displayValue ?? value)}
       </StyledLabel>
       {obscureValue !== false && (
         <StyledButton

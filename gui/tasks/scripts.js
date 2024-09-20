@@ -37,7 +37,9 @@ function makeWatchCompiler(onFirstSuccess, onSuccess) {
         ) {
           lastBundle = bundle;
           lastPreloadBundle = preloadBundle;
-          !wasFirstBuild && onSuccess();
+          if (!wasFirstBuild) {
+            onSuccess();
+          }
         }
       }),
     );

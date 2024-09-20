@@ -1,9 +1,14 @@
 import { expect, test } from '@playwright/test';
 import { Page } from 'playwright';
 
-import { MockedTestUtils, startMockedApp } from './mocked-utils';
-import { FeatureIndicator, ILocation, ITunnelEndpoint, TunnelState } from '../../../src/shared/daemon-rpc-types';
+import {
+  FeatureIndicator,
+  ILocation,
+  ITunnelEndpoint,
+  TunnelState,
+} from '../../../src/shared/daemon-rpc-types';
 import { expectConnected } from '../shared/tunnel-state';
+import { MockedTestUtils, startMockedApp } from './mocked-utils';
 
 const endpoint: ITunnelEndpoint = {
   address: 'wg10:80',
@@ -91,23 +96,23 @@ test('App should show feature indicators', async () => {
   await expect(ellipsis).toBeVisible();
 
   await expectConnected(page);
-  await expectFeatureIndicators(page, ["DAITA", "Quantum resistance"], false);
-  await expectHiddenFeatureIndicator(page, "Mssfix");
+  await expectFeatureIndicators(page, ['DAITA', 'Quantum resistance'], false);
+  await expectHiddenFeatureIndicator(page, 'Mssfix');
 
   await page.getByTestId('connection-panel-chevron').click();
   await expect(ellipsis).not.toBeVisible();
 
   await expectFeatureIndicators(page, [
-    "DAITA",
-    "Quantum resistance",
-    "Mssfix",
-    "MTU",
-    "Obfuscation",
-    "Local network sharing",
-    "Lockdown mode",
-    "Multihop",
-    "Custom DNS",
-    "Server IP override",
+    'DAITA',
+    'Quantum resistance',
+    'Mssfix',
+    'MTU',
+    'Obfuscation',
+    'Local network sharing',
+    'Lockdown mode',
+    'Multihop',
+    'Custom DNS',
+    'Server IP override',
   ]);
 });
 
@@ -123,11 +128,7 @@ async function expectHiddenFeatureIndicator(page: Page, hiddenIndicator: string)
   await expect(indicator).not.toBeVisible();
 }
 
-async function expectFeatureIndicators(
-  page: Page,
-  expectedIndicators: Array<string>,
-  only = true,
-) {
+async function expectFeatureIndicators(page: Page, expectedIndicators: Array<string>, only = true) {
   const indicators = page.getByTestId('feature-indicator');
   if (only) {
     await expect(indicators).toHaveCount(expectedIndicators.length);

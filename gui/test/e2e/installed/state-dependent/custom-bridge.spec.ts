@@ -1,10 +1,10 @@
 import { expect, test } from '@playwright/test';
 import { Page } from 'playwright';
 
-import { startInstalledApp } from '../installed-utils';
-import { TestUtils } from '../../utils';
 import { colors } from '../../../../src/config.json';
 import { RoutePath } from '../../../../src/renderer/lib/routes';
+import { TestUtils } from '../../utils';
+import { startInstalledApp } from '../installed-utils';
 
 // This test expects the daemon to be logged in and not have a custom bridge configured.
 // Env parameters:
@@ -25,37 +25,35 @@ test.afterAll(async () => {
 });
 
 test('App should enable bridge mode', async () => {
-  await util.waitForNavigation(async () => await page.click('button[aria-label="Settings"]'));
-  expect(
-    await util.waitForNavigation(async () => await page.getByText('VPN settings').click()),
-  ).toBe(RoutePath.vpnSettings);
+  await util.waitForNavigation(() => page.click('button[aria-label="Settings"]'));
+  expect(await util.waitForNavigation(() => page.getByText('VPN settings').click())).toBe(
+    RoutePath.vpnSettings,
+  );
 
   await page.getByRole('option', { name: 'OpenVPN' }).click();
 
-  expect(
-    await util.waitForNavigation(async () => await page.getByText('OpenVPN settings').click()),
-  ).toBe(RoutePath.openVpnSettings);
+  expect(await util.waitForNavigation(() => page.getByText('OpenVPN settings').click())).toBe(
+    RoutePath.openVpnSettings,
+  );
 
   await page.getByTestId('bridge-mode-on').click();
   await expect(page.getByText('Enable bridge mode?')).toBeVisible();
 
-  page.getByTestId('enable-confirm').click();
+  await page.getByTestId('enable-confirm').click();
 
-  await util.waitForNavigation(async () => await page.click('button[aria-label="Back"]'));
-  await util.waitForNavigation(async () => await page.click('button[aria-label="Back"]'));
-  expect(
-    await util.waitForNavigation(async () => await page.click('button[aria-label="Close"]')),
-  ).toBe(RoutePath.main);
+  await util.waitForNavigation(() => page.click('button[aria-label="Back"]'));
+  await util.waitForNavigation(() => page.click('button[aria-label="Back"]'));
+  expect(await util.waitForNavigation(() => page.click('button[aria-label="Close"]'))).toBe(
+    RoutePath.main,
+  );
 });
 
 test('App display disabled custom bridge', async () => {
   expect(
-    await util.waitForNavigation(
-      async () => await page.click('button[aria-label^="Select location"]'),
-    ),
+    await util.waitForNavigation(() => page.click('button[aria-label^="Select location"]')),
   ).toBe(RoutePath.selectLocation);
 
-  const title = page.locator('h1')
+  const title = page.locator('h1');
   await expect(title).toHaveText('Select location');
 
   await page.getByText(/^Entry$/).click();
@@ -66,12 +64,10 @@ test('App display disabled custom bridge', async () => {
 
 test('App should add new custom bridge', async () => {
   expect(
-    await util.waitForNavigation(
-      async () => await page.click('button[aria-label="Add new custom bridge"]'),
-    ),
+    await util.waitForNavigation(() => page.click('button[aria-label="Add new custom bridge"]')),
   ).toBe(RoutePath.editCustomBridge);
 
-  const title = page.locator('h1')
+  const title = page.locator('h1');
   await expect(title).toHaveText('Add custom bridge');
 
   const inputs = page.locator('input');
@@ -88,11 +84,11 @@ test('App should add new custom bridge', async () => {
   await inputs.nth(2).fill(process.env.SHADOWSOCKS_SERVER_PASSWORD!);
 
   await page.getByTestId('ciphers').click();
-  await page.getByRole('option', { name: process.env.SHADOWSOCKS_SERVER_CIPHER!, exact: true }).click();
+  await page
+    .getByRole('option', { name: process.env.SHADOWSOCKS_SERVER_CIPHER!, exact: true })
+    .click();
 
-  expect(
-    await util.waitForNavigation(async () => await addButton.click())
-  ).toEqual(RoutePath.selectLocation);
+  expect(await util.waitForNavigation(() => addButton.click())).toEqual(RoutePath.selectLocation);
 
   const customBridgeButton = page.getByText('Custom bridge');
   await expect(customBridgeButton).toBeEnabled();
@@ -109,11 +105,9 @@ test('App should select custom bridge', async () => {
   await page.getByText(/^Entry$/).click();
   await expect(customBridgeButton).not.toHaveCSS('background-color', colors.green);
 
-
   await customBridgeButton.click();
   await page.getByText(/^Entry$/).click();
   await expect(customBridgeButton).toHaveCSS('background-color', colors.green);
-
 });
 
 test('App should edit custom bridge', async () => {
@@ -122,12 +116,10 @@ test('App should edit custom bridge', async () => {
   await page.getByText(/^Entry$/).click();
 
   expect(
-    await util.waitForNavigation(
-      async () => await page.click('button[aria-label="Edit custom bridge"]'),
-    ),
+    await util.waitForNavigation(() => page.click('button[aria-label="Edit custom bridge"]')),
   ).toBe(RoutePath.editCustomBridge);
 
-  const title = page.locator('h1')
+  const title = page.locator('h1');
   await expect(title).toHaveText('Edit custom bridge');
 
   const inputs = page.locator('input');
@@ -138,10 +130,7 @@ test('App should edit custom bridge', async () => {
   await inputs.nth(1).fill(process.env.SHADOWSOCKS_SERVER_PORT!);
   await expect(saveButton).toBeEnabled();
 
-
-  expect(
-    await util.waitForNavigation(async () => await saveButton.click())
-  ).toEqual(RoutePath.selectLocation);
+  expect(await util.waitForNavigation(() => saveButton.click())).toEqual(RoutePath.selectLocation);
 
   const customBridgeButton = page.locator('button:has-text("Custom bridge")');
   await expect(customBridgeButton).toBeEnabled();
@@ -150,9 +139,7 @@ test('App should edit custom bridge', async () => {
 
 test('App should delete custom bridge', async () => {
   expect(
-    await util.waitForNavigation(
-      async () => await page.click('button[aria-label="Edit custom bridge"]'),
-    ),
+    await util.waitForNavigation(() => page.click('button[aria-label="Edit custom bridge"]')),
   ).toBe(RoutePath.editCustomBridge);
 
   const deleteButton = page.locator('button:has-text("Delete")');
@@ -163,9 +150,9 @@ test('App should delete custom bridge', async () => {
   await expect(page.getByText('Delete custom bridge?')).toBeVisible();
 
   const confirmButton = page.getByTestId('delete-confirm');
-  expect(
-    await util.waitForNavigation(async () => await confirmButton.click())
-  ).toEqual(RoutePath.selectLocation);
+  expect(await util.waitForNavigation(() => confirmButton.click())).toEqual(
+    RoutePath.selectLocation,
+  );
 
   const customBridgeButton = page.locator('button:has-text("Custom bridge")');
   await expect(customBridgeButton).toBeDisabled();

@@ -113,7 +113,7 @@ export async function getApplications(locale: string): Promise<ILinuxSplitTunnel
   for (const entryPath of desktopEntryPaths) {
     try {
       desktopEntries.push(await readDesktopEntry(entryPath, locale));
-    } catch (e) {
+    } catch {
       // no-op
     }
   }
@@ -141,7 +141,7 @@ async function replaceIconNameWithDataUrl(
     }
 
     return { ...app, icon: await getImageDataUrl(iconPath) };
-  } catch (e) {
+  } catch {
     return app;
   }
 }

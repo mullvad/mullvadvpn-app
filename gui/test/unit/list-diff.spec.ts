@@ -1,5 +1,6 @@
 import { expect } from 'chai';
-import { it, describe } from 'mocha';
+import { describe, it } from 'mocha';
+
 import { calculateItemList, RowDisplayData } from '../../src/renderer/components/List';
 
 const prevItems: Array<RowDisplayData<undefined>> = [

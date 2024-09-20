@@ -2,7 +2,7 @@ import { startApp } from '../utils';
 
 export const startInstalledApp = async (): ReturnType<typeof startApp> => {
   return startApp({ executablePath: getAppInstallPath() });
-}
+};
 
 function getAppInstallPath(): string {
   switch (process.platform) {

@@ -1,5 +1,6 @@
 import { expect, spy } from 'chai';
-import { it, describe, beforeEach } from 'mocha';
+import { beforeEach, describe, it } from 'mocha';
+
 import History from '../../src/renderer/lib/history';
 import { RoutePath } from '../../src/renderer/lib/routes';
 

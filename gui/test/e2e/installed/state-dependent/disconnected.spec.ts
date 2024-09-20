@@ -1,7 +1,7 @@
 import { test } from '@playwright/test';
 import { Page } from 'playwright';
-import { expectDisconnected } from '../../shared/tunnel-state';
 
+import { expectDisconnected } from '../../shared/tunnel-state';
 import { startInstalledApp } from '../installed-utils';
 
 // This test expects the daemon to be logged into an account that has time left and to be

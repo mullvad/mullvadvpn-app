@@ -116,7 +116,7 @@ export default function FeatureIndicators(props: FeatureIndicatorsProps) {
     tunnelState.state === 'connected' || tunnelState.state === 'connecting';
 
   const featureIndicators = useRef(
-    featureIndicatorsVisible ? tunnelState.featureIndicators ?? [] : [],
+    featureIndicatorsVisible ? (tunnelState.featureIndicators ?? []) : [],
   );
 
   if (featureIndicatorsVisible && tunnelState.featureIndicators) {

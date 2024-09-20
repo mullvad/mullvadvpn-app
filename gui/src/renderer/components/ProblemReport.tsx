@@ -137,7 +137,7 @@ function Form() {
     try {
       const reportId = await collectLog();
       await viewLog(reportId);
-    } catch (error) {
+    } catch {
       // TODO: handle error
     } finally {
       setDisableActions(false);
@@ -431,7 +431,7 @@ const ProblemReportContextProvider = ({ children }: { children: ReactNode }) => 
       await sendProblemReport(email, message, reportId);
       clearReportForm();
       setSendState(SendState.success);
-    } catch (error) {
+    } catch {
       setSendState(SendState.failed);
     }
   }, [email, message]);
@@ -447,7 +447,7 @@ const ProblemReportContextProvider = ({ children }: { children: ReactNode }) => 
       try {
         setSendState(SendState.sending);
         await sendReport();
-      } catch (error) {
+      } catch {
         // No-op
       }
     }

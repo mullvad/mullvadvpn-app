@@ -400,7 +400,7 @@ export default class AppRenderer {
           this.loginState = 'too many devices';
 
           this.history.reset(RoutePath.tooManyDevices, { transition: transitions.push });
-        } catch (e) {
+        } catch {
           log.error('Failed to fetch device list');
           actions.account.loginFailed('list-devices');
         }

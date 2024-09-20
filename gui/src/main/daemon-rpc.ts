@@ -791,7 +791,6 @@ export class DaemonRpc {
   }
 
   private channelOptions(): grpc.ClientOptions {
-    /* eslint-disable @typescript-eslint/naming-convention */
     return {
       'grpc.max_reconnect_backoff_ms': 3000,
       'grpc.initial_reconnect_backoff_ms': 3000,
@@ -799,7 +798,6 @@ export class DaemonRpc {
       'grpc.keepalive_timeout_ms': Math.pow(2, 30),
       'grpc.client_idle_timeout_ms': Math.pow(2, 30),
     };
-    /* eslint-enable @typescript-eslint/naming-convention */
   }
 
   private connectivityChangeCallback(timeoutErr?: Error) {

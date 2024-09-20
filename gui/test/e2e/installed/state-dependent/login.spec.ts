@@ -1,11 +1,11 @@
-import { exec, execSync } from 'child_process';
 import { expect, test } from '@playwright/test';
+import { exec, execSync } from 'child_process';
 import { Locator, Page } from 'playwright';
-import { RoutePath } from '../../../../src/renderer/lib/routes';
-import { TestUtils } from '../../utils';
 
-import { startInstalledApp } from '../installed-utils';
+import { RoutePath } from '../../../../src/renderer/lib/routes';
 import { expectDisconnected } from '../../shared/tunnel-state';
+import { TestUtils } from '../../utils';
+import { startInstalledApp } from '../installed-utils';
 
 // This test expects the daemon to be logged out.
 // Env parameters:
@@ -27,7 +27,7 @@ test.afterAll(async () => {
 test('App should fail to login', async () => {
   expect(await util.currentRoute()).toEqual(RoutePath.login);
 
-  const title = page.locator('h1')
+  const title = page.locator('h1');
   const subtitle = page.getByTestId('subtitle');
   const loginInput = getInput(page);
 
@@ -46,15 +46,17 @@ test('App should fail to login', async () => {
 test('App should create account', async () => {
   expect(await util.currentRoute()).toEqual(RoutePath.login);
 
-  const title = page.locator('h1')
+  const title = page.locator('h1');
   const subtitle = page.getByTestId('subtitle');
 
-  expect(await util.waitForNavigation(async () => {
-    await page.getByText('Create account').click();
+  expect(
+    await util.waitForNavigation(async () => {
+      await page.getByText('Create account').click();
 
-    await expect(title).toHaveText('Account created');
-    await expect(subtitle).toHaveText('Logged in');
-  })).toEqual(RoutePath.expired);
+      await expect(title).toHaveText('Account created');
+      await expect(subtitle).toHaveText('Logged in');
+    }),
+  ).toEqual(RoutePath.expired);
 
   const outOfTimeTitle = page.getByTestId('title');
   await expect(outOfTimeTitle).toHaveText('Congrats!');
@@ -65,15 +67,17 @@ test('App should create account', async () => {
 });
 
 test('App should become logged out', async () => {
-  expect(await util.waitForNavigation(() => {
-    exec('mullvad account logout');
-  })).toEqual(RoutePath.login);
+  expect(
+    await util.waitForNavigation(() => {
+      exec('mullvad account logout');
+    }),
+  ).toEqual(RoutePath.login);
 });
 
 test('App should log in', async () => {
   expect(await util.currentRoute()).toEqual(RoutePath.login);
 
-  const title = page.locator('h1')
+  const title = page.locator('h1');
   const subtitle = page.getByTestId('subtitle');
   const loginInput = getInput(page);
 
@@ -82,25 +86,31 @@ test('App should log in', async () => {
 
   await loginInput.fill(process.env.ACCOUNT_NUMBER!);
 
-  expect(await util.waitForNavigation(async () => {
-    await loginInput.press('Enter');
+  expect(
+    await util.waitForNavigation(async () => {
+      await loginInput.press('Enter');
 
-    await expect(title).toHaveText('Logged in');
-    await expect(subtitle).toHaveText('Valid account number');
-  })).toEqual(RoutePath.main);
+      await expect(title).toHaveText('Logged in');
+      await expect(subtitle).toHaveText('Valid account number');
+    }),
+  ).toEqual(RoutePath.main);
   await expectDisconnected(page);
 });
 
 test('App should log out', async () => {
-  expect(await util.waitForNavigation(() => {
-    void page.getByTestId('account-button').click();
-  })).toEqual(RoutePath.account);
+  expect(
+    await util.waitForNavigation(() => {
+      void page.getByTestId('account-button').click();
+    }),
+  ).toEqual(RoutePath.account);
 
-  expect(await util.waitForNavigation(() => {
-    void page.getByText('Log out').click();
-  })).toEqual(RoutePath.login);
+  expect(
+    await util.waitForNavigation(() => {
+      void page.getByText('Log out').click();
+    }),
+  ).toEqual(RoutePath.login);
 
-  const title = page.locator('h1')
+  const title = page.locator('h1');
   const subtitle = page.getByTestId('subtitle');
   await expect(title).toHaveText('Login');
   await expect(subtitle).toHaveText('Enter your account number');
@@ -109,7 +119,7 @@ test('App should log out', async () => {
 test('App should log in to expired account', async () => {
   expect(await util.currentRoute()).toEqual(RoutePath.login);
 
-  const title = page.locator('h1')
+  const title = page.locator('h1');
   const subtitle = page.getByTestId('subtitle');
   const loginInput = getInput(page);
 
@@ -118,9 +128,11 @@ test('App should log in to expired account', async () => {
 
   await loginInput.fill(accountNumber);
 
-  expect(await util.waitForNavigation(async () => {
-    await loginInput.press('Enter');
-  })).toEqual(RoutePath.expired);
+  expect(
+    await util.waitForNavigation(async () => {
+      await loginInput.press('Enter');
+    }),
+  ).toEqual(RoutePath.expired);
 
   const outOfTimeTitle = page.getByTestId('title');
   await expect(outOfTimeTitle).toHaveText('Out of time');

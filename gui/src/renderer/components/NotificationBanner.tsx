@@ -167,7 +167,7 @@ export function NotificationBanner(props: INotificationBannerProps) {
 
   useEffect(() => {
     const newHeight =
-      props.children !== undefined ? contentRef.current?.getBoundingClientRect().height ?? 0 : 0;
+      props.children !== undefined ? (contentRef.current?.getBoundingClientRect().height ?? 0) : 0;
     if (newHeight !== contentHeight) {
       setContentHeight(newHeight);
       setAlignBottom((alignBottom) => alignBottom || contentHeight === 0 || newHeight === 0);

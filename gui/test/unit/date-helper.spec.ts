@@ -1,5 +1,6 @@
 import { expect } from 'chai';
-import { it, describe } from 'mocha';
+import { describe, it } from 'mocha';
+
 import * as date from '../../src/shared/date-helper';
 
 describe('Date helper', () => {
@@ -100,76 +101,61 @@ describe('Date helper', () => {
   });
 
   it('should format positive difference as string', () => {
-    const diff1 = date.formatRelativeDate(
-      '2021-01-01 13:37:10',
-      '2021-01-01 13:37:20',
-      { displayMonths: true },
-    );
+    const diff1 = date.formatRelativeDate('2021-01-01 13:37:10', '2021-01-01 13:37:20', {
+      displayMonths: true,
+    });
     expect(diff1).to.equal('less than a day');
 
-    const diff2 = date.formatRelativeDate(
-      '2021-01-01 13:37:10',
-      '2021-01-02 13:37:20',
-      { displayMonths: true },
-    );
+    const diff2 = date.formatRelativeDate('2021-01-01 13:37:10', '2021-01-02 13:37:20', {
+      displayMonths: true,
+    });
     expect(diff2).to.equal('1 day');
 
-    const diff3 = date.formatRelativeDate(
-      '2021-01-01 13:37:10',
-      '2021-02-25 13:37:20',
-      { displayMonths: true },
-    );
+    const diff3 = date.formatRelativeDate('2021-01-01 13:37:10', '2021-02-25 13:37:20', {
+      displayMonths: true,
+    });
     expect(diff3).to.equal('55 days');
 
-    const diff4 = date.formatRelativeDate(
-      '2021-01-01 13:37:10',
-      '2021-04-25 13:37:20',
-      { displayMonths: true },
-    );
+    const diff4 = date.formatRelativeDate('2021-01-01 13:37:10', '2021-04-25 13:37:20', {
+      displayMonths: true,
+    });
     expect(diff4).to.equal('3 months');
 
-    const diff5 = date.formatRelativeDate(
-      '2021-01-01 13:37:10',
-      '2031-04-25 13:37:20',
-      { displayMonths: true },
-    );
+    const diff5 = date.formatRelativeDate('2021-01-01 13:37:10', '2031-04-25 13:37:20', {
+      displayMonths: true,
+    });
     expect(diff5).to.equal('10 years');
   });
 
   it('should format positive difference as string suffixed with "left"', () => {
-    const diff1 = date.formatRelativeDate(
-      '2021-01-01 13:37:10',
-      '2021-01-01 13:37:20',
-      { suffix: true, displayMonths: true },
-    );
+    const diff1 = date.formatRelativeDate('2021-01-01 13:37:10', '2021-01-01 13:37:20', {
+      suffix: true,
+      displayMonths: true,
+    });
     expect(diff1).to.equal('less than a day left');
 
-    const diff2 = date.formatRelativeDate(
-      '2021-01-01 13:37:10',
-      '2021-01-02 13:37:20',
-      { suffix: true, displayMonths: true },
-    );
+    const diff2 = date.formatRelativeDate('2021-01-01 13:37:10', '2021-01-02 13:37:20', {
+      suffix: true,
+      displayMonths: true,
+    });
     expect(diff2).to.equal('1 day left');
 
-    const diff3 = date.formatRelativeDate(
-      '2021-01-01 13:37:10',
-      '2021-02-25 13:37:20',
-      { suffix: true, displayMonths: true },
-    );
+    const diff3 = date.formatRelativeDate('2021-01-01 13:37:10', '2021-02-25 13:37:20', {
+      suffix: true,
+      displayMonths: true,
+    });
     expect(diff3).to.equal('55 days left');
 
-    const diff4 = date.formatRelativeDate(
-      '2021-01-01 13:37:10',
-      '2021-04-25 13:37:20',
-      { suffix: true, displayMonths: true },
-    );
+    const diff4 = date.formatRelativeDate('2021-01-01 13:37:10', '2021-04-25 13:37:20', {
+      suffix: true,
+      displayMonths: true,
+    });
     expect(diff4).to.equal('3 months left');
 
-    const diff5 = date.formatRelativeDate(
-      '2021-01-01 13:37:10',
-      '2031-04-25 13:37:20',
-      { suffix: true, displayMonths: true },
-    );
+    const diff5 = date.formatRelativeDate('2021-01-01 13:37:10', '2031-04-25 13:37:20', {
+      suffix: true,
+      displayMonths: true,
+    });
     expect(diff5).to.equal('10 years left');
   });
 

@@ -288,7 +288,7 @@ export class WindowsSplitTunnelingAppListRetriever implements ISplitTunnelingApp
     let fileHandle: fs.promises.FileHandle;
     try {
       fileHandle = await fs.promises.open(path, fs.constants.O_RDONLY);
-    } catch (e) {
+    } catch {
       return false;
     }
 

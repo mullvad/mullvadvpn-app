@@ -70,6 +70,7 @@ import Version, { GUI_VERSION } from './version';
 const execAsync = util.promisify(exec);
 
 // Only import split tunneling library on correct OS.
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const linuxSplitTunneling = process.platform === 'linux' && require('./linux-split-tunneling');
 // This is used on Windows and macOS and will be undefined on Linux.
 const splitTunneling: ISplitTunnelingAppListRetriever | undefined = importSplitTunneling();
@@ -1115,11 +1116,11 @@ class ApplicationMain
 
 function importSplitTunneling() {
   if (process.platform === 'win32') {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { WindowsSplitTunnelingAppListRetriever } = require('./windows-split-tunneling');
     return new WindowsSplitTunnelingAppListRetriever();
   } else if (process.platform === 'darwin') {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { MacOsSplitTunnelingAppListRetriever } = require('./macos-split-tunneling');
     return new MacOsSplitTunnelingAppListRetriever();
   }

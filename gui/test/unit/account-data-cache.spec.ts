@@ -1,7 +1,8 @@
+import { expect, spy } from 'chai';
+import sinon from 'sinon';
+
 import AccountDataCache, { AccountFetchError } from '../../src/main/account-data-cache';
 import { AccountDataResponse, IAccountData } from '../../src/shared/daemon-rpc-types';
-import sinon from 'sinon';
-import { expect, spy } from 'chai';
 
 describe('IAccountData cache', () => {
   const dummyAccountToken = '9876543210';
@@ -44,7 +45,7 @@ describe('IAccountData cache', () => {
 
     const watcher = new Promise<void>((resolve, reject) => {
       cache.fetch(dummyAccountToken, {
-        onFinish: (_reason?: any) => resolve(),
+        onFinish: () => resolve(),
         onError: (_error: AccountFetchError) => reject(),
       });
     });
@@ -254,9 +255,7 @@ describe('IAccountData cache', () => {
               await new Promise((resolve) => setTimeout(resolve));
 
               cache.fetch(dummyAccountToken, {
-                onFinish: async () => {
-                  resolve();
-                },
+                onFinish: () => resolve(),
                 onError: (_error: AccountFetchError) => reject(),
               });
             },
@@ -298,9 +297,7 @@ describe('IAccountData cache', () => {
               await new Promise((resolve) => setTimeout(resolve));
 
               cache.fetch(dummyAccountToken, {
-                onFinish: async () => {
-                  resolve();
-                },
+                onFinish: () => resolve(),
                 onError: (_error: AccountFetchError) => reject(),
               });
             },
