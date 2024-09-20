@@ -21,7 +21,6 @@ class CreateAccountMockApiTest : MockApiTest() {
         // Act
         device.clickAgreeOnPrivacyDisclaimer()
         device.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
-        device.dismissChangelogDialogIfShown()
         app.waitForLoginPrompt()
         app.attemptCreateAccount()
 
