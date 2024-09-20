@@ -4,10 +4,12 @@ use mullvad_encrypted_dns_proxy::{config_resolver, forwarder};
 use tokio::net::TcpListener;
 
 /// This can be tested out by using curl:
-/// `curl https://api.mullvad.net:$port/api/v1/relays --resolve api.mullvad.net:$port:$addr`
+/// `curl https://api.mullvad.net:$port/app/v1/relays --resolve api.mullvad.net:$port:$addr`
 ///  where $addr and $port are the listening address of the proxy (bind_addr).
 #[tokio::main]
 async fn main() {
+    env_logger::init();
+
     let bind_addr = args().nth(1).unwrap_or("127.0.0.1:0".to_string());
 
     let configs =
@@ -30,7 +32,8 @@ async fn main() {
         .expect("failed to obtain listen address");
     println!("Listening on {listen_addr}");
 
-    while let Ok((client_conn, _client_addr)) = listener.accept().await {
+    while let Ok((client_conn, client_addr)) = listener.accept().await {
+        println!("Incoming connection from {client_addr}");
         let connected = crate::forwarder::Forwarder::connect(&proxy_config)
             .await
             .expect("failed to connect to obfuscator");
