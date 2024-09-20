@@ -12,6 +12,7 @@ plugins {
 android {
     namespace = "net.mullvad.mullvadvpn.lib.daemon.grpc"
     compileSdk = Versions.compileSdkVersion
+    buildToolsVersion = Versions.buildToolsVersion
 
     defaultConfig { minSdk = Versions.minSdkVersion }
 
