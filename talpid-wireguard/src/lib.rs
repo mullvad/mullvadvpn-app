@@ -83,9 +83,9 @@ pub enum Error {
     #[error("Connectivity monitor failed")]
     ConnectivityMonitorError(#[source] connectivity_check::Error),
 
-    /// Failed to negotiate PQ PSK
-    #[error("Failed to negotiate PQ PSK")]
-    PskNegotiationError(#[source] talpid_tunnel_config_client::Error),
+    /// Failed while negotiating ephemeral peer
+    #[error("Failed while negotiating ephemeral peer")]
+    EphemeralPeerNegotiationError(#[source] talpid_tunnel_config_client::Error),
 
     /// Failed to set up IP interfaces.
     #[cfg(windows)]
@@ -103,7 +103,7 @@ impl Error {
     pub fn is_recoverable(&self) -> bool {
         match self {
             Error::ObfuscationError(_) => true,
-            Error::PskNegotiationError(_) => true,
+            Error::EphemeralPeerNegotiationError(_) => true,
             Error::TunnelError(TunnelError::RecoverableStartWireguardError(..)) => true,
 
             Error::SetupRoutingError(error) => error.is_recoverable(),
@@ -780,9 +780,9 @@ impl WireguardMonitor {
         .await
         .map_err(|_timeout_err| {
             log::warn!("Timeout while negotiating ephemeral peer");
-            CloseMsg::PskNegotiationTimeout
+            CloseMsg::EphemeralPeerNegotiationTimeout
         })?
-        .map_err(Error::PskNegotiationError)
+        .map_err(Error::EphemeralPeerNegotiationError)
         .map_err(CloseMsg::SetupError)?;
 
         Ok(ephemeral.psk)
@@ -901,7 +901,9 @@ impl WireguardMonitor {
     /// Blocks the current thread until tunnel disconnects
     pub fn wait(mut self) -> Result<()> {
         let wait_result = match self.close_msg_receiver.recv() {
-            Ok(CloseMsg::PskNegotiationTimeout) | Ok(CloseMsg::PingErr) => Err(Error::TimeoutError),
+            Ok(CloseMsg::EphemeralPeerNegotiationTimeout) | Ok(CloseMsg::PingErr) => {
+                Err(Error::TimeoutError)
+            }
             Ok(CloseMsg::Stop) | Ok(CloseMsg::ObfuscatorExpired) => Ok(()),
             Ok(CloseMsg::SetupError(error)) => Err(error),
             Ok(CloseMsg::ObfuscatorFailed(error)) => Err(error),
@@ -1099,7 +1101,7 @@ impl WireguardMonitor {
 #[derive(Debug)]
 enum CloseMsg {
     Stop,
-    PskNegotiationTimeout,
+    EphemeralPeerNegotiationTimeout,
     PingErr,
     SetupError(Error),
     ObfuscatorExpired,
