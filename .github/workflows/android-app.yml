@@ -206,8 +206,6 @@ jobs:
           RUSTFLAGS: --deny warnings
           BUILD_TYPE: debug
         run: |
-          # Temporary fix to address maybenot.h build issues.
-          cargo install --force cbindgen --version "0.26.0"
           ARCHITECTURES="${{ matrix.abi }}"
           UNSTRIPPED_LIB_PATH="$CARGO_TARGET_DIR/${{ matrix.target }}/$BUILD_TYPE/libmullvad_jni.so"
           STRIPPED_LIB_PATH="./android/app/build/extraJni/${{ matrix.abi }}/libmullvad_jni.so"
