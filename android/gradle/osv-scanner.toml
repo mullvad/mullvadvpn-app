@@ -68,6 +68,11 @@ id = "CVE-2022-24329" # GHSA-2qp4-g3q3-f92w
 ignoreUntil = 2024-11-02
 reason = "This CVE only affect Multiplatform Gradle Projects, which this project is not."
 
+[[IgnoredVulns]]
+id = "CVE-2024-7254" # GHSA-735f-pc8j-v9w8
+ignoreUntil = 2024-11-02
+reason = "Should not be applicable since client and server are always in sync and we are only communicating locally over UDS."
+
 [[PackageOverrides]]
 name = "org.bouncycastle:bcprov-jdk15on"
 ecosystem = "Maven"
