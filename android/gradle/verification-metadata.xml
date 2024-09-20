@@ -27,13 +27,13 @@
          <trust file=".*[.]pom" regex="true"/>
       </trusted-artifacts>
       <ignored-keys>
-         <ignored-key id="1427500BB1D27520" reason="Key couldn't be downloaded from any key server"/>
+         <ignored-key id="1BD97A6A154E7810EE0BC832E2F38302C8075E3D" reason="Key couldn't be downloaded from any key server"/>
          <ignored-key id="28118C070CB22A0175A2E8D43D12CA2AC19F3181" reason="Key couldn't be downloaded from any key server"/>
-         <ignored-key id="3D002DBC5EA9615F" reason="Key couldn't be downloaded from any key server"/>
-         <ignored-key id="3D12CA2AC19F3181" reason="Key couldn't be downloaded from any key server"/>
-         <ignored-key id="8E3A02905A1AE67E7B0F9ACD3967D4EDA591B991" reason="Key couldn't be downloaded from any key server" />
-         <ignored-key id="1BD97A6A154E7810EE0BC832E2F38302C8075E3D" reason="Key couldn't be downloaded from any key server" />
+         <ignored-key id="8E3A02905A1AE67E7B0F9ACD3967D4EDA591B991" reason="Key couldn't be downloaded from any key server"/>
          <ignored-key id="CA183FBA1E476C6E" reason="Key couldn't be downloaded from any key server"/>
+         <ignored-key id="84E913A8E3A748C0" reason="Key couldn't be downloaded from any key server"/>
+         <ignored-key id="6A65176A0FB1CD0B" reason="Key couldn't be downloaded from any key server"/>
+         <ignored-key id="0CC641C3A62453AB390066C4A41F13C999945293" reason="Key couldn't be downloaded from any key server"/>
       </ignored-keys>
       <trusted-keys>
          <trusted-key id="04543577D6A9CC626239C50C7ECBD740FF06AEB5">
