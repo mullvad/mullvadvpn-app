@@ -155,6 +155,7 @@ pub enum EventBody {
 }
 
 bitflags! {
+    #[derive(Debug)]
     pub struct SplittingChangeReason: u32 {
         const BY_INHERITANCE = 1;
         const BY_CONFIG = 2;
