@@ -28,8 +28,8 @@ class LoginMockApiTest : MockApiTest() {
         // Act
         device.clickAgreeOnPrivacyDisclaimer()
         device.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
-        device.dismissChangelogDialogIfShown()
         app.waitForLoginPrompt()
+        app.attemptLogin(validAccountNumber)
         app.attemptLogin(validAccountNumber)
 
         // Assert
@@ -56,9 +56,9 @@ class LoginMockApiTest : MockApiTest() {
         app.launch(endpoint)
         device.clickAgreeOnPrivacyDisclaimer()
         device.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
-        device.dismissChangelogDialogIfShown()
         app.waitForLoginPrompt()
         app.attemptLogin(validAccountNumber)
+        device.dismissChangelogDialogIfShown()
 
         // Assert
         app.ensureLoggedIn()
@@ -79,9 +79,9 @@ class LoginMockApiTest : MockApiTest() {
         app.launch(endpoint)
         device.clickAgreeOnPrivacyDisclaimer()
         device.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
-        device.dismissChangelogDialogIfShown()
         app.waitForLoginPrompt()
         app.attemptLogin(validAccountNumber)
+        device.dismissChangelogDialogIfShown()
 
         // Assert
         app.ensureOutOfTime()

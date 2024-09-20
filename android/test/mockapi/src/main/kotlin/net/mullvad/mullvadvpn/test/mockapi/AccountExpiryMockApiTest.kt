@@ -30,11 +30,11 @@ class AccountExpiryMockApiTest : MockApiTest() {
         app.launch(endpoint)
         device.clickAgreeOnPrivacyDisclaimer()
         device.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
-        device.dismissChangelogDialogIfShown()
         app.waitForLoginPrompt()
         app.attemptLogin(validAccountNumber)
 
         // Assert logged in
+        device.dismissChangelogDialogIfShown()
         app.ensureLoggedIn()
 
         // Add one month to the account expiry
@@ -64,11 +64,11 @@ class AccountExpiryMockApiTest : MockApiTest() {
         app.launch(endpoint)
         device.clickAgreeOnPrivacyDisclaimer()
         device.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
-        device.dismissChangelogDialogIfShown()
         app.waitForLoginPrompt()
         app.attemptLogin(validAccountNumber)
 
         // Assert logged in
+        device.dismissChangelogDialogIfShown()
         app.ensureLoggedIn()
 
         // Set account time as expired

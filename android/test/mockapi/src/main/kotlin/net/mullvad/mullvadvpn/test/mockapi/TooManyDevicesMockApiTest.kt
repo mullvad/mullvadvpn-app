@@ -43,7 +43,6 @@ class TooManyDevicesMockApiTest : MockApiTest() {
         app.launch(endpoint)
         device.clickAgreeOnPrivacyDisclaimer()
         device.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
-        device.dismissChangelogDialogIfShown()
         app.waitForLoginPrompt()
         app.attemptLogin(validAccountNumber)
 
@@ -62,6 +61,7 @@ class TooManyDevicesMockApiTest : MockApiTest() {
         app.clickActionButtonByText("Continue with login")
 
         // Assert that we are logged in
+        device.dismissChangelogDialogIfShown()
         app.ensureLoggedIn()
     }
 }
