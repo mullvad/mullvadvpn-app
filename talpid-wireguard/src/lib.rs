@@ -253,6 +253,12 @@ impl WireguardMonitor {
 
             let ephemeral_obfs_sender = close_obfs_sender.clone();
             if config.quantum_resistant || config.daita {
+                #[cfg(windows)]
+                {
+                    log::trace!("Temporarily lowering tunnel MTU before ephemeral peer config");
+                    try_set_ipv4_mtu(&iface_name, talpid_tunnel::MIN_IPV4_MTU);
+                }
+
                 Self::config_ephemeral_peers(
                     &tunnel,
                     &mut config,
@@ -261,6 +267,12 @@ impl WireguardMonitor {
                     ephemeral_obfs_sender,
                 )
                 .await?;
+
+                #[cfg(windows)]
+                {
+                    log::trace!("Resetting tunnel MTU");
+                    try_set_ipv4_mtu(&iface_name, config.mtu);
+                }
 
                 let metadata = Self::tunnel_metadata(&iface_name, &config);
                 (on_event)(TunnelEvent::InterfaceUp(
@@ -1219,4 +1231,19 @@ fn will_nm_manage_dns() -> bool {
             Ok(true)
         })
         .unwrap_or(false)
+}
+
+#[cfg(windows)]
+fn try_set_ipv4_mtu(alias: &str, mtu: u16) {
+    use talpid_windows::net::*;
+    match luid_from_alias(alias) {
+        Ok(luid) => {
+            if let Err(error) = set_mtu(u32::from(mtu), luid, AddressFamily::Ipv4) {
+                log::error!("Failed to set tunnel interface MTU: {error}");
+            }
+        }
+        Err(error) => {
+            log::error!("Failed to obtain tunnel interface LUID: {error}")
+        }
+    }
 }
