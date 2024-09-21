@@ -191,15 +191,21 @@ impl TestResult {
     }
 }
 
+macro_rules! println_with_time {
+    ($fmt:tt$(, $($args:tt)*)?) => {
+        println!(concat!("[{}] ", $fmt), chrono::Local::now(), $($($args)*)?)
+    };
+}
+
 impl TestOutput {
     pub fn print(&self) {
         match &self.result {
             TestResult::Pass => {
-                println!("{}", format!("TEST {} SUCCEEDED!", self.test_name).green());
+                println_with_time!("{}", format!("TEST {} SUCCEEDED!", self.test_name).green());
                 return;
             }
             TestResult::Fail(e) => {
-                println!(
+                println_with_time!(
                     "{}",
                     format!(
                         "TEST {} RETURNED ERROR: {}",
@@ -210,7 +216,7 @@ impl TestOutput {
                 );
             }
             TestResult::Panic(panic_msg) => {
-                println!(
+                println_with_time!(
                     "{}",
                     format!(
                         "TEST {} PANICKED WITH MESSAGE: {}",
@@ -222,12 +228,12 @@ impl TestOutput {
             }
         }
 
-        println!("{}", format!("TEST {} HAD LOGS:", self.test_name).red());
+        println_with_time!("{}", format!("TEST {} HAD LOGS:", self.test_name).red());
         match &self.log_output {
             Some(log) => {
                 match &log.settings_json {
-                    Ok(settings) => println!("settings.json: {}", settings),
-                    Err(e) => println!("Could not get settings.json: {}", e),
+                    Ok(settings) => println_with_time!("settings.json: {}", settings),
+                    Err(e) => println_with_time!("Could not get settings.json: {}", e),
                 }
 
                 match &log.log_files {
@@ -235,30 +241,34 @@ impl TestOutput {
                         for log in log_files {
                             match log {
                                 Ok(log) => {
-                                    println!("Log {}:\n{}", log.name.to_str().unwrap(), log.content)
+                                    println_with_time!(
+                                        "Log {}:\n{}",
+                                        log.name.to_str().unwrap(),
+                                        log.content
+                                    )
                                 }
-                                Err(e) => println!("Could not get log: {}", e),
+                                Err(e) => println_with_time!("Could not get log: {}", e),
                             }
                         }
                     }
-                    Err(e) => println!("Could not get logs: {}", e),
+                    Err(e) => println_with_time!("Could not get logs: {}", e),
                 }
             }
-            None => println!("Missing logs for {}", self.test_name),
+            None => println_with_time!("Missing logs for {}", self.test_name),
         }
 
-        println!(
+        println_with_time!(
             "{}",
             format!("TEST RUNNER {} HAD RUNTIME OUTPUT:", self.test_name).red()
         );
         if self.error_messages.is_empty() {
-            println!("<no output>");
+            println_with_time!("<no output>");
         } else {
             for msg in &self.error_messages {
-                println!("{}", msg);
+                println_with_time!("{}", msg);
             }
         }
 
-        println!("{}", format!("TEST {} END OF OUTPUT", self.test_name).red());
+        println_with_time!("{}", format!("TEST {} END OF OUTPUT", self.test_name).red());
     }
 }
