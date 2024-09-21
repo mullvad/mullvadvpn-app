@@ -19,7 +19,7 @@ struct LoggerInner {
 
 struct StoredRecord {
     level: log::Level,
-    time: chrono::DateTime<chrono::Local>,
+    time: chrono::DateTime<chrono::Utc>,
     mod_path: String,
     text: String,
 }
@@ -70,7 +70,12 @@ impl Logger {
         for stored_record in std::mem::take(&mut inner.stored_records) {
             println!(
                 "[{} {} {}] {}",
-                stored_record.time, stored_record.level, stored_record.mod_path, stored_record.text
+                stored_record
+                    .time
+                    .to_rfc3339_opts(chrono::SecondsFormat::Secs, true),
+                stored_record.level,
+                stored_record.mod_path,
+                stored_record.text
             );
         }
     }
@@ -99,7 +104,7 @@ impl log::Log for Logger {
             let mod_path = record.module_path().unwrap_or("");
             inner.stored_records.push(StoredRecord {
                 level: record.level(),
-                time: chrono::Local::now(),
+                time: chrono::Utc::now(),
                 mod_path: mod_path.to_owned(),
                 text: record.args().to_string(),
             });
@@ -193,7 +198,11 @@ impl TestResult {
 
 macro_rules! println_with_time {
     ($fmt:tt$(, $($args:tt)*)?) => {
-        println!(concat!("[{}] ", $fmt), chrono::Local::now(), $($($args)*)?)
+        println!(
+            concat!("[{}] ", $fmt),
+            chrono::Utc::now().to_rfc3339_opts(chrono::SecondsFormat::Secs, true),
+            $($($args)*)?
+        )
     };
 }
 
