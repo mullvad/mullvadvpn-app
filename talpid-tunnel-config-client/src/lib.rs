@@ -22,21 +22,13 @@ mod proto {
     tonic::include_proto!("ephemeralpeer");
 }
 
-#[cfg(not(target_os = "ios"))]
-use libc::setsockopt;
-
 #[cfg(not(any(target_os = "windows", target_os = "ios")))]
 mod sys {
-    pub use libc::{socklen_t, IPPROTO_TCP, TCP_MAXSEG};
+    pub use libc::{setsockopt, socklen_t, IPPROTO_TCP, TCP_MAXSEG};
     pub use std::os::fd::{AsRawFd, RawFd};
 }
 
-#[cfg(target_os = "windows")]
-mod sys {
-    pub use std::os::windows::io::{AsRawSocket, RawSocket};
-    pub use windows_sys::Win32::Networking::WinSock::{IPPROTO_IP, IP_USER_MTU};
-}
-#[cfg(not(target_os = "ios"))]
+#[cfg(not(any(target_os = "windows", target_os = "ios")))]
 use sys::*;
 
 #[derive(Debug)]
@@ -102,15 +94,11 @@ pub type RelayConfigService = proto::ephemeral_peer_client::EphemeralPeerClient<
 pub const CONFIG_SERVICE_PORT: u16 = 1337;
 
 /// MTU to set on the tunnel config client socket. We want a low value to prevent fragmentation.
-/// This is needed for two reasons:
-/// 1. Especially on Android, we've found that the real MTU is often lower than the default MTU, and
-///    we cannot lower it further. This causes the outer packets to be dropped. Also, MTU detection
-///    will likely occur after the PQ handshake, so we cannot assume that the MTU is already
-///    correctly configured.
-/// 2. MH + PQ on macOS has connection issues during the handshake due to PF blocking packet
-///    fragments for not having a port. In the longer term this might be fixed by allowing the
-///    handshake to work even if there is fragmentation.
-#[cfg(not(target_os = "ios"))]
+/// Especially on Android, we've found that the real MTU is often lower than the default MTU, and
+/// we cannot lower it further. This causes the outer packets to be dropped. Also, MTU detection
+/// will likely occur after the PQ handshake, so we cannot assume that the MTU is already
+/// correctly configured.
+#[cfg(not(any(target_os = "windows", target_os = "ios")))]
 const CONFIG_CLIENT_MTU: u16 = 576;
 
 pub struct EphemeralPeer {
@@ -253,9 +241,6 @@ async fn new_client(addr: Ipv4Addr) -> Result<RelayConfigService, Error> {
         .connect_with_connector(service_fn(move |_| async move {
             let sock = TcpSocket::new_v4()?;
 
-            #[cfg(target_os = "windows")]
-            try_set_tcp_sock_mtu(sock.as_raw_socket(), CONFIG_CLIENT_MTU);
-
             #[cfg(not(target_os = "windows"))]
             try_set_tcp_sock_mtu(&addr, sock.as_raw_fd(), CONFIG_CLIENT_MTU);
 
@@ -266,30 +251,6 @@ async fn new_client(addr: Ipv4Addr) -> Result<RelayConfigService, Error> {
         .map_err(Error::GrpcConnectError)?;
 
     Ok(RelayConfigService::new(conn))
-}
-
-#[cfg(windows)]
-fn try_set_tcp_sock_mtu(sock: RawSocket, mtu: u16) {
-    let mtu = u32::from(mtu);
-    log::debug!("Config client socket MTU: {mtu}");
-
-    let raw_sock = usize::try_from(sock).unwrap();
-
-    let result = unsafe {
-        setsockopt(
-            raw_sock,
-            IPPROTO_IP,
-            IP_USER_MTU,
-            &mtu as *const _ as _,
-            std::ffi::c_int::try_from(std::mem::size_of_val(&mtu)).unwrap(),
-        )
-    };
-    if result != 0 {
-        log::error!(
-            "Failed to set user MTU on config client socket: {}",
-            std::io::Error::last_os_error()
-        );
-    }
 }
 
 #[cfg(not(any(target_os = "windows", target_os = "ios")))]
