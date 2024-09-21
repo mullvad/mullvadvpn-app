@@ -71,6 +71,8 @@ interface ISearchBarProps {
   onSearch: (searchTerm: string) => void;
   className?: string;
   disableAutoFocus?: boolean;
+  hasLocationTypeChanged?: boolean;
+  resetLocationTypeChange?: () => void;
 }
 
 export default function SearchBar(props: ISearchBarProps) {
@@ -93,7 +95,9 @@ export default function SearchBar(props: ISearchBarProps) {
     if (!props.disableAutoFocus) {
       inputRef.current?.focus({ preventScroll: true });
     }
-  }, []);
+
+    return () => props.resetLocationTypeChange?.();
+  }, [props.hasLocationTypeChanged]);
 
   return (
     <StyledSearchContainer className={props.className}>

@@ -9,7 +9,7 @@ import { daitaFilterActive, filterSpecialLocations } from '../../lib/filter-loca
 import { useHistory } from '../../lib/history';
 import { formatHtml } from '../../lib/html-formatter';
 import { RoutePath } from '../../lib/routes';
-import { useNormalRelaySettings } from '../../lib/utilityHooks';
+import { useBoolean, useNormalRelaySettings } from '../../lib/utilityHooks';
 import { useSelector } from '../../redux/store';
 import * as Cell from '../cell';
 import { useFilteredProviders } from '../Filter';
@@ -104,10 +104,14 @@ export default function SelectLocation() {
     }
   }, [relaySettingsUpdater, resetScrollPositions, relaySettings]);
 
+  const [hasLocationTypeChanged, notifyLocationTypeChange, resetLocationTypeChange] =
+    useBoolean(false);
+
   const changeLocationType = useCallback(
     (locationType: LocationType) => {
       saveScrollPosition();
       setLocationType(locationType);
+      notifyLocationTypeChange();
     },
     [saveScrollPosition],
   );
@@ -130,6 +134,7 @@ export default function SelectLocation() {
   const showOwnershipFilter = ownership !== Ownership.any;
   const showProvidersFilter = providers.length > 0;
   const showFilters = showOwnershipFilter || showProvidersFilter || showDaitaFilter;
+
   return (
     <BackAction action={onClose}>
       <Layout>
@@ -239,7 +244,12 @@ export default function SelectLocation() {
                 </StyledFilterRow>
               )}
 
-              <StyledSearchBar searchTerm={searchValue} onSearch={updateSearchTerm} />
+              <StyledSearchBar
+                searchTerm={searchValue}
+                onSearch={updateSearchTerm}
+                hasLocationTypeChanged={hasLocationTypeChanged}
+                resetLocationTypeChange={resetLocationTypeChange}
+              />
             </StyledNavigationBarAttachment>
 
             <NavigationScrollbars ref={scrollViewRef}>
