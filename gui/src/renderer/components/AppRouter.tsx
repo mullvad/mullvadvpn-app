@@ -24,6 +24,7 @@ import Filter from './Filter';
 import Focus, { IFocusHandle } from './Focus';
 import Launch from './Launch';
 import MainView from './main-view/MainView';
+import MultihopSettings from './MultihopSettings';
 import OpenVpnSettings from './OpenVpnSettings';
 import ProblemReport from './ProblemReport';
 import SelectLanguage from './SelectLanguage';
@@ -84,6 +85,7 @@ export default function AppRouter() {
             <Route exact path={RoutePath.settings} component={Settings} />
             <Route exact path={RoutePath.selectLanguage} component={SelectLanguage} />
             <Route exact path={RoutePath.userInterfaceSettings} component={UserInterfaceSettings} />
+            <Route exact path={RoutePath.multihopSettings} component={MultihopSettings} />
             <Route exact path={RoutePath.vpnSettings} component={VpnSettings} />
             <Route exact path={RoutePath.wireguardSettings} component={WireguardSettings} />
             <Route exact path={RoutePath.daitaSettings} component={DaitaSettings} />
