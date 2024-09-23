@@ -21,6 +21,11 @@ Line wrap the file at 100 chars.                                              Th
 * **Fixed**: for any bug fixes.
 * **Security**: in case of vulnerabilities.
 
+## [2024.8]
+### Fixed
+- Make key rotation and device validation more reliable
+- Enable traffic to reach the API when a tunnel is established.
+
 ## [2024.7 - 2024-09-16]
 ### Added
 - Add DAITA (Defence against AI-guided Traffic Analysis) setting
