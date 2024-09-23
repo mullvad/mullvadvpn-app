@@ -1,3 +1,4 @@
+#![cfg(target_os = "ios")]
 pub mod ios_runtime;
 pub mod ios_tcp_connection;
 
