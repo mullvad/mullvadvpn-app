@@ -81,6 +81,9 @@ pub struct Settings {
     pub api_access_methods: access_method::Settings,
     /// If the daemon should allow communication with private (LAN) networks.
     pub allow_lan: bool,
+    /// If the daemon should allow communication with apple push notification services.
+    #[cfg(target_os = "macos")]
+    pub apple_services_bypass: bool,
     /// Extra level of kill switch. When this setting is on, the disconnected state will block
     /// the firewall to not allow any traffic in or out.
     pub block_when_disconnected: bool,
@@ -208,6 +211,8 @@ impl Default for Settings {
             #[cfg(any(windows, target_os = "android", target_os = "macos"))]
             split_tunnel: SplitTunnelSettings::default(),
             settings_version: CURRENT_SETTINGS_VERSION,
+            #[cfg(target_os = "macos")]
+            apple_services_bypass: false,
         }
     }
 }

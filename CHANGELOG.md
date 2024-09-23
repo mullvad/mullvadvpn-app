@@ -31,6 +31,10 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Add experimental support for Windows ARM64.
 
+#### macOS
+- Add "Apple services bypass" toggle that let's users unblock certain Apple-owned networks.
+  This is a temporary fix to the MacOS 15 issues where some Apple services are being blocked.
+
 ### Changed
 - Never use OpenVPN as a fallback protocol when any of the following features is enabled:
   multihop, quantum-resistant tunnels, or DAITA.
