@@ -24,7 +24,7 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 
 
-## [android/2024.5-beta1] - 2024-09-20
+## [android/2024.5-beta1] - 2024-09-23
 ### Added
 - Add support for predictive back.
 - Add DAITA (Defence against AI-guided Traffic Analysis) setting.
@@ -35,6 +35,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Fixed
 - Fix VPN service being recreated multiple times when toggling certain options.
+- Fix location selection navigation on TV devices.
 
 
 ## [android/2024.4] - 2024-09-03
