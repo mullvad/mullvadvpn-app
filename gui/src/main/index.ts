@@ -55,7 +55,7 @@ import NotificationController, {
   NotificationControllerDelegate,
   NotificationSender,
 } from './notification-controller';
-import { isMacOs13OrNewer } from './platform-version';
+import { isMacOs13OrNewer, isMacOs14p6OrNewer } from './platform-version';
 import * as problemReport from './problem-report';
 import { resolveBin } from './proc';
 import ReconnectionBackoff from './reconnection-backoff';
@@ -83,15 +83,14 @@ const GEO_DIR = path.resolve(__dirname, '../../assets/geo');
 
 class ApplicationMain
   implements
-    NotificationSender,
-    TunnelStateProvider,
-    LocaleProvider,
-    NotificationControllerDelegate,
-    UserInterfaceDelegate,
-    TunnelStateHandlerDelegate,
-    SettingsDelegate,
-    AccountDelegate
-{
+  NotificationSender,
+  TunnelStateProvider,
+  LocaleProvider,
+  NotificationControllerDelegate,
+  UserInterfaceDelegate,
+  TunnelStateHandlerDelegate,
+  SettingsDelegate,
+  AccountDelegate {
   private daemonRpc: DaemonRpc;
 
   private notificationController = new NotificationController(this);
@@ -773,6 +772,7 @@ class ApplicationMain
       navigationHistory: this.navigationHistory,
       currentApiAccessMethod: this.currentApiAccessMethod,
       isMacOs13OrNewer: isMacOs13OrNewer(),
+      isMacOs14p6OrNewer: isMacOs14p6OrNewer(),
     }));
 
     IpcMainEventChannel.map.handleGetData(async () => ({

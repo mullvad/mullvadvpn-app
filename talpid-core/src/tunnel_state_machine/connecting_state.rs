@@ -172,6 +172,8 @@ impl ConnectingState {
             allowed_tunnel_traffic,
             #[cfg(target_os = "macos")]
             redirect_interface,
+            #[cfg(target_os = "macos")]
+            apple_services_bypass: shared_values.apple_services_bypass,
         };
         shared_values
             .firewall
@@ -543,6 +545,17 @@ impl ConnectingState {
                     }
                 }
                 SameState(self)
+            }
+            #[cfg(target_os = "macos")]
+            Some(TunnelCommand::AppleServicesBypass(complete_tx, apple_services_bypass)) => {
+                let consequence = if shared_values.set_apple_services_bypass(apple_services_bypass)
+                {
+                    self.reset_firewall(shared_values)
+                } else {
+                    SameState(self)
+                };
+                let _ = complete_tx.send(());
+                consequence
             }
         }
     }

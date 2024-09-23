@@ -67,6 +67,8 @@ const IndentedValueLabel = styled(Cell.ValueLabel)({
 export default function VpnSettings() {
   const { pop } = useHistory();
 
+  const isMacOs14p6OrNewer = useSelector((state) => state.userInterface.isMacOs14p6OrNewer);
+
   return (
     <BackAction action={pop}>
       <Layout>
@@ -127,6 +129,8 @@ export default function VpnSettings() {
                 <Cell.Group>
                   <IpOverrideButton />
                 </Cell.Group>
+
+                <Cell.Group>{isMacOs14p6OrNewer ? <AppleServicesBypass /> : null}</Cell.Group>
               </StyledContent>
             </NavigationScrollbars>
           </NavigationContainer>
@@ -791,5 +795,41 @@ function IpOverrideButton() {
     <Cell.CellNavigationButton onClick={navigate}>
       <Cell.Label>{messages.pgettext('vpn-settings-view', 'Server IP override')}</Cell.Label>
     </Cell.CellNavigationButton>
+  );
+}
+
+function AppleServicesBypass() {
+  const { setAppleServicesBypass } = useAppContext();
+  const appleServicesBypass = useSelector((state) => state.settings.appleServicesBypass);
+
+  return (
+    <AriaInputGroup>
+      <Cell.Container>
+        <AriaLabel>
+          <Cell.InputLabel>
+            {messages.pgettext('vpn-settings-view', 'Apple Services Bypass')}
+          </Cell.InputLabel>
+        </AriaLabel>
+        <AriaDetails>
+          <InfoButton>
+            <ModalMessage>
+              {messages.pgettext(
+                'vpn-settings-view',
+                'Some Apple services such as iMessage have an issue where the network settings set by Mullvad get ignored, this in turn blocks those apps. Enabling this setting allows traffic to specific Apple-owned networks to go outside of the VPN tunnel, allowing services like iMessage and FaceTime to work whilst using Mullvad.',
+              )}
+            </ModalMessage>
+            <ModalMessage>
+              {messages.pgettext(
+                'vpn-settings-view',
+                'Attention: This traffic will go outside of the VPN tunnel. Any application that tries to can bypass the VPN tunnel and send traffic to these Apple networks. This a temporary fix and we are currently working on a long-term solution.',
+              )}
+            </ModalMessage>
+          </InfoButton>
+        </AriaDetails>
+        <AriaInput>
+          <Cell.Switch isOn={appleServicesBypass} onChange={setAppleServicesBypass} />
+        </AriaInput>
+      </Cell.Container>
+    </AriaInputGroup>
   );
 }

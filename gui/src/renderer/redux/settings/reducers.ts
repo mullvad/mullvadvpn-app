@@ -51,15 +51,15 @@ export type NormalBridgeSettingsRedux = {
 
 export type RelaySettingsRedux =
   | {
-      normal: NormalRelaySettingsRedux;
-    }
+    normal: NormalRelaySettingsRedux;
+  }
   | {
-      customTunnelEndpoint: {
-        host: string;
-        port: number;
-        protocol: RelayProtocol;
-      };
+    customTunnelEndpoint: {
+      host: string;
+      port: number;
+      protocol: RelayProtocol;
     };
+  };
 
 export type BridgeSettingsRedux = {
   type: BridgeType;
@@ -114,6 +114,7 @@ export interface ISettingsReduxState {
     daita?: IDaitaSettings;
   };
   dns: IDnsOptions;
+  appleServicesBypass: boolean;
   splitTunneling: boolean;
   splitTunnelingApplications: ISplitTunnelingApplication[];
   obfuscationSettings: ObfuscationSettings;
@@ -181,6 +182,7 @@ const initialState: ISettingsReduxState = {
       addresses: [],
     },
   },
+  appleServicesBypass: false,
   splitTunneling: false,
   splitTunnelingApplications: [],
   obfuscationSettings: {
@@ -198,7 +200,7 @@ const initialState: ISettingsReduxState = {
   relayOverrides: [],
 };
 
-export default function (
+export default function(
   state: ISettingsReduxState = initialState,
   action: ReduxAction,
 ): ISettingsReduxState {
@@ -308,6 +310,12 @@ export default function (
       return {
         ...state,
         dns: action.dns,
+      };
+
+    case 'SET_APPLE_SERVICES_BYPASS':
+      return {
+        ...state,
+        appleServicesBypass: action.enabled,
       };
 
     case 'UPDATE_SPLIT_TUNNELING_STATE':
