@@ -58,6 +58,7 @@ export default function Support() {
                     <>
                       <Cell.Group>
                         <UserInterfaceSettingsButton />
+                        <MultihopButton />
                         <VpnSettingsButton />
                       </Cell.Group>
 
@@ -111,6 +112,24 @@ function UserInterfaceSettingsButton() {
           messages.pgettext('settings-view', 'User interface settings')
         }
       </Cell.Label>
+    </Cell.CellNavigationButton>
+  );
+}
+
+function MultihopButton() {
+  const history = useHistory();
+  const navigate = useCallback(() => history.push(RoutePath.multihopSettings), [history]);
+  const relaySettings = useSelector((state) => state.settings.relaySettings);
+  const multihop = 'normal' in relaySettings ? relaySettings.normal.wireguard.useMultihop : false;
+  const unavailable =
+    'normal' in relaySettings ? relaySettings.normal.tunnelProtocol === 'openvpn' : true;
+
+  return (
+    <Cell.CellNavigationButton onClick={navigate}>
+      <Cell.Label>{messages.pgettext('settings-view', 'Multihop')}</Cell.Label>
+      <Cell.SubText>
+        {multihop && !unavailable ? messages.gettext('On') : messages.gettext('Off')}
+      </Cell.SubText>
     </Cell.CellNavigationButton>
   );
 }
