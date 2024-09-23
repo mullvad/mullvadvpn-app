@@ -16,15 +16,13 @@ import { useAppContext } from '../context';
 import { useRelaySettingsUpdater } from '../lib/constraint-updater';
 import { useHistory } from '../lib/history';
 import { RoutePath } from '../lib/routes';
-import { useBoolean } from '../lib/utilityHooks';
 import { useSelector } from '../redux/store';
-import * as AppButton from './AppButton';
 import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
 import * as Cell from './cell';
 import Selector, { SelectorItem, SelectorWithCustomItem } from './cell/Selector';
 import { BackAction } from './KeyboardNavigation';
 import { Layout, SettingsContainer } from './Layout';
-import { ModalAlert, ModalAlertType, ModalMessage } from './Modal';
+import { ModalMessage } from './Modal';
 import {
   NavigationBar,
   NavigationContainer,
@@ -102,10 +100,6 @@ export default function WireguardSettings() {
 
                 <Cell.Group>
                   <QuantumResistantSetting />
-                </Cell.Group>
-
-                <Cell.Group>
-                  <MultihopSetting />
                 </Cell.Group>
 
                 <Cell.Group>
@@ -284,99 +278,6 @@ function ObfuscationSettings() {
 
 function formatPortForSubLabel(port: Constraint<number>): string {
   return port === 'any' ? messages.gettext('Automatic') : `${port.only}`;
-}
-
-function MultihopSetting() {
-  const relaySettings = useSelector((state) => state.settings.relaySettings);
-  const relaySettingsUpdater = useRelaySettingsUpdater();
-
-  const multihop = 'normal' in relaySettings ? relaySettings.normal.wireguard.useMultihop : false;
-
-  const [confirmationDialogVisible, showConfirmationDialog, hideConfirmationDialog] = useBoolean();
-
-  const setMultihopImpl = useCallback(
-    async (enabled: boolean) => {
-      try {
-        await relaySettingsUpdater((settings) => {
-          settings.wireguardConstraints.useMultihop = enabled;
-          return settings;
-        });
-      } catch (e) {
-        const error = e as Error;
-        log.error('Failed to update WireGuard multihop settings', error.message);
-      }
-    },
-    [relaySettingsUpdater],
-  );
-
-  const setMultihop = useCallback(
-    async (newValue: boolean) => {
-      if (newValue) {
-        showConfirmationDialog();
-      } else {
-        await setMultihopImpl(false);
-      }
-    },
-    [setMultihopImpl],
-  );
-
-  const confirmMultihop = useCallback(async () => {
-    await setMultihopImpl(true);
-    hideConfirmationDialog();
-  }, [setMultihopImpl]);
-
-  return (
-    <>
-      <AriaInputGroup>
-        <Cell.Container>
-          <AriaLabel>
-            <Cell.InputLabel>
-              {
-                // TRANSLATORS: The label next to the multihop settings toggle.
-                messages.pgettext('vpn-settings-view', 'Enable multihop')
-              }
-            </Cell.InputLabel>
-          </AriaLabel>
-          <AriaInput>
-            <Cell.Switch isOn={multihop} onChange={setMultihop} />
-          </AriaInput>
-        </Cell.Container>
-        <Cell.CellFooter>
-          <AriaDescription>
-            <Cell.CellFooterText>
-              {sprintf(
-                // TRANSLATORS: Description for multihop settings toggle.
-                // TRANSLATORS: Available placeholders:
-                // TRANSLATORS: %(wireguard)s - Will be replaced with the string "WireGuard"
-                messages.pgettext(
-                  'vpn-settings-view',
-                  'Increases anonymity by routing your traffic into one %(wireguard)s server and out another, making it harder to trace.',
-                ),
-                { wireguard: strings.wireguard },
-              )}
-            </Cell.CellFooterText>
-          </AriaDescription>
-        </Cell.CellFooter>
-      </AriaInputGroup>
-      <ModalAlert
-        isOpen={confirmationDialogVisible}
-        type={ModalAlertType.caution}
-        message={
-          // TRANSLATORS: Warning text in a dialog that is displayed after a setting is toggled.
-          messages.gettext('This setting increases latency. Use only if needed.')
-        }
-        buttons={[
-          <AppButton.RedButton key="confirm" onClick={confirmMultihop}>
-            {messages.gettext('Enable anyway')}
-          </AppButton.RedButton>,
-          <AppButton.BlueButton key="back" onClick={hideConfirmationDialog}>
-            {messages.gettext('Back')}
-          </AppButton.BlueButton>,
-        ]}
-        close={hideConfirmationDialog}
-      />
-    </>
-  );
 }
 
 function IpVersionSetting() {
