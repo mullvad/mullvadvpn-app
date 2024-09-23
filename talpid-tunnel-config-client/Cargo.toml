@@ -17,6 +17,7 @@ talpid-types = { path = "../talpid-types" }
 tonic = { workspace = true }
 tower = { workspace = true }
 prost = { workspace = true }
+hyper-util = { workspace = true }
 tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
 classic-mceliece-rust = { version = "2.0.0", features = [
     "mceliece460896f",

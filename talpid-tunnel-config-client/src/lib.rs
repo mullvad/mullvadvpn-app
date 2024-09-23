@@ -258,9 +258,10 @@ async fn new_client(addr: Ipv4Addr) -> Result<RelayConfigService, Error> {
 
             #[cfg(not(target_os = "windows"))]
             try_set_tcp_sock_mtu(&addr, sock.as_raw_fd(), CONFIG_CLIENT_MTU);
-
-            sock.connect(SocketAddr::new(addr, CONFIG_SERVICE_PORT))
-                .await
+            let stream = sock
+                .connect(SocketAddr::new(addr, CONFIG_SERVICE_PORT))
+                .await?;
+            Ok::<_, std::io::Error>(hyper_util::rt::tokio::TokioIo::new(stream))
         }))
         .await
         .map_err(Error::GrpcConnectError)?;

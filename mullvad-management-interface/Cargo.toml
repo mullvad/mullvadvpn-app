@@ -18,6 +18,7 @@ mullvad-paths = { path = "../mullvad-paths" }
 talpid-types = { path = "../talpid-types" }
 tonic = { workspace = true }
 tower = { workspace = true }
+hyper-util = { workspace = true }
 prost = { workspace = true }
 prost-types = { workspace = true }
 parity-tokio-ipc = "0.9"
