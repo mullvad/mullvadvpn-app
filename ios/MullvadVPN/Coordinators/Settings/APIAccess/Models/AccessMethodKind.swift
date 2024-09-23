@@ -20,13 +20,16 @@ enum AccessMethodKind: Equatable, Hashable, CaseIterable {
     /// Communication over shadowsocks.
     case shadowsocks
 
+    /// Communication over proxy address from a DNS.
+    case encryptedDNS
+
     /// Communication over socks v5 proxy.
     case socks5
 
     /// Returns `true` if the method is permanent and cannot be deleted.
     var isPermanent: Bool {
         switch self {
-        case .direct, .bridges:
+        case .direct, .bridges, .encryptedDNS:
             true
         case .shadowsocks, .socks5:
             false
@@ -41,7 +44,7 @@ enum AccessMethodKind: Equatable, Hashable, CaseIterable {
     /// Returns localized description describing the access method.
     var localizedDescription: String {
         switch self {
-        case .direct, .bridges:
+        case .direct, .bridges, .encryptedDNS:
             ""
         case .shadowsocks:
             NSLocalizedString("SHADOWSOCKS", tableName: "APIAccess", value: "Shadowsocks", comment: "")
@@ -54,7 +57,7 @@ enum AccessMethodKind: Equatable, Hashable, CaseIterable {
     /// Methods that aren't configurable do not offer any additional configuration.
     var hasProxyConfiguration: Bool {
         switch self {
-        case .direct, .bridges:
+        case .direct, .bridges, .encryptedDNS:
             false
         case .shadowsocks, .socks5:
             true
@@ -68,6 +71,8 @@ extension PersistentAccessMethod {
         switch proxyConfiguration {
         case .direct:
             .direct
+        case .encryptedDNS:
+            .encryptedDNS
         case .bridges:
             .bridges
         case .shadowsocks:

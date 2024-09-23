@@ -32,6 +32,8 @@ public class ProxyConfigurationTransportProvider {
                 configuration: shadowsocksConfiguration,
                 addressCache: addressCache
             )
+        case .encryptedDNS:
+            return EncryptedDNSTransport(urlSession: urlSession, addressCache: addressCache)
         case let .shadowsocks(shadowSocksConfiguration):
             return ShadowsocksTransport(
                 urlSession: urlSession,

@@ -66,6 +66,9 @@ public enum PersistentProxyConfiguration: Codable {
     /// Communication over bridges.
     case bridges
 
+    /// Communication over proxy address from a DNS.
+    case encryptedDNS
+
     /// Communication over shadowsocks.
     case shadowsocks(ShadowsocksConfiguration)
 
@@ -143,6 +146,16 @@ extension PersistentProxyConfiguration {
             self.port = port
             self.password = password
             self.cipher = cipher
+        }
+    }
+
+    /// Encrypted DNS proxy configuration.
+    public struct EncryptedDNSConfiguration: Codable {
+        /// Proxy server address.
+        public var server: String
+
+        public init(server: String) {
+            self.server = server
         }
     }
 }

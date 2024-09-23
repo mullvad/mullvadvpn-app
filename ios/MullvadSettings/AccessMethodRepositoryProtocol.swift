@@ -44,5 +44,5 @@ public protocol AccessMethodRepositoryProtocol: AccessMethodRepositoryDataSource
     func fetch(by id: UUID) -> PersistentAccessMethod?
 
     ///  Refreshes the storage with default values.
-    func reloadWithDefaultsAfterDataRemoval()
+    func addDefaultsMethods()
 }
