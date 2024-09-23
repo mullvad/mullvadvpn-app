@@ -39,8 +39,11 @@ impl std::error::Error for Error {}
 /// order. E.g. an IPv6 address such as `7f7f:2323::`  would have a proxy type value of `0x2323`.
 #[derive(PartialEq, Debug)]
 enum ProxyType {
+    /// Plain proxy type
     Plain,
+    /// XorV1 - deprecated
     XorV1,
+    /// XorV2
     XorV2,
 }
 
