@@ -2,8 +2,7 @@ use crate::ProxyHandle;
 
 use mullvad_encrypted_dns_proxy::{
     config::{ProxyConfig, ProxyType},
-    config_resolver::ResolutionError,
-    Forwarder,
+    config_resolver, Forwarder,
 };
 use std::{
     collections::HashSet,
@@ -30,7 +29,7 @@ pub enum Error {
     /// Failed to initialize forwarder.
     Forwarder(io::Error),
     /// Failed to fetch new.
-    FetchConfig(ResolutionError),
+    FetchConfig(config_resolver::Error),
     /// Failed to initialize with a valid configuration.
     NoConfigs,
 }
