@@ -142,6 +142,8 @@ impl ConnectedState {
             dns_config: Self::resolve_dns(&self.metadata, shared_values),
             #[cfg(target_os = "macos")]
             redirect_interface,
+            #[cfg(target_os = "macos")]
+            apple_services_bypass: shared_values.apple_services_bypass,
         }
     }
 
@@ -370,6 +372,25 @@ impl ConnectedState {
                     }
                 }
                 SameState(self)
+            }
+
+            #[cfg(target_os = "macos")]
+            Some(TunnelCommand::AppleServicesBypass(complete_tx, apple_services_bypass)) => {
+                let consequence = if shared_values.set_apple_services_bypass(apple_services_bypass)
+                {
+                    match self.set_firewall_policy(shared_values) {
+                        Ok(()) => SameState(self),
+                        Err(error) => self.disconnect(
+                            shared_values,
+                            AfterDisconnect::Block(ErrorStateCause::SetFirewallPolicyError(error)),
+                        ),
+                    }
+                } else {
+                    SameState(self)
+                };
+
+                let _ = complete_tx.send(());
+                consequence
             }
         }
     }

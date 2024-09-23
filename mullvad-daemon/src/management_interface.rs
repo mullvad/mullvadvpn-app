@@ -1070,6 +1070,26 @@ impl ManagementService for ManagementServiceImpl {
 
         Ok(Response::new(feature_indicators))
     }
+
+    #[cfg(not(daita))]
+    async fn set_enable_daita(&self, _: Request<bool>) -> ServiceResult<()> {
+        Ok(Response::new(()))
+    }
+
+    #[cfg(not(target_os = "macos"))]
+    async fn set_apple_services_bypass(&self, _: Request<bool>) -> ServiceResult<()> {
+        Ok(Response::new(()))
+    }
+
+    #[cfg(target_os = "macos")]
+    async fn set_apple_services_bypass(&self, request: Request<bool>) -> ServiceResult<()> {
+        log::debug!("set_apple_services_bypass");
+        let enabled = request.into_inner();
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::SetAppleServicesBypass(tx, enabled))?;
+        self.wait_for_result(rx).await??;
+        Ok(Response::new(()))
+    }
 }
 
 impl ManagementServiceImpl {
