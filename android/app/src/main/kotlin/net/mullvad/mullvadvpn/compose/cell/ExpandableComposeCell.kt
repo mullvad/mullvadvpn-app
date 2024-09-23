@@ -21,7 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.text.HtmlCompat
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.component.ChevronButton
+import net.mullvad.mullvadvpn.compose.component.ExpandChevronIconButton
 import net.mullvad.mullvadvpn.compose.component.textResource
 import net.mullvad.mullvadvpn.compose.extensions.toAnnotatedString
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -107,7 +107,7 @@ private fun ExpandableComposeCellBody(
             }
         }
 
-        ChevronButton(
+        ExpandChevronIconButton(
             isExpanded = isExpanded,
             onExpand = onExpand,
             color = MaterialTheme.colorScheme.onPrimary,

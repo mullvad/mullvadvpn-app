@@ -27,8 +27,8 @@ import com.ramcosta.composedestinations.generated.destinations.EditApiAccessMeth
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
-import net.mullvad.mullvadvpn.compose.cell.DefaultNavigationView
 import net.mullvad.mullvadvpn.compose.cell.TwoRowCell
+import net.mullvad.mullvadvpn.compose.component.ChevronRight
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.constant.ContentType
@@ -188,9 +188,9 @@ private fun ApiAccessMethodItem(
         titleStyle = MaterialTheme.typography.titleMedium,
         subtitleColor = MaterialTheme.colorScheme.onSurfaceVariant,
         bodyView = {
-            DefaultNavigationView(
-                chevronContentDescription = apiAccessMethodSetting.name.value,
+            ChevronRight(
                 tint = MaterialTheme.colorScheme.onPrimary,
+                contentDescription = apiAccessMethodSetting.name.value,
             )
         },
         onCellClicked = { onApiAccessMethodClick(apiAccessMethodSetting) },

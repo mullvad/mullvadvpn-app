@@ -26,9 +26,18 @@ private fun PreviewChevron() {
 }
 
 @Composable
+@Preview
+private fun PreviewChevronRight() {
+    Column {
+        ChevronLeft(tint = MaterialTheme.colorScheme.onPrimary)
+        ChevronRight(tint = MaterialTheme.colorScheme.onPrimary)
+    }
+}
+
+@Composable
 fun Chevron(modifier: Modifier = Modifier, color: Color, isExpanded: Boolean) {
 
-    val degree = remember(isExpanded) { if (isExpanded) 180f else 0f }
+    val degree = remember(isExpanded) { if (isExpanded) UP_ROTATION else DOWN_ROTATION }
     val animatedRotation =
         animateFloatAsState(
             targetValue = degree,
@@ -45,7 +54,27 @@ fun Chevron(modifier: Modifier = Modifier, color: Color, isExpanded: Boolean) {
 }
 
 @Composable
-fun ChevronButton(
+fun ChevronLeft(modifier: Modifier = Modifier, tint: Color, contentDescription: String? = null) {
+    Icon(
+        painterResource(id = R.drawable.icon_chevron),
+        contentDescription = contentDescription,
+        tint = tint,
+        modifier = modifier.rotate(LEFT_ROTATION),
+    )
+}
+
+@Composable
+fun ChevronRight(modifier: Modifier = Modifier, tint: Color, contentDescription: String? = null) {
+    Icon(
+        painterResource(id = R.drawable.icon_chevron),
+        contentDescription = contentDescription,
+        tint = tint,
+        modifier = modifier.rotate(RIGHT_ROTATION),
+    )
+}
+
+@Composable
+fun ExpandChevronIconButton(
     modifier: Modifier = Modifier,
     color: Color,
     onExpand: (Boolean) -> Unit,
@@ -55,3 +84,8 @@ fun ChevronButton(
         Chevron(isExpanded = isExpanded, color = color)
     }
 }
+
+private const val RIGHT_ROTATION = -90f
+private const val LEFT_ROTATION = 90f
+private const val DOWN_ROTATION = 0f
+private const val UP_ROTATION = 180f
