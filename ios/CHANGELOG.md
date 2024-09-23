@@ -22,8 +22,14 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## Unreleased
+
+## [2024.8]
 ### Added
 - Add a new access method that uses the encrypted DNS proxy to reach our API.
+
+### Fixed
+- Make key rotation and device validation more reliable
+- Enable traffic to reach the API when a tunnel is established.
 - Fix IPv6 parsing in API access
 
 ## [2024.7 - 2024-09-16]
