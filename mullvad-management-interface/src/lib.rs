@@ -122,7 +122,11 @@ pub async fn new_rpc_client() -> Result<ManagementServiceClient, Error> {
     // The URI will be ignored
     let channel = Endpoint::from_static("lttp://[::]:50051")
         .connect_with_connector(service_fn(move |_: Uri| {
-            IpcEndpoint::connect(ipc_path.clone())
+            let ipc_path = ipc_path.clone();
+            async {
+                let stream = IpcEndpoint::connect(ipc_path).await?;
+                Ok::<_, std::io::Error>(hyper_util::rt::tokio::TokioIo::new(stream))
+            }
         }))
         .await
         .map_err(Error::GrpcTransportError)?;
