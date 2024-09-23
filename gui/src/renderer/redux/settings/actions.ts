@@ -93,6 +93,11 @@ export interface IUpdateDnsOptionsAction {
   dns: IDnsOptions;
 }
 
+export interface ISetAppleServicesBypass {
+  type: 'SET_APPLE_SERVICES_BYPASS';
+  enabled: boolean;
+}
+
 export interface IUpdateSplitTunnelingStateAction {
   type: 'UPDATE_SPLIT_TUNNELING_STATE';
   enabled: boolean;
@@ -145,6 +150,7 @@ export type SettingsAction =
   | IUpdateWireguardDaitaAction
   | IUpdateAutoStartAction
   | IUpdateDnsOptionsAction
+  | ISetAppleServicesBypass
   | IUpdateSplitTunnelingStateAction
   | ISetSplitTunnelingApplicationsAction
   | ISetObfuscationSettings
@@ -273,6 +279,13 @@ function updateDnsOptions(dns: IDnsOptions): IUpdateDnsOptionsAction {
   };
 }
 
+function updateAppleServicesBypass(enabled: boolean): ISetAppleServicesBypass {
+  return {
+    type: 'SET_APPLE_SERVICES_BYPASS',
+    enabled,
+  };
+}
+
 function updateSplitTunnelingState(enabled: boolean): IUpdateSplitTunnelingStateAction {
   return {
     type: 'UPDATE_SPLIT_TUNNELING_STATE',
@@ -343,6 +356,7 @@ export default {
   updateWireguardDaita,
   updateAutoStart,
   updateDnsOptions,
+  updateAppleServicesBypass,
   updateSplitTunnelingState,
   setSplitTunnelingApplications,
   updateObfuscationSettings,

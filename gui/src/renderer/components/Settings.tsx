@@ -7,10 +7,20 @@ import { useAppContext } from '../context';
 import { useHistory } from '../lib/history';
 import { RoutePath } from '../lib/routes';
 import { useSelector } from '../redux/store';
-import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';
+import {
+  AriaDescribed,
+  AriaDescription,
+  AriaDescriptionGroup,
+  AriaDetails,
+  AriaInput,
+  AriaInputGroup,
+  AriaLabel,
+} from './AriaGroup';
 import * as Cell from './cell';
+import InfoButton from './InfoButton';
 import { BackAction } from './KeyboardNavigation';
 import { Layout, SettingsContainer } from './Layout';
+import { ModalMessage } from './Modal';
 import { NavigationBar, NavigationContainer, NavigationItems, TitleBarItem } from './NavigationBar';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 import {
@@ -27,6 +37,8 @@ export default function Support() {
   const loginState = useSelector((state) => state.account.status);
   const connectedToDaemon = useSelector((state) => state.userInterface.connectedToDaemon);
   const isMacOs13OrNewer = useSelector((state) => state.userInterface.isMacOs13OrNewer);
+
+  const isMacOs14p6OrNewer = useSelector((state) => state.userInterface.isMacOs14p6OrNewer);
 
   const showSubSettings = loginState.type === 'ok' && connectedToDaemon;
   const showSplitTunneling = window.env.platform !== 'darwin' || isMacOs13OrNewer;
@@ -76,6 +88,12 @@ export default function Support() {
                   <Cell.Group>
                     <ApiAccessMethodsButton />
                   </Cell.Group>
+
+                  {isMacOs14p6OrNewer ? (
+                    <Cell.Group>
+                      <AppleServicesBypass />
+                    </Cell.Group>
+                  ) : null}
 
                   <Cell.Group>
                     <SupportButton />
@@ -224,6 +242,54 @@ function SupportButton() {
     <Cell.CellNavigationButton onClick={navigate}>
       <Cell.Label>{messages.pgettext('settings-view', 'Support')}</Cell.Label>
     </Cell.CellNavigationButton>
+  );
+}
+
+function AppleServicesBypass() {
+  const { setAppleServicesBypass } = useAppContext();
+  const appleServicesBypass = useSelector((state) => state.settings.appleServicesBypass);
+
+  return (
+    <AriaInputGroup>
+      <Cell.Container>
+        <AriaLabel>
+          <Cell.InputLabel>
+            {messages.pgettext('settings-view', 'Apple services bypass')}
+          </Cell.InputLabel>
+        </AriaLabel>
+        <AriaDetails>
+          <InfoButton>
+            <ModalMessage>
+              {messages.pgettext(
+                'settings-view',
+                'Some Apple services have an issue where the network settings set by Mullvad get ignored, this in turn blocks certain apps.',
+              )}
+            </ModalMessage>
+            <ModalMessage>
+              {messages.pgettext(
+                'settings-view',
+                'Enabling this setting allows traffic to specific Apple-owned networks to go outside of the VPN tunnel, allowing services like iMessage and FaceTime to work whilst using Mullvad.',
+              )}
+            </ModalMessage>
+            <ModalMessage>
+              {messages.pgettext(
+                'settings-view',
+                'Attention: this traffic will go outside of the VPN tunnel. Any application that tries to can bypass the VPN tunnel and send traffic to these Apple networks.',
+              )}
+            </ModalMessage>
+            <ModalMessage>
+              {messages.pgettext(
+                'settings-view',
+                'This a temporary fix and we are currently working on a long-term solution.',
+              )}
+            </ModalMessage>
+          </InfoButton>
+        </AriaDetails>
+        <AriaInput>
+          <Cell.Switch isOn={appleServicesBypass} onChange={setAppleServicesBypass} />
+        </AriaInput>
+      </Cell.Container>
+    </AriaInputGroup>
   );
 }
 
