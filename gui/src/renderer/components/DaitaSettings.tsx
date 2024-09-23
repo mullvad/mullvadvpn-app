@@ -119,6 +119,13 @@ function DaitaToggle() {
             <Cell.Switch isOn={daita} onChange={setDaita} />
           </AriaInput>
         </Cell.Container>
+        {unavailable ? (
+          <Cell.CellFooter>
+            <AriaDescription>
+              <Cell.CellFooterText>{featureUnavailableMessage()}</Cell.CellFooterText>
+            </AriaDescription>
+          </Cell.CellFooter>
+        ) : null}
       </AriaInputGroup>
       <AriaInputGroup>
         <Cell.Container disabled={!daita}>
@@ -138,7 +145,7 @@ function DaitaToggle() {
               {sprintf(
                 messages.pgettext(
                   'vpn-settings-view',
-                  'Is automatically enabled with %(daita)s, makes it possible to use %(daita)s with any server by using multihop. This might increase latency.',
+                  'Makes it possible to use %(daita)s with any server and is automatically enabled.',
                 ),
                 { daita: strings.daita },
               )}
@@ -189,5 +196,18 @@ export function SmartRoutingModalMessage() {
         },
       )}
     </ModalMessage>
+  );
+}
+
+function featureUnavailableMessage() {
+  const automatic = messages.gettext('Automatic');
+  const tunnelProtocol = messages.pgettext('vpn-settings-view', 'Tunnel protocol');
+
+  return sprintf(
+    messages.pgettext(
+      'wireguard-settings-view',
+      'Switch to “%(wireguard)s” or “%(automatic)s” in Settings > %(tunnelProtocol)s to make %(setting)s available.',
+    ),
+    { wireguard: strings.wireguard, automatic, tunnelProtocol, setting: strings.daita },
   );
 }
