@@ -29,7 +29,7 @@ use std::{
     collections::HashMap,
     net::{IpAddr, Ipv4Addr, SocketAddr},
     path::Path,
-    time::Duration,
+    time::{Duration, Instant},
 };
 use talpid_types::net::wireguard::{PeerConfig, PrivateKey, TunnelConfig};
 use test_rpc::{
@@ -432,6 +432,8 @@ pub async fn connect_and_wait(
 ) -> Result<TunnelState, Error> {
     log::info!("Connecting");
 
+    let initial_time = Instant::now();
+
     mullvad_client.connect_tunnel().await?;
     let new_state = wait_for_tunnel_state(mullvad_client.clone(), |state| {
         matches!(
@@ -445,7 +447,10 @@ pub async fn connect_and_wait(
         return Err(Error::UnexpectedErrorState(error_state));
     }
 
-    log::info!("Connected");
+    log::info!(
+        "Connected after {} seconds",
+        initial_time.elapsed().as_secs()
+    );
 
     Ok(new_state)
 }

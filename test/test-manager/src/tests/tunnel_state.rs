@@ -22,6 +22,7 @@ use talpid_types::net::{Endpoint, TransportProtocol, TunnelEndpoint, TunnelType}
 use test_macro::test_function;
 use test_rpc::ServiceClient;
 
+/// Set up nftables rules to drop packets larger than `max_packet_size` on the host.
 #[cfg(target_os = "linux")]
 async fn setup_nftables_drop_pings_rule(
     max_packet_size: u16,
@@ -33,7 +34,7 @@ async fn setup_nftables_drop_pings_rule(
             .unwrap();
 
         log::debug!(
-            "Set NF-tables ruleset to:\n{}",
+            "Set nftables ruleset to:\n{}",
             String::from_utf8(output.stdout).unwrap()
         );
 
