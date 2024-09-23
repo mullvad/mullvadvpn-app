@@ -2,6 +2,7 @@
 use std::{io, time::Duration};
 
 use futures::{channel::mpsc, future::BoxFuture, pin_mut, FutureExt, SinkExt, StreamExt};
+use hyper_util::rt::TokioIo;
 use mullvad_management_interface::{ManagementServiceClient, MullvadProxyClient};
 use test_rpc::{
     mullvad_daemon::MullvadClientVersion,
@@ -16,13 +17,13 @@ const CONVERTER_BUF_SIZE: usize = 16 * 1024;
 
 #[derive(Clone)]
 struct DummyService {
-    management_channel_provider_tx: mpsc::UnboundedSender<DuplexStream>,
+    management_channel_provider_tx: mpsc::UnboundedSender<TokioIo<DuplexStream>>,
 }
 
 impl<Request> Service<Request> for DummyService {
-    type Response = DuplexStream;
+    type Response = TokioIo<DuplexStream>;
     type Error = std::io::Error;
-    type Future = BoxFuture<'static, Result<DuplexStream, Self::Error>>;
+    type Future = BoxFuture<'static, Result<TokioIo<DuplexStream>, Self::Error>>;
 
     fn poll_ready(
         &mut self,
@@ -39,9 +40,9 @@ impl<Request> Service<Request> for DummyService {
 
         Box::pin(async move {
             notifier_tx
-                .unbounded_send(channel_in)
+                .unbounded_send(TokioIo::new(channel_in))
                 .map_err(|_| io::Error::new(io::ErrorKind::Other, "stream receiver is down"))?;
-            Ok(channel_out)
+            Ok(TokioIo::new(channel_out))
         })
     }
 }
@@ -94,7 +95,7 @@ pub fn new_rpc_client(
 
             let mut management_channel_in: DuplexStream =
                 match management_channel_provider_rx.next().await {
-                    Some(channel) => channel,
+                    Some(channel) => TokioIo::into_inner(channel),
                     None => {
                         log::trace!("exiting management interface forward loop");
                         break;
