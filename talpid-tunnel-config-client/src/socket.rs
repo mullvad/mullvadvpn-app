@@ -12,9 +12,6 @@ mod sys {
 
     pub use libc::{setsockopt, socklen_t, IPPROTO_TCP, TCP_MAXSEG};
     pub use std::os::fd::{AsRawFd, RawFd};
-    use std::pin::Pin;
-    use std::task::{Context, Poll};
-    use tokio::io::{AsyncRead, AsyncWrite, ReadBuf};
 
     /// MTU to set on the tunnel config client socket. We want a low value to prevent fragmentation.
     /// Especially on Android, we've found that the real MTU is often lower than the default MTU, and
