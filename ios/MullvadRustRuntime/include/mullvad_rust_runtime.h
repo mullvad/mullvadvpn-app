@@ -5,16 +5,51 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-typedef struct EphemeralPeerCancelToken {
-  void *context;
-} EphemeralPeerCancelToken;
+typedef struct EncryptedDnsProxyState EncryptedDnsProxyState;
 
 typedef struct ProxyHandle {
   void *context;
   uint16_t port;
 } ProxyHandle;
 
+typedef struct EphemeralPeerCancelToken {
+  void *context;
+} EphemeralPeerCancelToken;
+
 extern const uint16_t CONFIG_SERVICE_PORT;
+
+/**
+ * Initializes a valid pointer to an instance of `EncryptedDnsProxyState`.
+ */
+struct EncryptedDnsProxyState *encrypted_dns_proxy_init(void);
+
+/**
+ * This must be called only once to deallocate `EncryptedDnsProxyState`.
+ *
+ * # Safety
+ * `ptr` must be a valid, exclusive pointer to `EncryptedDnsProxyState`, initialized
+ * by `encrypted_dns_proxy_init`. This function is not thread safe.
+ */
+void encrypted_dns_proxy_free(struct EncryptedDnsProxyState *ptr);
+
+/**
+ * # Safety
+ * encrypted_dns_proxy must be a valid, exclusive pointer to `EncryptedDnsProxyState`, initialized
+ * by `encrypted_dns_proxy_init`. This function is not thread safe.
+ * `proxy_handle` must be pointing to a valid memory region for the size of a `ProxyHandle`
+ *
+ * `proxy_handle` will only contain valid values if the return value is zero. It is still valid to
+ * deallocate the memory.
+ */
+int32_t encrypted_dns_proxy_start(struct EncryptedDnsProxyState *encrypted_dns_proxy,
+                                  struct ProxyHandle *proxy_handle);
+
+/**
+ * # Safety
+ * `proxy_config` must be a valid pointer to a `ProxyHandle` as initialized by
+ * [`encrypted_dns_proxy_start`].
+ */
+int32_t encrypted_dns_proxy_stop(struct ProxyHandle *proxy_config);
 
 /**
  * Called by the Swift side to signal that the ephemeral peer exchange should be cancelled.
