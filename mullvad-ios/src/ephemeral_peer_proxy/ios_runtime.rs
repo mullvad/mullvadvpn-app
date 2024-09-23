@@ -3,10 +3,7 @@ use super::{
 };
 use libc::c_void;
 use std::{
-    future::Future,
-    io,
-    pin::Pin,
-    ptr,
+    io, ptr,
     sync::{Arc, Mutex},
 };
 use talpid_tunnel_config_client::{request_ephemeral_peer_with, Error, RelayConfigService};
@@ -104,14 +101,13 @@ impl IOSRuntime {
         // One (1) TCP connection
         let mut one_tcp_connection = Some(tcp_provider);
         let conn = endpoint
-            .connect_with_connector(service_fn(
-                move |_| -> Pin<Box<dyn Future<Output = _> + Send>> {
-                    if let Some(connection) = one_tcp_connection.take() {
-                        return Box::pin(async move { Ok::<_, Error>(connection) });
-                    }
-                    Box::pin(async { Err(Error::TcpConnectionExpired) })
-                },
-            ))
+            .connect_with_connector(service_fn(move |_| {
+                let connection = one_tcp_connection
+                    .take()
+                    .map(hyper_util::rt::tokio::TokioIo::new)
+                    .ok_or(Error::TcpConnectionExpired);
+                async { connection }
+            }))
             .await
             .map_err(Error::GrpcConnectError)?;
 

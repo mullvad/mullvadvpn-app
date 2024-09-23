@@ -49,6 +49,7 @@ socks-server = { path = "../socks-server" }
 env_logger = { workspace = true }
 
 tonic = { workspace = true }
+hyper-util = "0.1.8"
 tower = { workspace = true }
 colored = { workspace = true }
 
