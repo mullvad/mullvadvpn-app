@@ -16,6 +16,7 @@ export interface IUserInterfaceReduxState {
   isPerformingPostUpgrade: boolean;
   selectLocationView: LocationType;
   isMacOs13OrNewer: boolean;
+  isMacOs14p6OrNewer: boolean;
 }
 
 const initialState: IUserInterfaceReduxState = {
@@ -30,6 +31,7 @@ const initialState: IUserInterfaceReduxState = {
   isPerformingPostUpgrade: false,
   selectLocationView: LocationType.exit,
   isMacOs13OrNewer: true,
+  isMacOs14p6OrNewer: true,
 };
 
 export default function (
@@ -86,6 +88,12 @@ export default function (
       return {
         ...state,
         isMacOs13OrNewer: action.isMacOs13OrNewer,
+      };
+
+    case 'SET_IS_MACOS14_6_OR_NEWER':
+      return {
+        ...state,
+        isMacOs14p6OrNewer: action.isMacOs14p6OrNewer,
       };
 
     default:

@@ -76,6 +76,8 @@ impl ErrorState {
             allowed_endpoint: Some(shared_values.allowed_endpoint.clone()),
             #[cfg(target_os = "macos")]
             dns_redirect_port: shared_values.filtering_resolver.listening_port(),
+            #[cfg(target_os = "macos")]
+            apple_services_bypass: shared_values.apple_services_bypass,
         };
 
         #[cfg(target_os = "linux")]
@@ -232,6 +234,18 @@ impl TunnelState for ErrorState {
             Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
                 let _ = result_tx.send(shared_values.set_exclude_paths(paths).map(|_| ()));
                 SameState(self)
+            }
+            #[cfg(target_os = "macos")]
+            Some(TunnelCommand::AppleServicesBypass(complete_tx, apple_services_bypass)) => {
+                let consequence = if shared_values.set_apple_services_bypass(apple_services_bypass)
+                {
+                    let _ = Self::set_firewall_policy(shared_values);
+                    SameState(self)
+                } else {
+                    SameState(self)
+                };
+                let _ = complete_tx.send(());
+                consequence
             }
         }
     }

@@ -54,6 +54,11 @@ impl From<&mullvad_types::settings::Settings> for proto::Settings {
                 .cloned()
                 .map(proto::RelayOverride::from)
                 .collect(),
+
+            #[cfg(target_os = "macos")]
+            apple_services_bypass: settings.apple_services_bypass,
+            #[cfg(not(target_os = "macos"))]
+            apple_services_bypass: false,
         }
     }
 }
@@ -198,6 +203,8 @@ impl TryFrom<proto::Settings> for mullvad_types::settings::Settings {
             api_access_methods: mullvad_types::access_method::Settings::try_from(
                 api_access_methods_settings,
             )?,
+            #[cfg(target_os = "macos")]
+            apple_services_bypass: settings.apple_services_bypass,
         })
     }
 }

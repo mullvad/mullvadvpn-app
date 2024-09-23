@@ -124,6 +124,9 @@ service ManagementService {
 
   // Get current feature indicators
   rpc GetFeatureIndicators(google.protobuf.Empty) returns (FeatureIndicators) {}
+
+  // Set if we should leak traffic to Apple services.
+  rpc SetAppleServicesBypass(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
 }
 
 message UUID { string value = 1; }
@@ -452,6 +455,7 @@ message Settings {
   CustomListSettings custom_lists = 11;
   ApiAccessMethodSettings api_access_methods = 12;
   repeated RelayOverride relay_overrides = 13;
+  bool apple_services_bypass = 14;
 }
 
 message RelayOverride {
