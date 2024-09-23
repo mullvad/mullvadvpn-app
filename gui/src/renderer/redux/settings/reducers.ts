@@ -114,6 +114,7 @@ export interface ISettingsReduxState {
     daita?: IDaitaSettings;
   };
   dns: IDnsOptions;
+  appleServicesBypass: boolean;
   splitTunneling: boolean;
   splitTunnelingApplications: ISplitTunnelingApplication[];
   obfuscationSettings: ObfuscationSettings;
@@ -181,6 +182,7 @@ const initialState: ISettingsReduxState = {
       addresses: [],
     },
   },
+  appleServicesBypass: false,
   splitTunneling: false,
   splitTunnelingApplications: [],
   obfuscationSettings: {
@@ -308,6 +310,12 @@ export default function (
       return {
         ...state,
         dns: action.dns,
+      };
+
+    case 'SET_APPLE_SERVICES_BYPASS':
+      return {
+        ...state,
+        appleServicesBypass: action.enabled,
       };
 
     case 'UPDATE_SPLIT_TUNNELING_STATE':

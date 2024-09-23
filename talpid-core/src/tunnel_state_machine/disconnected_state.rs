@@ -78,6 +78,8 @@ impl DisconnectedState {
                 allowed_endpoint: Some(shared_values.allowed_endpoint.clone()),
                 #[cfg(target_os = "macos")]
                 dns_redirect_port: shared_values.filtering_resolver.listening_port(),
+                #[cfg(target_os = "macos")]
+                apple_services_bypass: shared_values.apple_services_bypass,
             };
 
             shared_values.firewall.apply_policy(policy).map_err(|e| {
@@ -228,6 +230,14 @@ impl TunnelState for DisconnectedState {
             #[cfg(target_os = "macos")]
             Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
                 let _ = result_tx.send(shared_values.set_exclude_paths(paths).map(|_| ()));
+                SameState(self)
+            }
+            #[cfg(target_os = "macos")]
+            Some(TunnelCommand::AppleServicesBypass(complete_tx, apple_services_bypass)) => {
+                if shared_values.set_apple_services_bypass(apple_services_bypass) {
+                    Self::set_firewall_policy(shared_values, false);
+                }
+                let _ = complete_tx.send(());
                 SameState(self)
             }
             None => {

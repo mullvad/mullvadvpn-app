@@ -104,6 +104,9 @@ pub struct InitialTunnelState {
     /// Apps to exclude from the tunnel.
     #[cfg(target_os = "android")]
     pub exclude_paths: Vec<String>,
+    /// Whether we should leak traffic to Apple services.
+    #[cfg(target_os = "macos")]
+    pub apple_services_bypass: bool,
 }
 
 /// Identifiers for various network resources that should be unique to a given instance of a tunnel
@@ -214,6 +217,9 @@ pub enum TunnelCommand {
         oneshot::Sender<Result<(), split_tunnel::Error>>,
         Vec<String>,
     ),
+    /// Set if we should leak traffic to Apple services.
+    #[cfg(target_os = "macos")]
+    AppleServicesBypass(oneshot::Sender<()>, bool),
 }
 
 type TunnelCommandReceiver = stream::Fuse<mpsc::UnboundedReceiver<TunnelCommand>>;
@@ -383,6 +389,8 @@ impl TunnelStateMachine {
             connectivity_check_was_enabled: None,
             #[cfg(target_os = "macos")]
             filtering_resolver,
+            #[cfg(target_os = "macos")]
+            apple_services_bypass: args.settings.apple_services_bypass,
         };
 
         tokio::task::spawn_blocking(move || {
@@ -486,6 +494,9 @@ struct SharedTunnelStateValues {
     /// Filtering resolver handle
     #[cfg(target_os = "macos")]
     filtering_resolver: crate::resolver::ResolverHandle,
+
+    #[cfg(target_os = "macos")]
+    apple_services_bypass: bool,
 }
 
 impl SharedTunnelStateValues {
@@ -650,6 +661,16 @@ impl SharedTunnelStateValues {
                 );
                 Err(error)
             }
+        }
+    }
+
+    #[cfg(target_os = "macos")]
+    pub fn set_apple_services_bypass(&mut self, apple_services_bypass: bool) -> bool {
+        if self.apple_services_bypass != apple_services_bypass {
+            self.apple_services_bypass = apple_services_bypass;
+            true
+        } else {
+            false
         }
     }
 }
