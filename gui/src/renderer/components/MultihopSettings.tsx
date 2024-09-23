@@ -7,14 +7,11 @@ import { messages } from '../../shared/gettext';
 import log from '../../shared/logging';
 import { useRelaySettingsUpdater } from '../lib/constraint-updater';
 import { useHistory } from '../lib/history';
-import { useBoolean } from '../lib/utilityHooks';
 import { useSelector } from '../redux/store';
-import * as AppButton from './AppButton';
 import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
 import * as Cell from './cell';
 import { BackAction } from './KeyboardNavigation';
 import { Layout, SettingsContainer } from './Layout';
-import { ModalAlert, ModalAlertType } from './Modal';
 import {
   NavigationBar,
   NavigationContainer,
@@ -81,9 +78,7 @@ function MultihopSetting() {
   const unavailable =
     'normal' in relaySettings ? relaySettings.normal.tunnelProtocol === 'openvpn' : true;
 
-  const [confirmationDialogVisible, showConfirmationDialog, hideConfirmationDialog] = useBoolean();
-
-  const setMultihopImpl = useCallback(
+  const setMultihop = useCallback(
     async (enabled: boolean) => {
       try {
         await relaySettingsUpdater((settings) => {
@@ -97,22 +92,6 @@ function MultihopSetting() {
     },
     [relaySettingsUpdater],
   );
-
-  const setMultihop = useCallback(
-    async (newValue: boolean) => {
-      if (newValue) {
-        showConfirmationDialog();
-      } else {
-        await setMultihopImpl(false);
-      }
-    },
-    [setMultihopImpl],
-  );
-
-  const confirmMultihop = useCallback(async () => {
-    await setMultihopImpl(true);
-    hideConfirmationDialog();
-  }, [setMultihopImpl]);
 
   return (
     <>
@@ -133,23 +112,6 @@ function MultihopSetting() {
           </Cell.CellFooter>
         ) : null}
       </AriaInputGroup>
-      <ModalAlert
-        isOpen={confirmationDialogVisible}
-        type={ModalAlertType.caution}
-        message={
-          // TRANSLATORS: Warning text in a dialog that is displayed after a setting is toggled.
-          messages.gettext('This setting increases latency. Use only if needed.')
-        }
-        buttons={[
-          <AppButton.RedButton key="confirm" onClick={confirmMultihop}>
-            {messages.gettext('Enable anyway')}
-          </AppButton.RedButton>,
-          <AppButton.BlueButton key="back" onClick={hideConfirmationDialog}>
-            {messages.gettext('Back')}
-          </AppButton.BlueButton>,
-        ]}
-        close={hideConfirmationDialog}
-      />
     </>
   );
 }
