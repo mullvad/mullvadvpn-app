@@ -17,4 +17,13 @@
         <cve>CVE-2023-33953</cve>
         <cve>CVE-2023-44487</cve>
     </suppress>
+    <suppress until="2024-12-01Z">
+        <notes><![CDATA[
+            Denial of service using protobuf.
+            Should not be applicable since client and server are always in sync and we are only
+            communicating locally over UDS.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.google\.protobuf/protobuf-.*@.*$</packageUrl>
+        <cve>CVE-2024-7254</cve>
+    </suppress>
 </suppressions>
