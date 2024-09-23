@@ -102,6 +102,11 @@ pub async fn resolve_config_with_resolverconfig(
     Ok(proxy_configs)
 }
 
+pub async fn resolve_default_config() -> Result<Vec<config::ProxyConfig>, ResolutionError> {
+    resolve_configs(&default_resolvers(), "frakta.eu").await
+
+}
+
 fn client_config_tls12() -> ClientConfig {
     use rustls::RootCertStore;
     let mut root_store = RootCertStore::empty();
