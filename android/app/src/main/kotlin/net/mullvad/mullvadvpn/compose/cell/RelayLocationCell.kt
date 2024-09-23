@@ -140,19 +140,26 @@ fun RelayItemCell(
                         isSelected -> MaterialTheme.colorScheme.selected
                         else -> depth.toBackgroundColor()
                     }
-                )
-                .combinedClickable(
-                    enabled = item.active,
-                    onClick = onClick,
-                    onLongClick = onLongClick,
-                )
-                .padding(start = startPadding),
+                ),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        if (leadingContent != null) {
-            leadingContent()
+        // Duplicate row is needed for selection of the item on TV.
+        Row(
+            modifier =
+                Modifier.combinedClickable(
+                        enabled = item.active,
+                        onClick = onClick,
+                        onLongClick = onLongClick,
+                    )
+                    .padding(start = startPadding)
+                    .weight(1f),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            if (leadingContent != null) {
+                leadingContent()
+            }
+            Name(relay = item)
         }
-        Name(modifier = Modifier.weight(1f), relay = item)
 
         if (item.hasChildren) {
             ExpandButton(
