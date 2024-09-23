@@ -4,10 +4,12 @@ use crate::config;
 use core::fmt;
 use hickory_resolver::{config::*, error::ResolveError, TokioAsyncResolver};
 use rustls::ClientConfig;
-use std::{net::IpAddr, sync::Arc};
+use std::{net::IpAddr, sync::Arc, time::Duration};
+use tokio::time::error::Elapsed;
 
 /// The port to connect to the DoH resolvers over.
 const RESOLVER_PORT: u16 = 443;
+const DEFAULT_TIMEOUT: Duration = std::time::Duration::from_secs(10);
 
 pub struct Nameserver {
     pub name: String,
@@ -15,17 +17,26 @@ pub struct Nameserver {
 }
 
 #[derive(Debug)]
-pub struct ResolutionError(ResolveError);
+pub enum Error {
+    ResolutionError(ResolveError),
+    Timeout(Elapsed),
+}
 
-impl fmt::Display for ResolutionError {
+impl fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        self.0.fmt(f)
+        match self {
+            Error::ResolutionError(err) => err.fmt(f),
+            Error::Timeout(err) => err.fmt(f),
+        }
     }
 }
 
-impl std::error::Error for ResolutionError {
+impl std::error::Error for Error {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
-        self.0.source()
+        match self {
+            Self::ResolutionError(ref err) => Some(err),
+            Self::Timeout(ref err) => Some(err),
+        }
     }
 }
 
@@ -33,19 +44,19 @@ impl std::error::Error for ResolutionError {
 pub fn default_resolvers() -> Vec<Nameserver> {
     vec![
         Nameserver {
-            name: "dns.quad9.net".to_owned(),
-            addr: vec![
-                "9.9.9.9".parse().unwrap(),
-                "149.112.112.112".parse().unwrap(),
-            ],
-        },
-        Nameserver {
             name: "one.one.one.one".to_owned(),
             addr: vec!["1.1.1.1".parse().unwrap(), "1.0.0.1".parse().unwrap()],
         },
         Nameserver {
             name: "dns.google".to_owned(),
             addr: vec!["8.8.8.8".parse().unwrap(), "8.8.4.4".parse().unwrap()],
+        },
+        Nameserver {
+            name: "dns.quad9.net".to_owned(),
+            addr: vec![
+                "9.9.9.9".parse().unwrap(),
+                "149.112.112.112".parse().unwrap(),
+            ],
         },
     ]
 }
@@ -55,8 +66,8 @@ pub fn default_resolvers() -> Vec<Nameserver> {
 pub async fn resolve_configs(
     resolvers: &[Nameserver],
     domain: &str,
-) -> Result<Vec<config::ProxyConfig>, ResolutionError> {
-    let mut resolver_config = ResolverConfig::new();
+) -> Result<Vec<config::ProxyConfig>, Error> {
+    let mut nameservers = ResolverConfig::new();
     for resolver in resolvers.iter() {
         let ns_config_group = NameServerConfigGroup::from_ips_https(
             &resolver.addr,
@@ -66,25 +77,28 @@ pub async fn resolve_configs(
         )
         .into_inner();
         for ns_config in ns_config_group {
-            resolver_config.add_name_server(ns_config);
+            nameservers.add_name_server(ns_config);
         }
     }
 
-    resolver_config.set_tls_client_config(Arc::new(client_config_tls12()));
+    nameservers.set_tls_client_config(Arc::new(client_config_tls12()));
+    let mut resolver_config: ResolverOpts = Default::default();
 
-    resolve_config_with_resolverconfig(resolver_config, Default::default(), domain).await
+    resolver_config.timeout = Duration::from_secs(5);
+    resolve_config_with_resolverconfig(nameservers, resolver_config, domain, DEFAULT_TIMEOUT).await
 }
 
 pub async fn resolve_config_with_resolverconfig(
     resolver_config: ResolverConfig,
     options: ResolverOpts,
     domain: &str,
-) -> Result<Vec<config::ProxyConfig>, ResolutionError> {
+    timeout: Duration,
+) -> Result<Vec<config::ProxyConfig>, Error> {
     let resolver = TokioAsyncResolver::tokio(resolver_config, options);
-    let lookup = resolver
-        .ipv6_lookup(domain)
+    let lookup = tokio::time::timeout(timeout, resolver.ipv6_lookup(domain))
         .await
-        .map_err(ResolutionError)?;
+        .map_err(Error::Timeout)?
+        .map_err(Error::ResolutionError)?;
 
     let addrs = lookup.into_iter().map(|aaaa_record| aaaa_record.0);
 
@@ -100,11 +114,6 @@ pub async fn resolve_config_with_resolverconfig(
     }
 
     Ok(proxy_configs)
-}
-
-pub async fn resolve_default_config() -> Result<Vec<config::ProxyConfig>, ResolutionError> {
-    resolve_configs(&default_resolvers(), "frakta.eu").await
-
 }
 
 fn client_config_tls12() -> ClientConfig {
