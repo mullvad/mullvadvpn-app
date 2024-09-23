@@ -95,10 +95,6 @@ export default function WireguardSettings() {
                 </Cell.Group>
 
                 <Cell.Group>
-                  <DaitaButton />
-                </Cell.Group>
-
-                <Cell.Group>
                   <QuantumResistantSetting />
                 </Cell.Group>
 
@@ -425,19 +421,6 @@ function MtuSetting() {
         </AriaDescription>
       </Cell.CellFooter>
     </AriaInputGroup>
-  );
-}
-
-function DaitaButton() {
-  const history = useHistory();
-  const navigate = useCallback(() => history.push(RoutePath.daitaSettings), [history]);
-  const daita = useSelector((state) => state.settings.wireguard.daita?.enabled ?? false);
-
-  return (
-    <Cell.CellNavigationButton onClick={navigate}>
-      <Cell.Label>{strings.daita}</Cell.Label>
-      <Cell.SubText>{daita ? messages.gettext('On') : messages.gettext('Off')}</Cell.SubText>
-    </Cell.CellNavigationButton>
   );
 }
 
