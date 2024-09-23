@@ -21,15 +21,19 @@ Line wrap the file at 100 chars.                                              Th
 * **Fixed**: for any bug fixes.
 * **Security**: in case of vulnerabilities.
 
-## [Unreleased]
+## [2024.7 - 2024-09-16]
 ### Added
 - Add DAITA (Defence against AI-guided Traffic Analysis) setting
+
+## [2024.6 - 2024.09-02]
+### Fixed
+- Fixed multihop in networks that use DNS64 and NAT64.
 
 ## [2024.5 - 2024-08-19]
 ### Added
 - Add multihop, a feature that routes traffic through two
   of our relays before it reaches the internet.
- 
+
 ## [2024.4 - 2024-06-25]
 ### Added
 - Add Post-Quantum secure tunnels.
