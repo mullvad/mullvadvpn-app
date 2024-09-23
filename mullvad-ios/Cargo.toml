@@ -10,7 +10,7 @@ rust-version.workspace = true
 [lints]
 workspace = true
 
-[target.'cfg(target_os = "ios")'.dependencies]
+[target.'cfg(any(target_os = "ios", target_os = "macos"))'.dependencies]
 libc = "0.2"
 log = { workspace = true }
 tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }

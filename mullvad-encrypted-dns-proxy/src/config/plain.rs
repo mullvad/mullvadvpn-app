@@ -28,6 +28,7 @@ pub fn parse_plain(data: [u8; 12]) -> Result<super::ProxyConfig, super::Error> {
     Ok(super::ProxyConfig {
         addr,
         obfuscation: None,
+        r#type: super::ProxyType::Plain,
     })
 }
 
@@ -35,7 +36,7 @@ pub fn parse_plain(data: [u8; 12]) -> Result<super::ProxyConfig, super::Error> {
 mod tests {
     use std::net::{Ipv6Addr, SocketAddrV4};
 
-    use crate::config::{Error, ProxyConfig};
+    use crate::config::{Error, ProxyConfig, ProxyType};
 
     #[test]
     fn parsing() {
@@ -49,6 +50,7 @@ mod tests {
                 expected: Ok(ProxyConfig {
                     addr: "127.0.0.1:1337".parse::<SocketAddrV4>().unwrap(),
                     obfuscation: None,
+                    r#type: ProxyType::Plain,
                 }),
             },
             Test {
@@ -56,6 +58,7 @@ mod tests {
                 expected: Ok(ProxyConfig {
                     addr: "192.168.1.1:443".parse::<SocketAddrV4>().unwrap(),
                     obfuscation: None,
+                    r#type: ProxyType::Plain,
                 }),
             },
             Test {
@@ -63,6 +66,7 @@ mod tests {
                 expected: Ok(ProxyConfig {
                     addr: "192.168.1.1:443".parse::<SocketAddrV4>().unwrap(),
                     obfuscation: None,
+                    r#type: ProxyType::Plain,
                 }),
             },
             Test {

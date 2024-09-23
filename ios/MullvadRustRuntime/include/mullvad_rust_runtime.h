@@ -5,6 +5,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+typedef struct HashSet_ProxyConfig HashSet_ProxyConfig;
+
 typedef struct EphemeralPeerCancelToken {
   void *context;
 } EphemeralPeerCancelToken;
@@ -13,6 +15,12 @@ typedef struct ProxyHandle {
   void *context;
   uint16_t port;
 } ProxyHandle;
+
+typedef struct EncryptedDnsProxyState {
+  struct HashSet_ProxyConfig configurations;
+  bool has_tried_xor;
+  struct HashSet_ProxyConfig tried_configurations;
+} EncryptedDnsProxyState;
 
 extern const uint16_t CONFIG_SERVICE_PORT;
 
@@ -133,6 +141,16 @@ int32_t start_shadowsocks_proxy(const uint8_t *forward_address,
  * `start_shadowsocks_proxy`.
  */
 int32_t stop_shadowsocks_proxy(struct ProxyHandle *proxy_config);
+
+void fetch_encrypted_dns_configs(void);
+
+void free_encrypted_dns_configs(void);
+
+int32_t init_proxy_configurations(struct EncryptedDnsProxyState *proxy_state);
+
+int32_t start_encrypted_dns_proxy(DnsConfig *dns_config, struct ProxyHandle *proxy_config);
+
+int32_t stop_encrypted_proxy(struct ProxyHandle *proxy_config);
 
 int32_t start_tunnel_obfuscator_proxy(const uint8_t *peer_address,
                                       uintptr_t peer_address_len,

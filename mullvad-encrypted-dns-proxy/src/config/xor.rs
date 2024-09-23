@@ -1,3 +1,4 @@
+use super::ProxyType;
 use core::fmt;
 use std::net::{Ipv4Addr, SocketAddrV4};
 
@@ -32,6 +33,7 @@ pub fn parse_xor(data: [u8; 12]) -> Result<super::ProxyConfig, super::Error> {
     Ok(super::ProxyConfig {
         addr,
         obfuscation: Some(super::ObfuscationConfig::XorV2(key)),
+        r#type: ProxyType::XorV2,
     })
 }
 
@@ -110,7 +112,7 @@ mod tests {
     use std::net::{Ipv6Addr, SocketAddrV4};
 
     use crate::config::xor::{XorKey, XorObfuscator};
-    use crate::config::{Error, ObfuscationConfig, Obfuscator, ProxyConfig};
+    use crate::config::{Error, ObfuscationConfig, Obfuscator, ProxyConfig, ProxyType};
 
     #[test]
     fn xor_parsing() {
@@ -128,6 +130,7 @@ mod tests {
                     obfuscation: Some(ObfuscationConfig::XorV2(
                         XorKey::try_from([0x01, 0x02, 0x03, 0x04, 0x05, 0x06]).unwrap(),
                     )),
+                    r#type: ProxyType::XorV2,
                 }),
             },
             Test {
@@ -139,6 +142,7 @@ mod tests {
                     obfuscation: Some(ObfuscationConfig::XorV2(
                         XorKey::try_from([0x01, 0, 0, 0, 0, 0]).unwrap(),
                     )),
+                    r#type: ProxyType::XorV2,
                 }),
             },
             Test {
@@ -150,6 +154,7 @@ mod tests {
                     obfuscation: Some(ObfuscationConfig::XorV2(
                         XorKey::try_from([0xff, 0x04, 0x02, 0x04, 0, 0]).unwrap(),
                     )),
+                    r#type: ProxyType::XorV2,
                 }),
             },
         ];
