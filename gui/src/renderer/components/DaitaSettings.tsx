@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import React from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
@@ -17,11 +18,11 @@ import { ModalAlert, ModalAlertType, ModalMessage } from './Modal';
 import {
   NavigationBar,
   NavigationContainer,
-  NavigationInfoButton,
   NavigationItems,
   NavigationScrollbars,
   TitleBarItem,
 } from './NavigationBar';
+import PageSlider from './PageSlider';
 import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
 import { SmallButton, SmallButtonColor } from './SmallButton';
 
@@ -30,6 +31,18 @@ const StyledContent = styled.div({
   flexDirection: 'column',
   flex: 1,
   marginBottom: '2px',
+});
+
+const StyledHeaderSubTitle = styled(HeaderSubTitle)({
+  display: 'inline-block',
+
+  '&&:not(:last-child)': {
+    paddingBottom: '18px',
+  },
+});
+
+const EnableFooter = styled(Cell.CellFooter)({
+  paddingBottom: '16px',
 });
 
 export default function DaitaSettings() {
@@ -43,30 +56,39 @@ export default function DaitaSettings() {
             <NavigationBar>
               <NavigationItems>
                 <TitleBarItem>{strings.daita}</TitleBarItem>
-
-                <NavigationInfoButton>
-                  <ModalMessage>
-                    {sprintf(
-                      messages.pgettext(
-                        'wireguard-settings-view',
-                        '%(daita)s (%(daitaFull)s) hides patterns in your encrypted VPN traffic. If anyone is monitoring your connection, this makes it significantly harder for them to identify what websites you are visiting. It does this by carefully adding network noise and making all network packets the same size.',
-                      ),
-                      { daita: strings.daita, daitaFull: strings.daitaFull },
-                    )}
-                  </ModalMessage>
-                </NavigationInfoButton>
               </NavigationItems>
             </NavigationBar>
 
             <NavigationScrollbars>
               <SettingsHeader>
                 <HeaderTitle>{strings.daita}</HeaderTitle>
-                <HeaderSubTitle>
-                  {messages.pgettext(
-                    'wireguard-settings-view',
-                    'Hides patterns in your encrypted VPN traffic. Since this increases your total network traffic, be cautious if you have a limited data plan. It can also negatively impact your network speed and battery usage.',
-                  )}
-                </HeaderSubTitle>
+                <PageSlider
+                  content={[
+                    <StyledHeaderSubTitle key="without-daita">
+                      {sprintf(
+                        messages.pgettext(
+                          'wireguard-settings-view',
+                          '%(daita)s (%(daitaFull)s) hides patterns in your encrypted VPN traffic. If anyone is monitoring your connection, this makes it significantly harder for them to identify what websites you are visiting.',
+                        ),
+                        { daita: strings.daita, daitaFull: strings.daitaFull },
+                      )}
+                    </StyledHeaderSubTitle>,
+                    <React.Fragment key="with-daita">
+                      <StyledHeaderSubTitle>
+                        {messages.pgettext(
+                          'wireguard-settings-view',
+                          'It does this by carefully adding network noise and making all network packets the same size.',
+                        )}
+                      </StyledHeaderSubTitle>
+                      <StyledHeaderSubTitle>
+                        {messages.pgettext(
+                          'wireguard-settings-view',
+                          'Can only be used with WireGuard. Since this increases your total network traffic, be cautious if you have a limited data plan. It can also negatively impact your network speed.',
+                        )}
+                      </StyledHeaderSubTitle>
+                    </React.Fragment>,
+                  ]}
+                />
               </SettingsHeader>
 
               <StyledContent>
@@ -84,12 +106,16 @@ export default function DaitaSettings() {
 
 function DaitaToggle() {
   const { setEnableDaita, setDaitaSmartRouting } = useAppContext();
+  const relaySettings = useSelector((state) => state.settings.relaySettings);
   const daita = useSelector((state) => state.settings.wireguard.daita?.enabled ?? false);
   const smartRouting = useSelector(
     (state) => state.settings.wireguard.daita?.smartRouting ?? false,
   );
 
   const [confirmationDialogVisible, showConfirmationDialog, hideConfirmationDialog] = useBoolean();
+
+  const unavailable =
+    'normal' in relaySettings ? relaySettings.normal.tunnelProtocol === 'openvpn' : true;
 
   const setDaita = useCallback((value: boolean) => {
     void setEnableDaita(value);
@@ -111,24 +137,24 @@ function DaitaToggle() {
   return (
     <>
       <AriaInputGroup>
-        <Cell.Container>
+        <Cell.Container disabled={unavailable}>
           <AriaLabel>
             <Cell.InputLabel>{messages.gettext('Enable')}</Cell.InputLabel>
           </AriaLabel>
           <AriaInput>
-            <Cell.Switch isOn={daita} onChange={setDaita} />
+            <Cell.Switch isOn={daita && !unavailable} onChange={setDaita} />
           </AriaInput>
         </Cell.Container>
         {unavailable ? (
-          <Cell.CellFooter>
+          <EnableFooter>
             <AriaDescription>
               <Cell.CellFooterText>{featureUnavailableMessage()}</Cell.CellFooterText>
             </AriaDescription>
-          </Cell.CellFooter>
+          </EnableFooter>
         ) : null}
       </AriaInputGroup>
       <AriaInputGroup>
-        <Cell.Container disabled={!daita}>
+        <Cell.Container disabled={!daita || unavailable}>
           <AriaLabel>
             <Cell.InputLabel>{messages.gettext('Smart routing')}</Cell.InputLabel>
           </AriaLabel>
@@ -136,7 +162,7 @@ function DaitaToggle() {
             <SmartRoutingModalMessage />
           </InfoButton>
           <AriaInput>
-            <Cell.Switch isOn={smartRouting} onChange={setSmartRouting} />
+            <Cell.Switch isOn={smartRouting && !unavailable} onChange={setSmartRouting} />
           </AriaInput>
         </Cell.Container>
         <Cell.CellFooter>
