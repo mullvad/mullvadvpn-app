@@ -11,7 +11,7 @@ use futures::{
     StreamExt,
 };
 use mullvad_api::{
-    availability::ApiAvailabilityHandle,
+    availability::ApiAvailability,
     proxy::{ApiConnectionMode, ConnectionModeProvider, ProxyConfig},
     AddressCache,
 };
@@ -578,9 +578,9 @@ pub fn allowed_clients(connection_mode: &ApiConnectionMode) -> AllowedClients {
     }
 }
 
-/// Forwards the received values from `offline_state_rx` to the [`ApiAvailabilityHandle`].
+/// Forwards the received values from `offline_state_rx` to the [`ApiAvailability`].
 pub(crate) fn forward_offline_state(
-    api_availability: ApiAvailabilityHandle,
+    api_availability: ApiAvailability,
     mut offline_state_rx: mpsc::UnboundedReceiver<Connectivity>,
 ) {
     tokio::spawn(async move {
