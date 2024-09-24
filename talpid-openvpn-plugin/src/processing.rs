@@ -1,11 +1,11 @@
 use super::{Arguments, Error};
-use parity_tokio_ipc::Endpoint as IpcEndpoint;
 use std::collections::HashMap;
-use tower::service_fn;
 
-use tonic::transport::{Endpoint, Uri};
-
+use futures::TryFutureExt;
+use parity_tokio_ipc::Endpoint as IpcEndpoint;
 use tokio::runtime::{self, Runtime};
+use tonic::transport::{Endpoint, Uri};
+use tower::service_fn;
 
 #[allow(clippy::derive_partial_eq_without_eq)]
 mod proto {
@@ -42,11 +42,7 @@ impl EventProcessor {
         // The URI will be ignored
         let channel = Endpoint::from_static("lttp://[::]:50051")
             .connect_with_connector(service_fn(move |_: Uri| {
-                let ipc_path = ipc_path.clone();
-                async {
-                    let stream = IpcEndpoint::connect(ipc_path).await?;
-                    Ok::<_, std::io::Error>(hyper_util::rt::tokio::TokioIo::new(stream))
-                }
+                IpcEndpoint::connect(ipc_path.clone()).map_ok(hyper_util::rt::tokio::TokioIo::new)
             }))
             .await?;
 

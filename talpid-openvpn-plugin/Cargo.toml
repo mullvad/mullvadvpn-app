@@ -27,6 +27,7 @@ tonic = { workspace = true }
 tower = { workspace = true }
 prost = { workspace = true }
 hyper-util = { workspace = true }
+futures = { workspace = true }
 
 [build-dependencies]
 tonic-build = { workspace = true, default-features = false, features = ["transport", "prost"] }

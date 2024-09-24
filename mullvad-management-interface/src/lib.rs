@@ -117,16 +117,14 @@ pub enum Error {
 #[cfg(not(target_os = "android"))]
 #[deprecated(note = "Prefer MullvadProxyClient")]
 pub async fn new_rpc_client() -> Result<ManagementServiceClient, Error> {
+    use futures::TryFutureExt;
+
     let ipc_path = mullvad_paths::get_rpc_socket_path();
 
     // The URI will be ignored
     let channel = Endpoint::from_static("lttp://[::]:50051")
         .connect_with_connector(service_fn(move |_: Uri| {
-            let ipc_path = ipc_path.clone();
-            async {
-                let stream = IpcEndpoint::connect(ipc_path).await?;
-                Ok::<_, std::io::Error>(hyper_util::rt::tokio::TokioIo::new(stream))
-            }
+            IpcEndpoint::connect(ipc_path.clone()).map_ok(hyper_util::rt::tokio::TokioIo::new)
         }))
         .await
         .map_err(Error::GrpcTransportError)?;
