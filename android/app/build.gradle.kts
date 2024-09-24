@@ -227,7 +227,7 @@ android {
 
         val createDistBundle =
             tasks.register<Copy>("create${capitalizedVariantName}DistBundle") {
-                from("${layout.buildDirectory}/outputs/bundle/$variantName")
+                from("${layout.buildDirectory.get()}/outputs/bundle/$variantName")
                 into("${rootDir.parent}/dist")
                 include { it.name.endsWith(".aab") }
                 rename { "$artifactName.aab" }
