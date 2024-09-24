@@ -94,7 +94,11 @@ export default function Support() {
                     <AppVersionButton />
                   </Cell.Group>
 
-                  <Cell.Group>{isMacOs14p6OrNewer ? <AppleServicesBypass /> : null}</Cell.Group>
+                  {isMacOs14p6OrNewer ? (
+                    <Cell.Group>
+                      <AppleServicesBypass />
+                    </Cell.Group>
+                  ) : null}
 
                   {window.env.development && (
                     <Cell.Group>
