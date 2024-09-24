@@ -28,6 +28,8 @@ type WintunCreateAdapterFn = unsafe extern "stdcall" fn(
     requested_guid: *const GUID,
 ) -> RawHandle;
 
+type WintunOpenAdapterFn = unsafe extern "stdcall" fn(name: *const u16) -> RawHandle;
+
 type WintunCloseAdapterFn = unsafe extern "stdcall" fn(adapter: RawHandle);
 
 type WintunGetAdapterLuidFn =
@@ -48,6 +50,7 @@ enum WintunLoggerLevel {
 pub struct WintunDll {
     handle: HMODULE,
     func_create: WintunCreateAdapterFn,
+    func_open: WintunOpenAdapterFn,
     func_close: WintunCloseAdapterFn,
     func_get_adapter_luid: WintunGetAdapterLuidFn,
     func_set_logger: WintunSetLoggerFn,
@@ -190,28 +193,19 @@ impl WintunDll {
         Ok(WintunDll {
             handle,
             func_create: unsafe {
-                *((&get_proc_fn(
-                    handle,
-                    CStr::from_bytes_with_nul(b"WintunCreateAdapter\0").unwrap(),
-                )?) as *const _ as *const _)
+                *((&get_proc_fn(handle, c"WintunCreateAdapter")?) as *const _ as *const _)
+            },
+            func_open: unsafe {
+                *((&get_proc_fn(handle, c"WintunOpenAdapter")?) as *const _ as *const _)
             },
             func_close: unsafe {
-                *((&get_proc_fn(
-                    handle,
-                    CStr::from_bytes_with_nul(b"WintunCloseAdapter\0").unwrap(),
-                )?) as *const _ as *const _)
+                *((&get_proc_fn(handle, c"WintunCloseAdapter")?) as *const _ as *const _)
             },
             func_get_adapter_luid: unsafe {
-                *((&get_proc_fn(
-                    handle,
-                    CStr::from_bytes_with_nul(b"WintunGetAdapterLUID\0").unwrap(),
-                )?) as *const _ as *const _)
+                *((&get_proc_fn(handle, c"WintunGetAdapterLUID")?) as *const _ as *const _)
             },
             func_set_logger: unsafe {
-                *((&get_proc_fn(
-                    handle,
-                    CStr::from_bytes_with_nul(b"WintunSetLogger\0").unwrap(),
-                )?) as *const _ as *const _)
+                *((&get_proc_fn(handle, c"WintunSetLogger")?) as *const _ as *const _)
             },
         })
     }
@@ -236,7 +230,23 @@ impl WintunDll {
         };
         let handle = unsafe { (self.func_create)(name.as_ptr(), tunnel_type.as_ptr(), guid_ptr) };
         if handle.is_null() {
-            return Err(io::Error::last_os_error());
+            log::error!(
+                "Failed to create Wintun adapter: {}",
+                io::Error::last_os_error()
+            );
+            // This is an attempt to fix the elusive "Failed to create Wintun adapter" error.
+            // we cannot reproduce the issue on our end, but if it is caused by an existing adapter
+            // that hasn't been cleaned up properly, it may help to open the adapter and return it.
+            log::info!(
+                "Attempting to open existing adapter with name: '{}'",
+                name.to_string_lossy()
+            );
+            let handle = unsafe { (self.func_open)(name.as_ptr()) };
+            if handle.is_null() {
+                return Err(io::Error::last_os_error());
+            } else {
+                return Ok(handle);
+            }
         }
         Ok(handle)
     }
