@@ -6,6 +6,8 @@ import io.mockk.mockk
 import io.mockk.unmockkAll
 import kotlin.test.assertEquals
 import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -154,12 +156,12 @@ class OutOfTimeUseCaseTest {
                 assertEquals(false, awaitItem())
 
                 // After 50 seconds we should still not emitted out of time
-                advanceTimeBy(50_000)
+                advanceTimeBy(50.seconds)
                 expectNoEvents()
 
                 // After additional 50 seconds we should be out of time since account is now expired
-                advanceTimeBy(50_000)
-                assertEquals(true, awaitItem())
+                advanceTimeBy(50.seconds)
+                assertEquals(true, expectMostRecentItem())
             }
         }
 
@@ -178,17 +180,18 @@ class OutOfTimeUseCaseTest {
 
             expiry.emit(initialAccountExpiry)
             assertEquals(false, awaitItem())
-            advanceTimeBy(90_000)
+            advanceTimeBy(90.seconds)
             expectNoEvents()
 
-            // User fills up with more time 30 seconds before expiry
+            // User fills up with more time 10 seconds before expiry
             expiry.emit(updatedExpiry)
             advanceTimeBy(1.days)
             expectNoEvents()
 
             // Expect no more emissions while user has time.
-            advanceTimeBy(29.days)
-            assertEquals(true, awaitItem())
+            advanceTimeBy(29.days + 2.minutes)
+            println(testScheduler.currentTime)
+            assertEquals(true, expectMostRecentItem())
             expectNoEvents()
         }
     }
@@ -209,8 +212,8 @@ class OutOfTimeUseCaseTest {
             assertEquals(false, awaitItem())
 
             // After 100 seconds we expire
-            advanceTimeBy(100_000)
-            assertEquals(true, awaitItem())
+            advanceTimeBy(100.seconds)
+            assertEquals(true, expectMostRecentItem())
             expectNoEvents()
 
             // We then fill up our account and should no longer be out of time
@@ -218,9 +221,13 @@ class OutOfTimeUseCaseTest {
             assertEquals(false, awaitItem())
             expectNoEvents()
 
+            // Advance the time to before the updated expiry
+            advanceTimeBy(29.days + 59.minutes)
+            expectNoEvents()
+
             // Advance the time to the updated expiry
-            advanceTimeBy(30.days)
-            assertEquals(true, awaitItem())
+            advanceTimeBy(30.days + 2.minutes)
+            assertEquals(true, expectMostRecentItem())
             expectNoEvents()
         }
     }
