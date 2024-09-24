@@ -267,7 +267,6 @@ msgstr ""
 
 #. Warning shown in dialog to users when they enable setting that increases
 #. network latency (decreases performance).
-#. Warning text in a dialog that is displayed after a setting is toggled.
 msgid "This setting increases latency. Use only if needed."
 msgstr ""
 
@@ -1540,6 +1539,10 @@ msgid "Enabling this setting allows traffic to specific Apple-owned networks to 
 msgstr ""
 
 msgctxt "settings-view"
+msgid "Multihop"
+msgstr ""
+
+msgctxt "settings-view"
 msgid "Some Apple services have an issue where the network settings set by Mullvad get ignored, this in turn blocks certain apps."
 msgstr ""
 
@@ -1936,11 +1939,6 @@ msgctxt "vpn-settings-view"
 msgid "Enable IPv6"
 msgstr ""
 
-#. The label next to the multihop settings toggle.
-msgctxt "vpn-settings-view"
-msgid "Enable multihop"
-msgstr ""
-
 msgctxt "vpn-settings-view"
 msgid "Enable to add at least one DNS server."
 msgstr ""
@@ -1954,19 +1952,8 @@ msgctxt "vpn-settings-view"
 msgid "Gambling"
 msgstr ""
 
-#. Description for multihop settings toggle.
-#. Available placeholders:
-#. %(wireguard)s - Will be replaced with the string "WireGuard"
-msgctxt "vpn-settings-view"
-msgid "Increases anonymity by routing your traffic into one %(wireguard)s server and out another, making it harder to trace."
-msgstr ""
-
 msgctxt "vpn-settings-view"
 msgid "IPv4 is always enabled and the majority of websites and applications use this protocol. We do not recommend enabling IPv6 unless you know you need it."
-msgstr ""
-
-msgctxt "vpn-settings-view"
-msgid "Is automatically enabled with %(daita)s, makes it possible to use %(daita)s with any server by using multihop. This might increase latency."
 msgstr ""
 
 msgctxt "vpn-settings-view"
@@ -1987,6 +1974,10 @@ msgstr ""
 
 msgctxt "vpn-settings-view"
 msgid "Lockdown mode"
+msgstr ""
+
+msgctxt "vpn-settings-view"
+msgid "Makes it possible to use %(daita)s with any server and is automatically enabled."
 msgstr ""
 
 #. Label for settings that enables malware blocking.
@@ -2090,7 +2081,7 @@ msgid "UDP-over-TCP"
 msgstr ""
 
 msgctxt "wireguard-settings-view"
-msgid "%(daita)s (%(daitaFull)s) hides patterns in your encrypted VPN traffic. If anyone is monitoring your connection, this makes it significantly harder for them to identify what websites you are visiting. It does this by carefully adding network noise and making all network packets the same size."
+msgid "%(daita)s (%(daitaFull)s) hides patterns in your encrypted VPN traffic."
 msgstr ""
 
 #. Available placeholders:
@@ -2100,11 +2091,19 @@ msgid "%(wireguard)s settings"
 msgstr ""
 
 msgctxt "wireguard-settings-view"
-msgid "Hides patterns in your encrypted VPN traffic. Since this increases your total network traffic, be cautious if you have a limited data plan. It can also negatively impact your network speed and battery usage."
+msgid "Can only be used with WireGuard. Since this increases your total network traffic, be cautious if you have a limited data plan. It can also negatively impact your network speed."
+msgstr ""
+
+msgctxt "wireguard-settings-view"
+msgid "If anyone is monitoring your connection, this makes it significantly harder for them to identify what websites you are visiting."
 msgstr ""
 
 msgctxt "wireguard-settings-view"
 msgid "IP version"
+msgstr ""
+
+msgctxt "wireguard-settings-view"
+msgid "It does this by carefully adding network noise and making all network packets the same size."
 msgstr ""
 
 msgctxt "wireguard-settings-view"
@@ -2113,6 +2112,14 @@ msgstr ""
 
 msgctxt "wireguard-settings-view"
 msgid "MTU"
+msgstr ""
+
+msgctxt "wireguard-settings-view"
+msgid "Multihop"
+msgstr ""
+
+msgctxt "wireguard-settings-view"
+msgid "Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online."
 msgstr ""
 
 #. Warning text in a dialog that is displayed after a setting is toggled.
@@ -2164,6 +2171,10 @@ msgid "Shadowsocks"
 msgstr ""
 
 msgctxt "wireguard-settings-view"
+msgid "Switch to “%(wireguard)s” or “%(automatic)s” in Settings > %(tunnelProtocol)s to make %(setting)s available."
+msgstr ""
+
+msgctxt "wireguard-settings-view"
 msgid "The automatic setting will randomly choose from the valid port ranges shown below."
 msgstr ""
 
@@ -2201,6 +2212,9 @@ msgstr ""
 
 msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
+msgstr ""
+
+msgid "%s (%s) hides patterns in your encrypted VPN traffic. If anyone is monitoring your connection, this makes it significantly harder for them to identify what websites you are visiting. It does this by carefully adding network noise and making all network packets the same size."
 msgstr ""
 
 msgid "%s (added)"
