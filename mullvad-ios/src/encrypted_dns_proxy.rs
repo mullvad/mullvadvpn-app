@@ -13,7 +13,6 @@ pub struct EncryptedDnsProxyState {
     /// Note that we rely on the randomness of the ordering of the items in the hashset to pick a
     /// random configurations every time.
     configurations: HashSet<ProxyConfig>,
-    has_tried_xor: bool,
     tried_configurations: HashSet<ProxyConfig>,
 }
 
@@ -94,17 +93,15 @@ impl EncryptedDnsProxyState {
     }
 
     fn next_configuration(&mut self) -> Option<ProxyConfig> {
-        if !self.has_tried_xor {
-            self.has_tried_xor = true;
-            if let Some(xor_config) = self
-                .configurations
-                .iter()
-                // prefer obfuscated proxy configurations.
-                .find(|config| config.obfuscation.is_some())
-            {
-                self.tried_configurations.insert(xor_config.clone());
-                return Some(xor_config.clone());
-            }
+        if let Some(xor_config) = self
+            .configurations
+            .diference(&self.tried_configurations)
+            // prefer obfuscated proxy configurations.
+            .find(|config| config.obfuscation.is_some())
+            .cloned()
+        {
+            self.tried_configurations.insert(xor_config.clone());
+            return Some(xor_config);
         }
 
         let config = self
