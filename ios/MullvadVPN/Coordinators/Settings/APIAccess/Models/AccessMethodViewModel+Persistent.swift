@@ -216,8 +216,7 @@ private enum CommonValidators {
         return .success(portNumber)
     }
 
-    /// Parse IP address from string by first running the input via regular expression before parsing it using Apple's facilities which are known to accept all kind of
-    /// malformed input.
+    /// Parse IP address from string by using Apple's facilities.
     ///
     /// - Parameters:
     ///   - value: a string input.
@@ -227,12 +226,7 @@ private enum CommonValidators {
         from value: String,
         context: AccessMethodFieldValidationError.Context
     ) -> Result<AnyIPAddress, AccessMethodFieldValidationError> {
-        let range = NSRange(value.startIndex ..< value.endIndex, in: value)
-
-        let regexMatch = NSRegularExpression.ipv4RegularExpression.firstMatch(in: value, range: range)
-            ?? NSRegularExpression.ipv6RegularExpression.firstMatch(in: value, range: range)
-
-        if regexMatch?.range == range, let address = AnyIPAddress(value) {
+        if let address = AnyIPAddress(value) {
             return .success(address)
         } else {
             return .failure(AccessMethodFieldValidationError(kind: .invalidIPAddress, field: .server, context: context))

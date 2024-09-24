@@ -24,6 +24,7 @@ Line wrap the file at 100 chars.                                              Th
 ## Unreleased
 ### Added
 - Add a new access method that uses the encrypted DNS proxy to reach our API.
+- Fix IPv6 parsing in API access
 
 ## [2024.7 - 2024-09-16]
 ### Added
