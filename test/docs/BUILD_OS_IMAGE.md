@@ -18,7 +18,7 @@ On the host, start by creating a disk image and installing Debian on it:
 ```
 wget -O debian.iso https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-11.5.0-amd64-netinst.iso
 qemu-img create -f qcow2 ./debian.qcow2 5G
-qemu-system-x86_64 -cpu host -accel kvm -m 4096 -smp 2 -cdrom debian.iso -drive file=./debian.qcow2
+qemu-system-x86_64 -cpu host -accel kvm -m 8192 -smp 8 -cdrom debian.iso -drive file=./debian.qcow2
 ```
 
 ## Installing Linux
