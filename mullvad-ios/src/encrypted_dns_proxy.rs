@@ -55,7 +55,6 @@ impl EncryptedDnsProxyState {
     }
 
     fn reset(&mut self) {
-        self.has_tried_xor = false;
         self.tried_configurations.clear();
     }
 
@@ -134,7 +133,6 @@ impl EncryptedDnsProxyState {
 #[no_mangle]
 pub unsafe extern "C" fn encrypted_dns_proxy_init() -> *mut EncryptedDnsProxyState {
     let state = Box::new(EncryptedDnsProxyState {
-        has_tried_xor: false,
         configurations: Default::default(),
         tried_configurations: Default::default(),
     });
