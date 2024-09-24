@@ -305,9 +305,8 @@ extension PacketTunnelProvider {
             default:
                 providerLogger
                     .error(
-                        "Entering blocked state because device check encountered a generic error: \(error.localizedDescription)"
+                        "Device check encountered a network error: \(error.localizedDescription)"
                     )
-                actor.setErrorState(reason: .unknown)
             }
 
         case let .success(keyRotationResult):
