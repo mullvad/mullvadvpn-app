@@ -39,6 +39,8 @@ Line wrap the file at 100 chars.                                              Th
 #### macOS
 - Disable split tunnel interface when disconnected. This prevents traffic from being sent through
   the daemon when the VPN is disconnected.
+- Don't hijack DNS when localhost is configured. This is more in line with other platforms.
+  Unexpected DNS traffic is still blocked when leaving the host.
 
 ### Fixed
 #### Linux
