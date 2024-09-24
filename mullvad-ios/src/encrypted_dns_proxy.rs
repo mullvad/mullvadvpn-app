@@ -179,6 +179,7 @@ pub unsafe extern "C" fn encrypted_dns_proxy_start(
 
     let mut encrypted_dns_proxy = unsafe { Box::from_raw(encrypted_dns_proxy) };
     let proxy_result = handle.block_on(encrypted_dns_proxy.start());
+    mem::forget(encrypted_dns_proxy);
 
     match proxy_result {
         Ok(handle) => unsafe { ptr::write(proxy_handle, handle) },
