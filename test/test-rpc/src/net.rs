@@ -1,19 +1,17 @@
+use crate::{AmIMullvad, Error};
+use bytes::Bytes;
 use futures::channel::oneshot;
-use hyper::{Client, Uri};
+use http_body_util::{BodyExt, Full};
+use hyper::Uri;
+use hyper_util::client::legacy::Client;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use std::{net::SocketAddr, sync::LazyLock, time::Duration};
-use tokio_rustls::rustls::ClientConfig;
-
-use crate::{AmIMullvad, Error};
+use tokio_rustls::rustls::{self, ClientConfig};
 
 const LE_ROOT_CERT: &[u8] = include_bytes!("../../../mullvad-api/le_root_cert.pem");
 
 static CLIENT_CONFIG: LazyLock<ClientConfig> = LazyLock::new(|| {
     ClientConfig::builder()
-        .with_safe_default_cipher_suites()
-        .with_safe_default_kx_groups()
-        .with_safe_default_protocol_versions()
-        .unwrap()
         .with_root_certificates(read_cert_store())
         .with_no_client_auth()
 });
@@ -86,7 +84,8 @@ pub async fn http_get<T: DeserializeOwned>(url: Uri) -> Result<T, Error> {
         .enable_http1()
         .build();
 
-    let client: Client<_, hyper::Body> = Client::builder().build(https);
+    let client: Client<_, Full<Bytes>> =
+        Client::builder(hyper_util::rt::TokioExecutor::new()).build(https);
     let body = client
         .get(url)
         .await
@@ -94,10 +93,14 @@ pub async fn http_get<T: DeserializeOwned>(url: Uri) -> Result<T, Error> {
         .into_body();
 
     // TODO: limit length
-    let bytes = hyper::body::to_bytes(body).await.map_err(|error| {
-        log::error!("Failed to convert body to bytes buffer: {}", error);
-        Error::DeserializeBody
-    })?;
+    let bytes = body
+        .collect()
+        .await
+        .map_err(|error| {
+            log::error!("Failed to collect response body: {}", error);
+            Error::DeserializeBody
+        })?
+        .to_bytes();
 
     serde_json::from_slice(&bytes).map_err(|error| {
         log::error!("Failed to deserialize response: {}", error);
@@ -114,12 +117,13 @@ pub async fn http_get_with_timeout<T: DeserializeOwned>(
         .map_err(|_| Error::HttpRequest("Request timed out".into()))?
 }
 
-fn read_cert_store() -> tokio_rustls::rustls::RootCertStore {
-    let mut cert_store = tokio_rustls::rustls::RootCertStore::empty();
+fn read_cert_store() -> rustls::RootCertStore {
+    let mut cert_store = rustls::RootCertStore::empty();
 
     let certs = rustls_pemfile::certs(&mut std::io::BufReader::new(LE_ROOT_CERT))
+        .collect::<Result<Vec<_>, _>>()
         .expect("Failed to parse pem file");
-    let (num_certs_added, num_failures) = cert_store.add_parsable_certificates(&certs);
+    let (num_certs_added, num_failures) = cert_store.add_parsable_certificates(certs);
     if num_failures > 0 || num_certs_added != 1 {
         panic!("Failed to add root cert");
     }
