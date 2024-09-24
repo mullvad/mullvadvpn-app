@@ -61,11 +61,6 @@ export interface ISetIsMacOs13OrNewer {
   isMacOs13OrNewer: boolean;
 }
 
-export interface ISetIsMacOs14p6OrNewer {
-  type: 'SET_IS_MACOS14_6_OR_NEWER';
-  isMacOs14p6OrNewer: boolean;
-}
-
 export type UserInterfaceAction =
   | IUpdateLocaleAction
   | IUpdateWindowArrowPositionAction
@@ -78,8 +73,7 @@ export type UserInterfaceAction =
   | ISetForceShowChanges
   | ISetIsPerformingPostUpgrade
   | ISetSelectLocationView
-  | ISetIsMacOs13OrNewer
-  | ISetIsMacOs14p6OrNewer;
+  | ISetIsMacOs13OrNewer;
 
 function updateLocale(locale: string): IUpdateLocaleAction {
   return {
@@ -166,13 +160,6 @@ function setIsMacOs13OrNewer(isMacOs13OrNewer: boolean): ISetIsMacOs13OrNewer {
   };
 }
 
-function setIsMacOs14p6OrNewer(isMacOs14p6OrNewer: boolean): ISetIsMacOs14p6OrNewer {
-  return {
-    type: 'SET_IS_MACOS14_6_OR_NEWER',
-    isMacOs14p6OrNewer,
-  };
-}
-
 export default {
   updateLocale,
   updateWindowArrowPosition,
@@ -186,5 +173,4 @@ export default {
   setIsPerformingPostUpgrade,
   setSelectLocationView,
   setIsMacOs13OrNewer,
-  setIsMacOs14p6OrNewer,
 };

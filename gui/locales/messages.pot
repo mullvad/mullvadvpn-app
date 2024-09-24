@@ -1528,27 +1528,11 @@ msgid "App version"
 msgstr ""
 
 msgctxt "settings-view"
-msgid "Apple services bypass"
-msgstr ""
-
-msgctxt "settings-view"
-msgid "Attention: this traffic will go outside of the VPN tunnel. Any application that tries to can bypass the VPN tunnel and send traffic to these Apple networks."
-msgstr ""
-
-msgctxt "settings-view"
-msgid "Enabling this setting allows traffic to specific Apple-owned networks to go outside of the VPN tunnel, allowing services like iMessage and FaceTime to work whilst using Mullvad."
-msgstr ""
-
-msgctxt "settings-view"
-msgid "Some Apple services have an issue where the network settings set by Mullvad get ignored, this in turn blocks certain apps."
+msgid "Multihop"
 msgstr ""
 
 msgctxt "settings-view"
 msgid "Support"
-msgstr ""
-
-msgctxt "settings-view"
-msgid "This a temporary fix and we are currently working on a long-term solution."
 msgstr ""
 
 msgctxt "settings-view"

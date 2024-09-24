@@ -546,10 +546,6 @@ export class DaemonRpc {
     await this.call<grpcTypes.DnsOptions, Empty>(this.client.setDnsOptions, dnsOptions);
   }
 
-  public async setAppleServicesBypass(enabled: boolean): Promise<void> {
-    await this.callBool<Empty>(this.client.setAppleServicesBypass, enabled);
-  }
-
   public async getVersionInfo(): Promise<IAppVersionInfo> {
     const response = await this.callEmpty<grpcTypes.AppVersionInfo>(this.client.getVersionInfo);
     return response.toObject();

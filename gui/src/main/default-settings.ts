@@ -81,7 +81,6 @@ export function getDefaultSettings(): ISettings {
     customLists: [],
     apiAccessMethods: getDefaultApiAccessMethods(),
     relayOverrides: [],
-    appleServicesBypass: false,
   };
 }
 
