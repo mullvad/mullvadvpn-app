@@ -38,7 +38,7 @@ impl std::error::Error for Error {}
 /// Type of a proxy configuration. Derived from the 2nd hextet of an IPv6 address in network byte
 /// order. E.g. an IPv6 address such as `7f7f:2323::`  would have a proxy type value of `0x2323`.
 #[derive(PartialEq, Debug, Eq, Hash, Clone)]
-pub enum ProxyType {
+enum ProxyType {
     /// Plain proxy type
     Plain,
     /// XorV1 - deprecated
@@ -75,8 +75,6 @@ pub struct ProxyConfig {
     /// If the proxy requires some obfuscation of the data sent to/received from it,
     /// it's represented by an obfuscation config here.
     pub obfuscation: Option<ObfuscationConfig>,
-
-    pub r#type: ProxyType,
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]

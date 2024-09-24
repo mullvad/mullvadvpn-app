@@ -1,9 +1,6 @@
 use crate::ProxyHandle;
 
-use mullvad_encrypted_dns_proxy::{
-    config::{ProxyConfig, ProxyType},
-    config_resolver, Forwarder,
-};
+use mullvad_encrypted_dns_proxy::{config::ProxyConfig, config_resolver, Forwarder};
 use std::{
     collections::HashSet,
     io, mem,
@@ -102,7 +99,8 @@ impl EncryptedDnsProxyState {
             if let Some(xor_config) = self
                 .configurations
                 .iter()
-                .find(|config| config.r#type == ProxyType::XorV2)
+                // prefer obfuscated proxy configurations.
+                .find(|config| config.obfuscation.is_some())
             {
                 self.tried_configurations.insert(xor_config.clone());
                 return Some(xor_config.clone());
