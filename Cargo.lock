@@ -2444,6 +2444,7 @@ name = "mullvad-ios"
 version = "0.0.0"
 dependencies = [
  "cbindgen",
+ "hyper-util",
  "libc",
  "log",
  "mullvad-encrypted-dns-proxy",
