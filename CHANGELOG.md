@@ -39,6 +39,7 @@ Line wrap the file at 100 chars.                                              Th
 #### macOS
 - Disable split tunnel interface when disconnected. This prevents traffic from being sent through
   the daemon when the VPN is disconnected.
+- Enable IPv6 by default. This fixes DNS and routing being broken on some systems.
 
 ### Fixed
 #### Linux
