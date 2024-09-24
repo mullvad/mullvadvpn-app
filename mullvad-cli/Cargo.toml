@@ -19,7 +19,7 @@ anyhow = "1.0"
 chrono = { workspace = true }
 clap = { workspace = true }
 thiserror = { workspace = true }
-futures = "0.3"
+futures = { workspace = true }
 itertools = "0.10"
 natord = "1.0.9"
 
