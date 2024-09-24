@@ -17,12 +17,12 @@ crate-type = ["cdylib"]
 thiserror = { workspace = true }
 log = { workspace = true }
 env_logger = { workspace = true }
-parity-tokio-ipc = "0.9"
-tokio = { workspace = true, features =  ["rt"] }
 
 openvpn-plugin = { version = "0.4.2", features = ["serde", "log", "auth-failed-event"] }
 talpid-types = { path = "../talpid-types" }
 
+tokio = { workspace = true, features =  ["rt"] }
+parity-tokio-ipc = { workspace = true }
 tonic = { workspace = true }
 tower = { workspace = true }
 prost = { workspace = true }
