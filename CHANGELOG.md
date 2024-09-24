@@ -37,7 +37,7 @@ Line wrap the file at 100 chars.                                              Th
 - Improved output format of `mullvad status` command, which now also prints feature indicators.
 
 #### Windows
-- Enable quantum resistant tunnels by default (when set to `auto`).
+- Enable quantum-resistant tunnels by default (when set to `auto`).
 
 #### macOS
 - Disable split tunnel interface when disconnected. This prevents traffic from being sent through
@@ -68,7 +68,7 @@ Line wrap the file at 100 chars.                                              Th
 - Ignore obfuscation protocol constraints when the obfuscation mode is set to auto.
 
 #### macOS
-- Enable quantum resistant tunnels by default (when set to `auto`).
+- Enable quantum-resistant tunnels by default (when set to `auto`).
 
 ### Fixed
 - Fix mullvad cli bug causing `mullvad status listen` command to miss events if they occurred
@@ -210,7 +210,7 @@ This release is identical to 2024.3-beta1.
 - Update support email address to new email address, support@mullvadvpn.net.
 
 #### Linux
-- Enable quantum resistant tunnels by default (when set to `auto`). On other platforms, `auto` still
+- Enable quantum-resistant tunnels by default (when set to `auto`). On other platforms, `auto` still
   always means the same thing as `off`.
 
 #### Windows
@@ -396,7 +396,7 @@ This release is identical to 2024.3-beta1.
   Quantum-resistant-tunnels feature now mixes both Classic McEliece and Kyber for added protection.
 - Add notification dot to tray icon and system notification throttling.
 - Add troubleshooting information to some in-app notifications.
-- Add setting for quantum resistant tunnels to the desktop GUI.
+- Add setting for quantum-resistant tunnels to the desktop GUI.
 - Enable `TCP_NODELAY` for the socket used by WireGuard over TCP. Improves latency and performance.
 
 ### Changed
