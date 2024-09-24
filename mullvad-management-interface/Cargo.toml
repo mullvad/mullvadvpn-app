@@ -11,19 +11,20 @@ rust-version.workspace = true
 workspace = true
 
 [dependencies]
+log = { workspace = true }
 chrono = { workspace = true }
 thiserror = { workspace = true }
 mullvad-types = { path = "../mullvad-types" }
 mullvad-paths = { path = "../mullvad-paths" }
 talpid-types = { path = "../talpid-types" }
+
 tonic = { workspace = true }
 tower = { workspace = true }
 prost = { workspace = true }
 prost-types = { workspace = true }
-parity-tokio-ipc = "0.9"
 futures = "0.3"
 tokio = { workspace = true, features =  ["rt"] }
-log = { workspace = true }
+parity-tokio-ipc = { workspace = true }
 
 [target.'cfg(unix)'.dependencies]
 nix = "0.23"
