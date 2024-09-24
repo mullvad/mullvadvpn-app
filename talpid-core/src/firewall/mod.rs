@@ -94,7 +94,6 @@ pub enum FirewallPolicy {
         /// Interface to redirect (VPN tunnel) traffic to
         #[cfg(target_os = "macos")]
         redirect_interface: Option<String>,
-
         /// Flag setting if we should leak traffic to apple services.
         #[cfg(target_os = "macos")]
         apple_services_bypass: bool,
@@ -118,7 +117,6 @@ pub enum FirewallPolicy {
         /// Interface to redirect (VPN tunnel) traffic to
         #[cfg(target_os = "macos")]
         redirect_interface: Option<String>,
-
         /// Flag setting if we should leak traffic to apple services.
         #[cfg(target_os = "macos")]
         apple_services_bypass: bool,
@@ -138,7 +136,6 @@ pub enum FirewallPolicy {
         /// be redirected to `127.0.0.1:$dns_redirect_port`.
         #[cfg(target_os = "macos")]
         dns_redirect_port: u16,
-
         /// Flag setting if we should leak traffic to apple services.
         #[cfg(target_os = "macos")]
         apple_services_bypass: bool,
@@ -176,6 +173,15 @@ impl FirewallPolicy {
             } => allowed_tunnel_traffic,
             FirewallPolicy::Connected { .. } => &AllowedTunnelTraffic::All,
             _ => &AllowedTunnelTraffic::None,
+        }
+    }
+
+    /// Return whether LAN traffic is allowed
+    pub fn allow_lan(&self) -> bool {
+        match self {
+            FirewallPolicy::Connecting { allow_lan, .. }
+            | FirewallPolicy::Connected { allow_lan, .. }
+            | FirewallPolicy::Blocked { allow_lan, .. } => *allow_lan,
         }
     }
 }
