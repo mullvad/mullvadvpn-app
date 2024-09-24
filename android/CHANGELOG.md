@@ -24,6 +24,11 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 
 
+## [android/2024.5-beta2] - 2024-09-24
+### Fixed
+- Fix building of the app bundle which is used for publishing to Google Play.
+
+
 ## [android/2024.5-beta1] - 2024-09-23
 ### Added
 - Add support for predictive back.
