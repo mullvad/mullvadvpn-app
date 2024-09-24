@@ -48,6 +48,7 @@ Line wrap the file at 100 chars.                                              Th
   the daemon when the VPN is disconnected.
 - Don't hijack DNS when localhost is configured. This is more in line with other platforms.
   Unexpected DNS traffic is still blocked when leaving the host.
+- Enable IPv6 by default. This fixes DNS and routing being broken on some platforms.
 
 ### Fixed
 #### Linux
