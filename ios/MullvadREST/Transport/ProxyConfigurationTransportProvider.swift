@@ -33,7 +33,7 @@ public class ProxyConfigurationTransportProvider {
                 addressCache: addressCache
             )
         case .encryptedDNS:
-            return EncryptedDNSTransport(urlSession: urlSession, addressCache: addressCache)
+            return EncryptedDNSTransport(urlSession: urlSession)
         case let .shadowsocks(shadowSocksConfiguration):
             return ShadowsocksTransport(
                 urlSession: urlSession,

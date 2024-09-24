@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		014449952CA293B100C0C2F2 /* EncryptedDNSProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 014449942CA293B100C0C2F2 /* EncryptedDNSProxy.swift */; };
 		01EF6F342B6A590700125696 /* libmullvad_api.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 01EF6F332B6A590700125696 /* libmullvad_api.a */; };
 		062B45A328FD4CA700746E77 /* le_root_cert.cer in Resources */ = {isa = PBXBuildFile; fileRef = 06799AB428F98CE700ACD94E /* le_root_cert.cer */; };
 		062B45BC28FD8C3B00746E77 /* RESTDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 062B45BB28FD8C3B00746E77 /* RESTDefaults.swift */; };
@@ -1329,6 +1330,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		014449942CA293B100C0C2F2 /* EncryptedDNSProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncryptedDNSProxy.swift; sourceTree = "<group>"; };
 		01EF6F2D2B6A51B100125696 /* mullvad-api.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "mullvad-api.h"; path = "../mullvad-api/include/mullvad-api.h"; sourceTree = "<group>"; };
 		01EF6F2F2B6A588300125696 /* aarch64-apple-ios */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "aarch64-apple-ios"; path = "../target/aarch64-apple-ios"; sourceTree = "<group>"; };
 		01EF6F312B6A58F000125696 /* debug */ = {isa = PBXFileReference; lastKnownFileType = folder; name = debug; path = "../target/aarch64-apple-ios/debug"; sourceTree = "<group>"; };
@@ -2356,6 +2358,13 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		014449932CA1B55200C0C2F2 /* EncryptedDnsProxy */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = EncryptedDnsProxy;
+			sourceTree = "<group>";
+		};
 		062B45A228FD4C0F00746E77 /* Assets */ = {
 			isa = PBXGroup;
 			children = (
@@ -4026,6 +4035,7 @@
 				A9EB4F9C2B7FAB21002A2D7A /* EphemeralPeerNegotiator.swift */,
 				F0DDE40F2B220458006B57A7 /* ShadowSocksProxy.swift */,
 				584023212A406BF5007B27AC /* UDPOverTCPObfuscator.swift */,
+				014449942CA293B100C0C2F2 /* EncryptedDNSProxy.swift */,
 			);
 			path = MullvadRustRuntime;
 			sourceTree = "<group>";
@@ -4177,6 +4187,7 @@
 		F0DC77A02B2223290087F09D /* Transport */ = {
 			isa = PBXGroup;
 			children = (
+				014449932CA1B55200C0C2F2 /* EncryptedDnsProxy */,
 				F0164ED02B4F2DCB0020268D /* AccessMethodIterator.swift */,
 				F0DC77A32B2315800087F09D /* Direct */,
 				F0E5B2F62C9C689C0007F78C /* EncryptedDNS */,
@@ -6146,6 +6157,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A9D9A4B12C36D10E004088DD /* ShadowSocksProxy.swift in Sources */,
+				014449952CA293B100C0C2F2 /* EncryptedDNSProxy.swift in Sources */,
 				A9D9A4BB2C36D397004088DD /* EphemeralPeerNegotiator.swift in Sources */,
 				A9D9A4B22C36D12D004088DD /* UDPOverTCPObfuscator.swift in Sources */,
 				A9173C322C36CCDD00F6A08C /* PacketTunnelProvider+TCPConnection.swift in Sources */,
