@@ -18,6 +18,7 @@ mod sys {
     /// we cannot lower it further. This causes the outer packets to be dropped. Also, MTU detection
     /// will likely occur after the PQ handshake, so we cannot assume that the MTU is already
     /// correctly configured.
+    /// This is set to the lowest possible IPv4 MTU.
     const CONFIG_CLIENT_MTU: u16 = 576;
 
     pub struct TcpSocket {
