@@ -62,14 +62,14 @@ function checkFormatSpecifiers(translation: GetTextTranslation): boolean {
     .every((result) => result);
 }
 
-function checkHtmlTagsImpl(value: string): { correct: boolean, amount: number } {
-  const tagsRegexp = new RegExp("<.*?>", "g");
+function checkHtmlTagsImpl(value: string): { correct: boolean; amount: number } {
+  const tagsRegexp = new RegExp('<.*?>', 'g');
   const tags = value.match(tagsRegexp) ?? [];
   const tagTypes = tags.map((tag) => tag.slice(1, -1));
 
   // Make sure tags match by pushing start-tags to a stack and matching closing tags with the last
   // item.
-  let tagStack: string[] = [];
+  const tagStack: string[] = [];
   for (let tag of tagTypes) {
     const selfClosing = tag.endsWith('/');
     const endTag = tag.startsWith('/');
@@ -94,21 +94,23 @@ function checkHtmlTagsImpl(value: string): { correct: boolean, amount: number } 
   }
 
   if (tagStack.length > 0) {
-      console.error(`Missing closing-tags (${tagStack}) in "${value}"`);
-      return { correct: false, amount: NaN };
+    console.error(`Missing closing-tags (${tagStack}) in "${value}"`);
+    return { correct: false, amount: NaN };
   }
 
   return { correct: true, amount: tags.length / 2 };
 }
 
 function checkHtmlTags(translation: GetTextTranslation): boolean {
-  let { correct, amount: sourceAmount } = checkHtmlTagsImpl(translation.msgid);
+  const { correct, amount: sourceAmount } = checkHtmlTagsImpl(translation.msgid);
 
-  let translationsCorrect = translation.msgstr.every((value) => {
-    let { correct, amount } = checkHtmlTagsImpl(value);
+  const translationsCorrect = translation.msgstr.every((value) => {
+    const { correct, amount } = checkHtmlTagsImpl(value);
     // The amount doesn't make sense if the string isn't correctly formatted.
     if (correct && amount !== sourceAmount) {
-      console.error(`Incorrect amount of tags in translation for "${translation.msgid}": "${value}"`);
+      console.error(
+        `Incorrect amount of tags in translation for "${translation.msgid}": "${value}"`,
+      );
     }
     return correct && amount === sourceAmount;
   });

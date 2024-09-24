@@ -20,7 +20,6 @@ test('App should have a country', async () => {
   await expect(countryLabel).not.toBeEmpty();
 
   const cityLabel = page.getByTestId('city');
-  const noCityLabel = await cityLabel.count() === 0;
+  const noCityLabel = (await cityLabel.count()) === 0;
   expect(noCityLabel).toBeTruthy();
 });
-

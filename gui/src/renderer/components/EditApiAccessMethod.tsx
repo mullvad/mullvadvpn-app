@@ -62,7 +62,7 @@ function AccessMethodForm() {
 
   const onSave = useCallback(
     async (newMethod: NamedCustomProxy) => {
-      const enabled = id === undefined ? true : method?.enabled ?? true;
+      const enabled = id === undefined ? true : (method?.enabled ?? true);
       updatedMethod.current = { ...newMethod, enabled };
       if (
         updatedMethod.current !== undefined &&

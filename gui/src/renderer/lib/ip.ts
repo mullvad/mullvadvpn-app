@@ -15,7 +15,7 @@ export abstract class IpAddress<G extends number[]> {
   public static fromString(ip: string): IPv4Address | IPv6Address {
     try {
       return IPv4Address.fromString(ip);
-    } catch (e) {
+    } catch {
       return IPv6Address.fromString(ip);
     }
   }
@@ -80,7 +80,7 @@ export class IPv4Address extends IpAddress<IPv4Octets> {
     try {
       const octets = IPv4Address.octetsFromString(ip);
       return new IPv4Address(octets);
-    } catch (e) {
+    } catch {
       throw new Error(`Invalid ip: ${ip}`);
     }
   }
@@ -94,7 +94,7 @@ export class IPv4Address extends IpAddress<IPv4Octets> {
           return parsedOctets;
         }
       }
-    } catch (e) {
+    } catch {
       // no-op
     }
 
@@ -105,7 +105,7 @@ export class IPv4Address extends IpAddress<IPv4Octets> {
     try {
       IPv4Address.fromString(ip);
       return true;
-    } catch (e) {
+    } catch {
       return false;
     }
   }
@@ -135,7 +135,7 @@ export class IPv4Range extends IpRange<IPv4Octets> {
         const prefixSize = parseInt(parts[1]);
         return new IPv4Range(octets, prefixSize);
       }
-    } catch (e) {
+    } catch {
       // no-op
     }
 
@@ -167,7 +167,7 @@ export class IPv6Address extends IpAddress<IPv6Groups> {
     try {
       const groups = IPv6Address.groupsFromString(ip);
       return new IPv6Address(groups);
-    } catch (e) {
+    } catch {
       throw new Error(`Invalid ip: ${ip}`);
     }
   }
@@ -200,7 +200,7 @@ export class IPv6Address extends IpAddress<IPv6Groups> {
           }
         }
       }
-    } catch (e) {
+    } catch {
       // no-op
     }
 
@@ -211,7 +211,7 @@ export class IPv6Address extends IpAddress<IPv6Groups> {
     try {
       IPv6Address.fromString(ip);
       return true;
-    } catch (e) {
+    } catch {
       return false;
     }
   }
@@ -241,7 +241,7 @@ export class IPv6Range extends IpRange<IPv6Groups> {
         const prefixSize = parseInt(parts[1], 10);
         return new IPv6Range(groups, prefixSize);
       }
-    } catch (e) {
+    } catch {
       // no-op
     }
 

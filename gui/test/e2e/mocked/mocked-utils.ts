@@ -3,7 +3,7 @@ import { ElectronApplication } from 'playwright';
 import { startApp, TestUtils } from '../utils';
 
 interface StartMockedAppResponse extends Awaited<ReturnType<typeof startApp>> {
-  util: MockedTestUtils,
+  util: MockedTestUtils;
 }
 
 export interface MockedTestUtils extends TestUtils {
@@ -22,7 +22,7 @@ export const startMockedApp = async (): Promise<StartMockedAppResponse> => {
       ...startAppResult.util,
       mockIpcHandle,
       sendMockIpcResponse,
-    }
+    },
   };
 };
 

@@ -494,7 +494,7 @@ export default class UserInterface implements WindowControllerDelegate {
       return;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { NSEventMonitor, NSEventMask } = require('nseventmonitor');
     const macEventMonitor = new NSEventMonitor();
     const eventMask = NSEventMask.leftMouseDown | NSEventMask.rightMouseDown;

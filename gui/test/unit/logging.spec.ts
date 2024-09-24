@@ -1,10 +1,11 @@
 import { expect, spy } from 'chai';
 import fs from 'fs';
-import sinon from 'sinon';
-import { it, describe, before, beforeEach, after } from 'mocha';
+import { after, before, beforeEach, describe, it } from 'mocha';
 import path from 'path';
-import { Logger } from '../../src/shared/logging';
+import sinon from 'sinon';
+
 import { backupLogFile, rotateOrDeleteFile } from '../../src/main/logging';
+import { Logger } from '../../src/shared/logging';
 import { LogLevel } from '../../src/shared/logging-types';
 
 const aPath = path.normalize('log-directory/a.log');

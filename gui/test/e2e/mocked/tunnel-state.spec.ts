@@ -1,9 +1,20 @@
 import { test } from '@playwright/test';
 import { Page } from 'playwright';
 
+import {
+  ErrorStateCause,
+  ILocation,
+  ITunnelEndpoint,
+  TunnelState,
+} from '../../../src/shared/daemon-rpc-types';
+import {
+  expectConnected,
+  expectConnecting,
+  expectDisconnected,
+  expectDisconnecting,
+  expectError,
+} from '../shared/tunnel-state';
 import { MockedTestUtils, startMockedApp } from './mocked-utils';
-import { ErrorStateCause, ILocation, ITunnelEndpoint, TunnelState } from '../../../src/shared/daemon-rpc-types';
-import { expectConnected, expectConnecting, expectDisconnected, expectDisconnecting, expectError } from '../shared/tunnel-state';
 
 const mockLocation: ILocation = {
   country: 'Sweden',

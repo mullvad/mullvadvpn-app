@@ -1,10 +1,10 @@
-import { Locator, expect, test } from '@playwright/test';
-import { Page } from 'playwright';
+import { expect, Locator, test } from '@playwright/test';
 import { execSync } from 'child_process';
+import { Page } from 'playwright';
 
-import { startInstalledApp } from '../installed-utils';
-import { TestUtils } from '../../utils';
 import { RoutePath } from '../../../../src/renderer/lib/routes';
+import { TestUtils } from '../../utils';
+import { startInstalledApp } from '../installed-utils';
 
 // macOS only. This test expects the daemon to be logged in and for split tunneling to be off and
 // have no split applications.
@@ -21,13 +21,13 @@ test.afterAll(async () => {
 });
 
 async function navigateToSplitTunneling() {
-  await util.waitForNavigation(async () => await page.click('button[aria-label="Settings"]'));
+  await util.waitForNavigation(() => page.click('button[aria-label="Settings"]'));
 
-  expect(
-    await util.waitForNavigation(async () => await page.getByText('Split tunneling').click())
-  ).toEqual(RoutePath.splitTunneling);
+  expect(await util.waitForNavigation(() => page.getByText('Split tunneling').click())).toEqual(
+    RoutePath.splitTunneling,
+  );
 
-  const title = page.locator('h1')
+  const title = page.locator('h1');
   await expect(title).toHaveText('Split tunneling');
 }
 
@@ -46,7 +46,7 @@ test('App should enable split tunneling', async () => {
   const launchPadApp = page.getByText('launchpad');
   await expect(launchPadApp).not.toBeVisible();
 
-  toggle.click();
+  await toggle.click();
   await expect(toggle).toBeChecked();
   await expect(splitList).not.toBeVisible();
   await expect(nonSplitList).toBeVisible();
@@ -133,7 +133,7 @@ test('App should disable split tunneling', async () => {
   const launchPadApp = page.getByText('launchpad');
   await expect(launchPadApp).toBeVisible();
 
-  toggle.click();
+  await toggle.click();
   await expect(toggle).not.toBeChecked();
 });
 
@@ -148,7 +148,7 @@ async function numberOfApplicationsInList(listTestid: string) {
     return 0;
   }
 
-  return await list.locator('button').count();
+  return list.locator('button').count();
 }
 
 function getDaemonSplitTunnelingApplications() {
@@ -157,6 +157,7 @@ function getDaemonSplitTunnelingApplications() {
 }
 
 function isSplitInDaemon(app: string): boolean {
-  return !!getDaemonSplitTunnelingApplications()
-    .find((splitApp) => splitApp.toLowerCase().includes(app));
+  return !!getDaemonSplitTunnelingApplications().find((splitApp) =>
+    splitApp.toLowerCase().includes(app),
+  );
 }

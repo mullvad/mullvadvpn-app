@@ -1,5 +1,6 @@
 import { expect } from 'chai';
-import { after, it, describe } from 'mocha';
+import { after, describe, it } from 'mocha';
+
 import { parseChangelog } from '../../src/main/changelog';
 
 // It should be handled the same no matter if the platforms are split with a space or not.

@@ -281,7 +281,7 @@ export default class Login extends React.Component<IProps, IState> {
       await this.props.clearAccountHistory();
 
       // TODO: Remove account from memory
-    } catch (error) {
+    } catch {
       // TODO: Show error
     }
   }

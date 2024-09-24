@@ -1,9 +1,9 @@
 import { expect, test } from '@playwright/test';
 import { Page } from 'playwright';
 
-import { startInstalledApp } from '../installed-utils';
-import { TestUtils } from '../../utils';
 import { RoutePath } from '../../../../src/renderer/lib/routes';
+import { TestUtils } from '../../utils';
+import { startInstalledApp } from '../installed-utils';
 
 // This test expects the daemon to be logged in and only have "Direct" and "Mullvad Bridges"
 // access methods.
@@ -31,10 +31,10 @@ test.afterAll(async () => {
 });
 
 async function navigateToAccessMethods() {
-  await util.waitForNavigation(async () => await page.click('button[aria-label="Settings"]'));
-  await util.waitForNavigation(async () => await page.getByText('API access').click());
+  await util.waitForNavigation(() => page.click('button[aria-label="Settings"]'));
+  await util.waitForNavigation(() => page.getByText('API access').click());
 
-  const title = page.locator('h1')
+  const title = page.locator('h1');
   await expect(title).toHaveText('API access');
 }
 
@@ -52,9 +52,9 @@ test('App should display access methods', async () => {
 });
 
 test('App should add invalid access method', async () => {
-  await util.waitForNavigation(async () => await page.locator('button:has-text("Add")').click());
+  await util.waitForNavigation(() => page.locator('button:has-text("Add")').click());
 
-  const title = page.locator('h1')
+  const title = page.locator('h1');
   await expect(title).toHaveText('Add method');
 
   const inputs = page.locator('input');
@@ -71,13 +71,13 @@ test('App should add invalid access method', async () => {
   await inputs.nth(2).fill(process.env.SHADOWSOCKS_SERVER_PORT!);
   await expect(addButton).toBeEnabled();
 
-  await addButton.click()
+  await addButton.click();
 
   await expect(page.getByText('Testing method...')).toBeVisible();
   await expect(page.getByText('API unreachable, add anyway?')).toBeVisible();
 
   expect(
-    await util.waitForNavigation(async () => await page.locator('button:has-text("Save")').click())
+    await util.waitForNavigation(() => page.locator('button:has-text("Save")').click()),
   ).toEqual(RoutePath.apiAccessMethods);
 
   const accessMethods = page.getByTestId('access-method');
@@ -107,7 +107,7 @@ test('App should edit access method', async () => {
   await customMethod.locator('button').last().click();
   await util.waitForNavigation(() => customMethod.getByText('Edit').click());
 
-  const title = page.locator('h1')
+  const title = page.locator('h1');
   await expect(title).toHaveText('Edit method');
 
   const inputs = page.locator('input');
@@ -125,11 +125,13 @@ test('App should edit access method', async () => {
   await inputs.nth(3).fill(process.env.SHADOWSOCKS_SERVER_PASSWORD!);
 
   await page.getByTestId('ciphers').click();
-  await page.getByRole('option', { name: process.env.SHADOWSOCKS_SERVER_CIPHER!, exact: true }).click();
+  await page
+    .getByRole('option', { name: process.env.SHADOWSOCKS_SERVER_CIPHER!, exact: true })
+    .click();
 
-  expect(
-    await util.waitForNavigation(async () => await saveButton.click())
-  ).toEqual(RoutePath.apiAccessMethods);
+  expect(await util.waitForNavigation(() => saveButton.click())).toEqual(
+    RoutePath.apiAccessMethods,
+  );
 
   const accessMethods = page.getByTestId('access-method');
   await expect(accessMethods).toHaveCount(3);

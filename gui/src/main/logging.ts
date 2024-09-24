@@ -113,7 +113,7 @@ function fileExists(filePath: string): boolean {
   try {
     fs.accessSync(filePath);
     return true;
-  } catch (e) {
+  } catch {
     return false;
   }
 }

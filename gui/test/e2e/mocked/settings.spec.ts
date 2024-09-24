@@ -1,8 +1,8 @@
 import { expect, test } from '@playwright/test';
 import { Page } from 'playwright';
 
-import { MockedTestUtils, startMockedApp } from './mocked-utils';
 import { IAccountData } from '../../../src/shared/daemon-rpc-types';
+import { MockedTestUtils, startMockedApp } from './mocked-utils';
 
 let page: Page;
 let util: MockedTestUtils;
@@ -21,7 +21,7 @@ test('Account button should be displayed correctly', async () => {
 });
 
 test('Headerbar account info should be displayed correctly', async () => {
-  let expiryText = page.getByText(/^Time left:/);
+  const expiryText = page.getByText(/^Time left:/);
   await expect(expiryText).toContainText(/Time left: 29 days/i);
 
   /**

@@ -1,5 +1,6 @@
 import { expect } from 'chai';
-import { it, describe } from 'mocha';
+import { describe, it } from 'mocha';
+
 import KeyframeAnimation from '../../src/main/keyframe-animation';
 
 describe('lib/keyframe-animation', function () {

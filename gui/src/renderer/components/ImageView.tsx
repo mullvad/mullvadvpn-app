@@ -46,7 +46,6 @@ export default function ImageView(props: IImageViewProps) {
     ? props.source
     : `../../assets/images/${props.source}.svg`;
 
-  // eslint-disable-next-line @typescript-eslint/naming-convention
   const style = useMemo(() => ({ WebkitMaskImage: `url('${url}')` }), [url]);
 
   if (props.tintColor) {

@@ -1,15 +1,11 @@
-import { exec as execAsync } from 'child_process';
-import { promisify } from 'util';
 import { expect, test } from '@playwright/test';
+import { exec as execAsync } from 'child_process';
 import { Page } from 'playwright';
-import {
-  expectConnected,
-  expectDisconnected,
-  expectError,
-} from '../../shared/tunnel-state';
+import { promisify } from 'util';
 
-import { startInstalledApp } from '../installed-utils';
+import { expectConnected, expectDisconnected, expectError } from '../../shared/tunnel-state';
 import { escapeRegExp } from '../../utils';
+import { startInstalledApp } from '../installed-utils';
 
 const exec = promisify(execAsync);
 
@@ -164,7 +160,9 @@ test('App should show multihop', async () => {
   await exec('mullvad relay set tunnel wireguard --use-multihop=on');
   await expectConnected(page);
   const relay = page.getByTestId('hostname-line');
-  await expect(relay).toHaveText(new RegExp('^' + escapeRegExp(`${process.env.HOSTNAME} via`), 'i'));
+  await expect(relay).toHaveText(
+    new RegExp('^' + escapeRegExp(`${process.env.HOSTNAME} via`), 'i'),
+  );
   await exec('mullvad relay set tunnel wireguard --use-multihop=off');
   await page.getByText('Disconnect').click();
 });

@@ -1,21 +1,25 @@
 import { expect } from 'chai';
-import { it, describe } from 'mocha';
+import { describe, it } from 'mocha';
 import sinon from 'sinon';
 
-import {
-  UnsupportedVersionNotificationProvider,
-  UpdateAvailableNotificationProvider,
-} from '../../src/shared/notifications/notification';
 import NotificationController from '../../src/main/notification-controller';
 import { TunnelState } from '../../src/shared/daemon-rpc-types';
 import { ErrorStateCause } from '../../src/shared/daemon-rpc-types';
 import { FirewallPolicyErrorType } from '../../src/shared/daemon-rpc-types';
+import {
+  UnsupportedVersionNotificationProvider,
+  UpdateAvailableNotificationProvider,
+} from '../../src/shared/notifications/notification';
 
 function createController() {
   return new NotificationController({
-    openApp: () => { /* no-op */ },
+    openApp: () => {
+      /* no-op */
+    },
     openLink: (_url: string, _withAuth?: boolean) => Promise.resolve(),
-    showNotificationIcon: (_value: boolean) => { /* no-op */ },
+    showNotificationIcon: (_value: boolean) => {
+      /* no-op */
+    },
   });
 }
 
@@ -26,10 +30,18 @@ describe('System notifications', () => {
     sandbox = sinon.createSandbox();
     // @ts-ignore
     sandbox.stub(NotificationController.prototype, 'createElectronNotification').returns({
-      show: () => { /* no-op */ },
-      close: () => { /* no-op */ },
-      on: () => { /* no-op */ },
-      removeAllListeners: () => { /* no-op */ },
+      show: () => {
+        /* no-op */
+      },
+      close: () => {
+        /* no-op */
+      },
+      on: () => {
+        /* no-op */
+      },
+      removeAllListeners: () => {
+        /* no-op */
+      },
     });
   });
 
@@ -133,7 +145,7 @@ describe('System notifications', () => {
         cause: ErrorStateCause.isOffline,
         blockingError: {
           type: FirewallPolicyErrorType.generic,
-        }
+        },
       },
     };
     const result6 = controller.notifyTunnelState(nonBlockingErrorState, false, false, false, false);

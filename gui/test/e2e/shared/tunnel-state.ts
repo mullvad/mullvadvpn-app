@@ -1,5 +1,6 @@
 import { expect } from '@playwright/test';
 import { Page } from 'playwright';
+
 import { colors } from '../../../src/config.json';
 import { anyOf } from '../utils';
 

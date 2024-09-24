@@ -31,7 +31,14 @@ copyHtml.displayName = 'copy-html';
 copyLocales.displayName = 'copy-locales';
 copyGeoData.displayName = 'copy-geo-data';
 
-exports.copyAll = parallel(copyStaticAssets, copyConfig, copyCss, copyHtml, copyLocales, copyGeoData);
+exports.copyAll = parallel(
+  copyStaticAssets,
+  copyConfig,
+  copyCss,
+  copyHtml,
+  copyLocales,
+  copyGeoData,
+);
 exports.copyStaticAssets = copyStaticAssets;
 exports.copyCss = copyCss;
 exports.copyHtml = copyHtml;

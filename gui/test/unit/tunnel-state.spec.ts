@@ -1,6 +1,7 @@
 import { expect, spy } from 'chai';
-import { it, describe } from 'mocha';
+import { describe, it } from 'mocha';
 import sinon from 'sinon';
+
 import TunnelStateHandler from '../../src/main/tunnel-state';
 import { TunnelState } from '../../src/shared/daemon-rpc-types';
 
@@ -106,4 +107,3 @@ describe('Tunnel state', () => {
     clock.restore();
   });
 });
-
