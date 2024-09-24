@@ -173,6 +173,10 @@ impl State {
             match settings {
                 // Do nothing if the state is already what we want
                 Some(settings) if settings.address_set() == desired_set => (),
+                // Ignore loopback addresses
+                Some(settings) if settings.ips().any(|ip| ip.is_loopback()) => {
+                    log::trace!("Not updating DNS config: localhost is used");
+                }
                 // Apply desired state to service
                 _ => {
                     let path_cf = CFString::new(path);
@@ -278,6 +282,12 @@ impl DnsSettings {
 
     pub fn address_set(&self) -> BTreeSet<String> {
         BTreeSet::from_iter(self.server_addresses())
+    }
+
+    pub fn ips(&self) -> impl Iterator<Item = IpAddr> {
+        self.server_addresses()
+            .into_iter()
+            .filter_map(|addr| addr.parse::<IpAddr>().ok())
     }
 
     /// Parses a CFArray into a Rust vector of Rust strings, if the array contains CFString
