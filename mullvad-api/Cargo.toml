@@ -18,7 +18,7 @@ api-override = []
 libc = "0.2"
 chrono = { workspace = true }
 thiserror = { workspace = true }
-futures = "0.3"
+futures = { workspace = true }
 http = "0.2"
 hyper = { version = "0.14", features = ["client", "stream", "http1", "tcp" ] }
 ipnetwork = { workspace = true }
