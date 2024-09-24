@@ -173,6 +173,12 @@ impl State {
             match settings {
                 // Do nothing if the state is already what we want
                 Some(settings) if settings.address_set() == desired_set => (),
+                // Ignore loopback addresses
+                Some(settings)
+                    if Self::set_contains_loopback_addr(settings.address_set().iter()) =>
+                {
+                    log::trace!("Not updating DNS config: localhost is used");
+                }
                 // Apply desired state to service
                 _ => {
                     let path_cf = CFString::new(path);
@@ -182,6 +188,12 @@ impl State {
                 }
             }
         }
+    }
+
+    fn set_contains_loopback_addr<'a, T: Iterator<Item = &'a String>>(set: T) -> bool {
+        set.filter_map(|addr| addr.parse::<IpAddr>().ok())
+            .find(|addr| addr.is_loopback())
+            .is_some()
     }
 
     fn reset(&mut self, store: &SCDynamicStore) -> Result<()> {
