@@ -25,6 +25,9 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Add DAITA (Defence against AI-guided Traffic Analysis) setting
 
+### Fixed
+- Fix IPv6 parsing in API access
+
 ## [2024.5 - 2024-08-19]
 ### Added
 - Add multihop, a feature that routes traffic through two

@@ -608,6 +608,7 @@
 		7AEF7F1A2AD00F52006FE45D /* AppMessageHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AEF7F192AD00F52006FE45D /* AppMessageHandler.swift */; };
 		7AF10EB22ADE859200C090B9 /* AlertViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF10EB12ADE859200C090B9 /* AlertViewController.swift */; };
 		7AF10EB42ADE85BC00C090B9 /* RelayFilterCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF10EB32ADE85BC00C090B9 /* RelayFilterCoordinator.swift */; };
+		7AF36A9A2CA2964200E1D497 /* AnyIPAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF36A992CA2964000E1D497 /* AnyIPAddressTests.swift */; };
 		7AF6E5F02A95051E00F2679D /* RouterBlockDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF6E5EF2A95051E00F2679D /* RouterBlockDelegate.swift */; };
 		7AF9BE882A30C62100DBFEDB /* SelectableSettingsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A1A264A2A29D65E00B978AA /* SelectableSettingsCell.swift */; };
 		7AF9BE8C2A321D1F00DBFEDB /* RelayFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF9BE8A2A321BEF00DBFEDB /* RelayFilter.swift */; };
@@ -1915,6 +1916,7 @@
 		7AEF7F192AD00F52006FE45D /* AppMessageHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppMessageHandler.swift; sourceTree = "<group>"; };
 		7AF10EB12ADE859200C090B9 /* AlertViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlertViewController.swift; sourceTree = "<group>"; };
 		7AF10EB32ADE85BC00C090B9 /* RelayFilterCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RelayFilterCoordinator.swift; sourceTree = "<group>"; };
+		7AF36A992CA2964000E1D497 /* AnyIPAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyIPAddressTests.swift; sourceTree = "<group>"; };
 		7AF6E5EF2A95051E00F2679D /* RouterBlockDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouterBlockDelegate.swift; sourceTree = "<group>"; };
 		7AF9BE8A2A321BEF00DBFEDB /* RelayFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayFilter.swift; sourceTree = "<group>"; };
 		7AF9BE8D2A331C7B00DBFEDB /* RelayFilterViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayFilterViewModel.swift; sourceTree = "<group>"; };
@@ -2471,6 +2473,7 @@
 		440E9EF92BDA95FC00B1FD11 /* MullvadTypes */ = {
 			isa = PBXGroup;
 			children = (
+				7AF36A992CA2964000E1D497 /* AnyIPAddressTests.swift */,
 				58FBFBF0291630700020E046 /* DurationTests.swift */,
 				58C3FA672A385C89006A450A /* FileCacheTests.swift */,
 				582A8A3928BCE19B00D0F9FB /* FixedWidthIntegerArithmeticsTests.swift */,
@@ -5265,6 +5268,7 @@
 				A9A5FA3F2ACB05D90083449F /* DeviceCheckRemoteService.swift in Sources */,
 				A9A5FA402ACB05D90083449F /* DeviceCheckRemoteServiceProtocol.swift in Sources */,
 				A9A5FA412ACB05D90083449F /* DeviceStateAccessor.swift in Sources */,
+				7AF36A9A2CA2964200E1D497 /* AnyIPAddressTests.swift in Sources */,
 				A9A5FA422ACB05D90083449F /* DeviceStateAccessorProtocol.swift in Sources */,
 				7A5869C32B5820CE00640D27 /* IPOverrideRepositoryTests.swift in Sources */,
 				A9A5FA392ACB05910083449F /* UIColor+Palette.swift in Sources */,
