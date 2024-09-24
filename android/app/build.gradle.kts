@@ -33,6 +33,7 @@ if (keystorePropertiesFile.exists()) {
 android {
     namespace = "net.mullvad.mullvadvpn"
     compileSdk = Versions.compileSdkVersion
+    buildToolsVersion = Versions.buildToolsVersion
 
     defaultConfig {
         val localProperties = gradleLocalProperties(rootProject.projectDir, providers)
