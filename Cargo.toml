@@ -66,6 +66,7 @@ unused_async = "deny"
 
 [workspace.dependencies]
 tokio = { version = "1.8" }
+parity-tokio-ipc = "0.9"
 # Tonic and related crates
 tonic = "0.10.0"
 tonic-build = { version = "0.10.0", default-features = false }
