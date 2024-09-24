@@ -148,7 +148,7 @@ pub unsafe extern "C" fn encrypted_dns_proxy_init() -> *mut EncryptedDnsProxySta
 /// by `encrypted_dns_proxy_init`. This function is not thread safe.
 #[no_mangle]
 pub unsafe extern "C" fn encrytped_dns_proxy_free(ptr: *mut EncryptedDnsProxyState) {
-    mem::forget(unsafe { Box::from_raw(ptr) })
+    let _ = unsafe { Box::from_raw(ptr) };
 }
 
 /// # Safety
