@@ -13,7 +13,7 @@ use talpid_types::net::wireguard::PrivateKey;
 
 use super::{Error, PrivateAccountAndDevice, PrivateDevice};
 use mullvad_api::{
-    availability::ApiAvailabilityHandle,
+    availability::ApiAvailability,
     rest::{self, MullvadRestHandle},
     AccountsProxy, DevicesProxy,
 };
@@ -28,12 +28,12 @@ const RETRY_BACKOFF_STRATEGY: Jittered<ExponentialBackoff> = Jittered::jitter(
 
 #[derive(Clone)]
 pub struct DeviceService {
-    api_availability: ApiAvailabilityHandle,
+    api_availability: ApiAvailability,
     proxy: DevicesProxy,
 }
 
 impl DeviceService {
-    pub fn new(handle: rest::MullvadRestHandle, api_availability: ApiAvailabilityHandle) -> Self {
+    pub fn new(handle: rest::MullvadRestHandle, api_availability: ApiAvailability) -> Self {
         Self {
             proxy: DevicesProxy::new(handle),
             api_availability,
@@ -255,7 +255,7 @@ impl DeviceService {
 
 #[derive(Clone)]
 pub struct AccountService {
-    api_availability: ApiAvailabilityHandle,
+    api_availability: ApiAvailability,
     initial_check_abort_handle: AbortHandle,
     proxy: AccountsProxy,
 }
@@ -368,7 +368,7 @@ impl AccountService {
 pub fn spawn_account_service(
     api_handle: MullvadRestHandle,
     token: Option<String>,
-    api_availability: ApiAvailabilityHandle,
+    api_availability: ApiAvailability,
 ) -> AccountService {
     let accounts_proxy = AccountsProxy::new(api_handle);
     api_availability.pause_background();
@@ -403,7 +403,7 @@ pub fn spawn_account_service(
 
 fn handle_account_data_result(
     result: &Result<AccountData, rest::Error>,
-    api_availability: &ApiAvailabilityHandle,
+    api_availability: &ApiAvailability,
 ) -> bool {
     match result {
         Ok(_data) if _data.expiry >= chrono::Utc::now() => {
@@ -425,9 +425,9 @@ fn handle_account_data_result(
     }
 }
 
-fn should_retry<T>(result: &Result<T, rest::Error>, api_handle: &ApiAvailabilityHandle) -> bool {
+fn should_retry<T>(result: &Result<T, rest::Error>, api_handle: &ApiAvailability) -> bool {
     match result {
-        Err(error) if error.is_network_error() => !api_handle.get_state().is_offline(),
+        Err(error) if error.is_network_error() => !api_handle.is_offline(),
         _ => false,
     }
 }

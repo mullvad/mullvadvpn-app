@@ -11,7 +11,7 @@ use std::{
 };
 use tokio::fs::File;
 
-use mullvad_api::{availability::ApiAvailabilityHandle, rest::MullvadRestHandle, RelayListProxy};
+use mullvad_api::{availability::ApiAvailability, rest::MullvadRestHandle, RelayListProxy};
 use mullvad_relay_selector::RelaySelector;
 use mullvad_types::relay_list::RelayList;
 use talpid_future::retry::{retry_future, ExponentialBackoff, Jittered};
@@ -68,7 +68,7 @@ pub struct RelayListUpdater {
     relay_selector: RelaySelector,
     on_update: Box<dyn Fn(&RelayList) + Send + 'static>,
     last_check: SystemTime,
-    api_availability: ApiAvailabilityHandle,
+    api_availability: ApiAvailability,
 }
 
 impl RelayListUpdater {
@@ -163,7 +163,7 @@ impl RelayListUpdater {
     }
 
     fn download_relay_list(
-        api_handle: ApiAvailabilityHandle,
+        api_handle: ApiAvailability,
         proxy: RelayListProxy,
         tag: Option<String>,
     ) -> impl Future<Output = Result<Option<RelayList>, mullvad_api::Error>> + 'static {
