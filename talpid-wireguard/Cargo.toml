@@ -16,7 +16,6 @@ futures = "0.3.15"
 hex = "0.4"
 ipnetwork = { workspace = true }
 once_cell = { workspace = true }
-libc = "0.2.150"
 log = { workspace = true }
 parking_lot = "0.12.0"
 talpid-routing = { path = "../talpid-routing" }
@@ -44,6 +43,7 @@ tokio-stream = { version = "0.1", features = ["io-util"] }
 
 [target.'cfg(unix)'.dependencies]
 nix = "0.23"
+libc = "0.2.150"
 
 [target.'cfg(any(target_os = "linux", target_os = "macos"))'.dependencies]
 talpid-net = { path = "../talpid-net" }

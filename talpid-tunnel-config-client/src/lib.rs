@@ -5,8 +5,6 @@ use std::net::SocketAddr;
 #[cfg(not(target_os = "ios"))]
 use std::net::{IpAddr, Ipv4Addr};
 use talpid_types::net::wireguard::{PresharedKey, PublicKey};
-#[cfg(not(target_os = "ios"))]
-use tokio::net::TcpSocket;
 use tonic::transport::Channel;
 #[cfg(not(target_os = "ios"))]
 use tonic::transport::Endpoint;
@@ -16,28 +14,13 @@ use zeroize::Zeroize;
 
 mod classic_mceliece;
 mod kyber;
+#[cfg(not(target_os = "ios"))]
+mod socket;
 
 #[allow(clippy::derive_partial_eq_without_eq)]
 mod proto {
     tonic::include_proto!("ephemeralpeer");
 }
-
-#[cfg(not(target_os = "ios"))]
-use libc::setsockopt;
-
-#[cfg(not(any(target_os = "windows", target_os = "ios")))]
-mod sys {
-    pub use libc::{socklen_t, IPPROTO_TCP, TCP_MAXSEG};
-    pub use std::os::fd::{AsRawFd, RawFd};
-}
-
-#[cfg(target_os = "windows")]
-mod sys {
-    pub use std::os::windows::io::{AsRawSocket, RawSocket};
-    pub use windows_sys::Win32::Networking::WinSock::{IPPROTO_IP, IP_USER_MTU};
-}
-#[cfg(not(target_os = "ios"))]
-use sys::*;
 
 #[derive(Debug)]
 pub enum Error {
@@ -100,18 +83,6 @@ pub type RelayConfigService = proto::ephemeral_peer_client::EphemeralPeerClient<
 
 /// Port used by the tunnel config service.
 pub const CONFIG_SERVICE_PORT: u16 = 1337;
-
-/// MTU to set on the tunnel config client socket. We want a low value to prevent fragmentation.
-/// This is needed for two reasons:
-/// 1. Especially on Android, we've found that the real MTU is often lower than the default MTU, and
-///    we cannot lower it further. This causes the outer packets to be dropped. Also, MTU detection
-///    will likely occur after the PQ handshake, so we cannot assume that the MTU is already
-///    correctly configured.
-/// 2. MH + PQ on macOS has connection issues during the handshake due to PF blocking packet
-///    fragments for not having a port. In the longer term this might be fixed by allowing the
-///    handshake to work even if there is fragmentation.
-#[cfg(not(target_os = "ios"))]
-const CONFIG_CLIENT_MTU: u16 = 576;
 
 pub struct EphemeralPeer {
     pub psk: Option<PresharedKey>,
@@ -251,14 +222,7 @@ async fn new_client(addr: Ipv4Addr) -> Result<RelayConfigService, Error> {
 
     let conn = endpoint
         .connect_with_connector(service_fn(move |_| async move {
-            let sock = TcpSocket::new_v4()?;
-
-            #[cfg(target_os = "windows")]
-            try_set_tcp_sock_mtu(sock.as_raw_socket(), CONFIG_CLIENT_MTU);
-
-            #[cfg(not(target_os = "windows"))]
-            try_set_tcp_sock_mtu(&addr, sock.as_raw_fd(), CONFIG_CLIENT_MTU);
-
+            let sock = socket::TcpSocket::new()?;
             sock.connect(SocketAddr::new(addr, CONFIG_SERVICE_PORT))
                 .await
         }))
@@ -266,61 +230,4 @@ async fn new_client(addr: Ipv4Addr) -> Result<RelayConfigService, Error> {
         .map_err(Error::GrpcConnectError)?;
 
     Ok(RelayConfigService::new(conn))
-}
-
-#[cfg(windows)]
-fn try_set_tcp_sock_mtu(sock: RawSocket, mtu: u16) {
-    let mtu = u32::from(mtu);
-    log::debug!("Config client socket MTU: {mtu}");
-
-    let raw_sock = usize::try_from(sock).unwrap();
-
-    let result = unsafe {
-        setsockopt(
-            raw_sock,
-            IPPROTO_IP,
-            IP_USER_MTU,
-            &mtu as *const _ as _,
-            std::ffi::c_int::try_from(std::mem::size_of_val(&mtu)).unwrap(),
-        )
-    };
-    if result != 0 {
-        log::error!(
-            "Failed to set user MTU on config client socket: {}",
-            std::io::Error::last_os_error()
-        );
-    }
-}
-
-#[cfg(not(any(target_os = "windows", target_os = "ios")))]
-fn try_set_tcp_sock_mtu(dest: &IpAddr, sock: RawFd, mut mtu: u16) {
-    const IPV4_HEADER_SIZE: u16 = 20;
-    const IPV6_HEADER_SIZE: u16 = 40;
-    const MAX_TCP_HEADER_SIZE: u16 = 60;
-
-    if dest.is_ipv4() {
-        mtu = mtu.saturating_sub(IPV4_HEADER_SIZE);
-    } else {
-        mtu = mtu.saturating_sub(IPV6_HEADER_SIZE);
-    }
-
-    let mss = u32::from(mtu.saturating_sub(MAX_TCP_HEADER_SIZE));
-
-    log::debug!("Config client socket MSS: {mss}");
-
-    let result = unsafe {
-        setsockopt(
-            sock,
-            IPPROTO_TCP,
-            TCP_MAXSEG,
-            &mss as *const _ as _,
-            socklen_t::try_from(std::mem::size_of_val(&mss)).unwrap(),
-        )
-    };
-    if result != 0 {
-        log::error!(
-            "Failed to set MSS on config client socket: {}",
-            std::io::Error::last_os_error()
-        );
-    }
 }

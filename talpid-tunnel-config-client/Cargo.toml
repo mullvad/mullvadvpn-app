@@ -24,6 +24,8 @@ classic-mceliece-rust = { version = "2.0.0", features = [
 ] }
 pqc_kyber = { version = "0.4.0", features = ["std", "kyber1024", "zeroize"] }
 zeroize = "1.5.7"
+
+[target.'cfg(unix)'.dependencies]
 libc = "0.2"
 
 [target.'cfg(windows)'.dependencies.windows-sys]
