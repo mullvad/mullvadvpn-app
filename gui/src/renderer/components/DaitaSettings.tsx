@@ -45,6 +45,11 @@ const EnableFooter = styled(Cell.CellFooter)({
   paddingBottom: '16px',
 });
 
+const StyledIllustration = styled.img({
+  width: '100%',
+  padding: '8px 0 8px',
+});
+
 export default function DaitaSettings() {
   const { pop } = useHistory();
 
@@ -64,16 +69,26 @@ export default function DaitaSettings() {
                 <HeaderTitle>{strings.daita}</HeaderTitle>
                 <PageSlider
                   content={[
-                    <StyledHeaderSubTitle key="without-daita">
-                      {sprintf(
-                        messages.pgettext(
+                    <React.Fragment key="without-daita">
+                      <StyledIllustration src="../../assets/images/daita-off-illustration.svg" />
+                      <StyledHeaderSubTitle>
+                        {sprintf(
+                          messages.pgettext(
+                            'wireguard-settings-view',
+                            '%(daita)s (%(daitaFull)s) hides patterns in your encrypted VPN traffic.',
+                          ),
+                          { daita: strings.daita, daitaFull: strings.daitaFull },
+                        )}
+                      </StyledHeaderSubTitle>
+                      <StyledHeaderSubTitle>
+                        {messages.pgettext(
                           'wireguard-settings-view',
-                          '%(daita)s (%(daitaFull)s) hides patterns in your encrypted VPN traffic. If anyone is monitoring your connection, this makes it significantly harder for them to identify what websites you are visiting.',
-                        ),
-                        { daita: strings.daita, daitaFull: strings.daitaFull },
-                      )}
-                    </StyledHeaderSubTitle>,
+                          'If anyone is monitoring your connection, this makes it significantly harder for them to identify what websites you are visiting.',
+                        )}
+                      </StyledHeaderSubTitle>
+                    </React.Fragment>,
                     <React.Fragment key="with-daita">
+                      <StyledIllustration src="../../assets/images/daita-on-illustration.svg" />
                       <StyledHeaderSubTitle>
                         {messages.pgettext(
                           'wireguard-settings-view',
