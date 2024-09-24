@@ -21,7 +21,7 @@ crate-type = ["cdylib"]
 tokio = { workspace = true, features = ["rt"] }
 
 thiserror = { workspace = true }
-futures = "0.3"
+futures = { workspace = true }
 ipnetwork = { workspace = true }
 jnix = { version = "0.5.1", features = ["derive"] }
 log = { workspace = true }
