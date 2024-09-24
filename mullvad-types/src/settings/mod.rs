@@ -280,8 +280,8 @@ impl Default for TunnelOptions {
             openvpn: openvpn::TunnelOptions::default(),
             wireguard: wireguard::TunnelOptions::default(),
             generic: GenericTunnelOptions {
-                // Enable IPv6 be default on Android
-                enable_ipv6: cfg!(target_os = "android"),
+                // Enable IPv6 be default on Android and macOS
+                enable_ipv6: cfg!(target_os = "android") || cfg!(target_os = "macos"),
             },
             dns_options: DnsOptions::default(),
         }
