@@ -95,7 +95,7 @@ impl EncryptedDnsProxyState {
     fn next_configuration(&mut self) -> Option<ProxyConfig> {
         if let Some(xor_config) = self
             .configurations
-            .diference(&self.tried_configurations)
+            .difference(&self.tried_configurations)
             // prefer obfuscated proxy configurations.
             .find(|config| config.obfuscation.is_some())
             .cloned()
