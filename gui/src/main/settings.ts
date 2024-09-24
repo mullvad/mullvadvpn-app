@@ -23,7 +23,7 @@ export default class Settings implements Readonly<ISettings> {
     private delegate: SettingsDelegate,
     private daemonRpc: DaemonRpc,
     private currentVersion: ICurrentAppVersionInfo,
-  ) { }
+  ) {}
 
   public registerIpcListeners() {
     this.registerGuiSettingsListener();

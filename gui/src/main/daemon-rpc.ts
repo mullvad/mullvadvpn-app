@@ -93,7 +93,7 @@ export class ConnectionObserver {
   constructor(
     private openHandler: () => void,
     private closeHandler: (wasConnected: boolean, error?: Error) => void,
-  ) { }
+  ) {}
 
   // Only meant to be called by DaemonRpc
   // @internal
@@ -116,7 +116,7 @@ export class SubscriptionListener<T> {
   constructor(
     private eventHandler: (payload: T) => void,
     private errorHandler: (error: Error) => void,
-  ) { }
+  ) {}
 
   // Only meant to be called by DaemonRpc
   // @internal
@@ -1474,10 +1474,10 @@ function convertFromQuantumResistantState(
   return state === undefined
     ? undefined
     : {
-      [grpcTypes.QuantumResistantState.State.ON]: true,
-      [grpcTypes.QuantumResistantState.State.OFF]: false,
-      [grpcTypes.QuantumResistantState.State.AUTO]: undefined,
-    }[state];
+        [grpcTypes.QuantumResistantState.State.ON]: true,
+        [grpcTypes.QuantumResistantState.State.OFF]: false,
+        [grpcTypes.QuantumResistantState.State.AUTO]: undefined,
+      }[state];
 }
 
 function convertFromObfuscationSettings(

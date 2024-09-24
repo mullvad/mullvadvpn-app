@@ -83,14 +83,15 @@ const GEO_DIR = path.resolve(__dirname, '../../assets/geo');
 
 class ApplicationMain
   implements
-  NotificationSender,
-  TunnelStateProvider,
-  LocaleProvider,
-  NotificationControllerDelegate,
-  UserInterfaceDelegate,
-  TunnelStateHandlerDelegate,
-  SettingsDelegate,
-  AccountDelegate {
+    NotificationSender,
+    TunnelStateProvider,
+    LocaleProvider,
+    NotificationControllerDelegate,
+    UserInterfaceDelegate,
+    TunnelStateHandlerDelegate,
+    SettingsDelegate,
+    AccountDelegate
+{
   private daemonRpc: DaemonRpc;
 
   private notificationController = new NotificationController(this);

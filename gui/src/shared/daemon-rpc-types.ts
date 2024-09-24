@@ -33,10 +33,10 @@ export enum FirewallPolicyErrorType {
 export type FirewallPolicyError =
   | { type: FirewallPolicyErrorType.generic }
   | {
-    type: FirewallPolicyErrorType.locked;
-    name: string;
-    pid: number;
-  };
+      type: FirewallPolicyErrorType.locked;
+      name: string;
+      pid: number;
+    };
 
 export enum ErrorStateCause {
   authFailed,
@@ -67,35 +67,35 @@ export enum TunnelParameterError {
 
 export type ErrorStateDetails =
   | {
-    cause:
-    | ErrorStateCause.ipv6Unavailable
-    | ErrorStateCause.setDnsError
-    | ErrorStateCause.startTunnelError
-    | ErrorStateCause.isOffline
-    | ErrorStateCause.splitTunnelError
-    | ErrorStateCause.needFullDiskPermissions;
-    blockingError?: FirewallPolicyError;
-  }
+      cause:
+        | ErrorStateCause.ipv6Unavailable
+        | ErrorStateCause.setDnsError
+        | ErrorStateCause.startTunnelError
+        | ErrorStateCause.isOffline
+        | ErrorStateCause.splitTunnelError
+        | ErrorStateCause.needFullDiskPermissions;
+      blockingError?: FirewallPolicyError;
+    }
   | {
-    cause: ErrorStateCause.authFailed;
-    blockingError?: FirewallPolicyError;
-    authFailedError: AuthFailedError;
-  }
+      cause: ErrorStateCause.authFailed;
+      blockingError?: FirewallPolicyError;
+      authFailedError: AuthFailedError;
+    }
   | {
-    cause: ErrorStateCause.createTunnelDeviceError;
-    blockingError?: FirewallPolicyError;
-    osError?: number;
-  }
+      cause: ErrorStateCause.createTunnelDeviceError;
+      blockingError?: FirewallPolicyError;
+      osError?: number;
+    }
   | {
-    cause: ErrorStateCause.tunnelParameterError;
-    blockingError?: FirewallPolicyError;
-    parameterError: TunnelParameterError;
-  }
+      cause: ErrorStateCause.tunnelParameterError;
+      blockingError?: FirewallPolicyError;
+      parameterError: TunnelParameterError;
+    }
   | {
-    cause: ErrorStateCause.setFirewallPolicyError;
-    blockingError?: FirewallPolicyError;
-    policyError: FirewallPolicyError;
-  };
+      cause: ErrorStateCause.setFirewallPolicyError;
+      blockingError?: FirewallPolicyError;
+      policyError: FirewallPolicyError;
+    };
 
 export type AfterDisconnect = 'nothing' | 'block' | 'reconnect';
 
@@ -274,30 +274,30 @@ export interface IRelaySettingsNormal<OpenVpn, Wireguard> {
 
 export type ConnectionConfig =
   | {
-    openvpn: {
-      endpoint: {
-        ip: string;
-        port: number;
-        protocol: RelayProtocol;
+      openvpn: {
+        endpoint: {
+          ip: string;
+          port: number;
+          protocol: RelayProtocol;
+        };
+        username: string;
       };
-      username: string;
-    };
-  }
+    }
   | {
-    wireguard: {
-      tunnel: {
-        privateKey: string;
-        addresses: string[];
+      wireguard: {
+        tunnel: {
+          privateKey: string;
+          addresses: string[];
+        };
+        peer: {
+          publicKey: string;
+          addresses: string[];
+          endpoint: string;
+        };
+        ipv4Gateway: string;
+        ipv6Gateway?: string;
       };
-      peer: {
-        publicKey: string;
-        addresses: string[];
-        endpoint: string;
-      };
-      ipv4Gateway: string;
-      ipv6Gateway?: string;
     };
-  };
 
 // types describing the structure of RelaySettings
 export interface IRelaySettingsCustom {
@@ -306,11 +306,11 @@ export interface IRelaySettingsCustom {
 }
 export type RelaySettings =
   | {
-    normal: IRelaySettingsNormal<IOpenVpnConstraints, IWireguardConstraints>;
-  }
+      normal: IRelaySettingsNormal<IOpenVpnConstraints, IWireguardConstraints>;
+    }
   | {
-    customTunnelEndpoint: IRelaySettingsCustom;
-  };
+      customTunnelEndpoint: IRelaySettingsCustom;
+    };
 
 export interface IRelayListWithEndpointData {
   relayList: IRelayList;

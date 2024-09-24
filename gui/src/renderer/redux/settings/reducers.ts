@@ -51,15 +51,15 @@ export type NormalBridgeSettingsRedux = {
 
 export type RelaySettingsRedux =
   | {
-    normal: NormalRelaySettingsRedux;
-  }
+      normal: NormalRelaySettingsRedux;
+    }
   | {
-    customTunnelEndpoint: {
-      host: string;
-      port: number;
-      protocol: RelayProtocol;
+      customTunnelEndpoint: {
+        host: string;
+        port: number;
+        protocol: RelayProtocol;
+      };
     };
-  };
 
 export type BridgeSettingsRedux = {
   type: BridgeType;
@@ -200,7 +200,7 @@ const initialState: ISettingsReduxState = {
   relayOverrides: [],
 };
 
-export default function(
+export default function (
   state: ISettingsReduxState = initialState,
   action: ReduxAction,
 ): ISettingsReduxState {

@@ -34,7 +34,7 @@ const initialState: IUserInterfaceReduxState = {
   isMacOs14p6OrNewer: true,
 };
 
-export default function(
+export default function (
   state: IUserInterfaceReduxState = initialState,
   action: ReduxAction,
 ): IUserInterfaceReduxState {
