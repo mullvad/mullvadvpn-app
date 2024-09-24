@@ -22,6 +22,9 @@ final class AccountExpiryInAppNotificationProvider: NotificationProvider, InAppN
             didLoadConfiguration: { [weak self] tunnelManager in
                 self?.invalidate(deviceState: tunnelManager.deviceState)
             },
+            didUpdateTunnelStatus: { [weak self] tunnelManager, _ in
+                self?.invalidate(deviceState: tunnelManager.deviceState)
+            },
             didUpdateDeviceState: { [weak self] _, deviceState, _ in
                 self?.invalidate(deviceState: deviceState)
             }
@@ -38,24 +41,18 @@ final class AccountExpiryInAppNotificationProvider: NotificationProvider, InAppN
     // MARK: - InAppNotificationProvider
 
     var notificationDescriptor: InAppNotificationDescriptor? {
-        guard let duration = accountExpiry.formattedDuration else {
+        guard let durationText = remainingDaysText else {
             return nil
         }
 
         return InAppNotificationDescriptor(
             identifier: identifier,
             style: .warning,
-            title: NSLocalizedString(
-                "ACCOUNT_EXPIRY_INAPP_NOTIFICATION_TITLE",
-                value: "ACCOUNT CREDIT EXPIRES SOON",
-                comment: "Title for in-app notification, displayed within the last 3 days until account expiry."
-            ),
-            body: .init(string: String(
-                format: NSLocalizedString(
-                    "ACCOUNT_EXPIRY_INAPP_NOTIFICATION_BODY",
-                    value: "%@ left. Buy more credit.",
-                    comment: "Message for in-app notification, displayed within the last 3 days until account expiry."
-                ), duration
+            title: durationText,
+            body: NSAttributedString(string: NSLocalizedString(
+                "ACCOUNT_EXPIRY_IN_APP_NOTIFICATION_BODY",
+                value: "You can add more time via the account view or website to continue using the VPN.",
+                comment: "Title for in-app notification, displayed within the last X days until account expiry."
             ))
         )
     }
@@ -63,19 +60,15 @@ final class AccountExpiryInAppNotificationProvider: NotificationProvider, InAppN
     // MARK: - Private
 
     private func invalidate(deviceState: DeviceState) {
-        updateExpiry(deviceState: deviceState)
+        accountExpiry.expiryDate = deviceState.accountData?.expiry
         updateTimer()
         invalidate()
-    }
-
-    private func updateExpiry(deviceState: DeviceState) {
-        accountExpiry.expiryDate = deviceState.accountData?.expiry
     }
 
     private func updateTimer() {
         timer?.cancel()
 
-        guard let triggerDate = accountExpiry.triggerDate else {
+        guard let triggerDate = accountExpiry.nextTriggerDate(for: .inApp) else {
             return
         }
 
@@ -103,5 +96,26 @@ final class AccountExpiryInAppNotificationProvider: NotificationProvider, InAppN
         }
 
         invalidate()
+    }
+}
+
+extension AccountExpiryInAppNotificationProvider {
+    private var remainingDaysText: String? {
+        guard
+            let expiryDate = accountExpiry.expiryDate,
+            let nextTriggerDate = accountExpiry.nextTriggerDate(for: .inApp),
+            let duration = CustomDateComponentsFormatting.localizedString(
+                from: nextTriggerDate,
+                to: expiryDate,
+                unitsStyle: .full
+            )
+        else { return nil }
+
+        return String(format: NSLocalizedString(
+            "ACCOUNT_EXPIRY_IN_APP_NOTIFICATION_TITLE",
+            tableName: "AccountExpiry",
+            value: "%@ left on this account",
+            comment: "Message for in-app notification, displayed within the last X days until account expiry."
+        ), duration).uppercased()
     }
 }
