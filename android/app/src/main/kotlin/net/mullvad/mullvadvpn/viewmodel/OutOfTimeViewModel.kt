@@ -13,16 +13,15 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.OutOfTimeUiState
-import net.mullvad.mullvadvpn.constant.ACCOUNT_EXPIRY_POLL_INTERVAL
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
+import net.mullvad.mullvadvpn.service.notifications.accountexpiry.ACCOUNT_EXPIRY_POLL_INTERVAL
 import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.util.isSuccess
 import net.mullvad.mullvadvpn.util.toPaymentState
-import net.mullvad.mullvadvpn.viewmodel.WelcomeViewModel.UiSideEffect
 
 class OutOfTimeViewModel(
     private val accountRepository: AccountRepository,
