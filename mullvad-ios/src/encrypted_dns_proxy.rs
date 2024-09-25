@@ -82,6 +82,10 @@ impl EncryptedDnsProxyState {
         if self.should_reset() {
             self.reset();
         }
+        // TODO: currently, the randomized order of proxy config retrieval depends on the random
+        // iteration order of a given HashSet instance. Since for now, there will be only 2
+        // different configurations, it barely matters. In the future, we should use `rand`
+        // instead, so that the behavior is explicit and clear.
 
         // First, try getting an obfuscated configuration, if there exist any.
         let config = if let Some(obfuscated_config) = self
