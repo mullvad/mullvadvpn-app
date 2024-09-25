@@ -32,16 +32,7 @@ final class APIAccessMethodsTests: XCTestCase {
         let repository = AccessMethodRepository()
         let storedMethods = repository.fetchAll()
 
-        let hasDirectMethod = storedMethods.contains { method in
-            method.kind == .direct
-        }
-
-        let hasBridgesMethod = storedMethods.contains { method in
-            method.kind == .bridges
-        }
-
-        XCTAssertEqual(storedMethods.count, 2)
-        XCTAssertTrue(hasDirectMethod && hasBridgesMethod)
+        XCTAssertEqual(storedMethods.filter { $0.isEnabled && $0.kind.isPermanent }.count, 3)
     }
 
     func testAddingSocks5AccessMethod() throws {
@@ -78,8 +69,8 @@ final class APIAccessMethodsTests: XCTestCase {
 
         let storedMethods = repository.fetchAll()
 
-        // Account for .direct and .bridges that are always added by default.
-        XCTAssertEqual(storedMethods.count, 3)
+        // Account for .direct, .bridges and .encryptedDNS that are always added by default.
+        XCTAssertEqual(storedMethods.count, 4)
     }
 
     func testUpdatingAccessMethod() throws {

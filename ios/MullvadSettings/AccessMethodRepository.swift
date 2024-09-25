@@ -28,6 +28,13 @@ public class AccessMethodRepository: AccessMethodRepositoryProtocol {
         proxyConfiguration: .bridges
     )
 
+    private let encryptedDNS = PersistentAccessMethod(
+        id: UUID(uuidString: "831CB1F8-1829-42DD-B9DC-82902F298EC0")!,
+        name: "Encrypted DNS proxy",
+        isEnabled: true,
+        proxyConfiguration: .encryptedDNS
+    )
+
     private let accessMethodsSubject: CurrentValueSubject<[PersistentAccessMethod], Never>
     public var accessMethodsPublisher: AnyPublisher<[PersistentAccessMethod], Never> {
         accessMethodsSubject.eraseToAnyPublisher()
@@ -46,7 +53,7 @@ public class AccessMethodRepository: AccessMethodRepositoryProtocol {
         accessMethodsSubject = CurrentValueSubject([])
         lastReachableAccessMethodSubject = CurrentValueSubject(direct)
 
-        add([direct, bridge])
+        addDefaultsMethods()
 
         accessMethodsSubject.send(fetchAll())
         lastReachableAccessMethodSubject.send(fetchLastReachable())
@@ -107,15 +114,30 @@ public class AccessMethodRepository: AccessMethodRepositoryProtocol {
     }
 
     public func fetchAll() -> [PersistentAccessMethod] {
+        #if DEBUG
         readApiAccessMethodStore().accessMethods
+        #else
+        readApiAccessMethodStore().accessMethods.filter { $0.id != encryptedDNS.id }
+        #endif
     }
 
     public func fetchLastReachable() -> PersistentAccessMethod {
         readApiAccessMethodStore().lastReachableAccessMethod
     }
 
-    public func reloadWithDefaultsAfterDataRemoval() {
-        add([direct, bridge])
+    public func addDefaultsMethods() {
+        #if DEBUG
+        add([
+            direct,
+            bridge,
+            encryptedDNS,
+        ])
+        #else
+        add([
+            direct,
+            bridge,
+        ])
+        #endif
     }
 
     private func add(_ methods: [PersistentAccessMethod]) {
