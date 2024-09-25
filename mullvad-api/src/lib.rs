@@ -21,7 +21,7 @@ use std::{
 use talpid_types::ErrorExt;
 
 pub mod availability;
-use availability::{ApiAvailability, ApiAvailabilityHandle};
+use availability::ApiAvailability;
 pub mod rest;
 
 mod abortable_stream;
@@ -414,7 +414,7 @@ impl Runtime {
     ) -> rest::RequestServiceHandle {
         rest::RequestService::spawn(
             sni_hostname,
-            self.api_availability.handle(),
+            self.api_availability.clone(),
             self.address_cache.clone(),
             connection_mode_provider,
             #[cfg(target_os = "android")]
@@ -467,8 +467,8 @@ impl Runtime {
         &mut self.handle
     }
 
-    pub fn availability_handle(&self) -> ApiAvailabilityHandle {
-        self.api_availability.handle()
+    pub fn availability_handle(&self) -> ApiAvailability {
+        self.api_availability.clone()
     }
 
     pub fn address_cache(&self) -> &AddressCache {

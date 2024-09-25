@@ -4,7 +4,7 @@ use futures::{
     future::{BoxFuture, FusedFuture},
     FutureExt, SinkExt, StreamExt, TryFutureExt,
 };
-use mullvad_api::{availability::ApiAvailabilityHandle, rest::MullvadRestHandle, AppVersionProxy};
+use mullvad_api::{availability::ApiAvailability, rest::MullvadRestHandle, AppVersionProxy};
 use mullvad_types::version::{AppVersionInfo, ParsedAppVersion};
 use serde::{Deserialize, Serialize};
 use std::{
@@ -149,7 +149,7 @@ impl VersionUpdaterHandle {
 impl VersionUpdater {
     pub async fn spawn(
         mut api_handle: MullvadRestHandle,
-        availability_handle: ApiAvailabilityHandle,
+        availability_handle: ApiAvailability,
         cache_dir: PathBuf,
         update_sender: DaemonEventSender<AppVersionInfo>,
         show_beta_releases: bool,
@@ -413,7 +413,7 @@ impl UpdateContext {
 
 #[derive(Clone)]
 struct ApiContext {
-    api_handle: ApiAvailabilityHandle,
+    api_handle: ApiAvailability,
     version_proxy: AppVersionProxy,
     platform_version: String,
 }
@@ -435,7 +435,7 @@ fn do_version_check(
     // retry immediately on network errors (unless we're offline)
     let should_retry_immediate = move |result: &Result<_, Error>| {
         if let Err(Error::Download(error)) = result {
-            error.is_network_error() && !api.api_handle.get_state().is_offline()
+            error.is_network_error() && !api.api_handle.is_offline()
         } else {
             false
         }

@@ -3,7 +3,7 @@ pub use crate::https_client_with_sni::SocketBypassRequest;
 use crate::{
     access::AccessTokenStore,
     address_cache::AddressCache,
-    availability::ApiAvailabilityHandle,
+    availability::ApiAvailability,
     https_client_with_sni::{HttpsConnectorWithSni, HttpsConnectorWithSniHandle},
     proxy::ConnectionModeProvider,
 };
@@ -122,14 +122,14 @@ pub(crate) struct RequestService<T: ConnectionModeProvider> {
     client: hyper::Client<HttpsConnectorWithSni, hyper::Body>,
     connection_mode_provider: T,
     connection_mode_generation: usize,
-    api_availability: ApiAvailabilityHandle,
+    api_availability: ApiAvailability,
 }
 
 impl<T: ConnectionModeProvider + 'static> RequestService<T> {
     /// Constructs a new request service.
     pub fn spawn(
         sni_hostname: Option<String>,
-        api_availability: ApiAvailabilityHandle,
+        api_availability: ApiAvailability,
         address_cache: AddressCache,
         connection_mode_provider: T,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
@@ -218,7 +218,7 @@ impl<T: ConnectionModeProvider + 'static> RequestService<T> {
 
             // Switch API endpoint if the request failed due to a network error
             if let Err(err) = &response {
-                if err.is_network_error() && !api_availability.get_state().is_offline() {
+                if err.is_network_error() && !api_availability.is_offline() {
                     log::error!("{}", err.display_chain_with_msg("HTTP request failed"));
                     if let Some(tx) = tx {
                         let _ = tx.unbounded_send(RequestCommand::NextApiConfig(
@@ -339,7 +339,7 @@ impl Request {
     async fn into_future<C: Connect + Clone + Send + Sync + 'static>(
         self,
         hyper_client: hyper::Client<C>,
-        api_availability: ApiAvailabilityHandle,
+        api_availability: ApiAvailability,
     ) -> Result<Response> {
         let timeout = self.timeout;
         let inner_fut = self.into_future_without_timeout(hyper_client, api_availability);
@@ -351,7 +351,7 @@ impl Request {
     async fn into_future_without_timeout<C: Connect + Clone + Send + Sync + 'static>(
         mut self,
         hyper_client: hyper::Client<C>,
-        api_availability: ApiAvailabilityHandle,
+        api_availability: ApiAvailability,
     ) -> Result<Response> {
         let _ = api_availability.wait_for_unsuspend().await;
 
@@ -605,14 +605,14 @@ async fn deserialize_body_inner<T: serde::de::DeserializeOwned>(
 pub struct MullvadRestHandle {
     pub(crate) service: RequestServiceHandle,
     pub factory: RequestFactory,
-    pub availability: ApiAvailabilityHandle,
+    pub availability: ApiAvailability,
 }
 
 impl MullvadRestHandle {
     pub(crate) fn new(
         service: RequestServiceHandle,
         factory: RequestFactory,
-        availability: ApiAvailabilityHandle,
+        availability: ApiAvailability,
     ) -> Self {
         Self {
             service,
