@@ -18,13 +18,15 @@ pub struct EncryptedDnsProxyState {
 
 #[derive(Debug)]
 pub enum Error {
-    /// Failed to bind a local listening socket, the one that will be forwarded through the proxy
+    /// Failed to initialize tokio runtime.
+    TokioRuntime,
+    /// Failed to bind a local listening socket, the one that will be forwarded through the proxy.
     BindLocalSocket(io::Error),
     /// Failed to get local listening address of the local listening socket.
     GetBindAddr(io::Error),
     /// Failed to initialize forwarder.
     Forwarder(io::Error),
-    /// Failed to fetch new.
+    /// Failed to fetch a proxy configuration over DNS.
     FetchConfig(config_resolver::Error),
     /// Failed to initialize with a valid configuration.
     NoConfigs,
@@ -33,6 +35,7 @@ pub enum Error {
 impl From<Error> for i32 {
     fn from(err: Error) -> Self {
         match err {
+            Error::TokioRuntime(_) => -1,
             Error::BindLocalSocket(_) => -2,
             Error::GetBindAddr(_) => -3,
             Error::Forwarder(_) => -4,
@@ -59,12 +62,7 @@ impl EncryptedDnsProxyState {
     }
 
     async fn start(&mut self) -> Result<ProxyHandle, Error> {
-        // TODO: Consider strong timeout here
         self.fetch_configs().await?;
-        if self.should_reset() {
-            self.reset();
-        }
-
         let proxy_configuration = self.next_configuration().ok_or(Error::NoConfigs)?;
 
         let local_socket = Self::bind_local_addr()
@@ -92,6 +90,10 @@ impl EncryptedDnsProxyState {
     }
 
     fn next_configuration(&mut self) -> Option<ProxyConfig> {
+        if self.should_reset() {
+            self.reset();
+        }
+
         if let Some(xor_config) = self
             .configurations
             .difference(&self.tried_configurations)
@@ -156,7 +158,6 @@ pub unsafe extern "C" fn encrytped_dns_proxy_free(ptr: *mut EncryptedDnsProxySta
 ///
 /// `proxy_handle` will only contain valid values if the return value is zero. It is still valid to
 /// deallocate the memory.
-///
 #[no_mangle]
 pub unsafe extern "C" fn encrypted_dns_proxy_start(
     encrypted_dns_proxy: *mut EncryptedDnsProxyState,
@@ -166,7 +167,7 @@ pub unsafe extern "C" fn encrypted_dns_proxy_start(
         Ok(handle) => handle,
         Err(err) => {
             log::error!("Cannot instantiate a tokio runtime: {}", err);
-            return -1;
+            return Error::TokioRuntime.into();
         }
     };
 
@@ -177,6 +178,11 @@ pub unsafe extern "C" fn encrypted_dns_proxy_start(
     match proxy_result {
         Ok(handle) => unsafe { ptr::write(proxy_handle, handle) },
         Err(err) => {
+            let empty_handle = ProxyHandle {
+                context: ptr::null(),
+                port: 0,
+            };
+            unsafe { ptr::write(proxy_handle, empty_handle) }
             log::error!("Failed to create a proxy connection: {err:?}");
             return err.into();
         }
@@ -185,12 +191,15 @@ pub unsafe extern "C" fn encrypted_dns_proxy_start(
     0
 }
 
-/// SAFETY:
+/// # Safety
 /// `proxy_config` must be a valid pointer to a `ProxyHandle` as initialized by
 /// [`encrypted_dns_proxy_start`].
 #[no_mangle]
 pub unsafe extern "C" fn encrypted_dns_proxy_stop(proxy_config: *mut ProxyHandle) -> i32 {
-    let handle: Box<JoinHandle<()>> = unsafe { Box::from_raw((*proxy_config).context.cast()) };
-    handle.abort();
+    let ptr = unsafe { *proxy_config.context };
+    if !ptr.is_null() {
+        let handle: Box<JoinHandle<()>> = unsafe { Box::from_raw(ptr.cast()) };
+        handle.abort();
+    }
     0i32
 }

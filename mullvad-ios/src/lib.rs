@@ -1,4 +1,4 @@
-#![cfg(any(target_os = "ios", target_os = "macos"))]
+#![cfg(target_os = "ios")]
 mod encrypted_dns_proxy;
 mod ephemeral_peer_proxy;
 mod shadowsocks_proxy;
