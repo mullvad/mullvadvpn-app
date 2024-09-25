@@ -18,15 +18,27 @@ public enum DAITAState: Codable {
     }
 }
 
-/// Selected relay is incompatible with Daita, either through singlehop or multihop.
+/// Whether smart routing is enabled
+public enum SmartRoutingState: Codable {
+    case on
+    case off
+
+    public var isEnabled: Bool {
+        self == .on
+    }
+}
+
+/// Selected relay is incompatible with DAITA, either through singlehop or multihop.
 public enum DAITASettingsCompatibilityError {
     case singlehop, multihop
 }
 
 public struct DAITASettings: Codable, Equatable {
-    public let state: DAITAState
+    public let daitaState: DAITAState
+    public let smartRoutingState: SmartRoutingState
 
-    public init(state: DAITAState = .off) {
-        self.state = state
+    public init(daitaState: DAITAState = .off, smartRoutingState: SmartRoutingState = .off) {
+        self.daitaState = daitaState
+        self.smartRoutingState = smartRoutingState
     }
 }

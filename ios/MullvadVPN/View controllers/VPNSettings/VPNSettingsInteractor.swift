@@ -53,7 +53,7 @@ final class VPNSettingsInteractor {
     }
 
     func evaluateDaitaSettingsCompatibility(_ settings: DAITASettings) -> DAITASettingsCompatibilityError? {
-        guard settings.state.isEnabled else { return nil }
+        guard settings.daitaState.isEnabled else { return nil }
 
         var tunnelSettings = tunnelSettings
         tunnelSettings.daita = settings

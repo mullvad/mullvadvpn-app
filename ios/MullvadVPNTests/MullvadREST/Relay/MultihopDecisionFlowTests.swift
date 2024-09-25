@@ -120,7 +120,7 @@ extension MultihopDecisionFlowTests {
 
         return MultihopPicker(
             constraints: constraints,
-            daitaSettings: DAITASettings(state: .off),
+            daitaSettings: DAITASettings(daitaState: .off),
             relays: sampleRelays,
             connectionAttemptCount: 0
         )
