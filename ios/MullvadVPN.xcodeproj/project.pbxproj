@@ -970,6 +970,7 @@
 		F0DDE42B2B220A15006B57A7 /* RelaySelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DDE4282B220A15006B57A7 /* RelaySelector.swift */; };
 		F0DDE42C2B220A15006B57A7 /* Midpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DDE4292B220A15006B57A7 /* Midpoint.swift */; };
 		F0E3618B2A4ADD2F00AEEF2B /* WelcomeContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E3618A2A4ADD2F00AEEF2B /* WelcomeContentView.swift */; };
+		F0E5B2F82C9C68CF0007F78C /* EncryptedDNSTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E5B2F72C9C68CD0007F78C /* EncryptedDNSTransport.swift */; };
 		F0E61CAA2BF2911D000C4A95 /* TunnelSettingsV5.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E61CA82BF2911D000C4A95 /* TunnelSettingsV5.swift */; };
 		F0E61CAB2BF2911D000C4A95 /* MultihopSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E61CA92BF2911D000C4A95 /* MultihopSettings.swift */; };
 		F0E8CC032A4C753B007ED3B4 /* WelcomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E8CC022A4C753B007ED3B4 /* WelcomeViewController.swift */; };
@@ -2155,6 +2156,7 @@
 		F0DDE4282B220A15006B57A7 /* RelaySelector.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RelaySelector.swift; sourceTree = "<group>"; };
 		F0DDE4292B220A15006B57A7 /* Midpoint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Midpoint.swift; sourceTree = "<group>"; };
 		F0E3618A2A4ADD2F00AEEF2B /* WelcomeContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeContentView.swift; sourceTree = "<group>"; };
+		F0E5B2F72C9C68CD0007F78C /* EncryptedDNSTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncryptedDNSTransport.swift; sourceTree = "<group>"; };
 		F0E61CA82BF2911D000C4A95 /* TunnelSettingsV5.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TunnelSettingsV5.swift; sourceTree = "<group>"; };
 		F0E61CA92BF2911D000C4A95 /* MultihopSettings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MultihopSettings.swift; sourceTree = "<group>"; };
 		F0E8CC022A4C753B007ED3B4 /* WelcomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeViewController.swift; sourceTree = "<group>"; };
@@ -4176,8 +4178,9 @@
 			isa = PBXGroup;
 			children = (
 				F0164ED02B4F2DCB0020268D /* AccessMethodIterator.swift */,
-				A932D9EE2B5ADD0700999395 /* ProxyConfigurationTransportProvider.swift */,
 				F0DC77A32B2315800087F09D /* Direct */,
+				F0E5B2F62C9C689C0007F78C /* EncryptedDNS */,
+				A932D9EE2B5ADD0700999395 /* ProxyConfigurationTransportProvider.swift */,
 				06FAE67D28F83CA50033DD93 /* RESTTransport.swift */,
 				58E7BA182A975DF70068EC3A /* RESTTransportProvider.swift */,
 				F0DC77A22B2314EF0087F09D /* Shadowsocks */,
@@ -4226,6 +4229,14 @@
 				F0E8CC022A4C753B007ED3B4 /* WelcomeViewController.swift */,
 			);
 			path = Welcome;
+			sourceTree = "<group>";
+		};
+		F0E5B2F62C9C689C0007F78C /* EncryptedDNS */ = {
+			isa = PBXGroup;
+			children = (
+				F0E5B2F72C9C68CD0007F78C /* EncryptedDNSTransport.swift */,
+			);
+			path = EncryptedDNS;
 			sourceTree = "<group>";
 		};
 		F0E8CC082A4EE0DC007ED3B4 /* Completed */ = {
@@ -5200,6 +5211,7 @@
 				06799ADB28F98E4800ACD94E /* RESTProxyFactory.swift in Sources */,
 				F0DDE4182B220458006B57A7 /* ShadowsocksConfiguration.swift in Sources */,
 				7AA7046A2C8EFE2B0045699D /* StoredRelays.swift in Sources */,
+				F0E5B2F82C9C68CF0007F78C /* EncryptedDNSTransport.swift in Sources */,
 				06799AF228F98E4800ACD94E /* RESTAccessTokenManager.swift in Sources */,
 				A90763B12B2857D50045ADF0 /* Socks5Endpoint.swift in Sources */,
 				06799AF328F98E4800ACD94E /* RESTAuthenticationProxy.swift in Sources */,
@@ -7183,6 +7195,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
 				PATH = "${PATH}:/opt/homebrew/opt/go@1.19/bin";
@@ -7195,6 +7208,7 @@
 			baseConfigurationReference = 5808273928487E3E006B77A4 /* Base.xcconfig */;
 			buildSettings = {
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
 				PATH = "${PATH}:/opt/homebrew/opt/go@1.19/bin";
@@ -7551,6 +7565,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
 				PATH = "${PATH}:/opt/homebrew/opt/go@1.19/bin";
@@ -8388,6 +8403,7 @@
 			baseConfigurationReference = 5808273928487E3E006B77A4 /* Base.xcconfig */;
 			buildSettings = {
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
 				PATH = "${PATH}:/opt/homebrew/opt/go@1.19/bin";

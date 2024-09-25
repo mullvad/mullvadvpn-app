@@ -66,6 +66,9 @@ public enum PersistentProxyConfiguration: Codable {
     /// Communication over bridges.
     case bridges
 
+    /// Communication over proxy address from a DNS.
+    case encryptedDNS
+
     /// Communication over shadowsocks.
     case shadowsocks(ShadowsocksConfiguration)
 

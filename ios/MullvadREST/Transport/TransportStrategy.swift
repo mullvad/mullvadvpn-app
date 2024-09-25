@@ -23,19 +23,24 @@ public struct TransportStrategy: Equatable {
         /// Connecting via socks proxy
         case socks5(configuration: Socks5Configuration)
 
-        /// Failing  to retrive transport
+        /// Connecting via encrypted DNS proxy
+        case encryptedDNS
+
+        /// Failing  to retrieve transport
         case none
 
         public static func == (lhs: Self, rhs: Self) -> Bool {
             switch (lhs, rhs) {
             case(.direct, .direct), (.none, .none):
-                return true
+                true
             case let (.shadowsocks(lhsConfiguration), .shadowsocks(rhsConfiguration)):
-                return lhsConfiguration == rhsConfiguration
+                lhsConfiguration == rhsConfiguration
             case let (.socks5(lhsConfiguration), .socks5(rhsConfiguration)):
-                return lhsConfiguration == rhsConfiguration
+                lhsConfiguration == rhsConfiguration
+            case (.encryptedDNS, .encryptedDNS):
+                true
             default:
-                return false
+                false
             }
         }
     }
@@ -70,6 +75,8 @@ public struct TransportStrategy: Equatable {
         switch configuration.proxyConfiguration {
         case .direct:
             return .direct
+        case .encryptedDNS:
+            return .encryptedDNS
         case .bridges:
             do {
                 let configuration = try shadowsocksLoader.load()
