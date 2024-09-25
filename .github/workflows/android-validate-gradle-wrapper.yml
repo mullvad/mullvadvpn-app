@@ -2,10 +2,10 @@ name: "Android - Validate gradle wrapper"
 
 on:
   workflow_dispatch:
-  pull_request:
+  push:
     paths:
       - .github/workflows/android-validate-gradle-wrapper.yml
-      - android/gradle/wrapper/gradle-wrapper.jar
+      - '**/gradle-wrapper.jar'
 
 permissions: {}
 
