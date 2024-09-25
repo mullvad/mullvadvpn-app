@@ -85,7 +85,7 @@ final class TunnelSettingsUpdateTests: XCTestCase {
 
     func testApplyDAITA() {
         // Given:
-        let daitaSettings = DAITASettings(state: .on)
+        let daitaSettings = DAITASettings(daitaState: .on)
         var settings = LatestTunnelSettings()
 
         // When:

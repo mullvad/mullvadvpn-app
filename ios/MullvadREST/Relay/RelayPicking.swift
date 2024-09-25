@@ -49,7 +49,7 @@ struct SinglehopPicker: RelayPicking {
                 by: constraints.exitLocations,
                 in: relays,
                 filterConstraint: constraints.filter,
-                daitaEnabled: daitaSettings.state.isEnabled
+                daitaEnabled: daitaSettings.daitaState.isEnabled
             )
         } catch let error as NoRelaysSatisfyingConstraintsError where error.reason == .noDaitaRelaysFound {
             #if DEBUG
@@ -83,7 +83,7 @@ struct MultihopPicker: RelayPicking {
             by: constraints.entryLocations,
             in: relays,
             filterConstraint: constraints.filter,
-            daitaEnabled: daitaSettings.state.isEnabled
+            daitaEnabled: daitaSettings.daitaState.isEnabled
         )
 
         let exitCandidates = try RelaySelector.WireGuard.findCandidates(

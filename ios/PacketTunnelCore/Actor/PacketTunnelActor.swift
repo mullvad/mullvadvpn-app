@@ -259,7 +259,7 @@ extension PacketTunnelActor {
     ) async throws {
         let settings: Settings = try settingsReader.read()
 
-        if settings.quantumResistance.isEnabled || settings.daita.state.isEnabled {
+        if settings.quantumResistance.isEnabled || settings.daita.daitaState.isEnabled {
             try await tryStartEphemeralPeerNegotiation(withSettings: settings, nextRelays: nextRelays, reason: reason)
         } else {
             try await tryStartConnection(withSettings: settings, nextRelays: nextRelays, reason: reason)
@@ -307,7 +307,7 @@ extension PacketTunnelActor {
         }
 
         var daitaConfiguration: DaitaConfiguration?
-        if settings.daita.state.isEnabled {
+        if settings.daita.daitaState.isEnabled {
             let maybeNot = Maybenot()
             daitaConfiguration = DaitaConfiguration(
                 machines: maybeNot.machines,
@@ -417,7 +417,7 @@ extension PacketTunnelActor {
                 transportLayer: .udp,
                 remotePort: connectedRelay.endpoint.ipv4Relay.port,
                 isPostQuantum: settings.quantumResistance.isEnabled,
-                isDaitaEnabled: settings.daita.state.isEnabled
+                isDaitaEnabled: settings.daita.daitaState.isEnabled
             )
         case .disconnecting, .disconnected:
             return nil
@@ -460,7 +460,7 @@ extension PacketTunnelActor {
             transportLayer: transportLayer,
             remotePort: protocolObfuscator.remotePort,
             isPostQuantum: settings.quantumResistance.isEnabled,
-            isDaitaEnabled: settings.daita.state.isEnabled
+            isDaitaEnabled: settings.daita.daitaState.isEnabled
         )
     }
 
