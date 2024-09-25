@@ -37,7 +37,7 @@ impl std::error::Error for Error {}
 
 /// Type of a proxy configuration. Derived from the 2nd hextet of an IPv6 address in network byte
 /// order. E.g. an IPv6 address such as `7f7f:2323::`  would have a proxy type value of `0x2323`.
-#[derive(PartialEq, Debug, Eq, Hash, Clone)]
+#[derive(PartialEq, Debug)]
 enum ProxyType {
     /// Plain proxy type
     Plain,
