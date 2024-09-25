@@ -217,6 +217,8 @@ fn xor_assign(dst: &mut [u8; 32], src: &[u8; 32]) {
 
 #[cfg(not(target_os = "ios"))]
 async fn new_client(addr: Ipv4Addr) -> Result<RelayConfigService, Error> {
+    use futures::TryFutureExt;
+
     let endpoint = Endpoint::from_static("tcp://0.0.0.0:0");
     let addr = IpAddr::V4(addr);
 
@@ -224,6 +226,7 @@ async fn new_client(addr: Ipv4Addr) -> Result<RelayConfigService, Error> {
         .connect_with_connector(service_fn(move |_| async move {
             let sock = socket::TcpSocket::new()?;
             sock.connect(SocketAddr::new(addr, CONFIG_SERVICE_PORT))
+                .map_ok(hyper_util::rt::tokio::TokioIo::new)
                 .await
         }))
         .await
