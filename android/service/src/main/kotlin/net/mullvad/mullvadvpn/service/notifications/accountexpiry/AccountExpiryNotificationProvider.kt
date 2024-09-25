@@ -55,10 +55,8 @@ class AccountExpiryNotificationProvider(
     }
 
     private fun Duration.isCloseToExpiry(): Boolean {
-        return isShorterThan(REMAINING_TIME_FOR_REMINDERS)
-    }
-
-    companion object {
-        private val REMAINING_TIME_FOR_REMINDERS = Duration.standardDays(2)
+        return isShorterThan(
+            Duration.standardDays(ACCOUNT_EXPIRY_CLOSE_TO_EXPIRY_THRESHOLD_DAYS.toLong())
+        )
     }
 }
