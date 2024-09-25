@@ -44,7 +44,7 @@ const EnableFooter = styled(Cell.CellFooter)({
   paddingBottom: '16px',
 });
 
-const StyledIllustration = styled.img({
+export const StyledIllustration = styled.img({
   width: '100%',
   padding: '8px 0 8px',
 });
