@@ -216,7 +216,7 @@ final class VPNSettingsCellFactory: CellFactoryProtocol {
                 comment: ""
             )
             cell.accessibilityIdentifier = item.accessibilityIdentifier
-            cell.setOn(viewModel.daitaSettings.state.isEnabled, animated: false)
+            cell.setOn(viewModel.daitaSettings.daitaState.isEnabled, animated: false)
 
             cell.infoButtonHandler = { [weak self] in
                 self?.delegate?.showInfo(for: .daita)
@@ -224,7 +224,7 @@ final class VPNSettingsCellFactory: CellFactoryProtocol {
 
             cell.action = { [weak self] isEnabled in
                 let state: DAITAState = isEnabled ? .on : .off
-                self?.delegate?.switchDaitaState(DAITASettings(state: state))
+                self?.delegate?.switchDaitaState(DAITASettings(daitaState: state))
             }
 
         case .multihopSwitch:

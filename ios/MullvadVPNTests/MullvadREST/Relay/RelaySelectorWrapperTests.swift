@@ -48,7 +48,7 @@ class RelaySelectorWrapperTests: XCTestCase {
         let settings = LatestTunnelSettings(
             relayConstraints: singlehopWithoutDaitaConstraints,
             tunnelMultihopState: .off,
-            daita: DAITASettings(state: .off)
+            daita: DAITASettings(daitaState: .off)
         )
 
         let selectedRelays = try wrapper.selectRelays(tunnelSettings: settings, connectionAttemptCount: 0)
@@ -61,7 +61,7 @@ class RelaySelectorWrapperTests: XCTestCase {
         let settings = LatestTunnelSettings(
             relayConstraints: multihopWithDaitaConstraints,
             tunnelMultihopState: .on,
-            daita: DAITASettings(state: .off)
+            daita: DAITASettings(daitaState: .off)
         )
 
         let selectedRelays = try wrapper.selectRelays(tunnelSettings: settings, connectionAttemptCount: 0)
@@ -74,7 +74,7 @@ class RelaySelectorWrapperTests: XCTestCase {
         let settings = LatestTunnelSettings(
             relayConstraints: multihopWithDaitaConstraints,
             tunnelMultihopState: .on,
-            daita: DAITASettings(state: .on)
+            daita: DAITASettings(daitaState: .on)
         )
 
         XCTAssertNoThrow(try wrapper.selectRelays(tunnelSettings: settings, connectionAttemptCount: 0))
@@ -86,7 +86,7 @@ class RelaySelectorWrapperTests: XCTestCase {
         let settings = LatestTunnelSettings(
             relayConstraints: multihopWithoutDaitaConstraints,
             tunnelMultihopState: .on,
-            daita: DAITASettings(state: .on)
+            daita: DAITASettings(daitaState: .on)
         )
 
         XCTAssertThrowsError(try wrapper.selectRelays(tunnelSettings: settings, connectionAttemptCount: 0))
@@ -98,7 +98,7 @@ class RelaySelectorWrapperTests: XCTestCase {
         let settings = LatestTunnelSettings(
             relayConstraints: singlehopWithDaitaConstraints,
             tunnelMultihopState: .off,
-            daita: DAITASettings(state: .on)
+            daita: DAITASettings(daitaState: .on)
         )
 
         let selectedRelays = try wrapper.selectRelays(tunnelSettings: settings, connectionAttemptCount: 0)
@@ -113,7 +113,7 @@ class RelaySelectorWrapperTests: XCTestCase {
         let settings = LatestTunnelSettings(
             relayConstraints: singlehopWithoutDaitaConstraints,
             tunnelMultihopState: .off,
-            daita: DAITASettings(state: .on)
+            daita: DAITASettings(daitaState: .on)
         )
 
         let selectedRelays = try wrapper.selectRelays(tunnelSettings: settings, connectionAttemptCount: 0)

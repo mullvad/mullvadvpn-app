@@ -65,7 +65,7 @@ extension PacketTunnelActor {
         }
 
         var daitaConfiguration: DaitaConfiguration?
-        if settings.daita.state.isEnabled {
+        if settings.daita.daitaState.isEnabled {
             let maybeNot = Maybenot()
             daitaConfiguration = DaitaConfiguration(
                 machines: maybeNot.machines,

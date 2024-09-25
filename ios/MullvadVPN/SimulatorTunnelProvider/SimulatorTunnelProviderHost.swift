@@ -182,7 +182,7 @@ final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
                     remotePort: selectedRelays.entry?.endpoint.ipv4Relay.port ?? selectedRelays.exit.endpoint.ipv4Relay
                         .port,
                     isPostQuantum: settings.tunnelQuantumResistance.isEnabled,
-                    isDaitaEnabled: settings.daita.state.isEnabled
+                    isDaitaEnabled: settings.daita.daitaState.isEnabled
                 )
             )
         } catch {
