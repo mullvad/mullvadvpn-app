@@ -24,10 +24,10 @@ colored = { workspace = true }
 async-trait = { workspace = true }
 
 hyper = { version = "1.4.1", features = ["client", "http2"] }
-hyper-rustls = { version = "0.27.3", features = ["log", "webpki-roots"] }
+hyper-rustls = { version = "0.27.3", features = ["logging", "webpki-roots", "http1", "ring"], default-features = false}
 hyper-util = {workspace = true}
 http-body-util = "0.1.2"
-tokio-rustls = "0.26.0"
+tokio-rustls = { version = "0.26.0", features = ["logging", "tls12", "ring"], default-features = false}
 rustls-pemfile = "2.1.3"
 
 [dependencies.tokio-util]
