@@ -28,7 +28,8 @@ struct EncryptedDnsProxyState *encrypted_dns_proxy_init(void);
  *
  * # Safety
  * `ptr` must be a valid, exclusive pointer to `EncryptedDnsProxyState`, initialized
- * by `encrypted_dns_proxy_init`. This function is not thread safe.
+ * by `encrypted_dns_proxy_init`. This function is not thread safe, and should only be called
+ * once.
  */
 void encrypted_dns_proxy_free(struct EncryptedDnsProxyState *ptr);
 
@@ -36,7 +37,9 @@ void encrypted_dns_proxy_free(struct EncryptedDnsProxyState *ptr);
  * # Safety
  * encrypted_dns_proxy must be a valid, exclusive pointer to `EncryptedDnsProxyState`, initialized
  * by `encrypted_dns_proxy_init`. This function is not thread safe.
- * `proxy_handle` must be pointing to a valid memory region for the size of a `ProxyHandle`
+ * `proxy_handle` must be pointing to a valid memory region for the size of a `ProxyHandle`. This
+ * function is not thread safe, but it can be called repeatedly. Each successful invocation should
+ * clean up the resulting proxy via `[encrypted_dns_proxy_stop]`.
  *
  * `proxy_handle` will only contain valid values if the return value is zero. It is still valid to
  * deallocate the memory.
@@ -47,7 +50,7 @@ int32_t encrypted_dns_proxy_start(struct EncryptedDnsProxyState *encrypted_dns_p
 /**
  * # Safety
  * `proxy_config` must be a valid pointer to a `ProxyHandle` as initialized by
- * [`encrypted_dns_proxy_start`].
+ * [`encrypted_dns_proxy_start`]. It should only ever be called once.
  */
 int32_t encrypted_dns_proxy_stop(struct ProxyHandle *proxy_config);
 
