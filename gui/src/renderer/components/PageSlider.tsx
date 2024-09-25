@@ -6,9 +6,7 @@ import { NonEmptyArray } from '../../shared/utils';
 import { useStyledRef } from '../lib/utilityHooks';
 import { Icon } from './cell';
 
-// The amount of scroll required to switch page. This is compared with the `deltaX` value on the
-// onWheel event.
-const WHEEL_DELTA_THRESHOLD = 30;
+const PAGE_GAP = 16;
 
 const StyledPageSliderContainer = styled.div({
   display: 'flex',
@@ -17,7 +15,13 @@ const StyledPageSliderContainer = styled.div({
 
 const StyledPageSlider = styled.div({
   whiteSpace: 'nowrap',
-  overflow: 'hidden',
+  overflow: 'scroll hidden',
+  scrollSnapType: 'x mandatory',
+  scrollBehavior: 'smooth',
+
+  '&&::-webkit-scrollbar': {
+    display: 'none',
+  },
 });
 
 const StyledPage = styled.div({
@@ -25,6 +29,11 @@ const StyledPage = styled.div({
   width: '100%',
   whiteSpace: 'normal',
   verticalAlign: 'top',
+  scrollSnapAlign: 'start',
+
+  '&&:not(:last-child)': {
+    marginRight: `${PAGE_GAP}px`,
+  },
 });
 
 interface PageSliderProps {
@@ -32,40 +41,42 @@ interface PageSliderProps {
 }
 
 export default function PageSlider(props: PageSliderProps) {
-  const [page, setPage] = useState(0);
+  // A state is needed to trigger a rerender. This is needed to update the "disabled" and "$current"
+  // props of the arrows and page indicators.
+  const [, setPageNumberState] = useState(0);
   const pageContainerRef = useStyledRef<HTMLDivElement>();
 
-  const hasNext = page < props.content.length - 1;
-  const hasPrev = page > 0;
+  // Calculate the page number based on the scroll position.
+  const getPageNumber = useCallback(() => {
+    if (pageContainerRef.current) {
+      const scrollLeft = pageContainerRef.current.scrollLeft;
+      const pageWidth = pageContainerRef.current.offsetWidth + PAGE_GAP;
+      // Clamp it between 0 and props.content.length-1 to make sure it will correspond to a page.
+      return Math.max(0, Math.min(Math.round(scrollLeft / pageWidth), props.content.length - 1));
+    } else {
+      return 0;
+    }
+  }, [pageContainerRef, props.content.length]);
 
-  const next = useCallback(() => {
-    setPage((page) => Math.min(props.content.length - 1, page + 1));
-  }, [props.content.length]);
+  // These values are only intended to be used for display purposes. Using them when calculating
+  // next or prev page would increase the risk of race conditions.
+  const pageNumber = getPageNumber();
+  const hasNext = pageNumber < props.content.length - 1;
+  const hasPrev = pageNumber > 0;
 
-  const prev = useCallback(() => {
-    setPage((page) => Math.max(0, page - 1));
-  }, []);
-
-  // Go to next or previous page if the user scrolls horizontally.
-  const onWheel = useCallback(
-    (event: React.WheelEvent<HTMLDivElement>) => {
-      if (event.deltaX > WHEEL_DELTA_THRESHOLD) {
-        next();
-      } else if (event.deltaX < -WHEEL_DELTA_THRESHOLD) {
-        prev();
+  // Scroll to a specific page.
+  const goToPage = useCallback(
+    (page: number) => {
+      if (pageContainerRef.current) {
+        const width = pageContainerRef.current.offsetWidth;
+        pageContainerRef.current.scrollTo({ left: width * page });
       }
     },
-    [next, prev],
+    [pageContainerRef],
   );
 
-  // Scroll to the correct position when the page prop changes.
-  useEffect(() => {
-    if (pageContainerRef.current) {
-      // The page width is the same as the container width.
-      const width = pageContainerRef.current.offsetWidth;
-      pageContainerRef.current.scrollTo({ left: width * page, behavior: 'smooth' });
-    }
-  }, [page]);
+  const next = useCallback(() => goToPage(getPageNumber() + 1), [goToPage, getPageNumber]);
+  const prev = useCallback(() => goToPage(getPageNumber() - 1), [goToPage, getPageNumber]);
 
   // Callback that navigates when left and right arrows are pressed.
   const handleKeyDown = useCallback(
@@ -79,6 +90,10 @@ export default function PageSlider(props: PageSliderProps) {
     [next, prev],
   );
 
+  // Trigger a rerender when the page number has changed. This needs to be done to update the
+  // states of the arrows and page indicators.
+  const handleScroll = useCallback(() => setPageNumberState(getPageNumber()), []);
+
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
@@ -86,18 +101,18 @@ export default function PageSlider(props: PageSliderProps) {
 
   return (
     <StyledPageSliderContainer>
-      <StyledPageSlider ref={pageContainerRef} onWheel={onWheel}>
+      <StyledPageSlider ref={pageContainerRef} onScroll={handleScroll}>
         {props.content.map((page, i) => (
           <StyledPage key={`page-${i}`}>{page}</StyledPage>
         ))}
       </StyledPageSlider>
       <Controls
-        goToPage={setPage}
+        goToPage={goToPage}
         hasNext={hasNext}
         hasPrev={hasPrev}
         next={next}
         prev={prev}
-        page={page}
+        pageNumber={pageNumber}
         numberOfPages={props.content.length}
       />
     </StyledPageSliderContainer>
@@ -158,7 +173,7 @@ const StyledLeftArrow = styled(StyledArrow)({
 });
 
 interface ControlsProps {
-  page: number;
+  pageNumber: number;
   numberOfPages: number;
   hasNext: boolean;
   hasPrev: boolean;
@@ -173,7 +188,12 @@ function Controls(props: ControlsProps) {
       <StyledControlElement>{/* spacer to make page indicators centered */}</StyledControlElement>
       <StyledPageIndicators>
         {[...Array(props.numberOfPages)].map((_, i) => (
-          <PageIndicator key={i} current={i === props.page} page={i} goToPage={props.goToPage} />
+          <PageIndicator
+            key={i}
+            current={i === props.pageNumber}
+            pageNumber={i}
+            goToPage={props.goToPage}
+          />
         ))}
       </StyledPageIndicators>
       <StyledArrows>
@@ -203,15 +223,15 @@ function Controls(props: ControlsProps) {
 }
 
 interface PageIndicatorProps {
-  page: number;
+  pageNumber: number;
   goToPage: (page: number) => void;
   current: boolean;
 }
 
 function PageIndicator(props: PageIndicatorProps) {
   const onClick = useCallback(() => {
-    props.goToPage(props.page);
-  }, [props.goToPage, props.page]);
+    props.goToPage(props.pageNumber);
+  }, [props.goToPage, props.pageNumber]);
 
   return (
     <StyledTransparentButton onClick={onClick}>
