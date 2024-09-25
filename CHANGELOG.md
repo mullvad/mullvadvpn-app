@@ -26,6 +26,10 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Add experimental support for Windows ARM64.
 
+### Changed
+- Move DAITA and multihop to the root settings view along with moving multihop into a dedicated
+  view with more information.
+
 
 ## [2024.6-beta1] - 2024-09-26
 ### Added
