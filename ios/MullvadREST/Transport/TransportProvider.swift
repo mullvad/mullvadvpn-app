@@ -81,6 +81,11 @@ public final class TransportProvider: RESTTransportProvider {
                     configuration: configuration,
                     addressCache: addressCache
                 )
+            case .encryptedDNS:
+                currentTransport = EncryptedDNSTransport(
+                    urlSession: urlSessionTransport.urlSession,
+                    addressCache: addressCache
+                )
             case .none:
                 currentTransport = nil
             }

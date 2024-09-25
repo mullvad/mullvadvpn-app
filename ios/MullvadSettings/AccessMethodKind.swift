@@ -16,6 +16,9 @@ public enum AccessMethodKind: Equatable, Hashable, CaseIterable {
     /// Communication over bridges.
     case bridges
 
+    /// Communication over proxy address from a DNS.
+    case encryptedDNS
+
     /// Communication over shadowsocks.
     case shadowsocks
 
@@ -27,7 +30,7 @@ public extension AccessMethodKind {
     /// Returns `true` if the method is permanent and cannot be deleted.
     var isPermanent: Bool {
         switch self {
-        case .direct, .bridges:
+        case .direct, .bridges, .encryptedDNS:
             true
         case .shadowsocks, .socks5:
             false
@@ -48,6 +51,8 @@ extension PersistentAccessMethod {
             .direct
         case .bridges:
             .bridges
+        case .encryptedDNS:
+            .encryptedDNS
         case .shadowsocks:
             .shadowsocks
         case .socks5:
