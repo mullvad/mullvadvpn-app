@@ -10,6 +10,7 @@ import { useHistory } from '../lib/history';
 import { useSelector } from '../redux/store';
 import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
 import * as Cell from './cell';
+import { StyledIllustration } from './DaitaSettings';
 import { BackAction } from './KeyboardNavigation';
 import { Layout, SettingsContainer } from './Layout';
 import {
@@ -50,6 +51,7 @@ export default function MultihopSettings() {
                   {messages.pgettext('wireguard-settings-view', 'Multihop')}
                 </HeaderTitle>
                 <HeaderSubTitle>
+                  <StyledIllustration src="../../assets/images/multihop-illustration.svg" />
                   {messages.pgettext(
                     'wireguard-settings-view',
                     'Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online.',
