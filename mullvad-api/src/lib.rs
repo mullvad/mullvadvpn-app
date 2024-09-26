@@ -340,7 +340,7 @@ impl Runtime {
         Runtime {
             handle,
             address_cache: AddressCache::with_static_addr(address),
-            api_availability: ApiAvailability::new(availability::State::default()),
+            api_availability: ApiAvailability::default(),
         }
     }
 
@@ -351,7 +351,7 @@ impl Runtime {
         Ok(Runtime {
             handle,
             address_cache: AddressCache::new(None)?,
-            api_availability: ApiAvailability::new(availability::State::default()),
+            api_availability: ApiAvailability::default(),
             #[cfg(target_os = "android")]
             socket_bypass_tx,
         })
@@ -396,10 +396,12 @@ impl Runtime {
             }
         };
 
+        let api_availability = ApiAvailability::default();
+
         Ok(Runtime {
             handle,
             address_cache,
-            api_availability: ApiAvailability::new(availability::State::default()),
+            api_availability,
             #[cfg(target_os = "android")]
             socket_bypass_tx,
         })

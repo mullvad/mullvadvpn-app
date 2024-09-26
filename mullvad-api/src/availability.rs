@@ -16,14 +16,6 @@ pub enum Error {
     Interrupted(#[from] broadcast::error::RecvError),
 }
 
-#[derive(PartialEq, Eq, Clone, Copy, Debug, Default)]
-pub struct State {
-    suspended: bool,
-    pause_background: bool,
-    offline: bool,
-    inactive: bool,
-}
-
 #[derive(Clone, Debug)]
 pub struct ApiAvailability(Arc<Mutex<ApiAvailabilityState>>);
 
@@ -32,6 +24,14 @@ struct ApiAvailabilityState {
     tx: broadcast::Sender<State>,
     state: State,
     inactivity_timer: Option<tokio::task::JoinHandle<()>>,
+}
+
+#[derive(PartialEq, Eq, Clone, Copy, Debug, Default)]
+pub struct State {
+    suspended: bool,
+    pause_background: bool,
+    offline: bool,
+    inactive: bool,
 }
 
 impl State {
@@ -176,6 +176,12 @@ impl ApiAvailability {
                 }
             }
         }
+    }
+}
+
+impl Default for ApiAvailability {
+    fn default() -> Self {
+        ApiAvailability::new(State::default())
     }
 }
 
