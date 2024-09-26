@@ -2,6 +2,11 @@ package net.mullvad.mullvadvpn.compose.component
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -10,7 +15,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.R
@@ -38,8 +42,8 @@ fun CopyableObfuscationView(
             modifier = Modifier.weight(1f),
         )
         AnimatedIconButton(
-            defaultIcon = painterResource(id = R.drawable.icon_hide),
-            secondaryIcon = painterResource(id = R.drawable.icon_show),
+            defaultIcon = Icons.Default.VisibilityOff,
+            secondaryIcon = Icons.Default.Visibility,
             defaultIconTint = MaterialTheme.colorScheme.onSurface,
             secondaryIconTint = MaterialTheme.colorScheme.onSurface,
             isToggleButton = true,
@@ -54,8 +58,8 @@ fun CopyableObfuscationView(
 @Composable
 fun CopyAnimatedIconButton(onClick: () -> Unit) {
     AnimatedIconButton(
-        defaultIcon = painterResource(id = R.drawable.icon_copy),
-        secondaryIcon = painterResource(id = R.drawable.icon_tick),
+        defaultIcon = Icons.Default.ContentCopy,
+        secondaryIcon = Icons.Default.Check,
         defaultIconTint = MaterialTheme.colorScheme.onSurface,
         secondaryIconTint = MaterialTheme.colorScheme.tertiary,
         isToggleButton = false,

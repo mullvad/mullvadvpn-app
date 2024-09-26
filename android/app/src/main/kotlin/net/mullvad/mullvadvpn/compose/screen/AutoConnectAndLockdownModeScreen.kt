@@ -19,6 +19,9 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ChevronLeft
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -29,7 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -115,7 +118,7 @@ fun AutoConnectAndLockdownModeScreen(onBackClick: () -> Unit = {}) {
                             }
                         },
                         isEnabled = { pagerState.currentPage != 0 },
-                        rotation = 90f,
+                        imageVector = Icons.Default.ChevronLeft,
                     )
 
                     // Go to next page
@@ -132,7 +135,7 @@ fun AutoConnectAndLockdownModeScreen(onBackClick: () -> Unit = {}) {
                             }
                         },
                         isEnabled = { pagerState.currentPage != pagerState.pageCount - 1 },
-                        rotation = -90f,
+                        imageVector = Icons.Default.ChevronRight,
                     )
 
                     PageIndicator(
@@ -216,18 +219,14 @@ private fun CarouselNavigationButton(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
     isEnabled: () -> Boolean,
-    rotation: Float,
+    imageVector: ImageVector,
 ) {
     IconButton(
         modifier = modifier.alpha(if (isEnabled.invoke()) AlphaVisible else AlphaInvisible),
         onClick = onClick,
         enabled = isEnabled.invoke(),
     ) {
-        Icon(
-            painter = painterResource(id = R.drawable.icon_chevron),
-            contentDescription = null,
-            modifier = Modifier.rotate(rotation),
-        )
+        Icon(contentDescription = null, imageVector = imageVector)
     }
 }
 

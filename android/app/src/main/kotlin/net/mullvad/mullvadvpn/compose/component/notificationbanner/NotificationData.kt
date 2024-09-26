@@ -1,8 +1,12 @@
 package net.mullvad.mullvadvpn.compose.component.notificationbanner
 
-import androidx.annotation.DrawableRes
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
@@ -31,7 +35,7 @@ data class NotificationData(
     ) : this(title, message?.let { AnnotatedString(it) }, statusLevel, action)
 }
 
-data class NotificationAction(@DrawableRes val icon: Int, val onClick: (() -> Unit))
+data class NotificationAction(val icon: ImageVector, val onClick: (() -> Unit))
 
 @Composable
 fun InAppNotification.toNotificationData(
@@ -60,7 +64,7 @@ fun InAppNotification.toNotificationData(
                                 )
                         ),
                 statusLevel = StatusLevel.Info,
-                action = NotificationAction(R.drawable.icon_close, onDismissNewDevice),
+                action = NotificationAction(Icons.Default.Clear, onDismissNewDevice),
             )
         is InAppNotification.AccountExpiry ->
             NotificationData(
@@ -69,7 +73,8 @@ fun InAppNotification.toNotificationData(
                 statusLevel = StatusLevel.Error,
                 action =
                     if (isPlayBuild) null
-                    else NotificationAction(R.drawable.icon_extlink, onClickShowAccount),
+                    else
+                        NotificationAction(Icons.AutoMirrored.Default.OpenInNew, onClickShowAccount),
             )
         InAppNotification.TunnelStateBlocked ->
             NotificationData(
@@ -84,7 +89,11 @@ fun InAppNotification.toNotificationData(
                 statusLevel = StatusLevel.Error,
                 action =
                     if (isPlayBuild) null
-                    else NotificationAction(R.drawable.icon_extlink, onClickUpdateVersion),
+                    else
+                        NotificationAction(
+                            Icons.AutoMirrored.Default.OpenInNew,
+                            onClickUpdateVersion,
+                        ),
             )
     }
 

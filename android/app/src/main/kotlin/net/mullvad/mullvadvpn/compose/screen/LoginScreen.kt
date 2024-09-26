@@ -21,6 +21,8 @@ import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -390,7 +392,7 @@ private fun AccountDropDownItem(
         }
         IconButton(enabled = enabled, onClick = onDeleteClick) {
             Icon(
-                painter = painterResource(id = R.drawable.account_history_remove_pressed),
+                imageVector = Icons.Default.Clear,
                 contentDescription = null,
                 modifier = Modifier.size(Dimens.listIconSize),
             )

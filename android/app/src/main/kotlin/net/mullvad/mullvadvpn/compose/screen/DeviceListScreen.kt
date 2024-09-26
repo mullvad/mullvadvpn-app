@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -312,7 +314,7 @@ private fun DeviceListItem(device: Device, isLoading: Boolean, onDeviceRemovalCl
             } else {
                 IconButton(onClick = onDeviceRemovalClicked) {
                     Icon(
-                        painter = painterResource(id = R.drawable.icon_close),
+                        imageVector = Icons.Default.Clear,
                         contentDescription = stringResource(id = R.string.remove_button),
                         tint = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier.size(size = Dimens.deleteIconSize),

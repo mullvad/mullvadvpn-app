@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarDuration
@@ -22,7 +24,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -318,7 +319,7 @@ private fun ApiAccessMethodTypeSelection(
                 },
                 leadingIcon = {
                     Icon(
-                        painter = painterResource(id = R.drawable.icon_tick),
+                        imageVector = Icons.Default.Check,
                         contentDescription = null,
                         modifier =
                             Modifier.padding(end = Dimens.selectableCellTextMargin)
@@ -495,7 +496,7 @@ private fun CipherSelection(cipher: Cipher, onCipherChange: (Cipher) -> Unit) {
                 },
                 leadingIcon = {
                     Icon(
-                        painter = painterResource(id = R.drawable.icon_tick),
+                        imageVector = Icons.Default.Check,
                         contentDescription = null,
                         modifier =
                             Modifier.padding(end = Dimens.selectableCellTextMargin)
@@ -534,7 +535,7 @@ private fun EnableAuthentication(
             },
             leadingIcon = {
                 Icon(
-                    painter = painterResource(id = R.drawable.icon_tick),
+                    imageVector = Icons.Default.Check,
                     contentDescription = null,
                     modifier =
                         Modifier.padding(end = Dimens.selectableCellTextMargin)
@@ -550,7 +551,7 @@ private fun EnableAuthentication(
             },
             leadingIcon = {
                 Icon(
-                    painter = painterResource(id = R.drawable.icon_tick),
+                    imageVector = Icons.Default.Check,
                     contentDescription = null,
                     modifier =
                         Modifier.padding(end = Dimens.selectableCellTextMargin)

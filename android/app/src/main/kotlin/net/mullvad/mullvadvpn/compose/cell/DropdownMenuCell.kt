@@ -1,15 +1,15 @@
 package net.mullvad.mullvadvpn.compose.cell
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
-import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 
@@ -42,7 +42,7 @@ fun ThreeDotCell(
         bodyView = {
             IconButton(onClick = onClickDots) {
                 Icon(
-                    painter = painterResource(id = R.drawable.icon_more_vert),
+                    imageVector = Icons.Default.MoreVert,
                     contentDescription = null,
                     tint = textColor,
                 )

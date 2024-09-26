@@ -11,6 +11,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.TextFields
+import androidx.compose.material.icons.filled.UploadFile
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -35,7 +39,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -249,7 +252,7 @@ private fun ImportOverridesByBottomSheet(
         )
         HorizontalDivider(color = onBackgroundColor)
         IconCell(
-            iconId = R.drawable.icon_upload_file,
+            imageVector = Icons.Default.UploadFile,
             title = stringResource(id = R.string.server_ip_overrides_import_by_file),
             onClick = {
                 onImportByFile()
@@ -259,7 +262,7 @@ private fun ImportOverridesByBottomSheet(
             modifier = Modifier.testTag(SERVER_IP_OVERRIDES_IMPORT_BY_FILE_TEST_TAG),
         )
         IconCell(
-            iconId = R.drawable.icon_text_fields,
+            imageVector = Icons.Default.TextFields,
             title = stringResource(id = R.string.server_ip_overrides_import_by_text),
             onClick = {
                 onImportByText()
@@ -273,7 +276,7 @@ private fun ImportOverridesByBottomSheet(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     modifier = Modifier.padding(Dimens.mediumPadding),
-                    painter = painterResource(id = R.drawable.icon_info),
+                    imageVector = Icons.Default.Info,
                     tint = MaterialTheme.colorScheme.error,
                     contentDescription = null,
                 )
@@ -309,7 +312,7 @@ private fun TopBarActions(
         onClick = { showMenu = !showMenu },
         modifier = Modifier.testTag(SERVER_IP_OVERRIDE_MORE_VERT_TEST_TAG),
     ) {
-        Icon(painterResource(id = R.drawable.icon_more_vert), contentDescription = null)
+        Icon(imageVector = Icons.Default.MoreVert, contentDescription = null)
     }
     DropdownMenu(
         modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainer),

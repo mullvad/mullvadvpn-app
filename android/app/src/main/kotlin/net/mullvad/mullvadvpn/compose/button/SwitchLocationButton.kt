@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CornerSize
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Replay
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilledIconButton
@@ -19,17 +21,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
-import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.SpacedColumn
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -121,7 +123,10 @@ fun SwitchLocationButton(
                     overflow = TextOverflow.Ellipsis,
                     modifier =
                         if (isReconnectButtonEnabled) {
-                            Modifier.padding(start = componentHeight + Dimens.listItemDivider)
+                            Modifier.padding(
+                                start =
+                                    componentHeight + Dimens.listItemDivider + Dimens.smallPadding
+                            )
                         } else {
                             Modifier
                         },
@@ -153,7 +158,8 @@ fun SwitchLocationButton(
                             .defaultMinSize(minWidth = Dimens.switchLocationRetryMinWidth),
                 ) {
                     Icon(
-                        painter = painterResource(id = R.drawable.icon_reload),
+                        modifier = modifier.scale(-1f, 1f).rotate(-45f),
+                        imageVector = Icons.Default.Replay,
                         contentDescription = null,
                     )
                 }

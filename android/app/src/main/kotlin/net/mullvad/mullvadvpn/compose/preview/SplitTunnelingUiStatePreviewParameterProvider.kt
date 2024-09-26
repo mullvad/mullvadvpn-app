@@ -16,12 +16,12 @@ class SplitTunnelingUiStatePreviewParameterProvider :
                         AppData(
                             packageName = "my.package.a",
                             name = "TitleA",
-                            iconRes = R.drawable.icon_alert,
+                            iconRes = R.drawable.ic_icons_missing,
                         ),
                         AppData(
                             packageName = "my.package.b",
                             name = "TitleB",
-                            iconRes = R.drawable.icon_chevron,
+                            iconRes = R.drawable.ic_icons_missing,
                         ),
                     ),
                 includedApps =
@@ -29,7 +29,7 @@ class SplitTunnelingUiStatePreviewParameterProvider :
                         AppData(
                             packageName = "my.package.c",
                             name = "TitleC",
-                            iconRes = R.drawable.icon_alert,
+                            iconRes = R.drawable.ic_icons_missing,
                         )
                     ),
                 showSystemApps = true,

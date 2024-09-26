@@ -17,6 +17,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -161,7 +164,7 @@ fun MullvadTopBar(
                     onClick = onAccountClicked,
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.icon_account),
+                        imageVector = Icons.Default.AccountCircle,
                         tint = iconTintColor,
                         contentDescription = stringResource(id = R.string.settings_account),
                     )
@@ -175,7 +178,7 @@ fun MullvadTopBar(
                     onClick = onSettingsClicked,
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.icon_settings),
+                        imageVector = Icons.Default.Settings,
                         tint = iconTintColor,
                         contentDescription = stringResource(id = R.string.settings),
                     )
@@ -229,10 +232,7 @@ private fun PreviewSlimMediumTopBar() {
             title = "Long top bar with long title",
             actions = {
                 IconButton(onClick = {}) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.icon_settings),
-                        contentDescription = null,
-                    )
+                    Icon(imageVector = Icons.Default.Settings, contentDescription = null)
                 }
             },
         )
