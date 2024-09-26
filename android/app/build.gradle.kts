@@ -349,6 +349,7 @@ dependencies {
     implementation(libs.compose.constrainlayout)
     implementation(libs.compose.foundation)
     implementation(libs.compose.material3)
+    implementation(libs.compose.icons.extended)
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.util)
     implementation(libs.compose.destinations)
