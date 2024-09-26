@@ -1,5 +1,4 @@
-CHANGE THIS BEFORE A RELEASE
-Each line is treated as a separate change item shown in the GUI the first time it runs after install.
-Start each line with a capital letter and end each line with a period.
-[macOS, Windows, linux] To make an entry platform specific, start the line with an angle bracket enclosed comma separated list of platforms to show the entry on.
-Only point out the major changes.
+New feature! WireGuard over Shadowsocks. This new obfuscation method aids in circumventing censorship.
+Add feature indicators which provide a quick overview of your current tunnel settings. This comes with a fresh new look to the home screen!
+Add "Smart Routing" setting to simplify connecting to DAITA-enabled relays.
+[macOS] Add "Apple services bypass" toggle to unblock certain Apple-owned networks.
