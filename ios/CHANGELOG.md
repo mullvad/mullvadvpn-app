@@ -21,9 +21,13 @@ Line wrap the file at 100 chars.                                              Th
 * **Fixed**: for any bug fixes.
 * **Security**: in case of vulnerabilities.
 
+## Unreleased
+### Added
+- Add a new access method that uses the encrypted DNS proxy to reach our API.
+
 ## [2024.7 - 2024-09-16]
 ### Added
-- Add DAITA (Defence against AI-guided Traffic Analysis) setting
+- Add DAITA (Defence against AI-guided Traffic Analysis) setting.
 
 ## [2024.6 - 2024.09-02]
 ### Fixed
