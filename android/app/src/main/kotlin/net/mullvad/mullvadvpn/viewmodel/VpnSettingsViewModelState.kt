@@ -11,7 +11,6 @@ import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
 
 data class VpnSettingsViewModelState(
     val mtuValue: Mtu?,
-    val isAutoConnectEnabled: Boolean,
     val isLocalNetworkSharingEnabled: Boolean,
     val isDaitaEnabled: Boolean,
     val isCustomDnsEnabled: Boolean,
@@ -25,6 +24,7 @@ data class VpnSettingsViewModelState(
     val customWireguardPort: Port?,
     val availablePortRanges: List<PortRange>,
     val systemVpnSettingsAvailable: Boolean,
+    val autoStartAndConnectOnBoot: Boolean,
 ) {
     val isCustomWireguardPort =
         selectedWireguardPort is Constraint.Only &&
@@ -33,7 +33,6 @@ data class VpnSettingsViewModelState(
     fun toUiState(): VpnSettingsUiState =
         VpnSettingsUiState(
             mtuValue,
-            isAutoConnectEnabled,
             isLocalNetworkSharingEnabled,
             isDaitaEnabled,
             isCustomDnsEnabled,
@@ -47,13 +46,13 @@ data class VpnSettingsViewModelState(
             customWireguardPort,
             availablePortRanges,
             systemVpnSettingsAvailable,
+            autoStartAndConnectOnBoot,
         )
 
     companion object {
         fun default() =
             VpnSettingsViewModelState(
                 mtuValue = null,
-                isAutoConnectEnabled = false,
                 isLocalNetworkSharingEnabled = false,
                 isDaitaEnabled = false,
                 isCustomDnsEnabled = false,
@@ -67,6 +66,7 @@ data class VpnSettingsViewModelState(
                 customWireguardPort = null,
                 availablePortRanges = emptyList(),
                 systemVpnSettingsAvailable = false,
+                autoStartAndConnectOnBoot = false,
             )
     }
 }

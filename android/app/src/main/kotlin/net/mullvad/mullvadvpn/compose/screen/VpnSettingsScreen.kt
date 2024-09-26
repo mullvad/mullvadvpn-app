@@ -118,7 +118,6 @@ private fun PreviewVpnSettings(
             onToggleBlockTrackers = {},
             onToggleBlockAds = {},
             onToggleBlockMalware = {},
-            onToggleAutoConnect = {},
             onToggleLocalNetworkSharing = {},
             onToggleBlockAdultContent = {},
             onToggleBlockGambling = {},
@@ -232,7 +231,6 @@ fun VpnSettings(
         onToggleBlockTrackers = vm::onToggleBlockTrackers,
         onToggleBlockAds = vm::onToggleBlockAds,
         onToggleBlockMalware = vm::onToggleBlockMalware,
-        onToggleAutoConnect = vm::onToggleAutoConnect,
         onToggleLocalNetworkSharing = vm::onToggleLocalNetworkSharing,
         onDisableDaita = { vm.onToggleDaita(false) },
         onToggleBlockAdultContent = vm::onToggleBlockAdultContent,
@@ -264,6 +262,7 @@ fun VpnSettings(
             dropUnlessResumed { navigator.navigate(ShadowsocksSettingsDestination) },
         navigateToUdp2TcpSettings =
             dropUnlessResumed { navigator.navigate(Udp2TcpSettingsDestination) },
+        onToggleAutoStartAndConnectOnBoot = vm::onToggleAutoStartAndConnectOnBoot,
     )
 }
 
@@ -288,7 +287,6 @@ fun VpnSettingsScreen(
     onToggleBlockTrackers: (Boolean) -> Unit = {},
     onToggleBlockAds: (Boolean) -> Unit = {},
     onToggleBlockMalware: (Boolean) -> Unit = {},
-    onToggleAutoConnect: (Boolean) -> Unit = {},
     onToggleLocalNetworkSharing: (Boolean) -> Unit = {},
     onDisableDaita: () -> Unit = {},
     onToggleBlockAdultContent: (Boolean) -> Unit = {},
@@ -303,6 +301,7 @@ fun VpnSettingsScreen(
     onWireguardPortSelected: (port: Constraint<Port>) -> Unit = {},
     navigateToShadowSocksSettings: () -> Unit = {},
     navigateToUdp2TcpSettings: () -> Unit = {},
+    onToggleAutoStartAndConnectOnBoot: (Boolean) -> Unit = {},
 ) {
     var expandContentBlockersState by rememberSaveable { mutableStateOf(false) }
     val biggerPadding = 54.dp
@@ -330,33 +329,28 @@ fun VpnSettingsScreen(
                         text = stringResource(id = R.string.auto_connect_and_lockdown_mode_footer)
                     )
                 }
-            }
-            item {
-                Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
-                HeaderSwitchComposeCell(
-                    title = stringResource(R.string.auto_connect_legacy),
-                    isToggled = state.isAutoConnectEnabled,
-                    isEnabled = true,
-                    onCellClicked = { newValue -> onToggleAutoConnect(newValue) },
-                )
-            }
-            item {
-                SwitchComposeSubtitleCell(
-                    text =
-                        HtmlCompat.fromHtml(
-                                if (state.systemVpnSettingsAvailable) {
+            } else {
+                item {
+                    Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
+                    HeaderSwitchComposeCell(
+                        title = stringResource(R.string.connect_on_start),
+                        isToggled = state.autoStartAndConnectOnBoot,
+                        onCellClicked = { newValue -> onToggleAutoStartAndConnectOnBoot(newValue) },
+                    )
+                    SwitchComposeSubtitleCell(
+                        text =
+                            HtmlCompat.fromHtml(
                                     textResource(
-                                        R.string.auto_connect_footer_legacy,
+                                        R.string.connect_on_start_footer,
                                         textResource(R.string.auto_connect_and_lockdown_mode),
-                                    )
-                                } else {
-                                    textResource(R.string.auto_connect_footer_legacy_tv)
-                                },
-                                HtmlCompat.FROM_HTML_MODE_COMPACT,
-                            )
-                            .toAnnotatedString(boldFontWeight = FontWeight.ExtraBold)
-                )
+                                    ),
+                                    HtmlCompat.FROM_HTML_MODE_COMPACT,
+                                )
+                                .toAnnotatedString(boldFontWeight = FontWeight.ExtraBold)
+                    )
+                }
             }
+
             item {
                 Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
                 HeaderSwitchComposeCell(

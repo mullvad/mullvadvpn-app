@@ -111,6 +111,9 @@ impl SettingsPersister {
         if cfg!(target_os = "android") {
             should_save |= !settings.tunnel_options.generic.enable_ipv6;
             settings.tunnel_options.generic.enable_ipv6 = true;
+
+            // Auto-connect is managed by Android itself.
+            settings.auto_connect = false;
         }
         if crate::version::is_beta_version() {
             should_save |= !settings.show_beta_releases;

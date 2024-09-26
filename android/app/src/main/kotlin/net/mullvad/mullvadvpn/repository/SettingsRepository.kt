@@ -68,8 +68,6 @@ class SettingsRepository(
 
     suspend fun setObfuscation(value: ObfuscationMode) = managementService.setObfuscation(value)
 
-    suspend fun setAutoConnect(isEnabled: Boolean) = managementService.setAutoConnect(isEnabled)
-
     suspend fun setLocalNetworkSharing(isEnabled: Boolean) =
         managementService.setAllowLan(isEnabled)
 

@@ -19,7 +19,6 @@ class VpnSettingsUiStatePreviewParameterProvider : PreviewParameterProvider<VpnS
             VpnSettingsUiState.createDefault(),
             VpnSettingsUiState.createDefault(
                 mtu = Mtu(MTU),
-                isAutoConnectEnabled = true,
                 isLocalNetworkSharingEnabled = true,
                 isDaitaEnabled = true,
                 isCustomDnsEnabled = true,
@@ -38,6 +37,7 @@ class VpnSettingsUiStatePreviewParameterProvider : PreviewParameterProvider<VpnS
                 customWireguardPort = PORT1,
                 availablePortRanges = listOf(PORT1..PORT2),
                 systemVpnSettingsAvailable = true,
+                autoStartAndConnectOnBoot = true,
             ),
         )
 }
