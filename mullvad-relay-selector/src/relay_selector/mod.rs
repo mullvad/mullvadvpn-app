@@ -9,7 +9,6 @@ pub mod query;
 use chrono::{DateTime, Local};
 use itertools::Itertools;
 use query::ObfuscationQuery;
-use rand::{seq::IteratorRandom, thread_rng};
 use std::{
     path::Path,
     sync::{Arc, LazyLock, Mutex},
@@ -803,7 +802,8 @@ impl RelaySelector {
             .take_while(|relay| relay.distance <= smallest_distance)
             .map(|relay_with_distance| relay_with_distance.relay)
             .collect_vec();
-        let entry = pick_random_excluding(&entry_candidates, exit).ok_or(Error::NoRelay)?;
+        let entry =
+            helpers::pick_random_relay_excluding(&entry_candidates, exit).ok_or(Error::NoRelay)?;
 
         Ok(WireguardConfig::multihop(exit.clone(), entry.clone()))
     }
@@ -847,14 +847,15 @@ impl RelaySelector {
             // In the case where there is only one entry to choose from, we have to pick it before
             // the exit
             (exits, [entry]) if exits.contains(entry) => {
-                pick_random_excluding(exits, entry).map(|exit| (exit, entry))
+                helpers::pick_random_relay_excluding(exits, entry).map(|exit| (exit, entry))
             }
             // Vice versa for the case of only one exit
             ([exit], entries) if entries.contains(exit) => {
-                pick_random_excluding(entries, exit).map(|entry| (exit, entry))
+                helpers::pick_random_relay_excluding(entries, exit).map(|entry| (exit, entry))
             }
-            (exits, entries) => helpers::pick_random_relay(exits)
-                .and_then(|exit| pick_random_excluding(entries, exit).map(|entry| (exit, entry))),
+            (exits, entries) => helpers::pick_random_relay(exits).and_then(|exit| {
+                helpers::pick_random_relay_excluding(entries, exit).map(|entry| (exit, entry))
+            }),
         }
         .ok_or(Error::NoRelay)?;
 
@@ -1152,12 +1153,6 @@ impl RelaySelector {
         // Pick one of the valid relays.
         helpers::pick_random_relay(&candidates).cloned()
     }
-}
-
-fn pick_random_excluding<'a>(list: &'a [Relay], exclude: &'a Relay) -> Option<&'a Relay> {
-    list.iter()
-        .filter(|&a| a != exclude)
-        .choose(&mut thread_rng())
 }
 
 #[derive(Clone)]
