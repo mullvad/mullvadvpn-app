@@ -71,7 +71,7 @@ impl ApiAvailability {
     /// Reset task that automatically pauses API requests due inactivity,
     /// starting it if it's not currently running.
     pub fn reset_inactivity_timer(&self) {
-        let mut inner = self.0.lock().unwrap();
+        let mut inner = self.acquire();
         log::debug!("Restarting API inactivity check");
         inner.stop_inactivity_timer();
         let availability_handle = self.clone();
@@ -94,7 +94,7 @@ impl ApiAvailability {
     pub fn resume_background(&self) {
         let should_reset = {
             let mut inner = self.acquire();
-            inner.pause_background();
+            inner.resume_background();
             inner.inactivity_timer_running()
         };
         // Note: It is important that we do not hold on to the Mutex when calling `reset_inactivity_timer()`.
@@ -233,6 +233,14 @@ impl ApiAvailabilityState {
         if !self.state.pause_background {
             log::debug!("Pausing background API requests");
             self.state.pause_background = true;
+            let _ = self.tx.send(self.state);
+        }
+    }
+
+    fn resume_background(&mut self) {
+        if self.state.pause_background {
+            log::debug!("Resuming background API requests");
+            self.state.pause_background = false;
             let _ = self.tx.send(self.state);
         }
     }
