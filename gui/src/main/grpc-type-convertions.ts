@@ -69,7 +69,7 @@ export class ResponseParseError extends Error {
   }
 }
 
-function liftConstraint<T>(constraint: Constraint<T> | undefined): T | undefined {
+function unwrapConstraint<T>(constraint: Constraint<T> | undefined): T | undefined {
   if (constraint !== undefined && constraint !== 'any') {
     return constraint.only;
   }
@@ -857,7 +857,7 @@ export function convertToRelayConstraints(
   if (constraints.tunnelProtocol !== 'any') {
     relayConstraints.setTunnelType(convertToTunnelType(constraints.tunnelProtocol.only));
   }
-  relayConstraints.setLocation(convertToLocation(liftConstraint(constraints.location)));
+  relayConstraints.setLocation(convertToLocation(unwrapConstraint(constraints.location)));
   relayConstraints.setWireguardConstraints(
     convertToWireguardConstraints(constraints.wireguardConstraints),
   );
@@ -874,7 +874,7 @@ export function convertToNormalBridgeSettings(
   constraints: IBridgeConstraints,
 ): grpcTypes.BridgeSettings.BridgeConstraints {
   const normalBridgeSettings = new grpcTypes.BridgeSettings.BridgeConstraints();
-  normalBridgeSettings.setLocation(convertToLocation(liftConstraint(constraints.location)));
+  normalBridgeSettings.setLocation(convertToLocation(unwrapConstraint(constraints.location)));
   normalBridgeSettings.setProvidersList(constraints.providers);
 
   return normalBridgeSettings;
@@ -926,10 +926,10 @@ function convertToOpenVpnConstraints(
 ): grpcTypes.OpenvpnConstraints | undefined {
   const openvpnConstraints = new grpcTypes.OpenvpnConstraints();
   if (constraints) {
-    const protocol = liftConstraint(constraints.protocol);
+    const protocol = unwrapConstraint(constraints.protocol);
     if (protocol) {
       const portConstraints = new grpcTypes.TransportPort();
-      const port = liftConstraint(constraints.port);
+      const port = unwrapConstraint(constraints.port);
       if (port) {
         portConstraints.setPort(port);
       }
@@ -948,12 +948,12 @@ function convertToWireguardConstraints(
   if (constraint) {
     const wireguardConstraints = new grpcTypes.WireguardConstraints();
 
-    const port = liftConstraint(constraint.port);
+    const port = unwrapConstraint(constraint.port);
     if (port) {
       wireguardConstraints.setPort(port);
     }
 
-    const ipVersion = liftConstraint(constraint.ipVersion);
+    const ipVersion = unwrapConstraint(constraint.ipVersion);
     if (ipVersion) {
       const ipVersionProtocol =
         ipVersion === 'ipv4' ? grpcTypes.IpVersion.V4 : grpcTypes.IpVersion.V6;
@@ -964,7 +964,7 @@ function convertToWireguardConstraints(
       wireguardConstraints.setUseMultihop(constraint.useMultihop);
     }
 
-    const entryLocation = liftConstraint(constraint.entryLocation);
+    const entryLocation = unwrapConstraint(constraint.entryLocation);
     if (entryLocation) {
       const entryLocationConstraint = convertToLocation(entryLocation);
       wireguardConstraints.setEntryLocation(entryLocationConstraint);
