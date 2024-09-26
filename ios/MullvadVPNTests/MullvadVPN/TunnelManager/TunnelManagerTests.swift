@@ -61,7 +61,7 @@ class TunnelManagerTests: XCTestCase {
                     relaySelector: ShadowsocksRelaySelectorStub(relays: .mock()),
                     settingsUpdater: SettingsUpdater(listener: TunnelSettingsListener())
                 )
-            )
+            ), encryptedDNSTransport: RESTTransportStub()
         )
 
         try SettingsManager.writeSettings(LatestTunnelSettings())
