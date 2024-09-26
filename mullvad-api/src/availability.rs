@@ -16,14 +16,6 @@ pub enum Error {
     Interrupted(#[from] broadcast::error::RecvError),
 }
 
-#[derive(PartialEq, Eq, Clone, Copy, Debug, Default)]
-pub struct State {
-    suspended: bool,
-    pause_background: bool,
-    offline: bool,
-    inactive: bool,
-}
-
 #[derive(Clone, Debug)]
 pub struct ApiAvailability(Arc<Mutex<ApiAvailabilityState>>);
 
@@ -32,6 +24,14 @@ struct ApiAvailabilityState {
     tx: broadcast::Sender<State>,
     state: State,
     inactivity_timer: Option<tokio::task::JoinHandle<()>>,
+}
+
+#[derive(PartialEq, Eq, Clone, Copy, Debug, Default)]
+pub struct State {
+    suspended: bool,
+    pause_background: bool,
+    offline: bool,
+    inactive: bool,
 }
 
 impl State {
@@ -71,7 +71,7 @@ impl ApiAvailability {
     /// Reset task that automatically pauses API requests due inactivity,
     /// starting it if it's not currently running.
     pub fn reset_inactivity_timer(&self) {
-        let mut inner = self.0.lock().unwrap();
+        let mut inner = self.acquire();
         log::debug!("Restarting API inactivity check");
         inner.stop_inactivity_timer();
         let availability_handle = self.clone();
@@ -94,7 +94,7 @@ impl ApiAvailability {
     pub fn resume_background(&self) {
         let should_reset = {
             let mut inner = self.acquire();
-            inner.pause_background();
+            inner.resume_background();
             inner.inactivity_timer_running()
         };
         // Note: It is important that we do not hold on to the Mutex when calling `reset_inactivity_timer()`.
@@ -179,6 +179,12 @@ impl ApiAvailability {
     }
 }
 
+impl Default for ApiAvailability {
+    fn default() -> Self {
+        ApiAvailability::new(State::default())
+    }
+}
+
 impl ApiAvailabilityState {
     fn suspend(&mut self) {
         if !self.state.suspended {
@@ -237,6 +243,14 @@ impl ApiAvailabilityState {
         }
     }
 
+    fn resume_background(&mut self) {
+        if self.state.pause_background {
+            log::debug!("Resuming background API requests");
+            self.state.pause_background = false;
+            let _ = self.tx.send(self.state);
+        }
+    }
+
     fn stop_inactivity_timer(&mut self) {
         log::debug!("Stopping API inactivity check");
         if let Some(timer) = self.inactivity_timer.take() {
@@ -252,5 +266,41 @@ impl ApiAvailabilityState {
 impl Drop for ApiAvailabilityState {
     fn drop(&mut self) {
         self.stop_inactivity_timer();
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    /// Use mockable time for tests
+    pub use tokio::time::Duration;
+
+    // Note that all of these tests needs a tokio runtime. Creating an instance of [`ApiAvailability`] will implicitly
+    // spawn a tokio task.
+
+    /// Test that the inactivity timer starts in an expected state.
+    #[tokio::test(start_paused = true)]
+    async fn test_initially_active() {
+        // Start a new timer. It should *not* start as paused.
+        let timer = ApiAvailability::default();
+        assert!(
+            !timer.get_state().is_background_paused(),
+            "Inactivity timer should be active"
+        )
+    }
+
+    /// Test that the inactivity timer kicks in after [`INACTIVITY_TIME`] of inactivity.
+    #[tokio::test(start_paused = true)]
+    async fn test_inactivity() {
+        // Start a new timer. It should be marked as 'active'.
+        let timer = ApiAvailability::default();
+        // Elapse INACTIVITY_TIME (+ some slack because clocks)
+        const SLACK: Duration = Duration::from_secs(1);
+        talpid_time::sleep(INACTIVITY_TIME + SLACK).await;
+        // Check that the timer is now marked as 'inactive'
+        assert!(
+            timer.get_state().is_background_paused(),
+            "Inactivity timer should be inactive because 'INACTIVITY_TIME' has passed"
+        )
     }
 }
