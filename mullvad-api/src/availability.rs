@@ -268,3 +268,39 @@ impl Drop for ApiAvailabilityState {
         self.stop_inactivity_timer();
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    /// Use mockable time for tests
+    pub use tokio::time::Duration;
+
+    // Note that all of these tests needs a tokio runtime. Creating an instance of [`ApiAvailability`] will implicitly
+    // spawn a tokio task.
+
+    /// Test that the inactivity timer starts in an expected state.
+    #[tokio::test(start_paused = true)]
+    async fn test_initially_active() {
+        // Start a new timer. It should *not* start as paused.
+        let timer = ApiAvailability::default();
+        assert!(
+            !timer.get_state().is_background_paused(),
+            "Inactivity timer should be active"
+        )
+    }
+
+    /// Test that the inactivity timer kicks in after [`INACTIVITY_TIME`] of inactivity.
+    #[tokio::test(start_paused = true)]
+    async fn test_inactivity() {
+        // Start a new timer. It should be marked as 'active'.
+        let timer = ApiAvailability::default();
+        // Elapse INACTIVITY_TIME (+ some slack because clocks)
+        const SLACK: Duration = Duration::from_secs(1);
+        talpid_time::sleep(INACTIVITY_TIME + SLACK).await;
+        // Check that the timer is now marked as 'inactive'
+        assert!(
+            timer.get_state().is_background_paused(),
+            "Inactivity timer should be inactive because 'INACTIVITY_TIME' has passed"
+        )
+    }
+}

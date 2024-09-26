@@ -37,6 +37,10 @@ talpid-time = { path = "../talpid-time" }
 
 shadowsocks = { workspace = true,  features = [ "stream-cipher" ] }
 
+[dev-dependencies]
+talpid-time = { path = "../talpid-time", features = ["test"] }
+tokio = { workspace = true, features = ["test-util", "time"] }
+
 [build-dependencies]
 cbindgen = { version = "0.24.3", default-features = false }
 
