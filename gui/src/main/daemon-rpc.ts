@@ -27,7 +27,7 @@ import {
   TunnelState,
   VoucherResponse,
 } from '../shared/daemon-rpc-types';
-import { GrpcClient, noConnectionError } from './grpc-client';
+import { ConnectionObserver, GrpcClient, noConnectionError } from './grpc-client';
 import {
   convertFromApiAccessMethodSetting,
   convertFromDaemonEvent,
@@ -45,6 +45,9 @@ import {
   ensureExists,
 } from './grpc-type-convertions';
 import * as grpcTypes from './management_interface/management_interface_pb';
+
+const DAEMON_RPC_PATH =
+  process.platform === 'win32' ? 'unix:////./pipe/Mullvad VPN' : 'unix:///var/run/mullvad-vpn';
 
 export class SubscriptionListener<T> {
   // Only meant to be used by DaemonRpc
@@ -72,6 +75,10 @@ export class SubscriptionListener<T> {
 export class DaemonRpc extends GrpcClient {
   private nextSubscriptionId = 0;
   private subscriptions: Map<number, grpc.ClientReadableStream<grpcTypes.DaemonEvent>> = new Map();
+
+  public constructor(connectionObserver?: ConnectionObserver) {
+    super(DAEMON_RPC_PATH, connectionObserver);
+  }
 
   public disconnect() {
     for (const subscriptionId of this.subscriptions.keys()) {

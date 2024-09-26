@@ -10,9 +10,6 @@ import { promisify } from 'util';
 import log from '../shared/logging';
 import { ManagementServiceClient } from './management_interface/management_interface_grpc_pb';
 
-const DAEMON_RPC_PATH =
-  process.platform === 'win32' ? 'unix:////./pipe/Mullvad VPN' : 'unix:///var/run/mullvad-vpn';
-
 const NETWORK_CALL_TIMEOUT = 10000;
 const CHANNEL_STATE_TIMEOUT = 1000 * 60 * 60;
 
@@ -47,9 +44,12 @@ export class GrpcClient {
   private isClosed = false;
   private reconnectionTimeout?: NodeJS.Timeout;
 
-  constructor(private connectionObserver?: ConnectionObserver) {
+  constructor(
+    private rpcPath: string,
+    private connectionObserver?: ConnectionObserver,
+  ) {
     this.client = new ManagementServiceClient(
-      DAEMON_RPC_PATH,
+      rpcPath,
       grpc.credentials.createInsecure(),
       this.channelOptions(),
     );
@@ -63,7 +63,7 @@ export class GrpcClient {
     if (this.isClosed) {
       this.isClosed = false;
       this.client = new ManagementServiceClient(
-        DAEMON_RPC_PATH,
+        this.rpcPath,
         grpc.credentials.createInsecure(),
         this.channelOptions(),
       );
