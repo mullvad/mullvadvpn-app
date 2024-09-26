@@ -100,6 +100,7 @@ compose-destinations = { module = "io.github.raamcosta.compose-destinations:core
 compose-destinations-ksp = { module = "io.github.raamcosta.compose-destinations:ksp", version.ref = "compose-destinations" }
 compose-foundation = { module = "androidx.compose.foundation:foundation", version.ref = "compose" }
 compose-material3 = { module = "androidx.compose.material3:material3", version.ref = "compose-material3" }
+compose-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "compose" }
 compose-ui = { module = "androidx.compose.ui:ui", version.ref = "compose" }
 compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "compose" }
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose" }
@@ -157,7 +158,7 @@ compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 # Kotlin
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
-kotlin-ksp = { id = "com.google.devtools.ksp", version.ref = "kotlin-ksp"}
+kotlin-ksp = { id = "com.google.devtools.ksp", version.ref = "kotlin-ksp" }
 
 # Protobuf
 protobuf-core = { id = "com.google.protobuf", version.ref = "protobuf" }
