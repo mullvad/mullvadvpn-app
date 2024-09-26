@@ -23,13 +23,16 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
+#### Windows
+- Add experimental support for Windows ARM64.
+
+
+## [2024.6-beta1] - 2024-09-26
+### Added
 - Add WireGuard over Shadowsocks obfuscation. It can be enabled in "WireGuard settings". This will
   also be used automatically when connecting fails with other methods.
 - Add feature indicators to the main view along with redesigning the connection details.
 - Add "Smart Routing" feature which simplifies connecting to DAITA-enabled relays.
-
-#### Windows
-- Add experimental support for Windows ARM64.
 
 #### macOS
 - Add "Apple services bypass" toggle that let's users unblock certain Apple-owned networks.
