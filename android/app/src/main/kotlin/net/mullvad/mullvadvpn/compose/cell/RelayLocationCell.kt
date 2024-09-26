@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -24,13 +26,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
-import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.component.Chevron
+import net.mullvad.mullvadvpn.compose.component.ExpandChevron
 import net.mullvad.mullvadvpn.compose.component.MullvadCheckbox
 import net.mullvad.mullvadvpn.compose.preview.RelayItemCheckableCellPreviewParameterProvider
 import net.mullvad.mullvadvpn.lib.model.RelayItem
@@ -83,10 +83,7 @@ fun StatusRelayItemCell(
         isSelected,
         leadingContent = {
             if (isSelected) {
-                Icon(
-                    painter = painterResource(id = R.drawable.icon_tick),
-                    contentDescription = null,
-                )
+                Icon(imageVector = Icons.Default.Check, contentDescription = null)
             } else {
                 Box(
                     modifier =
@@ -228,7 +225,7 @@ private fun RowScope.ExpandButton(
         color = MaterialTheme.colorScheme.surface,
         modifier = Modifier.padding(vertical = Dimens.verticalDividerPadding),
     )
-    Chevron(
+    ExpandChevron(
         color = color,
         isExpanded = isExpanded,
         modifier =

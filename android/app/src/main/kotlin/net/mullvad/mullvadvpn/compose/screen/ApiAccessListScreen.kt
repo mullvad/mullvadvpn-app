@@ -5,6 +5,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -14,7 +17,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -28,7 +30,6 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.cell.TwoRowCell
-import net.mullvad.mullvadvpn.compose.component.ChevronRight
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.constant.ContentType
@@ -144,7 +145,7 @@ private fun LazyListScope.currentAccessMethod(
                         .testTag(API_ACCESS_LIST_INFO_TEST_TAG),
             ) {
                 Icon(
-                    painter = painterResource(id = R.drawable.icon_info),
+                    imageVector = Icons.Default.Info,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onSurface,
                 )
@@ -188,9 +189,10 @@ private fun ApiAccessMethodItem(
         titleStyle = MaterialTheme.typography.titleMedium,
         subtitleColor = MaterialTheme.colorScheme.onSurfaceVariant,
         bodyView = {
-            ChevronRight(
-                tint = MaterialTheme.colorScheme.onPrimary,
+            Icon(
+                Icons.Default.ChevronRight,
                 contentDescription = apiAccessMethodSetting.name.value,
+                tint = MaterialTheme.colorScheme.onPrimary,
             )
         },
         onCellClicked = { onApiAccessMethodClick(apiAccessMethodSetting) },

@@ -10,15 +10,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.vector.ImageVector
 import kotlinx.coroutines.delay
 
 internal const val PRESS_EFFECT_TIME_SPAN: Long = 1000
 
 @Composable
 fun AnimatedIconButton(
-    defaultIcon: Painter,
-    secondaryIcon: Painter,
+    defaultIcon: ImageVector,
+    secondaryIcon: ImageVector,
     pressEffectDuration: Long = PRESS_EFFECT_TIME_SPAN,
     defaultIconTint: Color,
     secondaryIconTint: Color,
@@ -50,24 +50,24 @@ fun AnimatedIconButton(
         }
     ) {
         AnimatedContent(targetState = state, label = contentDescription) { targetState ->
-            val iconPainter: Painter
+            val imageVector: ImageVector
             val tint: Color
             when (targetState) {
                 ButtonState.IDLE -> {
-                    iconPainter = defaultIcon
+                    imageVector = defaultIcon
                     tint = defaultIconTint
                 }
                 ButtonState.TOGGLED -> {
-                    iconPainter = secondaryIcon
+                    imageVector = secondaryIcon
                     tint = secondaryIconTint
                 }
                 ButtonState.PRESSED -> {
-                    iconPainter = secondaryIcon
+                    imageVector = secondaryIcon
                     tint = secondaryIconTint
                 }
             }
 
-            Icon(painter = iconPainter, contentDescription = contentDescription, tint = tint)
+            Icon(imageVector = imageVector, contentDescription = contentDescription, tint = tint)
         }
     }
 }

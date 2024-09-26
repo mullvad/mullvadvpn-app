@@ -30,7 +30,7 @@ private fun PreviewMullvadModalBottomSheet() {
             sheetContent = {
                 HeaderCell(text = "Title")
                 HorizontalDivider()
-                IconCell(iconId = null, title = "Select")
+                IconCell(imageVector = null, title = "Select")
             },
             onDismissRequest = {},
         )

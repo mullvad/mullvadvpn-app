@@ -1,11 +1,13 @@
 package net.mullvad.mullvadvpn.compose.button
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
+import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 
 @Preview
@@ -45,7 +47,11 @@ fun ExternalButton(
         modifier = modifier,
         isEnabled = isEnabled,
         icon = {
-            Icon(painter = painterResource(id = R.drawable.icon_extlink), contentDescription = null)
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.OpenInNew,
+                tint = MaterialTheme.colorScheme.onTertiary,
+                contentDescription = null,
+            )
         },
     )
 }
