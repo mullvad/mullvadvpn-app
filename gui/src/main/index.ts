@@ -36,8 +36,9 @@ import {
   printCommandLineOptions,
   printElectronOptions,
 } from './command-line-options';
-import { ConnectionObserver, DaemonRpc, SubscriptionListener } from './daemon-rpc';
+import { DaemonRpc, SubscriptionListener } from './daemon-rpc';
 import Expectation from './expectation';
+import { ConnectionObserver } from './grpc-client';
 import { IpcMainEventChannel } from './ipc-event-channel';
 import { findIconPath } from './linux-desktop-entry';
 import { loadTranslations } from './load-translations';
