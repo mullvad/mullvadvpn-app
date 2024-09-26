@@ -18,7 +18,7 @@ public final class EncryptedDNSTransport: RESTTransport {
     public let urlSession: URLSession
     private let encryptedDnsProxy: EncryptedDNSProxy
     private let dispatchQueue = DispatchQueue(label: "net.mullvad.EncryptedDNSTransport")
-    private var dnsProxyTask: URLSessionTask!
+    private var dnsProxyTask: URLSessionTask?
 
     public init(urlSession: URLSession) {
         self.urlSession = urlSession
@@ -78,7 +78,7 @@ public final class EncryptedDNSTransport: RESTTransport {
 
         return AnyCancellable { [weak self] in
             self?.dispatchQueue.async {
-                self?.dnsProxyTask.cancel()
+                self?.dnsProxyTask?.cancel()
             }
         }
     }

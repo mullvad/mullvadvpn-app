@@ -17,7 +17,7 @@ public final class TransportProvider: RESTTransportProvider {
     private var currentTransport: RESTTransport?
     private var currentTransportType: TransportStrategy.Transport
     private let parallelRequestsMutex = NSLock()
-    private let encryptedDNSTransport: EncryptedDNSTransport!
+    private let encryptedDNSTransport: EncryptedDNSTransport
 
     public init(
         urlSessionTransport: URLSessionTransport,
