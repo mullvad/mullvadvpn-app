@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -15,7 +17,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -167,11 +168,7 @@ fun SwitchCellView(
                         .padding(horizontal = Dimens.miniPadding),
                 onClick = onInfoClicked,
             ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.icon_info),
-                    contentDescription = null,
-                    tint = iconColor,
-                )
+                Icon(imageVector = Icons.Default.Info, contentDescription = null, tint = iconColor)
             }
         }
 

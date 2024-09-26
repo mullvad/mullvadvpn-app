@@ -2,6 +2,9 @@ package net.mullvad.mullvadvpn.compose.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -16,7 +19,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -180,7 +182,7 @@ private fun Actions(enabled: Boolean, onDeleteList: () -> Unit) {
         onClick = { showMenu = true },
         modifier = Modifier.testTag(TOP_BAR_DROPDOWN_BUTTON_TEST_TAG),
     ) {
-        Icon(painter = painterResource(id = R.drawable.icon_more_vert), contentDescription = null)
+        Icon(imageVector = Icons.Default.MoreVert, contentDescription = null)
         if (showMenu) {
             DropdownMenu(
                 expanded = true,
@@ -191,7 +193,8 @@ private fun Actions(enabled: Boolean, onDeleteList: () -> Unit) {
                     text = { Text(text = stringResource(id = R.string.delete_list)) },
                     leadingIcon = {
                         Icon(
-                            painter = painterResource(id = R.drawable.icon_delete),
+                            imageVector = Icons.Default.Delete,
+                            tint = MaterialTheme.colorScheme.onSurface,
                             contentDescription = null,
                         )
                     },

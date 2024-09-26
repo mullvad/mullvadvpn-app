@@ -6,6 +6,9 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
@@ -26,7 +29,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -274,7 +276,7 @@ private fun Actions(onDeleteAccessMethod: () -> Unit) {
         onClick = { showMenu = true },
         modifier = Modifier.testTag(API_ACCESS_DETAILS_TOP_BAR_DROPDOWN_BUTTON_TEST_TAG),
     ) {
-        Icon(painter = painterResource(id = R.drawable.icon_more_vert), contentDescription = null)
+        Icon(imageVector = Icons.Default.MoreVert, contentDescription = null)
         if (showMenu) {
             DropdownMenu(
                 expanded = true,
@@ -285,7 +287,8 @@ private fun Actions(onDeleteAccessMethod: () -> Unit) {
                     text = { Text(text = stringResource(id = R.string.delete_method)) },
                     leadingIcon = {
                         Icon(
-                            painter = painterResource(id = R.drawable.icon_delete),
+                            imageVector = Icons.Default.Delete,
+                            tint = MaterialTheme.colorScheme.onSurface,
                             contentDescription = null,
                         )
                     },

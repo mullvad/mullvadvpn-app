@@ -1,13 +1,13 @@
 package net.mullvad.mullvadvpn.compose.button
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
-import net.mullvad.mullvadvpn.R
 
 @Composable
 fun InfoIconButton(
@@ -18,7 +18,7 @@ fun InfoIconButton(
 ) {
     IconButton(modifier = modifier, onClick = onClick) {
         Icon(
-            painter = painterResource(id = R.drawable.icon_info),
+            imageVector = Icons.Default.Info,
             contentDescription = contentDescription,
             tint = iconTint,
         )

@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CornerSize
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Replay
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilledIconButton
@@ -121,7 +123,10 @@ fun SwitchLocationButton(
                     overflow = TextOverflow.Ellipsis,
                     modifier =
                         if (isReconnectButtonEnabled) {
-                            Modifier.padding(start = componentHeight + Dimens.listItemDivider)
+                            Modifier.padding(
+                                start =
+                                    componentHeight + Dimens.listItemDivider + Dimens.smallPadding
+                            )
                         } else {
                             Modifier
                         },
@@ -153,7 +158,7 @@ fun SwitchLocationButton(
                             .defaultMinSize(minWidth = Dimens.switchLocationRetryMinWidth),
                 ) {
                     Icon(
-                        painter = painterResource(id = R.drawable.icon_reload),
+                        painter = painterResource(R.drawable.icon_reconnect),
                         contentDescription = null,
                     )
                 }

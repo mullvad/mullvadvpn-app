@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -20,7 +22,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -45,7 +46,7 @@ import net.mullvad.mullvadvpn.compose.button.RedeemVoucherButton
 import net.mullvad.mullvadvpn.compose.component.CopyableObfuscationView
 import net.mullvad.mullvadvpn.compose.component.InformationView
 import net.mullvad.mullvadvpn.compose.component.MissingPolicy
-import net.mullvad.mullvadvpn.compose.component.NavigateBackDownIconButton
+import net.mullvad.mullvadvpn.compose.component.NavigateCloseIconButton
 import net.mullvad.mullvadvpn.compose.component.PlayPayment
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.extensions.createOpenAccountPageHook
@@ -151,7 +152,7 @@ fun AccountScreen(
 
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.settings_account),
-        navigationIcon = { NavigateBackDownIconButton(onBackClick) },
+        navigationIcon = { NavigateCloseIconButton(onBackClick) },
         snackbarHostState = snackbarHostState,
     ) { modifier ->
         Column(
@@ -224,7 +225,7 @@ private fun DeviceNameRow(deviceName: String, onInfoClick: () -> Unit) {
             InformationView(content = deviceName, whenMissing = MissingPolicy.SHOW_SPINNER)
             IconButton(onClick = onInfoClick) {
                 Icon(
-                    painter = painterResource(id = R.drawable.icon_info),
+                    imageVector = Icons.Default.Info,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onSurface,
                 )

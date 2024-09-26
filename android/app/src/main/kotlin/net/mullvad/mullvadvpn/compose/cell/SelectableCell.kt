@@ -3,17 +3,17 @@ package net.mullvad.mullvadvpn.compose.cell
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
-import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.SpacedColumn
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -100,7 +100,7 @@ fun RowScope.SelectableIcon(
     isEnabled: Boolean,
 ) {
     Icon(
-        painter = painterResource(id = R.drawable.icon_tick),
+        imageVector = Icons.Default.Check,
         contentDescription = iconContentDescription,
         tint = MaterialTheme.colorScheme.onSelected,
         modifier =
