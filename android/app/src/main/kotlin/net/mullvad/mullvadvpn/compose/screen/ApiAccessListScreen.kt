@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Info
@@ -94,7 +95,7 @@ fun ApiAccessListScreen(
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.settings_api_access),
         navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) },
-    ) { modifier, lazyListState ->
+    ) { modifier, lazyListState: LazyListState ->
         LazyColumn(modifier = modifier, state = lazyListState) {
             description()
             currentAccessMethod(
