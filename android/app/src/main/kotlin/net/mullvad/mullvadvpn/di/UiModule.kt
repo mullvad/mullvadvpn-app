@@ -18,6 +18,7 @@ import net.mullvad.mullvadvpn.lib.payment.PaymentProvider
 import net.mullvad.mullvadvpn.lib.repository.VoucherRepository
 import net.mullvad.mullvadvpn.receiver.AutoStartVpnBootCompletedReceiver
 import net.mullvad.mullvadvpn.repository.ApiAccessRepository
+import net.mullvad.mullvadvpn.repository.AppObfuscationRepository
 import net.mullvad.mullvadvpn.repository.AutoStartAndConnectOnBootRepository
 import net.mullvad.mullvadvpn.repository.ChangelogRepository
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
@@ -32,6 +33,14 @@ import net.mullvad.mullvadvpn.repository.SplashCompleteRepository
 import net.mullvad.mullvadvpn.repository.SplitTunnelingRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.ui.MainActivity
+import net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltBrowser
+import net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltBrowserNight
+import net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltGame
+import net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltNews
+import net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltNinja
+import net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltNotes
+import net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltWeather
+import net.mullvad.mullvadvpn.ui.obfuscation.MainActivityDefault
 import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.usecase.DeleteCustomDnsUseCase
@@ -75,6 +84,7 @@ import net.mullvad.mullvadvpn.viewmodel.ApiAccessListViewModel
 import net.mullvad.mullvadvpn.viewmodel.ApiAccessMethodDetailsViewModel
 import net.mullvad.mullvadvpn.viewmodel.ApiUnreachableViewModel
 import net.mullvad.mullvadvpn.viewmodel.AppInfoViewModel
+import net.mullvad.mullvadvpn.viewmodel.AppearanceViewModel
 import net.mullvad.mullvadvpn.viewmodel.ChangelogViewModel
 import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
 import net.mullvad.mullvadvpn.viewmodel.CreateCustomListDialogViewModel
@@ -132,6 +142,18 @@ val uiModule = module {
 
     viewModel { SplitTunnelingViewModel(get(), get(), get(), Dispatchers.Default) }
 
+    single<List<ComponentName>>(named(APP_OBFUSCATION_COMPONENTS_NAME)) {
+        listOf(
+            ComponentName(androidContext(), MainActivityDefault::class.java),
+            ComponentName(androidContext(), MainActivityAltGame::class.java),
+            ComponentName(androidContext(), MainActivityAltNinja::class.java),
+            ComponentName(androidContext(), MainActivityAltBrowser::class.java),
+            ComponentName(androidContext(), MainActivityAltNews::class.java),
+            ComponentName(androidContext(), MainActivityAltWeather::class.java),
+            ComponentName(androidContext(), MainActivityAltNotes::class.java),
+            ComponentName(androidContext(), MainActivityAltBrowserNight::class.java),
+        )
+    }
     single { ApplicationsProvider(get(), get(named(SELF_PACKAGE_NAME))) }
     scope<MainActivity> { scoped { ServiceConnectionManager(androidContext()) } }
     single { InetAddressValidator.getInstance() }
@@ -166,6 +188,7 @@ val uiModule = module {
         )
     }
     single { WireguardConstraintsRepository(get()) }
+    single { AppObfuscationRepository(get(), get(named(APP_OBFUSCATION_COMPONENTS_NAME))) }
 
     single { AccountExpiryInAppNotificationUseCase(get()) } bind InAppNotificationUseCase::class
     single { TunnelStateNotificationUseCase(get(), get(), get()) } bind
@@ -410,6 +433,7 @@ val uiModule = module {
             modifyAndEnableMultihopUseCase = get(),
         )
     }
+    viewModel { AppearanceViewModel(get()) }
 
     single { BackstackObserver() }
 
@@ -421,3 +445,5 @@ const val SELF_PACKAGE_NAME = "SELF_PACKAGE_NAME"
 const val APP_PREFERENCES_NAME = "${BuildConfig.APPLICATION_ID}.app_preferences"
 const val BOOT_COMPLETED_RECEIVER_COMPONENT_NAME = "BOOT_COMPLETED_RECEIVER_COMPONENT_NAME"
 const val KERMIT_FILE_LOG_DIR_NAME = "android_app_logs"
+// App obfuscations
+const val APP_OBFUSCATION_COMPONENTS_NAME = "APP_OBFUSCATION_COMPONENTS_NAME"

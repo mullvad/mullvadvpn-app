@@ -2800,6 +2800,9 @@ msgstr ""
 msgid "<b>Attention:</b> Only some servers support the full port range."
 msgstr ""
 
+msgid "<b>Attention:</b> The app will close automatically and needs to be manually opened again after selecting a new icon and title. This will not impact your VPN connection."
+msgstr ""
+
 msgid "<b>Please note that these methods do not improve performance, and may increase system utilization and battery consumption.</b>"
 msgstr ""
 
@@ -2863,6 +2866,15 @@ msgstr ""
 msgid "Android 16 has a known issue. Please restart your device and try again. To learn more,"
 msgstr ""
 
+msgid "App obfuscation"
+msgstr ""
+
+msgid "Appearance"
+msgstr ""
+
+msgid "Applying changes..."
+msgstr ""
+
 msgid "Are you sure you want to log <b>%s</b> out?"
 msgstr ""
 
@@ -2896,10 +2908,16 @@ msgstr ""
 msgid "Blocking..."
 msgstr ""
 
+msgid "Browser"
+msgstr ""
+
 msgid "By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time."
 msgstr ""
 
 msgid "Can't connect?"
+msgstr ""
+
+msgid "Change the title and icon of the Mullvad VPN app on your Android device. This will not change the icon for any Mullvad VPN related notifications."
 msgstr ""
 
 msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
@@ -3082,6 +3100,9 @@ msgstr ""
 msgid "IPv6 is not available, please try changing \"Device IP version\" setting."
 msgstr ""
 
+msgid "Icon and title"
+msgstr ""
+
 msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
 msgstr ""
 
@@ -3148,6 +3169,9 @@ msgstr ""
 msgid "New list"
 msgstr ""
 
+msgid "News"
+msgstr ""
+
 msgid "No Android app store installed, could not open link"
 msgstr ""
 
@@ -3182,6 +3206,9 @@ msgid "No result for \"%s\", please try a different search"
 msgstr ""
 
 msgid "Not found"
+msgstr ""
+
+msgid "Notes"
 msgstr ""
 
 msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked."
@@ -3470,6 +3497,9 @@ msgid "We were unable to start the payment process, please make sure you have th
 msgstr ""
 
 msgid "We were unable to start the payment process, please try again later."
+msgstr ""
+
+msgid "Weather"
 msgstr ""
 
 msgid "Welcome, this device is now called <b>%s</b>."

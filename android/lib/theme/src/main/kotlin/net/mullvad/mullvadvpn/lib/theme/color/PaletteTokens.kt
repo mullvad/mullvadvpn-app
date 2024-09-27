@@ -81,6 +81,9 @@ internal object PaletteTokens {
     // Black
     val Black = Color(0xFF000000)
 
+    // Used by surface dim
+    val Dim = Color(0xFF101823)
+
     // Disabled container colors
     val DisabledContainerPrimary = Color(0xFF1F3A57)
     val DisabledContainerTertiary = Color(0xFF2A6148)
