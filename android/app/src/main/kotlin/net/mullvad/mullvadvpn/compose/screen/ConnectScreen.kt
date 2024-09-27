@@ -325,6 +325,13 @@ private fun MullvadMap(state: ConnectUiState, progressIndicatorBias: Float) {
             label = "baseZoom",
         )
 
+    val locationMarkers =
+        state.relayLocations.map {
+            Marker(
+                it.latLong,
+                colors = LocationMarkerColors(centerColor = MaterialTheme.colorScheme.error),
+            )
+        }
     val markers = state.tunnelState.toMarker(state.location)?.let { listOf(it) } ?: emptyList()
 
     AnimatedMap(
@@ -332,7 +339,7 @@ private fun MullvadMap(state: ConnectUiState, progressIndicatorBias: Float) {
         cameraLocation = state.location?.toLatLong() ?: fallbackLatLong,
         cameraBaseZoom = baseZoom.value,
         cameraVerticalBias = progressIndicatorBias,
-        markers = markers,
+        markers = markers + locationMarkers,
         globeColors =
             GlobeColors(
                 landColor = MaterialTheme.colorScheme.primary,

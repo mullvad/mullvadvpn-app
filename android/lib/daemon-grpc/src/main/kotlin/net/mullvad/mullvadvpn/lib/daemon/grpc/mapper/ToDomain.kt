@@ -42,6 +42,9 @@ import net.mullvad.mullvadvpn.lib.model.ErrorStateCause.TunnelParameterError
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
+import net.mullvad.mullvadvpn.lib.model.LatLong
+import net.mullvad.mullvadvpn.lib.model.Latitude
+import net.mullvad.mullvadvpn.lib.model.Longitude
 import net.mullvad.mullvadvpn.lib.model.Mtu
 import net.mullvad.mullvadvpn.lib.model.ObfuscationEndpoint
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
@@ -555,6 +558,11 @@ internal fun ManagementInterface.RelayListCity.toDomain(
                 .filter { it.endpointType == ManagementInterface.Relay.RelayType.WIREGUARD }
                 .map { it.toDomain(cityCode) }
                 .sortedWith(RelayNameComparator),
+        latLong =
+            LatLong(
+                Latitude.fromFloat(latitude.toFloat()),
+                Longitude.fromFloat(longitude.toFloat()),
+            ),
     )
 }
 

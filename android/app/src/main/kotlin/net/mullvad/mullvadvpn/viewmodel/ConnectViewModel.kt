@@ -29,6 +29,7 @@ import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
 import net.mullvad.mullvadvpn.repository.InAppNotificationController
 import net.mullvad.mullvadvpn.repository.NewDeviceRepository
+import net.mullvad.mullvadvpn.usecase.FilteredRelayListUseCase
 import net.mullvad.mullvadvpn.usecase.LastKnownLocationUseCase
 import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
@@ -49,6 +50,7 @@ class ConnectViewModel(
     private val connectionProxy: ConnectionProxy,
     lastKnownLocationUseCase: LastKnownLocationUseCase,
     private val resources: Resources,
+    private val filteredRelayListUseCase: FilteredRelayListUseCase,
     private val isPlayBuild: Boolean,
     private val packageName: String,
 ) : ViewModel() {
@@ -66,13 +68,15 @@ class ConnectViewModel(
                 lastKnownLocationUseCase.lastKnownDisconnectedLocation,
                 accountRepository.accountData,
                 deviceRepository.deviceState.map { it?.displayName() },
+                filteredRelayListUseCase().map { countries -> countries.flatMap { it.cities } },
             ) {
                 selectedRelayItemTitle,
                 notifications,
                 tunnelState,
                 lastKnownDisconnectedLocation,
                 accountData,
-                deviceName ->
+                deviceName,
+                relayCities ->
                 ConnectUiState(
                     location =
                         when (tunnelState) {

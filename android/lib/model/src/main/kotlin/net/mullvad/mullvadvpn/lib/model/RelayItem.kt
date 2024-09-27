@@ -46,6 +46,7 @@ sealed interface RelayItem {
             override val id: GeoLocationId.City,
             override val name: String,
             val relays: List<Relay>,
+            val latLong: LatLong,
         ) : Location {
             override val active = relays.any { it.active }
             override val hasChildren: Boolean = relays.isNotEmpty()
