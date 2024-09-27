@@ -106,7 +106,7 @@ function run_in_build_env {
     fi
 }
 
-# Sign DEB+RPM on Linux
+# Sign deb, rpm, and pacman-archives on Linux
 function sign_linux_packages {
     for installer_path in dist/MullvadVPN-*.deb; do
         echo "Signing $installer_path"
@@ -115,6 +115,10 @@ function sign_linux_packages {
     for installer_path in dist/MullvadVPN-*.rpm; do
         echo "Signing $installer_path"
         rpm --addsign "$installer_path"
+    done
+    for installer_path in dist/MullvadVPN-*.pkg.tar.xz; do
+        echo "Signing $installer_path"
+        gpg --detach-sign --no-armor --output "$installer_path.sig" --sign "$installer_path"
     done
 }
 
@@ -130,7 +134,7 @@ function build {
     if [[ "$(uname -s)" == "Linux" ]]; then
         sign_linux_packages
     fi
-    mv dist/*.{deb,rpm,exe,pkg} "$artifact_dir" || return 1
+    mv dist/*.{deb,rpm,.pkg.tar.xz{,.sig},exe,pkg} "$artifact_dir" || return 1
 
     (run_in_build_env gui/scripts/build-test-executable.sh "$target" && \
         mv "dist/app-e2e-tests-$version"* "$artifact_dir") || \
@@ -225,7 +229,7 @@ function build_ref {
         # Pipes all matching names and their new name to mv
         pushd "$artifact_dir"
         for original_file in MullvadVPN-*-dev-*{.deb,.rpm,.exe,.pkg}; do
-            new_file=$(echo "$original_file" | perl -pe "s/^(MullvadVPN-.*?)(_arm64|_aarch64|_amd64|_x86_64)?(\.deb|\.rpm|\.exe|\.pkg)$/\1$version_suffix\2\3/p")
+            new_file=$(echo "$original_file" | perl -pe "s/^(MullvadVPN-.*?)(_arm64|_aarch64|_amd64|_x86_64|_x64)?(\.deb|\.rpm|\.pkg\.tar\.xz(\.sig)?|\.exe|\.pkg)$/\1$version_suffix\2\3/p")
             mv "$original_file" "$new_file"
         done
         popd

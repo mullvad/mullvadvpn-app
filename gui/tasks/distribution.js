@@ -68,7 +68,7 @@ const config = {
     if (context.arch !== Arch.universal) {
       const resources = context.packager.platformSpecificBuildOptions.extraResources;
       for (const resource of resources) {
-        const filePath = resource.from.replace(/\$\{env\.(.*)\}/, function (match, captureGroup) {
+        const filePath = resource.from.replace(/\$\{env\.(.*)\}/, function(match, captureGroup) {
           return process.env[captureGroup];
         });
 
@@ -193,6 +193,10 @@ const config = {
         target: 'rpm',
         arch: getLinuxTargetArch(),
       },
+      {
+        target: 'pacman',
+        arch: getLinuxTargetArch(),
+      },
     ],
     artifactName: 'MullvadVPN-${version}_${arch}.${ext}',
     category: 'Network',
@@ -222,18 +226,18 @@ const config = {
       '--before-remove',
       distAssets('linux/before-remove.sh'),
       distAssets('linux/mullvad-daemon.service') +
-        '=/usr/lib/systemd/system/mullvad-daemon.service',
+      '=/usr/lib/systemd/system/mullvad-daemon.service',
       distAssets('linux/mullvad-early-boot-blocking.service') +
-        '=/usr/lib/systemd/system/mullvad-early-boot-blocking.service',
+      '=/usr/lib/systemd/system/mullvad-early-boot-blocking.service',
       distAssets(path.join(getLinuxTargetSubdir(), 'mullvad')) + '=/usr/bin/',
       distAssets(path.join(getLinuxTargetSubdir(), 'mullvad-daemon')) + '=/usr/bin/',
       distAssets(path.join(getLinuxTargetSubdir(), 'mullvad-exclude')) + '=/usr/bin/',
       distAssets('linux/problem-report-link') + '=/usr/bin/mullvad-problem-report',
       buildAssets('shell-completions/mullvad.bash') +
-        '=/usr/share/bash-completion/completions/mullvad',
+      '=/usr/share/bash-completion/completions/mullvad',
       buildAssets('shell-completions/_mullvad') + '=/usr/local/share/zsh/site-functions/_mullvad',
       buildAssets('shell-completions/mullvad.fish') +
-        '=/usr/share/fish/vendor_completions.d/mullvad.fish',
+      '=/usr/share/fish/vendor_completions.d/mullvad.fish',
     ],
     afterInstall: distAssets('linux/after-install.sh'),
     afterRemove: distAssets('linux/after-remove.sh'),
@@ -255,22 +259,49 @@ const config = {
       '--rpm-posttrans',
       distAssets('linux/post-transaction.sh'),
       distAssets('linux/mullvad-daemon.service') +
-        '=/usr/lib/systemd/system/mullvad-daemon.service',
+      '=/usr/lib/systemd/system/mullvad-daemon.service',
       distAssets('linux/mullvad-early-boot-blocking.service') +
-        '=/usr/lib/systemd/system/mullvad-early-boot-blocking.service',
+      '=/usr/lib/systemd/system/mullvad-early-boot-blocking.service',
       distAssets(path.join(getLinuxTargetSubdir(), 'mullvad')) + '=/usr/bin/',
       distAssets(path.join(getLinuxTargetSubdir(), 'mullvad-daemon')) + '=/usr/bin/',
       distAssets(path.join(getLinuxTargetSubdir(), 'mullvad-exclude')) + '=/usr/bin/',
       distAssets('linux/problem-report-link') + '=/usr/bin/mullvad-problem-report',
       buildAssets('shell-completions/mullvad.bash') +
-        '=/usr/share/bash-completion/completions/mullvad',
+      '=/usr/share/bash-completion/completions/mullvad',
       buildAssets('shell-completions/_mullvad') + '=/usr/share/zsh/site-functions/_mullvad',
       buildAssets('shell-completions/mullvad.fish') +
-        '=/usr/share/fish/vendor_completions.d/mullvad.fish',
+      '=/usr/share/fish/vendor_completions.d/mullvad.fish',
     ],
     afterInstall: distAssets('linux/after-install.sh'),
     afterRemove: distAssets('linux/after-remove.sh'),
     depends: ['libXScrnSaver', 'libnotify', 'dbus-libs'],
+  },
+
+  pacman: {
+    compression: 'xz',
+    artifactName: 'MullvadVPN-${version}_${arch}.pkg.tar.xz',
+    fpm: [
+      '--before-install',
+      distAssets('linux/before-install.sh'),
+      '--before-remove',
+      distAssets('linux/before-remove.sh'),
+      distAssets('linux/mullvad-daemon.service') +
+      '=/usr/lib/systemd/system/mullvad-daemon.service',
+      distAssets('linux/mullvad-early-boot-blocking.service') +
+      '=/usr/lib/systemd/system/mullvad-early-boot-blocking.service',
+      distAssets(path.join(getLinuxTargetSubdir(), 'mullvad')) + '=/usr/bin/',
+      distAssets(path.join(getLinuxTargetSubdir(), 'mullvad-daemon')) + '=/usr/bin/',
+      distAssets(path.join(getLinuxTargetSubdir(), 'mullvad-exclude')) + '=/usr/bin/',
+      distAssets('linux/problem-report-link') + '=/usr/bin/mullvad-problem-report',
+      buildAssets('shell-completions/mullvad.bash') +
+      '=/usr/share/bash-completion/completions/mullvad',
+      buildAssets('shell-completions/_mullvad') + '=/usr/local/share/zsh/site-functions/_mullvad',
+      buildAssets('shell-completions/mullvad.fish') +
+      '=/usr/share/fish/vendor_completions.d/mullvad.fish',
+    ],
+    afterInstall: distAssets('linux/after-install.sh'),
+    afterRemove: distAssets('linux/after-remove.sh'),
+    depends: ['iputils', 'libnftnl', 'libnotify', 'nss'],
   },
 };
 
