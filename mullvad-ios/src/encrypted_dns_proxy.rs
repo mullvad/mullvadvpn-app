@@ -82,29 +82,26 @@ impl EncryptedDnsProxyState {
         if self.should_reset() {
             self.reset();
         }
+
         // TODO: currently, the randomized order of proxy config retrieval depends on the random
         // iteration order of a given HashSet instance. Since for now, there will be only 2
         // different configurations, it barely matters. In the future, we should use `rand`
         // instead, so that the behavior is explicit and clear.
+        let selected_config = {
+            // First, create an iterator for the difference between all configs and tried configs.
+            let mut difference = self.configurations.difference(&self.tried_configurations);
+            // Pick the first configuration if there are any. If there are none, one can only assume
+            // that the configuration set is empty, so an early return is fine.
+            let first_config = difference.next()?;
+            // See if there are any unused obfuscated configurations in the rest of the set.
+            let obfuscated_config = difference.find(|config| config.obfuscation.is_some());
 
-        // First, try getting an obfuscated configuration, if there exist any.
-        let config = if let Some(obfuscated_config) = self
-            .configurations
-            .difference(&self.tried_configurations)
-            .find(|config| config.obfuscation.is_some())
-            .cloned()
-        {
-            obfuscated_config
-        } else {
-            // If no obfuscated configurations exist, try the next untried configuration.
-            self.configurations
-                .difference(&self.tried_configurations)
-                .next()
-                .cloned()?
+            // If there is an obfuscated configuration, use that. Otherwise, use the first one.
+            obfuscated_config.unwrap_or(first_config).clone()
         };
 
-        self.tried_configurations.insert(config.clone());
-        Some(config)
+        self.tried_configurations.insert(selected_config.clone());
+        Some(selected_config)
     }
 
     /// Fetch a config, but error out only when no existing configuration was there.
