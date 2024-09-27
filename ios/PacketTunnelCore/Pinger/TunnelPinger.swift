@@ -15,7 +15,7 @@ import WireGuardKit
 public final class TunnelPinger: PingerProtocol {
     private var sequenceNumber: UInt16 = 0
     private let stateLock = NSRecursiveLock()
-    private let pingQueue: DispatchQueue
+    private let pingReceiveQueue: DispatchQueue
     private let replyQueue: DispatchQueue
     private var destAddress: IPv4Address?
     private var _onReply: ((PingerReply) -> Void)?
@@ -39,7 +39,7 @@ public final class TunnelPinger: PingerProtocol {
     init(pingProvider: ICMPPingProvider, replyQueue: DispatchQueue) {
         self.pingProvider = pingProvider
         self.replyQueue = replyQueue
-        self.pingQueue = DispatchQueue(label: "PacketTunnel.icmp")
+        self.pingReceiveQueue = DispatchQueue(label: "PacketTunnel.Receive.icmp")
         self.logger = Logger(label: "TunnelPinger")
     }
 
@@ -50,6 +50,22 @@ public final class TunnelPinger: PingerProtocol {
     public func openSocket(bindTo interfaceName: String?, destAddress: IPv4Address) throws {
         try pingProvider.openICMP(address: destAddress)
         self.destAddress = destAddress
+        pingReceiveQueue.async { [weak self] in
+            while let self {
+                do {
+                    let seq = try pingProvider.receiveICMP()
+
+                    replyQueue.async { [weak self] in
+                        self?.onReply?(PingerReply.success(destAddress, UInt16(seq)))
+                    }
+                } catch {
+                    replyQueue.async { [weak self] in
+                        self?.onReply?(PingerReply.parseError(error))
+                    }
+                    return
+                }
+            }
+        }
     }
 
     public func closeSocket() {
@@ -59,25 +75,10 @@ public final class TunnelPinger: PingerProtocol {
 
     public func send() throws -> PingerSendResult {
         let sequenceNumber = nextSequenceNumber()
-        logger.debug("*** sending ping \(sequenceNumber)")
 
-        pingQueue.async { [weak self] in
-            guard let self, let destAddress else { return }
-            let reply: PingerReply
-            do {
-                try pingProvider.sendICMPPing(seqNumber: sequenceNumber)
-                // NOTE: we cheat here by returning the destination address we were passed, rather than parsing it from the packet on the other side of the FFI boundary.
-                reply = .success(destAddress, sequenceNumber)
-            } catch {
-                reply = .parseError(error)
-            }
-            self.logger.debug("--- Pinger reply: \(reply)")
-
-            replyQueue.async { [weak self] in
-                guard let self else { return }
-                self.onReply?(reply)
-            }
-        }
+        guard let destAddress else { throw WireGuardAdapterError.invalidState }
+        // NOTE: we cheat here by returning the destination address we were passed, rather than parsing it from the packet on the other side of the FFI boundary.
+        try pingProvider.sendICMPPing(seqNumber: sequenceNumber)
 
         return PingerSendResult(sequenceNumber: UInt16(sequenceNumber))
     }
