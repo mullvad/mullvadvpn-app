@@ -1,103 +1,14 @@
-import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import ReactDOM from 'react-dom';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 
 import { colors } from '../../config.json';
-import log from '../../shared/logging';
-import { useEffectEvent } from '../lib/utility-hooks';
-import { useWillExit } from '../lib/will-exit';
+import { useEffectEvent, useStyledRef } from '../lib/utility-hooks';
 import * as AppButton from './AppButton';
 import { measurements, normalText, tinyText } from './common-styles';
 import CustomScrollbars from './CustomScrollbars';
 import ImageView from './ImageView';
 import { BackAction } from './KeyboardNavigation';
 import { SmallButtonGrid } from './SmallButton';
-
-const MODAL_CONTAINER_ID = 'modal-container';
-
-const ModalContent = styled.div({
-  position: 'absolute',
-  display: 'flex',
-  flexDirection: 'column',
-  flex: 1,
-  top: 0,
-  left: 0,
-  right: 0,
-  bottom: 0,
-  overflow: 'hidden',
-});
-
-const ModalBackground = styled.div<{ $visible: boolean }>((props) => ({
-  backgroundColor: props.$visible ? 'rgba(0,0,0,0.5)' : 'rgba(0,0,0,0)',
-  backdropFilter: props.$visible ? 'blur(1.5px)' : '',
-  position: 'absolute',
-  display: 'flex',
-  flexDirection: 'column',
-  flex: 1,
-  top: 0,
-  left: 0,
-  right: 0,
-  bottom: 0,
-  transition: 'background-color 150ms ease-out',
-  pointerEvents: props.$visible ? 'auto' : 'none',
-  zIndex: 2,
-}));
-
-export const StyledModalContainer = styled.div({
-  position: 'relative',
-  flex: 1,
-});
-
-interface IModalContainerProps {
-  children?: React.ReactNode;
-}
-
-interface IModalContext {
-  activeModal: boolean;
-  setActiveModal: (value: boolean) => void;
-  previousActiveElement: React.MutableRefObject<HTMLElement | undefined>;
-}
-
-const noActiveModalContextError = new Error('ActiveModalContext.Provider missing');
-const ActiveModalContext = React.createContext<IModalContext>({
-  get activeModal(): boolean {
-    throw noActiveModalContextError;
-  },
-  setActiveModal(_value) {
-    throw noActiveModalContextError;
-  },
-  get previousActiveElement(): React.MutableRefObject<HTMLElement | undefined> {
-    throw noActiveModalContextError;
-  },
-});
-
-export function ModalContainer(props: IModalContainerProps) {
-  const [activeModal, setActiveModal] = useState(false);
-  const previousActiveElement = useRef<HTMLElement>();
-
-  const contextValue = useMemo(
-    () => ({
-      activeModal,
-      setActiveModal,
-      previousActiveElement,
-    }),
-    [activeModal],
-  );
-
-  useEffect(() => {
-    if (!activeModal) {
-      previousActiveElement.current?.focus();
-    }
-  }, [activeModal]);
-
-  return (
-    <ActiveModalContext.Provider value={contextValue}>
-      <StyledModalContainer id={MODAL_CONTAINER_ID}>
-        <ModalContent aria-hidden={activeModal}>{props.children}</ModalContent>
-      </StyledModalContainer>
-    </ActiveModalContext.Provider>
-  );
-}
 
 export enum ModalAlertType {
   info = 1,
@@ -109,41 +20,52 @@ export enum ModalAlertType {
   failure,
 }
 
-const ModalAlertContainer = styled.div({
-  display: 'flex',
+const modalClosedStyle = {
+  transform: 'translateY(-45%) scale(80%)',
+  opacity: 0,
+};
+
+const backdropClosedStyle = {
+  backgroundColor: 'rgba(0,0,0,0)',
+  backdropFilter: 'blur(0)',
+};
+
+const transitionStyle = { transition: 'all 150ms ease-out allow-discrete' };
+
+const StyledModalAlert = styled.dialog(modalClosedStyle, transitionStyle, {
+  zIndex: 100,
+  top: '50%',
+  width: '94vw',
+  maxHeight: '80vh',
+  margin: '0 auto',
   flexDirection: 'column',
-  flex: 1,
-  justifyContent: 'center',
-  padding: '14px',
-});
+  border: 'none',
+  borderRadius: '11px',
+  padding: '16px 0 16px 16px',
+  backgroundColor: colors.darkBlue,
+  boxShadow: ' 0px 15px 35px 5px rgba(0,0,0,0.5)',
 
-const StyledModalAlert = styled.div<{ $visible: boolean; $closing: boolean }>((props) => {
-  let transform = '';
-  if (props.$visible && props.$closing) {
-    transform = 'scale(80%)';
-  } else if (!props.$visible) {
-    transform = 'translateY(10px) scale(98%)';
-  }
-
-  return {
+  '&&[open]': {
     display: 'flex',
-    flexDirection: 'column',
-    backgroundColor: colors.darkBlue,
-    borderRadius: '11px',
-    padding: '16px 0 16px 16px',
-    maxHeight: '80vh',
-    opacity: props.$visible && !props.$closing ? 1 : 0,
-    transform,
-    boxShadow: ' 0px 15px 35px 5px rgba(0,0,0,0.5)',
-    transition: 'all 150ms ease-out',
-  };
+    transform: 'translateY(calc(-50% - 10px)) scale(100%)',
+    opacity: 1,
+    '@starting-style': modalClosedStyle,
+  },
+
+  '&&::backdrop': { ...backdropClosedStyle, ...transitionStyle },
+  '&&[open]::backdrop': {
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    backdropFilter: 'blur(1.5px)',
+
+    '@starting-style': backdropClosedStyle,
+  },
 });
 
 const StyledCustomScrollbars = styled(CustomScrollbars)({
   paddingRight: '16px',
 });
 
-const ModalAlertIcon = styled.div({
+const StyledModalAlertIcon = styled.div({
   display: 'flex',
   justifyContent: 'center',
   marginTop: '8px',
@@ -163,7 +85,8 @@ const ModalAlertButtonContainer = styled.div({
   marginRight: '16px',
 });
 
-interface IModalAlertProps {
+interface ModalAlertProps {
+  isOpen: boolean;
   type?: ModalAlertType;
   iconColor?: string;
   title?: string;
@@ -171,187 +94,92 @@ interface IModalAlertProps {
   buttons?: React.ReactNode[];
   gridButtons?: React.ReactNode[];
   children?: React.ReactNode;
-  close?: () => void;
+  close: () => void;
 }
 
-interface OpenState {
-  isClosing: boolean;
-  wasOpen: boolean;
-}
+export function ModalAlert(props: ModalAlertProps) {
+  const dialogRef = useStyledRef<HTMLDialogElement>();
 
-export function ModalAlert(props: IModalAlertProps & { isOpen: boolean }) {
-  const { isOpen, ...otherProps } = props;
-  const activeModalContext = useContext(ActiveModalContext);
-  const [openState, setOpenState] = useState<OpenState>({ isClosing: false, wasOpen: isOpen });
+  const messages = typeof props.message === 'string' ? [props.message] : props.message;
 
-  const willExit = useWillExit();
-
-  // Modal shouldn't prepare for being opened again while view is disappearing.
-  const onTransitionEnd = useCallback(() => {
-    if (!willExit) {
-      setOpenState({ isClosing: false, wasOpen: isOpen });
+  const toggleModal = useEffectEvent((isOpen: boolean) => {
+    if (isOpen) {
+      dialogRef.current?.showModal();
+    } else {
+      dialogRef.current?.close();
     }
-  }, [willExit, isOpen]);
-
-  const onOpenStateChange = useEffectEvent((isOpen: boolean) => {
-    setOpenState(({ isClosing, wasOpen }) => ({
-      isClosing: isClosing || (wasOpen && !isOpen),
-      // Unmounting the Modal during view transitions result in a visual glitch.
-      wasOpen: willExit ? wasOpen : isOpen,
-    }));
   });
 
-  useEffect(() => onOpenStateChange(isOpen), [isOpen]);
+  useEffect(() => {
+    toggleModal(props.isOpen);
+  }, [props.isOpen]);
 
-  if (!openState.wasOpen && !isOpen && !openState.isClosing) {
-    return null;
-  }
+  useEffect(() => () => dialogRef.current?.close());
 
   return (
-    <ModalAlertImpl
-      {...activeModalContext}
-      {...otherProps}
-      closing={openState.isClosing}
-      onTransitionEnd={onTransitionEnd}
-    />
+    <BackAction action={props.close} disabled={!props.isOpen}>
+      <StyledModalAlert ref={dialogRef}>
+        <StyledCustomScrollbars>
+          {props.type && (
+            <StyledModalAlertIcon>
+              <ModalAlertIcon type={props.type} iconColor={props.iconColor} />
+            </StyledModalAlertIcon>
+          )}
+          {props.title && <ModalTitle>{props.title}</ModalTitle>}
+          {messages &&
+            messages.map((message) => <ModalMessage key={message}>{message}</ModalMessage>)}
+          {props.children}
+        </StyledCustomScrollbars>
+
+        <ModalAlertButtonGroupContainer>
+          {props.gridButtons && <StyledSmallButtonGrid>{props.gridButtons}</StyledSmallButtonGrid>}
+          {props.buttons && (
+            <AppButton.ButtonGroup>
+              {props.buttons.map((button, index) => (
+                <ModalAlertButtonContainer key={index}>{button}</ModalAlertButtonContainer>
+              ))}
+            </AppButton.ButtonGroup>
+          )}
+        </ModalAlertButtonGroupContainer>
+      </StyledModalAlert>
+    </BackAction>
   );
 }
 
-interface IModalAlertState {
-  visible: boolean;
+interface ModalElertIconProps {
+  type: ModalAlertType;
+  iconColor?: string;
 }
 
-interface IModalAlertImplProps extends IModalAlertProps, IModalContext {
-  closing: boolean;
-  onTransitionEnd: () => void;
-}
+function ModalAlertIcon(props: ModalElertIconProps) {
+  let source = '';
+  let color = undefined;
+  switch (props.type) {
+    case ModalAlertType.info:
+      source = 'icon-info';
+      color = colors.white;
+      break;
+    case ModalAlertType.caution:
+      source = 'icon-alert';
+      color = colors.white;
+      break;
+    case ModalAlertType.warning:
+      source = 'icon-alert';
+      color = colors.red;
+      break;
 
-class ModalAlertImpl extends React.Component<IModalAlertImplProps, IModalAlertState> {
-  public state = { visible: false };
-
-  private element = document.createElement('div');
-  private modalRef = React.createRef<HTMLDivElement>();
-
-  constructor(props: IModalAlertImplProps) {
-    super(props);
-
-    if (document.activeElement) {
-      props.previousActiveElement.current = document.activeElement as HTMLElement;
-    }
+    case ModalAlertType.loading:
+      source = 'icon-spinner';
+      break;
+    case ModalAlertType.success:
+      source = 'icon-success';
+      break;
+    case ModalAlertType.failure:
+      source = 'icon-fail';
+      break;
   }
 
-  public componentDidMount() {
-    this.props.setActiveModal(true);
-
-    const modalContainer = document.getElementById(MODAL_CONTAINER_ID);
-    if (modalContainer) {
-      modalContainer.appendChild(this.element);
-      this.modalRef.current?.focus();
-
-      this.setState({ visible: true });
-    } else {
-      log.error('Modal container not found when mounting modal');
-    }
-  }
-
-  public componentWillUnmount() {
-    this.props.setActiveModal(false);
-
-    const modalContainer = document.getElementById(MODAL_CONTAINER_ID);
-    modalContainer?.removeChild(this.element);
-  }
-
-  public render() {
-    return ReactDOM.createPortal(this.renderModal(), this.element);
-  }
-
-  private renderModal() {
-    const messages =
-      typeof this.props.message === 'string' ? [this.props.message] : this.props.message;
-
-    return (
-      <BackAction action={this.close}>
-        <ModalBackground $visible={this.state.visible && !this.props.closing}>
-          <ModalAlertContainer>
-            <StyledModalAlert
-              ref={this.modalRef}
-              tabIndex={-1}
-              role="dialog"
-              aria-modal
-              $visible={this.state.visible}
-              $closing={this.props.closing}
-              onTransitionEnd={this.onTransitionEnd}>
-              <StyledCustomScrollbars>
-                {this.props.type && (
-                  <ModalAlertIcon>{this.renderTypeIcon(this.props.type)}</ModalAlertIcon>
-                )}
-                {this.props.title && <ModalTitle>{this.props.title}</ModalTitle>}
-                {messages &&
-                  messages.map((message) => <ModalMessage key={message}>{message}</ModalMessage>)}
-                {this.props.children}
-              </StyledCustomScrollbars>
-
-              <ModalAlertButtonGroupContainer>
-                {this.props.gridButtons && (
-                  <StyledSmallButtonGrid>{this.props.gridButtons}</StyledSmallButtonGrid>
-                )}
-                {this.props.buttons && (
-                  <AppButton.ButtonGroup>
-                    {this.props.buttons.map((button, index) => (
-                      <ModalAlertButtonContainer key={index}>{button}</ModalAlertButtonContainer>
-                    ))}
-                  </AppButton.ButtonGroup>
-                )}
-              </ModalAlertButtonGroupContainer>
-            </StyledModalAlert>
-          </ModalAlertContainer>
-        </ModalBackground>
-      </BackAction>
-    );
-  }
-
-  private close = () => {
-    this.props.close?.();
-  };
-
-  private renderTypeIcon(type: ModalAlertType) {
-    let source = '';
-    let color = undefined;
-    switch (type) {
-      case ModalAlertType.info:
-        source = 'icon-info';
-        color = colors.white;
-        break;
-      case ModalAlertType.caution:
-        source = 'icon-alert';
-        color = colors.white;
-        break;
-      case ModalAlertType.warning:
-        source = 'icon-alert';
-        color = colors.red;
-        break;
-
-      case ModalAlertType.loading:
-        source = 'icon-spinner';
-        break;
-      case ModalAlertType.success:
-        source = 'icon-success';
-        break;
-      case ModalAlertType.failure:
-        source = 'icon-fail';
-        break;
-    }
-
-    return (
-      <ImageView height={44} width={44} source={source} tintColor={this.props.iconColor ?? color} />
-    );
-  }
-
-  private onTransitionEnd = (event: React.TransitionEvent<HTMLDivElement>) => {
-    if (event.target === this.modalRef.current) {
-      this.props.onTransitionEnd();
-    }
-  };
+  return <ImageView height={44} width={44} source={source} tintColor={props.iconColor ?? color} />;
 }
 
 const ModalTitle = styled.h1(normalText, {
