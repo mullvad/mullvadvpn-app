@@ -54,14 +54,17 @@ internal class LocationMarker(val colors: LocationMarkerColors) {
         val modelViewMatrix = viewMatrix.copyOf()
 
         GLES20.glUseProgram(shaderProgram)
-
         Matrix.rotateM(modelViewMatrix, 0, latLong.longitude.value, 0f, 1f, 0f)
         Matrix.rotateM(modelViewMatrix, 0, latLong.latitude.value, -1f, 0f, 0f)
 
         Matrix.scaleM(modelViewMatrix, 0, size, size, 1f)
 
         // Translate marker to put it above the globe
-        Matrix.translateM(modelViewMatrix, 0, 0f, 0f, MARKER_TRANSLATE_Z_FACTOR)
+        if (colors.perimeterColors != null) {
+            Matrix.translateM(modelViewMatrix, 0, 0f, 0f, MARKER_TRANSLATE_Z_FACTOR + 0.0003f)
+        } else {
+            Matrix.translateM(modelViewMatrix, 0, 0f, 0f, MARKER_TRANSLATE_Z_FACTOR)
+        }
 
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, positionBuffer)
         GLES20.glVertexAttribPointer(
