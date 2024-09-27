@@ -22,7 +22,6 @@ import net.mullvad.mullvadvpn.test.e2e.misc.TrafficGenerator
 import org.joda.time.DateTime
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInfo
 import org.junit.jupiter.api.extension.RegisterExtension
 
 class LeakTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
@@ -56,7 +55,7 @@ class LeakTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
     }
 
     @Test
-    fun testNegativeLeak(testInfo: TestInfo) =
+    fun testNegativeLeak() =
         runBlocking<Unit> {
             app.launch()
             device.findObjectWithTimeout(By.text("DISCONNECTED"))
@@ -95,7 +94,7 @@ class LeakTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
         }
 
     @Test
-    fun testShouldHaveNegativeLeak(testInfo: TestInfo) =
+    fun testShouldHaveNegativeLeak() =
         runBlocking<Unit> {
             app.launch()
             device.findObjectWithTimeout(By.text("DISCONNECTED"))
@@ -104,7 +103,6 @@ class LeakTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
             val targetPort = 80
 
             device.findObjectWithTimeout(By.res(SELECT_LOCATION_BUTTON_TEST_TAG)).click()
-            val countryCell = device.findObjectWithTimeout(By.text(EndToEndTest.DEFAULT_COUNTRY))
             delay(1000.milliseconds)
             clickLocationExpandButton((EndToEndTest.DEFAULT_COUNTRY))
             clickLocationExpandButton((EndToEndTest.DEFAULT_CITY))

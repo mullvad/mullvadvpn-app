@@ -1,12 +1,16 @@
 package net.mullvad.mullvadvpn.test.e2e.misc
 
 import co.touchlab.kermit.Logger
-import io.ktor.client.*
+import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.engine.cio.*
+import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.HttpResponseValidator
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.request.*
+import io.ktor.client.request.accept
+import io.ktor.client.request.get
+import io.ktor.client.request.post
+import io.ktor.client.request.put
+import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
@@ -22,7 +26,13 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import kotlinx.serialization.json.*
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonDecoder
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.booleanOrNull
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import org.joda.time.DateTime
 import org.junit.jupiter.api.fail
 
@@ -146,7 +156,7 @@ data class PacketCaptureResult(val streams: List<Stream>, val pcap: ByteArray)
 @Serializable data class StartCaptureRequestJson(val label: PacketCaptureSession)
 
 @Serializable
-enum class NetworkTransportProtocol() {
+enum class NetworkTransportProtocol {
     @SerialName("tcp") TCP,
     @SerialName("udp") UDP,
     @SerialName("icmp") ICMP,
@@ -213,9 +223,9 @@ data class Stream(
 
 @Serializable
 sealed interface Packet {
-    abstract val timestamp: String
-    abstract val fromPeer: Boolean
-    abstract val date: DateTime
+    val timestamp: String
+    val fromPeer: Boolean
+    val date: DateTime
 }
 
 @Serializable

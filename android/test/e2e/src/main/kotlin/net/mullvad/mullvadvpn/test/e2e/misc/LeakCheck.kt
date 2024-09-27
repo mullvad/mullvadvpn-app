@@ -4,28 +4,21 @@ import org.joda.time.DateTime
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 
-class LeakCheck {
-    companion object {
-        fun assertNoLeaks(
-            streams: List<Stream>,
-            rules: List<LeakRule>,
-            start: DateTime,
-            end: DateTime,
-        ) {
-            for (rule in rules) {
-                assertFalse(rule.isViolated(streams, start, end))
-            }
+object LeakCheck {
+    fun assertNoLeaks(
+        streams: List<Stream>,
+        rules: List<LeakRule>,
+        start: DateTime,
+        end: DateTime,
+    ) {
+        for (rule in rules) {
+            assertFalse(rule.isViolated(streams, start, end))
         }
+    }
 
-        fun assertLeaks(
-            streams: List<Stream>,
-            rules: List<LeakRule>,
-            start: DateTime,
-            end: DateTime,
-        ) {
-            for (rule in rules) {
-                assertTrue(rule.isViolated(streams, start, end))
-            }
+    fun assertLeaks(streams: List<Stream>, rules: List<LeakRule>, start: DateTime, end: DateTime) {
+        for (rule in rules) {
+            assertTrue(rule.isViolated(streams, start, end))
         }
     }
 }
