@@ -5,54 +5,32 @@ import { IHistoryObject, LocationState } from '../../shared/ipc-types';
 import { GeneratedRoutePath } from './routeHelpers';
 import { RoutePath } from './routes';
 
+export enum TransitionType {
+  show,
+  dismiss,
+  push,
+  pop,
+  none,
+}
+
 export interface ITransitionSpecification {
-  name: string;
+  type: TransitionType;
   duration: number;
 }
 
-interface ITransitionMap {
-  [name: string]: ITransitionSpecification;
-}
-
-/**
- * Transition descriptors
- */
-export const transitions: ITransitionMap = {
-  show: {
-    name: 'slide-up',
-    duration: 450,
-  },
-  dismiss: {
-    name: 'slide-down',
-    duration: 450,
-  },
-  push: {
-    name: 'push',
-    duration: 450,
-  },
-  pop: {
-    name: 'pop',
-    duration: 450,
-  },
-  none: {
-    name: '',
-    duration: 0,
-  },
-};
-
-const transitionOpposites: Record<string, string> = {
-  'slide-up': 'slide-down',
-  'slide-down': 'slide-up',
-  push: 'pop',
-  pop: 'push',
-  '': '',
-};
-
-function oppositeTransition(transition: ITransitionSpecification): ITransitionSpecification {
-  return {
-    ...transition,
-    name: transitionOpposites[transition.name],
-  };
+function oppositeTransition(transition: TransitionType): TransitionType {
+  switch (transition) {
+    case TransitionType.show:
+      return TransitionType.dismiss;
+    case TransitionType.dismiss:
+      return TransitionType.none;
+    case TransitionType.push:
+      return TransitionType.pop;
+    case TransitionType.pop:
+      return TransitionType.none;
+    case TransitionType.none:
+      return TransitionType.none;
+  }
 }
 
 type LocationDescriptor = RoutePath | GeneratedRoutePath | LocationDescriptorObject<LocationState>;
@@ -60,7 +38,7 @@ type LocationDescriptor = RoutePath | GeneratedRoutePath | LocationDescriptorObj
 type LocationListener = (
   location: Location<LocationState>,
   action: Action,
-  transition: ITransitionSpecification,
+  transition: TransitionType,
 ) => void;
 
 export default class History {
@@ -95,7 +73,7 @@ export default class History {
   }
 
   public push = (nextLocation: LocationDescriptor, nextState?: Partial<LocationState>) => {
-    const state = { transition: transitions.push, ...nextState };
+    const state = { transition: TransitionType.push, ...nextState };
     this.pushImpl(nextLocation, state);
     this.notify(state.transition);
   };
@@ -113,7 +91,7 @@ export default class History {
     this.index = 0;
     this.entries = [location];
 
-    this.notify(nextState?.transition ?? transitions.none);
+    this.notify(nextState?.transition ?? TransitionType.none);
   };
 
   public replaceRoot = (
@@ -125,7 +103,7 @@ export default class History {
     this.entries.splice(0, 1, location);
 
     if (this.index === 0) {
-      this.notify(replacementState?.transition ?? transitions.none);
+      this.notify(replacementState?.transition ?? TransitionType.none);
     }
   };
 
@@ -188,7 +166,7 @@ export default class History {
     this.entries.splice(this.index, this.entries.length - this.index, location);
   }
 
-  private popImpl(n = 1): ITransitionSpecification | undefined {
+  private popImpl(n = 1): TransitionType | undefined {
     if (this.canGo(-n)) {
       const transition = this.getPopTransition(n);
 
@@ -202,7 +180,7 @@ export default class History {
     }
   }
 
-  private notify(transition: ITransitionSpecification) {
+  private notify(transition: TransitionType) {
     this.listeners.forEach((listener) => listener(this.location, this.action, transition));
   }
 
@@ -242,7 +220,7 @@ export default class History {
     return {
       scrollPosition: state?.scrollPosition ?? [0, 0],
       expandedSections: state?.expandedSections ?? {},
-      transition: state?.transition ?? transitions.none,
+      transition: state?.transition ?? TransitionType.none,
     };
   }
 
