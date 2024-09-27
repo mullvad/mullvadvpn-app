@@ -205,7 +205,7 @@ function providersSelector(state: IReduxState): Record<string, boolean> {
 
 const StyledSelector = styled(Selector)({
   marginBottom: 0,
-});
+}) as typeof Selector;
 
 interface IFilterByOwnershipProps {
   ownership: Ownership;
