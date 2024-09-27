@@ -29,6 +29,17 @@ pub enum Error {
     NoMatchingPort,
 }
 
+/// Picks a relay at random from `relays`, but don't pick `exclude`.
+pub fn pick_random_relay_excluding<'a>(
+    relays: &'a [Relay],
+    exclude: &'_ Relay,
+) -> Option<&'a Relay> {
+    relays
+        .iter()
+        .filter(|&a| a != exclude)
+        .choose(&mut thread_rng())
+}
+
 /// Picks a relay using [pick_random_relay_weighted], using the `weight` member of each relay
 /// as the weight function.
 pub fn pick_random_relay(relays: &[Relay]) -> Option<&Relay> {
