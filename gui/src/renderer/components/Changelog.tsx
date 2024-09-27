@@ -63,7 +63,8 @@ export function Changelog() {
             messages.gettext('Got it!')
           }
         </AppButton.BlueButton>,
-      ]}>
+      ]}
+      close={close}>
       <StyledTitle>{currentVersion}</StyledTitle>
       <StyledSubTitle>{messages.pgettext('changelog', 'Changes in this version:')}</StyledSubTitle>
       <StyledMessage>
