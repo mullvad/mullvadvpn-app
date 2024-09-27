@@ -38,7 +38,7 @@ import org.junit.jupiter.api.fail
 
 @JvmInline
 @Serializable(with = PacketCaptureSessionAsStringSerializer::class)
-value class PacketCaptureSession(val uuid: UUID = UUID.randomUUID())
+value class PacketCaptureSession(val value: UUID = UUID.randomUUID())
 
 object PacketCaptureSessionAsStringSerializer : KSerializer<PacketCaptureSession> {
     override val descriptor: SerialDescriptor = String.serializer().descriptor
@@ -49,7 +49,7 @@ object PacketCaptureSessionAsStringSerializer : KSerializer<PacketCaptureSession
     }
 
     override fun serialize(encoder: Encoder, value: PacketCaptureSession) {
-        encoder.encodeString(value.uuid.toString())
+        encoder.encodeString(value.value.toString())
     }
 }
 
@@ -126,13 +126,13 @@ class PacketCaptureClient(private val httpClient: HttpClient = defaultHttpClient
     }
 
     suspend fun sendStopCaptureRequest(session: PacketCaptureSession) {
-        Logger.v("Sending stop capture request for session ${session.uuid}")
-        httpClient.post("$BASE_URL/stop-capture/${session.uuid.toString()}")
+        Logger.v("Sending stop capture request for session ${session.value}")
+        httpClient.post("$BASE_URL/stop-capture/${session.value.toString()}")
     }
 
     suspend fun sendGetCapturedPacketsRequest(session: PacketCaptureSession): HttpResponse {
         val testDeviceIpAddress = Networking.getIpAddress()
-        return httpClient.put("$BASE_URL/parse-capture/${session.uuid.toString()}") {
+        return httpClient.put("$BASE_URL/parse-capture/${session.value.toString()}") {
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
             setBody("[\"$testDeviceIpAddress\"]")
@@ -140,7 +140,7 @@ class PacketCaptureClient(private val httpClient: HttpClient = defaultHttpClient
     }
 
     suspend fun sendGetPcapFileRequest(session: PacketCaptureSession): HttpResponse {
-        return httpClient.get("$BASE_URL/last-capture/${session.uuid.toString()}") {
+        return httpClient.get("$BASE_URL/last-capture/${session.value.toString()}") {
             // contentType(ContentType.parse("application/pcap"))
             accept(ContentType.parse("application/json"))
         }
