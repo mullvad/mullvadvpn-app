@@ -329,7 +329,13 @@ private fun MullvadMap(state: ConnectUiState, progressIndicatorBias: Float) {
         state.relayLocations.map {
             Marker(
                 it.latLong,
-                colors = LocationMarkerColors(centerColor = MaterialTheme.colorScheme.error),
+                 colors =
+                    LocationMarkerColors(
+                        perimeterColors = null,
+                        centerColor = MaterialTheme.colorScheme.primary,
+                        ringBorderColor = MaterialTheme.colorScheme.onPrimary,
+
+                    ),
             )
         }
     val markers = state.tunnelState.toMarker(state.location)?.let { listOf(it) } ?: emptyList()
