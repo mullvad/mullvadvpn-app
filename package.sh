@@ -1,11 +1,40 @@
 #!/usr/bin/env bash
 
+RELEASE="true"
+
+# Read arguments
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        --debug) RELEASE="false";;
+        --version)
+            VERSION="$2"
+            shift
+            shift
+            ;;
+        --architecture)
+            ARCHITECTURE="$2"
+            shift
+            shift
+            ;;
+        *)
+            source scripts/utils/log
+            log_error "Unknown parameter: $1"
+            exit 1
+            ;;
+    esac
+    shift
+done
+
 BIN_NAME=mullvad-vpn-cli
-VERSION=2023.4
+VERSION="$VERSION"
 ARCHITECTURE=native
 MAINTAINER="Mullvad VPN"
 
-ARTIFACTS_DIR=target/release
+if [[ "$RELEASE" == "false" ]]; then
+    ARTIFACTS_DIR=target/debug
+else
+    ARTIFACTS_DIR=target/release
+fi
 ASSETS_DIR=dist-assets
 BUILD_DIR=build
 
@@ -35,28 +64,6 @@ SHELL_COMPLETIONS=(
     "$BUILD_DIR/shell-completions/_mullvad=/usr/share/zsh/site-functions/"
     "$BUILD_DIR/shell-completions/mullvad.fish=/usr/share/fish/vendor_completions.d/"
 )
-
-# Read arguments
-while [[ "$#" -gt 0 ]]; do
-    case $1 in
-        --version)
-            VERSION="$2"
-            shift
-            shift
-            ;;
-        --architecture)
-            ARCHITECTURE="$2"
-            shift
-            shift
-            ;;
-        *)
-            source scripts/utils/log
-            log_error "Unknown parameter: $1"
-            exit 1
-            ;;
-    esac
-    shift
-done
 
 for package_type in rpm deb pacman; do
     fpm \
