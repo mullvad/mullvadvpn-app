@@ -1,12 +1,17 @@
 package net.mullvad.mullvadvpn.compose.screen
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.SplineBasedFloatDecayAnimationSpec
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateDecay
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,15 +35,20 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -49,6 +59,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
+import arrow.optics.copy
 import co.touchlab.kermit.Logger
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
@@ -90,7 +101,8 @@ import net.mullvad.mullvadvpn.constant.SECURE_ZOOM
 import net.mullvad.mullvadvpn.constant.SECURE_ZOOM_ANIMATION_MILLIS
 import net.mullvad.mullvadvpn.constant.UNSECURE_ZOOM
 import net.mullvad.mullvadvpn.constant.fallbackLatLong
-import net.mullvad.mullvadvpn.lib.map.AnimatedMap
+import net.mullvad.mullvadvpn.lib.map.Map
+import net.mullvad.mullvadvpn.lib.map.data.CameraPosition
 import net.mullvad.mullvadvpn.lib.map.data.GlobeColors
 import net.mullvad.mullvadvpn.lib.map.data.LocationMarkerColors
 import net.mullvad.mullvadvpn.lib.map.data.Marker
@@ -325,26 +337,92 @@ private fun MullvadMap(state: ConnectUiState, progressIndicatorBias: Float) {
             label = "baseZoom",
         )
 
+    var userZoom by remember { mutableStateOf(1f) }
+
+    val locationLatLng = (state.location?.toLatLong() ?: fallbackLatLong)
+    val userCameraLatLong = remember { mutableStateOf(locationLatLng) }
+
+
     val locationMarkers =
         state.relayLocations.map {
             Marker(
                 it.latLong,
-                 colors =
+                colors =
                     LocationMarkerColors(
                         perimeterColors = null,
                         centerColor = MaterialTheme.colorScheme.primary,
                         ringBorderColor = MaterialTheme.colorScheme.onPrimary,
-
                     ),
             )
         }
-    val markers = state.tunnelState.toMarker(state.location)?.let { listOf(it) } ?: emptyList()
 
-    AnimatedMap(
-        modifier = Modifier,
-        cameraLocation = state.location?.toLatLong() ?: fallbackLatLong,
-        cameraBaseZoom = baseZoom.value,
-        cameraVerticalBias = progressIndicatorBias,
+    val tracker = remember { VelocityTracker() }
+    val scope = rememberCoroutineScope()
+
+//    val sDensity = LocalDensity.current
+    val markers = state.tunnelState.toMarker(state.location)?.let { listOf(it) } ?: emptyList()
+    Map(
+        modifier =
+            Modifier.pointerInput(Unit) {
+                    detectTransformGesturesWithEnd(
+                        true,
+                        onGestureStart = {
+                            Logger.d { "Animation onGestureStart" }
+                            tracker.resetTracking()
+                        },
+                        onGesture = { centroid: Offset, pan: Offset, newZoom: Float, rotation: Float
+                            ->
+                            userZoom = (userZoom / newZoom).coerceIn(1f, 2f)
+                            Logger.d { "Animation onGesture" }
+
+                            val newLatitude =
+                                Latitude.fromFloat(
+                                    (userCameraLatLong.value.latitude.value -
+                                            -pan.y * userZoom / 30f)
+                                        .coerceIn(-10f, 80f)
+                                )
+                            val newLongitude =
+                                Longitude.fromFloat(
+                                    userCameraLatLong.value.longitude.value - pan.x * userZoom / 30f
+                                )
+                            userCameraLatLong.value = LatLong(newLatitude, newLongitude)
+//                            tracker.addPosition(System.currentTimeMillis(), pan)
+
+                            Logger.d("New zoom = $userZoom")
+                            Logger.d("pan = $pan")
+                            Logger.d("pan = $pan")
+                        },
+                        onGestureEnd = {
+                            Logger.d { "Animation onGestureEnd" }
+                            // Longitude
+//                            scope.launch {
+//                                animateDecay(
+//                                    userCameraLatLong.value.longitude.value,
+//                                    tracker.calculateVelocity().x,
+//                                    SplineBasedFloatDecayAnimationSpec(sDensity),
+//                                ) { value: Float, velocity: Float ->
+//                                    userCameraLatLong.value =
+//                                        LatLong(
+//                                            userCameraLatLong.value.latitude,
+//                                            Longitude.fromFloat(value * userZoom / 30f),
+//                                        )
+//                                }
+//                            }
+                        },
+                    )
+                }
+                .pointerInput(Unit) {
+                    detectTapGestures {
+                        //                        Logger.d("The user tapped $it,
+                        // ${tracker.calculateVelocity()}")
+                    }
+                },
+        cameraLocation =
+            CameraPosition(
+                latLong = userCameraLatLong.value,
+                zoom = (baseZoom.value * userZoom).also { Logger.d("Zoom: $it") },
+                verticalBias = progressIndicatorBias,
+            ),
         markers = markers + locationMarkers,
         globeColors =
             GlobeColors(
