@@ -71,10 +71,6 @@ case $@ in
     ;;
 esac
 
-# Different electron versions can have incompatible GPU caches. Clearing it on upgrades makes sure
-# the same cache is not used across versions.
-clear_gpu_cache
-
 # Remove apparmor profile
 if apparmor_parser -R /etc/apparmor.d/mullvad &>/dev/null; then
     echo "Removing apparmor profile"
