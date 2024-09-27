@@ -1,5 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools">
+
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -59,15 +60,25 @@
             This can be disregarded when the minimum supported version is 28 or higher
             since after that it has been patched on a OS level.
         -->
-        <activity android:name="net.mullvad.mullvadvpn.ui.MainActivity"
-                  android:exported="true"
-                  android:launchMode="singleInstance"
-                  android:screenOrientation="fullUser"
-                  android:windowSoftInputMode="adjustResize"
-                  android:enableOnBackInvokedCallback="true"
-                  tools:ignore="DiscouragedApi,UnusedAttribute">
+        <activity
+            android:name="net.mullvad.mullvadvpn.ui.MainActivity"
+            android:exported="true" />
+        <!-- Default app name and icon -->
+        <activity-alias
+            android:name="net.mullvad.mullvadvpn.ui.obfuscation.MainActivityDefault"
+            android:enableOnBackInvokedCallback="true"
+            android:enabled="true"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher"
+            android:label="@string/app_name"
+            android:launchMode="singleInstance"
+            android:screenOrientation="fullUser"
+            android:targetActivity="net.mullvad.mullvadvpn.ui.MainActivity"
+            android:windowSoftInputMode="adjustResize"
+            tools:ignore="DiscouragedApi,UnusedAttribute">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
                 <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
             </intent-filter>
@@ -77,7 +88,33 @@
             <intent-filter>
                 <action android:name="net.mullvad.mullvadvpn.request_vpn_permission" />
             </intent-filter>
-        </activity>
+        </activity-alias>
+        <!-- Alternative icons names -->
+        <activity-alias
+            android:name="net.mullvad.mullvadvpn.ui.obfuscation.MainActivityAltGame"
+            android:enableOnBackInvokedCallback="true"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher_game"
+            android:label="@string/app_name_game"
+            android:launchMode="singleInstance"
+            android:screenOrientation="fullUser"
+            android:targetActivity="net.mullvad.mullvadvpn.ui.MainActivity"
+            android:windowSoftInputMode="adjustResize"
+            tools:ignore="DiscouragedApi,UnusedAttribute">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="net.mullvad.mullvadvpn.request_vpn_permission" />
+            </intent-filter>
+        </activity-alias>
         <!--
             foregroundServiceType="systemExempted" is required in Android 14+
             https://developer.android.com/guide/components/fg-service-types#system-exempted

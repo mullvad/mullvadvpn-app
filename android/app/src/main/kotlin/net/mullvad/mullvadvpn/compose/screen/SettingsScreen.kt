@@ -25,6 +25,7 @@ import com.ramcosta.composedestinations.generated.destinations.AppInfoDestinatio
 import com.ramcosta.composedestinations.generated.destinations.DaitaDestination
 import com.ramcosta.composedestinations.generated.destinations.MultihopDestination
 import com.ramcosta.composedestinations.generated.destinations.NotificationSettingsDestination
+import com.ramcosta.composedestinations.generated.destinations.AppObfusctationDestination
 import com.ramcosta.composedestinations.generated.destinations.ReportProblemDestination
 import com.ramcosta.composedestinations.generated.destinations.SplitTunnelingDestination
 import com.ramcosta.composedestinations.generated.destinations.VpnSettingsDestination
@@ -95,6 +96,8 @@ fun Settings(navigator: DestinationsNavigator) {
         onBackClick = dropUnlessResumed { navigator.navigateUp() },
         onNotificationSettingsCellClick =
             dropUnlessResumed { navigator.navigate(NotificationSettingsDestination()) },
+        onAppObfuscationClick =
+            dropUnlessResumed { navigator.navigate(AppObfusctationDestination) },
     )
 }
 
@@ -110,6 +113,7 @@ fun SettingsScreen(
     onDaitaClick: () -> Unit,
     onBackClick: () -> Unit,
     onNotificationSettingsCellClick: () -> Unit,
+    onAppObfuscationClick: () -> Unit = {},
 ) {
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.settings),
@@ -137,6 +141,7 @@ fun SettingsScreen(
                         onMultihopClick = onMultihopClick,
                         onDaitaClick = onDaitaClick,
                         onNotificationSettingsCellClick = onNotificationSettingsCellClick,
+                        onAppObfuscationClick = onAppObfuscationClick,
                     )
                 }
             }
@@ -154,6 +159,7 @@ private fun LazyListScope.content(
     onMultihopClick: () -> Unit,
     onDaitaClick: () -> Unit,
     onNotificationSettingsCellClick: () -> Unit,
+    onAppObfuscationClick: () -> Unit = {},
 ) {
     if (state.isLoggedIn) {
         itemWithDivider {
@@ -193,6 +199,13 @@ private fun LazyListScope.content(
             onClick = onNotificationSettingsCellClick,
             position = Position.Top,
         )
+    }
+
+    itemWithDivider {
+            NavigationComposeCell(
+                title = stringResource(id = R.string.app_obfuscation),
+                onClick = onAppObfuscationClick,
+            )
     }
 
     item { AppInfo(onAppInfoClick, state) }
