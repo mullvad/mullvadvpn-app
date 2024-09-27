@@ -8,7 +8,7 @@ data class LocationMarkerColors(
     val centerColor: Color,
     val ringBorderColor: Color = Color.White,
     val shadowColor: Color = Color.Black.copy(alpha = DEFAULT_SHADOW_ALPHA),
-    val perimeterColors: Color = centerColor.copy(alpha = DEFAULT_PERIMETER_ALPHA),
+    val perimeterColors: Color? = centerColor.copy(alpha = DEFAULT_PERIMETER_ALPHA),
 ) {
     companion object {
         private const val DEFAULT_SHADOW_ALPHA = 0.55f

@@ -148,37 +148,53 @@ internal class LocationMarker(val colors: LocationMarkerColors) {
     }
 
     @Suppress("MagicNumber")
-    private fun createRings(): List<Ring> =
-        listOf(
-            circleFanVertices(
-                32,
-                0.5f,
-                floatArrayOf(0.0f, 0.0f, 0.0f),
-                colors.perimeterColors,
-                colors.perimeterColors,
-            ), // Semi-transparent outer
+    private fun createRings(): List<Ring> = buildList {
+        colors.perimeterColors?.let {
+            // Semi-transparent outer
+            add(
+                circleFanVertices(
+                    32,
+                    0.5f,
+                    floatArrayOf(0.0f, 0.0f, 0.0f),
+                    colors.perimeterColors,
+                    colors.perimeterColors,
+                )
+            )
+        }
+
+        // Shadow
+        add(
             circleFanVertices(
                 16,
                 0.28f,
                 floatArrayOf(0.0f, -0.05f, 0.00001f),
                 colors.shadowColor,
                 colors.shadowColor.copy(alpha = 0.0f),
-            ), // Shadow
+            )
+        )
+
+        // White ring
+        add(
             circleFanVertices(
                 32,
                 0.185f,
                 floatArrayOf(0.0f, 0.0f, 0.00002f),
                 colors.ringBorderColor,
                 colors.ringBorderColor,
-            ), // White ring
+            )
+        )
+
+        // Center colored circle
+        add(
             circleFanVertices(
                 32,
                 0.15f,
                 floatArrayOf(0.0f, 0.0f, 0.00003f),
                 colors.centerColor,
                 colors.centerColor,
-            ), // Center colored circle
+            )
         )
+    }
 
     fun onRemove() {
         GLES20.glDeleteBuffers(2, intArrayOf(positionBuffer, colorBuffer), 0)
