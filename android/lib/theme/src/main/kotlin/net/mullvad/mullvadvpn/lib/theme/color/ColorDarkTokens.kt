@@ -46,7 +46,7 @@ internal object ColorDarkTokens {
     val SurfaceContainerHigh = OpacityTokens.BlueOnDarkBlue40 // Third level cell
     val SurfaceContainerLow = OpacityTokens.BlueOnDarkBlue20 // Fourth level cell
     val SurfaceContainerLowest = OpacityTokens.BlueOnDarkBlue10 // Fifth level cell
-    val SurfaceDim = PaletteTokens.Black // Currently not used directly
+    val SurfaceDim = PaletteTokens.Dim // Used only by cards in appearance screen
     val SurfaceTint = Primary // Currently not used directly
     val SurfaceVariant = PaletteTokens.DarkBlue500 // Currently not used directly
     val Tertiary = PaletteTokens.Green500 // Connected and selected color

@@ -8,9 +8,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -44,6 +43,7 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.InfoListItem
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.ObfuscationModeListItem
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.SelectableListItem
+import net.mullvad.mullvadvpn.lib.ui.component.text.ScreenDescription
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
@@ -119,7 +119,7 @@ fun AntiCensorshipSettingsScreen(
                 NavigateBackIconButton(onNavigateBack = onBackClick)
             }
         },
-    ) { modifier, lazyListState ->
+    ) { modifier, lazyListState: LazyListState ->
         LazyColumn(
             modifier =
                 modifier
@@ -153,16 +153,10 @@ private fun LazyListScope.content(
 ) {
     item {
         Column {
-            Text(
-                stringResource(R.string.anti_censorship_info_first_paragraph) + "\n",
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Text(
+            ScreenDescription(stringResource(R.string.anti_censorship_info_first_paragraph) + "\n")
+            ScreenDescription(
                 annotatedStringResource(R.string.anti_censorship_info_second_paragraph),
                 modifier = Modifier.padding(bottom = Dimens.mediumPadding),
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
     }
