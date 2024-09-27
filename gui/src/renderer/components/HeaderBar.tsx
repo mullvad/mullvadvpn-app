@@ -7,11 +7,10 @@ import { closeToExpiry, formatRemainingTime, hasExpired } from '../../shared/acc
 import { TunnelState } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { capitalizeEveryWord } from '../../shared/string-helpers';
-import { transitions, useHistory } from '../lib/history';
+import { TransitionType, useHistory } from '../lib/history';
 import { RoutePath } from '../lib/routes';
 import { useSelector } from '../redux/store';
 import { tinyText } from './common-styles';
-import { FocusFallback } from './Focus';
 import ImageView from './ImageView';
 
 export enum HeaderBarStyle {
@@ -176,7 +175,7 @@ export function HeaderBarSettingsButton(props: IHeaderBarSettingsButtonProps) {
 
   const openSettings = useCallback(() => {
     if (!props.disabled) {
-      history.push(RoutePath.settings, { transition: transitions.show });
+      history.push(RoutePath.settings, { transition: TransitionType.show });
     }
   }, [history, props.disabled]);
 
@@ -198,7 +197,7 @@ export function HeaderBarSettingsButton(props: IHeaderBarSettingsButtonProps) {
 export function HeaderBarAccountButton() {
   const history = useHistory();
   const openAccount = useCallback(
-    () => history.push(RoutePath.account, { transition: transitions.show }),
+    () => history.push(RoutePath.account, { transition: TransitionType.show }),
     [history],
   );
 
@@ -223,9 +222,7 @@ export function DefaultHeaderBar(props: IHeaderBarProps) {
 
   return (
     <HeaderBar showAccountInfo={loggedIn} {...props}>
-      <FocusFallback>
-        <Brand />
-      </FocusFallback>
+      <Brand />
       {loggedIn && <HeaderBarAccountButton />}
       <HeaderBarSettingsButton />
     </HeaderBar>

@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
-import { transitions, useHistory } from '../lib/history';
+import { TransitionType, useHistory } from '../lib/history';
 import { useCombinedRefs } from '../lib/utilityHooks';
 import CustomScrollbars, { CustomScrollbarsRef, IScrollEvent } from './CustomScrollbars';
 import InfoButton from './InfoButton';
@@ -189,7 +189,7 @@ export function BackBarItem() {
   const history = useHistory();
   // Compare the transition name with dismiss to infer wheter or not the view will slide
   // horizontally or vertically and then use matching button.
-  const backIcon = useMemo(() => history.getPopTransition().name !== transitions.dismiss.name, []);
+  const backIcon = useMemo(() => history.getPopTransition() !== TransitionType.dismiss, []);
   const { parentBackAction } = useContext(BackActionContext);
   const iconSource = backIcon ? 'icon-back' : 'icon-close-down';
   const ariaLabel = backIcon ? messages.gettext('Back') : messages.gettext('Close');

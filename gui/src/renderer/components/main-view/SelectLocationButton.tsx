@@ -6,7 +6,7 @@ import { ICustomList } from '../../../shared/daemon-rpc-types';
 import { messages, relayLocations } from '../../../shared/gettext';
 import log from '../../../shared/logging';
 import { useAppContext } from '../../context';
-import { transitions, useHistory } from '../../lib/history';
+import { TransitionType, useHistory } from '../../lib/history';
 import { RoutePath } from '../../lib/routes';
 import { IRelayLocationCountryRedux, RelaySettingsRedux } from '../../redux/settings/reducers';
 import { useSelector } from '../../redux/store';
@@ -46,7 +46,7 @@ function SelectLocationButton(props: MultiButtonCompatibleProps) {
   );
 
   const onSelectLocation = useCallback(() => {
-    history.push(RoutePath.selectLocation, { transition: transitions.show });
+    history.push(RoutePath.selectLocation, { transition: TransitionType.show });
   }, [history.push]);
 
   return (

@@ -8,7 +8,7 @@ import { messages } from '../../shared/gettext';
 import log from '../../shared/logging';
 import { capitalizeEveryWord } from '../../shared/string-helpers';
 import { useAppContext } from '../context';
-import { transitions, useHistory } from '../lib/history';
+import { TransitionType, useHistory } from '../lib/history';
 import { formatHtml } from '../lib/html-formatter';
 import { RoutePath } from '../lib/routes';
 import { useBoolean } from '../lib/utilityHooks';
@@ -108,11 +108,11 @@ export default function TooManyDevices() {
 
   const continueLogin = useCallback(() => {
     void login(accountToken);
-    history.reset(RoutePath.login, { transition: transitions.pop });
+    history.reset(RoutePath.login, { transition: TransitionType.pop });
   }, [login, accountToken]);
   const cancel = useCallback(() => {
     cancelLogin();
-    history.reset(RoutePath.login, { transition: transitions.pop });
+    history.reset(RoutePath.login, { transition: TransitionType.pop });
   }, [history.reset, cancelLogin]);
 
   const iconSource = getIconSource(devices);

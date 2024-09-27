@@ -12,7 +12,8 @@ import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { useHistory } from '../lib/history';
 import { formatHtml } from '../lib/html-formatter';
-import { useAsyncEffect, useStyledRef } from '../lib/utilityHooks';
+import { useAfterTransition } from '../lib/transition-hooks';
+import { useStyledRef } from '../lib/utilityHooks';
 import { IReduxState } from '../redux/store';
 import Accordion from './Accordion';
 import * as AppButton from './AppButton';
@@ -121,12 +122,17 @@ function useFilePicker(
 
 function LinuxSplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsProps) {
   const { getLinuxSplitTunnelingApplications, launchExcludedApplication } = useAppContext();
+  const runAfterTransition = useAfterTransition();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [applications, setApplications] = useState<ILinuxSplitTunnelingApplication[]>();
   const [browseError, setBrowseError] = useState<string>();
 
-  useEffect(() => void getLinuxSplitTunnelingApplications().then(setApplications), []);
+  useEffect(() => {
+    runAfterTransition(() => {
+      void getLinuxSplitTunnelingApplications().then(setApplications);
+    });
+  }, []);
 
   const launchApplication = useCallback(
     async (application: ILinuxSplitTunnelingApplication | string) => {
@@ -306,6 +312,7 @@ export function SplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsPro
     getSplitTunnelingApplications,
     setSplitTunnelingState,
   } = useAppContext();
+  const runAfterTransition = useAfterTransition();
   const splitTunnelingEnabled = useSelector((state: IReduxState) => state.settings.splitTunneling);
   const splitTunnelingApplications = useSelector(
     (state: IReduxState) => state.settings.splitTunnelingApplications,
@@ -313,14 +320,16 @@ export function SplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsPro
 
   const [searchTerm, setSearchTerm] = useState('');
   const [applications, setApplications] = useState<ISplitTunnelingApplication[]>();
-  useAsyncEffect(async () => {
-    const { fromCache, applications } = await getSplitTunnelingApplications();
-    setApplications(applications);
-
-    if (fromCache) {
-      const { applications } = await getSplitTunnelingApplications(true);
+  useEffect(() => {
+    runAfterTransition(async () => {
+      const { fromCache, applications } = await getSplitTunnelingApplications();
       setApplications(applications);
-    }
+
+      if (fromCache) {
+        const { applications } = await getSplitTunnelingApplications(true);
+        setApplications(applications);
+      }
+    });
   }, []);
 
   const filteredSplitApplications = useMemo(

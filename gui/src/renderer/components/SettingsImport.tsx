@@ -7,7 +7,7 @@ import { messages } from '../../shared/gettext';
 import { useScheduler } from '../../shared/scheduler';
 import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
-import { transitions, useHistory } from '../lib/history';
+import { TransitionType, useHistory } from '../lib/history';
 import { RoutePath } from '../lib/routes';
 import { useAsyncEffect, useBoolean } from '../lib/utilityHooks';
 import settingsImportActions from '../redux/settings-import/actions';
@@ -88,7 +88,7 @@ export default function SettingsImport() {
   }, []);
 
   const navigateTextImport = useCallback(() => {
-    history.push(RoutePath.settingsTextImport, { transition: transitions.show });
+    history.push(RoutePath.settingsTextImport, { transition: TransitionType.show });
   }, [history]);
 
   const importFile = useCallback(async () => {

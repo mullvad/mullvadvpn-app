@@ -9,7 +9,7 @@ import { formatRelativeDate } from '../../shared/date-helper';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
-import { transitions, useHistory } from '../lib/history';
+import { TransitionType, useHistory } from '../lib/history';
 import { generateRoutePath } from '../lib/routeHelpers';
 import { RoutePath } from '../lib/routes';
 import account from '../redux/account/actions';
@@ -283,7 +283,7 @@ function useFinishedCallback() {
       accountSetupFinished();
     }
 
-    history.reset(RoutePath.main, { transition: transitions.push });
+    history.reset(RoutePath.main, { transition: TransitionType.push });
   }, [isNewAccount, accountSetupFinished, history]);
 
   return callback;
