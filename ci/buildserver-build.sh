@@ -204,6 +204,10 @@ function build_ref {
 
     case "$(uname -s)" in
         MINGW*|MSYS_NT*)
+            echo "Copying _x64.exe file to .exe for backwards and forwards compatibility"
+            find $artifact_dir -type f -name 'MullvadVPN*_x64.exe' \
+                -exec bash -c 'cp "$0" "${0%_x64.exe}.exe"' {} \;
+
             echo "Building ARM64 installers"
             target=aarch64-pc-windows-msvc artifact_dir=$artifact_dir build "${build_args[@]}" || return 1
 
