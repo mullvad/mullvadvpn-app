@@ -160,12 +160,13 @@ impl InnerParametersGenerator {
     async fn generate(
         &mut self,
         retry_attempt: u32,
+        ipv4: bool,
         ipv6: bool,
     ) -> Result<TunnelParameters, Error> {
         let data = self.device().await?;
         let selected_relay = self
             .relay_selector
-            .get_relay(retry_attempt as usize, RuntimeParameters { ipv6 })?;
+            .get_relay(retry_attempt as usize, RuntimeParameters { ipv4, ipv6 })?;
 
         match selected_relay {
             #[cfg(not(target_os = "android"))]
@@ -299,13 +300,14 @@ impl TunnelParametersGenerator for ParametersGenerator {
     fn generate(
         &mut self,
         retry_attempt: u32,
+        ipv4: bool,
         ipv6: bool,
     ) -> Pin<Box<dyn Future<Output = Result<TunnelParameters, ParameterGenerationError>>>> {
         let generator = self.0.clone();
         Box::pin(async move {
             let mut inner = generator.lock().await;
             inner
-                .generate(retry_attempt, ipv6)
+                .generate(retry_attempt, ipv4, ipv6)
                 .await
                 .inspect_err(|error| {
                     log::error!(

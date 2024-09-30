@@ -41,7 +41,7 @@ impl MonitorHandle {
 }
 
 pub async fn spawn_monitor(
-    sender: UnboundedSender<Connectivity>,
+    offline_tx: UnboundedSender<Connectivity>,
     #[cfg(not(target_os = "android"))] route_manager: RouteManagerHandle,
     #[cfg(target_os = "linux")] fwmark: Option<u32>,
     #[cfg(target_os = "android")] android_context: AndroidContext,
@@ -50,7 +50,7 @@ pub async fn spawn_monitor(
         None
     } else {
         imp::spawn_monitor(
-            sender,
+            offline_tx,
             #[cfg(not(target_os = "android"))]
             route_manager,
             #[cfg(target_os = "linux")]
