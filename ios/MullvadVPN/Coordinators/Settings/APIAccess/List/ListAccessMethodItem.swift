@@ -10,9 +10,10 @@ import Foundation
 
 /// A concrete implementation of an API access list item.
 struct ListAccessMethodItem: Hashable, Identifiable, Equatable {
+    /// The unique ID.
     let id: UUID
 
-    /// The localized name of an API method.
+    /// The localized name.
     let name: String
 
     /// The detailed information displayed alongside.

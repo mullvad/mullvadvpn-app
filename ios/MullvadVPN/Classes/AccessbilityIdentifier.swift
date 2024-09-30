@@ -12,6 +12,7 @@ public enum AccessibilityIdentifier: Equatable {
     // Buttons
     case addAccessMethodButton
     case accessMethodAddButton
+    case accessMethodTestButton
     case accountButton
     case accessMethodUnreachableBackButton
     case accessMethodUnreachableSaveButton
@@ -64,6 +65,9 @@ public enum AccessibilityIdentifier: Equatable {
     case acceptLocalNetworkSharingButton
     // Cells
     case deviceCell
+    case accessMethodDirectCell
+    case accessMethodBridgesCell
+    case accessMethodEncryptedDNSCell
     case accessMethodProtocolSelectionCell
     case vpnSettingsCell
     case dnsSettingsAddServerCell
