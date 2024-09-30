@@ -11,7 +11,7 @@ SUPPORTED_DEB_CODENAMES=("sid" "testing" "trixie" "bookworm" "bullseye")
 # Ubuntu codenames we support. Latest two LTS. But when adding a new
 # don't immediately remove the oldest one. Allow for some transition period
 # with the last three.
-SUPPORTED_DEB_CODENAMES+=("noble" "jammy" "focal")
+SUPPORTED_DEB_CODENAMES+=("oracular" "noble" "jammy" "focal")
 # ... + latest non-LTS Ubuntu. We officially only support the latest non-LTS.
 # But to not cause too much disturbance just when Ubuntu is released, we keep
 # the last two codenames working in the repository.
