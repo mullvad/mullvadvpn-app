@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Icon
@@ -97,7 +99,7 @@ internal fun NavigationTitleView(
 ) {
     if (showWarning) {
         Icon(
-            imageVector = Icons.Default.Warning,
+            imageVector = Icons.Default.Error,
             modifier = Modifier.padding(end = Dimens.smallPadding),
             contentDescription = null,
             tint = MaterialTheme.colorScheme.error,

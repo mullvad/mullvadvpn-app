@@ -2,7 +2,9 @@ package net.mullvad.mullvadvpn.compose.cell
 
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.rounded.Error
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -39,7 +41,7 @@ fun DnsCell(
         bodyView = {
             if (isUnreachableLocalDnsWarningVisible) {
                 Icon(
-                    imageVector = Icons.Default.Warning,
+                    imageVector = Icons.Rounded.Error,
                     contentDescription = stringResource(id = R.string.confirm_local_dns),
                     tint = MaterialTheme.colorScheme.warning,
                 )

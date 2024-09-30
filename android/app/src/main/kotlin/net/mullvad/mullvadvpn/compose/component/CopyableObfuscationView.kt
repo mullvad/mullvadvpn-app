@@ -42,8 +42,8 @@ fun CopyableObfuscationView(
             modifier = Modifier.weight(1f),
         )
         AnimatedIconButton(
-            defaultIcon = Icons.Default.VisibilityOff,
-            secondaryIcon = Icons.Default.Visibility,
+            defaultIcon = Icons.Default.Visibility,
+            secondaryIcon = Icons.Default.VisibilityOff,
             defaultIconTint = MaterialTheme.colorScheme.onSurface,
             secondaryIconTint = MaterialTheme.colorScheme.onSurface,
             isToggleButton = true,
