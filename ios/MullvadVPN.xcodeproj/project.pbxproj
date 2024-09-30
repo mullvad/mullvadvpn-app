@@ -821,6 +821,7 @@
 		A9B6AC1B2ADEA3AD00F7802A /* MemoryCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BDEB9C2A98F69E00F578F2 /* MemoryCache.swift */; };
 		A9BA08312BA32FA9005A7A2D /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A92962582B1F4FDB00DFB93B /* PrivacyInfo.xcprivacy */; };
 		A9BA08322BA32FB6005A7A2D /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A92962582B1F4FDB00DFB93B /* PrivacyInfo.xcprivacy */; };
+		A9BD4D552CA58C3700C8A0E6 /* RESTTransportStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = A932D9F42B5EBB9D00999395 /* RESTTransportStub.swift */; };
 		A9BFAFFF2BD004ED00F2BCA1 /* CustomListsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9BFAFFE2BD004ED00F2BCA1 /* CustomListsTests.swift */; };
 		A9BFB0012BD00B7F00F2BCA1 /* CustomListPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9BFB0002BD00B7F00F2BCA1 /* CustomListPage.swift */; };
 		A9C342C12ACC37E30045F00E /* TunnelStatusBlockObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9E0317D2ACC32920095D843 /* TunnelStatusBlockObserver.swift */; };
@@ -5426,6 +5427,7 @@
 				A9A5FA312ACB05160083449F /* MockFileCache.swift in Sources */,
 				A9A5FA322ACB05160083449F /* RelayCacheTests.swift in Sources */,
 				A9A5FA332ACB05160083449F /* RelaySelectorTests.swift in Sources */,
+				A9BD4D552CA58C3700C8A0E6 /* RESTTransportStub.swift in Sources */,
 				F073FCB32C6617D70062EA1D /* TunnelStore+Stubs.swift in Sources */,
 				58DFF7D32B02570000F864E0 /* MarkdownStylingOptions.swift in Sources */,
 				A9A5FA342ACB05160083449F /* StringTests.swift in Sources */,

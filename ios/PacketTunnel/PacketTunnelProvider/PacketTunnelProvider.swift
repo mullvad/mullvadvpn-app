@@ -28,6 +28,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     private var relaySelector: RelaySelectorWrapper!
     private var ephemeralPeerExchangingPipeline: EphemeralPeerExchangingPipeline!
     private let tunnelSettingsUpdater: SettingsUpdater!
+    private var encryptedDNSTransport: EncryptedDNSTransport!
 
     private let tunnelSettingsListener = TunnelSettingsListener()
     private lazy var ephemeralPeerReceiver = {
@@ -189,10 +190,12 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             )
         )
 
+        encryptedDNSTransport = EncryptedDNSTransport(urlSession: urlSession)
         return TransportProvider(
             urlSessionTransport: urlSessionTransport,
             addressCache: addressCache,
-            transportStrategy: transportStrategy
+            transportStrategy: transportStrategy,
+            encryptedDNSTransport: encryptedDNSTransport
         )
     }
 }

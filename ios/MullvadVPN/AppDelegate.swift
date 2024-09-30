@@ -49,6 +49,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     private(set) var configuredTransportProvider: ProxyConfigurationTransportProvider!
     private(set) var ipOverrideRepository = IPOverrideRepository()
     private var launchArguments = LaunchArguments()
+    private var encryptedDNSTransport: EncryptedDNSTransport!
 
     // MARK: - Application lifecycle
 
@@ -121,9 +122,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             settingsUpdater: tunnelSettingsUpdater
         )
 
+        encryptedDNSTransport = EncryptedDNSTransport(urlSession: urlSessionTransport.urlSession)
+
         configuredTransportProvider = ProxyConfigurationTransportProvider(
             shadowsocksLoader: shadowsocksLoader,
-            addressCache: addressCache
+            addressCache: addressCache,
+            encryptedDNSTransport: encryptedDNSTransport
         )
 
         let transportStrategy = TransportStrategy(
@@ -134,7 +138,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         let transportProvider = TransportProvider(
             urlSessionTransport: urlSessionTransport,
             addressCache: addressCache,
-            transportStrategy: transportStrategy
+            transportStrategy: transportStrategy,
+            encryptedDNSTransport: encryptedDNSTransport
         )
         setUpTransportMonitor(transportProvider: transportProvider)
         setUpSimulatorHost(transportProvider: transportProvider, relaySelector: relaySelector)

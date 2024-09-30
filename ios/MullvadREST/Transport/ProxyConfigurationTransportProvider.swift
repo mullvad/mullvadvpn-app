@@ -14,10 +14,16 @@ import MullvadTypes
 public class ProxyConfigurationTransportProvider {
     private let shadowsocksLoader: ShadowsocksLoaderProtocol
     private let addressCache: REST.AddressCache
+    private let encryptedDNSTransport: RESTTransport
 
-    public init(shadowsocksLoader: ShadowsocksLoaderProtocol, addressCache: REST.AddressCache) {
+    public init(
+        shadowsocksLoader: ShadowsocksLoaderProtocol,
+        addressCache: REST.AddressCache,
+        encryptedDNSTransport: RESTTransport
+    ) {
         self.shadowsocksLoader = shadowsocksLoader
         self.addressCache = addressCache
+        self.encryptedDNSTransport = encryptedDNSTransport
     }
 
     public func makeTransport(with configuration: PersistentProxyConfiguration) throws -> RESTTransport {
@@ -33,7 +39,7 @@ public class ProxyConfigurationTransportProvider {
                 addressCache: addressCache
             )
         case .encryptedDNS:
-            return EncryptedDNSTransport(urlSession: urlSession)
+            return encryptedDNSTransport
         case let .shadowsocks(shadowSocksConfiguration):
             return ShadowsocksTransport(
                 urlSession: urlSession,
