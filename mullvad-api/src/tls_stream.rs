@@ -6,11 +6,11 @@ use std::{
     task::{self, Poll},
 };
 
-use hyper::client::connect::{Connected, Connection};
+use hyper_util::client::legacy::connect::{Connected, Connection};
 use std::sync::LazyLock;
 use tokio::io::{AsyncRead, AsyncWrite, ReadBuf};
 use tokio_rustls::{
-    rustls::{self, ClientConfig, ServerName},
+    rustls::{self, pki_types::ServerName, ClientConfig},
     TlsConnector,
 };
 
@@ -26,19 +26,19 @@ where
 {
     pub async fn connect_https(stream: S, domain: &str) -> io::Result<TlsStream<S>> {
         static TLS_CONFIG: LazyLock<Arc<ClientConfig>> = LazyLock::new(|| {
-            let config = ClientConfig::builder()
-                .with_safe_default_cipher_suites()
-                .with_safe_default_kx_groups()
-                .with_protocol_versions(&[&rustls::version::TLS13])
-                .unwrap()
-                .with_root_certificates(read_cert_store())
-                .with_no_client_auth();
+            let config = ClientConfig::builder_with_provider(Arc::new(
+                rustls::crypto::ring::default_provider(),
+            ))
+            .with_protocol_versions(&[&rustls::version::TLS13])
+            .expect("ring crypt-prover should support TLS 1.3")
+            .with_root_certificates(read_cert_store())
+            .with_no_client_auth();
             Arc::new(config)
         });
 
         let connector = TlsConnector::from(TLS_CONFIG.clone());
 
-        let host = match ServerName::try_from(domain) {
+        let host = match ServerName::try_from(domain.to_owned()) {
             Ok(n) => n,
             Err(_) => {
                 return Err(io::Error::new(
@@ -58,8 +58,9 @@ fn read_cert_store() -> rustls::RootCertStore {
     let mut cert_store = rustls::RootCertStore::empty();
 
     let certs = rustls_pemfile::certs(&mut std::io::BufReader::new(LE_ROOT_CERT))
+        .collect::<Result<Vec<_>, _>>()
         .expect("Failed to parse pem file");
-    let (num_certs_added, num_failures) = cert_store.add_parsable_certificates(&certs);
+    let (num_certs_added, num_failures) = cert_store.add_parsable_certificates(certs);
     if num_failures > 0 || num_certs_added != 1 {
         panic!("Failed to add root cert");
     }
