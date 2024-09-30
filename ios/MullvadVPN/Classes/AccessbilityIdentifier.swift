@@ -12,6 +12,7 @@ public enum AccessibilityIdentifier: String {
     // Buttons
     case addAccessMethodButton
     case accessMethodAddButton
+    case accessMethodTestButton
     case accountButton
     case accessMethodUnreachableBackButton
     case accessMethodUnreachableSaveButton
@@ -63,6 +64,9 @@ public enum AccessibilityIdentifier: String {
 
     // Cells
     case deviceCell
+    case accessMethodDirectCell
+    case accessMethodBridgesCell
+    case accessMethodEncryptedDNSCell
     case accessMethodProtocolSelectionCell
     case vpnSettingsCell
     case dnsSettingsAddServerCell

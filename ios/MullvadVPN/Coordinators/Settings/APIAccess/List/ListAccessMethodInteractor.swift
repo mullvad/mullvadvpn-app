@@ -47,8 +47,20 @@ extension PersistentAccessMethod {
         let sanitizedName = name.trimmingCharacters(in: .whitespaces)
         let itemName = sanitizedName.isEmpty ? kind.localizedDescription : sanitizedName
 
+        let accessibilityId: AccessibilityIdentifier? = switch id.uuidString {
+        case AccessMethodRepository.directMethodId:
+            AccessibilityIdentifier.accessMethodDirectCell
+        case AccessMethodRepository.bridgeMethodId:
+            AccessibilityIdentifier.accessMethodBridgesCell
+        case AccessMethodRepository.encryptedDNSMethodId:
+            AccessibilityIdentifier.accessMethodEncryptedDNSCell
+        default:
+            nil
+        }
+
         return ListAccessMethodItem(
             id: id,
+            accessibilityId: accessibilityId,
             name: itemName,
             detail: isEnabled
                 ? kind.localizedDescription

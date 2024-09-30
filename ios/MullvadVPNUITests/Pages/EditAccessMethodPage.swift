@@ -31,6 +31,11 @@ class EditAccessMethodPage: Page {
         return self
     }
 
+    @discardableResult func tapTestMethodButton() -> Self {
+        app.buttons[AccessibilityIdentifier.accessMethodTestButton].tap()
+        return self
+    }
+
     @discardableResult func tapBackButton() -> Self {
         // Workaround due to the way automatically managed back buttons work. Back button needs to be nil for the automatic back button behaviour in iOS, and since its nil we cannot set accessibilityIdentifier for it
         let backButton = app.navigationBars.firstMatch.buttons.firstMatch

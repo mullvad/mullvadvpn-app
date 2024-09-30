@@ -172,6 +172,7 @@ class EditAccessMethodViewController: UITableViewController {
 
     private func configureTestMethod(_ cell: UITableViewCell, itemIdentifier: EditAccessMethodItemIdentifier) {
         var contentConfiguration = ButtonCellContentConfiguration()
+        contentConfiguration.accessibilityIdentifier = .accessMethodTestButton
         contentConfiguration.text = itemIdentifier.text
         contentConfiguration.isEnabled = subject.value.testingStatus != .inProgress
         contentConfiguration.primaryAction = UIAction { [weak self] _ in
@@ -182,6 +183,7 @@ class EditAccessMethodViewController: UITableViewController {
 
     private func configureCancelTest(_ cell: UITableViewCell, itemIdentifier: EditAccessMethodItemIdentifier) {
         var contentConfiguration = ButtonCellContentConfiguration()
+        contentConfiguration.accessibilityIdentifier = .accessMethodTestButton
         contentConfiguration.text = itemIdentifier.text
         contentConfiguration.isEnabled = subject.value.testingStatus == .inProgress
         contentConfiguration.primaryAction = UIAction { [weak self] _ in
