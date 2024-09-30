@@ -1,5 +1,4 @@
-import { useCallback } from 'react';
-import React from 'react';
+import React, { useCallback } from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
