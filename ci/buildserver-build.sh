@@ -204,6 +204,10 @@ function build_ref {
 
     case "$(uname -s)" in
         MINGW*|MSYS_NT*)
+            echo "Copying _x64.exe file to .exe for backwards and forwards compatibility"
+            find "$artifact_dir" -type f -name 'MullvadVPN*_x64.exe' \
+                -exec bash -c 'cp "$0" "${0%_x64.exe}.exe"' {} \;
+
             echo "Building ARM64 installers"
             target=aarch64-pc-windows-msvc artifact_dir=$artifact_dir build "${build_args[@]}" || return 1
 
@@ -225,7 +229,7 @@ function build_ref {
         # Pipes all matching names and their new name to mv
         pushd "$artifact_dir"
         for original_file in MullvadVPN-*-dev-*{.deb,.rpm,.exe,.pkg}; do
-            new_file=$(echo "$original_file" | sed -nE "s/^(MullvadVPN-.*-dev-.*)(_amd64\.deb|_x86_64\.rpm|_arm64\.deb|_aarch64\.rpm|_x64\.exe|_arm64\.exe|\.pkg)$/\1$version_suffix\2/p")
+            new_file=$(echo "$original_file" | perl -pe "s/^(MullvadVPN-.*?)(_arm64|_aarch64|_amd64|_x86_64|_x64)?(\.deb|\.rpm|\.exe|\.pkg)$/\1+test-test\2\3/p")
             mv "$original_file" "$new_file"
         done
         popd
