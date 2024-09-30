@@ -226,7 +226,7 @@ private fun DeviceNameRow(deviceName: String, onInfoClick: () -> Unit) {
             IconButton(onClick = onInfoClick) {
                 Icon(
                     imageVector = Icons.Default.Info,
-                    contentDescription = null,
+                    contentDescription = stringResource(id = R.string.more_information),
                     tint = MaterialTheme.colorScheme.onSurface,
                 )
             }

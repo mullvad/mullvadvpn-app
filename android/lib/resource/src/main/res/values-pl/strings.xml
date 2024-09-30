@@ -64,6 +64,8 @@
     <string name="cancel">Anuluj</string>
     <string name="changes_dialog_subtitle">Zmiany w tej wersji:</string>
     <string name="cipher">Szyfrowanie</string>
+    <string name="close">Zamknij</string>
+    <string name="collapse">Zwiń</string>
     <string name="confirm_local_dns">Lokalny serwer DNS nie będzie działał, dopóki nie włączysz opcji „Udostępnianie sieci lokalnej” w Preferencjach.</string>
     <string name="confirm_no_email">Za chwilę wyślesz zgłoszenie problemu, nie umożliwiając nam skontaktowania się z Tobą. Aby uzyskać odpowiedź na zgłoszenie, musisz podać adres e-mail.</string>
     <string name="confirm_removal">Tak, wyloguj urządzenie</string>
@@ -77,6 +79,7 @@
     <string name="copied_logs_to_clipboard">Skopiowano dzienniki do schowka</string>
     <string name="copied_mullvad_account_number">Skopiowano numer konta Mullvad do schowka</string>
     <string name="copied_to_clipboard">Skopiowano do schowka</string>
+    <string name="copy">Kopiuj</string>
     <string name="copy_account_number">Kopiuj numer konta</string>
     <string name="create">Utwórz</string>
     <string name="create_account">Utwórz konto</string>
@@ -133,6 +136,7 @@
     <string name="error_occurred">Wystąpił błąd.</string>
     <string name="error_state">BŁĄD ZABEZPIECZANIA POŁĄCZENIA</string>
     <string name="exclude_applications">Wykluczone aplikacje</string>
+    <string name="expand">Rozwiń</string>
     <string name="failed_to_block_internet">Nie można zablokować całego ruchu sieciowego. Rozwiąż problem lub wyślij zgłoszenie problemu.</string>
     <string name="failed_to_create_account">Nie można utworzyć konta</string>
     <string name="failed_to_fetch_devices">Nie udało się pobrać listy urządzeń</string>
@@ -193,6 +197,7 @@
     <string name="max_devices_resolved_title">Super!</string>
     <string name="max_devices_warning_description">Wyloguj się z co najmniej jednego urządzenia, usuwając je z poniższej listy. Odpowiednią nazwę urządzenia można znaleźć w ustawieniach konta urządzenia.</string>
     <string name="max_devices_warning_title">Zbyt wiele urządzeń</string>
+    <string name="more_information">Więcej informacji</string>
     <string name="mullvad_account_number">Numer konta Mullvad</string>
     <string name="mullvad_owned_only">Wyłącznie firmy Mullvad</string>
     <string name="name">Nazwa</string>
@@ -213,6 +218,7 @@
     <string name="obfuscation_title">Zaciemnianie WireGuard</string>
     <string name="off">Wył.</string>
     <string name="on">Wł.</string>
+    <string name="open_url">Otwórz adres URL</string>
     <string name="out_address">Wyjście</string>
     <string name="out_of_time">Koniec czasu</string>
     <string name="overrides_cleared">Usunięto zastąpienia</string>
@@ -244,6 +250,7 @@
     <string name="quantum_resistant_info_first_paragaph">Ta funkcja sprawia, że tunel WireGuard jest odporny na potencjalne ataki ze strony komputerów kwantowych.</string>
     <string name="quantum_resistant_info_second_paragaph">Jest to wykonywane poprzez dodatkową wymianę kluczy przy użyciu algorytmu odpornego na ataki z użyciem komputerów kwantowych i zmieszanie wyniku ze zwykłym szyfrowaniem WireGuard. Ten dodatkowy krok zużywa około 500 kB ruchu za każdym razem, gdy ustanawiany jest nowy tunel.</string>
     <string name="quantum_resistant_title">Tunel odporny na ataki z użyciem komputerów kwantowych</string>
+    <string name="reconnect">Połącz ponownie</string>
     <string name="redeem">Zrealizuj</string>
     <string name="redeem_voucher">Zrealizuj kupon</string>
     <string name="remove_button">Usuń</string>
@@ -292,6 +299,7 @@
     <string name="settings_patch_success">Import zakończony powodzeniem, zastąpienia są aktywne</string>
     <string name="settings_preferences">Preferencje</string>
     <string name="settings_vpn">Ustawienia VPN</string>
+    <string name="share">Udostępnij…</string>
     <string name="show_account_number">Pokaż numer konta</string>
     <string name="show_system_apps">Pokaż aplikacje systemowe</string>
     <string name="split_tunneling_description">Umożliwia wybranie aplikacji, które powinny uzyskiwać bezpośredni dostęp do Internetu bez przechodzenia przez tunel VPN.</string>

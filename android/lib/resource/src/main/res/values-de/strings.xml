@@ -64,6 +64,7 @@
     <string name="cancel">Abbrechen</string>
     <string name="changes_dialog_subtitle">Änderungen in dieser Version:</string>
     <string name="cipher">Chiffre</string>
+    <string name="close">Schließen</string>
     <string name="confirm_local_dns">Der lokale DNS-Server wird nicht funktionieren, solange „Teilen im lokalen Netzwerk“ nicht in den Einstellungen aktiviert ist.</string>
     <string name="confirm_no_email">Sie wollen einen Problembericht senden, ohne uns die Möglichkeit zu geben, Sie zu erreichen. Wenn Sie sich eine Antwort zu Ihrem Problem wünschen, müssen Sie eine E-Mail-Adresse eingeben.</string>
     <string name="confirm_removal">Ja, von Gerät abmelden</string>
@@ -193,6 +194,7 @@
     <string name="max_devices_resolved_title">Super!</string>
     <string name="max_devices_warning_description">Bitte melden Sie sich von mindestens einem Gerät ab, indem Sie es aus der Liste unten entfernen. Sie finden den entsprechenden Gerätenamen unter den Kontoeinstellungen des Geräts.</string>
     <string name="max_devices_warning_title">Zu viele Geräte</string>
+    <string name="more_information">Weitere Informationen</string>
     <string name="mullvad_account_number">Mullvad-Kontonummer</string>
     <string name="mullvad_owned_only">Nur im Besitz von Mullvad</string>
     <string name="name">Name</string>
@@ -213,6 +215,7 @@
     <string name="obfuscation_title">WireGuard-Verschleierung</string>
     <string name="off">Aus</string>
     <string name="on">Ein</string>
+    <string name="open_url">URL öffnen</string>
     <string name="out_address">Ausgehend</string>
     <string name="out_of_time">Zeit abgelaufen</string>
     <string name="overrides_cleared">Überschreibungen entfernt</string>
@@ -244,6 +247,7 @@
     <string name="quantum_resistant_info_first_paragaph">Diese Funktion macht den WireGuard-Tunnel resistent gegen mögliche Angriffe von Quantencomputern.</string>
     <string name="quantum_resistant_info_second_paragaph">Dazu wird ein zusätzlicher Schlüsselaustausch mit einem quantensicheren Algorithmus durchgeführt und das Ergebnis mit der regulären Verschlüsselung von WireGuard vermischt. Dieser zusätzliche Schritt verbraucht jedes Mal, wenn ein neuer Tunnel aufgebaut wird, etwa 500 KiB an Datenverkehr.</string>
     <string name="quantum_resistant_title">Quantenresistenter Tunnel</string>
+    <string name="reconnect">Erneut verbinden</string>
     <string name="redeem">Einlösen</string>
     <string name="redeem_voucher">Gutschein einlösen</string>
     <string name="remove_button">Entfernen</string>

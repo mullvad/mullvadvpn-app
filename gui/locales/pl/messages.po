@@ -2690,3 +2690,18 @@ msgstr[1] "%d godziny temu"
 msgstr[2] "%d godzin temu"
 msgstr[3] "%d godzuny temu"
 
+msgctxt "accessibility"
+msgid "Collapse"
+msgstr "Zwiń"
+
+msgctxt "accessibility"
+msgid "Expand"
+msgstr "Rozwiń"
+
+msgctxt "accessibility"
+msgid "Copy"
+msgstr "Kopiuj"
+
+msgctxt "accessibility"
+msgid "Share…"
+msgstr "Udostępnij…"

@@ -114,13 +114,19 @@ private fun TopBar(
                 onClick = { clipboardHandle(state.text(), clipboardToastMessage) },
                 modifier = Modifier.focusProperties { down = FocusRequester.Cancel },
             ) {
-                Icon(imageVector = Icons.Default.ContentCopy, contentDescription = null)
+                Icon(
+                    imageVector = Icons.Default.ContentCopy,
+                    contentDescription = stringResource(id = R.string.copy),
+                )
             }
             IconButton(
                 onClick = { scope.launch { shareText(context, state.text()) } },
                 modifier = Modifier.focusProperties { down = FocusRequester.Cancel },
             ) {
-                Icon(imageVector = Icons.Default.Share, contentDescription = null)
+                Icon(
+                    imageVector = Icons.Default.Share,
+                    contentDescription = stringResource(id = R.string.share),
+                )
             }
         },
     )

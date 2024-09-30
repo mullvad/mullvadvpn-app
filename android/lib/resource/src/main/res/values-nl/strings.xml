@@ -64,6 +64,7 @@
     <string name="cancel">Annuleren</string>
     <string name="changes_dialog_subtitle">Wijzigingen in deze versie:</string>
     <string name="cipher">Versleuteling</string>
+    <string name="close">Sluiten</string>
     <string name="confirm_local_dns">De lokale DNS-server werkt niet tenzij u \"Lokale netwerken delen\" inschakelt onder Voorkeuren.</string>
     <string name="confirm_no_email">U staat op het punt om het probleemrapport te verzenden zonder een contactmethode op te geven. Voer een e-mailadres in als u een antwoord wenst op het rapport.</string>
     <string name="confirm_removal">Ja, apparaat afmelden</string>
@@ -193,6 +194,7 @@
     <string name="max_devices_resolved_title">Super!</string>
     <string name="max_devices_warning_description">Meld u bij minstens één apparaat af door het te verwijderen uit de onderstaande lijst. U kunt de bijbehorende apparaatnaam vinden in de accountinstellingen van het apparaat.</string>
     <string name="max_devices_warning_title">Te veel apparaten</string>
+    <string name="more_information">Meer informatie</string>
     <string name="mullvad_account_number">Mullvad-accountnummer</string>
     <string name="mullvad_owned_only">Alleen in eigendom van Multivad</string>
     <string name="name">Naam</string>
@@ -213,6 +215,7 @@
     <string name="obfuscation_title">WireGuard-obfuscatie</string>
     <string name="off">Uit</string>
     <string name="on">Aan</string>
+    <string name="open_url">URL openen</string>
     <string name="out_address">Uit</string>
     <string name="out_of_time">Geen tijd meer</string>
     <string name="overrides_cleared">Overschrijvingen gewist</string>
@@ -244,6 +247,7 @@
     <string name="quantum_resistant_info_first_paragaph">Deze eigenschap maakt de WireGuard-tunnel bestand tegen mogelijke aanvallen met kwantumcomputers.</string>
     <string name="quantum_resistant_info_second_paragaph">Het doet dit door een extra sleuteluitwisseling uit te voeren met een kwantumveilig algoritme en het resultaat te mengen met de reguliere versleuteling van WireGuard. Deze extra stap gebruikt ongeveer 500 kiB aan verkeer elke keer dat een nieuwe tunnel wordt opgezet.</string>
     <string name="quantum_resistant_title">Kwantumbestendige tunnel</string>
+    <string name="reconnect">Opnieuw verbinden</string>
     <string name="redeem">Inwisselen</string>
     <string name="redeem_voucher">Voucher inwisselen</string>
     <string name="remove_button">Verwijderen</string>

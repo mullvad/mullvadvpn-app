@@ -118,6 +118,7 @@
     <string name="cancel">Cancel</string>
     <string name="disconnect">Disconnect</string>
     <string name="disconnected">Disconnected</string>
+    <string name="reconnect">Reconnect</string>
     <string name="dismiss">Dismiss</string>
     <string name="switch_location">Switch location</string>
     <string name="tcp">TCP</string>
@@ -405,4 +406,11 @@
     <string name="connect">Connect</string>
     <string name="connect_on_start">Connect on device start-up</string>
     <string name="connect_on_start_footer">Automatically connect on device start-up. Only works if the app has been granted the VPN permission.</string>
+    <string name="close">Close</string>
+    <string name="more_information">More information</string>
+    <string name="open_url">Open URL</string>
+    <string name="expand">Expand</string>
+    <string name="collapse">Collapse</string>
+    <string name="copy">Copy</string>
+    <string name="share">Share…</string>
 </resources>
