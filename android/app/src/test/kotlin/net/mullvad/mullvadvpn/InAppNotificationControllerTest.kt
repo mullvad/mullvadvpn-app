@@ -16,11 +16,11 @@ import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.ErrorState
 import net.mullvad.mullvadvpn.repository.InAppNotification
 import net.mullvad.mullvadvpn.repository.InAppNotificationController
-import net.mullvad.mullvadvpn.usecase.AccountExpiryNotificationUseCase
+import net.mullvad.mullvadvpn.usecase.AccountExpiryInAppNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.NewDeviceNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.TunnelStateNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.VersionNotificationUseCase
-import org.joda.time.DateTime
+import org.joda.time.Period
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -42,11 +42,11 @@ class InAppNotificationControllerTest {
     fun setup() {
         MockKAnnotations.init(this)
 
-        val accountExpiryNotificationUseCase: AccountExpiryNotificationUseCase = mockk()
+        val accountExpiryInAppNotificationUseCase: AccountExpiryInAppNotificationUseCase = mockk()
         val newDeviceNotificationUseCase: NewDeviceNotificationUseCase = mockk()
         val versionNotificationUseCase: VersionNotificationUseCase = mockk()
         val tunnelStateNotificationUseCase: TunnelStateNotificationUseCase = mockk()
-        every { accountExpiryNotificationUseCase.invoke() } returns accountExpiryNotifications
+        every { accountExpiryInAppNotificationUseCase.invoke() } returns accountExpiryNotifications
         every { newDeviceNotificationUseCase.invoke() } returns newDeviceNotifications
         every { versionNotificationUseCase.invoke() } returns versionNotifications
         every { tunnelStateNotificationUseCase.invoke() } returns tunnelStateNotifications
@@ -54,7 +54,7 @@ class InAppNotificationControllerTest {
 
         inAppNotificationController =
             InAppNotificationController(
-                accountExpiryNotificationUseCase,
+                accountExpiryInAppNotificationUseCase,
                 newDeviceNotificationUseCase,
                 versionNotificationUseCase,
                 tunnelStateNotificationUseCase,
@@ -81,7 +81,7 @@ class InAppNotificationControllerTest {
         val unsupportedVersion = InAppNotification.UnsupportedVersion(mockk())
         versionNotifications.value = listOf(unsupportedVersion)
 
-        val accountExpiry = InAppNotification.AccountExpiry(DateTime.now())
+        val accountExpiry = InAppNotification.AccountExpiry(Period.ZERO)
         accountExpiryNotifications.value = listOf(accountExpiry)
 
         inAppNotificationController.notifications.test {

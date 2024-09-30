@@ -30,7 +30,7 @@ import net.mullvad.mullvadvpn.repository.SplitTunnelingRepository
 import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
-import net.mullvad.mullvadvpn.usecase.AccountExpiryNotificationUseCase
+import net.mullvad.mullvadvpn.usecase.AccountExpiryInAppNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.AvailableProvidersUseCase
 import net.mullvad.mullvadvpn.usecase.EmptyPaymentUseCase
 import net.mullvad.mullvadvpn.usecase.FilteredRelayListUseCase
@@ -141,7 +141,7 @@ val uiModule = module {
         )
     }
 
-    single { AccountExpiryNotificationUseCase(get()) }
+    single { AccountExpiryInAppNotificationUseCase(get()) }
     single { TunnelStateNotificationUseCase(get()) }
     single { VersionNotificationUseCase(get(), BuildConfig.ENABLE_IN_APP_VERSION_NOTIFICATIONS) }
     single { NewDeviceNotificationUseCase(get(), get()) }

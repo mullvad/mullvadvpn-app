@@ -55,8 +55,6 @@ class AccountExpiryNotificationProvider(
     }
 
     private fun Duration.isCloseToExpiry(): Boolean {
-        return isShorterThan(
-            Duration.standardDays(ACCOUNT_EXPIRY_CLOSE_TO_EXPIRY_THRESHOLD_DAYS.toLong())
-        )
+        return isShorterThan(ACCOUNT_EXPIRY_CLOSE_TO_EXPIRY_THRESHOLD)
     }
 }
