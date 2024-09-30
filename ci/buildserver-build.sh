@@ -225,7 +225,7 @@ function build_ref {
         # Pipes all matching names and their new name to mv
         pushd "$artifact_dir"
         for original_file in MullvadVPN-*-dev-*{.deb,.rpm,.exe,.pkg}; do
-            new_file=$(echo "$original_file" | sed -nE "s/^(MullvadVPN-.*-dev-.*)(_amd64\.deb|_x86_64\.rpm|_arm64\.deb|_aarch64\.rpm|_x64\.exe|_arm64\.exe|\.pkg)$/\1$version_suffix\2/p")
+            new_file=$(echo "$original_file" | perl -pe "s/^(MullvadVPN-.*?)(_arm64|_aarch64|_amd64|_x86_64)?(\.deb|\.rpm|\.exe|\.pkg)$/\1$version_suffix\2\3/p")
             mv "$original_file" "$new_file"
         done
         popd
