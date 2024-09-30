@@ -223,7 +223,7 @@ private fun LazyListScope.appItems(
             isSelected = excluded,
             enabled = enabled,
             modifier =
-                Modifier.animateItemPlacement()
+                Modifier.animateItem()
                     .fillMaxWidth()
                     .alpha(
                         if (enabled) {
@@ -252,7 +252,7 @@ private fun LazyListScope.headerItem(key: String, textId: Int, enabled: Boolean)
     itemWithDivider(key = key, contentType = ContentType.HEADER) {
         HeaderCell(
             modifier =
-                Modifier.animateItemPlacement()
+                Modifier.animateItem()
                     .alpha(
                         if (enabled) {
                             AlphaVisible
@@ -282,7 +282,7 @@ private fun LazyListScope.systemAppsToggle(
             onCellClicked = { newValue -> onShowSystemAppsClick(newValue) },
             isEnabled = enabled,
             modifier =
-                Modifier.animateItemPlacement()
+                Modifier.animateItem()
                     .alpha(
                         if (enabled) {
                             AlphaVisible
@@ -297,6 +297,6 @@ private fun LazyListScope.systemAppsToggle(
 @OptIn(ExperimentalFoundationApi::class)
 private fun LazyListScope.spacer() {
     item(contentType = ContentType.SPACER) {
-        Spacer(modifier = Modifier.animateItemPlacement().height(Dimens.mediumPadding))
+        Spacer(modifier = Modifier.animateItem().height(Dimens.mediumPadding))
     }
 }
