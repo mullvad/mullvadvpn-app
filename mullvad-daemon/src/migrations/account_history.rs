@@ -1,5 +1,5 @@
 use super::{Error, Result};
-use mullvad_types::account::AccountToken;
+use mullvad_types::account::AccountNumber;
 use regex::Regex;
 use serde::Deserialize;
 use std::{path::Path, sync::LazyLock};
@@ -67,7 +67,7 @@ pub async fn migrate_formats(settings_dir: &Path, settings: &mut serde_json::Val
 fn migrate_formats_inner(
     account_bytes: &[u8],
     settings: &mut serde_json::Value,
-) -> Result<Option<AccountToken>> {
+) -> Result<Option<AccountNumber>> {
     if let Ok(result) = try_format_v2(account_bytes) {
         if let Some((token, wg_data)) = result {
             settings["wireguard"] = wg_data;
@@ -89,7 +89,7 @@ fn is_format_v3(bytes: &[u8]) -> bool {
     }
 }
 
-async fn write_format_v3(mut file: File, token: Option<AccountToken>) -> Result<()> {
+async fn write_format_v3(mut file: File, token: Option<AccountNumber>) -> Result<()> {
     file.set_len(0).await.map_err(Error::WriteHistory)?;
     file.seek(io::SeekFrom::Start(0))
         .await
@@ -102,10 +102,10 @@ async fn write_format_v3(mut file: File, token: Option<AccountToken>) -> Result<
     file.sync_all().await.map_err(Error::WriteHistory)
 }
 
-fn try_format_v2(bytes: &[u8]) -> Result<Option<(AccountToken, serde_json::Value)>> {
+fn try_format_v2(bytes: &[u8]) -> Result<Option<(AccountNumber, serde_json::Value)>> {
     #[derive(Deserialize, Clone)]
     pub struct AccountEntry {
-        pub account: AccountToken,
+        pub account: AccountNumber,
         pub wireguard: serde_json::Value,
     }
     Ok(serde_json::from_slice::<'_, Vec<AccountEntry>>(bytes)
@@ -115,10 +115,10 @@ fn try_format_v2(bytes: &[u8]) -> Result<Option<(AccountToken, serde_json::Value
         .map(|entry| (entry.account, entry.wireguard)))
 }
 
-fn try_format_v1(bytes: &[u8]) -> Result<Option<AccountToken>> {
+fn try_format_v1(bytes: &[u8]) -> Result<Option<AccountNumber>> {
     #[derive(Deserialize)]
     struct OldFormat {
-        accounts: Vec<AccountToken>,
+        accounts: Vec<AccountNumber>,
     }
     Ok(serde_json::from_slice::<'_, OldFormat>(bytes)
         .map_err(|_error| Error::ParseHistory)?

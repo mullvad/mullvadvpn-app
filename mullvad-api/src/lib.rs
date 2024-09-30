@@ -5,7 +5,7 @@ use hyper::Method;
 #[cfg(target_os = "android")]
 use mullvad_types::account::{PlayPurchase, PlayPurchasePaymentToken};
 use mullvad_types::{
-    account::{AccountData, AccountToken, VoucherSubmission},
+    account::{AccountData, AccountNumber, VoucherSubmission},
     version::AppVersion,
 };
 use proxy::{ApiConnectionMode, ConnectionModeProvider};
@@ -50,7 +50,7 @@ pub const VOUCHER_USED: &str = "VOUCHER_USED";
 /// Error code returned by the Mullvad API if the voucher code is invalid.
 pub const INVALID_VOUCHER: &str = "INVALID_VOUCHER";
 
-/// Error code returned by the Mullvad API if the account token is invalid.
+/// Error code returned by the Mullvad API if the account number is invalid.
 pub const INVALID_ACCOUNT: &str = "INVALID_ACCOUNT";
 
 /// Error code returned by the Mullvad API if the device does not exist.
@@ -490,7 +490,7 @@ impl AccountsProxy {
 
     pub fn get_data(
         &self,
-        account: AccountToken,
+        account: AccountNumber,
     ) -> impl Future<Output = Result<AccountData, rest::Error>> {
         let service = self.handle.service.clone();
         let factory = self.handle.factory.clone();
@@ -504,10 +504,10 @@ impl AccountsProxy {
         }
     }
 
-    pub fn create_account(&self) -> impl Future<Output = Result<AccountToken, rest::Error>> {
+    pub fn create_account(&self) -> impl Future<Output = Result<AccountNumber, rest::Error>> {
         #[derive(serde::Deserialize)]
         struct AccountCreationResponse {
-            number: AccountToken,
+            number: AccountNumber,
         }
 
         let service = self.handle.service.clone();
@@ -525,7 +525,7 @@ impl AccountsProxy {
 
     pub fn submit_voucher(
         &self,
-        account: AccountToken,
+        account: AccountNumber,
         voucher_code: String,
     ) -> impl Future<Output = Result<VoucherSubmission, rest::Error>> {
         #[derive(serde::Serialize)]
@@ -549,7 +549,7 @@ impl AccountsProxy {
     #[cfg(target_os = "ios")]
     pub fn delete_account(
         &self,
-        account: AccountToken,
+        account: AccountNumber,
     ) -> impl Future<Output = Result<(), rest::Error>> {
         let service = self.handle.service.clone();
         let factory = self.handle.factory.clone();
@@ -569,7 +569,7 @@ impl AccountsProxy {
     #[cfg(target_os = "android")]
     pub fn init_play_purchase(
         &mut self,
-        account: AccountToken,
+        account: AccountNumber,
     ) -> impl Future<Output = Result<PlayPurchasePaymentToken, rest::Error>> {
         #[derive(serde::Deserialize)]
         struct PlayPurchaseInitResponse {
@@ -595,7 +595,7 @@ impl AccountsProxy {
     #[cfg(target_os = "android")]
     pub fn verify_play_purchase(
         &mut self,
-        account: AccountToken,
+        account: AccountNumber,
         play_purchase: PlayPurchase,
     ) -> impl Future<Output = Result<(), rest::Error>> {
         let service = self.handle.service.clone();
@@ -616,7 +616,7 @@ impl AccountsProxy {
 
     pub fn get_www_auth_token(
         &self,
-        account: AccountToken,
+        account: AccountNumber,
     ) -> impl Future<Output = Result<String, rest::Error>> {
         #[derive(serde::Deserialize)]
         struct AuthTokenResponse {

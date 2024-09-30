@@ -95,21 +95,21 @@ const StyledRemoveDeviceButton = styled.button({
 export default function TooManyDevices() {
   const history = useHistory();
   const { removeDevice, login, cancelLogin } = useAppContext();
-  const accountToken = useSelector((state) => state.account.accountToken)!;
+  const accountNumber = useSelector((state) => state.account.accountNumber)!;
   const devices = useSelector((state) => state.account.devices);
   const loginState = useSelector((state) => state.account.status);
 
   const onRemoveDevice = useCallback(
     async (deviceId: string) => {
-      await removeDevice({ accountToken, deviceId });
+      await removeDevice({ accountNumber, deviceId });
     },
-    [removeDevice, accountToken],
+    [removeDevice, accountNumber],
   );
 
   const continueLogin = useCallback(() => {
-    void login(accountToken);
+    void login(accountNumber);
     history.reset(RoutePath.login, { transition: transitions.pop });
-  }, [login, accountToken]);
+  }, [login, accountNumber]);
   const cancel = useCallback(() => {
     cancelLogin();
     history.reset(RoutePath.login, { transition: transitions.pop });
@@ -189,7 +189,7 @@ interface IDeviceProps {
 
 function Device(props: IDeviceProps) {
   const { fetchDevices } = useAppContext();
-  const accountToken = useSelector((state) => state.account.accountToken)!;
+  const accountNumber = useSelector((state) => state.account.accountNumber)!;
   const [confirmationVisible, showConfirmation, hideConfirmation] = useBoolean(false);
   const [deleting, setDeleting, unsetDeleting] = useBoolean(false);
   const [error, setError, resetError] = useBoolean(false);
@@ -200,7 +200,7 @@ function Device(props: IDeviceProps) {
 
       let devices: Array<IDevice> | undefined = undefined;
       try {
-        devices = await fetchDevices(accountToken);
+        devices = await fetchDevices(accountNumber);
       } catch {
         /* no-op */
       }
@@ -211,7 +211,7 @@ function Device(props: IDeviceProps) {
         setError();
       }
     },
-    [fetchDevices, accountToken, hideConfirmation, setError],
+    [fetchDevices, accountNumber, hideConfirmation, setError],
   );
 
   const onRemove = useCallback(async () => {

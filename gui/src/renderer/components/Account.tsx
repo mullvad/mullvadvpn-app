@@ -6,6 +6,7 @@ import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { useHistory } from '../lib/history';
 import { useSelector } from '../redux/store';
+import AccountNumberLabel from './AccountNumberLabel';
 import {
   AccountContainer,
   AccountOutOfTime,
@@ -16,7 +17,6 @@ import {
   DeviceRowValue,
   StyledDeviceNameRow,
 } from './AccountStyles';
-import AccountTokenLabel from './AccountTokenLabel';
 import * as AppButton from './AppButton';
 import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';
 import DeviceInfoButton from './DeviceInfoButton';
@@ -131,8 +131,8 @@ function DeviceNameRow() {
 }
 
 function AccountNumberRow() {
-  const accountToken = useSelector((state) => state.account.accountToken);
-  return <AccountRowValue as={AccountTokenLabel} accountToken={accountToken || ''} />;
+  const accountNumber = useSelector((state) => state.account.accountNumber);
+  return <AccountRowValue as={AccountNumberLabel} accountNumber={accountNumber || ''} />;
 }
 
 function AccountExpiryRow() {

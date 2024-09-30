@@ -270,7 +270,7 @@ class ManagementService(
         Either.catch {
                 grpc.removeDevice(
                     ManagementInterface.DeviceRemoval.newBuilder()
-                        .setAccountToken(token.value)
+                        .setAccountNumber(token.value)
                         .setDeviceId(deviceId.value.toString())
                         .build()
                 )

@@ -27,7 +27,7 @@ if [[ -z "${ACCOUNT_TOKENS+x}" ]]; then
     exit 1
 fi
 if ! readarray -t tokens < "${ACCOUNT_TOKENS}"; then
-    echo "Specify account tokens in 'ACCOUNT_TOKENS' file" 1>&2
+    echo "Specify account numbers in 'ACCOUNT_TOKENS' file" 1>&2
     exit 1
 fi
 CI_LOGS_DIR="$TEST_DIR/.ci-logs"
