@@ -5,11 +5,8 @@ import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.SplineBasedFloatDecayAnimationSpec
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.DecayAnimation
-import androidx.compose.animation.core.animateDecay
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.exponentialDecay
 import androidx.compose.animation.core.tween
@@ -52,7 +49,6 @@ import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -63,7 +59,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
-import arrow.optics.copy
 import co.touchlab.kermit.Logger
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
@@ -75,7 +70,6 @@ import com.ramcosta.composedestinations.generated.destinations.SelectLocationDes
 import com.ramcosta.composedestinations.generated.destinations.SettingsDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.ConnectionButton
@@ -341,16 +335,22 @@ private fun MullvadMap(state: ConnectUiState, progressIndicatorBias: Float) {
             animationSpec = tween(SECURE_ZOOM_ANIMATION_MILLIS),
             label = "baseZoom",
         )
-    var userZoom by remember { mutableStateOf(1f) }
 
     val locationLatLng = (state.location?.toLatLong() ?: fallbackLatLong)
-    val userCameraLatLong = remember { mutableStateOf(locationLatLng) }
 
-    val longitudeAnimation = remember { Animatable(userCameraLatLong.value.longitude.value) }
+    val longitudeAnimation = remember { Animatable(locationLatLng.longitude.value) }
+    val latitudeAnimation = remember { Animatable(locationLatLng.latitude.value) }
+    val userZoom = remember { Animatable(1f) }
 
 
     LaunchedEffect(state.tunnelState.location()) {
-        longitudeAnimation.animateTo(state.tunnelState.location()?.longitude?.toFloat() ?:0f)
+        launch {
+            longitudeAnimation.animateTo(state.tunnelState.location()?.longitude?.toFloat() ?: 0f)
+        }
+        launch {
+            latitudeAnimation.animateTo(state.tunnelState.location()?.latitude?.toFloat() ?: 0f)
+        }
+        launch { userZoom.animateTo(1f) }
     }
 
     val locationMarkers =
@@ -378,46 +378,40 @@ private fun MullvadMap(state: ConnectUiState, progressIndicatorBias: Float) {
                         onGestureStart = {
                             Logger.d { "Animation onGestureStart" }
                             tracker.resetTracking()
-                            scope.launch {
-                                longitudeAnimation.stop()
-                            }
+                            scope.launch { longitudeAnimation.stop() }
                         },
                         onGesture = { centroid: Offset, pan: Offset, newZoom: Float, rotation: Float
                             ->
-                            userZoom = (userZoom / newZoom).coerceIn(1.15f, 2f)
                             Logger.d { "Animation onGesture" }
 
+                            val longitude = longitudeAnimation.value - pan.x * userZoom.value / 40f
+                            val latitude =
+                                (latitudeAnimation.value - -pan.y * userZoom.value / 40f).coerceIn(
+                                    -40f,
+                                    80f,
+                                )
+                            val newZoom = (userZoom.value / newZoom).coerceIn(1f, 2f)
 
                             scope.launch {
-                                val position = longitudeAnimation.value - pan.x * userZoom / 30f
+                                userZoom.snapTo(newZoom)
+                                longitudeAnimation.snapTo(longitude)
+                                latitudeAnimation.snapTo(latitude)
+
                                 tracker.addPosition(
                                     System.currentTimeMillis(),
-                                    Offset(position, 0f),
+                                    Offset(longitude, latitude),
                                 )
-                                longitudeAnimation.snapTo(position)
                             }
-
-                            val newLatitude =
-                                Latitude.fromFloat(
-                                    (userCameraLatLong.value.latitude.value -
-                                            -pan.y * userZoom / 30f)
-                                        .coerceIn(-10f, 60f)
-                                )
-                            val newLongitude =
-                                Longitude.fromFloat(
-                                    userCameraLatLong.value.longitude.value - pan.x * userZoom / 30f
-                                )
-                            userCameraLatLong.value = LatLong(newLatitude, newLongitude)
-
-                            Logger.d("New zoom = $userZoom")
-                            Logger.d("pan = $pan")
-                            Logger.d("pan = $pan")
                         },
                         onGestureEnd = {
                             Logger.d { "Animation onGestureEnd" }
                             // Longitude
+                            val velocity = tracker.calculateVelocity()
                             scope.launch {
-                               longitudeAnimation.animateDecay(tracker.calculateVelocity().x, exponentialDecay(0.4f))
+                                longitudeAnimation.animateDecay(velocity.x, exponentialDecay(0.4f))
+                            }
+                            scope.launch {
+                                latitudeAnimation.animateDecay(velocity.y, exponentialDecay(0.4f))
                             }
                         },
                     )
@@ -430,8 +424,12 @@ private fun MullvadMap(state: ConnectUiState, progressIndicatorBias: Float) {
                 },
         cameraLocation =
             CameraPosition(
-                latLong = LatLong(userCameraLatLong.value.latitude, Longitude.fromFloat(longitudeAnimation.value)),
-                zoom = (baseZoom.value * userZoom).also { Logger.d("Zoom: $it") },
+                latLong =
+                    LatLong(
+                        Latitude.fromFloat(latitudeAnimation.value),
+                        Longitude.fromFloat(longitudeAnimation.value),
+                    ),
+                zoom = (baseZoom.value * userZoom.value).also { Logger.d("Zoom: $it") },
                 verticalBias = progressIndicatorBias,
             ),
         markers = markers + locationMarkers,
