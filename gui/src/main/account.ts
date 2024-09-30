@@ -1,7 +1,7 @@
 import { closeToExpiry } from '../shared/account-expiry';
 import {
   AccountDataError,
-  AccountToken,
+  AccountNumber,
   DeviceEvent,
   DeviceState,
   IAccountData,
@@ -31,13 +31,13 @@ export interface AccountDelegate {
 
 export default class Account {
   private accountDataValue?: IAccountData = undefined;
-  private accountHistoryValue?: AccountToken = undefined;
+  private accountHistoryValue?: AccountNumber = undefined;
   private expiryNotificationFrequencyScheduler = new Scheduler();
   private firstExpiryNotificationScheduler = new Scheduler();
 
   private accountDataCache = new AccountDataCache(
-    (accountToken) => {
-      return this.daemonRpc.getAccountData(accountToken);
+    (accountNumber) => {
+      return this.daemonRpc.getAccountData(accountNumber);
     },
     (accountData) => {
       this.accountDataValue = accountData;
@@ -70,16 +70,16 @@ export default class Account {
   public registerIpcListeners() {
     IpcMainEventChannel.account.handleCreate(() => this.createNewAccount());
     IpcMainEventChannel.account.handleLogin(
-      async (token: AccountToken) => (await this.login(token)) ?? undefined,
+      async (number: AccountNumber) => (await this.login(number)) ?? undefined,
     );
     IpcMainEventChannel.account.handleLogout(() => this.logout());
     IpcMainEventChannel.account.handleGetWwwAuthToken(() => this.daemonRpc.getWwwAuthToken());
     IpcMainEventChannel.account.handleSubmitVoucher(async (voucherCode: string) => {
-      const currentAccountToken = this.getAccountToken();
+      const currentAccountNumber = this.getAccountNumber();
       const response = await this.daemonRpc.submitVoucher(voucherCode);
 
-      if (currentAccountToken) {
-        this.accountDataCache.handleVoucherResponse(currentAccountToken, response);
+      if (currentAccountNumber) {
+        this.accountDataCache.handleVoucherResponse(currentAccountNumber, response);
       }
 
       return response;
@@ -91,8 +91,8 @@ export default class Account {
       void this.updateAccountHistory();
     });
 
-    IpcMainEventChannel.account.handleListDevices((accountToken: AccountToken) => {
-      return this.daemonRpc.listDevices(accountToken);
+    IpcMainEventChannel.account.handleListDevices((accountNumber: AccountNumber) => {
+      return this.daemonRpc.listDevices(accountNumber);
     });
     IpcMainEventChannel.account.handleRemoveDevice((deviceRemoval: IDeviceRemoval) => {
       return this.daemonRpc.removeDevice(deviceRemoval);
@@ -105,7 +105,7 @@ export default class Account {
 
   public updateAccountData = () => {
     if (this.daemonRpc.isConnected && this.isLoggedIn()) {
-      this.accountDataCache.fetch(this.getAccountToken()!);
+      this.accountDataCache.fetch(this.getAccountNumber()!);
     }
   };
 
@@ -126,7 +126,7 @@ export default class Account {
 
     switch (deviceEvent.deviceState.type) {
       case 'logged in':
-        this.accountDataCache.fetch(deviceEvent.deviceState.accountAndDevice.accountToken);
+        this.accountDataCache.fetch(deviceEvent.deviceState.accountAndDevice.accountNumber);
         break;
       case 'logged out':
       case 'revoked':
@@ -140,7 +140,7 @@ export default class Account {
     IpcMainEventChannel.account.notifyDevice?.(deviceEvent);
   }
 
-  public setAccountHistory(accountHistory?: AccountToken) {
+  public setAccountHistory(accountHistory?: AccountNumber) {
     this.accountHistoryValue = accountHistory;
 
     IpcMainEventChannel.accountHistory.notify?.(accountHistory);
@@ -156,8 +156,8 @@ export default class Account {
     }
   }
 
-  private async login(accountToken: AccountToken): Promise<AccountDataError | void> {
-    const error = await this.daemonRpc.loginAccount(accountToken);
+  private async login(accountNumber: AccountNumber): Promise<AccountDataError | void> {
+    const error = await this.daemonRpc.loginAccount(accountNumber);
 
     if (error) {
       log.error(`Failed to login: ${error.error}`);
@@ -231,9 +231,9 @@ export default class Account {
     }
   }
 
-  private getAccountToken(): AccountToken | undefined {
+  private getAccountNumber(): AccountNumber | undefined {
     return this.deviceState?.type === 'logged in'
-      ? this.deviceState.accountAndDevice.accountToken
+      ? this.deviceState.accountAndDevice.accountNumber
       : undefined;
   }
 }

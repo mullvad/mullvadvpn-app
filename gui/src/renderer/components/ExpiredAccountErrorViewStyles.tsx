@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 import { colors } from '../../config.json';
-import AccountTokenLabel from './AccountTokenLabel';
+import AccountNumberLabel from './AccountNumberLabel';
 import * as Cell from './cell';
 import { hugeText, measurements, tinyText } from './common-styles';
 import CustomScrollbars from './CustomScrollbars';
@@ -12,7 +12,7 @@ export const StyledHeader = styled(DefaultHeaderBar)({
   flex: 0,
 });
 
-export const StyledAccountTokenLabel = styled(AccountTokenLabel)({
+export const StyledAccountNumberLabel = styled(AccountNumberLabel)({
   fontFamily: 'Open Sans',
   lineHeight: '20px',
   fontSize: '20px',
@@ -53,7 +53,7 @@ export const StyledMessage = styled.span(tinyText, {
   color: colors.white,
 });
 
-export const StyledAccountTokenMessage = styled.span(tinyText, {
+export const StyledAccountNumberMessage = styled.span(tinyText, {
   color: colors.white,
 });
 
@@ -64,7 +64,7 @@ export const StyledStatusIcon = styled.div({
   marginBottom: '18px',
 });
 
-export const StyledAccountTokenContainer = styled.div({
+export const StyledAccountNumberContainer = styled.div({
   display: 'flex',
   height: '50px',
   alignItems: 'center',

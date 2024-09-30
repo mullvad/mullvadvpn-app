@@ -2,10 +2,10 @@ import React, { useCallback } from 'react';
 import { sprintf } from 'sprintf-js';
 
 import { colors } from '../../config.json';
-import { AccountDataError, AccountToken } from '../../shared/daemon-rpc-types';
+import { AccountDataError, AccountNumber } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
-import { formatAccountToken } from '../lib/account';
+import { formatAccountNumber } from '../lib/account';
 import { formatHtml } from '../lib/html-formatter';
 import { LoginState } from '../redux/account/reducers';
 import { useSelector } from '../redux/store';
@@ -41,14 +41,14 @@ import {
 } from './LoginStyles';
 
 interface IProps {
-  accountToken?: AccountToken;
-  accountHistory?: AccountToken;
+  accountNumber?: AccountNumber;
+  accountHistory?: AccountNumber;
   loginState: LoginState;
   showBlockMessage: boolean;
   openExternalLink: (type: string) => void;
-  login: (accountToken: AccountToken) => void;
+  login: (accountNumber: AccountNumber) => void;
   resetLoginError: () => void;
-  updateAccountToken: (accountToken: AccountToken) => void;
+  updateAccountNumber: (accountNumber: AccountNumber) => void;
   clearAccountHistory: () => Promise<void>;
   createNewAccount: () => void;
   isPerformingPostUpgrade?: boolean;
@@ -58,7 +58,7 @@ interface IState {
   isActive: boolean;
 }
 
-const MIN_ACCOUNT_TOKEN_LENGTH = 10;
+const MIN_ACCOUNT_NUMBER_LENGTH = 10;
 
 export default class Login extends React.Component<IProps, IState> {
   public state: IState = {
@@ -133,19 +133,19 @@ export default class Login extends React.Component<IProps, IState> {
   private onSubmit = (event?: React.FormEvent) => {
     event?.preventDefault();
 
-    if (this.accountTokenValid()) {
-      this.props.login(this.props.accountToken!);
+    if (this.accountNumberValid()) {
+      this.props.login(this.props.accountNumber!);
     }
   };
 
-  private onInputChange = (accountToken: string) => {
+  private onInputChange = (accountNumber: string) => {
     // reset error when user types in the new account number
     if (this.shouldResetLoginError) {
       this.shouldResetLoginError = false;
       this.props.resetLoginError();
     }
 
-    this.props.updateAccountToken(accountToken);
+    this.props.updateAccountNumber(accountNumber);
   };
 
   private formTitle() {
@@ -254,22 +254,22 @@ export default class Login extends React.Component<IProps, IState> {
   }
 
   private allowCreateAccount() {
-    const { accountToken } = this.props;
-    return this.allowInteraction() && (accountToken === undefined || accountToken.length === 0);
+    const { accountNumber } = this.props;
+    return this.allowInteraction() && (accountNumber === undefined || accountNumber.length === 0);
   }
 
-  private accountTokenValid(): boolean {
-    const { accountToken } = this.props;
-    return accountToken !== undefined && accountToken.length >= MIN_ACCOUNT_TOKEN_LENGTH;
+  private accountNumberValid(): boolean {
+    const { accountNumber } = this.props;
+    return accountNumber !== undefined && accountNumber.length >= MIN_ACCOUNT_NUMBER_LENGTH;
   }
 
   private shouldShowAccountHistory() {
     return this.allowInteraction() && this.props.accountHistory !== undefined;
   }
 
-  private onSelectAccountFromHistory = (accountToken: string) => {
-    this.props.updateAccountToken(accountToken);
-    this.props.login(accountToken);
+  private onSelectAccountFromHistory = (accountNumber: string) => {
+    this.props.updateAccountNumber(accountNumber);
+    this.props.login(accountNumber);
   };
 
   private onClearAccountHistory = () => {
@@ -288,7 +288,7 @@ export default class Login extends React.Component<IProps, IState> {
 
   private createLoginForm() {
     const allowInteraction = this.allowInteraction();
-    const allowLogin = allowInteraction && this.accountTokenValid();
+    const allowLogin = allowInteraction && this.accountNumberValid();
     const hasError =
       this.props.loginState.type === 'failed' &&
       this.props.loginState.method === 'existing_account';
@@ -307,7 +307,7 @@ export default class Login extends React.Component<IProps, IState> {
               separator=" "
               groupLength={4}
               placeholder="0000 0000 0000 0000"
-              value={this.props.accountToken || ''}
+              value={this.props.accountNumber || ''}
               disabled={!allowInteraction}
               onFocus={this.onFocus}
               onBlur={this.onBlur}
@@ -366,20 +366,20 @@ export default class Login extends React.Component<IProps, IState> {
 }
 
 interface IAccountDropdownProps {
-  item?: AccountToken;
-  onSelect: (value: AccountToken) => void;
-  onRemove: (value: AccountToken) => void;
+  item?: AccountNumber;
+  onSelect: (value: AccountNumber) => void;
+  onRemove: (value: AccountNumber) => void;
 }
 
 function AccountDropdown(props: IAccountDropdownProps) {
-  const token = props.item;
-  if (!token) {
+  const accountNumber = props.item;
+  if (!accountNumber) {
     return null;
   }
-  const label = formatAccountToken(token);
+  const label = formatAccountNumber(accountNumber);
   return (
     <AccountDropdownItem
-      value={token}
+      value={accountNumber}
       label={label}
       onSelect={props.onSelect}
       onRemove={props.onRemove}
@@ -389,9 +389,9 @@ function AccountDropdown(props: IAccountDropdownProps) {
 
 interface IAccountDropdownItemProps {
   label: string;
-  value: AccountToken;
-  onRemove: (value: AccountToken) => void;
-  onSelect: (value: AccountToken) => void;
+  value: AccountNumber;
+  onRemove: (value: AccountNumber) => void;
+  onSelect: (value: AccountNumber) => void;
 }
 
 function AccountDropdownItem(props: IAccountDropdownItemProps) {
@@ -427,9 +427,9 @@ function AccountDropdownItem(props: IAccountDropdownItemProps) {
               aria-label={
                 // TRANSLATORS: This is used by screenreaders to communicate the "x" button next to a saved account number.
                 // TRANSLATORS: Available placeholders:
-                // TRANSLATORS: %(accountToken)s - the account token to the left of the button
-                sprintf(messages.pgettext('accessibility', 'Forget %(accountToken)s'), {
-                  accountToken: props.label,
+                // TRANSLATORS: %(accountNumber)s - the account number to the left of the button
+                sprintf(messages.pgettext('accessibility', 'Forget %(accountNumber)s'), {
+                  accountNumber: props.label,
                 })
               }>
               <StyledAccountDropdownRemoveIcon

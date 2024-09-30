@@ -1,5 +1,5 @@
-export function formatAccountToken(accountToken: string) {
+export function formatAccountNumber(accountNumber: string) {
   const parts =
-    accountToken.replace(/\s+| /g, '').substring(0, 16).match(new RegExp('.{1,4}', 'g')) || [];
+    accountNumber.replace(/\s+| /g, '').substring(0, 16).match(new RegExp('.{1,4}', 'g')) || [];
   return parts.join(' ');
 }

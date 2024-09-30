@@ -292,8 +292,8 @@ msgid "Expand %(location)s"
 msgstr "%(location)sを展開する"
 
 msgctxt "accessibility"
-msgid "Forget %(accountToken)s"
-msgstr "%(accountToken)sを忘れる"
+msgid "Forget %(accountNumber)s"
+msgstr "%(accountNumber)sを忘れる"
 
 #. Provided to accessibility tools such as screenreaders to describe
 #. the button which obscures the account number.

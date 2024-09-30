@@ -7,7 +7,7 @@ use futures::{
     StreamExt,
 };
 use hyper::StatusCode;
-use mullvad_types::account::{AccessToken, AccessTokenData, AccountToken};
+use mullvad_types::account::{AccessToken, AccessTokenData, AccountNumber};
 use std::{borrow::Cow, collections::HashMap};
 use tokio::select;
 
@@ -19,13 +19,13 @@ pub struct AccessTokenStore {
 }
 
 enum StoreAction {
-    /// Request an access token for `AccountToken`, or return a saved one if it's not expired.
+    /// Request an access token for `AccountNumber`, or return a saved one if it's not expired.
     GetAccessToken(
-        AccountToken,
+        AccountNumber,
         oneshot::Sender<Result<AccessToken, rest::Error>>,
     ),
-    /// Forget cached access token for `AccountToken`, and drop any in-flight requests
-    InvalidateToken(AccountToken),
+    /// Forget cached access token for `AccountNumber`, and drop any in-flight requests
+    InvalidateToken(AccountNumber),
 }
 
 #[derive(Default)]
@@ -51,7 +51,7 @@ impl AccessTokenStore {
         service: RequestServiceHandle,
         factory: RequestFactory,
     ) {
-        let mut account_states: HashMap<AccountToken, AccountState> = HashMap::new();
+        let mut account_states: HashMap<AccountNumber, AccountState> = HashMap::new();
 
         let (completed_tx, mut completed_rx) = mpsc::unbounded();
 
@@ -145,7 +145,7 @@ impl AccessTokenStore {
     }
 
     /// Obtain access token for an account, requesting a new one from the API if necessary.
-    pub async fn get_token(&self, account: &AccountToken) -> Result<AccessToken, rest::Error> {
+    pub async fn get_token(&self, account: &AccountNumber) -> Result<AccessToken, rest::Error> {
         let (tx, rx) = oneshot::channel();
         let _ = self
             .tx
@@ -154,7 +154,7 @@ impl AccessTokenStore {
     }
 
     /// Remove an access token if the API response calls for it.
-    pub fn check_response<T>(&self, account: &AccountToken, response: &Result<T, rest::Error>) {
+    pub fn check_response<T>(&self, account: &AccountNumber, response: &Result<T, rest::Error>) {
         if let Err(rest::Error::ApiError(_status, code)) = response {
             if code == crate::INVALID_ACCESS_TOKEN {
                 let _ = self
@@ -168,15 +168,13 @@ impl AccessTokenStore {
 async fn fetch_access_token(
     service: RequestServiceHandle,
     factory: RequestFactory,
-    account_token: AccountToken,
+    account_number: AccountNumber,
 ) -> Result<AccessTokenData, rest::Error> {
     #[derive(serde::Serialize)]
     struct AccessTokenRequest {
         account_number: String,
     }
-    let request = AccessTokenRequest {
-        account_number: account_token,
-    };
+    let request = AccessTokenRequest { account_number };
 
     let rest_request = factory
         .post_json(&format!("{AUTH_URL_PREFIX}/token"), &request)?

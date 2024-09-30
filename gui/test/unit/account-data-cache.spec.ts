@@ -5,7 +5,7 @@ import AccountDataCache, { AccountFetchError } from '../../src/main/account-data
 import { AccountDataResponse, IAccountData } from '../../src/shared/daemon-rpc-types';
 
 describe('IAccountData cache', () => {
-  const dummyAccountToken = '9876543210';
+  const dummyAccountNumber = '9876543210';
   const dummyAccountData: AccountDataResponse = {
     type: 'success',
     expiry: new Date('2038-01-01').toISOString(),
@@ -23,12 +23,12 @@ describe('IAccountData cache', () => {
 
   it('should notify when fetch succeeds on the first attempt', async () => {
     const cache = new AccountDataCache(
-      (_token) => Promise.resolve(dummyAccountData),
+      (_number) => Promise.resolve(dummyAccountData),
       (_data) => {},
     );
 
     const watcher = new Promise<void>((resolve, reject) => {
-      cache.fetch(dummyAccountToken, {
+      cache.fetch(dummyAccountNumber, {
         onFinish: () => resolve(),
         onError: (_error: AccountFetchError) => reject(),
       });
@@ -39,12 +39,12 @@ describe('IAccountData cache', () => {
 
   it('should notify when fetch fails on the first attempt', async () => {
     const cache = new AccountDataCache(
-      (_token) => Promise.resolve({ type: 'error', error: 'invalid-account' }),
+      (_number) => Promise.resolve({ type: 'error', error: 'invalid-account' }),
       (_data) => {},
     );
 
     const watcher = new Promise<void>((resolve, reject) => {
-      cache.fetch(dummyAccountToken, {
+      cache.fetch(dummyAccountNumber, {
         onFinish: () => resolve(),
         onError: (_error: AccountFetchError) => reject(),
       });
@@ -60,7 +60,7 @@ describe('IAccountData cache', () => {
         () => resolve(),
       );
 
-      cache.fetch(dummyAccountToken, {
+      cache.fetch(dummyAccountNumber, {
         onFinish: () => {},
         onError: (_error: AccountFetchError) => reject(),
       });
@@ -85,7 +85,7 @@ describe('IAccountData cache', () => {
 
       const cache = new AccountDataCache(fetch, () => resolve());
 
-      cache.fetch(dummyAccountToken, {
+      cache.fetch(dummyAccountNumber, {
         onFinish: () => reject(),
         onError: (_error: AccountFetchError) => {},
       });
@@ -100,7 +100,7 @@ describe('IAccountData cache', () => {
 
     const update = new Promise<IAccountData | void>((resolve, reject) => {
       let firstAttempt = true;
-      const fetch = (_token: string) => {
+      const fetch = (_number: string) => {
         if (firstAttempt) {
           firstAttempt = false;
 
@@ -124,7 +124,7 @@ describe('IAccountData cache', () => {
 
       setTimeout(resolve, 12000);
 
-      cache.fetch(dummyAccountToken, {
+      cache.fetch(dummyAccountNumber, {
         onFinish: reject,
         onError: firstError,
       });
@@ -159,12 +159,12 @@ describe('IAccountData cache', () => {
 
       const cache = new AccountDataCache(fetch, updateHandler);
 
-      cache.fetch(dummyAccountToken, {
+      cache.fetch(dummyAccountNumber, {
         onFinish: () => {},
         onError: (_error: AccountFetchError) => firstError(),
       });
       setTimeout(() => {
-        cache.fetch(dummyAccountToken, {
+        cache.fetch(dummyAccountNumber, {
           onFinish: () => {
             secondSuccess();
             setTimeout(resolve);
@@ -191,8 +191,8 @@ describe('IAccountData cache', () => {
 
       const cache = new AccountDataCache(fetch, () => {});
       const onError = (_error: AccountFetchError) => {};
-      cache.fetch(dummyAccountToken, { onFinish: () => {}, onError });
-      cache.fetch(dummyAccountToken, { onFinish: () => resolve(), onError });
+      cache.fetch(dummyAccountNumber, { onFinish: () => {}, onError });
+      cache.fetch(dummyAccountNumber, { onFinish: () => resolve(), onError });
     });
 
     return expect(update).to.eventually.be.fulfilled.then(() => {
@@ -207,7 +207,7 @@ describe('IAccountData cache', () => {
 
     const update = new Promise<void>((resolve, reject) => {
       let firstAttempt = true;
-      const fetch = (_accountToken: string): Promise<AccountDataResponse> => {
+      const fetch = (_accountNumber: string): Promise<AccountDataResponse> => {
         if (firstAttempt) {
           firstAttempt = false;
           setTimeout(() => clock.tick(120_000), 0);
@@ -220,7 +220,7 @@ describe('IAccountData cache', () => {
 
       const cache = new AccountDataCache(fetch, () => {});
 
-      cache.fetch(dummyAccountToken, {
+      cache.fetch(dummyAccountNumber, {
         onFinish: () => {},
         onError: (_error: AccountFetchError) => reject(),
       });
@@ -235,26 +235,26 @@ describe('IAccountData cache', () => {
 
     const update = new Promise<void>((resolve, reject) => {
       const cache = new AccountDataCache(
-        (_accountToken) => {
+        (_accountNumber) => {
           fetchSpy();
           return Promise.resolve<AccountDataResponse>({ type: 'success', expiry });
         },
         () => {},
       );
 
-      cache.fetch(dummyAccountToken, {
+      cache.fetch(dummyAccountNumber, {
         onFinish: async () => {
           clock.tick(59_000);
           // Timeout to let asynchronous tasks finish
           await new Promise((resolve) => setTimeout(resolve));
 
-          cache.fetch(dummyAccountToken, {
+          cache.fetch(dummyAccountNumber, {
             onFinish: async () => {
               clock.tick(1_000);
               // Timeout to let asynchronous tasks finish
               await new Promise((resolve) => setTimeout(resolve));
 
-              cache.fetch(dummyAccountToken, {
+              cache.fetch(dummyAccountNumber, {
                 onFinish: () => resolve(),
                 onError: (_error: AccountFetchError) => reject(),
               });
@@ -277,26 +277,26 @@ describe('IAccountData cache', () => {
 
     const update = new Promise<void>((resolve, reject) => {
       const cache = new AccountDataCache(
-        (_accountToken) => {
+        (_accountNumber) => {
           fetchSpy();
           return Promise.resolve<AccountDataResponse>({ type: 'success', expiry });
         },
         () => {},
       );
 
-      cache.fetch(dummyAccountToken, {
+      cache.fetch(dummyAccountNumber, {
         onFinish: async () => {
           clock.tick(9_000);
           // Timeout to let asynchronous tasks finish
           await new Promise((resolve) => setTimeout(resolve));
 
-          cache.fetch(dummyAccountToken, {
+          cache.fetch(dummyAccountNumber, {
             onFinish: async () => {
               clock.tick(1_000);
               // Timeout to let asynchronous tasks finish
               await new Promise((resolve) => setTimeout(resolve));
 
-              cache.fetch(dummyAccountToken, {
+              cache.fetch(dummyAccountNumber, {
                 onFinish: () => resolve(),
                 onError: (_error: AccountFetchError) => reject(),
               });

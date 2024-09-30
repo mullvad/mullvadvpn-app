@@ -270,7 +270,7 @@ class ManagementService(
         Either.catch {
                 grpc.removeDevice(
                     ManagementInterface.DeviceRemoval.newBuilder()
-                        .setAccountToken(token.value)
+                        .setAccountNumber(token.value)
                         .setDeviceId(deviceId.value.toString())
                         .build()
                 )
@@ -347,8 +347,8 @@ class ManagementService(
     suspend fun getAccountHistory(): Either<GetAccountHistoryError, AccountNumber?> =
         Either.catch {
                 val history = grpc.getAccountHistory(Empty.getDefaultInstance())
-                if (history.hasToken()) {
-                    AccountNumber(history.token.value)
+                if (history.hasNumber()) {
+                    AccountNumber(history.number.value)
                 } else {
                     null
                 }

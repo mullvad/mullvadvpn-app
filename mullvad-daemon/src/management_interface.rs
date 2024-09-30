@@ -9,7 +9,7 @@ use mullvad_management_interface::{
     Code, Request, Response, ServerJoinHandle, Status,
 };
 use mullvad_types::{
-    account::AccountToken,
+    account::AccountNumber,
     relay_constraints::{
         BridgeSettings, BridgeState, ObfuscationSettings, RelayOverride, RelaySettings,
     },
@@ -434,11 +434,11 @@ impl ManagementService for ManagementServiceImpl {
             .map_err(map_daemon_error)
     }
 
-    async fn login_account(&self, request: Request<AccountToken>) -> ServiceResult<()> {
+    async fn login_account(&self, request: Request<AccountNumber>) -> ServiceResult<()> {
         log::debug!("login_account");
-        let account_token = request.into_inner();
+        let account_number = request.into_inner();
         let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::LoginAccount(tx, account_token))?;
+        self.send_command_to_daemon(DaemonCommand::LoginAccount(tx, account_number))?;
         self.wait_for_result(rx)
             .await?
             .map(Response::new)
@@ -457,12 +457,12 @@ impl ManagementService for ManagementServiceImpl {
 
     async fn get_account_data(
         &self,
-        request: Request<AccountToken>,
+        request: Request<AccountNumber>,
     ) -> ServiceResult<types::AccountData> {
         log::debug!("get_account_data");
-        let account_token = request.into_inner();
+        let account_number = request.into_inner();
         let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::GetAccountData(tx, account_token))?;
+        self.send_command_to_daemon(DaemonCommand::GetAccountData(tx, account_number))?;
         let result = self.wait_for_result(rx).await?;
         result
             .map(|account_data| Response::new(types::AccountData::from(account_data)))
@@ -481,7 +481,7 @@ impl ManagementService for ManagementServiceImpl {
         self.send_command_to_daemon(DaemonCommand::GetAccountHistory(tx))?;
         self.wait_for_result(rx)
             .await
-            .map(|history| Response::new(types::AccountHistory { token: history }))
+            .map(|history| Response::new(types::AccountHistory { number: history }))
     }
 
     async fn clear_account_history(&self, _: Request<()>) -> ServiceResult<()> {
@@ -543,7 +543,7 @@ impl ManagementService for ManagementServiceImpl {
 
     async fn list_devices(
         &self,
-        request: Request<AccountToken>,
+        request: Request<AccountNumber>,
     ) -> ServiceResult<types::DeviceList> {
         log::debug!("list_devices");
         let (tx, rx) = oneshot::channel();
@@ -559,7 +559,7 @@ impl ManagementService for ManagementServiceImpl {
         let removal = request.into_inner();
         self.send_command_to_daemon(DaemonCommand::RemoveDevice(
             tx,
-            removal.account_token,
+            removal.account_number,
             removal.device_id,
         ))?;
         self.wait_for_result(rx).await?.map_err(map_daemon_error)?;
@@ -1294,7 +1294,7 @@ fn map_daemon_error(error: crate::Error) -> Status {
         #[cfg(any(target_os = "windows", target_os = "macos"))]
         DaemonError::SplitTunnelError(error) => map_split_tunnel_error(error),
         DaemonError::AccountHistory(error) => map_account_history_error(error),
-        DaemonError::NoAccountToken | DaemonError::NoAccountTokenHistory => {
+        DaemonError::NoAccountNumber | DaemonError::NoAccountNumberHistory => {
             Status::unauthenticated(error.to_string())
         }
         DaemonError::VersionCheckError(error) => map_version_check_error(error),

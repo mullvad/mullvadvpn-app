@@ -2,7 +2,7 @@ use chrono::{offset::Utc, DateTime};
 use serde::{Deserialize, Serialize};
 
 /// Account identifier used for authentication.
-pub type AccountToken = String;
+pub type AccountNumber = String;
 
 /// Temporary authorization token derived from a Mullvad account.
 pub type AccessToken = String;

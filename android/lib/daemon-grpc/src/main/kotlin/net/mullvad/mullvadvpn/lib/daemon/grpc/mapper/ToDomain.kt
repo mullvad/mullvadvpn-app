@@ -524,7 +524,7 @@ internal fun ManagementInterface.Device.toDomain(): Device =
 internal fun ManagementInterface.DeviceState.toDomain(): DeviceState =
     when (state) {
         ManagementInterface.DeviceState.State.LOGGED_IN ->
-            DeviceState.LoggedIn(AccountNumber(device.accountToken), device.device.toDomain())
+            DeviceState.LoggedIn(AccountNumber(device.accountNumber), device.device.toDomain())
         ManagementInterface.DeviceState.State.LOGGED_OUT -> DeviceState.LoggedOut
         ManagementInterface.DeviceState.State.REVOKED -> DeviceState.Revoked
         ManagementInterface.DeviceState.State.UNRECOGNIZED ->

@@ -16,7 +16,7 @@ use hyper::{
     header::{self, HeaderValue},
     Method, Uri,
 };
-use mullvad_types::account::AccountToken;
+use mullvad_types::account::AccountNumber;
 use std::{
     borrow::Cow,
     error::Error as StdError,
@@ -65,7 +65,7 @@ pub enum Error {
     #[error("Not a valid URI")]
     InvalidUri,
 
-    #[error("Set account token on factory with no access token store")]
+    #[error("Set account number on factory with no access token store")]
     NoAccessTokenStore,
 }
 
@@ -271,7 +271,7 @@ pub struct Request {
     request: hyper::Request<hyper::Body>,
     timeout: Duration,
     access_token_store: Option<AccessTokenStore>,
-    account: Option<AccountToken>,
+    account: Option<AccountNumber>,
     expected_status: &'static [hyper::StatusCode],
 }
 
@@ -308,9 +308,9 @@ impl Request {
         }
     }
 
-    /// Set the account token to obtain authentication for.
+    /// Set the account number to obtain authentication for.
     /// This fails if no store is set.
-    pub fn account(mut self, account: AccountToken) -> Result<Self> {
+    pub fn account(mut self, account: AccountNumber) -> Result<Self> {
         if self.access_token_store.is_none() {
             return Err(Error::NoAccessTokenStore);
         }

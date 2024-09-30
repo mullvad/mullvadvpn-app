@@ -4,7 +4,7 @@ import { ILinuxSplitTunnelingApplication, ISplitTunnelingApplication } from './a
 import {
   AccessMethodSetting,
   AccountDataError,
-  AccountToken,
+  AccountNumber,
   BridgeSettings,
   BridgeState,
   CustomListError,
@@ -59,7 +59,7 @@ export interface IAppStateSnapshot {
   isConnected: boolean;
   autoStart: boolean;
   accountData?: IAccountData;
-  accountHistory?: AccountToken;
+  accountHistory?: AccountNumber;
   tunnelState: TunnelState;
   settings: ISettings;
   isPerformingPostUpgrade: boolean;
@@ -214,16 +214,16 @@ export const ipcSchema = {
     device: notifyRenderer<DeviceEvent>(),
     devices: notifyRenderer<Array<IDevice>>(),
     create: invoke<void, string>(),
-    login: invoke<AccountToken, AccountDataError | undefined>(),
+    login: invoke<AccountNumber, AccountDataError | undefined>(),
     logout: invoke<void, void>(),
     getWwwAuthToken: invoke<void, string>(),
     submitVoucher: invoke<string, VoucherResponse>(),
     updateData: send<void>(),
-    listDevices: invoke<AccountToken, Array<IDevice>>(),
+    listDevices: invoke<AccountNumber, Array<IDevice>>(),
     removeDevice: invoke<IDeviceRemoval, void>(),
   },
   accountHistory: {
-    '': notifyRenderer<AccountToken | undefined>(),
+    '': notifyRenderer<AccountNumber | undefined>(),
     clear: invoke<void, void>(),
   },
   autoStart: {

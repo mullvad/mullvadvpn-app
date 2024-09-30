@@ -166,4 +166,4 @@ cargo run --bin test-manager run-tests --vm macos-ventura \
 
 ## Note on `scripts/ci-runtests.sh`
 
-`scripts/ci-runtests.sh` is the script that GitHub actions uses to invokes the `test-manager`, with similar functionality as `test-by-version.sh`. Note that account tokens are read (newline-delimited) from the path specified by the environment variable `ACCOUNT_TOKENS`. Round robin is used to select an account for each VM.
+`scripts/ci-runtests.sh` is the script that GitHub actions uses to invokes the `test-manager`, with similar functionality as `test-by-version.sh`. Note that account numbers are read (newline-delimited) from the path specified by the environment variable `ACCOUNT_TOKENS`. Round robin is used to select an account for each VM.

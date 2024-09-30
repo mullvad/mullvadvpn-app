@@ -17,7 +17,7 @@ use mullvad_types::{
 #[cfg(not(target_os = "android"))]
 use mullvad_types::{
     access_method::{self, AccessMethod},
-    account::{AccountData, AccountToken, VoucherSubmission},
+    account::{AccountData, AccountNumber, VoucherSubmission},
     custom_list::{CustomList, Id},
     device::{Device, DeviceId, DeviceState},
     features::FeatureIndicators,
@@ -426,7 +426,7 @@ impl MullvadProxyClient {
         Ok(())
     }
 
-    pub async fn create_new_account(&mut self) -> Result<AccountToken> {
+    pub async fn create_new_account(&mut self) -> Result<AccountNumber> {
         Ok(self
             .0
             .create_new_account(())
@@ -435,7 +435,7 @@ impl MullvadProxyClient {
             .into_inner())
     }
 
-    pub async fn login_account(&mut self, account: AccountToken) -> Result<()> {
+    pub async fn login_account(&mut self, account: AccountNumber) -> Result<()> {
         self.0
             .login_account(account)
             .await
@@ -448,7 +448,7 @@ impl MullvadProxyClient {
         Ok(())
     }
 
-    pub async fn get_account_data(&mut self, account: AccountToken) -> Result<AccountData> {
+    pub async fn get_account_data(&mut self, account: AccountNumber) -> Result<AccountData> {
         let data = self
             .0
             .get_account_data(account)
@@ -458,14 +458,14 @@ impl MullvadProxyClient {
         AccountData::try_from(data).map_err(Error::InvalidResponse)
     }
 
-    pub async fn get_account_history(&mut self) -> Result<Option<AccountToken>> {
+    pub async fn get_account_history(&mut self) -> Result<Option<AccountNumber>> {
         let history = self
             .0
             .get_account_history(())
             .await
             .map_err(Error::Rpc)?
             .into_inner();
-        Ok(history.token)
+        Ok(history.number)
     }
 
     pub async fn clear_account_history(&mut self) -> Result<()> {
@@ -504,7 +504,7 @@ impl MullvadProxyClient {
         Ok(())
     }
 
-    pub async fn list_devices(&mut self, account: AccountToken) -> Result<Vec<Device>> {
+    pub async fn list_devices(&mut self, account: AccountNumber) -> Result<Vec<Device>> {
         let list = self
             .0
             .list_devices(account)
@@ -519,12 +519,12 @@ impl MullvadProxyClient {
 
     pub async fn remove_device(
         &mut self,
-        account: AccountToken,
+        account: AccountNumber,
         device_id: DeviceId,
     ) -> Result<()> {
         self.0
             .remove_device(types::DeviceRemoval {
-                account_token: account,
+                account_number: account,
                 device_id,
             })
             .await

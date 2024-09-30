@@ -536,7 +536,7 @@ mod test {
     #[test]
     fn test_deserialization() {
         let settings = br#"{
-              "account_token": "0000000000000000",
+              "account_number": "0000000000000000",
               "relay_settings": {
                 "normal": {
                   "location": {
