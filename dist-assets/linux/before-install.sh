@@ -12,9 +12,5 @@ if which systemctl &> /dev/null && systemctl is-system-running | grep -vq offlin
     fi
 fi
 
-# This can be removed when 2022.4 is unsupported. That version is the last version where
-# before-remove.sh doesn't kill the GUI on upgrade.
-pkill -x "mullvad-gui" || true
-
 rm -f /var/cache/mullvad-vpn/relays.json
 rm -f /var/cache/mullvad-vpn/api-ip-address.txt
