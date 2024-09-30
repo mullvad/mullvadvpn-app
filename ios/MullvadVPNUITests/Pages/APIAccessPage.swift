@@ -23,6 +23,10 @@ class APIAccessPage: Page {
     }
 
     func getAccessMethodCells() -> [XCUIElement] {
-        return app.otherElements[AccessibilityIdentifier.apiAccessView].cells.allElementsBoundByIndex
+        app.otherElements[AccessibilityIdentifier.apiAccessView].cells.allElementsBoundByIndex
+    }
+
+    func getAccessMethodCell(accessibilityId: AccessibilityIdentifier) -> XCUIElement {
+        app.otherElements[AccessibilityIdentifier.apiAccessView].cells[accessibilityId]
     }
 }
