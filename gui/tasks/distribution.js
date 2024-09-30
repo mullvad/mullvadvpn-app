@@ -135,7 +135,7 @@ const config = {
         arch: getWindowsTargetArch(),
       },
     ],
-    artifactName: 'MullvadVPN-${version}_${arch}.${ext}',
+    artifactName: getWindowsArtifactName(),
     publisherName: 'Mullvad VPN AB',
     extraResources: [
       { from: distAssets(path.join(getWindowsDistSubdir(), 'mullvad.exe')), to: '.' },
@@ -462,6 +462,13 @@ function getWindowsTargetArch() {
   }
   // Use host architecture (we assume this is x64 since building on Arm64 isn't supported).
   return 'x64';
+}
+
+function getWindowsArtifactName() {
+  if (targets === 'aarch64-pc-windows-msvc') {
+    return 'MullvadVPN-${version}_${arch}.${ext}';
+  }
+  return 'MullvadVPN-${version}.${ext}';
 }
 
 function getWindowsTargetSubdir() {
