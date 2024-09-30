@@ -6,21 +6,27 @@ import android.net.ConnectivityManager.NetworkCallback
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
+import java.net.Inet4Address
+import java.net.Inet6Address
 import kotlin.properties.Delegates.observable
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.update
+import net.mullvad.mullvadvpn.lib.model.NetworkInfo
 
 class ConnectivityListener {
-    private val availableNetworks = HashSet<Network>()
+    private val availableNetworks = MutableStateFlow(emptySet<Network>())
 
     private val callback =
         object : NetworkCallback() {
             override fun onAvailable(network: Network) {
-                availableNetworks.add(network)
+                availableNetworks.update { it + network }
                 isConnected = true
             }
 
             override fun onLost(network: Network) {
-                availableNetworks.remove(network)
-                isConnected = availableNetworks.isNotEmpty()
+                availableNetworks.update { it - network }
+                isConnected = availableNetworks.value.isNotEmpty()
             }
         }
 
@@ -37,6 +43,18 @@ class ConnectivityListener {
         }
 
     var senderAddress = 0L
+
+    val ipAvailability =
+        availableNetworks.map { network ->
+            network.map {
+                val addresses =
+                    connectivityManager.getLinkProperties(it)?.linkAddresses ?: emptyList()
+                NetworkInfo(
+                    hasIpV4 = addresses.any { it.address is Inet4Address },
+                    hasIpV6 = addresses.any { it.address is Inet6Address },
+                )
+            }
+        }
 
     fun register(context: Context) {
         val request =

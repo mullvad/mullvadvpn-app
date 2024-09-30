@@ -6,6 +6,7 @@ import android.content.Intent
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
+import android.util.Log
 import androidx.core.content.getSystemService
 import androidx.lifecycle.lifecycleScope
 import arrow.atomic.AtomicInt
@@ -99,6 +100,16 @@ class MullvadVpnService : TalpidVpnService() {
                 .filterIsInstance<TunnelState.Error>()
                 .filter { !it.errorState.isBlocking }
                 .collect { foregroundNotificationHandler.stopForeground() }
+        }
+
+        lifecycleScope.launch {
+            connectivityListener.ipAvailability.collect { networks ->
+                Log.d("Update ip availability", "Networks: $networks")
+                managementService.updateNetworkAvailability(
+                    hasIpV4 = networks.any { it.hasIpV4 },
+                    hasIpV6 = networks.any { it.hasIpV6 },
+                )
+            }
         }
     }
 
