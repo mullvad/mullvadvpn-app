@@ -2,7 +2,7 @@ use anyhow::{anyhow, Result};
 use clap::Subcommand;
 use itertools::Itertools;
 use mullvad_management_interface::MullvadProxyClient;
-use mullvad_types::{account::AccountToken, device::DeviceState};
+use mullvad_types::{account::AccountNumber, device::DeviceState};
 use std::io::{self, Write};
 
 const NOT_LOGGED_IN_MESSAGE: &str = "Not logged in on any account";
@@ -15,7 +15,7 @@ pub enum Account {
 
     /// Log in on an account
     Login {
-        /// The Mullvad account token to configure the client with
+        /// The Mullvad account number to configure the client with
         account: Option<String>,
     },
 
@@ -87,9 +87,9 @@ impl Account {
         Self::get(rpc, false).await
     }
 
-    async fn login(rpc: &mut MullvadProxyClient, token: AccountToken) -> Result<()> {
-        rpc.login_account(token.clone()).await?;
-        println!("Mullvad account \"{token}\" set");
+    async fn login(rpc: &mut MullvadProxyClient, number: AccountNumber) -> Result<()> {
+        rpc.login_account(number.clone()).await?;
+        println!("Mullvad account \"{number}\" set");
         Ok(())
     }
 
@@ -106,9 +106,9 @@ impl Account {
 
         match state {
             DeviceState::LoggedIn(device) => {
-                println!("{:<20}{}", "Mullvad account:", device.account_token);
+                println!("{:<20}{}", "Mullvad account:", device.account_number);
 
-                let data = rpc.get_account_data(device.account_token).await?;
+                let data = rpc.get_account_data(device.account_number).await?;
                 println!(
                     "{:<20}{}",
                     "Expires at:",
@@ -130,8 +130,8 @@ impl Account {
             }
             DeviceState::Revoked => {
                 println!("{REVOKED_MESSAGE}");
-                if let Some(account_token) = rpc.get_account_history().await? {
-                    println!("Mullvad account: {}", account_token);
+                if let Some(account_number) = rpc.get_account_history().await? {
+                    println!("Mullvad account: {}", account_number);
                 }
             }
         }
@@ -213,7 +213,7 @@ async fn account_else_current(
         None => {
             let state = rpc.get_device().await?;
             match state {
-                DeviceState::LoggedIn(account) => Ok(account.account_token),
+                DeviceState::LoggedIn(account) => Ok(account.account_number),
                 _ => Err(anyhow!("Log in or specify an account")),
             }
         }

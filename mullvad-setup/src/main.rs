@@ -162,7 +162,7 @@ async fn remove_device() -> Result<(), Error> {
         );
 
         let device_removal = retry_future(
-            move || proxy.remove(device.account_token.clone(), device.device.id.clone()),
+            move || proxy.remove(device.account_number.clone(), device.device.id.clone()),
             move |result| match result {
                 Err(error) => error.is_network_error(),
                 _ => false,

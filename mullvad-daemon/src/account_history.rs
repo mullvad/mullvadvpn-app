@@ -1,4 +1,4 @@
-use mullvad_types::account::AccountToken;
+use mullvad_types::account::AccountNumber;
 use regex::Regex;
 use std::{path::Path, sync::LazyLock};
 use talpid_types::ErrorExt;
@@ -28,7 +28,7 @@ static ACCOUNT_HISTORY_FILE: &str = "account-history.json";
 
 pub struct AccountHistory {
     file: io::BufWriter<fs::File>,
-    token: Option<AccountToken>,
+    token: Option<AccountNumber>,
 }
 
 static ACCOUNT_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^[0-9]+$").unwrap());
@@ -36,7 +36,7 @@ static ACCOUNT_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^[0-9]+$")
 impl AccountHistory {
     pub async fn new(
         settings_dir: &Path,
-        current_token: Option<AccountToken>,
+        current_token: Option<AccountNumber>,
     ) -> Result<AccountHistory> {
         let mut options = fs::OpenOptions::new();
         #[cfg(unix)]
@@ -61,7 +61,7 @@ impl AccountHistory {
             .map_err(Error::Read)?;
 
         let mut buffer = String::new();
-        let (token, should_save): (Option<AccountToken>, bool) =
+        let (token, should_save): (Option<AccountNumber>, bool) =
             match reader.read_to_string(&mut buffer).await {
                 Ok(_) if ACCOUNT_REGEX.is_match(&buffer) => (Some(buffer), false),
                 Ok(0) => (current_token, true),
@@ -84,13 +84,13 @@ impl AccountHistory {
         Ok(history)
     }
 
-    /// Gets the account token in the history
-    pub fn get(&self) -> Option<AccountToken> {
+    /// Gets the account number in the history
+    pub fn get(&self) -> Option<AccountNumber> {
         self.token.clone()
     }
 
-    /// Replace the account token in the history
-    pub async fn set(&mut self, new_entry: AccountToken) -> Result<()> {
+    /// Replace the account number in the history
+    pub async fn set(&mut self, new_entry: AccountNumber) -> Result<()> {
         self.token = Some(new_entry);
         self.save_to_disk().await
     }

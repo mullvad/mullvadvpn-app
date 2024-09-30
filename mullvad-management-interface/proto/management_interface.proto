@@ -713,7 +713,7 @@ message PortRange {
 }
 
 message AccountAndDevice {
-  string account_token = 1;
+  string account_number = 1;
   Device device = 2;
 }
 
@@ -728,7 +728,7 @@ message Device {
 message DeviceList { repeated Device devices = 1; }
 
 message DeviceRemoval {
-  string account_token = 1;
+  string account_number = 1;
   string device_id = 2;
 }
 
@@ -755,7 +755,7 @@ message DeviceEvent {
 }
 
 message RemoveDeviceEvent {
-  string account_token = 1;
+  string account_number = 1;
   repeated Device new_device_list = 2;
 }
 

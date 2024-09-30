@@ -49,7 +49,7 @@ use mullvad_types::settings::SplitApp;
 use mullvad_types::wireguard::DaitaSettings;
 use mullvad_types::{
     access_method::{AccessMethod, AccessMethodSetting},
-    account::{AccountData, AccountToken, VoucherSubmission},
+    account::{AccountData, AccountNumber, VoucherSubmission},
     auth_failed::AuthFailed,
     custom_list::CustomList,
     device::{Device, DeviceEvent, DeviceEventCause, DeviceId, DeviceState, RemoveDeviceEvent},
@@ -159,11 +159,11 @@ pub enum Error {
     #[error("An account is already set")]
     AlreadyLoggedIn,
 
-    #[error("No account token is set")]
-    NoAccountToken,
+    #[error("No account number is set")]
+    NoAccountNumber,
 
     #[error("No account history available for the token")]
-    NoAccountTokenHistory,
+    NoAccountNumberHistory,
 
     #[error("Settings error")]
     SettingsError(#[source] settings::Error),
@@ -215,14 +215,14 @@ pub enum DaemonCommand {
     /// Request the metadata for an account.
     GetAccountData(
         ResponseTx<AccountData, mullvad_api::rest::Error>,
-        AccountToken,
+        AccountNumber,
     ),
     /// Request www auth token for an account
     GetWwwAuthToken(ResponseTx<String, Error>),
     /// Submit voucher to add time to the current account. Returns time added in seconds
     SubmitVoucher(ResponseTx<VoucherSubmission, Error>, String),
     /// Request account history
-    GetAccountHistory(oneshot::Sender<Option<AccountToken>>),
+    GetAccountHistory(oneshot::Sender<Option<AccountNumber>>),
     /// Remove the last used account, if there is one
     ClearAccountHistory(ResponseTx<(), Error>),
     /// Get the list of countries and cities where there are relays.
@@ -231,17 +231,17 @@ pub enum DaemonCommand {
     /// updated.
     UpdateRelayLocations,
     /// Log in with a given account and create a new device.
-    LoginAccount(ResponseTx<(), Error>, AccountToken),
+    LoginAccount(ResponseTx<(), Error>, AccountNumber),
     /// Log out of the current account and remove the device, if they exist.
     LogoutAccount(ResponseTx<(), Error>),
     /// Return the current device configuration.
     GetDevice(ResponseTx<DeviceState, Error>),
     /// Update/check the current device, if there is one.
     UpdateDevice(ResponseTx<(), Error>),
-    /// Return all the devices for a given account token.
-    ListDevices(ResponseTx<Vec<Device>, Error>, AccountToken),
+    /// Return all the devices for a given account number.
+    ListDevices(ResponseTx<Vec<Device>, Error>, AccountNumber),
     /// Remove device from a given account.
-    RemoveDevice(ResponseTx<(), Error>, AccountToken, DeviceId),
+    RemoveDevice(ResponseTx<(), Error>, AccountNumber, DeviceId),
     /// Place constraints on the type of tunnel and relay
     SetRelaySettings(ResponseTx<(), settings::Error>, RelaySettings),
     /// Set the allow LAN setting.
@@ -705,7 +705,7 @@ impl Daemon {
 
         let account_history = account_history::AccountHistory::new(
             &settings_dir,
-            data.device().map(|device| device.account_token.clone()),
+            data.device().map(|device| device.account_number.clone()),
         )
         .await
         .map_err(Error::LoadAccountHistory)?;
@@ -1230,18 +1230,18 @@ impl Daemon {
             Reconnect(tx) => self.on_reconnect(tx),
             GetState(tx) => self.on_get_state(tx),
             CreateNewAccount(tx) => self.on_create_new_account(tx),
-            GetAccountData(tx, account_token) => self.on_get_account_data(tx, account_token),
+            GetAccountData(tx, account_number) => self.on_get_account_data(tx, account_number),
             GetWwwAuthToken(tx) => self.on_get_www_auth_token(tx).await,
             SubmitVoucher(tx, voucher) => self.on_submit_voucher(tx, voucher),
             GetRelayLocations(tx) => self.on_get_relay_locations(tx),
             UpdateRelayLocations => self.on_update_relay_locations().await,
-            LoginAccount(tx, account_token) => self.on_login_account(tx, account_token),
+            LoginAccount(tx, account_number) => self.on_login_account(tx, account_number),
             LogoutAccount(tx) => self.on_logout_account(tx),
             GetDevice(tx) => self.on_get_device(tx),
             UpdateDevice(tx) => self.on_update_device(tx),
-            ListDevices(tx, account_token) => self.on_list_devices(tx, account_token),
-            RemoveDevice(tx, account_token, device_id) => {
-                self.on_remove_device(tx, account_token, device_id)
+            ListDevices(tx, account_number) => self.on_list_devices(tx, account_number),
+            RemoveDevice(tx, account_number, device_id) => {
+                self.on_remove_device(tx, account_number, device_id)
             }
             GetAccountHistory(tx) => self.on_get_account_history(tx),
             ClearAccountHistory(tx) => self.on_clear_account_history(tx).await,
@@ -1355,19 +1355,23 @@ impl Daemon {
     async fn handle_device_event(&mut self, event: AccountEvent) {
         match &event {
             AccountEvent::Device(PrivateDeviceEvent::Login(device)) => {
-                if let Err(error) = self.account_history.set(device.account_token.clone()).await {
+                if let Err(error) = self
+                    .account_history
+                    .set(device.account_number.clone())
+                    .await
+                {
                     log::error!(
                         "{}",
                         error.display_chain_with_msg("Failed to update account history")
                     );
                 }
                 if *self.target_state == TargetState::Secured {
-                    log::debug!("Initiating tunnel restart because the account token changed");
+                    log::debug!("Initiating tunnel restart because the account number changed");
                     self.reconnect_tunnel();
                 }
             }
             AccountEvent::Device(PrivateDeviceEvent::Logout) => {
-                log::info!("Disconnecting because account token was cleared");
+                log::info!("Disconnecting because account number was cleared");
                 self.set_target_state(TargetState::Unsecured).await;
             }
             AccountEvent::Device(PrivateDeviceEvent::Revoked) => {
@@ -1564,11 +1568,11 @@ impl Daemon {
     fn on_get_account_data(
         &mut self,
         tx: ResponseTx<AccountData, mullvad_api::rest::Error>,
-        account_token: AccountToken,
+        account_number: AccountNumber,
     ) {
         let account = self.account_manager.account_service.clone();
         tokio::spawn(async move {
-            let result = account.get_data(account_token).await;
+            let result = account.get_data(account_number).await;
             Self::oneshot_send(tx, result, "account data");
         });
     }
@@ -1578,7 +1582,7 @@ impl Daemon {
             let future = self
                 .account_manager
                 .account_service
-                .get_www_auth_token(device.account_token);
+                .get_www_auth_token(device.account_number);
             tokio::spawn(async {
                 Self::oneshot_send(
                     tx,
@@ -1589,7 +1593,7 @@ impl Daemon {
         } else {
             Self::oneshot_send(
                 tx,
-                Err(Error::NoAccountToken),
+                Err(Error::NoAccountNumber),
                 "get_www_auth_token response",
             );
         }
@@ -1617,13 +1621,13 @@ impl Daemon {
         self.relay_list_updater.update().await;
     }
 
-    fn on_login_account(&mut self, tx: ResponseTx<(), Error>, account_token: String) {
+    fn on_login_account(&mut self, tx: ResponseTx<(), Error>, account_number: String) {
         let account_manager = self.account_manager.clone();
         let availability = self.api_runtime.availability_handle();
         tokio::spawn(async move {
             let result = async {
                 account_manager
-                    .login(account_token)
+                    .login(account_number)
                     .await
                     .map_err(|error| {
                         log::error!("{}", error.display_chain_with_msg("Login failed"));
@@ -1659,7 +1663,7 @@ impl Daemon {
                 account_manager
                     .data()
                     .await
-                    .map_err(|_| Error::NoAccountToken)
+                    .map_err(|_| Error::NoAccountNumber)
                     .map(DeviceState::from),
                 "get_device response",
             );
@@ -1681,7 +1685,7 @@ impl Daemon {
         });
     }
 
-    fn on_list_devices(&self, tx: ResponseTx<Vec<Device>, Error>, token: AccountToken) {
+    fn on_list_devices(&self, tx: ResponseTx<Vec<Device>, Error>, token: AccountNumber) {
         let service = self.account_manager.device_service.clone();
         tokio::spawn(async move {
             Self::oneshot_send(
@@ -1698,7 +1702,7 @@ impl Daemon {
     fn on_remove_device(
         &mut self,
         tx: ResponseTx<(), Error>,
-        account_token: AccountToken,
+        account_number: AccountNumber,
         device_id: DeviceId,
     ) {
         let device_service = self.account_manager.device_service.clone();
@@ -1706,13 +1710,13 @@ impl Daemon {
 
         tokio::spawn(async move {
             let result = device_service
-                .remove_device(account_token.clone(), device_id)
+                .remove_device(account_number.clone(), device_id)
                 .await
                 .map(move |new_devices| {
                     // FIXME: We should be able to get away with only returning the removed ID,
                     //        and not have to request the list from the API.
                     notifier.notify_remove_device_event(RemoveDeviceEvent {
-                        account_token,
+                        account_number,
                         new_devices,
                     });
                 });
@@ -1724,7 +1728,7 @@ impl Daemon {
         });
     }
 
-    fn on_get_account_history(&mut self, tx: oneshot::Sender<Option<AccountToken>>) {
+    fn on_get_account_history(&mut self, tx: oneshot::Sender<Option<AccountNumber>>) {
         Self::oneshot_send(
             tx,
             self.account_history.get(),
@@ -2596,7 +2600,7 @@ impl Daemon {
             if let Ok(Some(config)) = self.account_manager.data().await.map(|s| s.into_device()) {
                 Ok(Some(config.device.wg_data.get_public_key()))
             } else {
-                Err(Error::NoAccountToken)
+                Err(Error::NoAccountNumber)
             };
         Self::oneshot_send(tx, result, "get_wireguard_key response");
     }

@@ -61,7 +61,7 @@ impl TryFrom<proto::DeviceState> for mullvad_types::device::DeviceState {
 
                 Ok(mullvad_types::device::DeviceState::LoggedIn(
                     mullvad_types::device::AccountAndDevice {
-                        account_token: account.account_token,
+                        account_number: account.account_number,
                         device: mullvad_types::device::Device::try_from(device)?,
                     },
                 ))
@@ -79,7 +79,7 @@ impl From<mullvad_types::device::DeviceState> for proto::DeviceState {
         proto::DeviceState {
             state: proto::device_state::State::from(&state) as i32,
             device: state.logged_in().map(|client| proto::AccountAndDevice {
-                account_token: client.account_token,
+                account_number: client.account_number,
                 device: Some(proto::Device::from(client.device)),
             }),
         }
@@ -151,7 +151,7 @@ impl From<proto::device_event::Cause> for mullvad_types::device::DeviceEventCaus
 impl From<mullvad_types::device::RemoveDeviceEvent> for proto::RemoveDeviceEvent {
     fn from(event: mullvad_types::device::RemoveDeviceEvent) -> Self {
         proto::RemoveDeviceEvent {
-            account_token: event.account_token,
+            account_number: event.account_number,
             new_device_list: event
                 .new_devices
                 .into_iter()
@@ -171,7 +171,7 @@ impl TryFrom<proto::RemoveDeviceEvent> for mullvad_types::device::RemoveDeviceEv
             .map(mullvad_types::device::Device::try_from)
             .collect::<Result<Vec<_>, FromProtobufTypeError>>()?;
         Ok(mullvad_types::device::RemoveDeviceEvent {
-            account_token: event.account_token,
+            account_number: event.account_number,
             new_devices,
         })
     }
@@ -180,7 +180,7 @@ impl TryFrom<proto::RemoveDeviceEvent> for mullvad_types::device::RemoveDeviceEv
 impl From<mullvad_types::device::AccountAndDevice> for proto::AccountAndDevice {
     fn from(device: mullvad_types::device::AccountAndDevice) -> Self {
         proto::AccountAndDevice {
-            account_token: device.account_token,
+            account_number: device.account_number,
             device: Some(proto::Device::from(device.device)),
         }
     }
