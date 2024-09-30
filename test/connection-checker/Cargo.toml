@@ -15,6 +15,6 @@ clap = { workspace = true, features = ["derive"] }
 color-eyre = "0.6.2"
 eyre = "0.6.12"
 ping = "0.5.2"
-reqwest = { version = "0.11.24", default-features = false, features = ["blocking", "rustls-tls", "json"] }
+reqwest = { version = "0.12.7", default-features = false, features = ["blocking", "rustls-tls", "json"] }
 serde = { workspace = true, features = ["derive"] }
 socket2 = { version = "0.5.4", features = ["all"] }
