@@ -469,7 +469,7 @@ fun VpnSettingsScreen(
                         isUnreachableLocalDnsWarningVisible =
                             item.isLocal && !state.isLocalNetworkSharingEnabled,
                         onClick = { navigateToDns(index, item.address) },
-                        modifier = Modifier.animateItemPlacement(),
+                        modifier = Modifier.animateItem(),
                     )
                 }
 
