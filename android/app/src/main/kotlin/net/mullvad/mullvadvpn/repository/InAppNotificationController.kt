@@ -7,11 +7,11 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.lib.model.ErrorState
 import net.mullvad.mullvadvpn.ui.VersionInfo
-import net.mullvad.mullvadvpn.usecase.AccountExpiryNotificationUseCase
+import net.mullvad.mullvadvpn.usecase.AccountExpiryInAppNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.NewDeviceNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.TunnelStateNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.VersionNotificationUseCase
-import org.joda.time.DateTime
+import org.joda.time.Period
 
 enum class StatusLevel {
     Error,
@@ -38,7 +38,7 @@ sealed class InAppNotification {
         override val priority: Long = 999
     }
 
-    data class AccountExpiry(val expiry: DateTime) : InAppNotification() {
+    data class AccountExpiry(val expiry: Period) : InAppNotification() {
         override val statusLevel = StatusLevel.Warning
         override val priority: Long = 1001
     }
@@ -50,7 +50,7 @@ sealed class InAppNotification {
 }
 
 class InAppNotificationController(
-    accountExpiryNotificationUseCase: AccountExpiryNotificationUseCase,
+    accountExpiryInAppNotificationUseCase: AccountExpiryInAppNotificationUseCase,
     newDeviceNotificationUseCase: NewDeviceNotificationUseCase,
     versionNotificationUseCase: VersionNotificationUseCase,
     tunnelStateNotificationUseCase: TunnelStateNotificationUseCase,
@@ -61,7 +61,7 @@ class InAppNotificationController(
         combine(
                 tunnelStateNotificationUseCase(),
                 versionNotificationUseCase(),
-                accountExpiryNotificationUseCase(),
+                accountExpiryInAppNotificationUseCase(),
                 newDeviceNotificationUseCase(),
             ) { a, b, c, d ->
                 a + b + c + d

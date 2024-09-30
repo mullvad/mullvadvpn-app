@@ -39,7 +39,7 @@ private fun Notification.AccountExpiry.contentIntent(context: Context): PendingI
 
 private fun Resources.contentTitle(remainingTime: Duration): String =
     when {
-        remainingTime.isShorterThan(Duration.ZERO) -> {
+        remainingTime.isShorterThan(Duration.ZERO) || remainingTime == Duration.ZERO -> {
             getString(R.string.account_credit_has_expired)
         }
         remainingTime.standardDays >= 1 -> {
