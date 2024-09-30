@@ -32,6 +32,10 @@ Line wrap the file at 100 chars.                                              Th
 - Fix Apple services not working by forcing stray connections out through the VPN tunnel. This fix
   only applies to Wireguard, OpenVPN is still affected. The "bypass" toggle has been removed.
 
+### Changed
+- Move DAITA and multihop to the root settings view along with moving multihop into a dedicated
+  view with more information.
+
 
 ## [2024.6-beta1] - 2024-09-26
 ### Added
