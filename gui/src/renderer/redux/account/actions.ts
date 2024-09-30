@@ -1,14 +1,14 @@
 import { hasExpired } from '../../../shared/account-expiry';
-import { AccountDataError, AccountToken, IDevice } from '../../../shared/daemon-rpc-types';
+import { AccountDataError, AccountNumber, IDevice } from '../../../shared/daemon-rpc-types';
 
 interface IStartLoginAction {
   type: 'START_LOGIN';
-  accountToken: AccountToken;
+  accountNumber: AccountNumber;
 }
 
 interface ILoggedInAction {
   type: 'LOGGED_IN';
-  accountToken: AccountToken;
+  accountNumber: AccountNumber;
   deviceName?: string;
 }
 
@@ -44,7 +44,7 @@ interface ICreateAccountFailed {
 
 interface IAccountCreated {
   type: 'ACCOUNT_CREATED';
-  accountToken: AccountToken;
+  accountNumber: AccountNumber;
   deviceName?: string;
   expiry: string;
 }
@@ -57,14 +57,14 @@ interface IHideNewDeviceBanner {
   type: 'HIDE_NEW_DEVICE_BANNER';
 }
 
-interface IUpdateAccountTokenAction {
-  type: 'UPDATE_ACCOUNT_TOKEN';
-  accountToken: AccountToken;
+interface IUpdateAccountNumberAction {
+  type: 'UPDATE_ACCOUNT_NUMBER';
+  accountNumber: AccountNumber;
 }
 
 interface IUpdateAccountHistoryAction {
   type: 'UPDATE_ACCOUNT_HISTORY';
-  accountHistory?: AccountToken;
+  accountHistory?: AccountNumber;
 }
 
 interface IUpdateAccountExpiryAction {
@@ -91,22 +91,22 @@ export type AccountAction =
   | IAccountCreated
   | IAccountSetupFinished
   | IHideNewDeviceBanner
-  | IUpdateAccountTokenAction
+  | IUpdateAccountNumberAction
   | IUpdateAccountHistoryAction
   | IUpdateAccountExpiryAction
   | IUpdateDevicesAction;
 
-function startLogin(accountToken: AccountToken): IStartLoginAction {
+function startLogin(accountNumber: AccountNumber): IStartLoginAction {
   return {
     type: 'START_LOGIN',
-    accountToken,
+    accountNumber,
   };
 }
 
-function loggedIn(accountToken: AccountToken, device?: IDevice): ILoggedInAction {
+function loggedIn(accountNumber: AccountNumber, device?: IDevice): ILoggedInAction {
   return {
     type: 'LOGGED_IN',
-    accountToken,
+    accountNumber,
     deviceName: device?.name,
   };
 }
@@ -156,13 +156,13 @@ function createAccountFailed(error: Error): ICreateAccountFailed {
 }
 
 function accountCreated(
-  accountToken: AccountToken,
+  accountNumber: AccountNumber,
   device: IDevice | undefined,
   expiry: string,
 ): IAccountCreated {
   return {
     type: 'ACCOUNT_CREATED',
-    accountToken: accountToken,
+    accountNumber: accountNumber,
     deviceName: device?.name,
     expiry,
   };
@@ -176,14 +176,14 @@ function hideNewDeviceBanner(): IHideNewDeviceBanner {
   return { type: 'HIDE_NEW_DEVICE_BANNER' };
 }
 
-function updateAccountToken(accountToken: AccountToken): IUpdateAccountTokenAction {
+function updateAccountNumber(accountNumber: AccountNumber): IUpdateAccountNumberAction {
   return {
-    type: 'UPDATE_ACCOUNT_TOKEN',
-    accountToken,
+    type: 'UPDATE_ACCOUNT_NUMBER',
+    accountNumber,
   };
 }
 
-function updateAccountHistory(accountHistory?: AccountToken): IUpdateAccountHistoryAction {
+function updateAccountHistory(accountHistory?: AccountNumber): IUpdateAccountHistoryAction {
   return {
     type: 'UPDATE_ACCOUNT_HISTORY',
     accountHistory,
@@ -218,7 +218,7 @@ export default {
   accountCreated,
   accountSetupFinished,
   hideNewDeviceBanner,
-  updateAccountToken,
+  updateAccountNumber,
   updateAccountHistory,
   updateAccountExpiry,
   updateDevices,

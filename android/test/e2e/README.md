@@ -1,23 +1,23 @@
 # End-to-end (e2e) test module
 ## Overview
-The tests in this module are end-to-end tests that rely on the publicly accessible Mullvad infrastucture and APIs. It's therefore required to provide a valid account token (not expired) that can be used to login, connect etc. It's also required to provide an invalid account token which for example is used for negative tests of the login flow. The invalid account token should not exist in the Mullvad infrastucture, however it must be at least 9 characters for some tests to properly run due to input validation.
+The tests in this module are end-to-end tests that rely on the publicly accessible Mullvad infrastucture and APIs. It's therefore required to provide a valid account number (not expired) that can be used to login, connect etc. It's also required to provide an invalid account number which for example is used for negative tests of the login flow. The invalid account number should not exist in the Mullvad infrastucture, however it must be at least 9 characters for some tests to properly run due to input validation.
 
 ## How to run the tests
 ### Locally
-Set tokens in the below command and then execute the command in the `android` directory to run the tests on a local device:
+Set account numbers in the below command and then execute the command in the `android` directory to run the tests on a local device:
 ```
 ./gradlew :test:e2e:connectedDebugAndroidTest \
     -Pvalid_test_account_number=XXXX \
     -Pinvalid_test_account_number=XXXX
 ```
 
-For convenience, the tokens can also be set in `<REPO-ROOT>/android/local.properties` in the following way:
+For convenience, the numbers can also be set in `<REPO-ROOT>/android/local.properties` in the following way:
 ```
 valid_test_account_number=XXXX
 invalid_test_account_number=XXXX
 ```
 
-It's also possible to provide the tokens to the test runner during test execution. However note that this requires [the APKs to be installed manually](https://developer.android.com/training/testing/instrumented-tests/androidx-test-libraries/runner#architecture).
+It's also possible to provide the numbers to the test runner during test execution. However note that this requires [the APKs to be installed manually](https://developer.android.com/training/testing/instrumented-tests/androidx-test-libraries/runner#architecture).
 ```
 adb shell 'CLASSPATH=$(pm path androidx.test.services) app_process / \
     androidx.test.services.shellexecutor.ShellMain am instrument -w \
@@ -33,7 +33,7 @@ Firebase Test Lab can be used to run the tests on vast collection of physical an
 
 1. Setup the gcloud CLI by following the [official documentation](https://firebase.google.com/docs/test-lab/android/command-line).
 
-2. Set tokens in the below command and then execute the command in the `android` directory to run the tests (on a Pixel 5e):
+2. Set numbers in the below command and then execute the command in the `android` directory to run the tests (on a Pixel 5e):
 ```
 gcloud firebase test android run \
     --type instrumentation \

@@ -1008,7 +1008,7 @@ export function convertFromDeviceState(deviceState: grpcTypes.DeviceState): Devi
       return {
         type: 'logged in',
         accountAndDevice: {
-          accountToken: accountAndDevice.getAccountToken(),
+          accountNumber: accountAndDevice.getAccountNumber(),
           device: device && convertFromDevice(device),
         },
       };

@@ -14,9 +14,9 @@ import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGrou
 import * as Cell from './cell';
 import DeviceInfoButton from './DeviceInfoButton';
 import {
-  StyledAccountTokenContainer,
-  StyledAccountTokenLabel,
-  StyledAccountTokenMessage,
+  StyledAccountNumberContainer,
+  StyledAccountNumberLabel,
+  StyledAccountNumberMessage,
   StyledBody,
   StyledContainer,
   StyledCustomScrollbars,
@@ -113,12 +113,15 @@ function WelcomeView() {
       <StyledTitle data-testid="title">
         {messages.pgettext('connect-view', 'Congrats!')}
       </StyledTitle>
-      <StyledAccountTokenMessage>
+      <StyledAccountNumberMessage>
         {messages.pgettext('connect-view', 'Here’s your account number. Save it!')}
-        <StyledAccountTokenContainer>
-          <StyledAccountTokenLabel accountToken={account.accountToken || ''} obscureValue={false} />
-        </StyledAccountTokenContainer>
-      </StyledAccountTokenMessage>
+        <StyledAccountNumberContainer>
+          <StyledAccountNumberLabel
+            accountNumber={account.accountNumber || ''}
+            obscureValue={false}
+          />
+        </StyledAccountNumberContainer>
+      </StyledAccountNumberMessage>
 
       <StyledDeviceLabel>
         <span>

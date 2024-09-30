@@ -1,4 +1,4 @@
-use crate::account::AccountToken;
+use crate::account::AccountNumber;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use talpid_types::net::wireguard::PublicKey;
@@ -64,17 +64,18 @@ impl DeviceState {
     }
 }
 
-/// A [Device] and its associated account token.
+/// A [Device] and its associated account number.
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct AccountAndDevice {
-    pub account_token: AccountToken,
+    #[serde(alias = "account_token")]
+    pub account_number: AccountNumber,
     pub device: Device,
 }
 
 impl AccountAndDevice {
-    pub fn new(account_token: AccountToken, device: Device) -> Self {
+    pub fn new(account_number: AccountNumber, device: Device) -> Self {
         Self {
-            account_token,
+            account_number,
             device,
         }
     }
@@ -106,6 +107,6 @@ pub struct DeviceEvent {
 /// This is not sent by a normal logout or when it is revoked remotely.
 #[derive(Clone, Debug, Serialize)]
 pub struct RemoveDeviceEvent {
-    pub account_token: AccountToken,
+    pub account_number: AccountNumber,
     pub new_devices: Vec<Device>,
 }

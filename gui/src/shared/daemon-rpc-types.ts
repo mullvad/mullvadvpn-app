@@ -9,7 +9,7 @@ export type AccountDataError = {
 
 export type AccountDataResponse = ({ type: 'success' } & IAccountData) | AccountDataError;
 
-export type AccountToken = string;
+export type AccountNumber = string;
 export type Ip = string;
 export interface ILocation {
   ipv4?: string;
@@ -391,7 +391,7 @@ export interface IAppVersionInfo {
 }
 
 export interface IAccountAndDevice {
-  accountToken: AccountToken;
+  accountNumber: AccountNumber;
   device?: IDevice;
 }
 
@@ -411,7 +411,7 @@ export interface IDevice {
 }
 
 export interface IDeviceRemoval {
-  accountToken: string;
+  accountNumber: string;
   deviceId: string;
 }
 

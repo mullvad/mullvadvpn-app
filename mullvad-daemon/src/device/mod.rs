@@ -8,7 +8,7 @@ use mullvad_api::rest;
 #[cfg(target_os = "android")]
 use mullvad_types::account::{PlayPurchase, PlayPurchasePaymentToken};
 use mullvad_types::{
-    account::{AccountToken, VoucherSubmission},
+    account::{AccountNumber, VoucherSubmission},
     device::{
         AccountAndDevice, Device, DeviceEvent, DeviceEventCause, DeviceId, DeviceName, DeviceState,
     },
@@ -154,17 +154,18 @@ impl From<PrivateDeviceState> for DeviceState {
     }
 }
 
-/// Same as [PrivateDevice] but also contains the associated account token.
+/// Same as [PrivateDevice] but also contains the associated account number.
 #[derive(Debug, Clone, serde::Deserialize, serde::Serialize, PartialEq, Eq)]
 pub struct PrivateAccountAndDevice {
-    pub account_token: AccountToken,
+    #[serde(alias = "account_token")]
+    pub account_number: AccountNumber,
     pub device: PrivateDevice,
 }
 
 impl From<PrivateAccountAndDevice> for AccountAndDevice {
     fn from(config: PrivateAccountAndDevice) -> Self {
         AccountAndDevice {
-            account_token: config.account_token,
+            account_number: config.account_number,
             device: Device::from(config.device),
         }
     }
@@ -297,7 +298,7 @@ impl Error {
 type ResponseTx<T> = oneshot::Sender<Result<T, Error>>;
 
 enum AccountManagerCommand {
-    Login(AccountToken, ResponseTx<()>),
+    Login(AccountNumber, ResponseTx<()>),
     Logout(ResponseTx<()>),
     SetData(PrivateAccountAndDevice, ResponseTx<()>),
     GetData(ResponseTx<PrivateDeviceState>),
@@ -322,7 +323,7 @@ pub(crate) struct AccountManagerHandle {
 }
 
 impl AccountManagerHandle {
-    pub async fn login(&self, token: AccountToken) -> Result<(), Error> {
+    pub async fn login(&self, token: AccountNumber) -> Result<(), Error> {
         self.send_command(|tx| AccountManagerCommand::Login(token, tx))
             .await
     }
@@ -424,7 +425,7 @@ impl AccountManager {
         listener_tx: impl Sender<AccountEvent> + Send + 'static,
     ) -> Result<(AccountManagerHandle, PrivateDeviceState), Error> {
         let (cacher, data) = DeviceCacher::new(settings_dir).await?;
-        let token = data.device().map(|state| state.account_token.clone());
+        let token = data.device().map(|state| state.account_number.clone());
         let api_availability = rest_handle.availability.clone();
         let account_service =
             service::spawn_account_service(rest_handle.clone(), token, api_availability.clone());
@@ -477,9 +478,9 @@ impl AccountManager {
                             shutdown_tx = Some(tx);
                             break;
                         }
-                        Some(AccountManagerCommand::Login(token, tx)) => {
+                        Some(AccountManagerCommand::Login(number, tx)) => {
                             let job = self.device_service
-                                .generate_for_account(token);
+                                .generate_for_account(number);
                             current_api_call.set_login(Box::pin(job), tx);
                         }
                         Some(AccountManagerCommand::Logout(tx)) => {
@@ -599,9 +600,13 @@ impl AccountManager {
 
         let create_submission = move || {
             let old_config = self.data.device().ok_or(Error::NoDevice)?;
-            let account_token = old_config.account_token.clone();
+            let account_number = old_config.account_number.clone();
             let account_service = self.account_service.clone();
-            Ok(async move { account_service.submit_voucher(account_token, voucher).await })
+            Ok(async move {
+                account_service
+                    .submit_voucher(account_number, voucher)
+                    .await
+            })
         };
 
         match create_submission() {
@@ -627,9 +632,9 @@ impl AccountManager {
 
         let init_play_purchase_api_call = move || {
             let old_config = self.data.device().ok_or(Error::NoDevice)?;
-            let account_token = old_config.account_token.clone();
+            let account_number = old_config.account_number.clone();
             let account_service = self.account_service.clone();
-            Ok(async move { account_service.init_play_purchase(account_token).await })
+            Ok(async move { account_service.init_play_purchase(account_number).await })
         };
 
         match init_play_purchase_api_call() {
@@ -681,11 +686,11 @@ impl AccountManager {
 
         let play_purchase_verify_api_call = move || {
             let old_config = self.data.device().ok_or(Error::NoDevice)?;
-            let account_token = old_config.account_token.clone();
+            let account_number = old_config.account_number.clone();
             let account_service = self.account_service.clone();
             Ok(async move {
                 account_service
-                    .verify_play_purchase(account_token, play_purchase)
+                    .verify_play_purchase(account_number, play_purchase)
                     .await
             })
         };
@@ -847,7 +852,7 @@ impl AccountManager {
         if !self.rotation_requests.is_empty() || !self.validation_requests.is_empty() {
             if let Some(updated_config) = self.data.device() {
                 let device_service = self.device_service.clone();
-                let token = updated_config.account_token.clone();
+                let token = updated_config.account_number.clone();
                 let device_id = updated_config.device.id.clone();
                 api_call.set_oneshot_rotation(Box::pin(async move {
                     device_service.rotate_key(token, device_id).await
@@ -945,13 +950,13 @@ impl AccountManager {
         let key_rotation_timer = self.key_rotation_timer(config.device.wg_data.created);
 
         let device_service = self.device_service.clone();
-        let account_token = config.account_token.clone();
+        let account_number = config.account_number.clone();
         let device_id = config.device.id.clone();
 
         Some(async move {
             key_rotation_timer.await;
             device_service
-                .rotate_key_with_backoff(account_token, device_id)
+                .rotate_key_with_backoff(account_number, device_id)
                 .await
         })
     }
@@ -1015,7 +1020,7 @@ impl AccountManager {
 
         async move {
             if let Err(error) = service
-                .remove_device_with_backoff(data.account_token, data.device.id)
+                .remove_device_with_backoff(data.account_number, data.device.id)
                 .await
             {
                 log::error!(
@@ -1057,7 +1062,7 @@ impl AccountManager {
         let device_service = self.device_service.clone();
         Ok(async move {
             device_service
-                .rotate_key(data.account_token, data.device.id)
+                .rotate_key(data.account_number, data.device.id)
                 .await
         })
     }
@@ -1094,9 +1099,9 @@ impl AccountManager {
         old_config: &PrivateAccountAndDevice,
     ) -> impl Future<Output = Result<Device, Error>> {
         let device_service = self.device_service.clone();
-        let account_token = old_config.account_token.clone();
+        let account_number = old_config.account_number.clone();
         let device_id = old_config.device.id.clone();
-        async move { device_service.get(account_token, device_id).await }
+        async move { device_service.get(account_number, device_id).await }
     }
 
     fn validation_call(&self) -> Result<impl Future<Output = Result<Device, Error>>, Error> {
@@ -1108,11 +1113,11 @@ impl AccountManager {
         &self,
     ) -> Result<impl Future<Output = Result<chrono::DateTime<Utc>, Error>>, Error> {
         let old_config = self.data.device().ok_or(Error::NoDevice)?;
-        let account_token = old_config.account_token.clone();
+        let account_number = old_config.account_number.clone();
         let account_service = self.account_service.clone();
         Ok(async move {
             account_service
-                .get_data_2(account_token)
+                .get_data_2(account_number)
                 .await
                 .map(|data| data.expiry)
         })

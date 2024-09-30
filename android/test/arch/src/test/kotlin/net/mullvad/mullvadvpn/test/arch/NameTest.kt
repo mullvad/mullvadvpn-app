@@ -24,6 +24,6 @@ class NameTest {
 
     companion object {
         private val DISALLOWED_DECLARATION_OR_PARAMETER_NAMES =
-            listOf("accountToken", "AccountToken", "ACCOUNT_TOKEN")
+            listOf("accountNumber", "AccountNumber", "ACCOUNT_TOKEN")
     }
 }

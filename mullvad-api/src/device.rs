@@ -1,7 +1,7 @@
 use chrono::{DateTime, Utc};
 use http::StatusCode;
 use mullvad_types::{
-    account::AccountToken,
+    account::AccountNumber,
     device::{Device, DeviceId, DeviceName},
 };
 use std::future::Future;
@@ -34,7 +34,7 @@ impl DevicesProxy {
 
     pub fn create(
         &self,
-        account: AccountToken,
+        account: AccountNumber,
         pubkey: wireguard::PublicKey,
     ) -> impl Future<Output = Result<(Device, mullvad_types::wireguard::AssociatedAddresses), rest::Error>>
     {
@@ -87,7 +87,7 @@ impl DevicesProxy {
 
     pub fn get(
         &self,
-        account: AccountToken,
+        account: AccountNumber,
         id: DeviceId,
     ) -> impl Future<Output = Result<Device, rest::Error>> {
         let service = self.handle.service.clone();
@@ -103,7 +103,7 @@ impl DevicesProxy {
 
     pub fn list(
         &self,
-        account: AccountToken,
+        account: AccountNumber,
     ) -> impl Future<Output = Result<Vec<Device>, rest::Error>> {
         let service = self.handle.service.clone();
         let factory = self.handle.factory.clone();
@@ -118,7 +118,7 @@ impl DevicesProxy {
 
     pub fn remove(
         &self,
-        account: AccountToken,
+        account: AccountNumber,
         id: DeviceId,
     ) -> impl Future<Output = Result<(), rest::Error>> {
         let service = self.handle.service.clone();
@@ -135,7 +135,7 @@ impl DevicesProxy {
 
     pub fn replace_wg_key(
         &self,
-        account: AccountToken,
+        account: AccountNumber,
         id: DeviceId,
         pubkey: wireguard::PublicKey,
     ) -> impl Future<Output = Result<mullvad_types::wireguard::AssociatedAddresses, rest::Error>>
