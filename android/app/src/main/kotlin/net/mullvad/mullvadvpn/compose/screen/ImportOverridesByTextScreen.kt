@@ -55,7 +55,10 @@ fun ImportOverridesByTextScreen(onNavigateBack: () -> Unit, onImportClicked: (St
                 title = stringResource(R.string.import_overrides_text_title),
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(imageVector = Icons.Default.Close, contentDescription = null)
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = stringResource(id = R.string.close),
+                        )
                     }
                 },
                 actions = {

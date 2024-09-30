@@ -187,7 +187,7 @@ private fun Notification(notificationBannerData: NotificationData) {
                 Icon(
                     modifier = Modifier.padding(Dimens.notificationIconPadding),
                     imageVector = it.icon,
-                    contentDescription = null,
+                    contentDescription = it.contentDescription,
                     tint = MaterialTheme.colorScheme.onSurface,
                 )
             }

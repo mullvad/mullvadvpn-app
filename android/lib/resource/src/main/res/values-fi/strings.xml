@@ -64,6 +64,7 @@
     <string name="cancel">Peruuta</string>
     <string name="changes_dialog_subtitle">Muutokset tässä versiossa:</string>
     <string name="cipher">Salaus</string>
+    <string name="close">Sulje</string>
     <string name="confirm_local_dns">Paikallinen DNS-palvelin ei toimi, ellet ota paikallisen verkon jakamisasetusta käyttöön asetuksissa.</string>
     <string name="confirm_no_email">Olet aikeissa lähettää ongelmaraportin ilman yhteystietojasi. Mikäli haluat vastauksen raporttiisi, anna sähköpostosoite.</string>
     <string name="confirm_removal">Kyllä, kirjaa laite ulos</string>
@@ -193,6 +194,7 @@
     <string name="max_devices_resolved_title">Mahtavaa!</string>
     <string name="max_devices_warning_description">Kirjaudu ulos vähintään yhdestä luettelon laitteesta poistamalla se. Löydät vastaavan laitteen nimen laitteen tiliasetuksista.</string>
     <string name="max_devices_warning_title">Liikaa laitteita</string>
+    <string name="more_information">Lisätietoja</string>
     <string name="mullvad_account_number">Mullvad-tilin numero</string>
     <string name="mullvad_owned_only">Vain Mullvadin omistamat</string>
     <string name="name">Nimi</string>
@@ -213,6 +215,7 @@
     <string name="obfuscation_title">WireGuard-obfuskointi</string>
     <string name="off">Pois</string>
     <string name="on">Päällä</string>
+    <string name="open_url">Avaa URL</string>
     <string name="out_address">Lähtevä</string>
     <string name="out_of_time">Ei käyttöaikaa</string>
     <string name="overrides_cleared">Ohitukset on poistettu</string>
@@ -244,6 +247,7 @@
     <string name="quantum_resistant_info_first_paragaph">Tämä ominaisuus tekee WireGuard-tunnelista kestävän kvanttitietokoneiden mahdollisia hyökkäyksiä vastaan.</string>
     <string name="quantum_resistant_info_second_paragaph">Tunneli torjuu hyökkäykset suorittamalla ylimääräisen avaimenvaihdon käyttämällä ensin kvanttiturvallista algoritmia, jonka tuloksen se sekoittaa WireGuardin tavalliseen salaukseen. Tämä ylimääräinen vaihe käyttää noin 500 kiB liikennettä joka kerta, kun uusi tunneli luodaan.</string>
     <string name="quantum_resistant_title">Kvanttihyökkäyksiä kestävä tunneli</string>
+    <string name="reconnect">Yhdistä uudelleen</string>
     <string name="redeem">Lunasta</string>
     <string name="redeem_voucher">Lunasta kuponki</string>
     <string name="remove_button">Poista</string>

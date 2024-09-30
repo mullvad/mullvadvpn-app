@@ -37,6 +37,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Fixed
 - Fix VPN service being recreated multiple times when toggling certain options.
+- Fix unlabeled icon buttons for basic accessibility with screen readers.
 
 
 ## [android/2024.4] - 2024-09-03

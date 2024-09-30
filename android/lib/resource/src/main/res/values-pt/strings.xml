@@ -64,6 +64,7 @@
     <string name="cancel">Cancelar</string>
     <string name="changes_dialog_subtitle">Alterações nesta versão:</string>
     <string name="cipher">Cifra</string>
+    <string name="close">Fechar</string>
     <string name="confirm_local_dns">O servidor DNS local não funcionará exceto se ativar \"Partilha de rede local\" em Preferências.</string>
     <string name="confirm_no_email">Está prestes a enviar o relatório de problema sem que tenhamos uma forma de lhe responder. Se pretender uma resposta ao seu relatório, tem de introduzir um endereço de email.</string>
     <string name="confirm_removal">Sim, desligar o dispositivo</string>
@@ -193,6 +194,7 @@
     <string name="max_devices_resolved_title">Excelente!</string>
     <string name="max_devices_warning_description">Desligue-se de pelo menos um dos dispositivos removendo-o da lista abaixo. Pode encontrar o nome do dispositivo correspondente nas definições de Conta do dispositivo.</string>
     <string name="max_devices_warning_title">Demasiados dispositivos</string>
+    <string name="more_information">Mais informações</string>
     <string name="mullvad_account_number">Número de conta Mullvad</string>
     <string name="mullvad_owned_only">Apenas propriedade de Mullvad</string>
     <string name="name">Nome</string>
@@ -213,6 +215,7 @@
     <string name="obfuscation_title">Ofuscação WireGuard</string>
     <string name="off">Desligado</string>
     <string name="on">Ligado</string>
+    <string name="open_url">Abrir URL</string>
     <string name="out_address">Saída</string>
     <string name="out_of_time">Sem tempo</string>
     <string name="overrides_cleared">Substituições eliminadas</string>
@@ -244,6 +247,7 @@
     <string name="quantum_resistant_info_first_paragaph">Esta funcionalidade torna o túnel do WireGuard resistente a potenciais ataques de computadores quânticos.</string>
     <string name="quantum_resistant_info_second_paragaph">Fá-lo ao realizar uma troca de chaves adicional utilizando um algoritmo de segurança quântica e misturando o resultado na encriptação regular do WireGuard. Este passo adicional utiliza aproximadamente 500 kiB de tráfego sempre que um novo túnel é estabelecido.</string>
     <string name="quantum_resistant_title">Túnel com resistência quântica</string>
+    <string name="reconnect">Religar</string>
     <string name="redeem">Reclamar</string>
     <string name="redeem_voucher">Reclamar voucher</string>
     <string name="remove_button">Remover</string>

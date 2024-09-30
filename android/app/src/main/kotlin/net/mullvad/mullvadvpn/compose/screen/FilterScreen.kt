@@ -232,7 +232,7 @@ private fun TopBar(onBackClick: () -> Unit) {
         IconButton(onClick = onBackClick) {
             Icon(
                 imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                contentDescription = null,
+                contentDescription = stringResource(id = R.string.back),
                 tint = MaterialTheme.colorScheme.onSurface,
             )
         }
