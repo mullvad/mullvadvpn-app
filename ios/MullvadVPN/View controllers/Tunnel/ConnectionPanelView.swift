@@ -49,6 +49,9 @@ class ConnectionPanelView: UIView {
 
     private let collapseView: ConnectionPanelCollapseView = {
         let button = ConnectionPanelCollapseView()
+        button.axis = .horizontal
+        button.alignment = .top
+        button.distribution = .fill
         button.translatesAutoresizingMaskIntoConstraints = false
         button.tintColor = .white
         return button
@@ -294,19 +297,22 @@ class ConnectionPanelCollapseView: UIStackView {
     }()
 
     private(set) var imageView: UIImageView = {
-        return UIImageView()
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFit
+        return imageView
     }()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
 
-        let imageContainer = UIStackView()
-        imageContainer.axis = .vertical
-        imageContainer.addArrangedSubview(imageView)
-        imageContainer.addArrangedSubview(UIView()) // Pushes content up.
-
         addArrangedSubview(title)
-        addArrangedSubview(imageContainer)
+        addArrangedSubview(imageView)
+
+        title.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        title.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+
+        imageView.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+        imageView.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
         addArrangedSubview(UIView()) // Pushes content left.
 
         updateImage()
