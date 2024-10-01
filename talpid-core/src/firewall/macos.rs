@@ -98,6 +98,17 @@ impl Firewall {
         let remote_address = state.remote_address()?;
         let proto = state.proto()?;
 
+        if local_address.ip().is_loopback() || remote_address.ip().is_loopback() {
+            // Ignore connections to localhost
+            return Ok(false);
+        }
+
+        if [5353, 53].contains(&remote_address.port()) {
+            // Ignore DNS states. The local resolver takes care of everything,
+            // and PQ seems to timeout if these states are flushed
+            return Ok(false);
+        }
+
         let Some(peer) = policy.peer_endpoint().map(|endpoint| endpoint.endpoint) else {
             // If there's no peer, there's also no tunnel. We have no states to preserve
             return Ok(true);
