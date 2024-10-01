@@ -10,10 +10,9 @@ Rust should be installed via [rustup](https://rustup.rs). Once rust is
 installed, do not forget to install the iOS targets:
 
 ```bash
-rustup target install aarch64-apple-ios aarch64-apple-ios-sim x86_64-apple-ios
+rustup target install aarch64-apple-ios aarch64-apple-ios-sim
 ```
-Pick between the ARM or x86 simulator targets, selecting the one that matches
-the host system.
+You only need to install the ARM simulator target, which matches the current Apple Silicon architecture.
 
 Once both rust and go are installed, ensure they are available in your path.
 

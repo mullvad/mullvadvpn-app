@@ -51,24 +51,13 @@ fi
 
 for arch in $ARCHS; do
   case "$arch" in
-    x86_64)
-      if [ $IS_SIMULATOR -eq 0 ]; then
-        echo "Building for x86_64, but not a simulator build. What's going on?" >&2
-        exit 2
-      fi
-
-      # Intel iOS simulator
-      export CFLAGS_x86_64_apple_ios="-target x86_64-apple-ios"
-      "$HOME"/.cargo/bin/cargo build -p "$FFI_TARGET" --lib $RELFLAG --target x86_64-apple-ios ${FEATURE_FLAGS:+--features "$FEATURE_FLAGS"}
-      "$HOME"/.cargo/bin/cargo build -p "$FFI_TARGET" --lib --target x86_64-apple-ios ${FEATURE_FLAGS:+--features "$FEATURE_FLAGS"}
-      ;;
-
     arm64)
       if [ $IS_SIMULATOR -eq 0 ]; then
         # Hardware iOS targets
         "$HOME"/.cargo/bin/cargo build -p "$FFI_TARGET" --lib $RELFLAG --target aarch64-apple-ios ${FEATURE_FLAGS:+--features "$FEATURE_FLAGS"}
         "$HOME"/.cargo/bin/cargo build -p "$FFI_TARGET" --lib --target aarch64-apple-ios ${FEATURE_FLAGS:+--features "$FEATURE_FLAGS"}
       else
+        # iOS Simulator targets for arm64
         "$HOME"/.cargo/bin/cargo build -p "$FFI_TARGET" --lib $RELFLAG --target aarch64-apple-ios-sim ${FEATURE_FLAGS:+--features "$FEATURE_FLAGS"}
         "$HOME"/.cargo/bin/cargo build -p "$FFI_TARGET" --lib --target aarch64-apple-ios-sim ${FEATURE_FLAGS:+--features "$FEATURE_FLAGS"}
       fi
