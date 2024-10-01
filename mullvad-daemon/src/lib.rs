@@ -383,6 +383,13 @@ pub enum DaemonCommand {
     /// Set if we should leak traffic to Apple services.
     #[cfg(target_os = "macos")]
     SetAppleServicesBypass(ResponseTx<(), settings::Error>, bool),
+    /// Update the IPv4 and IPv6 connectivity status.
+    #[cfg(target_os = "android")]
+    UpdateNetworkAvailability(
+        ResponseTx<(), Error>,
+        bool, // IPv4
+        bool, // IPv6
+    ),
 }
 
 /// All events that can happen in the daemon. Sent from various threads and exposed interfaces.
@@ -1343,6 +1350,12 @@ impl Daemon {
             SetAppleServicesBypass(tx, enabled) => {
                 self.on_set_apple_services_bypass(tx, enabled).await
             }
+            #[cfg(target_os = "android")]
+            UpdateNetworkAvailability(
+                _tx,
+                _ipv4, // IPv4
+                _ipv6, // IPv6
+            ) => {}
         }
     }
 

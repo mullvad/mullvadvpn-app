@@ -101,16 +101,6 @@ class MullvadVpnService : TalpidVpnService() {
                 .filter { !it.errorState.isBlocking }
                 .collect { foregroundNotificationHandler.stopForeground() }
         }
-
-        lifecycleScope.launch {
-            connectivityListener.ipAvailability.collect { networks ->
-                Log.d("Update ip availability", "Networks: $networks")
-                managementService.updateNetworkAvailability(
-                    hasIpV4 = networks.any { it.hasIpV4 },
-                    hasIpV6 = networks.any { it.hasIpV6 },
-                )
-            }
-        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
