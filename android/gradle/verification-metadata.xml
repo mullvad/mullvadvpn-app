@@ -27,10 +27,6 @@
          <trust file=".*[.]pom" regex="true"/>
       </trusted-artifacts>
       <ignored-keys>
-         <ignored-key id="0CC641C3A62453AB390066C4A41F13C999945293" reason="Key couldn't be downloaded from any key server"/>
-         <ignored-key id="1BD97A6A154E7810EE0BC832E2F38302C8075E3D" reason="Key couldn't be downloaded from any key server"/>
-         <ignored-key id="28118C070CB22A0175A2E8D43D12CA2AC19F3181" reason="Key couldn't be downloaded from any key server"/>
-         <ignored-key id="8E3A02905A1AE67E7B0F9ACD3967D4EDA591B991" reason="Key couldn't be downloaded from any key server"/>
       </ignored-keys>
       <trusted-keys>
          <trusted-key id="04543577D6A9CC626239C50C7ECBD740FF06AEB5">
@@ -57,7 +53,12 @@
          <trusted-key id="1D85469D8559C2E1DF5F925131D2D79DF7E85DD3" group="org.jcommander" name="jcommander"/>
          <trusted-key id="1DBB44E80F61493D6369B5FB95C15058A5EDA4F1" group="com.google.gradle" name="osdetector-gradle-plugin"/>
          <trusted-key id="1DE48A38424721249780C6A8C7DFF5A8DBC5381C" group="io.arrow-kt"/>
-         <trusted-key id="20723A6399BC060154283B37CFAE163B64AC9189" group="org.jetbrains.compose.runtime"/>
+         <trusted-key id="20723A6399BC060154283B37CFAE163B64AC9189">
+            <trusting group="org.jetbrains.compose.annotation-internal"/>
+            <trusting group="org.jetbrains.compose.collection-internal"/>
+            <trusting group="org.jetbrains.compose.runtime"/>
+            <trusting group="^org[.]jetbrains[.]androidx($|([.].*))" regex="true"/>
+         </trusted-key>
          <trusted-key id="24D04176586361FDA94EE0315F7786DF73E61F56" group="com.google.devtools.ksp"/>
          <trusted-key id="259A55407DD6C00299E6607EFFDE55BE73A2D1ED">
             <trusting group="io.github.jeremylong"/>
@@ -122,6 +123,7 @@
          </trusted-key>
          <trusted-key id="7616EB882DAF57A11477AAF559A252FB1199D873" group="com.google.code.findbugs" name="jsr305"/>
          <trusted-key id="767ABE5902DC1603C4B2468A3B42B015E1C86D65" group="org.anarres.jdiagnostics" name="jdiagnostics"/>
+         <trusted-key id="7B121B76A7ED6CE6E60AD51784E913A8E3A748C0" group="org.bouncycastle"/>
          <trusted-key id="7E22D50A7EBD9D2CD269B2D4056ACA74D46000BF" group="io.netty"/>
          <trusted-key id="7F36E793AE3252E5D9E9B98FEE9E7DC9D92FC896" group="com.google.errorprone"/>
          <trusted-key id="839B8C32286C100BDB08F5522EB9468288817402" group="org.apache.commons"/>
@@ -155,11 +157,14 @@
             <trusting group="androidx.appcompat"/>
             <trusting group="androidx.collection"/>
             <trusting group="androidx.core"/>
+            <trusting group="androidx.databinding"/>
+            <trusting group="androidx.fragment"/>
             <trusting group="androidx.graphics"/>
             <trusting group="androidx.lifecycle"/>
             <trusting group="androidx.navigation"/>
             <trusting group="^androidx[.]compose($|([.].*))" regex="true"/>
             <trusting group="^androidx[.]test($|([.].*))" regex="true"/>
+            <trusting group="^com[.]android($|([.].*))" regex="true"/>
          </trusted-key>
          <trusted-key id="A6D6C97108B8585F91B158748671A8DF71296252" group="^com[.]squareup($|([.].*))" regex="true"/>
          <trusted-key id="A7892505CF1A58076453E52D7999BEFBA1039E8B" group="net.bytebuddy"/>
