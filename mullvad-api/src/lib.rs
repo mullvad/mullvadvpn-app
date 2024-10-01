@@ -1,7 +1,6 @@
 #![allow(rustdoc::private_intra_doc_links)]
 #[cfg(target_os = "android")]
 use futures::channel::mpsc;
-use hyper::Method;
 #[cfg(target_os = "android")]
 use mullvad_types::account::{PlayPurchase, PlayPurchasePaymentToken};
 use mullvad_types::{
@@ -710,7 +709,7 @@ impl AppVersionProxy {
         let service = self.handle.service.clone();
 
         let path = format!("{APP_URL_PREFIX}/releases/{platform}/{app_version}");
-        let request = self.handle.factory.request(&path, Method::GET);
+        let request = self.handle.factory.get(&path);
 
         async move {
             let request = request?
