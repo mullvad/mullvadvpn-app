@@ -1,0 +1,15 @@
+[package]
+name = "talpid-macos"
+description = "Abstractions for macOS"
+authors.workspace = true
+repository.workspace = true
+license.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[lints]
+workspace = true
+
+[target.'cfg(target_os="macos")'.dependencies]
+libc = "0.2"
+log = { workspace = true }

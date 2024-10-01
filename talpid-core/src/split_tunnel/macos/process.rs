@@ -6,18 +6,17 @@
 //! Endpoint Security framework.
 
 use futures::channel::oneshot;
-use libc::{proc_listallpids, proc_pidpath};
+use libc::pid_t;
 use serde::Deserialize;
 use std::{
     collections::{HashMap, HashSet},
-    ffi::c_void,
     io,
     path::PathBuf,
     process::Stdio,
-    ptr,
     sync::{Arc, LazyLock, Mutex},
     time::Duration,
 };
+use talpid_macos::process::{list_pids, process_path};
 use talpid_platform_metadata::MacosVersion;
 use talpid_types::tunnel::ErrorStateCause;
 use tokio::io::{AsyncBufReadExt, BufReader};
@@ -52,7 +51,7 @@ pub enum Error {
     InitializePids(#[source] io::Error),
     /// Failed to find path for a process
     #[error("Failed to find path for a process: {}", _0)]
-    FindProcessPath(#[source] io::Error, u32),
+    FindProcessPath(#[source] io::Error, pid_t),
 }
 
 impl From<&Error> for ErrorStateCause {
@@ -231,7 +230,7 @@ pub enum ExclusionStatus {
 
 #[derive(Debug)]
 struct InnerProcessStates {
-    processes: HashMap<u32, ProcessInfo>,
+    processes: HashMap<pid_t, ProcessInfo>,
     exclude_paths: HashSet<PathBuf>,
 }
 
@@ -277,7 +276,7 @@ impl ProcessStates {
         inner.exclude_paths = paths;
     }
 
-    pub fn get_process_status(&self, pid: u32) -> ExclusionStatus {
+    pub fn get_process_status(&self, pid: pid_t) -> ExclusionStatus {
         let inner = self.inner.lock().unwrap();
         match inner.processes.get(&pid) {
             Some(val) if val.is_excluded() => ExclusionStatus::Excluded,
@@ -300,7 +299,7 @@ impl InnerProcessStates {
 
     // For new processes, inherit all exclusion state from the parent, if there is one.
     // Otherwise, look up excluded paths
-    fn handle_fork(&mut self, parent_pid: u32, exec_path: PathBuf, msg: ESForkEvent) {
+    fn handle_fork(&mut self, parent_pid: pid_t, exec_path: PathBuf, msg: ESForkEvent) {
         let pid = msg.child.audit_token.pid;
 
         if self.processes.contains_key(&pid) {
@@ -327,7 +326,7 @@ impl InnerProcessStates {
         self.processes.insert(pid, base_info);
     }
 
-    fn handle_exec(&mut self, pid: u32, msg: ESExecEvent) {
+    fn handle_exec(&mut self, pid: pid_t, msg: ESExecEvent) {
         let Some(info) = self.processes.get_mut(&pid) else {
             log::error!("exec received for unknown pid {pid}");
             return;
@@ -354,52 +353,11 @@ impl InnerProcessStates {
         }
     }
 
-    fn handle_exit(&mut self, pid: u32) {
+    fn handle_exit(&mut self, pid: pid_t) {
         if self.processes.remove(&pid).is_none() {
             log::error!("exit syscall for unknown pid {pid}");
         }
     }
-}
-
-/// Obtain a list of all pids
-fn list_pids() -> io::Result<Vec<u32>> {
-    // SAFETY: Passing in null and 0 returns the number of processes
-    let num_pids = unsafe { proc_listallpids(ptr::null_mut(), 0) };
-    if num_pids <= 0 {
-        return Err(io::Error::last_os_error());
-    }
-    let num_pids = usize::try_from(num_pids).unwrap();
-    let mut pids = vec![0u32; num_pids];
-
-    let buf_sz = (num_pids * std::mem::size_of::<u32>()) as i32;
-    // SAFETY: 'pids' is large enough to contain 'num_pids' processes
-    let num_pids = unsafe { proc_listallpids(pids.as_mut_ptr() as *mut c_void, buf_sz) };
-    if num_pids == -1 {
-        return Err(io::Error::last_os_error());
-    }
-
-    pids.resize(usize::try_from(num_pids).unwrap(), 0);
-
-    Ok(pids)
-}
-
-fn process_path(pid: u32) -> io::Result<PathBuf> {
-    let mut buffer = [0u8; libc::MAXPATHLEN as usize];
-    // SAFETY: `proc_pidpath` returns at most `buffer.len()` bytes
-    let buf_len = unsafe {
-        proc_pidpath(
-            pid as i32,
-            buffer.as_mut_ptr() as *mut c_void,
-            buffer.len() as u32,
-        )
-    };
-    if buf_len == -1 {
-        return Err(io::Error::last_os_error());
-    }
-    Ok(PathBuf::from(
-        std::str::from_utf8(&buffer[0..buf_len as usize])
-            .map_err(|_| io::Error::new(io::ErrorKind::InvalidInput, "invalid process path"))?,
-    ))
 }
 
 #[derive(Debug, Clone)]
@@ -480,7 +438,7 @@ struct ESExecutable {
 /// https://developer.apple.com/documentation/endpointsecurity/es_process_t/3228975-audit_token?language=objc
 #[derive(Debug, Deserialize)]
 struct ESAuditToken {
-    pid: u32,
+    pid: pid_t,
 }
 
 /// Process information for the message returned by `eslogger`.

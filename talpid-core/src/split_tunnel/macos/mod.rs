@@ -614,7 +614,7 @@ impl State {
                     Some(vpn_interface.clone()),
                     route_manager.clone(),
                     Box::new(move |packet| {
-                        match states.get_process_status(packet.header.pth_pid as u32) {
+                        match states.get_process_status(packet.header.pth_pid) {
                             ExclusionStatus::Excluded => tun::RoutingDecision::DefaultInterface,
                             ExclusionStatus::Included => tun::RoutingDecision::VpnTunnel,
                             ExclusionStatus::Unknown => {
