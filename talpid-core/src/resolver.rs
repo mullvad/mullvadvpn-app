@@ -147,7 +147,7 @@ impl LocalResolver {
         tx: oneshot::Sender<std::result::Result<Box<dyn LookupObject>, ResolveError>>,
     ) {
         let lookup = match self {
-            LocalResolver::Blocked => Either::Left(Self::resolve_blocked(query)),
+            LocalResolver::Blocked => Either::Left(async move { Self::resolve_blocked(query) }),
             LocalResolver::ForwardDns(resolver) => {
                 Either::Right(Self::resolve_forward(resolver.clone(), query))
             }
@@ -159,7 +159,7 @@ impl LocalResolver {
     }
 
     /// Resolution in blocked state will return spoofed records for captive portal domains.
-    async fn resolve_blocked(
+    fn resolve_blocked(
         query: LowerQuery,
     ) -> std::result::Result<Box<dyn LookupObject>, ResolveError> {
         if !Self::is_captive_portal_domain(&query) {
