@@ -1090,32 +1090,6 @@ impl ManagementService for ManagementServiceImpl {
         self.wait_for_result(rx).await??;
         Ok(Response::new(()))
     }
-
-    #[cfg(not(target_os = "android"))]
-    async fn update_network_availability(
-        &self,
-        _: Request<types::IpVersionAvailability>,
-    ) -> ServiceResult<()> {
-        Ok(Response::new(()))
-    }
-
-    #[cfg(target_os = "android")]
-    async fn update_network_availability(
-        &self,
-        request: Request<types::IpVersionAvailability>,
-    ) -> ServiceResult<()> {
-        log::debug!("update_network_availability");
-        let enabled = request.into_inner();
-        let (tx, _rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::UpdateNetworkAvailability(
-            tx,
-            enabled.has_ip_v4,
-            enabled.has_ip_v6,
-        ))?;
-        unimplemented!("Should not be a gRPC call!");
-        // self.wait_for_result(rx).await?;
-        // Ok(Response::new(()))
-    }
 }
 
 impl ManagementServiceImpl {

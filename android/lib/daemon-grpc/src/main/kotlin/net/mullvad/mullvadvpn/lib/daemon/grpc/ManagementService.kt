@@ -38,7 +38,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import mullvad_daemon.management_interface.ManagementInterface
-import mullvad_daemon.management_interface.ManagementInterface.IpVersionAvailability
 import mullvad_daemon.management_interface.ManagementServiceGrpcKt
 import net.mullvad.mullvadvpn.lib.daemon.grpc.mapper.fromDomain
 import net.mullvad.mullvadvpn.lib.daemon.grpc.mapper.toDomain
@@ -747,22 +746,6 @@ class ManagementService(
             .map { result ->
                 either { ensure(result.value) { TestApiAccessMethodError.CouldNotAccess } }
             }
-
-    suspend fun updateNetworkAvailability(
-        hasIpV4: Boolean,
-        hasIpV6: Boolean,
-    ): Either<TestApiAccessMethodError, Unit> =
-        Either.catch {
-                grpc.updateNetworkAvailability(
-                    IpVersionAvailability.newBuilder()
-                        .setHasIpV4(hasIpV4)
-                        .setHasIpV6(hasIpV6)
-                        .build()
-                )
-            }
-            .onLeft { Logger.e("Update network availability error") }
-            .mapLeftStatus { TestApiAccessMethodError.Grpc }
-            .mapEmpty()
 
     private fun <A> Either<A, Empty>.mapEmpty() = map {}
 

@@ -127,9 +127,6 @@ service ManagementService {
 
   // Set if we should leak traffic to Apple services.
   rpc SetAppleServicesBypass(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
-
-  // Return available ip versions
-  rpc UpdateNetworkAvailability(IpVersionAvailability) returns (google.protobuf.Empty) {}
 }
 
 message UUID { string value = 1; }
@@ -768,8 +765,3 @@ message PlayPurchase {
 }
 
 message PlayPurchasePaymentToken { string token = 1; }
-
-message IpVersionAvailability {
-  bool hasIpV4 = 1;
-  bool hasIpV6 = 2;
-}
