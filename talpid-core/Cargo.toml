@@ -56,9 +56,10 @@ talpid-platform-metadata = { path = "../talpid-platform-metadata" }
 pcap = { version = "2.1", features = ["capture-stream"] }
 pnet_packet = "0.34"
 tun = { version = "0.5.5", features = ["async"] }
-nix = { version = "0.28", features = ["socket"] }
+nix = { version = "0.28", features = ["socket", "signal"] }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
+talpid-macos = { path = "../talpid-macos" }
 talpid-net = { path = "../talpid-net" }
 
 [target.'cfg(windows)'.dependencies]
