@@ -65,8 +65,8 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.ConnectionButton
 import net.mullvad.mullvadvpn.compose.button.SwitchLocationButton
-import net.mullvad.mullvadvpn.compose.component.Chevron
 import net.mullvad.mullvadvpn.compose.component.ConnectionStatusText
+import net.mullvad.mullvadvpn.compose.component.ExpandChevron
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBarAndDeviceName
 import net.mullvad.mullvadvpn.compose.component.connectioninfo.ConnectionDetailPanel
@@ -397,7 +397,7 @@ private fun ConnectionCardHeader(
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             ConnectionStatusText(state = state.tunnelState)
             if (state.tunnelState is TunnelState.Connected) {
-                Chevron(isExpanded = !expanded, color = MaterialTheme.colorScheme.onSurface)
+                ExpandChevron(isExpanded = !expanded, color = MaterialTheme.colorScheme.onSurface)
             }
         }
 

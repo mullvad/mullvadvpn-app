@@ -10,6 +10,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
@@ -20,7 +23,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.component.ChevronRight
 import net.mullvad.mullvadvpn.compose.preview.SelectObfuscationCellPreviewParameterProvider
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
@@ -98,7 +100,11 @@ fun ObfuscationModeCell(
                     .clickable { onNavigate() },
             contentAlignment = Alignment.Center,
         ) {
-            ChevronRight(tint = MaterialTheme.colorScheme.onPrimary, contentDescription = null)
+            Icon(
+                imageVector = Icons.Default.ChevronRight,
+                tint = MaterialTheme.colorScheme.onPrimary,
+                contentDescription = null,
+            )
         }
     }
 }

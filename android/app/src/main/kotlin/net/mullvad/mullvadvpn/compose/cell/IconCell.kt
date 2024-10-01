@@ -3,28 +3,29 @@ package net.mullvad.mullvadvpn.compose.cell
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
-import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 
 @Preview
 @Composable
 private fun PreviewIconCell() {
-    AppTheme { IconCell(iconId = R.drawable.icon_add, title = "Add") }
+    AppTheme { IconCell(imageVector = Icons.Default.Add, title = "Add") }
 }
 
 @Composable
 fun IconCell(
-    iconId: Int?,
+    imageVector: ImageVector?,
     title: String,
     modifier: Modifier = Modifier,
     contentDescription: String? = null,
@@ -37,9 +38,9 @@ fun IconCell(
     BaseCell(
         headlineContent = {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                iconId?.let {
+                imageVector?.let {
                     Icon(
-                        painter = painterResource(id = iconId),
+                        imageVector = imageVector,
                         contentDescription = contentDescription,
                         tint = titleColor,
                     )

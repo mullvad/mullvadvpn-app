@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -30,7 +31,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -114,10 +114,7 @@ private fun TopBar(
                 onClick = { clipboardHandle(state.text(), clipboardToastMessage) },
                 modifier = Modifier.focusProperties { down = FocusRequester.Cancel },
             ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.icon_copy),
-                    contentDescription = null,
-                )
+                Icon(imageVector = Icons.Default.ContentCopy, contentDescription = null)
             }
             IconButton(
                 onClick = { scope.launch { shareText(context, state.text()) } },

@@ -121,7 +121,10 @@ fun SwitchLocationButton(
                     overflow = TextOverflow.Ellipsis,
                     modifier =
                         if (isReconnectButtonEnabled) {
-                            Modifier.padding(start = componentHeight + Dimens.listItemDivider)
+                            Modifier.padding(
+                                start =
+                                    componentHeight + Dimens.listItemDivider + Dimens.smallPadding
+                            )
                         } else {
                             Modifier
                         },
@@ -153,7 +156,7 @@ fun SwitchLocationButton(
                             .defaultMinSize(minWidth = Dimens.switchLocationRetryMinWidth),
                 ) {
                     Icon(
-                        painter = painterResource(id = R.drawable.icon_reload),
+                        painter = painterResource(R.drawable.icon_reconnect),
                         contentDescription = null,
                     )
                 }

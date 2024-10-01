@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -12,11 +14,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
-import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 
 @Composable
@@ -71,7 +71,7 @@ private fun ErrorSupportingText(text: String) {
         modifier = Modifier.padding(top = Dimens.miniPadding),
     ) {
         Icon(
-            painter = painterResource(id = R.drawable.icon_alert),
+            imageVector = Icons.Default.Warning,
             contentDescription = null,
             modifier = Modifier.size(Dimens.smallIconSize),
             tint = MaterialTheme.colorScheme.error,

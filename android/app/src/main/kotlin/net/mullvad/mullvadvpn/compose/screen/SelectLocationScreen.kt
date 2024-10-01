@@ -17,6 +17,13 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -37,11 +44,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -94,7 +99,6 @@ import net.mullvad.mullvadvpn.compose.transitions.SelectLocationTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.RunOnKeyChange
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
-import net.mullvad.mullvadvpn.lib.model.CustomList
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.lib.model.RelayItem
@@ -485,8 +489,7 @@ private fun SelectLocationTopBar(onBackClick: () -> Unit, onFilterClick: () -> U
     Row(modifier = Modifier.fillMaxWidth()) {
         IconButton(onClick = onBackClick) {
             Icon(
-                modifier = Modifier.rotate(270f),
-                painter = painterResource(id = R.drawable.icon_back),
+                imageVector = Icons.Default.Close,
                 tint = MaterialTheme.colorScheme.onSurface,
                 contentDescription = null,
             )
@@ -500,7 +503,7 @@ private fun SelectLocationTopBar(onBackClick: () -> Unit, onFilterClick: () -> U
         )
         IconButton(onClick = onFilterClick) {
             Icon(
-                painter = painterResource(id = R.drawable.icons_more_circle),
+                imageVector = Icons.Default.FilterList,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurface,
             )
@@ -644,7 +647,7 @@ private fun CustomListsBottomSheet(
         )
         HorizontalDivider(color = onBackgroundColor)
         IconCell(
-            iconId = R.drawable.icon_add,
+            imageVector = Icons.Default.Add,
             title = stringResource(id = R.string.new_list),
             titleColor = onBackgroundColor,
             onClick = {
@@ -654,7 +657,7 @@ private fun CustomListsBottomSheet(
             background = backgroundColor,
         )
         IconCell(
-            iconId = R.drawable.icon_edit,
+            imageVector = Icons.Default.Edit,
             title = stringResource(id = R.string.edit_lists),
             titleColor =
                 onBackgroundColor.copy(
@@ -702,7 +705,7 @@ private fun LocationBottomSheet(
         customLists.forEach {
             val enabled = it.canAddLocation(item)
             IconCell(
-                iconId = null,
+                imageVector = null,
                 title =
                     if (enabled) {
                         it.name
@@ -724,7 +727,7 @@ private fun LocationBottomSheet(
             )
         }
         IconCell(
-            iconId = R.drawable.icon_add,
+            imageVector = Icons.Default.Add,
             title = stringResource(id = R.string.new_list),
             titleColor = onBackgroundColor,
             onClick = {
@@ -757,7 +760,7 @@ private fun EditCustomListBottomSheet(
         HeaderCell(text = customList.name, background = backgroundColor)
         HorizontalDivider(color = onBackgroundColor)
         IconCell(
-            iconId = R.drawable.icon_edit,
+            imageVector = Icons.Default.Edit,
             title = stringResource(id = R.string.edit_name),
             titleColor = onBackgroundColor,
             onClick = {
@@ -767,7 +770,7 @@ private fun EditCustomListBottomSheet(
             background = backgroundColor,
         )
         IconCell(
-            iconId = R.drawable.icon_add,
+            imageVector = Icons.Default.Add,
             title = stringResource(id = R.string.edit_locations),
             titleColor = onBackgroundColor,
             onClick = {
@@ -777,7 +780,7 @@ private fun EditCustomListBottomSheet(
             background = backgroundColor,
         )
         IconCell(
-            iconId = R.drawable.icon_delete,
+            imageVector = Icons.Default.Delete,
             title = stringResource(id = R.string.delete),
             titleColor = onBackgroundColor,
             onClick = {
@@ -816,7 +819,7 @@ private fun CustomListEntryBottomSheet(
         HorizontalDivider(color = onBackgroundColor)
 
         IconCell(
-            iconId = R.drawable.ic_remove,
+            imageVector = Icons.Default.Remove,
             title = stringResource(id = R.string.remove_button),
             titleColor = onBackgroundColor,
             onClick = {

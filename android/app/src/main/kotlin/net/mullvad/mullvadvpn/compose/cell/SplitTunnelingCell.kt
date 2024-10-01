@@ -5,6 +5,9 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -106,15 +109,12 @@ fun SplitTunnelingCell(
         },
         bodyView = {
             Icon(
-                painter =
-                    painterResource(
-                        id =
-                            if (isSelected) {
-                                R.drawable.ic_icons_remove
-                            } else {
-                                R.drawable.ic_icons_add
-                            }
-                    ),
+                imageVector =
+                    if (isSelected) {
+                        Icons.Default.Remove
+                    } else {
+                        Icons.Default.Add
+                    },
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.size(size = Dimens.addIconSize),
