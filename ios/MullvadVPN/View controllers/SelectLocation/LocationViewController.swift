@@ -23,7 +23,7 @@ final class LocationViewController: UIViewController {
     private let topContentView = UIStackView()
     private let filterView = RelayFilterView()
     private var dataSource: LocationDataSource?
-    private var cachedRelays: LocationRelays?
+    private var relaysWithLocation: LocationRelays?
     private var filter = RelayFilter()
     private var selectedRelays: RelaySelection
     private var daitaEnabled: Bool
@@ -86,8 +86,8 @@ final class LocationViewController: UIViewController {
 
     // MARK: - Public
 
-    func setCachedRelays(_ cachedRelays: LocationRelays, filter: RelayFilter) {
-        self.cachedRelays = cachedRelays
+    func setRelaysWithLocation(_ relaysWithLocation: LocationRelays, filter: RelayFilter) {
+        self.relaysWithLocation = relaysWithLocation
         self.filter = filter
 
         if filterViewShouldBeHidden {
@@ -97,7 +97,7 @@ final class LocationViewController: UIViewController {
             filterView.setFilter(filter)
         }
 
-        dataSource?.setRelays(cachedRelays, selectedRelays: selectedRelays)
+        dataSource?.setRelays(relaysWithLocation, selectedRelays: selectedRelays)
     }
 
     func refreshCustomLists() {
@@ -125,15 +125,15 @@ final class LocationViewController: UIViewController {
         dataSource?.didTapEditCustomLists = { [weak self] in
             guard let self else { return }
 
-            if let cachedRelays {
+            if let relaysWithLocation {
                 let allLocationDataSource = AllLocationDataSource()
-                allLocationDataSource.reload(cachedRelays)
+                allLocationDataSource.reload(relaysWithLocation)
                 delegate?.navigateToCustomLists(nodes: allLocationDataSource.nodes)
             }
         }
 
-        if let cachedRelays {
-            dataSource?.setRelays(cachedRelays, selectedRelays: selectedRelays)
+        if let relaysWithLocation {
+            dataSource?.setRelays(relaysWithLocation, selectedRelays: selectedRelays)
         }
     }
 

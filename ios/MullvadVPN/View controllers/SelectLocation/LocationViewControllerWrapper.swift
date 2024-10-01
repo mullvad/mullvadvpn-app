@@ -107,19 +107,19 @@ final class LocationViewControllerWrapper: UIViewController {
         swapViewController()
     }
 
-    func setCachedRelays(_ cachedRelays: LocationRelays, filter: RelayFilter) {
-        var daitaFilteredRelays = cachedRelays
+    func setRelaysWithLocation(_ relaysWithLocation: LocationRelays, filter: RelayFilter) {
+        var daitaFilteredRelays = relaysWithLocation
         if daitaEnabled {
-            daitaFilteredRelays.relays = cachedRelays.relays.filter { relay in
+            daitaFilteredRelays.relays = relaysWithLocation.relays.filter { relay in
                 relay.daita == true
             }
         }
 
         if multihopEnabled {
-            entryLocationViewController.setCachedRelays(daitaFilteredRelays, filter: filter)
-            exitLocationViewController.setCachedRelays(cachedRelays, filter: filter)
+            entryLocationViewController.setRelaysWithLocation(daitaFilteredRelays, filter: filter)
+            exitLocationViewController.setRelaysWithLocation(relaysWithLocation, filter: filter)
         } else {
-            exitLocationViewController.setCachedRelays(daitaFilteredRelays, filter: filter)
+            exitLocationViewController.setRelaysWithLocation(daitaFilteredRelays, filter: filter)
         }
     }
 

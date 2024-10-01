@@ -16,7 +16,7 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
     private let tunnelManager: TunnelManager
     private let relayCacheTracker: RelayCacheTracker
     private let customListRepository: CustomListRepositoryProtocol
-    private var cachedRelays: LocationRelays?
+    private var locationRelays: LocationRelays?
 
     let navigationController: UINavigationController
 
@@ -71,20 +71,35 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
             guard let self else { return }
             didFinish?(self)
         }
-
         relayCacheTracker.addObserver(self)
 
         if let cachedRelays = try? relayCacheTracker.getCachedRelays() {
-            let locationRelays = LocationRelays(
-                relays: cachedRelays.relays.wireguard.relays,
-                locations: cachedRelays.relays.locations
+            updateRelaysWithLocationFrom(
+                cachedRelays: cachedRelays,
+                filter: relayFilter,
+                controllerWrapper: locationViewControllerWrapper
             )
-            self.cachedRelays = locationRelays
-
-            locationViewControllerWrapper.setCachedRelays(locationRelays, filter: relayFilter)
         }
 
         navigationController.pushViewController(locationViewControllerWrapper, animated: false)
+    }
+
+    private func updateRelaysWithLocationFrom(
+        cachedRelays: CachedRelays,
+        filter: RelayFilter,
+        controllerWrapper: LocationViewControllerWrapper
+    ) {
+        var relaysWithLocation = LocationRelays(
+            relays: cachedRelays.relays.wireguard.relays,
+            locations: cachedRelays.relays.locations
+        )
+        relaysWithLocation.relays = relaysWithLocation.relays.filter { relay in
+            RelaySelector.relayMatchesFilter(relay, filter: filter)
+        }
+
+        self.locationRelays = relaysWithLocation
+
+        controllerWrapper.setRelaysWithLocation(relaysWithLocation, filter: filter)
     }
 
     private func makeRelayFilterCoordinator(forModalPresentation isModalPresentation: Bool)
@@ -100,12 +115,13 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
         relayFilterCoordinator.didFinish = { [weak self] coordinator, filter in
             guard let self else { return }
 
-            if var cachedRelays, let filter {
-                cachedRelays.relays = cachedRelays.relays.filter { relay in
-                    RelaySelector.relayMatchesFilter(relay, filter: filter)
-                }
-
-                locationViewControllerWrapper?.setCachedRelays(cachedRelays, filter: filter)
+            if let cachedRelays = try? relayCacheTracker.getCachedRelays(), let locationViewControllerWrapper,
+               let filter {
+                updateRelaysWithLocationFrom(
+                    cachedRelays: cachedRelays,
+                    filter: filter,
+                    controllerWrapper: locationViewControllerWrapper
+                )
             }
 
             coordinator.dismiss(animated: true)
@@ -169,9 +185,9 @@ extension LocationCoordinator: RelayCacheTrackerObserver {
             relays: cachedRelays.relays.wireguard.relays,
             locations: cachedRelays.relays.locations
         )
-        self.cachedRelays = locationRelays
+        self.locationRelays = locationRelays
 
-        locationViewControllerWrapper?.setCachedRelays(locationRelays, filter: relayFilter)
+        locationViewControllerWrapper?.setRelaysWithLocation(locationRelays, filter: relayFilter)
     }
 }
 
@@ -200,8 +216,12 @@ extension LocationCoordinator: LocationViewControllerWrapperDelegate {
 
         tunnelManager.updateSettings([.relayConstraints(relayConstraints)])
 
-        if let cachedRelays {
-            locationViewControllerWrapper?.setCachedRelays(cachedRelays, filter: filter)
+        if let cachedRelays = try? relayCacheTracker.getCachedRelays(), let locationViewControllerWrapper {
+            updateRelaysWithLocationFrom(
+                cachedRelays: cachedRelays,
+                filter: filter,
+                controllerWrapper: locationViewControllerWrapper
+            )
         }
     }
 

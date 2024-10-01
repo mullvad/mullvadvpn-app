@@ -308,40 +308,6 @@ class RootContainerViewController: UIViewController {
         )
     }
 
-    /// Add account and settings bar buttons into the presentation container to make them accessible even
-    /// when the root container is covered with a modal.
-    func addTrailingButtonsToPresentationContainer(_ presentationContainer: UIView) {
-        let accountButton = getPresentationContainerAccountButton()
-        let settingsButton = getPresentationContainerSettingsButton()
-
-        presentationContainerAccountButton = accountButton
-        presentationContainerSettingsButton = settingsButton
-
-        // Hide the account button inside the header bar to avoid color blending issues
-        headerBarView.accountButton.alpha = 0
-        headerBarView.settingsButton.alpha = 0
-
-        presentationContainer.addConstrainedSubviews([accountButton, settingsButton]) {
-            accountButton.centerXAnchor
-                .constraint(equalTo: headerBarView.accountButton.centerXAnchor)
-            accountButton.centerYAnchor
-                .constraint(equalTo: headerBarView.accountButton.centerYAnchor)
-
-            settingsButton.centerXAnchor
-                .constraint(equalTo: headerBarView.settingsButton.centerXAnchor)
-            settingsButton.centerYAnchor
-                .constraint(equalTo: headerBarView.settingsButton.centerYAnchor)
-        }
-    }
-
-    func removeTrailingButtonsFromPresentationContainer() {
-        presentationContainerAccountButton?.removeFromSuperview()
-        presentationContainerSettingsButton?.removeFromSuperview()
-
-        headerBarView.accountButton.alpha = 1
-        headerBarView.settingsButton.alpha = 1
-    }
-
     func setOverrideHeaderBarHidden(_ isHidden: Bool?, animated: Bool) {
         overrideHeaderBarHidden = isHidden
 
