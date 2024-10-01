@@ -4,7 +4,6 @@ use super::{
     TunnelStateTransition,
 };
 use crate::{
-    dns::DnsConfig,
     firewall::FirewallPolicy,
     tunnel::{self, TunnelMonitor},
 };
@@ -14,7 +13,6 @@ use futures::{
     FutureExt, StreamExt,
 };
 use std::{
-    net::Ipv4Addr,
     path::{Path, PathBuf},
     sync::{Arc, Mutex},
     thread,
@@ -62,7 +60,7 @@ impl ConnectingState {
         #[cfg(target_os = "macos")]
         if let Err(err) = shared_values.dns_monitor.set(
             "lo",
-            DnsConfig::default().resolve(&[Ipv4Addr::LOCALHOST.into()]),
+            crate::dns::DnsConfig::default().resolve(&[std::net::Ipv4Addr::LOCALHOST.into()]),
         ) {
             log::error!(
                 "{}",
@@ -187,6 +185,7 @@ impl ConnectingState {
             redirect_interface,
             #[cfg(target_os = "macos")]
             apple_services_bypass: shared_values.apple_services_bypass,
+            #[cfg(target_os = "macos")]
             dns_redirect_port: shared_values.filtering_resolver.listening_port(),
         };
         shared_values

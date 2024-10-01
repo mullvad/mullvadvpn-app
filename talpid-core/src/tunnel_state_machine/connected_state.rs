@@ -144,6 +144,7 @@ impl ConnectedState {
             redirect_interface,
             #[cfg(target_os = "macos")]
             apple_services_bypass: shared_values.apple_services_bypass,
+            #[cfg(target_os = "macos")]
             dns_redirect_port: shared_values.filtering_resolver.listening_port(),
         }
     }
@@ -165,6 +166,7 @@ impl ConnectedState {
             .map_err(BoxedError::new)?;
 
         // On macOS, configure only the local DNS resolver
+        #[cfg(target_os = "macos")]
         shared_values.runtime.block_on(
             shared_values
                 .filtering_resolver
