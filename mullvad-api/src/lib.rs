@@ -199,6 +199,7 @@ impl ApiEndpoint {
                         )
                     })
                     .next();
+                api.host = Some(host);
             }
             (host, Some(address)) => {
                 let addr = address.parse().unwrap_or_else(|_| {
