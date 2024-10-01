@@ -5,16 +5,11 @@
     <ID>CyclomaticComplexMethod:MockApiDispatcher.kt$MockApiDispatcher$override fun dispatch(request: RecordedRequest): MockResponse</ID>
     <ID>EmptyKtFile:build.gradle.kts$.build.gradle.kts</ID>
     <ID>LongMethod:NotificationBanner.kt$@Composable private fun Notification(notificationBannerData: NotificationData)</ID>
-    <ID>MagicNumber:Chevron.kt$100</ID>
-    <ID>MagicNumber:Chevron.kt$180f</ID>
     <ID>MagicNumber:CustomTextField.kt$100</ID>
     <ID>MagicNumber:LoginScreen.kt$3f</ID>
-    <ID>MagicNumber:NavigateButton.kt$90f</ID>
-    <ID>MagicNumber:NavigationComposeCell.kt$90f</ID>
     <ID>MagicNumber:RedeemVoucherDialog.kt$30</ID>
     <ID>MagicNumber:RedeemVoucherDialog.kt$59</ID>
     <ID>MagicNumber:ResourcesExtensions.kt$3</ID>
-    <ID>MagicNumber:SelectLocationScreen.kt$270f</ID>
     <ID>NestedBlockDepth:MockApiDispatcher.kt$MockApiDispatcher$override fun dispatch(request: RecordedRequest): MockResponse</ID>
     <ID>PrintStackTrace:Extensions.kt$ex</ID>
     <ID>ReturnCount:RelayNameComparator.kt$RelayNameComparator$private infix fun List&lt;String&gt;.compareWith(other: List&lt;String&gt;): Int</ID>
