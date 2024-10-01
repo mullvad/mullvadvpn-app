@@ -33,7 +33,7 @@ fun ExpandChevron(modifier: Modifier = Modifier, color: Color, isExpanded: Boole
         animateFloatAsState(
             targetValue = degree,
             label = "",
-            animationSpec = TweenSpec(100, easing = LinearEasing),
+            animationSpec = TweenSpec(ROTATION_ANIMATION_DURATION, easing = LinearEasing),
         )
 
     Icon(
@@ -58,3 +58,4 @@ fun ExpandChevronIconButton(
 
 private const val DOWN_ROTATION = 0f
 private const val UP_ROTATION = 180f
+private const val ROTATION_ANIMATION_DURATION = 100
