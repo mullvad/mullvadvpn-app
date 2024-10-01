@@ -8,11 +8,14 @@ import androidx.test.uiautomator.UiDevice
 import co.touchlab.kermit.Logger
 import de.mannodermaus.junit5.extensions.GrantPermissionExtension
 import net.mullvad.mullvadvpn.test.common.interactor.AppInteractor
+import net.mullvad.mullvadvpn.test.common.misc.CaptureScreenRecordingsExtension
 import net.mullvad.mullvadvpn.test.common.rule.CaptureScreenshotOnFailedTestRule
 import net.mullvad.mullvadvpn.test.e2e.constant.LOG_TAG
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.extension.RegisterExtension
 
+@ExtendWith(CaptureScreenRecordingsExtension::class)
 abstract class EndToEndTest(private val infra: String) {
 
     @RegisterExtension @JvmField val rule = CaptureScreenshotOnFailedTestRule(LOG_TAG)
