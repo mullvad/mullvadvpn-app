@@ -33,6 +33,11 @@ Line wrap the file at 100 chars.                                              Th
 #### macOS
 - Proxy DNS queries through a local resolver.
 
+### Fixed
+#### macOS
+- Fix Apple leak toggle not working. The issue was that DNS queries to the tunnel resolver were
+  being sent on the physical interface.
+
 
 ## [2024.6-beta1] - 2024-09-26
 ### Added
