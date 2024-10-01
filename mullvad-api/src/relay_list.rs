@@ -2,7 +2,7 @@
 
 use crate::rest;
 
-use hyper::{header, Method, StatusCode};
+use hyper::{header, StatusCode};
 use mullvad_types::{location, relay_list};
 use talpid_types::net::wireguard;
 
@@ -34,7 +34,7 @@ impl RelayListProxy {
         etag: Option<String>,
     ) -> impl Future<Output = Result<Option<relay_list::RelayList>, rest::Error>> {
         let service = self.handle.service.clone();
-        let request = self.handle.factory.request("app/v1/relays", Method::GET);
+        let request = self.handle.factory.get("app/v1/relays");
 
         async move {
             let mut request = request?
