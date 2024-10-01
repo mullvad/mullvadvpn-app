@@ -1,3 +1,9 @@
+//! This module implements a forwarding DNS resolver with two states:
+//! * In the `Blocked` state, most queries receive an empty response, but certain captive portal
+//!   domains receive a spoofed answer. This fools the OS into thinking that it has connectivity.
+//! * In the `Forwarding` state, queries are forwarded to a set of configured DNS servers. This
+//!   lets us use the routing table to determine where to send them, instead of them being forced
+//!   out on the primary interface (in some cases).
 use std::{
     io,
     net::{IpAddr, Ipv4Addr, SocketAddr},
