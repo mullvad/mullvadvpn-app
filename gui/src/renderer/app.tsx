@@ -10,7 +10,7 @@ import {
 } from '../shared/application-types';
 import {
   AccessMethodSetting,
-  AccountToken,
+  AccountNumber,
   BridgeSettings,
   BridgeState,
   CustomProxy,
@@ -149,7 +149,7 @@ export default class AppRenderer {
       this.reduxActions.account.updateDevices(devices);
     });
 
-    IpcRendererEventChannel.accountHistory.listen((newAccountHistory?: AccountToken) => {
+    IpcRendererEventChannel.accountHistory.listen((newAccountHistory?: AccountNumber) => {
       this.setAccountHistory(newAccountHistory);
     });
 
@@ -384,20 +384,20 @@ export default class AppRenderer {
   public setAnimateMap = (displayMap: boolean): void =>
     IpcRendererEventChannel.guiSettings.setAnimateMap(displayMap);
 
-  public login = async (accountToken: AccountToken) => {
+  public login = async (accountNumber: AccountNumber) => {
     const actions = this.reduxActions;
-    actions.account.startLogin(accountToken);
+    actions.account.startLogin(accountNumber);
 
     log.info('Logging in');
 
     this.previousLoginState = this.loginState;
     this.loginState = 'logging in';
 
-    const response = await IpcRendererEventChannel.account.login(accountToken);
+    const response = await IpcRendererEventChannel.account.login(accountNumber);
     if (response?.type === 'error') {
       if (response.error === 'too-many-devices') {
         try {
-          await this.fetchDevices(accountToken);
+          await this.fetchDevices(accountNumber);
 
           actions.account.loginTooManyDevices();
           this.loginState = 'too many devices';
@@ -450,8 +450,8 @@ export default class AppRenderer {
     }
   }
 
-  public fetchDevices = async (accountToken: AccountToken): Promise<Array<IDevice>> => {
-    const devices = await IpcRendererEventChannel.account.listDevices(accountToken);
+  public fetchDevices = async (accountNumber: AccountNumber): Promise<Array<IDevice>> => {
+    const devices = await IpcRendererEventChannel.account.listDevices(accountNumber);
     this.reduxActions.account.updateDevices(devices);
     return devices;
   };
@@ -773,7 +773,7 @@ export default class AppRenderer {
     }
   }
 
-  private setAccountHistory(accountHistory?: AccountToken) {
+  private setAccountHistory(accountHistory?: AccountNumber) {
     this.reduxActions.account.updateAccountHistory(accountHistory);
   }
 
@@ -876,16 +876,16 @@ export default class AppRenderer {
 
     switch (deviceEvent.type) {
       case 'logged in': {
-        const accountToken = deviceEvent.deviceState.accountAndDevice.accountToken;
+        const accountNumber = deviceEvent.deviceState.accountAndDevice.accountNumber;
         const device = deviceEvent.deviceState.accountAndDevice.device;
 
         switch (this.loginState) {
           case 'none':
-            reduxAccount.loggedIn(accountToken, device);
+            reduxAccount.loggedIn(accountNumber, device);
             this.resetNavigation();
             break;
           case 'logging in':
-            reduxAccount.loggedIn(accountToken, device);
+            reduxAccount.loggedIn(accountNumber, device);
 
             if (this.previousLoginState === 'too many devices') {
               this.resetNavigation();
@@ -894,7 +894,7 @@ export default class AppRenderer {
             }
             break;
           case 'creating account':
-            reduxAccount.accountCreated(accountToken, device, new Date().toISOString());
+            reduxAccount.accountCreated(accountNumber, device, new Date().toISOString());
             break;
         }
         break;

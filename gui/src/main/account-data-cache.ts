@@ -2,7 +2,7 @@ import { closeToExpiry, hasExpired } from '../shared/account-expiry';
 import {
   AccountDataError,
   AccountDataResponse,
-  AccountToken,
+  AccountNumber,
   IAccountData,
   VoucherResponse,
 } from '../shared/daemon-rpc-types';
@@ -25,7 +25,7 @@ const ACCOUNT_DATA_EXPIRED_VALIDITY_SECONDS = 10_000;
 // An account data cache that helps to throttle RPC requests to get_account_data and retain the
 // cached value for 1 minute.
 export default class AccountDataCache {
-  private currentAccount?: AccountToken;
+  private currentAccount?: AccountNumber;
   private validUntil?: Date;
   private performingFetch = false;
   private waitStrategy = new WaitStrategy();
@@ -33,15 +33,15 @@ export default class AccountDataCache {
   private watchers: IAccountFetchWatcher[] = [];
 
   constructor(
-    private fetchHandler: (token: AccountToken) => Promise<AccountDataResponse>,
+    private fetchHandler: (number: AccountNumber) => Promise<AccountDataResponse>,
     private updateHandler: (data?: IAccountData) => void,
   ) {}
 
-  public fetch(accountToken: AccountToken, watcher?: IAccountFetchWatcher) {
-    // invalidate cache if account token has changed
-    if (accountToken !== this.currentAccount) {
+  public fetch(accountNumber: AccountNumber, watcher?: IAccountFetchWatcher) {
+    // invalidate cache if account number has changed
+    if (accountNumber !== this.currentAccount) {
       this.invalidate();
-      this.currentAccount = accountToken;
+      this.currentAccount = accountNumber;
     }
 
     // Only fetch if value has expired
@@ -56,7 +56,7 @@ export default class AccountDataCache {
 
       // Only fetch if there's no fetch for this account number in progress.
       if (!this.performingFetch) {
-        void this.performFetch(accountToken);
+        void this.performFetch(accountNumber);
       }
     } else if (watcher) {
       watcher.onFinish();
@@ -75,8 +75,8 @@ export default class AccountDataCache {
     });
   }
 
-  public handleVoucherResponse(accountToken: AccountToken, voucherResponse: VoucherResponse) {
-    if (accountToken === this.currentAccount && voucherResponse.type === 'success') {
+  public handleVoucherResponse(accountNumber: AccountNumber, voucherResponse: VoucherResponse) {
+    if (accountNumber === this.currentAccount && voucherResponse.type === 'success') {
       this.setValue({ expiry: voucherResponse.newExpiry });
     }
   }
@@ -99,24 +99,24 @@ export default class AccountDataCache {
     }
   }
 
-  private async performFetch(accountToken: AccountToken) {
+  private async performFetch(accountNumber: AccountNumber) {
     this.performingFetch = true;
-    // it's possible for invalidate() to be called or for a fetch for a different account token
-    // to start before this fetch completes, so checking if the current account token is the one
+    // it's possible for invalidate() to be called or for a fetch for a different account number
+    // to start before this fetch completes, so checking if the current account number is the one
     // used is necessary below.
-    const response = await this.fetchHandler(accountToken);
+    const response = await this.fetchHandler(accountNumber);
     if ('error' in response) {
-      if (this.currentAccount === accountToken) {
-        this.handleFetchError(accountToken, response.error);
+      if (this.currentAccount === accountNumber) {
+        this.handleFetchError(accountNumber, response.error);
         this.performingFetch = false;
       }
     } else {
-      if (this.currentAccount === accountToken) {
+      if (this.currentAccount === accountNumber) {
         this.setValue(response);
 
         const refetchDelay = this.calculateRefetchDelay(response.expiry);
         if (refetchDelay) {
-          this.scheduleFetch(accountToken, refetchDelay);
+          this.scheduleFetch(accountNumber, refetchDelay);
         }
 
         this.waitStrategy.reset();
@@ -136,25 +136,25 @@ export default class AccountDataCache {
     }
   }
 
-  private handleFetchError(accountToken: AccountToken, error: AccountDataError['error']) {
+  private handleFetchError(accountNumber: AccountNumber, error: AccountDataError['error']) {
     this.notifyWatchers((w) => w.onError(error));
     if (error !== 'invalid-account') {
-      this.scheduleRetry(accountToken);
+      this.scheduleRetry(accountNumber);
     }
   }
 
-  private scheduleRetry(accountToken: AccountToken) {
+  private scheduleRetry(accountNumber: AccountNumber) {
     this.waitStrategy.increase();
     const delay = this.waitStrategy.delay();
 
     log.warn(`Failed to fetch account data. Retrying in ${delay} ms`);
 
-    this.scheduleFetch(accountToken, delay);
+    this.scheduleFetch(accountNumber, delay);
   }
 
-  private scheduleFetch(accountToken: AccountToken, delay: number) {
+  private scheduleFetch(accountNumber: AccountNumber, delay: number) {
     this.fetchRetryScheduler.schedule(() => {
-      void this.performFetch(accountToken);
+      void this.performFetch(accountNumber);
     }, delay);
   }
 

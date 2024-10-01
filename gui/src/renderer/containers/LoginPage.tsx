@@ -9,14 +9,14 @@ import { IReduxState, ReduxDispatch } from '../redux/store';
 const mapStateToProps = (state: IReduxState) => {
   const tunnelState = state.connection.status;
   const blockWhenDisconnected = state.settings.blockWhenDisconnected;
-  const { accountToken, accountHistory, status } = state.account;
+  const { accountNumber, accountHistory, status } = state.account;
 
   const showBlockMessage = tunnelState.state === 'error' || blockWhenDisconnected;
 
   const isPerformingPostUpgrade = state.userInterface.isPerformingPostUpgrade;
 
   return {
-    accountToken,
+    accountNumber,
     accountHistory,
     loginState: status,
     showBlockMessage,
@@ -24,7 +24,7 @@ const mapStateToProps = (state: IReduxState) => {
   };
 };
 const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
-  const { resetLoginError, updateAccountToken } = bindActionCreators(accountActions, dispatch);
+  const { resetLoginError, updateAccountNumber } = bindActionCreators(accountActions, dispatch);
   return {
     login: (account: string) => {
       void props.app.login(account);
@@ -33,7 +33,7 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
       resetLoginError();
     },
     openExternalLink: (url: string) => props.app.openUrl(url),
-    updateAccountToken,
+    updateAccountNumber,
     clearAccountHistory: () => props.app.clearAccountHistory(),
     createNewAccount: () => void props.app.createNewAccount(),
   };

@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 // Section for vendoring types and values that
 // this settings version depend on. See `mod.rs`.
 
-pub type AccountToken = String;
+pub type AccountNumber = String;
 
 /// Representation of a transport protocol, either UDP or TCP.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -50,7 +50,7 @@ pub enum SelectedObfuscation {
 // ======================================================
 
 pub struct MigrationData {
-    pub token: AccountToken,
+    pub token: AccountNumber,
     pub wg_data: Option<serde_json::Value>,
 }
 
@@ -120,7 +120,7 @@ pub fn migrate(settings: &mut serde_json::Value) -> Result<Option<MigrationData>
 
     let migration_data = if let Some(token) = settings.get("account_token").filter(|t| !t.is_null())
     {
-        let token: AccountToken =
+        let token: AccountNumber =
             serde_json::from_value(token.clone()).map_err(|_| Error::InvalidSettingsContent)?;
         let migration_data =
             if let Some(wg_data) = settings.get("wireguard").filter(|wg| !wg.is_null()) {

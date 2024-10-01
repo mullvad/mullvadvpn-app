@@ -238,7 +238,7 @@ impl InnerParametersGenerator {
         bridge_settings: Option<CustomProxy>,
     ) -> TunnelParameters {
         openvpn::TunnelParameters {
-            config: openvpn::ConnectionConfig::new(endpoint, data.account_token, "-".to_string()),
+            config: openvpn::ConnectionConfig::new(endpoint, data.account_number, "-".to_string()),
             options: self.tunnel_options.openvpn.clone(),
             generic_options: self.tunnel_options.generic.clone(),
             proxy: bridge_settings,

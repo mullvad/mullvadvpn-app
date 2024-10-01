@@ -31,7 +31,7 @@ class SimpleMullvadHttpClient(context: Context) {
     }
 
     fun login(accountNumber: String): String {
-        Logger.v("Attempt login with account token: $accountNumber")
+        Logger.v("Attempt login with account number: $accountNumber")
         val json = JSONObject().apply { put("account_number", accountNumber) }
         return sendSimpleSynchronousRequest(Request.Method.POST, AUTH_URL, json)!!.let { response ->
             response.getString("access_token").also { accessToken ->

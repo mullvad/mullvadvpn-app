@@ -298,8 +298,8 @@ msgid "Expand %(location)s"
 msgstr "Maximiser %(location)s"
 
 msgctxt "accessibility"
-msgid "Forget %(accountToken)s"
-msgstr "Oublier %(accountToken)s"
+msgid "Forget %(accountNumber)s"
+msgstr "Oublier %(accountNumber)s"
 
 #. Provided to accessibility tools such as screenreaders to describe
 #. the button which obscures the account number.

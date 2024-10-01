@@ -6,7 +6,7 @@ import {
   AccessMethodSetting,
   AccountDataError,
   AccountDataResponse,
-  AccountToken,
+  AccountNumber,
   BridgeSettings,
   BridgeState,
   CustomListError,
@@ -120,11 +120,11 @@ export class DaemonRpc extends GrpcClient {
     }
   }
 
-  public async getAccountData(accountToken: AccountToken): Promise<AccountDataResponse> {
+  public async getAccountData(accountNumber: AccountNumber): Promise<AccountDataResponse> {
     try {
       const response = await this.callString<grpcTypes.AccountData>(
         this.client.getAccountData,
-        accountToken,
+        accountNumber,
       );
       const expiry = response.getExpiry()!.toDate().toISOString();
       return { type: 'success', expiry };
@@ -197,9 +197,9 @@ export class DaemonRpc extends GrpcClient {
     return response.getValue();
   }
 
-  public async loginAccount(accountToken: AccountToken): Promise<AccountDataError | void> {
+  public async loginAccount(accountNumber: AccountNumber): Promise<AccountDataError | void> {
     try {
-      await this.callString(this.client.loginAccount, accountToken);
+      await this.callString(this.client.loginAccount, accountNumber);
     } catch (e) {
       const error = e as grpc.ServiceError;
       switch (error.code) {
@@ -382,9 +382,9 @@ export class DaemonRpc extends GrpcClient {
     return convertFromSettings(response)!;
   }
 
-  public async getAccountHistory(): Promise<AccountToken | undefined> {
+  public async getAccountHistory(): Promise<AccountNumber | undefined> {
     const response = await this.callEmpty<grpcTypes.AccountHistory>(this.client.getAccountHistory);
-    return response.getToken()?.getValue();
+    return response.getNumber()?.getValue();
   }
 
   public async clearAccountHistory(): Promise<void> {
@@ -472,11 +472,11 @@ export class DaemonRpc extends GrpcClient {
     await this.callBool(this.client.setDaitaSmartRouting, value);
   }
 
-  public async listDevices(accountToken: AccountToken): Promise<Array<IDevice>> {
+  public async listDevices(accountNumber: AccountNumber): Promise<Array<IDevice>> {
     try {
       const response = await this.callString<grpcTypes.DeviceList>(
         this.client.listDevices,
-        accountToken,
+        accountNumber,
       );
 
       return response.getDevicesList().map(convertFromDevice);
@@ -487,7 +487,7 @@ export class DaemonRpc extends GrpcClient {
 
   public async removeDevice(deviceRemoval: IDeviceRemoval): Promise<void> {
     const grpcDeviceRemoval = new grpcTypes.DeviceRemoval();
-    grpcDeviceRemoval.setAccountToken(deviceRemoval.accountToken);
+    grpcDeviceRemoval.setAccountNumber(deviceRemoval.accountNumber);
     grpcDeviceRemoval.setDeviceId(deviceRemoval.deviceId);
 
     await this.call<grpcTypes.DeviceRemoval, Empty>(this.client.removeDevice, grpcDeviceRemoval);

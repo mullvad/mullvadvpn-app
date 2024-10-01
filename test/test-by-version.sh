@@ -6,7 +6,7 @@ usage() {
     echo "This script downloads and tests the given app version from the build repositories."
     echo
     echo "Required environment variables:"
-    echo "  - ACCOUNT_TOKEN: Valid MullvadVPN account token"
+    echo "  - ACCOUNT_TOKEN: Valid MullvadVPN account number"
     echo "  - TEST_OS: Name of the VM configuration to use. List available configurations with 'cargo run --bin test-manager list'"
     echo "Optional environment variables:"
     echo "  - APP_VERSION: The version of the app to test (defaults to the latest stable release)"

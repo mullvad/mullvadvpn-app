@@ -1,6 +1,6 @@
-//! Generates a `device.json` from a WireGuard key and account token by matching them against
+//! Generates a `device.json` from a WireGuard key and account number by matching them against
 //! devices returned by the API and sending the `DeviceMigrationEvent` event to the daemon.
-//! The account token and private key may be lost if it fails, but this should not be not
+//! The account number and private key may be lost if it fails, but this should not be not
 //! critical since the account history also contains the token.
 //!
 //! This module is allowed to import a number of types, unlike other migration modules, as it
@@ -11,7 +11,7 @@ use crate::{
     device::{self, DeviceService, PrivateAccountAndDevice, PrivateDevice},
     DaemonEventSender, InternalDaemonEvent,
 };
-use mullvad_types::{account::AccountToken, wireguard::WireguardData};
+use mullvad_types::{account::AccountNumber, wireguard::WireguardData};
 use std::time::Duration;
 use talpid_core::mpsc::Sender;
 use talpid_types::ErrorExt;
@@ -41,13 +41,13 @@ pub(crate) fn generate_device(
         let api_handle = rest_handle.availability.clone();
         let service = DeviceService::new(rest_handle, api_handle);
         let result = match (migration_data.token, wg_data) {
-            (token, Some(wg_data)) => {
+            (account_number, Some(wg_data)) => {
                 log::info!("Creating a new device cache from previous settings");
-                cache_from_wireguard_key(service, token, wg_data).await
+                cache_from_wireguard_key(service, account_number, wg_data).await
             }
-            (token, None) => {
+            (account_number, None) => {
                 log::info!("Generating a new device for the account");
-                cache_from_account(service, token).await
+                cache_from_account(service, account_number).await
             }
         };
         let _ = daemon_tx.send(InternalDaemonEvent::DeviceMigrationEvent(result));
@@ -57,12 +57,12 @@ pub(crate) fn generate_device(
 
 async fn cache_from_wireguard_key(
     service: DeviceService,
-    account_token: AccountToken,
+    account_number: AccountNumber,
     wg_data: WireguardData,
 ) -> Result<PrivateAccountAndDevice, device::Error> {
     let devices = timeout(
         TIMEOUT,
-        service.list_devices_with_backoff(account_token.clone()),
+        service.list_devices_with_backoff(account_number.clone()),
     )
     .await
     .map_err(|_error| {
@@ -79,7 +79,7 @@ async fn cache_from_wireguard_key(
     for device in devices.into_iter() {
         if device.pubkey == wg_data.private_key.public_key() {
             return Ok(PrivateAccountAndDevice {
-                account_token,
+                account_number,
                 device: PrivateDevice::try_from_device(device, wg_data)?,
             });
         }
@@ -90,11 +90,11 @@ async fn cache_from_wireguard_key(
 
 async fn cache_from_account(
     service: DeviceService,
-    account_token: AccountToken,
+    account_number: AccountNumber,
 ) -> Result<PrivateAccountAndDevice, device::Error> {
     timeout(
         TIMEOUT,
-        service.generate_for_account_with_backoff(account_token),
+        service.generate_for_account_with_backoff(account_number),
     )
     .await
     .map_err(|_error| {
