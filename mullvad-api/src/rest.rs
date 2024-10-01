@@ -22,6 +22,7 @@ use hyper::{
 use mullvad_types::account::AccountNumber;
 use std::{
     borrow::Cow,
+    convert::Infallible,
     error::Error as StdError,
     str::FromStr,
     sync::{Arc, Weak},
@@ -70,6 +71,12 @@ pub enum Error {
 
     #[error("Set account number on factory with no access token store")]
     NoAccessTokenStore,
+}
+
+impl From<Infallible> for Error {
+    fn from(_: Infallible) -> Self {
+        unreachable!()
+    }
 }
 
 impl Error {
