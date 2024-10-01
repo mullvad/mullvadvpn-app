@@ -30,6 +30,9 @@ Line wrap the file at 100 chars.                                              Th
 - Move DAITA and multihop to the root settings view along with moving multihop into a dedicated
   view with more information.
 
+#### macOS
+- Proxy DNS queries through a local resolver.
+
 
 ## [2024.6-beta1] - 2024-09-26
 ### Added
