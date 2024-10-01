@@ -163,7 +163,6 @@ impl LocalResolver {
         query: LowerQuery,
     ) -> std::result::Result<Box<dyn LookupObject>, ResolveError> {
         if !Self::is_captive_portal_domain(&query) {
-            log::trace!("Ignoring query: {query}");
             return Ok(Box::new(EmptyLookup));
         }
 
@@ -200,11 +199,6 @@ impl LocalResolver {
         query: LowerQuery,
     ) -> std::result::Result<Box<dyn LookupObject>, ResolveError> {
         let return_query = query.original().clone();
-        log::trace!(
-            "Resolving query: {}, {}",
-            return_query.name(),
-            return_query.query_type()
-        );
 
         let lookup = resolver
             .lookup(return_query.name().clone(), return_query.query_type())
