@@ -244,7 +244,7 @@ dependencies = [
  "pin-project-lite",
  "rustversion",
  "serde",
- "sync_wrapper",
+ "sync_wrapper 1.0.1",
  "tower 0.4.13",
  "tower-layer",
  "tower-service",
@@ -265,7 +265,7 @@ dependencies = [
  "mime",
  "pin-project-lite",
  "rustversion",
- "sync_wrapper",
+ "sync_wrapper 1.0.1",
  "tower-layer",
  "tower-service",
 ]
@@ -2425,7 +2425,7 @@ dependencies = [
  "talpid-types",
  "tokio",
  "tonic",
- "tower 0.4.13",
+ "tower 0.5.1",
  "tunnel-obfuscation",
 ]
 
@@ -2469,7 +2469,7 @@ dependencies = [
  "tokio",
  "tonic",
  "tonic-build",
- "tower 0.4.13",
+ "tower 0.5.1",
 ]
 
 [[package]]
@@ -4057,6 +4057,12 @@ dependencies = [
 
 [[package]]
 name = "sync_wrapper"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2047c6ded9c721764247e62cd3b03c09ffc529b2ba5b10ec482ae507a4a70160"
+
+[[package]]
+name = "sync_wrapper"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a7065abeca94b6a8a577f9bd45aa0867a2238b74e8eb67cf10d492bc39351394"
@@ -4222,7 +4228,7 @@ dependencies = [
  "tokio",
  "tonic",
  "tonic-build",
- "tower 0.4.13",
+ "tower 0.5.1",
  "winapi",
  "windows-sys 0.52.0",
  "winres",
@@ -4304,7 +4310,7 @@ dependencies = [
  "tokio",
  "tonic",
  "tonic-build",
- "tower 0.4.13",
+ "tower 0.5.1",
  "windows-sys 0.52.0",
  "zeroize",
 ]
@@ -4659,6 +4665,10 @@ version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2873938d487c3cfb9aed7546dc9f2711d867c9f90c46b889989a2cb84eba6b4f"
 dependencies = [
+ "futures-core",
+ "futures-util",
+ "pin-project-lite",
+ "sync_wrapper 0.1.2",
  "tower-layer",
  "tower-service",
 ]
@@ -4681,7 +4691,6 @@ version = "0.1.40"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c3523ab5a71916ccf420eebdf5521fcef02141234bbc0b8a49f2fdc4544364ef"
 dependencies = [
- "log",
  "pin-project-lite",
  "tracing-attributes",
  "tracing-core",
