@@ -6,7 +6,9 @@ import { AccountDataError, AccountNumber } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { formatAccountNumber } from '../lib/account';
+import useActions from '../lib/actionsHook';
 import { formatHtml } from '../lib/html-formatter';
+import accountActions from '../redux/account/actions';
 import { LoginState } from '../redux/account/reducers';
 import { useSelector } from '../redux/store';
 import Accordion from './Accordion';
@@ -40,6 +42,37 @@ import {
   StyledTopInfo,
 } from './LoginStyles';
 
+export default function LoginContainer() {
+  const { openUrl, login, clearAccountHistory, createNewAccount } = useAppContext();
+  const { resetLoginError, updateAccountNumber } = useActions(accountActions);
+
+  const { accountNumber, accountHistory, status } = useSelector((state) => state.account);
+
+  const tunnelState = useSelector((state) => state.connection.status);
+  const blockWhenDisconnected = useSelector((state) => state.settings.blockWhenDisconnected);
+  const showBlockMessage = tunnelState.state === 'error' || blockWhenDisconnected;
+
+  const isPerformingPostUpgrade = useSelector(
+    (state) => state.userInterface.isPerformingPostUpgrade,
+  );
+
+  return (
+    <Login
+      accountNumber={accountNumber}
+      accountHistory={accountHistory}
+      loginState={status}
+      showBlockMessage={showBlockMessage}
+      openExternalLink={openUrl}
+      login={login}
+      resetLoginError={resetLoginError}
+      updateAccountNumber={updateAccountNumber}
+      clearAccountHistory={clearAccountHistory}
+      createNewAccount={createNewAccount}
+      isPerformingPostUpgrade={isPerformingPostUpgrade}
+    />
+  );
+}
+
 interface IProps {
   accountNumber?: AccountNumber;
   accountHistory?: AccountNumber;
@@ -60,7 +93,7 @@ interface IState {
 
 const MIN_ACCOUNT_NUMBER_LENGTH = 10;
 
-export default class Login extends React.Component<IProps, IState> {
+class Login extends React.Component<IProps, IState> {
   public state: IState = {
     isActive: true,
   };

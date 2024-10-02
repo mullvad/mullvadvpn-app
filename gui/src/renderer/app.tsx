@@ -437,7 +437,7 @@ export default class AppRenderer {
     await this.disconnectTunnel();
   };
 
-  public async createNewAccount() {
+  public createNewAccount = async () => {
     log.info('Creating account');
 
     const actions = this.reduxActions;
