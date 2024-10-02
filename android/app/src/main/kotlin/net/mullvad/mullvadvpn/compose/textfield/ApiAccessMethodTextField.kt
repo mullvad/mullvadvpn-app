@@ -57,7 +57,7 @@ fun ApiAccessMethodTextField(
         keyboardOptions =
             KeyboardOptions(
                 capitalization = capitalization,
-                autoCorrect = false,
+                autoCorrectEnabled = false,
                 keyboardType = keyboardType,
                 imeAction = imeAction,
             ),
