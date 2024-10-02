@@ -23,6 +23,6 @@ public protocol DefaultPathObserverProtocol {
 }
 
 /// A type that represents a network path.
-public protocol NetworkPath {
+public protocol NetworkPath: Sendable {
     var status: NetworkExtension.NWPathStatus { get }
 }

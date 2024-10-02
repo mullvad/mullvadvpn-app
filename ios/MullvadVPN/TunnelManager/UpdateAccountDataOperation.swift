@@ -13,7 +13,7 @@ import MullvadSettings
 import MullvadTypes
 import Operations
 
-class UpdateAccountDataOperation: ResultOperation<Void> {
+class UpdateAccountDataOperation: ResultOperation<Void>, @unchecked Sendable {
     private let logger = Logger(label: "UpdateAccountDataOperation")
     private let interactor: TunnelInteractor
     private let accountsProxy: RESTAccountHandling

@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import WireGuardKitTypes
+@preconcurrency import WireGuardKitTypes
 
 extension PacketTunnelActor {
     /**

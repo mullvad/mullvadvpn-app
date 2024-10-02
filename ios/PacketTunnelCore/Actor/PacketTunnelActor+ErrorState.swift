@@ -9,7 +9,7 @@
 import Foundation
 import MullvadTypes
 import Network
-import WireGuardKitTypes
+@preconcurrency import WireGuardKitTypes
 
 extension PacketTunnelActor {
     /**

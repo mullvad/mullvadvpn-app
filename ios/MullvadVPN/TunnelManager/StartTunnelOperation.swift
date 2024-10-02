@@ -13,7 +13,7 @@ import NetworkExtension
 import Operations
 import PacketTunnelCore
 
-class StartTunnelOperation: ResultOperation<Void> {
+class StartTunnelOperation: ResultOperation<Void>, @unchecked Sendable {
     typealias EncodeErrorHandler = (Error) -> Void
 
     private let interactor: TunnelInteractor

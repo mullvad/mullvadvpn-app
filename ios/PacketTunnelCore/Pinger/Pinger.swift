@@ -12,7 +12,7 @@ import Network
 // This is the legacy Pinger using native TCP/IP networking.
 
 /// ICMP client.
-public final class Pinger: PingerProtocol {
+public final class Pinger: PingerProtocol, @unchecked Sendable {
     // Socket read buffer size.
     private static let bufferSize = 65535
 

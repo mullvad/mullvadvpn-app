@@ -39,7 +39,7 @@ import Foundation
 }
 
 /// A base implementation of an asynchronous operation
-open class AsyncOperation: Operation {
+open class AsyncOperation: Operation, @unchecked Sendable {
     /// Mutex lock used for guarding critical sections of operation lifecycle.
     private let operationLock = NSRecursiveLock()
 

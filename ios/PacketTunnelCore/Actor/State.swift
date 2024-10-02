@@ -87,7 +87,7 @@ enum State: Equatable {
 }
 
 /// Enum describing network availability.
-public enum NetworkReachability: Equatable, Codable {
+public enum NetworkReachability: Equatable, Codable, Sendable {
     case undetermined, reachable, unreachable
 }
 
@@ -188,7 +188,7 @@ extension State {
 }
 
 /// Reason why packet tunnel entered error state.
-public enum BlockedStateReason: String, Codable, Equatable {
+public enum BlockedStateReason: String, Codable, Equatable, Sendable {
     /// Device is locked.
     case deviceLocked
 
@@ -241,7 +241,7 @@ extension State.BlockingData {
 }
 
 /// Describes which relay the tunnel should connect to next.
-public enum NextRelays: Equatable, Codable {
+public enum NextRelays: Equatable, Codable, Sendable {
     /// Select next relays randomly.
     case random
 
@@ -253,7 +253,7 @@ public enum NextRelays: Equatable, Codable {
 }
 
 /// Describes the reason for reconnection request.
-public enum ActorReconnectReason: Equatable {
+public enum ActorReconnectReason: Equatable, Sendable {
     /// Initiated by user.
     case userInitiated
 

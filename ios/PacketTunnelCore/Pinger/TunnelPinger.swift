@@ -12,7 +12,7 @@ import Network
 import PacketTunnelCore
 import WireGuardKit
 
-public final class TunnelPinger: PingerProtocol {
+public final class TunnelPinger: PingerProtocol, @unchecked Sendable {
     private var sequenceNumber: UInt16 = 0
     private let stateLock = NSRecursiveLock()
     private let pingQueue: DispatchQueue

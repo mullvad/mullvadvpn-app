@@ -7,11 +7,11 @@
 //
 
 import Foundation
-import MullvadLogging
+@preconcurrency import MullvadLogging
 import MullvadTypes
 import NetworkExtension
 import PacketTunnelCore
-import WireGuardKit
+@preconcurrency import WireGuardKit
 
 struct WgAdapter: TunnelAdapterProtocol {
     let logger = Logger(label: "WgAdapter")

@@ -14,7 +14,7 @@ import MullvadTypes
 import Operations
 import WireGuardKitTypes
 
-class UpdateDeviceDataOperation: ResultOperation<StoredDeviceData> {
+class UpdateDeviceDataOperation: ResultOperation<StoredDeviceData>, @unchecked Sendable {
     private let interactor: TunnelInteractor
     private let devicesProxy: DeviceHandling
 

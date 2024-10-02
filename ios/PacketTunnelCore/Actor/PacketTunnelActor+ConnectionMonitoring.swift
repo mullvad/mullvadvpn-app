@@ -1,5 +1,5 @@
 //
-//  Actor+ConnectionMonitoring.swift
+//  PacketTunnelActor+ConnectionMonitoring.swift
 //  PacketTunnelCore
 //
 //  Created by pronebird on 26/09/2023.

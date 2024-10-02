@@ -9,11 +9,10 @@
 import Foundation
 import MullvadTypes
 import Network
-
-import WireGuardKitTypes
+@preconcurrency import WireGuardKitTypes
 
 /// Protocol describing interface for any kind of adapter implementing a VPN tunnel.
-public protocol TunnelAdapterProtocol {
+public protocol TunnelAdapterProtocol: Sendable {
     /// Start tunnel adapter or update active configuration.
     func start(configuration: TunnelAdapterConfiguration, daita: DaitaConfiguration?) async throws
 
@@ -29,7 +28,7 @@ public protocol TunnelAdapterProtocol {
 }
 
 /// Struct describing tunnel adapter configuration.
-public struct TunnelAdapterConfiguration {
+public struct TunnelAdapterConfiguration: Sendable {
     public var privateKey: PrivateKey
     public var interfaceAddresses: [IPAddressRange]
     public var dns: [IPAddress]
@@ -38,7 +37,7 @@ public struct TunnelAdapterConfiguration {
 }
 
 /// Struct describing a single peer.
-public struct TunnelPeer {
+public struct TunnelPeer: Sendable {
     public var endpoint: AnyIPEndpoint
     public var publicKey: PublicKey
     public var preSharedKey: PreSharedKey?

@@ -7,13 +7,13 @@
 //
 
 import Foundation
-import MullvadLogging
+@preconcurrency import MullvadLogging
 import MullvadREST
 import MullvadRustRuntime
 import MullvadSettings
 import MullvadTypes
 import NetworkExtension
-import WireGuardKitTypes
+@preconcurrency import WireGuardKitTypes
 
 /**
  Packet tunnel state machine implemented as an actor.

@@ -15,11 +15,11 @@ public protocol Cancellable {
 extension Operation: Cancellable {}
 
 /// An object representing a cancellation token.
-public final class AnyCancellable: Cancellable {
-    private let block: (() -> Void)?
+public final class AnyCancellable: Cancellable, Sendable {
+    private let block: (@Sendable () -> Void)?
 
     /// Create cancellation token with block handler.
-    public init(block: @escaping () -> Void) {
+    public init(block: @Sendable @escaping () -> Void) {
         self.block = block
     }
 

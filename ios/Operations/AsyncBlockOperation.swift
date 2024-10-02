@@ -10,7 +10,7 @@ import Foundation
 import protocol MullvadTypes.Cancellable
 
 /// Asynchronous block operation
-public class AsyncBlockOperation: AsyncOperation {
+public class AsyncBlockOperation: AsyncOperation, @unchecked Sendable {
     private var executor: ((@escaping (Error?) -> Void) -> Cancellable?)?
     private var cancellableTask: Cancellable?
 
