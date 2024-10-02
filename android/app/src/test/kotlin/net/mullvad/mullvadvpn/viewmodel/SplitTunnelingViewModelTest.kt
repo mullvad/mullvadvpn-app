@@ -11,6 +11,7 @@ import io.mockk.unmockkAll
 import io.mockk.verify
 import java.util.concurrent.TimeUnit
 import kotlin.test.assertEquals
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -27,6 +28,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Timeout
 import org.junit.jupiter.api.extension.ExtendWith
 
+@ExperimentalCoroutinesApi
 @ExtendWith(TestCoroutineRule::class)
 @Timeout(3000L, unit = TimeUnit.MILLISECONDS)
 class SplitTunnelingViewModelTest {
