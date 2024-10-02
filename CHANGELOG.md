@@ -30,7 +30,6 @@ Line wrap the file at 100 chars.                                              Th
 - Move DAITA and multihop to the root settings view along with moving multihop into a dedicated
   view with more information.
 
-
 ## [2024.6-beta1] - 2024-09-26
 ### Added
 - Add WireGuard over Shadowsocks obfuscation. It can be enabled in "WireGuard settings". This will
@@ -66,6 +65,9 @@ Line wrap the file at 100 chars.                                              Th
 - Reduce packet loss when using split tunneling.
 - Don't block fragmented packets in the PF firewall. Fixes various issues relating to connecting
   (and general instability) when IP fragmentation is present.
+
+#### Windows
+- Add potential fix for a rare error when creating the Mullvad Wintun-adapter for OpenVPN
 
 
 ## [2024.5] - 2024-09-03
