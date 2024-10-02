@@ -1,7 +1,6 @@
 package net.mullvad.mullvadvpn.compose.screen
 
 import android.graphics.Bitmap
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -203,7 +202,6 @@ private fun LazyListScope.appList(
     )
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 private fun LazyListScope.appItems(
     apps: List<AppData>,
     focusManager: FocusManager,
@@ -247,7 +245,6 @@ private fun LazyListScope.appItems(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 private fun LazyListScope.headerItem(key: String, textId: Int, enabled: Boolean) {
     itemWithDivider(key = key, contentType = ContentType.HEADER) {
         HeaderCell(
@@ -266,7 +263,6 @@ private fun LazyListScope.headerItem(key: String, textId: Int, enabled: Boolean)
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 private fun LazyListScope.systemAppsToggle(
     showSystemApps: Boolean,
     onShowSystemAppsClick: (show: Boolean) -> Unit,
@@ -294,7 +290,6 @@ private fun LazyListScope.systemAppsToggle(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 private fun LazyListScope.spacer() {
     item(contentType = ContentType.SPACER) {
         Spacer(modifier = Modifier.animateItem().height(Dimens.mediumPadding))
