@@ -187,7 +187,13 @@ class SimpleMullvadHttpClient(context: Context) {
     }
 
     operator fun <T> JSONArray.iterator(): Iterator<T> =
-        (0 until this.length()).asSequence().map { this.get(it) as T }.iterator()
+        (0 until length())
+            .asSequence()
+            .map {
+                @Suppress("UNCHECKED_CAST")
+                get(it) as T
+            }
+            .iterator()
 
     companion object {
         private const val REQUEST_ERROR_MESSAGE =
