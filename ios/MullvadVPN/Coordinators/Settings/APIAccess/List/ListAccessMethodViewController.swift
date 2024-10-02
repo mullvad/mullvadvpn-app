@@ -16,7 +16,7 @@ enum ListAccessMethodSectionIdentifier: Hashable {
 }
 
 struct ListAccessMethodItemIdentifier: Hashable {
-    var id: UUID
+    let id: UUID
 }
 
 /// View controller presenting a list of API access methods.
@@ -200,6 +200,8 @@ class ListAccessMethodViewController: UIViewController, UITableViewDelegate {
         if let cell = cell as? CustomCellDisclosureHandling {
             cell.disclosureType = .chevron
         }
+
+        cell.accessibilityIdentifier = item.accessibilityId
 
         return cell
     }

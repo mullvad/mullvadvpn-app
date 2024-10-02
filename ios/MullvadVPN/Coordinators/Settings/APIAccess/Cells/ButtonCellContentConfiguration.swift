@@ -25,6 +25,9 @@ struct ButtonCellContentConfiguration: UIContentConfiguration, Equatable {
     /// The button content edge insets.
     var directionalContentEdgeInsets: NSDirectionalEdgeInsets = UIMetrics.SettingsCell.insetLayoutMargins
 
+    // Accessibiliry identifier.
+    var accessibilityIdentifier: AccessibilityIdentifier?
+
     func makeContentView() -> UIView & UIContentView {
         return ButtonCellContentView(configuration: self)
     }
