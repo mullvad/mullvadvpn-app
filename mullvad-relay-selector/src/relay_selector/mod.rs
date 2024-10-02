@@ -135,6 +135,8 @@ pub struct AdditionalWireguardConstraints {
 /// Values which affect the choice of relay but are only known at runtime.
 #[derive(Clone, Debug)]
 pub struct RuntimeParameters {
+    /// Whether IPv4 is available
+    pub ipv4: bool,
     /// Whether IPv6 is available
     pub ipv6: bool,
 }
@@ -163,7 +165,10 @@ impl RuntimeParameters {
 #[allow(clippy::derivable_impls)]
 impl Default for RuntimeParameters {
     fn default() -> Self {
-        RuntimeParameters { ipv6: false }
+        RuntimeParameters {
+            ipv4: false,
+            ipv6: false,
+        }
     }
 }
 

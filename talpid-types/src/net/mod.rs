@@ -601,6 +601,13 @@ impl Connectivity {
         )
     }
 
+    /// Whether IPv4 connectivity seems to be available on the host.
+    ///
+    /// If IPv4 status is unknown, `false` is returned.
+    pub const fn has_ipv4(&self) -> bool {
+        matches!(self, Connectivity::Status { ipv4: true, .. })
+    }
+
     /// Whether IPv6 connectivity seems to be available on the host.
     ///
     /// If IPv6 status is unknown, `false` is returned.
