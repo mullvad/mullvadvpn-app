@@ -68,6 +68,9 @@ Line wrap the file at 100 chars.                                              Th
 - Don't block fragmented packets in the PF firewall. Fixes various issues relating to connecting
   (and general instability) when IP fragmentation is present.
 
+#### Windows
+- Add potential fix for a rare error when creating the Mullvad Wintun-adapter for OpenVPN
+
 
 ## [2024.5] - 2024-09-03
 ### Fixed
