@@ -16,7 +16,7 @@ public struct CustomList: Codable, Equatable {
 
     public init(id: UUID = UUID(), name: String, locations: [RelayLocation]) {
         self.id = id
-        self.name = name
+        self.name = name 
         self.locations = locations
     }
 }

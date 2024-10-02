@@ -27,7 +27,7 @@ final class LogRotationTests: XCTestCase {
         try fileManager.removeItem(at: directoryPath)
     }
 
-    func testRotatingActiveLogWhenSizeLimitIsExceeded() throws {
+    func testRotatingActiveLogWhenSizeLimitIsExceeded() async throws {
         let logName = "test.log"
         let logPath = directoryPath.appendingPathComponent(logName)
 
@@ -44,6 +44,7 @@ final class LogRotationTests: XCTestCase {
 
             // Without sync between every write the test fails on Github.
             sync()
+            try await Task.sleep(nanoseconds: 100_000_000)
         }
 
         let actualLogCount = try fileManager.contentsOfDirectory(atPath: directoryPath.relativePath).count
