@@ -2,7 +2,7 @@
 //! immediately instead of after the socket times out.
 
 use futures::{channel::oneshot, future::Fuse, FutureExt};
-use hyper::client::connect::{Connected, Connection};
+use hyper_util::client::legacy::connect::{Connected, Connection};
 use std::{
     future::Future,
     io,
