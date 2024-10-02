@@ -54,14 +54,14 @@ final class LocationDataSource:
         defaultRowAnimation = .fade
     }
 
-    func setRelays(_ cachedRelays: LocationRelays, selectedRelays: RelaySelection) {
+    func setRelays(_ relaysWithLocation: LocationRelays, selectedRelays: RelaySelection) {
         let allLocationsDataSource =
             dataSources.first(where: { $0 is AllLocationDataSource }) as? AllLocationDataSource
 
         let customListsDataSource =
             dataSources.first(where: { $0 is CustomListsDataSource }) as? CustomListsDataSource
 
-        allLocationsDataSource?.reload(cachedRelays)
+        allLocationsDataSource?.reload(relaysWithLocation)
         customListsDataSource?.reload(allLocationNodes: allLocationsDataSource?.nodes ?? [])
 
         setSelectedRelays(selectedRelays)
