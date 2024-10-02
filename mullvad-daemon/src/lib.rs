@@ -380,9 +380,6 @@ pub enum DaemonCommand {
     ExportJsonSettings(ResponseTx<String, settings::patch::Error>),
     /// Request the current feature indicators.
     GetFeatureIndicators(oneshot::Sender<FeatureIndicators>),
-    /// Set if we should leak traffic to Apple services.
-    #[cfg(target_os = "macos")]
-    SetAppleServicesBypass(ResponseTx<(), settings::Error>, bool),
 }
 
 /// All events that can happen in the daemon. Sent from various threads and exposed interfaces.
@@ -770,8 +767,6 @@ impl Daemon {
                 reset_firewall: *target_state != TargetState::Secured,
                 #[cfg(any(windows, target_os = "android", target_os = "macos"))]
                 exclude_paths,
-                #[cfg(target_os = "macos")]
-                apple_services_bypass: settings.apple_services_bypass,
             },
             parameters_generator.clone(),
             log_dir,
@@ -1339,10 +1334,6 @@ impl Daemon {
             ApplyJsonSettings(tx, blob) => self.on_apply_json_settings(tx, blob).await,
             ExportJsonSettings(tx) => self.on_export_json_settings(tx),
             GetFeatureIndicators(tx) => self.on_get_feature_indicators(tx),
-            #[cfg(target_os = "macos")]
-            SetAppleServicesBypass(tx, enabled) => {
-                self.on_set_apple_services_bypass(tx, enabled).await
-            }
         }
     }
 
@@ -2812,12 +2803,6 @@ impl Daemon {
         let (tx, _rx) = oneshot::channel();
         self.send_tunnel_command(TunnelCommand::AllowLan(self.settings.allow_lan, tx));
 
-        #[cfg(target_os = "macos")]
-        self.send_tunnel_command(TunnelCommand::AppleServicesBypass(
-            oneshot::channel().0,
-            self.settings.apple_services_bypass,
-        ));
-
         let (tx, _rx) = oneshot::channel();
         let dns = dns::addresses_from_options(&self.settings.tunnel_options.dns_options);
         self.send_tunnel_command(TunnelCommand::Dns(dns, tx));
@@ -2960,37 +2945,6 @@ impl Daemon {
             _ => FeatureIndicators::default(),
         };
         Self::oneshot_send(tx, feature_indicators, "get_feature_indicators response");
-    }
-
-    #[cfg(target_os = "macos")]
-    async fn on_set_apple_services_bypass(
-        &mut self,
-        tx: ResponseTx<(), settings::Error>,
-        enabled: bool,
-    ) {
-        let result = self
-            .settings
-            .update(|settings| settings.apple_services_bypass = enabled)
-            .await;
-
-        match result {
-            Ok(settings_changed) => {
-                if settings_changed {
-                    self.send_tunnel_command(TunnelCommand::AppleServicesBypass(
-                        oneshot_map(tx, |tx, ()| {
-                            Self::oneshot_send(tx, Ok(()), "set_apple_services_bypass response");
-                        }),
-                        enabled,
-                    ));
-                } else {
-                    Self::oneshot_send(tx, Ok(()), "set_apple_services_bypass response");
-                }
-            }
-            Err(e) => {
-                log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
-                Self::oneshot_send(tx, Err(e), "set_apple_services_bypass response");
-            }
-        }
     }
 
     /// Set the target state of the client. If it changed trigger the operations needed to

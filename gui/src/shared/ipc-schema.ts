@@ -77,7 +77,6 @@ export interface IAppStateSnapshot {
   navigationHistory?: IHistoryObject;
   currentApiAccessMethod?: AccessMethodSetting;
   isMacOs13OrNewer: boolean;
-  isMacOs14p6OrNewer: boolean;
 }
 
 // The different types of requests are:
@@ -187,7 +186,6 @@ export const ipcSchema = {
     setRelaySettings: invoke<RelaySettings, void>(),
     updateBridgeSettings: invoke<BridgeSettings, void>(),
     setDnsOptions: invoke<IDnsOptions, void>(),
-    setAppleServicesBypass: invoke<boolean, void>(),
     setObfuscationSettings: invoke<ObfuscationSettings, void>(),
     addApiAccessMethod: invoke<NewAccessMethodSetting, string>(),
     updateApiAccessMethod: invoke<AccessMethodSetting, void>(),

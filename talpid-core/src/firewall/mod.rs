@@ -94,9 +94,6 @@ pub enum FirewallPolicy {
         /// Interface to redirect (VPN tunnel) traffic to
         #[cfg(target_os = "macos")]
         redirect_interface: Option<String>,
-        /// Flag setting if we should leak traffic to apple services.
-        #[cfg(target_os = "macos")]
-        apple_services_bypass: bool,
         /// Destination port for DNS traffic redirection. Traffic destined to `127.0.0.1:53` will
         /// be redirected to `127.0.0.1:$dns_redirect_port`.
         #[cfg(target_os = "macos")]
@@ -117,9 +114,6 @@ pub enum FirewallPolicy {
         /// Interface to redirect (VPN tunnel) traffic to
         #[cfg(target_os = "macos")]
         redirect_interface: Option<String>,
-        /// Flag setting if we should leak traffic to apple services.
-        #[cfg(target_os = "macos")]
-        apple_services_bypass: bool,
         /// Destination port for DNS traffic redirection. Traffic destined to `127.0.0.1:53` will
         /// be redirected to `127.0.0.1:$dns_redirect_port`.
         #[cfg(target_os = "macos")]
@@ -136,9 +130,6 @@ pub enum FirewallPolicy {
         /// be redirected to `127.0.0.1:$dns_redirect_port`.
         #[cfg(target_os = "macos")]
         dns_redirect_port: u16,
-        /// Flag setting if we should leak traffic to apple services.
-        #[cfg(target_os = "macos")]
-        apple_services_bypass: bool,
     },
 }
 

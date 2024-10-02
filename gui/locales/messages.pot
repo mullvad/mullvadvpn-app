@@ -1535,10 +1535,6 @@ msgid "Support"
 msgstr ""
 
 msgctxt "settings-view"
-msgid "This a temporary fix and we are currently working on a long-term solution."
-msgstr ""
-
-msgctxt "settings-view"
 msgid "Update available. Install the latest app version to stay up to date."
 msgstr ""
 
