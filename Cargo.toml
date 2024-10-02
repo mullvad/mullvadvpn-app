@@ -69,7 +69,7 @@ tokio = { version = "1.8" }
 parity-tokio-ipc = "0.9"
 futures = "0.3.15"
 # Tonic and related crates
-tonic = "0.12.2"
+tonic = "0.12.3"
 tonic-build = { version = "0.10.0", default-features = false }
 tower = "0.4"
 prost = "0.13.3"
