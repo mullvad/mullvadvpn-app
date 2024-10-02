@@ -1,22 +1,26 @@
 //
-//  IPOverrideHeaderView.swift
+//  InfoHeaderView.swift
 //  MullvadVPN
 //
-//  Created by Jon Petersson on 2024-03-20.
+//  Created by Jon Petersson on 2024-10-01.
 //  Copyright © 2024 Mullvad VPN AB. All rights reserved.
 //
 
+import MullvadSettings
 import UIKit
 
-/// Header view pinned at the top of ``IPOverrideViewController``.
-class IPOverrideHeaderView: UIView, UITextViewDelegate {
-    /// Event handler invoked when user taps on the link to learn more about API access.
+/// Header view pinned at the top of a ``ViewController``.
+class InfoHeaderView: UIView, UITextViewDelegate {
+    /// Event handler invoked when user taps on the link.
     var onAbout: (() -> Void)?
 
     private let textView = UITextView()
+    private let config: InfoHeaderConfig
 
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    init(config: InfoHeaderConfig) {
+        self.config = config
+
+        super.init(frame: .zero)
 
         textView.backgroundColor = .clear
         textView.dataDetectorTypes = .link
@@ -50,19 +54,6 @@ class IPOverrideHeaderView: UIView, UITextViewDelegate {
     ]
 
     private func makeAttributedString() -> NSAttributedString {
-        let body = NSLocalizedString(
-            "IP_OVERRIDE_HEADER_BODY",
-            tableName: "IPOverride",
-            value: "Import files or text with new IP addresses for the servers in the Select location view.",
-            comment: ""
-        )
-        let link = NSLocalizedString(
-            "IP_OVERRIDE_HEADER_LINK",
-            tableName: "IPOverride",
-            value: "About IP override...",
-            comment: ""
-        )
-
         var linkAttributes = defaultLinkAttributes
         linkAttributes[.link] = "#"
 
@@ -70,9 +61,9 @@ class IPOverrideHeaderView: UIView, UITextViewDelegate {
         paragraphStyle.lineBreakMode = .byWordWrapping
 
         let attributedString = NSMutableAttributedString()
-        attributedString.append(NSAttributedString(string: body, attributes: defaultTextAttributes))
+        attributedString.append(NSAttributedString(string: config.body, attributes: defaultTextAttributes))
         attributedString.append(NSAttributedString(string: " ", attributes: defaultTextAttributes))
-        attributedString.append(NSAttributedString(string: link, attributes: linkAttributes))
+        attributedString.append(NSAttributedString(string: config.link, attributes: linkAttributes))
         attributedString.addAttribute(
             .paragraphStyle,
             value: paragraphStyle,

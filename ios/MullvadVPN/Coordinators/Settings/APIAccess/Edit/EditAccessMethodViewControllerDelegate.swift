@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadSettings
 
 protocol EditAccessMethodViewControllerDelegate: AnyObject, AccessMethodEditing {
     /// The view controller requests the delegate to present the proxy configuration view controller.
@@ -19,4 +20,8 @@ protocol EditAccessMethodViewControllerDelegate: AnyObject, AccessMethodEditing 
     ///
     /// - Parameter controller: the calling controller.
     func controllerDidDeleteAccessMethod(_ controller: EditAccessMethodViewController)
+
+    /// The view controller requests the delegate to present information about the access method.
+    /// - Parameter controller: the calling controller.
+    func controllerShouldShowMethodInfo(_ controller: EditAccessMethodViewController, config: InfoModalConfig)
 }
