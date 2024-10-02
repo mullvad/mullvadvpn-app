@@ -7,13 +7,13 @@
 //
 
 import Combine
+import MullvadSettings
 import UIKit
 
 class IPOverrideViewController: UIViewController {
     private let interactor: IPOverrideInteractor
     private var cancellables = Set<AnyCancellable>()
     private let alertPresenter: AlertPresenter
-    private let headerView = IPOverrideHeaderView()
 
     weak var delegate: IPOverrideViewControllerDelegate?
 
@@ -81,6 +81,21 @@ class IPOverrideViewController: UIViewController {
     }
 
     private func addHeaderView() {
+        let body = NSLocalizedString(
+            "ACCESS_METHOD_HEADER_BODY",
+            tableName: "APIAccess",
+            value: "Manage default and setup custom methods to access the Mullvad API.",
+            comment: ""
+        )
+        let link = NSLocalizedString(
+            "ACCESS_METHOD_HEADER_LINK",
+            tableName: "APIAccess",
+            value: "About API access...",
+            comment: ""
+        )
+
+        let headerView = InfoHeaderView(config: InfoHeaderConfig(body: body, link: link))
+
         headerView.onAbout = { [weak self] in
             self?.delegate?.presentAbout()
         }

@@ -26,7 +26,6 @@ class ListAccessMethodViewController: UIViewController, UITableViewDelegate {
         ListAccessMethodItemIdentifier
     >
 
-    private let headerView = ListAccessMethodHeaderView()
     private let interactor: ListAccessMethodInteractorProtocol
     private var lastReachableMethodItem: ListAccessMethodItem?
     private var cancellables = Set<AnyCancellable>()
@@ -54,10 +53,6 @@ class ListAccessMethodViewController: UIViewController, UITableViewDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        headerView.onAbout = { [weak self] in
-            self?.sendAbout()
-        }
-
         view.backgroundColor = .secondaryColor
 
         tableView.delegate = self
@@ -69,10 +64,11 @@ class ListAccessMethodViewController: UIViewController, UITableViewDelegate {
 
         view.accessibilityIdentifier = .apiAccessView
 
+        let headerView = createHeaderView()
         view.addConstrainedSubviews([headerView, tableView]) {
-            headerView.pinEdgesToSuperview(.all().excluding(.bottom))
+            headerView.pinEdgesToSuperviewMargins(PinnableEdges([.leading(8), .trailing(8), .top(0)]))
             tableView.pinEdgesToSuperview(.all().excluding(.top))
-            tableView.topAnchor.constraint(equalTo: headerView.bottomAnchor)
+            tableView.topAnchor.constraint(equalTo: headerView.bottomAnchor, constant: 20)
         }
 
         addChild(contentController)
@@ -145,6 +141,29 @@ class ListAccessMethodViewController: UIViewController, UITableViewDelegate {
             value: "API access",
             comment: ""
         )
+    }
+
+    private func createHeaderView() -> InfoHeaderView {
+        let body = NSLocalizedString(
+            "ACCESS_METHOD_HEADER_BODY",
+            tableName: "APIAccess",
+            value: "Manage default and setup custom methods to access the Mullvad API.",
+            comment: ""
+        )
+        let link = NSLocalizedString(
+            "ACCESS_METHOD_HEADER_LINK",
+            tableName: "APIAccess",
+            value: "About API access...",
+            comment: ""
+        )
+
+        let headerView = InfoHeaderView(config: InfoHeaderConfig(body: body, link: link))
+
+        headerView.onAbout = { [weak self] in
+            self?.sendAbout()
+        }
+
+        return headerView
     }
 
     private func configureDataSource() {
