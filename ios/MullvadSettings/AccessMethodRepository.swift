@@ -12,24 +12,28 @@ import MullvadLogging
 import MullvadTypes
 
 public class AccessMethodRepository: AccessMethodRepositoryProtocol {
+    public static let directId = UUID(uuidString: "C9DB7457-2A55-42C3-A926-C07F82131994")!
+    public static let bridgeId = UUID(uuidString: "8586E75A-CA7B-4432-B70D-EE65F3F95084")!
+    public static let encryptedDNSId = UUID(uuidString: "831CB1F8-1829-42DD-B9DC-82902F298EC0")!
+
     private let logger = Logger(label: "AccessMethodRepository")
 
     private let direct = PersistentAccessMethod(
-        id: UUID(uuidString: "C9DB7457-2A55-42C3-A926-C07F82131994")!,
+        id: AccessMethodRepository.directId,
         name: "Direct",
         isEnabled: true,
         proxyConfiguration: .direct
     )
 
     private let bridge = PersistentAccessMethod(
-        id: UUID(uuidString: "8586E75A-CA7B-4432-B70D-EE65F3F95084")!,
+        id: AccessMethodRepository.bridgeId,
         name: "Mullvad bridges",
         isEnabled: true,
         proxyConfiguration: .bridges
     )
 
     private let encryptedDNS = PersistentAccessMethod(
-        id: UUID(uuidString: "831CB1F8-1829-42DD-B9DC-82902F298EC0")!,
+        id: AccessMethodRepository.encryptedDNSId,
         name: "Encrypted DNS proxy",
         isEnabled: true,
         proxyConfiguration: .encryptedDNS

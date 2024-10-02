@@ -19,14 +19,6 @@ enum EditAccessMethodSectionIdentifier: Hashable {
     /// The section footer text.
     var sectionFooter: String? {
         switch self {
-        case .enableMethod:
-            NSLocalizedString(
-                "ENABLE_METHOD_FOOTER",
-                tableName: "APIAccess",
-                value: "When enabled, the app can try to communicate with a Mullvad API server using this method.",
-                comment: ""
-            )
-
         case .testMethod:
             NSLocalizedString(
                 "TEST_METHOD_FOOTER",
@@ -35,7 +27,7 @@ enum EditAccessMethodSectionIdentifier: Hashable {
                 comment: ""
             )
 
-        case .methodSettings, .cancelTest, .testingStatus, .deleteMethod:
+        case .enableMethod, .methodSettings, .cancelTest, .testingStatus, .deleteMethod:
             nil
         }
     }

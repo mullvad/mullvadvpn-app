@@ -32,4 +32,8 @@ public struct AccessMethodRepositoryStub: AccessMethodRepositoryDataSource {
     public func fetchLastReachable() -> PersistentAccessMethod {
         directAccess
     }
+
+    public func infoHeaderConfig(for id: UUID) -> InfoHeaderConfig? {
+        nil
+    }
 }

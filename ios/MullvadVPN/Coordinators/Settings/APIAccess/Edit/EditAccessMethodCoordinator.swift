@@ -103,6 +103,24 @@ extension EditAccessMethodCoordinator: EditAccessMethodViewControllerDelegate {
         onFinish?(self)
     }
 
+    func controllerShouldShowMethodInfo(_ controller: EditAccessMethodViewController, config: InfoModalConfig) {
+        let aboutController = AboutViewController(
+            header: config.header,
+            preamble: config.preamble,
+            body: config.body
+        )
+        let aboutNavController = UINavigationController(rootViewController: aboutController)
+
+        aboutController.navigationItem.rightBarButtonItem = UIBarButtonItem(
+            systemItem: .done,
+            primaryAction: UIAction { [weak aboutNavController] _ in
+                aboutNavController?.dismiss(animated: true)
+            }
+        )
+
+        navigationController.present(aboutNavController, animated: true)
+    }
+
     private func getViewModelSubjectFromStore() -> CurrentValueSubject<AccessMethodViewModel, Never> {
         let persistentMethod = accessMethodRepository.fetch(by: methodIdentifier)
         return CurrentValueSubject<AccessMethodViewModel, Never>(persistentMethod?.toViewModel() ?? .init())

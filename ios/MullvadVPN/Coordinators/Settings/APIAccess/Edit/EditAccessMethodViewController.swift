@@ -7,15 +7,17 @@
 //
 
 import Combine
+import MullvadSettings
 import UIKit
 
 /// The view controller providing the interface for editing the existing access method.
-class EditAccessMethodViewController: UITableViewController {
+class EditAccessMethodViewController: UIViewController {
     typealias EditAccessMethodDataSource = UITableViewDiffableDataSource<
         EditAccessMethodSectionIdentifier,
         EditAccessMethodItemIdentifier
     >
 
+    private let tableView = UITableView(frame: .zero, style: .insetGrouped)
     private let subject: CurrentValueSubject<AccessMethodViewModel, Never>
     private let interactor: EditAccessMethodInteractorProtocol
     private var alertPresenter: AlertPresenter
@@ -33,7 +35,7 @@ class EditAccessMethodViewController: UITableViewController {
         self.interactor = interactor
         self.alertPresenter = alertPresenter
 
-        super.init(style: .insetGrouped)
+        super.init(nibName: nil, bundle: nil)
     }
 
     required init?(coder: NSCoder) {
@@ -45,10 +47,18 @@ class EditAccessMethodViewController: UITableViewController {
 
         view.accessibilityIdentifier = .editAccessMethodView
         view.backgroundColor = .secondaryColor
+
         tableView.backgroundColor = .secondaryColor
-        navigationItem.largeTitleDisplayMode = .never
+        tableView.delegate = self
 
         isModalInPresentation = true
+
+        let headerView = createHeaderView()
+        view.addConstrainedSubviews([headerView, tableView]) {
+            headerView.pinEdgesToSuperviewMargins(PinnableEdges([.leading(8), .trailing(8), .top(0)]))
+            tableView.pinEdgesToSuperview(.all().excluding(.top))
+            tableView.topAnchor.constraint(equalTo: headerView.bottomAnchor, constant: 20)
+        }
 
         configureDataSource()
         configureNavigationItem()
@@ -59,15 +69,32 @@ class EditAccessMethodViewController: UITableViewController {
         interactor.cancelProxyConfigurationTest()
     }
 
-    // MARK: - UITableViewDelegate
+    private func createHeaderView() -> UIView {
+        var headerView: InfoHeaderView?
 
-    override func tableView(_ tableView: UITableView, shouldHighlightRowAt indexPath: IndexPath) -> Bool {
+        if let headerConfig = subject.value.infoHeaderConfig {
+            headerView = InfoHeaderView(config: headerConfig)
+
+            headerView?.onAbout = { [weak self] in
+                guard let self, let infoModalConfig = subject.value.infoModalConfig else { return }
+                delegate?.controllerShouldShowMethodInfo(self, config: infoModalConfig)
+            }
+        }
+
+        return headerView ?? UIView()
+    }
+}
+
+// MARK: - UITableViewDelegate
+
+extension EditAccessMethodViewController: UITableViewDelegate {
+    func tableView(_ tableView: UITableView, shouldHighlightRowAt indexPath: IndexPath) -> Bool {
         guard let itemIdentifier = dataSource?.itemIdentifier(for: indexPath) else { return false }
 
         return itemIdentifier.isSelectable
     }
 
-    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard let itemIdentifier = dataSource?.itemIdentifier(for: indexPath) else { return }
 
         if case .methodSettings = itemIdentifier {
@@ -75,29 +102,29 @@ class EditAccessMethodViewController: UITableViewController {
         }
     }
 
-    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return UIMetrics.SettingsCell.apiAccessCellHeight
     }
 
-    override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         return nil
     }
 
     // Header height shenanigans to avoid extra spacing in testing sections when testing is NOT ongoing.
-    override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         guard let sectionIdentifier = dataSource?.snapshot().sectionIdentifiers[section] else { return 0 }
 
         switch sectionIdentifier {
-        case .enableMethod, .methodSettings, .deleteMethod, .testMethod:
+        case .methodSettings, .deleteMethod, .testMethod:
             return UITableView.automaticDimension
         case .testingStatus:
             return subject.value.testingStatus == .initial ? 0 : UITableView.automaticDimension
-        case .cancelTest:
+        case .enableMethod, .cancelTest:
             return 0
         }
     }
 
-    override func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
         guard let sectionIdentifier = dataSource?.snapshot().sectionIdentifiers[section] else { return nil }
         guard let sectionFooterText = sectionIdentifier.sectionFooter else { return nil }
 
@@ -114,7 +141,7 @@ class EditAccessMethodViewController: UITableViewController {
     }
 
     // Footer height shenanigans to avoid extra spacing in testing sections when testing is NOT ongoing.
-    override func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         guard let sectionIdentifier = dataSource?.snapshot().sectionIdentifiers[section] else { return 0 }
         let marginToDeleteMethodItem: CGFloat = 24
 
@@ -377,4 +404,4 @@ class EditAccessMethodViewController: UITableViewController {
     private func onCancelTest() {
         interactor.cancelProxyConfigurationTest()
     }
-}
+} // swiftlint:disable:this file_length
