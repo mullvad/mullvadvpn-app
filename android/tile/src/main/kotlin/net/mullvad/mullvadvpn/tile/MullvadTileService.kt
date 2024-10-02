@@ -135,7 +135,7 @@ class MullvadTileService : TileService() {
                 )
             startActivityAndCollapse(pendingIntent)
         } else {
-            startActivityAndCollapse(intent)
+            @Suppress("DEPRECATION") startActivityAndCollapse(intent)
         }
     }
 
