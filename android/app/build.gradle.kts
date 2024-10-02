@@ -136,8 +136,8 @@ android {
     }
 
     kotlinOptions {
-        allWarningsAsErrors = false
         jvmTarget = Versions.jvmTarget
+        allWarningsAsErrors = true
         freeCompilerArgs =
             listOf(
                 "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",

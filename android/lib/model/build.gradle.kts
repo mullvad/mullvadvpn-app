@@ -22,7 +22,10 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions { jvmTarget = Versions.jvmTarget }
+    kotlinOptions {
+        jvmTarget = Versions.jvmTarget
+        allWarningsAsErrors = true
+    }
 
     lint {
         lintConfig = file("${rootProject.projectDir}/config/lint.xml")
