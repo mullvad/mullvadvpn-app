@@ -6,6 +6,7 @@ import android.net.ConnectivityManager.NetworkCallback
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
+import co.touchlab.kermit.Logger
 import java.net.Inet4Address
 import java.net.Inet6Address
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,6 +21,7 @@ class ConnectivityListener {
             override fun onAvailable(network: Network) {
                 availableNetworks.update { it + network }
                 val info = availableNetworks.value.info()
+                Logger.d("onAvailable: $network info = $info" )
                 notifyConnectivityChange(info.hasIpV4, info.hasIpV6, senderAddress)
             }
 
@@ -46,12 +48,12 @@ class ConnectivityListener {
                     hasIpV6 = addresses.any { it.address is Inet6Address },
                 )
             }
-            .reduce { acc, networkInfo ->
+            .reduceOrNull { acc, networkInfo ->
                 NetworkInfo(
                     hasIpV4 = acc.hasIpV4 || networkInfo.hasIpV4,
                     hasIpV6 = acc.hasIpV6 || networkInfo.hasIpV6,
                 )
-            }
+            } ?: NetworkInfo(hasIpV4 = false, hasIpV6 = false)
     }
 
     fun register(context: Context) {

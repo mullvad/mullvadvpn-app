@@ -593,6 +593,7 @@ impl RelaySelector {
                 )?;
                 // TODO: Remove
                 // Dirty hack to set IPv4 or IPv6 if one or the other is available.
+                dbg!(&query);
                 #[cfg(target_os = "android")]
                 {
                     let mut wireguard_constraints = query.wireguard_constraints().clone();
@@ -608,6 +609,7 @@ impl RelaySelector {
                     }
                     query.set_wireguard_constraints(wireguard_constraints);
                 }
+                dbg!(&query);
                 Self::get_relay_inner(&query, parsed_relays, normal_config.custom_lists)
             }
         }
