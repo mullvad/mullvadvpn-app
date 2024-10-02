@@ -1551,6 +1551,9 @@ msgctxt "settings-view"
 msgid "This a temporary fix and we are currently working on a long-term solution."
 msgstr ""
 
+msgid "%s custom port"
+msgstr ""
+
 msgctxt "settings-view"
 msgid "Update available. Install the latest app version to stay up to date."
 msgstr ""
@@ -2681,9 +2684,6 @@ msgid "While connected, your real location is masked with a private and secure l
 msgstr ""
 
 msgid "WireGuard MTU"
-msgstr ""
-
-msgid "WireGuard custom port"
 msgstr ""
 
 msgid "WireGuard obfuscation"
