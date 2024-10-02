@@ -143,6 +143,7 @@ class ManagementService(
     private var job: Job? = null
 
     // We expect daemon to create the rpc socket file on the path provided on initialisation
+    @Suppress("DEPRECATION")
     private val channel =
         UdsChannelBuilder.forPath(
                 rpcSocketFile.absolutePath,
