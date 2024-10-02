@@ -1,8 +1,6 @@
 package net.mullvad.mullvadvpn.compose.screen
 
-import android.net.Uri
 import androidx.annotation.StringRes
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -18,7 +16,6 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
@@ -37,12 +34,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.ExperimentalTextApi
+import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.UrlAnnotation
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.constraintlayout.compose.ConstrainedLayoutReference
@@ -59,7 +56,6 @@ import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithLargeTopBarAndButton
 import net.mullvad.mullvadvpn.compose.extensions.toAnnotatedString
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
-import net.mullvad.mullvadvpn.lib.common.util.openLink
 import net.mullvad.mullvadvpn.lib.common.util.openVpnSettings
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -80,7 +76,6 @@ fun AutoConnectAndLockdownMode(navigator: DestinationsNavigator) {
     AutoConnectAndLockdownModeScreen(onBackClick = dropUnlessResumed { navigator.navigateUp() })
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AutoConnectAndLockdownModeScreen(onBackClick: () -> Unit = {}) {
     val context = LocalContext.current
@@ -101,7 +96,6 @@ fun AutoConnectAndLockdownModeScreen(onBackClick: () -> Unit = {}) {
                         backButtonRef = backButtonRef,
                         nextButtonRef = nextButtonRef,
                         pager = pager,
-                        onOpenUrl = { url -> context.openLink(Uri.parse(url)) },
                     )
 
                     // Go to previous page
@@ -149,14 +143,12 @@ fun AutoConnectAndLockdownModeScreen(onBackClick: () -> Unit = {}) {
     )
 }
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalTextApi::class)
 @Composable
 private fun ConstraintLayoutScope.AutoConnectCarousel(
     pagerState: PagerState,
     backButtonRef: ConstrainedLayoutReference,
     nextButtonRef: ConstrainedLayoutReference,
     pager: ConstrainedLayoutReference,
-    onOpenUrl: (String) -> Unit,
 ) {
     HorizontalPager(
         state = pagerState,
@@ -175,18 +167,13 @@ private fun ConstraintLayoutScope.AutoConnectCarousel(
             modifier = Modifier.fillMaxWidth(),
         ) {
             val annotatedTopText = page.annotatedTopText()
-            ClickableText(
+            Text(
                 modifier = Modifier.padding(horizontal = Dimens.largePadding),
                 style =
                     MaterialTheme.typography.titleMedium.copy(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     ),
                 text = annotatedTopText,
-                onClick = {
-                    annotatedTopText.getUrlAnnotations(it, it).let { annotation ->
-                        annotation.firstOrNull()?.item?.url?.let { onOpenUrl(it) }
-                    }
-                },
             )
             Image(
                 modifier = Modifier.padding(top = Dimens.topPadding, bottom = Dimens.bottomPadding),
@@ -230,7 +217,6 @@ private fun CarouselNavigationButton(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ConstraintLayoutScope.PageIndicator(
     pagerState: PagerState,
@@ -279,14 +265,13 @@ private fun buildTopText(@StringRes id: Int) = buildAnnotatedString {
     }
 }
 
-@OptIn(ExperimentalTextApi::class)
 @Composable
 private fun buildLockdownTopText() = buildAnnotatedString {
     append(buildTopText(id = R.string.auto_connect_carousel_third_slide_top_text))
     append(" ")
 
     withLink(
-        UrlAnnotation(
+        LinkAnnotation.Url(
             stringResource(id = R.string.lockdown_url).appendHideNavOnPlayBuild(IS_PLAY_BUILD)
         )
     ) {
@@ -304,20 +289,6 @@ private fun buildLockdownTopText() = buildAnnotatedString {
             )
             append(".")
         }
-    }
-}
-
-// Will be replaced by upstream withLink in Compose UI 1.7.0
-@OptIn(ExperimentalTextApi::class)
-inline fun <R : Any> AnnotatedString.Builder.withLink(
-    annotation: UrlAnnotation,
-    block: AnnotatedString.Builder.() -> R,
-): R {
-    val index = pushUrlAnnotation(annotation)
-    return try {
-        block(this)
-    } finally {
-        pop(index)
     }
 }
 
