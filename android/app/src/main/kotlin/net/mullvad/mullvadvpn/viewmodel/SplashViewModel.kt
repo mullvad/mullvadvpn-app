@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -32,7 +33,7 @@ class SplashViewModel(
         splashCompleteRepository.onSplashCompleted()
     }
 
-    private val _uiState = MutableStateFlow<SplashScreenState>(SplashScreenState(false))
+    private val _uiState = MutableStateFlow(SplashScreenState(false))
     val uiState: StateFlow<SplashScreenState> = _uiState
 
     private suspend fun getStartDestination(): SplashUiSideEffect {
@@ -61,6 +62,7 @@ class SplashViewModel(
     }
 
     // We know the user is logged in, but we need to find out if their account has expired
+    @OptIn(ExperimentalCoroutinesApi::class)
     private suspend fun getLoggedInStartDestination(): SplashUiSideEffect {
         val expiry = viewModelScope.async { accountRepository.accountData.filterNotNull().first() }
 
