@@ -23,6 +23,7 @@ http = "1.1.0"
 hyper = { version = "1.4.1", features = ["client", "http1"] }
 hyper-util = { workspace = true}
 http-body-util = "0.1.2"
+tower = { workspace = true }
 ipnetwork = { workspace = true }
 log = { workspace = true }
 serde = { workspace = true }
