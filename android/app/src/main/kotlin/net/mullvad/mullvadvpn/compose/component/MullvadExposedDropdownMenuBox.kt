@@ -21,10 +21,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import net.mullvad.mullvadvpn.lib.theme.color.menuItemColors
 
-/*
-   This has bug with dropdown menu width that might be fixed in compose material 3 1.3
-   https://issuetracker.google.com/issues/205589613
-*/
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MullvadExposedDropdownMenuBox(
