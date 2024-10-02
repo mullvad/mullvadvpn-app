@@ -62,7 +62,7 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
             customListRepository: customListRepository,
             constraints: tunnelManager.settings.relayConstraints,
             multihopEnabled: tunnelManager.settings.tunnelMultihopState.isEnabled,
-            daitaEnabled: tunnelManager.settings.daita.state.isEnabled,
+            daitaEnabled: tunnelManager.settings.daita.daitaState.isEnabled,
             startContext: startContext
         )
         locationViewControllerWrapper.delegate = self
