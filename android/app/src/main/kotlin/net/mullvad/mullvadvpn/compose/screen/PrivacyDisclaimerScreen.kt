@@ -1,7 +1,5 @@
 package net.mullvad.mullvadvpn.compose.screen
 
-import android.content.Context
-import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -11,9 +9,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
@@ -27,10 +24,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withLink
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -52,7 +52,6 @@ import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.toDp
 import net.mullvad.mullvadvpn.constant.DAEMON_READY_TIMEOUT_MS
-import net.mullvad.mullvadvpn.lib.common.util.openLink
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
@@ -69,7 +68,6 @@ private fun PreviewPrivacyDisclaimerScreen() {
     AppTheme {
         PrivacyDisclaimerScreen(
             PrivacyDisclaimerViewState(isStartingService = false, isPlayBuild = false),
-            {},
             {},
         )
     }
@@ -108,19 +106,11 @@ fun PrivacyDisclaimer(navigator: DestinationsNavigator) {
                 }
         }
     }
-    PrivacyDisclaimerScreen(
-        state,
-        { openPrivacyPolicy(context, state.isPlayBuild) },
-        viewModel::setPrivacyDisclosureAccepted,
-    )
+    PrivacyDisclaimerScreen(state, viewModel::setPrivacyDisclosureAccepted)
 }
 
 @Composable
-fun PrivacyDisclaimerScreen(
-    state: PrivacyDisclaimerViewState,
-    onPrivacyPolicyLinkClicked: () -> Unit,
-    onAcceptClicked: () -> Unit,
-) {
+fun PrivacyDisclaimerScreen(state: PrivacyDisclaimerViewState, onAcceptClicked: () -> Unit) {
     val topColor = MaterialTheme.colorScheme.primary
     ScaffoldWithTopBar(topBarColor = topColor, onAccountClicked = null, onSettingsClicked = null) {
         val scrollState = rememberScrollState()
@@ -136,7 +126,7 @@ fun PrivacyDisclaimerScreen(
                 ),
             verticalArrangement = Arrangement.SpaceBetween,
         ) {
-            Content(onPrivacyPolicyLinkClicked)
+            Content(state.isPlayBuild)
 
             ButtonPanel(state.isStartingService, onAcceptClicked)
         }
@@ -144,7 +134,7 @@ fun PrivacyDisclaimerScreen(
 }
 
 @Composable
-private fun Content(onPrivacyPolicyLinkClicked: () -> Unit) {
+private fun Content(isPlayBuild: Boolean) {
     Column {
         Text(
             text = stringResource(id = R.string.privacy_disclaimer_title),
@@ -169,28 +159,40 @@ private fun Content(onPrivacyPolicyLinkClicked: () -> Unit) {
             color = MaterialTheme.colorScheme.onSurface,
         )
 
-        Row(modifier = Modifier.padding(top = 10.dp)) {
-            ClickableText(
-                text = AnnotatedString(stringResource(id = R.string.privacy_policy_label)),
-                onClick = { onPrivacyPolicyLinkClicked() },
-                style =
-                    TextStyle(
-                        fontSize = 12.sp,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        textDecoration = TextDecoration.Underline,
-                    ),
+        Spacer(modifier = Modifier.height(fontSize.toDp() + Dimens.smallPadding))
+
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = buildPrivacyPolicyAnnotatedString(isPlayBuild),
+                modifier = Modifier.padding(end = Dimens.miniPadding),
             )
 
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.OpenInNew,
                 contentDescription = null,
                 modifier =
-                    Modifier.align(Alignment.CenterVertically)
-                        .padding(start = 2.dp, top = 2.dp)
-                        .width(10.dp)
-                        .height(10.dp),
+                    Modifier.align(Alignment.CenterVertically).size(Dimens.privacyPolicyIconSize),
                 tint = MaterialTheme.colorScheme.onSurface,
             )
+        }
+    }
+}
+
+@Composable
+private fun buildPrivacyPolicyAnnotatedString(isPlayBuild: Boolean) = buildAnnotatedString {
+    withLink(
+        LinkAnnotation.Url(
+            stringResource(R.string.privacy_policy_url).appendHideNavOnPlayBuild(isPlayBuild)
+        )
+    ) {
+        withStyle(
+            style =
+                SpanStyle(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    textDecoration = TextDecoration.Underline,
+                )
+        ) {
+            append(stringResource(id = R.string.privacy_policy_label))
         }
     }
 }
@@ -207,14 +209,4 @@ private fun ButtonPanel(isStartingService: Boolean, onAcceptClicked: () -> Unit)
             )
         }
     }
-}
-
-private fun openPrivacyPolicy(context: Context, isPlayBuild: Boolean) {
-    context.openLink(
-        Uri.parse(
-            context.resources
-                .getString(R.string.privacy_policy_url)
-                .appendHideNavOnPlayBuild(isPlayBuild)
-        )
-    )
 }

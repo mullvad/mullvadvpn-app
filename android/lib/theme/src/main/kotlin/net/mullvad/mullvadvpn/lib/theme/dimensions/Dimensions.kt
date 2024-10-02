@@ -50,6 +50,7 @@ data class Dimensions(
     val notificationIconPadding: Dp = 10.dp,
     val notificationStatusIconSize: Dp = 10.dp,
     val obfuscationNavigationBoxWidth: Dp = 80.dp,
+    val privacyPolicyIconSize: Dp = 16.dp,
     val problemReportIconToTitlePadding: Dp = 60.dp,
     val reconnectButtonMinInteractiveComponentSize: Dp = 40.dp,
     val relayCircleSize: Dp = 16.dp,
