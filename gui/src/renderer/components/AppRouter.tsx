@@ -1,8 +1,8 @@
 import { createRef, useCallback, useEffect, useState } from 'react';
 import { Route, Switch } from 'react-router';
 
+import LoginPage from '../components/Login';
 import SelectLocation from '../components/select-location/SelectLocationContainer';
-import LoginPage from '../containers/LoginPage';
 import { useAppContext } from '../context';
 import { ITransitionSpecification, transitions, useHistory } from '../lib/history';
 import { RoutePath } from '../lib/routes';
