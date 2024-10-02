@@ -437,7 +437,7 @@ export default class AppRenderer {
     await this.disconnectTunnel();
   };
 
-  public async createNewAccount() {
+  public createNewAccount = async () => {
     log.info('Creating account');
 
     const actions = this.reduxActions;
@@ -451,7 +451,7 @@ export default class AppRenderer {
       const error = e as Error;
       actions.account.createAccountFailed(error);
     }
-  }
+  };
 
   public fetchDevices = async (accountNumber: AccountNumber): Promise<Array<IDevice>> => {
     const devices = await IpcRendererEventChannel.account.listDevices(accountNumber);
