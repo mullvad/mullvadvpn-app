@@ -30,6 +30,13 @@ Line wrap the file at 100 chars.                                              Th
 - Move DAITA and multihop to the root settings view along with moving multihop into a dedicated
   view with more information.
 
+#### Windows
+- Enable quantum-resistant tunnels by default (when set to `auto`).
+
+#### macOS
+- Don't hijack DNS when localhost is configured. This is more in line with other platforms.
+  Unexpected DNS traffic is still blocked when leaving the host.
+- Enable IPv6 by default. This fixes DNS and routing being broken on some platforms.
 
 ## [2024.6-beta1] - 2024-09-26
 ### Added
@@ -47,15 +54,9 @@ Line wrap the file at 100 chars.                                              Th
   multihop, quantum-resistant tunnels, or DAITA.
 - Improved output format of `mullvad status` command, which now also prints feature indicators.
 
-#### Windows
-- Enable quantum-resistant tunnels by default (when set to `auto`).
-
 #### macOS
 - Disable split tunnel interface when disconnected. This prevents traffic from being sent through
   the daemon when the VPN is disconnected.
-- Don't hijack DNS when localhost is configured. This is more in line with other platforms.
-  Unexpected DNS traffic is still blocked when leaving the host.
-- Enable IPv6 by default. This fixes DNS and routing being broken on some platforms.
 
 ### Fixed
 #### Linux
