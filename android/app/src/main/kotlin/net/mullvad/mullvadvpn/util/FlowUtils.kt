@@ -3,6 +3,7 @@
 package net.mullvad.mullvadvpn.util
 
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 
 inline fun <T1, T2, T3, T4, T5, T6, R> combine(
@@ -28,6 +29,7 @@ inline fun <T1, T2, T3, T4, T5, T6, R> combine(
     }
 }
 
+@OptIn(ExperimentalCoroutinesApi::class)
 fun <T> Deferred<T>.getOrDefault(default: T) =
     try {
         getCompleted()
