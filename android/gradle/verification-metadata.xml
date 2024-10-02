@@ -26,8 +26,6 @@
          <trust file=".*-sources[.]jar" regex="true"/>
          <trust file=".*[.]pom" regex="true"/>
       </trusted-artifacts>
-      <ignored-keys>
-      </ignored-keys>
       <trusted-keys>
          <trusted-key id="04543577D6A9CC626239C50C7ECBD740FF06AEB5">
             <trusting group="org.glassfish.jaxb"/>
