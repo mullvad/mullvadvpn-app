@@ -92,12 +92,6 @@ impl DisconnectingState {
                     let _ = result_tx.send(shared_values.set_exclude_paths(paths).map(|_| ()));
                     AfterDisconnect::Nothing
                 }
-                #[cfg(target_os = "macos")]
-                Some(TunnelCommand::AppleServicesBypass(complete_tx, apple_services_bypass)) => {
-                    let _ = shared_values.set_apple_services_bypass(apple_services_bypass);
-                    let _ = complete_tx.send(());
-                    AfterDisconnect::Nothing
-                }
             },
             AfterDisconnect::Block(reason) => match command {
                 Some(TunnelCommand::AllowLan(allow_lan, complete_tx)) => {
@@ -153,12 +147,6 @@ impl DisconnectingState {
                 #[cfg(target_os = "macos")]
                 Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
                     let _ = result_tx.send(shared_values.set_exclude_paths(paths).map(|_| ()));
-                    AfterDisconnect::Block(reason)
-                }
-                #[cfg(target_os = "macos")]
-                Some(TunnelCommand::AppleServicesBypass(complete_tx, apple_services_bypass)) => {
-                    let _ = shared_values.set_apple_services_bypass(apple_services_bypass);
-                    let _ = complete_tx.send(());
                     AfterDisconnect::Block(reason)
                 }
                 None => AfterDisconnect::Block(reason),
@@ -217,12 +205,6 @@ impl DisconnectingState {
                 #[cfg(target_os = "macos")]
                 Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
                     let _ = result_tx.send(shared_values.set_exclude_paths(paths).map(|_| ()));
-                    AfterDisconnect::Reconnect(retry_attempt)
-                }
-                #[cfg(target_os = "macos")]
-                Some(TunnelCommand::AppleServicesBypass(complete_tx, apple_services_bypass)) => {
-                    let _ = shared_values.set_apple_services_bypass(apple_services_bypass);
-                    let _ = complete_tx.send(());
                     AfterDisconnect::Reconnect(retry_attempt)
                 }
             },

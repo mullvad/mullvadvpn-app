@@ -162,7 +162,6 @@ impl Firewall {
         new_filter_rules.append(&mut self.get_allow_loopback_rules()?);
         new_filter_rules.append(&mut self.get_allow_dhcp_client_rules()?);
         new_filter_rules.append(&mut self.get_allow_ndp_rules()?);
-
         new_filter_rules.append(&mut self.get_policy_specific_rules(policy)?);
 
         let return_out_rule = self
@@ -317,7 +316,6 @@ impl Firewall {
                 allowed_endpoint,
                 allowed_tunnel_traffic,
                 redirect_interface,
-                apple_services_bypass,
                 dns_redirect_port: _,
             } => {
                 let mut rules = vec![self.get_allow_relay_rule(peer_endpoint)?];
@@ -355,10 +353,6 @@ impl Firewall {
                     rules.append(&mut self.get_allow_lan_rules()?);
                 }
 
-                if *apple_services_bypass {
-                    rules.append(&mut self.get_apple_services_bypass_rules()?);
-                }
-
                 Ok(rules)
             }
             FirewallPolicy::Connected {
@@ -367,7 +361,6 @@ impl Firewall {
                 allow_lan,
                 dns_config,
                 redirect_interface,
-                apple_services_bypass,
                 dns_redirect_port: _,
             } => {
                 let mut rules = vec![];
@@ -412,7 +405,6 @@ impl Firewall {
             FirewallPolicy::Blocked {
                 allow_lan,
                 allowed_endpoint,
-                apple_services_bypass,
                 ..
             } => {
                 let mut rules = Vec::new();
@@ -424,10 +416,6 @@ impl Firewall {
                     // Important to block DNS before allow LAN (so DNS does not leak to the LAN)
                     rules.append(&mut self.get_block_dns_rules()?);
                     rules.append(&mut self.get_allow_lan_rules()?);
-                }
-
-                if *apple_services_bypass {
-                    rules.append(&mut self.get_apple_services_bypass_rules()?);
                 }
 
                 Ok(rules)
@@ -706,45 +694,6 @@ impl Firewall {
         rules.push(dhcpv4_out);
         rules.push(dhcpv4_in);
 
-        Ok(rules)
-    }
-
-    /// Generate rules that allow traffic to the networks required for Apple push notification
-    /// services to work. This is a hack to get around the fact that apple services in MacOS 15 has
-    /// a bug where they don't respect the routing table.
-    ///
-    /// All allowed networks are part of apple-owned IP subnets.
-    fn get_apple_services_bypass_rules(&self) -> Result<Vec<pfctl::FilterRule>> {
-        // https://support.apple.com/en-us/102266
-        let apple_networks: &[IpNetwork] = &[
-            "17.249.0.0/16".parse().unwrap(),
-            "17.252.0.0/16".parse().unwrap(),
-            "17.57.144.0/22".parse().unwrap(),
-            "17.188.128.0/18".parse().unwrap(),
-            "17.188.20.0/23".parse().unwrap(),
-            "2620:149:a44::/48".parse().unwrap(),
-            "2403:300:a42::/48".parse().unwrap(),
-            "2403:300:a51::/48".parse().unwrap(),
-            "2a01:b740:a42::/48".parse().unwrap(),
-        ];
-
-        let apple_ports: &[u16] = &[443, 2197, 5223];
-
-        let mut rules = vec![];
-        for &net in apple_networks {
-            for &port in apple_ports {
-                let mut rule_builder = self.create_rule_builder(FilterRuleAction::Pass);
-                rule_builder.quick(true);
-                let allow_out = rule_builder
-                    .quick(true)
-                    .direction(pfctl::Direction::Out)
-                    .from(pfctl::Ip::Any)
-                    .to(Endpoint::new(pfctl::Ip::from(net), port))
-                    .keep_state(pfctl::StatePolicy::Keep)
-                    .build()?;
-                rules.push(allow_out);
-            }
-        }
         Ok(rules)
     }
 

@@ -246,7 +246,6 @@ export default class AppRenderer {
     this.setChangelog(initialState.changelog, initialState.forceShowChanges);
     this.setCurrentApiAccessMethod(initialState.currentApiAccessMethod);
     this.reduxActions.userInterface.setIsMacOs13OrNewer(initialState.isMacOs13OrNewer);
-    this.reduxActions.userInterface.setIsMacOs14p6OrNewer(initialState.isMacOs14p6OrNewer);
 
     if (initialState.macOsScrollbarVisibility !== undefined) {
       this.reduxActions.userInterface.setMacOsScrollbarVisibility(
@@ -325,8 +324,6 @@ export default class AppRenderer {
     IpcRendererEventChannel.settings.updateBridgeSettings(bridgeSettings);
   public setDnsOptions = (dnsOptions: IDnsOptions) =>
     IpcRendererEventChannel.settings.setDnsOptions(dnsOptions);
-  public setAppleServicesBypass = (enabled: boolean) =>
-    IpcRendererEventChannel.settings.setAppleServicesBypass(enabled);
   public clearAccountHistory = () => IpcRendererEventChannel.accountHistory.clear();
   public setAutoConnect = (value: boolean) =>
     IpcRendererEventChannel.guiSettings.setAutoConnect(value);
@@ -832,7 +829,6 @@ export default class AppRenderer {
     reduxSettings.updateWireguardDaita(newSettings.tunnelOptions.wireguard.daita);
     reduxSettings.updateBridgeState(newSettings.bridgeState);
     reduxSettings.updateDnsOptions(newSettings.tunnelOptions.dns);
-    reduxSettings.updateAppleServicesBypass(newSettings.appleServicesBypass);
     reduxSettings.updateSplitTunnelingState(newSettings.splitTunnel.enableExclusions);
     reduxSettings.updateObfuscationSettings(newSettings.obfuscationSettings);
     reduxSettings.updateCustomLists(newSettings.customLists);
