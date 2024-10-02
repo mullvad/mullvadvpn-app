@@ -19,6 +19,7 @@ use hyper::{
     Method,
     Uri,
 };
+use hyper_util::client::legacy::connect::Connect;
 use mullvad_types::account::AccountNumber;
 use std::{
     borrow::Cow,
@@ -45,6 +46,9 @@ pub enum Error {
 
     #[error("Request cancelled")]
     Aborted,
+
+    #[error("Legacy hyper error")]
+    LegacyHyperError(#[from] Arc<hyper_util::client::legacy::Error>),
 
     #[error("Hyper error")]
     HyperError(#[from] Arc<hyper::Error>),
@@ -87,7 +91,7 @@ impl Error {
     /// Return true if there was no route to the destination
     pub fn is_offline(&self) -> bool {
         match self {
-            Error::HyperError(error) if error.is_connect() => {
+            Error::LegacyHyperError(error) if error.is_connect() => {
                 if let Some(cause) = error.source() {
                     if let Some(err) = cause.downcast_ref::<std::io::Error>() {
                         return err.raw_os_error() == Some(libc::ENETUNREACH);
@@ -95,6 +99,7 @@ impl Error {
                 }
                 false
             }
+            // TODO: Match on `Error::HyperError` too?
             _ => false,
         }
     }
@@ -129,11 +134,7 @@ pub(crate) struct RequestService<T: ConnectionModeProvider> {
     command_tx: Weak<mpsc::UnboundedSender<RequestCommand>>,
     command_rx: mpsc::UnboundedReceiver<RequestCommand>,
     connector_handle: HttpsConnectorWithSniHandle,
-    // client: hyper_util::client::legacy::Client<
-    //     HttpsConnectorWithSni,
-    //     BoxBody<dyn hyper::body::Buf, Error>,
-    // >,
-    client: HttpsConnectorWithSni,
+    client: hyper_util::client::legacy::Client<HttpsConnectorWithSni, BoxBody<Bytes, Error>>,
     connection_mode_provider: T,
     connection_mode_generation: usize,
     api_availability: ApiAvailability,
@@ -158,8 +159,9 @@ impl<T: ConnectionModeProvider + 'static> RequestService<T> {
         connector_handle.set_connection_mode(connection_mode_provider.initial());
 
         let (command_tx, command_rx) = mpsc::unbounded();
-        // let client =
-        //     hyper_util::client::legacy::Client::builder(TokioExecutor::new()).build(connector);
+        let client =
+            hyper_util::client::legacy::Client::builder(hyper_util::rt::TokioExecutor::new())
+                .build(connector);
 
         let command_tx = Arc::new(command_tx);
 
@@ -167,7 +169,7 @@ impl<T: ConnectionModeProvider + 'static> RequestService<T> {
             command_tx: Arc::downgrade(&command_tx),
             command_rx,
             connector_handle,
-            client: connector,
+            client,
             connection_mode_provider,
             connection_mode_generation: 0,
             api_availability,
@@ -299,24 +301,24 @@ pub struct Request<B> {
 }
 
 // TODO: merge with `RequestFactory::get`
-    /// Constructs a GET request with the given URI. Returns an error if the URI is not valid.
+/// Constructs a GET request with the given URI. Returns an error if the URI is not valid.
 pub fn get(uri: &str) -> Result<Request<Empty<Bytes>>> {
-        let uri = hyper::Uri::from_str(uri)?;
+    let uri = hyper::Uri::from_str(uri)?;
 
-        let mut builder = http::request::Builder::new()
-            .method(Method::GET)
-            .header(header::USER_AGENT, HeaderValue::from_static(USER_AGENT))
-            .header(header::ACCEPT, HeaderValue::from_static("application/json"));
-        if let Some(host) = uri.host() {
-            builder = builder.header(
-                header::HOST,
-                HeaderValue::from_str(host).map_err(|_e| Error::InvalidHeaderError)?,
-            );
-        };
+    let mut builder = http::request::Builder::new()
+        .method(Method::GET)
+        .header(header::USER_AGENT, HeaderValue::from_static(USER_AGENT))
+        .header(header::ACCEPT, HeaderValue::from_static("application/json"));
+    if let Some(host) = uri.host() {
+        builder = builder.header(
+            header::HOST,
+            HeaderValue::from_str(host).map_err(|_e| Error::InvalidHeaderError)?,
+        );
+    };
 
-        let request = builder.uri(uri).body(Empty::<Bytes>::new())?;
-        Ok(Request::new(request, None))
-    }
+    let request = builder.uri(uri).body(Empty::<Bytes>::new())?;
+    Ok(Request::new(request, None))
+}
 
 impl<B: Body> Request<B> {
     fn new(request: hyper::Request<B>, access_token_store: Option<AccessTokenStore>) -> Self {
@@ -724,6 +726,7 @@ macro_rules! impl_into_arc_err {
 }
 
 impl_into_arc_err!(hyper::Error);
+impl_into_arc_err!(hyper_util::client::legacy::Error);
 impl_into_arc_err!(serde_json::Error);
 impl_into_arc_err!(http::Error);
 impl_into_arc_err!(http::uri::InvalidUri);
