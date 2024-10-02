@@ -216,15 +216,17 @@ impl<T: ConnectionModeProvider + 'static> RequestService<T> {
         }
     }
 
-    fn handle_new_request<B>(
+    fn handle_new_request(
         &mut self,
-        request: Request<B>,
-        completion_tx: oneshot::Sender<Result<Response<Empty<Bytes>>>>,
+        request: Request<BoxBody<Bytes, Error>>,
+        completion_tx: oneshot::Sender<Result<Response<Incoming>>>,
     ) {
         let tx = self.command_tx.upgrade();
 
         let api_availability = self.api_availability.clone();
-        let request_future = request.into_future(self.client.clone(), api_availability.clone());
+        let request_future = request
+            .map(|r| http::Request::map(r, BodyExt::boxed))
+            .into_future(self.client.clone(), api_availability.clone());
 
         let connection_mode_generation = self.connection_mode_generation;
 
@@ -261,8 +263,14 @@ impl RequestServiceHandle {
     }
 
     /// Submits a `RestRequest` for execution to the request service.
-    pub async fn request(&self, request: Request<Empty<Bytes>>) -> Result<Response<Incoming>> {
+    pub async fn request<B>(&self, request: Request<B>) -> Result<Response<Incoming>>
+    where
+        B: Body + Send + Sync + 'static,
+        Error: From<B::Error>,
+        Bytes: From<B::Data>,
+    {
         let (completion_tx, completion_rx) = oneshot::channel();
+        let request = request.map(|r| r.map(box_body));
         self.tx
             .unbounded_send(RequestCommand::NewRequest(request, completion_tx))
             .map_err(|_| Error::RestServiceDown)?;
@@ -273,7 +281,7 @@ impl RequestServiceHandle {
 #[derive(Debug)]
 pub(crate) enum RequestCommand {
     NewRequest(
-        Request<Empty<Bytes>>,
+        Request<BoxBody<Bytes, Error>>,
         oneshot::Sender<std::result::Result<Response<Incoming>, Error>>,
     ),
     Reset,
@@ -290,9 +298,9 @@ pub struct Request<B> {
     expected_status: &'static [hyper::StatusCode],
 }
 
-impl<B: Body> Request<B> {
+// TODO: merge with `RequestFactory::get`
     /// Constructs a GET request with the given URI. Returns an error if the URI is not valid.
-    pub fn get(uri: &str) -> Result<Request<impl Body>> {
+pub fn get(uri: &str) -> Result<Request<Empty<Bytes>>> {
         let uri = hyper::Uri::from_str(uri)?;
 
         let mut builder = http::request::Builder::new()
@@ -310,6 +318,7 @@ impl<B: Body> Request<B> {
         Ok(Request::new(request, None))
     }
 
+impl<B: Body> Request<B> {
     fn new(request: hyper::Request<B>, access_token_store: Option<AccessTokenStore>) -> Self {
         Self {
             request,
@@ -348,6 +357,59 @@ impl<B: Body> Request<B> {
         Ok(self)
     }
 
+    /// Returns the URI of the request
+    pub fn uri(&self) -> &Uri {
+        self.request.uri()
+    }
+}
+impl<B> Request<B> {
+    /// Map the underlying [`hyper::Request`] type
+    fn map<F, B2>(self, f: F) -> Request<B2>
+    where
+        F: FnOnce(hyper::Request<B>) -> hyper::Request<B2>,
+    {
+        Request {
+            request: f(self.request),
+            timeout: self.timeout,
+            access_token_store: self.access_token_store,
+            account: self.account,
+            expected_status: self.expected_status,
+        }
+    }
+}
+
+fn box_body<B>(body: B) -> BoxBody<Bytes, Error>
+where
+    B: Body + Send + Sync + 'static,
+    Error: From<B::Error>,
+    Bytes: From<B::Data>,
+{
+    try_downcast(body).unwrap_or_else(|body| {
+        body.map_frame(|frame| frame.map_data(Bytes::from))
+            .map_err(Error::from)
+            .boxed()
+    })
+}
+
+pub(crate) fn try_downcast<T, K>(k: K) -> core::result::Result<T, K>
+where
+    T: 'static,
+    K: Send + 'static,
+{
+    let mut k = Some(k);
+    if let Some(k) = <dyn std::any::Any>::downcast_mut::<Option<T>>(&mut k) {
+        Ok(k.take().unwrap())
+    } else {
+        Err(k.unwrap())
+    }
+}
+
+impl<B> Request<B>
+where
+    B: Body + Send + 'static + Unpin,
+    B::Data: Send,
+    B::Error: Into<Box<dyn StdError + Send + Sync>>,
+{
     async fn into_future<C: Connect + Clone + Send + Sync + 'static>(
         self,
         hyper_client: hyper_util::client::legacy::Client<C, B>,
@@ -360,11 +422,14 @@ impl<B: Body> Request<B> {
             .map_err(|_| Error::TimeoutError)?
     }
 
-    async fn into_future_without_timeout<C: Connect + Clone + Send + Sync + 'static>(
+    async fn into_future_without_timeout<C>(
         mut self,
         hyper_client: hyper_util::client::legacy::Client<C, B>,
         api_availability: ApiAvailability,
-    ) -> Result<Response<Incoming>> {
+    ) -> Result<Response<Incoming>>
+    where
+        C: Connect + Clone + Send + Sync + 'static,
+    {
         let _ = api_availability.wait_for_unsuspend().await;
 
         // Obtain access token first
@@ -410,11 +475,6 @@ impl<B: Body> Request<B> {
         }
 
         Ok(Response::new(response))
-    }
-
-    /// Returns the URI of the request
-    pub fn uri(&self) -> &Uri {
-        self.request.uri()
     }
 }
 
