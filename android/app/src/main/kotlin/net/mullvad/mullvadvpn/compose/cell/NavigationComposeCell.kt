@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.OpenInNew
@@ -116,7 +117,7 @@ internal fun NavigationTitleView(
 @Composable
 internal fun DefaultExternalLinkView(chevronContentDescription: String, tint: Color) {
     Icon(
-        imageVector = Icons.Default.OpenInNew,
+        imageVector = Icons.AutoMirrored.Default.OpenInNew,
         contentDescription = chevronContentDescription,
         tint = tint,
     )
