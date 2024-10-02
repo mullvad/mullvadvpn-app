@@ -71,7 +71,7 @@ futures = "0.3.15"
 # Tonic and related crates
 tonic = "0.12.3"
 tonic-build = { version = "0.10.0", default-features = false }
-tower = "0.4"
+tower = { version = "0.5.1", features = ["util"] }
 prost = "0.13.3"
 prost-types = "0.13.3"
 hyper-util = {version = "0.1.8", features = ["client", "client-legacy", "http2"]}
