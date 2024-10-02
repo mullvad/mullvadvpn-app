@@ -35,8 +35,8 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Fixed
 #### macOS
-- Fix Apple leak toggle not working. The issue was that DNS queries to the tunnel resolver were
-  being sent on the physical interface.
+- Fix Apple services not working by forcing stray connections out through the VPN tunnel. The
+  "bypass" toggle has been removed.
 
 
 ## [2024.6-beta1] - 2024-09-26
