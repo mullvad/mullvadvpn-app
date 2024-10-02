@@ -13,6 +13,6 @@ fun Intent.getApiEndpointConfigurationExtras(): ApiEndpointOverride? {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         getParcelableExtra(OVERRIDE_API_EXTRA_NAME, ApiEndpointOverride::class.java)
     } else {
-        getParcelableExtra(OVERRIDE_API_EXTRA_NAME)
+        @Suppress("DEPRECATION") getParcelableExtra(OVERRIDE_API_EXTRA_NAME)
     }
 }
