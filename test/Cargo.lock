@@ -1867,6 +1867,7 @@ dependencies = [
  "tokio",
  "tokio-rustls",
  "tokio-socks",
+ "tower 0.5.1",
  "uuid",
 ]
 
