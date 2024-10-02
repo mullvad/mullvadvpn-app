@@ -8,12 +8,9 @@ import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import java.net.Inet4Address
 import java.net.Inet6Address
-import kotlin.properties.Delegates.observable
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.reduce
 import kotlinx.coroutines.flow.update
-import net.mullvad.mullvadvpn.lib.model.NetworkInfo
+import net.mullvad.talpid.model.NetworkInfo
 
 class ConnectivityListener {
     private val availableNetworks = MutableStateFlow(emptySet<Network>())
@@ -22,44 +19,39 @@ class ConnectivityListener {
         object : NetworkCallback() {
             override fun onAvailable(network: Network) {
                 availableNetworks.update { it + network }
-                val tmp = availableNetworks.value.info().gather()
-                notifyConnectivityChange(tmp.hasIpV4, tmp.hasIpV6, senderAddress)
+                val info = availableNetworks.value.info()
+                notifyConnectivityChange(info.hasIpV4, info.hasIpV6, senderAddress)
             }
 
             override fun onLost(network: Network) {
                 availableNetworks.update { it - network }
-                val tmp = availableNetworks.value.info().gather()
-                notifyConnectivityChange(tmp.hasIpV4, tmp.hasIpV6, senderAddress)
+                val info = availableNetworks.value.info()
+                notifyConnectivityChange(info.hasIpV4, info.hasIpV6, senderAddress)
             }
         }
 
     private lateinit var connectivityManager: ConnectivityManager
 
     var senderAddress = 0L
-    fun isConnected(): Boolean { return availableNetworks.value.info().gather().hasIpV4 || availableNetworks.value.info().gather().hasIpV6 }
 
-    fun Set<Network>.info(): List<NetworkInfo> {
-        return this.map {
-            val addresses =
-                connectivityManager.getLinkProperties(it)?.linkAddresses ?: emptyList()
-            NetworkInfo(
-                hasIpV4 = addresses.any { it.address is Inet4Address },
-                hasIpV6 = addresses.any { it.address is Inet6Address },
-            )
-        }
-    }
+    // Used by jni
+    @Suppress("unused") fun isConnected(): Boolean = availableNetworks.value.info().isConnected
 
-    fun List<NetworkInfo>.gather(): NetworkInfo {
-        return this.fold(NetworkInfo(false, false)) { acc, next ->
-            val accc = acc.copy()
-            if (next.hasIpV4) {
-                accc.hasIpV4 = true
+    fun Set<Network>.info(): NetworkInfo {
+        return this.map { network ->
+                val addresses =
+                    connectivityManager.getLinkProperties(network)?.linkAddresses ?: emptyList()
+                NetworkInfo(
+                    hasIpV4 = addresses.any { it.address is Inet4Address },
+                    hasIpV6 = addresses.any { it.address is Inet6Address },
+                )
             }
-            if (next.hasIpV6) {
-                accc.hasIpV6 = true
+            .reduce { acc, networkInfo ->
+                NetworkInfo(
+                    hasIpV4 = acc.hasIpV4 || networkInfo.hasIpV4,
+                    hasIpV6 = acc.hasIpV6 || networkInfo.hasIpV6,
+                )
             }
-            return acc
-        }
     }
 
     fun register(context: Context) {
