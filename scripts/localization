@@ -75,6 +75,7 @@ function upload_to_crowdin {
 
     pushd ../gui
     crowdin upload sources
+    crowdin upload translations
     popd
 }
 
