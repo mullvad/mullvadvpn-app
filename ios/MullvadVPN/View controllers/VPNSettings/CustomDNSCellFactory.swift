@@ -172,7 +172,7 @@ final class CustomDNSCellFactory: CellFactoryProtocol {
                 value: "Use custom DNS server",
                 comment: ""
             )
-            cell.setEnabled(viewModel.customDNSPrecondition == .satisfied)
+            cell.setSwitchEnabled(viewModel.customDNSPrecondition == .satisfied)
             cell.setOn(viewModel.effectiveEnableCustomDNS, animated: false)
             cell.accessibilityHint = viewModel.customDNSPrecondition
                 .localizedDescription(isEditing: isEditing)

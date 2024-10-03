@@ -14,7 +14,6 @@ extension UIListContentConfiguration {
         var configuration = cell()
         configuration.textProperties.font = .systemFont(ofSize: 17)
         configuration.textProperties.color = .Cell.titleTextColor.withAlphaComponent(isEnabled ? 1 : 0.8)
-        configuration.axesPreservingSuperviewLayoutMargins = .vertical
 
         applyMargins(to: &configuration, tableStyle: tableStyle)
 
