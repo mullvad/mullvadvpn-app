@@ -1527,6 +1527,10 @@ msgid "App version"
 msgstr ""
 
 msgctxt "settings-view"
+msgid "Multihop"
+msgstr ""
+
+msgctxt "settings-view"
 msgid "Support"
 msgstr ""
 
