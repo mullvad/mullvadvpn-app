@@ -71,7 +71,6 @@ buildscript {
     }
 }
 
-val baselineFile = file("$rootDir/config/baseline.xml")
 val configFile = files("$rootDir/config/detekt.yml")
 
 val projectSource = file(projectDir)
@@ -82,7 +81,6 @@ detekt {
     allRules = false
     config.setFrom(configFile)
     source.setFrom(projectSource)
-    baseline = baselineFile
     parallel = true
     ignoreFailures = false
     autoCorrect = true
