@@ -44,7 +44,7 @@ final class TunnelControlView: UIView {
     private let locationContainerView: UIStackView = {
         let view = UIStackView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.isAccessibilityElement = true
+        view.isAccessibilityElement = false
         view.accessibilityTraits = .summaryElement
         view.axis = .vertical
         view.spacing = 8

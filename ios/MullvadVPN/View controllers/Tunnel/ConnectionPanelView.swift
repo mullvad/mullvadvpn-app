@@ -48,13 +48,14 @@ class ConnectionPanelView: UIView {
     }
 
     private let collapseView: ConnectionPanelCollapseView = {
-        let button = ConnectionPanelCollapseView()
-        button.axis = .horizontal
-        button.alignment = .top
-        button.distribution = .fill
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.tintColor = .white
-        return button
+        let collapseView = ConnectionPanelCollapseView()
+        collapseView.axis = .horizontal
+        collapseView.alignment = .top
+        collapseView.distribution = .fill
+        collapseView.translatesAutoresizingMaskIntoConstraints = false
+        collapseView.tintColor = .white
+        collapseView.isAccessibilityElement = false
+        return collapseView
     }()
 
     private let inAddressRow = ConnectionPanelAddressRow()
@@ -316,8 +317,6 @@ class ConnectionPanelCollapseView: UIStackView {
         addArrangedSubview(UIView()) // Pushes content left.
 
         updateImage()
-
-        accessibilityIdentifier = .connectionPanelButton
     }
 
     required init(coder: NSCoder) {
