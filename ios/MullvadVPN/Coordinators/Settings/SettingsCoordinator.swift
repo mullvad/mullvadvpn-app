@@ -238,7 +238,8 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
         switch route {
         case .root:
             let controller = SettingsViewController(
-                interactor: interactorFactory.makeSettingsInteractor()
+                interactor: interactorFactory.makeSettingsInteractor(),
+                alertPresenter: AlertPresenter(context: self)
             )
             controller.delegate = self
             return .viewController(controller)
