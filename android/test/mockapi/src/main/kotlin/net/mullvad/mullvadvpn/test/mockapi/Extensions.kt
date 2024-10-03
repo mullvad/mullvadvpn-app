@@ -14,8 +14,7 @@ fun Buffer.getAccountNumber(): String? {
     return try {
         JSONObject(readUtf8()).getString("account_number")
     } catch (ex: JSONException) {
-        Logger.e("Unable to parse account number")
-        ex.printStackTrace()
+        Logger.e("Unable to parse account number", ex)
         null
     }
 }
