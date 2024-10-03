@@ -118,11 +118,7 @@ public class AccessMethodRepository: AccessMethodRepositoryProtocol {
     }
 
     public func fetchAll() -> [PersistentAccessMethod] {
-        #if DEBUG
         readApiAccessMethodStore().accessMethods
-        #else
-        readApiAccessMethodStore().accessMethods.filter { $0.id != encryptedDNS.id }
-        #endif
     }
 
     public func fetchLastReachable() -> PersistentAccessMethod {
@@ -130,18 +126,11 @@ public class AccessMethodRepository: AccessMethodRepositoryProtocol {
     }
 
     public func addDefaultsMethods() {
-        #if DEBUG
         add([
             direct,
             bridge,
             encryptedDNS,
         ])
-        #else
-        add([
-            direct,
-            bridge,
-        ])
-        #endif
     }
 
     private func add(_ methods: [PersistentAccessMethod]) {
