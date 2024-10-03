@@ -6,11 +6,16 @@
 //  Copyright © 2021 Mullvad VPN AB. All rights reserved.
 //
 
+import MullvadSettings
 import UIKit
 
 protocol SettingsDataSourceDelegate: AnyObject {
-    func settingsDataSource(
-        _ dataSource: SettingsDataSource,
-        didSelectItem item: SettingsDataSource.Item
+    func didSelectItem(item: SettingsDataSource.Item)
+    func showInfo(for: SettingsInfoButtonItem)
+    func showPrompt(
+        for: DAITASettingsPromptItem,
+        enabled: Bool,
+        onSave: @escaping () -> Void,
+        onDiscard: @escaping () -> Void
     )
 }

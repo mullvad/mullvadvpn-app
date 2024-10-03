@@ -16,11 +16,9 @@ protocol DNSSettingsDataSourceDelegate: AnyObject {
 
 protocol VPNSettingsDataSourceDelegate: AnyObject {
     func didUpdateTunnelSettings(_ update: TunnelSettingsUpdate)
-    func didAttemptToChangeDaitaSettings(_ settings: DAITASettings) -> DAITASettingsCompatibilityError?
     func showInfo(for: VPNSettingsInfoButtonItem)
     func showDNSSettings()
     func showIPOverrides()
     func didSelectWireGuardPort(_ port: UInt16?)
-    func showPrompt(for: VPNSettingsPromptAlertItem, onSave: @escaping () -> Void, onDiscard: @escaping () -> Void)
     func humanReadablePortRepresentation() -> String
 }
