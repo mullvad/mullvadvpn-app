@@ -74,6 +74,7 @@ open class TalpidVpnService : LifecycleVpnService() {
         synchronized(this) { activeTunStatus = null }
     }
 
+    @Suppress("ReturnCount")
     private fun createTun(config: TunConfig): CreateTunResult {
         if (prepare(this) != null) {
             // VPN permission wasn't granted
