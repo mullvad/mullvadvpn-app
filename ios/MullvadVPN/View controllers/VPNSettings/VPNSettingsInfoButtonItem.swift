@@ -102,7 +102,7 @@ enum VPNSettingsInfoButtonItem: CustomStringConvertible {
                 "DAITA_INFORMATION_TEXT",
                 tableName: "DAITA",
                 value: """
-                DAITA (Defence against AI-guided Traffic Analysis) hides patterns in your encrypted VPN traffic. \
+                DAITA (Defense against AI-guided Traffic Analysis) hides patterns in your encrypted VPN traffic. \
                 If anyone is monitoring your connection, this makes it significantly harder for them to identify \
                 what websites you are visiting. It does this by carefully adding network noise and making all \
                 network packets the same size.
