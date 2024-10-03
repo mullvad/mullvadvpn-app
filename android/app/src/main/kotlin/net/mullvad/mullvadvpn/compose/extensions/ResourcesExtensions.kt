@@ -22,13 +22,4 @@ private fun getRemainingText(resources: Resources, pluralId: Int, quantity: Int)
     return resources.getQuantityString(pluralId, quantity, quantity)
 }
 
-fun Period.isNegative() =
-    normalizedStandard().let {
-        it.years < 0 ||
-            it.months < 0 ||
-            it.weeks < 0 ||
-            it.days < 0 ||
-            it.minutes < 0 ||
-            it.seconds < 0 ||
-            it.millis < 0
-    }
+fun Period.isNegative() = toStandardDuration().millis < 0

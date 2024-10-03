@@ -12,6 +12,7 @@ import net.mullvad.mullvadvpn.service.notifications.accountexpiry.expiryTickerFl
 
 class AccountExpiryInAppNotificationUseCase(private val accountRepository: AccountRepository) {
 
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     operator fun invoke(): Flow<List<InAppNotification>> =
         accountRepository.accountData
             .flatMapLatest { accountData ->
