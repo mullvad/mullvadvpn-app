@@ -53,9 +53,6 @@ fun CustomTextField(
             imeAction = ImeAction.Done,
         ),
 ) {
-
-    val scope = rememberCoroutineScope()
-
     // This is the same implementation as in BasicTextField.kt but with initial selection set at the
     // end of the text rather than in the beginning.
     // This is a fix for https://issuetracker.google.com/issues/272693535.
@@ -100,11 +97,7 @@ fun CustomTextField(
         keyboardActions =
             KeyboardActions(
                 onDone = {
-                    scope.launch {
-                        // https://issuetracker.google.com/issues/305518328
-                        delay(100)
-                        onSubmit(value)
-                    }
+                    onSubmit(value)
                 }
             ),
         visualTransformation = visualTransformation,
