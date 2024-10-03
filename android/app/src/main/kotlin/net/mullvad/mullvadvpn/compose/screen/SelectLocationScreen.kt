@@ -491,7 +491,7 @@ private fun SelectLocationTopBar(onBackClick: () -> Unit, onFilterClick: () -> U
             Icon(
                 imageVector = Icons.Default.Close,
                 tint = MaterialTheme.colorScheme.onSurface,
-                contentDescription = null,
+                contentDescription = stringResource(id = R.string.back),
             )
         }
         Text(
@@ -504,7 +504,7 @@ private fun SelectLocationTopBar(onBackClick: () -> Unit, onFilterClick: () -> U
         IconButton(onClick = onFilterClick) {
             Icon(
                 imageVector = Icons.Default.FilterList,
-                contentDescription = null,
+                contentDescription = stringResource(id = R.string.filter),
                 tint = MaterialTheme.colorScheme.onSurface,
             )
         }

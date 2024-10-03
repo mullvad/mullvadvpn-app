@@ -64,6 +64,7 @@
     <string name="cancel">取消</string>
     <string name="changes_dialog_subtitle">此版本中的变更：</string>
     <string name="cipher">加密方式</string>
+    <string name="close">关闭</string>
     <string name="confirm_local_dns">除非您在“偏好设置”下启用“本地网络共享”，否则本地 DNS 服务器将不会运行。</string>
     <string name="confirm_no_email">您即将发送问题报告，但没有提供让我们可以联系到您的方式。如果您希望获得回复，必须输入您的电子邮件地址。</string>
     <string name="confirm_removal">是，退出设备</string>
@@ -193,6 +194,7 @@
     <string name="max_devices_resolved_title">太棒了！</string>
     <string name="max_devices_warning_description">请通过从以下列表中移除的方式退出至少一个帐户。您可以在设备的帐户设置下找到相应设备名称。</string>
     <string name="max_devices_warning_title">设备过多</string>
+    <string name="more_information">更多信息</string>
     <string name="mullvad_account_number">Mullvad 帐号</string>
     <string name="mullvad_owned_only">仅 Mullvad 自有</string>
     <string name="name">名称</string>
@@ -213,6 +215,7 @@
     <string name="obfuscation_title">WireGuard 混淆</string>
     <string name="off">关</string>
     <string name="on">开</string>
+    <string name="open_url">打开网址</string>
     <string name="out_address">外部</string>
     <string name="out_of_time">已没有时间</string>
     <string name="overrides_cleared">覆盖设置已清除</string>
@@ -244,6 +247,7 @@
     <string name="quantum_resistant_info_first_paragaph">借助此功能，WireGuard 隧道能够抵抗可能通过量子计算机发起的攻击。</string>
     <string name="quantum_resistant_info_second_paragaph">实现方法是使用量子安全算法执行额外的密钥交换，并将结果混合到 WireGuard 的常规加密中。每次建立新隧道时，这一额外步骤都会使用约 500 kiB 的流量。</string>
     <string name="quantum_resistant_title">抗量子隧道</string>
+    <string name="reconnect">重新连接</string>
     <string name="redeem">兑换</string>
     <string name="redeem_voucher">兑换优惠券</string>
     <string name="remove_button">移除</string>

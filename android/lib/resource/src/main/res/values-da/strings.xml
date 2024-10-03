@@ -64,6 +64,7 @@
     <string name="cancel">Annuller</string>
     <string name="changes_dialog_subtitle">Ændringer i denne version:</string>
     <string name="cipher">Chiffer</string>
+    <string name="close">Luk</string>
     <string name="confirm_local_dns">Den lokale DNS-server fungerer ikke, medmindre du aktiverer \"Lokal netværksdeling\" under Indstillinger.</string>
     <string name="confirm_no_email">Du er ved at sende rapporten om problemet, men har ikke angivet hvordan vi kan kontakte dig. Hvis du ønsker et svar på din rapport, skal du indtaste en e-mail-adresse.</string>
     <string name="confirm_removal">Ja, log enhed af</string>
@@ -193,6 +194,7 @@
     <string name="max_devices_resolved_title">Super!</string>
     <string name="max_devices_warning_description">Log ud af mindst én ved at fjerne den fra listen nedenfor. Du kan finde det tilsvarende enhedsnavn under enhedens kontoindstillinger.</string>
     <string name="max_devices_warning_title">For mange enheder</string>
+    <string name="more_information">Mere information</string>
     <string name="mullvad_account_number">Mullvad-kontonummer</string>
     <string name="mullvad_owned_only">Kun ejet af Mullvad</string>
     <string name="name">Navn</string>
@@ -213,6 +215,7 @@
     <string name="obfuscation_title">WireGuard-tilsløring</string>
     <string name="off">Fra</string>
     <string name="on">Til</string>
+    <string name="open_url">Åbn URL</string>
     <string name="out_address">Ud</string>
     <string name="out_of_time">Tid udløbet</string>
     <string name="overrides_cleared">Tilsidesættelser ryddet</string>
@@ -244,6 +247,7 @@
     <string name="quantum_resistant_info_first_paragaph">Denne funktion gør WireGuard-tunnelen modstandsdygtig over for potentielle angreb fra kvantecomputere.</string>
     <string name="quantum_resistant_info_second_paragaph">Det gør den ved at udføre en ekstra nøgleudveksling ved hjælp af en kvantesikker algoritme og blande resultatet med WireGuards almindelige kryptering. Dette ekstra trin bruger cirka 500 kB trafik, hver gang en ny tunnel etableres.</string>
     <string name="quantum_resistant_title">Kvante-modstandsdygtig tunnel</string>
+    <string name="reconnect">Genopret forbindelse</string>
     <string name="redeem">Indløs</string>
     <string name="redeem_voucher">Indløs kupon</string>
     <string name="remove_button">Fjern</string>

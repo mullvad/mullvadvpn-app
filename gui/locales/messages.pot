@@ -2334,6 +2334,9 @@ msgstr ""
 msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
 msgstr ""
 
+msgid "Collapse"
+msgstr ""
+
 msgid "Connect on device start-up"
 msgstr ""
 
@@ -2347,6 +2350,9 @@ msgid "Copied logs to clipboard"
 msgstr ""
 
 msgid "Copied to clipboard"
+msgstr ""
+
+msgid "Copy"
 msgstr ""
 
 msgid "Create"
@@ -2422,6 +2428,9 @@ msgid "Enter MTU"
 msgstr ""
 
 msgid "Excluded applications"
+msgstr ""
+
+msgid "Expand"
 msgstr ""
 
 msgid "Failed to apply patch"
@@ -2584,6 +2593,9 @@ msgid "Set WireGuard MTU value. Valid range: %d - %d."
 msgstr ""
 
 msgid "Set port"
+msgstr ""
+
+msgid "Share…"
 msgstr ""
 
 msgid "Show system apps"
