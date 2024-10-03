@@ -27,10 +27,10 @@ import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
 import net.mullvad.mullvadvpn.lib.model.Settings
-import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 import net.mullvad.mullvadvpn.repository.AutoStartAndConnectOnBootRepository
 import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
+import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.usecase.SystemVpnSettingsAvailableUseCase
 
 sealed interface VpnSettingsSideEffect {
@@ -48,6 +48,7 @@ class VpnSettingsViewModel(
     private val relayListRepository: RelayListRepository,
     private val systemVpnSettingsUseCase: SystemVpnSettingsAvailableUseCase,
     private val autoStartAndConnectOnBootRepository: AutoStartAndConnectOnBootRepository,
+    private val wireguardConstraintsRepository: WireguardConstraintsRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : ViewModel() {
 
@@ -230,11 +231,7 @@ class VpnSettingsViewModel(
         if (port is Constraint.Only && port.value !in WIREGUARD_PRESET_PORTS) {
             customPort.update { port.value }
         }
-        viewModelScope.launch {
-            relayListRepository.updateSelectedWireguardConstraints(
-                WireguardConstraints(port = port)
-            )
-        }
+        viewModelScope.launch { wireguardConstraintsRepository.updateWireguardPort(port = port) }
     }
 
     fun resetCustomPort() {
@@ -243,9 +240,7 @@ class VpnSettingsViewModel(
         // If custom port was selected, update selection to be any.
         if (isCustom) {
             viewModelScope.launch {
-                relayListRepository.updateSelectedWireguardConstraints(
-                    WireguardConstraints(port = Constraint.Any)
-                )
+                wireguardConstraintsRepository.updateWireguardPort(port = Constraint.Any)
             }
         }
     }

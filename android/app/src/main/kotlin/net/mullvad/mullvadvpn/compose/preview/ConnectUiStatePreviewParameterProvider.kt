@@ -37,6 +37,7 @@ private fun generateOtherStates(): Sequence<ConnectUiState> =
                         latitude = 23.3,
                         longitude = 12.99,
                         hostname = "Hostname",
+                        entryHostname = "EntryHostname",
                     ),
                 selectedRelayItemTitle = "Relay Title",
                 tunnelState = state,

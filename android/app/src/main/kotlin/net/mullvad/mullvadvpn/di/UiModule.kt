@@ -27,6 +27,7 @@ import net.mullvad.mullvadvpn.repository.RelayOverridesRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.SplashCompleteRepository
 import net.mullvad.mullvadvpn.repository.SplitTunnelingRepository
+import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
@@ -140,6 +141,7 @@ val uiModule = module {
             get(named(BOOT_COMPLETED_RECEIVER_COMPONENT_NAME)),
         )
     }
+    single { WireguardConstraintsRepository(get()) }
 
     single { AccountExpiryInAppNotificationUseCase(get()) }
     single { TunnelStateNotificationUseCase(get()) }
@@ -208,7 +210,7 @@ val uiModule = module {
     viewModel { SettingsViewModel(get(), get(), IS_PLAY_BUILD) }
     viewModel { SplashViewModel(get(), get(), get(), get()) }
     viewModel { VoucherDialogViewModel(get()) }
-    viewModel { VpnSettingsViewModel(get(), get(), get(), get()) }
+    viewModel { VpnSettingsViewModel(get(), get(), get(), get(), get()) }
     viewModel { WelcomeViewModel(get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
     viewModel { ReportProblemViewModel(get(), get()) }
     viewModel { ViewLogsViewModel(get()) }
