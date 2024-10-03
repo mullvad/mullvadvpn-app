@@ -41,6 +41,7 @@ import net.mullvad.mullvadvpn.compose.textfield.CustomTextField
 import net.mullvad.mullvadvpn.compose.util.MAX_VOUCHER_LENGTH
 import net.mullvad.mullvadvpn.compose.util.vouchersVisualTransformation
 import net.mullvad.mullvadvpn.constant.VOUCHER_LENGTH
+import net.mullvad.mullvadvpn.lib.model.DAYS_PER_VOUCHER_MONTH
 import net.mullvad.mullvadvpn.lib.model.RedeemVoucherError
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -162,18 +163,18 @@ fun RedeemVoucherDialog(
                     val message =
                         stringResource(
                             R.string.added_to_your_account,
-                            when (days) {
-                                0 -> {
+                            when {
+                                days == 0 -> {
                                     stringResource(R.string.less_than_one_day)
                                 }
-                                in 1..59 -> {
+                                days < 2 * DAYS_PER_VOUCHER_MONTH -> {
                                     pluralStringResource(id = R.plurals.days, count = days, days)
                                 }
                                 else -> {
                                     pluralStringResource(
                                         id = R.plurals.months,
-                                        count = days / 30,
-                                        days / 30,
+                                        count = days / DAYS_PER_VOUCHER_MONTH,
+                                        days / DAYS_PER_VOUCHER_MONTH,
                                     )
                                 }
                             },
