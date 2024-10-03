@@ -1,4 +1,4 @@
-- Add support for DAITA (Defence against AI-guided Analysis).
+- Add support for DAITA (Defence against AI-guided Traffic Analysis).
 - Add support for WireGuard-over-Shadowsocks.
 - Add support for predictive back animations (on supported devices).
 - Fix location selection navigation on TV devices.
