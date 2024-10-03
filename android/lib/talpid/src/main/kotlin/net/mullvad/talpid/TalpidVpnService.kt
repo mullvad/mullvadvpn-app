@@ -74,6 +74,9 @@ open class TalpidVpnService : LifecycleVpnService() {
         synchronized(this) { activeTunStatus = null }
     }
 
+    // DROID-1407
+    // Function is to be cleaned up and lint warning to be removed.
+    @Suppress("ReturnCount")
     private fun createTun(config: TunConfig): CreateTunResult {
         if (prepare(this) != null) {
             // VPN permission wasn't granted
