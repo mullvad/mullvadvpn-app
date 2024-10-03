@@ -31,7 +31,7 @@ class SettingsSwitchCell: SettingsCell {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func setEnabled(_ isEnabled: Bool) {
+    func setSwitchEnabled(_ isEnabled: Bool) {
         switchContainer.isEnabled = isEnabled
     }
 
@@ -42,7 +42,7 @@ class SettingsSwitchCell: SettingsCell {
     override func prepareForReuse() {
         super.prepareForReuse()
 
-        setEnabled(true)
+        setSwitchEnabled(true)
     }
 
     // MARK: - Actions
