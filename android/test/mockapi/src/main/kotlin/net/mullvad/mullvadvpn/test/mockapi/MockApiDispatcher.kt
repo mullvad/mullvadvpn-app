@@ -32,6 +32,7 @@ class MockApiDispatcher : Dispatcher() {
 
     private var cachedPubKeyFromAppUnderTest: String? = null
 
+    @Suppress("CyclomaticComplexMethod", "NestedBlockDepth")
     override fun dispatch(request: RecordedRequest): MockResponse {
         Logger.d("Request: $request (body=${request.body.peek().readUtf8()})")
         return when (request.path ?: "") {
