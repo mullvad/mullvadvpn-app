@@ -120,18 +120,19 @@ import net.mullvad.mullvadvpn.lib.model.UpdateApiAccessMethodError
 import net.mullvad.mullvadvpn.lib.model.UpdateCustomListError
 import net.mullvad.mullvadvpn.lib.model.VoucherCode
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
-import net.mullvad.mullvadvpn.lib.model.WireguardConstraints as ModelWireguardConstraints
 import net.mullvad.mullvadvpn.lib.model.WireguardEndpointData as ModelWireguardEndpointData
 import net.mullvad.mullvadvpn.lib.model.addresses
 import net.mullvad.mullvadvpn.lib.model.customOptions
 import net.mullvad.mullvadvpn.lib.model.location
 import net.mullvad.mullvadvpn.lib.model.ownership
+import net.mullvad.mullvadvpn.lib.model.port
 import net.mullvad.mullvadvpn.lib.model.providers
 import net.mullvad.mullvadvpn.lib.model.relayConstraints
 import net.mullvad.mullvadvpn.lib.model.selectedObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.shadowsocks
 import net.mullvad.mullvadvpn.lib.model.state
 import net.mullvad.mullvadvpn.lib.model.udp2tcp
+import net.mullvad.mullvadvpn.lib.model.useMultihop
 import net.mullvad.mullvadvpn.lib.model.wireguardConstraints
 
 @Suppress("TooManyFunctions")
@@ -591,19 +592,6 @@ class ManagementService(
             }
             .mapEmpty()
 
-    suspend fun setWireguardConstraints(
-        value: ModelWireguardConstraints
-    ): Either<SetWireguardConstraintsError, Unit> =
-        Either.catch {
-                val relaySettings = getSettings().relaySettings
-                val updated =
-                    RelaySettings.relayConstraints.wireguardConstraints.set(relaySettings, value)
-                grpc.setRelaySettings(updated.fromDomain())
-            }
-            .onLeft { Logger.e("Set wireguard constraints error") }
-            .mapLeft(SetWireguardConstraintsError::Unknown)
-            .mapEmpty()
-
     suspend fun setOwnershipAndProviders(
         ownershipConstraint: Constraint<ModelOwnership>,
         providersConstraint: Constraint<Providers>,
@@ -753,6 +741,36 @@ class ManagementService(
             .map { result ->
                 either { ensure(result.value) { TestApiAccessMethodError.CouldNotAccess } }
             }
+
+    suspend fun setWireguardPort(
+        port: Constraint<Port>
+    ): Either<SetWireguardConstraintsError, Unit> =
+        Either.catch {
+                val relaySettings = getSettings().relaySettings
+                val updated =
+                    RelaySettings.relayConstraints.wireguardConstraints.port.set(
+                        relaySettings,
+                        port,
+                    )
+                grpc.setRelaySettings(updated.fromDomain())
+            }
+            .onLeft { Logger.e("Set wireguard port error") }
+            .mapLeft(SetWireguardConstraintsError::Unknown)
+            .mapEmpty()
+
+    suspend fun setMultihop(enabled: Boolean): Either<SetWireguardConstraintsError, Unit> =
+        Either.catch {
+                val relaySettings = getSettings().relaySettings
+                val updated =
+                    RelaySettings.relayConstraints.wireguardConstraints.useMultihop.set(
+                        relaySettings,
+                        enabled,
+                    )
+                grpc.setRelaySettings(updated.fromDomain())
+            }
+            .onLeft { Logger.e("Set multihop error") }
+            .mapLeft(SetWireguardConstraintsError::Unknown)
+            .mapEmpty()
 
     private fun <A> Either<A, Empty>.mapEmpty() = map {}
 

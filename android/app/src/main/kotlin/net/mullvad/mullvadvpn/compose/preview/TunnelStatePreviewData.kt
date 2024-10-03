@@ -61,6 +61,7 @@ private fun generateLocation(): GeoIpLocation =
         country = "",
         city = "",
         hostname = "",
+        entryHostname = "",
         latitude = 0.0,
         longitude = 0.0,
     )

@@ -18,7 +18,6 @@ import net.mullvad.mullvadvpn.lib.model.ObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.PlayPurchase
 import net.mullvad.mullvadvpn.lib.model.PlayPurchasePaymentToken
-import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelaySettings
@@ -126,13 +125,16 @@ internal fun CustomList.fromDomain(): ManagementInterface.CustomList =
         .build()
 
 internal fun WireguardConstraints.fromDomain(): ManagementInterface.WireguardConstraints =
-    when (port) {
-        is Constraint.Any -> ManagementInterface.WireguardConstraints.newBuilder().build()
-        is Constraint.Only ->
-            ManagementInterface.WireguardConstraints.newBuilder()
-                .setPort((port as Constraint.Only<Port>).value.value)
-                .build()
-    }
+    ManagementInterface.WireguardConstraints.newBuilder()
+        .setUseMultihop(useMultihop)
+        .setEntryLocation(entryLocation.fromDomain())
+        .apply {
+            when (val port = this@fromDomain.port) {
+                is Constraint.Any -> clearPort()
+                is Constraint.Only -> setPort(port.value.value)
+            }
+        }
+        .build()
 
 internal fun Ownership.fromDomain(): ManagementInterface.Ownership =
     when (this) {
