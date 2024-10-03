@@ -94,6 +94,9 @@ private fun PreviewLoginScreen(
     AppTheme { LoginScreen(state = state) }
 }
 
+private const val TOP_SPACER_WEIGHT = 1f
+private const val BOTTOM_SPACER_WEIGHT = 3f
+
 @Destination<RootGraph>(style = LoginTransition::class)
 @Composable
 fun Login(
@@ -177,7 +180,7 @@ private fun LoginScreen(
                     .background(MaterialTheme.colorScheme.primary)
                     .verticalScroll(scrollState)
         ) {
-            Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.weight(TOP_SPACER_WEIGHT))
             LoginIcon(
                 state.loginState,
                 modifier =
@@ -185,7 +188,7 @@ private fun LoginScreen(
                         .padding(bottom = Dimens.largePadding),
             )
             LoginContent(state, onAccountNumberChange, onLoginClick, onDeleteHistoryClick)
-            Spacer(modifier = Modifier.weight(3f))
+            Spacer(modifier = Modifier.weight(BOTTOM_SPACER_WEIGHT))
             CreateAccountPanel(onCreateAccountClick, isEnabled = state.loginState is Idle)
         }
     }
