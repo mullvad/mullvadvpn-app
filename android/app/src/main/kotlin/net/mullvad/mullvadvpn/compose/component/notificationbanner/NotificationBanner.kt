@@ -18,6 +18,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -118,23 +119,13 @@ private fun Notification(notificationBannerData: NotificationData) {
                 .testTag(NOTIFICATION_BANNER)
     ) {
         val (status, textTitle, textMessage, actionIcon) = createRefs()
-        Box(
-            modifier =
-                Modifier.background(
-                        color =
-                            when (statusLevel) {
-                                StatusLevel.Error -> MaterialTheme.colorScheme.error
-                                StatusLevel.Warning -> MaterialTheme.colorScheme.warning
-                                StatusLevel.Info -> MaterialTheme.colorScheme.surfaceContainer
-                            },
-                        shape = CircleShape,
-                    )
-                    .size(Dimens.notificationStatusIconSize)
-                    .constrainAs(status) {
-                        top.linkTo(textTitle.top)
-                        start.linkTo(parent.start)
-                        bottom.linkTo(textTitle.bottom)
-                    }
+        NotificationDot(
+            statusLevel,
+            Modifier.constrainAs(status) {
+                top.linkTo(textTitle.top)
+                start.linkTo(parent.start)
+                bottom.linkTo(textTitle.bottom)
+            },
         )
         Text(
             text = title.uppercase(),
@@ -173,24 +164,58 @@ private fun Notification(notificationBannerData: NotificationData) {
             )
         }
         action?.let {
-            IconButton(
+            NotificationAction(
+                it.icon,
+                onClick = it.onClick,
+                contentDescription = it.contentDescription,
                 modifier =
                     Modifier.constrainAs(actionIcon) {
-                            top.linkTo(parent.top)
-                            end.linkTo(parent.end)
-                            bottom.linkTo(parent.bottom)
-                        }
-                        .testTag(NOTIFICATION_BANNER_ACTION)
-                        .padding(all = Dimens.notificationEndIconPadding),
-                onClick = it.onClick,
-            ) {
-                Icon(
-                    modifier = Modifier.padding(Dimens.notificationIconPadding),
-                    imageVector = it.icon,
-                    contentDescription = it.contentDescription,
-                    tint = MaterialTheme.colorScheme.onSurface,
-                )
-            }
+                        top.linkTo(parent.top)
+                        end.linkTo(parent.end)
+                        bottom.linkTo(parent.bottom)
+                    },
+            )
         }
+    }
+}
+
+@Composable
+private fun NotificationDot(statusLevel: StatusLevel, modifier: Modifier) {
+    Box(
+        modifier =
+            modifier
+                .background(
+                    color =
+                        when (statusLevel) {
+                            StatusLevel.Error -> MaterialTheme.colorScheme.error
+                            StatusLevel.Warning -> MaterialTheme.colorScheme.warning
+                            StatusLevel.Info -> MaterialTheme.colorScheme.surfaceContainer
+                        },
+                    shape = CircleShape,
+                )
+                .size(Dimens.notificationStatusIconSize)
+    )
+}
+
+@Composable
+private fun NotificationAction(
+    imageVector: ImageVector,
+    contentDescription: String?,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    IconButton(
+        modifier =
+            modifier
+                .testTag(NOTIFICATION_BANNER_ACTION)
+                .padding(all = Dimens.notificationEndIconPadding),
+        onClick = onClick,
+    ) {
+        Icon(
+            modifier = Modifier.padding(Dimens.notificationIconPadding),
+            imageVector = imageVector,
+            contentDescription = contentDescription,
+            tint = MaterialTheme.colorScheme.onSurface,
+        )
     }
 }
