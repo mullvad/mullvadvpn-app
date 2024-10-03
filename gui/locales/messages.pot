@@ -5,11 +5,6 @@ msgstr ""
 msgid "%(amount)d more..."
 msgstr ""
 
-#. This refers to the Smart Routing setting in the VPN settings view.
-#. This is displayed when both Smart Routing and DAITA features are on.
-msgid "%(daita)s: Smart routing"
-msgstr ""
-
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr ""
 
@@ -251,9 +246,6 @@ msgid "SECURE CONNECTION"
 msgstr ""
 
 msgid "Settings"
-msgstr ""
-
-msgid "Smart routing"
 msgstr ""
 
 msgid "System default"
@@ -1969,10 +1961,6 @@ msgid "IPv4 is always enabled and the majority of websites and applications use 
 msgstr ""
 
 msgctxt "vpn-settings-view"
-msgid "Is automatically enabled with %(daita)s, makes it possible to use %(daita)s with any server by using multihop. This might increase latency."
-msgstr ""
-
-msgctxt "vpn-settings-view"
 msgid "It does this by allowing network communication outside the tunnel to local multicast and broadcast ranges as well as to and from these private IP ranges:"
 msgstr ""
 
@@ -2118,15 +2106,6 @@ msgctxt "wireguard-settings-view"
 msgid "MTU"
 msgstr ""
 
-#. Warning text in a dialog that is displayed after a setting is toggled.
-msgctxt "wireguard-settings-view"
-msgid "Not all our servers are %(daita)s-enabled. In order to use the internet, you might have to select a new location after disabling, or you can continue using %(daita)s with Smart routing."
-msgstr ""
-
-msgctxt "wireguard-settings-view"
-msgid "Not all our servers are %(daita)s-enabled. Smart routing allows %(daita)s to be used at any location. It does this by using multihop in the background to route your traffic via the closest %(daita)s-enabled server first."
-msgstr ""
-
 msgctxt "wireguard-settings-view"
 msgid "Obfuscation"
 msgstr ""
@@ -2191,10 +2170,6 @@ msgstr ""
 
 msgctxt "wireguard-settings-view"
 msgid "UDP-over-TCP port"
-msgstr ""
-
-msgctxt "wireguard-settings-view"
-msgid "Use Smart routing"
 msgstr ""
 
 #. Text describing the valid port range for a port selector.
