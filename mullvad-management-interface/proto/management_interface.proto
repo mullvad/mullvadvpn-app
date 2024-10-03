@@ -264,7 +264,6 @@ enum FeatureIndicator {
   CUSTOM_MTU = 11;
   CUSTOM_MSS_FIX = 12;
   DAITA = 13;
-  DAITA_SMART_ROUTING = 14;
 }
 
 message ObfuscationEndpoint {
