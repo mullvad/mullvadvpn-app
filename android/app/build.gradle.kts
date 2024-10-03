@@ -136,12 +136,10 @@ android {
     }
 
     kotlinOptions {
-        allWarningsAsErrors = false
         jvmTarget = Versions.jvmTarget
+        allWarningsAsErrors = true
         freeCompilerArgs =
             listOf(
-                "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
-                "-opt-in=kotlinx.coroutines.ObsoleteCoroutinesApi",
                 // Opt-in option for Koin annotation of KoinComponent.
                 "-opt-in=kotlin.RequiresOptIn",
             )

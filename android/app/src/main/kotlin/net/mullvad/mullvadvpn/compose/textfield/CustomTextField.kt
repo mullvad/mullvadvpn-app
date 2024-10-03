@@ -47,10 +47,10 @@ fun CustomTextField(
     capitalization: KeyboardCapitalization = KeyboardCapitalization.None,
     keyboardOptions: KeyboardOptions =
         KeyboardOptions(
+            capitalization = capitalization,
+            autoCorrectEnabled = false,
             keyboardType = keyboardType,
             imeAction = ImeAction.Done,
-            autoCorrect = false,
-            capitalization = capitalization,
         ),
 ) {
 

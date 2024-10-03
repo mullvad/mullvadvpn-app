@@ -1,7 +1,6 @@
 package net.mullvad.mullvadvpn.compose.screen
 
 import android.graphics.Bitmap
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -203,7 +202,6 @@ private fun LazyListScope.appList(
     )
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 private fun LazyListScope.appItems(
     apps: List<AppData>,
     focusManager: FocusManager,
@@ -223,7 +221,7 @@ private fun LazyListScope.appItems(
             isSelected = excluded,
             enabled = enabled,
             modifier =
-                Modifier.animateItemPlacement()
+                Modifier.animateItem()
                     .fillMaxWidth()
                     .alpha(
                         if (enabled) {
@@ -247,12 +245,11 @@ private fun LazyListScope.appItems(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 private fun LazyListScope.headerItem(key: String, textId: Int, enabled: Boolean) {
     itemWithDivider(key = key, contentType = ContentType.HEADER) {
         HeaderCell(
             modifier =
-                Modifier.animateItemPlacement()
+                Modifier.animateItem()
                     .alpha(
                         if (enabled) {
                             AlphaVisible
@@ -266,7 +263,6 @@ private fun LazyListScope.headerItem(key: String, textId: Int, enabled: Boolean)
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 private fun LazyListScope.systemAppsToggle(
     showSystemApps: Boolean,
     onShowSystemAppsClick: (show: Boolean) -> Unit,
@@ -282,7 +278,7 @@ private fun LazyListScope.systemAppsToggle(
             onCellClicked = { newValue -> onShowSystemAppsClick(newValue) },
             isEnabled = enabled,
             modifier =
-                Modifier.animateItemPlacement()
+                Modifier.animateItem()
                     .alpha(
                         if (enabled) {
                             AlphaVisible
@@ -294,9 +290,8 @@ private fun LazyListScope.systemAppsToggle(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 private fun LazyListScope.spacer() {
     item(contentType = ContentType.SPACER) {
-        Spacer(modifier = Modifier.animateItemPlacement().height(Dimens.mediumPadding))
+        Spacer(modifier = Modifier.animateItem().height(Dimens.mediumPadding))
     }
 }

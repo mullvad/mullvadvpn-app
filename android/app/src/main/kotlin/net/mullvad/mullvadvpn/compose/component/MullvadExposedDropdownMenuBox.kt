@@ -9,6 +9,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldColors
@@ -20,10 +21,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import net.mullvad.mullvadvpn.lib.theme.color.menuItemColors
 
-/*
-   This has bug with dropdown menu width that might be fixed in compose material 3 1.3
-   https://issuetracker.google.com/issues/205589613
-*/
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MullvadExposedDropdownMenuBox(
@@ -40,7 +37,7 @@ fun MullvadExposedDropdownMenuBox(
         modifier = modifier.clickable { expanded = !expanded },
     ) {
         TextField(
-            modifier = Modifier.fillMaxWidth().menuAnchor(),
+            modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryNotEditable, true),
             readOnly = true,
             value = title,
             onValueChange = { /* Do nothing */ },
