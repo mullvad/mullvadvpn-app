@@ -27,6 +27,10 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Add a new access method that uses the encrypted DNS proxy to reach our API.
 
+### Changed
+- Replace the draft key encapsulation mechanism Kyber (round 3) with the standardized
+  ML-KEM (FIPS 203) dito in the handshake for Quantum-resistant tunnels.
+
 ### Fixed
 - Fix IPv6 parsing in API access
 

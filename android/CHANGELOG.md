@@ -34,6 +34,8 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Changed
 - Update colors in the app to be more in line with material design.
+- Replace the draft key encapsulation mechanism Kyber (round 3) with the standardized
+  ML-KEM (FIPS 203) dito in the handshake for Quantum-resistant tunnels.
 
 ### Fixed
 - Fix VPN service being recreated multiple times when toggling certain options.
