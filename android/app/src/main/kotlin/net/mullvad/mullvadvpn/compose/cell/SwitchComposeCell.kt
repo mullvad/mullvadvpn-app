@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -168,7 +169,11 @@ fun SwitchCellView(
                         .padding(horizontal = Dimens.miniPadding),
                 onClick = onInfoClicked,
             ) {
-                Icon(imageVector = Icons.Default.Info, contentDescription = null, tint = iconColor)
+                Icon(
+                    imageVector = Icons.Default.Info,
+                    contentDescription = stringResource(id = R.string.more_information),
+                    tint = iconColor,
+                )
             }
         }
 

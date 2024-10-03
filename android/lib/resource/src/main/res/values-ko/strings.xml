@@ -64,6 +64,7 @@
     <string name="cancel">취소</string>
     <string name="changes_dialog_subtitle">이 버전의 변경 사항:</string>
     <string name="cipher">암호</string>
+    <string name="close">닫기</string>
     <string name="confirm_local_dns">환경 설정에서 ”로컬 네트워크 공유”를 활성화하지 않으면 로컬 DNS 서버가 작동하지 않습니다.</string>
     <string name="confirm_no_email">연락처 없이 문제 보고서를 보내려고 합니다. 보고서에 대한 답변을 원하면 이메일 주소를 입력해야 합니다.</string>
     <string name="confirm_removal">예, 장치에서 로그아웃</string>
@@ -193,6 +194,7 @@
     <string name="max_devices_resolved_title">좋습니다!</string>
     <string name="max_devices_warning_description">하나 이상의 항목을 아래 목록에서 제거하여 로그아웃하세요. 장치의 계정 설정에서 해당 장치 이름을 찾을 수 있습니다.</string>
     <string name="max_devices_warning_title">장치가 너무 많음</string>
+    <string name="more_information">추가 정보</string>
     <string name="mullvad_account_number">Mullvad 계정 번호</string>
     <string name="mullvad_owned_only">Mullvad 소유만</string>
     <string name="name">이름</string>
@@ -213,6 +215,7 @@
     <string name="obfuscation_title">WireGuard 난독화</string>
     <string name="off">끄기</string>
     <string name="on">켜기</string>
+    <string name="open_url">URL 열기</string>
     <string name="out_address">아웃</string>
     <string name="out_of_time">시간 초과</string>
     <string name="overrides_cleared">재정의 지워짐</string>
@@ -244,6 +247,7 @@
     <string name="quantum_resistant_info_first_paragaph">이 기능은 WireGuard 터널이 양자 컴퓨터의 잠재적인 공격에 맞서도록 합니다.</string>
     <string name="quantum_resistant_info_second_paragaph">이를 위해 양자 안전 알고리즘을 사용하여 추가 키 교환을 수행하고 결과를 WireGuard의 일반 암호화에 혼합하는 방법이 이용됩니다. 이 추가 단계는 새 터널이 설정될 때마다 약 500kiB의 트래픽을 사용합니다.</string>
     <string name="quantum_resistant_title">양자 저항 터널</string>
+    <string name="reconnect">다시 연결</string>
     <string name="redeem">사용</string>
     <string name="redeem_voucher">바우처 사용</string>
     <string name="remove_button">제거</string>

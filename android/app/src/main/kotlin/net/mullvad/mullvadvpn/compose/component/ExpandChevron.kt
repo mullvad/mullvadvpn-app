@@ -14,7 +14,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import net.mullvad.mullvadvpn.R
 
 @Composable
 @Preview
@@ -29,6 +31,12 @@ private fun PreviewChevron() {
 fun ExpandChevron(modifier: Modifier = Modifier, color: Color, isExpanded: Boolean) {
 
     val degree = remember(isExpanded) { if (isExpanded) UP_ROTATION else DOWN_ROTATION }
+    val stateLabel =
+        if (isExpanded) {
+            stringResource(id = R.string.collapse)
+        } else {
+            stringResource(id = R.string.expand)
+        }
     val animatedRotation =
         animateFloatAsState(
             targetValue = degree,
@@ -38,7 +46,7 @@ fun ExpandChevron(modifier: Modifier = Modifier, color: Color, isExpanded: Boole
 
     Icon(
         imageVector = Icons.Default.KeyboardArrowDown,
-        contentDescription = null,
+        contentDescription = stateLabel,
         tint = color,
         modifier = modifier.rotate(animatedRotation.value),
     )

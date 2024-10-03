@@ -64,6 +64,7 @@
     <string name="cancel">キャンセル</string>
     <string name="changes_dialog_subtitle">このバージョンでの変更内容:</string>
     <string name="cipher">暗号化</string>
+    <string name="close">閉じる</string>
     <string name="confirm_local_dns">環境設定で \"ローカルネットワーク共有\" を有効にしない限り、ローカルDNSサーバーは機能しません。</string>
     <string name="confirm_no_email">お客様への返信先を入力せずに問題の報告を送信しようとしています。ご報告に対する返信が必要な場合は、返信先のメールアドレスを入力する必要があります。</string>
     <string name="confirm_removal">はい。デバイスをログアウトさせます</string>
@@ -193,6 +194,7 @@
     <string name="max_devices_resolved_title">素晴らしい！</string>
     <string name="max_devices_warning_description">以下のリストから少なくとも1つを削除してログアウトしてください。対応するデバイス名はデバイスのアカウント設定で確認できます。</string>
     <string name="max_devices_warning_title">デバイスが多すぎます</string>
+    <string name="more_information">詳細情報</string>
     <string name="mullvad_account_number">Mullvadアカウント番号</string>
     <string name="mullvad_owned_only">Mullvad 所有サーバーのみ</string>
     <string name="name">名前</string>
@@ -213,6 +215,7 @@
     <string name="obfuscation_title">WireGuardの難読化</string>
     <string name="off">オフ</string>
     <string name="on">オン</string>
+    <string name="open_url">URLを開く</string>
     <string name="out_address">外側</string>
     <string name="out_of_time">時間切れ</string>
     <string name="overrides_cleared">オーバーライドがクリアされました</string>
@@ -244,6 +247,7 @@
     <string name="quantum_resistant_info_first_paragaph">この機能は、WireGuardトンネルに量子コンピューターからの潜在的な攻撃に対する耐性を与えます。</string>
     <string name="quantum_resistant_info_second_paragaph">耐量子アルゴリズムで追加の鍵の交換を実行し、結果をWireGuardの通常の暗号化に混合させることで行われます。この追加ステップでは、新しいトンネルが確立されるたびに約500kiBのトラフィックが使用されます。</string>
     <string name="quantum_resistant_title">耐量子トンネル</string>
+    <string name="reconnect">再接続</string>
     <string name="redeem">使用する</string>
     <string name="redeem_voucher">バウチャーを使用する</string>
     <string name="remove_button">削除</string>

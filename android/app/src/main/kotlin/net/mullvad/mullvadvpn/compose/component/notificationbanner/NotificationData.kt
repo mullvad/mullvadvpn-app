@@ -35,7 +35,11 @@ data class NotificationData(
     ) : this(title, message?.let { AnnotatedString(it) }, statusLevel, action)
 }
 
-data class NotificationAction(val icon: ImageVector, val onClick: (() -> Unit))
+data class NotificationAction(
+    val icon: ImageVector,
+    val onClick: (() -> Unit),
+    val contentDescription: String,
+)
 
 @Composable
 fun InAppNotification.toNotificationData(
@@ -64,7 +68,12 @@ fun InAppNotification.toNotificationData(
                                 )
                         ),
                 statusLevel = StatusLevel.Info,
-                action = NotificationAction(Icons.Default.Clear, onDismissNewDevice),
+                action =
+                    NotificationAction(
+                        Icons.Default.Clear,
+                        onDismissNewDevice,
+                        stringResource(id = R.string.dismiss),
+                    ),
             )
         is InAppNotification.AccountExpiry ->
             NotificationData(
@@ -74,7 +83,11 @@ fun InAppNotification.toNotificationData(
                 action =
                     if (isPlayBuild) null
                     else
-                        NotificationAction(Icons.AutoMirrored.Default.OpenInNew, onClickShowAccount),
+                        NotificationAction(
+                            Icons.AutoMirrored.Default.OpenInNew,
+                            onClickShowAccount,
+                            stringResource(id = R.string.open_url),
+                        ),
             )
         InAppNotification.TunnelStateBlocked ->
             NotificationData(
@@ -93,6 +106,7 @@ fun InAppNotification.toNotificationData(
                         NotificationAction(
                             Icons.AutoMirrored.Default.OpenInNew,
                             onClickUpdateVersion,
+                            stringResource(id = R.string.open_url),
                         ),
             )
     }

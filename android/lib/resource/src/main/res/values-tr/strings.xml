@@ -64,6 +64,7 @@
     <string name="cancel">İptal et</string>
     <string name="changes_dialog_subtitle">Bu sürümdeki değişiklikler:</string>
     <string name="cipher">Şifre</string>
+    <string name="close">Kapat</string>
     <string name="confirm_local_dns">Tercihler sekmesinin altındaki \"Yerel Ağ Paylaşımı\" seçeneğini etkinleştirmediğiniz sürece yerel DNS sunucusu çalışmaz.</string>
     <string name="confirm_no_email">Sorun raporunu, size geri dönüş yapmamıza imkan vermeyen bir şekilde göndermek üzeresiniz. Sorununuz için yanıt almak istiyorsanız bir e-posta adresi girmelisiniz.</string>
     <string name="confirm_removal">Evet, cihazdan çıkış yap</string>
@@ -193,6 +194,7 @@
     <string name="max_devices_resolved_title">Süper!</string>
     <string name="max_devices_warning_description">Lütfen aşağıdaki listeden en az bir cihazı kaldırarak çıkış yapın. İlgili cihaz adını cihazın Hesap ayarları altında bulabilirsiniz.</string>
     <string name="max_devices_warning_title">Cihaz sayısı çok fazla</string>
+    <string name="more_information">Daha fazla bilgi</string>
     <string name="mullvad_account_number">Mullvad hesap numarası</string>
     <string name="mullvad_owned_only">Sadece Mullvad\'a ait olanlar</string>
     <string name="name">Ad</string>
@@ -213,6 +215,7 @@
     <string name="obfuscation_title">WireGuard gizlemesi</string>
     <string name="off">Kapalı</string>
     <string name="on">Açık</string>
+    <string name="open_url">URL\'yi aç</string>
     <string name="out_address">Çıkış</string>
     <string name="out_of_time">Süre doldu</string>
     <string name="overrides_cleared">Geçersiz kılmalar temizlendi</string>
@@ -244,6 +247,7 @@
     <string name="quantum_resistant_info_first_paragaph">Bu özellik, WireGuard tünelini kuantum bilgisayarlardan gelebilecek potansiyel saldırılara karşı dayanıklı hale getirir.</string>
     <string name="quantum_resistant_info_second_paragaph">Bu işlemi, bir kuantum güvenlik algoritmasıyla ekstra bir anahtar değişimi gerçekleştirdikten sonra sonucu WireGuard\'ın normal şifrelemesiyle karıştırarak yapar. Bu ekstra adım, her yeni tünel kurulduğunda yaklaşık 500 kiB trafik kullanır.</string>
     <string name="quantum_resistant_title">Kuantuma dayanıklı tünel</string>
+    <string name="reconnect">Yeniden Bağlan</string>
     <string name="redeem">Kullan</string>
     <string name="redeem_voucher">Kuponu kullan</string>
     <string name="remove_button">Kaldır</string>
