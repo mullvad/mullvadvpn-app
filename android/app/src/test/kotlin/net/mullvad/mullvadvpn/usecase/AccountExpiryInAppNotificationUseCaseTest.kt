@@ -1,3 +1,5 @@
+@file:OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+
 package net.mullvad.mullvadvpn.usecase
 
 import app.cash.turbine.test
@@ -5,7 +7,7 @@ import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.unmockkAll
-import kotlin.math.roundToInt
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -54,13 +56,11 @@ class AccountExpiryInAppNotificationUseCaseTest {
 
     @Test
     fun `initial state should be empty`() = runTest {
-        // Arrange, Act, Assert
         accountExpiryInAppNotificationUseCase().test { assertTrue { awaitItem().isEmpty() } }
     }
 
     @Test
     fun `account that expires within the threshold should emit a notification`() = runTest {
-        // Arrange, Act, Assert
         accountExpiryInAppNotificationUseCase().test {
             assertTrue { awaitItem().isEmpty() }
             val expiry = setExpiry(notificationThreshold.minusHours(1))
@@ -71,7 +71,6 @@ class AccountExpiryInAppNotificationUseCaseTest {
 
     @Test
     fun `account that expires after the threshold should not emit a notification`() = runTest {
-        // Arrange, Act, Assert
         accountExpiryInAppNotificationUseCase().test {
             assertTrue { awaitItem().isEmpty() }
             setExpiry(notificationThreshold.plusDays(1))
@@ -81,7 +80,6 @@ class AccountExpiryInAppNotificationUseCaseTest {
 
     @Test
     fun `should emit when the threshold is passed`() = runTest {
-        // Arrange, Act, Assert
         accountExpiryInAppNotificationUseCase().test {
             assertTrue { awaitItem().isEmpty() }
             val expiry = setExpiry(notificationThreshold.plusMinutes(1))
@@ -99,39 +97,27 @@ class AccountExpiryInAppNotificationUseCaseTest {
     }
 
     @Test
-    fun `should emit remaining time divided by update interval time times`() = runTest {
-        // Arrange, Act, Assert
+    fun `should emit zero period when the time expires`() = runTest {
         accountExpiryInAppNotificationUseCase().test {
             assertTrue { awaitItem().isEmpty() }
 
-            // Set expiry to to be 1 second before the end of the first update interval
-            val beforeUpdate =
-                notificationThreshold
-                    .minus(ACCOUNT_EXPIRY_IN_APP_NOTIFICATION_UPDATE_INTERVAL)
-                    .plusSeconds(1)
-            val expiry = setExpiry(beforeUpdate)
+            // Set expiry to to be in the final update period.
+            val inLastUpdate =
+                DateTime.now()
+                    .plus(ACCOUNT_EXPIRY_IN_APP_NOTIFICATION_UPDATE_INTERVAL)
+                    .minusSeconds(1)
+            val expiry = setExpiry(inLastUpdate)
 
             // The expiry time is within the notification threshold so we should have an item
             // immediately.
             assertExpiryNotificationAndPeriod(expiry, expectMostRecentItem())
             expectNoEvents()
 
-            val expectedEmits =
-                (Duration(DateTime.now(), beforeUpdate).millis.toDouble() /
-                        ACCOUNT_EXPIRY_IN_APP_NOTIFICATION_UPDATE_INTERVAL.millis)
-                    .roundToInt()
-
-            advanceTimeBy(2.seconds)
-            repeat(expectedEmits) {
-                expectMostRecentItem()
-                advanceTimeBy(
-                    ACCOUNT_EXPIRY_IN_APP_NOTIFICATION_UPDATE_INTERVAL.plus(
-                            Duration.standardSeconds(1)
-                        )
-                        .millis
-                )
-            }
-
+            // Advance past the delay before the while loop:
+            advanceTimeBy(ACCOUNT_EXPIRY_IN_APP_NOTIFICATION_UPDATE_INTERVAL.millis)
+            // Advance past the delay after the while loop:
+            advanceTimeBy(ACCOUNT_EXPIRY_IN_APP_NOTIFICATION_UPDATE_INTERVAL.millis)
+            assertEquals(Period.ZERO, getExpiryNotificationPeriod(expectMostRecentItem()))
             expectNoEvents()
         }
     }
@@ -148,16 +134,21 @@ class AccountExpiryInAppNotificationUseCaseTest {
         expiry: DateTime,
         notifications: List<InAppNotification>,
     ) {
+        val notificationPeriod = getExpiryNotificationPeriod(notifications)
+        val periodNow = Period(DateTime.now(), expiry)
+        assertTrue(periodNow.toStandardDuration() <= notificationPeriod.toStandardDuration())
+        assertTrue(
+            periodNow.toStandardDuration().plus(Duration.standardSeconds(5)) >
+                notificationPeriod.toStandardDuration()
+        )
+    }
+
+    private fun getExpiryNotificationPeriod(notifications: List<InAppNotification>): Period {
         assertTrue(notifications.size == 1, "Expected a single notification")
         val n = notifications[0]
         if (n !is InAppNotification.AccountExpiry) {
             error("Expected an AccountExpiry notification")
         }
-        val periodNow = Period(DateTime.now(), expiry)
-        assertTrue(periodNow.toStandardDuration() <= n.expiry.toStandardDuration())
-        assertTrue(
-            periodNow.toStandardDuration().plus(Duration.standardSeconds(5)) >
-                n.expiry.toStandardDuration()
-        )
+        return n.expiry
     }
 }
