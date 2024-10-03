@@ -4,6 +4,8 @@
 //! * In the `Forwarding` state, queries are forwarded to a set of configured DNS servers. This
 //!   lets us use the routing table to determine where to send them, instead of them being forced
 //!   out on the primary interface (in some cases).
+//!
+//! See [start_resolver].
 use std::{
     io,
     net::{IpAddr, Ipv4Addr, SocketAddr},
@@ -41,8 +43,7 @@ use hickory_server::{
 };
 use std::sync::LazyLock;
 
-const ALLOWED_RECORD_TYPES: &[RecordType] =
-    &[RecordType::A, /*RecordType::AAAA,*/ RecordType::CNAME];
+const ALLOWED_RECORD_TYPES: &[RecordType] = &[RecordType::A, RecordType::CNAME];
 const CAPTIVE_PORTAL_DOMAINS: &[&str] = &["captive.apple.com", "netcts.cdn-apple.com"];
 
 static ALLOWED_DOMAINS: LazyLock<Vec<LowerName>> = LazyLock::new(|| {
@@ -59,8 +60,8 @@ const RESOLVED_ADDR: Ipv4Addr = Ipv4Addr::new(198, 51, 100, 1);
 
 /// Starts a resolver. Returns a cloneable handle, which can activate, deactivate and shut down the
 /// resolver. When all instances of a handle are dropped, the server will stop.
-pub(crate) async fn start_resolver() -> Result<ResolverHandle, Error> {
-    let (resolver, resolver_handle) = ForwardingResolver::new().await?;
+pub async fn start_resolver() -> Result<ResolverHandle, Error> {
+    let (resolver, resolver_handle) = LocalResolver::new().await?;
     tokio::spawn(resolver.run());
     Ok(resolver_handle)
 }
@@ -77,54 +78,64 @@ pub enum Error {
     GetSocketAddrError(#[source] io::Error),
 }
 
-/// A forwarding resolver
-struct ForwardingResolver {
+/// A DNS resolver that forwards queries to some other DNS server
+///
+/// Is controlled by commands sent through [ResolverHandle]s.
+struct LocalResolver {
     rx: mpsc::UnboundedReceiver<ResolverMessage>,
     dns_server: Option<(tokio::task::JoinHandle<()>, oneshot::Receiver<()>)>,
-    forward_resolver: LocalResolver,
+    inner_resolver: Resolver,
 }
 
-/// Resolver message
+/// A message to [LocalResolver]
 enum ResolverMessage {
-    /// Set config
+    /// Set resolver config
     SetConfig {
         /// New DNS config to use
-        new_config: LocalConfig,
+        new_config: Config,
         /// Response channel when resolvers have been updated
         response_tx: oneshot::Sender<()>,
     },
-    /// Query
-    Query(
-        LowerQuery,
-        oneshot::Sender<std::result::Result<Box<dyn LookupObject>, ResolveError>>,
-    ),
+
+    /// Send a DNS query to the resolver
+    Query {
+        dns_query: LowerQuery,
+
+        /// Channel for the query response
+        response_tx: oneshot::Sender<std::result::Result<Box<dyn LookupObject>, ResolveError>>,
+    },
 }
 
-/// Resolver config
+/// Configuration for [Resolver]
 #[derive(Debug, Default, Clone)]
-enum LocalConfig {
-    /// Drop DNS queries. For captive portal domains, return faux records
+enum Config {
+    /// Drop DNS queries. For captive portal domains, return faux records.
     #[default]
-    Blocked,
+    Blocking,
+
     /// Forward DNS queries to a configured server
-    ForwardDns {
+    Forwarding {
         /// Remote DNS server to use
         dns_servers: Vec<IpAddr>,
     },
 }
 
-enum LocalResolver {
+enum Resolver {
     /// Drop DNS queries. For captive portal domains, return faux records
-    Blocked,
+    Blocking,
+
     /// Forward DNS queries to a configured server
-    ForwardDns(TokioAsyncResolver),
+    Forwarding(TokioAsyncResolver),
 }
 
-impl From<LocalConfig> for LocalResolver {
-    fn from(config: LocalConfig) -> Self {
-        match config {
-            LocalConfig::Blocked => LocalResolver::Blocked,
-            LocalConfig::ForwardDns { ref dns_servers } => {
+impl From<Config> for Resolver {
+    fn from(mut config: Config) -> Self {
+        match &mut config {
+            Config::Blocking => Resolver::Blocking,
+            Config::Forwarding { dns_servers } => {
+                // make sure not to accidentally forward queries to ourselves
+                dns_servers.retain(|addr| !addr.is_loopback());
+
                 let forward_server_config =
                     NameServerConfigGroup::from_ips_clear(dns_servers, 53, true);
 
@@ -134,21 +145,21 @@ impl From<LocalConfig> for LocalResolver {
 
                 let resolver = TokioAsyncResolver::tokio(forward_config, resolver_opts);
 
-                LocalResolver::ForwardDns(resolver)
+                Resolver::Forwarding(resolver)
             }
         }
     }
 }
 
-impl LocalResolver {
+impl Resolver {
     pub fn resolve(
         &self,
         query: LowerQuery,
         tx: oneshot::Sender<std::result::Result<Box<dyn LookupObject>, ResolveError>>,
     ) {
         let lookup = match self {
-            LocalResolver::Blocked => Either::Left(async move { Self::resolve_blocked(query) }),
-            LocalResolver::ForwardDns(resolver) => {
+            Resolver::Blocking => Either::Left(async move { Self::resolve_blocked(query) }),
+            Resolver::Forwarding(resolver) => {
                 Either::Right(Self::resolve_forward(resolver.clone(), query))
             }
         };
@@ -208,10 +219,11 @@ impl LocalResolver {
     }
 }
 
-/// A handle to control a forwarding resolver. When all resolver handles are dropped, custom
-/// resolver will stop.
+/// A handle to control a DNS resolver.
+///
+/// When all resolver handles are dropped, the resolver will stop.
 #[derive(Clone)]
-pub(crate) struct ResolverHandle {
+pub struct ResolverHandle {
     tx: Arc<mpsc::UnboundedSender<ResolverMessage>>,
     listening_port: u16,
 }
@@ -228,14 +240,9 @@ impl ResolverHandle {
 
     /// Set the DNS server to forward queries to
     pub async fn enable_forward(&self, dns_servers: Vec<IpAddr>) {
-        let dns_servers = dns_servers
-            .into_iter()
-            .filter(|addr| !addr.is_loopback())
-            .collect();
-
         let (response_tx, response_rx) = oneshot::channel();
         let _ = self.tx.unbounded_send(ResolverMessage::SetConfig {
-            new_config: LocalConfig::ForwardDns { dns_servers },
+            new_config: Config::Forwarding { dns_servers },
             response_tx,
         });
 
@@ -246,7 +253,7 @@ impl ResolverHandle {
     pub async fn disable_forward(&self) {
         let (response_tx, response_rx) = oneshot::channel();
         let _ = self.tx.unbounded_send(ResolverMessage::SetConfig {
-            new_config: LocalConfig::Blocked,
+            new_config: Config::Blocking,
             response_tx,
         });
 
@@ -254,7 +261,7 @@ impl ResolverHandle {
     }
 }
 
-impl ForwardingResolver {
+impl LocalResolver {
     /// Constructs a new filtering resolver and it's handle.
     async fn new() -> Result<(Self, ResolverHandle), Error> {
         let (tx, rx) = mpsc::unbounded();
@@ -291,7 +298,7 @@ impl ForwardingResolver {
         let resolver = Self {
             rx,
             dns_server: Some((server_handle, server_done_rx)),
-            forward_resolver: LocalResolver::from(LocalConfig::Blocked),
+            inner_resolver: Resolver::from(Config::Blocking),
         };
 
         Ok((resolver, ResolverHandle::new(command_tx, port)))
@@ -328,12 +335,15 @@ impl ForwardingResolver {
                 } => {
                     log::debug!("Updating config: {new_config:?}");
 
-                    self.forward_resolver = LocalResolver::from(new_config);
+                    self.inner_resolver = Resolver::from(new_config);
                     flush_system_cache();
                     let _ = response_tx.send(());
                 }
-                ResolverMessage::Query(query, tx) => {
-                    self.forward_resolver.resolve(query, tx);
+                ResolverMessage::Query {
+                    dns_query,
+                    response_tx,
+                } => {
+                    self.inner_resolver.resolve(dns_query, response_tx);
                 }
             }
         }
@@ -406,12 +416,15 @@ impl ResolverImpl {
         if let Some(tx_ref) = self.tx.upgrade() {
             let mut tx = (*tx_ref).clone();
             let query = message.query();
-            let (lookup_tx, lookup_rx) = oneshot::channel();
+            let (response_tx, response_rx) = oneshot::channel();
             let _ = tx
-                .send(ResolverMessage::Query(query.clone(), lookup_tx))
+                .send(ResolverMessage::Query {
+                    dns_query: query.clone(),
+                    response_tx,
+                })
                 .await;
 
-            let lookup_result = lookup_rx.await;
+            let lookup_result = response_rx.await;
             let response_result = match lookup_result {
                 Ok(Ok(ref lookup)) => {
                     let response = Self::build_response(message, lookup.as_ref());
