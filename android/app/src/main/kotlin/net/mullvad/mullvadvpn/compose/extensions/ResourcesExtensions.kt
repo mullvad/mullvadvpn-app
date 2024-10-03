@@ -12,6 +12,7 @@ fun Resources.getExpiryQuantityString(accountExpiry: DateTime): String {
     return getExpiryQuantityString(this, accountExpiry, remainingTime)
 }
 
+@Suppress("MagicNumber")
 private fun getExpiryQuantityString(
     resources: Resources,
     accountExpiry: DateTime,
