@@ -6,28 +6,31 @@ internal object RelayNameComparator : Comparator<RelayItem.Location.Relay> {
     override fun compare(o1: RelayItem.Location.Relay, o2: RelayItem.Location.Relay): Int {
         val partitions1 = o1.name.split(regex)
         val partitions2 = o2.name.split(regex)
-        return if (partitions1.size > partitions2.size) partitions1 compareWith partitions2
-        else -(partitions2 compareWith partitions1)
+
+        partitions1
+            .zip(partitions2)
+            .map { (p1, p2) -> compareStringOrInt(p1, p2) }
+            .forEach {
+                if (it != 0) {
+                    // Parts differed, return compare result
+                    return it
+                }
+            }
+        return partitions1.size.compareTo(partitions2.size)
     }
 
-    private infix fun List<String>.compareWith(other: List<String>): Int {
-        this.forEachIndexed { index, s ->
-            if (other.size <= index) return 1
-            val partsCompareResult = compareStringOrInt(other[index], s)
-            if (partsCompareResult != 0) return partsCompareResult
-        }
-        return 0
-    }
-
-    private fun compareStringOrInt(s1: String, s2: String): Int {
-        val int1 = s1.toIntOrNull()
-        val int2 = s2.toIntOrNull()
-        return if (int1 == null || int2 == null || int1 == int2) {
-            s2.compareTo(s1)
+    private fun compareStringOrInt(p1: String, p2: String): Int {
+        val int1 = p1.toIntOrNull()
+        val int2 = p2.toIntOrNull()
+        return if (int1 is Int && int2 is Int) {
+            // If both are Int we should compare them numbers
+            int1.compareTo(int2)
         } else {
-            int2.compareTo(int1)
+            p1.compareTo(p2)
         }
     }
 
+    // Regexp that splits digit and non digit, e.g se-got-wg-101 would be ["se-got-wg-", "101"] so
+    // that the number later can be sorted, e.g 9 being listed before 10.
     private val regex = "(?<=\\d)(?=\\D)|(?<=\\D)(?=\\d)".toRegex()
 }
