@@ -66,13 +66,13 @@ echo "Generating new trusted keys..."
 # extract the middle of the new file, https://github.com/gradle/gradle/issues/18569
 grep -B 10000 "<trusted-keys>" ../gradle/verification-metadata.dryrun.xml > "$TEMP_GRADLE_PROJECT_CACHE_DIR/new.head"
 grep -A 10000 "</trusted-keys>" ../gradle/verification-metadata.dryrun.xml > "$TEMP_GRADLE_PROJECT_CACHE_DIR/new.tail"
-numTopLines="$(cat "$TEMP_GRADLE_PROJECT_CACHE_DIR/new.head" | wc -l)"
-numTopLinesPlus1="$(($numTopLines + 1))"
-numBottomLines="$(cat "$TEMP_GRADLE_PROJECT_CACHE_DIR/new.tail" | wc -l)"
-numLines="$(cat ../gradle/verification-metadata.dryrun.xml | wc -l)"
-numMiddleLines="$(($numLines - $numTopLines - $numBottomLines))"
+numTopLines="$(< "$TEMP_GRADLE_PROJECT_CACHE_DIR/new.head" wc -l)"
+numTopLinesPlus1="$((numTopLines + 1))"
+numBottomLines="$(< "$TEMP_GRADLE_PROJECT_CACHE_DIR/new.tail" wc -l)"
+numLines="$(< ../gradle/verification-metadata.dryrun.xml wc -l)"
+numMiddleLines="$((numLines - numTopLines - numBottomLines))"
 # also remove 'version=' lines, https://github.com/gradle/gradle/issues/20192
-cat ../gradle/verification-metadata.dryrun.xml | tail -n "+$numTopLinesPlus1" | head -n "$numMiddleLines" | sed 's/ version="[^"]*"//' > "$TEMP_GRADLE_PROJECT_CACHE_DIR/new.middle"
+< ../gradle/verification-metadata.dryrun.xml tail -n "+$numTopLinesPlus1" | head -n "$numMiddleLines" | sed 's/ version="[^"]*"//' > "$TEMP_GRADLE_PROJECT_CACHE_DIR/new.middle"
 
 # extract the top and bottom of the old file
 grep -B 10000 "<trusted-keys>" ../gradle/verification-metadata.xml > "$TEMP_GRADLE_PROJECT_CACHE_DIR/old.head"
@@ -90,8 +90,8 @@ echo "sorting keyring and removing duplicates"
   # `sort` orders the keys deterministically
   # `uniq` removes identical keys
   # `sed 's/NEWLINE/\n/g'` puts the newlines back
-cat ../gradle/verification-keyring.dryrun.keys \
-    | sed 's/$/NEWLINE/g' \
+< ../gradle/verification-keyring.dryrun.keys \
+    sed 's/$/NEWLINE/g' \
     | tr -d '\n' \
     | sed 's/\(-----END PGP PUBLIC KEY BLOCK-----\)/\1\n/g' \
     | grep "END PGP PUBLIC KEY BLOCK" \
