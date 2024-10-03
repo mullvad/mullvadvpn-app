@@ -43,6 +43,7 @@ sealed interface VpnSettingsSideEffect {
     data object NavigateToDnsDialog : VpnSettingsSideEffect
 }
 
+@Suppress("TooManyFunctions")
 class VpnSettingsViewModel(
     private val repository: SettingsRepository,
     private val relayListRepository: RelayListRepository,
