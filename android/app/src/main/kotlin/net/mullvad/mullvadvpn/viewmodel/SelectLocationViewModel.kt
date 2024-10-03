@@ -43,6 +43,7 @@ import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListsRelayItemUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.FilterCustomListsRelayItemUseCase
 
+@Suppress("TooManyFunctions")
 class SelectLocationViewModel(
     private val relayListFilterRepository: RelayListFilterRepository,
     private val availableProvidersUseCase: AvailableProvidersUseCase,
