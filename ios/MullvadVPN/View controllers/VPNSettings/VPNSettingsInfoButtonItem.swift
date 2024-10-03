@@ -16,7 +16,6 @@ enum VPNSettingsInfoButtonItem: CustomStringConvertible {
     case wireGuardObfuscationPort
     case quantumResistance
     case multihop
-    case daita
 
     var description: String {
         switch self {
@@ -94,21 +93,6 @@ enum VPNSettingsInfoButtonItem: CustomStringConvertible {
                 value: """
                 Multihop routes your traffic into one WireGuard server and out another, making it harder to trace.
                 This results in increased latency but increases anonymity online.
-                """,
-                comment: ""
-            )
-        case .daita:
-            NSLocalizedString(
-                "DAITA_INFORMATION_TEXT",
-                tableName: "DAITA",
-                value: """
-                DAITA (Defence against AI-guided Traffic Analysis) hides patterns in your encrypted VPN traffic. \
-                If anyone is monitoring your connection, this makes it significantly harder for them to identify \
-                what websites you are visiting. It does this by carefully adding network noise and making all \
-                network packets the same size.
-                Attention: Since this increases your total network traffic, \
-                be cautious if you have a limited data plan. \
-                It can also negatively impact your network speed and battery usage.
                 """,
                 comment: ""
             )

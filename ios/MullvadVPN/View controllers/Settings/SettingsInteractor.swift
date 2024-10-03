@@ -15,13 +15,15 @@ final class SettingsInteractor {
 
     var didUpdateDeviceState: ((DeviceState) -> Void)?
 
+    var tunnelSettings: LatestTunnelSettings {
+        tunnelManager.settings
+    }
+
     var deviceState: DeviceState {
         tunnelManager.deviceState
     }
 
-    init(
-        tunnelManager: TunnelManager
-    ) {
+    init(tunnelManager: TunnelManager) {
         self.tunnelManager = tunnelManager
 
         let tunnelObserver =
@@ -32,5 +34,25 @@ final class SettingsInteractor {
         tunnelManager.addObserver(tunnelObserver)
 
         self.tunnelObserver = tunnelObserver
+    }
+
+    func updateDAITASettings(_ settings: DAITASettings) {
+        tunnelManager.updateSettings([.daita(settings)])
+    }
+
+    func evaluateDaitaSettingsCompatibility(_ settings: DAITASettings) -> DAITASettingsCompatibilityError? {
+        guard settings.daitaState.isEnabled else { return nil }
+
+        var tunnelSettings = tunnelSettings
+        tunnelSettings.daita = settings
+
+        let selectedRelays = try? tunnelManager.selectRelays(tunnelSettings: tunnelSettings)
+        let multihopEnabled = tunnelSettings.tunnelMultihopState.isEnabled
+
+        return if selectedRelays == nil {
+            multihopEnabled ? .multihop : .singlehop
+        } else {
+            nil
+        }
     }
 }
