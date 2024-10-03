@@ -12,10 +12,16 @@ import UIKit
 final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource.Section, SettingsDataSource.Item>,
     UITableViewDelegate {
     enum CellReuseIdentifiers: String, CaseIterable {
-        case basicCell
+        case basic
+        case daita
 
         var reusableViewClass: AnyClass {
-            SettingsCell.self
+            switch self {
+            case .basic:
+                SettingsCell.self
+            case .daita:
+                SettingsSwitchCell.self
+            }
         }
     }
 
@@ -28,6 +34,7 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
     }
 
     enum Section: String {
+        case daita
         case main
         case version
         case problemReport
@@ -39,6 +46,8 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
         case problemReport
         case faq
         case apiAccess
+        case daita
+        case daitaDirectOnly
 
         var accessibilityIdentifier: AccessibilityIdentifier {
             switch self {
@@ -52,17 +61,26 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
                 return .faqCell
             case .apiAccess:
                 return .apiAccessCell
+            case .daita:
+                return .daitaSwitch
+            case .daitaDirectOnly:
+                return .daitaDirectOnlySwitch
             }
         }
 
         var reuseIdentifier: CellReuseIdentifiers {
-            .basicCell
+            switch self {
+            case .vpnSettings, .version, .problemReport, .faq, .apiAccess:
+                .basic
+            case .daita, .daitaDirectOnly:
+                .daita
+            }
         }
     }
 
     private let interactor: SettingsInteractor
-    private let settingsCellFactory: SettingsCellFactory
     private var storedAccountData: StoredAccountData?
+    private let settingsCellFactory: SettingsCellFactory
     private weak var tableView: UITableView?
 
     weak var delegate: SettingsDataSourceDelegate?
@@ -79,6 +97,8 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
         }
 
         tableView.delegate = self
+        settingsCellFactory.delegate = self
+
         registerClasses()
         updateDataSnapshot()
 
@@ -91,17 +111,17 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
     // MARK: - UITableViewDelegate
 
     func tableView(_ tableView: UITableView, shouldHighlightRowAt indexPath: IndexPath) -> Bool {
-        if case .version = itemIdentifier(for: indexPath) {
-            return false
-        } else {
-            return true
+        switch itemIdentifier(for: indexPath) {
+        case .vpnSettings, .problemReport, .faq, .apiAccess:
+            true
+        case .version, .daita, .daitaDirectOnly, .none:
+            false
         }
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard let item = itemIdentifier(for: indexPath) else { return }
-
-        delegate?.settingsDataSource(self, didSelectItem: item)
+        delegate?.didSelectItem(item: item)
     }
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
@@ -143,9 +163,11 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
     private func updateDataSnapshot() {
         var snapshot = NSDiffableDataSourceSnapshot<Section, Item>()
 
-        snapshot.appendSections([.main])
+        snapshot.appendSections([.daita, .main])
 
         if interactor.deviceState.isLoggedIn {
+            snapshot.appendItems([.daita], toSection: .daita)
+            snapshot.appendItems([.daitaDirectOnly], toSection: .daita)
             snapshot.appendItems([.vpnSettings], toSection: .main)
         }
 
@@ -156,5 +178,73 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
         snapshot.appendItems([.problemReport, .faq], toSection: .problemReport)
 
         apply(snapshot)
+    }
+}
+
+extension SettingsDataSource: SettingsCellEventHandler {
+    func showInfo(for button: SettingsInfoButtonItem) {
+        delegate?.showInfo(for: button)
+    }
+
+    func switchDaitaState(_ settings: DAITASettings) {
+        testDaitaCompatibility(for: .daita, settings: settings) { [weak self] in
+            self?.reloadItem(.daitaDirectOnly)
+        } onDiscard: { [weak self] in
+            self?.reloadItem(.daita)
+        }
+    }
+
+    func switchDaitaDirectOnlyState(_ settings: DAITASettings) {
+        testDaitaCompatibility(for: .daitaDirectOnly, settings: settings, onDiscard: { [weak self] in
+            self?.reloadItem(.daitaDirectOnly)
+        })
+    }
+
+    private func reloadItem(_ item: Item) {
+        var snapshot = snapshot()
+        snapshot.reloadItems([item])
+        apply(snapshot, animatingDifferences: false)
+    }
+
+    private func testDaitaCompatibility(
+        for item: Item,
+        settings: DAITASettings,
+        onSave: (() -> Void)? = nil,
+        onDiscard: @escaping () -> Void
+    ) {
+        let updateSettings = { [weak self] in
+            self?.settingsCellFactory.viewModel.setDAITASettings(settings)
+            self?.interactor.updateDAITASettings(settings)
+
+            onSave?()
+        }
+
+        guard let promptItemSetting: DAITASettingsPromptItem.Setting = switch item {
+        case .daita:
+            .daita
+        case .daitaDirectOnly:
+            .directOnly
+        default:
+            nil
+        } else { return }
+
+        if let error = interactor.evaluateDaitaSettingsCompatibility(settings) {
+            switch error {
+            case .singlehop:
+                delegate?.showPrompt(
+                    for: .daitaSettingIncompatibleWithSinglehop(promptItemSetting),
+                    onSave: { updateSettings() },
+                    onDiscard: onDiscard
+                )
+            case .multihop:
+                delegate?.showPrompt(
+                    for: .daitaSettingIncompatibleWithMultihop(promptItemSetting),
+                    onSave: { updateSettings() },
+                    onDiscard: onDiscard
+                )
+            }
+        } else {
+            updateSettings()
+        }
     }
 }
