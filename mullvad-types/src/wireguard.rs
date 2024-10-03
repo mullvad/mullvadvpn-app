@@ -86,7 +86,7 @@ pub struct DaitaSettings {
     pub enabled: bool,
 
     #[serde(default)]
-    pub smart_routing: bool,
+    pub use_multihop_if_necessary: bool,
 }
 
 /// Contains account specific wireguard data
