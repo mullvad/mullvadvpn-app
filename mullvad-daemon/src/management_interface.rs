@@ -356,7 +356,7 @@ impl ManagementService for ManagementServiceImpl {
         let value = request.into_inner();
         log::debug!("set_daita_smart_routing({value})");
         let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetDaitaSmartRouting(tx, value))?;
+        self.send_command_to_daemon(DaemonCommand::SetDaitaUseMultihopIfNecessary(tx, value))?;
         self.wait_for_result(rx).await?.map(Response::new)?;
         Ok(Response::new(()))
     }
