@@ -27,6 +27,9 @@ Line wrap the file at 100 chars.                                              Th
 - Add experimental support for Windows ARM64.
 
 ### Changed
+- Replace the draft key encapsulation mechanism Kyber (round 3) with the standardized
+  ML-KEM (FIPS 203) dito in the handshake for Quantum-resistant tunnels.
+
 #### Windows
 - Enable quantum-resistant tunnels by default (when set to `auto`).
 
