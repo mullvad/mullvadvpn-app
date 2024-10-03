@@ -121,7 +121,7 @@ class TunnelControlPage: Page {
     }
 
     @discardableResult func tapRelayStatusExpandCollapseButton() -> Self {
-        app.buttons[AccessibilityIdentifier.relayStatusCollapseButton].tap()
+        app.otherElements[AccessibilityIdentifier.relayStatusCollapseButton].press(forDuration: .leastNonzeroMagnitude)
         return self
     }
 
@@ -202,6 +202,13 @@ class TunnelControlPage: Page {
         return self
     }
 
+    /// Verify that the app attempts to connect over Multihop.
+    @discardableResult func verifyConnectingOverMultihop() -> Self {
+        let relayName = getCurrentRelayName().lowercased()
+        XCTAssertTrue(relayName.contains("via"))
+        return self
+    }
+
     func getInIPAddressFromConnectionStatus() -> String {
         let inAddressRow = app.otherElements[AccessibilityIdentifier.connectionPanelInAddressRow]
 
@@ -215,7 +222,7 @@ class TunnelControlPage: Page {
     }
 
     func getCurrentRelayName() -> String {
-        let relayExpandButton = app.buttons[.relayStatusCollapseButton]
+        let relayExpandButton = app.otherElements[.relayStatusCollapseButton]
 
         guard let relayName = relayExpandButton.value as? String else {
             XCTFail("Failed to read relay name from tunnel control page")
