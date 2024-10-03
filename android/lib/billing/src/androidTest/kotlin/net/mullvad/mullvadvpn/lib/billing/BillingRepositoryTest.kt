@@ -58,7 +58,8 @@ class BillingRepositoryTest {
         mockkStatic(BILLING_FLOW_PARAMS)
 
         every { BillingClient.newBuilder(any()) } returns mockBillingClientBuilder
-        every { mockBillingClientBuilder.enablePendingPurchases() } returns mockBillingClientBuilder
+        every { mockBillingClientBuilder.enablePendingPurchases(any()) } returns
+            mockBillingClientBuilder
         every { mockBillingClientBuilder.setListener(capture(purchaseUpdatedListenerSlot)) } returns
             mockBillingClientBuilder
         every { mockBillingClientBuilder.build() } returns mockBillingClient
