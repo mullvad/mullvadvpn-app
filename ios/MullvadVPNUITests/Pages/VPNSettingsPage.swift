@@ -205,4 +205,22 @@ class VPNSettingsPage: Page {
         XCTAssertEqual(switchValue, "1")
         return self
     }
+
+    @discardableResult func tapDaitaSwitchIfOn() -> Self {
+        let switchElement = app.cells[.daitaSwitch].switches[AccessibilityIdentifier.customSwitch]
+
+        if switchElement.value as? String == "1" {
+            tapDaitaSwitch()
+        }
+        return self
+    }
+
+    @discardableResult func tapMultihopSwitchIfOn() -> Self {
+        let switchElement = app.cells[.multihopSwitch].switches[AccessibilityIdentifier.customSwitch]
+
+        if switchElement.value as? String == "1" {
+            tapMultihopSwitch()
+        }
+        return self
+    }
 }
