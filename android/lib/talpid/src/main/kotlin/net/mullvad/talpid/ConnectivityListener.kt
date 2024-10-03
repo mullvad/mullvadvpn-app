@@ -55,6 +55,10 @@ class ConnectivityListener {
         connectivityManager.unregisterNetworkCallback(callback)
     }
 
+    // DROID-1401
+    // This function has never been used and should most likely be merged into unregister(),
+    // along with ensuring that the lifecycle of it is correct.
+    @Suppress("UnusedPrivateMember")
     private fun finalize() {
         destroySender(senderAddress)
         senderAddress = 0L
