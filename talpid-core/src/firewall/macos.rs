@@ -223,7 +223,7 @@ impl Firewall {
     }
 
     fn get_nat_rules(&mut self, policy: &FirewallPolicy) -> Result<Vec<pfctl::NatRule>> {
-        let rules = if let FirewallPolicy::Connected {
+        let (FirewallPolicy::Connected {
             peer_endpoint,
             tunnel,
             ..
@@ -232,75 +232,69 @@ impl Firewall {
             peer_endpoint,
             tunnel: Some(tunnel),
             ..
-        } = policy
-        {
-            let mut rules = vec![];
-
-            // no nat from/to localhost
-            let localhost_nets = ["127.0.0.0/8".parse().unwrap(), "::1/128".parse().unwrap()];
-            for net in localhost_nets {
-                let no_nat_localhost = pfctl::NatRuleBuilder::default()
-                    .action(pfctl::NatRuleAction::NoNat)
-                    .to(Ip::Net(net))
-                    .build()?;
-                rules.push(no_nat_localhost);
-                let no_nat_localhost = pfctl::NatRuleBuilder::default()
-                    .action(pfctl::NatRuleAction::NoNat)
-                    .from(Ip::Net(net))
-                    .build()?;
-                rules.push(no_nat_localhost);
-            }
-
-            // no nat to LAN nets
-            for net in ALLOWED_LAN_NETS.iter() {
-                let rule = pfctl::NatRuleBuilder::default()
-                    .action(pfctl::NatRuleAction::NoNat)
-                    .to(pfctl::Ip::from(*net))
-                    .build()?;
-                rules.push(rule);
-            }
-
-            for net in ALLOWED_LAN_MULTICAST_NETS.iter() {
-                let rule = pfctl::NatRuleBuilder::default()
-                    .action(pfctl::NatRuleAction::NoNat)
-                    .to(pfctl::Ip::from(*net))
-                    .build()?;
-                rules.push(rule);
-            }
-
-            // no nat to [vpn ip]
-            let no_nat_to_vpn_server = pfctl::NatRuleBuilder::default()
-                .action(pfctl::NatRuleAction::NoNat)
-                .to(peer_endpoint.endpoint.address.ip())
-                .build()?;
-            rules.push(no_nat_to_vpn_server);
-
-            // no nat on [tun interface]
-            let no_nat_on_tun = pfctl::NatRuleBuilder::default()
-                .action(pfctl::NatRuleAction::NoNat)
-                .interface(&tunnel.interface)
-                .build()?;
-            rules.push(no_nat_on_tun);
-
-            // Masquerade other traffic via VPN utun
-            for ip in &tunnel.ips {
-                // nat from {inet,inet6} any to any -> [tun ip]
-                let nat_primary_to_tun = pfctl::NatRuleBuilder::default()
-                    .action(pfctl::NatRuleAction::Nat {
-                        nat_to: pfctl::NatEndpoint::from(pfctl::Ip::Net(IpNetwork::from(*ip))),
-                    })
-                    .from(Ip::Net(match ip {
-                        IpAddr::V4(_) => "0.0.0.0/0".parse().unwrap(),
-                        IpAddr::V6(_) => "::/0".parse().unwrap(),
-                    }))
-                    .build()?;
-                rules.push(nat_primary_to_tun);
-            }
-
-            rules
-        } else {
-            vec![]
+        }) = policy
+        else {
+            return Ok(vec![]);
         };
+
+        let mut rules = vec![];
+
+        // no nat from/to localhost
+        let localhost_nets = ["127.0.0.0/8".parse().unwrap(), "::1/128".parse().unwrap()];
+        for net in localhost_nets {
+            let no_nat_localhost = pfctl::NatRuleBuilder::default()
+                .action(pfctl::NatRuleAction::NoNat)
+                .to(Ip::Net(net))
+                .build()?;
+            rules.push(no_nat_localhost);
+            let no_nat_localhost = pfctl::NatRuleBuilder::default()
+                .action(pfctl::NatRuleAction::NoNat)
+                .from(Ip::Net(net))
+                .build()?;
+            rules.push(no_nat_localhost);
+        }
+
+        // no nat to LAN nets
+        for net in ALLOWED_LAN_NETS
+            .iter()
+            .chain(ALLOWED_LAN_MULTICAST_NETS.iter())
+        {
+            let rule = pfctl::NatRuleBuilder::default()
+                .action(pfctl::NatRuleAction::NoNat)
+                .to(pfctl::Ip::from(*net))
+                .build()?;
+            rules.push(rule);
+        }
+
+        // no nat to [vpn ip]
+        let no_nat_to_vpn_server = pfctl::NatRuleBuilder::default()
+            .action(pfctl::NatRuleAction::NoNat)
+            .to(peer_endpoint.endpoint.address.ip())
+            .build()?;
+        rules.push(no_nat_to_vpn_server);
+
+        // no nat on [tun interface]
+        let no_nat_on_tun = pfctl::NatRuleBuilder::default()
+            .action(pfctl::NatRuleAction::NoNat)
+            .interface(&tunnel.interface)
+            .build()?;
+        rules.push(no_nat_on_tun);
+
+        // Masquerade other traffic via VPN utun
+        for ip in &tunnel.ips {
+            // nat from {inet,inet6} any to any -> [tun ip]
+            let nat_primary_to_tun = pfctl::NatRuleBuilder::default()
+                .action(pfctl::NatRuleAction::Nat {
+                    nat_to: pfctl::NatEndpoint::from(pfctl::Ip::from(*ip)),
+                })
+                .from(Ip::Net(match ip {
+                    IpAddr::V4(_) => "0.0.0.0/0".parse().unwrap(),
+                    IpAddr::V6(_) => "::/0".parse().unwrap(),
+                }))
+                .build()?;
+            rules.push(nat_primary_to_tun);
+        }
+
         Ok(rules)
     }
 
