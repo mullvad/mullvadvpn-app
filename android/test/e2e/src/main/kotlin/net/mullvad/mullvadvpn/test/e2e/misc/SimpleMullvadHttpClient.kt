@@ -167,7 +167,7 @@ class SimpleMullvadHttpClient(context: Context) {
     ): JSONArray? {
         val future = RequestFuture.newFuture<JSONArray>()
         val request =
-            object : JsonArrayRequest(method, url, null, future, onErrorResponse) {
+            object : JsonArrayRequest(method, url, body, future, onErrorResponse) {
                 override fun getHeaders(): MutableMap<String, String> {
                     val headers = HashMap<String, String>()
                     headers.put("Content-Type", "application/json")
