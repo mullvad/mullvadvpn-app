@@ -43,6 +43,7 @@ Line wrap the file at 100 chars.                                              Th
 #### macOS
 - Fix Apple services not working by forcing stray connections out through the VPN tunnel. The
   "bypass" toggle has been removed.
+- Fix packets being duplicated on LAN when split tunneling is enabled.
 
 
 ## [2024.6-beta1] - 2024-09-26
