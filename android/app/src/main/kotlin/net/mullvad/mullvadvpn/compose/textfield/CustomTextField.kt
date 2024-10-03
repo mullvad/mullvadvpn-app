@@ -13,7 +13,6 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -23,8 +22,6 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.constant.EMPTY_STRING
 import net.mullvad.mullvadvpn.constant.NEWLINE_STRING
 
@@ -53,9 +50,6 @@ fun CustomTextField(
             imeAction = ImeAction.Done,
         ),
 ) {
-
-    val scope = rememberCoroutineScope()
-
     // This is the same implementation as in BasicTextField.kt but with initial selection set at the
     // end of the text rather than in the beginning.
     // This is a fix for https://issuetracker.google.com/issues/272693535.
@@ -97,16 +91,7 @@ fun CustomTextField(
         singleLine = true,
         placeholder = placeholderText?.let { { Text(text = it) } },
         keyboardOptions = keyboardOptions,
-        keyboardActions =
-            KeyboardActions(
-                onDone = {
-                    scope.launch {
-                        // https://issuetracker.google.com/issues/305518328
-                        delay(100)
-                        onSubmit(value)
-                    }
-                }
-            ),
+        keyboardActions = KeyboardActions(onDone = { onSubmit(value) }),
         visualTransformation = visualTransformation,
         colors = colors,
         isError = !isValidValue,
