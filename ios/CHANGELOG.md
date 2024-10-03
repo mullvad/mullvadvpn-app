@@ -22,6 +22,9 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## Unreleased
+### Changed
+- Replace the draft key encapsulation mechanism Kyber (round 3) with the standardized
+  ML-KEM (FIPS 203) dito in the handshake for Quantum-resistant tunnels.
 
 ## [2024.8 - 2024-10-14]
 ### Added
