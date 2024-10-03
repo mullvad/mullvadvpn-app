@@ -1,3 +1,5 @@
+use std::time::Instant;
+
 use ml_kem::array::typenum::marker_traits::Unsigned;
 use ml_kem::kem::Decapsulate;
 use ml_kem::{Ciphertext, EncodedSizeUser, KemCore, MlKem1024, MlKem1024Params};
@@ -31,6 +33,7 @@ impl Keypair {
     // https://github.com/RustCrypto/KEMs/issues/70
     #[inline(always)]
     pub fn decapsulate(&self, ciphertext_slice: &[u8]) -> Result<[u8; 32], super::Error> {
+        let start = Instant::now();
         // Convert the ciphertext byte slice into the appropriate Array<u8, ...> type.
         // This involves validating the length of the ciphertext.
         let ciphertext_array =
@@ -50,6 +53,10 @@ impl Keypair {
             .decapsulation_key
             .decapsulate(&ciphertext_array)
             .unwrap();
+        log::debug!(
+            "ML-KEM decapsulation took {} ms",
+            start.elapsed().as_millis()
+        );
         Ok(shared_secret.0)
     }
 }
