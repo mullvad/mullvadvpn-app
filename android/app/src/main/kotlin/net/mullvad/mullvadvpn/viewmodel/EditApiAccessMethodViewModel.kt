@@ -38,6 +38,7 @@ import net.mullvad.mullvadvpn.repository.ApiAccessRepository
 import net.mullvad.mullvadvpn.util.delayAtLeast
 import org.apache.commons.validator.routines.InetAddressValidator
 
+@Suppress("TooManyFunctions")
 class EditApiAccessMethodViewModel(
     private val apiAccessRepository: ApiAccessRepository,
     private val inetAddressValidator: InetAddressValidator,
