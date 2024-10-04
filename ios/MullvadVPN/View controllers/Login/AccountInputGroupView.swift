@@ -97,8 +97,6 @@ final class AccountInputGroupView: UIView {
         button.titleLabel?.font = accountNumberFont()
         button.setTitle(" ", for: .normal)
         button.contentHorizontalAlignment = .leading
-        button.contentEdgeInsets = UIMetrics.textFieldMargins
-        button.setTitleColor(UIColor.AccountTextField.NormalState.textColor, for: .normal)
         button.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         button.accessibilityLabel = NSLocalizedString(
             "LAST_USED_ACCOUNT_ACCESSIBILITY_LABEL",
@@ -106,6 +104,11 @@ final class AccountInputGroupView: UIView {
             value: "Last used account",
             comment: ""
         )
+
+        var config = UIButton.Configuration.plain()
+        config.contentInsets = UIMetrics.textFieldMargins.toDirectionalInsets
+        config.baseForegroundColor = .AccountTextField.NormalState.textColor
+        button.configuration = config
         return button
     }()
 

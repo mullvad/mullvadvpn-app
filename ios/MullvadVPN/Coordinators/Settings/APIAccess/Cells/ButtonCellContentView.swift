@@ -66,8 +66,7 @@ class ButtonCellContentView: UIView, UIContentView {
         button.titleLabel?.font = .systemFont(ofSize: 17)
         button.isEnabled = actualConfiguration.isEnabled
         button.style = actualConfiguration.style
-        button.overrideContentEdgeInsets = true
-        button.directionalContentEdgeInsets = actualConfiguration.directionalContentEdgeInsets
+        button.configuration?.contentInsets = actualConfiguration.directionalContentEdgeInsets
     }
 
     private func addSubviews() {
