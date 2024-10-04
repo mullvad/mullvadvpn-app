@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+   Full backup content file
+   See https://developer.android.com/guide/topics/manifest/application-element#fullBackupContent
+   for details.
+-->
+<full-backup-content>
+    <exclude domain="file" />
+    <exclude domain="database" />
+    <exclude domain="sharedpref" />
+    <exclude domain="external" />
+    <exclude domain="root" />
+    <exclude domain="device_file" />
+    <exclude domain="device_database" />
+    <exclude domain="device_sharedpref" />
+    <exclude domain="device_root" />
+</full-backup-content>
