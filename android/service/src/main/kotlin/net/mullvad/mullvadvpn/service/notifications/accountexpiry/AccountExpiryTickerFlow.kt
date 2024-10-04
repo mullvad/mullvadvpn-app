@@ -5,17 +5,16 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import org.joda.time.DateTime
 import org.joda.time.Duration
-import org.joda.time.Period
 
 fun expiryTickerFlow(
     expiry: DateTime,
     tickStart: Duration,
     updateInterval: (expiry: DateTime) -> Duration,
-): Flow<Period> = flow {
+): Flow<Duration> = flow {
     expiry.millisFromNow().let { expiryMillis ->
         if (expiryMillis <= 0) {
             // Has expired.
-            emit(Period.ZERO)
+            emit(Duration.ZERO)
             return@flow
         }
         if (expiryMillis > tickStart.millis) {
@@ -27,7 +26,7 @@ fun expiryTickerFlow(
     var currentUpdateInterval = updateInterval(expiry).millis
 
     do {
-        emit(Period(DateTime.now(), expiry))
+        emit(Duration(DateTime.now(), expiry))
         delay(millisUntilNextUpdate(expiry.millisFromNow(), currentUpdateInterval))
         currentUpdateInterval = updateInterval(expiry).millis
     } while (hasAnotherEmission(expiry.millisFromNow(), currentUpdateInterval))
@@ -36,7 +35,7 @@ fun expiryTickerFlow(
     delay(expiry.millisFromNow())
 
     // We have now expired.
-    emit(Period.ZERO)
+    emit(Duration.ZERO)
 }
 
 private fun millisUntilNextUpdate(

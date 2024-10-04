@@ -117,7 +117,7 @@ class AccountExpiryInAppNotificationUseCaseTest {
             advanceTimeBy(ACCOUNT_EXPIRY_IN_APP_NOTIFICATION_UPDATE_INTERVAL.millis)
             // Advance past the delay after the while loop:
             advanceTimeBy(ACCOUNT_EXPIRY_IN_APP_NOTIFICATION_UPDATE_INTERVAL.millis)
-            assertEquals(Period.ZERO, getExpiryNotificationPeriod(expectMostRecentItem()))
+            assertEquals(Duration.ZERO, getExpiryNotificationDuration(expectMostRecentItem()))
             expectNoEvents()
         }
     }
@@ -134,16 +134,15 @@ class AccountExpiryInAppNotificationUseCaseTest {
         expiry: DateTime,
         notifications: List<InAppNotification>,
     ) {
-        val notificationPeriod = getExpiryNotificationPeriod(notifications)
+        val notificationDuration = getExpiryNotificationDuration(notifications)
         val periodNow = Period(DateTime.now(), expiry)
-        assertTrue(periodNow.toStandardDuration() <= notificationPeriod.toStandardDuration())
+        assertTrue(periodNow.toStandardDuration() <= notificationDuration)
         assertTrue(
-            periodNow.toStandardDuration().plus(Duration.standardSeconds(5)) >
-                notificationPeriod.toStandardDuration()
+            periodNow.toStandardDuration().plus(Duration.standardSeconds(5)) > notificationDuration
         )
     }
 
-    private fun getExpiryNotificationPeriod(notifications: List<InAppNotification>): Period {
+    private fun getExpiryNotificationDuration(notifications: List<InAppNotification>): Duration {
         assertTrue(notifications.size == 1, "Expected a single notification")
         val n = notifications[0]
         if (n !is InAppNotification.AccountExpiry) {

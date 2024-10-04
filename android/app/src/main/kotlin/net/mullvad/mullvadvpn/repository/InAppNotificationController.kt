@@ -11,7 +11,7 @@ import net.mullvad.mullvadvpn.usecase.AccountExpiryInAppNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.NewDeviceNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.TunnelStateNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.VersionNotificationUseCase
-import org.joda.time.Period
+import org.joda.time.Duration
 
 enum class StatusLevel {
     Error,
@@ -38,7 +38,7 @@ sealed class InAppNotification {
         override val priority: Long = 999
     }
 
-    data class AccountExpiry(val expiry: Period) : InAppNotification() {
+    data class AccountExpiry(val expiry: Duration) : InAppNotification() {
         override val statusLevel = StatusLevel.Warning
         override val priority: Long = 1001
     }

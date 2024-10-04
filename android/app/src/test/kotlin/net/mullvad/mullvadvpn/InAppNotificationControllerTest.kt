@@ -20,7 +20,7 @@ import net.mullvad.mullvadvpn.usecase.AccountExpiryInAppNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.NewDeviceNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.TunnelStateNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.VersionNotificationUseCase
-import org.joda.time.Period
+import org.joda.time.Duration
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -81,7 +81,7 @@ class InAppNotificationControllerTest {
         val unsupportedVersion = InAppNotification.UnsupportedVersion(mockk())
         versionNotifications.value = listOf(unsupportedVersion)
 
-        val accountExpiry = InAppNotification.AccountExpiry(Period.ZERO)
+        val accountExpiry = InAppNotification.AccountExpiry(Duration.ZERO)
         accountExpiryNotifications.value = listOf(accountExpiry)
 
         inAppNotificationController.notifications.test {

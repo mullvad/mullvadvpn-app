@@ -29,7 +29,7 @@ import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.repository.InAppNotification
 import net.mullvad.mullvadvpn.ui.VersionInfo
 import org.joda.time.DateTime
-import org.joda.time.Period
+import org.joda.time.Duration
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -572,7 +572,9 @@ class ConnectScreenTest {
                             deviceName = "",
                             daysLeftUntilExpiry = null,
                             inAppNotification =
-                                InAppNotification.AccountExpiry(Period(DateTime.now(), expiryDate)),
+                                InAppNotification.AccountExpiry(
+                                    Duration(DateTime.now(), expiryDate)
+                                ),
                             isPlayBuild = false,
                         )
                 )
@@ -633,7 +635,9 @@ class ConnectScreenTest {
                             deviceName = "",
                             daysLeftUntilExpiry = null,
                             inAppNotification =
-                                InAppNotification.AccountExpiry(Period(DateTime.now(), expiryDate)),
+                                InAppNotification.AccountExpiry(
+                                    Duration(DateTime.now(), expiryDate)
+                                ),
                             isPlayBuild = false,
                         ),
                 )
