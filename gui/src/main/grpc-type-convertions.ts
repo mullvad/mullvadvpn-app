@@ -381,8 +381,6 @@ function convertFromFeatureIndicator(
       return FeatureIndicator.customMssFix;
     case grpcTypes.FeatureIndicator.DAITA:
       return FeatureIndicator.daita;
-    case grpcTypes.FeatureIndicator.DAITA_SMART_ROUTING:
-      return FeatureIndicator.daitaSmartRouting;
     case grpcTypes.FeatureIndicator.SHADOWSOCKS:
       return FeatureIndicator.shadowsocks;
   }
