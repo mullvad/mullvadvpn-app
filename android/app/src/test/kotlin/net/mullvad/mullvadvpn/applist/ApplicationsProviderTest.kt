@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.applist
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import io.mockk.every
@@ -22,6 +23,7 @@ class ApplicationsProviderTest {
         unmockkAll()
     }
 
+    @SuppressLint("UseCheckPermission")
     @Test
     fun `fetch all apps should work`() {
         val launchWithInternetPackageName = "launch_with_internet_package_name"
@@ -75,6 +77,7 @@ class ApplicationsProviderTest {
         verifyAll {
             mockedPackageManager.getInstalledApplications(PackageManager.GET_META_DATA)
 
+            // Ensure checkPermission was invoked on all packages
             listOf(
                     launchWithInternetPackageName,
                     launchWithoutInternetPackageName,
