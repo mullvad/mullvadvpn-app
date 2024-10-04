@@ -22,8 +22,9 @@ internal object RelayNameComparator : Comparator<RelayItem.Location.Relay> {
     private fun compareStringOrInt(p1: String, p2: String): Int {
         val int1 = p1.toIntOrNull()
         val int2 = p2.toIntOrNull()
-        return if (int1 is Int && int2 is Int) {
-            // If both are Int we should compare them numbers
+        return if (int1 is Int && int2 is Int && int1 != int2) {
+            // If both are Int and not equal (they might have leading zeros) we should compare them
+            // as numbers
             int1.compareTo(int2)
         } else {
             p1.compareTo(p2)
