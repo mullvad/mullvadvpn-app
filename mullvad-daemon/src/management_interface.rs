@@ -343,20 +343,23 @@ impl ManagementService for ManagementServiceImpl {
 
     #[cfg(daita)]
     async fn set_enable_daita(&self, request: Request<bool>) -> ServiceResult<()> {
-        let value = request.into_inner();
-        log::debug!("set_enable_daita({value})");
+        let daita_enabled = request.into_inner();
+        log::debug!("set_enable_daita({daita_enabled})");
         let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetEnableDaita(tx, value))?;
+        self.send_command_to_daemon(DaemonCommand::SetEnableDaita(tx, daita_enabled))?;
         self.wait_for_result(rx).await?.map(Response::new)?;
         Ok(Response::new(()))
     }
 
     #[cfg(daita)]
-    async fn set_daita_smart_routing(&self, request: Request<bool>) -> ServiceResult<()> {
-        let value = request.into_inner();
-        log::debug!("set_daita_smart_routing({value})");
+    async fn set_daita_direct_only(&self, request: Request<bool>) -> ServiceResult<()> {
+        let direct_only_enabled = request.into_inner();
+        log::debug!("set_daita_direct_only({direct_only_enabled})");
         let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetDaitaUseMultihopIfNecessary(tx, value))?;
+        self.send_command_to_daemon(DaemonCommand::SetDaitaUseMultihopIfNecessary(
+            tx,
+            !direct_only_enabled,
+        ))?;
         self.wait_for_result(rx).await?.map(Response::new)?;
         Ok(Response::new(()))
     }
@@ -381,7 +384,7 @@ impl ManagementService for ManagementServiceImpl {
     }
 
     #[cfg(not(daita))]
-    async fn set_daita_smart_routing(&self, _: Request<bool>) -> ServiceResult<()> {
+    async fn set_daita_direct_only(&self, _: Request<bool>) -> ServiceResult<()> {
         Ok(Response::new(()))
     }
 
@@ -1135,8 +1138,9 @@ impl ManagementInterfaceServer {
         })
     }
 
-    /// Wait for the server to shut down gracefully. If that does not happend within [`RPC_SERVER_SHUTDOWN_TIMEOUT`],
-    /// the gRPC server is aborted and we yield the async execution.
+    /// Wait for the server to shut down gracefully. If that does not happend within
+    /// [`RPC_SERVER_SHUTDOWN_TIMEOUT`], the gRPC server is aborted and we yield the async
+    /// execution.
     pub async fn stop(mut self) {
         use futures::SinkExt;
         // Send a singal to the underlying RPC server to shut down.

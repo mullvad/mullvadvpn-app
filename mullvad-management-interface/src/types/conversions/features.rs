@@ -17,8 +17,7 @@ impl From<mullvad_types::features::FeatureIndicator> for proto::FeatureIndicator
             mullvad_types::features::FeatureIndicator::ServerIpOverride => ServerIpOverride,
             mullvad_types::features::FeatureIndicator::CustomMtu => CustomMtu,
             mullvad_types::features::FeatureIndicator::CustomMssFix => CustomMssFix,
-            mullvad_types::features::FeatureIndicator::DaitaDirectOnly => Daita,
-            mullvad_types::features::FeatureIndicator::Daita => DaitaSmartRouting,
+            mullvad_types::features::FeatureIndicator::Daita => Daita,
         }
     }
 }
@@ -39,8 +38,7 @@ impl From<proto::FeatureIndicator> for mullvad_types::features::FeatureIndicator
             proto::FeatureIndicator::ServerIpOverride => Self::ServerIpOverride,
             proto::FeatureIndicator::CustomMtu => Self::CustomMtu,
             proto::FeatureIndicator::CustomMssFix => Self::CustomMssFix,
-            proto::FeatureIndicator::Daita => Self::DaitaDirectOnly,
-            proto::FeatureIndicator::DaitaSmartRouting => Self::Daita,
+            proto::FeatureIndicator::Daita => Self::Daita,
         }
     }
 }
