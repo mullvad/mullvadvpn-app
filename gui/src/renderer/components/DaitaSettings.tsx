@@ -97,7 +97,13 @@ export default function DaitaSettings() {
                       <StyledHeaderSubTitle>
                         {messages.pgettext(
                           'wireguard-settings-view',
-                          'Can only be used with WireGuard. Since this increases your total network traffic, be cautious if you have a limited data plan. It can also negatively impact your network speed.',
+                          'Not all our servers are DAITA-enabled. We use multihop automatically to use DAITA with any server.',
+                        )}
+                      </StyledHeaderSubTitle>
+                      <StyledHeaderSubTitle>
+                        {messages.pgettext(
+                          'wireguard-settings-view',
+                          'Attention: Be cautious if you have a limited data plan as this feature will increase your network traffic. This feature can only be used with WireGuard.',
                         )}
                       </StyledHeaderSubTitle>
                     </React.Fragment>,
@@ -119,11 +125,11 @@ export default function DaitaSettings() {
 }
 
 function DaitaToggle() {
-  const { setEnableDaita, setDaitaSmartRouting } = useAppContext();
+  const { setEnableDaita, setDaitaDirectOnly } = useAppContext();
   const relaySettings = useSelector((state) => state.settings.relaySettings);
   const daita = useSelector((state) => state.settings.wireguard.daita?.enabled ?? false);
-  const smartRouting = useSelector(
-    (state) => state.settings.wireguard.daita?.smartRouting ?? false,
+  const directOnly = useSelector(
+    (state) => state.settings.wireguard.daita?.directOnly ?? false,
   );
 
   const [confirmationDialogVisible, showConfirmationDialog, hideConfirmationDialog] = useBoolean();
@@ -135,16 +141,16 @@ function DaitaToggle() {
     void setEnableDaita(value);
   }, []);
 
-  const setSmartRouting = useCallback((value: boolean) => {
+  const setDirectOnly = useCallback((value: boolean) => {
     if (value) {
-      void setDaitaSmartRouting(value);
-    } else {
       showConfirmationDialog();
+    } else {
+      void setDaitaDirectOnly(value);
     }
   }, []);
 
-  const confirmDisableSmartRouting = useCallback(() => {
-    void setDaitaSmartRouting(false);
+  const confirmEnableDirectOnly = useCallback(() => {
+    void setDaitaDirectOnly(true);
     hideConfirmationDialog();
   }, []);
 
@@ -170,13 +176,13 @@ function DaitaToggle() {
       <AriaInputGroup>
         <Cell.Container disabled={!daita || unavailable}>
           <AriaLabel>
-            <Cell.InputLabel>{messages.gettext('Smart routing')}</Cell.InputLabel>
+            <Cell.InputLabel>{messages.gettext('Direct only')}</Cell.InputLabel>
           </AriaLabel>
           <InfoButton>
-            <SmartRoutingModalMessage />
+            <DirectOnlyModalMessage />
           </InfoButton>
           <AriaInput>
-            <Cell.Switch isOn={smartRouting && !unavailable} onChange={setSmartRouting} />
+            <Cell.Switch isOn={directOnly && !unavailable} onChange={setDirectOnly} />
           </AriaInput>
         </Cell.Container>
         <Cell.CellFooter>
@@ -185,7 +191,7 @@ function DaitaToggle() {
               {sprintf(
                 messages.pgettext(
                   'vpn-settings-view',
-                  'Makes it possible to use %(daita)s with any server and is automatically enabled.',
+                  'Manually choose which %(daita)s-enabled server to use.',
                 ),
                 { daita: strings.daita },
               )}
@@ -199,12 +205,12 @@ function DaitaToggle() {
         gridButtons={[
           <SmallButton
             key="confirm"
-            onClick={confirmDisableSmartRouting}
+            onClick={confirmEnableDirectOnly}
             color={SmallButtonColor.blue}>
-            {messages.gettext('Disable anyway')}
+            {messages.gettext('Enable "Direct only"')}
           </SmallButton>,
           <SmallButton key="cancel" onClick={hideConfirmationDialog} color={SmallButtonColor.blue}>
-            {messages.pgettext('wireguard-settings-view', 'Use Smart routing')}
+            {messages.pgettext('wireguard-settings-view', 'Cancel')}
           </SmallButton>,
         ]}
         close={hideConfirmationDialog}>
@@ -213,7 +219,7 @@ function DaitaToggle() {
             // TRANSLATORS: Warning text in a dialog that is displayed after a setting is toggled.
             messages.pgettext(
               'wireguard-settings-view',
-              'Not all our servers are %(daita)s-enabled. In order to use the internet, you might have to select a new location after disabling, or you can continue using %(daita)s with Smart routing.',
+              'Not all our servers are DAITA-enabled. In order to use the internet, you might have to select a new location after enabling.',
             ),
             { daita: strings.daita },
           )}
@@ -223,13 +229,13 @@ function DaitaToggle() {
   );
 }
 
-export function SmartRoutingModalMessage() {
+function DirectOnlyModalMessage() {
   return (
     <ModalMessage>
       {sprintf(
         messages.pgettext(
           'wireguard-settings-view',
-          'Not all our servers are %(daita)s-enabled. Smart routing allows %(daita)s to be used at any location. It does this by using multihop in the background to route your traffic via the closest %(daita)s-enabled server first.',
+          'By enabling “Direct only” you will have to manually select a server that is %(daita)s-enabled. This can cause you to end up in a blocked state until you have selected a compatible server in the “Select location” view.',
         ),
         {
           daita: strings.daita,
