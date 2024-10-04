@@ -22,9 +22,10 @@ use pnet_packet::{
 use std::{
     ffi::{c_uint, CStr},
     io::{self, IoSlice, Write},
-    net::{Ipv4Addr, Ipv6Addr},
+    net::{IpAddr, Ipv4Addr, Ipv6Addr},
 };
 use talpid_routing::RouteManagerHandle;
+use talpid_types::net::{ALLOWED_LAN_MULTICAST_NETS, ALLOWED_LAN_NETS};
 use tokio::{
     io::{AsyncReadExt, AsyncWriteExt},
     sync::broadcast,
@@ -676,6 +677,10 @@ async fn handle_incoming_data_v4(
         log::trace!("Dropping packet to VPN IP on default interface");
         return;
     }
+    if is_private_ip(IpAddr::from(ip.get_source())) {
+        // Drop packets from private IPs
+        return;
+    }
 
     fix_ipv4_checksums(&mut ip, None, Some(vpn_addr));
 
@@ -698,6 +703,10 @@ async fn handle_incoming_data_v6(
         log::trace!("Dropping packet to VPN IP on default interface");
         return;
     }
+    if is_private_ip(IpAddr::from(ip.get_source())) {
+        // Drop packets from private IPs
+        return;
+    }
 
     fix_ipv6_checksums(&mut ip, None, Some(vpn_addr));
 
@@ -708,6 +717,13 @@ async fn handle_incoming_data_v6(
     {
         log::error!("Failed to redirect incoming IPv6 packet: {error}");
     }
+}
+
+fn is_private_ip(ip: IpAddr) -> bool {
+    ALLOWED_LAN_NETS
+        .iter()
+        .chain(ALLOWED_LAN_MULTICAST_NETS.iter())
+        .any(|net| net.contains(ip))
 }
 
 // Recalculate L3 and L4 checksums. Silently fail on error
