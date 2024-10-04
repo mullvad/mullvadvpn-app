@@ -1,4 +1,7 @@
-use std::{collections::HashSet, fmt::Display};
+use std::{
+    collections::HashSet,
+    fmt::{Debug, Display},
+};
 
 use crate::{
     relay_constraints::RelaySettings,
@@ -11,8 +14,19 @@ use talpid_types::net::{ObfuscationType, TunnelEndpoint, TunnelType};
 /// what is affecting their connection at any given time.
 ///
 /// Note that the feature indicators are not ordered.
-#[derive(Default, Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Default, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct FeatureIndicators(HashSet<FeatureIndicator>);
+
+impl Debug for FeatureIndicators {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let mut indicators: Vec<&str> = self.0.iter().map(|feature| feature.to_str()).collect();
+        // Sort the features alphabetically (Just to have some order, arbitrarily chosen)
+        indicators.sort();
+        f.debug_tuple("FeatureIndicators")
+            .field(&indicators)
+            .finish()
+    }
+}
 
 impl FeatureIndicators {
     pub fn is_empty(&self) -> bool {
