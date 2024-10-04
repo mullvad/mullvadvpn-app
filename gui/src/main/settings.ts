@@ -72,9 +72,6 @@ export default class Settings implements Readonly<ISettings> {
     IpcMainEventChannel.settings.handleSetDnsOptions((dns) => {
       return this.daemonRpc.setDnsOptions(dns);
     });
-    IpcMainEventChannel.settings.handleSetAppleServicesBypass((enabled) => {
-      return this.daemonRpc.setAppleServicesBypass(enabled);
-    });
     IpcMainEventChannel.autoStart.handleSet((autoStart: boolean) => {
       return this.setAutoStart(autoStart);
     });
@@ -189,9 +186,6 @@ export default class Settings implements Readonly<ISettings> {
   }
   public get relayOverrides() {
     return this.settingsValue.relayOverrides;
-  }
-  public get appleServicesBypass() {
-    return this.settingsValue.appleServicesBypass;
   }
 
   public get gui() {

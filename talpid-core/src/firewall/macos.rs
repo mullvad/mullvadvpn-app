@@ -1,7 +1,7 @@
 use super::{FirewallArguments, FirewallPolicy};
 use ipnetwork::IpNetwork;
 use libc::{c_int, sysctlbyname};
-use pfctl::{DropAction, Endpoint, FilterRuleAction, Uid};
+use pfctl::{DropAction, FilterRuleAction, Ip, Uid};
 use std::{
     env, io,
     net::{IpAddr, Ipv4Addr},
@@ -109,6 +109,16 @@ impl Firewall {
             return Ok(false);
         }
 
+        if policy.allow_lan() {
+            let net_is_lan = ALLOWED_LAN_NETS
+                .iter()
+                .chain(ALLOWED_LAN_MULTICAST_NETS.iter())
+                .any(|net| net.contains(remote_address.ip()));
+            if net_is_lan {
+                return Ok(false);
+            }
+        }
+
         let Some(peer) = policy.peer_endpoint().map(|endpoint| endpoint.endpoint) else {
             // If there's no peer, there's also no tunnel. We have no states to preserve
             return Ok(true);
@@ -149,7 +159,6 @@ impl Firewall {
         new_filter_rules.append(&mut self.get_allow_loopback_rules()?);
         new_filter_rules.append(&mut self.get_allow_dhcp_client_rules()?);
         new_filter_rules.append(&mut self.get_allow_ndp_rules()?);
-
         new_filter_rules.append(&mut self.get_policy_specific_rules(policy)?);
 
         let return_out_rule = self
@@ -169,7 +178,10 @@ impl Firewall {
         anchor_change.set_scrub_rules(Self::get_scrub_rules()?);
         anchor_change.set_filter_rules(new_filter_rules);
         anchor_change.set_redirect_rules(self.get_dns_redirect_rules(policy)?);
-        self.pf.set_rules(ANCHOR_NAME, anchor_change)
+        anchor_change.set_nat_rules(self.get_nat_rules(policy)?);
+        self.pf.set_rules(ANCHOR_NAME, anchor_change)?;
+
+        Ok(())
     }
 
     fn get_scrub_rules() -> Result<Vec<pfctl::ScrubRule>> {
@@ -207,6 +219,74 @@ impl Firewall {
         Ok(redirect_rules)
     }
 
+    fn get_nat_rules(&mut self, policy: &FirewallPolicy) -> Result<Vec<pfctl::NatRule>> {
+        let (FirewallPolicy::Connected {
+            peer_endpoint,
+            tunnel,
+            ..
+        }
+        | FirewallPolicy::Connecting {
+            peer_endpoint,
+            tunnel: Some(tunnel),
+            ..
+        }) = policy
+        else {
+            return Ok(vec![]);
+        };
+
+        let mut rules = vec![];
+
+        // no nat from/to localhost
+        let no_nat_localhost = pfctl::NatRuleBuilder::default()
+            .interface("lo0")
+            .action(pfctl::NatRuleAction::NoNat)
+            .build()?;
+        rules.push(no_nat_localhost);
+
+        // no nat to LAN nets
+        for net in ALLOWED_LAN_NETS
+            .iter()
+            .chain(ALLOWED_LAN_MULTICAST_NETS.iter())
+        {
+            let rule = pfctl::NatRuleBuilder::default()
+                .action(pfctl::NatRuleAction::NoNat)
+                .to(pfctl::Ip::from(*net))
+                .build()?;
+            rules.push(rule);
+        }
+
+        // no nat to [vpn ip]
+        let no_nat_to_vpn_server = pfctl::NatRuleBuilder::default()
+            .action(pfctl::NatRuleAction::NoNat)
+            .to(peer_endpoint.endpoint.address.ip())
+            .build()?;
+        rules.push(no_nat_to_vpn_server);
+
+        // no nat on [tun interface]
+        let no_nat_on_tun = pfctl::NatRuleBuilder::default()
+            .action(pfctl::NatRuleAction::NoNat)
+            .interface(&tunnel.interface)
+            .build()?;
+        rules.push(no_nat_on_tun);
+
+        // Masquerade other traffic via VPN utun
+        for ip in &tunnel.ips {
+            // nat from {inet,inet6} any to any -> [tun ip]
+            let nat_primary_to_tun = pfctl::NatRuleBuilder::default()
+                .action(pfctl::NatRuleAction::Nat {
+                    nat_to: pfctl::NatEndpoint::from(pfctl::Ip::from(*ip)),
+                })
+                .from(Ip::Net(match ip {
+                    IpAddr::V4(_) => "0.0.0.0/0".parse().unwrap(),
+                    IpAddr::V6(_) => "::/0".parse().unwrap(),
+                }))
+                .build()?;
+            rules.push(nat_primary_to_tun);
+        }
+
+        Ok(rules)
+    }
+
     fn get_policy_specific_rules(
         &mut self,
         policy: &FirewallPolicy,
@@ -219,7 +299,6 @@ impl Firewall {
                 allowed_endpoint,
                 allowed_tunnel_traffic,
                 redirect_interface,
-                apple_services_bypass,
                 dns_redirect_port: _,
             } => {
                 let mut rules = vec![self.get_allow_relay_rule(peer_endpoint)?];
@@ -257,10 +336,6 @@ impl Firewall {
                     rules.append(&mut self.get_allow_lan_rules()?);
                 }
 
-                if *apple_services_bypass {
-                    rules.append(&mut self.get_apple_services_bypass_rules()?);
-                }
-
                 Ok(rules)
             }
             FirewallPolicy::Connected {
@@ -269,7 +344,6 @@ impl Firewall {
                 allow_lan,
                 dns_config,
                 redirect_interface,
-                apple_services_bypass,
                 dns_redirect_port: _,
             } => {
                 let mut rules = vec![];
@@ -295,10 +369,6 @@ impl Firewall {
                     rules.append(&mut self.get_allow_lan_rules()?);
                 }
 
-                if *apple_services_bypass {
-                    rules.append(&mut self.get_apple_services_bypass_rules()?);
-                }
-
                 if let Some(redirect_interface) = redirect_interface {
                     enable_forwarding();
 
@@ -306,6 +376,7 @@ impl Firewall {
                         &mut self.get_split_tunnel_rules(&tunnel.interface, redirect_interface)?,
                     );
                 } else {
+                    rules.push(self.route_everything_to(&tunnel.interface)?);
                     rules.extend(self.get_allow_tunnel_rules(
                         tunnel.interface.as_str(),
                         &AllowedTunnelTraffic::All,
@@ -317,7 +388,6 @@ impl Firewall {
             FirewallPolicy::Blocked {
                 allow_lan,
                 allowed_endpoint,
-                apple_services_bypass,
                 ..
             } => {
                 let mut rules = Vec::new();
@@ -331,13 +401,22 @@ impl Firewall {
                     rules.append(&mut self.get_allow_lan_rules()?);
                 }
 
-                if *apple_services_bypass {
-                    rules.append(&mut self.get_apple_services_bypass_rules()?);
-                }
-
                 Ok(rules)
             }
         }
+    }
+
+    /// Route outbound traffic to the selected interface
+    fn route_everything_to(&self, interface: &str) -> Result<pfctl::FilterRule> {
+        self.create_rule_builder(FilterRuleAction::Pass)
+            .quick(true)
+            .direction(pfctl::Direction::Out)
+            .route(pfctl::Route::RouteTo(pfctl::PoolAddr::from(
+                pfctl::Interface::from(&interface),
+            )))
+            .keep_state(pfctl::StatePolicy::Keep)
+            .tcp_flags(Self::get_tcp_flags())
+            .build()
     }
 
     fn get_allow_local_dns_rules_when_connected(
@@ -554,6 +633,7 @@ impl Firewall {
             let allow_out = rule_builder
                 .direction(pfctl::Direction::Out)
                 .from(pfctl::Ip::Any)
+                .keep_state(pfctl::StatePolicy::Keep)
                 .to(pfctl::Ip::from(*net))
                 .build()?;
             let allow_in = rule_builder
@@ -600,45 +680,6 @@ impl Firewall {
         Ok(rules)
     }
 
-    /// Generate rules that allow traffic to the networks required for Apple push notification
-    /// services to work. This is a hack to get around the fact that apple services in MacOS 15 has
-    /// a bug where they don't respect the routing table.
-    ///
-    /// All allowed networks are part of apple-owned IP subnets.
-    fn get_apple_services_bypass_rules(&self) -> Result<Vec<pfctl::FilterRule>> {
-        // https://support.apple.com/en-us/102266
-        let apple_networks: &[IpNetwork] = &[
-            "17.249.0.0/16".parse().unwrap(),
-            "17.252.0.0/16".parse().unwrap(),
-            "17.57.144.0/22".parse().unwrap(),
-            "17.188.128.0/18".parse().unwrap(),
-            "17.188.20.0/23".parse().unwrap(),
-            "2620:149:a44::/48".parse().unwrap(),
-            "2403:300:a42::/48".parse().unwrap(),
-            "2403:300:a51::/48".parse().unwrap(),
-            "2a01:b740:a42::/48".parse().unwrap(),
-        ];
-
-        let apple_ports: &[u16] = &[443, 2197, 5223];
-
-        let mut rules = vec![];
-        for &net in apple_networks {
-            for &port in apple_ports {
-                let mut rule_builder = self.create_rule_builder(FilterRuleAction::Pass);
-                rule_builder.quick(true);
-                let allow_out = rule_builder
-                    .quick(true)
-                    .direction(pfctl::Direction::Out)
-                    .from(pfctl::Ip::Any)
-                    .to(Endpoint::new(pfctl::Ip::from(net), port))
-                    .keep_state(pfctl::StatePolicy::Keep)
-                    .build()?;
-                rules.push(allow_out);
-            }
-        }
-        Ok(rules)
-    }
-
     fn get_split_tunnel_rules(
         &self,
         from_interface: &str,
@@ -658,17 +699,7 @@ impl Firewall {
             .keep_state(pfctl::StatePolicy::Keep)
             .interface(to_interface)
             .build()?;
-        let redir_rule = self
-            .create_rule_builder(FilterRuleAction::Pass)
-            .quick(true)
-            .direction(pfctl::Direction::Out)
-            .route(pfctl::Route::RouteTo(pfctl::PoolAddr::from(
-                pfctl::Interface::from(to_interface),
-            )))
-            .keep_state(pfctl::StatePolicy::Keep)
-            .tcp_flags(Self::get_tcp_flags())
-            .interface(from_interface)
-            .build()?;
+        let redir_rule = self.route_everything_to(to_interface)?;
         Ok(vec![tunnel_rule, allow_rule, redir_rule])
     }
 
@@ -861,17 +892,21 @@ impl Firewall {
 
     fn add_anchor(&mut self) -> Result<()> {
         self.pf
+            .try_add_anchor(ANCHOR_NAME, pfctl::AnchorKind::Scrub)?;
+        self.pf
+            .try_add_anchor(ANCHOR_NAME, pfctl::AnchorKind::Nat)?;
+        self.pf
             .try_add_anchor(ANCHOR_NAME, pfctl::AnchorKind::Filter)?;
         self.pf
             .try_add_anchor(ANCHOR_NAME, pfctl::AnchorKind::Redirect)?;
-        self.pf
-            .try_add_anchor(ANCHOR_NAME, pfctl::AnchorKind::Scrub)?;
         Ok(())
     }
 
     fn remove_anchor(&mut self) -> Result<()> {
         self.pf
             .try_remove_anchor(ANCHOR_NAME, pfctl::AnchorKind::Scrub)?;
+        self.pf
+            .try_remove_anchor(ANCHOR_NAME, pfctl::AnchorKind::Nat)?;
         self.pf
             .try_remove_anchor(ANCHOR_NAME, pfctl::AnchorKind::Redirect)?;
         self.pf

@@ -439,7 +439,6 @@ export interface ISettings {
   customLists: CustomLists;
   apiAccessMethods: ApiAccessMethodSettings;
   relayOverrides: Array<RelayOverride>;
-  appleServicesBypass: boolean;
 }
 
 export type BridgeState = 'auto' | 'on' | 'off';
