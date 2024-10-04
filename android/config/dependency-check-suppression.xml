@@ -49,4 +49,11 @@
         <packageUrl regex="true">^pkg:maven/com\.google\.protobuf/protobuf-.*@.*$</packageUrl>
         <cve>CVE-2024-7254</cve>
     </suppress>
+    <suppress until="2025-01-04Z">
+        <notes><![CDATA[
+            No impact since the app doesn't process externally crafted XML.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/commons-io/commons-io@.*$</packageUrl>
+        <cve>CVE-2024-47554</cve>
+    </suppress>
 </suppressions>
