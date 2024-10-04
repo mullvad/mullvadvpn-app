@@ -24,7 +24,7 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 ### Changed
 #### macOS
-- Enable IPv6 by default. This fixes DNS and routing being broken on some platforms.
+- Enable IPv6 by default. This fixes DNS and routing being broken on some systems.
 - Proxy DNS queries through a local resolver.
 
 ### Fixed
