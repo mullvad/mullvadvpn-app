@@ -41,7 +41,7 @@ class DeviceRowView: UIView {
                 renderingMode: .alwaysOriginal
             )
 
-        let button = UIButton(type: .custom)
+        let button = IncreasedHitButton(type: .custom)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setImage(image, for: .normal)
         button.accessibilityLabel = NSLocalizedString(
