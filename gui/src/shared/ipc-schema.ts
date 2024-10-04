@@ -195,7 +195,7 @@ export const ipcSchema = {
     testCustomApiAccessMethod: invoke<CustomProxy, boolean>(),
     clearAllRelayOverrides: invoke<void, void>(),
     setEnableDaita: invoke<boolean, void>(),
-    setDaitaSmartRouting: invoke<boolean, void>(),
+    setDaitaDirectOnly: invoke<boolean, void>(),
   },
   guiSettings: {
     '': notifyRenderer<IGuiSettingsState>(),
