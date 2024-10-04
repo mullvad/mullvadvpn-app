@@ -19,13 +19,13 @@ use pnet_packet::{
     udp::MutableUdpPacket,
     MutablePacket, Packet,
 };
-use talpid_types::net::{ALLOWED_LAN_NETS, ALLOWED_LAN_MULTICAST_NETS};
 use std::{
     ffi::{c_uint, CStr},
     io::{self, IoSlice, Write},
-    net::{Ipv4Addr, Ipv6Addr, IpAddr},
+    net::{IpAddr, Ipv4Addr, Ipv6Addr},
 };
 use talpid_routing::RouteManagerHandle;
+use talpid_types::net::{ALLOWED_LAN_MULTICAST_NETS, ALLOWED_LAN_NETS};
 use tokio::{
     io::{AsyncReadExt, AsyncWriteExt},
     sync::broadcast,
@@ -677,7 +677,8 @@ async fn handle_incoming_data_v4(
         log::trace!("Dropping packet to VPN IP on default interface");
         return;
     }
-    if is_non_vpn_destination(IpAddr::from(ip.get_destination())) {
+    if is_private_ip(IpAddr::from(ip.get_source())) {
+        // Drop packets from private IPs
         return;
     }
 
@@ -702,7 +703,8 @@ async fn handle_incoming_data_v6(
         log::trace!("Dropping packet to VPN IP on default interface");
         return;
     }
-    if is_non_vpn_destination(IpAddr::from(ip.get_destination())) {
+    if is_private_ip(IpAddr::from(ip.get_source())) {
+        // Drop packets from private IPs
         return;
     }
 
@@ -717,9 +719,7 @@ async fn handle_incoming_data_v6(
     }
 }
 
-/// Packets routed outside of the split tunneling interface should not be duplicated on the VPN
-/// utun. As a shortcut we do not duplicate any private IPs.
-fn is_non_vpn_destination(ip: IpAddr) -> bool {
+fn is_private_ip(ip: IpAddr) -> bool {
     ALLOWED_LAN_NETS
         .iter()
         .chain(ALLOWED_LAN_MULTICAST_NETS.iter())

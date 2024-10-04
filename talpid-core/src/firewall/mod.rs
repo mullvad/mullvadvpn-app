@@ -143,6 +143,20 @@ impl FirewallPolicy {
         }
     }
 
+    /// Return the allowed endpoint, if available
+    pub fn allowed_endpoint(&self) -> Option<&AllowedEndpoint> {
+        match self {
+            FirewallPolicy::Connecting {
+                allowed_endpoint, ..
+            }
+            | FirewallPolicy::Blocked {
+                allowed_endpoint: Some(allowed_endpoint),
+                ..
+            } => Some(allowed_endpoint),
+            _ => None,
+        }
+    }
+
     /// Return tunnel metadata, if available
     pub fn tunnel(&self) -> Option<&crate::tunnel::TunnelMetadata> {
         match self {
