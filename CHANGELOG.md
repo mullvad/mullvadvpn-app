@@ -34,9 +34,7 @@ Line wrap the file at 100 chars.                                              Th
 - Enable quantum-resistant tunnels by default (when set to `auto`).
 
 #### macOS
-- Don't hijack DNS when localhost is configured. This is more in line with other platforms.
-  Unexpected DNS traffic is still blocked when leaving the host.
-- Enable IPv6 by default. This fixes DNS and routing being broken on some platforms.
+- Enable IPv6 by default. This fixes DNS and routing being broken on some systems.
 - Proxy DNS queries through a local resolver.
 
 ### Fixed
