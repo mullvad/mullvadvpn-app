@@ -102,7 +102,7 @@ fn encapsulate_ml_kem<R: RngCore + CryptoRng>(
 
     let (ciphertext, shared_secret) = encapsulation_key.encapsulate(rng).unwrap();
 
-    (ciphertext.to_vec(), shared_secret.try_into().unwrap())
+    (ciphertext.to_vec(), shared_secret.into())
 }
 
 #[tokio::main]
