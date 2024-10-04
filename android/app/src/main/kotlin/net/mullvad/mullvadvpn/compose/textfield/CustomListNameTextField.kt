@@ -33,9 +33,7 @@ fun CustomListNameTextField(
                 onSubmit(it)
             }
         },
-        // This can not be set to KeyboardType.Text because it will show the
-        // suggestions, this will cause an infinite loop on Android TV with Gboard
-        keyboardType = KeyboardType.Password,
+        keyboardType = KeyboardType.Text,
         placeholderText = null,
         isValidValue = error == null,
         isDigitsOnlyAllowed = false,
