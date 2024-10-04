@@ -73,6 +73,11 @@ id = "CVE-2024-7254" # GHSA-735f-pc8j-v9w8
 ignoreUntil = 2024-11-02
 reason = "Should not be applicable since client and server are always in sync and we are only communicating locally over UDS."
 
+[[IgnoredVulns]]
+id = "CVE-2024-47554" # GHSA-78wr-2p64-hpwj
+ignoreUntil = 2024-01-04
+reason = "No impact since the app doesn't process externally crafted XML."
+
 [[PackageOverrides]]
 name = "org.bouncycastle:bcprov-jdk15on"
 ecosystem = "Maven"
