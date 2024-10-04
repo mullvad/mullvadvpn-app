@@ -119,6 +119,15 @@ impl Firewall {
             }
         }
 
+        if let Some(endpoint) = policy.allowed_endpoint() {
+            // Keep states to the allowed endpoint.
+            // Note that we're not taking into account allowed clients here, because it's highly
+            // impractical.
+            if endpoint.endpoint.address == remote_address {
+                return Ok(false);
+            }
+        }
+
         let Some(peer) = policy.peer_endpoint().map(|endpoint| endpoint.endpoint) else {
             // If there's no peer, there's also no tunnel. We have no states to preserve
             return Ok(true);
