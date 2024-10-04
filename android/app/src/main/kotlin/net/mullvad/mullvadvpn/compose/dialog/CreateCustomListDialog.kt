@@ -2,10 +2,9 @@ package net.mullvad.mullvadvpn.compose.dialog
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -97,8 +96,8 @@ fun CreateCustomListDialog(
     onInputChanged: () -> Unit = {},
     onDismiss: () -> Unit = {},
 ) {
-    val name = remember { mutableStateOf("") }
-    val isValidName by remember { derivedStateOf { name.value.isNotBlank() } }
+    val name = rememberSaveable { mutableStateOf("") }
+    val isValidName = name.value.isNotBlank()
 
     InputDialog(
         title = stringResource(id = R.string.create_new_list),
