@@ -75,6 +75,11 @@ class LogFileOutputStream: TextOutputStream {
         }
     }
 
+    /// Waits for write operations to finish by issuing a synchronous closure.
+    func synchronize() {
+        queue.sync {}
+    }
+
     private func writeOnQueue(_ string: String) {
         guard let data = string.data(using: encoding) else { return }
 
