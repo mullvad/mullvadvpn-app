@@ -185,14 +185,12 @@ class OutOfTimeUseCaseTest {
             advanceTimeBy(90.seconds)
             expectNoEvents()
 
-            // User fills up with more time 10 seconds before expiry
+            // User fills up with more time 10 seconds before expiry.
             expiry.emit(updatedExpiry)
-            advanceTimeBy(1.days)
+            advanceTimeBy(29.days)
             expectNoEvents()
 
-            // Expect no more emissions while user has time.
-            advanceTimeBy(29.days + 2.minutes)
-            println(testScheduler.currentTime)
+            advanceTimeBy(2.days)
             assertEquals(true, expectMostRecentItem())
             expectNoEvents()
         }

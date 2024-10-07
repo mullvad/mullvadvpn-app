@@ -36,7 +36,7 @@ import net.mullvad.mullvadvpn.lib.theme.color.warning
 import net.mullvad.mullvadvpn.repository.InAppNotification
 import net.mullvad.mullvadvpn.ui.VersionInfo
 import net.mullvad.mullvadvpn.ui.notification.StatusLevel
-import org.joda.time.DateTime
+import org.joda.time.Duration
 
 @Preview
 @Composable
@@ -48,7 +48,7 @@ private fun PreviewNotificationBanner() {
                         InAppNotification.UnsupportedVersion(
                             versionInfo = VersionInfo(currentVersion = "1.0", isSupported = false)
                         ),
-                        InAppNotification.AccountExpiry(expiry = DateTime.now()),
+                        InAppNotification.AccountExpiry(expiry = Duration.ZERO),
                         InAppNotification.TunnelStateBlocked,
                         InAppNotification.NewDevice("Courageous Turtle"),
                         InAppNotification.TunnelStateError(
