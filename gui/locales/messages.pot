@@ -152,7 +152,7 @@ msgstr ""
 msgid "Enable"
 msgstr ""
 
-msgid "Enable \"Direct only\""
+msgid "Enable \"%(directOnly)s\""
 msgstr ""
 
 msgid "Enable anyway"
@@ -2066,11 +2066,11 @@ msgid "%(wireguard)s settings"
 msgstr ""
 
 msgctxt "wireguard-settings-view"
-msgid "Attention: Be cautious if you have a limited data plan as this feature will increase your network traffic. This feature can only be used with WireGuard."
+msgid "Attention: Be cautious if you have a limited data plan as this feature will increase your network traffic. This feature can only be used with %(wireguard)s."
 msgstr ""
 
 msgctxt "wireguard-settings-view"
-msgid "By enabling “Direct only” you will have to manually select a server that is %(daita)s-enabled. This can cause you to end up in a blocked state until you have selected a compatible server in the “Select location” view."
+msgid "By enabling “%(directOnly)s” you will have to manually select a server that is %(daita)s-enabled. This can cause you to end up in a blocked state until you have selected a compatible server in the “Select location” view."
 msgstr ""
 
 msgctxt "wireguard-settings-view"
