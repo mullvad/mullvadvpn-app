@@ -621,7 +621,6 @@ internal fun ManagementInterface.FeatureIndicator.toDomain() =
         ManagementInterface.FeatureIndicator.CUSTOM_MTU -> FeatureIndicator.CUSTOM_MTU
         ManagementInterface.FeatureIndicator.DAITA -> FeatureIndicator.DAITA
         ManagementInterface.FeatureIndicator.SHADOWSOCKS -> FeatureIndicator.SHADOWSOCKS
-        ManagementInterface.FeatureIndicator.DAITA_SMART_ROUTING,
         ManagementInterface.FeatureIndicator.LOCKDOWN_MODE,
         ManagementInterface.FeatureIndicator.MULTIHOP,
         ManagementInterface.FeatureIndicator.BRIDGE_MODE,
