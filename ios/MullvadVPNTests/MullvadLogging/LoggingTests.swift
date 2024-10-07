@@ -10,7 +10,7 @@ import Foundation
 @testable import MullvadLogging
 import XCTest
 
-class MullvadLoggingTests: XCTestCase {
+class LoggingTests: XCTestCase {
     let fileManager = FileManager.default
     var directoryPath: URL!
 
@@ -33,7 +33,7 @@ class MullvadLoggingTests: XCTestCase {
         let fileURL = directoryPath.appendingPathComponent(UUID().uuidString)
         let stream = LogFileOutputStream(fileURL: fileURL, header: headerText)
         stream.write(logMessage)
-        sync()
+        stream.synchronize()
 
         let contents = try XCTUnwrap(String(contentsOf: fileURL))
         XCTAssertEqual(contents, "\(headerText)\n\(logMessage)")
@@ -71,7 +71,7 @@ class MullvadLoggingTests: XCTestCase {
         logPaths.forEach { url in
             let stream = LogFileOutputStream(fileURL: url, header: "")
             stream.write("test")
-            sync()
+            stream.synchronize()
         }
 
         var urls = ApplicationConfiguration.logFileURLs(for: .mainApp, in: directoryPath)
