@@ -62,9 +62,7 @@ interface RelayListContextProviderProps {
 export function RelayListContextProvider(props: RelayListContextProviderProps) {
   const { locationType, searchTerm } = useSelectLocationContext();
   const daita = useSelector((state) => state.settings.wireguard.daita?.enabled ?? false);
-  const directOnly = useSelector(
-    (state) => state.settings.wireguard.daita?.directOnly ?? false,
-  );
+  const directOnly = useSelector((state) => state.settings.wireguard.daita?.directOnly ?? false);
 
   const fullRelayList = useSelector((state) => state.settings.relayLocations);
   const relaySettings = useNormalRelaySettings();
