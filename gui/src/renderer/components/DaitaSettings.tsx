@@ -128,9 +128,7 @@ function DaitaToggle() {
   const { setEnableDaita, setDaitaDirectOnly } = useAppContext();
   const relaySettings = useSelector((state) => state.settings.relaySettings);
   const daita = useSelector((state) => state.settings.wireguard.daita?.enabled ?? false);
-  const directOnly = useSelector(
-    (state) => state.settings.wireguard.daita?.directOnly ?? false,
-  );
+  const directOnly = useSelector((state) => state.settings.wireguard.daita?.directOnly ?? false);
 
   const [confirmationDialogVisible, showConfirmationDialog, hideConfirmationDialog] = useBoolean();
 
