@@ -221,7 +221,7 @@ function DaitaToggle() {
   );
 }
 
-export function DirectOnlyModalMessage() {
+function DirectOnlyModalMessage() {
   return (
     <ModalMessage>
       {sprintf(
