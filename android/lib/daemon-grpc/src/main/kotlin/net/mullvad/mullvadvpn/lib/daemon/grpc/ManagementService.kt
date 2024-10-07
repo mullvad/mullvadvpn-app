@@ -510,10 +510,14 @@ class ManagementService(
 
     suspend fun setDaitaEnabled(enabled: Boolean): Either<SetDaitaSettingsError, Unit> =
         Either.catch {
-                val daitaSettings =
-                    ManagementInterface.DaitaSettings.newBuilder().setEnabled(enabled).build()
-                grpc.setDaitaSettings(daitaSettings)
-            }
+            val daitaSettings =
+                ManagementInterface.DaitaSettings.newBuilder().setEnabled(enabled)
+                    // TODO: Before Multihop is supported on Android, calling `setDirectOnly` with false
+                    // will cause undefined behaviour.
+                    .setDirectOnly(true)
+                    .build()
+            grpc.setDaitaSettings(daitaSettings)
+        }
             .mapLeft(SetDaitaSettingsError::Unknown)
             .mapEmpty()
 
