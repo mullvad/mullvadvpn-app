@@ -21,7 +21,6 @@ public enum AccessibilityIdentifier: String {
     case appLogsShareButton
     case applyButton
     case cancelButton
-    case connectionPanelButton
     case continueWithLoginButton
     case collapseButton
     case expandButton

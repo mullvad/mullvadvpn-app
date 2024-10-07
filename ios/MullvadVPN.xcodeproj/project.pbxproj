@@ -2359,13 +2359,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		014449932CA1B55200C0C2F2 /* EncryptedDnsProxy */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = EncryptedDnsProxy;
-			sourceTree = "<group>";
-		};
 		062B45A228FD4C0F00746E77 /* Assets */ = {
 			isa = PBXGroup;
 			children = (
@@ -4188,7 +4181,6 @@
 		F0DC77A02B2223290087F09D /* Transport */ = {
 			isa = PBXGroup;
 			children = (
-				014449932CA1B55200C0C2F2 /* EncryptedDnsProxy */,
 				F0164ED02B4F2DCB0020268D /* AccessMethodIterator.swift */,
 				F0DC77A32B2315800087F09D /* Direct */,
 				F0E5B2F62C9C689C0007F78C /* EncryptedDNS */,
