@@ -2345,15 +2345,6 @@ impl Daemon {
             .settings
             .update(|settings| {
                 settings.tunnel_options.wireguard.daita.enabled = value;
-
-                // enable 'use_multihop_if_necessary' automatically with daita
-                if cfg!(not(target_os = "android")) {
-                    settings
-                        .tunnel_options
-                        .wireguard
-                        .daita
-                        .use_multihop_if_necessary = value
-                }
             })
             .await;
 
