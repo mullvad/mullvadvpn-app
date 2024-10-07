@@ -102,10 +102,7 @@ interface FeatureIndicatorsProps {
 // we can count those and add another ellipsis element which is visible and place it after the last
 // visible indicator.
 export default function FeatureIndicators(props: FeatureIndicatorsProps) {
-  const [
-    daitaDirectOnlyDialogueVisible,
-    hideDaitaDirectOnlyDialogue,
-  ] = useBoolean();
+  const [daitaDirectOnlyDialogueVisible, hideDaitaDirectOnlyDialogue] = useBoolean();
   const tunnelState = useSelector((state) => state.connection.status);
   const ellipsisRef = useStyledRef<HTMLSpanElement>();
   const ellipsisSpacerRef = useStyledRef<HTMLSpanElement>();
