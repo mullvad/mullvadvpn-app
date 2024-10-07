@@ -45,7 +45,7 @@ test.describe('VPN Settings', () => {
   });
 
   test('Launch on startup setting', async () => {
-    // Find the auto-connect toggle
+    // Find the launch on start-up toggle
     const launchOnStartupToggle =
       page.getByText('Launch app on start-up').locator('..').getByRole('checkbox');
 
@@ -55,7 +55,7 @@ test.describe('VPN Settings', () => {
     await expect(launchOnStartupToggle).toHaveAttribute('aria-checked', 'false')
     expect(fileExists(AUTOSTART_PATH)).toBeFalsy();
 
-    // Toggle auto-connect
+    // Toggle launch on start-up
     await launchOnStartupToggle.click();
 
     // Verify the setting was applied correctly
@@ -63,6 +63,14 @@ test.describe('VPN Settings', () => {
     expect(fileExists(AUTOSTART_PATH)).toBeTruthy();
     const newCliState = execSync('mullvad auto-connect get').toString().trim();
     expect(newCliState).toMatch(/on$/);
+
+    await launchOnStartupToggle.click();
+
+    // Toggle auto-connect back off
+    // NOTE: This must be done to clean up the auto-start file
+    // TODO: Reset GUI settings between all tests
+    const autoConnectToggle = page.getByText('Auto-connect').locator('..').getByRole('checkbox');
+    await autoConnectToggle.click();
   });
 
   test('LAN settings', async () => {
