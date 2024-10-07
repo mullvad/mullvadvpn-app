@@ -3,10 +3,7 @@ use std::{
     fmt::{Debug, Display},
 };
 
-use crate::{
-    relay_constraints::RelaySettings,
-    settings::{DnsState, Settings},
-};
+use crate::settings::{DnsState, Settings};
 use serde::{Deserialize, Serialize};
 use talpid_types::net::{ObfuscationType, TunnelEndpoint, TunnelType};
 
@@ -175,35 +172,11 @@ pub fn compute_feature_indicators(
             let mtu = settings.tunnel_options.wireguard.mtu.is_some();
 
             let mut daita = false;
-            let mut multihop = endpoint.entry_endpoint.is_some();
+            let multihop = endpoint.entry_endpoint.is_some();
 
             #[cfg(daita)]
             if endpoint.daita {
                 daita = true;
-
-                let multihop_setting_enabled =
-                    if let RelaySettings::Normal(constraints) = &settings.relay_settings {
-                        constraints.wireguard_constraints.use_multihop
-                    } else {
-                        false
-                    };
-
-                let daita_use_multihop_if_necessary = settings
-                    .tunnel_options
-                    .wireguard
-                    .daita
-                    .use_multihop_if_necessary;
-
-                // If multihop is disabled in the settings, but enabled automatically by DAITA, we
-                // will not show the multihop indicator.
-                let multihop_enable_automatically = multihop && !multihop_setting_enabled;
-                if multihop_enable_automatically {
-                    debug_assert!(
-                        daita_use_multihop_if_necessary,
-                        "Multihop can only be enabled automatically if DAITA is enabled"
-                    );
-                    multihop = false;
-                }
             }
 
             vec![
@@ -419,8 +392,8 @@ mod tests {
 
             // Here we mock that multihop was automatically enabled by DAITA.
             // We enable `use_multihop_if_necessary` again and disable the multihop setting, while
-            // keeping the entry relay In this scenario, we should not get a Multihop
-            // indicator
+            // keeping the entry relay. In this scenario, we should still get a Multihop
+            // indicator.
             settings
                 .tunnel_options
                 .wireguard
@@ -429,15 +402,15 @@ mod tests {
             if let RelaySettings::Normal(constraints) = &mut settings.relay_settings {
                 constraints.wireguard_constraints.use_multihop = false;
             };
-            expected_indicators.0.remove(&FeatureIndicator::Multihop);
             assert_eq!(
                 compute_feature_indicators(&settings, &endpoint, false),
                 expected_indicators,
                 "DaitaDirectOnly should be enabled"
             );
 
-            // If we also remove the entry relay, we should still not get a multihop indicator
+            // If we also remove the entry relay, we should not get a multihop indicator
             endpoint.entry_endpoint = None;
+            expected_indicators.0.remove(&FeatureIndicator::Multihop);
             assert_eq!(
                 compute_feature_indicators(&settings, &endpoint, false),
                 expected_indicators,
