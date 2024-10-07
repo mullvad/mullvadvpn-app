@@ -32,7 +32,7 @@ jobs:
 
       - name: Uninstall app
         timeout-minutes: 5
-        run: ios-deploy --id $${{ env.TEST_DEVICE_UDID }} --uninstall_only --bundle_id net.mullvad.MullvadVPN
+        run: ios-deploy --id ${{ env.TEST_DEVICE_UDID }} --uninstall_only --bundle_id net.mullvad.MullvadVPN
 
       - name: Checkout old repository version
         uses: actions/checkout@v4
