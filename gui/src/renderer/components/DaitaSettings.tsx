@@ -104,9 +104,12 @@ export default function DaitaSettings() {
                         )}
                       </StyledHeaderSubTitle>
                       <StyledHeaderSubTitle>
-                        {messages.pgettext(
-                          'wireguard-settings-view',
-                          'Attention: Be cautious if you have a limited data plan as this feature will increase your network traffic. This feature can only be used with WireGuard.',
+                        {sprintf(
+                          messages.pgettext(
+                            'wireguard-settings-view',
+                            'Attention: Be cautious if you have a limited data plan as this feature will increase your network traffic. This feature can only be used with %(wireguard)s.',
+                          ),
+                          { wireguard: strings.wireguard },
                         )}
                       </StyledHeaderSubTitle>
                     </React.Fragment>,
@@ -155,6 +158,8 @@ function DaitaToggle() {
     hideConfirmationDialog();
   }, []);
 
+  const directOnlyString = messages.gettext('Direct only');
+
   return (
     <>
       <AriaInputGroup>
@@ -177,7 +182,7 @@ function DaitaToggle() {
       <AriaInputGroup>
         <Cell.Container disabled={!daita || unavailable}>
           <AriaLabel>
-            <Cell.InputLabel>{messages.gettext('Direct only')}</Cell.InputLabel>
+            <Cell.InputLabel>{directOnlyString}</Cell.InputLabel>
           </AriaLabel>
           <InfoButton>
             <DirectOnlyModalMessage />
@@ -208,7 +213,7 @@ function DaitaToggle() {
             key="confirm"
             onClick={confirmEnableDirectOnly}
             color={SmallButtonColor.blue}>
-            {messages.gettext('Enable "Direct only"')}
+            {sprintf(messages.gettext('Enable "%(directOnly)s"'), { directOnly: directOnlyString })}
           </SmallButton>,
           <SmallButton key="cancel" onClick={hideConfirmationDialog} color={SmallButtonColor.blue}>
             {messages.pgettext('wireguard-settings-view', 'Cancel')}
@@ -231,15 +236,18 @@ function DaitaToggle() {
 }
 
 function DirectOnlyModalMessage() {
+  const directOnlyString = messages.gettext('Direct only');
+
   return (
     <ModalMessage>
       {sprintf(
         messages.pgettext(
           'wireguard-settings-view',
-          'By enabling “Direct only” you will have to manually select a server that is %(daita)s-enabled. This can cause you to end up in a blocked state until you have selected a compatible server in the “Select location” view.',
+          'By enabling “%(directOnly)s” you will have to manually select a server that is %(daita)s-enabled. This can cause you to end up in a blocked state until you have selected a compatible server in the “Select location” view.',
         ),
         {
           daita: strings.daita,
+          directOnly: directOnlyString,
         },
       )}
     </ModalMessage>
