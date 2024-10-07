@@ -513,8 +513,9 @@ class ManagementService(
                 val daitaSettings =
                     ManagementInterface.DaitaSettings.newBuilder()
                         .setEnabled(enabled)
-                        // TODO: Before Multihop is supported on Android, calling `setDirectOnly`
-                        // with false will cause undefined behaviour.
+                        // Before Multihop is supported on Android, calling `setDirectOnly` with
+                        // false will cause undefined behaviour. Will be fixed by as part of
+                        // DROID-1412.
                         .setDirectOnly(true)
                         .build()
                 grpc.setDaitaSettings(daitaSettings)
