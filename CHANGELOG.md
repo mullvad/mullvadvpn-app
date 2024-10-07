@@ -29,8 +29,8 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Fixed
 #### macOS
-- Fix Apple services not working by forcing stray connections out through the VPN tunnel. The
-  "bypass" toggle has been removed.
+- Fix Apple services not working by forcing stray connections out through the VPN tunnel. This fix
+  only applies to Wireguard, OpenVPN is still affected. The "bypass" toggle has been removed.
 
 
 ## [2024.6-beta1] - 2024-09-26
