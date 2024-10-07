@@ -1,14 +1,17 @@
 import path from 'path';
+import os from 'os';
 import { execSync } from 'child_process';
 import { expect, Page, test } from '@playwright/test';
 import { startInstalledApp } from '../installed-utils';
 import { fileExists, TestUtils } from '../../utils';
 
-if (process.env.HOME === undefined) {
-  throw new Error('$HOME not set');
+function getAutoStartPath() {
+  return path.join(os.homedir(), '.config', 'autostart', 'mullvad-vpn.desktop');
 }
 
-const AUTOSTART_PATH = path.join(process.env.HOME, '.config', 'autostart', 'mullvad-vpn.desktop');
+function autoStartPathExists() {
+  return fileExists(getAutoStartPath());
+}
 
 let page: Page;
 let util: TestUtils;
@@ -53,14 +56,18 @@ test.describe('VPN Settings', () => {
     const initialCliState = execSync('mullvad auto-connect get').toString().trim();
     expect(initialCliState).toMatch(/off$/);
     await expect(launchOnStartupToggle).toHaveAttribute('aria-checked', 'false')
-    expect(fileExists(AUTOSTART_PATH)).toBeFalsy();
+    if (process.platform === 'linux') {
+      expect(autoStartPathExists()).toBeFalsy();
+    }
 
     // Toggle launch on start-up
     await launchOnStartupToggle.click();
 
     // Verify the setting was applied correctly
     await expect(launchOnStartupToggle).toHaveAttribute('aria-checked', 'true')
-    expect(fileExists(AUTOSTART_PATH)).toBeTruthy();
+    if (process.platform === 'linux') {
+      expect(autoStartPathExists()).toBeTruthy();
+    }
     const newCliState = execSync('mullvad auto-connect get').toString().trim();
     expect(newCliState).toMatch(/on$/);
 
