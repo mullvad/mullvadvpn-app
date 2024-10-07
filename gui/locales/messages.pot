@@ -5,11 +5,6 @@ msgstr ""
 msgid "%(amount)d more..."
 msgstr ""
 
-#. This refers to the Smart Routing setting in the VPN settings view.
-#. This is displayed when both Smart Routing and DAITA features are on.
-msgid "%(daita)s: Smart routing"
-msgstr ""
-
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr ""
 
@@ -127,10 +122,10 @@ msgstr ""
 msgid "Delete list"
 msgstr ""
 
-msgid "Disable"
+msgid "Direct only"
 msgstr ""
 
-msgid "Disable anyway"
+msgid "Disable"
 msgstr ""
 
 msgid "Disconnect"
@@ -155,6 +150,9 @@ msgid "Edit"
 msgstr ""
 
 msgid "Enable"
+msgstr ""
+
+msgid "Enable \"Direct only\""
 msgstr ""
 
 msgid "Enable anyway"
@@ -251,9 +249,6 @@ msgid "SECURE CONNECTION"
 msgstr ""
 
 msgid "Settings"
-msgstr ""
-
-msgid "Smart routing"
 msgstr ""
 
 msgid "System default"
@@ -1956,13 +1951,13 @@ msgctxt "vpn-settings-view"
 msgid "Lockdown mode"
 msgstr ""
 
-msgctxt "vpn-settings-view"
-msgid "Makes it possible to use %(daita)s with any server and is automatically enabled."
-msgstr ""
-
 #. Label for settings that enables malware blocking.
 msgctxt "vpn-settings-view"
 msgid "Malware"
+msgstr ""
+
+msgctxt "vpn-settings-view"
+msgid "Manually choose which %(daita)s-enabled server to use."
 msgstr ""
 
 msgctxt "vpn-settings-view"
@@ -2071,7 +2066,15 @@ msgid "%(wireguard)s settings"
 msgstr ""
 
 msgctxt "wireguard-settings-view"
-msgid "Can only be used with WireGuard. Since this increases your total network traffic, be cautious if you have a limited data plan. It can also negatively impact your network speed."
+msgid "Attention: Be cautious if you have a limited data plan as this feature will increase your network traffic. This feature can only be used with WireGuard."
+msgstr ""
+
+msgctxt "wireguard-settings-view"
+msgid "By enabling “Direct only” you will have to manually select a server that is %(daita)s-enabled. This can cause you to end up in a blocked state until you have selected a compatible server in the “Select location” view."
+msgstr ""
+
+msgctxt "wireguard-settings-view"
+msgid "Cancel"
 msgstr ""
 
 msgctxt "wireguard-settings-view"
@@ -2104,11 +2107,11 @@ msgstr ""
 
 #. Warning text in a dialog that is displayed after a setting is toggled.
 msgctxt "wireguard-settings-view"
-msgid "Not all our servers are %(daita)s-enabled. In order to use the internet, you might have to select a new location after disabling, or you can continue using %(daita)s with Smart routing."
+msgid "Not all our servers are %(daita)s-enabled. In order to use the internet, you might have to select a new location after enabling."
 msgstr ""
 
 msgctxt "wireguard-settings-view"
-msgid "Not all our servers are %(daita)s-enabled. Smart routing allows %(daita)s to be used at any location. It does this by using multihop in the background to route your traffic via the closest %(daita)s-enabled server first."
+msgid "Not all our servers are %(daita)s-enabled. We use multihop automatically to use DAITA with any server."
 msgstr ""
 
 msgctxt "wireguard-settings-view"
@@ -2179,10 +2182,6 @@ msgstr ""
 
 msgctxt "wireguard-settings-view"
 msgid "UDP-over-TCP port"
-msgstr ""
-
-msgctxt "wireguard-settings-view"
-msgid "Use Smart routing"
 msgstr ""
 
 #. Text describing the valid port range for a port selector.
