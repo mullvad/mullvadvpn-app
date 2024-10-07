@@ -23,8 +23,9 @@
                   android:required="false" />
     <uses-feature android:glEsVersion="0x00020000"
                   android:required="false" />
+
     <application android:name=".MullvadApplication"
-                 android:banner="@drawable/banner"
+                 android:banner="@mipmap/ic_banner"
                  android:allowBackup="false"
                  android:fullBackupContent="@xml/full_back_content"
                  android:dataExtractionRules="@xml/data_extraction_rules"

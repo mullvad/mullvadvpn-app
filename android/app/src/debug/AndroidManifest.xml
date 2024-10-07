@@ -11,7 +11,7 @@
                  android:theme="@style/Theme.App.Starting"
                  android:extractNativeLibs="true"
                  android:allowBackup="false"
-                 android:banner="@drawable/banner"
+                 android:banner="@mipmap/ic_banner"
                  android:name=".MullvadApplication"
                  tools:ignore="DataExtractionRules,GoogleAppIndexingWarning"/>
 </manifest>
