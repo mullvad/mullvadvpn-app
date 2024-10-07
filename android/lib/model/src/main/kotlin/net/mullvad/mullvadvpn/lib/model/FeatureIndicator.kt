@@ -3,7 +3,6 @@ package net.mullvad.mullvadvpn.lib.model
 // The order of the variants match the priority order and can be sorted on.
 enum class FeatureIndicator {
     DAITA,
-    // DAITA_SMART_ROUTING
     QUANTUM_RESISTANCE,
     // MULTIHOP,
     SPLIT_TUNNELING,
