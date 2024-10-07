@@ -16,6 +16,7 @@ final class MigrationManagerTests: XCTestCase {
     static let store = InMemorySettingsStore<SettingNotFound>()
 
     var manager: MigrationManager!
+    var testFileURL: URL!
     override static func setUp() {
         SettingsManager.unitTestStore = store
     }
@@ -25,7 +26,14 @@ final class MigrationManagerTests: XCTestCase {
     }
 
     override func setUpWithError() throws {
-        manager = MigrationManager()
+        testFileURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("MigrationManagerTests-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: testFileURL, withIntermediateDirectories: true)
+        manager = MigrationManager(cacheDirectory: testFileURL)
+    }
+
+    override func tearDownWithError() throws {
+        try FileManager.default.removeItem(at: testFileURL)
     }
 
     func testNothingToMigrate() throws {
@@ -224,7 +232,7 @@ final class MigrationManagerTests: XCTestCase {
         wait(for: [successfulMigrationExpectation], timeout: .UnitTest.timeout)
     }
 
-    private func write(settings: any TunnelSettings, version: Int, in store: SettingsStore) throws {
+    func write(settings: any TunnelSettings, version: Int, in store: SettingsStore) throws {
         let parser = SettingsParser(decoder: JSONDecoder(), encoder: JSONEncoder())
         let payload = try parser.producePayload(settings, version: version)
         try store.write(payload, for: .settings)

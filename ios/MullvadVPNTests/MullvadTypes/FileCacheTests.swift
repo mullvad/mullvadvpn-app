@@ -7,6 +7,7 @@
 //
 
 import Foundation
+@testable import MullvadMockData
 @testable import MullvadTypes
 import XCTest
 
@@ -15,7 +16,7 @@ class FileCacheTests: XCTestCase {
 
     override func setUp() {
         testFileURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent("FileCacheTest-\(UUID().uuidString)", isDirectory: true)
+            .appendingPathComponent("FileCacheTest-\(UUID().uuidString)", isDirectory: false)
     }
 
     override func tearDown() {

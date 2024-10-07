@@ -29,6 +29,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     private var ephemeralPeerExchangingPipeline: EphemeralPeerExchangingPipeline!
     private let tunnelSettingsUpdater: SettingsUpdater!
     private var encryptedDNSTransport: EncryptedDNSTransport!
+    private var migrationManager: MigrationManager!
+    let migrationFailureIterator = REST.RetryStrategy.failedMigrationRecovery.makeDelayIterator()
 
     private let tunnelSettingsListener = TunnelSettingsListener()
     private lazy var ephemeralPeerReceiver = {
@@ -49,8 +51,11 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             ipOverrideRepository: IPOverrideRepository()
         )
         tunnelSettingsUpdater = SettingsUpdater(listener: tunnelSettingsListener)
+        migrationManager = MigrationManager(cacheDirectory: containerURL)
 
         super.init()
+
+        performSettingsMigration()
 
         let transportProvider = setUpTransportProvider(
             appContainerURL: containerURL,
@@ -166,6 +171,30 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
 
     override func wake() {
         actor.onWake()
+    }
+
+    private func performSettingsMigration() {
+        migrationManager.migrateSettings(
+            store: SettingsManager.store,
+            migrationCompleted: { [unowned self] migrationResult in
+                switch migrationResult {
+                case .success:
+                    providerLogger.debug("Successful migration from PacketTunnel")
+                case .nothing:
+                    providerLogger.debug("Attempted migration from PacketTunnel, but found nothing to do")
+                case let .failure(error):
+                    // `next` returns an Optional value, but this iterator is guaranteed to always have a next value
+                    guard let delay = migrationFailureIterator.next() else { return }
+                    providerLogger
+                        .error(
+                            "Failed migration from PacketTunnel: \(error), retrying in \(delay.timeInterval) seconds"
+                        )
+                    DispatchQueue.main.asyncAfter(deadline: .now() + delay.timeInterval) { [unowned self] in
+                        performSettingsMigration()
+                    }
+                }
+            }
+        )
     }
 
     private func setUpTransportProvider(

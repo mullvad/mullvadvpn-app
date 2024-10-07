@@ -23,38 +23,54 @@ public enum SettingsMigrationResult {
 
 public struct MigrationManager {
     private let logger = Logger(label: "MigrationManager")
+    private let cacheDirectory: URL
 
-    public init() {}
+    public init(cacheDirectory: URL) {
+        self.cacheDirectory = cacheDirectory.appendingPathComponent("migrationState.json")
+    }
 
     /// Migrate settings store if needed.
     ///
     /// Reads the current settings, upgrades them to the latest version if needed
     /// and writes back to `store` when settings are updated.
+    ///
+    /// In order to avoid migration happening from both the VPN and the host processes at the same time,
+    /// a non existant file path is used as a lock is used to synchronize access between the processes.
+    /// This file is accessed by `NSFileCoordinator` in order to prevent multiple processes accessing at the same time.
     /// - Parameters:
     ///   - store: The store to from which settings are read and written to.
-    ///   - proxyFactory: Factory used for migrations that involve API calls.
     ///   - migrationCompleted: Completion handler called with a migration result.
     public func migrateSettings(
         store: SettingsStore,
         migrationCompleted: @escaping (SettingsMigrationResult) -> Void
     ) {
-        let resetStoreHandler = { (result: SettingsMigrationResult) in
-            // Reset store upon failure to migrate settings.
-            if case .failure = result {
-                SettingsManager.resetStore()
-            }
-            migrationCompleted(result)
-        }
+        let fileCoordinator = NSFileCoordinator(filePresenter: nil)
+        var error: NSError?
 
-        do {
-            try upgradeSettingsToLatestVersion(
-                store: store,
-                migrationCompleted: migrationCompleted
-            )
-        } catch .itemNotFound as KeychainError {
-            migrationCompleted(.nothing)
-        } catch {
-            resetStoreHandler(.failure(error))
+        // This will block the calling thread if another process is currently running the same code.
+        // This is intentional to avoid TOCTOU issues, and guaranteeing settings cannot be read
+        // in a half written state.
+        // The resulting effect is that only one process at a time can do settings migrations.
+        // The other process will be blocked, and will have nothing to do as long as settings were successfully upgraded.
+        fileCoordinator.coordinate(writingItemAt: cacheDirectory, error: &error) { _ in
+            let resetStoreHandler = { (result: SettingsMigrationResult) in
+                // Reset store upon failure to migrate settings.
+                if case .failure = result {
+                    SettingsManager.resetStore()
+                }
+                migrationCompleted(result)
+            }
+
+            do {
+                try upgradeSettingsToLatestVersion(
+                    store: store,
+                    migrationCompleted: migrationCompleted
+                )
+            } catch .itemNotFound as KeychainError {
+                migrationCompleted(.nothing)
+            } catch {
+                resetStoreHandler(.failure(error))
+            }
         }
     }
 
