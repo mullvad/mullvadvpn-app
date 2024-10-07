@@ -49,6 +49,7 @@ android {
             lintConfig = file("${rootProject.projectDir}/config/lint.xml")
             abortOnError = true
             warningsAsErrors = true
+            checkDependencies = true
         }
     }
 
