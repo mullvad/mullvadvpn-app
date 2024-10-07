@@ -449,7 +449,6 @@
 		58FF9FE42B075BDD00E4C97D /* EditAccessMethodItemIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FF9FE32B075BDD00E4C97D /* EditAccessMethodItemIdentifier.swift */; };
 		58FF9FE82B07650A00E4C97D /* ButtonCellContentConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FF9FE72B07650A00E4C97D /* ButtonCellContentConfiguration.swift */; };
 		58FF9FEA2B07653800E4C97D /* ButtonCellContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FF9FE92B07653800E4C97D /* ButtonCellContentView.swift */; };
-		58FF9FEC2B07A7CB00E4C97D /* NSDirectionalEdgeInsets+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FF9FEB2B07A7CB00E4C97D /* NSDirectionalEdgeInsets+Helpers.swift */; };
 		58FF9FF02B07C4D300E4C97D /* PersistentAccessMethod+ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FF9FEF2B07C4D300E4C97D /* PersistentAccessMethod+ViewModel.swift */; };
 		58FF9FF42B07C61B00E4C97D /* AccessMethodValidationError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FF9FF32B07C61B00E4C97D /* AccessMethodValidationError.swift */; };
 		7A02D4EB2A9CEC7A00C19E31 /* MullvadVPNScreenshots.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = 7A02D4EA2A9CEC7A00C19E31 /* MullvadVPNScreenshots.xctestplan */; };
@@ -1781,7 +1780,6 @@
 		58FF9FE32B075BDD00E4C97D /* EditAccessMethodItemIdentifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditAccessMethodItemIdentifier.swift; sourceTree = "<group>"; };
 		58FF9FE72B07650A00E4C97D /* ButtonCellContentConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonCellContentConfiguration.swift; sourceTree = "<group>"; };
 		58FF9FE92B07653800E4C97D /* ButtonCellContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonCellContentView.swift; sourceTree = "<group>"; };
-		58FF9FEB2B07A7CB00E4C97D /* NSDirectionalEdgeInsets+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSDirectionalEdgeInsets+Helpers.swift"; sourceTree = "<group>"; };
 		58FF9FEF2B07C4D300E4C97D /* PersistentAccessMethod+ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PersistentAccessMethod+ViewModel.swift"; sourceTree = "<group>"; };
 		58FF9FF32B07C61B00E4C97D /* AccessMethodValidationError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessMethodValidationError.swift; sourceTree = "<group>"; };
 		7A02D4EA2A9CEC7A00C19E31 /* MullvadVPNScreenshots.xctestplan */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = MullvadVPNScreenshots.xctestplan; sourceTree = "<group>"; };
@@ -3010,7 +3008,6 @@
 			children = (
 				58CCA0152242560B004F3011 /* UIColor+Palette.swift */,
 				A9E034632ABB302000E59A5A /* UIEdgeInsets+Extensions.swift */,
-				58FF9FEB2B07A7CB00E4C97D /* NSDirectionalEdgeInsets+Helpers.swift */,
 				585CA70E25F8C44600B47C62 /* UIMetrics.swift */,
 			);
 			path = "UI appearance";
@@ -5832,7 +5829,6 @@
 				7A5869B92B56E7F000640D27 /* IPOverrideViewControllerDelegate.swift in Sources */,
 				586C0D7A2B039CE300E7CDD7 /* ShadowsocksCipherPicker.swift in Sources */,
 				58B93A1326C3F13600A55733 /* TunnelState.swift in Sources */,
-				58FF9FEC2B07A7CB00E4C97D /* NSDirectionalEdgeInsets+Helpers.swift in Sources */,
 				586C0D832B03D2FF00E7CDD7 /* ShadowsocksSectionHandler.swift in Sources */,
 				58B26E262943522400D5980C /* NotificationProvider.swift in Sources */,
 				58CE5E64224146200008646E /* AppDelegate.swift in Sources */,

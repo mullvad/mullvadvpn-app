@@ -37,8 +37,6 @@ class DisconnectSplitButton: UIView {
             UIImage(named: "IconReload")?.imageFlippedForRightToLeftLayoutDirection(),
             for: .normal
         )
-
-        primaryButton.overrideContentEdgeInsets = true
         secondaryButtonWidthConstraint = secondaryButton.widthAnchor.constraint(equalToConstant: 0)
         secondaryButtonHeightConstraint = secondaryButton.heightAnchor
             .constraint(equalToConstant: 0)
@@ -72,18 +70,29 @@ class DisconnectSplitButton: UIView {
     }
 
     private func adjustTitleLabelPosition() {
-        var contentInsets = primaryButton.defaultContentInsets
+        // Instead of setting contentEdgeInsets manually, we update UIButtonConfiguration
+        var primaryButtonConfig = primaryButton.configuration ?? UIButton.Configuration.filled()
 
         let offset = stackView.spacing + secondaryButtonSize.width
 
+        // Create content insets depending on layout direction
         if case .leftToRight = effectiveUserInterfaceLayoutDirection {
-            contentInsets.left = offset
-            contentInsets.right = 0
+            primaryButtonConfig.contentInsets = NSDirectionalEdgeInsets(
+                top: primaryButton.defaultContentInsets.top,
+                leading: offset,
+                bottom: primaryButton.defaultContentInsets.bottom,
+                trailing: 0
+            )
         } else {
-            contentInsets.left = 0
-            contentInsets.right = offset
+            primaryButtonConfig.contentInsets = NSDirectionalEdgeInsets(
+                top: primaryButton.defaultContentInsets.top,
+                leading: 0,
+                bottom: primaryButton.defaultContentInsets.bottom,
+                trailing: offset
+            )
         }
 
-        primaryButton.contentEdgeInsets = contentInsets
+        // Apply updated configuration to the primary button
+        primaryButton.configuration = primaryButtonConfig
     }
 }
