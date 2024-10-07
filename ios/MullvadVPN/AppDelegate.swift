@@ -42,7 +42,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     private(set) var storePaymentManager: StorePaymentManager!
     private var transportMonitor: TransportMonitor!
     private var settingsObserver: TunnelBlockObserver!
-    private let migrationManager = MigrationManager()
+    private var migrationManager: MigrationManager!
 
     private(set) var accessMethodRepository = AccessMethodRepository()
     private(set) var shadowsocksLoader: ShadowsocksLoaderProtocol!
@@ -67,7 +67,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         }
 
         let containerURL = ApplicationConfiguration.containerURL
-
+        migrationManager = MigrationManager(cacheDirectory: containerURL)
         configureLogging()
 
         addressCache = REST.AddressCache(canWriteToCache: true, cacheDirectory: containerURL)
@@ -478,14 +478,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                     switch migrationResult {
                     case .success:
                         // Tell the tunnel to re-read tunnel configuration after migration.
-                        logger.debug("Reconnect the tunnel after settings migration.")
+                        logger.debug("Successful migration from UI Process")
                         tunnelManager.reconnectTunnel(selectNewRelay: true)
                         fallthrough
 
                     case .nothing:
+                        logger.debug("Attempted migration from UI Process, but found nothing to do")
                         finish(nil)
 
                     case let .failure(error):
+                        logger.error("Failed migration from UI Process: \(error)")
                         let migrationUIHandler = application.connectedScenes
                             .first { $0 is SettingsMigrationUIHandler } as? SettingsMigrationUIHandler
 
