@@ -6,6 +6,8 @@
 //!
 //! The [`Tunnel`] type provides a safe Rust wrapper around the C FFI.
 
+// TODO: Add a new function wgTurnOnMultihop for android.
+
 #![cfg(unix)]
 
 use core::{
@@ -103,6 +105,34 @@ impl Tunnel {
         let code = unsafe { ffi::wgTurnOff(self.handle) };
         let _ = ManuallyDrop::new(self);
         result_from_code(code)
+    }
+
+    /// TODO: Document
+    ///
+    /// The `logging_callback` let's you provide a Rust function that receives any logging output
+    /// from wireguard-go. `logging_context` is a value that will be passed to each invocation of
+    /// `logging_callback`.
+    pub fn turn_on_multihop(
+        #[cfg(not(target_os = "android"))] mtu: isize,
+        settings: &CStr,
+        device: Fd,
+        logging_callback: Option<LoggingCallback>,
+        logging_context: LoggingContext,
+    ) -> Result<Self, Error> {
+        // SAFETY: pointer is valid for the the lifetime of this function
+        let code = unsafe {
+            ffi::wgTurnOn(
+                #[cfg(not(target_os = "android"))]
+                mtu,
+                settings.as_ptr(),
+                device,
+                logging_callback,
+                logging_context,
+            )
+        };
+
+        result_from_code(code)?;
+        Ok(Tunnel { handle: code })
     }
 
     /// Get the config of the WireGuard interface and make it available in the provided function.
