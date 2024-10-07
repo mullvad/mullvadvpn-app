@@ -75,6 +75,13 @@ class LogFileOutputStream: TextOutputStream {
         }
     }
 
+    /// Waits for write operations to finish by issuing a synchronous closure.
+    /// - Note: This function is mainly used in unit tests to facilitate acting
+    /// on disk writes. It should typically not be used in production code.
+    func synchronize() {
+        queue.sync {}
+    }
+
     private func writeOnQueue(_ string: String) {
         guard let data = string.data(using: encoding) else { return }
 

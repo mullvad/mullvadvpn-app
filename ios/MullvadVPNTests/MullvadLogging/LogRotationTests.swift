@@ -41,10 +41,8 @@ final class LogRotationTests: XCTestCase {
         let stream = LogFileOutputStream(fileURL: logPath, header: "", fileSizeLimit: UInt64(totalLogSizeLimit))
         for _ in 0 ..< writeOperationCount {
             stream.write(stringOfSize(logChunkSize))
-
-            // Without sync between every write the test fails on Github.
-            sync()
         }
+        stream.synchronize()
 
         let actualLogCount = try fileManager.contentsOfDirectory(atPath: directoryPath.relativePath).count
         XCTAssertEqual(expectedLogCount, actualLogCount)
