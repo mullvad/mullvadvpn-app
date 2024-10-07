@@ -589,8 +589,8 @@ export class DaemonRpc {
     await this.callBool(this.client.setEnableDaita, value);
   }
 
-  public async setDaitaSmartRouting(value: boolean): Promise<void> {
-    await this.callBool(this.client.setDaitaSmartRouting, value);
+  public async setDaitaDirectOnly(value: boolean): Promise<void> {
+    await this.callBool(this.client.setDaitaDirectOnly, value);
   }
 
   public async listDevices(accountToken: AccountToken): Promise<Array<IDevice>> {
@@ -1180,8 +1180,6 @@ function convertFromFeatureIndicator(
       return FeatureIndicator.customMssFix;
     case grpcTypes.FeatureIndicator.DAITA:
       return FeatureIndicator.daita;
-    case grpcTypes.FeatureIndicator.DAITA_SMART_ROUTING:
-      return FeatureIndicator.daitaSmartRouting;
     case grpcTypes.FeatureIndicator.SHADOWSOCKS:
       return FeatureIndicator.shadowsocks;
   }

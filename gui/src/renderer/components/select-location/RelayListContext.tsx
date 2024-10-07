@@ -62,9 +62,7 @@ interface RelayListContextProviderProps {
 export function RelayListContextProvider(props: RelayListContextProviderProps) {
   const { locationType, searchTerm } = useSelectLocationContext();
   const daita = useSelector((state) => state.settings.wireguard.daita?.enabled ?? false);
-  const smartRouting = useSelector(
-    (state) => state.settings.wireguard.daita?.smartRouting ?? false,
-  );
+  const directOnly = useSelector((state) => state.settings.wireguard.daita?.directOnly ?? false);
 
   const fullRelayList = useSelector((state) => state.settings.relayLocations);
   const relaySettings = useNormalRelaySettings();
@@ -81,7 +79,7 @@ export function RelayListContextProvider(props: RelayListContextProviderProps) {
     return filterLocationsByDaita(
       relayListForEndpointType,
       daita,
-      smartRouting,
+      directOnly,
       locationType,
       relaySettings?.tunnelProtocol ?? 'any',
       relaySettings?.wireguard.useMultihop ?? false,

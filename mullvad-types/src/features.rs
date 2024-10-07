@@ -1,4 +1,7 @@
-use std::{collections::HashSet, fmt::Display};
+use std::{
+    collections::HashSet,
+    fmt::{Debug, Display},
+};
 
 use crate::settings::{DnsState, Settings};
 use serde::{Deserialize, Serialize};
@@ -8,8 +11,19 @@ use talpid_types::net::{ObfuscationType, TunnelEndpoint, TunnelType};
 /// what is affecting their connection at any given time.
 ///
 /// Note that the feature indicators are not ordered.
-#[derive(Default, Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Default, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct FeatureIndicators(HashSet<FeatureIndicator>);
+
+impl Debug for FeatureIndicators {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let mut indicators: Vec<&str> = self.0.iter().map(|feature| feature.to_str()).collect();
+        // Sort the features alphabetically (Just to have some order, arbitrarily chosen)
+        indicators.sort();
+        f.debug_tuple("FeatureIndicators")
+            .field(&indicators)
+            .finish()
+    }
+}
 
 impl FeatureIndicators {
     pub fn is_empty(&self) -> bool {
@@ -65,14 +79,7 @@ pub enum FeatureIndicator {
     ServerIpOverride,
     CustomMtu,
     CustomMssFix,
-
-    /// Whether DAITA (without smart routing) is in use.
-    /// Mutually exclusive with [FeatureIndicator::DaitaSmartRouting].
     Daita,
-
-    /// Whether DAITA (with smart routing) is in use.
-    /// Mutually exclusive with [FeatureIndicator::Daita].
-    DaitaSmartRouting,
 }
 
 impl FeatureIndicator {
@@ -92,7 +99,6 @@ impl FeatureIndicator {
             FeatureIndicator::CustomMtu => "Custom MTU",
             FeatureIndicator::CustomMssFix => "Custom MSS",
             FeatureIndicator::Daita => "DAITA",
-            FeatureIndicator::DaitaSmartRouting => "DAITA: Smart Routing",
         }
     }
 }
@@ -165,28 +171,13 @@ pub fn compute_feature_indicators(
 
             let mtu = settings.tunnel_options.wireguard.mtu.is_some();
 
-            let mut daita_smart_routing = false;
-            let mut multihop = false;
+            let mut daita = false;
+            let multihop = endpoint.entry_endpoint.is_some();
 
-            if let crate::relay_constraints::RelaySettings::Normal(constraints) =
-                &settings.relay_settings
-            {
-                multihop = endpoint.entry_endpoint.is_some()
-                    && constraints.wireguard_constraints.use_multihop;
-
-                #[cfg(daita)]
-                {
-                    // Detect whether we're using "smart_routing" by checking if multihop is
-                    // in use but not explicitly enabled.
-                    daita_smart_routing = endpoint.daita
-                        && endpoint.entry_endpoint.is_some()
-                        && !constraints.wireguard_constraints.use_multihop
-                }
-            };
-
-            // Daita is mutually exclusive with DaitaSmartRouting
             #[cfg(daita)]
-            let daita = endpoint.daita && !daita_smart_routing;
+            if endpoint.daita {
+                daita = true;
+            }
 
             vec![
                 (quantum_resistant, FeatureIndicator::QuantumResistance),
@@ -194,9 +185,7 @@ pub fn compute_feature_indicators(
                 (udp_tcp, FeatureIndicator::Udp2Tcp),
                 (shadowsocks, FeatureIndicator::Shadowsocks),
                 (mtu, FeatureIndicator::CustomMtu),
-                #[cfg(daita)]
                 (daita, FeatureIndicator::Daita),
-                (daita_smart_routing, FeatureIndicator::DaitaSmartRouting),
             ]
         }
     };
@@ -328,13 +317,18 @@ mod tests {
             expected_indicators
         );
 
+        if let RelaySettings::Normal(constraints) = &mut settings.relay_settings {
+            constraints.wireguard_constraints.use_multihop = true;
+        };
+        assert_eq!(
+            compute_feature_indicators(&settings, &endpoint, false),
+            expected_indicators,
+            "The multihop feature indicator should be enabled by the endpoint, not the settings"
+        );
         endpoint.entry_endpoint = Some(Endpoint {
             address: SocketAddr::from(([1, 2, 3, 4], 443)),
             protocol: TransportProtocol::Tcp,
         });
-        if let RelaySettings::Normal(constraints) = &mut settings.relay_settings {
-            constraints.wireguard_constraints.use_multihop = true;
-        };
         expected_indicators.0.insert(FeatureIndicator::Multihop);
         assert_eq!(
             compute_feature_indicators(&settings, &endpoint, false),
@@ -370,25 +364,57 @@ mod tests {
 
         #[cfg(daita)]
         {
+            // Multihop and DAITA on
             endpoint.daita = true;
+            settings
+                .tunnel_options
+                .wireguard
+                .daita
+                .use_multihop_if_necessary = true;
+
             expected_indicators.0.insert(FeatureIndicator::Daita);
             assert_eq!(
                 compute_feature_indicators(&settings, &endpoint, false),
                 expected_indicators
             );
 
+            // Should not change regardless of whether `use_multihop_if_necessary` is true, since
+            // multihop is enabled explicitly
+            settings
+                .tunnel_options
+                .wireguard
+                .daita
+                .use_multihop_if_necessary = false;
+            assert_eq!(
+                compute_feature_indicators(&settings, &endpoint, false),
+                expected_indicators,
+            );
+
+            // Here we mock that multihop was automatically enabled by DAITA.
+            // We enable `use_multihop_if_necessary` again and disable the multihop setting, while
+            // keeping the entry relay. In this scenario, we should still get a Multihop
+            // indicator.
+            settings
+                .tunnel_options
+                .wireguard
+                .daita
+                .use_multihop_if_necessary = true;
             if let RelaySettings::Normal(constraints) = &mut settings.relay_settings {
                 constraints.wireguard_constraints.use_multihop = false;
             };
-            expected_indicators
-                .0
-                .insert(FeatureIndicator::DaitaSmartRouting);
-            expected_indicators.0.remove(&FeatureIndicator::Daita);
+            assert_eq!(
+                compute_feature_indicators(&settings, &endpoint, false),
+                expected_indicators,
+                "DaitaDirectOnly should be enabled"
+            );
+
+            // If we also remove the entry relay, we should not get a multihop indicator
+            endpoint.entry_endpoint = None;
             expected_indicators.0.remove(&FeatureIndicator::Multihop);
             assert_eq!(
                 compute_feature_indicators(&settings, &endpoint, false),
                 expected_indicators,
-                "DaitaSmartRouting should be enabled"
+                "DaitaDirectOnly should be enabled"
             );
         }
 
@@ -409,7 +435,6 @@ mod tests {
             FeatureIndicator::CustomMtu => {}
             FeatureIndicator::CustomMssFix => {}
             FeatureIndicator::Daita => {}
-            FeatureIndicator::DaitaSmartRouting => {}
         }
     }
 }

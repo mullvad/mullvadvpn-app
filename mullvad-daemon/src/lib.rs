@@ -266,7 +266,7 @@ pub enum DaemonCommand {
     #[cfg(daita)]
     SetEnableDaita(ResponseTx<(), settings::Error>, bool),
     #[cfg(daita)]
-    SetDaitaSmartRouting(ResponseTx<(), settings::Error>, bool),
+    SetDaitaUseMultihopIfNecessary(ResponseTx<(), settings::Error>, bool),
     #[cfg(daita)]
     SetDaitaSettings(ResponseTx<(), settings::Error>, DaitaSettings),
     /// Set DNS options or servers to use
@@ -1261,7 +1261,9 @@ impl Daemon {
             #[cfg(daita)]
             SetEnableDaita(tx, value) => self.on_set_daita_enabled(tx, value).await,
             #[cfg(daita)]
-            SetDaitaSmartRouting(tx, value) => self.on_set_daita_smart_routing(tx, value).await,
+            SetDaitaUseMultihopIfNecessary(tx, value) => {
+                self.on_set_daita_use_multihop_if_necessary(tx, value).await
+            }
             #[cfg(daita)]
             SetDaitaSettings(tx, daita_settings) => {
                 self.on_set_daita_settings(tx, daita_settings).await
@@ -2339,11 +2341,6 @@ impl Daemon {
             .settings
             .update(|settings| {
                 settings.tunnel_options.wireguard.daita.enabled = value;
-
-                // enable smart-routing automatically with daita
-                if cfg!(not(target_os = "android")) {
-                    settings.tunnel_options.wireguard.daita.smart_routing = value
-                }
             })
             .await;
 
@@ -2372,7 +2369,7 @@ impl Daemon {
     }
 
     #[cfg(daita)]
-    async fn on_set_daita_smart_routing(
+    async fn on_set_daita_use_multihop_if_necessary(
         &mut self,
         tx: ResponseTx<(), settings::Error>,
         value: bool,
@@ -2381,11 +2378,17 @@ impl Daemon {
 
         match self
             .settings
-            .update(|settings| settings.tunnel_options.wireguard.daita.smart_routing = value)
+            .update(|settings| {
+                settings
+                    .tunnel_options
+                    .wireguard
+                    .daita
+                    .use_multihop_if_necessary = value
+            })
             .await
         {
             Ok(settings_changed) => {
-                Self::oneshot_send(tx, Ok(()), "set_daita_smart_routing response");
+                Self::oneshot_send(tx, Ok(()), "set_daita_use_multihop_if_necessary response");
 
                 let RelaySettings::Normal(constraints) = &self.settings.relay_settings else {
                     return; // DAITA is not supported for custom relays
@@ -2406,7 +2409,7 @@ impl Daemon {
             }
             Err(e) => {
                 log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
-                Self::oneshot_send(tx, Err(e), "set_daita_smart_routing response");
+                Self::oneshot_send(tx, Err(e), "set_daita_use_multihop_if_necessary response");
             }
         }
     }
@@ -3020,12 +3023,16 @@ fn new_selector_config(settings: &Settings) -> SelectorConfig {
             #[cfg(daita)]
             daita: settings.tunnel_options.wireguard.daita.enabled,
             #[cfg(daita)]
-            daita_smart_routing: settings.tunnel_options.wireguard.daita.smart_routing,
+            daita_use_multihop_if_necessary: settings
+                .tunnel_options
+                .wireguard
+                .daita
+                .use_multihop_if_necessary,
 
             #[cfg(not(daita))]
             daita: false,
             #[cfg(not(daita))]
-            daita_smart_routing: false,
+            daita_use_multihop_if_necessary: false,
 
             quantum_resistant: settings.tunnel_options.wireguard.quantum_resistant,
         },

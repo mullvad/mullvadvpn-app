@@ -49,7 +49,7 @@ service ManagementService {
   rpc SetEnableIpv6(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
   rpc SetQuantumResistantTunnel(QuantumResistantState) returns (google.protobuf.Empty) {}
   rpc SetEnableDaita(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
-  rpc SetDaitaSmartRouting(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
+  rpc SetDaitaDirectOnly(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
   rpc SetDaitaSettings(DaitaSettings) returns (google.protobuf.Empty) {}
   rpc SetDnsOptions(DnsOptions) returns (google.protobuf.Empty) {}
   rpc SetRelayOverride(RelayOverride) returns (google.protobuf.Empty) {}
@@ -264,7 +264,6 @@ enum FeatureIndicator {
   CUSTOM_MTU = 11;
   CUSTOM_MSS_FIX = 12;
   DAITA = 13;
-  DAITA_SMART_ROUTING = 14;
 }
 
 message ObfuscationEndpoint {
@@ -546,7 +545,7 @@ message QuantumResistantState {
 
 message DaitaSettings {
   bool enabled = 1;
-  bool smart_routing = 2;
+  bool direct_only = 2;
 }
 
 message TunnelOptions {

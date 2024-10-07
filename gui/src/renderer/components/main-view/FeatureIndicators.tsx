@@ -5,13 +5,10 @@ import styled from 'styled-components';
 import { colors, strings } from '../../../config.json';
 import { FeatureIndicator } from '../../../shared/daemon-rpc-types';
 import { messages } from '../../../shared/gettext';
-import { useBoolean, useStyledRef } from '../../lib/utilityHooks';
+import { useStyledRef } from '../../lib/utilityHooks';
 import { useSelector } from '../../redux/store';
 import { tinyText } from '../common-styles';
-import { SmartRoutingModalMessage } from '../DaitaSettings';
 import { InfoIcon } from '../InfoButton';
-import { ModalAlert, ModalAlertType } from '../Modal';
-import { SmallButton, SmallButtonColor } from '../SmallButton';
 import { ConnectionPanelAccordion } from './styles';
 
 const LINE_HEIGHT = 22;
@@ -102,11 +99,6 @@ interface FeatureIndicatorsProps {
 // we can count those and add another ellipsis element which is visible and place it after the last
 // visible indicator.
 export default function FeatureIndicators(props: FeatureIndicatorsProps) {
-  const [
-    daitaSmartRoutingDialogueVisible,
-    showDaitaSmartRoutingDialogue,
-    hideDaitaSmartRoutingDialogue,
-  ] = useBoolean();
   const tunnelState = useSelector((state) => state.connection.status);
   const ellipsisRef = useStyledRef<HTMLSpanElement>();
   const ellipsisSpacerRef = useStyledRef<HTMLSpanElement>();
@@ -127,9 +119,8 @@ export default function FeatureIndicators(props: FeatureIndicatorsProps) {
 
   // Returns an optional callback for clickable feature indicators, or undefined.
   const getFeatureIndicatorOnClick = (indicator: FeatureIndicator) => {
+    // NOTE: With the "smart routing" feature indicator removed, this function now does nothing, should it be removed?
     switch (indicator) {
-      case FeatureIndicator.daitaSmartRouting:
-        return showDaitaSmartRoutingDialogue;
       default:
         return undefined;
     }
@@ -231,21 +222,6 @@ export default function FeatureIndicators(props: FeatureIndicatorsProps) {
           />
         </StyledFeatureIndicators>
       </StyledFeatureIndicatorsContainer>
-
-      <ModalAlert
-        isOpen={daitaSmartRoutingDialogueVisible}
-        type={ModalAlertType.info}
-        gridButtons={[
-          <SmallButton
-            key="dismiss"
-            onClick={hideDaitaSmartRoutingDialogue}
-            color={SmallButtonColor.blue}>
-            {messages.gettext('Got it!')}
-          </SmallButton>,
-        ]}
-        close={hideDaitaSmartRoutingDialogue}>
-        <SmartRoutingModalMessage />
-      </ModalAlert>
     </StyledAccordion>
   );
 }
@@ -276,13 +252,6 @@ function getFeatureIndicatorLabel(indicator: FeatureIndicator) {
   switch (indicator) {
     case FeatureIndicator.daita:
       return strings.daita;
-    case FeatureIndicator.daitaSmartRouting:
-      return sprintf(
-        // TRANSLATORS: This refers to the Smart Routing setting in the VPN settings view.
-        // TRANSLATORS: This is displayed when both Smart Routing and DAITA features are on.
-        messages.gettext('%(daita)s: Smart routing'),
-        { daita: strings.daita },
-      );
     case FeatureIndicator.udp2tcp:
     case FeatureIndicator.shadowsocks:
       return messages.pgettext('wireguard-settings-view', 'Obfuscation');

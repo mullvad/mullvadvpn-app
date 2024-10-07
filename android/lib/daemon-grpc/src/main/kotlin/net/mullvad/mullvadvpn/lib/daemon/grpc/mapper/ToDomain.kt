@@ -609,7 +609,6 @@ internal fun ManagementInterface.FeatureIndicator.toDomain() =
             FeatureIndicator.SERVER_IP_OVERRIDE
         ManagementInterface.FeatureIndicator.CUSTOM_MTU -> FeatureIndicator.CUSTOM_MTU
         ManagementInterface.FeatureIndicator.DAITA -> FeatureIndicator.DAITA
-        ManagementInterface.FeatureIndicator.DAITA_SMART_ROUTING,
         ManagementInterface.FeatureIndicator.LOCKDOWN_MODE,
         ManagementInterface.FeatureIndicator.SHADOWSOCKS,
         ManagementInterface.FeatureIndicator.MULTIHOP,
