@@ -63,9 +63,9 @@ class RelayFilterViewController: UIViewController {
         tableView.estimatedSectionHeaderHeight = tableView.estimatedRowHeight
         tableView.allowsMultipleSelection = true
 
-        view.addConstrainedSubviews([applyButton, tableView]) {
+        view.addConstrainedSubviews([tableView, applyButton]) {
             tableView.pinEdgesToSuperview(.all().excluding(.bottom))
-            applyButton.pinEdgesToSuperviewMargins(.init([.leading(0), .trailing(0), .bottom(0)]))
+            applyButton.pinEdgesToSuperviewMargins(.all().excluding(.top))
             applyButton.topAnchor.constraint(
                 equalTo: tableView.bottomAnchor,
                 constant: UIMetrics.contentLayoutMargins.top
