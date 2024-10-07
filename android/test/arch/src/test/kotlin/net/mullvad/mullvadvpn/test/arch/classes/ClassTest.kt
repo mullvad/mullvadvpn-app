@@ -20,7 +20,11 @@ class ClassTest {
 
     @Test
     fun `ensure test classes have 'Test' suffix`() =
-        Konsist.scopeFromTest().classes(includeNested = false).assertTrue {
-            it.hasNameEndingWith("Test")
-        }
+        Konsist.scopeFromTest()
+            .classes(includeNested = false)
+            .filter {
+                // Filter classes that are not tests (for example shadowed classes)
+                it.packagee?.name?.startsWith("net.mullvad.mullvadvpn") ?: false
+            }
+            .assertTrue { it.hasNameEndingWith("Test") }
 }
