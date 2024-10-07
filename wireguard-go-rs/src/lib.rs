@@ -8,10 +8,10 @@
 
 #![cfg(unix)]
 
-use core::slice;
-use std::{
+use core::{
     ffi::{c_char, CStr},
     mem::{ManuallyDrop, MaybeUninit},
+    slice,
 };
 use util::OnDrop;
 use zeroize::Zeroize;
