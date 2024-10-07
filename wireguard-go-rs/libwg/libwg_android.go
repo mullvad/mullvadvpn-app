@@ -11,6 +11,7 @@ import "C"
 
 import (
 	"bufio"
+	"errors"
 	"net/netip"
 	"os"
 	"strings"
@@ -31,6 +32,13 @@ import (
 // Taken from the contained logging package.
 type LogSink = unsafe.Pointer
 type LogContext = C.uint64_t
+
+// TODO: Document
+type tunnelHandle struct {
+	exit   *device.Device
+	entry  *device.Device
+	logger *device.Logger
+}
 
 //export wgTurnOn
 func wgTurnOn(cSettings *C.char, fd int, logSink LogSink, logContext LogContext) C.int32_t {
@@ -80,8 +88,65 @@ func wgTurnOn(cSettings *C.char, fd int, logSink LogSink, logContext LogContext)
 	return C.int32_t(handle)
 }
 
+func wgTurnOnMultihopAgain(mtu int, exitSettings *C.char, entrySettings *C.char, privateIp *C.char, fd int32, logSink LogSink, logContext LogContext) C.int32_t {
+	logger := logging.NewLogger(logSink, logging.LogContext(logContext))
+	if exitSettings == nil {
+		logger.Errorf("exitSettings is null\n")
+		return ERROR_INVALID_ARGUMENT
+	}
+	exitSettings := goStringFixed(exitSettings)
+
+	if entrySettings == nil {
+		logger.Errorf("exitSettings is null\n")
+		return ERROR_INVALID_ARGUMENT
+	}
+	entrySettings := goStringFixed(entrySettings)
+
+	// Set up a two tunnel devices: One 'fake' device for the exit relay and one 'real' device for the entry relay
+
+	tunDevice, _, err := tun.CreateUnmonitoredTUNFromFD(fd)
+	if err != nil {
+		logger.Errorf("%s\n", err)
+		unix.Close(fd)
+		if err.Error() == "bad file descriptor" {
+			return ERROR_INTERMITTENT_FAILURE
+		}
+		return ERROR_GENERAL_FAILURE
+	}
+
+	device := device.NewDevice(tunDevice, conn.NewStdNetBind(), logger)
+
+	setErr := device.IpcSetOperation(bufio.NewReader(strings.NewReader(settings)))
+	if setErr != nil {
+		logger.Errorf("%s\n", setErr)
+		device.Close()
+		return ERROR_INTERMITTENT_FAILURE
+	}
+
+	device.DisableSomeRoamingForBrokenMobileSemantics()
+	device.Up()
+
+	// Create the stuff that needs
+
+	context := tunnelcontainer.Context{
+		Device: device,
+		Logger: logger,
+	}
+
+	handle, err := tunnels.Insert(context)
+	if err != nil {
+		logger.Errorf("%s\n", err)
+		device.Close()
+		return ERROR_GENERAL_FAILURE
+	}
+
+	// TODO
+	return C.int32_t(handle)
+
+}
+
 //export wgTurnOnMultihop
-func wgTurnOnMultihop(exitSettings *C.char, entrySettings *C.char, privateIp *C.char, fd int32, logSink LogSink, logContext LogContext) C.int32_t {
+func wgTurnOnMultihop(mtu int, exitSettings *C.char, entrySettings *C.char, privateIp *C.char, fd int32, logSink LogSink, logContext LogContext) C.int32_t {
 	logger := logging.NewLogger(logSink, logging.LogContext(logContext))
 
 	if exitSettings == nil {
@@ -101,9 +166,24 @@ func wgTurnOnMultihop(exitSettings *C.char, entrySettings *C.char, privateIp *C.
 	entryConfigString := goStringFixed(entrySettings)
 	exitEndpoint := parseEndpointFromConfig(exitConfigString)
 	if exitEndpoint == nil {
-		tun.Close()
 		return -10 // TODO: Define this error, previously '' errNoEndpointInConfig
 	}
+
+	ip, err := netip.ParseAddr(goStringFixed(privateIp))
+	if err != nil {
+		logger.Errorf("Failed to parse private IP: %v", err)
+		return -10 // TODO: Define this error, previously '' errBadIPString
+	}
+
+	// OLD
+	// device := device.NewDevice(tunDevice, conn.NewStdNetBind(), logger)
+	// NEW
+	// ip: First hop
+	// exitEndpoint: Last hop
+	// TODO: Is this mtu the correct one?
+	singleTunMtu := mtu - 80
+	singletun := multihoptun.NewMultihopTun(ip, exitEndpoint.Addr(), exitEndpoint.Port(), singleTunMtu)
+	entryDev := device.NewDevice(&singletun, conn.NewStdNetBind(), logger)
 
 	tunDevice, _, err := tun.CreateUnmonitoredTUNFromFD(fd)
 	if err != nil {
@@ -114,13 +194,7 @@ func wgTurnOnMultihop(exitSettings *C.char, entrySettings *C.char, privateIp *C.
 		}
 		return ERROR_GENERAL_FAILURE
 	}
-
-	// OLD
-	// device := device.NewDevice(tunDevice, conn.NewStdNetBind(), logger)
-	// NEW
-	singletun := multihoptun.NewMultihopTun(ip, exitEndpoint.Addr(), exitEndpoint.Port(), exitMtu+80)
-	entryDev := device.NewDevice(&singletun, conn.NewStdNetBind(), logger)
-	exitDev := device.NewDevice(tun, singletun.Binder(), logger)
+	exitDev := device.NewDevice(tunDevice, singletun.Binder(), logger)
 
 	setErr := device.IpcSetOperation(bufio.NewReader(strings.NewReader(settings)))
 	if setErr != nil {
@@ -132,12 +206,12 @@ func wgTurnOnMultihop(exitSettings *C.char, entrySettings *C.char, privateIp *C.
 	device.DisableSomeRoamingForBrokenMobileSemantics()
 	device.Up()
 
-	context := tunnelcontainer.Context{
-		Device: device,
-		Logger: logger,
-	}
+	// context := tunnelcontainer.Context{
+	// 	Device: device,
+	// 	Logger: logger,
+	// }
 
-	handle, err := tunnels.Insert(context)
+	handle, err := addTunnelFromDevice(exitDev, entryDev, exitSettings, entrySettings, logger)
 	if err != nil {
 		logger.Errorf("%s\n", err)
 		device.Close()
@@ -145,6 +219,36 @@ func wgTurnOnMultihop(exitSettings *C.char, entrySettings *C.char, privateIp *C.
 	}
 
 	return C.int32_t(handle)
+}
+
+func addTunnelFromDevice(exitDev *device.Device, entryDev *device.Device, exitSettings string, entrySettings string, logger *device.Logger) (*tunnelHandle, error) {
+	err := bringUpDevice(exitDev, exitSettings, logger)
+	if err != nil {
+		return nil, errors.New("Could not bring up exit device") // errBadWgConfig
+	}
+
+	if entryDev != nil {
+		err = bringUpDevice(entryDev, entrySettings, logger)
+		if err != nil {
+			exitDev.Close()
+			return nil, errors.New("Could not bring up entry device")
+		}
+	}
+
+	return &tunnelHandle{exitDev, entryDev, logger}, nil
+}
+
+func bringUpDevice(dev *device.Device, settings string, logger *device.Logger) error {
+	err := dev.IpcSet(settings)
+	if err != nil {
+		logger.Errorf("Unable to set IPC settings: %v", err)
+		dev.Close()
+		return err
+	}
+
+	dev.Up()
+	logger.Verbosef("Device started")
+	return nil
 }
 
 // Parse a wireguard config and return the first endpoint address it finds and
