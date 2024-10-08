@@ -192,6 +192,7 @@ class ConnectViewModelTest {
                 country = "Sweden",
                 city = "Gothenburg",
                 hostname = "Host",
+                entryHostname = "EntryHost",
                 latitude = 57.7065,
                 longitude = 11.967,
             )

@@ -33,6 +33,7 @@ import net.mullvad.mullvadvpn.lib.model.WireguardTunnelOptions
 import net.mullvad.mullvadvpn.repository.AutoStartAndConnectOnBootRepository
 import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
+import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.usecase.SystemVpnSettingsAvailableUseCase
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -49,6 +50,7 @@ class VpnSettingsViewModelTest {
     private val mockRelayListRepository: RelayListRepository = mockk()
     private val mockAutoStartAndConnectOnBootRepository: AutoStartAndConnectOnBootRepository =
         mockk()
+    private val mockWireguardConstraintsRepository: WireguardConstraintsRepository = mockk()
 
     private val mockSettingsUpdate = MutableStateFlow<Settings?>(null)
     private val portRangeFlow = MutableStateFlow(emptyList<PortRange>())
@@ -70,6 +72,7 @@ class VpnSettingsViewModelTest {
                 relayListRepository = mockRelayListRepository,
                 dispatcher = UnconfinedTestDispatcher(),
                 autoStartAndConnectOnBootRepository = mockAutoStartAndConnectOnBootRepository,
+                wireguardConstraintsRepository = mockWireguardConstraintsRepository,
             )
     }
 
@@ -179,12 +182,17 @@ class VpnSettingsViewModelTest {
         }
 
     @Test
-    fun `onWireguardPortSelected should invoke updateSelectedWireguardConstraint with Constraint Only with same port`() =
+    fun `onWireguardPortSelected should invoke setWireguardPort with Constraint Only with same port`() =
         runTest {
             // Arrange
             val wireguardPort: Constraint<Port> = Constraint.Only(Port(99))
-            val wireguardConstraints = WireguardConstraints(port = wireguardPort)
-            coEvery { mockRelayListRepository.updateSelectedWireguardConstraints(any()) } returns
+            val wireguardConstraints =
+                WireguardConstraints(
+                    port = wireguardPort,
+                    useMultihop = false,
+                    entryLocation = Constraint.Any,
+                )
+            coEvery { mockWireguardConstraintsRepository.setWireguardPort(any()) } returns
                 Unit.right()
 
             // Act
@@ -192,7 +200,7 @@ class VpnSettingsViewModelTest {
 
             // Assert
             coVerify(exactly = 1) {
-                mockRelayListRepository.updateSelectedWireguardConstraints(wireguardConstraints)
+                mockWireguardConstraintsRepository.setWireguardPort(wireguardConstraints.port)
             }
         }
 
