@@ -56,14 +56,15 @@ private fun RelayItem.Location.hasProvider(providersConstraint: Constraint<Provi
 fun RelayItem.CustomList.filter(
     ownership: Constraint<Ownership>,
     providers: Constraint<Providers>,
-    isDaitaEnabled: Boolean,
+    shouldFilterByDaita: Boolean,
 ): RelayItem.CustomList {
     val newLocations =
         locations.mapNotNull {
             when (it) {
-                is RelayItem.Location.Country -> it.filter(ownership, providers, isDaitaEnabled)
-                is RelayItem.Location.City -> it.filter(ownership, providers, isDaitaEnabled)
-                is RelayItem.Location.Relay -> it.filter(ownership, providers, isDaitaEnabled)
+                is RelayItem.Location.Country ->
+                    it.filter(ownership, providers, shouldFilterByDaita)
+                is RelayItem.Location.City -> it.filter(ownership, providers, shouldFilterByDaita)
+                is RelayItem.Location.Relay -> it.filter(ownership, providers, shouldFilterByDaita)
             }
         }
     return copy(locations = newLocations)
@@ -72,9 +73,9 @@ fun RelayItem.CustomList.filter(
 fun RelayItem.Location.Country.filter(
     ownership: Constraint<Ownership>,
     providers: Constraint<Providers>,
-    isDaitaEnabled: Boolean,
+    shouldFilterByDaita: Boolean,
 ): RelayItem.Location.Country? {
-    val cities = cities.mapNotNull { it.filter(ownership, providers, isDaitaEnabled) }
+    val cities = cities.mapNotNull { it.filter(ownership, providers, shouldFilterByDaita) }
     return if (cities.isNotEmpty()) {
         this.copy(cities = cities)
     } else {
@@ -85,9 +86,9 @@ fun RelayItem.Location.Country.filter(
 private fun RelayItem.Location.City.filter(
     ownership: Constraint<Ownership>,
     providers: Constraint<Providers>,
-    isDaitaEnabled: Boolean,
+    shouldFilterByDaita: Boolean,
 ): RelayItem.Location.City? {
-    val relays = relays.mapNotNull { it.filter(ownership, providers, isDaitaEnabled) }
+    val relays = relays.mapNotNull { it.filter(ownership, providers, shouldFilterByDaita) }
     return if (relays.isNotEmpty()) {
         this.copy(relays = relays)
     } else {
@@ -102,10 +103,12 @@ private fun RelayItem.Location.Relay.hasMatchingDaitaSetting(isDaitaEnabled: Boo
 private fun RelayItem.Location.Relay.filter(
     ownership: Constraint<Ownership>,
     providers: Constraint<Providers>,
-    isDaitaEnabled: Boolean,
+    shouldFilterByDaita: Boolean,
 ): RelayItem.Location.Relay? {
     return if (
-        hasMatchingDaitaSetting(isDaitaEnabled) && hasOwnership(ownership) && hasProvider(providers)
+        hasMatchingDaitaSetting(shouldFilterByDaita) &&
+            hasOwnership(ownership) &&
+            hasProvider(providers)
     ) {
         this
     } else {

@@ -132,9 +132,11 @@
     <string name="enable_method">启用方法</string>
     <string name="enter_value_placeholder">输入 MTU</string>
     <string name="enter_voucher_code">输入优惠码</string>
+    <string name="entry">入口</string>
     <string name="error_occurred">出错了。</string>
     <string name="error_state">无法保护连接</string>
     <string name="exclude_applications">排除的应用程序</string>
+    <string name="exit">出口</string>
     <string name="failed_to_block_internet">无法阻止所有网络流量。请排查问题或发送问题报告。</string>
     <string name="failed_to_create_account">无法创建帐户</string>
     <string name="failed_to_fetch_devices">无法获取设备列表</string>
@@ -199,6 +201,8 @@
     <string name="max_devices_warning_title">设备过多</string>
     <string name="more_information">更多信息</string>
     <string name="mullvad_owned_only">仅 Mullvad 自有</string>
+    <string name="multihop">多跳</string>
+    <string name="multihop_description">多跳技术会将您的流量传输到一个 WireGuard 服务器并从另一个服务器传出，从而提高追踪的难度。这会导致延迟增加，但会提高在线匿名性。</string>
     <string name="name">名称</string>
     <string name="name_was_changed_to">名称已更改为“%1$s”</string>
     <string name="new_device_notification_message">欢迎，此设备现在名为 &lt;b&gt;%1$s&lt;/b&gt;。有关详情，请点击“帐户”中的信息按钮。</string>
@@ -259,8 +263,6 @@
     <string name="save">保存</string>
     <string name="search_placeholder">搜索…</string>
     <string name="select_location">选择位置</string>
-    <string name="select_location_empty_text_first_row">没有关于&lt;b&gt;%1$s&lt;/b&gt;的结果。</string>
-    <string name="select_location_empty_text_second_row">尝试其他搜索词。</string>
     <string name="send">发送</string>
     <string name="send_anyway">仍然发送</string>
     <string name="sending">正在发送…</string>
@@ -342,4 +344,5 @@
     <string name="wireguard_port_info_description">自动设置将从下方显示的有效端口范围中随机选择。</string>
     <string name="wireguard_port_info_port_range">自定义端口可以是有效范围内的任何值：%1$s。</string>
     <string name="wireguard_port_title">WireGuard 端口</string>
+    <string name="x_via_x">%1$s，经由 %2$s</string>
 </resources>

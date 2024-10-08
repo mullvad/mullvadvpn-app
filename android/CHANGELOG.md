@@ -25,6 +25,8 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Add a new access method: Encrypted DNS Proxy. Encrypted DNS proxy is a way to reach the API via
   proxies. The access method is enabled by default.
+- Add multihop which allows the routing of traffic through an entry and exit server, making it
+  harder to trace.
 
 ### Changed
 - Animation has been changed to look better with predictive back.

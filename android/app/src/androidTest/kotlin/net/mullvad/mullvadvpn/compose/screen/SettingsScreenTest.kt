@@ -33,6 +33,7 @@ class SettingsScreenTest {
                             isLoggedIn = true,
                             isSupportedVersion = true,
                             isPlayBuild = false,
+                            multihopEnabled = false,
                         )
                 )
             }
@@ -56,6 +57,7 @@ class SettingsScreenTest {
                             isLoggedIn = false,
                             isSupportedVersion = true,
                             isPlayBuild = false,
+                            multihopEnabled = false,
                         )
                 )
             }

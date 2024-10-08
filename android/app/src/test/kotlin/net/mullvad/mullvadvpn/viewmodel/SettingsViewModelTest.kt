@@ -10,8 +10,11 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
+import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.DeviceState
+import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
+import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.ui.VersionInfo
 import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoRepository
 import org.junit.jupiter.api.AfterEach
@@ -24,9 +27,11 @@ class SettingsViewModelTest {
 
     private val mockDeviceRepository: DeviceRepository = mockk()
     private val mockAppVersionInfoRepository: AppVersionInfoRepository = mockk()
+    private val mockWireguardConstraintsRepository: WireguardConstraintsRepository = mockk()
 
     private val versionInfo =
         MutableStateFlow(VersionInfo(currentVersion = "", isSupported = false))
+    private val wireguardConstraints = MutableStateFlow<WireguardConstraints>(mockk(relaxed = true))
 
     private lateinit var viewModel: SettingsViewModel
 
@@ -36,11 +41,14 @@ class SettingsViewModelTest {
 
         every { mockDeviceRepository.deviceState } returns deviceState
         every { mockAppVersionInfoRepository.versionInfo } returns versionInfo
+        every { mockWireguardConstraintsRepository.wireguardConstraints } returns
+            wireguardConstraints
 
         viewModel =
             SettingsViewModel(
                 deviceRepository = mockDeviceRepository,
                 appVersionInfoRepository = mockAppVersionInfoRepository,
+                wireguardConstraintsRepository = mockWireguardConstraintsRepository,
                 isPlayBuild = false,
             )
     }
@@ -82,6 +90,24 @@ class SettingsViewModelTest {
             viewModel.uiState.test {
                 val result = awaitItem()
                 assertEquals(false, result.isSupportedVersion)
+            }
+        }
+
+    @Test
+    fun `when WireguardConstraintsRepository return multihop enabled uiState should return multihop enabled true`() =
+        runTest {
+            // Arrange
+            wireguardConstraints.value =
+                WireguardConstraints(
+                    isMultihopEnabled = true,
+                    entryLocation = Constraint.Any,
+                    port = Constraint.Any,
+                )
+
+            // Act, Assert
+            viewModel.uiState.test {
+                val result = awaitItem()
+                assertEquals(true, result.multihopEnabled)
             }
         }
 }

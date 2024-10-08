@@ -132,9 +132,11 @@
     <string name="enable_method">Włącz metodę</string>
     <string name="enter_value_placeholder">Wprowadź MTU</string>
     <string name="enter_voucher_code">Wprowadź kod kuponu</string>
+    <string name="entry">Wejście</string>
     <string name="error_occurred">Wystąpił błąd.</string>
     <string name="error_state">BŁĄD ZABEZPIECZANIA POŁĄCZENIA</string>
     <string name="exclude_applications">Wykluczone aplikacje</string>
+    <string name="exit">Wyjście</string>
     <string name="failed_to_block_internet">Nie można zablokować całego ruchu sieciowego. Rozwiąż problem lub wyślij zgłoszenie problemu.</string>
     <string name="failed_to_create_account">Nie można utworzyć konta</string>
     <string name="failed_to_fetch_devices">Nie udało się pobrać listy urządzeń</string>
@@ -199,6 +201,8 @@
     <string name="max_devices_warning_title">Zbyt wiele urządzeń</string>
     <string name="more_information">Więcej informacji</string>
     <string name="mullvad_owned_only">Wyłącznie firmy Mullvad</string>
+    <string name="multihop">Wielokrotny przeskok</string>
+    <string name="multihop_description">Funkcja wielokrotnego przeskoku kieruje Twój ruch przychodzący do jednego serwera WireGuard, a wychodzący wysyła z innego, co utrudnia jego śledzenie. Skutkuje to zwiększoną latencją, ale zwiększa anonimowość online.</string>
     <string name="name">Nazwa</string>
     <string name="name_was_changed_to">Nazwę zmieniono na %1$s</string>
     <string name="new_device_notification_message">Witaj, to urządzenie nazywa się teraz &lt;b&gt;%1$s&lt;/b&gt;. Więcej szczegółów znajdziesz, korzystając z przycisku Informacje na koncie.</string>
@@ -259,8 +263,6 @@
     <string name="save">Zapisz</string>
     <string name="search_placeholder">Wyszukaj...</string>
     <string name="select_location">Wybierz lokalizację</string>
-    <string name="select_location_empty_text_first_row">Brak wyników dla &lt;b&gt;%1$s&lt;/b&gt;.</string>
-    <string name="select_location_empty_text_second_row">Wypróbuj inne wyszukiwanie.</string>
     <string name="send">Wyślij</string>
     <string name="send_anyway">Mimo to wyślij</string>
     <string name="sending">Wysyłanie...</string>
@@ -342,4 +344,5 @@
     <string name="wireguard_port_info_description">Ustawienie automatyczne skutkuje wyborem losowym prawidłowego zakresu portów spośród zakresów przedstawionych poniżej.</string>
     <string name="wireguard_port_info_port_range">Port niestandardowy może mieć dowolną wartość z następujących prawidłowych zakresów: %1$s.</string>
     <string name="wireguard_port_title">Port WireGuard</string>
+    <string name="x_via_x">%1$s przez %2$s</string>
 </resources>

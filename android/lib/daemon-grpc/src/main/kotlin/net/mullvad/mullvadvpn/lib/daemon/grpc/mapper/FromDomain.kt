@@ -126,7 +126,7 @@ internal fun CustomList.fromDomain(): ManagementInterface.CustomList =
 
 internal fun WireguardConstraints.fromDomain(): ManagementInterface.WireguardConstraints =
     ManagementInterface.WireguardConstraints.newBuilder()
-        .setUseMultihop(useMultihop)
+        .setUseMultihop(isMultihopEnabled)
         .setEntryLocation(entryLocation.fromDomain())
         .apply {
             when (val port = this@fromDomain.port) {

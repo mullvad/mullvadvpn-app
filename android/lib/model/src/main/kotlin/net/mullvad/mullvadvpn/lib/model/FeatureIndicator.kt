@@ -4,7 +4,7 @@ package net.mullvad.mullvadvpn.lib.model
 enum class FeatureIndicator {
     DAITA,
     QUANTUM_RESISTANCE,
-    // MULTIHOP,
+    MULTIHOP,
     SPLIT_TUNNELING,
     UDP_2_TCP,
     SHADOWSOCKS,
