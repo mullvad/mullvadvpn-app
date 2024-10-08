@@ -2498,8 +2498,8 @@
 		440E9EFA2BDA976800B1FD11 /* MullvadLogging */ = {
 			isa = PBXGroup;
 			children = (
-				7AA513852BC91C6B00D081A4 /* LogRotationTests.swift */,
 				44B02E3A2BC5732D008EDF34 /* LoggingTests.swift */,
+				7AA513852BC91C6B00D081A4 /* LogRotationTests.swift */,
 			);
 			path = MullvadLogging;
 			sourceTree = "<group>";
