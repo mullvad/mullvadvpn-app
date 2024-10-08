@@ -52,7 +52,7 @@ final class LocationViewControllerWrapper: UIViewController {
     private var selectedExit: UserSelectedRelays?
     private let multihopEnabled: Bool
     private var multihopContext: MultihopContext = .exit
-    private let daitaEnabled: Bool
+    private let daitaSettings: DAITASettings
 
     weak var delegate: LocationViewControllerWrapperDelegate?
 
@@ -60,11 +60,11 @@ final class LocationViewControllerWrapper: UIViewController {
         customListRepository: CustomListRepositoryProtocol,
         constraints: RelayConstraints,
         multihopEnabled: Bool,
-        daitaEnabled: Bool,
+        daitaSettings: DAITASettings,
         startContext: MultihopContext
     ) {
         self.multihopEnabled = multihopEnabled
-        self.daitaEnabled = daitaEnabled
+        self.daitaSettings = daitaSettings
         multihopContext = startContext
 
         selectedEntry = constraints.entryLocations.value
@@ -73,13 +73,16 @@ final class LocationViewControllerWrapper: UIViewController {
         entryLocationViewController = LocationViewController(
             customListRepository: customListRepository,
             selectedRelays: RelaySelection(),
-            daitaEnabled: multihopEnabled && daitaEnabled
+            shouldFilterDaita: daitaSettings.daitaState.isEnabled
+                && daitaSettings.directOnlyState.isEnabled
         )
 
         exitLocationViewController = LocationViewController(
             customListRepository: customListRepository,
             selectedRelays: RelaySelection(),
-            daitaEnabled: !multihopEnabled && daitaEnabled
+            shouldFilterDaita: !multihopEnabled
+                && daitaSettings.daitaState.isEnabled
+                && daitaSettings.directOnlyState.isEnabled
         )
 
         super.init(nibName: nil, bundle: nil)
@@ -109,7 +112,7 @@ final class LocationViewControllerWrapper: UIViewController {
 
     func setRelaysWithLocation(_ relaysWithLocation: LocationRelays, filter: RelayFilter) {
         var daitaFilteredRelays = relaysWithLocation
-        if daitaEnabled {
+        if daitaSettings.daitaState.isEnabled && daitaSettings.directOnlyState.isEnabled {
             daitaFilteredRelays.relays = relaysWithLocation.relays.filter { relay in
                 relay.daita == true
             }

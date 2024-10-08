@@ -1,0 +1,22 @@
+{
+  "pins" : [
+    {
+      "identity" : "swift-log",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-log.git",
+      "state" : {
+        "revision" : "173f567a2dfec11d74588eea82cecea555bdc0bc",
+        "version" : "1.4.0"
+      }
+    },
+    {
+      "identity" : "wireguard-apple",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/mullvad/wireguard-apple.git",
+      "state" : {
+        "revision" : "f1401d43f9d03438a81ca806b9f0c20269b116cb"
+      }
+    }
+  ],
+  "version" : 2
+}
