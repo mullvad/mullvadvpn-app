@@ -24,6 +24,7 @@ import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.ApiAccessListDestination
+import com.ramcosta.composedestinations.generated.destinations.MultihopDestination
 import com.ramcosta.composedestinations.generated.destinations.ReportProblemDestination
 import com.ramcosta.composedestinations.generated.destinations.SplitTunnelingDestination
 import com.ramcosta.composedestinations.generated.destinations.VpnSettingsDestination
@@ -47,7 +48,7 @@ import net.mullvad.mullvadvpn.viewmodel.SettingsViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview("Supported|Unsupported")
+@Preview("Supported|+")
 @Composable
 private fun PreviewSettingsScreen(
     @PreviewParameter(SettingsUiStatePreviewParameterProvider::class) state: SettingsUiState
@@ -69,6 +70,7 @@ fun Settings(navigator: DestinationsNavigator) {
         onApiAccessClick = dropUnlessResumed { navigator.navigate(ApiAccessListDestination) },
         onReportProblemCellClick =
             dropUnlessResumed { navigator.navigate(ReportProblemDestination) },
+        onMultihopClick = dropUnlessResumed { navigator.navigate(MultihopDestination) },
         onBackClick = dropUnlessResumed { navigator.navigateUp() },
     )
 }
@@ -81,6 +83,7 @@ fun SettingsScreen(
     onSplitTunnelingCellClick: () -> Unit = {},
     onReportProblemCellClick: () -> Unit = {},
     onApiAccessClick: () -> Unit = {},
+    onMultihopClick: () -> Unit = {},
     onBackClick: () -> Unit = {},
 ) {
     val context = LocalContext.current
@@ -94,6 +97,12 @@ fun SettingsScreen(
             state = lazyListState,
         ) {
             if (state.isLoggedIn) {
+                item {
+                    Multihop(
+                        isMultihopEnabled = state.useMultihop,
+                        onMultihopClick = onMultihopClick,
+                    )
+                }
                 item { Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding)) }
                 item {
                     NavigationComposeCell(
@@ -134,6 +143,31 @@ private fun SplitTunneling(onSplitTunnelingCellClick: () -> Unit) {
     NavigationComposeCell(
         title = stringResource(id = R.string.split_tunneling),
         onClick = onSplitTunnelingCellClick,
+    )
+}
+
+@Composable
+private fun Multihop(isMultihopEnabled: Boolean, onMultihopClick: () -> Unit) {
+    val title = stringResource(id = R.string.multihop)
+    NavigationComposeCell(
+        title = title,
+        onClick = onMultihopClick,
+        bodyView =
+            @Composable {
+                NavigationCellBody(
+                    content =
+                        stringResource(
+                            if (isMultihopEnabled) {
+                                R.string.on
+                            } else {
+                                R.string.off
+                            }
+                        ),
+                    contentBodyDescription = title,
+                    textColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    isExternalLink = false,
+                )
+            },
     )
 }
 
