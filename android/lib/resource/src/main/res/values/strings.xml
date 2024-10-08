@@ -399,6 +399,7 @@
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_daita">DAITA</string>
     <string name="feature_dns_content_blockers">DNS content blockers</string>
+    <string name="feature_multihop">Multihop</string>
     <string name="connection_details_out_ipv4">Out Ipv4</string>
     <string name="connection_details_out_ipv6">Out Ipv6</string>
     <string name="connection_details_in">In</string>
@@ -413,4 +414,7 @@
     <string name="collapse">Collapse</string>
     <string name="copy">Copy</string>
     <string name="share">Share…</string>
+    <string name="multihop">Multihop</string>
+    <string name="multihop_description">Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online.</string>
+    <string name="x_via_x">%s via %s</string>
 </resources>
