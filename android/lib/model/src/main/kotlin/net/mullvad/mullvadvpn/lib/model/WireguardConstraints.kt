@@ -5,7 +5,7 @@ import arrow.optics.optics
 @optics
 data class WireguardConstraints(
     val port: Constraint<Port>,
-    val useMultihop: Boolean,
+    val isMultihopEnabled: Boolean,
     val entryLocation: Constraint<RelayItemId>,
 ) {
     companion object

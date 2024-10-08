@@ -132,9 +132,11 @@
     <string name="enable_method">Habilitar método</string>
     <string name="enter_value_placeholder">Introducir MTU</string>
     <string name="enter_voucher_code">Escriba el código del cupón</string>
+    <string name="entry">Entrada</string>
     <string name="error_occurred">Se produjo un error.</string>
     <string name="error_state">NO SE PUDO PROTEGER LA CONEXIÓN</string>
     <string name="exclude_applications">Aplicaciones excluidas</string>
+    <string name="exit">Salida</string>
     <string name="failed_to_block_internet">No se puede bloquear todo el tráfico de red. Intente solucionar el problema o envíe un informe de problemas.</string>
     <string name="failed_to_create_account">No se puede crear la cuenta</string>
     <string name="failed_to_fetch_devices">No se pudo obtener la lista de dispositivos</string>
@@ -199,6 +201,8 @@
     <string name="max_devices_warning_title">Demasiados dispositivos</string>
     <string name="more_information">Más información</string>
     <string name="mullvad_owned_only">Solo propiedad de Mullvad</string>
+    <string name="multihop">Salto múltiple</string>
+    <string name="multihop_description">El salto múltiple dirige su tráfico a través de un servidor WireGuard y lo envía a otro, lo que dificulta su rastreo. Esto genera una mayor latencia, pero aumenta el anonimato en Internet.</string>
     <string name="name">Nombre</string>
     <string name="name_was_changed_to">Se ha cambiado el nombre a %1$s</string>
     <string name="new_device_notification_message">Hola, este dispositivo se llama ahora &lt;b&gt;%1$s&lt;/b&gt;. Para más información, consulte el botón de información en la Cuenta.</string>
@@ -259,8 +263,6 @@
     <string name="save">Guardar</string>
     <string name="search_placeholder">Buscar...</string>
     <string name="select_location">Seleccionar ubicación</string>
-    <string name="select_location_empty_text_first_row">No hay resultados para &lt;b&gt;%1$s&lt;/b&gt;.</string>
-    <string name="select_location_empty_text_second_row">Pruebe con otra búsqueda.</string>
     <string name="send">Enviar</string>
     <string name="send_anyway">Enviar de todos modos</string>
     <string name="sending">Enviando…</string>
@@ -342,4 +344,5 @@
     <string name="wireguard_port_info_description">El ajuste automático se elegirá al azar entre los rangos de puertos válidos que se muestran a continuación.</string>
     <string name="wireguard_port_info_port_range">El puerto personalizado pueder ser cualquier valor dentro de los rangos válidos: %1$s.</string>
     <string name="wireguard_port_title">Puerto de WireGuard</string>
+    <string name="x_via_x">%1$s a través de %2$s</string>
 </resources>
