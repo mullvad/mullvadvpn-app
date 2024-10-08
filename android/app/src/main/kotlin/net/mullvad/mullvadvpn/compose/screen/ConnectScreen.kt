@@ -410,7 +410,12 @@ private fun ConnectionCardHeader(
             overflow = TextOverflow.Ellipsis,
         )
 
-        val hostname = location?.hostname
+        val hostname =
+            when {
+                location?.entryHostname != null && location.hostname != null ->
+                    stringResource(R.string.x_via_x, location.hostname!!, location.entryHostname!!)
+                else -> location?.hostname
+            }
         AnimatedContent(hostname, label = "hostname") {
             if (it != null) {
                 Text(

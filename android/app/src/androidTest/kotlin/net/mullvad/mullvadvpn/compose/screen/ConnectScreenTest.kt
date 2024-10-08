@@ -474,6 +474,7 @@ class ConnectScreenTest {
             val inPort = 99
             val inProtocol = TransportProtocol.Udp
             every { mockLocation.hostname } returns mockHostName
+            every { mockLocation.entryHostname } returns null
 
             // In
             every { mockTunnelEndpoint.obfuscation } returns null

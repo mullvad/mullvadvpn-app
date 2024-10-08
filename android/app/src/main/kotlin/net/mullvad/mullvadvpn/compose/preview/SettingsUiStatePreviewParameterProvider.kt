@@ -11,12 +11,14 @@ class SettingsUiStatePreviewParameterProvider : PreviewParameterProvider<Setting
                 isLoggedIn = true,
                 isSupportedVersion = true,
                 isPlayBuild = true,
+                multihopEnabled = false,
             ),
             SettingsUiState(
                 appVersion = "9000.1",
                 isLoggedIn = false,
                 isSupportedVersion = false,
                 isPlayBuild = false,
+                multihopEnabled = false,
             ),
         )
 }

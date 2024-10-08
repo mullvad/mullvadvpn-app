@@ -132,9 +132,11 @@
     <string name="enable_method">Ota menetelmä käyttöön</string>
     <string name="enter_value_placeholder">Syötä MTU</string>
     <string name="enter_voucher_code">Syötä kuponkikoodi</string>
+    <string name="entry">Tulo</string>
     <string name="error_occurred">Ilmeni virhe.</string>
     <string name="error_state">YHTEYDEN SUOJAAMINEN EPÄONNISTUI</string>
     <string name="exclude_applications">Poissuljetut sovellukset</string>
+    <string name="exit">Lähtö</string>
     <string name="failed_to_block_internet">Kaiken verkkoliikenteen estäminen ei onnistu. Käytä vianetsintää tai lähetä ongelmaraportti.</string>
     <string name="failed_to_create_account">Tilin luonti epäonnistui</string>
     <string name="failed_to_fetch_devices">Laiteluettelon nouto epäonnistui</string>
@@ -199,6 +201,8 @@
     <string name="max_devices_warning_title">Liikaa laitteita</string>
     <string name="more_information">Lisätietoja</string>
     <string name="mullvad_owned_only">Vain Mullvadin omistamat</string>
+    <string name="multihop">Multihop</string>
+    <string name="multihop_description">Multihop reitittää liikenteesi yhteen WireGuard-palvelimeen ja ulos toisesta palvelimesta, mikä tekee siitä hankalampaa jäljittää. Tuloksena on suurempi viive, mutta se parantaa nimettömyyttä verkossa.</string>
     <string name="name">Nimi</string>
     <string name="name_was_changed_to">Nimeksi vaihdettiin \"%1$s\"</string>
     <string name="new_device_notification_message">Tervetuloa! Tämän laitteen nimi on nyt &lt;b&gt;%1$s&lt;/b&gt;. Katso lisätietoja tilin infopainikkeesta.</string>
@@ -259,8 +263,6 @@
     <string name="save">Tallenna</string>
     <string name="search_placeholder">Hae...</string>
     <string name="select_location">Valitse sijainti</string>
-    <string name="select_location_empty_text_first_row">Ei tuloksia haulle &lt;b&gt;%1$s&lt;/b&gt;.</string>
-    <string name="select_location_empty_text_second_row">Kokeile toista hakua.</string>
     <string name="send">Lähetä</string>
     <string name="send_anyway">Lähetä silti</string>
     <string name="sending">Lähetetään...</string>
@@ -342,4 +344,5 @@
     <string name="wireguard_port_info_description">Automaattinen asetus valitsee satunnaisesti käytettävissä olevista, alla luetelluista porteista.</string>
     <string name="wireguard_port_info_port_range">Mukautettu portti voi olla mikä tahansa sallittu arvo: %1$s.</string>
     <string name="wireguard_port_title">WireGuard-portti</string>
+    <string name="x_via_x">%1$s, yhteys: %2$s</string>
 </resources>

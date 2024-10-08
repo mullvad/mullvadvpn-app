@@ -26,6 +26,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.ApiAccessListDestination
 import com.ramcosta.composedestinations.generated.destinations.AppInfoDestination
+import com.ramcosta.composedestinations.generated.destinations.MultihopDestination
 import com.ramcosta.composedestinations.generated.destinations.ReportProblemDestination
 import com.ramcosta.composedestinations.generated.destinations.SplitTunnelingDestination
 import com.ramcosta.composedestinations.generated.destinations.VpnSettingsDestination
@@ -49,7 +50,7 @@ import net.mullvad.mullvadvpn.viewmodel.SettingsViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview("Supported|Unsupported")
+@Preview("Supported|+")
 @Composable
 private fun PreviewSettingsScreen(
     @PreviewParameter(SettingsUiStatePreviewParameterProvider::class) state: SettingsUiState
@@ -72,6 +73,7 @@ fun Settings(navigator: DestinationsNavigator) {
         onApiAccessClick = dropUnlessResumed { navigator.navigate(ApiAccessListDestination) },
         onReportProblemCellClick =
             dropUnlessResumed { navigator.navigate(ReportProblemDestination) },
+        onMultihopClick = dropUnlessResumed { navigator.navigate(MultihopDestination) },
         onBackClick = dropUnlessResumed { navigator.navigateUp() },
     )
 }
@@ -85,6 +87,7 @@ fun SettingsScreen(
     onAppInfoClick: () -> Unit = {},
     onReportProblemCellClick: () -> Unit = {},
     onApiAccessClick: () -> Unit = {},
+    onMultihopClick: () -> Unit = {},
     onBackClick: () -> Unit = {},
 ) {
     ScaffoldWithMediumTopBar(
@@ -96,8 +99,13 @@ fun SettingsScreen(
             state = lazyListState,
         ) {
             if (state.isLoggedIn) {
-                item { Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding)) }
-                item {
+                itemWithDivider {
+                    MultihopCell(
+                        isMultihopEnabled = state.multihopEnabled,
+                        onMultihopClick = onMultihopClick,
+                    )
+                }
+                itemWithDivider {
                     NavigationComposeCell(
                         title = stringResource(id = R.string.settings_vpn),
                         onClick = onVpnSettingCellClick,
@@ -181,13 +189,12 @@ private fun FaqAndGuides() {
 
     NavigationComposeCell(
         title = faqGuideLabel,
-        bodyView =
-            @Composable {
-                DefaultExternalLinkView(
-                    chevronContentDescription = faqGuideLabel,
-                    tint = MaterialTheme.colorScheme.onPrimary,
-                )
-            },
+        bodyView = {
+            DefaultExternalLinkView(
+                chevronContentDescription = faqGuideLabel,
+                tint = MaterialTheme.colorScheme.onPrimary,
+            )
+        },
         onClick = openFaqAndGuides,
     )
 }
@@ -203,13 +210,29 @@ private fun PrivacyPolicy(state: SettingsUiState) {
 
     NavigationComposeCell(
         title = privacyPolicyLabel,
-        bodyView =
-            @Composable {
-                DefaultExternalLinkView(
-                    chevronContentDescription = privacyPolicyLabel,
-                    tint = MaterialTheme.colorScheme.onPrimary,
-                )
-            },
+        bodyView = {
+            DefaultExternalLinkView(
+                chevronContentDescription = privacyPolicyLabel,
+                tint = MaterialTheme.colorScheme.onPrimary,
+            )
+        },
         onClick = openPrivacyPolicy,
+    )
+}
+
+@Composable
+private fun MultihopCell(isMultihopEnabled: Boolean, onMultihopClick: () -> Unit) {
+    val title = stringResource(id = R.string.multihop)
+    TwoRowCell(
+        titleText = title,
+        subtitleText =
+            stringResource(
+                if (isMultihopEnabled) {
+                    R.string.on
+                } else {
+                    R.string.off
+                }
+            ),
+        onCellClicked = onMultihopClick,
     )
 }
