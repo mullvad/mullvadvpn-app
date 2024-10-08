@@ -71,6 +71,7 @@ import net.mullvad.mullvadvpn.viewmodel.EditCustomListViewModel
 import net.mullvad.mullvadvpn.viewmodel.FilterViewModel
 import net.mullvad.mullvadvpn.viewmodel.LoginViewModel
 import net.mullvad.mullvadvpn.viewmodel.MtuDialogViewModel
+import net.mullvad.mullvadvpn.viewmodel.MultihopViewModel
 import net.mullvad.mullvadvpn.viewmodel.NoDaemonViewModel
 import net.mullvad.mullvadvpn.viewmodel.OutOfTimeViewModel
 import net.mullvad.mullvadvpn.viewmodel.PaymentViewModel
@@ -213,7 +214,7 @@ val uiModule = module {
     viewModel {
         SelectLocationViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get())
     }
-    viewModel { SettingsViewModel(get(), get(), IS_PLAY_BUILD) }
+    viewModel { SettingsViewModel(get(), get(), get(), IS_PLAY_BUILD) }
     viewModel { SplashViewModel(get(), get(), get(), get()) }
     viewModel { VoucherDialogViewModel(get()) }
     viewModel { VpnSettingsViewModel(get(), get(), get(), get(), get()) }
@@ -240,6 +241,7 @@ val uiModule = module {
     viewModel { Udp2TcpSettingsViewModel(get()) }
     viewModel { ShadowsocksSettingsViewModel(get(), get()) }
     viewModel { ShadowsocksCustomPortDialogViewModel(get()) }
+    viewModel { MultihopViewModel(get()) }
 
     // This view model must be single so we correctly attach lifecycle and share it with activity
     single { NoDaemonViewModel(get()) }

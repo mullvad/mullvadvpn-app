@@ -5,4 +5,5 @@ data class SettingsUiState(
     val isLoggedIn: Boolean,
     val isSupportedVersion: Boolean,
     val isPlayBuild: Boolean,
+    val useMultihop: Boolean,
 )
