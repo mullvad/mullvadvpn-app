@@ -132,9 +132,11 @@
     <string name="enable_method">Aktiver metoden</string>
     <string name="enter_value_placeholder">Angi MTU</string>
     <string name="enter_voucher_code">Skriv inn kupongkode</string>
+    <string name="entry">Inngang</string>
     <string name="error_occurred">Det oppstod en feil.</string>
     <string name="error_state">KUNNE IKKE OPPRETTE SIKKER TILKOBLING</string>
     <string name="exclude_applications">Ekskluder applikasjoner</string>
+    <string name="exit">Utgang</string>
     <string name="failed_to_block_internet">Kunne ikke blokkere all nettverkstrafikk. Feilsøk eller send inn en problemrapport.</string>
     <string name="failed_to_create_account">Kunne ikke opprette konto</string>
     <string name="failed_to_fetch_devices">Kunne ikke hente liste over enheter</string>
@@ -199,6 +201,8 @@
     <string name="max_devices_warning_title">For mange enheter</string>
     <string name="more_information">Mer informasjon</string>
     <string name="mullvad_owned_only">Kun eid av Mullvad</string>
+    <string name="multihop">Multihopp</string>
+    <string name="multihop_description">Multihopp dirigerer trafikken din inn på én WireGuard-server og ut på en annen, noe som gjør det vanskeligere å spore den. Dette resulterer i økt ventetid, men øker anonymiteten på nettet.</string>
     <string name="name">Navn</string>
     <string name="name_was_changed_to">Navn ble endret til %1$s</string>
     <string name="new_device_notification_message">Velkommen. Denne enheten har fått navnet &lt;b&gt;%1$s&lt;/b&gt;. For å finne ut mer kan du bruke informasjonsknappen under Konto.</string>
@@ -259,8 +263,6 @@
     <string name="save">Lagre</string>
     <string name="search_placeholder">Søk etter ...</string>
     <string name="select_location">Velg plassering</string>
-    <string name="select_location_empty_text_first_row">Ingen resultater for &lt;b&gt;%1$s&lt;/b&gt;.</string>
-    <string name="select_location_empty_text_second_row">Prøv et annet søk.</string>
     <string name="send">Send</string>
     <string name="send_anyway">Send allikevel</string>
     <string name="sending">Sender ...</string>
@@ -342,4 +344,5 @@
     <string name="wireguard_port_info_description">Den automatiske innstillingen vil tilfeldig velge fra utvalget av gyldige porter vist under.</string>
     <string name="wireguard_port_info_port_range">Den egendefinerte porten kan ha en hvilken som helst verdi innen det gyldige utvalget: %1$s.</string>
     <string name="wireguard_port_title">WireGuard-port</string>
+    <string name="x_via_x">%1$s via %2$s</string>
 </resources>

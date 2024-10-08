@@ -223,10 +223,7 @@
     <string name="wireguard_port_title">WireGuard port</string>
     <string name="wireguard_port_info_description">The automatic setting will randomly choose from the valid port ranges shown below.</string>
     <string name="search_placeholder">Search for...</string>
-    <string name="select_location_empty_text_first_row">
-        <![CDATA[No result for <b>%s</b>.]]>
-    </string>
-    <string name="select_location_empty_text_second_row">Try a different search.</string>
+    <string name="search_location_empty_text">No result for \"%s\", please try a different search</string>
     <string name="wireguard_port_info_port_range">The custom port can be any value inside the valid ranges: %s.</string>
     <string name="wireguard_custon_port_title">Custom</string>
     <string name="port">Port</string>
@@ -377,6 +374,7 @@
     <string name="feature_server_ip_override">Server IP override</string>
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_daita">DAITA</string>
+    <string name="feature_multihop">Multihop</string>
     <string name="feature_dns_content_blockers">DNS content blockers</string>
     <string name="connection_details_ipv4">IPv4</string>
     <string name="connection_details_ipv6">IPv6</string>
@@ -399,4 +397,15 @@
     <string name="encrypted_dns_proxy_info_message_part1">With the “Encrypted DNS proxy” method, the app will communicate with our Mullvad API through a proxy address. It does this by retrieving an address from a DNS over HTTPS (DoH) server and then using that to reach our API servers.</string>
     <string name="encrypted_dns_proxy_info_message_part2">If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad 9, CloudFlare, or Google.</string>
     <string name="connection_details_out">Out</string>
+    <string name="multihop">Multihop</string>
+    <string name="multihop_description">Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online.</string>
+    <string name="x_via_x">%s via %s</string>
+    <string name="entry">Entry</string>
+    <string name="exit">Exit</string>
+    <string name="clear_input">Clear input</string>
+    <string name="x_entry">%s (Entry)</string>
+    <string name="x_exit">%s (Exit)</string>
+    <string name="search_results">Search results</string>
+    <string name="filters">Filters</string>
+    <string name="search_query_empty">Type at least 2 characters to start searching.</string>
 </resources>

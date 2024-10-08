@@ -132,9 +132,11 @@
     <string name="enable_method">Aktiver metode</string>
     <string name="enter_value_placeholder">Indtast MTU</string>
     <string name="enter_voucher_code">Indtast kuponkode</string>
+    <string name="entry">Indgang</string>
     <string name="error_occurred">Der opstod en fejl.</string>
     <string name="error_state">KUNNE IKKE SIKRE FORBINDELSEN</string>
     <string name="exclude_applications">Ekskluderede applikationer</string>
+    <string name="exit">Udgang</string>
     <string name="failed_to_block_internet">Kan ikke blokere al netværkstrafik. Udfør fejlfinding, eller indsend en problemrapport.</string>
     <string name="failed_to_create_account">Kunne ikke oprette konto</string>
     <string name="failed_to_fetch_devices">Kunne ikke hente listen over enheder</string>
@@ -199,6 +201,8 @@
     <string name="max_devices_warning_title">For mange enheder</string>
     <string name="more_information">Mere information</string>
     <string name="mullvad_owned_only">Kun ejet af Mullvad</string>
+    <string name="multihop">Multihop</string>
+    <string name="multihop_description">Multihop dirigerer din trafik ind på en WireGuard-server og ud på en anden, hvilket gør det sværere at spore den. Dette resulterer i øget ventetid, men øger anonymiteten online.</string>
     <string name="name">Navn</string>
     <string name="name_was_changed_to">Navnet blev ændret til %1$s</string>
     <string name="new_device_notification_message">Velkommen! Denne enhed hedder nu &lt;b&gt;%1$s&lt;/b&gt;. Se info-knappen i Konto for at flere oplysninger.</string>
@@ -259,8 +263,6 @@
     <string name="save">Gem</string>
     <string name="search_placeholder">Søg efter...</string>
     <string name="select_location">Vælg placering</string>
-    <string name="select_location_empty_text_first_row">Intet resultat for &lt;b&gt;%1$s&lt;/b&gt;.</string>
-    <string name="select_location_empty_text_second_row">Prøv en anden søgning.</string>
     <string name="send">Send</string>
     <string name="send_anyway">Send alligevel</string>
     <string name="sending">Sender...</string>
@@ -342,4 +344,5 @@
     <string name="wireguard_port_info_description">Den automatiske indstilling vælger tilfældigt fra de gyldige rækker af porte nedenfor.</string>
     <string name="wireguard_port_info_port_range">Den brugerdefinerede port kan være en hvilken som helst værdi inden for de gyldige intervaller: %1$s.</string>
     <string name="wireguard_port_title">WireGuard-port</string>
+    <string name="x_via_x">%1$s via %2$s</string>
 </resources>
