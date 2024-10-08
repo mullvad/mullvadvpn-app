@@ -145,7 +145,7 @@ export default tseslint.config(
       'no-return-await': 'error',
       'react/jsx-no-bind': 'error',
       '@typescript-eslint/naming-convention': ['error', ...namingConvention],
-      '@typescript-eslint/ban-ts-comment': ['error', { 'ts-ignore': false }],
+      '@typescript-eslint/ban-ts-comment': 'error',
       'simple-import-sort/imports': 'error',
 
       'react-hooks/rules-of-hooks': 'error',
