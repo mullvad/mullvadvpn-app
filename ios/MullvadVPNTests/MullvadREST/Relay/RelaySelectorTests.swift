@@ -136,6 +136,39 @@ class RelaySelectorTests: XCTestCase {
         XCTAssertTrue(allPorts.contains(result.endpoint.ipv4Relay.port))
     }
 
+    func testClosestRelay() throws {
+        let relayWithLocations = try sampleRelays.wireguard.relays.map {
+            let serverLocation = try XCTUnwrap(sampleRelays.locations[$0.location])
+            let location = Location(
+                country: serverLocation.country,
+                countryCode: serverLocation.country,
+                city: serverLocation.city,
+                cityCode: serverLocation.city,
+                latitude: serverLocation.latitude,
+                longitude: serverLocation.longitude
+            )
+
+            return RelayWithLocation(relay: $0, serverLocation: location)
+        }
+
+        let sampleLocation = try XCTUnwrap(sampleRelays.locations["se-got"])
+        let location = Location(
+            country: "Sweden",
+            countryCode: sampleLocation.country,
+            city: "Gothenburg",
+            cityCode: sampleLocation.city,
+            latitude: sampleLocation.latitude,
+            longitude: sampleLocation.longitude
+        )
+
+        let selectedRelay = RelaySelector.WireGuard.closestRelay(
+            to: location,
+            using: relayWithLocations
+        )
+
+        XCTAssertEqual(selectedRelay?.hostname, "se10-wireguard")
+    }
+
     func testClosestShadowsocksRelay() throws {
         let constraints = RelayConstraints(
             exitLocations: .only(UserSelectedRelays(locations: [.city("se", "sto")]))

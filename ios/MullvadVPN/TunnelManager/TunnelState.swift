@@ -118,7 +118,7 @@ enum TunnelState: Equatable, CustomStringConvertible {
             """
             negotiating key with exit relay: \(tunnelRelays.exit.hostname)\
             \(tunnelRelays.entry.flatMap { " via \($0.hostname)" } ?? "")\
-            "isPostQuantum: \(isPostQuantum), isDaita: \(isDaita)
+            , isPostQuantum: \(isPostQuantum), isDaita: \(isDaita)
             """
         }
     }

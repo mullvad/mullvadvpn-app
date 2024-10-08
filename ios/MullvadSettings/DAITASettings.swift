@@ -8,7 +8,7 @@
 
 import Foundation
 
-/// Whether DAITA is enabled
+/// Whether DAITA is enabled.
 public enum DAITAState: Codable {
     case on
     case off
@@ -18,8 +18,8 @@ public enum DAITAState: Codable {
     }
 }
 
-/// Whether smart routing is enabled
-public enum SmartRoutingState: Codable {
+/// Whether "direct only" is enabled, meaning no automatic routing to DAITA relays.
+public enum DirectOnlyState: Codable {
     case on
     case off
 
@@ -38,11 +38,15 @@ public struct DAITASettings: Codable, Equatable {
     public let state: DAITAState = .off
 
     public let daitaState: DAITAState
-    public let smartRoutingState: SmartRoutingState
+    public let directOnlyState: DirectOnlyState
 
-    public init(daitaState: DAITAState = .off, smartRoutingState: SmartRoutingState = .off) {
+    public var shouldDoAutomaticRouting: Bool {
+        daitaState.isEnabled && !directOnlyState.isEnabled
+    }
+
+    public init(daitaState: DAITAState = .off, directOnlyState: DirectOnlyState = .off) {
         self.daitaState = daitaState
-        self.smartRoutingState = smartRoutingState
+        self.directOnlyState = directOnlyState
     }
 
     public init(from decoder: any Decoder) throws {
@@ -52,7 +56,7 @@ public struct DAITASettings: Codable, Equatable {
             ?? container.decodeIfPresent(DAITAState.self, forKey: .state)
             ?? .off
 
-        smartRoutingState = try container.decodeIfPresent(SmartRoutingState.self, forKey: .smartRoutingState)
+        directOnlyState = try container.decodeIfPresent(DirectOnlyState.self, forKey: .directOnlyState)
             ?? .off
     }
 }

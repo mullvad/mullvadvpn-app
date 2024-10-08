@@ -37,8 +37,8 @@ class MultihopDecisionFlowTests: XCTestCase {
         let oneToMany = OneToMany(next: nil, relayPicker: picker)
 
         XCTAssertTrue(oneToMany.canHandle(
-            entryCandidates: [seSto2, seSto6],
-            exitCandidates: [seSto2]
+            entryCandidates: [seSto2],
+            exitCandidates: [seSto2, seSto6]
         ))
 
         XCTAssertFalse(oneToMany.canHandle(
@@ -47,6 +47,25 @@ class MultihopDecisionFlowTests: XCTestCase {
         ))
 
         XCTAssertFalse(oneToMany.canHandle(
+            entryCandidates: [seSto2, seSto6],
+            exitCandidates: [seSto2, seSto6]
+        ))
+    }
+
+    func testManyToOneCanHandle() throws {
+        let manyToOne = ManyToOne(next: nil, relayPicker: picker)
+
+        XCTAssertTrue(manyToOne.canHandle(
+            entryCandidates: [seSto2, seSto6],
+            exitCandidates: [seSto2]
+        ))
+
+        XCTAssertFalse(manyToOne.canHandle(
+            entryCandidates: [seSto6],
+            exitCandidates: [seSto2]
+        ))
+
+        XCTAssertFalse(manyToOne.canHandle(
             entryCandidates: [seSto2, seSto6],
             exitCandidates: [seSto2, seSto6]
         ))
@@ -77,7 +96,11 @@ class MultihopDecisionFlowTests: XCTestCase {
         let entryCandidates = [seSto2]
         let exitCandidates = [seSto6]
 
-        let selectedRelays = try oneToOne.pick(entryCandidates: entryCandidates, exitCandidates: exitCandidates)
+        let selectedRelays = try oneToOne.pick(
+            entryCandidates: entryCandidates,
+            exitCandidates: exitCandidates,
+            automaticDaitaRouting: false
+        )
 
         XCTAssertEqual(selectedRelays.entry?.hostname, "se2-wireguard")
         XCTAssertEqual(selectedRelays.exit.hostname, "se6-wireguard")
@@ -86,10 +109,30 @@ class MultihopDecisionFlowTests: XCTestCase {
     func testOneToManyPick() throws {
         let oneToMany = OneToMany(next: nil, relayPicker: picker)
 
+        let entryCandidates = [seSto2]
+        let exitCandidates = [seSto2, seSto6]
+
+        let selectedRelays = try oneToMany.pick(
+            entryCandidates: entryCandidates,
+            exitCandidates: exitCandidates,
+            automaticDaitaRouting: false
+        )
+
+        XCTAssertEqual(selectedRelays.entry?.hostname, "se2-wireguard")
+        XCTAssertEqual(selectedRelays.exit.hostname, "se6-wireguard")
+    }
+
+    func testManyToOnePick() throws {
+        let manyToOne = ManyToOne(next: nil, relayPicker: picker)
+
         let entryCandidates = [seSto2, seSto6]
         let exitCandidates = [seSto2]
 
-        let selectedRelays = try oneToMany.pick(entryCandidates: entryCandidates, exitCandidates: exitCandidates)
+        let selectedRelays = try manyToOne.pick(
+            entryCandidates: entryCandidates,
+            exitCandidates: exitCandidates,
+            automaticDaitaRouting: false
+        )
 
         XCTAssertEqual(selectedRelays.entry?.hostname, "se6-wireguard")
         XCTAssertEqual(selectedRelays.exit.hostname, "se2-wireguard")
@@ -101,7 +144,11 @@ class MultihopDecisionFlowTests: XCTestCase {
         let entryCandidates = [seSto2, seSto6]
         let exitCandidates = [seSto2, seSto6]
 
-        let selectedRelays = try manyToMany.pick(entryCandidates: entryCandidates, exitCandidates: exitCandidates)
+        let selectedRelays = try manyToMany.pick(
+            entryCandidates: entryCandidates,
+            exitCandidates: exitCandidates,
+            automaticDaitaRouting: false
+        )
 
         if selectedRelays.exit.hostname == "se2-wireguard" {
             XCTAssertEqual(selectedRelays.entry?.hostname, "se6-wireguard")
@@ -119,10 +166,11 @@ extension MultihopDecisionFlowTests {
         )
 
         return MultihopPicker(
-            constraints: constraints,
-            daitaSettings: DAITASettings(daitaState: .off),
             relays: sampleRelays,
-            connectionAttemptCount: 0
+            constraints: constraints,
+            connectionAttemptCount: 0,
+            daitaSettings: DAITASettings(daitaState: .off),
+            automaticDaitaRouting: false
         )
     }
 
