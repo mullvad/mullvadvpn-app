@@ -666,8 +666,8 @@ function getProjectionMatrix(gl: WebGL2RenderingContext): mat4 {
   // Create a perspective matrix, a special matrix that is
   // used to simulate the distortion of perspective in a camera.
   const fieldOfView = (angleOfView / 180) * Math.PI; // in radians
-  // @ts-ignore
-  const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
+  const canvas = gl.canvas as HTMLCanvasElement;
+  const aspect = canvas.clientWidth / canvas.clientHeight;
   const zNear = 0.1;
   const zFar = 10;
   const projectionMatrix = mat4.create();
