@@ -48,10 +48,14 @@ class ConnectionPanelView: UIView {
     }
 
     private let collapseView: ConnectionPanelCollapseView = {
-        let button = ConnectionPanelCollapseView()
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.tintColor = .white
-        return button
+        let collapseView = ConnectionPanelCollapseView()
+        collapseView.axis = .horizontal
+        collapseView.alignment = .top
+        collapseView.distribution = .fill
+        collapseView.translatesAutoresizingMaskIntoConstraints = false
+        collapseView.tintColor = .white
+        collapseView.isAccessibilityElement = false
+        return collapseView
     }()
 
     private let inAddressRow = ConnectionPanelAddressRow()
@@ -294,24 +298,25 @@ class ConnectionPanelCollapseView: UIStackView {
     }()
 
     private(set) var imageView: UIImageView = {
-        return UIImageView()
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFit
+        return imageView
     }()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
 
-        let imageContainer = UIStackView()
-        imageContainer.axis = .vertical
-        imageContainer.addArrangedSubview(imageView)
-        imageContainer.addArrangedSubview(UIView()) // Pushes content up.
-
         addArrangedSubview(title)
-        addArrangedSubview(imageContainer)
+        addArrangedSubview(imageView)
+
+        title.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        title.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+
+        imageView.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+        imageView.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
         addArrangedSubview(UIView()) // Pushes content left.
 
         updateImage()
-
-        accessibilityIdentifier = .connectionPanelButton
     }
 
     required init(coder: NSCoder) {
