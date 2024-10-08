@@ -10,10 +10,6 @@ import Foundation
 import UIKit
 
 class DisconnectSplitButton: UIView {
-    private var secondaryButtonSize: CGSize {
-        UIMetrics.DisconnectSplitButton.secondaryButton
-    }
-
     let primaryButton = AppButton(style: .translucentDangerSplitLeft)
     let secondaryButton = AppButton(style: .translucentDangerSplitRight)
 
@@ -33,57 +29,33 @@ class DisconnectSplitButton: UIView {
         stackView.alignment = .fill
         stackView.spacing = 1
 
-        secondaryButton.setImage(
-            UIImage(named: "IconReload")?.imageFlippedForRightToLeftLayoutDirection(),
-            for: .normal
-        )
+        primaryButton.translatesAutoresizingMaskIntoConstraints = false
+        secondaryButton.translatesAutoresizingMaskIntoConstraints = false
 
-        primaryButton.overrideContentEdgeInsets = true
-        secondaryButtonWidthConstraint = secondaryButton.widthAnchor.constraint(equalToConstant: 0)
+        let secondaryButtonSize = UIMetrics.DisconnectSplitButton.secondaryButton
+        let image =
+            UIImage(resource: .iconReload) // UIImage(resource: .iconReload).resizableImage(withCapInsets: secondaryButton.configuration?.contentInsets).imageFlippedForRightToLeftLayoutDirection()
+
+        secondaryButtonWidthConstraint = secondaryButton.widthAnchor
+            .constraint(equalToConstant: secondaryButtonSize.width)
         secondaryButtonHeightConstraint = secondaryButton.heightAnchor
-            .constraint(equalToConstant: 0)
+            .constraint(equalToConstant: secondaryButtonSize.height)
 
         super.init(frame: .zero)
 
-        addSubview(stackView)
+        addConstrainedSubviews([stackView]) {
+            stackView.pinEdgesToSuperview()
+        }
 
         NSLayoutConstraint.activate([
-            stackView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            stackView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            stackView.topAnchor.constraint(equalTo: topAnchor),
-            stackView.bottomAnchor.constraint(equalTo: bottomAnchor),
-
             secondaryButtonWidthConstraint,
             secondaryButtonHeightConstraint,
         ])
-
-        updateTraitConstraints()
+        secondaryButton.imageView?.contentMode = .scaleAspectFit
+        secondaryButton.imageView?.setNeedsDisplay()
     }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-
-    private func updateTraitConstraints() {
-        let newSize = secondaryButtonSize
-        secondaryButtonWidthConstraint.constant = newSize.width
-        secondaryButtonHeightConstraint.constant = newSize.height
-        adjustTitleLabelPosition()
-    }
-
-    private func adjustTitleLabelPosition() {
-        var contentInsets = primaryButton.defaultContentInsets
-
-        let offset = stackView.spacing + secondaryButtonSize.width
-
-        if case .leftToRight = effectiveUserInterfaceLayoutDirection {
-            contentInsets.left = offset
-            contentInsets.right = 0
-        } else {
-            contentInsets.left = 0
-            contentInsets.right = offset
-        }
-
-        primaryButton.contentEdgeInsets = contentInsets
     }
 }

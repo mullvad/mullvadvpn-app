@@ -92,13 +92,9 @@ final class AccountInputGroupView: UIView {
     }()
 
     private let lastUsedAccountButton: UIButton = {
-        let button = UIButton(type: .system)
+        let button = UIButton(configuration: .plain())
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.titleLabel?.font = accountNumberFont()
-        button.setTitle(" ", for: .normal)
         button.contentHorizontalAlignment = .leading
-        button.contentEdgeInsets = UIMetrics.textFieldMargins
-        button.setTitleColor(UIColor.AccountTextField.NormalState.textColor, for: .normal)
         button.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         button.accessibilityLabel = NSLocalizedString(
             "LAST_USED_ACCOUNT_ACCESSIBILITY_LABEL",
@@ -106,14 +102,22 @@ final class AccountInputGroupView: UIView {
             value: "Last used account",
             comment: ""
         )
+        button.configuration?.contentInsets = UIMetrics.textFieldMargins.toDirectionalInsets
+        button.configuration?.title = " "
+        button.configuration?
+            .titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { attributeContainer in
+                var updatedAttributeContainer = attributeContainer
+                updatedAttributeContainer.font = AccountInputGroupView.accountNumberFont()
+                updatedAttributeContainer.foregroundColor = .AccountTextField.NormalState.textColor
+                return updatedAttributeContainer
+            }
+
         return button
     }()
 
     private let removeLastUsedAccountButton: UIButton = {
-        let button = UIButton(type: .custom)
+        let button = UIButton(configuration: .plain())
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setImage(UIImage(named: "IconCloseSml"), for: .normal)
-        button.imageView?.tintColor = .primaryColor.withAlphaComponent(0.4)
         button.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
         button.accessibilityLabel = NSLocalizedString(
             "REMOVE_LAST_USED_ACCOUNT_ACCESSIBILITY_LABEL",
@@ -121,6 +125,8 @@ final class AccountInputGroupView: UIView {
             value: "Remove last used account",
             comment: ""
         )
+        button.configuration?.image = UIImage(resource: .iconCloseSml).withTintColor(.primaryColor)
+        button.configuration?.title = " "
         return button
     }()
 
@@ -303,7 +309,7 @@ final class AccountInputGroupView: UIView {
             )
 
             UIView.performWithoutAnimation {
-                self.lastUsedAccountButton.setTitle(formattedNumber, for: .normal)
+                self.lastUsedAccountButton.configuration?.title = formattedNumber
                 self.lastUsedAccountButton.layoutIfNeeded()
             }
         }
