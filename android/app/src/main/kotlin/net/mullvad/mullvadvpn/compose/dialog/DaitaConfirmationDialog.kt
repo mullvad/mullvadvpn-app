@@ -16,6 +16,7 @@ import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.dialog.info.InfoConfirmationDialog
+import net.mullvad.mullvadvpn.compose.dialog.info.InfoConfirmationDialogTitleType
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 
@@ -30,6 +31,7 @@ private fun PreviewDaitaConfirmationDialog() {
 fun DaitaConfirmation(navigator: ResultBackNavigator<Boolean>) {
     InfoConfirmationDialog(
         navigator = navigator,
+        titleType = InfoConfirmationDialogTitleType.IconOnly,
         confirmButtonTitle = stringResource(R.string.enable_anyway),
         cancelButtonTitle = stringResource(R.string.back),
     ) {

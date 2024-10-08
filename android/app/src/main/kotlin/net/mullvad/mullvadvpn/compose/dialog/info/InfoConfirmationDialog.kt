@@ -33,6 +33,7 @@ private fun PreviewInfoConfirmationDialog() {
     AppTheme {
         InfoConfirmationDialog(
             navigator = EmptyResultBackNavigator(),
+            titleType = InfoConfirmationDialogTitleType.IconAndTitle("Informative title"),
             confirmButtonTitle = stringResource(R.string.enable_anyway),
             cancelButtonTitle = stringResource(R.string.back),
         ) {
@@ -55,36 +56,75 @@ private fun PreviewInfoConfirmationDialog() {
     }
 }
 
+sealed interface InfoConfirmationDialogTitleType {
+    data object IconOnly : InfoConfirmationDialogTitleType
+
+    data class TitleOnly(val title: String) : InfoConfirmationDialogTitleType
+
+    data class IconAndTitle(val title: String) : InfoConfirmationDialogTitleType
+}
+
 @Composable
 fun InfoConfirmationDialog(
     navigator: ResultBackNavigator<Boolean>,
+    titleType: InfoConfirmationDialogTitleType,
     confirmButtonTitle: String,
     cancelButtonTitle: String,
-    content: @Composable () -> Unit,
+    content: @Composable (() -> Unit)? = null,
 ) {
+    val title =
+        when (titleType) {
+            is InfoConfirmationDialogTitleType.TitleOnly -> titleType.title
+            is InfoConfirmationDialogTitleType.IconAndTitle -> titleType.title
+            InfoConfirmationDialogTitleType.IconOnly -> null
+        }
+
+    val showIcon =
+        when (titleType) {
+            is InfoConfirmationDialogTitleType.IconOnly,
+            is InfoConfirmationDialogTitleType.IconAndTitle -> true
+            is InfoConfirmationDialogTitleType.TitleOnly -> false
+        }
+
     AlertDialog(
         onDismissRequest = { navigator.navigateBack(false) },
-        icon = {
-            Icon(
-                modifier = Modifier.fillMaxWidth().height(Dimens.dialogIconHeight),
-                imageVector = Icons.Default.Error,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurface,
-            )
-        },
-        text = {
-            val scrollState = rememberScrollState()
-            Column(
-                Modifier.drawVerticalScrollbar(
-                        scrollState,
-                        MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaScrollbar),
+        title =
+            if (title != null) {
+                @Composable { Text(title) }
+            } else {
+                null
+            },
+        icon =
+            if (showIcon) {
+                @Composable {
+                    Icon(
+                        modifier = Modifier.fillMaxWidth().height(Dimens.dialogIconHeight),
+                        imageVector = Icons.Default.Error,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurface,
                     )
-                    .verticalScroll(scrollState),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                content()
-            }
-        },
+                }
+            } else {
+                null
+            },
+        text =
+            if (content != null) {
+                @Composable {
+                    val scrollState = rememberScrollState()
+                    Column(
+                        Modifier.drawVerticalScrollbar(
+                                scrollState,
+                                MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaScrollbar),
+                            )
+                            .verticalScroll(scrollState),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        content()
+                    }
+                }
+            } else {
+                null
+            },
         confirmButton = {
             Column(verticalArrangement = Arrangement.spacedBy(Dimens.buttonSpacing)) {
                 PrimaryButton(
