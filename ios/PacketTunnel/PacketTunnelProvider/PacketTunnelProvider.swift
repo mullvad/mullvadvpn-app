@@ -189,9 +189,10 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
                         .error(
                             "Failed migration from PacketTunnel: \(error), retrying in \(delay.timeInterval) seconds"
                         )
-                    DispatchQueue.main.asyncAfter(deadline: .now() + delay.timeInterval) { [unowned self] in
-                        performSettingsMigration()
-                    }
+                    // Block the launch of the Packet Tunnel for as long as the settings migration fail.
+                    // The process watchdog introduced by iOS 17 will kill this process after 60 seconds.
+                    Thread.sleep(forTimeInterval: delay.timeInterval)
+                    performSettingsMigration()
                 }
             }
         )
