@@ -5,7 +5,7 @@
 # https://github.com/gradle/gradle/issues/19228
 android-gradle-plugin = "8.7.0"
 android-gradle-aapt = "12006047"
-android-billingclient = "7.1.0"
+android-billingclient = "7.1.1"
 android-volley = "1.2.1"
 
 # AndroidX
