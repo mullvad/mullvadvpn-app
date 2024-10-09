@@ -27,11 +27,18 @@ Line wrap the file at 100 chars.                                              Th
 - Add experimental support for Windows ARM64.
 
 ### Changed
-- Move DAITA and multihop to the root settings view along with moving multihop into a dedicated
-  view with more information.
-
 #### Windows
 - Enable quantum-resistant tunnels by default (when set to `auto`).
+
+### Fixed
+#### macOS
+- Fix packets being duplicated on LAN when split tunneling is enabled.
+
+
+## [2024.6-beta2] - 2024-10-09
+### Changed
+- Move DAITA and multihop to the root settings view along with moving multihop into a dedicated
+  view with more information.
 
 #### macOS
 - Enable IPv6 by default. This fixes DNS and routing being broken on some systems.
@@ -41,7 +48,6 @@ Line wrap the file at 100 chars.                                              Th
 #### macOS
 - Fix Apple services not working by forcing stray connections out through the VPN tunnel. This fix
   only applies to Wireguard, OpenVPN is still affected. The "bypass" toggle has been removed.
-- Fix packets being duplicated on LAN when split tunneling is enabled.
 
 
 ## [2024.6-beta1] - 2024-09-26
