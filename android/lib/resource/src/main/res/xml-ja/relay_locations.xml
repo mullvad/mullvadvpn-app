@@ -35,6 +35,7 @@
     <string name="Colombia">コロンビア</string>
     <string name="Copenhagen">コペンハーゲン</string>
     <string name="Croatia">クロアチア</string>
+    <string name="Cyprus">キプロス</string>
     <string name="Czech Republic">チェコ</string>
     <string name="Dallas, TX">ダラス、TX</string>
     <string name="Denmark">デンマーク</string>
@@ -61,6 +62,7 @@
     <string name="Indonesia">インドネシア</string>
     <string name="Ireland">アイルランド</string>
     <string name="Israel">イスラエル</string>
+    <string name="Istanbul">イスタンブール</string>
     <string name="Italy">イタリア</string>
     <string name="Jackson, MS">ジャクソン、MS</string>
     <string name="Jakarta">ジャカルタ</string>
@@ -69,6 +71,7 @@
     <string name="Kiev">キエフ</string>
     <string name="Kyiv">キエフ</string>
     <string name="Latvia">ラトビア</string>
+    <string name="Lima">リマ</string>
     <string name="Lisbon">リスボン</string>
     <string name="Ljubljana">リュブリャナ</string>
     <string name="London">ロンドン</string>
@@ -91,6 +94,7 @@
     <string name="Netherlands">オランダ</string>
     <string name="New York, NY">ニューヨーク、NY</string>
     <string name="New Zealand">ニュージーランド</string>
+    <string name="Nicosia">ニコシア</string>
     <string name="Nis">ニシュ</string>
     <string name="North Macedonia">北マケドニア</string>
     <string name="Norway">ノルウェー</string>
@@ -100,6 +104,7 @@
     <string name="Palermo">パレルモ</string>
     <string name="Paris">パリ</string>
     <string name="Perth">パース</string>
+    <string name="Peru">ペルー</string>
     <string name="Philadelphia, PA">フィラデルフィア、PA</string>
     <string name="Phoenix, AZ">フェニックス、AZ</string>
     <string name="Piscataway, NJ">ピスカタウェイ、NJ</string>
@@ -143,6 +148,7 @@
     <string name="Tirana">ティラナ</string>
     <string name="Tokyo">東京</string>
     <string name="Toronto">トロント</string>
+    <string name="Turkey">トルコ</string>
     <string name="UK">イギリス</string>
     <string name="USA">アメリカ合衆国</string>
     <string name="Ukraine">ウクライナ</string>
