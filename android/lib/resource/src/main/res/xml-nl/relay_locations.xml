@@ -35,6 +35,7 @@
     <string name="Colombia">Colombia</string>
     <string name="Copenhagen">Kopenhagen</string>
     <string name="Croatia">Kroatië</string>
+    <string name="Cyprus">Cyprus</string>
     <string name="Czech Republic">Tsjechië</string>
     <string name="Dallas, TX">Dallas, TX</string>
     <string name="Denmark">Denemarken</string>
@@ -61,6 +62,7 @@
     <string name="Indonesia">Indonesië</string>
     <string name="Ireland">Ierland</string>
     <string name="Israel">Israël</string>
+    <string name="Istanbul">Istanbul</string>
     <string name="Italy">Italië</string>
     <string name="Jackson, MS">Jackson, MS</string>
     <string name="Jakarta">Jakarta</string>
@@ -69,6 +71,7 @@
     <string name="Kiev">Kiev</string>
     <string name="Kyiv">Kiev</string>
     <string name="Latvia">Letland</string>
+    <string name="Lima">Lima</string>
     <string name="Lisbon">Lissabon</string>
     <string name="Ljubljana">Ljubljana</string>
     <string name="London">Londen</string>
@@ -91,6 +94,7 @@
     <string name="Netherlands">Nederland</string>
     <string name="New York, NY">New York, NY</string>
     <string name="New Zealand">Nieuw-Zeeland</string>
+    <string name="Nicosia">Nicosia</string>
     <string name="Nis">Niš</string>
     <string name="North Macedonia">Noord-Macedonië</string>
     <string name="Norway">Noorwegen</string>
@@ -100,6 +104,7 @@
     <string name="Palermo">Palermo</string>
     <string name="Paris">Parijs</string>
     <string name="Perth">Perth</string>
+    <string name="Peru">Peru</string>
     <string name="Philadelphia, PA">Philadelphia, PA</string>
     <string name="Phoenix, AZ">Phoenix, AZ</string>
     <string name="Piscataway, NJ">Piscataway, NJ</string>
@@ -143,6 +148,7 @@
     <string name="Tirana">Tirana</string>
     <string name="Tokyo">Tokio</string>
     <string name="Toronto">Toronto</string>
+    <string name="Turkey">Turkije</string>
     <string name="UK">Verenigd Koninkrijk</string>
     <string name="USA">Verenigde Staten van Amerika</string>
     <string name="Ukraine">Oekraïne</string>
