@@ -129,6 +129,22 @@ impl WgGoTunnel {
                 logging_context.0,
             )
             .map_err(|e| TunnelError::FatalStartWireguardError(Box::new(e)))?;
+
+
+            Self::bypass_tunnel_sockets(&handle, &mut tunnel_device)
+                .map_err(TunnelError::BypassError)?;
+
+            return Ok(WgGoTunnel {
+                interface_name,
+                tunnel_handle: handle,
+                _tunnel_device: tunnel_device,
+                _logging_context: logging_context,
+                tun_provider: tun_provider_clone,
+                #[cfg(daita)]
+                resource_dir: resource_dir.to_owned(),
+                #[cfg(daita)]
+                config: config.clone(),
+            });
         }
 
         let handle = wireguard_go_rs::Tunnel::turn_on(
