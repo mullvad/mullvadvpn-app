@@ -13,6 +13,7 @@ import UIKit
 
 protocol LocationViewControllerDelegate: AnyObject {
     func navigateToCustomLists(nodes: [LocationNode])
+    func navigateToDaitaSettings()
     func didSelectRelays(relays: UserSelectedRelays)
     func didUpdateFilter(filter: RelayFilter)
 }
@@ -22,6 +23,7 @@ final class LocationViewController: UIViewController {
     private let tableView = UITableView(frame: .zero, style: .grouped)
     private let topContentView = UIStackView()
     private let filterView = RelayFilterView()
+    private var daitaInfoView: UIView?
     private var dataSource: LocationDataSource?
     private var relaysWithLocation: LocationRelays?
     private var filter = RelayFilter()
@@ -100,6 +102,13 @@ final class LocationViewController: UIViewController {
         dataSource?.setRelays(relaysWithLocation, selectedRelays: selectedRelays)
     }
 
+    func setShouldFilterDaita(_ shouldFilterDaita: Bool) {
+        self.shouldFilterDaita = shouldFilterDaita
+
+        filterView.isHidden = filterViewShouldBeHidden
+        filterView.setDaita(shouldFilterDaita)
+    }
+
     func refreshCustomLists() {
         dataSource?.refreshCustomLists(selectedRelays: selectedRelays)
     }
@@ -107,6 +116,70 @@ final class LocationViewController: UIViewController {
     func setSelectedRelays(_ selectedRelays: RelaySelection) {
         self.selectedRelays = selectedRelays
         dataSource?.setSelectedRelays(selectedRelays)
+    }
+
+    func addDaitaInfoView() {
+        guard daitaInfoView == nil else { return }
+
+        let infoLabel = UILabel()
+        infoLabel.numberOfLines = 0
+
+        let infoTextParagraphStyle = NSMutableParagraphStyle()
+        infoTextParagraphStyle.lineSpacing = 1.3
+        infoTextParagraphStyle.alignment = .center
+
+        infoLabel.attributedText = NSAttributedString(
+            string: NSLocalizedString(
+                "SELECT_LOCATION_DAITA_INFO",
+                tableName: "SelectLocation",
+                value: "DAITA overrides Multihop. To use Multihop, please turn on Direct only in the DAITA settings.",
+                comment: ""
+            ),
+            attributes: [
+                .font: UIFont.systemFont(ofSize: 15),
+                .foregroundColor: UIColor.white,
+                .paragraphStyle: infoTextParagraphStyle,
+            ]
+        )
+
+        let settingsButton = AppButton(style: .default)
+        settingsButton.setTitle(NSLocalizedString(
+            "SELECT_LOCATION_DAITA_BUTTON",
+            tableName: "SelectLocation",
+            value: "Go to DAITA settings",
+            comment: ""
+        ), for: .normal)
+
+        settingsButton.addTarget(self, action: #selector(didPressDaitaSettingsButton), for: .touchUpInside)
+
+        let contentView = UIStackView(arrangedSubviews: [infoLabel, settingsButton])
+        contentView.axis = .vertical
+        contentView.spacing = 32
+        contentView.isLayoutMarginsRelativeArrangement = true
+        contentView.layoutMargins = UIMetrics.contentInsets
+
+        let daitaInfoView = UIView()
+        self.daitaInfoView = daitaInfoView
+        daitaInfoView.backgroundColor = .secondaryColor
+
+        daitaInfoView.addConstrainedSubviews([contentView]) {
+            contentView.pinEdgesToSuperview(.init([.leading(0), .trailing(0)]))
+            contentView.bottomAnchor.constraint(equalTo: daitaInfoView.centerYAnchor)
+        }
+
+        view.addConstrainedSubviews([daitaInfoView]) {
+            daitaInfoView.pinEdgesToSuperview(.all().excluding(.top))
+            daitaInfoView.topAnchor.constraint(equalTo: tableView.topAnchor)
+        }
+    }
+
+    func removeDaitaInfoView() {
+        daitaInfoView?.removeFromSuperview()
+        daitaInfoView = nil
+    }
+
+    @objc private func didPressDaitaSettingsButton() {
+        delegate?.navigateToDaitaSettings()
     }
 
     // MARK: - Private
