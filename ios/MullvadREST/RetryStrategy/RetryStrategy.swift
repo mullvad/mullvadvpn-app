@@ -78,6 +78,16 @@ extension REST {
             ),
             applyJitter: true
         )
+
+        public static var failedMigrationRecovery = RetryStrategy(
+            maxRetryCount: .max,
+            delay: .exponentialBackoff(
+                initial: .seconds(5),
+                multiplier: UInt64(1),
+                maxDelay: .minutes(1)
+            ),
+            applyJitter: true
+        )
     }
 
     public enum RetryDelay: Equatable {
