@@ -137,6 +137,7 @@ internal fun ManagementInterface.GeoIpLocation.toDomain(): GeoIpLocation =
         latitude = latitude,
         longitude = longitude,
         hostname = if (hasHostname()) hostname else null,
+        entryHostname = if (hasEntryHostname()) entryHostname else null,
     )
 
 internal fun ManagementInterface.TunnelEndpoint.toDomain(): TunnelEndpoint =
@@ -320,7 +321,9 @@ internal fun ManagementInterface.WireguardConstraints.toDomain(): WireguardConst
                 Constraint.Only(Port(port))
             } else {
                 Constraint.Any
-            }
+            },
+        useMultihop = useMultihop,
+        entryLocation = entryLocation.toDomain(),
     )
 
 internal fun ManagementInterface.Ownership.toDomain(): Constraint<Ownership> =

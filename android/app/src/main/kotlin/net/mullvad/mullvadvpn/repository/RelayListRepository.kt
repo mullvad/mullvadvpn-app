@@ -19,7 +19,6 @@ import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.PortRange
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
-import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 import net.mullvad.mullvadvpn.lib.model.WireguardEndpointData
 import net.mullvad.mullvadvpn.lib.model.cities
 import net.mullvad.mullvadvpn.lib.model.name
@@ -81,9 +80,6 @@ class RelayListRepository(
 
     suspend fun updateSelectedRelayLocation(value: RelayItemId) =
         managementService.setRelayLocation(value)
-
-    suspend fun updateSelectedWireguardConstraints(value: WireguardConstraints) =
-        managementService.setWireguardConstraints(value)
 
     fun find(geoLocationId: GeoLocationId) = relayList.value.findByGeoLocationId(geoLocationId)
 
