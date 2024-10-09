@@ -81,6 +81,20 @@ impl WgGoTunnel {
 
         #[cfg(not(target_os = "android"))]
         let mtu = config.mtu as isize;
+
+        #[cfg(target_os = "android")]
+        if config.exit_peer.is_some() {
+            let handle = wireguard_go_rs::Tunnel::turn_on(
+                &wg_config_str,
+                tunnel_fd,
+                Some(logging::wg_go_logging_callback),
+                logging_context.0,
+            )
+        .map_err(|e| TunnelError::FatalStartWireguardError(Box::new(e)))?;    
+        }
+
+
+
         let handle = wireguard_go_rs::Tunnel::turn_on(
             #[cfg(not(target_os = "android"))]
             mtu,
