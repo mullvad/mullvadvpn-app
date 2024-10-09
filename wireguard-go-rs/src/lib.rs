@@ -6,8 +6,6 @@
 //!
 //! The [`Tunnel`] type provides a safe Rust wrapper around the C FFI.
 
-// TODO: Add a new function wgTurnOnMultihop for android.
-
 #![cfg(unix)]
 
 use core::{
@@ -212,12 +210,14 @@ impl Tunnel {
     /// Get the file descriptor of the tunnel IPv4 socket.
     #[cfg(target_os = "android")]
     pub fn get_socket_v4(&self) -> Fd {
+        // SAFETY: self.handle is a valid pointer to an active wireguard-go tunnel.
         unsafe { ffi::wgGetSocketV4(self.handle) }
     }
 
     /// Get the file descriptor of the tunnel IPv6 socket.
     #[cfg(target_os = "android")]
     pub fn get_socket_v6(&self) -> Fd {
+        // SAFETY: self.handle is a valid pointer to an active wireguard-go tunnel.
         unsafe { ffi::wgGetSocketV6(self.handle) }
     }
 }
@@ -290,11 +290,11 @@ mod ffi {
         ) -> i32;
 
         /// Creates a new wireguard tunnel, uses the specific interface name, and file descriptors
-        /// for the tunnel device and logging. For targets other than android, this also takes an
-        /// MTU value.
+        /// for the tunnel device and logging.
         ///
         /// Positive return values are tunnel handles for this specific wireguard tunnel instance.
         /// Negative return values signify errors.
+        #[cfg(target_os = "android")]
         pub fn wgTurnOnMultihop(
             exit_settings: *const c_char,
             entry_settings: *const c_char,
@@ -303,7 +303,6 @@ mod ffi {
             logging_callback: Option<LoggingCallback>,
             logging_context: LoggingContext,
         ) -> i32;
-
 
         /// Pass a handle that was created by wgTurnOn to stop a wireguard tunnel.
         ///
