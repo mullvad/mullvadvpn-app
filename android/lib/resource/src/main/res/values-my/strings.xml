@@ -74,7 +74,7 @@
     <string name="confirm_removal">စက်မှ ထွက်မည်</string>
     <string name="congrats">ဝမ်းသာပါတယ်။</string>
     <string name="connect">ကျွန်ုပ်၏ ချိတ်ဆက်မှုကို ကာကွယ်ရန်</string>
-    <string name="connected_using_daita">%1$s သည် %2$s ကို သုံးနေပါသည်</string>
+    <string name="connected_using_daita">%1$s က %2$s ကိုသုံးလျက်</string>
     <string name="connecting">ချိတ်ဆက်နေဆဲ</string>
     <string name="connecting_to_daemon">Mullvad စနစ် ဝန်ဆောင်မှုနှင့် ချိတ်ဆက်နေဆဲ...</string>
     <string name="continue_login">ဆက်လက် ဝင်ရောက်ရန်</string>
@@ -84,6 +84,7 @@
     <string name="copy_account_number">အကောင့်နံပါတ်ကို ကူးရန်</string>
     <string name="create">ဖန်တီးမည်</string>
     <string name="create_account">အကောင့် ဖန်တီးရန်</string>
+    <string name="create_custom_list_message">\"%1$s\" ကို ဖန်တီးပြီးပါပြီ</string>
     <string name="create_new_list">စာရင်းသစ် ဖန်တီးမည်</string>
     <string name="created_x">ဖန်တီးသည့် အချိန်- %1$s</string>
     <string name="creating_new_account">အကောင့် ဖန်တီးနေဆဲ...</string>
@@ -98,9 +99,12 @@
     <string name="custom_port_dialog_placeholder">ပေါ့တ် ရိုက်ထည့်ရန်</string>
     <string name="custom_port_dialog_remove">စိတ်ကြိုက် ပေါ့တ်ကို ဖယ်ရှားရန်</string>
     <string name="custom_port_dialog_submit">ပေါ့တ် သတ်မှတ်ရန်</string>
+    <string name="custom_port_dialog_title">%1$s စိတ်ကြိုက်ပေါ့တ်</string>
     <string name="custom_port_dialog_valid_ranges">အကျုံးဝင်သည့် အပိုင်းအခြား- %1$s</string>
     <string name="custom_tunnel_host_resolution_error">စိတ်ကြိုက်ပြုလုပ်ထားသည့် Tunnel ၏ Host ကို ဖြေရှင်း၍ မရနိုင်ပါ။ သင့်ဆက်တင်ကို ပြောင်းကြည့်ပါ။</string>
     <string name="daita_info">%1$s (%2$s) သည် သင်၏ ကုဒ်ပြောင်းဝှက်ထားသော VPN ကူးလူးမှုတွင် ပက်တန်များကို ဝှက်ထားပါသည်။ သင့်ချိတ်ဆက်မှုကို တစ်စုံတစ်ယောက်က စောင့်ကြည့်နေပါက မည်သည့်ဝက်ဘ်ဆိုက်များ သင်ဝင်ရောက်နေသည်ကို ၎င်းတို့က ခွဲခြားဖော်ထုတ်ဖို့ရာ ပို၍ သိသိသာသာ ခက်ခဲသွားအောင် ၎င်းက ပြုလုပ်ပေးပါသည်။ ကွန်ရက် အနှောင့်အယှက်လျှပ်လိုင်းကို ဂရုတစိုက် ထည့်ပြီး ကွန်ရက် ပက်ကက်အားလုံးကို အရွယ်အစားတူညီအောင် ပြုလုပ်ခြင်းဖြင့် ပို၍ခက်ခဲသွားအောင် ဆောင်ရွက်ပါသည်။</string>
+    <string name="daita_relay_subset_warning">ဤလုပ်ဆောင်ချက်ကို ဆာဗာအားလုံးတွင် မရရှိနိုင်ပါ။ ဖွင့်ပြီးနောက် တည်နေရာ ပြောင်းလဲရန် လိုအပ်ပါလိမ့်မည်။</string>
+    <string name="daita_warning">သတိပြုရန်- ၎င်းသည် သင်၏ စုစုပေါင်းကွန်ရက်အသွားအလာကို တိုးစေသောကြောင့် သင့်တွင် အကန့်အသတ်ရှိသော ဒေတာအစီအစဉ်ရှိပါက သတိထားပါ။ ၎င်းသည် သင်၏ကွန်ရက်အမြန်နှုန်းနှင့် ဘက်ထရီအသုံးပြုမှုကိုလည်း ထိခိုက်စေနိုင်သည်။</string>
     <string name="delete">ဖျက်ရန်</string>
     <string name="delete_custom_list_confirmation_description">\"%1$s\" ကို ဖျက်မည်လား။</string>
     <string name="delete_custom_list_message">\"%1$s\" ကို ဖျက်ပြီးပါပြီ</string>
@@ -181,6 +185,7 @@
     <string name="local_network_sharing_info">ဤလုပ်ဆောင်ချက်သည် မျှဝေခြင်း၊ ပရင့်ထုတ်ခြင်း၊ တိုက်ရိုက်ကြည့်ရှုနားဆင်ခြင်းအစရှိသည်တို့အတွက် ဒေသတွင်း ကွန်ရက်ရှိ အခြားစက်များကို ရယူသုံးစွဲခွင့်ပေးပါသည်။</string>
     <string name="location_added">%1$s (ထည့်ပြီး)</string>
     <string name="location_was_added_to_list">%1$s ကို \"%2$s\" တွင် ထည့်လိုက်ပြီ</string>
+    <string name="location_was_removed_from_list">%1$s ကို \"%2$s\" မှ ဖယ်ရှားခဲ့သည်</string>
     <string name="locations">တည်နေရာများ</string>
     <string name="locations_were_changed_for">\"%1$s\" အတွက် တည်နေရာများကို ပြောင်းလိုက်ပါသည်</string>
     <string name="log_out">ထွက်ရန်</string>
@@ -215,7 +220,7 @@
     <string name="not_found">ရှာမတွေ့ပါ</string>
     <string name="number_of_providers">ပံ့ပိုးသူများ- %1$d</string>
     <string name="obfuscation_info">Obfuscation သည် အခြားပရိုတိုကောလ်အတွင်းရှိ WireGuard ကူးလူးမှုကို ဝှက်ထားပေးပါသည်။ သာမန် WireGuard ချိတ်ဆက်မှုကို ပိတ်ဆို့မည့် အခြားသော စစ်ထုတ်မှု အမျိုးအစားများနှင့် ဆင်ဆာဖြတ်တောက်ခြင်းကို ရှောင်လွှဲနိုင်စေရာတွင် ကူညီနိုင်စေရန် ဤသည်ကို သုံးနိုင်ပါသည်။</string>
-    <string name="obfuscation_on_udp_over_tcp">ဖွင့် (UDP-over-TCP)</string>
+    <string name="obfuscation_on_udp_over_tcp">(UDP-over-TCP) ပေါ်တွင်</string>
     <string name="obfuscation_title">WireGuard Obfuscation\\n</string>
     <string name="off">ပိတ်</string>
     <string name="on">ဖွင့်</string>
@@ -241,6 +246,7 @@
     <string name="please_enter_a_valid_ip_address">မှန်ကန်သော IPv4 သို့မဟုတ် IPv6 လိပ်စာကို ရိုက်ထည့်ပေးပါ</string>
     <string name="please_enter_a_valid_remote_server_port">မှန်ကန်သော အဝေးဆာဗာ ပေါ့တ်ကို ရိုက်ထည့်ပေးပါ</string>
     <string name="port">ပေါ့တ်</string>
+    <string name="port_x">ပေါ့တ်- %1$s</string>
     <string name="privacy_disclaimer_body_first_paragraph">အလုံခြုံဆုံး ဗားရှင်းကို ရရှိကြောင်း သေချာစေရန်နှင့် လုပ်ဆောင်နေသည့် လက်ရှိဗားရှင်းနှင့်ပတ်သက်သော ပြဿနာများအကြောင်း သင့်အား အသိပေးရန် အက်ပ်သည် ဗားရှင်း စစ်ဆေးမှုများကို အော်တိုလုပ်ဆောင်ပါသည်။ ၎င်းသည် Mullvad ဆာဗာများသို့ အက်ပ် ဗားရှင်းနှင့် Android စနစ်ဗားရှင်းတို့ကို ပေးပို့ပါသည်။ အသုံးပြုထားသည့် အက်ပ် ဗားရှင်းများနှင့် Android ဗားရှင်းများ၏ အရေအတွက်ကို Mullvad က ရေတွက်ထားပါသည်။ ဒေတာကို မည်သည့်အခါမျှ မသိမ်းဆည်းထားပါ သို့မဟုတ် သင့်အား ခွဲခြားဖော်ထုတ်နိုင်သော မည်သည့်နည်းလမ်းတွင်မျှ အသုံးမပြုထားပါ။</string>
     <string name="privacy_disclaimer_body_second_paragraph">Split Tunneling လုပ်ဆောင်ချက်ကို အသုံးပြုထားပါက အက်ပ်သည် ထည့်သွင်းထားသော အက်ပလီကေးရှင်းများအားလုံး၏ စာရင်းကို မေးမြန်းပါသည်။ ဤစာရင်းကို Split Tunneling ပြသမှုတွင်သာ ပြန်ရယူပါသည်။ ထည့်သွင်းထားသော အက်ပလီကေးရှင်းများ၏ စာရင်းကို စက်မှ မည်သည့်အခါမျှ မပေးပို့ပါ။</string>
     <string name="privacy_disclaimer_title">ကိုယ်ရေးအချက်အလက် လုံခြုံရေး</string>
@@ -256,6 +262,7 @@
     <string name="redeem">လဲယူရန်</string>
     <string name="redeem_voucher">ဘောက်ချာဖြင့် လဲယူရန်</string>
     <string name="remove_button">ဖယ်ရှားရန်</string>
+    <string name="remove_location_from_list">%1$s ကို %2$s မှ ဖယ်ရှားရန်</string>
     <string name="rented">အငှား</string>
     <string name="rented_only">အငှားသီးသန့်</string>
     <string name="report_a_problem">ပြဿနာ ရီပို့တ်လုပ်ရန်</string>
@@ -307,6 +314,7 @@
     <string name="show_account_number">အကောင့်နံပါတ်ကို ပြရန်</string>
     <string name="show_system_apps">စနစ်အက်ပ်များ ပြရန်</string>
     <string name="split_tunneling_description">VPN Tunnel ကို မဝင်ရောက်ဘဲ အင်တာနက်ကို တိုက်ရိုက် ဝင်ရောက်သုံးစွဲသင့်သည့် အက်ပ်များကို ရွေးချယ်ပေးပါ။</string>
+    <string name="split_tunneling_description_warning">သတိပြုရန်- \"VPN မပါဘဲ ချိတ်ဆက်မှုများကို ပိတ်ဆို့ခြင်း\" ကို ဖွင့်ထားပါက၊ ခွဲထားသောအက်ပ်များတွင် အင်တာနက်ရှိမည်မဟုတ်ပါ။ ခွဲခြမ်းဥမင်လိုဏ်ခေါင်းတူးခြင်းသည် ကိုယ်ရေးကိုယ်တာအန္တရာယ်ဖြစ်ကြောင်း အမြဲသတိရပါ။</string>
     <string name="start_tunnel_error">Tunnel ချိတ်ဆက်မှုကို စတင်၍ မရနိုင်ပါ။ ပြဿနာ ရီပို့တ်တစ်ခု ပေးပို့ပေးပါ။</string>
     <string name="submit_button">ပေးပို့ရန်</string>
     <string name="switch_location">တည်နေရာ ပြောင်းရန်</string>
@@ -334,6 +342,7 @@
     <string name="unsupported_version">တွဲဖက်မလုပ်ဆောင်နိုင်သည့် ဗားရှင်း</string>
     <string name="unsupported_version_description">တွဲဖက်မလုပ်ဆောင်နိုင်သည့် ဤအက်ပ်ဗားရှင်းကြောင့် သင့်ကိုယ်ရေးအချက်အလက်များ အန္တရာယ် ရှိနိုင်ပါသည်။ ယခုပင် အပ်ဒိတ်လုပ်ပေးပါ။</string>
     <string name="unsupported_version_without_upgrade">တွဲဖက်မလုပ်ဆောင်နိုင်သည့် အက်ပ်ဗားရှင်းဖြင့် လုပ်ဆောင်နေပါသည်။</string>
+    <string name="upd_over_tcp">UDP-over-TCP</string>
     <string name="update_available_footer">အပ်ဒိတ် ရရှိနိုင်ပါပြီ၊ ဆက်လက် လုံခြုံစေရန် ဒေါင်းလုဒ်လုပ်ပါ။</string>
     <string name="update_dns_server_dialog_title">DNS ဆာဗာကို အပ်ဒိတ်လုပ်ရန်</string>
     <string name="update_list_name">စာရင်း အမည်ကို အပ်ဒိတ်လုပ်ရန်</string>
@@ -346,6 +355,7 @@
     <string name="view_logs">အက်ပ်မှတ်တမ်းများ ကြည့်ရန်</string>
     <string name="virtual_adapter_problem">စက်တွင်း အဒက်တာ ချို့ယွင်းချက်</string>
     <string name="voucher_already_used">ဘောက်ချာကုဒ် သုံးထားပြီးသား ဖြစ်ပါသည်။</string>
+    <string name="voucher_is_account_number">ဘောက်ချာကုဒ်အစား အကောင့်နံပါတ်တစ်ခုကို သင်ထည့်သွင်းထားပုံရသည်။ အသုံးပြုနေသောအကောင့်ကို ပြောင်းလဲလိုပါက ဦးစွာ အကောင့်ထွက်ပါ။</string>
     <string name="voucher_success_title">ဘောက်ချာကို အောင်မြင်စွာ လဲယူခဲ့ပါသည်။</string>
     <string name="vpn_permission_denied_error">Tunnel ဖန်တီးနေစဉ် VPN ခွင့်ပြုချက်ကို ပယ်ချခဲ့ပါသည်။ ထပ်မံချိတ်ဆက်ပေးပါ။</string>
     <string name="vpn_permission_error_notification_message">အမြဲဖွင့် VPN ကို နောက်ထပ်အက်ပ်အတွက် ဖွင့်ထားနိုင်ပါသည်</string>

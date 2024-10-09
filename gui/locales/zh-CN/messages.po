@@ -10,7 +10,10 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2024-06-27 08:16\n"
+"PO-Revision-Date: 2024-10-09 14:55\n"
+
+msgid "%(amount)d more..."
+msgstr "其他 %(amount)d 个…"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "已添加 %(duration)s，帐户到期时间为 %(expiry)s。"
@@ -90,8 +93,14 @@ msgstr "连接"
 msgid "Connected"
 msgstr "已连接"
 
+msgid "CONNECTED"
+msgstr "已连接"
+
 msgid "Connecting"
 msgstr "正在连接"
+
+msgid "CONNECTING..."
+msgstr "正在连接…"
 
 #. Creating a secure connection that isn't breakable by quantum computers.
 msgid "CREATING QUANTUM SECURE CONNECTION"
@@ -102,6 +111,11 @@ msgstr "正在创建安全连接"
 
 msgid "Custom"
 msgstr "自定义"
+
+#. This refers to the Custom DNS setting in the VPN settings view. This is
+#. displayed when the feature is on.
+msgid "Custom DNS"
+msgstr "自定义 DNS"
 
 msgid "Default"
 msgstr "默认"
@@ -115,6 +129,9 @@ msgstr "删除列表"
 msgid "Disable"
 msgstr "禁用"
 
+msgid "Disable anyway"
+msgstr "仍要禁用"
+
 msgid "Disconnect"
 msgstr "断开连接"
 
@@ -124,11 +141,14 @@ msgstr "断开连接并退出"
 msgid "Disconnected"
 msgstr "已断开连接"
 
+msgid "DISCONNECTED"
+msgstr "已断开连接"
+
 msgid "Disconnecting"
 msgstr "正在断开连接"
 
-msgid "Dismiss"
-msgstr "关闭"
+msgid "DISCONNECTING..."
+msgstr "正在断开连接…"
 
 msgid "Edit"
 msgstr "编辑"
@@ -170,6 +190,11 @@ msgstr "不足 1 天"
 msgid "less than a day left"
 msgstr "剩余时间不足 1 天"
 
+#. This refers to the multihop setting in the VPN settings view. This is
+#. displayed when the feature is on.
+msgid "Multihop"
+msgstr "多跳"
+
 msgid "Name"
 msgstr "名称"
 
@@ -196,6 +221,11 @@ msgstr "密码"
 
 msgid "Port"
 msgstr "端口"
+
+#. This refers to the quantum resistance setting in the WireGuard settings view.
+#. This is displayed when the feature is on.
+msgid "Quantum resistance"
+msgstr "量子阻力"
 
 #. The connection is secure and isn't breakable by quantum computers.
 msgid "QUANTUM SECURE CONNECTION"
@@ -334,11 +364,19 @@ msgctxt "accessibility"
 msgid "Select location. Current location is %(location)s"
 msgstr "选择位置。当前位置为 %(location)s"
 
+msgctxt "accessibility"
+msgid "Shadowsocks settings"
+msgstr "Shadowsocks 设置"
+
 #. Provided to accessibility tools such as screenreaders to describe
 #. the button which unobscures the account number.
 msgctxt "accessibility"
 msgid "Show account number"
 msgstr "显示帐号"
+
+msgctxt "accessibility"
+msgid "UDP-over-TCP settings"
+msgstr "UDP-over-TCP 设置"
 
 #. Title label in navigation bar
 msgctxt "account-view"
@@ -564,8 +602,16 @@ msgid "%(city)s (%(hostname)s)"
 msgstr "%(city)s (%(hostname)s)"
 
 msgctxt "connect-view"
+msgid "Active features"
+msgstr "有效功能"
+
+msgctxt "connect-view"
 msgid "Congrats!"
 msgstr "恭喜！"
+
+msgctxt "connect-view"
+msgid "Connection details"
+msgstr "连接详细信息"
 
 msgctxt "connect-view"
 msgid "Disconnect"
@@ -639,12 +685,6 @@ msgctxt "connect-view"
 msgid "You’re all set!"
 msgstr "您已设置完毕！"
 
-#. %(hostname)s - The current server the app is connected to, e.g. "se-got-wg-001 using DAITA"
-#. %(daita)s - Will be replaced with "DAITA"
-msgctxt "connection-info"
-msgid "%(hostname)s using %(daita)s"
-msgstr "%(hostname)s，使用 %(daita)s"
-
 #. The hostname line displayed below the country on the main screen
 #. Available placeholders:
 #. %(relay)s - the relay hostname
@@ -656,14 +696,6 @@ msgstr "%(relay)s，经由 %(entry)s"
 msgctxt "connection-info"
 msgid "%(relay)s via Custom bridge"
 msgstr "%(relay)s，经由自定义网桥"
-
-#. The tunnel type line displayed below the hostname line on the main screen
-#. Available placeholders:
-#. %(tunnelType)s - the tunnel type, i.e OpenVPN
-#. %(bridgeType)s - the bridge type, i.e Shadowsocks
-msgctxt "connection-info"
-msgid "%(tunnelType)s via %(bridgeType)s"
-msgstr "%(tunnelType)s，经由 %(bridgeType)s"
 
 msgctxt "connection-info"
 msgid "In"
@@ -1092,11 +1124,11 @@ msgstr "已断开连接且未受保护"
 
 msgctxt "notifications"
 msgid "Failed to enable split tunneling."
-msgstr "无法启用拆分隧道。"
+msgstr "无法启用分割隧道。"
 
 msgctxt "notifications"
 msgid "Failed to enable split tunneling. Please try reconnecting or disable split tunneling."
-msgstr "无法启用拆分隧道。请尝试重新连接或禁用拆分隧道。"
+msgstr "无法启用分割隧道。请尝试重新连接或禁用分割隧道。"
 
 msgctxt "notifications"
 msgid "Lockdown mode active, connection blocked"
@@ -1495,6 +1527,9 @@ msgctxt "settings-view"
 msgid "Support"
 msgstr "支持"
 
+msgid "%s custom port"
+msgstr "%s 自定义端口"
+
 msgctxt "settings-view"
 msgid "Update available. Install the latest app version to stay up to date."
 msgstr "有可用更新。请安装最新的应用版本以保持最新状态。"
@@ -1696,7 +1731,7 @@ msgstr "在 macOS 系统设置中，为“Mullvad VPN”启用“完全磁盘访
 
 msgctxt "troubleshoot"
 msgid "Failed to enable split tunneling. This is because the app is missing system permissions. What you can do:"
-msgstr "无法启用拆分隧道。这是因为应用缺少系统权限。您可以执行以下操作："
+msgstr "无法启用分割隧道。这是因为应用缺少系统权限。您可以执行以下操作："
 
 msgctxt "troubleshoot"
 msgid "If these steps do not work please send a problem report."
@@ -1755,8 +1790,8 @@ msgid "Update your kernel."
 msgstr "更新内核。"
 
 msgctxt "tunnel-control"
-msgid "Secure my connection"
-msgstr "保护我的连接"
+msgid "Connect"
+msgstr "连接"
 
 msgctxt "tunnel-control"
 msgid "Switch location"
@@ -1903,7 +1938,7 @@ msgstr "博彩"
 #. %(wireguard)s - Will be replaced with the string "WireGuard"
 msgctxt "vpn-settings-view"
 msgid "Increases anonymity by routing your traffic into one %(wireguard)s server and out another, making it harder to trace."
-msgstr "通过将您的流量路由到一个 %(wireguard)s 服务器中并从另一个服务器传出的方式增加匿名性，提高追踪难度。"
+msgstr "将流量路由到一个 %(wireguard)s 服务器并从另一个服务器传出，以提高匿名性，从而提高追踪的难度。"
 
 msgctxt "vpn-settings-view"
 msgid "IPv4 is always enabled and the majority of websites and applications use this protocol. We do not recommend enabling IPv6 unless you know you need it."
@@ -2019,9 +2054,19 @@ msgctxt "wireguard-settings-nav"
 msgid "%(wireguard)s settings"
 msgstr "%(wireguard)s 设置"
 
+#. Title label in navigation bar
+msgctxt "wireguard-settings-nav"
+msgid "Shadowsocks"
+msgstr "Shadowsocks"
+
+#. Title label in navigation bar
+msgctxt "wireguard-settings-nav"
+msgid "UDP-over-TCP"
+msgstr "UDP-over-TCP"
+
 msgctxt "wireguard-settings-view"
 msgid "%(daita)s (%(daitaFull)s) hides patterns in your encrypted VPN traffic. If anyone is monitoring your connection, this makes it significantly harder for them to identify what websites you are visiting. It does this by carefully adding network noise and making all network packets the same size."
-msgstr "%(daita)s（%(daitaFull)s）会在您的加密 VPN 流量中隐藏模式。如果有人在监视您的连接，这可以让他们很难识别您正在访问的网站。它的实现方法是小心地添加网络噪声并使所有网络数据包的大小都相同。"
+msgstr "%(daita)s (%(daitaFull)s) 会隐藏加密 VPN 流量中的模式。如果有人在监视您的连接，这将大大提高他们识别您正在访问的网站的难度。这是通过精心添加网络噪音并使所有网络数据包大小相同来实现的。"
 
 #. Available placeholders:
 #. %(wireguard)s - Will be replaced with the string "WireGuard"
@@ -2030,8 +2075,8 @@ msgid "%(wireguard)s settings"
 msgstr "%(wireguard)s 设置"
 
 msgctxt "wireguard-settings-view"
-msgid "Attention: Since this increases your total network traffic, be cautious if you have a limited data plan. It can also negatively impact your network speed. Please consider this if you want to enable %(daita)s."
-msgstr "注意：这会增加您的总网络流量，因此如果您的流量套餐有限，请谨慎使用。它还会对您的网速产生负面影响。如果要启用 %(daita)s，请考虑到这一点。"
+msgid "Hides patterns in your encrypted VPN traffic. Since this increases your total network traffic, be cautious if you have a limited data plan. It can also negatively impact your network speed and battery usage."
+msgstr "隐藏您的加密 VPN 流量中的模式。这样会增加您的网络总流量，因此，如果您的数据套餐流量有限，请多加留意。这种方式还会对网速和电池用量产生负面影响。"
 
 msgctxt "wireguard-settings-view"
 msgid "IP version"
@@ -2054,12 +2099,15 @@ msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can b
 msgstr "混淆将 WireGuard 流量隐藏在另一个协议中。它可用于帮助规避审查和其他类型的过滤，在这些过滤中，普通的 WireGuard 连接将被阻止。"
 
 msgctxt "wireguard-settings-view"
-msgid "On (UDP-over-TCP)"
-msgstr "开 (UDP-over-TCP)"
-
-msgctxt "wireguard-settings-view"
 msgid "Port"
 msgstr "端口"
+
+#. Text showing currently selected port.
+#. Available placeholders:
+#. %(port)s - Can be either a number between 1 and 65000 or the text "Automatic".
+msgctxt "wireguard-settings-view"
+msgid "Port: %(port)s"
+msgstr "端口：%(port)s"
 
 #. The title for the WireGuard quantum resistance selector. This setting
 #. makes the cryptography resistant to the future abilities of quantum
@@ -2078,6 +2126,10 @@ msgid "Set %(wireguard)s MTU value. Valid range: %(min)d - %(max)d."
 msgstr "设置 %(wireguard)s MTU 值。值范围：%(min)d - %(max)d。"
 
 msgctxt "wireguard-settings-view"
+msgid "Shadowsocks"
+msgstr "Shadowsocks"
+
+msgctxt "wireguard-settings-view"
 msgid "The automatic setting will randomly choose from the valid port ranges shown below."
 msgstr "自动设置将从下方显示的有效端口范围中随机选择。"
 
@@ -2092,18 +2144,22 @@ msgctxt "wireguard-settings-view"
 msgid "This allows access to %(wireguard)s for devices that only support IPv6."
 msgstr "这可以让仅支持 IPv6 的设备访问 %(wireguard)s。"
 
-#. Warning text in a dialog that is displayed after a setting is toggled.
-msgctxt "wireguard-settings-view"
-msgid "This feature isn't available on all servers. You might need to change location after enabling."
-msgstr "此功能并非在所有服务器上都可用。启用后，您可能需要更改位置。"
-
 msgctxt "wireguard-settings-view"
 msgid "This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers."
 msgstr "借助此功能，WireGuard 隧道能够抵抗可能通过量子计算机发起的攻击。"
 
 msgctxt "wireguard-settings-view"
+msgid "UDP-over-TCP"
+msgstr "UDP-over-TCP"
+
+msgctxt "wireguard-settings-view"
 msgid "UDP-over-TCP port"
 msgstr "UDP-over-TCP 端口"
+
+#. Text describing the valid port range for a port selector.
+msgctxt "wireguard-settings-view"
+msgid "Valid range: %(min)s - %(max)s"
+msgstr "有效范围：%(min)s - %(max)s"
 
 msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
@@ -2112,20 +2168,27 @@ msgstr "UDP-over-TCP 混淆协议应连接到 VPN 服务器上的哪个 TCP 端�
 msgid "%s (added)"
 msgstr "%s（已添加）"
 
+msgctxt "String explaining where the user is connected and whether the connection is \"using\" a specific feature. So the first placeholder is a location and the second is a named feature. Example: \"gb-lon-wg-304 using DAITA\" (where \"gb-lon-wg-304\" is the location and \"DAITA\" is the named feature)"
+msgid "%s using %s"
+msgstr "%s，使用 %s"
+
 msgid "%s was added to \"%s\""
 msgstr "%s已添加到“%s”中"
 
 msgid "%s was added to your account."
 msgstr "%s已添加到您的帐户中。"
 
+msgid "%s was removed from \"%s\""
+msgstr "“%s”已从“%s”中移除"
+
 msgid "1. After clicking on the <b>Go to VPN settings</b> button below, click on the cogwheel next to the <b>Mullvad VPN</b> name."
 msgstr "1. 点击下方的<b>前往 VPN 设置</b>按钮后，点击 <b>Mullvad VPN</b> 名称旁边的齿轮。"
 
 msgid "2. To enable Auto-connect, click on the toggle next to <b>Always-on VPN</b>."
-msgstr "2. 要启用自动连接，请点击<b>始终开启的 VPN</b> 旁边的开关。"
+msgstr "2. 要启用自动连接，请点击<b>始终开启 VPN</b> 旁的开关。"
 
 msgid "3. To enable Lockdown mode, click on the toggle next to <b>Block connections without VPN</b>.<br /><br /><b>Warning: This setting blocks split apps and the Local Network Sharing feature.</b>"
-msgstr "3. 要启用锁定模式，请点击<b>屏蔽未使用 VPN 的所有连接</b>旁边的开关。<br /><br /><b>警告：此设置会阻止拆分应用和“本地网络共享”功能</b>。"
+msgstr "3. 要启用锁定模式，请点击<b>屏蔽未使用 VPN 的所有连接</b>旁的开关。<br /><br /><b>警告：此设置会屏蔽分割应用和“本地网络共享”功能。</b>"
 
 msgid "30 days was added to your account."
 msgstr "已向您的帐户增加 30 天。"
@@ -2176,16 +2239,19 @@ msgid "Allows access to other devices on the same network for sharing, printing 
 msgstr "允许访问同一网络上的其他设备，以进行共享、打印等"
 
 msgid "Always-on VPN assigned to other app"
-msgstr "“始终开启的 VPN”已分配给其他应用"
+msgstr "“始终开启 VPN”已分配给其他应用"
 
 msgid "Always-on VPN might be enabled for another app"
-msgstr "可能为另一个应用启用了“始终开启的 VPN”"
+msgstr "可能为另一个应用启用了“始终开启 VPN”"
 
 msgid "At least one method needs to be enabled"
 msgstr "至少需要启用一个方法"
 
-msgid "Attention: Split tunneling is a privacy risk."
-msgstr "注意：拆分隧道存在隐私风险。"
+msgid "Attention: If \"Block connections without VPN\" is enabled, split apps will not have Internet. Always keep in mind that split tunneling is a privacy risk."
+msgstr "注意：如果启用了“屏蔽未使用 VPN 的所有连接”，分割应用将无法连接互联网。请牢记，分割隧道存在隐私风险。"
+
+msgid "Attention: Since this increases your total network traffic, be cautious if you have a limited data plan. It can also negatively impact your network speed and battery usage."
+msgstr "注意：这样会增加您的网络总流量，因此，如果您的数据套餐流量有限，请谨慎使用。这种方式还会对网速和电池用量产生负面影响。"
 
 msgid "Attention: this setting cannot be used in combination with <b>Use custom DNS server</b>."
 msgstr "注意：此设置不能与<b>使用自定义 DNS 服务器</b>结合使用。"
@@ -2193,18 +2259,14 @@ msgstr "注意：此设置不能与<b>使用自定义 DNS 服务器</b>结合使
 msgid "Auto-connect & Lockdown mode"
 msgstr "自动连接和锁定模式"
 
-msgid "Auto-connect & \\nLockdown mode"
-msgstr "自动连接和\\n锁定模式"
-
 msgid "Auto-connect (legacy)"
 msgstr "自动连接（旧）"
 
 msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
-msgstr "自动连接在 Android 系统设置中称为“始终开启的 VPN”，此功能可确保您始终连接到 VPN 隧道并在重新启动后自动连接。"
+msgstr "自动连接在 Android 系统设置中称为“始终开启 VPN”，此功能可确保您始终连接到 VPN 隧道并在重新启动后自动连接。"
 
-msgctxt "Description of the existing \"auto-connect\" functionality as well as a notification about it being removed/replaced in a future update."
 msgid "Automatically connect when the app launches. This setting will be replaced with a new connect on device start-up feature in a future update."
-msgstr "在应用启动时自动连接。在以后的更新中，此设置将被替换为新的“设备启动时连接”功能。"
+msgstr "当应用启动时自动连接。在今后的更新中，此设置将被替换为新的“设备启动时连接”功能。"
 
 msgid "Blocking internet (device offline)"
 msgstr "正在阻止网络（设备离线）"
@@ -2233,7 +2295,6 @@ msgstr "创建新列表"
 msgid "Critical error (your attention is required)"
 msgstr "严重错误（需要注意）"
 
-msgctxt "Status information about which method/configuration is actively being used. The placeholder is replaced by a built-in or custom method. For example \"Current: Direct\" or \"Current: MyCustomMethod\". Note that it's not \"current\" as in \"present time\"."
 msgid "Current: %s"
 msgstr "当前：%s"
 
@@ -2253,13 +2314,16 @@ msgid "Delete method?"
 msgstr "是否删除方法？"
 
 msgid "Disable all <b>%s</b> above to activate this setting."
-msgstr "禁用上方的所有 <b>%s</b>以激活此设置。"
+msgstr "禁用以上所有 <b>%s</b>，以激活此设置。"
 
 msgid "Discard"
 msgstr "舍弃"
 
 msgid "Discard changes?"
 msgstr "舍弃更改？"
+
+msgid "Dismiss"
+msgstr "关闭"
 
 msgid "Edit custom lists"
 msgstr "编辑自定义列表"
@@ -2310,7 +2374,7 @@ msgid "Google Play unavailable"
 msgstr "Google Play 不可用"
 
 msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
-msgstr "如果使用拆分隧道功能，应用会向您的系统查询所有已安装应用程序的列表。此列表仅在拆分隧道视图中检索。有关已安装应用程序的信息永远不会离开设备。"
+msgstr "如果使用分割隧道功能，应用会向您的系统查询所有已安装应用程序的列表。此列表仅在分割隧道视图中检索。有关已安装应用程序的信息永远不会离开设备。"
 
 msgid "Import new overrides by"
 msgstr "导入新覆盖设置的方式"
@@ -2321,11 +2385,11 @@ msgstr "导入成功，覆盖设置已激活"
 msgid "Importing new overrides might replace some previously imported overrides."
 msgstr "导入新覆盖设置可能会替换一些先前导入的覆盖设置。"
 
-msgid "Install Mullvad VPN (%s) to stay up to date"
-msgstr "安装 Mullvad VPN (%s) 以保持最新状态"
-
 msgid "Invalid or missing value \"%s\""
 msgstr "值“%s”无效或者缺失"
+
+msgid "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
+msgstr "您输入的似乎是帐号，而不是代金券码。如果您想更改有效帐户，请先退出登录。"
 
 msgid "Lets you select apps that should access the Internet directly without going through the VPN tunnel."
 msgstr "允许您选择不经过 VPN 隧道而直接访问互联网的应用。"
@@ -2369,6 +2433,9 @@ msgstr "找不到位置"
 msgid "Not found"
 msgstr "找不到"
 
+msgid "On (UDP-over-TCP)"
+msgstr "开 (UDP-over-TCP)"
+
 msgid "Overrides active"
 msgstr "覆盖设置已激活"
 
@@ -2411,8 +2478,8 @@ msgstr "递归限制"
 msgid "Remove"
 msgstr "移除"
 
-msgid "Remove %s from list"
-msgstr "从列表中移除%s"
+msgid "Remove %s from %s"
+msgstr "将 %s 从 %s 中移除"
 
 msgid "Remove custom port"
 msgstr "移除自定义端口"
@@ -2428,6 +2495,9 @@ msgstr "重置覆盖设置"
 
 msgid "Reset to default"
 msgstr "重置为默认值"
+
+msgid "Secure my connection"
+msgstr "保护我的连接"
 
 msgid "Secured"
 msgstr "已受保护"
@@ -2463,7 +2533,7 @@ msgid "The Auto-connect and Lockdown mode settings can be found in the Android s
 msgstr "自动连接和锁定模式设置可以在 Android 系统设置中找到，请按照本指南启用其中一项或两项。"
 
 msgid "The Lockdown mode is called <b>Block connections without VPN</b> in the Android system settings. It helps minimize leaks, however it has some known limitations which you can read more about"
-msgstr "在 Android 系统设置中，锁定模式被称为<b>屏蔽未使用 VPN 的所有连接</b>。它有助于尽可能减少泄露，但是也有一些已知的限制，要了解详情，请点击"
+msgstr "在 Android 系统设置中，锁定模式被称为<b>屏蔽未使用 VPN 的所有连接</b>。该模式可以最大限度地减少泄露，但是也有一些已知的限制，您可以详细了解相关信息"
 
 msgid "The \"Current\" method represent which method the app is using to reach the API."
 msgstr "“当前”方法表示应用用来访问 API 的方法。"
@@ -2476,6 +2546,9 @@ msgstr "您的设备上没有 VPN 设置"
 
 msgid "This address has already been entered."
 msgstr "此地址已输入过。"
+
+msgid "This feature isn’t available on all servers. You might need to change location after enabling."
+msgstr "此功能并非在所有服务器上都可用。启用后，您可能需要更改位置。"
 
 msgid "This field is required"
 msgstr "此字段为必填项"
@@ -2502,7 +2575,7 @@ msgid "Unable to parse patch"
 msgstr "无法解析补丁"
 
 msgid "Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN."
-msgstr "无法启动隧道连接。在使用 Mullvad VPN 之前，请为 <b>%s</b> 禁用“始终开启的 VPN”。"
+msgstr "无法启动隧道连接。在使用 Mullvad VPN 之前，请为 <b>%s</b> 禁用“始终开启 VPN”。"
 
 msgid "Undo"
 msgstr "撤消"
@@ -2513,9 +2586,8 @@ msgstr "未知或禁止的键“%s”"
 msgid "Unsecured"
 msgstr "未受保护"
 
-msgctxt "Notification message shown when the app lacks a permission called \"VPN permission\"."
 msgid "Unsecured (No VPN permission)"
-msgstr "不安全（无 VPN 权限）"
+msgstr "未受保护（无 VPN 权限）"
 
 msgid "Update DNS server"
 msgstr "更新 DNS 服务器"
@@ -2574,9 +2646,6 @@ msgstr "连接时，将使用所选区域中一个私密且安全的位置隐藏
 msgid "WireGuard MTU"
 msgstr "WireGuard MTU"
 
-msgid "WireGuard custom port"
-msgstr "WireGuard 自定义端口"
-
 msgid "WireGuard obfuscation"
 msgstr "WireGuard 混淆"
 
@@ -2589,12 +2658,14 @@ msgstr "您的网络流量可能在泄露"
 msgid "You are running an unsupported app version."
 msgstr "您正在运行不受支持的应用版本。"
 
+msgid "\"%s\" was created"
+msgstr "“%s”已创建"
+
 msgid "\"%s\" was deleted"
 msgstr "“%s”已被删除"
 
-msgctxt "Clickable link that leads to our website."
 msgid "here"
-msgstr "此处"
+msgstr "（点击此处）"
 
 msgid "less than a minute ago"
 msgstr "不到 1 分钟前"

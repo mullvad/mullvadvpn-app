@@ -48,10 +48,10 @@
     <string name="auto_connect_carousel_second_slide_bottom_text">2. Pour activer la connexion automatique, cliquez sur l\'interrupteur situé à côté de &lt;b&gt;VPN toujours actif&lt;/b&gt;.</string>
     <string name="auto_connect_carousel_second_slide_top_text">La connexion automatique est appelée VPN toujours actif dans les paramètres du système Android et elle s\'assure que vous êtes constamment connecté au tunnel VPN et se connecte automatiquement après le redémarrage.</string>
     <string name="auto_connect_carousel_third_slide_bottom_text">3. Pour activer le mode Verrouillage, cliquez sur l\'interrupteur situé à côté de &lt;b&gt;Bloquer les connexions sans VPN&lt;/b&gt;.&lt;br /&gt;&lt;br /&gt;&lt;b&gt;Avertissement : ce paramètre bloque les applications fractionnées et la fonctionnalité de partage du réseau local.&lt;/b&gt;</string>
-    <string name="auto_connect_carousel_third_slide_top_text">Le mode Verrouillage est appelé &lt;b&gt;Bloquer les connexions sans VPN&lt;/b&gt; dans les paramètres système d\'Android. Il permet de minimiser les fuites, mais il présente des limites connues sur lesquelles vous pouvez en savoir plus</string>
+    <string name="auto_connect_carousel_third_slide_top_text">Le mode Verrouillage est appelé &lt;b&gt;Bloquer les connexions sans VPN&lt;/b&gt; dans les paramètres système d\'Android. Il permet de minimiser les fuites, mais présente des limites connues sur lesquelles vous pouvez en savoir plus</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">ici</string>
     <string name="auto_connect_footer_legacy">Veuillez utiliser le paramètre système &lt;b&gt;Toujours activé&lt;/b&gt; en suivant le guide dans &lt;b&gt;%1$s&lt;/b&gt; ci-dessus.</string>
-    <string name="auto_connect_footer_legacy_tv">Se connecter automatiquement au lancement de l\'application. Ce paramètre sera remplacé par une nouvelle fonctionnalité de connexion au démarrage de l\'appareil dans une prochaine mise à jour.</string>
+    <string name="auto_connect_footer_legacy_tv">Connexion automatique au lancement de l\'application. Ce paramètre sera remplacé par une nouvelle fonctionnalité de connexion au démarrage de l\'appareil dans une prochaine mise à jour.</string>
     <string name="auto_connect_legacy">Connexion automatique (obsolète)</string>
     <string name="automatic">Automatique</string>
     <string name="back">Retour</string>
@@ -74,7 +74,7 @@
     <string name="confirm_removal">Oui, déconnecter l\'appareil</string>
     <string name="congrats">Félicitations !</string>
     <string name="connect">Sécuriser ma connexion</string>
-    <string name="connected_using_daita">%1$s utilisant %2$s</string>
+    <string name="connected_using_daita">%1$s avec %2$s</string>
     <string name="connecting">Connexion</string>
     <string name="connecting_to_daemon">Connexion au service système Mullvad...</string>
     <string name="continue_login">Continuer avec la connexion</string>
@@ -84,6 +84,7 @@
     <string name="copy_account_number">Copier le numéro de compte</string>
     <string name="create">Créer</string>
     <string name="create_account">Créer un compte</string>
+    <string name="create_custom_list_message">« %1$s » a été créé</string>
     <string name="create_new_list">Créer une nouvelle liste</string>
     <string name="created_x">Création : %1$s</string>
     <string name="creating_new_account">Création du compte…</string>
@@ -98,9 +99,12 @@
     <string name="custom_port_dialog_placeholder">Saisir le port</string>
     <string name="custom_port_dialog_remove">Supprimer le port personnalisé</string>
     <string name="custom_port_dialog_submit">Définir le port</string>
+    <string name="custom_port_dialog_title">Port %1$s personnalisé</string>
     <string name="custom_port_dialog_valid_ranges">Plages valides : %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Échec de la résolution de l\'hôte du tunnel personnalisé. Essayez de modifier vos paramètres.</string>
     <string name="daita_info">%1$s (%2$s) dissimule des motifs dans votre trafic VPN chiffré. Si quelqu\'un surveille votre connexion, il lui sera beaucoup plus difficile d\'identifier les sites Web que vous visitez. Pour ce faire, il ajoute soigneusement du bruit réseau et fait en sorte que tous les paquets de réseau aient la même taille.</string>
+    <string name="daita_relay_subset_warning">Cette fonctionnalité n\'est pas disponible sur tous les serveurs. Vous devrez peut-être changer d\'emplacement après l\'avoir activée.</string>
+    <string name="daita_warning">Attention : étant donné que cette opération augmente le trafic total de votre réseau, faites attention si vous disposez d\'un forfait à données limitées. Cela peut également avoir un impact négatif sur la vitesse de votre réseau et l\'utilisation de la batterie.</string>
     <string name="delete">Supprimer</string>
     <string name="delete_custom_list_confirmation_description">Supprimer « %1$s » ?</string>
     <string name="delete_custom_list_message">« %1$s » a été supprimé</string>
@@ -181,6 +185,7 @@
     <string name="local_network_sharing_info">Cette fonctionnalité permet d\'accéder à d\'autres appareils sur le réseau local, par exemple pour le partage, l\'impression, le streaming, etc.</string>
     <string name="location_added">%1$s (ajouté)</string>
     <string name="location_was_added_to_list">%1$s a été ajouté à « %2$s »</string>
+    <string name="location_was_removed_from_list">%1$s a été retiré de « %2$s »</string>
     <string name="locations">Localisations</string>
     <string name="locations_were_changed_for">Les localisations ont été modifiées pour « %1$s »</string>
     <string name="log_out">Déconnexion</string>
@@ -215,7 +220,7 @@
     <string name="not_found">Introuvable</string>
     <string name="number_of_providers">Fournisseurs : %1$d</string>
     <string name="obfuscation_info">La dissimulation cache le trafic WireGuard à l\'intérieur d\'un autre protocole. Elle peut être utilisée pour aider à contourner la censure et d\'autres types de filtrage, où une connexion WireGuard simple serait bloquée.</string>
-    <string name="obfuscation_on_udp_over_tcp">Activé (UDP sur TCP)</string>
+    <string name="obfuscation_on_udp_over_tcp">Activé (UDP-over-TCP)</string>
     <string name="obfuscation_title">Obfuscation WireGuard</string>
     <string name="off">Désactivé</string>
     <string name="on">Activé</string>
@@ -241,6 +246,7 @@
     <string name="please_enter_a_valid_ip_address">Merci de saisir une adresse IPv4 ou IPv6 valide</string>
     <string name="please_enter_a_valid_remote_server_port">Merci de saisir un port de serveur distant valide</string>
     <string name="port">Port</string>
+    <string name="port_x">Port : %1$s</string>
     <string name="privacy_disclaimer_body_first_paragraph">Pour vous assurer que vous disposez de la version la plus sécurisée et pour vous informer de tout problème lié à la version en cours d\'exécution, l\'application effectue automatiquement des vérifications de version. Elle envoie ainsi la version de l\'application et la version du système Android aux serveurs de Mullvad. Mullvad tient des compteurs sur le nombre de versions d\'applications et de versions d\'Android utilisées. Les données ne sont jamais stockées ou utilisées de manière à vous identifier.</string>
     <string name="privacy_disclaimer_body_second_paragraph">Si la fonctionnalité de split tunneling est utilisée, l\'application demande à votre système la liste de toutes les applications installées. Cette liste n\'est récupérée que dans la vue de split tunneling. La liste des applications installées n\'est jamais envoyée par l\'appareil.</string>
     <string name="privacy_disclaimer_title">Confidentialité</string>
@@ -256,6 +262,7 @@
     <string name="redeem">Échanger</string>
     <string name="redeem_voucher">Échanger un bon</string>
     <string name="remove_button">Supprimer</string>
+    <string name="remove_location_from_list">Supprimer %1$s de %2$s</string>
     <string name="rented">Loué</string>
     <string name="rented_only">Loués uniquement</string>
     <string name="report_a_problem">Signaler un problème</string>
@@ -307,6 +314,7 @@
     <string name="show_account_number">Afficher le numéro de compte</string>
     <string name="show_system_apps">Afficher les applications système</string>
     <string name="split_tunneling_description">Vous permet de sélectionner les applications qui doivent accéder directement à Internet sans passer par le tunnel VPN.</string>
+    <string name="split_tunneling_description_warning">Attention : si l\'option « Bloquer les connexions sans VPN » est activée, les applications partagées n\'auront pas accès à Internet. Gardez toujours à l\'esprit que le split tunneling présente un risque pour la vie privée.</string>
     <string name="start_tunnel_error">Impossible de démarrer la connexion au tunnel. Veuillez envoyer un rapport de problème.</string>
     <string name="submit_button">Envoyer</string>
     <string name="switch_location">Changer de localisation</string>
@@ -334,6 +342,7 @@
     <string name="unsupported_version">VERSION NON PRISE EN CHARGE</string>
     <string name="unsupported_version_description">Votre confidentialité peut être en danger avec cette version non prise en charge de l\'application. Veuillez la mettre à jour maintenant.</string>
     <string name="unsupported_version_without_upgrade">Vous utilisez une version de l\'application non prise en charge.</string>
+    <string name="upd_over_tcp">UDP-over-TCP</string>
     <string name="update_available_footer">Mise à jour disponible. Téléchargez-la pour rester en sécurité.</string>
     <string name="update_dns_server_dialog_title">Mettre à jour le serveur DNS</string>
     <string name="update_list_name">Mettre à jour le nom de la liste</string>
@@ -346,6 +355,7 @@
     <string name="view_logs">Afficher les journaux de l\'application</string>
     <string name="virtual_adapter_problem">Erreur d\'adaptateur virtuel</string>
     <string name="voucher_already_used">Le code du bon a déjà été utilisé.</string>
+    <string name="voucher_is_account_number">Vous semblez avoir saisi un numéro de compte plutôt qu\'un code de bon. Si vous souhaitez modifier le compte actif, veuillez d\'abord vous déconnecter.</string>
     <string name="voucher_success_title">Le bon a bien été échangé.</string>
     <string name="vpn_permission_denied_error">La permission VPN a été refusée lors de la création du tunnel. Veuillez essayer de vous reconnecter.</string>
     <string name="vpn_permission_error_notification_message">« Toujours exiger un VPN » est peut-être activé pour une autre application</string>
