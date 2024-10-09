@@ -22,9 +22,12 @@
       <key-servers enabled="false"/>
       <trusted-artifacts>
          <trust group="com.github.burrunan.multicache"/>
+         <!-- all these are work-around for https://youtrack.jetbrains.com/issue/IDEA-258328 -->
          <trust file=".*-javadoc[.]jar" regex="true"/>
          <trust file=".*-sources[.]jar" regex="true"/>
+         <trust file="gradle-[0-9.]+-src.zip" regex="true"/>
          <trust file=".*[.]pom" regex="true"/>
+         <!-- end work-around for https://youtrack.jetbrains.com/issue/IDEA-258328 -->
       </trusted-artifacts>
       <trusted-keys>
          <trusted-key id="04543577D6A9CC626239C50C7ECBD740FF06AEB5">
