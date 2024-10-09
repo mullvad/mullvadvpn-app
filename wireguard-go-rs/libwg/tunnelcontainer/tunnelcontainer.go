@@ -18,6 +18,7 @@ type Context struct {
 	Device *device.Device
 	Uapi   net.Listener
 	Logger *device.Logger
+	EntryDevice *device.Device
 }
 
 type Container struct {

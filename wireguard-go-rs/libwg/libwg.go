@@ -65,6 +65,9 @@ func wgTurnOff(tunnelHandle int32) {
 			return
 		}
 		tunnel.Device.Close()
+		if tunnel.EntryDevice != nil {
+			tunnel.EntryDevice.Close()
+		}
 	}
 	// Calling twice convinces the GC to release NOW.
 	runtime.GC()
