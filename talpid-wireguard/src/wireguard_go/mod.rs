@@ -121,9 +121,9 @@ impl WgGoTunnel {
             let private_ip = private_ip(config);
 
             let handle = wireguard_go_rs::Tunnel::turn_on_multihop(
-                exit_config_str,
-                entry_config_str,
-                private_ip,
+                &exit_config_str,
+                &entry_config_str,
+                &private_ip,
                 tunnel_fd,
                 Some(logging::wg_go_logging_callback),
                 logging_context.0,
