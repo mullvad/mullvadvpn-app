@@ -43,10 +43,12 @@ message EphemeralPeerRequestV1 {
   DaitaRequestV1 daita = 4;
 }
 
-// The v1 request supports exactly two algorithms.
-// The algorithms can appear soletary or in mixed order:
+// The v1 request supports these three algorithms.
+// The algorithms can appear soletary or mixed. Kyber1024 and ML-KEM-1024 cannot be used in the
+// same request as they are just different versions of the same kem.
 // - "Classic-McEliece-460896f", but explicitly identified as "Classic-McEliece-460896f-round3"
 // - "Kyber1024", this is round3 of the Kyber KEM
+// - "ML-KEM-1024". This is the standardized version of ML-KEM (FIPS 203) at the highest strength
 message PostQuantumRequestV1 { repeated KemPubkeyV1 kem_pubkeys = 1; }
 
 message KemPubkeyV1 {
@@ -70,8 +72,6 @@ message EphemeralPeerResponseV1 {
   // Since the PSK provided to WireGuard is directly fed into a HKDF, it is not important that
   // the entropy in the PSK is uniformly distributed. The actual keys used for encrypting the
   // data channel will have uniformly distributed entropy anyway, thanks to the HKDF.
-  // But even if that was not true, since both CME and Kyber run SHAKE256 as the last step
-  // of their internal key derivation, the output they produce are uniformly distributed.
   //
   // If we later want to support another type of KEM that produce longer or shorter output,
   // we can hash that secret into a 32 byte hash before proceeding to the XOR step.

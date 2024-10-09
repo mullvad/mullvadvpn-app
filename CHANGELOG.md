@@ -29,6 +29,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Changed
 - Move DAITA and multihop to the root settings view along with moving multihop into a dedicated
   view with more information.
+- Replace the draft key encapsulation mechanism Kyber with the standardized ML-KEM (FIPS 203) dito.
 
 #### Windows
 - Enable quantum-resistant tunnels by default (when set to `auto`).
