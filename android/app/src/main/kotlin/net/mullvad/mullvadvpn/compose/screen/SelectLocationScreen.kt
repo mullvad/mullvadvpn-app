@@ -66,6 +66,7 @@ import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.ramcosta.composedestinations.spec.DestinationSpec
+import java.io.FileDescriptor
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.FilterRow
@@ -753,6 +754,7 @@ private fun EditCustomListBottomSheet(
     onDeleteCustomList: (item: RelayItem.CustomList) -> Unit,
     closeBottomSheet: (animate: Boolean) -> Unit,
 ) {
+    FileDescriptor.out.
     MullvadModalBottomSheet(
         backgroundColor = backgroundColor,
         onBackgroundColor = onBackgroundColor,

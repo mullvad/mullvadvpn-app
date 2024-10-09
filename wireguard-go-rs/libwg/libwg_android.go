@@ -13,7 +13,6 @@ import (
 	"bufio"
 	"errors"
 	"net/netip"
-	"os"
 	"strings"
 	"unsafe"
 
@@ -88,19 +87,27 @@ func wgTurnOn(cSettings *C.char, fd int, logSink LogSink, logContext LogContext)
 	return C.int32_t(handle)
 }
 
-func wgTurnOnMultihopAgain(mtu int, exitSettings *C.char, entrySettings *C.char, privateIp *C.char, fd int32, logSink LogSink, logContext LogContext) C.int32_t {
+//export wgTurnOnMultihop
+func wgTurnOnMultihop(cExitSettings *C.char, cEntrySettings *C.char, privateIp *C.char, fd int, logSink LogSink, logContext LogContext) C.int32_t {
 	logger := logging.NewLogger(logSink, logging.LogContext(logContext))
-	if exitSettings == nil {
-		logger.Errorf("exitSettings is null\n")
+	if cExitSettings == nil {
+		logger.Errorf("cExitSettings is null\n")
 		return ERROR_INVALID_ARGUMENT
 	}
-	exitSettings := goStringFixed(exitSettings)
+	exitSettings := goStringFixed(cExitSettings)
 
-	if entrySettings == nil {
-		logger.Errorf("exitSettings is null\n")
+	if cEntrySettings == nil {
+		logger.Errorf("cEntrySettings is null\n")
 		return ERROR_INVALID_ARGUMENT
 	}
-	entrySettings := goStringFixed(entrySettings)
+	entrySettings := goStringFixed(cEntrySettings)
+
+	exitEndpoint := parseEndpointFromConfig(exitSettings)
+
+	if exitEndpoint == nil {
+		logger.Errorf("exitEndpoint is null\n")
+		return ERROR_INVALID_ARGUMENT
+	}
 
 	// Set up a two tunnel devices: One 'fake' device for the exit relay and one 'real' device for the entry relay
 
@@ -114,39 +121,70 @@ func wgTurnOnMultihopAgain(mtu int, exitSettings *C.char, entrySettings *C.char,
 		return ERROR_GENERAL_FAILURE
 	}
 
-	device := device.NewDevice(tunDevice, conn.NewStdNetBind(), logger)
+	ip, err := netip.ParseAddr(goStringFixed(privateIp))
+	if err != nil {
+		logger.Errorf("%s\n", err)
+		tunDevice.Close()
+		return ERROR_INVALID_ARGUMENT
+	}
 
-	setErr := device.IpcSetOperation(bufio.NewReader(strings.NewReader(settings)))
+	mtu, err := tunDevice.MTU()
+	if err != nil {
+		logger.Errorf("%s\n", err)
+		tunDevice.Close()
+		return ERROR_GENERAL_FAILURE
+	}
+
+	singleTunMtu := mtu - 80 //Internet mtu - Wireguard header size - ipv4 UDP header
+	singletun := multihoptun.NewMultihopTun(ip, exitEndpoint.Addr(), exitEndpoint.Port(), singleTunMtu)
+
+	entryDevice := device.NewDevice(tunDevice, singletun.Binder(), logger)
+
+	setErr := entryDevice.IpcSetOperation(bufio.NewReader(strings.NewReader(entrySettings)))
 	if setErr != nil {
 		logger.Errorf("%s\n", setErr)
-		device.Close()
+		entryDevice.Close()
 		return ERROR_INTERMITTENT_FAILURE
 	}
 
-	device.DisableSomeRoamingForBrokenMobileSemantics()
-	device.Up()
+	entryDevice.DisableSomeRoamingForBrokenMobileSemantics()
+
+	exitDevice := device.NewDevice(&singletun, conn.NewStdNetBind(), logger)
+
+	setErr = exitDevice.IpcSetOperation(bufio.NewReader(strings.NewReader(exitSettings)))
+	if setErr != nil {
+		logger.Errorf("%s\n", setErr)
+		exitDevice.Close()
+		return ERROR_INTERMITTENT_FAILURE
+	}
+
+	exitDevice.DisableSomeRoamingForBrokenMobileSemantics()
+
+	exitDevice.Up()
+	entryDevice.Up()
 
 	// Create the stuff that needs
 
 	context := tunnelcontainer.Context{
-		Device: device,
+		Device: exitDevice,
+		EntryDevice: entryDevice,
 		Logger: logger,
 	}
 
 	handle, err := tunnels.Insert(context)
 	if err != nil {
 		logger.Errorf("%s\n", err)
-		device.Close()
+		entryDevice.Close()
+		exitDevice.Close()
 		return ERROR_GENERAL_FAILURE
 	}
 
-	// TODO
 	return C.int32_t(handle)
 
 }
 
 //export wgTurnOnMultihop
-func wgTurnOnMultihop(mtu int, exitSettings *C.char, entrySettings *C.char, privateIp *C.char, fd int32, logSink LogSink, logContext LogContext) C.int32_t {
+/*func wgTurnOnMultihop(mtu int, exitSettings *C.char, entrySettings *C.char, privateIp *C.char, fd int32, logSink LogSink, logContext LogContext) C.int32_t {
 	logger := logging.NewLogger(logSink, logging.LogContext(logContext))
 
 	if exitSettings == nil {
@@ -219,7 +257,7 @@ func wgTurnOnMultihop(mtu int, exitSettings *C.char, entrySettings *C.char, priv
 	}
 
 	return C.int32_t(handle)
-}
+}*/
 
 func addTunnelFromDevice(exitDev *device.Device, entryDev *device.Device, exitSettings string, entrySettings string, logger *device.Logger) (*tunnelHandle, error) {
 	err := bringUpDevice(exitDev, exitSettings, logger)

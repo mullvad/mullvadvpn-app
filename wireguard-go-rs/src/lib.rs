@@ -112,19 +112,21 @@ impl Tunnel {
     /// The `logging_callback` let's you provide a Rust function that receives any logging output
     /// from wireguard-go. `logging_context` is a value that will be passed to each invocation of
     /// `logging_callback`.
+    #[cfg(target_os = "android")]
     pub fn turn_on_multihop(
-        #[cfg(not(target_os = "android"))] mtu: isize,
-        settings: &CStr,
+        exit_settings: &CStr,
+        entry_settings: &CStr,
+        private_ip: &CStr,
         device: Fd,
         logging_callback: Option<LoggingCallback>,
         logging_context: LoggingContext,
     ) -> Result<Self, Error> {
         // SAFETY: pointer is valid for the the lifetime of this function
         let code = unsafe {
-            ffi::wgTurnOn(
-                #[cfg(not(target_os = "android"))]
-                mtu,
-                settings.as_ptr(),
+            ffi::wgTurnOnMultihop(
+                exit_settings.as_ptr(),
+                entry_settings.as_ptr(),
+                private_ip.as_ptr(),
                 device,
                 logging_callback,
                 logging_context,
@@ -286,6 +288,22 @@ mod ffi {
             logging_callback: Option<LoggingCallback>,
             logging_context: LoggingContext,
         ) -> i32;
+
+        /// Creates a new wireguard tunnel, uses the specific interface name, and file descriptors
+        /// for the tunnel device and logging. For targets other than android, this also takes an
+        /// MTU value.
+        ///
+        /// Positive return values are tunnel handles for this specific wireguard tunnel instance.
+        /// Negative return values signify errors.
+        pub fn wgTurnOnMultihop(
+            exit_settings: *const c_char,
+            entry_settings: *const c_char,
+            private_ip: *const c_char,
+            fd: Fd,
+            logging_callback: Option<LoggingCallback>,
+            logging_context: LoggingContext,
+        ) -> i32;
+
 
         /// Pass a handle that was created by wgTurnOn to stop a wireguard tunnel.
         ///
