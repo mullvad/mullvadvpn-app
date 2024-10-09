@@ -2337,6 +2337,9 @@ msgstr ""
 msgid "Create"
 msgstr ""
 
+msgid "Create new account"
+msgstr ""
+
 msgid "Create new list"
 msgstr ""
 
@@ -2383,6 +2386,9 @@ msgid "Disconnecting..."
 msgstr ""
 
 msgid "Dismiss"
+msgstr ""
+
+msgid "Do you want to create a new account?"
 msgstr ""
 
 msgid "Edit custom lists"
@@ -2719,6 +2725,9 @@ msgid "WireGuard port"
 msgstr ""
 
 msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
+msgstr ""
+
+msgid "You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone."
 msgstr ""
 
 msgid "You are running an unsupported app version."
