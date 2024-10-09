@@ -5,6 +5,7 @@ use once_cell::sync::OnceCell;
 use std::{ffi::CString, fs, path::PathBuf};
 use std::{
     future::Future,
+    net::IpAddr,
     os::unix::io::{AsRawFd, RawFd},
     path::Path,
     pin::Pin,
@@ -59,6 +60,34 @@ pub struct WgGoTunnel {
     config: Config,
 }
 
+// TODO: move into impl of Config
+fn exit_config(multihop_config: &Config) -> Option<Config> {
+    let mut exit_config = multihop_config.clone();
+    exit_config.entry_peer = multihop_config.exit_peer.clone()?;
+    Some(exit_config)
+}
+
+// TODO: move into impl of Config
+fn entry_config(multihop_config: &Config) -> Config {
+    let mut entry_config = multihop_config.clone();
+    entry_config.exit_peer = None;
+    entry_config
+}
+
+// TODO: move into impl of Config
+fn private_ip(config: &Config) -> CString {
+    if let Some(ip) = config
+        .tunnel
+        .addresses
+        .iter()
+        .find(|addr| matches!(addr, IpAddr::V4(_))) {
+            CString::new(ip.to_string()).unwrap()
+        }
+    else {
+        CString::default()
+    }
+}
+
 impl WgGoTunnel {
     pub fn start_tunnel(
         config: &Config,
@@ -81,6 +110,27 @@ impl WgGoTunnel {
 
         #[cfg(not(target_os = "android"))]
         let mtu = config.mtu as isize;
+
+        let entry_config = entry_config(config);
+        let exit_config = exit_config(config);
+
+        #[cfg(target_os = "android")]
+        if let Some(exit_config) = exit_config {
+            let entry_config_str = entry_config.to_userspace_format();
+            let exit_config_str = exit_config.to_userspace_format();
+            let private_ip = private_ip(config);
+
+            let handle = wireguard_go_rs::Tunnel::turn_on_multihop(
+                exit_config_str,
+                entry_config_str,
+                private_ip,
+                tunnel_fd,
+                Some(logging::wg_go_logging_callback),
+                logging_context.0,
+            )
+            .map_err(|e| TunnelError::FatalStartWireguardError(Box::new(e)))?;
+        }
+
         let handle = wireguard_go_rs::Tunnel::turn_on(
             #[cfg(not(target_os = "android"))]
             mtu,
