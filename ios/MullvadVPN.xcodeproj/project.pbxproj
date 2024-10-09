@@ -466,6 +466,7 @@
 		7A21DACF2A30AA3700A787A9 /* UITextField+Appearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A21DACE2A30AA3700A787A9 /* UITextField+Appearance.swift */; };
 		7A27E3C92CAE85710088BCFF /* SettingsInfoButtonItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A27E3C82CAE85660088BCFF /* SettingsInfoButtonItem.swift */; };
 		7A27E3CB2CAE861D0088BCFF /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A27E3CA2CAE86170088BCFF /* SettingsViewModel.swift */; };
+		7A27E3CD2CB814EF0088BCFF /* DAITAInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A27E3CC2CB814EA0088BCFF /* DAITAInfoView.swift */; };
 		7A28826A2BA8336600FD9F20 /* VPNSettingsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A2882692BA8336600FD9F20 /* VPNSettingsCoordinator.swift */; };
 		7A2960F62A963F7500389B82 /* AlertCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A2960F52A963F7500389B82 /* AlertCoordinator.swift */; };
 		7A2960FD2A964BB700389B82 /* AlertPresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A2960FC2A964BB700389B82 /* AlertPresentation.swift */; };
@@ -1801,6 +1802,7 @@
 		7A21DACE2A30AA3700A787A9 /* UITextField+Appearance.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UITextField+Appearance.swift"; sourceTree = "<group>"; };
 		7A27E3C82CAE85660088BCFF /* SettingsInfoButtonItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsInfoButtonItem.swift; sourceTree = "<group>"; };
 		7A27E3CA2CAE86170088BCFF /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
+		7A27E3CC2CB814EA0088BCFF /* DAITAInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DAITAInfoView.swift; sourceTree = "<group>"; };
 		7A2882692BA8336600FD9F20 /* VPNSettingsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNSettingsCoordinator.swift; sourceTree = "<group>"; };
 		7A2960F52A963F7500389B82 /* AlertCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertCoordinator.swift; sourceTree = "<group>"; };
 		7A2960FC2A964BB700389B82 /* AlertPresentation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertPresentation.swift; sourceTree = "<group>"; };
@@ -2777,6 +2779,7 @@
 				F050AE5F2B73A41E003F4EDB /* AllLocationDataSource.swift */,
 				F04413602BA45CD70018A6EE /* CustomListLocationNodeBuilder.swift */,
 				F050AE612B74DBAC003F4EDB /* CustomListsDataSource.swift */,
+				7A27E3CC2CB814EA0088BCFF /* DAITAInfoView.swift */,
 				5888AD82227B11080051EB06 /* LocationCell.swift */,
 				F050AE4D2B70D7F8003F4EDB /* LocationCellViewModel.swift */,
 				583DA21325FA4B5C00318683 /* LocationDataSource.swift */,
@@ -2797,7 +2800,6 @@
 			isa = PBXGroup;
 			children = (
 				7A9FA1432A2E3FE5000B728D /* CheckableSettingsCell.swift */,
-				F041BE4E2C983C2B0083EC28 /* DAITASettingsPromptItem.swift */,
 				7A1A264A2A29D65E00B978AA /* SelectableSettingsCell.swift */,
 				5819C2162729595500D6EC38 /* SettingsAddDNSEntryCell.swift */,
 				582BB1AE229566420055B6EF /* SettingsCell.swift */,
@@ -2811,7 +2813,7 @@
 				7A42DEC82A05164100B209BE /* SettingsInputCell.swift */,
 				58677711290976FB006F721F /* SettingsInteractor.swift */,
 				5867770F290975E8006F721F /* SettingsInteractorFactory.swift */,
-				F041BE4E2C983C2B0083EC28 /* SettingsPromptAlertItem.swift */,
+				F041BE4E2C983C2B0083EC28 /* DAITASettingsPromptItem.swift */,
 				58ACF64A26553C3F00ACE4B7 /* SettingsSwitchCell.swift */,
 				58CCA01122424D11004F3011 /* SettingsViewController.swift */,
 				7A27E3CA2CAE86170088BCFF /* SettingsViewModel.swift */,
@@ -5806,6 +5808,7 @@
 				7AB4CCBB2B691BBB006037F5 /* IPOverrideInteractor.swift in Sources */,
 				7A3353912AAA014400F0A71C /* SimulatorVPNConnection.swift in Sources */,
 				F02F41A22B9723AF00625A4F /* AddLocationsCoordinator.swift in Sources */,
+				7A27E3CD2CB814EF0088BCFF /* DAITAInfoView.swift in Sources */,
 				F028A56A2A34D4E700C0CAA3 /* RedeemVoucherViewController.swift in Sources */,
 				7A5869C52B5A899C00640D27 /* MethodSettingsCellConfiguration.swift in Sources */,
 				58E11188292FA11F009FCA84 /* SettingsMigrationUIHandler.swift in Sources */,

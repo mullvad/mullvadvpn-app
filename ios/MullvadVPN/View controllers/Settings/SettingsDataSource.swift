@@ -233,26 +233,16 @@ extension SettingsDataSource: SettingsCellEventHandler {
         delegate?.showInfo(for: button)
     }
 
-<<<<<<< HEAD
     func switchDaitaState(_ settings: DAITASettings) {
         testDaitaCompatibility(for: .daita, settings: settings) { [weak self] in
-=======
-    func switchDaitaState(_ settings: DAITASettings, enabled: Bool) {
-        testDaitaCompatibility(settings, enabled) { [weak self] in
->>>>>>> 3e682b31fe (Add toggle to disable smart routing)
             self?.reloadItem(.daitaDirectOnly)
         } onDiscard: { [weak self] in
             self?.reloadItem(.daita)
         }
     }
 
-<<<<<<< HEAD
     func switchDaitaDirectOnlyState(_ settings: DAITASettings) {
         testDaitaCompatibility(for: .daitaDirectOnly, settings: settings, onDiscard: { [weak self] in
-=======
-    func switchDaitaDirectOnlyState(_ settings: DAITASettings, enabled: Bool) {
-        testDaitaCompatibility(settings, enabled, onDiscard: { [weak self] in
->>>>>>> 3e682b31fe (Add toggle to disable smart routing)
             self?.reloadItem(.daitaDirectOnly)
         })
     }
