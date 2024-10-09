@@ -22,6 +22,10 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+
+
+## [android/2024.5] - 2024-10-09
+### Fixed
 - Fix crash when in the edit custom list locations screen and changing app langauge.
 
 
