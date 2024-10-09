@@ -35,6 +35,7 @@
     <string name="Colombia">Kolumbia</string>
     <string name="Copenhagen">Kopenhaga</string>
     <string name="Croatia">Chorwacja</string>
+    <string name="Cyprus">Cypr</string>
     <string name="Czech Republic">Czechy</string>
     <string name="Dallas, TX">Dallas, TX</string>
     <string name="Denmark">Dania</string>
@@ -61,6 +62,7 @@
     <string name="Indonesia">Indonezja</string>
     <string name="Ireland">Irlandia</string>
     <string name="Israel">Izrael</string>
+    <string name="Istanbul">Istambuł</string>
     <string name="Italy">Włochy</string>
     <string name="Jackson, MS">Jackson, MS</string>
     <string name="Jakarta">Dżakarta</string>
@@ -69,6 +71,7 @@
     <string name="Kiev">Kijów</string>
     <string name="Kyiv">Kijów</string>
     <string name="Latvia">Łotwa</string>
+    <string name="Lima">Lima</string>
     <string name="Lisbon">Lizbona</string>
     <string name="Ljubljana">Lublana</string>
     <string name="London">Londyn</string>
@@ -91,6 +94,7 @@
     <string name="Netherlands">Holandia</string>
     <string name="New York, NY">Nowy Jork, NY</string>
     <string name="New Zealand">Nowa Zelandia</string>
+    <string name="Nicosia">Nikozja</string>
     <string name="Nis">Nisz</string>
     <string name="North Macedonia">Macedonia Północna</string>
     <string name="Norway">Norwegia</string>
@@ -100,6 +104,7 @@
     <string name="Palermo">Palermo</string>
     <string name="Paris">Paryż</string>
     <string name="Perth">Perth</string>
+    <string name="Peru">Peru</string>
     <string name="Philadelphia, PA">Filadelfia, PA</string>
     <string name="Phoenix, AZ">Phoenix, AZ</string>
     <string name="Piscataway, NJ">Piscataway, NJ</string>
@@ -143,6 +148,7 @@
     <string name="Tirana">Tirana</string>
     <string name="Tokyo">Tokio</string>
     <string name="Toronto">Toronto</string>
+    <string name="Turkey">Turcja</string>
     <string name="UK">Wielka Brytania</string>
     <string name="USA">Stany Zjednoczone</string>
     <string name="Ukraine">Ukraina</string>

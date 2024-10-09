@@ -35,6 +35,7 @@
     <string name="Colombia">Колумбия</string>
     <string name="Copenhagen">Копенгаген</string>
     <string name="Croatia">Хорватия</string>
+    <string name="Cyprus">Кипр</string>
     <string name="Czech Republic">Чехия</string>
     <string name="Dallas, TX">Даллас, TX</string>
     <string name="Denmark">Дания</string>
@@ -61,6 +62,7 @@
     <string name="Indonesia">Индонезия</string>
     <string name="Ireland">Ирландия</string>
     <string name="Israel">Израиль</string>
+    <string name="Istanbul">Стамбул</string>
     <string name="Italy">Италия</string>
     <string name="Jackson, MS">Джексон, MS</string>
     <string name="Jakarta">Джакарта</string>
@@ -69,6 +71,7 @@
     <string name="Kiev">Киев</string>
     <string name="Kyiv">Киев</string>
     <string name="Latvia">Латвия</string>
+    <string name="Lima">Лима</string>
     <string name="Lisbon">Лиссабон</string>
     <string name="Ljubljana">Любляна</string>
     <string name="London">Лондон</string>
@@ -91,6 +94,7 @@
     <string name="Netherlands">Нидерланды</string>
     <string name="New York, NY">Нью-Йорк, NY</string>
     <string name="New Zealand">Новая Зеландия</string>
+    <string name="Nicosia">Никосия</string>
     <string name="Nis">Ниш</string>
     <string name="North Macedonia">Северная Македония</string>
     <string name="Norway">Норвегия</string>
@@ -100,6 +104,7 @@
     <string name="Palermo">Палермо</string>
     <string name="Paris">Париж</string>
     <string name="Perth">Перт</string>
+    <string name="Peru">Перу</string>
     <string name="Philadelphia, PA">Филадельфия, PA</string>
     <string name="Phoenix, AZ">Финикс, AZ</string>
     <string name="Piscataway, NJ">Пискатауэй, NJ</string>
@@ -143,6 +148,7 @@
     <string name="Tirana">Тирана</string>
     <string name="Tokyo">Токио</string>
     <string name="Toronto">Торонто</string>
+    <string name="Turkey">Турция</string>
     <string name="UK">Великобритания</string>
     <string name="USA">Соединённые Штаты Америки</string>
     <string name="Ukraine">Украина</string>

@@ -35,6 +35,7 @@
     <string name="Colombia">哥伦比亚</string>
     <string name="Copenhagen">哥本哈根</string>
     <string name="Croatia">克罗地亚</string>
+    <string name="Cyprus">塞浦路斯</string>
     <string name="Czech Republic">捷克</string>
     <string name="Dallas, TX">德克萨斯州达拉斯</string>
     <string name="Denmark">丹麦</string>
@@ -61,6 +62,7 @@
     <string name="Indonesia">印度尼西亚</string>
     <string name="Ireland">爱尔兰</string>
     <string name="Israel">以色列</string>
+    <string name="Istanbul">伊斯坦布尔</string>
     <string name="Italy">意大利</string>
     <string name="Jackson, MS">密西西比州杰克逊</string>
     <string name="Jakarta">雅加达</string>
@@ -69,6 +71,7 @@
     <string name="Kiev">基辅</string>
     <string name="Kyiv">基辅</string>
     <string name="Latvia">拉脱维亚</string>
+    <string name="Lima">利马</string>
     <string name="Lisbon">里斯本</string>
     <string name="Ljubljana">卢布尔雅那</string>
     <string name="London">伦敦</string>
@@ -91,6 +94,7 @@
     <string name="Netherlands">荷兰</string>
     <string name="New York, NY">纽约州纽约</string>
     <string name="New Zealand">新西兰</string>
+    <string name="Nicosia">尼科西亚</string>
     <string name="Nis">尼斯</string>
     <string name="North Macedonia">北马其顿</string>
     <string name="Norway">挪威</string>
@@ -100,6 +104,7 @@
     <string name="Palermo">Palermo</string>
     <string name="Paris">巴黎</string>
     <string name="Perth">珀斯</string>
+    <string name="Peru">秘鲁</string>
     <string name="Philadelphia, PA">宾夕法尼亚州费城</string>
     <string name="Phoenix, AZ">亚利桑那州菲尼克斯</string>
     <string name="Piscataway, NJ">新泽西州皮斯卡特维</string>
@@ -143,6 +148,7 @@
     <string name="Tirana">地拉那</string>
     <string name="Tokyo">东京</string>
     <string name="Toronto">多伦多</string>
+    <string name="Turkey">土耳其</string>
     <string name="UK">英国</string>
     <string name="USA">美国</string>
     <string name="Ukraine">乌克兰</string>
