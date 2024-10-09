@@ -1,4 +1,5 @@
 - Add support for DAITA (Defence against AI-guided Traffic Analysis).
 - Add support for WireGuard-over-Shadowsocks.
 - Add support for predictive back animations (on supported devices).
-- Fix location selection navigation on TV devices.
+- Fix location selection navigation on some TV devices.
+- Fix crash when in the edit custom list locations screen and changing app langauge.
