@@ -11,10 +11,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -43,7 +43,7 @@ class CustomListLocationsViewModel(
     private val navArgs =
         CustomListLocationsDestination.argsFrom(savedStateHandle = savedStateHandle)
     private val _uiSideEffect = Channel<CustomListLocationsSideEffect>()
-    val uiSideEffect: Flow<CustomListLocationsSideEffect> = _uiSideEffect.consumeAsFlow()
+    val uiSideEffect: Flow<CustomListLocationsSideEffect> = _uiSideEffect.receiveAsFlow()
 
     private val _initialLocations = MutableStateFlow<Set<RelayItem.Location>>(emptySet())
     private val _selectedLocations = MutableStateFlow<Set<RelayItem.Location>?>(null)
