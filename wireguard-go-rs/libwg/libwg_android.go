@@ -138,23 +138,24 @@ func wgTurnOnMultihop(cExitSettings *C.char, cEntrySettings *C.char, privateIp *
 	singleTunMtu := mtu - 80 //Internet mtu - Wireguard header size - ipv4 UDP header
 	singletun := multihoptun.NewMultihopTun(ip, exitEndpoint.Addr(), exitEndpoint.Port(), singleTunMtu)
 
-	entryDevice := device.NewDevice(tunDevice, singletun.Binder(), logger)
+	entryDevice := device.NewDevice(&singletun, conn.NewStdNetBind(), logger)
+	exitDevice := device.NewDevice(tunDevice, singletun.Binder(), logger)
 
 	setErr := entryDevice.IpcSetOperation(bufio.NewReader(strings.NewReader(entrySettings)))
 	if setErr != nil {
 		logger.Errorf("%s\n", setErr)
+		exitDevice.Close()
 		entryDevice.Close()
 		return ERROR_INTERMITTENT_FAILURE
 	}
 
 	entryDevice.DisableSomeRoamingForBrokenMobileSemantics()
 
-	exitDevice := device.NewDevice(&singletun, conn.NewStdNetBind(), logger)
-
 	setErr = exitDevice.IpcSetOperation(bufio.NewReader(strings.NewReader(exitSettings)))
 	if setErr != nil {
 		logger.Errorf("%s\n", setErr)
 		exitDevice.Close()
+		entryDevice.Close()
 		return ERROR_INTERMITTENT_FAILURE
 	}
 
@@ -317,7 +318,11 @@ func wgGetSocketV4(tunnelHandle int32) C.int32_t {
 	if err != nil {
 		return ERROR_UNKNOWN_TUNNEL
 	}
-	peek := tunnel.Device.Bind().(conn.PeekLookAtSocketFd)
+	device := tunnel.EntryDevice
+	if device == nil {
+		device = tunnel.Device
+	} 
+	peek := device.Bind().(conn.PeekLookAtSocketFd)
 	fd, err := peek.PeekLookAtSocketFd4()
 	if err != nil {
 		return ERROR_GENERAL_FAILURE
@@ -331,7 +336,11 @@ func wgGetSocketV6(tunnelHandle int32) C.int32_t {
 	if err != nil {
 		return ERROR_UNKNOWN_TUNNEL
 	}
-	peek := tunnel.Device.Bind().(conn.PeekLookAtSocketFd)
+	device := tunnel.EntryDevice
+	if device == nil {
+		device = tunnel.Device
+	}
+	peek := device.Bind().(conn.PeekLookAtSocketFd)
 	fd, err := peek.PeekLookAtSocketFd6()
 	if err != nil {
 		return ERROR_GENERAL_FAILURE
