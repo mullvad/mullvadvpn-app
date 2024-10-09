@@ -22,7 +22,7 @@ public struct TunnelSettingsV6: Codable, Equatable, TunnelSettings {
     /// Whether Post Quantum exchanges are enabled.
     public var tunnelQuantumResistance: TunnelQuantumResistance
 
-    /// Whether Multi-hop is enabled.
+    /// Whether Multihop is enabled.
     public var tunnelMultihopState: MultihopState
 
     /// DAITA settings.
