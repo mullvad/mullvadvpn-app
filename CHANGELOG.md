@@ -22,7 +22,13 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+
+
+## [2024.6-beta2] - 2024-10-09
 ### Changed
+- Move DAITA and multihop to the root settings view along with moving multihop into a dedicated
+  view with more information.
+
 #### macOS
 - Enable IPv6 by default. This fixes DNS and routing being broken on some systems.
 - Proxy DNS queries through a local resolver.
@@ -31,10 +37,6 @@ Line wrap the file at 100 chars.                                              Th
 #### macOS
 - Fix Apple services not working by forcing stray connections out through the VPN tunnel. This fix
   only applies to Wireguard, OpenVPN is still affected. The "bypass" toggle has been removed.
-
-### Changed
-- Move DAITA and multihop to the root settings view along with moving multihop into a dedicated
-  view with more information.
 
 
 ## [2024.6-beta1] - 2024-09-26
