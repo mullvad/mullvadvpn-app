@@ -18,6 +18,8 @@
     <string name="login_fail_description">Invalid account number</string>
     <string name="dont_have_an_account">Don’t have an account number?</string>
     <string name="create_account">Create account</string>
+    <string name="create_new_account_warning_paragraph1">You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone.</string>
+    <string name="create_new_account_warning_paragraph2">Do you want to create a new account?</string>
     <string name="creating_new_account">Creating account...</string>
     <string name="failed_to_create_account">Failed to create account</string>
     <string name="account_created">Account created</string>
@@ -282,6 +284,7 @@
     <string name="all_locations">All locations</string>
     <string name="edit_lists">Edit lists</string>
     <string name="create_new_list">Create new list</string>
+    <string name="create_new_account">Create new account</string>
     <string name="create">Create</string>
     <string name="no_locations_found">No locations found</string>
     <string name="add_locations">Add locations</string>
