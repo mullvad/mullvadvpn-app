@@ -1,9 +1,8 @@
 package net.mullvad.mullvadvpn.compose.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import net.mullvad.mullvadvpn.compose.state.FilterChip
-import net.mullvad.mullvadvpn.compose.state.ModelOwnership
 import net.mullvad.mullvadvpn.compose.state.RelayListItem
+import net.mullvad.mullvadvpn.compose.state.RelayListSelection
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
@@ -13,6 +12,8 @@ import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.Provider
 import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
+import net.mullvad.mullvadvpn.usecase.FilterChip
+import net.mullvad.mullvadvpn.usecase.ModelOwnership
 
 private val RELAY =
     RelayItem.Location.Relay(
@@ -31,7 +32,7 @@ class SelectLocationsUiStatePreviewParameterProvider :
     override val values =
         sequenceOf(
             SelectLocationUiState.Content(
-                searchTerm = "search term",
+                // searchTerm = "search term",
                 listOf(FilterChip.Ownership(ownership = ModelOwnership.MullvadOwned)),
                 relayListItems =
                     listOf(
@@ -60,6 +61,8 @@ class SelectLocationsUiStatePreviewParameterProvider :
                             locations = listOf(RELAY),
                         )
                     ),
+                multihopEnabled = true,
+                relayListSelection = RelayListSelection.Entry,
             ),
             SelectLocationUiState.Loading,
         )
