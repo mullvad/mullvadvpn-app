@@ -4,6 +4,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.FilterChip
 import net.mullvad.mullvadvpn.compose.state.ModelOwnership
 import net.mullvad.mullvadvpn.compose.state.RelayListItem
+import net.mullvad.mullvadvpn.compose.state.RelayListSelection
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
@@ -60,6 +61,8 @@ class SelectLocationsUiStatePreviewParameterProvider :
                             locations = listOf(RELAY),
                         )
                     ),
+                multihopEnabled = true,
+                relayListSelection = RelayListSelection.Entry,
             ),
             SelectLocationUiState.Loading,
         )
