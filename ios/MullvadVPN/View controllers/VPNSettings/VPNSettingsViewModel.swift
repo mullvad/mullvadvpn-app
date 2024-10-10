@@ -101,7 +101,6 @@ struct VPNSettingsViewModel: Equatable {
 
     private(set) var quantumResistance: TunnelQuantumResistance
     private(set) var multihopState: MultihopState
-    private(set) var daitaSettings: DAITASettings
 
     static let defaultWireGuardPorts: [UInt16] = [51820, 53]
 
@@ -191,10 +190,6 @@ struct VPNSettingsViewModel: Equatable {
         multihopState = newState
     }
 
-    mutating func setDAITASettings(_ newSettings: DAITASettings) {
-        daitaSettings = newSettings
-    }
-
     /// Precondition for enabling Custom DNS.
     var customDNSPrecondition: CustomDNSPrecondition {
         if blockAdvertising || blockTracking || blockMalware ||
@@ -251,7 +246,6 @@ struct VPNSettingsViewModel: Equatable {
 
         quantumResistance = tunnelSettings.tunnelQuantumResistance
         multihopState = tunnelSettings.tunnelMultihopState
-        daitaSettings = tunnelSettings.daita
     }
 
     /// Produce merged view model keeping entry `identifier` for matching DNS entries.

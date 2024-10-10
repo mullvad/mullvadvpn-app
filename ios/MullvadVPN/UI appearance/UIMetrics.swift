@@ -81,7 +81,7 @@ enum UIMetrics {
         /// Cell layout margins used in table views that use inset style.
         static let insetLayoutMargins = NSDirectionalEdgeInsets(top: 16, leading: 24, bottom: 16, trailing: 24)
 
-        static let apiAccessLayoutMargins = NSDirectionalEdgeInsets(top: 20, leading: 16, bottom: 20, trailing: 16)
+        static let apiAccessLayoutMargins = NSDirectionalEdgeInsets(top: 8, leading: 24, bottom: 24, trailing: 24)
         static let apiAccessInsetLayoutMargins = NSDirectionalEdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16)
         static let settingsValidationErrorLayoutMargins = NSDirectionalEdgeInsets(
             top: 8,
