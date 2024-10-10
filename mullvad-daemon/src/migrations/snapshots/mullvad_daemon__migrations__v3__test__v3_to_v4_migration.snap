@@ -34,14 +34,20 @@ expression: "serde_json::to_string_pretty(&settings).unwrap()"
       }
     }
   },
-  "settings_version": 3,
+  "settings_version": 4,
   "tunnel_options": {
     "dns_options": {
-      "addresses": [
-        "1.1.1.1",
-        "1.2.3.4"
-      ],
-      "custom": false
+      "custom_options": {
+        "addresses": [
+          "1.1.1.1",
+          "1.2.3.4"
+        ]
+      },
+      "default_options": {
+        "block_ads": false,
+        "block_trackers": false
+      },
+      "state": "default"
     },
     "generic": {
       "enable_ipv6": false
