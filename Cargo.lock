@@ -3045,6 +3045,7 @@ dependencies = [
  "fern",
  "futures",
  "hickory-resolver",
+ "insta",
  "ipnetwork",
  "libc",
  "log",
