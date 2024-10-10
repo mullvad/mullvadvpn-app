@@ -10,80 +10,44 @@ import Foundation
 import UIKit
 
 class DisconnectSplitButton: UIView {
-    private var secondaryButtonSize: CGSize {
-        UIMetrics.DisconnectSplitButton.secondaryButton
-    }
-
     let primaryButton = AppButton(style: .translucentDangerSplitLeft)
     let secondaryButton = AppButton(style: .translucentDangerSplitRight)
 
-    private let secondaryButtonWidthConstraint: NSLayoutConstraint
-    private let secondaryButtonHeightConstraint: NSLayoutConstraint
-
-    private let stackView: UIStackView
-
-    init() {
-        let primaryButtonBlurView = TranslucentButtonBlurView(button: primaryButton)
-        let secondaryButtonBlurView = TranslucentButtonBlurView(button: secondaryButton)
-
-        stackView = UIStackView(arrangedSubviews: [primaryButtonBlurView, secondaryButtonBlurView])
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.axis = .horizontal
-        stackView.distribution = .fill
-        stackView.alignment = .fill
-        stackView.spacing = 1
-
-        secondaryButton.setImage(
-            UIImage(named: "IconReload")?.imageFlippedForRightToLeftLayoutDirection(),
-            for: .normal
-        )
-
-        primaryButton.overrideContentEdgeInsets = true
-        secondaryButtonWidthConstraint = secondaryButton.widthAnchor.constraint(equalToConstant: 0)
-        secondaryButtonHeightConstraint = secondaryButton.heightAnchor
-            .constraint(equalToConstant: 0)
-
+    override init(frame: CGRect) {
         super.init(frame: .zero)
-
-        addSubview(stackView)
-
-        NSLayoutConstraint.activate([
-            stackView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            stackView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            stackView.topAnchor.constraint(equalTo: topAnchor),
-            stackView.bottomAnchor.constraint(equalTo: bottomAnchor),
-
-            secondaryButtonWidthConstraint,
-            secondaryButtonHeightConstraint,
-        ])
-
-        updateTraitConstraints()
+        commonInit()
     }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
-    private func updateTraitConstraints() {
-        let newSize = secondaryButtonSize
-        secondaryButtonWidthConstraint.constant = newSize.width
-        secondaryButtonHeightConstraint.constant = newSize.height
-        adjustTitleLabelPosition()
-    }
+    private func commonInit() {
+        let primaryButtonBlurView = TranslucentButtonBlurView(button: primaryButton)
+        let secondaryButtonBlurView = TranslucentButtonBlurView(button: secondaryButton)
 
-    private func adjustTitleLabelPosition() {
-        var contentInsets = primaryButton.defaultContentInsets
+        let stackView = UIStackView(arrangedSubviews: [primaryButtonBlurView, secondaryButtonBlurView])
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.axis = .horizontal
+        stackView.distribution = .fill
+        stackView.alignment = .fill
+        stackView.spacing = 1
 
-        let offset = stackView.spacing + secondaryButtonSize.width
+        let secondaryButtonSize = UIMetrics.DisconnectSplitButton.secondaryButton
 
-        if case .leftToRight = effectiveUserInterfaceLayoutDirection {
-            contentInsets.left = offset
-            contentInsets.right = 0
-        } else {
-            contentInsets.left = 0
-            contentInsets.right = offset
+        addConstrainedSubviews([stackView]) {
+            stackView.pinEdgesToSuperview()
+
+            secondaryButton.widthAnchor.constraint(equalToConstant: secondaryButtonSize.width)
+            secondaryButton.heightAnchor.constraint(equalToConstant: secondaryButtonSize.height)
         }
 
-        primaryButton.contentEdgeInsets = contentInsets
+        // Ideally, we shouldn't need to manually resize the image ourselves.
+        // However, since UIButton.Configuration doesn't provide a direct property
+        // for controlling image scaling (like imageScaling or contentMode in other contexts),
+        // manual resizing has been one approach to ensure the image fits within bounds.
+        secondaryButton.configuration?.image = UIImage(resource: .iconReload)
+            .resizeImage(targetSize: secondaryButtonSize.deducting(insets: secondaryButton.defaultContentInsets))
+            .imageFlippedForRightToLeftLayoutDirection()
     }
 }
