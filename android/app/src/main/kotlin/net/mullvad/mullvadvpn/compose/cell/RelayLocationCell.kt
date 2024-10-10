@@ -65,7 +65,9 @@ private fun PreviewCheckableRelayLocationCell(
 @Composable
 fun StatusRelayItemCell(
     item: RelayItem,
+    name: String,
     isSelected: Boolean,
+    isEnabled: Boolean,
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
     onLongClick: (() -> Unit)? = null,
@@ -79,8 +81,10 @@ fun StatusRelayItemCell(
 
     RelayItemCell(
         modifier = modifier,
-        item,
-        isSelected,
+        name = name,
+        hasChildren = item.hasChildren,
+        isSelected = isSelected,
+        isEnabled = isEnabled,
         leadingContent = {
             if (isSelected) {
                 Icon(imageVector = Icons.Default.Check, contentDescription = null)
@@ -94,6 +98,7 @@ fun StatusRelayItemCell(
                                     when {
                                         item is RelayItem.CustomList && item.locations.isEmpty() ->
                                             disabledColor
+                                        !isEnabled -> disabledColor
                                         item.active -> activeColor
                                         else -> inactiveColor
                                     },
@@ -114,7 +119,9 @@ fun StatusRelayItemCell(
 @Composable
 fun RelayItemCell(
     modifier: Modifier = Modifier,
-    item: RelayItem,
+    name: String,
+    hasChildren: Boolean,
+    isEnabled: Boolean,
     isSelected: Boolean,
     leadingContent: (@Composable RowScope.() -> Unit)? = null,
     onClick: () -> Unit,
@@ -144,7 +151,7 @@ fun RelayItemCell(
         Row(
             modifier =
                 Modifier.combinedClickable(
-                        enabled = item.active,
+                        enabled = isEnabled,
                         onClick = onClick,
                         onLongClick = onLongClick,
                     )
@@ -155,10 +162,10 @@ fun RelayItemCell(
             if (leadingContent != null) {
                 leadingContent()
             }
-            Name(relay = item)
+            Name(name = name, isEnabled = isEnabled)
         }
 
-        if (item.hasChildren) {
+        if (hasChildren) {
             ExpandButton(
                 color = MaterialTheme.colorScheme.onSurface,
                 isExpanded = isExpanded,
@@ -180,8 +187,10 @@ fun CheckableRelayLocationCell(
 ) {
     RelayItemCell(
         modifier = modifier,
-        item = item,
+        name = item.name,
+        hasChildren = item.hasChildren,
         isSelected = false,
+        isEnabled = item.active,
         leadingContent = {
             MullvadCheckbox(
                 checked = checked,
@@ -196,14 +205,14 @@ fun CheckableRelayLocationCell(
 }
 
 @Composable
-private fun Name(modifier: Modifier = Modifier, relay: RelayItem) {
+private fun Name(modifier: Modifier = Modifier, name: String, isEnabled: Boolean) {
     Text(
-        text = relay.name,
+        text = name,
         color = MaterialTheme.colorScheme.onSurface,
         modifier =
             modifier
                 .alpha(
-                    if (relay.active) {
+                    if (isEnabled) {
                         AlphaVisible
                     } else {
                         AlphaInactive

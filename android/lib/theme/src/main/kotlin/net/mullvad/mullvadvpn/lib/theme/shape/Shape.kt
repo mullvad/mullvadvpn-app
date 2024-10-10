@@ -11,9 +11,3 @@ val Shapes.chipShape: Shape
     get() {
         return RoundedCornerShape(8.dp)
     }
-
-val Shapes.fabShape: Shape
-    @Composable
-    get() {
-        return RoundedCornerShape(16.dp)
-    }
