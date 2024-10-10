@@ -232,6 +232,26 @@ pub(crate) fn migrate_device(
     migration_complete
 }
 
+/// TODO: Document
+#[cfg(test)]
+fn snapshot_dir() -> std::path::PathBuf {
+    std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/migrations/snapshots")
+}
+
+/// TODO: Document
+#[cfg(test)]
+pub(crate) fn load_seed<P: AsRef<Path>>(seed: P) -> serde_json::Value {
+    let seed = snapshot_dir().join(seed);
+    let seed = std::io::BufReader::new(std::fs::File::open(seed).unwrap_or_else(|_| {
+        panic!(
+            "{} seed is missing",
+            //seed.as_ref().to_str().unwrap()
+            "uxd",
+        )
+    }));
+    serde_json::from_reader(seed).unwrap()
+}
+
 #[cfg(windows)]
 mod windows {
     use std::{
