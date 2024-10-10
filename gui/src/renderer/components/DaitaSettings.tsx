@@ -34,14 +34,11 @@ const StyledContent = styled.div({
 
 const StyledHeaderSubTitle = styled(HeaderSubTitle)({
   display: 'inline-block',
+  fontWeight: 400,
 
   '&&:not(:last-child)': {
     paddingBottom: '18px',
   },
-});
-
-const EnableFooter = styled(Cell.CellFooter)({
-  paddingBottom: '16px',
 });
 
 export const StyledIllustration = styled.img({
@@ -82,25 +79,37 @@ export default function DaitaSettings() {
                       <StyledHeaderSubTitle>
                         {messages.pgettext(
                           'wireguard-settings-view',
-                          'If anyone is monitoring your connection, this makes it significantly harder for them to identify what websites you are visiting.',
-                        )}
-                      </StyledHeaderSubTitle>
-                    </React.Fragment>,
-                    <React.Fragment key="with-daita">
-                      <StyledIllustration src="../../assets/images/daita-on-illustration.svg" />
-                      <StyledHeaderSubTitle>
-                        {messages.pgettext(
-                          'wireguard-settings-view',
-                          'It does this by carefully adding network noise and making all network packets the same size.',
+                          'By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted).',
                         )}
                       </StyledHeaderSubTitle>
                       <StyledHeaderSubTitle>
                         {sprintf(
                           messages.pgettext(
                             'wireguard-settings-view',
-                            'Not all our servers are %(daita)s-enabled. We use multihop automatically to use %(daita)s with any server.',
+                            'If an observer monitors these data packets, %(daita)s makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating.',
                           ),
-                          { daita: strings.daita, daitaFull: strings.daitaFull },
+                          { daita: strings.daita },
+                        )}
+                      </StyledHeaderSubTitle>
+                    </React.Fragment>,
+                    <React.Fragment key="with-daita">
+                      <StyledIllustration src="../../assets/images/daita-on-illustration.svg" />
+                      <StyledHeaderSubTitle>
+                        {sprintf(
+                          messages.pgettext(
+                            'wireguard-settings-view',
+                            '%(daita)s does this by carefully adding network noise and making all network packets the same size.',
+                          ),
+                          { daita: strings.daita },
+                        )}
+                      </StyledHeaderSubTitle>
+                      <StyledHeaderSubTitle>
+                        {sprintf(
+                          messages.pgettext(
+                            'wireguard-settings-view',
+                            'Not all our servers are %(daita)s-enabled. Therefore, we use multihop automatically to enable %(daita)s with any server.',
+                          ),
+                          { daita: strings.daita },
                         )}
                       </StyledHeaderSubTitle>
                       <StyledHeaderSubTitle>
@@ -171,13 +180,6 @@ function DaitaToggle() {
             <Cell.Switch isOn={daita && !unavailable} onChange={setDaita} />
           </AriaInput>
         </Cell.Container>
-        {unavailable ? (
-          <EnableFooter>
-            <AriaDescription>
-              <Cell.CellFooterText>{featureUnavailableMessage()}</Cell.CellFooterText>
-            </AriaDescription>
-          </EnableFooter>
-        ) : null}
       </AriaInputGroup>
       <AriaInputGroup>
         <Cell.Container disabled={!daita || unavailable}>
@@ -191,19 +193,13 @@ function DaitaToggle() {
             <Cell.Switch isOn={directOnly && !unavailable} onChange={setDirectOnly} />
           </AriaInput>
         </Cell.Container>
-        <Cell.CellFooter>
-          <AriaDescription>
-            <Cell.CellFooterText>
-              {sprintf(
-                messages.pgettext(
-                  'vpn-settings-view',
-                  'Manually choose which %(daita)s-enabled server to use.',
-                ),
-                { daita: strings.daita },
-              )}
-            </Cell.CellFooterText>
-          </AriaDescription>
-        </Cell.CellFooter>
+        {unavailable ? (
+          <Cell.CellFooter>
+            <AriaDescription>
+              <Cell.CellFooterText>{featureUnavailableMessage()}</Cell.CellFooterText>
+            </AriaDescription>
+          </Cell.CellFooter>
+        ) : null}
       </AriaInputGroup>
       <ModalAlert
         isOpen={confirmationDialogVisible}
