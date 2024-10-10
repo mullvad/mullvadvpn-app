@@ -13,6 +13,7 @@ import UIKit
 
 protocol LocationViewControllerDelegate: AnyObject {
     func navigateToCustomLists(nodes: [LocationNode])
+    func navigateToDaitaSettings()
     func didSelectRelays(relays: UserSelectedRelays)
     func didUpdateFilter(filter: RelayFilter)
 }
@@ -22,11 +23,12 @@ final class LocationViewController: UIViewController {
     private let tableView = UITableView(frame: .zero, style: .grouped)
     private let topContentView = UIStackView()
     private let filterView = RelayFilterView()
+    private var daitaInfoView: UIView?
     private var dataSource: LocationDataSource?
     private var relaysWithLocation: LocationRelays?
     private var filter = RelayFilter()
     private var selectedRelays: RelaySelection
-    private var daitaEnabled: Bool
+    private var shouldFilterDaita: Bool
     weak var delegate: LocationViewControllerDelegate?
     var customListRepository: CustomListRepositoryProtocol
 
@@ -35,17 +37,17 @@ final class LocationViewController: UIViewController {
     }
 
     var filterViewShouldBeHidden: Bool {
-        !daitaEnabled && (filter.ownership == .any) && (filter.providers == .any)
+        !shouldFilterDaita && (filter.ownership == .any) && (filter.providers == .any)
     }
 
     init(
         customListRepository: CustomListRepositoryProtocol,
         selectedRelays: RelaySelection,
-        daitaEnabled: Bool = false
+        shouldFilterDaita: Bool
     ) {
         self.customListRepository = customListRepository
         self.selectedRelays = selectedRelays
-        self.daitaEnabled = daitaEnabled
+        self.shouldFilterDaita = shouldFilterDaita
 
         super.init(nibName: nil, bundle: nil)
     }
@@ -100,6 +102,13 @@ final class LocationViewController: UIViewController {
         dataSource?.setRelays(relaysWithLocation, selectedRelays: selectedRelays)
     }
 
+    func setShouldFilterDaita(_ shouldFilterDaita: Bool) {
+        self.shouldFilterDaita = shouldFilterDaita
+
+        filterView.isHidden = filterViewShouldBeHidden
+        filterView.setDaita(shouldFilterDaita)
+    }
+
     func refreshCustomLists() {
         dataSource?.refreshCustomLists(selectedRelays: selectedRelays)
     }
@@ -107,6 +116,25 @@ final class LocationViewController: UIViewController {
     func setSelectedRelays(_ selectedRelays: RelaySelection) {
         self.selectedRelays = selectedRelays
         dataSource?.setSelectedRelays(selectedRelays)
+    }
+
+    func addDaitaInfoView() {
+        guard daitaInfoView == nil else { return }
+
+        let daitaInfoView = DAITAInfoView()
+        daitaInfoView.didPressDaitaSettingsButton = { [weak self] in
+            self?.delegate?.navigateToDaitaSettings()
+        }
+
+        view.addConstrainedSubviews([daitaInfoView]) {
+            daitaInfoView.pinEdgesToSuperview(.all().excluding(.top))
+            daitaInfoView.topAnchor.constraint(equalTo: tableView.topAnchor)
+        }
+    }
+
+    func removeDaitaInfoView() {
+        daitaInfoView?.removeFromSuperview()
+        daitaInfoView = nil
     }
 
     // MARK: - Private
@@ -154,7 +182,7 @@ final class LocationViewController: UIViewController {
         topContentView.addArrangedSubview(searchBar)
 
         filterView.isHidden = filterViewShouldBeHidden
-        filterView.setDaita(daitaEnabled)
+        filterView.setDaita(shouldFilterDaita)
 
         filterView.didUpdateFilter = { [weak self] in
             self?.delegate?.didUpdateFilter(filter: $0)

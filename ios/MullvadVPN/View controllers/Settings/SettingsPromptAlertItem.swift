@@ -1,5 +1,5 @@
 //
-//  VPNSettingsPromptAlertItem.swift
+//  SettingsPromptAlertItem.swift
 //  MullvadVPN
 //
 //  Created by Mojgan on 2024-09-16.
@@ -7,7 +7,7 @@
 //
 
 import Foundation
-enum VPNSettingsPromptAlertItem: CustomStringConvertible {
+enum DAITASettingsPromptItem: CustomStringConvertible {
     case daitaSettingIncompatibleWithSinglehop
     case daitaSettingIncompatibleWithMultihop
 

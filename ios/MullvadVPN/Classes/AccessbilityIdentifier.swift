@@ -193,6 +193,7 @@ public enum AccessibilityIdentifier: String {
     // DAITA
     case daitaSwitch
     case daitaPromptAlert
+    case daitaDirectOnlySwitch
 
     // Quantum resistance
     case quantumResistanceAutomatic
