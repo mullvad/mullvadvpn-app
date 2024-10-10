@@ -15,7 +15,7 @@ class MultihopViewModel(
 
     val uiState: StateFlow<MultihopUiState> =
         wireguardConstraintsRepository.wireguardConstraints
-            .map { MultihopUiState(it?.useMultihop ?: false) }
+            .map { MultihopUiState(it?.isMultihopEnabled ?: false) }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), MultihopUiState(false))
 
     fun setMultihop(enable: Boolean) {

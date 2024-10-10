@@ -8,6 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.applist.ApplicationsProvider
+import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.constant.IS_PLAY_BUILD
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
 import net.mullvad.mullvadvpn.lib.payment.PaymentProvider
@@ -34,6 +35,7 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.usecase.AccountExpiryInAppNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.AvailableProvidersUseCase
 import net.mullvad.mullvadvpn.usecase.EmptyPaymentUseCase
+import net.mullvad.mullvadvpn.usecase.FilterChipUseCase
 import net.mullvad.mullvadvpn.usecase.FilteredRelayListUseCase
 import net.mullvad.mullvadvpn.usecase.InternetAvailableUseCase
 import net.mullvad.mullvadvpn.usecase.LastKnownLocationUseCase
@@ -42,6 +44,7 @@ import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.usecase.PlayPaymentUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationTitleUseCase
+import net.mullvad.mullvadvpn.usecase.SelectedLocationUseCase
 import net.mullvad.mullvadvpn.usecase.SystemVpnSettingsAvailableUseCase
 import net.mullvad.mullvadvpn.usecase.TunnelStateNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.VersionNotificationUseCase
@@ -79,7 +82,6 @@ import net.mullvad.mullvadvpn.viewmodel.PrivacyDisclaimerViewModel
 import net.mullvad.mullvadvpn.viewmodel.ReportProblemViewModel
 import net.mullvad.mullvadvpn.viewmodel.ResetServerIpOverridesConfirmationViewModel
 import net.mullvad.mullvadvpn.viewmodel.SaveApiAccessMethodViewModel
-import net.mullvad.mullvadvpn.viewmodel.SelectLocationViewModel
 import net.mullvad.mullvadvpn.viewmodel.ServerIpOverridesViewModel
 import net.mullvad.mullvadvpn.viewmodel.SettingsViewModel
 import net.mullvad.mullvadvpn.viewmodel.ShadowsocksCustomPortDialogViewModel
@@ -93,6 +95,9 @@ import net.mullvad.mullvadvpn.viewmodel.VpnPermissionViewModel
 import net.mullvad.mullvadvpn.viewmodel.VpnSettingsViewModel
 import net.mullvad.mullvadvpn.viewmodel.WelcomeViewModel
 import net.mullvad.mullvadvpn.viewmodel.WireguardCustomPortDialogViewModel
+import net.mullvad.mullvadvpn.viewmodel.location.SearchLocationViewModel
+import net.mullvad.mullvadvpn.viewmodel.location.SelectLocationListViewModel
+import net.mullvad.mullvadvpn.viewmodel.location.SelectLocationViewModel
 import org.apache.commons.validator.routines.InetAddressValidator
 import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
@@ -160,6 +165,8 @@ val uiModule = module {
     single { CustomListRelayItemsUseCase(get(), get()) }
     single { FilteredRelayListUseCase(get(), get(), get()) }
     single { LastKnownLocationUseCase(get()) }
+    single { SelectedLocationUseCase(get(), get()) }
+    single { FilterChipUseCase(get(), get(), get()) }
 
     single { InAppNotificationController(get(), get(), get(), get(), MainScope()) }
 
@@ -211,9 +218,7 @@ val uiModule = module {
     viewModel { WireguardCustomPortDialogViewModel(get()) }
     viewModel { LoginViewModel(get(), get(), get()) }
     viewModel { PrivacyDisclaimerViewModel(get(), IS_PLAY_BUILD) }
-    viewModel {
-        SelectLocationViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get())
-    }
+    viewModel { SelectLocationViewModel(get(), get(), get(), get(), get(), get()) }
     viewModel { SettingsViewModel(get(), get(), get(), IS_PLAY_BUILD) }
     viewModel { SplashViewModel(get(), get(), get(), get()) }
     viewModel { VoucherDialogViewModel(get()) }
@@ -242,6 +247,24 @@ val uiModule = module {
     viewModel { ShadowsocksSettingsViewModel(get(), get()) }
     viewModel { ShadowsocksCustomPortDialogViewModel(get()) }
     viewModel { MultihopViewModel(get()) }
+    viewModel {
+        SearchLocationViewModel(
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+        )
+    }
+    viewModel { (relayListType: RelayListType) ->
+        SelectLocationListViewModel(relayListType, get(), get(), get(), get(), get(), get())
+    }
 
     // This view model must be single so we correctly attach lifecycle and share it with activity
     single { NoDaemonViewModel(get()) }

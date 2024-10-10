@@ -100,14 +100,13 @@ fun SettingsScreen(
             state = lazyListState,
         ) {
             if (state.isLoggedIn) {
-                item {
-                    Multihop(
-                        isMultihopEnabled = state.useMultihop,
+                itemWithDivider {
+                    MultihopCell(
+                        isMultihopEnabled = state.multihopEnabled,
                         onMultihopClick = onMultihopClick,
                     )
                 }
-                item { Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding)) }
-                item {
+                itemWithDivider {
                     NavigationComposeCell(
                         title = stringResource(id = R.string.settings_vpn),
                         onClick = onVpnSettingCellClick,
@@ -191,13 +190,12 @@ private fun FaqAndGuides() {
 
     NavigationComposeCell(
         title = faqGuideLabel,
-        bodyView =
-            @Composable {
-                DefaultExternalLinkView(
-                    chevronContentDescription = faqGuideLabel,
-                    tint = MaterialTheme.colorScheme.onPrimary,
-                )
-            },
+        bodyView = {
+            DefaultExternalLinkView(
+                chevronContentDescription = faqGuideLabel,
+                tint = MaterialTheme.colorScheme.onPrimary,
+            )
+        },
         onClick = openFaqAndGuides,
     )
 }
@@ -213,38 +211,36 @@ private fun PrivacyPolicy(state: SettingsUiState) {
 
     NavigationComposeCell(
         title = privacyPolicyLabel,
-        bodyView =
-            @Composable {
-                DefaultExternalLinkView(
-                    chevronContentDescription = privacyPolicyLabel,
-                    tint = MaterialTheme.colorScheme.onPrimary,
-                )
-            },
+        bodyView = {
+            DefaultExternalLinkView(
+                chevronContentDescription = privacyPolicyLabel,
+                tint = MaterialTheme.colorScheme.onPrimary,
+            )
+        },
         onClick = openPrivacyPolicy,
     )
 }
 
 @Composable
-private fun Multihop(isMultihopEnabled: Boolean, onMultihopClick: () -> Unit) {
+private fun MultihopCell(isMultihopEnabled: Boolean, onMultihopClick: () -> Unit) {
     val title = stringResource(id = R.string.multihop)
     NavigationComposeCell(
         title = title,
         onClick = onMultihopClick,
-        bodyView =
-            @Composable {
-                NavigationCellBody(
-                    content =
-                        stringResource(
-                            if (isMultihopEnabled) {
-                                R.string.on
-                            } else {
-                                R.string.off
-                            }
-                        ),
-                    contentBodyDescription = title,
-                    textColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    isExternalLink = false,
-                )
-            },
+        bodyView = {
+            NavigationCellBody(
+                content =
+                    stringResource(
+                        if (isMultihopEnabled) {
+                            R.string.on
+                        } else {
+                            R.string.off
+                        }
+                    ),
+                contentBodyDescription = title,
+                textColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                isExternalLink = false,
+            )
+        },
     )
 }

@@ -223,10 +223,7 @@
     <string name="wireguard_port_title">WireGuard port</string>
     <string name="wireguard_port_info_description">The automatic setting will randomly choose from the valid port ranges shown below.</string>
     <string name="search_placeholder">Search for...</string>
-    <string name="select_location_empty_text_first_row">
-        <![CDATA[No result for <b>%s</b>.]]>
-    </string>
-    <string name="select_location_empty_text_second_row">Try a different search.</string>
+    <string name="search_location_empty_text">No result for \"%s\", please try a different search</string>
     <string name="wireguard_port_info_port_range">The custom port can be any value inside the valid ranges: %s.</string>
     <string name="wireguard_custon_port_title">Custom</string>
     <string name="port">Port</string>
@@ -400,4 +397,12 @@
     <string name="multihop">Multihop</string>
     <string name="multihop_description">Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online.</string>
     <string name="x_via_x">%s via %s</string>
+    <string name="entry">Entry</string>
+    <string name="exit">Exit</string>
+    <string name="clear_input">Clear input</string>
+    <string name="x_entry">%s (Entry)</string>
+    <string name="x_exit">%s (Exit)</string>
+    <string name="search_results">Search results</string>
+    <string name="filters">Filters</string>
+    <string name="search_query_empty">Type at least 2 characters to start searching.</string>
 </resources>

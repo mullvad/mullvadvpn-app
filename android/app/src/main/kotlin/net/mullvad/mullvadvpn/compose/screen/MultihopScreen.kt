@@ -1,8 +1,16 @@
 package net.mullvad.mullvadvpn.compose.screen
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -17,13 +25,14 @@ import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.viewmodel.MultihopUiState
 import net.mullvad.mullvadvpn.viewmodel.MultihopViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Preview
 @Composable
-fun PreviewMultihopScreen() {
+private fun PreviewMultihopScreen() {
     AppTheme { MultihopScreen(state = MultihopUiState(false)) }
 }
 
@@ -49,8 +58,18 @@ fun MultihopScreen(
         appBarTitle = stringResource(id = R.string.multihop),
         navigationIcon = { NavigateBackIconButton { onBackClick() } },
     ) { modifier ->
-        // Multihop image
         Column(modifier = modifier) {
+            // Scale image to fit width up to certain width
+            Image(
+                contentScale = ContentScale.FillWidth,
+                modifier =
+                    Modifier.widthIn(max = Dimens.settingsDetailsImageMaxWidth)
+                        .fillMaxWidth()
+                        .padding(horizontal = Dimens.mediumPadding)
+                        .align(Alignment.CenterHorizontally),
+                painter = painterResource(id = R.drawable.multihop_illustration),
+                contentDescription = stringResource(R.string.multihop),
+            )
             Description()
             HeaderSwitchComposeCell(
                 title = stringResource(R.string.enable),
@@ -63,5 +82,8 @@ fun MultihopScreen(
 
 @Composable
 private fun Description() {
-    SwitchComposeSubtitleCell(text = stringResource(R.string.multihop_description))
+    SwitchComposeSubtitleCell(
+        modifier = Modifier.padding(vertical = Dimens.mediumPadding),
+        text = stringResource(R.string.multihop_description),
+    )
 }
