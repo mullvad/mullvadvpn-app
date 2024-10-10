@@ -91,9 +91,12 @@ fn version_matches(settings: &serde_json::Value) -> bool {
 mod test {
     use crate::migrations::load_seed;
 
+    use super::migrate;
+
     #[test]
     fn v3_to_v4_migration() {
         let mut settings = load_seed("v3.json");
+        migrate(&mut settings).unwrap();
         insta::assert_snapshot!(serde_json::to_string_pretty(&settings).unwrap());
     }
 }
