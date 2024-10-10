@@ -22,8 +22,9 @@ for file in test-runner connection-checker $APP_PACKAGE $PREVIOUS_APP $UI_RUNNER
     cp -f "$SCRIPT_DIR/$file" "$RUNNER_DIR"
 done
 
-# Unprivileged users need execute rights for connection checker
-chmod 551 "${RUNNER_DIR}/connection-checker"
+# Unprivileged users need execute rights for some executables
+chmod 775 "${RUNNER_DIR}/connection-checker"
+chmod 775 "${RUNNER_DIR}/$UI_RUNNER"
 
 chown -R root "$RUNNER_DIR/"
 
