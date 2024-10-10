@@ -11,7 +11,7 @@
 	<key>ApiHostName</key>
 	<string>$(API_HOST_NAME)</string>
 	<key>AttachAppLogsOnFailure</key>
-	<string>${ATTACH_APP_LOGS_ON_FAILURE}</string>
+	<string>$(ATTACH_APP_LOGS_ON_FAILURE)</string>
 	<key>DisplayName</key>
 	<string>$(DISPLAY_NAME)</string>
 	<key>FirewallApiBaseURL</key>
@@ -27,7 +27,7 @@
 	<key>ShouldBeReachableDomain</key>
 	<string>$(SHOULD_BE_REACHABLE_DOMAIN)</string>
 	<key>TestDeviceIdentifier</key>
-	<string>$(TEST_DEVICE_IDENTIFIER_UUID</string>
+	<string>$(TEST_DEVICE_IDENTIFIER_UUID)</string>
 	<key>TestDeviceIsIPad</key>
 	<string>$(TEST_DEVICE_IS_IPAD)</string>
 	<key>UninstallAppInTestSuiteTearDown</key>
