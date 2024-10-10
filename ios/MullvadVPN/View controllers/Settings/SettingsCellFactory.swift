@@ -6,15 +6,26 @@
 //  Copyright © 2023 Mullvad VPN AB. All rights reserved.
 //
 
+import MullvadSettings
 import UIKit
 
-struct SettingsCellFactory: CellFactoryProtocol {
+protocol SettingsCellEventHandler {
+    func showInfo(for button: SettingsInfoButtonItem)
+    func switchDaitaState(_ settings: DAITASettings)
+    func switchDaitaDirectOnlyState(_ settings: DAITASettings)
+}
+
+final class SettingsCellFactory: CellFactoryProtocol {
     let tableView: UITableView
+    var delegate: SettingsCellEventHandler?
+    var viewModel: SettingsViewModel
     private let interactor: SettingsInteractor
 
     init(tableView: UITableView, interactor: SettingsInteractor) {
         self.tableView = tableView
         self.interactor = interactor
+
+        viewModel = SettingsViewModel(from: interactor.tunnelSettings)
     }
 
     func makeCell(for item: SettingsDataSource.Item, indexPath: IndexPath) -> UITableViewCell {
@@ -92,6 +103,59 @@ struct SettingsCellFactory: CellFactoryProtocol {
             cell.detailTitleLabel.text = nil
             cell.accessibilityIdentifier = item.accessibilityIdentifier
             cell.disclosureType = .chevron
+
+        case .daita:
+            guard let cell = cell as? SettingsSwitchCell else { return }
+
+            cell.titleLabel.text = NSLocalizedString(
+                "DAITA_LABEL",
+                tableName: "Settings",
+                value: "DAITA",
+                comment: ""
+            )
+            cell.accessibilityIdentifier = item.accessibilityIdentifier
+            cell.setOn(viewModel.daitaSettings.daitaState.isEnabled, animated: false)
+
+            cell.infoButtonHandler = { [weak self] in
+                self?.delegate?.showInfo(for: .daita)
+            }
+
+            cell.action = { [weak self] isEnabled in
+                guard let self else { return }
+
+                let state: DAITAState = isEnabled ? .on : .off
+                delegate?.switchDaitaState(DAITASettings(
+                    daitaState: state,
+                    directOnlyState: viewModel.daitaSettings.directOnlyState
+                ))
+            }
+
+        case .daitaDirectOnly:
+            guard let cell = cell as? SettingsSwitchCell else { return }
+
+            cell.titleLabel.text = NSLocalizedString(
+                "DAITA_DIRECT_ONLY_LABEL",
+                tableName: "Settings",
+                value: "Direct only",
+                comment: ""
+            )
+            cell.accessibilityIdentifier = item.accessibilityIdentifier
+            cell.setOn(viewModel.daitaSettings.directOnlyState.isEnabled, animated: false)
+            cell.setSwitchEnabled(viewModel.daitaSettings.daitaState.isEnabled)
+
+            cell.infoButtonHandler = { [weak self] in
+                self?.delegate?.showInfo(for: .daitaDirectOnly)
+            }
+
+            cell.action = { [weak self] isEnabled in
+                guard let self else { return }
+
+                let state: DirectOnlyState = isEnabled ? .on : .off
+                delegate?.switchDaitaDirectOnlyState(DAITASettings(
+                    daitaState: viewModel.daitaSettings.daitaState,
+                    directOnlyState: state
+                ))
+            }
         }
     }
 }

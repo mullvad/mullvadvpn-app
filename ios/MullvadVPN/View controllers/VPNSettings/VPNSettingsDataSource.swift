@@ -80,7 +80,6 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         case quantumResistanceOn
         case quantumResistanceOff
         case multihopSwitch
-        case daitaSwitch
 
         static var wireGuardPorts: [Item] {
             let defaultPorts = VPNSettingsViewModel.defaultWireGuardPorts.map {
@@ -125,8 +124,6 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
                 return .quantumResistanceOn
             case .quantumResistanceOff:
                 return .quantumResistanceOff
-            case .daitaSwitch:
-                return .daitaSwitch
             case .multihopSwitch:
                 return .multihopSwitch
             }
@@ -150,8 +147,6 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
                 return .quantumResistance
             case .multihopSwitch:
                 return .multihop
-            case .daitaSwitch:
-                return .daita
             }
         }
     }
@@ -425,7 +420,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         snapshot.appendItems([.dnsSettings], toSection: .dnsSettings)
         snapshot.appendItems([.ipOverrides], toSection: .ipOverrides)
 
-        snapshot.appendItems([.daitaSwitch, .multihopSwitch], toSection: .privacyAndSecurity)
+        snapshot.appendItems([.multihopSwitch], toSection: .privacyAndSecurity)
 
         applySnapshot(snapshot, animated: animated, completion: completion)
     }
@@ -645,32 +640,6 @@ extension VPNSettingsDataSource: VPNSettingsCellEventHandler {
     func switchMultihop(_ state: MultihopState) {
         viewModel.setMultihop(state)
         delegate?.didUpdateTunnelSettings(.multihop(viewModel.multihopState))
-    }
-
-    func switchDaitaState(_ settings: DAITASettings) {
-        let updateSettings = { [weak self] in
-            self?.viewModel.setDAITASettings(settings)
-            self?.delegate?.didUpdateTunnelSettings(.daita(settings))
-        }
-
-        if let error = delegate?.didAttemptToChangeDaitaSettings(settings) {
-            switch error {
-            case .singlehop:
-                delegate?.showPrompt(for: .daitaSettingIncompatibleWithSinglehop) {
-                    updateSettings()
-                } onDiscard: { [weak self] in
-                    self?.tableView?.reloadData()
-                }
-            case .multihop:
-                delegate?.showPrompt(for: .daitaSettingIncompatibleWithMultihop) {
-                    updateSettings()
-                } onDiscard: { [weak self] in
-                    self?.tableView?.reloadData()
-                }
-            }
-        } else {
-            updateSettings()
-        }
     }
 }
 
