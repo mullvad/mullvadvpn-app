@@ -34,8 +34,7 @@ expression: "serde_json::to_string_pretty(&settings).unwrap()"
       }
     }
   },
-  "settings_version": 2,
-  "show_beta_releases": null,
+  "settings_version": 3,
   "tunnel_options": {
     "generic": {
       "enable_ipv6": false
@@ -44,8 +43,11 @@ expression: "serde_json::to_string_pretty(&settings).unwrap()"
       "mssfix": null
     },
     "wireguard": {
-      "automatic_rotation": 10,
-      "mtu": null
+      "mtu": null,
+      "rotation_interval": {
+        "nanos": 0,
+        "secs": 86400
+      }
     }
   }
 }
