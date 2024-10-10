@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Port
+import net.mullvad.mullvadvpn.lib.model.RelayItemId
 
 class WireguardConstraintsRepository(
     private val managementService: ManagementService,
@@ -22,4 +23,7 @@ class WireguardConstraintsRepository(
     suspend fun setWireguardPort(port: Constraint<Port>) = managementService.setWireguardPort(port)
 
     suspend fun setMultihop(enabled: Boolean) = managementService.setMultihop(enabled)
+
+    suspend fun setEntryLocation(relayItemId: RelayItemId) =
+        managementService.setEntryLocation(relayItemId)
 }

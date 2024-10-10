@@ -96,6 +96,7 @@ import net.mullvad.mullvadvpn.lib.model.RedeemVoucherSuccess
 import net.mullvad.mullvadvpn.lib.model.RelayConstraints
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId as ModelRelayItemId
+import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelayList as ModelRelayList
 import net.mullvad.mullvadvpn.lib.model.RelayList
 import net.mullvad.mullvadvpn.lib.model.RelaySettings
@@ -123,6 +124,7 @@ import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 import net.mullvad.mullvadvpn.lib.model.WireguardEndpointData as ModelWireguardEndpointData
 import net.mullvad.mullvadvpn.lib.model.addresses
 import net.mullvad.mullvadvpn.lib.model.customOptions
+import net.mullvad.mullvadvpn.lib.model.entryLocation
 import net.mullvad.mullvadvpn.lib.model.location
 import net.mullvad.mullvadvpn.lib.model.ownership
 import net.mullvad.mullvadvpn.lib.model.port
@@ -765,6 +767,22 @@ class ManagementService(
                     RelaySettings.relayConstraints.wireguardConstraints.useMultihop.set(
                         relaySettings,
                         enabled,
+                    )
+                grpc.setRelaySettings(updated.fromDomain())
+            }
+            .onLeft { Logger.e("Set multihop error") }
+            .mapLeft(SetWireguardConstraintsError::Unknown)
+            .mapEmpty()
+
+    suspend fun setEntryLocation(
+        entryLocation: RelayItemId
+    ): Either<SetWireguardConstraintsError, Unit> =
+        Either.catch {
+                val relaySettings = getSettings().relaySettings
+                val updated =
+                    RelaySettings.relayConstraints.wireguardConstraints.entryLocation.set(
+                        relaySettings,
+                        Constraint.Only(entryLocation),
                     )
                 grpc.setRelaySettings(updated.fromDomain())
             }
