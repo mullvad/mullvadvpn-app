@@ -1,0 +1,47 @@
+{
+  "account_token": "1234",
+  "relay_settings": {
+    "normal": {
+      "location": {
+        "only": {
+          "country": "se"
+        }
+      },
+      "tunnel_protocol": "any",
+      "wireguard_constraints": {
+        "port": "any"
+      },
+      "openvpn_constraints": {
+        "port": {
+          "only": 53
+        },
+        "protocol": {
+          "only": "udp"
+        }
+      }
+    }
+  },
+  "bridge_settings": {
+    "normal": {
+      "location": "any"
+    }
+  },
+  "bridge_state": "auto",
+  "allow_lan": true,
+  "block_when_disconnected": false,
+  "auto_connect": false,
+  "tunnel_options": {
+    "openvpn": {
+      "mssfix": null
+    },
+    "wireguard": {
+      "mtu": null,
+      "automatic_rotation": 10
+    },
+    "generic": {
+      "enable_ipv6": false
+    }
+  },
+  "show_beta_releases": null,
+  "settings_version": 2
+}
