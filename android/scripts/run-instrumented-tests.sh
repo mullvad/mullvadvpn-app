@@ -17,6 +17,7 @@ PARTNER_AUTH="${PARTNER_AUTH:-}"
 VALID_TEST_ACCOUNT_NUMBER="${VALID_TEST_ACCOUNT_NUMBER:-}"
 INVALID_TEST_ACCOUNT_NUMBER="${INVALID_TEST_ACCOUNT_NUMBER:-}"
 ENABLE_HIGHLY_RATE_LIMITED_TESTS="${ENABLE_HIGHLY_RATE_LIMITED_TESTS:-false}"
+ENABLE_ACCESS_TO_LOCAL_API_TESTS="${ENABLE_ACCESS_TO_LOCAL_API_TESTS:-false}"
 REPORT_DIR="${REPORT_DIR:-}"
 
 while [[ "$#" -gt 0 ]]; do
@@ -131,7 +132,8 @@ case "$TEST_TYPE" in
         echo "Error: The variable PARTNER_AUTH or VALID_TEST_ACCOUNT_NUMBER must be set."
         exit 1
     fi
-    OPTIONAL_TEST_ARGUMENTS+=" -e enable_highly_rate_limited_tests $ENABLE_HIGHLY_RATE_LIMITED_TESTS"
+    OPTIONAL_TEST_ARGUMENTS+=" -e ENABLE_HIGHLY_RATE_LIMITED_TESTS $ENABLE_HIGHLY_RATE_LIMITED_TESTS"
+    OPTIONAL_TEST_ARGUMENTS+=" -e ENABLE_ACCESS_TO_LOCAL_API_TESTS $ENABLE_ACCESS_TO_LOCAL_API_TESTS"
     USE_ORCHESTRATOR="true"
     PACKAGE_NAME="net.mullvad.mullvadvpn"
     if [[ "$INFRA_FLAVOR" =~ ^(devmole|stagemole)$ ]]; then
@@ -152,12 +154,14 @@ INSTRUMENTATION_LOG_FILE_PATH="$REPORT_DIR/instrumentation-log.txt"
 LOGCAT_FILE_PATH="$REPORT_DIR/logcat.txt"
 LOCAL_SCREENSHOT_PATH="$REPORT_DIR/screenshots"
 DEVICE_SCREENSHOT_PATH="/sdcard/Pictures/mullvad-$TEST_TYPE"
+DEVICE_TEST_ATTACHMENTS_PATH="/sdcard/Download/test-attachments"
 
 echo ""
 echo "### Ensure clean report structure ###"
 rm -rf "${REPORT_DIR:?}/*"
 adb logcat --clear
 adb shell rm -rf "$DEVICE_SCREENSHOT_PATH"
+adb shell rm -rf "$DEVICE_TEST_ATTACHMENTS_PATH"
 echo ""
 
 if [[ "${USE_ORCHESTRATOR-}" == "true" ]]; then

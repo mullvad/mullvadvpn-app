@@ -539,6 +539,7 @@ jobs:
           VALID_TEST_ACCOUNT_NUMBER: ${{ secrets.ANDROID_PROD_TEST_ACCOUNT }}
           INVALID_TEST_ACCOUNT_NUMBER: '0000000000000000'
           ENABLE_HIGHLY_RATE_LIMITED_TESTS: ${{ github.event_name == 'schedule' && 'true' || 'false' }}
+          ENABLE_ACCESS_TO_LOCAL_API_TESTS: true
           REPORT_DIR: ${{ steps.prepare-report-dir.outputs.report_dir }}
         run: ./android/scripts/run-instrumented-tests-repeat.sh ${{ matrix.test-repeat }}
 
@@ -553,8 +554,9 @@ jobs:
         clearPackageData=true,\
         runnerBuilder=de.mannodermaus.junit5.AndroidJUnit5Builder,\
         invalid_test_account_number=0000000000000000,\
-        enable_highly_rate_limited_tests=${{ github.event_name == 'schedule' && 'true' || 'false' }},\
-        partner_auth=${{ secrets.STAGEMOLE_PARTNER_AUTH }}"
+        ENABLE_HIGHLY_RATE_LIMITED_TESTS=${{ github.event_name == 'schedule' && 'true' || 'false' }},\
+        partner_auth=${{ secrets.STAGEMOLE_PARTNER_AUTH }},\
+        ENABLE_ACCESS_TO_LOCAL_API_TESTS=false"
     strategy:
       fail-fast: false
       matrix:

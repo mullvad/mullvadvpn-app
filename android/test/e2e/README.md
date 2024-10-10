@@ -28,6 +28,8 @@ adb shell 'CLASSPATH=$(pm path androidx.test.services) app_process / \
     androidx.test.orchestrator/.AndroidTestOrchestrator'
 ```
 
+If you want to run tests that make use of APIs hosted at Mullvad HQ you need to set `ENABLE_ACCESS_TO_LOCAL_API_TESTS=true` in `e2e.properties` or pass it as a command line argument when launching tests.
+
 ### Firebase Test Lab
 Firebase Test Lab can be used to run the tests on vast collection of physical and virtual devices.
 
