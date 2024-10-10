@@ -1,0 +1,51 @@
+---
+source: mullvad-daemon/src/migrations/v2.rs
+expression: "serde_json::to_string_pretty(&settings).unwrap()"
+---
+{
+  "account_token": "1234",
+  "allow_lan": true,
+  "auto_connect": false,
+  "block_when_disconnected": false,
+  "bridge_settings": {
+    "normal": {
+      "location": "any"
+    }
+  },
+  "bridge_state": "auto",
+  "relay_settings": {
+    "normal": {
+      "location": {
+        "only": {
+          "country": "se"
+        }
+      },
+      "openvpn_constraints": {
+        "port": {
+          "only": 53
+        },
+        "protocol": {
+          "only": "udp"
+        }
+      },
+      "tunnel_protocol": "any",
+      "wireguard_constraints": {
+        "port": "any"
+      }
+    }
+  },
+  "settings_version": 2,
+  "show_beta_releases": null,
+  "tunnel_options": {
+    "generic": {
+      "enable_ipv6": false
+    },
+    "openvpn": {
+      "mssfix": null
+    },
+    "wireguard": {
+      "automatic_rotation": 10,
+      "mtu": null
+    }
+  }
+}
