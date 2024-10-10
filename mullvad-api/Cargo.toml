@@ -19,16 +19,19 @@ libc = "0.2"
 chrono = { workspace = true }
 thiserror = { workspace = true }
 futures = { workspace = true }
-http = "0.2"
-hyper = { version = "0.14", features = ["client", "stream", "http1", "tcp" ] }
+http = "1.1.0"
+hyper = { version = "1.4.1", features = ["client", "http1"] }
+hyper-util = { workspace = true}
+http-body-util = "0.1.2"
+tower = { workspace = true }
 ipnetwork = { workspace = true }
 log = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 tokio = { workspace = true, features = ["macros", "time", "rt-multi-thread", "net", "io-std", "io-util", "fs"] }
-tokio-rustls = "0.24.1"
+tokio-rustls = { version = "0.26.0", features = ["logging", "tls12", "ring"], default-features = false}
 tokio-socks = "0.5.1"
-rustls-pemfile = "1.0.3"
+rustls-pemfile = "2.1.3"
 
 mullvad-fs = { path = "../mullvad-fs" }
 mullvad-types = { path = "../mullvad-types" }

@@ -8,10 +8,10 @@ use futures::{channel::mpsc, future, pin_mut, StreamExt};
 #[cfg(target_os = "android")]
 use futures::{channel::oneshot, sink::SinkExt};
 use http::uri::Scheme;
-use hyper::{
-    client::connect::dns::{GaiResolver, Name},
-    service::Service,
-    Uri,
+use hyper::Uri;
+use hyper_util::{
+    client::legacy::connect::dns::{GaiResolver, Name},
+    rt::TokioIo,
 };
 use shadowsocks::{
     config::ServerType,
@@ -39,6 +39,7 @@ use tokio::{
     net::{TcpSocket, TcpStream},
     time::timeout,
 };
+use tower::Service;
 
 #[cfg(feature = "api-override")]
 use crate::{proxy::ConnectionDecorator, API};
@@ -407,7 +408,7 @@ impl fmt::Debug for HttpsConnectorWithSni {
 }
 
 impl Service<Uri> for HttpsConnectorWithSni {
-    type Response = AbortableStream<ApiConnection>;
+    type Response = TokioIo<AbortableStream<ApiConnection>>;
     type Error = io::Error;
     type Future =
         Pin<Box<dyn Future<Output = Result<Self::Response, Self::Error>> + Send + 'static>>;
@@ -472,7 +473,7 @@ impl Service<Uri> for HttpsConnectorWithSni {
                 inner.stream_handles.push(socket_handle);
             }
 
-            Ok(stream)
+            Ok(TokioIo::new(stream))
         };
 
         Box::pin(fut)

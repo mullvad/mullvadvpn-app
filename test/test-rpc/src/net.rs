@@ -5,13 +5,19 @@ use http_body_util::{BodyExt, Full};
 use hyper::Uri;
 use hyper_util::client::legacy::Client;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
-use std::{net::SocketAddr, sync::LazyLock, time::Duration};
+use std::{
+    net::SocketAddr,
+    sync::{Arc, LazyLock},
+    time::Duration,
+};
 use tokio_rustls::rustls::{self, ClientConfig};
 
 const LE_ROOT_CERT: &[u8] = include_bytes!("../../../mullvad-api/le_root_cert.pem");
 
 static CLIENT_CONFIG: LazyLock<ClientConfig> = LazyLock::new(|| {
-    ClientConfig::builder()
+    ClientConfig::builder_with_provider(Arc::new(rustls::crypto::ring::default_provider()))
+        .with_safe_default_protocol_versions()
+        .unwrap()
         .with_root_certificates(read_cert_store())
         .with_no_client_auth()
 });
