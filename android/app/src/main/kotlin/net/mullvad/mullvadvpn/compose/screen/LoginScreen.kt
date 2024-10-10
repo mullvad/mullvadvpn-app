@@ -56,11 +56,13 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.NavGraphs
 import com.ramcosta.composedestinations.generated.destinations.ConnectDestination
+import com.ramcosta.composedestinations.generated.destinations.CreateAccountConfirmationDestination
 import com.ramcosta.composedestinations.generated.destinations.DeviceListDestination
 import com.ramcosta.composedestinations.generated.destinations.OutOfTimeDestination
 import com.ramcosta.composedestinations.generated.destinations.SettingsDestination
 import com.ramcosta.composedestinations.generated.destinations.WelcomeDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.result.ResultRecipient
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.button.VariantButton
@@ -78,6 +80,7 @@ import net.mullvad.mullvadvpn.compose.test.LOGIN_TITLE_TEST_TAG
 import net.mullvad.mullvadvpn.compose.textfield.mullvadWhiteTextFieldColors
 import net.mullvad.mullvadvpn.compose.transitions.LoginTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
 import net.mullvad.mullvadvpn.compose.util.accountNumberVisualTransformation
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -86,7 +89,7 @@ import net.mullvad.mullvadvpn.viewmodel.LoginUiSideEffect
 import net.mullvad.mullvadvpn.viewmodel.LoginViewModel
 import org.koin.androidx.compose.koinViewModel
 
-@Preview("Default|Loading.LogginIn|Loading.CreatingAccount|LoginError|Success")
+@Preview("Default|Loading.LoggingIn|Loading.CreatingAccount|LoginError|Success")
 @Composable
 private fun PreviewLoginScreen(
     @PreviewParameter(LoginUiStatePreviewParameterProvider::class) state: LoginUiState
@@ -103,6 +106,8 @@ fun Login(
     navigator: DestinationsNavigator,
     accountNumber: String? = null,
     vm: LoginViewModel = koinViewModel(),
+    createAccountConfirmationDialogResult:
+        ResultRecipient<CreateAccountConfirmationDestination, Boolean>,
 ) {
     val state by vm.uiState.collectAsStateWithLifecycle()
 
@@ -111,6 +116,12 @@ fun Login(
         if (accountNumber != null) {
             vm.onAccountNumberChange(accountNumber)
             vm.login(accountNumber)
+        }
+    }
+
+    createAccountConfirmationDialogResult.OnNavResultValue { createAccount ->
+        if (createAccount) {
+            vm.onCreateAccountConfirmed()
         }
     }
 
@@ -137,6 +148,8 @@ fun Login(
                     launchSingleTop = true
                     popUpTo(NavGraphs.root) { inclusive = true }
                 }
+            LoginUiSideEffect.NavigateToCreateAccountConfirmation ->
+                navigator.navigate(CreateAccountConfirmationDestination)
             LoginUiSideEffect.GenericError ->
                 snackbarHostState.showSnackbarImmediately(
                     message = context.getString(R.string.error_occurred)
@@ -147,7 +160,7 @@ fun Login(
         state = state,
         snackbarHostState = snackbarHostState,
         onLoginClick = vm::login,
-        onCreateAccountClick = vm::createAccount,
+        onCreateAccountClick = vm::onCreateAccountClick,
         onDeleteHistoryClick = vm::clearAccountHistory,
         onAccountNumberChange = vm::onAccountNumberChange,
         onSettingsClick = dropUnlessResumed { navigator.navigate(SettingsDestination) },
