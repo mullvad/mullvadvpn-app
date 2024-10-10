@@ -54,9 +54,11 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
     }
 
     func start() {
-        let startContext: LocationViewControllerWrapper.MultihopContext =
-            if case .noRelaysSatisfyingDaitaConstraints = tunnelManager.tunnelStatus.observedState
+        var startContext: LocationViewControllerWrapper.MultihopContext = .exit
+        if tunnelManager.settings.tunnelMultihopState.isEnabled {
+            startContext = if case .noRelaysSatisfyingDaitaConstraints = tunnelManager.tunnelStatus.observedState
                 .blockedState?.reason { .entry } else { .exit }
+        }
 
         let locationViewControllerWrapper = LocationViewControllerWrapper(
             customListRepository: customListRepository,
