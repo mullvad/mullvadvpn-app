@@ -19,6 +19,7 @@ pub enum TunnelType {
 // ======================================================
 
 pub fn migrate(settings: &mut serde_json::Value) -> Result<()> {
+    let version_matches = |settings: &serde_json::Value| settings.get("settings_version").is_none();
     if !version_matches(settings) {
         return Ok(());
     }
@@ -68,13 +69,9 @@ pub fn migrate(settings: &mut serde_json::Value) -> Result<()> {
     Ok(())
 }
 
-fn version_matches(settings: &serde_json::Value) -> bool {
-    settings.get("settings_version").is_none()
-}
-
 #[cfg(test)]
 mod test {
-    use super::{migrate, version_matches};
+    use crate::migrations::load_seed;
 
     pub const V2_SETTINGS: &str = r#"
 {
@@ -161,26 +158,16 @@ mod test {
 "#;
 
     #[test]
-    fn test_v1_migration() {
-        let mut old_settings = serde_json::from_str(V1_SETTINGS).unwrap();
-
-        assert!(version_matches(&old_settings));
-
-        migrate(&mut old_settings).unwrap();
-        let new_settings: serde_json::Value = serde_json::from_str(V2_SETTINGS).unwrap();
-
-        assert_eq!(&old_settings, &new_settings);
+    fn v1_to_v2_migration() {
+        let mut settings = load_seed("v1.json");
+        migrate(&mut settings).unwrap();
+        insta::assert_snapshot!(serde_json::to_string_pretty(&settings).unwrap());
     }
 
     #[test]
-    fn test_v1_2019v3_migration() {
-        let mut old_settings = serde_json::from_str(V1_SETTINGS_2019V3).unwrap();
-
-        assert!(version_matches(&old_settings));
-
-        migrate(&mut old_settings).unwrap();
-        let new_settings: serde_json::Value = serde_json::from_str(V2_SETTINGS).unwrap();
-
-        assert_eq!(&old_settings, &new_settings);
+    fn v1_2019v3_to_v2_migration() {
+        let mut settings = load_seed("v1_2019v3.json");
+        migrate(&mut settings).unwrap();
+        insta::assert_snapshot!(serde_json::to_string_pretty(&settings).unwrap());
     }
 }
