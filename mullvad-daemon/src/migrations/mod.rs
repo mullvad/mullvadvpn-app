@@ -213,10 +213,13 @@ async fn migrate_settings(
 
     v9::migrate(
         settings,
-        #[cfg(target_os = "android")]
-        directories.map(|directories| v9::Directories {
-            settings: directories.settings_dir,
-        }),
+        if cfg!(target_os = "android") {
+            directories.map(|directories| v9::Directories {
+                settings: directories.settings_dir,
+            })
+        } else {
+            None
+        },
     )?;
 
     v10::migrate(settings)?;
@@ -243,6 +246,23 @@ pub(crate) fn migrate_device(
         daemon_tx,
     );
     migration_complete
+}
+
+/// Load a JSON object from disk.
+#[cfg(test)]
+pub(crate) fn load_seed<P: AsRef<Path>>(seed: P) -> serde_json::Value {
+    let seed = snapshot_dir().join(seed);
+    let seed = std::io::BufReader::new(
+        std::fs::File::open(&seed)
+            .unwrap_or_else(|_| panic!("{} is missing", seed.to_string_lossy())),
+    );
+    serde_json::from_reader(seed).unwrap()
+}
+
+/// Directory where `cargo-insta` stores the test snapshots.
+#[cfg(test)]
+fn snapshot_dir() -> std::path::PathBuf {
+    std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/migrations/snapshots")
 }
 
 #[cfg(windows)]
