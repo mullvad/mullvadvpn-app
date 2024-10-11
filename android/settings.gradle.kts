@@ -20,7 +20,6 @@ include(
     ":lib:daemon-grpc",
     ":lib:endpoint",
     ":lib:intent-provider",
-    ":lib:ipc",
     ":lib:map",
     ":lib:model",
     ":lib:payment",
