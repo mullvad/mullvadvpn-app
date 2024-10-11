@@ -5,7 +5,7 @@ import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import useActions from '../lib/actionsHook';
 import { useHistory } from '../lib/history';
-import { useCombinedRefs, useEffectEvent, useStyledRef } from '../lib/utilityHooks';
+import { useCombinedRefs, useEffectEvent, useStyledRef } from '../lib/utility-hooks';
 import settingsImportActions from '../redux/settings-import/actions';
 import { useSelector } from '../redux/store';
 import ImageView from './ImageView';

@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { colors, strings } from '../../../config.json';
 import { FeatureIndicator } from '../../../shared/daemon-rpc-types';
 import { messages } from '../../../shared/gettext';
-import { useStyledRef } from '../../lib/utilityHooks';
+import { useStyledRef } from '../../lib/utility-hooks';
 import { useSelector } from '../../redux/store';
 import { tinyText } from '../common-styles';
 import { InfoIcon } from '../InfoButton';

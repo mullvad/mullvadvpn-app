@@ -16,7 +16,7 @@ import {
   NormalRelaySettingsRedux,
 } from '../redux/settings/reducers';
 import { useSelector } from '../redux/store';
-import { useNormalRelaySettings } from './utilityHooks';
+import { useNormalRelaySettings } from './relay-settings-hooks';
 
 export function wrapRelaySettingsOrDefault(
   relaySettings?: NormalRelaySettingsRedux,

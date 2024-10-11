@@ -2,7 +2,8 @@ import { Action } from 'history';
 import React, { useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 
 import { useHistory } from '../../lib/history';
-import { useNormalRelaySettings, useStyledRef } from '../../lib/utilityHooks';
+import { useNormalRelaySettings } from '../../lib/relay-settings-hooks';
+import { useStyledRef } from '../../lib/utility-hooks';
 import { CustomScrollbarsRef } from '../CustomScrollbars';
 import { LocationType } from './select-location-types';
 import { useSelectLocationContext } from './SelectLocationContainer';

@@ -17,7 +17,7 @@ import { getDownloadUrl } from '../../shared/version';
 import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
 import { useHistory } from '../lib/history';
-import { useEffectEvent } from '../lib/utilityHooks';
+import { useEffectEvent } from '../lib/utility-hooks';
 import { useSelector } from '../redux/store';
 import support from '../redux/support/actions';
 import * as AppButton from './AppButton';

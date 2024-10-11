@@ -2,7 +2,7 @@ import React, { useCallback, useContext, useEffect, useMemo } from 'react';
 import styled from 'styled-components';
 
 import { colors } from '../../config.json';
-import { useBoolean, useStyledRef } from '../lib/utilityHooks';
+import { useBoolean, useStyledRef } from '../lib/utility-hooks';
 import { smallText } from './common-styles';
 import { BackAction } from './KeyboardNavigation';
 

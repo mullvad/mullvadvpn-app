@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import { colors } from '../../config.json';
 import { NonEmptyArray } from '../../shared/utils';
-import { useStyledRef } from '../lib/utilityHooks';
+import { useStyledRef } from '../lib/utility-hooks';
 import { Icon } from './cell';
 
 const PAGE_GAP = 16;

@@ -5,7 +5,7 @@ import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import log from '../../shared/logging';
 import { useScheduler } from '../../shared/scheduler';
-import { useBoolean } from '../lib/utilityHooks';
+import { useBoolean } from '../lib/utility-hooks';
 import ImageView from './ImageView';
 
 const COPIED_ICON_DURATION = 2000;
