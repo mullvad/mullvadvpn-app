@@ -168,7 +168,7 @@ function ApiAccessMethod(props: ApiAccessMethodProps) {
     updateApiAccessMethod,
     removeApiAccessMethod,
   } = useAppContext();
-  const history = useHistory();
+  const { push } = useHistory();
 
   const [testing, testResult, testApiAccessMethod] = useApiAccessMethodTest();
 
@@ -177,7 +177,7 @@ function ApiAccessMethod(props: ApiAccessMethodProps) {
   const confirmRemove = useCallback(() => {
     void removeApiAccessMethod(props.method.id);
     hideRemoveConfirmation();
-  }, [props.method.id]);
+  }, [hideRemoveConfirmation, props.method.id, removeApiAccessMethod]);
 
   // Toggle on/off on an access method.
   const toggle = useCallback(
@@ -186,7 +186,7 @@ function ApiAccessMethod(props: ApiAccessMethodProps) {
       updatedMethod.enabled = value;
       await updateApiAccessMethod(updatedMethod);
     },
-    [props.method],
+    [props.method, updateApiAccessMethod],
   );
 
   const setApiAccessMethod = useCallback(async () => {
@@ -194,7 +194,7 @@ function ApiAccessMethod(props: ApiAccessMethodProps) {
     if (reachable) {
       await setApiAccessMethodImpl(props.method.id);
     }
-  }, [testApiAccessMethod, props.method.id]);
+  }, [testApiAccessMethod, props.method.id, setApiAccessMethodImpl]);
 
   const menuItems = useMemo<Array<ContextMenuItem>>(() => {
     const items: Array<ContextMenuItem> = [
@@ -219,9 +219,7 @@ function ApiAccessMethod(props: ApiAccessMethodProps) {
           type: 'item' as const,
           label: messages.gettext('Edit'),
           onClick: () =>
-            history.push(
-              generateRoutePath(RoutePath.editApiAccessMethods, { id: props.method.id }),
-            ),
+            push(generateRoutePath(RoutePath.editApiAccessMethods, { id: props.method.id })),
         },
         {
           type: 'item' as const,
@@ -232,7 +230,15 @@ function ApiAccessMethod(props: ApiAccessMethodProps) {
     }
 
     return items;
-  }, [props.method.id, props.inUse, setApiAccessMethod, testApiAccessMethod, history.push]);
+  }, [
+    props.inUse,
+    props.custom,
+    props.method.id,
+    setApiAccessMethod,
+    testApiAccessMethod,
+    showRemoveConfirmation,
+    push,
+  ]);
 
   return (
     <Cell.Row data-testid="access-method">

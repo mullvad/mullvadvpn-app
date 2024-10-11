@@ -4,6 +4,7 @@ import styled from 'styled-components';
 
 import { colors } from '../../config.json';
 import log from '../../shared/logging';
+import { useEffectEvent } from '../lib/utilityHooks';
 import { useWillExit } from '../lib/will-exit';
 import * as AppButton from './AppButton';
 import { measurements, normalText, tinyText } from './common-styles';
@@ -192,13 +193,15 @@ export function ModalAlert(props: IModalAlertProps & { isOpen: boolean }) {
     }
   }, [willExit, isOpen]);
 
-  useEffect(() => {
+  const onOpenStateChange = useEffectEvent((isOpen: boolean) => {
     setOpenState(({ isClosing, wasOpen }) => ({
       isClosing: isClosing || (wasOpen && !isOpen),
       // Unmounting the Modal during view transitions result in a visual glitch.
       wasOpen: willExit ? wasOpen : isOpen,
     }));
-  }, [isOpen]);
+  });
+
+  useEffect(() => onOpenStateChange(isOpen), [isOpen]);
 
   if (!openState.wasOpen && !isOpen && !openState.isClosing) {
     return null;

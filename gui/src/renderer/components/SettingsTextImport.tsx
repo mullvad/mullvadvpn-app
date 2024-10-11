@@ -5,7 +5,7 @@ import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import useActions from '../lib/actionsHook';
 import { useHistory } from '../lib/history';
-import { useCombinedRefs, useStyledRef } from '../lib/utilityHooks';
+import { useCombinedRefs, useRefCallback, useStyledRef } from '../lib/utilityHooks';
 import settingsImportActions from '../redux/settings-import/actions';
 import { useSelector } from '../redux/store';
 import ImageView from './ImageView';
@@ -21,18 +21,18 @@ const StyledTextArea = styled.textarea({
 });
 
 export default function SettingsTextImport() {
-  const history = useHistory();
+  const { pop } = useHistory();
 
   const { saveSettingsImportForm } = useActions(settingsImportActions);
   // The textarea value is saved in redux to make it persistent when leaving the view.
   const initialValue = useSelector((state) => state.settingsImport.value);
 
   const textareaRef = useStyledRef<HTMLTextAreaElement>();
-  const onTextareaLoad = useCallback((element?: HTMLTextAreaElement) => {
+  const onTextareaLoad = useRefCallback((element?: HTMLTextAreaElement) => {
     if (element) {
       element.value = initialValue;
     }
-  }, []);
+  });
 
   const combinedTextAreaRef = useCombinedRefs(textareaRef, onTextareaLoad);
 
@@ -40,15 +40,15 @@ export default function SettingsTextImport() {
     if (textareaRef.current?.value) {
       saveSettingsImportForm(textareaRef.current.value, true);
     }
-    history.pop();
-  }, [history]);
+    pop();
+  }, [pop, saveSettingsImportForm, textareaRef]);
 
   const back = useCallback(() => {
     if (textareaRef.current) {
       saveSettingsImportForm(textareaRef.current.value, false);
     }
-    history.pop();
-  }, [history]);
+    pop();
+  }, [pop, saveSettingsImportForm, textareaRef]);
 
   return (
     <BackAction action={back}>

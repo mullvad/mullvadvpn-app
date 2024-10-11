@@ -55,6 +55,8 @@ interface IProps<C extends LocationSpecification> {
 
 // Renders the rows and its children for countries, cities and relays
 function LocationRow<C extends LocationSpecification>(props: IProps<C>) {
+  const { onSelect, onWillExpand: propsOnWillExpand } = props;
+
   const hasChildren = getLocationChildren(props.source).some((child) => child.visible);
   const buttonRef = useStyledRef<HTMLButtonElement>();
   const userInvokedExpand = useRef(false);
@@ -79,19 +81,19 @@ function LocationRow<C extends LocationSpecification>(props: IProps<C>) {
 
   const handleClick = useCallback(() => {
     if (!props.source.selected) {
-      props.onSelect(props.source.location);
+      onSelect(props.source.location);
     }
-  }, [props.onSelect, props.source.location, props.source.selected]);
+  }, [onSelect, props.source.location, props.source.selected]);
 
   const onWillExpand = useCallback(
     (nextHeight: number) => {
       const buttonRect = buttonRef.current?.getBoundingClientRect();
       if (expanded !== undefined && buttonRect) {
-        props.onWillExpand(buttonRect, nextHeight, userInvokedExpand.current);
+        propsOnWillExpand(buttonRect, nextHeight, userInvokedExpand.current);
         userInvokedExpand.current = false;
       }
     },
-    [props.onWillExpand, expanded],
+    [buttonRef, expanded, propsOnWillExpand],
   );
 
   const onRemoveFromList = useCallback(async () => {
@@ -116,7 +118,7 @@ function LocationRow<C extends LocationSpecification>(props: IProps<C>) {
         }
       }
     }
-  }, [customLists, props.source.location]);
+  }, [customLists, props.source.location, updateCustomList]);
 
   // Remove an entire custom list.
   const confirmRemoveCustomList = useCallback(async () => {
@@ -130,7 +132,7 @@ function LocationRow<C extends LocationSpecification>(props: IProps<C>) {
         );
       }
     }
-  }, [props.source.location.customList]);
+  }, [deleteCustomList, props.source.location.customList]);
 
   if (!props.source.visible) {
     return null;

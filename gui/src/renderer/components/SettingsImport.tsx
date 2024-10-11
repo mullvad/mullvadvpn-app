@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
@@ -9,7 +9,7 @@ import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
 import { transitions, useHistory } from '../lib/history';
 import { RoutePath } from '../lib/routes';
-import { useAsyncEffect, useBoolean } from '../lib/utilityHooks';
+import { useBoolean, useEffectEvent } from '../lib/utilityHooks';
 import settingsImportActions from '../redux/settings-import/actions';
 import { useSelector } from '../redux/store';
 import { measurements, normalText } from './common-styles';
@@ -70,22 +70,25 @@ export default function SettingsImport() {
   const [importStatus, setImportStatusImpl] = useState<ImportStatus>();
   const importStatusResetScheduler = useScheduler();
 
-  const setImportStatus = useCallback((status?: ImportStatus) => {
-    // Cancel scheduled status clearing.
-    importStatusResetScheduler.cancel();
-    setImportStatusImpl(status);
+  const setImportStatus = useCallback(
+    (status?: ImportStatus) => {
+      // Cancel scheduled status clearing.
+      importStatusResetScheduler.cancel();
+      setImportStatusImpl(status);
 
-    // The status text should be cleared after 10 seconds.
-    if (status !== undefined) {
-      importStatusResetScheduler.schedule(() => setImportStatusImpl(undefined), 10_000);
-    }
-  }, []);
+      // The status text should be cleared after 10 seconds.
+      if (status !== undefined) {
+        importStatusResetScheduler.schedule(() => setImportStatusImpl(undefined), 10_000);
+      }
+    },
+    [importStatusResetScheduler],
+  );
 
   const confirmClear = useCallback(() => {
     hideClearDialog();
     void clearAllRelayOverrides();
     setImportStatus(undefined);
-  }, []);
+  }, [clearAllRelayOverrides, hideClearDialog, setImportStatus]);
 
   const navigateTextImport = useCallback(() => {
     history.push(RoutePath.settingsTextImport, { transition: transitions.show });
@@ -105,9 +108,9 @@ export default function SettingsImport() {
     } catch {
       setImportStatus({ successful: false, type: 'file', name });
     }
-  }, []);
+  }, [getPathBaseName, importSettingsFile, setImportStatus, showOpenDialog]);
 
-  useAsyncEffect(async () => {
+  const onMount = useEffectEvent(async () => {
     if (history.action === 'POP' && textForm.submit && textForm.value !== '') {
       try {
         await importSettingsText(textForm.value);
@@ -118,7 +121,9 @@ export default function SettingsImport() {
         unsetSubmitSettingsImportForm();
       }
     }
-  }, []);
+  });
+
+  useEffect(() => void onMount(), []);
 
   return (
     <BackAction action={history.pop}>

@@ -33,7 +33,7 @@ export default function SelectLocationButtons() {
 }
 
 function SelectLocationButton(props: MultiButtonCompatibleProps) {
-  const history = useHistory();
+  const { push } = useHistory();
 
   const tunnelState = useSelector((state) => state.connection.status.state);
   const relaySettings = useSelector((state) => state.settings.relaySettings);
@@ -46,8 +46,8 @@ function SelectLocationButton(props: MultiButtonCompatibleProps) {
   );
 
   const onSelectLocation = useCallback(() => {
-    history.push(RoutePath.selectLocation, { transition: transitions.show });
-  }, [history.push]);
+    push(RoutePath.selectLocation, { transition: transitions.show });
+  }, [push]);
 
   return (
     <StyledSmallButton
@@ -129,7 +129,7 @@ function ReconnectButton(props: MultiButtonCompatibleProps) {
       const error = e as Error;
       log.error(`Failed to reconnect the tunnel: ${error.message}`);
     }
-  }, []);
+  }, [reconnectTunnel]);
 
   return (
     <StyledReconnectButton

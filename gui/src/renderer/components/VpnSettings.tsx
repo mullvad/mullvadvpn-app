@@ -255,7 +255,7 @@ function useDns(setting: keyof IDnsOptions['defaultOptions']) {
           [setting]: enabled,
         },
       }),
-    [dns, setDnsOptions],
+    [setting, dns, setDnsOptions],
   );
 
   return [dns, updateBlockSetting] as const;
@@ -730,7 +730,7 @@ function TunnelProtocolSetting() {
         disabled: openVpnDisabled,
       },
     ],
-    [],
+    [openVpnDisabled],
   );
 
   return (

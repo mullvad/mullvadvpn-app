@@ -31,7 +31,7 @@ function ConnectButton(props: Partial<Parameters<typeof SmallButton>[0]>) {
       const error = e as Error;
       log.error(`Failed to connect the tunnel: ${error.message}`);
     }
-  }, []);
+  }, [connectTunnel]);
 
   return (
     <StyledConnectionButton color={SmallButtonColor.green} onClick={onConnect} {...props}>
@@ -51,7 +51,7 @@ function DisconnectButton() {
       const error = e as Error;
       log.error(`Failed to disconnect the tunnel: ${error.message}`);
     }
-  }, []);
+  }, [disconnectTunnel]);
 
   const displayAsCancel = tunnelState !== 'connected';
 
