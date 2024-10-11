@@ -9,7 +9,7 @@ import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
 import { transitions, useHistory } from '../lib/history';
 import { RoutePath } from '../lib/routes';
-import { useBoolean, useEffectEvent } from '../lib/utilityHooks';
+import { useBoolean, useEffectEvent } from '../lib/utility-hooks';
 import settingsImportActions from '../redux/settings-import/actions';
 import { useSelector } from '../redux/store';
 import { measurements, normalText } from './common-styles';

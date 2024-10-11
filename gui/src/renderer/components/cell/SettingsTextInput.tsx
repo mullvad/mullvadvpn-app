@@ -2,7 +2,7 @@ import { useCallback, useEffect } from 'react';
 import styled from 'styled-components';
 
 import { colors } from '../../../config.json';
-import { useEffectEvent } from '../../lib/utilityHooks';
+import { useEffectEvent } from '../../lib/utility-hooks';
 import { AriaInput } from '../AriaGroup';
 import { smallNormalText } from '../common-styles';
 import { useSettingsFormSubmittableReporter } from './SettingsForm';

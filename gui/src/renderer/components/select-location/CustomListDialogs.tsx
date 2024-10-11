@@ -13,7 +13,7 @@ import { messages } from '../../../shared/gettext';
 import log from '../../../shared/logging';
 import { useAppContext } from '../../context';
 import { formatHtml } from '../../lib/html-formatter';
-import { useBoolean } from '../../lib/utilityHooks';
+import { useBoolean } from '../../lib/utility-hooks';
 import { useSelector } from '../../redux/store';
 import * as AppButton from '../AppButton';
 import * as Cell from '../cell';

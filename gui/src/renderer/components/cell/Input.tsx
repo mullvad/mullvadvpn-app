@@ -2,7 +2,7 @@ import React, { useCallback, useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import { colors } from '../../../config.json';
-import { useBoolean, useCombinedRefs, useEffectEvent, useStyledRef } from '../../lib/utilityHooks';
+import { useBoolean, useCombinedRefs, useEffectEvent, useStyledRef } from '../../lib/utility-hooks';
 import { normalText } from '../common-styles';
 import ImageView from '../ImageView';
 import { BackAction } from '../KeyboardNavigation';

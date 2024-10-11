@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import { Scheduler } from '../../shared/scheduler';
-import { useEffectEvent } from '../lib/utilityHooks';
+import { useEffectEvent } from '../lib/utility-hooks';
 import Accordion from './Accordion';
 
 export const stringValueAsKey = (value: string): string => value;

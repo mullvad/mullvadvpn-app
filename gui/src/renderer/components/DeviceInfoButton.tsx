@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 import { messages } from '../../shared/gettext';
-import { useBoolean } from '../lib/utilityHooks';
+import { useBoolean } from '../lib/utility-hooks';
 import * as AppButton from './AppButton';
 import { InfoIcon } from './InfoButton';
 import { ModalAlert, ModalAlertType, ModalMessage } from './Modal';
