@@ -7,7 +7,6 @@ import { Icon, IconProps, Spinner } from '../lib/components';
 import { Colors } from '../lib/foundations';
 import { IconBadge } from '../lib/icon-badge';
 import { useEffectEvent } from '../lib/utility-hooks';
-import { useWillExit } from '../lib/will-exit';
 import * as AppButton from './AppButton';
 import { measurements, normalText, tinyText } from './common-styles';
 import CustomScrollbars from './CustomScrollbars';
@@ -185,20 +184,16 @@ export function ModalAlert(props: IModalAlertProps & { isOpen: boolean }) {
   const activeModalContext = useContext(ActiveModalContext);
   const [openState, setOpenState] = useState<OpenState>({ isClosing: false, wasOpen: isOpen });
 
-  const willExit = useWillExit();
-
   // Modal shouldn't prepare for being opened again while view is disappearing.
   const onTransitionEnd = useCallback(() => {
-    if (!willExit) {
-      setOpenState({ isClosing: false, wasOpen: isOpen });
-    }
-  }, [willExit, isOpen]);
+    setOpenState({ isClosing: false, wasOpen: isOpen });
+  }, [isOpen]);
 
   const onOpenStateChange = useEffectEvent((isOpen: boolean) => {
     setOpenState(({ isClosing, wasOpen }) => ({
       isClosing: isClosing || (wasOpen && !isOpen),
       // Unmounting the Modal during view transitions result in a visual glitch.
-      wasOpen: willExit ? wasOpen : isOpen,
+      wasOpen: isOpen,
     }));
   });
 
