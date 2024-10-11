@@ -43,13 +43,21 @@ class InAppPurchaseButton: AppButton {
     override func layoutSubviews() {
         super.layoutSubviews()
 
-        activityIndicator.frame = activityIndicatorRect(
-            forContentRect: contentRect(forBounds: bounds)
+        // Calculate the content size after insets
+        let contentSize = frame
+        let contentEdgeInsets = configuration?.contentInsets ?? .zero
+        let finalWidth = contentSize.width - (contentEdgeInsets.leading + contentEdgeInsets.trailing)
+        let finalHeight = contentSize.height - (contentEdgeInsets.top + contentEdgeInsets.bottom)
+        let contentRect = CGRect(
+            origin: frame.origin,
+            size: CGSize(width: finalWidth, height: finalHeight)
         )
+        self.titleLabel?.frame = getTitleRect(forContentRect: contentRect)
+        self.activityIndicator.frame = activityIndicatorRect(forContentRect: contentRect)
     }
 
-    override func titleRect(forContentRect contentRect: CGRect) -> CGRect {
-        var titleRect = super.titleRect(forContentRect: contentRect)
+    private func getTitleRect(forContentRect contentRect: CGRect) -> CGRect {
+        var titleRect = titleLabel?.frame ?? .zero
         let activityIndicatorRect = activityIndicatorRect(forContentRect: contentRect)
 
         // Adjust the title frame in case if it overlaps the activity indicator
@@ -76,8 +84,7 @@ class InAppPurchaseButton: AppButton {
             frame.origin.x = contentRect.minX
         }
 
-        frame.origin.y = contentRect.midY - frame.height * 0.5
-
+        frame.origin.y = contentRect.midY
         return frame
     }
 }
