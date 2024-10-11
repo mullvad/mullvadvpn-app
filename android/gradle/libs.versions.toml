@@ -43,8 +43,8 @@ koin-compose = "4.0.0"
 # Kotlin
 # Bump kotlin and kotlin-ksp together, find matching release here:
 # https://github.com/google/ksp/releases
-kotlin = "2.0.20"
-kotlin-ksp = "2.0.20-1.0.25"
+kotlin = "2.0.21"
+kotlin-ksp = "2.0.21-1.0.25"
 kotlinx = "1.9.0"
 
 # Protobuf
