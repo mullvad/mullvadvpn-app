@@ -65,7 +65,15 @@ jobs:
         shell: bash
         run: npm test
 
-      - name: Run Playwright tests
+      - name: Run Playwright tests on Linux
+        if: runner.os == 'Linux'
+        working-directory: gui
+        # The sandbox is disabled as a workaround for lacking userns permisisons which is required
+        # since Ubuntu 24.04.
+        run: NO_SANDBOX=1 npm run e2e:no-build
+
+      - name: Run Playwright tests on Windows
+        if: runner.os != 'Linux'
         working-directory: gui
         shell: bash
         run: npm run e2e:no-build
