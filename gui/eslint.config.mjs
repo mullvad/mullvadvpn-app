@@ -147,6 +147,7 @@ export default tseslint.config(
       'simple-import-sort/imports': 'error',
 
       'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'error',
 
       '@typescript-eslint/no-use-before-define': 'off',
       '@typescript-eslint/explicit-module-boundary-types': 'off',
