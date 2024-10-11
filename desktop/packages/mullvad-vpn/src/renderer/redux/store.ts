@@ -1,8 +1,6 @@
-import { useRef } from 'react';
 import { useSelector as useReduxSelector } from 'react-redux';
 import { combineReducers, compose, createStore, Dispatch, StoreEnhancer } from 'redux';
 
-import { useWillExit } from '../lib/will-exit';
 import accountActions, { AccountAction } from './account/actions';
 import accountReducer, { IAccountReduxState } from './account/reducers';
 import connectionActions, { ConnectionAction } from './connection/actions';
@@ -76,18 +74,7 @@ function composeEnhancers(): StoreEnhancer {
   return compose();
 }
 
-// This hook adds type to state to make use simpler. It also prevents the state from update if the
-// WillExit context value is true.
+// This hook adds type to state to make use simpler.
 export function useSelector<R>(fn: (state: IReduxState) => R): R {
-  const value = useReduxSelector(fn);
-  const valueBeforeExit = useRef(value);
-  const willExit = useWillExit();
-
-  if (!willExit) {
-    // eslint-disable-next-line react-compiler/react-compiler
-    valueBeforeExit.current = value;
-  }
-
-  // eslint-disable-next-line react-compiler/react-compiler
-  return valueBeforeExit.current;
+  return useReduxSelector(fn);
 }
