@@ -236,11 +236,11 @@ android {
         createDistBundle.dependsOn("bundle$capitalizedVariantName")
 
         // Ensure all relevant assemble tasks depend on our ensure tasks.
-        tasks.get("assemble$capitalizedVariantName").apply {
-            dependsOn(tasks.get("ensureRelayListExist"))
-            dependsOn(tasks.get("ensureMaybenotMachinesExist"))
-            dependsOn(tasks.get("ensureJniDirectoryExist"))
-            dependsOn(tasks.get("ensureValidVersionCode"))
+        tasks["assemble$capitalizedVariantName"].apply {
+            dependsOn(tasks["ensureRelayListExist"])
+            dependsOn(tasks["ensureMaybenotMachinesExist"])
+            dependsOn(tasks["ensureJniDirectoryExist"])
+            dependsOn(tasks["ensureValidVersionCode"])
         }
     }
 }
