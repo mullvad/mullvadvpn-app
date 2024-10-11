@@ -62,6 +62,7 @@
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
     "eslint-plugin-react": "^7.36.1",
+    "eslint-plugin-react-compiler": "^0.0.0-experimental-42acc6a-20241001",
     "eslint-plugin-react-hooks": "^0.0.0-experimental-2d16326d-20240930",
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "gettext-extractor": "^3.5.4",
