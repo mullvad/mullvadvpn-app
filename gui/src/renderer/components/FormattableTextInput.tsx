@@ -111,21 +111,22 @@ function FormattableTextInput(
         );
       }
     },
-    [unformat, format, handleChange, addTrailingSeparator],
+    [ref, unformat, maxLength, format, addTrailingSeparator, handleChange],
   );
 
   // React doesn't fully support onBeforeInput currently and it's therefore set here.
   useEffect(() => {
-    ref.current?.addEventListener('beforeinput', onBeforeInput);
-    return () => ref.current?.removeEventListener('beforeinput', onBeforeInput);
-  }, [onBeforeInput]);
+    const input = ref.current;
+    input?.addEventListener('beforeinput', onBeforeInput);
+    return () => input?.removeEventListener('beforeinput', onBeforeInput);
+  }, [onBeforeInput, ref]);
 
   // Use value provided in props if it differs from current input value.
   useEffect(() => {
     if (typeof value === 'string' && ref.current && unformat(ref.current.value) !== value) {
       ref.current.value = format(value, addTrailingSeparator);
     }
-  }, [format, value, addTrailingSeparator]);
+  }, [format, value, addTrailingSeparator, ref, unformat]);
 
   return <input ref={combinedRef} type="text" {...otherProps} />;
 }

@@ -234,7 +234,11 @@ function ObfuscationSettings() {
         value: ObfuscationType.off,
       },
     ],
-    [],
+    [
+      obfuscationSettings.shadowsocksSettings.port,
+      obfuscationSettings.udp2tcpSettings.port,
+      subLabelTemplate,
+    ],
   );
 
   const selectObfuscationType = useCallback(
