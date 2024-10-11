@@ -11,7 +11,8 @@ import {
   filterLocationsByEndPointType,
 } from '../lib/filter-locations';
 import { useHistory } from '../lib/history';
-import { useBoolean, useNormalRelaySettings, useTunnelProtocol } from '../lib/utilityHooks';
+import { useNormalRelaySettings, useTunnelProtocol } from '../lib/relay-settings-hooks';
+import { useBoolean } from '../lib/utility-hooks';
 import { IRelayLocationCountryRedux } from '../redux/settings/reducers';
 import { useSelector } from '../redux/store';
 import Accordion from './Accordion';

@@ -5,7 +5,7 @@ import { colors } from '../../../config.json';
 import { messages } from '../../../shared/gettext';
 import { useHistory } from '../../lib/history';
 import { RoutePath } from '../../lib/routes';
-import { useStyledRef } from '../../lib/utilityHooks';
+import { useStyledRef } from '../../lib/utility-hooks';
 import { AriaDetails, AriaInput, AriaLabel } from '../AriaGroup';
 import ImageView from '../ImageView';
 import InfoButton from '../InfoButton';
