@@ -8,6 +8,8 @@ pluginManagement {
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
+rootProject.name = "MullvadVPN"
+
 include(
     ":app",
     ":service",
