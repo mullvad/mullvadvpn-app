@@ -2,7 +2,6 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import { ITransitionSpecification } from '../lib/history';
-import { WillExit } from '../lib/will-exit';
 
 interface ITransitioningViewProps {
   routePath: string;
@@ -133,31 +132,26 @@ export default class TransitionContainer extends React.Component<IProps, IState>
   }
 
   public render() {
-    const willExit = this.state.queuedItem !== undefined || this.state.nextItem !== undefined;
-
     return (
       <StyledTransitionContainer>
         {this.state.currentItem && (
-          <WillExit key={this.state.currentItem.view.props.routePath} value={willExit}>
-            <StyledTransitionContent
-              ref={this.setCurrentContentRef}
-              $transition={this.state.currentItemStyle}
-              onTransitionEnd={this.onTransitionEnd}
-              $disableUserInteraction={willExit}>
-              {this.state.currentItem.view}
-            </StyledTransitionContent>
-          </WillExit>
+          <StyledTransitionContent
+            key={this.state.currentItem.view.props.routePath}
+            ref={this.setCurrentContentRef}
+            $transition={this.state.currentItemStyle}
+            onTransitionEnd={this.onTransitionEnd}>
+            {this.state.currentItem.view}
+          </StyledTransitionContent>
         )}
 
         {this.state.nextItem && (
-          <WillExit key={this.state.nextItem.view.props.routePath} value={false}>
-            <StyledTransitionContent
-              ref={this.setNextContentRef}
-              $transition={this.state.nextItemStyle}
-              onTransitionEnd={this.onTransitionEnd}>
-              {this.state.nextItem.view}
-            </StyledTransitionContent>
-          </WillExit>
+          <StyledTransitionContent
+            key={this.state.nextItem.view.props.routePath}
+            ref={this.setNextContentRef}
+            $transition={this.state.nextItemStyle}
+            onTransitionEnd={this.onTransitionEnd}>
+            {this.state.nextItem.view}
+          </StyledTransitionContent>
         )}
       </StyledTransitionContainer>
     );
