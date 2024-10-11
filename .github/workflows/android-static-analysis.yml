@@ -19,7 +19,7 @@ permissions: {}
 jobs:
   mobsfscan:
     name: Code scanning using mobsfscan
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
