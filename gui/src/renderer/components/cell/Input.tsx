@@ -2,7 +2,7 @@ import React, { useCallback, useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import { colors } from '../../../config.json';
-import { useBoolean, useCombinedRefs, useStyledRef } from '../../lib/utilityHooks';
+import { useBoolean, useCombinedRefs, useEffectEvent, useStyledRef } from '../../lib/utilityHooks';
 import { normalText } from '../common-styles';
 import ImageView from '../ImageView';
 import { BackAction } from '../KeyboardNavigation';
@@ -59,6 +59,10 @@ function InputWithRef(props: IInputProps, forwardedRef: React.Ref<HTMLInputEleme
     onSubmitValue,
     onInvalidValue,
     onChangeValue,
+    onFocus: propsOnFocus,
+    onBlur: propsOnBlur,
+    onChange: propsOnChange,
+    onKeyPress: propsOnKeyPress,
     ...otherProps
   } = props;
 
@@ -79,26 +83,26 @@ function InputWithRef(props: IInputProps, forwardedRef: React.Ref<HTMLInputEleme
         onInvalidValue?.(value);
       }
     },
-    [onSubmitValue, onInvalidValue],
+    [validateValue, onSubmitValue, onInvalidValue],
   );
 
   const onFocus = useCallback(
     (event: React.FocusEvent<HTMLInputElement>) => {
       setFocused();
-      props.onFocus?.(event);
+      propsOnFocus?.(event);
     },
-    [props.onFocus],
+    [propsOnFocus, setFocused],
   );
 
   const onBlur = useCallback(
     (event: React.FocusEvent<HTMLInputElement>) => {
       setBlurred();
-      props.onBlur?.(event);
+      propsOnBlur?.(event);
       if (submitOnBlur) {
         onSubmit(value);
       }
     },
-    [value, props.onBlur, validateValue, onSubmit, submitOnBlur],
+    [setBlurred, propsOnBlur, submitOnBlur, onSubmit, value],
   );
 
   const onChange = useCallback(
@@ -110,10 +114,10 @@ function InputWithRef(props: IInputProps, forwardedRef: React.Ref<HTMLInputEleme
         setInternalValue(value);
       }
 
-      props.onChange?.(event);
+      propsOnChange?.(event);
       onChangeValue?.(value);
     },
-    [modifyValue, props.onSubmit],
+    [modifyValue, onChangeValue, props.value, propsOnChange],
   );
 
   const onKeyPress = useCallback(
@@ -122,23 +126,27 @@ function InputWithRef(props: IInputProps, forwardedRef: React.Ref<HTMLInputEleme
         onSubmit(value);
         inputRef.current?.blur();
       }
-      props.onKeyPress?.(event);
+      propsOnKeyPress?.(event);
     },
-    [value, onSubmit, inputRef, props.onKeyPress],
+    [value, onSubmit, inputRef, propsOnKeyPress],
   );
+
+  const handleInitialValueChange = useEffectEvent((initialValue?: string) => {
+    if (
+      !isFocused &&
+      props.value === undefined &&
+      initialValue !== undefined &&
+      internalValue !== initialValue
+    ) {
+      setInternalValue(initialValue);
+      onChangeValue?.(initialValue);
+    }
+  });
 
   // If the the initialValue changes in the uncontrolled mode when the user isn't currently writing,
   // then we want to update the value.
   useEffect(() => {
-    if (
-      !isFocused &&
-      props.value === undefined &&
-      props.initialValue !== undefined &&
-      internalValue !== props.initialValue
-    ) {
-      setInternalValue(props.initialValue);
-      onChangeValue?.(props.initialValue);
-    }
+    handleInitialValueChange(props.initialValue);
   }, [props.initialValue]);
 
   const valid = validateValue?.(value);
@@ -205,7 +213,7 @@ function AutoSizingTextInputWithRef(props: IInputProps, forwardedRef: React.Ref<
       setBlurred();
       onBlur?.(event);
     },
-    [onBlur],
+    [onBlur, setBlurred],
   );
 
   const onFocusWrapper = useCallback(
@@ -213,10 +221,10 @@ function AutoSizingTextInputWithRef(props: IInputProps, forwardedRef: React.Ref<
       setFocused();
       onFocus?.(event);
     },
-    [onFocus],
+    [onFocus, setFocused],
   );
 
-  const blur = useCallback(() => inputRef.current?.blur(), []);
+  const blur = useCallback(() => inputRef.current?.blur(), [inputRef]);
 
   const value = inputRef.current?.value;
 
@@ -303,18 +311,20 @@ interface IRowInputProps {
 }
 
 export function RowInput(props: IRowInputProps) {
+  const { onSubmit, onChange: propsOnChange, onFocus: propsOnFocus, onBlur: propsOnBlur } = props;
+
   const [value, setValue] = useState(props.initialValue ?? '');
   const textAreaRef = useStyledRef<HTMLTextAreaElement>();
   const [focused, setFocused, setBlurred] = useBoolean(false);
 
-  const submit = useCallback(() => props.onSubmit(value), [props.onSubmit, value]);
+  const submit = useCallback(() => onSubmit(value), [onSubmit, value]);
   const onChange = useCallback(
     (event: React.ChangeEvent<HTMLTextAreaElement>) => {
       const value = event.target.value;
       setValue(value);
-      props.onChange?.(value);
+      propsOnChange?.(value);
     },
-    [props.onChange],
+    [propsOnChange],
   );
   const onKeyDown = useCallback(
     (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -329,16 +339,16 @@ export function RowInput(props: IRowInputProps) {
   const onFocus = useCallback(
     (event: React.FocusEvent<HTMLTextAreaElement>) => {
       setFocused();
-      props.onFocus?.(event);
+      propsOnFocus?.(event);
     },
-    [props.onFocus],
+    [propsOnFocus, setFocused],
   );
   const onBlur = useCallback(
     (event: React.FocusEvent<HTMLTextAreaElement>) => {
       setBlurred();
-      props.onBlur?.(event);
+      propsOnBlur?.(event);
     },
-    [props.onBlur],
+    [propsOnBlur, setBlurred],
   );
 
   const focus = useCallback(() => {
@@ -349,12 +359,16 @@ export function RowInput(props: IRowInputProps) {
     }
   }, [textAreaRef, value.length]);
 
-  const blur = useCallback(() => textAreaRef.current?.blur(), []);
+  const blur = useCallback(() => textAreaRef.current?.blur(), [textAreaRef]);
 
-  useEffect(() => {
+  const focusOnMount = useEffectEvent(() => {
     if (props.autofocus) {
       focus();
     }
+  });
+
+  useEffect(() => {
+    focusOnMount();
   }, []);
 
   useEffect(() => {

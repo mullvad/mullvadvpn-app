@@ -77,15 +77,18 @@ export default function CustomLists(props: CustomListsProps) {
   const { searchTerm } = useSelectLocationContext();
   const { customLists } = useRelayListContext();
 
-  const createList = useCallback(async (name: string): Promise<void | CustomListError> => {
-    const result = await createCustomList(name);
-    // If an error is returned it should be passed as the return value.
-    if (result) {
-      return result;
-    }
+  const createList = useCallback(
+    async (name: string): Promise<void | CustomListError> => {
+      const result = await createCustomList(name);
+      // If an error is returned it should be passed as the return value.
+      if (result) {
+        return result;
+      }
 
-    hideAddList();
-  }, []);
+      hideAddList();
+    },
+    [createCustomList, hideAddList],
+  );
 
   if (searchTerm !== '' && !customLists.some((list) => list.visible)) {
     return null;
@@ -121,6 +124,8 @@ interface AddListFormProps {
 }
 
 function AddListForm(props: AddListFormProps) {
+  const { onCreateList, cancel } = props;
+
   const [name, setName] = useState('');
   const nameTrimmed = name.trim();
   const nameValid = nameTrimmed !== '';
@@ -129,15 +134,18 @@ function AddListForm(props: AddListFormProps) {
   const inputRef = useStyledRef<HTMLInputElement>();
 
   // Errors should be reset when editing the value
-  const onChange = useCallback((value: string) => {
-    setName(value);
-    unsetError();
-  }, []);
+  const onChange = useCallback(
+    (value: string) => {
+      setName(value);
+      unsetError();
+    },
+    [unsetError],
+  );
 
   const createList = useCallback(async () => {
     if (nameValid) {
       try {
-        const result = await props.onCreateList(nameTrimmed);
+        const result = await onCreateList(nameTrimmed);
         if (result) {
           setError();
         }
@@ -146,16 +154,16 @@ function AddListForm(props: AddListFormProps) {
         log.error('Failed to create list:', error.message);
       }
     }
-  }, [name, props.onCreateList, nameValid]);
+  }, [nameValid, onCreateList, nameTrimmed, setError]);
 
   const onBlur = useCallback(
     (event: React.FocusEvent<HTMLInputElement>) => {
       // Only cancel if losing focus to something else than the contents of the row container.
       if (!event.relatedTarget || !containerRef.current?.contains(event.relatedTarget)) {
-        props.cancel();
+        cancel();
       }
     },
-    [props.cancel],
+    [containerRef, cancel],
   );
 
   const onTransitionEnd = useCallback(() => {
@@ -168,7 +176,7 @@ function AddListForm(props: AddListFormProps) {
     if (props.visible) {
       inputRef.current?.focus();
     }
-  }, [props.visible]);
+  }, [inputRef, props.visible]);
 
   return (
     <BackAction disabled={!props.visible} action={props.cancel}>
@@ -211,6 +219,8 @@ interface CustomListsImplProps {
 }
 
 function CustomListsImpl(props: CustomListsImplProps) {
+  const { onSelect: propsOnSelect } = props;
+
   const { customLists, expandLocation, collapseLocation, onBeforeExpand } = useRelayListContext();
   const { resetHeight } = useScrollPositionContext();
 
@@ -221,9 +231,9 @@ function CustomListsImpl(props: CustomListsImplProps) {
         // Only the geographical part should be sent to the daemon when setting a location.
         delete location.customList;
       }
-      props.onSelect(location);
+      propsOnSelect(location);
     },
-    [props.onSelect],
+    [propsOnSelect],
   );
 
   return (

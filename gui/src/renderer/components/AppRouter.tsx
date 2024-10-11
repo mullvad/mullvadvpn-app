@@ -48,23 +48,23 @@ export default function AppRouter() {
   const { setNavigationHistory } = useAppContext();
   const focusRef = createRef<IFocusHandle>();
 
-  let unobserveHistory: () => void;
-
   useEffect(() => {
     // React throttles updates, so it's impossible to capture the intermediate navigation without
     // listening to the history directly.
-    unobserveHistory = history.listen((location, _, transition) => {
+    const unobserveHistory = history.listen((location, _, transition) => {
       setNavigationHistory(history.asObject);
       setCurrentLocation(location);
       setTransition(transition);
     });
 
-    return () => unobserveHistory?.();
-  }, []);
+    return () => {
+      unobserveHistory?.();
+    };
+  }, [history, setNavigationHistory]);
 
   const onNavigation = useCallback(() => {
     focusRef.current?.resetFocus();
-  }, []);
+  }, [focusRef]);
 
   return (
     <Focus ref={focusRef}>
