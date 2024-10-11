@@ -60,6 +60,9 @@ kermit = "2.0.4"
 konsist = "0.16.1"
 ktfmt = "0.20.1"
 leakcanary = "2.14"
+
+# Blocked updating to 1.13.13 due to regression
+# https://github.com/mockk/mockk/issues/1308
 mockk = "1.13.12"
 mockwebserver = "4.12.0"
 play-publisher = "3.11.0"
