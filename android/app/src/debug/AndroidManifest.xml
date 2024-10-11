@@ -10,7 +10,6 @@
     <application android:icon="@mipmap/ic_launcher"
                  android:roundIcon="@mipmap/ic_launcher"
                  android:theme="@style/Theme.App.Starting"
-                 android:extractNativeLibs="true"
                  android:requestLegacyExternalStorage="true"
                  android:allowBackup="false"
                  android:banner="@mipmap/ic_banner"
