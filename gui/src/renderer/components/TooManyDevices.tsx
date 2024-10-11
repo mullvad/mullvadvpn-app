@@ -11,7 +11,7 @@ import { useAppContext } from '../context';
 import { transitions, useHistory } from '../lib/history';
 import { formatHtml } from '../lib/html-formatter';
 import { RoutePath } from '../lib/routes';
-import { useBoolean } from '../lib/utilityHooks';
+import { useBoolean } from '../lib/utility-hooks';
 import { useSelector } from '../redux/store';
 import * as AppButton from './AppButton';
 import * as Cell from './cell';

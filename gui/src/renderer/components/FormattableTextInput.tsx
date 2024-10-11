@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect } from 'react';
 
-import { useCombinedRefs, useStyledRef } from '../lib/utilityHooks';
+import { useCombinedRefs, useStyledRef } from '../lib/utility-hooks';
 
 interface IFormattableTextInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   allowedCharacters: string;

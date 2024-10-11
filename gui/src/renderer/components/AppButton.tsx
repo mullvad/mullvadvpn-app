@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import { colors } from '../../config.json';
 import log from '../../shared/logging';
-import { useMounted } from '../lib/utilityHooks';
+import { useMounted } from '../lib/utility-hooks';
 import {
   StyledButtonContent,
   StyledHiddenSide,

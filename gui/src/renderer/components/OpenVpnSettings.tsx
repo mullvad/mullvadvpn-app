@@ -16,7 +16,7 @@ import { useAppContext } from '../context';
 import { useRelaySettingsUpdater } from '../lib/constraint-updater';
 import { useHistory } from '../lib/history';
 import { formatHtml } from '../lib/html-formatter';
-import { useBoolean } from '../lib/utilityHooks';
+import { useBoolean } from '../lib/utility-hooks';
 import { useSelector } from '../redux/store';
 import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
 import * as Cell from './cell';
