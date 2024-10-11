@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import { InAppNotificationIndicatorType } from '../../shared/notifications/notification';
-import { useEffectEvent, useLastDefinedValue, useStyledRef } from '../lib/utilityHooks';
+import { useEffectEvent, useLastDefinedValue, useStyledRef } from '../lib/utility-hooks';
 import * as AppButton from './AppButton';
 import { tinyText } from './common-styles';
 import ImageView from './ImageView';

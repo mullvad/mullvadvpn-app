@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
-import { useBoolean } from '../lib/utilityHooks';
+import { useBoolean } from '../lib/utility-hooks';
 import { useSelector } from '../redux/store';
 import * as AppButton from './AppButton';
 import { hugeText, smallText } from './common-styles';

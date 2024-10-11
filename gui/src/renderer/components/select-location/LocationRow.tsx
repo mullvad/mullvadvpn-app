@@ -9,7 +9,7 @@ import {
 import { messages } from '../../../shared/gettext';
 import log from '../../../shared/logging';
 import { useAppContext } from '../../context';
-import { useBoolean, useStyledRef } from '../../lib/utilityHooks';
+import { useBoolean, useStyledRef } from '../../lib/utility-hooks';
 import { useSelector } from '../../redux/store';
 import Accordion from '../Accordion';
 import * as Cell from '../cell';

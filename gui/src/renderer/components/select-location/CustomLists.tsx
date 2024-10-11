@@ -6,7 +6,7 @@ import { CustomListError, CustomLists, RelayLocation } from '../../../shared/dae
 import { messages } from '../../../shared/gettext';
 import log from '../../../shared/logging';
 import { useAppContext } from '../../context';
-import { useBoolean, useStyledRef } from '../../lib/utilityHooks';
+import { useBoolean, useStyledRef } from '../../lib/utility-hooks';
 import Accordion from '../Accordion';
 import * as Cell from '../cell';
 import { measurements } from '../common-styles';

@@ -5,7 +5,7 @@ import { formatDate, hasExpired } from '../../shared/account-expiry';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { useHistory } from '../lib/history';
-import { useEffectEvent } from '../lib/utilityHooks';
+import { useEffectEvent } from '../lib/utility-hooks';
 import { useSelector } from '../redux/store';
 import AccountNumberLabel from './AccountNumberLabel';
 import {

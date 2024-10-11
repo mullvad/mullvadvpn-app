@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import React from 'react';
 import styled from 'styled-components';
 
-import { useCombinedRefs } from '../lib/utilityHooks';
+import { useCombinedRefs } from '../lib/utility-hooks';
 import { normalText } from './common-styles';
 
 const StyledInput = styled.input.attrs({ type: 'text' })(normalText, {

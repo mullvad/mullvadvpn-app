@@ -12,7 +12,7 @@ import { useScheduler } from '../../shared/scheduler';
 import { useAppContext } from '../context';
 import { useApiAccessMethodTest } from '../lib/api-access-methods';
 import { useHistory } from '../lib/history';
-import { useEffectEvent } from '../lib/utilityHooks';
+import { useEffectEvent } from '../lib/utility-hooks';
 import { useSelector } from '../redux/store';
 import { SettingsForm } from './cell/SettingsForm';
 import { BackAction } from './KeyboardNavigation';

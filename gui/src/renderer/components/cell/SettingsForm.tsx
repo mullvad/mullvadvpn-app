@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useEffect, useId, useMemo, useState } from 'react';
 
-import { useEffectEvent } from '../../lib/utilityHooks';
+import { useEffectEvent } from '../../lib/utility-hooks';
 
 interface SettingsFormContext {
   formSubmittable: boolean;

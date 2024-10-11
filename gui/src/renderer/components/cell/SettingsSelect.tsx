@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import { colors } from '../../../config.json';
 import { useScheduler } from '../../../shared/scheduler';
-import { useBoolean, useEffectEvent } from '../../lib/utilityHooks';
+import { useBoolean, useEffectEvent } from '../../lib/utility-hooks';
 import { AriaInput } from '../AriaGroup';
 import { smallNormalText } from '../common-styles';
 import CustomScrollbars from '../CustomScrollbars';

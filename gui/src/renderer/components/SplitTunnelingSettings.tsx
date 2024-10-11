@@ -12,7 +12,7 @@ import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { useHistory } from '../lib/history';
 import { formatHtml } from '../lib/html-formatter';
-import { useEffectEvent, useStyledRef } from '../lib/utilityHooks';
+import { useEffectEvent, useStyledRef } from '../lib/utility-hooks';
 import { IReduxState } from '../redux/store';
 import Accordion from './Accordion';
 import * as AppButton from './AppButton';

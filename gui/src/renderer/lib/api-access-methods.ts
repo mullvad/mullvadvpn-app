@@ -3,7 +3,7 @@ import { useCallback, useRef, useState } from 'react';
 import { CustomProxy } from '../../shared/daemon-rpc-types';
 import { useScheduler } from '../../shared/scheduler';
 import { useAppContext } from '../context';
-import { useBoolean } from './utilityHooks';
+import { useBoolean } from './utility-hooks';
 
 export function useApiAccessMethodTest(
   autoReset = true,
