@@ -4,7 +4,7 @@ import styled from 'styled-components';
 
 import { colors } from '../../config.json';
 import log from '../../shared/logging';
-import { useEffectEvent } from '../lib/utilityHooks';
+import { useEffectEvent } from '../lib/utility-hooks';
 import * as AppButton from './AppButton';
 import { measurements, normalText, tinyText } from './common-styles';
 import CustomScrollbars from './CustomScrollbars';

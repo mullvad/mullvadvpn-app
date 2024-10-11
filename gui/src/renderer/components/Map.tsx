@@ -10,7 +10,7 @@ import {
   useEffectEvent,
   useRefCallback,
   useRerenderer,
-} from '../lib/utilityHooks';
+} from '../lib/utility-hooks';
 import { useSelector } from '../redux/store';
 
 // Default to Gothenburg when we don't know the actual location.
@@ -90,6 +90,7 @@ function MapInner(props: MapInnerProps) {
 
   const mapRef = useRef<GlMap>();
   const canvasRef = useRef<HTMLCanvasElement>();
+
   // eslint-disable-next-line react-compiler/react-compiler
   const width = applyPixelRatio(canvasRef.current?.clientWidth ?? window.innerWidth);
 

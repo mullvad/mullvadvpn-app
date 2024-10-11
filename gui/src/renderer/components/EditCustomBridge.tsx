@@ -4,7 +4,7 @@ import { CustomProxy } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { useBridgeSettingsUpdater } from '../lib/constraint-updater';
 import { useHistory } from '../lib/history';
-import { useBoolean } from '../lib/utilityHooks';
+import { useBoolean } from '../lib/utility-hooks';
 import { useSelector } from '../redux/store';
 import { SettingsForm } from './cell/SettingsForm';
 import { BackAction } from './KeyboardNavigation';

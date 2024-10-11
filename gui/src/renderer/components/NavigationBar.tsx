@@ -5,7 +5,7 @@ import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { transitions, useHistory } from '../lib/history';
-import { useCombinedRefs, useEffectEvent, useInitialValue } from '../lib/utilityHooks';
+import { useCombinedRefs, useEffectEvent, useInitialValue } from '../lib/utility-hooks';
 import CustomScrollbars, { CustomScrollbarsRef, IScrollEvent } from './CustomScrollbars';
 import InfoButton from './InfoButton';
 import { BackActionContext } from './KeyboardNavigation';

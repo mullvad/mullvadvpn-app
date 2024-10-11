@@ -4,7 +4,7 @@ import { useLocation } from 'react-router';
 import { useHistory } from '../lib/history';
 import { disableDismissForRoutes } from '../lib/routeHelpers';
 import { RoutePath } from '../lib/routes';
-import { useEffectEvent } from '../lib/utilityHooks';
+import { useEffectEvent } from '../lib/utility-hooks';
 
 interface IKeyboardNavigationProps {
   children: React.ReactElement | Array<React.ReactElement>;

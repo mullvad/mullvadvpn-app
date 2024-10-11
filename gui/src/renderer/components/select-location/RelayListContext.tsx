@@ -10,11 +10,11 @@ import {
   searchForLocations,
 } from '../../lib/filter-locations';
 import {
-  useEffectEvent,
   useNormalBridgeSettings,
   useNormalRelaySettings,
   useTunnelProtocol,
-} from '../../lib/utilityHooks';
+} from '../../lib/relay-settings-hooks';
+import { useEffectEvent } from '../../lib/utility-hooks';
 import { IRelayLocationCountryRedux } from '../../redux/settings/reducers';
 import { useSelector } from '../../redux/store';
 import { useCustomListsRelayList } from './custom-list-helpers';

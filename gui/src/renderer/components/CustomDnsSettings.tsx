@@ -6,7 +6,7 @@ import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { formatHtml } from '../lib/html-formatter';
 import { IpAddress } from '../lib/ip';
-import { useBoolean, useMounted, useStyledRef } from '../lib/utilityHooks';
+import { useBoolean, useMounted, useStyledRef } from '../lib/utility-hooks';
 import { useSelector } from '../redux/store';
 import Accordion from './Accordion';
 import * as AppButton from './AppButton';

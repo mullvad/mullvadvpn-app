@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import { MacOsScrollbarVisibility } from '../../shared/ipc-schema';
 import useActions from '../lib/actionsHook';
-import { useEffectEvent, useStyledRef } from '../lib/utilityHooks';
+import { useEffectEvent, useStyledRef } from '../lib/utility-hooks';
 import { useSelector } from '../redux/store';
 import userInterface from '../redux/userinterface/actions';
 
