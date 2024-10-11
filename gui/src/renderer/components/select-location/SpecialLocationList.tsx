@@ -45,11 +45,12 @@ interface SpecialLocationRowProps<T> {
 }
 
 function SpecialLocationRow<T>(props: SpecialLocationRowProps<T>) {
+  const { onSelect: propsOnSelect } = props;
   const onSelect = useCallback(() => {
     if (!props.source.selected) {
-      props.onSelect(props.source.value);
+      propsOnSelect(props.source.value);
     }
-  }, [props.source.selected, props.onSelect, props.source.value]);
+  }, [props.source, propsOnSelect]);
 
   const innerProps: SpecialLocationRowInnerProps<T> = {
     ...props,
@@ -105,7 +106,7 @@ const StyledInfoButton = styled(StyledHoverInfoButton)({ display: 'block' });
 export function CustomBridgeLocationRow(
   props: SpecialLocationRowInnerProps<SpecialBridgeLocationType>,
 ) {
-  const history = useHistory();
+  const { push } = useHistory();
 
   const bridgeSettings = useSelector((state) => state.settings.bridgeSettings);
   const bridgeConfigured = bridgeSettings.custom !== undefined;
@@ -114,7 +115,7 @@ export function CustomBridgeLocationRow(
   const selectedRef = props.source.selected ? props.selectedElementRef : undefined;
   const background = getButtonColor(props.source.selected, 0, props.source.disabled);
 
-  const navigate = useCallback(() => history.push(RoutePath.editCustomBridge), [history.push]);
+  const navigate = useCallback(() => push(RoutePath.editCustomBridge), [push]);
 
   return (
     <StyledLocationRowContainerWithMargin ref={selectedRef} disabled={props.source.disabled}>

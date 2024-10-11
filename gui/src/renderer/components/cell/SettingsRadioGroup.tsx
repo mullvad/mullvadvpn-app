@@ -17,13 +17,18 @@ interface SettingsSelectProps<T extends string> {
 }
 
 export function SettingsRadioGroup<T extends string>(props: SettingsSelectProps<T>) {
+  const { onUpdate } = props;
+
   const [value, setValue] = useState<T>(props.defaultValue ?? props.items[0]?.value ?? '');
   const key = useId();
 
-  const onSelect = useCallback((value: T) => {
-    setValue(value);
-    props.onUpdate(value);
-  }, []);
+  const onSelect = useCallback(
+    (value: T) => {
+      setValue(value);
+      onUpdate(value);
+    },
+    [onUpdate],
+  );
 
   return (
     <StyledRadioGroup>
@@ -92,11 +97,13 @@ interface RadioButtonProps<T extends string> {
 }
 
 function RadioButton<T extends string>(props: RadioButtonProps<T>) {
+  const { onSelect } = props;
+
   const onChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      props.onSelect(event.target.value as T);
+      onSelect(event.target.value as T);
     },
-    [props.onSelect],
+    [onSelect],
   );
 
   return (
