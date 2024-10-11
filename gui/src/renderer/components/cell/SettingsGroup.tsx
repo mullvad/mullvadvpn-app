@@ -44,9 +44,9 @@ export function useSettingsGroupContext() {
     [setError, key],
   );
 
-  const unsetErrorImpl = useCallback(() => unsetError?.(key), [unsetError]);
+  const unsetErrorImpl = useCallback(() => unsetError?.(key), [key, unsetError]);
 
-  useEffect(() => () => unsetErrorImpl(), []);
+  useEffect(() => () => unsetErrorImpl(), [unsetErrorImpl]);
 
   return { reportError, unsetError: unsetErrorImpl };
 }

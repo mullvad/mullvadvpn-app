@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import { MacOsScrollbarVisibility } from '../../shared/ipc-schema';
 import useActions from '../lib/actionsHook';
-import { useStyledRef } from '../lib/utilityHooks';
+import { useEffectEvent, useStyledRef } from '../lib/utilityHooks';
 import { useSelector } from '../redux/store';
 import userInterface from '../redux/userinterface/actions';
 
@@ -24,7 +24,7 @@ export default function MacOsScrollbarDetection() {
   const { setMacOsScrollbarVisibility } = useActions(userInterface);
   const ref = useStyledRef<HTMLDivElement>();
 
-  useEffect(() => {
+  const detectVisibility = useEffectEvent((visibility?: MacOsScrollbarVisibility) => {
     if (visibility === MacOsScrollbarVisibility.automatic) {
       // If the width is 0 then the 1 px width of the parent has been used by the scrollbar.
       const newVisibility =
@@ -33,7 +33,9 @@ export default function MacOsScrollbarDetection() {
           : MacOsScrollbarVisibility.whenScrolling;
       setMacOsScrollbarVisibility(newVisibility);
     }
-  }, [visibility]);
+  });
+
+  useEffect(() => detectVisibility(visibility), [visibility]);
 
   return (
     <StyledContainer>

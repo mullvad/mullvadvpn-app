@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import { colors } from '../../../config.json';
 import { useScheduler } from '../../../shared/scheduler';
-import { useBoolean } from '../../lib/utilityHooks';
+import { useBoolean, useEffectEvent } from '../../lib/utilityHooks';
 import { AriaInput } from '../AriaGroup';
 import { smallNormalText } from '../common-styles';
 import CustomScrollbars from '../CustomScrollbars';
@@ -99,10 +99,13 @@ export function SettingsSelect<T extends string>(props: SettingsSelectProps<T>) 
   // Scheduler for clearing the search string after the user has stopped typing.
   const searchClearScheduler = useScheduler();
 
-  const onSelect = useCallback((value: T) => {
-    setValue(value);
-    closeDropdown();
-  }, []);
+  const onSelect = useCallback(
+    (value: T) => {
+      setValue(value);
+      closeDropdown();
+    },
+    [closeDropdown],
+  );
 
   // Handle keyboard shortcuts and type search
   const onKeyDown = useCallback(
@@ -132,12 +135,16 @@ export function SettingsSelect<T extends string>(props: SettingsSelectProps<T>) 
           break;
       }
     },
-    [props.items],
+    [props.items, searchClearScheduler],
   );
+
+  const updateEvent = useEffectEvent((value: T) => {
+    props.onUpdate(value);
+  });
 
   // Update the parent when the value changes.
   useEffect(() => {
-    props.onUpdate(value);
+    updateEvent(value);
   }, [value]);
 
   return (
@@ -229,9 +236,11 @@ interface ItemProps<T extends string> {
 }
 
 function Item<T extends string>(props: ItemProps<T>) {
+  const { onSelect } = props;
+
   const onClick = useCallback(() => {
-    props.onSelect(props.item.value);
-  }, [props.onSelect, props.item.value]);
+    onSelect(props.item.value);
+  }, [onSelect, props.item.value]);
 
   return (
     <StyledItem

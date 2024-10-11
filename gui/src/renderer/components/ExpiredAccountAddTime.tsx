@@ -134,7 +134,7 @@ interface ITimeAddedProps {
 }
 
 export function TimeAdded(props: ITimeAddedProps) {
-  const history = useHistory();
+  const { push } = useHistory();
   const finish = useFinishedCallback();
   const expiry = useSelector((state) => state.account.expiry);
   const isNewAccount = useSelector(
@@ -144,11 +144,11 @@ export function TimeAdded(props: ITimeAddedProps) {
 
   const navigateToSetupFinished = useCallback(() => {
     if (isNewAccount) {
-      history.push(RoutePath.setupFinished);
+      push(RoutePath.setupFinished);
     } else {
       finish();
     }
-  }, [history, finish]);
+  }, [isNewAccount, push, finish]);
 
   const duration =
     props.secondsAdded !== undefined

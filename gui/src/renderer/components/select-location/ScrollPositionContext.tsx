@@ -69,7 +69,10 @@ export function ScrollPositionContextProvider(props: ScrollPositionContextProps)
     scrollViewRef.current?.scrollIntoView(rect);
   }, []);
 
-  const resetHeight = useCallback(() => spacePreAllocationViewRef.current?.reset(), []);
+  const resetHeight = useCallback(
+    () => spacePreAllocationViewRef.current?.reset(),
+    [spacePreAllocationViewRef],
+  );
 
   const value = useMemo(
     () => ({
@@ -82,7 +85,13 @@ export function ScrollPositionContextProvider(props: ScrollPositionContextProps)
       scrollIntoView,
       resetHeight,
     }),
-    [saveScrollPosition, resetScrollPositions],
+    [
+      spacePreAllocationViewRef,
+      saveScrollPosition,
+      resetScrollPositions,
+      scrollIntoView,
+      resetHeight,
+    ],
   );
 
   // Restore the scroll position when parameters change
