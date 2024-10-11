@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadSettings
 import Routing
 import UIKit
 
@@ -18,17 +19,20 @@ protocol SettingsViewControllerDelegate: AnyObject {
     )
 }
 
-class SettingsViewController: UITableViewController, SettingsDataSourceDelegate {
+class SettingsViewController: UITableViewController {
     weak var delegate: SettingsViewControllerDelegate?
     private var dataSource: SettingsDataSource?
     private let interactor: SettingsInteractor
+    private let alertPresenter: AlertPresenter
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
         .lightContent
     }
 
-    init(interactor: SettingsInteractor) {
+    init(interactor: SettingsInteractor, alertPresenter: AlertPresenter) {
         self.interactor = interactor
+        self.alertPresenter = alertPresenter
+
         super.init(style: .grouped)
     }
 
@@ -66,16 +70,76 @@ class SettingsViewController: UITableViewController, SettingsDataSourceDelegate 
         dataSource = SettingsDataSource(tableView: tableView, interactor: interactor)
         dataSource?.delegate = self
     }
+}
 
-    // MARK: - SettingsDataSourceDelegate
-
-    func settingsDataSource(
-        _ dataSource: SettingsDataSource,
-        didSelectItem item: SettingsDataSource.Item
-    ) {
+extension SettingsViewController: SettingsDataSourceDelegate {
+    func didSelectItem(item: SettingsDataSource.Item) {
         guard let route = item.navigationRoute else { return }
-
         delegate?.settingsViewController(self, didRequestRoutePresentation: route)
+    }
+
+    func showInfo(for item: SettingsInfoButtonItem) {
+        let presentation = AlertPresentation(
+            id: "settings-info-alert",
+            icon: .info,
+            message: item.description,
+            buttons: [
+                AlertAction(
+                    title: NSLocalizedString(
+                        "SETTINGS_INFO_ALERT_OK_ACTION",
+                        tableName: "Settings",
+                        value: "Got it!",
+                        comment: ""
+                    ),
+                    style: .default
+                ),
+            ]
+        )
+
+        alertPresenter.showAlert(presentation: presentation, animated: true)
+    }
+
+    func showPrompt(
+        for item: DAITASettingsPromptItem,
+        onSave: @escaping () -> Void,
+        onDiscard: @escaping () -> Void
+    ) {
+        let presentation = AlertPresentation(
+            id: "settings-daita-prompt",
+            accessibilityIdentifier: .daitaPromptAlert,
+            icon: .info,
+            message: NSLocalizedString(
+                "SETTINGS_DAITA_ENABLE_TEXT",
+                tableName: "DAITA",
+                value: item.description,
+                comment: ""
+            ),
+            buttons: [
+                AlertAction(
+                    title: String(format: NSLocalizedString(
+                        "SETTINGS_DAITA_ENABLE_OK_ACTION",
+                        tableName: "DAITA",
+                        value: "Enable %@",
+                        comment: ""
+                    ), item.title),
+                    style: .default,
+                    accessibilityId: .daitaConfirmAlertEnableButton,
+                    handler: { onSave() }
+                ),
+                AlertAction(
+                    title: NSLocalizedString(
+                        "SETTINGS_DAITA_ENABLE_CANCEL_ACTION",
+                        tableName: "DAITA",
+                        value: "Back",
+                        comment: ""
+                    ),
+                    style: .default,
+                    handler: { onDiscard() }
+                ),
+            ]
+        )
+
+        alertPresenter.showAlert(presentation: presentation, animated: true)
     }
 }
 
@@ -84,7 +148,7 @@ extension SettingsDataSource.Item {
         switch self {
         case .vpnSettings:
             return .vpnSettings
-        case .version:
+        case .version, .daita, .daitaDirectOnly:
             return nil
         case .problemReport:
             return .problemReport
