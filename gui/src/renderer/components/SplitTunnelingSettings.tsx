@@ -12,7 +12,7 @@ import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { useHistory } from '../lib/history';
 import { formatHtml } from '../lib/html-formatter';
-import { useAsyncEffect, useStyledRef } from '../lib/utilityHooks';
+import { useEffectEvent, useStyledRef } from '../lib/utilityHooks';
 import { IReduxState } from '../redux/store';
 import Accordion from './Accordion';
 import * as AppButton from './AppButton';
@@ -116,7 +116,7 @@ function useFilePicker(
     if (file.filePaths[0]) {
       select(file.filePaths[0]);
     }
-  }, [buttonLabel, setOpen, select]);
+  }, [setOpen, showOpenDialog, buttonLabel, filter, select]);
 }
 
 function LinuxSplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsProps) {
@@ -126,7 +126,11 @@ function LinuxSplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsProps
   const [applications, setApplications] = useState<ILinuxSplitTunnelingApplication[]>();
   const [browseError, setBrowseError] = useState<string>();
 
-  useEffect(() => void getLinuxSplitTunnelingApplications().then(setApplications), []);
+  const updateApplications = useEffectEvent(() => {
+    void getLinuxSplitTunnelingApplications().then(setApplications);
+  });
+
+  useEffect(() => updateApplications(), []);
 
   const launchApplication = useCallback(
     async (application: ILinuxSplitTunnelingApplication | string) => {
@@ -220,12 +224,14 @@ interface ILinuxApplicationRowProps {
 }
 
 function LinuxApplicationRow(props: ILinuxApplicationRowProps) {
+  const { onSelect } = props;
+
   const [showWarning, setShowWarning] = useState(false);
 
   const launch = useCallback(() => {
     setShowWarning(false);
-    props.onSelect?.(props.application);
-  }, [props.onSelect, props.application]);
+    onSelect?.(props.application);
+  }, [onSelect, props.application]);
 
   const showWarningDialog = useCallback(() => setShowWarning(true), []);
   const hideWarningDialog = useCallback(() => setShowWarning(false), []);
@@ -299,6 +305,8 @@ function LinuxApplicationRow(props: ILinuxApplicationRowProps) {
 }
 
 export function SplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsProps) {
+  const { scrollToTop } = props;
+
   const {
     addSplitTunnelingApplication,
     removeSplitTunnelingApplication,
@@ -313,7 +321,8 @@ export function SplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsPro
 
   const [searchTerm, setSearchTerm] = useState('');
   const [applications, setApplications] = useState<ISplitTunnelingApplication[]>();
-  useAsyncEffect(async () => {
+
+  const onMount = useEffectEvent(async () => {
     const { fromCache, applications } = await getSplitTunnelingApplications();
     setApplications(applications);
 
@@ -321,7 +330,9 @@ export function SplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsPro
       const { applications } = await getSplitTunnelingApplications(true);
       setApplications(applications);
     }
-  }, []);
+  });
+
+  useEffect(() => void onMount(), []);
 
   const filteredSplitApplications = useMemo(
     () =>
@@ -377,7 +388,7 @@ export function SplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsPro
       }
       removeSplitTunnelingApplication(application);
     },
-    [removeSplitTunnelingApplication, splitTunnelingEnabled],
+    [removeSplitTunnelingApplication, setSplitTunnelingState, splitTunnelingEnabled],
   );
 
   const filePickerCallback = useFilePicker(
@@ -388,9 +399,9 @@ export function SplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsPro
   );
 
   const addWithFilePicker = useCallback(async () => {
-    props.scrollToTop();
+    scrollToTop();
     await filePickerCallback();
-  }, [filePickerCallback, props.scrollToTop]);
+  }, [filePickerCallback, scrollToTop]);
 
   const excludedRowRenderer = useCallback(
     (application: ISplitTunnelingApplication) => (
@@ -522,17 +533,19 @@ interface IApplicationRowProps {
 }
 
 function ApplicationRow(props: IApplicationRowProps) {
+  const { onAdd: propsOnAdd, onRemove: propsOnRemove, onDelete: propsOnDelete } = props;
+
   const onAdd = useCallback(() => {
-    props.onAdd?.(props.application);
-  }, [props.onAdd, props.application]);
+    propsOnAdd?.(props.application);
+  }, [propsOnAdd, props.application]);
 
   const onRemove = useCallback(() => {
-    props.onRemove?.(props.application);
-  }, [props.onRemove, props.application]);
+    propsOnRemove?.(props.application);
+  }, [propsOnRemove, props.application]);
 
   const onDelete = useCallback(() => {
-    props.onDelete?.(props.application);
-  }, [props.onDelete, props.application]);
+    propsOnDelete?.(props.application);
+  }, [propsOnDelete, props.application]);
 
   return (
     <Cell.CellButton>

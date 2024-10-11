@@ -1,5 +1,7 @@
 import React, { useCallback, useContext, useEffect, useId, useMemo, useState } from 'react';
 
+import { useEffectEvent } from '../../lib/utilityHooks';
+
 interface SettingsFormContext {
   formSubmittable: boolean;
   reportInputSubmittable: (key: string, submittable: boolean) => void;
@@ -31,11 +33,15 @@ export function useSettingsFormSubmittableReporter() {
     (submittable: boolean) => {
       context?.reportInputSubmittable(key, submittable);
     },
-    [context?.reportInputSubmittable],
+    [context, key],
   );
 
+  const clearRequiredFields = useEffectEvent(() => {
+    context?.removeInput(key);
+  });
+
   // Remove from required fields if unmounted.
-  useEffect(() => () => context?.removeInput(key), []);
+  useEffect(() => () => clearRequiredFields(), []);
 
   return reportInputSubmittable;
 }

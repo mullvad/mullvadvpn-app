@@ -17,6 +17,7 @@ import { getDownloadUrl } from '../../shared/version';
 import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
 import { useHistory } from '../lib/history';
+import { useEffectEvent } from '../lib/utilityHooks';
 import { useSelector } from '../redux/store';
 import support from '../redux/support/actions';
 import * as AppButton from './AppButton';
@@ -142,15 +143,21 @@ function Form() {
     } finally {
       setDisableActions(false);
     }
-  }, []);
+  }, [collectLog, viewLog]);
 
-  const onChangeEmail = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-    setEmail(event.target.value);
-  }, []);
+  const onChangeEmail = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      setEmail(event.target.value);
+    },
+    [setEmail],
+  );
 
-  const onChangeDescription = useCallback((event: ChangeEvent<HTMLTextAreaElement>) => {
-    setMessage(event.target.value);
-  }, []);
+  const onChangeDescription = useCallback(
+    (event: ChangeEvent<HTMLTextAreaElement>) => {
+      setMessage(event.target.value);
+    },
+    [setMessage],
+  );
 
   const validate = () => message.trim().length > 0;
 
@@ -251,7 +258,7 @@ function Failed() {
 
   const handleEditMessage = useCallback(() => {
     setSendState(SendState.initial);
-  }, []);
+  }, [setSendState]);
 
   return (
     <StyledContent>
@@ -291,7 +298,7 @@ function NoEmailDialog() {
 
   const onCancelNoEmailDialog = useCallback(() => {
     setSendState(SendState.initial);
-  }, []);
+  }, [setSendState]);
 
   return (
     <ModalAlert
@@ -312,7 +319,7 @@ function NoEmailDialog() {
 }
 
 function OutdatedVersionWarningDialog() {
-  const history = useHistory();
+  const { pop } = useHistory();
   const { openUrl } = useAppContext();
 
   const isOffline = useSelector((state) => state.connection.isBlocked);
@@ -327,14 +334,14 @@ function OutdatedVersionWarningDialog() {
 
   const openDownloadLink = useCallback(async () => {
     await openUrl(getDownloadUrl(suggestedIsBeta));
-  }, [suggestedIsBeta]);
+  }, [openUrl, suggestedIsBeta]);
 
-  const onClose = useCallback(() => history.pop(), [history.pop]);
+  const onClose = useCallback(() => pop(), [pop]);
 
   const outdatedVersionCancel = useCallback(() => {
     acknowledgeOutdatedVersion();
     onClose();
-  }, [onClose]);
+  }, [acknowledgeOutdatedVersion, onClose]);
 
   const message = messages.pgettext(
     'support-view',
@@ -396,7 +403,7 @@ const useCollectLog = () => {
         throw error;
       }
     }
-  }, [collectLogPromise]);
+  }, [accountHistory, collectProblemReport]);
 
   return { collectLog };
 };
@@ -434,7 +441,7 @@ const ProblemReportContextProvider = ({ children }: { children: ReactNode }) => 
     } catch {
       setSendState(SendState.failed);
     }
-  }, [email, message]);
+  }, [clearReportForm, collectLog, email, message, sendProblemReport]);
 
   const onSend = useCallback(async () => {
     if (sendState === SendState.initial && email.length === 0) {
@@ -453,12 +460,14 @@ const ProblemReportContextProvider = ({ children }: { children: ReactNode }) => 
     }
   }, [email, sendReport, sendState]);
 
+  const onMount = useEffectEvent((email: string, message: string) => {
+    saveReportForm({ email, message });
+  });
+
   /**
    * Save the form whenever email or message gets updated
    */
-  useEffect(() => {
-    saveReportForm({ email, message });
-  }, [email, message]);
+  useEffect(() => onMount(email, message), [email, message]);
 
   const value: ProblemReportContextType = useMemo(
     () => ({ sendState, setSendState, email, setEmail, message, setMessage, onSend }),

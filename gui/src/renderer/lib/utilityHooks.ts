@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useInsertionEffect, useRef, useState } from 'react';
 
 import { LiftedConstraint, TunnelProtocol } from '../../shared/daemon-rpc-types';
 import { useSelector } from '../redux/store';
@@ -22,7 +22,9 @@ export function useStyledRef<T>(): React.RefObject<T> {
 }
 
 export function useCombinedRefs<T>(...refs: (React.Ref<T> | undefined)[]): React.RefCallback<T> {
-  return useCallback((element: T | null) => refs.forEach((ref) => assignToRef(element, ref)), []);
+  return useInitialValue(
+    () => (element: T | null) => refs.forEach((ref) => assignToRef(element, ref)),
+  );
 }
 
 export function assignToRef<T>(element: T | null, ref?: React.Ref<T>) {
@@ -31,24 +33,6 @@ export function assignToRef<T>(element: T | null, ref?: React.Ref<T>) {
   } else if (ref && element) {
     (ref as React.MutableRefObject<T>).current = element;
   }
-}
-
-export function useAsyncEffect(
-  effect: () => Promise<void | (() => void | Promise<void>)>,
-  dependencies: unknown[],
-): void {
-  const isMounted = useMounted();
-
-  useEffect(() => {
-    const promise = effect();
-    return () => {
-      void promise.then((destructor) => {
-        if (isMounted() && destructor) {
-          return destructor();
-        }
-      });
-    };
-  }, dependencies);
 }
 
 export function useBoolean(initialValue = false) {
@@ -92,3 +76,35 @@ export function useRerenderer(): [() => void, number] {
   const rerender = useCallback(() => setCount((count) => count + 1), []);
   return [rerender, count];
 }
+
+function calculateInitialValue<T>(initialValue: (() => T) | T): T {
+  if (typeof initialValue === 'function') {
+    const getInitialValue = initialValue as () => T;
+    return getInitialValue();
+  } else {
+    return initialValue;
+  }
+}
+
+export function useInitialValue<T>(initialValue: (() => T) | T): T {
+  const ref = useRef(calculateInitialValue(initialValue));
+  return ref.current;
+}
+
+type Fn<T extends unknown[], R> = (...args: T) => R;
+
+export function useEffectEvent<Args extends unknown[]>(
+  fn: Fn<Args, void | undefined | Promise<void | undefined>>,
+): Fn<Args, void> {
+  const ref = useRef<Fn<Args, void>>(fn);
+
+  useInsertionEffect(() => {
+    ref.current = fn;
+  }, [fn]);
+
+  return useCallback((...args: Args) => ref.current(...args), []);
+}
+
+// Alias for useEffectEvent, but with another name since the effect event is named after a very
+// specific usecase.
+export const useRefCallback = useEffectEvent;

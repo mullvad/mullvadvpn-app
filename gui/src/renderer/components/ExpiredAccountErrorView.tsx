@@ -47,7 +47,7 @@ export default function ExpiredAccountErrorView() {
 }
 
 function ExpiredAccountErrorViewComponent() {
-  const history = useHistory();
+  const { push } = useHistory();
   const { disconnectTunnel } = useAppContext();
 
   const connection = useSelector((state) => state.connection);
@@ -66,11 +66,11 @@ function ExpiredAccountErrorViewComponent() {
       const error = e as Error;
       log.error(`Failed to disconnect the tunnel: ${error.message}`);
     }
-  }, []);
+  }, [disconnectTunnel]);
 
   const navigateToRedeemVoucher = useCallback(() => {
-    history.push(RoutePath.redeemVoucher);
-  }, [history.push]);
+    push(RoutePath.redeemVoucher);
+  }, [push]);
 
   return (
     <Layout>
@@ -192,7 +192,7 @@ function ExternalPaymentButton() {
     } else {
       await openLinkWithAuth(links.purchase);
     }
-  }, []);
+  }, [openLinkWithAuth, recoveryAction, setShowBlockWhenDisconnectedAlert]);
 
   return (
     <AppButton.BlockingButton
@@ -225,16 +225,19 @@ function BlockWhenDisconnectedAlert() {
 
   const onCloseBlockWhenDisconnectedInstructions = useCallback(() => {
     setShowBlockWhenDisconnectedAlert(false);
-  }, []);
+  }, [setShowBlockWhenDisconnectedAlert]);
 
-  const onChange = useCallback(async (blockWhenDisconnected: boolean) => {
-    try {
-      await setBlockWhenDisconnected(blockWhenDisconnected);
-    } catch (e) {
-      const error = e as Error;
-      log.error('Failed to update block when disconnected', error.message);
-    }
-  }, []);
+  const onChange = useCallback(
+    async (blockWhenDisconnected: boolean) => {
+      try {
+        await setBlockWhenDisconnected(blockWhenDisconnected);
+      } catch (e) {
+        const error = e as Error;
+        log.error('Failed to update block when disconnected', error.message);
+      }
+    },
+    [setBlockWhenDisconnected],
+  );
 
   return (
     <ModalAlert

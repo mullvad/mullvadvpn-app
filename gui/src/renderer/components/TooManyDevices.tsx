@@ -93,7 +93,7 @@ const StyledRemoveDeviceButton = styled.button({
 });
 
 export default function TooManyDevices() {
-  const history = useHistory();
+  const { reset } = useHistory();
   const { removeDevice, login, cancelLogin } = useAppContext();
   const accountNumber = useSelector((state) => state.account.accountNumber)!;
   const devices = useSelector((state) => state.account.devices);
@@ -108,12 +108,12 @@ export default function TooManyDevices() {
 
   const continueLogin = useCallback(() => {
     void login(accountNumber);
-    history.reset(RoutePath.login, { transition: transitions.pop });
-  }, [login, accountNumber]);
+    reset(RoutePath.login, { transition: transitions.pop });
+  }, [reset, login, accountNumber]);
   const cancel = useCallback(() => {
     cancelLogin();
-    history.reset(RoutePath.login, { transition: transitions.pop });
-  }, [history.reset, cancelLogin]);
+    reset(RoutePath.login, { transition: transitions.pop });
+  }, [reset, cancelLogin]);
 
   const iconSource = getIconSource(devices);
   const title = getTitle(devices);
@@ -188,6 +188,8 @@ interface IDeviceProps {
 }
 
 function Device(props: IDeviceProps) {
+  const { onRemove: propsOnRemove } = props;
+
   const { fetchDevices } = useAppContext();
   const accountNumber = useSelector((state) => state.account.accountNumber)!;
   const [confirmationVisible, showConfirmation, hideConfirmation] = useBoolean(false);
@@ -211,18 +213,18 @@ function Device(props: IDeviceProps) {
         setError();
       }
     },
-    [fetchDevices, accountNumber, hideConfirmation, setError],
+    [fetchDevices, accountNumber, props.device.id, hideConfirmation, unsetDeleting, setError],
   );
 
   const onRemove = useCallback(async () => {
     setDeleting();
     hideConfirmation();
     try {
-      await props.onRemove(props.device.id);
+      await propsOnRemove(props.device.id);
     } catch (e) {
       await handleError(e as Error);
     }
-  }, [props.onRemove, props.device.id, hideConfirmation, setDeleting, handleError]);
+  }, [propsOnRemove, props.device.id, hideConfirmation, setDeleting, handleError]);
 
   const capitalizedDeviceName = capitalizeEveryWord(props.device.name);
   const createdDate = props.device.created.toISOString().split('T')[0];

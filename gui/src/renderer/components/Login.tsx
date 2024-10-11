@@ -428,17 +428,19 @@ interface IAccountDropdownItemProps {
 }
 
 function AccountDropdownItem(props: IAccountDropdownItemProps) {
+  const { onSelect, onRemove } = props;
+
   const handleSelect = useCallback(() => {
-    props.onSelect(props.value);
-  }, [props.onSelect, props.value]);
+    onSelect(props.value);
+  }, [onSelect, props.value]);
 
   const handleRemove = useCallback(
     (event: React.MouseEvent<HTMLButtonElement>) => {
       // Prevent login form from submitting
       event.preventDefault();
-      props.onRemove(props.value);
+      onRemove(props.value);
     },
-    [props.onRemove, props.value],
+    [onRemove, props.value],
   );
 
   return (

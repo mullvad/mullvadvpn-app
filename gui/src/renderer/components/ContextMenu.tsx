@@ -47,7 +47,7 @@ export function ContextMenuContainer(props: React.PropsWithChildren) {
       throw new Error('No trigger bounds available');
     }
     return ref.current.getBoundingClientRect();
-  }, [ref.current]);
+  }, [ref]);
 
   const contextValue = useMemo(
     () => ({
@@ -56,7 +56,7 @@ export function ContextMenuContainer(props: React.PropsWithChildren) {
       visible,
       hide,
     }),
-    [getTriggerBounds, visible],
+    [getTriggerBounds, hide, toggleVisibility, visible],
   );
 
   const clickOutsideListener = useCallback(
@@ -69,7 +69,7 @@ export function ContextMenuContainer(props: React.PropsWithChildren) {
         hide();
       }
     },
-    [visible],
+    [hide, ref, visible],
   );
 
   useEffect(() => {
@@ -204,12 +204,14 @@ interface ContextMenuItemRowProps {
 }
 
 function ContextMenuItemRow(props: ContextMenuItemRowProps) {
+  const { closeMenu } = props;
+
   const onClick = useCallback(() => {
     if (!props.item.disabled) {
-      props.closeMenu();
+      closeMenu();
       props.item.onClick();
     }
-  }, [props.closeMenu, props.item.disabled, props.item.onClick]);
+  }, [closeMenu, props.item]);
 
   return (
     <StyledMenuItem onClick={onClick} disabled={props.item.disabled}>
