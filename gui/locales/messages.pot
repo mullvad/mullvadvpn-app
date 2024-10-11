@@ -2004,6 +2004,10 @@ msgctxt "vpn-settings-view"
 msgid "This might cause issues on certain websites, services, and apps."
 msgstr ""
 
+msgctxt "vpn-settings-view"
+msgid "To select %(openvpn)s, please disable these settings: %(featureList)s."
+msgstr ""
+
 #. Label for settings that enables tracker blocking.
 msgctxt "vpn-settings-view"
 msgid "Trackers"
