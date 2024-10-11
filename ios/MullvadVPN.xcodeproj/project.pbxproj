@@ -449,7 +449,6 @@
 		58FF9FE42B075BDD00E4C97D /* EditAccessMethodItemIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FF9FE32B075BDD00E4C97D /* EditAccessMethodItemIdentifier.swift */; };
 		58FF9FE82B07650A00E4C97D /* ButtonCellContentConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FF9FE72B07650A00E4C97D /* ButtonCellContentConfiguration.swift */; };
 		58FF9FEA2B07653800E4C97D /* ButtonCellContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FF9FE92B07653800E4C97D /* ButtonCellContentView.swift */; };
-		58FF9FEC2B07A7CB00E4C97D /* NSDirectionalEdgeInsets+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FF9FEB2B07A7CB00E4C97D /* NSDirectionalEdgeInsets+Helpers.swift */; };
 		58FF9FF02B07C4D300E4C97D /* PersistentAccessMethod+ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FF9FEF2B07C4D300E4C97D /* PersistentAccessMethod+ViewModel.swift */; };
 		58FF9FF42B07C61B00E4C97D /* AccessMethodValidationError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FF9FF32B07C61B00E4C97D /* AccessMethodValidationError.swift */; };
 		7A02D4EB2A9CEC7A00C19E31 /* MullvadVPNScreenshots.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = 7A02D4EA2A9CEC7A00C19E31 /* MullvadVPNScreenshots.xctestplan */; };
@@ -896,6 +895,8 @@
 		F06045E62B231EB700B2D37A /* URLSessionTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = F06045E52B231EB700B2D37A /* URLSessionTransport.swift */; };
 		F06045EA2B23217E00B2D37A /* ShadowsocksTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = F06045E92B23217E00B2D37A /* ShadowsocksTransport.swift */; };
 		F06045EC2B2322A500B2D37A /* Jittered.swift in Sources */ = {isa = PBXBuildFile; fileRef = F06045EB2B2322A500B2D37A /* Jittered.swift */; };
+		F062000A2CB7EB42002E6DB9 /* CGSize+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = F06200092CB7EB42002E6DB9 /* CGSize+Helpers.swift */; };
+		F062000C2CB7EB5D002E6DB9 /* UIImage+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = F062000B2CB7EB5D002E6DB9 /* UIImage+Helpers.swift */; };
 		F062B94D2C16E09700B6D47A /* TunnelSettingsManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F062B94C2C16E09700B6D47A /* TunnelSettingsManagerTests.swift */; };
 		F072D3CF2C07122400906F64 /* SettingsUpdaterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F072D3CE2C07122400906F64 /* SettingsUpdaterTests.swift */; };
 		F072D3D22C071AD100906F64 /* ShadowsocksLoaderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F072D3D12C071AD100906F64 /* ShadowsocksLoaderTests.swift */; };
@@ -1785,7 +1786,6 @@
 		58FF9FE32B075BDD00E4C97D /* EditAccessMethodItemIdentifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditAccessMethodItemIdentifier.swift; sourceTree = "<group>"; };
 		58FF9FE72B07650A00E4C97D /* ButtonCellContentConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonCellContentConfiguration.swift; sourceTree = "<group>"; };
 		58FF9FE92B07653800E4C97D /* ButtonCellContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonCellContentView.swift; sourceTree = "<group>"; };
-		58FF9FEB2B07A7CB00E4C97D /* NSDirectionalEdgeInsets+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSDirectionalEdgeInsets+Helpers.swift"; sourceTree = "<group>"; };
 		58FF9FEF2B07C4D300E4C97D /* PersistentAccessMethod+ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PersistentAccessMethod+ViewModel.swift"; sourceTree = "<group>"; };
 		58FF9FF32B07C61B00E4C97D /* AccessMethodValidationError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessMethodValidationError.swift; sourceTree = "<group>"; };
 		7A02D4EA2A9CEC7A00C19E31 /* MullvadVPNScreenshots.xctestplan */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = MullvadVPNScreenshots.xctestplan; sourceTree = "<group>"; };
@@ -2117,6 +2117,8 @@
 		F06045E52B231EB700B2D37A /* URLSessionTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLSessionTransport.swift; sourceTree = "<group>"; };
 		F06045E92B23217E00B2D37A /* ShadowsocksTransport.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShadowsocksTransport.swift; sourceTree = "<group>"; };
 		F06045EB2B2322A500B2D37A /* Jittered.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Jittered.swift; sourceTree = "<group>"; };
+		F06200092CB7EB42002E6DB9 /* CGSize+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CGSize+Helpers.swift"; sourceTree = "<group>"; };
+		F062000B2CB7EB5D002E6DB9 /* UIImage+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Helpers.swift"; sourceTree = "<group>"; };
 		F062B94C2C16E09700B6D47A /* TunnelSettingsManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelSettingsManagerTests.swift; sourceTree = "<group>"; };
 		F072D3CE2C07122400906F64 /* SettingsUpdaterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsUpdaterTests.swift; sourceTree = "<group>"; };
 		F072D3D12C071AD100906F64 /* ShadowsocksLoaderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowsocksLoaderTests.swift; sourceTree = "<group>"; };
@@ -2960,6 +2962,7 @@
 			isa = PBXGroup;
 			children = (
 				5891BF1B25E3E3EB006D6FB0 /* Bundle+ProductVersion.swift */,
+				F06200092CB7EB42002E6DB9 /* CGSize+Helpers.swift */,
 				587EB669270EFACB00123C75 /* CharacterSet+IPAddress.swift */,
 				58E511E528DDDEAC00B0BCDE /* CodingErrors+CustomErrorDescription.swift */,
 				7AF9BE8F2A39F26000DBFEDB /* Collection+Sorting.swift */,
@@ -2981,6 +2984,7 @@
 				5891BF5025E66B1E006D6FB0 /* UIBarButtonItem+KeyboardNavigation.swift */,
 				587CBFE222807F530028DED3 /* UIColor+Helpers.swift */,
 				7ABE318C2A1CDD4500DF4963 /* UIFont+Weight.swift */,
+				F062000B2CB7EB5D002E6DB9 /* UIImage+Helpers.swift */,
 				58CEB2FA2AFD13E600E6E088 /* UIListContentConfiguration+Extensions.swift */,
 				58CEB2FC2AFD19D300E6E088 /* UITableView+ReuseIdentifier.swift */,
 				7A58699A2B482FE200640D27 /* UITableViewCell+Disable.swift */,
@@ -3016,7 +3020,6 @@
 			children = (
 				58CCA0152242560B004F3011 /* UIColor+Palette.swift */,
 				A9E034632ABB302000E59A5A /* UIEdgeInsets+Extensions.swift */,
-				58FF9FEB2B07A7CB00E4C97D /* NSDirectionalEdgeInsets+Helpers.swift */,
 				585CA70E25F8C44600B47C62 /* UIMetrics.swift */,
 			);
 			path = "UI appearance";
@@ -5631,6 +5634,7 @@
 				587EB672271451E300123C75 /* VPNSettingsViewModel.swift in Sources */,
 				586A950C290125EE007BAF2B /* AlertPresenter.swift in Sources */,
 				7A9FA1422A2E3306000B728D /* CheckboxView.swift in Sources */,
+				F062000A2CB7EB42002E6DB9 /* CGSize+Helpers.swift in Sources */,
 				586C0D892B03D5E000E7CDD7 /* TextCellContentConfiguration+Extensions.swift in Sources */,
 				58C3F4F92964B08300D72515 /* MapViewController.swift in Sources */,
 				584D26C6270C8741004EA533 /* SettingsDNSTextCell.swift in Sources */,
@@ -5644,6 +5648,7 @@
 				7A516C2E2B6D357500BBD33D /* URL+Scoping.swift in Sources */,
 				5878A27529093A310096FC88 /* StorePaymentEvent.swift in Sources */,
 				7A7AD28D29DC677800480EF1 /* FirstTimeLaunch.swift in Sources */,
+				F062000C2CB7EB5D002E6DB9 /* UIImage+Helpers.swift in Sources */,
 				7A6389EB2B7FAD7A008E77E1 /* SettingsFieldValidationErrorContentView.swift in Sources */,
 				58B26E2A2943545A00D5980C /* NotificationManagerDelegate.swift in Sources */,
 				58A1AA8C23F5584C009F7EA6 /* ConnectionPanelView.swift in Sources */,
@@ -5840,7 +5845,6 @@
 				7A5869B92B56E7F000640D27 /* IPOverrideViewControllerDelegate.swift in Sources */,
 				586C0D7A2B039CE300E7CDD7 /* ShadowsocksCipherPicker.swift in Sources */,
 				58B93A1326C3F13600A55733 /* TunnelState.swift in Sources */,
-				58FF9FEC2B07A7CB00E4C97D /* NSDirectionalEdgeInsets+Helpers.swift in Sources */,
 				586C0D832B03D2FF00E7CDD7 /* ShadowsocksSectionHandler.swift in Sources */,
 				58B26E262943522400D5980C /* NotificationProvider.swift in Sources */,
 				58CE5E64224146200008646E /* AppDelegate.swift in Sources */,

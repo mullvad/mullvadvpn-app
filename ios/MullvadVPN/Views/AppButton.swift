@@ -11,12 +11,12 @@ import UIKit
 /// A subclass that implements action buttons used across the app
 class AppButton: CustomButton {
     /// Default content insets based on current trait collection.
-    var defaultContentInsets: UIEdgeInsets {
+    var defaultContentInsets: NSDirectionalEdgeInsets {
         switch traitCollection.userInterfaceIdiom {
         case .phone:
-            return UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
+            return NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10)
         case .pad:
-            return UIEdgeInsets(top: 15, left: 15, bottom: 15, right: 15)
+            return NSDirectionalEdgeInsets(top: 15, leading: 15, bottom: 15, trailing: 15)
         default:
             return .zero
         }
@@ -87,30 +87,6 @@ class AppButton: CustomButton {
         }
     }
 
-    /// Prevents updating `contentEdgeInsets` on changes to trait collection.
-    var overrideContentEdgeInsets = false
-
-    override var contentEdgeInsets: UIEdgeInsets {
-        didSet {
-            // Reset inner directional insets when contentEdgeInsets are set directly.
-            innerDirectionalContentEdgeInsets = nil
-        }
-    }
-
-    /// Directional content edge insets that are automatically translated into `contentEdgeInsets` immeditely upon updating the property and on trait collection
-    /// changes.
-    var directionalContentEdgeInsets: NSDirectionalEdgeInsets {
-        get {
-            innerDirectionalContentEdgeInsets ?? contentEdgeInsets.toDirectionalInsets
-        }
-        set {
-            innerDirectionalContentEdgeInsets = newValue
-            updateContentEdgeInsetsFromDirectional()
-        }
-    }
-
-    private var innerDirectionalContentEdgeInsets: NSDirectionalEdgeInsets?
-
     init(style: Style) {
         self.style = style
         super.init(frame: .zero)
@@ -118,7 +94,7 @@ class AppButton: CustomButton {
     }
 
     override init(frame: CGRect) {
-        style = .default
+        self.style = .default
         super.init(frame: frame)
         commonInit()
     }
@@ -128,32 +104,31 @@ class AppButton: CustomButton {
     }
 
     private func commonInit() {
-        super.contentEdgeInsets = defaultContentInsets
-        imageAlignment = .trailingFixed
+        imageAlignment = .trailing
+        titleAlignment = .leading
 
-        titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
-
-        let states: [UIControl.State] = [.normal, .highlighted, .disabled]
-        states.forEach { state in
-            if let titleColor = state.customButtonTitleColor {
-                setTitleColor(titleColor, for: state)
+        var config = super.configuration ?? .plain()
+        config.title = title(for: state)
+        config.contentInsets = defaultContentInsets
+        config.background.image = style.backgroundImage
+        config.background.imageContentMode = .scaleAspectFill
+        config.titleTextAttributesTransformer =
+            UIConfigurationTextAttributesTransformer { attributeContainer in
+                var updatedAttributeContainer = attributeContainer
+                updatedAttributeContainer.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
+                return updatedAttributeContainer
             }
-        }
 
-        // Avoid setting the background image if it's already set via Interface Builder
-        if backgroundImage(for: .normal) == nil {
-            updateButtonBackground()
+        let configurationHandler: UIButton.ConfigurationUpdateHandler = { button in
+            button.alpha = !button.isEnabled ? 0.5 : 1.0
+            button.configuration?.baseForegroundColor = button.state.customButtonTitleColor
         }
+        configuration = config
+        configurationUpdateHandler = configurationHandler
     }
 
     /// Set background image based on current style.
     private func updateButtonBackground() {
-        setBackgroundImage(style.backgroundImage, for: .normal)
-    }
-
-    /// Update content edge insets from directional edge insets if set.
-    private func updateContentEdgeInsetsFromDirectional() {
-        guard let directionalEdgeInsets = innerDirectionalContentEdgeInsets else { return }
-        super.contentEdgeInsets = directionalEdgeInsets.toEdgeInsets(effectiveUserInterfaceLayoutDirection)
+        configuration?.background.image = style.backgroundImage
     }
 }
