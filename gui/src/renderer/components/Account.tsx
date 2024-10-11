@@ -5,6 +5,7 @@ import { formatDate, hasExpired } from '../../shared/account-expiry';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { useHistory } from '../lib/history';
+import { useEffectEvent } from '../lib/utilityHooks';
 import { useSelector } from '../redux/store';
 import AccountNumberLabel from './AccountNumberLabel';
 import {
@@ -33,11 +34,10 @@ export default function Account() {
 
   const onBuyMore = useCallback(async () => {
     await openLinkWithAuth(links.purchase);
-  }, []);
+  }, [openLinkWithAuth]);
 
-  useEffect(() => {
-    updateAccountData();
-  }, []);
+  const onMount = useEffectEvent(() => updateAccountData());
+  useEffect(() => onMount(), []);
 
   // Hack needed because if we just call `logout` directly in `onClick`
   // then it is run with the wrong `this`.

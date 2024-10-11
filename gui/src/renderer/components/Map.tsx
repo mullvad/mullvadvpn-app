@@ -5,7 +5,12 @@ import { TunnelState } from '../../shared/daemon-rpc-types';
 import log from '../../shared/logging';
 import { useAppContext } from '../context';
 import GlMap, { ConnectionState, Coordinate } from '../lib/3dmap';
-import { useCombinedRefs, useRerenderer } from '../lib/utilityHooks';
+import {
+  useCombinedRefs,
+  useEffectEvent,
+  useRefCallback,
+  useRerenderer,
+} from '../lib/utilityHooks';
 import { useSelector } from '../redux/store';
 
 // Default to Gothenburg when we don't know the actual location.
@@ -29,7 +34,8 @@ export default function Map() {
   const hasLocationValue = hasLocation(connection);
   const location = useMemo<Coordinate | undefined>(() => {
     return hasLocationValue ? connection : defaultLocation;
-  }, [hasLocationValue, connection.latitude, connection.longitude]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasLocationValue, connection.longitude, connection.latitude]);
 
   if (window.env.e2e) {
     return null;
@@ -88,38 +94,36 @@ function MapInner(props: MapInnerProps) {
   const height = applyPixelRatio(canvasRef.current?.clientHeight ?? 493);
 
   // Hack to rerender when window size changes or when ref is set.
-  const [onSizeChange, sizeChangeCounter] = useRerenderer();
+  const [onSizeChangeImpl, sizeChangeCounter] = useRerenderer();
+  const onSizeChange = useEffectEvent(onSizeChangeImpl);
+
+  const animationFrameCallback = useEffectEvent((now: number) => {
+    now *= 0.001; // convert to seconds
+
+    // Propagate location change to the map
+    if (newParams.current) {
+      mapRef.current?.setLocation(
+        newParams.current.location,
+        newParams.current.connectionState,
+        now,
+        props.animate,
+      );
+      newParams.current = undefined;
+    }
+
+    mapRef.current?.draw(now);
+
+    // Stops rendering if pause is true. This happens when there is no ongoing movements
+    if (!pause.current) {
+      render();
+    }
+  });
 
   const render = useCallback(() => requestAnimationFrame(animationFrameCallback), []);
 
-  const animationFrameCallback = useCallback(
-    (now: number) => {
-      now *= 0.001; // convert to seconds
-
-      // Propagate location change to the map
-      if (newParams.current) {
-        mapRef.current?.setLocation(
-          newParams.current.location,
-          newParams.current.connectionState,
-          now,
-          props.animate,
-        );
-        newParams.current = undefined;
-      }
-
-      mapRef.current?.draw(now);
-
-      // Stops rendering if pause is true. This happens when there is no ongoing movements
-      if (!pause.current) {
-        render();
-      }
-    },
-    [props.animate],
-  );
-
   // This is called when the canvas has been rendered the first time and initializes the gl context
   // and the map.
-  const canvasCallback = useCallback(async (canvas: HTMLCanvasElement | null) => {
+  const canvasCallback = useRefCallback(async (canvas: HTMLCanvasElement | null) => {
     if (!canvas) {
       return;
     }
@@ -137,7 +141,7 @@ function MapInner(props: MapInnerProps) {
     );
 
     render();
-  }, []);
+  });
 
   // Set new params when the location or connection state has changed, and unpause if paused
   useEffect(() => {
@@ -150,12 +154,12 @@ function MapInner(props: MapInnerProps) {
       pause.current = false;
       render();
     }
-  }, [props.location, props.connectionState]);
+  }, [props.location, props.connectionState, render]);
 
   useEffect(() => {
     mapRef.current?.updateViewport();
     render();
-  }, [width, height, sizeChangeCounter]);
+  }, [width, height, sizeChangeCounter, render]);
 
   // Resize canvas if window size changes
   useEffect(() => {
@@ -168,10 +172,12 @@ function MapInner(props: MapInnerProps) {
     return () => unsubscribe();
   }, []);
 
+  const devicePixelRatio = window.devicePixelRatio;
+
   // Log new scale factor if it changes
   useEffect(() => {
-    log.verbose(`Map canvas scale factor: ${window.devicePixelRatio}, using: ${getPixelRatio()}`);
-  }, [window.devicePixelRatio]);
+    log.verbose(`Map canvas scale factor: ${devicePixelRatio}, using: ${getPixelRatio()}`);
+  }, [devicePixelRatio]);
 
   const combinedCanvasRef = useCombinedRefs(canvasRef, canvasCallback);
 

@@ -162,19 +162,21 @@ const StyledSideButton = styled(Cell.SideButton)({
 });
 
 function SelectorCell<T>(props: SelectorCellProps<T>) {
-  const history = useHistory();
+  const { onSelect } = props;
+
+  const { push } = useHistory();
 
   const handleClick = useCallback(() => {
     if (!props.isSelected) {
-      props.onSelect(props.value);
+      onSelect(props.value);
     }
-  }, [props.isSelected, props.onSelect, props.value]);
+  }, [props.isSelected, onSelect, props.value]);
 
   const navigate = useCallback(() => {
     if (props.details) {
-      history.push(props.details.path);
+      push(props.details.path);
     }
-  }, [history.push, props.details?.path]);
+  }, [props.details, push]);
 
   return (
     <StyledSelectorCell>
@@ -270,8 +272,11 @@ export function SelectorWithCustomItem<T, U>(props: SelectorWithCustomItemProps<
   // Disables submitting of custom input when another item has been pressed.
   const allowSubmitCustom = useRef(false);
 
-  const isNonCustomItem = (value: T | U | undefined) =>
-    props.items.some((item) => item.value === value) || props.automaticValue === value;
+  const isNonCustomItem = useCallback(
+    (value: T | U | undefined) =>
+      props.items.some((item) => item.value === value) || props.automaticValue === value,
+    [props.automaticValue, props.items],
+  );
 
   const itemIsSelected = isNonCustomItem(value);
   // Value of custom input. The value is undefined when custom isn't picked.
@@ -285,7 +290,7 @@ export function SelectorWithCustomItem<T, U>(props: SelectorWithCustomItemProps<
     // After focusing the input it should be allowed to submit custom values.
     allowSubmitCustom.current = true;
     setCustomValue((customValue) => customValue ?? '');
-  }, [customValue, inputRef.current]);
+  }, [inputRef]);
 
   const handleSelectItem = useCallback(
     (newValue: T | U | undefined) => {
@@ -298,7 +303,7 @@ export function SelectorWithCustomItem<T, U>(props: SelectorWithCustomItemProps<
 
       onSelect(newValue!);
     },
-    [onSelect],
+    [inputRef, onSelect],
   );
 
   const validateCustomValue = useCallback(
@@ -319,7 +324,7 @@ export function SelectorWithCustomItem<T, U>(props: SelectorWithCustomItemProps<
         }
       }
     },
-    [parseValue, onSelect],
+    [parseValue, isNonCustomItem, handleSelectItem, onSelect],
   );
 
   const handleInvalidCustom = useCallback(
@@ -330,11 +335,14 @@ export function SelectorWithCustomItem<T, U>(props: SelectorWithCustomItemProps<
   // Delay blur event until onMouseUp resulting in handleSelectItem being called before
   // handleSubmitCustomValue and handleInvalidCustom. Clicking on the input should still move the
   // cursor and therefore needs to be an exception to this.
-  const handleMouseDown = useCallback((event: React.MouseEvent) => {
-    if (event.target !== inputRef.current) {
-      event.preventDefault();
-    }
-  }, []);
+  const handleMouseDown = useCallback(
+    (event: React.MouseEvent) => {
+      if (event.target !== inputRef.current) {
+        event.preventDefault();
+      }
+    },
+    [inputRef],
+  );
 
   return (
     <div onMouseDown={handleMouseDown}>

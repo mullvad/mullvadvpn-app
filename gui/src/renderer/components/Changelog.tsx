@@ -44,7 +44,7 @@ export function Changelog() {
   const close = useCallback(() => {
     setDisplayedChangelog();
     stopForceShowChanges();
-  }, []);
+  }, [setDisplayedChangelog, stopForceShowChanges]);
 
   const visible =
     forceShowChanges ||

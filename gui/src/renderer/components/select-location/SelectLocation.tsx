@@ -107,7 +107,7 @@ export default function SelectLocation() {
       saveScrollPosition();
       setLocationType(locationType);
     },
-    [saveScrollPosition],
+    [saveScrollPosition, setLocationType],
   );
 
   const updateSearchTerm = useCallback(
@@ -122,7 +122,7 @@ export default function SelectLocation() {
         setSearchTerm(value);
       }
     },
-    [resetScrollPositions, expandSearchResults],
+    [expandSearchResults, setSearchTerm, resetScrollPositions],
   );
 
   const showOwnershipFilter = ownership !== Ownership.any;

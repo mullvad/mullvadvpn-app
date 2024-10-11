@@ -1,9 +1,4 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react';
-
-let groupCounter = 0;
-function getNewId() {
-  return groupCounter++;
-}
+import React, { useContext, useEffect, useId, useMemo, useState } from 'react';
 
 interface IAriaControlContext {
   controlledId: string;
@@ -21,8 +16,8 @@ interface IAriaGroupProps {
 }
 
 export function AriaControlGroup(props: IAriaGroupProps) {
-  const id = useMemo(getNewId, []);
-  const contextValue = useMemo(() => ({ controlledId: `${id}-controlled` }), []);
+  const id = useId();
+  const contextValue = useMemo(() => ({ controlledId: `${id}-controlled` }), [id]);
 
   return (
     <AriaControlContext.Provider value={contextValue}>{props.children}</AriaControlContext.Provider>
@@ -45,7 +40,7 @@ const AriaDescriptionContext = React.createContext<IAriaDescriptionContext>({
 });
 
 export function AriaDescriptionGroup(props: IAriaGroupProps) {
-  const id = useMemo(getNewId, []);
+  const id = useId();
   const [hasDescription, setHasDescription] = useState(false);
 
   const contextValue = useMemo(
@@ -54,7 +49,7 @@ export function AriaDescriptionGroup(props: IAriaGroupProps) {
       descriptionId: hasDescription ? `${id}-description` : undefined,
       setHasDescription,
     }),
-    [hasDescription, props.describedId],
+    [hasDescription, id, props.describedId],
   );
 
   return (
@@ -81,7 +76,7 @@ const AriaInputContext = React.createContext<IAriaInputContext>({
 });
 
 export function AriaInputGroup(props: IAriaGroupProps) {
-  const id = useMemo(getNewId, []);
+  const id = useId();
 
   const [hasLabel, setHasLabel] = useState(false);
 
@@ -91,7 +86,7 @@ export function AriaInputGroup(props: IAriaGroupProps) {
       labelId: hasLabel ? `${id}-label` : undefined,
       setHasLabel,
     }),
-    [hasLabel],
+    [hasLabel, id],
   );
 
   return (
@@ -134,7 +129,7 @@ export function AriaLabel(props: IAriaElementProps) {
   useEffect(() => {
     setHasLabel(true);
     return () => setHasLabel(false);
-  }, []);
+  }, [setHasLabel]);
 
   return React.cloneElement(props.children, {
     id: labelId,
@@ -157,7 +152,7 @@ export function AriaDescription(props: IAriaElementProps) {
   useEffect(() => {
     setHasDescription(true);
     return () => setHasDescription(false);
-  }, []);
+  }, [setHasDescription]);
 
   return React.cloneElement(props.children, {
     id: descriptionId,

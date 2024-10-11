@@ -165,6 +165,7 @@ export function NotificationBanner(props: INotificationBannerProps) {
     prevChildren.current = props.children ?? prevChildren.current;
   }, [props.children]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     const newHeight =
       props.children !== undefined ? (contentRef.current?.getBoundingClientRect().height ?? 0) : 0;

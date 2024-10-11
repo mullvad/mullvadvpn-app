@@ -24,7 +24,7 @@ const StyledSelector = styled(Selector)({
 });
 
 export default function SelectLanguage() {
-  const history = useHistory();
+  const { pop } = useHistory();
   const { preferredLocale, preferredLocalesList, setPreferredLocale } = usePreferredLocale();
   const scrollView = useRef<CustomScrollbarsRef>(null);
   const selectedCellRef = useRef<HTMLButtonElement>(null);
@@ -32,9 +32,9 @@ export default function SelectLanguage() {
   const selectLocale = useCallback(
     async (locale: string) => {
       await setPreferredLocale(locale);
-      history.pop();
+      pop();
     },
-    [history.pop],
+    [pop, setPreferredLocale],
   );
 
   const scrollToSelectedCell = () => {
@@ -52,7 +52,7 @@ export default function SelectLanguage() {
   }, []);
 
   return (
-    <BackAction action={history.pop}>
+    <BackAction action={pop}>
       <Layout>
         <SettingsContainer>
           <NavigationContainer>
@@ -97,7 +97,7 @@ function usePreferredLocale() {
 
   const preferredLocalesList: SelectorItem<string>[] = useMemo(() => {
     return [...getPreferredLocaleList().map(({ name, code }) => ({ label: name, value: code }))];
-  }, []);
+  }, [getPreferredLocaleList]);
 
   return { preferredLocale, preferredLocalesList, setPreferredLocale };
 }

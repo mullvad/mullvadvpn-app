@@ -31,7 +31,7 @@ export function useScheduler() {
 
   useEffect(() => {
     return () => closeScheduler.cancel();
-  }, []);
+  }, [closeScheduler]);
 
   return closeScheduler;
 }

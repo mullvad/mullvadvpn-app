@@ -52,7 +52,7 @@ function MacOsPermissionFooter() {
 
   const openSettings = useCallback(async () => {
     await showLaunchDaemonSettings();
-  }, []);
+  }, [showLaunchDaemonSettings]);
 
   return (
     <StyledFooter>
@@ -72,13 +72,13 @@ function MacOsPermissionFooter() {
 }
 
 function DefaultFooter() {
-  const history = useHistory();
+  const { push } = useHistory();
   const [dialogVisible, showDialog, hideDialog] = useBoolean();
 
   const openSendProblemReport = useCallback(() => {
     hideDialog();
-    history.push(RoutePath.problemReport, { transition: transitions.show });
-  }, [hideDialog, history.push]);
+    push(RoutePath.problemReport, { transition: transitions.show });
+  }, [hideDialog, push]);
 
   return (
     <>

@@ -12,6 +12,7 @@ import { useScheduler } from '../../shared/scheduler';
 import { useAppContext } from '../context';
 import { useApiAccessMethodTest } from '../lib/api-access-methods';
 import { useHistory } from '../lib/history';
+import { useEffectEvent } from '../lib/utilityHooks';
 import { useSelector } from '../redux/store';
 import { SettingsForm } from './cell/SettingsForm';
 import { BackAction } from './KeyboardNavigation';
@@ -32,7 +33,7 @@ export function EditApiAccessMethod() {
 }
 
 function AccessMethodForm() {
-  const history = useHistory();
+  const { pop } = useHistory();
   const { addApiAccessMethod, updateApiAccessMethod } = useAppContext();
   const methods = useSelector((state) => state.settings.apiAccessMethods.custom);
 
@@ -56,9 +57,9 @@ function AccessMethodForm() {
       } else {
         void updateApiAccessMethod({ ...updatedMethod.current, id });
       }
-      history.pop();
+      pop();
     }
-  }, [updatedMethod.current, id]);
+  }, [resetTestResult, id, pop, addApiAccessMethod, updateApiAccessMethod]);
 
   const onSave = useCallback(
     async (newMethod: NamedCustomProxy) => {
@@ -72,14 +73,14 @@ function AccessMethodForm() {
         saveScheduler.schedule(save, 1500);
       }
     },
-    [updatedMethod, save, history.pop],
+    [id, method?.enabled, testApiAccessMethod, saveScheduler, save],
   );
 
   const title = getTitle(id === undefined);
   const subtitle = getSubtitle(id === undefined);
 
   return (
-    <BackAction action={history.pop}>
+    <BackAction action={pop}>
       <Layout>
         <SettingsContainer>
           <NavigationContainer>
@@ -100,7 +101,7 @@ function AccessMethodForm() {
                   {id !== undefined && method === undefined ? (
                     <span>Failed to open method</span>
                   ) : (
-                    <NamedProxyForm proxy={method} onSave={onSave} onCancel={history.pop} />
+                    <NamedProxyForm proxy={method} onSave={onSave} onCancel={pop} />
                   )}
                 </StyledSettingsContent>
 
@@ -153,11 +154,13 @@ function TestingDialog(props: TestingDialogProps) {
   const isOpen = props.testing || props.testResult !== undefined;
   const typeValue = isOpen ? type : prevType.current;
 
-  useEffect(() => {
+  const typeChangeEvent = useEffectEvent((type: ModalAlertType) => {
     if (isOpen) {
       prevType.current = type;
     }
-  }, [type]);
+  });
+
+  useEffect(() => typeChangeEvent(type), [type]);
 
   return (
     <ModalAlert
