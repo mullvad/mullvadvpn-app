@@ -16,9 +16,9 @@ androidx-coresplashscreen = "1.1.0-rc01"
 androidx-espresso = "3.6.1"
 androidx-lifecycle = "2.8.6"
 androidx-test = "1.6.1"
-androidx-testmonitor = "1.7.1"
+androidx-testmonitor = "1.7.2"
 androidx-testorchestrator = "1.5.0"
-androidx-testrunner = "1.6.1"
+androidx-testrunner = "1.6.2"
 androidx-uiautomator = "2.4.0-alpha01"
 
 # Arrow
@@ -26,15 +26,15 @@ arrow = "1.2.4"
 
 # Compose
 compose = "1.7.3"
-compose-destinations = "2.1.0-beta12"
+compose-destinations = "2.1.0-beta13"
 compose-constraintlayout = "1.0.1"
 compose-material3 = "1.3.0"
 
 # Await resolution of https://github.com/grpc/grpc-java/issues/11550 before updating.
-grpc = "1.66.0"
+grpc = "1.67.1"
 grpc-kotlin = "1.4.1"
 grpc-kotlin-jar = "1.4.1:jdk8@jar"
-grpc-protobuf = "4.28.1"
+grpc-protobuf = "4.28.2"
 
 # Koin
 koin = "4.0.0"
@@ -43,8 +43,8 @@ koin-compose = "4.0.0"
 # Kotlin
 # Bump kotlin and kotlin-ksp together, find matching release here:
 # https://github.com/google/ksp/releases
-kotlin = "2.0.20"
-kotlin-ksp = "2.0.20-1.0.25"
+kotlin = "2.0.21"
+kotlin-ksp = "2.0.21-1.0.25"
 kotlinx = "1.9.0"
 
 # Protobuf
@@ -60,7 +60,7 @@ kermit = "2.0.4"
 konsist = "0.16.1"
 ktfmt = "0.20.1"
 leakcanary = "2.14"
-mockk = "1.13.12"
+mockk = "1.13.13"
 mockwebserver = "4.12.0"
 play-publisher = "3.11.0"
 turbine = "1.1.0"
