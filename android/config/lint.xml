@@ -12,4 +12,6 @@
     <!-- Temporarily ignore the below checks while migrating to version catalogs. -->
     <issue id="GradleDependency" severity="ignore" />
     <issue id="AndroidGradlePluginVersion" severity="ignore" />
+    <!-- Temporarily ignored since a dependency is checked with older version of lint -->
+    <issue id="ObsoleteLintCustomCheck" severity="ignore" />
 </lint>
