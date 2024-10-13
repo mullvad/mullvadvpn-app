@@ -224,7 +224,7 @@ This section is for building the system service individually.
     ```
 
 1. Copy the OpenVPN binaries, and our plugin for it, to the directory we will
-    use as resource directory. If you want to use any other directory, you would need to copy
+    use as a resource directory. If you want to use any other directory, you would need to copy
     even more files.
     ```bash
     cp dist-assets/binaries/<platform>/openvpn[.exe] dist-assets/
