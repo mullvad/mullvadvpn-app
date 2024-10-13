@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
-import { useStyledRef } from '../lib/utilityHooks';
+import { useCombinedRefs, useStyledRef } from '../lib/utilityHooks';
 import { normalText } from './common-styles';
 import ImageView from './ImageView';
 
@@ -71,12 +71,12 @@ interface ISearchBarProps {
   onSearch: (searchTerm: string) => void;
   className?: string;
   disableAutoFocus?: boolean;
-  hasLocationTypeChanged?: boolean;
-  resetLocationTypeChange?: () => void;
+  searchInputRef?: React.Ref<HTMLInputElement>;
 }
 
 export default function SearchBar(props: ISearchBarProps) {
   const inputRef = useStyledRef<HTMLInputElement>();
+  const combinedRef = useCombinedRefs(inputRef, props.searchInputRef);
 
   const onInput = useCallback(
     (event: React.FormEvent) => {
@@ -95,14 +95,12 @@ export default function SearchBar(props: ISearchBarProps) {
     if (!props.disableAutoFocus) {
       inputRef.current?.focus({ preventScroll: true });
     }
-
-    return () => props.resetLocationTypeChange?.();
-  }, [props.hasLocationTypeChanged]);
+  }, []);
 
   return (
     <StyledSearchContainer className={props.className}>
       <StyledSearchInput
-        ref={inputRef}
+        ref={combinedRef}
         value={props.searchTerm}
         onInput={onInput}
         placeholder={messages.gettext('Search for...')}
