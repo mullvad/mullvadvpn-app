@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
-import { useStyledRef } from '../lib/utilityHooks';
+import { useCombinedRefs, useStyledRef } from '../lib/utilityHooks';
 import { normalText } from './common-styles';
 import ImageView from './ImageView';
 
@@ -67,16 +67,16 @@ export const StyledClearIcon = styled(ImageView)({
 });
 
 interface ISearchBarProps {
+  searchInputRef?: React.Ref<HTMLInputElement>;
   searchTerm: string;
   onSearch: (searchTerm: string) => void;
   className?: string;
   disableAutoFocus?: boolean;
-  hasLocationTypeChanged?: boolean;
-  resetLocationTypeChange?: () => void;
 }
 
 export default function SearchBar(props: ISearchBarProps) {
   const inputRef = useStyledRef<HTMLInputElement>();
+  const combinedRef = useCombinedRefs(inputRef, props.searchInputRef);
 
   const onInput = useCallback(
     (event: React.FormEvent) => {
@@ -95,17 +95,15 @@ export default function SearchBar(props: ISearchBarProps) {
     if (!props.disableAutoFocus) {
       inputRef.current?.focus({ preventScroll: true });
     }
-
-    return () => props.resetLocationTypeChange?.();
-  }, [props.hasLocationTypeChanged]);
+  }, []);
 
   return (
     <StyledSearchContainer className={props.className}>
       <StyledSearchInput
-        ref={inputRef}
         value={props.searchTerm}
         onInput={onInput}
         placeholder={messages.gettext('Search for...')}
+        ref={combinedRef}
       />
       <StyledSearchIcon source="icon-search" width={24} tintColor={colors.white60} />
       {props.searchTerm.length > 0 && (

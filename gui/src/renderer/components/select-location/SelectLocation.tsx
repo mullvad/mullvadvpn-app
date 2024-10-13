@@ -9,7 +9,7 @@ import { daitaFilterActive, filterSpecialLocations } from '../../lib/filter-loca
 import { useHistory } from '../../lib/history';
 import { formatHtml } from '../../lib/html-formatter';
 import { RoutePath } from '../../lib/routes';
-import { useBoolean, useNormalRelaySettings } from '../../lib/utilityHooks';
+import { useNormalRelaySettings, useStyledRef } from '../../lib/utilityHooks';
 import { useSelector } from '../../redux/store';
 import * as Cell from '../cell';
 import { useFilteredProviders } from '../Filter';
@@ -102,14 +102,13 @@ export default function SelectLocation() {
     }
   }, [relaySettingsUpdater, resetScrollPositions, relaySettings]);
 
-  const [hasLocationTypeChanged, notifyLocationTypeChange, resetLocationTypeChange] =
-    useBoolean(false);
+  const searchInputRef = useStyledRef<HTMLInputElement>();
 
   const changeLocationType = useCallback(
     (locationType: LocationType) => {
+      searchInputRef.current?.focus();
       saveScrollPosition();
       setLocationType(locationType);
-      notifyLocationTypeChange();
     },
     [saveScrollPosition],
   );
@@ -243,10 +242,9 @@ export default function SelectLocation() {
               )}
 
               <StyledSearchBar
+                searchInputRef={searchInputRef}
                 searchTerm={searchValue}
                 onSearch={updateSearchTerm}
-                hasLocationTypeChanged={hasLocationTypeChanged}
-                resetLocationTypeChange={resetLocationTypeChange}
               />
             </StyledNavigationBarAttachment>
 
