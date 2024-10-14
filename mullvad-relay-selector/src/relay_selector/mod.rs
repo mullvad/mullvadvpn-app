@@ -725,6 +725,28 @@ impl RelaySelector {
     ) -> Result<WireguardConfig, Error> {
         let candidates = filter_matching_relay_list(query, parsed_relays, custom_lists);
 
+        if let Some(x) = Self::select_daita_multihop_config_if_necessary(
+            query,
+            custom_lists,
+            parsed_relays,
+            &candidates,
+        )? {
+            return Ok(x);
+        }
+
+        helpers::pick_random_relay(&candidates)
+            .cloned()
+            .map(WireguardConfig::singlehop)
+            .ok_or(Error::NoRelay)
+    }
+
+    fn select_daita_multihop_config_if_necessary(
+        query: &RelayQuery,
+        custom_lists: &CustomListsSettings,
+        parsed_relays: &ParsedRelays,
+        // TODO: What is this??
+        candidates: &[Relay],
+    ) -> Result<Option<WireguardConfig>, Error> {
         // are we using daita?
         let using_daita = || query.wireguard_constraints().daita == Constraint::Only(true);
 
@@ -755,13 +777,10 @@ impl RelaySelector {
             && no_relay_because_daita()?
             && use_multihop_if_necessary()
         {
-            return Self::get_wireguard_auto_multihop_config(query, custom_lists, parsed_relays);
+            Self::get_wireguard_auto_multihop_config(query, custom_lists, parsed_relays).map(Some)
+        } else {
+            Ok(None)
         }
-
-        helpers::pick_random_relay(&candidates)
-            .cloned()
-            .map(WireguardConfig::singlehop)
-            .ok_or(Error::NoRelay)
     }
 
     /// Select a valid Wireguard exit relay, together with with an automatically chosen entry relay.
