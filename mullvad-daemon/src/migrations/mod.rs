@@ -245,7 +245,7 @@ pub(crate) fn load_seed<P: AsRef<Path>>(seed: P) -> serde_json::Value {
     let seed = std::io::BufReader::new(std::fs::File::open(seed).unwrap_or_else(|_| {
         panic!(
             "{} seed is missing",
-            //seed.as_ref().to_str().unwrap()
+            // seed.as_ref().to_str().unwrap()
             "uxd",
         )
     }));
@@ -468,7 +468,7 @@ mod windows {
 mod test {
     use mullvad_types::settings::{CURRENT_SETTINGS_VERSION, Settings};
 
-    use crate::migrations::migrate_settings;
+    use crate::migrations::{migrate_settings, snapshot_dir};
 
     /// Ensure that no migration logic runs for the default settings by checking whether anything
     /// has changed after running the migration code
