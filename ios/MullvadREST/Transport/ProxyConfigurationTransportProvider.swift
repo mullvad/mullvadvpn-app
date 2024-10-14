@@ -27,7 +27,7 @@ public class ProxyConfigurationTransportProvider {
     }
 
     public func makeTransport(with configuration: PersistentProxyConfiguration) throws -> RESTTransport {
-        let urlSession = REST.makeURLSession()
+        let urlSession = REST.makeURLSession(addressCache: addressCache)
         switch configuration {
         case .direct:
             return URLSessionTransport(urlSession: urlSession)

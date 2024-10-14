@@ -203,7 +203,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         ipOverrideWrapper: IPOverrideWrapper,
         addressCache: REST.AddressCache
     ) -> TransportProvider {
-        let urlSession = REST.makeURLSession()
+        let urlSession = REST.makeURLSession(addressCache: addressCache)
         let urlSessionTransport = URLSessionTransport(urlSession: urlSession)
         let shadowsocksCache = ShadowsocksConfigurationCache(cacheDirectory: appContainerURL)
 

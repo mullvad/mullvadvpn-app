@@ -110,7 +110,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             accountsProxy: accountsProxy,
             transactionLog: .default
         )
-        let urlSessionTransport = URLSessionTransport(urlSession: REST.makeURLSession())
+        let urlSessionTransport = URLSessionTransport(urlSession: REST.makeURLSession(addressCache: addressCache))
         let shadowsocksCache = ShadowsocksConfigurationCache(cacheDirectory: containerURL)
         let shadowsocksRelaySelector = ShadowsocksRelaySelector(
             relayCache: ipOverrideWrapper
