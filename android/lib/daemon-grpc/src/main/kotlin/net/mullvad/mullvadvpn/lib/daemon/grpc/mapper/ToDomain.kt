@@ -93,7 +93,7 @@ internal fun ManagementInterface.TunnelState.toDomain(): TunnelState =
                             location.toDomain()
                         } else null
                     },
-                featureIndicators = connected.featureIndicators.toDomain(),
+                featureIndicators = emptyList(),
             )
         ManagementInterface.TunnelState.StateCase.CONNECTED ->
             TunnelState.Connected(
@@ -106,7 +106,7 @@ internal fun ManagementInterface.TunnelState.toDomain(): TunnelState =
                             null
                         }
                     },
-                featureIndicators = connected.featureIndicators.toDomain(),
+                featureIndicators = emptyList(),
             )
         ManagementInterface.TunnelState.StateCase.DISCONNECTING ->
             TunnelState.Disconnecting(
