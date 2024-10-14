@@ -50,12 +50,10 @@ jobs:
           xcode_test_plan: 'MullvadVPNUITestsChangeDNSSettings'
           partner_api_token: ${{ secrets.STAGEMOLE_PARTNER_AUTH }}
 
-      - name: Store test report for changing DNS settings
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: test-report-change-dns-settings
-          path: ios/test-report/junit.xml
+      - name: Store xcresult for changing DNS settings
+        run: |
+          mv ios/test-report/test-report-change-dns-settings.xcresult ios/xcode-test-report-change-dns-settings.xcresult
+          echo "Saved xcresult for DNS settings change."
 
       - name: Checkout repository to get the current app version
         uses: actions/checkout@v4
@@ -70,14 +68,12 @@ jobs:
           no_time_account_number: ${{ secrets.IOS_NO_TIME_ACCOUNT_NUMBER_PRODUCTION }}
           test_device_udid: ${{ env.TEST_DEVICE_UDID }}
           partner_api_token: ${{ secrets.STAGEMOLE_PARTNER_AUTH }}
-          xcode_test_plan: 'MullvadVPNUITestsVerifyDNSSettingsChanged'
+          xcode_test_plan: MullvadVPNUITestsVerifyDNSSettingsChanged
 
-      - name: Store test report for verifying DNS settings
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: test-report-verify-dns-settings
-          path: ios/test-report/junit.xml
+      - name: Store xcresult for verifying DNS settings
+        run: |
+          mv ios/test-report/test-report-verify-dns-settings.xcresult ios/xcode-test-report-verify-dns-settings.xcresult
+          echo "Saved xcresult for verifying DNS settings."
 
       - name: Checkout old repository version
         uses: actions/checkout@v4
@@ -94,14 +90,12 @@ jobs:
           no_time_account_number: ${{ secrets.IOS_NO_TIME_ACCOUNT_NUMBER_PRODUCTION }}
           test_device_udid: ${{ env.TEST_DEVICE_UDID }}
           partner_api_token: ${{ secrets.STAGEMOLE_PARTNER_AUTH }}
-          xcode_test_plan: 'MullvadVPNUITestsChangeSettings'
+          xcode_test_plan: MullvadVPNUITestsChangeSettings
 
-      - name: Store test report for changing all settings
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: test-report-change-all-other-settings
-          path: ios/test-report/junit.xml
+      - name: Store xcresult for changing all settings
+        run: |
+          mv ios/test-report/test-report-change-all-other-settings.xcresult ios/xcode-test-report-change-all-settings.xcresult
+          echo "Saved xcresult for changing all settings."
 
       - name: Checkout repository to get the current app version
         uses: actions/checkout@v4
@@ -116,11 +110,9 @@ jobs:
           no_time_account_number: ${{ secrets.IOS_NO_TIME_ACCOUNT_NUMBER_PRODUCTION }}
           test_device_udid: ${{ env.TEST_DEVICE_UDID }}
           partner_api_token: ${{ secrets.STAGEMOLE_PARTNER_AUTH }}
-          xcode_test_plan: 'MullvadVPNUITestsVerifySettingsChanged'
+          xcode_test_plan: MullvadVPNUITestsVerifySettingsChanged
 
-      - name: Store test report for verifying all other settings
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: test-report-verify-all-other-settings
-          path: ios/test-report/junit.xml
+      - name: Store xcresult for verifying all other settings
+        run: |
+          mv ios/test-report/test-report-verify-all-other-settings.xcresult ios/xcode-test-report-verify-all-other-settings.xcresult
+          echo "Saved xcresult for verifying all other settings."
