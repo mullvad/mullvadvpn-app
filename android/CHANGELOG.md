@@ -24,6 +24,11 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 
 
+## [android/2024.6] - 2024-10-14
+### Fixed
+- Fix rare crash related to an upcoming feature (feature indicators).
+
+
 ## [android/2024.5] - 2024-10-09
 ### Fixed
 - Fix crash when in the edit custom list locations screen and changing app langauge.
