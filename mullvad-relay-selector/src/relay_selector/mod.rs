@@ -717,7 +717,7 @@ impl RelaySelector {
     ///
     /// # Returns
     /// * An `Err` if no exit relay can be chosen
-    /// * `Ok(WireguardInner::Singlehop)` otherwise
+    /// * `Ok(WireguardConfig)` otherwise
     fn get_wireguard_singlehop_config(
         query: &RelayQuery,
         custom_lists: &CustomListsSettings,
@@ -768,7 +768,7 @@ impl RelaySelector {
     ///
     /// # Returns
     /// * An `Err` if no entry/exit relay can be chosen
-    /// * `Ok(WireguardInner::Multihop)` otherwise
+    /// * `Ok(WireguardConfig::Multihop)` otherwise
     fn get_wireguard_auto_multihop_config(
         query: &RelayQuery,
         custom_lists: &CustomListsSettings,
@@ -819,7 +819,7 @@ impl RelaySelector {
     /// * An `Err` if no exit relay can be chosen
     /// * An `Err` if no entry relay can be chosen
     /// * An `Err` if the chosen entry and exit relays are the same
-    /// * `Ok(WireguardInner::Multihop)` otherwise
+    /// * `Ok(WireguardConfig::Multihop)` otherwise
     fn get_wireguard_multihop_config(
         query: &RelayQuery,
         custom_lists: &CustomListsSettings,
