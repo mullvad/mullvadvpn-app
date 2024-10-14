@@ -165,11 +165,15 @@ impl ConnectedState {
 
         // On macOS, configure only the local DNS resolver
         #[cfg(target_os = "macos")]
-        shared_values.runtime.block_on(
-            shared_values
-                .filtering_resolver
-                .enable_forward(dns_config.addresses().collect()),
-        );
+        if !dns_config.is_loopback() {
+            shared_values.runtime.block_on(
+                shared_values
+                    .filtering_resolver
+                    .enable_forward(dns_config.addresses().collect()),
+            );
+        } else {
+            log::debug!("Not enabling DNS forwarding since loopback is used");
+        }
 
         Ok(())
     }
