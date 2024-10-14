@@ -11,9 +11,9 @@ import {
   filterLocationsByEndPointType,
 } from '../lib/filter-locations';
 import { useHistory } from '../lib/history';
-import { useBoolean, useNormalRelaySettings } from '../lib/utilityHooks';
+import { useBoolean, useNormalRelaySettings, useTunnelProtocol } from '../lib/utilityHooks';
 import { IRelayLocationCountryRedux } from '../redux/settings/reducers';
-import { IReduxState, useSelector } from '../redux/store';
+import { useSelector } from '../redux/store';
 import Accordion from './Accordion';
 import * as AppButton from './AppButton';
 import { AriaInputGroup, AriaLabel } from './AriaGroup';
@@ -40,7 +40,7 @@ export default function Filter() {
   const history = useHistory();
   const relaySettingsUpdater = useRelaySettingsUpdater();
 
-  const initialProviders = useSelector(providersSelector);
+  const initialProviders = useProviders();
   const [providers, setProviders] = useState<Record<string, boolean>>(initialProviders);
 
   // The daemon expects the value to be an empty list if all are selected.
@@ -121,6 +121,7 @@ export default function Filter() {
 // Returns only the ownership options that are compatible with the other filters
 function useFilteredOwnershipOptions(providers: string[], ownership: Ownership): Ownership[] {
   const relaySettings = useNormalRelaySettings();
+  const tunnelProtocol = useTunnelProtocol();
   const bridgeState = useSelector((state) => state.settings.bridgeState);
   const locations = useSelector((state) => state.settings.relayLocations);
 
@@ -130,6 +131,7 @@ function useFilteredOwnershipOptions(providers: string[], ownership: Ownership):
     const relayListForEndpointType = filterLocationsByEndPointType(
       locations,
       endpointType,
+      tunnelProtocol,
       relaySettings,
     );
     const relaylistForFilters = filterLocations(relayListForEndpointType, ownership, providers);
@@ -155,6 +157,7 @@ function useFilteredOwnershipOptions(providers: string[], ownership: Ownership):
 // Returns only the providers that are compatible with the other filters
 export function useFilteredProviders(providers: string[], ownership: Ownership): string[] {
   const relaySettings = useNormalRelaySettings();
+  const tunnelProtocol = useTunnelProtocol();
   const bridgeState = useSelector((state) => state.settings.bridgeState);
   const locations = useSelector((state) => state.settings.relayLocations);
 
@@ -164,6 +167,7 @@ export function useFilteredProviders(providers: string[], ownership: Ownership):
     const relayListForEndpointType = filterLocationsByEndPointType(
       locations,
       endpointType,
+      tunnelProtocol,
       relaySettings,
     );
     const relaylistForFilters = filterLocations(relayListForEndpointType, ownership, providers);
@@ -181,15 +185,19 @@ function providersFromRelays(relays: IRelayLocationCountryRedux[]) {
   return removeDuplicates(providers).sort((a, b) => a.localeCompare(b));
 }
 
-function providersSelector(state: IReduxState): Record<string, boolean> {
-  const relaySettings =
-    'normal' in state.settings.relaySettings ? state.settings.relaySettings.normal : undefined;
+function useProviders(): Record<string, boolean> {
+  const tunnelProtocol = useTunnelProtocol();
+  const relaySettings = useNormalRelaySettings();
+  const relayLocations = useSelector((state) => state.settings.relayLocations);
+  const bridgeState = useSelector((state) => state.settings.bridgeState);
   const providerConstraint = relaySettings?.providers ?? [];
 
-  const endpointType = state.settings.bridgeState === 'on' ? EndpointType.any : EndpointType.exit;
+  const endpointType =
+    tunnelProtocol === 'openvpn' && bridgeState === 'on' ? EndpointType.any : EndpointType.exit;
   const relays = filterLocationsByEndPointType(
-    state.settings.relayLocations,
+    relayLocations,
     endpointType,
+    tunnelProtocol,
     relaySettings,
   );
   const providers = providersFromRelays(relays);
