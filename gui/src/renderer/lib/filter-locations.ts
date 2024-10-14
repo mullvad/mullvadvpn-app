@@ -29,9 +29,13 @@ export enum EndpointType {
 export function filterLocationsByEndPointType(
   locations: IRelayLocationCountryRedux[],
   endpointType: EndpointType,
+  tunnelProtocol: LiftedConstraint<TunnelProtocol>,
   relaySettings?: NormalRelaySettingsRedux,
 ): IRelayLocationCountryRedux[] {
-  return filterLocationsImpl(locations, getTunnelProtocolFilter(endpointType, relaySettings));
+  return filterLocationsImpl(
+    locations,
+    getTunnelProtocolFilter(endpointType, tunnelProtocol, relaySettings),
+  );
 }
 
 export function filterLocationsByDaita(
@@ -74,9 +78,9 @@ export function filterLocations(
 
 function getTunnelProtocolFilter(
   endpointType: EndpointType,
+  tunnelProtocol: LiftedConstraint<TunnelProtocol>,
   relaySettings?: NormalRelaySettingsRedux,
 ): (relay: IRelayLocationRelayRedux) => boolean {
-  const tunnelProtocol = relaySettings?.tunnelProtocol ?? 'any';
   const endpointTypes: Array<RelayEndpointType> = [];
   if (endpointType !== EndpointType.exit && tunnelProtocol === 'openvpn') {
     endpointTypes.push('bridge');

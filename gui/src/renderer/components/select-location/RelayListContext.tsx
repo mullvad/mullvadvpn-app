@@ -9,7 +9,11 @@ import {
   getLocationsExpandedBySearch,
   searchForLocations,
 } from '../../lib/filter-locations';
-import { useNormalBridgeSettings, useNormalRelaySettings } from '../../lib/utilityHooks';
+import {
+  useNormalBridgeSettings,
+  useNormalRelaySettings,
+  useTunnelProtocol,
+} from '../../lib/utilityHooks';
 import { IRelayLocationCountryRedux } from '../../redux/settings/reducers';
 import { useSelector } from '../../redux/store';
 import { useCustomListsRelayList } from './custom-list-helpers';
@@ -66,13 +70,19 @@ export function RelayListContextProvider(props: RelayListContextProviderProps) {
 
   const fullRelayList = useSelector((state) => state.settings.relayLocations);
   const relaySettings = useNormalRelaySettings();
+  const tunnelProtocol = useTunnelProtocol();
 
   // Filters the relays to only keep the ones of the desired endpoint type, e.g. "wireguard",
   // "openvpn" or "bridge"
   const relayListForEndpointType = useMemo(() => {
     const endpointType =
       locationType === LocationType.entry ? EndpointType.entry : EndpointType.exit;
-    return filterLocationsByEndPointType(fullRelayList, endpointType, relaySettings);
+    return filterLocationsByEndPointType(
+      fullRelayList,
+      endpointType,
+      tunnelProtocol,
+      relaySettings,
+    );
   }, [fullRelayList, locationType, relaySettings?.tunnelProtocol]);
 
   const relayListForDaita = useMemo(() => {
