@@ -84,7 +84,7 @@ export function RelayListContextProvider(props: RelayListContextProviderProps) {
       relaySettings?.tunnelProtocol ?? 'any',
       relaySettings?.wireguard.useMultihop ?? false,
     );
-  }, [daita, relayListForEndpointType]);
+  }, [daita, directOnly, locationType, relaySettings, relayListForEndpointType]);
 
   // Filters the relays to only keep the relays matching the currently selected filters, e.g.
   // ownership and providers
