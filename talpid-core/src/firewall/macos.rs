@@ -207,6 +207,7 @@ impl Firewall {
         policy: &FirewallPolicy,
     ) -> Result<Vec<pfctl::RedirectRule>> {
         let redirect_rules = match policy {
+            FirewallPolicy::Connected { dns_config, .. } if dns_config.is_loopback() => vec![],
             FirewallPolicy::Blocked {
                 dns_redirect_port, ..
             }

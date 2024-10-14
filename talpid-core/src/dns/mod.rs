@@ -133,6 +133,19 @@ impl ResolvedDnsConfig {
     pub fn addresses(self) -> impl Iterator<Item = IpAddr> {
         self.non_tunnel_config.into_iter().chain(self.tunnel_config)
     }
+
+    /// Return whether the config contains only (and at least one) loopback addresses, and zero
+    /// non-loopback addresses
+    pub fn is_loopback(&self) -> bool {
+        let (loopback_addrs, non_loopback_addrs) = self
+            .tunnel_config
+            .iter()
+            .chain(self.non_tunnel_config.iter())
+            .copied()
+            .partition::<Vec<_>, _>(|ip| ip.is_loopback());
+
+        !loopback_addrs.is_empty() && non_loopback_addrs.is_empty()
+    }
 }
 
 /// Sets and monitors system DNS settings. Makes sure the desired DNS servers are being used.
