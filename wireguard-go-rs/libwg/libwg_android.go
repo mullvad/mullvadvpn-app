@@ -167,9 +167,9 @@ func wgTurnOnMultihop(cExitSettings *C.char, cEntrySettings *C.char, privateIp *
 	// Create the stuff that needs
 
 	context := tunnelcontainer.Context{
-		Device: exitDevice,
+		Device:      exitDevice,
 		EntryDevice: entryDevice,
-		Logger: logger,
+		Logger:      logger,
 	}
 
 	handle, err := tunnels.Insert(context)
@@ -245,7 +245,7 @@ func wgGetSocketV4(tunnelHandle int32) C.int32_t {
 	device := tunnel.EntryDevice
 	if device == nil {
 		device = tunnel.Device
-	} 
+	}
 	peek := device.Bind().(conn.PeekLookAtSocketFd)
 	fd, err := peek.PeekLookAtSocketFd4()
 	if err != nil {
