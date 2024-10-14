@@ -11,7 +11,7 @@ import { useRelaySettingsUpdater } from '../lib/constraint-updater';
 import { useHistory } from '../lib/history';
 import { formatHtml } from '../lib/html-formatter';
 import { RoutePath } from '../lib/routes';
-import { useBoolean } from '../lib/utilityHooks';
+import { useBoolean, useTunnelProtocol } from '../lib/utilityHooks';
 import { RelaySettingsRedux } from '../redux/settings/reducers';
 import { useSelector } from '../redux/store';
 import * as AppButton from './AppButton';
@@ -684,6 +684,25 @@ function TunnelProtocolSetting() {
   );
   const relaySettingsUpdater = useRelaySettingsUpdater();
 
+  const relaySettings = useSelector((state) => state.settings.relaySettings);
+  const multihop = 'normal' in relaySettings ? relaySettings.normal.wireguard.useMultihop : false;
+  const daita = useSelector((state) => state.settings.wireguard.daita?.enabled ?? false);
+  const quantumResistant = useSelector((state) => state.settings.wireguard.quantumResistant);
+  const openVpnDisabled = daita || multihop || quantumResistant;
+
+  const featuresToDisableForOpenVpn = [];
+  if (daita) {
+    featuresToDisableForOpenVpn.push(strings.daita);
+  }
+  if (multihop) {
+    featuresToDisableForOpenVpn.push(messages.pgettext('wireguard-settings-view', 'Multihop'));
+  }
+  if (quantumResistant) {
+    featuresToDisableForOpenVpn.push(
+      messages.pgettext('wireguard-settings-view', 'Quantum-resistant tunnel'),
+    );
+  }
+
   const setTunnelProtocol = useCallback(
     async (tunnelProtocol: TunnelProtocol | null) => {
       try {
@@ -708,6 +727,7 @@ function TunnelProtocolSetting() {
       {
         label: strings.openvpn,
         value: 'openvpn',
+        disabled: openVpnDisabled,
       },
     ],
     [],
@@ -724,6 +744,21 @@ function TunnelProtocolSetting() {
           automaticValue={null}
         />
       </StyledSelectorContainer>
+      {openVpnDisabled ? (
+        <Cell.CellFooter>
+          <AriaDescription>
+            <Cell.CellFooterText>
+              {sprintf(
+                messages.pgettext(
+                  'vpn-settings-view',
+                  'To select %(openvpn)s, please disable these settings: %(featureList)s.',
+                ),
+                { openvpn: strings.openvpn, featureList: featuresToDisableForOpenVpn.join(', ') },
+              )}
+            </Cell.CellFooterText>
+          </AriaDescription>
+        </Cell.CellFooter>
+      ) : null}
     </AriaInputGroup>
   );
 }
@@ -764,9 +799,7 @@ function WireguardSettingsButton() {
 
 function OpenVpnSettingsButton() {
   const history = useHistory();
-  const tunnelProtocol = useSelector((state) =>
-    mapRelaySettingsToProtocol(state.settings.relaySettings),
-  );
+  const tunnelProtocol = useTunnelProtocol();
 
   const navigate = useCallback(() => history.push(RoutePath.openVpnSettings), [history]);
 
