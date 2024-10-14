@@ -1957,10 +1957,6 @@ msgid "Malware"
 msgstr ""
 
 msgctxt "vpn-settings-view"
-msgid "Manually choose which %(daita)s-enabled server to use."
-msgstr ""
-
-msgctxt "vpn-settings-view"
 msgid "Server IP override"
 msgstr ""
 
@@ -2059,6 +2055,10 @@ msgctxt "wireguard-settings-view"
 msgid "%(daita)s (%(daitaFull)s) hides patterns in your encrypted VPN traffic."
 msgstr ""
 
+msgctxt "wireguard-settings-view"
+msgid "%(daita)s does this by carefully adding network noise and making all network packets the same size."
+msgstr ""
+
 #. Available placeholders:
 #. %(wireguard)s - Will be replaced with the string "WireGuard"
 msgctxt "wireguard-settings-view"
@@ -2074,19 +2074,19 @@ msgid "By enabling “%(directOnly)s” you will have to manually select a serve
 msgstr ""
 
 msgctxt "wireguard-settings-view"
+msgid "By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted)."
+msgstr ""
+
+msgctxt "wireguard-settings-view"
 msgid "Cancel"
 msgstr ""
 
 msgctxt "wireguard-settings-view"
-msgid "If anyone is monitoring your connection, this makes it significantly harder for them to identify what websites you are visiting."
+msgid "If an observer monitors these data packets, %(daita)s makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating."
 msgstr ""
 
 msgctxt "wireguard-settings-view"
 msgid "IP version"
-msgstr ""
-
-msgctxt "wireguard-settings-view"
-msgid "It does this by carefully adding network noise and making all network packets the same size."
 msgstr ""
 
 msgctxt "wireguard-settings-view"
@@ -2111,7 +2111,7 @@ msgid "Not all our servers are %(daita)s-enabled. In order to use the internet, 
 msgstr ""
 
 msgctxt "wireguard-settings-view"
-msgid "Not all our servers are %(daita)s-enabled. We use multihop automatically to use %(daita)s with any server."
+msgid "Not all our servers are %(daita)s-enabled. Therefore, we use multihop automatically to enable %(daita)s with any server."
 msgstr ""
 
 msgctxt "wireguard-settings-view"
