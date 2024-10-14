@@ -81,8 +81,8 @@ class PartnerAPIClient {
             description: "Completion handler for the request is invoked"
         )
 
+        printRequestInformation(method: method, request: request, url: url, jsonObject: jsonObject)
         var requestError: Error?
-
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             requestError = error
 
@@ -97,17 +97,15 @@ class PartnerAPIClient {
             if 200 ... 204 ~= response.statusCode {
                 print("Request successful")
                 do {
-                    if data.isEmpty {
-                        // Not all requests return JSON data
-                        jsonResponse = [:]
-                    } else {
+                    if data.isEmpty == false {
                         jsonResponse = try JSONSerialization.jsonObject(with: data) as? [String: Any] ?? [:]
                     }
                 } catch {
                     XCTFail("Failed to deserialize JSON response")
                 }
             } else {
-                XCTFail("Request failed with status code \(response.statusCode)")
+                let errorMessage = (try? XCTUnwrap(String(data: data, encoding: .utf8))) ?? "failed to parse error"
+                XCTFail("Request failed with error message: \(errorMessage) status code \(response.statusCode)")
             }
 
             completionHandlerInvokedExpectation.fulfill()
@@ -119,5 +117,22 @@ class PartnerAPIClient {
         XCTAssertNil(requestError)
 
         return jsonResponse
+    }
+
+    private func printRequestInformation(method: String, request: URLRequest, url: URL, jsonObject: [String: Any]?) {
+        /// Under no circumstances should the `accessToken` or the account number ever be printed
+        if #available(iOS 16, *) {
+            let headers = request.allHTTPHeaderFields?.filter { element in
+                element.key != "Authorization"
+            } ?? [:]
+
+            let debugMessage = """
+            Making a \(method) request to \(url) with the following body \(jsonObject ?? [:])
+            and headers \(headers)
+            """
+            .replacingOccurrences(of: accessToken, with: "[REDACTED]")
+            .replacing(/[0-9]{16}/, with: "[REDACTED]")
+            print(debugMessage)
+        }
     }
 }
