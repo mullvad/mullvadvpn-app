@@ -6,8 +6,6 @@
 //!
 //! The [`Tunnel`] type provides a safe Rust wrapper around the C FFI.
 
-// TODO: Add a new function wgTurnOnMultihop for android.
-
 #![cfg(unix)]
 
 use core::{
