@@ -210,12 +210,14 @@ impl Tunnel {
     /// Get the file descriptor of the tunnel IPv4 socket.
     #[cfg(target_os = "android")]
     pub fn get_socket_v4(&self) -> Fd {
+        // SAFETY: self.handle is a valid pointer to an active wireguard-go tunnel.
         unsafe { ffi::wgGetSocketV4(self.handle) }
     }
 
     /// Get the file descriptor of the tunnel IPv6 socket.
     #[cfg(target_os = "android")]
     pub fn get_socket_v6(&self) -> Fd {
+        // SAFETY: self.handle is a valid pointer to an active wireguard-go tunnel.
         unsafe { ffi::wgGetSocketV6(self.handle) }
     }
 }
