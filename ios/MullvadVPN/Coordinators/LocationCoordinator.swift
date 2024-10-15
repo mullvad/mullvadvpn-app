@@ -52,10 +52,6 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
         self.tunnelManager = tunnelManager
         self.relayCacheTracker = relayCacheTracker
         self.customListRepository = customListRepository
-
-        super.init()
-
-        addTunnelObserver()
     }
 
     func start() {
@@ -84,6 +80,8 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
             }
             didFinish?(self)
         }
+
+        addTunnelObserver()
         relayCacheTracker.addObserver(self)
 
         if let cachedRelays = try? relayCacheTracker.getCachedRelays() {
