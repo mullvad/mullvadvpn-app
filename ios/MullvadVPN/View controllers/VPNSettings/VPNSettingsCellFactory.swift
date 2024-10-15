@@ -11,6 +11,7 @@ import UIKit
 
 protocol VPNSettingsCellEventHandler {
     func showInfo(for button: VPNSettingsInfoButtonItem)
+    func showDetails(for button: VPNSettingsDetailsButtonItem)
     func addCustomPort(_ port: UInt16)
     func selectCustomPortEntry(_ port: UInt16) -> Bool
     func selectObfuscationState(_ state: WireGuardObfuscationState)
@@ -69,7 +70,7 @@ final class VPNSettingsCellFactory: CellFactoryProtocol {
             guard let cell = cell as? SelectableSettingsCell else { return }
 
             var portString = NSLocalizedString(
-                "WIRE_GUARD_PORT_CELL_LABEL",
+                "WIREGUARD_PORT_CELL_LABEL",
                 tableName: "VPNSettings",
                 value: "Automatic",
                 comment: ""
@@ -86,13 +87,13 @@ final class VPNSettingsCellFactory: CellFactoryProtocol {
             guard let cell = cell as? SettingsInputCell else { return }
 
             cell.titleLabel.text = NSLocalizedString(
-                "WIRE_GUARD_CUSTOM_PORT_CELL_LABEL",
+                "WIREGUARD_CUSTOM_PORT_CELL_LABEL",
                 tableName: "VPNSettings",
                 value: "Custom",
                 comment: ""
             )
             cell.textField.placeholder = NSLocalizedString(
-                "WIRE_GUARD_CUSTOM_PORT_CELL_INPUT_PLACEHOLDER",
+                "WIREGUARD_CUSTOM_PORT_CELL_INPUT_PLACEHOLDER",
                 tableName: "VPNSettings",
                 value: "Port",
                 comment: ""
@@ -127,7 +128,7 @@ final class VPNSettingsCellFactory: CellFactoryProtocol {
             guard let cell = cell as? SelectableSettingsCell else { return }
 
             cell.titleLabel.text = NSLocalizedString(
-                "WIRE_GUARD_OBFUSCATION_AUTOMATIC_LABEL",
+                "WIREGUARD_OBFUSCATION_AUTOMATIC_LABEL",
                 tableName: "VPNSettings",
                 value: "Automatic",
                 comment: ""
@@ -135,22 +136,59 @@ final class VPNSettingsCellFactory: CellFactoryProtocol {
             cell.accessibilityIdentifier = item.accessibilityIdentifier
             cell.applySubCellStyling()
 
-        case .wireGuardObfuscationOn:
-            guard let cell = cell as? SelectableSettingsCell else { return }
+        case .wireGuardObfuscationUdpOverTcp:
+            guard let cell = cell as? SelectableSettingsDetailsCell else { return }
 
             cell.titleLabel.text = NSLocalizedString(
-                "WIRE_GUARD_OBFUSCATION_ON_LABEL",
+                "WIREGUARD_OBFUSCATION_UDP_TCP_LABEL",
                 tableName: "VPNSettings",
-                value: "On (UDP-over-TCP)",
+                value: "UDP-over-TCP",
                 comment: ""
             )
+            #if DEBUG
+            cell.detailTitleLabel.text = String(format: NSLocalizedString(
+                "WIREGUARD_OBFUSCATION_UDP_TCP_PORT",
+                tableName: "VPNSettings",
+                value: "Port: %d",
+                comment: ""
+            ), viewModel.obfuscationPort.portValue)
+            #endif
             cell.accessibilityIdentifier = item.accessibilityIdentifier
             cell.applySubCellStyling()
+
+            cell.buttonAction = { [weak self] in
+                self?.delegate?.showDetails(for: .udpOverTcp)
+            }
+
+        case .wireGuardObfuscationShadowsocks:
+            guard let cell = cell as? SelectableSettingsDetailsCell else { return }
+
+            cell.titleLabel.text = NSLocalizedString(
+                "WIREGUARD_OBFUSCATION_SHADOWSOCKS_LABEL",
+                tableName: "VPNSettings",
+                value: "Shadowsocks",
+                comment: ""
+            )
+            #if DEBUG
+            cell.detailTitleLabel.text = String(format: NSLocalizedString(
+                "WIREGUARD_OBFUSCATION_SHADOWSOCKS_PORT",
+                tableName: "VPNSettings",
+                value: "Port: %d",
+                comment: ""
+            ), viewModel.obfuscationPort.portValue)
+            #endif
+            cell.accessibilityIdentifier = item.accessibilityIdentifier
+            cell.applySubCellStyling()
+
+            cell.buttonAction = { [weak self] in
+                self?.delegate?.showDetails(for: .wireguardOverShadowsocks)
+            }
+
         case .wireGuardObfuscationOff:
             guard let cell = cell as? SelectableSettingsCell else { return }
 
             cell.titleLabel.text = NSLocalizedString(
-                "WIRE_GUARD_OBFUSCATION_OFF_LABEL",
+                "WIREGUARD_OBFUSCATION_OFF_LABEL",
                 tableName: "VPNSettings",
                 value: "Off",
                 comment: ""
@@ -163,7 +201,7 @@ final class VPNSettingsCellFactory: CellFactoryProtocol {
 
             let portString = port == 0 ? "Automatic" : "\(port)"
             cell.titleLabel.text = NSLocalizedString(
-                "WIRE_GUARD_OBFUSCATION_PORT_LABEL",
+                "WIREGUARD_OBFUSCATION_PORT_LABEL",
                 tableName: "VPNSettings",
                 value: portString,
                 comment: ""
