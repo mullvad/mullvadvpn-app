@@ -92,21 +92,21 @@ fun DnsDialog(
                 onSubmit = onSaveDnsClick,
                 isEnabled = true,
                 placeholderText = stringResource(R.string.custom_dns_hint),
+                errorText =
+                    when {
+                        state.validationError is ValidationError.DuplicateAddress -> {
+                            stringResource(R.string.duplicate_address_warning)
+                        }
+                        state.isLocal && !state.isAllowLanEnabled -> {
+                            stringResource(id = R.string.confirm_local_dns)
+                        }
+                        else -> {
+                            null
+                        }
+                    },
                 modifier = Modifier.fillMaxWidth(),
             )
         },
-        message =
-            when {
-                state.validationError is ValidationError.DuplicateAddress -> {
-                    stringResource(R.string.duplicate_address_warning)
-                }
-                state.isLocal && !state.isAllowLanEnabled -> {
-                    stringResource(id = R.string.confirm_local_dns)
-                }
-                else -> {
-                    null
-                }
-            },
         onResetButtonText = stringResource(id = R.string.remove_button),
         confirmButtonEnabled = state.isValid(),
         messageTextColor = MaterialTheme.colorScheme.error,
