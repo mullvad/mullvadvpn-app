@@ -45,8 +45,7 @@ class RelayPickingTests: XCTestCase {
             relays: sampleRelays,
             constraints: constraints,
             connectionAttemptCount: 0,
-            daitaSettings: DAITASettings(),
-            automaticDaitaRouting: false
+            daitaSettings: DAITASettings()
         )
 
         let selectedRelays = try picker.pick()
@@ -65,8 +64,7 @@ class RelayPickingTests: XCTestCase {
             relays: sampleRelays,
             constraints: constraints,
             connectionAttemptCount: 0,
-            daitaSettings: DAITASettings(),
-            automaticDaitaRouting: false
+            daitaSettings: DAITASettings()
         )
 
         XCTAssertThrowsError(

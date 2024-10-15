@@ -118,7 +118,7 @@ final class LocationViewController: UIViewController {
         dataSource?.setSelectedRelays(selectedRelays)
     }
 
-    func addDaitaInfoView() {
+    func enableDaitaAutomaticRouting() {
         guard daitaInfoView == nil else { return }
 
         let daitaInfoView = DAITAInfoView()
@@ -132,11 +132,16 @@ final class LocationViewController: UIViewController {
             daitaInfoView.pinEdgesToSuperview(.all().excluding(.top))
             daitaInfoView.topAnchor.constraint(equalTo: tableView.topAnchor)
         }
+
+        searchBar.searchTextField.isEnabled = false
     }
 
-    func removeDaitaInfoView() {
+    func disableDaitaAutomaticRouting() {
         daitaInfoView?.removeFromSuperview()
         daitaInfoView = nil
+
+        searchBar.searchTextField.isEnabled = true
+        UITextField.SearchTextFieldAppearance.inactive.apply(to: searchBar)
     }
 
     // MARK: - Private
