@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.update
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.AccountData
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
+import net.mullvad.mullvadvpn.lib.model.ClearAccountHistoryError
 import net.mullvad.mullvadvpn.lib.model.CreateAccountError
 import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.model.LoginAccountError
@@ -31,7 +32,13 @@ class AccountRepository(
     private val _mutableAccountDataCache: MutableSharedFlow<AccountData> = MutableSharedFlow()
 
     private val _isNewAccount: MutableStateFlow<Boolean> = MutableStateFlow(false)
+
+    private val _mutableAccountHistory: MutableStateFlow<AccountNumber?> = MutableStateFlow(null)
+
     val isNewAccount: StateFlow<Boolean> = _isNewAccount
+
+    val accountHistory: StateFlow<AccountNumber?> = _mutableAccountHistory
+
     val accountData: StateFlow<AccountData?> =
         merge(
                 managementService.deviceState.filterNotNull().map { deviceState ->
@@ -58,9 +65,13 @@ class AccountRepository(
         managementService.logoutAccount().onRight { _isNewAccount.update { false } }
 
     suspend fun fetchAccountHistory(): AccountNumber? =
-        managementService.getAccountHistory().getOrNull()
+        managementService
+            .getAccountHistory()
+            .onRight { _mutableAccountHistory.value = it }
+            .getOrNull()
 
-    suspend fun clearAccountHistory() = managementService.clearAccountHistory()
+    suspend fun clearAccountHistory(): Either<ClearAccountHistoryError, Unit> =
+        managementService.clearAccountHistory().onRight { _mutableAccountHistory.value = null }
 
     suspend fun getAccountData(): AccountData? = nullable {
         val deviceState = ensureNotNull(deviceRepository.deviceState.value as? DeviceState.LoggedIn)

@@ -43,13 +43,16 @@ class LoginViewModelTest {
     @MockK private lateinit var mockedAccountRepository: AccountRepository
 
     private lateinit var loginViewModel: LoginViewModel
+    private lateinit var accountHistoryFlow: MutableStateFlow<AccountNumber?>
 
     @BeforeEach
     fun setup() {
         Dispatchers.setMain(UnconfinedTestDispatcher())
         MockKAnnotations.init(this, relaxUnitFun = true)
+        accountHistoryFlow = MutableStateFlow(null)
         every { connectivityUseCase() } returns true
         coEvery { mockedAccountRepository.fetchAccountHistory() } returns null
+        coEvery { mockedAccountRepository.accountHistory } returns accountHistoryFlow
 
         loginViewModel =
             LoginViewModel(
@@ -96,11 +99,31 @@ class LoginViewModelTest {
 
             // Act, Assert
             uiStates.skipDefaultItem()
-            loginViewModel.createAccount()
+            loginViewModel.onCreateAccountConfirmed()
             assertEquals(Loading.CreatingAccount, uiStates.awaitItem().loginState)
             assertEquals(LoginUiSideEffect.NavigateToWelcome, sideEffects.awaitItem())
         }
     }
+
+    @Test
+    fun `when creating a new account the confirmation dialog should be shown when an account exists in the history`() =
+        runTest {
+            turbineScope {
+                // Arrange
+                val uiStates = loginViewModel.uiState.testIn(backgroundScope)
+                val sideEffects = loginViewModel.uiSideEffect.testIn(backgroundScope)
+
+                // Act, Assert
+                uiStates.skipDefaultItem()
+                accountHistoryFlow.value = DUMMY_ACCOUNT_NUMBER
+                loginViewModel.onCreateAccountClick()
+                assertEquals(Idle(null), uiStates.awaitItem().loginState)
+                assertEquals(
+                    LoginUiSideEffect.NavigateToCreateAccountConfirmation,
+                    sideEffects.awaitItem(),
+                )
+            }
+        }
 
     @Test
     fun `given valid account when logging in then navigate to connect view`() = runTest {
@@ -197,7 +220,7 @@ class LoginViewModelTest {
     fun `on new accountHistory emission uiState should include lastUsedAccount matching accountHistory`() =
         runTest {
             // Arrange
-            coEvery { mockedAccountRepository.fetchAccountHistory() } returns DUMMY_ACCOUNT_NUMBER
+            accountHistoryFlow.value = DUMMY_ACCOUNT_NUMBER
 
             // Act, Assert
             loginViewModel.uiState.test {

@@ -41,6 +41,8 @@ sealed interface LoginUiSideEffect {
 
     data object NavigateToOutOfTime : LoginUiSideEffect
 
+    data object NavigateToCreateAccountConfirmation : LoginUiSideEffect
+
     data class TooManyDevices(val accountNumber: AccountNumber) : LoginUiSideEffect
 
     data object GenericError : LoginUiSideEffect
@@ -58,10 +60,8 @@ class LoginViewModel(
     private val _uiSideEffect = Channel<LoginUiSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
-    private val _mutableAccountHistory: MutableStateFlow<AccountNumber?> = MutableStateFlow(null)
-
     private val _uiState =
-        combine(_loginInput, _mutableAccountHistory, _loginState) {
+        combine(_loginInput, accountRepository.accountHistory, _loginState) {
             loginInput,
             historyAccountNumber,
             loginState ->
@@ -70,27 +70,31 @@ class LoginViewModel(
 
     val uiState: StateFlow<LoginUiState> =
         _uiState
-            .onStart {
-                viewModelScope.launch {
-                    _mutableAccountHistory.update { accountRepository.fetchAccountHistory() }
-                }
-            }
+            .onStart { viewModelScope.launch { accountRepository.fetchAccountHistory() } }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), LoginUiState.INITIAL)
 
     fun clearAccountHistory() =
         viewModelScope.launch {
-            accountRepository
-                .clearAccountHistory()
-                .fold(
-                    { _uiSideEffect.send(LoginUiSideEffect.GenericError) },
-                    {
-                        _mutableAccountHistory.update { null }
-                        _mutableAccountHistory.update { accountRepository.fetchAccountHistory() }
-                    },
-                )
+            accountRepository.clearAccountHistory().onLeft {
+                _uiSideEffect.send(LoginUiSideEffect.GenericError)
+            }
         }
 
-    fun createAccount() {
+    fun onCreateAccountClick() {
+        if (hasPreviouslyCreatedAccount()) {
+            viewModelScope.launch {
+                _uiSideEffect.send(LoginUiSideEffect.NavigateToCreateAccountConfirmation)
+            }
+        } else {
+            createAccount()
+        }
+    }
+
+    fun onCreateAccountConfirmed() {
+        createAccount()
+    }
+
+    private fun createAccount() {
         _loginState.value = Loading.CreatingAccount
         viewModelScope.launch(dispatcher) {
             accountRepository
@@ -127,7 +131,7 @@ class LoginViewModel(
         }
     }
 
-    private suspend fun onSuccessfulLogin() {
+    private fun onSuccessfulLogin() {
         newDeviceRepository.newDeviceCreated()
 
         viewModelScope.launch(dispatcher) {
@@ -168,6 +172,8 @@ class LoginViewModel(
     private fun isInternetAvailable(): Boolean {
         return internetAvailableUseCase()
     }
+
+    private fun hasPreviouslyCreatedAccount(): Boolean = uiState.value.lastUsedAccount != null
 
     companion object {
         private const val SHOW_SUCCESSFUL_LOGIN_MILLIS = 1000L
