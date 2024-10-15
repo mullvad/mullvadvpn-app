@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="account_created">Account aangemaakt</string>
     <string name="account_credit_expires_in_a_few_minutes">Accountkrediet verloopt over enkele minuten</string>
     <string name="account_credit_expires_soon">Accountkrediet verloopt binnenkort</string>
     <string name="account_credit_has_expired">U hebt geen VPN-tijd meer op dit account.</string>
@@ -22,7 +21,6 @@
     <string name="all_applications">Alle toepassingen</string>
     <string name="all_locations">Alle locaties</string>
     <string name="all_providers">Alle aanbieders</string>
-    <string name="allow_lan_footer">Biedt toegang tot andere apparaten op hetzelfde netwerk voor delen, afdrukken en dergelijke</string>
     <string name="always_on_vpn_error_notification_content">Kan de tunnelverbinding niet starten. Schakel Altijd-aan VPN uit voor &lt;b&gt;%1$s&lt;/b&gt; voordat u Mullvad VPN gebruikt.</string>
     <string name="always_on_vpn_error_notification_title">Altijd-aan VPN toegewezen aan andere app</string>
     <string name="any">Elke</string>
@@ -40,13 +38,11 @@
     <string name="at_least_on_method_needs_to_enabled">Er moet minimaal één methode ingeschakeld zijn</string>
     <string name="auth_failed">Kan account niet verifiëren. Stuur een probleemrapport.</string>
     <string name="authentication">Authenticatie</string>
-    <string name="auto_connect">Automatisch verbinden</string>
     <string name="auto_connect_and_lockdown_mode">Automatisch verbinden en lockdownmodus</string>
     <string name="auto_connect_and_lockdown_mode_footer">Zorg dat het apparaat altijd de VPN-tunnel gebruikt.</string>
     <string name="auto_connect_carousel_first_slide_top_text">De instellingen Automatisch verbinden en Lockdownmodus zijn te vinden in de Android-systeeminstellingen, volg deze gids om een of beide in te schakelen.</string>
     <string name="auto_connect_carousel_second_slide_top_text">Automatisch verbinden heet Altijd-aan VPN in de Android-systeeminstellingen en zorgt ervoor dat u altijd verbonden bent met de VPN-tunnel en automatisch verbinding maakt na een herstart.</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">hier</string>
-    <string name="auto_connect_footer_legacy_tv">Maak automatisch verbinding wanneer de app wordt gestart. Deze instelling wordt in een toekomstige update vervangen door een nieuwe functie om verbinding te maken bij het opstarten van het apparaat.</string>
     <string name="auto_connect_legacy">Automatisch verbinden (verouderd)</string>
     <string name="automatic">Automatisch</string>
     <string name="back">Terug</string>
@@ -70,13 +66,11 @@
     <string name="congrats">Gefeliciteerd!</string>
     <string name="connect">Verbinden</string>
     <string name="connected">Verbonden</string>
-    <string name="connected_using_daita">%1$s via %2$s</string>
     <string name="connecting_to_daemon">Verbinden met Mullvad-systeemdienst...</string>
     <string name="connection_details_in">In</string>
     <string name="continue_login">Doorgaan met aanmelden</string>
     <string name="copied_logs_to_clipboard">Logs gekopieerd naar klembord</string>
     <string name="copied_mullvad_account_number">Mullvad-accountnummer gekopieerd naar klembord</string>
-    <string name="copied_to_clipboard">Gekopieerd naar klembord</string>
     <string name="copy_account_number">Accountnummer kopiëren</string>
     <string name="create">Maken</string>
     <string name="create_account">Account aanmaken</string>
@@ -166,7 +160,6 @@
     <string name="ipv6_unavailable">Kon IPv6 niet configureren. Schakel het uit in de app of schakel het in op uw apparaat.</string>
     <string name="is_offline">Uw apparaat is offline. De tunnel wordt automatisch verbonden wanneer uw apparaat weer online is.</string>
     <string name="less_than_a_day_left">minder dan een dag over</string>
-    <string name="less_than_a_minute_ago">minder dan een minuut geleden</string>
     <string name="less_than_one_day">minder dan één dag</string>
     <string name="list_name">Lijstnaam</string>
     <string name="loading_connecting">Verbinden ...</string>
@@ -194,7 +187,6 @@
     <string name="max_devices_warning_description">Meld u bij minstens één apparaat af door het te verwijderen uit de onderstaande lijst. U kunt de bijbehorende apparaatnaam vinden in de accountinstellingen van het apparaat.</string>
     <string name="max_devices_warning_title">Te veel apparaten</string>
     <string name="more_information">Meer informatie</string>
-    <string name="mullvad_account_number">Mullvad-accountnummer</string>
     <string name="mullvad_owned_only">Alleen in eigendom van Multivad</string>
     <string name="name">Naam</string>
     <string name="name_was_changed_to">Naam is gewijzigd in %1$s</string>
@@ -206,16 +198,13 @@
     <string name="no_locations_found">Geen locaties gevonden</string>
     <string name="no_matching_relay">Er zijn geen servers die overeenkomen met uw instellingen. Probeer een andere server of andere instellingen.</string>
     <string name="no_wireguard_key">Geldige WireGuard-sleutel ontbreekt. Beheer sleutels onder Geavanceerde instellingen.</string>
-    <string name="not_blocking_internet">U LEKT MOGELIJK NETWERKVERKEER</string>
     <string name="not_found">Niet gevonden</string>
     <string name="number_of_providers">Providers: %1$d</string>
     <string name="obfuscation_info">Obfuscatie verbergt het WireGuard-verkeer in een ander protocol. Het kan worden gebruikt om censuur en andere soorten filtering te omzeilen, waar een gewone WireGuard-verbinding zou worden geblokkeerd.</string>
-    <string name="obfuscation_on_udp_over_tcp">Aan (UDP-over-TCP)</string>
     <string name="obfuscation_title">WireGuard-obfuscatie</string>
     <string name="off">Uit</string>
     <string name="on">Aan</string>
     <string name="open_url">URL openen</string>
-    <string name="out_address">Uit</string>
     <string name="out_of_time">Geen tijd meer</string>
     <string name="overrides_cleared">Overschrijvingen gewist</string>
     <string name="owned">In eigendom</string>
@@ -257,7 +246,6 @@
     <string name="save">Opslaan</string>
     <string name="search_placeholder">Zoeken naar...</string>
     <string name="select_location">Locatie selecteren</string>
-    <string name="select_location_description">Wanneer u verbonden bent, wordt uw daadwerkelijke locatie gemaskeerd met een privé en veilige locatie in de geselecteerde regio.</string>
     <string name="select_location_empty_text_first_row">Geen resultaten voor &lt;b&gt;%1$s&lt;/b&gt;.</string>
     <string name="select_location_empty_text_second_row">Probeer een andere zoekopdracht.</string>
     <string name="send">Verzenden</string>
@@ -293,9 +281,7 @@
     <string name="settings_patch_error_unable_to_parse">Kan patch niet parsen</string>
     <string name="settings_patch_error_unknown_or_prohibited_key">Onbekende of verboden sleutel \"%1$s\"</string>
     <string name="settings_patch_success">Importeren geslaagd, overschrijvingen actief</string>
-    <string name="settings_preferences">Voorkeuren</string>
     <string name="settings_vpn">VPN-instellingen</string>
-    <string name="show_account_number">Accountnummer weergeven</string>
     <string name="show_system_apps">Systeemapps weergeven</string>
     <string name="split_tunneling_description">Hier kunt u apps selecteren die rechtstreeks toegang tot het internet moeten hebben zonder via de VPN-tunnel te gaan.</string>
     <string name="start_tunnel_error">Kan de tunnelverbinding niet starten. Stuur een probleemrapport.</string>
@@ -312,17 +298,13 @@
     <string name="toggle_vpn">VPN in-/uitschakelen</string>
     <string name="top_bar_device_name">Apparaatnaam: %1$s</string>
     <string name="top_bar_time_left">Resterende tijd: %1$s</string>
-    <string name="transport_protocol">Transportprotocol</string>
     <string name="try_again">Probeer het opnieuw</string>
     <string name="type">Type</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">Met welke TCP-poort moet het UDP-over-TCP-obfuscatieprotocol verbinding maken op de VPN-server.</string>
-    <string name="udp_over_tcp_port_title">UDP-over-TCP-poort</string>
     <string name="undo">Ongedaan maken</string>
     <string name="unsupported_version">NIET-ONDERSTEUNDE VERSIE</string>
     <string name="unsupported_version_description">Uw privacy kan risico lopen met deze niet-ondersteunde appversie. Werk de app nu bij.</string>
-    <string name="unsupported_version_without_upgrade">U gebruikt een niet-ondersteunde versie van de app.</string>
-    <string name="update_available_footer">Update beschikbaar, download deze om veilig te blijven.</string>
     <string name="update_dns_server_dialog_title">DNS-server bijwerken</string>
     <string name="update_list_name">Lijstnaam bijwerken</string>
     <string name="use_method">Methode gebruiken</string>
@@ -332,13 +314,11 @@
     <string name="verifying_api_method">API-methode verifiëren ...</string>
     <string name="verifying_voucher">Voucher verifiëren …</string>
     <string name="view_logs">Applogboeken weergeven</string>
-    <string name="virtual_adapter_problem">Fout virtuele adapter</string>
     <string name="voucher_already_used">Vouchercode is al gebruikt.</string>
     <string name="voucher_success_title">Voucher is ingewisseld.</string>
     <string name="vpn_permission_denied_error">VPN-toestemming is geweigerd tijdens maken van de tunnel. Probeer opnieuw verbinding te maken.</string>
     <string name="vpn_permission_error_notification_message">Altijd-aan VPN is mogelijk ingeschakeld voor een andere app</string>
     <string name="vpn_permission_error_notification_title">VPN-machtigingsfout</string>
-    <string name="vpn_settings_not_found">Er zijn geen VPN-instellingen op uw apparaat</string>
     <string name="we_will_look_into_this">We gaan het bekijken.</string>
     <string name="wireguard_custon_port_title">Aangepast</string>
     <string name="wireguard_mtu">WireGuard-MTU</string>

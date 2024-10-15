@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="account_created">Utworzono konto</string>
     <string name="account_credit_expires_in_a_few_minutes">Doładowanie konta wygasa za kilka minut</string>
     <string name="account_credit_expires_soon">Doładowanie konta wkrótce wygasa</string>
     <string name="account_credit_has_expired">Na tym koncie nie masz już czasu VPN.</string>
@@ -22,7 +21,6 @@
     <string name="all_applications">Wszystkie aplikacje</string>
     <string name="all_locations">Wszystkie lokalizacje</string>
     <string name="all_providers">Wszyscy dostawcy</string>
-    <string name="allow_lan_footer">Umożliwia dostęp do innych urządzeń w tej samej sieci w celu udostępniania, drukowania itd.</string>
     <string name="always_on_vpn_error_notification_content">Nie można uruchomić połączenia tunelowego. Przed rozpoczęciem użytkowania usługi Mullvad VPN wyłącz opcję „Zawsze włączony VPN” w &lt;b&gt;%1$s&lt;/b&gt;.</string>
     <string name="always_on_vpn_error_notification_title">Opcja „Zawsze włączony VPN” przypisana jest do innej aplikacji</string>
     <string name="any">Dowolny</string>
@@ -40,13 +38,11 @@
     <string name="at_least_on_method_needs_to_enabled">Należy włączyć co najmniej jedną metodę</string>
     <string name="auth_failed">Nie można uwierzytelnić konta. Wyślij zgłoszenie problemu.</string>
     <string name="authentication">Uwierzytelnianie</string>
-    <string name="auto_connect">Automatyczne łączenie</string>
     <string name="auto_connect_and_lockdown_mode">Automatyczne łączenie i tryb Lockdown</string>
     <string name="auto_connect_and_lockdown_mode_footer">Zapewnia, że urządzenie zawsze działa za pośrednictwem tunelu VPN.</string>
     <string name="auto_connect_carousel_first_slide_top_text">Ustawienia trybu automatycznego łączenia i trybu Lockdown można znaleźć w ustawieniach systemu Android. Aby włączyć jeden lub oba tryby, postępuj zgodnie z niniejszym poradnikiem.</string>
     <string name="auto_connect_carousel_second_slide_top_text">Automatyczne łączenie w ustawieniach systemu Android nazywa się „Zawsze włączony VPN” i zapewnia stałe połączenie z tunelem VPN oraz automatyczne łączenie po ponownym uruchomieniu.</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">tutaj</string>
-    <string name="auto_connect_footer_legacy_tv">Połącz automatycznie przy uruchamianiu aplikacji. W przyszłej aktualizacji ustawienie to zostanie zastąpione nową funkcją łączenia przy uruchamianiu urządzenia.</string>
     <string name="auto_connect_legacy">Automatyczne łączenie (starsza wersja)</string>
     <string name="automatic">Automatycznie</string>
     <string name="back">Wstecz</string>
@@ -70,13 +66,11 @@
     <string name="congrats">Gratulacje!</string>
     <string name="connect">Połącz</string>
     <string name="connected">Połączono</string>
-    <string name="connected_using_daita">%1$s przy użyciu %2$s</string>
     <string name="connecting_to_daemon">Łączenie z usługą systemową Mullvad...</string>
     <string name="connection_details_in">Wejście</string>
     <string name="continue_login">Kontynuuj logowanie</string>
     <string name="copied_logs_to_clipboard">Skopiowano dzienniki do schowka</string>
     <string name="copied_mullvad_account_number">Skopiowano numer konta Mullvad do schowka</string>
-    <string name="copied_to_clipboard">Skopiowano do schowka</string>
     <string name="copy_account_number">Kopiuj numer konta</string>
     <string name="create">Utwórz</string>
     <string name="create_account">Utwórz konto</string>
@@ -166,7 +160,6 @@
     <string name="ipv6_unavailable">Nie można skonfigurować protokołu IPv6. Wyłącz go w aplikacji lub włącz na urządzeniu.</string>
     <string name="is_offline">Twoje urządzenie jest offline. Tunel zostanie automatycznie połączony, gdy urządzenie ponownie przejdzie w tryb online.</string>
     <string name="less_than_a_day_left">pozostał mniej niż jeden dzień</string>
-    <string name="less_than_a_minute_ago">mniej niż minutę temu</string>
     <string name="less_than_one_day">mniej niż jeden dzień</string>
     <string name="list_name">Nazwa listy</string>
     <string name="loading_connecting">Łączenie...</string>
@@ -194,7 +187,6 @@
     <string name="max_devices_warning_description">Wyloguj się z co najmniej jednego urządzenia, usuwając je z poniższej listy. Odpowiednią nazwę urządzenia można znaleźć w ustawieniach konta urządzenia.</string>
     <string name="max_devices_warning_title">Zbyt wiele urządzeń</string>
     <string name="more_information">Więcej informacji</string>
-    <string name="mullvad_account_number">Numer konta Mullvad</string>
     <string name="mullvad_owned_only">Wyłącznie firmy Mullvad</string>
     <string name="name">Nazwa</string>
     <string name="name_was_changed_to">Nazwę zmieniono na %1$s</string>
@@ -206,16 +198,13 @@
     <string name="no_locations_found">Nie znaleziono lokalizacji</string>
     <string name="no_matching_relay">Żaden serwer nie odpowiada ustawieniom. Spróbuj zmienić serwer lub inne ustawienia.</string>
     <string name="no_wireguard_key">Brak prawidłowego klucza WireGuard. Zarządzaj kluczami w Ustawieniach zaawansowanych.</string>
-    <string name="not_blocking_internet">TWÓJ RUCH SIECIOWY MOŻE WYCIEKAĆ</string>
     <string name="not_found">Nie znaleziono</string>
     <string name="number_of_providers">Dostawcy: %1$d</string>
     <string name="obfuscation_info">Zaciemnianie ukrywa ruch WireGuard w innym protokole. Można go użyć do obchodzenia cenzury i innych typów filtrowania, w których zwykłe połączenie WireGuard byłoby blokowane.</string>
-    <string name="obfuscation_on_udp_over_tcp">Wł. (UDP-przez-TCP)</string>
     <string name="obfuscation_title">Zaciemnianie WireGuard</string>
     <string name="off">Wył.</string>
     <string name="on">Wł.</string>
     <string name="open_url">Otwórz adres URL</string>
-    <string name="out_address">Wyjście</string>
     <string name="out_of_time">Koniec czasu</string>
     <string name="overrides_cleared">Usunięto zastąpienia</string>
     <string name="owned">Posiadane</string>
@@ -257,7 +246,6 @@
     <string name="save">Zapisz</string>
     <string name="search_placeholder">Wyszukaj...</string>
     <string name="select_location">Wybierz lokalizację</string>
-    <string name="select_location_description">Podczas połączenia Twoja prawdziwa lokalizacja jest maskowana prywatną, bezpieczną lokalizacją w wybranym regionie.</string>
     <string name="select_location_empty_text_first_row">Brak wyników dla &lt;b&gt;%1$s&lt;/b&gt;.</string>
     <string name="select_location_empty_text_second_row">Wypróbuj inne wyszukiwanie.</string>
     <string name="send">Wyślij</string>
@@ -293,9 +281,7 @@
     <string name="settings_patch_error_unable_to_parse">Nie można przetworzyć poprawki</string>
     <string name="settings_patch_error_unknown_or_prohibited_key">Nieznany lub zabroniony klucz „%1$s”</string>
     <string name="settings_patch_success">Import zakończony powodzeniem, zastąpienia są aktywne</string>
-    <string name="settings_preferences">Preferencje</string>
     <string name="settings_vpn">Ustawienia VPN</string>
-    <string name="show_account_number">Pokaż numer konta</string>
     <string name="show_system_apps">Pokaż aplikacje systemowe</string>
     <string name="split_tunneling_description">Umożliwia wybranie aplikacji, które powinny uzyskiwać bezpośredni dostęp do Internetu bez przechodzenia przez tunel VPN.</string>
     <string name="start_tunnel_error">Nie można uruchomić połączenia tunelowego. Wyślij zgłoszenie problemu.</string>
@@ -312,17 +298,13 @@
     <string name="toggle_vpn">Przełącz VPN</string>
     <string name="top_bar_device_name">Nazwa urządzenia: %1$s</string>
     <string name="top_bar_time_left">Pozostało: %1$s</string>
-    <string name="transport_protocol">Protokół transportowy</string>
     <string name="try_again">Spróbuj ponownie</string>
     <string name="type">Typ</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">Port TCP, z którym powinien łączyć się protokół zaciemniania UDP-przez-TCP na serwerze VPN.</string>
-    <string name="udp_over_tcp_port_title">Port UDP-przez-TCP</string>
     <string name="undo">Cofnij</string>
     <string name="unsupported_version">WERSJA NIEOBSŁUGIWANA</string>
     <string name="unsupported_version_description">W tej nieobsługiwanej wersji aplikacji prywatność może być zagrożona. Zaktualizuj już teraz.</string>
-    <string name="unsupported_version_without_upgrade">Używasz nieobsługiwanej wersji aplikacji.</string>
-    <string name="update_available_footer">Dostępna jest aktualizacja. Aby zachować bezpieczeństwo, pobierz ją.</string>
     <string name="update_dns_server_dialog_title">Zaktualizuj serwer DNS</string>
     <string name="update_list_name">Zaktualizuj nazwę listy</string>
     <string name="use_method">Użyj metody</string>
@@ -332,13 +314,11 @@
     <string name="verifying_api_method">Weryfikowanie metody interfejsu API...</string>
     <string name="verifying_voucher">Weryfikowanie kuponu…</string>
     <string name="view_logs">Wyświetl dzienniki aplikacji</string>
-    <string name="virtual_adapter_problem">Błąd wirtualnej karty sieciowej</string>
     <string name="voucher_already_used">Kod z tego kuponu został już użyty.</string>
     <string name="voucher_success_title">Kupon został zrealizowany.</string>
     <string name="vpn_permission_denied_error">Uprawnienie VPN zostało odrzucone podczas tworzenia tunelu. Spróbuj połączyć się ponownie.</string>
     <string name="vpn_permission_error_notification_message">Opcja „Zawsze włączony VPN” może być włączona dla innej aplikacji</string>
     <string name="vpn_permission_error_notification_title">Błąd uprawnienia VPN</string>
-    <string name="vpn_settings_not_found">Na Twoim urządzeniu nie ma ustawień VPN</string>
     <string name="we_will_look_into_this">Sprawdzimy to.</string>
     <string name="wireguard_custon_port_title">Niestandardowy</string>
     <string name="wireguard_mtu">MTU WireGuard</string>

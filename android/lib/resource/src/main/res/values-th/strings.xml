@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="account_created">สร้างบัญชีแล้ว</string>
     <string name="account_credit_expires_in_a_few_minutes">เครดิตของบัญชีจะหมดอายุในอีกไม่กี่นาที</string>
     <string name="account_credit_expires_soon">เครดิตของบัญชีจะหมดอายุในเร็วๆ นี้</string>
     <string name="account_credit_has_expired">คุณไม่มีเวลาใช้งาน VPN เหลืออยู่ในบัญชีนี้แล้ว</string>
@@ -22,7 +21,6 @@
     <string name="all_applications">แอปพลิเคชันทั้งหมด</string>
     <string name="all_locations">ตำแหน่งที่ตั้งทั้งหมด</string>
     <string name="all_providers">ผู้ให้บริการทั้งหมด</string>
-    <string name="allow_lan_footer">อนุญาตให้เข้าถึงอุปกรณ์อื่นๆ บนเครือข่ายเดียวกัน เพื่อแชร์ พิมพ์ ฯลฯ</string>
     <string name="always_on_vpn_error_notification_content">ไม่สามารถเริ่มการเชื่อมต่ออุโมงค์ได้ โปรดปิดใช้งาน Always-on VPN เป็นเวลา &lt;b&gt;%1$s&lt;/b&gt; ก่อนที่จะใช้งาน Mullvad VPN</string>
     <string name="always_on_vpn_error_notification_title">Always-on VPN ได้รับการมอบหมายไปยังแอปอื่นแล้ว</string>
     <string name="any">อะไรก็ได้</string>
@@ -40,13 +38,11 @@
     <string name="at_least_on_method_needs_to_enabled">จำเป็นต้องเปิดใช้อย่างน้อยหนึ่งวิธีการ</string>
     <string name="auth_failed">ไม่สามารถตรวจสอบความถูกต้องของบัญชีได้ โปรดส่งรายงานปัญหา</string>
     <string name="authentication">การรับรองความถูกต้อง</string>
-    <string name="auto_connect">เชื่อมต่ออัตโนมัติ</string>
     <string name="auto_connect_and_lockdown_mode">เชื่อมต่ออัตโนมัติและโหมดล็อกดาวน์</string>
     <string name="auto_connect_and_lockdown_mode_footer">ตรวจสอบให้แน่ใจว่า อุปกรณ์อยู่ในช่องทาง VPN เสมอ</string>
     <string name="auto_connect_carousel_first_slide_top_text">การตั้งค่าการเชื่อมต่ออัตโนมัติและโหมดล็อกดาวน์ อยู่ในการตั้งค่าระบบ Android โปรดทำตามคำแนะนำนี้ เพื่อเปิดใช้งานโหมดใดโหมดหนึ่ง หรือทั้งสองโหมด</string>
     <string name="auto_connect_carousel_second_slide_top_text">การเชื่อมต่ออัตโนมัติเรียกว่า Always-on VPN ในการตั้งค่าระบบ Android ซึ่งจะช่วยให้คุณมั่นใจได้ว่า คุณเชื่อมต่อกับช่องทาง VPN อย่างต่อเนื่อง และมีการเชื่อมต่ออัตโนมัติหลังจากรีสตาร์ต</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">ที่นี่</string>
-    <string name="auto_connect_footer_legacy_tv">เชื่อมต่อโดยอัตโนมัติเมื่อเปิดแอป การตั้งค่านี้จะถูกแทนที่ด้วยคุณลักษณะใหม่ คือการเชื่อมต่อเมื่อเริ่มต้นอุปกรณ์ ในการอัปเดตในอนาคต</string>
     <string name="auto_connect_legacy">เชื่อมต่ออัตโนมัติ (เดิม)</string>
     <string name="automatic">อัตโนมัติ</string>
     <string name="back">ย้อนกลับ</string>
@@ -70,13 +66,11 @@
     <string name="congrats">ยินดีด้วย!</string>
     <string name="connect">เชื่อมต่อ</string>
     <string name="connected">เชื่อมต่อแล้ว</string>
-    <string name="connected_using_daita">%1$s กำลังใช้ %2$s</string>
     <string name="connecting_to_daemon">กำลังเชื่อมต่อบริการของระบบ Mullvad...</string>
     <string name="connection_details_in">เข้า</string>
     <string name="continue_login">เข้าสู่ระบบต่อ</string>
     <string name="copied_logs_to_clipboard">คัดลอกบันทึกล็อกไปยังคลิปบอร์ดแล้ว</string>
     <string name="copied_mullvad_account_number">คัดลอกหมายเลขบัญชี Mullvad ไปยังคลิปบอร์ดแล้ว</string>
-    <string name="copied_to_clipboard">คัดลอกไปยังคลิปบอร์ดแล้ว</string>
     <string name="copy_account_number">คัดลอกหมายเลขบัญชี</string>
     <string name="create">สร้าง</string>
     <string name="create_account">สร้างบัญชี</string>
@@ -166,7 +160,6 @@
     <string name="ipv6_unavailable">ไม่สามารถกำหนดค่า IPv6 ได้ โปรดปิดใช้งานรายการนี้ในแอป หรือเปิดใช้งานบนอุปกรณ์ของคุณ</string>
     <string name="is_offline">อุปกรณ์ของคุณออฟไลน์อยู่ อุโมงค์จะเชื่อมต่อโดยอัตโนมัติ หลังจากที่อุปกรณ์ของคุณกลับมาออนไลน์</string>
     <string name="less_than_a_day_left">เหลือเวลาน้อยกว่าหนึ่งวัน</string>
-    <string name="less_than_a_minute_ago">น้อยกว่าหนึ่งนาทีก่อน</string>
     <string name="less_than_one_day">น้อยกว่าหนึ่งวัน</string>
     <string name="list_name">ชื่อรายการ</string>
     <string name="loading_connecting">กำลังเชื่อมต่อ...</string>
@@ -194,7 +187,6 @@
     <string name="max_devices_warning_description">โปรดลงชื่อออกจากระบบบนอุปกรณ์อย่างน้อยหนึ่งเครื่อง เพื่อนำอุปกรณ์ออกจากรายการด้านล่าง คุณสามารถดูชื่ออุปกรณ์ที่เกี่ยวข้องได้ ภายใต้การตั้งค่าบัญชีของอุปกรณ์</string>
     <string name="max_devices_warning_title">มีอุปกรณ์มากเกินไป</string>
     <string name="more_information">ข้อมูลเพิ่มเติม</string>
-    <string name="mullvad_account_number">หมายเลขบัญชี Mullvad</string>
     <string name="mullvad_owned_only">ของ Mullvad เท่านั้น</string>
     <string name="name">ชื่อ</string>
     <string name="name_was_changed_to">ชื่อถูกเปลี่ยนเป็น %1$s</string>
@@ -206,16 +198,13 @@
     <string name="no_locations_found">ไม่พบตำแหน่งที่ตั้ง</string>
     <string name="no_matching_relay">ไม่มีเซิร์ฟเวอร์ที่ตรงกับการตั้งค่าของคุณ โปรดลองเปลี่ยนเซิร์ฟเวอร์ หรือการตั้งค่าอื่นๆ</string>
     <string name="no_wireguard_key">คีย์ WireGuard ที่ใช้ได้ขาดหายไป จัดการคีย์ภายใต้การตั้งค่าขั้นสูง</string>
-    <string name="not_blocking_internet">คุณอาจมีการรับส่งข้อมูลทางเครือข่ายที่รั่วไหลอยู่</string>
     <string name="not_found">ไม่พบ</string>
     <string name="number_of_providers">ผู้ให้บริการ: %1$d</string>
     <string name="obfuscation_info">การทำให้ข้อมูลยุ่งเหยิง จะซ่อนการรับส่งข้อมูล WireGuard ภายในอีกโพรโทคอลหนึ่ง ซึ่งใช้เพื่อช่วยหลบเลี่ยงการเซ็นเซอร์ และการกรองประเภทอื่นๆ ที่การเชื่อมต่อ WireGuard แบบธรรมดาจะถูกบล็อกได้</string>
-    <string name="obfuscation_on_udp_over_tcp">เปิด (UDP-ผ่าน-TCP)</string>
     <string name="obfuscation_title">การทำให้ข้อมูลยุ่งเหยิงของ WireGuard</string>
     <string name="off">ปิด</string>
     <string name="on">เปิด</string>
     <string name="open_url">Open URL</string>
-    <string name="out_address">ออก</string>
     <string name="out_of_time">หมดเวลา</string>
     <string name="overrides_cleared">ล้างโอเวอร์ไรด์แล้ว</string>
     <string name="owned">เป็นเจ้าของ</string>
@@ -257,7 +246,6 @@
     <string name="save">บันทึก</string>
     <string name="search_placeholder">ค้นหา…</string>
     <string name="select_location">เลือกตำแหน่งที่ตั้ง</string>
-    <string name="select_location_description">ในขณะที่เชื่อมต่อ ตำแหน่งที่ตั้งจริงของคุณจะถูกปิดบัง ด้วยตำแหน่งที่ตั้งที่เป็นส่วนตัวและปลอดภัย ในภูมิภาคที่เลือก</string>
     <string name="select_location_empty_text_first_row">ไม่มีผลลัพธ์สำหรับ &lt;b&gt;%1$s&lt;/b&gt;</string>
     <string name="select_location_empty_text_second_row">ลองใช้การค้นหาอื่น</string>
     <string name="send">ส่ง</string>
@@ -293,9 +281,7 @@
     <string name="settings_patch_error_unable_to_parse">ไม่สามารถแยกวิเคราะห์แพตช์ได้</string>
     <string name="settings_patch_error_unknown_or_prohibited_key">คีย์ที่ไม่รู้จัก หรือต้องห้าม \"%1$s\"</string>
     <string name="settings_patch_success">นำเข้าสำเร็จ เปิดใช้โอเวอร์ไรด์อยู่</string>
-    <string name="settings_preferences">การกำหนดค่า</string>
     <string name="settings_vpn">การตั้งค่า VPN</string>
-    <string name="show_account_number">แสดงหมายเลขบัญชี</string>
     <string name="show_system_apps">แสดงแอประบบ</string>
     <string name="split_tunneling_description">ช่วยให้คุณเลือกแอปที่เข้าถึงอินเทอร์เน็ตได้โดยตรง โดยไม่ต้องผ่านอุโมงค์ VPN</string>
     <string name="start_tunnel_error">ไม่สามารถเริ่มการเชื่อมต่ออุโมงค์ได้ โปรดส่งรายงานปัญหา</string>
@@ -312,17 +298,13 @@
     <string name="toggle_vpn">เปิด/ปิด VPN</string>
     <string name="top_bar_device_name">ชื่ออุปกรณ์: %1$s</string>
     <string name="top_bar_time_left">เหลือเวลา: %1$s</string>
-    <string name="transport_protocol">โพรโทคอลการส่งข้อมูล</string>
     <string name="try_again">ลองอีกครั้ง</string>
     <string name="type">ประเภท</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">พอร์ต TCP ใดที่โพรโทคอลการทำให้ข้อมูลยุ่งเหยิง UDP-ผ่าน-TCP ควรเชื่อมต่อบนเซิร์ฟเวอร์ VPN</string>
-    <string name="udp_over_tcp_port_title">พอร์ต UDP-ผ่าน-TCP</string>
     <string name="undo">เลิกทำ</string>
     <string name="unsupported_version">เวอร์ชันที่ไม่รองรับ</string>
     <string name="unsupported_version_description">ความเป็นส่วนตัวของคุณอาจมีความเสี่ยง ในขณะที่ใช้งานเวอร์ชันแอปที่ไม่ได้รับการสนับสนุนนี้ โปรดอัปเดตตอนนี้เลย</string>
-    <string name="unsupported_version_without_upgrade">คุณกำลังใช้งานเวอร์ชันแอปที่ไม่ได้รับการสนับสนุน</string>
-    <string name="update_available_footer">มีอัปเดตพร้อมใช้งาน ดาวน์โหลดเพื่อคงความปลอดภัยไว้</string>
     <string name="update_dns_server_dialog_title">อัปเดตเซิร์ฟเวอร์ DNS</string>
     <string name="update_list_name">อัปเดตชื่อรายการ</string>
     <string name="use_method">ใช้วิธีการ</string>
@@ -332,13 +314,11 @@
     <string name="verifying_api_method">กำลังตรวจสอบยืนยันวิธีการ API...</string>
     <string name="verifying_voucher">กำลังตรวจสอบยืนยันบัตรกำนัล…</string>
     <string name="view_logs">ดูบันทึกของแอป</string>
-    <string name="virtual_adapter_problem">ข้อผิดพลาดของอะแดปเตอร์เสมือน</string>
     <string name="voucher_already_used">รหัสบัตรกำนัลถูกใช้ไปแล้ว</string>
     <string name="voucher_success_title">แลกบัตรกำนัลสำเร็จแล้ว</string>
     <string name="vpn_permission_denied_error">การให้สิทธิ์ VPN ถูกปฏิเสธ ในขณะที่สร้างอุโมงค์ โปรดลองเชื่อมต่อใหม่อีกครั้ง</string>
     <string name="vpn_permission_error_notification_message">Always-on VPN อาจได้รับการเปิดใช้งานสำหรับแอปอื่น</string>
     <string name="vpn_permission_error_notification_title">เกิดข้อผิดพลาดในการอนุญาต VPN</string>
-    <string name="vpn_settings_not_found">ไม่มีการตั้งค่า VPN บนอุปกรณ์ของคุณ</string>
     <string name="we_will_look_into_this">เราจะตรวจสอบปัญหานี้</string>
     <string name="wireguard_custon_port_title">กำหนดเอง</string>
     <string name="wireguard_mtu">WireGuard MTU</string>

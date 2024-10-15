@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="account_created">已建立帳戶</string>
     <string name="account_credit_expires_in_a_few_minutes">帳戶點數將在數分鐘後到期</string>
     <string name="account_credit_expires_soon">帳戶點數即將到期</string>
     <string name="account_credit_has_expired">您這個帳戶已經沒有剩餘的 VPN 時間了。</string>
@@ -22,7 +21,6 @@
     <string name="all_applications">所有應用程式</string>
     <string name="all_locations">所有位置</string>
     <string name="all_providers">所有供應商</string>
-    <string name="allow_lan_footer">允許存取同一網路上的其他裝置，以進行分享、列印等。</string>
     <string name="always_on_vpn_error_notification_content">無法啟動通道連線。在使用 Mullvad VPN 之前，請先為 &lt;b&gt;%1$s&lt;/b&gt; 停用「始終啟用 VPN」。</string>
     <string name="always_on_vpn_error_notification_title">「始終啟用 VPN」已指派給其他應用程式</string>
     <string name="any">任何</string>
@@ -40,13 +38,11 @@
     <string name="at_least_on_method_needs_to_enabled">至少需要啟用一種方式</string>
     <string name="auth_failed">無法驗證帳戶。請傳送問題回報。</string>
     <string name="authentication">驗證</string>
-    <string name="auto_connect">自動連線</string>
     <string name="auto_connect_and_lockdown_mode">自動連線和鎖定模式</string>
     <string name="auto_connect_and_lockdown_mode_footer">請確認裝置始終位於 VPN 通道上。</string>
     <string name="auto_connect_carousel_first_slide_top_text">自動連線和鎖定模式設定皆可在 Android 系統設定中找到，請按照本指南的指示，啟用其中一項或兩項設定。</string>
     <string name="auto_connect_carousel_second_slide_top_text">自動連線在 Android 系統設定中稱為「始終啟用 VPN」，此功能可確保您始終與 VPN 通道連線，並且會在重新啟動後自動連線。</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">此處</string>
-    <string name="auto_connect_footer_legacy_tv">在啟動應用程式時自動連線。在未來的更新中，此設定將由裝置啟動時即進行連線的新功能所取代。</string>
     <string name="auto_connect_legacy">自動連線 (舊)</string>
     <string name="automatic">自動</string>
     <string name="back">返回</string>
@@ -70,13 +66,11 @@
     <string name="congrats">恭喜！</string>
     <string name="connect">連線</string>
     <string name="connected">已連線</string>
-    <string name="connected_using_daita">%1$s，使用 %2$s</string>
     <string name="connecting_to_daemon">連線 Mullvad 系統服務中...</string>
     <string name="connection_details_in">入境</string>
     <string name="continue_login">繼續登入</string>
     <string name="copied_logs_to_clipboard">已將記錄複製到剪貼簿</string>
     <string name="copied_mullvad_account_number">已將 Mullvad 帳號複製到剪貼簿</string>
-    <string name="copied_to_clipboard">已複製到剪貼簿</string>
     <string name="copy_account_number">複製帳號</string>
     <string name="create">建立</string>
     <string name="create_account">建立帳戶</string>
@@ -166,7 +160,6 @@
     <string name="ipv6_unavailable">無法配置 IPv6。請在應用程式中將其停用，或是在您的裝置上啟用它。</string>
     <string name="is_offline">您的裝置已離線。在您的裝置重新上線後，通道將自動連線。</string>
     <string name="less_than_a_day_left">剩餘時間不足 1 天</string>
-    <string name="less_than_a_minute_ago">不到 1 分鐘前</string>
     <string name="less_than_one_day">不足 1 天</string>
     <string name="list_name">清單名稱</string>
     <string name="loading_connecting">正在連線…</string>
@@ -194,7 +187,6 @@
     <string name="max_devices_warning_description">請從底下清單至少移除一個裝置來將其登出。您可以在裝置的「帳戶」設定下找到相應裝置名稱。</string>
     <string name="max_devices_warning_title">裝置過多</string>
     <string name="more_information">更多資訊</string>
-    <string name="mullvad_account_number">Mullvad 帳號</string>
     <string name="mullvad_owned_only">僅 Mullvad 自有</string>
     <string name="name">名稱</string>
     <string name="name_was_changed_to">名稱已變更為「%1$s」</string>
@@ -206,16 +198,13 @@
     <string name="no_locations_found">找不到位置</string>
     <string name="no_matching_relay">沒有與您的設定相符的伺服器，請嘗試變更伺服器或其他設定。</string>
     <string name="no_wireguard_key">缺少有效的 WireGuard 金鑰。在「進階」設定下管理金鑰。</string>
-    <string name="not_blocking_internet">您的網路流量可能正在洩露</string>
     <string name="not_found">找不到</string>
     <string name="number_of_providers">供應商：%1$d</string>
     <string name="obfuscation_info">藉由混淆，WireGuard 的流量能隱藏在另一個通訊協定中。這有助於規避審查或其他類型的篩選。在這類篩選中，普通 WireGuard 連線將遭到封鎖。</string>
-    <string name="obfuscation_on_udp_over_tcp">開 (UDP-over-TCP)</string>
     <string name="obfuscation_title">WireGuard 混淆</string>
     <string name="off">關閉</string>
     <string name="on">開啟</string>
     <string name="open_url">開啟 URL</string>
-    <string name="out_address">出境</string>
     <string name="out_of_time">逾時</string>
     <string name="overrides_cleared">覆寫設定已清除</string>
     <string name="owned">自有</string>
@@ -257,7 +246,6 @@
     <string name="save">儲存</string>
     <string name="search_placeholder">搜尋…</string>
     <string name="select_location">選擇位置</string>
-    <string name="select_location_description">連線時，會使用所選區域的一個私密安全位置，將您的真實位置遮住。</string>
     <string name="select_location_empty_text_first_row">&lt;b&gt;%1$s&lt;/b&gt; 沒有任何結果。</string>
     <string name="select_location_empty_text_second_row">請嘗試使用其他關鍵字。</string>
     <string name="send">傳送</string>
@@ -293,9 +281,7 @@
     <string name="settings_patch_error_unable_to_parse">無法剖析修補檔</string>
     <string name="settings_patch_error_unknown_or_prohibited_key">未知或遭到禁用的金鑰「%1$s」</string>
     <string name="settings_patch_success">匯入成功，覆寫設定已啟用</string>
-    <string name="settings_preferences">喜好設定</string>
     <string name="settings_vpn">VPN 設定</string>
-    <string name="show_account_number">顯示帳號</string>
     <string name="show_system_apps">顯示系統應用程式</string>
     <string name="split_tunneling_description">允許您選擇不經過 VPN 通道而直接存取網際網路的應用程式。</string>
     <string name="start_tunnel_error">無法啟動通道連線。請傳送問題回報。</string>
@@ -312,17 +298,13 @@
     <string name="toggle_vpn">切換 VPN</string>
     <string name="top_bar_device_name">裝置名稱：%1$s</string>
     <string name="top_bar_time_left">剩餘時間：%1$s</string>
-    <string name="transport_protocol">傳輸通訊協定</string>
     <string name="try_again">再試一次</string>
     <string name="type">類型</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">UDP-over-TCP 混淆通訊協定應連線到 VPN 伺服器上的哪個 TCP 連接埠。</string>
-    <string name="udp_over_tcp_port_title">UDP-over-TCP 連接埠</string>
     <string name="undo">復原</string>
     <string name="unsupported_version">不支援的版本</string>
     <string name="unsupported_version_description">此應用程式版本不受支援，因此您的隱私可能存在風險。請立即更新。</string>
-    <string name="unsupported_version_without_upgrade">您所執行的應用程式版本不受支援。</string>
-    <string name="update_available_footer">更新可用，請下載以維持安全。</string>
     <string name="update_dns_server_dialog_title">更新 DNS 伺服器</string>
     <string name="update_list_name">更新清單名稱</string>
     <string name="use_method">使用方式</string>
@@ -332,13 +314,11 @@
     <string name="verifying_api_method">正在驗證 API 方式…</string>
     <string name="verifying_voucher">正在驗證優惠券…</string>
     <string name="view_logs">檢視應用程式日誌</string>
-    <string name="virtual_adapter_problem">虛擬配接器錯誤</string>
     <string name="voucher_already_used">此憑證兌換碼已有人用過。</string>
     <string name="voucher_success_title">憑證已成功兌換。</string>
     <string name="vpn_permission_denied_error">建立通道時，VPN 權限被拒絕。請嘗試重新連線。</string>
     <string name="vpn_permission_error_notification_message">可能已為另一個應用程式啟用了「始終啟用 VPN」</string>
     <string name="vpn_permission_error_notification_title">VPN 權限錯誤</string>
-    <string name="vpn_settings_not_found">您的裝置上沒有 VPN 設定</string>
     <string name="we_will_look_into_this">我們會對此進行調查。</string>
     <string name="wireguard_custon_port_title">自訂</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
