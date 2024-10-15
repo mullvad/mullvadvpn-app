@@ -158,7 +158,7 @@ jobs:
       - name: Run end-to-end tests
         shell: bash -ieo pipefail {0}
         run: |
-          git fetch --tags --force
+          git fetch --tags --prune-tags --force
           export TEST_FILTERS="${{ github.event.inputs.tests }}"
           ./test/scripts/ci-runtests.sh ${{ matrix.os }}
       - uses: actions/upload-artifact@v3
@@ -234,7 +234,7 @@ jobs:
       - name: Run end-to-end tests
         shell: bash -ieo pipefail {0}
         run: |
-          git fetch --tags --force
+          git fetch --tags --prune-tags --force
           export TEST_FILTERS="${{ github.event.inputs.tests }}"
           ./test/scripts/ci-runtests.sh ${{ matrix.os }}
       - uses: actions/upload-artifact@v3
@@ -311,7 +311,7 @@ jobs:
       - name: Run end-to-end tests
         shell: bash -ieo pipefail {0}
         run: |
-          git fetch --tags --force
+          git fetch --tags --prune-tags --force
           export TEST_FILTERS="${{ github.event.inputs.tests }}"
           ./test/scripts/ci-runtests.sh ${{ matrix.os }}
       - uses: actions/upload-artifact@v3
