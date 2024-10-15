@@ -40,13 +40,3 @@
 # `renderer-helper` currently depend on this version of libbaz, preventing us from upgrading to a fixed version.
 # """
 # ```
-
-# KyberSlash timing attack against Kyber PQ KEM
-[[IgnoredVulns]]
-id = "RUSTSEC-2023-0079"
-ignoreUntil = 2024-12-05 # Ignored for six months at a time. This class of timing based attacks are not exploitable in our protocol design
-reason = """
-KyberSlash is not exploitable in our usage of it:
-https://mullvad.net/en/blog/mullvads-usage-of-kyber-is-not-affected-by-kyberslash
-And no patched version is available.
-"""

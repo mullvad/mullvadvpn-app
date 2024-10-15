@@ -5,11 +5,11 @@
 mod proto {
     tonic::include_proto!("ephemeralpeer");
 }
-use classic_mceliece_rust::{PublicKey, CRYPTO_PUBLICKEYBYTES};
 use proto::{
     ephemeral_peer_server::{EphemeralPeer, EphemeralPeerServer},
     EphemeralPeerRequestV1, EphemeralPeerResponseV1, PostQuantumResponseV1,
 };
+use rand::{CryptoRng, RngCore};
 use talpid_types::net::wireguard::PresharedKey;
 
 use tonic::{transport::Server, Request, Response, Status};
@@ -44,20 +44,9 @@ impl EphemeralPeer for EphemeralPeerImpl {
                 println!("\tKEM algorithm: {}", kem_pubkey.algorithm_name);
                 let (ciphertext, shared_secret) = match kem_pubkey.algorithm_name.as_str() {
                     "Classic-McEliece-460896f-round3" => {
-                        let key_data: [u8; CRYPTO_PUBLICKEYBYTES] =
-                            kem_pubkey.key_data.as_slice().try_into().unwrap();
-                        let public_key = PublicKey::from(&key_data);
-                        let (ciphertext, shared_secret) =
-                            classic_mceliece_rust::encapsulate_boxed(&public_key, &mut rng);
-                        (ciphertext.as_array().to_vec(), *shared_secret.as_array())
+                        encapsulate_classic_mceliece(kem_pubkey.key_data.as_slice(), &mut rng)
                     }
-                    // Kyber round3
-                    "Kyber1024" => {
-                        let public_key = kem_pubkey.key_data.as_slice();
-                        let (ciphertext, shared_secret) =
-                            pqc_kyber::encapsulate(public_key, &mut rng).unwrap();
-                        (ciphertext.to_vec(), shared_secret)
-                    }
+                    "ML-KEM-1024" => encapsulate_ml_kem(kem_pubkey.key_data.as_slice(), &mut rng),
                     name => panic!("Unsupported KEM algorithm: {name}"),
                 };
 
@@ -80,6 +69,40 @@ impl EphemeralPeer for EphemeralPeerImpl {
 
         Ok(Response::new(EphemeralPeerResponseV1 { post_quantum }))
     }
+}
+
+/// Generate a random shared secret and encapsulate it with the given
+/// public key/encapsulation key. Returns the ciphertext to return
+/// to the owner of the public key, along with the shared secret.
+fn encapsulate_classic_mceliece<R: RngCore + CryptoRng>(
+    public_key: &[u8],
+    rng: &mut R,
+) -> (Vec<u8>, [u8; 32]) {
+    use classic_mceliece_rust::{PublicKey, CRYPTO_PUBLICKEYBYTES};
+
+    let public_key_array = <[u8; CRYPTO_PUBLICKEYBYTES]>::try_from(public_key).unwrap();
+    let public_key = PublicKey::from(&public_key_array);
+    let (ciphertext, shared_secret) = classic_mceliece_rust::encapsulate_boxed(&public_key, rng);
+    (ciphertext.as_array().to_vec(), *shared_secret.as_array())
+}
+
+/// Generate a random shared secret and encapsulate it with the given
+/// public key/encapsulation key. Returns the ciphertext to return
+/// to the owner of the public key, along with the shared secret.
+fn encapsulate_ml_kem<R: RngCore + CryptoRng>(
+    public_key: &[u8],
+    rng: &mut R,
+) -> (Vec<u8>, [u8; 32]) {
+    use ml_kem::{kem::Encapsulate, Encoded, EncodedSizeUser, KemCore, MlKem1024};
+
+    type EncapsulationKey = <MlKem1024 as KemCore>::EncapsulationKey;
+
+    let encapsulation_key_array = <Encoded<EncapsulationKey>>::try_from(public_key).unwrap();
+    let encapsulation_key = EncapsulationKey::from_bytes(&encapsulation_key_array);
+
+    let (ciphertext, shared_secret) = encapsulation_key.encapsulate(rng).unwrap();
+
+    (ciphertext.to_vec(), shared_secret.into())
 }
 
 #[tokio::main]
