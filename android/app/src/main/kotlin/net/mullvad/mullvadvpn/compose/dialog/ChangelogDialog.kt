@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
@@ -24,26 +25,21 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
-import net.mullvad.mullvadvpn.viewmodel.Changelog
+import net.mullvad.mullvadvpn.viewmodel.ChangelogUiState
 import net.mullvad.mullvadvpn.viewmodel.ChangelogViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Destination<RootGraph>(style = DestinationStyle.Dialog::class)
 @Composable
-fun Changelog(navController: NavController, changeLog: Changelog) {
+fun Changelog(navController: NavController) {
     val viewModel = koinViewModel<ChangelogViewModel>()
+    val uiState = viewModel.uiState.collectAsStateWithLifecycle()
 
-    ChangelogDialog(
-        changeLog,
-        onDismiss = {
-            viewModel.markChangelogAsRead()
-            navController.navigateUp()
-        },
-    )
+    ChangelogDialog(uiState.value, onDismiss = { navController.navigateUp() })
 }
 
 @Composable
-fun ChangelogDialog(changeLog: Changelog, onDismiss: () -> Unit) {
+fun ChangelogDialog(changeLog: ChangelogUiState, onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
@@ -103,7 +99,10 @@ private fun ChangeListItem(text: String) {
 @Composable
 private fun PreviewChangelogDialogWithSingleShortItem() {
     AppTheme {
-        ChangelogDialog(Changelog(changes = listOf("Item 1"), version = "1111.1"), onDismiss = {})
+        ChangelogDialog(
+            ChangelogUiState(changes = listOf("Item 1"), version = "1111.1"),
+            onDismiss = {},
+        )
     }
 }
 
@@ -117,7 +116,10 @@ private fun PreviewChangelogDialogWithTwoLongItems() {
 
     AppTheme {
         ChangelogDialog(
-            Changelog(changes = listOf(longPreviewText, longPreviewText), version = "1111.1"),
+            ChangelogUiState(
+                changes = listOf(longPreviewText, longPreviewText),
+                version = "1111.1",
+            ),
             onDismiss = {},
         )
     }
@@ -128,7 +130,7 @@ private fun PreviewChangelogDialogWithTwoLongItems() {
 private fun PreviewChangelogDialogWithTenShortItems() {
     AppTheme {
         ChangelogDialog(
-            Changelog(
+            ChangelogUiState(
                 changes =
                     listOf(
                         "Item 1",

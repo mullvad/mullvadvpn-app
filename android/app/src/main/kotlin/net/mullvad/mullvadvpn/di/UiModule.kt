@@ -54,6 +54,7 @@ import net.mullvad.mullvadvpn.util.IChangelogDataProvider
 import net.mullvad.mullvadvpn.viewmodel.AccountViewModel
 import net.mullvad.mullvadvpn.viewmodel.ApiAccessListViewModel
 import net.mullvad.mullvadvpn.viewmodel.ApiAccessMethodDetailsViewModel
+import net.mullvad.mullvadvpn.viewmodel.AppInfoViewModel
 import net.mullvad.mullvadvpn.viewmodel.ChangelogViewModel
 import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
 import net.mullvad.mullvadvpn.viewmodel.CreateCustomListDialogViewModel
@@ -118,7 +119,7 @@ val uiModule = module {
     single { androidContext().assets }
     single { androidContext().contentResolver }
 
-    single { ChangelogRepository(get(named(APP_PREFERENCES_NAME)), get()) }
+    single { ChangelogRepository(get()) }
     single {
         PrivacyDisclaimerRepository(
             androidContext().getSharedPreferences(APP_PREFERENCES_NAME, Context.MODE_PRIVATE)
@@ -181,7 +182,8 @@ val uiModule = module {
 
     // View models
     viewModel { AccountViewModel(get(), get(), get(), IS_PLAY_BUILD) }
-    viewModel { ChangelogViewModel(get(), get(), BuildConfig.ALWAYS_SHOW_CHANGELOG) }
+    viewModel { ChangelogViewModel(get(), get()) }
+    viewModel { AppInfoViewModel(get(), get(), IS_PLAY_BUILD) }
     viewModel {
         ConnectViewModel(
             get(),
