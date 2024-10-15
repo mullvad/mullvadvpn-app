@@ -11,6 +11,7 @@ import UIKit
 class SelectableSettingsCell: SettingsCell {
     let tickImageView: UIImageView = {
         let imageView = UIImageView(image: UIImage(named: "IconTick"))
+        imageView.contentMode = .center
         imageView.tintColor = .white
         imageView.alpha = 0
         return imageView
@@ -19,7 +20,7 @@ class SelectableSettingsCell: SettingsCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
-        setLeftView(tickImageView, spacing: UIMetrics.SettingsCell.selectableSettingsCellLeftViewSpacing)
+        setLeadingView(tickImageView, spacing: UIMetrics.SettingsCell.selectableSettingsCellLeftViewSpacing)
         selectedBackgroundView?.backgroundColor = UIColor.Cell.Background.selected
     }
 
@@ -30,7 +31,7 @@ class SelectableSettingsCell: SettingsCell {
     override func prepareForReuse() {
         super.prepareForReuse()
 
-        setLeftView(tickImageView, spacing: UIMetrics.SettingsCell.selectableSettingsCellLeftViewSpacing)
+        setLeadingView(tickImageView, spacing: UIMetrics.SettingsCell.selectableSettingsCellLeftViewSpacing)
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {
