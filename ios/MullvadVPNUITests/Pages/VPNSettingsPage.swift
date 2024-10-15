@@ -103,7 +103,7 @@ class VPNSettingsPage: Page {
     }
 
     @discardableResult func tapWireGuardObfuscationOnCell() -> Self {
-        app.cells[AccessibilityIdentifier.wireGuardObfuscationOn].tap()
+        app.cells[AccessibilityIdentifier.wireGuardObfuscationUdpOverTcp].tap()
 
         return self
     }
@@ -157,7 +157,7 @@ class VPNSettingsPage: Page {
     }
 
     @discardableResult func verifyWireGuardObfuscationOnSelected() -> Self {
-        let onCell = app.cells[AccessibilityIdentifier.wireGuardObfuscationOn]
+        let onCell = app.cells[AccessibilityIdentifier.wireGuardObfuscationUdpOverTcp]
         XCTAssertTrue(onCell.isSelected)
         return self
     }
