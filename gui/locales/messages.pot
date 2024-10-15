@@ -2284,6 +2284,9 @@ msgstr ""
 msgid "Always-on VPN might be enabled for another app"
 msgstr ""
 
+msgid "App info"
+msgstr ""
+
 msgid "At least one method needs to be enabled"
 msgstr ""
 
@@ -2312,6 +2315,9 @@ msgid "Automatically connect when the app launches. This setting will be replace
 msgstr ""
 
 msgid "Blocking internet (device offline)"
+msgstr ""
+
+msgid "Changelog"
 msgstr ""
 
 msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
@@ -2702,6 +2708,9 @@ msgid "Verifying purchase..."
 msgstr ""
 
 msgid "Verifying voucher…"
+msgstr ""
+
+msgid "Version"
 msgstr ""
 
 msgid "Virtual adapter error"

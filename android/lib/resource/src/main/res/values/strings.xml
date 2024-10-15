@@ -416,4 +416,7 @@
     <string name="collapse">Collapse</string>
     <string name="copy">Copy</string>
     <string name="share">Share…</string>
+    <string name="app_info">App info</string>
+    <string name="changelog_title">Changelog</string>
+    <string name="version">Version</string>
 </resources>
