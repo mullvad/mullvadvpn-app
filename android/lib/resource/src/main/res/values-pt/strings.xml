@@ -65,7 +65,6 @@
     <string name="changes_dialog_subtitle">Alterações nesta versão:</string>
     <string name="cipher">Cifra</string>
     <string name="close">Fechar</string>
-    <string name="confirm_local_dns">O servidor DNS local não funcionará exceto se ativar \"Partilha de rede local\" em Preferências.</string>
     <string name="confirm_no_email">Está prestes a enviar o relatório de problema sem que tenhamos uma forma de lhe responder. Se pretender uma resposta ao seu relatório, tem de introduzir um endereço de email.</string>
     <string name="confirm_removal">Sim, desligar o dispositivo</string>
     <string name="congrats">Parabéns!</string>

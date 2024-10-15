@@ -2614,7 +2614,7 @@ msgstr ""
 msgid "The \"Current\" method represent which method the app is using to reach the API."
 msgstr ""
 
-msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under Preferences."
+msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings."
 msgstr ""
 
 msgid "There is no VPN settings on your device"
