@@ -435,15 +435,26 @@ impl AllowedClients {
     }
 }
 
+/// What [`Endpoint`]s to allow the client to send traffic to and receive from.
+///
+/// In some cases we want to restrict what IP addresses the client may communicate with even
+/// inside of the tunnel, for example while negotiating a PQ-safe PSK with an ephemeral peer.
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub enum AllowedTunnelTraffic {
+    /// Block all traffic inside the tunnel.
     None,
+    /// Allow all traffic inside the tunnel. This is the normal mode of operation.
     All,
+    /// Only allow communication with this specific endpoint. This will usually be a relay during a
+    /// short amount of time.
     One(Endpoint),
+    /// Only allow communication with these two specific endpoints. The intended use case for this
+    /// is while negotiating for example a PSK with both the entry & exit relays in a multihop setup.
     Two(Endpoint, Endpoint),
 }
 
 impl AllowedTunnelTraffic {
+    /// Do we currently allow traffic to all endpoints?
     pub fn all(&self) -> bool {
         matches!(self, AllowedTunnelTraffic::All)
     }
