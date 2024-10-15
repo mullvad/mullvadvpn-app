@@ -35,11 +35,17 @@ final class TunnelSettingsUpdateTests: XCTestCase {
         var settings = LatestTunnelSettings()
 
         // When:
-        let update = TunnelSettingsUpdate.obfuscation(.init(state: .on, port: .port5001))
+        let update = TunnelSettingsUpdate.obfuscation(WireGuardObfuscationSettings(
+            state: .udpOverTcp,
+            udpOverTcpPort: .port5001
+        ))
         update.apply(to: &settings)
 
         // Then:
-        XCTAssertEqual(settings.wireGuardObfuscation, WireGuardObfuscationSettings(state: .on, port: .port5001))
+        XCTAssertEqual(settings.wireGuardObfuscation, WireGuardObfuscationSettings(
+            state: .udpOverTcp,
+            udpOverTcpPort: .port5001
+        ))
     }
 
     func testApplyRelayConstraints() {
@@ -50,7 +56,7 @@ final class TunnelSettingsUpdateTests: XCTestCase {
         let relayConstraints = RelayConstraints(
             exitLocations: .only(UserSelectedRelays(locations: [.country("zz")])),
             port: .only(9999),
-            filter: .only(.init(ownership: .rented, providers: .only(["foo", "bar"])))
+            filter: .only(RelayFilter(ownership: .rented, providers: .only(["foo", "bar"])))
         )
         let update = TunnelSettingsUpdate.relayConstraints(relayConstraints)
         update.apply(to: &settings)

@@ -41,7 +41,7 @@ final class ProtocolObfuscatorTests: XCTestCase {
     }
 
     func testObfuscateOnPort80() throws {
-        let settings = settings(.on, obfuscationPort: .port80, quantumResistance: .automatic)
+        let settings = settings(.udpOverTcp, obfuscationPort: .port80, quantumResistance: .automatic)
         let obfuscatedEndpoint = obfuscator.obfuscate(endpoint, settings: settings)
         let obfuscationProtocol = try XCTUnwrap(obfuscator.tunnelObfuscator as? TunnelObfuscationStub)
 
@@ -49,7 +49,7 @@ final class ProtocolObfuscatorTests: XCTestCase {
     }
 
     func testObfuscateOnPort5001() throws {
-        let settings = settings(.on, obfuscationPort: .port5001, quantumResistance: .automatic)
+        let settings = settings(.udpOverTcp, obfuscationPort: .port5001, quantumResistance: .automatic)
         let obfuscatedEndpoint = obfuscator.obfuscate(endpoint, settings: settings)
         let obfuscationProtocol = try XCTUnwrap(obfuscator.tunnelObfuscator as? TunnelObfuscationStub)
 
@@ -57,7 +57,7 @@ final class ProtocolObfuscatorTests: XCTestCase {
     }
 
     func testObfuscateOnPortAutomaticIsPort80OnEvenRetryAttempts() throws {
-        let settings = settings(.on, obfuscationPort: .automatic, quantumResistance: .automatic)
+        let settings = settings(.udpOverTcp, obfuscationPort: .automatic, quantumResistance: .automatic)
         let obfuscatedEndpoint = obfuscator.obfuscate(endpoint, settings: settings, retryAttempts: 2)
         let obfuscationProtocol = try XCTUnwrap(obfuscator.tunnelObfuscator as? TunnelObfuscationStub)
 
@@ -65,7 +65,7 @@ final class ProtocolObfuscatorTests: XCTestCase {
     }
 
     func testObfuscateOnPortAutomaticIsPort5001OnOddRetryAttempts() throws {
-        let settings = settings(.on, obfuscationPort: .automatic, quantumResistance: .automatic)
+        let settings = settings(.udpOverTcp, obfuscationPort: .automatic, quantumResistance: .automatic)
         let obfuscatedEndpoint = obfuscator.obfuscate(endpoint, settings: settings, retryAttempts: 3)
         let obfuscationProtocol = try XCTUnwrap(obfuscator.tunnelObfuscator as? TunnelObfuscationStub)
 
@@ -91,7 +91,7 @@ final class ProtocolObfuscatorTests: XCTestCase {
     private func validate(
         _ obfuscatedEndpoint: MullvadEndpoint,
         against obfuscationProtocol: TunnelObfuscationStub,
-        expect port: WireGuardObfuscationPort
+        expect port: WireGuardObfuscationUdpOverTcpPort
     ) {
         XCTAssertEqual(obfuscatedEndpoint.ipv4Relay.ip, .loopback)
         XCTAssertEqual(obfuscatedEndpoint.ipv4Relay.port, obfuscationProtocol.localUdpPort)
@@ -100,7 +100,7 @@ final class ProtocolObfuscatorTests: XCTestCase {
 
     private func settings(
         _ obfuscationState: WireGuardObfuscationState,
-        obfuscationPort: WireGuardObfuscationPort,
+        obfuscationPort: WireGuardObfuscationUdpOverTcpPort,
         quantumResistance: TunnelQuantumResistance
     ) -> Settings {
         Settings(
@@ -108,7 +108,7 @@ final class ProtocolObfuscatorTests: XCTestCase {
             interfaceAddresses: [IPAddressRange(from: "127.0.0.1/32")!],
             tunnelSettings: LatestTunnelSettings(wireGuardObfuscation: WireGuardObfuscationSettings(
                 state: obfuscationState,
-                port: obfuscationPort
+                udpOverTcpPort: obfuscationPort
             ))
         )
     }

@@ -74,12 +74,18 @@ final class TunnelSettingsStrategyTests: XCTestCase {
 
     func testConnectToCurrentRelayOnWireGuardObfuscationChange() {
         var currentSettings = LatestTunnelSettings()
-        TunnelSettingsUpdate.obfuscation(WireGuardObfuscationSettings(state: .off, port: .port80))
-            .apply(to: &currentSettings)
+        TunnelSettingsUpdate.obfuscation(WireGuardObfuscationSettings(
+            state: .off,
+            udpOverTcpPort: .port80
+        ))
+        .apply(to: &currentSettings)
 
         var updatedSettings = currentSettings
-        TunnelSettingsUpdate.obfuscation(WireGuardObfuscationSettings(state: .automatic, port: .automatic))
-            .apply(to: &updatedSettings)
+        TunnelSettingsUpdate.obfuscation(WireGuardObfuscationSettings(
+            state: .automatic,
+            udpOverTcpPort: .automatic
+        ))
+        .apply(to: &updatedSettings)
 
         let tunnelSettingsStrategy = TunnelSettingsStrategy()
         XCTAssertFalse(tunnelSettingsStrategy.shouldReconnectToNewRelay(
