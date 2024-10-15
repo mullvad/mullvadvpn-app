@@ -269,11 +269,11 @@ mod ffi {
         ) -> i32;
 
         /// Creates a new wireguard tunnel, uses the specific interface name, and file descriptors
-        /// for the tunnel device and logging. For targets other than android, this also takes an
-        /// MTU value.
+        /// for the tunnel device and logging.
         ///
         /// Positive return values are tunnel handles for this specific wireguard tunnel instance.
         /// Negative return values signify errors.
+        #[cfg(target_os = "android")]
         pub fn wgTurnOnMultihop(
             exit_settings: *const c_char,
             entry_settings: *const c_char,
@@ -282,7 +282,6 @@ mod ffi {
             logging_callback: Option<LoggingCallback>,
             logging_context: LoggingContext,
         ) -> i32;
-
 
         /// Pass a handle that was created by wgTurnOn to stop a wireguard tunnel.
         ///
