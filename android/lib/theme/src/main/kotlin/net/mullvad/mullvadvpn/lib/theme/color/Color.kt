@@ -31,7 +31,7 @@ val ColorScheme.warning: Color
 
 // Disabled colors for buttons
 val ColorScheme.tertiaryDisabled: Color
-    @Composable get() = PaletteTokens.DisabledContainerTiertary
+    @Composable get() = PaletteTokens.DisabledContainerTertiary
 
 val ColorScheme.primaryDisabled: Color
     @Composable get() = PaletteTokens.DisabledContainerPrimary
