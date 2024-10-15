@@ -68,7 +68,8 @@ fn exit_config(multihop_config: &Config) -> Option<Config> {
 }
 
 // TODO: move into impl of Config
-fn entry_config(multihop_config: &Config) -> Config {
+// TODO: Make private
+pub fn entry_config(multihop_config: &Config) -> Config {
     let mut entry_config = multihop_config.clone();
     entry_config.exit_peer = None;
     entry_config

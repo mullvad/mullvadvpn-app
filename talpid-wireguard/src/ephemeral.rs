@@ -105,24 +105,35 @@ async fn config_ephemeral_peers_inner(
 
     log::debug!("Retrieved ephemeral peer");
 
+    // TODO: This is where things go wrong!
     if config.is_multihop() {
         // Set up tunnel to lead to entry
         let mut entry_tun_config = config.clone();
+        dbg!(&config);
+        dbg!(crate::wireguard_go::entry_config(&config));
         entry_tun_config
             .entry_peer
             .allowed_ips
             .push(IpNetwork::new(IpAddr::V4(config.ipv4_gateway), 32).unwrap());
 
         let close_obfs_sender = close_obfs_sender.clone();
-        let entry_config = reconfigure_tunnel(
-            tunnel,
-            entry_tun_config,
-            obfuscator.clone(),
-            close_obfs_sender,
-            #[cfg(target_os = "android")]
-            &tun_provider,
-        )
-        .await?;
+        // TODO: This seems lmao
+        // XD It works !!
+        let entry_config = if cfg!(target_os = "android") {
+            crate::wireguard_go::entry_config(&config)
+        } else {
+            let entry_config = reconfigure_tunnel(
+                tunnel,
+                entry_tun_config,
+                obfuscator.clone(),
+                close_obfs_sender,
+                #[cfg(target_os = "android")]
+                &tun_provider,
+            )
+            .await?;
+            entry_config
+        };
+
         let entry_psk = request_ephemeral_peer(
             retry_attempt,
             &entry_config,
