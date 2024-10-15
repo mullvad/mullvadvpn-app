@@ -191,7 +191,7 @@ final class CustomDNSCellFactory: CellFactoryProtocol {
                 comment: ""
             )
             cell.accessibilityIdentifier = .dnsSettingsAddServerCell
-            cell.action = { [weak self] in
+            cell.tapAction = { [weak self] in
                 self?.delegate?.addDNSEntry()
             }
 

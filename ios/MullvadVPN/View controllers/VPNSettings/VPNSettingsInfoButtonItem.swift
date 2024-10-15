@@ -45,7 +45,7 @@ enum VPNSettingsInfoButtonItem: CustomStringConvertible {
         case let .wireGuardPorts(portsString):
             String(
                 format: NSLocalizedString(
-                    "VPN_SETTINGS_WIRE_GUARD_PORTS_GENERAL",
+                    "VPN_SETTINGS_WIREGUARD_PORTS_GENERAL",
                     tableName: "WireGuardPorts",
                     value: """
                     The automatic setting will randomly choose from the valid port ranges shown below.
@@ -58,7 +58,7 @@ enum VPNSettingsInfoButtonItem: CustomStringConvertible {
             )
         case .wireGuardObfuscation:
             NSLocalizedString(
-                "VPN_SETTINGS_WIRE_GUARD_OBFUSCATION_GENERAL",
+                "VPN_SETTINGS_WIREGUARD_OBFUSCATION_GENERAL",
                 tableName: "WireGuardObfuscation",
                 value: """
                 Obfuscation hides the WireGuard traffic inside another protocol. \
@@ -69,7 +69,7 @@ enum VPNSettingsInfoButtonItem: CustomStringConvertible {
             )
         case .wireGuardObfuscationPort:
             NSLocalizedString(
-                "VPN_SETTINGS_WIRE_GUARD_OBFUSCATION_PORT_GENERAL",
+                "VPN_SETTINGS_WIREGUARD_OBFUSCATION_PORT_GENERAL",
                 tableName: "WireGuardObfuscation",
                 value: "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server.",
                 comment: ""
