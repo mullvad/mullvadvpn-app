@@ -8,6 +8,10 @@ This document does not describe in detail *how* we reach and uphold these proper
 they are. See the [architecture](architecture.md) document for details on how the firewall
 integration is implemented.
 
+For known security and privacy issues, that might cause the app to not uphold the
+properties described in this document under certain conditions, please see the
+[known issues] document.
+
 The main purpose of the app is to allow the user to make all network/internet traffic to and
 from the device travel via an encrypted VPN tunnel.
 
@@ -25,7 +29,7 @@ secure as possible with the limitations of the OS APIs.
 ### Android
 
 > ⚠️  When we say *all traffic* in this chapter it does not include traffic exempt by the system
-or traffic affected by known issues.
+or traffic affected by [known issues].
 
 The only way an android app can filter network traffic is via the VPN Service API. This API allows
 *all traffic* to and from the device to be routed through a third party app. This API is what the
@@ -36,6 +40,10 @@ When establishing a VPN connection using the default settings* the app will set 
 in a state where it blocks *all traffic*, such as the [connecting], [disconnecting] and [error]
 states. Additionally the android system has a setting called *Block connections without VPN* that
 enables the Android OS to block *all traffic* that is not routed through the Mullvad VPN.
+
+Besides the [known issues], Android has many variants and flavors that may introduce variances to
+the default [Android Open Source Project](https://source.android.com/) behavior. This means that
+the Mullvad VPN app, like all other VPN apps, is subject to the limitations of the VPN Service API.
 
 > **\*:** Local Network Sharing affects the routes and Split Tunneling will allow apps to bypass the
 tunnel.
@@ -56,16 +64,6 @@ documentation and user privacy:
 - [Incorrect VPN lockdown documentation](https://issuetracker.google.com/issues/249990229)
 - [Add option to disable connectivity checks when VPN lockdown is enabled](https://issuetracker.google.com/issues/250529027)
 
-#### Known issues
-
-Notable security related issues reported to Google:
-
-- [VPN leaks DNS traffic outside the tunnel](https://issuetracker.google.com/issues/337961996)
-- [Broadcast traffic bypasses VPN](https://issuetracker.google.com/issues/146484540)
-
-Besides these known issues Android has many variants and flavors that may introduce variances to
-the default [Android Open Source Project](https://source.android.com/) behavior. This means that
-the Mullvad VPN app, like all other VPN apps, is subject to the limitations of the VPN Service API.
 
 ### iOS
 
@@ -330,14 +328,6 @@ started early enough to prevent leaks. To prevent this, another system unit is
 started during early boot that applies a blocking policy that persists until the
 `mullvad-daemon` is started.
 
-
-### macOS
-
-Due to the inability to specify dependencies of system services in `launchd` there is no way to
-ensure that our daemon is started before any other service  or program is started.  Thus, whilst our
-daemon will start as soon as it possibly can, there's nothing that can be done about the order in
-which launch daemons get started, so some leaks may still occur.
-
 ## Desktop Electron GUI
 
 The graphical frontend for the app on desktop is an Electron app. This app only ever loads
@@ -355,3 +345,4 @@ network connections. Except when the user sends a problem report, then it spawn 
 [disconnecting]: #disconnecting
 [error]: #error
 [GUI]: #desktop-electron-gui
+[known issues]: ./known-issues.md
