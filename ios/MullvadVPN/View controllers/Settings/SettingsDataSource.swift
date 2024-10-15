@@ -25,11 +25,17 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
         }
     }
 
-    private enum HeaderFooterReuseIdentifier: String, CaseIterable {
+    private enum HeaderFooterReuseIdentifier: String, CaseIterable, HeaderFooterIdentifierProtocol {
+        case primary
         case spacer
 
-        var reusableViewClass: AnyClass {
-            EmptyTableViewHeaderFooterView.self
+        var headerFooterClass: AnyClass {
+            switch self {
+            case .primary:
+                UITableViewHeaderFooterView.self
+            case .spacer:
+                EmptyTableViewHeaderFooterView.self
+            }
         }
     }
 
@@ -38,6 +44,20 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
         case main
         case version
         case problemReport
+
+        var sectionFooter: String? {
+            switch self {
+            case .daita:
+                NSLocalizedString(
+                    "SETTINGS_DAITA_SECTION_FOOTER",
+                    tableName: "Settings",
+                    value: "Makes it possible to use DAITA with any server and is automatically enabled.",
+                    comment: ""
+                )
+            default:
+                nil
+            }
+        }
     }
 
     enum Item: String {
@@ -130,16 +150,43 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
         )
     }
 
-    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
-        nil
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        let sectionIdentifier = snapshot().sectionIdentifiers[section]
+
+        return switch sectionIdentifier {
+        case .main:
+            0
+        case .daita, .version, .problemReport:
+            UITableView.automaticDimension
+        }
     }
 
-    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return UIMetrics.TableView.sectionSpacing
+    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        let sectionIdentifier = snapshot().sectionIdentifiers[section]
+        guard let sectionFooterText = sectionIdentifier.sectionFooter else { return nil }
+
+        guard let headerView = tableView
+            .dequeueReusableView(withIdentifier: HeaderFooterReuseIdentifier.primary)
+        else { return nil }
+
+        var contentConfiguration = UIListContentConfiguration.mullvadGroupedFooter(tableStyle: .plain)
+        contentConfiguration.text = sectionFooterText
+
+        headerView.contentConfiguration = contentConfiguration
+//        headerView.directionalLayoutMargins = UIMetrics.SettingsCell.apiAccessInsetLayoutMargins
+
+        return headerView
     }
 
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-        0
+        let sectionIdentifier = snapshot().sectionIdentifiers[section]
+
+        return switch sectionIdentifier {
+        case .daita:
+            UITableView.automaticDimension
+        case .main, .version, .problemReport:
+            0
+        }
     }
 
     // MARK: - Private
@@ -154,7 +201,7 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
 
         HeaderFooterReuseIdentifier.allCases.forEach { reuseIdentifier in
             tableView?.register(
-                reuseIdentifier.reusableViewClass,
+                reuseIdentifier.headerFooterClass,
                 forHeaderFooterViewReuseIdentifier: reuseIdentifier.rawValue
             )
         }

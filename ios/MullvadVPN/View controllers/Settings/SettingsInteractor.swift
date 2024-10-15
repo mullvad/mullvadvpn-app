@@ -46,7 +46,11 @@ final class SettingsInteractor {
         var tunnelSettings = tunnelSettings
         tunnelSettings.daita = settings
 
-        guard let selectedRelays = try? tunnelManager.selectRelays(tunnelSettings: tunnelSettings) else { return nil }
-        return tunnelSettings.tunnelMultihopState.isEnabled ? .multihop : .singlehop
+        // Return error if no relays could be selected.
+        guard (try? tunnelManager.selectRelays(tunnelSettings: tunnelSettings)) != nil else {
+            return tunnelSettings.tunnelMultihopState.isEnabled ? .multihop : .singlehop
+        }
+
+        return nil
     }
 }
