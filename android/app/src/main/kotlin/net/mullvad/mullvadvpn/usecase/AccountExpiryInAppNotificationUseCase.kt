@@ -1,8 +1,9 @@
 package net.mullvad.mullvadvpn.usecase
 
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
@@ -25,9 +26,10 @@ class AccountExpiryInAppNotificationUseCase(private val accountRepository: Accou
                         )
                         .map { expiresInPeriod -> InAppNotification.AccountExpiry(expiresInPeriod) }
                 } else {
-                    emptyFlow<InAppNotification.AccountExpiry?>()
+                    flowOf(null)
                 }
             }
-            .onStart { emit(null) }
             .map(::listOfNotNull)
+            .onStart { emit(emptyList()) }
+            .distinctUntilChanged()
 }
