@@ -5,7 +5,7 @@
 //  Created by Marco Nikic on 2023-10-02.
 //  Copyright © 2023 Mullvad VPN AB. All rights reserved.
 //
-import MullvadREST
+@testable import MullvadREST
 
 @testable import MullvadMockData
 @testable import MullvadSettings
@@ -24,6 +24,7 @@ class TunnelManagerTests: XCTestCase {
     var accessTokenManager: AccessTokenManagerStub!
     var devicesProxy: DevicesProxyStub!
     var apiProxy: APIProxyStub!
+    var addressCache: REST.AddressCache!
 
     var transportProvider: TransportProvider!
 
@@ -42,9 +43,13 @@ class TunnelManagerTests: XCTestCase {
         accessTokenManager = AccessTokenManagerStub()
         devicesProxy = DevicesProxyStub(deviceResult: .success(Device.mock(publicKey: PrivateKey().publicKey)))
         apiProxy = APIProxyStub()
+        addressCache = REST.AddressCache(
+            canWriteToCache: false,
+            fileCache: MockFileCache(initialState: .fileNotFound)
+        )
 
         transportProvider = TransportProvider(
-            urlSessionTransport: URLSessionTransport(urlSession: REST.makeURLSession()),
+            urlSessionTransport: URLSessionTransport(urlSession: REST.makeURLSession(addressCache: addressCache)),
             addressCache: REST.AddressCache(
                 canWriteToCache: true,
                 cacheDirectory: FileManager.default.temporaryDirectory

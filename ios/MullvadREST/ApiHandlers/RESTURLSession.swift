@@ -7,9 +7,10 @@
 //
 
 import Foundation
+import Network
 
 extension REST {
-    public static func makeURLSession() -> URLSession {
+    public static func makeURLSession(addressCache: AddressCache) -> URLSession {
         let certificatePath = Bundle(for: SSLPinningURLSessionDelegate.self)
             .path(forResource: "le_root_cert", ofType: "cer")!
         let data = FileManager.default.contents(atPath: certificatePath)!
@@ -17,7 +18,8 @@ extension REST {
 
         let sessionDelegate = SSLPinningURLSessionDelegate(
             sslHostname: defaultAPIHostname,
-            trustedRootCertificates: [secCertificate]
+            trustedRootCertificates: [secCertificate],
+            addressCache: addressCache
         )
 
         let sessionConfiguration = URLSessionConfiguration.ephemeral

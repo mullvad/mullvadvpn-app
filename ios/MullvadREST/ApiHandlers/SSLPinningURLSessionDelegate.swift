@@ -14,12 +14,14 @@ import Security
 final class SSLPinningURLSessionDelegate: NSObject, URLSessionDelegate {
     private let sslHostname: String
     private let trustedRootCertificates: [SecCertificate]
+    private let addressCache: REST.AddressCache
 
     private let logger = Logger(label: "SSLPinningURLSessionDelegate")
 
-    init(sslHostname: String, trustedRootCertificates: [SecCertificate]) {
+    init(sslHostname: String, trustedRootCertificates: [SecCertificate], addressCache: REST.AddressCache) {
         self.sslHostname = sslHostname
         self.trustedRootCertificates = trustedRootCertificates
+        self.addressCache = addressCache
     }
 
     // MARK: - URLSessionDelegate
@@ -40,6 +42,7 @@ final class SSLPinningURLSessionDelegate: NSObject, URLSessionDelegate {
                 "\(IPv4Address.loopback)",
                 "\(IPv6Address.loopback)",
                 "\(REST.defaultAPIEndpoint.ip)",
+                "\(addressCache.getCurrentEndpoint().ip)",
             ]
             if overridenHostnames.contains(hostName) {
                 hostName = sslHostname
