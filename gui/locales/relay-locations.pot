@@ -142,6 +142,10 @@ msgstr ""
 msgid "Croatia"
 msgstr ""
 
+#. CY
+msgid "Cyprus"
+msgstr ""
+
 #. CZ
 msgid "Czech Republic"
 msgstr ""
@@ -246,6 +250,10 @@ msgstr ""
 msgid "Israel"
 msgstr ""
 
+#. TR IST
+msgid "Istanbul"
+msgstr ""
+
 #. IT
 msgid "Italy"
 msgstr ""
@@ -276,6 +284,10 @@ msgstr ""
 
 #. LV
 msgid "Latvia"
+msgstr ""
+
+#. PE LIM
+msgid "Lima"
 msgstr ""
 
 #. PT LIS
@@ -366,6 +378,10 @@ msgstr ""
 msgid "New Zealand"
 msgstr ""
 
+#. CY NIC
+msgid "Nicosia"
+msgstr ""
+
 #. RS INI
 msgid "Nis"
 msgstr ""
@@ -400,6 +416,10 @@ msgstr ""
 
 #. AU PER
 msgid "Perth"
+msgstr ""
+
+#. PE
+msgid "Peru"
 msgstr ""
 
 #. US PHL
@@ -572,6 +592,10 @@ msgstr ""
 
 #. CA TOR
 msgid "Toronto"
+msgstr ""
+
+#. TR
+msgid "Turkey"
 msgstr ""
 
 #. GB
