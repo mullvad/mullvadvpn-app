@@ -103,11 +103,14 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ${{ needs.prepare.outputs.container_image }}
+    env:
+      RELAYS_JSON_PATH: android/app/build/extraAssets/relays.json
     steps:
       # Fix for HOME path overridden by GH runners when building in containers, see:
       # https://github.com/actions/runner/issues/863
       - name: Fix HOME path
         run: echo "HOME=/root" >> $GITHUB_ENV
+        shell: bash
 
       - name: Get date
         id: get-date
@@ -118,7 +121,7 @@ jobs:
         uses: actions/cache@v4
         id: cache-relay-list
         with:
-          path: android/app/build/extraAssets/relays.json
+          path: ${{ env.RELAYS_JSON_PATH }}
           key: relay-list-${{ steps.get-date.outputs.date }}
 
       - name: Checkout repository
@@ -127,19 +130,17 @@ jobs:
         with:
           submodules: true
 
-      - name: Generate
+      - name: Generate relay list
         if: steps.cache-relay-list.outputs.cache-hit != 'true'
-        env:
-          RUSTFLAGS: --deny warnings
-        run: |
-          mkdir -p android/app/build/extraAssets
-          cargo run --bin relay_list > android/app/build/extraAssets/relays.json
+        uses: ./.github/actions/android-generate-relay-list
+        with:
+          relays_json_path: ${{ env.RELAYS_JSON_PATH }}
 
       - name: Upload
         uses: actions/upload-artifact@v4
         with:
           name: relay-list
-          path: android/app/build/extraAssets/relays.json
+          path: ${{ env.RELAYS_JSON_PATH }}
           if-no-files-found: error
           retention-days: 7
 
