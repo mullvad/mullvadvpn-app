@@ -55,7 +55,7 @@ jobs:
         if: always()
         with:
           name: test-report-change-dns-settings
-          path: ios/test-report/junit.xml
+          path: ios/test-report/test-report-change-dns-settings.xcresult
 
       - name: Checkout repository to get the current app version
         uses: actions/checkout@v4
@@ -77,7 +77,7 @@ jobs:
         if: always()
         with:
           name: test-report-verify-dns-settings
-          path: ios/test-report/junit.xml
+          path: ios/test-report/test-report-verify-dns-settings.xcresult
 
       - name: Checkout old repository version
         uses: actions/checkout@v4
@@ -101,7 +101,7 @@ jobs:
         if: always()
         with:
           name: test-report-change-all-other-settings
-          path: ios/test-report/junit.xml
+          path: ios/test-report/test-report-change-all-other-settings.xcresult
 
       - name: Checkout repository to get the current app version
         uses: actions/checkout@v4
@@ -113,7 +113,7 @@ jobs:
           ios_device_pin_code: ${{ secrets.IOS_DEVICE_PIN_CODE }}
           test_device_identifier_uuid: ${{ secrets.IOS_TEST_DEVICE_IDENTIFIER_UUID }}
           has_time_account_number: ${{ secrets.IOS_HAS_TIME_ACCOUNT_NUMBER_PRODUCTION }}
-          no_time_account_number: ${{ secrets.IOS_NO_TIME_ACCOUNT_NUMBER_PRODUCTION }}
+          no_time_aÏccount_number: ${{ secrets.IOS_NO_TIME_ACCOUNT_NUMBER_PRODUCTION }}
           test_device_udid: ${{ env.TEST_DEVICE_UDID }}
           partner_api_token: ${{ secrets.STAGEMOLE_PARTNER_AUTH }}
           xcode_test_plan: 'MullvadVPNUITestsVerifySettingsChanged'
@@ -123,4 +123,4 @@ jobs:
         if: always()
         with:
           name: test-report-verify-all-other-settings
-          path: ios/test-report/junit.xml
+          path: ios/test-report/test-report-verify-all-other-settings.xcresult
