@@ -6,7 +6,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.filled.Error
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -71,7 +71,7 @@ private fun ErrorSupportingText(text: String) {
         modifier = Modifier.padding(top = Dimens.miniPadding),
     ) {
         Icon(
-            imageVector = Icons.Default.Warning,
+            imageVector = Icons.Default.Error,
             contentDescription = null,
             modifier = Modifier.size(Dimens.smallIconSize),
             tint = MaterialTheme.colorScheme.error,
