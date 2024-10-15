@@ -83,6 +83,6 @@ internal object PaletteTokens {
 
     // Disabled container colors
     val DisabledContainerPrimary = Color(0xFF1F3A57)
-    val DisabledContainerTiertary = Color(0xFF2A6148)
+    val DisabledContainerTertiary = Color(0xFF2A6148)
     val DisabledContainerDestructive = Color(0xFF6A3540)
 }
