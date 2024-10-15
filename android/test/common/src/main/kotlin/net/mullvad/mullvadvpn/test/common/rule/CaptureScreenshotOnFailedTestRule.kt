@@ -29,11 +29,11 @@ class CaptureScreenshotOnFailedTestRule(private val testTag: String) : TestWatch
     }
 
     private fun captureScreenshot(baseDir: String, filename: String) {
-        val contentResolver = getInstrumentation().targetContext.applicationContext.contentResolver
-        val contentValues = createBaseScreenshotContentValues()
-
         getInstrumentation().uiAutomation.takeScreenshot().apply {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                val contentResolver =
+                    getInstrumentation().targetContext.applicationContext.contentResolver
+                val contentValues = createBaseScreenshotContentValues()
                 writeToMediaStore(
                     contentValues = contentValues,
                     contentResolver = contentResolver,
@@ -41,12 +41,7 @@ class CaptureScreenshotOnFailedTestRule(private val testTag: String) : TestWatch
                     filename = filename,
                 )
             } else {
-                writeToExternalStorage(
-                    contentValues = contentValues,
-                    contentResolver = contentResolver,
-                    baseDir = baseDir,
-                    filename = filename,
-                )
+                writeToExternalStorage(baseDir = baseDir, filename = filename)
             }
         }
     }
@@ -80,12 +75,7 @@ class CaptureScreenshotOnFailedTestRule(private val testTag: String) : TestWatch
         }
     }
 
-    private fun Bitmap.writeToExternalStorage(
-        contentValues: ContentValues,
-        contentResolver: ContentResolver,
-        baseDir: String,
-        filename: String,
-    ) {
+    private fun Bitmap.writeToExternalStorage(baseDir: String, filename: String) {
         val screenshotBaseDirectory =
             Paths.get(
                     Environment.getExternalStoragePublicDirectory(DIRECTORY_PICTURES).path,
@@ -99,12 +89,11 @@ class CaptureScreenshotOnFailedTestRule(private val testTag: String) : TestWatch
                 }
         FileOutputStream(File(screenshotBaseDirectory, filename)).use { outputStream ->
             try {
-                this.compress(Bitmap.CompressFormat.JPEG, 50, outputStream)
+                compress(Bitmap.CompressFormat.JPEG, 50, outputStream)
             } catch (e: IOException) {
                 Logger.e("Unable to store screenshot: ${e.message}")
             }
         }
-        contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
     }
 
     private fun createBaseScreenshotContentValues() =
