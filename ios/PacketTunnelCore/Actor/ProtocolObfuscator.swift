@@ -42,7 +42,7 @@ public class ProtocolObfuscator<Obfuscator: TunnelObfuscation>: ProtocolObfuscat
         let shouldObfuscate = switch settings.obfuscation.state {
         case .automatic:
             retryAttempts % 4 == 2 || retryAttempts % 4 == 3
-        case .on:
+        case .on, .udpOverTcp, .shadowsocks:
             true
         case .off:
             false
@@ -52,15 +52,15 @@ public class ProtocolObfuscator<Obfuscator: TunnelObfuscation>: ProtocolObfuscat
             tunnelObfuscator = nil
             return endpoint
         }
-        var tcpPort = settings.obfuscation.port
+        var tcpPort = settings.obfuscation.udpOverTcpPort
         if tcpPort == .automatic {
             tcpPort = retryAttempts % 2 == 0 ? .port80 : .port5001
         }
         let obfuscator = Obfuscator(
             remoteAddress: obfuscatedEndpoint.ipv4Relay.ip,
-            tcpPort: tcpPort.portValue
+            tcpPort: tcpPort.portValue ?? 0
         )
-        remotePort = tcpPort.portValue
+        remotePort = tcpPort.portValue ?? 0
         obfuscator.start()
         tunnelObfuscator = obfuscator
 

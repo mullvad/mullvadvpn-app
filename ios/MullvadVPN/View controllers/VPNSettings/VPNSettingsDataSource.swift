@@ -79,7 +79,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         case wireGuardObfuscationUdpOverTcp
         case wireGuardObfuscationShadowsocks
         case wireGuardObfuscationOff
-        case wireGuardObfuscationPort(_ port: UInt16)
+        case wireGuardObfuscationPort(_ port: WireGuardObfuscationUdpOverTcpPort)
         case quantumResistanceAutomatic
         case quantumResistanceOn
         case quantumResistanceOff
@@ -107,7 +107,11 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         }
 
         static var wireGuardObfuscationPort: [Item] {
-            [.wireGuardObfuscationPort(0), .wireGuardObfuscationPort(80), .wireGuardObfuscationPort(5001)]
+            [
+                .wireGuardObfuscationPort(.automatic),
+                .wireGuardObfuscationPort(.port80),
+                .wireGuardObfuscationPort(.port5001),
+            ]
         }
 
         static var quantumResistance: [Item] {
@@ -178,7 +182,8 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
     private var obfuscationSettings: WireGuardObfuscationSettings {
         WireGuardObfuscationSettings(
             state: viewModel.obfuscationState,
-            port: viewModel.obfuscationPort
+            udpOverTcpPort: viewModel.obfuscationUpdOverTcpPort,
+            shadowsocksPort: viewModel.obfuscationShadowsocksPort
         )
     }
 
@@ -192,7 +197,8 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         let obfuscationStateItem: Item = switch viewModel.obfuscationState {
         case .automatic: .wireGuardObfuscationAutomatic
         case .off: .wireGuardObfuscationOff
-        case .on: .wireGuardObfuscationUdpOverTcp
+        case .on, .udpOverTcp: .wireGuardObfuscationUdpOverTcp
+        case .shadowsocks: .wireGuardObfuscationShadowsocks
         }
 
         let quantumResistanceItem: Item = switch viewModel.quantumResistance {
@@ -201,7 +207,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         case .on: .quantumResistanceOn
         }
 
-        let obfuscationPortItem: Item = .wireGuardObfuscationPort(viewModel.obfuscationPort.portValue)
+        let obfuscationPortItem: Item = .wireGuardObfuscationPort(viewModel.obfuscationUpdOverTcpPort)
 
         return [
             wireGuardPortItem,
@@ -308,13 +314,13 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
             selectObfuscationState(.automatic)
             delegate?.didUpdateTunnelSettings(TunnelSettingsUpdate.obfuscation(obfuscationSettings))
         case .wireGuardObfuscationUdpOverTcp:
-            selectObfuscationState(.on)
+            selectObfuscationState(.udpOverTcp)
             delegate?.didUpdateTunnelSettings(TunnelSettingsUpdate.obfuscation(obfuscationSettings))
-        // TODO: When ready, add implementation for selected obfuscation.
+        // TODO: When ready, add implementation for selected obfuscation (navigate to new view etc).
         case .wireGuardObfuscationShadowsocks:
-            selectObfuscationState(.on)
+            selectObfuscationState(.shadowsocks)
             delegate?.didUpdateTunnelSettings(TunnelSettingsUpdate.obfuscation(obfuscationSettings))
-        // TODO: When ready, add implementation for selected obfuscation.
+        // TODO: When ready, add implementation for selected obfuscation (navigate to new view etc).
         case .wireGuardObfuscationOff:
             selectObfuscationState(.off)
             delegate?.didUpdateTunnelSettings(TunnelSettingsUpdate.obfuscation(obfuscationSettings))
@@ -656,9 +662,8 @@ extension VPNSettingsDataSource: VPNSettingsCellEventHandler {
         viewModel.setWireGuardObfuscationState(state)
     }
 
-    func selectObfuscationPort(_ port: UInt16) {
-        let selectedPort = WireGuardObfuscationPort(rawValue: port)!
-        viewModel.setWireGuardObfuscationPort(selectedPort)
+    func selectObfuscationPort(_ port: WireGuardObfuscationUdpOverTcpPort) {
+        viewModel.setWireGuardObfuscationUdpOverTcpPort(port)
     }
 
     func selectQuantumResistance(_ state: TunnelQuantumResistance) {
