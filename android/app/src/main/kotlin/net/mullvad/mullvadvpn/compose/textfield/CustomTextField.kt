@@ -1,9 +1,15 @@
 package net.mullvad.mullvadvpn.compose.textfield
 
 import android.text.TextUtils
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Error
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -24,6 +30,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import net.mullvad.mullvadvpn.constant.EMPTY_STRING
 import net.mullvad.mullvadvpn.constant.NEWLINE_STRING
+import net.mullvad.mullvadvpn.lib.theme.Dimens
 
 @Composable
 fun CustomTextField(
@@ -99,4 +106,22 @@ fun CustomTextField(
         supportingText = supportingText,
         label = labelText?.let { { Text(text = labelText) } },
     )
+}
+
+@Composable
+fun ErrorSupportingText(text: String) {
+    Row(modifier = Modifier.padding(top = Dimens.miniPadding)) {
+        Icon(
+            imageVector = Icons.Default.Error,
+            contentDescription = null,
+            modifier = Modifier.size(Dimens.smallIconSize),
+            tint = MaterialTheme.colorScheme.error,
+        )
+        Text(
+            text = text,
+            color = MaterialTheme.colorScheme.onSecondary,
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.padding(horizontal = Dimens.smallPadding),
+        )
+    }
 }

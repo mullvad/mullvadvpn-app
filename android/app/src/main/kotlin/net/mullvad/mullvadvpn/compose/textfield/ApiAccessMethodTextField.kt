@@ -1,17 +1,9 @@
 package net.mullvad.mullvadvpn.compose.textfield
 
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
@@ -62,25 +54,4 @@ fun ApiAccessMethodTextField(
                 imeAction = imeAction,
             ),
     )
-}
-
-@Composable
-private fun ErrorSupportingText(text: String) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.padding(top = Dimens.miniPadding),
-    ) {
-        Icon(
-            imageVector = Icons.Default.Warning,
-            contentDescription = null,
-            modifier = Modifier.size(Dimens.smallIconSize),
-            tint = MaterialTheme.colorScheme.error,
-        )
-        Text(
-            text = text,
-            color = MaterialTheme.colorScheme.onSecondary,
-            style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier.padding(horizontal = Dimens.smallPadding),
-        )
-    }
 }
