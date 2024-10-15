@@ -15,7 +15,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
-import net.mullvad.mullvadvpn.lib.theme.color.warning
 
 @Preview
 @Composable
@@ -42,7 +41,7 @@ fun DnsCell(
                 Icon(
                     imageVector = Icons.Rounded.Error,
                     contentDescription = stringResource(id = R.string.confirm_local_dns),
-                    tint = MaterialTheme.colorScheme.warning,
+                    tint = MaterialTheme.colorScheme.error,
                 )
             }
         },

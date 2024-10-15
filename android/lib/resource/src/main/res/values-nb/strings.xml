@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="account_created">Konto opprettet</string>
     <string name="account_credit_expires_in_a_few_minutes">Kontokreditt utløper om noen få minutter</string>
     <string name="account_credit_expires_soon">Kontokreditt utløper snart</string>
     <string name="account_credit_has_expired">Du har ikke mer VPN-tid igjen på kontoen.</string>
@@ -22,7 +21,6 @@
     <string name="all_applications">Alle applikasjoner</string>
     <string name="all_locations">Alle steder</string>
     <string name="all_providers">Alle leverandører</string>
-    <string name="allow_lan_footer">Gir tilgang til andre enheter på samme nettverk for deling, utskrift osv.</string>
     <string name="always_on_vpn_error_notification_content">Kunne ikke starte tunneltilkobling. Deaktiver VPN som alltid er på, for &lt;b&gt;%1$s&lt;/b&gt; før du bruker Mullvad VPN.</string>
     <string name="always_on_vpn_error_notification_title">VPN som alltid er på, er tilordnet en annen app</string>
     <string name="any">Hvilken som helst</string>
@@ -40,13 +38,11 @@
     <string name="at_least_on_method_needs_to_enabled">Minst én metode må være aktivert</string>
     <string name="auth_failed">Kunne ikke autentisere konto. Send inn en problemrapport.</string>
     <string name="authentication">Autentisering</string>
-    <string name="auto_connect">Automatisk tilkobling</string>
     <string name="auto_connect_and_lockdown_mode">Automatisk tilkobling og låsemodus</string>
     <string name="auto_connect_and_lockdown_mode_footer">Sørger for at enheten alltid er på VPN-tunnelen.</string>
     <string name="auto_connect_carousel_first_slide_top_text">Du finner innstillingene for automatisk tilkobling og låsemodus i Androids systeminnstillinger. Følg denne veiledningen for å aktivere én eller begge.</string>
     <string name="auto_connect_carousel_second_slide_top_text">Automatisk tilkobling heter «Alltid-på-VPN» i Androids systeminnstillinger og sørger for at du alltid er tilkoblet VPN-tunnelen og automatisk tilkobling etter omstart.</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">her</string>
-    <string name="auto_connect_footer_legacy_tv">Koble til automatisk når appen startes. Denne innstillingen vil i en fremtidig oppdatering bli erstattet med en ny funksjon for tilkobling ved oppstart av enheten.</string>
     <string name="auto_connect_legacy">Automatisk tilkobling (eldre)</string>
     <string name="automatic">Automatisk</string>
     <string name="back">Tilbake</string>
@@ -65,19 +61,16 @@
     <string name="changes_dialog_subtitle">Endringer i denne versjonen:</string>
     <string name="cipher">Chiffer</string>
     <string name="close">Lukk</string>
-    <string name="confirm_local_dns">Den lokale DNS-serveren fungerer ikke med mindre du aktiverer «Deling av lokalt nettverk» under Innstillinger.</string>
     <string name="confirm_no_email">Problemrapporten blir nå sendt uten en måte for oss å kontakte deg på. Hvis du ønsker svar på rapporten, må du oppgi en e-postadresse.</string>
     <string name="confirm_removal">Ja, logg av enhet</string>
     <string name="congrats">Gratulerer!</string>
     <string name="connect">Koble til</string>
     <string name="connected">Tilkoblet</string>
-    <string name="connected_using_daita">%1$s bruker %2$s</string>
     <string name="connecting_to_daemon">Kobler til Mullvads systemtjeneste ...</string>
     <string name="connection_details_in">Inngående</string>
     <string name="continue_login">Fortsett med pålogging</string>
     <string name="copied_logs_to_clipboard">Logger kopiert til utklippstavlen</string>
     <string name="copied_mullvad_account_number">Kopierte Mullvad-kontonummer til utklippstavlen</string>
-    <string name="copied_to_clipboard">Kopiert til utklippstavlen</string>
     <string name="copy_account_number">Kopier kontonummer</string>
     <string name="create">Opprett</string>
     <string name="create_account">Opprett konto</string>
@@ -167,7 +160,6 @@
     <string name="ipv6_unavailable">Kunne ikke konfigurere IPv6. Deaktiver den i appen eller aktiver den på enheten din.</string>
     <string name="is_offline">Enheten er frakoblet. Tunnelen vil koble til automatisk når enheten er tilkoblet internett igjen.</string>
     <string name="less_than_a_day_left">mindre enn én dag igjen</string>
-    <string name="less_than_a_minute_ago">mindre enn ett minutt siden</string>
     <string name="less_than_one_day">mindre enn én dag</string>
     <string name="list_name">Listenavn</string>
     <string name="loading_connecting">Kobler til ...</string>
@@ -195,7 +187,6 @@
     <string name="max_devices_warning_description">Logg ut av minst én ved å fjerne den fra listen nedenfor. Du finner det tilsvarende enhetsnavnet under enhetens kontoinnstillinger.</string>
     <string name="max_devices_warning_title">For mange enheter</string>
     <string name="more_information">Mer informasjon</string>
-    <string name="mullvad_account_number">Mullvad-kontonummer</string>
     <string name="mullvad_owned_only">Kun eid av Mullvad</string>
     <string name="name">Navn</string>
     <string name="name_was_changed_to">Navn ble endret til %1$s</string>
@@ -207,16 +198,13 @@
     <string name="no_locations_found">Ingen plasseringer funnet</string>
     <string name="no_matching_relay">Ingen servere passer til innstillingene dine. Prøv å endre server eller andre innstillinger.</string>
     <string name="no_wireguard_key">Det mangler en gyldig WireGuard-nøkkel. Du kan behandle nøklene under avanserte innstillinger.</string>
-    <string name="not_blocking_internet">DET KAN VÆRE EN NETTVERKSLEKKASJE HOS DEG</string>
     <string name="not_found">Ikke funnet</string>
     <string name="number_of_providers">Leverandører: %1$d</string>
     <string name="obfuscation_info">Tilsløring skjuler WireGuard-trafikken i en annen protokoll. Man kan på den måten omgå sensur og andre typer filter i tilfeller der en vanlig WireGuard-tilkobling ville blitt blokkert.</string>
-    <string name="obfuscation_on_udp_over_tcp">På (UDP-over-TCP)</string>
     <string name="obfuscation_title">Tilsløring av WireGuard</string>
     <string name="off">Av</string>
     <string name="on">På</string>
     <string name="open_url">Åpne URL</string>
-    <string name="out_address">Utgående</string>
     <string name="out_of_time">Tiden har utløpt</string>
     <string name="overrides_cleared">Overstyringer fjernet</string>
     <string name="owned">Eid</string>
@@ -258,7 +246,6 @@
     <string name="save">Lagre</string>
     <string name="search_placeholder">Søk etter ...</string>
     <string name="select_location">Velg plassering</string>
-    <string name="select_location_description">Mens du er tilkoblet vil din egentlige plassering være skjult med en privat og sikker plassering i den valgte regionen.</string>
     <string name="select_location_empty_text_first_row">Ingen resultater for &lt;b&gt;%1$s&lt;/b&gt;.</string>
     <string name="select_location_empty_text_second_row">Prøv et annet søk.</string>
     <string name="send">Send</string>
@@ -294,9 +281,7 @@
     <string name="settings_patch_error_unable_to_parse">Kunne ikke analysere oppdatering</string>
     <string name="settings_patch_error_unknown_or_prohibited_key">Ukjent eller forbudt nøkkel «%1$s»</string>
     <string name="settings_patch_success">Importering vellykket. Overstyringer aktive</string>
-    <string name="settings_preferences">Preferanser</string>
     <string name="settings_vpn">VPN-innstillinger</string>
-    <string name="show_account_number">Vis kontonummer</string>
     <string name="show_system_apps">Vis systemapper</string>
     <string name="split_tunneling_description">Lar deg velge apper som skal få tilgang til internett direkte uten å gå gjennom VPN-tunnelen.</string>
     <string name="start_tunnel_error">Kunne ikke starte tunneltilkobling. Send inn en problemrapport.</string>
@@ -313,17 +298,13 @@
     <string name="toggle_vpn">Velg VPN</string>
     <string name="top_bar_device_name">Enhetsnavn: %1$s</string>
     <string name="top_bar_time_left">Tid igjen: %1$s</string>
-    <string name="transport_protocol">Transportprotokoll</string>
     <string name="try_again">Prøv på nytt</string>
     <string name="type">Type</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">TCP-porten som UDP-over-TCP-tilsløringen skal koble til på VPN-serveren.</string>
-    <string name="udp_over_tcp_port_title">UDP-over-TCP-port</string>
     <string name="undo">Angre</string>
     <string name="unsupported_version">VERSJON UTEN STØTTE</string>
     <string name="unsupported_version_description">Personvernet ditt kan være i fare med denne appversjonen som ikke støttes. Oppdater nå.</string>
-    <string name="unsupported_version_without_upgrade">Du kjører en appversjon som ikke støttes.</string>
-    <string name="update_available_footer">Oppdatering tilgjengelig. Last ned for å oppdatere sikkerheten.</string>
     <string name="update_dns_server_dialog_title">Oppdater DNS-serveren</string>
     <string name="update_list_name">Oppdater listenavn</string>
     <string name="use_method">Bruk metode</string>
@@ -333,13 +314,11 @@
     <string name="verifying_api_method">Bekrefter API-metode ...</string>
     <string name="verifying_voucher">Bekrefter kupong …</string>
     <string name="view_logs">Se applogger</string>
-    <string name="virtual_adapter_problem">Virtuell adapterfeil</string>
     <string name="voucher_already_used">Kupongkoden er allerede brukt.</string>
     <string name="voucher_success_title">Kupongkoden er løst inn.</string>
     <string name="vpn_permission_denied_error">VPN-tillatelse ble avvist under opprettelsen av tunnelen. Prøv å koble til igjen.</string>
     <string name="vpn_permission_error_notification_message">VPN som alltid er på, kan være aktivert for en annen app</string>
     <string name="vpn_permission_error_notification_title">Feil med VPN-tillatelse</string>
-    <string name="vpn_settings_not_found">Det er ingen VPN-innstillinger på enheten din</string>
     <string name="we_will_look_into_this">Dette skal vi følge opp.</string>
     <string name="wireguard_custon_port_title">Egendefinert</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
