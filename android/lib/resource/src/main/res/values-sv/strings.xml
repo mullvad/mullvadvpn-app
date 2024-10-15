@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="account_created">Kontot har skapats</string>
     <string name="account_credit_expires_in_a_few_minutes">Kontokrediten slutar gälla om några minuter</string>
     <string name="account_credit_expires_soon">Kontokrediten slutar snart gälla</string>
     <string name="account_credit_has_expired">Du har ingen VPN-tid kvar på det här kontot.</string>
@@ -22,7 +21,6 @@
     <string name="all_applications">Alla applikationer</string>
     <string name="all_locations">Alla platser</string>
     <string name="all_providers">Alla leverantörer</string>
-    <string name="allow_lan_footer">Tillåter åtkomst till andra enheter på samma nätverk för delning, utskrift osv.</string>
     <string name="always_on_vpn_error_notification_content">Det går inte att starta tunnelanslutning. Aktivera VPN som alltid är på för &lt;b&gt;%1$s&lt;/b&gt; innan du använder Mullvad VPN.</string>
     <string name="always_on_vpn_error_notification_title">VPN som alltid är på har tilldelats till annan app</string>
     <string name="any">Valfri</string>
@@ -40,13 +38,11 @@
     <string name="at_least_on_method_needs_to_enabled">Minst en metod måste vara aktiverad</string>
     <string name="auth_failed">Det går inte att autentisera kontot. Skicka en problemrapport.</string>
     <string name="authentication">Autentisering</string>
-    <string name="auto_connect">Anslut automatiskt</string>
     <string name="auto_connect_and_lockdown_mode">Anslut automatiskt och Låsningsläge</string>
     <string name="auto_connect_and_lockdown_mode_footer">Ser till att enheten alltid är i VPN-tunneln.</string>
     <string name="auto_connect_carousel_first_slide_top_text">Inställningar för Anslut automatiskt och Låsningsläge finns i Androids systeminställningar. Följ guiden för att aktivera en av dem eller båda.</string>
     <string name="auto_connect_carousel_second_slide_top_text">Anslut automatiskt kallas Alltid på-VPN i Androids systeminställningar och ser till att du är ansluten till VPN-tunneln oavbrutet och ansluter automatiskt efter omstart.</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">här</string>
-    <string name="auto_connect_footer_legacy_tv">Ansluts automatiskt när appen startar. Inställningen kommer i en kommande uppdatering att ersättas av en ny funktion som ansluter enheten när den startas.</string>
     <string name="auto_connect_legacy">Anslut automatiskt (äldre)</string>
     <string name="automatic">Automatisk</string>
     <string name="back">Tillbaka</string>
@@ -70,13 +66,11 @@
     <string name="congrats">Grattis!</string>
     <string name="connect">Anslut</string>
     <string name="connected">Ansluten</string>
-    <string name="connected_using_daita">%1$s använder %2$s</string>
     <string name="connecting_to_daemon">Ansluter till Mullvads systemtjänst...</string>
     <string name="connection_details_in">In</string>
     <string name="continue_login">Fortsätt med inloggning</string>
     <string name="copied_logs_to_clipboard">Loggarna har kopierats till urklipp</string>
     <string name="copied_mullvad_account_number">Kopierade Mullvad-kontonummer till urklipp</string>
-    <string name="copied_to_clipboard">Kopierat till urklipp</string>
     <string name="copy_account_number">Kopiera kontonummer</string>
     <string name="create">Skapa</string>
     <string name="create_account">Skapa konto</string>
@@ -166,7 +160,6 @@
     <string name="ipv6_unavailable">Det gick inte att konfigurera IPv6. Inaktivera det i appen eller aktivera det på din enhet.</string>
     <string name="is_offline">Din enhet är offline. Tunneln ansluts automatiskt när din enhet är online igen.</string>
     <string name="less_than_a_day_left">mindre än en dag kvar</string>
-    <string name="less_than_a_minute_ago">mindre än en minut sedan</string>
     <string name="less_than_one_day">mindre än en dag</string>
     <string name="list_name">Listnamn</string>
     <string name="loading_connecting">Ansluter ...</string>
@@ -194,7 +187,6 @@
     <string name="max_devices_warning_description">Logga ut på minst en enhet genom att ta bort den från listan nedan. Du hittar motsvarande enhetsnamn i enhetens kontoinställningar.</string>
     <string name="max_devices_warning_title">För många enheter</string>
     <string name="more_information">Mer information</string>
-    <string name="mullvad_account_number">Mullvad-kontonummer</string>
     <string name="mullvad_owned_only">Endast Mullvad-ägd</string>
     <string name="name">Namn</string>
     <string name="name_was_changed_to">Namnet har ändrats till %1$s</string>
@@ -206,16 +198,13 @@
     <string name="no_locations_found">Inga platser hittades</string>
     <string name="no_matching_relay">Inga servrar matchar dina inställningar. Försök att byta server eller ändra inställningarna.</string>
     <string name="no_wireguard_key">Giltig WireGuard-nyckel saknas. Hantera nycklar i Avancerade inställningar.</string>
-    <string name="not_blocking_internet">DU KANSKE HAR LÄCKAGE I NÄTVERKSTRAFIKEN</string>
     <string name="not_found">Hittades inte</string>
     <string name="number_of_providers">Leverantörer: %1$d</string>
     <string name="obfuscation_info">Obfuskering döljer WireGuard-trafik inne i ett annat protokoll. Det kan användas för att kringgå censur och andra filtertyper där en vanlig WireGuard-anslutning skulle blockeras.</string>
-    <string name="obfuscation_on_udp_over_tcp">På (UDP över TCP)</string>
     <string name="obfuscation_title">WireGuard-obfuskering</string>
     <string name="off">Av</string>
     <string name="on">På</string>
     <string name="open_url">Öppna URL</string>
-    <string name="out_address">Ut</string>
     <string name="out_of_time">Ingen tid kvar</string>
     <string name="overrides_cleared">Åsidosättningar rensade</string>
     <string name="owned">Ägd</string>
@@ -257,7 +246,6 @@
     <string name="save">Spara</string>
     <string name="search_placeholder">Sök efter …</string>
     <string name="select_location">Välj plats</string>
-    <string name="select_location_description">Medan du är ansluten maskeras din riktiga plats med en privat och säker plats i den valda regionen.</string>
     <string name="select_location_empty_text_first_row">Inga resultat för &lt;b&gt;%1$s&lt;/b&gt;.</string>
     <string name="select_location_empty_text_second_row">Testa en annan sökning.</string>
     <string name="send">Skicka</string>
@@ -293,9 +281,7 @@
     <string name="settings_patch_error_unable_to_parse">Det går inte att parsa korrigering</string>
     <string name="settings_patch_error_unknown_or_prohibited_key">Okänd eller förbjuden nyckel \"%1$s\"</string>
     <string name="settings_patch_success">Har importerats, åsidosättningar aktiva</string>
-    <string name="settings_preferences">Inställningar</string>
     <string name="settings_vpn">VPN-inställningar</string>
-    <string name="show_account_number">Visa kontonummer</string>
     <string name="show_system_apps">Visa systemappar</string>
     <string name="split_tunneling_description">Låter dig välja appar som ska ge dig direktåtkomst till internet utan att gå igenom VPN-tunneln.</string>
     <string name="start_tunnel_error">Det går inte att starta tunnelanslutning. Skicka en problemrapport.</string>
@@ -312,17 +298,13 @@
     <string name="toggle_vpn">Växla VPN</string>
     <string name="top_bar_device_name">Enhetsnamn: %1$s</string>
     <string name="top_bar_time_left">Tid kvar: %1$s</string>
-    <string name="transport_protocol">Transportprotokoll</string>
     <string name="try_again">Försök igen</string>
     <string name="type">Typ</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">Vilken TCP-port som UDP-över-TCP-obfuskeringsprotokoll bör ansluta till på VPN-servern.</string>
-    <string name="udp_over_tcp_port_title">UDP-över-TCP-port</string>
     <string name="undo">Ångra</string>
     <string name="unsupported_version">VERSION UTAN STÖD</string>
     <string name="unsupported_version_description">Din sekretess kan vara utsatt för risk med den här appversionen som inte stöds. Uppdatera nu.</string>
-    <string name="unsupported_version_without_upgrade">Du kör en appversion som inte stöds.</string>
-    <string name="update_available_footer">Uppdatering tillgänglig. Ladda ned för att vara säker.</string>
     <string name="update_dns_server_dialog_title">Uppdatera DNS-server</string>
     <string name="update_list_name">Uppdatera listnamn</string>
     <string name="use_method">Använd metod</string>
@@ -332,13 +314,11 @@
     <string name="verifying_api_method">Verifierar API-metod ...</string>
     <string name="verifying_voucher">Verifierar kupong …</string>
     <string name="view_logs">Visa appens loggar</string>
-    <string name="virtual_adapter_problem">Fel med virtuell adapter</string>
     <string name="voucher_already_used">Kupongkoden har redan använts.</string>
     <string name="voucher_success_title">Kupongen har lösts in.</string>
     <string name="vpn_permission_denied_error">VPN-behörighet nekades när tunneln skapades. Försök att ansluta igen.</string>
     <string name="vpn_permission_error_notification_message">VPN som alltid är på kan ha aktiverats för annan app</string>
     <string name="vpn_permission_error_notification_title">Behörighetsfel med VPN</string>
-    <string name="vpn_settings_not_found">Det finns inga VPN-inställningar på din enhet</string>
     <string name="we_will_look_into_this">Vi kommer att undersöka detta.</string>
     <string name="wireguard_custon_port_title">Anpassad</string>
     <string name="wireguard_mtu">WireGuard MTU</string>

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="account_created">Cuenta creada</string>
     <string name="account_credit_expires_in_a_few_minutes">El crédito de la cuenta caduca en unos minutos</string>
     <string name="account_credit_expires_soon">El crédito de la cuenta caduca pronto</string>
     <string name="account_credit_has_expired">No queda tiempo de uso de VPN en la cuenta.</string>
@@ -22,7 +21,6 @@
     <string name="all_applications">Todas las aplicaciones</string>
     <string name="all_locations">Todas las ubicaciones</string>
     <string name="all_providers">Todos los proveedores</string>
-    <string name="allow_lan_footer">Permite el acceso a otros dispositivos de la misma red para compartir, imprimir, etc.</string>
     <string name="always_on_vpn_error_notification_content">No se puede iniciar la conexión de túnel. Deshabilite la VPN siempre activa en &lt;b&gt;%1$s&lt;/b&gt; antes de utilizar la VPN de Mullvad.</string>
     <string name="always_on_vpn_error_notification_title">La VPN siempre activa se ha asignado a otra aplicación</string>
     <string name="any">Cualquiera</string>
@@ -40,13 +38,11 @@
     <string name="at_least_on_method_needs_to_enabled">Se debe habilitar al menos un método</string>
     <string name="auth_failed">No se puede autenticar la cuenta. Envíe un informe de problemas.</string>
     <string name="authentication">Autenticación</string>
-    <string name="auto_connect">Conexión automática</string>
     <string name="auto_connect_and_lockdown_mode">Conexión automática y modo de bloqueo</string>
     <string name="auto_connect_and_lockdown_mode_footer">Asegura que el dispositivo esté siempre activado en el túnel de la VPN.</string>
     <string name="auto_connect_carousel_first_slide_top_text">La configuración del modo de bloqueo y de la conexión automática puede encontrarse en la configuración del sistema Android, siga esta guía para habilitar uno o ambos.</string>
     <string name="auto_connect_carousel_second_slide_top_text">La conexión automática se llama VPN siempre activa en la configuración del sistema Android y asegura estar conectado constantemente al túnel de la VPN y conectarse automáticamente después de cada reinicio.</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">aquí</string>
-    <string name="auto_connect_footer_legacy_tv">Conectar automáticamente cuando se inicie la aplicación. Este ajuste se reemplazará por una conexión nueva en la función de inicio de dispositivo en una futura actualización.</string>
     <string name="auto_connect_legacy">Conexión automática (heredada)</string>
     <string name="automatic">Automático</string>
     <string name="back">Volver</string>
@@ -70,13 +66,11 @@
     <string name="congrats">¡Enhorabuena!</string>
     <string name="connect">Conectar</string>
     <string name="connected">Conectado</string>
-    <string name="connected_using_daita">%1$s utilizando %2$s</string>
     <string name="connecting_to_daemon">Conectando al servicio del sistema Mullvad…</string>
     <string name="connection_details_in">Entrada</string>
     <string name="continue_login">Iniciar sesión</string>
     <string name="copied_logs_to_clipboard">Registros copiados en el portapapeles</string>
     <string name="copied_mullvad_account_number">El número de cuenta de Mullvad se copió en el Portapapeles</string>
-    <string name="copied_to_clipboard">Copiado en el Portapapeles</string>
     <string name="copy_account_number">Copiar número de cuenta</string>
     <string name="create">Crear</string>
     <string name="create_account">Crear cuenta</string>
@@ -166,7 +160,6 @@
     <string name="ipv6_unavailable">No se pudo configurar IPv6. Desactívelo en la aplicación o actívelo en el dispositivo.</string>
     <string name="is_offline">El dispositivo está sin conexión. El túnel se conectará automáticamente cuando el dispositivo vuelva a estar en línea.</string>
     <string name="less_than_a_day_left">queda menos de un día</string>
-    <string name="less_than_a_minute_ago">hace menos de un minuto</string>
     <string name="less_than_one_day">menos de un día</string>
     <string name="list_name">Nombre de la lista</string>
     <string name="loading_connecting">Conectando...</string>
@@ -194,7 +187,6 @@
     <string name="max_devices_warning_description">Cierre la sesión como mínimo en un dispositivo (para hacerlo, quítelo de la lista siguiente). Consulte el nombre del dispositivo en la configuración de la cuenta del dispositivo.</string>
     <string name="max_devices_warning_title">Demasiados dispositivos</string>
     <string name="more_information">Más información</string>
-    <string name="mullvad_account_number">Número de cuenta de Mullvad</string>
     <string name="mullvad_owned_only">Solo propiedad de Mullvad</string>
     <string name="name">Nombre</string>
     <string name="name_was_changed_to">Se ha cambiado el nombre a %1$s</string>
@@ -206,16 +198,13 @@
     <string name="no_locations_found">No se ha encontrado ninguna ubicación</string>
     <string name="no_matching_relay">Ningún servidor coincide con su configuración, pruebe con otro servidor u otra configuración.</string>
     <string name="no_wireguard_key">Falta una clave de WireGuard válida. Para administrar las claves, vaya a Configuración avanzada.</string>
-    <string name="not_blocking_internet">PUEDE QUE SE ESTÉ FILTRANDO EL TRÁFICO DE RED</string>
     <string name="not_found">No encontrado</string>
     <string name="number_of_providers">Proveedores: %1$d</string>
     <string name="obfuscation_info">La ofuscación oculta el tráfico de WireGuard dentro de otro protocolo. Puede usarse para sortear la censura y otros tipos de filtrado donde podría bloquearse una conexión de WireGuard normal.</string>
-    <string name="obfuscation_on_udp_over_tcp">Activado (UDP sobre TCP)</string>
     <string name="obfuscation_title">Ofuscación de WireGuard</string>
     <string name="off">Desactivado</string>
     <string name="on">Activado</string>
     <string name="open_url">Abrir URL</string>
-    <string name="out_address">Salida</string>
     <string name="out_of_time">Tiempo agotado</string>
     <string name="overrides_cleared">Anulaciones borradas</string>
     <string name="owned">Propios</string>
@@ -257,7 +246,6 @@
     <string name="save">Guardar</string>
     <string name="search_placeholder">Buscar...</string>
     <string name="select_location">Seleccionar ubicación</string>
-    <string name="select_location_description">Mientras esté conectado, su ubicación real permanecerá oculta con una ubicación privada y segura en la región seleccionada.</string>
     <string name="select_location_empty_text_first_row">No hay resultados para &lt;b&gt;%1$s&lt;/b&gt;.</string>
     <string name="select_location_empty_text_second_row">Pruebe con otra búsqueda.</string>
     <string name="send">Enviar</string>
@@ -293,9 +281,7 @@
     <string name="settings_patch_error_unable_to_parse">No se puede analizar el parche</string>
     <string name="settings_patch_error_unknown_or_prohibited_key">Clave «%1$s» desconocida o prohibida</string>
     <string name="settings_patch_success">Importación realizada correctamente. Anulaciones activas</string>
-    <string name="settings_preferences">Preferencias</string>
     <string name="settings_vpn">Configuración de VPN</string>
-    <string name="show_account_number">Mostrar número de cuenta</string>
     <string name="show_system_apps">Mostrar aplicaciones del sistema</string>
     <string name="split_tunneling_description">Le permite seleccionar aplicaciones que deberían acceder a Internet directamente sin pasar por el túnel VPN.</string>
     <string name="start_tunnel_error">No se puede iniciar la conexión del túnel. Envíe un informe de problemas.</string>
@@ -312,17 +298,13 @@
     <string name="toggle_vpn">Alternar VPN</string>
     <string name="top_bar_device_name">Nombre del dispositivo: %1$s</string>
     <string name="top_bar_time_left">Tiempo restante: %1$s</string>
-    <string name="transport_protocol">Protocolo de transporte</string>
     <string name="try_again">Volver a intentarlo</string>
     <string name="type">Tipo</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">El puerto TCP al que se conectará el protocolo de ofuscación de UDP sobre TCP en el servidor VPN.</string>
-    <string name="udp_over_tcp_port_title">Puerto de UDP sobre TCP</string>
     <string name="undo">Deshacer</string>
     <string name="unsupported_version">VERSIÓN NO ADMITIDA</string>
     <string name="unsupported_version_description">Al usar esta versión obsoleta de la aplicación, es posible que su privacidad esté en riesgo. Actualice ahora.</string>
-    <string name="unsupported_version_without_upgrade">Ejecuta una versión de la aplicación que no es compatible.</string>
-    <string name="update_available_footer">Hay una actualización disponible, descárguela para seguir protegido.</string>
     <string name="update_dns_server_dialog_title">Actualizar servidor DNS</string>
     <string name="update_list_name">Actualizar nombre de la lista</string>
     <string name="use_method">Utilizar método</string>
@@ -332,13 +314,11 @@
     <string name="verifying_api_method">Verificando método de API...</string>
     <string name="verifying_voucher">Verificando el cupón…</string>
     <string name="view_logs">Ver registros de la aplicación</string>
-    <string name="virtual_adapter_problem">Error del adaptador virtual</string>
     <string name="voucher_already_used">El código del cupón ya se ha usado.</string>
     <string name="voucher_success_title">El cupón se canjeó correctamente.</string>
     <string name="vpn_permission_denied_error">Se denegó el permiso para usar una conexión VPN al crear el túnel. Intente volver a establecer la conexión.</string>
     <string name="vpn_permission_error_notification_message">La VPN siempre activa podría estar habilitada en otra aplicación</string>
     <string name="vpn_permission_error_notification_title">Error en la autorización de la VPN</string>
-    <string name="vpn_settings_not_found">No hay configuración de VPN en su dispositivo</string>
     <string name="we_will_look_into_this">Revisaremos esto.</string>
     <string name="wireguard_custon_port_title">Personalizado</string>
     <string name="wireguard_mtu">MTU de WireGuard</string>

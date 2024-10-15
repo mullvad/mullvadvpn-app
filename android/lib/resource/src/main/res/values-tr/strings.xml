@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="account_created">Hesap oluşturuldu</string>
     <string name="account_credit_expires_in_a_few_minutes">Hesap kredisinin süresi birkaç dakika içinde doluyor</string>
     <string name="account_credit_expires_soon">Hesap kredisinin süresi yakında doluyor</string>
     <string name="account_credit_has_expired">Bu hesap için artık VPN süreniz kalmadı.</string>
@@ -22,7 +21,6 @@
     <string name="all_applications">Tüm uygulamalar</string>
     <string name="all_locations">Tüm konumlar</string>
     <string name="all_providers">Tüm hizmet sağlayıcılar</string>
-    <string name="allow_lan_footer">Paylaşım, yazdırma gibi özellikler için aynı ağdaki diğer cihazlara erişim izni verir.</string>
     <string name="always_on_vpn_error_notification_content">Tünel bağlantısı başlatılamıyor. Mullvad VPN\'i kullanmadan önce lütfen Her zaman açık VPN\'i &lt;b&gt;%1$s&lt;/b&gt; için devre dışı bırakın.</string>
     <string name="always_on_vpn_error_notification_title">Her zaman açık VPN başka bir uygulamaya atandı</string>
     <string name="any">Tümü</string>
@@ -40,13 +38,11 @@
     <string name="at_least_on_method_needs_to_enabled">En az bir yöntemin etkinleştirilmesi gerekiyor</string>
     <string name="auth_failed">Hesap doğrulanamıyor. Lütfen bir hata raporu gönderin.</string>
     <string name="authentication">Yetkilendirme</string>
-    <string name="auto_connect">Otomatik Bağlan</string>
     <string name="auto_connect_and_lockdown_mode">Otomatik bağlantı ve Kilitleme modu</string>
     <string name="auto_connect_and_lockdown_mode_footer">Cihazın her zaman VPN tünelinde olduğundan emin olun.</string>
     <string name="auto_connect_carousel_first_slide_top_text">Otomatik Bağlantı ve Kilitleme modu ayarları Android sistem ayarlarında yer alır. Bu ayarlardan birini veya her ikisini de etkinleştirmek için bu kılavuza göz atın.</string>
     <string name="auto_connect_carousel_second_slide_top_text">Otomatik bağlantı, Android sistem ayarlarında VPN her zaman açık olarak gösterilir ve VPN tüneline sürekli bağlı olmanızı ve yeniden başlatma sonrası otomatik olarak bağlanmanızı sağlar.</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">burada</string>
-    <string name="auto_connect_footer_legacy_tv">Uygulama başlatıldığında otomatik olarak bağlanır. Bu ayar, daha sonraki bir güncellemede yeni bir cihazda bağlantı başlatma özelliğiyle değiştirilecektir.</string>
     <string name="auto_connect_legacy">Otomatik bağlan (eski)</string>
     <string name="automatic">Otomatik</string>
     <string name="back">Geri</string>
@@ -70,13 +66,11 @@
     <string name="congrats">Tebrikler!</string>
     <string name="connect">Bağlan</string>
     <string name="connected">Bağlandı</string>
-    <string name="connected_using_daita">%1$s, %2$s kullanıyor</string>
     <string name="connecting_to_daemon">Mullvad sistem hizmetlerine bağlanılıyor...</string>
     <string name="connection_details_in">Giriş</string>
     <string name="continue_login">Giriş yapmak için devam et</string>
     <string name="copied_logs_to_clipboard">Günlükler panoya kopyalandı</string>
     <string name="copied_mullvad_account_number">Mullvad hesap numarası panoya kopyalandı</string>
-    <string name="copied_to_clipboard">Panoya kopyalandı</string>
     <string name="copy_account_number">Hesap numarasını kopyala</string>
     <string name="create">Oluştur</string>
     <string name="create_account">Hesap oluştur</string>
@@ -166,7 +160,6 @@
     <string name="ipv6_unavailable">IPv6 yapılandırılamadı. IPv6\'yı uygulamada devre dışı bırakın veya cihazınızda etkinleştirin.</string>
     <string name="is_offline">Cihazınız çevrimdışı. Cihazınız tekrar çevrimiçi olduğunda tünel otomatik olarak bağlanacak.</string>
     <string name="less_than_a_day_left">bir günden az kaldı</string>
-    <string name="less_than_a_minute_ago">bir dakikadan az</string>
     <string name="less_than_one_day">bir günden az</string>
     <string name="list_name">Liste adı</string>
     <string name="loading_connecting">Bağlanılıyor...</string>
@@ -194,7 +187,6 @@
     <string name="max_devices_warning_description">Lütfen aşağıdaki listeden en az bir cihazı kaldırarak çıkış yapın. İlgili cihaz adını cihazın Hesap ayarları altında bulabilirsiniz.</string>
     <string name="max_devices_warning_title">Cihaz sayısı çok fazla</string>
     <string name="more_information">Daha fazla bilgi</string>
-    <string name="mullvad_account_number">Mullvad hesap numarası</string>
     <string name="mullvad_owned_only">Sadece Mullvad\'a ait olanlar</string>
     <string name="name">Ad</string>
     <string name="name_was_changed_to">Ad, %1$s olarak değiştirildi</string>
@@ -206,16 +198,13 @@
     <string name="no_locations_found">Konum bulunamadı</string>
     <string name="no_matching_relay">Ayarlarınızla eşleşen sunucu yok. Sunucuyu veya diğer ayarları değiştirmeyi deneyin.</string>
     <string name="no_wireguard_key">Geçerli WireGuard anahtarı eksik. Gelişmiş ayarlardan anahtarları yönetin.</string>
-    <string name="not_blocking_internet">AĞ TRAFİĞİNİZDE SIZINTI OLABİLİR</string>
     <string name="not_found">Bulunamadı</string>
     <string name="number_of_providers">Hizmet sağlayıcılar: %1$d</string>
     <string name="obfuscation_info">Gizleme, WireGuard trafiğini başka bir protokolün içinde gizler. Normal bir WireGuard bağlantısının engelleneceği sansürü ve diğer filtreleme türlerini aşmaya yardımcı olmak için kullanılabilir.</string>
-    <string name="obfuscation_on_udp_over_tcp">Açık (TCP üzerinden UDP)</string>
     <string name="obfuscation_title">WireGuard gizlemesi</string>
     <string name="off">Kapalı</string>
     <string name="on">Açık</string>
     <string name="open_url">URL\'yi aç</string>
-    <string name="out_address">Çıkış</string>
     <string name="out_of_time">Süre doldu</string>
     <string name="overrides_cleared">Geçersiz kılmalar temizlendi</string>
     <string name="owned">Tarafımıza ait olanlar</string>
@@ -257,7 +246,6 @@
     <string name="save">Kaydet</string>
     <string name="search_placeholder">Ara...</string>
     <string name="select_location">Konum seçin</string>
-    <string name="select_location_description">Bağlıyken gerçek konumunuz, seçilen bölgedeki özel ve gizli bir konumla maskelenir.</string>
     <string name="select_location_empty_text_first_row">&lt;b&gt;%1$s&lt;/b&gt; için sonuç bulunamadı.</string>
     <string name="select_location_empty_text_second_row">Farklı bir arama deneyin.</string>
     <string name="send">Gönder</string>
@@ -293,9 +281,7 @@
     <string name="settings_patch_error_unable_to_parse">Yama ayrıştırılamıyor</string>
     <string name="settings_patch_error_unknown_or_prohibited_key">Bilinmeyen veya yasaklanmış \"%1$s\" anahtarı</string>
     <string name="settings_patch_success">İçe aktarma başarılı, geçersiz kılmalar etkin</string>
-    <string name="settings_preferences">Tercihler</string>
     <string name="settings_vpn">VPN ayarları</string>
-    <string name="show_account_number">Hesap numarasını göster</string>
     <string name="show_system_apps">Sistem uygulamalarını göster</string>
     <string name="split_tunneling_description">VPN tünelinden geçmeden doğrudan internete erişmesi gereken uygulamaları seçmenizi sağlar.</string>
     <string name="start_tunnel_error">Tünel bağlantısı başlatılamıyor. Lütfen bir hata raporu gönderin.</string>
@@ -312,17 +298,13 @@
     <string name="toggle_vpn">VPN\'i aç/kapat</string>
     <string name="top_bar_device_name">Cihaz adı: %1$s</string>
     <string name="top_bar_time_left">Kalan süre: %1$s</string>
-    <string name="transport_protocol">Taşıma protokolü</string>
     <string name="try_again">Tekrar dene</string>
     <string name="type">Tür</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">TCP üzerinden UDP gizleme protokolünün VPN sunucusunda hangi TCP portuna bağlanması gerekiyor.</string>
-    <string name="udp_over_tcp_port_title">TCP üzerinden UDP portu</string>
     <string name="undo">Geri al</string>
     <string name="unsupported_version">DESTEKLENMEYEN SÜRÜM</string>
     <string name="unsupported_version_description">Bu desteklenmeyen uygulama sürümüyle gizliliğiniz risk altında olabilir. Lütfen hemen güncelleyin.</string>
-    <string name="unsupported_version_without_upgrade">Desteklenmeyen bir uygulama sürümünü kullanıyorsunuz.</string>
-    <string name="update_available_footer">Güncelleme mevcut, güvende kalmak için güncellemeyi indirin.</string>
     <string name="update_dns_server_dialog_title">DNS sunucusunu güncelle</string>
     <string name="update_list_name">Liste adını güncelle</string>
     <string name="use_method">Yöntemi kullan</string>
@@ -332,13 +314,11 @@
     <string name="verifying_api_method">API yöntemi doğrulanıyor...</string>
     <string name="verifying_voucher">Kupon doğrulanıyor…</string>
     <string name="view_logs">Uygulama kayıtlarını görüntüle</string>
-    <string name="virtual_adapter_problem">Sanal adaptör hatası</string>
     <string name="voucher_already_used">Kupon kodu zaten kullanılmış.</string>
     <string name="voucher_success_title">Kupon başarıyla kullanıldı.</string>
     <string name="vpn_permission_denied_error">Tünel oluşturulurken VPN izni reddedildi. Lütfen tekrar bağlanmayı deneyin.</string>
     <string name="vpn_permission_error_notification_message">Her zaman açık VPN başka bir uygulama için etkinleştirilebilir</string>
     <string name="vpn_permission_error_notification_title">VPN izin hatası</string>
-    <string name="vpn_settings_not_found">Cihazınızda VPN ayarları belirlenmemiş</string>
     <string name="we_will_look_into_this">Bunu araştıracağız.</string>
     <string name="wireguard_custon_port_title">Özel</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
