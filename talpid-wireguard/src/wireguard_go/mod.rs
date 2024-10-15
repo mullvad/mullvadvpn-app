@@ -61,7 +61,7 @@ pub struct WgGoTunnel {
 }
 
 // TODO: move into impl of Config
-fn exit_config(multihop_config: &Config) -> Option<Config> {
+pub(crate) fn exit_config(multihop_config: &Config) -> Option<Config> {
     let mut exit_config = multihop_config.clone();
     exit_config.entry_peer = multihop_config.exit_peer.clone()?;
     Some(exit_config)
@@ -80,15 +80,16 @@ fn private_ip(config: &Config) -> CString {
         .tunnel
         .addresses
         .iter()
-        .find(|addr| matches!(addr, IpAddr::V4(_))) {
-            CString::new(ip.to_string()).unwrap()
-        }
-    else {
+        .find(|addr| matches!(addr, IpAddr::V4(_)))
+    {
+        CString::new(ip.to_string()).unwrap()
+    } else {
         CString::default()
     }
 }
 
 impl WgGoTunnel {
+    #[cfg(not(target_os = "android"))]
     pub fn start_tunnel(
         config: &Config,
         log_path: Option<&Path>,
@@ -96,11 +97,7 @@ impl WgGoTunnel {
         routes: impl Iterator<Item = IpNetwork>,
         #[cfg(daita)] resource_dir: &Path,
     ) -> Result<Self> {
-        #[cfg(target_os = "android")]
-        let tun_provider_clone = tun_provider.clone();
-
-        #[cfg_attr(not(target_os = "android"), allow(unused_mut))]
-        let (mut tunnel_device, tunnel_fd) = Self::get_tunnel(tun_provider, config, routes)?;
+        let (tunnel_device, tunnel_fd) = Self::get_tunnel(tun_provider, config, routes)?;
 
         let interface_name: String = tunnel_device.interface_name().to_string();
         let wg_config_str = config.to_userspace_format();
@@ -108,47 +105,9 @@ impl WgGoTunnel {
             .map(LoggingContext)
             .map_err(TunnelError::LoggingError)?;
 
-        #[cfg(not(target_os = "android"))]
         let mtu = config.mtu as isize;
 
-        let entry_config = entry_config(config);
-        let exit_config = exit_config(config);
-
-        #[cfg(target_os = "android")]
-        if let Some(exit_config) = exit_config {
-            let entry_config_str = entry_config.to_userspace_format();
-            let exit_config_str = exit_config.to_userspace_format();
-            let private_ip = private_ip(config);
-
-            let handle = wireguard_go_rs::Tunnel::turn_on_multihop(
-                &exit_config_str,
-                &entry_config_str,
-                &private_ip,
-                tunnel_fd,
-                Some(logging::wg_go_logging_callback),
-                logging_context.0,
-            )
-            .map_err(|e| TunnelError::FatalStartWireguardError(Box::new(e)))?;
-
-
-            Self::bypass_tunnel_sockets(&handle, &mut tunnel_device)
-                .map_err(TunnelError::BypassError)?;
-
-            return Ok(WgGoTunnel {
-                interface_name,
-                tunnel_handle: handle,
-                _tunnel_device: tunnel_device,
-                _logging_context: logging_context,
-                tun_provider: tun_provider_clone,
-                #[cfg(daita)]
-                resource_dir: resource_dir.to_owned(),
-                #[cfg(daita)]
-                config: config.clone(),
-            });
-        }
-
         let handle = wireguard_go_rs::Tunnel::turn_on(
-            #[cfg(not(target_os = "android"))]
             mtu,
             &wg_config_str,
             tunnel_fd,
@@ -157,7 +116,44 @@ impl WgGoTunnel {
         )
         .map_err(|e| TunnelError::FatalStartWireguardError(Box::new(e)))?;
 
-        #[cfg(target_os = "android")]
+        Ok(WgGoTunnel {
+            interface_name,
+            tunnel_handle: handle,
+            _tunnel_device: tunnel_device,
+            _logging_context: logging_context,
+            #[cfg(daita)]
+            resource_dir: resource_dir.to_owned(),
+            #[cfg(daita)]
+            config: config.clone(),
+        })
+    }
+
+    #[cfg(target_os = "android")]
+    pub fn start_tunnel(
+        config: &Config,
+        log_path: Option<&Path>,
+        tun_provider: Arc<Mutex<TunProvider>>,
+        routes: impl Iterator<Item = IpNetwork>,
+        #[cfg(daita)] resource_dir: &Path,
+    ) -> Result<Self> {
+        let tun_provider_clone = tun_provider.clone();
+
+        let (mut tunnel_device, tunnel_fd) = Self::get_tunnel(tun_provider, config, routes)?;
+
+        let interface_name: String = tunnel_device.interface_name().to_string();
+        let wg_config_str = config.to_userspace_format();
+        let logging_context = initialize_logging(log_path)
+            .map(LoggingContext)
+            .map_err(TunnelError::LoggingError)?;
+
+        let handle = wireguard_go_rs::Tunnel::turn_on(
+            &wg_config_str,
+            tunnel_fd,
+            Some(logging::wg_go_logging_callback),
+            logging_context.0,
+        )
+        .map_err(|e| TunnelError::FatalStartWireguardError(Box::new(e)))?;
+
         Self::bypass_tunnel_sockets(&handle, &mut tunnel_device)
             .map_err(TunnelError::BypassError)?;
 
@@ -166,7 +162,58 @@ impl WgGoTunnel {
             tunnel_handle: handle,
             _tunnel_device: tunnel_device,
             _logging_context: logging_context,
-            #[cfg(target_os = "android")]
+            tun_provider: tun_provider_clone,
+            #[cfg(daita)]
+            resource_dir: resource_dir.to_owned(),
+            #[cfg(daita)]
+            config: config.clone(),
+        })
+    }
+
+    #[cfg(target_os = "android")]
+    pub fn start_multihop_tunnel(
+        config: &Config,
+        log_path: Option<&Path>,
+        tun_provider: Arc<Mutex<TunProvider>>,
+        routes: impl Iterator<Item = IpNetwork>,
+        #[cfg(daita)] resource_dir: &Path,
+    ) -> Result<Self> {
+        let tun_provider_clone = tun_provider.clone();
+
+        let (mut tunnel_device, tunnel_fd) = Self::get_tunnel(tun_provider, config, routes)?;
+
+        let interface_name: String = tunnel_device.interface_name().to_string();
+        let logging_context = initialize_logging(log_path)
+            .map(LoggingContext)
+            .map_err(TunnelError::LoggingError)?;
+
+        let entry_config = entry_config(config);
+        let exit_config = exit_config(config);
+
+        // multihop
+        let exit_config = exit_config.unwrap();
+        let entry_config_str = entry_config.to_userspace_format();
+        let exit_config_str = exit_config.to_userspace_format();
+        let private_ip = private_ip(config);
+
+        let handle = wireguard_go_rs::Tunnel::turn_on_multihop(
+            &exit_config_str,
+            &entry_config_str,
+            &private_ip,
+            tunnel_fd,
+            Some(logging::wg_go_logging_callback),
+            logging_context.0,
+        )
+        .map_err(|e| TunnelError::FatalStartWireguardError(Box::new(e)))?;
+
+        Self::bypass_tunnel_sockets(&handle, &mut tunnel_device)
+            .map_err(TunnelError::BypassError)?;
+
+        Ok(WgGoTunnel {
+            interface_name,
+            tunnel_handle: handle,
+            _tunnel_device: tunnel_device,
+            _logging_context: logging_context,
             tun_provider: tun_provider_clone,
             #[cfg(daita)]
             resource_dir: resource_dir.to_owned(),
