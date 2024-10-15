@@ -44,7 +44,7 @@ final class LocationViewControllerWrapper: UIViewController {
         }
     }
 
-    private var entryLocationViewController: LocationViewController
+    private var entryLocationViewController: LocationViewController?
     private let exitLocationViewController: LocationViewController
     private let segmentedControl = UISegmentedControl()
     private let locationViewContainer = UIStackView()
@@ -71,14 +71,16 @@ final class LocationViewControllerWrapper: UIViewController {
         selectedEntry = constraints.entryLocations.value
         selectedExit = constraints.exitLocations.value
 
-        entryLocationViewController = LocationViewController(
-            customListRepository: customListRepository,
-            selectedRelays: RelaySelection(),
-            shouldFilterDaita: daitaSettings.shouldDoDirectOnly
-        )
+        if multihopEnabled {
+            entryLocationViewController = LocationViewController(
+                customListRepository: customListRepository,
+                selectedRelays: RelaySelection(),
+                shouldFilterDaita: daitaSettings.shouldDoDirectOnly
+            )
 
-        if daitaSettings.shouldDoAutomaticRouting {
-            entryLocationViewController.addDaitaInfoView()
+            if daitaSettings.shouldDoAutomaticRouting {
+                entryLocationViewController?.addDaitaInfoView()
+            }
         }
 
         exitLocationViewController = LocationViewController(
@@ -121,7 +123,7 @@ final class LocationViewControllerWrapper: UIViewController {
         }
 
         if multihopEnabled {
-            entryLocationViewController.setRelaysWithLocation(daitaFilteredRelays, filter: filter)
+            entryLocationViewController?.setRelaysWithLocation(daitaFilteredRelays, filter: filter)
             exitLocationViewController.setRelaysWithLocation(relaysWithLocation, filter: filter)
         } else {
             exitLocationViewController.setRelaysWithLocation(daitaFilteredRelays, filter: filter)
@@ -139,12 +141,12 @@ final class LocationViewControllerWrapper: UIViewController {
         guard multihopEnabled else { return }
 
         setRelaysWithLocation(relaysWithLocation, filter: filter)
-        entryLocationViewController.setShouldFilterDaita(settings.shouldDoDirectOnly)
+        entryLocationViewController?.setShouldFilterDaita(settings.shouldDoDirectOnly)
 
         if daitaSettings.shouldDoAutomaticRouting {
-            entryLocationViewController.addDaitaInfoView()
+            entryLocationViewController?.addDaitaInfoView()
         } else if daitaSettings.shouldDoDirectOnly {
-            entryLocationViewController.removeDaitaInfoView()
+            entryLocationViewController?.removeDaitaInfoView()
         }
     }
 
@@ -235,7 +237,11 @@ final class LocationViewControllerWrapper: UIViewController {
             view.removeFromSuperview()
         }
 
-        let (selectedRelays, oldViewController, newViewController) = switch multihopContext {
+        var selectedRelays: RelaySelection
+        var oldViewController: LocationViewController?
+        var newViewController: LocationViewController?
+
+        (selectedRelays, oldViewController, newViewController) = switch multihopContext {
         case .entry:
             (
                 RelaySelection(
@@ -258,12 +264,16 @@ final class LocationViewControllerWrapper: UIViewController {
             )
         }
 
-        oldViewController.removeFromParent()
-        newViewController.setSelectedRelays(selectedRelays)
-        addChild(newViewController)
-        newViewController.didMove(toParent: self)
+        oldViewController?.removeFromParent()
 
-        locationViewContainer.addArrangedSubview(newViewController.view)
+        if let newViewController {
+            newViewController.setSelectedRelays(selectedRelays)
+
+            addChild(newViewController)
+            newViewController.didMove(toParent: self)
+
+            locationViewContainer.addArrangedSubview(newViewController.view)
+        }
     }
 }
 
