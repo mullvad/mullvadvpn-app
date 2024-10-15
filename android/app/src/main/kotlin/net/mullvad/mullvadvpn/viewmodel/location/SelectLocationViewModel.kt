@@ -30,6 +30,7 @@ import net.mullvad.mullvadvpn.usecase.SelectedLocationUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListsRelayItemUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.FilterCustomListsRelayItemUseCase
+import net.mullvad.mullvadvpn.util.combine
 
 @Suppress("TooManyFunctions")
 class SelectLocationViewModel(
@@ -46,7 +47,10 @@ class SelectLocationViewModel(
 ) : ViewModel() {
     private val _relayListSelection: MutableStateFlow<RelayListSelection> =
         MutableStateFlow(initialRelayListSelection())
-    private val _expandedItems: MutableStateFlow<Set<String>> = MutableStateFlow(initialExpand())
+    private val _expandedItemsEntry: MutableStateFlow<Set<String>> =
+        MutableStateFlow(initialExpandEntry())
+    private val _expandedItemsExit: MutableStateFlow<Set<String>> =
+        MutableStateFlow(initialExpandExit())
 
     val uiState =
         combine(
@@ -70,17 +74,18 @@ class SelectLocationViewModel(
     private val _uiSideEffect = Channel<SelectLocationSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
-    private fun initialExpand(): Set<String> = buildSet {
+    private fun initialExpandEntry(): Set<String> = buildSet {
         val selectedEntryLocation =
             wireguardConstraintsRepository.wireguardConstraints.value?.entryLocation
+        return initialExpand(selectedEntryLocation?.getOrNull())
+    }
+
+    private fun initialExpandExit(): Set<String> {
         val selectedExitLocation = relayListRepository.selectedLocation.value
-        val item =
-            if (_relayListSelection.value == RelayListSelection.Exit) {
-                    selectedExitLocation
-                } else {
-                    selectedEntryLocation
-                }
-                ?.getOrNull()
+        return initialExpand(selectedExitLocation.getOrNull())
+    }
+
+    private fun initialExpand(item: RelayItemId?): Set<String> = buildSet {
         when (item) {
             is GeoLocationId.City -> {
                 Logger.d("GC item: $item")
@@ -112,23 +117,31 @@ class SelectLocationViewModel(
             filteredRelayListUseCase(),
             filteredCustomListRelayItemsUseCase(),
             selectedLocationUseCase(),
-            _expandedItems,
+            _expandedItemsEntry,
+            _expandedItemsExit,
             _relayListSelection,
-        ) { relayCountries, customLists, selectedItem, expandedItems, relayListSelection ->
+        ) {
+            relayCountries,
+            customLists,
+            selectedItem,
+            expandedItemsEntry,
+            expandedItemsExit,
+            relayListSelection ->
             relayListItems(
                 relayCountries = relayCountries,
                 customLists = customLists,
                 selectedItem = selectedItem.getForRelayListSelect(relayListSelection),
                 disabledItem = selectedItem.getForRelayListDisabled(relayListSelection),
-                expandedItems = expandedItems,
+                expandedItems =
+                    when (relayListSelection) {
+                        RelayListSelection.Entry -> expandedItemsEntry
+                        RelayListSelection.Exit -> expandedItemsExit
+                    },
             )
         }
 
     fun selectRelayList(relayListSelection: RelayListSelection) {
-        viewModelScope.launch {
-            _relayListSelection.emit(relayListSelection)
-            _expandedItems.emit(initialExpand())
-        }
+        viewModelScope.launch { _relayListSelection.emit(relayListSelection) }
     }
 
     fun selectRelay(relayItem: RelayItem) {
@@ -191,7 +204,12 @@ class SelectLocationViewModel(
     }
 
     fun onToggleExpand(item: RelayItemId, parent: CustomListId? = null, expand: Boolean) {
-        _expandedItems.onToggleExpand(item = item, parent = parent, expand = expand)
+        when (_relayListSelection.value) {
+            RelayListSelection.Entry ->
+                _expandedItemsEntry.onToggleExpand(item = item, parent = parent, expand = expand)
+            RelayListSelection.Exit ->
+                _expandedItemsExit.onToggleExpand(item = item, parent = parent, expand = expand)
+        }
     }
 }
 
