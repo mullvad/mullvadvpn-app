@@ -1,9 +1,11 @@
 package net.mullvad.mullvadvpn.repository
 
+import co.touchlab.kermit.Logger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.lib.model.ErrorState
 import net.mullvad.mullvadvpn.ui.VersionInfo
@@ -59,10 +61,16 @@ class InAppNotificationController(
 
     val notifications =
         combine(
-                tunnelStateNotificationUseCase(),
-                versionNotificationUseCase(),
-                accountExpiryInAppNotificationUseCase(),
-                newDeviceNotificationUseCase(),
+                tunnelStateNotificationUseCase().onEach {
+                    Logger.d("tunnelStateNotificationUseCase: $it")
+                },
+                versionNotificationUseCase().onEach { Logger.d("versionNotificationUseCase: $it") },
+                accountExpiryInAppNotificationUseCase().onEach {
+                    Logger.d("accountExpiryInAppNotificationUseCase: $it")
+                },
+                newDeviceNotificationUseCase().onEach {
+                    Logger.d("newDeviceNotificationUseCase: $it")
+                },
             ) { a, b, c, d ->
                 a + b + c + d
             }

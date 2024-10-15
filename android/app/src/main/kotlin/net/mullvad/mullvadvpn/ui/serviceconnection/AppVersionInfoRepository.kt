@@ -13,10 +13,10 @@ import net.mullvad.mullvadvpn.ui.VersionInfo
 
 class AppVersionInfoRepository(
     private val buildVersion: BuildVersion,
-    private val managementService: ManagementService,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
+    managementService: ManagementService,
+    dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) {
-    fun versionInfo(): StateFlow<VersionInfo> =
+    val versionInfo: StateFlow<VersionInfo> =
         managementService.versionInfo
             .map { appVersionInfo ->
                 VersionInfo(

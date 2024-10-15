@@ -12,8 +12,7 @@ class VersionNotificationUseCase(
 ) {
 
     operator fun invoke() =
-        appVersionInfoRepository
-            .versionInfo()
+        appVersionInfoRepository.versionInfo
             .map { versionInfo -> listOfNotNull(unsupportedVersionNotification(versionInfo)) }
             .distinctUntilChanged()
 
