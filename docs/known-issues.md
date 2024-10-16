@@ -134,3 +134,32 @@ any way that a VPN app can mitigate this issue. It has to be solved upstream in 
 #### Timeline
 
 * December 18, 2019 - Someone [reports the issue to google](https://issuetracker.google.com/issues/146484540)
+
+
+### Possible leaks on macOS on first start after upgrade
+
+We have found that traffic could be leaking on macOS after system updates. In this scenario the
+macOS firewall does not seem to function correctly and is disregarding firewall rules.
+Most traffic will still go inside the VPN tunnel since the routing table specifies that it should.
+Unfortunately apps are not required to respect the routing table and can send traffic outside
+the tunnel if they try to.
+
+Some examples of apps that can leak are Apple’s own apps and services between macOS 14.6,
+up until a macOS 15.1 beta. This can also affect any other app that explicitly bind its sockets
+directly to the local network interface.
+
+To our current knowledge a reboot resolves the issue. We have only observed this behavior
+sporadically, on the first start after a system upgrade. Since this is hard to reproduce
+we have not been able to locate the source of the issue, and as a result not figured out
+any mitigation neither.
+
+Since this seems to be an operating system bug, it affects all versions of the Mullvad VPN
+app. We have observed it on macOS 14.6 and newer, but it could very well have existed much earlier.
+
+#### Timeline
+
+* October ????, 2024 - We observe this behavior by accident after a macOS upgrade
+* October 15(????), 2024 - We report the issue upstream to Apple.
+  No public issue tracker is available.
+* October 16, 2024 - We [blog](https://mullvad.net/blog/macos-sometimes-leaks-traffic-after-system-updates) 
+  about the finding
