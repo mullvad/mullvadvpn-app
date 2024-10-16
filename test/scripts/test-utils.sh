@@ -91,12 +91,23 @@ function nice_time {
     echo "\"$*\" completed in $((s/60))m:$((s%60))s"
     return $result
 }
+# Matches $1 with a build version string and sets the following exported variables:
+# - BUILD_VERSION: The version part of the build string (e.g., "2024.3-beta1-dev-").
+# - COMMIT_HASH: The commit hash part of the build string (e.g., "abcdef").
+# - TAG: The tag part of the build string (e.g., "+tag").
+function parse_build_version {
+    if [[ "$1" =~ (^[0-9.]+(-beta[0-9]+)?-dev-)([0-9a-z]+)(\+[0-9a-z|-]+)?$ ]]; then
+        BUILD_VERSION="${BASH_REMATCH[1]}"
+        COMMIT_HASH="${BASH_REMATCH[3]}"
+        TAG="${BASH_REMATCH[4]}"
+        return 0
+    fi
+    return 1
+}
 
-# Returns 0 if $1 is a development build. `BASH_REMATCH` contains match groups
-# if that is the case.
+# Returns 0 if $1 is a development build.
 function is_dev_version {
-    local pattern="(^[0-9.]+(-beta[0-9]+)?-dev-)([0-9a-z]+)(\+[0-9a-z|-]+)?$"
-    if [[ "$1" =~ $pattern ]]; then
+    if [[ "$1" == *"-dev-"* ]]; then
         return 0
     fi
     return 1
@@ -106,13 +117,8 @@ function get_app_filename {
     local version=$1
     local os=$2
     if is_dev_version "$version"; then
-        # only save 6 chars of the hash
-        local commit="${BASH_REMATCH[3]}"
-        version="${BASH_REMATCH[1]}${commit}"
-        # If the dev-version includes a tag, we need to append it to the app filename
-        if [[ -n ${BASH_REMATCH[4]} ]]; then
-            version="${version}${BASH_REMATCH[4]}"
-        fi
+        parse_build_version "$version"
+        version="${BUILD_VERSION}${COMMIT_HASH}${TAG:-}"
     fi
     case $os in
         debian*|ubuntu*)
@@ -166,9 +172,8 @@ function get_e2e_filename {
     local version=$1
     local os=$2
     if is_dev_version "$version"; then
-        # only save 6 chars of the hash
-        local commit="${BASH_REMATCH[3]}"
-        version="${BASH_REMATCH[1]}${commit}"
+        parse_build_version "$version"
+        version="${BASH_REMATCH[1]}${COMMIT_HASH}"
     fi
     case $os in
         debian*|ubuntu*|fedora*)
