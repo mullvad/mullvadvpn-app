@@ -1,10 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import { InAppNotificationIndicatorType } from '../../shared/notifications/notification';
-import { useStyledRef } from '../lib/utilityHooks';
+import { useEffectEvent, useLastDefinedValue, useStyledRef } from '../lib/utilityHooks';
 import * as AppButton from './AppButton';
 import { tinyText } from './common-styles';
 import ImageView from './ImageView';
@@ -159,14 +159,9 @@ export function NotificationBanner(props: INotificationBannerProps) {
 
   const contentRef = useStyledRef<HTMLDivElement>();
 
-  // Save last non-undefined children to be able to show them during the hide-transition.
-  const prevChildren = useRef<React.ReactNode>();
-  useEffect(() => {
-    prevChildren.current = props.children ?? prevChildren.current;
-  }, [props.children]);
+  const children = useLastDefinedValue(props.children);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => {
+  const updateHeightEvent = useEffectEvent(() => {
     const newHeight =
       props.children !== undefined ? (contentRef.current?.getBoundingClientRect().height ?? 0) : 0;
     if (newHeight !== contentHeight) {
@@ -175,9 +170,11 @@ export function NotificationBanner(props: INotificationBannerProps) {
     }
   });
 
+  useEffect(() => updateHeightEvent());
+
   return (
     <Collapsible $height={contentHeight} className={props.className} $alignBottom={alignBottom}>
-      <Content ref={contentRef}>{props.children ?? prevChildren.current}</Content>
+      <Content ref={contentRef}>{children}</Content>
     </Collapsible>
   );
 }
