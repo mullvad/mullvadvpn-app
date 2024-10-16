@@ -124,7 +124,9 @@ class ConnectViewModelTest {
                 connectionProxy = mockConnectionProxy,
                 lastKnownLocationUseCase = mockLastKnownLocationUseCase,
                 vpnPermissionRepository = mockVpnPermissionRepository,
+                resources = mockk(),
                 isPlayBuild = false,
+                packageName = "net.mullvad.mullvadvpn",
             )
     }
 
