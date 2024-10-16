@@ -14,7 +14,8 @@ use relays::{Multihop, Singlehop, WireguardConfig};
 use crate::detailer::{openvpn_endpoint, wireguard_endpoint};
 use crate::error::{EndpointErrorDetails, Error};
 use crate::query::{
-    BridgeQuery, ObfuscationQuery, OpenVpnRelayQuery, RelayQuery, WireguardRelayQuery,
+    BridgeQuery, ObfuscationQuery, OpenVpnRelayQuery, RelayQuery, RelayQueryExtensions,
+    WireguardRelayQuery,
 };
 
 use std::path::Path;
@@ -668,8 +669,7 @@ impl RelaySelector {
         custom_lists: &CustomListsSettings,
         parsed_relays: &ParsedRelays,
     ) -> Result<WireguardConfig, Error> {
-        let singlehop = !query.wireguard_constraints().multihop();
-        let inner = if singlehop {
+        let inner = if query.singlehop() {
             match Self::get_wireguard_singlehop_config(query, custom_lists, parsed_relays) {
                 Some(exit) => WireguardConfig::from(exit),
                 None => {
@@ -686,17 +686,8 @@ impl RelaySelector {
             // A DAITA compatible entry should be used even when the exit is DAITA compatible.
             // This only makes sense in context: The user is no longer able to explicitly choose an
             // entry relay with smarting routing enabled, even if multihop is turned on
-            // TODO: Move this somewhere common?
-            let using_daita = || query.wireguard_constraints().daita == Constraint::Only(true);
-            // TODO: Move this somewhere common?
-            let smart_routing_enabled = || {
-                query
-                    .wireguard_constraints()
-                    .daita_use_multihop_if_necessary
-                    .is_only_and(|on| on)
-            };
             // Also implied: Multihop is enabled.
-            let multihop = if using_daita() && smart_routing_enabled() {
+            let multihop = if query.using_daita() && query.use_multihop_if_necessary() {
                 Self::get_wireguard_auto_multihop_config(query, custom_lists, parsed_relays)?
             } else {
                 Self::get_wireguard_multihop_config(query, custom_lists, parsed_relays)?
@@ -730,9 +721,6 @@ impl RelaySelector {
         custom_lists: &CustomListsSettings,
         parsed_relays: &ParsedRelays,
     ) -> Result<Multihop, Error> {
-        // are we using daita?
-        let using_daita = || query.wireguard_constraints().daita == Constraint::Only(true);
-
         // is the `candidates` list empty because DAITA is enabled?
         let no_relay_because_daita = || {
             let mut query = query.clone();
@@ -743,19 +731,10 @@ impl RelaySelector {
             Result::<_, Error>::Ok(!candidates.is_empty())
         };
 
-        // is `use_multihop_if_necessary` enabled?
-        let use_multihop_if_necessary = || {
-            query
-                .wireguard_constraints()
-                .daita_use_multihop_if_necessary
-                .intersection(Constraint::Only(true))
-                .is_some()
-        };
-
         // if we found no matching relays because DAITA was enabled, and `use_multihop_if_necessary`
         // is enabled, try enabling multihop and connecting using an automatically selected
         // entry relay.
-        if using_daita() && no_relay_because_daita()? && use_multihop_if_necessary() {
+        if query.using_daita() && query.use_multihop_if_necessary() && no_relay_because_daita()? {
             Self::get_wireguard_auto_multihop_config(query, custom_lists, parsed_relays)
         } else {
             Err(Error::NoRelay)

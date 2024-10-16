@@ -913,6 +913,32 @@ pub mod builder {
     }
 }
 
+/// This trait defines a bunch of helper methods on [`RelayQuery`].
+pub trait RelayQueryExtensions {
+    /// Are we using daita?
+    fn using_daita(&self) -> bool;
+    /// is `use_multihop_if_necessary` enabled? In other words, is `Direct only` disabled?
+    fn use_multihop_if_necessary(&self) -> bool;
+    /// Are we using singlehop? I.e. is multihop *not* explicitly enabled?
+    fn singlehop(&self) -> bool;
+}
+
+impl RelayQueryExtensions for RelayQuery {
+    fn using_daita(&self) -> bool {
+        self.wireguard_constraints()
+            .daita
+            .is_only_and(|enabled| enabled)
+    }
+    fn use_multihop_if_necessary(&self) -> bool {
+        self.wireguard_constraints()
+            .daita_use_multihop_if_necessary
+            .is_only_and(|enabled| enabled)
+    }
+    fn singlehop(&self) -> bool {
+        !self.wireguard_constraints().multihop()
+    }
+}
+
 #[cfg(test)]
 mod test {
     use mullvad_types::{
