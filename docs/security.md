@@ -74,7 +74,6 @@ delegates the traffic handling to wireguard-go, which works directly with the tu
 The network configuration set up by the packet tunnel extension specifies the routing rules
 that all traffic should flow through the tunnel, the same way it works on Android.
 
-The iOS app currently does not support blocking in the app's blocked state.
 
 ## App states
 
