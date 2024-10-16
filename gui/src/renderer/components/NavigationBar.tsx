@@ -99,7 +99,7 @@ export const NavigationScrollbars = React.forwardRef(function NavigationScrollba
 
   const beforeunload = useEffectEvent(() => {
     if (ref.current) {
-      history.location.state.scrollPosition = ref.current.getScrollPosition();
+      history.recordScrollPosition(ref.current.getScrollPosition());
       setNavigationHistory(history.asObject);
     }
   });
@@ -117,9 +117,8 @@ export const NavigationScrollbars = React.forwardRef(function NavigationScrollba
   });
 
   const onUnmount = useEffectEvent(() => {
-    const location = history.location;
     if (history.action === 'PUSH' && ref.current) {
-      location.state.scrollPosition = ref.current.getScrollPosition();
+      history.recordScrollPosition(ref.current.getScrollPosition());
       setNavigationHistory(history.asObject);
     }
   });

@@ -1,4 +1,11 @@
-import React, { useCallback, useEffect, useInsertionEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useInsertionEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
 import { LiftedConstraint, TunnelProtocol } from '../../shared/daemon-rpc-types';
 import { useSelector } from '../redux/store';
@@ -17,13 +24,16 @@ export function useMounted() {
   return isMounted;
 }
 
-export function useStyledRef<T>(): React.RefObject<T> {
-  return useRef() as React.RefObject<T>;
+export function useStyledRef<T>(): React.MutableRefObject<T> {
+  return useRef() as React.MutableRefObject<T>;
 }
 
 export function useCombinedRefs<T>(...refs: (React.Ref<T> | undefined)[]): React.RefCallback<T> {
-  return useInitialValue(
+  return useMemo(
     () => (element: T | null) => refs.forEach((ref) => assignToRef(element, ref)),
+    // eslint-disable-next-line react-compiler/react-compiler
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [...refs],
   );
 }
 
@@ -87,8 +97,8 @@ function calculateInitialValue<T>(initialValue: (() => T) | T): T {
 }
 
 export function useInitialValue<T>(initialValue: (() => T) | T): T {
-  const ref = useRef(calculateInitialValue(initialValue));
-  return ref.current;
+  const [value] = useState(calculateInitialValue(initialValue));
+  return value;
 }
 
 type Fn<T extends unknown[], R> = (...args: T) => R;
@@ -108,3 +118,11 @@ export function useEffectEvent<Args extends unknown[]>(
 // Alias for useEffectEvent, but with another name since the effect event is named after a very
 // specific usecase.
 export const useRefCallback = useEffectEvent;
+
+export function useLastDefinedValue<T>(value: T): T {
+  const [definedValue, setDefinedValue] = useState(value);
+
+  useEffect(() => setDefinedValue((prev) => value ?? prev), [value]);
+
+  return value ?? definedValue;
+}

@@ -169,6 +169,7 @@ export default function FeatureIndicators(props: FeatureIndicatorsProps) {
 
           // Place the ellipsis at the end of the last visible indicator.
           const left = lastVisibleIndicatorRect.right - containerRect.left;
+          // eslint-disable-next-line react-compiler/react-compiler
           ellipsisRef.current.style.left = `${left}px`;
           ellipsisRef.current.style.visibility = 'visible';
 
