@@ -82,6 +82,14 @@ export default class History {
     return history;
   }
 
+  public recordScrollPosition(position: [number, number]) {
+    this.location.state.scrollPosition = position;
+  }
+
+  public recordSectionExpandedState(id: string, expanded: boolean) {
+    this.location.state.expandedSections[id] = expanded;
+  }
+
   public get location(): Location<LocationState> {
     return this.entries[this.index];
   }

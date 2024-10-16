@@ -17,8 +17,8 @@ export function useMounted() {
   return isMounted;
 }
 
-export function useStyledRef<T>(): React.RefObject<T> {
-  return useRef() as React.RefObject<T>;
+export function useStyledRef<T>(): React.MutableRefObject<T> {
+  return useRef() as React.MutableRefObject<T>;
 }
 
 export function useCombinedRefs<T>(...refs: (React.Ref<T> | undefined)[]): React.RefCallback<T> {
@@ -92,3 +92,11 @@ export function useEffectEvent<Args extends unknown[]>(
 // Alias for useEffectEvent, but with another name since the effect event is named after a very
 // specific usecase.
 export const useRefCallback = useEffectEvent;
+
+export function useLastDefinedValue<T>(value: T): T {
+  const [definedValue, setDefinedValue] = useState(value);
+
+  useEffect(() => setDefinedValue((prev) => value ?? prev), [value]);
+
+  return value ?? definedValue;
+}

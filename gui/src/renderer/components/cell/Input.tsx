@@ -355,6 +355,7 @@ export function RowInput(props: IRowInputProps) {
     const input = textAreaRef.current;
     if (input) {
       input.focus();
+      // eslint-disable-next-line react-compiler/react-compiler
       input.selectionStart = input.selectionEnd = value.length;
     }
   }, [textAreaRef, value.length]);
