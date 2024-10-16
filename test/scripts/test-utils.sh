@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -eu
+# set -eu
 
 function executable_not_found_in_dist_error {
     1>&2 echo "Executable \"$1\" not found in specified dist dir. Exiting."
