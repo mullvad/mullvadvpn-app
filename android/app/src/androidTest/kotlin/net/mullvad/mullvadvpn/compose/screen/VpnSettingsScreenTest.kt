@@ -562,7 +562,7 @@ class VpnSettingsScreenTest {
     companion object {
         private const val LOCAL_DNS_SERVER_WARNING =
             "The local DNS server will not work unless you enable " +
-                "\"Local Network Sharing\" under Preferences."
+                "\"Local Network Sharing\" under VPN settings."
         private const val VALID_DUMMY_MTU_VALUE = "1337"
         private const val DUMMY_DNS_ADDRESS = "0.0.0.1"
         private const val DUMMY_DNS_ADDRESS_2 = "0.0.0.2"

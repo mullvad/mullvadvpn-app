@@ -124,7 +124,7 @@ class DnsDialogTest {
     companion object {
         private const val LOCAL_DNS_SERVER_WARNING =
             "The local DNS server will not work unless you enable " +
-                "\"Local Network Sharing\" under Preferences."
+                "\"Local Network Sharing\" under VPN settings."
 
         private const val invalidIpAddress = "300.300.300.300"
     }
