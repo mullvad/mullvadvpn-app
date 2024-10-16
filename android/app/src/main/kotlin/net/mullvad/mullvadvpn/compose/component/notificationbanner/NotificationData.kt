@@ -44,7 +44,7 @@ data class NotificationAction(
 @Composable
 fun InAppNotification.toNotificationData(
     isPlayBuild: Boolean,
-    onClickUpdateVersion: () -> Unit,
+    openAppListing: () -> Unit,
     onClickShowAccount: () -> Unit,
     onDismissNewDevice: () -> Unit,
 ) =
@@ -101,13 +101,11 @@ fun InAppNotification.toNotificationData(
                 message = stringResource(id = R.string.unsupported_version_description),
                 statusLevel = StatusLevel.Error,
                 action =
-                    if (isPlayBuild) null
-                    else
-                        NotificationAction(
-                            Icons.AutoMirrored.Default.OpenInNew,
-                            onClickUpdateVersion,
-                            stringResource(id = R.string.open_url),
-                        ),
+                    NotificationAction(
+                        Icons.AutoMirrored.Default.OpenInNew,
+                        openAppListing,
+                        stringResource(id = R.string.open_url),
+                    ),
             )
     }
 

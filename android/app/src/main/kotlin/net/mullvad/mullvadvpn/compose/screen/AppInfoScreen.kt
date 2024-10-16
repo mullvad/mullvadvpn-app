@@ -1,7 +1,5 @@
 package net.mullvad.mullvadvpn.compose.screen
 
-import android.content.Context
-import android.net.Uri
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,7 +8,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -21,7 +18,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
@@ -35,9 +32,9 @@ import net.mullvad.mullvadvpn.compose.cell.TwoRowCell
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
-import net.mullvad.mullvadvpn.lib.common.util.openLink
+import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.theme.Dimens
-import net.mullvad.mullvadvpn.util.appendHideNavOnPlayBuild
+import net.mullvad.mullvadvpn.viewmodel.AppInfoSideEffect
 import net.mullvad.mullvadvpn.viewmodel.AppInfoUiState
 import net.mullvad.mullvadvpn.viewmodel.AppInfoViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -49,38 +46,55 @@ fun AppInfo(navigator: DestinationsNavigator) {
     val vm = koinViewModel<AppInfoViewModel>()
     val state by vm.uiState.collectAsStateWithLifecycle()
 
+    val uriHandler = LocalUriHandler.current
+
+    CollectSideEffectWithLifecycle(vm.uiSideEffect) {
+        when (it) {
+            is AppInfoSideEffect.OpenUri -> uriHandler.openUri(it.uri.toString())
+        }
+    }
+
     AppInfo(
         state = state,
         onBackClick = dropUnlessResumed { navigator.navigateUp() },
-        dropUnlessResumed { navigator.navigate(ChangelogDestination) },
+        navigateToChangelog = dropUnlessResumed { navigator.navigate(ChangelogDestination) },
+        openAppListing = dropUnlessResumed { vm.openAppListing() },
     )
 }
 
 @ExperimentalMaterial3Api
 @Composable
-fun AppInfo(state: AppInfoUiState, onBackClick: () -> Unit, navigateToChangelog: () -> Unit) {
-
+fun AppInfo(
+    state: AppInfoUiState,
+    onBackClick: () -> Unit,
+    navigateToChangelog: () -> Unit,
+    openAppListing: () -> Unit,
+) {
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.app_info),
         navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) },
     ) { modifier ->
         Column(horizontalAlignment = Alignment.Start, modifier = modifier.animateContentSize()) {
-            AppInfoContent(state, navigateToChangelog)
+            AppInfoContent(state, navigateToChangelog, openAppListing)
         }
     }
 }
 
 @Composable
-fun AppInfoContent(state: AppInfoUiState, navigateToChangelog: () -> Unit) {
+fun AppInfoContent(
+    state: AppInfoUiState,
+    navigateToChangelog: () -> Unit,
+    openAppListing: () -> Unit,
+) {
     Column(modifier = Modifier.padding(bottom = Dimens.smallPadding).animateContentSize()) {
-        AppVersionRow(LocalContext.current, state)
+        AppVersionRow(state, openAppListing)
 
         ChangelogRow(navigateToChangelog)
     }
 }
 
 @Composable
-private fun AppVersionRow(context: Context, state: AppInfoUiState) {
+private fun AppVersionRow(state: AppInfoUiState, openAppListing: () -> Unit) {
     Column {
         TwoRowCell(
             titleText = stringResource(id = R.string.version),
@@ -96,27 +110,13 @@ private fun AppVersionRow(context: Context, state: AppInfoUiState) {
                 }
             },
             bodyView = {
-                if (!state.isPlayBuild) {
-                    Icon(
-                        Icons.AutoMirrored.Default.OpenInNew,
-                        contentDescription = stringResource(R.string.app_info),
-                        tint = MaterialTheme.colorScheme.onPrimary,
-                    )
-                }
+                Icon(
+                    Icons.AutoMirrored.Default.OpenInNew,
+                    contentDescription = stringResource(R.string.app_info),
+                    tint = MaterialTheme.colorScheme.onPrimary,
+                )
             },
-            onCellClicked =
-                if (state.isPlayBuild) null
-                else {
-                    {
-                        context.openLink(
-                            Uri.parse(
-                                context.resources
-                                    .getString(R.string.download_url)
-                                    .appendHideNavOnPlayBuild(state.isPlayBuild)
-                            )
-                        )
-                    }
-                },
+            onCellClicked = openAppListing,
         )
 
         if (!state.version.isSupported) {

@@ -4,6 +4,7 @@
     <string name="voucher_hint" translatable="false">XXXX-XXXX-XXXX-XXXX</string>
     <string name="account_url" translatable="false">https://mullvad.net/account</string>
     <string name="download_url" translatable="false">https://mullvad.net/download/vpn/android</string>
+    <string name="market_uri" translatable="false">market://details?id=%s</string>
     <string name="faqs_and_guides_url" translatable="false">https://mullvad.net/help/tag/mullvad-app/</string>
     <string name="privacy_policy_url" translatable="false">https://mullvad.net/help/privacy-policy/</string>
     <string name="lockdown_url" translatable="false">https://mullvad.net/l/android-lockdown</string>

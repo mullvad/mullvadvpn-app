@@ -183,7 +183,9 @@ val uiModule = module {
     // View models
     viewModel { AccountViewModel(get(), get(), get(), IS_PLAY_BUILD) }
     viewModel { ChangelogViewModel(get(), get()) }
-    viewModel { AppInfoViewModel(get(), get(), IS_PLAY_BUILD) }
+    viewModel {
+        AppInfoViewModel(get(), get(), get(), IS_PLAY_BUILD, get(named(SELF_PACKAGE_NAME)))
+    }
     viewModel {
         ConnectViewModel(
             get(),
@@ -196,7 +198,9 @@ val uiModule = module {
             get(),
             get(),
             get(),
+            get(),
             IS_PLAY_BUILD,
+            get(named(SELF_PACKAGE_NAME)),
         )
     }
     viewModel { DeviceListViewModel(get(), get()) }
