@@ -24,31 +24,48 @@ secure as possible with the limitations of the OS APIs.
 
 ### Android
 
-On Android, the only way an app can filter network traffic is essentially via the VPN service API.
-This API allows all traffic, except some [exempt by the system](#exempt-traffic), to and from the
-phone to flow though a third party app. This API is of course what the app uses for the tunnel
-itself as well, but apart from that it is also what the leak protection is built on.
+> ⚠️  When we say *all traffic* in this chapter it does not include traffic exempt by the system
+or traffic affected by known issues.
 
-An app with permission to act as a VPN service can request to open a VPN tunnel on the device and
-provide a set of IP networks it would like to have routed via itself. Doing so and specifying
-the routes `0/0` and `::0/0` forces all traffic, except some
-[exempt by the system](#exempt-traffic), to go via the app. That is what this app does both when it
-has a VPN tunnel up, but also when in a state where it would like to block all network traffic. Such
-as the [connecting], [disconnecting] and [error] states. In these states, all outgoing packets are
-simply dropped, but incoming traffic is still allowed due to the limitations of Android.
+The only way an android app can filter network traffic is via the VPN Service API. This API allows
+*all traffic* to and from the device to be routed through a third party app. This API is what the
+Mullvad VPN app uses for the tunnel itself and for leak protection.
+
+When establishing a VPN connection using the default settings* the app will set the routes `0/0` and
+`::0/0` in order to force *all traffic* to be routed through the app. This also applies when the app is
+in a state where it blocks *all traffic*, such as the [connecting], [disconnecting] and [error]
+states. Additionally the android system has a setting called *Block connections without VPN* that
+enables the Android OS to block *all traffic* that is not routed through the Mullvad VPN.
+
+> **\*:** Local Network Sharing affects the routes and Split Tunneling will allow apps to bypass the
+tunnel.
 
 #### Exempt traffic
 
-Even though not being properly documented by Google, some traffic is exempt by the system from using
-the VPN, which means that the traffic will leak and therefore potentially impact user privacy. This
-applies even if *Block connections without VPN* is enabled. The exempt traffic includes:
-* Connectivity checks (DNS lookups and HTTP(S) connections)
-* Network provided time (NTP)
+Even though not being properly documented by Google, some traffic is exempt by the system from
+using the VPN, which means that the traffic will leak and therefore potentially impact user
+privacy. This applies even if Block connections without VPN is enabled. The exempt traffic includes:
+
+- Connectivity checks (DNS lookups and HTTP(S) connections)
+- Network provided time (NTP)
+- Traffic to and from hotspot clients.
 
 The following issues have been reported by Mullvad in the Android issue tracker in order to improve
 documentation and user privacy:
-* [Incorrect VPN lockdown documentation](https://issuetracker.google.com/issues/249990229)
-* [Add option to disable connectivity checks when VPN lockdown is enabled](https://issuetracker.google.com/issues/250529027)
+
+- [Incorrect VPN lockdown documentation](https://issuetracker.google.com/issues/249990229)
+- [Add option to disable connectivity checks when VPN lockdown is enabled](https://issuetracker.google.com/issues/250529027)
+
+#### Known issues
+
+Notable security related issues reported to Google:
+
+- [VPN leaks DNS traffic outside the tunnel](https://issuetracker.google.com/issues/337961996)
+- [Broadcast traffic bypasses VPN](https://issuetracker.google.com/issues/146484540)
+
+Besides these known issues Android has many variants and flavors that may introduce variances to
+the default [Android Open Source Project](https://source.android.com/) behavior. This means that the Mullvad VPN app, like all other VPN apps, is subject
+to the limitations of the VPN Service API.
 
 ### iOS
 
