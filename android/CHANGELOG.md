@@ -23,24 +23,44 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
-- Add support for predictive back.
-- Add DAITA (Defence against AI-guided Traffic Analysis) setting.
-- Add WireGuard over Shadowsocks.
 - Add feature indicators to the main view along with redesigning the connection details.
 - Add new "Connect on device start-up" setting for devices without system VPN settings.
 
-### Removed
-- Legacy auto-connect feature.
-
 ### Changed
-- Update colors in the app to be more in line with material design.
 - Replace the draft key encapsulation mechanism Kyber (round 3) with the standardized
   ML-KEM (FIPS 203) dito in the handshake for Quantum-resistant tunnels.
 
 ### Fixed
-- Fix VPN service being recreated multiple times when toggling certain options.
 - Fix unlabeled icon buttons for basic accessibility with screen readers.
+
+
+## [android/2024.6] - 2024-10-14
+### Fixed
+- Fix rare crash related to an upcoming feature (feature indicators).
+
+
+## [android/2024.5] - 2024-10-09
+### Fixed
 - Fix crash when in the edit custom list locations screen and changing app langauge.
+
+
+## [android/2024.5-beta2] - 2024-09-24
+### Fixed
+- Fix building of the app bundle which is used for publishing to Google Play.
+
+
+## [android/2024.5-beta1] - 2024-09-23
+### Added
+- Add support for predictive back.
+- Add DAITA (Defence against AI-guided Traffic Analysis) setting.
+- Add WireGuard-over-Shadowsocks.
+
+### Changed
+- Update colors in the app to be more in line with material design.
+
+### Fixed
+- Fix VPN service being recreated multiple times when toggling certain options.
+- Fix location selection navigation on some TV devices.
 
 
 ## [android/2024.4] - 2024-09-03
