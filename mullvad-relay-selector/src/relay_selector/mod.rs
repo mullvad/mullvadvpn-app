@@ -673,8 +673,8 @@ impl RelaySelector {
             match Self::get_wireguard_singlehop_config(query, custom_lists, parsed_relays) {
                 Some(exit) => WireguardConfig::from(exit),
                 None => {
-                    // No exit candidate was found.. Check if smart routing stuff works!
-                    WireguardConfig::from(Self::select_daita_multihop_through_smart_routing(
+                    // No exit candidate was found.. Time to try smart routing!
+                    let multihop = Self::select_daita_multihop_through_smart_routing(
                         query,
                         custom_lists,
                         parsed_relays,
@@ -683,11 +683,25 @@ impl RelaySelector {
                 }
             }
         } else {
-            WireguardConfig::from(Self::get_wireguard_multihop_config(
-                query,
-                custom_lists,
-                parsed_relays,
-            )?)
+            // A DAITA compatible entry should be used even when the exit is DAITA compatible.
+            // This only makes sense in context: The user is no longer able to explicitly choose an
+            // entry relay with smarting routing enabled, even if multihop is turned on
+            // TODO: Move this somewhere common?
+            let using_daita = || query.wireguard_constraints().daita == Constraint::Only(true);
+            // TODO: Move this somewhere common?
+            let smart_routing_enabled = || {
+                query
+                    .wireguard_constraints()
+                    .daita_use_multihop_if_necessary
+                    .is_only_and(|on| on)
+            };
+            // Also implied: Multihop is enabled.
+            let multihop = if using_daita() && smart_routing_enabled() {
+                Self::get_wireguard_auto_multihop_config(query, custom_lists, parsed_relays)?
+            } else {
+                Self::get_wireguard_multihop_config(query, custom_lists, parsed_relays)?
+            };
+            WireguardConfig::from(multihop)
         };
 
         Ok(inner)
@@ -810,7 +824,7 @@ impl RelaySelector {
         parsed_relays: &ParsedRelays,
     ) -> Result<Multihop, Error> {
         // Here, we modify the original query just a bit.
-        // The actual query for an exit relay is identical as for an exit relay, with the
+        // The actual query for an entry relay is identical as for an exit relay, with the
         // exception that the location is different. It is simply the location as dictated by
         // the query's multihop constraint.
         let mut entry_relay_query = query.clone();
