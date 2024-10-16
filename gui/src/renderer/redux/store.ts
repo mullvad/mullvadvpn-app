@@ -84,8 +84,10 @@ export function useSelector<R>(fn: (state: IReduxState) => R): R {
   const willExit = useWillExit();
 
   if (!willExit) {
+    // eslint-disable-next-line react-compiler/react-compiler
     valueBeforeExit.current = value;
   }
 
+  // eslint-disable-next-line react-compiler/react-compiler
   return valueBeforeExit.current;
 }
