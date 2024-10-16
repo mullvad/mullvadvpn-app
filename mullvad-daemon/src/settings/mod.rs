@@ -114,6 +114,9 @@ impl SettingsPersister {
 
             // Auto-connect is managed by Android itself.
             settings.auto_connect = false;
+
+            // Lockdown mode is managed by the Android OS.
+            settings.block_when_disconnected = false;
         }
         if crate::version::is_beta_version() {
             should_save |= !settings.show_beta_releases;
@@ -172,7 +175,11 @@ impl SettingsPersister {
 
                 // Protect the user by blocking the internet by default. Previous settings may
                 // not have caused the daemon to enter the non-blocking disconnected state.
-                settings.block_when_disconnected = true;
+                // On android lockdown mode is handled by the OS so setting this to true
+                // has no effect.
+                if cfg!(not(target_os = "android")) {
+                    settings.block_when_disconnected = true;
+                }
 
                 LoadSettingsResult {
                     settings,
