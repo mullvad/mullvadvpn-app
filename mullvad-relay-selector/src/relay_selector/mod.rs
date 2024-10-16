@@ -6,45 +6,39 @@ mod matcher;
 mod parsed_relays;
 pub mod query;
 
+use matcher::{filter_matching_bridges, filter_matching_relay_list};
+use parsed_relays::ParsedRelays;
+
+use crate::detailer::{openvpn_endpoint, wireguard_endpoint};
+use crate::error::{EndpointErrorDetails, Error};
+use crate::query::{
+    BridgeQuery, ObfuscationQuery, OpenVpnRelayQuery, RelayQuery, WireguardRelayQuery,
+};
+
+use std::path::Path;
+use std::sync::{Arc, LazyLock, Mutex};
+use std::time::SystemTime;
+
 use chrono::{DateTime, Local};
 use itertools::Itertools;
-use query::ObfuscationQuery;
-use std::{
-    path::Path,
-    sync::{Arc, LazyLock, Mutex},
-    time::SystemTime,
-};
 
-use mullvad_types::{
-    constraints::Constraint,
-    custom_list::CustomListsSettings,
-    endpoint::MullvadWireguardEndpoint,
-    location::{Coordinates, Location},
-    relay_constraints::{
-        BridgeSettings, BridgeState, InternalBridgeConstraints, ObfuscationSettings,
-        OpenVpnConstraints, RelayConstraints, RelayOverride, RelaySettings, ResolvedBridgeSettings,
-        WireguardConstraints,
-    },
-    relay_list::{Relay, RelayEndpointData, RelayList},
-    settings::Settings,
-    wireguard::QuantumResistantState,
-    CustomTunnelEndpoint, Intersection,
+use mullvad_types::constraints::Constraint;
+use mullvad_types::custom_list::CustomListsSettings;
+use mullvad_types::endpoint::MullvadWireguardEndpoint;
+use mullvad_types::location::{Coordinates, Location};
+use mullvad_types::relay_constraints::{
+    BridgeSettings, BridgeState, InternalBridgeConstraints, ObfuscationSettings,
+    OpenVpnConstraints, RelayConstraints, RelayOverride, RelaySettings, ResolvedBridgeSettings,
+    WireguardConstraints,
 };
-use talpid_types::{
-    net::{
-        obfuscation::ObfuscatorConfig, proxy::CustomProxy, Endpoint, TransportProtocol, TunnelType,
-    },
-    ErrorExt,
+use mullvad_types::relay_list::{Relay, RelayEndpointData, RelayList};
+use mullvad_types::settings::Settings;
+use mullvad_types::wireguard::QuantumResistantState;
+use mullvad_types::{CustomTunnelEndpoint, Intersection};
+use talpid_types::net::{
+    obfuscation::ObfuscatorConfig, proxy::CustomProxy, Endpoint, TransportProtocol, TunnelType,
 };
-
-use crate::error::{EndpointErrorDetails, Error};
-
-use self::{
-    detailer::{openvpn_endpoint, wireguard_endpoint},
-    matcher::{filter_matching_bridges, filter_matching_relay_list},
-    parsed_relays::ParsedRelays,
-    query::{BridgeQuery, OpenVpnRelayQuery, RelayQuery, WireguardRelayQuery},
-};
+use talpid_types::ErrorExt;
 
 /// [`RETRY_ORDER`] defines an ordered set of relay parameters which the relay selector should
 /// prioritize on successive connection attempts. Note that these will *never* override user
@@ -221,6 +215,7 @@ pub enum GetRelay {
     Custom(CustomTunnelEndpoint),
 }
 
+// TODO: Import `Either` and convert `Multihop` and `Singlehop` into concrete types.
 /// This struct defines the different Wireguard relays the the relay selector can end up selecting
 /// for an arbitrary Wireguard [`query`].
 ///
