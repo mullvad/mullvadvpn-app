@@ -65,8 +65,8 @@ import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.usecase.FilterChip
-import net.mullvad.mullvadvpn.viewmodel.location.SearchLocationViewModel
 import net.mullvad.mullvadvpn.viewmodel.location.SearchLocationSideEffect
+import net.mullvad.mullvadvpn.viewmodel.location.SearchLocationViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Preview
@@ -147,6 +147,10 @@ fun SearchLocation(
         onSelectRelay = viewModel::selectRelay,
         onToggleExpand = viewModel::onToggleExpand,
         onSearchInputChanged = viewModel::onSearchInputUpdated,
+        onCreateCustomList =
+            dropUnlessResumed { relayItem ->
+                navigator.navigate(CreateCustomListDestination(locationCode = relayItem?.id))
+            },
         onEditCustomLists = dropUnlessResumed { navigator.navigate(CustomListsDestination()) },
         onAddLocationToList = viewModel::addLocationToList,
         onRemoveLocationFromList = viewModel::removeLocationFromList,
