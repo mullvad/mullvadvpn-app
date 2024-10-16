@@ -2,7 +2,7 @@ import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 import com.android.build.gradle.internal.tasks.factory.dependsOn
 import java.io.FileInputStream
 import java.util.Properties
-import org.gradle.configurationcache.extensions.capitalized
+import org.gradle.internal.extensions.stdlib.capitalized
 
 plugins {
     alias(libs.plugins.android.application)
@@ -141,7 +141,7 @@ android {
         freeCompilerArgs =
             listOf(
                 // Opt-in option for Koin annotation of KoinComponent.
-                "-opt-in=kotlin.RequiresOptIn",
+                "-opt-in=kotlin.RequiresOptIn"
             )
     }
 
@@ -214,7 +214,8 @@ android {
         }
 
         val variantName = name
-        val capitalizedVariantName = variantName.capitalized()
+        val capitalizedVariantName =
+            variantName.toString().capitalized()
         val artifactName = "MullvadVPN-${versionName}${artifactSuffix}"
 
         tasks.register<Copy>("create${capitalizedVariantName}DistApk") {
@@ -235,11 +236,11 @@ android {
         createDistBundle.dependsOn("bundle$capitalizedVariantName")
 
         // Ensure all relevant assemble tasks depend on our ensure tasks.
-        tasks.get("assemble$capitalizedVariantName").apply {
-            dependsOn(tasks.get("ensureRelayListExist"))
-            dependsOn(tasks.get("ensureMaybenotMachinesExist"))
-            dependsOn(tasks.get("ensureJniDirectoryExist"))
-            dependsOn(tasks.get("ensureValidVersionCode"))
+        tasks["assemble$capitalizedVariantName"].apply {
+            dependsOn(tasks["ensureRelayListExist"])
+            dependsOn(tasks["ensureMaybenotMachinesExist"])
+            dependsOn(tasks["ensureJniDirectoryExist"])
+            dependsOn(tasks["ensureValidVersionCode"])
         }
     }
 }
