@@ -3,7 +3,8 @@
 
 use mullvad_types::{relay_constraints::MissingCustomBridgeSettings, relay_list::Relay};
 
-use crate::{detailer, WireguardConfig};
+use crate::detailer;
+use crate::relay_selector::relays::WireguardConfig;
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
