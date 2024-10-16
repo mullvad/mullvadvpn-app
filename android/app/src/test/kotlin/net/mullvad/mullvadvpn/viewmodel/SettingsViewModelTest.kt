@@ -35,7 +35,7 @@ class SettingsViewModelTest {
         val deviceState = MutableStateFlow<DeviceState>(DeviceState.LoggedOut)
 
         every { mockDeviceRepository.deviceState } returns deviceState
-        every { mockAppVersionInfoRepository.versionInfo() } returns versionInfo
+        every { mockAppVersionInfoRepository.versionInfo } returns versionInfo
 
         viewModel =
             SettingsViewModel(

@@ -29,7 +29,7 @@ class VersionNotificationUseCaseTest {
     @BeforeEach
     fun setup() {
         MockKAnnotations.init(this)
-        every { mockAppVersionInfoRepository.versionInfo() } returns versionInfo
+        every { mockAppVersionInfoRepository.versionInfo } returns versionInfo
 
         versionNotificationUseCase =
             VersionNotificationUseCase(

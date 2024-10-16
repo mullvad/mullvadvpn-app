@@ -20,9 +20,9 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoRepository
 class AppInfoViewModel(
     changelogRepository: ChangelogRepository,
     appVersionInfoRepository: AppVersionInfoRepository,
-    val resources: Resources,
-    val isPlayBuild: Boolean,
-    val packageName: String,
+    private val resources: Resources,
+    private val isPlayBuild: Boolean,
+    private val packageName: String,
 ) : ViewModel() {
 
     private val _uiSideEffect = Channel<AppInfoSideEffect>()
