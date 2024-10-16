@@ -154,7 +154,7 @@ async fn send_location_request_internal(
     service: RequestServiceHandle,
 ) -> Result<AmIMullvad, Error> {
     let future_service = service.clone();
-    let request = mullvad_api::rest::Request::get(uri)?;
+    let request = mullvad_api::rest::get(uri)?;
     future_service.request(request).await?.deserialize().await
 }
 

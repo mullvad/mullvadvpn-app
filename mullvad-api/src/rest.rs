@@ -11,14 +11,17 @@ use futures::{
     channel::{mpsc, oneshot},
     stream::StreamExt,
 };
+use http_body_util::{combinators::BoxBody, BodyExt, Empty, Full};
 use hyper::{
-    client::{connect::Connect, Client},
+    body::{Body, Bytes, Incoming},
     header::{self, HeaderValue},
     Method, Uri,
 };
+use hyper_util::client::legacy::connect::Connect;
 use mullvad_types::account::AccountNumber;
 use std::{
     borrow::Cow,
+    convert::Infallible,
     error::Error as StdError,
     str::FromStr,
     sync::{Arc, Weak},
@@ -42,6 +45,9 @@ pub enum Error {
     #[error("Request cancelled")]
     Aborted,
 
+    #[error("Legacy hyper error")]
+    LegacyHyperError(#[from] Arc<hyper_util::client::legacy::Error>),
+
     #[error("Hyper error")]
     HyperError(#[from] Arc<hyper::Error>),
 
@@ -62,22 +68,31 @@ pub enum Error {
     ApiError(StatusCode, String),
 
     /// The string given was not a valid URI.
-    #[error("Not a valid URI")]
-    InvalidUri,
+    #[error("Not a valid URI {0}")]
+    InvalidUri(#[from] Arc<http::uri::InvalidUri>),
 
     #[error("Set account number on factory with no access token store")]
     NoAccessTokenStore,
 }
 
+impl From<Infallible> for Error {
+    fn from(_: Infallible) -> Self {
+        unreachable!()
+    }
+}
+
 impl Error {
     pub fn is_network_error(&self) -> bool {
-        matches!(self, Error::HyperError(_) | Error::TimeoutError)
+        matches!(
+            self,
+            Error::HyperError(_) | Error::LegacyHyperError(_) | Error::TimeoutError
+        )
     }
 
     /// Return true if there was no route to the destination
     pub fn is_offline(&self) -> bool {
         match self {
-            Error::HyperError(error) if error.is_connect() => {
+            Error::LegacyHyperError(error) if error.is_connect() => {
                 if let Some(cause) = error.source() {
                     if let Some(err) = cause.downcast_ref::<std::io::Error>() {
                         return err.raw_os_error() == Some(libc::ENETUNREACH);
@@ -85,6 +100,9 @@ impl Error {
                 }
                 false
             }
+            // TODO: Currently, we use the legacy hyper client for all REST requests. If this
+            // changes in the future, we likely need to match on `Error::HyperError` here and
+            // determine how to achieve the equivalent behavior. See DES-1288.
             _ => false,
         }
     }
@@ -113,13 +131,17 @@ impl Error {
     }
 }
 
+// TODO: Look into an alternative to using the legacy hyper client `DES-1288`
+type RequestClient =
+    hyper_util::client::legacy::Client<HttpsConnectorWithSni, BoxBody<Bytes, Error>>;
+
 /// A service that executes HTTP requests, allowing for on-demand termination of all in-flight
 /// requests
 pub(crate) struct RequestService<T: ConnectionModeProvider> {
     command_tx: Weak<mpsc::UnboundedSender<RequestCommand>>,
     command_rx: mpsc::UnboundedReceiver<RequestCommand>,
     connector_handle: HttpsConnectorWithSniHandle,
-    client: hyper::Client<HttpsConnectorWithSni, hyper::Body>,
+    client: RequestClient,
     connection_mode_provider: T,
     connection_mode_generation: usize,
     api_availability: ApiAvailability,
@@ -144,7 +166,9 @@ impl<T: ConnectionModeProvider + 'static> RequestService<T> {
         connector_handle.set_connection_mode(connection_mode_provider.initial());
 
         let (command_tx, command_rx) = mpsc::unbounded();
-        let client = Client::builder().build(connector);
+        let client =
+            hyper_util::client::legacy::Client::builder(hyper_util::rt::TokioExecutor::new())
+                .build(connector);
 
         let command_tx = Arc::new(command_tx);
 
@@ -203,13 +227,15 @@ impl<T: ConnectionModeProvider + 'static> RequestService<T> {
 
     fn handle_new_request(
         &mut self,
-        request: Request,
-        completion_tx: oneshot::Sender<Result<Response>>,
+        request: Request<BoxBody<Bytes, Error>>,
+        completion_tx: oneshot::Sender<Result<Response<Incoming>>>,
     ) {
         let tx = self.command_tx.upgrade();
 
         let api_availability = self.api_availability.clone();
-        let request_future = request.into_future(self.client.clone(), api_availability.clone());
+        let request_future = request
+            .map(|r| http::Request::map(r, BodyExt::boxed))
+            .into_future(self.client.clone(), api_availability.clone());
 
         let connection_mode_generation = self.connection_mode_generation;
 
@@ -246,8 +272,14 @@ impl RequestServiceHandle {
     }
 
     /// Submits a `RestRequest` for execution to the request service.
-    pub async fn request(&self, request: Request) -> Result<Response> {
+    pub async fn request<B>(&self, request: Request<B>) -> Result<Response<Incoming>>
+    where
+        B: Body + Send + Sync + 'static,
+        Error: From<B::Error>,
+        Bytes: From<B::Data>,
+    {
         let (completion_tx, completion_rx) = oneshot::channel();
+        let request = request.map(|r| r.map(box_body));
         self.tx
             .unbounded_send(RequestCommand::NewRequest(request, completion_tx))
             .map_err(|_| Error::RestServiceDown)?;
@@ -258,8 +290,8 @@ impl RequestServiceHandle {
 #[derive(Debug)]
 pub(crate) enum RequestCommand {
     NewRequest(
-        Request,
-        oneshot::Sender<std::result::Result<Response, Error>>,
+        Request<BoxBody<Bytes, Error>>,
+        oneshot::Sender<std::result::Result<Response<Incoming>, Error>>,
     ),
     Reset,
     NextApiConfig(usize),
@@ -267,38 +299,36 @@ pub(crate) enum RequestCommand {
 
 /// A REST request that is sent to the RequestService to be executed.
 #[derive(Debug)]
-pub struct Request {
-    request: hyper::Request<hyper::Body>,
+pub struct Request<B> {
+    request: hyper::Request<B>,
     timeout: Duration,
     access_token_store: Option<AccessTokenStore>,
     account: Option<AccountNumber>,
     expected_status: &'static [hyper::StatusCode],
 }
 
-impl Request {
-    /// Constructs a GET request with the given URI. Returns an error if the URI is not valid.
-    pub fn get(uri: &str) -> Result<Self> {
-        let uri = hyper::Uri::from_str(uri).map_err(|_| Error::InvalidUri)?;
+// TODO: merge with `RequestFactory::get`
+/// Constructs a GET request with the given URI. Returns an error if the URI is not valid.
+pub fn get(uri: &str) -> Result<Request<Empty<Bytes>>> {
+    let uri = hyper::Uri::from_str(uri)?;
 
-        let mut builder = http::request::Builder::new()
-            .method(Method::GET)
-            .header(header::USER_AGENT, HeaderValue::from_static(USER_AGENT))
-            .header(header::ACCEPT, HeaderValue::from_static("application/json"));
-        if let Some(host) = uri.host() {
-            builder = builder.header(
-                header::HOST,
-                HeaderValue::from_str(host).map_err(|_| Error::InvalidHeaderError)?,
-            );
-        };
+    let mut builder = http::request::Builder::new()
+        .method(Method::GET)
+        .header(header::USER_AGENT, HeaderValue::from_static(USER_AGENT))
+        .header(header::ACCEPT, HeaderValue::from_static("application/json"));
+    if let Some(host) = uri.host() {
+        builder = builder.header(
+            header::HOST,
+            HeaderValue::from_str(host).map_err(|_e| Error::InvalidHeaderError)?,
+        );
+    };
 
-        let request = builder.uri(uri).body(hyper::Body::empty())?;
-        Ok(Self::new(request, None))
-    }
+    let request = builder.uri(uri).body(Empty::<Bytes>::new())?;
+    Ok(Request::new(request, None))
+}
 
-    fn new(
-        request: hyper::Request<hyper::Body>,
-        access_token_store: Option<AccessTokenStore>,
-    ) -> Self {
+impl<B: Body> Request<B> {
+    fn new(request: hyper::Request<B>, access_token_store: Option<AccessTokenStore>) -> Self {
         Self {
             request,
             timeout: DEFAULT_TIMEOUT,
@@ -336,11 +366,64 @@ impl Request {
         Ok(self)
     }
 
+    /// Returns the URI of the request
+    pub fn uri(&self) -> &Uri {
+        self.request.uri()
+    }
+}
+impl<B> Request<B> {
+    /// Map the underlying [`hyper::Request`] type
+    fn map<F, B2>(self, f: F) -> Request<B2>
+    where
+        F: FnOnce(hyper::Request<B>) -> hyper::Request<B2>,
+    {
+        Request {
+            request: f(self.request),
+            timeout: self.timeout,
+            access_token_store: self.access_token_store,
+            account: self.account,
+            expected_status: self.expected_status,
+        }
+    }
+}
+
+fn box_body<B>(body: B) -> BoxBody<Bytes, Error>
+where
+    B: Body + Send + Sync + 'static,
+    Error: From<B::Error>,
+    Bytes: From<B::Data>,
+{
+    try_downcast(body).unwrap_or_else(|body| {
+        body.map_frame(|frame| frame.map_data(Bytes::from))
+            .map_err(Error::from)
+            .boxed()
+    })
+}
+
+pub(crate) fn try_downcast<T, K>(k: K) -> core::result::Result<T, K>
+where
+    T: 'static,
+    K: Send + 'static,
+{
+    let mut k = Some(k);
+    if let Some(k) = <dyn std::any::Any>::downcast_mut::<Option<T>>(&mut k) {
+        Ok(k.take().unwrap())
+    } else {
+        Err(k.unwrap())
+    }
+}
+
+impl<B> Request<B>
+where
+    B: Body + Send + 'static + Unpin,
+    B::Data: Send,
+    B::Error: Into<Box<dyn StdError + Send + Sync>>,
+{
     async fn into_future<C: Connect + Clone + Send + Sync + 'static>(
         self,
-        hyper_client: hyper::Client<C>,
+        hyper_client: hyper_util::client::legacy::Client<C, B>,
         api_availability: ApiAvailability,
-    ) -> Result<Response> {
+    ) -> Result<Response<Incoming>> {
         let timeout = self.timeout;
         let inner_fut = self.into_future_without_timeout(hyper_client, api_availability);
         tokio::time::timeout(timeout, inner_fut)
@@ -348,11 +431,14 @@ impl Request {
             .map_err(|_| Error::TimeoutError)?
     }
 
-    async fn into_future_without_timeout<C: Connect + Clone + Send + Sync + 'static>(
+    async fn into_future_without_timeout<C>(
         mut self,
-        hyper_client: hyper::Client<C>,
+        hyper_client: hyper_util::client::legacy::Client<C, B>,
         api_availability: ApiAvailability,
-    ) -> Result<Response> {
+    ) -> Result<Response<Incoming>>
+    where
+        C: Connect + Clone + Send + Sync + 'static,
+    {
         let _ = api_availability.wait_for_unsuspend().await;
 
         // Obtain access token first
@@ -399,21 +485,19 @@ impl Request {
 
         Ok(Response::new(response))
     }
-
-    /// Returns the URI of the request
-    pub fn uri(&self) -> &Uri {
-        self.request.uri()
-    }
 }
 
 /// Successful result of a REST request
 #[derive(Debug)]
-pub struct Response {
-    response: hyper::Response<hyper::Body>,
+pub struct Response<B> {
+    response: hyper::Response<B>,
 }
 
-impl Response {
-    fn new(response: hyper::Response<hyper::Body>) -> Self {
+impl<B: Body> Response<B>
+where
+    Error: From<<B as Body>::Error>,
+{
+    fn new(response: hyper::Response<B>) -> Self {
         Self { response }
     }
 
@@ -426,8 +510,7 @@ impl Response {
     }
 
     pub async fn deserialize<T: serde::de::DeserializeOwned>(self) -> Result<T> {
-        let body_length = get_body_length(&self.response);
-        deserialize_body_inner(self.response, body_length).await
+        deserialize_body_inner(self.response).await
     }
 }
 
@@ -462,38 +545,46 @@ impl RequestFactory {
         }
     }
 
-    pub fn request(&self, path: &str, method: Method) -> Result<Request> {
+    pub fn request<B: Body + Default>(&self, path: &str, method: Method) -> Result<Request<B>> {
         Ok(
             Request::new(self.hyper_request(path, method)?, self.token_store.clone())
                 .timeout(self.default_timeout),
         )
     }
 
-    pub fn get(&self, path: &str) -> Result<Request> {
+    pub fn get(&self, path: &str) -> Result<Request<Empty<Bytes>>> {
         self.request(path, Method::GET)
     }
 
-    pub fn post(&self, path: &str) -> Result<Request> {
+    pub fn post(&self, path: &str) -> Result<Request<Empty<Bytes>>> {
         self.request(path, Method::POST)
     }
 
-    pub fn put(&self, path: &str) -> Result<Request> {
+    pub fn put(&self, path: &str) -> Result<Request<Empty<Bytes>>> {
         self.request(path, Method::PUT)
     }
 
-    pub fn delete(&self, path: &str) -> Result<Request> {
+    pub fn delete(&self, path: &str) -> Result<Request<Empty<Bytes>>> {
         self.request(path, Method::DELETE)
     }
 
-    pub fn head(&self, path: &str) -> Result<Request> {
+    pub fn head(&self, path: &str) -> Result<Request<Empty<Bytes>>> {
         self.request(path, Method::HEAD)
     }
 
-    pub fn post_json<S: serde::Serialize>(&self, path: &str, body: &S) -> Result<Request> {
+    pub fn post_json<S: serde::Serialize>(
+        &self,
+        path: &str,
+        body: &S,
+    ) -> Result<Request<Full<Bytes>>> {
         self.json_request(Method::POST, path, body)
     }
 
-    pub fn put_json<S: serde::Serialize>(&self, path: &str, body: &S) -> Result<Request> {
+    pub fn put_json<S: serde::Serialize>(
+        &self,
+        path: &str,
+        body: &S,
+    ) -> Result<Request<Full<Bytes>>> {
         self.json_request(Method::PUT, path, body)
     }
 
@@ -501,18 +592,17 @@ impl RequestFactory {
         self.default_timeout = timeout;
         self
     }
-
     fn json_request<S: serde::Serialize>(
         &self,
         method: Method,
         path: &str,
         body: &S,
-    ) -> Result<Request> {
+    ) -> Result<Request<Full<Bytes>>> {
         let mut request = self.hyper_request(path, method)?;
 
-        let json_body = serde_json::to_string(&body)?;
-        let body_length = json_body.as_bytes().len();
-        *request.body_mut() = json_body.into_bytes().into();
+        let json_body = serde_json::to_vec(&body)?;
+        let body_length = json_body.len();
+        *request.body_mut() = Full::new(Bytes::from(json_body));
 
         let headers = request.headers_mut();
         headers.insert(header::CONTENT_LENGTH, HeaderValue::from(body_length));
@@ -524,7 +614,7 @@ impl RequestFactory {
         Ok(Request::new(request, self.token_store.clone()).timeout(self.default_timeout))
     }
 
-    fn hyper_request(&self, path: &str, method: Method) -> Result<hyper::Request<hyper::Body>> {
+    fn hyper_request<B: Default>(&self, path: &str, method: Method) -> Result<http::Request<B>> {
         let uri = self.get_uri(path)?;
         let request = http::request::Builder::new()
             .method(method)
@@ -536,17 +626,17 @@ impl RequestFactory {
                 HeaderValue::from_str(&self.hostname).map_err(|_| Error::InvalidHeaderError)?,
             );
 
-        let result = request.body(hyper::Body::empty())?;
+        let result = request.body(B::default())?;
         Ok(result)
     }
 
     fn get_uri(&self, path: &str) -> Result<Uri> {
         let uri = format!("https://{}/{}", self.hostname, path);
-        hyper::Uri::from_str(&uri).map_err(|_| Error::InvalidUri)
+        Ok(hyper::Uri::from_str(&uri)?)
     }
 }
 
-fn get_body_length(response: &hyper::Response<hyper::Body>) -> usize {
+fn get_body_length<B>(response: &hyper::Response<B>) -> usize {
     response
         .headers()
         .get(header::CONTENT_LENGTH)
@@ -555,20 +645,22 @@ fn get_body_length(response: &hyper::Response<hyper::Body>) -> usize {
         .unwrap_or(0)
 }
 
-async fn handle_error_response<T>(response: hyper::Response<hyper::Body>) -> Result<T> {
+async fn handle_error_response<T, B: Body>(response: hyper::Response<B>) -> Result<T>
+where
+    Error: From<B::Error>,
+{
     let status = response.status();
     let error_message = match status {
         hyper::StatusCode::METHOD_NOT_ALLOWED => "Method not allowed",
         status => match get_body_length(&response) {
             0 => status.canonical_reason().unwrap_or("Unexpected error"),
-            body_length => {
+            _length => {
                 return match response.headers().get("content-type") {
                     Some(content_type) if content_type == "application/problem+json" => {
                         // TODO: We should make sure we unify the new error format and the old
                         // error format so that they both produce the same Errors for the same
                         // problems after being processed.
-                        let err: NewErrorResponse =
-                            deserialize_body_inner(response, body_length).await?;
+                        let err: NewErrorResponse = deserialize_body_inner(response).await?;
                         // The new error type replaces the `code` field with the `type` field.
                         // This is what is used to programmatically check the error.
                         Err(Error::ApiError(
@@ -578,8 +670,7 @@ async fn handle_error_response<T>(response: hyper::Response<hyper::Body>) -> Res
                         ))
                     }
                     _ => {
-                        let err: OldErrorResponse =
-                            deserialize_body_inner(response, body_length).await?;
+                        let err: OldErrorResponse = deserialize_body_inner(response).await?;
                         Err(Error::ApiError(status, err.code))
                     }
                 };
@@ -589,16 +680,17 @@ async fn handle_error_response<T>(response: hyper::Response<hyper::Body>) -> Res
     Err(Error::ApiError(status, error_message.to_owned()))
 }
 
-async fn deserialize_body_inner<T: serde::de::DeserializeOwned>(
-    mut response: hyper::Response<hyper::Body>,
-    body_length: usize,
-) -> Result<T> {
-    let mut body: Vec<u8> = Vec::with_capacity(body_length);
-    while let Some(chunk) = response.body_mut().next().await {
-        body.extend(&chunk?);
-    }
+async fn deserialize_body_inner<T, B>(response: hyper::Response<B>) -> Result<T>
+where
+    T: serde::de::DeserializeOwned,
+    B: Body,
+    Error: From<B::Error>,
+{
+    use http_body_util::BodyExt;
 
-    serde_json::from_slice(&body).map_err(Error::from)
+    let collected = BodyExt::collect(response).await?;
+    let res = serde_json::from_slice(&collected.to_bytes())?;
+    Ok(res)
 }
 
 #[derive(Clone)]
@@ -637,5 +729,7 @@ macro_rules! impl_into_arc_err {
 }
 
 impl_into_arc_err!(hyper::Error);
+impl_into_arc_err!(hyper_util::client::legacy::Error);
 impl_into_arc_err!(serde_json::Error);
 impl_into_arc_err!(http::Error);
+impl_into_arc_err!(http::uri::InvalidUri);
