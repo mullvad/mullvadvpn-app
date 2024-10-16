@@ -46,7 +46,8 @@ commit=${commit:0:6}
 TAG=$(git describe --exact-match HEAD 2>/dev/null || echo "")
 
 if [[ -n "$TAG" && ${CURRENT_VERSION} =~ -dev- ]]; then
-    CURRENT_VERSION+="+${TAG}"
+    # Remove disallowed version characters from the tag
+    CURRENT_VERSION+="+${TAG//[^0-9a-z_-]/}"
 fi
 
 export CURRENT_VERSION
