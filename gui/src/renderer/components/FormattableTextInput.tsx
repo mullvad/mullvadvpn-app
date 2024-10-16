@@ -124,6 +124,7 @@ function FormattableTextInput(
   // Use value provided in props if it differs from current input value.
   useEffect(() => {
     if (typeof value === 'string' && ref.current && unformat(ref.current.value) !== value) {
+      // eslint-disable-next-line react-compiler/react-compiler
       ref.current.value = format(value, addTrailingSeparator);
     }
   }, [format, value, addTrailingSeparator, ref, unformat]);

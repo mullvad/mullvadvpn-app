@@ -72,7 +72,7 @@ export function ExpandableSection(props: ExpandableSectionProps) {
   const [expanded, , , toggleExpanded] = useBoolean(expandedValue);
 
   const updateHistory = useEffectEvent((expanded: boolean) => {
-    history.location.state.expandedSections[props.expandableId] = expanded;
+    history.recordSectionExpandedState(props.expandableId, expanded);
     setNavigationHistory(history.asObject);
   });
 

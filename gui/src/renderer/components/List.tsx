@@ -36,7 +36,9 @@ export default function List<T>(props: ListProps<T>) {
     convertToRowDisplayData(props.items, props.getKey),
   );
   // Skip add transition on first render when initial items are added.
-  const skipAddTransition = useRef(props.skipInitialAddTransition ?? false);
+  const [skipAddTransition, setSkipAddTransition] = useState(
+    props.skipInitialAddTransition ?? false,
+  );
 
   const removeFallbackSchedulers = useRef<Record<string, Scheduler>>({});
 
@@ -56,7 +58,7 @@ export default function List<T>(props: ListProps<T>) {
   useEffect(() => {
     // Set to animate accordion for added items after first render unless
     // props.skipAddTransition === true.
-    skipAddTransition.current = props.skipAddTransition ?? false;
+    setSkipAddTransition(props.skipAddTransition ?? false);
   }, [props.skipAddTransition]);
 
   const onRemoved = useCallback((key: string) => {
@@ -95,7 +97,7 @@ export default function List<T>(props: ListProps<T>) {
           data={displayItem}
           onRemoved={onRemoved}
           render={props.children}
-          skipAddTransition={skipAddTransition.current}
+          skipAddTransition={skipAddTransition}
         />
       ))}
     </>
