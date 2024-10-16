@@ -594,7 +594,7 @@ class ConnectScreenTest {
             val versionInfo = VersionInfo(isSupported = false, currentVersion = "")
             setContentWithTheme {
                 ConnectScreen(
-                    onUpdateVersionClick = mockedClickHandler,
+                    onOpenAppListing = mockedClickHandler,
                     state =
                         ConnectUiState(
                             location = null,
