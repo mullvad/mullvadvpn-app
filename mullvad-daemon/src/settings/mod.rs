@@ -114,6 +114,9 @@ impl SettingsPersister {
 
             // Auto-connect is managed by Android itself.
             settings.auto_connect = false;
+
+            // Lockdown mode is managed by the Android OS.
+            settings.block_when_disconnected = false;
         }
         if crate::version::is_beta_version() {
             should_save |= !settings.show_beta_releases;
