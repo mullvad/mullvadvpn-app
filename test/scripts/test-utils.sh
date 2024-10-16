@@ -95,8 +95,7 @@ function nice_time {
 # Returns 0 if $1 is a development build. `BASH_REMATCH` contains match groups
 # if that is the case.
 function is_dev_version {
-    local pattern="(^[0-9.]+(-beta[0-9]+)?-dev-)([0-9a-z]+)(\+[0-9a-z|-]+)?$"
-    if [[ "$1" =~ $pattern ]]; then
+    if [[ "$1" == *"-dev-"* ]]; then
         return 0
     fi
     return 1
