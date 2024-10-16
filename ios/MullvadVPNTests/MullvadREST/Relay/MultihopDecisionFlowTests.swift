@@ -169,8 +169,7 @@ extension MultihopDecisionFlowTests {
             relays: sampleRelays,
             constraints: constraints,
             connectionAttemptCount: 0,
-            daitaSettings: DAITASettings(daitaState: .off),
-            automaticDaitaRouting: false
+            daitaSettings: DAITASettings(daitaState: .off)
         )
     }
 

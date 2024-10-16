@@ -92,11 +92,11 @@ final class LocationViewController: UIViewController {
         self.relaysWithLocation = relaysWithLocation
         self.filter = filter
 
+        filterView.setFilter(filter)
         if filterViewShouldBeHidden {
             filterView.isHidden = true
         } else {
             filterView.isHidden = false
-            filterView.setFilter(filter)
         }
 
         dataSource?.setRelays(relaysWithLocation, selectedRelays: selectedRelays)
