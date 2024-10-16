@@ -650,19 +650,7 @@ impl RelaySelector {
             query.tunnel_protocol(),
             Constraint::Only(TunnelType::Wireguard)
         );
-        let inner = if !query.wireguard_constraints().multihop() {
-            WireguardConfig::from(Self::get_wireguard_singlehop_config(
-                query,
-                custom_lists,
-                parsed_relays,
-            )?)
-        } else {
-            WireguardConfig::from(Self::get_wireguard_multihop_config(
-                query,
-                custom_lists,
-                parsed_relays,
-            )?)
-        };
+        let inner = Self::get_wireguard_relay_config(query, custom_lists, parsed_relays)?;
         let endpoint = Self::get_wireguard_endpoint(query, parsed_relays, &inner)?;
         let obfuscator =
             Self::get_wireguard_obfuscator(query, inner.clone(), &endpoint, parsed_relays)?;
@@ -674,42 +662,60 @@ impl RelaySelector {
         })
     }
 
+    /// TODO: Document
+    fn get_wireguard_relay_config(
+        query: &RelayQuery,
+        custom_lists: &CustomListsSettings,
+        parsed_relays: &ParsedRelays,
+    ) -> Result<WireguardConfig, Error> {
+        let singlehop = !query.wireguard_constraints().multihop();
+        let inner = if singlehop {
+            match Self::get_wireguard_singlehop_config(query, custom_lists, parsed_relays) {
+                Some(exit) => WireguardConfig::from(exit),
+                None => {
+                    // No exit candidate was found.. Check if smart routing stuff works!
+                    WireguardConfig::from(Self::select_daita_multihop_through_smart_routing(
+                        query,
+                        custom_lists,
+                        parsed_relays,
+                    )?;
+                    WireguardConfig::from(multihop)
+                }
+            }
+        } else {
+            WireguardConfig::from(Self::get_wireguard_multihop_config(
+                query,
+                custom_lists,
+                parsed_relays,
+            )?)
+        };
+
+        Ok(inner)
+    }
+
     /// Select a valid Wireguard exit relay.
     ///
     /// # Returns
-    /// * An `Err` if no exit relay can be chosen
-    /// * `Ok(WireguardConfig)` otherwise
+    /// * `Ok(WireguardConfig)` if an exit relay was selected
+    /// * `None` otherwise
     fn get_wireguard_singlehop_config(
         query: &RelayQuery,
         custom_lists: &CustomListsSettings,
         parsed_relays: &ParsedRelays,
-    ) -> Result<Singlehop, Error> {
+    ) -> Option<Singlehop> {
         let candidates = filter_matching_relay_list(query, parsed_relays, custom_lists);
-
-        // // TODO: Move somewhere
-        // // Or keep here, but return either.
-        // if let Some(x) = Self::select_daita_multihop_config_if_necessary(
-        //     query,
-        //     custom_lists,
-        //     parsed_relays,
-        //     &candidates,
-        // )? {
-        //     return Ok(x);
-        // }
-
         helpers::pick_random_relay(&candidates)
             .cloned()
             .map(Singlehop::new)
-            .ok_or(Error::NoRelay)
     }
 
-    fn select_daita_multihop_config_if_necessary(
+    /// TODO: Make sure to make a comment regarding the fact that we no longer check for 'empty'
+    /// candidates.
+    fn select_daita_multihop_through_smart_routing(
         query: &RelayQuery,
         custom_lists: &CustomListsSettings,
         parsed_relays: &ParsedRelays,
-        // TODO: What is this??
-        candidates: &[Relay],
-    ) -> Result<Option<Multihop>, Error> {
+    ) -> Result<Multihop, Error> {
         // are we using daita?
         let using_daita = || query.wireguard_constraints().daita == Constraint::Only(true);
 
@@ -735,16 +741,10 @@ impl RelaySelector {
         // if we found no matching relays because DAITA was enabled, and `use_multihop_if_necessary`
         // is enabled, try enabling multihop and connecting using an automatically selected
         // entry relay.
-        //
-        // TODO: I think this should be pushed up one level and not be in this function scope.
-        if candidates.is_empty()
-            && using_daita()
-            && no_relay_because_daita()?
-            && use_multihop_if_necessary()
-        {
-            Self::get_wireguard_auto_multihop_config(query, custom_lists, parsed_relays).map(Some)
+        if using_daita() && no_relay_because_daita()? && use_multihop_if_necessary() {
+            Self::get_wireguard_auto_multihop_config(query, custom_lists, parsed_relays)
         } else {
-            Ok(None)
+            Err(Error::NoRelay)
         }
     }
 
