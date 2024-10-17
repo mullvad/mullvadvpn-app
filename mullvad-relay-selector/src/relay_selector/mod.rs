@@ -629,7 +629,7 @@ impl RelaySelector {
         Self::get_wireguard_relay(&query, custom_lists, parsed_relays)
     }
 
-    /// Derive a valid Wireguard relay configuration from `query`.
+    /// Derive a valid relay configuration from `query`.
     ///
     /// # Note
     /// This function should *only* be called with a Wireguard query.
@@ -663,23 +663,35 @@ impl RelaySelector {
         })
     }
 
-    /// TODO: Document
+    /// Derive a valid Wireguard relay configuration from `query`.
+    ///
+    /// # Returns
+    /// * An `Err` if no exit relay can be chosen
+    /// * An `Err` if no entry relay can be chosen (if multihop is enabled on `query`)
+    /// * `Ok(WireguardConfig)` otherwise
     fn get_wireguard_relay_config(
         query: &RelayQuery,
         custom_lists: &CustomListsSettings,
         parsed_relays: &ParsedRelays,
     ) -> Result<WireguardConfig, Error> {
+        // TODO: Make sure that this works differently on Android.
         let inner = if query.singlehop() {
             match Self::get_wireguard_singlehop_config(query, custom_lists, parsed_relays) {
                 Some(exit) => WireguardConfig::from(exit),
                 None => {
-                    // No exit candidate was found.. Time to try smart routing!
-                    let multihop = Self::select_daita_multihop_through_smart_routing(
-                        query,
-                        custom_lists,
-                        parsed_relays,
-                    )?;
-                    WireguardConfig::from(multihop)
+                    // If we found no matching relays because DAITA was enabled, and `use_multihop_if_necessary`
+                    // is enabled, try enabling multihop and connecting using an automatically selected
+                    // entry relay.
+                    if query.using_daita() && query.use_multihop_if_necessary() {
+                        let multihop = Self::get_wireguard_auto_multihop_config(
+                            query,
+                            custom_lists,
+                            parsed_relays,
+                        )?;
+                        WireguardConfig::from(multihop)
+                    } else {
+                        return Err(Error::NoRelay);
+                    }
                 }
             }
         } else {
@@ -712,33 +724,6 @@ impl RelaySelector {
         helpers::pick_random_relay(&candidates)
             .cloned()
             .map(Singlehop::new)
-    }
-
-    /// TODO: Make sure to make a comment regarding the fact that we no longer check for 'empty'
-    /// candidates.
-    fn select_daita_multihop_through_smart_routing(
-        query: &RelayQuery,
-        custom_lists: &CustomListsSettings,
-        parsed_relays: &ParsedRelays,
-    ) -> Result<Multihop, Error> {
-        // is the `candidates` list empty because DAITA is enabled?
-        let no_relay_because_daita = || {
-            let mut query = query.clone();
-            let mut wireguard_constraints = query.wireguard_constraints().clone();
-            wireguard_constraints.daita = Constraint::Any;
-            query.set_wireguard_constraints(wireguard_constraints)?;
-            let candidates = filter_matching_relay_list(&query, parsed_relays, custom_lists);
-            Result::<_, Error>::Ok(!candidates.is_empty())
-        };
-
-        // if we found no matching relays because DAITA was enabled, and `use_multihop_if_necessary`
-        // is enabled, try enabling multihop and connecting using an automatically selected
-        // entry relay.
-        if query.using_daita() && query.use_multihop_if_necessary() && no_relay_because_daita()? {
-            Self::get_wireguard_auto_multihop_config(query, custom_lists, parsed_relays)
-        } else {
-            Err(Error::NoRelay)
-        }
     }
 
     /// Select a valid Wireguard exit relay, together with with an automatically chosen entry relay.
