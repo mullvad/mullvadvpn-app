@@ -1,1 +1,2 @@
-- Fix rare crash related to an upcoming feature (feature indicators).
+- Fix a bug where obfuscation (UDP-over-TCP or Shadowsocks) only worked if
+  combined with either DAITA or the quantum-resistant tunnel setting.
