@@ -519,7 +519,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         }
     }
 
-    /// Returns an operation that acts on two conditions:
+    /// Returns an operation that acts on the following conditions:
+    /// 1. If the app has never been launched, preload with default settings.
+    /// - or -
     /// 1. Has the app been launched at least once after install? (`FirstTimeLaunch.hasFinished`)
     /// 2. Has the app - at some point in time - been updated from a version compatible with wiping settings?
     /// (`SettingsManager.getShouldWipeSettings()`)
@@ -527,7 +529,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     /// compatible, thus triggering a settings wipe.
     private func getWipeSettingsOperation() -> AsyncBlockOperation {
         AsyncBlockOperation {
-            if !FirstTimeLaunch.hasFinished, SettingsManager.getShouldWipeSettings() {
+            let appHasNeverBeenLaunched = !FirstTimeLaunch.hasFinished && !SettingsManager.getShouldWipeSettings()
+            let appWasLaunchedAfterReinstall = !FirstTimeLaunch.hasFinished && SettingsManager.getShouldWipeSettings()
+
+            if appHasNeverBeenLaunched {
+                try? SettingsManager.writeSettings(LatestTunnelSettings())
+            } else if appWasLaunchedAfterReinstall {
                 if let deviceState = try? SettingsManager.readDeviceState(),
                    let accountData = deviceState.accountData,
                    let deviceData = deviceState.deviceData {
