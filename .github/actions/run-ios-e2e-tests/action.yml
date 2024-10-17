@@ -19,6 +19,9 @@ runs:
     # Set up a unique output directory
     - name: Set up outputs directory
       run: |
+        # Forcing the filesystem buffers to be flushed to ensure the
+        # directory tree is updated
+        sync
         if [ -n "$TEST_NAME" ]; then
           # Strip slashes to avoid creating subdirectories
           test_name_sanitized=$(printf "$TEST_NAME" | sed 's/\//_/g')
@@ -45,6 +48,9 @@ runs:
 
     - name: Run end-to-end-tests
       run: |
+        # Forcing the filesystem buffers to be flushed to ensure the
+        # directory tree is updated
+        sync
         if [ -n "$TEST_NAME" ]; then
           TEST_NAME_ARGUMENT=" -only-testing $TEST_NAME"
         else
