@@ -45,8 +45,7 @@ class RelayPickingTests: XCTestCase {
             relays: sampleRelays,
             constraints: constraints,
             connectionAttemptCount: 0,
-            daitaSettings: DAITASettings(),
-            automaticDaitaRouting: false
+            daitaSettings: DAITASettings()
         )
 
         let selectedRelays = try picker.pick()
@@ -65,8 +64,7 @@ class RelayPickingTests: XCTestCase {
             relays: sampleRelays,
             constraints: constraints,
             connectionAttemptCount: 0,
-            daitaSettings: DAITASettings(),
-            automaticDaitaRouting: false
+            daitaSettings: DAITASettings()
         )
 
         XCTAssertThrowsError(
@@ -124,7 +122,7 @@ class RelayPickingTests: XCTestCase {
 
         let selectedRelays = try picker.pick()
 
-        XCTAssertNil(selectedRelays.entry?.hostname)
+        XCTAssertEqual(selectedRelays.entry?.hostname, "us-nyc-wg-301") // New York relay is closest to exit relay.
         XCTAssertEqual(selectedRelays.exit.hostname, "es1-wireguard")
     }
 
@@ -152,7 +150,7 @@ class RelayPickingTests: XCTestCase {
             exitLocations: .only(UserSelectedRelays(locations: [.hostname("se", "got", "se10-wireguard")]))
         )
 
-        let picker = SinglehopPicker(
+        let picker = MultihopPicker(
             relays: sampleRelays,
             constraints: constraints,
             connectionAttemptCount: 0,
@@ -171,7 +169,7 @@ class RelayPickingTests: XCTestCase {
             exitLocations: .only(UserSelectedRelays(locations: [.hostname("se", "got", "se10-wireguard")]))
         )
 
-        let picker = SinglehopPicker(
+        let picker = MultihopPicker(
             relays: sampleRelays,
             constraints: constraints,
             connectionAttemptCount: 0,
@@ -190,7 +188,7 @@ class RelayPickingTests: XCTestCase {
             exitLocations: .only(UserSelectedRelays(locations: [.hostname("se", "got", "se10-wireguard")]))
         )
 
-        let picker = SinglehopPicker(
+        let picker = MultihopPicker(
             relays: sampleRelays,
             constraints: constraints,
             connectionAttemptCount: 0,

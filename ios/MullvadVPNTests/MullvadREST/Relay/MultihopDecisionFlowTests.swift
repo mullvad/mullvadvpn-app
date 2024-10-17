@@ -99,7 +99,7 @@ class MultihopDecisionFlowTests: XCTestCase {
         let selectedRelays = try oneToOne.pick(
             entryCandidates: entryCandidates,
             exitCandidates: exitCandidates,
-            automaticDaitaRouting: false
+            daitaAutomaticRouting: false
         )
 
         XCTAssertEqual(selectedRelays.entry?.hostname, "se2-wireguard")
@@ -115,7 +115,7 @@ class MultihopDecisionFlowTests: XCTestCase {
         let selectedRelays = try oneToMany.pick(
             entryCandidates: entryCandidates,
             exitCandidates: exitCandidates,
-            automaticDaitaRouting: false
+            daitaAutomaticRouting: false
         )
 
         XCTAssertEqual(selectedRelays.entry?.hostname, "se2-wireguard")
@@ -131,7 +131,7 @@ class MultihopDecisionFlowTests: XCTestCase {
         let selectedRelays = try manyToOne.pick(
             entryCandidates: entryCandidates,
             exitCandidates: exitCandidates,
-            automaticDaitaRouting: false
+            daitaAutomaticRouting: false
         )
 
         XCTAssertEqual(selectedRelays.entry?.hostname, "se6-wireguard")
@@ -147,7 +147,7 @@ class MultihopDecisionFlowTests: XCTestCase {
         let selectedRelays = try manyToMany.pick(
             entryCandidates: entryCandidates,
             exitCandidates: exitCandidates,
-            automaticDaitaRouting: false
+            daitaAutomaticRouting: false
         )
 
         if selectedRelays.exit.hostname == "se2-wireguard" {
@@ -169,8 +169,7 @@ extension MultihopDecisionFlowTests {
             relays: sampleRelays,
             constraints: constraints,
             connectionAttemptCount: 0,
-            daitaSettings: DAITASettings(daitaState: .off),
-            automaticDaitaRouting: false
+            daitaSettings: DAITASettings(daitaState: .off)
         )
     }
 

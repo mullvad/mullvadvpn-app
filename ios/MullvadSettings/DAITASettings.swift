@@ -40,8 +40,12 @@ public struct DAITASettings: Codable, Equatable {
     public let daitaState: DAITAState
     public let directOnlyState: DirectOnlyState
 
-    public var shouldDoAutomaticRouting: Bool {
+    public var isAutomaticRouting: Bool {
         daitaState.isEnabled && !directOnlyState.isEnabled
+    }
+
+    public var isDirectOnly: Bool {
+        daitaState.isEnabled && directOnlyState.isEnabled
     }
 
     public init(daitaState: DAITAState = .off, directOnlyState: DirectOnlyState = .off) {
