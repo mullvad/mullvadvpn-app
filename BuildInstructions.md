@@ -1,5 +1,5 @@
 These are instructions on how to build the app on desktop platforms. See the
-[readme](./README.md#building-the-app) for help build building on other platforms.
+[readme](./README.md#building-the-app) for help building on other platforms.
 
 # Install toolchains and dependencies
 
@@ -195,7 +195,7 @@ After that copy the files from `gui/src/main/management_interface/` and
 `gui/build/src/main/management_interface/` directories into a single directory, and set the value
 of `MANAGEMENT_INTERFACE_PROTO_BUILD_DIR` to that directory while running the main build.
 
-When all is done run the main build. Assuming that you copied the proto files into `/tmp/management_interface_proto`
+When all is done, run the main build. Assuming that you copied the proto files into `/tmp/management_interface_proto`
 directory, the build command will look as follows:
 
 ```bash
@@ -224,7 +224,7 @@ This section is for building the system service individually.
     ```
 
 1. Copy the OpenVPN binaries, and our plugin for it, to the directory we will
-    use as resource directory. If you want to use any other directory, you would need to copy
+    use as a resource directory. If you want to use any other directory, you would need to copy
     even more files.
     ```bash
     cp dist-assets/binaries/<platform>/openvpn[.exe] dist-assets/
