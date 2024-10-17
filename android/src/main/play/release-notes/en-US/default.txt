@@ -1,1 +1,1 @@
-- Fix rare crash related to an upcoming feature (feature indicators).
+- Fix a bug where tunnel obfuscation (UDP-over-TCP or Shadowsocks) only partially worked in some setting combinations.
