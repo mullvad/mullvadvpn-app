@@ -2403,10 +2403,9 @@ impl Daemon {
                     .intersection(Constraint::Only(TunnelType::Wireguard))
                     .is_some();
 
-                let multihop_enabled = constraints.wireguard_constraints.use_multihop;
                 let daita_enabled = self.settings.tunnel_options.wireguard.daita.enabled;
 
-                if settings_changed && wireguard_enabled && daita_enabled && !multihop_enabled {
+                if settings_changed && wireguard_enabled && daita_enabled {
                     log::info!("Reconnecting because DAITA settings changed");
                     self.reconnect_tunnel();
                 }
