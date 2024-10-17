@@ -11,6 +11,7 @@ rust-version.workspace = true
 workspace = true
 
 [dependencies]
+dirs = "5.0.1"
 futures = { workspace = true }
 tarpc = { workspace = true }
 tokio = { workspace = true }

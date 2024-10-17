@@ -92,12 +92,24 @@ impl Service for TestServer {
         log::debug!("Exec {} (args: {args:?})", path);
 
         let mut cmd = Command::new(&path);
+        cmd.stdout(Stdio::piped());
+        cmd.stderr(Stdio::piped());
+        cmd.stdin(Stdio::piped());
         cmd.args(args);
 
-        // Make sure that PATH is updated
-        // TODO: We currently do not need this on non-Windows
         #[cfg(target_os = "windows")]
-        cmd.env("PATH", sys::get_system_path_var()?);
+        {
+            // Make sure that PATH is updated
+            cmd.env("PATH", sys::get_system_path_var()?);
+            if let Some(home_dir) = dirs::home_dir() {
+                cmd.env("USERPROFILE", home_dir);
+            }
+        }
+
+        #[cfg(unix)]
+        if let Some(home_dir) = dirs::home_dir() {
+            cmd.env("HOME", home_dir);
+        }
 
         cmd.envs(env);
 
