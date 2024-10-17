@@ -127,7 +127,7 @@ interface INotificationActionWrapperProps {
 }
 
 function NotificationActionWrapper(props: INotificationActionWrapperProps) {
-  const history = useHistory();
+  const { push } = useHistory();
   const { openLinkWithAuth, openUrl } = useAppContext();
   const [troubleshootInfo, setTroubleshootInfo] = useState<InAppNotificationTroubleshootInfo>();
 
@@ -150,12 +150,12 @@ function NotificationActionWrapper(props: INotificationActionWrapperProps) {
     }
 
     return Promise.resolve();
-  }, [props.action]);
+  }, [openLinkWithAuth, openUrl, props.action]);
 
   const goToProblemReport = useCallback(() => {
     setTroubleshootInfo(undefined);
-    history.push(RoutePath.problemReport, { transition: transitions.show });
-  }, []);
+    push(RoutePath.problemReport, { transition: transitions.show });
+  }, [push]);
 
   const closeTroubleshootInfo = useCallback(() => setTroubleshootInfo(undefined), []);
 

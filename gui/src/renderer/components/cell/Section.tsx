@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { colors } from '../../../config.json';
 import { useAppContext } from '../../context';
 import { useHistory } from '../../lib/history';
-import { useBoolean } from '../../lib/utilityHooks';
+import { useBoolean, useEffectEvent } from '../../lib/utility-hooks';
 import Accordion from '../Accordion';
 import ChevronButton from '../ChevronButton';
 import { buttonText, openSans, sourceSansPro } from '../common-styles';
@@ -71,9 +71,13 @@ export function ExpandableSection(props: ExpandableSectionProps) {
     history.location.state.expandedSections[props.expandableId] ?? !!expandedInitially;
   const [expanded, , , toggleExpanded] = useBoolean(expandedValue);
 
-  useEffect(() => {
-    history.location.state.expandedSections[props.expandableId] = expanded;
+  const updateHistory = useEffectEvent((expanded: boolean) => {
+    history.recordSectionExpandedState(props.expandableId, expanded);
     setNavigationHistory(history.asObject);
+  });
+
+  useEffect(() => {
+    updateHistory(expanded);
   }, [expanded]);
 
   const title = (

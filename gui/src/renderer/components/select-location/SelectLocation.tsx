@@ -8,8 +8,8 @@ import { useRelaySettingsUpdater } from '../../lib/constraint-updater';
 import { daitaFilterActive, filterSpecialLocations } from '../../lib/filter-locations';
 import { useHistory } from '../../lib/history';
 import { formatHtml } from '../../lib/html-formatter';
+import { useNormalRelaySettings } from '../../lib/relay-settings-hooks';
 import { RoutePath } from '../../lib/routes';
-import { useNormalRelaySettings } from '../../lib/utilityHooks';
 import { useSelector } from '../../redux/store';
 import * as Cell from '../cell';
 import { useFilteredProviders } from '../Filter';
@@ -107,7 +107,7 @@ export default function SelectLocation() {
       saveScrollPosition();
       setLocationType(locationType);
     },
-    [saveScrollPosition],
+    [saveScrollPosition, setLocationType],
   );
 
   const updateSearchTerm = useCallback(
@@ -122,7 +122,7 @@ export default function SelectLocation() {
         setSearchTerm(value);
       }
     },
-    [resetScrollPositions, expandSearchResults],
+    [expandSearchResults, setSearchTerm, resetScrollPositions],
   );
 
   const showOwnershipFilter = ownership !== Ownership.any;

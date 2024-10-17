@@ -6,8 +6,6 @@ import { VoucherResponse } from '../../shared/daemon-rpc-types';
 import { formatRelativeDate } from '../../shared/date-helper';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
-import useActions from '../lib/actionsHook';
-import accountActions from '../redux/account/actions';
 import { useSelector } from '../redux/store';
 import * as AppButton from './AppButton';
 import ImageView from './ImageView';
@@ -69,7 +67,6 @@ export function RedeemVoucherContainer(props: IRedeemVoucherProps) {
   const { onSubmit, onSuccess, onFailure } = props;
 
   const { submitVoucher } = useAppContext();
-  const { updateAccountExpiry } = useActions(accountActions);
 
   const [value, setValue] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -100,7 +97,7 @@ export function RedeemVoucherContainer(props: IRedeemVoucherProps) {
     } else {
       onFailure?.();
     }
-  }, [value, valueValid, onSubmit, submitVoucher, updateAccountExpiry, onSuccess, onFailure]);
+  }, [value, valueValid, onSubmit, submitVoucher, onSuccess, onFailure]);
 
   return (
     <RedeemVoucherContext.Provider

@@ -2,6 +2,7 @@ import { useCallback, useEffect } from 'react';
 import styled from 'styled-components';
 
 import { colors } from '../../../config.json';
+import { useEffectEvent } from '../../lib/utility-hooks';
 import { AriaInput } from '../AriaGroup';
 import { smallNormalText } from '../common-styles';
 import { useSettingsFormSubmittableReporter } from './SettingsForm';
@@ -49,7 +50,7 @@ export function SettingsNumberInput(props: SettingsNumberInputProps) {
     (value: string) => {
       onUpdate(parse(value));
     },
-    [onUpdate],
+    [onUpdate, parse],
   );
 
   const validateNumber = useCallback(
@@ -57,7 +58,7 @@ export function SettingsNumberInput(props: SettingsNumberInputProps) {
       const parsedValue = parse(value);
       return (parsedValue === undefined || validate?.(parsedValue)) ?? true;
     },
-    [validate],
+    [parse, validate],
   );
 
   return (
@@ -105,15 +106,19 @@ function Input<T extends ValueTypes>(props: InputProps<T>) {
         reportSubmittable(value !== '' || optionalInForm === true);
       }
     },
-    [onUpdate, propsOnChange, validate, optionalInForm],
+    [propsOnChange, onUpdate, validate, setInvalid, reportSubmittable, optionalInForm],
   );
 
-  // Report submittability to form context on load.
-  useEffect(() => {
+  const updateReportSubmittable = useEffectEvent(() => {
     const value = props.value ?? props.defaultValue ?? '';
     reportSubmittable(
       (value !== '' || optionalInForm === true) && validate?.(`${value}`) !== false,
     );
+  });
+
+  // Report submittability to form context on load.
+  useEffect(() => {
+    updateReportSubmittable();
   }, []);
 
   return (

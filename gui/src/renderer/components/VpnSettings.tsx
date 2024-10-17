@@ -10,8 +10,9 @@ import { useAppContext } from '../context';
 import { useRelaySettingsUpdater } from '../lib/constraint-updater';
 import { useHistory } from '../lib/history';
 import { formatHtml } from '../lib/html-formatter';
+import { useTunnelProtocol } from '../lib/relay-settings-hooks';
 import { RoutePath } from '../lib/routes';
-import { useBoolean, useTunnelProtocol } from '../lib/utilityHooks';
+import { useBoolean } from '../lib/utility-hooks';
 import { RelaySettingsRedux } from '../redux/settings/reducers';
 import { useSelector } from '../redux/store';
 import * as AppButton from './AppButton';
@@ -255,7 +256,7 @@ function useDns(setting: keyof IDnsOptions['defaultOptions']) {
           [setting]: enabled,
         },
       }),
-    [dns, setDnsOptions],
+    [setting, dns, setDnsOptions],
   );
 
   return [dns, updateBlockSetting] as const;
@@ -730,7 +731,7 @@ function TunnelProtocolSetting() {
         disabled: openVpnDisabled,
       },
     ],
-    [],
+    [openVpnDisabled],
   );
 
   return (
