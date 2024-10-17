@@ -24,6 +24,12 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 
 
+## [android/2024.7] - 2024-10-17
+### Fixed
+- Fix a bug where obfuscation (UDP-over-TCP or Shadowsocks) only worked if combined with
+  either DAITA or the quantum-resistant tunnel setting.
+
+
 ## [android/2024.6] - 2024-10-14
 ### Fixed
 - Fix rare crash related to an upcoming feature (feature indicators).
