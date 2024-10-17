@@ -29,6 +29,8 @@ Line wrap the file at 100 chars.                                              Th
 ### Changed
 - Replace the draft key encapsulation mechanism Kyber (round 3) with the standardized
   ML-KEM (FIPS 203) dito in the handshake for Quantum-resistant tunnels.
+- Make Smart Routing override multihop if both are enabled. To manually set the entry relay,
+  explicitly enable the "Direct only" option in the DAITA settings.
 
 #### Windows
 - Enable quantum-resistant tunnels by default (when set to `auto`).
