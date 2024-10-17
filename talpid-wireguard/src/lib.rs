@@ -488,19 +488,6 @@ impl WireguardMonitor {
         log_path: Option<&Path>,
         args: TunnelArgs<'_, F>,
     ) -> Result<WireguardMonitor> {
-        let should_negotiate_ephemeral_peer = config.quantum_resistant || config.daita;
-        let tunnel = Self::open_tunnel(
-            args.runtime.clone(),
-            &config,
-            log_path,
-            args.resource_dir,
-            args.tun_provider.clone(),
-            // In case we should negotiate an ephemeral peer, we should specify via AllowedIPs
-            // that we only allows traffic to/from the gateway. This is only needed on Android
-            // since we lack a firewall there.
-            should_negotiate_ephemeral_peer,
-        )?;
-
         let (close_obfs_sender, close_obfs_listener) = sync_mpsc::channel();
         let obfuscator = args.runtime.block_on(maybe_create_obfuscator(
             &mut config,
@@ -514,6 +501,19 @@ impl WireguardMonitor {
                 log::error!("Failed to exclude remote socket fd: {error}");
             }
         }
+
+        let should_negotiate_ephemeral_peer = config.quantum_resistant || config.daita;
+        let tunnel = Self::open_tunnel(
+            args.runtime.clone(),
+            &config,
+            log_path,
+            args.resource_dir,
+            args.tun_provider.clone(),
+            // In case we should negotiate an ephemeral peer, we should specify via AllowedIPs
+            // that we only allows traffic to/from the gateway. This is only needed on Android
+            // since we lack a firewall there.
+            should_negotiate_ephemeral_peer,
+        )?;
 
         let iface_name = tunnel.get_interface_name();
 
