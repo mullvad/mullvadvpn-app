@@ -18,15 +18,15 @@ When adding more files with test suites they must be added to the `MullvadVPNUIT
 To run tests locally you need to make sure you have copied the configuration template `UITests.xcconfig.template` to `UITests.xcconfig` and set up the configuration attributes. The configuration attributes you're mostly likely to want to set custom values for are at the top:
 ```
 // Pin code of the iOS device under test.
-IOS_DEVICE_PIN_CODE = 
+IOS_DEVICE_PIN_CODE =
 
 // UUID to identify test runs. Should be unique per test device. Generate with for example uuidgen on macOS.
-TEST_DEVICE_IDENTIFIER_UUID = 
+TEST_DEVICE_IDENTIFIER_UUID =
 ```
 
 Look through other configuration attributes as well, but it is likely that their default value should be kept. Default values are set with local test execution in mind. They are changed in CI.
 
-The test device must be on the office WiFi `app-team-ios-tests` in order to be able to run tests making use of the firewall and packet capture APIs. 
+The test device must be on the office WiFi `app-team-ios-tests` in order to be able to run tests making use of the firewall and packet capture APIs.
 
 ## CI setup
 ### iOS device setup
@@ -56,8 +56,8 @@ The test device must be on the office WiFi `app-team-ios-tests` in order to be a
 9. Install Rust and add iOS targets
   - `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh`
   - `rustup target install aarch64-apple-ios aarch64-apple-ios-sim`
-10. Install Go 1.20
-  - `brew install go@1.20`
+10. Install Go 1.21
+  - `brew install go@1.21`
 
 ### GitHub runner setup
 1. Ask GitHub admin for new runner token and setup steps from GitHub. Set it up according to the steps, pass `--labels ios-test` to `config.sh` when running it. By default it will also have the labels `self-hosted` and `macOS` which are required as well.
