@@ -17,7 +17,7 @@ androidx-espresso = "3.6.1"
 androidx-lifecycle = "2.8.6"
 androidx-test = "1.6.1"
 androidx-testmonitor = "1.7.2"
-androidx-testorchestrator = "1.5.0"
+androidx-testorchestrator = "1.5.1"
 androidx-testrunner = "1.6.2"
 androidx-uiautomator = "2.4.0-alpha01"
 
