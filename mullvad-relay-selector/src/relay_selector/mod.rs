@@ -674,7 +674,12 @@ impl RelaySelector {
         custom_lists: &CustomListsSettings,
         parsed_relays: &ParsedRelays,
     ) -> Result<WireguardConfig, Error> {
-        // TODO: Make sure that this works differently on Android.
+        // TODO: Remove when Android gets support for multihop.
+        if cfg!(target_os = "android") {
+            let relay = Self::get_wireguard_singlehop_config(query, custom_lists, parsed_relays)
+                .ok_or(Error::NoRelay)?;
+            return Ok(WireguardConfig::from(relay));
+        }
         let inner = if query.singlehop() {
             match Self::get_wireguard_singlehop_config(query, custom_lists, parsed_relays) {
                 Some(exit) => WireguardConfig::from(exit),
