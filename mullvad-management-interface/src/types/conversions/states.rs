@@ -34,10 +34,14 @@ impl From<mullvad_types::states::TunnelState> for proto::TunnelState {
         let state = match state {
             MullvadTunnelState::Disconnected {
                 location: disconnected_location,
+                #[cfg(not(target_os = "android"))]
                 locked_down,
             } => proto::tunnel_state::State::Disconnected(proto::tunnel_state::Disconnected {
                 disconnected_location: disconnected_location.map(proto::GeoIpLocation::from),
+                #[cfg(not(target_os = "android"))]
                 locked_down,
+                #[cfg(target_os = "android")]
+                locked_down: false,
             }),
             MullvadTunnelState::Connecting {
                 endpoint,
@@ -224,6 +228,7 @@ impl TryFrom<proto::TunnelState> for mullvad_types::states::TunnelState {
         use talpid_types::{net as talpid_net, tunnel as talpid_tunnel};
 
         let state = match state.state {
+            #[cfg_attr(target_os = "android", allow(unused_variables))]
             Some(proto::tunnel_state::State::Disconnected(proto::tunnel_state::Disconnected {
                 disconnected_location,
                 locked_down,
@@ -231,6 +236,7 @@ impl TryFrom<proto::TunnelState> for mullvad_types::states::TunnelState {
                 location: disconnected_location
                     .map(mullvad_types::location::GeoIpLocation::try_from)
                     .transpose()?,
+                #[cfg(not(target_os = "android"))]
                 locked_down,
             },
             Some(proto::tunnel_state::State::Connecting(proto::tunnel_state::Connecting {

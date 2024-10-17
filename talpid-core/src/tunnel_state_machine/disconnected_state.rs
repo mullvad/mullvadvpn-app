@@ -2,6 +2,7 @@ use super::{
     ConnectingState, EventConsequence, SharedTunnelStateValues, TunnelCommand,
     TunnelCommandReceiver, TunnelState, TunnelStateTransition,
 };
+#[cfg(not(target_os = "android"))]
 use crate::firewall::FirewallPolicy;
 #[cfg(target_os = "macos")]
 use crate::{dns, tunnel_state_machine::ErrorState};
@@ -55,6 +56,7 @@ impl DisconnectedState {
         Self::construct_state_transition(shared_values)
     }
 
+    #[cfg_attr(target_os = "android", allow(unused_variables))]
     fn construct_state_transition(
         shared_values: &mut SharedTunnelStateValues,
     ) -> (Box<dyn TunnelState>, TunnelStateTransition) {
@@ -63,11 +65,13 @@ impl DisconnectedState {
             TunnelStateTransition::Disconnected {
                 // Being disconnected and having lockdown mode enabled implies that your internet
                 // access is locked down
+                #[cfg(not(target_os = "android"))]
                 locked_down: shared_values.block_when_disconnected,
             },
         )
     }
 
+    #[cfg(not(target_os = "android"))]
     fn set_firewall_policy(
         shared_values: &mut SharedTunnelStateValues,
         should_reset_firewall: bool,
@@ -97,6 +101,13 @@ impl DisconnectedState {
             log::error!("{}", error_chain);
         }
     }
+
+    // NOTE: There is no firewall on Android, so it is pointless to pretend to enforce firewall
+    // policies by calling a bunch of functions that will end up being a no-op. The proper
+    // long-term fix would be to remove the firewall module completely,
+    // but I leave this for a future developer to clean up.
+    #[cfg(target_os = "android")]
+    fn set_firewall_policy(_: &mut SharedTunnelStateValues, _: bool) {}
 
     #[cfg(windows)]
     fn register_split_tunnel_addresses(
@@ -173,6 +184,7 @@ impl TunnelState for DisconnectedState {
                 let _ = complete_tx.send(());
                 SameState(self)
             }
+            #[cfg(not(target_os = "android"))]
             Some(TunnelCommand::BlockWhenDisconnected(block_when_disconnected, complete_tx)) => {
                 if shared_values.block_when_disconnected != block_when_disconnected {
                     shared_values.block_when_disconnected = block_when_disconnected;
