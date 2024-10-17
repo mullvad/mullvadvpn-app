@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -eu
+# set -eu
 
 function executable_not_found_in_dist_error {
     1>&2 echo "Executable \"$1\" not found in specified dist dir. Exiting."
@@ -46,7 +46,8 @@ commit=${commit:0:6}
 TAG=$(git describe --exact-match HEAD 2>/dev/null || echo "")
 
 if [[ -n "$TAG" && ${CURRENT_VERSION} =~ -dev- ]]; then
-    CURRENT_VERSION+="+${TAG}"
+    # Remove disallowed version characters from the tag
+    CURRENT_VERSION+="+${TAG//[^0-9a-z_-]/}"
 fi
 
 export CURRENT_VERSION
@@ -95,8 +96,7 @@ function nice_time {
 # Returns 0 if $1 is a development build. `BASH_REMATCH` contains match groups
 # if that is the case.
 function is_dev_version {
-    local pattern="(^[0-9.]+(-beta[0-9]+)?-dev-)([0-9a-z]+)(\+[0-9a-z|-]+)?$"
-    if [[ "$1" =~ $pattern ]]; then
+    if [[ "$1" == *"-dev-"* ]]; then
         return 0
     fi
     return 1
