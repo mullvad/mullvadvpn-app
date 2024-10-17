@@ -94,7 +94,7 @@ pub async fn request_ephemeral_peer(
     enable_post_quantum: bool,
     enable_daita: bool,
 ) -> Result<EphemeralPeer, Error> {
-    let client = new_client(service_address).await?;
+    let client = connect_relay_config_client(service_address).await?;
 
     request_ephemeral_peer_with(
         client,
@@ -210,22 +210,24 @@ fn xor_assign(dst: &mut [u8; 32], src: &[u8; 32]) {
     }
 }
 
+/// Create a new `RelayConfigService` connected to the given IP.
+/// The connection is made
 #[cfg(not(target_os = "ios"))]
-async fn new_client(addr: Ipv4Addr) -> Result<RelayConfigService, Error> {
+async fn connect_relay_config_client(ip: Ipv4Addr) -> Result<RelayConfigService, Error> {
     use futures::TryFutureExt;
 
     let endpoint = Endpoint::from_static("tcp://0.0.0.0:0");
-    let addr = IpAddr::V4(addr);
+    let addr = SocketAddr::new(IpAddr::V4(ip), CONFIG_SERVICE_PORT);
 
-    let conn = endpoint
+    let connection = endpoint
         .connect_with_connector(service_fn(move |_| async move {
             let sock = socket::TcpSocket::new()?;
-            sock.connect(SocketAddr::new(addr, CONFIG_SERVICE_PORT))
+            sock.connect(addr)
                 .map_ok(hyper_util::rt::tokio::TokioIo::new)
                 .await
         }))
         .await
         .map_err(Error::GrpcConnectError)?;
 
-    Ok(RelayConfigService::new(conn))
+    Ok(RelayConfigService::new(connection))
 }
