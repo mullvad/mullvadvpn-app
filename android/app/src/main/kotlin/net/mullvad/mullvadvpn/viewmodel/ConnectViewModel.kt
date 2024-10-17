@@ -1,5 +1,7 @@
 package net.mullvad.mullvadvpn.viewmodel
 
+import android.content.res.Resources
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.FlowPreview
@@ -14,6 +16,7 @@ import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
 import net.mullvad.mullvadvpn.lib.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.lib.model.ConnectError
@@ -46,7 +49,9 @@ class ConnectViewModel(
     private val connectionProxy: ConnectionProxy,
     lastKnownLocationUseCase: LastKnownLocationUseCase,
     private val vpnPermissionRepository: VpnPermissionRepository,
+    private val resources: Resources,
     private val isPlayBuild: Boolean,
+    private val packageName: String,
 ) : ViewModel() {
     private val _uiSideEffect = Channel<UiSideEffect>()
 
@@ -169,6 +174,17 @@ class ConnectViewModel(
         }
     }
 
+    fun openAppListing() =
+        viewModelScope.launch {
+            val uri =
+                if (isPlayBuild) {
+                    resources.getString(R.string.market_uri, packageName)
+                } else {
+                    resources.getString(R.string.download_url)
+                }
+            _uiSideEffect.send(UiSideEffect.OpenUri(Uri.parse(uri)))
+        }
+
     fun dismissNewDeviceNotification() {
         newDeviceRepository.clearNewDeviceCreatedNotification()
     }
@@ -185,6 +201,8 @@ class ConnectViewModel(
         data class OpenAccountManagementPageInBrowser(val token: WebsiteAuthToken?) : UiSideEffect
 
         data object OutOfTime : UiSideEffect
+
+        data class OpenUri(val uri: Uri) : UiSideEffect
 
         data object RevokedDevice : UiSideEffect
 

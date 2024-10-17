@@ -18,7 +18,7 @@ class SettingsViewModel(
 ) : ViewModel() {
 
     val uiState: StateFlow<SettingsUiState> =
-        combine(deviceRepository.deviceState, appVersionInfoRepository.versionInfo()) {
+        combine(deviceRepository.deviceState, appVersionInfoRepository.versionInfo) {
                 deviceState,
                 versionInfo ->
                 SettingsUiState(

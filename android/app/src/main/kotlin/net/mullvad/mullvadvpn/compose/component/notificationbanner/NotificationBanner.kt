@@ -77,7 +77,7 @@ fun NotificationBanner(
     modifier: Modifier = Modifier,
     notification: InAppNotification?,
     isPlayBuild: Boolean,
-    onClickUpdateVersion: () -> Unit,
+    openAppListing: () -> Unit,
     onClickShowAccount: () -> Unit,
     onClickDismissNewDevice: () -> Unit,
 ) {
@@ -94,7 +94,7 @@ fun NotificationBanner(
             Notification(
                 visibleNotification.toNotificationData(
                     isPlayBuild = isPlayBuild,
-                    onClickUpdateVersion,
+                    openAppListing,
                     onClickShowAccount,
                     onClickDismissNewDevice,
                 )

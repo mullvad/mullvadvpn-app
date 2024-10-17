@@ -186,8 +186,6 @@ private fun ApiAccessMethodItem(
                         R.string.off
                     }
             ),
-        titleStyle = MaterialTheme.typography.titleMedium,
-        subtitleColor = MaterialTheme.colorScheme.onSurfaceVariant,
         bodyView = {
             Icon(
                 Icons.Default.ChevronRight,
