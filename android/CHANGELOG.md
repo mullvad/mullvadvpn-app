@@ -34,6 +34,14 @@ Line wrap the file at 100 chars.                                              Th
 - Fix unlabeled icon buttons for basic accessibility with screen readers.
 
 
+## [android/2024.7] - 2024-10-18
+### Fixed
+- Fix a bug where tunnel obfuscation (UDP-over-TCP or Shadowsocks) only worked in combination with
+  either DAITA or quantum-resistant tunnels, but only after the initial tunnel negotiation used for
+  both DAITA and quantum-resistant tunnels. This combination of issues made the obfuscation methods
+  effectively unusable behind restrictive firewalls regardless of setting combination.
+
+
 ## [android/2024.6] - 2024-10-14
 ### Fixed
 - Fix rare crash related to an upcoming feature (feature indicators).
