@@ -85,24 +85,49 @@ pub struct EphemeralPeer {
     pub psk: Option<PresharedKey>,
 }
 
-pub async fn request_ephemeral_peer_with(
-    mut client: RelayConfigService,
+/// Negotiate a short-lived peer with a PQ-safe PSK or with DAITA enabled.
+#[cfg(not(target_os = "ios"))]
+pub async fn request_ephemeral_peer(
+    service_address: Ipv4Addr,
     parent_pubkey: PublicKey,
     ephemeral_pubkey: PublicKey,
     enable_post_quantum: bool,
     enable_daita: bool,
 ) -> Result<EphemeralPeer, Error> {
-    let (pq_request, kem_secrets) = post_quantum_secrets(enable_post_quantum).await;
-    let daita = Some(proto::DaitaRequestV1 {
-        activate_daita: enable_daita,
-    });
+    let client = connect_relay_config_client(service_address).await?;
+
+    request_ephemeral_peer_with(
+        client,
+        parent_pubkey,
+        ephemeral_pubkey,
+        enable_post_quantum,
+        enable_daita,
+    )
+    .await
+}
+
+pub async fn request_ephemeral_peer_with(
+    mut client: RelayConfigService,
+    parent_pubkey: PublicKey,
+    ephemeral_pubkey: PublicKey,
+    enable_quantum_resistant: bool,
+    enable_daita: bool,
+) -> Result<EphemeralPeer, Error> {
+    let (pq_request, kem_secrets) = if enable_quantum_resistant {
+        let (pq_request, kem_secrets) = post_quantum_secrets().await;
+        (Some(pq_request), Some(kem_secrets))
+    } else {
+        (None, None)
+    };
 
     let response = client
         .register_peer_v1(proto::EphemeralPeerRequestV1 {
             wg_parent_pubkey: parent_pubkey.as_bytes().to_vec(),
             wg_ephemeral_peer_pubkey: ephemeral_pubkey.as_bytes().to_vec(),
             post_quantum: pq_request,
-            daita,
+            daita: Some(proto::DaitaRequestV1 {
+                activate_daita: enable_daita,
+            }),
         })
         .await
         .map_err(Error::GrpcError)?;
@@ -154,55 +179,28 @@ pub async fn request_ephemeral_peer_with(
     Ok(EphemeralPeer { psk })
 }
 
-/// Negotiate a short-lived peer with a PQ-safe PSK or with DAITA enabled.
-#[cfg(not(target_os = "ios"))]
-pub async fn request_ephemeral_peer(
-    service_address: Ipv4Addr,
-    parent_pubkey: PublicKey,
-    ephemeral_pubkey: PublicKey,
-    enable_post_quantum: bool,
-    enable_daita: bool,
-) -> Result<EphemeralPeer, Error> {
-    let client = new_client(service_address).await?;
-
-    request_ephemeral_peer_with(
-        client,
-        parent_pubkey,
-        ephemeral_pubkey,
-        enable_post_quantum,
-        enable_daita,
-    )
-    .await
-}
-
-async fn post_quantum_secrets(
-    enable_post_quantum: bool,
-) -> (
-    Option<PostQuantumRequestV1>,
-    Option<(classic_mceliece_rust::SecretKey<'static>, ml_kem::Keypair)>,
+async fn post_quantum_secrets() -> (
+    PostQuantumRequestV1,
+    (classic_mceliece_rust::SecretKey<'static>, ml_kem::Keypair),
 ) {
-    if enable_post_quantum {
-        let (cme_kem_pubkey, cme_kem_secret) = classic_mceliece::generate_keys().await;
-        let ml_kem_keypair = ml_kem::keypair();
+    let (cme_kem_pubkey, cme_kem_secret) = classic_mceliece::generate_keys().await;
+    let ml_kem_keypair = ml_kem::keypair();
 
-        (
-            Some(proto::PostQuantumRequestV1 {
-                kem_pubkeys: vec![
-                    proto::KemPubkeyV1 {
-                        algorithm_name: classic_mceliece::ALGORITHM_NAME.to_owned(),
-                        key_data: cme_kem_pubkey.as_array().to_vec(),
-                    },
-                    proto::KemPubkeyV1 {
-                        algorithm_name: ml_kem::ALGORITHM_NAME.to_owned(),
-                        key_data: ml_kem_keypair.encapsulation_key(),
-                    },
-                ],
-            }),
-            Some((cme_kem_secret, ml_kem_keypair)),
-        )
-    } else {
-        (None, None)
-    }
+    (
+        proto::PostQuantumRequestV1 {
+            kem_pubkeys: vec![
+                proto::KemPubkeyV1 {
+                    algorithm_name: classic_mceliece::ALGORITHM_NAME.to_owned(),
+                    key_data: cme_kem_pubkey.as_array().to_vec(),
+                },
+                proto::KemPubkeyV1 {
+                    algorithm_name: ml_kem::ALGORITHM_NAME.to_owned(),
+                    key_data: ml_kem_keypair.encapsulation_key(),
+                },
+            ],
+        },
+        (cme_kem_secret, ml_kem_keypair),
+    )
 }
 
 /// Performs `dst = dst ^ src`.
@@ -212,22 +210,25 @@ fn xor_assign(dst: &mut [u8; 32], src: &[u8; 32]) {
     }
 }
 
+/// Create a new `RelayConfigService` connected to the given IP.
+/// On non-Windows platforms the connection is made with a socket where the MSS
+/// value has been speficically lowered, to avoid MTU issues. See the `socket` module.
 #[cfg(not(target_os = "ios"))]
-async fn new_client(addr: Ipv4Addr) -> Result<RelayConfigService, Error> {
+async fn connect_relay_config_client(ip: Ipv4Addr) -> Result<RelayConfigService, Error> {
     use futures::TryFutureExt;
 
     let endpoint = Endpoint::from_static("tcp://0.0.0.0:0");
-    let addr = IpAddr::V4(addr);
+    let addr = SocketAddr::new(IpAddr::V4(ip), CONFIG_SERVICE_PORT);
 
-    let conn = endpoint
+    let connection = endpoint
         .connect_with_connector(service_fn(move |_| async move {
             let sock = socket::TcpSocket::new()?;
-            sock.connect(SocketAddr::new(addr, CONFIG_SERVICE_PORT))
+            sock.connect(addr)
                 .map_ok(hyper_util::rt::tokio::TokioIo::new)
                 .await
         }))
         .await
         .map_err(Error::GrpcConnectError)?;
 
-    Ok(RelayConfigService::new(conn))
+    Ok(RelayConfigService::new(connection))
 }

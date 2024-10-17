@@ -2,9 +2,7 @@ use classic_mceliece_rust::{keypair_boxed, Ciphertext, CRYPTO_CIPHERTEXTBYTES};
 pub use classic_mceliece_rust::{PublicKey, SecretKey, SharedSecret};
 
 /// The `keypair_boxed` function needs just under 1 MiB of stack in debug
-/// builds. Even though it probably works to run it directly on the main
-/// thread on all OSes, we take this precaution and always generate the huge
-/// keys on a separate thread with a large enough stack.
+/// builds.
 const STACK_SIZE: usize = 2 * 1024 * 1024;
 
 /// Use the smallest CME variant with NIST security level 3. This variant has significantly smaller
@@ -14,6 +12,10 @@ pub const ALGORITHM_NAME: &str = "Classic-McEliece-460896f-round3";
 pub async fn generate_keys() -> (PublicKey<'static>, SecretKey<'static>) {
     let (tx, rx) = tokio::sync::oneshot::channel();
 
+    // We fork off the key computation to a separate thread for two reasons:
+    // * The computation uses a lot of stack, and we don't want to rely on the default
+    //   stack being large enough or having enough space left.
+    // * The computation takes a long time and must not block the async runtime thread.
     std::thread::Builder::new()
         .stack_size(STACK_SIZE)
         .spawn(move || {
