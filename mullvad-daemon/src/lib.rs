@@ -249,6 +249,7 @@ pub enum DaemonCommand {
     /// Set the beta program setting.
     SetShowBetaReleases(ResponseTx<(), settings::Error>, bool),
     /// Set the block_when_disconnected setting.
+    #[cfg(not(target_os = "android"))]
     SetBlockWhenDisconnected(ResponseTx<(), settings::Error>, bool),
     /// Set the auto-connect setting.
     SetAutoConnect(ResponseTx<(), settings::Error>, bool),
@@ -757,6 +758,7 @@ impl Daemon {
         let tunnel_state_machine_handle = tunnel_state_machine::spawn(
             tunnel_state_machine::InitialTunnelState {
                 allow_lan: settings.allow_lan,
+                #[cfg(not(target_os = "android"))]
                 block_when_disconnected: settings.block_when_disconnected,
                 dns_config: dns::addresses_from_options(&settings.tunnel_options.dns_options),
                 allowed_endpoint: access_mode_handler
@@ -820,6 +822,7 @@ impl Daemon {
         let daemon = Daemon {
             tunnel_state: TunnelState::Disconnected {
                 location: None,
+                #[cfg(not(target_os = "android"))]
                 locked_down: settings.block_when_disconnected,
             },
             target_state,
@@ -979,10 +982,13 @@ impl Daemon {
             .handle_state_transition(&tunnel_state_transition);
 
         let tunnel_state = match tunnel_state_transition {
+            #[cfg(not(target_os = "android"))]
             TunnelStateTransition::Disconnected { locked_down } => TunnelState::Disconnected {
                 location: None,
                 locked_down,
             },
+            #[cfg(target_os = "android")]
+            TunnelStateTransition::Disconnected => TunnelState::Disconnected { location: None },
             TunnelStateTransition::Connecting(endpoint) => {
                 let feature_indicators = compute_feature_indicators(
                     &self.settings.to_settings(),
@@ -1119,7 +1125,8 @@ impl Daemon {
         match self.tunnel_state {
             TunnelState::Disconnected {
                 ref mut location,
-                locked_down: _,
+                #[cfg(not(target_os = "android"))]
+                    locked_down: _,
             } => *location = Some(fetched_location),
             TunnelState::Connected {
                 ref mut location, ..
@@ -1243,6 +1250,7 @@ impl Daemon {
             SetRelaySettings(tx, update) => self.on_set_relay_settings(tx, update).await,
             SetAllowLan(tx, allow_lan) => self.on_set_allow_lan(tx, allow_lan).await,
             SetShowBetaReleases(tx, enabled) => self.on_set_show_beta_releases(tx, enabled).await,
+            #[cfg(not(target_os = "android"))]
             SetBlockWhenDisconnected(tx, block_when_disconnected) => {
                 self.on_set_block_when_disconnected(tx, block_when_disconnected)
                     .await
@@ -2118,6 +2126,7 @@ impl Daemon {
         }
     }
 
+    #[cfg(not(target_os = "android"))]
     async fn on_set_block_when_disconnected(
         &mut self,
         tx: ResponseTx<(), settings::Error>,
@@ -2796,11 +2805,14 @@ impl Daemon {
             self.send_tunnel_command(TunnelCommand::SetExcludedApps(tx, vec![]));
         }
 
-        let (tx, _rx) = oneshot::channel();
-        self.send_tunnel_command(TunnelCommand::BlockWhenDisconnected(
-            self.settings.block_when_disconnected,
-            tx,
-        ));
+        #[cfg(not(target_os = "android"))]
+        {
+            let (tx, _rx) = oneshot::channel();
+            self.send_tunnel_command(TunnelCommand::BlockWhenDisconnected(
+                self.settings.block_when_disconnected,
+                tx,
+            ));
+        }
 
         let (tx, _rx) = oneshot::channel();
         self.send_tunnel_command(TunnelCommand::AllowLan(self.settings.allow_lan, tx));
@@ -2842,9 +2854,11 @@ impl Daemon {
         }
     }
 
+    #[cfg_attr(target_os = "android", allow(unused_variables))]
     fn on_trigger_shutdown(&mut self, user_init_shutdown: bool) {
         // Block all traffic before shutting down to ensure that no traffic can leak on boot or
         // shutdown.
+        #[cfg(not(target_os = "android"))]
         if !user_init_shutdown
             && (*self.target_state == TargetState::Secured || self.settings.auto_connect)
         {
@@ -2863,7 +2877,7 @@ impl Daemon {
     fn on_prepare_restart(&mut self, shutdown: bool) {
         // TODO: See if this can be made to also shut down the daemon
         //       without causing the service to be restarted.
-
+        #[cfg(not(target_os = "android"))]
         if *self.target_state == TargetState::Secured {
             let (tx, _rx) = oneshot::channel();
             self.send_tunnel_command(TunnelCommand::BlockWhenDisconnected(true, tx));

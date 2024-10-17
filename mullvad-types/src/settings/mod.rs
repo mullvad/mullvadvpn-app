@@ -83,6 +83,7 @@ pub struct Settings {
     pub allow_lan: bool,
     /// Extra level of kill switch. When this setting is on, the disconnected state will block
     /// the firewall to not allow any traffic in or out.
+    #[cfg(not(target_os = "android"))]
     pub block_when_disconnected: bool,
     /// If the daemon should connect the VPN tunnel directly on start or not.
     pub auto_connect: bool,
@@ -200,6 +201,7 @@ impl Default for Settings {
             custom_lists: CustomListsSettings::default(),
             api_access_methods: access_method::Settings::default(),
             allow_lan: false,
+            #[cfg(not(target_os = "android"))]
             block_when_disconnected: false,
             auto_connect: false,
             tunnel_options: TunnelOptions::default(),
