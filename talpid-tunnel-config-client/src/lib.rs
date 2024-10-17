@@ -85,6 +85,27 @@ pub struct EphemeralPeer {
     pub psk: Option<PresharedKey>,
 }
 
+/// Negotiate a short-lived peer with a PQ-safe PSK or with DAITA enabled.
+#[cfg(not(target_os = "ios"))]
+pub async fn request_ephemeral_peer(
+    service_address: Ipv4Addr,
+    parent_pubkey: PublicKey,
+    ephemeral_pubkey: PublicKey,
+    enable_post_quantum: bool,
+    enable_daita: bool,
+) -> Result<EphemeralPeer, Error> {
+    let client = new_client(service_address).await?;
+
+    request_ephemeral_peer_with(
+        client,
+        parent_pubkey,
+        ephemeral_pubkey,
+        enable_post_quantum,
+        enable_daita,
+    )
+    .await
+}
+
 pub async fn request_ephemeral_peer_with(
     mut client: RelayConfigService,
     parent_pubkey: PublicKey,
@@ -156,27 +177,6 @@ pub async fn request_ephemeral_peer_with(
     };
 
     Ok(EphemeralPeer { psk })
-}
-
-/// Negotiate a short-lived peer with a PQ-safe PSK or with DAITA enabled.
-#[cfg(not(target_os = "ios"))]
-pub async fn request_ephemeral_peer(
-    service_address: Ipv4Addr,
-    parent_pubkey: PublicKey,
-    ephemeral_pubkey: PublicKey,
-    enable_post_quantum: bool,
-    enable_daita: bool,
-) -> Result<EphemeralPeer, Error> {
-    let client = new_client(service_address).await?;
-
-    request_ephemeral_peer_with(
-        client,
-        parent_pubkey,
-        ephemeral_pubkey,
-        enable_post_quantum,
-        enable_daita,
-    )
-    .await
 }
 
 async fn post_quantum_secrets() -> (
