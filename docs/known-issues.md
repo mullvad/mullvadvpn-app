@@ -162,3 +162,57 @@ app. We have observed it on macOS 14.6 and newer, but it could very well have ex
 * October 16, 2024 - We report the issue upstream to Apple. No public issue tracker is available
 * October 16, 2024 - We [blog](https://mullvad.net/blog/macos-sometimes-leaks-traffic-after-system-updates)
   about the finding
+
+
+### Hyper-V virtual networking cause leaks on Windows
+
+The Hyper-V Virtual Ethernet Adapter passes traffic to and from guests without letting the
+host’s firewall inspect the packets in the same way normal packets are inspected.
+The forwarded (NATed) packets are seen in the lower layers of WFP (OSI layer 2) as
+Ethernet frames only. This means that all firewall rules inserted by the Mullvad app
+to stop leaks are circumvented.
+
+This affects all virtual machines, containers and software running on a Hyper-V virtual network.
+
+We currently have no fix for this issue. We have been experimenting with simply blocking all
+layer 2 traffic. This solution would be safer, but at the same time break some software. The
+user can instead choose to not use said software.
+
+#### Linux under WSL2
+
+Network traffic from a Linux guest running under WSL2 always goes out the default route of
+the host machine without being inspected by the normal layers of WFP (the firewall on the
+Windows host that Mullvad use to prevent leaks). This means that if there is a VPN tunnel
+up and running, the Linux guest’s traffic will be sent via the VPN with no leaks!
+However, if there is no active VPN tunnel, as is the case when the app is disconnected,
+connecting, reconnecting, or blocking (after an error occurred) then the Linux guest’s
+traffic will leak out on the regular network, even if “Lockdown mode” is enabled.
+
+WSL1 does not have this issue. So if you need to prevent leaks and you also need to use
+Linux on Windows, you can try using it under WSL1 instead.
+
+#### Edge using Application guard
+
+When running the Microsoft Edge browser with Microsoft Defender Application Guard activated,
+the browser uses Hyper-V networking underneath. This makes the network traffic generated
+by the browser ignore the Mullvad firewall rules. On top of this, it even ignores the routing
+table, and *always* send the traffic directly on the physical network interface
+instead of the tunnel interface.
+
+This affects all app versions and all versions of Edge on Application guard as far as we know.
+We have no known solution.
+
+#### Other VPN software
+
+We have tested a few other VPN clients from competitors and found that all of them leak in
+the same way. Therefore, this is not a problem with Mullvad VPN specifically, but rather an
+industry-wide issue. The way Microsoft has implemented virtual networking guests makes
+it very difficult to properly secure them.
+
+#### Timeline
+
+* August 12, 2020 - A user report the Linux under WSL2 leak to our support
+* September 30, 2020 - We blog about [Linux under WSL2 leaking]
+* May 15, 2024 - A user notify us that Edge under Application Guard cause leaks
+
+[Linux under WSL2 leaking]: https://mullvad.net/en/blog/linux-under-wsl2-can-be-leaking
