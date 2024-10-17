@@ -932,7 +932,9 @@ impl RelayQueryExtensions for RelayQuery {
     fn use_multihop_if_necessary(&self) -> bool {
         self.wireguard_constraints()
             .daita_use_multihop_if_necessary
-            .is_only_and(|enabled| enabled)
+            // The default value is `Any`, which means that we need to check the intersection.
+            .intersection(Constraint::Only(true))
+            .is_some()
     }
     fn singlehop(&self) -> bool {
         !self.wireguard_constraints().multihop()
