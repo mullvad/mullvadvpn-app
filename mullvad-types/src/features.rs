@@ -89,6 +89,7 @@ impl FeatureIndicator {
             FeatureIndicator::Multihop => "Multihop",
             FeatureIndicator::BridgeMode => "Bridge Mode",
             FeatureIndicator::SplitTunneling => "Split Tunneling",
+            // TODO: target-gate this already??
             FeatureIndicator::LockdownMode => "Lockdown Mode",
             FeatureIndicator::Udp2Tcp => "Udp2Tcp",
             FeatureIndicator::Shadowsocks => "Shadowsocks",
@@ -127,7 +128,11 @@ pub fn compute_feature_indicators(
     #[cfg(not(any(windows, target_os = "android", target_os = "macos")))]
     let split_tunneling = false;
 
+    #[cfg(not(target_os = "android"))]
     let lockdown_mode = settings.block_when_disconnected;
+    // TODO: Remove completely
+    #[cfg(target_os = "android")]
+    let lockdown_mode = false;
     let lan_sharing = settings.allow_lan;
     let dns_content_blockers = settings
         .tunnel_options
