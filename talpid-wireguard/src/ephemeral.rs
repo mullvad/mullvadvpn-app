@@ -34,6 +34,9 @@ pub async fn config_ephemeral_peers(
         tunnel.get_interface_name()
     };
 
+    // Lower the MTU in order to make the ephemeral peer handshake work more reliably.
+    // On unix based operating systems this is done by setting the MSS directly on the
+    // TCP socket. But that solution does not work on Windows, so we do this MTU hack instead.
     log::trace!("Temporarily lowering tunnel MTU before ephemeral peer config");
     try_set_ipv4_mtu(&iface_name, talpid_tunnel::MIN_IPV4_MTU);
 

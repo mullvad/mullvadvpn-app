@@ -1,5 +1,10 @@
 //! A TCP stream with a low MSS set. This prevents incorrectly configured MTU from causing
 //! fragmentation/packet loss. This is only supported on non-Windows targets.
+//!
+//! On windows this solution does not work. So on Windows we instead temporarily lower the MTU
+//! while negotiating the ephemeral peer. This code lives in `talpid-wireguard/src/ephemeral.rs`
+//! These two solutions to the same problem should probably be refactored to end up closer
+//! to each other.
 
 use std::io;
 use std::net::SocketAddr;
