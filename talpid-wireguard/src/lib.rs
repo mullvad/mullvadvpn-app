@@ -373,6 +373,16 @@ impl WireguardMonitor {
         log_path: Option<&Path>,
         args: TunnelArgs<'_, F>,
     ) -> Result<WireguardMonitor> {
+        let (close_obfs_sender, close_obfs_listener) = sync_mpsc::channel();
+        // TODO: Document the side effect of starting this before opening the tunnel!
+        let obfuscator = args
+            .runtime
+            .block_on(obfuscation::apply_obfuscation_config(
+                &mut config,
+                close_obfs_sender.clone(),
+                args.tun_provider.clone(),
+            ))?;
+
         let should_negotiate_ephemeral_peer = config.quantum_resistant || config.daita;
         let tunnel = Self::open_tunnel(
             args.runtime.clone(),
@@ -385,15 +395,6 @@ impl WireguardMonitor {
             // since we lack a firewall there.
             should_negotiate_ephemeral_peer,
         )?;
-
-        let (close_obfs_sender, close_obfs_listener) = sync_mpsc::channel();
-        let obfuscator = args
-            .runtime
-            .block_on(obfuscation::apply_obfuscation_config(
-                &mut config,
-                close_obfs_sender.clone(),
-                args.tun_provider.clone(),
-            ))?;
 
         let iface_name = tunnel.get_interface_name();
 
