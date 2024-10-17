@@ -1,29 +1,38 @@
-//! TODO: Document this module
+//! This module defines wrapper types around [`Relay`], often to provide certain runtime guarantess
+//! or disambiguate the type of relay which is used in the relay selector's internal APIs.
 
 use mullvad_types::relay_list::{Relay, RelayEndpointData};
 
-// TODO: Import `Either` and convert `Multihop` and `Singlehop` into concrete types.
-/// This struct defines the different Wireguard relays the the relay selector can end up selecting
-/// for an arbitrary Wireguard [`query`].
-///
-/// - [`WireguardConfig::Singlehop`]; A normal wireguard relay where VPN traffic enters and exits
-///   through this sole relay.
+/// - [`WireguardConfig::Singlehop`]; A wireguard relay where VPN traffic enters and exits.
 /// - [`WireguardConfig::Multihop`]; Two wireguard relays to be used in a multihop circuit. VPN
-///   traffic will enter through `entry` and eventually come out from `exit` before the traffic will
-///   actually be routed to the broader internet.
+///   traffic will enter through `entry` and eventually exit through `exit` before the traffic will
+///   actually be routed to the internet.
 #[derive(Clone, Debug)]
 pub enum WireguardConfig {
-    /// Strongly prefer to instantiate this variant using [`WireguardConfig::singlehop`] as that
-    /// will assert that the relay is of the expected type.
+    /// An exit relay.
     Singlehop { exit: Relay },
-    /// Strongly prefer to instantiate this variant using [`WireguardConfig::multihop`] as that
-    /// will assert that the entry & exit relays are of the expected type.
+    /// An entry and an exit relay.
     Multihop { exit: Relay, entry: Relay },
 }
 
-/// TODO: Document
+/// A type representing single Wireguard relay.
+///
+/// Before you can read any data out of a [`Singlehop`] value uou need to convert it to [`WireguardConfig`].
+/// This is easy since [`Singlehop`] implements [`Into<WireguardConfig>`].
+///
+/// # Why not simply use [`Relay`]?
+/// The only way to construct a [`Singlehop`] value is with [`Singlehop::new`] which performs
+/// additional validation which guarantees that the relay actually is a Wireguard relay, while
+/// [`Relay`] is not guaranteed to be a Wireguard relay.
 pub struct Singlehop(Relay);
-/// TODO: Document
+/// A type representing two Wireguard relay - an entry and an exit.
+///
+/// Before you can read any data out of a [`Multihop`] value uou need to convert it to [`WireguardConfig`].
+/// This is easy since [`Multihop`] implements [`Into<WireguardConfig>`].
+///
+/// # Why not simply use [`Relay`]?
+/// The same rationale as for [`Singlehop`] applies - [`Multihop::new`] performs additional
+/// validation on the entry and exit relays.
 pub struct Multihop {
     entry: Relay,
     exit: Relay,
