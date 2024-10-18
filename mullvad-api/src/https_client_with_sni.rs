@@ -13,6 +13,9 @@ use hyper_util::{
     client::legacy::connect::dns::{GaiResolver, Name},
     rt::TokioIo,
 };
+use mullvad_encrypted_dns_proxy::{
+    config::ProxyConfig as EncryptedDNSConfig, Forwarder as EncryptedDNSForwarder,
+};
 use shadowsocks::{
     config::ServerType,
     context::{Context as SsContext, SharedContext},
@@ -78,6 +81,10 @@ enum InnerConnectionMode {
     Shadowsocks(ShadowsocksConfig),
     /// Connect to the destination via a Socks proxy.
     Socks5(SocksConfig),
+    /// Connect to the destination via Mullvad Encrypted DNS proxy.
+    /// See [`mullvad-encrypted-dns-proxy`] for how the proxy works.
+    #[allow(dead_code)] // TODO: Remove this allow
+    EncryptedDnsProxy(EncryptedDNSConfig),
 }
 
 impl InnerConnectionMode {
@@ -143,6 +150,20 @@ impl InnerConnectionMode {
                     .map_err(|error| {
                         io::Error::new(io::ErrorKind::Other, format!("SOCKS error: {error}"))
                     })
+                };
+                Self::connect_proxied(
+                    first_hop,
+                    hostname,
+                    make_proxy_stream,
+                    #[cfg(target_os = "android")]
+                    socket_bypass_tx,
+                )
+                .await
+            }
+            InnerConnectionMode::EncryptedDnsProxy(proxy_config) => {
+                let first_hop = SocketAddr::V4(proxy_config.addr);
+                let make_proxy_stream = |tcp_stream| async {
+                    EncryptedDNSForwarder::from_stream(&proxy_config, tcp_stream)
                 };
                 Self::connect_proxied(
                     first_hop,
