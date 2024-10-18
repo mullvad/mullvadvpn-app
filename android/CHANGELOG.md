@@ -22,13 +22,20 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+
+
+## [android/2024.8-beta1] - 2024-10-21
 ### Added
 - Add feature indicators to the main view along with redesigning the connection details.
 - Add new "Connect on device start-up" setting for devices without system VPN settings.
+- Add a confirmation dialog shown when creating a new account if there's already an existing
+  account in the account history of the login screen.
 
 ### Changed
 - Replace the draft key encapsulation mechanism Kyber (round 3) with the standardized
   ML-KEM (FIPS 203) dito in the handshake for Quantum-resistant tunnels.
+- Move version information and changelog to a new app info screen.
+- Update icons to material design.
 
 ### Fixed
 - Fix unlabeled icon buttons for basic accessibility with screen readers.
