@@ -467,6 +467,10 @@ msgid "Enter port"
 msgstr ""
 
 msgctxt "api-access-methods-view"
+msgid "If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad 9, CloudFlare, or Google."
+msgstr ""
+
+msgctxt "api-access-methods-view"
 msgid "In use"
 msgstr ""
 
@@ -564,6 +568,10 @@ msgstr ""
 
 msgctxt "api-access-methods-view"
 msgid "With the “Direct” method, the app communicates with a Mullvad API server directly without any intermediate proxies."
+msgstr ""
+
+msgctxt "api-access-methods-view"
+msgid "With the “Encrypted DNS proxy” method, the app will communicate with our Mullvad API through a proxy address. It does this by retrieving an address from a DNS over HTTPS (DoH) server and then using that to reach our API servers."
 msgstr ""
 
 msgctxt "api-access-methods-view"
