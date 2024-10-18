@@ -1,8 +1,6 @@
 package net.mullvad.mullvadvpn.compose.screen
 
 import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
@@ -51,6 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
+import co.touchlab.kermit.Logger
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.NavGraphs
@@ -109,7 +108,6 @@ import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
 import net.mullvad.mullvadvpn.lib.theme.typeface.connectionStatus
 import net.mullvad.mullvadvpn.lib.theme.typeface.hostname
-import net.mullvad.mullvadvpn.util.appendHideNavOnPlayBuild
 import net.mullvad.mullvadvpn.util.removeHtmlTags
 import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -147,6 +145,7 @@ fun Connect(
         }
 
     val openAccountPage = LocalUriHandler.current.createOpenAccountPageHook()
+    val uriHandler = LocalUriHandler.current
     CollectSideEffectWithLifecycle(
         connectViewModel.uiSideEffect,
         minActiveState = Lifecycle.State.RESUMED,
@@ -175,6 +174,14 @@ fun Connect(
                         message = sideEffect.toMessage(context)
                     )
                 }
+
+            is ConnectViewModel.UiSideEffect.OpenUri -> {
+                try {
+                    uriHandler.openUri(sideEffect.uri.toString())
+                } catch (e: IllegalArgumentException) {
+                    Logger.w("Failed to open uri", e)
+                }
+            }
         }
     }
 
@@ -192,19 +199,7 @@ fun Connect(
         onConnectClick = connectViewModel::onConnectClick,
         onCancelClick = connectViewModel::onCancelClick,
         onSwitchLocationClick = dropUnlessResumed { navigator.navigate(SelectLocationDestination) },
-        onUpdateVersionClick = {
-            val intent =
-                Intent(
-                        Intent.ACTION_VIEW,
-                        Uri.parse(
-                            context
-                                .getString(R.string.download_url)
-                                .appendHideNavOnPlayBuild(state.isPlayBuild)
-                        ),
-                    )
-                    .apply { flags = Intent.FLAG_ACTIVITY_NEW_TASK }
-            context.startActivity(intent)
-        },
+        onOpenAppListing = connectViewModel::openAppListing,
         onManageAccountClick = connectViewModel::onManageAccountClick,
         onSettingsClick = dropUnlessResumed { navigator.navigate(SettingsDestination) },
         onAccountClick = dropUnlessResumed { navigator.navigate(AccountDestination) },
@@ -221,7 +216,7 @@ fun ConnectScreen(
     onConnectClick: () -> Unit = {},
     onCancelClick: () -> Unit = {},
     onSwitchLocationClick: () -> Unit = {},
-    onUpdateVersionClick: () -> Unit = {},
+    onOpenAppListing: () -> Unit = {},
     onManageAccountClick: () -> Unit = {},
     onSettingsClick: () -> Unit = {},
     onAccountClick: () -> Unit = {},
@@ -268,7 +263,7 @@ fun ConnectScreen(
             NotificationBanner(
                 notification = state.inAppNotification,
                 isPlayBuild = state.isPlayBuild,
-                onClickUpdateVersion = onUpdateVersionClick,
+                openAppListing = onOpenAppListing,
                 onClickShowAccount = onManageAccountClick,
                 onClickDismissNewDevice = onDismissNewDeviceClick,
             )

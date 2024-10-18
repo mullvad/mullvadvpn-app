@@ -13,25 +13,16 @@ import androidx.navigation.NavHostController
 import co.touchlab.kermit.Logger
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.generated.NavGraphs
-import com.ramcosta.composedestinations.generated.destinations.ChangelogDestination
-import com.ramcosta.composedestinations.generated.destinations.ConnectDestination
 import com.ramcosta.composedestinations.generated.destinations.NoDaemonDestination
-import com.ramcosta.composedestinations.generated.destinations.OutOfTimeDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.rememberNavHostEngine
-import com.ramcosta.composedestinations.utils.destination
 import com.ramcosta.composedestinations.utils.rememberDestinationsNavigator
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 import net.mullvad.mullvadvpn.compose.util.RequestVpnPermission
-import net.mullvad.mullvadvpn.viewmodel.ChangelogViewModel
 import net.mullvad.mullvadvpn.viewmodel.DaemonScreenEvent
 import net.mullvad.mullvadvpn.viewmodel.NoDaemonViewModel
 import net.mullvad.mullvadvpn.viewmodel.VpnPermissionSideEffect
 import net.mullvad.mullvadvpn.viewmodel.VpnPermissionViewModel
 import org.koin.androidx.compose.koinViewModel
-
-private val changeLogDestinations = listOf(ConnectDestination, OutOfTimeDestination)
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -68,19 +59,6 @@ fun MullvadApp() {
 
                 DaemonScreenEvent.Remove -> navigator.popBackStack(NoDaemonDestination, true)
             }
-        }
-    }
-
-    // Globally show the changelog
-    val changeLogsViewModel = koinViewModel<ChangelogViewModel>()
-    LaunchedEffect(Unit) {
-        changeLogsViewModel.uiSideEffect.collect {
-            // Wait until we are in an acceptable destination
-            navHostController.currentBackStackEntryFlow
-                .map { it.destination() }
-                .first { it in changeLogDestinations }
-
-            navigator.navigate(ChangelogDestination(it))
         }
     }
 

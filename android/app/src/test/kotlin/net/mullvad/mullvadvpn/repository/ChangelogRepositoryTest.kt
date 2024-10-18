@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.repository
 
-import android.content.SharedPreferences
 import io.mockk.every
 import io.mockk.mockk
 import net.mullvad.mullvadvpn.lib.common.test.assertLists
@@ -9,11 +8,9 @@ import org.junit.jupiter.api.Test
 
 class ChangelogRepositoryTest {
 
-    private val mockedPreferences: SharedPreferences = mockk()
     private val mockDataProvider: IChangelogDataProvider = mockk()
 
-    private val changelogRepository =
-        ChangelogRepository(preferences = mockedPreferences, dataProvider = mockDataProvider)
+    private val changelogRepository = ChangelogRepository(dataProvider = mockDataProvider)
 
     @Test
     fun `when given a changelog text should return a list of correctly formatted strings`() {

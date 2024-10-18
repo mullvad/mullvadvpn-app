@@ -3,14 +3,17 @@ package net.mullvad.mullvadvpn.compose.screen
 import android.content.Context
 import android.net.Uri
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Error
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -24,14 +27,15 @@ import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.ApiAccessListDestination
+import com.ramcosta.composedestinations.generated.destinations.AppInfoDestination
 import com.ramcosta.composedestinations.generated.destinations.ReportProblemDestination
 import com.ramcosta.composedestinations.generated.destinations.SplitTunnelingDestination
 import com.ramcosta.composedestinations.generated.destinations.VpnSettingsDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.DefaultExternalLinkView
-import net.mullvad.mullvadvpn.compose.cell.NavigationCellBody
 import net.mullvad.mullvadvpn.compose.cell.NavigationComposeCell
+import net.mullvad.mullvadvpn.compose.cell.TwoRowCell
 import net.mullvad.mullvadvpn.compose.component.NavigateCloseIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
@@ -66,6 +70,7 @@ fun Settings(navigator: DestinationsNavigator) {
         onVpnSettingCellClick = dropUnlessResumed { navigator.navigate(VpnSettingsDestination) },
         onSplitTunnelingCellClick =
             dropUnlessResumed { navigator.navigate(SplitTunnelingDestination) },
+        onAppInfoClick = dropUnlessResumed { navigator.navigate(AppInfoDestination) },
         onApiAccessClick = dropUnlessResumed { navigator.navigate(ApiAccessListDestination) },
         onReportProblemCellClick =
             dropUnlessResumed { navigator.navigate(ReportProblemDestination) },
@@ -79,6 +84,7 @@ fun SettingsScreen(
     state: SettingsUiState,
     onVpnSettingCellClick: () -> Unit = {},
     onSplitTunnelingCellClick: () -> Unit = {},
+    onAppInfoClick: () -> Unit = {},
     onReportProblemCellClick: () -> Unit = {},
     onApiAccessClick: () -> Unit = {},
     onBackClick: () -> Unit = {},
@@ -114,7 +120,7 @@ fun SettingsScreen(
             }
             item { Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing)) }
 
-            item { AppVersion(context, state) }
+            item { AppInfo(onAppInfoClick, state) }
 
             item { Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing)) }
 
@@ -138,54 +144,29 @@ private fun SplitTunneling(onSplitTunnelingCellClick: () -> Unit) {
 }
 
 @Composable
-private fun AppVersion(context: Context, state: SettingsUiState) {
-    NavigationComposeCell(
-        title = stringResource(id = R.string.app_version),
-        onClick = {
-            context.openLink(
-                Uri.parse(
-                    context.resources
-                        .getString(R.string.download_url)
-                        .appendHideNavOnPlayBuild(state.isPlayBuild)
-                )
-            )
-        },
-        bodyView =
-            @Composable {
-                if (!state.isPlayBuild) {
-                    NavigationCellBody(
-                        content = state.appVersion,
-                        contentBodyDescription = stringResource(id = R.string.app_version),
-                        textColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        isExternalLink = true,
-                    )
-                } else {
-                    Text(
-                        text = state.appVersion,
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+private fun AppInfo(navigateToAppInfo: () -> Unit, state: SettingsUiState) {
+    TwoRowCell(
+        titleText = stringResource(id = R.string.app_info),
+        subtitleText = state.appVersion,
+        bodyView = {
+            Row {
+                if (!state.isSupportedVersion) {
+                    Icon(
+                        imageVector = Icons.Default.Error,
+                        modifier = Modifier.padding(end = Dimens.smallPadding),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.error,
                     )
                 }
-            },
-        showWarning = !state.isSupportedVersion,
-        isRowEnabled = !state.isPlayBuild,
+                Icon(
+                    Icons.Default.ChevronRight,
+                    contentDescription = stringResource(R.string.app_info),
+                    tint = MaterialTheme.colorScheme.onPrimary,
+                )
+            }
+        },
+        onCellClicked = navigateToAppInfo,
     )
-
-    if (!state.isSupportedVersion) {
-        Text(
-            text = stringResource(id = R.string.unsupported_version_description),
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier =
-                Modifier.fillMaxWidth()
-                    .padding(
-                        start = Dimens.cellStartPadding,
-                        top = Dimens.cellTopPadding,
-                        end = Dimens.cellStartPadding,
-                        bottom = Dimens.cellLabelVerticalPadding,
-                    ),
-        )
-    }
 }
 
 @Composable

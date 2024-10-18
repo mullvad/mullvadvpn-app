@@ -39,7 +39,7 @@ class SettingsScreenTest {
             // Assert
             onNodeWithText("VPN settings").assertExists()
             onNodeWithText("Split tunneling").assertExists()
-            onNodeWithText("App version").assertExists()
+            onNodeWithText("App info").assertExists()
             onNodeWithText("API access").assertExists()
         }
 
@@ -62,7 +62,7 @@ class SettingsScreenTest {
             // Assert
             onNodeWithText("VPN settings").assertDoesNotExist()
             onNodeWithText("Split tunneling").assertDoesNotExist()
-            onNodeWithText("App version").assertExists()
+            onNodeWithText("App info").assertExists()
             onNodeWithText("API access").assertExists()
         }
 }
