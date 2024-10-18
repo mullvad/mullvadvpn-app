@@ -105,6 +105,7 @@ impl Settings {
         use std::iter::once;
         once(&mut self.direct)
             .chain(once(&mut self.mullvad_bridges))
+            .chain(once(&mut self.encrypted_dns_proxy))
             .chain(&mut self.custom)
     }
 
