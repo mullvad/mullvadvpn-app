@@ -35,8 +35,7 @@ public final class RelaySelectorWrapper: RelaySelectorProtocol {
                 relays: relays,
                 constraints: tunnelSettings.relayConstraints,
                 connectionAttemptCount: connectionAttemptCount,
-                daitaSettings: tunnelSettings.daita,
-                automaticDaitaRouting: false
+                daitaSettings: tunnelSettings.daita
             ).pick()
         }
     }

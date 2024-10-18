@@ -196,7 +196,7 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting {
             "RESTORE_PURCHASES_DIALOG_MESSAGE",
             tableName: "Account",
             value: """
-            You can use the “restore purchases” function to check for any in-app payments \
+            You can use the "restore purchases" function to check for any in-app payments \
             made via Apple services. If there is a payment that has not been credited, it will \
             add the time to the currently logged in Mullvad account.
             """,

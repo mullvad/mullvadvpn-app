@@ -14,6 +14,7 @@ import UIKit
 
 class LocationCoordinator: Coordinator, Presentable, Presenting {
     private let tunnelManager: TunnelManager
+    private var tunnelObserver: TunnelObserver?
     private let relayCacheTracker: RelayCacheTracker
     private let customListRepository: CustomListRepositoryProtocol
     private var locationRelays: LocationRelays?
@@ -54,6 +55,8 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
     }
 
     func start() {
+        // If multihop is enabled, we should check if there's a DAITA related error when opening the location
+        // view. If there is, help the user by showing the entry instead of the exit view.
         var startContext: LocationViewControllerWrapper.MultihopContext = .exit
         if tunnelManager.settings.tunnelMultihopState.isEnabled {
             startContext = if case .noRelaysSatisfyingDaitaConstraints = tunnelManager.tunnelStatus.observedState
@@ -71,8 +74,14 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
 
         locationViewControllerWrapper.didFinish = { [weak self] in
             guard let self else { return }
+
+            if let tunnelObserver {
+                tunnelManager.removeObserver(tunnelObserver)
+            }
             didFinish?(self)
         }
+
+        addTunnelObserver()
         relayCacheTracker.addObserver(self)
 
         if let cachedRelays = try? relayCacheTracker.getCachedRelays() {
@@ -84,6 +93,23 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
         }
 
         navigationController.pushViewController(locationViewControllerWrapper, animated: false)
+    }
+
+    private func addTunnelObserver() {
+        let tunnelObserver =
+            TunnelBlockObserver(
+                didUpdateTunnelSettings: { [weak self] _, settings in
+                    guard let self, let locationRelays else { return }
+                    locationViewControllerWrapper?.onDaitaSettingsUpdate(
+                        settings.daita,
+                        relaysWithLocation: locationRelays,
+                        filter: relayFilter
+                    )
+                }
+            )
+
+        tunnelManager.addObserver(tunnelObserver)
+        self.tunnelObserver = tunnelObserver
     }
 
     private func updateRelaysWithLocationFrom(
@@ -99,7 +125,7 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
             RelaySelector.relayMatchesFilter(relay, filter: filter)
         }
 
-        self.locationRelays = relaysWithLocation
+        locationRelays = relaysWithLocation
 
         controllerWrapper.setRelaysWithLocation(relaysWithLocation, filter: filter)
     }
@@ -201,6 +227,10 @@ extension LocationCoordinator: LocationViewControllerWrapperDelegate {
         tunnelManager.updateSettings([.relayConstraints(relayConstraints)]) {
             self.tunnelManager.startTunnel()
         }
+    }
+
+    func navigateToDaitaSettings() {
+        applicationRouter?.present(.settings(nil))
     }
 
     func didSelectExitRelays(_ relays: UserSelectedRelays) {
