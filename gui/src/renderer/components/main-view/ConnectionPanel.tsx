@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from 'react';
 import styled from 'styled-components';
 
-import { useBoolean } from '../../lib/utilityHooks';
+import { useBoolean } from '../../lib/utility-hooks';
 import { useSelector } from '../../redux/store';
 import CustomScrollbars from '../CustomScrollbars';
 import { BackAction } from '../KeyboardNavigation';

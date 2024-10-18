@@ -13,7 +13,7 @@ import { messages } from '../../../shared/gettext';
 import log from '../../../shared/logging';
 import { useAppContext } from '../../context';
 import { formatHtml } from '../../lib/html-formatter';
-import { useBoolean } from '../../lib/utilityHooks';
+import { useBoolean } from '../../lib/utility-hooks';
 import { useSelector } from '../../redux/store';
 import * as AppButton from '../AppButton';
 import * as Cell from '../cell';
@@ -34,6 +34,8 @@ interface AddToListDialogProps {
 
 // Dialog that displays list of custom lists when adding location to custom list.
 export function AddToListDialog(props: AddToListDialogProps) {
+  const { hide } = props;
+
   const { updateCustomList } = useAppContext();
   const customLists = useSelector((state) => state.settings.customLists);
 
@@ -51,9 +53,9 @@ export function AddToListDialog(props: AddToListDialogProps) {
         log.error(`Failed to edit custom list ${list.id}: ${error.message}`);
       }
 
-      props.hide();
+      hide();
     },
-    [location, updateCustomList],
+    [hide, props.location, updateCustomList],
   );
 
   let locationType: string;
@@ -114,7 +116,9 @@ interface SelectListProps {
 }
 
 function SelectList(props: SelectListProps) {
-  const onAdd = useCallback(() => props.add(props.list), [props.list]);
+  const { add } = props;
+
+  const onAdd = useCallback(() => add(props.list), [add, props.list]);
 
   // List should be disabled if location already is in list.
   const disabled = props.list.locations.some((location) =>
@@ -144,6 +148,8 @@ interface EditListProps {
 
 // Dialog for changing the name of a custom list.
 export function EditListDialog(props: EditListProps) {
+  const { hide } = props;
+
   const { updateCustomList } = useAppContext();
 
   const [newName, setNewName] = useState(props.list.name);
@@ -160,20 +166,23 @@ export function EditListDialog(props: EditListProps) {
         if (result && result.type === 'name already exists') {
           setError();
         } else {
-          props.hide();
+          hide();
         }
       } catch (e) {
         const error = e as Error;
         log.error(`Failed to edit custom list ${props.list.id}: ${error.message}`);
       }
     }
-  }, [props.list, newName, props.hide]);
+  }, [newNameValid, props.list, newNameTrimmed, updateCustomList, setError, hide]);
 
   // Errors should be reset when editing the value
-  const onChange = useCallback((value: string) => {
-    setNewName(value);
-    unsetError();
-  }, []);
+  const onChange = useCallback(
+    (value: string) => {
+      setNewName(value);
+      unsetError();
+    },
+    [unsetError],
+  );
 
   return (
     <ModalAlert
@@ -215,10 +224,12 @@ interface DeleteConfirmDialogProps {
 
 // Dialog for changing the name of a custom list.
 export function DeleteConfirmDialog(props: DeleteConfirmDialogProps) {
+  const { confirm: propsConfirm, hide } = props;
+
   const confirm = useCallback(() => {
-    props.confirm();
-    props.hide();
-  }, []);
+    propsConfirm();
+    hide();
+  }, [hide, propsConfirm]);
 
   return (
     <ModalAlert

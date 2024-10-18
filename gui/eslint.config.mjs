@@ -1,6 +1,7 @@
 import eslint from '@eslint/js';
 import prettier from 'eslint-plugin-prettier/recommended';
 import react from 'eslint-plugin-react';
+import reactcompiler from 'eslint-plugin-react-compiler';
 import reactHooks from 'eslint-plugin-react-hooks';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
 import globals from 'globals';
@@ -130,6 +131,7 @@ export default tseslint.config(
     plugins: {
       'simple-import-sort': simpleImportSort,
       'react-hooks': reactHooks,
+      'react-compiler': reactcompiler,
     },
     rules: {
       quotes: ['error', 'single', { avoidEscape: true }],
@@ -143,10 +145,12 @@ export default tseslint.config(
       'no-return-await': 'error',
       'react/jsx-no-bind': 'error',
       '@typescript-eslint/naming-convention': ['error', ...namingConvention],
-      '@typescript-eslint/ban-ts-comment': ['error', { 'ts-ignore': false }],
+      '@typescript-eslint/ban-ts-comment': 'error',
       'simple-import-sort/imports': 'error',
 
       'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'error',
+      'react-compiler/react-compiler': 'error',
 
       '@typescript-eslint/no-use-before-define': 'off',
       '@typescript-eslint/explicit-module-boundary-types': 'off',

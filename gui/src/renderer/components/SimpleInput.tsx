@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import React from 'react';
 import styled from 'styled-components';
 
-import { useCombinedRefs } from '../lib/utilityHooks';
+import { useCombinedRefs } from '../lib/utility-hooks';
 import { normalText } from './common-styles';
 
 const StyledInput = styled.input.attrs({ type: 'text' })(normalText, {
@@ -19,41 +19,51 @@ interface SimpleInputProps extends Omit<React.InputHTMLAttributes<HTMLInputEleme
 }
 
 function SimpleInput(props: SimpleInputProps, ref: React.Ref<HTMLInputElement>) {
-  const { onChangeValue, onSubmitValue, ...otherProps } = props;
+  const {
+    onChangeValue,
+    onSubmitValue,
+    onChange: propsOnChange,
+    onSubmit: propsOnSubmit,
+    onKeyPress: propsOnKeyPress,
+    ...otherProps
+  } = props;
   const [value, setValue] = useState((props.value as string) ?? '');
 
   const onChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       setValue(event.target.value);
-      otherProps.onChange?.(event);
+      propsOnChange?.(event);
       onChangeValue?.(event.target.value);
     },
-    [otherProps.onChange, onChangeValue],
+    [propsOnChange, onChangeValue],
   );
 
   const onSubmit = useCallback(
     (event: React.FormEvent<HTMLInputElement>) => {
-      otherProps.onSubmit?.(event);
+      propsOnSubmit?.(event);
       onSubmitValue?.(value);
     },
-    [otherProps.onSubmit, onSubmitValue, value],
+    [propsOnSubmit, onSubmitValue, value],
   );
 
   const onKeyPress = useCallback(
     (event: React.KeyboardEvent<HTMLInputElement>) => {
-      props.onKeyPress?.(event);
+      propsOnKeyPress?.(event);
       if (event.key === 'Enter') {
         onSubmitValue?.(value);
       }
     },
-    [props.onKeyPress, onSubmitValue, value],
+    [propsOnKeyPress, onSubmitValue, value],
   );
 
-  const refCallback = useCallback((element: HTMLInputElement | null) => {
-    if (element && otherProps.autoFocus) {
-      setTimeout(() => element.focus());
-    }
-  }, []);
+  const refCallback = useCallback(
+    (element: HTMLInputElement | null) => {
+      if (element && otherProps.autoFocus) {
+        setTimeout(() => element.focus());
+      }
+    },
+    [otherProps.autoFocus],
+  );
 
   const combinedRef = useCombinedRefs(refCallback, ref);
 

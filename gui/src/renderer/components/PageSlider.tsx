@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import { colors } from '../../config.json';
 import { NonEmptyArray } from '../../shared/utils';
-import { useStyledRef } from '../lib/utilityHooks';
+import { useStyledRef } from '../lib/utility-hooks';
 import { Icon } from './cell';
 
 const PAGE_GAP = 16;
@@ -92,7 +92,7 @@ export default function PageSlider(props: PageSliderProps) {
 
   // Trigger a rerender when the page number has changed. This needs to be done to update the
   // states of the arrows and page indicators.
-  const handleScroll = useCallback(() => setPageNumberState(getPageNumber()), []);
+  const handleScroll = useCallback(() => setPageNumberState(getPageNumber()), [getPageNumber]);
 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown);
@@ -229,9 +229,11 @@ interface PageIndicatorProps {
 }
 
 function PageIndicator(props: PageIndicatorProps) {
+  const { goToPage } = props;
+
   const onClick = useCallback(() => {
-    props.goToPage(props.pageNumber);
-  }, [props.goToPage, props.pageNumber]);
+    goToPage(props.pageNumber);
+  }, [goToPage, props.pageNumber]);
 
   return (
     <StyledTransparentButton onClick={onClick}>

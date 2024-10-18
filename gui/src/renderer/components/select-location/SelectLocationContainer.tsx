@@ -29,7 +29,7 @@ export default function SelectLocationContainer() {
 
   const value = useMemo(
     () => ({ locationType, setLocationType: setSelectLocationView, searchTerm, setSearchTerm }),
-    [locationType, searchTerm],
+    [locationType, searchTerm, setSelectLocationView],
   );
 
   return (

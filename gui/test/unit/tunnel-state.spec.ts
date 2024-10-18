@@ -14,7 +14,7 @@ const error: TunnelState = { state: 'error' } as TunnelState;
 describe('Tunnel state', () => {
   it('Should allow all updates', () => {
     const stateUpdateSpy = spy();
-    // @ts-ignore
+    // @ts-expect-error stateUpdateSpy doesn't know what type to accept
     const handleTunnelStateUpdate = (tunnelState: TunnelState) => stateUpdateSpy(tunnelState.state);
     const tunnelStateHandler = new TunnelStateHandler({ handleTunnelStateUpdate });
 
@@ -33,7 +33,7 @@ describe('Tunnel state', () => {
 
   it('Should ignore non-expected state update', () => {
     const stateUpdateSpy = spy();
-    // @ts-ignore
+    // @ts-expect-error stateUpdateSpy doesn't know what type to accept
     const handleTunnelStateUpdate = (tunnelState: TunnelState) => stateUpdateSpy(tunnelState.state);
     const tunnelStateHandler = new TunnelStateHandler({ handleTunnelStateUpdate });
 
@@ -49,7 +49,7 @@ describe('Tunnel state', () => {
 
   it('Should allow new states after expected state is reached', () => {
     const stateUpdateSpy = spy();
-    // @ts-ignore
+    // @ts-expect-error stateUpdateSpy doesn't know what type to accept
     const handleTunnelStateUpdate = (tunnelState: TunnelState) => stateUpdateSpy(tunnelState.state);
     const tunnelStateHandler = new TunnelStateHandler({ handleTunnelStateUpdate });
 
@@ -67,7 +67,7 @@ describe('Tunnel state', () => {
 
   it('Should allow error state update', () => {
     const stateUpdateSpy = spy();
-    // @ts-ignore
+    // @ts-expect-error stateUpdateSpy doesn't know what type to accept
     const handleTunnelStateUpdate = (tunnelState: TunnelState) => stateUpdateSpy(tunnelState.state);
     const tunnelStateHandler = new TunnelStateHandler({ handleTunnelStateUpdate });
 
@@ -86,7 +86,7 @@ describe('Tunnel state', () => {
   it('Should time out and use last ignored state', () => {
     const clock = sinon.useFakeTimers({ shouldAdvanceTime: true });
     const stateUpdateSpy = spy();
-    // @ts-ignore
+    // @ts-expect-error stateUpdateSpy doesn't know what type to accept
     const handleTunnelStateUpdate = (tunnelState: TunnelState) => stateUpdateSpy(tunnelState.state);
     const tunnelStateHandler = new TunnelStateHandler({ handleTunnelStateUpdate });
 

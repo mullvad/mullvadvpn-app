@@ -11,7 +11,8 @@ import {
   filterLocationsByEndPointType,
 } from '../lib/filter-locations';
 import { useHistory } from '../lib/history';
-import { useBoolean, useNormalRelaySettings, useTunnelProtocol } from '../lib/utilityHooks';
+import { useNormalRelaySettings, useTunnelProtocol } from '../lib/relay-settings-hooks';
+import { useBoolean } from '../lib/utility-hooks';
 import { IRelayLocationCountryRedux } from '../redux/settings/reducers';
 import { useSelector } from '../redux/store';
 import Accordion from './Accordion';
@@ -149,7 +150,7 @@ function useFilteredOwnershipOptions(providers: string[], ownership: Ownership):
     }
 
     return ownershipOptions;
-  }, [locations, providers, ownership]);
+  }, [locations, endpointType, tunnelProtocol, relaySettings, ownership, providers]);
 
   return availableOwnershipOptions;
 }
@@ -172,7 +173,7 @@ export function useFilteredProviders(providers: string[], ownership: Ownership):
     );
     const relaylistForFilters = filterLocations(relayListForEndpointType, ownership, providers);
     return providersFromRelays(relaylistForFilters);
-  }, [locations, ownership]);
+  }, [endpointType, locations, ownership, providers, relaySettings, tunnelProtocol]);
 
   return availableProviders;
 }
@@ -272,22 +273,24 @@ interface IFilterByProviderProps {
 }
 
 function FilterByProvider(props: IFilterByProviderProps) {
+  const { setProviders } = props;
+
   const [expanded, , , toggleExpanded] = useBoolean(false);
 
   const onToggle = useCallback(
     (provider: string) =>
-      props.setProviders((providers) => {
+      setProviders((providers) => {
         const newProviders = { ...providers, [provider]: !providers[provider] };
         return props.availableOptions.every((provider) => newProviders[provider])
           ? toggleAllProviders(providers, true)
           : newProviders;
       }),
-    [props.availableOptions, props.setProviders],
+    [props.availableOptions, setProviders],
   );
 
   const toggleAll = useCallback(() => {
-    props.setProviders((providers) => toggleAllProviders(providers));
-  }, []);
+    setProviders((providers) => toggleAllProviders(providers));
+  }, [setProviders]);
 
   return (
     <>
@@ -355,7 +358,9 @@ interface ICheckboxRowProps extends IStyledRowTitleProps {
 }
 
 function CheckboxRow(props: ICheckboxRowProps) {
-  const onToggle = useCallback(() => props.onChange(props.label), [props.onChange, props.label]);
+  const { onChange } = props;
+
+  const onToggle = useCallback(() => onChange(props.label), [onChange, props.label]);
 
   return (
     <StyledRow onClick={onToggle}>

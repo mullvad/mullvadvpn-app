@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import styled from 'styled-components';
 
 import { useHistory } from '../lib/history';
-import { useBoolean } from '../lib/utilityHooks';
+import { useBoolean } from '../lib/utility-hooks';
 import * as AppButton from './AppButton';
 import { measurements } from './common-styles';
 import { BackAction } from './KeyboardNavigation';

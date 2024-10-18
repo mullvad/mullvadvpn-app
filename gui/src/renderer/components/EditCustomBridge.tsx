@@ -4,7 +4,7 @@ import { CustomProxy } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { useBridgeSettingsUpdater } from '../lib/constraint-updater';
 import { useHistory } from '../lib/history';
-import { useBoolean } from '../lib/utilityHooks';
+import { useBoolean } from '../lib/utility-hooks';
 import { useSelector } from '../redux/store';
 import { SettingsForm } from './cell/SettingsForm';
 import { BackAction } from './KeyboardNavigation';
@@ -25,7 +25,7 @@ export function EditCustomBridge() {
 }
 
 function CustomBridgeForm() {
-  const history = useHistory();
+  const { pop } = useHistory();
   const bridgeSettingsUpdater = useBridgeSettingsUpdater();
   const bridgeSettings = useSelector((state) => state.settings.bridgeSettings);
 
@@ -45,9 +45,9 @@ function CustomBridgeForm() {
         bridgeSettings.custom = newBridge;
         return bridgeSettings;
       });
-      history.pop();
+      pop();
     },
-    [bridgeSettingsUpdater, history.pop],
+    [bridgeSettingsUpdater, pop],
   );
 
   const onDelete = useCallback(() => {
@@ -58,12 +58,12 @@ function CustomBridgeForm() {
         delete bridgeSettings.custom;
         return bridgeSettings;
       });
-      history.pop();
+      pop();
     }
-  }, [bridgeSettingsUpdater, history.pop]);
+  }, [bridgeSettings.custom, bridgeSettingsUpdater, hideDeleteDialog, pop]);
 
   return (
-    <BackAction action={history.pop}>
+    <BackAction action={pop}>
       <Layout>
         <SettingsContainer>
           <NavigationContainer>
@@ -83,7 +83,7 @@ function CustomBridgeForm() {
                   <ProxyForm
                     proxy={bridgeSettings.custom}
                     onSave={onSave}
-                    onCancel={history.pop}
+                    onCancel={pop}
                     onDelete={bridgeSettings.custom === undefined ? undefined : showDeleteDialog}
                   />
                 </StyledSettingsContent>

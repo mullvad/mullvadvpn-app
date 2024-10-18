@@ -4,6 +4,7 @@ import { useLocation } from 'react-router';
 import { useHistory } from '../lib/history';
 import { disableDismissForRoutes } from '../lib/routeHelpers';
 import { RoutePath } from '../lib/routes';
+import { useEffectEvent } from '../lib/utility-hooks';
 
 interface IKeyboardNavigationProps {
   children: React.ReactElement | Array<React.ReactElement>;
@@ -11,7 +12,7 @@ interface IKeyboardNavigationProps {
 
 // Listens for and handles keyboard shortcuts
 export default function KeyboardNavigation(props: IKeyboardNavigationProps) {
-  const history = useHistory();
+  const { pop } = useHistory();
   const [backAction, setBackActionImpl] = useState<BackActionFn>();
   const location = useLocation();
 
@@ -26,13 +27,13 @@ export default function KeyboardNavigation(props: IKeyboardNavigationProps) {
       if (event.key === 'Escape') {
         const path = location.pathname as RoutePath;
         if (event.shiftKey && !disableDismissForRoutes.includes(path)) {
-          history.pop(true);
+          pop(true);
         } else {
           backAction?.();
         }
       }
     },
-    [history.pop, backAction, location.pathname],
+    [pop, backAction, location.pathname],
   );
 
   useEffect(() => {
@@ -69,7 +70,7 @@ interface IBackActionProps {
 // Component for registering back actions, e.g. navigate back or close modal. These are called
 // either by pressing the back button in the navigation bar or by pressing escape.
 export function BackAction(props: IBackActionProps) {
-  const backActionContext = useContext(BackActionContext);
+  const { registerBackAction, removeBackAction } = useContext(BackActionContext);
   const [childrenBackAction, setChildrenBackActionImpl] = useState<BackActionFn>();
 
   // Since the backaction is now a function we need to make sure it's not called when setting the
@@ -88,10 +89,10 @@ export function BackAction(props: IBackActionProps) {
   // Every time the action or the disabled property changes the action needs to be reregistered.
   useEffect((): (() => void) | void => {
     if (!props.disabled && backAction) {
-      backActionContext.registerBackAction(backAction);
-      return () => backActionContext.removeBackAction(backAction);
+      registerBackAction(backAction);
+      return () => removeBackAction(backAction);
     }
-  }, [props.disabled, backAction]);
+  }, [props.disabled, backAction, registerBackAction, removeBackAction]);
 
   // Every back action keeps track of the back actions in its subtree. This makes it possible to
   // always use the action furthest down in the tree.
@@ -121,10 +122,14 @@ function BackActionTracker(props: IBackActionTracker) {
   }, []);
   const backActionContext = useMemo(
     () => ({ parentBackAction: props.parentBackAction, registerBackAction, removeBackAction }),
-    [backActions],
+    [props.parentBackAction, registerBackAction, removeBackAction],
   );
 
-  useEffect(() => props.registerBackAction(backActions.at(0)), [backActions]);
+  const registerBackActionEvent = useEffectEvent((backActions: Array<BackActionFn>) => {
+    props.registerBackAction(backActions.at(0));
+  });
+
+  useEffect(() => registerBackActionEvent(backActions), [backActions]);
 
   return (
     <BackActionContext.Provider value={backActionContext}>
