@@ -36,6 +36,8 @@ const menuContext = React.createContext<MenuContext>({
 const StyledMenuContainer = styled.div({
   position: 'relative',
   padding: '8px 4px',
+  display: 'flex',
+  justifyContent: 'center',
 });
 
 export function ContextMenuContainer(props: React.PropsWithChildren) {
