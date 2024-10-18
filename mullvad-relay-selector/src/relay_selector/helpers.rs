@@ -207,8 +207,8 @@ fn port_if_in_range<R: RangeBounds<u16>>(port_ranges: &[R], port: u16) -> Result
 /// - `port_ranges`: A slice of port numbers.
 ///
 /// # Returns
-/// - On success, a randomly selected port number within the given ranges. Otherwise,
-///   an error is returned.
+/// - On success, a randomly selected port number within the given ranges. Otherwise, an error is
+///   returned.
 pub fn select_random_port<R: RangeBounds<u16> + Iterator<Item = u16> + Clone>(
     port_ranges: &[R],
 ) -> Result<u16, Error> {

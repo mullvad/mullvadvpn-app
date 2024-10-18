@@ -11,37 +11,45 @@ use matcher::{filter_matching_bridges, filter_matching_relay_list};
 use parsed_relays::ParsedRelays;
 use relays::{Multihop, Singlehop, WireguardConfig};
 
-use crate::detailer::{openvpn_endpoint, wireguard_endpoint};
-use crate::error::{EndpointErrorDetails, Error};
-use crate::query::{
-    BridgeQuery, ObfuscationQuery, OpenVpnRelayQuery, RelayQuery, RelayQueryExt,
-    WireguardRelayQuery,
+use crate::{
+    detailer::{openvpn_endpoint, wireguard_endpoint},
+    error::{EndpointErrorDetails, Error},
+    query::{
+        BridgeQuery, ObfuscationQuery, OpenVpnRelayQuery, RelayQuery, RelayQueryExt,
+        WireguardRelayQuery,
+    },
 };
 
-use std::path::Path;
-use std::sync::{Arc, LazyLock, Mutex};
-use std::time::SystemTime;
+use std::{
+    path::Path,
+    sync::{Arc, LazyLock, Mutex},
+    time::SystemTime,
+};
 
 use chrono::{DateTime, Local};
 use itertools::Itertools;
 
-use mullvad_types::constraints::Constraint;
-use mullvad_types::custom_list::CustomListsSettings;
-use mullvad_types::endpoint::MullvadWireguardEndpoint;
-use mullvad_types::location::{Coordinates, Location};
-use mullvad_types::relay_constraints::{
-    BridgeSettings, BridgeState, InternalBridgeConstraints, ObfuscationSettings,
-    OpenVpnConstraints, RelayConstraints, RelayOverride, RelaySettings, ResolvedBridgeSettings,
-    WireguardConstraints,
+use mullvad_types::{
+    constraints::Constraint,
+    custom_list::CustomListsSettings,
+    endpoint::MullvadWireguardEndpoint,
+    location::{Coordinates, Location},
+    relay_constraints::{
+        BridgeSettings, BridgeState, InternalBridgeConstraints, ObfuscationSettings,
+        OpenVpnConstraints, RelayConstraints, RelayOverride, RelaySettings, ResolvedBridgeSettings,
+        WireguardConstraints,
+    },
+    relay_list::{Relay, RelayEndpointData, RelayList},
+    settings::Settings,
+    wireguard::QuantumResistantState,
+    CustomTunnelEndpoint, Intersection,
 };
-use mullvad_types::relay_list::{Relay, RelayEndpointData, RelayList};
-use mullvad_types::settings::Settings;
-use mullvad_types::wireguard::QuantumResistantState;
-use mullvad_types::{CustomTunnelEndpoint, Intersection};
-use talpid_types::net::{
-    obfuscation::ObfuscatorConfig, proxy::CustomProxy, Endpoint, TransportProtocol, TunnelType,
+use talpid_types::{
+    net::{
+        obfuscation::ObfuscatorConfig, proxy::CustomProxy, Endpoint, TransportProtocol, TunnelType,
+    },
+    ErrorExt,
 };
-use talpid_types::ErrorExt;
 
 /// [`RETRY_ORDER`] defines an ordered set of relay parameters which the relay selector should
 /// prioritize on successive connection attempts. Note that these will *never* override user
@@ -684,8 +692,9 @@ impl RelaySelector {
             match Self::get_wireguard_singlehop_config(query, custom_lists, parsed_relays) {
                 Some(exit) => WireguardConfig::from(exit),
                 None => {
-                    // If we found no matching relays because DAITA was enabled, and `use_multihop_if_necessary`
-                    // is enabled, try enabling multihop and connecting using an automatically selected
+                    // If we found no matching relays because DAITA was enabled, and
+                    // `use_multihop_if_necessary` is enabled, try enabling
+                    // multihop and connecting using an automatically selected
                     // entry relay.
                     if query.using_daita() && query.use_multihop_if_necessary() {
                         let multihop = Self::get_wireguard_auto_multihop_config(
