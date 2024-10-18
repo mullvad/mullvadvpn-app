@@ -98,3 +98,7 @@ native code can be done in Android Studio or using gradle.
 # Build options and configuration
 
 For configuring signing or options to your build continue with the general [build instructions](../BuildInstructions.md).
+
+# Debugging the Rust native code
+
+For tips on how to debug the Rust library code from Android Studio, see the [debug instructions](DebugInstructions.md).
