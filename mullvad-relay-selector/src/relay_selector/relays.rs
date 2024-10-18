@@ -17,8 +17,8 @@ pub enum WireguardConfig {
 
 /// A type representing single Wireguard relay.
 ///
-/// Before you can read any data out of a [`Singlehop`] value uou need to convert it to [`WireguardConfig`].
-/// This is easy since [`Singlehop`] implements [`Into<WireguardConfig>`].
+/// Before you can read any data out of a [`Singlehop`] value uou need to convert it to
+/// [`WireguardConfig`]. This is easy since [`Singlehop`] implements [`Into<WireguardConfig>`].
 ///
 /// # Why not simply use [`Relay`]?
 /// The only way to construct a [`Singlehop`] value is with [`Singlehop::new`] which performs
@@ -27,8 +27,8 @@ pub enum WireguardConfig {
 pub struct Singlehop(Relay);
 /// A type representing two Wireguard relay - an entry and an exit.
 ///
-/// Before you can read any data out of a [`Multihop`] value uou need to convert it to [`WireguardConfig`].
-/// This is easy since [`Multihop`] implements [`Into<WireguardConfig>`].
+/// Before you can read any data out of a [`Multihop`] value uou need to convert it to
+/// [`WireguardConfig`]. This is easy since [`Multihop`] implements [`Into<WireguardConfig>`].
 ///
 /// # Why not simply use [`Relay`]?
 /// The same rationale as for [`Singlehop`] applies - [`Multihop::new`] performs additional

@@ -1422,8 +1422,8 @@ fn test_daita_any_tunnel_protocol() {
     );
 }
 
-/// Always use smart routing to select a DAITA-enabled entry relay if both smart routing and multihop is enabled.
-/// This applies even if the entry is set explicitly.
+/// Always use smart routing to select a DAITA-enabled entry relay if both smart routing and
+/// multihop is enabled. This applies even if the entry is set explicitly.
 /// DAITA is a core privacy feature
 #[test]
 fn test_daita_smart_routing_overrides_multihop() {
