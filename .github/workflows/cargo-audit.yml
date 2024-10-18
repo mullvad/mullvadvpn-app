@@ -21,7 +21,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - uses: actions-rust-lang/audit@v1.1.11
+      - uses: actions-rust-lang/audit@531fba54daed81c23724925a1892a60c74969c38 # v1.2.1
         name: Audit Rust Dependencies
         with:
           file: Cargo.lock
@@ -29,7 +29,7 @@ jobs:
           # Ignored audit issues. This list should be kept short, and effort should be
           # put into removing items from the list.
 
-      - uses: actions-rust-lang/audit@v1.1.11
+      - uses: actions-rust-lang/audit@531fba54daed81c23724925a1892a60c74969c38 # v1.2.1
         name: Audit testrunner Rust Dependencies
         with:
           file: test/Cargo.lock
