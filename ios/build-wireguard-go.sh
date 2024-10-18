@@ -37,7 +37,7 @@ fi
 WIREGUARD_KIT_GO_PATH="$RESOLVED_SOURCE_PACKAGES_PATH/checkouts/wireguard-apple/Sources/WireGuardKitGo"
 echo "WireGuardKitGo path resolved to $WIREGUARD_KIT_GO_PATH"
 
-export PATH=/opt/homebrew/opt/go@1.20/bin:$PATH
+export PATH=/opt/homebrew/opt/go@1.21/bin:$PATH
 
 # Run make
 # shellcheck disable=SC2086
