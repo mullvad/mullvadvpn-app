@@ -78,6 +78,10 @@ enum InnerConnectionMode {
     Shadowsocks(ShadowsocksConfig),
     /// Connect to the destination via a Socks proxy.
     Socks5(SocksConfig),
+    /// Connect to the destination via Mullvad Encrypted DNS proxy.
+    /// See [`mullvad-encrypted-dns-proxy`] for how the proxy works.
+    #[allow(dead_code)] // TODO: Remove this allow
+    EncryptedDnsProxy(mullvad_encrypted_dns_proxy::config::ProxyConfig),
 }
 
 impl InnerConnectionMode {
@@ -152,6 +156,13 @@ impl InnerConnectionMode {
                     socket_bypass_tx,
                 )
                 .await
+            }
+            InnerConnectionMode::EncryptedDnsProxy(proxy_config) => {
+                use mullvad_encrypted_dns_proxy::Forwarder;
+                let forwarder = Forwarder::connect(&proxy_config).await?;
+                // TODO: How to handle 'socket bypass' on Android?
+                let tls_stream = TlsStream::connect_https(forwarder, hostname).await?;
+                Ok(ApiConnection::new(Box::new(tls_stream)))
             }
         }
     }
