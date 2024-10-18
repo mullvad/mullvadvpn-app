@@ -133,6 +133,10 @@ export default function ApiAccessMethods() {
                       method={methods.mullvadBridges}
                       inUse={methods.mullvadBridges.id === currentMethod?.id}
                     />
+                    <ApiAccessMethod
+                      method={methods.encryptedDnsProxy}
+                      inUse={methods.encryptedDnsProxy.id === currentMethod?.id}
+                    />
                     {methods.custom.map((method) => (
                       <ApiAccessMethod
                         key={method.id}
@@ -211,7 +215,7 @@ function ApiAccessMethod(props: ApiAccessMethodProps) {
       },
     ];
 
-    // Edit and Delete shouldn't be available for direct and bridges.
+    // Edit and Delete shouldn't be available for direct, bridges or encrypted DNS proxy.
     if (props.custom) {
       items.push(
         { type: 'separator' as const },
@@ -286,6 +290,20 @@ function ApiAccessMethod(props: ApiAccessMethodProps) {
             messages.pgettext(
               'api-access-methods-view',
               'This can be useful if the API is censored but Mullvad’s bridge servers are not.',
+            ),
+          ]}
+        />
+      )}
+      {props.method.type === 'encrypted-dns-proxy' && (
+        <StyledMethodInfoButton
+          message={[
+            messages.pgettext(
+              'api-access-methods-view',
+              'With the “Encrypted DNS proxy” method, the app will communicate with our Mullvad API through a proxy address. It does this by retrieving an address from a DNS over HTTPS (DoH) server and then using that to reach our API servers.',
+            ),
+            messages.pgettext(
+              'api-access-methods-view',
+              'If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad 9, CloudFlare, or Google.',
             ),
           ]}
         />
