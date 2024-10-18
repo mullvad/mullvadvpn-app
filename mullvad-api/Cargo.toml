@@ -33,6 +33,7 @@ tokio-rustls = { version = "0.26.0", features = ["logging", "tls12", "ring"], de
 tokio-socks = "0.5.1"
 rustls-pemfile = "2.1.3"
 
+mullvad-encrypted-dns-proxy = { path = "../mullvad-encrypted-dns-proxy" }
 mullvad-fs = { path = "../mullvad-fs" }
 mullvad-types = { path = "../mullvad-types" }
 talpid-types = { path = "../talpid-types" }
