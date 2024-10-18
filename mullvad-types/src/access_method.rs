@@ -96,6 +96,7 @@ impl Settings {
         use std::iter::once;
         once(&self.direct)
             .chain(once(&self.mullvad_bridges))
+            .chain(once(&self.encrypted_dns_proxy))
             .chain(&self.custom)
     }
 
