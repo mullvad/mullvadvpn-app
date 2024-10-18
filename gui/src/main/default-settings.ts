@@ -100,6 +100,12 @@ export function getDefaultApiAccessMethods(): ApiAccessMethodSettings {
       enabled: false,
       type: 'bridges',
     },
+    encryptedDnsProxy: {
+      id: '',
+      name: 'Encrypted DNS Proxy',
+      enabled: false,
+      type: 'encrypted-dns-proxy',
+    },
     custom: [],
   };
 }
