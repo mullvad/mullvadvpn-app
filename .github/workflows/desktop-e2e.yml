@@ -270,6 +270,11 @@ jobs:
           node-version-file: gui/package.json
           cache: 'npm'
           cache-dependency-path: gui/package-lock.json
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1.0.6
+        with:
+          toolchain: stable
+          default: true
       - name: Build app
         run: ./build.sh
       - name: Build test executable
