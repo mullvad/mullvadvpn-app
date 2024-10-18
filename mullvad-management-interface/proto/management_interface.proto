@@ -411,10 +411,12 @@ message CustomProxy {
 message AccessMethod {
   message Direct {}
   message Bridges {}
+  message EncryptedDnsProxy {}
   oneof access_method {
     Direct direct = 1;
     Bridges bridges = 2;
-    CustomProxy custom = 3;
+    EncryptedDnsProxy encrypted_dns_proxy = 3;
+    CustomProxy custom = 4;
   }
 }
 
@@ -434,7 +436,8 @@ message NewAccessMethodSetting {
 message ApiAccessMethodSettings {
   AccessMethodSetting direct = 1;
   AccessMethodSetting mullvad_bridges = 2;
-  repeated AccessMethodSetting custom = 3;
+  AccessMethodSetting encrypted_dns_proxy = 3;
+  repeated AccessMethodSetting custom = 4;
 }
 
 message Settings {
