@@ -7,6 +7,7 @@ use std::net::{Ipv6Addr, SocketAddrV4};
 mod plain;
 mod xor;
 
+use serde::{Deserialize, Serialize};
 pub use xor::XorKey;
 
 /// All the errors that can happen during deserialization of a [`ProxyConfig`].
@@ -67,7 +68,7 @@ pub trait Obfuscator: Send {
 
 /// Represents a Mullvad Encrypted DNS proxy configuration. Created by parsing
 /// the config out of an IPv6 address resolved over DoH.
-#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
 pub struct ProxyConfig {
     /// The remote address to connect to the proxy over. This is the address
     /// on the internet where the proxy is listening.
@@ -77,7 +78,7 @@ pub struct ProxyConfig {
     pub obfuscation: Option<ObfuscationConfig>,
 }
 
-#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
 pub enum ObfuscationConfig {
     XorV2(xor::XorKey),
 }
