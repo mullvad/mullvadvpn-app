@@ -5,6 +5,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+/**
+ * A thin wrapper around [`mullvad_encrypted_dns_proxy::state::EncryptedDnsProxyState`] that
+ * can start a local forwarder (see [`Self::start`]).
+ */
 typedef struct EncryptedDnsProxyState EncryptedDnsProxyState;
 
 typedef struct ProxyHandle {
