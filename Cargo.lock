@@ -2328,6 +2328,7 @@ dependencies = [
  "ipnetwork",
  "libc",
  "log",
+ "mullvad-encrypted-dns-proxy",
  "mullvad-fs",
  "mullvad-types",
  "rustls-pemfile 2.1.3",
