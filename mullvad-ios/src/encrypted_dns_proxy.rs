@@ -1,19 +1,18 @@
 use crate::ProxyHandle;
 
-use mullvad_encrypted_dns_proxy::{config::ProxyConfig, config_resolver, Forwarder};
+use mullvad_encrypted_dns_proxy::state::{EncryptedDnsProxyState as State, FetchConfigError};
+use mullvad_encrypted_dns_proxy::Forwarder;
 use std::{
-    collections::HashSet,
     io, mem,
     net::{Ipv4Addr, SocketAddr},
     ptr,
 };
 use tokio::{net::TcpListener, task::JoinHandle};
 
+/// A thin wrapper around [`mullvad_encrypted_dns_proxy::state::EncryptedDnsProxyState`] that
+/// can start a local forwarder (see [`Self::start`]).
 pub struct EncryptedDnsProxyState {
-    /// Note that we rely on the randomness of the ordering of the items in the hashset to pick a
-    /// random configurations every time.
-    configurations: HashSet<ProxyConfig>,
-    tried_configurations: HashSet<ProxyConfig>,
+    state: State,
 }
 
 #[derive(Debug)]
@@ -27,7 +26,7 @@ pub enum Error {
     /// Failed to initialize forwarder.
     Forwarder(io::Error),
     /// Failed to fetch a proxy configuration over DNS.
-    FetchConfig(config_resolver::Error),
+    FetchConfig(FetchConfigError),
     /// Failed to initialize with a valid configuration.
     NoConfigs,
 }
@@ -47,8 +46,11 @@ impl From<Error> for i32 {
 
 impl EncryptedDnsProxyState {
     async fn start(&mut self) -> Result<ProxyHandle, Error> {
-        self.fetch_configs().await?;
-        let proxy_configuration = self.next_configuration().ok_or(Error::NoConfigs)?;
+        self.state
+            .fetch_configs()
+            .await
+            .map_err(Error::FetchConfig)?;
+        let proxy_configuration = self.state.next_configuration().ok_or(Error::NoConfigs)?;
 
         let local_socket = Self::bind_local_addr()
             .await
@@ -73,80 +75,13 @@ impl EncryptedDnsProxyState {
         let bind_addr = SocketAddr::new(Ipv4Addr::UNSPECIFIED.into(), 0);
         TcpListener::bind(bind_addr).await
     }
-
-    /// Select a config.
-    /// Always select an obfuscated configuration, if there are any left untried. If no obfuscated
-    /// configurations exist, try plain configurations. The order is randomized due to the hash set
-    /// storing the configurations in a random order.
-    fn next_configuration(&mut self) -> Option<ProxyConfig> {
-        if self.should_reset() {
-            self.reset();
-        }
-
-        // TODO: currently, the randomized order of proxy config retrieval depends on the random
-        // iteration order of a given HashSet instance. Since for now, there will be only 2
-        // different configurations, it barely matters. In the future, we should use `rand`
-        // instead, so that the behavior is explicit and clear.
-        let selected_config = {
-            // First, create an iterator for the difference between all configs and tried configs.
-            let mut difference = self.configurations.difference(&self.tried_configurations);
-            // Pick the first configuration if there are any. If there are none, one can only assume
-            // that the configuration set is empty, so an early return is fine.
-            let first_config = difference.next()?;
-            // See if there are any unused obfuscated configurations in the rest of the set.
-            let obfuscated_config = difference.find(|config| config.obfuscation.is_some());
-
-            // If there is an obfuscated configuration, use that. Otherwise, use the first one.
-            obfuscated_config.unwrap_or(first_config).clone()
-        };
-
-        self.tried_configurations.insert(selected_config.clone());
-        Some(selected_config)
-    }
-
-    /// Fetch a config, but error out only when no existing configuration was there.
-    async fn fetch_configs(&mut self) -> Result<(), Error> {
-        match mullvad_encrypted_dns_proxy::config_resolver::resolve_default_config().await {
-            Ok(new_configs) => {
-                self.configurations = HashSet::from_iter(new_configs.into_iter());
-            }
-            Err(err) => {
-                log::error!("Failed to fetch a new proxy configuration: {err:?}");
-                if self.is_empty() {
-                    return Err(Error::FetchConfig(err));
-                }
-            }
-        }
-        Ok(())
-    }
-
-    fn is_empty(&self) -> bool {
-        self.configurations.is_empty()
-    }
-
-    /// Checks if the `tried_configurations` set should be reset.
-    /// It should only be reset if the difference between `configurations` and
-    /// `tried_configurations` is an empty set - in this case all available configurations have
-    /// been tried.
-    fn should_reset(&self) -> bool {
-        self.configurations
-            .difference(&self.tried_configurations)
-            .count()
-            == 0
-    }
-
-    /// Clears the `tried_configurations` set.
-    fn reset(&mut self) {
-        self.tried_configurations.clear();
-    }
 }
 
 /// Initializes a valid pointer to an instance of `EncryptedDnsProxyState`.
 #[no_mangle]
 pub unsafe extern "C" fn encrypted_dns_proxy_init() -> *mut EncryptedDnsProxyState {
     let state = Box::new(EncryptedDnsProxyState {
-        configurations: Default::default(),
-        tried_configurations: Default::default(),
+        state: State::default(),
     });
     Box::into_raw(state)
 }
