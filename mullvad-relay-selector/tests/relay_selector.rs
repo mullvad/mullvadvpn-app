@@ -96,6 +96,27 @@ static RELAYS: LazyLock<RelayList> = LazyLock::new(|| RelayList {
                     location: DUMMY_LOCATION.clone(),
                 },
                 Relay {
+                    hostname: "se11-wireguard".to_string(),
+                    ipv4_addr_in: "185.213.154.69".parse().unwrap(),
+                    ipv6_addr_in: Some("2a03:1b20:5:f011::a11f".parse().unwrap()),
+                    overridden_ipv4: false,
+                    overridden_ipv6: false,
+                    include_in_country: true,
+                    active: true,
+                    owned: false,
+                    provider: "provider2".to_string(),
+                    weight: 1,
+                    endpoint_data: RelayEndpointData::Wireguard(WireguardRelayEndpointData {
+                        public_key: PublicKey::from_base64(
+                            "BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=",
+                        )
+                        .unwrap(),
+                        daita: true,
+                        shadowsocks_extra_addr_in: vec![],
+                    }),
+                    location: DUMMY_LOCATION.clone(),
+                },
+                Relay {
                     hostname: "se-got-001".to_string(),
                     ipv4_addr_in: "185.213.154.131".parse().unwrap(),
                     ipv6_addr_in: None,
@@ -1398,6 +1419,59 @@ fn test_daita_any_tunnel_protocol() {
     assert!(
         matches!(relay, Ok(GetRelay::Wireguard { .. })),
         "expected wg relay, got {relay:?}"
+    );
+}
+
+/// Always use smart routing to select a DAITA-enabled entry relay if both smart routing and
+/// multihop is enabled. This applies even if the entry is set explicitly.
+/// DAITA is a core privacy feature
+#[test]
+fn test_daita_smart_routing_overrides_multihop() {
+    let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
+    let query = RelayQueryBuilder::new()
+        .wireguard()
+        .daita()
+        .daita_use_multihop_if_necessary(true)
+        .multihop()
+        // Set the entry to a relay that explicitly does *not* support DAITA.
+        // Later, we check that the smart routing disregards this choice and selects a DAITA-enabled
+        // relay instead.
+        .entry(NON_DAITA_RELAY_LOCATION.clone())
+        .build();
+
+    for _ in 0..100 {
+        // Make sure a DAITA-enabled relay is always selected due to smart routing.
+        let relay = relay_selector
+            .get_relay_by_query(query.clone())
+            .expect("Expected to find a relay with daita_use_multihop_if_necessary");
+        match relay {
+                GetRelay::Wireguard {
+                    inner: WireguardConfig::Multihop { entry, exit: _ },
+                    ..
+                } => {
+                    assert!(supports_daita(&entry), "entry relay must support DAITA");
+                }
+                wrong_relay => panic!(
+                "Relay selector should have picked two Wireguard relays, instead chose {wrong_relay:?}"
+            ),
+            }
+    }
+
+    // Assert that disabling smart routing for this query will fail to generate a valid multihop
+    // config, thus blocking the user.
+    let query = RelayQueryBuilder::new()
+        .wireguard()
+        .daita()
+        .daita_use_multihop_if_necessary(false)
+        .multihop()
+        .entry(NON_DAITA_RELAY_LOCATION.clone())
+        .build();
+
+    let relay = relay_selector.get_relay_by_query(query);
+
+    assert!(
+        relay.is_err(),
+        "expected there to be no valid multihop configuration! Instead got {relay:#?}"
     );
 }
 

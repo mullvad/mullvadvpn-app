@@ -9,7 +9,7 @@ mod relay_selector;
 // Re-exports
 pub use error::Error;
 pub use relay_selector::{
-    detailer, query, AdditionalRelayConstraints, AdditionalWireguardConstraints, GetRelay,
-    RelaySelector, RuntimeParameters, SelectedBridge, SelectedObfuscator, SelectorConfig,
-    WireguardConfig, RETRY_ORDER,
+    detailer, query, relays::WireguardConfig, AdditionalRelayConstraints,
+    AdditionalWireguardConstraints, GetRelay, RelaySelector, RuntimeParameters, SelectedBridge,
+    SelectedObfuscator, SelectorConfig, RETRY_ORDER,
 };

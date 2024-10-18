@@ -5,15 +5,29 @@ mod helpers;
 mod matcher;
 mod parsed_relays;
 pub mod query;
+pub mod relays;
 
-use chrono::{DateTime, Local};
-use itertools::Itertools;
-use query::ObfuscationQuery;
+use matcher::{filter_matching_bridges, filter_matching_relay_list};
+use parsed_relays::ParsedRelays;
+use relays::{Multihop, Singlehop, WireguardConfig};
+
+use crate::{
+    detailer::{openvpn_endpoint, wireguard_endpoint},
+    error::{EndpointErrorDetails, Error},
+    query::{
+        BridgeQuery, ObfuscationQuery, OpenVpnRelayQuery, RelayQuery, RelayQueryExt,
+        WireguardRelayQuery,
+    },
+};
+
 use std::{
     path::Path,
     sync::{Arc, LazyLock, Mutex},
     time::SystemTime,
 };
+
+use chrono::{DateTime, Local};
+use itertools::Itertools;
 
 use mullvad_types::{
     constraints::Constraint,
@@ -35,15 +49,6 @@ use talpid_types::{
         obfuscation::ObfuscatorConfig, proxy::CustomProxy, Endpoint, TransportProtocol, TunnelType,
     },
     ErrorExt,
-};
-
-use crate::error::{EndpointErrorDetails, Error};
-
-use self::{
-    detailer::{openvpn_endpoint, wireguard_endpoint},
-    matcher::{filter_matching_bridges, filter_matching_relay_list},
-    parsed_relays::ParsedRelays,
-    query::{BridgeQuery, OpenVpnRelayQuery, RelayQuery, WireguardRelayQuery},
 };
 
 /// [`RETRY_ORDER`] defines an ordered set of relay parameters which the relay selector should
@@ -219,49 +224,6 @@ pub enum GetRelay {
         bridge: Option<SelectedBridge>,
     },
     Custom(CustomTunnelEndpoint),
-}
-
-/// This struct defines the different Wireguard relays the the relay selector can end up selecting
-/// for an arbitrary Wireguard [`query`].
-///
-/// - [`WireguardConfig::Singlehop`]; A normal wireguard relay where VPN traffic enters and exits
-///   through this sole relay.
-/// - [`WireguardConfig::Multihop`]; Two wireguard relays to be used in a multihop circuit. VPN
-///   traffic will enter through `entry` and eventually come out from `exit` before the traffic will
-///   actually be routed to the broader internet.
-#[derive(Clone, Debug)]
-pub enum WireguardConfig {
-    /// Strongly prefer to instantiate this variant using [`WireguardConfig::singlehop`] as that
-    /// will assert that the relay is of the expected type.
-    Singlehop { exit: Relay },
-    /// Strongly prefer to instantiate this variant using [`WireguardConfig::multihop`] as that
-    /// will assert that the entry & exit relays are of the expected type.
-    Multihop { exit: Relay, entry: Relay },
-}
-
-impl WireguardConfig {
-    const fn singlehop(exit: Relay) -> Self {
-        // FIXME: This assert would be better to encode at the type level.
-        assert!(matches!(
-            exit.endpoint_data,
-            RelayEndpointData::Wireguard(_)
-        ));
-        Self::Singlehop { exit }
-    }
-
-    const fn multihop(exit: Relay, entry: Relay) -> Self {
-        // FIXME: This assert would be better to encode at the type level.
-        assert!(matches!(
-            exit.endpoint_data,
-            RelayEndpointData::Wireguard(_)
-        ));
-        // FIXME: This assert would be better to encode at the type level.
-        assert!(matches!(
-            entry.endpoint_data,
-            RelayEndpointData::Wireguard(_)
-        ));
-        Self::Multihop { exit, entry }
-    }
 }
 
 #[derive(Clone, Debug)]
@@ -675,7 +637,7 @@ impl RelaySelector {
         Self::get_wireguard_relay(&query, custom_lists, parsed_relays)
     }
 
-    /// Derive a valid Wireguard relay configuration from `query`.
+    /// Derive a valid relay configuration from `query`.
     ///
     /// # Note
     /// This function should *only* be called with a Wireguard query.
@@ -697,11 +659,7 @@ impl RelaySelector {
             query.tunnel_protocol(),
             Constraint::Only(TunnelType::Wireguard)
         );
-        let inner = if !query.wireguard_constraints().multihop() {
-            Self::get_wireguard_singlehop_config(query, custom_lists, parsed_relays)?
-        } else {
-            Self::get_wireguard_multihop_config(query, custom_lists, parsed_relays)?
-        };
+        let inner = Self::get_wireguard_relay_config(query, custom_lists, parsed_relays)?;
         let endpoint = Self::get_wireguard_endpoint(query, parsed_relays, &inner)?;
         let obfuscator =
             Self::get_wireguard_obfuscator(query, inner.clone(), &endpoint, parsed_relays)?;
@@ -713,67 +671,85 @@ impl RelaySelector {
         })
     }
 
-    /// Select a valid Wireguard exit relay.
+    /// Derive a valid Wireguard relay configuration from `query`.
     ///
     /// # Returns
     /// * An `Err` if no exit relay can be chosen
-    /// * `Ok(WireguardInner::Singlehop)` otherwise
-    fn get_wireguard_singlehop_config(
+    /// * An `Err` if no entry relay can be chosen (if multihop is enabled on `query`)
+    /// * `Ok(WireguardConfig)` otherwise
+    fn get_wireguard_relay_config(
         query: &RelayQuery,
         custom_lists: &CustomListsSettings,
         parsed_relays: &ParsedRelays,
     ) -> Result<WireguardConfig, Error> {
-        let candidates = filter_matching_relay_list(query, parsed_relays, custom_lists);
-
-        // are we using daita?
-        let using_daita = || query.wireguard_constraints().daita == Constraint::Only(true);
-
-        // is the `candidates` list empty because DAITA is enabled?
-        let no_relay_because_daita = || {
-            let mut query = query.clone();
-            let mut wireguard_constraints = query.wireguard_constraints().clone();
-            wireguard_constraints.daita = Constraint::Any;
-            query.set_wireguard_constraints(wireguard_constraints)?;
-            let candidates = filter_matching_relay_list(&query, parsed_relays, custom_lists);
-            Result::<_, Error>::Ok(!candidates.is_empty())
-        };
-
-        // is `use_multihop_if_necessary` enabled?
-        let use_multihop_if_necessary = || {
-            query
-                .wireguard_constraints()
-                .daita_use_multihop_if_necessary
-                .intersection(Constraint::Only(true))
-                .is_some()
-        };
-
-        // if we found no matching relays because DAITA was enabled, and `use_multihop_if_necessary`
-        // is enabled, try enabling multihop and connecting using an automatically selected
-        // entry relay.
-        if candidates.is_empty()
-            && using_daita()
-            && no_relay_because_daita()?
-            && use_multihop_if_necessary()
-        {
-            return Self::get_wireguard_auto_multihop_config(query, custom_lists, parsed_relays);
+        // TODO: Remove when Android gets support for multihop.
+        if cfg!(target_os = "android") {
+            let relay = Self::get_wireguard_singlehop_config(query, custom_lists, parsed_relays)
+                .ok_or(Error::NoRelay)?;
+            return Ok(WireguardConfig::from(relay));
         }
+        let inner = if query.singlehop() {
+            match Self::get_wireguard_singlehop_config(query, custom_lists, parsed_relays) {
+                Some(exit) => WireguardConfig::from(exit),
+                None => {
+                    // If we found no matching relays because DAITA was enabled, and
+                    // `use_multihop_if_necessary` is enabled, try enabling
+                    // multihop and connecting using an automatically selected
+                    // entry relay.
+                    if query.using_daita() && query.use_multihop_if_necessary() {
+                        let multihop = Self::get_wireguard_auto_multihop_config(
+                            query,
+                            custom_lists,
+                            parsed_relays,
+                        )?;
+                        WireguardConfig::from(multihop)
+                    } else {
+                        return Err(Error::NoRelay);
+                    }
+                }
+            }
+        } else {
+            // A DAITA compatible entry should be used even when the exit is DAITA compatible.
+            // This only makes sense in context: The user is no longer able to explicitly choose an
+            // entry relay with smarting routing enabled, even if multihop is turned on
+            // Also implied: Multihop is enabled.
+            let multihop = if query.using_daita() && query.use_multihop_if_necessary() {
+                Self::get_wireguard_auto_multihop_config(query, custom_lists, parsed_relays)?
+            } else {
+                Self::get_wireguard_multihop_config(query, custom_lists, parsed_relays)?
+            };
+            WireguardConfig::from(multihop)
+        };
 
+        Ok(inner)
+    }
+
+    /// Select a valid Wireguard exit relay.
+    ///
+    /// # Returns
+    /// * `Ok(Singlehop)` if an exit relay was selected
+    /// * `None` otherwise
+    fn get_wireguard_singlehop_config(
+        query: &RelayQuery,
+        custom_lists: &CustomListsSettings,
+        parsed_relays: &ParsedRelays,
+    ) -> Option<Singlehop> {
+        let candidates = filter_matching_relay_list(query, parsed_relays, custom_lists);
         helpers::pick_random_relay(&candidates)
             .cloned()
-            .map(WireguardConfig::singlehop)
-            .ok_or(Error::NoRelay)
+            .map(Singlehop::new)
     }
 
     /// Select a valid Wireguard exit relay, together with with an automatically chosen entry relay.
     ///
     /// # Returns
     /// * An `Err` if no entry/exit relay can be chosen
-    /// * `Ok(WireguardInner::Multihop)` otherwise
+    /// * `Ok(Multihop)` otherwise
     fn get_wireguard_auto_multihop_config(
         query: &RelayQuery,
         custom_lists: &CustomListsSettings,
         parsed_relays: &ParsedRelays,
-    ) -> Result<WireguardConfig, Error> {
+    ) -> Result<Multihop, Error> {
         let mut exit_relay_query = query.clone();
 
         // DAITA should only be enabled for the entry relay
@@ -810,7 +786,7 @@ impl RelaySelector {
         let entry =
             helpers::pick_random_relay_excluding(&entry_candidates, exit).ok_or(Error::NoRelay)?;
 
-        Ok(WireguardConfig::multihop(exit.clone(), entry.clone()))
+        Ok(Multihop::new(entry.clone(), exit.clone()))
     }
 
     /// This function selects a valid entry and exit relay to be used in a multihop configuration.
@@ -819,14 +795,14 @@ impl RelaySelector {
     /// * An `Err` if no exit relay can be chosen
     /// * An `Err` if no entry relay can be chosen
     /// * An `Err` if the chosen entry and exit relays are the same
-    /// * `Ok(WireguardInner::Multihop)` otherwise
+    /// * `Ok(WireguardConfig::Multihop)` otherwise
     fn get_wireguard_multihop_config(
         query: &RelayQuery,
         custom_lists: &CustomListsSettings,
         parsed_relays: &ParsedRelays,
-    ) -> Result<WireguardConfig, Error> {
+    ) -> Result<Multihop, Error> {
         // Here, we modify the original query just a bit.
-        // The actual query for an exit relay is identical as for an exit relay, with the
+        // The actual query for an entry relay is identical as for an exit relay, with the
         // exception that the location is different. It is simply the location as dictated by
         // the query's multihop constraint.
         let mut entry_relay_query = query.clone();
@@ -864,7 +840,7 @@ impl RelaySelector {
         }
         .ok_or(Error::NoRelay)?;
 
-        Ok(WireguardConfig::multihop(exit.clone(), entry.clone()))
+        Ok(Multihop::new(entry.clone(), exit.clone()))
     }
 
     /// Constructs a [`MullvadEndpoint`] with details for how to connect to `relay`.
