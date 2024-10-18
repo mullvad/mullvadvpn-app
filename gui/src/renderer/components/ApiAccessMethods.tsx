@@ -36,6 +36,8 @@ import { StyledContent, StyledNavigationScrollbars, StyledSettingsContent } from
 import { SmallButton, SmallButtonColor, SmallButtonGroup } from './SmallButton';
 
 const StyledContextMenuButton = styled(Cell.Icon)({
+  alignItems: 'center',
+  justifyContent: 'center',
   marginRight: '8px',
 });
 
