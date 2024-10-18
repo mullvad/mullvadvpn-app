@@ -58,6 +58,7 @@ pub enum Error {
 
 pub struct Shadowsocks {
     udp_client_addr: SocketAddr,
+    wireguard_endpoint: SocketAddr,
     server: tokio::task::JoinHandle<Result<()>>,
     // The receiver will implicitly shut down when this is dropped
     _shutdown_tx: oneshot::Sender<()>,
@@ -101,6 +102,7 @@ impl Shadowsocks {
 
         Ok(Shadowsocks {
             udp_client_addr,
+            wireguard_endpoint: settings.wireguard_endpoint,
             server,
             _shutdown_tx: shutdown_tx,
             #[cfg(target_os = "android")]
@@ -284,6 +286,19 @@ impl Obfuscator for Shadowsocks {
     #[cfg(target_os = "android")]
     fn remote_socket_fd(&self) -> std::os::unix::io::RawFd {
         self.outbound_fd
+    }
+
+    fn packet_overhead(&self) -> u16 {
+        // This math relies on the packet structure of Shadowsocks AEAD UDP packets.
+        // https://shadowsocks.org/doc/aead.html
+        // Those packets look like this: [salt][address][payload][tag]
+        debug_assert!(SHADOWSOCKS_CIPHER.is_aead());
+
+        let overhead = SHADOWSOCKS_CIPHER.salt_len()
+            + Address::from(self.wireguard_endpoint).serialized_len()
+            + SHADOWSOCKS_CIPHER.tag_len();
+
+        u16::try_from(overhead).expect("packet overhead is less than u16::MAX")
     }
 }
 
