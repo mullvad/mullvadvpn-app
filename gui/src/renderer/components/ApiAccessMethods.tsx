@@ -52,6 +52,7 @@ const StyledSpinner = styled(ImageView)({
 });
 
 const StyledNameLabel = styled(Cell.Label)({
+  display: 'block',
   overflow: 'hidden',
   textOverflow: 'ellipsis',
   whiteSpace: 'nowrap',
