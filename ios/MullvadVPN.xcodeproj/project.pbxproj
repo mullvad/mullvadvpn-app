@@ -848,6 +848,10 @@
 		A9E0317A2ACB0AE70095D843 /* UIApplication+Stubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9E031792ACB0AE70095D843 /* UIApplication+Stubs.swift */; };
 		A9E0317F2ACC331C0095D843 /* TunnelStatusBlockObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9E0317D2ACC32920095D843 /* TunnelStatusBlockObserver.swift */; };
 		A9E034642ABB302000E59A5A /* UIEdgeInsets+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9E034632ABB302000E59A5A /* UIEdgeInsets+Extensions.swift */; };
+		A9EBCE062CC2937F00146599 /* CustomDNSSwiftUIViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9EBCE052CC2937F00146599 /* CustomDNSSwiftUIViewController.swift */; };
+		A9EBCE082CC2945100146599 /* CustomDNSSwiftUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9EBCE072CC2945100146599 /* CustomDNSSwiftUIView.swift */; };
+		A9EBCE0A2CC2AB2400146599 /* UIColor+Color.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9EBCE092CC2AB2400146599 /* UIColor+Color.swift */; };
+		A9EBCE0C2CC2B5E000146599 /* ToggleStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9EBCE0B2CC2B5DF00146599 /* ToggleStyle.swift */; };
 		E1187ABC289BBB850024E748 /* OutOfTimeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1187ABA289BBB850024E748 /* OutOfTimeViewController.swift */; };
 		E1187ABD289BBB850024E748 /* OutOfTimeContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1187ABB289BBB850024E748 /* OutOfTimeContentView.swift */; };
 		E158B360285381C60002F069 /* String+AccountFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = E158B35F285381C60002F069 /* String+AccountFormatting.swift */; };
@@ -2071,6 +2075,10 @@
 		A9E0317D2ACC32920095D843 /* TunnelStatusBlockObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelStatusBlockObserver.swift; sourceTree = "<group>"; };
 		A9E034632ABB302000E59A5A /* UIEdgeInsets+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIEdgeInsets+Extensions.swift"; sourceTree = "<group>"; };
 		A9EB4F9C2B7FAB21002A2D7A /* EphemeralPeerNegotiator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EphemeralPeerNegotiator.swift; sourceTree = "<group>"; };
+		A9EBCE052CC2937F00146599 /* CustomDNSSwiftUIViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomDNSSwiftUIViewController.swift; sourceTree = "<group>"; };
+		A9EBCE072CC2945100146599 /* CustomDNSSwiftUIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomDNSSwiftUIView.swift; sourceTree = "<group>"; };
+		A9EBCE092CC2AB2400146599 /* UIColor+Color.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Color.swift"; sourceTree = "<group>"; };
+		A9EBCE0B2CC2B5DF00146599 /* ToggleStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToggleStyle.swift; sourceTree = "<group>"; };
 		A9EC20E72A5D3A8C0040D56E /* CoordinatesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoordinatesTests.swift; sourceTree = "<group>"; };
 		A9F360332AAB626300F53531 /* VPNConnectionProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNConnectionProtocol.swift; sourceTree = "<group>"; };
 		E1187ABA289BBB850024E748 /* OutOfTimeViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutOfTimeViewController.swift; sourceTree = "<group>"; };
@@ -2849,6 +2857,9 @@
 				5871167E2910035700D41AAC /* VPNSettingsInteractor.swift */,
 				58ACF6482655365700ACE4B7 /* VPNSettingsViewController.swift */,
 				587EB671271451E300123C75 /* VPNSettingsViewModel.swift */,
+				A9EBCE052CC2937F00146599 /* CustomDNSSwiftUIViewController.swift */,
+				A9EBCE072CC2945100146599 /* CustomDNSSwiftUIView.swift */,
+				A9EBCE0B2CC2B5DF00146599 /* ToggleStyle.swift */,
 			);
 			path = VPNSettings;
 			sourceTree = "<group>";
@@ -3023,6 +3034,7 @@
 				58CCA0152242560B004F3011 /* UIColor+Palette.swift */,
 				A9E034632ABB302000E59A5A /* UIEdgeInsets+Extensions.swift */,
 				585CA70E25F8C44600B47C62 /* UIMetrics.swift */,
+				A9EBCE092CC2AB2400146599 /* UIColor+Color.swift */,
 			);
 			path = "UI appearance";
 			sourceTree = "<group>";
@@ -5603,6 +5615,7 @@
 				58BFA5CC22A7CE1F00A6173D /* ApplicationConfiguration.swift in Sources */,
 				5891BF5125E66B1E006D6FB0 /* UIBarButtonItem+KeyboardNavigation.swift in Sources */,
 				58E511E628DDDEAC00B0BCDE /* CodingErrors+CustomErrorDescription.swift in Sources */,
+				A9EBCE082CC2945100146599 /* CustomDNSSwiftUIView.swift in Sources */,
 				58C76A0B2A338E4300100D75 /* BackgroundTask.swift in Sources */,
 				7A9CCCC32A96302800DD6A34 /* ApplicationCoordinator.swift in Sources */,
 				5864AF0729C78843005B0CD9 /* SettingsCellFactory.swift in Sources */,
@@ -5610,6 +5623,7 @@
 				587988C728A2A01F00E3DF54 /* AccountDataThrottling.swift in Sources */,
 				F04FBE612A8379EE009278D7 /* AppPreferences.swift in Sources */,
 				58DFF7D82B02774C00F864E0 /* ListItemPickerViewController.swift in Sources */,
+				A9EBCE0C2CC2B5E000146599 /* ToggleStyle.swift in Sources */,
 				5896CEF226972DEB00B0FAE8 /* AccountContentView.swift in Sources */,
 				7A3353932AAA089000F0A71C /* SimulatorTunnelInfo.swift in Sources */,
 				7A5869AB2B55527C00640D27 /* IPOverrideCoordinator.swift in Sources */,
@@ -5918,10 +5932,12 @@
 				58CEB2F52AFD0BB500E6E088 /* TextCellContentConfiguration.swift in Sources */,
 				58E20771274672CA00DE5D77 /* LaunchViewController.swift in Sources */,
 				F0E8CC032A4C753B007ED3B4 /* WelcomeViewController.swift in Sources */,
+				A9EBCE062CC2937F00146599 /* CustomDNSSwiftUIViewController.swift in Sources */,
 				584D26C4270C855B004EA533 /* VPNSettingsDataSource.swift in Sources */,
 				F0D8825B2B04F53600D3EF9A /* OutgoingConnectionData.swift in Sources */,
 				7A6F2FAF2AFE36E7006D0856 /* VPNSettingsInfoButtonItem.swift in Sources */,
 				7A6389DD2B7E3BD6008E77E1 /* CustomListDataSourceConfiguration.swift in Sources */,
+				A9EBCE0A2CC2AB2400146599 /* UIColor+Color.swift in Sources */,
 				5827B0BF2B14B37D00CCBBA1 /* Publisher+PreviousValue.swift in Sources */,
 				7A9CCCB62A96302800DD6A34 /* OutOfTimeCoordinator.swift in Sources */,
 				5827B0AA2B0F4C9100CCBBA1 /* EditAccessMethodViewControllerDelegate.swift in Sources */,

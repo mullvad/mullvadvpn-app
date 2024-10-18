@@ -112,7 +112,8 @@ extension VPNSettingsViewController: VPNSettingsDataSourceDelegate {
     }
 
     func showDNSSettings() {
-        let viewController = CustomDNSViewController(interactor: interactor, alertPresenter: alertPresenter)
+//        let viewController = CustomDNSViewController(interactor: interactor, alertPresenter: alertPresenter)
+        let viewController = CustomDNSSwiftUIViewController(interactor: interactor, alertPresenter: alertPresenter)
         navigationController?.pushViewController(viewController, animated: true)
     }
 

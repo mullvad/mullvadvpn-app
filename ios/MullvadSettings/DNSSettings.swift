@@ -29,6 +29,19 @@ public struct DNSBlockingOptions: OptionSet, Codable {
         }
     }
 
+    // TODO: Use localised strings ?
+    public var name: String {
+        switch self {
+        case .blockAdvertising: "Ads"
+        case .blockTracking: "Trackers"
+        case .blockMalware: "Malware"
+        case .blockGambling: "Gambling"
+        case .blockAdultContent: "Adult content"
+        case .blockSocialMedia: "Social media"
+        default: ""
+        }
+    }
+
     public init(rawValue: UInt32) {
         self.rawValue = rawValue
     }
