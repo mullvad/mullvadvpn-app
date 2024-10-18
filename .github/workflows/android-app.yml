@@ -132,7 +132,7 @@ jobs:
 
       - name: Generate relay list
         if: steps.cache-relay-list.outputs.cache-hit != 'true'
-        uses: ./.github/actions/android-generate-relay-list
+        uses: .github/actions/android-generate-relay-list
         with:
           relays_json_path: ${{ env.RELAYS_JSON_PATH }}
 
