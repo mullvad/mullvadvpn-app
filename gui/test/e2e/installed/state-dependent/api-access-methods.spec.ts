@@ -15,6 +15,7 @@ import { startInstalledApp } from '../installed-utils';
 
 const DIRECT_NAME = 'Direct';
 const BRIDGES_NAME = 'Mullvad Bridges';
+const ENCRYPTED_DNS_PROXY_NAME = 'Encrypted DNS proxy';
 const IN_USE_LABEL = 'In use';
 const FUNCTIONING_METHOD_NAME = 'Test method';
 const NON_FUNCTIONING_METHOD_NAME = 'Non functioning test method';
@@ -42,12 +43,14 @@ test('App should display access methods', async () => {
   await navigateToAccessMethods();
 
   const accessMethods = page.getByTestId('access-method');
-  await expect(accessMethods).toHaveCount(2);
+  await expect(accessMethods).toHaveCount(3);
 
   const direct = accessMethods.first();
-  const bridges = accessMethods.last();
+  const bridges = accessMethods.nth(1);
+  const encryptedDnsProxy = accessMethods.nth(2);
   await expect(direct).toContainText(DIRECT_NAME);
   await expect(bridges).toContainText(BRIDGES_NAME);
+  await expect(encryptedDnsProxy).toContainText(ENCRYPTED_DNS_PROXY_NAME);
   await expect(page.getByText(IN_USE_LABEL)).toHaveCount(1);
 });
 
@@ -144,6 +147,7 @@ test('App should use valid method', async () => {
 
   const direct = accessMethods.first();
   const bridges = accessMethods.nth(1);
+  const encryptedDnsProxy = accessMethods.nth(2);
   const functioningTestMethod = accessMethods.last();
 
   await expect(page.getByText(IN_USE_LABEL)).toHaveCount(1);
@@ -154,6 +158,7 @@ test('App should use valid method', async () => {
   await functioningTestMethod.getByText('Use').click();
   await expect(direct).not.toContainText(IN_USE_LABEL);
   await expect(bridges).not.toContainText(IN_USE_LABEL);
+  await expect(encryptedDnsProxy).not.toContainText(IN_USE_LABEL);
   await expect(functioningTestMethod).toContainText('API reachable');
   await expect(functioningTestMethod).toContainText(IN_USE_LABEL);
 });
