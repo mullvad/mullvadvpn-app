@@ -80,7 +80,6 @@ enum InnerConnectionMode {
     Socks5(SocksConfig),
     /// Connect to the destination via Mullvad Encrypted DNS proxy.
     /// See [`mullvad-encrypted-dns-proxy`] for how the proxy works.
-    #[allow(dead_code)] // TODO: Remove this allow
     EncryptedDnsProxy(mullvad_encrypted_dns_proxy::config::ProxyConfig),
 }
 
@@ -267,6 +266,9 @@ impl TryFrom<ApiConnectionMode> for InnerConnectionMode {
                     peer: config.endpoint,
                     authentication: config.auth,
                 }),
+                ProxyConfig::EncryptedDnsProxy(config) => {
+                    InnerConnectionMode::EncryptedDnsProxy(config)
+                }
             },
         })
     }
