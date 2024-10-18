@@ -10,6 +10,7 @@ mod settings {
             Self {
                 direct: Some(settings.direct().clone().into()),
                 mullvad_bridges: Some(settings.mullvad_bridges().clone().into()),
+                encrypted_dns_proxy: Some(settings.encrypted_dns_proxy().clone().into()),
                 custom: settings
                     .iter_custom()
                     .cloned()
@@ -37,6 +38,13 @@ mod settings {
                 ))
                 .and_then(access_method::AccessMethodSetting::try_from)?;
 
+            let encrypted_dns_proxy = settings
+                .encrypted_dns_proxy
+                .ok_or(FromProtobufTypeError::InvalidArgument(
+                    "Could not deserialize Encrypted DNS proxy Access Method from protobuf",
+                ))
+                .and_then(access_method::AccessMethodSetting::try_from)?;
+
             let custom = settings
                 .custom
                 .iter()
@@ -46,6 +54,7 @@ mod settings {
             Ok(access_method::Settings::new(
                 direct,
                 mullvad_bridges,
+                encrypted_dns_proxy,
                 custom,
             ))
         }
@@ -118,6 +127,9 @@ mod data {
             Ok(match access_method {
                 proto::access_method::AccessMethod::Direct(direct) => AccessMethod::from(direct),
                 proto::access_method::AccessMethod::Bridges(bridge) => AccessMethod::from(bridge),
+                proto::access_method::AccessMethod::EncryptedDnsProxy(proxy) => {
+                    AccessMethod::from(proxy)
+                }
                 proto::access_method::AccessMethod::Custom(custom) => {
                     CustomProxy::try_from(custom).map(AccessMethod::from)?
                 }
@@ -143,6 +155,12 @@ mod data {
     impl From<proto::access_method::Bridges> for AccessMethod {
         fn from(_value: proto::access_method::Bridges) -> Self {
             AccessMethod::from(BuiltInAccessMethod::Bridge)
+        }
+    }
+
+    impl From<proto::access_method::EncryptedDnsProxy> for AccessMethod {
+        fn from(_value: proto::access_method::EncryptedDnsProxy) -> Self {
+            AccessMethod::from(BuiltInAccessMethod::EncryptedDnsProxy)
         }
     }
 
@@ -186,6 +204,11 @@ mod data {
                 }
                 mullvad_types::access_method::BuiltInAccessMethod::Bridge => {
                     proto::access_method::AccessMethod::Bridges(proto::access_method::Bridges {})
+                }
+                mullvad_types::access_method::BuiltInAccessMethod::EncryptedDnsProxy => {
+                    proto::access_method::AccessMethod::EncryptedDnsProxy(
+                        proto::access_method::EncryptedDnsProxy {},
+                    )
                 }
             }
         }

@@ -2,6 +2,7 @@ use hyper_util::client::legacy::connect::{Connected, Connection};
 use serde::{Deserialize, Serialize};
 use std::{
     fmt, io,
+    net::SocketAddr,
     path::Path,
     pin::Pin,
     task::{self, Poll},
@@ -74,6 +75,7 @@ pub enum ProxyConfig {
     Shadowsocks(proxy::Shadowsocks),
     Socks5Local(proxy::Socks5Local),
     Socks5Remote(proxy::Socks5Remote),
+    EncryptedDnsProxy(mullvad_encrypted_dns_proxy::config::ProxyConfig),
 }
 
 impl ProxyConfig {
@@ -87,6 +89,10 @@ impl ProxyConfig {
             ProxyConfig::Socks5Remote(remote) => {
                 Endpoint::from_socket_address(remote.endpoint, TransportProtocol::Tcp)
             }
+            ProxyConfig::EncryptedDnsProxy(proxy) => {
+                let addr = SocketAddr::V4(proxy.addr);
+                Endpoint::from_socket_address(addr, TransportProtocol::Tcp)
+            }
         }
     }
 }
@@ -99,6 +105,9 @@ impl fmt::Display for ProxyConfig {
             ProxyConfig::Socks5Remote(_) => write!(f, "Socks5 {}", endpoint),
             ProxyConfig::Socks5Local(local) => {
                 write!(f, "Socks5 {} via localhost:{}", endpoint, local.local_port)
+            }
+            ProxyConfig::EncryptedDnsProxy(proxy) => {
+                write!(f, "ApiSusan {}", proxy.addr)
             }
         }
     }
