@@ -61,6 +61,7 @@ Line wrap the file at 100 chars.                                              Th
   also be used automatically when connecting fails with other methods.
 - Add feature indicators to the main view along with redesigning the connection details.
 - Add "Smart Routing" feature which simplifies connecting to DAITA-enabled relays.
+- Autofocus the location search bar when switching tabs
 
 #### macOS
 - Add "Apple services bypass" toggle that let's users unblock certain Apple-owned networks.
