@@ -536,6 +536,9 @@ fn resolve_connection_mode(
                 );
                 ApiConnectionMode::Direct
             }),
+        AccessMethod::BuiltIn(BuiltInAccessMethod::EncryptedDnsProxy) => {
+            todo!("Implement me!")
+        }
         AccessMethod::Custom(config) => ApiConnectionMode::Proxied(ProxyConfig::from(config)),
     }
 }
