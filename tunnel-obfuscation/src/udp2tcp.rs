@@ -85,4 +85,15 @@ impl Obfuscator for Udp2Tcp {
     fn remote_socket_fd(&self) -> std::os::unix::io::RawFd {
         self.instance.remote_tcp_fd()
     }
+
+    fn packet_overhead(&self) -> u16 {
+        let max_tcp_header_len = 60;
+        let udp_header_len = 20;
+        let udp_over_tcp_header_len = size_of::<u16>();
+
+        // TODO: Make `HEADER_LEN` constant public in udp-over-tcp lib and use it instead
+        let overhead = max_tcp_header_len - udp_header_len + udp_over_tcp_header_len;
+
+        u16::try_from(overhead).expect("packet overhead is less than u16::MAX")
+    }
 }
