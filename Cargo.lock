@@ -2455,6 +2455,7 @@ dependencies = [
  "log",
  "log-panics",
  "mullvad-api",
+ "mullvad-encrypted-dns-proxy",
  "mullvad-fs",
  "mullvad-management-interface",
  "mullvad-paths",
@@ -2491,6 +2492,7 @@ dependencies = [
  "hickory-resolver",
  "log",
  "rustls 0.21.11",
+ "serde",
  "tokio",
  "webpki-roots",
 ]
