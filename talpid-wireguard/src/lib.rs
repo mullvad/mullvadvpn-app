@@ -165,12 +165,16 @@ impl WireguardMonitor {
         let endpoint_addrs: Vec<IpAddr> = config.peers().map(|peer| peer.endpoint.ip()).collect();
 
         let (close_obfs_sender, close_obfs_listener) = sync_mpsc::channel();
+        // Start obfuscation server and patch the WireGuard config to point the endpoint to it.
         let obfuscator = args
             .runtime
             .block_on(obfuscation::apply_obfuscation_config(
                 &mut config,
                 close_obfs_sender.clone(),
             ))?;
+        if let Some(obfuscator) = obfuscator.as_ref() {
+            config.mtu = config.mtu.saturating_sub(obfuscator.packet_overhead());
+        }
 
         #[cfg(target_os = "windows")]
         let (setup_done_tx, setup_done_rx) = mpsc::channel(0);
@@ -374,7 +378,7 @@ impl WireguardMonitor {
         args: TunnelArgs<'_, F>,
     ) -> Result<WireguardMonitor> {
         let (close_obfs_sender, close_obfs_listener) = sync_mpsc::channel();
-        // TODO: Document the side effect of starting this before opening the tunnel!
+        // Start obfuscation server and patch the WireGuard config to point the endpoint to it.
         let obfuscator = args
             .runtime
             .block_on(obfuscation::apply_obfuscation_config(
@@ -382,6 +386,9 @@ impl WireguardMonitor {
                 close_obfs_sender.clone(),
                 args.tun_provider.clone(),
             ))?;
+        if let Some(obfuscator) = obfuscator.as_ref() {
+            config.mtu = config.mtu.saturating_sub(obfuscator.packet_overhead());
+        }
 
         let should_negotiate_ephemeral_peer = config.quantum_resistant || config.daita;
         let tunnel = Self::open_tunnel(

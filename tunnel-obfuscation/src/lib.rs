@@ -31,6 +31,11 @@ pub trait Obfuscator: Send {
     /// Returns the file descriptor of the outbound socket.
     #[cfg(target_os = "android")]
     fn remote_socket_fd(&self) -> std::os::unix::io::RawFd;
+
+    /// The overhead (in bytes) of this obfuscation protocol.
+    ///
+    /// This is used when deciding on MTUs.
+    fn packet_overhead(&self) -> u16;
 }
 
 #[derive(Debug)]
