@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import { sprintf } from 'sprintf-js';
 
-import { colors } from '../../../config.json';
+import { colors, strings } from '../../../config.json';
 import { Ownership } from '../../../shared/daemon-rpc-types';
 import { messages } from '../../../shared/gettext';
 import { useRelaySettingsUpdater } from '../../lib/constraint-updater';
@@ -39,14 +39,14 @@ import { useSelectLocationContext } from './SelectLocationContainer';
 import {
   StyledClearFilterButton,
   StyledContent,
+  StyledDaitaSettingsButton,
   StyledFilter,
   StyledFilterRow,
-  StyledHeaderSubTitle,
   StyledNavigationBarAttachment,
-  StyledNoResult,
-  StyledNoResultText,
   StyledScopeBar,
   StyledSearchBar,
+  StyledSelectionUnavailable,
+  StyledSelectionUnavailableText,
 } from './SelectLocationStyles';
 import { SpacePreAllocationView } from './SpacePreAllocationView';
 import {
@@ -163,81 +163,69 @@ export default function SelectLocation() {
                     </ScopeBarItem>
                     <ScopeBarItem>{messages.pgettext('select-location-view', 'Exit')}</ScopeBarItem>
                   </StyledScopeBar>
-
-                  {tunnelProtocol === 'openvpn' ? (
-                    <StyledHeaderSubTitle>
-                      {messages.pgettext(
-                        'select-location-view',
-                        'While connected, your traffic will be routed through two secure locations, the entry point (a bridge server) and the exit point (a VPN server).',
-                      )}
-                    </StyledHeaderSubTitle>
-                  ) : (
-                    <StyledHeaderSubTitle>
-                      {messages.pgettext(
-                        'select-location-view',
-                        'While connected, your traffic will be routed through two secure locations, the entry point and the exit point (needs to be two different VPN servers).',
-                      )}
-                    </StyledHeaderSubTitle>
-                  )}
                 </>
               )}
 
-              {showFilters && (
-                <StyledFilterRow>
-                  {messages.pgettext('select-location-view', 'Filtered:')}
+              {locationType === LocationType.entry && daita && !directOnly ? null : (
+                <>
+                  {showFilters && (
+                    <StyledFilterRow>
+                      {messages.pgettext('select-location-view', 'Filtered:')}
 
-                  {showOwnershipFilter && (
-                    <StyledFilter>
-                      {ownershipFilterLabel(ownership)}
-                      <StyledClearFilterButton
-                        aria-label={messages.gettext('Clear')}
-                        onClick={onClearOwnership}>
-                        <ImageView
-                          height={16}
-                          width={16}
-                          source="icon-close"
-                          tintColor={colors.white60}
-                          tintHoverColor={colors.white80}
-                        />
-                      </StyledClearFilterButton>
-                    </StyledFilter>
-                  )}
-
-                  {showProvidersFilter && (
-                    <StyledFilter>
-                      {sprintf(
-                        messages.pgettext(
-                          'select-location-view',
-                          'Providers: %(numberOfProviders)d',
-                        ),
-                        { numberOfProviders: filteredProviders.length },
+                      {showOwnershipFilter && (
+                        <StyledFilter>
+                          {ownershipFilterLabel(ownership)}
+                          <StyledClearFilterButton
+                            aria-label={messages.gettext('Clear')}
+                            onClick={onClearOwnership}>
+                            <ImageView
+                              height={16}
+                              width={16}
+                              source="icon-close"
+                              tintColor={colors.white60}
+                              tintHoverColor={colors.white80}
+                            />
+                          </StyledClearFilterButton>
+                        </StyledFilter>
                       )}
-                      <StyledClearFilterButton
-                        aria-label={messages.gettext('Clear')}
-                        onClick={onClearProviders}>
-                        <ImageView
-                          height={16}
-                          width={16}
-                          source="icon-close"
-                          tintColor={colors.white60}
-                          tintHoverColor={colors.white80}
-                        />
-                      </StyledClearFilterButton>
-                    </StyledFilter>
+
+                      {showProvidersFilter && (
+                        <StyledFilter>
+                          {sprintf(
+                            messages.pgettext(
+                              'select-location-view',
+                              'Providers: %(numberOfProviders)d',
+                            ),
+                            { numberOfProviders: filteredProviders.length },
+                          )}
+                          <StyledClearFilterButton
+                            aria-label={messages.gettext('Clear')}
+                            onClick={onClearProviders}>
+                            <ImageView
+                              height={16}
+                              width={16}
+                              source="icon-close"
+                              tintColor={colors.white60}
+                              tintHoverColor={colors.white80}
+                            />
+                          </StyledClearFilterButton>
+                        </StyledFilter>
+                      )}
+
+                      {showDaitaFilter && (
+                        <StyledFilter>
+                          {sprintf(
+                            messages.pgettext('select-location-view', 'Setting: %(settingName)s'),
+                            { settingName: 'DAITA' },
+                          )}
+                        </StyledFilter>
+                      )}
+                    </StyledFilterRow>
                   )}
 
-                  {showDaitaFilter && (
-                    <StyledFilter>
-                      {sprintf(
-                        messages.pgettext('select-location-view', 'Setting: %(settingName)s'),
-                        { settingName: 'DAITA' },
-                      )}
-                    </StyledFilter>
-                  )}
-                </StyledFilterRow>
+                  <StyledSearchBar searchTerm={searchValue} onSearch={updateSearchTerm} />
+                </>
               )}
-
-              <StyledSearchBar searchTerm={searchValue} onSearch={updateSearchTerm} />
             </StyledNavigationBarAttachment>
 
             <NavigationScrollbars ref={scrollViewRef}>
@@ -272,6 +260,9 @@ function SelectLocationContent() {
   const [onSelectExitRelay, onSelectExitSpecial] = useOnSelectExitLocation();
   const [onSelectEntryRelay, onSelectEntrySpecial] = useOnSelectEntryLocation();
   const [onSelectBridgeRelay, onSelectBridgeSpecial] = useOnSelectBridgeLocation();
+
+  const daita = useSelector((state) => state.settings.wireguard.daita?.enabled ?? false);
+  const directOnly = useSelector((state) => state.settings.wireguard.daita?.directOnly ?? false);
 
   const relaySettings = useNormalRelaySettings();
   const bridgeSettings = useSelector((state) => state.settings.bridgeSettings);
@@ -311,6 +302,10 @@ function SelectLocationContent() {
       </>
     );
   } else if (relaySettings?.tunnelProtocol !== 'openvpn') {
+    if (daita && !directOnly) {
+      return <DisabledEntrySelection />;
+    }
+
     return (
       <>
         <CustomLists selectedElementRef={selectedLocationRef} onSelect={onSelectEntryRelay} />
@@ -409,15 +404,47 @@ function NoSearchResult(props: NoSearchResultProps) {
   }
 
   return (
-    <StyledNoResult>
-      <StyledNoResultText>
+    <StyledSelectionUnavailable>
+      <StyledSelectionUnavailableText>
         {formatHtml(
           sprintf(messages.gettext('No result for <b>%(searchTerm)s</b>.'), {
             searchTerm,
           }),
         )}
-      </StyledNoResultText>
-      <StyledNoResultText>{messages.gettext('Try a different search.')}</StyledNoResultText>
-    </StyledNoResult>
+      </StyledSelectionUnavailableText>
+      <StyledSelectionUnavailableText>
+        {messages.gettext('Try a different search.')}
+      </StyledSelectionUnavailableText>
+    </StyledSelectionUnavailable>
+  );
+}
+
+function DisabledEntrySelection() {
+  const { push } = useHistory();
+
+  const multihop = messages.pgettext('settings-view', 'Multihop');
+  const directOnly = messages.gettext('Direct only');
+
+  const navigateToDaitaSettings = useCallback(() => {
+    push(RoutePath.daitaSettings);
+  }, [push]);
+
+  return (
+    <StyledSelectionUnavailable>
+      <StyledSelectionUnavailableText>
+        {sprintf(
+          messages.pgettext(
+            'select-location-view',
+            '%(daita)s overrides %(multihop)s. To use %(multihop)s, please enable “%(directOnly)s” or disable %(daita)s in the %(daita)s settings.',
+          ),
+          { daita: strings.daita, multihop, directOnly },
+        )}
+      </StyledSelectionUnavailableText>
+      <StyledDaitaSettingsButton onClick={navigateToDaitaSettings}>
+        {sprintf(messages.pgettext('select-location-view', 'Go to %(daita)s settings'), {
+          daita: strings.daita,
+        })}
+      </StyledDaitaSettingsButton>
+    </StyledSelectionUnavailable>
   );
 }
