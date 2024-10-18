@@ -2209,9 +2209,6 @@ msgstr ""
 msgid "%s more..."
 msgstr ""
 
-msgid "%s using %s"
-msgstr ""
-
 msgid "%s was added to \"%s\""
 msgstr ""
 
@@ -2275,9 +2272,6 @@ msgstr ""
 msgid "All overrides will be reset and servers IP addresses, in the Select location view, will go back to default."
 msgstr ""
 
-msgid "Allows access to other devices on the same network for sharing, printing etc."
-msgstr ""
-
 msgid "Always-on VPN assigned to other app"
 msgstr ""
 
@@ -2311,9 +2305,6 @@ msgstr ""
 msgid "Automatically connect on device start-up. Only works if the app has been granted the VPN permission."
 msgstr ""
 
-msgid "Automatically connect when the app launches. This setting will be replaced with a new connect on device start-up feature in a future update."
-msgstr ""
-
 msgid "Blocking internet (device offline)"
 msgstr ""
 
@@ -2336,9 +2327,6 @@ msgid "Copied Mullvad account number to clipboard"
 msgstr ""
 
 msgid "Copied logs to clipboard"
-msgstr ""
-
-msgid "Copied to clipboard"
 msgstr ""
 
 msgid "Copy"
@@ -2488,9 +2476,6 @@ msgstr ""
 msgid "Manage account"
 msgstr ""
 
-msgid "Mullvad account number"
-msgstr ""
-
 msgid "Mullvad services unavailable"
 msgstr ""
 
@@ -2510,9 +2495,6 @@ msgid "No locations found"
 msgstr ""
 
 msgid "Not found"
-msgstr ""
-
-msgid "On (UDP-over-TCP)"
 msgstr ""
 
 msgid "Out Ipv4"
@@ -2543,12 +2525,6 @@ msgid "Please enter a valid IPv4 or IPv6 address"
 msgstr ""
 
 msgid "Please enter a valid remote server port"
-msgstr ""
-
-msgid "Please use the \"Always-on\" system setting instead by following the guide in \"%s\" above."
-msgstr ""
-
-msgid "Preferences"
 msgstr ""
 
 msgid "Privacy"
@@ -2626,10 +2602,7 @@ msgstr ""
 msgid "The \"Current\" method represent which method the app is using to reach the API."
 msgstr ""
 
-msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under Preferences."
-msgstr ""
-
-msgid "There is no VPN settings on your device"
+msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings."
 msgstr ""
 
 msgid "This address has already been entered."
@@ -2674,9 +2647,6 @@ msgstr ""
 msgid "Update DNS server"
 msgstr ""
 
-msgid "Update available, download to remain safe."
-msgstr ""
-
 msgid "Update list name"
 msgstr ""
 
@@ -2713,9 +2683,6 @@ msgstr ""
 msgid "Version"
 msgstr ""
 
-msgid "Virtual adapter error"
-msgstr ""
-
 msgid "We are currently verifying your purchase, this might take some time. Your time will be added if the verification is successful."
 msgstr ""
 
@@ -2723,9 +2690,6 @@ msgid "We were unable to start the payment process, please make sure you have th
 msgstr ""
 
 msgid "We were unable to start the payment process, please try again later."
-msgstr ""
-
-msgid "While connected, your real location is masked with a private and secure location in the selected region."
 msgstr ""
 
 msgid "WireGuard MTU"
@@ -2737,13 +2701,7 @@ msgstr ""
 msgid "WireGuard port"
 msgstr ""
 
-msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
-msgstr ""
-
 msgid "You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone."
-msgstr ""
-
-msgid "You are running an unsupported app version."
 msgstr ""
 
 msgid "\"%s\" was created"
@@ -2753,9 +2711,6 @@ msgid "\"%s\" was deleted"
 msgstr ""
 
 msgid "here"
-msgstr ""
-
-msgid "less than a minute ago"
 msgstr ""
 
 msgid "less than one day"

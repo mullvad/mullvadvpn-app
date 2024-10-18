@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="account_created">Konto erstellt</string>
     <string name="account_credit_expires_in_a_few_minutes">Kontoguthaben läuft in wenigen Minuten ab</string>
     <string name="account_credit_expires_soon">Kontoguthaben läuft bald ab</string>
     <string name="account_credit_has_expired">Sie haben keine VPN-Zeit mehr auf diesem Konto.</string>
@@ -22,7 +21,6 @@
     <string name="all_applications">Alle Anwendungen</string>
     <string name="all_locations">Alle Standorte</string>
     <string name="all_providers">Alle Anbieter</string>
-    <string name="allow_lan_footer">Ermöglicht den Zugriff auf andere Geräte im selben Netzwerk zum Teilen von Dateien, Drucken etc.</string>
     <string name="always_on_vpn_error_notification_content">Tunnelverbindung kann nicht gestartet werden. Bitte deaktivieren Sie Always-on VPN für &lt;b&gt;%1$s&lt;/b&gt;, bevor Sie Mullvad VPN verwenden.</string>
     <string name="always_on_vpn_error_notification_title">Always-on VPN ist einer anderen App zugeordnet</string>
     <string name="any">Beliebige</string>
@@ -40,13 +38,11 @@
     <string name="at_least_on_method_needs_to_enabled">Mindestens eine Methode muss aktiviert sein</string>
     <string name="auth_failed">Konto konnte nicht authentifiziert werden. Bitte senden Sie einen Problembericht.</string>
     <string name="authentication">Authentifizierung</string>
-    <string name="auto_connect">Automatische Verbindung</string>
     <string name="auto_connect_and_lockdown_mode">Automatische Verbindung &amp; Sperrmodus</string>
     <string name="auto_connect_and_lockdown_mode_footer">Gewährleistet, dass sich das Gerät immer im VPN-Tunnel befindet.</string>
     <string name="auto_connect_carousel_first_slide_top_text">Die Einstellungen für die automatische Verbindung und den Sperrmodus finden Sie in den Android-Systemeinstellungen. Folgen Sie dieser Anleitung, um eine oder beide Einstellungen zu aktivieren.</string>
     <string name="auto_connect_carousel_second_slide_top_text">Die automatische Verbindung wird in den Android-Systemeinstellungen als „Always-on VPN“ bezeichnet und sorgt dafür, dass Sie ständig mit dem VPN-Tunnel verbunden sind und sich nach einem Neustart automatisch verbinden.</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">hier</string>
-    <string name="auto_connect_footer_legacy_tv">Automatisch verbinden, wenn die App gestartet wird. Diese Einstellung wird in einem zukünftigen Update durch eine neue Funktion zum Verbinden beim Gerätestart ersetzt.</string>
     <string name="auto_connect_legacy">Automatische Verbindung (veraltet)</string>
     <string name="automatic">Automatisch</string>
     <string name="back">Zurück</string>
@@ -65,19 +61,16 @@
     <string name="changes_dialog_subtitle">Änderungen in dieser Version:</string>
     <string name="cipher">Chiffre</string>
     <string name="close">Schließen</string>
-    <string name="confirm_local_dns">Der lokale DNS-Server wird nicht funktionieren, solange „Teilen im lokalen Netzwerk“ nicht in den Einstellungen aktiviert ist.</string>
     <string name="confirm_no_email">Sie wollen einen Problembericht senden, ohne uns die Möglichkeit zu geben, Sie zu erreichen. Wenn Sie sich eine Antwort zu Ihrem Problem wünschen, müssen Sie eine E-Mail-Adresse eingeben.</string>
     <string name="confirm_removal">Ja, von Gerät abmelden</string>
     <string name="congrats">Glückwunsch!</string>
     <string name="connect">Verbinden</string>
     <string name="connected">Verbunden</string>
-    <string name="connected_using_daita">%1$s verwendet %2$s</string>
     <string name="connecting_to_daemon">Verbindung zum Mullvad-Systemdienst wird hergestellt...</string>
     <string name="connection_details_in">Eingehend</string>
     <string name="continue_login">Weiter mit Anmeldung</string>
     <string name="copied_logs_to_clipboard">Protokolle in Zwischenablage kopiert</string>
     <string name="copied_mullvad_account_number">Mullvad-Kontonummer wurde in die Zwischenablage kopiert</string>
-    <string name="copied_to_clipboard">In die Zwischenablage kopiert</string>
     <string name="copy_account_number">Kontonummer kopieren</string>
     <string name="create">Erstellen</string>
     <string name="create_account">Konto erstellen</string>
@@ -167,7 +160,6 @@
     <string name="ipv6_unavailable">IPv6 konnte nicht konfiguriert werden. Deaktivieren Sie es in der App oder aktivieren Sie es auf Ihrem Gerät.</string>
     <string name="is_offline">Ihr Gerät ist offline. Der Tunnel wird automatisch verbunden, sobald Ihr Gerät wieder online ist.</string>
     <string name="less_than_a_day_left">weniger als ein Tag übrig</string>
-    <string name="less_than_a_minute_ago">vor weniger als einer Minute</string>
     <string name="less_than_one_day">weniger als ein Tag</string>
     <string name="list_name">Name der Liste</string>
     <string name="loading_connecting">Verbinden …</string>
@@ -195,7 +187,6 @@
     <string name="max_devices_warning_description">Bitte melden Sie sich von mindestens einem Gerät ab, indem Sie es aus der Liste unten entfernen. Sie finden den entsprechenden Gerätenamen unter den Kontoeinstellungen des Geräts.</string>
     <string name="max_devices_warning_title">Zu viele Geräte</string>
     <string name="more_information">Weitere Informationen</string>
-    <string name="mullvad_account_number">Mullvad-Kontonummer</string>
     <string name="mullvad_owned_only">Nur im Besitz von Mullvad</string>
     <string name="name">Name</string>
     <string name="name_was_changed_to">Name wurde geändert in %1$s</string>
@@ -207,16 +198,13 @@
     <string name="no_locations_found">Keine Standorte gefunden</string>
     <string name="no_matching_relay">Kein Server entspricht Ihren Einstellungen. Versuchen Sie, den Server oder andere Einstellungen zu ändern.</string>
     <string name="no_wireguard_key">Gültiger WireGuard-Schlüssel fehlt. Sie können Ihre Schlüssel in den erweiterten Einstellungen verwalten.</string>
-    <string name="not_blocking_internet">MÖGLICHERWEISE IST IHR NETZWERKVERKEHR UNSICHER</string>
     <string name="not_found">Nicht gefunden</string>
     <string name="number_of_providers">Provider: %1$d</string>
     <string name="obfuscation_info">Bei der Verschleierung wird der WireGuard-Datenverkehr in einem anderen Protokoll versteckt. Sie kann dazu verwendet werden, Zensur und andere Arten von Filtern zu umgehen, bei denen eine reine WireGuard-Verbindung blockiert würde.</string>
-    <string name="obfuscation_on_udp_over_tcp">An (UDP über TCP)</string>
     <string name="obfuscation_title">WireGuard-Verschleierung</string>
     <string name="off">Aus</string>
     <string name="on">Ein</string>
     <string name="open_url">URL öffnen</string>
-    <string name="out_address">Ausgehend</string>
     <string name="out_of_time">Zeit abgelaufen</string>
     <string name="overrides_cleared">Überschreibungen entfernt</string>
     <string name="owned">In Besitz</string>
@@ -258,7 +246,6 @@
     <string name="save">Speichern</string>
     <string name="search_placeholder">Suchen nach …</string>
     <string name="select_location">Ort auswählen</string>
-    <string name="select_location_description">Wenn Sie verbunden sind, wird Ihr tatsächlicher Standort durch einem privaten und sicheren Standort in der ausgewählten Region maskiert.</string>
     <string name="select_location_empty_text_first_row">Keine Ergebnisse für &lt;b&gt;%1$s&lt;/b&gt;.</string>
     <string name="select_location_empty_text_second_row">Versuchen Sie es mit einer anderen Suchanfrage.</string>
     <string name="send">Senden</string>
@@ -294,9 +281,7 @@
     <string name="settings_patch_error_unable_to_parse">Patch konnte nicht geparst werden</string>
     <string name="settings_patch_error_unknown_or_prohibited_key">Unbekannter oder verbotener Schlüssel „%1$s“</string>
     <string name="settings_patch_success">Import erfolgreich, Überschreibungen aktiv</string>
-    <string name="settings_preferences">Präferenzen</string>
     <string name="settings_vpn">VPN-Einstellungen</string>
-    <string name="show_account_number">Kontonummer anzeigen</string>
     <string name="show_system_apps">System-Apps anzeigen</string>
     <string name="split_tunneling_description">Hiermit können Sie Apps auswählen, die ohne den VPN-Tunnel direkt auf das Internet zugreifen sollen.</string>
     <string name="start_tunnel_error">Die Tunnelverbindung konnte nicht gestartet werden. Bitte senden Sie einen Problembericht.</string>
@@ -313,17 +298,13 @@
     <string name="toggle_vpn">VPN umschalten</string>
     <string name="top_bar_device_name">Gerätename: %1$s</string>
     <string name="top_bar_time_left">Verbleibende Zeit: %1$s</string>
-    <string name="transport_protocol">Transport-Protokoll</string>
     <string name="try_again">Erneut versuchen</string>
     <string name="type">Typ</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">Mit welchem TCP-Port sich das UDP-über-TCP-Verschleierungsprotokoll auf dem VPN-Server verbinden soll.</string>
-    <string name="udp_over_tcp_port_title">Port für UDP über TCP</string>
     <string name="undo">Rückgängig</string>
     <string name="unsupported_version">NICHT UNTERSTÜTZTE VERSION</string>
     <string name="unsupported_version_description">Ihre Privatsphäre könnte mit dieser nicht unterstützen Version der App gefährdet sein. Bitte aktualisieren Sie sie.</string>
-    <string name="unsupported_version_without_upgrade">Sie verwenden eine nicht unterstützte Version der App. </string>
-    <string name="update_available_footer">Update verfügbar, laden Sie es herunter, um sicher zu bleiben.</string>
     <string name="update_dns_server_dialog_title">DNS-Server aktualisieren</string>
     <string name="update_list_name">Name der Liste ändern</string>
     <string name="use_method">Methode verwenden</string>
@@ -333,13 +314,11 @@
     <string name="verifying_api_method">API-Methode verifizieren …</string>
     <string name="verifying_voucher">Gutschein verifizieren …</string>
     <string name="view_logs">App-Protokolle anzeigen</string>
-    <string name="virtual_adapter_problem">Virtueller Adapterfehler</string>
     <string name="voucher_already_used">Der Gutscheincode wurde bereits verwendet.</string>
     <string name="voucher_success_title">Der Gutschein wurde erfolgreich eingelöst.</string>
     <string name="vpn_permission_denied_error">VPN-Berechtigungen wurden beim Erstellen des Tunnels abgelehnt.</string>
     <string name="vpn_permission_error_notification_message">Always-on VPN könnte für eine andere App aktiviert sein</string>
     <string name="vpn_permission_error_notification_title">VPN-Berechtigungsfehler</string>
-    <string name="vpn_settings_not_found">Es gibt keine VPN-Einstellungen auf Ihrem Gerät</string>
     <string name="we_will_look_into_this">Wir werden uns das anschauen.</string>
     <string name="wireguard_custon_port_title">Benutzerdefiniert</string>
     <string name="wireguard_mtu">WireGuard-MTU</string>

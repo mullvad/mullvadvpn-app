@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="account_created">アカウントを作成しました</string>
     <string name="account_credit_expires_in_a_few_minutes">アカウントのクレジットが数分後に無効になります</string>
     <string name="account_credit_expires_soon">アカウントのクレジットがもうすぐ無効になります</string>
     <string name="account_credit_has_expired">このアカウントには、もう残っているVPN時間がありません。</string>
@@ -22,7 +21,6 @@
     <string name="all_applications">すべてのアプリケーション</string>
     <string name="all_locations">すべての場所</string>
     <string name="all_providers">すべてのプロバイダ</string>
-    <string name="allow_lan_footer">共有や印刷などのため、同一ネットワーク上の他のデバイスへのアクセスを許可します。</string>
     <string name="always_on_vpn_error_notification_content">トンネル接続を開始できません。Mullvad VPNを使用する前に&lt;b&gt;%1$s&lt;/b&gt;のAlways-on VPNを無効にしてください。</string>
     <string name="always_on_vpn_error_notification_title">Always-on VPNは他のアプリに割り当てられています</string>
     <string name="any">すべて</string>
@@ -40,13 +38,11 @@
     <string name="at_least_on_method_needs_to_enabled">方法は少なくとも 1 つは有効化する必要があります</string>
     <string name="auth_failed">アカウントを認証できません。問題の報告を送信してください。</string>
     <string name="authentication">認証</string>
-    <string name="auto_connect">自動接続</string>
     <string name="auto_connect_and_lockdown_mode">自動接続とロックダウンモード</string>
     <string name="auto_connect_and_lockdown_mode_footer">デバイスが必ずVPNトンネルを使用するようにします。</string>
     <string name="auto_connect_carousel_first_slide_top_text">自動接続とロックダウンモードの設定はAndroidシステム設定にあります。どちらか、または両方をこのガイドに従って有効にしてください。</string>
     <string name="auto_connect_carousel_second_slide_top_text">自動接続はAndroidシステム設定で「Always-on VPN」と呼ばれており、確実に一貫してVPNトンネルに接続し、再起動の後に自動接続を行う機能です。</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">こちら</string>
-    <string name="auto_connect_footer_legacy_tv">アプリの起動時に自動的に接続します。この設定は、今後のアップデートで新しい \"デバイスの起動時に接続\" 機能に置き換えられます。</string>
     <string name="auto_connect_legacy">自動接続 (レガシー)</string>
     <string name="automatic">自動</string>
     <string name="back">戻る</string>
@@ -65,19 +61,16 @@
     <string name="changes_dialog_subtitle">このバージョンでの変更内容:</string>
     <string name="cipher">暗号化</string>
     <string name="close">閉じる</string>
-    <string name="confirm_local_dns">環境設定で \"ローカルネットワーク共有\" を有効にしない限り、ローカルDNSサーバーは機能しません。</string>
     <string name="confirm_no_email">お客様への返信先を入力せずに問題の報告を送信しようとしています。ご報告に対する返信が必要な場合は、返信先のメールアドレスを入力する必要があります。</string>
     <string name="confirm_removal">はい。デバイスをログアウトさせます</string>
     <string name="congrats">おめでとうございます！</string>
     <string name="connect">接続</string>
     <string name="connected">接続済み</string>
-    <string name="connected_using_daita">%1$s を使用した %2$s</string>
     <string name="connecting_to_daemon">Mullvad システムサービスに接続中...</string>
     <string name="connection_details_in">内側</string>
     <string name="continue_login">ログインを続ける</string>
     <string name="copied_logs_to_clipboard">ログをクリップボードにコピーしました</string>
     <string name="copied_mullvad_account_number">Mullvadアカウント番号をクリップボードにコピーしました</string>
-    <string name="copied_to_clipboard">クリップボードにコピーしました</string>
     <string name="copy_account_number">アカウント番号のコピー</string>
     <string name="create">作成</string>
     <string name="create_account">アカウントを作成する</string>
@@ -167,7 +160,6 @@
     <string name="ipv6_unavailable">IPv6を設定できませんでした。アプリで無効にするか、デバイスで有効にしてください。</string>
     <string name="is_offline">デバイスがオフラインになっています。トンネルはデバイスがオンラインに戻ると自動的に接続されます。</string>
     <string name="less_than_a_day_left">残り1日未満</string>
-    <string name="less_than_a_minute_ago">1分未満前</string>
     <string name="less_than_one_day">1日未満</string>
     <string name="list_name">リスト名</string>
     <string name="loading_connecting">接続中...</string>
@@ -195,7 +187,6 @@
     <string name="max_devices_warning_description">以下のリストから少なくとも1つを削除してログアウトしてください。対応するデバイス名はデバイスのアカウント設定で確認できます。</string>
     <string name="max_devices_warning_title">デバイスが多すぎます</string>
     <string name="more_information">詳細情報</string>
-    <string name="mullvad_account_number">Mullvadアカウント番号</string>
     <string name="mullvad_owned_only">Mullvad 所有サーバーのみ</string>
     <string name="name">名前</string>
     <string name="name_was_changed_to">名前が %1$s に変更されました</string>
@@ -207,16 +198,13 @@
     <string name="no_locations_found">場所が見つかりませんでした</string>
     <string name="no_matching_relay">設定に一致するサーバーはありません。サーバーまたは他の設定を変更してみてください。</string>
     <string name="no_wireguard_key">有効なWireGuard鍵が見つかりません。詳細設定で鍵を管理してください。</string>
-    <string name="not_blocking_internet">ネットワーク通信が漏洩している可能性があります</string>
     <string name="not_found">見つかりませんでした</string>
     <string name="number_of_providers">プロバイダ数: %1$d</string>
     <string name="obfuscation_info">難読化は、WireGuardトラフィックを別のプロトコル内に隠します。プレーンなWireGuard接続がブロックされる検閲やその他のフィルタリングを回避するために使用できます。</string>
-    <string name="obfuscation_on_udp_over_tcp">オン (UDP-over-TCP)</string>
     <string name="obfuscation_title">WireGuardの難読化</string>
     <string name="off">オフ</string>
     <string name="on">オン</string>
     <string name="open_url">URLを開く</string>
-    <string name="out_address">外側</string>
     <string name="out_of_time">時間切れ</string>
     <string name="overrides_cleared">オーバーライドがクリアされました</string>
     <string name="owned">自社サーバー</string>
@@ -258,7 +246,6 @@
     <string name="save">保存</string>
     <string name="search_placeholder">検索...</string>
     <string name="select_location">場所を選択する</string>
-    <string name="select_location_description">接続中、あなたの実際の場所は選択した地域内の非公開かつセキュリティ保護された場所で隠されます。</string>
     <string name="select_location_empty_text_first_row">&lt;b&gt;%1$s&lt;/b&gt;に該当する検索結果はありません。</string>
     <string name="select_location_empty_text_second_row">別の検索をお試しください。</string>
     <string name="send">送信</string>
@@ -294,9 +281,7 @@
     <string name="settings_patch_error_unable_to_parse">パッチを解析できません</string>
     <string name="settings_patch_error_unknown_or_prohibited_key">キー \"%1$s\" は不明であるか、禁止されています</string>
     <string name="settings_patch_success">インポートが正常に完了しました。オーバーライドは有効です</string>
-    <string name="settings_preferences">環境設定</string>
     <string name="settings_vpn">VPN設定</string>
-    <string name="show_account_number">アカウント番号の表示</string>
     <string name="show_system_apps">システムアプリの表示</string>
     <string name="split_tunneling_description">VPN トンネルを経由せずに、直接インターネットにアクセスするアプリを選択できます。</string>
     <string name="start_tunnel_error">トンネル接続を開始できません。問題の報告を送信してください。</string>
@@ -313,17 +298,13 @@
     <string name="toggle_vpn">VPNの切り替え</string>
     <string name="top_bar_device_name">デバイス名: %1$s</string>
     <string name="top_bar_time_left">残り時間: %1$s</string>
-    <string name="transport_protocol">転送プロトコル</string>
     <string name="try_again">再試行</string>
     <string name="type">種類</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">UDP-over-TCP難読化プロトコルで接続する必要のあるVPNサーバーのTCPポートです。</string>
-    <string name="udp_over_tcp_port_title">UDP-over-TCPポート</string>
     <string name="undo">元に戻す</string>
     <string name="unsupported_version">未対応のバージョン</string>
     <string name="unsupported_version_description">このアプリバージョンはサポートされていないため、プライバシーが危険にさらされる可能性があります。今すぐアップデートしてください。</string>
-    <string name="unsupported_version_without_upgrade">サポート対象外バージョンのアプリを実行しています。</string>
-    <string name="update_available_footer">アップデートできます。セキュリティを維持するにはダウンロードしてしてください。</string>
     <string name="update_dns_server_dialog_title">DNS サーバーを更新</string>
     <string name="update_list_name">リスト名の更新</string>
     <string name="use_method">この方法を使用する</string>
@@ -333,13 +314,11 @@
     <string name="verifying_api_method">API 接続方法を検証しています...</string>
     <string name="verifying_voucher">バウチャーを確認中…</string>
     <string name="view_logs">アプリのログを表示</string>
-    <string name="virtual_adapter_problem">仮想アダプタのエラー</string>
     <string name="voucher_already_used">バウチャーコードはすでに使用されています。</string>
     <string name="voucher_success_title">バウチャーを正常に使用しました。</string>
     <string name="vpn_permission_denied_error">トンネルを作成中にVPNへのアクセスが拒否されました。もう一度接続してみてください。</string>
     <string name="vpn_permission_error_notification_message">Always-on VPNが別のアプリで有効になっている可能性があります</string>
     <string name="vpn_permission_error_notification_title">VPN許可エラー</string>
-    <string name="vpn_settings_not_found">デバイスにVPN設定がありません</string>
     <string name="we_will_look_into_this">この問題を調査いたします。</string>
     <string name="wireguard_custon_port_title">カスタム</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
