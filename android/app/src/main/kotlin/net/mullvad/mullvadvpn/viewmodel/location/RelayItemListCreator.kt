@@ -82,7 +82,9 @@ private fun createCustomListRelayItems(
                 RelayListItem.CustomListItem(
                     item = customList,
                     isSelected = selectedItem == customList.id,
-                    isEnabled = disabledItem != customList.id,
+                    isEnabled =
+                        disabledItem != customList.id &&
+                            disabledItem != customList.locations.singleOrNull()?.id,
                     expanded = expanded,
                 )
             )
@@ -215,11 +217,14 @@ internal fun SelectedLocation.getForRelayListSelect(relayListSelection: RelayLis
         is SelectedLocation.Single -> exitLocation.getOrNull()
     }
 
-internal fun SelectedLocation.getForRelayListDisabled(relayListSelection: RelayListSelection) =
+internal fun SelectedLocation.getForRelayListDisabled(
+    relayListSelection: RelayListSelection,
+    customLists: List<RelayItem.CustomList>,
+) =
     when (this) {
         // We only want to block selecting the same entry as exit if it is a relay. For country and
         // city it is fine to have same entry and exit
-        // TODO For custom lists we will block if the custom lists only contains one relay and
+        // For custom lists we will block if the custom lists only contains one relay and
         // nothing else
         is SelectedLocation.Multiple ->
             when (relayListSelection) {
@@ -232,7 +237,19 @@ internal fun SelectedLocation.getForRelayListDisabled(relayListSelection: RelayL
                         is GeoLocationId.City,
                         is GeoLocationId.Country -> null
                         is GeoLocationId.Hostname -> it
-                        is CustomListId -> null // TODO We need to add complex code here
+                        is CustomListId -> {
+                            val isSingle =
+                                customLists
+                                    .firstOrNull { customList -> customList.id == it }
+                                    ?.locations
+                                    ?.singleOrNull()
+                                    ?.id is GeoLocationId.Hostname
+                            if (isSingle) {
+                                it
+                            } else {
+                                null
+                            }
+                        }
                     }
                 }
         is SelectedLocation.Single -> null

@@ -422,4 +422,6 @@
     <string name="clear_input">Clear input</string>
     <string name="x_entry">%s (Entry)</string>
     <string name="x_exit">%s (Exit)</string>
+    <string name="search_results">Search results</string>
+    <string name="filters">Filters</string>
 </resources>

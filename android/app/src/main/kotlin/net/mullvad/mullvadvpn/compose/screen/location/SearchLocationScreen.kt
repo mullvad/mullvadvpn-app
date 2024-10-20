@@ -1,7 +1,10 @@
 package net.mullvad.mullvadvpn.compose.screen.location
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
@@ -10,11 +13,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
@@ -28,6 +31,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -37,13 +41,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
-import com.ramcosta.composedestinations.generated.destinations.ConnectDestination
 import com.ramcosta.composedestinations.generated.destinations.CreateCustomListDestination
 import com.ramcosta.composedestinations.generated.destinations.CustomListLocationsDestination
 import com.ramcosta.composedestinations.generated.destinations.CustomListsDestination
 import com.ramcosta.composedestinations.generated.destinations.DeleteCustomListDestination
 import com.ramcosta.composedestinations.generated.destinations.EditCustomListNameDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
@@ -81,6 +85,7 @@ data class SearchLocationNavArgs(val relayListSelection: RelayListSelection)
 @Destination<RootGraph>(style = SearchTransition::class, navArgs = SearchLocationNavArgs::class)
 fun SearchLocation(
     navigator: DestinationsNavigator,
+    backNavigator: ResultBackNavigator<RelayListSelection>,
     createCustomListDialogResultRecipient:
         ResultRecipient<
             CreateCustomListDestination,
@@ -101,8 +106,8 @@ fun SearchLocation(
 
     CollectSideEffectWithLifecycle(viewModel.uiSideEffect) {
         when (it) {
-            SearchLocationSideEffect.CloseScreen ->
-                navigator.popBackStack(route = ConnectDestination, inclusive = false)
+            is SearchLocationSideEffect.LocationSelected ->
+                backNavigator.navigateBack(result = it.relayListSelection)
             is SearchLocationSideEffect.CustomListActionToast ->
                 launch {
                     snackbarHostState.showResultSnackbar(
@@ -207,6 +212,9 @@ fun SearchLocationScreen(
     onRemoveProviderFilter: () -> Unit = {},
     onGoBack: () -> Unit = {},
 ) {
+    val backgroundColor = MaterialTheme.colorScheme.surface
+    val onBackgroundColor = MaterialTheme.colorScheme.onSurface
+    val keyboardController = LocalSoftwareKeyboardController.current
     Scaffold(
         snackbarHost = {
             SnackbarHost(
@@ -227,62 +235,16 @@ fun SearchLocationScreen(
             onDeleteCustomList = onDeleteCustomList,
             onHideBottomSheet = { locationBottomSheetState = null },
         )
-
-        val backgroundColor = MaterialTheme.colorScheme.surface
-        val onBackgroundColor = MaterialTheme.colorScheme.onSurface
-        val keyboardController = LocalSoftwareKeyboardController.current
-        SearchBar(
-            inputField = {
-                SearchBarDefaults.InputField(
-                    query = state.searchTerm,
-                    onQueryChange = onSearchInputChanged,
-                    onSearch = { keyboardController?.hide() },
-                    expanded = true,
-                    onExpandedChange = {},
-                    leadingIcon = {
-                        IconButton(onClick = onGoBack) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                                contentDescription = stringResource(R.string.back),
-                            )
-                        }
-                    },
-                    trailingIcon = {
-                        if (state.searchTerm.isNotEmpty()) {
-                            IconButton(onClick = { onSearchInputChanged("") }) {
-                                Icon(
-                                    imageVector = Icons.Default.Close,
-                                    contentDescription = stringResource(R.string.clear_input),
-                                )
-                            }
-                        }
-                    },
-                    placeholder = { Text(text = stringResource(id = R.string.search_placeholder)) },
-                    colors =
-                        TextFieldDefaults.colors(
-                            focusedContainerColor = backgroundColor,
-                            unfocusedContainerColor = backgroundColor,
-                            focusedPlaceholderColor = onBackgroundColor,
-                            unfocusedPlaceholderColor = onBackgroundColor,
-                            focusedTextColor = onBackgroundColor,
-                            unfocusedTextColor = onBackgroundColor,
-                            cursorColor = onBackgroundColor,
-                            focusedLeadingIconColor = onBackgroundColor,
-                            unfocusedLeadingIconColor = onBackgroundColor,
-                            focusedTrailingIconColor = onBackgroundColor,
-                            unfocusedTrailingIconColor = onBackgroundColor,
-                        ),
-                )
-            },
-            expanded = true,
-            onExpandedChange = {},
-            colors =
-                SearchBarDefaults.colors(
-                    containerColor = backgroundColor,
-                    dividerColor = MaterialTheme.colorScheme.onSurface,
-                ),
-            modifier = Modifier.padding(it),
-        ) {
+        Column(modifier = Modifier.padding(it)) {
+            SearchBar(
+                searchTerm = state.searchTerm,
+                backgroundColor = backgroundColor,
+                onBackgroundColor = onBackgroundColor,
+                onSearchInputChanged = onSearchInputChanged,
+                hideKeyboard = { keyboardController?.hide() },
+                onGoBack = onGoBack,
+            )
+            HorizontalDivider(color = onBackgroundColor)
             val lazyListState = rememberLazyListState()
             LazyColumn(
                 modifier =
@@ -295,21 +257,18 @@ fun SearchLocationScreen(
                 state = lazyListState,
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
+                filterRow(
+                    filters = state.filterChips,
+                    onBackgroundColor = onBackgroundColor,
+                    onRemoveOwnershipFilter = onRemoveOwnershipFilter,
+                    onRemoveProviderFilter = onRemoveProviderFilter,
+                )
+                searchResultTitle(onBackgroundColor = onBackgroundColor)
                 when (state) {
                     is SearchSelectLocationUiState.NoQuery -> {
                         noQuery()
-                        filterRow(
-                            filters = state.filterChips,
-                            onRemoveOwnershipFilter = onRemoveOwnershipFilter,
-                            onRemoveProviderFilter = onRemoveProviderFilter,
-                        )
                     }
                     is SearchSelectLocationUiState.Content -> {
-                        filterRow(
-                            filters = state.filterChips,
-                            onRemoveOwnershipFilter = onRemoveOwnershipFilter,
-                            onRemoveProviderFilter = onRemoveProviderFilter,
-                        )
                         relayListContent(
                             backgroundColor = backgroundColor,
                             customLists = state.customLists,
@@ -328,6 +287,59 @@ fun SearchLocationScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SearchBar(
+    searchTerm: String,
+    backgroundColor: Color,
+    onBackgroundColor: Color,
+    onSearchInputChanged: (String) -> Unit,
+    hideKeyboard: () -> Unit,
+    onGoBack: () -> Unit,
+) {
+    SearchBarDefaults.InputField(
+        modifier = Modifier.height(Dimens.searchFieldHeightExpanded).fillMaxWidth(),
+        query = searchTerm,
+        onQueryChange = onSearchInputChanged,
+        onSearch = { hideKeyboard() },
+        expanded = true,
+        onExpandedChange = {},
+        leadingIcon = {
+            IconButton(onClick = onGoBack) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                    contentDescription = stringResource(R.string.back),
+                )
+            }
+        },
+        trailingIcon = {
+            if (searchTerm.isNotEmpty()) {
+                IconButton(onClick = { onSearchInputChanged("") }) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = stringResource(R.string.clear_input),
+                    )
+                }
+            }
+        },
+        placeholder = { Text(text = stringResource(id = R.string.search_placeholder)) },
+        colors =
+            TextFieldDefaults.colors(
+                focusedContainerColor = backgroundColor,
+                unfocusedContainerColor = backgroundColor,
+                focusedPlaceholderColor = onBackgroundColor,
+                unfocusedPlaceholderColor = onBackgroundColor,
+                focusedTextColor = onBackgroundColor,
+                unfocusedTextColor = onBackgroundColor,
+                cursorColor = onBackgroundColor,
+                focusedLeadingIconColor = onBackgroundColor,
+                unfocusedLeadingIconColor = onBackgroundColor,
+                focusedTrailingIconColor = onBackgroundColor,
+                unfocusedTrailingIconColor = onBackgroundColor,
+            ),
+    )
+}
+
 private fun LazyListScope.noQuery() {
     item(contentType = ContentType.DESCRIPTION) {
         Text(
@@ -342,16 +354,39 @@ private fun LazyListScope.noQuery() {
 
 private fun LazyListScope.filterRow(
     filters: List<FilterChip>,
+    onBackgroundColor: Color,
     onRemoveOwnershipFilter: () -> Unit,
     onRemoveProviderFilter: () -> Unit,
 ) {
     if (filters.isNotEmpty()) {
         item {
+            Text(
+                text = stringResource(R.string.filters),
+                color = onBackgroundColor,
+                modifier =
+                Modifier.fillMaxWidth().padding(horizontal = Dimens.sideMargin, vertical = Dimens.smallPadding),
+                style = MaterialTheme.typography.labelMedium,
+            )
+        }
+        item {
             FilterRow(
                 filters = filters,
+                showTitle = false,
                 onRemoveOwnershipFilter = onRemoveOwnershipFilter,
                 onRemoveProviderFilter = onRemoveProviderFilter,
             )
         }
+    }
+}
+
+private fun LazyListScope.searchResultTitle(onBackgroundColor: Color) {
+    item {
+        Text(
+            text = stringResource(R.string.search_results),
+            color = onBackgroundColor,
+            modifier =
+                Modifier.fillMaxWidth().padding(horizontal = Dimens.sideMargin, vertical = Dimens.smallPadding),
+            style = MaterialTheme.typography.labelMedium,
+        )
     }
 }

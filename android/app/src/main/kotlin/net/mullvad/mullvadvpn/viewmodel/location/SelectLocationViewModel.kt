@@ -131,7 +131,8 @@ class SelectLocationViewModel(
                 relayCountries = relayCountries,
                 customLists = customLists,
                 selectedItem = selectedItem.getForRelayListSelect(relayListSelection),
-                disabledItem = selectedItem.getForRelayListDisabled(relayListSelection),
+                disabledItem =
+                    selectedItem.getForRelayListDisabled(relayListSelection, customLists),
                 expandedItems =
                     when (relayListSelection) {
                         RelayListSelection.Entry -> expandedItemsEntry

@@ -54,7 +54,7 @@ class SearchLocationViewModel(
         SearchLocationDestination.argsFrom(savedStateHandle).relayListSelection
 
     private val _searchTerm = MutableStateFlow(EMPTY_SEARCH_TERM)
-    val _expandedItems = MutableStateFlow<Set<String>>(emptySet())
+    private val _expandedItems = MutableStateFlow<Set<String>>(emptySet())
 
     val uiState: StateFlow<SearchSelectLocationUiState> =
         combine(
@@ -84,7 +84,7 @@ class SearchLocationViewModel(
                                 selectedItem =
                                     selectedItem.getForRelayListSelect(relayListSelection),
                                 disabledItem =
-                                    selectedItem.getForRelayListDisabled(relayListSelection),
+                                    selectedItem.getForRelayListDisabled(relayListSelection, customLists),
                                 expandedItems = expandedItems,
                             ),
                         customLists = customLists,
@@ -118,7 +118,11 @@ class SearchLocationViewModel(
                 )
                 .fold(
                     { _uiSideEffect.send(SearchLocationSideEffect.GenericError) },
-                    { _uiSideEffect.send(SearchLocationSideEffect.CloseScreen) },
+                    {
+                        _uiSideEffect.send(
+                            SearchLocationSideEffect.LocationSelected(relayListSelection)
+                        )
+                    },
                 )
         }
     }
@@ -178,7 +182,8 @@ class SearchLocationViewModel(
 }
 
 sealed interface SearchLocationSideEffect {
-    data object CloseScreen : SearchLocationSideEffect
+    data class LocationSelected(val relayListSelection: RelayListSelection) :
+        SearchLocationSideEffect
 
     data class CustomListActionToast(val resultData: CustomListActionResultData) :
         SearchLocationSideEffect

@@ -14,4 +14,6 @@ sealed interface SelectLocationUiState {
         val multihopEnabled: Boolean,
         val relayListSelection: RelayListSelection,
     ) : SelectLocationUiState
+
+    fun relayListSelection() = (this as? Content)?.relayListSelection
 }

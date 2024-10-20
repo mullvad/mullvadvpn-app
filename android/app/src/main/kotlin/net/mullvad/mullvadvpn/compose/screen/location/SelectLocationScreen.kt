@@ -13,6 +13,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FilterList
@@ -24,6 +26,7 @@ import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,6 +53,7 @@ import com.ramcosta.composedestinations.generated.destinations.SearchLocationDes
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
+import com.ramcosta.composedestinations.result.onResult
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.MullvadSegmentedButton
@@ -107,14 +111,14 @@ fun SelectLocation(
         ResultRecipient<DeleteCustomListDestination, CustomListActionResultData.Success.Deleted>,
     updateCustomListResultRecipient:
         ResultRecipient<CustomListLocationsDestination, CustomListActionResultData>,
+    searchSelectedLocationResultRecipient:
+        ResultRecipient<SearchLocationDestination, RelayListSelection>,
 ) {
     val vm = koinViewModel<SelectLocationViewModel>()
     val state = vm.uiState.collectAsStateWithLifecycle()
 
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
-    val lazyListStateEntry = rememberLazyListState()
-    val lazyListStateExit = rememberLazyListState()
     CollectSideEffectWithLifecycle(vm.uiSideEffect) {
         when (it) {
             SelectLocationSideEffect.CloseScreen -> backNavigator.navigateBack(result = true)
@@ -136,16 +140,6 @@ fun SelectLocation(
         }
     }
 
-    // TODO This needs to run on both enter and exit
-    val stateActual = state.value
-    RunOnKeyChange(stateActual is SelectLocationUiState.Content) {
-        val index = stateActual.indexOfSelectedRelayItem()
-        if (index != -1) {
-            lazyListStateEntry.scrollToItem(index)
-            lazyListStateEntry.animateScrollAndCentralizeItem(index)
-        }
-    }
-
     createCustomListDialogResultRecipient.OnCustomListNavResult(
         snackbarHostState,
         vm::performAction,
@@ -163,10 +157,17 @@ fun SelectLocation(
 
     updateCustomListResultRecipient.OnCustomListNavResult(snackbarHostState, vm::performAction)
 
+    searchSelectedLocationResultRecipient.onResult { result ->
+        when (result) {
+            RelayListSelection.Entry -> {
+                vm.selectRelayList(RelayListSelection.Exit)
+            }
+            RelayListSelection.Exit -> backNavigator.navigateBack(result = true)
+        }
+    }
+
     SelectLocationScreen(
         state = state.value,
-        lazyListStateEntry = lazyListStateEntry,
-        lazyListStateExit = lazyListStateExit,
         snackbarHostState = snackbarHostState,
         onSelectRelay = vm::selectRelay,
         onSearchClick = { navigator.navigate(SearchLocationDestination(it)) },
@@ -214,8 +215,6 @@ fun SelectLocation(
 @Composable
 fun SelectLocationScreen(
     state: SelectLocationUiState,
-    lazyListStateEntry: LazyListState = rememberLazyListState(),
-    lazyListStateExit: LazyListState = rememberLazyListState(),
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onSelectRelay: (item: RelayItem) -> Unit = {},
     onSearchClick: (RelayListSelection) -> Unit = {},
@@ -290,7 +289,11 @@ fun SelectLocationScreen(
 
         Column(modifier = modifier.background(backgroundColor).fillMaxSize()) {
             if (state is SelectLocationUiState.Content && state.filterChips.isNotEmpty()) {
-                FilterRow(filters = state.filterChips, removeOwnershipFilter, removeProviderFilter)
+                FilterRow(
+                    filters = state.filterChips,
+                    onRemoveOwnershipFilter = removeOwnershipFilter,
+                    onRemoveProviderFilter = removeProviderFilter,
+                )
             }
 
             if (state is SelectLocationUiState.Content && state.multihopEnabled) {
@@ -298,32 +301,13 @@ fun SelectLocationScreen(
             }
 
             Spacer(modifier = Modifier.height(height = Dimens.verticalSpace))
-
-            when {
-                state is SelectLocationUiState.Content &&
-                    state.relayListSelection == RelayListSelection.Exit ->
-                    RelayList(
-                        lazyListState = lazyListStateExit,
-                        state = state,
-                        backgroundColor = backgroundColor,
-                        onSelectRelay = onSelectRelay,
-                        onToggleExpand = onToggleExpand,
-                        onUpdateBottomSheetState = { newState ->
-                            locationBottomSheetState = newState
-                        },
-                    )
-                else ->
-                    RelayList(
-                        lazyListState = lazyListStateEntry,
-                        state = state,
-                        backgroundColor = backgroundColor,
-                        onSelectRelay = onSelectRelay,
-                        onToggleExpand = onToggleExpand,
-                        onUpdateBottomSheetState = { newState ->
-                            locationBottomSheetState = newState
-                        },
-                    )
-            }
+            RelayList(
+                state = state,
+                backgroundColor = backgroundColor,
+                onSelectRelay = onSelectRelay,
+                onToggleExpand = onToggleExpand,
+                onUpdateBottomSheetState = { newState -> locationBottomSheetState = newState },
+            )
         }
     }
 }
@@ -354,37 +338,53 @@ private fun MultihopBar(
 
 @Composable
 private fun RelayList(
-    lazyListState: LazyListState,
     state: SelectLocationUiState,
     backgroundColor: Color,
     onSelectRelay: (RelayItem) -> Unit,
     onToggleExpand: (RelayItemId, CustomListId?, Boolean) -> Unit,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
 ) {
-    LazyColumn(
-        modifier =
-            Modifier.fillMaxSize()
-                .drawVerticalScrollbar(
-                    lazyListState,
-                    MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
-                ),
-        state = lazyListState,
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        when (state) {
-            SelectLocationUiState.Loading -> {
-                loading()
+    val pagerState = rememberPagerState(pageCount = { 2 })
+    LaunchedEffect(state.relayListSelection()) {
+        val index = state.relayListSelection()?.ordinal ?: 0
+        pagerState.animateScrollToPage(index)
+    }
+
+    HorizontalPager(state = pagerState, userScrollEnabled = false) { pageIndex ->
+        val lazyListState = rememberLazyListState()
+        val stateActual = state
+        RunOnKeyChange(stateActual is SelectLocationUiState.Content) {
+            val index = stateActual.indexOfSelectedRelayItem()
+            if (index != -1) {
+                lazyListState.scrollToItem(index)
+                lazyListState.animateScrollAndCentralizeItem(index)
             }
-            is SelectLocationUiState.Content -> {
-                relayListContent(
-                    backgroundColor = backgroundColor,
-                    relayListItems = state.relayListItems,
-                    customLists = state.customLists,
-                    relayListSelection = state.relayListSelection,
-                    onSelectRelay = onSelectRelay,
-                    onToggleExpand = onToggleExpand,
-                    onUpdateBottomSheetState = onUpdateBottomSheetState,
-                )
+        }
+        LazyColumn(
+            modifier =
+                Modifier.fillMaxSize()
+                    .drawVerticalScrollbar(
+                        lazyListState,
+                        MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
+                    ),
+            state = lazyListState,
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            when (state) {
+                SelectLocationUiState.Loading -> {
+                    loading()
+                }
+                is SelectLocationUiState.Content -> {
+                    relayListContent(
+                        backgroundColor = backgroundColor,
+                        relayListItems = state.relayListItems,
+                        customLists = state.customLists,
+                        relayListSelection = state.relayListSelection,
+                        onSelectRelay = onSelectRelay,
+                        onToggleExpand = onToggleExpand,
+                        onUpdateBottomSheetState = onUpdateBottomSheetState,
+                    )
+                }
             }
         }
     }

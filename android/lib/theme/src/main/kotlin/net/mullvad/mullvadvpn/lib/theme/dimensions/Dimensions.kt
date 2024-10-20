@@ -56,6 +56,7 @@ data class Dimensions(
     val relayCircleSize: Dp = 16.dp,
     val screenVerticalMargin: Dp = 22.dp,
     val searchFieldHeight: Dp = 42.dp,
+    val searchFieldHeightExpanded: Dp = 85.dp,
     val searchFieldHorizontalPadding: Dp = 22.dp,
     val searchIconSize: Dp = 24.dp,
     val selectLocationTitlePadding: Dp = 12.dp,

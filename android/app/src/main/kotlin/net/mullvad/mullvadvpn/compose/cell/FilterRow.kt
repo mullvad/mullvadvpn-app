@@ -25,9 +25,9 @@ import net.mullvad.mullvadvpn.usecase.FilterChip
 private fun PreviewFilterCell() {
     AppTheme {
         FilterRow(
-            listOf(FilterChip.Ownership(Ownership.MullvadOwned), FilterChip.Provider(2)),
-            {},
-            {},
+            filters = listOf(FilterChip.Ownership(Ownership.MullvadOwned), FilterChip.Provider(2)),
+            onRemoveOwnershipFilter = {},
+            onRemoveProviderFilter = {},
         )
     }
 }
@@ -35,6 +35,7 @@ private fun PreviewFilterCell() {
 @Composable
 fun FilterRow(
     filters: List<FilterChip>,
+    showTitle: Boolean = true,
     onRemoveOwnershipFilter: () -> Unit,
     onRemoveProviderFilter: () -> Unit,
 ) {
@@ -45,13 +46,15 @@ fun FilterRow(
             Modifier.horizontalScroll(scrollState)
                 .padding(horizontal = Dimens.searchFieldHorizontalPadding)
                 .fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(Dimens.chipSpace),
+        horizontalArrangement = Arrangement.spacedBy(Dimens.chipSpace, alignment = Alignment.Start),
     ) {
-        Text(
-            text = stringResource(id = R.string.filtered),
-            color = MaterialTheme.colorScheme.onPrimary,
-            style = MaterialTheme.typography.labelMedium,
-        )
+        if (showTitle) {
+            Text(
+                text = stringResource(id = R.string.filtered),
+                color = MaterialTheme.colorScheme.onPrimary,
+                style = MaterialTheme.typography.labelMedium,
+            )
+        }
         filters.forEach {
             when (it) {
                 is FilterChip.Ownership ->
