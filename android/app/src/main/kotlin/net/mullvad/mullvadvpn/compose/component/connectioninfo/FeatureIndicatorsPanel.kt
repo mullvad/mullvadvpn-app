@@ -70,7 +70,9 @@ fun FeatureIndicators(
         MullvadFeatureChip(text = features[index].text())
     }
 
-    // Spacing are added to compensate for when the
+    // Spacing are added to compensate for when there are no feature indicators, since each feature
+    // indicator has built-in padding. Padding looks the same towards Switch Location button with or
+    // without feature indicators.
     if (features.isEmpty() && !expanded) {
         Spacer(Modifier.height(Dimens.smallSpacer))
     }
