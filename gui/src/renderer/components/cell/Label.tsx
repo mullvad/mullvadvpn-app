@@ -15,10 +15,14 @@ const StyledLabel = styled.div<{ disabled: boolean }>(buttonText, (props) => ({
   textAlign: 'left',
 
   [`${LabelContainer} &&`]: {
-    marginTop: '5px',
+    marginTop: '0px',
     marginBottom: 0,
     height: '20px',
     lineHeight: '20px',
+  },
+
+  [`${LabelContainer}:has(${StyledSubLabel}) &&`]: {
+    marginTop: '5px',
   },
 }));
 

@@ -8,7 +8,7 @@ import ImageView from './ImageView';
 import { ModalAlert, ModalAlertType } from './Modal';
 
 const StyledInfoButton = styled.button({
-  margin: '0 16px 0 0',
+  margin: '0 16px 0 8px',
   borderWidth: 0,
   padding: 0,
   cursor: 'default',

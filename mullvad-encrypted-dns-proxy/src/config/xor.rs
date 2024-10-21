@@ -1,6 +1,8 @@
 use core::fmt;
 use std::net::{Ipv4Addr, SocketAddrV4};
 
+use serde::{Deserialize, Serialize};
+
 /// Parse a proxy config that XORs all traffic with the given key.
 ///
 /// A Xor configuration is represented by the proxy type `ProxyType::XorV2`. There used to be a `XorV1`, but it
@@ -37,7 +39,7 @@ pub fn parse_xor(data: [u8; 12]) -> Result<super::ProxyConfig, super::Error> {
 
 /// A bunch of bytes, representing a "key" Simply meaning a slice of bytes that the data
 /// will be XORed with.
-#[derive(Copy, Clone, Eq, PartialEq, Hash)]
+#[derive(Copy, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
 pub struct XorKey {
     data: [u8; 6],
     len: usize,
