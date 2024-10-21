@@ -1,6 +1,10 @@
 use super::WIREGUARD_KEY_LENGTH;
-use maybenot::framework::MachineId;
+use maybenot::{MachineId, Timer};
 use once_cell::sync::OnceCell;
+use rand::{
+    rngs::{adapter::ReseedingRng, OsRng},
+    SeedableRng,
+};
 use std::{
     collections::HashMap, fs, io, os::windows::prelude::RawHandle, path::Path, sync::Arc,
     time::Duration,
@@ -11,6 +15,9 @@ use windows_sys::Win32::{
     Foundation::{BOOLEAN, ERROR_NO_MORE_ITEMS},
     System::Threading::{WaitForMultipleObjects, WaitForSingleObject, INFINITE},
 };
+
+type Rng = ReseedingRng<rand_chacha::ChaCha12Core, OsRng>;
+const RNG_RESEED_THRESHOLD: u64 = 1024 * 64; // 64 KiB
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
@@ -162,21 +169,12 @@ impl Session {
 fn maybenot_event_from_event(
     event: &Event,
     machine_ids: &MachineMap,
-    override_size: Option<u16>,
-) -> Option<maybenot::framework::TriggerEvent> {
-    let xmit_bytes = override_size.unwrap_or(event.xmit_bytes);
+) -> Option<maybenot::TriggerEvent> {
     match event.event_type {
-        EventType::PaddingReceived => Some(maybenot::framework::TriggerEvent::PaddingRecv {
-            bytes_recv: xmit_bytes,
-        }),
-        EventType::NonpaddingSent => Some(maybenot::framework::TriggerEvent::NonPaddingSent {
-            bytes_sent: xmit_bytes,
-        }),
-        EventType::NonpaddingReceived => Some(maybenot::framework::TriggerEvent::NonPaddingRecv {
-            bytes_recv: xmit_bytes,
-        }),
-        EventType::PaddingSent => Some(maybenot::framework::TriggerEvent::PaddingSent {
-            bytes_sent: xmit_bytes,
+        EventType::PaddingReceived => Some(maybenot::TriggerEvent::PaddingRecv),
+        EventType::NonpaddingSent => Some(maybenot::TriggerEvent::NormalSent),
+        EventType::NonpaddingReceived => Some(maybenot::TriggerEvent::NormalRecv),
+        EventType::PaddingSent => Some(maybenot::TriggerEvent::PaddingSent {
             machine: machine_ids.get_machine_id(event.user_context)?.to_owned(),
         }),
     }
@@ -208,7 +206,7 @@ pub struct Machinist {
     tokio_handle: tokio::runtime::Handle,
     quit_event: talpid_windows::sync::Event,
     peer: PublicKey,
-    override_size: Option<u16>,
+    mtu: u16,
 }
 
 // TODO: This is silly. Let me use the raw ID of MachineId, please.
@@ -250,7 +248,7 @@ impl Machinist {
         const MAX_PADDING_BYTES: f64 = 0.0;
         const MAX_BLOCKING_BYTES: f64 = 0.0;
 
-        static MAYBENOT_MACHINES: OnceCell<Vec<maybenot::machine::Machine>> = OnceCell::new();
+        static MAYBENOT_MACHINES: OnceCell<Vec<maybenot::Machine>> = OnceCell::new();
 
         let machines = MAYBENOT_MACHINES.get_or_try_init(|| {
             let path = resource_dir.join("maybenot_machines");
@@ -266,7 +264,7 @@ impl Machinist {
                 log::debug!("Adding maybenot machine: {machine_str}");
                 machines.push(
                     machine_str
-                        .parse::<maybenot::machine::Machine>()
+                        .parse::<maybenot::Machine>()
                         .map_err(|_error| Error::InvalidMachine(machine_str.to_owned()))?,
                 );
             }
@@ -277,12 +275,16 @@ impl Machinist {
             talpid_windows::sync::Event::new(true, false).map_err(Error::InitializeQuitEvent)?;
         let handle = MachinistHandle::new(&quit_event).map_err(Error::InitializeHandle)?;
 
-        let framework = maybenot::framework::Framework::new(
+        let framework = maybenot::Framework::new(
             machines.clone(),
             MAX_PADDING_BYTES,
             MAX_BLOCKING_BYTES,
-            mtu,
             std::time::Instant::now(),
+            Rng::new(
+                rand_chacha::ChaCha12Core::from_entropy(),
+                RNG_RESEED_THRESHOLD,
+                OsRng,
+            ),
         )
         .map_err(|error| Error::InitializeMaybenot(error.to_string()))?;
 
@@ -297,8 +299,7 @@ impl Machinist {
                 tokio_handle,
                 quit_event,
                 peer,
-                // TODO: We're assuming that constant packet size is always enabled here
-                override_size: Some(mtu),
+                mtu,
             }
             .event_loop(framework);
         });
@@ -306,10 +307,7 @@ impl Machinist {
         Ok(handle)
     }
 
-    fn event_loop(
-        mut self,
-        mut framework: maybenot::framework::Framework<Vec<maybenot::machine::Machine>>,
-    ) {
+    fn event_loop(mut self, mut framework: maybenot::Framework<Vec<maybenot::Machine>, Rng>) {
         use windows_sys::Win32::Foundation::WAIT_OBJECT_0;
 
         loop {
@@ -338,9 +336,11 @@ impl Machinist {
         log::debug!("Stopped DAITA event loop");
     }
 
-    fn handle_action(&mut self, action: &maybenot::framework::Action) {
+    fn handle_action(&mut self, action: &maybenot::action::TriggerAction) {
         match *action {
-            maybenot::framework::Action::Cancel { machine } => {
+            maybenot::action::TriggerAction::Cancel { machine, timer } => {
+                debug_assert_ne!(timer, Timer::Internal, "machine timers not implemented");
+
                 let raw_id = self.machine_ids.get_or_create_raw_id(machine);
 
                 // Drop all scheduled actions for a given machine
@@ -348,9 +348,8 @@ impl Machinist {
                     task.abort();
                 }
             }
-            maybenot::framework::Action::InjectPadding {
+            maybenot::action::TriggerAction::SendPadding {
                 timeout,
-                size,
                 machine,
                 replace,
                 ..
@@ -366,7 +365,7 @@ impl Machinist {
                     user_context: raw_id,
                     payload: ActionPayload {
                         padding: PaddingAction {
-                            byte_count: size,
+                            byte_count: self.mtu,
                             replace: if replace { 1 } else { 0 },
                         },
                     },
@@ -391,7 +390,16 @@ impl Machinist {
                     self.machine_tasks.insert(raw_id, task);
                 }
             }
-            maybenot::framework::Action::BlockOutgoing { .. } => {}
+            maybenot::action::TriggerAction::BlockOutgoing { .. } => {
+                if cfg!(debug_assertions) {
+                    unimplemented!("received BlockOutgoing action");
+                }
+            }
+            maybenot::action::TriggerAction::UpdateTimer { .. } => {
+                if cfg!(debug_assertions) {
+                    unimplemented!("received UpdateTimer action");
+                }
+            }
         }
     }
 
@@ -399,7 +407,7 @@ impl Machinist {
     /// If there are no events available, wait for events to arrive.
     /// Otherwise, break and return a non-zero number of events to be processed.
     /// If the quit event was signaled, this returns an empty vector.
-    fn wait_for_events(&mut self) -> io::Result<Vec<maybenot::framework::TriggerEvent>> {
+    fn wait_for_events(&mut self) -> io::Result<Vec<maybenot::TriggerEvent>> {
         use windows_sys::Win32::Foundation::WAIT_OBJECT_0;
 
         let wait_events = [
@@ -415,9 +423,7 @@ impl Machinist {
                     let converted_events: Vec<_> = events
                         .iter()
                         .filter(|event| &event.peer == self.peer.as_bytes())
-                        .filter_map(|event| {
-                            maybenot_event_from_event(event, &self.machine_ids, self.override_size)
-                        })
+                        .filter_map(|event| maybenot_event_from_event(event, &self.machine_ids))
                         .collect();
                     if !converted_events.is_empty() {
                         return Ok(converted_events);
