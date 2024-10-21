@@ -72,6 +72,7 @@ pub enum TunnelState {
     Disconnected {
         location: Option<GeoIpLocation>,
         /// Whether internet access is blocked due to lockdown mode
+        #[cfg(not(target_os = "android"))]
         locked_down: bool,
     },
     Connecting {
