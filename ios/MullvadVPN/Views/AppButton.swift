@@ -119,9 +119,10 @@ class AppButton: CustomButton {
                 return updatedAttributeContainer
             }
 
-        let configurationHandler: UIButton.ConfigurationUpdateHandler = { button in
-            button.alpha = !button.isEnabled ? 0.5 : 1.0
+        let configurationHandler: UIButton.ConfigurationUpdateHandler = { [weak self] button in
+            guard let self else { return }
             button.configuration?.baseForegroundColor = button.state.customButtonTitleColor
+            updateButtonBackground()
         }
         configuration = config
         configurationUpdateHandler = configurationHandler
@@ -129,6 +130,12 @@ class AppButton: CustomButton {
 
     /// Set background image based on current style.
     private func updateButtonBackground() {
-        configuration?.background.image = style.backgroundImage
+        if isEnabled {
+            // Load the normal image and set it as the background
+            configuration?.background.image = style.backgroundImage
+        } else {
+            // Adjust the image for the disabled state
+            configuration?.background.image = style.backgroundImage.withAlpha(0.5)
+        }
     }
 }
