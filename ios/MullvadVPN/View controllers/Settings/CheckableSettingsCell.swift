@@ -14,7 +14,7 @@ class CheckableSettingsCell: SettingsCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
-        setLeftView(checkboxView, spacing: UIMetrics.SettingsCell.checkableSettingsCellLeftViewSpacing)
+        setLeadingView(checkboxView, spacing: UIMetrics.SettingsCell.checkableSettingsCellLeftViewSpacing)
         selectedBackgroundView?.backgroundColor = .clear
     }
 
@@ -25,7 +25,7 @@ class CheckableSettingsCell: SettingsCell {
     override func prepareForReuse() {
         super.prepareForReuse()
 
-        setLeftView(checkboxView, spacing: UIMetrics.SettingsCell.checkableSettingsCellLeftViewSpacing)
+        setLeadingView(checkboxView, spacing: UIMetrics.SettingsCell.checkableSettingsCellLeftViewSpacing)
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {
