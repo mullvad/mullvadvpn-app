@@ -324,7 +324,7 @@ private fun MultihopBar(
         MullvadSegmentedButton(
             selected = relayListSelection == RelayListSelection.Entry,
             onClick = { onSelectRelayList(RelayListSelection.Entry) },
-            text = stringResource(id = R.string.enter),
+            text = stringResource(id = R.string.entry),
             position = SegmentedButtonPosition.First,
         )
         MullvadSegmentedButton(

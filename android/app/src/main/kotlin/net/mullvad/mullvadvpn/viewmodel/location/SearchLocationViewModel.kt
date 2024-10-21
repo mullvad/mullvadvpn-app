@@ -28,6 +28,7 @@ import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
+import net.mullvad.mullvadvpn.usecase.FilterChip
 import net.mullvad.mullvadvpn.usecase.FilterChipUseCase
 import net.mullvad.mullvadvpn.usecase.FilteredRelayListUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationUseCase
@@ -43,10 +44,10 @@ class SearchLocationViewModel(
     private val customListActionUseCase: CustomListActionUseCase,
     private val customListsRepository: CustomListsRepository,
     private val relayListFilterRepository: RelayListFilterRepository,
+    private val filterChipUseCase: FilterChipUseCase,
     filteredCustomListRelayItemsUseCase: FilterCustomListsRelayItemUseCase,
     selectedLocationUseCase: SelectedLocationUseCase,
     customListsRelayItemUseCase: CustomListsRelayItemUseCase,
-    filterChipUseCase: FilterChipUseCase,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
@@ -63,7 +64,7 @@ class SearchLocationViewModel(
                 filteredCustomListRelayItemsUseCase(),
                 customListsRelayItemUseCase(),
                 selectedLocationUseCase(),
-                filterChipUseCase(),
+                filterChips(),
                 _expandedItems,
             ) {
                 searchTerm,
@@ -84,7 +85,10 @@ class SearchLocationViewModel(
                                 selectedItem =
                                     selectedItem.getForRelayListSelect(relayListSelection),
                                 disabledItem =
-                                    selectedItem.getForRelayListDisabled(relayListSelection, customLists),
+                                    selectedItem.getForRelayListDisabled(
+                                        relayListSelection,
+                                        customLists,
+                                    ),
                                 expandedItems = expandedItems,
                             ),
                         customLists = customLists,
@@ -134,6 +138,18 @@ class SearchLocationViewModel(
             }
             .onEach { _expandedItems.value = it.first }
             .map { it.second }
+
+    private fun filterChips() =
+        filterChipUseCase().map { filterChips: List<FilterChip> ->
+            filterChips.toMutableList().apply {
+                add(
+                    when (relayListSelection) {
+                        RelayListSelection.Entry -> FilterChip.Entry
+                        RelayListSelection.Exit -> FilterChip.Exit
+                    }
+                )
+            }
+        }
 
     fun addLocationToList(item: RelayItem.Location, customList: RelayItem.CustomList) {
         viewModelScope.launch {

@@ -76,4 +76,8 @@ sealed interface FilterChip {
     data class Provider(val count: Int) : FilterChip
 
     data object Daita : FilterChip
+
+    data object Entry : FilterChip
+
+    data object Exit : FilterChip
 }

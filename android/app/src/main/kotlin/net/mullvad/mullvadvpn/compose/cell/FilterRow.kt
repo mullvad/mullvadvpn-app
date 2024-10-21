@@ -43,9 +43,9 @@ fun FilterRow(
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier =
-            Modifier.horizontalScroll(scrollState)
-                .padding(horizontal = Dimens.searchFieldHorizontalPadding)
-                .fillMaxWidth(),
+            Modifier.padding(horizontal = Dimens.searchFieldHorizontalPadding)
+                .fillMaxWidth()
+                .horizontalScroll(scrollState),
         horizontalArrangement = Arrangement.spacedBy(Dimens.chipSpace, alignment = Alignment.Start),
     ) {
         if (showTitle) {
@@ -61,6 +61,8 @@ fun FilterRow(
                     OwnershipFilterChip(it.ownership, onRemoveOwnershipFilter)
                 is FilterChip.Provider -> ProviderFilterChip(it.count, onRemoveProviderFilter)
                 is FilterChip.Daita -> DaitaFilterChip()
+                is FilterChip.Entry -> EntryFilterChip()
+                is FilterChip.Exit -> ExitFilterChip()
             }
         }
     }
@@ -88,6 +90,24 @@ fun OwnershipFilterChip(ownership: Ownership, onRemoveClick: () -> Unit) {
 fun DaitaFilterChip() {
     MullvadFilterChip(
         text = stringResource(id = R.string.setting_chip, stringResource(id = R.string.daita)),
+        onRemoveClick = {},
+        enabled = false,
+    )
+}
+
+@Composable
+fun EntryFilterChip() {
+    MullvadFilterChip(
+        text = stringResource(id = R.string.entry),
+        onRemoveClick = {},
+        enabled = false,
+    )
+}
+
+@Composable
+fun ExitFilterChip() {
+    MullvadFilterChip(
+        text = stringResource(id = R.string.exit),
         onRemoveClick = {},
         enabled = false,
     )
