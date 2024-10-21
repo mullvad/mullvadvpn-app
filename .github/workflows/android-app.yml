@@ -485,7 +485,7 @@ jobs:
           retention-days: 7
 
   instrumented-e2e-tests:
-    name: Run instrumented e2e tests
+    name: Run instrumented e2e tests(PR trigger test)
     # Temporary workaround for targeting the runner android-runner-v1
     runs-on: [self-hosted, android-device, android-emulator]
     if: (github.event_name == 'schedule' || github.event.inputs.e2e_test_repeat != '0') && github.event_name != 'pull_request'
