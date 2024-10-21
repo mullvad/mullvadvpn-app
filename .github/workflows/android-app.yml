@@ -496,7 +496,7 @@ jobs:
           - test-repeat: ${{ github.event.inputs.e2e_test_repeat || 1 }}
     steps:
       - name: Temp check whether this runs when triggered by PR
-        run: echo test
+        run: echo test2
         shell: bash
       
       - name: Prepare report dir
