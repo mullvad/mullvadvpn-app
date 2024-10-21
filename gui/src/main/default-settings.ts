@@ -53,6 +53,10 @@ export function getDefaultSettings(): ISettings {
       wireguard: {
         mtu: undefined,
         quantumResistant: undefined,
+        daita: {
+          enabled: false,
+          directOnly: false,
+        },
       },
       dns: {
         state: 'default',
