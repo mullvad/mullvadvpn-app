@@ -374,7 +374,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         return switch sectionIdentifier {
         // 0 due to there already being a separator between .dnsSettings and .ipOverrides.
         case .dnsSettings: 0
-        case .ipOverrides, .quantumResistance: UIMetrics.TableView.sectionSpacing
+        case .ipOverrides, .quantumResistance: UITableView.automaticDimension
         default: 0.5
         }
     }

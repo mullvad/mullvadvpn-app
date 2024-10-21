@@ -155,7 +155,7 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
 
         return switch sectionIdentifier {
         case .main:
-            0
+            interactor.deviceState.isLoggedIn ? 0 : UITableView.automaticDimension
         case .daita, .version, .problemReport:
             UITableView.automaticDimension
         }
@@ -173,7 +173,6 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
         contentConfiguration.text = sectionFooterText
 
         headerView.contentConfiguration = contentConfiguration
-//        headerView.directionalLayoutMargins = UIMetrics.SettingsCell.apiAccessInsetLayoutMargins
 
         return headerView
     }
@@ -210,7 +209,11 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
     private func updateDataSnapshot() {
         var snapshot = NSDiffableDataSourceSnapshot<Section, Item>()
 
-        snapshot.appendSections([.daita, .main])
+        if interactor.deviceState.isLoggedIn {
+            snapshot.appendSections([.daita])
+        }
+
+        snapshot.appendSections([.main])
 
         if interactor.deviceState.isLoggedIn {
             snapshot.appendItems([.daita], toSection: .daita)
