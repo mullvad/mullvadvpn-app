@@ -6,7 +6,7 @@ import { strings } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { useHistory } from '../lib/history';
-import { useBoolean } from '../lib/utilityHooks';
+import { useBoolean } from '../lib/utility-hooks';
 import { useSelector } from '../redux/store';
 import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
 import * as Cell from './cell';
@@ -150,22 +150,28 @@ function DaitaToggle() {
   const unavailable =
     'normal' in relaySettings ? relaySettings.normal.tunnelProtocol === 'openvpn' : true;
 
-  const setDaita = useCallback((value: boolean) => {
-    void setEnableDaita(value);
-  }, []);
+  const setDaita = useCallback(
+    (value: boolean) => {
+      void setEnableDaita(value);
+    },
+    [setEnableDaita],
+  );
 
-  const setDirectOnly = useCallback((value: boolean) => {
-    if (value) {
-      showConfirmationDialog();
-    } else {
-      void setDaitaDirectOnly(value);
-    }
-  }, []);
+  const setDirectOnly = useCallback(
+    (value: boolean) => {
+      if (value) {
+        showConfirmationDialog();
+      } else {
+        void setDaitaDirectOnly(value);
+      }
+    },
+    [setDaitaDirectOnly, showConfirmationDialog],
+  );
 
   const confirmEnableDirectOnly = useCallback(() => {
     void setDaitaDirectOnly(true);
     hideConfirmationDialog();
-  }, []);
+  }, [hideConfirmationDialog, setDaitaDirectOnly]);
 
   const directOnlyString = messages.gettext('Direct only');
 

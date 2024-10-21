@@ -46,7 +46,15 @@ export function useCustomListsRelayList(
           expandedLocations,
         ),
       ),
-    [customLists, relayList, selectedLocation, disabledLocation, expandedLocations],
+    [
+      customLists,
+      relayList,
+      searchTerm,
+      preventDueToCustomBridgeSelected,
+      selectedLocation,
+      disabledLocation,
+      expandedLocations,
+    ],
   );
 }
 

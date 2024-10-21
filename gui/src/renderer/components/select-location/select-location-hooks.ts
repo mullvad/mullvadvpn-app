@@ -30,7 +30,7 @@ export function useOnSelectExitLocation() {
       await onSelectLocation({ normal: settings });
       await connectTunnel();
     },
-    [history, relaySettingsModifier],
+    [connectTunnel, history, onSelectLocation, relaySettingsModifier],
   );
 
   const onSelectSpecial = useCallback((_location: undefined) => {
@@ -54,7 +54,7 @@ export function useOnSelectEntryLocation() {
       });
       await onSelectLocation({ normal: settings });
     },
-    [relaySettingsModifier],
+    [onSelectLocation, relaySettingsModifier, setLocationType],
   );
 
   const onSelectSpecial = useCallback(
@@ -66,7 +66,7 @@ export function useOnSelectEntryLocation() {
       });
       await onSelectLocation({ normal: settings });
     },
-    [relaySettingsModifier],
+    [onSelectLocation, relaySettingsModifier, setLocationType],
   );
 
   return [onSelectRelay, onSelectSpecial] as const;
@@ -75,14 +75,17 @@ export function useOnSelectEntryLocation() {
 function useOnSelectLocation() {
   const { setRelaySettings } = useAppContext();
 
-  return useCallback(async (relaySettings: RelaySettings) => {
-    try {
-      await setRelaySettings(relaySettings);
-    } catch (e) {
-      const error = e as Error;
-      log.error(`Failed to select the location: ${error.message}`);
-    }
-  }, []);
+  return useCallback(
+    async (relaySettings: RelaySettings) => {
+      try {
+        await setRelaySettings(relaySettings);
+      } catch (e) {
+        const error = e as Error;
+        log.error(`Failed to select the location: ${error.message}`);
+      }
+    },
+    [setRelaySettings],
+  );
 }
 
 export function useOnSelectBridgeLocation() {
@@ -90,17 +93,20 @@ export function useOnSelectBridgeLocation() {
   const { setLocationType } = useSelectLocationContext();
   const bridgeSettingsModifier = useBridgeSettingsModifier();
 
-  const setLocation = useCallback(async (bridgeUpdate: BridgeSettings) => {
-    if (bridgeUpdate) {
-      setLocationType(LocationType.exit);
-      try {
-        await updateBridgeSettings(bridgeUpdate);
-      } catch (e) {
-        const error = e as Error;
-        log.error(`Failed to select the bridge location: ${error.message}`);
+  const setLocation = useCallback(
+    async (bridgeUpdate: BridgeSettings) => {
+      if (bridgeUpdate) {
+        setLocationType(LocationType.exit);
+        try {
+          await updateBridgeSettings(bridgeUpdate);
+        } catch (e) {
+          const error = e as Error;
+          log.error(`Failed to select the bridge location: ${error.message}`);
+        }
       }
-    }
-  }, []);
+    },
+    [setLocationType, updateBridgeSettings],
+  );
 
   const onSelectRelay = useCallback(
     (location: RelayLocation) => {
@@ -112,7 +118,7 @@ export function useOnSelectBridgeLocation() {
         }),
       );
     },
-    [bridgeSettingsModifier],
+    [bridgeSettingsModifier, setLocation],
   );
 
   const onSelectSpecial = useCallback(
@@ -135,7 +141,7 @@ export function useOnSelectBridgeLocation() {
           );
       }
     },
-    [bridgeSettingsModifier],
+    [bridgeSettingsModifier, setLocation],
   );
 
   return [onSelectRelay, onSelectSpecial] as const;

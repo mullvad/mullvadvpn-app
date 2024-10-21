@@ -104,10 +104,13 @@ export function SettingsRow(props: React.PropsWithChildren<IndentedRowProps>) {
         unsetError?.();
       }
     },
-    [reportError, unsetError],
+    [props.errorMessage, reportError, unsetError],
   );
 
-  const contextValue = useMemo(() => ({ invalid, setInvalid: setInvalidImpl }), [invalid]);
+  const contextValue = useMemo(
+    () => ({ invalid, setInvalid: setInvalidImpl }),
+    [invalid, setInvalidImpl],
+  );
 
   return (
     <settingsRowContext.Provider value={contextValue}>

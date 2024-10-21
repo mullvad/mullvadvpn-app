@@ -2,7 +2,7 @@ import styled from 'styled-components';
 
 import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
-import { useBoolean } from '../lib/utilityHooks';
+import { useBoolean } from '../lib/utility-hooks';
 import * as AppButton from './AppButton';
 import ImageView from './ImageView';
 import { ModalAlert, ModalAlertType } from './Modal';

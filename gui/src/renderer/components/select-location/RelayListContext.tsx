@@ -13,7 +13,8 @@ import {
   useNormalBridgeSettings,
   useNormalRelaySettings,
   useTunnelProtocol,
-} from '../../lib/utilityHooks';
+} from '../../lib/relay-settings-hooks';
+import { useEffectEvent } from '../../lib/utility-hooks';
 import { IRelayLocationCountryRedux } from '../../redux/settings/reducers';
 import { useSelector } from '../../redux/store';
 import { useCustomListsRelayList } from './custom-list-helpers';
@@ -83,7 +84,7 @@ export function RelayListContextProvider(props: RelayListContextProviderProps) {
       tunnelProtocol,
       relaySettings,
     );
-  }, [fullRelayList, locationType, relaySettings?.tunnelProtocol]);
+  }, [fullRelayList, locationType, relaySettings, tunnelProtocol]);
 
   const relayListForDaita = useMemo(() => {
     return filterLocationsByDaita(
@@ -94,7 +95,14 @@ export function RelayListContextProvider(props: RelayListContextProviderProps) {
       relaySettings?.tunnelProtocol ?? 'any',
       relaySettings?.wireguard.useMultihop ?? false,
     );
-  }, [daita, directOnly, locationType, relaySettings, relayListForEndpointType]);
+  }, [
+    daita,
+    directOnly,
+    locationType,
+    relayListForEndpointType,
+    relaySettings?.tunnelProtocol,
+    relaySettings?.wireguard.useMultihop,
+  ]);
 
   // Filters the relays to only keep the relays matching the currently selected filters, e.g.
   // ownership and providers
@@ -280,7 +288,7 @@ function useExpandedLocations(filteredLocations: Array<IRelayLocationCountryRedu
         scrollIntoView(locationRect);
       }
     },
-    [],
+    [scrollIntoView, spacePreAllocationViewRef],
   );
 
   // Expand search results when searching
@@ -298,15 +306,19 @@ function useExpandedLocations(filteredLocations: Array<IRelayLocationCountryRedu
     [relaySettings, bridgeSettings, locationType, filteredLocations],
   );
 
+  const expandLocationsForSearch = useEffectEvent(
+    (filteredLocations: Array<IRelayLocationCountryRedux>) => {
+      if (searchTerm !== '') {
+        setExpandedLocations((expandedLocations) => ({
+          ...expandedLocations,
+          [locationType]: getLocationsExpandedBySearch(filteredLocations, searchTerm),
+        }));
+      }
+    },
+  );
+
   // Expand locations when filters are changed
-  useEffect(() => {
-    if (searchTerm !== '') {
-      setExpandedLocations((expandedLocations) => ({
-        ...expandedLocations,
-        [locationType]: getLocationsExpandedBySearch(filteredLocations, searchTerm),
-      }));
-    }
-  }, [filteredLocations]);
+  useEffect(() => expandLocationsForSearch(filteredLocations), [filteredLocations]);
 
   return {
     expandedLocations: expandedLocationsMap[locationType],

@@ -93,7 +93,8 @@ export default class Accordion extends React.Component<IProps, IState> {
   private collapse() {
     // First change height to height in px since it's not possible to transition to/from auto
     this.setState({ containerHeight: this.getContentHeight() + 'px' }, () => {
-      // Make sure new height has been applied
+      // Make sure new height has been applied. By reading offsetHeight we force the browser to
+      // apply the height before returning.
       // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       this.containerRef.current?.offsetHeight;
       this.setState({ containerHeight: '0' });
