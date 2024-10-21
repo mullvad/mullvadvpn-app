@@ -495,6 +495,10 @@ jobs:
         include:
           - test-repeat: ${{ github.event.inputs.e2e_test_repeat || 1 }}
     steps:
+      - name: Temp check whether this runs when triggered by PR
+        run: echo test
+        shell: bash
+      
       - name: Prepare report dir
         if: ${{ matrix.test-repeat != 0 }}
         id: prepare-report-dir
