@@ -149,7 +149,7 @@ class OutOfTimeViewController: UIViewController, RootContainment {
             .isSecured
         contentView.restoreButton.isEnabled = isInteractionEnabled
 
-        contentView.enableDisconnectButton(tunnelState.isSecured, animated: true)
+        contentView.updateDisconnectButton(tunnelState.isSecured, animated: true)
 
         if tunnelState.isSecured {
             contentView.setBodyLabelText(
@@ -265,7 +265,7 @@ class OutOfTimeViewController: UIViewController, RootContainment {
     }
 
     @objc private func handleDisconnect(_ sender: Any) {
-        contentView.disconnectButton.isEnabled = false
+        contentView.updateDisconnectButton(false, animated: false)
         interactor.stopTunnel()
     }
 }

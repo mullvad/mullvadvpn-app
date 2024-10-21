@@ -26,4 +26,23 @@ extension UIImage {
 
         return resizedImage.withRenderingMode(renderingMode)
     }
+
+    func withAlpha(_ alpha: CGFloat) -> UIImage? {
+        UIGraphicsBeginImageContextWithOptions(self.size, false, self.scale)
+        guard let context = UIGraphicsGetCurrentContext(), let cgImage = self.cgImage else { return nil }
+
+        let rect = CGRect(origin: .zero, size: self.size)
+
+        context.scaleBy(x: 1.0, y: -1.0) // Flip vertically
+        context.translateBy(x: 0, y: -rect.size.height)
+
+        context.setBlendMode(.normal)
+        context.setAlpha(alpha) // Set the alpha
+        context.draw(cgImage, in: rect)
+
+        let newImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+
+        return newImage
+    }
 }
