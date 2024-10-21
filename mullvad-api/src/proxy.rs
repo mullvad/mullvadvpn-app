@@ -1,7 +1,7 @@
 use hyper_util::client::legacy::connect::{Connected, Connection};
 use serde::{Deserialize, Serialize};
 use std::{
-    fmt, io,
+    io,
     net::SocketAddr,
     path::Path,
     pin::Pin,
@@ -61,15 +61,6 @@ pub enum ApiConnectionMode {
     Proxied(ProxyConfig),
 }
 
-impl fmt::Display for ApiConnectionMode {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        match self {
-            ApiConnectionMode::Direct => write!(f, "unproxied"),
-            ApiConnectionMode::Proxied(settings) => settings.fmt(f),
-        }
-    }
-}
-
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 pub enum ProxyConfig {
     Shadowsocks(proxy::Shadowsocks),
@@ -92,22 +83,6 @@ impl ProxyConfig {
             ProxyConfig::EncryptedDnsProxy(proxy) => {
                 let addr = SocketAddr::V4(proxy.addr);
                 Endpoint::from_socket_address(addr, TransportProtocol::Tcp)
-            }
-        }
-    }
-}
-
-impl fmt::Display for ProxyConfig {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        let endpoint = self.get_endpoint();
-        match self {
-            ProxyConfig::Shadowsocks(_) => write!(f, "Shadowsocks {}", endpoint),
-            ProxyConfig::Socks5Remote(_) => write!(f, "Socks5 {}", endpoint),
-            ProxyConfig::Socks5Local(local) => {
-                write!(f, "Socks5 {} via localhost:{}", endpoint, local.local_port)
-            }
-            ProxyConfig::EncryptedDnsProxy(proxy) => {
-                write!(f, "ApiSusan {}", proxy.addr)
             }
         }
     }

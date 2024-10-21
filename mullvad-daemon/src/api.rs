@@ -425,13 +425,10 @@ impl AccessModeSelector {
 
         // Save the new connection mode to cache!
         let cache_dir = self.cache_dir.clone();
-        let new_connection_mode = resolved.connection_mode.clone();
+        let connection_mode = resolved.connection_mode.clone();
         tokio::spawn(async move {
-            if new_connection_mode.save(&cache_dir).await.is_err() {
-                log::warn!(
-                    "Failed to save {connection_mode} to cache",
-                    connection_mode = new_connection_mode
-                )
+            if connection_mode.save(&cache_dir).await.is_err() {
+                log::warn!("Failed to save {connection_mode:#?} to cache")
             }
         });
 
