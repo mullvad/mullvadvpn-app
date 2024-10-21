@@ -251,7 +251,7 @@ impl Machinist {
         static MAYBENOT_MACHINES: OnceCell<Vec<maybenot::Machine>> = OnceCell::new();
 
         let machines = MAYBENOT_MACHINES.get_or_try_init(|| {
-            let path = resource_dir.join("maybenot_machines");
+            let path = resource_dir.join("maybenot_machines_v2");
             log::debug!("Reading maybenot machines from {}", path.display());
 
             let mut machines = vec![];
