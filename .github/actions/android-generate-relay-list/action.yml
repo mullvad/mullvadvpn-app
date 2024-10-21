@@ -1,0 +1,18 @@
+---
+name: 'Generate relay list'
+description: 'Generate relay list for Android app'
+inputs:
+  relays_json_path:
+    description: 'Path to store relay list JSON file'
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - name: Generate
+      env:
+        RUSTFLAGS: --deny warnings
+      run: |
+        directory_path=$(dirname ${{ inputs.relays_json_path }})
+        mkdir -p $directory_path
+        cargo run --bin relay_list > ${{ inputs.relays_json_path }}
+      shell: bash
