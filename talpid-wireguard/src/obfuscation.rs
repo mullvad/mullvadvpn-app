@@ -32,28 +32,14 @@ pub async fn apply_obfuscation_config(
         #[cfg(target_os = "linux")]
         config.fwmark,
     );
-    apply_obfuscation_config_inner(
-        config,
-        settings,
-        close_msg_sender,
-        #[cfg(target_os = "android")]
-        tun_provider,
-    )
-    .await
-    .map(Some)
-}
 
-async fn apply_obfuscation_config_inner(
-    config: &mut Config,
-    settings: ObfuscationSettings,
-    close_msg_sender: sync_mpsc::Sender<CloseMsg>,
-    #[cfg(target_os = "android")] tun_provider: Arc<Mutex<TunProvider>>,
-) -> Result<ObfuscatorHandle> {
     log::trace!("Obfuscation settings: {settings:?}");
 
     let obfuscator = create_obfuscator(&settings)
         .await
         .map_err(Error::ObfuscationError)?;
+
+    let packet_overhead = obfuscator.packet_overhead();
 
     #[cfg(target_os = "android")]
     bypass_vpn(tun_provider, obfuscator.remote_socket_fd()).await;
@@ -76,7 +62,10 @@ async fn apply_obfuscation_config_inner(
         }
     });
 
-    Ok(ObfuscatorHandle::new(obfuscation_task))
+    Ok(Some(ObfuscatorHandle {
+        obfuscation_task,
+        packet_overhead,
+    }))
 }
 
 /// Patch the first peer in the WireGuard configuration to use the local proxy endpoint
@@ -129,15 +118,16 @@ async fn bypass_vpn(
 /// Simple wrapper that automatically cancels the future which runs an obfuscator.
 pub struct ObfuscatorHandle {
     obfuscation_task: tokio::task::JoinHandle<()>,
+    packet_overhead: u16,
 }
 
 impl ObfuscatorHandle {
-    pub fn new(obfuscation_task: tokio::task::JoinHandle<()>) -> Self {
-        Self { obfuscation_task }
-    }
-
     pub fn abort(&self) {
         self.obfuscation_task.abort();
+    }
+
+    pub fn packet_overhead(&self) -> u16 {
+        self.packet_overhead
     }
 }
 
