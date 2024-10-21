@@ -61,6 +61,7 @@ import com.ramcosta.composedestinations.generated.destinations.SettingsDestinati
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.launch
+import mullvad_daemon.management_interface.tunnelState
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.ConnectionButton
 import net.mullvad.mullvadvpn.compose.button.SwitchLocationButton
@@ -70,6 +71,7 @@ import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicator
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBarAndDeviceName
 import net.mullvad.mullvadvpn.compose.component.connectioninfo.ConnectionDetailPanel
 import net.mullvad.mullvadvpn.compose.component.connectioninfo.FeatureIndicatorsPanel
+import net.mullvad.mullvadvpn.compose.component.connectioninfo.toInAddress
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.component.notificationbanner.NotificationBanner
 import net.mullvad.mullvadvpn.compose.extensions.createOpenAccountPageHook
@@ -93,6 +95,7 @@ import net.mullvad.mullvadvpn.lib.map.AnimatedMap
 import net.mullvad.mullvadvpn.lib.map.data.GlobeColors
 import net.mullvad.mullvadvpn.lib.map.data.LocationMarkerColors
 import net.mullvad.mullvadvpn.lib.map.data.Marker
+import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
 import net.mullvad.mullvadvpn.lib.model.LatLong
 import net.mullvad.mullvadvpn.lib.model.Latitude
@@ -343,15 +346,17 @@ private fun ConnectionCard(
         ) {
             ConnectionCardHeader(state, state.location, expanded) { expanded = !expanded }
 
+            Logger.d("Tunnelstate: ${state.tunnelState}, expanded: $expanded")
             AnimatedContent(
-                state.tunnelState as? TunnelState.Connected to expanded,
+                (state.tunnelState as? TunnelState.Connected)?.featureIndicators,
                 modifier = Modifier.weight(1f, fill = false),
                 label = "connection_card_connection_details",
-            ) { (connectedState, isExpanded) ->
-                if (connectedState != null) {
+            ) { featureIndicators ->
+                if (featureIndicators != null) {
                     ConnectionInfo(
-                        connectedState,
-                        isExpanded,
+                        featureIndicators,
+                        (state.tunnelState as? TunnelState.Connected)?.toConnectionsDetails(),
+                        expanded,
                         onToggleExpand = { expanded = !expanded },
                     )
                 } else {
@@ -436,7 +441,8 @@ private fun GeoIpLocation?.asString(): String {
 
 @Composable
 private fun ConnectionInfo(
-    tunnelState: TunnelState.Connected,
+    featureIndicators: List<FeatureIndicator>,
+    connectionDetails: ConnectionDetails?,
     expanded: Boolean,
     onToggleExpand: () -> Unit,
 ) {
@@ -457,14 +463,28 @@ private fun ConnectionInfo(
                     )
                     .verticalScroll(scrollState)
         ) {
-            FeatureIndicatorsPanel(tunnelState.featureIndicators, expanded, onToggleExpand)
+            FeatureIndicatorsPanel(featureIndicators, expanded, onToggleExpand)
 
-            if (expanded) {
-                ConnectionDetailPanel(tunnelState)
+            if (expanded && connectionDetails != null) {
+                ConnectionDetailPanel(connectionDetails)
             }
         }
     }
 }
+
+data class ConnectionDetails(
+    val inAddress: String,
+    val outIpv4Address: String?,
+    val outIpv6Address: String?,
+)
+
+@Composable
+fun TunnelState.Connected.toConnectionsDetails(): ConnectionDetails =
+    ConnectionDetails(
+        endpoint.toInAddress(),
+        location()?.ipv4?.hostAddress,
+        location()?.ipv6?.hostAddress,
+    )
 
 @Composable
 private fun ButtonPanel(

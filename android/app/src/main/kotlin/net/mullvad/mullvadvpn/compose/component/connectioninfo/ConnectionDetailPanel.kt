@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.compose.component.connectioninfo
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -14,26 +15,28 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.compose.screen.ConnectionDetails
 import net.mullvad.mullvadvpn.compose.test.LOCATION_INFO_CONNECTION_OUT_TEST_TAG
 import net.mullvad.mullvadvpn.lib.model.TransportProtocol
 import net.mullvad.mullvadvpn.lib.model.TunnelEndpoint
-import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 
 @Composable
-fun ConnectionDetailPanel(tunnelState: TunnelState.Connected) {
+fun ConnectionDetailPanel(connectionDetails: ConnectionDetails) {
 
     ConnectionInfoHeader(
         stringResource(R.string.connect_panel_connection_details),
         Modifier.fillMaxWidth().padding(bottom = Dimens.smallPadding),
     )
 
-    ConnectionDetails(
-        tunnelState.endpoint.toInAddress(),
-        tunnelState.location()?.ipv4?.hostAddress,
-        tunnelState.location()?.ipv6?.hostAddress,
-        modifier = Modifier.padding(bottom = Dimens.smallPadding),
-    )
+    AnimatedContent(connectionDetails, label = "ConnectionDetails") {
+        ConnectionDetails(
+            it.inAddress,
+            it.outIpv4Address,
+            it.outIpv6Address,
+            modifier = Modifier.padding(bottom = Dimens.smallPadding),
+        )
+    }
 }
 
 @Suppress("LongMethod")
