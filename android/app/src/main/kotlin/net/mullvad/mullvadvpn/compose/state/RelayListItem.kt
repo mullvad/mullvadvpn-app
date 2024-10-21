@@ -47,7 +47,7 @@ sealed interface RelayListItem {
         val item: RelayItem.Location,
         override val expanded: Boolean,
         override val depth: Int = 0,
-        override val isEnabled: Boolean = false,
+        override val isEnabled: Boolean,
     ) : SelectableItem {
         override val key = parentId to item.id
 

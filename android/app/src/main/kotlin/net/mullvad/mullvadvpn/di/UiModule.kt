@@ -8,6 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.applist.ApplicationsProvider
+import net.mullvad.mullvadvpn.compose.state.RelayListSelection
 import net.mullvad.mullvadvpn.constant.IS_PLAY_BUILD
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
 import net.mullvad.mullvadvpn.lib.payment.PaymentProvider
@@ -94,6 +95,7 @@ import net.mullvad.mullvadvpn.viewmodel.VpnSettingsViewModel
 import net.mullvad.mullvadvpn.viewmodel.WelcomeViewModel
 import net.mullvad.mullvadvpn.viewmodel.WireguardCustomPortDialogViewModel
 import net.mullvad.mullvadvpn.viewmodel.location.SearchLocationViewModel
+import net.mullvad.mullvadvpn.viewmodel.location.SelectLocationListViewModel
 import net.mullvad.mullvadvpn.viewmodel.location.SelectLocationViewModel
 import org.apache.commons.validator.routines.InetAddressValidator
 import org.koin.android.ext.koin.androidApplication
@@ -210,20 +212,7 @@ val uiModule = module {
     viewModel { WireguardCustomPortDialogViewModel(get()) }
     viewModel { LoginViewModel(get(), get(), get()) }
     viewModel { PrivacyDisclaimerViewModel(get(), IS_PLAY_BUILD) }
-    viewModel {
-        SelectLocationViewModel(
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-        )
-    }
+    viewModel { SelectLocationViewModel(get(), get(), get(), get(), get(), get()) }
     viewModel { SettingsViewModel(get(), get(), get(), IS_PLAY_BUILD) }
     viewModel { SplashViewModel(get(), get(), get(), get()) }
     viewModel { VoucherDialogViewModel(get()) }
@@ -266,6 +255,9 @@ val uiModule = module {
             get(),
             get(),
         )
+    }
+    viewModel { (relayListSelection: RelayListSelection) ->
+        SelectLocationListViewModel(relayListSelection, get(), get(), get(), get(), get(), get())
     }
 
     // This view model must be single so we correctly attach lifecycle and share it with activity

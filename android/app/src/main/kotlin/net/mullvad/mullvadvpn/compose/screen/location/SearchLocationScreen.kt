@@ -364,7 +364,8 @@ private fun LazyListScope.filterRow(
                 text = stringResource(R.string.filters),
                 color = onBackgroundColor,
                 modifier =
-                Modifier.fillMaxWidth().padding(horizontal = Dimens.sideMargin, vertical = Dimens.smallPadding),
+                    Modifier.fillMaxWidth()
+                        .padding(horizontal = Dimens.sideMargin, vertical = Dimens.smallPadding),
                 style = MaterialTheme.typography.labelMedium,
             )
         }
@@ -385,7 +386,8 @@ private fun LazyListScope.searchResultTitle(onBackgroundColor: Color) {
             text = stringResource(R.string.search_results),
             color = onBackgroundColor,
             modifier =
-                Modifier.fillMaxWidth().padding(horizontal = Dimens.sideMargin, vertical = Dimens.smallPadding),
+                Modifier.fillMaxWidth()
+                    .padding(horizontal = Dimens.sideMargin, vertical = Dimens.smallPadding),
             style = MaterialTheme.typography.labelMedium,
         )
     }

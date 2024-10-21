@@ -62,6 +62,7 @@ fun LazyListScope.relayListContent(
                     is RelayListItem.CustomListItem ->
                         CustomListItem(
                             listItem,
+                            relayListSelection,
                             onSelectRelay,
                             { onUpdateBottomSheetState(ShowEditCustomListBottomSheet(it)) },
                             { customListId, expand -> onToggleExpand(customListId, null, expand) },
@@ -69,6 +70,7 @@ fun LazyListScope.relayListContent(
                     is RelayListItem.CustomListEntryItem ->
                         CustomListEntryItem(
                             listItem,
+                            relayListSelection,
                             { onSelectRelay(listItem.item) },
                             if (listItem.depth == 1) {
                                 {
@@ -120,15 +122,7 @@ private fun LazyItemScope.RelayLocationItem(
     val location = relayItem.item
     StatusRelayItemCell(
         item = location,
-        name =
-            if (!relayItem.isEnabled) {
-                when (relayListSelection) {
-                    RelayListSelection.Entry -> stringResource(R.string.x_entry, location.name)
-                    RelayListSelection.Exit -> stringResource(R.string.x_exit, location.name)
-                }
-            } else {
-                location.name
-            },
+        name = location.name.appendName(relayItem.isEnabled, relayListSelection),
         isSelected = relayItem.isSelected,
         isEnabled = relayItem.isEnabled,
         onClick = { onSelectRelay() },
@@ -142,6 +136,7 @@ private fun LazyItemScope.RelayLocationItem(
 @Composable
 private fun LazyItemScope.CustomListEntryItem(
     itemState: RelayListItem.CustomListEntryItem,
+    relayListSelection: RelayListSelection,
     onSelectRelay: () -> Unit,
     onShowEditCustomListEntryBottomSheet: (() -> Unit)?,
     onToggleExpand: (Boolean) -> Unit,
@@ -149,9 +144,9 @@ private fun LazyItemScope.CustomListEntryItem(
     val customListEntryItem = itemState.item
     StatusRelayItemCell(
         item = customListEntryItem,
-        name = customListEntryItem.name,
+        name = customListEntryItem.name.appendName(itemState.isEnabled, relayListSelection),
         isSelected = false,
-        isEnabled = true,
+        isEnabled = itemState.isEnabled,
         onClick = onSelectRelay,
         onLongClick = onShowEditCustomListEntryBottomSheet,
         onToggleExpand = onToggleExpand,
@@ -163,6 +158,7 @@ private fun LazyItemScope.CustomListEntryItem(
 @Composable
 private fun LazyItemScope.CustomListItem(
     itemState: RelayListItem.CustomListItem,
+    relayListSelection: RelayListSelection,
     onSelectRelay: (item: RelayItem) -> Unit,
     onShowEditBottomSheet: (RelayItem.CustomList) -> Unit,
     onExpand: ((CustomListId, Boolean) -> Unit),
@@ -172,7 +168,7 @@ private fun LazyItemScope.CustomListItem(
         item = customListItem,
         isSelected = itemState.isSelected,
         isEnabled = itemState.isEnabled,
-        name = itemState.item.name,
+        name = customListItem.name.appendName(itemState.isEnabled, relayListSelection),
         onClick = { onSelectRelay(customListItem) },
         onLongClick = { onShowEditBottomSheet(customListItem) },
         onToggleExpand = { onExpand(customListItem.id, it) },
@@ -206,3 +202,14 @@ private fun LazyItemScope.CustomListFooter(item: RelayListItem.CustomListFooter)
 private fun LazyItemScope.RelayLocationHeader() {
     HeaderCell(text = stringResource(R.string.all_locations))
 }
+
+@Composable
+private fun String.appendName(isEnabled: Boolean, relayListSelection: RelayListSelection) =
+    if (!isEnabled) {
+        when (relayListSelection) {
+            RelayListSelection.Entry -> stringResource(R.string.x_exit, this)
+            RelayListSelection.Exit -> stringResource(R.string.x_entry, this)
+        }
+    } else {
+        this
+    }

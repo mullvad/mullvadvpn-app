@@ -98,6 +98,7 @@ fun StatusRelayItemCell(
                                     when {
                                         item is RelayItem.CustomList && item.locations.isEmpty() ->
                                             disabledColor
+                                        !isEnabled -> disabledColor
                                         item.active -> activeColor
                                         else -> inactiveColor
                                     },

@@ -92,7 +92,13 @@ private fun createCustomListRelayItems(
             if (expanded) {
                 addAll(
                     customList.locations.flatMap {
-                        createCustomListEntry(parent = customList, item = it, 1, isExpanded)
+                        createCustomListEntry(
+                            parent = customList,
+                            item = it,
+                            disabledItem = disabledItem,
+                            depth = 1,
+                            isExpanded = isExpanded,
+                        )
                     }
                 )
             }
@@ -121,6 +127,7 @@ private fun createLocationSection(
 private fun createCustomListEntry(
     parent: RelayItem.CustomList,
     item: RelayItem.Location,
+    disabledItem: RelayItemId?,
     depth: Int = 1,
     isExpanded: (String) -> Boolean,
 ): List<RelayListItem.CustomListEntryItem> = buildList {
@@ -130,8 +137,9 @@ private fun createCustomListEntry(
             parentId = parent.id,
             parentName = parent.customList.name,
             item = item,
+            isEnabled = item.id != disabledItem,
             expanded = expanded,
-            depth,
+            depth = depth,
         )
     )
 
@@ -139,11 +147,15 @@ private fun createCustomListEntry(
         when (item) {
             is RelayItem.Location.City ->
                 addAll(
-                    item.relays.flatMap { createCustomListEntry(parent, it, depth + 1, isExpanded) }
+                    item.relays.flatMap {
+                        createCustomListEntry(parent, it, disabledItem, depth + 1, isExpanded)
+                    }
                 )
             is RelayItem.Location.Country ->
                 addAll(
-                    item.cities.flatMap { createCustomListEntry(parent, it, depth + 1, isExpanded) }
+                    item.cities.flatMap {
+                        createCustomListEntry(parent, it, disabledItem, depth + 1, isExpanded)
+                    }
                 )
             is RelayItem.Location.Relay -> {} // No children to add
         }
@@ -222,35 +234,31 @@ internal fun SelectedLocation.getForRelayListDisabled(
     customLists: List<RelayItem.CustomList>,
 ) =
     when (this) {
-        // We only want to block selecting the same entry as exit if it is a relay. For country and
-        // city it is fine to have same entry and exit
-        // For custom lists we will block if the custom lists only contains one relay and
-        // nothing else
-        is SelectedLocation.Multiple ->
-            when (relayListSelection) {
+        is SelectedLocation.Multiple -> {
+            val location =
+                when (relayListSelection) {
                     RelayListSelection.Entry -> exitLocation
                     RelayListSelection.Exit -> entryLocation
-                }
-                .getOrNull()
-                ?.let {
-                    when (it) {
-                        is GeoLocationId.City,
-                        is GeoLocationId.Country -> null
-                        is GeoLocationId.Hostname -> it
-                        is CustomListId -> {
-                            val isSingle =
-                                customLists
-                                    .firstOrNull { customList -> customList.id == it }
-                                    ?.locations
-                                    ?.singleOrNull()
-                                    ?.id is GeoLocationId.Hostname
-                            if (isSingle) {
-                                it
-                            } else {
-                                null
-                            }
-                        }
-                    }
-                }
+                }.getOrNull()
+            location.singleRelayId(customLists)
+        }
         is SelectedLocation.Single -> null
+    }
+
+// We only want to block selecting the same entry as exit if it is a relay. For country and
+// city it is fine to have same entry and exit
+// For custom lists we will block if the custom lists only contains one relay and
+// nothing else
+private fun RelayItemId?.singleRelayId(customLists: List<RelayItem.CustomList>): RelayItemId? =
+    when (this) {
+        is GeoLocationId.City,
+        is GeoLocationId.Country -> null
+        is GeoLocationId.Hostname -> this
+        is CustomListId ->
+            customLists
+                .firstOrNull { customList -> customList.id == this }
+                ?.locations
+                ?.singleOrNull()
+                ?.id as? GeoLocationId.Hostname
+        else -> null
     }

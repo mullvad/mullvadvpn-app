@@ -2,17 +2,12 @@ package net.mullvad.mullvadvpn.compose.screen.location
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
@@ -31,11 +26,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -60,26 +53,18 @@ import net.mullvad.mullvadvpn.compose.button.MullvadSegmentedButton
 import net.mullvad.mullvadvpn.compose.button.SegmentedButtonPosition
 import net.mullvad.mullvadvpn.compose.cell.FilterRow
 import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
-import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithSmallTopBar
-import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
-import net.mullvad.mullvadvpn.compose.constant.ContentType
 import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.preview.SelectLocationsUiStatePreviewParameterProvider
-import net.mullvad.mullvadvpn.compose.state.RelayListItem
 import net.mullvad.mullvadvpn.compose.state.RelayListSelection
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
-import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.transitions.SelectLocationTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
-import net.mullvad.mullvadvpn.compose.util.RunOnKeyChange
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
-import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
-import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.viewmodel.location.SelectLocationSideEffect
 import net.mullvad.mullvadvpn.viewmodel.location.SelectLocationViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -177,7 +162,6 @@ fun SelectLocation(
             dropUnlessResumed { relayItem ->
                 navigator.navigate(CreateCustomListDestination(locationCode = relayItem?.id))
             },
-        onToggleExpand = vm::onToggleExpand,
         onEditCustomLists = dropUnlessResumed { navigator.navigate(CustomListsDestination()) },
         removeOwnershipFilter = vm::removeOwnerFilter,
         removeProviderFilter = vm::removeProviderFilter,
@@ -233,7 +217,6 @@ fun SelectLocationScreen(
     onEditCustomListName: (RelayItem.CustomList) -> Unit = {},
     onEditLocationsCustomList: (RelayItem.CustomList) -> Unit = {},
     onDeleteCustomList: (RelayItem.CustomList) -> Unit = {},
-    onToggleExpand: (RelayItemId, CustomListId?, Boolean) -> Unit = { _, _, _ -> },
     onSelectRelayList: (RelayListSelection) -> Unit = {},
 ) {
     val backgroundColor = MaterialTheme.colorScheme.surface
@@ -251,14 +234,7 @@ fun SelectLocationScreen(
         },
         snackbarHostState = snackbarHostState,
         actions = {
-            IconButton(
-                onClick = {
-                    if (state is SelectLocationUiState.Content) {
-                        onSearchClick(state.relayListSelection)
-                    }
-                },
-                enabled = state is SelectLocationUiState.Content,
-            ) {
+            IconButton(onClick = { onSearchClick(state.relayListSelection) }) {
                 Icon(
                     imageVector = Icons.Default.Search,
                     contentDescription = stringResource(id = R.string.filter),
@@ -288,7 +264,7 @@ fun SelectLocationScreen(
         )
 
         Column(modifier = modifier.background(backgroundColor).fillMaxSize()) {
-            if (state is SelectLocationUiState.Content && state.filterChips.isNotEmpty()) {
+            if (state.filterChips.isNotEmpty()) {
                 FilterRow(
                     filters = state.filterChips,
                     onRemoveOwnershipFilter = removeOwnershipFilter,
@@ -296,16 +272,15 @@ fun SelectLocationScreen(
                 )
             }
 
-            if (state is SelectLocationUiState.Content && state.multihopEnabled) {
+            if (state.multihopEnabled) {
                 MultihopBar(state.relayListSelection, onSelectRelayList)
             }
 
             Spacer(modifier = Modifier.height(height = Dimens.verticalSpace))
-            RelayList(
+            RelayLists(
                 state = state,
                 backgroundColor = backgroundColor,
                 onSelectRelay = onSelectRelay,
-                onToggleExpand = onToggleExpand,
                 onUpdateBottomSheetState = { newState -> locationBottomSheetState = newState },
             )
         }
@@ -337,89 +312,32 @@ private fun MultihopBar(
 }
 
 @Composable
-private fun RelayList(
+private fun RelayLists(
     state: SelectLocationUiState,
     backgroundColor: Color,
     onSelectRelay: (RelayItem) -> Unit,
-    onToggleExpand: (RelayItemId, CustomListId?, Boolean) -> Unit,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
 ) {
-    val pagerState = rememberPagerState(pageCount = { 2 })
-    LaunchedEffect(state.relayListSelection()) {
-        val index = state.relayListSelection()?.ordinal ?: 0
+    val pagerState =
+        rememberPagerState(
+            pageCount = {
+                if (state.multihopEnabled) {
+                    RelayListSelection.entries.size
+                } else 1
+            }
+        )
+    LaunchedEffect(state.relayListSelection) {
+        val index = state.relayListSelection.ordinal
         pagerState.animateScrollToPage(index)
     }
 
-    HorizontalPager(state = pagerState, userScrollEnabled = false) { pageIndex ->
-        val lazyListState = rememberLazyListState()
-        val stateActual = state
-        RunOnKeyChange(stateActual is SelectLocationUiState.Content) {
-            val index = stateActual.indexOfSelectedRelayItem()
-            if (index != -1) {
-                lazyListState.scrollToItem(index)
-                lazyListState.animateScrollAndCentralizeItem(index)
-            }
-        }
-        LazyColumn(
-            modifier =
-                Modifier.fillMaxSize()
-                    .drawVerticalScrollbar(
-                        lazyListState,
-                        MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
-                    ),
-            state = lazyListState,
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            when (state) {
-                SelectLocationUiState.Loading -> {
-                    loading()
-                }
-                is SelectLocationUiState.Content -> {
-                    relayListContent(
-                        backgroundColor = backgroundColor,
-                        relayListItems = state.relayListItems,
-                        customLists = state.customLists,
-                        relayListSelection = state.relayListSelection,
-                        onSelectRelay = onSelectRelay,
-                        onToggleExpand = onToggleExpand,
-                        onUpdateBottomSheetState = onUpdateBottomSheetState,
-                    )
-                }
-            }
-        }
-    }
-}
-
-private fun LazyListScope.loading() {
-    item(contentType = ContentType.PROGRESS) {
-        MullvadCircularProgressIndicatorLarge(Modifier.testTag(CIRCULAR_PROGRESS_INDICATOR))
-    }
-}
-
-private fun SelectLocationUiState.indexOfSelectedRelayItem(): Int =
-    if (this is SelectLocationUiState.Content) {
-        relayListItems.indexOfFirst {
-            when (it) {
-                is RelayListItem.CustomListItem -> it.isSelected
-                is RelayListItem.GeoLocationItem -> it.isSelected
-                is RelayListItem.CustomListEntryItem -> false
-                is RelayListItem.CustomListFooter -> false
-                RelayListItem.CustomListHeader -> false
-                RelayListItem.LocationHeader -> false
-                is RelayListItem.LocationsEmptyText -> false
-            }
-        }
-    } else {
-        -1
-    }
-
-private suspend fun LazyListState.animateScrollAndCentralizeItem(index: Int) {
-    val itemInfo = this.layoutInfo.visibleItemsInfo.firstOrNull { it.index == index }
-    if (itemInfo != null) {
-        val center = layoutInfo.viewportEndOffset / 2
-        val childCenter = itemInfo.offset + itemInfo.size / 2
-        animateScrollBy((childCenter - center).toFloat())
-    } else {
-        animateScrollToItem(index)
+    HorizontalPager(state = pagerState, userScrollEnabled = false, beyondViewportPageCount = 1) {
+        pageIndex ->
+        SelectLocationList(
+            backgroundColor = backgroundColor,
+            relayListSelection = RelayListSelection.entries[pageIndex],
+            onSelectRelay = onSelectRelay,
+            onUpdateBottomSheetState = onUpdateBottomSheetState,
+        )
     }
 }
