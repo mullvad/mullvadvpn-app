@@ -47,6 +47,9 @@ jobs:
           if [ -n "${{ inputs.arg_tests_json_key }}" ]; then
           # JSON key supplied by another workflow calling this reusable workflow
           echo "Using calling workflow supplied test suites JSON key: ${{ inputs.arg_tests_json_key }}"
+            # Forcing the filesystem buffers to be flushed to ensure the
+            # directory tree is updated
+            sync
             test_suites_json=$(jq -r --compact-output '.tests."${{ inputs.arg_tests_json_key }}"' tests.json)
             echo "test_suites_json=$test_suites_json" >> $GITHUB_ENV
           elif [ -n "${{ inputs.user_supplied_test_name }}" ]; then
