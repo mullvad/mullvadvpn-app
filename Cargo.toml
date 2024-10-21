@@ -75,7 +75,7 @@ tonic-build = { version = "0.10.0", default-features = false }
 tower = { version = "0.5.1", features = ["util"] }
 prost = "0.13.3"
 prost-types = "0.13.3"
-hyper-util = {version = "0.1.8", features = ["client", "client-legacy", "http2"]}
+hyper-util = {version = "0.1.8", features = ["client", "client-legacy", "http2", "http1"]}
 
 env_logger = "0.10.0"
 thiserror = "1.0.57"
