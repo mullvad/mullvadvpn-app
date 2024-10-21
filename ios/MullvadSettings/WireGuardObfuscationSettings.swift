@@ -8,45 +8,125 @@
 
 import Foundation
 
-/// Whether UDP-over-TCP obfuscation is enabled
+/// Whether obfuscation is enabled and which method is used
 ///
 /// `.automatic` means an algorithm will decide whether to use it or not.
 public enum WireGuardObfuscationState: Codable {
-    case automatic
+    @available(*, deprecated, renamed: "udpTcp")
     case on
+
+    case automatic
+    case udpTcp
+    case shadowsocks
     case off
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        var allKeys = ArraySlice(container.allKeys)
+        guard let key = allKeys.popFirst(), allKeys.isEmpty else {
+            throw DecodingError.typeMismatch(
+                WireGuardObfuscationState.self,
+                DecodingError.Context(
+                    codingPath: container.codingPath,
+                    debugDescription: "Invalid number of keys found, expected one.",
+                    underlyingError: nil
+                )
+            )
+        }
+
+        switch key {
+        case .automatic:
+            self = .automatic
+        case .on, .udpTcp:
+            self = .udpTcp
+        case .shadowsocks:
+            self = .shadowsocks
+        case .off:
+            self = .off
+        }
+    }
 }
 
-/// The port to select when using UDP-over-TCP obfuscation
+/// The port to select when using obfuscation
 ///
-/// `.automatic` means an algorith will decide between using `port80` or `port5001`
-public enum WireGuardObfuscationPort: UInt16, Codable, CaseIterable {
-    case automatic = 0
-    case port80 = 80
-    case port5001 = 5001
+/// `.automatic` means an algorith will decide between using `.port80`, `port5001` or `.custom`.
+public enum WireGuardObfuscationPort: Codable, Equatable {
+    case automatic
+    case port80
+    case port5001
+    case custom(UInt16)
 
     /// The `UInt16` representation of the port.
-    /// - Returns: `0` if `.automatic`, `80` or `5001` otherwise.
     public var portValue: UInt16 {
-        self == .automatic ? 0 : rawValue
+        switch self {
+        case .automatic:
+            0
+        case .port80:
+            80
+        case .port5001:
+            5001
+        case .custom(let port):
+            port
+        }
     }
 
     public init?(rawValue: UInt16) {
         switch rawValue {
+        case 0:
+            self = .automatic
         case 80:
             self = .port80
         case 5001:
             self = .port5001
-        default: self = .automatic
+        default:
+            self = .custom(rawValue)
         }
     }
 
-    public init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        let decodedValue = try? container.decode(UInt16.self)
+    public init(from decoder: any Decoder) throws {
+        if let container = try? decoder.container(keyedBy: CodingKeys.self) {
+            var allKeys = ArraySlice(container.allKeys)
+            guard let key = allKeys.popFirst(), allKeys.isEmpty else {
+                throw DecodingError.typeMismatch(
+                    WireGuardObfuscationPort.self,
+                    DecodingError.Context.init(
+                        codingPath: container.codingPath,
+                        debugDescription: "Invalid number of keys found, expected one.",
+                        underlyingError: nil
+                    )
+                )
+            }
 
-        let port = WireGuardObfuscationPort.allCases.first(where: { $0.rawValue == decodedValue })
-        self = port ?? .automatic
+            switch key {
+            case .automatic:
+                self = .automatic
+            case .port80:
+                self = .port80
+            case .port5001:
+                self = .port5001
+            case .custom:
+                let nestedContainer = try container.nestedContainer(
+                    keyedBy: WireGuardObfuscationPort.CustomCodingKeys.self, forKey: .custom
+                )
+                self = .custom(try nestedContainer.decode(
+                    UInt16.self,
+                    forKey: WireGuardObfuscationPort.CustomCodingKeys._0
+                ))
+            }
+        } else {
+            // Migration from old raw value.
+            let value = try decoder.singleValueContainer().decode(UInt16.self)
+
+            switch value {
+            case 80:
+                self = .port80
+            case 5001:
+                self = .port5001
+            default:
+                self = .automatic
+            }
+        }
     }
 }
 

@@ -198,8 +198,8 @@ class AccountViewController: UIViewController {
         purchaseButton.isEnabled = productState.isReceived && isInteractionEnabled
         contentView.accountDeviceRow.setButtons(enabled: isInteractionEnabled)
         contentView.accountTokenRowView.setButtons(enabled: isInteractionEnabled)
-        contentView.restorePurchasesView.setButtons(enabled: isInteractionEnabled)
-        contentView.logoutButton.isEnabled = isInteractionEnabled
+        contentView.restorePurchasesView.setButtons(enabled: false)
+        contentView.logoutButton.isEnabled = false
         contentView.redeemVoucherButton.isEnabled = isInteractionEnabled
         contentView.deleteButton.isEnabled = isInteractionEnabled
         navigationItem.rightBarButtonItem?.isEnabled = isInteractionEnabled

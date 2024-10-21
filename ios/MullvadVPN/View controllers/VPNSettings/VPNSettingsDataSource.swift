@@ -192,7 +192,8 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         let obfuscationStateItem: Item = switch viewModel.obfuscationState {
         case .automatic: .wireGuardObfuscationAutomatic
         case .off: .wireGuardObfuscationOff
-        case .on: .wireGuardObfuscationUDPTCP
+        case .on, .udpTcp: .wireGuardObfuscationUDPTCP
+        case .shadowsocks: .wireGuardObfuscationShadowsocks
         }
 
         let quantumResistanceItem: Item = switch viewModel.quantumResistance {
@@ -308,13 +309,13 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
             selectObfuscationState(.automatic)
             delegate?.didUpdateTunnelSettings(TunnelSettingsUpdate.obfuscation(obfuscationSettings))
         case .wireGuardObfuscationUDPTCP:
-            selectObfuscationState(.on)
+            selectObfuscationState(.udpTcp)
             delegate?.didUpdateTunnelSettings(TunnelSettingsUpdate.obfuscation(obfuscationSettings))
-        // TODO: When ready, add implementation for selected obfuscation.
+        // TODO: When ready, add implementation for selected obfuscation (navigate to new view etc).
         case .wireGuardObfuscationShadowsocks:
-            selectObfuscationState(.on)
+            selectObfuscationState(.shadowsocks)
             delegate?.didUpdateTunnelSettings(TunnelSettingsUpdate.obfuscation(obfuscationSettings))
-        // TODO: When ready, add implementation for selected obfuscation.
+        // TODO: When ready, add implementation for selected obfuscation (navigate to new view etc).
         case .wireGuardObfuscationOff:
             selectObfuscationState(.off)
             delegate?.didUpdateTunnelSettings(TunnelSettingsUpdate.obfuscation(obfuscationSettings))
