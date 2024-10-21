@@ -115,6 +115,8 @@ impl Firewall {
                 .chain(ALLOWED_LAN_MULTICAST_NETS.iter())
                 .any(|net| net.contains(remote_address.ip()));
             if net_is_lan {
+                // Since LAN traffic is allowed, there's no need to flush these states, and
+                // connections initiated before a firewall state change should not be interrupted.
                 return Ok(false);
             }
         }
