@@ -9,22 +9,16 @@
 import Foundation
 import XCTest
 
-enum NetworkingProtocol: String {
-    case TCP = "tcp"
-    case UDP = "udp"
-    case ICMP = "icmp"
-}
-
 struct FirewallRule {
     let fromIPAddress: String
     let toIPAddress: String
-    let protocols: [NetworkingProtocol]
+    let protocols: [NetworkTransportProtocol]
 
     /// - Parameters:
     ///     - fromIPAddress: Block traffic originating from this source IP address.
     ///     - toIPAddress: Block traffic to this destination IP address.
     ///     - protocols: Protocols which should be blocked. If none is specified all will be blocked.
-    private init(fromIPAddress: String, toIPAddress: String, protocols: [NetworkingProtocol]) {
+    private init(fromIPAddress: String, toIPAddress: String, protocols: [NetworkTransportProtocol]) {
         self.fromIPAddress = fromIPAddress
         self.toIPAddress = toIPAddress
         self.protocols = protocols
