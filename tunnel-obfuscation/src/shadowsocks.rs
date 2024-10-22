@@ -132,9 +132,15 @@ async fn run_forwarding(
     let mut client = tokio::spawn(handle_outgoing(
         shadowsocks.clone(),
         local_udp.clone(),
+        shadowsocks_endpoint,
         wg_addr.clone(),
     ));
-    let mut server = tokio::spawn(handle_incoming(shadowsocks, local_udp, wg_addr));
+    let mut server = tokio::spawn(handle_incoming(
+        shadowsocks,
+        local_udp,
+        shadowsocks_endpoint,
+        wg_addr,
+    ));
 
     tokio::select! {
         _ = shutdown_rx => {
@@ -154,11 +160,6 @@ async fn connect_shadowsocks(
     remote_socket: UdpSocket,
     shadowsocks_endpoint: SocketAddr,
 ) -> std::result::Result<ProxySocket, Error> {
-    remote_socket
-        .connect(shadowsocks_endpoint)
-        .await
-        .map_err(Error::ConnectShadowsocks)?;
-
     let ss_context = Context::new_shared(ServerType::Local);
     let ss_config: ServerConfig = ServerConfig::new(
         shadowsocks_endpoint,
@@ -216,6 +217,7 @@ async fn wait_for_local_udp_client(udp_listener: &UdpSocket) -> io::Result<()> {
 async fn handle_outgoing(
     ss_write: Arc<ProxySocket>,
     local_udp_read: Arc<UdpSocket>,
+    ss_addr: SocketAddr,
     wg_addr: Address,
 ) {
     let mut rx_buffer = vec![0u8; u16::MAX as usize];
@@ -229,7 +231,10 @@ async fn handle_outgoing(
             }
         };
 
-        if let Err(error) = ss_write.send(&wg_addr, &rx_buffer[0..read_n]).await {
+        if let Err(error) = ss_write
+            .send_to(ss_addr, &wg_addr, &rx_buffer[0..read_n])
+            .await
+        {
             if is_fatal_socket_error(&error) {
                 log::error!("Failed to write to Shadowsocks client: {error}");
                 break;
@@ -242,13 +247,18 @@ async fn handle_outgoing(
 async fn handle_incoming(
     ss_read: Arc<ProxySocket>,
     local_udp_write: Arc<UdpSocket>,
+    ss_addr: SocketAddr,
     wg_addr: Address,
 ) {
     let mut rx_buffer = vec![0u8; u16::MAX as usize];
 
     loop {
-        let (read_n, addr, _ctrl) = match ss_read.recv(&mut rx_buffer).await {
-            Ok(read_n) => read_n,
+        let (read_n, _rx_addr, addr, _ctrl) = match ss_read.recv_from(&mut rx_buffer).await {
+            Ok((read_n, rx_addr, addr, _ctrl)) if rx_addr == ss_addr => {
+                (read_n, rx_addr, addr, _ctrl)
+            }
+            // Ignore incoming from unexpected source
+            Ok(_) => continue,
             Err(error) => {
                 log::error!("Failed to read from Shadowsocks client: {error}");
                 break;
