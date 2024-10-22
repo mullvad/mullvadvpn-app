@@ -41,7 +41,7 @@ members = [
     "talpid-windows",
     "talpid-wireguard",
     "tunnel-obfuscation",
-    "wireguard-go-rs",
+    "wireguard-go-rs", "leak-tester",
 ]
 
 # Keep all lints in sync with `test/Cargo.toml`

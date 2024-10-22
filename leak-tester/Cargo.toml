@@ -1,0 +1,20 @@
+[package]
+name = "leak-tester"
+version = "0.1.0"
+authors.workspace = true
+repository.workspace = true
+license.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+eyre = "0.6.12"
+socket2 = { version = "0.5.7", features = ["all"] }
+zerocopy = { version = "0.8.7", features = ["std", "derive"] }
+talpid-windows = { path = "../talpid-windows" }
+match_cfg = "0.1.0"
+libc = "0.2.161"
+nix = { version = "0.29.0", features = ["net"] }
+
+[lints]
+workspace = true
