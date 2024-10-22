@@ -31,12 +31,7 @@ public final class TunnelPinger: PingerProtocol {
         self.logger = Logger(label: "TunnelPinger")
     }
 
-    deinit {
-        pingProvider.closeICMP()
-    }
-
-    public func openSocket(bindTo interfaceName: String?, destAddress: IPv4Address) throws {
-        try pingProvider.openICMP(address: destAddress)
+    public func startPinging(destAddress: IPv4Address) throws {
         stateLock.withLock {
             self.destAddress = destAddress
         }
@@ -64,10 +59,9 @@ public final class TunnelPinger: PingerProtocol {
         }
     }
 
-    public func closeSocket() {
+    public func stopPinging() {
         stateLock.withLock {
             self.destAddress = nil
-            pingProvider.closeICMP()
         }
     }
 
