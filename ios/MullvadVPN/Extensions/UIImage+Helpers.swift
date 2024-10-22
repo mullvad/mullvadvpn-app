@@ -26,4 +26,10 @@ extension UIImage {
 
         return resizedImage.withRenderingMode(renderingMode)
     }
+
+    func withAlpha(_ alpha: CGFloat) -> UIImage? {
+        return UIGraphicsImageRenderer(size: size, format: imageRendererFormat).image { _ in
+            draw(in: CGRect(origin: .zero, size: size), blendMode: .normal, alpha: alpha)
+        }
+    }
 }
