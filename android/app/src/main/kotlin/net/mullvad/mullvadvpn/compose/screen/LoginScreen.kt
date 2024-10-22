@@ -82,6 +82,7 @@ import net.mullvad.mullvadvpn.compose.transitions.LoginTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
 import net.mullvad.mullvadvpn.compose.util.accountNumberVisualTransformation
+import net.mullvad.mullvadvpn.compose.util.numberPasswordInputType
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -285,7 +286,7 @@ private fun ColumnScope.LoginInput(
         keyboardOptions =
             KeyboardOptions(
                 imeAction = if (state.loginButtonEnabled) ImeAction.Done else ImeAction.None,
-                keyboardType = KeyboardType.NumberPassword,
+                keyboardType = KeyboardType.numberPasswordInputType(LocalContext.current),
             ),
         onValueChange = onAccountNumberChange,
         singleLine = true,
