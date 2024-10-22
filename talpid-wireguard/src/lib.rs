@@ -180,10 +180,13 @@ impl WireguardMonitor {
                 &mut config,
                 close_obfs_sender.clone(),
             ))?;
-        if let Some(obfuscator) = obfuscator.as_ref() {
-            config.mtu = config.mtu.saturating_sub(obfuscator.packet_overhead());
+        // Don't adjust MTU if overridden by user
+        if params.options.mtu.is_none() {
+            if let Some(obfuscator) = obfuscator.as_ref() {
+                config.mtu = config.mtu.saturating_sub(obfuscator.packet_overhead());
+            }
+            config.mtu = clamp_mtu(params, config.mtu);
         }
-        config.mtu = clamp_mtu(params, config.mtu);
 
         let endpoint_addrs: Vec<IpAddr> = config.peers().map(|peer| peer.endpoint.ip()).collect();
 
@@ -402,10 +405,13 @@ impl WireguardMonitor {
                 close_obfs_sender.clone(),
                 args.tun_provider.clone(),
             ))?;
-        if let Some(obfuscator) = obfuscator.as_ref() {
-            config.mtu = config.mtu.saturating_sub(obfuscator.packet_overhead());
+        // Don't adjust MTU if overridden by user
+        if params.options.mtu.is_none() {
+            if let Some(obfuscator) = obfuscator.as_ref() {
+                config.mtu = config.mtu.saturating_sub(obfuscator.packet_overhead());
+            }
+            config.mtu = clamp_mtu(params, config.mtu);
         }
-        config.mtu = clamp_mtu(params, config.mtu);
 
         let should_negotiate_ephemeral_peer = config.quantum_resistant || config.daita;
         let tunnel = Self::open_tunnel(
