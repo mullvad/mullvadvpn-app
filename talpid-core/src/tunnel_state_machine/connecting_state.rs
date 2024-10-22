@@ -230,7 +230,7 @@ impl ConnectingState {
         let (tunnel_close_tx, tunnel_close_rx) = oneshot::channel();
         let (tunnel_close_event_tx, tunnel_close_event_rx) = oneshot::channel();
 
-        let mut tunnel_parameters = parameters.clone();
+        let tunnel_parameters = parameters.clone();
 
         tokio::task::spawn_blocking(move || {
             let start = Instant::now();
@@ -245,7 +245,7 @@ impl ConnectingState {
                 route_manager,
             };
 
-            let block_reason = match TunnelMonitor::start(&mut tunnel_parameters, &log_dir, args) {
+            let block_reason = match TunnelMonitor::start(&tunnel_parameters, &log_dir, args) {
                 Ok(monitor) => {
                     let reason = Self::wait_for_tunnel_monitor(monitor, retry_attempt);
                     log::debug!("Tunnel monitor exited with block reason: {:?}", reason);
