@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useState } from 'react';
 import { useParams } from 'react-router';
 import { sprintf } from 'sprintf-js';
 
@@ -12,6 +12,7 @@ import { useScheduler } from '../../shared/scheduler';
 import { useAppContext } from '../context';
 import { useApiAccessMethodTest } from '../lib/api-access-methods';
 import { useHistory } from '../lib/history';
+import { useLastDefinedValue } from '../lib/utility-hooks';
 import { useSelector } from '../redux/store';
 import { SettingsForm } from './cell/SettingsForm';
 import { BackAction } from './KeyboardNavigation';
@@ -32,7 +33,7 @@ export function EditApiAccessMethod() {
 }
 
 function AccessMethodForm() {
-  const history = useHistory();
+  const { pop } = useHistory();
   const { addApiAccessMethod, updateApiAccessMethod } = useAppContext();
   const methods = useSelector((state) => state.settings.apiAccessMethods.custom);
 
@@ -46,40 +47,52 @@ function AccessMethodForm() {
   const { id } = useParams<{ id: string | undefined }>();
   const method = methods.find((method) => method.id === id);
 
-  const updatedMethod = useRef<NewAccessMethodSetting<CustomProxy> | undefined>(method);
+  const [updatedMethod, setUpdatedMethod] = useState<
+    NewAccessMethodSetting<CustomProxy> | undefined
+  >(method);
 
-  const save = useCallback(() => {
-    if (updatedMethod.current !== undefined) {
-      resetTestResult();
-      if (id === undefined) {
-        void addApiAccessMethod(updatedMethod.current);
-      } else {
-        void updateApiAccessMethod({ ...updatedMethod.current, id });
+  const save = useCallback(
+    (method: NewAccessMethodSetting<CustomProxy>) => {
+      if (method !== undefined) {
+        resetTestResult();
+        if (id === undefined) {
+          void addApiAccessMethod(method);
+        } else {
+          void updateApiAccessMethod({ ...method, id });
+        }
+        pop();
       }
-      history.pop();
-    }
-  }, [updatedMethod.current, id]);
+    },
+    [resetTestResult, id, pop, addApiAccessMethod, updateApiAccessMethod],
+  );
 
   const onSave = useCallback(
     async (newMethod: NamedCustomProxy) => {
       const enabled = id === undefined ? true : (method?.enabled ?? true);
-      updatedMethod.current = { ...newMethod, enabled };
+      const updatedMethod = { ...newMethod, enabled };
+      setUpdatedMethod(updatedMethod);
       if (
-        updatedMethod.current !== undefined &&
-        (await testApiAccessMethod(updatedMethod.current as CustomProxy))
+        updatedMethod !== undefined &&
+        (await testApiAccessMethod(updatedMethod as CustomProxy))
       ) {
         // Hide the save dialog after 1.5 seconds.
-        saveScheduler.schedule(save, 1500);
+        saveScheduler.schedule(() => save(updatedMethod), 1500);
       }
     },
-    [updatedMethod, save, history.pop],
+    [id, method?.enabled, testApiAccessMethod, saveScheduler, save],
   );
+
+  const handleDialogSave = useCallback(() => {
+    if (updatedMethod !== undefined) {
+      save(updatedMethod);
+    }
+  }, [save, updatedMethod]);
 
   const title = getTitle(id === undefined);
   const subtitle = getSubtitle(id === undefined);
 
   return (
-    <BackAction action={history.pop}>
+    <BackAction action={pop}>
       <Layout>
         <SettingsContainer>
           <NavigationContainer>
@@ -100,17 +113,17 @@ function AccessMethodForm() {
                   {id !== undefined && method === undefined ? (
                     <span>Failed to open method</span>
                   ) : (
-                    <NamedProxyForm proxy={method} onSave={onSave} onCancel={history.pop} />
+                    <NamedProxyForm proxy={method} onSave={onSave} onCancel={pop} />
                   )}
                 </StyledSettingsContent>
 
                 <TestingDialog
-                  name={updatedMethod.current?.name ?? ''}
+                  name={updatedMethod?.name ?? ''}
                   newMethod={id === undefined}
                   testing={testing}
                   testResult={testResult}
                   cancel={resetTestResult}
-                  save={save}
+                  save={handleDialogSave}
                 />
               </StyledContent>
             </StyledNavigationScrollbars>
@@ -143,30 +156,26 @@ interface TestingDialogProps {
 }
 
 function TestingDialog(props: TestingDialogProps) {
-  const type = props.testing
-    ? ModalAlertType.loading
-    : props.testResult
-      ? ModalAlertType.success
-      : ModalAlertType.failure;
-  const prevType = useRef<ModalAlertType>(type);
+  let currentType: ModalAlertType | undefined;
+  if (props.testing) {
+    currentType = ModalAlertType.loading;
+  } else if (props.testResult) {
+    currentType = ModalAlertType.success;
+  } else if (props.testResult === false) {
+    currentType = ModalAlertType.failure;
+  }
 
-  const isOpen = props.testing || props.testResult !== undefined;
-  const typeValue = isOpen ? type : prevType.current;
-
-  useEffect(() => {
-    if (isOpen) {
-      prevType.current = type;
-    }
-  }, [type]);
+  const type = useLastDefinedValue(currentType);
+  const displayType = type ?? ModalAlertType.failure;
 
   return (
     <ModalAlert
-      isOpen={isOpen}
-      type={typeValue}
-      gridButtons={getTestingDialogButtons(typeValue, props.save, props.cancel)}
+      isOpen={!!currentType}
+      type={type}
+      gridButtons={getTestingDialogButtons(displayType, props.save, props.cancel)}
       close={props.cancel}
-      title={getTestingDialogTitle(typeValue, props.newMethod)}
-      message={getTestingDialogSubTitle(typeValue, props.newMethod, props.name)}
+      title={getTestingDialogTitle(displayType, props.newMethod)}
+      message={getTestingDialogSubTitle(displayType, props.newMethod, props.name)}
     />
   );
 }

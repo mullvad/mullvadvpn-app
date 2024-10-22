@@ -28,7 +28,7 @@ describe('System notifications', () => {
 
   before(() => {
     sandbox = sinon.createSandbox();
-    // @ts-ignore
+    // @ts-expect-error Way too many methods to mock.
     sandbox.stub(NotificationController.prototype, 'createElectronNotification').returns({
       show: () => {
         /* no-op */

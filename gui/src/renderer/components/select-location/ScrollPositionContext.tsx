@@ -2,7 +2,8 @@ import { Action } from 'history';
 import React, { useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 
 import { useHistory } from '../../lib/history';
-import { useNormalRelaySettings, useStyledRef } from '../../lib/utilityHooks';
+import { useNormalRelaySettings } from '../../lib/relay-settings-hooks';
+import { useStyledRef } from '../../lib/utility-hooks';
 import { CustomScrollbarsRef } from '../CustomScrollbars';
 import { LocationType } from './select-location-types';
 import { useSelectLocationContext } from './SelectLocationContainer';
@@ -69,7 +70,10 @@ export function ScrollPositionContextProvider(props: ScrollPositionContextProps)
     scrollViewRef.current?.scrollIntoView(rect);
   }, []);
 
-  const resetHeight = useCallback(() => spacePreAllocationViewRef.current?.reset(), []);
+  const resetHeight = useCallback(
+    () => spacePreAllocationViewRef.current?.reset(),
+    [spacePreAllocationViewRef],
+  );
 
   const value = useMemo(
     () => ({
@@ -82,7 +86,13 @@ export function ScrollPositionContextProvider(props: ScrollPositionContextProps)
       scrollIntoView,
       resetHeight,
     }),
-    [saveScrollPosition, resetScrollPositions],
+    [
+      spacePreAllocationViewRef,
+      saveScrollPosition,
+      resetScrollPositions,
+      scrollIntoView,
+      resetHeight,
+    ],
   );
 
   // Restore the scroll position when parameters change

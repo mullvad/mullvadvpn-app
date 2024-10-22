@@ -3,7 +3,7 @@ import { useCallback, useRef, useState } from 'react';
 import { CustomProxy } from '../../shared/daemon-rpc-types';
 import { useScheduler } from '../../shared/scheduler';
 import { useAppContext } from '../context';
-import { useBoolean } from './utilityHooks';
+import { useBoolean } from './utility-hooks';
 
 export function useApiAccessMethodTest(
   autoReset = true,
@@ -28,54 +28,66 @@ export function useApiAccessMethodTest(
   // scheduler is used to clear it.
   const testResultResetScheduler = useScheduler();
 
-  const testApiAccessMethod = useCallback(async (method: CustomProxy | string) => {
-    testResultResetScheduler.cancel();
-    setTestResult(undefined);
+  const testApiAccessMethod = useCallback(
+    async (method: CustomProxy | string) => {
+      testResultResetScheduler.cancel();
+      setTestResult(undefined);
 
-    setTesting();
-    let reachable;
-    let testPromise;
+      setTesting();
+      let reachable;
+      let testPromise;
 
-    const submitTimestamp = Date.now();
-    try {
-      testPromise =
-        typeof method === 'string'
-          ? testApiAccessMethodById(method)
-          : testCustomApiAccessMethod(method);
+      const submitTimestamp = Date.now();
+      try {
+        testPromise =
+          typeof method === 'string'
+            ? testApiAccessMethodById(method)
+            : testCustomApiAccessMethod(method);
 
-      lastTestPromise.current = testPromise;
-      reachable = await testPromise;
-    } catch {
-      reachable = false;
-    }
+        lastTestPromise.current = testPromise;
+        reachable = await testPromise;
+      } catch {
+        reachable = false;
+      }
 
-    // Make sure the loading text is displayed for at least `minDuration` milliseconds.
-    const submitDuration = Date.now() - submitTimestamp;
-    if (submitDuration < minDuration) {
-      await new Promise<void>((resolve) =>
-        delayScheduler.schedule(resolve, minDuration - submitDuration),
-      );
-    }
+      // Make sure the loading text is displayed for at least `minDuration` milliseconds.
+      const submitDuration = Date.now() - submitTimestamp;
+      if (submitDuration < minDuration) {
+        await new Promise<void>((resolve) =>
+          delayScheduler.schedule(resolve, minDuration - submitDuration),
+        );
+      }
 
-    if (testPromise !== lastTestPromise.current) {
-      return;
-    }
+      if (testPromise !== lastTestPromise.current) {
+        return;
+      }
 
-    setTestResult(reachable);
-    unsetTesting();
+      setTestResult(reachable);
+      unsetTesting();
 
-    if (autoReset) {
-      testResultResetScheduler.schedule(() => setTestResult(undefined), 5000);
-    }
+      if (autoReset) {
+        testResultResetScheduler.schedule(() => setTestResult(undefined), 5000);
+      }
 
-    return reachable;
-  }, []);
+      return reachable;
+    },
+    [
+      autoReset,
+      delayScheduler,
+      minDuration,
+      setTesting,
+      testApiAccessMethodById,
+      testCustomApiAccessMethod,
+      testResultResetScheduler,
+      unsetTesting,
+    ],
+  );
 
   const resetTestResult = useCallback(() => {
     lastTestPromise.current = undefined;
     unsetTesting();
     setTestResult(undefined);
-  }, []);
+  }, [unsetTesting]);
 
   return [testing, testResult, testApiAccessMethod, resetTestResult];
 }

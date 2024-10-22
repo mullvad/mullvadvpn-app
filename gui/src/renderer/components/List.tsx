@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import { Scheduler } from '../../shared/scheduler';
+import { useEffectEvent } from '../lib/utility-hooks';
 import Accordion from './Accordion';
 
 export const stringValueAsKey = (value: string): string => value;
@@ -35,26 +36,30 @@ export default function List<T>(props: ListProps<T>) {
     convertToRowDisplayData(props.items, props.getKey),
   );
   // Skip add transition on first render when initial items are added.
-  const skipAddTransition = useRef(props.skipInitialAddTransition ?? false);
+  const [skipAddTransition, setSkipAddTransition] = useState(
+    props.skipInitialAddTransition ?? false,
+  );
 
   const removeFallbackSchedulers = useRef<Record<string, Scheduler>>({});
 
-  useEffect(() => {
+  const itemChangeEvent = useEffectEvent((items: Array<T>) => {
     setDisplayItems((prevItems) => {
       if (props.skipRemoveTransition) {
-        return convertToRowDisplayData(props.items, props.getKey);
+        return convertToRowDisplayData(items, props.getKey);
       } else {
-        const nextItems = convertToRowData(props.items, props.getKey);
+        const nextItems = convertToRowData(items, props.getKey);
         return calculateItemList(prevItems, nextItems);
       }
     });
-  }, [props.items, props.getKey]);
+  });
+
+  useEffect(() => itemChangeEvent(props.items), [props.items]);
 
   useEffect(() => {
     // Set to animate accordion for added items after first render unless
     // props.skipAddTransition === true.
-    skipAddTransition.current = props.skipAddTransition ?? false;
-  }, []);
+    setSkipAddTransition(props.skipAddTransition ?? false);
+  }, [props.skipAddTransition]);
 
   const onRemoved = useCallback((key: string) => {
     removeFallbackSchedulers.current[key].cancel();
@@ -63,7 +68,7 @@ export default function List<T>(props: ListProps<T>) {
     setDisplayItems((items) => items.filter((item) => item.key !== key));
   }, []);
 
-  useEffect(() => {
+  const handleDisplayItemsChange = useEffectEvent((displayItems: Array<RowDisplayData<T>>) => {
     // Add scheduled item removal if `onTransitionEnd` doesn't trigger for some reason.
     displayItems
       .filter((item) => item.removing && removeFallbackSchedulers.current[item.key] === undefined)
@@ -72,7 +77,9 @@ export default function List<T>(props: ListProps<T>) {
         scheduler.schedule(() => onRemoved(item.key), 400);
         removeFallbackSchedulers.current[item.key] = scheduler;
       });
-  }, [displayItems]);
+  });
+
+  useEffect(() => handleDisplayItemsChange(displayItems), [displayItems]);
 
   useEffect(
     () => () => {
@@ -90,7 +97,7 @@ export default function List<T>(props: ListProps<T>) {
           data={displayItem}
           onRemoved={onRemoved}
           render={props.children}
-          skipAddTransition={skipAddTransition.current}
+          skipAddTransition={skipAddTransition}
         />
       ))}
     </>
@@ -105,14 +112,16 @@ interface ListItemProps<T> {
 }
 
 function ListItem<T>(props: ListItemProps<T>) {
+  const { onRemoved } = props;
+
   // If skipAddTransition is true then the item is expanded from the beginning.
   const [expanded, setExpanded] = useState(props.skipAddTransition);
 
   const onTransitionEnd = useCallback(() => {
     if (props.data.removing) {
-      props.onRemoved(props.data.key);
+      onRemoved(props.data.key);
     }
-  }, [props.onRemoved, props.data.key, props.data.removing]);
+  }, [onRemoved, props.data.key, props.data.removing]);
 
   // Expands after initial render and collapses when item is set to being removed.
   useEffect(() => setExpanded(!props.data.removing), [props.data.removing]);

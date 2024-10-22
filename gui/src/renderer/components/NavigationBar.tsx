@@ -5,7 +5,7 @@ import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { transitions, useHistory } from '../lib/history';
-import { useCombinedRefs } from '../lib/utilityHooks';
+import { useCombinedRefs, useEffectEvent } from '../lib/utility-hooks';
 import CustomScrollbars, { CustomScrollbarsRef, IScrollEvent } from './CustomScrollbars';
 import InfoButton from './InfoButton';
 import { BackActionContext } from './KeyboardNavigation';
@@ -97,36 +97,43 @@ export const NavigationScrollbars = React.forwardRef(function NavigationScrollba
   const ref = useRef<CustomScrollbarsRef>();
   const combinedRefs = useCombinedRefs(forwardedRef, ref);
 
+  const beforeunload = useEffectEvent(() => {
+    if (ref.current) {
+      history.recordScrollPosition(ref.current.getScrollPosition());
+      setNavigationHistory(history.asObject);
+    }
+  });
+
   useEffect(() => {
-    const beforeunload = () => {
-      if (ref.current) {
-        history.location.state.scrollPosition = ref.current.getScrollPosition();
-        setNavigationHistory(history.asObject);
-      }
-    };
-
     window.addEventListener('beforeunload', beforeunload);
-
     return () => window.removeEventListener('beforeunload', beforeunload);
   }, []);
 
-  useLayoutEffect(() => {
+  const onMount = useEffectEvent(() => {
     const location = history.location;
     if (history.action === 'POP') {
       ref.current?.scrollTo(...location.state.scrollPosition);
     }
+  });
 
-    return () => {
-      if (history.action === 'PUSH' && ref.current) {
-        location.state.scrollPosition = ref.current.getScrollPosition();
-        setNavigationHistory(history.asObject);
-      }
-    };
+  const onUnmount = useEffectEvent(() => {
+    if (history.action === 'PUSH' && ref.current) {
+      history.recordScrollPosition(ref.current.getScrollPosition());
+      setNavigationHistory(history.asObject);
+    }
+  });
+
+  useLayoutEffect(() => {
+    onMount();
+    return () => onUnmount();
   }, []);
 
-  const handleScroll = useCallback((event: IScrollEvent) => {
-    onScroll(event);
-  }, []);
+  const handleScroll = useCallback(
+    (event: IScrollEvent) => {
+      onScroll(event);
+    },
+    [onScroll],
+  );
 
   return (
     <CustomScrollbars
@@ -189,7 +196,10 @@ export function BackBarItem() {
   const history = useHistory();
   // Compare the transition name with dismiss to infer wheter or not the view will slide
   // horizontally or vertically and then use matching button.
-  const backIcon = useMemo(() => history.getPopTransition().name !== transitions.dismiss.name, []);
+  const backIcon = useMemo(
+    () => history.getPopTransition().name !== transitions.dismiss.name,
+    [history],
+  );
   const { parentBackAction } = useContext(BackActionContext);
   const iconSource = backIcon ? 'icon-back' : 'icon-close-down';
   const ariaLabel = backIcon ? messages.gettext('Back') : messages.gettext('Close');

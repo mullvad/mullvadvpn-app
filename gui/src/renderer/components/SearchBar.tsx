@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
-import { useStyledRef } from '../lib/utilityHooks';
+import { useEffectEvent, useStyledRef } from '../lib/utility-hooks';
 import { normalText } from './common-styles';
 import ImageView from './ImageView';
 
@@ -74,26 +74,30 @@ interface ISearchBarProps {
 }
 
 export default function SearchBar(props: ISearchBarProps) {
+  const { onSearch } = props;
+
   const inputRef = useStyledRef<HTMLInputElement>();
 
   const onInput = useCallback(
     (event: React.FormEvent) => {
       const element = event.target as HTMLInputElement;
-      props.onSearch(element.value);
+      onSearch(element.value);
     },
-    [props.onSearch],
+    [onSearch],
   );
 
   const onClear = useCallback(() => {
-    props.onSearch('');
+    onSearch('');
     inputRef.current?.blur();
-  }, [props.onSearch]);
+  }, [inputRef, onSearch]);
 
-  useEffect(() => {
+  const focusInput = useEffectEvent(() => {
     if (!props.disableAutoFocus) {
       inputRef.current?.focus({ preventScroll: true });
     }
-  }, []);
+  });
+
+  useEffect(() => focusInput(), []);
 
   return (
     <StyledSearchContainer className={props.className}>

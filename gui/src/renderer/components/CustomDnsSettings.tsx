@@ -6,7 +6,7 @@ import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { formatHtml } from '../lib/html-formatter';
 import { IpAddress } from '../lib/ip';
-import { useBoolean, useMounted, useStyledRef } from '../lib/utilityHooks';
+import { useBoolean, useMounted, useStyledRef } from '../lib/utility-hooks';
 import { useSelector } from '../redux/store';
 import Accordion from './Accordion';
 import * as AppButton from './AppButton';
@@ -32,6 +32,8 @@ import {
 import List, { stringValueAsKey } from './List';
 import { ModalAlert, ModalAlertType } from './Modal';
 
+const manualLocal = window.env.platform === 'win32' || window.env.platform === 'linux';
+
 export default function CustomDnsSettings() {
   const { setDnsOptions } = useAppContext();
   const dns = useSelector((state) => state.settings.dns);
@@ -43,7 +45,6 @@ export default function CustomDnsSettings() {
   const [savingEdit, setSavingEdit] = useState(false);
   const willShowConfirmationDialog = useRef(false);
   const addingLocalIp = useRef(false);
-  const manualLocal = window.env.platform === 'win32' || window.env.platform === 'linux';
 
   const featureAvailable = useMemo(
     () =>
@@ -67,7 +68,7 @@ export default function CustomDnsSettings() {
   }, [confirmAction]);
   const abortConfirmation = useCallback(() => {
     setConfirmAction(undefined);
-  }, [confirmAction]);
+  }, []);
 
   const setCustomDnsEnabled = useCallback(
     async (enabled: boolean) => {
@@ -81,7 +82,7 @@ export default function CustomDnsSettings() {
         hideInput();
       }
     },
-    [dns],
+    [dns, hideInput, setDnsOptions, showInput],
   );
 
   // The input field should be hidden when it loses focus unless something on the same row or the
@@ -100,7 +101,7 @@ export default function CustomDnsSettings() {
         hideInput();
       }
     },
-    [confirmAction, willShowConfirmationDialog],
+    [addButtonRef, hideInput, inputContainerRef, switchRef],
   );
 
   const onAdd = useCallback(
@@ -146,7 +147,7 @@ export default function CustomDnsSettings() {
         }
       }
     },
-    [inputVisible, dns, setDnsOptions],
+    [dns, setInvalid, setDnsOptions, inputVisible, hideInput],
   );
 
   const onEdit = useCallback(
@@ -319,6 +320,8 @@ interface ICellListItemProps {
 }
 
 function CellListItem(props: ICellListItemProps) {
+  const { onRemove: propsOnRemove, onChange } = props;
+
   const [editing, startEditing, stopEditing] = useBoolean(false);
   const [invalid, setInvalid, setValid] = useBoolean(false);
   const isMounted = useMounted();
@@ -326,8 +329,8 @@ function CellListItem(props: ICellListItemProps) {
   const inputContainerRef = useStyledRef<HTMLDivElement>();
 
   const onRemove = useCallback(
-    () => props.onRemove(props.children),
-    [props.onRemove, props.children],
+    () => propsOnRemove(props.children),
+    [propsOnRemove, props.children],
   );
 
   const onSubmit = useCallback(
@@ -336,7 +339,7 @@ function CellListItem(props: ICellListItemProps) {
         stopEditing();
       } else {
         try {
-          await props.onChange(props.children, value);
+          await onChange(props.children, value);
           if (isMounted()) {
             stopEditing();
           }
@@ -345,17 +348,20 @@ function CellListItem(props: ICellListItemProps) {
         }
       }
     },
-    [props.onChange, props.children, invalid],
+    [props.children, stopEditing, onChange, isMounted, setInvalid],
   );
 
-  const onBlur = useCallback((event?: React.FocusEvent<HTMLTextAreaElement>) => {
-    const relatedTarget = event?.relatedTarget as Node | undefined;
-    if (relatedTarget && inputContainerRef.current?.contains(relatedTarget)) {
-      event?.target.focus();
-    } else if (!props.willShowConfirmationDialog.current) {
-      stopEditing();
-    }
-  }, []);
+  const onBlur = useCallback(
+    (event?: React.FocusEvent<HTMLTextAreaElement>) => {
+      const relatedTarget = event?.relatedTarget as Node | undefined;
+      if (relatedTarget && inputContainerRef.current?.contains(relatedTarget)) {
+        event?.target.focus();
+      } else if (!props.willShowConfirmationDialog.current) {
+        stopEditing();
+      }
+    },
+    [inputContainerRef, props.willShowConfirmationDialog, stopEditing],
+  );
 
   return (
     <AriaDescriptionGroup>

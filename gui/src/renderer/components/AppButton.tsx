@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import { colors } from '../../config.json';
 import log from '../../shared/logging';
-import { useMounted } from '../lib/utilityHooks';
+import { useMounted } from '../lib/utility-hooks';
 import {
   StyledButtonContent,
   StyledHiddenSide,
@@ -127,13 +127,15 @@ interface IBlockingProps {
 }
 
 export function BlockingButton(props: IBlockingProps) {
+  const { onClick: propsOnClick } = props;
+
   const isMounted = useMounted();
   const [isBlocked, setIsBlocked] = useState(false);
 
   const onClick = useCallback(async () => {
     setIsBlocked(true);
     try {
-      await props.onClick();
+      await propsOnClick();
     } catch (error) {
       log.error(`onClick() failed - ${error}`);
     }
@@ -141,7 +143,7 @@ export function BlockingButton(props: IBlockingProps) {
     if (isMounted()) {
       setIsBlocked(false);
     }
-  }, [props.onClick]);
+  }, [isMounted, propsOnClick]);
 
   const contextValue = useMemo(
     () => ({

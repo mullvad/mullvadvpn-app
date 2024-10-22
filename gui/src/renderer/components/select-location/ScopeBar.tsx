@@ -57,11 +57,13 @@ interface IScopeBarItemProps {
 }
 
 export function ScopeBarItem(props: IScopeBarItemProps) {
+  const { onClick: propOnClick } = props;
+
   const onClick = useCallback(() => {
     if (props.index !== undefined) {
-      props.onClick?.(props.index);
+      propOnClick?.(props.index);
     }
-  }, [props.onClick, props.index]);
+  }, [propOnClick, props.index]);
 
   return props.index !== undefined ? (
     <StyledScopeBarItem selected={props.selected} onClick={onClick}>

@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { colors, strings } from '../../../config.json';
 import { FeatureIndicator } from '../../../shared/daemon-rpc-types';
 import { messages } from '../../../shared/gettext';
-import { useStyledRef } from '../../lib/utilityHooks';
+import { useStyledRef } from '../../lib/utility-hooks';
 import { useSelector } from '../../redux/store';
 import { tinyText } from '../common-styles';
 import { InfoIcon } from '../InfoButton';
@@ -169,6 +169,7 @@ export default function FeatureIndicators(props: FeatureIndicatorsProps) {
 
           // Place the ellipsis at the end of the last visible indicator.
           const left = lastVisibleIndicatorRect.right - containerRect.left;
+          // eslint-disable-next-line react-compiler/react-compiler
           ellipsisRef.current.style.left = `${left}px`;
           ellipsisRef.current.style.visibility = 'visible';
 

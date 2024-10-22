@@ -34,4 +34,4 @@ jobs:
           # This action defaults to 50 char subjects, but 72 is fine.
           max-subject-line-length: '72'
           # The action's wordlist is a bit short. Add more accepted verbs
-          additional-verbs: 'tidy, wrap, obfuscate, bias'
+          additional-verbs: 'tidy, wrap, obfuscate, bias, prohibit, forbid'

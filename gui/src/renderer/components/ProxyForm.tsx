@@ -11,6 +11,7 @@ import {
 } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { IpAddress } from '../lib/ip';
+import { useEffectEvent } from '../lib/utility-hooks';
 import * as Cell from './cell';
 import { SettingsForm, useSettingsFormSubmittable } from './cell/SettingsForm';
 import { SettingsGroup } from './cell/SettingsGroup';
@@ -59,13 +60,15 @@ interface ProxyFormContextProviderProps {
 }
 
 function ProxyFormContextProvider(props: React.PropsWithChildren<ProxyFormContextProviderProps>) {
+  const { onSave: propsOnSave } = props;
+
   const [proxy, setProxy] = useState<CustomProxy | undefined>(props.proxy);
 
   const onSave = useCallback(() => {
     if (proxy !== undefined) {
-      props.onSave(proxy);
+      propsOnSave(proxy);
     }
-  }, [proxy, props.onSave]);
+  }, [proxy, propsOnSave]);
 
   const value = useMemo(
     () => ({ proxy, setProxy, onSave, onCancel: props.onCancel, onDelete: props.onDelete }),
@@ -274,18 +277,22 @@ function EditShadowsocks(props: EditProxyProps<ShadowsocksCustomProxy>) {
     [],
   );
 
+  const onUpdate = useEffectEvent(
+    (ip: string, port: number | undefined, password: string, cipher: string | undefined) => {
+      if (ip !== '' && port !== undefined && cipher !== undefined) {
+        props.onUpdate({
+          type: 'shadowsocks',
+          ip,
+          port,
+          password,
+          cipher,
+        });
+      }
+    },
+  );
+
   // Report back to form component with the proxy values when all required values are set.
-  useEffect(() => {
-    if (ip !== '' && port !== undefined && cipher !== undefined) {
-      props.onUpdate({
-        type: 'shadowsocks',
-        ip,
-        port,
-        password,
-        cipher,
-      });
-    }
-  }, [ip, port, password, cipher]);
+  useEffect(() => onUpdate(ip, port, password, cipher), [ip, port, password, cipher]);
 
   return (
     <SettingsGroup title={messages.pgettext('api-access-methods-view', 'Server details')}>
@@ -346,21 +353,25 @@ function EditSocks5Remote(props: EditProxyProps<Socks5RemoteCustomProxy>) {
   const [username, setUsername] = useState(props.proxy?.authentication?.username ?? '');
   const [password, setPassword] = useState(props.proxy?.authentication?.password ?? '');
 
+  const onUpdate = useEffectEvent(
+    (ip: string, port: number | undefined, username: string, password: string) => {
+      if (
+        ip !== '' &&
+        port !== undefined &&
+        (!authentication || (username !== '' && password !== ''))
+      ) {
+        props.onUpdate({
+          type: 'socks5-remote',
+          ip,
+          port,
+          authentication: authentication ? { username, password } : undefined,
+        });
+      }
+    },
+  );
+
   // Report back to form component with the proxy values when all required values are set.
-  useEffect(() => {
-    if (
-      ip !== '' &&
-      port !== undefined &&
-      (!authentication || (username !== '' && password !== ''))
-    ) {
-      props.onUpdate({
-        type: 'socks5-remote',
-        ip,
-        port,
-        authentication: authentication ? { username, password } : undefined,
-      });
-    }
-  }, [ip, port, username, password]);
+  useEffect(() => onUpdate(ip, port, username, password), [ip, port, username, password]);
 
   return (
     <SettingsGroup title={messages.pgettext('api-access-methods-view', 'Remote Server')}>
@@ -435,17 +446,29 @@ function EditSocks5Local(props: EditProxyProps<Socks5LocalCustomProxy>) {
     [],
   );
 
-  useEffect(() => {
-    if (remoteIp !== '' && remotePort !== undefined && localPort !== undefined) {
-      props.onUpdate({
-        type: 'socks5-local',
-        remoteIp,
-        remotePort,
-        remoteTransportProtocol,
-        localPort,
-      });
-    }
-  }, [remoteIp, remotePort, localPort, remoteTransportProtocol]);
+  const onUpdate = useEffectEvent(
+    (
+      remoteIp: string,
+      remotePort: number | undefined,
+      localPort: number | undefined,
+      remoteTransportProtocol: RelayProtocol,
+    ) => {
+      if (remoteIp !== '' && remotePort !== undefined && localPort !== undefined) {
+        props.onUpdate({
+          type: 'socks5-local',
+          remoteIp,
+          remotePort,
+          remoteTransportProtocol,
+          localPort,
+        });
+      }
+    },
+  );
+
+  useEffect(
+    () => onUpdate(remoteIp, remotePort, localPort, remoteTransportProtocol),
+    [remoteIp, remotePort, localPort, remoteTransportProtocol],
+  );
 
   return (
     <>
