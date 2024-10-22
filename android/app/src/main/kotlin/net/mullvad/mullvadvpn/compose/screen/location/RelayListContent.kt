@@ -48,9 +48,7 @@ fun LazyListScope.relayListContent(
             }
         )
     },
-    locationHeader: @Composable LazyItemScope.() -> Unit = {
-        RelayLocationHeader()
-    }
+    locationHeader: @Composable LazyItemScope.() -> Unit = { RelayLocationHeader() },
 ) {
     itemsIndexed(
         items = relayListItems,
@@ -62,17 +60,7 @@ fun LazyListScope.relayListContent(
                     HorizontalDivider(color = backgroundColor)
                 }
                 when (listItem) {
-                    RelayListItem.CustomListHeader ->
-                        /*CustomListHeader(
-                            onShowCustomListBottomSheet = {
-                                onUpdateBottomSheetState(
-                                    ShowCustomListsBottomSheet(
-                                        editListEnabled = customLists.isNotEmpty()
-                                    )
-                                )
-                            }
-                        )*/
-                        customListHeader()
+                    RelayListItem.CustomListHeader -> customListHeader()
                     is RelayListItem.CustomListItem ->
                         CustomListItem(
                             listItem,
@@ -104,7 +92,7 @@ fun LazyListScope.relayListContent(
                             },
                         )
                     is RelayListItem.CustomListFooter -> CustomListFooter(listItem)
-                    RelayListItem.LocationHeader -> locationHeader()//RelayLocationHeader()
+                    RelayListItem.LocationHeader -> locationHeader()
                     is RelayListItem.GeoLocationItem ->
                         RelayLocationItem(
                             listItem,

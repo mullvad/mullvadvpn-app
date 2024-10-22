@@ -263,7 +263,6 @@ fun SearchLocationScreen(
                     onRemoveOwnershipFilter = onRemoveOwnershipFilter,
                     onRemoveProviderFilter = onRemoveProviderFilter,
                 )
-                searchResultTitle(onBackgroundColor = onBackgroundColor)
                 when (state) {
                     is SearchSelectLocationUiState.NoQuery -> {
                         noQuery()
@@ -278,6 +277,18 @@ fun SearchLocationScreen(
                             onToggleExpand = onToggleExpand,
                             onUpdateBottomSheetState = { newSheetState ->
                                 locationBottomSheetState = newSheetState
+                            },
+                            customListHeader = {
+                                Title(
+                                    text = stringResource(R.string.custom_lists),
+                                    onBackgroundColor = onBackgroundColor,
+                                )
+                            },
+                            locationHeader = {
+                                Title(
+                                    text = stringResource(R.string.locations),
+                                    onBackgroundColor = onBackgroundColor,
+                                )
                             },
                         )
                     }
@@ -343,7 +354,7 @@ private fun SearchBar(
 private fun LazyListScope.noQuery() {
     item(contentType = ContentType.DESCRIPTION) {
         Text(
-            text = "Type at least 2 characters to start searching",
+            text = stringResource(R.string.search_query_empty),
             style = MaterialTheme.typography.labelMedium,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -360,13 +371,9 @@ private fun LazyListScope.filterRow(
 ) {
     if (filters.isNotEmpty()) {
         item {
-            Text(
+            Title(
                 text = stringResource(R.string.filters),
-                color = onBackgroundColor,
-                modifier =
-                    Modifier.fillMaxWidth()
-                        .padding(horizontal = Dimens.sideMargin, vertical = Dimens.smallPadding),
-                style = MaterialTheme.typography.labelMedium,
+                onBackgroundColor = onBackgroundColor,
             )
         }
         item {
@@ -380,15 +387,14 @@ private fun LazyListScope.filterRow(
     }
 }
 
-private fun LazyListScope.searchResultTitle(onBackgroundColor: Color) {
-    item {
-        Text(
-            text = stringResource(R.string.search_results),
-            color = onBackgroundColor,
-            modifier =
-                Modifier.fillMaxWidth()
-                    .padding(horizontal = Dimens.sideMargin, vertical = Dimens.smallPadding),
-            style = MaterialTheme.typography.labelMedium,
-        )
-    }
+@Composable
+private fun Title(text: String, onBackgroundColor: Color) {
+    Text(
+        text = text,
+        color = onBackgroundColor,
+        modifier =
+            Modifier.fillMaxWidth()
+                .padding(horizontal = Dimens.sideMargin, vertical = Dimens.smallPadding),
+        style = MaterialTheme.typography.labelMedium,
+    )
 }
