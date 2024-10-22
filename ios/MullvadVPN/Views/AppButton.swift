@@ -113,15 +113,15 @@ class AppButton: CustomButton {
         config.background.image = style.backgroundImage
         config.background.imageContentMode = .scaleAspectFill
         config.titleTextAttributesTransformer =
-            UIConfigurationTextAttributesTransformer { attributeContainer in
+            UIConfigurationTextAttributesTransformer { [weak self] attributeContainer in
                 var updatedAttributeContainer = attributeContainer
                 updatedAttributeContainer.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
+                updatedAttributeContainer.foregroundColor = self?.state.customButtonTitleColor
                 return updatedAttributeContainer
             }
 
-        let configurationHandler: UIButton.ConfigurationUpdateHandler = { [weak self] button in
+        let configurationHandler: UIButton.ConfigurationUpdateHandler = { [weak self] _ in
             guard let self else { return }
-            button.configuration?.baseForegroundColor = button.state.customButtonTitleColor
             updateButtonBackground()
         }
         configuration = config
