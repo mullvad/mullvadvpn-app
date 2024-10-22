@@ -295,11 +295,6 @@ impl Firewall {
             peer_endpoint,
             tunnel,
             ..
-        }
-        | FirewallPolicy::Connecting {
-            peer_endpoint,
-            tunnel: Some(tunnel),
-            ..
         }) = policy
         else {
             return Ok(vec![]);
@@ -327,18 +322,30 @@ impl Firewall {
         }
 
         // no nat to [vpn ip]
-        let no_nat_to_vpn_server = pfctl::NatRuleBuilder::default()
-            .action(pfctl::NatRuleAction::NoNat)
-            .to(peer_endpoint.endpoint.address.ip())
-            .build()?;
-        rules.push(no_nat_to_vpn_server);
+        //let no_nat_to_vpn_server = pfctl::NatRuleBuilder::default()
+        //    .action(pfctl::NatRuleAction::NoNat)
+        //    .to(peer_endpoint.endpoint.address)
+        //    .user(Uid::from(0))
+        //    .build()?;
+        //rules.push(no_nat_to_vpn_server);
 
-        // no nat on [tun interface]
-        let no_nat_on_tun = pfctl::NatRuleBuilder::default()
-            .action(pfctl::NatRuleAction::NoNat)
-            .interface(&tunnel.interface)
-            .build()?;
-        rules.push(no_nat_on_tun);
+        //for ip in &tunnel.ips {
+        //    rules.push(
+        //        pfctl::NatRuleBuilder::default()
+        //            .action(pfctl::NatRuleAction::Nat {
+        //                nat_to: pfctl::NatEndpoint::from(pfctl::Ip::from(*ip)),
+        //            })
+        //            .to(peer_endpoint.endpoint.address.ip())
+        //            .build()?,
+        //    );
+        //}
+
+        //// no nat on [tun interface]
+        //let no_nat_on_tun = pfctl::NatRuleBuilder::default()
+        //    .action(pfctl::NatRuleAction::NoNat)
+        //    .interface(&tunnel.interface)
+        //    .build()?;
+        //rules.push(no_nat_on_tun);
 
         // Masquerade other traffic via VPN utun
         for ip in &tunnel.ips {
@@ -431,6 +438,7 @@ impl Firewall {
                 }
 
                 rules.push(self.get_allow_relay_rule(peer_endpoint)?);
+                //rules.push(self.get_block_relay_rule(peer_endpoint)?);
 
                 // Important to block DNS *before* we allow the tunnel and allow LAN. So DNS
                 // can't leak to the wrong IPs in the tunnel or on the LAN.
@@ -577,6 +585,7 @@ impl Firewall {
         Ok(rules)
     }
 
+    /// Allow traffic to relay_endpoint on the correct ip/port/protocol, for the root-user only.
     fn get_allow_relay_rule(&self, relay_endpoint: &AllowedEndpoint) -> Result<pfctl::FilterRule> {
         let pfctl_proto = as_pfctl_proto(relay_endpoint.endpoint.protocol);
 
@@ -591,6 +600,20 @@ impl Firewall {
         if !relay_endpoint.clients.allow_all() {
             builder.user(Uid::from(super::ROOT_UID));
         }
+
+        builder.build()
+    }
+
+    /// Block traffic to relay_endpoint ip. Should come after [Self::get_allow_relay_rule].
+    fn get_block_relay_rule(
+        &self,
+        relay_endpoint: &net::AllowedEndpoint,
+    ) -> Result<pfctl::FilterRule> {
+        let mut builder = self.create_rule_builder(FilterRuleAction::Drop(DropAction::Return));
+        builder
+            .direction(pfctl::Direction::Out)
+            .to(relay_endpoint.endpoint.address.ip())
+            .quick(true);
 
         builder.build()
     }
