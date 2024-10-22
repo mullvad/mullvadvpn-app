@@ -62,17 +62,11 @@
             </intent-filter>
         </activity>
         <!--
-            MullvadVpnService
-            It's unclear in the documentation whether the service must/should be exported or not,
-            however as it's protected by the bind vpn permission
-            (android.permission.BIND_VPN_SERVICE) it's protected against third party apps/services.
-        -->
-        <!--
             foregroundServiceType="systemExempted" is required in Android 14+
             https://developer.android.com/guide/components/fg-service-types#system-exempted
             -->
         <service android:name="net.mullvad.mullvadvpn.service.MullvadVpnService"
-                 android:exported="true"
+                 android:exported="false"
                  android:foregroundServiceType="systemExempted"
                  android:permission="android.permission.BIND_VPN_SERVICE"
                  android:stopWithTask="false"
