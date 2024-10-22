@@ -557,7 +557,12 @@ internal fun ManagementInterface.PlayPurchasePaymentToken.toDomain(): PlayPurcha
     PlayPurchasePaymentToken(value = token)
 
 internal fun ManagementInterface.ApiAccessMethodSettings.toDomain(): List<ApiAccessMethodSetting> =
-    listOf(direct.toDomain(), mullvadBridges.toDomain()).plus(customList.map { it.toDomain() })
+    buildList {
+        add(direct.toDomain())
+        add(mullvadBridges.toDomain())
+        add(encryptedDnsProxy.toDomain())
+        addAll(customList.map { it.toDomain() })
+    }
 
 internal fun ManagementInterface.AccessMethodSetting.toDomain(): ApiAccessMethodSetting =
     ApiAccessMethodSetting(
@@ -571,6 +576,7 @@ internal fun ManagementInterface.AccessMethod.toDomain(): ApiAccessMethod =
     when {
         hasDirect() -> ApiAccessMethod.Direct
         hasBridges() -> ApiAccessMethod.Bridges
+        hasEncryptedDnsProxy() -> ApiAccessMethod.EncryptedDns
         hasCustom() -> custom.toDomain()
         else -> error("Type not found")
     }
