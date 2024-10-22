@@ -4,7 +4,7 @@ import { colors } from '../../../config.json';
 import * as Cell from '../cell';
 import { normalText, tinyText } from '../common-styles';
 import SearchBar from '../SearchBar';
-import { HeaderSubTitle } from '../SettingsHeader';
+import { SmallButton } from '../SmallButton';
 import { ScopeBar } from './ScopeBar';
 
 export const StyledContent = styled.div({
@@ -15,17 +15,17 @@ export const StyledContent = styled.div({
 });
 
 export const StyledScopeBar = styled(ScopeBar)({
-  marginBottom: '14px',
+  marginBottom: '16px',
 });
 
 export const StyledNavigationBarAttachment = styled.div({
-  padding: '0 16px 14px',
+  padding: '0 16px 16px',
 });
 
 export const StyledFilterRow = styled.div({
   ...tinyText,
   color: colors.white,
-  margin: '0 6px 14px',
+  margin: '0 6px 16px',
 });
 
 export const StyledFilter = styled.div({
@@ -48,26 +48,26 @@ export const StyledClearFilterButton = styled.div({
   backgroundColor: 'transparent',
 });
 
-export const StyledHeaderSubTitle = styled(HeaderSubTitle)({
-  display: 'block',
-  margin: '0 6px 14px',
-});
-
 export const StyledSearchBar = styled(SearchBar)({
   margin: '0 6px',
 });
 
-export const StyledNoResult = styled(Cell.CellFooter)({
+export const StyledSelectionUnavailable = styled(Cell.CellFooter)({
   display: 'flex',
   flexDirection: 'column',
   paddingTop: 0,
   marginTop: 0,
 });
 
-export const StyledNoResultText = styled(Cell.CellFooterText)({
+export const StyledSelectionUnavailableText = styled(Cell.CellFooterText)({
   textAlign: 'center',
 });
 
 export const StyledAllLocationsTitle = styled(Cell.Label)(normalText, {
   fontWeight: 'normal',
+});
+
+export const StyledDaitaSettingsButton = styled(SmallButton)({
+  marginLeft: 0,
+  marginTop: '24px',
 });
