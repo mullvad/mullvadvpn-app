@@ -38,6 +38,18 @@ fun LazyListScope.relayListContent(
     onSelectRelay: (RelayItem) -> Unit,
     onToggleExpand: (RelayItemId, CustomListId?, Boolean) -> Unit,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
+    customListHeader: @Composable LazyItemScope.() -> Unit = {
+        CustomListHeader(
+            onShowCustomListBottomSheet = {
+                onUpdateBottomSheetState(
+                    ShowCustomListsBottomSheet(editListEnabled = customLists.isNotEmpty())
+                )
+            }
+        )
+    },
+    locationHeader: @Composable LazyItemScope.() -> Unit = {
+        RelayLocationHeader()
+    }
 ) {
     itemsIndexed(
         items = relayListItems,
@@ -50,7 +62,7 @@ fun LazyListScope.relayListContent(
                 }
                 when (listItem) {
                     RelayListItem.CustomListHeader ->
-                        CustomListHeader(
+                        /*CustomListHeader(
                             onShowCustomListBottomSheet = {
                                 onUpdateBottomSheetState(
                                     ShowCustomListsBottomSheet(
@@ -58,7 +70,8 @@ fun LazyListScope.relayListContent(
                                     )
                                 )
                             }
-                        )
+                        )*/
+                        customListHeader()
                     is RelayListItem.CustomListItem ->
                         CustomListItem(
                             listItem,
@@ -90,7 +103,7 @@ fun LazyListScope.relayListContent(
                             },
                         )
                     is RelayListItem.CustomListFooter -> CustomListFooter(listItem)
-                    RelayListItem.LocationHeader -> RelayLocationHeader()
+                    RelayListItem.LocationHeader -> locationHeader()//RelayLocationHeader()
                     is RelayListItem.GeoLocationItem ->
                         RelayLocationItem(
                             listItem,
