@@ -298,12 +298,12 @@ public final class TunnelMonitor: TunnelMonitorProtocol {
 
     private func startMonitoring() {
         do {
-            guard let interfaceName = tunnelDeviceInfo.interfaceName, let probeAddress else {
-                logger.debug("Failed to obtain utun interface name or probe address.")
+            guard let probeAddress else {
+                logger.debug("Failed to obtain probe address.")
                 return
             }
 
-            try pinger.openSocket(bindTo: interfaceName, destAddress: probeAddress)
+            try pinger.startPinging(destAddress: probeAddress)
 
             state.connectionState = .connecting
             startConnectivityCheckTimer()
@@ -314,7 +314,7 @@ public final class TunnelMonitor: TunnelMonitorProtocol {
 
     private func stopMonitoring(resetRetryAttempt: Bool) {
         stopConnectivityCheckTimer()
-        pinger.closeSocket()
+        pinger.stopPinging()
 
         state.netStats = WgStats()
         state.lastSeenRx = nil
