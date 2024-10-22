@@ -12,14 +12,6 @@ use talpid_types::net::{wireguard as wireguard_types, TunnelParameters};
 const OPENVPN_LOG_FILENAME: &str = "openvpn.log";
 const WIREGUARD_LOG_FILENAME: &str = "wireguard.log";
 
-/// Set the MTU to the lowest possible whilst still allowing for IPv6 to help with wireless
-/// carriers that do a lot of encapsulation.
-const DEFAULT_MTU: u16 = if cfg!(target_os = "android") {
-    1280
-} else {
-    1380
-};
-
 /// Results from operations in the tunnel module.
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -37,10 +29,6 @@ pub enum Error {
     /// Failed to rotate tunnel log file
     #[error("Failed to rotate tunnel log file")]
     RotateLogError(#[from] crate::logging::RotateLogError),
-
-    /// Failure to build Wireguard configuration.
-    #[error("Failed to configure Wireguard with the given parameters")]
-    WireguardConfigError(#[from] talpid_wireguard::config::Error),
 
     /// There was an error listening for events from the OpenVPN tunnel
     #[cfg(not(target_os = "android"))]
@@ -89,7 +77,7 @@ impl TunnelMonitor {
     /// on tunnel state changes.
     #[cfg_attr(any(target_os = "android", windows), allow(unused_variables))]
     pub fn start<L>(
-        tunnel_parameters: &mut TunnelParameters,
+        tunnel_parameters: &TunnelParameters,
         log_dir: &Option<path::PathBuf>,
         args: TunnelArgs<'_, L>,
     ) -> Result<Self>
@@ -106,7 +94,7 @@ impl TunnelMonitor {
         match tunnel_parameters {
             #[cfg(not(target_os = "android"))]
             TunnelParameters::OpenVpn(config) => args.runtime.block_on(Self::start_openvpn_tunnel(
-                config,
+                &config,
                 log_file,
                 args.resource_dir,
                 args.on_event,
@@ -116,7 +104,7 @@ impl TunnelMonitor {
             #[cfg(target_os = "android")]
             TunnelParameters::OpenVpn(_) => Err(Error::UnsupportedPlatform),
 
-            TunnelParameters::Wireguard(ref mut config) => {
+            TunnelParameters::Wireguard(config) => {
                 Self::start_wireguard_tunnel(config, log_file, args)
             }
         }
@@ -146,7 +134,7 @@ impl TunnelMonitor {
         #[cfg(not(any(target_os = "linux", target_os = "windows")))]
         params: &wireguard_types::TunnelParameters,
         #[cfg(any(target_os = "linux", target_os = "windows"))]
-        params: &mut wireguard_types::TunnelParameters,
+        params: &wireguard_types::TunnelParameters,
         log: Option<path::PathBuf>,
         args: TunnelArgs<'_, L>,
     ) -> Result<Self>
@@ -157,66 +145,10 @@ impl TunnelMonitor {
             + Clone
             + 'static,
     {
-        let default_mtu = DEFAULT_MTU;
-
-        // Detects the MTU of the device and sets the default tunnel MTU to that minus headers and
-        // the safety margin
-        #[cfg(any(target_os = "linux", target_os = "windows"))]
-        let default_mtu = args
-            .runtime
-            .block_on(
-                args.route_manager
-                    .get_mtu_for_route(params.connection.peer.endpoint.ip()),
-            )
-            .map(|mtu| Self::clamp_mtu(params, mtu))
-            .unwrap_or(default_mtu);
-
-        #[cfg(not(target_os = "android"))]
-        let detect_mtu = params.options.mtu.is_none();
-
-        let config = talpid_wireguard::config::Config::from_parameters(params, default_mtu)?;
-        let monitor = talpid_wireguard::WireguardMonitor::start(
-            config,
-            #[cfg(not(target_os = "android"))]
-            detect_mtu,
-            log.as_deref(),
-            args,
-        )?;
+        let monitor = talpid_wireguard::WireguardMonitor::start(params, log.as_deref(), args)?;
         Ok(TunnelMonitor {
             monitor: InternalTunnelMonitor::Wireguard(monitor),
         })
-    }
-
-    /// Calculates and appropriate tunnel MTU based on the given peer MTU minus header sizes
-    #[cfg(any(target_os = "linux", target_os = "windows"))]
-    fn clamp_mtu(params: &wireguard_types::TunnelParameters, peer_mtu: u16) -> u16 {
-        use talpid_tunnel::{
-            IPV4_HEADER_SIZE, IPV6_HEADER_SIZE, MIN_IPV4_MTU, MIN_IPV6_MTU, WIREGUARD_HEADER_SIZE,
-        };
-        // Some users experience fragmentation issues even when we take the interface MTU and
-        // subtract the header sizes. This is likely due to some program that they use which does
-        // not change the interface MTU but adds its own header onto the outgoing packets. For this
-        // reason we subtract some extra bytes from our MTU in order to give other programs some
-        // safety margin.
-        const MTU_SAFETY_MARGIN: u16 = 60;
-
-        let total_header_size = WIREGUARD_HEADER_SIZE
-            + match params.connection.peer.endpoint.is_ipv6() {
-                false => IPV4_HEADER_SIZE,
-                true => IPV6_HEADER_SIZE,
-            };
-
-        // The largest peer MTU that we allow
-        let max_peer_mtu: u16 = 1500 - MTU_SAFETY_MARGIN - total_header_size;
-
-        let min_mtu = match params.generic_options.enable_ipv6 {
-            false => MIN_IPV4_MTU,
-            true => MIN_IPV6_MTU,
-        };
-
-        peer_mtu
-            .saturating_sub(total_header_size)
-            .clamp(min_mtu, max_peer_mtu)
     }
 
     #[cfg(not(target_os = "android"))]
