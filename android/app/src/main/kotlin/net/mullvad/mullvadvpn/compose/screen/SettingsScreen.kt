@@ -100,14 +100,13 @@ fun SettingsScreen(
             state = lazyListState,
         ) {
             if (state.isLoggedIn) {
-                item {
+                itemWithDivider {
                     Multihop(
                         isMultihopEnabled = state.useMultihop,
                         onMultihopClick = onMultihopClick,
                     )
                 }
-                item { Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding)) }
-                item {
+                itemWithDivider {
                     NavigationComposeCell(
                         title = stringResource(id = R.string.settings_vpn),
                         onClick = onVpnSettingCellClick,
