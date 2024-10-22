@@ -188,7 +188,11 @@ internal fun ApiAccessMethod.fromDomain(): ManagementInterface.AccessMethod =
                     it.setDirect(ManagementInterface.AccessMethod.Direct.getDefaultInstance())
                 ApiAccessMethod.Bridges ->
                     it.setBridges(ManagementInterface.AccessMethod.Bridges.getDefaultInstance())
-                is ApiAccessMethod.CustomProxy -> it.setCustom(this.fromDomain())
+                is ApiAccessMethod.CustomProxy -> it.setCustom(fromDomain())
+                is ApiAccessMethod.EncryptedDns ->
+                    it.setEncryptedDnsProxy(
+                        ManagementInterface.AccessMethod.EncryptedDnsProxy.getDefaultInstance()
+                    )
             }
         }
         .build()
@@ -197,8 +201,8 @@ internal fun ApiAccessMethod.CustomProxy.fromDomain(): ManagementInterface.Custo
     ManagementInterface.CustomProxy.newBuilder()
         .let {
             when (this) {
-                is ApiAccessMethod.CustomProxy.Shadowsocks -> it.setShadowsocks(this.fromDomain())
-                is ApiAccessMethod.CustomProxy.Socks5Remote -> it.setSocks5Remote(this.fromDomain())
+                is ApiAccessMethod.CustomProxy.Shadowsocks -> it.setShadowsocks(fromDomain())
+                is ApiAccessMethod.CustomProxy.Socks5Remote -> it.setSocks5Remote(fromDomain())
             }
         }
         .build()
