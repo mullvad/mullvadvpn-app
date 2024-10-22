@@ -14,7 +14,7 @@ extension UIControl.State {
         case .normal:
             return UIColor.AppButton.normalTitleColor
         case .disabled:
-            return UIColor.AppButton.disabledTitleColor.withAlphaComponent(0.5)
+            return UIColor.AppButton.disabledTitleColor
         case .highlighted:
             return UIColor.AppButton.highlightedTitleColor
         default:

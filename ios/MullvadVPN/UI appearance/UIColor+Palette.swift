@@ -50,7 +50,7 @@ extension UIColor {
     enum AppButton {
         static let normalTitleColor = UIColor.white
         static let highlightedTitleColor = UIColor.lightGray
-        static let disabledTitleColor = UIColor.lightGray
+        static let disabledTitleColor = UIColor.white.withAlphaComponent(0.2)
     }
 
     enum Switch {
