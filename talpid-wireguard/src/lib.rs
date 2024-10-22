@@ -26,6 +26,7 @@ use talpid_routing::{self, RequiredRoute};
 use talpid_tunnel::tun_provider;
 use talpid_tunnel::{tun_provider::TunProvider, TunnelArgs, TunnelEvent, TunnelMetadata};
 
+use talpid_types::net::wireguard::TunnelParameters;
 use talpid_types::{
     net::{AllowedTunnelTraffic, Endpoint, TransportProtocol},
     BoxedError, ErrorExt,
@@ -66,6 +67,10 @@ pub enum Error {
     /// Tunnel timed out
     #[error("Tunnel timed out")]
     TimeoutError,
+
+    /// Invalid WireGuard configuration
+    #[error("Invalid WireGuard configuration")]
+    WireguardConfigError(#[from] crate::config::Error),
 
     /// An interaction with a tunnel failed
     #[error("Tunnel failed")]
@@ -155,14 +160,20 @@ impl WireguardMonitor {
             + Clone
             + 'static,
     >(
-        mut config: Config,
-        detect_mtu: bool,
+        params: &TunnelParameters,
         log_path: Option<&Path>,
         args: TunnelArgs<'_, F>,
     ) -> Result<WireguardMonitor> {
         let on_event = args.on_event.clone();
 
-        let endpoint_addrs: Vec<IpAddr> = config.peers().map(|peer| peer.endpoint.ip()).collect();
+        #[cfg(any(target_os = "windows", target_os = "linux"))]
+        let desired_mtu = args
+            .runtime
+            .block_on(get_desired_mtu(params, &args.route_manager));
+        #[cfg(target_os = "macos")]
+        let desired_mtu = get_desired_mtu(params);
+        let mut config = crate::config::Config::from_parameters(params, desired_mtu)
+            .map_err(Error::WireguardConfigError)?;
 
         let (close_obfs_sender, close_obfs_listener) = sync_mpsc::channel();
         // Start obfuscation server and patch the WireGuard config to point the endpoint to it.
@@ -175,6 +186,9 @@ impl WireguardMonitor {
         if let Some(obfuscator) = obfuscator.as_ref() {
             config.mtu = config.mtu.saturating_sub(obfuscator.packet_overhead());
         }
+        config.mtu = clamp_mtu(params, config.mtu);
+
+        let endpoint_addrs: Vec<IpAddr> = config.peers().map(|peer| peer.endpoint.ip()).collect();
 
         #[cfg(target_os = "windows")]
         let (setup_done_tx, setup_done_rx) = mpsc::channel(0);
@@ -217,6 +231,7 @@ impl WireguardMonitor {
         let moved_tunnel = monitor.tunnel.clone();
         let moved_close_obfs_sender = close_obfs_sender.clone();
         let moved_obfuscator = monitor.obfuscator.clone();
+        let detect_mtu = params.options.mtu.is_none();
         let tunnel_fut = async move {
             let tunnel = moved_tunnel;
             let close_obfs_sender: sync_mpsc::Sender<CloseMsg> = moved_close_obfs_sender;
@@ -373,10 +388,14 @@ impl WireguardMonitor {
             + Clone
             + 'static,
     >(
-        mut config: Config,
+        params: &TunnelParameters,
         log_path: Option<&Path>,
         args: TunnelArgs<'_, F>,
     ) -> Result<WireguardMonitor> {
+        let desired_mtu = get_desired_mtu(params);
+        let mut config = crate::config::Config::from_parameters(params, desired_mtu)
+            .map_err(Error::WireguardConfigError)?;
+
         let (close_obfs_sender, close_obfs_listener) = sync_mpsc::channel();
         // Start obfuscation server and patch the WireGuard config to point the endpoint to it.
         let obfuscator = args
@@ -389,6 +408,7 @@ impl WireguardMonitor {
         if let Some(obfuscator) = obfuscator.as_ref() {
             config.mtu = config.mtu.saturating_sub(obfuscator.packet_overhead());
         }
+        config.mtu = clamp_mtu(params, config.mtu);
 
         let should_negotiate_ephemeral_peer = config.quantum_resistant || config.daita;
         let tunnel = Self::open_tunnel(
@@ -1058,4 +1078,65 @@ fn will_nm_manage_dns() -> bool {
             Ok(true)
         })
         .unwrap_or(false)
+}
+
+// Set the MTU to the lowest possible whilst still allowing for IPv6 to help with wireless
+// carriers that do a lot of encapsulation.
+const DEFAULT_MTU: u16 = if cfg!(target_os = "android") {
+    1280
+} else {
+    1380
+};
+
+#[cfg(any(target_os = "linux", target_os = "windows"))]
+async fn get_desired_mtu(
+    params: &TunnelParameters,
+    route_manager: &talpid_routing::RouteManagerHandle,
+) -> u16 {
+    match params.options.mtu {
+        Some(mtu) => mtu,
+        None => {
+            // Detect the MTU of the device
+            route_manager
+                .get_mtu_for_route(params.connection.peer.endpoint.ip())
+                .await
+                .unwrap_or(DEFAULT_MTU)
+        }
+    }
+}
+
+#[cfg(any(target_os = "macos", target_os = "android"))]
+fn get_desired_mtu(params: &TunnelParameters) -> u16 {
+    params.options.mtu.unwrap_or(DEFAULT_MTU)
+}
+
+/// Calculates and appropriate tunnel MTU based on the given peer MTU minus header sizes
+fn clamp_mtu(params: &TunnelParameters, peer_mtu: u16) -> u16 {
+    use talpid_tunnel::{
+        IPV4_HEADER_SIZE, IPV6_HEADER_SIZE, MIN_IPV4_MTU, MIN_IPV6_MTU, WIREGUARD_HEADER_SIZE,
+    };
+    // Some users experience fragmentation issues even when we take the interface MTU and
+    // subtract the header sizes. This is likely due to some program that they use which does
+    // not change the interface MTU but adds its own header onto the outgoing packets. For this
+    // reason we subtract some extra bytes from our MTU in order to give other programs some
+    // safety margin.
+    const MTU_SAFETY_MARGIN: u16 = 60;
+
+    let total_header_size = WIREGUARD_HEADER_SIZE
+        + match params.connection.peer.endpoint.is_ipv6() {
+            false => IPV4_HEADER_SIZE,
+            true => IPV6_HEADER_SIZE,
+        };
+
+    // The largest peer MTU that we allow
+    let max_peer_mtu: u16 = 1500 - MTU_SAFETY_MARGIN - total_header_size;
+
+    let min_mtu = match params.generic_options.enable_ipv6 {
+        false => MIN_IPV4_MTU,
+        true => MIN_IPV6_MTU,
+    };
+
+    peer_mtu
+        .saturating_sub(total_header_size)
+        .clamp(min_mtu, max_peer_mtu)
 }
