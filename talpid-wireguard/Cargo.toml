@@ -28,6 +28,7 @@ tokio = { workspace = true, features = ["process", "rt-multi-thread", "fs"] }
 tunnel-obfuscation = { path = "../tunnel-obfuscation" }
 rand = "0.8.5"
 surge-ping = "0.8.0"
+rand_chacha = "0.3.1"
 
 [target.'cfg(not(windows))'.dependencies]
 wireguard-go-rs = { path = "../wireguard-go-rs"}
@@ -60,7 +61,7 @@ talpid-dbus = { path = "../talpid-dbus" }
 bitflags = "1.2"
 talpid-windows = { path = "../talpid-windows" }
 widestring = "1.0"
-maybenot = "1.1.2"
+maybenot = "2.0.0"
 
 # TODO: Figure out which features are needed and which are not
 [target.'cfg(windows)'.dependencies.windows-sys]

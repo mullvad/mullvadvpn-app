@@ -179,7 +179,7 @@ const config = {
         ),
         to: '.',
       },
-      { from: distAssets('maybenot_machines'), to: '.' },
+      { from: distAssets('maybenot_machines_v2'), to: '.' },
     ],
   },
 
