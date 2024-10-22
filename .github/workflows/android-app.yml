@@ -396,16 +396,9 @@ jobs:
           path: /root/.android
 
       - name: Assemble instrumented test apk
-        uses: burrunan/gradle-cache-action@v1
+        uses: ./.github/actions/android-build-instrumented-tests
         with:
-          job-id: jdk17
-          arguments: ${{ matrix.assemble-command }}
-          gradle-version: wrapper
-          build-root-directory: android
-          execution-only-caches: false
-          # Disable if logs are hard to follow.
-          concurrent: true
-          read-only: ${{ github.ref != 'refs/heads/main' }}
+          test_type: ${{ matrix.test-type }}
 
       - name: Upload apks
         # Using v3 due to v4 being very slow for this artifact.

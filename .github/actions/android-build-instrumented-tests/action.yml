@@ -1,0 +1,42 @@
+---
+name: 'Build Android instrumented tests action'
+description: 'Prepares and builds instrumented tests on Android device'
+inputs:
+  test_type:
+    description: 'Test type(e2e, mockapi, instrumented)'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Select gradle task and artifact
+      run: |
+        if [ "$TEST_TYPE" == "app" ]; then
+          GRADLE_TASK="assembleOssProdAndroidTest"
+        elif [ "$TEST_TYPE" == "mockapi" ]; then
+          GRADLE_TASK=":test:mockapi:assemble"
+        elif [ "$TEST_TYPE" == "e2e" ]; then
+          GRADLE_TASK=":test:e2e:assemble"
+        else
+          echo "Invalid test type"
+          exit 1
+        fi
+
+        echo "Gradle task: $GRADLE_TASK"
+        echo "Test type: $TEST_TYPE"
+        echo "GRADLE_TASK=$GRADLE_TASK" >> $GITHUB_ENV
+      shell: bash
+      env:
+        TEST_TYPE: ${{ inputs.test_type }}
+
+    - name: Assemble instrumented test apk
+      uses: burrunan/gradle-cache-action@v1
+      with:
+        job-id: jdk17
+        arguments: ${{ env.GRADLE_TASK }}
+        gradle-version: wrapper
+        build-root-directory: android
+        execution-only-caches: false
+        # Disable if logs are hard to follow.
+        concurrent: true
+        read-only: ${{ github.ref != 'refs/heads/main' }}
