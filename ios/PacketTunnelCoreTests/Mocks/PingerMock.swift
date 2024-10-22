@@ -34,14 +34,14 @@ class PingerMock: PingerProtocol {
         self.decideOutcome = decideOutcome
     }
 
-    func openSocket(bindTo interfaceName: String?, destAddress: IPv4Address) throws {
+    func startPinging(destAddress: IPv4Address) throws {
         stateLock.withLock {
             state.destAddress = destAddress
             state.isSocketOpen = true
         }
     }
 
-    func closeSocket() {
+    func stopPinging() {
         stateLock.withLock {
             state.isSocketOpen = false
         }
