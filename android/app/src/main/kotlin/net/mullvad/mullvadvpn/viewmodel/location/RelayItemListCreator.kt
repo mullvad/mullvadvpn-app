@@ -65,7 +65,10 @@ private fun createCustomListSection(
         val customListItems =
             createCustomListRelayItems(customLists, selectedItem, disabledItem, isExpanded)
         addAll(customListItems)
-        add(RelayListItem.CustomListFooter(customListItems.isNotEmpty()))
+        // Do not show the footer in the search view
+        if (!isSearching) {
+            add(RelayListItem.CustomListFooter(customListItems.isNotEmpty()))
+        }
     }
 }
 
@@ -84,7 +87,8 @@ private fun createCustomListRelayItems(
                     isSelected = selectedItem == customList.id,
                     isEnabled =
                         disabledItem != customList.id &&
-                            disabledItem != customList.locations.singleOrNull()?.id,
+                            customList.locations.singleOrNull()?.id?.let { it != disabledItem } !=
+                                false,
                     expanded = expanded,
                 )
             )
