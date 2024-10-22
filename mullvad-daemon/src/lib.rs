@@ -13,6 +13,7 @@ pub mod device;
 mod dns;
 pub mod exception_logging;
 mod geoip;
+mod leak_checker;
 pub mod logging;
 #[cfg(target_os = "macos")]
 mod macos;
