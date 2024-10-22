@@ -9,7 +9,7 @@ import { daitaFilterActive, filterSpecialLocations } from '../../lib/filter-loca
 import { useHistory } from '../../lib/history';
 import { formatHtml } from '../../lib/html-formatter';
 import { RoutePath } from '../../lib/routes';
-import { useNormalRelaySettings } from '../../lib/utilityHooks';
+import { useNormalRelaySettings, useStyledRef } from '../../lib/utilityHooks';
 import { useSelector } from '../../redux/store';
 import * as Cell from '../cell';
 import { useFilteredProviders } from '../Filter';
@@ -102,8 +102,11 @@ export default function SelectLocation() {
     }
   }, [relaySettingsUpdater, resetScrollPositions, relaySettings]);
 
+  const searchInputRef = useStyledRef<HTMLInputElement>();
+
   const changeLocationType = useCallback(
     (locationType: LocationType) => {
+      searchInputRef.current?.focus();
       saveScrollPosition();
       setLocationType(locationType);
     },
@@ -128,6 +131,7 @@ export default function SelectLocation() {
   const showOwnershipFilter = ownership !== Ownership.any;
   const showProvidersFilter = providers.length > 0;
   const showFilters = showOwnershipFilter || showProvidersFilter || showDaitaFilter;
+
   return (
     <BackAction action={onClose}>
       <Layout>
@@ -237,7 +241,11 @@ export default function SelectLocation() {
                 </StyledFilterRow>
               )}
 
-              <StyledSearchBar searchTerm={searchValue} onSearch={updateSearchTerm} />
+              <StyledSearchBar
+                searchInputRef={searchInputRef}
+                searchTerm={searchValue}
+                onSearch={updateSearchTerm}
+              />
             </StyledNavigationBarAttachment>
 
             <NavigationScrollbars ref={scrollViewRef}>
