@@ -32,7 +32,7 @@ import org.koin.androidx.compose.koinViewModel
 
 @Preview
 @Composable
-fun PreviewMultihopScreen() {
+private fun PreviewMultihopScreen() {
     AppTheme { MultihopScreen(state = MultihopUiState(false)) }
 }
 
