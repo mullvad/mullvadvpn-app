@@ -44,20 +44,6 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
         case main
         case version
         case problemReport
-
-        var sectionFooter: String? {
-            switch self {
-            case .daita:
-                NSLocalizedString(
-                    "SETTINGS_DAITA_SECTION_FOOTER",
-                    tableName: "Settings",
-                    value: "Makes it possible to use DAITA with any server and is automatically enabled.",
-                    comment: ""
-                )
-            default:
-                nil
-            }
-        }
     }
 
     enum Item: String {
@@ -116,6 +102,7 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
             settingsCellFactory.makeCell(for: itemIdentifier, indexPath: indexPath)
         }
 
+        tableView.sectionFooterHeight = 0
         tableView.delegate = self
         settingsCellFactory.delegate = self
 
@@ -150,44 +137,6 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
         )
     }
 
-    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        let sectionIdentifier = snapshot().sectionIdentifiers[section]
-
-        return switch sectionIdentifier {
-        case .main:
-            interactor.deviceState.isLoggedIn ? 0 : UITableView.automaticDimension
-        case .daita, .version, .problemReport:
-            UITableView.automaticDimension
-        }
-    }
-
-    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
-        let sectionIdentifier = snapshot().sectionIdentifiers[section]
-        guard let sectionFooterText = sectionIdentifier.sectionFooter else { return nil }
-
-        guard let headerView = tableView
-            .dequeueReusableView(withIdentifier: HeaderFooterReuseIdentifier.primary)
-        else { return nil }
-
-        var contentConfiguration = UIListContentConfiguration.mullvadGroupedFooter(tableStyle: .plain)
-        contentConfiguration.text = sectionFooterText
-
-        headerView.contentConfiguration = contentConfiguration
-
-        return headerView
-    }
-
-    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-        let sectionIdentifier = snapshot().sectionIdentifiers[section]
-
-        return switch sectionIdentifier {
-        case .daita:
-            UITableView.automaticDimension
-        case .main, .version, .problemReport:
-            0
-        }
-    }
-
     // MARK: - Private
 
     private func registerClasses() {
@@ -211,13 +160,12 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
 
         if interactor.deviceState.isLoggedIn {
             snapshot.appendSections([.daita])
+            snapshot.appendItems([.daita, .daitaDirectOnly], toSection: .daita)
         }
 
         snapshot.appendSections([.main])
 
         if interactor.deviceState.isLoggedIn {
-            snapshot.appendItems([.daita], toSection: .daita)
-            snapshot.appendItems([.daitaDirectOnly], toSection: .daita)
             snapshot.appendItems([.vpnSettings], toSection: .main)
         }
 
