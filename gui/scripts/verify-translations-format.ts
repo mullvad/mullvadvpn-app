@@ -7,6 +7,11 @@ const LOCALES_DIR = path.join('..', 'locales');
 const ALLOWED_TAGS = ['b', 'br'];
 const ALLOWED_VOID_TAGS = ['br'];
 
+// Make sure to report these strings to crowdin. View this as a temporary escape
+// hatch, not a permanent solution.
+const IGNORED_STRINGS: Set<string> = new Set([
+]);
+
 function getLocales(): string[] {
   const localesContent = fs.readdirSync(LOCALES_DIR);
   const localeDirectories = localesContent.filter((item) =>
@@ -119,6 +124,10 @@ function checkHtmlTags(translation: GetTextTranslation): boolean {
 }
 
 function checkTranslation(translation: GetTextTranslation): boolean {
+  // Ignore some strings
+  if (translation.msgstr.every((str) => IGNORED_STRINGS.has(str))) {
+    return true;
+  }
   return checkFormatSpecifiers(translation) && checkHtmlTags(translation);
 }
 
