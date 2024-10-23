@@ -4,8 +4,12 @@ use talpid_types::net::proxy::{CustomProxy, Shadowsocks, Socks5Local, Socks5Remo
 /// Settings for API access methods.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Settings {
+    #[serde(default = "Settings::create_direct")]
     direct: AccessMethodSetting,
+    #[serde(default = "Settings::create_mullvad_bridges")]
     mullvad_bridges: AccessMethodSetting,
+    #[serde(default = "Settings::create_encrypted_dns_proxy")]
+    encrypted_dns_proxy: AccessMethodSetting,
     /// Custom API access methods.
     custom: Vec<AccessMethodSetting>,
 }
@@ -14,11 +18,13 @@ impl Settings {
     pub fn new(
         direct: AccessMethodSetting,
         mullvad_bridges: AccessMethodSetting,
+        encrypted_dns_proxy: AccessMethodSetting,
         custom: Vec<AccessMethodSetting>,
     ) -> Settings {
         Settings {
             direct,
             mullvad_bridges,
+            encrypted_dns_proxy,
             custom,
         }
     }
@@ -93,6 +99,7 @@ impl Settings {
         use std::iter::once;
         once(&self.direct)
             .chain(once(&self.mullvad_bridges))
+            .chain(once(&self.encrypted_dns_proxy))
             .chain(&self.custom)
     }
 
@@ -101,6 +108,7 @@ impl Settings {
         use std::iter::once;
         once(&mut self.direct)
             .chain(once(&mut self.mullvad_bridges))
+            .chain(once(&mut self.encrypted_dns_proxy))
             .chain(&mut self.custom)
     }
 
@@ -112,9 +120,7 @@ impl Settings {
     /// Return the total number of access methods.
     /// This counts both enabled and disabled [`AccessMethodSetting`]s.
     pub fn cardinality(&self) -> usize {
-        1 + // 'Direct'
-        1 + // 'Mullvad bridges'
-        self.custom.len()
+        self.iter().count()
     }
 
     pub fn direct(&self) -> &AccessMethodSetting {
@@ -123,6 +129,10 @@ impl Settings {
 
     pub fn mullvad_bridges(&self) -> &AccessMethodSetting {
         &self.mullvad_bridges
+    }
+
+    pub fn encrypted_dns_proxy(&self) -> &AccessMethodSetting {
+        &self.encrypted_dns_proxy
     }
 
     fn create_direct() -> AccessMethodSetting {
@@ -134,6 +144,11 @@ impl Settings {
         let method = BuiltInAccessMethod::Bridge;
         AccessMethodSetting::new(method.canonical_name(), true, AccessMethod::from(method))
     }
+
+    fn create_encrypted_dns_proxy() -> AccessMethodSetting {
+        let method = BuiltInAccessMethod::EncryptedDnsProxy;
+        AccessMethodSetting::new(method.canonical_name(), true, AccessMethod::from(method))
+    }
 }
 
 impl Default for Settings {
@@ -141,6 +156,7 @@ impl Default for Settings {
         Self {
             direct: Settings::create_direct(),
             mullvad_bridges: Settings::create_mullvad_bridges(),
+            encrypted_dns_proxy: Settings::create_encrypted_dns_proxy(),
             custom: vec![],
         }
     }
@@ -271,6 +287,7 @@ impl AccessMethodSetting {
 pub enum BuiltInAccessMethod {
     Direct,
     Bridge,
+    EncryptedDnsProxy,
 }
 
 impl AccessMethod {
@@ -287,6 +304,7 @@ impl BuiltInAccessMethod {
         match self {
             BuiltInAccessMethod::Direct => "Direct".to_string(),
             BuiltInAccessMethod::Bridge => "Mullvad Bridges".to_string(),
+            BuiltInAccessMethod::EncryptedDnsProxy => "Encrypted DNS proxy".to_string(),
         }
     }
 }

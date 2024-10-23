@@ -16,6 +16,7 @@ import {
   DeviceEvent,
   DeviceState,
   DirectMethod,
+  EncryptedDnsProxy,
   EndpointObfuscationType,
   ErrorStateCause,
   ErrorStateDetails,
@@ -1097,6 +1098,11 @@ function fillApiAccessMethodSetting<T extends grpcTypes.NewAccessMethodSetting>(
       accessMethod.setBridges(bridges);
       break;
     }
+    case 'encrypted-dns-proxy': {
+      const encryptedDnsProxy = new grpcTypes.AccessMethod.EncryptedDnsProxy();
+      accessMethod.setEncryptedDnsProxy(encryptedDnsProxy);
+      break;
+    }
     default:
       accessMethod.setCustom(convertToCustomProxy(method));
   }
@@ -1160,6 +1166,12 @@ function convertFromApiAccessMethodSettings(
   const bridges = convertFromApiAccessMethodSetting(
     ensureExists(accessMethods.getMullvadBridges(), "no 'Mullvad Bridges' access method was found"),
   ) as AccessMethodSetting<BridgesMethod>;
+  const encryptedDnsProxy = convertFromApiAccessMethodSetting(
+    ensureExists(
+      accessMethods.getEncryptedDnsProxy(),
+      "no 'Encrypted DNS proxy' access method was found",
+    ),
+  ) as AccessMethodSetting<EncryptedDnsProxy>;
   const custom = accessMethods
     .getCustomList()
     .filter((setting) => setting.hasId() && setting.hasAccessMethod())
@@ -1170,6 +1182,7 @@ function convertFromApiAccessMethodSettings(
   return {
     direct,
     mullvadBridges: bridges,
+    encryptedDnsProxy,
     custom,
   };
 }
@@ -1177,7 +1190,11 @@ function convertFromApiAccessMethodSettings(
 function isCustomProxy(
   accessMethod: AccessMethodSetting,
 ): accessMethod is AccessMethodSetting<CustomProxy> {
-  return accessMethod.type !== 'direct' && accessMethod.type !== 'bridges';
+  return (
+    accessMethod.type !== 'direct' &&
+    accessMethod.type !== 'bridges' &&
+    accessMethod.type !== 'encrypted-dns-proxy'
+  );
 }
 
 export function convertFromApiAccessMethodSetting(
@@ -1200,6 +1217,8 @@ function convertFromAccessMethod(method: grpcTypes.AccessMethod): AccessMethod {
       return { type: 'direct' };
     case grpcTypes.AccessMethod.AccessMethodCase.BRIDGES:
       return { type: 'bridges' };
+    case grpcTypes.AccessMethod.AccessMethodCase.ENCRYPTED_DNS_PROXY:
+      return { type: 'encrypted-dns-proxy' };
     case grpcTypes.AccessMethod.AccessMethodCase.CUSTOM: {
       return convertFromCustomProxy(method.getCustom()!);
     }

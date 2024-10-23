@@ -2399,6 +2399,7 @@ dependencies = [
  "ipnetwork",
  "libc",
  "log",
+ "mullvad-encrypted-dns-proxy",
  "mullvad-fs",
  "mullvad-types",
  "rustls-pemfile 2.1.3",
@@ -2454,6 +2455,7 @@ dependencies = [
  "log",
  "log-panics",
  "mullvad-api",
+ "mullvad-encrypted-dns-proxy",
  "mullvad-fs",
  "mullvad-management-interface",
  "mullvad-paths",
@@ -2490,6 +2492,7 @@ dependencies = [
  "hickory-resolver",
  "log",
  "rustls 0.21.11",
+ "serde",
  "tokio",
  "webpki-roots",
 ]

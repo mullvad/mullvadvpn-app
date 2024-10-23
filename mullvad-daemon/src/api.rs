@@ -15,6 +15,7 @@ use mullvad_api::{
     proxy::{ApiConnectionMode, ConnectionModeProvider, ProxyConfig},
     AddressCache,
 };
+use mullvad_encrypted_dns_proxy::state::EncryptedDnsProxyState;
 use mullvad_relay_selector::RelaySelector;
 use mullvad_types::access_method::{
     AccessMethod, AccessMethodSetting, BuiltInAccessMethod, Id, Settings,
@@ -239,6 +240,8 @@ pub struct AccessModeSelector {
     cache_dir: PathBuf,
     /// Used for selecting a Bridge when the `Mullvad Bridges` access method is used.
     relay_selector: RelaySelector,
+    /// Used for selecting a config for the 'Encrypted DNS proxy' access method.
+    encrypted_dns_proxy_cache: EncryptedDnsProxyState,
     access_method_settings: Settings,
     address_cache: AddressCache,
     access_method_event_sender: DaemonEventSender<(AccessMethodEvent, oneshot::Sender<()>)>,
@@ -267,10 +270,18 @@ impl AccessModeSelector {
             }
         }
 
+        // Initialize the Encrypted DNS cache
+        let mut encrypted_dns_proxy_cache = EncryptedDnsProxyState::default();
+
         // Always start looking from the position of `Direct`.
         let (index, next) = Self::find_next_active(0, &access_method_settings);
-        let initial_connection_mode =
-            Self::resolve_inner(next, &relay_selector, &address_cache).await;
+        let initial_connection_mode = Self::resolve_inner(
+            next,
+            &relay_selector,
+            &mut encrypted_dns_proxy_cache,
+            &address_cache,
+        )
+        .await;
 
         let (change_tx, change_rx) = mpsc::unbounded();
 
@@ -280,6 +291,7 @@ impl AccessModeSelector {
             cmd_rx,
             cache_dir,
             relay_selector,
+            encrypted_dns_proxy_cache,
             access_method_settings,
             address_cache,
             access_method_event_sender,
@@ -405,13 +417,10 @@ impl AccessModeSelector {
 
         // Save the new connection mode to cache!
         let cache_dir = self.cache_dir.clone();
-        let new_connection_mode = resolved.connection_mode.clone();
+        let connection_mode = resolved.connection_mode.clone();
         tokio::spawn(async move {
-            if new_connection_mode.save(&cache_dir).await.is_err() {
-                log::warn!(
-                    "Failed to save {connection_mode} to cache",
-                    connection_mode = new_connection_mode
-                )
+            if connection_mode.save(&cache_dir).await.is_err() {
+                log::warn!("Failed to save {connection_mode:#?} to cache")
             }
         });
 
@@ -496,16 +505,53 @@ impl AccessModeSelector {
     }
 
     async fn resolve(&mut self, access_method: AccessMethodSetting) -> ResolvedConnectionMode {
-        Self::resolve_inner(access_method, &self.relay_selector, &self.address_cache).await
+        Self::resolve_inner(
+            access_method,
+            &self.relay_selector,
+            &mut self.encrypted_dns_proxy_cache,
+            &self.address_cache,
+        )
+        .await
     }
 
     async fn resolve_inner(
         access_method: AccessMethodSetting,
         relay_selector: &RelaySelector,
+        encrypted_dns_proxy_cache: &mut EncryptedDnsProxyState,
         address_cache: &AddressCache,
     ) -> ResolvedConnectionMode {
-        let connection_mode =
-            resolve_connection_mode(access_method.access_method.clone(), relay_selector);
+        let connection_mode = {
+            let access_method = access_method.access_method.clone();
+            match access_method {
+                AccessMethod::BuiltIn(BuiltInAccessMethod::Direct) => ApiConnectionMode::Direct,
+                AccessMethod::BuiltIn(BuiltInAccessMethod::Bridge) => relay_selector
+                    .get_bridge_forced()
+                    .map(ProxyConfig::from)
+                    .map(ApiConnectionMode::Proxied)
+                    .unwrap_or_else(|| {
+                        log::warn!(
+                            "Received unexpected proxy settings type. Defaulting to direct API connection"
+                        );
+                        log::debug!("Defaulting to direct API connection");
+                        ApiConnectionMode::Direct
+                    }),
+                AccessMethod::BuiltIn(BuiltInAccessMethod::EncryptedDnsProxy) => {
+                    if let Err(error) = encrypted_dns_proxy_cache.fetch_configs().await {
+                        log::warn!("Failed to fetch new Encrypted DNS Proxy configurations");
+                        log::debug!("{error:#?}");
+                    }
+                    encrypted_dns_proxy_cache
+                    .next_configuration()
+                    .map(ProxyConfig::EncryptedDnsProxy)
+                    .map(ApiConnectionMode::Proxied)
+                    .unwrap_or_else(|| {
+                        log::warn!("Could not select next Encrypted DNS proxy config");
+                        log::debug!("Defaulting to direct API connection");
+                        ApiConnectionMode::Direct
+                    })},
+                AccessMethod::Custom(config) => ApiConnectionMode::Proxied(ProxyConfig::from(config)),
+            }
+        };
         let endpoint =
             resolve_allowed_endpoint(&connection_mode, address_cache.get_address().await);
         ResolvedConnectionMode {
@@ -513,30 +559,6 @@ impl AccessModeSelector {
             endpoint,
             setting: access_method,
         }
-    }
-}
-
-/// Ad-hoc version of [`std::convert::From::from`], but since some
-/// [`ApiConnectionMode`]s require extra logic/data from [`RelaySelector`] to be
-/// instantiated the standard [`std::convert::From`] trait can not be
-/// implemented.
-fn resolve_connection_mode(
-    access_method: AccessMethod,
-    relay_selector: &RelaySelector,
-) -> ApiConnectionMode {
-    match access_method {
-        AccessMethod::BuiltIn(BuiltInAccessMethod::Direct) => ApiConnectionMode::Direct,
-        AccessMethod::BuiltIn(BuiltInAccessMethod::Bridge) => relay_selector
-            .get_bridge_forced()
-            .map(ProxyConfig::from)
-            .map(ApiConnectionMode::Proxied)
-            .unwrap_or_else(|| {
-                log::error!(
-                    "Received unexpected proxy settings type. Defaulting to direct API connection"
-                );
-                ApiConnectionMode::Direct
-            }),
-        AccessMethod::Custom(config) => ApiConnectionMode::Proxied(ProxyConfig::from(config)),
     }
 }
 
