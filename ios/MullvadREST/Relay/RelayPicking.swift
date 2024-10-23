@@ -46,6 +46,18 @@ struct SinglehopPicker: RelayPicking {
 
     func pick() throws -> SelectedRelays {
         do {
+            let exitCandidates = try RelaySelector.WireGuard.findCandidates(
+                by: constraints.exitLocations,
+                in: relays,
+                filterConstraint: constraints.filter,
+                daitaEnabled: daitaSettings.daitaState.isEnabled
+            )
+
+            let match = try findBestMatch(from: exitCandidates)
+            return SelectedRelays(entry: nil, exit: match, retryAttempt: connectionAttemptCount)
+        } catch let error as NoRelaysSatisfyingConstraintsError where error.reason == .noDaitaRelaysFound {
+            // If DAITA is on and Direct only is off, and no supported relays are found, we should try to find the nearest
+            // available relay that supports DAITA and use it as entry in a multihop selection.
             if daitaSettings.isAutomaticRouting {
                 return try MultihopPicker(
                     relays: relays,
@@ -54,15 +66,7 @@ struct SinglehopPicker: RelayPicking {
                     daitaSettings: daitaSettings
                 ).pick()
             } else {
-                let exitCandidates = try RelaySelector.WireGuard.findCandidates(
-                    by: constraints.exitLocations,
-                    in: relays,
-                    filterConstraint: constraints.filter,
-                    daitaEnabled: daitaSettings.daitaState.isEnabled
-                )
-
-                let match = try findBestMatch(from: exitCandidates)
-                return SelectedRelays(entry: nil, exit: match, retryAttempt: connectionAttemptCount)
+                throw error
             }
         }
     }
