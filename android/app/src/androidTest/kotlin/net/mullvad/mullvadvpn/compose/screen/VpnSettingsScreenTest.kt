@@ -378,7 +378,7 @@ class VpnSettingsScreenTest {
     fun testClickAddDns() =
         composeExtension.use {
             // Arrange
-            val mockedClickHandler: (Int?, String?) -> Unit = mockk(relaxed = true)
+            val mockedClickHandler: (Int?) -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 VpnSettingsScreen(
                     state = VpnSettingsUiState.createDefault(isCustomDnsEnabled = true),
@@ -390,7 +390,7 @@ class VpnSettingsScreenTest {
             onNodeWithText("Add a server").performClick()
 
             // Assert
-            verify { mockedClickHandler.invoke(null, null) }
+            verify { mockedClickHandler.invoke(null) }
         }
 
     @Test

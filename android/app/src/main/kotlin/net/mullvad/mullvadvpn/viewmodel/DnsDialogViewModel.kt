@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.repository.SettingsRepository
+import net.mullvad.talpid.util.addressString
 import org.apache.commons.validator.routines.InetAddressValidator
 
 sealed interface DnsDialogSideEffect {
@@ -57,20 +58,27 @@ class DnsDialogViewModel(
     private val navArgs = DnsDestination.argsFrom(savedStateHandle)
 
     private val settings = MutableStateFlow<Settings?>(null)
-    private val currentIndex = MutableStateFlow(navArgs.index)
-    private val _ipAddressInput = MutableStateFlow(navArgs.initialValue ?: EMPTY_STRING)
+    private val _ipAddressInput = MutableStateFlow<String?>(null)
 
     val uiState: StateFlow<DnsDialogViewState> =
-        combine(_ipAddressInput, currentIndex, settings.filterNotNull()) {
-                input,
-                currentIndex,
-                settings ->
-                createViewState(settings.addresses(), currentIndex, settings.allowLan, input)
+        combine(_ipAddressInput, settings.filterNotNull()) { inputAddress, settings ->
+                val dnsList = settings.addresses()
+                val input =
+                    inputAddress
+                        ?: navArgs.index?.let { index -> dnsList[index].addressString() }
+                        ?: EMPTY_STRING
+
+                createViewState(
+                    customDnsList = dnsList,
+                    currentIndex = navArgs.index,
+                    isAllowLanEnabled = settings.allowLan,
+                    input = input,
+                )
             }
             .stateIn(
                 viewModelScope,
                 SharingStarted.Lazily,
-                createViewState(emptyList(), null, false, _ipAddressInput.value),
+                createViewState(emptyList(), null, false, EMPTY_STRING),
             )
 
     private val _uiSideEffect = Channel<DnsDialogSideEffect>()
