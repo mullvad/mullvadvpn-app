@@ -72,6 +72,7 @@ jobs:
     uses: ./.github/workflows/ios-end-to-end-tests.yml
     with:
       arg_tests_json_key: "MullvadVPNUITestsVerifyDNSSettingsChanged"
+      commit_hash: ''
     secrets: inherit
   change_other_settings:
     name: Change All Other Settings on Old App Version
@@ -87,4 +88,5 @@ jobs:
     uses: ./.github/workflows/ios-end-to-end-tests.yml
     with:
       arg_tests_json_key: "MullvadVPNUITestsVerifySettingsChanged"
+      commit_hash: ''
     secrets: inherit
