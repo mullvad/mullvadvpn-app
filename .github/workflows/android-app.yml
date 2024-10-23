@@ -477,7 +477,7 @@ jobs:
 
       - name: Upload instrumentation report (${{ matrix.test-type }})
         uses: actions/upload-artifact@v4
-        if: ${{ matrix.test-repeat != 0 }}
+        if: always() && matrix.test-repeat != 0
         with:
           name: ${{ matrix.test-type }}-instrumentation-report
           path: ${{ steps.prepare-report-dir.outputs.report_dir }}
