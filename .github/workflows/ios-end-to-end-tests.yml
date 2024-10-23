@@ -91,7 +91,6 @@ jobs:
           toolchain: stable
           override: true
           target: aarch64-apple-ios
-        working-directory: app-working-directory
 
       - name: Build iOS end to end tests action
         uses: ./.github/actions/build-ios-e2e-tests
