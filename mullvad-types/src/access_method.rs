@@ -4,8 +4,11 @@ use talpid_types::net::proxy::{CustomProxy, Shadowsocks, Socks5Local, Socks5Remo
 /// Settings for API access methods.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Settings {
+    #[serde(default = "Settings::create_direct")]
     direct: AccessMethodSetting,
+    #[serde(default = "Settings::create_mullvad_bridges")]
     mullvad_bridges: AccessMethodSetting,
+    #[serde(default = "Settings::create_encrypted_dns_proxy")]
     encrypted_dns_proxy: AccessMethodSetting,
     /// Custom API access methods.
     custom: Vec<AccessMethodSetting>,
