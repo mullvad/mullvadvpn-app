@@ -40,6 +40,12 @@ Line wrap the file at 100 chars.                                              Th
 - Fix packets being duplicated on LAN when split tunneling is enabled.
 
 
+## [2024.6] - 2024-10-23
+### Fixed
+#### macOS
+- Disable DNS redirect when custom DNS is set to localhost.
+
+
 ## [2024.6-beta2] - 2024-10-09
 ### Changed
 - Move DAITA and multihop to the root settings view along with moving multihop into a dedicated
