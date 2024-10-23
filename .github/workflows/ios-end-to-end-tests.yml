@@ -103,7 +103,7 @@ jobs:
           test_device_udid: ${{ env.TEST_DEVICE_UDID }}
           partner_api_token: ${{ secrets.STAGEMOLE_PARTNER_AUTH }}
           outputs_path: ${{ needs.set-up-outputs-directory.outputs.job_outputs_directory }}
-        working-directory: app-working-directory
+        working-directory: "app-working-directory"
 
       - name: Debug print job output directory
         run: |
