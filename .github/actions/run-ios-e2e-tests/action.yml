@@ -12,6 +12,9 @@ inputs:
       Path to where outputs are stored - both build outputs and outputs from running tests.
       This should be unique for each job run in order to avoid concurrency issues.
     required: true
+  working_directory:
+    description: 'Path to build test.'
+    required: true
 
 runs:
   using: 'composite'
@@ -66,7 +69,7 @@ runs:
           test-without-building 2>&1 | xcbeautify --report junit \
           --report-path ${{ env.TEST_OUTPUT_DIRECTORY }}/junit-test-report
       shell: bash
-      working-directory: ${{ inputs.outputs_path }}/mullvadvpn-app/ios
+      working-directory: ${{ inputs.working_directory }}/mullvadvpn-app/ios
       env:
         TEST_NAME: ${{ inputs.test_name }}
         TEST_DEVICE_UDID: ${{ inputs.test_device_udid }}
