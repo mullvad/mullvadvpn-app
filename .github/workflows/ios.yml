@@ -118,5 +118,17 @@ jobs:
             -destination "platform=iOS Simulator,name=iPhone 15" \
             -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH" \
             -disableAutomaticPackageResolution \
+            -resultBundlePath xcode-test-report \
             test 2>&1 | xcbeautify
         working-directory: ios/
+
+      - name: Archive test report
+        if: always()
+        run: zip -r test-report.zip ios/xcode-test-report.xcresult
+
+      - name: Store test report artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report
+          path: test-report.zip
