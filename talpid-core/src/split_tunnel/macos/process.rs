@@ -19,10 +19,13 @@ use std::{
 use talpid_macos::process::{list_pids, process_path};
 use talpid_platform_metadata::MacosVersion;
 use talpid_types::tunnel::ErrorStateCause;
-use tokio::io::{AsyncBufReadExt, BufReader};
+use tokio::{
+    io::{AsyncBufReadExt, BufReader},
+    sync::OnceCell,
+};
 
 const SHUTDOWN_TIMEOUT: Duration = Duration::from_secs(3);
-const EARLY_FAIL_TIMEOUT: Duration = Duration::from_millis(500);
+const EARLY_FAIL_TIMEOUT: Duration = Duration::from_millis(100);
 
 static MIN_OS_VERSION: LazyLock<MacosVersion> =
     LazyLock::new(|| MacosVersion::from_raw_version("13.0.0").unwrap());
@@ -75,27 +78,79 @@ pub struct ProcessMonitorHandle {
 impl ProcessMonitor {
     pub async fn spawn() -> Result<ProcessMonitorHandle, Error> {
         check_os_version_support()?;
-        let states = ProcessStates::new()?;
 
+        if !has_full_disk_access().await {
+            return Err(Error::NeedFullDiskPermissions);
+        }
+
+        let states = ProcessStates::new()?;
         let proc = spawn_eslogger()?;
         let (stop_proc_tx, stop_rx): (_, oneshot::Receiver<oneshot::Sender<_>>) =
             oneshot::channel();
-        let mut proc_task = tokio::spawn(handle_eslogger_output(proc, states.clone(), stop_rx));
-
-        match tokio::time::timeout(EARLY_FAIL_TIMEOUT, &mut proc_task).await {
-            // On timeout, all is well
-            Err(_) => (),
-            // The process returned an error
-            Ok(Ok(Err(error))) => return Err(error),
-            Ok(Ok(Ok(()))) => unreachable!("process monitor stopped prematurely"),
-            Ok(Err(_)) => unreachable!("process monitor panicked"),
-        }
+        let proc_task = tokio::spawn(handle_eslogger_output(proc, states.clone(), stop_rx));
 
         Ok(ProcessMonitorHandle {
             stop_proc_tx: Some(stop_proc_tx),
             proc_task,
             states,
         })
+    }
+}
+
+/// Return whether the process has full-disk access
+pub async fn has_full_disk_access() -> bool {
+    static HAS_TCC_APPROVAL: OnceCell<bool> = OnceCell::const_new();
+    *HAS_TCC_APPROVAL
+        .get_or_try_init(|| async { has_full_disk_access_inner().await })
+        .await
+        .unwrap_or(&true)
+}
+
+async fn has_full_disk_access_inner() -> Result<bool, Error> {
+    let mut proc = spawn_eslogger()?;
+
+    let stdout = proc.stdout.take().unwrap();
+    let stderr = proc.stderr.take().unwrap();
+
+    let stderr = BufReader::new(stderr);
+    let mut stderr_lines = stderr.lines();
+
+    let stdout = BufReader::new(stdout);
+    let mut stdout_lines = stdout.lines();
+
+    let mut find_err = tokio::spawn(async move {
+        loop {
+            tokio::select! {
+                Ok(Some(line)) = stderr_lines.next_line() => {
+                    break !matches!(
+                        parse_eslogger_error(&line),
+                        Some(Error::NeedFullDiskPermissions),
+                    );
+                }
+                Ok(Some(_)) = stdout_lines.next_line() => {
+                    // Received output, but not an err
+                    break true;
+                }
+                else => break true,
+            }
+        }
+    });
+
+    drop(proc.stdin.take());
+
+    let proc = tokio::time::timeout(EARLY_FAIL_TIMEOUT, proc.wait());
+
+    tokio::select! {
+        // Received standard err/out
+        found_err = &mut find_err => {
+            Ok(found_err.expect("find_err panicked"))
+        }
+        // Process exited
+        Ok(Ok(_exit_status)) = proc => {
+            Ok(find_err.await.expect("find_err panicked"))
+        }
+        // Timeout
+        else => Ok(true),
     }
 }
 
