@@ -35,6 +35,7 @@
     <string name="Colombia">Kolombiya</string>
     <string name="Copenhagen">Kopenhag</string>
     <string name="Croatia">Hırvatistan</string>
+    <string name="Cyprus">Güney Kıbrıs Rum Yönetimi</string>
     <string name="Czech Republic">Çek Cumhuriyeti</string>
     <string name="Dallas, TX">Dallas, TX</string>
     <string name="Denmark">Danimarka</string>
@@ -61,6 +62,7 @@
     <string name="Indonesia">Endonezya</string>
     <string name="Ireland">İrlanda</string>
     <string name="Israel">İsrail</string>
+    <string name="Istanbul">İstanbul</string>
     <string name="Italy">İtalya</string>
     <string name="Jackson, MS">Jackson, MS</string>
     <string name="Jakarta">Cakarta</string>
@@ -69,6 +71,7 @@
     <string name="Kiev">Kiev</string>
     <string name="Kyiv">Kiev</string>
     <string name="Latvia">Letonya</string>
+    <string name="Lima">Lima</string>
     <string name="Lisbon">Lizbon</string>
     <string name="Ljubljana">Ljubljana</string>
     <string name="London">Londra</string>
@@ -91,6 +94,7 @@
     <string name="Netherlands">Hollanda</string>
     <string name="New York, NY">New York, NY</string>
     <string name="New Zealand">Yeni Zelanda</string>
+    <string name="Nicosia">Lefkoşa</string>
     <string name="Nis">Niş</string>
     <string name="North Macedonia">Kuzey Makedonya</string>
     <string name="Norway">Norveç</string>
@@ -100,6 +104,7 @@
     <string name="Palermo">Palermo</string>
     <string name="Paris">Paris</string>
     <string name="Perth">Perth</string>
+    <string name="Peru">Peru</string>
     <string name="Philadelphia, PA">Philadelphia, PA</string>
     <string name="Phoenix, AZ">Phoenix, AZ</string>
     <string name="Piscataway, NJ">Piscataway, NJ</string>
@@ -143,6 +148,7 @@
     <string name="Tirana">Tiran</string>
     <string name="Tokyo">Tokyo</string>
     <string name="Toronto">Toronto</string>
+    <string name="Turkey">Türkiye</string>
     <string name="UK">Birleşik Krallık</string>
     <string name="USA">Amerika Birleşik Devletleri</string>
     <string name="Ukraine">Ukrayna</string>

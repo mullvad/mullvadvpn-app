@@ -10,7 +10,10 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Thai\n"
 "Language: th_TH\n"
-"PO-Revision-Date: 2024-06-27 08:16\n"
+"PO-Revision-Date: 2024-10-23 06:33\n"
+
+msgid "%(amount)d more..."
+msgstr "อีก %(amount)d..."
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "มีการเพิ่ม %(duration)s แล้ว บัญชีได้ชำระเงินจนถึง %(expiry)s"
@@ -90,8 +93,14 @@ msgstr "เชื่อมต่อ"
 msgid "Connected"
 msgstr "เชื่อมต่อแล้ว"
 
+msgid "CONNECTED"
+msgstr "เชื่อมต่อแล้ว"
+
 msgid "Connecting"
 msgstr "กำลังเชื่อมต่อ"
+
+msgid "CONNECTING..."
+msgstr "กำลังเชื่อมต่อ..."
 
 #. Creating a secure connection that isn't breakable by quantum computers.
 msgid "CREATING QUANTUM SECURE CONNECTION"
@@ -103,6 +112,11 @@ msgstr "กำลังสร้างการเชื่อมต่อที
 msgid "Custom"
 msgstr "กำหนดเอง"
 
+#. This refers to the Custom DNS setting in the VPN settings view. This is
+#. displayed when the feature is on.
+msgid "Custom DNS"
+msgstr "DNS แบบกำหนดเอง"
+
 msgid "Default"
 msgstr "ค่าเริ่มต้น"
 
@@ -111,6 +125,9 @@ msgstr "ลบ"
 
 msgid "Delete list"
 msgstr "ลบรายการ"
+
+msgid "Direct only"
+msgstr "โดยตรงเท่านั้น"
 
 msgid "Disable"
 msgstr "ปิดใช้งาน"
@@ -124,17 +141,23 @@ msgstr "ตัดการเชื่อมต่อและออก"
 msgid "Disconnected"
 msgstr "ตัดการเชื่อมต่อแล้ว"
 
+msgid "DISCONNECTED"
+msgstr "ยกเลิกการเชื่อมต่อแล้ว"
+
 msgid "Disconnecting"
 msgstr "กำลังตัดการเชื่อมต่อ"
 
-msgid "Dismiss"
-msgstr "ละทิ้ง"
+msgid "DISCONNECTING..."
+msgstr "กำลังยกเลิกการเชื่อมต่อ..."
 
 msgid "Edit"
 msgstr "แก้ไข"
 
 msgid "Enable"
 msgstr "เปิดใช้งาน"
+
+msgid "Enable \"%(directOnly)s\""
+msgstr "เปิดใช้งาน \"%(directOnly)s\""
 
 msgid "Enable anyway"
 msgstr "เปิดใช้งานต่อไป"
@@ -170,6 +193,11 @@ msgstr "น้อยกว่าหนึ่งวัน"
 msgid "less than a day left"
 msgstr "เหลือเวลาน้อยกว่าหนึ่งวัน"
 
+#. This refers to the multihop setting in the VPN settings view. This is
+#. displayed when the feature is on.
+msgid "Multihop"
+msgstr "มัลติฮอป"
+
 msgid "Name"
 msgstr "ชื่อ"
 
@@ -196,6 +224,11 @@ msgstr "รหัสผ่าน"
 
 msgid "Port"
 msgstr "พอร์ต"
+
+#. This refers to the quantum resistance setting in the WireGuard settings view.
+#. This is displayed when the feature is on.
+msgid "Quantum resistance"
+msgstr "การต่อต้านควอนตัม"
 
 #. The connection is secure and isn't breakable by quantum computers.
 msgid "QUANTUM SECURE CONNECTION"
@@ -233,7 +266,6 @@ msgstr "ทดสอบ"
 
 #. Warning shown in dialog to users when they enable setting that increases
 #. network latency (decreases performance).
-#. Warning text in a dialog that is displayed after a setting is toggled.
 msgid "This setting increases latency. Use only if needed."
 msgstr "การตั้งค่านี้จะเพิ่มความหน่วงแฝง ใช้เมื่อจำเป็นเท่านั้น"
 
@@ -334,11 +366,19 @@ msgctxt "accessibility"
 msgid "Select location. Current location is %(location)s"
 msgstr "เลือกตำแหน่งที่ตั้ง ตำแหน่งที่ตั้งปัจจุบันคือ %(location)s"
 
+msgctxt "accessibility"
+msgid "Shadowsocks settings"
+msgstr "การตั้งค่า Shadowsocks"
+
 #. Provided to accessibility tools such as screenreaders to describe
 #. the button which unobscures the account number.
 msgctxt "accessibility"
 msgid "Show account number"
 msgstr "แสดงหมายเลขบัญชี"
+
+msgctxt "accessibility"
+msgid "UDP-over-TCP settings"
+msgstr "การตั้งค่า UDP-ผ่าน-TCP"
 
 #. Title label in navigation bar
 msgctxt "account-view"
@@ -564,8 +604,16 @@ msgid "%(city)s (%(hostname)s)"
 msgstr "%(city)s (%(hostname)s)"
 
 msgctxt "connect-view"
+msgid "Active features"
+msgstr "คุณลักษณะที่ใช้งาน"
+
+msgctxt "connect-view"
 msgid "Congrats!"
 msgstr "ยินดีด้วย!"
+
+msgctxt "connect-view"
+msgid "Connection details"
+msgstr "รายละเอียดการเชื่อมต่อ"
 
 msgctxt "connect-view"
 msgid "Disconnect"
@@ -639,12 +687,6 @@ msgctxt "connect-view"
 msgid "You’re all set!"
 msgstr "คุณพร้อมแล้ว!"
 
-#. %(hostname)s - The current server the app is connected to, e.g. "se-got-wg-001 using DAITA"
-#. %(daita)s - Will be replaced with "DAITA"
-msgctxt "connection-info"
-msgid "%(hostname)s using %(daita)s"
-msgstr "%(hostname)s กำลังใช้ %(daita)s"
-
 #. The hostname line displayed below the country on the main screen
 #. Available placeholders:
 #. %(relay)s - the relay hostname
@@ -656,14 +698,6 @@ msgstr "%(relay)s ผ่าน %(entry)s"
 msgctxt "connection-info"
 msgid "%(relay)s via Custom bridge"
 msgstr "%(relay)s ผ่าน Bridge แบบกำหนดเอง"
-
-#. The tunnel type line displayed below the hostname line on the main screen
-#. Available placeholders:
-#. %(tunnelType)s - the tunnel type, i.e OpenVPN
-#. %(bridgeType)s - the bridge type, i.e Shadowsocks
-msgctxt "connection-info"
-msgid "%(tunnelType)s via %(bridgeType)s"
-msgstr "%(tunnelType)s ผ่าน %(bridgeType)s"
 
 msgctxt "connection-info"
 msgid "In"
@@ -1492,6 +1526,10 @@ msgid "App version"
 msgstr "เวอร์ชันแอป"
 
 msgctxt "settings-view"
+msgid "Multihop"
+msgstr "มัลติฮอป"
+
+msgctxt "settings-view"
 msgid "Support"
 msgstr "การสนับสนุน"
 
@@ -1755,8 +1793,8 @@ msgid "Update your kernel."
 msgstr "อัปเดตเคอร์เนลของคุณ"
 
 msgctxt "tunnel-control"
-msgid "Secure my connection"
-msgstr "รักษาความปลอดภัยในการเชื่อมต่อ"
+msgid "Connect"
+msgstr "เชื่อมต่อ"
 
 msgctxt "tunnel-control"
 msgid "Switch location"
@@ -1880,11 +1918,6 @@ msgctxt "vpn-settings-view"
 msgid "Enable IPv6"
 msgstr "เปิดใช้งาน IPv6"
 
-#. The label next to the multihop settings toggle.
-msgctxt "vpn-settings-view"
-msgid "Enable multihop"
-msgstr "เปิดใช้ Multihop"
-
 msgctxt "vpn-settings-view"
 msgid "Enable to add at least one DNS server."
 msgstr "เปิดเพื่อเพิ่มเซิร์ฟเวอร์ DNS อย่างน้อยหนึ่งรายการ"
@@ -1897,13 +1930,6 @@ msgstr "ป้อน IP"
 msgctxt "vpn-settings-view"
 msgid "Gambling"
 msgstr "การพนัน"
-
-#. Description for multihop settings toggle.
-#. Available placeholders:
-#. %(wireguard)s - Will be replaced with the string "WireGuard"
-msgctxt "vpn-settings-view"
-msgid "Increases anonymity by routing your traffic into one %(wireguard)s server and out another, making it harder to trace."
-msgstr "ยกระดับการไม่ระบุตัวตน ด้วยการกำหนดเส้นทางการรับส่งข้อมูลของคุณไปยังเซิร์ฟเวอร์ %(wireguard)s เดียว และออกไปยังอีกเซิร์ฟเวอร์ เพื่อทำให้ติดตามได้ยากขึ้น"
 
 msgctxt "vpn-settings-view"
 msgid "IPv4 is always enabled and the majority of websites and applications use this protocol. We do not recommend enabling IPv6 unless you know you need it."
@@ -1978,6 +2004,10 @@ msgctxt "vpn-settings-view"
 msgid "This might cause issues on certain websites, services, and apps."
 msgstr "นี่อาจก่อให้เกิดปัญหากับบางเว็บไซต์ บริการ และแอปได้"
 
+msgctxt "vpn-settings-view"
+msgid "To select %(openvpn)s, please disable these settings: %(featureList)s."
+msgstr "ในการเลือก %(openvpn)s โปรดปิดใช้งานการตั้งค่าเหล่านี้: %(featureList)s"
+
 #. Label for settings that enables tracker blocking.
 msgctxt "vpn-settings-view"
 msgid "Trackers"
@@ -2019,9 +2049,23 @@ msgctxt "wireguard-settings-nav"
 msgid "%(wireguard)s settings"
 msgstr "การตั้งค่า %(wireguard)s"
 
+#. Title label in navigation bar
+msgctxt "wireguard-settings-nav"
+msgid "Shadowsocks"
+msgstr "Shadowsocks"
+
+#. Title label in navigation bar
+msgctxt "wireguard-settings-nav"
+msgid "UDP-over-TCP"
+msgstr "UDP-ผ่าน-TCP"
+
 msgctxt "wireguard-settings-view"
-msgid "%(daita)s (%(daitaFull)s) hides patterns in your encrypted VPN traffic. If anyone is monitoring your connection, this makes it significantly harder for them to identify what websites you are visiting. It does this by carefully adding network noise and making all network packets the same size."
-msgstr "%(daita)s (%(daitaFull)s) ซ่อนรูปแบบในการรับส่งข้อมูล VPN ที่เข้ารหัสของคุณ หากมีใครกำลังเฝ้าดูการเชื่อมต่อของคุณอยู่ สิ่งนี้จะทำให้การระบุเว็บไซต์ที่คุณกำลังเยี่ยมชมยากขึ้นอย่างมาก ซึ่งทำได้โดยการเพิ่มสัญญาณรบกวนเครือข่ายอย่างระมัดระวัง และทำให้แพ็กเก็ตเครือข่ายทั้งหมดมีขนาดเท่ากันหมด"
+msgid "%(daita)s (%(daitaFull)s) hides patterns in your encrypted VPN traffic."
+msgstr "%(daita)s (%(daitaFull)s) ซ่อนรูปแบบในการรับส่งข้อมูล VPN ที่เข้ารหัสของคุณ"
+
+msgctxt "wireguard-settings-view"
+msgid "%(daita)s does this by carefully adding network noise and making all network packets the same size."
+msgstr "%(daita)s ได้ดำเนินการนี้ ด้วยการเพิ่มสัญญาณรบกวนเครือข่ายอย่างระมัดระวัง และทำให้แพ็กเก็ตเครือข่ายทั้งหมดมีขนาดเท่ากัน"
 
 #. Available placeholders:
 #. %(wireguard)s - Will be replaced with the string "WireGuard"
@@ -2030,8 +2074,24 @@ msgid "%(wireguard)s settings"
 msgstr "การตั้งค่า %(wireguard)s"
 
 msgctxt "wireguard-settings-view"
-msgid "Attention: Since this increases your total network traffic, be cautious if you have a limited data plan. It can also negatively impact your network speed. Please consider this if you want to enable %(daita)s."
-msgstr "โปรดทราบ: เนื่องจากการดำเนินการนี้จะเพิ่มการรับส่งข้อมูลโดยรวมของคุณขึ้น โปรดใช้ความระมัดระวัง หากคุณมีแผนข้อมูลที่มีปริมาณจำกัด การดำเนินการนี้อาจส่งผลเชิงลบต่อความเร็วเครือข่ายของคุณได้ โปรดพิจารณาข้อมูลเหล่านี้ หากคุณต้องการเปิดใช้งาน %(daita)s"
+msgid "Attention: Be cautious if you have a limited data plan as this feature will increase your network traffic. This feature can only be used with %(wireguard)s."
+msgstr "โปรดทราบ: โปรดใช้ความระมัดระวัง หากคุณมีแผนข้อมูลจำกัด เนื่องจากคุณลักษณะนี้จะเพิ่มปริมาณการรับส่งข้อมูลในเครือข่ายของคุณ และคุณลักษณะนี้ใช้ได้กับ %(wireguard)s เท่านั้น"
+
+msgctxt "wireguard-settings-view"
+msgid "By enabling “%(directOnly)s” you will have to manually select a server that is %(daita)s-enabled. This can cause you to end up in a blocked state until you have selected a compatible server in the “Select location” view."
+msgstr "โดยการเปิดใช้งาน “%(directOnly)s” คุณจะต้องเลือกเซิร์ฟเวอร์ที่เปิดใช้งาน %(daita)s ด้วยตนเอง ซึ่งอาจทำให้คุณอยู่ในสถานะถูกบล็อก จนกว่าคุณจะเลือกเซิร์ฟเวอร์ที่เข้ากันได้ในมุมมอง \"เลือกตำแหน่งที่ตั้ง\""
+
+msgctxt "wireguard-settings-view"
+msgid "By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted)."
+msgstr "โดยการใช้ AI ที่ซับซ้อน จึงเป็นไปได้ที่จะวิเคราะห์ปริมาณการรับส่งข้อมูล ที่เข้าออกอุปกรณ์ของคุณได้ (แม้ว่าการรับส่งข้อมูลจะเข้ารหัสไว้ก็ตาม)"
+
+msgctxt "wireguard-settings-view"
+msgid "Cancel"
+msgstr "ยกเลิก"
+
+msgctxt "wireguard-settings-view"
+msgid "If an observer monitors these data packets, %(daita)s makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating."
+msgstr "หากผู้สังเกตการณ์เฝ้าดูแพ็กเก็ตข้อมูลเหล่านี้ %(daita)s จะทำให้พวกเขาระบุเว็บไซต์ที่คุณกำลังเยี่ยมชม หรือผู้ที่คุณกำลังติดต่อสื่อสารด้วยได้ยากขึ้นอย่างมาก"
 
 msgctxt "wireguard-settings-view"
 msgid "IP version"
@@ -2046,6 +2106,23 @@ msgid "MTU"
 msgstr "MTU"
 
 msgctxt "wireguard-settings-view"
+msgid "Multihop"
+msgstr "มัลติฮอป"
+
+msgctxt "wireguard-settings-view"
+msgid "Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online."
+msgstr "มัลติฮอปจะกำหนดเส้นทางการรับส่งข้อมูลของคุณ ไปยังหนึ่งในเซิร์ฟเวอร์ WireGuard และออกไปยังอีกเซิร์ฟเวอร์หนึ่ง ซึ่งทำให้ติดตามได้ยากขึ้น นี่จะส่งผลให้มีเวลาแฝงเพิ่มขึ้น แต่ก็จะช่วยปกปิดตัวตนออนไลน์ได้มากขึ้น"
+
+#. Warning text in a dialog that is displayed after a setting is toggled.
+msgctxt "wireguard-settings-view"
+msgid "Not all our servers are %(daita)s-enabled. In order to use the internet, you might have to select a new location after enabling."
+msgstr "ไม่ใช่ทุกเซิร์ฟเวอร์ของเราที่เปิดใช้งาน %(daita)s คุณอาจต้องเลือกตำแหน่งที่ตั้งใหม่หลังจากเปิดใช้งาน เพื่อใช้งานอินเทอร์เน็ต"
+
+msgctxt "wireguard-settings-view"
+msgid "Not all our servers are %(daita)s-enabled. Therefore, we use multihop automatically to enable %(daita)s with any server."
+msgstr "ไม่ใช่ทุกเซิร์ฟเวอร์ของเราที่เปิดใช้งาน %(daita)s ด้วยเหตุนี้เอง เราจึงใช้การมัลติฮอปอัตโนมัติ เพื่อเปิดใช้งาน %(daita)s กับทุกเซิร์ฟเวอร์"
+
+msgctxt "wireguard-settings-view"
 msgid "Obfuscation"
 msgstr "การทำให้ข้อมูลยุ่งเหยิง"
 
@@ -2054,12 +2131,15 @@ msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can b
 msgstr "การทำให้ข้อมูลยุ่งเหยิง จะซ่อนการรับส่งข้อมูล WireGuard ภายในอีกโพรโทคอลหนึ่ง ซึ่งใช้เพื่อช่วยหลบเลี่ยงการเซ็นเซอร์ และการกรองประเภทอื่นๆ ที่การเชื่อมต่อ WireGuard แบบธรรมดาจะถูกบล็อกได้"
 
 msgctxt "wireguard-settings-view"
-msgid "On (UDP-over-TCP)"
-msgstr "เปิด (UDP-ผ่าน-TCP)"
-
-msgctxt "wireguard-settings-view"
 msgid "Port"
 msgstr "พอร์ต"
+
+#. Text showing currently selected port.
+#. Available placeholders:
+#. %(port)s - Can be either a number between 1 and 65000 or the text "Automatic".
+msgctxt "wireguard-settings-view"
+msgid "Port: %(port)s"
+msgstr "พอร์ต: %(port)s"
 
 #. The title for the WireGuard quantum resistance selector. This setting
 #. makes the cryptography resistant to the future abilities of quantum
@@ -2078,6 +2158,14 @@ msgid "Set %(wireguard)s MTU value. Valid range: %(min)d - %(max)d."
 msgstr "ตั้งค่า %(wireguard)s MTU ช่วงที่ใช้ได้: %(min)d - %(max)d"
 
 msgctxt "wireguard-settings-view"
+msgid "Shadowsocks"
+msgstr "Shadowsocks"
+
+msgctxt "wireguard-settings-view"
+msgid "Switch to “%(wireguard)s” or “%(automatic)s” in Settings > %(tunnelProtocol)s to make %(setting)s available."
+msgstr "สลับไปเป็น “%(wireguard)s” หรือ “%(automatic)s” ใน การตั้งค่า > %(tunnelProtocol)s เพื่อทำให้ %(setting)s พร้อมใช้งาน"
+
+msgctxt "wireguard-settings-view"
 msgid "The automatic setting will randomly choose from the valid port ranges shown below."
 msgstr "การตั้งค่าอัตโนมัติจะเป็นการสุ่มเลือกจากช่วงพอร์ตที่ใช้งานได้ต่างๆ ซึ่งแสดงอยู่ด้านล่าง"
 
@@ -2092,25 +2180,35 @@ msgctxt "wireguard-settings-view"
 msgid "This allows access to %(wireguard)s for devices that only support IPv6."
 msgstr "นี่จะช่วยให้อุปกรณ์ที่รองรับเฉพาะ IPv6 สามารถเข้าถึง %(wireguard)s ได้"
 
-#. Warning text in a dialog that is displayed after a setting is toggled.
-msgctxt "wireguard-settings-view"
-msgid "This feature isn't available on all servers. You might need to change location after enabling."
-msgstr "คุณสมบัตินี้ไม่พร้อมใช้งานบนทุกเซิร์ฟเวอร์ คุณอาจต้องต้องเปลี่ยนตำแหน่งที่ตั้ง หลังจากเปิดใช้งาน"
-
 msgctxt "wireguard-settings-view"
 msgid "This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers."
 msgstr "คุณลักษณะนี้จะช่วยให้ช่องทาง WireGuard สามารถสกัดกั้นการโจมตีที่อาจมาจากคอมพิวเตอร์ควอนตัมได้"
 
 msgctxt "wireguard-settings-view"
+msgid "UDP-over-TCP"
+msgstr "UDP-ผ่าน-TCP"
+
+msgctxt "wireguard-settings-view"
 msgid "UDP-over-TCP port"
 msgstr "พอร์ต UDP-ผ่าน-TCP"
+
+#. Text describing the valid port range for a port selector.
+msgctxt "wireguard-settings-view"
+msgid "Valid range: %(min)s - %(max)s"
+msgstr "ช่วงที่ใช้งานได้: %(min)s - %(max)s"
 
 msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr "พอร์ต TCP ใดที่โพรโทคอลการทำให้ข้อมูลยุ่งเหยิง UDP-ผ่าน-TCP ควรเชื่อมต่อบนเซิร์ฟเวอร์ VPN"
 
+msgid "%s (%s) hides patterns in your encrypted VPN traffic. If anyone is monitoring your connection, this makes it significantly harder for them to identify what websites you are visiting. It does this by carefully adding network noise and making all network packets the same size."
+msgstr "%s (%s) ซ่อนรูปแบบในการรับส่งข้อมูล VPN ที่เข้ารหัสของคุณ หากมีใครกำลังเฝ้าดูการเชื่อมต่อของคุณอยู่ สิ่งนี้จะทำให้การระบุเว็บไซต์ที่คุณกำลังเยี่ยมชมยากขึ้นอย่างมาก ซึ่งทำได้โดยการเพิ่มสัญญาณรบกวนเครือข่ายอย่างระมัดระวัง และทำให้แพ็กเก็ตเครือข่ายทั้งหมดมีขนาดเท่ากันหมด"
+
 msgid "%s (added)"
 msgstr "%s (เพิ่มแล้ว)"
+
+msgid "%s using %s"
+msgstr "%s กำลังใช้ %s"
 
 msgid "%s was added to \"%s\""
 msgstr "%s ได้ถูกเพิ่มไปยัง \"%s\""
@@ -2118,11 +2216,14 @@ msgstr "%s ได้ถูกเพิ่มไปยัง \"%s\""
 msgid "%s was added to your account."
 msgstr "%s ถูกเพิ่มลงในบัญชีของคุณแล้ว"
 
+msgid "%s was removed from \"%s\""
+msgstr "%s ได้ถูกลบออกจาก \"%s\" แล้ว"
+
 msgid "1. After clicking on the <b>Go to VPN settings</b> button below, click on the cogwheel next to the <b>Mullvad VPN</b> name."
 msgstr "1. หลังจากคลิกปุ่ม<b>ไปที่การตั้งค่า VPN</b> ที่ด้านล่าง ให้คลิกล้อเฟืองที่อยู่ถัดจากชื่อ <b>Mullvad VPN</b>"
 
 msgid "2. To enable Auto-connect, click on the toggle next to <b>Always-on VPN</b>."
-msgstr "2. ในการเปิดใช้การเชื่อมต่ออัตโนมัติ ให้คลิกปุ่มเปิด/ปิดที่อยู่ถัดจาก <b>Always-on VPN</b>"
+msgstr "2. ในการเปิดใช้การเชื่อมต่ออัตโนมัติ ให้คลิกปุ่มเปิด/ปิดที่อยู่ถัดจาก <b>VPN เปิดอยู่เสมอ</b>"
 
 msgid "3. To enable Lockdown mode, click on the toggle next to <b>Block connections without VPN</b>.<br /><br /><b>Warning: This setting blocks split apps and the Local Network Sharing feature.</b>"
 msgstr "3. ในการเปิดโหมดล็อกดาวน์ ให้คลิกปุ่มเปิด/ปิดที่อยู่ถัดจาก<b>ปิดกั้นการเชื่อมต่อโดยไม่ใช้ VPN</b> <br /><br /><b>คำเตือน: การตั้งค่านี้จะบล็อกแอปที่มีการแยก และคุณลักษณะการแชร์เครือข่ายท้องถิ่น</b>"
@@ -2184,17 +2285,17 @@ msgstr "Always-on VPN อาจได้รับการเปิดใช้�
 msgid "At least one method needs to be enabled"
 msgstr "จำเป็นต้องเปิดใช้อย่างน้อยหนึ่งวิธีการ"
 
-msgid "Attention: Split tunneling is a privacy risk."
-msgstr "โปรดทราบ: การแยกอุโมงค์เป็นความเสี่ยงด้านความเป็นส่วนตัว"
+msgid "Attention: If \"Block connections without VPN\" is enabled, split apps will not have Internet. Always keep in mind that split tunneling is a privacy risk."
+msgstr "โปรดทราบ: แอปแยกจะไม่มีอินเทอร์เน็ต ในกรณีที่เปิดใช้งาน \"ปิดกั้นการเชื่อมต่อโดยไม่ใช้ VPN\" โปรดทราบว่า การการแยกอุโมงค์จะก่อให้เกิดความเสี่ยงต่อความเป็นส่วนตัว"
+
+msgid "Attention: Since this increases your total network traffic, be cautious if you have a limited data plan. It can also negatively impact your network speed and battery usage."
+msgstr "โปรดทราบ: โปรดใช้ความระมัดระวัง หากคุณมีแผนข้อมูลที่มีปริมาณจำกัด เนื่องจากการดำเนินการนี้ จะเพิ่มการรับส่งข้อมูลโดยรวมของคุณขึ้น การดำเนินการนี้ อาจส่งผลเชิงลบต่อความเร็วเครือข่าย และการใช้งานแบตเตอรี่ของคุณได้"
 
 msgid "Attention: this setting cannot be used in combination with <b>Use custom DNS server</b>."
-msgstr "โปรดทราบ: การตั้งค่านี้ไม่สามารถใช้ร่วมกับ<b>การใช้เซิร์ฟเวอร์ DNS แบบกำหนดเอง</b>ได้"
+msgstr "โปรดทราบ: การตั้งค่านี้ไม่สามารถใช้ร่วมกับ <b>ใช้เซิร์ฟเวอร์ DNS แบบกำหนดเอง</b>ได้"
 
 msgid "Auto-connect & Lockdown mode"
 msgstr "เชื่อมต่ออัตโนมัติและโหมดล็อกดาวน์"
-
-msgid "Auto-connect & \\nLockdown mode"
-msgstr "เชื่อมต่ออัตโนมัติและ\\nโหมดล็อกดาวน์"
 
 msgid "Auto-connect (legacy)"
 msgstr "เชื่อมต่ออัตโนมัติ (เดิม)"
@@ -2202,7 +2303,6 @@ msgstr "เชื่อมต่ออัตโนมัติ (เดิม)"
 msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
 msgstr "การเชื่อมต่ออัตโนมัติเรียกว่า Always-on VPN ในการตั้งค่าระบบ Android ซึ่งจะช่วยให้คุณมั่นใจได้ว่า คุณเชื่อมต่อกับช่องทาง VPN อย่างต่อเนื่อง และมีการเชื่อมต่ออัตโนมัติหลังจากรีสตาร์ต"
 
-msgctxt "Description of the existing \"auto-connect\" functionality as well as a notification about it being removed/replaced in a future update."
 msgid "Automatically connect when the app launches. This setting will be replaced with a new connect on device start-up feature in a future update."
 msgstr "เชื่อมต่อโดยอัตโนมัติเมื่อเปิดแอป การตั้งค่านี้จะถูกแทนที่ด้วยคุณลักษณะใหม่ คือการเชื่อมต่อเมื่อเริ่มต้นอุปกรณ์ ในการอัปเดตในอนาคต"
 
@@ -2233,7 +2333,6 @@ msgstr "สร้างรายการใหม่"
 msgid "Critical error (your attention is required)"
 msgstr "ข้อผิดพลาดร้ายแรง (คุณจำเป็นต้องตรวจสอบ)"
 
-msgctxt "Status information about which method/configuration is actively being used. The placeholder is replaced by a built-in or custom method. For example \"Current: Direct\" or \"Current: MyCustomMethod\". Note that it's not \"current\" as in \"present time\"."
 msgid "Current: %s"
 msgstr "ปัจจุบัน: %s"
 
@@ -2253,13 +2352,16 @@ msgid "Delete method?"
 msgstr "ลบวิธีการหรือไม่"
 
 msgid "Disable all <b>%s</b> above to activate this setting."
-msgstr "ปิดใช้งาน <b>%s</b> ด้านบนทั้งหมด เพื่อเปิดใช้การตั้งค่านี้"
+msgstr "ปิดใช้งาน <b>%s</b> ด้านบนทั้งหมด เพื่อเปิดใช้งานการตั้งค่านี้"
 
 msgid "Discard"
 msgstr "ละทิ้ง"
 
 msgid "Discard changes?"
 msgstr "ละทิ้งการเปลี่ยนแปลงหรือไม่"
+
+msgid "Dismiss"
+msgstr "ละทิ้ง"
 
 msgid "Edit custom lists"
 msgstr "แก้ไขรายการแบบกำหนดเอง"
@@ -2321,11 +2423,11 @@ msgstr "นำเข้าสำเร็จ เปิดใช้โอเว�
 msgid "Importing new overrides might replace some previously imported overrides."
 msgstr "การนำเข้าโอเวอร์ไรด์ใหม่ อาจแทนที่โอเวอร์ไรด์ที่นำเข้าก่อนหน้านี้"
 
-msgid "Install Mullvad VPN (%s) to stay up to date"
-msgstr "ติดตั้ง Mullvad VPN (%s) เพื่อรับอัปเดตล่าสุดอยู่เสมอ"
-
 msgid "Invalid or missing value \"%s\""
 msgstr "ค่า \"%s\" ไม่ถูกต้องหรือหายไป"
+
+msgid "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
+msgstr "ดูเหมือนว่า คุณได้ป้อนหมายเลขบัญชีแทนรหัสบัตรกำนัล หากคุณต้องการเปลี่ยนบัญชีที่ใช้งานอยู่ โปรดออกจากระบบก่อน"
 
 msgid "Lets you select apps that should access the Internet directly without going through the VPN tunnel."
 msgstr "ช่วยให้คุณเลือกแอปที่เข้าถึงอินเทอร์เน็ตได้โดยตรง โดยไม่ต้องผ่านอุโมงค์ VPN"
@@ -2369,6 +2471,9 @@ msgstr "ไม่พบตำแหน่งที่ตั้ง"
 msgid "Not found"
 msgstr "ไม่พบ"
 
+msgid "On (UDP-over-TCP)"
+msgstr "เปิด (UDP-ผ่าน-TCP)"
+
 msgid "Overrides active"
 msgstr "เปิดใช้โอเวอร์ไรด์อยู่"
 
@@ -2394,7 +2499,7 @@ msgid "Please enter a valid remote server port"
 msgstr "โปรดป้อนพอร์ตเซิร์ฟเวอร์ระยะไกลที่ถูกต้อง"
 
 msgid "Please use the <b>Always-on</b> system setting instead by following the guide in <b>%s</b> above."
-msgstr "โปรดใช้การตั้งค่าระบบ<b>เปิดใช้งานเสมอ</b>แทน โดยทำตามคำแนะนำใน <b>%s</b> ที่อยู่ด้านบน"
+msgstr "โปรดใช้การตั้งค่าระบบ<b>เปิดอยู่เสมอ</b>แทน โดยทำตามคำแนะนำใน <b>%s</b> ที่อยู่ด้านบน"
 
 msgid "Preferences"
 msgstr "การกำหนดค่า"
@@ -2411,8 +2516,8 @@ msgstr "ขีดจำกัดการเรียกซ้ำ"
 msgid "Remove"
 msgstr "ลบ"
 
-msgid "Remove %s from list"
-msgstr "ลบ %s ออกจากรายการ"
+msgid "Remove %s from %s"
+msgstr "ลบ %s ออกจาก %s"
 
 msgid "Remove custom port"
 msgstr "นำพอร์ตแบบกำหนดเองออก"
@@ -2428,6 +2533,9 @@ msgstr "รีเซ็ตโอเวอร์ไรด์"
 
 msgid "Reset to default"
 msgstr "รีเซ็ตเป็นค่าเริ่มต้น"
+
+msgid "Secure my connection"
+msgstr "รักษาความปลอดภัยในการเชื่อมต่อของฉัน"
 
 msgid "Secured"
 msgstr "ปลอดภัย"
@@ -2463,7 +2571,7 @@ msgid "The Auto-connect and Lockdown mode settings can be found in the Android s
 msgstr "การตั้งค่าการเชื่อมต่ออัตโนมัติและโหมดล็อกดาวน์ อยู่ในการตั้งค่าระบบ Android โปรดทำตามคำแนะนำนี้ เพื่อเปิดใช้งานโหมดใดโหมดหนึ่ง หรือทั้งสองโหมด"
 
 msgid "The Lockdown mode is called <b>Block connections without VPN</b> in the Android system settings. It helps minimize leaks, however it has some known limitations which you can read more about"
-msgstr "โหมดล็อกดาวน์ถูกเรียกใช้ <b>ปิดกั้นการเชื่อมต่อโดยไม่ใช้ VPN</b> ในการตั้งค่าระบบ Android ซึ่งจะช่วยลดการรั่วไหล แต่ก็มีข้อจำกัดบางประการ ที่คุณสามารถอ่านข้อมูลเพิ่มเติมเกี่ยวกับเรื่องดังกล่าวได้"
+msgstr "โหมดล็อกดาวน์ถูกเรียกใช้ <b>ปิดกั้นการเชื่อมต่อโดยไม่ใช้ VPN</b> ในการตั้งค่าระบบ Android ซึ่งจะช่วยลดการรั่วไหล แต่ก็มีข้อจำกัดบางประการ ซึ่งคุณสามารถอ่านข้อมูลเพิ่มเติมเกี่ยวกับเรื่องดังกล่าวได้"
 
 msgid "The \"Current\" method represent which method the app is using to reach the API."
 msgstr "วิธีการ \"ปัจจุบัน\" แสดงถึงวิธีที่แอปใช้ในการเข้าถึง API"
@@ -2476,6 +2584,9 @@ msgstr "ไม่มีการตั้งค่า VPN บนอุปกร�
 
 msgid "This address has already been entered."
 msgstr "ที่อยู่นี้ได้รับการป้อนไปแล้ว"
+
+msgid "This feature isn’t available on all servers. You might need to change location after enabling."
+msgstr "คุณลักษณะนี้ไม่พร้อมใช้งานบนทุกเซิร์ฟเวอร์ คุณอาจต้องต้องเปลี่ยนตำแหน่งที่ตั้ง หลังจากเปิดใช้งาน"
 
 msgid "This field is required"
 msgstr "จำเป็นต้องกรอกช่องนี้"
@@ -2513,7 +2624,6 @@ msgstr "คีย์ที่ไม่รู้จัก หรือต้อ�
 msgid "Unsecured"
 msgstr "ไม่ปลอดภัย"
 
-msgctxt "Notification message shown when the app lacks a permission called \"VPN permission\"."
 msgid "Unsecured (No VPN permission)"
 msgstr "ไม่ปลอดภัย (ไม่มีสิทธิ์ VPN)"
 
@@ -2589,10 +2699,12 @@ msgstr "คุณอาจมีการรับส่งข้อมูลท
 msgid "You are running an unsupported app version."
 msgstr "คุณกำลังใช้งานเวอร์ชันแอปที่ไม่ได้รับการสนับสนุน"
 
+msgid "\"%s\" was created"
+msgstr "\"%s\" ถูกสร้างแล้ว"
+
 msgid "\"%s\" was deleted"
 msgstr "\"%s\" ถูกลบแล้ว"
 
-msgctxt "Clickable link that leads to our website."
 msgid "here"
 msgstr "ที่นี่"
 

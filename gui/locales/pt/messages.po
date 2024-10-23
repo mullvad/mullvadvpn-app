@@ -10,7 +10,10 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Portuguese\n"
 "Language: pt_PT\n"
-"PO-Revision-Date: 2024-06-27 08:16\n"
+"PO-Revision-Date: 2024-10-23 06:33\n"
+
+msgid "%(amount)d more..."
+msgstr "Mais %(amount)d..."
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "foi adicionado %(duration)s, conta paga até %(expiry)s."
@@ -96,8 +99,14 @@ msgstr "Ligar"
 msgid "Connected"
 msgstr "Ligado"
 
+msgid "CONNECTED"
+msgstr "LIGADO"
+
 msgid "Connecting"
 msgstr "A ligar"
+
+msgid "CONNECTING..."
+msgstr "A LIGAR..."
 
 #. Creating a secure connection that isn't breakable by quantum computers.
 msgid "CREATING QUANTUM SECURE CONNECTION"
@@ -109,6 +118,11 @@ msgstr "A CRIAR LIGAÇÃO SEGURA"
 msgid "Custom"
 msgstr "Personalizado"
 
+#. This refers to the Custom DNS setting in the VPN settings view. This is
+#. displayed when the feature is on.
+msgid "Custom DNS"
+msgstr "DNS personalizado"
+
 msgid "Default"
 msgstr "Padrão"
 
@@ -117,6 +131,9 @@ msgstr "Eliminar"
 
 msgid "Delete list"
 msgstr "Eliminar lista"
+
+msgid "Direct only"
+msgstr "Apenas direta"
 
 msgid "Disable"
 msgstr "Desativar"
@@ -130,17 +147,23 @@ msgstr "Desligar e sair"
 msgid "Disconnected"
 msgstr "Desligado"
 
+msgid "DISCONNECTED"
+msgstr "DESLIGADO"
+
 msgid "Disconnecting"
 msgstr "A desligar"
 
-msgid "Dismiss"
-msgstr "Dispensar"
+msgid "DISCONNECTING..."
+msgstr "A DESLIGAR..."
 
 msgid "Edit"
 msgstr "Editar"
 
 msgid "Enable"
 msgstr "Ativar"
+
+msgid "Enable \"%(directOnly)s\""
+msgstr "Ativar \"%(directOnly)s\""
 
 msgid "Enable anyway"
 msgstr "Ativar mesmo assim"
@@ -176,6 +199,11 @@ msgstr "menos de um dia"
 msgid "less than a day left"
 msgstr "menos de um dia restante"
 
+#. This refers to the multihop setting in the VPN settings view. This is
+#. displayed when the feature is on.
+msgid "Multihop"
+msgstr "Multihop"
+
 msgid "Name"
 msgstr "Nome"
 
@@ -202,6 +230,11 @@ msgstr "Palavra-passe"
 
 msgid "Port"
 msgstr "Porta"
+
+#. This refers to the quantum resistance setting in the WireGuard settings view.
+#. This is displayed when the feature is on.
+msgid "Quantum resistance"
+msgstr "Resistência quântica"
 
 #. The connection is secure and isn't breakable by quantum computers.
 msgid "QUANTUM SECURE CONNECTION"
@@ -239,7 +272,6 @@ msgstr "Testar"
 
 #. Warning shown in dialog to users when they enable setting that increases
 #. network latency (decreases performance).
-#. Warning text in a dialog that is displayed after a setting is toggled.
 msgid "This setting increases latency. Use only if needed."
 msgstr "Esta definição aumenta a latência. Utilizar apenas se necessário."
 
@@ -340,11 +372,19 @@ msgctxt "accessibility"
 msgid "Select location. Current location is %(location)s"
 msgstr "Selecionar localização. A localização atual é %(location)s"
 
+msgctxt "accessibility"
+msgid "Shadowsocks settings"
+msgstr "Definições de Shadowsocks"
+
 #. Provided to accessibility tools such as screenreaders to describe
 #. the button which unobscures the account number.
 msgctxt "accessibility"
 msgid "Show account number"
 msgstr "Mostrar número de conta"
+
+msgctxt "accessibility"
+msgid "UDP-over-TCP settings"
+msgstr "Definições de UDP sobre TCP"
 
 #. Title label in navigation bar
 msgctxt "account-view"
@@ -570,8 +610,16 @@ msgid "%(city)s (%(hostname)s)"
 msgstr "%(city)s (%(hostname)s)"
 
 msgctxt "connect-view"
+msgid "Active features"
+msgstr "Funcionalidades ativas"
+
+msgctxt "connect-view"
 msgid "Congrats!"
 msgstr "Parabéns!"
+
+msgctxt "connect-view"
+msgid "Connection details"
+msgstr "Detalhes da ligação"
 
 msgctxt "connect-view"
 msgid "Disconnect"
@@ -645,12 +693,6 @@ msgctxt "connect-view"
 msgid "You’re all set!"
 msgstr "Está pronto!"
 
-#. %(hostname)s - The current server the app is connected to, e.g. "se-got-wg-001 using DAITA"
-#. %(daita)s - Will be replaced with "DAITA"
-msgctxt "connection-info"
-msgid "%(hostname)s using %(daita)s"
-msgstr "%(hostname)s a usar %(daita)s"
-
 #. The hostname line displayed below the country on the main screen
 #. Available placeholders:
 #. %(relay)s - the relay hostname
@@ -662,14 +704,6 @@ msgstr "%(relay)s via %(entry)s"
 msgctxt "connection-info"
 msgid "%(relay)s via Custom bridge"
 msgstr "%(relay)s através de ponte personalizada"
-
-#. The tunnel type line displayed below the hostname line on the main screen
-#. Available placeholders:
-#. %(tunnelType)s - the tunnel type, i.e OpenVPN
-#. %(bridgeType)s - the bridge type, i.e Shadowsocks
-msgctxt "connection-info"
-msgid "%(tunnelType)s via %(bridgeType)s"
-msgstr "%(tunnelType)s via %(bridgeType)s"
 
 msgctxt "connection-info"
 msgid "In"
@@ -1315,7 +1349,7 @@ msgstr "Selecionar idioma"
 #. Title label in navigation bar
 msgctxt "select-location-nav"
 msgid "Select location"
-msgstr "Selecionar local"
+msgstr "Selecionar localização"
 
 msgctxt "select-location-view"
 msgid "(Added)"
@@ -1496,6 +1530,10 @@ msgstr "A aplicação não está sincronizada. Termine a sessão e reinicie."
 msgctxt "settings-view"
 msgid "App version"
 msgstr "Versão da app"
+
+msgctxt "settings-view"
+msgid "Multihop"
+msgstr "Multihop"
 
 msgctxt "settings-view"
 msgid "Support"
@@ -1761,8 +1799,8 @@ msgid "Update your kernel."
 msgstr "Atualize o seu kernel."
 
 msgctxt "tunnel-control"
-msgid "Secure my connection"
-msgstr "Tornar a minha ligação segura"
+msgid "Connect"
+msgstr "Ligar"
 
 msgctxt "tunnel-control"
 msgid "Switch location"
@@ -1886,11 +1924,6 @@ msgctxt "vpn-settings-view"
 msgid "Enable IPv6"
 msgstr "Ativar IPv6"
 
-#. The label next to the multihop settings toggle.
-msgctxt "vpn-settings-view"
-msgid "Enable multihop"
-msgstr "Ativar multihop"
-
 msgctxt "vpn-settings-view"
 msgid "Enable to add at least one DNS server."
 msgstr "Ativar para adicionar pelo menos um servidor DNS."
@@ -1903,13 +1936,6 @@ msgstr "Introduzir IP"
 msgctxt "vpn-settings-view"
 msgid "Gambling"
 msgstr "Jogos de azar"
-
-#. Description for multihop settings toggle.
-#. Available placeholders:
-#. %(wireguard)s - Will be replaced with the string "WireGuard"
-msgctxt "vpn-settings-view"
-msgid "Increases anonymity by routing your traffic into one %(wireguard)s server and out another, making it harder to trace."
-msgstr "Aumenta o anonimato ao redirecionar o seu tráfego para entrar num servidor %(wireguard)s e sair noutro, tornando-o mais difícil de seguir."
 
 msgctxt "vpn-settings-view"
 msgid "IPv4 is always enabled and the majority of websites and applications use this protocol. We do not recommend enabling IPv6 unless you know you need it."
@@ -1984,6 +2010,10 @@ msgctxt "vpn-settings-view"
 msgid "This might cause issues on certain websites, services, and apps."
 msgstr "Pode causar problemas em alguns sites, serviços e apps."
 
+msgctxt "vpn-settings-view"
+msgid "To select %(openvpn)s, please disable these settings: %(featureList)s."
+msgstr "Para selecionar %(openvpn)s, desative estas definições: %(featureList)s."
+
 #. Label for settings that enables tracker blocking.
 msgctxt "vpn-settings-view"
 msgid "Trackers"
@@ -2025,9 +2055,23 @@ msgctxt "wireguard-settings-nav"
 msgid "%(wireguard)s settings"
 msgstr "Definições do %(wireguard)s"
 
+#. Title label in navigation bar
+msgctxt "wireguard-settings-nav"
+msgid "Shadowsocks"
+msgstr "Shadowsocks"
+
+#. Title label in navigation bar
+msgctxt "wireguard-settings-nav"
+msgid "UDP-over-TCP"
+msgstr "UDP sobre TCP"
+
 msgctxt "wireguard-settings-view"
-msgid "%(daita)s (%(daitaFull)s) hides patterns in your encrypted VPN traffic. If anyone is monitoring your connection, this makes it significantly harder for them to identify what websites you are visiting. It does this by carefully adding network noise and making all network packets the same size."
-msgstr "%(daita)s (%(daitaFull)s) oculta padrões no seu tráfego VPN encriptado. Se alguém estiver a monitorizar a sua ligação, isto dificulta significativamente a identificação dos sites que visita. Para tal, adiciona cuidadosamente ruído de rede e torna todos os pacotes de rede do mesmo tamanho."
+msgid "%(daita)s (%(daitaFull)s) hides patterns in your encrypted VPN traffic."
+msgstr "%(daita)s (%(daitaFull)s) oculta padrões no seu tráfego VPN encriptado."
+
+msgctxt "wireguard-settings-view"
+msgid "%(daita)s does this by carefully adding network noise and making all network packets the same size."
+msgstr "%(daita)s consegue-o ao adicionar cuidadosamente ruído de rede e ao tornar todos os pacotes de rede do mesmo tamanho."
 
 #. Available placeholders:
 #. %(wireguard)s - Will be replaced with the string "WireGuard"
@@ -2036,8 +2080,24 @@ msgid "%(wireguard)s settings"
 msgstr "Definições do %(wireguard)s"
 
 msgctxt "wireguard-settings-view"
-msgid "Attention: Since this increases your total network traffic, be cautious if you have a limited data plan. It can also negatively impact your network speed. Please consider this if you want to enable %(daita)s."
-msgstr "Atenção: visto que isto aumenta o tráfego total da sua rede, tenha cuidado se tiver um plano de dados limitado. Também pode afetar negativamente a velocidade da sua rede. Tenha isto em consideração se pretender ativar %(daita)s."
+msgid "Attention: Be cautious if you have a limited data plan as this feature will increase your network traffic. This feature can only be used with %(wireguard)s."
+msgstr "Atenção: tenha cuidado se tiver um plano de dados limitado, pois esta funcionalidade aumenta o tráfego de rede. Esta funcionalidade apenas pode ser utilizada com %(wireguard)s."
+
+msgctxt "wireguard-settings-view"
+msgid "By enabling “%(directOnly)s” you will have to manually select a server that is %(daita)s-enabled. This can cause you to end up in a blocked state until you have selected a compatible server in the “Select location” view."
+msgstr "Ao ativar “%(directOnly)s”, terá de selecionar manualmente um servidor que tenha %(daita)s ativada, o que pode fazer com que fique num estado bloqueado até selecionar um servidor compatível na vista \"Selecionar localização\"."
+
+msgctxt "wireguard-settings-view"
+msgid "By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted)."
+msgstr "Utilizando uma IA sofisticada, é possível analisar o tráfego de pacotes de dados que entram e saem do seu dispositivo (mesmo que o tráfego esteja encriptado)."
+
+msgctxt "wireguard-settings-view"
+msgid "Cancel"
+msgstr "Cancelar"
+
+msgctxt "wireguard-settings-view"
+msgid "If an observer monitors these data packets, %(daita)s makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating."
+msgstr "Se um observador monitorizar estes pacotes de dados, %(daita)s dificulta significativamente a identificação dos sites que visita ou com quem comunica."
 
 msgctxt "wireguard-settings-view"
 msgid "IP version"
@@ -2052,6 +2112,23 @@ msgid "MTU"
 msgstr "MTU"
 
 msgctxt "wireguard-settings-view"
+msgid "Multihop"
+msgstr "Multihop"
+
+msgctxt "wireguard-settings-view"
+msgid "Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online."
+msgstr "Multihop encaminha o tráfego para entrar num servidor WireGuard e sair por outro, dificultando o seguimento. Isto resulta em maior latência, mas aumenta o anonimato online."
+
+#. Warning text in a dialog that is displayed after a setting is toggled.
+msgctxt "wireguard-settings-view"
+msgid "Not all our servers are %(daita)s-enabled. In order to use the internet, you might have to select a new location after enabling."
+msgstr "Nem todos os servidores suportam %(daita)s. Para utilizar a Internet, pode ter de selecionar uma nova localização após ativar esta funcionalidade."
+
+msgctxt "wireguard-settings-view"
+msgid "Not all our servers are %(daita)s-enabled. Therefore, we use multihop automatically to enable %(daita)s with any server."
+msgstr "Nem todos os servidores suportam %(daita)s. Por isso, utilizamos multihop automaticamente para ativar %(daita)s em qualquer servidor."
+
+msgctxt "wireguard-settings-view"
 msgid "Obfuscation"
 msgstr "Ofuscação"
 
@@ -2060,12 +2137,15 @@ msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can b
 msgstr "A ofuscação oculta o tráfego do WireGuard dentro de outro protocolo. Pode ser utilizado para ajudar a contornar a censura e outros tipos de filtragem, onde uma simples ligação WireGuard seria bloqueada."
 
 msgctxt "wireguard-settings-view"
-msgid "On (UDP-over-TCP)"
-msgstr "Ligado (UDP sobre TCP)"
-
-msgctxt "wireguard-settings-view"
 msgid "Port"
 msgstr "Porta"
+
+#. Text showing currently selected port.
+#. Available placeholders:
+#. %(port)s - Can be either a number between 1 and 65000 or the text "Automatic".
+msgctxt "wireguard-settings-view"
+msgid "Port: %(port)s"
+msgstr "Porta: %(port)s"
 
 #. The title for the WireGuard quantum resistance selector. This setting
 #. makes the cryptography resistant to the future abilities of quantum
@@ -2084,6 +2164,14 @@ msgid "Set %(wireguard)s MTU value. Valid range: %(min)d - %(max)d."
 msgstr "Definir o valor MTU %(wireguard)s. Intervalo válido: %(min)d - %(max)d."
 
 msgctxt "wireguard-settings-view"
+msgid "Shadowsocks"
+msgstr "Shadowsocks"
+
+msgctxt "wireguard-settings-view"
+msgid "Switch to “%(wireguard)s” or “%(automatic)s” in Settings > %(tunnelProtocol)s to make %(setting)s available."
+msgstr "Altere para “%(wireguard)s” ou “%(automatic)s” em Definições > %(tunnelProtocol)s para tornar o %(setting)s disponível."
+
+msgctxt "wireguard-settings-view"
 msgid "The automatic setting will randomly choose from the valid port ranges shown below."
 msgstr "A definição automática escolherá aleatoriamente a partir do intervalo de portas válido apresentado abaixo."
 
@@ -2098,25 +2186,35 @@ msgctxt "wireguard-settings-view"
 msgid "This allows access to %(wireguard)s for devices that only support IPv6."
 msgstr "Isto permite o acesso ao %(wireguard)s por dispositivos que suportem apenas IPv6."
 
-#. Warning text in a dialog that is displayed after a setting is toggled.
-msgctxt "wireguard-settings-view"
-msgid "This feature isn't available on all servers. You might need to change location after enabling."
-msgstr "Esta funcionalidade não está disponível em todos os servidores. Poderá ser necessário alterar a localização após a ativação."
-
 msgctxt "wireguard-settings-view"
 msgid "This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers."
 msgstr "Esta funcionalidade torna o túnel do WireGuard resistente a potenciais ataques de computadores quânticos."
 
 msgctxt "wireguard-settings-view"
+msgid "UDP-over-TCP"
+msgstr "UDP sobre TCP"
+
+msgctxt "wireguard-settings-view"
 msgid "UDP-over-TCP port"
 msgstr "Porta UDP sobre TCP"
+
+#. Text describing the valid port range for a port selector.
+msgctxt "wireguard-settings-view"
+msgid "Valid range: %(min)s - %(max)s"
+msgstr "Intervalo válido: %(min)s — %(max)s"
 
 msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr "A que porta TCP o protocolo de ofuscação UDP sobre TCP deve ligar-se no servidor VPN."
 
+msgid "%s (%s) hides patterns in your encrypted VPN traffic. If anyone is monitoring your connection, this makes it significantly harder for them to identify what websites you are visiting. It does this by carefully adding network noise and making all network packets the same size."
+msgstr "%s (%s) oculta padrões no seu tráfego VPN encriptado. Se alguém estiver a monitorizar a sua ligação, isto dificulta significativamente a identificação dos sites que visita. Para tal, adiciona cuidadosamente ruído de rede e torna todos os pacotes de rede do mesmo tamanho."
+
 msgid "%s (added)"
 msgstr "%s (adicionado)"
+
+msgid "%s using %s"
+msgstr "%s a utilizar %s"
 
 msgid "%s was added to \"%s\""
 msgstr "%s foi adicionado a \"%s\""
@@ -2124,8 +2222,11 @@ msgstr "%s foi adicionado a \"%s\""
 msgid "%s was added to your account."
 msgstr "%s adicionado(s) à sua conta."
 
+msgid "%s was removed from \"%s\""
+msgstr "%s foi removida de \"%s\""
+
 msgid "1. After clicking on the <b>Go to VPN settings</b> button below, click on the cogwheel next to the <b>Mullvad VPN</b> name."
-msgstr "1. Depois de clicar no botão <b>Ir para as definições de VPN</b> abaixo, clique na roda dentada junto ao nome da <b>Mullvad VPN</b>."
+msgstr "1. Após clicar no botão <b>Ir para as definições de VPN</b> abaixo, clique na roda dentada junto ao nome da <b>Mullvad VPN</b>."
 
 msgid "2. To enable Auto-connect, click on the toggle next to <b>Always-on VPN</b>."
 msgstr "2. Para ativar a ligação automática, clique no botão de alternar junto a <b>VPN sempre ligada</b>."
@@ -2190,17 +2291,17 @@ msgstr "A VPN sempre ligada pode estar ativada para outra app"
 msgid "At least one method needs to be enabled"
 msgstr "É necessário ativar pelo menos um método"
 
-msgid "Attention: Split tunneling is a privacy risk."
-msgstr "Atenção: a divisão do túnel é um risco para a privacidade."
+msgid "Attention: If \"Block connections without VPN\" is enabled, split apps will not have Internet. Always keep in mind that split tunneling is a privacy risk."
+msgstr "Atenção: se a opção \"Bloquear ligações sem VPN\" estiver ativada, as aplicações divididas não terão Internet. Tenha sempre em mente que o túnel dividido representa um risco para a privacidade."
+
+msgid "Attention: Since this increases your total network traffic, be cautious if you have a limited data plan. It can also negatively impact your network speed and battery usage."
+msgstr "Atenção: visto que isto aumenta o tráfego total da sua rede, tenha cuidado se tiver um plano de dados limitado. Também pode afetar negativamente a velocidade da rede e a utilização da bateria."
 
 msgid "Attention: this setting cannot be used in combination with <b>Use custom DNS server</b>."
-msgstr "Atenção: esta definição não pode ser usada em combinação com <b>Usar servidor DNS personalizado</b>."
+msgstr "Atenção: esta definição não pode ser utilizada em combinação com <b>Usar servidor DNS personalizado</b>."
 
 msgid "Auto-connect & Lockdown mode"
 msgstr "Ligação automática e modo de bloqueio"
-
-msgid "Auto-connect & \\nLockdown mode"
-msgstr "Ligação automática e\\nmodo de bloqueio"
 
 msgid "Auto-connect (legacy)"
 msgstr "Ligação automática (método antigo)"
@@ -2208,7 +2309,6 @@ msgstr "Ligação automática (método antigo)"
 msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
 msgstr "A ligação automática é designada por VPN sempre ligada nas definições do sistema Android e assegura que está constantemente ligado ao túnel VPN e ligar-se-á automaticamente após o reinício."
 
-msgctxt "Description of the existing \"auto-connect\" functionality as well as a notification about it being removed/replaced in a future update."
 msgid "Automatically connect when the app launches. This setting will be replaced with a new connect on device start-up feature in a future update."
 msgstr "Ligar automaticamente quando a aplicação é iniciada. Esta definição será substituída por uma nova funcionalidade de ligação no arranque do dispositivo numa futura atualização."
 
@@ -2239,7 +2339,6 @@ msgstr "Criar nova lista"
 msgid "Critical error (your attention is required)"
 msgstr "Erro crítico (é necessária a sua atenção)"
 
-msgctxt "Status information about which method/configuration is actively being used. The placeholder is replaced by a built-in or custom method. For example \"Current: Direct\" or \"Current: MyCustomMethod\". Note that it's not \"current\" as in \"present time\"."
 msgid "Current: %s"
 msgstr "Atual: %s"
 
@@ -2266,6 +2365,9 @@ msgstr "Descartar"
 
 msgid "Discard changes?"
 msgstr "Descartar alterações?"
+
+msgid "Dismiss"
+msgstr "Dispensar"
 
 msgid "Edit custom lists"
 msgstr "Editar listas personalizadas"
@@ -2327,11 +2429,11 @@ msgstr "Importação bem-sucedida: substituições ativas"
 msgid "Importing new overrides might replace some previously imported overrides."
 msgstr "A importação de novas substituições pode substituir algumas substituições importadas anteriormente."
 
-msgid "Install Mullvad VPN (%s) to stay up to date"
-msgstr "Instalar o Mullvad VPN (%s) para ficar atualizado"
-
 msgid "Invalid or missing value \"%s\""
 msgstr "Valor inválido ou em falta \"%s\""
+
+msgid "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
+msgstr "Parece que introduziu um número de conta em vez de um código de voucher. Se pretender alterar a conta ativa, termine a sessão primeiro."
 
 msgid "Lets you select apps that should access the Internet directly without going through the VPN tunnel."
 msgstr "Permite-lhe selecionar aplicações que devem aceder diretamente à Internet sem passar pelo túnel VPN."
@@ -2375,6 +2477,9 @@ msgstr "Nenhuma localização encontrada"
 msgid "Not found"
 msgstr "Não encontrada"
 
+msgid "On (UDP-over-TCP)"
+msgstr "Ligado (UDP sobre TCP)"
+
 msgid "Overrides active"
 msgstr "Substituições ativas"
 
@@ -2417,8 +2522,8 @@ msgstr "Limite de recursão"
 msgid "Remove"
 msgstr "Remover"
 
-msgid "Remove %s from list"
-msgstr "Remover %s da lista"
+msgid "Remove %s from %s"
+msgstr "Remover %s de %s"
 
 msgid "Remove custom port"
 msgstr "Remover porta personalizada"
@@ -2435,8 +2540,11 @@ msgstr "Repor substituições"
 msgid "Reset to default"
 msgstr "Repor para as predefinições"
 
+msgid "Secure my connection"
+msgstr "Tornar a minha ligação segura"
+
 msgid "Secured"
-msgstr "Seguro"
+msgstr "Segura"
 
 msgid "Set WireGuard MTU value. Valid range: %d - %d."
 msgstr "Definir o valor WireGuard MTU. Intervalo válido: %d - %d."
@@ -2469,7 +2577,7 @@ msgid "The Auto-connect and Lockdown mode settings can be found in the Android s
 msgstr "As definições da ligação automática e do modo de bloqueio podem ser encontradas nas definições do sistema Android. Siga este guia para ativar uma ou ambas as funcionalidades."
 
 msgid "The Lockdown mode is called <b>Block connections without VPN</b> in the Android system settings. It helps minimize leaks, however it has some known limitations which you can read more about"
-msgstr "O modo de bloqueio é chamado <b>Bloquear ligações sem VPN</b> nas definições do sistema Android. Ajuda a minimizar fugas, mas tem algumas limitações conhecidas sobre as quais pode ler mais"
+msgstr "O modo de bloqueio é designado por <b>Bloquear ligações sem VPN</b> nas definições do sistema Android. Ajuda a minimizar fugas, mas tem algumas limitações conhecidas sobre as quais pode ler mais"
 
 msgid "The \"Current\" method represent which method the app is using to reach the API."
 msgstr "O método \"Atual\" representa o método que a aplicação está a utilizar para aceder à API."
@@ -2482,6 +2590,9 @@ msgstr "Não existem definições de VPN no seu dispositivo"
 
 msgid "This address has already been entered."
 msgstr "Este endereço já foi introduzido."
+
+msgid "This feature isn’t available on all servers. You might need to change location after enabling."
+msgstr "Esta funcionalidade não está disponível em todos os servidores. Poderá ser necessário alterar a localização após a ativação."
 
 msgid "This field is required"
 msgstr "Este campo é obrigatório"
@@ -2517,11 +2628,10 @@ msgid "Unknown or prohibited key \"%s\""
 msgstr "Chave \"%s\" desconhecida ou proibida"
 
 msgid "Unsecured"
-msgstr "Inseguro"
+msgstr "Insegura"
 
-msgctxt "Notification message shown when the app lacks a permission called \"VPN permission\"."
 msgid "Unsecured (No VPN permission)"
-msgstr "Inseguro (sem permissão de VPN)"
+msgstr "Insegura (sem permissão de VPN)"
 
 msgid "Update DNS server"
 msgstr "Atualizar servidor DNS"
@@ -2595,10 +2705,12 @@ msgstr "PODERÁ ESTAR A PERDER TRÁFEGO DE REDE"
 msgid "You are running an unsupported app version."
 msgstr "Está a executar uma versão da aplicação não suportada."
 
+msgid "\"%s\" was created"
+msgstr "\"%s\" foi criada"
+
 msgid "\"%s\" was deleted"
 msgstr "\"%s\" foi eliminada"
 
-msgctxt "Clickable link that leads to our website."
 msgid "here"
 msgstr "aqui"
 
