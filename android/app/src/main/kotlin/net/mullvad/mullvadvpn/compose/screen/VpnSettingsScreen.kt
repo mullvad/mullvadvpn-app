@@ -123,7 +123,7 @@ private fun PreviewVpnSettings(
             onToggleBlockGambling = {},
             onToggleBlockSocialMedia = {},
             navigateToMtuDialog = {},
-            navigateToDns = { _, _ -> },
+            navigateToDns = { _ -> },
             onToggleDnsClick = {},
             onBackClick = {},
             onSelectObfuscationMode = {},
@@ -184,7 +184,7 @@ fun VpnSettings(
             is VpnSettingsSideEffect.ShowToast ->
                 launch { snackbarHostState.showSnackbarImmediately(message = it.message(context)) }
             VpnSettingsSideEffect.NavigateToDnsDialog ->
-                navigator.navigate(DnsDestination(null, null)) { launchSingleTop = true }
+                navigator.navigate(DnsDestination(null)) { launchSingleTop = true }
         }
     }
 
@@ -239,9 +239,7 @@ fun VpnSettings(
         navigateToMtuDialog =
             dropUnlessResumed { mtu: Mtu? -> navigator.navigate(MtuDestination(mtu)) },
         navigateToDns =
-            dropUnlessResumed { index: Int?, address: String? ->
-                navigator.navigate(DnsDestination(index, address))
-            },
+            dropUnlessResumed { index: Int? -> navigator.navigate(DnsDestination(index)) },
         navigateToWireguardPortDialog =
             dropUnlessResumed {
                 navigator.navigate(
@@ -293,7 +291,7 @@ fun VpnSettingsScreen(
     onToggleBlockGambling: (Boolean) -> Unit = {},
     onToggleBlockSocialMedia: (Boolean) -> Unit = {},
     navigateToMtuDialog: (mtu: Mtu?) -> Unit = {},
-    navigateToDns: (index: Int?, address: String?) -> Unit = { _, _ -> },
+    navigateToDns: (index: Int?) -> Unit = { _ -> },
     onToggleDnsClick: (Boolean) -> Unit = {},
     onBackClick: () -> Unit = {},
     onSelectObfuscationMode: (obfuscationMode: ObfuscationMode) -> Unit = {},
@@ -468,14 +466,14 @@ fun VpnSettingsScreen(
                         address = item.address,
                         isUnreachableLocalDnsWarningVisible =
                             item.isLocal && !state.isLocalNetworkSharingEnabled,
-                        onClick = { navigateToDns(index, item.address) },
+                        onClick = { navigateToDns(index) },
                         modifier = Modifier.animateItem(),
                     )
                 }
 
                 itemWithDivider {
                     BaseCell(
-                        onCellClicked = { navigateToDns(null, null) },
+                        onCellClicked = { navigateToDns(null) },
                         headlineContent = {
                             Text(
                                 text = stringResource(id = R.string.add_a_server),
