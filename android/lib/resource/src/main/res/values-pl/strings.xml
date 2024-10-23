@@ -40,9 +40,14 @@
     <string name="authentication">Uwierzytelnianie</string>
     <string name="auto_connect_and_lockdown_mode">Automatyczne łączenie i tryb Lockdown</string>
     <string name="auto_connect_and_lockdown_mode_footer">Zapewnia, że urządzenie zawsze działa za pośrednictwem tunelu VPN.</string>
+    <string name="auto_connect_carousel_first_slide_bottom_text">1. Po kliknięciu poniższego przycisku &lt;b&gt;Przejdź do ustawień VPN&lt;/b&gt;, kliknij ikonę koła zębatego obok nazwy &lt;b&gt;Mullvad VPN&lt;/b&gt;.</string>
     <string name="auto_connect_carousel_first_slide_top_text">Ustawienia trybu automatycznego łączenia i trybu Lockdown można znaleźć w ustawieniach systemu Android. Aby włączyć jeden lub oba tryby, postępuj zgodnie z niniejszym poradnikiem.</string>
     <string name="auto_connect_carousel_second_slide_top_text">Automatyczne łączenie w ustawieniach systemu Android nazywa się „Zawsze włączony VPN” i zapewnia stałe połączenie z tunelem VPN oraz automatyczne łączenie po ponownym uruchomieniu.</string>
+    <string name="auto_connect_carousel_third_slide_bottom_text">3. Aby włączyć tryb Lockdown, kliknij przełącznik obok opcji &lt;b&gt;Blokuj połączenia bez pośrednictwa sieci VPN&lt;/b&gt;.&lt;br /&gt;&lt;br /&gt;&lt;b&gt;Ostrzeżenie: to ustawienie blokuje aplikacje dzielące i funkcję udostępniania sieci lokalnej.&lt;/b&gt;</string>
+    <string name="auto_connect_carousel_third_slide_top_text">Tryb Lockdown w ustawieniach systemu Android nazywa się &lt;b&gt;Blokuj połączenia bez pośrednictwa sieci VPN&lt;/b&gt;. Pomaga zminimalizować wycieki, jednak ma pewne znane ograniczenia, o których można przeczytać więcej</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">tutaj</string>
+    <string name="auto_connect_footer_legacy">Zamiast tego użyj ustawienia systemowego &lt;b&gt;Zawsze włączone&lt;/b&gt; postępując zgodnie z poradnikiem w &lt;b&gt;%1$s&lt;/b&gt; powyżej.</string>
+    <string name="auto_connect_footer_legacy_tv">Połącz się automatycznie przy uruchamianiu aplikacji. W przyszłej aktualizacji ustawienie to zostanie zastąpione nową funkcją łączenia przy uruchamianiu urządzenia.</string>
     <string name="auto_connect_legacy">Automatyczne łączenie (starsza wersja)</string>
     <string name="automatic">Automatycznie</string>
     <string name="back">Wstecz</string>
@@ -64,8 +69,9 @@
     <string name="confirm_no_email">Za chwilę wyślesz zgłoszenie problemu, nie umożliwiając nam skontaktowania się z Tobą. Aby uzyskać odpowiedź na zgłoszenie, musisz podać adres e-mail.</string>
     <string name="confirm_removal">Tak, wyloguj urządzenie</string>
     <string name="congrats">Gratulacje!</string>
-    <string name="connect">Połącz</string>
-    <string name="connected">Połączono</string>
+    <string name="connect">Zabezpiecz moje połączenie</string>
+    <string name="connected_using_daita">%1$s za pomocą %2$s</string>
+    <string name="connecting">Łączenie</string>
     <string name="connecting_to_daemon">Łączenie z usługą systemową Mullvad...</string>
     <string name="connection_details_in">Wejście</string>
     <string name="continue_login">Kontynuuj logowanie</string>
@@ -74,11 +80,13 @@
     <string name="copy_account_number">Kopiuj numer konta</string>
     <string name="create">Utwórz</string>
     <string name="create_account">Utwórz konto</string>
+    <string name="create_custom_list_message">Utworzono „%1$s”</string>
     <string name="create_new_list">Utwórz nową listę</string>
     <string name="created_x">Utworzono: %1$s</string>
     <string name="creating_new_account">Tworzenie konta...</string>
     <string name="critical_error">Błąd krytyczny (wymagana uwaga)</string>
     <string name="current_method">Bieżąca: %1$s</string>
+    <string name="custom_dns_disable_mode_subtitle">Aby to ustawić, wyłącz wszystkie &lt;b&gt;%1$s&lt;/b&gt;.</string>
     <string name="custom_dns_footer">Włącz, aby dodać co najmniej jeden serwer DNS.</string>
     <string name="custom_dns_hint">Wprowadź adres IP</string>
     <string name="custom_list_error_list_exists">Nazwa jest już zajęta.</string>
@@ -88,7 +96,9 @@
     <string name="custom_port_dialog_submit">Ustaw port</string>
     <string name="custom_port_dialog_valid_ranges">Prawidłowe zakresy: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Nie można rozpoznać hosta tunelu niestandardowego. Spróbuj zmienić ustawienia.</string>
-    <string name="daita_info">%1$s (%2$s) ukrywa wzorce w zaszyfrowanym ruchu VPN. Jeśli ktoś monitoruje Twoje połączenie, znacznie utrudni to identyfikację odwiedzanych witryn. Odbywa się to poprzez ostrożne dodawanie szumów sieciowych i ustawianie tego samego rozmiaru wszystkich pakietów sieciowych.</string>
+    <string name="daita_info">%1$s (%2$s) ukrywa wzorce w zaszyfrowanym ruchu VPN. Oznacza to, że jeśli ktoś monitoruje połączenie, identyfikacja odwiedzanych witryn jest znacznie utrudniona. Dzieje się tak poprzez ostrożne dodawanie szumów sieciowych i ustawianie tego samego rozmiaru wszystkich pakietów sieciowych.</string>
+    <string name="daita_relay_subset_warning">Funkcja niedostępna na wszystkich serwerach. Po włączeniu może być konieczna zmiana lokalizacji.</string>
+    <string name="daita_warning">Uwaga: ponieważ zwiększa to łączny ruch sieciowy, zachowaj ostrożność, jeśli masz ograniczony pakiet danych. Może to również negatywnie wpłynąć na szybkość sieci i poziom naładowania.</string>
     <string name="delete">Usuń</string>
     <string name="delete_custom_list_confirmation_description">Usunąć „%1$s”?</string>
     <string name="delete_custom_list_message">Usunięto „%1$s”</string>
@@ -168,6 +178,7 @@
     <string name="local_network_sharing_info">Funkcja ta umożliwia dostęp do innych urządzeń w sieci lokalnej, np. w celu udostępniania, drukowania, transmisji strumieniowej itd.</string>
     <string name="location_added">%1$s (dodano)</string>
     <string name="location_was_added_to_list">Lokalizację %1$s dodano do listy „%2$s”</string>
+    <string name="location_was_removed_from_list">Usunięto %1$s z „%2$s”</string>
     <string name="locations">Lokalizacje</string>
     <string name="locations_were_changed_for">Zmieniono lokalizacje dla „%1$s”</string>
     <string name="log_out">Wyloguj się</string>
@@ -201,6 +212,7 @@
     <string name="not_found">Nie znaleziono</string>
     <string name="number_of_providers">Dostawcy: %1$d</string>
     <string name="obfuscation_info">Zaciemnianie ukrywa ruch WireGuard w innym protokole. Można go użyć do obchodzenia cenzury i innych typów filtrowania, w których zwykłe połączenie WireGuard byłoby blokowane.</string>
+    <string name="obfuscation_on_udp_over_tcp">Włączone (UDP-przez-TCP)</string>
     <string name="obfuscation_title">Zaciemnianie WireGuard</string>
     <string name="off">Wył.</string>
     <string name="on">Wł.</string>
@@ -239,6 +251,7 @@
     <string name="redeem">Zrealizuj</string>
     <string name="redeem_voucher">Zrealizuj kupon</string>
     <string name="remove_button">Usuń</string>
+    <string name="remove_location_from_list">Usuń %1$s z %2$s</string>
     <string name="rented">Wynajmowane</string>
     <string name="rented_only">Wyłącznie wynajmowane</string>
     <string name="report_a_problem">Zgłoś problem</string>
@@ -284,6 +297,7 @@
     <string name="settings_vpn">Ustawienia VPN</string>
     <string name="show_system_apps">Pokaż aplikacje systemowe</string>
     <string name="split_tunneling_description">Umożliwia wybranie aplikacji, które powinny uzyskiwać bezpośredni dostęp do Internetu bez przechodzenia przez tunel VPN.</string>
+    <string name="split_tunneling_description_warning">Uwaga: jeśli opcja „Blokuj połączenia bez pośrednictwa sieci VPN” jest włączona, wówczas aplikacje dzielące nie będą miały dostępu do Internetu. Należy pamiętać, że dzielone tunelowanie stanowi zagrożenie dla prywatności.</string>
     <string name="start_tunnel_error">Nie można uruchomić połączenia tunelowego. Wyślij zgłoszenie problemu.</string>
     <string name="submit_button">Prześlij</string>
     <string name="switch_location">Zmień lokalizację</string>
@@ -303,6 +317,9 @@
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">Port TCP, z którym powinien łączyć się protokół zaciemniania UDP-przez-TCP na serwerze VPN.</string>
     <string name="undo">Cofnij</string>
+    <string name="unsecured">Niezabezpieczone</string>
+    <string name="unsecured_connection">NIEZABEZPIECZONE POŁĄCZENIE</string>
+    <string name="unsecured_vpn_permission_error">Niezabezpieczone (brak uprawnienia VPN)</string>
     <string name="unsupported_version">WERSJA NIEOBSŁUGIWANA</string>
     <string name="unsupported_version_description">W tej nieobsługiwanej wersji aplikacji prywatność może być zagrożona. Zaktualizuj już teraz.</string>
     <string name="update_dns_server_dialog_title">Zaktualizuj serwer DNS</string>
@@ -315,6 +332,7 @@
     <string name="verifying_voucher">Weryfikowanie kuponu…</string>
     <string name="view_logs">Wyświetl dzienniki aplikacji</string>
     <string name="voucher_already_used">Kod z tego kuponu został już użyty.</string>
+    <string name="voucher_is_account_number">Wygląda na to, że wpisano numer konta zamiast kodu kuponu. Jeśli chcesz zmienić aktywne konto, najpierw się wyloguj.</string>
     <string name="voucher_success_title">Kupon został zrealizowany.</string>
     <string name="vpn_permission_denied_error">Uprawnienie VPN zostało odrzucone podczas tworzenia tunelu. Spróbuj połączyć się ponownie.</string>
     <string name="vpn_permission_error_notification_message">Opcja „Zawsze włączony VPN” może być włączona dla innej aplikacji</string>

@@ -64,8 +64,9 @@
     <string name="confirm_no_email">Va a enviar el informe de problemas sin indicar una forma de contacto. Para obtener una respuesta sobre el informe, necesita especificar su dirección de correo electrónico.</string>
     <string name="confirm_removal">Sí, cerrar sesión</string>
     <string name="congrats">¡Enhorabuena!</string>
-    <string name="connect">Conectar</string>
-    <string name="connected">Conectado</string>
+    <string name="connect">Proteger mi conexión</string>
+    <string name="connected_using_daita">%1$s está usando %2$s</string>
+    <string name="connecting">Conectando</string>
     <string name="connecting_to_daemon">Conectando al servicio del sistema Mullvad…</string>
     <string name="connection_details_in">Entrada</string>
     <string name="continue_login">Iniciar sesión</string>
@@ -74,6 +75,7 @@
     <string name="copy_account_number">Copiar número de cuenta</string>
     <string name="create">Crear</string>
     <string name="create_account">Crear cuenta</string>
+    <string name="create_custom_list_message">Se ha creado «%1$s»</string>
     <string name="create_new_list">Crear nueva lista</string>
     <string name="created_x">Creado: %1$s</string>
     <string name="creating_new_account">Creando cuenta…</string>
@@ -88,7 +90,9 @@
     <string name="custom_port_dialog_submit">Establecer puerto</string>
     <string name="custom_port_dialog_valid_ranges">Intervalos válidos: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">No se puede resolver el host del túnel personalizado. Pruebe a cambiar la configuración.</string>
-    <string name="daita_info">%1$s (%2$s) oculta los patrones en su tráfico VPN cifrado. Si alguien supervisa su conexión, esto les dificulta notablemente identificar qué sitios web está visitando. Lo realiza añadiendo con cuidado ruido de red y haciendo que todos los paquetes de red tengan el mismo tamaño.</string>
+    <string name="daita_info">%1$s (%2$s) oculta los patrones en su tráfico VPN cifrado. Si alguien supervisa su conexión, esto le dificulta notablemente la tarea de identificar qué sitios web está visitando. Lo realiza añadiendo con cuidado ruido de red y haciendo que todos los paquetes de red tengan el mismo tamaño.</string>
+    <string name="daita_relay_subset_warning">Esta característica no está disponible en todos los servidores. Podría tener que cambiar de ubicación tras habilitarla.</string>
+    <string name="daita_warning">Atención: Como esto aumenta el tráfico total de su red, tenga cuidado si tiene un plan de datos limitado. También puede afectar negativamente a la velocidad de su red y al uso de la batería.</string>
     <string name="delete">Eliminar</string>
     <string name="delete_custom_list_confirmation_description">¿Eliminar «%1$s»?</string>
     <string name="delete_custom_list_message">Se ha eliminado «%1$s»</string>
@@ -168,6 +172,7 @@
     <string name="local_network_sharing_info">Esta característica permite el acceso a otros dispositivos de la red local, como para compartir, imprimir, transmitir, etc.</string>
     <string name="location_added">%1$s (añadido)</string>
     <string name="location_was_added_to_list">%1$s se ha añadido a «%2$s»</string>
+    <string name="location_was_removed_from_list">%1$s se ha eliminado de «%2$s»</string>
     <string name="locations">Ubicaciones</string>
     <string name="locations_were_changed_for">Se han cambiado las ubicaciones para «%1$s»</string>
     <string name="log_out">Cerrar sesión</string>
@@ -239,12 +244,15 @@
     <string name="redeem">Canjear</string>
     <string name="redeem_voucher">Canjear cupón</string>
     <string name="remove_button">Quitar</string>
+    <string name="remove_location_from_list">Quitar %1$s de %2$s</string>
     <string name="rented">Alquilados</string>
     <string name="rented_only">Solo alquilados</string>
     <string name="report_a_problem">Informar de un problema</string>
     <string name="reset_to_default_button">Restablecer a valores predeterminados</string>
     <string name="save">Guardar</string>
     <string name="search_placeholder">Buscar...</string>
+    <string name="secure_connection">CONEXIÓN SEGURA</string>
+    <string name="secured">Protegida</string>
     <string name="select_location">Seleccionar ubicación</string>
     <string name="select_location_empty_text_first_row">No hay resultados para &lt;b&gt;%1$s&lt;/b&gt;.</string>
     <string name="select_location_empty_text_second_row">Pruebe con otra búsqueda.</string>
@@ -284,6 +292,7 @@
     <string name="settings_vpn">Configuración de VPN</string>
     <string name="show_system_apps">Mostrar aplicaciones del sistema</string>
     <string name="split_tunneling_description">Le permite seleccionar aplicaciones que deberían acceder a Internet directamente sin pasar por el túnel VPN.</string>
+    <string name="split_tunneling_description_warning">Atención: Si la opción «Bloquear conexiones sin VPN» está activada, las aplicaciones divididas no tendrán Internet. Tenga siempre en cuenta que «Split tunneling» supone un riesgo para la privacidad.</string>
     <string name="start_tunnel_error">No se puede iniciar la conexión del túnel. Envíe un informe de problemas.</string>
     <string name="submit_button">Enviar</string>
     <string name="switch_location">Cambiar ubicación</string>
@@ -303,6 +312,9 @@
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">El puerto TCP al que se conectará el protocolo de ofuscación de UDP sobre TCP en el servidor VPN.</string>
     <string name="undo">Deshacer</string>
+    <string name="unsecured">No protegida</string>
+    <string name="unsecured_connection">CONEXIÓN NO SEGURA</string>
+    <string name="unsecured_vpn_permission_error">No protegida (sin permiso de VPN)</string>
     <string name="unsupported_version">VERSIÓN NO ADMITIDA</string>
     <string name="unsupported_version_description">Al usar esta versión obsoleta de la aplicación, es posible que su privacidad esté en riesgo. Actualice ahora.</string>
     <string name="update_dns_server_dialog_title">Actualizar servidor DNS</string>
@@ -315,6 +327,7 @@
     <string name="verifying_voucher">Verificando el cupón…</string>
     <string name="view_logs">Ver registros de la aplicación</string>
     <string name="voucher_already_used">El código del cupón ya se ha usado.</string>
+    <string name="voucher_is_account_number">Parece que ha introducido un número de cuenta en lugar de un código de cupón. Si desea cambiar la cuenta activa, cierre primero la sesión.</string>
     <string name="voucher_success_title">El cupón se canjeó correctamente.</string>
     <string name="vpn_permission_denied_error">Se denegó el permiso para usar una conexión VPN al crear el túnel. Intente volver a establecer la conexión.</string>
     <string name="vpn_permission_error_notification_message">La VPN siempre activa podría estar habilitada en otra aplicación</string>

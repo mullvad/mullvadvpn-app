@@ -35,6 +35,7 @@
     <string name="Colombia">ကိုလံဘီယာ</string>
     <string name="Copenhagen">ကိုပင်ဟေဂင်</string>
     <string name="Croatia">ခရိုအေးရှား</string>
+    <string name="Cyprus">ဆိုက်ပရပ်စ်</string>
     <string name="Czech Republic">ချက်သမ္မတနိုင်ငံ</string>
     <string name="Dallas, TX">ဒဲလ်လက်စ်၊ တက္ကဆက်</string>
     <string name="Denmark">ဒိန်းမတ်</string>
@@ -61,6 +62,7 @@
     <string name="Indonesia">အင်ဒိုနီးရှား</string>
     <string name="Ireland">အိုင်ယာလန်</string>
     <string name="Israel">အစ္စရေး</string>
+    <string name="Istanbul">အစ္စတန်ဘူလ်</string>
     <string name="Italy">အီတလီ</string>
     <string name="Jackson, MS">ဂျက်ဆင်၊ မစ္စစ္စပီ</string>
     <string name="Jakarta">ဂျာကာတာ</string>
@@ -69,6 +71,7 @@
     <string name="Kiev">ကိယက်ဗ်</string>
     <string name="Kyiv">ကိယက်ဗ်</string>
     <string name="Latvia">လတ်ဗီးယား</string>
+    <string name="Lima">လီမာ</string>
     <string name="Lisbon">လစ္စဘွန်း</string>
     <string name="Ljubljana">လစ်ဘီယာနာ</string>
     <string name="London">လန်ဒန်</string>
@@ -91,6 +94,7 @@
     <string name="Netherlands">နယ်သာလန်</string>
     <string name="New York, NY">နယူးယောက်</string>
     <string name="New Zealand">နယူးဇီလန်</string>
+    <string name="Nicosia">နီကိုရှား</string>
     <string name="Nis">နိစ်</string>
     <string name="North Macedonia">မြောက်မက်ဆီဒိုးနီးယား</string>
     <string name="Norway">နော်ဝေး</string>
@@ -100,6 +104,7 @@
     <string name="Palermo">Palermo</string>
     <string name="Paris">ပဲရစ်</string>
     <string name="Perth">ပါ့သ်</string>
+    <string name="Peru">ပီရူး</string>
     <string name="Philadelphia, PA">ဖီလဒဲလ်ဖီးယား၊ ပန်ဆဲလ်ဗေးနီးယား</string>
     <string name="Phoenix, AZ">ဖီးနစ်၊ အရီဇိုးနား</string>
     <string name="Piscataway, NJ">ပစ်စ်ကာတာဝေး၊ နယူးဂျာစီ</string>
@@ -143,6 +148,7 @@
     <string name="Tirana">တေရားနား</string>
     <string name="Tokyo">တိုကျို</string>
     <string name="Toronto">တိုရွန်တို</string>
+    <string name="Turkey">တူရကီ</string>
     <string name="UK">UK</string>
     <string name="USA">USA</string>
     <string name="Ukraine">ယူကရိန်း</string>

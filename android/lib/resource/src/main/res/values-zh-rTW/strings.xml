@@ -41,8 +41,11 @@
     <string name="auto_connect_and_lockdown_mode">自動連線和鎖定模式</string>
     <string name="auto_connect_and_lockdown_mode_footer">請確認裝置始終位於 VPN 通道上。</string>
     <string name="auto_connect_carousel_first_slide_top_text">自動連線和鎖定模式設定皆可在 Android 系統設定中找到，請按照本指南的指示，啟用其中一項或兩項設定。</string>
+    <string name="auto_connect_carousel_second_slide_bottom_text">2. 若要啟用自動連線，請按一下&lt;b&gt;一律啟用 VPN&lt;/b&gt; 旁邊的開關。</string>
     <string name="auto_connect_carousel_second_slide_top_text">自動連線在 Android 系統設定中稱為「始終啟用 VPN」，此功能可確保您始終與 VPN 通道連線，並且會在重新啟動後自動連線。</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">此處</string>
+    <string name="auto_connect_footer_legacy">請依照前述 &lt;b&gt;%1$s&lt;/b&gt; 中的指南，改用&lt;b&gt;一律開啟&lt;/b&gt;系統設定。</string>
+    <string name="auto_connect_footer_legacy_tv">在啟動應用程式時自動連線。在未來的更新中，此設定將由「裝置啟動時連線」的新功能所取代。</string>
     <string name="auto_connect_legacy">自動連線 (舊)</string>
     <string name="automatic">自動</string>
     <string name="back">返回</string>
@@ -74,6 +77,7 @@
     <string name="copy_account_number">複製帳號</string>
     <string name="create">建立</string>
     <string name="create_account">建立帳戶</string>
+    <string name="create_custom_list_message">已建立「%1$s」</string>
     <string name="create_new_list">建立新清單</string>
     <string name="created_x">建立日期：%1$s</string>
     <string name="creating_new_account">正在建立帳戶…</string>
@@ -88,7 +92,9 @@
     <string name="custom_port_dialog_submit">設定連接埠</string>
     <string name="custom_port_dialog_valid_ranges">有效範圍：%1$s</string>
     <string name="custom_tunnel_host_resolution_error">無法解析自訂通道的主機。請嘗試變更您的設定。</string>
-    <string name="daita_info">%1$s (%2$s) 會在您的加密 VPN 流量中隱藏模式。如果有人正在監視您的連線，這能讓他們難以識別出您正在存取的網站。此實現方式係謹慎加入網路噪音，並使所有網路資料包大小皆相同。</string>
+    <string name="daita_info">%1$s (%2$s) 會在您的加密 VPN 流量中隱藏模式。如果有人正在監控您的連線，這會大大增加他們的難度，讓他們難以辨識您正在瀏覽哪些網站。這個方法會仔細加入網路噪音，讓所有網路資料封包大小皆相同，以達到此目的。</string>
+    <string name="daita_relay_subset_warning">此功能尚未在所有伺服器上開放。啟用後，您可能需要變更位置。</string>
+    <string name="daita_warning">注意：這會增加您的網路總流量。如果您方案中的流量有限，請謹慎使用。這還會對您的網路速度和電池使用情況產生負面影響。</string>
     <string name="delete">刪除</string>
     <string name="delete_custom_list_confirmation_description">要刪除「%1$s」嗎？</string>
     <string name="delete_custom_list_message">「%1$s」已刪除</string>
@@ -168,6 +174,7 @@
     <string name="local_network_sharing_info">此功能可允許存取本機網路上的其他裝置，以便用於分享、列印、串流等。</string>
     <string name="location_added">%1$s (已新增)</string>
     <string name="location_was_added_to_list">%1$s 已新增至「%2$s」</string>
+    <string name="location_was_removed_from_list">%1$s 已從「%2$s」中移除</string>
     <string name="locations">位置</string>
     <string name="locations_were_changed_for">已變更「%1$s」的位置</string>
     <string name="log_out">登出</string>
@@ -201,6 +208,7 @@
     <string name="not_found">找不到</string>
     <string name="number_of_providers">供應商：%1$d</string>
     <string name="obfuscation_info">藉由混淆，WireGuard 的流量能隱藏在另一個通訊協定中。這有助於規避審查或其他類型的篩選。在這類篩選中，普通 WireGuard 連線將遭到封鎖。</string>
+    <string name="obfuscation_on_udp_over_tcp">開啟 (UDP-over-TCP)</string>
     <string name="obfuscation_title">WireGuard 混淆</string>
     <string name="off">關閉</string>
     <string name="on">開啟</string>
@@ -239,12 +247,15 @@
     <string name="redeem">兌換</string>
     <string name="redeem_voucher">兌換憑證</string>
     <string name="remove_button">移除</string>
+    <string name="remove_location_from_list">從 %1$s 中移除 %2$s</string>
     <string name="rented">租用</string>
     <string name="rented_only">僅租用</string>
     <string name="report_a_problem">回報問題</string>
     <string name="reset_to_default_button">重設為預設值</string>
     <string name="save">儲存</string>
     <string name="search_placeholder">搜尋…</string>
+    <string name="secure_connection">安全連線</string>
+    <string name="secured">已受保護</string>
     <string name="select_location">選擇位置</string>
     <string name="select_location_empty_text_first_row">&lt;b&gt;%1$s&lt;/b&gt; 沒有任何結果。</string>
     <string name="select_location_empty_text_second_row">請嘗試使用其他關鍵字。</string>
@@ -284,6 +295,7 @@
     <string name="settings_vpn">VPN 設定</string>
     <string name="show_system_apps">顯示系統應用程式</string>
     <string name="split_tunneling_description">允許您選擇不經過 VPN 通道而直接存取網際網路的應用程式。</string>
+    <string name="split_tunneling_description_warning">注意：如果啟用了「在沒有 VPN 的情況下封鎖連線」，分割應用程式將無法進行網際網路連線。請謹記，分割通道存在隱私風險。</string>
     <string name="start_tunnel_error">無法啟動通道連線。請傳送問題回報。</string>
     <string name="submit_button">提交</string>
     <string name="switch_location">切換位置</string>
@@ -303,6 +315,9 @@
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">UDP-over-TCP 混淆通訊協定應連線到 VPN 伺服器上的哪個 TCP 連接埠。</string>
     <string name="undo">復原</string>
+    <string name="unsecured">未受保護</string>
+    <string name="unsecured_connection">不安全的連線</string>
+    <string name="unsecured_vpn_permission_error">未受保護 (無 VPN 權限)</string>
     <string name="unsupported_version">不支援的版本</string>
     <string name="unsupported_version_description">此應用程式版本不受支援，因此您的隱私可能存在風險。請立即更新。</string>
     <string name="update_dns_server_dialog_title">更新 DNS 伺服器</string>
@@ -315,6 +330,7 @@
     <string name="verifying_voucher">正在驗證優惠券…</string>
     <string name="view_logs">檢視應用程式日誌</string>
     <string name="voucher_already_used">此憑證兌換碼已有人用過。</string>
+    <string name="voucher_is_account_number">您輸入的似乎是帳戶，而不是憑證代碼。如果您想變更有效帳戶，請先登出。</string>
     <string name="voucher_success_title">憑證已成功兌換。</string>
     <string name="vpn_permission_denied_error">建立通道時，VPN 權限被拒絕。請嘗試重新連線。</string>
     <string name="vpn_permission_error_notification_message">可能已為另一個應用程式啟用了「始終啟用 VPN」</string>

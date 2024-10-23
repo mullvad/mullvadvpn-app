@@ -40,8 +40,11 @@
     <string name="authentication">Autenticação</string>
     <string name="auto_connect_and_lockdown_mode">Ligação automática e modo de bloqueio</string>
     <string name="auto_connect_and_lockdown_mode_footer">Assegura que o dispositivo está sempre no túnel VPN.</string>
+    <string name="auto_connect_carousel_first_slide_bottom_text">1. Após clicar no botão &lt;b&gt;Ir para as definições de VPN&lt;/b&gt; abaixo, clique na roda dentada junto ao nome da &lt;b&gt;Mullvad VPN&lt;/b&gt;.</string>
     <string name="auto_connect_carousel_first_slide_top_text">As definições da ligação automática e do modo de bloqueio podem ser encontradas nas definições do sistema Android. Siga este guia para ativar uma ou ambas as funcionalidades.</string>
     <string name="auto_connect_carousel_second_slide_top_text">A ligação automática é designada por VPN sempre ligada nas definições do sistema Android e assegura que está constantemente ligado ao túnel VPN e ligar-se-á automaticamente após o reinício.</string>
+    <string name="auto_connect_carousel_third_slide_bottom_text">3. Para ativar o modo de bloqueio, clique no botão de alternar junto a &lt;b&gt;Bloquear ligações sem VPN&lt;/b&gt;.&lt;br /&gt;&lt;br /&gt;&lt;b&gt;Aviso: esta definição bloqueia as aplicações divididas e a funcionalidade de partilha de rede local.&lt;/b&gt;</string>
+    <string name="auto_connect_carousel_third_slide_top_text">O modo de bloqueio é designado por &lt;b&gt;Bloquear ligações sem VPN&lt;/b&gt; nas definições do sistema Android. Ajuda a minimizar fugas, mas tem algumas limitações conhecidas sobre as quais pode ler mais</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">aqui</string>
     <string name="auto_connect_legacy">Ligação automática (método antigo)</string>
     <string name="automatic">Automático</string>
@@ -64,8 +67,9 @@
     <string name="confirm_no_email">Está prestes a enviar o relatório de problema sem que tenhamos uma forma de lhe responder. Se pretender uma resposta ao seu relatório, tem de introduzir um endereço de email.</string>
     <string name="confirm_removal">Sim, desligar o dispositivo</string>
     <string name="congrats">Parabéns!</string>
-    <string name="connect">Ligar</string>
-    <string name="connected">Ligado</string>
+    <string name="connect">Tornar a minha ligação segura</string>
+    <string name="connected_using_daita">%1$s a utilizar %2$s</string>
+    <string name="connecting">A ligar</string>
     <string name="connecting_to_daemon">A ligar-se ao serviço de sistema Mulvad...</string>
     <string name="connection_details_in">Entrada</string>
     <string name="continue_login">Continuar com a ligação</string>
@@ -74,6 +78,7 @@
     <string name="copy_account_number">Copiar número de conta</string>
     <string name="create">Criar</string>
     <string name="create_account">Criar conta</string>
+    <string name="create_custom_list_message">\"%1$s\" foi criada</string>
     <string name="create_new_list">Criar nova lista</string>
     <string name="created_x">Criado: %1$s</string>
     <string name="creating_new_account">A criar conta...</string>
@@ -89,6 +94,8 @@
     <string name="custom_port_dialog_valid_ranges">Intervalos válidos: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Não foi possível resolver o anfitrião do túnel personalizado. Experimente alterar as suas definições.</string>
     <string name="daita_info">%1$s (%2$s) oculta padrões no seu tráfego VPN encriptado. Se alguém estiver a monitorizar a sua ligação, isto dificulta significativamente a identificação dos sites que visita. Para tal, adiciona cuidadosamente ruído de rede e torna todos os pacotes de rede do mesmo tamanho.</string>
+    <string name="daita_relay_subset_warning">Esta funcionalidade não está disponível em todos os servidores. Poderá ser necessário alterar a localização após a ativação.</string>
+    <string name="daita_warning">Atenção: visto que isto aumenta o tráfego total da sua rede, tenha cuidado se tiver um plano de dados limitado. Também pode afetar negativamente a velocidade da rede e a utilização da bateria.</string>
     <string name="delete">Eliminar</string>
     <string name="delete_custom_list_confirmation_description">Eliminar \"%1$s\"?</string>
     <string name="delete_custom_list_message">\"%1$s\" foi eliminada</string>
@@ -107,6 +114,7 @@
     <string name="disconnect">Desligar</string>
     <string name="disconnected">Desligado</string>
     <string name="dismiss">Dispensar</string>
+    <string name="dns_content_blockers_custom_dns_warning">Atenção: esta definição não pode ser utilizada em combinação com &lt;b&gt;Usar servidor DNS personalizado&lt;/b&gt;.</string>
     <string name="dns_content_blockers_info">Quando esta funcionalidade é ativada, impede que o dispositivo contacte certos domínios ou sites conhecidos por distribuir anúncios, malware, trackers e muito mais.</string>
     <string name="dns_content_blockers_warning">Pode causar problemas em alguns sites, serviços e apps.</string>
     <string name="dont_have_an_account">Não tem um número de conta?</string>
@@ -168,6 +176,7 @@
     <string name="local_network_sharing_info">Esta funcionalidade permite o acesso a outros dispositivos na rede local, por exemplo, para partilha, impressão, streaming, etc.</string>
     <string name="location_added">%1$s (adicionado)</string>
     <string name="location_was_added_to_list">%1$s foi adicionado a \"%2$s\"</string>
+    <string name="location_was_removed_from_list">%1$s foi removida de \"%2$s\"</string>
     <string name="locations">Localizações</string>
     <string name="locations_were_changed_for">As localizações foram alteradas para \"%1$s\"</string>
     <string name="log_out">Terminar sessão</string>
@@ -239,13 +248,17 @@
     <string name="redeem">Reclamar</string>
     <string name="redeem_voucher">Reclamar voucher</string>
     <string name="remove_button">Remover</string>
+    <string name="remove_location_from_list">Remover %1$s de %2$s</string>
     <string name="rented">Alugado</string>
     <string name="rented_only">Apenas alugado</string>
     <string name="report_a_problem">Reportar um problema</string>
     <string name="reset_to_default_button">Repor para as predefinições</string>
     <string name="save">Guardar</string>
     <string name="search_placeholder">Pesquisar por...</string>
-    <string name="select_location">Selecionar local</string>
+    <string name="secure_connection">LIGAÇÃO SEGURA</string>
+    <string name="secured">Segura</string>
+    <string name="select_location">Selecionar localização</string>
+    <string name="select_location_description">Enquanto estiver ligado, a sua localização real será mascarada com uma localização privada e segura na região selecionada.</string>
     <string name="select_location_empty_text_first_row">Sem resultados para &lt;b&gt;%1$s&lt;/b&gt;.</string>
     <string name="select_location_empty_text_second_row">Experimente uma pesquisa diferente.</string>
     <string name="send">Enviar</string>
@@ -284,6 +297,7 @@
     <string name="settings_vpn">Definições de VPN</string>
     <string name="show_system_apps">Mostrar aplicações do sistema</string>
     <string name="split_tunneling_description">Permite-lhe selecionar aplicações que devem aceder diretamente à Internet sem passar pelo túnel VPN.</string>
+    <string name="split_tunneling_description_warning">Atenção: se a opção \"Bloquear ligações sem VPN\" estiver ativada, as aplicações divididas não terão Internet. Tenha sempre em mente que o túnel dividido representa um risco para a privacidade.</string>
     <string name="start_tunnel_error">Não foi possível iniciar a ligação de túnel. Envie um relatório do problema.</string>
     <string name="submit_button">Enviar</string>
     <string name="switch_location">Alterar local</string>
@@ -303,6 +317,9 @@
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">A que porta TCP o protocolo de ofuscação UDP sobre TCP deve ligar-se no servidor VPN.</string>
     <string name="undo">Anular</string>
+    <string name="unsecured">Insegura</string>
+    <string name="unsecured_connection">LIGAÇÃO INSEGURA</string>
+    <string name="unsecured_vpn_permission_error">Insegura (sem permissão de VPN)</string>
     <string name="unsupported_version">VERSÃO NÃO SUPORTADA</string>
     <string name="unsupported_version_description">A sua privacidade pode estar comprometida com uma versão não suportada da aplicação. Por favor efetue a atualização agora.</string>
     <string name="update_dns_server_dialog_title">Atualizar servidor DNS</string>
@@ -315,6 +332,7 @@
     <string name="verifying_voucher">A verificar voucher…</string>
     <string name="view_logs">Ver os registos da app</string>
     <string name="voucher_already_used">O código do voucher já foi utilizado.</string>
+    <string name="voucher_is_account_number">Parece que introduziu um número de conta em vez de um código de voucher. Se pretender alterar a conta ativa, termine a sessão primeiro.</string>
     <string name="voucher_success_title">O voucher foi reclamado com sucesso.</string>
     <string name="vpn_permission_denied_error">A transmissão foi negada durante a criação do túnel. Tente fazer novamente a ligação.</string>
     <string name="vpn_permission_error_notification_message">A VPN sempre ligada pode estar ativada para outra app</string>

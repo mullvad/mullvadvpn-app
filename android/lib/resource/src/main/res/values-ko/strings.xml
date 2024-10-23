@@ -64,8 +64,9 @@
     <string name="confirm_no_email">연락처 없이 문제 보고서를 보내려고 합니다. 보고서에 대한 답변을 원하면 이메일 주소를 입력해야 합니다.</string>
     <string name="confirm_removal">예, 장치에서 로그아웃</string>
     <string name="congrats">축하합니다!</string>
-    <string name="connect">연결</string>
-    <string name="connected">연결됨</string>
+    <string name="connect">내 연결 보안 유지</string>
+    <string name="connected_using_daita">%1$s, %2$s 사용 중</string>
+    <string name="connecting">연결 중</string>
     <string name="connecting_to_daemon">Mullvad 시스템 서비스에 연결하는 중...</string>
     <string name="connection_details_in">인</string>
     <string name="continue_login">로그인 계속하기</string>
@@ -74,6 +75,7 @@
     <string name="copy_account_number">계정 번호 복사</string>
     <string name="create">생성</string>
     <string name="create_account">계정 생성</string>
+    <string name="create_custom_list_message">\"%1$s\"이(가) 생성되었습니다</string>
     <string name="create_new_list">새 목록 생성</string>
     <string name="created_x">생성 날짜: %1$s</string>
     <string name="creating_new_account">계정 생성 중...</string>
@@ -88,7 +90,9 @@
     <string name="custom_port_dialog_submit">포트 설정</string>
     <string name="custom_port_dialog_valid_ranges">유효한 범위: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">사용자 지정 터널의 호스트를 확인할 수 없습니다. 설정을 변경해 보세요.</string>
-    <string name="daita_info">%1$s (%2$s)은(는) 암호화 VPN 트래픽에서 패턴을 숨깁니다. 누군가가 사용자의 연결을 모니터링하고 있다면, 사용자가 방문하고 있는 웹사이트 식별을 훨씬 더 어렵게 만듭니다. 네트워크 노이즈를 세심하게 추가하고, 모든 네트워크 패킷을 같은 크기로 만듭니다.</string>
+    <string name="daita_info">%1$s(%2$s)는 암호화된 VPN 트래픽의 패턴을 숨깁니다. 누군가 사용자의 연결을 모니터링하고 있다면 이 기능은 사용자가 어느 웹사이트를 방문하고 있는지, 누구와 대화하고 있는지 아주 식별하기 어렵게 만듭니다. 이는 정교하게 네트워크 노이즈를 추가하고 모든 네트워크 패킷을 동일한 사이즈로 만드는 방식으로 달성됩니다.</string>
+    <string name="daita_relay_subset_warning">이 기능은 일부 서버에서 이용 가능하지 않습니다. 활성화 후 위치를 변경해야 할 수도 있습니다.</string>
+    <string name="daita_warning">주의: 이러한 방식은 총 네트워크 트래픽을 증가시키므로, 제한된 데이터 플랜 사용 시에는 유의하시기 바랍니다. 또한 네트워크 속도와 배터리 사용에 부정적인 영향을 미칠 수 있습니다.</string>
     <string name="delete">삭제</string>
     <string name="delete_custom_list_confirmation_description">\"%1$s\"을(를) 삭제하시겠습니까?</string>
     <string name="delete_custom_list_message">\"%1$s\"이(가) 삭제되었습니다</string>
@@ -168,6 +172,7 @@
     <string name="local_network_sharing_info">이 기능을 사용하면 공유, 인쇄, 스트리밍 등을 위해 로컬 네트워크의 다른 장치에 액세스할 수 있습니다.</string>
     <string name="location_added">%1$s(추가됨)</string>
     <string name="location_was_added_to_list">%1$s이(가) \"%2$s\"에 추가되었습니다</string>
+    <string name="location_was_removed_from_list">%1$s이(가) \"%2$s\"에서 제거되었습니다</string>
     <string name="locations">위치</string>
     <string name="locations_were_changed_for">\"%1$s\"에 대해 위치가 변경되었습니다</string>
     <string name="log_out">로그아웃</string>
@@ -239,12 +244,15 @@
     <string name="redeem">사용</string>
     <string name="redeem_voucher">바우처 사용</string>
     <string name="remove_button">제거</string>
+    <string name="remove_location_from_list">%1$s 제거(%2$s에서)</string>
     <string name="rented">대여</string>
     <string name="rented_only">대여만</string>
     <string name="report_a_problem">문제 신고</string>
     <string name="reset_to_default_button">기본값으로 재설정</string>
     <string name="save">저장</string>
     <string name="search_placeholder">검색...</string>
+    <string name="secure_connection">보안 연결</string>
+    <string name="secured">보안</string>
     <string name="select_location">위치 선택</string>
     <string name="select_location_empty_text_first_row">&lt;b&gt;%1$s&lt;/b&gt;에 대한 결과가 없습니다.</string>
     <string name="select_location_empty_text_second_row">다른 검색어를 시도하세요.</string>
@@ -284,6 +292,7 @@
     <string name="settings_vpn">VPN 설정</string>
     <string name="show_system_apps">시스템 앱 표시</string>
     <string name="split_tunneling_description">VPN 터널을 거치지 않고 인터넷에서 바로 액세스할 앱을 선택할 수 있습니다.</string>
+    <string name="split_tunneling_description_warning">주의: \"VPN 없이 연결 차단\"이 활성화되면, 분할 앱에 인터넷이 연결되지 않습니다. 분할 터널링 시 개인 정보가 위험해질 수 있음에 항상 유의하시기 바랍니다.</string>
     <string name="start_tunnel_error">터널 연결을 시작할 수 없습니다. 문제 보고서를 보내주세요.</string>
     <string name="submit_button">제출</string>
     <string name="switch_location">위치 전환</string>
@@ -303,6 +312,9 @@
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">UDP-over-TCP 난독 처리 프로토콜이 VPN 서버에서 연결해야 하는 TCP 포트입니다.</string>
     <string name="undo">실행 취소</string>
+    <string name="unsecured">비보안</string>
+    <string name="unsecured_connection">비보안 연결</string>
+    <string name="unsecured_vpn_permission_error">비보안(VPN 권한 없음)</string>
     <string name="unsupported_version">지원되지 않는 버전</string>
     <string name="unsupported_version_description">지원되지 않는 이 앱 버전으로 인해 개인 정보가 위험할 수 있습니다. 지금 업데이트하세요.</string>
     <string name="update_dns_server_dialog_title">DNS 서버 업데이트</string>
@@ -315,6 +327,7 @@
     <string name="verifying_voucher">바우처 확인 중…</string>
     <string name="view_logs">앱 로그 보기</string>
     <string name="voucher_already_used">이미 사용된 바우처 코드입니다.</string>
+    <string name="voucher_is_account_number">바우처 코드 대신 계정 번호를 입력한 것 같습니다. 활성 계정을 변경하려면 먼저 로그아웃하세요.</string>
     <string name="voucher_success_title">바우처가 성공적으로 사용되었습니다.</string>
     <string name="vpn_permission_denied_error">터널을 만드는 동안 VPN 사용 권한이 거부되었습니다. 다시 연결해 보세요.</string>
     <string name="vpn_permission_error_notification_message">상시 접속 VPN이 다른 앱에 활성화되었을 수 있습니다.</string>

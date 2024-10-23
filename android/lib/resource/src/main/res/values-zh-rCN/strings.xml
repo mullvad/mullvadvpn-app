@@ -21,8 +21,9 @@
     <string name="all_applications">所有应用程序</string>
     <string name="all_locations">所有位置</string>
     <string name="all_providers">所有提供商</string>
-    <string name="always_on_vpn_error_notification_content">无法启动隧道连接。在使用 Mullvad VPN 之前，请为 &lt;b&gt;%1$s&lt;/b&gt; 禁用“始终开启的 VPN”。</string>
-    <string name="always_on_vpn_error_notification_title">“始终开启的 VPN”已分配给其他应用</string>
+    <string name="allow_lan_footer">允许访问同一网络上的其他设备，以进行共享、打印等</string>
+    <string name="always_on_vpn_error_notification_content">无法启动隧道连接。在使用 Mullvad VPN 之前，请为 &lt;b&gt;%1$s&lt;/b&gt; 禁用“始终开启 VPN”。</string>
+    <string name="always_on_vpn_error_notification_title">“始终开启 VPN”已分配给其他应用</string>
     <string name="any">任何</string>
     <string name="api_access_description">管理和添加访问 Mulvad API 的自定义方法。</string>
     <string name="api_access_method_info_first_line">该应用需要与 Mulvad API 服务器通信，以便您登录、获取服务器列表和执行其他关键操作。</string>
@@ -41,8 +42,13 @@
     <string name="auto_connect_and_lockdown_mode">自动连接和锁定模式</string>
     <string name="auto_connect_and_lockdown_mode_footer">确保设备始终位于 VPN 隧道上。</string>
     <string name="auto_connect_carousel_first_slide_top_text">自动连接和锁定模式设置可以在 Android 系统设置中找到，请按照本指南启用其中一项或两项。</string>
-    <string name="auto_connect_carousel_second_slide_top_text">自动连接在 Android 系统设置中称为“始终开启的 VPN”，此功能可确保您始终连接到 VPN 隧道并在重新启动后自动连接。</string>
-    <string name="auto_connect_carousel_third_slide_top_text_website_link">此处</string>
+    <string name="auto_connect_carousel_second_slide_bottom_text">2. 要启用自动连接，请点击&lt;b&gt;始终开启 VPN&lt;/b&gt; 旁的开关。</string>
+    <string name="auto_connect_carousel_second_slide_top_text">自动连接在 Android 系统设置中称为“始终开启 VPN”，此功能可确保您始终连接到 VPN 隧道并在重新启动后自动连接。</string>
+    <string name="auto_connect_carousel_third_slide_bottom_text">3. 要启用锁定模式，请点击&lt;b&gt;屏蔽未使用 VPN 的所有连接&lt;/b&gt;旁的开关。&lt;br /&gt;&lt;br /&gt;&lt;b&gt;警告：此设置会屏蔽分割应用和“本地网络共享”功能。&lt;/b&gt;</string>
+    <string name="auto_connect_carousel_third_slide_top_text">在 Android 系统设置中，锁定模式被称为&lt;b&gt;屏蔽未使用 VPN 的所有连接&lt;/b&gt;。该模式可以最大限度地减少泄露，但是也有一些已知的限制，您可以详细了解相关信息</string>
+    <string name="auto_connect_carousel_third_slide_top_text_website_link">（点击此处）</string>
+    <string name="auto_connect_footer_legacy">请按照上述&lt;b&gt;%1$s&lt;/b&gt;中的指南操作，改用&lt;b&gt;始终开启&lt;/b&gt;系统设置。</string>
+    <string name="auto_connect_footer_legacy_tv">当应用启动时自动连接。在今后的更新中，此设置将被替换为新的“设备启动时连接”功能。</string>
     <string name="auto_connect_legacy">自动连接（旧）</string>
     <string name="automatic">自动</string>
     <string name="back">返回</string>
@@ -74,11 +80,13 @@
     <string name="copy_account_number">复制帐号</string>
     <string name="create">创建</string>
     <string name="create_account">创建帐户</string>
+    <string name="create_custom_list_message">“%1$s”已创建</string>
     <string name="create_new_list">创建新列表</string>
     <string name="created_x">创建日期：%1$s</string>
     <string name="creating_new_account">正在创建帐户…</string>
     <string name="critical_error">严重错误（需要注意）</string>
     <string name="current_method">当前：%1$s</string>
+    <string name="custom_dns_disable_mode_subtitle">禁用以上所有 &lt;b&gt;%1$s&lt;/b&gt;，以激活此设置。</string>
     <string name="custom_dns_footer">启用以添加至少一个 DNS 服务器。</string>
     <string name="custom_dns_hint">输入 IP</string>
     <string name="custom_list_error_list_exists">名称已被占用。</string>
@@ -88,7 +96,9 @@
     <string name="custom_port_dialog_submit">设置端口</string>
     <string name="custom_port_dialog_valid_ranges">有效范围：%1$s</string>
     <string name="custom_tunnel_host_resolution_error">无法解析自定义隧道的主机。请尝试更改您的设置。</string>
-    <string name="daita_info">%1$s（%2$s）会在您的加密 VPN 流量中隐藏模式。如果有人在监视您的连接，这可以让他们很难识别您正在访问的网站。它的实现方法是小心地添加网络噪声并使所有网络数据包的大小都相同。</string>
+    <string name="daita_info">%1$s (%2$s) 会隐藏您的加密 VPN 流量中的模式。如果有人在监视您的连接，这会大大提高他们识别您所访问的网站的难度。实现方法是精心添加网络噪声并将所有网络数据包处理为相同的大小。</string>
+    <string name="daita_relay_subset_warning">此功能并非在所有服务器上都可用。启用后，您可能需要更改位置。</string>
+    <string name="daita_warning">注意：这样会增加您的网络总流量，因此，如果您的数据套餐流量有限，请谨慎使用。这种方式还会对网速和电池用量产生负面影响。</string>
     <string name="delete">删除</string>
     <string name="delete_custom_list_confirmation_description">删除“%1$s”？</string>
     <string name="delete_custom_list_message">“%1$s”已被删除</string>
@@ -168,6 +178,7 @@
     <string name="local_network_sharing_info">此功能允许访问本地网络中的其他设备，以实现共享、打印、流式传输等</string>
     <string name="location_added">%1$s（已添加）</string>
     <string name="location_was_added_to_list">%1$s已添加到“%2$s”中</string>
+    <string name="location_was_removed_from_list">“%1$s”已从“%2$s”中移除</string>
     <string name="locations">位置</string>
     <string name="locations_were_changed_for">已更改“%1$s”的位置</string>
     <string name="log_out">退出</string>
@@ -227,7 +238,7 @@
     <string name="please_enter_a_valid_remote_server_port">请输入有效的远程服务器端口</string>
     <string name="port">端口</string>
     <string name="privacy_disclaimer_body_first_paragraph">为确保您使用的是最安全的版本并通知您当前运行的版本存在的任何问题，应用会自动执行版本检查。此操作会将应用版本和 Android 系统版本发送到 Mullvad 服务器。Mullvad 会统计使用的应用版本和 Android 版本。数据永远不会通过任何可以识别您身份的方式存储或使用。</string>
-    <string name="privacy_disclaimer_body_second_paragraph">如果使用拆分隧道功能，应用会向您的系统查询所有已安装应用程序的列表。此列表仅在拆分隧道视图中检索。有关已安装应用程序的信息永远不会离开设备。</string>
+    <string name="privacy_disclaimer_body_second_paragraph">如果使用分割隧道功能，应用会向您的系统查询所有已安装应用程序的列表。此列表仅在分割隧道视图中检索。有关已安装应用程序的信息永远不会离开设备。</string>
     <string name="privacy_disclaimer_title">隐私</string>
     <string name="privacy_policy_label">隐私政策</string>
     <string name="problem_report_description">为了更有效地帮助您，您应用的日志文件将被附加到此消息。您的数据将保持安全和私密，因为所有数据在发送之前都将通过加密通道进行匿名处理。</string>
@@ -239,6 +250,7 @@
     <string name="redeem">兑换</string>
     <string name="redeem_voucher">兑换优惠券</string>
     <string name="remove_button">移除</string>
+    <string name="remove_location_from_list">将 %1$s 从 %2$s 中移除</string>
     <string name="rented">租用</string>
     <string name="rented_only">仅租用</string>
     <string name="report_a_problem">报告问题</string>
@@ -284,6 +296,7 @@
     <string name="settings_vpn">VPN 设置</string>
     <string name="show_system_apps">显示系统应用</string>
     <string name="split_tunneling_description">允许您选择不经过 VPN 隧道而直接访问互联网的应用。</string>
+    <string name="split_tunneling_description_warning">注意：如果启用了“屏蔽未使用 VPN 的所有连接”，分割应用将无法连接互联网。请牢记，分割隧道存在隐私风险。</string>
     <string name="start_tunnel_error">无法启动隧道连接。请发送问题报告。</string>
     <string name="submit_button">提交</string>
     <string name="switch_location">切换位置</string>
@@ -303,6 +316,9 @@
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">UDP-over-TCP 混淆协议应连接到 VPN 服务器上的哪个 TCP 端口。</string>
     <string name="undo">撤消</string>
+    <string name="unsecured">未受保护</string>
+    <string name="unsecured_connection">未受保护的连接</string>
+    <string name="unsecured_vpn_permission_error">未受保护（无 VPN 权限）</string>
     <string name="unsupported_version">不受支持的版本</string>
     <string name="unsupported_version_description">此应用版本不受支持，因此您的隐私可能存在风险。请立即更新。</string>
     <string name="update_dns_server_dialog_title">更新 DNS 服务器</string>
@@ -315,9 +331,10 @@
     <string name="verifying_voucher">正在验证优惠券…</string>
     <string name="view_logs">查看应用日志</string>
     <string name="voucher_already_used">该优惠券码已被使用。</string>
+    <string name="voucher_is_account_number">您输入的似乎是帐号，而不是代金券码。如果您想更改有效帐户，请先退出登录。</string>
     <string name="voucher_success_title">优惠券已成功兑换。</string>
     <string name="vpn_permission_denied_error">创建隧道时，VPN 权限被拒绝。请尝试重新连接。</string>
-    <string name="vpn_permission_error_notification_message">可能为另一个应用启用了“始终开启的 VPN”</string>
+    <string name="vpn_permission_error_notification_message">可能为另一个应用启用了“始终开启 VPN”</string>
     <string name="vpn_permission_error_notification_title">VPN 权限错误</string>
     <string name="we_will_look_into_this">我们将对此进行调查。</string>
     <string name="wireguard_custon_port_title">自定义</string>

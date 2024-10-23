@@ -43,6 +43,8 @@
     <string name="auto_connect_carousel_first_slide_top_text">Inställningar för Anslut automatiskt och Låsningsläge finns i Androids systeminställningar. Följ guiden för att aktivera en av dem eller båda.</string>
     <string name="auto_connect_carousel_second_slide_top_text">Anslut automatiskt kallas Alltid på-VPN i Androids systeminställningar och ser till att du är ansluten till VPN-tunneln oavbrutet och ansluter automatiskt efter omstart.</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">här</string>
+    <string name="auto_connect_footer_legacy">Använd systeminställningen &lt;b&gt;Alltid aktiverat&lt;/b&gt; istället genom att följa guiden i &lt;b&gt;%1$s&lt;/b&gt; ovan.</string>
+    <string name="auto_connect_footer_legacy_tv">Ansluts automatiskt när appen startar. Inställningen kommer i en kommande uppdatering ersättas av en ny funktion som ansluter enheten när den startas.</string>
     <string name="auto_connect_legacy">Anslut automatiskt (äldre)</string>
     <string name="automatic">Automatisk</string>
     <string name="back">Tillbaka</string>
@@ -74,6 +76,7 @@
     <string name="copy_account_number">Kopiera kontonummer</string>
     <string name="create">Skapa</string>
     <string name="create_account">Skapa konto</string>
+    <string name="create_custom_list_message">\"%1$s\" har skapats</string>
     <string name="create_new_list">Skapa ny lista</string>
     <string name="created_x">Skapades: %1$s</string>
     <string name="creating_new_account">Skapar konto...</string>
@@ -89,6 +92,8 @@
     <string name="custom_port_dialog_valid_ranges">Giltiga intervall: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Det går inte att lösa värd för anpassad tunnel. Försök att ändra inställningarna.</string>
     <string name="daita_info">%1$s (%2$s) döljer mönster i din krypterade VPN-trafik. Om någon övervakar din anslutning blir det mycket svårare för hen att identifiera vilka webbplatser du besöker. Den gör det genom att noggrant lägga till nätverksbrus och se till så att alla nätverkspaket har samma storlek.</string>
+    <string name="daita_relay_subset_warning">Det här funktionen är inte tillgänglig på alla servrar. Du kanske måste ändra plats efter aktivering.</string>
+    <string name="daita_warning">Obs! Detta ökar nätverkstrafiken så var försiktig om du har ett abonnemang med begränsad mängd data. Det kan även ha en negativ påverkan på din nätverkshastighet och batterianvändning.</string>
     <string name="delete">Ta bort</string>
     <string name="delete_custom_list_confirmation_description">Ta bort \"%1$s\"?</string>
     <string name="delete_custom_list_message">\"%1$s\" har tagits bort</string>
@@ -168,6 +173,7 @@
     <string name="local_network_sharing_info">Funktionen tillåter åtkomst till andra enheter på det lokala nätverket, t.ex. för att dela, skriva ut, streama osv.</string>
     <string name="location_added">%1$s (har lagts till)</string>
     <string name="location_was_added_to_list">%1$s har lagts till i \"%2$s\"</string>
+    <string name="location_was_removed_from_list">%1$s har tagits bort från \"%2$s\"</string>
     <string name="locations">Platser</string>
     <string name="locations_were_changed_for">Platserna har ändrats för \"%1$s\"</string>
     <string name="log_out">Logga ut</string>
@@ -239,6 +245,7 @@
     <string name="redeem">Lös in</string>
     <string name="redeem_voucher">Lös in kupong</string>
     <string name="remove_button">Ta bort</string>
+    <string name="remove_location_from_list">Ta bort %1$s från %2$s</string>
     <string name="rented">Hyrd</string>
     <string name="rented_only">Endast hyrd</string>
     <string name="report_a_problem">Rapportera ett problem</string>
@@ -284,6 +291,7 @@
     <string name="settings_vpn">VPN-inställningar</string>
     <string name="show_system_apps">Visa systemappar</string>
     <string name="split_tunneling_description">Låter dig välja appar som ska ge dig direktåtkomst till internet utan att gå igenom VPN-tunneln.</string>
+    <string name="split_tunneling_description_warning">Obs! Om \"Blockera anslutningar utan VPN\" är aktiverat kommer inte delade appar att ha internet. Kom ihåg att det alltid finns en säkerhetsrisk med delade tunnlar.</string>
     <string name="start_tunnel_error">Det går inte att starta tunnelanslutning. Skicka en problemrapport.</string>
     <string name="submit_button">Skicka</string>
     <string name="switch_location">Växla plats</string>
@@ -315,6 +323,7 @@
     <string name="verifying_voucher">Verifierar kupong …</string>
     <string name="view_logs">Visa appens loggar</string>
     <string name="voucher_already_used">Kupongkoden har redan använts.</string>
+    <string name="voucher_is_account_number">Det verkar som om du angett ett kontonummer istället för en kupongkod. Logga först ut om du vill ändra den aktiva koden.</string>
     <string name="voucher_success_title">Kupongen har lösts in.</string>
     <string name="vpn_permission_denied_error">VPN-behörighet nekades när tunneln skapades. Försök att ansluta igen.</string>
     <string name="vpn_permission_error_notification_message">VPN som alltid är på kan ha aktiverats för annan app</string>

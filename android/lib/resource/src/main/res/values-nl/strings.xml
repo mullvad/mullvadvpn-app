@@ -40,6 +40,7 @@
     <string name="authentication">Authenticatie</string>
     <string name="auto_connect_and_lockdown_mode">Automatisch verbinden en lockdownmodus</string>
     <string name="auto_connect_and_lockdown_mode_footer">Zorg dat het apparaat altijd de VPN-tunnel gebruikt.</string>
+    <string name="auto_connect_carousel_first_slide_bottom_text">1. Klik, nadat u op de knop &lt;b&gt;Naar VPN-instellingen&lt;/b&gt; hebt geklikt, op het tandwiel naast de naam &lt;b&gt;Mullvad VPN&lt;/b&gt;.</string>
     <string name="auto_connect_carousel_first_slide_top_text">De instellingen Automatisch verbinden en Lockdownmodus zijn te vinden in de Android-systeeminstellingen, volg deze gids om een of beide in te schakelen.</string>
     <string name="auto_connect_carousel_second_slide_top_text">Automatisch verbinden heet Altijd-aan VPN in de Android-systeeminstellingen en zorgt ervoor dat u altijd verbonden bent met de VPN-tunnel en automatisch verbinding maakt na een herstart.</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">hier</string>
@@ -74,6 +75,7 @@
     <string name="copy_account_number">Accountnummer kopiëren</string>
     <string name="create">Maken</string>
     <string name="create_account">Account aanmaken</string>
+    <string name="create_custom_list_message">\"%1$s\" is gemaakt</string>
     <string name="create_new_list">Nieuwe lijst maken</string>
     <string name="created_x">Gemaakt: %1$s</string>
     <string name="creating_new_account">Account aanmaken...</string>
@@ -89,6 +91,8 @@
     <string name="custom_port_dialog_valid_ranges">Geldige bereiken: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Kan host van aangepaste tunnel niet omzetten. Probeer uw instellingen te wijzigen.</string>
     <string name="daita_info">%1$s (%2$s) verbergt patronen in het versleutelde VPN-verkeer. Als iemand de verbinding in de gaten houdt, maakt dit het aanzienlijk moeilijker voor diegene om te zien welke websites u bezoekt. Dit wordt gedaan door zorgvuldig netwerkruis toe te voegen en alle netwerkpakketten even groot te maken.</string>
+    <string name="daita_relay_subset_warning">Deze functie is niet op alle servers beschikbaar. Mogelijk moet u na het inschakelen van locatie veranderen.</string>
+    <string name="daita_warning">Let op: omdat dit het totale netwerkverkeer verhoogt, moet u voorzichtig zijn als u een beperkt data-abonnement hebt. Ook kan het uw netwerksnelheid en batterijgebruik beïnvloeden.</string>
     <string name="delete">Verwijderen</string>
     <string name="delete_custom_list_confirmation_description">\"%1$s\" verwijderen?</string>
     <string name="delete_custom_list_message">\"%1$s\" is verwijderd</string>
@@ -168,6 +172,7 @@
     <string name="local_network_sharing_info">Deze functie geeft toegang tot andere apparaten op het lokale netwerk, bijvoorbeeld voor delen, afdrukken, streamen en dergelijke</string>
     <string name="location_added">%1$s (toegevoegd)</string>
     <string name="location_was_added_to_list">%1$s is toegevoegd aan \"%2$s\"</string>
+    <string name="location_was_removed_from_list">%1$s is verwijderd uit \"%2$s\"</string>
     <string name="locations">Locaties</string>
     <string name="locations_were_changed_for">Locaties zijn gewijzigd voor \"%1$s\"</string>
     <string name="log_out">Afmelden</string>
@@ -239,6 +244,7 @@
     <string name="redeem">Inwisselen</string>
     <string name="redeem_voucher">Voucher inwisselen</string>
     <string name="remove_button">Verwijderen</string>
+    <string name="remove_location_from_list">%1$s verwijderen uit %2$s</string>
     <string name="rented">Gehuurd</string>
     <string name="rented_only">Alleen gehuurde</string>
     <string name="report_a_problem">Een probleem rapporteren</string>
@@ -284,6 +290,7 @@
     <string name="settings_vpn">VPN-instellingen</string>
     <string name="show_system_apps">Systeemapps weergeven</string>
     <string name="split_tunneling_description">Hier kunt u apps selecteren die rechtstreeks toegang tot het internet moeten hebben zonder via de VPN-tunnel te gaan.</string>
+    <string name="split_tunneling_description_warning">Let op: Als \"Verbindingen zonder VPN blokkeren\" is ingeschakeld, hebben gesplitste apps geen internet. Houd er altijd rekening mee dat split tunneling een privacyrisico vormt.</string>
     <string name="start_tunnel_error">Kan de tunnelverbinding niet starten. Stuur een probleemrapport.</string>
     <string name="submit_button">Verzenden</string>
     <string name="switch_location">Locatie wijzigen</string>
@@ -303,6 +310,9 @@
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">Met welke TCP-poort moet het UDP-over-TCP-obfuscatieprotocol verbinding maken op de VPN-server.</string>
     <string name="undo">Ongedaan maken</string>
+    <string name="unsecured">Onbeveiligd</string>
+    <string name="unsecured_connection">NIET-BEVEILIGDE VERBINDING</string>
+    <string name="unsecured_vpn_permission_error">Onbeveiligd (geen VPN-toestemming)</string>
     <string name="unsupported_version">NIET-ONDERSTEUNDE VERSIE</string>
     <string name="unsupported_version_description">Uw privacy kan risico lopen met deze niet-ondersteunde appversie. Werk de app nu bij.</string>
     <string name="update_dns_server_dialog_title">DNS-server bijwerken</string>
@@ -315,6 +325,7 @@
     <string name="verifying_voucher">Voucher verifiëren …</string>
     <string name="view_logs">Applogboeken weergeven</string>
     <string name="voucher_already_used">Vouchercode is al gebruikt.</string>
+    <string name="voucher_is_account_number">Het lijkt erop dat u een accountnummer hebt ingevoerd in plaats van een vouchercode. Als u het actieve account wilt wijzigen, meld u dan eerst af.</string>
     <string name="voucher_success_title">Voucher is ingewisseld.</string>
     <string name="vpn_permission_denied_error">VPN-toestemming is geweigerd tijdens maken van de tunnel. Probeer opnieuw verbinding te maken.</string>
     <string name="vpn_permission_error_notification_message">Altijd-aan VPN is mogelijk ingeschakeld voor een andere app</string>

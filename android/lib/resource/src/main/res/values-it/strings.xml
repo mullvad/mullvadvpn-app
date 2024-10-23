@@ -42,6 +42,8 @@
     <string name="auto_connect_and_lockdown_mode_footer">Assicurati che il dispositivo sia sempre collegato al tunnel VPN.</string>
     <string name="auto_connect_carousel_first_slide_top_text">Le impostazioni della modalità di Connessione automatica e di Blocco si trovano nelle impostazioni del sistema Android. Segui questa guida per abilitare una o entrambe.</string>
     <string name="auto_connect_carousel_second_slide_top_text">La connessione automatica è denominata VPN sempre attiva nelle impostazioni del sistema Android e garantisce di essere costantemente connessi al tunnel VPN e di connettersi automaticamente dopo il riavvio.</string>
+    <string name="auto_connect_carousel_third_slide_bottom_text">3. Per abilitare la Modalità Blocco, clicca sull\'interruttore accanto a &lt;b&gt;Blocca connessioni senza VPN&lt;/b&gt;.&lt;br /&gt;&lt;br /&gt;&lt;b&gt;Avviso: questa impostazione blocca le app divise e la funzionalità di condivisione della rete locale.&lt;/b&gt;</string>
+    <string name="auto_connect_carousel_third_slide_top_text">La Modalità Blocco si chiama &lt;b&gt;Blocca connessioni senza VPN&lt;/b&gt; nelle impostazioni del sistema Android. Aiuta a ridurre al minimo le perdite, tuttavia presenta alcune limitazioni su cui consigliamo di approfondire</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">qui</string>
     <string name="auto_connect_legacy">Connessione automatica (precedente)</string>
     <string name="automatic">Automatico</string>
@@ -64,8 +66,9 @@
     <string name="confirm_no_email">Stai inviando la segnalazione di un problema senza averci indicato un modo per ricontattarti. Se desideri ricevere risposta, inserisci un indirizzo e-mail.</string>
     <string name="confirm_removal">Sì, disconnetti dal dispositivo</string>
     <string name="congrats">Complimenti!</string>
-    <string name="connect">Connetti</string>
-    <string name="connected">Connesso</string>
+    <string name="connect">Proteggi mia connessione</string>
+    <string name="connected_using_daita">%1$s sta usando %2$s</string>
+    <string name="connecting">Connessione</string>
     <string name="connecting_to_daemon">Connessione al servizio del sistema Mullvad...</string>
     <string name="connection_details_in">Ricezione</string>
     <string name="continue_login">Continua con il login</string>
@@ -74,6 +77,7 @@
     <string name="copy_account_number">Copia numero di account</string>
     <string name="create">Crea</string>
     <string name="create_account">Crea account</string>
+    <string name="create_custom_list_message">\"%1$s\" creato</string>
     <string name="create_new_list">Crea nuovo elenco</string>
     <string name="created_x">Creazione: %1$s</string>
     <string name="creating_new_account">Creazione account...</string>
@@ -89,6 +93,8 @@
     <string name="custom_port_dialog_valid_ranges">Intervalli validi: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Impossibile risolvere l\'host del tunnel personalizzato. Prova a modificare le impostazioni.</string>
     <string name="daita_info">%1$s (%2$s) nasconde i percorsi in un traffico VPN crittografato. Se qualcuno sta monitorando la tua connessione, sarà molto più difficile per lui identificare quali siti web stai visitando. Ciò avviene aggiungendo con attenzione rumore di rete e rendendo tutti i pacchetti di rete della stessa dimensione.</string>
+    <string name="daita_relay_subset_warning">Questa funzionalità non è disponibile su tutti i server. Potrebbe essere necessario modificare la posizione dopo l\'abilitazione.</string>
+    <string name="daita_warning">Attenzione: poiché questa operazione aumenta il traffico di rete totale, usala con cautela se disponi di un piano dati limitato. Può anche avere un impatto negativo sulla velocità della rete e sul consumo della batteria.</string>
     <string name="delete">Elimina</string>
     <string name="delete_custom_list_confirmation_description">Eliminare \"%1$s\"?</string>
     <string name="delete_custom_list_message">\"%1$s\" eliminato</string>
@@ -168,6 +174,7 @@
     <string name="local_network_sharing_info">Questa funzione consente l\'accesso ad altri dispositivi sulla rete locale, ad esempio per la condivisione, la stampa, lo streaming, ecc.</string>
     <string name="location_added">%1$s (aggiunto)</string>
     <string name="location_was_added_to_list">%1$s aggiunto a \"%2$s\"</string>
+    <string name="location_was_removed_from_list">Rimozione di %1$s da \"%2$s\"</string>
     <string name="locations">Posizioni</string>
     <string name="locations_were_changed_for">Le posizioni sono state modificate per \"%1$s\"</string>
     <string name="log_out">Esci</string>
@@ -239,6 +246,7 @@
     <string name="redeem">Riscatta</string>
     <string name="redeem_voucher">Riscatta voucher</string>
     <string name="remove_button">Rimuovi</string>
+    <string name="remove_location_from_list">Rimuovi %1$s da %2$s</string>
     <string name="rented">Noleggiato</string>
     <string name="rented_only">Solo noleggiati</string>
     <string name="report_a_problem">Segnala un problema</string>
@@ -284,6 +292,7 @@
     <string name="settings_vpn">Impostazioni VPN</string>
     <string name="show_system_apps">Mostra app di sistema</string>
     <string name="split_tunneling_description">Ti consente di selezionare le app che devono accedere direttamente a Internet senza passare attraverso il tunnel VPN.</string>
+    <string name="split_tunneling_description_warning">Attenzione: se è abilitata l\'opzione \"Blocca connessioni senza VPN\", le app divise non avranno Internet. Tieni sempre a mente che lo split tunneling rappresenta un rischio per la privacy.</string>
     <string name="start_tunnel_error">Impossibile avviare la connessione tunnel. Invia una segnalazione del problema.</string>
     <string name="submit_button">Invia</string>
     <string name="switch_location">Cambia posizione</string>
@@ -315,6 +324,7 @@
     <string name="verifying_voucher">Verifica del voucher…</string>
     <string name="view_logs">Visualizza registri app</string>
     <string name="voucher_already_used">Il codice voucher è già stato utilizzato.</string>
+    <string name="voucher_is_account_number">Sembra che tu abbia inserito un numero di account anziché un codice voucher. Se desideri modificare l\'account attivo, effettua prima la disconnessione.</string>
     <string name="voucher_success_title">Il voucher è stato riscattato correttamente.</string>
     <string name="vpn_permission_denied_error">L\'autorizzazione VPN è stata negata durante la creazione del tunnel. Prova a connetterti di nuovo.</string>
     <string name="vpn_permission_error_notification_message">La VPN sempre attiva potrebbe essere abilitata per un\'altra app</string>

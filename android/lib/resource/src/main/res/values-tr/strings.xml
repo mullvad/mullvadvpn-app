@@ -42,7 +42,11 @@
     <string name="auto_connect_and_lockdown_mode_footer">Cihazın her zaman VPN tünelinde olduğundan emin olun.</string>
     <string name="auto_connect_carousel_first_slide_top_text">Otomatik Bağlantı ve Kilitleme modu ayarları Android sistem ayarlarında yer alır. Bu ayarlardan birini veya her ikisini de etkinleştirmek için bu kılavuza göz atın.</string>
     <string name="auto_connect_carousel_second_slide_top_text">Otomatik bağlantı, Android sistem ayarlarında VPN her zaman açık olarak gösterilir ve VPN tüneline sürekli bağlı olmanızı ve yeniden başlatma sonrası otomatik olarak bağlanmanızı sağlar.</string>
+    <string name="auto_connect_carousel_third_slide_bottom_text">3. Kilitleme modunu etkinleştirmek için &lt;b&gt;VPN üzerinden olmayan bağlantıları engelle&lt;/b&gt; seçeneğinin yanındaki düğmeye tıklayın.&lt;br /&gt;&lt;br /&gt;&lt;b&gt;Uyarı: Bu ayar, bölünmüş uygulamaları ve Yerel Ağ Paylaşımı özelliğini engeller. &lt;/b&gt;</string>
+    <string name="auto_connect_carousel_third_slide_top_text">Android sistem ayarlarında Kilitleme modu &lt;b&gt;VPN üzerinden olmayan bağlantıları engelle&lt;/b&gt; olarak adlandırılmıştır. Sızıntıları en aza indirmeye yardımcı olsa da ayrıntılar konusunda bilgi edinmeniz gereken bazı bilinen sınırlamaları vardır</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">burada</string>
+    <string name="auto_connect_footer_legacy">Lütfen yukarıdaki &lt;b&gt;%1$s&lt;/b&gt; bölümündeki kılavuzu izleyerek &lt;b&gt;Her zaman açık&lt;/b&gt; sistem ayarını kullanın.</string>
+    <string name="auto_connect_footer_legacy_tv">Uygulama başlatıldığında otomatik olarak bağlan. Bu ayar, daha sonraki bir güncellemede yeni bir cihazda bağlantı başlatma özelliğiyle değiştirilecektir.</string>
     <string name="auto_connect_legacy">Otomatik bağlan (eski)</string>
     <string name="automatic">Otomatik</string>
     <string name="back">Geri</string>
@@ -64,8 +68,9 @@
     <string name="confirm_no_email">Sorun raporunu, size geri dönüş yapmamıza imkan vermeyen bir şekilde göndermek üzeresiniz. Sorununuz için yanıt almak istiyorsanız bir e-posta adresi girmelisiniz.</string>
     <string name="confirm_removal">Evet, cihazdan çıkış yap</string>
     <string name="congrats">Tebrikler!</string>
-    <string name="connect">Bağlan</string>
-    <string name="connected">Bağlandı</string>
+    <string name="connect">Bağlantımın güvenliğini sağla</string>
+    <string name="connected_using_daita">%1$s, %2$s özelliğini kullanıyor</string>
+    <string name="connecting">Bağlanılıyor</string>
     <string name="connecting_to_daemon">Mullvad sistem hizmetlerine bağlanılıyor...</string>
     <string name="connection_details_in">Giriş</string>
     <string name="continue_login">Giriş yapmak için devam et</string>
@@ -74,11 +79,13 @@
     <string name="copy_account_number">Hesap numarasını kopyala</string>
     <string name="create">Oluştur</string>
     <string name="create_account">Hesap oluştur</string>
+    <string name="create_custom_list_message">\"%1$s\" oluşturuldu</string>
     <string name="create_new_list">Yeni liste oluştur</string>
     <string name="created_x">Oluşturma tarihi: %1$s</string>
     <string name="creating_new_account">Hesap oluşturuluyor...</string>
     <string name="critical_error">Kritik hata (Lütfen dikkatli olun)</string>
     <string name="current_method">Geçerli: %1$s</string>
+    <string name="custom_dns_disable_mode_subtitle">Bu ayarı etkinleştirmek için yukarıdaki &lt;b&gt;%1$s&lt;/b&gt; seçeneklerin tümünü devre dışı bırakın.</string>
     <string name="custom_dns_footer">En az bir DNS sunucusu eklemek için etkinleştirin.</string>
     <string name="custom_dns_hint">IP\'yi girin</string>
     <string name="custom_list_error_list_exists">İsim zaten kullanılıyor.</string>
@@ -89,6 +96,8 @@
     <string name="custom_port_dialog_valid_ranges">Geçerli aralıklar: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Özel tünel ana bilgisayarı çözülemedi. Ayarlarınızı değiştirmeyi deneyin.</string>
     <string name="daita_info">%1$s (%2$s), şifrelenmiş VPN trafiğinizdeki kalıpları gizler. Bu sayede, başka biri bağlantınızı izliyorsa ziyaret ettiğiniz web sitelerini tespit etmesi çok daha zor olacaktır. Özellik, dikkatli bir şekilde ağ paraziti ekleyerek ve tüm ağ paketlerini aynı boyuta getirerek sizi izlenmekten korur.</string>
+    <string name="daita_relay_subset_warning">Bu özellik tüm sunucularda mevcut değildir. Etkinleştirdikten sonra konumu değiştirmeniz gerekebilir.</string>
+    <string name="daita_warning">Dikkat: Bu özellik, toplam ağ trafiğinizi artıracağından sınırlı bir veri planınız varsa dikkatli olun. Ağ hızınız ve pil kullanımınız da bu durumdan olumsuz etkilenebilir.</string>
     <string name="delete">Sil</string>
     <string name="delete_custom_list_confirmation_description">\"%1$s\" silinsin mi\"?</string>
     <string name="delete_custom_list_message">\"%1$s\" silindi</string>
@@ -107,6 +116,7 @@
     <string name="disconnect">Bağlantıyı Kes</string>
     <string name="disconnected">Bağlantı kesildi</string>
     <string name="dismiss">Reddet</string>
+    <string name="dns_content_blockers_custom_dns_warning">Dikkat: Bu ayar, &lt;b&gt;Özel DNS sunucusu kullan&lt;/b&gt; seçeneği ile birlikte kullanılamaz.</string>
     <string name="dns_content_blockers_info">Bu özellik etkinleştirildiğinde, cihazınızın reklamlar, kötü amaçlı yazılımlar, izleyiciler ve daha fazlasını dağıttığı bilinen belirli alan adlarıyla veya web siteleriyle iletişim kurmasını durdurur.</string>
     <string name="dns_content_blockers_warning">Bu, belirli web sitelerinde, hizmetlerde ve uygulamalarda sorunlara neden olabilir.</string>
     <string name="dont_have_an_account">Hesap numaranız yok mu?</string>
@@ -168,6 +178,7 @@
     <string name="local_network_sharing_info">Bu özellik; paylaşım, yazdırma, akış sağlama gibi özellikler için yerel ağdaki diğer cihazlara erişim izni verir.</string>
     <string name="location_added">%1$s (eklendi)</string>
     <string name="location_was_added_to_list">%1$s, \"%2$s\" listesine eklendi</string>
+    <string name="location_was_removed_from_list">%1$s, \"%2$s\" listesinden kaldırıldı</string>
     <string name="locations">Konumlar</string>
     <string name="locations_were_changed_for">\"%1$s\" için konumlar değiştirildi</string>
     <string name="log_out">Oturumu kapat</string>
@@ -239,6 +250,7 @@
     <string name="redeem">Kullan</string>
     <string name="redeem_voucher">Kuponu kullan</string>
     <string name="remove_button">Kaldır</string>
+    <string name="remove_location_from_list">%1$s, %2$s listesinden kaldırıldı</string>
     <string name="rented">Kiralananlar</string>
     <string name="rented_only">Sadece kiralananlar</string>
     <string name="report_a_problem">Bir sorun bildir</string>
@@ -284,6 +296,7 @@
     <string name="settings_vpn">VPN ayarları</string>
     <string name="show_system_apps">Sistem uygulamalarını göster</string>
     <string name="split_tunneling_description">VPN tünelinden geçmeden doğrudan internete erişmesi gereken uygulamaları seçmenizi sağlar.</string>
+    <string name="split_tunneling_description_warning">Dikkat: \"VPN üzerinden olmayan bağlantıları engelle\" seçeneği etkinse, bölünmüş uygulamalarda internet kullanılamayacaktır. Bölünmüş tünellemenin, gizlilik riski taşıdığını her zaman göz önünde bulundurun.</string>
     <string name="start_tunnel_error">Tünel bağlantısı başlatılamıyor. Lütfen bir hata raporu gönderin.</string>
     <string name="submit_button">Gönder</string>
     <string name="switch_location">Konum değiştir</string>
@@ -315,6 +328,7 @@
     <string name="verifying_voucher">Kupon doğrulanıyor…</string>
     <string name="view_logs">Uygulama kayıtlarını görüntüle</string>
     <string name="voucher_already_used">Kupon kodu zaten kullanılmış.</string>
+    <string name="voucher_is_account_number">Kupon kodu yerine hesap numarası girdiniz. Aktif hesabı değiştirmek istiyorsanız lütfen önce çıkış yapın.</string>
     <string name="voucher_success_title">Kupon başarıyla kullanıldı.</string>
     <string name="vpn_permission_denied_error">Tünel oluşturulurken VPN izni reddedildi. Lütfen tekrar bağlanmayı deneyin.</string>
     <string name="vpn_permission_error_notification_message">Her zaman açık VPN başka bir uygulama için etkinleştirilebilir</string>

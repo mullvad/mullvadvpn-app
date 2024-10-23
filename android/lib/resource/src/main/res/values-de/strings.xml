@@ -64,8 +64,9 @@
     <string name="confirm_no_email">Sie wollen einen Problembericht senden, ohne uns die Möglichkeit zu geben, Sie zu erreichen. Wenn Sie sich eine Antwort zu Ihrem Problem wünschen, müssen Sie eine E-Mail-Adresse eingeben.</string>
     <string name="confirm_removal">Ja, von Gerät abmelden</string>
     <string name="congrats">Glückwunsch!</string>
-    <string name="connect">Verbinden</string>
-    <string name="connected">Verbunden</string>
+    <string name="connect">Meine Verbindung sichern</string>
+    <string name="connected_using_daita">%1$s mit %2$s</string>
+    <string name="connecting">Verbinden</string>
     <string name="connecting_to_daemon">Verbindung zum Mullvad-Systemdienst wird hergestellt...</string>
     <string name="connection_details_in">Eingehend</string>
     <string name="continue_login">Weiter mit Anmeldung</string>
@@ -74,6 +75,7 @@
     <string name="copy_account_number">Kontonummer kopieren</string>
     <string name="create">Erstellen</string>
     <string name="create_account">Konto erstellen</string>
+    <string name="create_custom_list_message">„%1$s“ wurde erstellt</string>
     <string name="create_new_list">Neue Liste erstellen</string>
     <string name="created_x">Erstellt: %1$s</string>
     <string name="creating_new_account">Konto wird erstellt ...</string>
@@ -89,6 +91,8 @@
     <string name="custom_port_dialog_valid_ranges">Gültige Bereiche: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Der Host des benutzerdefinierten Tunnels konnte nicht aufgelöst werden. Versuchen Sie, Ihre Einstellungen zu ändern.</string>
     <string name="daita_info">%1$s (%2$s) verbirgt Muster in Ihrem verschlüsselten VPN-Traffic. Wenn jemand Ihre Verbindung überwacht, ist es für ihn wesentlich schwieriger zu erkennen, welche Websites Sie besuchen. Dazu fügt es vorsichtig Netzwerkrauschen hinzu und sorgt dafür, dass alle Netzwerkpakete die gleiche Größe haben.</string>
+    <string name="daita_relay_subset_warning">Diese Funktion ist nicht auf allen Servern verfügbar. Möglicherweise müssen Sie nach der Aktivierung den Standort wechseln.</string>
+    <string name="daita_warning">Achtung! Da dies Ihren gesamten Netzwerk-Traffic erhöht, sollten Sie vorsichtig sein, wenn Sie einen begrenzten Datentarif haben. Es kann sich auch negativ auf Ihre Netzwerkgeschwindigkeit und den Akkuverbrauch auswirken.</string>
     <string name="delete">Löschen</string>
     <string name="delete_custom_list_confirmation_description">„%1$s“ löschen?</string>
     <string name="delete_custom_list_message">„%1$s“ wurde gelöscht</string>
@@ -168,6 +172,7 @@
     <string name="local_network_sharing_info">Diese Funktion ermöglicht den Zugriff auf andere Geräte im lokalen Netzwerk, z. B. zum Teilen, Drucken, Streamen usw.</string>
     <string name="location_added">%1$s (hinzugefügt)</string>
     <string name="location_was_added_to_list">%1$s wurde zu „%2$s“ hinzugefügt</string>
+    <string name="location_was_removed_from_list">%1$s wurde von „%2$s“ entfernt</string>
     <string name="locations">Standorte</string>
     <string name="locations_were_changed_for">Standorte wurden geändert für „%1$s“</string>
     <string name="log_out">Abmelden</string>
@@ -239,6 +244,7 @@
     <string name="redeem">Einlösen</string>
     <string name="redeem_voucher">Gutschein einlösen</string>
     <string name="remove_button">Entfernen</string>
+    <string name="remove_location_from_list">%1$s von %2$s entfernen</string>
     <string name="rented">Gemietet</string>
     <string name="rented_only">Nur gemietet</string>
     <string name="report_a_problem">Problem melden</string>
@@ -284,6 +290,7 @@
     <string name="settings_vpn">VPN-Einstellungen</string>
     <string name="show_system_apps">System-Apps anzeigen</string>
     <string name="split_tunneling_description">Hiermit können Sie Apps auswählen, die ohne den VPN-Tunnel direkt auf das Internet zugreifen sollen.</string>
+    <string name="split_tunneling_description_warning">Achtung! Wenn „Verbindungen ohne VPN blockieren“ aktiviert ist, haben Split-Apps keine Internetverbindung. Denken Sie immer daran, dass Split-Tunneling ein Datenschutzrisiko darstellt.</string>
     <string name="start_tunnel_error">Die Tunnelverbindung konnte nicht gestartet werden. Bitte senden Sie einen Problembericht.</string>
     <string name="submit_button">Absenden</string>
     <string name="switch_location">Ort wechseln</string>
@@ -315,6 +322,7 @@
     <string name="verifying_voucher">Gutschein verifizieren …</string>
     <string name="view_logs">App-Protokolle anzeigen</string>
     <string name="voucher_already_used">Der Gutscheincode wurde bereits verwendet.</string>
+    <string name="voucher_is_account_number">Anscheinend haben Sie eine Kontonummer statt eines Gutscheincodes eingegeben. Wenn Sie das aktive Konto wechseln möchten, melden Sie sich bitte zuerst ab.</string>
     <string name="voucher_success_title">Der Gutschein wurde erfolgreich eingelöst.</string>
     <string name="vpn_permission_denied_error">VPN-Berechtigungen wurden beim Erstellen des Tunnels abgelehnt.</string>
     <string name="vpn_permission_error_notification_message">Always-on VPN könnte für eine andere App aktiviert sein</string>

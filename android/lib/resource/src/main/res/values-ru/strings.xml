@@ -41,8 +41,13 @@
     <string name="auto_connect_and_lockdown_mode">Автоподключение и режим блокировки</string>
     <string name="auto_connect_and_lockdown_mode_footer">Обеспечивает постоянное подключение устройства к туннелю VPN.</string>
     <string name="auto_connect_carousel_first_slide_top_text">Настройки автоподключения и режима блокировки можно найти в системных настройках Android. Чтобы включить их, следуйте этой инструкции.</string>
+    <string name="auto_connect_carousel_second_slide_bottom_text">2. Чтобы включить автоподключение, нажмите на переключатель возле пункта &lt;b&gt;Постоянная VPN&lt;/b&gt;.</string>
     <string name="auto_connect_carousel_second_slide_top_text">В системных настройках Android автоподключение называется «Постоянная VPN». Эта опция обеспечивает постоянное подключение к туннелю VPN и автоподключение после перезапуска.</string>
+    <string name="auto_connect_carousel_third_slide_bottom_text">3. Чтобы включить режим блокировки, нажмите на переключатель рядом с пунктом &lt;b&gt;Блокировать соединения без VPN&lt;/b&gt;.&lt;br /&gt;&lt;br /&gt;&lt;b&gt;Предупреждение: этот параметр блокирует приложения из списка раздельного туннелирования и функцию «Обмен данными в локальной сети».&lt;/b&gt;</string>
+    <string name="auto_connect_carousel_third_slide_top_text">В системных настройках Android режим блокировки называется &lt;b&gt;Блокировать соединения без VPN&lt;/b&gt;. Он помогает минимизировать утечки, однако имеет ряд известных ограничений, о которых можно прочитать подробнее</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">здесь</string>
+    <string name="auto_connect_footer_legacy">Вместо этого параметра используйте системный параметр &lt;b&gt;Постоянная VPN&lt;/b&gt;, следуя указаниям в разделе &lt;b&gt;%1$s&lt;/b&gt; выше.</string>
+    <string name="auto_connect_footer_legacy_tv">Автоматически подключаться при запуске приложения. В будущем эта опция будет заменена новой функцией подключения при запуске устройства.</string>
     <string name="auto_connect_legacy">Автоподключение (устаревшее)</string>
     <string name="automatic">Автоматически</string>
     <string name="back">Назад</string>
@@ -64,8 +69,9 @@
     <string name="confirm_no_email">Вы собираетесь отправить отчет о проблеме, не оставив контакты. Если вы хотите получить ответ, введите свой адрес электронной почты.</string>
     <string name="confirm_removal">Выйти из профиля на устройстве</string>
     <string name="congrats">Поздравляем!</string>
-    <string name="connect">Подключить</string>
-    <string name="connected">Подключено</string>
+    <string name="connect">Защитить подключение</string>
+    <string name="connected_using_daita">%1$s, используется %2$s</string>
+    <string name="connecting">Идет подключение</string>
     <string name="connecting_to_daemon">Подключение к системному сервису Mullvad...</string>
     <string name="connection_details_in">Вход</string>
     <string name="continue_login">Войти</string>
@@ -74,6 +80,7 @@
     <string name="copy_account_number">Копировать номер учетной записи</string>
     <string name="create">Создать</string>
     <string name="create_account">Создать учетную запись</string>
+    <string name="create_custom_list_message">Список «%1$s» создан</string>
     <string name="create_new_list">Создание нового списка</string>
     <string name="created_x">Создано: %1$s</string>
     <string name="creating_new_account">Создание учетной записи...</string>
@@ -88,7 +95,9 @@
     <string name="custom_port_dialog_submit">Установить порт</string>
     <string name="custom_port_dialog_valid_ranges">Допустимые диапазоны: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Не удалось преобразовать имя узла пользовательского туннеля. Попробуйте изменить настройки.</string>
-    <string name="daita_info">%1$s (%2$s) маскирует особенности зашифрованного VPN-трафика. Если кто-то следит за вашим подключением, ему будет значительно сложнее определить, какие сайты вы посещаете. Для этого добавляется сетевой шум, а все сетевые пакеты делаются одинаковыми по размеру.</string>
+    <string name="daita_info">%1$s (%2$s) скрывает характерные признаки в зашифрованном VPN-трафике. Если кто-то отслеживает ваше подключение, ему будет значительно сложнее определить, какие веб-сайты вы посещаете. Для этого в трафик добавляется сетевой шум, а все пакеты приводятся к одному размеру.</string>
+    <string name="daita_relay_subset_warning">Эта функция доступна не на всех серверах. Возможно, после ее включения придется сменить местоположение.</string>
+    <string name="daita_warning">Внимание! При использовании этой функции общий сетевой трафик увеличивается. Имейте это в виду, если у вас тарифный план с ограничением по трафику. Также может снизиться скорость сети и повыситься расход заряда аккумулятора.</string>
     <string name="delete">Удалить</string>
     <string name="delete_custom_list_confirmation_description">Удалить список «%1$s»?</string>
     <string name="delete_custom_list_message">Список «%1$s» удален</string>
@@ -107,6 +116,7 @@
     <string name="disconnect">Отключить</string>
     <string name="disconnected">Разъединено</string>
     <string name="dismiss">Закрыть</string>
+    <string name="dns_content_blockers_custom_dns_warning">Внимание! Этот параметр нельзя использовать вместе с параметром &lt;b&gt;Пользовательский DNS-сервер&lt;/b&gt;.</string>
     <string name="dns_content_blockers_info">При включенной опции устройство не будет устанавливать соединение с определенными доменами и сайтами, известными распространением рекламы, вредоносного ПО, трекеров и т. д.</string>
     <string name="dns_content_blockers_warning">Это может привести к проблемам при использовании некоторых сайтов, служб и приложений.</string>
     <string name="dont_have_an_account">У вас нет номера учетной записи?</string>
@@ -168,6 +178,7 @@
     <string name="local_network_sharing_info">Эта функция позволяет получить доступ к другим устройствам в локальной сети, например, для организации общего доступа, печати, потоковой передачи и т. д.</string>
     <string name="location_added">%1$s (добавлено)</string>
     <string name="location_was_added_to_list">Местоположение %1$s добавлено к списку «%2$s»</string>
+    <string name="location_was_removed_from_list">%1$s: удалено из списка «%2$s»</string>
     <string name="locations">Местоположения</string>
     <string name="locations_were_changed_for">Местоположения были изменены для «%1$s»</string>
     <string name="log_out">Выйти</string>
@@ -239,12 +250,15 @@
     <string name="redeem">Погасить</string>
     <string name="redeem_voucher">Погасить ваучер</string>
     <string name="remove_button">Удалить</string>
+    <string name="remove_location_from_list">Удалить %1$s из списка «%2$s»</string>
     <string name="rented">Арендованные</string>
     <string name="rented_only">Только арендованные</string>
     <string name="report_a_problem">Сообщение о проблеме</string>
     <string name="reset_to_default_button">Восстановить значение по умолчанию</string>
     <string name="save">Сохранить</string>
     <string name="search_placeholder">Поиск...</string>
+    <string name="secure_connection">ЗАЩИЩЕННОЕ ПОДКЛЮЧЕНИЕ</string>
+    <string name="secured">Защита активна</string>
     <string name="select_location">Выбор местоположения</string>
     <string name="select_location_empty_text_first_row">По запросу &lt;b&gt;%1$s&lt;/b&gt; ничего не найдено.</string>
     <string name="select_location_empty_text_second_row">Измените условие поиска.</string>
@@ -284,6 +298,7 @@
     <string name="settings_vpn">Настройки VPN</string>
     <string name="show_system_apps">Показывать системные приложения</string>
     <string name="split_tunneling_description">Позволяет выбрать приложения, которые должны получать доступ к Интернету напрямую, не проходя через VPN-туннель.</string>
+    <string name="split_tunneling_description_warning">Внимание! Если включена функция «Блокировать соединения без VPN», у приложений из списка раздельного туннелирования не будет доступа в Интернет. Не забывайте, что раздельное туннелирование представляет собой риск для конфиденциальности.</string>
     <string name="start_tunnel_error">Не удалось запустить туннельное подключение. Отправьте сообщение о проблеме.</string>
     <string name="submit_button">Отправить</string>
     <string name="switch_location">Сменить местоположение</string>
@@ -303,6 +318,9 @@
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">TCP-порт, к которому должен подключаться протокол обфускации UDP через TCP на VPN-сервере.</string>
     <string name="undo">Отменить</string>
+    <string name="unsecured">Защита неактивна</string>
+    <string name="unsecured_connection">НЕЗАЩИЩЕННОЕ ПОДКЛЮЧЕНИЕ</string>
+    <string name="unsecured_vpn_permission_error">Защита неактивна (нет разрешения для VPN)</string>
     <string name="unsupported_version">НЕПОДДЕРЖИВАЕМАЯ ВЕРСИЯ</string>
     <string name="unsupported_version_description">Эта версия приложения не поддерживается, что может угрожать неприкосновенности ваших данных. Обновите приложение.</string>
     <string name="update_dns_server_dialog_title">Обновить DNS-сервер</string>
@@ -315,6 +333,7 @@
     <string name="verifying_voucher">Идет проверка ваучера…</string>
     <string name="view_logs">Открыть журналы</string>
     <string name="voucher_already_used">Этот код ваучера уже использовался.</string>
+    <string name="voucher_is_account_number">Вы ввели номер учетной записи вместо кода ваучера. Чтобы изменить активную учетную запись, сначала выйдите из системы.</string>
     <string name="voucher_success_title">Ваучер погашен.</string>
     <string name="vpn_permission_denied_error">При создании туннеля в доступе к VPN было отказано. Попробуйте подключиться снова.</string>
     <string name="vpn_permission_error_notification_message">Опцию «Постоянная VPN» может быть включена для другого приложения</string>

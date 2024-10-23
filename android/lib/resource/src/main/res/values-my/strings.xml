@@ -41,8 +41,13 @@
     <string name="auto_connect_and_lockdown_mode">အော်တို ချိတ်ဆက်မှု နှင့် လော့ခ်ဒေါင်းစနစ်</string>
     <string name="auto_connect_and_lockdown_mode_footer">စက်သည် VPN Tunnel ကို အမြဲဖွင့်ထားကြောင်း သေချာပါစေ။</string>
     <string name="auto_connect_carousel_first_slide_top_text">အော်တို ချိတ်ဆက်မှုနှင့် လော့ခ်ဒေါင်းစနစ် ဆက်တင်များကို Android စနစ် ဆက်တင်များတွင် ရှာတွေ့နိုင်ပြီး တစ်ခု သို့မဟုတ် နှစ်ခုလုံးကို ဖွင့်ရန် ဤလမ်းညွှန်ချက်ကို လိုက်နာပါ။</string>
+    <string name="auto_connect_carousel_second_slide_bottom_text">2. အော်တို ချိတ်ဆက်မှုကို ဖွင့်ရန် &lt;b&gt;အမြဲဖွင့် VPN&lt;/b&gt; ဘေးရှိ ဖွင့်/ပိတ် ခလုတ်ကို နှိပ်ပါ။</string>
     <string name="auto_connect_carousel_second_slide_top_text">Android စနစ် ဆက်တင်တွင် အော်တိုချိတ်ဆက်မှုကို အမြဲဖွင့် VPN ဟုခေါ်ပြီး VPN Tunnel ကို အမြဲချိတ်ဆက်ထားကြောင်း သေချာစေပြီး အစမှ ပြန်ဖွင့်ပြီးနောက် အော်တို ချိတ်ဆက်ပါသည်။</string>
-    <string name="auto_connect_carousel_third_slide_top_text_website_link">ဤနေရာ</string>
+    <string name="auto_connect_carousel_third_slide_bottom_text">3. လော့ခ်ဒေါင်းစနစ်ကို ဖွင့်ရန် &lt;b&gt;VPN မသုံးဘဲချိတ်ဆက်မှုများကို ပိတ်ဆို့ရန်&lt;/b&gt;ဘေးရှိ ဖွင့်/ပိတ်ခလုတ်ကို နှိပ်ပါ။&lt;br /&gt;&lt;br /&gt;&lt;b&gt;သတိပေးချက်- ဤဆက်တင်သည် Split အက်ပ်များနှင့် လိုကယ် ကွန်ရက် ဝေမျှမှု လုပ်ဆောင်ချက်ကို တားမြစ်ပါသည်။&lt;/b&gt;</string>
+    <string name="auto_connect_carousel_third_slide_top_text">လော့ခ်ဒေါင်းစနစ်ကို Android စနစ်ဆက်တင်များတွင် &lt;b&gt;VPN မသုံးဘဲချိတ်ဆက်မှုများကို ပိတ်ဆို့ရန်&lt;/b&gt;ဟု ခေါ်ဆိုပါသည်။ ၎င်းသည် ပေါက်ကြားမှုများကို လျှော့ချနိုင်အောင် ကူညီပေးနိုင်သော်လည်း အများသိ အကန့်အသတ်များရှိပြီး ၎င်းတို့အကြောင်းကို</string>
+    <string name="auto_connect_carousel_third_slide_top_text_website_link">ဤနေရာတွင် ပိုမိုဖတ်ရှုနိုင်ပါသည်</string>
+    <string name="auto_connect_footer_legacy">အထက်ပါ &lt;b&gt;%1$s&lt;/b&gt; ရှိ လမ်းညွှန်အတိုင်းဆောင်ရွက်ခြင်းဖြင့် &lt;b&gt;အမြဲဖွင့်&lt;/b&gt; စနစ်ဆက်တင်ကို ‌အစားထိုး သုံးပါ။</string>
+    <string name="auto_connect_footer_legacy_tv">အက်ပ်ပွင့်လာသည့်အခါ အလိုအလျောက် ချိတ်ဆက်ပါသည်။ လာမည့်အပ်ဒိတ်တွင် ဤဆက်တင်ကို စက်ပွင့်သည်နှင့် ချိတ်ဆက်သော လုပ်ဆောင်ချက်အသစ်တစ်ခုနှင့် အစားထိုးပါမည်။</string>
     <string name="auto_connect_legacy">အော်တို ချိတ်ဆက်ရန် (ပင်မ)</string>
     <string name="automatic">အလိုအလျောက်</string>
     <string name="back">နောက်သို့</string>
@@ -64,8 +69,9 @@
     <string name="confirm_no_email">သင်သည် သင့်ထံ ကျွန်ုပ်တို့ ပြန်ဆက်သွယ်နိုင်မည့် နည်းလမ်း မပါဘဲ ပြဿနာ ရီပို့တ်ကို ပေးပို့တော့မည် ဖြစ်ပါသည်။ သင့်ရီပို့တ်အတွက် အဖြေ ရရှိလိုပါက အီမေးလိပ်စာ ဖြည့်သွင်းပေးရပါမည်။</string>
     <string name="confirm_removal">စက်မှ ထွက်မည်</string>
     <string name="congrats">ဝမ်းသာပါတယ်။</string>
-    <string name="connect">ချိတ်ဆက်ရန်</string>
-    <string name="connected">ချိတ်ဆက်ပြီး</string>
+    <string name="connect">ကျွန်ုပ်၏ ချိတ်ဆက်မှုကို ကာကွယ်ရန်</string>
+    <string name="connected_using_daita">%1$s က %2$s ကိုသုံးလျက်</string>
+    <string name="connecting">ချိတ်ဆက်နေဆဲ</string>
     <string name="connecting_to_daemon">Mullvad စနစ် ဝန်ဆောင်မှုနှင့် ချိတ်ဆက်နေဆဲ...</string>
     <string name="connection_details_in">အဝင်</string>
     <string name="continue_login">ဆက်လက် ဝင်ရောက်ရန်</string>
@@ -74,11 +80,13 @@
     <string name="copy_account_number">အကောင့်နံပါတ်ကို ကူးရန်</string>
     <string name="create">ဖန်တီးမည်</string>
     <string name="create_account">အကောင့် ဖန်တီးရန်</string>
+    <string name="create_custom_list_message">\"%1$s\" ကို ဖန်တီးလိုက်ပြီ</string>
     <string name="create_new_list">စာရင်းသစ် ဖန်တီးမည်</string>
     <string name="created_x">ဖန်တီးသည့် အချိန်- %1$s</string>
     <string name="creating_new_account">အကောင့် ဖန်တီးနေဆဲ...</string>
     <string name="critical_error">အလွန်အရေးပါသည့် ချို့ယွင်းချက် (သင့်အာရုံစိုက်မှု လိုအပ်ပါသည်)</string>
     <string name="current_method">လက်ရှိ- %1$s</string>
+    <string name="custom_dns_disable_mode_subtitle">ဤဆက်တင်ကိုဖွင့်ရန် အထက်ရှိ &lt;b&gt;%1$s&lt;/b&gt; အားလုံးကို ပိတ်ပါ။</string>
     <string name="custom_dns_footer">အနည်းဆုံး DNS ဆာဗာတစ်ခုကို ပေါင်းထည့်ပါ။</string>
     <string name="custom_dns_hint">IP ရိုက်ထည့်ရန်</string>
     <string name="custom_list_error_list_exists">အမည်သည် ရှိနှင့်ပြီး ဖြစ်သည်။</string>
@@ -88,7 +96,9 @@
     <string name="custom_port_dialog_submit">ပေါ့တ် သတ်မှတ်ရန်</string>
     <string name="custom_port_dialog_valid_ranges">အကျုံးဝင်သည့် အပိုင်းအခြား- %1$s</string>
     <string name="custom_tunnel_host_resolution_error">စိတ်ကြိုက်ပြုလုပ်ထားသည့် Tunnel ၏ Host ကို ဖြေရှင်း၍ မရနိုင်ပါ။ သင့်ဆက်တင်ကို ပြောင်းကြည့်ပါ။</string>
-    <string name="daita_info">%1$s (%2$s) သည် သင်၏ ကုဒ်ပြောင်းဝှက်ထားသော VPN ကူးလူးမှုတွင် ပက်တန်များကို ဝှက်ထားပါသည်။ သင့်ချိတ်ဆက်မှုကို တစ်စုံတစ်ယောက်က စောင့်ကြည့်နေပါက မည်သည့်ဝက်ဘ်ဆိုက်များ သင်ဝင်ရောက်နေသည်ကို ၎င်းတို့က ခွဲခြားဖော်ထုတ်ဖို့ရာ ပို၍ သိသိသာသာ ခက်ခဲသွားအောင် ၎င်းက ပြုလုပ်ပေးပါသည်။ ကွန်ရက် အနှောင့်အယှက်လျှပ်လိုင်းကို ဂရုတစိုက် ထည့်ပြီး ကွန်ရက် ပက်ကက်အားလုံးကို အရွယ်အစားတူညီအောင် ပြုလုပ်ခြင်းဖြင့် ပို၍ခက်ခဲသွားအောင် ဆောင်ရွက်ပါသည်။</string>
+    <string name="daita_info">%1$s (%2$s) က သင်၏ ကုဒ်ပြောင်းဝှက်ထားသော VPN ဝင်ရောက်ကြည့်ရှုမှုထဲရှိ ပက်တန်များကို ဝှက်ပေးသည်။ သင့်ချိတ်ဆက်မှုကို တစ်စုံတစ်ယောက်က စောင့်ကြည့်နေပါက မည်သည့်ဝက်ဘ်ဆိုက်များထဲ သင်ဝင်ရောက်နေသည်ကို ၎င်းတို့ ခွဲခြားဖော်ထုတ်ဖို့ရာ ပို၍ သိသိသာသာ ခက်ခဲသွားစေပါသည်။ သည် ကွန်ရက် အနှောင့်အယှက်လျှပ်လိုင်းကို ဂရုတစိုက် ထည့်ပြီး ကွန်ရက် ပက်ကက်အားလုံးကို အရွယ်အစားတူညီအောင် ပြုလုပ်ခြင်းအားဖြင့် ပိုမိုခက်ခဲအောင် ဆောင်ရွက်ခြင်းဖြစ်သည်။</string>
+    <string name="daita_relay_subset_warning">ဤလုပ်ဆောင်ချက်ကို ဆာဗာအားလုံးတွင် မရရှိနိုင်ပါ။ ဖွင့်ပြီးနောက် တည်နေရာ ပြောင်းလဲရန် လိုအပ်နိုင်သည်။</string>
+    <string name="daita_warning">သတိပြုရန်- ၎င်းသည် သင်၏ စုစုပေါင်းကွန်ရက်သုံးစွဲမှုကို တိုးစေသောကြောင့် သင့်ဒေတာပလန်မှာ အကန့်အသတ်ဖြင့်သာ ရှိပါက သတိထားပါ။ ၎င်းသည် သင်၏ကွန်ရက်အမြန်နှုန်းနှင့် ဘက်ထရီအသုံးပြုမှုကိုလည်း ထိခိုက်စေနိုင်သည်။</string>
     <string name="delete">ဖျက်ရန်</string>
     <string name="delete_custom_list_confirmation_description">\"%1$s\" ကို ဖျက်မည်လား။</string>
     <string name="delete_custom_list_message">\"%1$s\" ကို ဖျက်ပြီးပါပြီ</string>
@@ -107,6 +117,7 @@
     <string name="disconnect">ချိတ်ဆက်မှုဖြုတ်ရန်</string>
     <string name="disconnected">ချိတ်ဆက်မှု ဖြုတ်ထားပြီး</string>
     <string name="dismiss">ဖယ်ပစ်ရန်</string>
+    <string name="dns_content_blockers_custom_dns_warning">သတိပြုရန်- ဤဆက်တင်ကို &lt;b&gt;စိတ်ကြိုက် DNS ဆာဗာကို သုံးရန်&lt;/b&gt;နှင့် အတူတွဲပြီး သုံးစွဲ၍မရပါ။</string>
     <string name="dns_content_blockers_info">ဤလုပ်ဆောင်ချက်ကို ဖွင့်ထားသည့်အခါ အနှောင့်အယှက်ဖြစ်စေသည့် ကြော်ငြာများ၊ မဲလ်ဝဲရ်၊ ခြေရာခံများနှင့် အစရှိသည်တို့နှင့်စပ်လျဉ်း၍ သိရှိထားသော အချို့သော Domain များ သို့မဟုတ် ဝဘ်ဆိုက်များနှင့် ဆက်သွယ်ခြင်းမှ စက်ကို ရပ်တန့်ပေးပါသည်။</string>
     <string name="dns_content_blockers_warning">၎င်းသည် အချို့သော ဝဘ်ဆိုက်များ၊ ဝန်ဆောင်မှုများနှင့် အက်ပ်များတွင် ပြဿနာများကို ဖြစ်စေနိုင်သည်။</string>
     <string name="dont_have_an_account">အကောင့်နံပါတ် မရှိ ဖြစ်နေပါသလား။</string>
@@ -168,6 +179,7 @@
     <string name="local_network_sharing_info">ဤလုပ်ဆောင်ချက်သည် မျှဝေခြင်း၊ ပရင့်ထုတ်ခြင်း၊ တိုက်ရိုက်ကြည့်ရှုနားဆင်ခြင်းအစရှိသည်တို့အတွက် ဒေသတွင်း ကွန်ရက်ရှိ အခြားစက်များကို ရယူသုံးစွဲခွင့်ပေးပါသည်။</string>
     <string name="location_added">%1$s (ထည့်ပြီး)</string>
     <string name="location_was_added_to_list">%1$s ကို \"%2$s\" တွင် ထည့်လိုက်ပြီ</string>
+    <string name="location_was_removed_from_list">%1$s ကို \"%2$s\" မှ ဖယ်ရှားလိုက်ပြီ</string>
     <string name="locations">တည်နေရာများ</string>
     <string name="locations_were_changed_for">\"%1$s\" အတွက် တည်နေရာများကို ပြောင်းလိုက်ပါသည်</string>
     <string name="log_out">ထွက်ရန်</string>
@@ -201,6 +213,7 @@
     <string name="not_found">ရှာမတွေ့ပါ</string>
     <string name="number_of_providers">ပံ့ပိုးသူများ- %1$d</string>
     <string name="obfuscation_info">Obfuscation သည် အခြားပရိုတိုကောလ်အတွင်းရှိ WireGuard ကူးလူးမှုကို ဝှက်ထားပေးပါသည်။ သာမန် WireGuard ချိတ်ဆက်မှုကို ပိတ်ဆို့မည့် အခြားသော စစ်ထုတ်မှု အမျိုးအစားများနှင့် ဆင်ဆာဖြတ်တောက်ခြင်းကို ရှောင်လွှဲနိုင်စေရာတွင် ကူညီနိုင်စေရန် ဤသည်ကို သုံးနိုင်ပါသည်။</string>
+    <string name="obfuscation_on_udp_over_tcp">(UDP-over-TCP) ဖြင့်</string>
     <string name="obfuscation_title">WireGuard Obfuscation\\n</string>
     <string name="off">ပိတ်</string>
     <string name="on">ဖွင့်</string>
@@ -239,6 +252,7 @@
     <string name="redeem">လဲယူရန်</string>
     <string name="redeem_voucher">ဘောက်ချာဖြင့် လဲယူရန်</string>
     <string name="remove_button">ဖယ်ရှားရန်</string>
+    <string name="remove_location_from_list">%1$s ကို %2$s မှ ဖယ်ရှားရန်</string>
     <string name="rented">အငှား</string>
     <string name="rented_only">အငှားသီးသန့်</string>
     <string name="report_a_problem">ပြဿနာ ရီပို့တ်လုပ်ရန်</string>
@@ -284,6 +298,7 @@
     <string name="settings_vpn">VPN ဆက်တင်များ</string>
     <string name="show_system_apps">စနစ်အက်ပ်များ ပြရန်</string>
     <string name="split_tunneling_description">VPN Tunnel ကို မဝင်ရောက်ဘဲ အင်တာနက်ကို တိုက်ရိုက် ဝင်ရောက်သုံးစွဲသင့်သည့် အက်ပ်များကို ရွေးချယ်ပေးပါ။</string>
+    <string name="split_tunneling_description_warning">သတိပြုရန်- \"VPN မသုံးဘဲချိတ်ဆက်မှုများကို ပိတ်ဆို့ရန်\" ကို ဖွင့်ထားပါက Split အက်ပ်များသည် အင်တာနက်သုံး၍ရမည်မဟုတ်ပါ။ တစ်စိတ်တစ်ပိုင်း လိုင်းကျော်သုံးခြင်းသည် ကိုယ်ရေးလုံခြုံမှုအန္တရာယ်ဖြစ်စေကြောင်း အမြဲသတိရပါ။</string>
     <string name="start_tunnel_error">Tunnel ချိတ်ဆက်မှုကို စတင်၍ မရနိုင်ပါ။ ပြဿနာ ရီပို့တ်တစ်ခု ပေးပို့ပေးပါ။</string>
     <string name="submit_button">ပေးပို့ရန်</string>
     <string name="switch_location">တည်နေရာ ပြောင်းရန်</string>
@@ -315,6 +330,7 @@
     <string name="verifying_voucher">ဘောက်ချာကို စစ်ဆေးနေဆဲ…</string>
     <string name="view_logs">အက်ပ်မှတ်တမ်းများ ကြည့်ရန်</string>
     <string name="voucher_already_used">ဘောက်ချာကုဒ် သုံးထားပြီးသား ဖြစ်ပါသည်။</string>
+    <string name="voucher_is_account_number">ဘောက်ချာကုဒ်အစား အကောင့်နံပါတ်တစ်ခုကို ထည့်သွင်းထားပုံရသည်။ အသုံးပြုနေသောအကောင့်ကို ပြောင်းလဲလိုပါက ဦးစွာ အကောင့်မှထွက်ပါ။</string>
     <string name="voucher_success_title">ဘောက်ချာကို အောင်မြင်စွာ လဲယူခဲ့ပါသည်။</string>
     <string name="vpn_permission_denied_error">Tunnel ဖန်တီးနေစဉ် VPN ခွင့်ပြုချက်ကို ပယ်ချခဲ့ပါသည်။ ထပ်မံချိတ်ဆက်ပေးပါ။</string>
     <string name="vpn_permission_error_notification_message">အမြဲဖွင့် VPN ကို နောက်ထပ်အက်ပ်အတွက် ဖွင့်ထားနိုင်ပါသည်</string>

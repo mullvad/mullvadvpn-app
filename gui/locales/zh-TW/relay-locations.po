@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2024-06-27 08:16\n"
+"PO-Revision-Date: 2024-10-23 06:33\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -152,6 +152,10 @@ msgstr "哥本哈根"
 msgid "Croatia"
 msgstr "克羅埃西亞"
 
+#. CY
+msgid "Cyprus"
+msgstr "賽普勒斯"
+
 #. CZ
 msgid "Czech Republic"
 msgstr "捷克共和國"
@@ -256,6 +260,10 @@ msgstr "愛爾蘭"
 msgid "Israel"
 msgstr "以色列"
 
+#. TR IST
+msgid "Istanbul"
+msgstr "伊斯坦堡"
+
 #. IT
 msgid "Italy"
 msgstr "義大利"
@@ -287,6 +295,10 @@ msgstr "基輔"
 #. LV
 msgid "Latvia"
 msgstr "拉脫維亞"
+
+#. PE LIM
+msgid "Lima"
+msgstr "利馬"
 
 #. PT LIS
 msgid "Lisbon"
@@ -376,6 +388,10 @@ msgstr "紐約州，紐約市"
 msgid "New Zealand"
 msgstr "紐西蘭"
 
+#. CY NIC
+msgid "Nicosia"
+msgstr "尼克西亞"
+
 #. RS INI
 msgid "Nis"
 msgstr "尼斯"
@@ -411,6 +427,10 @@ msgstr "巴黎"
 #. AU PER
 msgid "Perth"
 msgstr "伯斯"
+
+#. PE
+msgid "Peru"
+msgstr "祕魯"
 
 #. US PHL
 msgid "Philadelphia, PA"
@@ -583,6 +603,10 @@ msgstr "東京"
 #. CA TOR
 msgid "Toronto"
 msgstr "多倫多"
+
+#. TR
+msgid "Turkey"
+msgstr "土耳其"
 
 #. GB
 msgid "UK"

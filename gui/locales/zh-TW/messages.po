@@ -10,7 +10,10 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2024-06-27 08:16\n"
+"PO-Revision-Date: 2024-10-23 06:33\n"
+
+msgid "%(amount)d more..."
+msgstr "其他 %(amount)d 個..."
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "已新增 %(duration)s，帳戶到期時間為 %(expiry)s。"
@@ -90,8 +93,14 @@ msgstr "連線"
 msgid "Connected"
 msgstr "已連線"
 
+msgid "CONNECTED"
+msgstr "已連線"
+
 msgid "Connecting"
 msgstr "正在連線"
+
+msgid "CONNECTING..."
+msgstr "連線中..."
 
 #. Creating a secure connection that isn't breakable by quantum computers.
 msgid "CREATING QUANTUM SECURE CONNECTION"
@@ -103,6 +112,11 @@ msgstr "建立安全連線"
 msgid "Custom"
 msgstr "自訂"
 
+#. This refers to the Custom DNS setting in the VPN settings view. This is
+#. displayed when the feature is on.
+msgid "Custom DNS"
+msgstr "自訂 DNS"
+
 msgid "Default"
 msgstr "預設"
 
@@ -111,6 +125,9 @@ msgstr "刪除"
 
 msgid "Delete list"
 msgstr "刪除清單"
+
+msgid "Direct only"
+msgstr "僅直接連線"
 
 msgid "Disable"
 msgstr "停用"
@@ -124,17 +141,23 @@ msgstr "中斷連線並結束"
 msgid "Disconnected"
 msgstr "已中斷連線"
 
+msgid "DISCONNECTED"
+msgstr "已中斷連線"
+
 msgid "Disconnecting"
 msgstr "正在中斷連線"
 
-msgid "Dismiss"
-msgstr "取消"
+msgid "DISCONNECTING..."
+msgstr "正在中斷連線..."
 
 msgid "Edit"
 msgstr "編輯"
 
 msgid "Enable"
 msgstr "啟用"
+
+msgid "Enable \"%(directOnly)s\""
+msgstr "啟用「%(directOnly)s」"
 
 msgid "Enable anyway"
 msgstr "仍然啟用"
@@ -170,6 +193,11 @@ msgstr "不足 1 天"
 msgid "less than a day left"
 msgstr "剩餘時間不足 1 天"
 
+#. This refers to the multihop setting in the VPN settings view. This is
+#. displayed when the feature is on.
+msgid "Multihop"
+msgstr "多點跳躍"
+
 msgid "Name"
 msgstr "名稱"
 
@@ -196,6 +224,11 @@ msgstr "密碼"
 
 msgid "Port"
 msgstr "連接埠"
+
+#. This refers to the quantum resistance setting in the WireGuard settings view.
+#. This is displayed when the feature is on.
+msgid "Quantum resistance"
+msgstr "抗量子"
 
 #. The connection is secure and isn't breakable by quantum computers.
 msgid "QUANTUM SECURE CONNECTION"
@@ -233,7 +266,6 @@ msgstr "測試"
 
 #. Warning shown in dialog to users when they enable setting that increases
 #. network latency (decreases performance).
-#. Warning text in a dialog that is displayed after a setting is toggled.
 msgid "This setting increases latency. Use only if needed."
 msgstr "此設定會助長延遲。請僅在需要時使用。"
 
@@ -334,11 +366,19 @@ msgctxt "accessibility"
 msgid "Select location. Current location is %(location)s"
 msgstr "選擇位置。目前位置為 %(location)s"
 
+msgctxt "accessibility"
+msgid "Shadowsocks settings"
+msgstr "Shadowsocks 設定"
+
 #. Provided to accessibility tools such as screenreaders to describe
 #. the button which unobscures the account number.
 msgctxt "accessibility"
 msgid "Show account number"
 msgstr "顯示帳號"
+
+msgctxt "accessibility"
+msgid "UDP-over-TCP settings"
+msgstr "UDP-over-TCP 設定"
 
 #. Title label in navigation bar
 msgctxt "account-view"
@@ -564,8 +604,16 @@ msgid "%(city)s (%(hostname)s)"
 msgstr "%(city)s (%(hostname)s)"
 
 msgctxt "connect-view"
+msgid "Active features"
+msgstr "有效功能"
+
+msgctxt "connect-view"
 msgid "Congrats!"
 msgstr "恭喜！"
+
+msgctxt "connect-view"
+msgid "Connection details"
+msgstr "連線詳細資訊"
 
 msgctxt "connect-view"
 msgid "Disconnect"
@@ -639,12 +687,6 @@ msgctxt "connect-view"
 msgid "You’re all set!"
 msgstr "您已設定完畢！"
 
-#. %(hostname)s - The current server the app is connected to, e.g. "se-got-wg-001 using DAITA"
-#. %(daita)s - Will be replaced with "DAITA"
-msgctxt "connection-info"
-msgid "%(hostname)s using %(daita)s"
-msgstr "%(hostname)s，使用 %(daita)s"
-
 #. The hostname line displayed below the country on the main screen
 #. Available placeholders:
 #. %(relay)s - the relay hostname
@@ -656,14 +698,6 @@ msgstr "%(relay)s，經由 %(entry)s"
 msgctxt "connection-info"
 msgid "%(relay)s via Custom bridge"
 msgstr "%(relay)s，經由自訂橋接"
-
-#. The tunnel type line displayed below the hostname line on the main screen
-#. Available placeholders:
-#. %(tunnelType)s - the tunnel type, i.e OpenVPN
-#. %(bridgeType)s - the bridge type, i.e Shadowsocks
-msgctxt "connection-info"
-msgid "%(tunnelType)s via %(bridgeType)s"
-msgstr "%(tunnelType)s 透過 %(bridgeType)s"
 
 msgctxt "connection-info"
 msgid "In"
@@ -1492,6 +1526,10 @@ msgid "App version"
 msgstr "應用程式版本"
 
 msgctxt "settings-view"
+msgid "Multihop"
+msgstr "多點跳躍"
+
+msgctxt "settings-view"
 msgid "Support"
 msgstr "支援"
 
@@ -1755,8 +1793,8 @@ msgid "Update your kernel."
 msgstr "更新核心。"
 
 msgctxt "tunnel-control"
-msgid "Secure my connection"
-msgstr "保護我的連線"
+msgid "Connect"
+msgstr "連線"
 
 msgctxt "tunnel-control"
 msgid "Switch location"
@@ -1880,11 +1918,6 @@ msgctxt "vpn-settings-view"
 msgid "Enable IPv6"
 msgstr "啟用 IPv6"
 
-#. The label next to the multihop settings toggle.
-msgctxt "vpn-settings-view"
-msgid "Enable multihop"
-msgstr "啟用多點跳躍"
-
 msgctxt "vpn-settings-view"
 msgid "Enable to add at least one DNS server."
 msgstr "啟用以新增至少一個 DNS 伺服器。"
@@ -1897,13 +1930,6 @@ msgstr "輸入 IP"
 msgctxt "vpn-settings-view"
 msgid "Gambling"
 msgstr "賭博"
-
-#. Description for multihop settings toggle.
-#. Available placeholders:
-#. %(wireguard)s - Will be replaced with the string "WireGuard"
-msgctxt "vpn-settings-view"
-msgid "Increases anonymity by routing your traffic into one %(wireguard)s server and out another, making it harder to trace."
-msgstr "藉由將您的流量路由到某個 %(wireguard)s 伺服器，再從另一個伺服器傳出，以此增加匿名性，提高追蹤難度。"
 
 msgctxt "vpn-settings-view"
 msgid "IPv4 is always enabled and the majority of websites and applications use this protocol. We do not recommend enabling IPv6 unless you know you need it."
@@ -1978,6 +2004,10 @@ msgctxt "vpn-settings-view"
 msgid "This might cause issues on certain websites, services, and apps."
 msgstr "這可能會導致某些網站、服務和應用程式出現問題。"
 
+msgctxt "vpn-settings-view"
+msgid "To select %(openvpn)s, please disable these settings: %(featureList)s."
+msgstr "要選取 %(openvpn)s，請停用下列設定：%(featureList)s。"
+
 #. Label for settings that enables tracker blocking.
 msgctxt "vpn-settings-view"
 msgid "Trackers"
@@ -2019,9 +2049,23 @@ msgctxt "wireguard-settings-nav"
 msgid "%(wireguard)s settings"
 msgstr "%(wireguard)s 設定"
 
+#. Title label in navigation bar
+msgctxt "wireguard-settings-nav"
+msgid "Shadowsocks"
+msgstr "Shadowsocks"
+
+#. Title label in navigation bar
+msgctxt "wireguard-settings-nav"
+msgid "UDP-over-TCP"
+msgstr "UDP-over-TCP"
+
 msgctxt "wireguard-settings-view"
-msgid "%(daita)s (%(daitaFull)s) hides patterns in your encrypted VPN traffic. If anyone is monitoring your connection, this makes it significantly harder for them to identify what websites you are visiting. It does this by carefully adding network noise and making all network packets the same size."
-msgstr "%(daita)s (%(daitaFull)s) 會在您的加密 VPN 流量中隱藏模式。如果有人正在監視您的連線，這能讓他們難以識別出您正在存取的網站。此實現方式係謹慎加入網路噪音，並使所有網路資料包大小皆相同。"
+msgid "%(daita)s (%(daitaFull)s) hides patterns in your encrypted VPN traffic."
+msgstr "%(daita)s (%(daitaFull)s) 會在您的加密 VPN 流量中隱藏模式。"
+
+msgctxt "wireguard-settings-view"
+msgid "%(daita)s does this by carefully adding network noise and making all network packets the same size."
+msgstr "%(daita)s 會仔細加入網路噪音，讓所有網路資料封包大小皆相同，以達到此目的。"
 
 #. Available placeholders:
 #. %(wireguard)s - Will be replaced with the string "WireGuard"
@@ -2030,8 +2074,24 @@ msgid "%(wireguard)s settings"
 msgstr "%(wireguard)s 設定"
 
 msgctxt "wireguard-settings-view"
-msgid "Attention: Since this increases your total network traffic, be cautious if you have a limited data plan. It can also negatively impact your network speed. Please consider this if you want to enable %(daita)s."
-msgstr "注意：這會增加您的網路總流量。如果您方案中的流量有限，請謹慎使用。這還會對您的網路速度產生負面影響。如果要啟用 %(daita)s，請考慮到這一點。"
+msgid "Attention: Be cautious if you have a limited data plan as this feature will increase your network traffic. This feature can only be used with %(wireguard)s."
+msgstr "注意：如果您方案中的流量有限，請謹慎使用，因為此功能將增加您的網路流量。此功能僅可和 %(wireguard)s 一併使用。"
+
+msgctxt "wireguard-settings-view"
+msgid "By enabling “%(directOnly)s” you will have to manually select a server that is %(daita)s-enabled. This can cause you to end up in a blocked state until you have selected a compatible server in the “Select location” view."
+msgstr "啟用「%(directOnly)s」後，您必須手動選取已啟用 %(daita)s 的伺服器。這有可能導致您後來處於封鎖狀態，直到您在「選取位置」檢視圖中選到相容的伺服器為止。"
+
+msgctxt "wireguard-settings-view"
+msgid "By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted)."
+msgstr "可透過精密的 AI 分析進出裝置的資料封包流量 (即使流量已加密)。"
+
+msgctxt "wireguard-settings-view"
+msgid "Cancel"
+msgstr "取消"
+
+msgctxt "wireguard-settings-view"
+msgid "If an observer monitors these data packets, %(daita)s makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating."
+msgstr "如果有觀察者正在監控這些資料封包，%(daita)s 會大大增加他們的難度，讓他們很難辨識您正在瀏覽哪些網站或者在和誰通訊。"
 
 msgctxt "wireguard-settings-view"
 msgid "IP version"
@@ -2046,6 +2106,23 @@ msgid "MTU"
 msgstr "MTU"
 
 msgctxt "wireguard-settings-view"
+msgid "Multihop"
+msgstr "多點跳躍"
+
+msgctxt "wireguard-settings-view"
+msgid "Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online."
+msgstr "多點跳躍可將您的流量傳入一個 WireGuard 伺服器，再傳出至另一個伺服器，使其更難以追蹤。雖然這會導致延遲時間增加，卻能提高線上的匿名程度。"
+
+#. Warning text in a dialog that is displayed after a setting is toggled.
+msgctxt "wireguard-settings-view"
+msgid "Not all our servers are %(daita)s-enabled. In order to use the internet, you might have to select a new location after enabling."
+msgstr "我們有些伺服器並未啟用 %(daita)s。若要使用網際網路，您可能必須在啟用後選取新的位置。"
+
+msgctxt "wireguard-settings-view"
+msgid "Not all our servers are %(daita)s-enabled. Therefore, we use multihop automatically to enable %(daita)s with any server."
+msgstr "我們有些伺服器並未啟用 %(daita)s。因此，我們使用多點跳躍自動來為任意伺服器啟用 %(daita)s 。"
+
+msgctxt "wireguard-settings-view"
 msgid "Obfuscation"
 msgstr "混淆"
 
@@ -2054,12 +2131,15 @@ msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can b
 msgstr "藉由混淆，WireGuard 的流量能隱藏在另一個通訊協定中。這有助於規避審查或其他類型的篩選。在這類篩選中，普通 WireGuard 連線將遭到封鎖。"
 
 msgctxt "wireguard-settings-view"
-msgid "On (UDP-over-TCP)"
-msgstr "開 (UDP-over-TCP)"
-
-msgctxt "wireguard-settings-view"
 msgid "Port"
 msgstr "連接埠"
+
+#. Text showing currently selected port.
+#. Available placeholders:
+#. %(port)s - Can be either a number between 1 and 65000 or the text "Automatic".
+msgctxt "wireguard-settings-view"
+msgid "Port: %(port)s"
+msgstr "連接埠：%(port)s"
 
 #. The title for the WireGuard quantum resistance selector. This setting
 #. makes the cryptography resistant to the future abilities of quantum
@@ -2078,6 +2158,14 @@ msgid "Set %(wireguard)s MTU value. Valid range: %(min)d - %(max)d."
 msgstr "設定 %(wireguard)s MTU 值。有效範圍：%(min)d - %(max)d。"
 
 msgctxt "wireguard-settings-view"
+msgid "Shadowsocks"
+msgstr "Shadowsocks"
+
+msgctxt "wireguard-settings-view"
+msgid "Switch to “%(wireguard)s” or “%(automatic)s” in Settings > %(tunnelProtocol)s to make %(setting)s available."
+msgstr "在設定 > %(tunnelProtocol)s 中切換為「%(wireguard)s」或「%(automatic)s」，以啟用 %(setting)s。"
+
+msgctxt "wireguard-settings-view"
 msgid "The automatic setting will randomly choose from the valid port ranges shown below."
 msgstr "自動設定將會隨機從下方顯示的有效連接埠範圍中進行選擇。"
 
@@ -2092,25 +2180,35 @@ msgctxt "wireguard-settings-view"
 msgid "This allows access to %(wireguard)s for devices that only support IPv6."
 msgstr "這可以讓僅支援 IPv6 的裝置存取 %(wireguard)s。"
 
-#. Warning text in a dialog that is displayed after a setting is toggled.
-msgctxt "wireguard-settings-view"
-msgid "This feature isn't available on all servers. You might need to change location after enabling."
-msgstr "此功能尚未在所有伺服器上開放。啟用後，您可能需要變更位置。"
-
 msgctxt "wireguard-settings-view"
 msgid "This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers."
 msgstr "借助此功能，WireGuard 通道便能夠抵抗可能從量子電腦發起的攻擊。"
 
 msgctxt "wireguard-settings-view"
+msgid "UDP-over-TCP"
+msgstr "UDP-over-TCP"
+
+msgctxt "wireguard-settings-view"
 msgid "UDP-over-TCP port"
 msgstr "UDP-over-TCP 連接埠"
+
+#. Text describing the valid port range for a port selector.
+msgctxt "wireguard-settings-view"
+msgid "Valid range: %(min)s - %(max)s"
+msgstr "有效範圍：%(min)s - %(max)s"
 
 msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr "UDP-over-TCP 混淆通訊協定應連線到 VPN 伺服器上的哪個 TCP 連接埠。"
 
+msgid "%s (%s) hides patterns in your encrypted VPN traffic. If anyone is monitoring your connection, this makes it significantly harder for them to identify what websites you are visiting. It does this by carefully adding network noise and making all network packets the same size."
+msgstr "%s (%s) 會在您的加密 VPN 流量中隱藏模式。如果有人正在監控您的連線，這會大大增加他們的難度，讓他們難以辨識您正在瀏覽哪些網站。這個方法會仔細加入網路噪音，讓所有網路資料封包大小皆相同，以達到此目的。"
+
 msgid "%s (added)"
 msgstr "%s (已新增)"
+
+msgid "%s using %s"
+msgstr "%s，使用 %s"
 
 msgid "%s was added to \"%s\""
 msgstr "%s 已新增至「%s」"
@@ -2118,11 +2216,14 @@ msgstr "%s 已新增至「%s」"
 msgid "%s was added to your account."
 msgstr "%s 已新增至您的帳戶。"
 
+msgid "%s was removed from \"%s\""
+msgstr "%s 已從「%s」中移除"
+
 msgid "1. After clicking on the <b>Go to VPN settings</b> button below, click on the cogwheel next to the <b>Mullvad VPN</b> name."
 msgstr "1. 按一下底下<b>前往 VPN 設定</b>按鈕後，請按一下 <b>Mullvad VPN</b> 名稱旁邊的齒輪。"
 
 msgid "2. To enable Auto-connect, click on the toggle next to <b>Always-on VPN</b>."
-msgstr "2. 若要啟用自動連線，請按一下<b>始終啟用 VPN</b> 旁邊的開關。"
+msgstr "2. 若要啟用自動連線，請按一下<b>一律啟用 VPN</b> 旁邊的開關。"
 
 msgid "3. To enable Lockdown mode, click on the toggle next to <b>Block connections without VPN</b>.<br /><br /><b>Warning: This setting blocks split apps and the Local Network Sharing feature.</b>"
 msgstr "3. 若要啟用鎖定模式，請按一下<b>在沒有 VPN 的情況下封鎖連線</b>旁邊的開關。<br /><br /><b>警告：此設定會封鎖分割應用程式和「本機網路共享」功能。</b>"
@@ -2184,8 +2285,11 @@ msgstr "可能已為另一個應用程式啟用了「始終啟用 VPN」"
 msgid "At least one method needs to be enabled"
 msgstr "至少需要啟用一種方式"
 
-msgid "Attention: Split tunneling is a privacy risk."
-msgstr "注意：分割通道存在隱私風險。"
+msgid "Attention: If \"Block connections without VPN\" is enabled, split apps will not have Internet. Always keep in mind that split tunneling is a privacy risk."
+msgstr "注意：如果啟用了「在沒有 VPN 的情況下封鎖連線」，分割應用程式將無法進行網際網路連線。請謹記，分割通道存在隱私風險。"
+
+msgid "Attention: Since this increases your total network traffic, be cautious if you have a limited data plan. It can also negatively impact your network speed and battery usage."
+msgstr "注意：這會增加您的網路總流量。如果您方案中的流量有限，請謹慎使用。這還會對您的網路速度和電池使用情況產生負面影響。"
 
 msgid "Attention: this setting cannot be used in combination with <b>Use custom DNS server</b>."
 msgstr "注意：此設定不能與<b>使用自訂 DNS 伺服器</b>結合使用。"
@@ -2193,18 +2297,14 @@ msgstr "注意：此設定不能與<b>使用自訂 DNS 伺服器</b>結合使用
 msgid "Auto-connect & Lockdown mode"
 msgstr "自動連線和鎖定模式"
 
-msgid "Auto-connect & \\nLockdown mode"
-msgstr "自動連線和\\n鎖定模式"
-
 msgid "Auto-connect (legacy)"
 msgstr "自動連線 (舊)"
 
 msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
 msgstr "自動連線在 Android 系統設定中稱為「始終啟用 VPN」，此功能可確保您始終與 VPN 通道連線，並且會在重新啟動後自動連線。"
 
-msgctxt "Description of the existing \"auto-connect\" functionality as well as a notification about it being removed/replaced in a future update."
 msgid "Automatically connect when the app launches. This setting will be replaced with a new connect on device start-up feature in a future update."
-msgstr "在啟動應用程式時自動連線。在未來的更新中，此設定將由裝置啟動時即進行連線的新功能所取代。"
+msgstr "在啟動應用程式時自動連線。在未來的更新中，此設定將由「裝置啟動時連線」的新功能所取代。"
 
 msgid "Blocking internet (device offline)"
 msgstr "封鎖網際網路 (裝置離線)"
@@ -2233,7 +2333,6 @@ msgstr "建立新清單"
 msgid "Critical error (your attention is required)"
 msgstr "嚴重錯誤 (需注意)"
 
-msgctxt "Status information about which method/configuration is actively being used. The placeholder is replaced by a built-in or custom method. For example \"Current: Direct\" or \"Current: MyCustomMethod\". Note that it's not \"current\" as in \"present time\"."
 msgid "Current: %s"
 msgstr "目前：%s"
 
@@ -2260,6 +2359,9 @@ msgstr "捨棄"
 
 msgid "Discard changes?"
 msgstr "要捨棄變更嗎？"
+
+msgid "Dismiss"
+msgstr "取消"
 
 msgid "Edit custom lists"
 msgstr "編輯自訂清單"
@@ -2321,11 +2423,11 @@ msgstr "匯入成功，覆寫設定已啟用"
 msgid "Importing new overrides might replace some previously imported overrides."
 msgstr "匯入新的覆寫設定，可能會取代一部分先前已匯入的覆寫設定。"
 
-msgid "Install Mullvad VPN (%s) to stay up to date"
-msgstr "安裝 Mullvad VPN (%s) 以維持最新狀態"
-
 msgid "Invalid or missing value \"%s\""
 msgstr "值「%s」無效或是遺失"
+
+msgid "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
+msgstr "您輸入的似乎是帳戶，而不是憑證代碼。如果您想變更有效帳戶，請先登出。"
 
 msgid "Lets you select apps that should access the Internet directly without going through the VPN tunnel."
 msgstr "允許您選擇不經過 VPN 通道而直接存取網際網路的應用程式。"
@@ -2369,6 +2471,9 @@ msgstr "找不到位置"
 msgid "Not found"
 msgstr "找不到"
 
+msgid "On (UDP-over-TCP)"
+msgstr "開啟 (UDP-over-TCP)"
+
 msgid "Overrides active"
 msgstr "覆寫設定已啟用"
 
@@ -2394,7 +2499,7 @@ msgid "Please enter a valid remote server port"
 msgstr "請輸入有效的遠端伺服器連接埠"
 
 msgid "Please use the <b>Always-on</b> system setting instead by following the guide in <b>%s</b> above."
-msgstr "請依照前述 <b>%s</b> 中的指南，改用<b>一律啟用</b>系統設定。"
+msgstr "請依照前述 <b>%s</b> 中的指南，改用<b>一律開啟</b>系統設定。"
 
 msgid "Preferences"
 msgstr "喜好設定"
@@ -2411,8 +2516,8 @@ msgstr "遞迴限制"
 msgid "Remove"
 msgstr "移除"
 
-msgid "Remove %s from list"
-msgstr "從清單中移除 %s"
+msgid "Remove %s from %s"
+msgstr "從 %s 中移除 %s"
 
 msgid "Remove custom port"
 msgstr "移除自訂連接埠"
@@ -2429,8 +2534,11 @@ msgstr "重設覆寫設定"
 msgid "Reset to default"
 msgstr "重設為預設值"
 
+msgid "Secure my connection"
+msgstr "保護我的連線"
+
 msgid "Secured"
-msgstr "安全"
+msgstr "已受保護"
 
 msgid "Set WireGuard MTU value. Valid range: %d - %d."
 msgstr "設定 WireGuard MTU 值。有效範圍：%d - %d。"
@@ -2477,6 +2585,9 @@ msgstr "您的裝置上沒有 VPN 設定"
 msgid "This address has already been entered."
 msgstr "此地址已輸入過。"
 
+msgid "This feature isn’t available on all servers. You might need to change location after enabling."
+msgstr "此功能尚未在所有伺服器上開放。啟用後，您可能需要變更位置。"
+
 msgid "This field is required"
 msgstr "此欄位為必填項"
 
@@ -2511,11 +2622,10 @@ msgid "Unknown or prohibited key \"%s\""
 msgstr "未知或遭到禁用的金鑰「%s」"
 
 msgid "Unsecured"
-msgstr "不安全"
+msgstr "未受保護"
 
-msgctxt "Notification message shown when the app lacks a permission called \"VPN permission\"."
 msgid "Unsecured (No VPN permission)"
-msgstr "不安全 (無 VPN 權限)"
+msgstr "未受保護 (無 VPN 權限)"
 
 msgid "Update DNS server"
 msgstr "更新 DNS 伺服器"
@@ -2589,10 +2699,12 @@ msgstr "您的網路流量可能正在洩露"
 msgid "You are running an unsupported app version."
 msgstr "您所執行的應用程式版本不受支援。"
 
+msgid "\"%s\" was created"
+msgstr "已建立「%s」"
+
 msgid "\"%s\" was deleted"
 msgstr "「%s」已刪除"
 
-msgctxt "Clickable link that leads to our website."
 msgid "here"
 msgstr "此處"
 

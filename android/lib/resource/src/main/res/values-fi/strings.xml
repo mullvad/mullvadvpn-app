@@ -41,8 +41,13 @@
     <string name="auto_connect_and_lockdown_mode">Automaattinen yhdistäminen ja lukitustila</string>
     <string name="auto_connect_and_lockdown_mode_footer">Varmistaa, että laite on aina yhteydessä VPN-tunnelin kautta.</string>
     <string name="auto_connect_carousel_first_slide_top_text">Automaattisen yhdistämisen ja lukitustilan asetukset löytyvät Androidin järjestelmäasetuksista. Voit ottaa jommankumman tai molemmat käyttöön tämän oppaan ohjeilla.</string>
+    <string name="auto_connect_carousel_second_slide_bottom_text">2. Ota automaattinen yhteyden muodostus käyttöön napsauttamalla \"&lt;b&gt;Aina päällä oleva VPN&lt;/b&gt;\" -kohdan vieressä olevaa valintapainiketta.</string>
     <string name="auto_connect_carousel_second_slide_top_text">Automaattista yhdistämistä kutsutaan aina päällä olevaksi VPN-yhteydeksi Androidin järjestelmäasetuksissa. Se varmistaa, että olet jatkuvasti yhteydessä VPN-tunneliin, sekä muodostaa yhteyden automaattisesti aina uudelleenkäynnistyksen jälkeen.</string>
-    <string name="auto_connect_carousel_third_slide_top_text_website_link">tästä</string>
+    <string name="auto_connect_carousel_third_slide_bottom_text">3. Ota lukitustila käyttöön napsauttamalla kohdan \"&lt;b&gt;Estä yhteydet ilman VPN:ää&lt;/b&gt;\" vieressä olevaa kytkintä.&lt;br /&gt;&lt;br /&gt;&lt;b&gt;Varoitus: Tämä asetus estää jaetut sovellukset ja paikallisen verkon jakamisominaisuuden.&lt;/b&gt;</string>
+    <string name="auto_connect_carousel_third_slide_top_text">Lukitustila löytyy Android-järjestelmäasetuksista nimellä \"&lt;b&gt;Estä yhteydet ilman VPN:ää&lt;/b&gt;\". Lukitustila auttaa minimoimaan vuodot, mutta siihen liittyy myös muutamia tunnettuja rajoituksia. Voit lukea niistä lisää</string>
+    <string name="auto_connect_carousel_third_slide_top_text_website_link">täältä</string>
+    <string name="auto_connect_footer_legacy">Käytä tämän asemesta &lt;b&gt;aina käytössä&lt;/b&gt; -järjestelmäasetusta noudattamalla edellisestä kohdasta löytyvää opasta aiheesta &lt;b&gt;%1$s&lt;/b&gt;.</string>
+    <string name="auto_connect_footer_legacy_tv">Yhdistä automaattisesti, kun sovellus käynnistyy. Tämä asetus korvataan tulevassa päivityksessä uudella ominaisuudella; yhteyden muodostamisella laitteen käynnistyessä.</string>
     <string name="auto_connect_legacy">Autom. yhdistäminen (vanha järjestelmä)</string>
     <string name="automatic">Automaattinen</string>
     <string name="back">Takaisin</string>
@@ -64,8 +69,9 @@
     <string name="confirm_no_email">Olet aikeissa lähettää ongelmaraportin ilman yhteystietojasi. Mikäli haluat vastauksen raporttiisi, anna sähköpostosoite.</string>
     <string name="confirm_removal">Kyllä, kirjaa laite ulos</string>
     <string name="congrats">Onnittelut!</string>
-    <string name="connect">Yhdistä</string>
-    <string name="connected">Yhdistetty</string>
+    <string name="connect">Suojaa yhteys</string>
+    <string name="connected_using_daita">%1$s, käytössä %2$s</string>
+    <string name="connecting">Yhdistetään</string>
     <string name="connecting_to_daemon">Yhdistetään Mullvad-järjestelmäpalveluun...</string>
     <string name="connection_details_in">Saapuva</string>
     <string name="continue_login">Jatka kirjautumista</string>
@@ -74,6 +80,7 @@
     <string name="copy_account_number">Kopioi tilin numero</string>
     <string name="create">Luo</string>
     <string name="create_account">Luo tili</string>
+    <string name="create_custom_list_message">\"%1$s\" luotiin</string>
     <string name="create_new_list">Luo uusi luettelo</string>
     <string name="created_x">Luotu: %1$s</string>
     <string name="creating_new_account">Luodaan tiliä...</string>
@@ -88,7 +95,9 @@
     <string name="custom_port_dialog_submit">Määritä portti</string>
     <string name="custom_port_dialog_valid_ranges">Kelvolliset portit: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Muokatun tunnelin isännän selvittäminen ei onnistu. Kokeile muuttaa asetuksiasi.</string>
-    <string name="daita_info">%1$s (%2$s) piilottaa salatussa VPN-liikenteessäsi toistuvat maneerit luomalla tarkoin räätälöityjä häiriöitä verkkoliikenteeseen ja tekemällä kaikista verkkopaketeista samankokoisia. Jos joku siis yrittää tarkkailla yhteyttäsi, hänen on huomattavasti vaikeampi tunnistaa, millä verkkosivustoilla oikein vierailet.</string>
+    <string name="daita_info">%1$s (%2$s) piilottaa kuviot salatusta VPN-liikenteestäsi. Jos joku tarkkailee yhteyttäsi, hänen on huomattavasti vaikeampi tunnistaa, millä verkkosivustoilla vierailet. Se tekee tämän lisäämällä varovasti verkkokohinaa ja tekemällä kaikista verkkopaketeista samankokoisia.</string>
+    <string name="daita_relay_subset_warning">Ominaisuus ei ole käytettävissä kaikilla palvelimilla, joten saatat joutua vaihtamaan sijaintia otettuasi sen käyttöön.</string>
+    <string name="daita_warning">Huomioithan, että ominaisuuden käyttöönotto kasvattaa verkkoliikennettäsi kokonaisuudessaan ja voi myös vaikuttaa negatiivisesti verkon nopeuteen ja akun kestoon. Ominaisuuden käyttöönottoa kannattaa harkita tarkkaan, mikäli datapakettisi tiedonsiirtomäärä on rajoitettu.</string>
     <string name="delete">Poista</string>
     <string name="delete_custom_list_confirmation_description">Poistetaanko \"%1$s\"?</string>
     <string name="delete_custom_list_message">\"%1$s\" poistettiin</string>
@@ -168,6 +177,7 @@
     <string name="local_network_sharing_info">Tämä ominaisuus mahdollistaa pääsyn muihin paikallisverkon laitteisiin esimerkiksi jakamisen, tulostamisen, suoratoiston jne. tarpeisiin.</string>
     <string name="location_added">%1$s (lisätty)</string>
     <string name="location_was_added_to_list">%1$s lisättiin luetteloon\"%2$s\"</string>
+    <string name="location_was_removed_from_list">%1$s poistettiin kohteesta \"%2$s\"</string>
     <string name="locations">Sijainnit</string>
     <string name="locations_were_changed_for">Kohteen \"%1$s\" sijainteja vaihdettiin</string>
     <string name="log_out">Kirjaudu ulos</string>
@@ -239,6 +249,7 @@
     <string name="redeem">Lunasta</string>
     <string name="redeem_voucher">Lunasta kuponki</string>
     <string name="remove_button">Poista</string>
+    <string name="remove_location_from_list">Poista %1$s kohteesta %2$s</string>
     <string name="rented">Vuokrattu</string>
     <string name="rented_only">Vain vuokratut</string>
     <string name="report_a_problem">Raportoi ongelma</string>
@@ -284,6 +295,7 @@
     <string name="settings_vpn">VPN-asetukset</string>
     <string name="show_system_apps">Näytä järjestelmäsovellukset</string>
     <string name="split_tunneling_description">Voit valita sovelluksia, joiden pitäisi muodostaa yhteys Internetiin suoraan kulkematta VPN-tunnelin läpi.</string>
+    <string name="split_tunneling_description_warning">Huomio: Jos \"Estä yhteydet ilman VPN:ää\" -vaihtoehto on käytössä, sovelluskohtaisesti yhdistettävillä sovelluksilla ei ole pääsyä internetiin. Muista aina, että sovelluskohtainen yhdistäminen on tietosuojariski.</string>
     <string name="start_tunnel_error">Tunneliyhteyden muodostaminen ei onnistu. Lähetä ongelmaraportti.</string>
     <string name="submit_button">Lähetä</string>
     <string name="switch_location">Vaihda sijaintia</string>
@@ -315,6 +327,7 @@
     <string name="verifying_voucher">Kuponkia vahvistetaan…</string>
     <string name="view_logs">Tarkastele sovelluslokeja</string>
     <string name="voucher_already_used">Kuponkikoodi on jo käytetty.</string>
+    <string name="voucher_is_account_number">Näytät syöttäneen tilin numeron etusetelin koodin sijaan. Jos haluat vaihtaa tiliä, kirjaudu ensin ulos nykyiseltä tililtä.</string>
     <string name="voucher_success_title">Kupongin lunastus onnistui.</string>
     <string name="vpn_permission_denied_error">VPN-lupa evättiin tunnelia luotaessa. Yritä muodostaa yhteys uudelleen.</string>
     <string name="vpn_permission_error_notification_message">Aina päällä oleva VPN on mahdollisesti otettu käyttöön toiselle sovellukselle</string>
