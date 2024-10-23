@@ -19,7 +19,10 @@ on:
       user_supplied_test_name:
         description: 'Only run test case/suite'
         required: false
-jobs:
+      commit_hash:
+        description: 'Run test on specific commit'
+        required: false
+jobs:  
   set-up-outputs-directory:
     name: Set up outputs directory
     runs-on: [self-hosted, macOS, ios-test]
@@ -64,7 +67,7 @@ jobs:
           fi
 
           echo "Test suites/cases to run: $test_suites_json"
-        working-directory: ios/MullvadVPNUITests
+        working-directory: app-working-directory/ios/MullvadVPNUITests
     outputs:
       test_suites_json: ${{ env.test_suites_json }}
 
@@ -79,6 +82,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           clean: true
+          ref : {{ inputs.commit_hash }}
+          path : app-working-directory
 
       - name: Configure Rust
         uses: actions-rs/toolchain@v1.0.6
@@ -86,6 +91,7 @@ jobs:
           toolchain: stable
           override: true
           target: aarch64-apple-ios
+        working-directory: app-working-directory
 
       - name: Build iOS end to end tests action
         uses: ./.github/actions/build-ios-e2e-tests
@@ -98,6 +104,7 @@ jobs:
           test_device_udid: ${{ env.TEST_DEVICE_UDID }}
           partner_api_token: ${{ secrets.STAGEMOLE_PARTNER_AUTH }}
           outputs_path: ${{ needs.set-up-outputs-directory.outputs.job_outputs_directory }}
+        working-directory: app-working-directory
 
       - name: Debug print job output directory
         run: |
@@ -135,6 +142,7 @@ jobs:
           test_name: "MullvadVPNUITests/${{ matrix.test_suite }}"
           test_device_udid: ${{ env.TEST_DEVICE_UDID }}
           outputs_path: ${{ needs.set-up-outputs-directory.outputs.job_outputs_directory }}
+        working-directory: app-working-directory
 
   clean-up-outputs-directory:
     if: always()
