@@ -12,6 +12,9 @@
   but most are hosted on separate bridge servers. Even if most obfuscation protocols used include
   encryption, that encryption is not to be treated as secure. We only use the obfuscation protocol
   for its obfuscating properties, not for any security properties it might have.
+- DAITA - Short for "Defense against AI-guided Traffic Analysis". A technique supported on some
+  WireGuard relays that makes website fingerprinting more difficult by sending random padding
+  packets along with padding all packets to the same size.
 
 # Relay selector
 
@@ -74,6 +77,15 @@ selection algorithm using the weights that are assigned to each relay. The highe
 relatively to other relays, the higher the likelihood that a given relay will be picked. Once a
 relay is picked, then a random endpoint that matches the constraints from the relay is picked.
 
+## Selecting a DAITA-compatible relay
+
+Since not all Wireguard relays deploy DAITA, there are lots of tunnel endpoint constraints that
+are fundamentally incompatible with DAITA. As such, if DAITA is enabled the relay selector may select
+an alternative entry relay and implicitly use multihop in order to achieve a seamless user experience.
+The user's tunnel endpoint constraint is respected for the exit relay.
+
+The user may opt out of this behaviour by toggling the "Direct only" option in the DAITA settings.
+
 ## Bridge endpoint constraints
 
 The explicit constraints are:
@@ -108,4 +120,3 @@ will indirectly change the bridge state to _Auto_ if it was previously set to _O
 
 Currently, there is only a single type of obfuscator - _udp2tcp_, and it's only used if it's mode is
 set to _On_ or _Auto_ and the user has selected WireGuard to be the only tunnel protocol to be used.
-
