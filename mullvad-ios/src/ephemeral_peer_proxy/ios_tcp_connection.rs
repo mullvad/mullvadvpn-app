@@ -1,35 +1,69 @@
 use libc::c_void;
 use std::{
-    io::{self, Result},
-    sync::{Arc, Mutex, MutexGuard, Weak},
-    task::{Poll, Waker},
+    ffi::CStr,
+    future::Future,
+    io::{self},
+    pin::Pin,
+    task::{ready, Poll},
+    time::Duration,
 };
-use tokio::{
-    io::{AsyncRead, AsyncWrite},
-    sync::mpsc,
-};
+use tokio::io::{AsyncRead, AsyncWrite};
+
+use super::EphemeralPeerParameters;
 
 fn connection_closed_err() -> io::Error {
     io::Error::new(io::ErrorKind::BrokenPipe, "TCP connection closed")
 }
 
+#[derive(Clone, Copy)]
+#[repr(C)]
+pub struct WgTcpConnectionFuncs {
+    pub open_fn:
+        unsafe extern "C" fn(tunnelHandle: i32, address: *const libc::c_char, timeout: u64) -> i32,
+    pub close_fn: unsafe extern "C" fn(tunnelHandle: i32, socketHandle: i32) -> i32,
+    pub recv_fn: unsafe extern "C" fn(
+        tunnelHandle: i32,
+        socketHandle: i32,
+        data: *mut u8,
+        len: i32,
+    ) -> i32,
+    pub send_fn: unsafe extern "C" fn(
+        tunnelHandle: i32,
+        socketHandle: i32,
+        data: *const u8,
+        len: i32,
+    ) -> i32,
+}
+
+impl WgTcpConnectionFuncs {
+    pub fn open(&self, tunnel_handle: i32, address: *const u8, timeout: u64) -> i32 {
+        unsafe { (self.open_fn)(tunnel_handle, address.cast(), timeout) }
+    }
+
+    pub fn close(&self, tunnel_handle: i32, socket_handle: i32) -> i32 {
+        unsafe { (self.close_fn)(tunnel_handle, socket_handle) }
+    }
+
+    pub fn receive(&self, tunnel_handle: i32, socket_handle: i32, data: &mut [u8]) -> i32 {
+        let ptr = data.as_mut_ptr();
+        let len = data
+            .len()
+            .try_into()
+            .expect("Cannot receive a buffer larger than 2GiB");
+        unsafe { (self.recv_fn)(tunnel_handle, socket_handle, ptr.cast(), len) }
+    }
+
+    pub fn send(&self, tunnel_handle: i32, socket_handle: i32, data: &[u8]) -> i32 {
+        let ptr = data.as_ptr();
+        let len = data
+            .len()
+            .try_into()
+            .expect("Cannot send a buffer larger than 2GiB");
+        unsafe { (self.send_fn)(tunnel_handle, socket_handle, ptr.cast(), len) }
+    }
+}
+
 extern "C" {
-    /// Called when there is data to send on the TCP connection.
-    /// The TCP connection must write data on the wire, then call the `handle_sent` function.
-    pub fn swift_nw_tcp_connection_send(
-        connection: *const libc::c_void,
-        data: *const libc::c_void,
-        data_len: usize,
-        sender: *const libc::c_void,
-    );
-
-    /// Called when there is data to read on the TCP connection.
-    /// The TCP connection must read data from the wire, then call the `handle_read` function.
-    pub fn swift_nw_tcp_connection_read(
-        connection: *const libc::c_void,
-        sender: *const libc::c_void,
-    );
-
     /// Called when the preshared post quantum key is ready,
     /// or when a Daita peer has been successfully requested.
     /// `raw_preshared_key` will be NULL if:
@@ -40,181 +74,175 @@ extern "C" {
         raw_preshared_key: *const u8,
         raw_ephemeral_private_key: *const u8,
     );
+
 }
 
-unsafe impl Send for IosTcpProvider {}
-
+#[derive(Clone)]
 pub struct IosTcpProvider {
-    write_tx: Arc<mpsc::UnboundedSender<usize>>,
-    write_rx: mpsc::UnboundedReceiver<usize>,
-    read_tx: Arc<mpsc::UnboundedSender<Box<[u8]>>>,
-    read_rx: mpsc::UnboundedReceiver<Box<[u8]>>,
-    tcp_connection: Arc<Mutex<ConnectionContext>>,
-    read_in_progress: bool,
-    write_in_progress: bool,
+    tunnel_handle: i32,
+    timeout: Duration,
+    funcs: WgTcpConnectionFuncs,
 }
 
-pub struct IosTcpShutdownHandle {
-    context: Arc<Mutex<ConnectionContext>>,
+pub struct IosTcpConnection {
+    tunnel_handle: i32,
+    socket_handle: i32,
+    funcs: WgTcpConnectionFuncs,
+    in_flight_read: Option<Pin<Box<tokio::task::JoinHandle<io::Result<Vec<u8>>>>>>,
+    in_flight_write: Option<Pin<Box<tokio::task::JoinHandle<io::Result<Vec<u8>>>>>>,
 }
 
-pub struct ConnectionContext {
-    waker: Option<Waker>,
-    tcp_connection: Option<*const c_void>,
+#[derive(Debug)]
+pub enum WgTcpError {
+    /// Failed to open the socket
+    Open(i32),
+    /// Panicked during opening of the socket
+    Panic,
 }
-
-unsafe impl Send for ConnectionContext {}
 
 impl IosTcpProvider {
-    /// # Safety
-    /// `connection` must be pointing to a valid instance of a `NWTCPConnection`, created by the
-    /// `PacketTunnelProvider`
-    pub unsafe fn new(connection: Arc<Mutex<ConnectionContext>>) -> (Self, IosTcpShutdownHandle) {
-        let (tx, rx) = mpsc::unbounded_channel();
-        let (recv_tx, recv_rx) = mpsc::unbounded_channel();
-
-        (
-            Self {
-                write_tx: Arc::new(tx),
-                write_rx: rx,
-                read_tx: Arc::new(recv_tx),
-                read_rx: recv_rx,
-                tcp_connection: connection.clone(),
-                read_in_progress: false,
-                write_in_progress: false,
-            },
-            IosTcpShutdownHandle {
-                context: connection,
-            },
-        )
-    }
-
-    fn maybe_set_waker(new_waker: Waker, connection: &mut MutexGuard<'_, ConnectionContext>) {
-        connection.waker = Some(new_waker);
-    }
-}
-
-impl IosTcpShutdownHandle {
-    pub fn shutdown(self) {
-        let Ok(mut context) = self.context.lock() else {
-            return;
-        };
-
-        context.tcp_connection = None;
-        if let Some(waker) = context.waker.take() {
-            waker.wake();
+    pub fn new(tunnel_handle: i32, params: EphemeralPeerParameters) -> Self {
+        Self {
+            tunnel_handle,
+            timeout: Duration::from_secs(params.peer_exchange_timeout),
+            funcs: params.funcs,
         }
-        std::mem::drop(context);
+    }
+
+    pub async fn connect(&self, address: &'static CStr) -> Result<IosTcpConnection, WgTcpError> {
+        let tunnel_handle = self.tunnel_handle;
+        let timeout = self.timeout.as_secs();
+        let funcs = self.funcs;
+        let result = tokio::task::spawn_blocking(move || {
+            funcs.open(tunnel_handle, address.as_ptr() as *const _, timeout)
+        })
+        .await
+        .map_err(|_| WgTcpError::Panic)?;
+
+        if result < 0 {
+            return Err(WgTcpError::Open(result));
+        }
+
+        Ok(IosTcpConnection {
+            tunnel_handle,
+            socket_handle: result,
+            funcs: self.funcs,
+            in_flight_read: None,
+            in_flight_write: None,
+        })
     }
 }
 
-impl AsyncWrite for IosTcpProvider {
+impl Drop for IosTcpConnection {
+    fn drop(&mut self) {
+        self.funcs.close(self.tunnel_handle, self.socket_handle);
+    }
+}
+
+impl AsyncWrite for IosTcpConnection {
     fn poll_write(
         mut self: std::pin::Pin<&mut Self>,
         cx: &mut std::task::Context<'_>,
         buf: &[u8],
-    ) -> std::task::Poll<Result<usize>> {
-        let connection_lock = self.tcp_connection.clone();
-        let Ok(mut connection) = connection_lock.lock() else {
-            return Poll::Ready(Err(connection_closed_err()));
-        };
-        let Some(tcp_ptr) = connection.tcp_connection else {
-            return Poll::Ready(Err(connection_closed_err()));
-        };
-        Self::maybe_set_waker(cx.waker().clone(), &mut connection);
-
-        match self.write_rx.poll_recv(cx) {
-            std::task::Poll::Ready(Some(bytes_sent)) => {
-                self.write_in_progress = false;
-                Poll::Ready(Ok(bytes_sent))
-            }
-            std::task::Poll::Ready(None) => {
-                self.write_in_progress = false;
-                Poll::Ready(Err(connection_closed_err()))
-            }
-            std::task::Poll::Pending => {
-                if !self.write_in_progress {
-                    let raw_sender = Weak::into_raw(Arc::downgrade(&self.write_tx));
-                    unsafe {
-                        swift_nw_tcp_connection_send(
-                            tcp_ptr,
-                            buf.as_ptr() as _,
-                            buf.len(),
-                            raw_sender as _,
-                        );
-                    }
-                    self.write_in_progress = true;
+    ) -> std::task::Poll<io::Result<usize>> {
+        // If task is already spawned, poll it
+        if let Some(handle) = &mut self.in_flight_write {
+            let result = match ready!(handle.as_mut().poll(cx)) {
+                Ok(Ok(written)) => Ok(written.len()),
+                Ok(Err(e)) => Err(e),
+                Err(_) => Err(io::Error::new(io::ErrorKind::Other, "Write task panicked")),
+            };
+            // important to clear the in flight write here.
+            self.in_flight_write = None;
+            Poll::Ready(result)
+        } else {
+            // if no write task has been spawned, spawn one
+            let tunnel_handle = self.tunnel_handle;
+            let socket_handle = self.socket_handle;
+            // The data has to be cloned, since it will be moved into another thread and it has to
+            // outlive this function call.
+            let data = buf.to_vec();
+            let funcs = self.funcs;
+            let task = tokio::task::spawn_blocking(move || {
+                let result = funcs.send(tunnel_handle, socket_handle, data.as_slice());
+                if result < 0 {
+                    Err(io::Error::new(
+                        io::ErrorKind::Other,
+                        format!("Write error: {}", result),
+                    ))
+                } else {
+                    Ok(data[..result as usize].to_vec())
                 }
-                std::task::Poll::Pending
-            }
+            });
+
+            self.in_flight_write = Some(Box::pin(task));
+            cx.waker().wake_by_ref();
+            Poll::Pending
         }
     }
 
     fn poll_flush(
         self: std::pin::Pin<&mut Self>,
         _: &mut std::task::Context<'_>,
-    ) -> std::task::Poll<Result<()>> {
+    ) -> std::task::Poll<io::Result<()>> {
         std::task::Poll::Ready(Ok(()))
     }
 
     fn poll_shutdown(
         self: std::pin::Pin<&mut Self>,
         _: &mut std::task::Context<'_>,
-    ) -> std::task::Poll<Result<()>> {
+    ) -> std::task::Poll<io::Result<()>> {
         std::task::Poll::Ready(Ok(()))
     }
 }
-impl AsyncRead for IosTcpProvider {
+
+impl AsyncRead for IosTcpConnection {
     fn poll_read(
         mut self: std::pin::Pin<&mut Self>,
         cx: &mut std::task::Context<'_>,
         buf: &mut tokio::io::ReadBuf<'_>,
-    ) -> std::task::Poll<std::io::Result<()>> {
-        let connection_lock = self.tcp_connection.clone();
-        let Ok(mut connection) = connection_lock.lock() else {
-            return Poll::Ready(Err(connection_closed_err()));
-        };
-        let Some(tcp_ptr) = connection.tcp_connection else {
-            return Poll::Ready(Err(connection_closed_err()));
-        };
-        Self::maybe_set_waker(cx.waker().clone(), &mut connection);
-
-        match self.read_rx.poll_recv(cx) {
-            std::task::Poll::Ready(Some(data)) => {
-                buf.put_slice(&data);
-                self.read_in_progress = false;
-                Poll::Ready(Ok(()))
-            }
-            std::task::Poll::Ready(None) => {
-                self.read_in_progress = false;
-                Poll::Ready(Err(connection_closed_err()))
-            }
-            std::task::Poll::Pending => {
-                if !self.read_in_progress {
-                    let raw_sender = Weak::into_raw(Arc::downgrade(&self.read_tx));
-                    unsafe {
-                        swift_nw_tcp_connection_read(tcp_ptr, raw_sender as _);
-                    }
-                    self.read_in_progress = true;
+    ) -> std::task::Poll<io::Result<()>> {
+        // If task is already spawned, poll it
+        if let Some(handle) = &mut self.in_flight_read {
+            let result = match ready!(handle.as_mut().poll(cx)) {
+                Ok(Ok(data)) => {
+                    // We are assuming that the buffer has not been used for anything else between
+                    // spawning the task and writing to it now, since we expect `buf.remaining()`
+                    // to return the same value between those two points in time.
+                    let len = data.len().min(buf.remaining());
+                    buf.put_slice(&data[..len]);
+                    Ok(())
                 }
-                Poll::Pending
-            }
-        }
-    }
-}
+                Ok(Err(e)) => Err(e),
+                Err(_) => Err(io::Error::new(io::ErrorKind::Other, "Read task panicked")),
+            };
+            // Clear the in-flight read, since the read task finished
+            self.in_flight_read = None;
+            Poll::Ready(result)
+        } else {
+            // If no read task has been spawned, spawn one
+            let tunnel_handle = self.tunnel_handle;
+            let socket_handle = self.socket_handle;
+            let funcs = self.funcs;
+            let mut buffer = vec![0u8; buf.remaining()];
+            let task = tokio::task::spawn_blocking(move || {
+                let result = funcs.receive(tunnel_handle, socket_handle, buffer.as_mut_slice());
+                if result < 0 {
+                    Err(io::Error::new(
+                        io::ErrorKind::Other,
+                        format!("Read error: {}", result),
+                    ))
+                } else if result == 0 {
+                    Err(connection_closed_err())
+                } else {
+                    buffer.truncate(result as usize);
+                    Ok(buffer)
+                }
+            });
 
-impl ConnectionContext {
-    pub fn new(tcp_connection: *const c_void) -> Self {
-        Self {
-            tcp_connection: Some(tcp_connection),
-            waker: None,
-        }
-    }
-
-    pub fn shutdown(&mut self) {
-        self.tcp_connection = None;
-        if let Some(waker) = self.waker.take() {
-            waker.wake();
+            self.in_flight_read = Some(Box::pin(task));
+            cx.waker().wake_by_ref();
+            Poll::Pending
         }
     }
 }

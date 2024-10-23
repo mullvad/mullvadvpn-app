@@ -20,14 +20,30 @@ typedef uint8_t TunnelObfuscatorProtocol;
  */
 typedef struct EncryptedDnsProxyState EncryptedDnsProxyState;
 
+typedef struct ExchangeCancelToken ExchangeCancelToken;
+
 typedef struct ProxyHandle {
   void *context;
   uint16_t port;
 } ProxyHandle;
 
 typedef struct EphemeralPeerCancelToken {
-  void *context;
+  struct ExchangeCancelToken *cancel_token;
 } EphemeralPeerCancelToken;
+
+typedef struct WgTcpConnectionFuncs {
+  int32_t (*open_fn)(int32_t tunnelHandle, const char *address, uint64_t timeout);
+  int32_t (*close_fn)(int32_t tunnelHandle, int32_t socketHandle);
+  int32_t (*recv_fn)(int32_t tunnelHandle, int32_t socketHandle, uint8_t *data, int32_t len);
+  int32_t (*send_fn)(int32_t tunnelHandle, int32_t socketHandle, const uint8_t *data, int32_t len);
+} WgTcpConnectionFuncs;
+
+typedef struct EphemeralPeerParameters {
+  uint64_t peer_exchange_timeout;
+  bool enable_post_quantum;
+  bool enable_daita;
+  struct WgTcpConnectionFuncs funcs;
+} EphemeralPeerParameters;
 
 extern const uint16_t CONFIG_SERVICE_PORT;
 
@@ -84,7 +100,7 @@ int32_t encrypted_dns_proxy_stop(struct ProxyHandle *proxy_config);
  * `sender` must be pointing to a valid instance of a `EphemeralPeerCancelToken` created by the
  * `PacketTunnelProvider`.
  */
-void cancel_ephemeral_peer_exchange(const struct EphemeralPeerCancelToken *sender);
+void cancel_ephemeral_peer_exchange(struct EphemeralPeerCancelToken *sender);
 
 /**
  * Called by the Swift side to signal that the Rust `EphemeralPeerCancelToken` can be safely dropped
@@ -94,33 +110,7 @@ void cancel_ephemeral_peer_exchange(const struct EphemeralPeerCancelToken *sende
  * `sender` must be pointing to a valid instance of a `EphemeralPeerCancelToken` created by the
  * `PacketTunnelProvider`.
  */
-void drop_ephemeral_peer_exchange_token(const struct EphemeralPeerCancelToken *sender);
-
-/**
- * Called by Swift whenever data has been written to the in-tunnel TCP connection when exchanging
- * quantum-resistant pre shared keys, or ephemeral peers.
- *
- * If `bytes_sent` is 0, this indicates that the connection was closed or that an error occurred.
- *
- * # Safety
- * `sender` must be pointing to a valid instance of a `write_tx` created by the `IosTcpProvider`
- * Callback to call when the TCP connection has written data.
- */
-void handle_sent(uintptr_t bytes_sent, const void *sender);
-
-/**
- * Called by Swift whenever data has been read from the in-tunnel TCP connection when exchanging
- * quantum-resistant pre shared keys, or ephemeral peers.
- *
- * If `data` is null or empty, this indicates that the connection was closed or that an error
- * occurred. An empty buffer is sent to the underlying reader to signal EOF.
- *
- * # Safety
- * `sender` must be pointing to a valid instance of a `read_tx` created by the `IosTcpProvider`
- *
- * Callback to call when the TCP connection has received data.
- */
-void handle_recv(const uint8_t *data, uintptr_t data_len, const void *sender);
+void drop_ephemeral_peer_exchange_token(struct EphemeralPeerCancelToken *sender);
 
 /**
  * Entry point for requesting ephemeral peers on iOS.
@@ -132,29 +122,11 @@ void handle_recv(const uint8_t *data, uintptr_t data_len, const void *sender);
  * connection instances.
  * `cancel_token` should be owned by the caller of this function.
  */
-int32_t request_ephemeral_peer(const uint8_t *public_key,
-                               const uint8_t *ephemeral_key,
-                               const void *packet_tunnel,
-                               const void *tcp_connection,
-                               struct EphemeralPeerCancelToken *cancel_token,
-                               uint64_t peer_exchange_timeout,
-                               bool enable_post_quantum,
-                               bool enable_daita);
-
-/**
- * Called when there is data to send on the TCP connection.
- * The TCP connection must write data on the wire, then call the `handle_sent` function.
- */
-extern void swift_nw_tcp_connection_send(const void *connection,
-                                         const void *data,
-                                         uintptr_t data_len,
-                                         const void *sender);
-
-/**
- * Called when there is data to read on the TCP connection.
- * The TCP connection must read data from the wire, then call the `handle_read` function.
- */
-extern void swift_nw_tcp_connection_read(const void *connection, const void *sender);
+struct EphemeralPeerCancelToken *request_ephemeral_peer(const uint8_t *public_key,
+                                                        const uint8_t *ephemeral_key,
+                                                        const void *packet_tunnel,
+                                                        int32_t tunnel_handle,
+                                                        struct EphemeralPeerParameters peer_parameters);
 
 /**
  * Called when the preshared post quantum key is ready,
