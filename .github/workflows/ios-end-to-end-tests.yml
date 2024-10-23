@@ -82,8 +82,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           clean: true
-          ref : {{ github.event.inputs.commit_hash }}
-          path : app-working-directory
+          ref: {{ github.event.inputs.commit_hash }}
+          path: app-working-directory
 
       - name: Configure Rust
         uses: actions-rs/toolchain@v1.0.6
