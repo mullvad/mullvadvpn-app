@@ -21,10 +21,14 @@ Line wrap the file at 100 chars.                                              Th
 * **Fixed**: for any bug fixes.
 * **Security**: in case of vulnerabilities.
 
-## Unreleased
+##[Unreleased]
+
+## [2024.9]
 ### Changed
 - Replace the draft key encapsulation mechanism Kyber (round 3) with the standardized
   ML-KEM (FIPS 203) dito in the handshake for Quantum-resistant tunnels.
+- Improved DAITA setting, allowing users to use DAITA servers with all exits.
+  To manually set entry, users can explicitly enable "Direct only" option.
 
 ### Fixed
 - Fix app going into blocked state on first-time installs.
