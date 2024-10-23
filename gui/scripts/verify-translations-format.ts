@@ -10,6 +10,8 @@ const ALLOWED_VOID_TAGS = ['br'];
 // Make sure to report these strings to crowdin. View this as a temporary escape
 // hatch, not a permanent solution.
 const IGNORED_STRINGS: Set<string> = new Set([
+  // German translation. Has been reported to Crowdin.
+  "Daher verwenden wir automatisch Multihop, um %(daita)s mit jedem Server zu aktivieren."
 ]);
 
 function getLocales(): string[] {
