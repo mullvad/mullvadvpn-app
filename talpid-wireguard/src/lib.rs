@@ -166,11 +166,12 @@ impl WireguardMonitor {
     ) -> Result<WireguardMonitor> {
         let on_event = args.on_event.clone();
 
-        let desired_mtu = args.runtime.block_on(get_desired_mtu(
-            params,
-            #[cfg(any(target_os = "windows", target_os = "linux"))]
-            &args.route_manager,
-        ));
+        #[cfg(any(target_os = "windows", target_os = "linux"))]
+        let desired_mtu = args
+            .runtime
+            .block_on(get_desired_mtu(params, &args.route_manager));
+        #[cfg(target_os = "macos")]
+        let desired_mtu = get_desired_mtu(params);
         let mut config = crate::config::Config::from_parameters(params, desired_mtu)
             .map_err(Error::WireguardConfigError)?;
 
@@ -394,7 +395,7 @@ impl WireguardMonitor {
         log_path: Option<&Path>,
         args: TunnelArgs<'_, F>,
     ) -> Result<WireguardMonitor> {
-        let desired_mtu = args.runtime.block_on(get_desired_mtu(params));
+        let desired_mtu = get_desired_mtu(params);
         let mut config = crate::config::Config::from_parameters(params, desired_mtu)
             .map_err(Error::WireguardConfigError)?;
 
@@ -1111,7 +1112,7 @@ async fn get_desired_mtu(
 }
 
 #[cfg(any(target_os = "macos", target_os = "android"))]
-async fn get_desired_mtu(params: &TunnelParameters) -> u16 {
+fn get_desired_mtu(params: &TunnelParameters) -> u16 {
     params.options.mtu.unwrap_or(DEFAULT_MTU)
 }
 
