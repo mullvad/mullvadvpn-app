@@ -2,6 +2,7 @@
 name: iOS end-to-end tests
 env:
   TEST_DEVICE_UDID: 00008130-0019181022F3803A
+  REPO_DIR: iOSWorkingDirectory
 permissions:
   contents: read
   issues: write
@@ -12,17 +13,22 @@ on:
       arg_tests_json_key:
         type: string
         required: false
+      commit_hash:
+        type: string
+        required: false
   workflow_dispatch:
     inputs:
-      # Optionally specify a test case or suite to run.
-      # Must be in the format MullvadVPNUITest/<test-suite-name>/<test-case-name> where test case name is optional.
       user_supplied_test_name:
-        description: 'Only run test case/suite'
+        description: Only run test case/suite
         required: false
+
 jobs:
   set-up-outputs-directory:
     name: Set up outputs directory
-    runs-on: [self-hosted, macOS, ios-test]
+    runs-on:
+      - self-hosted
+      - macOS
+      - ios-test
     outputs:
       job_outputs_directory: ${{ steps.set-up-job-outputs-directory.outputs.job_outputs_directory }}
     steps:
@@ -32,30 +38,27 @@ jobs:
           job_outputs_directory="$HOME/workflow-outputs/job-outputs-${{ github.run_id }}"
           echo "job_outputs_directory=$job_outputs_directory" >> "$GITHUB_OUTPUT"
           mkdir -p "$job_outputs_directory"
-
         shell: bash
 
-  # Define the set of tests to run based on the event type and input
   define-test-suites-matrix:
     name: Define test suites matrix
-    runs-on: [self-hosted, macOS, ios-test]
+    runs-on:
+      - self-hosted
+      - macOS
+      - ios-test
     needs: set-up-outputs-directory
     steps:
       - name: Test runs to JSON
         id: test-runs-to-json
         run: |
           if [ -n "${{ inputs.arg_tests_json_key }}" ]; then
-          # JSON key supplied by another workflow calling this reusable workflow
-          echo "Using calling workflow supplied test suites JSON key: ${{ inputs.arg_tests_json_key }}"
-            # Forcing the filesystem buffers to be flushed to ensure the
-            # directory tree is updated
+            echo "Using calling workflow supplied test suites JSON key: ${{ inputs.arg_tests_json_key }}"
             sync
             test_suites_json=$(jq -r --compact-output '.tests."${{ inputs.arg_tests_json_key }}"' tests.json)
             echo "test_suites_json=$test_suites_json" >> $GITHUB_ENV
           elif [ -n "${{ inputs.user_supplied_test_name }}" ]; then
-            # User specified test case/suite when manually triggering run
             echo "Using user supplied test name: ${{ inputs.user_supplied_test_name }}"
-            test_suites_json="['${{ inputs.user_supplied_test_name }}']" >> $GITHUB_ENV
+            test_suites_json="['${{ inputs.user_supplied_test_name }}']"
             echo "test_suites_json=$test_suites_json" >> $GITHUB_ENV
           else
             echo "Tests not specified, will fallback to running nightly(all) tests scope"
@@ -68,17 +71,31 @@ jobs:
     outputs:
       test_suites_json: ${{ env.test_suites_json }}
 
-  # Build app and tests target
   build:
-    name: Build for end to end testing
-    runs-on: [self-hosted, macOS, ios-test]
+    name: Build for end-to-end testing
+    runs-on:
+      - self-hosted
+      - macOS
+      - ios-test
     needs: set-up-outputs-directory
     timeout-minutes: 20
     steps:
+      - name: Set commit hash or default to github.ref
+        id: set-commit-hash
+        run: |
+          if [ -z "${{ inputs.commit_hash }}" ]; then
+            echo "COMMIT_HASH=${{ github.ref }}" >> $GITHUB_ENV
+          else
+            echo "COMMIT_HASH=${{ inputs.commit_hash }}" >> $GITHUB_ENV
+          fi
+        shell: bash
+
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           clean: true
+          ref: ${{ env.COMMIT_HASH }}
+          path: ${{ env.REPO_DIR }}
 
       - name: Configure Rust
         uses: actions-rs/toolchain@v1.0.6
@@ -98,72 +115,16 @@ jobs:
           test_device_udid: ${{ env.TEST_DEVICE_UDID }}
           partner_api_token: ${{ secrets.STAGEMOLE_PARTNER_AUTH }}
           outputs_path: ${{ needs.set-up-outputs-directory.outputs.job_outputs_directory }}
+          base_directory: ${{ env.REPO_DIR }}
 
       - name: Debug print job output directory
         run: |
-          echo "Job output directory: ${{ needs.set-up-outputs-directory.outputs.job_outputs_directory }}"
+          echo "Job output directory: ${{
+          needs.set-up-outputs-directory.outputs.job_outputs_directory }}"
         shell: bash
 
       - name: Copy build output and project to output directory
         run: |
           mkdir -p "$JOB_OUTPUTS_DIRECTORY/derived-data"
           cp -R ios/derived-data "$JOB_OUTPUTS_DIRECTORY"
-          cp -R . $JOB_OUTPUTS_DIRECTORY/mullvadvpn-app
-        shell: bash
-        env:
-          JOB_OUTPUTS_DIRECTORY: ${{ needs.set-up-outputs-directory.outputs.job_outputs_directory }}
-
-      - name: Clean up
-        run: |
-          rm -rf ios/Configurations/*.xcconfig
-          rm -rf ios/derived-data
-        shell: bash
-
-  test:
-    name: Run tests
-    runs-on: [self-hosted, macOS, ios-test]
-    needs: [build, define-test-suites-matrix, set-up-outputs-directory]
-    timeout-minutes: 60
-    strategy:
-      fail-fast: false
-      matrix:
-        test_suite: ${{fromJson(needs.define-test-suites-matrix.outputs.test_suites_json)}}
-    steps:
-      - name: Run iOS end to end tests action
-        uses: ./.github/actions/run-ios-e2e-tests
-        with:
-          test_name: "MullvadVPNUITests/${{ matrix.test_suite }}"
-          test_device_udid: ${{ env.TEST_DEVICE_UDID }}
-          outputs_path: ${{ needs.set-up-outputs-directory.outputs.job_outputs_directory }}
-
-  clean-up-outputs-directory:
-    if: always()
-    name: Clean up outputs directory
-    runs-on: [self-hosted, macOS, ios-test]
-    needs: [test, set-up-outputs-directory]
-    steps:
-      - name: Clean up outputs directory
-        run: rm -rf ${{ needs.set-up-outputs-directory.outputs.job_outputs_directory }}
-        shell: bash
-
-  notify-on-failure:
-    if: failure() && github.event_name == 'pull_request'
-    name: Notify team on failure(if PR related)
-    runs-on: [self-hosted, macOS, ios-test]
-    needs: test
-    timeout-minutes: 5
-    steps:
-      - name: Comment PR on test failure
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
-          script: |
-            const issue_number = context.issue.number;
-            const run_id = context.runId;
-            const run_url = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${run_id}`;
-            github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: issue_number,
-              body: `🚨 End to end tests failed. Please check the [failed workflow run](${run_url}).`
-            });
+          cp -R ${{ env.REPO_ }}"

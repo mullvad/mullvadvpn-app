@@ -1,36 +1,41 @@
-name: 'Build iOS end to end tests action'
-description: 'Prepares and builds end to end tests on iOS device'
+---
+name: Build iOS end to end tests action
+description: Prepares and builds end to end tests on iOS device
 inputs:
   ios_device_pin_code:
-    description: 'iOS Device Pin Code'
+    description: iOS Device Pin Code
     required: true
   test_device_identifier_uuid:
-    description: 'Test Device Identifier UUID'
+    description: Test Device Identifier UUID
     required: true
   has_time_account_number:
-    description: 'Has Time Account Number'
+    description: Has Time Account Number
     required: true
   no_time_account_number:
-    description: 'No Time Account Number'
+    description: No Time Account Number
     required: true
   test_device_udid:
-    description: 'Test Device UDID'
+    description: Test Device UDID
     required: true
   partner_api_token:
-    description: 'Partner API Token'
+    description: Partner API Token
     required: true
   test_name:
-    description: 'Test case/suite name. Will run all tests in the test plan if not provided.'
+    description: Test case/suite name. Will run all tests in the test plan if not provided.
     required: false
   outputs_path:
-    description: 'Path to store outputs. This should be unique for each job run in order to avoid concurrency issues.'
+    description: Path to store outputs. This should be unique for each job run in
+      order to avoid concurrency issues.
     required: true
-
+  base_directory:
+    description: Base directory for the working paths.
+    required: false
+    default: .
 runs:
-  using: 'composite'
+  using: composite
   steps:
     - name: Configure Xcode project
-      run: |
+      run: >
         for file in *.xcconfig.template ; do cp $file ${file//.template/} ; done
           sed -i "" "/^HAS_TIME_ACCOUNT_NUMBER/d" UITests.xcconfig
           sed -i "" "/^NO_TIME_ACCOUNT_NUMBER/d" UITests.xcconfig
@@ -56,14 +61,13 @@ runs:
             "/UNINSTALL_APP_IN_TEST_SUITE_TEAR_DOWN =/ s#= .*#= 0#" \
             UITests.xcconfig
       shell: bash
-      working-directory: ios/Configurations
+      working-directory: ${{ inputs.base_directory }}/ios/Configurations
       env:
         IOS_DEVICE_PIN_CODE: ${{ inputs.ios_device_pin_code }}
         TEST_DEVICE_IDENTIFIER_UUID: ${{ inputs.test_device_identifier_uuid }}
         HAS_TIME_ACCOUNT_NUMBER: ${{ inputs.has_time_account_number }}
         NO_TIME_ACCOUNT_NUMBER: ${{ inputs.no_time_account_number }}
         PARTNER_API_TOKEN: ${{ inputs.partner_api_token }}
-
     - name: Build app and tests for testing
       run: |
         if [ -n "$TEST_NAME" ]; then
@@ -79,7 +83,7 @@ runs:
           -derivedDataPath derived-data \
           clean build-for-testing 2>&1
       shell: bash
-      working-directory: ios/
+      working-directory: ${{ inputs.base_directory }}/ios
       env:
         TEST_DEVICE_UDID: ${{ inputs.test_device_udid }}
         TEST_NAME: ${{ inputs.test_name }}
