@@ -112,6 +112,9 @@ service ManagementService {
   rpc InitPlayPurchase(google.protobuf.Empty) returns (PlayPurchasePaymentToken) {}
   rpc VerifyPlayPurchase(PlayPurchase) returns (google.protobuf.Empty) {}
 
+  // Check whether the app needs TCC approval for split tunneling (macOS)
+  rpc NeedFullDiskPermissions(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
+
   // Notify the split tunnel monitor that a volume was mounted or dismounted
   // (Windows).
   rpc CheckVolumes(google.protobuf.Empty) returns (google.protobuf.Empty) {}
