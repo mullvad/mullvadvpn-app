@@ -122,7 +122,7 @@ class RelayPickingTests: XCTestCase {
 
         let selectedRelays = try picker.pick()
 
-        XCTAssertEqual(selectedRelays.entry?.hostname, "us-nyc-wg-301") // New York relay is closest to exit relay.
+        XCTAssertNil(selectedRelays.entry)
         XCTAssertEqual(selectedRelays.exit.hostname, "es1-wireguard")
     }
 
