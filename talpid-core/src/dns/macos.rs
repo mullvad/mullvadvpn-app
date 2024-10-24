@@ -12,18 +12,23 @@ use system_configuration::{
         array::CFArray,
         base::{CFType, TCFType, ToVoid},
         dictionary::{CFDictionary, CFMutableDictionary},
+        number::CFNumber,
         propertylist::CFPropertyList,
         runloop::{kCFRunLoopCommonModes, CFRunLoop},
         string::CFString,
     },
     dynamic_store::{SCDynamicStore, SCDynamicStoreBuilder, SCDynamicStoreCallBackContext},
-    sys::schema_definitions::{kSCPropNetDNSServerAddresses, kSCPropNetInterfaceDeviceName},
+    sys::schema_definitions::{
+        kSCPropNetDNSServerAddresses, kSCPropNetDNSServerPort, kSCPropNetInterfaceDeviceName,
+    },
 };
 use talpid_routing::debounce::BurstGuard;
 
 use super::ResolvedDnsConfig;
 
 pub type Result<T> = std::result::Result<T, Error>;
+
+const DNS_PORT: u16 = 53;
 
 /// Errors that can happen when setting/monitoring DNS on macOS.
 #[derive(thiserror::Error, Debug)]
@@ -78,11 +83,13 @@ impl State {
         store: &SCDynamicStore,
         interface: &str,
         servers: &[IpAddr],
+        port: u16,
     ) -> Result<()> {
         talpid_types::detect_flood!();
 
         let servers: Vec<DnsServer> = servers.iter().map(|ip| ip.to_string()).collect();
-        let new_settings = DnsSettings::from_server_addresses(&servers, interface.to_string());
+        let new_settings =
+            DnsSettings::from_server_addresses(&servers, interface.to_string(), port);
         match &self.dns_settings {
             None => {
                 self.dns_settings = Some(new_settings);
@@ -221,7 +228,7 @@ struct DnsSettings {
 unsafe impl Send for DnsSettings {}
 
 impl DnsSettings {
-    pub fn from_server_addresses(server_addresses: &[DnsServer], name: String) -> Self {
+    pub fn from_server_addresses(server_addresses: &[DnsServer], name: String, port: u16) -> Self {
         let mut mut_dict = CFMutableDictionary::new();
         if !server_addresses.is_empty() {
             let cf_string_servers: Vec<CFString> =
@@ -233,6 +240,14 @@ impl DnsSettings {
                 &server_addresses_key.to_void(),
                 &server_addresses_value.to_void(),
             );
+
+            // Set port if non-standard
+            if port != DNS_PORT {
+                let server_port_key =
+                    unsafe { CFString::wrap_under_get_rule(kSCPropNetDNSServerPort) };
+                let server_port_value = CFNumber::from(i32::from(port));
+                mut_dict.add(&server_port_key.to_void(), &server_port_value.to_void());
+            }
         }
         let dict = mut_dict.to_immutable();
         DnsSettings { dict, name }
@@ -370,10 +385,11 @@ impl super::DnsMonitorT for DnsMonitor {
     }
 
     fn set(&mut self, interface: &str, config: ResolvedDnsConfig) -> Result<()> {
+        let port = config.port;
         let servers: Vec<_> = config.addresses().collect();
 
         let mut state = self.state.lock();
-        state.apply_new_config(&self.store, interface, &servers)
+        state.apply_new_config(&self.store, interface, &servers, port)
     }
 
     fn reset(&mut self) -> Result<()> {
@@ -508,6 +524,8 @@ fn state_to_setup_path(state_path: &str) -> Option<String> {
 
 #[cfg(test)]
 mod test {
+    use crate::dns::imp::DNS_PORT;
+
     use super::{DnsSettings, State};
     use std::collections::{BTreeSet, HashMap};
 
@@ -523,6 +541,7 @@ mod test {
                 Some(DnsSettings::from_server_addresses(
                     &["1.2.3.4".to_owned()],
                     "iface_b".to_owned(),
+                    DNS_PORT,
                 )),
             ),
             // One of our states already equals the desired state. It should be stored regardless.
@@ -531,6 +550,7 @@ mod test {
                 Some(DnsSettings::from_server_addresses(
                     &["10.64.0.1".to_owned()],
                     "iface_c".to_owned(),
+                    DNS_PORT,
                 )),
             ),
         ]);
@@ -552,6 +572,7 @@ mod test {
                 Some(DnsSettings::from_server_addresses(
                     &["1.2.3.4".to_owned()],
                     "iface_b".to_owned(),
+                    DNS_PORT,
                 )),
             ),
             (
@@ -559,6 +580,7 @@ mod test {
                 Some(DnsSettings::from_server_addresses(
                     &["10.64.0.1".to_owned()],
                     "iface_c".to_owned(),
+                    DNS_PORT,
                 )),
             ),
             (
@@ -566,6 +588,7 @@ mod test {
                 Some(DnsSettings::from_server_addresses(
                     &["1.3.3.7".to_owned()],
                     "iface_d".to_owned(),
+                    DNS_PORT,
                 )),
             ),
         ]);
@@ -576,6 +599,7 @@ mod test {
                 Some(DnsSettings::from_server_addresses(
                     &["10.64.0.1".to_owned()],
                     "iface_a".to_owned(),
+                    DNS_PORT,
                 )),
             ),
             // This change should be ignored
@@ -584,6 +608,7 @@ mod test {
                 Some(DnsSettings::from_server_addresses(
                     &["10.64.0.1".to_owned()],
                     "iface_b".to_owned(),
+                    DNS_PORT,
                 )),
             ),
             // This change should be ignored
@@ -592,6 +617,7 @@ mod test {
                 Some(DnsSettings::from_server_addresses(
                     &["4.3.2.1".to_owned()],
                     "iface_c".to_owned(),
+                    DNS_PORT,
                 )),
             ),
             // This change should NOT be ignored
@@ -600,6 +626,7 @@ mod test {
                 Some(DnsSettings::from_server_addresses(
                     &["4.3.2.1".to_owned()],
                     "iface_d".to_owned(),
+                    DNS_PORT,
                 )),
             ),
         ]);
@@ -610,6 +637,7 @@ mod test {
                 Some(DnsSettings::from_server_addresses(
                     &["1.2.3.4".to_owned()],
                     "iface_b".to_owned(),
+                    DNS_PORT,
                 )),
             ),
             (
@@ -617,6 +645,7 @@ mod test {
                 Some(DnsSettings::from_server_addresses(
                     &["4.3.2.1".to_owned()],
                     "iface_c".to_owned(),
+                    DNS_PORT,
                 )),
             ),
             (
@@ -624,6 +653,7 @@ mod test {
                 Some(DnsSettings::from_server_addresses(
                     &["4.3.2.1".to_owned()],
                     "iface_d".to_owned(),
+                    DNS_PORT,
                 )),
             ),
         ]);
@@ -644,6 +674,7 @@ mod test {
                 Some(DnsSettings::from_server_addresses(
                     &["10.64.0.1".to_owned()],
                     "iface_a".to_owned(),
+                    DNS_PORT,
                 )),
             ),
             (
@@ -651,6 +682,7 @@ mod test {
                 Some(DnsSettings::from_server_addresses(
                     &["1.2.3.4".to_owned()],
                     "iface_b".to_owned(),
+                    DNS_PORT,
                 )),
             ),
             ("c".to_owned(), None),
@@ -677,6 +709,7 @@ mod test {
             Some(DnsSettings::from_server_addresses(
                 &["192.168.100.1".to_owned()],
                 "iface_a".to_owned(),
+                DNS_PORT,
             )),
         )]);
         let new_state = HashMap::from([(
@@ -684,6 +717,7 @@ mod test {
             Some(DnsSettings::from_server_addresses(
                 &["192.168.1.1".to_owned()],
                 "iface_a".to_owned(),
+                DNS_PORT,
             )),
         )]);
         let expect_state = HashMap::from([(
@@ -691,6 +725,7 @@ mod test {
             Some(DnsSettings::from_server_addresses(
                 &["192.168.1.1".to_owned()],
                 "iface_a".to_owned(),
+                DNS_PORT,
             )),
         )]);
 
