@@ -34,24 +34,41 @@ private fun PreviewExternalButtonLongText() {
     }
 }
 
+@Preview
+@Composable
+private fun PreviewExternalButtonSpinner() {
+    AppTheme {
+        ExternalButton(
+            onClick = {},
+            text = "Button text is long and is trying to take up space that is large",
+            isEnabled = true,
+            showSpinner = true,
+        )
+    }
+}
+
 @Composable
 fun ExternalButton(
     onClick: () -> Unit,
     text: String,
     modifier: Modifier = Modifier,
     isEnabled: Boolean = true,
+    showSpinner: Boolean = false,
 ) {
     VariantButton(
         text = text,
         onClick = onClick,
         modifier = modifier,
         isEnabled = isEnabled,
+        showSpinner = showSpinner,
         icon = {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.OpenInNew,
-                tint = MaterialTheme.colorScheme.onTertiary,
-                contentDescription = null,
-            )
+            if (!showSpinner) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.OpenInNew,
+                    tint = MaterialTheme.colorScheme.onTertiary,
+                    contentDescription = null,
+                )
+            }
         },
     )
 }
