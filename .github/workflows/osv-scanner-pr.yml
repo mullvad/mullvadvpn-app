@@ -17,4 +17,4 @@ jobs:
       actions: read
 
     # yamllint disable rule:line-length
-    uses: "google/osv-scanner-action/.github/workflows/osv-scanner-reusable-pr.yml@dfa8609a7da62968d73f63f279418e504c1f523f"  # v1.8.1
+    uses: "google/osv-scanner-action/.github/workflows/osv-scanner-reusable-pr.yml@19ec1116569a47416e11a45848722b1af31a857b"  # v1.9.0
