@@ -65,6 +65,8 @@
     <string name="confirm_removal">Sim, desligar o dispositivo</string>
     <string name="congrats">Parabéns!</string>
     <string name="connect">Ligar</string>
+    <string name="connect_panel_active_features">Funcionalidades ativas</string>
+    <string name="connect_panel_connection_details">Detalhes da ligação</string>
     <string name="connected">Ligado</string>
     <string name="connecting_to_daemon">A ligar-se ao serviço de sistema Mulvad...</string>
     <string name="connection_details_in">Entrada</string>
@@ -74,6 +76,7 @@
     <string name="copy_account_number">Copiar número de conta</string>
     <string name="create">Criar</string>
     <string name="create_account">Criar conta</string>
+    <string name="create_custom_list_message">\"%1$s\" foi criada</string>
     <string name="create_new_list">Criar nova lista</string>
     <string name="created_x">Criado: %1$s</string>
     <string name="creating_new_account">A criar conta...</string>
@@ -89,6 +92,8 @@
     <string name="custom_port_dialog_valid_ranges">Intervalos válidos: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Não foi possível resolver o anfitrião do túnel personalizado. Experimente alterar as suas definições.</string>
     <string name="daita_info">%1$s (%2$s) oculta padrões no seu tráfego VPN encriptado. Se alguém estiver a monitorizar a sua ligação, isto dificulta significativamente a identificação dos sites que visita. Para tal, adiciona cuidadosamente ruído de rede e torna todos os pacotes de rede do mesmo tamanho.</string>
+    <string name="daita_relay_subset_warning">Esta funcionalidade não está disponível em todos os servidores. Poderá ser necessário alterar a localização após a ativação.</string>
+    <string name="daita_warning">Atenção: visto que isto aumenta o tráfego total da sua rede, tenha cuidado se tiver um plano de dados limitado. Também pode afetar negativamente a velocidade da rede e a utilização da bateria.</string>
     <string name="delete">Eliminar</string>
     <string name="delete_custom_list_confirmation_description">Eliminar \"%1$s\"?</string>
     <string name="delete_custom_list_message">\"%1$s\" foi eliminada</string>
@@ -136,9 +141,11 @@
     <string name="failed_to_set_current_test_error">Erro ao definir como atual — API não alcançável</string>
     <string name="failed_to_set_current_unknown_error">Erro ao definir como atual — motivo desconhecido</string>
     <string name="faqs_and_guides">Perguntas frequentes e guias</string>
+    <string name="feature_custom_dns">DNS personalizado</string>
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_dns_content_blockers">Bloqueadores de conteúdo de DNS</string>
     <string name="feature_lan_sharing">Partilha de rede local</string>
+    <string name="feature_quantum_resistant">Resistência quântica</string>
     <string name="feature_server_ip_override">Substituição de IP de servidor</string>
     <string name="feature_udp_2_tcp">Ofuscação</string>
     <string name="filter">Filtrar</string>
@@ -168,6 +175,7 @@
     <string name="local_network_sharing_info">Esta funcionalidade permite o acesso a outros dispositivos na rede local, por exemplo, para partilha, impressão, streaming, etc.</string>
     <string name="location_added">%1$s (adicionado)</string>
     <string name="location_was_added_to_list">%1$s foi adicionado a \"%2$s\"</string>
+    <string name="location_was_removed_from_list">%1$s foi removida de \"%2$s\"</string>
     <string name="locations">Localizações</string>
     <string name="locations_were_changed_for">As localizações foram alteradas para \"%1$s\"</string>
     <string name="log_out">Terminar sessão</string>
@@ -226,6 +234,7 @@
     <string name="please_enter_a_valid_ip_address">Introduza um endereço IPv4 ou IPv6 válido</string>
     <string name="please_enter_a_valid_remote_server_port">Introduza uma porta de servidor remoto válida</string>
     <string name="port">Porta</string>
+    <string name="port_x">Porta: %1$s</string>
     <string name="privacy_disclaimer_body_first_paragraph">Para se certificar de que tem a versão mais segura e para o informar de quaisquer problemas com a versão atual em execução, a app efetua verificações de versão automaticamente. Esta envia a versão da app e a versão do sistema Android para os servidores da Mullvad. A Mullvad mantém um registo do número de versões da app e de versões do Android utilizadas. Os dados nunca são armazenados ou utilizados de forma a identificar o utilizador.</string>
     <string name="privacy_disclaimer_body_second_paragraph">Se for utilizada a funcionalidade de divisão do túnel, a app consulta o seu sistema para obter uma lista de todas as aplicações instaladas. Esta lista só é recuperada na vista de divisão do túnel. A lista de aplicações instaladas nunca é enviada pelo dispositivo.</string>
     <string name="privacy_disclaimer_title">Privacidade</string>
@@ -239,13 +248,14 @@
     <string name="redeem">Reclamar</string>
     <string name="redeem_voucher">Reclamar voucher</string>
     <string name="remove_button">Remover</string>
+    <string name="remove_location_from_list">Remover %1$s de %2$s</string>
     <string name="rented">Alugado</string>
     <string name="rented_only">Apenas alugado</string>
     <string name="report_a_problem">Reportar um problema</string>
     <string name="reset_to_default_button">Repor para as predefinições</string>
     <string name="save">Guardar</string>
     <string name="search_placeholder">Pesquisar por...</string>
-    <string name="select_location">Selecionar local</string>
+    <string name="select_location">Selecionar localização</string>
     <string name="select_location_empty_text_first_row">Sem resultados para &lt;b&gt;%1$s&lt;/b&gt;.</string>
     <string name="select_location_empty_text_second_row">Experimente uma pesquisa diferente.</string>
     <string name="send">Enviar</string>
@@ -284,6 +294,7 @@
     <string name="settings_vpn">Definições de VPN</string>
     <string name="show_system_apps">Mostrar aplicações do sistema</string>
     <string name="split_tunneling_description">Permite-lhe selecionar aplicações que devem aceder diretamente à Internet sem passar pelo túnel VPN.</string>
+    <string name="split_tunneling_description_warning">Atenção: se a opção \"Bloquear ligações sem VPN\" estiver ativada, as aplicações divididas não terão Internet. Tenha sempre em mente que o túnel dividido representa um risco para a privacidade.</string>
     <string name="start_tunnel_error">Não foi possível iniciar a ligação de túnel. Envie um relatório do problema.</string>
     <string name="submit_button">Enviar</string>
     <string name="switch_location">Alterar local</string>
@@ -305,6 +316,7 @@
     <string name="undo">Anular</string>
     <string name="unsupported_version">VERSÃO NÃO SUPORTADA</string>
     <string name="unsupported_version_description">A sua privacidade pode estar comprometida com uma versão não suportada da aplicação. Por favor efetue a atualização agora.</string>
+    <string name="upd_over_tcp">UDP sobre TCP</string>
     <string name="update_dns_server_dialog_title">Atualizar servidor DNS</string>
     <string name="update_list_name">Atualizar nome da lista</string>
     <string name="use_method">Utilizar método</string>
@@ -315,6 +327,7 @@
     <string name="verifying_voucher">A verificar voucher…</string>
     <string name="view_logs">Ver os registos da app</string>
     <string name="voucher_already_used">O código do voucher já foi utilizado.</string>
+    <string name="voucher_is_account_number">Parece que introduziu um número de conta em vez de um código de voucher. Se pretender alterar a conta ativa, termine a sessão primeiro.</string>
     <string name="voucher_success_title">O voucher foi reclamado com sucesso.</string>
     <string name="vpn_permission_denied_error">A transmissão foi negada durante a criação do túnel. Tente fazer novamente a ligação.</string>
     <string name="vpn_permission_error_notification_message">A VPN sempre ligada pode estar ativada para outra app</string>

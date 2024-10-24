@@ -65,6 +65,8 @@
     <string name="confirm_removal">Ja, logga ut enheten</string>
     <string name="congrats">Grattis!</string>
     <string name="connect">Anslut</string>
+    <string name="connect_panel_active_features">Aktiva funktioner</string>
+    <string name="connect_panel_connection_details">Anslutningsinformation</string>
     <string name="connected">Ansluten</string>
     <string name="connecting_to_daemon">Ansluter till Mullvads systemtjänst...</string>
     <string name="connection_details_in">In</string>
@@ -74,6 +76,7 @@
     <string name="copy_account_number">Kopiera kontonummer</string>
     <string name="create">Skapa</string>
     <string name="create_account">Skapa konto</string>
+    <string name="create_custom_list_message">\"%1$s\" har skapats</string>
     <string name="create_new_list">Skapa ny lista</string>
     <string name="created_x">Skapades: %1$s</string>
     <string name="creating_new_account">Skapar konto...</string>
@@ -89,6 +92,8 @@
     <string name="custom_port_dialog_valid_ranges">Giltiga intervall: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Det går inte att lösa värd för anpassad tunnel. Försök att ändra inställningarna.</string>
     <string name="daita_info">%1$s (%2$s) döljer mönster i din krypterade VPN-trafik. Om någon övervakar din anslutning blir det mycket svårare för hen att identifiera vilka webbplatser du besöker. Den gör det genom att noggrant lägga till nätverksbrus och se till så att alla nätverkspaket har samma storlek.</string>
+    <string name="daita_relay_subset_warning">Det här funktionen är inte tillgänglig på alla servrar. Du kanske måste ändra plats efter aktivering.</string>
+    <string name="daita_warning">Obs! Detta ökar nätverkstrafiken så var försiktig om du har ett abonnemang med begränsad mängd data. Det kan även ha en negativ påverkan på din nätverkshastighet och batterianvändning.</string>
     <string name="delete">Ta bort</string>
     <string name="delete_custom_list_confirmation_description">Ta bort \"%1$s\"?</string>
     <string name="delete_custom_list_message">\"%1$s\" har tagits bort</string>
@@ -136,9 +141,11 @@
     <string name="failed_to_set_current_test_error">Kan inte ställas in som aktuell – API kan inte nås</string>
     <string name="failed_to_set_current_unknown_error">Kan inte ställas in som aktuell – Okänd anledning</string>
     <string name="faqs_and_guides">Vanliga frågor och guider</string>
+    <string name="feature_custom_dns">Anpassad DNS</string>
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_dns_content_blockers">DNS-innehållsblockerare</string>
     <string name="feature_lan_sharing">Lokal nätverksdelning</string>
+    <string name="feature_quantum_resistant">Kvantresistens</string>
     <string name="feature_server_ip_override">Åsidosättning av server-IP</string>
     <string name="feature_udp_2_tcp">Obfuskering</string>
     <string name="filter">Filtrera</string>
@@ -168,6 +175,7 @@
     <string name="local_network_sharing_info">Funktionen tillåter åtkomst till andra enheter på det lokala nätverket, t.ex. för att dela, skriva ut, streama osv.</string>
     <string name="location_added">%1$s (har lagts till)</string>
     <string name="location_was_added_to_list">%1$s har lagts till i \"%2$s\"</string>
+    <string name="location_was_removed_from_list">%1$s har tagits bort från \"%2$s\"</string>
     <string name="locations">Platser</string>
     <string name="locations_were_changed_for">Platserna har ändrats för \"%1$s\"</string>
     <string name="log_out">Logga ut</string>
@@ -226,6 +234,7 @@
     <string name="please_enter_a_valid_ip_address">Ange en giltig IPv4- eller IPv6-adress</string>
     <string name="please_enter_a_valid_remote_server_port">Ange en giltig fjärrserverport</string>
     <string name="port">Port</string>
+    <string name="port_x">Port: %1$s</string>
     <string name="privacy_disclaimer_body_first_paragraph">Appen genomför automatiska versionskontroller för att se till att du har den säkraste versionen och för att informera dig om problem med den nuvarande versionen. Appversionen och Android-systemversionen skickas till Mullvad-servrarna. Mullvad registrerar antalet använda appversioner och Android-versioner. Dessa data lagras aldrig och används inte på något sätt som kan identifiera dig.</string>
     <string name="privacy_disclaimer_body_second_paragraph">Om delade tunnlar används, frågar appen ditt system om en lista med alla installerade applikationer. Listan hämtas bara i vyn för delade tunnlar. Listan med installerade applikationer skickas aldrig från enheten.</string>
     <string name="privacy_disclaimer_title">Sekretess</string>
@@ -239,6 +248,7 @@
     <string name="redeem">Lös in</string>
     <string name="redeem_voucher">Lös in kupong</string>
     <string name="remove_button">Ta bort</string>
+    <string name="remove_location_from_list">Ta bort %1$s från %2$s</string>
     <string name="rented">Hyrd</string>
     <string name="rented_only">Endast hyrd</string>
     <string name="report_a_problem">Rapportera ett problem</string>
@@ -284,6 +294,7 @@
     <string name="settings_vpn">VPN-inställningar</string>
     <string name="show_system_apps">Visa systemappar</string>
     <string name="split_tunneling_description">Låter dig välja appar som ska ge dig direktåtkomst till internet utan att gå igenom VPN-tunneln.</string>
+    <string name="split_tunneling_description_warning">Obs! Om \"Blockera anslutningar utan VPN\" är aktiverat kommer inte delade appar att ha internet. Kom ihåg att det alltid finns en säkerhetsrisk med delade tunnlar.</string>
     <string name="start_tunnel_error">Det går inte att starta tunnelanslutning. Skicka en problemrapport.</string>
     <string name="submit_button">Skicka</string>
     <string name="switch_location">Växla plats</string>
@@ -305,6 +316,7 @@
     <string name="undo">Ångra</string>
     <string name="unsupported_version">VERSION UTAN STÖD</string>
     <string name="unsupported_version_description">Din sekretess kan vara utsatt för risk med den här appversionen som inte stöds. Uppdatera nu.</string>
+    <string name="upd_over_tcp">UDP över TCP</string>
     <string name="update_dns_server_dialog_title">Uppdatera DNS-server</string>
     <string name="update_list_name">Uppdatera listnamn</string>
     <string name="use_method">Använd metod</string>
@@ -315,6 +327,7 @@
     <string name="verifying_voucher">Verifierar kupong …</string>
     <string name="view_logs">Visa appens loggar</string>
     <string name="voucher_already_used">Kupongkoden har redan använts.</string>
+    <string name="voucher_is_account_number">Det verkar som om du angett ett kontonummer istället för en kupongkod. Logga först ut om du vill ändra den aktiva koden.</string>
     <string name="voucher_success_title">Kupongen har lösts in.</string>
     <string name="vpn_permission_denied_error">VPN-behörighet nekades när tunneln skapades. Försök att ansluta igen.</string>
     <string name="vpn_permission_error_notification_message">VPN som alltid är på kan ha aktiverats för annan app</string>

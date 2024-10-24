@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Russian\n"
 "Language: ru_RU\n"
-"PO-Revision-Date: 2024-06-27 08:16\n"
+"PO-Revision-Date: 2024-10-23 06:33\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -152,6 +152,10 @@ msgstr "Копенгаген"
 msgid "Croatia"
 msgstr "Хорватия"
 
+#. CY
+msgid "Cyprus"
+msgstr "Кипр"
+
 #. CZ
 msgid "Czech Republic"
 msgstr "Чехия"
@@ -256,6 +260,10 @@ msgstr "Ирландия"
 msgid "Israel"
 msgstr "Израиль"
 
+#. TR IST
+msgid "Istanbul"
+msgstr "Стамбул"
+
 #. IT
 msgid "Italy"
 msgstr "Италия"
@@ -287,6 +295,10 @@ msgstr "Киев"
 #. LV
 msgid "Latvia"
 msgstr "Латвия"
+
+#. PE LIM
+msgid "Lima"
+msgstr "Лима"
 
 #. PT LIS
 msgid "Lisbon"
@@ -376,6 +388,10 @@ msgstr "Нью-Йорк, NY"
 msgid "New Zealand"
 msgstr "Новая Зеландия"
 
+#. CY NIC
+msgid "Nicosia"
+msgstr "Никосия"
+
 #. RS INI
 msgid "Nis"
 msgstr "Ниш"
@@ -411,6 +427,10 @@ msgstr "Париж"
 #. AU PER
 msgid "Perth"
 msgstr "Перт"
+
+#. PE
+msgid "Peru"
+msgstr "Перу"
 
 #. US PHL
 msgid "Philadelphia, PA"
@@ -583,6 +603,10 @@ msgstr "Токио"
 #. CA TOR
 msgid "Toronto"
 msgstr "Торонто"
+
+#. TR
+msgid "Turkey"
+msgstr "Турция"
 
 #. GB
 msgid "UK"

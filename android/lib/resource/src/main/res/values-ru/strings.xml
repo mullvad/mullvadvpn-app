@@ -65,6 +65,8 @@
     <string name="confirm_removal">Выйти из профиля на устройстве</string>
     <string name="congrats">Поздравляем!</string>
     <string name="connect">Подключить</string>
+    <string name="connect_panel_active_features">Активные функции</string>
+    <string name="connect_panel_connection_details">Сведения о подключении</string>
     <string name="connected">Подключено</string>
     <string name="connecting_to_daemon">Подключение к системному сервису Mullvad...</string>
     <string name="connection_details_in">Вход</string>
@@ -74,6 +76,7 @@
     <string name="copy_account_number">Копировать номер учетной записи</string>
     <string name="create">Создать</string>
     <string name="create_account">Создать учетную запись</string>
+    <string name="create_custom_list_message">Список «%1$s» создан</string>
     <string name="create_new_list">Создание нового списка</string>
     <string name="created_x">Создано: %1$s</string>
     <string name="creating_new_account">Создание учетной записи...</string>
@@ -88,7 +91,9 @@
     <string name="custom_port_dialog_submit">Установить порт</string>
     <string name="custom_port_dialog_valid_ranges">Допустимые диапазоны: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Не удалось преобразовать имя узла пользовательского туннеля. Попробуйте изменить настройки.</string>
-    <string name="daita_info">%1$s (%2$s) маскирует особенности зашифрованного VPN-трафика. Если кто-то следит за вашим подключением, ему будет значительно сложнее определить, какие сайты вы посещаете. Для этого добавляется сетевой шум, а все сетевые пакеты делаются одинаковыми по размеру.</string>
+    <string name="daita_info">%1$s (%2$s) скрывает характерные признаки в зашифрованном VPN-трафике. Если кто-то отслеживает ваше подключение, ему будет значительно сложнее определить, какие веб-сайты вы посещаете. Для этого в трафик добавляется сетевой шум, а все пакеты приводятся к одному размеру.</string>
+    <string name="daita_relay_subset_warning">Эта функция доступна не на всех серверах. Возможно, после ее включения придется сменить местоположение.</string>
+    <string name="daita_warning">Внимание! При использовании этой функции общий сетевой трафик увеличивается. Имейте это в виду, если у вас тарифный план с ограничением по трафику. Также может снизиться скорость сети и повыситься расход заряда аккумулятора.</string>
     <string name="delete">Удалить</string>
     <string name="delete_custom_list_confirmation_description">Удалить список «%1$s»?</string>
     <string name="delete_custom_list_message">Список «%1$s» удален</string>
@@ -136,9 +141,11 @@
     <string name="failed_to_set_current_test_error">Не удалось установить текущий метод: API недоступен</string>
     <string name="failed_to_set_current_unknown_error">Не удалось установить текущий метод: причина неизвестна</string>
     <string name="faqs_and_guides">Ответы на вопросы и руководства</string>
+    <string name="feature_custom_dns">Пользовательский DNS</string>
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_dns_content_blockers">DNS-блокировщики контента</string>
     <string name="feature_lan_sharing">Обмен данными в локальной сети</string>
+    <string name="feature_quantum_resistant">Квантовая устойчивость</string>
     <string name="feature_server_ip_override">Переопределение IP-адреса сервера</string>
     <string name="feature_udp_2_tcp">Обфускация</string>
     <string name="filter">Фильтр</string>
@@ -168,6 +175,7 @@
     <string name="local_network_sharing_info">Эта функция позволяет получить доступ к другим устройствам в локальной сети, например, для организации общего доступа, печати, потоковой передачи и т. д.</string>
     <string name="location_added">%1$s (добавлено)</string>
     <string name="location_was_added_to_list">Местоположение %1$s добавлено к списку «%2$s»</string>
+    <string name="location_was_removed_from_list">%1$s: удалено из списка «%2$s»</string>
     <string name="locations">Местоположения</string>
     <string name="locations_were_changed_for">Местоположения были изменены для «%1$s»</string>
     <string name="log_out">Выйти</string>
@@ -226,6 +234,7 @@
     <string name="please_enter_a_valid_ip_address">Введите действительный адрес IPv4 или IPv6</string>
     <string name="please_enter_a_valid_remote_server_port">Введите действительный порт удаленного сервера</string>
     <string name="port">Порт</string>
+    <string name="port_x">Порт: %1$s</string>
     <string name="privacy_disclaimer_body_first_paragraph">Чтобы удостовериться, что вы используете наиболее безопасную версию приложения, и сообщить вам о возможных проблемах в ней, приложение автоматически проверяет свою версию. При этом на серверы Mullvad передаются данные о версии приложения и системы Android. Mullvad ведет учет количества пользователей с определенными версиями приложения и ОС Android. Эти данные не хранятся и не используются каким бы то ни было образом, позволяющим вас идентифицировать.</string>
     <string name="privacy_disclaimer_body_second_paragraph">Если используется функция раздельного туннелирования, то приложение запрашивает в системе список всех установленных приложений. Этот список запрашивается только на  экране настройки раздельного туннелирования. Список установленных приложений никогда не передается за пределы устройства.</string>
     <string name="privacy_disclaimer_title">Конфиденциальность</string>
@@ -239,6 +248,7 @@
     <string name="redeem">Погасить</string>
     <string name="redeem_voucher">Погасить ваучер</string>
     <string name="remove_button">Удалить</string>
+    <string name="remove_location_from_list">Удалить %1$s из списка «%2$s»</string>
     <string name="rented">Арендованные</string>
     <string name="rented_only">Только арендованные</string>
     <string name="report_a_problem">Сообщение о проблеме</string>
@@ -284,6 +294,7 @@
     <string name="settings_vpn">Настройки VPN</string>
     <string name="show_system_apps">Показывать системные приложения</string>
     <string name="split_tunneling_description">Позволяет выбрать приложения, которые должны получать доступ к Интернету напрямую, не проходя через VPN-туннель.</string>
+    <string name="split_tunneling_description_warning">Внимание! Если включена функция «Блокировать соединения без VPN», у приложений из списка раздельного туннелирования не будет доступа в Интернет. Не забывайте, что раздельное туннелирование представляет собой риск для конфиденциальности.</string>
     <string name="start_tunnel_error">Не удалось запустить туннельное подключение. Отправьте сообщение о проблеме.</string>
     <string name="submit_button">Отправить</string>
     <string name="switch_location">Сменить местоположение</string>
@@ -305,6 +316,7 @@
     <string name="undo">Отменить</string>
     <string name="unsupported_version">НЕПОДДЕРЖИВАЕМАЯ ВЕРСИЯ</string>
     <string name="unsupported_version_description">Эта версия приложения не поддерживается, что может угрожать неприкосновенности ваших данных. Обновите приложение.</string>
+    <string name="upd_over_tcp">UDP через TCP</string>
     <string name="update_dns_server_dialog_title">Обновить DNS-сервер</string>
     <string name="update_list_name">Обновление названия списка</string>
     <string name="use_method">Использовать метод</string>
@@ -315,6 +327,7 @@
     <string name="verifying_voucher">Идет проверка ваучера…</string>
     <string name="view_logs">Открыть журналы</string>
     <string name="voucher_already_used">Этот код ваучера уже использовался.</string>
+    <string name="voucher_is_account_number">Вы ввели номер учетной записи вместо кода ваучера. Чтобы изменить активную учетную запись, сначала выйдите из системы.</string>
     <string name="voucher_success_title">Ваучер погашен.</string>
     <string name="vpn_permission_denied_error">При создании туннеля в доступе к VPN было отказано. Попробуйте подключиться снова.</string>
     <string name="vpn_permission_error_notification_message">Опцию «Постоянная VPN» может быть включена для другого приложения</string>

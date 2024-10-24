@@ -65,6 +65,8 @@
     <string name="confirm_removal">是，將裝置登出</string>
     <string name="congrats">恭喜！</string>
     <string name="connect">連線</string>
+    <string name="connect_panel_active_features">有效功能</string>
+    <string name="connect_panel_connection_details">連線詳細資訊</string>
     <string name="connected">已連線</string>
     <string name="connecting_to_daemon">連線 Mullvad 系統服務中...</string>
     <string name="connection_details_in">入境</string>
@@ -74,6 +76,7 @@
     <string name="copy_account_number">複製帳號</string>
     <string name="create">建立</string>
     <string name="create_account">建立帳戶</string>
+    <string name="create_custom_list_message">已建立「%1$s」</string>
     <string name="create_new_list">建立新清單</string>
     <string name="created_x">建立日期：%1$s</string>
     <string name="creating_new_account">正在建立帳戶…</string>
@@ -88,7 +91,9 @@
     <string name="custom_port_dialog_submit">設定連接埠</string>
     <string name="custom_port_dialog_valid_ranges">有效範圍：%1$s</string>
     <string name="custom_tunnel_host_resolution_error">無法解析自訂通道的主機。請嘗試變更您的設定。</string>
-    <string name="daita_info">%1$s (%2$s) 會在您的加密 VPN 流量中隱藏模式。如果有人正在監視您的連線，這能讓他們難以識別出您正在存取的網站。此實現方式係謹慎加入網路噪音，並使所有網路資料包大小皆相同。</string>
+    <string name="daita_info">%1$s (%2$s) 會在您的加密 VPN 流量中隱藏模式。如果有人正在監控您的連線，這會大大增加他們的難度，讓他們難以辨識您正在瀏覽哪些網站。這個方法會仔細加入網路噪音，讓所有網路資料封包大小皆相同，以達到此目的。</string>
+    <string name="daita_relay_subset_warning">此功能尚未在所有伺服器上開放。啟用後，您可能需要變更位置。</string>
+    <string name="daita_warning">注意：這會增加您的網路總流量。如果您方案中的流量有限，請謹慎使用。這還會對您的網路速度和電池使用情況產生負面影響。</string>
     <string name="delete">刪除</string>
     <string name="delete_custom_list_confirmation_description">要刪除「%1$s」嗎？</string>
     <string name="delete_custom_list_message">「%1$s」已刪除</string>
@@ -136,9 +141,11 @@
     <string name="failed_to_set_current_test_error">無法設定為目前方式 - 無法透過 API 存取</string>
     <string name="failed_to_set_current_unknown_error">無法設定為目前方式 - 不明原因</string>
     <string name="faqs_and_guides">常見問題集與指南</string>
+    <string name="feature_custom_dns">自訂 DNS</string>
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_dns_content_blockers">DNS 內容封鎖程式</string>
     <string name="feature_lan_sharing">本機網路分享</string>
+    <string name="feature_quantum_resistant">抗量子</string>
     <string name="feature_server_ip_override">伺服器 IP 覆寫</string>
     <string name="feature_udp_2_tcp">混淆</string>
     <string name="filter">篩選</string>
@@ -168,6 +175,7 @@
     <string name="local_network_sharing_info">此功能可允許存取本機網路上的其他裝置，以便用於分享、列印、串流等。</string>
     <string name="location_added">%1$s (已新增)</string>
     <string name="location_was_added_to_list">%1$s 已新增至「%2$s」</string>
+    <string name="location_was_removed_from_list">%1$s 已從「%2$s」中移除</string>
     <string name="locations">位置</string>
     <string name="locations_were_changed_for">已變更「%1$s」的位置</string>
     <string name="log_out">登出</string>
@@ -226,6 +234,7 @@
     <string name="please_enter_a_valid_ip_address">請輸入有效的 IPv4 或 IPv6 位址。</string>
     <string name="please_enter_a_valid_remote_server_port">請輸入有效的遠端伺服器連接埠</string>
     <string name="port">連接埠</string>
+    <string name="port_x">連接埠：%1$s</string>
     <string name="privacy_disclaimer_body_first_paragraph">為確保您擁有最安全的版本，並告知您目前執行的版本有無任何問題，該應用程式會自動進行版本檢查。為此，應用程式會將其版本和 Android 系統版本傳送至 Mullvad 伺服器，以便讓 Mullvad 統計已使用的應用程式版本和 Android 版本的數量。這些資料永遠不會以任何方式儲存或用來辨識您的身分。</string>
     <string name="privacy_disclaimer_body_second_paragraph">如果使用了分割通道功能，該應用程式會查詢您的系統，以取得所有已安裝應用程式的清單。我們只會在分割通道視圖中擷取這份清單，絕不會傳送至他處。</string>
     <string name="privacy_disclaimer_title">隱私權</string>
@@ -239,6 +248,7 @@
     <string name="redeem">兌換</string>
     <string name="redeem_voucher">兌換憑證</string>
     <string name="remove_button">移除</string>
+    <string name="remove_location_from_list">從 %1$s 中移除 %2$s</string>
     <string name="rented">租用</string>
     <string name="rented_only">僅租用</string>
     <string name="report_a_problem">回報問題</string>
@@ -284,6 +294,7 @@
     <string name="settings_vpn">VPN 設定</string>
     <string name="show_system_apps">顯示系統應用程式</string>
     <string name="split_tunneling_description">允許您選擇不經過 VPN 通道而直接存取網際網路的應用程式。</string>
+    <string name="split_tunneling_description_warning">注意：如果啟用了「在沒有 VPN 的情況下封鎖連線」，分割應用程式將無法進行網際網路連線。請謹記，分割通道存在隱私風險。</string>
     <string name="start_tunnel_error">無法啟動通道連線。請傳送問題回報。</string>
     <string name="submit_button">提交</string>
     <string name="switch_location">切換位置</string>
@@ -305,6 +316,7 @@
     <string name="undo">復原</string>
     <string name="unsupported_version">不支援的版本</string>
     <string name="unsupported_version_description">此應用程式版本不受支援，因此您的隱私可能存在風險。請立即更新。</string>
+    <string name="upd_over_tcp">UDP-over-TCP</string>
     <string name="update_dns_server_dialog_title">更新 DNS 伺服器</string>
     <string name="update_list_name">更新清單名稱</string>
     <string name="use_method">使用方式</string>
@@ -315,6 +327,7 @@
     <string name="verifying_voucher">正在驗證優惠券…</string>
     <string name="view_logs">檢視應用程式日誌</string>
     <string name="voucher_already_used">此憑證兌換碼已有人用過。</string>
+    <string name="voucher_is_account_number">您輸入的似乎是帳戶，而不是憑證代碼。如果您想變更有效帳戶，請先登出。</string>
     <string name="voucher_success_title">憑證已成功兌換。</string>
     <string name="vpn_permission_denied_error">建立通道時，VPN 權限被拒絕。請嘗試重新連線。</string>
     <string name="vpn_permission_error_notification_message">可能已為另一個應用程式啟用了「始終啟用 VPN」</string>

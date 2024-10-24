@@ -42,7 +42,7 @@
     <string name="auto_connect_and_lockdown_mode_footer">Varmistaa, että laite on aina yhteydessä VPN-tunnelin kautta.</string>
     <string name="auto_connect_carousel_first_slide_top_text">Automaattisen yhdistämisen ja lukitustilan asetukset löytyvät Androidin järjestelmäasetuksista. Voit ottaa jommankumman tai molemmat käyttöön tämän oppaan ohjeilla.</string>
     <string name="auto_connect_carousel_second_slide_top_text">Automaattista yhdistämistä kutsutaan aina päällä olevaksi VPN-yhteydeksi Androidin järjestelmäasetuksissa. Se varmistaa, että olet jatkuvasti yhteydessä VPN-tunneliin, sekä muodostaa yhteyden automaattisesti aina uudelleenkäynnistyksen jälkeen.</string>
-    <string name="auto_connect_carousel_third_slide_top_text_website_link">tästä</string>
+    <string name="auto_connect_carousel_third_slide_top_text_website_link">täältä</string>
     <string name="auto_connect_legacy">Autom. yhdistäminen (vanha järjestelmä)</string>
     <string name="automatic">Automaattinen</string>
     <string name="back">Takaisin</string>
@@ -65,6 +65,8 @@
     <string name="confirm_removal">Kyllä, kirjaa laite ulos</string>
     <string name="congrats">Onnittelut!</string>
     <string name="connect">Yhdistä</string>
+    <string name="connect_panel_active_features">Käytössä olevat ominaisuudet</string>
+    <string name="connect_panel_connection_details">Yhteyden tiedot</string>
     <string name="connected">Yhdistetty</string>
     <string name="connecting_to_daemon">Yhdistetään Mullvad-järjestelmäpalveluun...</string>
     <string name="connection_details_in">Saapuva</string>
@@ -74,6 +76,7 @@
     <string name="copy_account_number">Kopioi tilin numero</string>
     <string name="create">Luo</string>
     <string name="create_account">Luo tili</string>
+    <string name="create_custom_list_message">\"%1$s\" luotiin</string>
     <string name="create_new_list">Luo uusi luettelo</string>
     <string name="created_x">Luotu: %1$s</string>
     <string name="creating_new_account">Luodaan tiliä...</string>
@@ -88,7 +91,9 @@
     <string name="custom_port_dialog_submit">Määritä portti</string>
     <string name="custom_port_dialog_valid_ranges">Kelvolliset portit: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Muokatun tunnelin isännän selvittäminen ei onnistu. Kokeile muuttaa asetuksiasi.</string>
-    <string name="daita_info">%1$s (%2$s) piilottaa salatussa VPN-liikenteessäsi toistuvat maneerit luomalla tarkoin räätälöityjä häiriöitä verkkoliikenteeseen ja tekemällä kaikista verkkopaketeista samankokoisia. Jos joku siis yrittää tarkkailla yhteyttäsi, hänen on huomattavasti vaikeampi tunnistaa, millä verkkosivustoilla oikein vierailet.</string>
+    <string name="daita_info">%1$s (%2$s) piilottaa kuviot salatusta VPN-liikenteestäsi. Jos joku tarkkailee yhteyttäsi, hänen on huomattavasti vaikeampi tunnistaa, millä verkkosivustoilla vierailet. Se tekee tämän lisäämällä varovasti verkkokohinaa ja tekemällä kaikista verkkopaketeista samankokoisia.</string>
+    <string name="daita_relay_subset_warning">Ominaisuus ei ole käytettävissä kaikilla palvelimilla, joten saatat joutua vaihtamaan sijaintia otettuasi sen käyttöön.</string>
+    <string name="daita_warning">Huomioithan, että ominaisuuden käyttöönotto kasvattaa verkkoliikennettäsi kokonaisuudessaan ja voi myös vaikuttaa negatiivisesti verkon nopeuteen ja akun kestoon. Ominaisuuden käyttöönottoa kannattaa harkita tarkkaan, mikäli datapakettisi tiedonsiirtomäärä on rajoitettu.</string>
     <string name="delete">Poista</string>
     <string name="delete_custom_list_confirmation_description">Poistetaanko \"%1$s\"?</string>
     <string name="delete_custom_list_message">\"%1$s\" poistettiin</string>
@@ -136,9 +141,11 @@
     <string name="failed_to_set_current_test_error">Nykyisen asetus epäonnistui – APIa ei tavoiteta</string>
     <string name="failed_to_set_current_unknown_error">Nykyisen asetus epäonnistui – Tuntematon syy</string>
     <string name="faqs_and_guides">Usein kysytyt kysymykset ja oppaat</string>
+    <string name="feature_custom_dns">Mukautettu DNS</string>
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_dns_content_blockers">DNS-sisällönestotoiminnot</string>
     <string name="feature_lan_sharing">Paikallisen verkon jakaminen</string>
+    <string name="feature_quantum_resistant">Kvanttihyökkäysten esto</string>
     <string name="feature_server_ip_override">Palvelimen IP-osoitteen ohitus</string>
     <string name="feature_udp_2_tcp">Hämäysteknologia</string>
     <string name="filter">Suodatin</string>
@@ -168,6 +175,7 @@
     <string name="local_network_sharing_info">Tämä ominaisuus mahdollistaa pääsyn muihin paikallisverkon laitteisiin esimerkiksi jakamisen, tulostamisen, suoratoiston jne. tarpeisiin.</string>
     <string name="location_added">%1$s (lisätty)</string>
     <string name="location_was_added_to_list">%1$s lisättiin luetteloon\"%2$s\"</string>
+    <string name="location_was_removed_from_list">%1$s poistettiin kohteesta \"%2$s\"</string>
     <string name="locations">Sijainnit</string>
     <string name="locations_were_changed_for">Kohteen \"%1$s\" sijainteja vaihdettiin</string>
     <string name="log_out">Kirjaudu ulos</string>
@@ -226,6 +234,7 @@
     <string name="please_enter_a_valid_ip_address">Anna kelvollinen IPv4- tai IPv6-osoite</string>
     <string name="please_enter_a_valid_remote_server_port">Anna kelvollinen etäpalvelimen portti</string>
     <string name="port">Portti</string>
+    <string name="port_x">Portti: %1$s</string>
     <string name="privacy_disclaimer_body_first_paragraph">Sovellus suorittaa versiotarkistuksia automaattisesti varmistaakseen, että käytät kaikkein turvallisinta versiota, ja ilmoittaakseen sinulle kaikista parhaillaan käynnissä olevan version ongelmista. Se lähettää Mullvadin palvelimille tiedot sovellusversiosta ja Android-järjestelmäversiosta. Mullvad pitää lukua käytettyjen sovellusversioiden ja Android-versioiden määristä. Tietoja ei koskaan tallenneta tai käytetä tavalla, joka voisi mahdollistaa tunnistamisesi.</string>
     <string name="privacy_disclaimer_body_second_paragraph">Jos käytetään sovelluskohtaista yhdistämistä, sovellus pyytää järjestelmältäsi luettelon kaikista siihen asennetuista sovelluksista. Luettelo noudetaan vain sovelluskohtaisen yhdistämisen näkymässä. Asennettujen sovellusten luetteloa ei koskaan lähetetä laitteelta.</string>
     <string name="privacy_disclaimer_title">Tietosuoja</string>
@@ -239,6 +248,7 @@
     <string name="redeem">Lunasta</string>
     <string name="redeem_voucher">Lunasta kuponki</string>
     <string name="remove_button">Poista</string>
+    <string name="remove_location_from_list">Poista %1$s kohteesta %2$s</string>
     <string name="rented">Vuokrattu</string>
     <string name="rented_only">Vain vuokratut</string>
     <string name="report_a_problem">Raportoi ongelma</string>
@@ -284,6 +294,7 @@
     <string name="settings_vpn">VPN-asetukset</string>
     <string name="show_system_apps">Näytä järjestelmäsovellukset</string>
     <string name="split_tunneling_description">Voit valita sovelluksia, joiden pitäisi muodostaa yhteys Internetiin suoraan kulkematta VPN-tunnelin läpi.</string>
+    <string name="split_tunneling_description_warning">Huomio: Jos \"Estä yhteydet ilman VPN:ää\" -vaihtoehto on käytössä, sovelluskohtaisesti yhdistettävillä sovelluksilla ei ole pääsyä internetiin. Muista aina, että sovelluskohtainen yhdistäminen on tietosuojariski.</string>
     <string name="start_tunnel_error">Tunneliyhteyden muodostaminen ei onnistu. Lähetä ongelmaraportti.</string>
     <string name="submit_button">Lähetä</string>
     <string name="switch_location">Vaihda sijaintia</string>
@@ -305,6 +316,7 @@
     <string name="undo">Kumoa</string>
     <string name="unsupported_version">EI-TUETTU VERSIO</string>
     <string name="unsupported_version_description">Yksityisyytesi saattaa olla vaarassa tämän sovellusversion, jota ei tueta, vuoksi. Päivitä versio heti.</string>
+    <string name="upd_over_tcp">UDP TCP:n kautta</string>
     <string name="update_dns_server_dialog_title">Päivitä DNS-palvelin</string>
     <string name="update_list_name">Päivitä luettelon nimi</string>
     <string name="use_method">Käytä menetelmä</string>
@@ -315,6 +327,7 @@
     <string name="verifying_voucher">Kuponkia vahvistetaan…</string>
     <string name="view_logs">Tarkastele sovelluslokeja</string>
     <string name="voucher_already_used">Kuponkikoodi on jo käytetty.</string>
+    <string name="voucher_is_account_number">Näytät syöttäneen tilin numeron etusetelin koodin sijaan. Jos haluat vaihtaa tiliä, kirjaudu ensin ulos nykyiseltä tililtä.</string>
     <string name="voucher_success_title">Kupongin lunastus onnistui.</string>
     <string name="vpn_permission_denied_error">VPN-lupa evättiin tunnelia luotaessa. Yritä muodostaa yhteys uudelleen.</string>
     <string name="vpn_permission_error_notification_message">Aina päällä oleva VPN on mahdollisesti otettu käyttöön toiselle sovellukselle</string>

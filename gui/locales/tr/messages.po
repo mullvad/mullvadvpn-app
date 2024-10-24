@@ -10,7 +10,10 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Turkish\n"
 "Language: tr_TR\n"
-"PO-Revision-Date: 2024-06-27 08:16\n"
+"PO-Revision-Date: 2024-10-23 06:33\n"
+
+msgid "%(amount)d more..."
+msgstr "%(amount)d tane daha..."
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "%(duration)s eklendi, hesap için %(expiry)s tarihine kadar ödeme yapıldı."
@@ -96,8 +99,14 @@ msgstr "Bağlan"
 msgid "Connected"
 msgstr "Bağlandı"
 
+msgid "CONNECTED"
+msgstr "BAĞLANDI"
+
 msgid "Connecting"
 msgstr "Bağlanılıyor"
+
+msgid "CONNECTING..."
+msgstr "BAĞLANIYOR..."
 
 #. Creating a secure connection that isn't breakable by quantum computers.
 msgid "CREATING QUANTUM SECURE CONNECTION"
@@ -109,6 +118,11 @@ msgstr "GÜVENLİ BAĞLANTI OLUŞTURULUYOR"
 msgid "Custom"
 msgstr "Özel"
 
+#. This refers to the Custom DNS setting in the VPN settings view. This is
+#. displayed when the feature is on.
+msgid "Custom DNS"
+msgstr "Özel DNS"
+
 msgid "Default"
 msgstr "Varsayılan"
 
@@ -117,6 +131,9 @@ msgstr "Sil"
 
 msgid "Delete list"
 msgstr "Listeyi sil"
+
+msgid "Direct only"
+msgstr "Yalnızca doğrudan"
 
 msgid "Disable"
 msgstr "Devre dışı bırak"
@@ -130,17 +147,23 @@ msgstr "Bağlantıyı kes ve çık"
 msgid "Disconnected"
 msgstr "Bağlantı kesildi"
 
+msgid "DISCONNECTED"
+msgstr "BAĞLANTI KESİLDİ"
+
 msgid "Disconnecting"
 msgstr "Bağlantı kesiliyor"
 
-msgid "Dismiss"
-msgstr "Reddet"
+msgid "DISCONNECTING..."
+msgstr "BAĞLANTI KESİLİYOR..."
 
 msgid "Edit"
 msgstr "Düzenle"
 
 msgid "Enable"
 msgstr "Etkinleştir"
+
+msgid "Enable \"%(directOnly)s\""
+msgstr "\"%(directOnly)s\" seçeneğini etkinleştir"
 
 msgid "Enable anyway"
 msgstr "Yine de etkinleştir"
@@ -176,6 +199,11 @@ msgstr "bir günden az"
 msgid "less than a day left"
 msgstr "bir günden az kaldı"
 
+#. This refers to the multihop setting in the VPN settings view. This is
+#. displayed when the feature is on.
+msgid "Multihop"
+msgstr "Çoklu geçiş"
+
 msgid "Name"
 msgstr "Ad"
 
@@ -202,6 +230,11 @@ msgstr "Parola"
 
 msgid "Port"
 msgstr "Port"
+
+#. This refers to the quantum resistance setting in the WireGuard settings view.
+#. This is displayed when the feature is on.
+msgid "Quantum resistance"
+msgstr "Kuantum direnci"
 
 #. The connection is secure and isn't breakable by quantum computers.
 msgid "QUANTUM SECURE CONNECTION"
@@ -239,7 +272,6 @@ msgstr "Test et"
 
 #. Warning shown in dialog to users when they enable setting that increases
 #. network latency (decreases performance).
-#. Warning text in a dialog that is displayed after a setting is toggled.
 msgid "This setting increases latency. Use only if needed."
 msgstr "Bu ayar gecikmeyi artırır. Sadece gerekiyorsa kullanın."
 
@@ -299,7 +331,7 @@ msgstr "%(location)s listesini genişlet"
 
 msgctxt "accessibility"
 msgid "Forget %(accountNumber)s"
-msgstr "%(accountNumber)s unut"
+msgstr "Unut: %(accountNumber)s"
 
 #. Provided to accessibility tools such as screenreaders to describe
 #. the button which obscures the account number.
@@ -340,11 +372,19 @@ msgctxt "accessibility"
 msgid "Select location. Current location is %(location)s"
 msgstr "Konum seçin. Mevcut konum %(location)s"
 
+msgctxt "accessibility"
+msgid "Shadowsocks settings"
+msgstr "Shadowsocks ayarları"
+
 #. Provided to accessibility tools such as screenreaders to describe
 #. the button which unobscures the account number.
 msgctxt "accessibility"
 msgid "Show account number"
 msgstr "Hesap numarasını göster"
+
+msgctxt "accessibility"
+msgid "UDP-over-TCP settings"
+msgstr "TCP üzerinden UDP ayarları"
 
 #. Title label in navigation bar
 msgctxt "account-view"
@@ -570,8 +610,16 @@ msgid "%(city)s (%(hostname)s)"
 msgstr "%(city)s (%(hostname)s)"
 
 msgctxt "connect-view"
+msgid "Active features"
+msgstr "Aktif özellikler"
+
+msgctxt "connect-view"
 msgid "Congrats!"
 msgstr "Tebrikler!"
+
+msgctxt "connect-view"
+msgid "Connection details"
+msgstr "Bağlantı ayrıntıları"
 
 msgctxt "connect-view"
 msgid "Disconnect"
@@ -645,12 +693,6 @@ msgctxt "connect-view"
 msgid "You’re all set!"
 msgstr "Artık hazırsınız!"
 
-#. %(hostname)s - The current server the app is connected to, e.g. "se-got-wg-001 using DAITA"
-#. %(daita)s - Will be replaced with "DAITA"
-msgctxt "connection-info"
-msgid "%(hostname)s using %(daita)s"
-msgstr "%(hostname)s, %(daita)s kullanıyor"
-
 #. The hostname line displayed below the country on the main screen
 #. Available placeholders:
 #. %(relay)s - the relay hostname
@@ -662,14 +704,6 @@ msgstr "%(entry)s aracılığıyla %(relay)s"
 msgctxt "connection-info"
 msgid "%(relay)s via Custom bridge"
 msgstr "Özel köprü üzerinden %(relay)s"
-
-#. The tunnel type line displayed below the hostname line on the main screen
-#. Available placeholders:
-#. %(tunnelType)s - the tunnel type, i.e OpenVPN
-#. %(bridgeType)s - the bridge type, i.e Shadowsocks
-msgctxt "connection-info"
-msgid "%(tunnelType)s via %(bridgeType)s"
-msgstr "%(bridgeType)s aracılığıyla %(tunnelType)s"
 
 msgctxt "connection-info"
 msgid "In"
@@ -1498,6 +1532,10 @@ msgid "App version"
 msgstr "Uygulama sürümü"
 
 msgctxt "settings-view"
+msgid "Multihop"
+msgstr "Çoklu geçiş"
+
+msgctxt "settings-view"
 msgid "Support"
 msgstr "Destek"
 
@@ -1761,8 +1799,8 @@ msgid "Update your kernel."
 msgstr "Çekirdeğinizi güncelleyin."
 
 msgctxt "tunnel-control"
-msgid "Secure my connection"
-msgstr "Bağlantımı güvenceye al"
+msgid "Connect"
+msgstr "Bağlan"
 
 msgctxt "tunnel-control"
 msgid "Switch location"
@@ -1886,11 +1924,6 @@ msgctxt "vpn-settings-view"
 msgid "Enable IPv6"
 msgstr "IPv6'yı etkinleştir"
 
-#. The label next to the multihop settings toggle.
-msgctxt "vpn-settings-view"
-msgid "Enable multihop"
-msgstr "Çoklu geçişi etkinleştir"
-
 msgctxt "vpn-settings-view"
 msgid "Enable to add at least one DNS server."
 msgstr "En az bir DNS sunucusu eklemek için etkinleştirin."
@@ -1903,13 +1936,6 @@ msgstr "IP'yi girin"
 msgctxt "vpn-settings-view"
 msgid "Gambling"
 msgstr "Kumar"
-
-#. Description for multihop settings toggle.
-#. Available placeholders:
-#. %(wireguard)s - Will be replaced with the string "WireGuard"
-msgctxt "vpn-settings-view"
-msgid "Increases anonymity by routing your traffic into one %(wireguard)s server and out another, making it harder to trace."
-msgstr "Trafiğinizi bir %(wireguard)s sunucusundan diğerine yönlendirerek gizliliği artırır ve izlemeyi zorlaştırır."
 
 msgctxt "vpn-settings-view"
 msgid "IPv4 is always enabled and the majority of websites and applications use this protocol. We do not recommend enabling IPv6 unless you know you need it."
@@ -1984,6 +2010,10 @@ msgctxt "vpn-settings-view"
 msgid "This might cause issues on certain websites, services, and apps."
 msgstr "Bu, belirli web sitelerinde, hizmetlerde ve uygulamalarda sorunlara neden olabilir."
 
+msgctxt "vpn-settings-view"
+msgid "To select %(openvpn)s, please disable these settings: %(featureList)s."
+msgstr "%(openvpn)s seçeneğini etkinleştirmek için lütfen bu ayarları devre dışı bırakın: %(featureList)s."
+
 #. Label for settings that enables tracker blocking.
 msgctxt "vpn-settings-view"
 msgid "Trackers"
@@ -2025,9 +2055,23 @@ msgctxt "wireguard-settings-nav"
 msgid "%(wireguard)s settings"
 msgstr "%(wireguard)s ayarları"
 
+#. Title label in navigation bar
+msgctxt "wireguard-settings-nav"
+msgid "Shadowsocks"
+msgstr "Shadowsocks"
+
+#. Title label in navigation bar
+msgctxt "wireguard-settings-nav"
+msgid "UDP-over-TCP"
+msgstr "TCP üzerinden UDP"
+
 msgctxt "wireguard-settings-view"
-msgid "%(daita)s (%(daitaFull)s) hides patterns in your encrypted VPN traffic. If anyone is monitoring your connection, this makes it significantly harder for them to identify what websites you are visiting. It does this by carefully adding network noise and making all network packets the same size."
-msgstr "%(daita)s (%(daitaFull)s), şifrelenmiş VPN trafiğinizdeki kalıpları gizler. Bu sayede, başka biri bağlantınızı izliyorsa ziyaret ettiğiniz web sitelerini tespit etmesi çok daha zor olacaktır. Özellik, dikkatli bir şekilde ağ paraziti ekleyerek ve tüm ağ paketlerini aynı boyuta getirerek sizi izlenmekten korur."
+msgid "%(daita)s (%(daitaFull)s) hides patterns in your encrypted VPN traffic."
+msgstr "%(daita)s (%(daitaFull)s), şifrelenmiş VPN trafiğinizdeki kalıpları gizler."
+
+msgctxt "wireguard-settings-view"
+msgid "%(daita)s does this by carefully adding network noise and making all network packets the same size."
+msgstr "%(daita)s, dikkatli bir şekilde ağ paraziti ekleyerek ve tüm ağ paketlerini aynı boyuta getirerek sizi izlenmekten korur."
 
 #. Available placeholders:
 #. %(wireguard)s - Will be replaced with the string "WireGuard"
@@ -2036,8 +2080,24 @@ msgid "%(wireguard)s settings"
 msgstr "%(wireguard)s ayarları"
 
 msgctxt "wireguard-settings-view"
-msgid "Attention: Since this increases your total network traffic, be cautious if you have a limited data plan. It can also negatively impact your network speed. Please consider this if you want to enable %(daita)s."
-msgstr "Dikkat: Bu özellik, toplam ağ trafiğinizi artıracağından dolayı sınırlı bir veri planınız varsa dikkatli olun. Bu, ağ hızınızı da olumsuz etkileyebilir. %(daita)s özelliğini etkinleştirmek istiyorsanız lütfen bu durumu göz önünde bulundurun."
+msgid "Attention: Be cautious if you have a limited data plan as this feature will increase your network traffic. This feature can only be used with %(wireguard)s."
+msgstr "Uyarı: Bu özellik ağ trafiğinizi artıracağından sınırlı bir veri planınız varsa dikkatli olun. Bu özellik yalnızca %(wireguard)s ile kullanılabilir."
+
+msgctxt "wireguard-settings-view"
+msgid "By enabling “%(directOnly)s” you will have to manually select a server that is %(daita)s-enabled. This can cause you to end up in a blocked state until you have selected a compatible server in the “Select location” view."
+msgstr "\"%(directOnly)s\" seçeneğini etkinleştirdiğinizde %(daita)s özellikli bir sunucuyu manuel olarak seçmeniz gerekir. Bu, \"Konum seç\" görünümünde uyumlu bir sunucu seçilene kadar engellenmiş durumda kalmanıza neden olabilir."
+
+msgctxt "wireguard-settings-view"
+msgid "By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted)."
+msgstr "Gelişmiş yapay zeka kullanarak cihazınıza gelen ve giden veri paketlerinin trafiğini (trafik şifrelenmiş olsa bile) analiz etmek mümkündür."
+
+msgctxt "wireguard-settings-view"
+msgid "Cancel"
+msgstr "İptal et"
+
+msgctxt "wireguard-settings-view"
+msgid "If an observer monitors these data packets, %(daita)s makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating."
+msgstr "Bir gözlemci bu veri paketlerini izliyorsa, %(daita)s ziyaret ettiğiniz web sitelerini veya iletişim kurduğunuz alıcıları tespit etmesini önemli ölçüde zorlaştırır."
 
 msgctxt "wireguard-settings-view"
 msgid "IP version"
@@ -2052,6 +2112,23 @@ msgid "MTU"
 msgstr "MTU"
 
 msgctxt "wireguard-settings-view"
+msgid "Multihop"
+msgstr "Çoklu geçiş"
+
+msgctxt "wireguard-settings-view"
+msgid "Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online."
+msgstr "Çoklu geçiş, trafiğinizi bir WireGuard sunucusundan diğerine yönlendirerek izlemeyi zorlaştırır. Bu, gecikmenin artmasına neden olur ancak çevrimiçi gizliliği artırır."
+
+#. Warning text in a dialog that is displayed after a setting is toggled.
+msgctxt "wireguard-settings-view"
+msgid "Not all our servers are %(daita)s-enabled. In order to use the internet, you might have to select a new location after enabling."
+msgstr "%(daita)s, tüm sunucularımızda etkin değildir. İnterneti kullanmak için özelliği etkinleştirdikten sonra yeni bir konum seçmeniz gerekir."
+
+msgctxt "wireguard-settings-view"
+msgid "Not all our servers are %(daita)s-enabled. Therefore, we use multihop automatically to enable %(daita)s with any server."
+msgstr "%(daita)s, tüm sunucularımızda etkin değildir. Bu nedenle, %(daita)s özelliğini herhangi bir sunucuda etkinleştirmek için otomatik olarak çoklu geçişi kullanırız."
+
+msgctxt "wireguard-settings-view"
 msgid "Obfuscation"
 msgstr "Gizleme"
 
@@ -2060,12 +2137,15 @@ msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can b
 msgstr "Gizleme, WireGuard trafiğini başka bir protokolün içinde gizler. Normal bir WireGuard bağlantısının engelleneceği sansürü ve diğer filtreleme türlerini aşmaya yardımcı olmak için kullanılabilir."
 
 msgctxt "wireguard-settings-view"
-msgid "On (UDP-over-TCP)"
-msgstr "Açık (TCP üzerinden UDP)"
-
-msgctxt "wireguard-settings-view"
 msgid "Port"
 msgstr "Port"
+
+#. Text showing currently selected port.
+#. Available placeholders:
+#. %(port)s - Can be either a number between 1 and 65000 or the text "Automatic".
+msgctxt "wireguard-settings-view"
+msgid "Port: %(port)s"
+msgstr "Port: %(port)s"
 
 #. The title for the WireGuard quantum resistance selector. This setting
 #. makes the cryptography resistant to the future abilities of quantum
@@ -2084,6 +2164,14 @@ msgid "Set %(wireguard)s MTU value. Valid range: %(min)d - %(max)d."
 msgstr "%(wireguard)s MTU değerini ayarlayın. Geçerli aralık: %(min)d - %(max)d."
 
 msgctxt "wireguard-settings-view"
+msgid "Shadowsocks"
+msgstr "Shadowsocks"
+
+msgctxt "wireguard-settings-view"
+msgid "Switch to “%(wireguard)s” or “%(automatic)s” in Settings > %(tunnelProtocol)s to make %(setting)s available."
+msgstr "%(setting)s özelliğini, Ayarlar > %(tunnelProtocol)s seçeneğinden \"%(wireguard)s\" veya \"%(automatic)s\"olarak etkinleştirin."
+
+msgctxt "wireguard-settings-view"
 msgid "The automatic setting will randomly choose from the valid port ranges shown below."
 msgstr "Otomatik ayar, aşağıda gösterilen geçerli port aralıklarından rastgele seçim yapar."
 
@@ -2098,31 +2186,44 @@ msgctxt "wireguard-settings-view"
 msgid "This allows access to %(wireguard)s for devices that only support IPv6."
 msgstr "Bu, sadece IPv6'yı destekleyen cihazlarda %(wireguard)s için erişim izni sağlar."
 
-#. Warning text in a dialog that is displayed after a setting is toggled.
-msgctxt "wireguard-settings-view"
-msgid "This feature isn't available on all servers. You might need to change location after enabling."
-msgstr "Bu özellik tüm sunucularda mevcut değildir. Etkinleştirdikten sonra konumu değiştirmeniz gerekebilir."
-
 msgctxt "wireguard-settings-view"
 msgid "This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers."
 msgstr "Bu özellik, WireGuard tünelini kuantum bilgisayarlardan gelebilecek potansiyel saldırılara karşı dayanıklı hale getirir."
 
 msgctxt "wireguard-settings-view"
+msgid "UDP-over-TCP"
+msgstr "TCP üzerinden UDP"
+
+msgctxt "wireguard-settings-view"
 msgid "UDP-over-TCP port"
 msgstr "TCP üzerinden UDP portu"
+
+#. Text describing the valid port range for a port selector.
+msgctxt "wireguard-settings-view"
+msgid "Valid range: %(min)s - %(max)s"
+msgstr "Geçerli aralık: %(min)s - %(max)s"
 
 msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr "TCP üzerinden UDP gizleme protokolünün VPN sunucusunda hangi TCP portuna bağlanması gerekiyor."
 
+msgid "%s (%s) hides patterns in your encrypted VPN traffic. If anyone is monitoring your connection, this makes it significantly harder for them to identify what websites you are visiting. It does this by carefully adding network noise and making all network packets the same size."
+msgstr "%s (%s), şifrelenmiş VPN trafiğinizdeki kalıpları gizler. Bu sayede, başka biri bağlantınızı izliyorsa ziyaret ettiğiniz web sitelerini tespit etmesi çok daha zor olacaktır. Özellik, dikkatli bir şekilde ağ paraziti ekleyerek ve tüm ağ paketlerini aynı boyuta getirerek sizi izlenmekten korur."
+
 msgid "%s (added)"
 msgstr "%s (eklendi)"
+
+msgid "%s using %s"
+msgstr "%s, %s özelliğini kullanıyor"
 
 msgid "%s was added to \"%s\""
 msgstr "%s, \"%s\" listesine eklendi"
 
 msgid "%s was added to your account."
 msgstr "%s, hesabınıza eklendi."
+
+msgid "%s was removed from \"%s\""
+msgstr "%s, \"%s\" listesinden kaldırıldı"
 
 msgid "1. After clicking on the <b>Go to VPN settings</b> button below, click on the cogwheel next to the <b>Mullvad VPN</b> name."
 msgstr "1. Aşağıdaki <b>VPN ayarlarına git</b> düğmesine tıkladıktan sonra <b>Mullvad VPN</b>'nin yanındaki dişli çarka tıklayın."
@@ -2131,7 +2232,7 @@ msgid "2. To enable Auto-connect, click on the toggle next to <b>Always-on VPN</
 msgstr "2. Otomatik bağlantıyı etkinleştirmek için <b>VPN her zaman açık</b> seçeneğinin yanındaki düğmeye tıklayın."
 
 msgid "3. To enable Lockdown mode, click on the toggle next to <b>Block connections without VPN</b>.<br /><br /><b>Warning: This setting blocks split apps and the Local Network Sharing feature.</b>"
-msgstr "3. Kilitleme modunu etkinleştirmek için <b>VPN üzerinden olmayan bağlantıları engelle</b> seçeneğinin yanındaki düğmeyi tıklayın.<br /><br /><b>Uyarı: Bu ayar, bölünmüş uygulamaları ve Yerel Ağ Paylaşımı özelliğini engeller. </b>"
+msgstr "3. Kilitleme modunu etkinleştirmek için <b>VPN üzerinden olmayan bağlantıları engelle</b> seçeneğinin yanındaki düğmeye tıklayın.<br /><br /><b>Uyarı: Bu ayar, bölünmüş uygulamaları ve Yerel Ağ Paylaşımı özelliğini engeller. </b>"
 
 msgid "30 days was added to your account."
 msgstr "Hesabınıza 30gün eklendi."
@@ -2190,17 +2291,17 @@ msgstr "Her zaman açık VPN başka bir uygulama için etkinleştirilebilir"
 msgid "At least one method needs to be enabled"
 msgstr "En az bir yöntemin etkinleştirilmesi gerekiyor"
 
-msgid "Attention: Split tunneling is a privacy risk."
-msgstr "Dikkat: Bölünmüş tünelleme gizlilik riski taşır."
+msgid "Attention: If \"Block connections without VPN\" is enabled, split apps will not have Internet. Always keep in mind that split tunneling is a privacy risk."
+msgstr "Dikkat: \"VPN üzerinden olmayan bağlantıları engelle\" seçeneği etkinse, bölünmüş uygulamalarda internet kullanılamayacaktır. Bölünmüş tünellemenin, gizlilik riski taşıdığını her zaman göz önünde bulundurun."
+
+msgid "Attention: Since this increases your total network traffic, be cautious if you have a limited data plan. It can also negatively impact your network speed and battery usage."
+msgstr "Dikkat: Bu özellik, toplam ağ trafiğinizi artıracağından sınırlı bir veri planınız varsa dikkatli olun. Ağ hızınız ve pil kullanımınız da bu durumdan olumsuz etkilenebilir."
 
 msgid "Attention: this setting cannot be used in combination with <b>Use custom DNS server</b>."
-msgstr "Dikkat: Bu ayar <b>Özel DNS sunucusu kullan</b> seçeneği ile birlikte kullanılamaz."
+msgstr "Dikkat: Bu ayar, <b>Özel DNS sunucusu kullan</b> seçeneği ile birlikte kullanılamaz."
 
 msgid "Auto-connect & Lockdown mode"
 msgstr "Otomatik bağlantı ve Kilitleme modu"
-
-msgid "Auto-connect & \\nLockdown mode"
-msgstr "Otomatik bağlantı ve \\nKilitleme modu"
 
 msgid "Auto-connect (legacy)"
 msgstr "Otomatik bağlan (eski)"
@@ -2208,9 +2309,8 @@ msgstr "Otomatik bağlan (eski)"
 msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
 msgstr "Otomatik bağlantı, Android sistem ayarlarında VPN her zaman açık olarak gösterilir ve VPN tüneline sürekli bağlı olmanızı ve yeniden başlatma sonrası otomatik olarak bağlanmanızı sağlar."
 
-msgctxt "Description of the existing \"auto-connect\" functionality as well as a notification about it being removed/replaced in a future update."
 msgid "Automatically connect when the app launches. This setting will be replaced with a new connect on device start-up feature in a future update."
-msgstr "Uygulama başlatıldığında otomatik olarak bağlanır. Bu ayar, daha sonraki bir güncellemede yeni bir cihazda bağlantı başlatma özelliğiyle değiştirilecektir."
+msgstr "Uygulama başlatıldığında otomatik olarak bağlan. Bu ayar, daha sonraki bir güncellemede yeni bir cihazda bağlantı başlatma özelliğiyle değiştirilecektir."
 
 msgid "Blocking internet (device offline)"
 msgstr "İnternet bağlantısı engelleniyor (cihaz çevrimdışı)"
@@ -2239,7 +2339,6 @@ msgstr "Yeni liste oluştur"
 msgid "Critical error (your attention is required)"
 msgstr "Kritik hata (Lütfen dikkatli olun)"
 
-msgctxt "Status information about which method/configuration is actively being used. The placeholder is replaced by a built-in or custom method. For example \"Current: Direct\" or \"Current: MyCustomMethod\". Note that it's not \"current\" as in \"present time\"."
 msgid "Current: %s"
 msgstr "Geçerli: %s"
 
@@ -2259,13 +2358,16 @@ msgid "Delete method?"
 msgstr "Yöntem silinsin mi?"
 
 msgid "Disable all <b>%s</b> above to activate this setting."
-msgstr "Bu ayarı etkinleştirmek için yukarıdaki <b>%s</b> öğelerinin tümünü devre dışı bırakın."
+msgstr "Bu ayarı etkinleştirmek için yukarıdaki <b>%s</b> seçeneklerin tümünü devre dışı bırakın."
 
 msgid "Discard"
 msgstr "İptal et"
 
 msgid "Discard changes?"
 msgstr "Değişiklikler iptal edilsin mi?"
+
+msgid "Dismiss"
+msgstr "Reddet"
 
 msgid "Edit custom lists"
 msgstr "Özel listeleri düzenle"
@@ -2327,11 +2429,11 @@ msgstr "İçe aktarma başarılı, geçersiz kılmalar etkin"
 msgid "Importing new overrides might replace some previously imported overrides."
 msgstr "Yeni geçersiz kılmaların içe aktarılması, önceden içe aktarılan bazı geçersiz kılmaların yerine geçebilir."
 
-msgid "Install Mullvad VPN (%s) to stay up to date"
-msgstr "Güncel kalmak için Mullvad VPN (%s) yükleyin"
-
 msgid "Invalid or missing value \"%s\""
 msgstr "Geçersiz veya eksik \"%s\" değeri"
+
+msgid "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
+msgstr "Kupon kodu yerine hesap numarası girdiniz. Aktif hesabı değiştirmek istiyorsanız lütfen önce çıkış yapın."
 
 msgid "Lets you select apps that should access the Internet directly without going through the VPN tunnel."
 msgstr "VPN tünelinden geçmeden doğrudan internete erişmesi gereken uygulamaları seçmenizi sağlar."
@@ -2375,6 +2477,9 @@ msgstr "Konum bulunamadı"
 msgid "Not found"
 msgstr "Bulunamadı"
 
+msgid "On (UDP-over-TCP)"
+msgstr "Açık (TCP üzerinden UDP)"
+
 msgid "Overrides active"
 msgstr "Geçersiz kılmalar etkin"
 
@@ -2417,8 +2522,8 @@ msgstr "Yineleme sınırı"
 msgid "Remove"
 msgstr "Kaldır"
 
-msgid "Remove %s from list"
-msgstr "%s konumunu listeden kaldır"
+msgid "Remove %s from %s"
+msgstr "%s, %s listesinden kaldırıldı"
 
 msgid "Remove custom port"
 msgstr "Özel portu kaldır"
@@ -2434,6 +2539,9 @@ msgstr "Geçersiz kılmaları sıfırla"
 
 msgid "Reset to default"
 msgstr "Varsayılana sıfırla"
+
+msgid "Secure my connection"
+msgstr "Bağlantımın güvenliğini sağla"
 
 msgid "Secured"
 msgstr "Güvenli"
@@ -2469,7 +2577,7 @@ msgid "The Auto-connect and Lockdown mode settings can be found in the Android s
 msgstr "Otomatik Bağlantı ve Kilitleme modu ayarları Android sistem ayarlarında yer alır. Bu ayarlardan birini veya her ikisini de etkinleştirmek için bu kılavuza göz atın."
 
 msgid "The Lockdown mode is called <b>Block connections without VPN</b> in the Android system settings. It helps minimize leaks, however it has some known limitations which you can read more about"
-msgstr "Android sistem ayarlarında Kilitleme modu <b>VPN üzerinden olmayan bağlantıları engelle</b> olarak adlandırılmıştır. Sızıntıları en aza indirmeye yardımcı olsa da ayrıntılar konusunda daha fazla bilgi edinmeniz gereken bazı bilinen sınırlamaları vardır"
+msgstr "Android sistem ayarlarında Kilitleme modu <b>VPN üzerinden olmayan bağlantıları engelle</b> olarak adlandırılmıştır. Sızıntıları en aza indirmeye yardımcı olsa da ayrıntılar konusunda bilgi edinmeniz gereken bazı bilinen sınırlamaları vardır"
 
 msgid "The \"Current\" method represent which method the app is using to reach the API."
 msgstr "\"Geçerli\" yöntem, uygulamanın API'ye ulaşmak için kullandığı yöntemi temsil eder."
@@ -2482,6 +2590,9 @@ msgstr "Cihazınızda VPN ayarları belirlenmemiş"
 
 msgid "This address has already been entered."
 msgstr "Bu adres zaten girilmiş."
+
+msgid "This feature isn’t available on all servers. You might need to change location after enabling."
+msgstr "Bu özellik tüm sunucularda mevcut değildir. Etkinleştirdikten sonra konumu değiştirmeniz gerekebilir."
 
 msgid "This field is required"
 msgstr "Bu alan gereklidir"
@@ -2519,7 +2630,6 @@ msgstr "Bilinmeyen veya yasaklanmış \"%s\" anahtarı"
 msgid "Unsecured"
 msgstr "Güvenli değil"
 
-msgctxt "Notification message shown when the app lacks a permission called \"VPN permission\"."
 msgid "Unsecured (No VPN permission)"
 msgstr "Güvenli değil (VPN izni yok)"
 
@@ -2595,10 +2705,12 @@ msgstr "AĞ TRAFİĞİNİZDE SIZINTI OLABİLİR"
 msgid "You are running an unsupported app version."
 msgstr "Desteklenmeyen bir uygulama sürümünü kullanıyorsunuz."
 
+msgid "\"%s\" was created"
+msgstr "\"%s\" oluşturuldu"
+
 msgid "\"%s\" was deleted"
 msgstr "\"%s\" silindi"
 
-msgctxt "Clickable link that leads to our website."
 msgid "here"
 msgstr "burada"
 
