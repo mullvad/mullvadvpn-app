@@ -6,37 +6,54 @@ import android.net.ConnectivityManager.NetworkCallback
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
-import kotlin.properties.Delegates.observable
+import co.touchlab.kermit.Logger
+import java.net.Inet4Address
+import java.net.Inet6Address
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
+import net.mullvad.talpid.model.NetworkInfo
 
 class ConnectivityListener {
-    private val availableNetworks = HashSet<Network>()
+    private val availableNetworks = MutableStateFlow(emptySet<Network>())
 
     private val callback =
         object : NetworkCallback() {
             override fun onAvailable(network: Network) {
-                availableNetworks.add(network)
-                isConnected = true
+                availableNetworks.update { it + network }
+                val info = availableNetworks.value.info()
+                notifyConnectivityChange(info.hasIpV4, info.hasIpV6, senderAddress)
             }
 
             override fun onLost(network: Network) {
-                availableNetworks.remove(network)
-                isConnected = availableNetworks.isNotEmpty()
+                availableNetworks.update { it - network }
+                val info = availableNetworks.value.info()
+                notifyConnectivityChange(info.hasIpV4, info.hasIpV6, senderAddress)
             }
         }
 
     private lateinit var connectivityManager: ConnectivityManager
 
-    // Used by JNI
-    var isConnected by
-        observable(false) { _, oldValue, newValue ->
-            if (newValue != oldValue) {
-                if (senderAddress != 0L) {
-                    notifyConnectivityChange(newValue, senderAddress)
-                }
-            }
-        }
-
     var senderAddress = 0L
+
+    // Used by jni
+    @Suppress("unused") fun isConnected(): Boolean = availableNetworks.value.info().isConnected
+
+    fun Set<Network>.info(): NetworkInfo {
+        return this.map { network ->
+                val addresses =
+                    connectivityManager.getLinkProperties(network)?.linkAddresses ?: emptyList()
+                NetworkInfo(
+                    hasIpV4 = addresses.any { it.address is Inet4Address },
+                    hasIpV6 = addresses.any { it.address is Inet6Address },
+                )
+            }
+            .reduceOrNull { acc, networkInfo ->
+                NetworkInfo(
+                    hasIpV4 = acc.hasIpV4 || networkInfo.hasIpV4,
+                    hasIpV6 = acc.hasIpV6 || networkInfo.hasIpV6,
+                )
+            } ?: NetworkInfo(hasIpV4 = false, hasIpV6 = false)
+    }
 
     fun register(context: Context) {
         val request =
@@ -64,7 +81,7 @@ class ConnectivityListener {
         senderAddress = 0L
     }
 
-    private external fun notifyConnectivityChange(isConnected: Boolean, senderAddress: Long)
+    private external fun notifyConnectivityChange(ipv4: Boolean, ipv6: Boolean, senderAddress: Long)
 
     private external fun destroySender(senderAddress: Long)
 }

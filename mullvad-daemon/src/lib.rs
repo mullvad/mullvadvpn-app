@@ -380,6 +380,13 @@ pub enum DaemonCommand {
     ExportJsonSettings(ResponseTx<String, settings::patch::Error>),
     /// Request the current feature indicators.
     GetFeatureIndicators(oneshot::Sender<FeatureIndicators>),
+    /// Update the IPv4 and IPv6 connectivity status.
+    #[cfg(target_os = "android")]
+    UpdateNetworkAvailability(
+        ResponseTx<(), Error>,
+        bool, // IPv4
+        bool, // IPv6
+    ),
 }
 
 /// All events that can happen in the daemon. Sent from various threads and exposed interfaces.
@@ -1336,6 +1343,12 @@ impl Daemon {
             ApplyJsonSettings(tx, blob) => self.on_apply_json_settings(tx, blob).await,
             ExportJsonSettings(tx) => self.on_export_json_settings(tx),
             GetFeatureIndicators(tx) => self.on_get_feature_indicators(tx),
+            #[cfg(target_os = "android")]
+            UpdateNetworkAvailability(
+                _tx,
+                _ipv4, // IPv4
+                _ipv6, // IPv6
+            ) => {}
         }
     }
 

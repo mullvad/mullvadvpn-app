@@ -94,33 +94,37 @@ impl MonitorHandle {
     #[allow(clippy::unused_async)]
     pub async fn connectivity(&self) -> Connectivity {
         self.get_is_connected()
-            .map(|connected| Connectivity::Status { connected })
-            .unwrap_or_else(|error| {
+            .map(|connected| Connectivity::Status {
+                ipv4: connected,
+                ipv6: connected,
+            })
+            .inspect_err(|error| {
                 log::error!(
                     "{}",
                     error.display_chain_with_msg("Failed to check connectivity status")
                 );
-                Connectivity::PresumeOnline
             })
+            .unwrap_or(Connectivity::PresumeOnline)
     }
 
     fn get_is_connected(&self) -> Result<bool, Error> {
-        let is_connected = self.call_method(
-            "isConnected",
-            "()Z",
-            &[],
-            JavaType::Primitive(Primitive::Boolean),
-        )?;
+        Ok(true)
+        // let is_connected = self.call_method(
+        //     "isConnected",
+        //     "()Z",
+        //     &[],
+        //     JavaType::Primitive(Primitive::Boolean),
+        // )?;
 
-        match is_connected {
-            JValue::Bool(JNI_TRUE) => Ok(true),
-            JValue::Bool(_) => Ok(false),
-            value => Err(Error::InvalidMethodResult(
-                "ConnectivityListener",
-                "isConnected",
-                format!("{:?}", value),
-            )),
-        }
+        // match is_connected {
+        //     JValue::Bool(JNI_TRUE) => Ok(true),
+        //     JValue::Bool(_) => Ok(false),
+        //     value => Err(Error::InvalidMethodResult(
+        //         "ConnectivityListener",
+        //         "isConnected",
+        //         format!("{:?}", value),
+        //     )),
+        // }
     }
 
     fn set_sender(&self, sender: Weak<UnboundedSender<Connectivity>>) -> Result<(), Error> {
@@ -172,17 +176,26 @@ impl MonitorHandle {
 pub extern "system" fn Java_net_mullvad_talpid_ConnectivityListener_notifyConnectivityChange(
     _: JNIEnv<'_>,
     _: JObject<'_>,
-    connected: jboolean,
+    ipv4: jboolean,
+    ipv6: jboolean,
     sender_address: jlong,
 ) {
-    let connected = JNI_TRUE == connected;
-    let sender_ref = Box::leak(unsafe { get_sender_from_address(sender_address) });
-    if let Some(sender) = sender_ref.upgrade() {
-        if sender
-            .unbounded_send(Connectivity::Status { connected })
-            .is_err()
-        {
-            log::warn!("Failed to send offline change event");
+    let ipv4 = JNI_TRUE == ipv4;
+    let ipv6 = JNI_TRUE == ipv6;
+    let sender_ptr = unsafe { get_sender_from_address(sender_address) }.map(Box::leak);
+    match sender_ptr {
+        Some(sender_ref) => {
+            if let Some(sender) = sender_ref.upgrade() {
+                if sender
+                    .unbounded_send(Connectivity::Status { ipv4, ipv6 })
+                    .is_err()
+                {
+                    log::warn!("Failed to send offline change event");
+                }
+            }
+        }
+        None => {
+            log::error!("sender was null pointer");
         }
     }
 }
@@ -198,8 +211,14 @@ pub extern "system" fn Java_net_mullvad_talpid_ConnectivityListener_destroySende
     let _ = unsafe { get_sender_from_address(sender_address) };
 }
 
-unsafe fn get_sender_from_address(address: jlong) -> Box<Weak<UnboundedSender<Connectivity>>> {
-    Box::from_raw(address as *mut Weak<UnboundedSender<Connectivity>>)
+unsafe fn get_sender_from_address(
+    address: jlong,
+) -> Option<Box<Weak<UnboundedSender<Connectivity>>>> {
+    let raw = address as *mut Weak<UnboundedSender<Connectivity>>;
+    if raw.is_null() {
+        return None;
+    }
+    Some(Box::from_raw(raw))
 }
 
 #[allow(clippy::unused_async)]
