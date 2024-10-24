@@ -41,11 +41,8 @@
     <string name="auto_connect_and_lockdown_mode">自動連線和鎖定模式</string>
     <string name="auto_connect_and_lockdown_mode_footer">請確認裝置始終位於 VPN 通道上。</string>
     <string name="auto_connect_carousel_first_slide_top_text">自動連線和鎖定模式設定皆可在 Android 系統設定中找到，請按照本指南的指示，啟用其中一項或兩項設定。</string>
-    <string name="auto_connect_carousel_second_slide_bottom_text">2. 若要啟用自動連線，請按一下&lt;b&gt;一律啟用 VPN&lt;/b&gt; 旁邊的開關。</string>
     <string name="auto_connect_carousel_second_slide_top_text">自動連線在 Android 系統設定中稱為「始終啟用 VPN」，此功能可確保您始終與 VPN 通道連線，並且會在重新啟動後自動連線。</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">此處</string>
-    <string name="auto_connect_footer_legacy">請依照前述 &lt;b&gt;%1$s&lt;/b&gt; 中的指南，改用&lt;b&gt;一律開啟&lt;/b&gt;系統設定。</string>
-    <string name="auto_connect_footer_legacy_tv">在啟動應用程式時自動連線。在未來的更新中，此設定將由「裝置啟動時連線」的新功能所取代。</string>
     <string name="auto_connect_legacy">自動連線 (舊)</string>
     <string name="automatic">自動</string>
     <string name="back">返回</string>
@@ -68,6 +65,8 @@
     <string name="confirm_removal">是，將裝置登出</string>
     <string name="congrats">恭喜！</string>
     <string name="connect">連線</string>
+    <string name="connect_panel_active_features">有效功能</string>
+    <string name="connect_panel_connection_details">連線詳細資訊</string>
     <string name="connected">已連線</string>
     <string name="connecting_to_daemon">連線 Mullvad 系統服務中...</string>
     <string name="connection_details_in">入境</string>
@@ -142,9 +141,11 @@
     <string name="failed_to_set_current_test_error">無法設定為目前方式 - 無法透過 API 存取</string>
     <string name="failed_to_set_current_unknown_error">無法設定為目前方式 - 不明原因</string>
     <string name="faqs_and_guides">常見問題集與指南</string>
+    <string name="feature_custom_dns">自訂 DNS</string>
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_dns_content_blockers">DNS 內容封鎖程式</string>
     <string name="feature_lan_sharing">本機網路分享</string>
+    <string name="feature_quantum_resistant">抗量子</string>
     <string name="feature_server_ip_override">伺服器 IP 覆寫</string>
     <string name="feature_udp_2_tcp">混淆</string>
     <string name="filter">篩選</string>
@@ -208,7 +209,6 @@
     <string name="not_found">找不到</string>
     <string name="number_of_providers">供應商：%1$d</string>
     <string name="obfuscation_info">藉由混淆，WireGuard 的流量能隱藏在另一個通訊協定中。這有助於規避審查或其他類型的篩選。在這類篩選中，普通 WireGuard 連線將遭到封鎖。</string>
-    <string name="obfuscation_on_udp_over_tcp">開啟 (UDP-over-TCP)</string>
     <string name="obfuscation_title">WireGuard 混淆</string>
     <string name="off">關閉</string>
     <string name="on">開啟</string>
@@ -234,6 +234,7 @@
     <string name="please_enter_a_valid_ip_address">請輸入有效的 IPv4 或 IPv6 位址。</string>
     <string name="please_enter_a_valid_remote_server_port">請輸入有效的遠端伺服器連接埠</string>
     <string name="port">連接埠</string>
+    <string name="port_x">連接埠：%1$s</string>
     <string name="privacy_disclaimer_body_first_paragraph">為確保您擁有最安全的版本，並告知您目前執行的版本有無任何問題，該應用程式會自動進行版本檢查。為此，應用程式會將其版本和 Android 系統版本傳送至 Mullvad 伺服器，以便讓 Mullvad 統計已使用的應用程式版本和 Android 版本的數量。這些資料永遠不會以任何方式儲存或用來辨識您的身分。</string>
     <string name="privacy_disclaimer_body_second_paragraph">如果使用了分割通道功能，該應用程式會查詢您的系統，以取得所有已安裝應用程式的清單。我們只會在分割通道視圖中擷取這份清單，絕不會傳送至他處。</string>
     <string name="privacy_disclaimer_title">隱私權</string>
@@ -254,8 +255,6 @@
     <string name="reset_to_default_button">重設為預設值</string>
     <string name="save">儲存</string>
     <string name="search_placeholder">搜尋…</string>
-    <string name="secure_connection">安全連線</string>
-    <string name="secured">已受保護</string>
     <string name="select_location">選擇位置</string>
     <string name="select_location_empty_text_first_row">&lt;b&gt;%1$s&lt;/b&gt; 沒有任何結果。</string>
     <string name="select_location_empty_text_second_row">請嘗試使用其他關鍵字。</string>
@@ -315,11 +314,9 @@
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">UDP-over-TCP 混淆通訊協定應連線到 VPN 伺服器上的哪個 TCP 連接埠。</string>
     <string name="undo">復原</string>
-    <string name="unsecured">未受保護</string>
-    <string name="unsecured_connection">不安全的連線</string>
-    <string name="unsecured_vpn_permission_error">未受保護 (無 VPN 權限)</string>
     <string name="unsupported_version">不支援的版本</string>
     <string name="unsupported_version_description">此應用程式版本不受支援，因此您的隱私可能存在風險。請立即更新。</string>
+    <string name="upd_over_tcp">UDP-over-TCP</string>
     <string name="update_dns_server_dialog_title">更新 DNS 伺服器</string>
     <string name="update_list_name">更新清單名稱</string>
     <string name="use_method">使用方式</string>

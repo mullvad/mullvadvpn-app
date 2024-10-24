@@ -42,11 +42,7 @@
     <string name="auto_connect_and_lockdown_mode_footer">Permet de s\'assurer que l\'appareil est toujours sur le tunnel VPN.</string>
     <string name="auto_connect_carousel_first_slide_top_text">Les paramètres de la connexion automatique et du mode Verrouillage se trouvent dans les paramètres du système Android, suivez ce guide pour activer l\'un, l\'autre ou les deux.</string>
     <string name="auto_connect_carousel_second_slide_top_text">La connexion automatique est appelée VPN toujours actif dans les paramètres du système Android et elle s\'assure que vous êtes constamment connecté au tunnel VPN et se connecte automatiquement après le redémarrage.</string>
-    <string name="auto_connect_carousel_third_slide_bottom_text">3. Pour activer le mode Verrouillage, cliquez sur l\'interrupteur situé à côté de &lt;b&gt;Bloquer les connexions sans VPN&lt;/b&gt;.&lt;br /&gt;&lt;br /&gt;&lt;b&gt;Avertissement : ce paramètre bloque les applications fractionnées et la fonctionnalité de partage du réseau local.&lt;/b&gt;</string>
-    <string name="auto_connect_carousel_third_slide_top_text">Le mode Verrouillage est appelé &lt;b&gt;Bloquer les connexions sans VPN&lt;/b&gt; dans les paramètres système d\'Android. Il permet de minimiser les fuites, mais présente des limites connues sur lesquelles vous pouvez en savoir plus</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">ici</string>
-    <string name="auto_connect_footer_legacy">Veuillez utiliser le paramètre système &lt;b&gt;Toujours activé&lt;/b&gt; en suivant le guide dans &lt;b&gt;%1$s&lt;/b&gt; ci-dessus.</string>
-    <string name="auto_connect_footer_legacy_tv">Connexion automatique au lancement de l\'application. Ce paramètre sera remplacé par une nouvelle fonctionnalité de connexion au démarrage de l\'appareil dans une prochaine mise à jour.</string>
     <string name="auto_connect_legacy">Connexion automatique (obsolète)</string>
     <string name="automatic">Automatique</string>
     <string name="back">Retour</string>
@@ -68,9 +64,10 @@
     <string name="confirm_no_email">Vous êtes sur le point d\'envoyer un signalement de problème sans nous fournir un moyen de vous contacter. Si vous désirez une réponse à votre signalement, vous devez saisir une adresse e-mail.</string>
     <string name="confirm_removal">Oui, déconnecter l\'appareil</string>
     <string name="congrats">Félicitations !</string>
-    <string name="connect">Sécuriser ma connexion</string>
-    <string name="connected_using_daita">%1$s avec %2$s</string>
-    <string name="connecting">Connexion</string>
+    <string name="connect">Connexion</string>
+    <string name="connect_panel_active_features">Fonctionnalités activées</string>
+    <string name="connect_panel_connection_details">Détails de la connexion</string>
+    <string name="connected">Connecté</string>
     <string name="connecting_to_daemon">Connexion au service système Mullvad...</string>
     <string name="connection_details_in">Entrante</string>
     <string name="continue_login">Continuer avec la connexion</string>
@@ -144,9 +141,11 @@
     <string name="failed_to_set_current_test_error">Impossible de définir sur la méthode actuelle - API injoignable</string>
     <string name="failed_to_set_current_unknown_error">Impossible de définir sur la méthode actuelle - Raison inconnue</string>
     <string name="faqs_and_guides">FAQ et guides</string>
+    <string name="feature_custom_dns">DNS personnalisé</string>
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_dns_content_blockers">Bloqueurs de contenu DNS</string>
     <string name="feature_lan_sharing">Partage réseau local</string>
+    <string name="feature_quantum_resistant">Résistance quantique</string>
     <string name="feature_server_ip_override">Substitution d\'IP de serveur</string>
     <string name="feature_udp_2_tcp">Dissimulation</string>
     <string name="filter">Filtrer</string>
@@ -210,7 +209,6 @@
     <string name="not_found">Introuvable</string>
     <string name="number_of_providers">Fournisseurs : %1$d</string>
     <string name="obfuscation_info">La dissimulation cache le trafic WireGuard à l\'intérieur d\'un autre protocole. Elle peut être utilisée pour aider à contourner la censure et d\'autres types de filtrage, où une connexion WireGuard simple serait bloquée.</string>
-    <string name="obfuscation_on_udp_over_tcp">Activé (UDP-over-TCP)</string>
     <string name="obfuscation_title">Obfuscation WireGuard</string>
     <string name="off">Désactivé</string>
     <string name="on">Activé</string>
@@ -236,6 +234,7 @@
     <string name="please_enter_a_valid_ip_address">Merci de saisir une adresse IPv4 ou IPv6 valide</string>
     <string name="please_enter_a_valid_remote_server_port">Merci de saisir un port de serveur distant valide</string>
     <string name="port">Port</string>
+    <string name="port_x">Port : %1$s</string>
     <string name="privacy_disclaimer_body_first_paragraph">Pour vous assurer que vous disposez de la version la plus sécurisée et pour vous informer de tout problème lié à la version en cours d\'exécution, l\'application effectue automatiquement des vérifications de version. Elle envoie ainsi la version de l\'application et la version du système Android aux serveurs de Mullvad. Mullvad tient des compteurs sur le nombre de versions d\'applications et de versions d\'Android utilisées. Les données ne sont jamais stockées ou utilisées de manière à vous identifier.</string>
     <string name="privacy_disclaimer_body_second_paragraph">Si la fonctionnalité de split tunneling est utilisée, l\'application demande à votre système la liste de toutes les applications installées. Cette liste n\'est récupérée que dans la vue de split tunneling. La liste des applications installées n\'est jamais envoyée par l\'appareil.</string>
     <string name="privacy_disclaimer_title">Confidentialité</string>
@@ -317,6 +316,7 @@
     <string name="undo">Annuler</string>
     <string name="unsupported_version">VERSION NON PRISE EN CHARGE</string>
     <string name="unsupported_version_description">Votre confidentialité peut être en danger avec cette version non prise en charge de l\'application. Veuillez la mettre à jour maintenant.</string>
+    <string name="upd_over_tcp">UDP-over-TCP</string>
     <string name="update_dns_server_dialog_title">Mettre à jour le serveur DNS</string>
     <string name="update_list_name">Mettre à jour le nom de la liste</string>
     <string name="use_method">Utiliser la méthode</string>

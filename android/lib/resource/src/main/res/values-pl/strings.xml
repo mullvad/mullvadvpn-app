@@ -40,14 +40,9 @@
     <string name="authentication">Uwierzytelnianie</string>
     <string name="auto_connect_and_lockdown_mode">Automatyczne łączenie i tryb Lockdown</string>
     <string name="auto_connect_and_lockdown_mode_footer">Zapewnia, że urządzenie zawsze działa za pośrednictwem tunelu VPN.</string>
-    <string name="auto_connect_carousel_first_slide_bottom_text">1. Po kliknięciu poniższego przycisku &lt;b&gt;Przejdź do ustawień VPN&lt;/b&gt;, kliknij ikonę koła zębatego obok nazwy &lt;b&gt;Mullvad VPN&lt;/b&gt;.</string>
     <string name="auto_connect_carousel_first_slide_top_text">Ustawienia trybu automatycznego łączenia i trybu Lockdown można znaleźć w ustawieniach systemu Android. Aby włączyć jeden lub oba tryby, postępuj zgodnie z niniejszym poradnikiem.</string>
     <string name="auto_connect_carousel_second_slide_top_text">Automatyczne łączenie w ustawieniach systemu Android nazywa się „Zawsze włączony VPN” i zapewnia stałe połączenie z tunelem VPN oraz automatyczne łączenie po ponownym uruchomieniu.</string>
-    <string name="auto_connect_carousel_third_slide_bottom_text">3. Aby włączyć tryb Lockdown, kliknij przełącznik obok opcji &lt;b&gt;Blokuj połączenia bez pośrednictwa sieci VPN&lt;/b&gt;.&lt;br /&gt;&lt;br /&gt;&lt;b&gt;Ostrzeżenie: to ustawienie blokuje aplikacje dzielące i funkcję udostępniania sieci lokalnej.&lt;/b&gt;</string>
-    <string name="auto_connect_carousel_third_slide_top_text">Tryb Lockdown w ustawieniach systemu Android nazywa się &lt;b&gt;Blokuj połączenia bez pośrednictwa sieci VPN&lt;/b&gt;. Pomaga zminimalizować wycieki, jednak ma pewne znane ograniczenia, o których można przeczytać więcej</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">tutaj</string>
-    <string name="auto_connect_footer_legacy">Zamiast tego użyj ustawienia systemowego &lt;b&gt;Zawsze włączone&lt;/b&gt; postępując zgodnie z poradnikiem w &lt;b&gt;%1$s&lt;/b&gt; powyżej.</string>
-    <string name="auto_connect_footer_legacy_tv">Połącz się automatycznie przy uruchamianiu aplikacji. W przyszłej aktualizacji ustawienie to zostanie zastąpione nową funkcją łączenia przy uruchamianiu urządzenia.</string>
     <string name="auto_connect_legacy">Automatyczne łączenie (starsza wersja)</string>
     <string name="automatic">Automatycznie</string>
     <string name="back">Wstecz</string>
@@ -69,9 +64,10 @@
     <string name="confirm_no_email">Za chwilę wyślesz zgłoszenie problemu, nie umożliwiając nam skontaktowania się z Tobą. Aby uzyskać odpowiedź na zgłoszenie, musisz podać adres e-mail.</string>
     <string name="confirm_removal">Tak, wyloguj urządzenie</string>
     <string name="congrats">Gratulacje!</string>
-    <string name="connect">Zabezpiecz moje połączenie</string>
-    <string name="connected_using_daita">%1$s za pomocą %2$s</string>
-    <string name="connecting">Łączenie</string>
+    <string name="connect">Połącz</string>
+    <string name="connect_panel_active_features">Aktywne funkcje</string>
+    <string name="connect_panel_connection_details">Szczegóły połączenia</string>
+    <string name="connected">Połączono</string>
     <string name="connecting_to_daemon">Łączenie z usługą systemową Mullvad...</string>
     <string name="connection_details_in">Wejście</string>
     <string name="continue_login">Kontynuuj logowanie</string>
@@ -86,7 +82,6 @@
     <string name="creating_new_account">Tworzenie konta...</string>
     <string name="critical_error">Błąd krytyczny (wymagana uwaga)</string>
     <string name="current_method">Bieżąca: %1$s</string>
-    <string name="custom_dns_disable_mode_subtitle">Aby to ustawić, wyłącz wszystkie &lt;b&gt;%1$s&lt;/b&gt;.</string>
     <string name="custom_dns_footer">Włącz, aby dodać co najmniej jeden serwer DNS.</string>
     <string name="custom_dns_hint">Wprowadź adres IP</string>
     <string name="custom_list_error_list_exists">Nazwa jest już zajęta.</string>
@@ -146,9 +141,11 @@
     <string name="failed_to_set_current_test_error">Nie udało się ustawić jako bieżącą — interfejs API nieosiągalny</string>
     <string name="failed_to_set_current_unknown_error">Nie udało się ustawić jako bieżącą — przyczyna nieznana</string>
     <string name="faqs_and_guides">Często zadawane pytania i poradniki</string>
+    <string name="feature_custom_dns">Niestandardowy serwer DNS</string>
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_dns_content_blockers">Funkcje blokowania treści DNS</string>
     <string name="feature_lan_sharing">Udostępnianie sieci lokalnej</string>
+    <string name="feature_quantum_resistant">Odporność na ataki z użyciem komputerów kwantowych</string>
     <string name="feature_server_ip_override">Zastąpienie adresu IP serwera</string>
     <string name="feature_udp_2_tcp">Zaciemnianie</string>
     <string name="filter">Filtruj</string>
@@ -212,7 +209,6 @@
     <string name="not_found">Nie znaleziono</string>
     <string name="number_of_providers">Dostawcy: %1$d</string>
     <string name="obfuscation_info">Zaciemnianie ukrywa ruch WireGuard w innym protokole. Można go użyć do obchodzenia cenzury i innych typów filtrowania, w których zwykłe połączenie WireGuard byłoby blokowane.</string>
-    <string name="obfuscation_on_udp_over_tcp">Włączone (UDP-przez-TCP)</string>
     <string name="obfuscation_title">Zaciemnianie WireGuard</string>
     <string name="off">Wył.</string>
     <string name="on">Wł.</string>
@@ -238,6 +234,7 @@
     <string name="please_enter_a_valid_ip_address">Wprowadź prawidłowy adres IPv4 lub IPv6</string>
     <string name="please_enter_a_valid_remote_server_port">Wprowadź prawidłowy port serwera zdalnego</string>
     <string name="port">Port</string>
+    <string name="port_x">Port: %1$s</string>
     <string name="privacy_disclaimer_body_first_paragraph">Aby upewnić się, że masz najbezpieczniejszą wersję i poinformować Cię o wszelkich problemach z aktualnie uruchomioną wersją, aplikacja automatycznie sprawdza wersję. Powoduje to wysłanie wersji aplikacji i wersji systemu Android na serwery Mullvad. Mullvad prowadzi liczniki używanych wersji aplikacji i wersji systemu Android. Dane te nigdy nie są przechowywane ani wykorzystywane w żaden sposób, który umożliwiłby zidentyfikowanie Ciebie jako osoby.</string>
     <string name="privacy_disclaimer_body_second_paragraph">Jeśli używana jest funkcja dzielonego tunelowania, aplikacja wysyła do systemu zapytanie o listę wszystkich zainstalowanych aplikacji. Lista ta jest pobierana wyłącznie w widoku dzielonego tunelowania. Lista zainstalowanych aplikacji nigdy nie jest wysyłana z urządzenia.</string>
     <string name="privacy_disclaimer_title">Prywatność</string>
@@ -317,11 +314,9 @@
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">Port TCP, z którym powinien łączyć się protokół zaciemniania UDP-przez-TCP na serwerze VPN.</string>
     <string name="undo">Cofnij</string>
-    <string name="unsecured">Niezabezpieczone</string>
-    <string name="unsecured_connection">NIEZABEZPIECZONE POŁĄCZENIE</string>
-    <string name="unsecured_vpn_permission_error">Niezabezpieczone (brak uprawnienia VPN)</string>
     <string name="unsupported_version">WERSJA NIEOBSŁUGIWANA</string>
     <string name="unsupported_version_description">W tej nieobsługiwanej wersji aplikacji prywatność może być zagrożona. Zaktualizuj już teraz.</string>
+    <string name="upd_over_tcp">UDP-przez-TCP</string>
     <string name="update_dns_server_dialog_title">Zaktualizuj serwer DNS</string>
     <string name="update_list_name">Zaktualizuj nazwę listy</string>
     <string name="use_method">Użyj metody</string>

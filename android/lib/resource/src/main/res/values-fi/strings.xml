@@ -41,13 +41,8 @@
     <string name="auto_connect_and_lockdown_mode">Automaattinen yhdistäminen ja lukitustila</string>
     <string name="auto_connect_and_lockdown_mode_footer">Varmistaa, että laite on aina yhteydessä VPN-tunnelin kautta.</string>
     <string name="auto_connect_carousel_first_slide_top_text">Automaattisen yhdistämisen ja lukitustilan asetukset löytyvät Androidin järjestelmäasetuksista. Voit ottaa jommankumman tai molemmat käyttöön tämän oppaan ohjeilla.</string>
-    <string name="auto_connect_carousel_second_slide_bottom_text">2. Ota automaattinen yhteyden muodostus käyttöön napsauttamalla \"&lt;b&gt;Aina päällä oleva VPN&lt;/b&gt;\" -kohdan vieressä olevaa valintapainiketta.</string>
     <string name="auto_connect_carousel_second_slide_top_text">Automaattista yhdistämistä kutsutaan aina päällä olevaksi VPN-yhteydeksi Androidin järjestelmäasetuksissa. Se varmistaa, että olet jatkuvasti yhteydessä VPN-tunneliin, sekä muodostaa yhteyden automaattisesti aina uudelleenkäynnistyksen jälkeen.</string>
-    <string name="auto_connect_carousel_third_slide_bottom_text">3. Ota lukitustila käyttöön napsauttamalla kohdan \"&lt;b&gt;Estä yhteydet ilman VPN:ää&lt;/b&gt;\" vieressä olevaa kytkintä.&lt;br /&gt;&lt;br /&gt;&lt;b&gt;Varoitus: Tämä asetus estää jaetut sovellukset ja paikallisen verkon jakamisominaisuuden.&lt;/b&gt;</string>
-    <string name="auto_connect_carousel_third_slide_top_text">Lukitustila löytyy Android-järjestelmäasetuksista nimellä \"&lt;b&gt;Estä yhteydet ilman VPN:ää&lt;/b&gt;\". Lukitustila auttaa minimoimaan vuodot, mutta siihen liittyy myös muutamia tunnettuja rajoituksia. Voit lukea niistä lisää</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">täältä</string>
-    <string name="auto_connect_footer_legacy">Käytä tämän asemesta &lt;b&gt;aina käytössä&lt;/b&gt; -järjestelmäasetusta noudattamalla edellisestä kohdasta löytyvää opasta aiheesta &lt;b&gt;%1$s&lt;/b&gt;.</string>
-    <string name="auto_connect_footer_legacy_tv">Yhdistä automaattisesti, kun sovellus käynnistyy. Tämä asetus korvataan tulevassa päivityksessä uudella ominaisuudella; yhteyden muodostamisella laitteen käynnistyessä.</string>
     <string name="auto_connect_legacy">Autom. yhdistäminen (vanha järjestelmä)</string>
     <string name="automatic">Automaattinen</string>
     <string name="back">Takaisin</string>
@@ -69,9 +64,10 @@
     <string name="confirm_no_email">Olet aikeissa lähettää ongelmaraportin ilman yhteystietojasi. Mikäli haluat vastauksen raporttiisi, anna sähköpostosoite.</string>
     <string name="confirm_removal">Kyllä, kirjaa laite ulos</string>
     <string name="congrats">Onnittelut!</string>
-    <string name="connect">Suojaa yhteys</string>
-    <string name="connected_using_daita">%1$s, käytössä %2$s</string>
-    <string name="connecting">Yhdistetään</string>
+    <string name="connect">Yhdistä</string>
+    <string name="connect_panel_active_features">Käytössä olevat ominaisuudet</string>
+    <string name="connect_panel_connection_details">Yhteyden tiedot</string>
+    <string name="connected">Yhdistetty</string>
     <string name="connecting_to_daemon">Yhdistetään Mullvad-järjestelmäpalveluun...</string>
     <string name="connection_details_in">Saapuva</string>
     <string name="continue_login">Jatka kirjautumista</string>
@@ -145,9 +141,11 @@
     <string name="failed_to_set_current_test_error">Nykyisen asetus epäonnistui – APIa ei tavoiteta</string>
     <string name="failed_to_set_current_unknown_error">Nykyisen asetus epäonnistui – Tuntematon syy</string>
     <string name="faqs_and_guides">Usein kysytyt kysymykset ja oppaat</string>
+    <string name="feature_custom_dns">Mukautettu DNS</string>
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_dns_content_blockers">DNS-sisällönestotoiminnot</string>
     <string name="feature_lan_sharing">Paikallisen verkon jakaminen</string>
+    <string name="feature_quantum_resistant">Kvanttihyökkäysten esto</string>
     <string name="feature_server_ip_override">Palvelimen IP-osoitteen ohitus</string>
     <string name="feature_udp_2_tcp">Hämäysteknologia</string>
     <string name="filter">Suodatin</string>
@@ -236,6 +234,7 @@
     <string name="please_enter_a_valid_ip_address">Anna kelvollinen IPv4- tai IPv6-osoite</string>
     <string name="please_enter_a_valid_remote_server_port">Anna kelvollinen etäpalvelimen portti</string>
     <string name="port">Portti</string>
+    <string name="port_x">Portti: %1$s</string>
     <string name="privacy_disclaimer_body_first_paragraph">Sovellus suorittaa versiotarkistuksia automaattisesti varmistaakseen, että käytät kaikkein turvallisinta versiota, ja ilmoittaakseen sinulle kaikista parhaillaan käynnissä olevan version ongelmista. Se lähettää Mullvadin palvelimille tiedot sovellusversiosta ja Android-järjestelmäversiosta. Mullvad pitää lukua käytettyjen sovellusversioiden ja Android-versioiden määristä. Tietoja ei koskaan tallenneta tai käytetä tavalla, joka voisi mahdollistaa tunnistamisesi.</string>
     <string name="privacy_disclaimer_body_second_paragraph">Jos käytetään sovelluskohtaista yhdistämistä, sovellus pyytää järjestelmältäsi luettelon kaikista siihen asennetuista sovelluksista. Luettelo noudetaan vain sovelluskohtaisen yhdistämisen näkymässä. Asennettujen sovellusten luetteloa ei koskaan lähetetä laitteelta.</string>
     <string name="privacy_disclaimer_title">Tietosuoja</string>
@@ -317,6 +316,7 @@
     <string name="undo">Kumoa</string>
     <string name="unsupported_version">EI-TUETTU VERSIO</string>
     <string name="unsupported_version_description">Yksityisyytesi saattaa olla vaarassa tämän sovellusversion, jota ei tueta, vuoksi. Päivitä versio heti.</string>
+    <string name="upd_over_tcp">UDP TCP:n kautta</string>
     <string name="update_dns_server_dialog_title">Päivitä DNS-palvelin</string>
     <string name="update_list_name">Päivitä luettelon nimi</string>
     <string name="use_method">Käytä menetelmä</string>

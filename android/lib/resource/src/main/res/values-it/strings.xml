@@ -42,8 +42,6 @@
     <string name="auto_connect_and_lockdown_mode_footer">Assicurati che il dispositivo sia sempre collegato al tunnel VPN.</string>
     <string name="auto_connect_carousel_first_slide_top_text">Le impostazioni della modalità di Connessione automatica e di Blocco si trovano nelle impostazioni del sistema Android. Segui questa guida per abilitare una o entrambe.</string>
     <string name="auto_connect_carousel_second_slide_top_text">La connessione automatica è denominata VPN sempre attiva nelle impostazioni del sistema Android e garantisce di essere costantemente connessi al tunnel VPN e di connettersi automaticamente dopo il riavvio.</string>
-    <string name="auto_connect_carousel_third_slide_bottom_text">3. Per abilitare la Modalità Blocco, clicca sull\'interruttore accanto a &lt;b&gt;Blocca connessioni senza VPN&lt;/b&gt;.&lt;br /&gt;&lt;br /&gt;&lt;b&gt;Avviso: questa impostazione blocca le app divise e la funzionalità di condivisione della rete locale.&lt;/b&gt;</string>
-    <string name="auto_connect_carousel_third_slide_top_text">La Modalità Blocco si chiama &lt;b&gt;Blocca connessioni senza VPN&lt;/b&gt; nelle impostazioni del sistema Android. Aiuta a ridurre al minimo le perdite, tuttavia presenta alcune limitazioni su cui consigliamo di approfondire</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">qui</string>
     <string name="auto_connect_legacy">Connessione automatica (precedente)</string>
     <string name="automatic">Automatico</string>
@@ -66,9 +64,10 @@
     <string name="confirm_no_email">Stai inviando la segnalazione di un problema senza averci indicato un modo per ricontattarti. Se desideri ricevere risposta, inserisci un indirizzo e-mail.</string>
     <string name="confirm_removal">Sì, disconnetti dal dispositivo</string>
     <string name="congrats">Complimenti!</string>
-    <string name="connect">Proteggi mia connessione</string>
-    <string name="connected_using_daita">%1$s sta usando %2$s</string>
-    <string name="connecting">Connessione</string>
+    <string name="connect">Connetti</string>
+    <string name="connect_panel_active_features">Funzionalità attive</string>
+    <string name="connect_panel_connection_details">Dettagli connessione</string>
+    <string name="connected">Connesso</string>
     <string name="connecting_to_daemon">Connessione al servizio del sistema Mullvad...</string>
     <string name="connection_details_in">Ricezione</string>
     <string name="continue_login">Continua con il login</string>
@@ -142,9 +141,11 @@
     <string name="failed_to_set_current_test_error">Impossibile impostare il valore attuale: API non raggiungibile</string>
     <string name="failed_to_set_current_unknown_error">Impossibile impostare il valore attuale: motivo sconosciuto</string>
     <string name="faqs_and_guides">FAQ e guide</string>
+    <string name="feature_custom_dns">DNS personalizzato</string>
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_dns_content_blockers">Blocchi dei contenuti DNS</string>
     <string name="feature_lan_sharing">Condivisione rete locale</string>
+    <string name="feature_quantum_resistant">Resistenza ad attacchi quantistici</string>
     <string name="feature_server_ip_override">Sovrascritture IP server</string>
     <string name="feature_udp_2_tcp">Offuscamento</string>
     <string name="filter">Filtra</string>
@@ -233,6 +234,7 @@
     <string name="please_enter_a_valid_ip_address">Inserisci un indirizzo IPv4 o IPv6 valido</string>
     <string name="please_enter_a_valid_remote_server_port">Inserisci una porta di server remoto valida</string>
     <string name="port">Porta</string>
+    <string name="port_x">Porta: %1$s</string>
     <string name="privacy_disclaimer_body_first_paragraph">Per assicurarti di avere la versione più sicura e per informarti di eventuali problemi con la versione attualmente in esecuzione, l\'app esegue automaticamente i controlli di versione. Questa operazione invia la versione dell\'app e la versione del sistema Android ai server Mullvad. Mullvad mantiene traccia dei numeri di versione dell\'app utilizzati e delle versioni di Android. I dati non vengono mai archiviati o utilizzati in alcun modo che possa identificarti.</string>
     <string name="privacy_disclaimer_body_second_paragraph">Se viene utilizzata la funzionalità di split tunneling, l\'app richiede al tuo sistema un elenco di tutte le applicazioni installate. Questo elenco viene recuperato solo nella vista split tunneling. L\'elenco delle applicazioni installate non viene mai inviato dal dispositivo.</string>
     <string name="privacy_disclaimer_title">Privacy</string>
@@ -314,6 +316,7 @@
     <string name="undo">Annulla</string>
     <string name="unsupported_version">VERSIONE NON SUPPORTATA</string>
     <string name="unsupported_version_description">La tua privacy potrebbe essere a rischio con questa versione dell\'app non supportata. Aggiornala subito.</string>
+    <string name="upd_over_tcp">UDP-over-TCP</string>
     <string name="update_dns_server_dialog_title">Aggiorna server DNS</string>
     <string name="update_list_name">Aggiorna nome elenco</string>
     <string name="use_method">Usa metodo</string>

@@ -64,9 +64,10 @@
     <string name="confirm_no_email">Va a enviar el informe de problemas sin indicar una forma de contacto. Para obtener una respuesta sobre el informe, necesita especificar su dirección de correo electrónico.</string>
     <string name="confirm_removal">Sí, cerrar sesión</string>
     <string name="congrats">¡Enhorabuena!</string>
-    <string name="connect">Proteger mi conexión</string>
-    <string name="connected_using_daita">%1$s está usando %2$s</string>
-    <string name="connecting">Conectando</string>
+    <string name="connect">Conectar</string>
+    <string name="connect_panel_active_features">Características activas</string>
+    <string name="connect_panel_connection_details">Detalles de la conexión</string>
+    <string name="connected">Conectado</string>
     <string name="connecting_to_daemon">Conectando al servicio del sistema Mullvad…</string>
     <string name="connection_details_in">Entrada</string>
     <string name="continue_login">Iniciar sesión</string>
@@ -140,9 +141,11 @@
     <string name="failed_to_set_current_test_error">Error al establecer el método como actual: API no accesible</string>
     <string name="failed_to_set_current_unknown_error">Error al establecer el método como actual: Razón desconocida</string>
     <string name="faqs_and_guides">Preguntas frecuentes y guías</string>
+    <string name="feature_custom_dns">DNS personalizado</string>
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_dns_content_blockers">Bloqueadores de contenido DNS</string>
     <string name="feature_lan_sharing">Uso compartido de la red local</string>
+    <string name="feature_quantum_resistant">Resistencia cuántica</string>
     <string name="feature_server_ip_override">Anulación de IP de servidor</string>
     <string name="feature_udp_2_tcp">Ofuscación</string>
     <string name="filter">Filtrar</string>
@@ -231,6 +234,7 @@
     <string name="please_enter_a_valid_ip_address">Escriba una dirección IPv4 o IPv6 válida</string>
     <string name="please_enter_a_valid_remote_server_port">Introduzca un puerto de servidor remoto válido</string>
     <string name="port">Puerto</string>
+    <string name="port_x">Puerto: %1$s</string>
     <string name="privacy_disclaimer_body_first_paragraph">Para garantizar que tiene la versión más segura e informarle de cualquier problema con la versión actual que está ejecutando, la aplicación realiza verificaciones de versiones automáticamente. Esto envía la versión de la aplicación y la versión del sistema Android a los servidores de Mullvad. Mullvad mantiene contadores del número de versiones de la aplicación y versiones de Android usadas. Los datos nunca se almacenan ni utilizan de forma que puedan identificarle.</string>
     <string name="privacy_disclaimer_body_second_paragraph">Si se utiliza la característica de túnel dividido, la aplicación consultará a su sistema la lista de todas las aplicaciones instaladas. Esta lista solo se recupera en la vista de túnel dividido. La lista de aplicaciones instaladas nunca se envía desde el dispositivo.</string>
     <string name="privacy_disclaimer_title">Privacidad</string>
@@ -251,8 +255,6 @@
     <string name="reset_to_default_button">Restablecer a valores predeterminados</string>
     <string name="save">Guardar</string>
     <string name="search_placeholder">Buscar...</string>
-    <string name="secure_connection">CONEXIÓN SEGURA</string>
-    <string name="secured">Protegida</string>
     <string name="select_location">Seleccionar ubicación</string>
     <string name="select_location_empty_text_first_row">No hay resultados para &lt;b&gt;%1$s&lt;/b&gt;.</string>
     <string name="select_location_empty_text_second_row">Pruebe con otra búsqueda.</string>
@@ -312,11 +314,9 @@
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">El puerto TCP al que se conectará el protocolo de ofuscación de UDP sobre TCP en el servidor VPN.</string>
     <string name="undo">Deshacer</string>
-    <string name="unsecured">No protegida</string>
-    <string name="unsecured_connection">CONEXIÓN NO SEGURA</string>
-    <string name="unsecured_vpn_permission_error">No protegida (sin permiso de VPN)</string>
     <string name="unsupported_version">VERSIÓN NO ADMITIDA</string>
     <string name="unsupported_version_description">Al usar esta versión obsoleta de la aplicación, es posible que su privacidad esté en riesgo. Actualice ahora.</string>
+    <string name="upd_over_tcp">UDP sobre TCP</string>
     <string name="update_dns_server_dialog_title">Actualizar servidor DNS</string>
     <string name="update_list_name">Actualizar nombre de la lista</string>
     <string name="use_method">Utilizar método</string>

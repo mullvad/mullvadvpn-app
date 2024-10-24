@@ -21,7 +21,6 @@
     <string name="all_applications">所有应用程序</string>
     <string name="all_locations">所有位置</string>
     <string name="all_providers">所有提供商</string>
-    <string name="allow_lan_footer">允许访问同一网络上的其他设备，以进行共享、打印等</string>
     <string name="always_on_vpn_error_notification_content">无法启动隧道连接。在使用 Mullvad VPN 之前，请为 &lt;b&gt;%1$s&lt;/b&gt; 禁用“始终开启 VPN”。</string>
     <string name="always_on_vpn_error_notification_title">“始终开启 VPN”已分配给其他应用</string>
     <string name="any">任何</string>
@@ -42,13 +41,8 @@
     <string name="auto_connect_and_lockdown_mode">自动连接和锁定模式</string>
     <string name="auto_connect_and_lockdown_mode_footer">确保设备始终位于 VPN 隧道上。</string>
     <string name="auto_connect_carousel_first_slide_top_text">自动连接和锁定模式设置可以在 Android 系统设置中找到，请按照本指南启用其中一项或两项。</string>
-    <string name="auto_connect_carousel_second_slide_bottom_text">2. 要启用自动连接，请点击&lt;b&gt;始终开启 VPN&lt;/b&gt; 旁的开关。</string>
     <string name="auto_connect_carousel_second_slide_top_text">自动连接在 Android 系统设置中称为“始终开启 VPN”，此功能可确保您始终连接到 VPN 隧道并在重新启动后自动连接。</string>
-    <string name="auto_connect_carousel_third_slide_bottom_text">3. 要启用锁定模式，请点击&lt;b&gt;屏蔽未使用 VPN 的所有连接&lt;/b&gt;旁的开关。&lt;br /&gt;&lt;br /&gt;&lt;b&gt;警告：此设置会屏蔽分割应用和“本地网络共享”功能。&lt;/b&gt;</string>
-    <string name="auto_connect_carousel_third_slide_top_text">在 Android 系统设置中，锁定模式被称为&lt;b&gt;屏蔽未使用 VPN 的所有连接&lt;/b&gt;。该模式可以最大限度地减少泄露，但是也有一些已知的限制，您可以详细了解相关信息</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">（点击此处）</string>
-    <string name="auto_connect_footer_legacy">请按照上述&lt;b&gt;%1$s&lt;/b&gt;中的指南操作，改用&lt;b&gt;始终开启&lt;/b&gt;系统设置。</string>
-    <string name="auto_connect_footer_legacy_tv">当应用启动时自动连接。在今后的更新中，此设置将被替换为新的“设备启动时连接”功能。</string>
     <string name="auto_connect_legacy">自动连接（旧）</string>
     <string name="automatic">自动</string>
     <string name="back">返回</string>
@@ -71,6 +65,8 @@
     <string name="confirm_removal">是，退出设备</string>
     <string name="congrats">恭喜！</string>
     <string name="connect">连接</string>
+    <string name="connect_panel_active_features">有效功能</string>
+    <string name="connect_panel_connection_details">连接详细信息</string>
     <string name="connected">已连接</string>
     <string name="connecting_to_daemon">正在连接到 Mullvad 系统服务…</string>
     <string name="connection_details_in">内部</string>
@@ -86,7 +82,6 @@
     <string name="creating_new_account">正在创建帐户…</string>
     <string name="critical_error">严重错误（需要注意）</string>
     <string name="current_method">当前：%1$s</string>
-    <string name="custom_dns_disable_mode_subtitle">禁用以上所有 &lt;b&gt;%1$s&lt;/b&gt;，以激活此设置。</string>
     <string name="custom_dns_footer">启用以添加至少一个 DNS 服务器。</string>
     <string name="custom_dns_hint">输入 IP</string>
     <string name="custom_list_error_list_exists">名称已被占用。</string>
@@ -146,9 +141,11 @@
     <string name="failed_to_set_current_test_error">无法设置为当前方法 – 无法通过 API 访问</string>
     <string name="failed_to_set_current_unknown_error">无法设置为当前方法 – 未知原因</string>
     <string name="faqs_and_guides">常见问题解答与指南</string>
+    <string name="feature_custom_dns">自定义 DNS</string>
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_dns_content_blockers">DNS 内容阻止程序</string>
     <string name="feature_lan_sharing">本地网络共享</string>
+    <string name="feature_quantum_resistant">量子阻力</string>
     <string name="feature_server_ip_override">服务器 IP 覆盖</string>
     <string name="feature_udp_2_tcp">混淆</string>
     <string name="filter">筛选</string>
@@ -237,6 +234,7 @@
     <string name="please_enter_a_valid_ip_address">请输入有效的 IPv4 或 IPv6 地址</string>
     <string name="please_enter_a_valid_remote_server_port">请输入有效的远程服务器端口</string>
     <string name="port">端口</string>
+    <string name="port_x">端口：%1$s</string>
     <string name="privacy_disclaimer_body_first_paragraph">为确保您使用的是最安全的版本并通知您当前运行的版本存在的任何问题，应用会自动执行版本检查。此操作会将应用版本和 Android 系统版本发送到 Mullvad 服务器。Mullvad 会统计使用的应用版本和 Android 版本。数据永远不会通过任何可以识别您身份的方式存储或使用。</string>
     <string name="privacy_disclaimer_body_second_paragraph">如果使用分割隧道功能，应用会向您的系统查询所有已安装应用程序的列表。此列表仅在分割隧道视图中检索。有关已安装应用程序的信息永远不会离开设备。</string>
     <string name="privacy_disclaimer_title">隐私</string>
@@ -316,11 +314,9 @@
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">UDP-over-TCP 混淆协议应连接到 VPN 服务器上的哪个 TCP 端口。</string>
     <string name="undo">撤消</string>
-    <string name="unsecured">未受保护</string>
-    <string name="unsecured_connection">未受保护的连接</string>
-    <string name="unsecured_vpn_permission_error">未受保护（无 VPN 权限）</string>
     <string name="unsupported_version">不受支持的版本</string>
     <string name="unsupported_version_description">此应用版本不受支持，因此您的隐私可能存在风险。请立即更新。</string>
+    <string name="upd_over_tcp">UDP-over-TCP</string>
     <string name="update_dns_server_dialog_title">更新 DNS 服务器</string>
     <string name="update_list_name">更新列表名称</string>
     <string name="use_method">使用方法</string>

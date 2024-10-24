@@ -64,9 +64,10 @@
     <string name="confirm_no_email">연락처 없이 문제 보고서를 보내려고 합니다. 보고서에 대한 답변을 원하면 이메일 주소를 입력해야 합니다.</string>
     <string name="confirm_removal">예, 장치에서 로그아웃</string>
     <string name="congrats">축하합니다!</string>
-    <string name="connect">내 연결 보안 유지</string>
-    <string name="connected_using_daita">%1$s, %2$s 사용 중</string>
-    <string name="connecting">연결 중</string>
+    <string name="connect">연결</string>
+    <string name="connect_panel_active_features">활성 기능</string>
+    <string name="connect_panel_connection_details">연결 세부 정보</string>
+    <string name="connected">연결됨</string>
     <string name="connecting_to_daemon">Mullvad 시스템 서비스에 연결하는 중...</string>
     <string name="connection_details_in">인</string>
     <string name="continue_login">로그인 계속하기</string>
@@ -140,9 +141,11 @@
     <string name="failed_to_set_current_test_error">현재로 설정하지 못함 - API 연결 불가</string>
     <string name="failed_to_set_current_unknown_error">현재로 설정하지 못함 - 알 수 없는 이유</string>
     <string name="faqs_and_guides">FAQ 및 가이드</string>
+    <string name="feature_custom_dns">사용자 지정 DNS</string>
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_dns_content_blockers">DNS 콘텐츠 차단기</string>
     <string name="feature_lan_sharing">로컬 네트워크 공유</string>
+    <string name="feature_quantum_resistant">양자 저항</string>
     <string name="feature_server_ip_override">서버 IP 재정의</string>
     <string name="feature_udp_2_tcp">난독 처리</string>
     <string name="filter">필터</string>
@@ -231,6 +234,7 @@
     <string name="please_enter_a_valid_ip_address">유효한 IPv4 또는 IPv6 주소를 입력하세요</string>
     <string name="please_enter_a_valid_remote_server_port">유효한 원격 서버 포트를 입력하세요</string>
     <string name="port">포트</string>
+    <string name="port_x">포트: %1$s</string>
     <string name="privacy_disclaimer_body_first_paragraph">가장 안전한 버전인지 확인하고 현재 실행 중인 버전에 문제가 있으면 알려드리기 위해 앱에서 자동으로 버전 확인을 수행합니다. 그러면 앱 버전과 Android 시스템 버전이 Mullvad 서버로 전송됩니다. Mullvad는 사용된 앱 버전 및 Android 버전 수에 대한 카운터를 유지합니다. 이 데이터는 귀하를 식별할 수 있는 어떤 방식으로도 저장되거나 사용되지 않습니다.</string>
     <string name="privacy_disclaimer_body_second_paragraph">분할 터널링 기능을 사용하는 경우, 이 앱은 설치된 모든 애플리케이션 목록을 시스템에 쿼리합니다. 이 목록은 분할 터널링 보기에서만 검색됩니다. 설치된 애플리케이션 목록은 장치에서 전송되지 않습니다.</string>
     <string name="privacy_disclaimer_title">개인 정보 보호</string>
@@ -251,8 +255,6 @@
     <string name="reset_to_default_button">기본값으로 재설정</string>
     <string name="save">저장</string>
     <string name="search_placeholder">검색...</string>
-    <string name="secure_connection">보안 연결</string>
-    <string name="secured">보안</string>
     <string name="select_location">위치 선택</string>
     <string name="select_location_empty_text_first_row">&lt;b&gt;%1$s&lt;/b&gt;에 대한 결과가 없습니다.</string>
     <string name="select_location_empty_text_second_row">다른 검색어를 시도하세요.</string>
@@ -312,11 +314,9 @@
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">UDP-over-TCP 난독 처리 프로토콜이 VPN 서버에서 연결해야 하는 TCP 포트입니다.</string>
     <string name="undo">실행 취소</string>
-    <string name="unsecured">비보안</string>
-    <string name="unsecured_connection">비보안 연결</string>
-    <string name="unsecured_vpn_permission_error">비보안(VPN 권한 없음)</string>
     <string name="unsupported_version">지원되지 않는 버전</string>
     <string name="unsupported_version_description">지원되지 않는 이 앱 버전으로 인해 개인 정보가 위험할 수 있습니다. 지금 업데이트하세요.</string>
+    <string name="upd_over_tcp">UDP-over-TCP</string>
     <string name="update_dns_server_dialog_title">DNS 서버 업데이트</string>
     <string name="update_list_name">목록 이름 업데이트</string>
     <string name="use_method">방법 사용</string>
