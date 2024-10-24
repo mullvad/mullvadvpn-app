@@ -112,7 +112,12 @@ impl fmt::Display for ResolvedDnsConfig {
         Self::fmt_addr_set(f, &self.tunnel_config)?;
 
         f.write_str(" Non-tunnel DNS: ")?;
-        Self::fmt_addr_set(f, &self.non_tunnel_config)
+        Self::fmt_addr_set(f, &self.non_tunnel_config)?;
+
+        #[cfg(target_os = "macos")]
+        write!(f, " Port: {}", self.port)?;
+
+        Ok(())
     }
 }
 

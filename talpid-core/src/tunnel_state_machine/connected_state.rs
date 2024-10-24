@@ -175,8 +175,22 @@ impl ConnectedState {
                     .filtering_resolver
                     .enable_forward(dns_config.addresses().collect()),
             );
+            shared_values
+                .dns_monitor
+                .set(
+                    "lo",
+                    crate::dns::DnsConfig::default().resolve(
+                        &[std::net::Ipv4Addr::LOCALHOST.into()],
+                        shared_values.filtering_resolver.listening_port(),
+                    ),
+                )
+                .map_err(BoxedError::new)?;
         } else {
             log::debug!("Not enabling DNS forwarding since loopback is used");
+            shared_values
+                .dns_monitor
+                .set(&self.metadata.interface, dns_config)
+                .map_err(BoxedError::new)?;
         }
 
         Ok(())
