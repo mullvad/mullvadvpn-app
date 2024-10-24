@@ -1,8 +1,12 @@
 package net.mullvad.mullvadvpn.test.common.page
 
 import androidx.test.uiautomator.By
-import androidx.test.uiautomator.UiDevice
+import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
 
-class ConnectPage(device: UiDevice) : Page(device, pageSelector = By.res("connect_card_header_test_tag")) {
-    // No connect page functions needed for this POC
+class ConnectPage internal constructor() : Page() {
+    override fun assertIsDisplayed() {
+        uiDevice.findObjectWithTimeout(By.res("connect_card_header_test_tag"))
+    }
+
+    fun clickConnect() {}
 }

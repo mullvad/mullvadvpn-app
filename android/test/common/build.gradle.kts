@@ -57,4 +57,5 @@ dependencies {
     implementation(libs.kotlin.stdlib)
 
     androidTestUtil(libs.androidx.test.orchestrator)
+    implementation(kotlin("reflect"))
 }

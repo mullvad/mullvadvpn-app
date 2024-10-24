@@ -1,10 +1,9 @@
 package net.mullvad.mullvadvpn.test.e2e
 
-import net.mullvad.mullvadvpn.test.common.extension.clickAgreeOnPrivacyDisclaimer
-import net.mullvad.mullvadvpn.test.common.extension.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove
-import net.mullvad.mullvadvpn.test.common.extension.dismissChangelogDialogIfShown
 import net.mullvad.mullvadvpn.test.common.page.ConnectPage
 import net.mullvad.mullvadvpn.test.common.page.LoginPage
+import net.mullvad.mullvadvpn.test.common.page.PrivacyPage
+import net.mullvad.mullvadvpn.test.common.page.on
 import net.mullvad.mullvadvpn.test.e2e.misc.AccountTestRule
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
@@ -19,15 +18,18 @@ class LoginTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
         val validTestAccountNumber = accountTestRule.validAccountNumber
 
         app.launch()
-        device.clickAgreeOnPrivacyDisclaimer()
-        device.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
 
-        LoginPage(device)
-            .enterAccountNumber(validTestAccountNumber)
-            .tapLoginButton()
+        on<PrivacyPage> {
+            clickAgreeOnPrivacyDisclaimer()
+            clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
+        }
 
-        device.dismissChangelogDialogIfShown()
-        ConnectPage(device)
+        on<LoginPage> {
+            enterAccountNumber(validTestAccountNumber)
+            tapLoginButton()
+        }
+
+        on<ConnectPage>()
     }
 
     @Test
@@ -36,12 +38,16 @@ class LoginTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
         val invalidDummyAccountNumber = accountTestRule.invalidAccountNumber
 
         app.launch()
-        device.clickAgreeOnPrivacyDisclaimer()
-        device.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
 
-        LoginPage(device)
-            .enterAccountNumber(invalidDummyAccountNumber)
-            .tapLoginButton()
-            .verifyShowingInvalidAccount()
+        on<PrivacyPage> {
+            clickAgreeOnPrivacyDisclaimer()
+            clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
+        }
+
+        on<LoginPage> {
+            enterAccountNumber(invalidDummyAccountNumber)
+            tapLoginButton()
+            verifyShowingInvalidAccount()
+        }
     }
 }
