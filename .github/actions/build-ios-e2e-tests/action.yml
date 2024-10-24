@@ -1,36 +1,51 @@
-name: 'Build iOS end to end tests action'
-description: 'Prepares and builds end to end tests on iOS device'
+---
+name: Build iOS end-to-end tests action
+description: Prepares and builds end-to-end tests on an iOS device
 inputs:
   ios_device_pin_code:
-    description: 'iOS Device Pin Code'
+    description: iOS Device Pin Code
     required: true
   test_device_identifier_uuid:
-    description: 'Test Device Identifier UUID'
+    description: Test Device Identifier UUID
     required: true
   has_time_account_number:
-    description: 'Has Time Account Number'
+    description: Has Time Account Number
     required: true
   no_time_account_number:
-    description: 'No Time Account Number'
+    description: No Time Account Number
     required: true
   test_device_udid:
-    description: 'Test Device UDID'
+    description: Test Device UDID
     required: true
   partner_api_token:
-    description: 'Partner API Token'
+    description: Partner API Token
     required: true
   test_name:
-    description: 'Test case/suite name. Will run all tests in the test plan if not provided.'
+    description: Test case/suite name. Will run all tests in the test plan if not provided.
     required: false
   outputs_path:
-    description: 'Path to store outputs. This should be unique for each job run in order to avoid concurrency issues.'
+    description: Path to store outputs. This should be unique for each job run in order to avoid concurrency issues.
     required: true
+  base_directory:
+    description: Base directory for the working paths. Defaults to the current directory (".").
+    required: false
+    default: .
 
 runs:
-  using: 'composite'
+  using: composite
   steps:
-    - name: Configure Xcode project
+    - name: Set working-directory or default
+      id: set-working-directory
       run: |
+        if [ -z "${{ inputs.base_directory }}" ]; then
+          echo "base_directory=." >> $GITHUB_ENV
+        else
+          echo "base_directory=${{ inputs.base_directory }}" >> $GITHUB_ENV
+        fi
+      shell: bash
+
+    - name: Configure Xcode project
+      run: >
         for file in *.xcconfig.template ; do cp $file ${file//.template/} ; done
           sed -i "" "/^HAS_TIME_ACCOUNT_NUMBER/d" UITests.xcconfig
           sed -i "" "/^NO_TIME_ACCOUNT_NUMBER/d" UITests.xcconfig
@@ -56,7 +71,7 @@ runs:
             "/UNINSTALL_APP_IN_TEST_SUITE_TEAR_DOWN =/ s#= .*#= 0#" \
             UITests.xcconfig
       shell: bash
-      working-directory: ios/Configurations
+      working-directory: ${{ env.base_directory }}/ios/Configurations
       env:
         IOS_DEVICE_PIN_CODE: ${{ inputs.ios_device_pin_code }}
         TEST_DEVICE_IDENTIFIER_UUID: ${{ inputs.test_device_identifier_uuid }}
@@ -79,7 +94,7 @@ runs:
           -derivedDataPath derived-data \
           clean build-for-testing 2>&1
       shell: bash
-      working-directory: ios/
+      working-directory: ${{ env.base_directory }}/ios
       env:
         TEST_DEVICE_UDID: ${{ inputs.test_device_udid }}
         TEST_NAME: ${{ inputs.test_name }}
