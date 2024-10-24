@@ -121,7 +121,6 @@ class SettingsMigrationTests: BaseUITestCase {
             .tapUDPOverTCPPort80Cell()
             .tapQuantumResistantTunnelExpandButton()
             .tapQuantumResistantTunnelOnCell()
-            .tapDaitaSwitch()
             .tapMultihopSwitch()
     }
 
@@ -154,7 +153,6 @@ class SettingsMigrationTests: BaseUITestCase {
             .verifyUDPOverTCPPort80Selected()
             .tapQuantumResistantTunnelExpandButton()
             .verifyQuantumResistantTunnelOnSelected()
-            .verifyDaitaSwitchOn()
             .verifyMultihopSwitchOn()
     }
 }
