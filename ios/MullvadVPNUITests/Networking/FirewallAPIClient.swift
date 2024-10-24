@@ -32,8 +32,10 @@ class FirewallAPIClient {
 
         let dataDictionary: [String: Any] = [
             "label": sessionIdentifier,
-            "from": firewallRule.fromIPAddress,
-            "to": firewallRule.toIPAddress,
+            "from": firewallRule.fromIPAddress, // Deprecated, replaced by "src"
+            "to": firewallRule.toIPAddress, // Deprectated, replaced by "dst"
+            "src": firewallRule.fromIPAddress,
+            "dst": firewallRule.toIPAddress,
             "protocols": firewallRule.protocolsAsStringArray(),
         ]
 
