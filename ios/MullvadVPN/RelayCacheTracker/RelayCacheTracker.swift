@@ -34,7 +34,7 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol {
     /// Relay cache.
     private let cache: RelayCacheProtocol
 
-    private let application: UIApplication
+    private let backgroundTaskProvider: BackgroundTaskProviding
 
     /// Lock used for synchronization.
     private let relayCacheLock = NSLock()
@@ -57,8 +57,8 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol {
     /// Memory cache.
     private var cachedRelays: CachedRelays?
 
-    init(relayCache: RelayCacheProtocol, application: UIApplication, apiProxy: APIQuerying) {
-        self.application = application
+    init(relayCache: RelayCacheProtocol, backgroundTaskProvider: BackgroundTaskProviding, apiProxy: APIQuerying) {
+        self.backgroundTaskProvider = backgroundTaskProvider
         self.apiProxy = apiProxy
         cache = relayCache
 
@@ -181,7 +181,7 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol {
 
         operation.addObserver(
             BackgroundObserver(
-                backgroundTaskProvider: application,
+                backgroundTaskProvider: backgroundTaskProvider,
                 name: "Update relays",
                 cancelUponExpiration: true
             )

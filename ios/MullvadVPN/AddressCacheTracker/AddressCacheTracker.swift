@@ -21,7 +21,7 @@ final class AddressCacheTracker {
 
     /// Logger.
     private let logger = Logger(label: "AddressCache.Tracker")
-    private let application: UIApplication
+    private let backgroundTaskProvider: BackgroundTaskProviding
 
     /// REST API proxy.
     private let apiProxy: APIQuerying
@@ -45,8 +45,8 @@ final class AddressCacheTracker {
     private let nslock = NSLock()
 
     /// Designated initializer
-    init(application: UIApplication, apiProxy: APIQuerying, store: REST.AddressCache) {
-        self.application = application
+    init(backgroundTaskProvider: BackgroundTaskProviding, apiProxy: APIQuerying, store: REST.AddressCache) {
+        self.backgroundTaskProvider = backgroundTaskProvider
         self.apiProxy = apiProxy
         self.store = store
     }
@@ -103,7 +103,7 @@ final class AddressCacheTracker {
 
         operation.addObserver(
             BackgroundObserver(
-                backgroundTaskProvider: application,
+                backgroundTaskProvider: backgroundTaskProvider,
                 name: "Update endpoints",
                 cancelUponExpiration: true
             )

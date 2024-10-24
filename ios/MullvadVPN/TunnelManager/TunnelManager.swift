@@ -42,7 +42,7 @@ final class TunnelManager: StorePaymentObserver {
 
     // MARK: - Internal variables
 
-    let application: BackgroundTaskProvider
+    let backgroundTaskProvider: BackgroundTaskProviding
     fileprivate let tunnelStore: any TunnelStoreProtocol
     private let relayCacheTracker: RelayCacheTrackerProtocol
     private let accountsProxy: RESTAccountHandling
@@ -81,7 +81,7 @@ final class TunnelManager: StorePaymentObserver {
     // MARK: - Initialization
 
     init(
-        application: BackgroundTaskProvider,
+        backgroundTaskProvider: BackgroundTaskProviding,
         tunnelStore: any TunnelStoreProtocol,
         relayCacheTracker: RelayCacheTrackerProtocol,
         accountsProxy: RESTAccountHandling,
@@ -90,7 +90,7 @@ final class TunnelManager: StorePaymentObserver {
         accessTokenManager: RESTAccessTokenManagement,
         relaySelector: RelaySelectorProtocol
     ) {
-        self.application = application
+        self.backgroundTaskProvider = backgroundTaskProvider
         self.tunnelStore = tunnelStore
         self.relayCacheTracker = relayCacheTracker
         self.accountsProxy = accountsProxy
@@ -103,9 +103,9 @@ final class TunnelManager: StorePaymentObserver {
 
         NotificationCenter.default.addObserver(
             self,
-            selector: #selector(applicationDidBecomeActive(_:)),
+            selector: #selector(applicationDidBecomeActive),
             name: UIApplication.didBecomeActiveNotification,
-            object: application
+            object: nil
         )
     }
 
@@ -204,7 +204,7 @@ final class TunnelManager: StorePaymentObserver {
 
         loadTunnelOperation.addObserver(
             BackgroundObserver(
-                backgroundTaskProvider: application,
+                backgroundTaskProvider: backgroundTaskProvider,
                 name: "Load tunnel configuration",
                 cancelUponExpiration: false
             )
@@ -244,7 +244,7 @@ final class TunnelManager: StorePaymentObserver {
         )
 
         operation.addObserver(BackgroundObserver(
-            backgroundTaskProvider: application,
+            backgroundTaskProvider: backgroundTaskProvider,
             name: "Start tunnel",
             cancelUponExpiration: true
         ))
@@ -279,7 +279,7 @@ final class TunnelManager: StorePaymentObserver {
         }
 
         operation.addObserver(BackgroundObserver(
-            backgroundTaskProvider: application,
+            backgroundTaskProvider: backgroundTaskProvider,
             name: "Stop tunnel",
             cancelUponExpiration: true
         ))
@@ -315,7 +315,7 @@ final class TunnelManager: StorePaymentObserver {
 
         operation.addObserver(
             BackgroundObserver(
-                backgroundTaskProvider: application,
+                backgroundTaskProvider: backgroundTaskProvider,
                 name: "Reconnect tunnel",
                 cancelUponExpiration: true
             )
@@ -355,7 +355,7 @@ final class TunnelManager: StorePaymentObserver {
         }
 
         operation.addObserver(BackgroundObserver(
-            backgroundTaskProvider: application,
+            backgroundTaskProvider: backgroundTaskProvider,
             name: action.taskName,
             cancelUponExpiration: true
         ))
@@ -408,7 +408,7 @@ final class TunnelManager: StorePaymentObserver {
 
         operation.addObserver(
             BackgroundObserver(
-                backgroundTaskProvider: application,
+                backgroundTaskProvider: backgroundTaskProvider,
                 name: "Update account data",
                 cancelUponExpiration: true
             )
@@ -437,7 +437,7 @@ final class TunnelManager: StorePaymentObserver {
 
         operation.addObserver(
             BackgroundObserver(
-                backgroundTaskProvider: application,
+                backgroundTaskProvider: backgroundTaskProvider,
                 name: "Redeem voucher",
                 cancelUponExpiration: true
             )
@@ -467,7 +467,7 @@ final class TunnelManager: StorePaymentObserver {
 
         operation.addObserver(
             BackgroundObserver(
-                backgroundTaskProvider: application,
+                backgroundTaskProvider: backgroundTaskProvider,
                 name: "Update device data",
                 cancelUponExpiration: true
             )
@@ -503,7 +503,7 @@ final class TunnelManager: StorePaymentObserver {
 
         operation.addObserver(
             BackgroundObserver(
-                backgroundTaskProvider: application,
+                backgroundTaskProvider: backgroundTaskProvider,
                 name: "Rotate private key",
                 cancelUponExpiration: true
             )
@@ -779,7 +779,7 @@ final class TunnelManager: StorePaymentObserver {
 
     // MARK: - Private methods
 
-    @objc private func applicationDidBecomeActive(_ notification: Notification) {
+    @objc private func applicationDidBecomeActive() {
         #if DEBUG
         logger.debug("Refresh device state and tunnel status due to application becoming active.")
         #endif
@@ -898,7 +898,7 @@ final class TunnelManager: StorePaymentObserver {
 
         operation.addCondition(MutuallyExclusive(category: OperationCategory.deviceStateUpdate.category))
         operation.addObserver(BackgroundObserver(
-            backgroundTaskProvider: application,
+            backgroundTaskProvider: backgroundTaskProvider,
             name: "Refresh device state",
             cancelUponExpiration: true
         ))
@@ -958,7 +958,7 @@ final class TunnelManager: StorePaymentObserver {
         }
 
         operation.addObserver(BackgroundObserver(
-            backgroundTaskProvider: application,
+            backgroundTaskProvider: backgroundTaskProvider,
             name: taskName,
             cancelUponExpiration: false
         ))
@@ -994,7 +994,7 @@ final class TunnelManager: StorePaymentObserver {
         }
 
         operation.addObserver(BackgroundObserver(
-            backgroundTaskProvider: application,
+            backgroundTaskProvider: backgroundTaskProvider,
             name: taskName,
             cancelUponExpiration: false
         ))
@@ -1204,8 +1204,8 @@ private struct TunnelInteractorProxy: TunnelInteractor {
         tunnelManager.tunnel
     }
 
-    var backgroundTaskProvider: any BackgroundTaskProvider {
-        tunnelManager.application
+    var backgroundTaskProvider: BackgroundTaskProviding {
+        tunnelManager.backgroundTaskProvider
     }
 
     func getPersistentTunnels() -> [any TunnelProtocol] {
