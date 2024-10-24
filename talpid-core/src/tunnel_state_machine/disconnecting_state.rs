@@ -55,6 +55,7 @@ impl DisconnectingState {
                     let _ = complete_tx.send(());
                     AfterDisconnect::Nothing
                 }
+                #[cfg(not(target_os = "android"))]
                 Some(TunnelCommand::BlockWhenDisconnected(
                     block_when_disconnected,
                     complete_tx,
@@ -109,6 +110,7 @@ impl DisconnectingState {
                     let _ = complete_tx.send(());
                     AfterDisconnect::Block(reason)
                 }
+                #[cfg(not(target_os = "android"))]
                 Some(TunnelCommand::BlockWhenDisconnected(
                     block_when_disconnected,
                     complete_tx,
@@ -167,6 +169,7 @@ impl DisconnectingState {
                     let _ = complete_tx.send(());
                     AfterDisconnect::Reconnect(retry_attempt)
                 }
+                #[cfg(not(target_os = "android"))]
                 Some(TunnelCommand::BlockWhenDisconnected(
                     block_when_disconnected,
                     complete_tx,

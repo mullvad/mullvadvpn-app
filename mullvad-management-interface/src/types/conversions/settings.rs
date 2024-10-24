@@ -34,7 +34,10 @@ impl From<&mullvad_types::settings::Settings> for proto::Settings {
             )),
             bridge_state: Some(proto::BridgeState::from(settings.bridge_state)),
             allow_lan: settings.allow_lan,
+            #[cfg(not(target_os = "android"))]
             block_when_disconnected: settings.block_when_disconnected,
+            #[cfg(target_os = "android")]
+            block_when_disconnected: false,
             auto_connect: settings.auto_connect,
             tunnel_options: Some(proto::TunnelOptions::from(&settings.tunnel_options)),
             show_beta_releases: settings.show_beta_releases,
@@ -175,6 +178,7 @@ impl TryFrom<proto::Settings> for mullvad_types::settings::Settings {
             )?,
             bridge_state,
             allow_lan: settings.allow_lan,
+            #[cfg(not(target_os = "android"))]
             block_when_disconnected: settings.block_when_disconnected,
             auto_connect: settings.auto_connect,
             tunnel_options: mullvad_types::settings::TunnelOptions::try_from(tunnel_options)?,

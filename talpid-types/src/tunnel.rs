@@ -9,10 +9,14 @@ use std::net::IpAddr;
 #[derive(Clone, Debug)]
 pub enum TunnelStateTransition {
     /// No connection is established and network is unsecured.
+    #[cfg(not(target_os = "android"))]
     Disconnected {
         /// Whether internet access is blocked due to lockdown mode
         locked_down: bool,
     },
+    #[cfg(target_os = "android")]
+    /// No connection is established and network is unsecured.
+    Disconnected,
     /// Network is secured but tunnel is still connecting.
     Connecting(TunnelEndpoint),
     /// Tunnel is connected.
