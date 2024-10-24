@@ -1,7 +1,5 @@
 package net.mullvad.mullvadvpn.compose.screen
 
-import android.content.Context
-import android.net.Uri
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -17,7 +15,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -38,12 +36,12 @@ import net.mullvad.mullvadvpn.compose.cell.NavigationComposeCell
 import net.mullvad.mullvadvpn.compose.cell.TwoRowCell
 import net.mullvad.mullvadvpn.compose.component.NavigateCloseIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
+import net.mullvad.mullvadvpn.compose.extensions.createUriHook
 import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
 import net.mullvad.mullvadvpn.compose.preview.SettingsUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.SettingsUiState
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.SettingsTransition
-import net.mullvad.mullvadvpn.lib.common.util.openLink
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.util.appendHideNavOnPlayBuild
@@ -89,8 +87,6 @@ fun SettingsScreen(
     onApiAccessClick: () -> Unit = {},
     onBackClick: () -> Unit = {},
 ) {
-    val context = LocalContext.current
-
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.settings),
         navigationIcon = { NavigateCloseIconButton(onBackClick) },
@@ -127,10 +123,10 @@ fun SettingsScreen(
             itemWithDivider { ReportProblem(onReportProblemCellClick) }
 
             if (!state.isPlayBuild) {
-                itemWithDivider { FaqAndGuides(context) }
+                itemWithDivider { FaqAndGuides() }
             }
 
-            itemWithDivider { PrivacyPolicy(context, state) }
+            itemWithDivider { PrivacyPolicy(state) }
         }
     }
 }
@@ -178,8 +174,11 @@ private fun ReportProblem(onReportProblemCellClick: () -> Unit) {
 }
 
 @Composable
-private fun FaqAndGuides(context: Context) {
+private fun FaqAndGuides() {
     val faqGuideLabel = stringResource(id = R.string.faqs_and_guides)
+    val openFaqAndGuides =
+        LocalUriHandler.current.createUriHook(stringResource(R.string.faqs_and_guides_url))
+
     NavigationComposeCell(
         title = faqGuideLabel,
         bodyView =
@@ -189,15 +188,19 @@ private fun FaqAndGuides(context: Context) {
                     tint = MaterialTheme.colorScheme.onPrimary,
                 )
             },
-        onClick = {
-            context.openLink(Uri.parse(context.resources.getString(R.string.faqs_and_guides_url)))
-        },
+        onClick = openFaqAndGuides,
     )
 }
 
 @Composable
-private fun PrivacyPolicy(context: Context, state: SettingsUiState) {
+private fun PrivacyPolicy(state: SettingsUiState) {
     val privacyPolicyLabel = stringResource(id = R.string.privacy_policy_label)
+
+    val openPrivacyPolicy =
+        LocalUriHandler.current.createUriHook(
+            stringResource(R.string.privacy_policy_url).appendHideNavOnPlayBuild(state.isPlayBuild)
+        )
+
     NavigationComposeCell(
         title = privacyPolicyLabel,
         bodyView =
@@ -207,14 +210,6 @@ private fun PrivacyPolicy(context: Context, state: SettingsUiState) {
                     tint = MaterialTheme.colorScheme.onPrimary,
                 )
             },
-        onClick = {
-            context.openLink(
-                Uri.parse(
-                    context.resources
-                        .getString(R.string.privacy_policy_url)
-                        .appendHideNavOnPlayBuild(state.isPlayBuild)
-                )
-            )
-        },
+        onClick = openPrivacyPolicy,
     )
 }
