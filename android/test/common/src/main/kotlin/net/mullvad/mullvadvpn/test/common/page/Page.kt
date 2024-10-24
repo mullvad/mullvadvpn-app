@@ -1,15 +1,16 @@
 package net.mullvad.mullvadvpn.test.common.page
 
-import androidx.test.uiautomator.BySelector
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
-import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
 
-abstract class Page(val device: UiDevice, val pageSelector: BySelector) {
-    init {
-        verifyPageShown()
-    }
+sealed class Page {
+    protected val uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
-    private fun verifyPageShown() {
-        device.findObjectWithTimeout(pageSelector)
-    }
+    abstract fun assertIsDisplayed()
+}
+
+inline fun <reified T : Page> on(scope: T.() -> Unit = {}) {
+    val page = T::class.constructors.first().call()
+    page.assertIsDisplayed()
+    return page.scope()
 }
