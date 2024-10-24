@@ -14,12 +14,12 @@ import UIKit
 @available(iOSApplicationExtension, unavailable)
 public final class BackgroundObserver: OperationObserver {
     public let name: String
-    public let backgroundTaskProvider: BackgroundTaskProvider
+    public let backgroundTaskProvider: BackgroundTaskProviding
     public let cancelUponExpiration: Bool
 
     private var taskIdentifier: UIBackgroundTaskIdentifier?
 
-    public init(backgroundTaskProvider: BackgroundTaskProvider, name: String, cancelUponExpiration: Bool) {
+    public init(backgroundTaskProvider: BackgroundTaskProviding, name: String, cancelUponExpiration: Bool) {
         self.backgroundTaskProvider = backgroundTaskProvider
         self.name = name
         self.cancelUponExpiration = cancelUponExpiration

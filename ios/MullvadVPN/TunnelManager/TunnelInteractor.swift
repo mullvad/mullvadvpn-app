@@ -16,7 +16,7 @@ protocol TunnelInteractor {
     // MARK: - Tunnel manipulation
 
     var tunnel: (any TunnelProtocol)? { get }
-    var backgroundTaskProvider: any BackgroundTaskProvider { get }
+    var backgroundTaskProvider: BackgroundTaskProviding { get }
 
     func getPersistentTunnels() -> [any TunnelProtocol]
     func createNewTunnel() -> any TunnelProtocol

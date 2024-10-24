@@ -83,20 +83,32 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         let tunnelSettingsListener = TunnelSettingsListener()
         let tunnelSettingsUpdater = SettingsUpdater(listener: tunnelSettingsListener)
 
+        let backgroundTaskProvider = BackgroundTaskProvider(
+            backgroundTimeRemaining: application.backgroundTimeRemaining,
+            application: application
+        )
+
         relayCacheTracker = RelayCacheTracker(
             relayCache: ipOverrideWrapper,
-            application: application,
+            backgroundTaskProvider: backgroundTaskProvider,
             apiProxy: apiProxy
         )
 
-        addressCacheTracker = AddressCacheTracker(application: application, apiProxy: apiProxy, store: addressCache)
+        addressCacheTracker = AddressCacheTracker(
+            backgroundTaskProvider: backgroundTaskProvider,
+            apiProxy: apiProxy,
+            store: addressCache
+        )
 
-        tunnelStore = TunnelStore(application: application)
+        tunnelStore = TunnelStore(application: backgroundTaskProvider)
 
         let relaySelector = RelaySelectorWrapper(
             relayCache: ipOverrideWrapper
         )
-        tunnelManager = createTunnelManager(application: application, relaySelector: relaySelector)
+        tunnelManager = createTunnelManager(
+            backgroundTaskProvider: backgroundTaskProvider,
+            relaySelector: relaySelector
+        )
 
         settingsObserver = TunnelBlockObserver(didUpdateTunnelSettings: { _, settings in
             tunnelSettingsListener.onNewSettings?(settings)
@@ -104,7 +116,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         tunnelManager.addObserver(settingsObserver)
 
         storePaymentManager = StorePaymentManager(
-            backgroundTaskProvider: application,
+            backgroundTaskProvider: backgroundTaskProvider,
             queue: .default(),
             apiProxy: apiProxy,
             accountsProxy: accountsProxy,
@@ -155,11 +167,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     }
 
     private func createTunnelManager(
-        application: UIApplication,
+        backgroundTaskProvider: BackgroundTaskProviding,
         relaySelector: RelaySelectorProtocol
     ) -> TunnelManager {
         return TunnelManager(
-            application: application,
+            backgroundTaskProvider: backgroundTaskProvider,
             tunnelStore: tunnelStore,
             relayCacheTracker: relayCacheTracker,
             accountsProxy: accountsProxy,

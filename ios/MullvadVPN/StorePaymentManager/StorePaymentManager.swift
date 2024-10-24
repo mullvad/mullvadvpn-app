@@ -30,7 +30,7 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver {
         return queue
     }()
 
-    private let backgroundTaskProvider: BackgroundTaskProvider
+    private let backgroundTaskProvider: BackgroundTaskProviding
     private let paymentQueue: SKPaymentQueue
     private let apiProxy: APIQuerying
     private let accountsProxy: RESTAccountHandling
@@ -57,7 +57,7 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver {
     ///   - accountsProxy: the object implementing `RESTAccountHandling`.
     ///   - transactionLog: an instance of transaction log. Typically ``StoreTransactionLog/default``.
     init(
-        backgroundTaskProvider: BackgroundTaskProvider,
+        backgroundTaskProvider: BackgroundTaskProviding,
         queue: SKPaymentQueue,
         apiProxy: APIQuerying,
         accountsProxy: RESTAccountHandling,

@@ -11,10 +11,9 @@
 import Foundation
 import UIKit
 
-public protocol BackgroundTaskProvider {
+@available(iOSApplicationExtension, unavailable)
+public protocol BackgroundTaskProviding {
     var backgroundTimeRemaining: TimeInterval { get }
-    func endBackgroundTask(_ identifier: UIBackgroundTaskIdentifier)
-
     #if compiler(>=6)
     nonisolated
     func beginBackgroundTask(
@@ -27,8 +26,39 @@ public protocol BackgroundTaskProvider {
         expirationHandler handler: (() -> Void)?
     ) -> UIBackgroundTaskIdentifier
     #endif
+
+    func endBackgroundTask(_ identifier: UIBackgroundTaskIdentifier)
 }
 
-extension UIApplication: BackgroundTaskProvider {}
+@available(iOSApplicationExtension, unavailable)
+public class BackgroundTaskProvider: BackgroundTaskProviding {
+    public var backgroundTimeRemaining: TimeInterval
+    weak var application: UIApplication!
 
+    public init(backgroundTimeRemaining: TimeInterval, application: UIApplication) {
+        self.backgroundTimeRemaining = backgroundTimeRemaining
+        self.application = application
+    }
+
+    #if compiler(>=6)
+    nonisolated
+    public func beginBackgroundTask(
+        withName taskName: String?,
+        expirationHandler handler: (@MainActor @Sendable () -> Void)?
+    ) -> UIBackgroundTaskIdentifier {
+        application.beginBackgroundTask(withName: taskName, expirationHandler: handler)
+    }
+    #else
+    public func beginBackgroundTask(
+        withName taskName: String?,
+        expirationHandler handler: (() -> Void)?
+    ) -> UIBackgroundTaskIdentifier {
+        application.beginBackgroundTask(withName: taskName, expirationHandler: handler)
+    }
+    #endif
+
+    public func endBackgroundTask(_ identifier: UIBackgroundTaskIdentifier) {
+        application.endBackgroundTask(identifier)
+    }
+}
 #endif

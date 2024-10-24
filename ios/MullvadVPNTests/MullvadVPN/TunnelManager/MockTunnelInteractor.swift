@@ -23,7 +23,7 @@ class MockTunnelInteractor: TunnelInteractor {
 
     var tunnel: (any TunnelProtocol)?
 
-    var backgroundTaskProvider: any BackgroundTaskProvider {
+    var backgroundTaskProvider: BackgroundTaskProviding {
         UIApplicationStub()
     }
 

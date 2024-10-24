@@ -19,9 +19,9 @@ class MockTunnel: TunnelProtocol {
 
     var startDate: Date?
 
-    var backgroundTaskProvider: any BackgroundTaskProvider
+    var backgroundTaskProvider: BackgroundTaskProviding
 
-    required init(tunnelProvider: TunnelManagerProtocol, backgroundTaskProvider: BackgroundTaskProvider) {
+    required init(tunnelProvider: TunnelManagerProtocol, backgroundTaskProvider: BackgroundTaskProviding) {
         status = .disconnected
         isOnDemandEnabled = false
         startDate = nil

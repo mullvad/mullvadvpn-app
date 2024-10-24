@@ -9,7 +9,7 @@
 import Foundation
 
 /// Base class for operations producing result.
-open class ResultOperation<Success>: AsyncOperation, OutputOperation {
+open class ResultOperation<Success>: AsyncOperation, OutputOperation, @unchecked Sendable {
     public typealias CompletionHandler = (Result<Success, Error>) -> Void
 
     private let nslock = NSLock()
