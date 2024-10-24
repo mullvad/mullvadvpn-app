@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -14,6 +15,7 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.lib.model.AccountData
@@ -37,16 +39,20 @@ class AccountViewModel(
     private val _uiSideEffect = Channel<UiSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
+    private val _loadingState = MutableStateFlow(LoadingState())
+
     val uiState: StateFlow<AccountUiState> =
         combine(
                 deviceRepository.deviceState.filterIsInstance<DeviceState.LoggedIn>(),
                 accountData(),
                 paymentUseCase.paymentAvailability,
-            ) { deviceState, accountData, paymentAvailability ->
+                _loadingState,
+            ) { deviceState, accountData, paymentAvailability, showManageAccountLoading ->
                 AccountUiState(
                     deviceName = deviceState.device.displayName(),
                     accountNumber = deviceState.accountNumber,
                     accountExpiry = accountData?.expiryDate,
+                    loading = showManageAccountLoading,
                     showSitePayment = !isPlayBuild,
                     billingPaymentState = paymentAvailability?.toPaymentState(),
                 )
@@ -67,16 +73,24 @@ class AccountViewModel(
             .distinctUntilChanged()
 
     fun onManageAccountClick() {
+        if (_loadingState.value.showManageAccountLoading) return
+        updateManageAccountLoading(true)
+
         viewModelScope.launch {
             val wwwAuthToken = accountRepository.getWebsiteAuthToken()
             _uiSideEffect.send(UiSideEffect.OpenAccountManagementPageInBrowser(wwwAuthToken))
+            updateManageAccountLoading(false)
         }
     }
 
     fun onLogoutClick() {
+        if (_loadingState.value.showLogoutLoading) return
+        updateLogoutLoading(true)
+
         viewModelScope.launch {
             accountRepository
                 .logout()
+                .also { updateLogoutLoading(false) }
                 .fold(
                     { _uiSideEffect.send(UiSideEffect.GenericError) },
                     { _uiSideEffect.send(UiSideEffect.NavigateToLogin) },
@@ -124,6 +138,14 @@ class AccountViewModel(
         viewModelScope.launch { accountRepository.getAccountData() }
     }
 
+    private fun updateManageAccountLoading(loading: Boolean) {
+        _loadingState.update { it.copy(showManageAccountLoading = loading) }
+    }
+
+    private fun updateLogoutLoading(loading: Boolean) {
+        _loadingState.update { it.copy(showLogoutLoading = loading) }
+    }
+
     sealed class UiSideEffect {
         data object NavigateToLogin : UiSideEffect()
 
@@ -140,6 +162,7 @@ data class AccountUiState(
     val deviceName: String?,
     val accountNumber: AccountNumber?,
     val accountExpiry: DateTime?,
+    val loading: LoadingState,
     val showSitePayment: Boolean,
     val billingPaymentState: PaymentState? = null,
 ) {
@@ -149,8 +172,14 @@ data class AccountUiState(
                 deviceName = null,
                 accountNumber = null,
                 accountExpiry = null,
+                loading = LoadingState(),
                 showSitePayment = false,
                 billingPaymentState = PaymentState.Loading,
             )
     }
 }
+
+data class LoadingState(
+    val showManageAccountLoading: Boolean = false,
+    val showLogoutLoading: Boolean = false,
+)

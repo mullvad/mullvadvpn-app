@@ -8,6 +8,7 @@ import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.payment.model.ProductPrice
 import net.mullvad.mullvadvpn.viewmodel.AccountUiState
+import net.mullvad.mullvadvpn.viewmodel.LoadingState
 import org.joda.time.DateTime
 
 class AccountUiStatePreviewParameterProvider : PreviewParameterProvider<AccountUiState> {
@@ -33,6 +34,7 @@ class AccountUiStatePreviewParameterProvider : PreviewParameterProvider<AccountU
                             ),
                         )
                     ),
+                loading = LoadingState(),
             )
         ) + generateOtherStates()
 }
@@ -51,5 +53,6 @@ private fun generateOtherStates(): Sequence<AccountUiState> =
                 accountExpiry = null,
                 showSitePayment = false,
                 billingPaymentState = state,
+                loading = LoadingState(),
             )
         }

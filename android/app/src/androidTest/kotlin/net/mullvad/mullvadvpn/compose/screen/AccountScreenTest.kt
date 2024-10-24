@@ -19,6 +19,7 @@ import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.payment.model.ProductPrice
 import net.mullvad.mullvadvpn.viewmodel.AccountUiState
+import net.mullvad.mullvadvpn.viewmodel.LoadingState
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
@@ -45,6 +46,7 @@ class AccountScreenTest {
                             accountNumber = DUMMY_ACCOUNT_NUMBER,
                             accountExpiry = null,
                             showSitePayment = false,
+                            loading = LoadingState(),
                         )
                 )
             }
@@ -63,10 +65,11 @@ class AccountScreenTest {
                 AccountScreen(
                     state =
                         AccountUiState(
-                            showSitePayment = true,
                             deviceName = DUMMY_DEVICE_NAME,
                             accountNumber = DUMMY_ACCOUNT_NUMBER,
                             accountExpiry = null,
+                            showSitePayment = true,
+                            loading = LoadingState(),
                         ),
                     onManageAccountClick = mockedClickHandler,
                 )
@@ -92,6 +95,7 @@ class AccountScreenTest {
                             accountNumber = DUMMY_ACCOUNT_NUMBER,
                             accountExpiry = null,
                             showSitePayment = false,
+                            loading = LoadingState(),
                         ),
                     onRedeemVoucherClick = mockedClickHandler,
                 )
@@ -117,6 +121,7 @@ class AccountScreenTest {
                             accountNumber = DUMMY_ACCOUNT_NUMBER,
                             accountExpiry = null,
                             showSitePayment = false,
+                            loading = LoadingState(),
                         ),
                     onLogoutClick = mockedClickHandler,
                 )
