@@ -42,6 +42,8 @@ class DisconnectSplitButton: UIView {
             secondaryButton.heightAnchor.constraint(equalToConstant: secondaryButtonSize.height)
         }
 
+        primaryButton.configuration?.contentInsets.leading += secondaryButtonSize.width
+
         // Ideally, we shouldn't need to manually resize the image ourselves.
         // However, since UIButton.Configuration doesn't provide a direct property
         // for controlling image scaling (like imageScaling or contentMode in other contexts),
