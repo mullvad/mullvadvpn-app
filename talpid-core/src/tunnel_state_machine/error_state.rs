@@ -37,7 +37,10 @@ impl ErrorState {
         if !block_reason.prevents_filtering_resolver() {
             if let Err(err) = shared_values.dns_monitor.set(
                 "lo",
-                DnsConfig::default().resolve(&[Ipv4Addr::LOCALHOST.into()]),
+                DnsConfig::default().resolve(
+                    &[Ipv4Addr::LOCALHOST.into()],
+                    shared_values.filtering_resolver.listening_port(),
+                ),
             ) {
                 log::error!(
                     "{}",

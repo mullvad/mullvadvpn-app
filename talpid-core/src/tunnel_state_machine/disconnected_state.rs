@@ -137,7 +137,10 @@ impl DisconnectedState {
 
         shared_values.dns_monitor.set(
             "lo",
-            dns::DnsConfig::default().resolve(&[Ipv4Addr::LOCALHOST.into()]),
+            dns::DnsConfig::default().resolve(
+                &[Ipv4Addr::LOCALHOST.into()],
+                shared_values.filtering_resolver.listening_port(),
+            ),
         )
     }
 }
