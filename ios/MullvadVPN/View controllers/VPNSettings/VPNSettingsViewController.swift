@@ -111,6 +111,11 @@ extension VPNSettingsViewController: VPNSettingsDataSourceDelegate {
         alertPresenter.showAlert(presentation: presentation, animated: true)
     }
 
+    func showDetails(for: VPNSettingsDetailsButtonItem) {
+        // TODO: When ready, add navigation to detail views for selecting obfuscation options for
+        // UDP-over-TCP and shadowsocks.
+    }
+
     func showDNSSettings() {
         let viewController = CustomDNSViewController(interactor: interactor, alertPresenter: alertPresenter)
         navigationController?.pushViewController(viewController, animated: true)
