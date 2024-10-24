@@ -33,6 +33,7 @@ class AccountUiStatePreviewParameterProvider : PreviewParameterProvider<AccountU
                             ),
                         )
                     ),
+                showManageAccountLoading = false,
             )
         ) + generateOtherStates()
 }
@@ -51,5 +52,6 @@ private fun generateOtherStates(): Sequence<AccountUiState> =
                 accountExpiry = null,
                 showSitePayment = false,
                 billingPaymentState = state,
+                showManageAccountLoading = false,
             )
         }
