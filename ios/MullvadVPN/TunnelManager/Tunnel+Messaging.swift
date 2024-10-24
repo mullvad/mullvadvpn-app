@@ -32,6 +32,7 @@ extension TunnelProtocol {
             backgroundTaskProvider: backgroundTaskProvider,
             tunnel: self,
             message: .reconnectTunnel(nextRelays),
+            decoderHandler: { _ in () },
             completionHandler: completionHandler
         )
 
@@ -44,16 +45,24 @@ extension TunnelProtocol {
     func getTunnelStatus(
         completionHandler: @escaping (Result<ObservedState, Error>) -> Void
     ) -> Cancellable {
+        let decoderHandler: (Data?) throws -> ObservedState = { data in
+            if let data {
+                return try TunnelProviderReply<ObservedState>(messageData: data).value
+            } else {
+                throw EmptyTunnelProviderResponseError()
+            }
+        }
+
         let operation = SendTunnelProviderMessageOperation(
             dispatchQueue: dispatchQueue,
             backgroundTaskProvider: backgroundTaskProvider,
             tunnel: self,
             message: .getTunnelStatus,
+            decoderHandler: decoderHandler,
             completionHandler: completionHandler
         )
 
         operationQueue.addOperation(operation)
-
         return operation
     }
 
@@ -62,12 +71,21 @@ extension TunnelProtocol {
         _ proxyRequest: ProxyURLRequest,
         completionHandler: @escaping (Result<ProxyURLResponse, Error>) -> Void
     ) -> Cancellable {
+        let decoderHandler: (Data?) throws -> ProxyURLResponse = { data in
+            if let data {
+                return try TunnelProviderReply<ProxyURLResponse>(messageData: data).value
+            } else {
+                throw EmptyTunnelProviderResponseError()
+            }
+        }
+
         let operation = SendTunnelProviderMessageOperation(
             dispatchQueue: dispatchQueue,
             backgroundTaskProvider: backgroundTaskProvider,
             tunnel: self,
             message: .sendURLRequest(proxyRequest),
             timeout: proxyRequestTimeout,
+            decoderHandler: decoderHandler,
             completionHandler: completionHandler
         )
 
@@ -79,6 +97,7 @@ extension TunnelProtocol {
                 backgroundTaskProvider: backgroundTaskProvider,
                 tunnel: self,
                 message: .cancelURLRequest(proxyRequest.id),
+                decoderHandler: decoderHandler,
                 completionHandler: nil
             )
 
@@ -99,6 +118,7 @@ extension TunnelProtocol {
             backgroundTaskProvider: backgroundTaskProvider,
             tunnel: self,
             message: .privateKeyRotation,
+            decoderHandler: { _ in () },
             completionHandler: completionHandler
         )
 
